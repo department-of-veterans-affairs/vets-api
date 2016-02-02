@@ -1,5 +1,7 @@
 # Roadrunner Rails
 
+Roadrunner Rails is a template for new Rails projects for the VA. It's pre-customized to work within the VA ecosystem.
+
 ```                               
       qWWWgaap                    
 ]W#########WW##Z##LaQbp           
@@ -26,3 +28,10 @@ aAm?                     )!"!'.         !pXP           !XXZXXQ
 r'                                                      )4XXWW
 .
 ```
+
+## Gems
+Roadrunner Rails adds some additional gems for making Rails development better.
+
+### Linting
+- [Rubocop](https://github.com/bbatsov/rubocop) for Ruby style linting.
+- [scss-lint](https://github.com/brigade/scss-lint) configured with [18F's CSS coding styleguide](https://pages.18f.gov/frontend/css-coding-styleguide/).
