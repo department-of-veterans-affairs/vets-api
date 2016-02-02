@@ -1,0 +1,15 @@
+language: ruby
+
+branches:
+    only:
+        - master
+
+script:
+  - bundle exec rake
+
+bundler_args: "--without development"
+cache:
+  - bundler
+
+notifications:
+  email: false
