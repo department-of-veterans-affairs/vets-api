@@ -1,4 +1,5 @@
 # Roadrunner Rails
+[![Build Status](https://travis-ci.org/department-of-veterans-affairs/roadrunner-rails.svg?branch=master)](https://travis-ci.org/department-of-veterans-affairs/roadrunner-rails)
 
 Roadrunner Rails is a template for new Rails projects for the VA. It's pre-customized to work within the VA ecosystem.
 
