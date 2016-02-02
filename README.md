@@ -36,3 +36,4 @@ Roadrunner Rails adds some additional gems for making Rails development better.
 ### Linting
 - [Rubocop](https://github.com/bbatsov/rubocop) for Ruby style linting.
 - [scss-lint](https://github.com/brigade/scss-lint) configured with [18F's CSS coding styleguide](https://pages.18f.gov/frontend/css-coding-styleguide/).
+- [jshint](https://github.com/damian/jshint) for Javascript.
