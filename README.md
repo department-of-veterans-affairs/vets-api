@@ -30,6 +30,9 @@ r'                                                      )4XXWW
 .
 ```
 
+## Commands
+- `rake lint` - Run the full suite of linters on the codebase.
+
 ## Gems
 Roadrunner Rails adds some additional gems for making Rails development better.
 
