@@ -44,6 +44,13 @@ group :development, :test do
   gem 'jshint'
 end
 
+group :test do
+  gem 'rspec'
+  gem 'rspec-rails'
+  gem 'guard-rspec'
+  gem 'capybara', '2.5.0'
+end
+
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'web-console', '~> 2.0'
