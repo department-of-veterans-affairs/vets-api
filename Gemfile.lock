@@ -230,7 +230,7 @@ PLATFORMS
 
 DEPENDENCIES
   byebug
-  capybara (= 2.5.0)
+  capybara
   coffee-rails (~> 4.1.0)
   guard-rspec
   jbuilder (~> 2.0)

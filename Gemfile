@@ -48,7 +48,7 @@ group :test do
   gem 'rspec'
   gem 'rspec-rails'
   gem 'guard-rspec'
-  gem 'capybara', '2.5.0'
+  gem 'capybara'
 end
 
 group :development do
