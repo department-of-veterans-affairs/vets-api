@@ -7,9 +7,7 @@ branches:
         - master
 
 script:
-  - bundle exec rubocop
-  - bundle exec scss-lint
-  - bundle exec rake jshint
+  - bundle exec rake lint
   - bundle exec rake
 
 bundler_args: "--without development"

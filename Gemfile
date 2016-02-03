@@ -36,6 +36,9 @@ group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
 
+  # Used to colorize output for rake tasks
+  gem "rainbow"
+
   gem 'rubocop', '~> 0.36.0', require: false
   gem 'scss_lint', require: false
   gem 'jshint'
