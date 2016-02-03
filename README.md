@@ -36,6 +36,11 @@ r'                                                      )4XXWW
 ## Gems
 Roadrunner Rails adds some additional gems for making Rails development better.
 
+### Testing
+- [RSpec](https://github.com/rspec/rspec) - Ruby testing framework for readable BDD tests.
+- [RSpec Rails](https://github.com/rspec/rspec-rails) - Rails helpers for rSpec.
+- [Guard](https://github.com/guard/guard) - Testing server for better TDD flow.
+
 ### Linting
 - [Rubocop](https://github.com/bbatsov/rubocop) for Ruby style linting.
 - [scss-lint](https://github.com/brigade/scss-lint) configured with [18F's CSS coding styleguide](https://pages.18f.gov/frontend/css-coding-styleguide/).
