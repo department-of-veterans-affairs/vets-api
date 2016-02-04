@@ -3,4 +3,7 @@
 
 require File.expand_path("../config/application", __FILE__)
 
+# Load rake support files
+Dir[Rails.root.join("lib/tasks/support/**/*.rb")].each { |f| require f }
+
 Rails.application.load_tasks
