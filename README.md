@@ -32,6 +32,7 @@ r'                                                      )4XXWW
 
 ## Commands
 - `rake lint` - Run the full suite of linters on the codebase.
+- `bundle exec guard` - Runs the guard test server that reruns your tests after files are saved. Useful for TDD!
 - `rake security` - Run the suite of security scanners on the codebase.
 - `rake ci` - Run all build steps performed in Travis CI.
 
