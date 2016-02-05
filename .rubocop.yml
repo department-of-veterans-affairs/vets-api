@@ -1,7 +1,8 @@
 AllCops:
   Include:
-    - '**/Rakefile'
     - '**/config.ru'
+    - '**/Rakefile'
+    - '**/*.rake'
   Exclude:
     - 'db/**/*'
     - 'config/**/*'
@@ -19,3 +20,7 @@ Metrics/LineLength:
 
 Rails:
   Enabled: true
+
+Rails/Output:
+  Exclude:
+    - 'lib/**/*.rb'
