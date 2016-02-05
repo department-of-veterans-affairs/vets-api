@@ -7,7 +7,6 @@ branches:
         - master
 
 script:
-  - bundle exec rake lint
   - bundle exec rake
 
 bundler_args: "--without development"

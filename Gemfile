@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.2.5'
+gem 'rails', '4.2.5.1'
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3'
 # Use SCSS for stylesheets
@@ -39,16 +39,21 @@ group :development, :test do
   # Used to colorize output for rake tasks
   gem "rainbow"
 
+  # Linters
   gem 'rubocop', '~> 0.36.0', require: false
   gem 'scss_lint', require: false
   gem 'jshint'
-end
 
-group :test do
+  # Security scanners
+  gem 'brakeman'
+  gem 'bundler-audit'
+
+  # Testing tools
   gem 'rspec'
   gem 'rspec-rails'
   gem 'guard-rspec'
   gem 'capybara'
+  gem 'simplecov'
 end
 
 group :development do
@@ -58,4 +63,3 @@ group :development do
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
 end
-
