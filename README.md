@@ -30,6 +30,16 @@ r'                                                      )4XXWW
 .
 ```
 
+## Setup
+You'll need to have `phantomjs` installed to run the feature specs. If you have homebrew, it's as easy as:
+
+```
+brew install phantomjs
+```
+
+If not, follow installation instructions on [their website](http://phantomjs.org/).
+
+
 ## Commands
 - `rake lint` - Run the full suite of linters on the codebase.
 - `bundle exec guard` - Runs the guard test server that reruns your tests after files are saved. Useful for TDD!
@@ -43,6 +53,8 @@ Roadrunner Rails adds some additional gems for making Rails development better.
 - [RSpec](https://github.com/rspec/rspec) - Ruby testing framework for readable BDD tests.
 - [RSpec Rails](https://github.com/rspec/rspec-rails) - Rails helpers for rSpec.
 - [Guard](https://github.com/guard/guard) - Testing server for better TDD flow.
+- [Capybara](https://github.com/jnicklas/capybara) - DSL for easily writing automated feature tests.
+- [Sniffybara](https://github.com/department-of-veterans-affairs/sniffybara) - Custom Poltergeist (PhantomJS) driver for Capybara that checks for accessibility defects in your feature tests.
 
 ### Linting
 - [Rubocop](https://github.com/bbatsov/rubocop) for Ruby style linting.
