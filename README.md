@@ -30,15 +30,54 @@ r'                                                      )4XXWW
 .
 ```
 
-## Setup
+## Ruby Setup
+In order to use Roadrunner Rails, you'll need Ruby installed, and either rvm or rbenv to manage your Ruby versions.
+If you don't, follow the directions below:
+
+Install rbenv, which is a tool that helps install/manage versions of Ruby (Note: make sure and follow the brew's post-install instructions):
+
+```
+$ brew install rbenv
+```
+
+And follow the initialization instructions for rbenv, provided by brew
+
+```
+$ rbenv init
+```
+
+Using rbenv install ruby:
+
+```
+$ rbenv install 2.3.0
+```
+
+## Creating a New Roadrunner Project
+First, clone the `roadrunner-rails` repository into a new folder with your project name.
+Seperate words in the folder name using hyphens (example: `my-new-project`).
+
+```
+$ git clone https://github.com/department-of-veterans-affairs/roadrunner-rails my-new-project
+```
+
+Then run the setup script,
+
+```
+$ cd my-new-project
+$ ./bin/setup
+```
+
 You'll need to have `phantomjs` installed to run the feature specs. If you have homebrew, it's as easy as:
 
 ```
-brew install phantomjs
+$ brew install phantomjs
 ```
 
 If not, follow installation instructions on [their website](http://phantomjs.org/).
 
+After that, you should be ready to roll! Use any of the Rails commands (like `rails s`) or try some of the commands below.
+
+Beep, beep!
 
 ## Commands
 - `rake lint` - Run the full suite of linters on the codebase.
