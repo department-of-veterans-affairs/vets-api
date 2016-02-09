@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 require "pathname"
 require "fileutils"
-require "rainbow"
-require "active_support/inflector"
 
 # path to your application root.
 APP_ROOT = Pathname.new File.expand_path("../../", __FILE__)
@@ -17,6 +15,14 @@ demo_files = [
 ]
 
 Dir.chdir APP_ROOT do
+  puts "Installing dependencies... "
+  system "gem install bundler --conservative"
+  system "bundle check || bundle install"
+
+  Gem.clear_paths
+  require "rainbow"
+  require "active_support/inflector"
+
   app_name = File.basename(File.expand_path("../../", __FILE__))
 
   if app_name == "roadrunner-rails"
@@ -66,10 +72,6 @@ Dir.chdir APP_ROOT do
   system "git init"
   system "git add -A ."
   system "git commit -m 'Roadrunner skeleton. Beep, beep.'"
-
-  puts Rainbow("== Installing dependencies ==").cyan
-  system "gem install bundler --conservative"
-  system "bundle check || bundle install"
 
   # puts "\n== Copying sample files =="
   # unless File.exist?("config/database.yml")
