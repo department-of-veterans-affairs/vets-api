@@ -30,6 +30,28 @@ r'                                                      )4XXWW
 .
 ```
 
+## Ruby Setup
+In order to use Roadrunner Rails, you'll need Ruby installed, and either rvm or rbenv to manage your Ruby versions.
+If you don't, follow the directions below:
+
+Install rbenv, which is a tool that helps install/manage versions of Ruby (Note: make sure and follow the brew's post-install instructions):
+
+```
+$ brew install rbenv
+```
+
+And follow the initialization instructions for rbenv, provided by brew
+
+```
+$ rbenv init
+```
+
+Using rbenv install ruby:
+
+```
+$ rbenv install 2.3.0
+```
+
 ## Creating a New Roadrunner Project
 First, clone the `roadrunner-rails` repository into a new folder with your project name.
 Seperate words in the folder name using hyphens (example: `my-new-project`).
