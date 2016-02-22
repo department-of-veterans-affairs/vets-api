@@ -17,5 +17,6 @@ task :security do
     puts Rainbow("Passed. No obvious security vulnerabilities.").green
   else
     puts Rainbow("Failed. Security vulnerabilities were found.").red
+    exit!(1)
   end
 end
