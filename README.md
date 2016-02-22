@@ -80,10 +80,10 @@ After that, you should be ready to roll! Use any of the Rails commands (like `ra
 Beep, beep!
 
 ## Commands
-- `rake lint` - Run the full suite of linters on the codebase.
+- `bundle exec rake lint` - Run the full suite of linters on the codebase.
 - `bundle exec guard` - Runs the guard test server that reruns your tests after files are saved. Useful for TDD!
-- `rake security` - Run the suite of security scanners on the codebase.
-- `rake ci` - Run all build steps performed in Travis CI.
+- `bundle exec rake security` - Run the suite of security scanners on the codebase.
+- `bundle exec rake ci` - Run all build steps performed in Travis CI.
 
 ## Gems
 Roadrunner Rails adds some additional gems for making Rails development better.

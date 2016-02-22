@@ -27,7 +27,7 @@ require "rspec/rails"
 # ActiveRecord::Migration.maintain_test_schema!
 
 require "capybara"
-Capybara.current_driver = :sniffybara
+Capybara.default_driver = :sniffybara
 
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
