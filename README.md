@@ -31,28 +31,19 @@ r'                                                      )4XXWW
 ```
 
 ## Ruby Setup
-In order to use Roadrunner Rails, you'll need Ruby installed, and either rvm or rbenv to manage your Ruby versions.
-If you don't, follow the directions below:
 
-Install rbenv, which is a tool that helps install/manage versions of Ruby (Note: make sure and follow the brew's post-install instructions):
+In order to use Roadrunner Rails, you'll need Ruby installed, and either rbenv to manage your Ruby versions.
+Follow the instructions to [install rbenv](https://github.com/rbenv/rbenv#installation) and then to [install Ruby 2.3](https://github.com/rbenv/rbenv#installing-ruby-versions).
 
-```
-$ brew install rbenv
-```
+## Other Dependencies
 
-And follow the initialization instructions for rbenv, provided by brew
+You'll need to install the following other applications and libraries.
 
-```
-$ rbenv init
-```
-
-Using rbenv install ruby:
-
-```
-$ rbenv install 2.3.0
-```
+- [PhantomJS](http://phantomjs.org/)
+    - Mac w/ Homebrew: `brew install phantomjs`
 
 ## Creating a New Roadrunner Project
+
 First, clone the `roadrunner-rails` repository into a new folder with your project name.
 Seperate words in the folder name using hyphens (example: `my-new-project`).
 
@@ -60,22 +51,20 @@ Seperate words in the folder name using hyphens (example: `my-new-project`).
 $ git clone https://github.com/department-of-veterans-affairs/roadrunner-rails my-new-project
 ```
 
-Then run the setup script,
+Then run the setup script:
 
 ```
 $ cd my-new-project
 $ ./bin/setup
 ```
-
-You'll need to have `phantomjs` installed to run the feature specs. If you have homebrew, it's as easy as:
-
-```
-$ brew install phantomjs
-```
-
-If not, follow installation instructions on [their website](http://phantomjs.org/).
-
 After that, you should be ready to roll! Use any of the Rails commands (like `rails s`) or try some of the commands below.
+
+Following this, there are a few last things you should do:
+
+- Add your project to a new [GitHub](http://github.com) repository
+    - Make the `master` branch a protected branch
+- Enable [Travis CI](https://travis-ci.org/) to build/lint your code when new pull requests are committed
+- Fill in the details in the generated README.md file (including updating the TravisCI image)
 
 Beep, beep!
 
@@ -101,5 +90,5 @@ Roadrunner Rails adds some additional gems for making Rails development better.
 - [jshint](https://github.com/damian/jshint) for Javascript.
 
 ### Security
-- [Breakman](https://github.com/presidentbeef/brakeman) for Rails static code analysis for secuirty vulnerabilities
+- [Brakeman](https://github.com/presidentbeef/brakeman) for Rails static code analysis for secuirty vulnerabilities
 - [bundler-audit](https://github.com/rubysec/bundler-audit) for checking known security vunerabilities of gems.
