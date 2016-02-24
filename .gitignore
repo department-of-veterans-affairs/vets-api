@@ -16,3 +16,6 @@
 !/log/.keep
 /tmp
 /coverage
+
+# Ignore precompiled assets
+public/assets/**
