@@ -31,7 +31,7 @@ There are many ways to contribute to this project:
 
 If you spot a bug, let us know! File a GitHub Issue for this project. When filing an issue add the following:
 
-- Title: Sentence that summaries the bug concisely
+- Title: Sentence that summarizes the bug concisely
 - Comment:
     - The environment you experienced the bug (browser, browser version, kind of account any extensions enabled)
     - The exact steps you took that triggered the bug. Steps 1, 2, 3, etc.
