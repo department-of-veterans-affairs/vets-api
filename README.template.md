@@ -54,7 +54,7 @@ To work on your code submission, follow [GitHub Flow](https://guides.github.com/
 1. Discuss via Pull Request
 1. Pull Request gets approved or denied by core team member
 
-If you're from the community, it may take one to two weeks to review your pull request. Teams work in 1 to 2 week sprints, so they need time to need add it to their time line.
+If you're from the community, it may take one to two weeks to review your pull request. Teams work in one to two week sprints, so they need time to need add it to their time line.
 
 ## Contact
 
