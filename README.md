@@ -32,7 +32,7 @@ r'                                                      )4XXWW
 
 ## Ruby Setup
 
-In order to use Roadrunner Rails, you'll need Ruby installed, and either rbenv to manage your Ruby versions.
+In order to use Roadrunner Rails, you'll need Ruby installed, and rbenv to manage your Ruby versions.
 Follow the instructions to [install rbenv](https://github.com/rbenv/rbenv#installation) and then to [install Ruby 2.3](https://github.com/rbenv/rbenv#installing-ruby-versions).
 
 ## Other Dependencies
