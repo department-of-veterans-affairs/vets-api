@@ -1,5 +1,5 @@
 files: ["**/*.js"] # No need to put app/assets/ or vendor/assets here
-exclude_paths: []
+exclude_paths: ["vendor/assets/javascripts"]
 options:
   boss:       true
   browser:    true
