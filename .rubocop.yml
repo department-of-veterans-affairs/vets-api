@@ -1,4 +1,5 @@
 AllCops:
+  TargetRubyVersion: 2.3
   Include:
     - '**/config.ru'
     - '**/Rakefile'
@@ -15,8 +16,11 @@ Style/StringLiterals:
 Style/Documentation:
   Enabled: false
 
+Style/ClassAndModuleChildren:
+  Enabled: false
+
 Metrics/LineLength:
-  Max: 100
+  Max: 120
 
 Rails:
   Enabled: true
@@ -24,3 +28,12 @@ Rails:
 Rails/Output:
   Exclude:
     - 'lib/**/*.rb'
+
+Metrics/MethodLength:
+  Max: 20
+
+Metrics/ClassLength:
+  Max: 400
+
+Metrics/AbcSize:
+  Max: 30
