@@ -30,7 +30,7 @@ gem "puma", "~> 2.16.0"
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'byebug'
+  gem 'byebug', platforms: :ruby
 
   # Used to colorize output for rake tasks
   gem "rainbow"
