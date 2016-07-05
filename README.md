@@ -1,72 +1,13 @@
-# Roadrunner Rails
-[![Build Status](https://travis-ci.org/department-of-veterans-affairs/roadrunner-rails.svg?branch=master)](https://travis-ci.org/department-of-veterans-affairs/roadrunner-rails)
+# Vets.gov API [![Build Status](https://travis-ci.org/department-of-veterans-affairs/vets-api.svg?branch=master)](https://travis-ci.org/department-of-veterans-affairs/vets-api)
 
-Roadrunner Rails is a template for new Rails projects for the VA. It's pre-customized to work within the VA ecosystem.
+This project provides common APIs for applications that live on vets.gov. This repo is in its infancy - more information coming soon!
 
-```                               
-      qWWWgaap                    
-]W#########WW##Z##LaQbp           
-   ]"?!??QW#ZZ#######m#b          
-       )Wm####Z####Z###b          
-                )????mm###a
-                       ]####? p
-                       y?Y?Y(   p
-                       w####ZcL]T___$
-                         ^<iQrcZZZr-'
-                          :klf
-p                          ]i                                    _
-3p                         ]lp               _ __ ___   __ _  __| |_ __ _   _ _ __  _ __   ___ _ __
-llLp                       ]If       ------ | '__/ _ \ / _` |/ _` | '__| | | | '_ \| '_ \ / _ \ '__|
-zIl3q.                     ]If   __________ | | | (_) | (_| | (_| | |  | |_| | | | | | | |  __/ |
-"gwzI3q                    kd          ____ |_|  \___/ \__,_|\__,_|_|   \__,_|_| |_|_| |_|\___|_|
-   )?^y3qp               qJIf                                                     _ __ __ _(_) |___
-      J4wwLagagagWWWWWhwilld                                     ______________  | '__/ _` | | / __|
-         ?!4m#m####ZZ#Zmlllf               p           ------------------------  | | | (_| | | \__ \
-      gKX@CiillTYXmDYYTlllmp         aggQ"4XXLga               ________________  |_|  \__,_|_|_|___/
-    aGZF????????    )?4@illf   aggJQ"!'=jg#?':?"4#Lgga
-  aAq"'.                "wuRXXXm!?     ]X#Xp      J!mX#XZZXUa
-aAm?                     )!"!'.         !pXP           !XXZXXQ
-r'                                                      )4XXWW
-.
-```
+## Developer Setup
 
-## Ruby Setup
-
-In order to use Roadrunner Rails, you'll need Ruby installed, and rbenv to manage your Ruby versions.
-Follow the instructions to [install rbenv](https://github.com/rbenv/rbenv#installation) and then to [install Ruby 2.3](https://github.com/rbenv/rbenv#installing-ruby-versions).
-
-## Other Dependencies
-
-You'll need to install the following other applications and libraries.
-
-- [PhantomJS](http://phantomjs.org/)
-    - Mac w/ Homebrew: `brew install phantomjs`
-
-## Creating a New Roadrunner Project
-
-First, clone the `roadrunner-rails` repository into a new folder with your project name.
-Seperate words in the folder name using hyphens (example: `my-new-project`).
-
-```
-$ git clone https://github.com/department-of-veterans-affairs/roadrunner-rails my-new-project
-```
-
-Then run the setup script:
-
-```
-$ cd my-new-project
-$ ./bin/setup
-```
-After that, you should be ready to roll! Use any of the Rails commands (like `rails s`) or try some of the commands below.
-
-Following this, there are a few last things you should do:
-
-- Add your project to a new [GitHub](http://github.com) repository
-    - Make the `master` branch a protected branch
-- Enable [Travis CI](https://travis-ci.org/) to build/lint your code when new pull requests are committed
-- Fill in the details in the generated README.md file (including updating the TravisCI image)
-
-Beep, beep!
+1. Install Ruby 2.3. (It is suggested to use a Ruby version manager such as [rbenv](https://github.com/rbenv/rbenv#installation) and then to [install Ruby 2.3](https://github.com/rbenv/rbenv#installing-ruby-versions)).
+1. Install Bundler to manage dependencies: `gem install bundler`
+1. Setup the database: `bundle exec rake db:migrate`
+1. Start the application: `bundle exec rails s`
 
 ## Commands
 - `bundle exec rake lint` - Run the full suite of linters on the codebase.
@@ -74,21 +15,43 @@ Beep, beep!
 - `bundle exec rake security` - Run the suite of security scanners on the codebase.
 - `bundle exec rake ci` - Run all build steps performed in Travis CI.
 
-## Gems
-Roadrunner Rails adds some additional gems for making Rails development better.
+## Deployment Instructions
 
-### Testing
-- [RSpec](https://github.com/rspec/rspec) - Ruby testing framework for readable BDD tests.
-- [RSpec Rails](https://github.com/rspec/rspec-rails) - Rails helpers for rSpec.
-- [Guard](https://github.com/guard/guard) - Testing server for better TDD flow.
-- [Capybara](https://github.com/jnicklas/capybara) - DSL for easily writing automated feature tests.
-- [Sniffybara](https://github.com/department-of-veterans-affairs/sniffybara) - Custom Poltergeist (PhantomJS) driver for Capybara that checks for accessibility defects in your feature tests.
+(TODO: Add deployment instructions, Ansible templates when ready.)
 
-### Linting
-- [Rubocop](https://github.com/bbatsov/rubocop) for Ruby style linting.
-- [scss-lint](https://github.com/brigade/scss-lint) configured with [18F's CSS coding styleguide](https://pages.18f.gov/frontend/css-coding-styleguide/).
-- [jshint](https://github.com/damian/jshint) for Javascript.
+## How to Contribute
 
-### Security
-- [Brakeman](https://github.com/presidentbeef/brakeman) for Rails static code analysis for secuirty vulnerabilities
-- [bundler-audit](https://github.com/rubysec/bundler-audit) for checking known security vunerabilities of gems.
+There are many ways to contribute to this project:
+
+**Bugs**
+
+If you spot a bug, let us know! File a GitHub Issue for this project. When filing an issue add the following:
+
+- Title: Sentence that summarizes the bug concisely
+- Comment:
+    - The environment you experienced the bug (browser, browser version, kind of account any extensions enabled)
+    - The exact steps you took that triggered the bug. Steps 1, 2, 3, etc.
+    - The expected outcome
+    - The actual outcome, including screen shot
+    - (Bonus Points:) Animated GIF or video of the bug occurring
+- Label: Apply the label `bug`
+
+**Code Submissions**
+
+This project logs all work needed and work being actively worked on via GitHub Issues. Submissions related to these are especially appreciated, but patches and additions outside of these are also great.
+
+If you are working on something related to an existing GitHub Issue that already has an assignee, talk with them first (we don't want to waste your time). If there is no assignee, assign yourself (if you have permissions) or post a comment stating that you're working on it.
+
+To work on your code submission, follow [GitHub Flow](https://guides.github.com/introduction/flow/):
+
+1. Branch or Fork
+1. Commit changes
+1. Submit Pull Request
+1. Discuss via Pull Request
+1. Pull Request gets approved or denied by core team member
+
+If you're from the community, it may take one to two weeks to review your pull request. Teams work in one to two week sprints, so they need time to need add it to their time line.
+
+## Contact
+
+If you have a question or comment about this project, file a GitHub Issue with your question in the Title, any context in the Comment, and add the `question` Label.
