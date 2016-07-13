@@ -1,8 +1,7 @@
 module V0
   class AdminController < ApplicationController
-
     def index
-      render :plain => "Hello World"
+      render plain: "Hello World"
     end
 
     def status
@@ -11,7 +10,7 @@ module V0
         "db_url": nil
       }
 
-      render :json => app_status
+      render json: app_status
     end
   end
 end
