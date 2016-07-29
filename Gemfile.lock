@@ -311,7 +311,7 @@ DEPENDENCIES
   rspec
   rspec-rails
   rubocop (~> 0.36.0)
-  ruby-saml
+  ruby-saml (~> 1.2.0)
   sass-rails (~> 5.0)
   scss_lint
   sdoc (~> 0.4.0)
