@@ -13,8 +13,8 @@ class ApplicationController < ActionController::Base
 
   def require_login
     unless session[:user]
-      flash[:after_login_controller] = request.parameters['controller']
-      flash[:after_login_action] = request.parameters['action']
+      flash[:after_login_controller] = request.parameters["controller"]
+      flash[:after_login_action] = request.parameters["action"]
       redirect_to new_v0_sessions_path
     end
   end

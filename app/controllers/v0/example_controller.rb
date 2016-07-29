@@ -5,7 +5,7 @@ module V0
     before_action :require_login, only: [:welcome]
 
     def index
-      render json: { "message": "Welcome to the vets.gov API"}
+      render json: { "message": "Welcome to the vets.gov API" }
     end
 
     def welcome

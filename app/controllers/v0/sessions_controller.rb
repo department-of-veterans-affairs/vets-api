@@ -10,12 +10,12 @@ module V0
     def show
       attributes = session[:user]["attributes"]
       profile = {
-          first_name: attributes['fname'],
-          last_name: attributes['lname'],
-          zip: attributes['zip'],
-          email: attributes['email'],
-          uid: attributes['uuid']
-        }
+        first_name: attributes["fname"],
+        last_name: attributes["lname"],
+        zip: attributes["zip"],
+        email: attributes["email"],
+        uid: attributes["uuid"]
+      }
 
       render json: profile
     end
@@ -27,13 +27,13 @@ module V0
 
     def saml_callback
       saml_response = OneLogin::RubySaml::Response.new(
-          params[:SAMLResponse], settings: SAML::SETTINGS)
+        params[:SAMLResponse], settings: SAML::SETTINGS)
 
       if saml_response.is_valid?
         session[:user] = {
-            name: saml_response.name_id,
-            attributes: saml_response.attributes.all.to_h
-          }
+          name: saml_response.name_id,
+          attributes: saml_response.attributes.all.to_h
+        }
 
         redirect_after_login
       else
