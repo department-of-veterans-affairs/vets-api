@@ -28,6 +28,10 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 # Discussion: https://github.com/18F/college-choice/issues/597#issuecomment-139034834
 gem "puma", "~> 2.16.0"
 
+#redis and redis-namespace for session and mvi persistence
+gem 'redis'
+gem 'redis-namespace'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: :ruby
@@ -59,7 +63,7 @@ group :development do
 
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring', platforms: :ruby
-  
+
   # Include the IANA Time Zone Database on Windows, where Windows doens't ship with a timezone database.
   # POSIX systems should have this already, so we're not going to bring it in on other platforms
   gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]

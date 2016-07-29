@@ -188,6 +188,9 @@ GEM
       ffi (>= 0.5.0)
     rdoc (4.2.2)
       json (~> 1.4)
+    redis (3.3.1)
+    redis-namespace (1.5.2)
+      redis (~> 3.0, >= 3.0.4)
     ref (2.0.0)
     rspec (3.4.0)
       rspec-core (~> 3.4.0)
@@ -306,6 +309,8 @@ DEPENDENCIES
   puma (~> 2.16.0)
   rails (= 4.2.5.2)
   rainbow
+  redis
+  redis-namespace
   rspec
   rspec-rails
   rubocop (~> 0.36.0)
