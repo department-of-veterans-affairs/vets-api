@@ -4,10 +4,22 @@ This project provides common APIs for applications that live on vets.gov. This r
 
 ## Developer Setup
 
+### Base Setup
+(TODO: update these instructions as no database currently necessary)
+
 1. Install Ruby 2.3. (It is suggested to use a Ruby version manager such as [rbenv](https://github.com/rbenv/rbenv#installation) and then to [install Ruby 2.3](https://github.com/rbenv/rbenv#installing-ruby-versions)).
 1. Install Bundler to manage dependencies: `gem install bundler`
 1. Setup the database: `bundle exec rake db:migrate`
 1. Start the application: `bundle exec rails s`
+
+### Redis
+
+1. Install Redis (on mac): `brew install redis`
+1. Follow post install instructions a) always have redis running as service, b) manually launch: `redis-server /usr/local/etc/redis.conf`
+1. Update `config/redis.yml` if necessary (ie. use a different port than default)
+
+Note: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
+this is a sign that redis is not currently running or `config/redis.yml` is not using correct host and port.
 
 ## Commands
 - `bundle exec rake lint` - Run the full suite of linters on the codebase.
@@ -18,6 +30,8 @@ This project provides common APIs for applications that live on vets.gov. This r
 ## Deployment Instructions
 
 (TODO: Add deployment instructions, Ansible templates when ready.)
+
+- be sure to set ENV variables for redis.yml to use when deploying to staging or production environments.
 
 ## How to Contribute
 

@@ -1,0 +1,9 @@
+development: &defaults
+  host: <%= ENV["REDIS_ELASTICACHE_HOST"] || 'localhost' %>
+  port: <%= ENV["REDIS_ELASTICACHE_PORT"] || '6379' %>
+
+test:
+  <<: *defaults
+
+production:
+  <<: *defaults
