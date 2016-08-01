@@ -32,6 +32,9 @@ gem "puma", "~> 2.16.0"
 gem 'redis'
 gem 'redis-namespace'
 
+#virtus for attribute type coercion
+gem 'virtus'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: :ruby
@@ -55,6 +58,7 @@ group :development, :test do
   gem 'capybara'
   gem 'sniffybara', git: 'https://github.com/department-of-veterans-affairs/sniffybara.git'
   gem 'simplecov'
+  gem 'pry-nav'
 end
 
 group :development do
