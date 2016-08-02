@@ -1,11 +1,9 @@
 module SAML
   SETTINGS = OneLogin::RubySaml::Settings.new
 
-  # --- Once we have a staging and production config, these will be environment specific
-  # we may turn off ID.me in dev mode
-  SETTINGS.certificate                    = File.read('../certs/shauni-server.crt')
-  SETTINGS.private_key                    = File.read('../certs/shauni-server.key')
-  SETTINGS.issuer                         = "saml-rp.shauni.localhost"
+  SETTINGS.certificate  = File.read(ENV["CERTIFICATE_FILE"]) unless Rails.env.test?
+  SETTINGS.private_key  = File.read(ENV["KEY_FILE"]) unless Rails.env.test?
+  SETTINGS.issuer       = ENV["SAML_ISSUER"] || ""
 
   # This is conifgured per relying party on the ID.me side; we should look into providing
   # a metadata URL: https://github.com/department-of-veterans-affairs/platform-team/issues/43

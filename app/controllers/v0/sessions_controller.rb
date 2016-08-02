@@ -8,16 +8,7 @@ module V0
     end
 
     def show
-      attributes = session[:user]["attributes"]
-      profile = {
-        first_name: attributes["fname"],
-        last_name: attributes["lname"],
-        zip: attributes["zip"],
-        email: attributes["email"],
-        uid: attributes["uuid"]
-      }
-
-      render json: profile
+      render json: profile_from_session_attributes
     end
 
     def destroy
@@ -49,6 +40,17 @@ module V0
       else
         redirect_to v0_profile_path
       end
+    end
+
+    def profile_from_session_attributes
+      attributes = session[:user]["attributes"]
+      {
+        first_name: attributes["fname"],
+        last_name: attributes["lname"],
+        zip: attributes["zip"],
+        email: attributes["email"],
+        uuid: attributes["uuid"]
+      }
     end
   end
 end
