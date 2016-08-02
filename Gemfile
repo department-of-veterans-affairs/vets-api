@@ -28,6 +28,8 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 # Discussion: https://github.com/18F/college-choice/issues/597#issuecomment-139034834
 gem "puma", "~> 2.16.0"
 
+gem 'ruby-saml', '~> 1.3.0'
+
 #redis and redis-namespace for session and mvi persistence
 gem 'redis'
 gem 'redis-namespace'
@@ -53,8 +55,8 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'guard-rspec'
   gem 'capybara'
-  gem 'sniffybara', git: 'https://github.com/department-of-veterans-affairs/sniffybara.git'
   gem 'simplecov'
+  gem 'webmock'
 end
 
 group :development do
