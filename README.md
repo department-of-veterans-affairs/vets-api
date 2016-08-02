@@ -8,6 +8,7 @@ This project provides common APIs for applications that live on vets.gov. This r
 
 1. Install Ruby 2.3. (It is suggested to use a Ruby version manager such as [rbenv](https://github.com/rbenv/rbenv#installation) and then to [install Ruby 2.3](https://github.com/rbenv/rbenv#installing-ruby-versions)).
 1. Install Bundler to manage dependencies: `gem install bundler`
+1. Run the tests: `bundle exec rake ci` 
 1. Start the application: `bundle exec rails s`
 1. Navigate to <http://localhost:3000/v0/status> in your browser.
 
