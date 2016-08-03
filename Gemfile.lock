@@ -81,6 +81,8 @@ GEM
     equalizer (0.0.11)
     erubis (2.7.0)
     execjs (2.6.0)
+    fakeredis (0.5.0)
+      redis (~> 3.0)
     ffi (1.9.10)
     formatador (0.2.5)
     globalid (0.3.6)
@@ -294,6 +296,7 @@ DEPENDENCIES
   bundler-audit
   byebug
   capybara
+  fakeredis
   guard-rspec
   jbuilder (~> 2.0)
   jquery-rails
