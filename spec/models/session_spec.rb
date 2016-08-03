@@ -44,7 +44,7 @@ RSpec.describe Session, type: :model do
       expect(described_class.find("non-existant-token")).to be_nil
     end
 
-    it 'expires and returns nil if session loaded from redis is invalid' do
+    it "expires and returns nil if session loaded from redis is invalid" do
       allow_any_instance_of(described_class).to receive(:valid?).and_return(false)
       found_session = described_class.find(subject.token)
       expect(found_session).to be_nil
