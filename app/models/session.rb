@@ -47,6 +47,7 @@ class Session
 
   def secure_random_token(length = 20)
     loop do
+      # copied from: https://github.com/plataformatec/devise/blob/master/lib/devise.rb#L475-L482
       rlength = (length * 3) / 4
       SecureRandom.urlsafe_base64(rlength).tr("lIO0", "sxyz")
       break random_token unless self.class.exists?(random_token)
