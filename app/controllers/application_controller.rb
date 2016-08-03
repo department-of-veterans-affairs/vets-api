@@ -12,6 +12,8 @@ class ApplicationController < ActionController::Base
   end
 
   def require_login
+    redirect_to(root_path) && return if SAML::NO_LOGIN_MODE && !Rails.env.test?
+
     unless session[:user]
       flash[:after_login_controller] = request.parameters["controller"]
       flash[:after_login_action] = request.parameters["action"]
