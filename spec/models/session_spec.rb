@@ -34,20 +34,22 @@ RSpec.describe Session, type: :model do
       end
     end
 
-    it "can find a saved session in redis" do
-      found_session = described_class.find(subject.token)
-      expect(found_session).to be_a(described_class)
-      expect(found_session.token).to eq(subject.token)
-    end
+    context "find" do
+      let(:found_session) { described_class.find(subject.token) }
 
-    it "returns nil if session was not found" do
-      expect(described_class.find("non-existant-token")).to be_nil
-    end
+      it "can find a saved session in redis" do
+        expect(found_session).to be_a(described_class)
+        expect(found_session.token).to eq(subject.token)
+      end
 
-    it "expires and returns nil if session loaded from redis is invalid" do
-      allow_any_instance_of(described_class).to receive(:valid?).and_return(false)
-      found_session = described_class.find(subject.token)
-      expect(found_session).to be_nil
+      it "expires and returns nil if session loaded from redis is invalid" do
+        allow_any_instance_of(described_class).to receive(:valid?).and_return(false)
+        expect(found_session).to be_nil
+      end
+
+      it "returns nil if session was not found" do
+        expect(described_class.find("non-existant-token")).to be_nil
+      end
     end
   end
 end
