@@ -1,49 +1,54 @@
 class Session
   include ActiveModel::Model
   include Virtus.model
-  HOURS_TO_EXPIRE = 10
-  SESSION_STORE = Redis::Namespace.new("vets-api-session", redis: Redis.current).freeze
+  NAMESPACE = REDIS_CONFIG["redis_namespaces"]["session_store"]["namespace"]
+  TTL = REDIS_CONFIG["redis_namespaces"]["session_store"]["each_ttl"]
 
   attribute :token
-  attribute :expires_at
-  attribute :persisted
+  attribute :ttl
   # Other attributes
 
-  validates :token, presence: true, if: Proc.new { |s| s.persisted? }
-  validates :expires_at, presence: true, if: Proc.new { |s| s.persisted? }
-  #validates other attributes?
+  attribute_accessor :persisted
+
+  validates :token, presence: true, if: proc { |s| s.persisted? }
+  validates :ttl, presence: true, if: proc { |s| s.persisted? }
+  # validates other attributes?
 
   def self.find(token = nil)
-    attributes = SESSION_STORE.hgetall(token).with_indifferent_access
+    attributes = session_store.hgetall(token).with_indifferent_access
     session = Session.new(attributes.merge(persisted: true))
     return session if session.valid?
-    SESSION_STORE.del(token)
-    raise ActiveRecord::RecordNotFound # raise a better error than this
+    session_store.del(token)
+    fail ActiveRecord::RecordNotFound # raise a better error than this
   end
 
   def self.exists?(token = nil)
-    SESSION_STORE.exists(token)
+    session_store.exists(token)
   end
 
   def save
-    @expires_at = HOURS_TO_EXPIRE.hours.from_now.utc
-    @token = secure_random_token #use bcrypt or something to generate unique token
+    @ttl = TTL
+    @token = secure_random_token # use bcrypt or something to generate unique token
     return false unless valid?
-    result = SESSION_STORE.mapped_hmset(token, attributes)
+    result = session_store.mapped_hmset(token, attributes)
+    session_store.expire(token, TTL)
     @persisted = result == "OK"
   end
 
   def persisted?
-    !!@persisted
+    Boolean(@persisted)
   end
 
   private
 
-  def secure_random_token
+  def session_store
+    @session_store ||= Redis::Namespace.new(NAMESPACE, redis: Redis.current)
+  end
+
+  def secure_random_token(length = 20)
     loop do
-      # TODO: MAKE THIS LONGER AND MORE SECURE
-      # currently like: "R90Gfo8Eme2KApnh2tDP9A"
-      random_token = SecureRandom.urlsafe_base64(nil, false)
+      rlength = (length * 3) / 4
+      SecureRandom.urlsafe_base64(rlength).tr("lIO0", "sxyz")
       break random_token unless self.class.exists?(random_token)
     end
   end
