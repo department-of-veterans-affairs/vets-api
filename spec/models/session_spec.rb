@@ -8,11 +8,11 @@ RSpec.describe Session, type: :model do
   context "session without attributes" do
     it "expect ttl to an Integer" do
       expect(subject.ttl).to be_an(Integer)
-      expect(subject.ttl).to be_between(-3600, 0)
+      expect(subject.ttl).to be_between(-Float::INFINITY, 0)
     end
 
-    it "assigns a token based based on default length" do
-      expect(subject.token.length).to eq(described_class::DEFAULT_TOKEN_LENGTH)
+    it "assigns a token based having length 40" do
+      expect(subject.token.length).to eq(40)
     end
 
     it "has a persisted attribute of false" do
@@ -34,15 +34,20 @@ RSpec.describe Session, type: :model do
       end
     end
 
-    it "can find a saved session to redis" do
+    it "can find a saved session in redis" do
       found_session = described_class.find(subject.token)
       expect(found_session).to be_a(described_class)
       expect(found_session.token).to eq(subject.token)
     end
 
-    it "raises a not found error if token does not exist" do
-      expect { described_class.find("non-existant-token") }
-        .to raise_error(ActiveRecord::RecordNotFound)
+    it "returns nil if session was not found" do
+      expect(described_class.find("non-existant-token")).to be_nil
+    end
+
+    it 'expires and returns nil if session loaded from redis is invalid' do
+      allow_any_instance_of(described_class).to receive(:valid?).and_return(false)
+      found_session = described_class.find(subject.token)
+      expect(found_session).to be_nil
     end
   end
 end

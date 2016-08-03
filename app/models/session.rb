@@ -22,10 +22,14 @@ class Session
 
   def self.find(token = nil)
     attributes = SESSION_STORE.hgetall(token).with_indifferent_access
+    return nil if attributes.blank?
     session = Session.new(attributes, true)
-    return session if session.valid?
-    SESSION_STORE.del(token)
-    fail ActiveRecord::RecordNotFound # raise a better error than this
+    if session.valid?
+      session
+    else
+      SESSION_STORE.del(token)
+      nil
+    end
   end
 
   def self.exists?(token = nil)
