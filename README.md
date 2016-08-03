@@ -5,12 +5,12 @@ This project provides common APIs for applications that live on vets.gov. This r
 ## Developer Setup
 
 ### Base Setup
-(TODO: update these instructions as no database currently necessary)
 
 1. Install Ruby 2.3. (It is suggested to use a Ruby version manager such as [rbenv](https://github.com/rbenv/rbenv#installation) and then to [install Ruby 2.3](https://github.com/rbenv/rbenv#installing-ruby-versions)).
 1. Install Bundler to manage dependencies: `gem install bundler`
-1. Setup the database: `bundle exec rake db:migrate`
+1. Run the tests: `bundle exec rake ci` 
 1. Start the application: `bundle exec rails s`
+1. Navigate to <http://localhost:3000/v0/status> in your browser.
 
 ### Redis
 
@@ -21,7 +21,7 @@ This project provides common APIs for applications that live on vets.gov. This r
 Note: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
 this is a sign that redis is not currently running or `config/redis.yml` is not using correct host and port.
 
-## Commands
+## Testing Commands
 - `bundle exec rake lint` - Run the full suite of linters on the codebase.
 - `bundle exec guard` - Runs the guard test server that reruns your tests after files are saved. Useful for TDD!
 - `bundle exec rake security` - Run the suite of security scanners on the codebase.
