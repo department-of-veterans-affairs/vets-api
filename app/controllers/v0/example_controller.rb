@@ -2,15 +2,14 @@
 
 module V0
   class ExampleController < ApplicationController
-    before_action :require_login, only: [:welcome]
+    before_action :authenticate, only: [:welcome]
 
     def index
       render json: { "message": "Welcome to the vets.gov API" }
     end
 
     def welcome
-      current_user = session[:user]["attributes"]["email"].first
-      msg = "You are logged in as #{current_user}"
+      msg = "You are logged in as #{@current_user.email}"
       render json: { "message": msg }
     end
   end

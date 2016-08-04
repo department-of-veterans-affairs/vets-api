@@ -11,13 +11,24 @@ class ApplicationController < ActionController::Base
     headers["X-Git-SHA"] = AppInfo::GIT_REVISION
   end
 
-  def require_login
-    redirect_to(root_path) && return if SAML::NO_LOGIN_MODE && !Rails.env.test?
+  def authenticate
+    authenticate_token || render_unauthorized
+  end
 
-    unless session[:user]
-      flash[:after_login_controller] = request.parameters["controller"]
-      flash[:after_login_action] = request.parameters["action"]
-      redirect_to new_v0_sessions_path
+  def authenticate_token
+    authenticate_or_request_with_http_token do |token, options|
+      session = Session.find(token)
+      # TODO: ensure that this prevents against timing attack vectors
+      ActiveSupport::SecurityUtils.secure_compare(
+        ::Digest::SHA256.hexdigest(token),
+        ::Digest::SHA256.hexdigest(session.token)
+      )
+      @current_user = User.find(session.uuid)
     end
+  end
+
+  def render_unauthorized
+    self.headers['WWW-Authenticate'] = 'Token realm="Application"'
+    render json: 'Not Authorized', status: 401
   end
 end
