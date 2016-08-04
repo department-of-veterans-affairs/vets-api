@@ -16,7 +16,7 @@ class ApplicationController < ActionController::Base
   end
 
   def authenticate_token
-    authenticate_or_request_with_http_token do |token, options|
+    authenticate_with_http_token do |token, options|
       session = Session.find(token)
       # TODO: ensure that this prevents against timing attack vectors
       ActiveSupport::SecurityUtils.secure_compare(
