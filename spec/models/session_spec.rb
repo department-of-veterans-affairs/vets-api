@@ -11,7 +11,7 @@ RSpec.describe Session, type: :model do
       expect(subject.ttl).to be_between(-Float::INFINITY, 0)
     end
 
-    it "assigns a token based having length 40" do
+    it "assigns a token having length 40" do
       expect(subject.token.length).to eq(40)
     end
 

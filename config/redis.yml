@@ -2,13 +2,12 @@ development: &defaults
   redis:
     host: <%= ENV["REDIS_ELASTICACHE_HOST"] || 'localhost' %>
     port: <%= ENV["REDIS_ELASTICACHE_PORT"] || '6379' %>
-  redis_namespaces:
-    session_store:
-      namespace: vets-api-session
-      each_ttl: 3600
-    user_store:
-      namespace: mvi-data
-      each_ttl: 86400
+  session_store:
+    namespace: vets-api-session
+    each_ttl: 3600
+  user_store:
+    namespace: mvi-data
+    each_ttl: 86400
 
 
 test:
