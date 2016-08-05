@@ -1,4 +1,6 @@
+# TODO: REMOVE COOKIE - change this to ActionController::API
 class ApplicationController < ActionController::Base
+  # TODO: REMOVE COOKIE - remove these three lines, CSRF is no longer required when cookies are gone.
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
