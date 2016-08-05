@@ -37,6 +37,20 @@ this is a sign that redis is not currently running or `config/redis.yml` is not 
 - `bundle exec rake security` - Run the suite of security scanners on the codebase.
 - `bundle exec rake ci` - Run all build steps performed in Travis CI.
 
+### Manually Testing Auth Flow
+The first endpoint doesn't require authentication while the second does:
+```
+curl localhost:3000/v0/status
+curl localhost:3000/v0/welcome
+```
+
+It is easiest to go through the auth flow in your browser. Curl or browse to `http://localhost:3000/v0/sessions/new`; copy and paste the ID.me URL into your browser and log in on ID.me. The token returned in the json response at the end of the login flow can be used as follows:
+
+```
+curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyyja" localhost:3000/v0/welcome
+curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyyja" localhost:3000/v0/sessions/profile
+```
+
 ## Deployment Instructions
 
 (TODO: Add deployment instructions, Ansible templates when ready.)
