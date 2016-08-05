@@ -1,9 +1,6 @@
-# TODO: REMOVE COOKIE - change this to ActionController::API
-class ApplicationController < ActionController::Base
-  # TODO: REMOVE COOKIE - remove these three lines, CSRF is no longer required when cookies are gone.
-  # Prevent CSRF attacks by raising an exception.
-  # For APIs, you may want to use :null_session instead.
-  protect_from_forgery with: :exception
+class ApplicationController < ActionController::API
+  include ActionController::HttpAuthentication::Token::ControllerMethods
+  before_action :authenticate
   before_action :set_app_info_headers
 
   private
@@ -18,19 +15,19 @@ class ApplicationController < ActionController::Base
   end
 
   def authenticate_token
-    authenticate_with_http_token do |token, options|
-      session = Session.find(token)
+    authenticate_with_http_token do |token, _options|
+      @session = Session.find(token)
       # TODO: ensure that this prevents against timing attack vectors
       ActiveSupport::SecurityUtils.secure_compare(
         ::Digest::SHA256.hexdigest(token),
-        ::Digest::SHA256.hexdigest(session.token)
+        ::Digest::SHA256.hexdigest(@session.token)
       )
-      @current_user = User.find(session.uuid)
+      @current_user = User.find(@session.uuid)
     end
   end
 
   def render_unauthorized
-    self.headers['WWW-Authenticate'] = 'Token realm="Application"'
-    render json: 'Not Authorized', status: 401
+    headers["WWW-Authenticate"] = 'Token realm="Application"'
+    render json: "Not Authorized", status: 401
   end
 end

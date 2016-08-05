@@ -29,8 +29,7 @@ module VetsAPI
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
-    # TODO: REMOVE COOKIE - change this to true
-    config.api_only = false
+    config.api_only = true
 
     # load local configuration file as environment variables
     config.before_configuration do
