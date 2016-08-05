@@ -8,7 +8,7 @@ task :lint do
   rubocop_result = ShellCommand.run("rubocop #{opts} --color")
 
   puts "\n"
-  if rubocop_result && jshint_result
+  if rubocop_result
     puts Rainbow("Passed. Everything looks stylish!").green
   else
     puts Rainbow("Failed. Linting issues were found.").red
