@@ -13,14 +13,14 @@ This project provides common APIs for applications that live on vets.gov. This r
 1. Navigate to <http://localhost:3000/v0/status> in your browser.
 
 ### ID.me Certificate Setup
-For the ID.me SAML auth integration to work, you will need the following environmental variables set:
+For the ID.me SAML auth integration to work, you will need the following environment variables set:
 ```
 CERTIFICATE_FILE
 KEY_FILE
 SAML_ISSUER
 ```
 
-For local development, ID.me has configured their sandbox with a cert that developers can share. Download the [key and certificate files](https://github.com/department-of-veterans-affairs/platform-team/tree/master/identity/certificates) and set the environment variables to point to your local copies. The `SAML_ISSUER` for the provided cert is `saml-rp.vetsgov.localhost`. See `config\local_env.yml.example` for more info.
+For local development, ID.me has configured their sandbox with a cert that developers can share. Download the [key and certificate files](https://github.com/department-of-veterans-affairs/platform-team/tree/master/identity/certificates) and set the environment variables to point to your local copies. The `SAML_ISSUER` for the provided cert is `saml-rp.vetsgov.localhost`. See [config/local_env.yml.example](config/local_env.yml.example) for more info.
 
 ### Redis
 
