@@ -4,3 +4,5 @@
 CERTIFICATE_FILE: '/Users/shauni/workspace/certs/vetsgov-localhost.crt'
 KEY_FILE: '/Users/shauni/workspace/certs/vetsgov-localhost.key'
 SAML_ISSUER: 'saml-rp.vetsgov.localhost'
+CALLBACK_URL: 'http://localhost:3000/auth/saml/callback'
+METADATA_URL: 'https://api.idmelabs.com/saml/metadata'
