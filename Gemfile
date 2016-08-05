@@ -4,6 +4,8 @@ source 'https://rubygems.org'
 gem 'rails', '4.2.5.2'
 gem "puma", "~> 2.16.0"
 gem 'ruby-saml', '~> 1.3.0'
+# bundle exec rake doc:rails generates the API under doc/api.
+gem 'sdoc', '~> 0.4.0', group: :doc
 #redis and redis-namespace for session and mvi persistence
 gem 'redis'
 gem 'redis-namespace'
