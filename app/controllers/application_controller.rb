@@ -1,4 +1,5 @@
-class ApplicationController < ActionController::API
+# TODO: REMOVE COOKIE - change this to ActionController::API
+class ApplicationController < ActionController::Base
   before_action :set_app_info_headers
 
   private
@@ -10,6 +11,11 @@ class ApplicationController < ActionController::API
 
   def require_login
     redirect_to(root_path) && return if SAML::NO_LOGIN_MODE && !Rails.env.test?
-    redirect_to new_v0_sessions_path unless session[:user]
+
+    unless session[:user]
+      flash[:after_login_controller] = request.parameters["controller"]
+      flash[:after_login_action] = request.parameters["action"]
+      redirect_to new_v0_sessions_path
+    end
   end
 end
