@@ -8,9 +8,19 @@ This project provides common APIs for applications that live on vets.gov. This r
 
 1. Install Ruby 2.3. (It is suggested to use a Ruby version manager such as [rbenv](https://github.com/rbenv/rbenv#installation) and then to [install Ruby 2.3](https://github.com/rbenv/rbenv#installing-ruby-versions)).
 1. Install Bundler to manage dependencies: `gem install bundler`
-1. Run the tests: `bundle exec rake ci` 
+1. Run the tests: `bundle exec rake ci`
 1. Start the application: `bundle exec rails s`
 1. Navigate to <http://localhost:3000/v0/status> in your browser.
+
+### ID.me Certificate Setup
+For the ID.me SAML auth integration to work, you will need the following environment variables set:
+```
+CERTIFICATE_FILE
+KEY_FILE
+SAML_ISSUER
+```
+
+For local development, ID.me has configured their sandbox with a cert that developers can share. Download the [key and certificate files](https://github.com/department-of-veterans-affairs/platform-team/tree/master/identity/certificates) and set the environment variables to point to your local copies. The `SAML_ISSUER` for the provided cert is `saml-rp.vetsgov.localhost`. See [config/local_env.yml.example](config/local_env.yml.example) for more info.
 
 ### Redis
 
