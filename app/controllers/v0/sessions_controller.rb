@@ -1,55 +1,51 @@
 module V0
   class SessionsController < ApplicationController
-    before_action :require_login, only: [:show]
+    skip_before_action :authenticate, only: [:new, :saml_callback]
 
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      redirect_to saml_auth_request.create(SAML::SETTINGS)
+      render json: { authenticate_via_get: saml_auth_request.create(SAML::SETTINGS) }
     end
 
     def show
-      render json: profile_from_session_attributes
+      render json: @session
     end
 
     def destroy
-      session[:user] = nil
-      redirect_to root_path
+      @session.destroy
+      head :no_content
     end
 
+    # FIXME: This should probably a POST not GET, as the payload can be rather large
     def saml_callback
-      saml_response = OneLogin::RubySaml::Response.new(
+      @saml_response = OneLogin::RubySaml::Response.new(
         params[:SAMLResponse], settings: SAML::SETTINGS)
 
-      if saml_response.is_valid?
-        session[:user] = {
-          name: saml_response.name_id,
-          attributes: saml_response.attributes.all.to_h
-        }
-
-        redirect_after_login
+      if @saml_response.is_valid?
+        persist_session_and_user!
+        render json: @session, status: :created
       else
-        render json: saml_response.errors, status: :forbidden
+        # TODO: also need to make sure error json conforms to api spec
+        render json: { errors: @saml_response.errors.full_messages }, status: :forbidden
       end
     end
 
     private
 
-    def redirect_after_login
-      if flash[:after_login_controller] && flash[:after_login_action]
-        redirect_to controller: flash[:after_login_controller], action: flash[:after_login_action]
-      else
-        redirect_to v0_profile_path
-      end
+    def persist_session_and_user!
+      @session = Session.new(user_attributes.slice(:uuid))
+      @current_user = User.find(@session.uuid) || User.new(user_attributes)
+      @session.save && @current_user.save
     end
 
-    def profile_from_session_attributes
-      attributes = session[:user]["attributes"]
+    def user_attributes
+      attributes = @saml_response.attributes.all.to_h
       {
-        first_name: attributes["fname"],
-        last_name: attributes["lname"],
-        zip: attributes["zip"],
-        email: attributes["email"],
-        uuid: attributes["uuid"]
+        first_name: attributes["fname"]&.first,
+        last_name: attributes["lname"]&.first,
+        zip: attributes["zip"]&.first,
+        email: attributes["email"]&.first,
+        uuid: attributes["uuid"]&.first
       }
     end
   end

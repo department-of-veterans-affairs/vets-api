@@ -3,11 +3,6 @@ require "simplecov"
 SimpleCov.start do
   add_filter "initializers/git_revision"
   add_filter "initializers/saml_settings"
-
-  # TODO: revisit test coverage once integration settles
-  # https://github.com/department-of-veterans-affairs/platform-team/issues/83
-  add_filter "v0/example_controller"
-  add_filter "v0/sessions_controller"
   SimpleCov.minimum_coverage_by_file 90
 end
 

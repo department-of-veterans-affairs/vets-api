@@ -5,7 +5,6 @@ class RedisStore
 
   include ActiveModel::Serialization
   include ActiveModel::Validations
-  include ActiveModel::Conversion
   include Virtus.model
   REDIS_STORE = Redis.current
 
@@ -31,11 +30,19 @@ class RedisStore
     REDIS_STORE.exists(redis_key)
   end
 
+  def self.create(attributes)
+    new(attributes).save
+  end
+
   def save
     return false unless valid?
     REDIS_STORE.mapped_hmset(redis_key, attributes)
     REDIS_STORE.expire(redis_key, self.class::DEFAULT_TTL) if defined? self.class::DEFAULT_TTL
     @persisted = true
+  end
+
+  def destroy
+    REDIS_STORE.del(redis_key)
   end
 
   def ttl

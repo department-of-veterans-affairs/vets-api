@@ -1,5 +1,7 @@
 module V0
   class AdminController < ApplicationController
+    skip_before_action :authenticate, only: :status
+
     def status
       app_status = {
         "git_revision": AppInfo::GIT_REVISION,
