@@ -1,6 +1,6 @@
-# these are local environment settings that will get picked up as environment variables
-# change to match your settings and save the file as local_env.yml
+# These are local environment settings that will get picked up as environment variables.
+# Change to match your settings and save the file as local_env.yml
 
-CERTIFICATE_FILE: '/Users/shauni/workspace/certs/shauni-server.crt'
-KEY_FILE: '/Users/shauni/workspace/certs/shauni-server.key'
-SAML_ISSUER: 'saml-rp.shauni.localhost'
+CERTIFICATE_FILE: '/Users/shauni/workspace/certs/vetsgov-localhost.crt'
+KEY_FILE: '/Users/shauni/workspace/certs/vetsgov-localhost.key'
+SAML_ISSUER: 'saml-rp.vetsgov.localhost'
