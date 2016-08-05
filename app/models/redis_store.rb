@@ -32,7 +32,7 @@ class RedisStore
 
   def self.create(attributes)
     new(attributes).save
-  end 
+  end
 
   def save
     return false unless valid?
