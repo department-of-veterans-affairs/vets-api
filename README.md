@@ -53,9 +53,7 @@ curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyy
 
 ## Deployment Instructions
 
-(TODO: Add deployment instructions, Ansible templates when ready.)
-
-- be sure to set ENV variables for redis.yml to use when deploying to staging or production environments.
+Currently, this API is only deployed to the `dev` environment. Ansible templates and instructions for deploying are in the [devops repo](https://github.com/department-of-veterans-affairs/devops/tree/master/ansible). The `app_name` for this project is `platform-api`.
 
 ## How to Contribute
 

@@ -1,5 +1,6 @@
-# These are local environment settings that will get picked up as environment variables.
-# Change to match your settings and save the file as local_env.yml
+# These are local environment settings that will get picked up as environment variables
+# by the Figaro gem.
+# Change to match your local settings and save the file as application.yml
 
 CERTIFICATE_FILE: '/Users/shauni/workspace/certs/vetsgov-localhost.crt'
 KEY_FILE: '/Users/shauni/workspace/certs/vetsgov-localhost.key'
