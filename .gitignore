@@ -22,4 +22,4 @@
 public/assets/**
 
 # Ignore local config
-config/local_env.yml
+config/application.yml
