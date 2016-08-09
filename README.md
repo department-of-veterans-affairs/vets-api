@@ -51,9 +51,14 @@ curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyy
 curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyyja" localhost:3000/v0/sessions/profile
 ```
 
+This flow also works in our AWS GovCloud `dev` environment. Just replace `localhost:3000` with `dev.vets.gov/api`.
+
 ## Deployment Instructions
 
-Currently, this API is only deployed to the `dev` environment. Ansible templates and instructions for deploying are in the [devops repo](https://github.com/department-of-veterans-affairs/devops/tree/master/ansible). The `app_name` for this project is `platform-api`.
+Currently, this API is only deployed to the `dev` environment. Ansible templates and instructions for deploying are in the [devops repo](https://github.com/department-of-veterans-affairs/devops/tree/master/ansible). The `app_name` for this project is `platform-api`. After deploying, you can check that the right version was deployed with:
+```
+https://dev.vets.gov/api/v0/status
+```
 
 ## How to Contribute
 
