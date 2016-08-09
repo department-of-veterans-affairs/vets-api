@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
 
   get '/saml/metadata', to: 'saml#metadata'
+  get '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
   post '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
 
   namespace :v0, defaults: {format: 'json'} do
