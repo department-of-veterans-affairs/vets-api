@@ -1,0 +1,13 @@
+development: &defaults
+  issuer: 'saml-rp.vetsgov.localhost'
+  callback_url: 'http://localhost:3000/auth/saml/callback'
+  metadata_url: 'https://api.idmelabs.com/saml/metadata'
+
+
+test:
+  <<: *defaults
+
+production:
+  issuer: <%= ENV["SAML_ISSUER"] %>
+  callback_url: <%=ENV["CALLBACK_URL"] %>
+  metadata_url: <%= ENV["METADATA_URL"] %>

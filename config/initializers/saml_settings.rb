@@ -1,10 +1,15 @@
 module SAML
+
+  CONFIG = Rails.application.config_for(:saml).freeze
   SETTINGS = OneLogin::RubySaml::Settings.new
 
-  SETTINGS.certificate  = File.read(ENV["CERTIFICATE_FILE"])
-  SETTINGS.private_key  = File.read(ENV["KEY_FILE"])
-  SETTINGS.issuer       = ENV["SAML_ISSUER"]
-  SETTINGS.assertion_consumer_service_url = ENV["CALLBACK_URL"]
+  unless Rails.env.test?
+    Figaro.require_keys("CERTIFICATE_FILE", "KEY_FILE")
+    SETTINGS.certificate  = File.read(ENV["CERTIFICATE_FILE"])
+    SETTINGS.private_key  = File.read(ENV["KEY_FILE"])
+  end
+  SETTINGS.issuer         = CONFIG["issuer"]
+  SETTINGS.assertion_consumer_service_url = CONFIG["callback_url"]
 
   # ---------------------------------------------------------------
   # This will get moved out of here and will be set per application
@@ -14,6 +19,6 @@ module SAML
   #SAML_SETTINGS.authn_context            = "http://idmanagement.gov/ns/assurance/loa/3"
 
   parser = OneLogin::RubySaml::IdpMetadataParser.new
-  parser.parse_remote(ENV["METADATA_URL"], true, {settings: SETTINGS})
+  parser.parse_remote(CONFIG["metadata_url"], true, {settings: SETTINGS})
 end
 
