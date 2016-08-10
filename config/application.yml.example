@@ -4,4 +4,3 @@
 
 CERTIFICATE_FILE: '/Users/shauni/workspace/certs/vetsgov-localhost.crt'
 KEY_FILE: '/Users/shauni/workspace/certs/vetsgov-localhost.key'
-SAML_ISSUER: 'saml-rp.vetsgov.localhost'
