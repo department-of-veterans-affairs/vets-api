@@ -10,7 +10,5 @@ RSpec.describe "Admin API", type: :request do
 
     expect(response.headers["X-Git-SHA"]).to eq(git_rev)
     expect(json["git_revision"]).to eq(git_rev)
-
-    get "http://google.com"
   end
 end
