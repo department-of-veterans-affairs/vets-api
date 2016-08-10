@@ -53,7 +53,10 @@ curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyy
 
 ## Deployment Instructions
 
-Currently, this API is only deployed to the `dev` environment. Ansible templates and instructions for deploying are in the [devops repo](https://github.com/department-of-veterans-affairs/devops/tree/master/ansible). The `app_name` for this project is `platform-api`.
+Currently, this API is only deployed to the `dev` environment. Ansible templates and instructions for deploying are in the [devops repo](https://github.com/department-of-veterans-affairs/devops/tree/master/ansible). The `app_name` for this project is `platform-api`. After deploying, you can check that the right version was deployed with:
+```
+https://dev.vets.gov/api/v0/status
+```
 
 ## How to Contribute
 
