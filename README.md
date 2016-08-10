@@ -68,8 +68,7 @@ If you spot a bug, let us know! File a GitHub Issue for this project. When filin
     - The environment you experienced the bug (browser, browser version, kind of account any extensions enabled)
     - The exact steps you took that triggered the bug. Steps 1, 2, 3, etc.
     - The expected outcome
-    - The actual outcome, including screen shot
-    - (Bonus Points:) Animated GIF or video of the bug occurring
+    - The actual outcome (include screen shot or error logs)
 - Label: Apply the label `bug`
 
 **Code Submissions**
