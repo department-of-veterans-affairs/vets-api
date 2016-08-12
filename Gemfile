@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.2.5.2'
+gem 'rails', '4.2.7.1'
 gem "puma", "~> 2.16.0"
 gem 'ruby-saml', '~> 1.3.0'
 # bundle exec rake doc:rails generates the API under doc/api.
