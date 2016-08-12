@@ -2,7 +2,7 @@ require "rails_helper"
 require "fakeredis"
 
 RSpec.describe User, type: :model do
-  let(:attributes) { {uuid: 'userid:123', email: 'test@test.com'} }
+  let(:attributes) { { uuid: "userid:123", email: "test@test.com" } }
   subject { described_class.new(attributes) }
 
   context "user without attributes" do
@@ -12,11 +12,11 @@ RSpec.describe User, type: :model do
     end
 
     it "assigns an email" do
-      expect(subject.email).to eq('test@test.com')
+      expect(subject.email).to eq("test@test.com")
     end
 
     it "assigns an uuid" do
-      expect(subject.uuid).to eq('userid:123')
+      expect(subject.uuid).to eq("userid:123")
     end
 
     it "has a persisted attribute of false" do
@@ -34,7 +34,7 @@ RSpec.describe User, type: :model do
 
       it "sets the ttl countdown" do
         expect(subject.ttl).to be_an(Integer)
-        expect(subject.ttl).to be_between(0, 86400)
+        expect(subject.ttl).to be_between(0, 86_400)
       end
     end
 
