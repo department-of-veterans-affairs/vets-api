@@ -22,7 +22,7 @@ For local development, ID.me has configured their sandbox with a cert that devel
 1. Download the [key and certificate files](https://github.com/department-of-veterans-affairs/platform-team/tree/master/identity/certificates)
 1. Set the environment variables above to point to your local copies of the files
 
-### Redis
+### Redis Setup
 For this app to be properly configured, you will need to specify the following environment variables:
 ```
 REDIS_HOST
@@ -50,7 +50,7 @@ this is a sign that redis is not currently running or `config/redis.yml` is not 
 1. Start the application: `bundle exec rails s`
 1. Navigate to <http://localhost:3000/v0/status> in your browser.
 
-The first endpoint doesn't require authentication while the second does:
+The first endpoint, below, doesn't require authentication while the second does:
 ```
 curl localhost:3000/v0/status
 curl localhost:3000/v0/welcome
