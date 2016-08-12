@@ -2,5 +2,7 @@
 # by the Figaro gem.
 # Change to match your local settings and save the file as application.yml
 
-CERTIFICATE_FILE: '/Users/shauni/workspace/certs/vetsgov-localhost.crt'
-KEY_FILE: '/Users/shauni/workspace/certs/vetsgov-localhost.key'
+CERTIFICATE_FILE: ~/.certs/vetsgov-localhost.crt
+KEY_FILE: ~/.certs/vetsgov-localhost.key
+REDIS_HOST: localhost
+REDIS_PORT: 6379
