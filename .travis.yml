@@ -6,6 +6,12 @@ branches:
     only:
         - master
 
+before_script:
+  - export CERTIFICATE_FILE="spec/support/certificates/ruby-saml.crt"
+  - export KEY_FILE="spec/support/certificates/ruby-saml.key"
+  - export REDIS_HOST="localhost"
+  - export REDIS_PORT="6379"
+
 script:
   - bundle exec rake
 
