@@ -51,5 +51,12 @@ RSpec.describe Session, type: :model do
         expect(described_class.find("non-existant-token")).to be_nil
       end
     end
+
+    context "destroy" do
+      it "can destroy a session in redis" do
+        expect(subject.destroy).to eq(1)
+        expect(described_class.find(subject.token)).to be_nil
+      end
+    end
   end
 end
