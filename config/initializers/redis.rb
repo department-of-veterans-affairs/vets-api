@@ -2,5 +2,3 @@
 REDIS_CONFIG = Rails.application.config_for(:redis).freeze
 # set the current global instance of Redis based on environment specific config
 Redis.current = Redis.new(REDIS_CONFIG["redis"])
-
-Redis.current.connected?
