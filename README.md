@@ -8,28 +8,41 @@ This project provides common APIs for applications that live on vets.gov. This r
 
 1. Install Ruby 2.3. (It is suggested to use a Ruby version manager such as [rbenv](https://github.com/rbenv/rbenv#installation) and then to [install Ruby 2.3](https://github.com/rbenv/rbenv#installing-ruby-versions)).
 1. Install Bundler to manage dependencies: `gem install bundler`
-1. Run the tests: `bundle exec rake ci`
-1. Start the application: `bundle exec rails s`
-1. Navigate to <http://localhost:3000/v0/status> in your browser.
 
 ### ID.me Certificate Setup
 For the ID.me SAML auth integration to work, you will need the following environment variables set:
 ```
 CERTIFICATE_FILE
 KEY_FILE
-SAML_ISSUER
 ```
 
-For local development, ID.me has configured their sandbox with a cert that developers can share. Download the [key and certificate files](https://github.com/department-of-veterans-affairs/platform-team/tree/master/identity/certificates) and set the environment variables to point to your local copies. The `SAML_ISSUER` for the provided cert is `saml-rp.vetsgov.localhost`. See [config/local_env.yml.example](config/local_env.yml.example) for more info.
+For an example, see `application.yml.example`
+For local development, ID.me has configured their sandbox with a cert that developers can share.
 
-### Redis
+1. Download the [key and certificate files](https://github.com/department-of-veterans-affairs/platform-team/tree/master/identity/certificates)
+1. Set the environment variables above to point to your local copies of the files
+
+### Redis Setup
+For this app to be properly configured, you will need to specify the following environment variables:
+```
+REDIS_HOST
+REDIS_PORT
+```
+
+For an example, see `application.yml.example`
 
 1. Install Redis (on mac): `brew install redis`
-1. Follow post install instructions a) always have redis running as service, b) manually launch: `redis-server /usr/local/etc/redis.conf`
-1. Update `config/redis.yml` if necessary (ie. use a different port than default)
+1. Follow post install instructions
+  - always have Redis running as service
+  - manually launch Redis `redis-server /usr/local/etc/redis.conf`
+1. Set the environment variables above according to your Redis configuration
 
 Note: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
 this is a sign that redis is not currently running or `config/redis.yml` is not using correct host and port.
+
+### Running the App
+1. Start the application: `bundle exec rails s`
+1. Navigate to <http://localhost:3000/v0/status> in your browser.
 
 ## Testing Commands
 - `bundle exec rake lint` - Run the full suite of linters on the codebase.
@@ -38,13 +51,12 @@ this is a sign that redis is not currently running or `config/redis.yml` is not 
 - `bundle exec rake ci` - Run all build steps performed in Travis CI.
 
 ### Manually Testing Auth Flow
-The first endpoint doesn't require authentication while the second does:
+The first endpoint, below, doesn't require authentication while the second does:
 ```
 curl localhost:3000/v0/status
 curl localhost:3000/v0/welcome
 ```
-
-It is easiest to go through the auth flow in your browser. Curl or browse to `http://localhost:3000/v0/sessions/new`; copy and paste the ID.me URL into your browser and log in on ID.me. The token returned in the json response at the end of the login flow can be used as follows:
+It is easiest to go through the auth flow in your browser. Curl or browse to `http://localhost:3000/v0/sessions/new`; copy and paste the ID.me URL into your browser and log in on ID.me. The token returned in the json response at the end of the login flow can be used as follows (You may wish to use Postman instead of curl to test within the browser):
 
 ```
 curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyyja" localhost:3000/v0/welcome
