@@ -40,6 +40,10 @@ For an example, see `application.yml.example`
 Note: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
 this is a sign that redis is not currently running or `config/redis.yml` is not using correct host and port.
 
+### Running the App
+1. Start the application: `bundle exec rails s`
+1. Navigate to <http://localhost:3000/v0/status> in your browser.
+
 ## Testing Commands
 - `bundle exec rake lint` - Run the full suite of linters on the codebase.
 - `bundle exec guard` - Runs the guard test server that reruns your tests after files are saved. Useful for TDD!
@@ -47,15 +51,11 @@ this is a sign that redis is not currently running or `config/redis.yml` is not 
 - `bundle exec rake ci` - Run all build steps performed in Travis CI.
 
 ### Manually Testing Auth Flow
-1. Start the application: `bundle exec rails s`
-1. Navigate to <http://localhost:3000/v0/status> in your browser.
-
 The first endpoint, below, doesn't require authentication while the second does:
 ```
 curl localhost:3000/v0/status
 curl localhost:3000/v0/welcome
 ```
-
 It is easiest to go through the auth flow in your browser. Curl or browse to `http://localhost:3000/v0/sessions/new`; copy and paste the ID.me URL into your browser and log in on ID.me. The token returned in the json response at the end of the login flow can be used as follows (You may wish to use Postman instead of curl to test within the browser):
 
 ```
