@@ -35,7 +35,10 @@ group :development, :test do
   gem 'simplecov'
   gem 'webmock'
   gem 'pry-nav'
-  gem 'fakeredis'
+end
+
+group :test do
+  gem 'fakeredis', require: false
 end
 
 group :development do
