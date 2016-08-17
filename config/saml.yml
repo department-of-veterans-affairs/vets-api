@@ -2,8 +2,8 @@ development: &defaults
   issuer: saml-rp.vetsgov.localhost
   callback_url: http://localhost:3000/auth/saml/callback
   metadata_url: https://api.idmelabs.com/saml/metadata
-  certificate: <%= File.read(ENV["CERTIFICATE_FILE"]).dump %>
-  key: <%= File.read(ENV["KEY_FILE"]).dump %>
+  certificate: <%= File.read(File.expand_path(ENV["CERTIFICATE_FILE"])).dump %>
+  key: <%= File.read(File.expand_path(ENV["KEY_FILE"])).dump %>
 
 test:
   <<: *defaults
@@ -14,5 +14,5 @@ production:
   issuer: <%= ENV["SAML_ISSUER"] %>
   callback_url: <%=ENV["CALLBACK_URL"] %>
   metadata_url: <%= ENV["METADATA_URL"] %>
-  certificate: <%= File.read(ENV["CERTIFICATE_FILE"]).dump %>
-  key: <%= File.read(ENV["KEY_FILE"]).dump %>
+  certificate: <%= File.read(File.expand_path(ENV["CERTIFICATE_FILE"])).dump %>
+  key: <%= File.read(File.expand_path(ENV["KEY_FILE"])).dump %>
