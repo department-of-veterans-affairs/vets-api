@@ -1,5 +1,5 @@
 require "rails_helper"
-require "fakeredis"
+require "fakeredis/rspec"
 
 RSpec.describe User, type: :model do
   let(:attributes) { { uuid: "userid:123", email: "test@test.com" } }
