@@ -1,5 +1,5 @@
 require "rails_helper"
-require "fakeredis/rspec"
+require "fakeredis_helper"
 
 RSpec.describe V0::UsersController, type: :controller do
   context "when not logged in" do

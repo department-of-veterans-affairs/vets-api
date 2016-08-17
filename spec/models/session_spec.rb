@@ -1,5 +1,5 @@
 require "rails_helper"
-require "fakeredis/rspec"
+require "fakeredis_helper"
 
 RSpec.describe Session, type: :model do
   let(:attributes) { {} }
