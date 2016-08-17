@@ -23,6 +23,10 @@ end
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
+  # fix for test rspec test randomization when using spring
+  # https://github.com/rails/spring/issues/113#issuecomment-135896880
+  config.seed = srand % 0xFFFF unless ARGV.any? { |arg| arg =~ /seed/ }
+
   config.filter_run focus: true
   config.run_all_when_everything_filtered = true
   # rspec-expectations config goes here. You can use an alternate
