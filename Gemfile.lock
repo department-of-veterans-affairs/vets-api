@@ -95,6 +95,9 @@ GEM
       guard (~> 2.1)
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
+    guard-rubocop (1.2.0)
+      guard (~> 2.0)
+      rubocop (~> 0.20)
     haml (4.0.7)
       tilt
     hashdiff (0.3.0)
@@ -266,6 +269,7 @@ DEPENDENCIES
   fakeredis
   figaro
   guard-rspec
+  guard-rubocop
   pry-nav
   puma (~> 2.16.0)
   rails (= 4.2.7.1)
