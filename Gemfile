@@ -30,9 +30,8 @@ group :development, :test do
   gem 'bundler-audit'
 
   # Testing tools
-  gem 'rspec'
-  gem 'rspec-rails'
-  gem 'guard-rspec'
+  gem 'rspec-rails', '~> 3.5'
+  gem 'guard-rspec', '~> 4.7'
   gem 'simplecov'
   gem 'webmock'
   gem 'pry-nav'
