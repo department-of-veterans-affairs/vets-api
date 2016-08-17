@@ -1,4 +1,4 @@
-require 'fakeredis'
+require "fakeredis"
 
 RSpec.configure do |config|
   config.before(:each) do
