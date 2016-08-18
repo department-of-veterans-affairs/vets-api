@@ -1,4 +1,5 @@
 require "simplecov"
+require "fakeredis/rspec"
 
 SimpleCov.start do
   SimpleCov.minimum_coverage_by_file 90

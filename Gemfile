@@ -38,7 +38,7 @@ end
 group :test do
   gem 'simplecov'
   gem 'webmock'
-  gem 'fakeredis', require: 'fakeredis/rspec'
+  gem 'fakeredis'
 end
 
 group :development do
