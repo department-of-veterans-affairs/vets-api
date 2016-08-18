@@ -38,7 +38,7 @@ group :development, :test do
 end
 
 group :test do
-  gem 'fakeredis', require: false
+  gem 'fakeredis', require: 'fakeredis/rspec'
 end
 
 group :development do
