@@ -32,9 +32,12 @@ group :development, :test do
   # Testing tools
   gem 'rspec-rails', '~> 3.5'
   gem 'guard-rspec', '~> 4.7'
+  gem 'pry-nav'
+end
+
+group :test do
   gem 'simplecov'
   gem 'webmock'
-  gem 'pry-nav'
   gem 'fakeredis'
 end
 

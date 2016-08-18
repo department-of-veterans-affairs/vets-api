@@ -1,5 +1,4 @@
 require "rails_helper"
-require "fakeredis/rspec"
 
 RSpec.describe V0::SessionsController, type: :controller do
   let(:saml_attrs) { { "uuid" => ["1234"], "email" => ["test@test.com"] } }
