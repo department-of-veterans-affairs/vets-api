@@ -36,7 +36,7 @@ group :development, :test do
 end
 
 group :test do
-  gem 'simplecov'
+  gem 'simplecov', require: false
   gem 'webmock'
   gem 'fakeredis'
 end
