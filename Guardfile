@@ -24,7 +24,7 @@
 #  * zeus: 'zeus rspec' (requires the server to be started separately)
 #  * 'just' rspec: 'rspec'
 
-guard :rspec, cmd: "bin/rspec" do
+guard :rspec, cmd: "NOCOVERAGE=y bin/rspec" do
   watch(%r{spec/.*/}) { 'spec' }
   watch(%r{app/.*/}) { 'spec' }
 end
