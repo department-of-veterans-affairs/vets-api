@@ -4,6 +4,12 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   let(:attributes) { { json: {}.to_json } }
   subject { described_class.new(attributes) }
 
+  describe "validations" do
+    %w(uuid submitted_at json).each do |attr|
+      it { should validate_presence_of(attr) }
+    end
+  end
+
   describe "redis persistence" do
     before(:each) { subject.save }
 

@@ -8,7 +8,7 @@ class EducationBenefitsClaim < RedisStore
   after_initialize(:generate_uuid)
   after_initialize(:set_submitted_at)
 
-  validates(:uuid, presence: true)
+  validates(:uuid, :json, :submitted_at, presence: true)
 
   private
 
