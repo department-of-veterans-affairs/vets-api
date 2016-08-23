@@ -10,6 +10,13 @@ test:
   certificate: <%= File.read("spec/support/certificates/ruby-saml.crt").dump %>
   key: <%= File.read("spec/support/certificates/ruby-saml.key").dump %>
 
+staging:
+  issuer: <%= ENV["SAML_ISSUER"] %>
+  callback_url: <%=ENV["CALLBACK_URL"] %>
+  metadata_url: <%= ENV["METADATA_URL"] %>
+  certificate: <%= File.read(File.expand_path(ENV["CERTIFICATE_FILE"])).dump %>
+  key: <%= File.read(File.expand_path(ENV["KEY_FILE"])).dump %>
+
 production:
   issuer: <%= ENV["SAML_ISSUER"] %>
   callback_url: <%=ENV["CALLBACK_URL"] %>

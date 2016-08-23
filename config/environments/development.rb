@@ -1,4 +1,8 @@
 Rails.application.configure do
+  config.action_dispatch.default_headers = {
+    'Access-Control-Allow-Origin' => 'http://localhost:3000',
+    'Access-Control-Request-Method' => %w{GET POST OPTIONS}.join(",")
+  }
   # Settings specified here will take precedence over those in config/application.rb.
 
   # In the development environment your application's code is reloaded on
