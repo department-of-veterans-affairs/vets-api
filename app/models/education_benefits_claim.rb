@@ -1,8 +1,8 @@
 class EducationBenefitsClaim < RedisStore
-  attribute :submitted_at
-  attribute :json
-  attribute :processed_at
-  attribute :uuid
+  attribute :submitted_at, Time
+  attribute :json, String
+  attribute :processed_at, Time
+  attribute :uuid, String
   alias redis_key uuid
 
   after_initialize(:generate_uuid)
