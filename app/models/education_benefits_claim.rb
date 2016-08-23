@@ -1,7 +1,7 @@
 class EducationBenefitsClaim < RedisStore
-  attribute :submitted_at, Time
+  attribute :submitted_at, ActiveSupport::TimeWithZone
   attribute :json, String
-  attribute :processed_at, Time
+  attribute :processed_at, ActiveSupport::TimeWithZone
   attribute :uuid, String
   alias redis_key uuid
 
