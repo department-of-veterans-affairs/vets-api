@@ -15,16 +15,37 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   end
 
   describe "#generate_uuid" do
-    it "should generate uuid before validation when it doesnt exist" do
-      expect(subject.uuid.nil?).to eq(true)
-      subject.valid?
+    it "should generate uuid after initialization when it doesnt exist" do
       expect(subject.uuid.include?("education_benefits_claim:")).to eq(true)
     end
 
-    it "shouldnt generate uuid when there already is one" do
-      subject.uuid = "foo"
-      subject.valid?
-      expect(subject.uuid).to eq("foo")
+    context "with uuid set in attributes" do
+      let(:attributes) do
+        {
+          uuid: "foo"
+        }
+      end
+
+      it "shouldnt generate uuid" do
+        expect(subject.uuid).to eq("foo")
+      end
+    end
+  end
+
+  describe "#set_submitted_at" do
+    it "should set the submitted_at date after initialization" do
+      Timecop.freeze do
+        expect(subject.submitted_at).to eq(Time.zone.now)
+      end
+    end
+
+    context "with submitted_at set on init" do
+      let(:time) { 1.day.ago }
+      subject { described_class.new(attributes.merge(submitted_at: time)) }
+
+      it "should not set the submitted_at" do
+        expect(subject.submitted_at).to eq(time)
+      end
     end
   end
 end
