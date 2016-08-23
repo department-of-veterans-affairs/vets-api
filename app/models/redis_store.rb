@@ -5,7 +5,6 @@ class RedisStore
 
   include ActiveModel::Serialization
   include ActiveModel::Validations
-  include ActiveModel::Validations::Callbacks
   include Virtus.model
   REDIS_STORE = Redis.current
 
