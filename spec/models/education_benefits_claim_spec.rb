@@ -18,7 +18,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     it "should generate uuid before validation when it doesnt exist" do
       expect(subject.uuid.nil?).to eq(true)
       subject.valid?
-      expect(subject.uuid.include?('education_benefits_claim:')).to eq(true)
+      expect(subject.uuid.include?("education_benefits_claim:")).to eq(true)
     end
 
     it "shouldnt generate uuid when there already is one" do
