@@ -37,7 +37,9 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
         subject
 
         expect(response.code).to eq("400")
-        expect(response.body).to eq(EducationBenefitsClaim.new(params[:education_benefits_claim]).tap(&:valid?).errors.to_json)
+        expect(response.body).to eq(
+          EducationBenefitsClaim.new(params[:education_benefits_claim]).tap(&:valid?).errors.to_json
+        )
       end
     end
   end
