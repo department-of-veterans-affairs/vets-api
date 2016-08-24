@@ -32,7 +32,11 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           form_errors = subject.errors[:form]
 
           expect(form_errors.size).to eq(1)
-          expect(form_errors[0].include?("The property '#/chapter30' of type Fixnum did not match the following type: boolean")).to eq(true)
+          expect(
+            form_errors[0].include?(
+              "The property '#/chapter30' of type Fixnum did not match the following type: boolean"
+            )
+          ).to eq(true)
         end
       end
     end
