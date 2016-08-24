@@ -41,7 +41,6 @@ group :test do
   gem 'webmock'
   gem 'fakeredis'
   gem 'timecop'
-  gem 'shoulda-matchers'
 end
 
 group :development do
