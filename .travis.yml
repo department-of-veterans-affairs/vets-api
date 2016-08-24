@@ -15,7 +15,6 @@ before_script:
   - export REDIS_HOST="localhost"
   - export REDIS_PORT="6379"
   - psql -c 'create database vets_api_test;' -U postgres
-  - bundle exec rake db:test:load
 
 script:
   - bundle exec rake
