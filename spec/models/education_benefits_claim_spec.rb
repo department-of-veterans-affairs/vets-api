@@ -9,7 +9,11 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   subject { described_class.new(attributes) }
 
   describe "validations" do
-    it { should validate_presence_of(:form) }
+    it "should validate presence of form" do
+      expect_attr_valid(subject, :form)
+      subject.form = nil
+      expect_attr_invalid(subject, :form, "can't be blank")
+    end
   end
 
   describe "#set_submitted_at" do
