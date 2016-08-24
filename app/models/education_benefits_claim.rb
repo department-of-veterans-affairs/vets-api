@@ -1,9 +1,10 @@
 class EducationBenefitsClaim < ActiveRecord::Base
-  after_initialize(:set_submitted_at)
+  validates(:form, presence: true)
 
-  validates(:json, :submitted_at, presence: true)
+  # initially only completed claims are allowed, later we can allow claims that dont have a submitted_at yet
+  before_validation(:set_submitted_at, on: :create)
 
   def set_submitted_at
-    self.submitted_at ||= Time.zone.now
+    self.submitted_at = Time.zone.now
   end
 end
