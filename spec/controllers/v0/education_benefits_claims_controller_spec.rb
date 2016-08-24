@@ -10,14 +10,14 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
       let(:params) do
         {
           education_benefits_claim: {
-            form: { chapter33: true }
+            form: { chapter30: true }
           }
         }
       end
 
       it "should create a new model" do
         expect { subject }.to change { EducationBenefitsClaim.count }.by(1)
-        expect(EducationBenefitsClaim.last.form["chapter33"]).to eq(true)
+        expect(EducationBenefitsClaim.last.form["chapter30"]).to eq(true)
       end
 
       it "should render json of the new model" do
