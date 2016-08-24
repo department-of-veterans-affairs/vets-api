@@ -1,0 +1,192 @@
+*INIT*
+<%= @applicant.first_name.upcase %>
+<%= @applicant.middle_initial&.upcase %>
+<%= @applicant.last_name.upcase %>
+222211111
+222212111
+V1990
+
+LINCOLN TECHNICAL INSTITUTE, COLUMBIA
+CH33
+*START*
+VA Form 22-1990
+DEC 2008
+
+                    APPLICATION FOR VA EDUCATION BENEFITS
+                    -------------------------------------
+
+EDUCATION BENEFIT BEING APPLIED FOR: Chapter 33 in Lieu of Chapter 30 - Effective: 9/1/2016
+
+By electing Chapter 33, I acknowledge that I understand the following:
+* I may not receive more than a total of 48 months of benefits under two or more programs. * If electing chapter 33 in lieu of chapter 30, my months of entitlement under chapter 33 will be limited to the number of months of entitlement remaining under chapter 30 on the effective date of my election. However, if I completely exhaust my entitlement under chapter 30 before the effective date of my chapter 33 election, I may receive up to 12 additional months of benefits under chapter 33.
+* My election is irrevocable and may not be changed.
+
+
+                            APPLICANT INFORMATION
+                            ---------------------
+
+SSN: 222-11-1111         Sex: <%= @applicant.sex %>             Date of Birth: <%= @applicant.birthday %>
+
+Name:   <%= full_name %>
+
+Address:
+        123 MADEUP ST
+        CITYNAME, ST 12345
+
+Telephone Numbers:     Primary:    (555) 111-3333
+                       Secondary:  (555) 222-3333
+
+Email Address:  EMAIL@ADDRESS.XYZ
+
+Direct Deposit:     Type of Account: Savings
+Name of Financial Inst.: NAVY FEDERAL CREDIT UNION
+Routing/Transit #: 123567890   Account #: 11111111111
+
+Name, Address, & Telephone Number of Contact:
+        OTHER S NAME
+        Address and phone same as claimant
+
+Have you previously applied for VA Benefits?    <%= yesno(@applicant.previously_applied_self) %>
+
+Previously Applied for VA Benefits Using Someone Else's Service?    <%= yesno(@applicant.previously_applied_other) %>
+
+
+                    INFORMATION ON VA EDUCATION BENEFITS
+                    ------------------------------------
+
+Received an information pamphlet:    <%= yesno(@applicant.recieved_pamphlet) %>
+
+
+                  TYPE AND PROGRAM OF EDUCATION OR TRAINING
+                  -----------------------------------------
+
+Type of Education or Training: College or Other School (including online courses)
+
+Name and Address of School or Training Establishment:
+        SCHOOLNAME
+        1111 SCHOOLADDRESS ST
+        CITYNAME, ST 55555
+
+Date You Started or Will Start Training: 10/10/2016
+
+Education or Career Goal: MAJORNAME
+
+Course of Study: MJRNAME
+
+
+                       ACTIVE DUTY SERVICE INFORMATION
+                       -------------------------------
+
+Are You Now On Active Duty?   <%= yesno(@applicant.currently_active_duty) %>
+
+Are you Now On Terminal Leave Just Before Discharge? <%= yesno(@applicant.terminal_leave) %>
+
+Attaching Copy of DD 214 to Application?    <%= yesno(@applicant.attaching_dd_214) %>
+
+Date Entered   Date Separated     Service Component
+Active Duty    From Active Duty
+01/01/2010     01/01/2014         Navy
+                         Service Status:   ACTIVE DUTY
+                         Involuntary Call: N/A
+
+
+                    EDUCATION AND EMPLOYMENT INFORMATION
+                    ------------------------------------
+
+Date Received High School Diploma or Equivalency Certificate: <%= to_date(@applicant.high_school_diploma_date) %>
+
+FAA Flight Certificates:
+
+      Education After High School
+      ---------------------------
+
+Name and Location of College or Training Provider:
+Date of Training:     From: <%= to_date(@applicant.training_start_date) %> To: <%= to_date(@applicant.training_end_date) %>
+Hours:
+Degree/Diploma/Certificate:
+Major Field/Course of Study:
+
+
+        Employment
+        ----------
+
+Before Entering Military Service
+        Principal Occupation:
+        Number of Months:
+        License or Rating:
+
+After Leaving Military Service
+        Principal Occupation:
+        Number of Months:
+        License or Rating:
+
+
+          ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
+          ----------------------------------------------------------
+
+Did you make additional contributions (up to $600) to increase the amount
+of your monthly benefits?   <%= yesno(@applicant.contributing_kicker) %>
+
+Do you qualify for a Kicker (sometimes called a College Fund) based on
+your military service?
+
+    Active Duty Kicker:   <%= yesno(@applicant.qualify_for_active_duty_kicker) %>
+
+    Reserve Kicker:    <%= yesno(@applicant.qualify_for_reserve_kicker) %>
+
+If you graduated from a military service academy, specify the year you graduated and received your commission:
+
+ROTC Scholarship Program and Officer's Commission. Were you commissioned as the result of a Senior ROTC (Reserve Officers Training Corps) Scholarship Program?
+
+        Date of Commission:
+
+        Scholarship Amounts:
+
+            Year 1:          Amount:
+
+            Year 2:          Amount:
+
+            Year 3:          Amount:
+
+            Year 4:          Amount:
+
+            Year 5:          Amount:
+
+Senior ROTC Scholarship Program. Are you currently participating in a Senior ROTC Scholarship Program which pays for your tuition, fees, books and supplies under Section 2107, Title 10 U.S. Code?   <%= yesno(@applicant.senior_rotc_scholarship) %>
+
+Did you have a period of active duty that the Department of Defense counts for purposes of repaying an education loan?    <%= yesno(@applicant.active_duty_towards_repayment) %>
+
+        Start Date: <%= to_date(@applicant.active_duty_repayment_start_date) %>
+
+        End Date: <%= to_date(@applicant.active_duty_repayment_end_date) %>
+
+For Active Duty Claimants Only. Are you receiving or do you anticipate receiving any money (including but not limited to Federal Tuition Assistance) from the Armed Forces or Public Health Service for the course for which you have applied to the VA for Education Benefits?  If you receive such benefits during any part of your training, check 'Yes.' Note:  If you are only applying for Tuition Assistance Top-Up, check 'No' to this item.    <%= yesno(@applicant.will_receive_afphs) %>
+
+Is the source of your non-VA assistance a state sponsored tuition assistance program for Guardsmen/Reservists?    <%= yesno(@applicant.state_sponsored_tution_assistance) %>
+
+For Civilian Employees of the U.S. Federal Government Only. Are you receiving or do you anticipate receiving any money from your agency (including but not limited to the Government Employees Training Act) for the same period for which you have applied to the VA for Education Benefits? If you will receive such benefits during any part of your training, check Yes.    <%= yesno(@applicant.civilian_agency_benefits) %>
+
+
+                        MARITAL AND DEPENDENCY STATUS
+           (For Applicants with Military Service Before Jan 1, 1977)
+           ---------------------------------------------------------
+
+
+N/A
+
+
+                                   REMARKS
+                                   -------
+
+
+
+      Certification and Signature of Applicant
+Signature of Applicant                                               Date
+
+      Certification for Persons on Active Duty
+Signature/Title/Branch of Armed Forces Education Service Officer     Date
+
+Electronically Received by VA:  <%= to_date(Date.today) %>
+Confirmation #:  987654
+
+*END*
