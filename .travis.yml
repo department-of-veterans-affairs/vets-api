@@ -2,6 +2,9 @@ language: ruby
 rvm:
   - 2.3.0
 
+services:
+  - postgresql
+
 branches:
     only:
         - master
@@ -11,6 +14,7 @@ before_script:
   - export KEY_FILE="spec/support/certificates/ruby-saml.key"
   - export REDIS_HOST="localhost"
   - export REDIS_PORT="6379"
+  - psql -c 'create database vets_api_test;' -U postgres
 
 script:
   - bundle exec rake

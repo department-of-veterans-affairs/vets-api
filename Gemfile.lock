@@ -128,6 +128,7 @@ GEM
       shellany (~> 0.0)
     parser (2.3.1.2)
       ast (~> 2.2)
+    pg (0.18.4)
     pkg-config (1.1.7)
     powerpack (0.1.1)
     pry (0.10.3)
@@ -270,6 +271,7 @@ DEPENDENCIES
   figaro
   guard-rspec (~> 4.7)
   guard-rubocop
+  pg
   pry-nav
   puma (~> 2.16.0)
   rails (= 4.2.7.1)
