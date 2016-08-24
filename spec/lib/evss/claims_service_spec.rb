@@ -1,28 +1,8 @@
-class User < RedisStore
-  NAMESPACE = REDIS_CONFIG["user_store"]["namespace"]
-  REDIS_STORE = Redis::Namespace.new(NAMESPACE, redis: Redis.current)
-  DEFAULT_TTL = REDIS_CONFIG["user_store"]["each_ttl"]
+# frozen_string_literal: true
+require "rails_helper"
 
-  # id.me attributes
-  attribute :uuid
-  attribute :email
-  attribute :first_name
-  attribute :last_name
-  attribute :zip
-
-  # Add additional MVI attributes
-  alias redis_key uuid
-
-  validates :uuid, presence: true
-  validates :email, presence: true
-
-  def claims
-    Claim.fetch_all(vaafi_headers)
-  end
-
-  private
-
-  def vaafi_headers
+describe EVSS::ClaimsService do
+  let(:vaafi_headers) do
     {
       "va_eauth_pnidtype" => "SSN",
       "va_eauth_csid" => "DSLogon",
@@ -39,5 +19,23 @@ class User < RedisStore
       "va_eauth_authenticationmethod" => "DSLogon",
       "va_eauth_assurancelevel" => "2"
     }
+  end
+
+  subject { described_class.new(vaafi_headers) }
+
+  context "with headers" do
+    it "should get claims" do
+      VCR.use_cassette("evss/claims/claims") do
+        response = subject.claims
+        expect(response).to be_success
+      end
+    end
+
+    it "should post create_intent_to_file" do
+      VCR.use_cassette("evss/claims/create_intent_to_file") do
+        response = subject.create_intent_to_file
+        expect(response).to be_success
+      end
+    end
   end
 end
