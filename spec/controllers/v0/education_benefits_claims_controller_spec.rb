@@ -25,5 +25,22 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
         expect(response.body).to eq(EducationBenefitsClaim.last.to_json)
       end
     end
+
+    context "with invalid params" do
+      let(:params) do
+        {
+          education_benefits_claim: { form: nil }
+        }
+      end
+
+      it "should render json of the errors" do
+        subject
+
+        expect(response.code).to eq("400")
+        expect(response.body).to eq(EducationBenefitsClaim.new(params[:education_benefits_claim]).tap do |model|
+          model.valid?
+        end.errors.to_json)
+      end
+    end
   end
 end

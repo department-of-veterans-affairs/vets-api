@@ -5,7 +5,11 @@ module V0
     def create
       education_benefits_claim = EducationBenefitsClaim.new(education_benefits_claim_params)
 
-      render(json: education_benefits_claim.save ? education_benefits_claim : education_benefits_claim.errors)
+      if education_benefits_claim.save
+        render(json: education_benefits_claim)
+      else
+        render(json: education_benefits_claim.errors, status: :bad_request)
+      end
     end
 
     private
