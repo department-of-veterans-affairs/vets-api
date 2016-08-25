@@ -9,6 +9,7 @@ module EducationForm
 
     DEVELOPMENT_DATA = [ # Until this is backed by a model
       {
+        form: "CH30",
         first_name: "Mark",
         last_name: "Olson",
         previously_applied_self: true,
@@ -17,6 +18,7 @@ module EducationForm
         birthday: "03/07/1985"
       },
       {
+        form: "CH33_30",
         first_name: "Jane",
         middle_initial: "T",
         last_name: "Doe",
@@ -51,6 +53,7 @@ module EducationForm
       # TODO: SFTP the generated file(s)
       # TODO: Mark the applications as processed once the send is successful
       # TODO: Log the success/failure of the submission somewhere
+      # puts formatted_output
       true
     end
 
@@ -62,6 +65,21 @@ module EducationForm
       # the spool file has a requirement that lines be 80 bytes (not characters), and since they
       # use windows-style newlines, that leaves us with a width of 78
       word_wrap(@application_template.result(binding), line_width: 78)
+    end
+
+    def form_type(application)
+      {
+        CH33_30:    "CH33",
+        CH33_1606:  "CH33",
+        CH33_1607:  "CH33",
+        CH1606:     "CH1606",
+        CH30:       "CH30"
+      }[application.form.to_sym]
+    end
+
+    def disclosure(application)
+      contents = File.read(Rails.root.join("app", "tasks", "education_form", "templates", "_#{application.form}.erb"))
+      ERB.new(contents).result(binding)
     end
 
     # with the binding, we can access helper methods as well
