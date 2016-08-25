@@ -10,6 +10,7 @@ branches:
         - master
 
 before_script:
+  - export HOSTNAME="www.example.com"
   - export CERTIFICATE_FILE="spec/support/certificates/ruby-saml.crt"
   - export KEY_FILE="spec/support/certificates/ruby-saml.key"
   - export REDIS_HOST="localhost"
