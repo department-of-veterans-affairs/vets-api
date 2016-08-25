@@ -29,5 +29,7 @@ module VetsAPI
     # config.i18n.default_locale = :de
 
     config.api_only = true
+
+    config.watchable_dirs['lib'] = [:rb]
   end
 end

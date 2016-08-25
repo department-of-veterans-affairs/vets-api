@@ -13,6 +13,7 @@ Rails.application.routes.draw do
     resource :users, only: :show
 
     resource :education_benefits_claims, only: :create
+    resources :claims, only: [:index]
 
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'status', to: 'admin#status'

@@ -16,6 +16,12 @@ gem 'rails-api'
 gem 'figaro'
 gem 'pg'
 
+gem 'active_model_serializers', '~> 0.10.0'
+
+gem 'faraday'
+gem 'faraday_middleware'
+gem 'httpclient'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: :ruby
@@ -41,6 +47,8 @@ group :test do
   gem 'webmock'
   gem 'fakeredis'
   gem 'timecop'
+  gem 'json-schema'
+  gem 'vcr'
 end
 
 group :development do
