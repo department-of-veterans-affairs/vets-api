@@ -1,12 +1,14 @@
+require_dependency "evss/claims_service"
+
 class Claim < ActiveModelSerializers::Model
   attr_accessor :id
 
+  EVSS_CLAIM_KEYS = %w(openClaims historicalClaims)
+
   def self.fetch_all(headers)
     evss_client = EVSS::ClaimsService.new(headers)
-    keys = %w(openClaims historicalClaims)
     raw_claims = evss_client.claims.body
-    claims = []
-    keys.each do |key|
+    EVSS_CLAIM_KEYS.each_with_object([]) do |key, claims|
       next unless raw_claims[key]
       claims << raw_claims[key].map do |raw_claim|
         attrs = {
@@ -14,7 +16,6 @@ class Claim < ActiveModelSerializers::Model
         }
         Claim.new(attrs)
       end
-    end
-    claims.flatten
+    end.flatten
   end
 end
