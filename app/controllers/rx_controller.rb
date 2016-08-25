@@ -14,18 +14,21 @@ class RxController < ApplicationController
 
   before_action :authenticate_client
 
-  def log_error(exception)
-    Rails.logger.error "#{exception.message}. #{exception.try(:developer_message)}."
-    Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
-  end
+  protected
 
-  def render_error(e, status_code: 500)
-    if e.is_a? VARx::Error::ClientResponse
-      render json: { errors: [e.as_json] }, status: status_code
-    else
-      render json: { errors: [errors_hash(e, status_code)] }, status: status_code
-    end
-  end
+  # Commenting these out for now, they will be refactored later
+  # def log_error(exception)
+  #   Rails.logger.error "#{exception.message}. #{exception.try(:developer_message)}."
+  #   Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
+  # end
+  #
+  # def render_error(e, status_code: 500)
+  #   if e.is_a? VARx::Error::ClientResponse
+  #     render json: { errors: [e.as_json] }, status: status_code
+  #   else
+  #     render json: { errors: [errors_hash(e, status_code)] }, status: status_code
+  #   end
+  # end
 
   def client
     @client ||= VARx::Client.new(config: MHV_CONFIG, session: { user_id: ENV["MHV_USER_ID"] })
@@ -42,10 +45,13 @@ class RxController < ApplicationController
     }
   end
 
-  def errors_hash(e, status_code)
-    base_json = { major: status_code, minor: "", message: e.message }
-    return base_json unless Rails.env.development? || Rails.env.test?
-    cause = e.cause.nil? ? {} : { message: e.cause.message, error: e.cause.backtrace }
-    base_json.merge(developer_message: "", error: e.backtrace, cause: cause)
-  end
+  # TODO: These belong in ApplicationController and will use VA-API-COMMON Exceptions
+  # private
+  #
+  # def errors_hash(e, status_code)
+  #   base_json = { major: status_code, minor: "", message: e.message }
+  #   return base_json unless Rails.env.development? || Rails.env.test?
+  #   cause = e.cause.nil? ? {} : { message: e.cause.message, error: e.cause.backtrace }
+  #   base_json.merge(developer_message: "", error: e.backtrace, cause: cause)
+  # end
 end
