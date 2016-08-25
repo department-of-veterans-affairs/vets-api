@@ -15,6 +15,11 @@ gem 'virtus'
 gem 'rails-api'
 gem 'figaro'
 gem 'pg'
+gem 'active_model_serializers', '~> 0.10.0'
+gem 'will_paginate'
+gem 'responders'
+
+gem 'va_rx', git: 'https://github.com/department-of-veterans-affairs/va_rx.git', branch: 'master'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -40,6 +45,8 @@ group :test do
   gem 'simplecov', require: false
   gem 'webmock'
   gem 'fakeredis'
+  gem 'vcr'
+  gem 'json-schema'
 end
 
 group :development do
