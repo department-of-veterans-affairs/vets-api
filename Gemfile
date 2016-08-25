@@ -18,11 +18,7 @@ gem 'pg'
 gem 'active_model_serializers', '~> 0.10.0'
 gem 'will_paginate'
 gem 'responders'
-
 gem 'va_rx', git: 'https://github.com/department-of-veterans-affairs/va_rx.git', branch: 'master'
-
-gem 'active_model_serializers', '~> 0.10.0'
-
 gem 'faraday'
 gem 'faraday_middleware'
 gem 'httpclient'
