@@ -7,10 +7,11 @@ Rails.application.routes.draw do
   namespace :v0, defaults: {format: 'json'} do
     resource :sessions, only: [:new, :destroy] do
       get :saml_callback, to: 'sessions#saml_callback'
-      get 'profile', to: 'sessions#show'
+      match 'current', to: 'sessions#show', via: [:get, :options]
     end
 
-    resource :users, only: :show
+    match 'user', to: 'users#show', via: [:get, :options]
+    match 'profile', to: 'users#show', via: [:get, :options]
 
     resources :claims, only: [:index]
 
