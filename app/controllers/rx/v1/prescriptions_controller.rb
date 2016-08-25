@@ -17,14 +17,14 @@ module Rx
         resource = collection_resource
         resource = resource.sort(params[:sort] || DEFAULT_SORT, allowed: SORT_TYPES)
         resource = resource.paginate(pagination_params)
-        respond_with resource.data, serializer: CollectionSerializer,
+        render json: resource.data, serializer: CollectionSerializer,
                                     each_serializer: PrescriptionSerializer,
                                     meta: resource.metadata
       end
 
       def show
         resource = client.get_rx(params[:id])
-        respond_with resource, serializer: PrescriptionSerializer,
+        render json: resource, serializer: PrescriptionSerializer,
                                meta: resource.metadata
       end
 

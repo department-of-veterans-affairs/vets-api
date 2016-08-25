@@ -10,8 +10,6 @@ class RxController < ApplicationController
   DEFAULT_PER_PAGE = 10
   MAXIMUM_PER_PAGE = 100
 
-  respond_to :json
-
   before_action :authenticate_client
 
   protected
