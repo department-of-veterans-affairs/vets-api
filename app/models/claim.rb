@@ -3,7 +3,7 @@ require_dependency "evss/claims_service"
 class Claim < ActiveModelSerializers::Model
   attr_accessor :id
 
-  EVSS_CLAIM_KEYS = %w(openClaims historicalClaims)
+  EVSS_CLAIM_KEYS = %w(openClaims historicalClaims).freeze
 
   def self.fetch_all(headers)
     evss_client = EVSS::ClaimsService.new(headers)
