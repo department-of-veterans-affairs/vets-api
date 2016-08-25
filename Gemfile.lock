@@ -93,6 +93,8 @@ GEM
       redis (~> 3.0)
     faraday (0.9.2)
       multipart-post (>= 1.2, < 3)
+    faraday_middleware (0.10.0)
+      faraday (>= 0.7.4, < 0.10)
     ffi (1.9.10)
     figaro (1.1.1)
       thor (~> 0.14)
@@ -120,6 +122,7 @@ GEM
       tilt
     hashdiff (0.3.0)
     highline (1.7.8)
+    httpclient (2.8.2.2)
     i18n (0.7.0)
     ice_nine (0.11.2)
     json (1.8.3)
@@ -297,9 +300,12 @@ DEPENDENCIES
   bundler-audit
   byebug
   fakeredis
+  faraday
+  faraday_middleware
   figaro
   guard-rspec (~> 4.7)
   guard-rubocop
+  httpclient
   json-schema
   pg
   pry-nav

@@ -12,6 +12,8 @@ Rails.application.routes.draw do
 
     resource :users, only: :show
 
+    resources :claims, only: [:index]
+
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'status', to: 'admin#status'
   end

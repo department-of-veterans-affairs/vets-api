@@ -21,6 +21,12 @@ gem 'responders'
 
 gem 'va_rx', git: 'https://github.com/department-of-veterans-affairs/va_rx.git', branch: 'master'
 
+gem 'active_model_serializers', '~> 0.10.0'
+
+gem 'faraday'
+gem 'faraday_middleware'
+gem 'httpclient'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: :ruby
@@ -45,8 +51,8 @@ group :test do
   gem 'simplecov', require: false
   gem 'webmock'
   gem 'fakeredis'
-  gem 'vcr'
   gem 'json-schema'
+  gem 'vcr'
 end
 
 group :development do
