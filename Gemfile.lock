@@ -173,6 +173,7 @@ GEM
       shellany (~> 0.0)
     olive_branch (1.1.0)
       rails (>= 4.0)
+    ox (2.4.4)
     parser (2.3.1.2)
       ast (~> 2.2)
     pg (0.18.4)
@@ -332,6 +333,7 @@ DEPENDENCIES
   httpclient
   json-schema
   olive_branch
+  ox (~> 2.4)
   pg
   pry-nav
   puma (~> 2.16.0)
