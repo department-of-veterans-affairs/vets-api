@@ -10,8 +10,10 @@ module EducationForm
     DEVELOPMENT_DATA = [ # Until this is backed by a model
       {
         form: "CH30",
-        first_name: "Mark",
-        last_name: "Olson",
+        fullName: {
+          first: "Mark",
+          last: "Olson"
+        },
         previously_applied_self: true,
         high_school_diploma_date: "05/15/2006",
         sex: "Male",
@@ -19,9 +21,11 @@ module EducationForm
       },
       {
         form: "CH33_30",
-        first_name: "Jane",
-        middle_initial: "T",
-        last_name: "Doe",
+        fullName: {
+          first: "Jane",
+          last: "Doe",
+          middle: "T"
+        },
         previously_applied_self: false,
         high_school_diploma_date: nil,
         sex: "Female",
@@ -60,8 +64,9 @@ module EducationForm
     def format_application(application)
       # TODO: Do we need to have different templates for different forms varients?
       @application_template ||= ERB.new(TEMPLATE)
-      # TODO: once the model is in place, just use that. OpenStruct is for accessor convenience
-      @applicant = OpenStruct.new(application)
+      # TODO: once the model is in place, just use that. OpenStruct is for accessor convenience.
+      # ... it's piped through JSON so we can do a deep-struct, OpenStruct.new is shallow
+      @applicant = JSON.parse(application.to_json, object_class: OpenStruct)
       # the spool file has a requirement that lines be 80 bytes (not characters), and since they
       # use windows-style newlines, that leaves us with a width of 78
       word_wrap(@application_template.result(binding), line_width: 78)
@@ -84,7 +89,7 @@ module EducationForm
 
     # with the binding, we can access helper methods as well
     def full_name
-      [@applicant.first_name, @applicant.middle_initial, @applicant.last_name].compact.join(" ")
+      [@applicant.fullName.first, @applicant.fullName.middle, @applicant.fullName.last].compact.join(" ")
     end
 
     def yesno(bool)

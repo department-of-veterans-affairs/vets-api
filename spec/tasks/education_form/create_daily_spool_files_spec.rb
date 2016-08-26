@@ -6,7 +6,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model do
   context "#format_application" do
     # TODO: Does it make sense to check against a known-good submission? Probably.
     it "formats a 22-1990 submission in textual form" do
-      result = subject.format_application(form: "CH33_30", first_name: "Mark", last_name: "Olson")
+      result = subject.format_application(form: "CH33_30", fullName: { first: "Mark", last: "Olson" })
       expect(result).to include("*INIT*\nMARK\n\nOLSON")
       expect(result).to include("Name:   Mark Olson")
     end
