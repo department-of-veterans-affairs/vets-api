@@ -10,10 +10,15 @@ branches:
         - master
 
 before_script:
+  - export HOSTNAME="www.example.com"
   - export CERTIFICATE_FILE="spec/support/certificates/ruby-saml.crt"
   - export KEY_FILE="spec/support/certificates/ruby-saml.key"
   - export REDIS_HOST="localhost"
   - export REDIS_PORT="6379"
+  - export MHV_HOST='https://mock-prescriptions-api.herokuapp.com'
+  - export MHV_BASE_URL='https://mock-prescriptions-api.herokuapp.com/mhv-api/patient/v1/'
+  - export MHV_APP_TOKEN='fake-app-token'
+  - export MHV_USER_ID='1435525'
   - psql -c 'create database vets_api_test;' -U postgres
 
 script:

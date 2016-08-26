@@ -1,0 +1,88 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["data", "meta"],
+  "properties": {
+    "data": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "required": ["id", "type", "attributes", "links"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "enum": ["va-rx-trackings"] },
+          "attributes": {
+            "type": "object",
+            "required": [
+              "tracking-number",
+              "prescription-id",
+              "prescription-number",
+              "prescription-name",
+              "facility-name",
+              "rx-info-phone-number",
+              "ndc-number",
+              "shipped-date",
+              "delivery-service"
+            ],
+            "properties": {
+              "tracking-number": { "type": "string" },
+              "prescription-id": { "type": "integer" },
+              "prescription-number": { "type": "string" },
+              "prescription-name": { "type": "string" },
+              "facility-name": { "type": "string" },
+              "rx-info-phone-number": { "type": "string" },
+              "ndc-number": { "type": "string" },
+              "shipped-date": { "type": "string", "format": "date" },
+              "delivery-service": { "type": "string" }
+            }
+          },
+          "links": {
+            "type": "object",
+            "required": ["self", "prescription"],
+            "properties": {
+              "self": { "type": "string" },
+              "prescription": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "links": {
+      "type": "object",
+      "required": ["self", "first", "prev", "next", "last"],
+      "properties": {
+        "self": { "type": "string" },
+        "first": { "type": "string" },
+        "prev": { "type": ["string", "null"] },
+        "next": { "type": ["string", "null"] },
+        "last": { "type": "string" }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["updated-at", "failed-station-list", "sort", "pagination"],
+      "properties": {
+        "updated-at": { "type": "string" },
+        "failed-station-list": { "type": ["string", "null"] },
+        "sort": {
+          "type": "object",
+          "required": ["shipped-date"],
+          "properties": {
+            "shipped-date": { "type": "string", "format": "date" }
+          }
+        },
+        "pagination": {
+          "type": "object",
+          "required": ["current-page", "per-page", "total-pages", "total-entries"],
+          "properties": {
+            "current-page": { "type": "integer" },
+            "per-page": { "type": "integer" },
+            "total-pages": { "type": "integer" },
+            "total-entries": { "type": "integer" }
+          }
+        }
+      }
+    }
+  }
+}
