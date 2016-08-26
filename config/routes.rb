@@ -1,5 +1,9 @@
 Rails.application.routes.draw do
 
+  # TODO(#45): add rack-cors middleware to streamline CORS config
+  # Adding CORS preflight routes here for now to unblock front-end dev
+  match '/v0/*path', to: 'application#cors_preflight', via: [:options]
+
   get '/saml/metadata', to: 'saml#metadata'
   get '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
   post '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
@@ -7,10 +11,11 @@ Rails.application.routes.draw do
   namespace :v0, defaults: {format: 'json'} do
     resource :sessions, only: [:new, :destroy] do
       get :saml_callback, to: 'sessions#saml_callback'
-      get 'profile', to: 'sessions#show'
+      get 'current', to: 'sessions#show'
     end
 
-    resource :users, only: :show
+    get 'user', to: 'users#show'
+    get 'profile', to: 'users#show'
 
     resources :claims, only: [:index]
 
