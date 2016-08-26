@@ -2,7 +2,12 @@
 # by the Figaro gem.
 # Change to match your local settings and save the file as application.yml
 
+HOSTNAME: www.example.com # This is used by json links, could be used elsewhere if we want
 CERTIFICATE_FILE: ~/.certs/vetsgov-localhost.crt
 KEY_FILE: ~/.certs/vetsgov-localhost.key
 REDIS_HOST: localhost
 REDIS_PORT: "6379"
+MHV_HOST: 'https://mock-prescriptions-api.herokuapp.com'
+MHV_BASE_URL: 'https://mock-prescriptions-api.herokuapp.com/mhv-api/patient/v1/'
+MHV_APP_TOKEN: 'fake-app-token'
+MHV_USER_ID: '1435525'
