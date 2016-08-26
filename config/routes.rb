@@ -10,6 +10,8 @@ Rails.application.routes.draw do
       match 'current', to: 'sessions#show', via: [:get, :options]
     end
 
+    # TODO(#45): add rack-cors middleware to streamline CORS config
+    # Adding :options here for now to unblock front-end dev
     match 'user', to: 'users#show', via: [:get, :options]
     match 'profile', to: 'users#show', via: [:get, :options]
 
