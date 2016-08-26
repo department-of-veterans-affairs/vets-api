@@ -1,3 +1,14 @@
+GIT
+  remote: https://github.com/department-of-veterans-affairs/va_rx.git
+  revision: c6f82f13b6e745053e41d926ac8ec36d4d4d3f57
+  branch: master
+  specs:
+    va_rx (0.1.0)
+      activemodel (>= 4.1, < 6)
+      faraday
+      multi_json (~> 1.0)
+      virtus
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -20,7 +31,7 @@ GEM
       erubis (~> 2.7.0)
       rails-dom-testing (~> 1.0, >= 1.0.5)
       rails-html-sanitizer (~> 1.0, >= 1.0.2)
-    active_model_serializers (0.10.2)
+    active_model_serializers (0.10.1)
       actionpack (>= 4.1, < 6)
       activemodel (>= 4.1, < 6)
       jsonapi (~> 0.1.1.beta2)
@@ -133,6 +144,7 @@ GEM
     mime-types-data (3.2016.0521)
     mini_portile2 (2.1.0)
     minitest (5.9.0)
+    multi_json (1.12.1)
     multipart-post (2.0.0)
     nenv (0.3.0)
     nokogiri (1.6.8)
@@ -234,9 +246,9 @@ GEM
       rdoc (~> 4.0)
     sexp_processor (4.7.0)
     shellany (0.0.1)
-    simplecov (0.12.0)
+    simplecov (0.11.2)
       docile (~> 1.1.0)
-      json (>= 1.8, < 3)
+      json (~> 1.8)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.0)
     slim (3.0.6)
@@ -276,6 +288,7 @@ GEM
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff
+    will_paginate (3.1.0)
 
 PLATFORMS
   ruby
@@ -310,10 +323,12 @@ DEPENDENCIES
   spring-commands-rspec
   timecop
   tzinfo-data
+  va_rx!
   vcr
   virtus
   web-console (~> 2.0)
   webmock
+  will_paginate
 
 BUNDLED WITH
    1.12.5

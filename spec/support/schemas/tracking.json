@@ -1,0 +1,55 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["data", "meta"],
+  "properties": {
+    "data": {
+      "type": "object",
+      "required": ["id", "type", "attributes", "links"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "enum": ["va-rx-trackings"] },
+        "attributes": { "type": "object",
+          "required": [
+            "tracking-number",
+            "prescription-id",
+            "prescription-number",
+            "prescription-name",
+            "facility-name",
+            "rx-info-phone-number",
+            "ndc-number",
+            "shipped-date",
+            "delivery-service"
+          ],
+          "properties": {
+            "tracking-number": { "type": "string" },
+            "prescription-id": { "type": "integer" },
+            "prescription-number": { "type": "string" },
+            "prescription-name": { "type": "string" },
+            "facility-name": { "type": "string" },
+            "rx-info-phone-number": { "type": "string" },
+            "ndc-number": { "type": "string" },
+            "shipped-date": { "type": "string", "format": "date" },
+            "delivery-service": { "type": "string" }
+          }
+        },
+        "links": {
+          "type": "object",
+          "required": ["self", "prescription"],
+          "properties": {
+            "self": { "type": "string" },
+            "prescription": { "type": "string" }
+          }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["updated-at", "failed-station-list"],
+      "properties": {
+        "updated-at": { },
+        "failed-station-list": { }
+      }
+    }
+  }
+}

@@ -15,9 +15,9 @@ gem 'virtus'
 gem 'rails-api'
 gem 'figaro'
 gem 'pg'
-
 gem 'active_model_serializers', '~> 0.10.0'
-
+gem 'will_paginate'
+gem 'va_rx', git: 'https://github.com/department-of-veterans-affairs/va_rx.git', branch: 'master'
 gem 'faraday'
 gem 'faraday_middleware'
 gem 'httpclient'
