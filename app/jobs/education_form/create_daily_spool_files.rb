@@ -5,7 +5,7 @@ module EducationForm
     require "erb"
     require "ostruct" # Until this is backed by a model
 
-    TEMPLATE = File.read(Rails.root.join("app", "tasks", "education_form", "templates", "22-1990.erb"))
+    TEMPLATE = File.read(Rails.root.join("app", "jobs", "education_form", "templates", "22-1990.erb"))
 
     DEVELOPMENT_DATA = [ # Until this is backed by a model
       {
@@ -83,7 +83,7 @@ module EducationForm
     end
 
     def disclosure(application)
-      contents = File.read(Rails.root.join("app", "tasks", "education_form", "templates", "_#{application.form}.erb"))
+      contents = File.read(Rails.root.join("app", "jobs", "education_form", "templates", "_#{application.form}.erb"))
       ERB.new(contents).result(binding)
     end
 
