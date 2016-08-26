@@ -16,7 +16,6 @@ module V0
       head :no_content
     end
 
-    # FIXME: This should probably a POST not GET, as the payload can be rather large
     def saml_callback
       @saml_response = OneLogin::RubySaml::Response.new(
         params[:SAMLResponse], settings: SAML::SETTINGS)
