@@ -1,20 +1,19 @@
 module EVSS
-  class ClaimsService
-    def initialize(vaafi_headers = {})
-      # TODO: Get base URI from env
-      @base_url = "http://csraciapp6.evss.srarad.com:7003/wss-claims-services-web-3.1/rest"
-      @headers = vaafi_headers
+  class Service
+    def initialize
       @default_timeout = 5 # seconds
     end
 
-    def claims
-      conn.get "vbaClaimStatusService/getOpenClaims"
+    protected
+
+    def get(url)
+      conn.get url
     end
 
-    def create_intent_to_file
-      conn.post "claimServicesExternalService/listAllIntentToFile" do |req|
+    def post(url, body)
+      conn.post url do |req|
         req.headers["Content-Type"] = "application/json"
-        req.body = "{}"
+        req.body = body
       end
     end
 
@@ -28,6 +27,36 @@ module EVSS
         faraday.response :json, content_type: /\bjson$/
         faraday.adapter  :httpclient
       end
+    end
+  end
+
+  class ClaimsService < Service
+    def initialize(vaafi_headers = {})
+      super()
+      # TODO: Get base URI from env
+      @base_url = "http://csraciapp6.evss.srarad.com:7003/wss-claims-services-web-3.1/rest"
+      @headers = vaafi_headers
+    end
+
+    def claims
+      get "vbaClaimStatusService/getOpenClaims"
+    end
+
+    def create_intent_to_file
+      post "claimServicesExternalService/listAllIntentToFile", "{}"
+    end
+  end
+
+  class DocumentsService < Service
+    def initialize(vaafi_headers = {})
+      super()
+      # TODO: Get base URI from env
+      @base_url = "http://csraciapp6.evss.srarad.com:7003/wss-document-services-web-3.1/rest/"
+      @headers = vaafi_headers
+    end
+
+    def get_all_documents
+      get "documents/getAllDocuments"
     end
   end
 end
