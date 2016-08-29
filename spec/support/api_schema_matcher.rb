@@ -8,7 +8,8 @@ RSpec::Matchers.define :match_response_schema do |schema|
   end
 end
 
-# with the `:strict` option, all properties are condisidered to have `"required": true` and all objects `"additionalProperties": false`
+# with the `:strict` option, all properties are condisidered to have `"required": true`
+# and all objects `"additionalProperties": false`
 # That's a little too strict for the existing vets-json-schema schemas, and so we don't use it.
 RSpec::Matchers.define :match_vets_schema do |schema|
   match do |data|

@@ -23,11 +23,10 @@ DEC 2016
 
 SSN: <%= @applicant.socialSecurityNumber %>         Sex: <%= @applicant.gender %>             Date of Birth: <%= @applicant.birthday %>
 
-Name:   <%= full_name %>
+Name:   <%= full_name(@applicant.fullName) %>
 
 Address:
-        123 MADEUP ST
-        CITYNAME, ST 12345
+        <%= full_address(@applicant.address) %>
 
 Telephone Numbers:     Primary:    <%= @applicant.phone %>
                        Secondary:  <%= @applicant.secondaryPhone %>
@@ -39,12 +38,12 @@ Name of Financial Inst.: <%= @applicant.bankAccount&.bankName %>
 Routing/Transit #: <%= @applicant.bankAccount&.routingNumber %>   Account #: <%= @applicant.bankAccount&.accountNumber %>
 
 Name, Address, & Telephone Number of Contact:
-        OTHER S NAME
-        Address and phone same as claimant
+        <%= full_name(@applicant.emergencyContact&.fullName) %>
+        <% if @applicant.emergencyContact&.sameAddressAndPhone %>Address and phone same as claimant<% end %>
 
-Have you previously applied for VA Benefits?    <%= yesno(@applicant.previously_applied_self) %>
+Have you previously applied for VA Benefits?    <%= yesno(@applicant.previouslyFiledClaimWithVa) %>
 
-Previously Applied for VA Benefits Using Someone Else's Service?    <%= yesno(@applicant.previously_applied_other) %>
+Previously Applied for VA Benefits Using Someone Else's Service?    <%= yesno(@applicant.previouslyAppliedWithSomeoneElsesService) %>
 
 
                     INFORMATION ON VA EDUCATION BENEFITS
@@ -59,15 +58,14 @@ Received an information pamphlet:    <%= yesno(@applicant.alreadyReceivedInforma
 Type of Education or Training: College or Other School (including online courses)
 
 Name and Address of School or Training Establishment:
-        SCHOOLNAME
-        1111 SCHOOLADDRESS ST
-        CITYNAME, ST 55555
+        <%= @applicant.schoolName %>
+        <%= full_address(@applicant.schoolAddress) %>
 
-Date You Started or Will Start Training: 10/10/2016
+Date You Started or Will Start Training: <%= @applicant.educationStartDate %>
 
-Education or Career Goal: MAJORNAME
+Education or Career Goal: <%= @applicant.educationalObjective %>
 
-Course of Study: MJRNAME
+Course of Study: <%= @applicant.courseOfStudy %>
 
 
                        ACTIVE DUTY SERVICE INFORMATION
@@ -176,7 +174,7 @@ N/A
 
                                    REMARKS
                                    -------
-
+<%= @applicant.remarks %>
 
 
       Certification and Signature of Applicant

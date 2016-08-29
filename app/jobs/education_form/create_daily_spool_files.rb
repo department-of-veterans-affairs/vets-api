@@ -88,11 +88,20 @@ module EducationForm
     end
 
     # with the binding, we can access helper methods as well
-    def full_name
-      [@applicant.fullName.first, @applicant.fullName.middle, @applicant.fullName.last].compact.join(" ")
+    def full_name(name)
+      return "" if name.nil?
+      [name.first, name.middle, name.last].compact.join(" ")
+    end
+
+    def full_address(address)
+      return "" if address.nil?
+      if address.country == "USA"
+        "#{address.street}\n        #{address.city}, #{address.state}, #{address.zipcode}".upcase
+      end
     end
 
     def yesno(bool)
+      return "N/A" if bool.nil? # TODO: Remove 'N/A' once the form is complete. Used for testing.
       bool ? "YES" : "NO"
     end
 
