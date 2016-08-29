@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require "rails_helper"
-require_dependency "evss/claims_service"
+require_dependency "evss"
 
 describe EVSS::ClaimsService do
   let(:vaafi_headers) do
