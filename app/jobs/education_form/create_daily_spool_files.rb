@@ -72,6 +72,7 @@ module EducationForm
       word_wrap(@application_template.result(binding), line_width: 78)
     end
 
+    # Used in the INIT header
     def form_type(application)
       {
         CH33_30:    "CH33",
@@ -79,6 +80,7 @@ module EducationForm
         CH33_1607:  "CH33",
         CH1606:     "CH1606",
         CH30:       "CH30"
+        CH32:       "CH32"
       }[application.form.to_sym]
     end
 
