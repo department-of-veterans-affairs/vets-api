@@ -55,7 +55,7 @@ module EVSS
       @headers = vaafi_headers
     end
 
-    def get_all_documents
+    def all_documents
       get "documents/getAllDocuments"
     end
   end

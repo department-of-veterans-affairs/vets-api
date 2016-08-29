@@ -65,8 +65,8 @@ describe EVSS::DocumentsService do
 
   context "with headers" do
     it "should get claims" do
-      VCR.use_cassette("evss/documents/get_all_documents") do
-        response = subject.get_all_documents
+      VCR.use_cassette("evss/documents/all_documents") do
+        response = subject.all_documents
         expect(response).to be_success
       end
     end

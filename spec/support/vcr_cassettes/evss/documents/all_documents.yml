@@ -14,7 +14,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Mon, 29 Aug 2016 17:12:32 GMT
+      - Mon, 29 Aug 2016 17:20:10 GMT
       Va-Eauth-Pnidtype:
       - SSN
       Va-Eauth-Csid:
@@ -49,13 +49,13 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 29 Aug 2016 17:12:32 GMT
+      - Mon, 29 Aug 2016 17:20:11 GMT
       Transfer-Encoding:
       - chunked
       Content-Type:
       - application/json
       Set-Cookie:
-      - WSS-DOCUMENT-SERVICES_JSESSIONID=QxH3XGtQCWhG2gSBRWZj1dYTMZpBD6d7RJ0r9Mvmzzxt6r8wRgbX!458515135;
+      - WSS-DOCUMENT-SERVICES_JSESSIONID=RJn7XGnLJzpx22fxJ6nHmhdxkQ372jd8Yd2fp3XD48dGQ9h1pkYp!458515135;
         path=/; HttpOnly
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
@@ -229,5 +229,5 @@ http_interactions:
           } ]
         }
     http_version: 
-  recorded_at: Mon, 29 Aug 2016 17:12:33 GMT
+  recorded_at: Mon, 29 Aug 2016 17:20:11 GMT
 recorded_with: VCR 3.0.3
