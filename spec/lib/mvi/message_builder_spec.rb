@@ -1,12 +1,12 @@
 require 'rails_helper'
-require 'mvi/message_builder'
+require 'mvi/messages/find_candidate_message'
 
-describe MVI::MessageBuilder do
+describe MVI::Messages::FindCandidateMessage do
   describe 'header' do
     it 'should generate a valid header' do
-      builder = MVI::MessageBuilder.new
+      message = MVI::Messages::FindCandidateMessage.new
       expect(
-        builder.build_find_candidate('123456789', 'John', 'Smith', Date.new(1980, 1, 1), '555-11-4477')
+        message.build('123456789', 'John', 'Smith', Date.new(1980, 1, 1), '555-11-4477')
       ).to eq('xml') # TODO(AJD): validate against xsd
     end
   end
