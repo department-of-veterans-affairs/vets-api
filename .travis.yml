@@ -19,6 +19,7 @@ before_script:
   - export MHV_BASE_URL='https://mock-prescriptions-api.herokuapp.com/mhv-api/patient/v1/'
   - export MHV_APP_TOKEN='fake-app-token'
   - export MHV_USER_ID='1435525'
+  - export DB_ENCRYPTION_KEY='change_this_in_prod'
   - psql -c 'create database vets_api_test;' -U postgres
 
 script:
