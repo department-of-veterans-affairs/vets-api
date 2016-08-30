@@ -24,7 +24,9 @@ module Rx
       end
 
       def show
-        resource = client.get_rx(params[:id])
+        id = params[:id].try(:to_i)
+        resource = client.get_rx(id)
+        fail VA::API::Common::Exceptions::RecordNotFound, id unless resource.present?
         render json: resource,
                serializer: PrescriptionSerializer,
                meta: resource.metadata
