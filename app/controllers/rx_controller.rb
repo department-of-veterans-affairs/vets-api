@@ -1,4 +1,8 @@
 class RxController < ApplicationController
+  # FIXME: when ID.me is working we need to use it here, but for now skip
+  #   and just rely on the http basic authentication.
+  skip_before_action :authenticate
+
   VARX_ENFORCE_SSL = Rails.env.production?
   MHV_CONFIG = VARx::Configuration.new(
     host: ENV["MHV_HOST"],
