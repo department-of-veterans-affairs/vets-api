@@ -40,6 +40,7 @@ group :development, :test do
   gem 'rspec-rails', '~> 3.5'
   gem 'guard-rspec', '~> 4.7'
   gem 'pry-nav'
+  gem 'factory_girl_rails'
 end
 
 group :test do

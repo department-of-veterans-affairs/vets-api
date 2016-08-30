@@ -89,6 +89,11 @@ GEM
     docile (1.1.5)
     equalizer (0.0.11)
     erubis (2.7.0)
+    factory_girl (4.7.0)
+      activesupport (>= 3.0.0)
+    factory_girl_rails (4.7.0)
+      factory_girl (~> 4.7.0)
+      railties (>= 3.0.0)
     fakeredis (0.5.0)
       redis (~> 3.0)
     faraday (0.9.2)
@@ -298,6 +303,7 @@ DEPENDENCIES
   brakeman
   bundler-audit
   byebug
+  factory_girl_rails
   fakeredis
   faraday
   faraday_middleware

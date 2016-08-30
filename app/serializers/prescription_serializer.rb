@@ -9,6 +9,7 @@ class PrescriptionSerializer < ActiveModel::Serializer
   attribute :prescription_id
   attribute :prescription_number
   attribute :prescription_name
+  attribute :refill_status
   attribute :refill_submit_date
   attribute :refill_date
   attribute :refill_remaining

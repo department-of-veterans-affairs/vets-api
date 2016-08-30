@@ -7,6 +7,8 @@ require "spec_helper"
 require "rspec/rails"
 require "webmock/rspec"
 require "support/validation_helpers"
+require "support/factory_girl"
+require "support/serializer_spec_helper"
 require "support/api_schema_matcher"
 
 WebMock.disable_net_connect!(allow_localhost: true)
@@ -49,4 +51,7 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+
+  # serializer_spec_helper
+  config.include SerializerSpecHelper, type: :serializer
 end
