@@ -1,8 +1,9 @@
 require "open3"
-require "rainbow"
 
 desc "shortcut to run all linting tools, at the same time."
 task :security do
+  require "rainbow"
+
   puts "running Brakeman security scan..."
   brakeman_result = ShellCommand.run(
     "brakeman --exit-on-warn --run-all-checks --confidence-level=2"

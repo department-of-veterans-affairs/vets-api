@@ -29,5 +29,12 @@ module VetsAPI
     # config.i18n.default_locale = :de
 
     config.api_only = true
+
+    config.watchable_dirs['lib'] = [:rb]
+
+    # TODO(#45): add rack-cors middleware to streamline CORS config
+    config.action_dispatch.default_headers = {
+      'Access-Control-Allow-Headers' => 'Authorization'
+    }
   end
 end

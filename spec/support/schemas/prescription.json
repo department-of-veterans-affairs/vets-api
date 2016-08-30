@@ -1,0 +1,67 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["data", "meta"],
+  "properties": {
+    "data": {
+      "type": "object",
+      "required": ["id", "type", "attributes", "links"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "enum": ["va-rx-prescriptions"] },
+        "attributes": {
+          "type": "object",
+          "required": [
+            "prescription-id",
+            "prescription-number",
+            "prescription-name",
+            "refill-status",
+            "refill-submit-date",
+            "refill-date",
+            "refill-remaining",
+            "facility-name",
+            "ordered-date",
+            "quantity",
+            "expiration-date",
+            "dispensed-date",
+            "station-number",
+            "is-refillable",
+            "is-trackable"],
+          "properties": {
+            "prescription-id": { "type": "integer" },
+            "prescription-number": { "type": "string" },
+            "prescription-name": { "type": "string" },
+            "refill-status": { "type": "string" },
+            "refill-submit-date": { "type": "string", "format": "date" },
+            "refill-date": { "type": "string", "format": "date" },
+            "refill-remaining": { "type": "integer" },
+            "facility-name": { "type": "string" },
+            "ordered-date": { "type": "string", "format": "date" },
+            "quantity": { "type": "integer" },
+            "expiration-date": { "type": "string", "format": "date" },
+            "dispensed-date": { "type": "string", "format": "date" },
+            "station-number": { "type": "string" },
+            "is-refillable": { "type": "boolean" },
+            "is-trackable": { "type": "boolean" }
+          }
+        },
+        "links": {
+          "type": "object",
+          "required": ["self", "tracking"],
+          "properties": {
+            "self": { "type": "string" },
+            "tracking": { "type": "string" }
+          }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["updated-at", "failed-station-list"],
+      "properties": {
+        "updated-at": { },
+        "failed-station-list": { }
+      }
+    }
+  }
+}

@@ -1,8 +1,9 @@
 require "open3"
-require "rainbow"
 
 desc "shortcut to run all linting tools, at the same time."
 task :lint do
+  require "rainbow"
+
   opts = ENV["CI"] ? "" : "--auto-correct"
   puts "running rubocop..."
   rubocop_result = ShellCommand.run("rubocop #{opts} --color")

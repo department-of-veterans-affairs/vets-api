@@ -16,6 +16,12 @@ gem 'rails-api'
 gem 'figaro'
 gem 'pg'
 gem 'json-schema'
+gem 'active_model_serializers', '~> 0.10.0'
+gem 'will_paginate'
+gem 'va_rx', git: 'https://github.com/department-of-veterans-affairs/va_rx.git', branch: 'master'
+gem 'faraday'
+gem 'faraday_middleware'
+gem 'httpclient'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -35,6 +41,7 @@ group :development, :test do
   gem 'rspec-rails', '~> 3.5'
   gem 'guard-rspec', '~> 4.7'
   gem 'pry-nav'
+  gem 'factory_girl_rails'
 end
 
 group :test do
@@ -42,6 +49,7 @@ group :test do
   gem 'webmock'
   gem 'fakeredis'
   gem 'timecop'
+  gem 'vcr'
 end
 
 group :development do

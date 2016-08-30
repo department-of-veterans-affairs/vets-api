@@ -1,0 +1,104 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://mock-prescriptions-api.herokuapp.com/mhv-api/patient/v1/session
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Prescription API Ruby Gem 0.1.0
+      Apptoken:
+      - fake-app-token
+      Mhvcorrelationid:
+      - '1435525'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: 'OK '
+    headers:
+      Connection:
+      - keep-alive
+      Date:
+      - Tue, 10 May 2016 16:30:17 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      Content-Length:
+      - '0'
+      Expires:
+      - Tue, 10 May 2017 16:40:17 GMT
+      Token:
+      - GkuX2OZ4dCE=48xrH6ObGXZ45ZAg70LBahi7CjswZe8SZGKMUVFIU88=
+      Set-Cookie:
+      - JSESSIONID=QWMKXyMZmBfnC15xJKTQRMPvpMpsRhPJNwc9PGQMhSR8QQ8gQLL8!1523265843;
+        path=/; HttpOnly
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Content-Type:
+      - text/plain; charset=UTF-8
+      Cache-Control:
+      - no-cache
+      Access-Control-Allow-Origin:
+      - "*"
+      Via:
+      - 1.1 vegur
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Thu, 25 Aug 2016 19:56:18 GMT
+- request:
+    method: get
+    uri: https://mock-prescriptions-api.herokuapp.com/mhv-api/patient/v1/prescription/1435525
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Prescription API Ruby Gem 0.1.0
+      Token:
+      - GkuX2OZ4dCE=48xrH6ObGXZ45ZAg70LBahi7CjswZe8SZGKMUVFIU88=
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: 'OK '
+    headers:
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Cache-Control:
+      - no-cache
+      Access-Control-Allow-Origin:
+      - "*"
+      Server:
+      - WEBrick/1.3.1 (Ruby/2.3.0/2015-12-25)
+      Date:
+      - Thu, 25 Aug 2016 19:56:16 GMT
+      Content-Length:
+      - '478'
+      Via:
+      - 1.1 vegur
+    body:
+      encoding: UTF-8
+      string: '{"refillStatus":"active","refillSubmitDate":"Tue, 26 Apr 2016 00:00:00
+        EDT","refillDate":"Thu, 21 Apr 2016 00:00:00 EDT","refillRemaining":9,"facilityName":"ABC1223","isRefillable":true,"isTrackable":false,"prescriptionId":1435525,"orderedDate":"Tue,
+        29 Mar 2016 00:00:00 EDT","quantity":10,"expirationDate":"Thu, 30 Mar 2017
+        00:00:00 EDT","prescriptionNumber":"2719324","prescriptionName":"Drug 1 250MG
+        TAB","dispensedDate":"Thu, 21 Apr 2016 00:00:00 EDT","stationNumber":"23"}'
+    http_version: 
+  recorded_at: Thu, 25 Aug 2016 19:56:18 GMT
+recorded_with: VCR 3.0.3
