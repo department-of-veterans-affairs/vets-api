@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
+RSpec.describe V0::EducationBenefitsClaimsController, type: [:controller, :serializer] do
   describe "POST create" do
     subject do
       post(:create, params)
@@ -22,7 +22,9 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
 
       it "should render json of the new model" do
         subject
-        expect(response.body).to eq(EducationBenefitsClaim.last.to_json)
+        expect(response.body).to eq(
+          serialize(EducationBenefitsClaim.last, serializer_class: EducationBenefitsClaimSerializer)
+        )
       end
     end
 

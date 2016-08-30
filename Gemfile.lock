@@ -55,6 +55,8 @@ GEM
     addressable (2.4.0)
     arel (6.0.3)
     ast (2.3.0)
+    attr_encrypted (3.0.3)
+      encryptor (~> 3.0.0)
     axiom-types (0.1.1)
       descendants_tracker (~> 0.0.4)
       ice_nine (~> 0.11.0)
@@ -87,6 +89,7 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.2.5)
     docile (1.1.5)
+    encryptor (3.0.0)
     equalizer (0.0.11)
     erubis (2.7.0)
     factory_girl (4.7.0)
@@ -300,6 +303,7 @@ PLATFORMS
 
 DEPENDENCIES
   active_model_serializers (~> 0.10.0)
+  attr_encrypted
   brakeman
   bundler-audit
   byebug
