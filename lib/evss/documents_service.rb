@@ -1,3 +1,5 @@
+require_dependency "evss/base_service"
+
 module EVSS
   class DocumentsService < BaseService
     def initialize(vaafi_headers = {})

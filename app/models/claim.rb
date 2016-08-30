@@ -1,4 +1,4 @@
-require_dependency "evss"
+require_dependency "evss/claims_service"
 
 class Claim < ActiveModelSerializers::Model
   attr_accessor :id

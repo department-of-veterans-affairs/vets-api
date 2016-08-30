@@ -1,3 +1,5 @@
+require_dependency "evss/base_service"
+
 module EVSS
   class ClaimsService < BaseService
     def initialize(vaafi_headers = {})
