@@ -35,10 +35,11 @@
         },
         "links": {
           "type": "object",
-          "required": ["self", "prescription"],
+          "required": ["self", "prescription", "tracking-url"],
           "properties": {
             "self": { "type": "string" },
-            "prescription": { "type": "string" }
+            "prescription": { "type": "string" },
+            "tracking-url": { "type": "string" }
           }
         }
       }
