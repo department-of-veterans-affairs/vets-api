@@ -10,7 +10,7 @@ class ShellCommand
         puts(line)
       end
 
-      success = thread.value.zero?
+      success = thread.value.success?
     end
 
     success
