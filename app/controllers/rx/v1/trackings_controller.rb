@@ -2,9 +2,9 @@
 module Rx
   module V1
     class TrackingsController < RxController
-      SORT_FIELDS   = %w(prescription_id, shipped_date).freeze
+      SORT_FIELDS   = %w(shipped_date).freeze
       SORT_TYPES    = (SORT_FIELDS + SORT_FIELDS.map { |field| "-#{field}" }).freeze
-      DEFAULT_SORT  = "-shipped_date".freeze
+      DEFAULT_SORT  = '-shipped_date'
 
       # This index action supports various parameters described below, all are optional
       # This comment can be removed once documentation is finalized

@@ -18,6 +18,7 @@ gem 'pg'
 gem 'json-schema'
 gem 'active_model_serializers', '~> 0.10.0'
 gem 'will_paginate'
+gem 'va-api-common', git: 'https://github.com/department-of-veterans-affairs/va-api-common', branch: 'master'
 gem 'va_rx', git: 'https://github.com/department-of-veterans-affairs/va_rx.git', branch: 'master'
 gem 'faraday'
 gem 'faraday_middleware'
@@ -31,7 +32,7 @@ group :development, :test do
   gem "rainbow"
 
   # Linters
-  gem 'rubocop', '~> 0.36.0', require: false
+  gem 'rubocop', '~> 0.42.0', require: false
 
   # Security scanners
   gem 'brakeman'

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class EducationBenefitsClaim < ActiveRecord::Base
   # TODO: encrypt sensitive information in education_benefits_claims #42
   FORM_SCHEMA = JSON.parse(File.read(Rails.root.join("app", "vets-json-schema", "dist", "edu-benefits-schema.json")))

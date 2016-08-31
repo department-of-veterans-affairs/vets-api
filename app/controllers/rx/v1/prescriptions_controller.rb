@@ -2,9 +2,9 @@
 module Rx
   module V1
     class PrescriptionsController < RxController
-      SORT_FIELDS   = %w(prescription_id refill_status refill_date ordered_date).freeze
+      SORT_FIELDS   = %w(prescription_name refill_status ordered_date facility_name).freeze
       SORT_TYPES    = (SORT_FIELDS + SORT_FIELDS.map { |field| "-#{field}" }).freeze
-      DEFAULT_SORT  = "-refill_date".freeze
+      DEFAULT_SORT  = '-ordered_date'
 
       # This index action supports various parameters described below, all are optional
       # This comment can be removed once documentation is finalized
@@ -24,7 +24,9 @@ module Rx
       end
 
       def show
-        resource = client.get_rx(params[:id])
+        id = params[:id].try(:to_i)
+        resource = client.get_rx(id)
+        raise VA::API::Common::Exceptions::RecordNotFound, id unless resource.present?
         render json: resource,
                serializer: PrescriptionSerializer,
                meta: resource.metadata
@@ -41,7 +43,7 @@ module Rx
         case params[:refill_status]
         when nil
           client.get_history_rxs
-        when "active"
+        when 'active'
           client.get_active_rxs
         else
           client.get_history_rxs.find_by(:refill_status, params[:refill_status])

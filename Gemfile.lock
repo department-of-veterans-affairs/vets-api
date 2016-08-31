@@ -1,6 +1,15 @@
 GIT
+  remote: https://github.com/department-of-veterans-affairs/va-api-common
+  revision: f5cb61920fcbc531f3ad6ce257b5953566a46815
+  branch: master
+  specs:
+    va-api-common (0.1.0)
+      activemodel (>= 4.1, < 6)
+      virtus
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/va_rx.git
-  revision: c6f82f13b6e745053e41d926ac8ec36d4d4d3f57
+  revision: 73201c9b11306ab7a2b369570c03ef4aa80755a2
   branch: master
   specs:
     va_rx (0.1.0)
@@ -231,11 +240,12 @@ GEM
       rspec-mocks (~> 3.5.0)
       rspec-support (~> 3.5.0)
     rspec-support (3.5.0)
-    rubocop (0.36.0)
-      parser (>= 2.3.0.0, < 3.0)
+    rubocop (0.42.0)
+      parser (>= 2.3.1.1, < 3.0)
       powerpack (~> 0.1)
       rainbow (>= 1.99.1, < 3.0)
       ruby-progressbar (~> 1.7)
+      unicode-display_width (~> 1.0, >= 1.0.1)
     ruby-progressbar (1.8.1)
     ruby-saml (1.3.1)
       nokogiri (>= 1.5.10)
@@ -278,6 +288,7 @@ GEM
     timecop (0.8.1)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
+    unicode-display_width (1.1.0)
     vcr (3.0.3)
     virtus (1.0.5)
       axiom-types (~> 0.1)
@@ -321,7 +332,7 @@ DEPENDENCIES
   redis
   redis-namespace
   rspec-rails (~> 3.5)
-  rubocop (~> 0.36.0)
+  rubocop (~> 0.42.0)
   ruby-saml (~> 1.3.0)
   sdoc (~> 0.4.0)
   simplecov
@@ -329,6 +340,7 @@ DEPENDENCIES
   spring-commands-rspec
   timecop
   tzinfo-data
+  va-api-common!
   va_rx!
   vcr
   virtus
