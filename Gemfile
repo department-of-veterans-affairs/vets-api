@@ -33,7 +33,7 @@ group :development, :test do
   gem "rainbow"
 
   # Linters
-  gem 'rubocop', '~> 0.36.0', require: false
+  gem 'rubocop', '~> 0.42.0', require: false
 
   # Security scanners
   gem 'brakeman'
