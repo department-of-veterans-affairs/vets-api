@@ -1,0 +1,23 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <title></title>
+    </head>
+    <body>
+        <script type="text/javascript">
+        var target = {
+            // target for development
+            local: 'http://localhost:4000'
+        };
+
+        function sendUserToken() {
+            var rawJson = <%=raw @session.to_json %>;
+            window.opener.postMessage(rawJson, target.local);
+           window.close();
+        }
+
+        sendUserToken();
+        
+        </script>
+    </body>
+</html>
