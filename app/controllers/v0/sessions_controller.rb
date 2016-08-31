@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module V0
   class SessionsController < ApplicationController
     skip_before_action :authenticate, only: [:new, :saml_callback]
@@ -18,7 +19,8 @@ module V0
 
     def saml_callback
       @saml_response = OneLogin::RubySaml::Response.new(
-        params[:SAMLResponse], settings: SAML::SETTINGS)
+        params[:SAMLResponse], settings: SAML::SETTINGS
+      )
 
       if @saml_response.is_valid?
         persist_session_and_user!
@@ -40,11 +42,11 @@ module V0
     def user_attributes
       attributes = @saml_response.attributes.all.to_h
       {
-        first_name: attributes["fname"]&.first,
-        last_name: attributes["lname"]&.first,
-        zip: attributes["zip"]&.first,
-        email: attributes["email"]&.first,
-        uuid: attributes["uuid"]&.first
+        first_name: attributes['fname']&.first,
+        last_name: attributes['lname']&.first,
+        zip: attributes['zip']&.first,
+        email: attributes['email']&.first,
+        uuid: attributes['uuid']&.first
       }
     end
   end
