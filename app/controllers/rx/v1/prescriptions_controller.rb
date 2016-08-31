@@ -2,7 +2,7 @@
 module Rx
   module V1
     class PrescriptionsController < RxController
-      SORT_FIELDS   = %w(prescription_id refill_status refill_date ordered_date).freeze
+      SORT_FIELDS   = %w(prescription_name refill_status ordered_date facility_name).freeze
       SORT_TYPES    = (SORT_FIELDS + SORT_FIELDS.map { |field| "-#{field}" }).freeze
       DEFAULT_SORT  = "-refill_date".freeze
 
