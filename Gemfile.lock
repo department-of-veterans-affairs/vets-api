@@ -1,6 +1,15 @@
 GIT
+  remote: https://github.com/department-of-veterans-affairs/va-api-common
+  revision: f5cb61920fcbc531f3ad6ce257b5953566a46815
+  branch: master
+  specs:
+    va-api-common (0.1.0)
+      activemodel (>= 4.1, < 6)
+      virtus
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/va_rx.git
-  revision: c6f82f13b6e745053e41d926ac8ec36d4d4d3f57
+  revision: 73201c9b11306ab7a2b369570c03ef4aa80755a2
   branch: master
   specs:
     va_rx (0.1.0)
@@ -329,6 +338,7 @@ DEPENDENCIES
   spring-commands-rspec
   timecop
   tzinfo-data
+  va-api-common!
   va_rx!
   vcr
   virtus

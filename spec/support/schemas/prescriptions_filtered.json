@@ -78,11 +78,7 @@
         "updated-at": { "type": "string" },
         "failed-station-list": { "type": "string" },
         "sort": {
-          "type": "object",
-          "required": ["refill-date"],
-          "properties": {
-            "refill-date": { "type": "string", "format": "date" }
-          }
+          "type": "object"
         },
         "filter": {
           "type": "object",

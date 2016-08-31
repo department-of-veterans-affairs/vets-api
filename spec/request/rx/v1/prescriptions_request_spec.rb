@@ -1,4 +1,3 @@
-
 require "rails_helper"
 
 RSpec.describe "Prescriptions Integration", type: :request do
@@ -7,7 +6,7 @@ RSpec.describe "Prescriptions Integration", type: :request do
   end
 
   it 'responds to GET #show' do
-    VCR.use_cassette("prescriptions/1435525/show") do
+    VCR.use_cassette("prescriptions/1435525/index/no_parameters") do
       get "/rx/v1/prescriptions/1435525"
       expect(response).to be_success
       expect(response.body).to be_a(String)
@@ -21,7 +20,7 @@ RSpec.describe "Prescriptions Integration", type: :request do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema("prescriptions")
-      expect(JSON.parse(response.body)["meta"]["sort"]).to eq("refill-date" => "DESC")
+      expect(JSON.parse(response.body)["meta"]["sort"]).to eq("ordered-date" => "DESC")
     end
   end
 
@@ -31,7 +30,7 @@ RSpec.describe "Prescriptions Integration", type: :request do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema("prescriptions")
-      expect(JSON.parse(response.body)["meta"]["sort"]).to eq("refill-date" => "DESC")
+      expect(JSON.parse(response.body)["meta"]["sort"]).to eq("ordered-date" => "DESC")
     end
   end
 

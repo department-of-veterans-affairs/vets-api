@@ -1,3 +1,4 @@
+require "va/api/common/exceptions"
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
   before_action :authenticate
@@ -10,6 +11,24 @@ class ApplicationController < ActionController::API
   end
 
   private
+
+  rescue_from "Exception" do |exception|
+    log_error(exception)
+    case exception
+    when VA::API::Common::Exceptions::BaseError
+      render json: { errors: exception.errors }
+    else
+      render json: { errors: VA::API::Common::Exceptions::InternalServerError.new(exception).errors }
+      # FIXME: do we need to re-raise the exception as long as we are logging it and rendering something?
+      # Maybe we will need a new relic specific method to call here??
+      # raise exception if Rails.env.production?
+    end
+  end
+
+  def log_error(exception)
+    Rails.logger.error "#{exception.message}."
+    Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
+  end
 
   def set_app_info_headers
     headers["X-GitHub-Repository"] = "https://github.com/department-of-veterans-affairs/vets-api"
