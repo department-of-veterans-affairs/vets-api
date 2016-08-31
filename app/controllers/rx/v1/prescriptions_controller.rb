@@ -4,7 +4,7 @@ module Rx
     class PrescriptionsController < RxController
       SORT_FIELDS   = %w(prescription_name refill_status ordered_date facility_name).freeze
       SORT_TYPES    = (SORT_FIELDS + SORT_FIELDS.map { |field| "-#{field}" }).freeze
-      DEFAULT_SORT  = "-refill_date".freeze
+      DEFAULT_SORT  = "-ordered_date".freeze
 
       # This index action supports various parameters described below, all are optional
       # This comment can be removed once documentation is finalized
