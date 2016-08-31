@@ -59,9 +59,9 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     it "should encrypt the form field" do
       subject.save!
 
-      expect(subject['form']).to eq(nil)
+      expect(subject["form"]).to eq(nil)
 
-      %w[encrypted_form encrypted_form_iv].each do |attr|
+      %w(encrypted_form encrypted_form_iv).each do |attr|
         expect(subject[attr].present?).to eq(true)
       end
     end
