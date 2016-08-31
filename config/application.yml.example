@@ -8,7 +8,6 @@ KEY_FILE: ~/.certs/vetsgov-localhost.key
 REDIS_HOST: localhost
 REDIS_PORT: "6379"
 MHV_HOST: 'https://mock-prescriptions-api.herokuapp.com'
-MHV_BASE_URL: 'https://mock-prescriptions-api.herokuapp.com/mhv-api/patient/v1/'
 MHV_APP_TOKEN: 'fake-app-token'
 MHV_USER_ID: '1435525'
 DB_ENCRYPTION_KEY: 'f01ff8ebd1a2b053ad697ae1f0d86adb48ebb708021e4c76c3807d37f6b4e389d5aa45ea171f2f5074222784c1ee2bb8272390d1b9517a7a6987c22733ef00b2'

@@ -16,7 +16,6 @@ before_script:
   - export REDIS_HOST="localhost"
   - export REDIS_PORT="6379"
   - export MHV_HOST='https://mock-prescriptions-api.herokuapp.com'
-  - export MHV_BASE_URL='https://mock-prescriptions-api.herokuapp.com/mhv-api/patient/v1/'
   - export MHV_APP_TOKEN='fake-app-token'
   - export MHV_USER_ID='1435525'
   - export DB_ENCRYPTION_KEY='change_this_in_prod'
