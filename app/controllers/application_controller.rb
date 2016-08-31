@@ -1,4 +1,5 @@
-require "va/api/common/exceptions"
+# frozen_string_literal: true
+require 'va/api/common/exceptions'
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
   before_action :authenticate
@@ -12,7 +13,7 @@ class ApplicationController < ActionController::API
 
   private
 
-  rescue_from "Exception" do |exception|
+  rescue_from 'Exception' do |exception|
     log_error(exception)
     case exception
     when VA::API::Common::Exceptions::BaseError
@@ -31,8 +32,8 @@ class ApplicationController < ActionController::API
   end
 
   def set_app_info_headers
-    headers["X-GitHub-Repository"] = "https://github.com/department-of-veterans-affairs/vets-api"
-    headers["X-Git-SHA"] = AppInfo::GIT_REVISION
+    headers['X-GitHub-Repository'] = 'https://github.com/department-of-veterans-affairs/vets-api'
+    headers['X-Git-SHA'] = AppInfo::GIT_REVISION
   end
 
   def authenticate
@@ -52,7 +53,7 @@ class ApplicationController < ActionController::API
   end
 
   def render_unauthorized
-    headers["WWW-Authenticate"] = 'Token realm="Application"'
-    render json: "Not Authorized", status: 401
+    headers['WWW-Authenticate'] = 'Token realm="Application"'
+    render json: 'Not Authorized', status: 401
   end
 end

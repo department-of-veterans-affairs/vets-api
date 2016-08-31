@@ -10,8 +10,11 @@ AllCops:
     - 'script/**/*'
     - 'vendor/**/*'
 
+# This is the rubocop default but putting it here explicitly
+# strong benefit for code readability and speed in reviewing PRs for code review
+# only use double quote when doing interpolation or complex escape sequences
 Style/StringLiterals:
-  EnforcedStyle: double_quotes
+  EnforcedStyle: single_quotes
 
 Style/Documentation:
   Enabled: false
