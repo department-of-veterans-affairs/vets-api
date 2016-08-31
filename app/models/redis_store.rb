@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class RedisStore
   extend ActiveModel::Naming
   extend ActiveModel::Callbacks

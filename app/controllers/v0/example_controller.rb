@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # example controller to show use of logging in with sessions controller
 
 module V0
@@ -5,7 +6,7 @@ module V0
     before_action :authenticate, only: [:welcome]
 
     def index
-      render json: { "message": "Welcome to the vets.gov API" }
+      render json: { "message": 'Welcome to the vets.gov API' }
     end
 
     def welcome
