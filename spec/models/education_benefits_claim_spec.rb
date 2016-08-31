@@ -16,19 +16,19 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       expect_attr_invalid(subject, :form, "can't be blank")
     end
 
-    describe "#form_matches_schema" do
-      it "should be valid on a valid form" do
+    describe '#form_matches_schema' do
+      it 'should be valid on a valid form' do
         expect_attr_valid(subject, :form)
       end
 
-      context "with an invalid form" do
+      context 'with an invalid form' do
         before do
           attributes[:form] = {
             chapter30: 0
           }
         end
 
-        it "should have a json schema error" do
+        it 'should have a json schema error' do
           subject.valid?
           form_errors = subject.errors[:form]
 
