@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class EducationBenefitsClaim < ActiveRecord::Base
   # TODO: encrypt sensitive information in education_benefits_claims #42
   validates(:form, presence: true)
