@@ -1,0 +1,14 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type" : "object",
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "$ref": "./triage_team.json#properties/data"
+      }
+    }
+  }
+}
