@@ -23,3 +23,6 @@ public/assets/**
 
 # Ignore local config
 config/application.yml
+
+# Ignore gemset
+.ruby-gemset
