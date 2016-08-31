@@ -55,6 +55,16 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
       expect_form_to_equal_form_hash(subject.class.find(subject.id))
     end
+
+    it "should encrypt the form field" do
+      subject.save!
+
+      expect(subject['form']).to eq(nil)
+
+      %w[encrypted_form encrypted_form_iv].each do |attr|
+        expect(subject[attr].present?).to eq(true)
+      end
+    end
   end
 
   describe "#set_submitted_at" do
