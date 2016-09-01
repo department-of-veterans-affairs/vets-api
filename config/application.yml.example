@@ -10,3 +10,5 @@ REDIS_PORT: "6379"
 MHV_HOST: 'https://mock-prescriptions-api.herokuapp.com'
 MHV_APP_TOKEN: 'fake-app-token'
 MHV_USER_ID: '1435525'
+MHV_SM_HOST: 'https://mock-secure-messaging-api.sm.com'
+MHV_SM_APP_TOKEN: '<<MHV_SM_APP_TOKEN>>'
