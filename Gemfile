@@ -22,6 +22,7 @@ gem 'va_rx', git: 'https://github.com/department-of-veterans-affairs/va_rx.git',
 gem 'faraday'
 gem 'faraday_middleware'
 gem 'httpclient'
+gem 'olive_branch'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -51,6 +52,7 @@ group :test do
   gem 'timecop'
   gem 'json-schema'
   gem 'vcr'
+  gem 'awrence'
 end
 
 group :development do
