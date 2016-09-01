@@ -13,8 +13,6 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   def form_matches_schema
     errors[:form].concat(JSON::Validator.fully_validate(FORM_SCHEMA, form))
-
-    true
   end
 
   def set_submitted_at
