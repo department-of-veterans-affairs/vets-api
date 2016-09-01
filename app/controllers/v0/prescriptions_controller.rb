@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 module V0
   class PrescriptionsController < RxController
-    SORT_FIELDS   = %w(prescription_name refill_status ordered_date facility_name).freeze
+    SORT_FIELDS   = %w(prescription_name refill_status ordered_date facility_name dispensed_date).freeze
     SORT_TYPES    = (SORT_FIELDS + SORT_FIELDS.map { |field| "-#{field}" }).freeze
-    DEFAULT_SORT  = '-ordered_date'
+    DEFAULT_SORT  = '-dispensed_date'
 
     # This index action supports various parameters described below, all are optional
     # This comment can be removed once documentation is finalized

@@ -21,7 +21,7 @@ RSpec.describe 'Prescriptions Integration', type: :request do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('prescriptions')
-      expect(JSON.parse(response.body)['meta']['sort']).to eq('ordered-date' => 'DESC')
+      expect(JSON.parse(response.body)['meta']['sort']).to eq('dispensed-date' => 'DESC')
     end
   end
 
@@ -31,7 +31,7 @@ RSpec.describe 'Prescriptions Integration', type: :request do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('prescriptions')
-      expect(JSON.parse(response.body)['meta']['sort']).to eq('ordered-date' => 'DESC')
+      expect(JSON.parse(response.body)['meta']['sort']).to eq('dispensed-date' => 'DESC')
     end
   end
 
