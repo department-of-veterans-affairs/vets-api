@@ -3,11 +3,21 @@
   "type" : "object",
   "required": ["data"],
   "properties": {
-    "data": {
+    "data" : {
       "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
       "items": {
         "type": "object",
-        "$ref": "./triage_team.json#properties/data"
+        "required": ["id", "type", "attributes"],
+        "properties": {
+          "id": { "type": "string"},
+          "type": { "enum": ["va-healthcare-messaging-triage-teams"] },
+          "attributes": {
+            "type": "object",
+            "$ref": "triage_team.json"
+          }
+        }
       }
     }
   }
