@@ -30,6 +30,9 @@ module VetsAPI
 
     config.api_only = true
 
+    # This prevents rails from escaping html like & in links when working with JSON
+    config.active_support.escape_html_entities_in_json = false
+
     config.watchable_dirs['lib'] = [:rb]
 
     # TODO(#45): add rack-cors middleware to streamline CORS config
