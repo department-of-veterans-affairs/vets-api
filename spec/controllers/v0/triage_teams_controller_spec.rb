@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe V0::TriageTeamsController, type: :controller do
-  let(:id) { '10616687' }
+  let(:id) { ENV['MHV_SM_USER_ID'] }
 
   describe 'index' do
     before(:each) do
