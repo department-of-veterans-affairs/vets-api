@@ -40,7 +40,7 @@ GEM
       erubis (~> 2.7.0)
       rails-dom-testing (~> 1.0, >= 1.0.5)
       rails-html-sanitizer (~> 1.0, >= 1.0.2)
-    active_model_serializers (0.10.2)
+    active_model_serializers (0.10.1)
       actionpack (>= 4.1, < 6)
       activemodel (>= 4.1, < 6)
       jsonapi (~> 0.1.1.beta2)
@@ -136,7 +136,7 @@ GEM
       tilt
     hashdiff (0.3.0)
     highline (1.7.8)
-    httpclient (2.8.2.3)
+    httpclient (2.8.2.2)
     i18n (0.7.0)
     ice_nine (0.11.2)
     json (1.8.3)
