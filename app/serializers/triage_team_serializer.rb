@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class TriageTeamSerializer < ActiveModel::Serializer
   def id
     object.triage_team_id

@@ -1,27 +1,10 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "required": ["data"],
+  "required": ["triage-team-id", "name", "relation-type"],
   "properties": {
-    "data": {
-      "type": "object",
-      "required": ["id", "attributes"],
-      "properties": {
-        "id": { "type": "integer" },
-        "attributes": {
-          "type": "object",
-          "required": ["id", "name", "relationship"],
-          "properties": {
-            "triage-team-id": { "type": "integer" },
-            "name": { "type": "string" },
-            "relation-type": { "type": "string" }
-          }
-        }
-      }
-    },
-    "meta": {
-      "type": "object",
-      "properties": {}
-    }
+    "triage-team-id": { "type": "integer" },
+    "name": { "type": "string" },
+    "relation-type": { "type": "string" }
   }
 }
