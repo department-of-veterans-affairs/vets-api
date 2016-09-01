@@ -4,8 +4,8 @@ class TrackingSerializer < ActiveModel::Serializer
     object.tracking_number
   end
 
-  link(:self) { rx_v1_prescription_trackings_url(object.prescription_id) }
-  link(:prescription) { rx_v1_prescription_url(object.prescription_id) }
+  link(:self) { v0_prescription_trackings_url(object.prescription_id) }
+  link(:prescription) { v0_prescription_url(object.prescription_id) }
   link(:tracking_url) do
     case object.delivery_service.upcase
     when 'UPS'
