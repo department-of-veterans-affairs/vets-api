@@ -4,7 +4,12 @@ require 'rails_helper'
 RSpec.describe V0::EducationBenefitsClaimsController, type: :request do
   describe 'POST create' do
     subject do
-      post(v0_education_benefits_claims_path, params.to_json, { 'CONTENT_TYPE' => 'application/json', 'HTTP_X_KEY_INFLECTION' => 'camel' })
+      post(
+        v0_education_benefits_claims_path,
+        params.to_json,
+        'CONTENT_TYPE' => 'application/json',
+        'HTTP_X_KEY_INFLECTION' => 'camel'
+      )
     end
 
     context 'with valid params' do
