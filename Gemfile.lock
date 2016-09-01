@@ -296,6 +296,7 @@ GEM
     thor (0.19.1)
     thread_safe (0.3.5)
     tilt (2.0.2)
+    timecop (0.8.1)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
     unicode-display_width (1.1.0)
@@ -348,6 +349,7 @@ DEPENDENCIES
   simplecov
   spring
   spring-commands-rspec
+  timecop
   tzinfo-data
   va-api-common!
   va_healthcare_messaging!

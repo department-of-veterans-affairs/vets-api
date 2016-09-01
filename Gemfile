@@ -50,6 +50,7 @@ group :test do
   gem 'simplecov', require: false
   gem 'webmock'
   gem 'fakeredis'
+  gem 'timecop'
   gem 'json-schema'
   gem 'vcr'
 end

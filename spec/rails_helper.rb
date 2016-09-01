@@ -10,6 +10,7 @@ require 'webmock/rspec'
 require 'support/factory_girl'
 require 'support/serializer_spec_helper'
 require 'support/api_schema_matcher'
+require 'support/validation_helpers'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
@@ -19,9 +20,13 @@ VCR.configure do |c|
   c.configure_rspec_metadata!
 end
 
+ActiveRecord::Migration.maintain_test_schema!
+
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
+
+  config.include(ValidationHelpers, type: :model)
 
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
