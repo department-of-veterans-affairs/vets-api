@@ -23,6 +23,8 @@ module MVI
         query_by_parameter << parameter_list
         control_act_process << query_by_parameter
         @message << control_act_process
+      rescue => e
+        Rails.logger.error e.message, backtrace: e.backtrace
       end
 
       def query_by_parameter
