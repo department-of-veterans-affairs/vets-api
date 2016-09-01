@@ -17,6 +17,7 @@ Rails.application.routes.draw do
     get 'user', to: 'users#show'
     get 'profile', to: 'users#show'
 
+    resource :education_benefits_claims, only: :create
     resources :claims, only: [:index]
 
     get 'welcome', to: 'example#welcome', as: :welcome
