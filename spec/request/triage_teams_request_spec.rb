@@ -5,7 +5,6 @@ RSpec.describe 'Triage Teams Integration', type: :request do
   let(:id) { ENV['MHV_SM_USER_ID'] }
 
   before(:each) do
-    puts "@@@@@@@@@@@@@@@@ #{id}"
     VCR.use_cassette("triage_teams/#{id}/index") do
       get '/v0/triage_teams', id: id
     end
