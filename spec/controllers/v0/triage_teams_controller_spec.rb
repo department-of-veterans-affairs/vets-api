@@ -6,7 +6,8 @@ RSpec.describe V0::TriageTeamsController, type: :controller do
 
   describe 'index' do
     before(:each) do
-      VCR.use_cassette('triage_teams/10616687/index') do
+      puts "@@@@@@@@@@@@@@@@ #{id}"
+      VCR.use_cassette("triage_teams/#{id}/index") do
         get :index, id: id
       end
     end
