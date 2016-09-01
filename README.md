@@ -13,7 +13,7 @@ This project provides common APIs for applications that live on vets.gov. This r
 
 ### Database Setup
 1. Start Postgres: `postgres -D /usr/local/var/postgres`
-1. Create dev database: `bundle exec rake db:create`
+1. Create dev database: `bundle exec rake db:setup`
 
 ### ID.me Certificate Setup
 For the ID.me SAML auth integration to work, you will need the following environment variables set:
