@@ -16,14 +16,14 @@ RSpec.describe 'Education Benefits Claims Integration', type: :request do
       let(:params) do
         {
           educationBenefitsClaim: {
-            form: { chapter33: true }
+            form: { preferredContactMethod: 'mail' }.to_json
           }
         }
       end
 
       it 'should create a new model' do
         expect { subject }.to change { EducationBenefitsClaim.count }.by(1)
-        expect(EducationBenefitsClaim.last.form['chapter33']).to eq(true)
+        expect(EducationBenefitsClaim.last.form['preferredContactMethod']).to eq('mail')
       end
 
       it 'should render json of the new model' do
