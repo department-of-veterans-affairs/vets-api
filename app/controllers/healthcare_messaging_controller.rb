@@ -38,7 +38,7 @@ class HealthcareMessagingController < ApplicationController
   ## TODO: recode once id.me is established.
   ######################################################################################################################
   def correlation_id
-    @mhv_correlation_id ||= params[:id]
+    ENV['MHV_SM_USER_ID']
   end
 
   ######################################################################################################################

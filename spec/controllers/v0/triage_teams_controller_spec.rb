@@ -11,16 +11,8 @@ RSpec.describe V0::TriageTeamsController, type: :controller do
       end
     end
 
-    it 'sets the correlation id' do
-      expect(assigns(:mhv_correlation_id)).to eq(id)
-    end
-
     it 'establishes a client session' do
       expect(assigns(:client)).to be_kind_of(VAHealthcareMessaging::Client)
-    end
-
-    it 'retrieves the triage teams' do
-      expect(assigns(:teams)).to be_kind_of(VAHealthcareMessaging::Collection)
     end
   end
 end
