@@ -78,7 +78,7 @@ https://dev.vets.gov/api/v0/status
 
 ## API Request key formatting
 
-When sending HTTP requests use the X-Key-Inflection request header to specify which case your client wants to use. Valid cases are `camel`, `dash`, and `snake`. For example if you set X-Key-Inflection=camel then you can use camelcase keys in your JSON request body and you will get back data with camelcase keys in the response body. If the header is not provided then the server will expect snakecase keys in the request body and output snakecase in the response.
+When sending HTTP requests use the X-Key-Inflection request header to specify which case your client wants to use. Valid cases are `camel`, `dash`, and `snake`. For example if you set X-Key-Inflection: camel then you can use camelcase keys in your JSON request body and you will get back data with camelcase keys in the response body. If the header is not provided then the server will expect snakecase keys in the request body and output snakecase in the response.
 
 ## How to Contribute
 
