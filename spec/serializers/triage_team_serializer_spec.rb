@@ -13,7 +13,7 @@ RSpec.describe TriageTeamSerializer, type: :serializer do
   end
 
   it 'should include triage_team_id' do
-    expect(attributes['triage-team-id'].to_i).to eq(triage_team.triage_team_id)
+    expect(attributes['triage_team_id'].to_i).to eq(triage_team.triage_team_id)
   end
 
   it "should include the team's name" do
@@ -21,6 +21,6 @@ RSpec.describe TriageTeamSerializer, type: :serializer do
   end
 
   it "should include the team's patient relationship type" do
-    expect(attributes['relation-type']).to eq(triage_team.relation_type)
+    expect(attributes['relation_type']).to eq(triage_team.relation_type)
   end
 end
