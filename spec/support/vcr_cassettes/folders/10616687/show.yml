@@ -1,0 +1,87 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/session
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
+      Apptoken:
+      - a-fake-app-token
+      Mhvcorrelationid:
+      - '10616687'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 02 Sep 2016 15:22:23 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      Content-Length:
+      - '0'
+      Expires:
+      - Fri, 02 Sep 2016 16:22:24 GMT
+      Token:
+      - zrmLapFUnWg=Sw7z9bTBTesEWHxdAJXqU2e3cxbnn3ZbeqsFQACJu7M=
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Content-Type:
+      - text/html; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version:
+  recorded_at: Fri, 02 Sep 2016 15:22:25 GMT
+- request:
+    method: get
+    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/folder/0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
+      Token:
+      - zrmLapFUnWg=Sw7z9bTBTesEWHxdAJXqU2e3cxbnn3ZbeqsFQACJu7M=
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 02 Sep 2016 15:22:25 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '{"id":0,"name":"Inbox","count":2,"unreadCount":1,"systemFolder":true}'
+    http_version:
+  recorded_at: Fri, 02 Sep 2016 15:22:26 GMT
+recorded_with: VCR 3.0.3

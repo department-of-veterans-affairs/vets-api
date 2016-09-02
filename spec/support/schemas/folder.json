@@ -1,0 +1,38 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "oneOf":[{
+    "required": ["folder-id", "name", "count", "unread-count", "system-folder"],
+    "properties": {
+      "folder-id": { "type": "integer" },
+      "name": { "type": "string" },
+      "count": { "type": "integer" },
+      "unread-count": { "type": "integer" },
+      "system-folder": { "type": "boolean" }
+    }
+  },
+  {
+    "required": ["data"],
+    "properties": {
+      "data": {
+        "type": "object",
+        "required": ["id", "type", "attributes"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "enum": ["va-healthcare-messaging-folders"] },
+          "attributes": {
+            "type": "object",
+            "required": ["folder-id", "name", "count", "unread-count", "system-folder"],
+            "properties": {
+              "folder-id": { "type": "integer" },
+              "name": { "type": "string" },
+              "count": { "type": "integer" },
+              "unread-count": { "type": "integer" },
+              "system-folder": { "type": "boolean" }
+            }            
+          }
+        }
+      }
+    }
+  }]
+}
