@@ -13,7 +13,7 @@ RSpec.describe FolderSerializer, type: :serializer do
   end
 
   it 'should include id as attribute' do
-    expect(attributes['folder-id']).to eq(folder.id)
+    expect(attributes['folder_id']).to eq(folder.id)
   end
 
   it "should include the folder's name" do
@@ -25,10 +25,10 @@ RSpec.describe FolderSerializer, type: :serializer do
   end
 
   it "should include the folders's unread message count" do
-    expect(attributes['unread-count']).to eq(folder.unread_count)
+    expect(attributes['unread_count']).to eq(folder.unread_count)
   end
 
   it "should include the folders's system folder attribute" do
-    expect(attributes['system-folder']).to eq(folder.system_folder)
+    expect(attributes['system_folder']).to eq(folder.system_folder)
   end
 end
