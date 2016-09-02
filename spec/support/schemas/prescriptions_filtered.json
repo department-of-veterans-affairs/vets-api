@@ -11,42 +11,42 @@
         "required": ["id", "type", "attributes", "links"],
         "properties": {
           "id": { "type": "string" },
-          "type": { "enum": ["va-rx-prescriptions"] },
+          "type": { "enum": ["va_rx_prescriptions"] },
           "attributes": {
             "type": "object",
             "required": [
-              "prescription-id",
-              "prescription-number",
-              "prescription-name",
-              "refill-status",
-              "refill-submit-date",
-              "refill-date",
-              "refill-remaining",
-              "facility-name",
-              "ordered-date",
+              "prescription_id",
+              "prescription_number",
+              "prescription_name",
+              "refill_status",
+              "refill_submit_date",
+              "refill_date",
+              "refill_remaining",
+              "facility_name",
+              "ordered_date",
               "quantity",
-              "expiration-date",
-              "dispensed-date",
-              "station-number",
-              "is-refillable",
-              "is-trackable"
+              "expiration_date",
+              "dispensed_date",
+              "station_number",
+              "is_refillable",
+              "is_trackable"
             ],
             "properties": {
-              "prescription-id": { "type": "integer" },
-              "prescription-number": { "type": "string" },
-              "prescription-name": { "type": "string" },
-              "refill-status": { "type": "string" },
-              "refill-submit-date": { "type": ["string", "null"] , "format": "date"},
-              "refill-date": { "type": "string" , "format": "date"},
-              "refill-remaining": { "type": "integer" },
-              "facility-name": { "type": "string" },
-              "ordered-date": { "type": "string" , "format": "date"},
+              "prescription_id": { "type": "integer" },
+              "prescription_number": { "type": "string" },
+              "prescription_name": { "type": "string" },
+              "refill_status": { "type": "string" },
+              "refill_submit_date": { "type": ["string", "null"] , "format": "date"},
+              "refill_date": { "type": "string" , "format": "date"},
+              "refill_remaining": { "type": "integer" },
+              "facility_name": { "type": "string" },
+              "ordered_date": { "type": "string" , "format": "date"},
               "quantity": { "type": "integer" },
-              "expiration-date": { "type": "string" , "format": "date"},
-              "dispensed-date": { "type": ["string", "null"] , "format": "date"},
-              "station-number": { "type": "string" },
-              "is-refillable": { "type": "boolean" },
-              "is-trackable": { "type": "boolean" }
+              "expiration_date": { "type": "string" , "format": "date"},
+              "dispensed_date": { "type": ["string", "null"] , "format": "date"},
+              "station_number": { "type": "string" },
+              "is_refillable": { "type": "boolean" },
+              "is_trackable": { "type": "boolean" }
             }
           },
           "links": {
@@ -73,10 +73,10 @@
     },
     "meta": {
       "type": "object",
-      "required": ["updated-at", "failed-station-list", "sort", "pagination"],
+      "required": ["updated_at", "failed_station_list", "sort", "pagination"],
       "properties": {
-        "updated-at": { "type": "string" },
-        "failed-station-list": { "type": "string" },
+        "updated_at": { "type": "string" },
+        "failed_station_list": { "type": "string" },
         "sort": {
           "type": "object"
         },
@@ -90,12 +90,12 @@
         },
         "pagination": {
           "type": "object",
-          "required": ["current-page", "per-page", "total-pages", "total-entries"],
+          "required": ["current_page", "per_page", "total_pages", "total_entries"],
           "properties": {
-            "current-page": { "type": "integer" },
-            "per-page": { "type": "integer" },
-            "total-pages": { "type": "integer" },
-            "total-entries": { "type": "integer" }
+            "current_page": { "type": "integer" },
+            "per_page": { "type": "integer" },
+            "total_pages": { "type": "integer" },
+            "total_entries": { "type": "integer" }
           }
         }
       }
