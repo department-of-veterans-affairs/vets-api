@@ -8,6 +8,17 @@ GIT
       virtus
 
 GIT
+  remote: https://github.com/department-of-veterans-affairs/va_healthcare_messaging.git
+  revision: 4a03cf1264b11a4fc50e72627cd6fdd887ee2617
+  branch: master
+  specs:
+    va_healthcare_messaging (0.1.0)
+      activemodel (>= 4.1, < 6)
+      faraday
+      multi_json (~> 1.0)
+      virtus
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/va_rx.git
   revision: 73201c9b11306ab7a2b369570c03ef4aa80755a2
   branch: master
@@ -341,6 +352,7 @@ DEPENDENCIES
   timecop
   tzinfo-data
   va-api-common!
+  va_healthcare_messaging!
   va_rx!
   vcr
   virtus
