@@ -48,3 +48,4 @@ end
 # Prepend the custom module so that it overrides those in the gem.
 ActiveModelSerializers::Adapter::JsonApi::PaginationLinks.prepend CustomPaginationLinks
 ActiveModelSerializers.config.adapter = :json_api
+ActiveModelSerializers.config.key_transform = :underscore
