@@ -76,6 +76,10 @@ Currently, this API is only deployed to the `dev` environment. Ansible templates
 https://dev.vets.gov/api/v0/status
 ```
 
+## API Request key formatting
+
+When sending HTTP requests use the X-Key-Inflection request header to specify which case your client is using. Valid cases are `camel`, `dash`, and `snake`. For example if you set X-Key-Inflection=camel then you can use camelcase keys in your JSON request body and you will get back data with camelcase keys in the response body.
+
 ## How to Contribute
 
 There are many ways to contribute to this project:
