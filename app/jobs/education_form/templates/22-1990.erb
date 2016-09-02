@@ -6,7 +6,7 @@
 222212111
 V1990
 
-LINCOLN TECHNICAL INSTITUTE, COLUMBIA
+<%= @applicant.schoolName.upcase %>
 <%= form_type(@applicant) %>
 *START*
 VA Form 22-1990
@@ -31,7 +31,8 @@ Address:
 Telephone Numbers:     Primary:    <%= @applicant.phone %>
                        Secondary:  <%= @applicant.secondaryPhone %>
 
-Email Address:  EMAIL@ADDRESS.XYZ
+Email Address:  <%= @applicant.email %>
+Prefered Method of Contact: email
 
 Direct Deposit:     Type of Account: <%= @applicant.bankAccount&.accountType %>
 Name of Financial Inst.: <%= @applicant.bankAccount&.bankName %>
@@ -79,9 +80,11 @@ Attaching Copy of DD 214 to Application?    <%= yesno(@applicant.attaching_dd_21
 
 Date Entered   Date Separated     Service Component
 Active Duty    From Active Duty
-01/01/2010     01/01/2014         Navy
-                         Service Status:   ACTIVE DUTY
-                         Involuntary Call: N/A
+<% @applicant&.toursOfDuty&.each do |tour| -%>
+<%= tour.dateRange.from %>     <%= tour.dateRange.to %>         <%= tour.serviceBranch %>
+                         Service Status:   <%= tour.serviceStatus %>
+                         Involuntary Call: <%= yesno(tour.involuntarilyCalledToDuty) %>
+<% end %>
 
 
                     EDUCATION AND EMPLOYMENT INFORMATION
@@ -90,6 +93,7 @@ Active Duty    From Active Duty
 Date Received High School Diploma or Equivalency Certificate: <%= to_date(@applicant.highSchoolOrGedCompletionDate) %>
 
 FAA Flight Certificates:
+<%= @applicant.faaFlightCertificatesInformation %>
 
       Education After High School
       ---------------------------
@@ -108,14 +112,10 @@ Major Field/Course of Study: <%= @applicant.postHighSchoolTrainings&.major %>
         ----------
 
 Before Entering Military Service
-        Principal Occupation:
-        Number of Months:
-        License or Rating:
+<%= employment_history(@applicant.nonMilitaryJobs, post_military: false) %>
 
 After Leaving Military Service
-        Principal Occupation:
-        Number of Months:
-        License or Rating:
+<%= employment_history(@applicant.nonMilitaryJobs, post_military: true) %>
 
 
           ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
@@ -131,23 +131,14 @@ your military service?
 
     Reserve Kicker:    <%= yesno(@applicant.reserveKicker) %>
 
-If you graduated from a military service academy, specify the year you graduated and received your commission:
+If you graduated from a military service academy, specify the year you graduated and received your commission: <%= @applicant.serviceAcademyGraduationYear %>
 
-ROTC Scholarship Program and Officer's Commission. Were you commissioned as the result of a Senior ROTC (Reserve Officers Training Corps) Scholarship Program?
+ROTC Scholarship Program and Officer's Commission. Were you commissioned as the result of a Senior ROTC (Reserve Officers Training Corps) Scholarship Program?    <%= yesno(@applicant.seniorRotcScholarshipProgram) %>
 
-        Date of Commission:
+        Date of Commission: <%= @applicant.dateOfRotcCommission %>
 
         Scholarship Amounts:
-
-            Year 1:          Amount:
-
-            Year 2:          Amount:
-
-            Year 3:          Amount:
-
-            Year 4:          Amount:
-
-            Year 5:          Amount:
+<%= rotc_scholarship_amounts(@applicant.rotcScholarshipAmounts) %>
 
 Senior ROTC Scholarship Program. Are you currently participating in a Senior ROTC Scholarship Program which pays for your tuition, fees, books and supplies under Section 2107, Title 10 U.S. Code?   <%= yesno(@applicant.senior_rotc_scholarship) %>
 
@@ -159,9 +150,9 @@ Did you have a period of active duty that the Department of Defense counts for p
 
 For Active Duty Claimants Only. Are you receiving or do you anticipate receiving any money (including but not limited to Federal Tuition Assistance) from the Armed Forces or Public Health Service for the course for which you have applied to the VA for Education Benefits?  If you receive such benefits during any part of your training, check 'Yes.' Note:  If you are only applying for Tuition Assistance Top-Up, check 'No' to this item.    <%= yesno(@applicant.will_receive_afphs) %>
 
-Is the source of your non-VA assistance a state sponsored tuition assistance program for Guardsmen/Reservists?    <%= yesno(@applicant.state_sponsored_tution_assistance) %>
+Is the source of your non-VA assistance a state sponsored tuition assistance program for Guardsmen/Reservists?    <%= yesno(@applicant.nonVaAssistance) %>
 
-For Civilian Employees of the U.S. Federal Government Only. Are you receiving or do you anticipate receiving any money from your agency (including but not limited to the Government Employees Training Act) for the same period for which you have applied to the VA for Education Benefits? If you will receive such benefits during any part of your training, check Yes.    <%= yesno(@applicant.civilian_agency_benefits) %>
+For Civilian Employees of the U.S. Federal Government Only. Are you receiving or do you anticipate receiving any money from your agency (including but not limited to the Government Employees Training Act) for the same period for which you have applied to the VA for Education Benefits? If you will receive such benefits during any part of your training, check Yes.    <%= yesno(@applicant.civilianBenefitsAssistance) %>
 
 
                         MARITAL AND DEPENDENCY STATUS

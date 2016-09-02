@@ -73,8 +73,28 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       eros. Nulla vel tortor vel neque fermentum laoreet id vitae ex.
       Mauris posuere lorem tellus. Pellentesque at augue arcu.
       Vestibulum aliquam urna ac est lacinia, eu congue nisi tempor.
-      "
+      ",
       # rubocop:enable LineLength
+      toursOfDuty: [
+        {
+          dateRange: {
+            from: "01/01/2001",
+            to: "10/10/2010"
+          },
+          serviceBranch: "Army",
+          serviceStatus: "Active Duty",
+          involuntarilyCalledToDuty: false
+        },
+        {
+          dateRange: {
+            from: "01/01/1995",
+            to: "10/10/1998"
+          },
+          serviceBranch: "Army",
+          serviceStatus: "Honorable Discharge",
+          involuntarilyCalledToDuty: true
+        }
+      ]
     }
   end
 
@@ -87,9 +107,15 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     it "formats a 22-1990 submission in textual form" do
       result = subject.format_application(application_1606.merge(form: "CH1606"))
       # puts result
-      expect(result).to include("*INIT*\nMARK\n\nOLSON")
+      expect(result).to include("*INIT*\r\nMARK\r\n\r\nOLSON")
       expect(result).to include("Name:   Mark Olson")
       expect(result).to include("EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606")
+    end
+
+    it "outputs a valid spool file fragment" do
+      result = subject.format_application(application_1606.merge(form: "CH1606"))
+      puts result
+      expect(result.lines.select { |line| line.length > 80 }).to be_empty
     end
   end
 
