@@ -30,7 +30,6 @@ Rails.application.routes.draw do
     end
 
     resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'
-
     resources :folders, only: [:index, :show], defaults: { format: :json } do
       resources :messages, only: [:index], defaults: { format: :json }
     end
