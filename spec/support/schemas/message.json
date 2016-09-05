@@ -1,0 +1,23 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "oneOf":[{
+    "required": [
+      "message_id", "category", "subject", "body", "attachment", "sent_date", "sender_id",
+      "sender_name", "recipient_id", "recipient_name", "read_receipt"
+    ],
+    "properties": {
+      "message_id": { "type": "integer" },
+      "category": { "type": "string" },
+      "subject": { "type": "string" },
+      "body": { "type": "null" },
+      "attachment": { "type": "boolean" },
+      "sent_date": { "type": "date-time" },
+      "sender_id": { "type": "integer" },
+      "sender_name": { "type": "string" },
+      "recipient_id": { "type": "integer" },
+      "recipient_name": { "type": "string" },
+      "read_receipt": { "type": ["null", "string"] }
+    }
+  }]
+}

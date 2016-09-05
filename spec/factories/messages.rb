@@ -14,6 +14,6 @@ FactoryGirl.define do
     sender_name 'Sender 1'
     recipient_id 1
     recipient_name 'Recipient 1'
-    read_receipt false
+    read_receipt 'READ'
   end
 end
