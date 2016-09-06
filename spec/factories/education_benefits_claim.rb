@@ -5,54 +5,54 @@ FactoryGirl.define do
       {
         chapter1606: true,
         fullName: {
-          first: "Mark",
-          last: "Olson"
+          first: 'Mark',
+          last: 'Olson'
         },
-        gender: "M",
-        birthday: "03/07/1985",
-        socialSecurityNumber: "111223333",
+        gender: 'M',
+        birthday: '03/07/1985',
+        socialSecurityNumber: '111223333',
         address: {
-          country: "USA",
-          state: "WI",
-          zipcode: "53130",
-          street: "123 Main St",
-          city: "Milwaukee"
+          country: 'USA',
+          state: 'WI',
+          zipcode: '53130',
+          street: '123 Main St',
+          city: 'Milwaukee'
         },
-        phone: "5551110000",
+        phone: '5551110000',
         emergencyContact: {
           fullName: {
-            first: "Sibling",
-            last: "Olson"
+            first: 'Sibling',
+            last: 'Olson'
           },
           sameAddressAndPhone: true
         },
         bankAccount: {
-          accountType: "checking",
-          bankName: "First Bank of JSON",
-          routingNumber: "123456789",
-          accountNumber: "88888888888"
+          accountType: 'checking',
+          bankName: 'First Bank of JSON',
+          routingNumber: '123456789',
+          accountNumber: '88888888888'
         },
         previouslyFiledClaimWithVa: false,
         previouslyAppliedWithSomeoneElsesService: false,
         alreadyReceivedInformationPamphlet: true,
-        schoolName: "FakeData University",
+        schoolName: 'FakeData University',
         schoolAddress: {
-          country: "USA",
-          state: "MD",
-          zipcode: "21231",
-          street: "111 Uni Drive",
-          city: "Baltimore"
+          country: 'USA',
+          state: 'MD',
+          zipcode: '21231',
+          street: '111 Uni Drive',
+          city: 'Baltimore'
         },
-        educationStartDate: "08/29/2016",
-        educationalObjective: "...",
-        courseOfStudy: "History",
+        educationStartDate: '08/29/2016',
+        educationalObjective: '...',
+        courseOfStudy: 'History',
         educationType: {
           college: true,
           testReimbursement: true
         },
         currentlyActiveDuty: false,
         terminalLeaveBeforeDischarge: false,
-        highSchoolOrGedCompletionDate: "06/06/2010",
+        highSchoolOrGedCompletionDate: '06/06/2010',
         nonVaAssistance: false,
         guardsmenReservistsAssistance: false,
 
@@ -76,20 +76,20 @@ FactoryGirl.define do
         toursOfDuty: [
           {
             dateRange: {
-              from: "01/01/2001",
-              to: "10/10/2010"
+              from: '01/01/2001',
+              to: '10/10/2010'
             },
-            serviceBranch: "Army",
-            serviceStatus: "Active Duty",
+            serviceBranch: 'Army',
+            serviceStatus: 'Active Duty',
             involuntarilyCalledToDuty: false
           },
           {
             dateRange: {
-              from: "01/01/1995",
-              to: "10/10/1998"
+              from: '01/01/1995',
+              to: '10/10/1998'
             },
-            serviceBranch: "Army",
-            serviceStatus: "Honorable Discharge",
+            serviceBranch: 'Army',
+            serviceStatus: 'Honorable Discharge',
             involuntarilyCalledToDuty: true
           }
         ]
