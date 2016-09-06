@@ -1,7 +1,7 @@
 *INIT*
-<%= @applicant.fullName.first.upcase %>
-<%= @applicant.fullName.middle&.upcase %>
-<%= @applicant.fullName.last.upcase %>
+<%= @applicant.veteranFullName.first.upcase %>
+<%= @applicant.veteranFullName.middle&.upcase %>
+<%= @applicant.veteranFullName.last.upcase %>
 <%= @applicant.veteranSocialSecurityNumber&.gsub(/[^\d]/,'') %>
 222212111
 V1990
@@ -23,7 +23,7 @@ DEC 2016
 
 SSN: <%= @applicant.veteranSocialSecurityNumber %>         Sex: <%= @applicant.gender %>             Date of Birth: <%= @applicant.birthday %>
 
-Name:   <%= full_name(@applicant.fullName) %>
+Name:   <%= full_name(@applicant.veteranFullName) %>
 
 Address:
         <%= full_address(@applicant.address) %>
