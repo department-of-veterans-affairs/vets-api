@@ -42,7 +42,7 @@ FactoryGirl.define do
             city: 'Baltimore'
           },
           startDate: '08/29/2016',
-          educationalObjective: '...',
+          educationalObjective: '...'
         },
         educationType: {
           college: true,
