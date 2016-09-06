@@ -121,7 +121,7 @@ If you graduated from a military service academy, specify the year you graduated
 
 ROTC Scholarship Program and Officer's Commission. Were you commissioned as the result of a Senior ROTC (Reserve Officers Training Corps) Scholarship Program?    <%= yesno(@applicant.seniorRotcScholarshipProgram) %>
 
-        Date of Commission: <%= @applicant.dateOfRotcCommission %>
+        Year of Commission: <%= @applicant.seniorRotc&.commissionYear %>
 
         Scholarship Amounts:
 <%= rotc_scholarship_amounts(@applicant.rotcScholarshipAmounts) %>
