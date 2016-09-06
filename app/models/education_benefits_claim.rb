@@ -10,6 +10,9 @@ class EducationBenefitsClaim < ActiveRecord::Base
     self.submitted_at = Time.zone.now
   end
 
+  # This converts the form data into an OpenStruct object so that the template
+  # rendering can be cleaner. Piping it through the JSON serializer was a quick
+  # and easy way to deeply transform the object.
   def open_struct_form
     @application ||= JSON.parse(self['form'].to_json, object_class: OpenStruct)
     @application.form = application_type
