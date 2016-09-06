@@ -42,20 +42,19 @@ Name, Address, & Telephone Number of Contact:
         <%= full_name(@applicant.secondaryContact&.fullName) %>
         <% if @applicant.secondaryContact&.sameAddress %>Address same as claimant<% end %>
 
+
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
 Type of Education or Training: College or Other School (including online courses)
 
 Name and Address of School or Training Establishment:
-        <%= @applicant.schoolName %>
-        <%= full_address(@applicant.schoolAddress) %>
+        <%= @applicant.school.name %>
+        <%= full_address(@applicant.school&.address) %>
 
 Date You Started or Will Start Training: <%= @applicant.school&.startDate %>
 
-Education or Career Goal: <%= @applicant.educationalObjective %>
-
-Course of Study: <%= @applicant.courseOfStudy %>
+Education or Career Goal: <%= @applicant.school&.educationalObjective %>
 
 
                        ACTIVE DUTY SERVICE INFORMATION
