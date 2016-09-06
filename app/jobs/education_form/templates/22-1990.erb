@@ -62,7 +62,7 @@ Name and Address of School or Training Establishment:
         <%= @applicant.schoolName %>
         <%= full_address(@applicant.schoolAddress) %>
 
-Date You Started or Will Start Training: <%= @applicant.educationStartDate %>
+Date You Started or Will Start Training: <%= @applicant.school&.startDate %>
 
 Education or Career Goal: <%= @applicant.educationalObjective %>
 
