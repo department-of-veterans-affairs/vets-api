@@ -24,13 +24,13 @@ class User < RedisStore
   validates :email, presence: true
 
   def self.sample_claimant
-    sample_claimant = User.new
-    sample_claimant.first_name = 'Jane'
-    sample_claimant.last_name = 'Doe'
-    sample_claimant.issue_instant = '2015-04-17T14:52:48Z'
-    sample_claimant.edipi = '1105051936'
-    sample_claimant.participant_id = '123456789'
-    return sample_claimant
+    User.new(
+      first_name: 'Jane',
+      last_name: 'Doe',
+      issue_instant: '2015-04-17T14:52:48Z',
+      edipi: '1105051936',
+      participant_id: '123456789'
+    )
   end
 
   def claims
