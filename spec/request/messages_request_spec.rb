@@ -28,11 +28,28 @@ RSpec.describe 'Messages Integration', type: :request do
         end
       end
 
-      it 'response to GET #show' do
+      it 'responds to GET #show' do
         expect(response).to be_success
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('message')
       end
+    end
+  end
+
+  describe '#create' do
+    let(:msg) { build :message }
+
+    before(:each) do
+      VCR.use_cassette("messages/#{id}/create") do
+        post '/v0/messages', id: id, subject: msg.subject, category: msg.category,
+                             recipient_id: msg.recipient_id, body: msg.body
+      end
+    end
+
+    it 'responds to PUT #create' do
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      expect(response).to match_response_schema('message')
     end
   end
 end

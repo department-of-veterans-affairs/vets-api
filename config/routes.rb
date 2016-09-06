@@ -33,7 +33,7 @@ Rails.application.routes.draw do
     resources :folders, only: [:index, :show], defaults: { format: :json } do
       resources :messages, only: [:index], defaults: { format: :json }
     end
-    resources :messages, only: [:show], defaults: { format: :json }
+    resources :messages, only: [:show, :create], defaults: { format: :json }
   end
 
   root 'v0/example#index', module: 'v0'
