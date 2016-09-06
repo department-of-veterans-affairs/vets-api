@@ -2,7 +2,6 @@
 class EducationBenefitsClaim < ActiveRecord::Base
   # TODO: encrypt sensitive information in education_benefits_claims #42
   validates(:form, presence: true)
-  serialize :form, JSON
 
   # initially only completed claims are allowed, later we can allow claims that dont have a submitted_at yet
   before_validation(:set_submitted_at, on: :create)
