@@ -6,7 +6,7 @@ RSpec.describe 'Triage Teams Integration', type: :request do
 
   before(:each) do
     VCR.use_cassette("triage_teams/#{id}/index") do
-      get '/v0/triage_teams', id: id
+      get '/v0/recipients', id: id
     end
   end
 
