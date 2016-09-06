@@ -31,6 +31,7 @@ module MVI
         el = element('queryByParameter')
         el << element('queryId', root: '2.16.840.1.113883.3.933', extension: '18204')
         el << element('statusCode', code: 'new')
+        el << element('modifyCode', code: 'MVI.COMP1')
         el << element('initialValue', value: 1)
         el
       end
