@@ -2,7 +2,7 @@
 <%= @applicant.fullName.first.upcase %>
 <%= @applicant.fullName.middle&.upcase %>
 <%= @applicant.fullName.last.upcase %>
-<%= @applicant.socialSecurityNumber&.gsub(/[^\d]/,'') %>
+<%= @applicant.veteranSocialSecurityNumber&.gsub(/[^\d]/,'') %>
 222212111
 V1990
 
@@ -21,7 +21,7 @@ DEC 2016
                             APPLICANT INFORMATION
                             ---------------------
 
-SSN: <%= @applicant.socialSecurityNumber %>         Sex: <%= @applicant.gender %>             Date of Birth: <%= @applicant.birthday %>
+SSN: <%= @applicant.veteranSocialSecurityNumber %>         Sex: <%= @applicant.gender %>             Date of Birth: <%= @applicant.birthday %>
 
 Name:   <%= full_name(@applicant.fullName) %>
 
