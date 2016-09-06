@@ -8,6 +8,7 @@ describe MVI::Messages::FindCandidateMessage do
       let(:parsed_xml) { Ox.parse(xml) }
       let(:parameter_list_path) { 'controlActProcess/queryByParameter/parameterList' }
       it 'should have a USDVA extension' do
+        puts xml
         expect(
           parsed_xml.locate('id/@extension').first
         ).to eq('abc123^PN^200VETS^USDVA')
@@ -15,10 +16,10 @@ describe MVI::Messages::FindCandidateMessage do
       it 'should have a name node' do
         expect(
           parsed_xml.locate("#{parameter_list_path}/livingSubjectName/value/given").first.text
-        ).to eq("John")
+        ).to eq('John')
         expect(
           parsed_xml.locate("#{parameter_list_path}/livingSubjectName/value/family").first.text
-        ).to eq("Smith")
+        ).to eq('Smith')
       end
       it 'should have a birth time (dob) node' do
         expect(
