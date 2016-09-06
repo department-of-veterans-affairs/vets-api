@@ -42,17 +42,6 @@ Name, Address, & Telephone Number of Contact:
         <%= full_name(@applicant.secondaryContact&.fullName) %>
         <% if @applicant.secondaryContact&.sameAddress %>Address same as claimant<% end %>
 
-Have you previously applied for VA Benefits?    <%= yesno(@applicant.previouslyFiledClaimWithVa) %>
-
-Previously Applied for VA Benefits Using Someone Else's Service?    <%= yesno(@applicant.previouslyAppliedWithSomeoneElsesService) %>
-
-
-                    INFORMATION ON VA EDUCATION BENEFITS
-                    ------------------------------------
-
-Received an information pamphlet:    <%= yesno(@applicant.alreadyReceivedInformationPamphlet) %>
-
-
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
