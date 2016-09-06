@@ -124,7 +124,7 @@ ROTC Scholarship Program and Officer's Commission. Were you commissioned as the 
         Year of Commission: <%= @applicant.seniorRotc&.commissionYear %>
 
         Scholarship Amounts:
-<%= rotc_scholarship_amounts(@applicant.rotcScholarshipAmounts) %>
+<%= rotc_scholarship_amounts(@applicant.seniorRotc&.rotcScholarshipAmounts) %>
 
 Senior ROTC Scholarship Program. Are you currently participating in a Senior ROTC Scholarship Program which pays for your tuition, fees, books and supplies under Section 2107, Title 10 U.S. Code?   <%= yesno(@applicant.senior_rotc_scholarship) %>
 
