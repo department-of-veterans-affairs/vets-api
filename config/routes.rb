@@ -28,6 +28,10 @@ Rails.application.routes.draw do
       patch :refill, to: "prescriptions#refill", on: :member
       resources :trackings, only: :index, controller: :trackings
     end
+
+    resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'
+    resources :folders, only: [:index, :show], defaults: { format: :json }
   end
+
   root 'v0/example#index', module: 'v0'
 end

@@ -8,6 +8,17 @@ GIT
       virtus
 
 GIT
+  remote: https://github.com/department-of-veterans-affairs/va_healthcare_messaging.git
+  revision: 4a03cf1264b11a4fc50e72627cd6fdd887ee2617
+  branch: master
+  specs:
+    va_healthcare_messaging (0.1.0)
+      activemodel (>= 4.1, < 6)
+      faraday
+      multi_json (~> 1.0)
+      virtus
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/va_rx.git
   revision: 73201c9b11306ab7a2b369570c03ef4aa80755a2
   branch: master
@@ -64,6 +75,7 @@ GEM
     addressable (2.4.0)
     arel (6.0.3)
     ast (2.3.0)
+    awrence (0.1.0)
     axiom-types (0.1.1)
       descendants_tracker (~> 0.0.4)
       ice_nine (~> 0.11.0)
@@ -167,6 +179,8 @@ GEM
     notiffany (0.0.8)
       nenv (~> 0.1)
       shellany (~> 0.0)
+    olive_branch (1.1.0)
+      rails (>= 4.0)
     parser (2.3.1.2)
       ast (~> 2.2)
     pg (0.18.4)
@@ -311,6 +325,7 @@ PLATFORMS
 
 DEPENDENCIES
   active_model_serializers (~> 0.10.0)
+  awrence
   brakeman
   bundler-audit
   byebug
@@ -323,6 +338,7 @@ DEPENDENCIES
   guard-rubocop
   httpclient
   json-schema
+  olive_branch
   pg
   pry-nav
   puma (~> 2.16.0)
@@ -341,6 +357,7 @@ DEPENDENCIES
   timecop
   tzinfo-data
   va-api-common!
+  va_healthcare_messaging!
   va_rx!
   vcr
   virtus

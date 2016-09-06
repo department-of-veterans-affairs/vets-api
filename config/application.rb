@@ -39,5 +39,7 @@ module VetsAPI
     config.action_dispatch.default_headers = {
       'Access-Control-Allow-Headers' => 'Authorization'
     }
+
+    config.middleware.use "OliveBranch::Middleware"
   end
 end
