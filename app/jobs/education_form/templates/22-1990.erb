@@ -119,16 +119,16 @@ your military service?
 
 If you graduated from a military service academy, specify the year you graduated and received your commission: <%= @applicant.serviceAcademyGraduationYear %>
 
-ROTC Scholarship Program and Officer's Commission. Were you commissioned as the result of a Senior ROTC (Reserve Officers Training Corps) Scholarship Program?    <%= yesno(@applicant.seniorRotcScholarshipProgram) %>
+ROTC Scholarship Program and Officer's Commission. Were you commissioned as the result of a Senior ROTC (Reserve Officers Training Corps) Scholarship Program?    <%= yesno(@applicant.seniorRotc.present?) %>
 
         Year of Commission: <%= @applicant.seniorRotc&.commissionYear %>
 
         Scholarship Amounts:
 <%= rotc_scholarship_amounts(@applicant.seniorRotc&.rotcScholarshipAmounts) %>
 
-Senior ROTC Scholarship Program. Are you currently participating in a Senior ROTC Scholarship Program which pays for your tuition, fees, books and supplies under Section 2107, Title 10 U.S. Code?   <%= yesno(@applicant.senior_rotc_scholarship) %>
+Senior ROTC Scholarship Program. Are you currently participating in a Senior ROTC Scholarship Program which pays for your tuition, fees, books and supplies under Section 2107, Title 10 U.S. Code?   <%= yesno(@applicant.seniorRotcScholarshipProgram) %>
 
-Did you have a period of active duty that the Department of Defense counts for purposes of repaying an education loan?    <%= yesno(@applicant.active_duty_towards_repayment) %>
+Did you have a period of active duty that the Department of Defense counts for purposes of repaying an education loan?    <%= yesno(@applicant.activeDutyRepayingPeriod.present?) %>
 
         Start Date: <%= to_date(@applicant.activeDutyRepayingPeriod&.from) %>
 
