@@ -60,18 +60,16 @@ Education or Career Goal: <%= @applicant.school&.educationalObjective %>
                        ACTIVE DUTY SERVICE INFORMATION
                        -------------------------------
 
-Are You Now On Active Duty?   <%= yesno(@applicant.currentlyActiveDuty) %>
+Are You Now On Active Duty?   <%= yesno(@applicant.currentlyActiveDuty.yes) %>
 
-Are you Now On Terminal Leave Just Before Discharge? <%= yesno(@applicant.terminalLeaveBeforeDischarge) %>
-
-Attaching Copy of DD 214 to Application?    <%= yesno(@applicant.attaching_dd_214) %>
+Are you Now On Terminal Leave Just Before Discharge? <%= yesno(@applicant.currentlyActiveDuty.onTerminalLeave) %>
 
 Date Entered   Date Separated     Service Component
 Active Duty    From Active Duty
 <% @applicant&.toursOfDuty&.each do |tour| -%>
 <%= tour.dateRange.from %>     <%= tour.dateRange.to %>         <%= tour.serviceBranch %>
                          Service Status:   <%= tour.serviceStatus %>
-                         Involuntary Call: <%= yesno(tour.involuntarilyCalledToDuty) %>
+                         Involuntary Call: <%= tour.involuntarilyCalledToDuty %>
 <% end %>
 
 
