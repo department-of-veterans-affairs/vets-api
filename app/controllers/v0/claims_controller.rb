@@ -12,7 +12,7 @@ module V0
     private
 
     def current_user
-      @current_user ||= User.new
+      @current_user ||= User.sample_claimant
     end
   end
 end
