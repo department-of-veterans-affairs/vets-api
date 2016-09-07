@@ -37,5 +37,20 @@ module V0
              serializer: MessageSerializer,
              meta:  {}
     end
+
+    def draft
+      subject = params[:subject]
+      category = params[:category]
+      recipient_id = params[:recipient_id]
+      body = params[:body]
+      id = params[:id]
+
+      response = client.post_create_message_draft(id: id, subject: subject,
+                                                  category: category, recipient_id: recipient_id, body: body)
+
+      render json: response,
+             serializer: MessageSerializer,
+             meta:  {}
+    end
   end
 end
