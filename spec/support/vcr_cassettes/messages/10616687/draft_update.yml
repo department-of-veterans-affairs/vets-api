@@ -1,0 +1,90 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/session
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
+      Apptoken:
+      - a-fake-app-token
+      Mhvcorrelationid:
+      - '10616687'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 07 Sep 2016 15:09:56 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      Content-Length:
+      - '0'
+      Expires:
+      - Wed, 07 Sep 2016 16:09:56 GMT
+      Token:
+      - sOkYhg575WQ=FH5MX5JZ1AjzX5KtHHWqgqCUYrYNo54yTRZMYFl3hvE=
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Content-Type:
+      - text/html; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version:
+  recorded_at: Wed, 07 Sep 2016 15:09:56 GMT
+- request:
+    method: post
+    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/message/draft
+    body:
+      encoding: UTF-8
+      string: '{"subject":"Subject 1","recipientId":"585986","category":"OTHER","body":"Body
+        1. This is the added bit!","id":"620321"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
+      Token:
+      - sOkYhg575WQ=FH5MX5JZ1AjzX5KtHHWqgqCUYrYNo54yTRZMYFl3hvE=
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 07 Sep 2016 15:09:56 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '{"id":620321,"category":"OTHER","subject":"Subject 1","body":"Body
+        1. This is the added bit!","attachment":false,"attachments":{"attachment":[]},"sentDate":"","senderId":384939,"senderName":"MVIONE,
+        TEST","recipientId":585986,"recipientName":"Triage group 311070 test 2","readReceipt":null}'
+    http_version:
+  recorded_at: Wed, 07 Sep 2016 15:09:57 GMT
+recorded_with: VCR 3.0.3
