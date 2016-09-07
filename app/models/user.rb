@@ -53,16 +53,20 @@ class User < RedisStore
       'va_eauth_dodedipnid' => @edipi,
       'va_eauth_pid' => @participant_id,
       'va_eauth_pnid' => @ssn,
-      'va_eauth_authorization' => {
-        authorizationResponse: {
-          status: 'VETERAN',
-          idType: 'SSN',
-          id: @ssn,
-          edi: @edipi,
-          firstName: @first_name,
-          lastName: @last_name
-        }
-      }.to_json
+      'va_eauth_authorization' => eauth_json
     }
+  end
+
+  def eauth_json
+    {
+      authorizationResponse: {
+        status: 'VETERAN',
+        idType: 'SSN',
+        id: @ssn,
+        edi: @edipi,
+        firstName: @first_name,
+        lastName: @last_name
+      }
+    }.to_json
   end
 end
