@@ -52,7 +52,17 @@ class User < RedisStore
       'va_eauth_issueinstant' => @issue_instant,
       'va_eauth_dodedipnid' => @edipi,
       'va_eauth_pid' => @participant_id,
-      'va_eauth_pnid' => @ssn
+      'va_eauth_pnid' => @ssn,
+      'va_eauth_authorization' => {
+        authorizationResponse: {
+          status: 'VETERAN',
+          idType: 'SSN',
+          id: @ssn,
+          edi: @edipi,
+          firstName: @first_name,
+          lastName: @last_name
+        }
+      }.to_json
     }
   end
 end
