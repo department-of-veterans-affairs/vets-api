@@ -1,33 +1,54 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
   "type" : "object",
-  "required": ["data", "meta"],
-  "properties": {
-    "data" : {
-      "type": "array",
-      "minItems": 1,
-      "uniqueItems": true,
-      "items": {
+  "oneOf": [{
+    "properties": {
+      "data" : {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "type": "object",
+          "required": ["id", "type", "attributes"],
+          "properties": {
+            "id": { "type": "string"},
+            "type": { "enum": ["va_healthcare_messaging_messages"] },
+            "attributes": {
+              "type": "object",
+              "$ref": "message.json"
+            }
+          }
+        }
+      },
+      "meta": {
         "type": "object",
-        "required": ["id", "type", "attributes"],
         "properties": {
-          "id": { "type": "string"},
-          "type": { "enum": ["va_healthcare_messaging_messages"] },
-          "attributes": {
-            "type": "object",
-            "$ref": "message.json"
+          "id": { "type": "integer" },
+          "current_page": { "type": "integer" },
+          "per_page": { "type": "integer" }
+        }
+      }
+    }
+  },
+  {
+    "properties": {
+      "data" : {
+        "type": "array",
+        "minItems": 1,
+        "uniqueItems": true,
+        "items": {
+          "type": "object",
+          "required": ["id", "type", "attributes"],
+          "properties": {
+            "id": { "type": "string"},
+            "type": { "enum": ["va_healthcare_messaging_messages"] },
+            "attributes": {
+              "type": "object",
+              "$ref": "message.json"
+            }
           }
         }
       }
-    },
-    "meta": {
-      "type": "object",
-      "required": ["id", "current_page", "per_page"],
-      "properties": {
-        "id": { "type": "integer" },
-        "current_page": { "type": "integer" },
-        "per_page": { "type": "integer" }
-      }
     }
-  }
+  }]
 }

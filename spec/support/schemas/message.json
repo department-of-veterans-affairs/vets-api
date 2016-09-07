@@ -10,7 +10,7 @@
       "message_id": { "type": "integer" },
       "category": { "type": "string" },
       "subject": { "type": "string" },
-      "body": { "type": "null" },
+      "body": { "type": ["null", "string"] },
       "attachment": { "type": "boolean" },
       "sent_date": { "type": "date-time" },
       "sender_id": { "type": "integer" },

@@ -58,7 +58,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
     before(:each) do
       VCR.use_cassette("messages/#{id}/draft_create") do
-        post '/v0/messages/draft', subject: msg.subject, category: msg.category,
+        post '/v0/messages/draft', id: id, subject: msg.subject, category: msg.category,
                                    recipient_id: msg.recipient_id, body: msg.body
       end
     end
@@ -75,7 +75,7 @@ RSpec.describe 'Messages Integration', type: :request do
       message_id = org['message_id']
 
       VCR.use_cassette("messages/#{id}/draft_update") do
-        put "/v0/messages/#{message_id}/draft", subject: msg.subject, category: msg.category,
+        put "/v0/messages/#{message_id}/draft", id: id, subject: msg.subject, category: msg.category,
                                                 recipient_id: msg.recipient_id, body: body
       end
 
@@ -84,6 +84,21 @@ RSpec.describe 'Messages Integration', type: :request do
       expect(response).to match_response_schema('message')
       expect(JSON.parse(response.body)['data']['attributes']['body']).to eq(body)
       expect(JSON.parse(response.body)['data']['attributes']['message_id']).to eq(message_id)
+    end
+  end
+
+  describe '#thread' do
+    let(:thread_id) { 573_059 }
+    before(:each) do
+      VCR.use_cassette("messages/#{id}/thread") do
+        get "/v0/messages/#{thread_id}/thread"
+      end
+    end
+
+    it 'responds to GET #thread' do
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      expect(response).to match_response_schema('messages')
     end
   end
 end
