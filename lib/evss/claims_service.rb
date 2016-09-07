@@ -17,5 +17,12 @@ module EVSS
     def create_intent_to_file
       post 'claimServicesExternalService/listAllIntentToFile', '{}'
     end
+
+    def submit_5103_waiver(claim_id)
+      post 'vbaClaimStatusService/set5103Waiver', {
+        claimId: claim_id,
+        systemName: 'EBM'
+      }.to_json
+    end
   end
 end

@@ -37,6 +37,10 @@ class User < RedisStore
     Claim.fetch_all(vaafi_headers)
   end
 
+  def request_claim_decision(claim_id)
+    Claim.request_decision(vaafi_headers, claim_id)
+  end
+
   private
 
   def vaafi_headers

@@ -9,6 +9,10 @@ module V0
              each_serializer: ClaimSerializer
     end
 
+    def request_decision
+      render json: current_user.request_claim_decision(params[:id])
+    end
+
     private
 
     def current_user
