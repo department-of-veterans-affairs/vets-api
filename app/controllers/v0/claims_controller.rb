@@ -10,7 +10,8 @@ module V0
     end
 
     def request_decision
-      render json: current_user.request_claim_decision(params[:id])
+      current_user.request_claim_decision(params[:id])
+      head :no_content
     end
 
     private

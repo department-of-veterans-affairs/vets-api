@@ -1,4 +1,16 @@
 # frozen_string_literal: true
+class EVSSErrors < Faraday::Response::Middleware
+  def on_complete(env)
+    case env[:status]
+    when 200
+      resp = env.body
+      if resp['success'] && !resp['success']
+        raise Exception, resp['messages']
+      end
+    end
+  end
+end
+
 module EVSS
   class BaseService
     def initialize
@@ -25,6 +37,7 @@ module EVSS
     def conn
       @conn ||= Faraday.new(@base_url, headers: @headers) do |faraday|
         faraday.options.timeout = @default_timeout
+        faraday.use      EVSSErrors
         faraday.response :json, content_type: /\bjson$/
         faraday.adapter  :httpclient
       end
