@@ -20,6 +20,7 @@ Rails.application.routes.draw do
     resource :education_benefits_claims, only: :create
     resources :claims, only: [:index] do
       post :request_decision, on: :member
+      post :documents, on: :member
     end
 
     get 'welcome', to: 'example#welcome', as: :welcome
