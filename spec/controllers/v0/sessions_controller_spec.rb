@@ -30,7 +30,8 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       get :saml_callback
       expect(response).to have_http_status(:success)
-      expect(JSON.parse(response.body).keys).to include('token', 'uuid')
+      expect(response).to render_template('sendToken')
+      # expect(JSON.parse(response.body).keys).to include('token', 'uuid')
     end
 
     it 'GET saml_callback - returns unauthorized from an invalid SAML response' do
@@ -41,7 +42,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       get :saml_callback
       expect(response).to have_http_status(:forbidden)
-      expect(JSON.parse(response.body)['errors']).to eq(['is invalid'])
+      expect(JSON.parse(response.body)['errors']).not_to be_empty
     end
   end
 
