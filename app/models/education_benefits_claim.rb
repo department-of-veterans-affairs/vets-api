@@ -4,13 +4,12 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   validates(:form, presence: true)
   validate(:form_matches_schema)
+  validate(:form_must_be_string)
 
   attr_encrypted(:form, key: ENV['DB_ENCRYPTION_KEY'])
 
   # initially only completed claims are allowed, later we can allow claims that dont have a submitted_at yet
   before_validation(:set_submitted_at, on: :create)
-  after_initialize(:parse_json_form)
-  around_save(:set_form_to_json)
 
   # This converts the form data into an OpenStruct object so that the template
   # rendering can be cleaner. Piping it through the JSON serializer was a quick
@@ -30,20 +29,21 @@ class EducationBenefitsClaim < ActiveRecord::Base
     return 'CH1606' if @application.chapter1606
   end
 
+  def parsed_form
+    @parsed_form ||= JSON.parse(form)
+  end
+
   private
 
+  # if the form is a hash olive_branch will convert all the keys to underscore and break our json schema validation
+  def form_must_be_string
+    errors[:form] << 'must be a json string' unless form.is_a?(String)
+
+    true
+  end
+
   def form_matches_schema
-    errors[:form].concat(JSON::Validator.fully_validate(FORM_SCHEMA, form))
-  end
-
-  def parse_json_form
-    self.form = JSON.parse(form) if form.is_a?(String)
-  end
-
-  def set_form_to_json
-    self.form = form.to_json if form.is_a?(Hash)
-    yield
-    parse_json_form
+    errors[:form].concat(JSON::Validator.fully_validate(FORM_SCHEMA, parsed_form))
   end
 
   def set_submitted_at

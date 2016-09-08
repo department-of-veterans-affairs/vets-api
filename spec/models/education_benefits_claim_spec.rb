@@ -4,7 +4,7 @@ require 'rails_helper'
 RSpec.describe EducationBenefitsClaim, type: :model do
   let(:attributes) do
     {
-      form: { 'chapter30' => true }
+      form: { 'chapter30' => true }.to_json
     }
   end
   subject { described_class.new(attributes) }
@@ -25,7 +25,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         before do
           attributes[:form] = {
             chapter30: 0
-          }
+          }.to_json
         end
 
         it 'should have a json schema error' do
