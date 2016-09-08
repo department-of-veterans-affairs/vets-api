@@ -1,14 +1,16 @@
+# frozen_string_literal: true
 class PrescriptionSerializer < ActiveModel::Serializer
   def id
     object.prescription_id
   end
 
-  link(:self) { rx_v1_prescription_url(object.prescription_id) }
-  link(:tracking) { rx_v1_prescription_trackings_url(object.prescription_id) }
+  link(:self) { v0_prescription_url(object.prescription_id) }
+  link(:tracking) { v0_prescription_trackings_url(object.prescription_id) }
 
   attribute :prescription_id
   attribute :prescription_number
   attribute :prescription_name
+  attribute :refill_status
   attribute :refill_submit_date
   attribute :refill_date
   attribute :refill_remaining

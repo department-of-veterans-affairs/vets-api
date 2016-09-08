@@ -1,11 +1,12 @@
-require "fakeredis/rspec"
+# frozen_string_literal: true
+require 'fakeredis/rspec'
 
 # By default run SimpleCov, but allow an environment variable to disable.
-unless ENV["NOCOVERAGE"]
-  require "simplecov"
+unless ENV['NOCOVERAGE']
+  require 'simplecov'
 
   SimpleCov.start do
-    track_files "lib/**/*.rb app/**/*.rb"
+    track_files 'lib/**/*.rb app/**/*.rb'
     SimpleCov.minimum_coverage_by_file 90
   end
 end

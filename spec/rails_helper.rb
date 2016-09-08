@@ -1,24 +1,32 @@
+# frozen_string_literal: true
 # This file is copied to spec/ when you run 'rails generate rspec:install'
-ENV["RAILS_ENV"] ||= "test"
-require File.expand_path("../../config/environment", __FILE__)
+ENV['RAILS_ENV'] ||= 'test'
+require File.expand_path('../../config/environment', __FILE__)
 # Prevent database truncation if the environment is production
-abort("The Rails environment is running in production mode!") if Rails.env.production?
-require "spec_helper"
-require "rspec/rails"
-require "webmock/rspec"
-require "support/api_schema_matcher"
+abort('The Rails environment is running in production mode!') if Rails.env.production?
+require 'spec_helper'
+require 'rspec/rails'
+require 'webmock/rspec'
+require 'support/factory_girl'
+require 'support/serializer_spec_helper'
+require 'support/api_schema_matcher'
+require 'support/validation_helpers'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
 VCR.configure do |c|
-  c.cassette_library_dir = "spec/support/vcr_cassettes"
+  c.cassette_library_dir = 'spec/support/vcr_cassettes'
   c.hook_into :webmock
   c.configure_rspec_metadata!
 end
 
+ActiveRecord::Migration.maintain_test_schema!
+
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
+
+  config.include(ValidationHelpers, type: :model)
 
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
@@ -44,4 +52,7 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+
+  # serializer_spec_helper
+  config.include SerializerSpecHelper, type: :serializer
 end

@@ -17,10 +17,14 @@ gem 'figaro'
 gem 'pg'
 gem 'active_model_serializers', '~> 0.10.0'
 gem 'will_paginate'
+gem 'va-api-common', git: 'https://github.com/department-of-veterans-affairs/va-api-common', branch: 'master'
 gem 'va_rx', git: 'https://github.com/department-of-veterans-affairs/va_rx.git', branch: 'master'
+gem 'va_healthcare_messaging',
+  git: 'https://github.com/department-of-veterans-affairs/va_healthcare_messaging.git', branch: 'master'
 gem 'faraday'
 gem 'faraday_middleware'
 gem 'httpclient'
+gem 'olive_branch'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -30,7 +34,7 @@ group :development, :test do
   gem "rainbow"
 
   # Linters
-  gem 'rubocop', '~> 0.36.0', require: false
+  gem 'rubocop', '~> 0.42.0', require: false
 
   # Security scanners
   gem 'brakeman'
@@ -40,14 +44,17 @@ group :development, :test do
   gem 'rspec-rails', '~> 3.5'
   gem 'guard-rspec', '~> 4.7'
   gem 'pry-nav'
+  gem 'factory_girl_rails'
 end
 
 group :test do
   gem 'simplecov', require: false
   gem 'webmock'
   gem 'fakeredis'
+  gem 'timecop'
   gem 'json-schema'
   gem 'vcr'
+  gem 'awrence'
 end
 
 group :development do

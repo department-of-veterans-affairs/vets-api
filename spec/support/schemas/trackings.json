@@ -11,38 +11,39 @@
         "required": ["id", "type", "attributes", "links"],
         "properties": {
           "id": { "type": "string" },
-          "type": { "enum": ["va-rx-trackings"] },
+          "type": { "enum": ["va_rx_trackings"] },
           "attributes": {
             "type": "object",
             "required": [
-              "tracking-number",
-              "prescription-id",
-              "prescription-number",
-              "prescription-name",
-              "facility-name",
-              "rx-info-phone-number",
-              "ndc-number",
-              "shipped-date",
-              "delivery-service"
+              "tracking_number",
+              "prescription_id",
+              "prescription_number",
+              "prescription_name",
+              "facility_name",
+              "rx_info_phone_number",
+              "ndc_number",
+              "shipped_date",
+              "delivery_service"
             ],
             "properties": {
-              "tracking-number": { "type": "string" },
-              "prescription-id": { "type": "integer" },
-              "prescription-number": { "type": "string" },
-              "prescription-name": { "type": "string" },
-              "facility-name": { "type": "string" },
-              "rx-info-phone-number": { "type": "string" },
-              "ndc-number": { "type": "string" },
-              "shipped-date": { "type": "string", "format": "date" },
-              "delivery-service": { "type": "string" }
+              "tracking_number": { "type": "string" },
+              "prescription_id": { "type": "integer" },
+              "prescription_number": { "type": "string" },
+              "prescription_name": { "type": "string" },
+              "facility_name": { "type": "string" },
+              "rx_info_phone_number": { "type": "string" },
+              "ndc_number": { "type": "string" },
+              "shipped_date": { "type": "string", "format": "date" },
+              "delivery_service": { "type": "string" }
             }
           },
           "links": {
             "type": "object",
-            "required": ["self", "prescription"],
+            "required": ["self", "prescription", "tracking_url"],
             "properties": {
               "self": { "type": "string" },
-              "prescription": { "type": "string" }
+              "prescription": { "type": "string" },
+              "tracking_url": { "type": "string" }
             }
           }
         }
@@ -61,25 +62,25 @@
     },
     "meta": {
       "type": "object",
-      "required": ["updated-at", "failed-station-list", "sort", "pagination"],
+      "required": ["updated_at", "failed_station_list", "sort", "pagination"],
       "properties": {
-        "updated-at": { "type": "string" },
-        "failed-station-list": { "type": ["string", "null"] },
+        "updated_at": { "type": "string" },
+        "failed_station_list": { "type": ["string", "null"] },
         "sort": {
           "type": "object",
-          "required": ["shipped-date"],
+          "required": ["shipped_date"],
           "properties": {
-            "shipped-date": { "type": "string", "format": "date" }
+            "shipped_date": { "type": "string", "format": "date" }
           }
         },
         "pagination": {
           "type": "object",
-          "required": ["current-page", "per-page", "total-pages", "total-entries"],
+          "required": ["current_page", "per_page", "total_pages", "total_entries"],
           "properties": {
-            "current-page": { "type": "integer" },
-            "per-page": { "type": "integer" },
-            "total-pages": { "type": "integer" },
-            "total-entries": { "type": "integer" }
+            "current_page": { "type": "integer" },
+            "per_page": { "type": "integer" },
+            "total_pages": { "type": "integer" },
+            "total_entries": { "type": "integer" }
           }
         }
       }

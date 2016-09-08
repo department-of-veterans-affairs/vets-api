@@ -1,33 +1,21 @@
+# frozen_string_literal: true
+require_dependency 'evss/base_service'
+
 module EVSS
-  class ClaimsService
+  class ClaimsService < BaseService
     def initialize(vaafi_headers = {})
+      super()
       # TODO: Get base URI from env
-      @base_url = "http://csraciapp6.evss.srarad.com:7003/wss-claims-services-web-3.1/rest"
+      @base_url = 'http://csraciapp6.evss.srarad.com:7003/wss-claims-services-web-3.1/rest'
       @headers = vaafi_headers
-      @default_timeout = 5 # seconds
     end
 
     def claims
-      conn.get "vbaClaimStatusService/getOpenClaims"
+      get 'vbaClaimStatusService/getOpenClaims'
     end
 
     def create_intent_to_file
-      conn.post "claimServicesExternalService/listAllIntentToFile" do |req|
-        req.headers["Content-Type"] = "application/json"
-        req.body = "{}"
-      end
-    end
-
-    private
-
-    # Uses HTTPClient adapter because headers need to be sent unmanipulated
-    # Net/HTTP capitalizes headers
-    def conn
-      @conn ||= Faraday.new(@base_url, headers: @headers) do |faraday|
-        faraday.options.timeout = @default_timeout
-        faraday.response :json, content_type: /\bjson$/
-        faraday.adapter  :httpclient
-      end
+      post 'claimServicesExternalService/listAllIntentToFile', '{}'
     end
   end
 end

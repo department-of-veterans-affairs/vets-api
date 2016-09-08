@@ -2,8 +2,8 @@ language: ruby
 rvm:
   - 2.3.0
 
-services:
-  - postgresql
+addons:
+  postgresql: "9.4"
 
 branches:
     only:
@@ -16,9 +16,11 @@ before_script:
   - export REDIS_HOST="localhost"
   - export REDIS_PORT="6379"
   - export MHV_HOST='https://mock-prescriptions-api.herokuapp.com'
-  - export MHV_BASE_URL='https://mock-prescriptions-api.herokuapp.com/mhv-api/patient/v1/'
   - export MHV_APP_TOKEN='fake-app-token'
   - export MHV_USER_ID='1435525'
+  - export MHV_SM_HOST='https://mock-prescriptions-api.herokuapp.com'
+  - export MHV_SM_APP_TOKEN='a-fake-app-token'
+  - export MHV_SM_USER_ID='10616687'
   - psql -c 'create database vets_api_test;' -U postgres
 
 script:

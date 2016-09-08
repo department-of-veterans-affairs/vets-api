@@ -1,41 +1,42 @@
 #!/usr/bin/env ruby
-require "pathname"
-require "fileutils"
+# frozen_string_literal: true
+require 'pathname'
+require 'fileutils'
 
 # path to your application root.
-APP_ROOT = Pathname.new File.expand_path("../../", __FILE__)
+APP_ROOT = Pathname.new File.expand_path('../../', __FILE__)
 
 demo_files = [
-  "README.md",
-  "app/controllers/roadrunners_controller.rb",
-  "app/models/roadrunner.rb",
-  "spec/feature/roadrunner_page_spec.rb",
-  "spec/models/roadrunner_spec.rb",
-  "spec/views/roadrunners/index.html.erb"
+  'README.md',
+  'app/controllers/roadrunners_controller.rb',
+  'app/models/roadrunner.rb',
+  'spec/feature/roadrunner_page_spec.rb',
+  'spec/models/roadrunner_spec.rb',
+  'spec/views/roadrunners/index.html.erb'
 ]
 
 Dir.chdir APP_ROOT do
-  puts "Installing dependencies... "
-  system "gem install bundler --conservative"
-  system "bundle check || bundle install"
+  puts 'Installing dependencies... '
+  system 'gem install bundler --conservative'
+  system 'bundle check || bundle install'
 
   Gem.clear_paths
-  require "rainbow"
-  require "active_support/inflector"
+  require 'rainbow'
+  require 'active_support/inflector'
 
-  app_name = File.basename(File.expand_path("../../", __FILE__))
+  app_name = File.basename(File.expand_path('../../', __FILE__))
 
-  if app_name == "roadrunner-rails"
-    puts Rainbow("This project appears to already have been setup.").red
-    puts Rainbow("If not, change the root folder to the project name.").red
-    puts Rainbow("(seperated by hyphens, ie: my-new-project)").red
+  if app_name == 'roadrunner-rails'
+    puts Rainbow('This project appears to already have been setup.').red
+    puts Rainbow('If not, change the root folder to the project name.').red
+    puts Rainbow('(seperated by hyphens, ie: my-new-project)').red
     exit!(1)
   end
 
-  if app_name.include?("_") || app_name.include?(" ")
+  if app_name.include?('_') || app_name.include?(' ')
     puts Rainbow("Don't put spaces or underscores in your project directory name.").red
-    puts Rainbow("Please rename your directory to use hyphens to seperate words.").red
-    puts Rainbow("(example: my-new-project)").red
+    puts Rainbow('Please rename your directory to use hyphens to seperate words.').red
+    puts Rainbow('(example: my-new-project)').red
     exit!(1)
   end
 
@@ -43,24 +44,24 @@ Dir.chdir APP_ROOT do
   camel_name = ActiveSupport::Inflector.camelize(underscore_name)
   title_name = ActiveSupport::Inflector.titleize(underscore_name)
 
-  puts Rainbow("== Removing Demo Files ==").cyan
+  puts Rainbow('== Removing Demo Files ==').cyan
   demo_files.each do |filename|
     File.delete(filename) if File.exist?(filename)
   end
-  FileUtils.remove_dir("app/views/roadrunners") if Dir.exist?("app/views/roadrunners")
+  FileUtils.remove_dir('app/views/roadrunners') if Dir.exist?('app/views/roadrunners')
 
-  puts Rainbow("== Adding default README.md ==").cyan
-  system "mv README.template.md README.md" if File.exist?("README.template.md")
+  puts Rainbow('== Adding default README.md ==').cyan
+  system 'mv README.template.md README.md' if File.exist?('README.template.md')
 
-  puts Rainbow("== Cleaning git info ==").cyan
-  FileUtils.rm_rf(".git") if Dir.exist?(".git")
+  puts Rainbow('== Cleaning git info ==').cyan
+  FileUtils.rm_rf('.git') if Dir.exist?('.git')
 
   puts Rainbow("== Renaming stuff to match app name: #{app_name} ==").cyan
   {
-    "Roadrunner" + "Rails"  => camel_name,
-    "roadrunner" + "-rails" => app_name,
-    "roadrunner" + "_rails" => underscore_name,
-    "Roadrunner" + " Rails" => title_name
+    'Roadrunner' + 'Rails'  => camel_name,
+    'roadrunner' + '-rails' => app_name,
+    'roadrunner' + '_rails' => underscore_name,
+    'Roadrunner' + ' Rails' => title_name
   }.each do |old_name, new_name|
     system %(find . -type f -print | xargs sed -i '' 's/#{old_name}/#{new_name}/g')
   end
@@ -68,9 +69,9 @@ Dir.chdir APP_ROOT do
   # remove the root line from routes.rb
   system("sed -i '' '/roadrunners#index/d' ./config/routes.rb")
 
-  puts Rainbow("== Creating new git repo ==").cyan
-  system "git init"
-  system "git add -A ."
+  puts Rainbow('== Creating new git repo ==').cyan
+  system 'git init'
+  system 'git add -A .'
   system "git commit -m 'Roadrunner skeleton. Beep, beep.'"
 
   # puts "\n== Copying sample files =="

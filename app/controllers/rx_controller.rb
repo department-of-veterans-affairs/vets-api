@@ -1,8 +1,13 @@
+# frozen_string_literal: true
 class RxController < ApplicationController
+  # FIXME: when ID.me is working we need to use it here, but for now skip
+  #   and just rely on the http basic authentication.
+  skip_before_action :authenticate
+
   VARX_ENFORCE_SSL = Rails.env.production?
   MHV_CONFIG = VARx::Configuration.new(
-    host: ENV["MHV_HOST"],
-    app_token: ENV["MHV_APP_TOKEN"],
+    host: ENV['MHV_HOST'],
+    app_token: ENV['MHV_APP_TOKEN'],
     enforce_ssl: VARX_ENFORCE_SSL
   ).freeze
 
@@ -29,7 +34,7 @@ class RxController < ApplicationController
   # end
 
   def client
-    @client ||= VARx::Client.new(config: MHV_CONFIG, session: { user_id: ENV["MHV_USER_ID"] })
+    @client ||= VARx::Client.new(config: MHV_CONFIG, session: { user_id: ENV['MHV_USER_ID'] })
   end
 
   def authenticate_client
