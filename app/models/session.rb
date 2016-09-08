@@ -1,7 +1,8 @@
+# frozen_string_literal: true
 class Session < RedisStore
-  NAMESPACE = REDIS_CONFIG["session_store"]["namespace"]
+  NAMESPACE = REDIS_CONFIG['session_store']['namespace']
   REDIS_STORE = Redis::Namespace.new(NAMESPACE, redis: Redis.current)
-  DEFAULT_TTL = REDIS_CONFIG["session_store"]["each_ttl"]
+  DEFAULT_TTL = REDIS_CONFIG['session_store']['each_ttl']
   DEFAULT_TOKEN_LENGTH = 40
 
   attribute :token
@@ -20,7 +21,7 @@ class Session < RedisStore
     loop do
       # copied from: https://github.com/plataformatec/devise/blob/master/lib/devise.rb#L475-L482
       rlength = (length * 3) / 4
-      random_token = SecureRandom.urlsafe_base64(rlength).tr("lIO0", "sxyz")
+      random_token = SecureRandom.urlsafe_base64(rlength).tr('lIO0', 'sxyz')
       break random_token unless self.class.exists?(random_token)
     end
   end

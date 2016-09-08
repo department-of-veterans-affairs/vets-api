@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module V0
   class ClaimsController < ApplicationController
     skip_before_action :authenticate
@@ -11,7 +12,7 @@ module V0
     private
 
     def current_user
-      @current_user ||= User.new
+      @current_user ||= User.sample_claimant
     end
   end
 end
