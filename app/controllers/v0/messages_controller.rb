@@ -25,10 +25,6 @@ module V0
     end
 
     def create
-      # subject = params[:subject]
-      # category = params[:category]
-      # recipient_id = params[:recipient_id]
-      # body = params[:body]
       response = client.post_create_message(symbolized_hash(message_params.to_h))
       render json: response,
              serializer: MessageSerializer,
@@ -36,11 +32,6 @@ module V0
     end
 
     def draft
-      # subject = params[:subject]
-      # category = params[:category]
-      # recipient_id = params[:recipient_id]
-      # body = params[:body]
-      # id = params[:id]
       response = client.post_create_message_draft(symbolized_hash(message_params.to_h))
       render json: response,
              serializer: MessageSerializer,
