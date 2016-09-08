@@ -4,9 +4,7 @@ class EVSSErrors < Faraday::Response::Middleware
     case env[:status]
     when 200
       resp = env.body
-      if resp['success'] && !resp['success']
-        raise Exception, resp['messages']
-      end
+      raise Exception, resp['messages'] if resp['success'] && !resp['success']
     end
   end
 end
