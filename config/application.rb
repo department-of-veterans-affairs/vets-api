@@ -36,7 +36,7 @@ module VetsAPI
     # TODO(crew): add a variable for origin domain.
     config.action_dispatch.default_headers = {
       'Access-Control-Allow-Headers' => 'Authorization',
-      'Access-Control-Allow-Origin' => 'http://localhost:4000'
+      'Access-Control-Allow-Origin' => 'http://localhost:3001'
     }
   end
 end
