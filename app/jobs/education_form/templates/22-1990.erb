@@ -1,12 +1,12 @@
 *INIT*
-<%= @applicant.fullName.first.upcase %>
-<%= @applicant.fullName.middle&.upcase %>
-<%= @applicant.fullName.last.upcase %>
-<%= @applicant.socialSecurityNumber&.gsub(/[^\d]/,'') %>
+<%= @applicant.veteranFullName.first.upcase %>
+<%= @applicant.veteranFullName.middle&.upcase %>
+<%= @applicant.veteranFullName.last.upcase %>
+<%= @applicant.veteranSocialSecurityNumber&.gsub(/[^\d]/,'') %>
 222212111
 V1990
 
-<%= @applicant.schoolName.upcase %>
+<%= @applicant.school&.name&.upcase %>
 <%= form_type(@applicant) %>
 *START*
 VA Form 22-1990
@@ -21,15 +21,15 @@ DEC 2016
                             APPLICANT INFORMATION
                             ---------------------
 
-SSN: <%= @applicant.socialSecurityNumber %>         Sex: <%= @applicant.gender %>             Date of Birth: <%= @applicant.birthday %>
+SSN: <%= @applicant.veteranSocialSecurityNumber %>         Sex: <%= @applicant.gender %>             Date of Birth: <%= @applicant.veteranDateOfBirth %>
 
-Name:   <%= full_name(@applicant.fullName) %>
+Name:   <%= full_name(@applicant.veteranFullName) %>
 
 Address:
-        <%= full_address(@applicant.address) %>
+        <%= full_address(@applicant.veteranAddress) %>
 
-Telephone Numbers:     Primary:    <%= @applicant.phone %>
-                       Secondary:  <%= @applicant.secondaryPhone %>
+Telephone Numbers:     Home:    <%= @applicant.homePhone %>
+                       Mobile:  <%= @applicant.mobilePhone %>
 
 Email Address:  <%= @applicant.email %>
 Preferred Method of Contact: email
@@ -39,18 +39,8 @@ Name of Financial Inst.: <%= @applicant.bankAccount&.bankName %>
 Routing/Transit #: <%= @applicant.bankAccount&.routingNumber %>   Account #: <%= @applicant.bankAccount&.accountNumber %>
 
 Name, Address, & Telephone Number of Contact:
-        <%= full_name(@applicant.emergencyContact&.fullName) %>
-        <% if @applicant.emergencyContact&.sameAddressAndPhone %>Address and phone same as claimant<% end %>
-
-Have you previously applied for VA Benefits?    <%= yesno(@applicant.previouslyFiledClaimWithVa) %>
-
-Previously Applied for VA Benefits Using Someone Else's Service?    <%= yesno(@applicant.previouslyAppliedWithSomeoneElsesService) %>
-
-
-                    INFORMATION ON VA EDUCATION BENEFITS
-                    ------------------------------------
-
-Received an information pamphlet:    <%= yesno(@applicant.alreadyReceivedInformationPamphlet) %>
+        <%= full_name(@applicant.secondaryContact&.fullName) %>
+        <% if @applicant.secondaryContact&.sameAddress %>Address same as claimant<% end %>
 
 
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
@@ -59,31 +49,27 @@ Received an information pamphlet:    <%= yesno(@applicant.alreadyReceivedInforma
 Type of Education or Training: College or Other School (including online courses)
 
 Name and Address of School or Training Establishment:
-        <%= @applicant.schoolName %>
-        <%= full_address(@applicant.schoolAddress) %>
+        <%= @applicant.school&.name %>
+        <%= full_address(@applicant.school&.address) %>
 
 Date You Started or Will Start Training: <%= @applicant.educationStartDate %>
 
 Education or Career Goal: <%= @applicant.educationalObjective %>
 
-Course of Study: <%= @applicant.courseOfStudy %>
-
 
                        ACTIVE DUTY SERVICE INFORMATION
                        -------------------------------
 
-Are You Now On Active Duty?   <%= yesno(@applicant.currentlyActiveDuty) %>
+Are You Now On Active Duty?   <%= yesno(@applicant.currentlyActiveDuty.yes) %>
 
-Are you Now On Terminal Leave Just Before Discharge? <%= yesno(@applicant.terminalLeaveBeforeDischarge) %>
-
-Attaching Copy of DD 214 to Application?    <%= yesno(@applicant.attaching_dd_214) %>
+Are you Now On Terminal Leave Just Before Discharge? <%= yesno(@applicant.currentlyActiveDuty.onTerminalLeave) %>
 
 Date Entered   Date Separated     Service Component
 Active Duty    From Active Duty
 <% @applicant&.toursOfDuty&.each do |tour| -%>
 <%= tour.dateRange.from %>     <%= tour.dateRange.to %>         <%= tour.serviceBranch %>
                          Service Status:   <%= tour.serviceStatus %>
-                         Involuntary Call: <%= yesno(tour.involuntarilyCalledToDuty) %>
+                         Involuntary Call: <%= tour.involuntarilyCalledToDuty %>
 <% end %>
 
 
@@ -133,24 +119,22 @@ your military service?
 
 If you graduated from a military service academy, specify the year you graduated and received your commission: <%= @applicant.serviceAcademyGraduationYear %>
 
-ROTC Scholarship Program and Officer's Commission. Were you commissioned as the result of a Senior ROTC (Reserve Officers Training Corps) Scholarship Program?    <%= yesno(@applicant.seniorRotcScholarshipProgram) %>
+ROTC Scholarship Program and Officer's Commission. Were you commissioned as the result of a Senior ROTC (Reserve Officers Training Corps) Scholarship Program?    <%= yesno(@applicant.seniorRotc.present?) %>
 
-        Date of Commission: <%= @applicant.dateOfRotcCommission %>
+        Year of Commission: <%= @applicant.seniorRotc&.commissionYear %>
 
         Scholarship Amounts:
-<%= rotc_scholarship_amounts(@applicant.rotcScholarshipAmounts) %>
+<%= rotc_scholarship_amounts(@applicant.seniorRotc&.rotcScholarshipAmounts) %>
 
-Senior ROTC Scholarship Program. Are you currently participating in a Senior ROTC Scholarship Program which pays for your tuition, fees, books and supplies under Section 2107, Title 10 U.S. Code?   <%= yesno(@applicant.senior_rotc_scholarship) %>
+Senior ROTC Scholarship Program. Are you currently participating in a Senior ROTC Scholarship Program which pays for your tuition, fees, books and supplies under Section 2107, Title 10 U.S. Code?   <%= yesno(@applicant.seniorRotcScholarshipProgram) %>
 
-Did you have a period of active duty that the Department of Defense counts for purposes of repaying an education loan?    <%= yesno(@applicant.active_duty_towards_repayment) %>
+Did you have a period of active duty that the Department of Defense counts for purposes of repaying an education loan?    <%= yesno(@applicant.activeDutyRepayingPeriod.present?) %>
 
         Start Date: <%= to_date(@applicant.activeDutyRepayingPeriod&.from) %>
 
         End Date: <%= to_date(@applicant.activeDutyRepayingPeriod&.to) %>
 
-For Active Duty Claimants Only. Are you receiving or do you anticipate receiving any money (including but not limited to Federal Tuition Assistance) from the Armed Forces or Public Health Service for the course for which you have applied to the VA for Education Benefits?  If you receive such benefits during any part of your training, check 'Yes.' Note:  If you are only applying for Tuition Assistance Top-Up, check 'No' to this item.    <%= yesno(@applicant.will_receive_afphs) %>
-
-Is the source of your non-VA assistance a state sponsored tuition assistance program for Guardsmen/Reservists?    <%= yesno(@applicant.nonVaAssistance) %>
+For Active Duty Claimants Only. Are you receiving or do you anticipate receiving any money (including but not limited to Federal Tuition Assistance) from the Armed Forces or Public Health Service for the course for which you have applied to the VA for Education Benefits?  If you receive such benefits during any part of your training, check 'Yes.' Note:  If you are only applying for Tuition Assistance Top-Up, check 'No' to this item.    <%= yesno(@applicant.currentlyActiveDuty&.nonVaAssistance) %>
 
 For Civilian Employees of the U.S. Federal Government Only. Are you receiving or do you anticipate receiving any money from your agency (including but not limited to the Government Employees Training Act) for the same period for which you have applied to the VA for Education Benefits? If you will receive such benefits during any part of your training, check Yes.    <%= yesno(@applicant.civilianBenefitsAssistance) %>
 
