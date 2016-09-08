@@ -16,6 +16,16 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       expect_attr_invalid(subject, :form, "can't be blank")
     end
 
+    describe '#form_must_be_string' do
+      before do
+        attributes[:form] = JSON.parse(attributes[:form])
+      end
+
+      it 'should not allow a hash to be passed in for form' do
+        expect_attr_invalid(subject, :form, 'must be a json string')
+      end
+    end
+
     describe '#form_matches_schema' do
       it 'should be valid on a valid form' do
         expect_attr_valid(subject, :form)
