@@ -1,33 +1,34 @@
-require "rails_helper"
+# frozen_string_literal: true
+require 'rails_helper'
 
 RSpec.describe EducationBenefitsClaim, type: :model do
   let(:attributes) do
     {
-      form: { "chapter30" => true }
+      form: { 'chapter30' => true }
     }
   end
   subject { described_class.new(attributes) }
 
-  describe "validations" do
-    it "should validate presence of form" do
+  describe 'validations' do
+    it 'should validate presence of form' do
       expect_attr_valid(subject, :form)
       subject.form = nil
       expect_attr_invalid(subject, :form, "can't be blank")
     end
 
-    describe "#form_matches_schema" do
-      it "should be valid on a valid form" do
+    describe '#form_matches_schema' do
+      it 'should be valid on a valid form' do
         expect_attr_valid(subject, :form)
       end
 
-      context "with an invalid form" do
+      context 'with an invalid form' do
         before do
           attributes[:form] = {
             chapter30: 0
           }
         end
 
-        it "should have a json schema error" do
+        it 'should have a json schema error' do
           subject.valid?
           form_errors = subject.errors[:form]
 
@@ -42,24 +43,24 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
   end
 
-  describe "form field" do
+  describe 'form field' do
     let(:form_hash) { attributes[:form] }
 
     def expect_form_to_equal_form_hash(education_benefits_claim)
       expect(education_benefits_claim.form).to eq(form_hash)
     end
 
-    it "should let you use a hash for the field" do
+    it 'should let you use a hash for the field' do
       subject.save!
       expect_form_to_equal_form_hash(subject)
 
       expect_form_to_equal_form_hash(subject.class.find(subject.id))
     end
 
-    it "should encrypt the form field" do
+    it 'should encrypt the form field' do
       subject.save!
 
-      expect(subject["form"]).to eq(nil)
+      expect(subject['form']).to eq(nil)
 
       %w(encrypted_form encrypted_form_iv).each do |attr|
         expect(subject[attr].present?).to eq(true)
@@ -67,8 +68,8 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
   end
 
-  describe "#set_submitted_at" do
-    it "should set the submitted_at date before validation on create" do
+  describe '#set_submitted_at' do
+    it 'should set the submitted_at date before validation on create' do
       Timecop.freeze do
         expect(subject.submitted_at).to eq(nil)
         subject.valid?
@@ -76,7 +77,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end
     end
 
-    context "with a created model" do
+    context 'with a created model' do
       let(:time) { 1.day.ago }
       subject { described_class.create!(attributes) }
 
@@ -84,7 +85,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         subject.update_column(:submitted_at, time)
       end
 
-      it "should not set the submitted_at again" do
+      it 'should not set the submitted_at again' do
         subject.valid?
         expect(subject.submitted_at).to eq(time)
       end
