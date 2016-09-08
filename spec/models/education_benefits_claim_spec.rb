@@ -54,7 +54,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   end
 
   describe 'form field' do
-    it 'should encrypt the form field' do
+    it 'should encrypt and decrypt the form field' do
       subject.save!
 
       expect(subject['form']).to eq(nil)
