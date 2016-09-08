@@ -9,7 +9,7 @@ RSpec.describe 'Messages Integration', type: :request do
   describe '#index' do
     before(:each) do
       VCR.use_cassette("messages/#{id}/index") do
-        get "/v0/folders/#{inbox_id}/messages", id: id
+        get "/v0/messaging/health/folders/#{inbox_id}/messages", id: id
       end
     end
 
@@ -24,7 +24,7 @@ RSpec.describe 'Messages Integration', type: :request do
     context 'with valid id' do
       before(:each) do
         VCR.use_cassette("messages/#{id}/show") do
-          get "/v0/messages/#{message_id}", id: id
+          get "/v0/messaging/health/messages/#{message_id}", id: id
         end
       end
 
@@ -41,8 +41,8 @@ RSpec.describe 'Messages Integration', type: :request do
 
     before(:each) do
       VCR.use_cassette("messages/#{id}/create") do
-        post '/v0/messages', id: id, subject: msg.subject, category: msg.category,
-                             recipient_id: msg.recipient_id, body: msg.body
+        post '/v0/messaging/health/messages', id: id, subject: msg.subject, category: msg.category,
+                                              recipient_id: msg.recipient_id, body: msg.body
       end
     end
 
@@ -58,8 +58,8 @@ RSpec.describe 'Messages Integration', type: :request do
 
     before(:each) do
       VCR.use_cassette("messages/#{id}/draft_create") do
-        post '/v0/messages/draft', id: id, subject: msg.subject, category: msg.category,
-                                   recipient_id: msg.recipient_id, body: msg.body
+        post '/v0/messaging/health/messages/draft', id: id, subject: msg.subject, category: msg.category,
+                                                    recipient_id: msg.recipient_id, body: msg.body
       end
     end
 
@@ -75,8 +75,8 @@ RSpec.describe 'Messages Integration', type: :request do
       message_id = org['message_id']
 
       VCR.use_cassette("messages/#{id}/draft_update") do
-        put "/v0/messages/#{message_id}/draft", id: id, subject: msg.subject, category: msg.category,
-                                                recipient_id: msg.recipient_id, body: body
+        put "/v0/messaging/health/messages/#{message_id}/draft", id: id, subject: msg.subject, category: msg.category,
+                                                                 recipient_id: msg.recipient_id, body: body
       end
 
       expect(response).to be_success
@@ -91,7 +91,7 @@ RSpec.describe 'Messages Integration', type: :request do
     let(:thread_id) { 573_059 }
     before(:each) do
       VCR.use_cassette("messages/#{id}/thread") do
-        get "/v0/messages/#{thread_id}/thread"
+        get "/v0/messaging/health/messages/#{thread_id}/thread"
       end
     end
 

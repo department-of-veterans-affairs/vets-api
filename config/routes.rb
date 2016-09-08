@@ -29,17 +29,23 @@ Rails.application.routes.draw do
       resources :trackings, only: :index, controller: :trackings
     end
 
-    resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'
-    resources :folders, only: [:index, :show], defaults: { format: :json } do
-      resources :messages, only: [:index], defaults: { format: :json }
-    end
+    scope :messaging do
+      scope :health do
+        resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'
 
-    resources :messages, only: [:show, :create], defaults: { format: :json } do
-      post :draft, on: :collection
-      put :draft, on: :member
-      get :thread, on: :member
+        resources :folders, only: [:index, :show], defaults: { format: :json } do
+          resources :messages, only: [:index], defaults: { format: :json }
+        end
+
+        resources :messages, only: [:show, :create], defaults: { format: :json } do
+          post :draft, on: :collection
+          put :draft, on: :member
+          get :thread, on: :member
+        end
+      end
     end
   end
+
 
   root 'v0/example#index', module: 'v0'
 end

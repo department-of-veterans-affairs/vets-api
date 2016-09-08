@@ -25,29 +25,23 @@ module V0
     end
 
     def create
-      subject = params[:subject]
-      category = params[:category]
-      recipient_id = params[:recipient_id]
-      body = params[:body]
-
-      response = client.post_create_message(subject: subject,
-                                            category: category, recipient_id: recipient_id, body: body)
-
+      # subject = params[:subject]
+      # category = params[:category]
+      # recipient_id = params[:recipient_id]
+      # body = params[:body]
+      response = client.post_create_message(symbolized_hash(message_params.to_h))
       render json: response,
              serializer: MessageSerializer,
              meta:  {}
     end
 
     def draft
-      subject = params[:subject]
-      category = params[:category]
-      recipient_id = params[:recipient_id]
-      body = params[:body]
-      id = params[:id]
-
-      response = client.post_create_message_draft(id: id, subject: subject,
-                                                  category: category, recipient_id: recipient_id, body: body)
-
+      # subject = params[:subject]
+      # category = params[:category]
+      # recipient_id = params[:recipient_id]
+      # body = params[:body]
+      # id = params[:id]
+      response = client.post_create_message_draft(symbolized_hash(message_params.to_h))
       render json: response,
              serializer: MessageSerializer,
              meta:  {}
@@ -63,6 +57,19 @@ module V0
              serializer: CollectionSerializer,
              each_serializer: MessageSerializer,
              meta: {}
+    end
+
+    private
+
+    def message_params
+      params.permit(:id, :subject, :category, :recipient_id, :body, :format).except(:format)
+    end
+
+    def symbolized_hash(h)
+      h.each_with_object({}) do |v, m|
+        m[v[0].to_sym] = v[1]
+        m
+      end
     end
   end
 end
