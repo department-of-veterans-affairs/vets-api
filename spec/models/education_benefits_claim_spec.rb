@@ -54,19 +54,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   end
 
   describe 'form field' do
-    let(:form_hash) { attributes[:form] }
-
-    def expect_form_to_equal_form_hash(education_benefits_claim)
-      expect(education_benefits_claim.form).to eq(form_hash)
-    end
-
-    it 'should let you use a hash for the field' do
-      subject.save!
-      expect_form_to_equal_form_hash(subject)
-
-      expect_form_to_equal_form_hash(subject.class.find(subject.id))
-    end
-
     it 'should encrypt the form field' do
       subject.save!
 
