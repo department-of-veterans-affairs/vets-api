@@ -23,7 +23,7 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
 
       it 'should create a new model' do
         expect { subject }.to change { EducationBenefitsClaim.count }.by(1)
-        expect(EducationBenefitsClaim.last.form['preferredContactMethod']).to eq('mail')
+        expect(EducationBenefitsClaim.last.parsed_form['preferredContactMethod']).to eq('mail')
       end
 
       it 'should render json of the new model' do

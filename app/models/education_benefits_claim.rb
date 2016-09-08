@@ -15,7 +15,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
   # rendering can be cleaner. Piping it through the JSON serializer was a quick
   # and easy way to deeply transform the object.
   def open_struct_form
-    @application ||= JSON.parse(form.to_json, object_class: OpenStruct)
+    @application ||= JSON.parse(form, object_class: OpenStruct)
     @application.form = application_type
     @application
   end
@@ -35,14 +35,18 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   private
 
+  def form_is_string
+    form.is_a?(String)
+  end
+
   # if the form is a hash olive_branch will convert all the keys to underscore and break our json schema validation
   def form_must_be_string
-    errors[:form] << 'must be a json string' unless form.is_a?(String)
-
-    true
+    errors[:form] << 'must be a json string' unless form_is_string
   end
 
   def form_matches_schema
+    return unless form_is_string
+
     errors[:form].concat(JSON::Validator.fully_validate(FORM_SCHEMA, parsed_form))
   end
 
