@@ -15,7 +15,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
   # rendering can be cleaner. Piping it through the JSON serializer was a quick
   # and easy way to deeply transform the object.
   def open_struct_form
-    @application ||= JSON.parse(self['form'].to_json, object_class: OpenStruct)
+    @application ||= JSON.parse(form.to_json, object_class: OpenStruct)
     @application.form = application_type
     @application
   end

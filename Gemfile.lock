@@ -20,7 +20,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/va_rx.git
-  revision: c6f82f13b6e745053e41d926ac8ec36d4d4d3f57
+  revision: 73201c9b11306ab7a2b369570c03ef4aa80755a2
   branch: master
   specs:
     va_rx (0.1.0)
