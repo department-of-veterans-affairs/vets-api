@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module EVSS
   class BaseService
     def initialize
@@ -12,7 +13,7 @@ module EVSS
 
     def post(url, body)
       conn.post url do |req|
-        req.headers["Content-Type"] = "application/json"
+        req.headers['Content-Type'] = 'application/json'
         req.body = body
       end
     end
