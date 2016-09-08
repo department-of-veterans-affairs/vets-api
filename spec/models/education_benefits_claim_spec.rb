@@ -58,6 +58,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       subject.save!
 
       expect(subject['form']).to eq(nil)
+      expect(subject.form).to eq(attributes[:form])
 
       %w(encrypted_form encrypted_form_iv).each do |attr|
         expect(subject[attr].present?).to eq(true)
