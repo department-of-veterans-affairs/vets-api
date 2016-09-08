@@ -11,6 +11,9 @@ end
 
 module EVSS
   class BaseService
+
+    SYSTEM_NAME = 'vets.gov'
+    
     def initialize
       @default_timeout = 5 # seconds
     end

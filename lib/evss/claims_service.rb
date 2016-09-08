@@ -21,7 +21,7 @@ module EVSS
     def submit_5103_waiver(claim_id)
       post 'vbaClaimStatusService/set5103Waiver', {
         claimId: claim_id,
-        systemName: 'EBM'
+        systemName: SYSTEM_NAME
       }.to_json
     end
   end
