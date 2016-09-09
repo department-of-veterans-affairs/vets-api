@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class AddEducationBenefitsClaimsTable < ActiveRecord::Migration
   def change
     create_table(:education_benefits_claims) do |t|
