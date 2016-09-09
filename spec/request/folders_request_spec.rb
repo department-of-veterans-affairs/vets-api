@@ -2,13 +2,13 @@
 require 'rails_helper'
 
 RSpec.describe 'Folders Integration', type: :request do
-  let(:id) { ENV['MHV_SM_USER_ID'] }
+  let(:user_id) { ENV['MHV_SM_USER_ID'] }
   let(:inbox_id) { 0 }
 
   describe '#index' do
     before(:each) do
-      VCR.use_cassette("folders/#{id}/index") do
-        get '/v0/folders', id: id
+      VCR.use_cassette("folders/#{user_id}/index") do
+        get '/v0/messaging/health/folders'
       end
     end
 
@@ -22,8 +22,8 @@ RSpec.describe 'Folders Integration', type: :request do
   describe '#show' do
     context 'with valid id' do
       before(:each) do
-        VCR.use_cassette("folders/#{id}/show") do
-          get "/v0/folders/#{inbox_id}", id: id
+        VCR.use_cassette("folders/#{user_id}/show") do
+          get "/v0/messaging/health/folders/#{inbox_id}"
         end
       end
 
