@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/session
+    uri: https://smclinician-syst.myhealth.va.gov/mhv-sm-api/patient/v1/session
     body:
       encoding: US-ASCII
       string: ''
@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
       Apptoken:
-      - a-fake-app-token
+      - sjvlB75caM-O37hRpkDxV
       Mhvcorrelationid:
       - '10616687'
       Accept-Encoding:
@@ -25,15 +25,15 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 02 Sep 2016 15:22:23 GMT
+      - Fri, 09 Sep 2016 16:17:40 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Content-Length:
       - '0'
       Expires:
-      - Fri, 02 Sep 2016 16:22:24 GMT
+      - Fri, 09 Sep 2016 17:17:40 GMT
       Token:
-      - zrmLapFUnWg=Sw7z9bTBTesEWHxdAJXqU2e3cxbnn3ZbeqsFQACJu7M=
+      - 1R2pfU7V+mo=biJD5ns8ATZfstsDKVvtP9K0PWpLjYEeq9OStP8rELM=
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
       Connection:
@@ -43,11 +43,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: ''
-    http_version:
-  recorded_at: Fri, 02 Sep 2016 15:22:25 GMT
+    http_version: 
+  recorded_at: Fri, 09 Sep 2016 16:17:40 GMT
 - request:
     method: get
-    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/folder/0
+    uri: https://smclinician-syst.myhealth.va.gov/mhv-sm-api/patient/v1/folder/0
     body:
       encoding: US-ASCII
       string: ''
@@ -59,7 +59,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
       Token:
-      - zrmLapFUnWg=Sw7z9bTBTesEWHxdAJXqU2e3cxbnn3ZbeqsFQACJu7M=
+      - 1R2pfU7V+mo=biJD5ns8ATZfstsDKVvtP9K0PWpLjYEeq9OStP8rELM=
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -68,7 +68,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 02 Sep 2016 15:22:25 GMT
+      - Fri, 09 Sep 2016 16:17:41 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -81,7 +81,7 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: '{"id":0,"name":"Inbox","count":2,"unreadCount":1,"systemFolder":true}'
-    http_version:
-  recorded_at: Fri, 02 Sep 2016 15:22:26 GMT
+      string: '{"id":0,"name":"Inbox","count":2,"unreadCount":0,"systemFolder":true}'
+    http_version: 
+  recorded_at: Fri, 09 Sep 2016 16:17:41 GMT
 recorded_with: VCR 3.0.3

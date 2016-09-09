@@ -25,15 +25,15 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 09 Sep 2016 16:16:44 GMT
+      - Fri, 09 Sep 2016 16:34:23 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Content-Length:
       - '0'
       Expires:
-      - Fri, 09 Sep 2016 17:16:45 GMT
+      - Fri, 09 Sep 2016 17:34:23 GMT
       Token:
-      - ah1R/Q3Www4=nQXpCcKnwaDXBjIhQ1GyYZ8a6C44t2D2o3ZPdrBF+Rs=
+      - ThbO60uAFho=8TVJKnIC0knh6xX5C8DgUl3OYl8/B4swKB0fSnE8BI4=
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
       Connection:
@@ -44,10 +44,10 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Fri, 09 Sep 2016 16:16:45 GMT
+  recorded_at: Fri, 09 Sep 2016 16:34:23 GMT
 - request:
     method: get
-    uri: https://smclinician-syst.myhealth.va.gov/mhv-sm-api/patient/v1/triageteam
+    uri: https://smclinician-syst.myhealth.va.gov/mhv-sm-api/patient/v1/message/573059/history
     body:
       encoding: US-ASCII
       string: ''
@@ -59,7 +59,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
       Token:
-      - ah1R/Q3Www4=nQXpCcKnwaDXBjIhQ1GyYZ8a6C44t2D2o3ZPdrBF+Rs=
+      - ThbO60uAFho=8TVJKnIC0knh6xX5C8DgUl3OYl8/B4swKB0fSnE8BI4=
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -68,7 +68,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 09 Sep 2016 16:16:45 GMT
+      - Fri, 09 Sep 2016 16:34:24 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -81,9 +81,13 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: '{"triageTeam":[{"name":"Triage group 311070 test 1","relationType":"PATIENT","triageTeamId":585968},{"name":"Triage
-        group 311070 test 2","relationType":"PATIENT","triageTeamId":585986},{"name":"Vets.gov
-        Testing_DAYT29","relationType":"PATIENT","triageTeamId":613586}]}'
+      string: '{"message":[{"id":573052,"category":"OTHER","subject":"Release 16.2-
+        SM last login ","body":"Provider Reply","attachment":false,"attachments":null,"sentDate":"Mon,
+        11 Apr 2016 15:49:03 GMT","senderId":257555,"senderName":"ISLAM, MOHAMMAD","recipientId":384939,"recipientName":"MVIONE,
+        TEST","readReceipt":"READ"},{"id":573041,"category":"OTHER","subject":"Release
+        16.2- SM last login ","body":"Release 16.2- SM last login ","attachment":false,"attachments":null,"sentDate":"Mon,
+        11 Apr 2016 15:48:25 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":345468,"recipientName":"WORKLOAD
+        CAPTURE_Mohammad","readReceipt":"READ"}]}'
     http_version: 
-  recorded_at: Fri, 09 Sep 2016 16:16:45 GMT
+  recorded_at: Fri, 09 Sep 2016 16:34:24 GMT
 recorded_with: VCR 3.0.3
