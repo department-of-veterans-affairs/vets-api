@@ -29,6 +29,6 @@ class Claim < ActiveModelSerializers::Model
     # Todo, instead of having a class method and passing claim_id,
     # get claim_id from the model
     evss_client = EVSS::DocumentsService.new(headers)
-    evss_client.upload(file_name, file_body, claim_id, tracked_item_id)
+    evss_client.upload(file_name, file_body, claim_id, tracked_item_id).body
   end
 end
