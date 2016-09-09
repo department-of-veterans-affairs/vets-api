@@ -1,0 +1,93 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/session
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
+      Apptoken:
+      - a-fake-app-token
+      Mhvcorrelationid:
+      - '10616687'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 07 Sep 2016 16:29:20 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      Content-Length:
+      - '0'
+      Expires:
+      - Wed, 07 Sep 2016 17:29:21 GMT
+      Token:
+      - ahEUzBWcjmg=aD24Zczc/c9hL4oN6pvJ/uimEwqcvvHDrQxfyGEBgOk=
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Content-Type:
+      - text/html; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version:
+  recorded_at: Wed, 07 Sep 2016 16:29:21 GMT
+- request:
+    method: get
+    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/message/573059/history
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
+      Token:
+      - ahEUzBWcjmg=aD24Zczc/c9hL4oN6pvJ/uimEwqcvvHDrQxfyGEBgOk=
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 07 Sep 2016 16:29:22 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '{"message":[{"id":573052,"category":"OTHER","subject":"Release 16.2-
+        SM last login ","body":"Provider Reply","attachment":false,"attachments":null,"sentDate":"Mon,
+        11 Apr 2016 15:49:03 GMT","senderId":257555,"senderName":"ISLAM, MOHAMMAD","recipientId":384939,"recipientName":"MVIONE,
+        TEST","readReceipt":"READ"},{"id":573041,"category":"OTHER","subject":"Release
+        16.2- SM last login ","body":"Release 16.2- SM last login ","attachment":false,"attachments":null,"sentDate":"Mon,
+        11 Apr 2016 15:48:25 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":345468,"recipientName":"WORKLOAD
+        CAPTURE_Mohammad","readReceipt":"READ"}]}'
+    http_version:
+  recorded_at: Wed, 07 Sep 2016 16:29:22 GMT
+recorded_with: VCR 3.0.3
