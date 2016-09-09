@@ -4,11 +4,15 @@
 * Purpose: Submit an education benefits claim
 * HTTP Method: POST
 * Path: /v0/education_benefits_claims
+* Header for converting from/to camelcase: `X-Key-Inflection: camel`
 * Parameters:
 ```javascript
 {
   educationBenefitsClaim: {
-    form: formObject // validated against education benefits schema in vets-json-schema
+    // validated against education benefits schema in vets-json-schema
+    // must be a JSON string otherwise the middleware will convert all
+    // the keys to under_score case and it will fail the schema validation
+    form: formObjectAsJsonString 
   }
 }
 ```
@@ -17,13 +21,14 @@
 POST /v0/education_benefits_claims HTTP/1.1
 Host: www.vets.gov
 Content-Type: application/json
+X-Key-Inflection: camel
 
-{"educationBenefitsClaim":{"form":{"chapter30":true}}}
+{"educationBenefitsClaim":{"form":"{\"preferredContactMethod\":\"mail\"}"}}
 ```
 * Example response:
 ```
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-{"id":1,"submitted_at":"2016-08-31T21:28:36.365Z","processed_at":null,"form":{"chapter30":true},"created_at":"2016-08-31T21:28:36.365Z","updated_at":"2016-08-31T21:28:36.365Z"}
+{"data":{"id":"18","type":"education_benefits_claims","attributes":{"form":"{\"preferredContactMethod\":\"mail\"}","submittedAt":"2016-09-09T23:48:07.766Z","processedAt":null}}}
 ```
