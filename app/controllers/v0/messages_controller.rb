@@ -26,7 +26,6 @@ module V0
 
     def create
       params = message_params
-      Rails.logger.error "@@@@@@@@@@@ #{params.inspect}"
       response = client.post_create_message(subject: params[:subject], body: params[:body], id: params[:id],
                                             recipient_id: params[:recipient_id], category: params[:category])
       render json: response,
