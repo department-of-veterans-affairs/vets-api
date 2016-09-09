@@ -22,6 +22,8 @@ module EVSS
         req.params['docType'] = 'L023'
         req.params['docTypeDescription'] = 'Other Correspondence'
         req.params['claimId'] = claim_id
+        # In theory one document can correspond to multiple tracked items
+        # To do that, add multiple query parameters
         req.params['trackedItemIds'] = tracked_item_id
         req.params['qqfile'] = file_name
       end
