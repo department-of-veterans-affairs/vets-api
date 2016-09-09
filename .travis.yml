@@ -22,10 +22,9 @@ before_script:
   - export MHV_SM_HOST='https://mock-prescriptions-api.herokuapp.com'
   - export MHV_SM_APP_TOKEN='a-fake-app-token'
   - export MHV_SM_USER_ID='10616687'
-  - psql -c 'create database vets_api_test;' -U postgres
 
 script:
-  - bundle exec rake
+  - bundle exec rake db:create db:schema:load ci
 
 bundler_args: "--without development"
 cache:
