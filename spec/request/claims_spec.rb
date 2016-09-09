@@ -16,13 +16,4 @@ RSpec.describe 'Claims management', type: :request do
       expect(response.body).to be_empty
     end
   end
-
-  it 'uploads documents supporting a claim' do
-    doctors_note = fixture_file_upload(
-      "#{::Rails.root}/spec/fixtures/files/doctors-note.pdf",
-      'application/pdf'
-    )
-    post '/v0/claims/189625/documents?tracked_item=33', file: doctors_note
-    expect(response).to be_success
-  end
 end
