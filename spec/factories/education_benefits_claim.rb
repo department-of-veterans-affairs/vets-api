@@ -4,22 +4,22 @@ FactoryGirl.define do
     form do
       {
         chapter1606: true,
-        fullName: {
+        veteranFullName: {
           first: 'Mark',
           last: 'Olson'
         },
         gender: 'M',
-        birthday: '03/07/1985',
-        socialSecurityNumber: '111223333',
-        address: {
+        veteranDateOfBirth: '03/07/1985',
+        veteranSocialSecurityNumber: '111223333',
+        veteranAddress: {
           country: 'USA',
           state: 'WI',
           zipcode: '53130',
           street: '123 Main St',
           city: 'Milwaukee'
         },
-        phone: '5551110000',
-        emergencyContact: {
+        homePhone: '5551110000',
+        secondaryContact: {
           fullName: {
             first: 'Sibling',
             last: 'Olson'
@@ -32,34 +32,36 @@ FactoryGirl.define do
           routingNumber: '123456789',
           accountNumber: '88888888888'
         },
-        previouslyFiledClaimWithVa: false,
-        previouslyAppliedWithSomeoneElsesService: false,
-        alreadyReceivedInformationPamphlet: true,
-        schoolName: 'FakeData University',
-        schoolAddress: {
-          country: 'USA',
-          state: 'MD',
-          zipcode: '21231',
-          street: '111 Uni Drive',
-          city: 'Baltimore'
+        school: {
+          name: 'FakeData University',
+          address: {
+            country: 'USA',
+            state: 'MD',
+            zipcode: '21231',
+            street: '111 Uni Drive',
+            city: 'Baltimore'
+          },
+          startDate: '08/29/2016',
+          educationalObjective: '...'
         },
-        educationStartDate: '08/29/2016',
-        educationalObjective: '...',
-        courseOfStudy: 'History',
         educationType: {
           college: true,
           testReimbursement: true
         },
-        currentlyActiveDuty: false,
-        terminalLeaveBeforeDischarge: false,
+        currentlyActiveDuty: {
+          yes: false,
+          onTerminalLeave: false,
+          nonVaAssistance: false
+        },
         highSchoolOrGedCompletionDate: '06/06/2010',
-        nonVaAssistance: false,
-        guardsmenReservistsAssistance: false,
-
         additionalContributions: false,
         activeDutyKicker: false,
         reserveKicker: false,
-        serviceBefore1977: false,
+        serviceBefore1977: {
+          married: true,
+          haveDependents: true,
+          parentDependent: false
+        },
         # rubocop:disable LineLength
         remarks: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet ullamcorper est, in interdum velit. Cras purus orci, varius eget efficitur nec, dapibus id risus. Donec in pellentesque enim. Proin sagittis, elit nec consequat malesuada, nibh justo luctus enim, ac aliquet lorem orci vel neque. Ut eget accumsan ipsum. Cras sed venenatis massa. Duis odio urna, laoreet quis ante sed, facilisis congue purus. Etiam semper facilisis luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam blandit eget nibh at ornare. Sed non porttitor dui. Proin ornare magna diam, ut lacinia magna accumsan euismod.
 
@@ -81,7 +83,7 @@ FactoryGirl.define do
             },
             serviceBranch: 'Army',
             serviceStatus: 'Active Duty',
-            involuntarilyCalledToDuty: false
+            involuntarilyCalledToDuty: 'yes'
           },
           {
             dateRange: {
@@ -90,7 +92,7 @@ FactoryGirl.define do
             },
             serviceBranch: 'Army',
             serviceStatus: 'Honorable Discharge',
-            involuntarilyCalledToDuty: true
+            involuntarilyCalledToDuty: 'yes'
           }
         ]
       }.to_json

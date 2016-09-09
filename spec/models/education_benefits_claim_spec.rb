@@ -4,7 +4,7 @@ require 'rails_helper'
 RSpec.describe EducationBenefitsClaim, type: :model do
   let(:attributes) do
     {
-      form: { foo: true }
+      form: { chapter30: true }
     }
   end
   subject { described_class.new(attributes) }
@@ -14,6 +14,32 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       expect_attr_valid(subject, :form)
       subject.form = nil
       expect_attr_invalid(subject, :form, "can't be blank")
+    end
+
+    describe '#form_matches_schema' do
+      it 'should be valid on a valid form' do
+        expect_attr_valid(subject, :form)
+      end
+
+      context 'with an invalid form' do
+        before do
+          attributes[:form] = {
+            chapter30: 0
+          }
+        end
+
+        it 'should have a json schema error' do
+          subject.valid?
+          form_errors = subject.errors[:form]
+
+          expect(form_errors.size).to eq(1)
+          expect(
+            form_errors[0].include?(
+              "The property '#/chapter30' of type Fixnum did not match the following type: boolean"
+            )
+          ).to eq(true)
+        end
+      end
     end
   end
 
