@@ -9,6 +9,11 @@ module V0
              each_serializer: ClaimSerializer
     end
 
+    def request_decision
+      current_user.request_claim_decision(params[:id])
+      head :no_content
+    end
+
     private
 
     def current_user
