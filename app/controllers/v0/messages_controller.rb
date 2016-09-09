@@ -14,7 +14,7 @@ module V0
     end
 
     def show
-      message_id = message_params[:id].try(:to_i)
+      message_id = params[:id].try(:to_i)
       response = client.get_message(message_id)
 
       raise VA::API::Common::Exceptions::RecordNotFound, message_id unless response.present?
@@ -26,7 +26,8 @@ module V0
 
     def create
       params = message_params
-      response = client.post_create_message(subject: params[:subject], body: params[:body],
+      Rails.logger.error "@@@@@@@@@@@ #{params.inspect}"
+      response = client.post_create_message(subject: params[:subject], body: params[:body], id: params[:id],
                                             recipient_id: params[:recipient_id], category: params[:category])
       render json: response,
              serializer: MessageSerializer,
@@ -43,16 +44,18 @@ module V0
     #   render json: response
     # end
 
-    def draft
-      response = client.post_create_message_draft(subject: params[:subject], body: params[:body], id: params[:id],
-                                                  recipient_id: params[:recipient_id], category: params[:category])
-      render json: response,
-             serializer: MessageSerializer,
-             meta:  {}
-    end
+    # TODO: rework draft
+    # def draft
+    #   params = message_params
+    #   response = client.post_create_message_draft(subject: params[:subject], body: params[:body], id: params[:id],
+    #                                               recipient_id: params[:recipient_id], category: params[:category])
+    #   render json: response,
+    #          serializer: MessageSerializer,
+    #          meta:  {}
+    # end
 
     def thread
-      message_id = message_params[:id].try(:to_i)
+      message_id = params[:id].try(:to_i)
       response = client.get_message_history(message_id)
 
       raise VA::API::Common::Exceptions::RecordNotFound, message_id unless response.present?
@@ -66,7 +69,7 @@ module V0
     private
 
     def message_params
-      params.permit(:id, :subject, :category, :recipient_id, :body, :format)
+      params.permit(:id, :category, :body, :recipient_id, :subject, :format)
     end
   end
 end
