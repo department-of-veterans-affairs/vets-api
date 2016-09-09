@@ -6,14 +6,15 @@
     <body>
         <script type="text/javascript">
         var target = {
-            // target for development
-            local: 'http://localhost:3001'
+            development: 'http://localhost:3001',
+            staging: 'https://dev.vets.gov',
+            production: 'https://dev.vets.gov'
         };
 
         function sendUserToken() {
             var rawJson = <%=raw @session.to_json %>;
-            window.opener.postMessage(rawJson, target.local);
-           window.close();
+            window.opener.postMessage(rawJson, target["<%= Rails.env %>"]);
+            window.close();
         }
 
         sendUserToken();
