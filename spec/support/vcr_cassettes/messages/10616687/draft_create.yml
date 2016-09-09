@@ -25,15 +25,15 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 09 Sep 2016 16:17:40 GMT
+      - Fri, 09 Sep 2016 16:31:45 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Content-Length:
       - '0'
       Expires:
-      - Fri, 09 Sep 2016 17:17:40 GMT
+      - Fri, 09 Sep 2016 17:31:45 GMT
       Token:
-      - 1R2pfU7V+mo=biJD5ns8ATZfstsDKVvtP9K0PWpLjYEeq9OStP8rELM=
+      - y0Xt1ps+f3U=xWixyuiS1+WnBmtZBh1WXOHhir8iu0sh7Yv42oqp3CM=
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
       Connection:
@@ -44,13 +44,14 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Fri, 09 Sep 2016 16:17:40 GMT
+  recorded_at: Fri, 09 Sep 2016 16:31:45 GMT
 - request:
-    method: get
-    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/folder/0
+    method: post
+    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/message/draft
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: '{"subject":"Subject 14","recipientId":"585986","category":"OTHER","body":"Body
+        14"}'
     headers:
       Accept:
       - application/json
@@ -59,7 +60,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
       Token:
-      - 1R2pfU7V+mo=biJD5ns8ATZfstsDKVvtP9K0PWpLjYEeq9OStP8rELM=
+      - y0Xt1ps+f3U=xWixyuiS1+WnBmtZBh1WXOHhir8iu0sh7Yv42oqp3CM=
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -68,7 +69,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 09 Sep 2016 16:17:41 GMT
+      - Fri, 09 Sep 2016 16:31:45 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -81,7 +82,9 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: '{"id":0,"name":"Inbox","count":2,"unreadCount":0,"systemFolder":true}'
+      string: '{"id":620431,"category":"OTHER","subject":"Subject 14","body":"Body
+        14","attachment":false,"attachments":{"attachment":[]},"sentDate":"","senderId":384939,"senderName":"MVIONE,
+        TEST","recipientId":585986,"recipientName":"Triage group 311070 test 2","readReceipt":null}'
     http_version: 
-  recorded_at: Fri, 09 Sep 2016 16:17:41 GMT
+  recorded_at: Fri, 09 Sep 2016 16:31:46 GMT
 recorded_with: VCR 3.0.3
