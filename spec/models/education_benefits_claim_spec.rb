@@ -4,7 +4,7 @@ require 'rails_helper'
 RSpec.describe EducationBenefitsClaim, type: :model do
   let(:attributes) do
     {
-      form: { chapter30: true }
+      form: { chapter30: true }.to_json
     }
   end
   subject { described_class.new(attributes) }
@@ -16,6 +16,16 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       expect_attr_invalid(subject, :form, "can't be blank")
     end
 
+    describe '#form_must_be_string' do
+      before do
+        attributes[:form] = JSON.parse(attributes[:form])
+      end
+
+      it 'should not allow a hash to be passed in for form' do
+        expect_attr_invalid(subject, :form, 'must be a json string')
+      end
+    end
+
     describe '#form_matches_schema' do
       it 'should be valid on a valid form' do
         expect_attr_valid(subject, :form)
@@ -25,7 +35,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         before do
           attributes[:form] = {
             chapter30: 0
-          }
+          }.to_json
         end
 
         it 'should have a json schema error' do
@@ -39,6 +49,19 @@ RSpec.describe EducationBenefitsClaim, type: :model do
             )
           ).to eq(true)
         end
+      end
+    end
+  end
+
+  describe 'form field' do
+    it 'should encrypt and decrypt the form field' do
+      subject.save!
+
+      expect(subject['form']).to eq(nil)
+      expect(subject.form).to eq(attributes[:form])
+
+      %w(encrypted_form encrypted_form_iv).each do |attr|
+        expect(subject[attr].present?).to eq(true)
       end
     end
   end

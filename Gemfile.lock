@@ -51,7 +51,7 @@ GEM
       erubis (~> 2.7.0)
       rails-dom-testing (~> 1.0, >= 1.0.5)
       rails-html-sanitizer (~> 1.0, >= 1.0.2)
-    active_model_serializers (0.10.1)
+    active_model_serializers (0.10.2)
       actionpack (>= 4.1, < 6)
       activemodel (>= 4.1, < 6)
       jsonapi (~> 0.1.1.beta2)
@@ -75,6 +75,8 @@ GEM
     addressable (2.4.0)
     arel (6.0.3)
     ast (2.3.0)
+    attr_encrypted (3.0.3)
+      encryptor (~> 3.0.0)
     awrence (0.1.0)
     axiom-types (0.1.1)
       descendants_tracker (~> 0.0.4)
@@ -108,6 +110,7 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.2.5)
     docile (1.1.5)
+    encryptor (3.0.0)
     equalizer (0.0.11)
     erubis (2.7.0)
     factory_girl (4.7.0)
@@ -148,7 +151,7 @@ GEM
       tilt
     hashdiff (0.3.0)
     highline (1.7.8)
-    httpclient (2.8.2.2)
+    httpclient (2.8.2.3)
     i18n (0.7.0)
     ice_nine (0.11.2)
     json (1.8.3)
@@ -302,7 +305,7 @@ GEM
     timecop (0.8.1)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
-    unicode-display_width (1.1.0)
+    unicode-display_width (1.1.1)
     vcr (3.0.3)
     virtus (1.0.5)
       axiom-types (~> 0.1)
@@ -325,6 +328,7 @@ PLATFORMS
 
 DEPENDENCIES
   active_model_serializers (~> 0.10.0)
+  attr_encrypted
   awrence
   brakeman
   bundler-audit

@@ -19,4 +19,9 @@ class Claim < ActiveModelSerializers::Model
       end
     end.flatten
   end
+
+  def self.request_decision(headers, claim_id)
+    evss_client = EVSS::ClaimsService.new(headers)
+    evss_client.submit_5103_waiver(claim_id).body
+  end
 end
