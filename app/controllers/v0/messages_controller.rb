@@ -26,7 +26,7 @@ module V0
 
     def create
       params = message_params
-      response = client.post_create_message(subject: params[:subject], body: params[:body], id: params[:id],
+      response = client.post_create_message(subject: params[:subject], body: params[:body],
                                             recipient_id: params[:recipient_id], category: params[:category])
       render json: response,
              serializer: MessageSerializer,
