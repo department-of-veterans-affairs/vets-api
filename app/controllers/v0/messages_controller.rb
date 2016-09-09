@@ -31,6 +31,16 @@ module V0
              meta:  {}
     end
 
+    # TODO: uncomment once clarification received on deleting draft messages
+    # def destroy
+    #   message_id = message_params[:id].try(:to_i)
+    #   response = client.delete_message(message_id)
+    #
+    #   raise VA::API::Common::Exceptions::RecordNotFound, message_id unless response.present?
+    #
+    #   render json: response
+    # end
+
     def draft
       response = client.post_create_message_draft(message_params)
       render json: response,

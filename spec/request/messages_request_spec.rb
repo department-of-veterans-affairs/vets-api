@@ -53,6 +53,25 @@ RSpec.describe 'Messages Integration', type: :request do
     end
   end
 
+  # TODO: complete once clarification received on deleting draft messages
+  # describe '#destroy' do
+  #   let(:msg) { build :message }
+  #
+  #   before(:each) do
+  #     VCR.use_cassette("messages/#{user_id}/destroy", :record => :new_episodes) do
+  #       post '/v0/messaging/health/messages', subject: msg.subject, category: msg.category,
+  #                                             recipient_id: msg.recipient_id, body: msg.body
+  #
+  #       message_id = JSON.parse(response.body)['data']['attributes']['message_id']
+  #       delete "/v0/messaging/health/messages/#{message_id}"
+  #     end
+  #   end
+  #
+  #   it 'responds to DELETE #destroy' do
+  #
+  #   end
+  # end
+
   describe '#draft' do
     let(:msg) { build :message }
 
@@ -77,7 +96,6 @@ RSpec.describe 'Messages Integration', type: :request do
       VCR.use_cassette("messages/#{user_id}/draft_update") do
         put "/v0/messaging/health/messages/#{message_id}/draft", subject: msg.subject, category: msg.category,
                                                                  body: body, recipient_id: msg.recipient_id
-
       end
 
       expect(response).to be_success
