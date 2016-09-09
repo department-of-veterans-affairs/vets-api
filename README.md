@@ -9,6 +9,7 @@ This project provides common APIs for applications that live on vets.gov. This r
 1. Install Ruby 2.3. (It is suggested to use a Ruby version manager such as [rbenv](https://github.com/rbenv/rbenv#installation) and then to [install Ruby 2.3](https://github.com/rbenv/rbenv#installing-ruby-versions)).
 1. Install Bundler to manage dependencies: `gem install bundler`
 1. Install Postgres (on Mac): `brew install postgres`
+1. Get the code: `git clone https://github.com/department-of-veterans-affairs/vets-api.git; git submodule init; git submodule update` 
 1. Install gem dependencies: `cd vets-api; bundle install`
 
 ### Database Setup
@@ -62,7 +63,7 @@ The first endpoint, below, doesn't require authentication while the second does:
 curl localhost:3000/v0/status
 curl localhost:3000/v0/welcome
 ```
-It is easiest to go through the auth flow in your browser. Curl or browse to `http://localhost:3000/v0/sessions/new`; copy and paste the ID.me URL into your browser and log in on ID.me. The token returned in the json response at the end of the login flow can be used as follows (You may wish to use Postman instead of curl to test within the browser):
+It is easiest to go through the auth flow in your browser. Curl or browse to `http://localhost:3000/v0/sessions/new`; copy and paste the ID.me URL into your browser.  Create your ID.me account if you have not already done so. (**Note**: creating your account on the ID.me site is separate from the api.idmelabs.com sandbox) The token returned in the json response at the end of the login flow can be used as follows (You may wish to use Postman instead of curl to test within the browser):
 
 ```
 curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyyja" localhost:3000/v0/welcome

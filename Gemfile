@@ -15,6 +15,7 @@ gem 'virtus'
 gem 'rails-api'
 gem 'figaro'
 gem 'pg'
+gem 'json-schema'
 gem 'active_model_serializers', '~> 0.10.0'
 gem 'will_paginate'
 gem 'va-api-common', git: 'https://github.com/department-of-veterans-affairs/va-api-common', branch: 'master'
@@ -24,6 +25,7 @@ gem 'va_healthcare_messaging',
 gem 'faraday'
 gem 'faraday_middleware'
 gem 'httpclient'
+gem 'attr_encrypted'
 gem 'olive_branch'
 
 group :development, :test do
@@ -52,7 +54,6 @@ group :test do
   gem 'webmock'
   gem 'fakeredis'
   gem 'timecop'
-  gem 'json-schema'
   gem 'vcr'
   gem 'awrence'
 end
