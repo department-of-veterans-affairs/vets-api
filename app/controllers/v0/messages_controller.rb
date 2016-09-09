@@ -25,14 +25,14 @@ module V0
     end
 
     def create
-      response = client.post_create_message(symbolized_hash(message_params.to_h))
+      response = client.post_create_message(message_params)
       render json: response,
              serializer: MessageSerializer,
              meta:  {}
     end
 
     def draft
-      response = client.post_create_message_draft(symbolized_hash(message_params.to_h))
+      response = client.post_create_message_draft(message_params)
       render json: response,
              serializer: MessageSerializer,
              meta:  {}
@@ -53,11 +53,8 @@ module V0
     private
 
     def message_params
-      params.permit(:id, :subject, :category, :recipient_id, :body, :format).except(:format)
-    end
-
-    def symbolized_hash(h)
-      h.each_with_object({}) do |v, m|
+      params.permit(:id, :subject, :category, :recipient_id, :body, :format)
+            .except(:format).each_with_object({}) do |v, m|
         m[v[0].to_sym] = v[1]
         m
       end
