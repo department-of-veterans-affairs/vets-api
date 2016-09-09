@@ -40,8 +40,6 @@ Rails.application.routes.draw do
         end
 
         resources :messages, only: [:show, :create, :destroy], defaults: { format: :json } do
-          post :draft, on: :collection
-          put :draft, on: :member
           get :thread, on: :member
         end
       end
