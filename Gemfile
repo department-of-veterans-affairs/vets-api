@@ -25,6 +25,7 @@ gem 'va_healthcare_messaging',
 gem 'faraday'
 gem 'faraday_middleware'
 gem 'httpclient'
+gem 'attr_encrypted'
 gem 'olive_branch'
 
 group :development, :test do
