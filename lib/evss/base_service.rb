@@ -18,7 +18,7 @@ module EVSS
     def post(url, body)
       conn.post url do |req|
         req.headers['Content-Type'] = 'application/json'
-        req.body = body
+        req.body = body.to_json
       end
     end
 

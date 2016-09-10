@@ -16,4 +16,11 @@ RSpec.describe 'Claims management', type: :request do
       expect(response.body).to be_empty
     end
   end
+
+  it 'shows a single Claim' do
+    VCR.use_cassette('evss/claims/claim') do
+      get '/v0/claims/189625'
+      expect(response).to match_response_schema('claim')
+    end
+  end
 end

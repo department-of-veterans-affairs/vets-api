@@ -33,16 +33,6 @@ class User < RedisStore
     )
   end
 
-  def claims
-    Claim.fetch_all(vaafi_headers)
-  end
-
-  def request_claim_decision(claim_id)
-    Claim.request_decision(vaafi_headers, claim_id)
-  end
-
-  private
-
   def vaafi_headers
     {
       # Always the same
@@ -60,6 +50,8 @@ class User < RedisStore
       'va_eauth_authorization' => eauth_json
     }
   end
+
+  private
 
   def eauth_json
     {
