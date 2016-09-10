@@ -8,7 +8,7 @@ module MVI
       EXTENSION = 'PRPA_IN201301UV02'.freeze
 
       def build(vcid, first_name, last_name, dob, ssn)
-        @message = xml_tag(EXTENSION)
+        @message = idm(EXTENSION)
         header(vcid, EXTENSION)
         add_person_body(patient_person(first_name, last_name, dob, ssn))
         @doc << @message

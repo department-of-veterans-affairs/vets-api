@@ -5,8 +5,6 @@ module MVI
     module MessageBuilder
       attr_reader :doc
 
-      SITE_KEY = '200VGOV'.freeze
-      ROOT_ID = '2.16.840.1.113883.4.349'.freeze
       INTERACTION_ID = '^PN^200VETS^USDVA'.freeze
 
       def initialize
@@ -14,22 +12,23 @@ module MVI
       end
 
       def header(vcid, extension)
-        @message << element('id', root: ROOT_ID, extension: "#{vcid}#{INTERACTION_ID}")
+        @message << element('id', root: '1.2.840.114350.1.13.0.1.7.1.1', extension: "200VGOV-#{SecureRandom.uuid}")
         @message << element('creationTime', value: Time.now.utc.strftime('%Y%m%d%M%H%M%S'))
-        @message << element('interactionId', root: ROOT_ID, extension: extension)
+        @message << element('versionCode', code: '3.0')
+        @message << element('interactionId', root: '2.16.840.1.113883.1.6', extension: extension)
         @message << element('processingCode', code: Rails.env.production? ? 'P' : 'D')
         @message << element('processingModeCode', code: 'T')
         @message << element('acceptAckCode', code: 'AL')
         receiver = element('receiver', typeCode: 'RCV')
         device = element('device', classCode: 'DEV', determinerCode: 'INSTANCE')
-        id = element('id', root: ROOT_ID, extension: '200M')
+        id = element('id', root: '1.2.840.114350.1.13.999.234', extension: '200M')
         device << id
         receiver << device
         @message << receiver
         sender = element('sender', typeCode: 'SND')
         device = element('device', classCode: 'DEV', determinerCode: 'INSTANCE')
         sender << device
-        id = element('id', root: ROOT_ID, extension: SITE_KEY)
+        id = element('id', root: '2.16.840.1.113883.4.349', extension: '200VGOV')
         sender << id
         @message << sender
       end
@@ -43,7 +42,21 @@ module MVI
         el
       end
 
-      def xml_tag(extension)
+      def envelope_body(message)
+        env = element('env:Envelope',
+          'xmlns:soapenc' => "http://schemas.xmlsoap.org/soap/encoding/",
+          'xmlns:xsd' => "http://www.w3.org/2001/XMLSchema",
+          'xmlns:env' => "http://schemas.xmlsoap.org/soap/envelope/",
+          'xmlns:xsi' => "http://www.w3.org/2001/XMLSchema-instance"
+        )
+        env << element('env:Header')
+        body = element('env:Body')
+        body << message
+        env << body
+        env
+      end
+
+      def idm(extension)
         element("idm:#{extension}",
           :'xmlns:idm' => 'http://vaww.oed.oit.va.gov',
           :'xmlns:xsi' => "http://www.w3.org/2001/XMLSchema‐instance",
