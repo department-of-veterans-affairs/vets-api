@@ -2,11 +2,11 @@
 require 'rails_helper'
 
 RSpec.describe 'Triage Teams Integration', type: :request do
-  let(:id) { ENV['MHV_SM_USER_ID'] }
+  let(:user_id) { ENV['MHV_SM_USER_ID'] }
 
   before(:each) do
-    VCR.use_cassette("triage_teams/#{id}/index") do
-      get '/v0/recipients', id: id
+    VCR.use_cassette("triage_teams/#{user_id}/index") do
+      get '/v0/messaging/health/recipients'
     end
   end
 
