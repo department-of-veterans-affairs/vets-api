@@ -8,10 +8,10 @@ module MVI
       EXTENSION = 'PRPA_IN201305UV02'.freeze
 
       def build(vcid, first_name, last_name, dob, ssn)
-        @message = xml_tag(EXTENSION)
+        @message = idm(EXTENSION)
         header(vcid, EXTENSION)
         find_candidate_body(parameter_list(first_name, last_name, dob, ssn))
-        @doc << @message
+        @doc << envelope_body(@message)
         Ox.dump(@doc)
       end
 
@@ -29,7 +29,7 @@ module MVI
 
       def query_by_parameter
         el = element('queryByParameter')
-        el << element('queryId', root: '2.16.840.1.113883.3.933', extension: '18204')
+        el << element('queryId', root: '1.2.840.114350.1.13.28.1.18.5.999', extension: '18204')
         el << element('statusCode', code: 'new')
         el << element('modifyCode', code: 'MVI.COMP1')
         el << element('initialValue', value: 1)
