@@ -9,13 +9,20 @@
       "uniqueItems": true,
       "items": {
         "type": "object",
-        "required": ["id", "type", "attributes"],
+        "required": ["id", "type", "attributes", "links"],
         "properties": {
           "id": { "type": "string"},
           "type": { "enum": ["va_healthcare_messaging_folders"] },
           "attributes": {
             "type": "object",
             "$ref": "folder.json"
+          },
+          "links": {
+            "type": "object",
+            "required": ["self"],
+            "properties": {
+              "self": { "type": "string" }
+            }
           }
         }
       }

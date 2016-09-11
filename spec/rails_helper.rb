@@ -28,6 +28,10 @@ RSpec.configure do |config|
 
   config.include(ValidationHelpers, type: :model)
 
+  # Adding support for url_helper
+  config.include Rails.application.routes.url_helpers
+
+
   # If you're not using ActiveRecord, or you'd prefer not to run each of your
   # examples within a transaction, remove the following line or assign false
   # instead of true.

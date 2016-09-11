@@ -5,6 +5,7 @@ RSpec.describe FolderSerializer, type: :serializer do
   let(:folder) { build :folder }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
+  let(:links) { data['links'] }
 
   subject { serialize(folder, serializer_class: described_class) }
 
@@ -30,5 +31,9 @@ RSpec.describe FolderSerializer, type: :serializer do
 
   it "should include the folders's system folder attribute" do
     expect(attributes['system_folder']).to eq(folder.system_folder)
+  end
+
+  it "should include a link to itself" do
+    expect(links['self']).to eq(v0_folder_url(folder.id))
   end
 end

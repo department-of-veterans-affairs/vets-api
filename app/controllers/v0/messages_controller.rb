@@ -25,9 +25,10 @@ module V0
     end
 
     def create
-      params = message_params
-      response = client.post_create_message(subject: params[:subject], body: params[:body],
-                                            recipient_id: params[:recipient_id], category: params[:category])
+      response = client.post_create_message(message_params)
+
+      # Should we accept default Gem error handling when creating a message with invalid parameter set, or
+      # create a VA common exception?
       render json: response,
              serializer: MessageSerializer,
              meta:  {}
@@ -68,7 +69,11 @@ module V0
     private
 
     def message_params
-      params.permit(:id, :category, :body, :recipient_id, :subject, :format)
+      # ActionController::Parameters No Longer Inherits from HashWithIndifferentAccess
+      # Gem message api uses keyword arguments and will not work with HashWithIndifferentAccess according
+      # to longstanding bug. Allegedly was fixed in Ruby 2.2, but having same issue in Ruby 2.3
+      hash = params.permit(:id, :category, :body, :recipient_id, :subject).to_h
+      Hash[hash.map{ |k, v| [k.to_sym, v] }]
     end
   end
 end

@@ -16,7 +16,7 @@
     "properties": {
       "data": {
         "type": "object",
-        "required": ["id", "type", "attributes"],
+        "required": ["id", "type", "attributes", "links"],
         "properties": {
           "id": { "type": "string" },
           "type": { "enum": ["va_healthcare_messaging_folders"] },
@@ -29,6 +29,13 @@
               "count": { "type": "integer" },
               "unread_count": { "type": "integer" },
               "system_folder": { "type": "boolean" }
+            }
+          },
+          "links": {
+            "type": "object",
+            "required": ["self"],
+            "properties": {
+              "self": { "type": "string" }
             }
           }
         }
