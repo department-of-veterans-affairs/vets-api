@@ -3,7 +3,8 @@ require_dependency 'evss/claims_service'
 
 class Claim < ActiveModelSerializers::Model
   attr_accessor :id, :date_filed, :min_est_date, :max_est_date, :tracked_items,
-                :contention_list, :phase_dates, :open, :waiver_submitted
+                :contention_list, :phase_dates, :open, :waiver_submitted,
+                :va_representative
 
   EVSS_CLAIM_KEYS = %w(openClaims historicalClaims).freeze
 
@@ -39,6 +40,7 @@ class Claim < ActiveModelSerializers::Model
       phase_dates: attrs['claimPhaseDates'],
       tracked_items: attrs['claimTrackedItems'],
       open: attrs['claimCompleteDate'].blank?,
+      va_representative: attrs['poa'],
       waiver_submitted: attrs['waiver5103Submitted']
     )
   end
