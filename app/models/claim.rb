@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require_dependency 'evss/claims_service'
+require_dependency 'evss/documents_service'
 
 class Claim < ActiveModelSerializers::Model
   attr_accessor :id
