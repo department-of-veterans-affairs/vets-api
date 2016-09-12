@@ -25,15 +25,15 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 02 Sep 2016 17:58:23 GMT
+      - Fri, 09 Sep 2016 16:33:54 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Content-Length:
       - '0'
       Expires:
-      - Fri, 02 Sep 2016 18:58:24 GMT
+      - Fri, 09 Sep 2016 17:33:54 GMT
       Token:
-      - nX4kE8XL+SQ=y3++jni1L1UZRKDXeMVyh5ayTuSbC+nIngdy4THIzcQ=
+      - NcRTvX2Tyy4=JgT3HCuv3929ceXzwsHVuiE6qsZDvCtFOoBT3NVB098=
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
       Connection:
@@ -43,14 +43,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: ''
-    http_version:
-  recorded_at: Fri, 02 Sep 2016 17:58:24 GMT
+    http_version: 
+  recorded_at: Fri, 09 Sep 2016 16:33:54 GMT
 - request:
-    method: get
-    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/folder/1000
+    method: post
+    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/message/draft
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: '{"subject":"Subject 14","recipientId":"585986","category":"OTHER","body":"Body
+        14. This is the added bit!","id":"620431"}'
     headers:
       Accept:
       - application/json
@@ -59,16 +60,16 @@ http_interactions:
       User-Agent:
       - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
       Token:
-      - nX4kE8XL+SQ=y3++jni1L1UZRKDXeMVyh5ayTuSbC+nIngdy4THIzcQ=
+      - NcRTvX2Tyy4=JgT3HCuv3929ceXzwsHVuiE6qsZDvCtFOoBT3NVB098=
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 400
-      message: Bad Request
+      code: 200
+      message: OK
     headers:
       Date:
-      - Fri, 02 Sep 2016 17:58:25 GMT
+      - Fri, 09 Sep 2016 16:33:55 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -81,7 +82,9 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: '{"errorCode":115,"developerMessage":"","message":"Entity Not Found"}'
-    http_version:
-  recorded_at: Fri, 02 Sep 2016 17:58:26 GMT
+      string: '{"id":620431,"category":"OTHER","subject":"Subject 14","body":"Body
+        14. This is the added bit!","attachment":false,"attachments":{"attachment":[]},"sentDate":"","senderId":384939,"senderName":"MVIONE,
+        TEST","recipientId":585986,"recipientName":"Triage group 311070 test 2","readReceipt":null}'
+    http_version: 
+  recorded_at: Fri, 09 Sep 2016 16:33:55 GMT
 recorded_with: VCR 3.0.3
