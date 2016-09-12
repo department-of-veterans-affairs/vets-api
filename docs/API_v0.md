@@ -23,12 +23,29 @@ Host: www.vets.gov
 Content-Type: application/json
 X-Key-Inflection: camel
 
-{"educationBenefitsClaim":{"form":"{\"preferredContactMethod\":\"mail\"}"}}
+{
+  "educationBenefitsClaim": {
+    "form": "{\"preferredContactMethod\":\"mail\"}"
+  }
+}
 ```
 * Example response:
 ```
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-{"data":{"id":"18","type":"education_benefits_claims","attributes":{"form":"{\"preferredContactMethod\":\"mail\"}","submittedAt":"2016-09-09T23:48:07.766Z","processedAt":null}}}
+{
+  "data": {
+    "id": "18",
+    "type": "education_benefits_claims",
+    "attributes": {
+      // the form that was submitted
+      "form": "{\"preferredContactMethod\":\"mail\"}",
+      // when it was first submitted
+      "submittedAt": "2016-09-09T23:48:07.766Z",
+      // when it was sent to the VA SFTP for processing
+      "processedAt": null
+    }
+  }
+}
 ```
