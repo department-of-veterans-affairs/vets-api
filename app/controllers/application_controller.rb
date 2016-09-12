@@ -62,4 +62,8 @@ class ApplicationController < ActionController::API
     headers['WWW-Authenticate'] = 'Token realm="Application"'
     render json: 'Not Authorized', status: 401
   end
+
+  rescue_from ActionController::ParameterMissing do
+    render json: { error: 'parameter missing' }, status: :bad_request
+  end
 end
