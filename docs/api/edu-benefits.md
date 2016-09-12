@@ -1,6 +1,4 @@
-# API v0
-
-## Education Benefits Claims
+# Education Benefits Claims API
 * Purpose: Submit an education benefits claim
 * HTTP Method: POST
 * Path: /v0/education_benefits_claims
