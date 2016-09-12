@@ -17,7 +17,7 @@ module EVSS
     def upload(file_name, file_body, claim_id, tracked_item_id)
       post 'queuedDocumentUploadService/ajaxUploadFile', file_body do |req|
         req.headers['Content-Type'] = 'application/octet-stream'
-        req.params['systemName'] = 'vets.gov'
+        req.params['systemName'] = SYSTEM_NAME
         # TODO: Get real doctypes/descriptions
         req.params['docType'] = 'L023'
         req.params['docTypeDescription'] = 'Other Correspondence'
