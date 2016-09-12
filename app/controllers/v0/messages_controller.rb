@@ -5,6 +5,8 @@ module V0
       pagination = pagination_params
       response = get_messages(pagination[:folder_id], pagination)
 
+      raise VA::API::Common::Exceptions::RecordNotFound, folder_id unless response.present?
+
       render json: response.data,
              serializer: CollectionSerializer,
              each_serializer: MessageSerializer,
