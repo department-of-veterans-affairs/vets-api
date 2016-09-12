@@ -6,7 +6,7 @@ module V0
     def create
       params.require :file
       uploaded_io = params[:file]
-      claim_id = params[:id]
+      claim_id = params[:claim_id]
       tracked_item_id = params[:tracked_item]
 
       current_user.upload_document(uploaded_io.original_filename, uploaded_io.read, claim_id, tracked_item_id)

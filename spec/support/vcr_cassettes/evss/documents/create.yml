@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://csraciapp6.evss.srarad.com:7003/wss-document-services-web-3.1/rest/queuedDocumentUploadService/ajaxUploadFile?claimId&docType=L023&docTypeDescription=Other%20Correspondence&qqfile=doctors-note.pdf&systemName=vets.gov&trackedItemIds=33
+    uri: http://csraciapp6.evss.srarad.com:7003/wss-document-services-web-3.1/rest/queuedDocumentUploadService/ajaxUploadFile?claimId=3&docType=L023&docTypeDescription=Other%20Correspondence&qqfile=doctors-note.pdf&systemName=vets.gov&trackedItemIds=33
     body:
       encoding: ASCII-8BIT
       string: !binary |-
@@ -249,7 +249,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Mon, 12 Sep 2016 18:23:20 GMT
+      - Mon, 12 Sep 2016 18:32:31 GMT
       Va-Eauth-Csid:
       - DSLogon
       Va-Eauth-Authenticationmethod:
@@ -279,20 +279,20 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 12 Sep 2016 18:23:20 GMT
+      - Mon, 12 Sep 2016 18:32:31 GMT
       Transfer-Encoding:
       - chunked
       Content-Type:
       - application/json
       Set-Cookie:
-      - WSS-DOCUMENT-SERVICES_JSESSIONID=DJfvXWyYnc2T049LRR5qySmM3V138906CwyPd9zr0sYQB2XwChCl!-957798706;
+      - WSS-DOCUMENT-SERVICES_JSESSIONID=p1QrXW0fdwvlRqNlJCDFvnPJM01xfG24dSLn24JH8n2K2PhCpvbS!-957798706;
         path=/; HttpOnly
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
     body:
       encoding: UTF-8
-      string: '{"messages":[{"key":"File Upload","text":"Unique ID: [1473704600912]
-        Server Name: [vapii_dev_01] ","severity":"ERROR"}],"success":false,"vrmUploadSuccess":false,"datetime":null}'
+      string: '{"messages":null,"success":true,"vrmUploadSuccess":true,"datetime":"09/12/2016
+        14:32:31 EDT"}'
     http_version: 
-  recorded_at: Mon, 12 Sep 2016 18:23:20 GMT
+  recorded_at: Mon, 12 Sep 2016 18:32:31 GMT
 recorded_with: VCR 3.0.3
