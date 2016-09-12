@@ -249,35 +249,28 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Fri, 09 Sep 2016 15:05:09 GMT
-      Va-Eauth-Pnidtype:
-      - SSN
+      - Mon, 12 Sep 2016 20:27:14 GMT
       Va-Eauth-Csid:
       - DSLogon
-      Va-Eauth-Firstname:
-      - Jane
-      Va-Eauth-Lastname:
-      - Doe
-      Va-Eauth-Authenticationauthority:
-      - eauth
-      Iv-User:
-      - dslogoneauthuser
-      Va-Eauth-Emailaddress:
-      - jane.doe@va.gov
-      Va-Eauth-Birthdate:
-      - '1999-10-09T08:06:12-04:00'
-      Va-Eauth-Pid:
-      - '123456789'
-      Va-Eauth-Issueinstant:
-      - '2015-04-17T14:52:48Z'
-      Va-Eauth-Dodedipnid:
-      - '1105051936'
-      Va-Eauth-Middlename:
-      - A
       Va-Eauth-Authenticationmethod:
       - DSLogon
       Va-Eauth-Assurancelevel:
       - '2'
+      Va-Eauth-Pnidtype:
+      - SSN
+      Va-Eauth-Firstname:
+      - Jane
+      Va-Eauth-Lastname:
+      - Doe
+      Va-Eauth-Issueinstant:
+      - '2015-04-17T14:52:48Z'
+      Va-Eauth-Dodedipnid:
+      - '1105051936'
+      Va-Eauth-Pid:
+      - '123456789'
+      Va-Eauth-Pnid: []
+      Va-Eauth-Authorization:
+      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":null,"edi":"1105051936","firstName":"Jane","lastName":"Doe"}}'
       Content-Type:
       - application/octet-stream
   response:
@@ -286,20 +279,20 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 09 Sep 2016 15:05:09 GMT
+      - Mon, 12 Sep 2016 20:27:15 GMT
       Transfer-Encoding:
       - chunked
       Content-Type:
       - application/json
       Set-Cookie:
-      - WSS-DOCUMENT-SERVICES_JSESSIONID=G31gXSPF4fPrl6F5Vz6dPp0zc1vkDFJrK94VPn18TcLXXTWG3xQd!1010475370;
+      - WSS-DOCUMENT-SERVICES_JSESSIONID=zlgBXXPD28BkTps65WB5vThltyGsJX60WDXLQlvjk76sL7Ykvw1x!-957798706;
         path=/; HttpOnly
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
     body:
       encoding: UTF-8
-      string: '{"messages":null,"success":true,"vrmUploadSuccess":true,"datetime":"09/09/2016
-        11:05:10 EDT"}'
+      string: '{"messages":null,"success":true,"vrmUploadSuccess":true,"datetime":"09/12/2016
+        16:27:15 EDT"}'
     http_version: 
-  recorded_at: Fri, 09 Sep 2016 15:05:10 GMT
+  recorded_at: Mon, 12 Sep 2016 20:27:16 GMT
 recorded_with: VCR 3.0.3
