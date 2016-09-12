@@ -35,14 +35,14 @@ module V0
     end
 
     # TODO: uncomment once clarification received on deleting draft messages
-    def destroy
-      message_id = message_params[:id].try(:to_i)
-      response = client.delete_message(message_id)
-
-      raise VA::API::Common::Exceptions::RecordNotFound, message_id unless response.present?
-
-      render json: response
-    end
+    # def destroy
+    #   message_id = message_params[:id].try(:to_i)
+    #   response = client.delete_message(message_id)
+    #
+    #   raise VA::API::Common::Exceptions::RecordNotFound, message_id unless response.present?
+    #
+    #   render json: response
+    # end
 
     # TODO: rework draft
     # def draft
@@ -80,8 +80,9 @@ module V0
     def pagination_params
       folder_id = params[:folder_id].try(:to_i)
       folder = get_folder(folder_id)
+      page = params[:page].try(:to_i)
 
-      if page = params[:page].try(:to_i)
+      if page.present?
         pages = page..page
         per_page = [params[:per_page].try(:to_i) || DEFAULT_PER_PAGE, MAXIMUM_PER_PAGE].min
       else
@@ -99,7 +100,7 @@ module V0
       # Gem message api uses keyword arguments and will not work with HashWithIndifferentAccess according
       # to longstanding bug. Allegedly was fixed in Ruby 2.2, but having same issue in Ruby 2.3
       hash = params.permit(:id, :category, :body, :recipient_id, :subject).to_h
-      Hash[hash.map{ |k, v| [k.to_sym, v] }]
+      Hash[hash.map { |k, v| [k.to_sym, v] }]
     end
 
     # Unwraps data from individual calls to MHV and aggregates the results to a new collection,

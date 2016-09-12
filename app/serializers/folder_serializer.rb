@@ -4,7 +4,7 @@ class FolderSerializer < ActiveModel::Serializer
   attribute(:folder_id) { object.id }
 
   link(:self) { v0_folder_url(object.id) }
-  
+
   attribute :id
   attribute :name
   attribute :count

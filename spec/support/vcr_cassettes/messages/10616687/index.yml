@@ -86,7 +86,7 @@ http_interactions:
   recorded_at: Mon, 12 Sep 2016 16:21:27 GMT
 - request:
     method: get
-    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/folder/0/message/page/1/pageSize/100
+    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/folder/0/message/page/1/pageSize/250
     body:
       encoding: US-ASCII
       string: ''

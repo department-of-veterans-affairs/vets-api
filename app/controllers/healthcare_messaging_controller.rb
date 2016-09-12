@@ -20,7 +20,7 @@ class HealthcareMessagingController < ApplicationController
   end
 
   DEFAULT_PER_PAGE = 50
-  MAXIMUM_PER_PAGE = 100
+  MAXIMUM_PER_PAGE = 250
 
   # Abstracting out how correlation id is obtained in the id.me world. TODO: recode once id.me is established.
   def correlation_id
