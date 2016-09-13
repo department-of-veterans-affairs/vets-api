@@ -15,11 +15,8 @@ module EVSS
       conn.get url
     end
 
-    def post(url, body)
-      conn.post url do |req|
-        req.headers['Content-Type'] = 'application/json'
-        req.body = body.to_json
-      end
+    def post(url, body = nil, headers = { 'Content-Type' => 'application/json' }, &block)
+      conn.post(url, body, headers, &block)
     end
 
     private

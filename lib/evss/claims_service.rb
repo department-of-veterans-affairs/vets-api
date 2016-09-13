@@ -15,11 +15,11 @@ module EVSS
     end
 
     def find_claim_by_id(claim_id)
-      post 'vbaClaimStatusService/getClaimDetailById', id: claim_id
+      post 'vbaClaimStatusService/getClaimDetailById', { id: claim_id }.to_json
     end
 
     def create_intent_to_file
-      post 'claimServicesExternalService/listAllIntentToFile', {}
+      post 'claimServicesExternalService/listAllIntentToFile', {}.to_json
     end
 
     def submit_5103_waiver(claim_id)

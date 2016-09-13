@@ -31,5 +31,15 @@ describe EVSS::DocumentsService do
         expect(response).to be_success
       end
     end
+
+    it 'should upload documents' do
+      VCR.use_cassette('evss/documents/upload') do
+        demo_file_name = "#{::Rails.root}/spec/fixtures/files/doctors-note.pdf"
+        File.open(demo_file_name, 'rb') do |f|
+          response = subject.upload('doctors-note.pdf', f, 189_625, 33)
+          expect(response).to be_success
+        end
+      end
+    end
   end
 end
