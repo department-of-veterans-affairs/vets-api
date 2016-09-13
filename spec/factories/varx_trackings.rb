@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 FactoryGirl.define do
-  factory :tracking, class: VARx::Tracking do
+  factory :tracking do
     tracking_number       '01234567890'
     prescription_id       2_719_324
     prescription_number   '2719324'

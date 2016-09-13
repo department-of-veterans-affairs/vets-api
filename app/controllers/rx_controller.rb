@@ -4,11 +4,11 @@ class RxController < ApplicationController
   #   and just rely on the http basic authentication.
   skip_before_action :authenticate
 
-  VARX_ENFORCE_SSL = Rails.env.production?
-  MHV_CONFIG = VARx::Configuration.new(
+  RX_ENFORCE_SSL = Rails.env.production?
+  MHV_CONFIG = Rx::Configuration.new(
     host: ENV['MHV_HOST'],
     app_token: ENV['MHV_APP_TOKEN'],
-    enforce_ssl: VARX_ENFORCE_SSL
+    enforce_ssl: RX_ENFORCE_SSL
   ).freeze
 
   include ActionController::Serialization
@@ -26,7 +26,7 @@ class RxController < ApplicationController
   # end
   #
   # def render_error(e, status_code: 500)
-  #   if e.is_a? VARx::Error::ClientResponse
+  #   if e.is_a? Rx::Error::ClientResponse
   #     render json: { errors: [e.as_json] }, status: status_code
   #   else
   #     render json: { errors: [errors_hash(e, status_code)] }, status: status_code
@@ -34,7 +34,7 @@ class RxController < ApplicationController
   # end
 
   def client
-    @client ||= VARx::Client.new(config: MHV_CONFIG, session: { user_id: ENV['MHV_USER_ID'] })
+    @client ||= Rx::Client.new(config: MHV_CONFIG, session: { user_id: ENV['MHV_USER_ID'] })
   end
 
   def authenticate_client
