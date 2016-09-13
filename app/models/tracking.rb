@@ -13,8 +13,6 @@ class Tracking < Common::Base
   attribute :tracking_number, String
 
   def <=>(other)
-    return -1 if shipped_date < other.shipped_date
-    return 1 if shipped_date > other.shipped_date
-    0
+    shipped_date <=> other.shipped_date
   end
 end

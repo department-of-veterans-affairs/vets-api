@@ -23,8 +23,6 @@ class Prescription < Common::Base
   alias trackable? is_trackable
 
   def <=>(other)
-    return -1 if prescription_id < other.prescription_id
-    return 1 if prescription_id > other.prescription_id
-    0
+    prescription_id <=> other.prescription_id
   end
 end
