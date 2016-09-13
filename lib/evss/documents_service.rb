@@ -13,5 +13,20 @@ module EVSS
     def all_documents
       get 'documents/getAllDocuments'
     end
+
+    def upload(file_name, file_body, claim_id, tracked_item_id)
+      post 'queuedDocumentUploadService/ajaxUploadFile', file_body do |req|
+        req.headers['Content-Type'] = 'application/octet-stream'
+        req.params['systemName'] = SYSTEM_NAME
+        # TODO: Get real doctypes/descriptions
+        req.params['docType'] = 'L023'
+        req.params['docTypeDescription'] = 'Other Correspondence'
+        req.params['claimId'] = claim_id
+        # In theory one document can correspond to multiple tracked items
+        # To do that, add multiple query parameters
+        req.params['trackedItemIds'] = tracked_item_id
+        req.params['qqfile'] = file_name
+      end
+    end
   end
 end
