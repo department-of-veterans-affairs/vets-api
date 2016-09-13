@@ -1,0 +1,17 @@
+{
+  "refillStatus": "active",
+  "refillSubmitDate": "Tue, 26 Apr 2016 00:00:00 EDT",
+  "refillDate": "Thu, 21 Apr 2016 00:00:00 EDT",
+  "refillRemaining": 9,
+  "facilityName": "ABC1223",
+  "isRefillable": true,
+  "isTrackable": false,
+  "prescriptionId": 1435525,
+  "orderedDate": "Tue, 29 Mar 2016 00:00:00 EDT",
+  "quantity": 10,
+  "expirationDate": "Thu, 30 Mar 2017 00:00:00 EDT",
+  "prescriptionNumber": "2719324",
+  "prescriptionName": "Drug 1 250MG TAB",
+  "dispensedDate": "Thu, 21 Apr 2016 00:00:00 EDT",
+  "stationNumber": "23"
+}

@@ -8,7 +8,7 @@
       "required": ["id", "type", "attributes", "links"],
       "properties": {
         "id": { "type": "string" },
-        "type": { "enum": ["va_rx_trackings"] },
+        "type": { "enum": ["trackings"] },
         "attributes": { "type": "object",
           "required": [
             "tracking_number",
