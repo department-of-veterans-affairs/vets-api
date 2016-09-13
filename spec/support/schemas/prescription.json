@@ -8,7 +8,7 @@
       "required": ["id", "type", "attributes", "links"],
       "properties": {
         "id": { "type": "string" },
-        "type": { "enum": ["va_rx_prescriptions"] },
+        "type": { "enum": ["prescriptions"] },
         "attributes": {
           "type": "object",
           "required": [

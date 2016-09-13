@@ -1,0 +1,48 @@
+{
+  "prescriptionName": "PROBUCOL 250MG TAB",
+  "prescriptionNumber": "2719324",
+  "facilityName": "DAYT3",
+  "rxInfoPhoneNumber": "(444)772-0987",
+  "ndcNumber": "00078036864",
+  "lastUpdatedtime": "Wed, 27 Apr 2016 04:30:15 EDT",
+  "trackingInfo": [
+    {
+      "shippedDate": "Thu, 21 Apr 2016 00:00:00 EDT",
+      "deliveryService": "UPS",
+      "trackingNumber": "31457644862",
+      "otherPrescriptionListIncluded": [
+        {
+          "prescriptionName": "NORFLOXACIN 400MG TAB",
+          "prescriptionNumber": "2719323",
+          "ndcNumber": "00078036864",
+          "stationNumber": "994"
+        }
+      ]
+    },
+    {
+      "shippedDate": "Mon, 11 Apr 2016 00:00:00 EDT",
+      "deliveryService": "UPS",
+      "trackingNumber": "31457644860",
+      "otherPrescriptionListIncluded": [
+        {
+          "prescriptionName": "PHENAZOPYRIDINE HCL 100MG TAB",
+          "prescriptionNumber": "3636038",
+          "ndcNumber": "00078036864",
+          "stationNumber": "991"
+        },
+        {
+          "prescriptionName": "DIGOXIN (LANOXIN) 0.25MG TAB",
+          "prescriptionNumber": "3636039",
+          "ndcNumber": "00078036864",
+          "stationNumber": "991"
+        },
+        {
+          "prescriptionName": "FLUCONAZOLE 100MG TAB",
+          "prescriptionNumber": "2719325",
+          "ndcNumber": "00078036864",
+          "stationNumber": "994"
+        }
+      ]
+    }
+  ]
+}
