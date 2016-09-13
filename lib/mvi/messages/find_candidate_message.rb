@@ -7,15 +7,22 @@ module MVI
       include MVI::Messages::MessageBuilder
       EXTENSION = 'PRPA_IN201305UV02'.freeze
 
-      def build(vcid, first_name, last_name, dob, ssn)
+      def build(first_name, last_name, dob, ssn)
+        validate(dob, first_name, last_name, ssn)
         @message = idm(EXTENSION)
-        header(vcid, EXTENSION)
+        header(EXTENSION)
         find_candidate_body(parameter_list(first_name, last_name, dob, ssn))
         @doc << envelope_body(@message)
         Ox.dump(@doc)
       end
 
       private
+
+      def validate(dob, first_name, last_name, ssn)
+        raise ArgumentError.new('first and last name sould be Strings') unless [first_name, last_name].all? { |i| i.is_a? String }
+        raise ArgumentError.new('dob should be a Time object') unless dob.is_a? Time
+        raise ArgumentError.new('ssn should be of format \d{3}-\d{2}-\d{4}') unless ssn =~ /\d{3}-\d{2}-\d{4}/
+      end
 
       def find_candidate_body(parameter_list)
         control_act_process = control_act_process()

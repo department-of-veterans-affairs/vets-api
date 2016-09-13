@@ -11,7 +11,7 @@ module MVI
         @doc = Ox::Document.new(:version => '1.0')
       end
 
-      def header(vcid, extension)
+      def header(extension)
         @message << element('id', root: '1.2.840.114350.1.13.0.1.7.1.1', extension: "200VGOV-#{SecureRandom.uuid}")
         @message << element('creationTime', value: Time.now.utc.strftime('%Y%m%d%M%H%M%S'))
         @message << element('versionCode', code: '3.0')
@@ -27,9 +27,9 @@ module MVI
         @message << receiver
         sender = element('sender', typeCode: 'SND')
         device = element('device', classCode: 'DEV', determinerCode: 'INSTANCE')
-        sender << device
         id = element('id', root: '2.16.840.1.113883.4.349', extension: '200VGOV')
-        sender << id
+        device << id
+        sender << device
         @message << sender
       end
 
