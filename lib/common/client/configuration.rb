@@ -3,6 +3,9 @@ module Common
   module Client
     # Configuration class used to setup the environment used by client
     class Configuration
+      # Timeouts are in seconds
+      # http://docs.ruby-lang.org/en/2.0.0/Net/HTTP.html#attribute-i-open_timeout
+      # http://docs.ruby-lang.org/en/2.0.0/Net/HTTP.html#attribute-i-read_timeout
       OPEN_TIMEOUT = 15
       READ_TIMEOUT = 15
 
