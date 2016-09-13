@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require_dependency 'rx/client'
+
 class RxController < ApplicationController
   # FIXME: when ID.me is working we need to use it here, but for now skip
   #   and just rely on the http basic authentication.
