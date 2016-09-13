@@ -17,7 +17,7 @@ describe Tracking do
     end
 
     it 'has date attribute' do
-      expect(subject).to have_attributes(shipped_date: Time.parse.in_time_zone('Thu, 21 Apr 2016 00:00:00 EDT'))
+      expect(subject).to have_attributes(shipped_date: Time.parse('Thu, 21 Apr 2016 00:00:00 EDT').in_time_zone)
     end
   end
 

@@ -21,11 +21,11 @@ describe Prescription do
     end
 
     it 'has date attributes' do
-      expect(subject).to have_attributes(refill_submit_date: Time.parse.in_time_zone('Tue, 26 Apr 2016 00:00:00 EDT'),
-                                         refill_date: Time.parse.in_time_zone('Thu, 21 Apr 2016 00:00:00 EDT'),
-                                         ordered_date: Time.parse.in_time_zone('Tue, 29 Mar 2016 00:00:00 EDT'),
-                                         expiration_date: Time.parse.in_time_zone('Thu, 30 Mar 2017 00:00:00 EDT'),
-                                         dispensed_date: Time.parse.in_time_zone('Thu, 21 Apr 2016 00:00:00 EDT'))
+      expect(subject).to have_attributes(refill_submit_date: Time.parse('Tue, 26 Apr 2016 00:00:00 EDT').in_time_zone,
+                                         refill_date: Time.parse('Thu, 21 Apr 2016 00:00:00 EDT').in_time_zone,
+                                         ordered_date: Time.parse('Tue, 29 Mar 2016 00:00:00 EDT').in_time_zone,
+                                         expiration_date: Time.parse('Thu, 30 Mar 2017 00:00:00 EDT').in_time_zone,
+                                         dispensed_date: Time.parse('Thu, 21 Apr 2016 00:00:00 EDT').in_time_zone)
     end
 
     context 'inherited methods' do
