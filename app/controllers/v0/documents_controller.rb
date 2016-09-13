@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'va/api/common/exceptions/parameter_missing'
+
 module V0
   class DocumentsController < ApplicationController
     skip_before_action :authenticate
@@ -11,6 +13,9 @@ module V0
 
       current_user.upload_document(uploaded_io.original_filename, uploaded_io.read, claim_id, tracked_item_id)
       head :no_content
+
+    rescue ActionController::ParameterMissing => ex
+      raise VA::API::Common::Exceptions::ParameterMissing, ex.param
     end
 
     private
