@@ -18,17 +18,6 @@ GIT
       multi_json (~> 1.0)
       virtus
 
-GIT
-  remote: https://github.com/department-of-veterans-affairs/va_rx.git
-  revision: 73201c9b11306ab7a2b369570c03ef4aa80755a2
-  branch: master
-  specs:
-    va_rx (0.1.0)
-      activemodel (>= 4.1, < 6)
-      faraday
-      multi_json (~> 1.0)
-      virtus
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -362,7 +351,6 @@ DEPENDENCIES
   tzinfo-data
   va-api-common!
   va_healthcare_messaging!
-  va_rx!
   vcr
   virtus
   web-console (~> 2.0)
