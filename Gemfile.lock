@@ -105,8 +105,6 @@ GEM
     docile (1.1.5)
     encryptor (3.0.0)
     equalizer (0.0.11)
-    equivalent-xml (0.6.0)
-      nokogiri (>= 1.4.3)
     erubis (2.7.0)
     factory_girl (4.7.0)
       activesupport (>= 3.0.0)
