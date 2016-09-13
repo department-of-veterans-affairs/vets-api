@@ -46,7 +46,7 @@ class Claim < ActiveModelSerializers::Model
     )
   end
 
-  def self.upload_document(headers, file_name, file_body, claim_id, tracked_item_id)
+  def self.upload_document(claim_id, file_name, file_body, tracked_item_id, headers)
     # Todo, instead of having a class method and passing claim_id,
     # get claim_id from the model
     evss_client = EVSS::DocumentsService.new(headers)

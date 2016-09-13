@@ -33,10 +33,6 @@ class User < RedisStore
     )
   end
 
-  def upload_document(file_name, file_body, claim_id, tracked_item_id)
-    Claim.upload_document(vaafi_headers, file_name, file_body, claim_id, tracked_item_id)
-  end
-
   def vaafi_headers
     {
       # Always the same

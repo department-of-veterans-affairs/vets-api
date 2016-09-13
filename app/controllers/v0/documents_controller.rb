@@ -11,7 +11,9 @@ module V0
       claim_id = params[:claim_id]
       tracked_item_id = params[:tracked_item]
 
-      current_user.upload_document(uploaded_io.original_filename, uploaded_io.read, claim_id, tracked_item_id)
+      Claim.upload_document(claim_id,
+                            uploaded_io.original_filename, uploaded_io.read,
+                            tracked_item_id, current_user.vaafi_headers)
       head :no_content
 
     rescue ActionController::ParameterMissing => ex
