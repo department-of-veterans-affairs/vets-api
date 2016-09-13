@@ -46,7 +46,17 @@ module MVI
         name << element('family', text!: last_name)
         patient_person << name
         patient_person << element('birthTime', value: dob.strftime('%Y%m%d'))
+        patient_person << correlation_id
         patient_person << ssn_id(ssn)
+      end
+
+      def correlation_id
+        uuid = SecureRandom.uuid
+        pat_id = element('asOtherIDs', classCode: 'PAT')
+        pat_id << element('id', root: '2.16.840.1.113883.4.349', extension: "#{uuid}^PN^200VETS^USDVA")
+        scoping_org = element('scopingOrganization', classCode: 'ORG', determinerCode: 'INSTANCE')
+        scoping_org << element('id', root: '2.16.840.1.113883.4.349')
+        pat_id << scoping_org
       end
 
       def ssn_id(ssn)

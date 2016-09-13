@@ -8,6 +8,7 @@ describe MVI::Messages::AddPersonMessage do
       let(:parsed_xml) { Ox.parse(xml) }
       let(:patient_path) { 'controlActProcess/subject/registrationEvent/subject1/patient' }
       it 'should have a patient node' do
+        puts xml
         expect(
           parsed_xml.locate(patient_path).first
         ).to_not be_nil
