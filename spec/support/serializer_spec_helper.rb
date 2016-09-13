@@ -6,4 +6,8 @@ module SerializerSpecHelper
     adapter = ActiveModelSerializers::Adapter.create(serializer, opts)
     adapter.to_json
   end
+
+  def expect_time_eq(serialized_time, time)
+    expect(serialized_time).to eq(time.iso8601(3))
+  end
 end
