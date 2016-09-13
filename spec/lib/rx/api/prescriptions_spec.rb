@@ -25,21 +25,21 @@ describe Rx::Client do
 
   it 'should have #get_rx(id) that returns a Prescription' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs)
-    expect(client.get_rx(1435525)).to be_a(::Prescription)
+    expect(client.get_rx(1_435_525)).to be_a(::Prescription)
   end
 
   it 'should have #get_tracking_rx(id) that returns a Tracking' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/rxtracking/1435525', tracking_rx)
-    response = client.get_tracking_rx(1435525)
+    response = client.get_tracking_rx(1_435_525)
     expect(response).to be_a(::Tracking)
-    expect(response.prescription_id).to eq(1435525)
+    expect(response.prescription_id).to eq(1_435_525)
   end
 
   it 'should have #get_tracking_history_rx(id) that returns a collection of Tracking items' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/rxtracking/1435525', tracking_rx)
-    response = client.get_tracking_history_rx(1435525)
+    response = client.get_tracking_history_rx(1_435_525)
     expect(response).to be_a(Common::Collection)
-    expect(response.members.first.prescription_id).to eq(1435525)
+    expect(response.members.first.prescription_id).to eq(1_435_525)
   end
 
   it 'should post a refill successfully' do
@@ -54,14 +54,14 @@ describe Rx::Client do
     let(:base_path) { "#{Rx::ClientHelpers::HOST}/mhv-api/patient/v1" }
 
     it 'should raise NotAuthenticated' do
-      expect { not_authenticated_client.get_rx(1435525) }
+      expect { not_authenticated_client.get_rx(1_435_525) }
         .to raise_error(Common::Client::Errors::NotAuthenticated, 'Not Authenticated')
     end
 
     it 'should raise RequestTimeout when Faraday::Error::TimeoutError' do
       stub_request(:any, "#{base_path}/prescription/gethistoryrx").to_timeout
 
-      expect { client.get_rx(1435525) }
+      expect { client.get_rx(1_435_525) }
         .to raise_error(Common::Client::Errors::RequestTimeout)
     end
 
@@ -69,7 +69,7 @@ describe Rx::Client do
       stub_request(:any, "#{base_path}/prescription/gethistoryrx")
         .to_raise(Faraday::Error::ClientError)
 
-      expect { client.get_rx(1435525) }
+      expect { client.get_rx(1_435_525) }
         .to raise_error(Common::Client::Errors::Client)
     end
 
@@ -78,7 +78,7 @@ describe Rx::Client do
                         'mhv-api/patient/v1/prescription/gethistoryrx',
                         '{ "a\': "sdff" }',
                         status_code: 200)
-      expect { client.get_rx(1435525) }
+      expect { client.get_rx(1_435_525) }
         .to raise_error(Common::Client::Errors::Serialization)
     end
 
@@ -87,7 +87,7 @@ describe Rx::Client do
                         'mhv-api/patient/v1/prescription/rxrefill/1435525',
                         post_refill_error,
                         status_code: 400)
-      expect { client.post_refill_rx(1435525) }
+      expect { client.post_refill_rx(1_435_525) }
         .to raise_error(Common::Client::Errors::ClientResponse, 'Prescription is not Refillable')
     end
   end

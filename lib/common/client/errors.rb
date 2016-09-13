@@ -47,9 +47,7 @@ module Common
           base_json
         end
 
-        def to_json
-          as_json.to_json
-        end
+        delegate :to_json, to: :as_json
 
         def to_s
           to_json

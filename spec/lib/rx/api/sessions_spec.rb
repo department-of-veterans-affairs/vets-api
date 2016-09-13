@@ -18,7 +18,7 @@ describe Rx::Client do
 
   after(:all) do
     VCR.turn_on!
-  end    
+  end
 
   it 'should have #get_session method' do
     session = client.get_session

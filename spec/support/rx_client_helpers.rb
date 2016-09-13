@@ -44,11 +44,11 @@ module Rx
 
     def authenticated_client
       configuration = Rx::Configuration.new(host: HOST,
-                                              app_token: 'your-unique-app-token')
+                                            app_token: 'your-unique-app-token')
       Rx::Client.new(config: configuration,
-                       session: { user_id: 123,
-                                  expires_at: Time.now + 60 * 60,
-                                  token: TOKEN })
+                     session: { user_id: 123,
+                                expires_at: Time.current + 60 * 60,
+                                token: TOKEN })
     end
 
     def stub_varx_request(method, api_endpoint, response_hash, opts = {})

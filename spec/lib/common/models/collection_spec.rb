@@ -41,20 +41,20 @@ describe Common::Collection do
     it 'can sort a collection in reverse' do
       collection = subject.sort('-prescription_id')
       expect(collection.map(&:prescription_id))
-        .to eq([1435530, 1435528, 1435527, 1435526, 1435525, 1435524])
+        .to eq([1_435_530, 1_435_528, 1_435_527, 1_435_526, 1_435_525, 1_435_524])
       expect(collection.metadata[:sort]).to eq('prescription_id' => 'DESC')
     end
 
     it 'can sort a collection by multiple fields' do
       collection = subject.sort('facility_name,-prescription_id')
       expect(collection.map(&:prescription_id))
-        .to eq([1435526, 1435525, 1435524, 1435530, 1435528, 1435527])
+        .to eq([1_435_526, 1_435_525, 1_435_524, 1_435_530, 1_435_528, 1_435_527])
       expect(collection.metadata[:sort]).to eq('facility_name' => 'ASC', 'prescription_id' => 'DESC')
     end
   end
 
   context 'find_by, sort, and paginate' do
-    let(:filtered_collection)  { subject.find_by(:prescription_id, 1435525) }
+    let(:filtered_collection)  { subject.find_by(:prescription_id, 1_435_525) }
     let(:sorted_collection)    { subject.sort('prescription_id') }
     let(:paginated_collection) { subject.paginate(page: 1, per_page: 2) }
     let(:all_three) do
@@ -67,13 +67,13 @@ describe Common::Collection do
       expect(filtered_collection.metadata)
         .to eq(updated_at: 'Thu, 26 May 2016 13:05:43 EDT',
                failed_station_list: '',
-               filter: { for: 'prescription_id', having: 1435525 })
+               filter: { for: 'prescription_id', having: 1_435_525 })
     end
 
     it 'can sort a collection' do
       expect(sorted_collection).to be_a(Common::Collection)
       expect(sorted_collection.data.map(&:prescription_id))
-        .to eq([1435524, 1435525, 1435526, 1435527, 1435528, 1435530])
+        .to eq([1_435_524, 1_435_525, 1_435_526, 1_435_527, 1_435_528, 1_435_530])
       expect(sorted_collection.metadata)
         .to eq(updated_at: 'Thu, 26 May 2016 13:05:43 EDT',
                failed_station_list: '',

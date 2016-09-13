@@ -15,7 +15,7 @@ module Rx
     include Rx::API::Sessions
 
     REQUEST_TYPES = %i(get post).freeze
-    USER_AGENT = "Vets.gov Agent"
+    USER_AGENT = 'Vets.gov Agent'
     BASE_REQUEST_HEADERS = {
       'Accept' => 'application/json',
       'Content-Type' => 'application/json',
