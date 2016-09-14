@@ -2,8 +2,9 @@
 module V0
   class MessagesController < HealthcareMessagingController
     def index
-      folder_id = params[:folder_id].try(:to_i)
-      response = client.get_folder_messages(folder_id, 1, 100)
+      pp = pagination_params
+      # TODO: convert to a hash arg once sm gem is moved over.
+      response = client.get_folder_messages(pp[:folder_id], pp[:page], pp[:per_page], pp[:all])
 
       raise VA::API::Common::Exceptions::RecordNotFound, folder_id unless response.present?
 
@@ -19,15 +20,16 @@ module V0
 
       raise VA::API::Common::Exceptions::RecordNotFound, message_id unless response.present?
 
-      render json: response.data[0],
+      render json: response,
              serializer: MessageSerializer,
-             meta: response.data[0].metadata
+             meta: response.metadata
     end
 
     def create
-      params = message_params
-      response = client.post_create_message(subject: params[:subject], body: params[:body],
-                                            recipient_id: params[:recipient_id], category: params[:category])
+      response = client.post_create_message(message_params)
+
+      # Should we accept default Gem error handling when creating a message with invalid parameter set, or
+      # create a VA common exception?
       render json: response,
              serializer: MessageSerializer,
              meta:  {}
@@ -68,7 +70,11 @@ module V0
     private
 
     def message_params
-      params.permit(:id, :category, :body, :recipient_id, :subject, :format)
+      # Call to MHV message create fails if unknown field present, and does not accept recipient_id. This
+      # functionality will be moved into 'gem' once gem is moved to vets-api.
+      params.permit(:id, :category, :body, :recipient_id, :subject).transform_keys do |k|
+        k.camelize(:lower)
+      end
     end
   end
 end

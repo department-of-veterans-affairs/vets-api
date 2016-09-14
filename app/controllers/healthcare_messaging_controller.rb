@@ -12,14 +12,25 @@ class HealthcareMessagingController < ApplicationController
     enforce_ssl: Rails.env.production?
   ).freeze
 
-  DEFAULT_PER_PAGE = 10
-  MAXIMUM_PER_PAGE = 100
-
   protected
 
   # Establishes a session using the MHV correlation id for authentication.
   def client
     @client ||= VAHealthcareMessaging::Client.new(config: MHV_CONFIG, session: { user_id: correlation_id })
+  end
+
+  DEFAULT_PER_PAGE = 50
+  MAXIMUM_PER_PAGE = 250
+
+  # if all is set to true or both pagination params are blank, then all messages are returned.
+  def pagination_params
+    {
+      page: params[:page].try(:to_i),
+      per_page: params[:per_page].try(:to_i),
+      folder_id: params[:folder_id].try(:to_i)
+    }.tap do |h|
+      h[:all] = params[:all].try(:casecmp, 'true') || h[:page].blank? && h[:per_page].blank?
+    end
   end
 
   # Abstracting out how correlation id is obtained in the id.me world. TODO: recode once id.me is established.

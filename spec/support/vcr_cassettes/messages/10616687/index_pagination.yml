@@ -25,15 +25,15 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 14 Sep 2016 16:55:34 GMT
+      - Wed, 14 Sep 2016 16:55:43 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Content-Length:
       - '0'
       Expires:
-      - Wed, 14 Sep 2016 17:55:34 GMT
+      - Wed, 14 Sep 2016 17:55:43 GMT
       Token:
-      - mIq2/abCUN8=mQ4oAMadyxo3fizgnaJpegJ8THNs2g5u5FBrnOaYHXM=
+      - EXvB0Htka7k=G0u1cC/UNmDVhp6ICaaam5AwRWvovaN71SSG+txcMgs=
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
       Connection:
@@ -44,7 +44,7 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Wed, 14 Sep 2016 16:55:34 GMT
+  recorded_at: Wed, 14 Sep 2016 16:55:43 GMT
 - request:
     method: get
     uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/folder/0
@@ -59,7 +59,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
       Token:
-      - mIq2/abCUN8=mQ4oAMadyxo3fizgnaJpegJ8THNs2g5u5FBrnOaYHXM=
+      - EXvB0Htka7k=G0u1cC/UNmDVhp6ICaaam5AwRWvovaN71SSG+txcMgs=
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -68,7 +68,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 14 Sep 2016 16:55:35 GMT
+      - Wed, 14 Sep 2016 16:55:45 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -83,10 +83,10 @@ http_interactions:
       encoding: UTF-8
       string: '{"id":0,"name":"Inbox","count":2,"unreadCount":0,"systemFolder":true}'
     http_version: 
-  recorded_at: Wed, 14 Sep 2016 16:55:36 GMT
+  recorded_at: Wed, 14 Sep 2016 16:55:45 GMT
 - request:
     method: get
-    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/folder/0/message/page/1/pageSize/250
+    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/folder/0/message/page/2/pageSize/1
     body:
       encoding: US-ASCII
       string: ''
@@ -98,7 +98,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
       Token:
-      - mIq2/abCUN8=mQ4oAMadyxo3fizgnaJpegJ8THNs2g5u5FBrnOaYHXM=
+      - EXvB0Htka7k=G0u1cC/UNmDVhp6ICaaam5AwRWvovaN71SSG+txcMgs=
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -107,7 +107,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 14 Sep 2016 16:55:37 GMT
+      - Wed, 14 Sep 2016 16:55:45 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -120,13 +120,10 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: '{"message":[{"id":573302,"category":"OTHER","subject":"Release 16.2-
-        SM last login ","body":null,"attachment":false,"attachments":null,"sentDate":"Wed,
-        13 Apr 2016 21:17:57 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":35382,"recipientName":"Manivasagam,
-        Rajesh","readReceipt":"READ"},{"id":573052,"category":"OTHER","subject":"Release
-        16.2- SM last login ","body":null,"attachment":false,"attachments":null,"sentDate":"Mon,
+      string: '{"message":[{"id":573052,"category":"OTHER","subject":"Release 16.2-
+        SM last login ","body":null,"attachment":false,"attachments":null,"sentDate":"Mon,
         11 Apr 2016 15:49:03 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":257555,"recipientName":"ISLAM,
         MOHAMMAD","readReceipt":"READ"}]}'
     http_version: 
-  recorded_at: Wed, 14 Sep 2016 16:55:37 GMT
+  recorded_at: Wed, 14 Sep 2016 16:55:46 GMT
 recorded_with: VCR 3.0.3

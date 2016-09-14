@@ -23,9 +23,10 @@
       "meta": {
         "type": "object",
         "properties": {
-          "id": { "type": "integer" },
+          "folder_id": { "type": "integer" },
           "current_page": { "type": "integer" },
-          "per_page": { "type": "integer" }
+          "per_page": { "type": "integer" },
+          "count": { "type": "integer" }
         }
       }
     }
