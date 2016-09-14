@@ -14,9 +14,7 @@ module V0
     private
 
     def education_benefits_claim_params
-      params.require(:education_benefits_claim).permit(:form).tap do |whitelisted|
-        whitelisted[:form] = params[:education_benefits_claim][:form]
-      end
+      params.require(:education_benefits_claim).permit(:form)
     end
   end
 end
