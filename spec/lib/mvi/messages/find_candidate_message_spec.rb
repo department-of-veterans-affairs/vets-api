@@ -5,7 +5,7 @@ describe MVI::Messages::FindCandidateMessage do
   describe '.build' do
     context 'with first, last, dob, and ssn from auth provider' do
 
-      let(:xml) { subject.build('John', 'Smith', Time.new(1980, 1, 1), '555-44-3333') }
+      let(:xml) { MVI::Messages::FindCandidateMessage.build('John', 'Smith', Time.new(1980, 1, 1), '555-44-3333') }
       let(:idm_path) { 'env:Body/idm:PRPA_IN201305UV02' }
       let(:parameter_list_path) { "#{idm_path}/controlActProcess/queryByParameter/parameterList" }
 
@@ -38,28 +38,28 @@ describe MVI::Messages::FindCandidateMessage do
     context 'a missing argument' do
       it 'should throw an argument error' do
         expect do
-          subject.build('John', 'Smith', Time.new(1980, 1, 1))
+          MVI::Messages::FindCandidateMessage.build('John', 'Smith', Time.new(1980, 1, 1))
         end.to raise_error(ArgumentError, 'wrong number of arguments (given 3, expected 4)')
       end
     end
     context 'with an invalid date' do
       it 'should throw an argument error' do
         expect do
-          subject.build('John', 'Smith', '19800101', '555-44-3333')
+          MVI::Messages::FindCandidateMessage.build('John', 'Smith', '19800101', '555-44-3333')
         end.to raise_error(ArgumentError, 'dob should be a Time object')
       end
     end
     context 'with invalid name args' do
       it 'should throw an argument error' do
         expect do
-          subject.build(:John, 5, Time.new(1980, 1, 1), '555-44-3333')
+          MVI::Messages::FindCandidateMessage.build(:John, 5, Time.new(1980, 1, 1), '555-44-3333')
         end.to raise_error(ArgumentError, 'first and last name sould be Strings')
       end
     end
     context 'with an invalid ssn' do
       it 'should throw an argument error' do
         expect do
-          subject.build('John', 'Smith', Time.new(1980, 1, 1), '555-4-3333')
+          MVI::Messages::FindCandidateMessage.build('John', 'Smith', Time.new(1980, 1, 1), '555-4-3333')
         end.to raise_error(ArgumentError, 'ssn should be of format \d{3}-\d{2}-\d{4}')
       end
     end

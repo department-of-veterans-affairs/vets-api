@@ -3,12 +3,10 @@ require 'ox'
 module MVI
   module Messages
     module MessageBuilder
-      attr_reader :doc
-
       INTERACTION_ID = '^PN^200VETS^USDVA'.freeze
 
-      def initialize
-        @doc = Ox::Document.new(:version => '1.0')
+      def doc
+        @doc ||= Ox::Document.new(:version => '1.0')
       end
 
       def header(extension)
@@ -32,8 +30,6 @@ module MVI
         sender << device
         @message << sender
       end
-
-      private
 
       def element(name, attrs = nil)
         el = Ox::Element.new(name)
