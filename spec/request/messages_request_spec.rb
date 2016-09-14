@@ -13,7 +13,7 @@ RSpec.describe 'Messages Integration', type: :request do
       end
     end
 
-    it 'responds to GET #index' do
+    it 'responds with all messages in a folder when no pagination is given' do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('messages')
@@ -39,7 +39,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
       VCR.use_cassette("messages/#{user_id}/index_concatenation") do
         # Forcing smaller per_page to test concatenation
-        get "/v0/messaging/health/folders/#{inbox_id}/messages", per_page: 1
+        get "/v0/messaging/health/folders/#{inbox_id}/messages", per_page: 1, all: true
 
         expect(response).to be_success
         expect(response.body).to be_a(String)

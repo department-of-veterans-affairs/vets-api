@@ -9,11 +9,12 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/va_healthcare_messaging.git
-  revision: 4a03cf1264b11a4fc50e72627cd6fdd887ee2617
+  revision: a0c39beda98f8c5ad7e2f7b2458ae6c7ad662f23
   branch: master
   specs:
     va_healthcare_messaging (0.1.0)
       activemodel (>= 4.1, < 6)
+      activesupport
       faraday
       multi_json (~> 1.0)
       virtus
