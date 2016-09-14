@@ -36,8 +36,13 @@ module VetsAPI
     config.watchable_dirs['lib'] = [:rb]
 
     # TODO(#45): add rack-cors middleware to streamline CORS config
+    # TODO(crew): add a variable for origin domain.
+
+    target = { development: 'http://localhost:3001', staging: 'https://dev.vets.gov', production: 'https://dev.vets.gov' }
+
     config.action_dispatch.default_headers = {
-      'Access-Control-Allow-Headers' => 'Authorization'
+      'Access-Control-Allow-Headers' => 'Authorization',
+      'Access-Control-Allow-Origin' => "#{target[:staging]}"
     }
 
     config.middleware.use "OliveBranch::Middleware"

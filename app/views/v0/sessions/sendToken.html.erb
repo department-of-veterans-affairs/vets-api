@@ -1,0 +1,24 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <title></title>
+    </head>
+    <body>
+        <script type="text/javascript">
+        var target = {
+            development: 'http://localhost:3001',
+            staging: 'https://dev.vets.gov',
+            production: 'https://dev.vets.gov'
+        };
+
+        function sendUserToken() {
+            var rawJson = <%=raw @session.to_json %>;
+            window.opener.postMessage(rawJson, target["<%= Rails.env %>"]);
+            window.close();
+        }
+
+        sendUserToken();
+        
+        </script>
+    </body>
+</html>

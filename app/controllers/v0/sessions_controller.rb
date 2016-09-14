@@ -24,10 +24,10 @@ module V0
 
       if @saml_response.is_valid?
         persist_session_and_user!
-        render json: @session, status: :created
+        render :sendToken, status: :created
       else
         # TODO: also need to make sure error json conforms to api spec
-        render json: { errors: @saml_response.errors.full_messages }, status: :forbidden
+        render json: { errors: @saml_response.errors }, status: :forbidden
       end
     end
 
