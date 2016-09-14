@@ -69,13 +69,6 @@ module V0
 
     private
 
-    def get_folder(folder_id)
-      folders = client.get_folder(folder_id)
-
-      raise VA::API::Common::Exceptions::RecordNotFound, folder_id unless folders.present?
-      folders.data.first
-    end
-
     def message_params
       # Call to MHV message create fails if unknown field present, and does not accept recipient_id. This
       # functionality will be moved into 'gem' once gem is moved to vets-api.
