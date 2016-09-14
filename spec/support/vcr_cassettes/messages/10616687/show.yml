@@ -25,15 +25,15 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 09 Sep 2016 16:29:45 GMT
+      - Wed, 14 Sep 2016 16:55:26 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Content-Length:
       - '0'
       Expires:
-      - Fri, 09 Sep 2016 17:29:45 GMT
+      - Wed, 14 Sep 2016 17:55:27 GMT
       Token:
-      - Y1UB/aehfeQ=Ig/NQrJQQL0fU2jSKxKNaWKQk3V8u4MEpUCb5ENs5Ds=
+      - 9yNDMYsxyOc=lMBG73EI3Kz5Ncm+tKb8bmeGMTSSZkPv5eXIpK+Ls2M=
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
       Connection:
@@ -44,7 +44,7 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Fri, 09 Sep 2016 16:29:45 GMT
+  recorded_at: Wed, 14 Sep 2016 16:55:27 GMT
 - request:
     method: get
     uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/message/573302/read
@@ -59,7 +59,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
       Token:
-      - Y1UB/aehfeQ=Ig/NQrJQQL0fU2jSKxKNaWKQk3V8u4MEpUCb5ENs5Ds=
+      - 9yNDMYsxyOc=lMBG73EI3Kz5Ncm+tKb8bmeGMTSSZkPv5eXIpK+Ls2M=
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -68,7 +68,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 09 Sep 2016 16:29:45 GMT
+      - Wed, 14 Sep 2016 16:55:28 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -86,5 +86,5 @@ http_interactions:
         13 Apr 2016 21:17:57 GMT","senderId":35382,"senderName":"Manivasagam, Rajesh","recipientId":384939,"recipientName":"MVIONE,
         TEST","readReceipt":"READ"}'
     http_version: 
-  recorded_at: Fri, 09 Sep 2016 16:29:46 GMT
+  recorded_at: Wed, 14 Sep 2016 16:55:29 GMT
 recorded_with: VCR 3.0.3
