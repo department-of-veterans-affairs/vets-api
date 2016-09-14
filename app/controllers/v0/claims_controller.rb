@@ -4,13 +4,18 @@ module V0
     skip_before_action :authenticate
 
     def index
-      render json: current_user.claims,
+      render json: Claim.fetch_all(current_user.vaafi_headers),
              serializer: ActiveModel::Serializer::CollectionSerializer,
-             each_serializer: ClaimSerializer
+             each_serializer: ClaimBaseSerializer
+    end
+
+    def show
+      claim = Claim.find_by_id(params[:id], current_user.vaafi_headers)
+      render json: claim, serializer: ClaimDetailSerializer
     end
 
     def request_decision
-      current_user.request_claim_decision(params[:id])
+      Claim.request_decision(params[:id], current_user.vaafi_headers)
       head :no_content
     end
 
