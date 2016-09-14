@@ -7,20 +7,44 @@ describe MVI::Service do
   include Savon::SpecHelper
 
   before(:all) { savon.mock! }
-  after(:all)  { savon.unmock! }
+  after(:all) { savon.unmock! }
 
   let(:first_name) { 'John' }
   let(:last_name) { 'Smith' }
   let(:dob) { Time.new(1980, 1, 1) }
   let(:ssn) { '555-44-3333' }
+  let(:message) { MVI::Messages::FindCandidateMessage.build(first_name, last_name, dob, ssn) }
 
   describe ".find_candidate" do
-    it "calls the prpa_in201305_uv02 endpoint with a find candidate message" do
-      message = MVI::Messages::FindCandidateMessage.build(first_name, last_name, dob, ssn)
-      expected = File.read("#{ENV['MVI_FILE_PATH']}/spec/support/find_candidate_response.xml")
-      savon.expects(:prpa_in201305_uv02).with(xml: message).returns(expected)
-      response = MVI::Service.find_candidate(first_name, last_name, dob, ssn)
-      expect(response).to be_successful
+    context 'with a valid request' do
+      it "calls the prpa_in201305_uv02 endpoint with a find candidate message" do
+        xml = File.read("#{ENV['MVI_FILE_PATH']}/spec/support/find_candidate_response.xml")
+        savon.expects(:prpa_in201305_uv02).with(xml: message).returns(xml)
+        response = MVI::Service.find_candidate(first_name, last_name, dob, ssn)
+        expect(response).to eq({
+          correlation_ids: [
+            '1000123456V123456^NI^200M^USVHA^P',
+            '12345^PI^516^USVHA^PCE',
+            '2^PI^553^USVHA^PCE',
+            '12345^PI^200HD^USVHA^A',
+            'TKIP123456^PI^200IP^USVHA^A'
+          ],
+          status: 'active',
+          first_name: 'John',
+          last_name: 'Smith',
+          gender: 'M',
+          dob: '19800101',
+          ssn: '555-44-3333'
+        })
+      end
+    end
+
+    context 'with an invalid request response' do
+      it "should raise a invalid request error" do
+        xml = File.read("#{ENV['MVI_FILE_PATH']}/spec/support/find_candidate_invalid_response.xml")
+        savon.expects(:prpa_in201305_uv02).with(xml: message).returns(xml)
+        expect { MVI::Service.find_candidate(first_name, last_name, dob, ssn) }.to raise_error(MVI::InvalidRequestError)
+      end
     end
   end
 end
