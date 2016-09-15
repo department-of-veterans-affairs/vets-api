@@ -14,9 +14,9 @@ module V0
       resource = client.get_folder(id)
       raise VA::API::Common::Exceptions::RecordNotFound, id unless resource.present?
 
-      render json: resource.data[0],
+      render json: resource,
              serializer: FolderSerializer,
-             meta: resource.data[0].metadata
+             meta: resource.metadata
     end
   end
 end
