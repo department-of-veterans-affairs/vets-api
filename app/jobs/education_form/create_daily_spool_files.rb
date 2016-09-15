@@ -1,15 +1,22 @@
 # frozen_string_literal: true
 module EducationForm
-  class CreateDailySpoolFiles
+  class CreateDailySpoolFiles < ActiveJob::Base
     include ActionView::Helpers::TextHelper # Needed for word_wrap
     require 'erb'
     require 'ostruct'
+
+    queue_as :default
 
     TEMPLATE = File.read(Rails.root.join('app', 'jobs', 'education_form', 'templates', '22-1990.erb'))
 
     WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
 
-    def run(day = Date.yesterday)
+    # TODO make sure we rescue from all possible SFTP exceptions
+    rescue_from(Net::ReadTimeout) do
+      retry_job(wait: 1.minute)
+    end
+
+    def perform(day = Date.yesterday)
       # TODO: add and use the mapping of schools/regions -> spool file
 
       records = EducationBenefitsClaim.unprocessed_for(day)
@@ -97,10 +104,6 @@ module EducationForm
     # is this needed? will it the data come in the correct format? better to have the helper..
     def to_date(date)
       date ? date : (' ' * 10) # '00/00/0000'.length
-    end
-
-    def self.run(day = Date.yesterday)
-      new.run(day)
     end
   end
 end

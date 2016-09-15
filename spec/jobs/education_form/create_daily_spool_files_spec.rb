@@ -29,6 +29,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   it 'writes out spool files' do
     expect(Tempfile).to receive(:create).once # should be 4 times by the time we're done
-    subject.run
+    subject.perform
   end
 end
