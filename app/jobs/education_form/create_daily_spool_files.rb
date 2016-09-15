@@ -11,7 +11,7 @@ module EducationForm
 
     WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
 
-    # TODO make sure we rescue from all possible SFTP exceptions
+    # TODO: make sure we rescue from all possible SFTP exceptions
     rescue_from(Net::ReadTimeout) do
       retry_job(wait: 1.minute)
     end
