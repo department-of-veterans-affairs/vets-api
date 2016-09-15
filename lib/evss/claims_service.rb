@@ -3,12 +3,6 @@ require_dependency 'evss/base_service'
 
 module EVSS
   class ClaimsService < BaseService
-    def initialize(*args)
-      super
-      # TODO: Get base URI from env
-      @base_url = 'http://csraciapp6.evss.srarad.com:7003/wss-claims-services-web-3.1/rest'
-    end
-
     def claims
       get 'vbaClaimStatusService/getOpenClaims'
     end
@@ -26,6 +20,12 @@ module EVSS
         claimId: claim_id,
         systemName: SYSTEM_NAME
       }.to_json
+    end
+
+    protected
+
+    def base_url
+      ENV['EVSS_CLAIMS_BASE_URL']
     end
   end
 end

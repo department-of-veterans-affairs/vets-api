@@ -20,12 +20,16 @@ module EVSS
       conn.post(url, body, headers, &block)
     end
 
+    def base_url
+      raise NotImplementedError, 'Subclass of BaseService must implement base_url method'
+    end
+
     private
 
     # Uses HTTPClient adapter because headers need to be sent unmanipulated
     # Net/HTTP capitalizes headers
     def conn
-      @conn ||= Faraday.new(@base_url, headers: vaafi_headers) do |faraday|
+      @conn ||= Faraday.new(base_url, headers: vaafi_headers) do |faraday|
         faraday.options.timeout = @default_timeout
         faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
