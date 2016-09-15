@@ -32,39 +32,4 @@ class User < RedisStore
       participant_id: '123456789'
     )
   end
-
-  def vaafi_headers
-    {
-      # Always the same
-      'va_eauth_csid' => 'DSLogon',
-      # TODO: Change va_eauth_authenticationmethod to vets.gov
-      # once the EVSS team is ready for us to use it
-      'va_eauth_authenticationmethod' => 'DSLogon',
-      'va_eauth_assurancelevel' => '2',
-      'va_eauth_pnidtype' => 'SSN',
-      # Vary by user
-      'va_eauth_firstName' => @first_name,
-      'va_eauth_lastName' => @last_name,
-      'va_eauth_issueinstant' => @issue_instant,
-      'va_eauth_dodedipnid' => @edipi,
-      'va_eauth_pid' => @participant_id,
-      'va_eauth_pnid' => @ssn,
-      'va_eauth_authorization' => eauth_json
-    }
-  end
-
-  private
-
-  def eauth_json
-    {
-      authorizationResponse: {
-        status: 'VETERAN',
-        idType: 'SSN',
-        id: @ssn,
-        edi: @edipi,
-        firstName: @first_name,
-        lastName: @last_name
-      }
-    }.to_json
-  end
 end
