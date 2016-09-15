@@ -24,6 +24,8 @@ before_script:
   - export MHV_SM_USER_ID='10616687'
   - export EVSS_CLAIMS_BASE_URL='http://csraciapp6.evss.srarad.com:7003/wss-claims-services-web-3.1/rest'
   - export EVSS_DOCUMENTS_BASE_URL='http://csraciapp6.evss.srarad.com:7003/wss-document-services-web-3.1/rest/'
+  - >
+    export EVSS_SAMPLE_CLAIMANT_USER='{"first_name": "Jane","last_name": "Doe","issue_instant": "2015-04-17T14:52:48Z","edipi": "1105051936","participant_id": "123456789"}'
 
 script:
   - bundle exec rake db:create db:schema:load ci
