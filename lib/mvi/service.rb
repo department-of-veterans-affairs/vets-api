@@ -20,11 +20,16 @@ module MVI
       body = response.body[:prpa_in201306_uv02]
       code = body[:acknowledgement][:type_code][:@code]
       return invalid_request_handler(body) if code == RESPONSE_CODES[:invalid_request]
+      return failure_request_handler(body) if code == RESPONSE_CODES[:failure]
       return formatted_response(body)
     end
 
     def self.invalid_request_handler(body)
       raise MVI::InvalidRequestError.new
+    end
+
+    def self.failure_request_handler(body)
+      raise MVI::RequestFailureError.new
     end
 
     def self.formatted_response(body)
@@ -42,7 +47,7 @@ module MVI
 
     singleton_class.send(:alias_method, :find_candidate, :prpa_in201305_uv02)
   end
-  class FailureError < StandardError;
+  class RequestFailureError < StandardError;
   end
   class InvalidRequestError < StandardError;
   end
