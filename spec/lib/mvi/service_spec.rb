@@ -46,5 +46,13 @@ describe MVI::Service do
         expect { MVI::Service.find_candidate(first_name, last_name, dob, ssn) }.to raise_error(MVI::InvalidRequestError)
       end
     end
+
+    context 'with an invalid request response' do
+      it "should raise a invalid request error" do
+        xml = File.read("#{ENV['MVI_FILE_PATH']}/spec/support/find_candidate_failure_response.xml")
+        savon.expects(:prpa_in201305_uv02).with(xml: message).returns(xml)
+        expect { MVI::Service.find_candidate(first_name, last_name, dob, ssn) }.to raise_error(MVI::RequestFailureError)
+      end
+    end
   end
 end
