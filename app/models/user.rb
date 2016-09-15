@@ -37,6 +37,8 @@ class User < RedisStore
     {
       # Always the same
       'va_eauth_csid' => 'DSLogon',
+      # TODO: Change va_eauth_authenticationmethod to vets.gov
+      # once the EVSS team is ready for us to use it
       'va_eauth_authenticationmethod' => 'DSLogon',
       'va_eauth_assurancelevel' => '2',
       'va_eauth_pnidtype' => 'SSN',
