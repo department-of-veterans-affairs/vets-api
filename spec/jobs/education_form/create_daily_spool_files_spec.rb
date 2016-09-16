@@ -29,11 +29,11 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   it 'writes out spool files' do
     expect(Tempfile).to receive(:create).once # should be 4 times by the time we're done
-    subject.perform
+    subject.perform(Date.yesterday.to_s)
   end
 
   it 'enqueues a job when perform later is run' do
-    described_class.perform_later
+    described_class.perform_later(Date.yesterday.to_s)
     expect(described_class).to have_been_enqueued
   end
 end

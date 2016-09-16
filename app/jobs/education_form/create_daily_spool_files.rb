@@ -16,7 +16,9 @@ module EducationForm
       retry_job(wait: 1.minute)
     end
 
-    def perform(day = Date.yesterday)
+    # active_job only allows legal json types as arguments (no ruby objects)
+    def perform(date_string)
+      day = Date.parse(date_string)
       # TODO: add and use the mapping of schools/regions -> spool file
 
       records = EducationBenefitsClaim.unprocessed_for(day)
