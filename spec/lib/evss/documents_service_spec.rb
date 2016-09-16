@@ -3,11 +3,11 @@ require 'rails_helper'
 require_dependency 'evss/documents_service'
 
 describe EVSS::DocumentsService do
-  let(:vaafi_headers) do
-    User.sample_claimant.vaafi_headers
+  let(:current_user) do
+    User.sample_claimant
   end
 
-  subject { described_class.new(vaafi_headers) }
+  subject { described_class.new(current_user) }
 
   context 'with headers' do
     it 'should get claims' do

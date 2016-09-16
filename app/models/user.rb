@@ -24,47 +24,6 @@ class User < RedisStore
   validates :email, presence: true
 
   def self.sample_claimant
-    User.new(
-      first_name: 'Jane',
-      last_name: 'Doe',
-      issue_instant: '2015-04-17T14:52:48Z',
-      edipi: '1105051936',
-      participant_id: '123456789'
-    )
-  end
-
-  def vaafi_headers
-    {
-      # Always the same
-      'va_eauth_csid' => 'DSLogon',
-      # TODO: Change va_eauth_authenticationmethod to vets.gov
-      # once the EVSS team is ready for us to use it
-      'va_eauth_authenticationmethod' => 'DSLogon',
-      'va_eauth_assurancelevel' => '2',
-      'va_eauth_pnidtype' => 'SSN',
-      # Vary by user
-      'va_eauth_firstName' => @first_name,
-      'va_eauth_lastName' => @last_name,
-      'va_eauth_issueinstant' => @issue_instant,
-      'va_eauth_dodedipnid' => @edipi,
-      'va_eauth_pid' => @participant_id,
-      'va_eauth_pnid' => @ssn,
-      'va_eauth_authorization' => eauth_json
-    }
-  end
-
-  private
-
-  def eauth_json
-    {
-      authorizationResponse: {
-        status: 'VETERAN',
-        idType: 'SSN',
-        id: @ssn,
-        edi: @edipi,
-        firstName: @first_name,
-        lastName: @last_name
-      }
-    }.to_json
+    User.new JSON.load(ENV['EVSS_SAMPLE_CLAIMANT_USER'])
   end
 end
