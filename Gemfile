@@ -26,6 +26,7 @@ gem 'faraday_middleware'
 gem 'httpclient'
 gem 'attr_encrypted'
 gem 'olive_branch'
+gem 'sidekiq'
 
 gem 'net-sftp'
 
