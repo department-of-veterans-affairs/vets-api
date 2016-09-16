@@ -30,12 +30,16 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   context '#group_submissions_by_region' do
     it 'takes a list of records into chunked forms' do
       eastern = EducationBenefitsClaim.new(form: { schoolAddress: { state: 'MD' } }.to_json)
+      southern = EducationBenefitsClaim.new(form: { schoolAddress: { state: 'GA' } }.to_json)
+      central = EducationBenefitsClaim.new(form: { address: { state: 'WI' } }.to_json)
       eastern_default = EducationBenefitsClaim.new(form: {}.to_json)
       western = EducationBenefitsClaim.new(form: { address: { state: 'APO/FPO AP' } }.to_json)
 
-      output = subject.group_submissions_by_region([eastern, eastern_default, western])
+      output = subject.group_submissions_by_region([eastern, central, southern, eastern_default, western])
       expect(output[:eastern].length).to be(2)
       expect(output[:western].length).to be(1)
+      expect(output[:southern].length).to be(1)
+      expect(output[:central].length).to be(1)
     end
   end
 
