@@ -12,7 +12,7 @@ module MVI
   # Calls endpoints as class methods, if successful it will return a ruby hash of the SOAP XML response.
   #
   # Example:
-  #  message = MVI::Messages::FindCandidateMessage.build(first_name, last_name, dob, ssn)
+  #  message = MVI::Messages::FindCandidateMessage.new.build(first_name, last_name, dob, ssn)
   #  response = MVI::Service.find_candidate(message)
   #
   class Service

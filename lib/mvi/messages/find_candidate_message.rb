@@ -11,77 +11,77 @@ module MVI
     #
     # Example:
     #  dob = Time.new(1980, 1, 1).utc
-    #  message = MVI::Messages::FindCandidateMessage.build('John', 'Smith', dob, '555-44-3333')
+    #  message = MVI::Messages::FindCandidateMessage.new.build('John', 'Smith', dob, '555-44-3333')
     #
     class FindCandidateMessage
-      extend MVI::Messages::MessageBuilder
+      include MVI::Messages::MessageBuilder
       EXTENSION = 'PRPA_IN201305UV02'
 
-      class << self
-        def build(first_name, last_name, dob, ssn)
-          validate(dob, first_name, last_name, ssn)
-          header(EXTENSION)
-          find_candidate_body(parameter_list(first_name, last_name, dob, ssn))
-          doc << envelope_body(@message)
-          Ox.dump(doc)
-        rescue => e
-          Rails.logger.error "failed to build find candidate message: #{e.message}"
-          raise
-        end
+      def build(first_name, last_name, dob, ssn)
+        validate(dob, first_name, last_name, ssn)
+        header(EXTENSION)
+        find_candidate_body(parameter_list(first_name, last_name, dob, ssn))
+        @doc << envelope_body(@message)
+        Ox.dump(@doc)
+      rescue => e
+        Rails.logger.error "failed to build find candidate message: #{e.message}"
+        raise
+      end
 
-        def validate(dob, first_name, last_name, ssn)
-          raise ArgumentError, 'names should be Strings' unless [first_name, last_name].all? { |i| i.is_a? String }
-          raise ArgumentError, 'dob should be a Time object' unless dob.is_a? Time
-          raise ArgumentError, 'ssn should be of format \d{3}-\d{2}-\d{4}' unless ssn =~ /\d{3}-\d{2}-\d{4}/
-        end
+      private
 
-        def find_candidate_body(parameter_list)
-          control_act_process = control_act_process()
-          query_by_parameter = query_by_parameter()
-          query_by_parameter << parameter_list
-          control_act_process << query_by_parameter
-          @message << control_act_process
-        end
+      def validate(dob, first_name, last_name, ssn)
+        raise ArgumentError, 'names should be Strings' unless [first_name, last_name].all? { |i| i.is_a? String }
+        raise ArgumentError, 'dob should be a Time object' unless dob.is_a? Time
+        raise ArgumentError, 'ssn should be of format \d{3}-\d{2}-\d{4}' unless ssn =~ /\d{3}-\d{2}-\d{4}/
+      end
 
-        def query_by_parameter
-          el = element('queryByParameter')
-          el << element('queryId', root: '1.2.840.114350.1.13.28.1.18.5.999', extension: '18204')
-          el << element('statusCode', code: 'new')
-          el << element('modifyCode', code: 'MVI.COMP1')
-          el << element('initialValue', value: 1)
-        end
+      def find_candidate_body(parameter_list)
+        control_act_process = control_act_process()
+        query_by_parameter = query_by_parameter()
+        query_by_parameter << parameter_list
+        control_act_process << query_by_parameter
+        @message << control_act_process
+      end
 
-        def parameter_list(first_name, last_name, dob, ssn)
-          el = element('parameterList')
-          el << living_subject_name(first_name, last_name)
-          el << living_subject_birth_time(dob)
-          el << living_subject_id(ssn)
-        end
+      def query_by_parameter
+        el = element('queryByParameter')
+        el << element('queryId', root: '1.2.840.114350.1.13.28.1.18.5.999', extension: '18204')
+        el << element('statusCode', code: 'new')
+        el << element('modifyCode', code: 'MVI.COMP1')
+        el << element('initialValue', value: 1)
+      end
 
-        def control_act_process
-          el = element('controlActProcess', classCode: 'CACT', moodCode: 'EVN')
-          el << element('code', code: 'PRPA_TE201305UV02', codeSystem: '2.16.840.1.113883.1.6')
-        end
+      def parameter_list(first_name, last_name, dob, ssn)
+        el = element('parameterList')
+        el << living_subject_name(first_name, last_name)
+        el << living_subject_birth_time(dob)
+        el << living_subject_id(ssn)
+      end
 
-        def living_subject_name(first_name, last_name)
-          el = element('livingSubjectName')
-          value = element('value', use: 'L')
-          value << element('given', text!: first_name)
-          value << element('family', text!: last_name)
-          el << value
-        end
+      def control_act_process
+        el = element('controlActProcess', classCode: 'CACT', moodCode: 'EVN')
+        el << element('code', code: 'PRPA_TE201305UV02', codeSystem: '2.16.840.1.113883.1.6')
+      end
 
-        def living_subject_birth_time(dob)
-          el = element('livingSubjectBirthTime')
-          el << element('value', value: dob.strftime('%Y%m%d'))
-          el << element('semanticsText', text!: 'LivingSubject..birthTime')
-        end
+      def living_subject_name(first_name, last_name)
+        el = element('livingSubjectName')
+        value = element('value', use: 'L')
+        value << element('given', text!: first_name)
+        value << element('family', text!: last_name)
+        el << value
+      end
 
-        def living_subject_id(ssn)
-          el = element('livingSubjectId')
-          el << element('value', root: '2.16.840.1.113883.4.1', extention: ssn)
-          el << element('semanticsText', text!: 'SSN')
-        end
+      def living_subject_birth_time(dob)
+        el = element('livingSubjectBirthTime')
+        el << element('value', value: dob.strftime('%Y%m%d'))
+        el << element('semanticsText', text!: 'LivingSubject..birthTime')
+      end
+
+      def living_subject_id(ssn)
+        el = element('livingSubjectId')
+        el << element('value', root: '2.16.840.1.113883.4.1', extention: ssn)
+        el << element('semanticsText', text!: 'SSN')
       end
     end
   end

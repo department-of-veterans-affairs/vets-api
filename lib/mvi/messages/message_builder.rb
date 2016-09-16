@@ -4,8 +4,8 @@ require 'ox'
 module MVI
   module Messages
     module MessageBuilder
-      def doc
-        @doc ||= Ox::Document.new(version: '1.0')
+      def initialize
+        @doc = Ox::Document.new(version: '1.0')
       end
 
       def header(extension)
