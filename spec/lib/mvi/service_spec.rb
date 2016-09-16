@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'rails_helper'
 require 'savon/mock/spec_helper'
 require 'mvi/service'
@@ -11,17 +12,17 @@ describe MVI::Service do
 
   let(:first_name) { 'John' }
   let(:last_name) { 'Smith' }
-  let(:dob) { Time.new(1980, 1, 1) }
+  let(:dob) { Time.new(1980, 1, 1).utc }
   let(:ssn) { '555-44-3333' }
   let(:message) { MVI::Messages::FindCandidateMessage.build(first_name, last_name, dob, ssn) }
 
-  describe ".find_candidate" do
+  describe '.find_candidate' do
     context 'with a valid request' do
-      it "calls the prpa_in201305_uv02 endpoint with a find candidate message" do
-        xml = File.read("#{ENV['MVI_FILE_PATH']}/spec/support/find_candidate_response.xml")
+      it 'calls the prpa_in201305_uv02 endpoint with a find candidate message' do
+        xml = File.read("#{ENV['MVI_SCHEMA_PATH']}/spec/support/find_candidate_response.xml")
         savon.expects(:prpa_in201305_uv02).with(xml: message).returns(xml)
         response = MVI::Service.find_candidate(first_name, last_name, dob, ssn)
-        expect(response).to eq({
+        expect(response).to eq(
           correlation_ids: [
             '1000123456V123456^NI^200M^USVHA^P',
             '12345^PI^516^USVHA^PCE',
@@ -35,23 +36,46 @@ describe MVI::Service do
           gender: 'M',
           dob: '19800101',
           ssn: '555-44-3333'
-        })
+        )
       end
     end
 
-    context 'with an invalid request response' do
-      it "should raise a invalid request error" do
-        xml = File.read("#{ENV['MVI_FILE_PATH']}/spec/support/find_candidate_invalid_response.xml")
+    context 'when a MVI invalid request response is returned' do
+      it 'should raise a invalid request error' do
+        puts "YOUR FACE #{ENV['MVI_SCHEMA_PATH']}/spec/support/find_candidate_invalid_response.xml"
+        xml = File.read("#{ENV['MVI_SCHEMA_PATH']}/spec/support/find_candidate_invalid_response.xml")
         savon.expects(:prpa_in201305_uv02).with(xml: message).returns(xml)
+        expect(Rails.logger).to receive(:error).with(/mvi find_candidate invalid request structure:/)
         expect { MVI::Service.find_candidate(first_name, last_name, dob, ssn) }.to raise_error(MVI::InvalidRequestError)
       end
     end
 
-    context 'with an invalid request response' do
-      it "should raise a invalid request error" do
-        xml = File.read("#{ENV['MVI_FILE_PATH']}/spec/support/find_candidate_failure_response.xml")
+    context 'when a MVI failure response is returned' do
+      it 'should raise a request failure error' do
+        xml = File.read("#{ENV['MVI_SCHEMA_PATH']}/spec/support/find_candidate_failure_response.xml")
         savon.expects(:prpa_in201305_uv02).with(xml: message).returns(xml)
+        expect(Rails.logger).to receive(:error).with(/mvi find_candidate request failure/)
         expect { MVI::Service.find_candidate(first_name, last_name, dob, ssn) }.to raise_error(MVI::RequestFailureError)
+      end
+    end
+
+    context 'when a Savon::HTTPError error is returned' do
+      it 'should raise a request failure error' do
+        xml = File.read("#{ENV['MVI_SCHEMA_PATH']}/spec/support/find_candidate_failure_response.xml")
+        response = { code: 500, headers: {}, body: xml }
+        savon.expects(:prpa_in201305_uv02).returns(response)
+        expect(Rails.logger).to receive(:error).with(/mvi find_candidate http error code: 500 message:/)
+        expect { MVI::Service.find_candidate(first_name, last_name, dob, ssn) }.to raise_error(MVI::HTTPError)
+      end
+    end
+
+    context 'when a Savon::SOAPFault error is returned' do
+      it 'should raise a request failure error' do
+        xml = File.read("#{ENV['MVI_SCHEMA_PATH']}/spec/support/find_candidate_soap_fault.xml")
+        response = { code: 500, headers: {}, body: xml }
+        savon.expects(:prpa_in201305_uv02).returns(response)
+        expect(Rails.logger).to receive(:error).with(/mvi find_candidate soap error code: 500/)
+        expect { MVI::Service.find_candidate(first_name, last_name, dob, ssn) }.to raise_error(MVI::SOAPError)
       end
     end
   end

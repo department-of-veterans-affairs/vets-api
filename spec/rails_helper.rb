@@ -35,9 +35,9 @@ WebMock.disable_net_connect!(allow_localhost: true)
 # TODO: https://github.com/department-of-veterans-affairs/platform-team/issues/78
 # Figure out how to allow rspec to route external URLs, so this actually matters:
 # WebMock.disable_net_connect!(allow_localhost: true)
-require "vcr"
-require "json-schema"
-require "support/api_schema_matcher"
+require 'vcr'
+require 'json-schema'
+require 'support/api_schema_matcher'
 require 'support/xml_matchers'
 
 VCR.configure do |c|
