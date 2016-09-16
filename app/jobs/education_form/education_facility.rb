@@ -3,7 +3,8 @@ module EducationForm
   class EducationFacility
     # sourced from http://www.vba.va.gov/pubs/forms/VBA-22-1990-ARE.pdf
 
-    @default = :eastern
+    DEFAULT = :eastern
+
     EASTERN = %w(
       CT DE DC ME MD MA NH NJ NY PA
       RI VT VA
@@ -36,7 +37,7 @@ module EducationForm
       when *WESTERN
         :western
       else
-        @default
+        DEFAULT
       end
     end
   end

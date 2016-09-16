@@ -11,27 +11,24 @@ module EducationForm
 
     WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
 
-    attr_accessor :files
-
     def run(day = Date.yesterday)
       # Fetch all the records for the day
       records = EducationBenefitsClaim.unprocessed_for(day)
       # Group the formatted records into different regions
-      regional_data = group_submissions(records)
+      regional_data = group_submissions_by_region(records)
       # Create a remote file for each region, and write the records into them
       create_files(day, regional_data)
       # mark the records as processed
-      records.each { |r| r.update(processed_at: Time.zone.utc) }
+      records.update_all(processed_at: Time.zone.now)
       # TODO: Log the success/failure of the submission somewhere
       true
     end
 
-    def group_submissions(records)
-      regional_data = {}
+    def group_submissions_by_region(records)
+      regional_data = Hash.new { |h, k| h[k] = [] }
       records.each do |record|
         form = record.open_struct_form
         region_key = EducationFacility.region_for(form)
-        regional_data[region_key] ||= []
         regional_data[region_key] << form
       end
       regional_data
