@@ -27,7 +27,6 @@ module MVI
         id = element('id', root: '1.2.840.114350.1.13.999.234', extension: '200M')
         device << id
         receiver << device
-        receiver
       end
 
       def sender
@@ -36,7 +35,6 @@ module MVI
         id = element('id', root: '2.16.840.1.113883.4.349', extension: '200VGOV')
         device << id
         sender << device
-        sender
       end
 
       def element(name, attrs = nil)

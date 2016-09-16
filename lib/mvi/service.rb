@@ -2,6 +2,19 @@
 require 'savon'
 
 module MVI
+  # Wrapper for the MVI (Master Veteran Index) Service. vets.gov has access
+  # to three MVI endpoints:
+  # * prpa_in201301_uv02 (TODO(AJD): Add Person)
+  # * prpa_in201302_uv02 (TODO(AJD): Update Person)
+  # * prpa_in201305_uv02 (aliased as .find_candidate)
+  #
+  # = Usage
+  # Calls endpoints as class methods, if successful it will return a ruby hash of the SOAP XML response.
+  #
+  # Example:
+  #  message = MVI::Messages::FindCandidateMessage.build(first_name, last_name, dob, ssn)
+  #  response = MVI::Service.find_candidate(message)
+  #
   class Service
     extend Savon::Model
 
@@ -15,8 +28,7 @@ module MVI
       invalid_request: 'AR'
     }.freeze
 
-    def self.prpa_in201305_uv02(first_name, last_name, dob, ssn)
-      message = MVI::Messages::FindCandidateMessage.build(first_name, last_name, dob, ssn)
+    def self.prpa_in201305_uv02(message)
       response = super(xml: message)
       body = response.body[:prpa_in201306_uv02]
       code = body[:acknowledgement][:type_code][:@code]

@@ -4,6 +4,15 @@ require_relative 'message_builder'
 
 module MVI
   module Messages
+    # Builds an MVI SOAP XML message.
+    #
+    # = Usage
+    # Call the .build passing in the candidate's first and last name, dob, and ssn.
+    #
+    # Example:
+    #  dob = Time.new(1980, 1, 1).utc
+    #  message = MVI::Messages::FindCandidateMessage.build('John', 'Smith', dob, '555-44-3333')
+    #
     class FindCandidateMessage
       extend MVI::Messages::MessageBuilder
       EXTENSION = 'PRPA_IN201305UV02'

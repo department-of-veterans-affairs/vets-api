@@ -21,7 +21,7 @@ describe MVI::Service do
       it 'calls the prpa_in201305_uv02 endpoint with a find candidate message' do
         xml = File.read("#{ENV['MVI_SCHEMA_PATH']}/spec/support/find_candidate_response.xml")
         savon.expects(:prpa_in201305_uv02).with(xml: message).returns(xml)
-        response = MVI::Service.find_candidate(first_name, last_name, dob, ssn)
+        response = MVI::Service.find_candidate(message)
         expect(response).to eq(
           correlation_ids: [
             '1000123456V123456^NI^200M^USVHA^P',
@@ -46,7 +46,7 @@ describe MVI::Service do
         xml = File.read("#{ENV['MVI_SCHEMA_PATH']}/spec/support/find_candidate_invalid_response.xml")
         savon.expects(:prpa_in201305_uv02).with(xml: message).returns(xml)
         expect(Rails.logger).to receive(:error).with(/mvi find_candidate invalid request structure:/)
-        expect { MVI::Service.find_candidate(first_name, last_name, dob, ssn) }.to raise_error(MVI::InvalidRequestError)
+        expect { MVI::Service.find_candidate(message) }.to raise_error(MVI::InvalidRequestError)
       end
     end
 
@@ -55,7 +55,7 @@ describe MVI::Service do
         xml = File.read("#{ENV['MVI_SCHEMA_PATH']}/spec/support/find_candidate_failure_response.xml")
         savon.expects(:prpa_in201305_uv02).with(xml: message).returns(xml)
         expect(Rails.logger).to receive(:error).with(/mvi find_candidate request failure/)
-        expect { MVI::Service.find_candidate(first_name, last_name, dob, ssn) }.to raise_error(MVI::RequestFailureError)
+        expect { MVI::Service.find_candidate(message) }.to raise_error(MVI::RequestFailureError)
       end
     end
 
@@ -65,7 +65,7 @@ describe MVI::Service do
         response = { code: 500, headers: {}, body: xml }
         savon.expects(:prpa_in201305_uv02).returns(response)
         expect(Rails.logger).to receive(:error).with(/mvi find_candidate http error code: 500 message:/)
-        expect { MVI::Service.find_candidate(first_name, last_name, dob, ssn) }.to raise_error(MVI::HTTPError)
+        expect { MVI::Service.find_candidate(message) }.to raise_error(MVI::HTTPError)
       end
     end
 
@@ -75,7 +75,7 @@ describe MVI::Service do
         response = { code: 500, headers: {}, body: xml }
         savon.expects(:prpa_in201305_uv02).returns(response)
         expect(Rails.logger).to receive(:error).with(/mvi find_candidate soap error code: 500/)
-        expect { MVI::Service.find_candidate(first_name, last_name, dob, ssn) }.to raise_error(MVI::SOAPError)
+        expect { MVI::Service.find_candidate(message) }.to raise_error(MVI::SOAPError)
       end
     end
   end
