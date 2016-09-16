@@ -29,9 +29,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context '#group_submissions' do
     it 'takes a list of records into chunked forms' do
-      eastern = EducationBenefitsClaim.new(form: {schoolAddress: {state: 'MD'}}.to_json)
+      eastern = EducationBenefitsClaim.new(form: { schoolAddress: { state: 'MD' } }.to_json)
       eastern_default = EducationBenefitsClaim.new(form: {}.to_json)
-      western = EducationBenefitsClaim.new(form: {address: {state: 'APO/FPO AP'}}.to_json)
+      western = EducationBenefitsClaim.new(form: { address: { state: 'APO/FPO AP' } }.to_json)
 
       output = subject.group_submissions([eastern, eastern_default, western])
       expect(output[:eastern].length).to be(2)
@@ -45,11 +45,11 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       mock_writer = StringIO.new
       sftp_mock = double(file: mock_file)
       Net::SFTP.stub(:start).and_yield(sftp_mock)
-      expect(mock_file).to receive("open").with("2016-09-16-eastern.spl", "w").and_return(mock_writer)
+      expect(mock_file).to receive('open').with('2016-09-16-eastern.spl', 'w').and_return(mock_writer)
       subject.run(application_1606.created_at)
       # read back the written file
       mock_writer.rewind
-      expect(mock_writer.read).to include("EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606")
+      expect(mock_writer.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
     end
   end
 end

@@ -20,7 +20,7 @@ FactoryGirl.define do
         },
         homePhone: '5551110000',
         secondaryContact: {
-          fullName: "Sibling Olson",
+          fullName: 'Sibling Olson',
           sameAddressAndPhone: true
         },
         bankAccount: {
@@ -41,8 +41,7 @@ FactoryGirl.define do
           startDate: '08/29/2016',
           educationalObjective: '...'
         },
-        educationType: "college",
-        educationType: "testReimbursement",
+        educationType: 'college',
 
         currentlyActiveDuty: {
           yes: false,

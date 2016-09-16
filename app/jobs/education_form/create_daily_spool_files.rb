@@ -21,7 +21,7 @@ module EducationForm
       # Create a remote file for each region, and write the records into them
       create_files(day, regional_data)
       # mark the records as processed
-      records.each {|r| r.update(processed_at: Time.now) }
+      records.each { |r| r.update(processed_at: Time.zone.utc) }
       # TODO: Log the success/failure of the submission somewhere
       true
     end
@@ -38,11 +38,11 @@ module EducationForm
     end
 
     def create_files(day, structured_data)
-    # TODO: Will be implemented in a follow-up PR.
-      Net::SFTP.start('host', 'username', :password => 'password') do |sftp|
-        structured_data.each_with_object({}) do |(region, records), localfiles|
+      # TODO: Will be implemented in a follow-up PR.
+      Net::SFTP.start('host', 'username', password: 'password') do |sftp|
+        structured_data.each_with_object({}) do |(region, records), _localfiles|
           remote_name = "#{day.strftime('%F')}-#{region}.spl"
-          f = sftp.file.open(remote_name, "w")
+          f = sftp.file.open(remote_name, 'w')
           contents = records.map do |record|
             format_application(record)
           end.join(WINDOWS_NOTEPAD_LINEBREAK)
