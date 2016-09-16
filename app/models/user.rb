@@ -24,6 +24,6 @@ class User < RedisStore
   validates :email, presence: true
 
   def self.sample_claimant
-    User.new JSON.load ENV['EVSS_SAMPLE_CLAIMANT_USER']
+    User.new JSON.load(ENV['EVSS_SAMPLE_CLAIMANT_USER'])
   end
 end
