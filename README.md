@@ -47,6 +47,17 @@ For an example, see `application.yml.example`
 Note: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
 this is a sign that redis is not currently running or `config/redis.yml` is not using correct host and port.
 
+### MVI Schema Setup
+
+The MVI schema is a protected resource. You'll need to extract the contents of
+the GPG encrypted `config/mvi-schema.tar.gpg` file into `config/mvi-schema`:
+
+1. Acquire the archive password - available via credstash at
+`plat.mvi_schema_key`. Contact your DevOps sherpa for more information.
+1. Decrypt the archive into `config/mvi-schema` with
+`gpg -d config/mvi-schema.tar.gpg | tar -x -C config`. You should be prompted
+for the password you obtained above.
+
 ### Running the App
 1. Start the application: `bundle exec rails s`
 1. Navigate to <http://localhost:3000/v0/status> in your browser.
@@ -80,6 +91,22 @@ https://dev.vets.gov/api/v0/status
 ## API Request key formatting
 
 When sending HTTP requests use the `X-Key-Inflection` request header to specify which case your client wants to use. Valid cases are `camel`, `dash`, and `snake`. For example if you set `X-Key-Inflection: camel` then you can use camelCase keys in your JSON request body and you will get back data with camelCase keys in the response body. If the header is not provided then the server will expect snake_case keys in the request body and output snake_case in the response.
+
+## Updating the MVI schema
+
+The MVI schema files in `config/mvi-schema` should not be included in git.
+Please use the following procedure if you need to make updates to them.
+
+1. Remove the existing mvi-schema.tar.gpg archive. `rm
+   config/mvi-schema.tar.gpg`.
+1. Make the necessary changes to `config/mvi-schema`.
+1. Acquire the archive password - available via credstash at
+   `plat.mvi_schema_key`. Contact your DevOps sherpa for more information.
+1. Tar the new configuration: `cd config && tar -cf mvi-schema.tar mvi-schema`
+1. Encrypt: `gpg2 -c -o mvi-schema.tar.gpg mvi-schema.tar`. You should be
+   prompted for the passphrase you obtained above.
+1. Remove the intermediary tar file: `rm mvi-schema.tar && cd ..`
+1. Commit the changed mvi-schema.tar.gpg file.
 
 ## How to Contribute
 
