@@ -26,3 +26,6 @@ config/application.yml
 
 # Ignore rvm stuff
 .ruby-gemset
+
+# Ignore protected schema files
+/config/mvi-schema
