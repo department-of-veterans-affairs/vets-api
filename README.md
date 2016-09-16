@@ -29,6 +29,11 @@ For local development, ID.me has configured their sandbox with a cert that devel
 1. Download the [key and certificate files](https://github.com/department-of-veterans-affairs/platform-team/tree/master/identity/certificates)
 1. Set the environment variables above to point to your local copies of the files
 
+### MVI Setup
+For the MVI integration to work (and specs to run) the MVI_SCHEMA_PATH env var must be pointed to the MVI files in the [devops repo](https://github
+.com/department-of-veterans-affairs/devops).
+For an example, see `application.yml.example`
+
 ### Redis Setup
 For this app to be properly configured, you will need to specify the following environment variables:
 ```
