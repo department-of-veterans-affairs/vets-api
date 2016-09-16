@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'ox'
 require_relative 'message_builder'
 
@@ -5,22 +6,24 @@ module MVI
   module Messages
     class FindCandidateMessage
       extend MVI::Messages::MessageBuilder
-      EXTENSION = 'PRPA_IN201305UV02'.freeze
+      EXTENSION = 'PRPA_IN201305UV02'
 
       class << self
         def build(first_name, last_name, dob, ssn)
           validate(dob, first_name, last_name, ssn)
-          @message = idm(EXTENSION)
           header(EXTENSION)
           find_candidate_body(parameter_list(first_name, last_name, dob, ssn))
           doc << envelope_body(@message)
           Ox.dump(doc)
+        rescue => e
+          Rails.logger.error "failed to build find candidate message: #{e.message}"
+          raise
         end
 
         def validate(dob, first_name, last_name, ssn)
-          raise ArgumentError.new('first and last name sould be Strings') unless [first_name, last_name].all? { |i| i.is_a? String }
-          raise ArgumentError.new('dob should be a Time object') unless dob.is_a? Time
-          raise ArgumentError.new('ssn should be of format \d{3}-\d{2}-\d{4}') unless ssn =~ /\d{3}-\d{2}-\d{4}/
+          raise ArgumentError, 'names should be Strings' unless [first_name, last_name].all? { |i| i.is_a? String }
+          raise ArgumentError, 'dob should be a Time object' unless dob.is_a? Time
+          raise ArgumentError, 'ssn should be of format \d{3}-\d{2}-\d{4}' unless ssn =~ /\d{3}-\d{2}-\d{4}/
         end
 
         def find_candidate_body(parameter_list)
@@ -29,8 +32,6 @@ module MVI
           query_by_parameter << parameter_list
           control_act_process << query_by_parameter
           @message << control_act_process
-        rescue => e
-          Rails.logger.error e.message, backtrace: e.backtrace
         end
 
         def query_by_parameter

@@ -14,4 +14,4 @@ DB_ENCRYPTION_KEY: 'f01ff8ebd1a2b053ad697ae1f0d86adb48ebb708021e4c76c3807d37f6b4
 MHV_SM_HOST: 'https://mock-prescriptions-api.herokuapp.com'
 MHV_SM_APP_TOKEN: 'a-fake-app-token'
 MHV_SM_USER_ID: '10616687'
-MVI_FILE_PATH: '../devops/soap/mvi'
+MVI_SCHEMA_PATH: '../devops/soap/mvi'
