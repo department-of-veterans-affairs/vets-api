@@ -42,7 +42,6 @@ describe MVI::Service do
 
     context 'when a MVI invalid request response is returned' do
       it 'should raise a invalid request error' do
-        puts "YOUR FACE #{ENV['MVI_SCHEMA_PATH']}/spec/support/find_candidate_invalid_response.xml"
         xml = File.read("#{ENV['MVI_SCHEMA_PATH']}/spec/support/find_candidate_invalid_response.xml")
         savon.expects(:prpa_in201305_uv02).with(xml: message).returns(xml)
         expect(Rails.logger).to receive(:error).with(/mvi find_candidate invalid request structure:/)

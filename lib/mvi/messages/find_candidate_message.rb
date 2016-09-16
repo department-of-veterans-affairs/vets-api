@@ -49,7 +49,6 @@ module MVI
           el << element('statusCode', code: 'new')
           el << element('modifyCode', code: 'MVI.COMP1')
           el << element('initialValue', value: 1)
-          el
         end
 
         def parameter_list(first_name, last_name, dob, ssn)
@@ -57,13 +56,11 @@ module MVI
           el << living_subject_name(first_name, last_name)
           el << living_subject_birth_time(dob)
           el << living_subject_id(ssn)
-          el
         end
 
         def control_act_process
           el = element('controlActProcess', classCode: 'CACT', moodCode: 'EVN')
           el << element('code', code: 'PRPA_TE201305UV02', codeSystem: '2.16.840.1.113883.1.6')
-          el
         end
 
         def living_subject_name(first_name, last_name)
@@ -78,14 +75,12 @@ module MVI
           el = element('livingSubjectBirthTime')
           el << element('value', value: dob.strftime('%Y%m%d'))
           el << element('semanticsText', text!: 'LivingSubject..birthTime')
-          el
         end
 
         def living_subject_id(ssn)
           el = element('livingSubjectId')
           el << element('value', root: '2.16.840.1.113883.4.1', extention: ssn)
           el << element('semanticsText', text!: 'SSN')
-          el
         end
       end
     end
