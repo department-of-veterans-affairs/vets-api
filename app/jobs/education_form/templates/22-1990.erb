@@ -39,7 +39,7 @@ Name of Financial Inst.: <%= @applicant.bankAccount&.bankName %>
 Routing/Transit #: <%= @applicant.bankAccount&.routingNumber %>   Account #: <%= @applicant.bankAccount&.accountNumber %>
 
 Name, Address, & Telephone Number of Contact:
-        <%= full_name(@applicant.secondaryContact&.fullName) %>
+        <%= @applicant.secondaryContact&.fullName %>
         <% if @applicant.secondaryContact&.sameAddress %>Address same as claimant<% end %>
 
 
