@@ -49,9 +49,8 @@ Rails.application.routes.draw do
 
   root 'v0/example#index', module: 'v0'
 
-  require "sidekiq/web"
-  Sidekiq::Web.use Rack::Auth::Basic do |username, password|
-    username == ENV["SIDEKIQ_USERNAME"] && password == ENV["SIDEKIQ_PASSWORD"]
-  end if Rails.env.production?
-  mount Sidekiq::Web, at: "/sidekiq"
+  if Rails.env.development? || ENV['SIDEKIQ_ADMIN_PANEL']
+    require "sidekiq/web"
+    mount Sidekiq::Web, at: "/sidekiq"
+  end
 end
