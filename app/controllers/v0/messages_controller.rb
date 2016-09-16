@@ -67,6 +67,16 @@ module V0
              meta: {}
     end
 
+    def categories
+      response = client.get_categories
+
+      raise VA::API::Common::Exceptions::InternalServerError unless response.present?
+
+      render json: response.data,
+             serializer: CategorySerializer,
+             meta: {}
+    end
+
     private
 
     def message_params

@@ -340,6 +340,7 @@ DEPENDENCIES
   guard-rubocop
   httpclient
   json-schema
+  multi_json
   olive_branch
   pg
   pry-nav

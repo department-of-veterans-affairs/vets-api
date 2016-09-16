@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require_dependency 'VaHealthcareMessaging/client'
+
 class HealthcareMessagingController < ApplicationController
   # FIXME: when ID.me is working we need to use it here, but for now skip
   #   and just rely on the http basic authentication.
@@ -6,7 +8,7 @@ class HealthcareMessagingController < ApplicationController
   before_action :authenticate_client
   include ActionController::Serialization
 
-  MHV_CONFIG = VAHealthcareMessaging::Configuration.new(
+  MHV_CONFIG = VaHealthcareMessaging::Configuration.new(
     host: ENV['MHV_SM_HOST'],
     app_token: ENV['MHV_SM_APP_TOKEN'],
     enforce_ssl: Rails.env.production?
@@ -16,7 +18,7 @@ class HealthcareMessagingController < ApplicationController
 
   # Establishes a session using the MHV correlation id for authentication.
   def client
-    @client ||= VAHealthcareMessaging::Client.new(config: MHV_CONFIG, session: { user_id: correlation_id })
+    @client ||= VaHealthcareMessaging::Client.new(config: MHV_CONFIG, session: { user_id: correlation_id })
   end
 
   DEFAULT_PER_PAGE = 50

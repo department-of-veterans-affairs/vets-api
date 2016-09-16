@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 class FolderSerializer < ActiveModel::Serializer
-  # Alias id to folder_id to keep consistent with other model naming conventions
-  attribute(:folder_id) { object.id }
+  def id
+    object.folder_id
+  end
 
-  link(:self) { v0_folder_url(object.id) }
-
-  attribute :id
+  attribute :folder_id
   attribute :name
   attribute :count
   attribute :unread_count
   attribute :system_folder
+
+  link(:self) { v0_folder_url(object.folder_id) }
 end

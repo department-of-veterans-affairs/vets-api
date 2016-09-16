@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 FactoryGirl.define do
-  factory :folder, class: VAHealthcareMessaging::Folder do
-    sequence :id do |n|
+  factory :folder do
+    sequence :folder_id do |n|
       n
     end
 

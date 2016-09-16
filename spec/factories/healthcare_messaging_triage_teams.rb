@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 FactoryGirl.define do
-  factory :triage_team, class: VAHealthcareMessaging::TriageTeam do
-    relation_type 'PATIENT'
+  factory :triage_team do
+    skip_create
 
+    relation_type 'PATIENT'
     sequence :triage_team_id do |n|
       n
     end
