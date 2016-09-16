@@ -7,7 +7,7 @@ module EVSS
       case env[:status]
       when 200
         resp = env.body
-        raise EVSSError, resp['messages'] if resp['success'] && !resp['success']
+        raise EVSSError, resp['messages'] if resp['success'] == false
       end
     end
   end

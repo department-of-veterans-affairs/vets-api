@@ -29,11 +29,6 @@ For local development, ID.me has configured their sandbox with a cert that devel
 1. Download the [key and certificate files](https://github.com/department-of-veterans-affairs/platform-team/tree/master/identity/certificates)
 1. Set the environment variables above to point to your local copies of the files
 
-### MVI Setup
-For the MVI integration to work (and specs to run) the MVI_SCHEMA_PATH env var must be pointed to the MVI files in the [devops repo](https://github
-.com/department-of-veterans-affairs/devops).
-For an example, see `application.yml.example`
-
 ### Redis Setup
 For this app to be properly configured, you will need to specify the following environment variables:
 ```
@@ -51,6 +46,35 @@ For an example, see `application.yml.example`
 
 Note: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
 this is a sign that redis is not currently running or `config/redis.yml` is not using correct host and port.
+
+### MVI Schema Setup
+
+The MVI schema is a protected resource. You'll need to extract the contents of
+the GPG encrypted `config/mvi-schema.tar.gpg` file into `config/mvi-schema`:
+
+1. Acquire the archive password - available via credstash at
+`plat.mvi_schema_key`. Contact your DevOps sherpa for more information.
+1. Install gpg if needed
+`brew install gpg`
+1. Decrypt the archive into `config/mvi-schema` with
+`gpg -d config/mvi-schema.tar.gpg | tar -x -C config`. You should be prompted
+for the password you obtained above.
+
+#### Updating the MVI schema
+
+The MVI schema files in `config/mvi-schema` should not be included in git.
+Please use the following procedure if you need to make updates to them.
+
+1. Remove the existing mvi-schema.tar.gpg archive. `rm
+   config/mvi-schema.tar.gpg`.
+1. Make the necessary changes to `config/mvi-schema`.
+1. Acquire the archive password - available via credstash at
+   `plat.mvi_schema_key`. Contact your DevOps sherpa for more information.
+1. Tar the new configuration: `cd config && tar -cf mvi-schema.tar mvi-schema`
+1. Encrypt: `gpg2 -c -o mvi-schema.tar.gpg mvi-schema.tar`. You should be
+   prompted for the passphrase you obtained above.
+1. Remove the intermediary tar file: `rm mvi-schema.tar && cd ..`
+1. Commit the changed mvi-schema.tar.gpg file.
 
 ### Running the App
 1. Start the application: `bundle exec rails s`

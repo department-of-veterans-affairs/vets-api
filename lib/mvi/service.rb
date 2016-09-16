@@ -18,7 +18,7 @@ module MVI
   class Service
     extend Savon::Model
 
-    client wsdl: "#{ENV['MVI_SCHEMA_PATH']}/IdmWebService_200VGOV.wsdl"
+    client wsdl: "#{Rails.root}/config/mvi-schema/IdmWebService_200VGOV.wsdl"
 
     operations :prpa_in201301_uv02, :prpa_in201302_uv02, :prpa_in201305_uv02
 
