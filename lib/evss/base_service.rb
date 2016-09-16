@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require "openssl"
 require_dependency 'evss/error_middleware'
 
 module EVSS
@@ -29,7 +30,10 @@ module EVSS
     # Uses HTTPClient adapter because headers need to be sent unmanipulated
     # Net/HTTP capitalizes headers
     def conn
-      @conn ||= Faraday.new(base_url, headers: vaafi_headers) do |faraday|
+      options = {headers: vaafi_headers}
+      options[:ssl] = ssl_options if has_cert?
+
+      @conn ||= Faraday.new(base_url, options) do |faraday|
         faraday.options.timeout = @default_timeout
         faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
@@ -69,6 +73,27 @@ module EVSS
           lastName: @user.last_name
         }
       }.to_json
+    end
+
+    def has_cert?
+      !ENV['EVSS_CERT_FILE'].nil? || !ENV['EVSS_CERT_KEY'].nil?
+    end
+
+    def client_key(key)
+      OpenSSL::PKey::RSA.new File.read(ENV['EVSS_CERT_KEY'])
+    end
+
+    def client_cert(cert)
+      OpenSSL::X509::Certificate.new File.read(ENV['EVSS_CERT_FILE'])
+    end
+
+    def ssl_options(cert, key)
+      {
+        :client_cert => client_cert(cert),
+        :client_key  => client_key(key),
+        :verify      => true,
+        :version     => 'TLSv1'
+      }
     end
   end
 end
