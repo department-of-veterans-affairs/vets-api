@@ -1,21 +1,28 @@
 {
-  "$schema" : "http://json-schema.org/draft-04/schema#",
-  "type" : "object",
+  "type": "object",
   "oneOf": [{
+    "required": ["data", "meta"],
     "properties": {
-      "data" : {
+      "data": {
         "type": "array",
         "minItems": 1,
         "uniqueItems": true,
         "items": {
           "type": "object",
-          "required": ["id", "type", "attributes"],
+          "required": ["id", "type", "attributes", "links"],
           "properties": {
-            "id": { "type": "string"},
-            "type": { "enum": ["va_healthcare_messaging_messages"] },
+            "id": { "type": "string" },
+            "type": { "enum": ["messages"] },
             "attributes": {
               "type": "object",
               "$ref": "message.json"
+            },
+            "links": {
+              "type": "object",
+              "required": ["self"],
+              "properties": {
+                "self": { "type": "string" }
+              }
             }
           }
         }
@@ -39,13 +46,20 @@
         "uniqueItems": true,
         "items": {
           "type": "object",
-          "required": ["id", "type", "attributes"],
+          "required": ["id", "type", "attributes", "links"],
           "properties": {
             "id": { "type": "string"},
-            "type": { "enum": ["va_healthcare_messaging_messages"] },
+            "type": { "enum": ["messages"] },
             "attributes": {
               "type": "object",
               "$ref": "message.json"
+            },
+            "links": {
+              "type": "object",
+              "required": ["self"],
+              "properties": {
+                "self": { "type": "string" }
+              }
             }
           }
         }

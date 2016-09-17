@@ -6,8 +6,7 @@ RSpec.describe Category do
   let(:params) { attributes_for :category }
 
   it 'populates attributes' do
-    expect(described_class.attribute_set.map(&:name)).to contain_exactly(:names)
-    expect(subject.names).to eq(params[:names])
+    expect(subject.message_category_type).to eq(params[:message_category_type])
   end
 
   it 'can be compared but always equal' do

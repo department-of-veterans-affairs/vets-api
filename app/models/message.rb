@@ -3,7 +3,7 @@ require 'common/models/base'
 
 # Message model
 class Message < Common::Base
-  attribute :message_id, Integer
+  attribute :id, Integer
   attribute :category, String
   attribute :subject, String
   attribute :body, String
@@ -18,6 +18,6 @@ class Message < Common::Base
   alias attachment? attachment
 
   def <=>(other)
-    message_id <=> other.message_id
+    id <=> other.id
   end
 end

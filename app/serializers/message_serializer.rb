@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 class MessageSerializer < ActiveModel::Serializer
-  def id
-    object.message_id
-  end
+  attribute :id
 
-  attribute :message_id
+  attribute(:message_id) { object.id }
   attribute :category
   attribute :subject
   attribute :body
@@ -16,5 +14,5 @@ class MessageSerializer < ActiveModel::Serializer
   attribute :recipient_name
   attribute :read_receipt
 
-  link(:self) { v0_message_url(object.message_id) }
+  link(:self) { v0_message_url(object.id) }
 end

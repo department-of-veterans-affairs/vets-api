@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 FactoryGirl.define do
   factory :message do
-    sequence :message_id do |n|
+    sequence :id do |n|
       n
     end
 

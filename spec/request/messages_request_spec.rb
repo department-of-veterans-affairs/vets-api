@@ -77,7 +77,7 @@ RSpec.describe 'Messages Integration', type: :request do
       end
     end
 
-    it 'responds to PUT #create' do
+    it 'responds to POST #create' do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('message')
@@ -148,6 +148,20 @@ RSpec.describe 'Messages Integration', type: :request do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('messages')
+    end
+  end
+
+  describe 'when getting categories' do
+    before(:each) do
+      VCR.use_cassette("messages/#{user_id}/category") do
+        get "/v0/messaging/health/messages/categories"
+      end
+    end
+
+    it 'responds to GET messages/categories' do
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      expect(response).to match_response_schema('category')
     end
   end
 end

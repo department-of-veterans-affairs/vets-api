@@ -15,8 +15,8 @@ module VaHealthcareMessaging
   class Client
     include VaHealthcareMessaging::API::Sessions
     # include VaHealthcareMessaging::API::TriageTeams
-    # include VaHealthcareMessaging::API::Folders
-    # include VaHealthcareMessaging::API::Messages
+    include VaHealthcareMessaging::API::Folders
+    include VaHealthcareMessaging::API::Messages
 
     REQUEST_TYPES = %i(get post delete).freeze
     USER_AGENT = 'Vets.gov Agent'

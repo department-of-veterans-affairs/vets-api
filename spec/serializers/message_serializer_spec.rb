@@ -10,11 +10,11 @@ RSpec.describe MessageSerializer, type: :serializer do
   subject { serialize(message, serializer_class: described_class) }
 
   it 'should include id' do
-    expect(data['id'].to_i).to eq(message.message_id)
+    expect(data['id'].to_i).to eq(message.id)
   end
 
-  it 'should include message_id' do
-    expect(attributes['message_id']).to eq(message.message_id)
+  it 'should include the category' do
+    expect(attributes['message_id']).to eq(message.id)
   end
 
   it 'should include the category' do
@@ -58,6 +58,6 @@ RSpec.describe MessageSerializer, type: :serializer do
   end
 
   it 'should include a link to itself' do
-    expect(links['self']).to eq(v0_message_url(message.message_id))
+    expect(links['self']).to eq(v0_message_url(message.id))
   end
 end

@@ -9,11 +9,11 @@ RSpec.describe Message do
     let(:other) { described_class.new(attributes_for(:message)) }
 
     it 'populates attributes' do
-      expect(described_class.attribute_set.map(&:name)).to contain_exactly(:message_id, :category, :subject, :body,
+      expect(described_class.attribute_set.map(&:name)).to contain_exactly(:id, :category, :subject, :body,
                                                                            :attachment, :sent_date,
                                                                            :sender_id, :sender_name, :recipient_id,
                                                                            :recipient_name, :read_receipt)
-      expect(subject.message_id).to eq(params[:message_id])
+      expect(subject.id).to eq(params[:id])
       expect(subject.category).to eq(params[:category])
       expect(subject.subject).to eq(params[:subject])
       expect(subject.body).to eq(params[:body])

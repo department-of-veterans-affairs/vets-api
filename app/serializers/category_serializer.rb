@@ -4,5 +4,5 @@ class CategorySerializer < ActiveModel::Serializer
     object.category_id
   end
 
-  attribute(:names)
+  attribute(:message_category_type)
 end

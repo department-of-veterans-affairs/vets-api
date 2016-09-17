@@ -7,7 +7,7 @@ class Category < Common::Base
     0
   end
 
-  attribute :names, Array
+  attribute :message_category_type, Array
 
   # Categories are simply an array and have no id.
   def <=>(other)

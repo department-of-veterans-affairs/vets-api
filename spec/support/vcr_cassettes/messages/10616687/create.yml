@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/session
+    uri: https://mock-sm-api.herokuapp.com/mhv-sm-api/patient/v1/session
     body:
       encoding: US-ASCII
       string: ''
@@ -43,11 +43,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: ''
-    http_version: 
+    http_version:
   recorded_at: Wed, 14 Sep 2016 17:08:07 GMT
 - request:
     method: post
-    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/message
+    uri: https://mock-sm-api.herokuapp.com/mhv-sm-api/patient/v1/message
     body:
       encoding: UTF-8
       string: '{"category":"OTHER","body":"Body 1","recipientId":"585986","subject":"Subject
@@ -86,6 +86,6 @@ http_interactions:
         1","attachment":false,"attachments":{"attachment":[]},"sentDate":"Wed, 14
         Sep 2016 17:08:08 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":585986,"recipientName":"Triage
         group 311070 test 2","readReceipt":null}'
-    http_version: 
+    http_version:
   recorded_at: Wed, 14 Sep 2016 17:08:08 GMT
 recorded_with: VCR 3.0.3
