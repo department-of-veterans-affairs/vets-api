@@ -4,12 +4,12 @@ require './lib/va_healthcare_messaging/client_session'
 FactoryGirl.define do
   factory :session, class: VaHealthcareMessaging::ClientSession do
     user_id 1234
-    token ENV['MHV_SM_APP_TOKEN']
+    token 'o7nsKRFVeijDG8u59/D6JOMrCmXMZO8p'
     expires_at 'Thu, 26 Dec 2015 15:54:21 GMT'
 
     trait :valid_user do
       user_id ENV['MHV_SM_USER_ID']
-      token ENV['MHV_SM_APP_TOKEN']
+      token nil
       expires_at nil
     end
 

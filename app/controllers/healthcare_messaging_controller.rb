@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require_dependency 'VaHealthcareMessaging/client'
+require_dependency 'va_healthcare_messaging/client'
 
 class HealthcareMessagingController < ApplicationController
   # FIXME: when ID.me is working we need to use it here, but for now skip
