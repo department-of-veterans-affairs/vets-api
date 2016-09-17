@@ -4,7 +4,7 @@ require 'multi_json'
 require 'common/client/errors'
 require 'va_healthcare_messaging/client_session'
 require 'va_healthcare_messaging/configuration'
-# require 'va_healthcare_messaging/parser'
+require 'va_healthcare_messaging/parser'
 require 'va_healthcare_messaging/api/sessions'
 
 module VaHealthcareMessaging
@@ -14,7 +14,7 @@ module VaHealthcareMessaging
   #####################################################################################################################
   class Client
     include VaHealthcareMessaging::API::Sessions
-    # include VaHealthcareMessaging::API::TriageTeams
+    include VaHealthcareMessaging::API::TriageTeams
     include VaHealthcareMessaging::API::Folders
     include VaHealthcareMessaging::API::Messages
 

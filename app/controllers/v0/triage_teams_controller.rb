@@ -3,6 +3,8 @@ module V0
   class TriageTeamsController < HealthcareMessagingController
     def index
       teams = client.get_triage_teams
+      raise VA::API::Common::Exceptions::InternalServerError unless teams.present?
+
       render json: teams.data,
              serializer: CollectionSerializer,
              each_serializer: TriageTeamSerializer,

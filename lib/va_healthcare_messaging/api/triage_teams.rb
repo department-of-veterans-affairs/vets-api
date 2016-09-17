@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'common/models/collection'
 
-module VAHealthcareMessaging
+module VaHealthcareMessaging
   module API
     ###################################################################################################################
     ## TriageTeams
