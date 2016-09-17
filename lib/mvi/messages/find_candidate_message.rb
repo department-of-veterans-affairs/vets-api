@@ -20,7 +20,7 @@ module MVI
       def build(first_name, last_name, dob, ssn)
         validate(dob, first_name, last_name, ssn)
         header(EXTENSION)
-        find_candidate_body(parameter_list(first_name, last_name, dob, ssn))
+        body(build_parameter_list(first_name, last_name, dob, ssn))
         @doc << envelope_body(@message)
         Ox.dump(@doc)
       rescue => e
@@ -36,15 +36,15 @@ module MVI
         raise ArgumentError, 'ssn should be of format \d{3}-\d{2}-\d{4}' unless ssn =~ /\d{3}-\d{2}-\d{4}/
       end
 
-      def find_candidate_body(parameter_list)
-        control_act_process = control_act_process()
-        query_by_parameter = query_by_parameter()
+      def body(parameter_list)
+        control_act_process = build_control_act_process
+        query_by_parameter = build_query_by_parameter
         query_by_parameter << parameter_list
         control_act_process << query_by_parameter
         @message << control_act_process
       end
 
-      def query_by_parameter
+      def build_query_by_parameter
         el = element('queryByParameter')
         el << element('queryId', root: '1.2.840.114350.1.13.28.1.18.5.999', extension: '18204')
         el << element('statusCode', code: 'new')
@@ -52,19 +52,19 @@ module MVI
         el << element('initialValue', value: 1)
       end
 
-      def parameter_list(first_name, last_name, dob, ssn)
+      def build_parameter_list(first_name, last_name, dob, ssn)
         el = element('parameterList')
-        el << living_subject_name(first_name, last_name)
-        el << living_subject_birth_time(dob)
-        el << living_subject_id(ssn)
+        el << build_living_subject_name(first_name, last_name)
+        el << build_living_subject_birth_time(dob)
+        el << build_living_subject_id(ssn)
       end
 
-      def control_act_process
+      def build_control_act_process
         el = element('controlActProcess', classCode: 'CACT', moodCode: 'EVN')
         el << element('code', code: 'PRPA_TE201305UV02', codeSystem: '2.16.840.1.113883.1.6')
       end
 
-      def living_subject_name(first_name, last_name)
+      def build_living_subject_name(first_name, last_name)
         el = element('livingSubjectName')
         value = element('value', use: 'L')
         value << element('given', text!: first_name)
@@ -72,13 +72,13 @@ module MVI
         el << value
       end
 
-      def living_subject_birth_time(dob)
+      def build_living_subject_birth_time(dob)
         el = element('livingSubjectBirthTime')
         el << element('value', value: dob.strftime('%Y%m%d'))
         el << element('semanticsText', text!: 'LivingSubject..birthTime')
       end
 
-      def living_subject_id(ssn)
+      def build_living_subject_id(ssn)
         el = element('livingSubjectId')
         el << element('value', root: '2.16.840.1.113883.4.1', extention: ssn)
         el << element('semanticsText', text!: 'SSN')

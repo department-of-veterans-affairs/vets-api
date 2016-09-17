@@ -5,7 +5,9 @@ require 'mvi/messages/find_candidate_message'
 describe MVI::Messages::FindCandidateMessage do
   describe '.build' do
     context 'with first, last, dob, and ssn from auth provider' do
-      let(:xml) { MVI::Messages::FindCandidateMessage.new.build('John', 'Smith', Time.new(1980, 1, 1).utc, '555-44-3333') }
+      let(:xml) do
+        MVI::Messages::FindCandidateMessage.new.build('John', 'Smith', Time.new(1980, 1, 1).utc, '555-44-3333')
+      end
       let(:idm_path) { 'env:Body/idm:PRPA_IN201305UV02' }
       let(:parameter_list_path) { "#{idm_path}/controlActProcess/queryByParameter/parameterList" }
 
