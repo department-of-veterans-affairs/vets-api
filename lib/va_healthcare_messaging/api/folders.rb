@@ -16,7 +16,7 @@ module VaHealthcareMessaging
       #################################################################################################################
       def get_folders(page = 1, page_size = -1)
         json = perform(:get, 'folder', nil, token_headers)
-        collection = Collection.new(Folder, json)
+        collection = Common::Collection.new(Folder, json)
 
         page_size.positive? ? collection.paginate(page: page, per_page: page_size) : collection
       end

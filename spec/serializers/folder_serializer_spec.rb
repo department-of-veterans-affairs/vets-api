@@ -10,11 +10,11 @@ RSpec.describe FolderSerializer, type: :serializer do
   subject { serialize(folder, serializer_class: described_class) }
 
   it 'should include id' do
-    expect(data['id'].to_i).to eq(folder.folder_id)
+    expect(data['id'].to_i).to eq(folder.id)
   end
 
   it 'should include id as attribute' do
-    expect(attributes['folder_id']).to eq(folder.folder_id)
+    expect(attributes['folder_id']).to eq(folder.id)
   end
 
   it "should include the folder's name" do
@@ -34,6 +34,6 @@ RSpec.describe FolderSerializer, type: :serializer do
   end
 
   it 'should include a link to itself' do
-    expect(links['self']).to eq(v0_folder_url(folder.folder_id))
+    expect(links['self']).to eq(v0_folder_url(folder.id))
   end
 end

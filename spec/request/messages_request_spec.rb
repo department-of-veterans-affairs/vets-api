@@ -154,7 +154,7 @@ RSpec.describe 'Messages Integration', type: :request do
   describe 'when getting categories' do
     before(:each) do
       VCR.use_cassette("messages/#{user_id}/category") do
-        get "/v0/messaging/health/messages/categories"
+        get '/v0/messaging/health/messages/categories'
       end
     end
 

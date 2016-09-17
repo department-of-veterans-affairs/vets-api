@@ -12,7 +12,7 @@
         "required": ["id", "type", "attributes", "links"],
         "properties": {
           "id": { "type": "string"},
-          "type": { "enum": ["va_healthcare_messaging_folders"] },
+          "type": { "enum": ["folders"] },
           "attributes": {
             "type": "object",
             "$ref": "folder.json"

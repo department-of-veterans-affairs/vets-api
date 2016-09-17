@@ -12,7 +12,7 @@ describe VaHealthcareMessaging::Client do
     it { expect { subject }.to raise_error(ArgumentError, 'missing keywords: config, session') }
   end
 
-  describe "when initialized" do
+  describe 'when initialized' do
     context 'with a hash' do
       let(:options) { { session: session_options, config: config_options } }
 

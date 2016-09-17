@@ -3,7 +3,7 @@ require 'common/models/base'
 
 # Folder model
 class Folder < Common::Base
-  attribute :folder_id, Integer
+  attribute :id, Integer
   attribute :name, String
   attribute :count, Integer
   attribute :unread_count, Integer
