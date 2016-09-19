@@ -19,6 +19,7 @@
 
 # Learn more: http://github.com/javan/whenever
 
-every 1.day, at: '3:00 am' do
+# we want 3:00am EST, don't care about daylight savings
+every 1.day, at: '8:00 am' do
   rake('jobs:create_daily_spool_files')
 end
