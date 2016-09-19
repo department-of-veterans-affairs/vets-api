@@ -32,6 +32,24 @@ module EducationForm
         'P.O. Box 4616',
         'Buffalo, NY 14240-4616'
       ],
+      southern: [
+        'Southern Region',
+        'VA Regional Office',
+        'P.O. Box 100022',
+        'Decatur, GA 30031-7022'
+      ],
+      central: [
+        'Central Region',
+        'VA Regional Office',
+        'P.O. Box 66830',
+        'St. Louis, MO 63166-6830'
+      ],
+      western: [
+        'Western Region',
+        'VA Regional Office',
+        'P.O. Box 8888',
+        'Muskogee, OK 74402-8888'
+      ]
     }
 
     def self.region_for(record)
