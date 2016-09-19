@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 FactoryGirl.define do
-  factory :education_benefit_claim, class: EducationBenefitsClaim do
+  factory :education_benefits_claim, class: EducationBenefitsClaim do
     form do
       {
         chapter1606: true,
@@ -20,10 +20,7 @@ FactoryGirl.define do
         },
         homePhone: '5551110000',
         secondaryContact: {
-          fullName: {
-            first: 'Sibling',
-            last: 'Olson'
-          },
+          fullName: 'Sibling Olson',
           sameAddressAndPhone: true
         },
         bankAccount: {
@@ -44,10 +41,8 @@ FactoryGirl.define do
           startDate: '08/29/2016',
           educationalObjective: '...'
         },
-        educationType: {
-          college: true,
-          testReimbursement: true
-        },
+        educationType: 'college',
+
         currentlyActiveDuty: {
           yes: false,
           onTerminalLeave: false,

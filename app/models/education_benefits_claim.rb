@@ -20,8 +20,8 @@ class EducationBenefitsClaim < ActiveRecord::Base
     @application
   end
 
-  def self.unprocessed_for(date)
-    where(processed_at: nil).where('submitted_at > ? and submitted_at < ?', date.beginning_of_day, date.end_of_day)
+  def self.unprocessed
+    where(processed_at: nil)
   end
 
   # TODO: Add logic for determining field type(s) that need to be places in the application header
