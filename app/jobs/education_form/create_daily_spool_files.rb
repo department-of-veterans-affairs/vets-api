@@ -18,13 +18,13 @@ module EducationForm
       retry_job(wait: 1.minute)
     end
 
-    def perform(day = Date.yesterday)
+    def perform
       # Fetch all the records for the day
-      records = EducationBenefitsClaim.unprocessed_for(day)
+      records = EducationBenefitsClaim.unprocessed
       # Group the formatted records into different regions
       regional_data = group_submissions_by_region(records)
       # Create a remote file for each region, and write the records into them
-      create_files(day, regional_data)
+      create_files(regional_data)
       # mark the records as processed
       records.update_all(processed_at: Time.zone.now)
       # TODO: Log the success/failure of the submission somewhere
@@ -41,11 +41,11 @@ module EducationForm
       regional_data
     end
 
-    def create_files(day, structured_data)
+    def create_files(structured_data)
       # TODO: Will be implemented in a follow-up PR.
       Net::SFTP.start('host', 'username', password: 'password') do |sftp|
         structured_data.each_with_object({}) do |(region, records), _localfiles|
-          remote_name = "#{day.strftime('%F')}-#{region}.spl"
+          remote_name = "#{Time.zone.today.strftime('%F')}-#{region}.spl"
           f = sftp.file.open(remote_name, 'w')
           contents = records.map do |record|
             format_application(record)
@@ -65,10 +65,6 @@ module EducationForm
       wrapped = word_wrap(@application_template.result(binding), line_width: 78)
       # The spool file must actually use windows style linebreaks
       wrapped.gsub("\n", WINDOWS_NOTEPAD_LINEBREAK)
-    end
-
-    def self.run(day = Date.yesterday)
-      new.run(day)
     end
 
     private

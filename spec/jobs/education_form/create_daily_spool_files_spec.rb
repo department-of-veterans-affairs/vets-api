@@ -50,7 +50,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       sftp_mock = double(file: mock_file)
       Net::SFTP.stub(:start).and_yield(sftp_mock)
       expect(mock_file).to receive('open').with('2016-09-16-eastern.spl', 'w').and_return(mock_writer)
-      subject.perform(application_1606.created_at)
+      Timecop.freeze(Time.zone.parse('2016-09-16 03:00:00 EDT')) do
+        subject.perform
+      end
       # read back the written file
       mock_writer.rewind
       expect(mock_writer.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
