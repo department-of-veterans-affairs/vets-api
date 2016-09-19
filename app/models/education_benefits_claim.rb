@@ -24,6 +24,10 @@ class EducationBenefitsClaim < ActiveRecord::Base
     where(processed_at: nil)
   end
 
+  def regional_office
+    EducationForm::EducationFacility.regional_office_for(open_struct_form)
+  end
+
   # TODO: Add logic for determining field type(s) that need to be places in the application header
   def application_type
     return 'CH1606' if @application.chapter1606

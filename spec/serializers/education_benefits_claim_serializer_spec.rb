@@ -19,7 +19,11 @@ RSpec.describe EducationBenefitsClaimSerializer, type: :serializer do
     expect_time_eq(attributes['submitted_at'], education_benefits_claim.submitted_at)
   end
 
+  it 'should include regional_office' do
+    expect(attributes['regional_office']).to eq(education_benefits_claim.regional_office)
+  end
+
   it "shouldn't include any extra attributes" do
-    expect(attributes.keys).to eq(%w(form submitted_at))
+    expect(attributes.keys).to eq(%w(form submitted_at regional_office))
   end
 end
