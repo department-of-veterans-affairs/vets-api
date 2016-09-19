@@ -45,4 +45,4 @@ Metrics/AbcSize:
 Style/AccessorMethodName:
   Exclude:
     - 'lib/rx/**/*'
-    - 'lib/va_healthcare_messaging/**/*' 
+    - 'lib/sm/**/*' 

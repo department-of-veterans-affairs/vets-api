@@ -7,18 +7,6 @@ GIT
       activemodel (>= 4.1, < 6)
       virtus
 
-GIT
-  remote: https://github.com/department-of-veterans-affairs/va_healthcare_messaging.git
-  revision: a0c39beda98f8c5ad7e2f7b2458ae6c7ad662f23
-  branch: master
-  specs:
-    va_healthcare_messaging (0.1.0)
-      activemodel (>= 4.1, < 6)
-      activesupport
-      faraday
-      multi_json (~> 1.0)
-      virtus
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -365,7 +353,6 @@ DEPENDENCIES
   timecop
   tzinfo-data
   va-api-common!
-  va_healthcare_messaging!
   vcr
   virtus
   web-console (~> 2.0)

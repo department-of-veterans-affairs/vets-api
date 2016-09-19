@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/session
+    uri: https://test.vets.gov/mhv-sm-api/patient/v1/session
     body:
       encoding: US-ASCII
       string: ''
@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
       Apptoken:
-      - a-fake-app-token
+      - fake-app-token
       Mhvcorrelationid:
       - '10616687'
       Accept-Encoding:
