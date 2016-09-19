@@ -42,7 +42,7 @@ module EducationForm
         'P.O. Box 8888',
         'Muskogee, OK 74402-8888'
       ]
-    }
+    }.freeze
 
     def self.region_for(record)
       area = record.school&.address&.state || record.veteranAddress&.state
