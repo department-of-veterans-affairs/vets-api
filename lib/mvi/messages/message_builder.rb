@@ -4,37 +4,9 @@ require 'ox'
 module MVI
   module Messages
     module MessageBuilder
-      def initialize
+      def to_xml(extension)
         @doc = Ox::Document.new(version: '1.0')
-      end
-
-      def header(extension)
-        @message = idm(extension)
-        @message << element('id', root: '1.2.840.114350.1.13.0.1.7.1.1', extension: "200VGOV-#{SecureRandom.uuid}")
-        @message << element('creationTime', value: Time.now.utc.strftime('%Y%m%d%M%H%M%S'))
-        @message << element('versionCode', code: '3.0')
-        @message << element('interactionId', root: '2.16.840.1.113883.1.6', extension: extension)
-        @message << element('processingCode', code: Rails.env.production? ? 'P' : 'D')
-        @message << element('processingModeCode', code: 'T')
-        @message << element('acceptAckCode', code: 'AL')
-        @message << receiver
-        @message << sender
-      end
-
-      def receiver
-        receiver = element('receiver', typeCode: 'RCV')
-        device = element('device', classCode: 'DEV', determinerCode: 'INSTANCE')
-        id = element('id', root: '1.2.840.114350.1.13.999.234', extension: '200M')
-        device << id
-        receiver << device
-      end
-
-      def sender
-        sender = element('sender', typeCode: 'SND')
-        device = element('device', classCode: 'DEV', determinerCode: 'INSTANCE')
-        id = element('id', root: '2.16.840.1.113883.4.349', extension: '200VGOV')
-        device << id
-        sender << device
+        build_header(extension)
       end
 
       def element(name, attrs = nil)
@@ -44,7 +16,36 @@ module MVI
         el
       end
 
-      def envelope_body(message)
+      def build_header(extension)
+        @message = build_idm(extension)
+        @message << element('id', root: '1.2.840.114350.1.13.0.1.7.1.1', extension: "200VGOV-#{SecureRandom.uuid}")
+        @message << element('creationTime', value: Time.now.utc.strftime('%Y%m%d%M%H%M%S'))
+        @message << element('versionCode', code: '3.0')
+        @message << element('interactionId', root: '2.16.840.1.113883.1.6', extension: extension)
+        @message << element('processingCode', code: Rails.env.production? ? 'P' : 'D')
+        @message << element('processingModeCode', code: 'T')
+        @message << element('acceptAckCode', code: 'AL')
+        @message << build_receiver
+        @message << build_sender
+      end
+
+      def build_receiver
+        receiver = element('receiver', typeCode: 'RCV')
+        device = element('device', classCode: 'DEV', determinerCode: 'INSTANCE')
+        id = element('id', root: '1.2.840.114350.1.13.999.234', extension: '200M')
+        device << id
+        receiver << device
+      end
+
+      def build_sender
+        sender = element('sender', typeCode: 'SND')
+        device = element('device', classCode: 'DEV', determinerCode: 'INSTANCE')
+        id = element('id', root: '2.16.840.1.113883.4.349', extension: '200VGOV')
+        device << id
+        sender << device
+      end
+
+      def build_envelope_body(message)
         env = element(
           'env:Envelope',
           'xmlns:soapenc' => 'http://schemas.xmlsoap.org/soap/encoding/',
@@ -58,7 +59,7 @@ module MVI
         env << body
       end
 
-      def idm(extension)
+      def build_idm(extension)
         element(
           "idm:#{extension}",
           'xmlns:idm' => 'http://vaww.oed.oit.va.gov',

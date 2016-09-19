@@ -12,6 +12,7 @@ describe MVI::Messages::FindCandidateMessage do
       let(:parameter_list_path) { "#{idm_path}/controlActProcess/queryByParameter/parameterList" }
 
       it 'should have a USDSVA extension with a uuid' do
+        puts xml
         expect(xml).to match_at_path("#{idm_path}/id/@extension", /200VGOV-\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/)
       end
 

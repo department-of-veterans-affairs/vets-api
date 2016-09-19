@@ -5,7 +5,7 @@ require 'mvi/messages/message_builder'
 describe MVI::Messages::MessageBuilder do
   let(:dummy_class) { Class.new { extend MVI::Messages::MessageBuilder } }
   describe '.header' do
-    let(:header) { dummy_class.header('PRPA_IN201305UV02') }
+    let(:header) { dummy_class.build_header('PRPA_IN201305UV02') }
     it 'has mvi attributes' do
       expect(header.attributes).to eq(
         'xmlns:idm' => 'http://vaww.oed.oit.va.gov',
@@ -92,10 +92,10 @@ describe MVI::Messages::MessageBuilder do
     end
   end
 
-  describe '.envelope_body' do
+  describe '.build_envelope_body' do
     context 'with a message' do
       let(:message) { dummy_class.element('foo', text!: 'bar', first: 'John', last: 'Smith') }
-      let(:el) { dummy_class.envelope_body(message) }
+      let(:el) { dummy_class.build_envelope_body(message) }
       it 'has soap attributes' do
         expect(el.attributes).to eq(
           'xmlns:soapenc' => 'http://schemas.xmlsoap.org/soap/encoding/',

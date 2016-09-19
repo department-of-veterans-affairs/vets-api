@@ -17,11 +17,19 @@ module MVI
       include MVI::Messages::MessageBuilder
       EXTENSION = 'PRPA_IN201305UV02'
 
-      def build(first_name, last_name, dob, ssn)
-        validate(dob, first_name, last_name, ssn)
-        header(EXTENSION)
-        body(build_parameter_list(first_name, last_name, dob, ssn))
-        @doc << envelope_body(@message)
+      attr_reader :first_name, :last_name, :dob, :ssn
+
+      def initialize(first_name, last_name, dob, ssn)
+        @first_name = first_name
+        @last_name = last_name
+        @dob = dob
+        @ssn = ssn
+      end
+
+      def to_xml
+        super(EXTENSION)
+        build_body
+        @doc << build_envelope_body(@message)
         Ox.dump(@doc)
       rescue => e
         Rails.logger.error "failed to build find candidate message: #{e.message}"
@@ -36,11 +44,11 @@ module MVI
         raise ArgumentError, 'ssn should be of format \d{3}-\d{2}-\d{4}' unless ssn =~ /\d{3}-\d{2}-\d{4}/
       end
 
-      def body(parameter_list)
+      def build_body
         control_act_process = build_control_act_process
         query_by_parameter = build_query_by_parameter
-        query_by_parameter << parameter_list
-        control_act_process << query_by_parameter
+        query_by_parameter << build_parameter_list
+        control_act_process << build_query_by_parameter
         @message << control_act_process
       end
 
@@ -52,11 +60,11 @@ module MVI
         el << element('initialValue', value: 1)
       end
 
-      def build_parameter_list(first_name, last_name, dob, ssn)
+      def build_parameter_list
         el = element('parameterList')
-        el << build_living_subject_name(first_name, last_name)
-        el << build_living_subject_birth_time(dob)
-        el << build_living_subject_id(ssn)
+        el << build_living_subject_name
+        el << build_living_subject_birth_time
+        el << build_living_subject_id
       end
 
       def build_control_act_process
@@ -64,23 +72,23 @@ module MVI
         el << element('code', code: 'PRPA_TE201305UV02', codeSystem: '2.16.840.1.113883.1.6')
       end
 
-      def build_living_subject_name(first_name, last_name)
+      def build_living_subject_name
         el = element('livingSubjectName')
         value = element('value', use: 'L')
-        value << element('given', text!: first_name)
-        value << element('family', text!: last_name)
+        value << element('given', text!: @first_name)
+        value << element('family', text!: @last_name)
         el << value
       end
 
-      def build_living_subject_birth_time(dob)
+      def build_living_subject_birth_time
         el = element('livingSubjectBirthTime')
-        el << element('value', value: dob.strftime('%Y%m%d'))
+        el << element('value', value: @dob.strftime('%Y%m%d'))
         el << element('semanticsText', text!: 'LivingSubject..birthTime')
       end
 
-      def build_living_subject_id(ssn)
+      def build_living_subject_id
         el = element('livingSubjectId')
-        el << element('value', root: '2.16.840.1.113883.4.1', extention: ssn)
+        el << element('value', root: '2.16.840.1.113883.4.1', extention: @ssn)
         el << element('semanticsText', text!: 'SSN')
       end
     end
