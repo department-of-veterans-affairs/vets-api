@@ -14,8 +14,9 @@
           "type": { "enum": ["claims"] },
           "attributes": {
             "type": "object",
-            "required": ["date_filed", "min_est_date", "max_est_date", "open", "waiver_submitted", "phase_dates", "tracked_items"],
+            "required": ["evss_id", "date_filed", "min_est_date", "max_est_date", "open", "waiver_submitted", "phase_dates", "tracked_items"],
             "properties": {
+              "evss_id": { "type": "integer" },
               "date_filed": { "type": "string" },
               "phase_dates": { "type": ["object", "null"] },
               "tracked_items": { "type": ["object", "null"] },

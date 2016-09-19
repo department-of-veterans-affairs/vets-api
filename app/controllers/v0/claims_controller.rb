@@ -4,22 +4,26 @@ module V0
     skip_before_action :authenticate
 
     def index
-      render json: Claim.fetch_all(current_user),
+      render json: claim_service.all,
              serializer: ActiveModel::Serializer::CollectionSerializer,
              each_serializer: ClaimBaseSerializer
     end
 
     def show
-      claim = Claim.find_by_id(params[:id], current_user)
+      claim = claim_service.find_by_evss_id(params[:id])
       render json: claim, serializer: ClaimDetailSerializer
     end
 
     def request_decision
-      Claim.request_decision(params[:id], current_user)
+      claim_service.request_decision(params[:id])
       head :no_content
     end
 
     private
+
+    def claim_service
+      @claim_service ||= ClaimService.new(current_user)
+    end
 
     def current_user
       @current_user ||= User.sample_claimant
