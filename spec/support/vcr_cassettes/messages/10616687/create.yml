@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://mock-sm-api.herokuapp.com/mhv-sm-api/patient/v1/session
+    uri: https://test.vets.gov/mhv-sm-api/patient/v1/session
     body:
       encoding: US-ASCII
       string: ''
@@ -47,7 +47,7 @@ http_interactions:
   recorded_at: Wed, 14 Sep 2016 17:08:07 GMT
 - request:
     method: post
-    uri: https://mock-sm-api.herokuapp.com/mhv-sm-api/patient/v1/message
+    uri: https://test.vets.gov/mhv-sm-api/patient/v1/message
     body:
       encoding: UTF-8
       string: '{"category":"OTHER","body":"Body 1","recipientId":"585986","subject":"Subject

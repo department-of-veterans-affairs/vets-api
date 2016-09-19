@@ -19,7 +19,7 @@ before_script:
   - export MHV_APP_TOKEN='fake-app-token'
   - export MHV_USER_ID='1435525'
   - export DB_ENCRYPTION_KEY='f01ff8ebd1a2b053ad697ae1f0d86adb48ebb708021e4c76c3807d37f6b4e389d5aa45ea171f2f5074222784c1ee2bb8272390d1b9517a7a6987c22733ef00b2'
-  - export MHV_SM_HOST='https://mock-sm-api.herokuapp.com'
+  - export MHV_SM_HOST='https://test.vets.gov'
   - export MHV_SM_APP_TOKEN='fake-app-token'
   - export MHV_SM_USER_ID='10616687'
   - export EVSS_CLAIMS_BASE_URL='http://csraciapp6.evss.srarad.com:7003/wss-claims-services-web-3.1/rest'
