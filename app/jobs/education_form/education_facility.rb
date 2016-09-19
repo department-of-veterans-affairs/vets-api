@@ -25,6 +25,15 @@ module EducationForm
       'Guam', 'APO/FPO AP'
     ].freeze
 
+    ADDRESSES = {
+      eastern: [
+        'Eastern Region',
+        'VA Regional Office',
+        'P.O. Box 4616',
+        'Buffalo, NY 14240-4616'
+      ],
+    }
+
     def self.region_for(record)
       area = record.schoolAddress&.state || record.address&.state
       case area
@@ -39,6 +48,10 @@ module EducationForm
       else
         DEFAULT
       end
+    end
+
+    def self.regional_office_for(record)
+      ADDRESSES[region_for(record)].join("\n")
     end
   end
 end
