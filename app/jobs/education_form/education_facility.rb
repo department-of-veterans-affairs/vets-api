@@ -35,7 +35,7 @@ module EducationForm
     }
 
     def self.region_for(record)
-      area = record.schoolAddress&.state || record.address&.state
+      area = record.school&.address&.state || record.veteranAddress&.state
       case area
       when *EASTERN
         :eastern
