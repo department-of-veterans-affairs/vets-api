@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://mock-sm-api.herokuapp.com/mhv-sm-api/patient/v1/session
+    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/session
     body:
       encoding: US-ASCII
       string: ''
@@ -47,7 +47,7 @@ http_interactions:
   recorded_at: Fri, 09 Sep 2016 16:16:45 GMT
 - request:
     method: get
-    uri: https://mock-sm-api.herokuapp.com/mhv-sm-api/patient/v1/triageteam
+    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/triageteam
     body:
       encoding: US-ASCII
       string: ''

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://mock-sm-api.herokuapp.com/mhv-sm-api/patient/v1/session
+    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/session
     body:
       encoding: US-ASCII
       string: ''
