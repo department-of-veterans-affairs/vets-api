@@ -40,7 +40,9 @@ Content-Type: application/json
       // the form that was submitted
       "form": "{\"preferredContactMethod\":\"mail\"}",
       // when it was first submitted
-      "submittedAt": "2016-09-09T23:48:07.766Z"
+      "submittedAt": "2016-09-09T23:48:07.766Z",
+      // address of the VA regional office where it will be processed
+      "regionalOffice": "Eastern Region\nVA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"
     }
   }
 }
