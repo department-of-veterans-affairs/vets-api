@@ -48,4 +48,9 @@ Rails.application.routes.draw do
   end
 
   root 'v0/example#index', module: 'v0'
+
+  if Rails.env.development? || (ENV['SIDEKIQ_ADMIN_PANEL'] == 'true')
+    require "sidekiq/web"
+    mount Sidekiq::Web, at: "/sidekiq"
+  end
 end

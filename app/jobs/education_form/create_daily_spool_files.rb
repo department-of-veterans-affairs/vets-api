@@ -1,38 +1,65 @@
 # frozen_string_literal: true
+require 'net/sftp'
+
 module EducationForm
-  class CreateDailySpoolFiles
+  class CreateDailySpoolFiles < ActiveJob::Base
     include ActionView::Helpers::TextHelper # Needed for word_wrap
     require 'erb'
     require 'ostruct'
+
+    queue_as :default
 
     TEMPLATE = File.read(Rails.root.join('app', 'jobs', 'education_form', 'templates', '22-1990.erb'))
 
     WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
 
-    def run(day = Date.yesterday)
-      # TODO: add and use the mapping of schools/regions -> spool file
+    # TODO: make sure we rescue from all possible SFTP exceptions
+    rescue_from(Net::ReadTimeout) do
+      retry_job(wait: 1.minute)
+    end
 
-      records = EducationBenefitsClaim.unprocessed_for(day)
-
-      records.each do |record|
-        format_application(record)
-      end.join(WINDOWS_NOTEPAD_LINEBREAK)
-
-      Tempfile.create('education_spoolfile') do |f|
-        f.write dev_spool_output
-        # if you want to roughly(ish) see what the generated image looks like
-        # convert -pointsize 10 -density 200 -depth 8 -font Courier text:#{f.path} sample.win.tiff
-      end
-
-      # TODO: SFTP the generated file(s)
-      # TODO: Mark the applications as processed once the send is successful
+    def perform
+      # Fetch all the records for the day
+      records = EducationBenefitsClaim.unprocessed
+      # Group the formatted records into different regions
+      regional_data = group_submissions_by_region(records)
+      # Create a remote file for each region, and write the records into them
+      create_files(regional_data)
+      # mark the records as processed
+      records.update_all(processed_at: Time.zone.now)
       # TODO: Log the success/failure of the submission somewhere
       true
     end
 
-    def format_application(application)
+    def group_submissions_by_region(records)
+      regional_data = Hash.new { |h, k| h[k] = [] }
+      records.each do |record|
+        form = record.open_struct_form
+        region_key = EducationFacility.region_for(form)
+        regional_data[region_key] << form
+      end
+      regional_data
+    end
+
+    def create_files(structured_data)
+      # TODO: Will be implemented in a follow-up PR.
+      Net::SFTP.start('host', 'username', password: 'password') do |sftp|
+        structured_data.each do |region, records|
+          remote_name = "#{Time.zone.today.strftime('%F')}-#{region}.spl"
+          f = sftp.file.open(remote_name, 'w')
+          contents = records.map do |record|
+            format_application(record)
+          end.join(WINDOWS_NOTEPAD_LINEBREAK)
+
+          f.write(contents)
+        end
+      end
+    end
+
+    # Convert the JSON document into the text format that we submit to the backend
+    def format_application(form)
       @application_template ||= ERB.new(TEMPLATE, nil, '-')
-      @applicant = application.open_struct_form
+      @applicant = form
       # the spool file has a requirement that lines be 80 bytes (not characters), and since they
       # use windows-style newlines, that leaves us with a width of 78
       wrapped = word_wrap(@application_template.result(binding), line_width: 78)
@@ -40,7 +67,9 @@ module EducationForm
       wrapped.gsub("\n", WINDOWS_NOTEPAD_LINEBREAK)
     end
 
-    # Used in the INIT header
+    private
+
+    # Used in the INIT header of the 22-1990 template.
     def form_type(application)
       {
         CH33_30:    'CH33',
@@ -52,12 +81,12 @@ module EducationForm
       }[application.form.to_sym]
     end
 
+    # Some descriptive text that's included near the top of the 22-1990 form
     def disclosure(application)
       contents = File.read(Rails.root.join('app', 'jobs', 'education_form', 'templates', "_#{application.form}.erb"))
       ERB.new(contents).result(binding)
     end
 
-    # with the binding, we can access helper methods as well
     def full_name(name)
       return '' if name.nil?
       [name.first, name.middle, name.last].compact.join(' ')
@@ -66,12 +95,14 @@ module EducationForm
     def full_address(address)
       return '' if address.nil?
       if address.country == 'USA'
-        "#{address.street}\n        #{address.city}, #{address.state}, #{address.zipcode}".upcase
+        "#{address.street}
+        #{address.city}, #{address.state}, #{address.zipcode}".upcase
       end
     end
 
     def rotc_scholarship_amounts(scholarships)
       # there are 5 years, all of which can be blank.
+      # Wrap the array to a size of 5 to meet this requirement
       wrapped_list = Array(scholarships)
       Array.new(5) do |idx|
         "            Year #{idx + 1}:          Amount: #{wrapped_list[idx]&.amount}\n"
@@ -89,18 +120,15 @@ module EducationForm
       end.join("\n\n")
     end
 
+    # N/A is used for "the user wasn't shown this option", which is distinct from Y/N.
     def yesno(bool)
-      return 'N/A' if bool.nil? # TODO: Remove 'N/A' once the form is complete. Used for testing.
+      return 'N/A' if bool.nil?
       bool ? 'YES' : 'NO'
     end
 
     # is this needed? will it the data come in the correct format? better to have the helper..
     def to_date(date)
       date ? date : (' ' * 10) # '00/00/0000'.length
-    end
-
-    def self.run(day = Date.yesterday)
-      new.run(day)
     end
   end
 end

@@ -13,7 +13,7 @@ module V0
 
       Claim.upload_document(claim_id,
                             uploaded_io.original_filename, uploaded_io.read,
-                            tracked_item_id, current_user.vaafi_headers)
+                            tracked_item_id, current_user)
       head :no_content
 
     rescue ActionController::ParameterMissing => ex
