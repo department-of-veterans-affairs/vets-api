@@ -12,7 +12,7 @@ RSpec.describe EducationForm::EducationFacility do
       central: ['CO', "Central Region\nVA Regional Office\nP.O. Box 66830\nSt. Louis, MO 63166-6830"],
       western: ['AK', "Western Region\nVA Regional Office\nP.O. Box 8888\nMuskogee, OK 74402-8888"]
     }.each do |region, region_data|
-      context "with an #{region} address" do
+      context "with a #{region} address" do
         before do
           new_form = education_benefits_claim.parsed_form
           new_form['school']['address']['state'] = region_data[0]
