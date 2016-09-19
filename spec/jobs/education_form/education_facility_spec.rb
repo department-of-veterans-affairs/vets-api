@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe EducationForm::EducationFacility, type: :model do
+RSpec.describe EducationForm::EducationFacility do
   let(:education_benefits_claim) { build(:education_benefits_claim) }
   let(:record) do
     education_benefits_claim.open_struct_form
