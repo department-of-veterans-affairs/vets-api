@@ -9,12 +9,15 @@ This project provides common APIs for applications that live on vets.gov. This r
 1. Install Ruby 2.3. (It is suggested to use a Ruby version manager such as [rbenv](https://github.com/rbenv/rbenv#installation) and then to [install Ruby 2.3](https://github.com/rbenv/rbenv#installing-ruby-versions)).
 1. Install Bundler to manage dependencies: `gem install bundler`
 1. Install Postgres (on Mac): `brew install postgres`
-1. Get the code: `git clone https://github.com/department-of-veterans-affairs/vets-api.git; git submodule init; git submodule update` 
+1. Get the code: `git clone https://github.com/department-of-veterans-affairs/vets-api.git; git submodule init; git submodule update`
 1. Install gem dependencies: `cd vets-api; bundle install`
 
 ### Database Setup
 1. Start Postgres: `postgres -D /usr/local/var/postgres`
 1. Create dev database: `bundle exec rake db:setup`
+
+## Application Configuration
+Various ENV variables are required for the application to run. See application.yml.example
 
 ### ID.me Certificate Setup
 For the ID.me SAML auth integration to work, you will need the following environment variables set:
@@ -46,6 +49,18 @@ For an example, see `application.yml.example`
 
 Note: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
 this is a sign that redis is not currently running or `config/redis.yml` is not using correct host and port.
+
+### MHV Prescriptions and MHV Secure Messaging Setup
+For this app to be properly configured, you will need to specify the following environment variables:
+```
+MHV_HOST
+MHV_APP_TOKEN
+MHV_SM_HOST
+MHV_SM_APP_TOKEN
+```
+
+For an example, see `application.yml.example` - these are just mock endpoints.
+For actual backend testing you will need to reference the appropriate private repository.
 
 ### Running the App
 1. Start the application: `bundle exec rails s`
