@@ -4,7 +4,7 @@ require 'rails_helper'
 RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :education_benefits do
   subject { described_class.new }
 
-  let(:application_1606) do
+  let!(:application_1606) do
     FactoryGirl.create(:education_benefits_claim)
   end
 
@@ -15,20 +15,47 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
     # TODO: Does it make sense to check against a known-good submission? Probably.
     it 'formats a 22-1990 submission in textual form' do
-      result = subject.format_application(application_1606)
+      result = subject.format_application(application_1606.open_struct_form)
       expect(result).to include("*INIT*\r\nMARK\r\n\r\nOLSON")
       expect(result).to include('Name:   Mark Olson')
       expect(result).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
     end
 
     it 'outputs a valid spool file fragment' do
-      result = subject.format_application(application_1606)
+      result = subject.format_application(application_1606.open_struct_form)
       expect(result.lines.select { |line| line.length > 80 }).to be_empty
     end
   end
 
-  it 'writes out spool files' do
-    expect(Tempfile).to receive(:create).once # should be 4 times by the time we're done
-    subject.run
+  context '#group_submissions_by_region' do
+    it 'takes a list of records into chunked forms' do
+      eastern = EducationBenefitsClaim.new(form: { schoolAddress: { state: 'MD' } }.to_json)
+      southern = EducationBenefitsClaim.new(form: { schoolAddress: { state: 'GA' } }.to_json)
+      central = EducationBenefitsClaim.new(form: { address: { state: 'WI' } }.to_json)
+      eastern_default = EducationBenefitsClaim.new(form: {}.to_json)
+      western = EducationBenefitsClaim.new(form: { address: { state: 'APO/FPO AP' } }.to_json)
+
+      output = subject.group_submissions_by_region([eastern, central, southern, eastern_default, western])
+      expect(output[:eastern].length).to be(2)
+      expect(output[:western].length).to be(1)
+      expect(output[:southern].length).to be(1)
+      expect(output[:central].length).to be(1)
+    end
+  end
+
+  context 'create_files' do
+    it 'writes files out over sftp' do
+      mock_file = double(File)
+      mock_writer = StringIO.new
+      sftp_mock = double(file: mock_file)
+      Net::SFTP.stub(:start).and_yield(sftp_mock)
+      expect(mock_file).to receive('open').with('2016-09-16-eastern.spl', 'w').and_return(mock_writer)
+      Timecop.freeze(Time.zone.parse('2016-09-16 03:00:00 EDT')) do
+        subject.perform
+      end
+      # read back the written file
+      mock_writer.rewind
+      expect(mock_writer.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
+    end
   end
 end

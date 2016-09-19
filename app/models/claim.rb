@@ -9,8 +9,8 @@ class Claim < ActiveModelSerializers::Model
 
   EVSS_CLAIM_KEYS = %w(openClaims historicalClaims).freeze
 
-  def self.fetch_all(headers)
-    evss_client = EVSS::ClaimsService.new(headers)
+  def self.fetch_all(user)
+    evss_client = EVSS::ClaimsService.new(user)
     raw_claims = evss_client.claims.body
     EVSS_CLAIM_KEYS.each_with_object([]) do |key, claims|
       next unless raw_claims[key]
@@ -20,13 +20,13 @@ class Claim < ActiveModelSerializers::Model
     end.flatten
   end
 
-  def self.request_decision(claim_id, headers)
-    evss_client = EVSS::ClaimsService.new(headers)
+  def self.request_decision(claim_id, user)
+    evss_client = EVSS::ClaimsService.new(user)
     evss_client.submit_5103_waiver(claim_id).body
   end
 
-  def self.find_by_id(claim_id, headers)
-    evss_client = EVSS::ClaimsService.new(headers)
+  def self.find_by_id(claim_id, user)
+    evss_client = EVSS::ClaimsService.new(user)
     raw_claim = evss_client.find_claim_by_id(claim_id).body.fetch('claim', {})
     Claim.from_json(raw_claim)
   end
@@ -46,10 +46,10 @@ class Claim < ActiveModelSerializers::Model
     )
   end
 
-  def self.upload_document(claim_id, file_name, file_body, tracked_item_id, headers)
+  def self.upload_document(claim_id, file_name, file_body, tracked_item_id, user)
     # Todo, instead of having a class method and passing claim_id,
     # get claim_id from the model
-    evss_client = EVSS::DocumentsService.new(headers)
+    evss_client = EVSS::DocumentsService.new(user)
     evss_client.upload(file_name, file_body, claim_id, tracked_item_id).body
   end
 end
