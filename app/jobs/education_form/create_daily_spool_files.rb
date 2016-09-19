@@ -44,7 +44,7 @@ module EducationForm
     def create_files(structured_data)
       # TODO: Will be implemented in a follow-up PR.
       Net::SFTP.start('host', 'username', password: 'password') do |sftp|
-        structured_data.each_with_object({}) do |(region, records), _localfiles|
+        structured_data.each do |region, records|
           remote_name = "#{Time.zone.today.strftime('%F')}-#{region}.spl"
           f = sftp.file.open(remote_name, 'w')
           contents = records.map do |record|
