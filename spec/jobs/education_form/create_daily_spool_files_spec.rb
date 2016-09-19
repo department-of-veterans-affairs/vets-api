@@ -5,7 +5,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   subject { described_class.new }
 
   let!(:application_1606) do
-    FactoryGirl.create(:education_benefit_claim)
+    FactoryGirl.create(:education_benefits_claim)
   end
 
   context '#format_application' do
