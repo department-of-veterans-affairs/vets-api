@@ -40,9 +40,7 @@ Content-Type: application/json
       // the form that was submitted
       "form": "{\"preferredContactMethod\":\"mail\"}",
       // when it was first submitted
-      "submittedAt": "2016-09-09T23:48:07.766Z",
-      // when it was sent to the VA SFTP for processing
-      "processedAt": null
+      "submittedAt": "2016-09-09T23:48:07.766Z"
     }
   }
 }
