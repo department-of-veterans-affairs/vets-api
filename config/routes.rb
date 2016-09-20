@@ -42,6 +42,7 @@ Rails.application.routes.draw do
 
         resources :messages, only: [:show, :create, :destroy], defaults: { format: :json } do
           get :thread, on: :member
+          get :categories, on: :collection
         end
       end
     end

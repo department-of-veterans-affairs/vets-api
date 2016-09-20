@@ -3,6 +3,8 @@ module V0
   class FoldersController < HealthcareMessagingController
     def index
       folders = client.get_folders
+      raise VA::API::Common::Exceptions::InternalServerError unless folders.present?
+
       render json: folders.data,
              serializer: CollectionSerializer,
              each_serializer: FolderSerializer,
