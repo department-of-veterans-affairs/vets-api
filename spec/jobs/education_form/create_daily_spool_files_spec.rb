@@ -7,6 +7,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   let!(:application_1606) do
     FactoryGirl.create(:education_benefits_claim)
   end
+  let(:line_break) { described_class::WINDOWS_NOTEPAD_LINEBREAK }
 
   context '#format_application' do
     it 'uses conformant sample data in the tests' do
@@ -16,7 +17,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     context 'result tests' do
       subject { described_class.new.format_application(application_1606.open_struct_form) }
 
-        # TODO: Does it make sense to check against a known-good submission? Probably.
+      # TODO: Does it make sense to check against a known-good submission? Probably.
       it 'formats a 22-1990 submission in textual form' do
         expect(subject).to include("*INIT*\r\nMARK\r\n\r\nOLSON")
         expect(subject).to include('Name:   Mark Olson')
@@ -25,6 +26,10 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
       it 'outputs a valid spool file fragment' do
         expect(subject.lines.select { |line| line.length > 80 }).to be_empty
+      end
+
+      it 'includes the faa flight certificates' do
+        expect(subject).to include("FAA Flight Certificates:#{line_break}cert1, cert2#{line_break}")
       end
     end
   end

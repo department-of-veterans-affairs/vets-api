@@ -89,6 +89,10 @@ FactoryGirl.define do
             serviceStatus: 'Honorable Discharge',
             involuntarilyCalledToDuty: 'yes'
           }
+        ],
+        faaFlightCertificatesInformation: [
+          { name: 'cert1' },
+          { name: 'cert2' }
         ]
       }.to_json
     end
