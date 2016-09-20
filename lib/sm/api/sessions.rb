@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 module SM
   module API
-    # This module defines the session actions
     module Sessions
       def get_session
         env = perform(:get, 'session', nil, auth_headers)
