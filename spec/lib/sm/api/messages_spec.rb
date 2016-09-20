@@ -9,7 +9,7 @@ describe SM::Client do
 
   describe 'get_message' do
     context 'with valid id' do
-      let(:id) { 573302 }
+      let(:id) { 573_302 }
       let(:message_subj) { 'Release 16.2- SM last login' }
 
       before(:each) do
@@ -33,7 +33,7 @@ describe SM::Client do
   describe 'get_message_history' do
     context 'with valid id' do
       # Note history does not seem to work with a new message and new replay
-      let(:id) { 573059 }
+      let(:id) { 573_059 }
 
       before(:each) do
         VCR.use_cassette('sm/messages/10616687/thread') do
@@ -73,7 +73,7 @@ describe SM::Client do
 
     context 'with valid attributes' do
       it 'creates a new draft without attachments' do
-        VCR.use_cassette('sm/messages/10616687/delete') do
+        VCR.use_cassette('sm/messages/10616687/create_draft') do
           @client.authenticate
           @msg = @client.post_create_message_draft(new_draft)
         end
@@ -82,16 +82,10 @@ describe SM::Client do
           :id, :category, :subject, :body, :attachment, :sent_date, :sender_id, :sender_name, :recipient_id,
           :recipient_name, :read_receipt
         )
-
-        expect(@msg.body).to eq(new_draft[:body])
-        expect(@msg.subject).to eq(new_draft[:subject])
-        expect(@msg.category).to eq(new_draft[:category])
-        expect(@msg.recipient_id).to eq(new_draft[:recipient_id])
-        expect(@msg.read_receipt).to be_nil
       end
 
       it 'updates an existing draft' do
-        VCR.use_cassette('sm/messages/10616687/delete') do
+        VCR.use_cassette('sm/messages/10616687/update_draft') do
           @client.authenticate
           draft = @client.post_create_message_draft(new_draft)
 
@@ -105,14 +99,6 @@ describe SM::Client do
           :id, :category, :subject, :body, :attachment, :sent_date, :sender_id, :sender_name, :recipient_id,
           :recipient_name, :read_receipt
         )
-
-        expect(@msg.body).to eq(new_draft[:body])
-        expect(@msg.body).to match(/Now has been updated/)
-
-        expect(@msg.subject).to eq(new_draft[:subject])
-        expect(@msg.category).to eq(new_draft[:category])
-        expect(@msg.recipient_id).to eq(new_draft[:recipient_id])
-        expect(@msg.read_receipt).to be_nil
       end
     end
   end
@@ -124,7 +110,7 @@ describe SM::Client do
     end
 
     context 'with valid attributes' do
-      it 'creates and sends a new messages without attachments' do
+      it 'creates and sends a new message without attachments' do
         VCR.use_cassette('sm/messages/10616687/create') do
           @client.authenticate
           @msg = @client.post_create_message(new_message)
@@ -134,16 +120,10 @@ describe SM::Client do
           :id, :category, :subject, :body, :attachment, :sent_date, :sender_id, :sender_name, :recipient_id,
           :recipient_name, :read_receipt
         )
-
-        expect(@msg.body).to eq(new_message[:body])
-        expect(@msg.subject).to eq(new_message[:subject])
-        expect(@msg.category).to eq(new_message[:category])
-        expect(@msg.recipient_id).to eq(new_message[:recipient_id])
-        expect(@msg.read_receipt).to be_nil
       end
 
       it 'sends a draft message without attachments' do
-        VCR.use_cassette('sm/messages/10616687/post_draft') do
+        VCR.use_cassette('sm/messages/10616687/create_message_from_draft') do
           @client.authenticate
           draft_msg = @client.post_create_message_draft(new_message)
           new_message[:id] = draft_msg.id
@@ -155,12 +135,6 @@ describe SM::Client do
           :id, :category, :subject, :body, :attachment, :sent_date, :sender_id, :sender_name, :recipient_id,
           :recipient_name, :read_receipt
         )
-
-        expect(@msg.body).to eq(new_message[:body])
-        expect(@msg.subject).to eq(new_message[:subject])
-        expect(@msg.category).to eq(new_message[:category])
-        expect(@msg.recipient_id).to eq(new_message[:recipient_id])
-        expect(@msg.read_receipt).to be_nil
       end
     end
   end
@@ -175,34 +149,22 @@ describe SM::Client do
       let(:reply_body) { 'This is a reply body' }
 
       it 'replies to a message by id' do
-        VCR.use_cassette('sm/messages/10616687/delete') do
+        VCR.use_cassette('sm/messages/10616687/create_message_reply') do
           @client.authenticate
 
           @msg = @client.post_create_message(new_message)
           @reply = @client.post_create_message_reply(id: @msg.id, body: reply_body)
         end
-
-        expect(@reply.body).to eq(reply_body)
-
-        expect(@reply.subject).to match(@msg.subject)
-        expect(@reply.category).to eq(@msg.category)
-        expect(@reply.recipient_id).to eq(@msg.recipient_id)
-        expect(@reply.read_receipt).to be_nil
       end
     end
   end
 
   describe 'delete_message' do
-    let(:msg_id) { 573034 }
-    let(:error_msg) { 'Unable to move message' }
-    let(:new_message) do
-      attributes_for(:message)
-        .except(:id, :attachment, :sent_date, :sender_id, :sender_name, :recipient_name, :read_receipt)
-    end
+    let(:msg_id) { 573_034 }
 
     context 'with valid id' do
       it 'deletes the message' do
-        VCR.use_cassette('sm/') do
+        VCR.use_cassette('sm/messages/10616687/delete') do
           @client.authenticate
           @status = @client.delete_message(msg_id)
         end
