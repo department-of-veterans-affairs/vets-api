@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://test.vets.gov/mhv-sm-api/patient/v1/session
+    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/session
     body:
       encoding: US-ASCII
       string: ''

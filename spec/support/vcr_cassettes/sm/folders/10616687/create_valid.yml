@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://test.vets.gov/mhv-sm-api/patient/v1/session
+    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/session
     body:
       encoding: US-ASCII
       string: ''
@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
       Apptoken:
-      - fake-app-token
+      - "fake-app-token"
       Mhvcorrelationid:
       - '10616687'
       Accept-Encoding:
@@ -25,15 +25,15 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 14 Sep 2016 16:55:26 GMT
+      - Fri, 05 Aug 2016 14:12:18 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Content-Length:
       - '0'
       Expires:
-      - Wed, 14 Sep 2016 17:55:27 GMT
+      - Fri, 05 Aug 2016 15:12:18 GMT
       Token:
-      - 9yNDMYsxyOc=lMBG73EI3Kz5Ncm+tKb8bmeGMTSSZkPv5eXIpK+Ls2M=
+      - dqmxS41wjxQ=hynGpzYIRWeuxIAUrMgiF4TQO0F9xso8DzGX7OtzEEk=
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
       Connection:
@@ -44,13 +44,13 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version:
-  recorded_at: Wed, 14 Sep 2016 16:55:27 GMT
+  recorded_at: Fri, 05 Aug 2016 14:12:18 GMT
 - request:
-    method: get
-    uri: https://test.vets.gov/mhv-sm-api/patient/v1/message/573302/read
+    method: post
+    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/folder
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: '{ "name":"test folder create name 160805101218" }'
     headers:
       Accept:
       - application/json
@@ -59,7 +59,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
       Token:
-      - 9yNDMYsxyOc=lMBG73EI3Kz5Ncm+tKb8bmeGMTSSZkPv5eXIpK+Ls2M=
+      - dqmxS41wjxQ=hynGpzYIRWeuxIAUrMgiF4TQO0F9xso8DzGX7OtzEEk=
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -68,7 +68,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 14 Sep 2016 16:55:28 GMT
+      - Fri, 05 Aug 2016 14:12:19 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -81,10 +81,7 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: '{"id":573302,"category":"OTHER","subject":"Release 16.2- SM last login
-        ","body":"fdgfdgsdfgd","attachment":false,"attachments":{"attachment":[]},"sentDate":"Wed,
-        13 Apr 2016 21:17:57 GMT","senderId":35382,"senderName":"Manivasagam, Rajesh","recipientId":384939,"recipientName":"MVIONE,
-        TEST","readReceipt":"READ"}'
+      string: '{"id":610078,"name":"test folder create name 160805101218","count":0,"unreadCount":0,"systemFolder":false}'
     http_version:
-  recorded_at: Wed, 14 Sep 2016 16:55:29 GMT
+  recorded_at: Fri, 05 Aug 2016 14:12:19 GMT
 recorded_with: VCR 3.0.3

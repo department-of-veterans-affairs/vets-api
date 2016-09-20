@@ -8,7 +8,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
   describe '#index' do
     before(:each) do
-      VCR.use_cassette("messages/#{user_id}/index") do
+      VCR.use_cassette("sm/messages/#{user_id}/index") do
         get "/v0/messaging/health/folders/#{inbox_id}/messages"
       end
     end
@@ -22,7 +22,7 @@ RSpec.describe 'Messages Integration', type: :request do
     it 'responds to GET #index with pagination parameters' do
       target_msg = JSON.parse(response.body)['data'][1]
 
-      VCR.use_cassette("messages/#{user_id}/index_pagination") do
+      VCR.use_cassette("sm/messages/#{user_id}/index_pagination") do
         get "/v0/messaging/health/folders/#{inbox_id}/messages", page: 2, per_page: 1
 
         expect(response).to be_success
@@ -37,7 +37,7 @@ RSpec.describe 'Messages Integration', type: :request do
     it 'can concatenate multiple MHV calls for GET all messages' do
       target_msgs = JSON.parse(response.body)['data']
 
-      VCR.use_cassette("messages/#{user_id}/index_concatenation") do
+      VCR.use_cassette("sm/messages/#{user_id}/index_concatenation") do
         # Forcing smaller per_page to test concatenation
         get "/v0/messaging/health/folders/#{inbox_id}/messages", per_page: 1, all: true
 
@@ -54,7 +54,7 @@ RSpec.describe 'Messages Integration', type: :request do
   describe '#show' do
     context 'with valid id' do
       before(:each) do
-        VCR.use_cassette("messages/#{user_id}/show") do
+        VCR.use_cassette("sm/messages/#{user_id}/show") do
           get "/v0/messaging/health/messages/#{message_id}"
         end
       end
@@ -71,7 +71,7 @@ RSpec.describe 'Messages Integration', type: :request do
     let(:msg) { build :message }
 
     before(:each) do
-      VCR.use_cassette("messages/#{user_id}/create") do
+      VCR.use_cassette("sm/messages/#{user_id}/create") do
         post '/v0/messaging/health/messages', subject: msg.subject, category: msg.category,
                                               recipient_id: msg.recipient_id, body: msg.body
       end
@@ -89,7 +89,7 @@ RSpec.describe 'Messages Integration', type: :request do
   #   let(:msg) { build :message }
   #
   #   before(:each) do
-  #     VCR.use_cassette("messages/#{user_id}/destroy") do
+  #     VCR.use_cassette("sm/messages/#{user_id}/destroy") do
   #       post '/v0/messaging/health/messages', subject: msg.subject, category: msg.category,
   #                                             recipient_id: msg.recipient_id, body: msg.body
   #
@@ -106,7 +106,7 @@ RSpec.describe 'Messages Integration', type: :request do
   #   let(:msg) { build :message }
   #
   #   before(:each) do
-  #     VCR.use_cassette("messages/#{user_id}/draft_create") do
+  #     VCR.use_cassette("sm/messages/#{user_id}/draft_create") do
   #       post '/v0/messaging/health/messages/draft', subject: msg.subject, category: msg.category,
   #                                                   recipient_id: msg.recipient_id, body: msg.body
   #     end
@@ -123,7 +123,7 @@ RSpec.describe 'Messages Integration', type: :request do
   #     body = org['body'] + '. This is the added bit!'
   #     message_id = org['message_id']
   #
-  #     VCR.use_cassette("messages/#{user_id}/draft_update") do
+  #     VCR.use_cassette("sm/messages/#{user_id}/draft_update") do
   #       put "/v0/messaging/health/messages/#{message_id}/draft", subject: msg.subject, category: msg.category,
   #                                                                body: body, recipient_id: msg.recipient_id
   #     end
@@ -139,7 +139,7 @@ RSpec.describe 'Messages Integration', type: :request do
   describe '#thread' do
     let(:thread_id) { 573_059 }
     before(:each) do
-      VCR.use_cassette("messages/#{user_id}/thread") do
+      VCR.use_cassette("sm/messages/#{user_id}/thread") do
         get "/v0/messaging/health/messages/#{thread_id}/thread"
       end
     end
@@ -153,7 +153,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
   describe 'when getting categories' do
     before(:each) do
-      VCR.use_cassette("messages/#{user_id}/category") do
+      VCR.use_cassette("sm/messages/#{user_id}/category") do
         get '/v0/messaging/health/messages/categories'
       end
     end

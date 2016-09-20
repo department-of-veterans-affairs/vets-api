@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://test.vets.gov/mhv-sm-api/patient/v1/session
+    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/session
     body:
       encoding: US-ASCII
       string: ''
@@ -47,7 +47,7 @@ http_interactions:
   recorded_at: Wed, 14 Sep 2016 16:55:34 GMT
 - request:
     method: get
-    uri: https://test.vets.gov/mhv-sm-api/patient/v1/folder/0
+    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/folder/0
     body:
       encoding: US-ASCII
       string: ''
@@ -86,7 +86,7 @@ http_interactions:
   recorded_at: Wed, 14 Sep 2016 16:55:36 GMT
 - request:
     method: get
-    uri: https://test.vets.gov/mhv-sm-api/patient/v1/folder/0/message/page/1/pageSize/250
+    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/folder/0/message/page/1/pageSize/250
     body:
       encoding: US-ASCII
       string: ''

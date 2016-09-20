@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://test.vets.gov/mhv-sm-api/patient/v1/session
+    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/session
     body:
       encoding: US-ASCII
       string: ''
@@ -25,15 +25,15 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 14 Sep 2016 16:55:32 GMT
+      - Wed, 14 Sep 2016 16:55:26 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Content-Length:
       - '0'
       Expires:
-      - Wed, 14 Sep 2016 17:55:32 GMT
+      - Wed, 14 Sep 2016 17:55:27 GMT
       Token:
-      - NVOksKkNqKA=6vAKUA4hlk/8bgWxdy1OK6mwEIs+MEkUNmLZI0OUpns=
+      - 9yNDMYsxyOc=lMBG73EI3Kz5Ncm+tKb8bmeGMTSSZkPv5eXIpK+Ls2M=
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
       Connection:
@@ -44,10 +44,10 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version:
-  recorded_at: Wed, 14 Sep 2016 16:55:32 GMT
+  recorded_at: Wed, 14 Sep 2016 16:55:27 GMT
 - request:
     method: get
-    uri: https://test.vets.gov/mhv-sm-api/patient/v1/message/573059/history
+    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/message/573302/read
     body:
       encoding: US-ASCII
       string: ''
@@ -59,7 +59,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
       Token:
-      - NVOksKkNqKA=6vAKUA4hlk/8bgWxdy1OK6mwEIs+MEkUNmLZI0OUpns=
+      - 9yNDMYsxyOc=lMBG73EI3Kz5Ncm+tKb8bmeGMTSSZkPv5eXIpK+Ls2M=
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -68,7 +68,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 14 Sep 2016 16:55:33 GMT
+      - Wed, 14 Sep 2016 16:55:28 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -81,13 +81,10 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: '{"message":[{"id":573052,"category":"OTHER","subject":"Release 16.2-
-        SM last login ","body":"Provider Reply","attachment":false,"attachments":null,"sentDate":"Mon,
-        11 Apr 2016 15:49:03 GMT","senderId":257555,"senderName":"ISLAM, MOHAMMAD","recipientId":384939,"recipientName":"MVIONE,
-        TEST","readReceipt":"READ"},{"id":573041,"category":"OTHER","subject":"Release
-        16.2- SM last login ","body":"Release 16.2- SM last login ","attachment":false,"attachments":null,"sentDate":"Mon,
-        11 Apr 2016 15:48:25 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":345468,"recipientName":"WORKLOAD
-        CAPTURE_Mohammad","readReceipt":"READ"}]}'
+      string: '{"id":573302,"category":"OTHER","subject":"Release 16.2- SM last login
+        ","body":"fdgfdgsdfgd","attachment":false,"attachments":{"attachment":[]},"sentDate":"Wed,
+        13 Apr 2016 21:17:57 GMT","senderId":35382,"senderName":"Manivasagam, Rajesh","recipientId":384939,"recipientName":"MVIONE,
+        TEST","readReceipt":"READ"}'
     http_version:
-  recorded_at: Wed, 14 Sep 2016 16:55:34 GMT
+  recorded_at: Wed, 14 Sep 2016 16:55:29 GMT
 recorded_with: VCR 3.0.3
