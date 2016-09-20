@@ -12,25 +12,25 @@ module MVI
   # Calls endpoints as class methods, if successful it will return a ruby hash of the SOAP XML response.
   #
   # Example:
-  #  message = MVI::Messages::FindCandidateMessage.new(first_name, last_name, dob, ssn).to_xml
+  #  dob = Time.new(1980, 1, 1).utc
+  #  message = MVI::Messages::FindCandidateMessage.new(['John', 'William'], 'Smith', dob, '555-44-3333').to_xml
   #  response = MVI::Service.find_candidate(message)
   #
   class Service
     extend Savon::Model
-
-    def self.load_wsdl
-      @wsdl ||= ERB.new("#{Rails.root}/config/mvi_schema/IdmWebService_200VGOV.wsdl.erb").result
-    end
-
-    client wsdl: load_wsdl
-
-    operations :prpa_in201301_uv02, :prpa_in201302_uv02, :prpa_in201305_uv02
 
     RESPONSE_CODES = {
       success: 'AA',
       failure: 'AE',
       invalid_request: 'AR'
     }.freeze
+
+    client wsdl: load_wsdl
+    operations :prpa_in201301_uv02, :prpa_in201302_uv02, :prpa_in201305_uv02
+
+    def self.load_wsdl
+      @wsdl ||= ERB.new("#{Rails.root}/config/mvi_schema/IdmWebService_200VGOV.wsdl.erb").result
+    end
 
     def self.prpa_in201305_uv02(message)
       response = super(xml: message)

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require 'ox'
-require_relative 'message_builder_concern'
+require_relative 'message_builder'
 
 module MVI
   module Messages

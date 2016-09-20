@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'mvi/messages/message_builder_concern'
+require 'mvi/messages/message_builder'
 
 describe MVI::Messages::MessageBuilder do
   let(:dummy_class) { Class.new { extend MVI::Messages::MessageBuilder } }
