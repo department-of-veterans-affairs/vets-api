@@ -175,6 +175,9 @@ GEM
     multi_json (1.12.1)
     multipart-post (2.0.0)
     nenv (0.3.0)
+    net-sftp (2.1.2)
+      net-ssh (>= 2.6.5)
+    net-ssh (3.2.0)
     nokogiri (1.6.8)
       mini_portile2 (~> 2.1.0)
       pkg-config (~> 1.1.7)
@@ -362,6 +365,7 @@ DEPENDENCIES
   guard-rubocop
   httpclient
   json-schema
+  net-sftp
   olive_branch
   ox (~> 2.4)
   pg
