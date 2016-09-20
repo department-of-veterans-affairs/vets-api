@@ -9,10 +9,6 @@ branches:
     only:
         - master
 
-env:
-  global:
-    - secure: "coCNFYpcfKBHnmhZumbbX2/ytalID07R6APF+YrMGPtRMCvePVHeDhQK06FmoMxDPg/jhJmUzsLL/wixdGLnHDbbO+IwivnIQTSbCzznz+hYkiDMmV9QjPTO9AcBaEpNXWvxtehshWrDWAr2LMeQqffptQcTdpZ0hx5VLwXXNfEvFr0jvu4uIbUDWjamh9V7r0iTGv6/jBgYXLMYxGkWB6bt+H1h8LLDtTqyex8GMcsiGAnjXc6hqXIESSvUkWNhNjQM/cje2TzaLeFCyZGdpGq/M+kpJOjkUMETPKL5PhS9YSSy36+MyPG6jBK5v3w3+0wUOmpwyvQlsw2AEHeMOJTAARUKgG7n3sfvys43xApZ5/bBSx/ZsuZZ9WovOeWnOUe0Q9Jppf8CcQNUIgaaXeu0yC3NGVAXL8Z88AtCbHPPVEMEJBYDYhSmkmQAJIRr4jWSLF5NX+iLAmmutuHSWQjdkQXF62sQDIcN7jUeGEmJ+9y1aesMZ6dPnVXObjbgstzqrt0bGTU/dI+TGAP3UjbaAnURV7TCOTJCWRlj0P0dIjF8gK6RQEmKGrlHLp5k61ImK8PXrtnM/E5WkVGRNo8xAioteGQBnPSJkhu1HDKUXFlao4HONaTmEWWCGJV5Sn5Ii1F6WkVEbQHKwAUaWEplyvSAWL4GfbfLnnZp0To=" # MVI_SCHEMA_KEY
-
 before_script:
   - export HOSTNAME="www.example.com"
   - export CERTIFICATE_FILE="spec/support/certificates/ruby-saml.crt"
@@ -29,7 +25,6 @@ before_script:
   - export EVSS_CLAIMS_BASE_URL='http://csraciapp6.evss.srarad.com:7003/wss-claims-services-web-3.1/rest'
   - export EVSS_DOCUMENTS_BASE_URL='http://csraciapp6.evss.srarad.com:7003/wss-document-services-web-3.1/rest/'
   - "export EVSS_SAMPLE_CLAIMANT_USER='{\"first_name\": \"Jane\",\"last_name\": \"Doe\",\"issue_instant\": \"2015-04-17T14:52:48Z\",\"edipi\": \"1105051936\",\"participant_id\": \"123456789\"}'"
-  - export MVI_SCHEMA_PATH="$TRAVIS_BUILD_DIR/config/mvi-schema"
 
 script:
   - bundle exec rake db:create db:schema:load ci
