@@ -48,6 +48,12 @@ Rails.application.routes.draw do
         resources :message_drafts, only: [:create, :update], defaults: { format: :json }
       end
     end
+
+    scope :facilities, module: 'facilities' do
+      resources :va, only: [:index, :show], defaults: { format: :json }
+      resources :choiceact, only: [:index, :show], defaults: { format: :json }
+    end
+
   end
 
   root 'v0/example#index', module: 'v0'
