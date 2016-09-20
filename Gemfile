@@ -28,6 +28,8 @@ gem 'attr_encrypted'
 gem 'olive_branch'
 gem 'sidekiq'
 
+gem 'net-sftp'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: :ruby
