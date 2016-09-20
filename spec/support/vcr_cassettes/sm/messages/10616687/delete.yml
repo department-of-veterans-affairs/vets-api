@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
       Apptoken:
-      - "<APP_TOKEN>"
+      - 'fake-app-token'
       Mhvcorrelationid:
       - '10616687'
       Accept-Encoding:

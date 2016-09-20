@@ -57,7 +57,7 @@ describe SM::Client do
 
   describe 'post_create_folder' do
     context 'with valid characters in name' do
-      let(:name) { "test folder create name #{Time.now.strftime('%y%m%d%H%M%S')}" }
+      let(:name) { "test folder create name #{Time.now.utc.strftime('%y%m%d%H%M%S')}" }
 
       before(:each) do
         VCR.use_cassette('sm/folders/10616687/create_valid') do
@@ -77,7 +77,7 @@ describe SM::Client do
   end
 
   describe 'delete_folder' do
-    let(:name) { "test folder delete name #{Time.now.strftime('%y%m%d%H%M%S')}" }
+    let(:name) { "test folder delete name #{Time.now.utc.strftime('%y%m%d%H%M%S')}" }
 
     context 'with a valid id' do
       it 'deletes the folder and returns 200' do

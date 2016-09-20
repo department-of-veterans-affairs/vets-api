@@ -17,10 +17,5 @@ RSpec.describe Folder do
       expect(subject.unread_count).to eq(params[:unread_count])
       expect(subject.system_folder).to eq(params[:system_folder])
     end
-
-    it 'can be compared by name' do
-      expect(subject <=> other).to eq(-1)
-      expect(other <=> subject).to eq(1)
-    end
   end
 end
