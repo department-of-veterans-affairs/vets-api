@@ -27,7 +27,6 @@ module SM
         Folder.new(json)
       end
 
-
       ## delete_folder: Deletes a folder.
       def delete_folder(id)
         response = perform(:delete, "folder/#{id}", nil, token_headers)
