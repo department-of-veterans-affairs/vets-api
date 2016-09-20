@@ -12,13 +12,17 @@ module MVI
   # Calls endpoints as class methods, if successful it will return a ruby hash of the SOAP XML response.
   #
   # Example:
-  #  message = MVI::Messages::FindCandidateMessage.new.build(first_name, last_name, dob, ssn)
+  #  message = MVI::Messages::FindCandidateMessage.new(first_name, last_name, dob, ssn).to_xml
   #  response = MVI::Service.find_candidate(message)
   #
   class Service
     extend Savon::Model
 
-    client wsdl: "#{Rails.root}/config/mvi-schema/IdmWebService_200VGOV.wsdl"
+    def self.load_wsdl
+      @wsdl ||= ERB.new("#{Rails.root}/config/mvi_schema/IdmWebService_200VGOV.wsdl.erb").result
+    end
+
+    client wsdl: load_wsdl
 
     operations :prpa_in201301_uv02, :prpa_in201302_uv02, :prpa_in201305_uv02
 
@@ -64,8 +68,8 @@ module MVI
       {
         correlation_ids: patient[:id].map { |id| id[:@extension] },
         status: patient[:status_code][:@code],
-        first_name: patient[:patient_person][:name].first[:given].capitalize,
-        last_name: patient[:patient_person][:name].first[:family].capitalize,
+        given_names: patient[:patient_person][:name].first[:given].map(&:capitalize),
+        family_name: patient[:patient_person][:name].first[:family].capitalize,
         gender: patient[:patient_person][:administrative_gender_code][:@code],
         dob: patient[:patient_person][:birth_time][:@value],
         ssn: patient[:patient_person][:as_other_i_ds][:id][:@extension].gsub(

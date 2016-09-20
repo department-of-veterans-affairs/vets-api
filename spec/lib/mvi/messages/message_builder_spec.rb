@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'mvi/messages/message_builder'
+require 'mvi/messages/message_builder_concern'
 
 describe MVI::Messages::MessageBuilder do
   let(:dummy_class) { Class.new { extend MVI::Messages::MessageBuilder } }
-  describe '.header' do
-    let(:header) { dummy_class.build_header('PRPA_IN201305UV02') }
+
+  describe '#build_idm' do
+    let(:el) { dummy_class.build_idm('PRPA_IN201305UV02') }
     it 'has mvi attributes' do
-      expect(header.attributes).to eq(
+      expect(el.attributes).to eq(
         'xmlns:idm' => 'http://vaww.oed.oit.va.gov',
         'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema‐instance',
         'xsi:schemaLocation' => 'urn:hl7‐org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201305UV02.xsd',
@@ -15,10 +16,14 @@ describe MVI::Messages::MessageBuilder do
         'ITSVersion' => 'XML_1.0'
       )
     end
+  end
+
+  describe '#add_header' do
+    let(:message) { dummy_class.add_header(dummy_class.element('foo'), 'PRPA_IN201305UV02') }
 
     it 'has a 200VGOV extension with a uuid' do
       allow(SecureRandom).to receive(:uuid).and_return('9cb52fb1-583c-448d-92d4-61abe0136465')
-      expect(header.locate('id').first.attributes).to eq(
+      expect(message.locate('id').first.attributes).to eq(
         root: '1.2.840.114350.1.13.0.1.7.1.1',
         extension: '200VGOV-9cb52fb1-583c-448d-92d4-61abe0136465'
       )
@@ -27,49 +32,49 @@ describe MVI::Messages::MessageBuilder do
     it 'has a creation time node' do
       time = Time.now.utc
       allow(Time).to receive(:now).and_return(time)
-      expect(header.locate('creationTime').first.attributes).to eq(value: time.strftime('%Y%m%d%M%H%M%S'))
+      expect(message.locate('creationTime').first.attributes).to eq(value: time.strftime('%Y%m%d%M%H%M%S'))
     end
 
     it 'has a version code node' do
-      expect(header.locate('versionCode').first.attributes).to eq(code: '3.0')
+      expect(message.locate('versionCode').first.attributes).to eq(code: '3.0')
     end
 
     it 'has an interaction id node' do
-      expect(header.locate('interactionId').first.attributes).to eq(
+      expect(message.locate('interactionId').first.attributes).to eq(
         root: '2.16.840.1.113883.1.6', extension: 'PRPA_IN201305UV02'
       )
     end
 
     it 'has a processing code node' do
-      expect(header.locate('processingCode').first.attributes).to eq(code: 'D')
+      expect(message.locate('processingCode').first.attributes).to eq(code: 'D')
     end
 
     it 'has a processing mode code node' do
-      expect(header.locate('processingModeCode').first.attributes).to eq(code: 'T')
+      expect(message.locate('processingModeCode').first.attributes).to eq(code: 'T')
     end
 
     it 'has a accept ack code node' do
-      expect(header.locate('acceptAckCode').first.attributes).to eq(code: 'AL')
+      expect(message.locate('acceptAckCode').first.attributes).to eq(code: 'AL')
     end
 
     it 'has a receiver node' do
-      expect(header.locate('receiver').first.attributes).to eq(typeCode: 'RCV')
-      expect(header.locate('receiver/device').first.attributes).to eq(classCode: 'DEV', determinerCode: 'INSTANCE')
-      expect(header.locate('receiver/device/id').first.attributes).to eq(
+      expect(message.locate('receiver').first.attributes).to eq(typeCode: 'RCV')
+      expect(message.locate('receiver/device').first.attributes).to eq(classCode: 'DEV', determinerCode: 'INSTANCE')
+      expect(message.locate('receiver/device/id').first.attributes).to eq(
         root: '1.2.840.114350.1.13.999.234', extension: '200M'
       )
     end
 
     it 'has a sender node' do
-      expect(header.locate('sender').first.attributes).to eq(typeCode: 'SND')
-      expect(header.locate('sender/device').first.attributes).to eq(classCode: 'DEV', determinerCode: 'INSTANCE')
-      expect(header.locate('sender/device/id').first.attributes).to eq(
+      expect(message.locate('sender').first.attributes).to eq(typeCode: 'SND')
+      expect(message.locate('sender/device').first.attributes).to eq(classCode: 'DEV', determinerCode: 'INSTANCE')
+      expect(message.locate('sender/device/id').first.attributes).to eq(
         root: '2.16.840.1.113883.4.349', extension: '200VGOV'
       )
     end
   end
 
-  describe '.element' do
+  describe '#element' do
     it 'creates a node with a value' do
       el = dummy_class.element('foo')
       expect(el.value).to eq('foo')
@@ -92,10 +97,10 @@ describe MVI::Messages::MessageBuilder do
     end
   end
 
-  describe '.build_envelope_body' do
+  describe '#build_envelope_body' do
     context 'with a message' do
       let(:message) { dummy_class.element('foo', text!: 'bar', first: 'John', last: 'Smith') }
-      let(:el) { dummy_class.build_envelope_body(message) }
+      let(:el) { dummy_class.build_envelope }
       it 'has soap attributes' do
         expect(el.attributes).to eq(
           'xmlns:soapenc' => 'http://schemas.xmlsoap.org/soap/encoding/',
@@ -103,10 +108,6 @@ describe MVI::Messages::MessageBuilder do
           'xmlns:env' => 'http://schemas.xmlsoap.org/soap/envelope/',
           'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance'
         )
-      end
-
-      it 'wraps the message in envelope body tags' do
-        expect(el.locate('env:Body/foo').first.attributes).to eq(first: 'John', last: 'Smith')
       end
     end
   end

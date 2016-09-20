@@ -12,7 +12,7 @@ end
 RSpec::Matchers.define :eq_text_at_path do |path, expected|
   match do |actual|
     parsed_xml = Ox.parse(actual)
-    actual_value = parsed_xml.locate(path).first.text
+    actual_value = parsed_xml.locate(path).first.nodes.first
     actual_value == expected
   end
 end
