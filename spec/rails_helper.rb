@@ -18,6 +18,7 @@ VCR.configure do |c|
   c.cassette_library_dir = 'spec/support/vcr_cassettes'
   c.hook_into :webmock
   c.configure_rspec_metadata!
+  c.filter_sensitive_data('<MHV_SM_HOST>') { ENV['MHV_SM_HOST'] }
 end
 
 ActiveRecord::Migration.maintain_test_schema!

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/session
+    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/session
     body:
       encoding: US-ASCII
       string: ''
@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
       Apptoken:
-      - a-fake-app-token
+      - fake-app-token
       Mhvcorrelationid:
       - '10616687'
       Accept-Encoding:
@@ -43,11 +43,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: ''
-    http_version: 
+    http_version:
   recorded_at: Fri, 09 Sep 2016 16:17:40 GMT
 - request:
     method: get
-    uri: https://mock-prescriptions-api.herokuapp.com/mhv-sm-api/patient/v1/folder/0
+    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/folder/0
     body:
       encoding: US-ASCII
       string: ''
@@ -82,6 +82,6 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"id":0,"name":"Inbox","count":2,"unreadCount":0,"systemFolder":true}'
-    http_version: 
+    http_version:
   recorded_at: Fri, 09 Sep 2016 16:17:41 GMT
 recorded_with: VCR 3.0.3
