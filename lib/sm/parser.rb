@@ -28,35 +28,19 @@ module SM
     end
 
     def parsed_folders
-      if @parsed_json.is_a?(Hash)
-        @parsed_json.key?(:system_folder) ? @parsed_json : @parsed_json[:folder]
-      elsif @parsed_json.is_a?(Array) && @parsed_json.first.key?(:system_folder)
-        @parsed_json
-      end
+      @parsed_json.key?(:system_folder) ? @parsed_json : @parsed_json[:folder]
     end
 
     def parsed_triage
-      if @parsed_json.is_a?(Hash)
-        @parsed_json.key?(:triage_team_id) ? @parsed_json : @parsed_json[:triage_team]
-      elsif @parsed_json.is_a?(Array) && @parsed_json.first.key?(:triage_team_id)
-        @parsed_json
-      end
+      @parsed_json.key?(:triage_team_id) ? @parsed_json : @parsed_json[:triage_team]
     end
 
     def parsed_messages
-      if @parsed_json.is_a?(Hash)
-        @parsed_json.key?(:recipient_id) ? @parsed_json : @parsed_json[:message]
-      elsif @parsed_json.is_a?(Array) && @parsed_json.first.key?(:recipient_id)
-        @parsed_json
-      end
+      @parsed_json.key?(:recipient_id) ? @parsed_json : @parsed_json[:message]
     end
 
     def parsed_categories
-      if @parsed_json.is_a?(Hash)
-        @parsed_json.key?(:message_category_type) ? @parsed_json : @parsed_json[:message_category_type]
-      elsif @parsed_json.is_a?(Array) && @parsed_json.first.key?(:message_category_type)
-        @parsed_json
-      end
+      @parsed_json.key?(:message_category_type) ? @parsed_json : @parsed_json[:message_category_type]
     end
 
     def split_errors!
