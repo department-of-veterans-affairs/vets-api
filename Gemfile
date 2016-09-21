@@ -24,6 +24,8 @@ gem 'faraday_middleware'
 gem 'httpclient'
 gem 'attr_encrypted'
 gem 'olive_branch'
+gem 'ox', '~> 2.4'
+gem 'savon', '~> 2.0'
 gem 'sidekiq'
 gem 'multi_json'
 
