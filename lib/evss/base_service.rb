@@ -30,8 +30,8 @@ module EVSS
     # Uses HTTPClient adapter because headers need to be sent unmanipulated
     # Net/HTTP capitalizes headers
     def conn
-      options = {headers: vaafi_headers}
-      options[:ssl] = ssl_options if has_cert?
+      options = { headers: vaafi_headers }
+      options[:ssl] = ssl_options if cert?
 
       @conn ||= Faraday.new(base_url, options) do |faraday|
         faraday.options.timeout = @default_timeout
@@ -75,7 +75,7 @@ module EVSS
       }.to_json
     end
 
-    def has_cert?
+    def cert?
       !ENV['EVSS_CERT_FILE'].nil? || !ENV['EVSS_CERT_KEY'].nil?
     end
 
