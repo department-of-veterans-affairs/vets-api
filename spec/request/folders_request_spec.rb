@@ -7,7 +7,7 @@ RSpec.describe 'Folders Integration', type: :request do
 
   describe '#index' do
     before(:each) do
-      VCR.use_cassette("folders/#{user_id}/index") do
+      VCR.use_cassette("sm/folders/#{user_id}/index") do
         get '/v0/messaging/health/folders'
       end
     end
@@ -22,7 +22,7 @@ RSpec.describe 'Folders Integration', type: :request do
   describe '#show' do
     context 'with valid id' do
       before(:each) do
-        VCR.use_cassette("folders/#{user_id}/show") do
+        VCR.use_cassette("sm/folders/#{user_id}/show") do
           get "/v0/messaging/health/folders/#{inbox_id}"
         end
       end

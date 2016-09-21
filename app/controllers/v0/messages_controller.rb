@@ -27,9 +27,9 @@ module V0
 
     def create
       response = client.post_create_message(message_params)
-
       # Should we accept default Gem error handling when creating a message with invalid parameter set, or
       # create a VA common exception?
+
       render json: response,
              serializer: MessageSerializer,
              meta:  {}
@@ -64,6 +64,16 @@ module V0
       render json: response.data,
              serializer: CollectionSerializer,
              each_serializer: MessageSerializer,
+             meta: {}
+    end
+
+    def categories
+      response = client.get_categories
+
+      raise VA::API::Common::Exceptions::InternalServerError unless response.present?
+
+      render json: response,
+             serializer: CategorySerializer,
              meta: {}
     end
 
