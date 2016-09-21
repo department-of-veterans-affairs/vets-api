@@ -1,7 +1,7 @@
 require_dependency 'facilities/client'
 
 class VAHealthFacility < ActiveModelSerializers::Model
-  attr_accessor :id, :visn_id, :name, :classification, :lat, :long, 
+  attr_accessor :id, :station_number, :visn_id, :name, :classification, :lat, :long, 
                 :address, :phone, :hours, :services
 
   def self.query(bbox:)
@@ -18,48 +18,40 @@ class VAHealthFacility < ActiveModelSerializers::Model
 
   def self.from_gis(record)
     attrs = record['attributes']
-    VAHealthFacility.new(
-      id: attrs['StationID'],
-      visn_id: attrs['VisnID'],
-      name: attrs['StationName'],
-      classification: attrs['CocClassification'],
-      lat: attrs['Latitude'],
-      long: attrs['Longitude'],
-      address: VAHealthFacility.address_from_gis(attrs),
-      phone: VAHealthFacility.phone_from_gis(attrs),
-      hours: VAHealthFacility.hours_from_gis(attrs),
-      services: VAHealthFacility.services_from_gis(attrs)
-    )
+    m = VAHealthFacility.from_gis_attrs(TOP_KEYMAP, attrs)
+    m[:address] = VAHealthFacility.from_gis_attrs(ADDR_KEYMAP, attrs) 
+    m[:phone] = VAHealthFacility.from_gis_attrs(PHONE_KEYMAP, attrs)
+    m[:hours] = VAHealthFacility.from_gis_attrs(HOURS_KEYMAP, attrs)
+    m[:services] = VAHealthFacility.services_from_gis(attrs)
+    VAHealthFacility.new(m)
   end
 
-  def self.address_from_gis(attrs)
-    {
-      'building' => attrs['Building'],
-      'street' => attrs['Street'],
-      'suite' => attrs['Suite'],
-      'city' => attrs['City'],
-      'state' => attrs['State'],
-      'zip' => attrs['Zip'],
-      'zip4' => attrs['Zip4']
-    }
-  end
+  TOP_KEYMAP =  {
+    'id' => 'StationID', :station_number => 'StationNumber', :visn_id => 'VisnID',
+    :name => 'StationName', :classification => 'CocClassification',
+    :lat => 'Latitude', :long => 'Longitude'
+  }
 
-  def self.phone_from_gis(attrs)
-    {
-      'main' => attrs['MainPhone'],
-      'fax' => attrs['MainFax'],
-      'after_hours' => attrs['AfterHoursPhone'],
-      'patient_advocate' => attrs['PatientAdvocatePhone'],
-      'enrollment_coordinator' => attrs['EnrollmentCoordinatorPhone'],
-      'pharmacy' =>  attrs['PharmacyPhone']
-    }
-  end
+  ADDR_KEYMAP = { 
+    'building' => 'Building', 'street' => 'Street', 'suite' => 'Suite',
+    'city' => 'City', 'state' => 'State', 'zip' => 'Zip', 'zip4' => 'Zip4'
+  }
 
-  WEEK_KEYS = 
-    ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+  PHONE_KEYMAP = {
+    'main' => 'MainPhone', 'fax' => 'MainFax', 'after_hours' => 'AfterHoursPhone',
+    'patient_advocate' => 'PatientAdvocatePhone', 
+    'enrollment_coordinator' => 'EnrollmentCoordinatorPhone', 
+    'pharmacy' => 'PharmacyPhone' 
+  }
 
-  def self.hours_from_gis(attrs)
-    WEEK_KEYS.each_with_object({}) { | k, h | h[k] = attrs[k] } 
+  HOURS_KEYMAP = [
+    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+  ].each_with_object({}) { | d, h | h[d] = d }
+
+  def self.from_gis_attrs(km, attrs)
+    km.each_with_object({}) do | (k,v), h |
+      h[k] = attrs[v]
+    end
   end
 
   SERVICE_HIERARCHY = { 
@@ -92,23 +84,11 @@ class VAHealthFacility < ActiveModelSerializers::Model
   def self.services_from_gis(attrs)
     SERVICE_HIERARCHY.each_with_object([]) do | (k,v), l |
       if attrs[k] == 'YES'
-        sl = []
+	sl2 = []
         v.each do | sk |
-          sl << sk if attrs[sk] == 'YES' 
+          sl2 << sk if attrs[sk] == 'YES' 
         end
-        l << [k, sl]
-      end
-    end
-  end
-
-
-  def self.service_hash_from_gis(attrs)
-    SERVICE_HIERARCHY.each_with_object({}) do | (k,v), h |
-      if attrs[k] == 'YES'
-        h[k] = []
-        v.each do | sk |
-          h[k] << sk if attrs[sk] == 'YES' 
-        end
+        l << {"sl1" => [k], "sl2" => sl2}
       end
     end
   end
