@@ -16,14 +16,16 @@ class DisabilityClaimService
         find_or_initialize_claim(raw_claim)
       end
     end.flatten
-  rescue Faraday::Error::TimeoutError, Timeout::Error
+  rescue Faraday::Error::TimeoutError, Timeout::Error => e
+    log_error(e)
     DisabilityClaim.where("data->>'participant_id' = ?", @user.participant_id)
   end
 
   def find_by_evss_id(id)
     raw_claim = client.find_claim_by_id(id).body.fetch('claim', {})
     find_or_initialize_claim(raw_claim)
-  rescue Faraday::Error::TimeoutError, Timeout::Error
+  rescue Faraday::Error::TimeoutError, Timeout::Error => e
+    log_error(e)
     DisabilityClaim.find_by_evss_id(id)
   end
 
@@ -42,5 +44,10 @@ class DisabilityClaimService
     raw_claim['participant_id'] = @user.participant_id
     claim.update_attributes(data: raw_claim)
     claim
+  end
+
+  def log_error(exception)
+    Rails.logger.error "#{exception.message}."
+    Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
   end
 end
