@@ -16,7 +16,7 @@ ActiveRecord::Schema.define(version: 20160916202418) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "claims", force: :cascade do |t|
+  create_table "disability_claims", force: :cascade do |t|
     t.integer  "evss_id",    null: false
     t.json     "data",       null: false
     t.datetime "created_at", null: false
