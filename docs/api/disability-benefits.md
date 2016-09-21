@@ -19,7 +19,7 @@ Content-Type: application/json
   "data": [
     {
       "id": "600022001",
-      "type": "claims",
+      "type": "disability_claims",
       "attributes": {
         "date_filed": "02/01/2015",
         "min_est_date": null,
