@@ -5,24 +5,30 @@ class V0::Facilities::VaController < FacilitiesController
   # @param type - Optional facility type, values = all (default), health, benefits, cemetery
   # @param services - Optional specialty services filter
   def index
-    results = client.query(bbox: params[:bbox])
-    render json: results
+    results = VAHealthFacility.query(bbox: params[:bbox])
+    render json: results,
+                 serializer: CollectionSerializer,
+                 each_serializer: VAHealthFacilitySerializer
+#    results = client.query(bbox: params[:bbox])
+#    render json: results
   end
 
   def show
-    results = client.get(identifier: params[:id])
-    render json: results
+    results = VAHealthFacility.find_by_id(id: params[:id])
+    render json: results, serializer: VAHealthFacilitySerializer
+#    results = client.get(identifier: params[:id])
+#    render json: results
   end
 
   protected
 
-  URL = "https://maps.va.gov/server/rest/services/PROJECTS/Facility_Locator/MapServer"
-  LAYER = 0
-  ID_FIELD = "StationID"
+#  URL = "https://maps.va.gov/server/rest/services/PROJECTS/Facility_Locator/MapServer"
+#  LAYER = 0
+#  ID_FIELD = "StationID"
 
-  def client
-    puts URL
-    puts LAYER
-    @client ||= Facilities::Client.new(url: URL, layer: LAYER, id_field: ID_FIELD)
-  end
+#  def client
+#    puts URL
+#    puts LAYER
+#    @client ||= Facilities::Client.new(url: URL, layer: LAYER, id_field: ID_FIELD)
+#  end
 end
