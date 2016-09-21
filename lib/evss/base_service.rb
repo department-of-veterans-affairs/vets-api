@@ -30,7 +30,7 @@ module EVSS
     # Net/HTTP capitalizes headers
     def conn
       options = { headers: vaafi_headers }
-      options[:ssl] = ssl_options if cert?
+      options[:ssl] = ssl_options
 
       @conn ||= Faraday.new(base_url, options) do |faraday|
         faraday.options.timeout = @default_timeout
@@ -74,10 +74,21 @@ module EVSS
       }.to_json
     end
 
-    def cert?
-      !ENV['EVSS_CERT_FILE'].nil? || !ENV['EVSS_CERT_KEY'].nil?
+    def ssl_options
+      {
+        version: :TLSv1_2,
+        verify: true,
+        client_cert: client_cert,
+        client_key: client_key,
+        ca_file: root_ca
+      } if cert?
     end
 
+    def cert?
+      !ENV['EVSS_CERT_FILE'].nil? || !ENV['EVSS_CERT_KEY'].nil? || !ENV['EVSS_ROOT_CERT_FILE_PATH'].nil?
+    end
+
+    # :nocov:
     def client_cert
       OpenSSL::X509::Certificate.new File.read(ENV['EVSS_CERT_KEY'])
     end
@@ -89,15 +100,6 @@ module EVSS
     def root_ca
       ENV['EVSS_ROOT_CERT_FILE_PATH']
     end
-
-    def ssl_options
-      {
-        version: :TLSv1_2,
-        verify: true,
-        client_cert: client_cert,
-        client_key: client_key,
-        ca_file: root_ca
-      }
-    end
+    # :nocov:
   end
 end
