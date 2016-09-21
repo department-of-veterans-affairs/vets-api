@@ -25,6 +25,7 @@ before_script:
   - export EVSS_CLAIMS_BASE_URL='http://csraciapp6.evss.srarad.com:7003/wss-claims-services-web-3.1/rest'
   - export EVSS_DOCUMENTS_BASE_URL='http://csraciapp6.evss.srarad.com:7003/wss-document-services-web-3.1/rest/'
   - "export EVSS_SAMPLE_CLAIMANT_USER='{\"first_name\": \"Jane\",\"last_name\": \"Doe\",\"issue_instant\": \"2015-04-17T14:52:48Z\",\"edipi\": \"1105051936\",\"participant_id\": \"123456789\"}'"
+  - export MVI_URL='http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService'
 
 script:
   - bundle exec rake db:create db:schema:load ci
