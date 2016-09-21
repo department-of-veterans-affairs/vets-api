@@ -14,7 +14,8 @@ describe MVI::Service do
   let(:family_name) { 'Smith' }
   let(:dob) { Time.new(1980, 1, 1).utc }
   let(:ssn) { '555-44-3333' }
-  let(:message) { MVI::Messages::FindCandidateMessage.new(given_names, family_name, dob, ssn).to_xml }
+  let(:gender) { 'M' }
+  let(:message) { MVI::Messages::FindCandidateMessage.new(given_names, family_name, dob, ssn, gender).to_xml }
 
   describe '.find_candidate' do
     context 'with a valid request' do

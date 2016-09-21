@@ -44,11 +44,11 @@ describe MVI::Messages::FindCandidateMessage do
       end
     end
 
-    context 'a missing argument' do
+    context 'missing arguments' do
       it 'should throw an argument error' do
         expect do
           MVI::Messages::FindCandidateMessage.new(%w(John William), 'Smith', Time.new(1980, 1, 1).utc)
-        end.to raise_error(ArgumentError, 'wrong number of arguments (given 3, expected 4)')
+        end.to raise_error(ArgumentError, 'wrong number of arguments (given 3, expected 5)')
       end
     end
 

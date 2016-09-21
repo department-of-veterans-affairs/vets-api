@@ -25,12 +25,12 @@ module MVI
       invalid_request: 'AR'
     }.freeze
 
-    client wsdl: load_wsdl
-    operations :prpa_in201301_uv02, :prpa_in201302_uv02, :prpa_in201305_uv02
-
     def self.load_wsdl
       @wsdl ||= ERB.new("#{Rails.root}/config/mvi_schema/IdmWebService_200VGOV.wsdl.erb").result
     end
+
+    client wsdl: load_wsdl
+    operations :prpa_in201301_uv02, :prpa_in201302_uv02, :prpa_in201305_uv02
 
     def self.prpa_in201305_uv02(message)
       response = super(xml: message)
