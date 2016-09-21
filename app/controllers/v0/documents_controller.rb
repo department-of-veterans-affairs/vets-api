@@ -11,7 +11,7 @@ module V0
       claim_id = params[:disability_claim_id]
       tracked_item_id = params[:tracked_item]
 
-      DisabilityClaim.upload_document(claim_id, ploaded_io.original_filename,
+      DisabilityClaim.upload_document(claim_id, uploaded_io.original_filename,
                                       uploaded_io.read, tracked_item_id,
                                       current_user)
       head :no_content
