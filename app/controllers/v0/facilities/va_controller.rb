@@ -9,26 +9,14 @@ class V0::Facilities::VaController < FacilitiesController
     render json: results,
                  serializer: CollectionSerializer,
                  each_serializer: VAHealthFacilitySerializer
-#    results = client.query(bbox: params[:bbox])
-#    render json: results
   end
 
   def show
     results = VAHealthFacility.find_by_id(id: params[:id])
+    raise VA::API::Common::Exceptions::RecordNotFound, params[:id] if results.nil?
     render json: results, serializer: VAHealthFacilitySerializer
-#    results = client.get(identifier: params[:id])
-#    render json: results
   end
 
   protected
 
-#  URL = "https://maps.va.gov/server/rest/services/PROJECTS/Facility_Locator/MapServer"
-#  LAYER = 0
-#  ID_FIELD = "StationID"
-
-#  def client
-#    puts URL
-#    puts LAYER
-#    @client ||= Facilities::Client.new(url: URL, layer: LAYER, id_field: ID_FIELD)
-#  end
 end
