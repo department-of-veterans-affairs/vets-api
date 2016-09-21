@@ -9,6 +9,7 @@ require 'rspec/rails'
 require 'webmock/rspec'
 require 'support/factory_girl'
 require 'support/serializer_spec_helper'
+require 'support/xml_matchers'
 require 'support/api_schema_matcher'
 require 'support/validation_helpers'
 
