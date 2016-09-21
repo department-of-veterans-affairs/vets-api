@@ -44,16 +44,17 @@ module EducationForm
     def write_files(sftp: nil, structured_data:)
       structured_data.each do |region, records|
         filename = "#{Time.zone.today.strftime('%F')}-#{region}.spl"
-        file_class = if sftp.nil?
-          dir_name = 'tmp/spool_files'
-          FileUtils.mkdir_p(dir_name)
+        file_class =
+          if sftp.nil?
+            dir_name = 'tmp/spool_files'
+            FileUtils.mkdir_p(dir_name)
 
-          filename = "#{dir_name}/#{filename}"
+            filename = "#{dir_name}/#{filename}"
 
-          File
-        else
-          sftp.file
-        end
+            File
+          else
+            sftp.file
+          end
 
         f = file_class.open(filename, 'w')
         contents = records.map do |record|
