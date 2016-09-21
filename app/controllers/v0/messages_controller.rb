@@ -55,24 +55,22 @@ module V0
 
     def thread
       message_id = params[:id].try(:to_i)
-      response = client.get_message_history(message_id)
+      resource = client.get_message_history(message_id)
+      raise VA::API::Common::Exceptions::RecordNotFound, message_id unless resource.present?
+      resource = resource.paginate(pagination_params)
 
-      raise VA::API::Common::Exceptions::RecordNotFound, message_id unless response.present?
-
-      render json: response.data,
+      render json: resource.data,
              serializer: CollectionSerializer,
              each_serializer: MessageSerializer,
-             meta: {}
+             meta: resource.metadata
     end
 
     def categories
-      response = client.get_categories
-
+      resource = client.get_categories
       raise VA::API::Common::Exceptions::InternalServerError unless response.present?
 
-      render json: response,
-             serializer: CategorySerializer,
-             meta: {}
+      render json: resource,
+             serializer: CategorySerializer
     end
 
     private
