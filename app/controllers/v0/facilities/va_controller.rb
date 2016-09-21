@@ -1,3 +1,5 @@
+require 'va/api/common/exceptions/invalid_field_value'
+
 class V0::Facilities::VaController < FacilitiesController
 
   # Index supports the following query parameters:
@@ -5,7 +7,9 @@ class V0::Facilities::VaController < FacilitiesController
   # @param type - Optional facility type, values = all (default), health, benefits, cemetery
   # @param services - Optional specialty services filter
   def index
-    results = VAHealthFacility.query(bbox: params[:bbox])
+    unknown = params[:services].to_a - VAHealthFacility.service_whitelist
+    raise VA::API::Common::Exceptions::InvalidFieldValue.new("services", unknown) unless unknown.empty?    
+    results = VAHealthFacility.query(bbox: params[:bbox], services: params[:services])
     render json: results,
                  serializer: CollectionSerializer,
                  each_serializer: VAHealthFacilitySerializer

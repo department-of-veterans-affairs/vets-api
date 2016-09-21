@@ -4,11 +4,15 @@ class VAHealthFacility < ActiveModelSerializers::Model
   attr_accessor :id, :station_number, :visn_id, :name, :classification, :lat, :long, 
                 :address, :phone, :hours, :services
 
-  def self.query(bbox:)
-    results = client.query(bbox: bbox)
+  def self.query(bbox:, services:)
+    results = client.query(bbox: bbox, where: VAHealthFacility.where_clause(services))
     results.each_with_object([]) do | record, facs |
       facs << VAHealthFacility.from_gis(record)
     end
+  end
+
+  def self.where_clause(services)
+    where_clause = services.map { |s| "#{s}='YES'" }.join(" AND ") unless services.nil?
   end
 
   def self.find_by_id(id:)
@@ -80,6 +84,10 @@ class VAHealthFacility < ActiveModelSerializers::Model
     "UrgentCare" => [],
     "WellnessAndPreventativeCare" => []
   }
+
+  def self.service_whitelist 
+    SERVICE_HIERARCHY.flatten(2)
+  end
 
   def self.services_from_gis(attrs)
     SERVICE_HIERARCHY.each_with_object([]) do | (k,v), l |
