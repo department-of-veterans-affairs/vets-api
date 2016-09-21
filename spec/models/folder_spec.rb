@@ -5,8 +5,8 @@ RSpec.describe Folder do
   context 'with valid attributes' do
     subject { described_class.new(params) }
 
-    let(:params) { attributes_for(:folder, name: "A") }
-    let(:other) { described_class.new(attributes_for(:folder, name: "B")) }
+    let(:params) { attributes_for(:folder, name: 'A') }
+    let(:other) { described_class.new(attributes_for(:folder, name: 'B')) }
 
     it 'populates attributes' do
       expect(described_class.attribute_set.map(&:name)).to contain_exactly(:id, :name, :count, :unread_count,

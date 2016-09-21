@@ -28,7 +28,7 @@ RSpec.describe 'Message Drafts Integration', type: :request do
     it 'responds to PUT #draft' do
       VCR.use_cassette("sm/message_drafts/#{user_id}/update") do
         put "/v0/messaging/health/message_drafts/#{@message_id}", subject: msg.subject, category: msg.category,
-                                                                 body: @body, recipient_id: msg.recipient_id
+                                                                  body: @body, recipient_id: msg.recipient_id
       end
 
       expect(response).to be_success
