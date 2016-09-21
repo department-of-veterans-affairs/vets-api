@@ -12,7 +12,7 @@ describe EVSS::ClaimsService do
   context 'with headers' do
     it 'should get claims' do
       VCR.use_cassette('evss/claims/claims') do
-        response = subject.claims
+        response = subject.all_claims
         expect(response).to be_success
       end
     end

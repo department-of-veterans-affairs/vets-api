@@ -25,10 +25,10 @@
     "properties": {
       "data": {
         "type": "object",
-        "required": ["id", "type", "attributes"],
+        "required": ["id", "type", "attributes", "links"],
         "properties": {
           "id": { "type": "string" },
-          "type": { "enum": ["va_healthcare_messaging_messages"] },
+          "type": { "enum": ["messages"] },
           "attributes": {
             "type": "object",
             "required": [
@@ -47,6 +47,13 @@
               "recipient_id": { "type": "integer" },
               "recipient_name": { "type": "string" },
               "read_receipt": { "type": ["null", "string"] }
+            }
+          },
+          "links": {
+            "type": "object",
+            "required": ["self"],
+            "properties": {
+              "self": { "type": "string" }
             }
           }
         }

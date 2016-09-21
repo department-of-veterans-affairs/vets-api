@@ -45,3 +45,4 @@ Metrics/AbcSize:
 Style/AccessorMethodName:
   Exclude:
     - 'lib/rx/**/*'
+    - 'lib/sm/**/*'

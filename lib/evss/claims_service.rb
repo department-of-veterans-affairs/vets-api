@@ -3,8 +3,8 @@ require_dependency 'evss/base_service'
 
 module EVSS
   class ClaimsService < BaseService
-    def claims
-      get 'vbaClaimStatusService/getOpenClaims'
+    def all_claims
+      get 'vbaClaimStatusService/getClaims'
     end
 
     def find_claim_by_id(claim_id)

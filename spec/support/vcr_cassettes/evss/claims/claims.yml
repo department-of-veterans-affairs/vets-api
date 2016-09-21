@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://csraciapp6.evss.srarad.com:7003/wss-claims-services-web-3.1/rest/vbaClaimStatusService/getOpenClaims
+    uri: http://csraciapp6.evss.srarad.com:7003/wss-claims-services-web-3.1/rest/vbaClaimStatusService/getClaims
     body:
       encoding: UTF-8
       string: ''
@@ -14,48 +14,41 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Fri, 19 Aug 2016 18:34:57 GMT
-      Va-Eauth-Pnidtype:
-      - SSN
+      - Mon, 19 Sep 2016 17:42:45 GMT
       Va-Eauth-Csid:
       - DSLogon
-      Va-Eauth-Firstname:
-      - Jane
-      Va-Eauth-Lastname:
-      - Doe
-      Va-Eauth-Authenticationauthority:
-      - eauth
-      Iv-User:
-      - dslogoneauthuser
-      Va-Eauth-Emailaddress:
-      - jane.doe@va.gov
-      Va-Eauth-Birthdate:
-      - '1999-10-09T08:06:12-04:00'
-      Va-Eauth-Pid:
-      - '123456789'
-      Va-Eauth-Issueinstant:
-      - '2015-04-17T14:52:48Z'
-      Va-Eauth-Dodedipnid:
-      - '1105051936'
-      Va-Eauth-Middlename:
-      - A
       Va-Eauth-Authenticationmethod:
       - DSLogon
       Va-Eauth-Assurancelevel:
       - '2'
+      Va-Eauth-Pnidtype:
+      - SSN
+      Va-Eauth-Firstname:
+      - Jane
+      Va-Eauth-Lastname:
+      - Doe
+      Va-Eauth-Issueinstant:
+      - '2015-04-17T14:52:48Z'
+      Va-Eauth-Dodedipnid:
+      - '1105051936'
+      Va-Eauth-Pid:
+      - '123456789'
+      Va-Eauth-Pnid: []
+      Va-Eauth-Authorization:
+      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":null,"edi":"1105051936","firstName":"Jane","lastName":"Doe"}}'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Fri, 19 Aug 2016 18:34:57 GMT
+      - Mon, 19 Sep 2016 17:42:46 GMT
       Transfer-Encoding:
       - chunked
       Content-Type:
       - application/json
       Set-Cookie:
-      - WSS-CLAIMS-SERVICES_JSESSIONID=nQShX3RRv1HQt7tfP0Dhq9nTJMCgC3zbVr31Cv1dHmN29NghYLBZ!-574565129;
+      - WSS-CLAIMS-SERVICES_JSESSIONID=Bh20XgjWL9YB8p4k7t0n3GmQ1h45nShZvgc2GR268qhwLLTM7LvJ!-1073757434;
         path=/; HttpOnly
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
@@ -63,84 +56,211 @@ http_interactions:
       encoding: UTF-8
       string: |-
         {
-          "allIntentToFiles" : [ ],
-          "openClaims" : [ {
-            "appealPossible" : "No",
+          "allIntentToFiles" : [ {
+            "associatedBenefitClaimId" : 123,
+            "corpParticpantId" : 1,
+            "expirationDate" : 1440791272786,
+            "intentToFileID" : 1,
+            "receivedDate" : 1440791272787,
+            "source" : "VDC",
+            "status" : "ACTIVE",
+            "type" : "COMPENSATION",
+            "vetParticipantId" : 0
+          }, {
+            "associatedBenefitClaimId" : 123,
+            "corpParticpantId" : 1,
+            "expirationDate" : 1440791272788,
+            "intentToFileID" : 1,
+            "receivedDate" : 1440791272788,
+            "source" : "VDC",
+            "status" : "ACTIVE",
+            "type" : "COMPENSATION",
+            "vetParticipantId" : 0
+          }, {
+            "associatedBenefitClaimId" : 123,
+            "corpParticpantId" : 1,
+            "expirationDate" : 1440791272789,
+            "intentToFileID" : 1,
+            "receivedDate" : 1440791272789,
+            "source" : "VDC",
+            "status" : "ACTIVE",
+            "type" : "COMPENSATION",
+            "vetParticipantId" : 0
+          }, {
+            "associatedBenefitClaimId" : 123,
+            "corpParticpantId" : 1,
+            "expirationDate" : 1440791272789,
+            "intentToFileID" : 1,
+            "receivedDate" : 1440791272790,
+            "source" : "VDC",
+            "status" : "ACTIVE",
+            "type" : "COMPENSATION",
+            "vetParticipantId" : 0
+          }, {
+            "associatedBenefitClaimId" : 123,
+            "corpParticpantId" : 1,
+            "expirationDate" : 1440791272790,
+            "intentToFileID" : 1,
+            "receivedDate" : 1440791272790,
+            "source" : "VDC",
+            "status" : "ACTIVE",
+            "type" : "COMPENSATION",
+            "vetParticipantId" : 0
+          } ],
+          "anyHistoricalClaimsConsolidatable" : true,
+          "historicalClaims" : [ {
+            "appealPossible" : "Yes",
             "attentionNeeded" : "No",
-            "baseEndProductCode" : "020",
-            "benefitClaimTypeCode" : "020NEW",
+            "claimCompleteDate" : "08/13/2012",
             "claimConsolidatable" : false,
             "claimPhaseDates" : {
               "currentPhaseBack" : false,
               "everPhaseBack" : false,
-              "phaseChangeDate" : "02/27/2015"
+              "phaseChangeDate" : "08/10/2012"
+            },
+            "claimStatus" : "CLR",
+            "claimTrackedItems" : { },
+            "closeDate" : "08/10/2012",
+            "consolidatedTrackedItemsList" : [ ],
+            "date" : "09/25/2012",
+            "dbqList" : [ ],
+            "decisionNotificationSent" : "Yes",
+            "developmentLetterSent" : "Yes",
+            "earliestEvidenceDueDate" : "06/21/2012",
+            "id" : "183654",
+            "latestEvidenceRecdDate" : "11/29/2012",
+            "newEvidenceReceived" : false,
+            "pastEstClaimDate" : false,
+            "pastEvidenceDueDate" : false,
+            "pastPhaseEstDate" : false,
+            "programType" : "CPL",
+            "status" : "COMPLETE",
+            "statusChanged" : false,
+            "statusType" : "Compensation",
+            "vbaDocumentList" : [ ],
+            "waiver5103Submitted" : false
+          }, {
+            "appealPossible" : "Yes",
+            "attentionNeeded" : "No",
+            "claimCompleteDate" : "08/10/2012",
+            "claimConsolidatable" : false,
+            "claimPhaseDates" : {
+              "currentPhaseBack" : false,
+              "everPhaseBack" : false,
+              "phaseChangeDate" : "08/10/2012"
+            },
+            "claimStatus" : "CLR",
+            "claimTrackedItems" : { },
+            "closeDate" : "08/11/2012",
+            "consolidatedTrackedItemsList" : [ ],
+            "date" : "09/25/2011",
+            "dbqList" : [ ],
+            "decisionNotificationSent" : "Yes",
+            "developmentLetterSent" : "Yes",
+            "earliestEvidenceDueDate" : "06/21/2012",
+            "id" : "189655",
+            "latestEvidenceRecdDate" : "11/29/2012",
+            "newEvidenceReceived" : false,
+            "pastEstClaimDate" : false,
+            "pastEvidenceDueDate" : false,
+            "pastPhaseEstDate" : false,
+            "programType" : "CPL",
+            "status" : "COMPLETE",
+            "statusChanged" : false,
+            "statusType" : "Compensation",
+            "vbaDocumentList" : [ ],
+            "waiver5103Submitted" : false
+          }, {
+            "appealPossible" : "Yes",
+            "attentionNeeded" : "No",
+            "benefitClaimTypeCode" : "400CORRC",
+            "claimCompleteDate" : "08/10/2012",
+            "claimConsolidatable" : true,
+            "claimPhaseDates" : {
+              "currentPhaseBack" : false,
+              "everPhaseBack" : false,
+              "phaseChangeDate" : "08/10/2012"
+            },
+            "claimStatus" : "CLR",
+            "claimTrackedItems" : { },
+            "closeDate" : "08/12/2012",
+            "consolidatedTrackedItemsList" : [ ],
+            "date" : "09/02/2010",
+            "dbqList" : [ ],
+            "decisionNotificationSent" : "Yes",
+            "developmentLetterSent" : "Yes",
+            "earliestEvidenceDueDate" : "06/21/2012",
+            "id" : "189625",
+            "latestEvidenceRecdDate" : "11/29/2012",
+            "newEvidenceReceived" : false,
+            "pastEstClaimDate" : false,
+            "pastEvidenceDueDate" : false,
+            "pastPhaseEstDate" : false,
+            "programType" : "CPL",
+            "status" : "COMPLETE",
+            "statusChanged" : false,
+            "statusType" : "Compensation",
+            "vbaDocumentList" : [ ],
+            "waiver5103Submitted" : false
+          } ],
+          "openClaims" : [ {
+            "appealPossible" : "No",
+            "attentionNeeded" : "No",
+            "baseEndProductCode" : "400",
+            "benefitClaimTypeCode" : "400CORRC",
+            "claimConsolidatable" : true,
+            "claimPhaseDates" : {
+              "currentPhaseBack" : false,
+              "everPhaseBack" : false,
+              "phaseChangeDate" : "12/28/2012"
             },
             "claimStatus" : "PEND",
             "claimTrackedItems" : { },
             "consolidatedTrackedItemsList" : [ ],
-            "date" : "02/01/2015",
-            "dbqList" : [ ],
+            "date" : "12/01/2011",
+            "dbqList" : [ {
+              "dbqAdditionalDocumentationNeeded" : "N",
+              "dbqFormNumber" : "21-0960P-3",
+              "dbqFormTitle" : "Review Post Traumatic Stress Disorder (PTSD)",
+              "dbqUrl" : "http://www.vba.va.gov/pubs/forms/VBA-21-0960P-3-ARE.pdf",
+              "diagnosticCode" : "9411",
+              "disabilityName" : "Post traumatic stress disorder",
+              "id" : 189675
+            } ],
             "decisionNotificationSent" : "No",
             "developmentLetterSent" : "No",
-            "endProductCode" : "025",
-            "id" : "600022001",
-            "latestEvidenceRecdDate" : "12/31/2013",
+            "endProductCode" : "401",
+            "id" : "189675",
+            "latestEvidenceRecdDate" : "11/29/2012",
+            "maxEstClaimDate" : "10/22/2013",
+            "minEstClaimDate" : "04/11/2013",
             "newEvidenceReceived" : false,
-            "pastEstClaimDate" : false,
+            "pastEstClaimDate" : true,
             "pastEvidenceDueDate" : false,
             "pastPhaseEstDate" : false,
             "programType" : "CPL",
             "status" : "UNDER REVIEW",
             "statusChanged" : false,
             "statusType" : "Compensation",
-            "vbaDocumentList" : [ ],
-            "waiver5103Submitted" : false
-          }, {
-            "appealPossible" : "No",
-            "attentionNeeded" : "No",
-            "baseEndProductCode" : "020",
-            "benefitClaimTypeCode" : "020NEW",
-            "claimConsolidatable" : false,
-            "claimPhaseDates" : {
-              "currentPhaseBack" : false,
-              "everPhaseBack" : false,
-              "phaseChangeDate" : "02/27/2015"
-            },
-            "claimStatus" : "PEND",
-            "claimTrackedItems" : { },
-            "consolidatedTrackedItemsList" : [ ],
-            "date" : "02/01/2015",
-            "dbqList" : [ ],
-            "decisionNotificationSent" : "No",
-            "developmentLetterSent" : "Yes",
-            "endProductCode" : "024",
-            "id" : "600022000",
-            "latestEvidenceRecdDate" : "12/31/2013",
-            "newEvidenceReceived" : false,
-            "pastEstClaimDate" : false,
-            "pastEvidenceDueDate" : false,
-            "pastPhaseEstDate" : false,
-            "programType" : "CPL",
-            "status" : "REVIEW OF EVIDENCE",
-            "statusChanged" : false,
-            "statusType" : "Compensation",
+            "submitterApplicationCode" : "EBN",
+            "submitterRoleCode" : "VET",
             "vbaDocumentList" : [ ],
             "waiver5103Submitted" : false
           }, {
             "appealPossible" : "No",
             "attentionNeeded" : "Yes",
-            "baseEndProductCode" : "020",
-            "benefitClaimTypeCode" : "020NEW",
-            "claimConsolidatable" : false,
+            "baseEndProductCode" : "400",
+            "benefitClaimTypeCode" : "400CORRC",
+            "claimConsolidatable" : true,
             "claimPhaseDates" : {
               "currentPhaseBack" : false,
               "everPhaseBack" : false,
-              "phaseChangeDate" : "02/27/2015"
+              "phaseChangeDate" : "12/14/2012"
             },
             "claimStatus" : "PEND",
             "claimTrackedItems" : { },
             "consolidatedTrackedItemsList" : [ ],
-            "date" : "02/01/2015",
+            "date" : "11/10/2011",
             "dbqList" : [ {
               "dbqAdditionalDocumentationNeeded" : "N",
               "dbqFormNumber" : "21-0960C-8",
@@ -148,16 +268,81 @@ http_interactions:
               "dbqUrl" : "http://www.vba.va.gov/pubs/forms/VBA-21-0960C-8-ARE.pdf",
               "diagnosticCode" : "8100",
               "disabilityName" : "Migraine",
-              "id" : 600022002
+              "id" : 189685
             } ],
             "decisionNotificationSent" : "No",
             "developmentLetterSent" : "Yes",
-            "earliestEvidenceDueDate" : "03/29/2015",
-            "endProductCode" : "026",
-            "id" : "600022002",
-            "latestEvidenceRecdDate" : "12/31/2013",
+            "earliestEvidenceDueDate" : "02/12/2013",
+            "endProductCode" : "402",
+            "id" : "189685",
+            "latestEvidenceRecdDate" : "11/29/2012",
+            "maxEstClaimDate" : "05/22/2014",
+            "minEstClaimDate" : "07/29/2013",
             "newEvidenceReceived" : false,
-            "pastEstClaimDate" : false,
+            "pastEstClaimDate" : true,
+            "pastEvidenceDueDate" : true,
+            "pastPhaseEstDate" : false,
+            "programType" : "CPL",
+            "status" : "GATHERING OF EVIDENCE",
+            "statusChanged" : false,
+            "statusType" : "Compensation",
+            "submitterApplicationCode" : "EBN",
+            "submitterRoleCode" : "VSOREP",
+            "vbaDocumentList" : [ ],
+            "waiver5103Submitted" : false
+          }, {
+            "appealPossible" : "No",
+            "attentionNeeded" : "No",
+            "claimConsolidatable" : false,
+            "claimPhaseDates" : {
+              "currentPhaseBack" : false,
+              "everPhaseBack" : false,
+              "phaseChangeDate" : "10/19/2011"
+            },
+            "claimStatus" : "PEND",
+            "claimTrackedItems" : { },
+            "consolidatedTrackedItemsList" : [ ],
+            "date" : "10/19/2011",
+            "dbqList" : [ ],
+            "decisionNotificationSent" : "No",
+            "developmentLetterSent" : "No",
+            "id" : "189645",
+            "latestEvidenceRecdDate" : "11/29/2012",
+            "maxEstClaimDate" : "05/30/2012",
+            "minEstClaimDate" : "12/09/2011",
+            "newEvidenceReceived" : false,
+            "pastEstClaimDate" : true,
+            "pastEvidenceDueDate" : false,
+            "pastPhaseEstDate" : false,
+            "programType" : "CPL",
+            "status" : "CLAIM RECEIVED",
+            "statusChanged" : false,
+            "statusType" : "Dependency",
+            "vbaDocumentList" : [ ],
+            "waiver5103Submitted" : false
+          }, {
+            "appealPossible" : "No",
+            "attentionNeeded" : "Yes",
+            "claimConsolidatable" : false,
+            "claimPhaseDates" : {
+              "currentPhaseBack" : false,
+              "everPhaseBack" : false,
+              "phaseChangeDate" : "10/16/2012"
+            },
+            "claimStatus" : "PEND",
+            "claimTrackedItems" : { },
+            "consolidatedTrackedItemsList" : [ ],
+            "date" : "11/18/2008",
+            "dbqList" : [ ],
+            "decisionNotificationSent" : "Yes",
+            "developmentLetterSent" : "Yes",
+            "earliestEvidenceDueDate" : "12/30/2012",
+            "id" : "189665",
+            "latestEvidenceRecdDate" : "11/29/2012",
+            "maxEstClaimDate" : "08/05/2014",
+            "minEstClaimDate" : "09/30/2013",
+            "newEvidenceReceived" : false,
+            "pastEstClaimDate" : true,
             "pastEvidenceDueDate" : true,
             "pastPhaseEstDate" : false,
             "programType" : "CPL",
@@ -166,132 +351,8 @@ http_interactions:
             "statusType" : "Compensation",
             "vbaDocumentList" : [ ],
             "waiver5103Submitted" : false
-          }, {
-            "appealPossible" : "No",
-            "attentionNeeded" : "No",
-            "baseEndProductCode" : "020",
-            "benefitClaimTypeCode" : "020NEW",
-            "claimConsolidatable" : false,
-            "claimPhaseDates" : {
-              "currentPhaseBack" : false,
-              "everPhaseBack" : false,
-              "phaseChangeDate" : "02/27/2015"
-            },
-            "claimStatus" : "PEND",
-            "claimTrackedItems" : { },
-            "consolidatedTrackedItemsList" : [ ],
-            "date" : "01/01/2015",
-            "dbqList" : [ ],
-            "decisionNotificationSent" : "No",
-            "developmentLetterSent" : "No",
-            "endProductCode" : "023",
-            "id" : "600021999",
-            "latestEvidenceRecdDate" : "12/31/2013",
-            "newEvidenceReceived" : false,
-            "pastEstClaimDate" : false,
-            "pastEvidenceDueDate" : false,
-            "pastPhaseEstDate" : false,
-            "programType" : "CPL",
-            "status" : "CLAIM RECEIVED",
-            "statusChanged" : false,
-            "statusType" : "Compensation",
-            "vbaDocumentList" : [ ],
-            "waiver5103Submitted" : false
-          }, {
-            "appealPossible" : "No",
-            "attentionNeeded" : "No",
-            "baseEndProductCode" : "020",
-            "benefitClaimTypeCode" : "020NEW",
-            "claimConsolidatable" : false,
-            "claimPhaseDates" : {
-              "currentPhaseBack" : false,
-              "everPhaseBack" : false,
-              "phaseChangeDate" : "02/27/2015"
-            },
-            "claimStatus" : "RDC",
-            "claimTrackedItems" : { },
-            "consolidatedTrackedItemsList" : [ ],
-            "date" : "12/01/2014",
-            "dbqList" : [ ],
-            "decisionNotificationSent" : "No",
-            "developmentLetterSent" : "Yes",
-            "endProductCode" : "022",
-            "id" : "600021998",
-            "latestEvidenceRecdDate" : "12/31/2013",
-            "newEvidenceReceived" : false,
-            "pastEstClaimDate" : false,
-            "pastEvidenceDueDate" : false,
-            "pastPhaseEstDate" : false,
-            "programType" : "CPL",
-            "status" : "PENDING DECISION APPROVAL",
-            "statusChanged" : false,
-            "statusType" : "Compensation",
-            "vbaDocumentList" : [ ],
-            "waiver5103Submitted" : false
-          }, {
-            "appealPossible" : "No",
-            "attentionNeeded" : "No",
-            "baseEndProductCode" : "020",
-            "benefitClaimTypeCode" : "020NEW",
-            "claimConsolidatable" : false,
-            "claimPhaseDates" : {
-              "currentPhaseBack" : false,
-              "everPhaseBack" : false,
-              "phaseChangeDate" : "02/27/2015"
-            },
-            "claimStatus" : "PEND",
-            "claimTrackedItems" : { },
-            "consolidatedTrackedItemsList" : [ ],
-            "date" : "11/01/2014",
-            "dbqList" : [ ],
-            "decisionNotificationSent" : "No",
-            "developmentLetterSent" : "No",
-            "endProductCode" : "021",
-            "id" : "600021997",
-            "latestEvidenceRecdDate" : "12/31/2013",
-            "newEvidenceReceived" : false,
-            "pastEstClaimDate" : false,
-            "pastEvidenceDueDate" : false,
-            "pastPhaseEstDate" : false,
-            "programType" : "CPL",
-            "status" : "PENDING DECISION APPROVAL",
-            "statusChanged" : false,
-            "statusType" : "Compensation",
-            "vbaDocumentList" : [ ],
-            "waiver5103Submitted" : false
-          }, {
-            "appealPossible" : "No",
-            "attentionNeeded" : "No",
-            "baseEndProductCode" : "020",
-            "benefitClaimTypeCode" : "020NEW",
-            "claimConsolidatable" : false,
-            "claimPhaseDates" : {
-              "currentPhaseBack" : false,
-              "everPhaseBack" : false,
-              "phaseChangeDate" : "02/27/2015"
-            },
-            "claimStatus" : "PEND",
-            "claimTrackedItems" : { },
-            "consolidatedTrackedItemsList" : [ ],
-            "date" : "10/01/2014",
-            "dbqList" : [ ],
-            "decisionNotificationSent" : "No",
-            "developmentLetterSent" : "No",
-            "endProductCode" : "020",
-            "id" : "600021996",
-            "latestEvidenceRecdDate" : "12/31/2013",
-            "newEvidenceReceived" : false,
-            "pastEstClaimDate" : false,
-            "pastEvidenceDueDate" : false,
-            "pastPhaseEstDate" : false,
-            "programType" : "CPL",
-            "status" : "PREPARATION FOR NOTIFICATION",
-            "statusChanged" : false,
-            "statusType" : "Compensation",
-            "vbaDocumentList" : [ ],
-            "waiver5103Submitted" : false
           } ]
         }
-    http_version:
-  recorded_at: Fri, 19 Aug 2016 18:34:57 GMT
+    http_version: 
+  recorded_at: Mon, 19 Sep 2016 17:42:46 GMT
 recorded_with: VCR 3.0.3

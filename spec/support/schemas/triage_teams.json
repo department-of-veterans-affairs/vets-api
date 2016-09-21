@@ -12,7 +12,7 @@
         "required": ["id", "type", "attributes"],
         "properties": {
           "id": { "type": "string"},
-          "type": { "enum": ["va_healthcare_messaging_triage_teams"] },
+          "type": { "enum": ["triage_teams"] },
           "attributes": {
             "type": "object",
             "$ref": "triage_team.json"
