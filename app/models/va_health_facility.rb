@@ -11,13 +11,19 @@ class VAHealthFacility < ActiveModelSerializers::Model
     end
   end
 
-  def self.where_clause(services)
-    where_clause = services.map { |s| "#{s}='YES'" }.join(" AND ") unless services.nil?
-  end
-
   def self.find_by_id(id:)
     results = client.get(identifier: id)
     VAHealthFacility.from_gis(results.first) unless results.nil?
+  end
+
+  def self.service_whitelist 
+    SERVICE_HIERARCHY.flatten(2)
+  end
+
+  protected
+
+  def self.where_clause(services)
+    where_clause = services.map { |s| "#{s}='YES'" }.join(" AND ") unless services.nil?
   end
 
   def self.from_gis(record)
@@ -85,10 +91,6 @@ class VAHealthFacility < ActiveModelSerializers::Model
     "WellnessAndPreventativeCare" => []
   }
 
-  def self.service_whitelist 
-    SERVICE_HIERARCHY.flatten(2)
-  end
-
   def self.services_from_gis(attrs)
     SERVICE_HIERARCHY.each_with_object([]) do | (k,v), l |
       if attrs[k] == 'YES'
@@ -101,8 +103,7 @@ class VAHealthFacility < ActiveModelSerializers::Model
     end
   end
 
-  protected
-
+  # TODO extract to config
   URL = "https://maps.va.gov/server/rest/services/PROJECTS/Facility_Locator/MapServer"
   LAYER = 0
   ID_FIELD = "StationID"
