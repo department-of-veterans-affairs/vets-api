@@ -1,7 +1,7 @@
 # frozen_string_literal: true
-require_dependency 'rx/client'
+require_dependency 'sm/client'
 
-class RxController < ApplicationController
+class SMController < ApplicationController
   include ActionController::Serialization
 
   skip_before_action :authenticate
@@ -13,7 +13,7 @@ class RxController < ApplicationController
   protected
 
   def client
-    @client ||= Rx::Client.new(session: { user_id: ENV['MHV_USER_ID'] })
+    @client ||= SM::Client.new(session: { user_id: ENV['MHV_SM_USER_ID'] })
   end
 
   def authenticate_client

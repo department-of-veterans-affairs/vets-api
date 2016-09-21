@@ -1,17 +1,15 @@
 # frozen_string_literal: true
 module V0
-  class MessagesController < HealthcareMessagingController
+  class MessagesController < SMController
     def index
-      pp = pagination_params
-      # TODO: convert to a hash arg once sm gem is moved over.
-      response = client.get_folder_messages(pp[:folder_id], pp[:page], pp[:per_page], pp[:all])
+      resource = client.get_folder_messages(params[:folder_id].to_s)
+      raise VA::API::Common::Exceptions::RecordNotFound, params[:folder_id] unless resource.present?
+      resource = resource.paginate(pagination_params)
 
-      raise VA::API::Common::Exceptions::RecordNotFound, folder_id unless response.present?
-
-      render json: response.data,
+      render json: resource.data,
              serializer: CollectionSerializer,
              each_serializer: MessageSerializer,
-             meta: response.metadata
+             meta: resource.metadata
     end
 
     def show

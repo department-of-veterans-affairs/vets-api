@@ -22,9 +22,15 @@ module Rx
       'User-Agent' => USER_AGENT
     }.freeze
 
+    MHV_CONFIG = Rx::Configuration.new(
+      host: ENV['MHV_HOST'],
+      app_token: ENV['MHV_APP_TOKEN'],
+      enforce_ssl: Rails.env.production?
+    ).freeze
+
     attr_reader :config, :session
 
-    def initialize(config:, session:)
+    def initialize(config: MHV_CONFIG, session:)
       @config = config.is_a?(Hash) ? Rx::Configuration.new(config) : config
       @session = session.is_a?(Hash) ? Rx::ClientSession.new(session) : session
       raise ArgumentError, 'config is invalid' unless @config.is_a?(Configuration)
