@@ -79,20 +79,25 @@ module EVSS
       !ENV['EVSS_CERT_FILE'].nil? || !ENV['EVSS_CERT_KEY'].nil?
     end
 
-    def client_key(key)
-      OpenSSL::PKey::RSA.new File.read(ENV['EVSS_CERT_KEY'])
+    def client_cert
+      OpenSSL::X509::Certificate.new File.read(ENV['EVSS_CERT_KEY'])
     end
 
-    def client_cert(cert)
-      OpenSSL::X509::Certificate.new File.read(ENV['EVSS_CERT_FILE'])
+    def client_key
+      OpenSSL::PKey::RSA.new File.read(ENV['EVSS_CERT_FILE'])
     end
 
-    def ssl_options(cert, key)
+    def root_ca
+      ENV['EVSS_ROOT_CERT_FILE_PATH']
+    end
+
+    def ssl_options
       {
-        :client_cert => client_cert(cert),
-        :client_key  => client_key(key),
-        :verify      => true,
-        :version     => 'TLSv1'
+        version: :TLSv1_2,
+        verify: true,
+        client_cert: client_cert,
+        client_key: client_key,
+        ca_file: root_ca
       }
     end
   end
