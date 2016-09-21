@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 module V0
-  class FoldersController < HealthcareMessagingController
+  class FoldersController < SMController
     def index
-      folders = client.get_folders
-      raise VA::API::Common::Exceptions::InternalServerError unless folders.present?
+      resource = client.get_folders
+      resource = resource.paginate(pagination_params)
 
-      render json: folders.data,
+      render json: resource.data,
              serializer: CollectionSerializer,
              each_serializer: FolderSerializer,
-             meta: folders.metadata
+             meta: resource.metadata
     end
 
     def show
