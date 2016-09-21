@@ -13,7 +13,7 @@ class VAHealthFacility < ActiveModelSerializers::Model
 
   def self.find_by_id(id:)
     results = client.get(identifier: id)
-    VAHealthFacility.from_gis(results.first)
+    VAHealthFacility.from_gis(results.first) unless results.nil?
   end
 
   def self.from_gis(record)
@@ -100,8 +100,6 @@ class VAHealthFacility < ActiveModelSerializers::Model
   ID_FIELD = "StationID"
 
   def self.client
-    puts URL
-    puts LAYER
     client ||= Facilities::Client.new(url: URL, layer: LAYER, id_field: ID_FIELD)
   end
 
