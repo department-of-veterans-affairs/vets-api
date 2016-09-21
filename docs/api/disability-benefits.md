@@ -1,11 +1,11 @@
 # Disability Benefits Claims API
 
-## GET /claims
+## GET /disability_claims
 * Get a list of all open and historical claims
 * Header for converting from/to camelcase: `X-Key-Inflection: camel`
 * Example request:
 ```
-GET /v0/claims HTTP/1.1
+GET /v0/disability_claims HTTP/1.1
 Host: www.vets.gov
 Content-Type: application/json
 X-Key-Inflection: camel
@@ -38,7 +38,7 @@ Content-Type: application/json
     },
     {
       "id": "600022000",
-      "type": "claims",
+      "type": "disability_claims",
       "attributes": {
         "date_filed": "02/01/2015",
         "min_est_date": null,
@@ -59,12 +59,12 @@ Content-Type: application/json
 }
 ```
 
-## GET /claims/:id
+## GET /disability_claims/:id
 * Get a single claim
 * Header for converting from/to camelcase: `X-Key-Inflection: camel`
 * Example request:
 ```
-GET /v0/claims/189625 HTTP/1.1
+GET /v0/disability_claims/189625 HTTP/1.1
 Host: www.vets.gov
 Content-Type: application/json
 X-Key-Inflection: camel
@@ -77,7 +77,7 @@ Content-Type: application/json
 {
   "data": {
     "id": "189625",
-    "type": "claims",
+    "type": "disability_claims",
     "attributes": {
       "date_filed": "09\/23\/2008",
       "min_est_date": "05\/02\/2013",
@@ -283,12 +283,12 @@ Content-Type: application/json
 }
 ```
 
-## POST /claims/:id/request_decision
+## POST /disability_claims/:id/request_decision
 * Request a decision for a claim
 * Header for converting from/to camelcase: `X-Key-Inflection: camel`
 * Example request:
 ```
-POST /v0/claims/189625/request_decision HTTP/1.1
+POST /v0/disability_claims/189625/request_decision HTTP/1.1
 Host: www.vets.gov
 Content-Type: application/json
 X-Key-Inflection: camel
@@ -299,12 +299,12 @@ HTTP/1.1 204 No Content
 Content-Type: application/json
 ```
 
-## POST /claims/:id/documents
+## POST /disability_claims/:id/documents
 * Add a document to a claim
 * Header for converting from/to camelcase: `X-Key-Inflection: camel`
 * Example request:
 ```
-curl /v0/claims/189625/documents \
+curl /v0/disability_claims/189625/documents \
   -F tracked_item=1 \
   -F file="@/path/to/a/file.jpg"
 ```
