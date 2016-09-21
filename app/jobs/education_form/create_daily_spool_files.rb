@@ -46,7 +46,6 @@ module EducationForm
         filename = "#{Time.zone.today.strftime('%F')}-#{region}.spl"
         file_class = if sftp.nil?
           dir_name = 'tmp/spool_files'
-          require 'fileutils'
           FileUtils.mkdir_p(dir_name)
 
           filename = "#{dir_name}/#{filename}"
