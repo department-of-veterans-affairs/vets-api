@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 FactoryGirl.define do
-  factory :message, class: VAHealthcareMessaging::Message do
+  factory :message do
     sequence :id do |n|
       n
     end

@@ -39,9 +39,10 @@ Metrics/ClassLength:
   Max: 400
 
 Metrics/AbcSize:
-  Max: 30
+  Max: 40
 
 # excluding these because get_session implies HTTP GET, and is useful
 Style/AccessorMethodName:
   Exclude:
-    - 'lib/rx/**/*' 
+    - 'lib/rx/**/*'
+    - 'lib/sm/**/*'

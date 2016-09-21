@@ -18,7 +18,7 @@ Rails.application.routes.draw do
     get 'profile', to: 'users#show'
 
     resource :education_benefits_claims, only: :create
-    resources :claims, only: [:index, :show] do
+    resources :disability_claims, only: [:index, :show] do
       post :request_decision, on: :member
       resources :documents, only: [:create]
     end
@@ -42,6 +42,7 @@ Rails.application.routes.draw do
 
         resources :messages, only: [:show, :create, :destroy], defaults: { format: :json } do
           get :thread, on: :member
+          get :categories, on: :collection
         end
       end
     end

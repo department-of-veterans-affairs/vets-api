@@ -1,0 +1,87 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/session
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apptoken:
+      - fake-app-token
+      Mhvcorrelationid:
+      - '10616687'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 17 Sep 2016 19:02:10 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      Content-Length:
+      - '0'
+      Expires:
+      - Sat, 17 Sep 2016 20:02:13 GMT
+      Token:
+      - UO0lAs0u5u8=SW8KL0MRWBqCTtT+EPWZyQvyzwLHwMTuuyw0+/MGDB4=
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Content-Type:
+      - text/html; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Sat, 17 Sep 2016 19:02:15 GMT
+- request:
+    method: get
+    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/message/category
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token:
+      - UO0lAs0u5u8=SW8KL0MRWBqCTtT+EPWZyQvyzwLHwMTuuyw0+/MGDB4=
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 17 Sep 2016 19:02:13 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '{"messageCategoryType":["OTHER","APPOINTMENTS","MEDICATIONS","TEST_RESULTS","EDUCATION"]}'
+    http_version: 
+  recorded_at: Sat, 17 Sep 2016 19:02:18 GMT
+recorded_with: VCR 3.0.3
