@@ -26,7 +26,7 @@ module MVI
     }.freeze
 
     def self.load_wsdl
-      @wsdl ||= ERB.new("#{Rails.root}/config/mvi_schema/IdmWebService_200VGOV.wsdl.erb").result
+      @wsdl ||= ERB.new(File.read("#{Rails.root}/config/mvi_schema/IdmWebService_200VGOV.wsdl.erb")).result
     end
 
     client wsdl: load_wsdl
