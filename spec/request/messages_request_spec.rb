@@ -102,40 +102,6 @@ RSpec.describe 'Messages Integration', type: :request do
   #   end
   # end
 
-  # describe '#draft' do
-  #   let(:msg) { build :message }
-  #
-  #   before(:each) do
-  #     VCR.use_cassette("sm/messages/#{user_id}/draft_create") do
-  #       post '/v0/messaging/health/messages/draft', subject: msg.subject, category: msg.category,
-  #                                                   recipient_id: msg.recipient_id, body: msg.body
-  #     end
-  #   end
-  #
-  #   it 'responds to POST #draft' do
-  #     expect(response).to be_success
-  #     expect(response.body).to be_a(String)
-  #     expect(response).to match_response_schema('message')
-  #   end
-  #
-  #   it 'responds to PUT #draft' do
-  #     org = JSON.parse(response.body)['data']['attributes']
-  #     body = org['body'] + '. This is the added bit!'
-  #     message_id = org['message_id']
-  #
-  #     VCR.use_cassette("sm/messages/#{user_id}/draft_update") do
-  #       put "/v0/messaging/health/messages/#{message_id}/draft", subject: msg.subject, category: msg.category,
-  #                                                                body: body, recipient_id: msg.recipient_id
-  #     end
-  #
-  #     expect(response).to be_success
-  #     expect(response.body).to be_a(String)
-  #     expect(response).to match_response_schema('message')
-  #     expect(JSON.parse(response.body)['data']['attributes']['body']).to eq(body)
-  #     expect(JSON.parse(response.body)['data']['attributes']['message_id']).to eq(message_id)
-  #   end
-  # end
-
   describe '#thread' do
     let(:thread_id) { 573_059 }
     before(:each) do
