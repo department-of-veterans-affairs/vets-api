@@ -45,16 +45,6 @@ module V0
     #   render json: response
     # end
 
-    # TODO: rework draft
-    # def draft
-    #   params = message_params
-    #   response = client.post_create_message_draft(subject: params[:subject], body: params[:body], id: params[:id],
-    #                                               recipient_id: params[:recipient_id], category: params[:category])
-    #   render json: response,
-    #          serializer: MessageSerializer,
-    #          meta:  {}
-    # end
-
     def thread
       message_id = params[:id].try(:to_i)
       response = client.get_message_history(message_id)
