@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/session
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/session"
     body:
       encoding: US-ASCII
       string: ''
@@ -12,9 +12,9 @@ http_interactions:
       Content-Type:
       - application/json
       User-Agent:
-      - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
+      - Vets.gov Agent
       Apptoken:
-      - fake-app-token
+      - sjvlB75caM-O37hRpkDxV
       Mhvcorrelationid:
       - '10616687'
       Accept-Encoding:
@@ -25,15 +25,15 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 05 Aug 2016 14:12:50 GMT
+      - Wed, 21 Sep 2016 17:53:13 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Content-Length:
       - '0'
       Expires:
-      - Fri, 05 Aug 2016 15:12:50 GMT
+      - Wed, 21 Sep 2016 18:53:13 GMT
       Token:
-      - A/1ZDjB8l1s=/ljbsC/vv5wYyTbU4daOE/QO4scq3Q3Y345npWucZz0=
+      - 1EO24nwY9+8=r9VmKKrbYwg07O3e0pn1ugioohexujL78g9wQkVkOPY=
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
       Connection:
@@ -43,24 +43,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: ''
-    http_version:
-  recorded_at: Fri, 05 Aug 2016 14:12:50 GMT
+    http_version: 
+  recorded_at: Wed, 21 Sep 2016 17:53:13 GMT
 - request:
     method: post
-    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/message/draft
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/draft"
     body:
       encoding: UTF-8
-      string: '{"subject":"MESSAGE SUBJECT","recipientId":585986,"category":"OTHER","body":"BODY
-        OF THE EMAIL"}'
+      string: '{"category":"OTHER","body":"Body 1","recipientId":"585986","subject":"Subject
+        1"}'
     headers:
       Accept:
       - application/json
       Content-Type:
       - application/json
       User-Agent:
-      - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
+      - Vets.gov Agent
       Token:
-      - A/1ZDjB8l1s=/ljbsC/vv5wYyTbU4daOE/QO4scq3Q3Y345npWucZz0=
+      - 1EO24nwY9+8=r9VmKKrbYwg07O3e0pn1ugioohexujL78g9wQkVkOPY=
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -69,7 +69,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 05 Aug 2016 14:12:50 GMT
+      - Wed, 21 Sep 2016 17:53:14 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -82,52 +82,9 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: '{"id":610105,"category":"OTHER","subject":"MESSAGE SUBJECT","body":"BODY
-        OF THE EMAIL","attachment":false,"attachments":{"attachment":[]},"sentDate":"","senderId":384939,"senderName":"MVIONE,
+      string: '{"id":623330,"category":"OTHER","subject":"Subject 1","body":"Body
+        1","attachment":false,"attachments":{"attachment":[]},"sentDate":"","senderId":384939,"senderName":"MVIONE,
         TEST","recipientId":585986,"recipientName":"Triage group 311070 test 2","readReceipt":null}'
-    http_version:
-  recorded_at: Fri, 05 Aug 2016 14:12:50 GMT
-- request:
-    method: post
-    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/message
-    body:
-      encoding: UTF-8
-      string: '{"subject":"MESSAGE SUBJECT","recipientId":585986,"category":"OTHER","body":"BODY
-        OF THE EMAIL","id":610105}'
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
-      Token:
-      - A/1ZDjB8l1s=/ljbsC/vv5wYyTbU4daOE/QO4scq3Q3Y345npWucZz0=
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Fri, 05 Aug 2016 14:12:51 GMT
-      Server:
-      - Apache/2.2.15 (Red Hat)
-      X-Powered-By:
-      - Servlet/2.5 JSP/2.1
-      Connection:
-      - close
-      Transfer-Encoding:
-      - chunked
-      Content-Type:
-      - application/json
-    body:
-      encoding: UTF-8
-      string: '{"id":610108,"category":"OTHER","subject":"MESSAGE SUBJECT","body":"BODY
-        OF THE EMAIL","attachment":false,"attachments":{"attachment":[]},"sentDate":"Fri,
-        05 Aug 2016 14:12:51 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":585986,"recipientName":"Triage
-        group 311070 test 2","readReceipt":null}'
-    http_version:
-  recorded_at: Fri, 05 Aug 2016 14:12:51 GMT
+    http_version: 
+  recorded_at: Wed, 21 Sep 2016 17:53:15 GMT
 recorded_with: VCR 3.0.3

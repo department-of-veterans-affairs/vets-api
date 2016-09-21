@@ -17,30 +17,30 @@ describe SM::Client do
         .except(:id, :attachment, :sent_date, :sender_id, :sender_name, :recipient_name, :read_receipt)
     end
 
+    before(:each) do
+      VCR.use_cassette("sm/message_drafts/#{user_id}/create") do
+        @client.authenticate
+        @msg = @client.post_create_message_draft(new_draft)
+      end
+    end
+
     context 'with valid attributes' do
       it 'creates a new draft without attachments' do
-        VCR.use_cassette("sm/message_drafts/#{user_id}/create") do
-          @client.authenticate
-          msg = @client.post_create_message_draft(new_draft)
-
-          expect(msg.attributes.keys).to contain_exactly(
-            :id, :category, :subject, :body, :attachment, :sent_date, :sender_id,
-            :sender_name, :recipient_id, :recipient_name, :read_receipt
-          )
-        end
+        expect(@msg.attributes.keys).to contain_exactly(
+          :id, :category, :subject, :body, :attachment, :sent_date, :sender_id,
+          :sender_name, :recipient_id, :recipient_name, :read_receipt
+        )
       end
 
       it 'updates an existing draft' do
+        new_draft[:id] = @msg.id
+        new_draft[:body] = @msg.body + '. This is the added bit!'
+
         VCR.use_cassette("sm/message_drafts/#{user_id}/update") do
           @client.authenticate
           draft = @client.post_create_message_draft(new_draft)
 
-          new_draft[:id] = draft.id
-          new_draft[:body] = draft.body + ' Now has been updated'
-
-          msg = @client.post_create_message_draft(new_draft)
-
-          expect(msg.attributes.keys).to contain_exactly(
+          expect(draft.attributes.keys).to contain_exactly(
             :id, :category, :subject, :body, :attachment, :sent_date, :sender_id,
             :sender_name, :recipient_id, :recipient_name, :read_receipt
           )
