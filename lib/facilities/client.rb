@@ -15,10 +15,11 @@ module Facilities
       @service = Geoservice::MapService.new(:url => @url)
     end
 
-    def query(bbox:)
+    def query(bbox:, where: nil)
       params = {
         geometry: bbox,
         geometryType: "esriGeometryEnvelope",
+        where: where,
         inSR: 4326,
         outSR: 4326,
         returnGeometry: true,
