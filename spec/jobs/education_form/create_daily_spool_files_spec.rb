@@ -51,15 +51,40 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
 
   context 'create_files' do
+    def perform_with_frozen_time
+      Timecop.freeze(Time.zone.parse('2016-09-16 03:00:00 EDT')) do
+        subject.perform
+      end
+    end
+
+    let(:filename) { '2016-09-16-eastern.spl' }
+
+    context 'in the development env' do
+      let(:file_path) { "tmp/spool_files/#{filename}" }
+
+      before do
+        expect(Rails.env).to receive('development?').once { true }
+      end
+
+      it 'writes a file to the tmp dir' do
+        perform_with_frozen_time
+        expect(File.read(file_path).include?('APPLICATION FOR VA EDUCATION BENEFITS')).to eq(true)
+      end
+
+      after do
+        File.delete(file_path)
+      end
+    end
+
     it 'writes files out over sftp' do
       mock_file = double(File)
       mock_writer = StringIO.new
       sftp_mock = double(file: mock_file)
       Net::SFTP.stub(:start).and_yield(sftp_mock)
-      expect(mock_file).to receive('open').with('2016-09-16-eastern.spl', 'w').and_return(mock_writer)
-      Timecop.freeze(Time.zone.parse('2016-09-16 03:00:00 EDT')) do
-        subject.perform
-      end
+      expect(mock_file).to receive('open').with(filename, 'w').and_return(mock_writer)
+      expect(mock_writer).to receive('close').once
+      perform_with_frozen_time
+
       # read back the written file
       mock_writer.rewind
       expect(mock_writer.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')

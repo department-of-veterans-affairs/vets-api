@@ -41,17 +41,38 @@ module EducationForm
       regional_data
     end
 
-    def create_files(structured_data)
-      # TODO: Will be implemented in a follow-up PR.
-      Net::SFTP.start('host', 'username', password: 'password') do |sftp|
-        structured_data.each do |region, records|
-          remote_name = "#{Time.zone.today.strftime('%F')}-#{region}.spl"
-          f = sftp.file.open(remote_name, 'w')
-          contents = records.map do |record|
-            format_application(record)
-          end.join(WINDOWS_NOTEPAD_LINEBREAK)
+    def write_files(sftp: nil, structured_data:)
+      structured_data.each do |region, records|
+        remote_name = "#{Time.zone.today.strftime('%F')}-#{region}.spl"
+        file_class = if sftp.nil?
+          dir_name = 'tmp/spool_files'
+          require 'fileutils'
+          FileUtils.mkdir_p(dir_name)
 
-          f.write(contents)
+          remote_name = "#{dir_name}/#{remote_name}"
+
+          File
+        else
+          sftp.file
+        end
+
+        f = file_class.open(remote_name, 'w')
+        contents = records.map do |record|
+          format_application(record)
+        end.join(WINDOWS_NOTEPAD_LINEBREAK)
+
+        f.write(contents)
+        f.close
+      end
+    end
+
+    def create_files(structured_data)
+      if Rails.env.development?
+        write_files(structured_data: structured_data)
+      else
+        # TODO: Will be implemented in a follow-up PR.
+        Net::SFTP.start('host', 'username', password: 'password') do |sftp|
+          write_files(sftp: sftp, structured_data: structured_data)
         end
       end
     end
