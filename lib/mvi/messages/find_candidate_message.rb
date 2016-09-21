@@ -17,16 +17,17 @@ module MVI
       include MVI::Messages::MessageBuilder
       EXTENSION = 'PRPA_IN201305UV02'
 
-      attr_reader :given_names, :family_name, :dob, :ssn
+      attr_reader :given_names, :family_name, :dob, :ssn, :gender
 
       validate :validate_types
       validates_format_of :ssn, with: /\d{3}-\d{2}-\d{4}/
 
-      def initialize(given_names, family_name, dob, ssn)
+      def initialize(given_names, family_name, dob, ssn, gender)
         @given_names = given_names
         @family_name = family_name
         @dob = dob
         @ssn = ssn
+        @gender = gender
       end
 
       def to_xml
@@ -73,6 +74,7 @@ module MVI
         el << build_living_subject_name
         el << build_living_subject_birth_time
         el << build_living_subject_id
+        el << build_gender
       end
 
       def build_living_subject_name
@@ -95,6 +97,12 @@ module MVI
         el = element('livingSubjectId')
         el << element('value', root: '2.16.840.1.113883.4.1', extention: @ssn)
         el << element('semanticsText', text!: 'SSN')
+      end
+
+      def build_gender
+        el = element('livingSubjectAdministrativeGender')
+        el << element('value', code: @gender)
+        el << element('semanticsText', text!: 'LivingSubject.administrativeGender')
       end
     end
     class FindCandidateMessageError < MessageBuilderError

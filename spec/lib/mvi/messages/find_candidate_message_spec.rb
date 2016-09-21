@@ -7,7 +7,7 @@ describe MVI::Messages::FindCandidateMessage do
     context 'with first, last, dob, and ssn from auth provider' do
       let(:xml) do
         MVI::Messages::FindCandidateMessage.new(
-          %w(John William), 'Smith', Time.new(1980, 1, 1).utc, '555-44-3333'
+          %w(John William), 'Smith', Time.new(1980, 1, 1).utc, '555-44-3333', 'M'
         ).to_xml
       end
       let(:idm_path) { 'env:Body/idm:PRPA_IN201305UV02' }
@@ -38,6 +38,10 @@ describe MVI::Messages::FindCandidateMessage do
       it 'should have a social security number (ssn) node' do
         expect(xml).to eq_at_path("#{parameter_list_path}/livingSubjectId/value/@extention", '555-44-3333')
       end
+
+      it 'should have a gender node' do
+        expect(xml).to eq_at_path("#{parameter_list_path}/livingSubjectAdministrativeGender/value/@code", 'M')
+      end
     end
 
     context 'a missing argument' do
@@ -50,7 +54,7 @@ describe MVI::Messages::FindCandidateMessage do
 
     context 'with an invalid date' do
       it 'should be invalid with a DOB error' do
-        m = MVI::Messages::FindCandidateMessage.new(%w(John William), 'Smith', '19800101', '555-44-3333')
+        m = MVI::Messages::FindCandidateMessage.new(%w(John William), 'Smith', '19800101', '555-44-3333', 'M')
         expect(m.valid?).to be_falsey
         expect { m.to_xml }.to raise_error(MVI::Messages::MessageBuilderError, 'Dob should be a Time object')
       end
@@ -58,7 +62,7 @@ describe MVI::Messages::FindCandidateMessage do
 
     context 'with invalid name args' do
       it 'should have a name errors' do
-        m = MVI::Messages::FindCandidateMessage.new(:John, 5, Time.new(1980, 1, 1).utc, '555-44-3333')
+        m = MVI::Messages::FindCandidateMessage.new(:John, 5, Time.new(1980, 1, 1).utc, '555-44-3333', 'M')
         expect(m.valid?).to be_falsey
         expect { m.to_xml }.to raise_error(
           MVI::Messages::MessageBuilderError,
@@ -70,7 +74,7 @@ describe MVI::Messages::FindCandidateMessage do
     context 'with an invalid ssn' do
       it 'should throw an argument error' do
         m = MVI::Messages::FindCandidateMessage.new(
-          %w(John William), 'Smith', Time.new(1980, 1, 1).utc, '555-4-3333'
+          %w(John William), 'Smith', Time.new(1980, 1, 1).utc, '555-4-3333', 'M'
         )
         expect(m.valid?).to be_falsey
         expect { m.to_xml }.to raise_error(MVI::Messages::MessageBuilderError, 'Ssn is invalid')
