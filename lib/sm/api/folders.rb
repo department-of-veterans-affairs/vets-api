@@ -8,7 +8,7 @@ module SM
 
       def get_folders
         json = perform(:get, 'folder', nil, token_headers)
-        collection = Common::Collection.new(Folder, json)
+        Common::Collection.new(Folder, json)
       end
 
       # get_folder: Retrieves a folder by its id.
