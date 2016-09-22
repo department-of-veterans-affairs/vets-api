@@ -17,6 +17,13 @@ describe MVI::Service do
   let(:gender) { 'M' }
   let(:message) { MVI::Messages::FindCandidateMessage.new(given_names, family_name, dob, ssn, gender).to_xml }
 
+  describe '.load_wsdl' do
+    it 'should have URI interpolated into wsdl' do
+      uri = URI(ENV['MVI_URL'])
+      expect(subject.client.instance_eval('@wsdl').endpoint.request_uri).to eq(uri.request_uri)
+    end
+  end
+
   describe '.find_candidate' do
     context 'with a valid request' do
       it 'calls the prpa_in201305_uv02 endpoint with a find candidate message' do
