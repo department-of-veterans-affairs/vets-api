@@ -31,6 +31,10 @@ gem 'multi_json'
 
 gem 'net-sftp'
 
+# Amazon Linux's system `json` gem causes conflicts, but
+# `multi_json` will prefer `oj` if installed, so include it here.
+gem 'oj'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: :ruby
