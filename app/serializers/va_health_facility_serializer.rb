@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 class VAHealthFacilitySerializer < ActiveModel::Serializer
-  attributes :id, :station_number, :visn_id, :name, :classification, :lat, :long,
+  def id
+    object.station_number
+  end
+
+  attributes :station_id, :station_number, :visn_id, :name, :classification, :lat, :long,
              :address, :phone, :hours, :services
 end
