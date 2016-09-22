@@ -2,7 +2,7 @@
 require_dependency 'facilities/client'
 
 class VAHealthFacility < ActiveModelSerializers::Model
-  attr_accessor :id, :station_number, :visn_id, :name, :classification, :lat, :long,
+  attr_accessor :station_id, :station_number, :visn_id, :name, :classification, :lat, :long,
                 :address, :phone, :hours, :services
 
   def self.query(bbox:, services:)
@@ -14,7 +14,7 @@ class VAHealthFacility < ActiveModelSerializers::Model
 
   def self.find_by_id(id:)
     results = client.get(identifier: id)
-    VAHealthFacility.from_gis(results.first) unless results.nil?
+    VAHealthFacility.from_gis(results.first) unless results.nil? || results.empty?
   end
 
   def self.service_whitelist
@@ -36,9 +36,9 @@ class VAHealthFacility < ActiveModelSerializers::Model
   end
 
   TOP_KEYMAP = {
-    'id' => 'StationID', :station_number => 'StationNumber', :visn_id => 'VisnID',
-    :name => 'StationName', :classification => 'CocClassification',
-    :lat => 'Latitude', :long => 'Longitude'
+    station_id: 'StationID', station_number: 'StationNumber', visn_id: 'VisnID',
+    name: 'StationName', classification: 'CocClassification',
+    lat: 'Latitude', long: 'Longitude'
   }.freeze
 
   ADDR_KEYMAP = {
@@ -108,7 +108,7 @@ class VAHealthFacility < ActiveModelSerializers::Model
   # TODO: extract to config
   URL = +'https://maps.va.gov/server/rest/services/PROJECTS/Facility_Locator/MapServer'
   LAYER = 0
-  ID_FIELD = 'StationID'
+  ID_FIELD = 'StationNumber'
 
   def self.client
     @client ||= Facilities::Client.new(url: URL, layer: LAYER, id_field: ID_FIELD)
