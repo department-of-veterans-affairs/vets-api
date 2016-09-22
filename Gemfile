@@ -24,10 +24,16 @@ gem 'faraday_middleware'
 gem 'httpclient'
 gem 'attr_encrypted'
 gem 'olive_branch'
+gem 'ox', '~> 2.4'
+gem 'savon', '~> 2.0'
 gem 'sidekiq'
 gem 'multi_json'
 
 gem 'net-sftp'
+
+# Amazon Linux's system `json` gem causes conflicts, but
+# `multi_json` will prefer `oj` if installed, so include it here.
+gem 'oj'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
