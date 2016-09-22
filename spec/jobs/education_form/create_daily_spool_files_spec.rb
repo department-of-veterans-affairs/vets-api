@@ -55,7 +55,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       mock_file = double(File)
       mock_writer = StringIO.new
       sftp_mock = double(file: mock_file)
-      Net::SFTP.stub(:start).and_yield(sftp_mock)
+      expect(Net::SFTP).to receive(:start).once.and_yield(sftp_mock)
       expect(mock_file).to receive('open').with('2016-09-16-eastern.spl', 'w').and_return(mock_writer)
       Timecop.freeze(Time.zone.parse('2016-09-16 03:00:00 EDT')) do
         subject.perform
