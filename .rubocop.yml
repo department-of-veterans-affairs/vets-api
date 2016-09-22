@@ -6,7 +6,6 @@ AllCops:
     - '**/*.rake'
   Exclude:
     - 'db/**/*'
-    - 'config/**/*'
     - 'script/**/*'
     - 'vendor/**/*'
 
@@ -30,7 +29,7 @@ Rails:
 
 Rails/Output:
   Exclude:
-    - 'lib/**/*.rb'
+    - 'lib/tasks/**/*'
 
 Metrics/MethodLength:
   Max: 20
