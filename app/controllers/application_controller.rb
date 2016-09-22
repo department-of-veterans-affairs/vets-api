@@ -1,6 +1,5 @@
 # frozen_string_literal: true
-require 'va/api/common/exceptions'
-require 'va/api/common/exceptions/validation_errors'
+require 'common/exceptions'
 
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
@@ -20,10 +19,10 @@ class ApplicationController < ActionController::API
 
     va_exception =
       case exception
-      when VA::API::Common::Exceptions::BaseError
+      when Common::Exceptions::BaseError
         exception
       else
-        VA::API::Common::Exceptions::InternalServerError.new(exception)
+        Common::Exceptions::InternalServerError.new(exception)
         # FIXME: do we need to re-raise the exception as long as we are logging it and rendering something?
         # Maybe we will need a new relic specific method to call here??
         # raise exception if Rails.env.production?
