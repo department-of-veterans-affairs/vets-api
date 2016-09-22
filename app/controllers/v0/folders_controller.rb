@@ -20,5 +20,9 @@ module V0
              serializer: FolderSerializer,
              meta: resource.metadata
     end
+
+    def create
+      
+    end
   end
 end

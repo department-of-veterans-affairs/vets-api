@@ -3,11 +3,15 @@ require 'common/models/base'
 
 # Folder model
 class Folder < Common::Base
+  include ActiveModel::Validations
+  
   attribute :id, Integer
   attribute :name, String
   attribute :count, Integer
   attribute :unread_count, Integer
   attribute :system_folder, Boolean
+
+  validates :name, presence: true, folder_name_convention: true
 
   alias system_folder? system_folder
 
