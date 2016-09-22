@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # This module monkey patches the pagination links defined by the json-api adapter_options
 # to more closely match the specifications
 module CustomPaginationLinks
@@ -27,7 +28,7 @@ module CustomPaginationLinks
 
   # Changed these to allow nil values, this way the keys are always present, but possibly null
   def pages_from
-    #return {} if collection.total_pages <= FIRST_PAGE
+    # return {} if collection.total_pages <= FIRST_PAGE
     {}.tap do |pages|
       pages[:first] = FIRST_PAGE
       pages[:prev] = first_page? ? nil : collection.current_page - FIRST_PAGE
