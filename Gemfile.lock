@@ -173,6 +173,7 @@ GEM
     notiffany (0.0.8)
       nenv (~> 0.1)
       shellany (~> 0.0)
+    oj (2.17.4)
     olive_branch (1.1.0)
       rails (>= 4.0)
     ox (2.4.4)
@@ -355,6 +356,7 @@ DEPENDENCIES
   json-schema
   multi_json
   net-sftp
+  oj
   olive_branch
   ox (~> 2.4)
   pg
@@ -384,4 +386,4 @@ DEPENDENCIES
   will_paginate
 
 BUNDLED WITH
-   1.12.5
+   1.13.1
