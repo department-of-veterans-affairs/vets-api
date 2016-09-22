@@ -9,7 +9,7 @@ RSpec.describe 'Documents management', type: :request do
         'application/pdf'
       )
       params = { file: doctors_note, tracked_item: 33 }
-      post '/v0/claims/189625/documents', params
+      post '/v0/disability_claims/189625/documents', params
       expect(response).to be_success
       expect(response.body).to be_empty
     end

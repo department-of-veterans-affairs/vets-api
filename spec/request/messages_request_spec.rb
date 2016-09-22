@@ -18,37 +18,6 @@ RSpec.describe 'Messages Integration', type: :request do
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('messages')
     end
-
-    it 'responds to GET #index with pagination parameters' do
-      target_msg = JSON.parse(response.body)['data'][1]
-
-      VCR.use_cassette("sm/messages/#{user_id}/index_pagination") do
-        get "/v0/messaging/health/folders/#{inbox_id}/messages", page: 2, per_page: 1
-
-        expect(response).to be_success
-        expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('messages')
-
-        msg = JSON.parse(response.body)['data'][0]
-        expect(msg['id']).to eq(target_msg['id'])
-      end
-    end
-
-    it 'can concatenate multiple MHV calls for GET all messages' do
-      target_msgs = JSON.parse(response.body)['data']
-
-      VCR.use_cassette("sm/messages/#{user_id}/index_concatenation") do
-        # Forcing smaller per_page to test concatenation
-        get "/v0/messaging/health/folders/#{inbox_id}/messages", per_page: 1, all: true
-
-        expect(response).to be_success
-        expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('messages')
-
-        msgs = JSON.parse(response.body)['data']
-        expect(target_msgs.length).to eq(msgs.length)
-      end
-    end
   end
 
   describe '#show' do
