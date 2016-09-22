@@ -44,7 +44,6 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
 
       it 'should render json of the errors' do
         subject
-
         expect(response.code).to eq('422')
         expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
           "form - can't be blank"
