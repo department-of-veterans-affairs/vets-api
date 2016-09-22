@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 module V0
-  class MessageDraftsController < HealthcareMessagingController
+  class MessageDraftsController < SMController
     def create
       response = client.post_create_message_draft(draft_params)
       # Should we accept default Gem error handling when creating a message with invalid parameter set, or
       # create a VA common exception?
 
       render json: response,
-             serializer: MessageDraftSerializer,
+             serializer: MessageSerializer,
              meta:  {}
     end
 
@@ -18,7 +18,7 @@ module V0
       response = client.post_create_message_draft(params)
 
       render json: response,
-             serializer: MessageDraftSerializer,
+             serializer: MessageSerializer,
              meta:  {}
     end
 

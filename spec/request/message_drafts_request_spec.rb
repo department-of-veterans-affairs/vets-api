@@ -17,10 +17,23 @@ RSpec.describe 'Message Drafts Integration', type: :request do
   end
 
   describe 'creating a draft' do
-    it 'responds to POST #create' do
-      expect(response).to be_success
-      expect(response.body).to be_a(String)
-      expect(response).to match_response_schema('message')
+    context 'with necessary attributes' do
+      it 'responds to POST #create' do
+        expect(response).to be_success
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('message')
+      end
+    end
+
+    context 'with missing attributes' do
+      it 'fills in subject if one is missing' do
+        VCR.use_cassette("sm/message_drafts/#{user_id}/create_no_subject") do
+          post '/v0/messaging/health/message_drafts', category: msg.category,
+                                                      recipient_id: msg.recipient_id, body: msg.body
+        end
+
+        expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('General Inquiry')
+      end
     end
   end
 
