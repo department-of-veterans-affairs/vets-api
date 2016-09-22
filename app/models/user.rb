@@ -13,7 +13,7 @@ class User < RedisStore
 
   # vaafi attributes
   attribute :edipi
-  attribute :issue_instant
+  attribute :login_time
   attribute :participant_id
   attribute :ssn
 
@@ -24,6 +24,8 @@ class User < RedisStore
   validates :email, presence: true
 
   def self.sample_claimant
-    User.new JSON.load(ENV['EVSS_SAMPLE_CLAIMANT_USER'])
+    config = JSON.load(ENV['EVSS_SAMPLE_CLAIMANT_USER'])
+    config[:login_time] = Time.now.utc
+    User.new config
   end
 end

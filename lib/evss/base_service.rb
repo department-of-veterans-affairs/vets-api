@@ -50,7 +50,7 @@ module EVSS
         # Vary by user
         'va_eauth_firstName' => @user.first_name,
         'va_eauth_lastName' => @user.last_name,
-        'va_eauth_issueinstant' => @user.issue_instant,
+        'va_eauth_issueinstant' => @user.login_time.utc.iso8601,
         'va_eauth_dodedipnid' => @user.edipi,
         'va_eauth_pid' => @user.participant_id,
         'va_eauth_pnid' => @user.ssn,
