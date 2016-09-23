@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'common/models/base'
+
 class User < RedisStore
   NAMESPACE = REDIS_CONFIG['user_store']['namespace']
   REDIS_STORE = Redis::Namespace.new(NAMESPACE, redis: Redis.current)
@@ -12,8 +14,8 @@ class User < RedisStore
   attribute :zip
 
   # vaafi attributes
+  attribute :last_signed_in, Common::UTCTime
   attribute :edipi
-  attribute :issue_instant
   attribute :participant_id
   attribute :ssn
 
@@ -24,6 +26,8 @@ class User < RedisStore
   validates :email, presence: true
 
   def self.sample_claimant
-    User.new JSON.load(ENV['EVSS_SAMPLE_CLAIMANT_USER'])
+    attrs = JSON.load(ENV['EVSS_SAMPLE_CLAIMANT_USER'])
+    attrs[:last_signed_in] = Time.now.utc
+    User.new attrs
   end
 end
