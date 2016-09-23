@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'savon'
+require_relative 'response'
 
 module MVI
   # Wrapper for the MVI (Master Veteran Index) Service. vets.gov has access
@@ -19,12 +20,6 @@ module MVI
   class Service
     extend Savon::Model
 
-    RESPONSE_CODES = {
-      success: 'AA',
-      failure: 'AE',
-      invalid_request: 'AR'
-    }.freeze
-
     def self.load_wsdl
       @wsdl ||= ERB.new(File.read("#{Rails.root}/config/mvi_schema/IdmWebService_200VGOV.wsdl.erb")).result
     end
@@ -33,12 +28,10 @@ module MVI
     operations :prpa_in201301_uv02, :prpa_in201302_uv02, :prpa_in201305_uv02
 
     def self.prpa_in201305_uv02(message)
-      response = super(xml: message)
-      body = response.body[:prpa_in201306_uv02]
-      code = body[:acknowledgement][:type_code][:@code]
-      invalid_request_handler('find_candidate', body) if code == RESPONSE_CODES[:invalid_request]
-      request_failure_handler('find_candidate', body) if code == RESPONSE_CODES[:failure]
-      return formatted_response(body)
+      response = MVI::Response.new(super(xml: message))
+      invalid_request_handler('find_candidate', response.body) if response.invalid?
+      request_failure_handler('find_candidate', response.body) if response.failure?
+      return response.to_h
     rescue Savon::SOAPFault => e
       # TODO(AJD): cloud watch metric for error code
       Rails.logger.error "mvi find_candidate soap error code: #{e.http.code} message: #{e.message}"
@@ -59,36 +52,6 @@ module MVI
     def self.request_failure_handler(operation, body)
       Rails.logger.error "mvi #{operation} request failure: #{body}"
       raise MVI::RequestFailureError
-    end
-
-    def self.formatted_response(body)
-      # TODO(AJD): correlation ids should eventually be a hash but need to investigate
-      # what all the possible types are
-      patient = body[:control_act_process][:subject][:registration_event][:subject1][:patient]
-      {
-        correlation_ids: map_correlation_ids(patient[:id]),
-        status: patient[:status_code][:@code],
-        given_names: patient[:patient_person][:name].first[:given].map(&:capitalize),
-        family_name: patient[:patient_person][:name].first[:family].capitalize,
-        gender: patient[:patient_person][:administrative_gender_code][:@code],
-        dob: patient[:patient_person][:birth_time][:@value],
-        ssn: patient[:patient_person][:as_other_i_ds][:id][:@extension].gsub(
-          /(\d{3})[^\d]?(\d{2})[^\d]?(\d{4})/,
-          '\1-\2-\3'
-        )
-      }
-    end
-
-    # MVI correlation id source id relationships:
-    # {source id}^{id type}^{assigning authority}^{assigning facility}^{id status}
-    # TODO(AJD): MVI team will be sending the mapping of system identifiers to
-    # va systems (e.g. 200VETS = vets.gov, 516 = ?) when we have that we can symbolize the keys
-    #
-    def self.map_correlation_ids(ids)
-      icn, ids = ids.partition { |id| id[:@extension] =~ /^\w+\^NI\^\w+\^\w+\^\w+$/ }
-      ids = ids.map { |id| { id[:@extension][/^\w+\^\w+\^(\w+)/, 1] => id[:@extension] } }
-      ids.push('ICN' => icn.first[:@extension])
-      ids.reduce({}, :update)
     end
   end
   class ServiceError < StandardError
