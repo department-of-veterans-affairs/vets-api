@@ -6,7 +6,6 @@ AllCops:
     - '**/*.rake'
   Exclude:
     - 'db/**/*'
-    - 'config/**/*'
     - 'script/**/*'
     - 'vendor/**/*'
 
@@ -30,7 +29,7 @@ Rails:
 
 Rails/Output:
   Exclude:
-    - 'lib/**/*.rb'
+    - 'lib/tasks/**/*'
 
 Metrics/MethodLength:
   Max: 20
@@ -39,10 +38,10 @@ Metrics/ClassLength:
   Max: 400
 
 Metrics/AbcSize:
-  Max: 30
+  Max: 40
 
 # excluding these because get_session implies HTTP GET, and is useful
 Style/AccessorMethodName:
   Exclude:
     - 'lib/rx/**/*'
-    - 'lib/sm/**/*' 
+    - 'lib/sm/**/*'

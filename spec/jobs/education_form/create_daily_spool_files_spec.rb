@@ -80,7 +80,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       mock_file = double(File)
       mock_writer = StringIO.new
       sftp_mock = double(file: mock_file)
-      Net::SFTP.stub(:start).and_yield(sftp_mock)
+      expect(Net::SFTP).to receive(:start).once.and_yield(sftp_mock)
       expect(mock_file).to receive('open').with(filename, 'w').and_return(mock_writer)
       expect(mock_writer).to receive('close').once
       perform_with_frozen_time

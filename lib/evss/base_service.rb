@@ -29,7 +29,7 @@ module EVSS
     # Uses HTTPClient adapter because headers need to be sent unmanipulated
     # Net/HTTP capitalizes headers
     def conn
-      @conn ||= Faraday.new(base_url, headers: vaafi_headers) do |faraday|
+      @conn ||= Faraday.new(base_url, headers: vaafi_headers, ssl: ssl_options) do |faraday|
         faraday.options.timeout = @default_timeout
         faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
@@ -50,7 +50,7 @@ module EVSS
         # Vary by user
         'va_eauth_firstName' => @user.first_name,
         'va_eauth_lastName' => @user.last_name,
-        'va_eauth_issueinstant' => @user.issue_instant,
+        'va_eauth_issueinstant' => @user.last_signed_in.iso8601,
         'va_eauth_dodedipnid' => @user.edipi,
         'va_eauth_pid' => @user.participant_id,
         'va_eauth_pnid' => @user.ssn,
@@ -70,5 +70,33 @@ module EVSS
         }
       }.to_json
     end
+
+    def ssl_options
+      {
+        version: :TLSv1_2,
+        verify: true,
+        client_cert: client_cert,
+        client_key: client_key,
+        ca_file: root_ca
+      } if cert?
+    end
+
+    def cert?
+      !ENV['EVSS_CERT_FILE'].nil? || !ENV['EVSS_CERT_KEY'].nil? || !ENV['EVSS_ROOT_CERT_FILE_PATH'].nil?
+    end
+
+    # :nocov:
+    def client_cert
+      OpenSSL::X509::Certificate.new File.read(ENV['EVSS_CERT_KEY'])
+    end
+
+    def client_key
+      OpenSSL::PKey::RSA.new File.read(ENV['EVSS_CERT_FILE'])
+    end
+
+    def root_ca
+      ENV['EVSS_ROOT_CERT_FILE_PATH']
+    end
+    # :nocov:
   end
 end
