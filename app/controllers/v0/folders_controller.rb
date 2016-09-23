@@ -33,6 +33,11 @@ module V0
              status: :created
     end
 
+    def destroy
+      client.delete_folder(params[:id])
+      head :no_content
+    end
+
     private
 
     def create_folder_params
