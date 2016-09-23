@@ -4,15 +4,17 @@
 Secure Messaging within vets.gov enables secure, non-emergency, communications between veterans and their VA healthcare providers.
 
 ### Available Routes
-| Resource  | Description | Params |
-| --------- | ----------- | ------ |
-| GET /messaging/healthcare/recipients | Returns a list of triage teams assigned to the veteran. | None |
-| GET /messaging/healthcare/folders | Returns a list of veteran-assigned personal and system folders. | None |
-| GET /messaging/healthcare/folders/:id | Returns a single veteran-assigned folder. | None |
-| GET /messaging/health/folders/:folder_id/messages | Returns a paginated set of messages belonging to a folder. | <ul><li><b>page</b>: The page number of the first message returned.</li><li><b>per_page</b>: The number of messages in a returned page</li><li><b>all</b>: Set to true to bring back all messages in the folder. </li></ul> |
-| GET /messaaging/health/messages/:id | Gets a single message. | None |
-| GET /messaging/health/messages/:id/thread | Gets the thread belonging to a message | None |
-| POST /messaaging/health/messages | Sends a message. | <ul><li><b>category</b>: The category of the message.</li><li><b>subject</b>: The subject line of the message.</li><li><b>body</b>: The message body.</li><li><b>recipient_id</b>: The triage team id.</li></ul> |
+| Resource                                          | Description                         | Params                        |
+| ------------------------------------------------- | ----------------------------------- | ------------------------------|
+| GET /messaging/healthcare/recipients              | Returns a list possible recipients  | None                          |
+| GET /messaging/healthcare/folders                 | Returns a list of message folders   | None                          |
+| GET /messaging/healthcare/folders/:id             | Returns a single message folder     | None                          |
+| POST /messaging/healthcare/folders                | Creates a new folder                | json: `{ "folder": { ... } }` |
+| DELETE /messaging/healthcare/folders/:id          | Deletes a folder                    | None                          |
+| GET /messaging/health/folders/:folder_id/messages | Returns messages in folder          | None                          |
+| GET /messaging/health/messages/:id                | Gets a single message               | None                          |
+| GET /messaging/health/messages/:message_id/thread | Gets message thread                 | None                          |
+| POST /messaging/health/messages                   | Sends a message.                    | json: `{ "message": { ... }`  |
 
 ### Supported Formats
 <ul><li>JSON</li></ul>
