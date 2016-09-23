@@ -11,7 +11,7 @@ class Folder < Common::Base
   attribute :unread_count, Integer
   attribute :system_folder, Boolean
 
-  validates :name, presence: true, folder_name_convention: true
+  validates :name, presence: true, folder_name_convention: true, length: { maximum: 50 }
 
   alias system_folder? system_folder
 
