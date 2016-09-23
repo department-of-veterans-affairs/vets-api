@@ -15,7 +15,7 @@ RSpec.describe Folder do
     end
 
     context 'with name exeeding 50 characters' do
-      let(:params) { {name: 'a' * 51 } }
+      let(:params) { { name: 'a' * 51 } }
 
       it 'should have errors for length of name exceeding 50' do
         expect(subject.errors[:name].first).to eq('is too long (maximum is 50 characters)')
@@ -23,7 +23,7 @@ RSpec.describe Folder do
     end
 
     context 'with name having non alphanumeric characters' do
-      let(:params) { {name: 'name!' } }
+      let(:params) { { name: 'name!' } }
 
       it 'should have errors for not being alphanumeric' do
         expect(subject.errors[:name].first).to eq('is not alphanumeric (letters, numbers, or spaces)')
@@ -31,7 +31,7 @@ RSpec.describe Folder do
     end
 
     context 'with name having control characters' do
-      let(:params) { {name: "name \n name" } }
+      let(:params) { { name: "name \n name" } }
 
       it 'should have errors for illegal characters' do
         expect(subject.errors[:name].first).to eq('contains illegal characters')
