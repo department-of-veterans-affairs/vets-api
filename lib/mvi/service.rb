@@ -66,7 +66,7 @@ module MVI
       # what all the possible types are
       patient = body[:control_act_process][:subject][:registration_event][:subject1][:patient]
       {
-        correlation_ids: patient[:id].map { |id| id[:@extension] },
+        correlation_ids: map_correlation_ids(patient[:id]),
         status: patient[:status_code][:@code],
         given_names: patient[:patient_person][:name].first[:given].map(&:capitalize),
         family_name: patient[:patient_person][:name].first[:family].capitalize,
@@ -77,6 +77,18 @@ module MVI
           '\1-\2-\3'
         )
       }
+    end
+
+    # MVI correlation id source id relationships:
+    # {source id}^{id type}^{assigning authority}^{assigning facility}^{id status}
+    # TODO(AJD): MVI team will be sending the mapping of system identifiers to
+    # va systems (e.g. 200VETS = vets.gov, 516 = ?) when we have that we can symbolize the keys
+    #
+    def self.map_correlation_ids(ids)
+      icn, ids = ids.partition { |id| id[:@extension] =~ /^\w+\^NI\^\w+\^\w+\^\w+$/ }
+      ids = ids.map { |id| { id[:@extension][/^\w+\^\w+\^(\w+)/, 1] => id[:@extension] } }
+      ids.push('ICN' => icn.first[:@extension])
+      ids.reduce({}, :update)
     end
   end
   class ServiceError < StandardError
