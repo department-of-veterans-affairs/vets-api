@@ -20,7 +20,7 @@ Secure Messaging within vets.gov enables secure, non-emergency, communications b
 * **page:** The page number of the first message returned
 * **per_page:** The number of messages in a returned page
 
-#### <a name="folder-json"></a>Create a Folder
+#### <a name="folder-json"></a>Creating a Folder
 Request:
 
 `POST /messaging/healthcare/folders` with the following payload
@@ -56,10 +56,10 @@ Response
 }
 ```
 
-#### <a name="folder-json"></a>Create a Folder
+#### <a name="folder-json"></a>Creating a Message
 Request:
 
-`POST /messaging/healthcare/folders` with the following payload
+`POST /messaging/health/messages` with the following payload
 
 ```json
 {
