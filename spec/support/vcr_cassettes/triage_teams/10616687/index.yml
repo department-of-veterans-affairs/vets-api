@@ -25,15 +25,15 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 21 Sep 2016 21:17:52 GMT
+      - Fri, 23 Sep 2016 18:09:57 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Content-Length:
       - '0'
       Expires:
-      - Wed, 21 Sep 2016 22:17:52 GMT
+      - Fri, 23 Sep 2016 19:09:58 GMT
       Token:
-      - z5U1zKSWtRs=VknsnFTgjis6PYSXFslvBd4pXgMJNCalMkvbxAeSbhw=
+      - TqOWVylkfvM=Bx4bDWcx1Sujk2UQasCUEfDfeeb4Y/37+/5MKlpUZYw=
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
       Connection:
@@ -44,14 +44,13 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Wed, 21 Sep 2016 21:17:52 GMT
+  recorded_at: Fri, 23 Sep 2016 18:09:58 GMT
 - request:
-    method: post
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/draft"
+    method: get
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/triageteam"
     body:
-      encoding: UTF-8
-      string: '{"category":"OTHER","body":"","recipientId":"585986","subject":"Subject
-        2"}'
+      encoding: US-ASCII
+      string: ''
     headers:
       Accept:
       - application/json
@@ -60,16 +59,16 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Token:
-      - z5U1zKSWtRs=VknsnFTgjis6PYSXFslvBd4pXgMJNCalMkvbxAeSbhw=
+      - TqOWVylkfvM=Bx4bDWcx1Sujk2UQasCUEfDfeeb4Y/37+/5MKlpUZYw=
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 400
-      message: Bad Request
+      code: 200
+      message: OK
     headers:
       Date:
-      - Wed, 21 Sep 2016 21:17:52 GMT
+      - Fri, 23 Sep 2016 18:09:58 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -82,8 +81,9 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: '{"errorCode":100,"developerMessage":"","message":"The message body
-        cannot be blank"}'
+      string: '{"triageTeam":[{"name":"Triage group 311070 test 1","relationType":"PATIENT","triageTeamId":585968},{"name":"Triage
+        group 311070 test 2","relationType":"PATIENT","triageTeamId":585986},{"name":"Vets.gov
+        Testing_DAYT29","relationType":"PATIENT","triageTeamId":613586}]}'
     http_version: 
-  recorded_at: Wed, 21 Sep 2016 21:17:53 GMT
+  recorded_at: Fri, 23 Sep 2016 18:10:00 GMT
 recorded_with: VCR 3.0.3

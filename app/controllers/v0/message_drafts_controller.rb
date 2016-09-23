@@ -2,9 +2,10 @@
 module V0
   class MessageDraftsController < SMController
     def create
-      response = client.post_create_message_draft(draft_create_params)
-      # Should we accept default Gem error handling when creating a message with invalid parameter set, or
-      # create a VA common exception?
+      params = draft_create_params
+      draft = MessageDraft.new(params)
+      raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
+      response = client.post_create_message_draft(params)
 
       render json: response,
              serializer: MessageSerializer,
@@ -12,10 +13,12 @@ module V0
     end
 
     def update
-      params = draft_params
+      params = draft_update_params
+      draft = MessageDraft.new(params)
+      raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
       raise VA::API::Common::Exceptions::ParameterMissing, :id unless params[:id].present?
 
-      response = client.post_create_message_draft(draft_update_params)
+      response = client.post_create_message_draft(params)
 
       render json: response,
              serializer: MessageSerializer,
@@ -27,17 +30,13 @@ module V0
     def draft_create_params
       # Call to MHV message create fails if unknown field present, and does not accept recipient_id. This
       # functionality will be moved into 'gem' once gem is moved to vets-api.
-      params.require(:message_draft).permit(:category, :body, :recipient_id, :subject).transform_keys do |k|
-        k.camelize(:lower)
-      end
+      params.require(:message_draft).permit(:category, :body, :recipient_id, :subject)
     end
 
     def draft_update_params
       # Call to MHV message create fails if unknown field present, and does not accept recipient_id. This
       # functionality will be moved into 'gem' once gem is moved to vets-api.
-      params.require(:message_draft).permit(:id, :category, :body, :recipient_id, :subject).transform_keys do |k|
-        k.camelize(:lower)
-      end
+      params.require(:message_draft).permit(:id, :category, :body, :recipient_id, :subject)
     end
   end
 end

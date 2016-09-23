@@ -7,13 +7,11 @@ RSpec.describe 'Messages Integration', type: :request do
   let(:message_id) { 573_302 }
 
   describe '#index' do
-    before(:each) do
+    it 'responds with all messages in a folder when no pagination is given' do
       VCR.use_cassette("sm/messages/#{user_id}/index") do
         get "/v0/messaging/health/folders/#{inbox_id}/messages"
       end
-    end
 
-    it 'responds with all messages in a folder when no pagination is given' do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('messages')
@@ -22,13 +20,11 @@ RSpec.describe 'Messages Integration', type: :request do
 
   describe '#show' do
     context 'with valid id' do
-      before(:each) do
+      it 'responds to GET #show' do
         VCR.use_cassette("sm/messages/#{user_id}/show") do
           get "/v0/messaging/health/messages/#{message_id}"
         end
-      end
 
-      it 'responds to GET #show' do
         expect(response).to be_success
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('message')
@@ -37,15 +33,14 @@ RSpec.describe 'Messages Integration', type: :request do
   end
 
   describe '#create' do
-    let(:msg) { { message: attributes_for(:message) } }
-
-    before(:each) do
-      VCR.use_cassette("sm/messages/#{user_id}/create") do
-        post '/v0/messaging/health/messages', msg
-      end
-    end
+    let(:message_attributes) { attributes_for(:message).slice(:subject, :category, :recipient_id, :body) }
+    let(:params) { { message: message_attributes } }
 
     it 'responds to POST #create' do
+      VCR.use_cassette("sm/messages/#{user_id}/create") do
+        post '/v0/messaging/health/messages', params
+      end
+
       expect(response).to be_success
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('message')
@@ -72,13 +67,12 @@ RSpec.describe 'Messages Integration', type: :request do
 
   describe '#thread' do
     let(:thread_id) { 573_059 }
-    before(:each) do
+
+    it 'responds to GET #thread' do
       VCR.use_cassette("sm/messages/#{user_id}/thread") do
         get "/v0/messaging/health/messages/#{thread_id}/thread"
       end
-    end
 
-    it 'responds to GET #thread' do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('messages')
@@ -86,13 +80,11 @@ RSpec.describe 'Messages Integration', type: :request do
   end
 
   describe 'when getting categories' do
-    before(:each) do
+    it 'responds to GET messages/categories' do
       VCR.use_cassette("sm/messages/#{user_id}/category") do
         get '/v0/messaging/health/messages/categories'
       end
-    end
 
-    it 'responds to GET messages/categories' do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('category')

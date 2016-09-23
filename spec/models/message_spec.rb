@@ -26,10 +26,6 @@ RSpec.describe Message do
       expect(subject.read_receipt).to eq(params[:read_receipt])
     end
 
-    it 'requires a body' do
-      expect(described_class.new(params.except(:body))).to_not be_valid
-    end
-
     it 'can be compared by id' do
       expect(subject <=> other).to eq(-1)
       expect(other <=> subject).to eq(1)

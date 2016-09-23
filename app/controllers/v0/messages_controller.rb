@@ -23,9 +23,10 @@ module V0
     end
 
     def create
-      message = message_params
+      params = create_message_params
+      message = Message.new(params)
       raise Common::Exceptions::ValidationErrors, message unless message.valid?
-      response = client.post_create_message(message)
+      response = client.post_create_message(params)
 
       render json: response,
              serializer: MessageSerializer,
@@ -64,12 +65,8 @@ module V0
 
     private
 
-    def message_params
-      # Call to MHV message create fails if unknown field present, and does not accept recipient_id. This
-      # functionality will be moved into 'gem' once gem is moved to vets-api.
-      params.require(:message).permit(:id, :category, :body, :recipient_id, :subject).transform_keys do |k|
-        k.camelize(:lower)
-      end
+    def create_message_params
+      params.require(:message).permit(:id, :category, :body, :recipient_id, :subject)
     end
   end
 end
