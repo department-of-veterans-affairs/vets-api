@@ -22,17 +22,15 @@ module V0
     end
 
     def create
-      resource = Folder.new(create_folder_params)
-      if resource.valid?
-        resource = client.post_create_folder(resource.name)
+      folder = Folder.new(create_folder_params)
+      raise Common::Exceptions::ValidationErrors, folder unless folder.valid?
 
-        render json: resource,
-               serializer: FolderSerializer,
-               meta: resource.metadata,
-               status: :created
-      else
-        raise Common::Exceptions::ValidationErrors, resource
-      end
+      resource = client.post_create_folder(folder.name)
+
+      render json: resource,
+             serializer: FolderSerializer,
+             meta: resource.metadata,
+             status: :created
     end
 
     private

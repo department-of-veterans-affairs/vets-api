@@ -4,7 +4,7 @@ require 'common/models/base'
 # Folder model
 class Folder < Common::Base
   include ActiveModel::Validations
-  
+
   attribute :id, Integer
   attribute :name, String
   attribute :count, Integer

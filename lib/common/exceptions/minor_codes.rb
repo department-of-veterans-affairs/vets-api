@@ -13,7 +13,7 @@ module Common
         code: '900',
         status: MajorCodes::BAD_REQUEST,
         title: 'Operation failed'
-      }
+      }.freeze
 
       INVALID_RESOURCE = {
         type: :resource,

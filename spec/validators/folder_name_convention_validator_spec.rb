@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'rails_helper'
 
 class Validatable
@@ -43,7 +44,7 @@ describe FolderNameConventionValidator do
   end
 
   context 'with invalid characters' do
-    let(:name) { 'abcde 123 !&^@#abc'}
+    let(:name) { 'abcde 123 !&^@#abc' }
 
     it 'is invalid' do
       expect(subject).to_not be_valid

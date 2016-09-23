@@ -41,7 +41,7 @@ RSpec.describe 'Folders Integration', type: :request do
 
       it 'response to POST #create' do
         VCR.use_cassette("sm/folders/#{user_id}/create_valid") do
-          post "/v0/messaging/health/folders", params
+          post '/v0/messaging/health/folders', params
         end
 
         expect(response).to be_success
@@ -55,7 +55,7 @@ RSpec.describe 'Folders Integration', type: :request do
 
       it 'response to POST #create' do
         VCR.use_cassette("sm/folders/#{user_id}/create_fail_name_taken") do
-          post "/v0/messaging/health/folders", params
+          post '/v0/messaging/health/folders', params
         end
 
         expect(response).to have_http_status(:bad_request)
