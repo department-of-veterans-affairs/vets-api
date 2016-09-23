@@ -25,15 +25,15 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 23 Sep 2016 18:09:57 GMT
+      - Wed, 21 Sep 2016 21:19:28 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Content-Length:
       - '0'
       Expires:
-      - Fri, 23 Sep 2016 19:09:58 GMT
+      - Wed, 21 Sep 2016 22:19:28 GMT
       Token:
-      - TqOWVylkfvM=Bx4bDWcx1Sujk2UQasCUEfDfeeb4Y/37+/5MKlpUZYw=
+      - DvCpfm6Tez0=43+kmBSaRmAG5IwTblyOAxB7eHRvwAPHDniYlzFTkYY=
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
       Connection:
@@ -44,13 +44,13 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Fri, 23 Sep 2016 18:09:58 GMT
+  recorded_at: Wed, 21 Sep 2016 21:19:29 GMT
 - request:
-    method: get
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/triageteam"
+    method: post
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/draft"
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: '{"category":"OTHER","body":"Body 2","recipientId":"585986"}'
     headers:
       Accept:
       - application/json
@@ -59,7 +59,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Token:
-      - TqOWVylkfvM=Bx4bDWcx1Sujk2UQasCUEfDfeeb4Y/37+/5MKlpUZYw=
+      - DvCpfm6Tez0=43+kmBSaRmAG5IwTblyOAxB7eHRvwAPHDniYlzFTkYY=
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -68,7 +68,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 23 Sep 2016 18:09:58 GMT
+      - Wed, 21 Sep 2016 21:19:29 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -81,9 +81,9 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: '{"triageTeam":[{"name":"Triage group 311070 test 1","relationType":"PATIENT","triageTeamId":585968},{"name":"Triage
-        group 311070 test 2","relationType":"PATIENT","triageTeamId":585986},{"name":"Vets.gov
-        Testing_DAYT29","relationType":"PATIENT","triageTeamId":613586}]}'
+      string: '{"id":623373,"category":"OTHER","subject":"General Inquiry","body":"Body
+        2","attachment":false,"attachments":{"attachment":[]},"sentDate":"","senderId":384939,"senderName":"MVIONE,
+        TEST","recipientId":585986,"recipientName":"Triage group 311070 test 2","readReceipt":null}'
     http_version: 
-  recorded_at: Fri, 23 Sep 2016 18:10:00 GMT
+  recorded_at: Wed, 21 Sep 2016 21:19:29 GMT
 recorded_with: VCR 3.0.3

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/session"
+    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/session
     body:
       encoding: US-ASCII
       string: ''
@@ -12,9 +12,9 @@ http_interactions:
       Content-Type:
       - application/json
       User-Agent:
-      - Vets.gov Agent
+      - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
       Apptoken:
-      - sjvlB75caM-O37hRpkDxV
+      - fake-app-token
       Mhvcorrelationid:
       - '10616687'
       Accept-Encoding:
@@ -25,15 +25,15 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 23 Sep 2016 18:09:57 GMT
+      - Fri, 09 Sep 2016 16:16:44 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Content-Length:
       - '0'
       Expires:
-      - Fri, 23 Sep 2016 19:09:58 GMT
+      - Fri, 09 Sep 2016 17:16:45 GMT
       Token:
-      - TqOWVylkfvM=Bx4bDWcx1Sujk2UQasCUEfDfeeb4Y/37+/5MKlpUZYw=
+      - ah1R/Q3Www4=nQXpCcKnwaDXBjIhQ1GyYZ8a6C44t2D2o3ZPdrBF+Rs=
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
       Connection:
@@ -43,11 +43,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: ''
-    http_version: 
-  recorded_at: Fri, 23 Sep 2016 18:09:58 GMT
+    http_version:
+  recorded_at: Fri, 09 Sep 2016 16:16:45 GMT
 - request:
     method: get
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/triageteam"
+    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/triageteam
     body:
       encoding: US-ASCII
       string: ''
@@ -57,9 +57,9 @@ http_interactions:
       Content-Type:
       - application/json
       User-Agent:
-      - Vets.gov Agent
+      - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
       Token:
-      - TqOWVylkfvM=Bx4bDWcx1Sujk2UQasCUEfDfeeb4Y/37+/5MKlpUZYw=
+      - ah1R/Q3Www4=nQXpCcKnwaDXBjIhQ1GyYZ8a6C44t2D2o3ZPdrBF+Rs=
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -68,7 +68,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 23 Sep 2016 18:09:58 GMT
+      - Fri, 09 Sep 2016 16:16:45 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -84,6 +84,6 @@ http_interactions:
       string: '{"triageTeam":[{"name":"Triage group 311070 test 1","relationType":"PATIENT","triageTeamId":585968},{"name":"Triage
         group 311070 test 2","relationType":"PATIENT","triageTeamId":585986},{"name":"Vets.gov
         Testing_DAYT29","relationType":"PATIENT","triageTeamId":613586}]}'
-    http_version: 
-  recorded_at: Fri, 23 Sep 2016 18:10:00 GMT
+    http_version:
+  recorded_at: Fri, 09 Sep 2016 16:16:45 GMT
 recorded_with: VCR 3.0.3

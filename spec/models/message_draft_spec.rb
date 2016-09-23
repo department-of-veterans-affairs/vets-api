@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe Message do
+RSpec.describe MessageDraft do
   context 'with valid attributes' do
     subject { described_class.new(params) }
 
-    let(:params) { attributes_for :message_for_model }
-    let(:other) { described_class.new(attributes_for(:message_for_model)) }
+    let(:params) { attributes_for :message_draft_for_model }
+    let(:other) { described_class.new(attributes_for(:message_draft_for_model)) }
 
     it 'populates attributes' do
       expect(described_class.attribute_set.map(&:name)).to contain_exactly(:id, :category, :subject, :body,
