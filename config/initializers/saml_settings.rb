@@ -16,10 +16,5 @@ module SAML
   # SAML_SETTINGS.authn_context            = "http://idmanagement.gov/ns/assurance/loa/3"
 
   parser = OneLogin::RubySaml::IdpMetadataParser.new
-
-  begin
-    parser.parse_remote(CONFIG['metadata_url'], true, settings: SETTINGS)
-  rescue OpenSSL::SSL::SSLError => e
-    Rails.logger.error e.message
-  end
+  parser.parse_remote(CONFIG['metadata_url'], true, settings: SETTINGS)
 end
