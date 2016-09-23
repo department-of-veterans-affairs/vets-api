@@ -49,13 +49,13 @@ module SM
       end
 
       # post_create_message_draft: Creates a new message draft, or updates an existing one, without attachments.
-      def post_create_message_draft(args = {})
-        args.transform_keys! { |k| k.to_s.camelize(:lower) }
-        json = perform(:post, 'message/draft', args.to_json, token_headers)
-        json[:data].delete(:attachments)
-
-        Message.new(json)
-      end
+      # def post_create_message_draft(args = {})
+      #   args.transform_keys! { |k| k.to_s.camelize(:lower) }
+      #   json = perform(:post, 'message/draft', args.to_json, token_headers)
+      #   json[:data].delete(:attachments)
+      #
+      #   Message.new(json)
+      # end
 
       # post_create_message_reply: Replies to a message with the given id,
       # or updates an existing reply, without attachments

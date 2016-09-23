@@ -15,7 +15,6 @@ module V0
     def show
       message_id = params[:id].try(:to_i)
       response = client.get_message(message_id)
-
       raise VA::API::Common::Exceptions::RecordNotFound, message_id unless response.present?
 
       render json: response,
@@ -24,9 +23,10 @@ module V0
     end
 
     def create
-      response = client.post_create_message(message_params)
-      # Should we accept default Gem error handling when creating a message with invalid parameter set, or
-      # create a VA common exception?
+      params = create_message_params
+      message = Message.new(params)
+      raise Common::Exceptions::ValidationErrors, message unless message.valid?
+      response = client.post_create_message(params)
 
       render json: response,
              serializer: MessageSerializer,
@@ -41,16 +41,6 @@ module V0
     #   raise VA::API::Common::Exceptions::RecordNotFound, message_id unless response.present?
     #
     #   render json: response
-    # end
-
-    # TODO: rework draft
-    # def draft
-    #   params = message_params
-    #   response = client.post_create_message_draft(subject: params[:subject], body: params[:body], id: params[:id],
-    #                                               recipient_id: params[:recipient_id], category: params[:category])
-    #   render json: response,
-    #          serializer: MessageSerializer,
-    #          meta:  {}
     # end
 
     def thread
@@ -75,7 +65,7 @@ module V0
 
     private
 
-    def message_params
+    def create_message_params
       params.require(:message).permit(:id, :category, :body, :recipient_id, :subject)
     end
   end

@@ -28,7 +28,7 @@
         "required": ["id", "type", "attributes", "links"],
         "properties": {
           "id": { "type": "string" },
-          "type": { "enum": ["messages"] },
+          "type": { "enum": ["messages", "message_drafts"] },
           "attributes": {
             "type": "object",
             "required": [
