@@ -25,15 +25,15 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 21 Sep 2016 21:29:16 GMT
+      - Fri, 23 Sep 2016 15:22:34 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Content-Length:
       - '0'
       Expires:
-      - Wed, 21 Sep 2016 22:29:16 GMT
+      - Fri, 23 Sep 2016 16:22:34 GMT
       Token:
-      - "/lHYOroUUe8=TRG8q55gEbPfomYNTG47HjtYpbKHL4R4CLR5CSTxNIE="
+      - WdTz6EefxrM=+PCLYQ8nFeiDY8xvqGn0JhQiglL9xSe8cu9g3ZJXhGs=
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
       Connection:
@@ -44,13 +44,13 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Wed, 21 Sep 2016 21:29:16 GMT
+  recorded_at: Fri, 23 Sep 2016 15:22:34 GMT
 - request:
     method: post
     uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/draft"
     body:
       encoding: UTF-8
-      string: '{"category":"OTHER","body":"Body 4","recipientId":"585986"}'
+      string: '{"category":"OTHER","recipientId":"585986","subject":"Subject 2"}'
     headers:
       Accept:
       - application/json
@@ -59,16 +59,16 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Token:
-      - "/lHYOroUUe8=TRG8q55gEbPfomYNTG47HjtYpbKHL4R4CLR5CSTxNIE="
+      - WdTz6EefxrM=+PCLYQ8nFeiDY8xvqGn0JhQiglL9xSe8cu9g3ZJXhGs=
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 200
-      message: OK
+      code: 400
+      message: Bad Request
     headers:
       Date:
-      - Wed, 21 Sep 2016 21:29:17 GMT
+      - Fri, 23 Sep 2016 15:22:34 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -81,9 +81,8 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: '{"id":623376,"category":"OTHER","subject":"General Inquiry","body":"Body
-        4","attachment":false,"attachments":{"attachment":[]},"sentDate":"","senderId":384939,"senderName":"MVIONE,
-        TEST","recipientId":585986,"recipientName":"Triage group 311070 test 2","readReceipt":null}'
+      string: '{"errorCode":100,"developerMessage":"","message":"The message body
+        cannot be blank"}'
     http_version: 
-  recorded_at: Wed, 21 Sep 2016 21:29:17 GMT
+  recorded_at: Fri, 23 Sep 2016 15:22:34 GMT
 recorded_with: VCR 3.0.3

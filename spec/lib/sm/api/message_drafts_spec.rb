@@ -12,10 +12,7 @@ describe SM::Client do
   end
 
   describe 'post_create_message_draft' do
-    let(:new_draft) do
-      attributes_for(:message)
-        .except(:id, :attachment, :sent_date, :sender_id, :sender_name, :recipient_name, :read_receipt)
-    end
+    let(:new_draft) { attributes_for(:message).except(:id) }
 
     before(:each) do
       VCR.use_cassette("sm/message_drafts/#{user_id}/create") do

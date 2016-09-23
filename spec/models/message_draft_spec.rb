@@ -5,8 +5,8 @@ RSpec.describe MessageDraft do
   context 'with valid attributes' do
     subject { described_class.new(params) }
 
-    let(:params) { attributes_for :message }
-    let(:other) { described_class.new(attributes_for(:message)) }
+    let(:params) { attributes_for :message_draft_for_model }
+    let(:other) { described_class.new(attributes_for(:message_draft_for_model)) }
 
     it 'populates attributes' do
       expect(described_class.attribute_set.map(&:name)).to contain_exactly(:id, :category, :subject, :body,

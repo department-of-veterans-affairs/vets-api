@@ -69,10 +69,7 @@ describe SM::Client do
   end
 
   describe 'post_create_message' do
-    let(:new_message) do
-      attributes_for(:message)
-        .except(:id, :attachment, :sent_date, :sender_id, :sender_name, :recipient_name, :read_receipt)
-    end
+    let(:new_message) { attributes_for(:message).except(:id) }
 
     context 'with valid attributes' do
       it 'creates and sends a new message without attachments' do
@@ -105,10 +102,7 @@ describe SM::Client do
   end
 
   describe 'post_create_message_reply' do
-    let(:new_message) do
-      attributes_for(:message)
-        .except(:id, :attachment, :sent_date, :sender_id, :sender_name, :recipient_name, :read_receipt)
-    end
+    let(:new_message) { attributes_for(:message).except(:id) }
 
     context 'with a non-draft reply with valid attributes and without attachements' do
       let(:reply_body) { 'This is a reply body' }

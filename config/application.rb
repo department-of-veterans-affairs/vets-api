@@ -41,7 +41,7 @@ module VetsAPI
       'Access-Control-Allow-Headers' => 'Authorization'
     }
 
-    config.middleware.use 'OliveBranch::Middleware'
+    # config.middleware.use 'OliveBranch::Middleware'
 
     config.active_job.queue_adapter = :sidekiq
   end

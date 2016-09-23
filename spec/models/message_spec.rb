@@ -5,8 +5,8 @@ RSpec.describe Message do
   context 'with valid attributes' do
     subject { described_class.new(params) }
 
-    let(:params) { attributes_for :message }
-    let(:other) { described_class.new(attributes_for(:message)) }
+    let(:params) { attributes_for :message_for_model }
+    let(:other) { described_class.new(attributes_for(:message_for_model)) }
 
     it 'populates attributes' do
       expect(described_class.attribute_set.map(&:name)).to contain_exactly(:id, :category, :subject, :body,
@@ -24,6 +24,10 @@ RSpec.describe Message do
       expect(subject.recipient_id).to eq(params[:recipient_id])
       expect(subject.recipient_name).to eq(params[:recipient_name])
       expect(subject.read_receipt).to eq(params[:read_receipt])
+    end
+
+    it 'requires a body' do
+      expect(described_class.new(params.except(:body))).to_not be_valid
     end
 
     it 'can be compared by id' do

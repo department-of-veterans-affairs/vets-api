@@ -37,12 +37,11 @@ RSpec.describe 'Messages Integration', type: :request do
   end
 
   describe '#create' do
-    let(:msg) { build :message }
+    let(:msg) { { message: attributes_for(:message) } }
 
     before(:each) do
       VCR.use_cassette("sm/messages/#{user_id}/create") do
-        post '/v0/messaging/health/messages', subject: msg.subject, category: msg.category,
-                                              recipient_id: msg.recipient_id, body: msg.body
+        post '/v0/messaging/health/messages', msg
       end
     end
 

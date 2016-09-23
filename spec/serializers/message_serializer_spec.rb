@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe MessageSerializer, type: :serializer do
-  let(:message) { build :message }
+  let(:message) { build :message_for_model }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
   let(:links) { data['links'] }
