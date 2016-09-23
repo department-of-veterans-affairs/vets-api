@@ -65,4 +65,34 @@ RSpec.describe 'Folders Integration', type: :request do
       end
     end
   end
+
+  describe '#destroy' do
+    context 'with valid folder id' do
+      let(:id) { 613_557 }
+
+      it 'response to DELETE #destroy' do
+        VCR.use_cassette("sm/folders/#{user_id}/delete_valid") do
+          delete "/v0/messaging/health/folders/#{id}"
+        end
+
+        expect(response).to be_success
+        expect(response).to have_http_status(:no_content)
+      end
+    end
+
+    context 'with non-existing id' do
+      let(:id) { -1 }
+
+      it 'response to DELETE #destroy' do
+        VCR.use_cassette("sm/folders/#{user_id}/delete_fail_system_folder") do
+          delete "/v0/messaging/health/folders/#{id}"
+        end
+
+        expect(response).to have_http_status(:bad_request)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['errors'][0]['detail'])
+          .to eq('Entity not found')
+      end
+    end
+  end
 end
