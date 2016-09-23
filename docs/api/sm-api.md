@@ -6,15 +6,80 @@ Secure Messaging within vets.gov enables secure, non-emergency, communications b
 ### Available Routes
 | Resource                                          | Description                         | Params                        |
 | ------------------------------------------------- | ----------------------------------- | ------------------------------|
-| GET /messaging/healthcare/recipients              | Returns a list possible recipients  | None                          |
-| GET /messaging/healthcare/folders                 | Returns a list of message folders   | None                          |
-| GET /messaging/healthcare/folders/:id             | Returns a single message folder     | None                          |
-| POST /messaging/healthcare/folders                | Creates a new folder                | json: `{ "folder": { ... } }` |
+| GET /messaging/healthcare/recipients              | List possible recipients            | [Pagination](#pagination)     |
+| GET /messaging/healthcare/folders                 | List folders                        | [Pagination](#pagination)     |
+| GET /messaging/healthcare/folders/:id             | Returns a folder                    | None                          |
+| POST /messaging/healthcare/folders                | Creates a folder                    | [json payload](#folder-json)  |
 | DELETE /messaging/healthcare/folders/:id          | Deletes a folder                    | None                          |
-| GET /messaging/health/folders/:folder_id/messages | Returns messages in folder          | None                          |
-| GET /messaging/health/messages/:id                | Gets a single message               | None                          |
-| GET /messaging/health/messages/:message_id/thread | Gets message thread                 | None                          |
-| POST /messaging/health/messages                   | Sends a message.                    | json: `{ "message": { ... }`  |
+| GET /messaging/health/folders/:folder_id/messages | List messages in folder             | None                          |
+| GET /messaging/health/messages/:id                | Gets a message                      | None                          |
+| GET /messaging/health/messages/:message_id/thread | List messages in thread             | [Pagination](#pagination)     |
+| POST /messaging/health/messages                   | Sends a message.                    | [json payload](#message-json) |
+
+#### <a name="pagination"></a>Pagination Params
+* **page:** The page number of the first message returned
+* **per_page:** The number of messages in a returned page
+
+#### <a name="folder-json"></a>Create a Folder
+Request:
+
+`POST /messaging/healthcare/folders` with the following payload
+
+```json
+{
+  "folder": {
+    "name": "sample folder"
+  }
+}
+```
+
+Response
+
+`STATUS: 201`
+
+```json
+{
+  "data": {
+    "id": "123123",
+    "type": "folder",
+    "attributes": {
+      "folder_id": 123123,
+      "name": "sample folder",
+      "count": 0,
+      "unread_count": 0,
+      "system_folder": false
+    },
+    "links": {
+      "self": "https:\/\/staging.vets.gov\/api\/v0\/messaging\/health\/folders\/123123"
+    }
+  }
+}
+```
+
+#### <a name="folder-json"></a>Create a Folder
+Request:
+
+`POST /messaging/healthcare/folders` with the following payload
+
+```json
+{
+  "message": {
+    "category": "A category from the list of available categories",
+    "subject": "Message Subject",
+    "body": "The message body.",
+    "recipient_id": 1
+  }
+}
+```
+
+Response
+
+`STATUS: 201`
+
+```
+  UPDATE THIS
+```
+
 
 ### Supported Formats
 <ul><li>JSON</li></ul>
