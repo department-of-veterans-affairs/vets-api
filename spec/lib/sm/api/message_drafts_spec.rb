@@ -27,7 +27,7 @@ describe SM::Client do
       VCR.use_cassette("sm/message_drafts/#{user_id}/update") do
         @client.authenticate
         msg = @client.post_create_message_draft(draft)
-        msg.attributes[:body] = ". This is the added bit!"
+        msg.attributes[:body] = '. This is the added bit!'
 
         client_response = @client.post_create_message_draft(msg.attributes)
         expect(client_response).to be_a(MessageDraft)

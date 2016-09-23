@@ -25,7 +25,7 @@ RSpec.describe 'Message Drafts Integration', type: :request do
 
       expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('General Inquiry')
     end
-end
+  end
 
   describe 'updating a draft' do
     it 'responds to PUT #draft' do
@@ -33,7 +33,7 @@ end
         post '/v0/messaging/health/message_drafts', msg
 
         msg[:message_draft][:id] = JSON.parse(response.body)['data']['attributes']['message_id']
-        msg[:message_draft][:body] + '. This is the added bit!'
+        msg[:message_draft][:body] += '. This is the added bit!'
 
         put "/v0/messaging/health/message_drafts/#{msg[:message_draft][:id]}", msg
 

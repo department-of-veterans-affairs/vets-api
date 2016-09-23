@@ -4,7 +4,7 @@ require 'common/models/base'
 # Message model
 class Message < Common::Base
   include ActiveModel::Validations
-  
+
   validates :body, presence: true
 
   attribute :id, Integer
