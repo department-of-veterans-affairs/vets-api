@@ -9,18 +9,18 @@ Secure Messaging within vets.gov enables secure, non-emergency, communications b
 | GET /messaging/healthcare/recipients              | List possible recipients            | [Pagination](#pagination)     |
 | GET /messaging/healthcare/folders                 | List folders                        | [Pagination](#pagination)     |
 | GET /messaging/healthcare/folders/:id             | Returns a folder                    | None                          |
-| POST /messaging/healthcare/folders                | Creates a folder                    | [json payload](#folder-json)  |
+| POST /messaging/healthcare/folders                | Creates a folder                    | [json payload](#folder)  |
 | DELETE /messaging/healthcare/folders/:id          | Deletes a folder                    | None                          |
 | GET /messaging/health/folders/:folder_id/messages | List messages in folder             | None                          |
 | GET /messaging/health/messages/:id                | Gets a message                      | None                          |
 | GET /messaging/health/messages/:message_id/thread | List messages in thread             | [Pagination](#pagination)     |
-| POST /messaging/health/messages                   | Sends a message.                    | [json payload](#message-json) |
+| POST /messaging/health/messages                   | Sends a message.                    | [json payload](#message) |
 
 #### <a name="pagination"></a>Pagination Params
 * **page:** The page number of the first message returned
 * **per_page:** The number of messages in a returned page
 
-#### <a name="folder-json"></a>Creating a Folder
+#### <a name="folder"></a>Creating a Folder
 Request:
 
 `POST /messaging/healthcare/folders` with the following payload
@@ -56,7 +56,7 @@ Response
 }
 ```
 
-#### <a name="folder-json"></a>Creating a Message
+#### <a name="message"></a>Creating a Message
 Request:
 
 `POST /messaging/health/messages` with the following payload
