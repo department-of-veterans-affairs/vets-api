@@ -15,6 +15,8 @@ class User < RedisStore
 
   # vaafi attributes
   attribute :last_signed_in, Common::UTCTime
+  # Electronic data interchange personal identifier, aka DoD ID
+  # https://en.wikipedia.org/wiki/Defense_Enrollment_Eligibility_Reporting_System#Electronic_data_interchange_personal_identifier
   attribute :edipi
   attribute :participant_id
   attribute :ssn
