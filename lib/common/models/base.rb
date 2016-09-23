@@ -11,14 +11,14 @@ module Common
     include Virtus.model(nullify_blank: true)
 
     attr_reader :attributes
-    attr_accessor :metadata, :errors
+    attr_accessor :metadata, :errors_hash
     alias to_h attributes
     alias to_hash attributes
 
     def initialize(attributes = {})
       @attributes = attributes[:data] || attributes
       @metadata = attributes[:metadata] || {}
-      @errors = attributes[:errors] || {}
+      @errors_hash = attributes[:errors] || {}
       @attributes.each do |key, value|
         setter = "#{key.to_s.underscore}=".to_sym
         send(setter, value) if respond_to?(setter)

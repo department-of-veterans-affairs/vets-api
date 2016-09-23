@@ -14,7 +14,7 @@ module V0
     def show
       id = params[:id].try(:to_i)
       resource = client.get_folder(id)
-      raise VA::API::Common::Exceptions::RecordNotFound, id unless resource.present?
+      raise Common::Exceptions::RecordNotFound, id unless resource.present?
 
       render json: resource,
              serializer: FolderSerializer,
@@ -22,7 +22,23 @@ module V0
     end
 
     def create
-      
+      resource = Folder.new(create_folder_params)
+      if resource.valid?
+        resource = client.post_create_folder(resource.name)
+
+        render json: resource,
+               serializer: FolderSerializer,
+               meta: resource.metadata,
+               status: :created
+      else
+        raise Common::Exceptions::ValidationErrors, resource
+      end
+    end
+
+    private
+
+    def create_folder_params
+      params.require(:folder).permit(:name)
     end
   end
 end

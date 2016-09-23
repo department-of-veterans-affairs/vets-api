@@ -34,4 +34,35 @@ RSpec.describe 'Folders Integration', type: :request do
       end
     end
   end
+
+  describe '#create' do
+    context 'with valid name' do
+      let(:params) { { folder: { name: 'test folder create name 160805101218' } } }
+
+      it 'response to POST #create' do
+        VCR.use_cassette("sm/folders/#{user_id}/create_valid") do
+          post "/v0/messaging/health/folders", params
+        end
+
+        expect(response).to be_success
+        expect(response).to have_http_status(:created)
+        expect(response).to match_response_schema('folder')
+      end
+    end
+
+    context 'with name that has been taken' do
+      let(:params) { { folder: { name: 'a valid name 123' } } }
+
+      it 'response to POST #create' do
+        VCR.use_cassette("sm/folders/#{user_id}/create_fail_name_taken") do
+          post "/v0/messaging/health/folders", params
+        end
+
+        expect(response).to have_http_status(:bad_request)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['errors'][0]['detail'])
+          .to eq('The folder already exists with the requested name')
+      end
+    end
+  end
 end

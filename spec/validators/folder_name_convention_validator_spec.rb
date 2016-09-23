@@ -26,6 +26,14 @@ describe FolderNameConventionValidator do
     end
   end
 
+  context 'with another valid name' do
+    let(:name) { 'a valid name 123' }
+
+    it 'is valid' do
+      expect(subject).to be_valid
+    end
+  end
+
   context 'with blank name' do
     let(:name) { '' }
 

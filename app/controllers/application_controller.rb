@@ -21,11 +21,10 @@ class ApplicationController < ActionController::API
       case exception
       when Common::Exceptions::BaseError
         exception
+      when Common::Client::Errors::ClientResponse
+        Common::Exceptions::ClientError.new(exception.message.capitalize)
       else
         Common::Exceptions::InternalServerError.new(exception)
-        # FIXME: do we need to re-raise the exception as long as we are logging it and rendering something?
-        # Maybe we will need a new relic specific method to call here??
-        # raise exception if Rails.env.production?
       end
 
     render json: { errors: va_exception.errors }, status: va_exception.errors[0].status

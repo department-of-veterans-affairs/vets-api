@@ -8,6 +8,13 @@ module Common
         status: MajorCodes::UNPROCESSABLE_ENTITY
       }.freeze
 
+      CLIENT_ERROR = {
+        type: :client,
+        code: '900',
+        status: MajorCodes::BAD_REQUEST,
+        title: 'Operation failed'
+      }
+
       INVALID_RESOURCE = {
         type: :resource,
         code: '101',
