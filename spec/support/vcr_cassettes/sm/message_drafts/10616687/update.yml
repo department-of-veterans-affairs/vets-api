@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Apptoken:
-      - sjvlB75caM-O37hRpkDxV
+      - fake-app-token
       Mhvcorrelationid:
       - '10616687'
       Accept-Encoding:
@@ -43,7 +43,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: ''
-    http_version: 
+    http_version:
   recorded_at: Fri, 23 Sep 2016 18:08:48 GMT
 - request:
     method: post
@@ -85,7 +85,7 @@ http_interactions:
       string: '{"id":623408,"category":"OTHER","subject":"Subject 1","body":"Body
         1","attachment":false,"attachments":{"attachment":[]},"sentDate":"","senderId":384939,"senderName":"MVIONE,
         TEST","recipientId":585986,"recipientName":"Triage group 311070 test 2","readReceipt":null}'
-    http_version: 
+    http_version:
   recorded_at: Fri, 23 Sep 2016 18:08:49 GMT
 - request:
     method: get
@@ -130,7 +130,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: ''
-    http_version: 
+    http_version:
   recorded_at: Fri, 23 Sep 2016 18:08:50 GMT
 - request:
     method: post
@@ -172,6 +172,6 @@ http_interactions:
       string: '{"id":623408,"category":"OTHER","subject":"Subject 1","body":"Body
         1","attachment":false,"attachments":{"attachment":[]},"sentDate":"","senderId":384939,"senderName":"MVIONE,
         TEST","recipientId":585986,"recipientName":"Triage group 311070 test 2","readReceipt":null}'
-    http_version: 
+    http_version:
   recorded_at: Fri, 23 Sep 2016 18:08:50 GMT
 recorded_with: VCR 3.0.3
