@@ -90,10 +90,7 @@ FactoryGirl.define do
             involuntarilyCalledToDuty: 'yes'
           }
         ],
-        faaFlightCertificatesInformation: [
-          { name: 'cert1' },
-          { name: 'cert2' }
-        ]
+        faaFlightCertificatesInformation: 'cert1, cert2'
       }.to_json
     end
   end
