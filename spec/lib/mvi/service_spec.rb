@@ -29,7 +29,7 @@ describe MVI::Service do
       it 'calls the prpa_in201305_uv02 endpoint with a find candidate message' do
         xml = File.read("#{Rails.root}/spec/support/mvi/find_candidate_response.xml")
         savon.expects(:prpa_in201305_uv02).with(xml: message).returns(xml)
-        response = MVI::Service.find_candidate(message)
+        response = MVI::Service.new.find_candidate(message)
         expect(response).to eq(
           edipi: '1234^NI^200DOD^USDOD^A',
           icn: '1000123456V123456^NI^200M^USVHA^P',
