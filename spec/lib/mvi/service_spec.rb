@@ -15,7 +15,7 @@ describe MVI::Service do
   let(:dob) { Time.new(1980, 1, 1).utc }
   let(:ssn) { '555-44-3333' }
   let(:gender) { 'M' }
-  let(:message) { MVI::Messages::FindCandidateMessage.new(given_names, family_name, dob, ssn, gender).to_xml }
+  let(:message) { MVI::Messages::FindCandidateMessage.new(given_names, family_name, dob, ssn, gender) }
 
   describe '.load_wsdl' do
     it 'should have URI interpolated into wsdl' do
@@ -29,7 +29,7 @@ describe MVI::Service do
       it 'calls the prpa_in201305_uv02 endpoint with a find candidate message' do
         xml = File.read("#{Rails.root}/spec/support/mvi/find_candidate_response.xml")
         savon.expects(:prpa_in201305_uv02).with(xml: message).returns(xml)
-        response = MVI::Service.find_candidate(message)
+        response = MVI::Service.new.find_candidate(message)
         expect(response).to eq(
           correlation_ids: {
             '516' => '12345^PI^516^USVHA^PCE',
