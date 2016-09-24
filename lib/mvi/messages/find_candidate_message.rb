@@ -30,6 +30,10 @@ module MVI
         @gender = gender
       end
 
+      def key
+        @key ||= Base64.encode64("#{@given_names.join(':')}:#{@family_name}:#{@dob.strftime('%Y%m%d')}:#{@ssn}:#{@gender}")
+      end
+
       def to_xml
         raise FindCandidateMessageError, errors.full_messages.join(', ') unless valid?
         super(EXTENSION, build_body)
