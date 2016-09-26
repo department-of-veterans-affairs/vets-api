@@ -37,6 +37,10 @@ class EducationBenefitsClaim < ActiveRecord::Base
     @parsed_form ||= JSON.parse(form)
   end
 
+  def confirmation_number
+    "vets_gov_#{self.class.to_s.underscore}_#{id}"
+  end
+
   private
 
   def form_is_string
