@@ -8,4 +8,19 @@ RSpec.describe V0::Facilities::VaController, type: :controller do
       expect(response).to have_http_status(:bad_request)
     end
   end
+
+  context 'with bad bbox param' do
+    it 'returns 400' do
+      post :index, bbox: 'everywhere'
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400' do
+      post :index, bbox: '-90,180,45'
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400' do
+      post :index, bbox: '-45, -45, 45, 45, 100'
+      expect(response).to have_http_status(:bad_request)
+    end
+  end
 end

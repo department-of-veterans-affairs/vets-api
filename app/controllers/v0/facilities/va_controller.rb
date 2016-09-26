@@ -2,13 +2,13 @@
 require 'va/api/common/exceptions/invalid_field_value'
 
 class V0::Facilities::VaController < FacilitiesController
+  before_action :validate_params, only: [:index]
+
   # Index supports the following query parameters:
   # @param bbox - Bounding box in form "xmin,ymin,xmax,ymax" in Lat/Long coordinates
   # @param type - Optional facility type, values = all (default), health, benefits, cemetery
   # @param services - Optional specialty services filter
   def index
-    unknown = params[:services].to_a - VAHealthFacility.service_whitelist
-    raise VA::API::Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
     results = VAHealthFacility.query(bbox: params[:bbox], services: params[:services])
     render json: results,
            serializer: CollectionSerializer,
@@ -19,5 +19,19 @@ class V0::Facilities::VaController < FacilitiesController
     results = VAHealthFacility.find_by_id(id: params[:id])
     raise VA::API::Common::Exceptions::RecordNotFound, params[:id] if results.nil?
     render json: results, serializer: VAHealthFacilitySerializer
+  end
+
+  private
+
+  def validate_params
+    bbp = params[:bbox].to_s.split(',')
+    begin
+      raise ArgumentError unless bbp.length == 4
+      bbp.each { |x| Float(x) }
+    rescue ArgumentError
+      raise VA::API::Common::Exceptions::InvalidFieldValue.new('bbox', params[:bbox])
+    end
+    unknown = params[:services].to_a - VAHealthFacility.service_whitelist
+    raise VA::API::Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
   end
 end
