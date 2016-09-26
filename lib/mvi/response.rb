@@ -16,6 +16,7 @@ module MVI
     end
 
     def invalid?
+      puts @code
       @code == RESPONSE_CODES[:invalid_request]
     end
 
