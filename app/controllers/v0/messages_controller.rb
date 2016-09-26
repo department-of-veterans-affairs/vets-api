@@ -74,9 +74,9 @@ module V0
     end
 
     def move
-      binding.pry
       folder_id = params.require(:folder_id)
-      resource = client.post_move_message(params[:id], folder_id)
+      client.post_move_message(params[:id], folder_id)
+      head :no_content
     end
 
     private

@@ -82,24 +82,23 @@ RSpec.describe 'Messages Integration', type: :request do
   end
 
   describe 'when moving messages between folders' do
-    let(:message_id) { 573_034 }
+    let(:message_id) { 573_052 }
 
     context 'without folder_id' do
-      it 'raises an error' do
+      it 'returns errors json' do
         patch "/v0/messaging/health/messages/#{message_id}/move"
-        binding.pry
+        expect(JSON.parse(response.body)['errors'].first['detail'])
+          .to eq('The required parameter "folder_id", is missing')
       end
     end
 
     it 'responds to PATCH messages/move' do
       VCR.use_cassette("sm/messages/#{user_id}/move") do
-        patch "/v0/messaging/health/messages/#{message_id}/move?folder_id=123"
+        patch "/v0/messaging/health/messages/#{message_id}/move?folder_id=610965"
       end
 
-      binding.pry
-
       expect(response).to be_success
-      expect(response.body).to be_a(String)
+      expect(response).to have_http_status(:no_content)
     end
   end
 end

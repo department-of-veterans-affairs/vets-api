@@ -71,7 +71,6 @@ module SM
       def post_move_message(id, folder_id)
         response = perform(:post, "message/#{id}/move/tofolder/#{folder_id}", nil, token_headers)
 
-        binding.pry
         response.nil? ? nil : response.status
       end
 
