@@ -62,33 +62,33 @@ describe SM::Client do
     end
   end
 
-  describe 'post_create_message_draft' do
-    let(:new_draft) do
-      attributes_for(:message).slice(:subject, :recipient_id, :category, :body)
-    end
-
-    context 'with valid attributes' do
-      it 'creates a new draft without attachments' do
-        VCR.use_cassette('sm/messages/10616687/create_draft') do
-          client_response = client.post_create_message_draft(new_draft)
-
-          expect(client_response).to be_a(Message)
-        end
-      end
-
-      it 'updates an existing draft' do
-        VCR.use_cassette('sm/messages/10616687/update_draft') do
-          draft = client.post_create_message_draft(new_draft)
-
-          new_draft[:id] = draft.id
-          new_draft[:body] = draft.body + ' Now has been updated'
-          client_response = client.post_create_message_draft(new_draft)
-
-          expect(client_response).to be_a(Message)
-        end
-      end
-    end
-  end
+  # describe 'post_create_message_draft' do
+  #   let(:new_draft) do
+  #     attributes_for(:message).slice(:subject, :recipient_id, :category, :body)
+  #   end
+  #
+  #   context 'with valid attributes' do
+  #     it 'creates a new draft without attachments' do
+  #       VCR.use_cassette('sm/messages/10616687/create_draft') do
+  #         client_response = client.post_create_message_draft(new_draft)
+  #
+  #         expect(client_response).to be_a(Message)
+  #       end
+  #     end
+  #
+  #     it 'updates an existing draft' do
+  #       VCR.use_cassette('sm/messages/10616687/update_draft') do
+  #         draft = client.post_create_message_draft(new_draft)
+  #
+  #         new_draft[:id] = draft.id
+  #         new_draft[:body] = draft.body + ' Now has been updated'
+  #         client_response = client.post_create_message_draft(new_draft)
+  #
+  #         expect(client_response).to be_a(Message)
+  #       end
+  #     end
+  #   end
+  # end
 
   describe 'post_create_message' do
     let(:new_message) do
