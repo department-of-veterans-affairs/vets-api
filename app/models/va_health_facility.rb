@@ -14,7 +14,7 @@ class VAHealthFacility < ActiveModelSerializers::Model
 
   def self.find_by_id(id:)
     results = client.get(identifier: id)
-    VAHealthFacility.from_gis(results.first) unless results.nil? || results.empty?
+    VAHealthFacility.from_gis(results.first) unless results.blank?
   end
 
   def self.service_whitelist

@@ -7,6 +7,8 @@ RSpec.describe 'VHA GIS Integration', type: :request do
       get '/v0/facilities/va/648A4'
       expect(response).to be_success
       expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data']['id']).to eq('648A4')
     end
   end
 
@@ -22,6 +24,8 @@ RSpec.describe 'VHA GIS Integration', type: :request do
       get '/v0/facilities/va?bbox=-122.440689,45.451913,-122.786758,45.64'
       expect(response).to be_success
       expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(3)
     end
   end
 
@@ -30,6 +34,8 @@ RSpec.describe 'VHA GIS Integration', type: :request do
       get '/v0/facilities/va?bbox=-122.440689,45.451913,-122.786758,45.64&services[]=EyeCare'
       expect(response).to be_success
       expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(2)
     end
   end
 end
