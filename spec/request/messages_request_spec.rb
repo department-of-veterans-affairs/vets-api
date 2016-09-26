@@ -124,4 +124,26 @@ RSpec.describe 'Messages Integration', type: :request do
       expect(response).to match_response_schema('category')
     end
   end
+
+  describe 'when moving messages between folders' do
+    let(:message_id) { 573_034 }
+
+    context 'without folder_id' do
+      it 'raises an error' do
+        patch "/v0/messaging/health/messages/#{message_id}/move"
+        binding.pry
+      end
+    end
+
+    it 'responds to PATCH messages/move' do
+      VCR.use_cassette("sm/messages/#{user_id}/move") do
+        patch "/v0/messaging/health/messages/#{message_id}/move?folder_id=123"
+      end
+
+      binding.pry
+
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+    end
+  end
 end

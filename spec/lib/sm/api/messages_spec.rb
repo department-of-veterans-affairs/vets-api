@@ -130,13 +130,25 @@ describe SM::Client do
     end
   end
 
+  describe 'move_message' do
+    let(:msg_id) { 573_034 }
+
+    context 'with valid id' do
+      it 'moves the message' do
+        VCR.use_cassette('sm/messages/10616687/move') do
+          expect(client.post_move_message(msg_id)).to eq(200)
+        end
+      end
+    end
+  end
+
   describe 'delete_message' do
     let(:msg_id) { 573_034 }
 
     context 'with valid id' do
       it 'deletes the message' do
         VCR.use_cassette('sm/messages/10616687/delete') do
-          expect(client.delete_message(msg_id)).to eq(200)
+          expect(client.delete_message(msg_id, 3)).to eq(200)
         end
       end
     end
