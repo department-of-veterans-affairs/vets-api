@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Apptoken:
-      - sjvlB75caM-O37hRpkDxV
+      - fake-app-token
       Mhvcorrelationid:
       - '10616687'
       Accept-Encoding:
@@ -43,7 +43,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: ''
-    http_version: 
+    http_version:
   recorded_at: Fri, 23 Sep 2016 01:50:06 GMT
 - request:
     method: post
@@ -83,6 +83,6 @@ http_interactions:
       encoding: UTF-8
       string: '{"errorCode":126,"developerMessage":"","message":"The Folder Already
         Exists With the Requested Name"}'
-    http_version: 
+    http_version:
   recorded_at: Fri, 23 Sep 2016 01:50:07 GMT
 recorded_with: VCR 3.0.3

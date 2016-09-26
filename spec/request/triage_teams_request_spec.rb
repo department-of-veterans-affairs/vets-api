@@ -5,7 +5,7 @@ RSpec.describe 'Triage Teams Integration', type: :request do
   let(:user_id) { ENV['MHV_SM_USER_ID'] }
 
   it 'responds to GET #index' do
-    VCR.use_cassette("triage_teams/#{user_id}/index") do
+    VCR.use_cassette("sm/triage_teams/#{user_id}/index") do
       get '/v0/messaging/health/recipients'
     end
 
