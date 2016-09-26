@@ -20,6 +20,7 @@ VCR.configure do |c|
   c.hook_into :webmock
   c.configure_rspec_metadata!
   c.filter_sensitive_data('<MHV_SM_HOST>') { ENV['MHV_SM_HOST'] }
+  c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { ENV['MHV_SM_APP_TOKEN'] }
 end
 
 ActiveRecord::Migration.maintain_test_schema!
