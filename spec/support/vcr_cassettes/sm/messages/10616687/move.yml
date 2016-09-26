@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Token:
-      - 5lC7aQWz/YI=eZSPfS2DzidkB2FW5ffUu160ya3+UUyQamBcxvUx/0Q=
+      - <SESSION_TOKEN>
       Content-Length:
       - '0'
       Accept-Encoding:
