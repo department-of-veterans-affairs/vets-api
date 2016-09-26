@@ -2,10 +2,6 @@
 require 'geoservices'
 require 'openssl'
 
-# TODO: PV: Obviously this is not useful, but maps.va.gov has a self-signed cert
-# so try this for testing purposes.
-OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
-
 module Facilities
   class Client
     def initialize(url:, layer:, id_field:)

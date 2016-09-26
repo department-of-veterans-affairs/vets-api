@@ -105,9 +105,8 @@ class VAHealthFacility < ActiveModelSerializers::Model
     end
   end
 
-  # TODO: extract to config
-  URL = +'https://maps.va.gov/server/rest/services/PROJECTS/Facility_Locator/MapServer'
-  LAYER = 0
+  URL = +ENV['VHA_MAPSERVER_URL']
+  LAYER = ENV['VHA_MAPSERVER_LAYER']
   ID_FIELD = 'StationNumber'
 
   def self.client

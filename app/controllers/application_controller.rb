@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'common/exceptions'
+require 'common/client/errors'
 
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
