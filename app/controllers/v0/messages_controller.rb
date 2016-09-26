@@ -76,11 +76,7 @@ module V0
     private
 
     def message_params
-      # Call to MHV message create fails if unknown field present, and does not accept recipient_id. This
-      # functionality will be moved into 'gem' once gem is moved to vets-api.
-      params.permit(:id, :category, :body, :recipient_id, :subject).transform_keys do |k|
-        k.camelize(:lower)
-      end
+      params.require(:message).permit(:id, :category, :body, :recipient_id, :subject)
     end
   end
 end

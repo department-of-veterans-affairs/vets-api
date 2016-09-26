@@ -41,6 +41,7 @@ module SM
 
       # post_create_message: Creates a new message, without attachments
       def post_create_message(args = {})
+        args.transform_keys! { |k| k.to_s.camelize(:lower) }
         json = perform(:post, 'message', args.to_json, token_headers)
         json[:data].delete(:attachments)
 
@@ -49,6 +50,7 @@ module SM
 
       # post_create_message_draft: Creates a new message draft, or updates an existing one, without attachments.
       def post_create_message_draft(args = {})
+        args.transform_keys! { |k| k.to_s.camelize(:lower) }
         json = perform(:post, 'message/draft', args.to_json, token_headers)
         json[:data].delete(:attachments)
 
@@ -57,8 +59,9 @@ module SM
 
       # post_create_message_reply: Replies to a message with the given id,
       # or updates an existing reply, without attachments
-      def post_create_message_reply(args = {})
-        json = perform(:post, "message/#{args[:id]}/reply", args.except(:id).to_json, token_headers)
+      def post_create_message_reply(id, args = {})
+        args.transform_keys! { |k| k.to_s.camelize(:lower) }
+        json = perform(:post, "message/#{id}/reply", args.to_json, token_headers)
         json[:data].delete(:attachments)
 
         Message.new(json)
