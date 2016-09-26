@@ -12,9 +12,9 @@ http_interactions:
       Content-Type:
       - application/json
       User-Agent:
-      - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
+      - Vets.gov Agent
       Token:
-      - 9zZrxrgWGvk=uMYFtZyO7Soio4uA5hwSYqOcxp7jYop/YkT43onALBM=
+      - <SESSION_TOKEN>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
