@@ -2,60 +2,6 @@
 http_interactions:
 - request:
     method: get
-    uri: https://mock-prescriptions-api.herokuapp.com/mhv-api/patient/v1/session
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Prescription API Ruby Gem 0.1.0
-      Apptoken:
-      - fake-app-token
-      Mhvcorrelationid:
-      - '1435525'
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: 'OK '
-    headers:
-      Connection:
-      - keep-alive
-      Date:
-      - Tue, 10 May 2016 16:30:17 GMT
-      Server:
-      - Apache/2.2.15 (Red Hat)
-      Content-Length:
-      - '0'
-      Expires:
-      - Tue, 10 May 2017 16:40:17 GMT
-      Token:
-      - GkuX2OZ4dCE=48xrH6ObGXZ45ZAg70LBahi7CjswZe8SZGKMUVFIU88=
-      Set-Cookie:
-      - JSESSIONID=QWMKXyMZmBfnC15xJKTQRMPvpMpsRhPJNwc9PGQMhSR8QQ8gQLL8!1523265843;
-        path=/; HttpOnly
-      X-Powered-By:
-      - Servlet/2.5 JSP/2.1
-      Content-Type:
-      - text/plain; charset=UTF-8
-      Cache-Control:
-      - no-cache
-      Access-Control-Allow-Origin:
-      - "*"
-      Via:
-      - 1.1 vegur
-    body:
-      encoding: UTF-8
-      string: ''
-    http_version: 
-  recorded_at: Thu, 25 Aug 2016 19:58:32 GMT
-- request:
-    method: get
     uri: https://mock-prescriptions-api.herokuapp.com/mhv-api/patient/v1/prescription/gethistoryrx
     body:
       encoding: US-ASCII
@@ -66,9 +12,9 @@ http_interactions:
       Content-Type:
       - application/json
       User-Agent:
-      - Vets.gov Prescription API Ruby Gem 0.1.0
+      - Vets.gov Agent
       Token:
-      - GkuX2OZ4dCE=48xrH6ObGXZ45ZAg70LBahi7CjswZe8SZGKMUVFIU88=
+      - <SESSION_TOKEN>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -153,6 +99,6 @@ http_interactions:
         27 Mar 2016 00:00:00 EDT","quantity":10,"expirationDate":"Tue, 28 Mar 2017
         00:00:00 EDT","prescriptionNumber":"3636038","prescriptionName":"Last Drug
         100MG TAB","dispensedDate":"Mon, 11 Apr 2016 00:00:00 EDT","stationNumber":"12"}]}'
-    http_version: 
+    http_version:
   recorded_at: Thu, 25 Aug 2016 19:58:32 GMT
 recorded_with: VCR 3.0.3

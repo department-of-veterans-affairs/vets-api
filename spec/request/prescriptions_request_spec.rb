@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 require 'rails_helper'
+require 'rx/client'
+require 'support/rx_client_helpers'
 
 RSpec.describe 'Prescriptions Integration', type: :request do
+  include Rx::ClientHelpers
   before(:each) do
     allow_any_instance_of(ApplicationController).to receive(:authenticate).and_return(true)
+    expect(Rx::Client).to receive(:new).once.and_return(authenticated_client)
   end
 
   it 'responds to GET #show' do
