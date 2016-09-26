@@ -20,7 +20,6 @@ module MVI
   #
   class Service
     extend Savon::Model
-    include Common::Cache::RedisCachable
 
     def self.load_wsdl
       @wsdl ||= ERB.new(File.read("#{Rails.root}/config/mvi_schema/IdmWebService_200VGOV.wsdl.erb")).result
@@ -29,18 +28,11 @@ module MVI
     client wsdl: load_wsdl
     operations :prpa_in201301_uv02, :prpa_in201302_uv02, :prpa_in201305_uv02
 
-    def initialize
-      self.redis = Redis::Namespace.new(REDIS_CONFIG['mvi_response']['namespace'], redis: Redis.current)
-      self.default_ttl = REDIS_CONFIG['mvi_response']['each_ttl']
-    end
-
-    def prpa_in201305_uv02(message)
-      cache(message.key) do
-        response = MVI::Response.new(super(xml: message.to_xml))
-        invalid_request_handler('find_candidate', response.body) if response.invalid?
-        request_failure_handler('find_candidate', response.body) if response.failure?
-        response.to_h
-      end
+    def self.prpa_in201305_uv02(message)
+      response = MVI::Response.new(super(xml: message.to_xml))
+      invalid_request_handler('find_candidate', response.body) if response.invalid?
+      request_failure_handler('find_candidate', response.body) if response.failure?
+      response.to_h
     rescue Savon::SOAPFault => e
       # TODO(AJD): cloud watch metric for error code
       Rails.logger.error "mvi find_candidate soap error code: #{e.http.code} message: #{e.message}"
@@ -51,16 +43,14 @@ module MVI
       raise MVI::HTTPError, e.message
     end
 
-    alias_method :find_candidate, :prpa_in201305_uv02
+    singleton_class.send(:alias_method, :find_candidate, :prpa_in201305_uv02)
 
-    private
-
-    def invalid_request_handler(operation, body)
+    def self.invalid_request_handler(operation, body)
       Rails.logger.error "mvi #{operation} invalid request structure: #{body}"
       raise MVI::InvalidRequestError
     end
 
-    def request_failure_handler(operation, body)
+    def self.request_failure_handler(operation, body)
       Rails.logger.error "mvi #{operation} request failure: #{body}"
       raise MVI::RequestFailureError
     end
