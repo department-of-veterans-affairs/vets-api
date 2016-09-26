@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'va/api/common/exceptions/invalid_field_value'
 
 class V0::Facilities::VaController < FacilitiesController
   before_action :validate_params, only: [:index]
@@ -17,7 +16,7 @@ class V0::Facilities::VaController < FacilitiesController
 
   def show
     results = VAHealthFacility.find_by_id(id: params[:id])
-    raise VA::API::Common::Exceptions::RecordNotFound, params[:id] if results.nil?
+    raise Common::Exceptions::RecordNotFound, params[:id] if results.nil?
     render json: results, serializer: VAHealthFacilitySerializer
   end
 
@@ -29,9 +28,9 @@ class V0::Facilities::VaController < FacilitiesController
       raise ArgumentError unless bbp.length == 4
       bbp.each { |x| Float(x) }
     rescue ArgumentError
-      raise VA::API::Common::Exceptions::InvalidFieldValue.new('bbox', params[:bbox])
+      raise Common::Exceptions::InvalidFieldValue.new('bbox', params[:bbox])
     end
     unknown = params[:services].to_a - VAHealthFacility.service_whitelist
-    raise VA::API::Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
+    raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
   end
 end
