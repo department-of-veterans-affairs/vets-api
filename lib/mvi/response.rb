@@ -16,6 +16,7 @@ module MVI
     end
 
     def invalid?
+      puts @code
       @code == RESPONSE_CODES[:invalid_request]
     end
 
@@ -24,11 +25,8 @@ module MVI
     end
 
     def to_h
-      # TODO(AJD): correlation ids should eventually be a hash but need to investigate
-      # what all the possible types are
       patient = @body[:control_act_process][:subject][:registration_event][:subject1][:patient]
       {
-        correlation_ids: map_correlation_ids(patient[:id]),
         status: patient[:status_code][:@code],
         given_names: patient[:patient_person][:name].first[:given].map(&:capitalize),
         family_name: patient[:patient_person][:name].first[:family].capitalize,
@@ -38,21 +36,26 @@ module MVI
           /(\d{3})[^\d]?(\d{2})[^\d]?(\d{4})/,
           '\1-\2-\3'
         )
-      }
+      }.merge(map_correlation_ids(patient[:id]))
     end
 
     private
 
     # MVI correlation id source id relationships:
     # {source id}^{id type}^{assigning authority}^{assigning facility}^{id status}
-    # TODO(AJD): MVI team will be sending the mapping of system identifiers to
-    # va systems (e.g. 200VETS = vets.gov, 516 = ?) when we have that we can symbolize the keys
-    #
+    # NI = national identifier, PI = patient identifier
     def map_correlation_ids(ids)
-      icn, ids = ids.partition { |id| id[:@extension] =~ /^\w+\^NI\^\w+\^\w+\^\w+$/ }
-      ids = ids.map { |id| { id[:@extension][/^\w+\^\w+\^(\w+)/, 1] => id[:@extension] } }
-      ids.push('ICN' => icn.first[:@extension])
-      ids.reduce({}, :update)
+      {
+        icn: select_extension(ids, /^\w+\^NI\^\w+\^\w+\^\w+$/, '2.16.840.1.113883.4.349'),
+        mhv: select_extension(ids, /^\w+\^PI\^200MHV\^\w+\^\w+$/, '2.16.840.1.113883.4.349'),
+        edipi: select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^\w+$/, '2.16.840.1.113883.3.364')
+      }
+    end
+
+    def select_extension(ids, pattern, root)
+      ids.select do |id|
+        id[:@extension] =~ pattern && id[:@root] == root
+      end.first[:@extension]
     end
   end
 end
