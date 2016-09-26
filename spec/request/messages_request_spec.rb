@@ -8,7 +8,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
   before(:each) do
     allow_any_instance_of(ApplicationController).to receive(:authenticate).and_return(true)
-    expect(SM::Client).to receive(:new).once.and_return(authenticated_client)
+    #expect(SM::Client).to receive(:new).once.and_return(authenticated_client)
   end
 
   let(:user_id) { ENV['MHV_SM_USER_ID'] }
@@ -95,6 +95,32 @@ RSpec.describe 'Messages Integration', type: :request do
     it 'responds to PATCH messages/move' do
       VCR.use_cassette("sm/messages/#{user_id}/move") do
         patch "/v0/messaging/health/messages/#{message_id}/move?folder_id=610965"
+      end
+
+      expect(response).to be_success
+      expect(response).to have_http_status(:no_content)
+    end
+  end
+
+  describe 'when destroying a message' do
+    let(:message_id) { 573_034 }
+
+    it 'responds to DELETE' do
+      VCR.use_cassette('sm/messages/10616687/delete') do
+        delete "/v0/messaging/health/messages/#{message_id}"
+      end
+
+      expect(response).to be_success
+      expect(response).to have_http_status(:no_content)
+    end
+  end
+
+  describe 'when destroying a draft' do
+    let(:message_id) { 623_373 }
+
+    it 'responds to DELETE' do
+      VCR.use_cassette('sm/messages/10616687/delete_draft') do
+        delete "/v0/messaging/health/messages/#{message_id}"
       end
 
       expect(response).to be_success
