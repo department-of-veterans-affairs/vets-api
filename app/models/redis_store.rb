@@ -16,7 +16,9 @@ class RedisStore
   end
 
   def self.find(redis_key = nil)
-    attributes = REDIS_STORE.hgetall(redis_key).with_indifferent_access
+    response = REDIS_STORE.get(redis_key)
+    return nil unless response
+    attributes = Oj.load(response).with_indifferent_access
     return nil if attributes.blank?
     object = new(attributes, true)
     if object.valid?
@@ -37,7 +39,7 @@ class RedisStore
 
   def save
     return false unless valid?
-    REDIS_STORE.mapped_hmset(redis_key, attributes)
+    REDIS_STORE.set(redis_key, Oj.dump(attributes, mode: :compat))
     REDIS_STORE.expire(redis_key, self.class::DEFAULT_TTL) if defined? self.class::DEFAULT_TTL
     @persisted = true
   end
