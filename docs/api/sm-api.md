@@ -81,7 +81,7 @@ Response
 #### <a name="update-draft"></a>Updating a Message Draft
 Request:
 
-`POST /messaging/health/message_drafts` with the following payload
+`PUT /messaging/health/message_drafts/:id` with the following payload
 
 ```json
 {
