@@ -44,14 +44,62 @@ RSpec.describe 'Messages Integration', type: :request do
     let(:message_attributes) { attributes_for(:message).slice(:subject, :category, :recipient_id, :body) }
     let(:params) { { message: message_attributes } }
 
-    it 'responds to POST #create' do
-      VCR.use_cassette("sm/messages/#{user_id}/create") do
-        post '/v0/messaging/health/messages', params
+    context 'with valid attributes' do
+      it 'responds to POST #create' do
+        VCR.use_cassette("sm/messages/#{user_id}/create") do
+          post '/v0/messaging/health/messages', params
+        end
+
+        expect(response).to be_success
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('message')
       end
 
-      expect(response).to be_success
-      expect(response.body).to be_a(String)
-      expect(response).to match_response_schema('message')
+      it 'subject defaults to general query' do
+        VCR.use_cassette("sm/messages/#{user_id}/create_no_subject") do
+          post '/v0/messaging/health/messages', message: message_attributes.slice(:recipient_id, :category, :body)
+        end
+
+        expect(response).to be_success
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('message')
+        expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('General Inquiry')
+      end
+    end
+
+    context 'with missing attributes' do
+      it 'requires a recipient_id' do
+        post '/v0/messaging/health/messages', message: message_attributes.slice(:subject, :category, :body)
+
+        errors = JSON.parse(response.body)['errors'].first
+
+        expect(response).to_not be_success
+        expect(errors['title']).to eq("Recipient can't be blank")
+        expect(errors['code']).to eq('100')
+        expect(errors['status']).to eq(422)
+      end
+
+      it 'requires a body' do
+        post '/v0/messaging/health/messages', message: message_attributes.slice(:subject, :category, :recipient_id)
+
+        errors = JSON.parse(response.body)['errors'].first
+
+        expect(response).to_not be_success
+        expect(errors['title']).to eq("Body can't be blank")
+        expect(errors['code']).to eq('100')
+        expect(errors['status']).to eq(422)
+      end
+
+      it 'requires a category' do
+        post '/v0/messaging/health/messages', message: message_attributes.slice(:subject, :body, :recipient_id)
+
+        errors = JSON.parse(response.body)['errors'].first
+
+        expect(response).to_not be_success
+        expect(errors['title']).to eq("Category can't be blank")
+        expect(errors['code']).to eq('100')
+        expect(errors['status']).to eq(422)
+      end
     end
   end
 

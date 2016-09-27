@@ -24,9 +24,10 @@ module V0
     end
 
     def create
+      message = Message.new(message_params)
+      raise Common::Exceptions::ValidationErrors, message unless message.valid?
+
       response = client.post_create_message(message_params)
-      # Should we accept default Gem error handling when creating a message with invalid parameter set, or
-      # create a VA common exception?
 
       render json: response,
              serializer: MessageSerializer,

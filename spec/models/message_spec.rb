@@ -30,5 +30,19 @@ RSpec.describe Message do
       expect(subject <=> other).to eq(-1)
       expect(other <=> subject).to eq(1)
     end
+
+    describe 'when validating' do
+      it 'requires recipient_id' do
+        expect(build(:message, recipient_id: '')).to_not be_valid
+      end
+
+      it 'requires body' do
+        expect(build(:message, body: '')).to_not be_valid
+      end
+
+      it 'requires category' do
+        expect(build(:message, category: '')).to_not be_valid
+      end
+    end
   end
 end
