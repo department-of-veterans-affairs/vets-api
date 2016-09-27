@@ -101,9 +101,10 @@ RSpec.describe User, type: :model do
   end
 
   describe '#fetch_mvi_data' do
+    let(:uuid) { SecureRandom.uuid }
     let(:user) do
       described_class.new(
-        uuid: SecureRandom.uuid,
+        uuid: uuid,
         email: 'john.smith@foo.com',
         first_name: 'John',
         middle_name: 'William',
@@ -129,7 +130,28 @@ RSpec.describe User, type: :model do
           ssn: '555-44-3333'
         )
         user.fetch_mvi_data
-        expect(user.attributes).to eq(foo:'bar')
+        expect(user.attributes).to eq(
+          dob: Time.new(1980, 1, 1).utc,
+          edipi: nil,
+          email: 'john.smith@foo.com',
+          first_name: 'John',
+          gender: 'M',
+          last_name: 'Smith',
+          last_signed_in: nil,
+          middle_name: 'William',
+          mvi_dob: '19800101',
+          mvi_edipi: '1234^NI^200DOD^USDOD^A',
+          mvi_family_name: 'Smith',
+          mvi_gender: 'M',
+          mvi_given_names: ['John', 'William'],
+          mvi_icn: '1000123456V123456^NI^200M^USVHA^P',
+          mvi_mhv_id: nil,
+          mvi_ssn: '555-44-3333',
+          participant_id: nil,
+          ssn: '555-44-3322',
+          uuid: uuid,
+          zip: '90210'
+        )
       end
     end
     context 'with an invalid find candidate message' do
