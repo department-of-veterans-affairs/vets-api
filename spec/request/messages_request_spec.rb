@@ -128,4 +128,51 @@ RSpec.describe 'Messages Integration', type: :request do
       expect(response).to match_response_schema('category')
     end
   end
+
+  describe 'when moving messages between folders' do
+    let(:message_id) { 573_052 }
+
+    context 'without folder_id' do
+      it 'returns errors json' do
+        patch "/v0/messaging/health/messages/#{message_id}/move"
+        expect(JSON.parse(response.body)['errors'].first['detail'])
+          .to eq('The required parameter "folder_id", is missing')
+      end
+    end
+
+    it 'responds to PATCH messages/move' do
+      VCR.use_cassette("sm/messages/#{user_id}/move") do
+        patch "/v0/messaging/health/messages/#{message_id}/move?folder_id=610965"
+      end
+
+      expect(response).to be_success
+      expect(response).to have_http_status(:no_content)
+    end
+  end
+
+  describe 'when destroying a message' do
+    let(:message_id) { 573_034 }
+
+    it 'responds to DELETE' do
+      VCR.use_cassette('sm/messages/10616687/delete') do
+        delete "/v0/messaging/health/messages/#{message_id}"
+      end
+
+      expect(response).to be_success
+      expect(response).to have_http_status(:no_content)
+    end
+  end
+
+  describe 'when destroying a draft' do
+    let(:message_id) { 623_373 }
+
+    it 'responds to DELETE' do
+      VCR.use_cassette('sm/messages/10616687/delete_draft') do
+        delete "/v0/messaging/health/messages/#{message_id}"
+      end
+
+      expect(response).to be_success
+      expect(response).to have_http_status(:no_content)
+    end
+  end
 end
