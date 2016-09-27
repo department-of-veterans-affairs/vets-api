@@ -102,8 +102,8 @@ RSpec.describe User, type: :model do
 
   describe '#fetch_mvi_data' do
     let(:uuid) { SecureRandom.uuid }
-    let(:user) do
-      described_class.new(
+    let(:attributes) do
+      {
         uuid: uuid,
         email: 'john.smith@foo.com',
         first_name: 'John',
@@ -113,7 +113,7 @@ RSpec.describe User, type: :model do
         dob: Time.new(1980, 1, 1).utc,
         zip: '90210',
         ssn: '555-44-3322'
-      )
+      }
     end
 
     context 'with a valid find candidate message' do
@@ -129,7 +129,7 @@ RSpec.describe User, type: :model do
           dob: '19800101',
           ssn: '555-44-3333'
         )
-        user.fetch_mvi_data
+        user = described_class.new(attributes)
         expect(user.attributes).to eq(
           dob: Time.new(1980, 1, 1).utc,
           edipi: nil,
@@ -155,10 +155,21 @@ RSpec.describe User, type: :model do
       end
     end
     context 'with an invalid find candidate message' do
-
+      it 'should log a warn message' do
+        expect(Rails.logger).to receive(:warn).once.with(
+          'MVI user data not retrieved: invalid message: Ssn is invalid'
+        )
+        described_class.new(attributes.except(:ssn))
+      end
     end
     context 'when a MVI::ServiceError is raised' do
-
+      it 'should log an error message' do
+        allow(MVI::Service).to receive(:find_candidate).and_raise(MVI::HTTPError)
+        expect(Rails.logger).to receive(:error).once.with(
+          "MVI user data not retrieved: service error: MVI::HTTPError for user: #{uuid}"
+        )
+        described_class.new(attributes)
+      end
     end
   end
 end
