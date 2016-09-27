@@ -74,6 +74,12 @@ module V0
              serializer: CategorySerializer
     end
 
+    def move
+      folder_id = params.require(:folder_id)
+      client.post_move_message(params[:id], folder_id)
+      head :no_content
+    end
+
     private
 
     def message_params

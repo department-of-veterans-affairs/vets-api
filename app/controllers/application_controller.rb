@@ -19,6 +19,8 @@ class ApplicationController < ActionController::API
 
     va_exception =
       case exception
+      when ActionController::ParameterMissing
+        Common::Exceptions::ParameterMissing.new(exception.param)
       when Common::Exceptions::BaseError
         exception
       when Common::Client::Errors::ClientResponse

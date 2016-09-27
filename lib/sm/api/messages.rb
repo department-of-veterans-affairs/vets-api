@@ -68,11 +68,11 @@ module SM
       end
 
       # post_move_message: Moves a message from its current folder to another
-      # def post_move_message(id, folder_id)
-      #   response = perform(:post, "message/#{id}/move/tofolder/#{folder_id}", nil, token_headers)
+      def post_move_message(id, folder_id)
+        response = perform(:post, "message/#{id}/move/tofolder/#{folder_id}", nil, token_headers)
 
-      #   response.nil? ? nil : response.status
-      # end
+        response.nil? ? nil : response.status
+      end
 
       # delete_folder: Deletes a folder.
       def delete_message(id)
