@@ -6,7 +6,8 @@ require 'support/sm_client_helpers'
 RSpec.describe 'Messages Integration', type: :request do
   include SM::ClientHelpers
 
-  let(:msg) { attributes_for :message_draft }
+  let(:draft) { attributes_for(:message_draft) }
+  let(:params) { { message_draft: draft.slice(:category, :subject, :body, :recipient_id) } }
   let(:user_id) { ENV['MHV_SM_USER_ID'] }
 
   before(:each) do
@@ -17,7 +18,7 @@ RSpec.describe 'Messages Integration', type: :request do
   context 'with valid attributes' do
     it 'responds to POST #create' do
       VCR.use_cassette("sm/message_drafts/#{user_id}/create") do
-        post '/v0/messaging/health/message_drafts', message_draft: msg.slice(:category, :subject, :body, :recipient_id)
+        post '/v0/messaging/health/message_drafts', params
       end
 
       expect(response).to be_success
@@ -27,15 +28,12 @@ RSpec.describe 'Messages Integration', type: :request do
 
     it 'responds to PUT #update' do
       VCR.use_cassette("sm/message_drafts/#{user_id}/update") do
-        msg[:subject] = 'Updated Subject'
-        url = "/v0/messaging/health/message_drafts/#{msg[:id]}"
-        put url, message_draft: msg.slice(:category, :subject, :body, :recipient_id)
+        params[:subject] = 'Updated Subject'
+
+        put "/v0/messaging/health/message_drafts/#{draft[:id]}", params
       end
 
       expect(response).to be_success
-      expect(response.body).to be_a(String)
-      expect(response).to match_response_schema('message')
-      expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('Updated Subject')
     end
   end
 end

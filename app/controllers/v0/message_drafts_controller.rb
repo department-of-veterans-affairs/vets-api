@@ -17,24 +17,17 @@ module V0
       draft = MessageDraft.new(params)
       raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
 
-      response = client.post_create_message_draft(params)
-
-      render json: response,
-             serializer: MessageSerializer,
-             meta:  {}
+      client.post_create_message_draft(params)
+      head :no_content
     end
 
     private
 
     def draft_create_params
-      # Call to MHV message create fails if unknown field present, and does not accept recipient_id. This
-      # functionality will be moved into 'gem' once gem is moved to vets-api.
       params.require(:message_draft).permit(:category, :body, :recipient_id, :subject)
     end
 
     def draft_update_params
-      # Call to MHV message create fails if unknown field present, and does not accept recipient_id. This
-      # functionality will be moved into 'gem' once gem is moved to vets-api.
       params.require(:message_draft).permit(:id, :category, :body, :recipient_id, :subject)
     end
   end
