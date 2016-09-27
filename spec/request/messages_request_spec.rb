@@ -103,6 +103,54 @@ RSpec.describe 'Messages Integration', type: :request do
     end
   end
 
+  describe '#reply' do
+    let(:message_attributes) { attributes_for(:message).slice(:subject, :category, :recipient_id, :body) }
+    let(:params) { { message: message_attributes } }
+
+    let(:reply_message_id) { 610_114 }
+    let(:reply_body) { 'This is a reply body' }
+
+    context 'with valid attributes' do
+      it 'responds to POST #reply' do
+        VCR.use_cassette("sm/messages/#{user_id}/create_message_reply") do
+          post "/v0/messaging/health/messages/#{reply_message_id}/reply", params
+        end
+
+        expect(response).to be_success
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('message')
+      end
+    end
+
+    context 'with invalid attributes' do
+      it 'requires a valid message to which it responds' do
+        VCR.use_cassette("sm/messages/#{user_id}/create_reply_bad_id") do
+          post '/v0/messaging/health/messages/-12345/reply', params
+        end
+
+        errors = JSON.parse(response.body)['errors'].first
+
+        expect(response).to_not be_success
+        expect(errors['title']).to eq("Operation failed")
+        expect(errors['detail']).to eq("Message service error")
+        expect(errors['code']).to eq("900")
+        expect(errors['status']).to eq(400)
+      end
+
+      it 'requires a body' do
+        post "/v0/messaging/health/messages/#{reply_message_id}/reply",
+          message: message_attributes.slice(:subject, :category, :recipient_id)
+
+        errors = JSON.parse(response.body)['errors'].first
+
+        expect(response).to_not be_success
+        expect(errors['title']).to eq("Body can't be blank")
+        expect(errors['code']).to eq('100')
+        expect(errors['status']).to eq(422)
+      end
+    end
+  end
+
   describe '#thread' do
     let(:thread_id) { 573_059 }
 
