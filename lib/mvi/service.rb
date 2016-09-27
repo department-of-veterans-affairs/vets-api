@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 require 'savon'
 require_relative 'response'
-require_relative 'mock_service'
 
 module MVI
   # Wrapper for the MVI (Master Veteran Index) Service. vets.gov has access
@@ -22,7 +21,7 @@ module MVI
     extend Savon::Model
 
     def self.load_wsdl
-      @wsdl ||= ERB.new(File.read("#{Rails.root}/config/mvi_schema/IdmWebService_200VGOV.wsdl.erb")).result
+      @wsdl ||= ERB.new(File.read("#{Rails.root}config/mvi_schema/IdmWebService_200VGOV.wsdl.erb")).result
     end
 
     client wsdl: load_wsdl
