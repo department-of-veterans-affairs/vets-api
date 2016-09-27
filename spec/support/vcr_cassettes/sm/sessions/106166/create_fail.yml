@@ -1,0 +1,46 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/session
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apptoken:
+      - fake-app-token
+      Mhvcorrelationid:
+      - '106166'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Fri, 16 Sep 2016 18:45:49 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      Expires:
+      - Fri, 16 Sep 2016 18:45:49 GMT
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '{"errorCode":105,"developerMessage":"","message":"User was not found"}'
+    http_version:
+  recorded_at: Fri, 16 Sep 2016 18:45:49 GMT
+recorded_with: VCR 3.0.3

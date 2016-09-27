@@ -10,7 +10,7 @@ RSpec.describe ApplicationController, type: :controller do
     }.freeze
 
     def record_not_found
-      raise VA::API::Common::Exceptions::RecordNotFound, 'some_id'
+      raise Common::Exceptions::RecordNotFound, 'some_id'
     end
 
     def other_error

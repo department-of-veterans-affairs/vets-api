@@ -18,7 +18,7 @@ Rails.application.routes.draw do
     get 'profile', to: 'users#show'
 
     resource :education_benefits_claims, only: :create
-    resources :claims, only: [:index, :show] do
+    resources :disability_claims, only: [:index, :show] do
       post :request_decision, on: :member
       resources :documents, only: [:create]
     end
@@ -36,13 +36,17 @@ Rails.application.routes.draw do
       scope :health do
         resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'
 
-        resources :folders, only: [:index, :show], defaults: { format: :json } do
+        resources :folders, only: [:index, :show, :create, :destroy], defaults: { format: :json } do
           resources :messages, only: [:index], defaults: { format: :json }
         end
 
         resources :messages, only: [:show, :create, :destroy], defaults: { format: :json } do
           get :thread, on: :member
+          get :categories, on: :collection
+          patch :move, on: :member
         end
+
+        resources :message_drafts, only: [:create, :update], defaults: { format: :json }
       end
     end
   end
@@ -50,7 +54,7 @@ Rails.application.routes.draw do
   root 'v0/example#index', module: 'v0'
 
   if Rails.env.development? || (ENV['SIDEKIQ_ADMIN_PANEL'] == 'true')
-    require "sidekiq/web"
-    mount Sidekiq::Web, at: "/sidekiq"
+    require 'sidekiq/web'
+    mount Sidekiq::Web, at: '/sidekiq'
   end
 end

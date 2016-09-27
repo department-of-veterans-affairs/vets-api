@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-require 'va/api/common/exceptions/parameter_missing'
-
 module V0
   class DocumentsController < ApplicationController
     skip_before_action :authenticate
@@ -8,16 +6,16 @@ module V0
     def create
       params.require :file
       uploaded_io = params[:file]
-      claim_id = params[:claim_id]
+      claim_id = params[:disability_claim_id]
       tracked_item_id = params[:tracked_item]
 
-      Claim.upload_document(claim_id,
-                            uploaded_io.original_filename, uploaded_io.read,
-                            tracked_item_id, current_user)
+      DisabilityClaim.upload_document(claim_id, uploaded_io.original_filename,
+                                      uploaded_io.read, tracked_item_id,
+                                      current_user)
       head :no_content
 
     rescue ActionController::ParameterMissing => ex
-      raise VA::API::Common::Exceptions::ParameterMissing, ex.param
+      raise Common::Exceptions::ParameterMissing, ex.param
     end
 
     private

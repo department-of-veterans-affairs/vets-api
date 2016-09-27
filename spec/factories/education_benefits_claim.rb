@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 FactoryGirl.define do
-  factory :education_benefit_claim, class: EducationBenefitsClaim do
+  factory :education_benefits_claim, class: EducationBenefitsClaim do
     form do
       {
         chapter1606: true,
@@ -89,7 +89,8 @@ FactoryGirl.define do
             serviceStatus: 'Honorable Discharge',
             involuntarilyCalledToDuty: 'yes'
           }
-        ]
+        ],
+        faaFlightCertificatesInformation: 'cert1, cert2'
       }.to_json
     end
   end

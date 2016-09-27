@@ -1,0 +1,43 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder"
+    body:
+      encoding: UTF-8
+      string: '{ "name":"a valid name 123" }'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token:
+      - <SESSION_TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Fri, 23 Sep 2016 01:50:07 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '{"errorCode":126,"developerMessage":"","message":"The Folder Already
+        Exists With the Requested Name"}'
+    http_version:
+  recorded_at: Fri, 23 Sep 2016 01:50:07 GMT
+recorded_with: VCR 3.0.3
