@@ -42,6 +42,11 @@ class RedisStore
     @persisted = true
   end
 
+  def update(attributes_hash)
+    self.attributes = attributes_hash
+    save
+  end
+
   def destroy
     REDIS_STORE.del(redis_key)
   end
