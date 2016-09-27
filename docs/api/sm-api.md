@@ -15,6 +15,8 @@ Secure Messaging within vets.gov enables secure, non-emergency, communications b
 | GET /messaging/health/messages/:id                | Gets a message                      | None                          |
 | GET /messaging/health/messages/:message_id/thread | List messages in thread             | [Pagination](#pagination)     |
 | POST /messaging/health/messages                   | Sends a message.                    | [json payload](#message) |
+| POST /messaging/health/message_drafts             | Creates a draft                     | [json payload](#message) |
+| POST /messaging/health/message_drafts/:id         | Updates a draft                     | [json payload](#message) |
 
 #### <a name="pagination"></a>Pagination Params
 * **page:** The page number of the first message returned
