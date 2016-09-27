@@ -2,11 +2,14 @@
 require 'common/models/base'
 require 'common/models/redis_store'
 require_dependency 'evss/common_service'
+require 'mvi/messages/find_candidate_message'
+require 'mvi/service'
 
 class User < Common::RedisStore
   redis_store REDIS_CONFIG['user_store']['namespace']
   redis_ttl REDIS_CONFIG['user_store']['each_ttl']
   redis_key :uuid
+  MVI_SERVICE = VetsAPI::Application.config.mvi_service
 
   # id.me attributes
   attribute :uuid
@@ -14,6 +17,8 @@ class User < Common::RedisStore
   attribute :first_name
   attribute :middle_name
   attribute :last_name
+  attribute :gender
+  attribute :dob, Common::UTCTime
   attribute :zip
   attribute :ssn
   attribute :birth_date
@@ -27,6 +32,19 @@ class User < Common::RedisStore
   attribute :participant_id
   attribute :ssn
 
+  # Add additional MVI attributes
+  alias redis_key uuid
+
+  # mvi 'golden record' data
+  attribute :mvi_edipi
+  attribute :mvi_icn
+  attribute :mvi_mhv_id
+  attribute :mvi_given_names
+  attribute :mvi_family_name
+  attribute :mvi_gender
+  attribute :mvi_dob
+  attribute :mvi_ssn
+
   validates :uuid, presence: true
   validates :email, presence: true
 
@@ -35,9 +53,30 @@ class User < Common::RedisStore
     client.find_rating_info.body.fetch('ratingRecord', {})
   end
 
+  after_initialize :fetch_mvi_data
+
   def self.sample_claimant
     attrs = JSON.load(ENV['EVSS_SAMPLE_CLAIMANT_USER'])
     attrs[:last_signed_in] = Time.now.utc
     User.new attrs
+  end
+
+  def fetch_mvi_data
+    message = MVI::Messages::FindCandidateMessage.new(
+      [first_name, middle_name],
+      last_name,
+      dob,
+      ssn,
+      gender
+    )
+    if message.valid?
+      response = MVI_SERVICE.find_candidate(message)
+      update(Hash[response.map { |k, v| ["mvi_#{k}".to_sym, v] }])
+    else
+      errors = message.errors.full_messages.join(', ')
+      Rails.logger.warn "MVI user data not retrieved: invalid message: #{errors}"
+    end
+  rescue MVI::ServiceError => e
+    Rails.logger.error "MVI user data not retrieved: service error: #{e.message} for user: #{uuid}"
   end
 end

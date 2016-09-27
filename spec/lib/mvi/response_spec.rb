@@ -21,7 +21,7 @@ describe MVI::Response do
 
     describe '.to_h' do
       it 'should filter the patient attributes the system is interested in' do
-        expect(valid_response.to_h).to eq({
+        expect(valid_response.to_h).to eq(
           dob: '19800101',
           edipi: '1234^NI^200DOD^USDOD^A',
           family_name: 'Smith',
@@ -30,8 +30,8 @@ describe MVI::Response do
           icn: '1000123456V123456^NI^200M^USVHA^P',
           mhv: '123456^PI^200MHV^USVHA^A',
           ssn: '555-44-3333',
-          status: 'active',
-        })
+          status: 'active'
+        )
       end
     end
   end

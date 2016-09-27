@@ -190,7 +190,7 @@ def bad_response(code, xml)
     'Savon::Response',
     body: {
       prpa_in201306_uv02: {
-        acknowledgement: { type_code: { :@code => code } },
+        acknowledgement: { type_code: { :@code => code } }
       }
     },
     xml: xml
