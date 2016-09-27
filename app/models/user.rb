@@ -15,19 +15,27 @@ class User < RedisStore
   attribute :middle_name
   attribute :last_name
   attribute :gender
-  attribute :dob
+  attribute :dob, Common::UTCTime
   attribute :zip
 
-  # vaafi/mvi attributes
+  # vaafi attributes
   attribute :last_signed_in, Common::UTCTime
   attribute :edipi
-  attribute :icn
-  attribute :mhv_id
   attribute :participant_id
   attribute :ssn
 
   # Add additional MVI attributes
   alias redis_key uuid
+
+  # mvi 'golden record' data
+  attribute :mvi_edipi
+  attribute :mvi_icn
+  attribute :mvi_mhv_id
+  attribute :mvi_given_names
+  attribute :mvi_family_name
+  attribute :mvi_gender
+  attribute :mvi_dob
+  attribute :mvi_ssn
 
   validates :uuid, presence: true
   validates :email, presence: true
@@ -41,25 +49,21 @@ class User < RedisStore
   end
 
   def fetch_mvi_data
-    unless mvi_ids?
-      message = MVI::Messages::FindCandidateMessage.new(
-        [first_name, middle_name],
-        last_name,
-        dob,
-        ssn,
-        gender
-      )
+    message = MVI::Messages::FindCandidateMessage.new(
+      [first_name, middle_name],
+      last_name,
+      dob,
+      ssn,
+      gender
+    )
+    if message.valid?
       response = MVI::Service.find_candidate(message)
-      self.edipi = response[:edipi]
-      self.icn = response[:icn]
-      self.mhv_id = response[:mhv_id]
-      save
+      update(Hash[response.map { |k, v| ["mvi_#{k}".to_sym, v] }])
+    else
+      errors = message.errors.full_messages.join(', ')
+      Rails.logger.warn "MVI user data not retrieved: invalid message: #{errors}"
     end
   rescue MVI::ServiceError => e
-    logger.error "service error: #{e.message} retrieving MVI data for user: #{uuid}"
-  end
-
-  def mvi_ids?
-    [edipi, icn, mhv_id].all? { |id| !id.nil? }
+    Rails.logger.error "MVI user data not retrieved: service error: #{e.message} for user: #{uuid}"
   end
 end
