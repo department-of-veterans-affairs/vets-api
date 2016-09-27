@@ -2,6 +2,7 @@
 require 'savon'
 require_relative 'response'
 require_relative '../common/cache/redis_cachable'
+require_relative 'mock_service'
 
 module MVI
   # Wrapper for the MVI (Master Veteran Index) Service. vets.gov has access
@@ -22,7 +23,7 @@ module MVI
     extend Savon::Model
 
     def self.load_wsdl
-      @wsdl ||= ERB.new(File.read("#{Rails.root}/config/mvi_schema/IdmWebService_200VGOV.wsdl.erb")).result
+      @wsdl ||= ERB.new(File.read("#{Rails.root}config/mvi_schema/IdmWebService_200VGOV.wsdl.erb")).result
     end
 
     client wsdl: load_wsdl
@@ -41,6 +42,10 @@ module MVI
       # TODO(AJD): cloud watch metric for error code
       Rails.logger.error "mvi find_candidate http error code: #{e.http.code} message: #{e.message}"
       raise MVI::HTTPError, e.message
+    rescue SocketError => e
+      Rails.logger.error "mvi find_candidate socket error: #{e.message}"
+      message = 'mvi requires a vpn connection, or use the mock mvi service as detailed in the project README'
+      raise MVI::ServiceError, message
     end
 
     singleton_class.send(:alias_method, :find_candidate, :prpa_in201305_uv02)
