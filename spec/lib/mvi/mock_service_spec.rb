@@ -5,7 +5,7 @@ require 'mvi/messages/find_candidate_message'
 
 describe MVI::Service do
   it 'returns YAML hash for find_candidate' do
-    allow(YAML).to receive(:load_file).and_return({
+    allow(YAML).to receive(:load_file).and_return(
       'find_candidate' => {
         'dob' => '19800101',
         'edipi' => '1234^NI^200DOD^USDOD^A',
@@ -17,7 +17,7 @@ describe MVI::Service do
         'ssn' => '555-44-3333',
         'status' => 'active'
       }
-    })
+    )
     response = MVI::MockService.find_candidate
     expect(response).to eq(
       'dob' => '19800101',
