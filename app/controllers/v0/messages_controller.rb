@@ -59,7 +59,7 @@ module V0
         raise Common::Exceptions::ValidationErrors, message
       end
 
-      resource = client.post_create_message_reply(params[:id], message_params.except(:id))
+      resource = client.post_create_message_reply(params[:id], message_params)
       raise VA::API::Common::Exceptions::RecordNotFound, params[:id] unless resource.present?
 
       render json: resource,
@@ -84,7 +84,7 @@ module V0
     private
 
     def message_params
-      @message_params ||= params.require(:message).permit(:id, :category, :body, :recipient_id, :subject)
+      @message_params ||= params.require(:message).permit(:category, :body, :recipient_id, :subject)
     end
   end
 end
