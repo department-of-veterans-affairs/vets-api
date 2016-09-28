@@ -7,7 +7,7 @@ require 'active_model/railtie'
 require 'active_job/railtie'
 require 'active_record/railtie'
 require 'action_controller/railtie'
-
+require 'mvi/service'
 # require "action_mailer/railtie"
 # require "action_view/railtie"
 # require "sprockets/railtie"
@@ -50,8 +50,5 @@ module VetsAPI
     config.middleware.use 'OliveBranch::Middleware'
 
     config.active_job.queue_adapter = :sidekiq
-
-    require_relative '../lib/mvi/service'
-    config.mvi_service = MVI::Service
   end
 end

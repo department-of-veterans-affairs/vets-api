@@ -9,6 +9,7 @@ class User < Common::RedisStore
   redis_store REDIS_CONFIG['user_store']['namespace']
   redis_ttl REDIS_CONFIG['user_store']['each_ttl']
   redis_key :uuid
+
   MVI_SERVICE = VetsAPI::Application.config.mvi_service
 
   # id.me attributes

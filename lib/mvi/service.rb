@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 require 'savon'
 require_relative 'response'
-require_relative 'mock_service'
 
 module MVI
   # Wrapper for the MVI (Master Veteran Index) Service. vets.gov has access
