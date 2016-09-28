@@ -8,9 +8,6 @@ development: &defaults
   user_store:
     namespace: mvi-data
     each_ttl: 86400
-  mvi_response:
-    namespace: mvi-response
-    each_ttl: 86400
 
 test:
   <<: *defaults

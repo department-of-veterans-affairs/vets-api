@@ -7,6 +7,7 @@ class User < RedisStore
   NAMESPACE = REDIS_CONFIG['user_store']['namespace']
   REDIS_STORE = Redis::Namespace.new(NAMESPACE, redis: Redis.current)
   DEFAULT_TTL = REDIS_CONFIG['user_store']['each_ttl']
+  MVI_SERVICE = VetsAPI::Application.config.mvi_service
 
   # id.me attributes
   attribute :uuid
@@ -57,7 +58,7 @@ class User < RedisStore
       gender
     )
     if message.valid?
-      response = MVI::Service.find_candidate(message)
+      response = MVI_SERVICE.find_candidate(message)
       update(Hash[response.map { |k, v| ["mvi_#{k}".to_sym, v] }])
     else
       errors = message.errors.full_messages.join(', ')
