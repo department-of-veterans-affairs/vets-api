@@ -12,5 +12,6 @@ Figaro.require_keys(
   'MHV_SM_APP_TOKEN',
   'EVSS_CLAIMS_BASE_URL',
   'EVSS_DOCUMENTS_BASE_URL',
+  'EVSS_COMMON_BASE_URL',
   'MVI_URL'
 )
