@@ -60,7 +60,6 @@ module V0
       end
 
       resource = client.post_create_message_reply(params[:id], message_params)
-      raise VA::API::Common::Exceptions::RecordNotFound, params[:id] unless resource.present?
 
       render json: resource,
              serializer: MessageSerializer,
@@ -69,7 +68,6 @@ module V0
 
     def categories
       resource = client.get_categories
-      raise VA::API::Common::Exceptions::InternalServerError unless response.present?
 
       render json: resource,
              serializer: CategorySerializer
