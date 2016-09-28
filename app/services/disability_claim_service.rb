@@ -26,7 +26,7 @@ class DisabilityClaimService
     find_or_initialize_claim(raw_claim)
   rescue Faraday::Error::TimeoutError, Timeout::Error => e
     log_error(e)
-    DisabilityClaim.find_by_evss_id(id)
+    DisabilityClaim.find_by(evss_id: id)
   end
 
   def request_decision(id)
