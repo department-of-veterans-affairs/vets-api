@@ -39,16 +39,6 @@ module V0
       head :no_content
     end
 
-    # TODO: rework draft
-    # def draft
-    #   params = message_params
-    #   response = client.post_create_message_draft(subject: params[:subject], body: params[:body], id: params[:id],
-    #                                               recipient_id: params[:recipient_id], category: params[:category])
-    #   render json: response,
-    #          serializer: MessageSerializer,
-    #          meta:  {}
-    # end
-
     def thread
       message_id = params[:id].try(:to_i)
       resource = client.get_message_history(message_id)
@@ -61,9 +51,23 @@ module V0
              meta: resource.metadata
     end
 
+    def reply
+      message = Message.new(message_params)
+
+      if message.body.blank?
+        message.errors.add(:body, "can't be blank")
+        raise Common::Exceptions::ValidationErrors, message
+      end
+
+      resource = client.post_create_message_reply(params[:id], message_params)
+
+      render json: resource,
+             serializer: MessageSerializer,
+             status: :created
+    end
+
     def categories
       resource = client.get_categories
-      raise VA::API::Common::Exceptions::InternalServerError unless response.present?
 
       render json: resource,
              serializer: CategorySerializer
@@ -78,7 +82,7 @@ module V0
     private
 
     def message_params
-      params.require(:message).permit(:id, :category, :body, :recipient_id, :subject)
+      @message_params ||= params.require(:message).permit(:category, :body, :recipient_id, :subject)
     end
   end
 end

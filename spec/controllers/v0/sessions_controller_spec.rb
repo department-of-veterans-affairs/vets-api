@@ -5,6 +5,17 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:saml_attrs) { { 'uuid' => ['1234'], 'email' => ['test@test.com'] } }
 
   context 'when not logged in' do
+    context 'when browser contains an invalid authorization token' do
+      let(:invalid_token) { 'iam-aninvalid-tokenvalue' }
+      let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(invalid_token) }
+
+      it 'GET show - returns unauthorized' do
+        request.env['HTTP_AUTHORIZATION'] = auth_header
+        get :show
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
     it 'GET new - shows the ID.me authentication url' do
       allow_any_instance_of(OneLogin::RubySaml::Authrequest)
         .to receive(:create).and_return('url_string')

@@ -44,6 +44,7 @@ Rails.application.routes.draw do
           get :thread, on: :member
           get :categories, on: :collection
           patch :move, on: :member
+          post :reply, on: :member
         end
 
         resources :message_drafts, only: [:create, :update], defaults: { format: :json }
