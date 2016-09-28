@@ -27,6 +27,8 @@ gem 'ox', '~> 2.4'
 gem 'savon', '~> 2.0'
 gem 'sidekiq'
 gem 'multi_json'
+gem "fog-aws", "~> 0.12"
+gem 'carrierwave', '~> 0.11'
 
 gem 'net-sftp'
 

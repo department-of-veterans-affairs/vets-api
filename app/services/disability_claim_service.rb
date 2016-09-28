@@ -26,11 +26,21 @@ class DisabilityClaimService
     find_or_initialize_claim(raw_claim)
   rescue Faraday::Error::TimeoutError, Timeout::Error => e
     log_error(e)
-    DisabilityClaim.find_by_evss_id(id)
+    DisabilityClaim.find_by(evss_id: id)
   end
 
   def request_decision(id)
     client.submit_5103_waiver(id).body
+  end
+
+  # upload file to s3 and enqueue job to upload to EVSS
+  # TODO (AJM): Unique filename in s3 but preserve original filename when uploading to evss
+  def upload_document(claim_id, tempfile, tracked_item_id)
+    uploader = DisabilityClaimDocumentUploader.new
+    uploader.store!(tempfile)
+    DisabilityClaim::DocumentUpload.perform_later(tempfile.original_filename,
+                                                  @user.vaafi_attrs, claim_id,
+                                                  tracked_item_id)
   end
 
   private

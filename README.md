@@ -62,6 +62,18 @@ MHV_SM_APP_TOKEN
 For an example, see `application.yml.example` - these are just mock endpoints.
 For actual backend testing you will need to reference the appropriate private repository.
 
+### S3 Uploads
+Uploaded disability claim documents are handled by CarrierWave and either sent to Amazon S3 or saved to disk.
+To enable S3 uploads, set the following ENV variables:
+```
+S3_UPLOADS
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+AWS_S3_REGION
+AWS_S3_BUCKET
+```
+Note: Only presence of `S3_UPLOADS` ENV var is checked, not its value
+
 ### Running the App
 1. Start the application: `bundle exec rails s`
 1. Navigate to <http://localhost:3000/v0/status> in your browser.
