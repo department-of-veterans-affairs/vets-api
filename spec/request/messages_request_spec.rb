@@ -131,15 +131,15 @@ RSpec.describe 'Messages Integration', type: :request do
         errors = JSON.parse(response.body)['errors'].first
 
         expect(response).to_not be_success
-        expect(errors['title']).to eq("Operation failed")
-        expect(errors['detail']).to eq("Message service error")
-        expect(errors['code']).to eq("900")
+        expect(errors['title']).to eq('Operation failed')
+        expect(errors['detail']).to eq('Message service error')
+        expect(errors['code']).to eq('900')
         expect(errors['status']).to eq(400)
       end
 
       it 'requires a body' do
         post "/v0/messaging/health/messages/#{reply_message_id}/reply",
-          message: message_attributes.slice(:subject, :category, :recipient_id)
+             message: message_attributes.slice(:subject, :category, :recipient_id)
 
         errors = JSON.parse(response.body)['errors'].first
 
