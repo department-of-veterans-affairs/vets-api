@@ -1,4 +1,11 @@
 # frozen_string_literal: true
+
+# hack to use fog meta-gem
+# https://github.com/fog/fog/issues/3429
+require 'carrierwave/storage/abstract'
+require 'carrierwave/storage/file'
+require 'carrierwave/storage/fog'
+
 CarrierWave.configure do |config|
   config.fog_credentials = {
     provider:              'AWS',
