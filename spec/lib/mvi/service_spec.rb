@@ -19,8 +19,9 @@ describe MVI::Service do
 
   describe '.load_wsdl' do
     it 'should have URI interpolated into wsdl' do
-      uri = URI(ENV['MVI_URL'])
-      expect(MVI::Service.client.instance_eval('@wsdl').endpoint.request_uri).to eq(uri.request_uri)
+      expect(MVI::Service.client.instance_eval('@wsdl').document).to eq(
+        ERB.new(File.read("#{Rails.root}/config/mvi_schema/IdmWebService_200VGOV.wsdl.erb")).result
+      )
     end
   end
 

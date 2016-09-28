@@ -86,7 +86,7 @@ RSpec.describe User, type: :model do
             participant_id: nil,
             ssn: nil,
             uuid: attributes[:uuid],
-            zip: nil,
+            zip: nil
           )
         end
       end
@@ -143,7 +143,7 @@ RSpec.describe User, type: :model do
           mvi_edipi: '1234^NI^200DOD^USDOD^A',
           mvi_family_name: 'Smith',
           mvi_gender: 'M',
-          mvi_given_names: ['John', 'William'],
+          mvi_given_names: %w(John William),
           mvi_icn: '1000123456V123456^NI^200M^USVHA^P',
           mvi_mhv_id: nil,
           mvi_ssn: '555-44-3333',
