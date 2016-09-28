@@ -16,12 +16,18 @@ class User < RedisStore
   attribute :middle_name
   attribute :last_name
   attribute :gender
+<<<<<<< HEAD
   attribute :dob, Common::UTCTime
+=======
+  attribute :dob
+>>>>>>> 6f446105bf30903c0b2bb524336b5e1ac7dc8baf
   attribute :zip
 
-  # vaafi attributes
+  # vaafi/mvi attributes
   attribute :last_signed_in, Common::UTCTime
   attribute :edipi
+  attribute :icn
+  attribute :mhv_id
   attribute :participant_id
   attribute :ssn
 
