@@ -19,7 +19,7 @@ class User < RedisStore
   attribute :dob, Common::UTCTime
   attribute :zip
 
-  # vaafi/mvi attributes
+  # vaafi attributes
   attribute :last_signed_in, Common::UTCTime
   attribute :edipi
   attribute :participant_id
