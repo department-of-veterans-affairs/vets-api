@@ -62,6 +62,33 @@ MHV_SM_APP_TOKEN
 For an example, see `application.yml.example` - these are just mock endpoints.
 For actual backend testing you will need to reference the appropriate private repository.
 
+### MVI Service
+The Master Veteran Index Service retreives and updates a veterans 'golden record'.
+This service is only available over the VA VPN. A mock service is available for
+testing in development and/or when you don't have VPN access. By default development
+uses MVI::MockService and all other environments use MVI::Service, to change this update 
+the config/environments:
+```
+# live service
+config.mvi_service = MVI::Service
+# mock service
+config.mvi_service = MVI::MockService
+```
+Endpoint response value can be set by copying mock_mvi_responses.yml.example to
+mock_mvi_responses.yml and updating YAML for the appropriate endpoint:
+```
+find_candidate:
+  dob: '19800101'
+  edipi: '1234^NI^200DOD^USDOD^A'
+  family_name: 'Smith'
+  gender: 'M'
+  given_names: ['John', 'William']
+  icn: '1000123456V123456^NI^200M^USVHA^P'
+  mhv_id: '123456^PI^200MHV^USVHA^A'
+  ssn: '555-44-3333'
+  status: 'active'
+```
+
 ### Running the App
 1. Start the application: `foreman start`
 1. Navigate to <http://localhost:3000/v0/status> in your browser.
