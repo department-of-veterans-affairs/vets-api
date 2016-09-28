@@ -49,6 +49,7 @@ class ApplicationController < ActionController::API
   def authenticate_token
     authenticate_with_http_token do |token, _options|
       @session = Session.find(token)
+      return false if @session.nil?
       # TODO: ensure that this prevents against timing attack vectors
       ActiveSupport::SecurityUtils.secure_compare(
         ::Digest::SHA256.hexdigest(token),
