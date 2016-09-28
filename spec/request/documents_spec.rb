@@ -2,8 +2,6 @@
 require 'rails_helper'
 
 RSpec.describe 'Documents management', type: :request do
-  ActiveJob::Base.queue_adapter = :test
-
   let(:file) do
     fixture_file_upload(
       "#{::Rails.root}/spec/fixtures/files/doctors-note.pdf",
@@ -14,6 +12,7 @@ RSpec.describe 'Documents management', type: :request do
   let(:claim_id) { 189_625 }
 
   it 'should upload a file' do
+    ActiveJob::Base.queue_adapter = :test
     params = { file: file, tracked_item: tracked_item }
     expect do
       post "/v0/disability_claims/#{claim_id}/documents", params

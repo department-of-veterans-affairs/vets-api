@@ -6,6 +6,7 @@ RSpec.describe DisabilityClaim::DocumentUpload, type: :job do
 
   let(:client_stub) { instance_double('EVSS::DocumentsService') }
   let(:uploader_stub) { instance_double('DisabilityClaimDocumentUploader') }
+  let(:user) { User.sample_claimant }
   let(:claim_id) { 189_625 }
   let(:tracked_item_id) { 33 }
   let(:filename) { 'doctors-note.pdf' }
@@ -18,6 +19,6 @@ RSpec.describe DisabilityClaim::DocumentUpload, type: :job do
     allow(uploader_stub).to receive(:read) { file }
     expect(uploader_stub).to receive(:remove!).once
     expect(client_stub).to receive(:upload).with(filename, file, claim_id, tracked_item_id)
-    described_class.perform_now(filename, 189_625, 33)
+    described_class.perform_now(filename, user.vaafi_attrs, 189_625, 33)
   end
 end
