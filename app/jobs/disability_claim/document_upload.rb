@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 class DisabilityClaim::DocumentUpload < ActiveJob::Base
-  # TODO (AJM): Pass in user once it can be serialized using GlobalID
+  # TODO: (AJM) Pass in user once it can be serialized using GlobalID
   def perform(filename, claim_id, tracked_item_id)
     client = EVSS::DocumentsService.new(User.sample_claimant)
     uploader = DisabilityClaimDocumentUploader.new
