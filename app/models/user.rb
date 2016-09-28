@@ -29,14 +29,7 @@ class User < RedisStore
   alias redis_key uuid
 
   # mvi 'golden record' data
-  attribute :mvi_edipi
-  attribute :mvi_icn
-  attribute :mvi_mhv_id
-  attribute :mvi_given_names
-  attribute :mvi_family_name
-  attribute :mvi_gender
-  attribute :mvi_dob
-  attribute :mvi_ssn
+  attribute :mvi
 
   validates :uuid, presence: true
   validates :email, presence: true
@@ -50,8 +43,10 @@ class User < RedisStore
   end
 
   def fetch_mvi_data
+    given_names = [first_name]
+    given_names.push middle_name unless middle_name.nil?
     message = MVI::Messages::FindCandidateMessage.new(
-      [first_name, middle_name],
+      given_names,
       last_name,
       dob,
       ssn,
@@ -59,7 +54,7 @@ class User < RedisStore
     )
     if message.valid?
       response = MVI_SERVICE.find_candidate(message)
-      update(Hash[response.map { |k, v| ["mvi_#{k}".to_sym, v] }])
+      update(mvi: response)
     else
       errors = message.errors.full_messages.join(', ')
       Rails.logger.warn "MVI user data not retrieved: invalid message: #{errors}"

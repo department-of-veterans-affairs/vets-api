@@ -62,9 +62,11 @@ RSpec.describe User, type: :model do
         it 'updates only user the user attributes passed in as arguments' do
           expect(subject).to receive(:save).once
           subject.update(
-            mvi_edipi: '1234^NI^200DOD^USDOD^A',
-            mvi_icn: '1000123456V123456^NI^200M^USVHA^P',
-            mvi_mhv_id: '123456^PI^200MHV^USVHA^A'
+            mvi: {
+              edipi: '1234^NI^200DOD^USDOD^A',
+              icn: '1000123456V123456^NI^200M^USVHA^P',
+              mhv_id: '123456^PI^200MHV^USVHA^A'
+            }
           )
           expect(subject.attributes).to eq(
             dob: nil,
@@ -75,14 +77,11 @@ RSpec.describe User, type: :model do
             last_name: nil,
             last_signed_in: nil,
             middle_name: nil,
-            mvi_dob: nil,
-            mvi_edipi: '1234^NI^200DOD^USDOD^A',
-            mvi_family_name: nil,
-            mvi_gender: nil,
-            mvi_given_names: nil,
-            mvi_icn: '1000123456V123456^NI^200M^USVHA^P',
-            mvi_mhv_id: '123456^PI^200MHV^USVHA^A',
-            mvi_ssn: nil,
+            mvi: {
+              edipi: '1234^NI^200DOD^USDOD^A',
+              icn: '1000123456V123456^NI^200M^USVHA^P',
+              mhv_id: '123456^PI^200MHV^USVHA^A'
+            },
             participant_id: nil,
             ssn: nil,
             uuid: attributes[:uuid],
@@ -139,14 +138,17 @@ RSpec.describe User, type: :model do
           last_name: 'Smith',
           last_signed_in: nil,
           middle_name: 'William',
-          mvi_dob: '19800101',
-          mvi_edipi: '1234^NI^200DOD^USDOD^A',
-          mvi_family_name: 'Smith',
-          mvi_gender: 'M',
-          mvi_given_names: %w(John William),
-          mvi_icn: '1000123456V123456^NI^200M^USVHA^P',
-          mvi_mhv_id: nil,
-          mvi_ssn: '555-44-3333',
+          mvi: {
+            edipi: '1234^NI^200DOD^USDOD^A',
+            icn: '1000123456V123456^NI^200M^USVHA^P',
+            mhv: '123456^PI^200MHV^USVHA^A',
+            status: 'active',
+            given_names: %w(John William),
+            family_name: 'Smith',
+            gender: 'M',
+            dob: '19800101',
+            ssn: '555-44-3333'
+          },
           participant_id: nil,
           ssn: '555-44-3322',
           uuid: uuid,
