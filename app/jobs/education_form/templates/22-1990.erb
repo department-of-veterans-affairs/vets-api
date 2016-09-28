@@ -79,7 +79,7 @@ Active Duty    From Active Duty
 Date Received High School Diploma or Equivalency Certificate: <%= to_date(@applicant.highSchoolOrGedCompletionDate) %>
 
 FAA Flight Certificates:
-<%= @applicant.faaFlightCertificatesInformation&.map(&:name).join(', ') %>
+<%= @applicant.faaFlightCertificatesInformation %>
 
       Education After High School
       ---------------------------

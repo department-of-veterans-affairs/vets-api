@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-require 'va/api/common/exceptions/parameter_missing'
-
 module V0
   class DocumentsController < ApplicationController
     skip_before_action :authenticate
@@ -15,7 +13,7 @@ module V0
       head :no_content
 
     rescue ActionController::ParameterMissing => ex
-      raise VA::API::Common::Exceptions::ParameterMissing, ex.param
+      raise Common::Exceptions::ParameterMissing, ex.param
     end
 
     private

@@ -1,19 +1,25 @@
 # frozen_string_literal: true
 require 'rails_helper'
+require 'sm/client'
+require 'support/sm_client_helpers'
 
 RSpec.describe 'Messages Integration', type: :request do
+  include SM::ClientHelpers
+
+  before(:each) do
+    allow_any_instance_of(ApplicationController).to receive(:authenticate).and_return(true)
+    expect(SM::Client).to receive(:new).once.and_return(authenticated_client)
+  end
+
   let(:user_id) { ENV['MHV_SM_USER_ID'] }
   let(:inbox_id) { 0 }
   let(:message_id) { 573_302 }
 
   describe '#index' do
-    before(:each) do
+    it 'responds with all messages in a folder when no pagination is given' do
       VCR.use_cassette("sm/messages/#{user_id}/index") do
         get "/v0/messaging/health/folders/#{inbox_id}/messages"
       end
-    end
-
-    it 'responds with all messages in a folder when no pagination is given' do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('messages')
@@ -22,13 +28,11 @@ RSpec.describe 'Messages Integration', type: :request do
 
   describe '#show' do
     context 'with valid id' do
-      before(:each) do
+      it 'responds to GET #show' do
         VCR.use_cassette("sm/messages/#{user_id}/show") do
           get "/v0/messaging/health/messages/#{message_id}"
         end
-      end
 
-      it 'responds to GET #show' do
         expect(response).to be_success
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('message')
@@ -37,83 +41,76 @@ RSpec.describe 'Messages Integration', type: :request do
   end
 
   describe '#create' do
-    let(:msg) { build :message }
+    let(:message_attributes) { attributes_for(:message).slice(:subject, :category, :recipient_id, :body) }
+    let(:params) { { message: message_attributes } }
 
-    before(:each) do
-      VCR.use_cassette("sm/messages/#{user_id}/create") do
-        post '/v0/messaging/health/messages', subject: msg.subject, category: msg.category,
-                                              recipient_id: msg.recipient_id, body: msg.body
+    context 'with valid attributes' do
+      it 'responds to POST #create' do
+        VCR.use_cassette("sm/messages/#{user_id}/create") do
+          post '/v0/messaging/health/messages', params
+        end
+
+        expect(response).to be_success
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('message')
+      end
+
+      it 'subject defaults to general query' do
+        VCR.use_cassette("sm/messages/#{user_id}/create_no_subject") do
+          post '/v0/messaging/health/messages', message: message_attributes.slice(:recipient_id, :category, :body)
+        end
+
+        expect(response).to be_success
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('message')
+        expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('General Inquiry')
       end
     end
 
-    it 'responds to POST #create' do
-      expect(response).to be_success
-      expect(response.body).to be_a(String)
-      expect(response).to match_response_schema('message')
+    context 'with missing attributes' do
+      it 'requires a recipient_id' do
+        post '/v0/messaging/health/messages', message: message_attributes.slice(:subject, :category, :body)
+
+        errors = JSON.parse(response.body)['errors'].first
+
+        expect(response).to_not be_success
+        expect(errors['title']).to eq("Recipient can't be blank")
+        expect(errors['code']).to eq('100')
+        expect(errors['status']).to eq(422)
+      end
+
+      it 'requires a body' do
+        post '/v0/messaging/health/messages', message: message_attributes.slice(:subject, :category, :recipient_id)
+
+        errors = JSON.parse(response.body)['errors'].first
+
+        expect(response).to_not be_success
+        expect(errors['title']).to eq("Body can't be blank")
+        expect(errors['code']).to eq('100')
+        expect(errors['status']).to eq(422)
+      end
+
+      it 'requires a category' do
+        post '/v0/messaging/health/messages', message: message_attributes.slice(:subject, :body, :recipient_id)
+
+        errors = JSON.parse(response.body)['errors'].first
+
+        expect(response).to_not be_success
+        expect(errors['title']).to eq("Category can't be blank")
+        expect(errors['code']).to eq('100')
+        expect(errors['status']).to eq(422)
+      end
     end
   end
 
-  # TODO: complete draft deletion once clarification received on deleting draft messages
-  # describe '#destroy' do
-  #   let(:msg) { build :message }
-  #
-  #   before(:each) do
-  #     VCR.use_cassette("sm/messages/#{user_id}/destroy") do
-  #       post '/v0/messaging/health/messages', subject: msg.subject, category: msg.category,
-  #                                             recipient_id: msg.recipient_id, body: msg.body
-  #
-  #       message_id = JSON.parse(response.body)['data']['attributes']['message_id']
-  #       delete "/v0/messaging/health/messages/#{message_id}"
-  #     end
-  #   end
-  #
-  #   it 'responds to DELETE #destroy' do
-  #   end
-  # end
-
-  # describe '#draft' do
-  #   let(:msg) { build :message }
-  #
-  #   before(:each) do
-  #     VCR.use_cassette("sm/messages/#{user_id}/draft_create") do
-  #       post '/v0/messaging/health/messages/draft', subject: msg.subject, category: msg.category,
-  #                                                   recipient_id: msg.recipient_id, body: msg.body
-  #     end
-  #   end
-  #
-  #   it 'responds to POST #draft' do
-  #     expect(response).to be_success
-  #     expect(response.body).to be_a(String)
-  #     expect(response).to match_response_schema('message')
-  #   end
-  #
-  #   it 'responds to PUT #draft' do
-  #     org = JSON.parse(response.body)['data']['attributes']
-  #     body = org['body'] + '. This is the added bit!'
-  #     message_id = org['message_id']
-  #
-  #     VCR.use_cassette("sm/messages/#{user_id}/draft_update") do
-  #       put "/v0/messaging/health/messages/#{message_id}/draft", subject: msg.subject, category: msg.category,
-  #                                                                body: body, recipient_id: msg.recipient_id
-  #     end
-  #
-  #     expect(response).to be_success
-  #     expect(response.body).to be_a(String)
-  #     expect(response).to match_response_schema('message')
-  #     expect(JSON.parse(response.body)['data']['attributes']['body']).to eq(body)
-  #     expect(JSON.parse(response.body)['data']['attributes']['message_id']).to eq(message_id)
-  #   end
-  # end
-
   describe '#thread' do
     let(:thread_id) { 573_059 }
-    before(:each) do
+
+    it 'responds to GET #thread' do
       VCR.use_cassette("sm/messages/#{user_id}/thread") do
         get "/v0/messaging/health/messages/#{thread_id}/thread"
       end
-    end
 
-    it 'responds to GET #thread' do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('messages')
@@ -121,16 +118,61 @@ RSpec.describe 'Messages Integration', type: :request do
   end
 
   describe 'when getting categories' do
-    before(:each) do
+    it 'responds to GET messages/categories' do
       VCR.use_cassette("sm/messages/#{user_id}/category") do
         get '/v0/messaging/health/messages/categories'
       end
-    end
 
-    it 'responds to GET messages/categories' do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('category')
+    end
+  end
+
+  describe 'when moving messages between folders' do
+    let(:message_id) { 573_052 }
+
+    context 'without folder_id' do
+      it 'returns errors json' do
+        patch "/v0/messaging/health/messages/#{message_id}/move"
+        expect(JSON.parse(response.body)['errors'].first['detail'])
+          .to eq('The required parameter "folder_id", is missing')
+      end
+    end
+
+    it 'responds to PATCH messages/move' do
+      VCR.use_cassette("sm/messages/#{user_id}/move") do
+        patch "/v0/messaging/health/messages/#{message_id}/move?folder_id=610965"
+      end
+
+      expect(response).to be_success
+      expect(response).to have_http_status(:no_content)
+    end
+  end
+
+  describe 'when destroying a message' do
+    let(:message_id) { 573_034 }
+
+    it 'responds to DELETE' do
+      VCR.use_cassette('sm/messages/10616687/delete') do
+        delete "/v0/messaging/health/messages/#{message_id}"
+      end
+
+      expect(response).to be_success
+      expect(response).to have_http_status(:no_content)
+    end
+  end
+
+  describe 'when destroying a draft' do
+    let(:message_id) { 623_373 }
+
+    it 'responds to DELETE' do
+      VCR.use_cassette('sm/messages/10616687/delete_draft') do
+        delete "/v0/messaging/health/messages/#{message_id}"
+      end
+
+      expect(response).to be_success
+      expect(response).to have_http_status(:no_content)
     end
   end
 end

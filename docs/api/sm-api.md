@@ -4,15 +4,104 @@
 Secure Messaging within vets.gov enables secure, non-emergency, communications between veterans and their VA healthcare providers.
 
 ### Available Routes
-| Resource  | Description | Params |
-| --------- | ----------- | ------ |
-| GET /messaging/healthcare/recipients | Returns a list of triage teams assigned to the veteran. | None |
-| GET /messaging/healthcare/folders | Returns a list of veteran-assigned personal and system folders. | None |
-| GET /messaging/healthcare/folders/:id | Returns a single veteran-assigned folder. | None |
-| GET /messaging/health/folders/:folder_id/messages | Returns a paginated set of messages belonging to a folder. | <ul><li><b>page</b>: The page number of the first message returned.</li><li><b>per_page</b>: The number of messages in a returned page</li><li><b>all</b>: Set to true to bring back all messages in the folder. </li></ul> |
-| GET /messaaging/health/messages/:id | Gets a single message. | None |
-| GET /messaging/health/messages/:id/thread | Gets the thread belonging to a message | None |
-| POST /messaaging/health/messages | Sends a message. | <ul><li><b>category</b>: The category of the message.</li><li><b>subject</b>: The subject line of the message.</li><li><b>body</b>: The message body.</li><li><b>recipient_id</b>: The triage team id.</li></ul> |
+| Resource                                          | Description                         | Params                        |
+| ------------------------------------------------- | ----------------------------------- | ------------------------------|
+| GET /messaging/healthcare/recipients              | List possible recipients            | [Pagination](#pagination)     |
+| GET /messaging/healthcare/folders                 | List folders                        | [Pagination](#pagination)     |
+| GET /messaging/healthcare/folders/:id             | Returns a folder                    | None                          |
+| POST /messaging/healthcare/folders                | Creates a folder                    | [json payload](#folder)  |
+| DELETE /messaging/healthcare/folders/:id          | Deletes a folder                    | None                          |
+| GET /messaging/health/folders/:folder_id/messages | List messages in folder             | None                          |
+| GET /messaging/health/messages/:id                | Gets a message                      | None                          |
+| GET /messaging/health/messages/:message_id/thread | List messages in thread             | [Pagination](#pagination)     |
+| POST /messaging/health/messages                   | Sends a message.                    | [json payload](#message) |
+| POST /messaging/health/message_drafts             | Creates a draft                     | [json payload](#message) |
+| PUT /messaging/health/message_drafts/:id         | Updates a draft                     | [json payload](#update-draft) |
+
+#### <a name="pagination"></a>Pagination Params
+* **page:** The page number of the first message returned
+* **per_page:** The number of messages in a returned page
+
+#### <a name="folder"></a>Creating a Folder
+Request:
+
+`POST /messaging/healthcare/folders` with the following payload
+
+```json
+{
+  "folder": {
+    "name": "sample folder"
+  }
+}
+```
+
+Response
+
+`STATUS: 201`
+
+```json
+{
+  "data": {
+    "id": "123123",
+    "type": "folder",
+    "attributes": {
+      "folder_id": 123123,
+      "name": "sample folder",
+      "count": 0,
+      "unread_count": 0,
+      "system_folder": false
+    },
+    "links": {
+      "self": "https:\/\/staging.vets.gov\/api\/v0\/messaging\/health\/folders\/123123"
+    }
+  }
+}
+```
+
+#### <a name="message"></a>Creating a Message
+Request:
+
+`POST /messaging/health/messages` with the following payload
+
+```json
+{
+  "message": {
+    "category": "A category from the list of available categories",
+    "subject": "Message Subject",
+    "body": "The message body.",
+    "recipient_id": 1
+  }
+}
+```
+
+Response
+
+`STATUS: 201`
+
+#### <a name="update-draft"></a>Updating a Message Draft
+Request:
+
+`PUT /messaging/health/message_drafts/:id` with the following payload
+
+```json
+{
+  "message": {
+    "category": "A category from the list of available categories",
+    "subject": "Message Subject",
+    "body": "The message body.",
+    "recipient_id": 1
+  }
+}
+```
+
+Response
+
+`STATUS: 204`
+
+```
+  UPDATE THIS
+```
+
 
 ### Supported Formats
 <ul><li>JSON</li></ul>

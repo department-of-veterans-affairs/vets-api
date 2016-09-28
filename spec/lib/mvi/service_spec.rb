@@ -31,13 +31,14 @@ describe MVI::Service do
         savon.expects(:prpa_in201305_uv02).with(xml: message).returns(xml)
         response = MVI::Service.find_candidate(message)
         expect(response).to eq(
-          correlation_ids: [
-            '1000123456V123456^NI^200M^USVHA^P',
-            '12345^PI^516^USVHA^PCE',
-            '2^PI^553^USVHA^PCE',
-            '12345^PI^200HD^USVHA^A',
-            'TKIP123456^PI^200IP^USVHA^A'
-          ],
+          correlation_ids: {
+            '516' => '12345^PI^516^USVHA^PCE',
+            '553' => '2^PI^553^USVHA^PCE',
+            '200HD' => '12345^PI^200HD^USVHA^A',
+            '200IP' => 'TKIP123456^PI^200IP^USVHA^A',
+            '200MHV' => '123456^PI^200MHV^USVHA',
+            'ICN' => '1000123456V123456^NI^200M^USVHA^P'
+          },
           status: 'active',
           given_names: %w(John William),
           family_name: 'Smith',

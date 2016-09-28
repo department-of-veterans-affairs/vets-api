@@ -36,14 +36,17 @@ Rails.application.routes.draw do
       scope :health do
         resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'
 
-        resources :folders, only: [:index, :show], defaults: { format: :json } do
+        resources :folders, only: [:index, :show, :create, :destroy], defaults: { format: :json } do
           resources :messages, only: [:index], defaults: { format: :json }
         end
 
         resources :messages, only: [:show, :create, :destroy], defaults: { format: :json } do
           get :thread, on: :member
           get :categories, on: :collection
+          patch :move, on: :member
         end
+
+        resources :message_drafts, only: [:create, :update], defaults: { format: :json }
       end
     end
   end

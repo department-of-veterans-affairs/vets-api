@@ -24,24 +24,20 @@ module V0
     end
 
     def create
+      message = Message.new(message_params)
+      raise Common::Exceptions::ValidationErrors, message unless message.valid?
+
       response = client.post_create_message(message_params)
-      # Should we accept default Gem error handling when creating a message with invalid parameter set, or
-      # create a VA common exception?
 
       render json: response,
              serializer: MessageSerializer,
              meta:  {}
     end
 
-    # TODO: uncomment once clarification received on deleting draft messages
-    # def destroy
-    #   message_id = message_params[:id].try(:to_i)
-    #   response = client.delete_message(message_id)
-    #
-    #   raise VA::API::Common::Exceptions::RecordNotFound, message_id unless response.present?
-    #
-    #   render json: response
-    # end
+    def destroy
+      client.delete_message(params[:id])
+      head :no_content
+    end
 
     # TODO: rework draft
     # def draft
@@ -73,14 +69,16 @@ module V0
              serializer: CategorySerializer
     end
 
+    def move
+      folder_id = params.require(:folder_id)
+      client.post_move_message(params[:id], folder_id)
+      head :no_content
+    end
+
     private
 
     def message_params
-      # Call to MHV message create fails if unknown field present, and does not accept recipient_id. This
-      # functionality will be moved into 'gem' once gem is moved to vets-api.
-      params.permit(:id, :category, :body, :recipient_id, :subject).transform_keys do |k|
-        k.camelize(:lower)
-      end
+      params.require(:message).permit(:id, :category, :body, :recipient_id, :subject)
     end
   end
 end
