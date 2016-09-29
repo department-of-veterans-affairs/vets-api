@@ -32,8 +32,7 @@ class User < RedisStore
   # mvi 'golden record' data
   attribute :mvi
 
-  validates :uuid, presence: true
-  validates :email, presence: true
+  validates_presence_of :uuid, :email, :first_name, :last_name, :dob, :ssn
 
   after_initialize :fetch_mvi_data
 

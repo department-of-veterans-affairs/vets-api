@@ -3,6 +3,8 @@ require 'rails_helper'
 
 RSpec.describe User, type: :model do
   context 'on user instantiation' do
+    include_context 'stub mvi find_candidate response'
+
     let(:attributes) do
       {
         uuid: 'userid:123',
@@ -17,20 +19,6 @@ RSpec.describe User, type: :model do
     end
 
     subject { described_class.new(attributes) }
-
-    before(:each) do
-      allow(MVI::Service).to receive(:find_candidate).and_return(
-        edipi: '1234^NI^200DOD^USDOD^A',
-        icn: '1000123456V123456^NI^200M^USVHA^P',
-        mhv: '123456^PI^200MHV^USVHA^A',
-        status: 'active',
-        given_names: %w(John William),
-        family_name: 'Smith',
-        gender: 'M',
-        dob: '19800101',
-        ssn: '555-44-3333'
-      )
-    end
 
     it 'expect ttl to an Integer' do
       expect(subject.ttl).to be_an(Integer)

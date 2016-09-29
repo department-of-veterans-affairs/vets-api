@@ -2,6 +2,8 @@
 require 'rails_helper'
 
 RSpec.describe 'disability Claims management', type: :request do
+  include_context 'stub mvi find_candidate response'
+
   it 'lists all Claims' do
     VCR.use_cassette('evss/claims/claims') do
       get '/v0/disability_claims'

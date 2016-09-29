@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'fakeredis/rspec'
+require 'support/mvi/shared_mvi_examples'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']

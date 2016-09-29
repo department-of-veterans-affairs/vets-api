@@ -56,12 +56,22 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
 
   context 'when logged in' do
+    include_context 'stub mvi find_candidate response'
+
     let(:token) { 'abracadabra-open-sesame' }
     let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
 
     before(:each) do
       Session.create(uuid: '1234', token: token)
-      User.create(uuid: '1234', email: 'test@test.com')
+      User.create(
+        uuid: '1234',
+        email: 'test@test.com',
+        first_name: 'John',
+        middle_name: 'William',
+        last_name: 'Smith',
+        dob: Time.new(1980, 1, 1),
+        ssn: '555-44-3333'
+      )
     end
 
     it 'returns a JSON the session' do
