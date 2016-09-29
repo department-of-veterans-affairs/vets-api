@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'mvi/mock_service'
+
 Rails.application.configure do
   # Specify environment specific hostname and protocol
   config.hostname = ENV['HOSTNAME']
