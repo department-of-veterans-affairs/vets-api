@@ -94,4 +94,34 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       expect(mock_writer.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
     end
   end
+
+  context '#full_address' do
+    let(:address) { application_1606.open_struct_form.veteranAddress }
+
+    subject { described_class.new.send(:full_address, address) }
+
+    context 'with a nil address' do
+      let(:address) { nil }
+
+      it 'should return the blank string' do
+        expect(subject).to eq('')
+      end
+    end
+
+    context 'with no street2' do
+      it 'should format the address correctly' do
+        expect(subject).to eq("123 MAIN ST\nMILWAUKEE, WI, 53130\nUSA")
+      end
+    end
+
+    context 'with a street2' do
+      before do
+        address.street2 = 'apt 2'
+      end
+
+      it 'should format the address correctly' do
+        expect(subject).to eq("123 MAIN ST\nAPT 2\nMILWAUKEE, WI, 53130\nUSA")
+      end
+    end
+  end
 end
