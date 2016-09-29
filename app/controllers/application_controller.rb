@@ -26,10 +26,20 @@ class ApplicationController < ActionController::API
       when Common::Client::Errors::ClientResponse
         Common::Exceptions::ClientError.new(exception.message.capitalize)
       else
+        notify_slack_exception(exception)
         Common::Exceptions::InternalServerError.new(exception)
       end
 
     render json: { errors: va_exception.errors }, status: va_exception.errors[0].status
+  end
+
+  def notify_slack_exception(exception)
+    return unless ENV['EXCEPTIONS_SLACK_WEBHOOK']
+    ExceptionNotifier.notify_exception(
+      exception,
+      env: request.env,
+      data: { server: ENV['HOSTNAME'] }
+    )
   end
 
   def log_error(exception)
