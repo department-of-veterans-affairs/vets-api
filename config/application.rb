@@ -49,5 +49,8 @@ module VetsAPI
     config.middleware.use 'OliveBranch::Middleware'
 
     config.active_job.queue_adapter = :sidekiq
+
+    require_relative '../lib/mvi/service'
+    config.mvi_service = MVI::Service
   end
 end

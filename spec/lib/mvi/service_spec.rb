@@ -15,12 +15,13 @@ describe MVI::Service do
   let(:dob) { Time.new(1980, 1, 1).utc }
   let(:ssn) { '555-44-3333' }
   let(:gender) { 'M' }
-  let(:message) { MVI::Messages::FindCandidateMessage.new(given_names, family_name, dob, ssn, gender).to_xml }
+  let(:message) { MVI::Messages::FindCandidateMessage.new(given_names, family_name, dob, ssn, gender) }
 
   describe '.load_wsdl' do
     it 'should have URI interpolated into wsdl' do
-      uri = URI(ENV['MVI_URL'])
-      expect(subject.client.instance_eval('@wsdl').endpoint.request_uri).to eq(uri.request_uri)
+      expect(MVI::Service.client.instance_eval('@wsdl').document).to eq(
+        ERB.new(File.read("#{Rails.root}/config/mvi_schema/IdmWebService_200VGOV.wsdl.erb")).result
+      )
     end
   end
 
@@ -31,14 +32,9 @@ describe MVI::Service do
         savon.expects(:prpa_in201305_uv02).with(xml: message).returns(xml)
         response = MVI::Service.find_candidate(message)
         expect(response).to eq(
-          correlation_ids: {
-            '516' => '12345^PI^516^USVHA^PCE',
-            '553' => '2^PI^553^USVHA^PCE',
-            '200HD' => '12345^PI^200HD^USVHA^A',
-            '200IP' => 'TKIP123456^PI^200IP^USVHA^A',
-            '200MHV' => '123456^PI^200MHV^USVHA',
-            'ICN' => '1000123456V123456^NI^200M^USVHA^P'
-          },
+          edipi: '1234^NI^200DOD^USDOD^A',
+          icn: '1000123456V123456^NI^200M^USVHA^P',
+          mhv: '123456^PI^200MHV^USVHA^A',
           status: 'active',
           given_names: %w(John William),
           family_name: 'Smith',
