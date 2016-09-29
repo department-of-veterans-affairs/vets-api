@@ -37,12 +37,14 @@ module VetsAPI
     config.watchable_dirs['lib'] = [:rb]
 
     # CORS configuration; see also cors_preflight route
-    config.action_dispatch.default_headers = {
-      'Access-Control-Allow-Headers' => 'Authorization',
-      'Access-Control-Allow-Credentials' => 'true',
-      'Access-Control-Allow-Origin' => ENV['WEB_ORIGIN'],
-      'Access-Control-Request-Method' => %w(GET POST PUT DELETE OPTIONS).join(',')
-    }
+    config.middleware.insert_before 0, 'Rack::Cors', logger: (-> { Rails.logger }) do
+      allow do
+        origins { |source, _env| ENV['WEB_ORIGIN'].split(',').include?(source) }
+        resource '*', headers: :any,
+                      methods: [:get, :post, :put, :delete, :options],
+                      credentials: true
+      end
+    end
 
     config.middleware.use 'OliveBranch::Middleware'
 
