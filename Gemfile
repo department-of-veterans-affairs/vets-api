@@ -27,7 +27,7 @@ gem 'ox', '~> 2.4'
 gem 'savon', '~> 2.0'
 gem 'sidekiq'
 gem 'multi_json'
-
+gem 'rack-cors', :require => 'rack/cors'
 gem 'net-sftp'
 
 # Amazon Linux's system `json` gem causes conflicts, but
