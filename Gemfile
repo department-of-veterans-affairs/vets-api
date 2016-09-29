@@ -54,6 +54,8 @@ group :development, :test do
   gem 'guard-rspec', '~> 4.7'
   gem 'pry-nav'
   gem 'factory_girl_rails'
+
+  gem 'foreman'
 end
 
 group :test do
