@@ -4,6 +4,6 @@ class DisabilityRatingSerializer < ActiveModel::Serializer
 
   # activemodel serializer requires an id attr for json-api spec
   def id
-    0
+    nil
   end
 end
