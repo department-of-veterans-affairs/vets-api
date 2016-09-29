@@ -116,7 +116,7 @@ module EducationForm
 
     def full_address(address)
       return '' if address.nil?
-      # TODO support non american addresses
+      # TODO: support non american addresses
       if address.country == 'USA'
         "#{address.street}
         #{address.city}, #{address.state}, #{address.postalCode}".upcase
