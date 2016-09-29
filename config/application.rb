@@ -41,7 +41,7 @@ module VetsAPI
       'Access-Control-Allow-Headers' => 'Authorization',
       'Access-Control-Allow-Credentials' => 'true',
       'Access-Control-Allow-Origin' => ENV['WEB_ORIGIN'],
-      'Access-Control-Request-Method' => %w{GET POST PUT DELETE OPTIONS}.join(",")
+      'Access-Control-Request-Method' => %w(GET POST PUT DELETE OPTIONS).join(',')
     }
 
     config.middleware.use 'OliveBranch::Middleware'
