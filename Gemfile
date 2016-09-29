@@ -35,6 +35,10 @@ gem 'net-sftp'
 # `multi_json` will prefer `oj` if installed, so include it here.
 gem 'oj'
 
+# This gem will allow us to show exceptions for Staging environment in Slack
+gem 'exception_notification'
+gem 'slack-notifier'
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: :ruby
