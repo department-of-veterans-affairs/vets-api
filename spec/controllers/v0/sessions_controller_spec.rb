@@ -3,6 +3,7 @@ require 'rails_helper'
 
 RSpec.describe V0::SessionsController, type: :controller do
   let(:saml_attrs) { { 'uuid' => ['1234'], 'email' => ['test@test.com'] } }
+  let(:response_xml) {'<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"></samlp:Response>'}
 
   context 'when not logged in' do
     context 'when browser contains an invalid authorization token' do
@@ -35,9 +36,11 @@ RSpec.describe V0::SessionsController, type: :controller do
 
     it 'GET saml_callback - creates a session from a valid SAML response' do
       attributes = double('attributes')
+      saml_response = double('saml_response', is_valid?: true, attributes: attributes)
+
       allow(attributes).to receive_message_chain(:all, :to_h).and_return(saml_attrs)
-      allow(OneLogin::RubySaml::Response)
-        .to receive(:new).and_return(double('saml_response', is_valid?: true, attributes: attributes))
+      allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response)
+      allow(saml_response).to receive(:response).and_return(response_xml)
 
       get :saml_callback
       expect(response).to have_http_status(:success)

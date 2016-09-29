@@ -15,6 +15,9 @@ class User < Common::RedisStore
   attribute :last_name
   attribute :zip
 
+  # id.me returned loa
+  attribute :level_of_assurance
+
   # vaafi attributes
   attribute :last_signed_in, Common::UTCTime
   attribute :edipi
