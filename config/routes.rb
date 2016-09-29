@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 Rails.application.routes.draw do
-  # TODO(#45): add rack-cors middleware to streamline CORS config
-  # Adding CORS preflight routes here for now to unblock front-end dev
+
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
 
   get '/saml/metadata', to: 'saml#metadata'
