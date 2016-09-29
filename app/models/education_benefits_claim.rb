@@ -17,6 +17,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
   def open_struct_form
     @application ||= JSON.parse(form, object_class: OpenStruct)
     @application.form = application_type
+    @application.confirmation_number = confirmation_number
     @application
   end
 

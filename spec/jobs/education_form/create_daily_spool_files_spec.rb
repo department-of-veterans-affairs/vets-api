@@ -31,6 +31,10 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       it 'includes the faa flight certificates' do
         expect(subject).to include("FAA Flight Certificates:#{line_break}cert1, cert2#{line_break}")
       end
+
+      it 'includes the confirmation number' do
+        expect(subject).to include("Confirmation #:  #{application_1606.confirmation_number}")
+      end
     end
   end
 
