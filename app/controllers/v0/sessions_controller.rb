@@ -27,7 +27,8 @@ module V0
         render json: @session, status: :created
       else
         # TODO: also need to make sure error json conforms to api spec
-        render json: { errors: @saml_response.errors.full_messages }, status: :forbidden
+        puts @saml_response.errors
+        render json: { errors: @saml_response.errors }, status: :forbidden
       end
     end
 
