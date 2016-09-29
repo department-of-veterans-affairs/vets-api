@@ -26,8 +26,9 @@ gem 'olive_branch'
 gem 'ox', '~> 2.4'
 gem 'savon', '~> 2.0'
 gem 'sidekiq'
+gem 'whenever', require: false
 gem 'multi_json'
-
+gem 'rack-cors', :require => 'rack/cors'
 gem 'net-sftp'
 
 # Amazon Linux's system `json` gem causes conflicts, but
@@ -53,6 +54,8 @@ group :development, :test do
   gem 'guard-rspec', '~> 4.7'
   gem 'pry-nav'
   gem 'factory_girl_rails'
+
+  gem 'foreman'
 end
 
 group :test do

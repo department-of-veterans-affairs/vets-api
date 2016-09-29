@@ -19,3 +19,6 @@ EVSS_DOCUMENTS_BASE_URL: 'https://test.vets.gov/wss-document-services-web-3.1/re
 EVSS_COMMON_BASE_URL: 'https://test.vets.gov/wss-common-services-web-11.1/rest/'
 EVSS_SAMPLE_CLAIMANT_USER: '{"first_name": "Jane","last_name": "Doe","edipi": "1105051936","participant_id": "123456789"}'
 MVI_URL: 'http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService'
+
+# For CORS requests; separate multiple origins with a comma
+WEB_ORIGIN: 'http://localhost:3000,http://localhost:3001'
