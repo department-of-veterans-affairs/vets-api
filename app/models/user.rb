@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'common/models/base'
+require 'common/exceptions'
 require 'mvi/messages/find_candidate_message'
 require 'mvi/service'
 
@@ -56,10 +57,11 @@ class User < RedisStore
       response = MVI_SERVICE.find_candidate(message)
       update(mvi: response)
     else
-      errors = message.errors.full_messages.join(', ')
-      Rails.logger.warn "MVI user data not retrieved: invalid message: #{errors}"
+      raise Common::Exceptions::ValidationErrors, message
     end
   rescue MVI::ServiceError => e
+    # TODO(AJD): add cloud watch metric
     Rails.logger.error "MVI user data not retrieved: service error: #{e.message} for user: #{uuid}"
+    raise Common::Exceptions::RecordNotFound, "Failed to retrieve MVI data: #{e.message}"
   end
 end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'mvi/response'
-require "#{Rails.root}/spec/support/mvi/mvi_savon_response"
+require 'support/mvi/mvi_savon_response'
 
 describe MVI::Response do
   context 'given a valid savon response' do
