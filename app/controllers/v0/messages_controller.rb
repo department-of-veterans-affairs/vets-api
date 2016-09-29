@@ -24,34 +24,20 @@ module V0
     end
 
     def create
+      message = Message.new(message_params)
+      raise Common::Exceptions::ValidationErrors, message unless message.valid?
+
       response = client.post_create_message(message_params)
-      # Should we accept default Gem error handling when creating a message with invalid parameter set, or
-      # create a VA common exception?
 
       render json: response,
              serializer: MessageSerializer,
              meta:  {}
     end
 
-    # TODO: uncomment once clarification received on deleting draft messages
-    # def destroy
-    #   message_id = message_params[:id].try(:to_i)
-    #   response = client.delete_message(message_id)
-    #
-    #   raise VA::API::Common::Exceptions::RecordNotFound, message_id unless response.present?
-    #
-    #   render json: response
-    # end
-
-    # TODO: rework draft
-    # def draft
-    #   params = message_params
-    #   response = client.post_create_message_draft(subject: params[:subject], body: params[:body], id: params[:id],
-    #                                               recipient_id: params[:recipient_id], category: params[:category])
-    #   render json: response,
-    #          serializer: MessageSerializer,
-    #          meta:  {}
-    # end
+    def destroy
+      client.delete_message(params[:id])
+      head :no_content
+    end
 
     def thread
       message_id = params[:id].try(:to_i)
@@ -65,18 +51,38 @@ module V0
              meta: resource.metadata
     end
 
+    def reply
+      message = Message.new(message_params)
+
+      if message.body.blank?
+        message.errors.add(:body, "can't be blank")
+        raise Common::Exceptions::ValidationErrors, message
+      end
+
+      resource = client.post_create_message_reply(params[:id], message_params)
+
+      render json: resource,
+             serializer: MessageSerializer,
+             status: :created
+    end
+
     def categories
       resource = client.get_categories
-      raise VA::API::Common::Exceptions::InternalServerError unless response.present?
 
       render json: resource,
              serializer: CategorySerializer
     end
 
+    def move
+      folder_id = params.require(:folder_id)
+      client.post_move_message(params[:id], folder_id)
+      head :no_content
+    end
+
     private
 
     def message_params
-      params.require(:message).permit(:id, :category, :body, :recipient_id, :subject)
+      @message_params ||= params.require(:message).permit(:category, :body, :recipient_id, :subject)
     end
   end
 end

@@ -33,7 +33,7 @@ http_interactions:
       Expires:
       - Fri, 16 Sep 2016 19:41:06 GMT
       Token:
-      - e+g/BpMT48k=+tI8ilSC0jwr4Ch/LGgzqzxT/JiXRK74qAD9y4rZCJ4=
+      - <SESSION_TOKEN>
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
       Connection:

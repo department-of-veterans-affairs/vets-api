@@ -71,19 +71,15 @@ describe SM::Client do
       it 'creates a new draft without attachments' do
         VCR.use_cassette('sm/messages/10616687/create_draft') do
           client_response = client.post_create_message_draft(new_draft)
-
           expect(client_response).to be_a(Message)
         end
       end
 
       it 'updates an existing draft' do
         VCR.use_cassette('sm/messages/10616687/update_draft') do
-          draft = client.post_create_message_draft(new_draft)
-
-          new_draft[:id] = draft.id
-          new_draft[:body] = draft.body + ' Now has been updated'
+          new_draft[:id] = 620_096
+          new_draft[:body] = 'Updated Body'
           client_response = client.post_create_message_draft(new_draft)
-
           expect(client_response).to be_a(Message)
         end
       end
@@ -99,15 +95,13 @@ describe SM::Client do
       it 'creates and sends a new message without attachments' do
         VCR.use_cassette('sm/messages/10616687/create') do
           client_response = client.post_create_message(new_message)
-
           expect(client_response).to be_a(Message)
         end
       end
 
       it 'sends a draft message without attachments' do
         VCR.use_cassette('sm/messages/10616687/create_message_from_draft') do
-          created_draft = client.post_create_message_draft(new_message)
-          new_message[:id] = created_draft.id
+          new_message[:id] = 610_105
 
           client_response = client.post_create_message(new_message)
           expect(client_response).to be_a(Message)
@@ -125,6 +119,18 @@ describe SM::Client do
           # cassette_setup = client.post_create_message(attributes_for(:message).slice(:body))
           client_response = client.post_create_message_reply(610_114, body: reply_body)
           expect(client_response).to be_a(Message)
+        end
+      end
+    end
+  end
+
+  describe 'move_message' do
+    let(:msg_id) { 573_052 }
+
+    context 'with valid id' do
+      it 'moves the message' do
+        VCR.use_cassette('sm/messages/10616687/move') do
+          expect(client.post_move_message(msg_id, 610_965)).to eq(200)
         end
       end
     end

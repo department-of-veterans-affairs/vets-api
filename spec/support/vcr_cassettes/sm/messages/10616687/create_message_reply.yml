@@ -1,94 +1,6 @@
 ---
 http_interactions:
 - request:
-    method: get
-    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/session
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
-      Apptoken:
-      - fake-app-token
-      Mhvcorrelationid:
-      - '10616687'
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Fri, 05 Aug 2016 14:12:57 GMT
-      Server:
-      - Apache/2.2.15 (Red Hat)
-      Content-Length:
-      - '0'
-      Expires:
-      - Fri, 05 Aug 2016 15:12:57 GMT
-      Token:
-      - WQenIaURqiw=CabrnZf1UNkRPto4NC0QueG+8ofSUAzefFMWrTj50wE=
-      X-Powered-By:
-      - Servlet/2.5 JSP/2.1
-      Connection:
-      - close
-      Content-Type:
-      - text/html; charset=UTF-8
-    body:
-      encoding: UTF-8
-      string: ''
-    http_version:
-  recorded_at: Fri, 05 Aug 2016 14:12:57 GMT
-- request:
-    method: post
-    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/message
-    body:
-      encoding: UTF-8
-      string: '{"subject":"MESSAGE SUBJECT","recipientId":585986,"category":"OTHER","body":"BODY
-        OF THE EMAIL"}'
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
-      Token:
-      - WQenIaURqiw=CabrnZf1UNkRPto4NC0QueG+8ofSUAzefFMWrTj50wE=
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Fri, 05 Aug 2016 14:12:58 GMT
-      Server:
-      - Apache/2.2.15 (Red Hat)
-      X-Powered-By:
-      - Servlet/2.5 JSP/2.1
-      Connection:
-      - close
-      Transfer-Encoding:
-      - chunked
-      Content-Type:
-      - application/json
-    body:
-      encoding: UTF-8
-      string: '{"id":610114,"category":"OTHER","subject":"MESSAGE SUBJECT","body":"BODY
-        OF THE EMAIL","attachment":false,"attachments":{"attachment":[]},"sentDate":"Fri,
-        05 Aug 2016 14:12:58 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":585986,"recipientName":"Triage
-        group 311070 test 2","readReceipt":null}'
-    http_version:
-  recorded_at: Fri, 05 Aug 2016 14:12:58 GMT
-- request:
     method: post
     uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/message/610114/reply
     body:
@@ -100,9 +12,9 @@ http_interactions:
       Content-Type:
       - application/json
       User-Agent:
-      - Vets.gov Healthcare Secure Messaging API Ruby Gem 0.1.0
+      - Vets.gov Agent
       Token:
-      - WQenIaURqiw=CabrnZf1UNkRPto4NC0QueG+8ofSUAzefFMWrTj50wE=
+      - <SESSION_TOKEN>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:

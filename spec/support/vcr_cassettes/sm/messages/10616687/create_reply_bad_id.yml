@@ -2,11 +2,11 @@
 http_interactions:
 - request:
     method: post
-    uri: <MHV_SM_HOST>/mhv-sm-api/patient/v1/message/draft
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/-12345/reply"
     body:
       encoding: UTF-8
-      string: '{"subject":"MESSAGE SUBJECT","recipientId":585986,"category":"OTHER","body":"BODY
-        OF THE EMAIL"}'
+      string: '{"category":"OTHER","body":"Body 1","recipientId":"585986","subject":"Subject
+        1"}'
     headers:
       Accept:
       - application/json
@@ -20,11 +20,11 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 200
-      message: OK
+      code: 400
+      message: Bad Request
     headers:
       Date:
-      - Fri, 05 Aug 2016 14:12:50 GMT
+      - Tue, 27 Sep 2016 19:49:41 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -37,8 +37,8 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: '{"id":610105,"category":"OTHER","subject":"MESSAGE SUBJECT","body":"BODY
-        OF THE EMAIL","attachment":false,"attachments":{"attachment":[]},"sentDate":"","senderId":384939,"senderName":"MVIONE,
-        TEST","recipientId":585986,"recipientName":"Triage group 311070 test 2","readReceipt":null}'
+      string: '{"errorCode":904,"developerMessage":"Severity[Error]:message.not.found;","message":"Message
+        Service Error"}'
     http_version:
-  recorded_at: Fri, 05 Aug 2016 14:12:50 GMT
+  recorded_at: Tue, 27 Sep 2016 19:49:41 GMT
+recorded_with: VCR 3.0.3
