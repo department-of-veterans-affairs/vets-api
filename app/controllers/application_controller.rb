@@ -7,7 +7,6 @@ class ApplicationController < ActionController::API
   before_action :set_app_info_headers
   skip_before_action :authenticate, only: [:cors_preflight]
 
-  # TODO(shauni #45) - replace with rack-cors
   def cors_preflight
     head(:ok)
   end
