@@ -63,7 +63,7 @@ For an example, see `application.yml.example` - these are just mock endpoints.
 For actual backend testing you will need to reference the appropriate private repository.
 
 ### Running the App
-1. Start the application: `bundle exec rails s`
+1. Start the application: `foreman start`
 1. Navigate to <http://localhost:3000/v0/status> in your browser.
 
 ## Testing Commands
