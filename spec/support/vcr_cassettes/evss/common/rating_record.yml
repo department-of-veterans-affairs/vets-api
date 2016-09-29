@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://csraciapp8.evss.srarad.com:7003/wss-common-services-web-11.1/rest/ratingInfoService/11.1/findRatingInfoPID
+    uri: https://test.vets.gov/wss-common-services-web-11.1/rest/ratingInfoService/11.1/findRatingInfoPID
     body:
       encoding: UTF-8
       string: '{"participantId":"123456789"}'
@@ -93,6 +93,6 @@ http_interactions:
           "serviceConnectedCombinedDegree" : "2",
           "userPercentOfDisability" : "2"
         }
-    http_version: 
+    http_version:
   recorded_at: Wed, 28 Sep 2016 23:34:29 GMT
 recorded_with: VCR 3.0.3

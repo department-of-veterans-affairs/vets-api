@@ -62,6 +62,18 @@ MHV_SM_APP_TOKEN
 For an example, see `application.yml.example` - these are just mock endpoints.
 For actual backend testing you will need to reference the appropriate private repository.
 
+### EVSS Disability Claims Setup
+For this app to be properly configured, you will need to specify the following environment variables:
+```
+EVSS_CLAIMS_BASE_URL
+EVSS_DOCUMENTS_BASE_URL
+EVSS_COMMON_BASE_URL
+EVSS_SAMPLE_CLAIMANT_USER
+```
+
+For an example, see `application.yml.example` - these are just mock endpoints.
+For actual backend testing you will need to reference the appropriate private repository.
+
 ### Running the App
 1. Start the application: `bundle exec rails s`
 1. Navigate to <http://localhost:3000/v0/status> in your browser.
