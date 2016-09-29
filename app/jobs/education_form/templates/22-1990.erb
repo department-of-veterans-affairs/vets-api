@@ -26,7 +26,7 @@ SSN: <%= @applicant.veteranSocialSecurityNumber %>         Sex: <%= @applicant.g
 Name:   <%= full_name(@applicant.veteranFullName) %>
 
 Address:
-        <%= full_address(@applicant.veteranAddress) %>
+<%= full_address(@applicant.veteranAddress) %>
 
 Telephone Numbers:     Home:    <%= @applicant.homePhone %>
                        Mobile:  <%= @applicant.mobilePhone %>
@@ -50,7 +50,7 @@ Type of Education or Training: College or Other School (including online courses
 
 Name and Address of School or Training Establishment:
         <%= @applicant.school&.name %>
-        <%= full_address(@applicant.school&.address) %>
+<%= full_address(@applicant.school&.address) %>
 
 Date You Started or Will Start Training: <%= @applicant.educationStartDate %>
 
