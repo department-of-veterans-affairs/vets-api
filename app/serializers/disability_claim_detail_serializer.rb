@@ -1,48 +1,39 @@
 # frozen_string_literal: true
 class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
   attributes :contention_list, :va_representative,
-             :phase_1_complete_date, :phase_2_complete_date,
-             :phase_3_complete_date, :phase_4_complete_date,
-             :phase_5_complete_date, :phase_6_complete_date,
-             :phase_7_complete_date, :phase_8_complete_date
+             :updates
 
   def contention_list
     object.data['contentionList']
   end
 
-  def phase_1_complete_date
-    date_from_string 'claimPhaseDates', 'phase1CompleteDate'
-  end
-
-  def phase_2_complete_date
-    date_from_string 'claimPhaseDates', 'phase2CompleteDate'
-  end
-
-  def phase_3_complete_date
-    date_from_string 'claimPhaseDates', 'phase3CompleteDate'
-  end
-
-  def phase_4_complete_date
-    date_from_string 'claimPhaseDates', 'phase4CompleteDate'
-  end
-
-  def phase_5_complete_date
-    date_from_string 'claimPhaseDates', 'phase5CompleteDate'
-  end
-
-  def phase_6_complete_date
-    date_from_string 'claimPhaseDates', 'phase6CompleteDate'
-  end
-
-  def phase_7_complete_date
-    date_from_string 'claimPhaseDates', 'phase7CompleteDate'
-  end
-
-  def phase_8_complete_date
-    date_from_string 'claimPhaseDates', 'phase8CompleteDate'
-  end
-
   def va_representative
     object.data['poa']
   end
+
+  def updates
+    updates = [
+      make_event(:filed, 'date'),
+      make_event(:completed, 'claimCompleteDate')
+    ]
+
+    # Do the 8 phases
+    (1..8).each { |n|
+      updates << make_event("phase#{n}", 'claimPhaseDates', "phase#{n}CompleteDate")
+    }
+
+    updates.select! { |item| item[:date] }
+    updates.sort! { |a,b| a[:date] <=> b[:date] }
+  end
+
+  private
+
+  def make_event(type, *from_keys, extra: nil)
+    {
+      type: type,
+      date: date_from_string(*from_keys),
+      extra: extra
+    }
+  end
+
 end
