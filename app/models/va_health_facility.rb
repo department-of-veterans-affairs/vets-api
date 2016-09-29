@@ -6,7 +6,8 @@ class VAHealthFacility < ActiveModelSerializers::Model
                 :address, :phone, :hours, :services
 
   def self.query(bbox:, services:)
-    results = client.query(bbox: bbox, where: VAHealthFacility.where_clause(services))
+    results = client.query(bbox: bbox.join(','),
+                           where: VAHealthFacility.where_clause(services))
     results.each_with_object([]) do |record, facs|
       facs << VAHealthFacility.from_gis(record)
     end

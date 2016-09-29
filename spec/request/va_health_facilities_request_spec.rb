@@ -21,7 +21,7 @@ RSpec.describe 'VHA GIS Integration', type: :request do
 
   it 'responds to GET #index with bbox' do
     VCR.use_cassette('facilities/va/pdx_bbox') do
-      get '/v0/facilities/va?bbox=-122.440689,45.451913,-122.786758,45.64'
+      get '/v0/facilities/va?bbox[]=-122.440689&bbox[]=45.451913&bbox[]=-122.786758&bbox[]=45.64'
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
@@ -31,7 +31,7 @@ RSpec.describe 'VHA GIS Integration', type: :request do
 
   it 'responds to GET #index with bbox and services' do
     VCR.use_cassette('facilities/va/pdx_bbox_filtered') do
-      get '/v0/facilities/va?bbox=-122.440689,45.451913,-122.786758,45.64&services[]=EyeCare'
+      get '/v0/facilities/va?bbox[]=-122.440689&bbox[]=45.451913&bbox[]=-122.786758&bbox[]=45.64&services[]=EyeCare'
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)

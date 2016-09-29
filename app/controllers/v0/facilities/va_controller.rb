@@ -23,10 +23,9 @@ class V0::Facilities::VaController < FacilitiesController
   private
 
   def validate_params
-    bbp = params[:bbox].to_s.split(',')
     begin
-      raise ArgumentError unless bbp.length == 4
-      bbp.each { |x| Float(x) }
+      raise ArgumentError unless params[:bbox].length == 4
+      params[:bbox].each { |x| Float(x) }
     rescue ArgumentError
       raise Common::Exceptions::InvalidFieldValue.new('bbox', params[:bbox])
     end
