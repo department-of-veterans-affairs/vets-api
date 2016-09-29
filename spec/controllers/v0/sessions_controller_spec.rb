@@ -45,14 +45,13 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
 
     it 'GET saml_callback - returns unauthorized from an invalid SAML response' do
-      errors = ActiveModel::Errors.new('saml_response')
-      errors.add(:base, 'is invalid')
+      errors = ['Response is invalid']
       allow(OneLogin::RubySaml::Response)
         .to receive(:new).and_return(double('saml_response', is_valid?: false, errors: errors))
 
       get :saml_callback
       expect(response).to have_http_status(:forbidden)
-      expect(JSON.parse(response.body)['errors']).to eq(['is invalid'])
+      expect(JSON.parse(response.body)['errors']).to eq(['Response is invalid'])
     end
   end
 

@@ -36,10 +36,15 @@ module VetsAPI
 
     config.watchable_dirs['lib'] = [:rb]
 
-    # TODO(#45): add rack-cors middleware to streamline CORS config
-    config.action_dispatch.default_headers = {
-      'Access-Control-Allow-Headers' => 'Authorization'
-    }
+    # CORS configuration; see also cors_preflight route
+    config.middleware.insert_before 0, 'Rack::Cors', logger: (-> { Rails.logger }) do
+      allow do
+        origins { |source, _env| ENV['WEB_ORIGIN'].split(',').include?(source) }
+        resource '*', headers: :any,
+                      methods: [:get, :post, :put, :delete, :options],
+                      credentials: true
+      end
+    end
 
     config.middleware.use 'OliveBranch::Middleware'
 
