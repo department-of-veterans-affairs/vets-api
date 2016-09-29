@@ -59,7 +59,7 @@ module V0
     # which LOA was performed on the ID.me side.
     def level_of_assurance
       Hash.from_xml(@saml_response.response)
-        .dig('Response', 'Assertion', 'AuthnStatement', 'AuthnContext', 'AuthnContextClassRef')
+          .dig('Response', 'Assertion', 'AuthnStatement', 'AuthnContext', 'AuthnContextClassRef')
     end
   end
 end

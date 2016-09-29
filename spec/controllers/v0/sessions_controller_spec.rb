@@ -3,7 +3,7 @@ require 'rails_helper'
 
 RSpec.describe V0::SessionsController, type: :controller do
   let(:saml_attrs) { { 'uuid' => ['1234'], 'email' => ['test@test.com'] } }
-  let(:response_xml) {'<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"></samlp:Response>'}
+  let(:response_xml) { '<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"></samlp:Response>' }
 
   context 'when not logged in' do
     context 'when browser contains an invalid authorization token' do
