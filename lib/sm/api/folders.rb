@@ -32,14 +32,15 @@ module SM
       # FIXME: this is going to need better exception handling for multiple GET requests
       # get_folder_messages:  Retrieves all messages
       def get_folder_messages(folder_id)
-        folder = get_folder(folder_id).attributes
-        page_count = (folder[:count] / MHV_MAXIMUM_PER_PAGE.to_f).ceil
+        page = 1
         json = { data: [], errors: {}, metadata: {} }
 
-        (1..page_count).each do |page|
+        loop do
           path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{MHV_MAXIMUM_PER_PAGE}"
-          page_data = perform(:get, path, nil, token_headers)[:data]
-          json[:data].concat(page_data)
+          page_data = perform(:get, path, nil, token_headers)
+          json[:data].concat(page_data[:data])
+          json[:metadata].merge(page_data[:metadata])
+          break unless page_data[:data].size == 250
         end
 
         Common::Collection.new(Message, json)
