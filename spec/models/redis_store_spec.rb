@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# rubocop:disable Style/Alias
 require 'rails_helper'
 
 describe RedisStore do
@@ -8,7 +9,7 @@ describe RedisStore do
       default_ttl 60
       attribute :uuid
       attribute :email
-      alias_method redis_key uuid
+      alias redis_key uuid
     end
   end
 
