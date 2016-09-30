@@ -13,32 +13,39 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
 
   def updates
     updates = [
-      make_string_dated_event(:filed, 'date'),
-      make_string_dated_event(:completed, 'claimCompleteDate'),
-      check_for_yes_no_event(:development_letter_sent, 'developmentLetterSent'),
-      check_for_yes_no_event(:decision_notification_sent, 'decisionNotificationSent'),
-      check_for_bool_event(:requested_decision, 'waiver5103Submitted')
+      create_event_from_string_date(:filed, 'date'),
+      create_event_from_string_date(:completed, 'claimCompleteDate'),
+      create_event_from_yes_no(:development_letter_sent, 'developmentLetterSent'),
+      create_event_from_yes_no(:decision_notification_sent, 'decisionNotificationSent'),
+      create_event_from_bool(:requested_decision, 'waiver5103Submitted')
     ]
 
     # Do the 8 phases
-    (1..8).each { |n|
-      updates << make_string_dated_event("phase#{n}", 'claimPhaseDates', "phase#{n}CompleteDate")
-    }
+    (1..8).each do |n|
+      updates << create_event_from_string_date("phase#{n}", 'claimPhaseDates', "phase#{n}CompleteDate")
+    end
 
-    # Filter out events that were nil
-    updates.select! { |item| item[:date] }
+    list_objects_with_key(["claimTrackedItems", "stillNeedFromYouList"], ["openedDate"]) do |obj|
+      updates << {
+        type: :requested_item,
+        date: Date.strptime(obj["openedDate"], '%m/%d/%Y'),
+        description: obj['description']
+      }
+    end
 
-    # Reverse chron
-    updates.sort! { |a,b| b[:date] <=> a[:date] }
+    # Filter out events that were nil and make reverse chron
+    updates.compact.sort_by{ |h| h[:date] }.reverse
+
   end
 
   private
 
-  def make_string_dated_event(type, *from_keys, extra: nil)
+  def create_event_from_string_date(type, *from_keys)
+    date = date_from_string(*from_keys)
+    return nil unless date
     {
       type: type,
-      date: date_from_string(*from_keys),
-      extra: extra
+      date: date
     }
   end
 
@@ -46,17 +53,20 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
   # without a date associated with it. If they haven't been seen by
   # vets-api before, we'll say that it happened today, so it shows up at
   # the top of the timeline.
-  def check_for_yes_no_event(type, *from_keys)
+  def create_event_from_yes_no(type, *from_keys)
+    return nil unless bool_from_yes_no(*from_keys)
     {
       type: type,
-      date: (Time.current.to_date() if bool_from_yes_no(*from_keys))
+      date: Time.current.to_date()
     }
   end
 
-  def check_for_bool_event(type, *from_keys)
+  def create_event_from_bool(type, *from_keys)
+    date = date_from_string(*from_keys)
+    return nil unless object.data.dig(*from_keys)
     {
       type: type,
-      date: (Time.current.to_date() if object.data.dig(*from_keys))
+      date: Time.current.to_date()
     }
   end
 end

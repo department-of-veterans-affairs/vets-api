@@ -40,6 +40,17 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
     end
   end
 
+  def list_objects_with_key(parents, sub_keys)
+    parent = object.data.dig(*parents)
+    parent = [] if parent.blank?
+    parent.each do |obj|
+      val = obj.dig(*sub_keys)
+      if val.present?
+        obj
+      end
+    end.compact
+  end
+
   def bool_from_yes_no(*keys)
     with_object_data(*keys) do |s|
       case s.downcase
