@@ -2,9 +2,8 @@
 require 'common/models/base'
 
 class User < RedisStore
-  NAMESPACE = REDIS_CONFIG['user_store']['namespace']
-  REDIS_STORE = Redis::Namespace.new(NAMESPACE, redis: Redis.current)
-  DEFAULT_TTL = REDIS_CONFIG['user_store']['each_ttl']
+  redis_store REDIS_CONFIG['user_store']['namespace']
+  default_ttl REDIS_CONFIG['user_store']['each_ttl']
 
   # id.me attributes
   attribute :uuid

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 class Session < RedisStore
-  NAMESPACE = REDIS_CONFIG['session_store']['namespace']
-  REDIS_STORE = Redis::Namespace.new(NAMESPACE, redis: Redis.current)
-  DEFAULT_TTL = REDIS_CONFIG['session_store']['each_ttl']
+  redis_store REDIS_CONFIG['session_store']['namespace']
+  default_ttl REDIS_CONFIG['session_store']['each_ttl']
+
   DEFAULT_TOKEN_LENGTH = 40
 
   attribute :token

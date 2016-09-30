@@ -2,12 +2,24 @@
 class RedisStore
   extend ActiveModel::Naming
   extend ActiveModel::Callbacks
-  define_model_callbacks :initialize, only: :after
 
   include ActiveModel::Serialization
   include ActiveModel::Validations
   include Virtus.model
-  REDIS_STORE = Redis.current
+
+  define_model_callbacks :initialize, only: :after
+
+  class << self
+    attr_accessor :redis, :ttl
+  end
+
+  def self.redis_store(namespace)
+    @redis ||= Redis::Namespace.new(namespace, redis: Redis.current)
+  end
+
+  def self.default_ttl(ttl)
+    @ttl ||= ttl
+  end
 
   def initialize(attributes = {}, persisted = false)
     super(attributes)
@@ -16,19 +28,21 @@ class RedisStore
   end
 
   def self.find(redis_key = nil)
-    attributes = REDIS_STORE.hgetall(redis_key).with_indifferent_access
+    response = redis.get(redis_key)
+    return nil unless response
+    attributes = Oj.load(response)
     return nil if attributes.blank?
     object = new(attributes, true)
     if object.valid?
       object
     else
-      REDIS_STORE.del(redis_key)
+      redis.del(redis_key)
       nil
     end
   end
 
   def self.exists?(redis_key = nil)
-    REDIS_STORE.exists(redis_key)
+    redis.exists(redis_key)
   end
 
   def self.create(attributes)
@@ -37,20 +51,25 @@ class RedisStore
 
   def save
     return false unless valid?
-    REDIS_STORE.mapped_hmset(redis_key, attributes)
-    REDIS_STORE.expire(redis_key, self.class::DEFAULT_TTL) if defined? self.class::DEFAULT_TTL
+    self.class.redis.set(redis_key, Oj.dump(attributes))
+    self.class.redis.expire(redis_key, self.class.ttl) if defined? self.class.ttl
     @persisted = true
   end
 
+  def update(attributes_hash)
+    self.attributes = attributes_hash
+    save
+  end
+
   def destroy
-    REDIS_STORE.del(redis_key)
+    self.class.redis.del(redis_key)
   end
 
   def ttl
-    REDIS_STORE.ttl(redis_key)
+    self.class.redis.ttl(redis_key)
   end
 
   def persisted?
-    @persisted == true
+    @persisted
   end
 end
