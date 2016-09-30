@@ -54,11 +54,12 @@ describe Common::Collection do
   end
 
   context 'find_by, sort, and paginate' do
-    let(:filtered_collection)  { subject.find_by(:prescription_id, 1_435_525) }
+    let(:filter) { { prescription_id: { eq: 1_435_525 } } }
+    let(:filtered_collection)  { subject.find_by(filter) }
     let(:sorted_collection)    { subject.sort('prescription_id') }
     let(:paginated_collection) { subject.paginate(page: 1, per_page: 2) }
     let(:all_three) do
-      subject.find_by(:refill_status, 'active').sort('-refill_date').paginate(page: 1, per_page: 3)
+      subject.find_by(refill_status: { eq: 'active' }).sort('-refill_date').paginate(page: 1, per_page: 3)
     end
 
     it 'can filter a collection' do
@@ -67,7 +68,7 @@ describe Common::Collection do
       expect(filtered_collection.metadata)
         .to eq(updated_at: 'Thu, 26 May 2016 13:05:43 EDT',
                failed_station_list: '',
-               filter: { for: 'prescription_id', having: 1_435_525 })
+               filter: filter)
     end
 
     it 'can sort a collection' do
@@ -95,7 +96,7 @@ describe Common::Collection do
       expect(all_three.metadata)
         .to eq(updated_at: 'Thu, 26 May 2016 13:05:43 EDT',
                failed_station_list: '',
-               filter: { for: 'refill_status', having: 'active' },
+               filter: { refill_status: { eq: 'active' } },
                sort: { 'refill_date' => 'DESC' },
                pagination: { current_page: 1, per_page: 3, total_pages: 2, total_entries: 6 })
     end
