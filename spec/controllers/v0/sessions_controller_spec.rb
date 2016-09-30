@@ -2,7 +2,14 @@
 require 'rails_helper'
 
 RSpec.describe V0::SessionsController, type: :controller do
-  let(:saml_attrs) { { 'uuid' => ['1234'], 'email' => ['test@test.com'] } }
+  let(:saml_attrs) { {
+    'uuid' => ['1234'],
+    'email' => ['test@test.com'],
+    'fname' => ['John'],
+    'lname' => ['Smith'],
+    'birth_date' => ['1980-01-01'],
+    'social' => ['555-44-3333']
+  } }
 
   context 'when not logged in' do
     context 'when browser contains an invalid authorization token' do
@@ -56,8 +63,6 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
 
   context 'when logged in' do
-    include_context 'stub mvi find_candidate response'
-
     let(:token) { 'abracadabra-open-sesame' }
     let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
 

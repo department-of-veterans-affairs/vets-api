@@ -35,7 +35,7 @@ module V0
 
     def persist_session_and_user!
       @session = Session.new(user_attributes.slice(:uuid))
-      @current_user = User.find(@session.uuid) || User.new(user_attributes)
+      @current_user = User.find(@session.uuid) || UserMviDelegate.new(User.new(user_attributes)).create
       @session.save && @current_user.save
     end
 

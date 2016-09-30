@@ -3,8 +3,6 @@ require 'rails_helper'
 require_dependency 'evss/claims_service'
 
 describe EVSS::ClaimsService do
-  include_context 'stub mvi find_candidate response'
-
   let(:current_user) do
     User.sample_claimant
   end

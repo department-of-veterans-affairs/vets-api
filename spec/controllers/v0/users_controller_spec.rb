@@ -15,7 +15,14 @@ RSpec.describe V0::UsersController, type: :controller do
 
     before(:each) do
       Session.create(uuid: '1234', token: token)
-      User.create(uuid: '1234', email: 'test@test.com')
+      User.create(
+        uuid: '1234',
+        email: 'test@test.com',
+        first_name: 'John',
+        last_name: 'Smith',
+        dob: Time.new(1980, 1, 1),
+        ssn: '555-44-3333'
+      )
     end
 
     it 'returns a JSON user profile' do
