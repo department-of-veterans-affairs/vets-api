@@ -62,7 +62,7 @@ describe SM::Client do
 
   describe 'get_folder_messages (multiple requests based on pagination)' do
     it 'does 4 total requests and returns 3 results' do
-      VCR.use_cassette("sm/messages/10616687/index_multi_request") do
+      VCR.use_cassette('sm/messages/10616687/index_multi_request') do
         # set the max pages to 1 for testing purposes
         stub_const('SM::API::Folders::MHV_MAXIMUM_PER_PAGE', 1)
         # There are 3 records, 1 per page, so it should loop 4 times making requests
