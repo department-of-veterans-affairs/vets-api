@@ -3,7 +3,6 @@ require 'rails_helper'
 
 RSpec.describe User, type: :model do
   context 'on user instantiation' do
-    include_context 'stub mvi find_candidate response'
 
     let(:attributes) do
       {
@@ -20,21 +19,23 @@ RSpec.describe User, type: :model do
 
     subject { described_class.new(attributes) }
 
-    it 'expect ttl to an Integer' do
-      expect(subject.ttl).to be_an(Integer)
-      expect(subject.ttl).to eq(86400)
-    end
+    context 'user without attributes' do
+      it 'expect ttl to an Integer' do
+        expect(subject.ttl).to be_an(Integer)
+        expect(subject.ttl).to be_between(-Float::INFINITY, 0)
+      end
 
-    it 'has a persisted attribute of true' do
-      expect(subject.persisted?).to be_truthy
-    end
+      it 'assigns an email' do
+        expect(subject.email).to eq('test@test.com')
+      end
 
-    it 'assigns an email' do
-      expect(subject.email).to eq('test@test.com')
-    end
+      it 'assigns an uuid' do
+        expect(subject.uuid).to eq('userid:123')
+      end
 
-    it 'assigns an uuid' do
-      expect(subject.uuid).to eq('userid:123')
+      it 'has a persisted attribute of false' do
+        expect(subject.persisted?).to be_falsey
+      end
     end
 
     # TODO(AJD): aren't some of these actually testing RedisStore?
@@ -85,11 +86,11 @@ RSpec.describe User, type: :model do
               dob: Time.new(1980, 1, 1).utc,
               edipi: nil,
               email: attributes[:email],
-              first_name: 'John',
-              gender: 'M',
-              last_name: 'Smith',
+              first_name: attributes[:first_name],
+              gender: attributes[:gender],
+              last_name: attributes[:last_name],
               last_signed_in: nil,
-              middle_name: 'William',
+              middle_name: attributes[:middle_name],
               mvi: {
                 edipi: '1234^NI^200DOD^USDOD^A',
                 icn: '1000123456V123456^NI^200M^USVHA^P',
