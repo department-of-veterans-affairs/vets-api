@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 Rails.application.routes.draw do
-  # TODO(#45): add rack-cors middleware to streamline CORS config
-  # Adding CORS preflight routes here for now to unblock front-end dev
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
 
   get '/saml/metadata', to: 'saml#metadata'
@@ -43,8 +41,17 @@ Rails.application.routes.draw do
         resources :messages, only: [:show, :create, :destroy], defaults: { format: :json } do
           get :thread, on: :member
           get :categories, on: :collection
+          patch :move, on: :member
+          post :reply, on: :member
         end
+
+        resources :message_drafts, only: [:create, :update], defaults: { format: :json }
       end
+    end
+
+    scope :facilities, module: 'facilities' do
+      resources :va, only: [:index, :show], defaults: { format: :json }
+      resources :choiceact, only: [:index, :show], defaults: { format: :json }
     end
   end
 

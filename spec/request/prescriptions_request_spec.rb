@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 require 'rails_helper'
+require 'rx/client'
+require 'support/rx_client_helpers'
 
 RSpec.describe 'Prescriptions Integration', type: :request do
+  include Rx::ClientHelpers
   before(:each) do
     allow_any_instance_of(ApplicationController).to receive(:authenticate).and_return(true)
+    expect(Rx::Client).to receive(:new).once.and_return(authenticated_client)
   end
 
   it 'responds to GET #show' do
@@ -35,9 +39,9 @@ RSpec.describe 'Prescriptions Integration', type: :request do
     end
   end
 
-  it 'responds to GET #index with refill_status=unknown' do
+  it 'responds to GET #index with filter' do
     VCR.use_cassette('prescriptions/1435525/index/refill_status_unknown') do
-      get '/v0/prescriptions?refill_status=unknown'
+      get '/v0/prescriptions?filter[[refill_status][eq]]=unknown'
       expect(response).to be_success
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('prescriptions_filtered')

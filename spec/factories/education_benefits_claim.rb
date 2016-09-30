@@ -14,7 +14,7 @@ FactoryGirl.define do
         veteranAddress: {
           country: 'USA',
           state: 'WI',
-          zipcode: '53130',
+          postalCode: '53130',
           street: '123 Main St',
           city: 'Milwaukee'
         },
@@ -34,7 +34,7 @@ FactoryGirl.define do
           address: {
             country: 'USA',
             state: 'MD',
-            zipcode: '21231',
+            postalCode: '21231',
             street: '111 Uni Drive',
             city: 'Baltimore'
           },

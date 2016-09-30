@@ -56,6 +56,7 @@ module EducationForm
             sftp.file
           end
 
+        Rails.logger.tagged('EDUForm') { |l| l.info("Writing #{records.count} application(s) to #{filename}") }
         f = file_class.open(filename, 'w')
         contents = records.map do |record|
           format_application(record)
@@ -71,7 +72,7 @@ module EducationForm
         write_files(structured_data: structured_data)
       else
         # TODO: Will be implemented in a follow-up PR.
-        Net::SFTP.start('host', 'username', password: 'password') do |sftp|
+        Net::SFTP.start(ENV['EDU_SFTP_HOST'], ENV['EDU_SFTP_USER'], password: ENV['EDU_SFTP_PASS']) do |sftp|
           write_files(sftp: sftp, structured_data: structured_data)
         end
       end
@@ -115,9 +116,10 @@ module EducationForm
 
     def full_address(address)
       return '' if address.nil?
+      # TODO: support non american addresses
       if address.country == 'USA'
         "#{address.street}
-        #{address.city}, #{address.state}, #{address.zipcode}".upcase
+        #{address.city}, #{address.state}, #{address.postalCode}".upcase
       end
     end
 

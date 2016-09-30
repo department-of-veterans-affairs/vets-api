@@ -15,6 +15,9 @@ Secure Messaging within vets.gov enables secure, non-emergency, communications b
 | GET /messaging/health/messages/:id                | Gets a message                      | None                          |
 | GET /messaging/health/messages/:message_id/thread | List messages in thread             | [Pagination](#pagination)     |
 | POST /messaging/health/messages                   | Sends a message.                    | [json payload](#message) |
+| POST /messaging/health/message_drafts             | Creates a draft                     | [json draft payload](#draft-payload) |
+| PUT /messaging/health/message_drafts/:id         | Updates a draft                     | [json draft payload](#draft-payload) |
+| POST /messaging/health/messages/:id/reply | replies to a message | [json payload](#message) |
 
 #### <a name="pagination"></a>Pagination Params
 * **page:** The page number of the first message returned
@@ -75,6 +78,28 @@ Request:
 Response
 
 `STATUS: 201`
+
+#### <a name="draft-payload"></a>Updating/Creating a Message Draft
+Creating or updating a message draft require the same payload. For example,
+
+Request:
+
+`PUT /messaging/health/message_drafts/:id` with the following payload:
+
+```json
+{
+  "message_draft": {
+    "category": "A category from the list of available categories",
+    "subject": "Message Subject",
+    "body": "The message body.",
+    "recipient_id": 1
+  }
+}
+```
+
+Response
+
+`STATUS: 204`
 
 ```
   UPDATE THIS

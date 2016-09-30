@@ -9,6 +9,7 @@ require 'sm/api/sessions'
 require 'sm/api/triage_teams'
 require 'sm/api/folders'
 require 'sm/api/messages'
+require 'sm/api/message_drafts'
 
 module SM
   class Client
@@ -16,6 +17,7 @@ module SM
     include SM::API::TriageTeams
     include SM::API::Folders
     include SM::API::Messages
+    include SM::API::MessageDrafts
 
     REQUEST_TYPES = %i(get post delete).freeze
     USER_AGENT = 'Vets.gov Agent'

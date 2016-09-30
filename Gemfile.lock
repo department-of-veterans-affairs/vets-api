@@ -71,6 +71,7 @@ GEM
       bundler (~> 1.2)
       thor (~> 0.18)
     byebug (8.2.2)
+    chronic (0.10.2)
     coderay (1.1.1)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
@@ -100,7 +101,10 @@ GEM
     ffi (1.9.10)
     figaro (1.1.1)
       thor (~> 0.14)
+    foreman (0.82.0)
+      thor (~> 0.19.1)
     formatador (0.2.5)
+    geoservices (0.1.0)
     globalid (0.3.7)
       activesupport (>= 4.1.0)
     guard (2.13.0)
@@ -181,6 +185,7 @@ GEM
       pry (>= 0.9.10, < 0.11.0)
     puma (2.16.0)
     rack (1.6.4)
+    rack-cors (0.4.0)
     rack-protection (1.5.3)
       rack
     rack-test (0.6.3)
@@ -324,6 +329,8 @@ GEM
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff
+    whenever (0.9.7)
+      chronic (>= 0.6.3)
     will_paginate (3.1.0)
 
 PLATFORMS
@@ -341,6 +348,8 @@ DEPENDENCIES
   faraday
   faraday_middleware
   figaro
+  foreman
+  geoservices
   guard-rspec (~> 4.7)
   guard-rubocop
   httpclient
@@ -353,6 +362,7 @@ DEPENDENCIES
   pg
   pry-nav
   puma (~> 2.16.0)
+  rack-cors
   rails (= 4.2.7.1)
   rails-api
   rainbow
@@ -373,6 +383,7 @@ DEPENDENCIES
   virtus
   web-console (~> 2.0)
   webmock
+  whenever
   will_paginate
 
 BUNDLED WITH
