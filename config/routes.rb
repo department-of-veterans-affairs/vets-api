@@ -58,6 +58,11 @@ Rails.application.routes.draw do
 
   root 'v0/example#index', module: 'v0'
 
+  # route for testing with ID.me locally without front-end vets-website repo
+  if Rails.env.development?
+    get '/auth/login/callback', to: 'v0/sessions#saml_callback', module: 'v0'
+  end
+
   if Rails.env.development? || (ENV['SIDEKIQ_ADMIN_PANEL'] == 'true')
     require 'sidekiq/web'
     mount Sidekiq::Web, at: '/sidekiq'
