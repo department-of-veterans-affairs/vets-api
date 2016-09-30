@@ -16,6 +16,13 @@ module Common
     alias to_h attributes
     alias to_hash attributes
 
+    OPERATIONS_MAP = {
+      'eq' => :==,
+      'lteq' => :<=,
+      'gteq' => :>=,
+      'not_eq' => :!=
+    }.with_indifferent_access.freeze
+
     def initialize(klass = Array, data: [], metadata: {}, errors: {})
       @type = klass
       @attributes = data
@@ -27,14 +34,14 @@ module Common
       end
     end
 
-    def find_by(method, value)
-      result = @data.select { |item| item.send(method.to_sym) == value }
-      metadata = @metadata.merge(filter: { for: method.to_s, having: value })
+    def find_by(search = {})
+      result = @data.select { |item| finder(item, search) }
+      metadata = @metadata.merge(filter: search)
       Collection.new(type, data: result, metadata: metadata, errors: errors)
     end
 
-    def find_first_by(method, value)
-      result = @data.detect { |item| item.send(method.to_sym) == value }
+    def find_first_by(search = {})
+      result = @data.detect { |item| finder(item, search) }
       return nil if result.nil?
       result.metadata = metadata
       result
@@ -45,7 +52,7 @@ module Common
     end
 
     def sort(sort_params, allowed: sortable_attributes)
-      fields = filtered_sort_fields(sort_params, allowed)
+      fields = sort_fields(sort_params, allowed)
       result = @data.sort_by do |item|
         fields.map do |k, v|
           v == 'ASC' ? item.send(k) : Descending.new(item.send(k))
@@ -65,6 +72,22 @@ module Common
 
     private
 
+    def mock_comparator_object
+      @mock_comparator_object ||= type.new
+    end
+
+    def finder(object, search)
+      search.all? do |attribute, predicates|
+        actual_value = object.send(attribute)
+        # raise exception if attribute is not supported by filter
+        predicates.all? do |operator, expected_value|
+          op = OPERATIONS_MAP.fetch(operator)
+          mock_comparator_object.send("#{attribute}=", expected_value)
+          actual_value.send(op, mock_comparator_object.send(attribute))
+        end
+      end
+    end
+
     def paginator(page, per_page)
       if defined?(::WillPaginate::Collection)
         WillPaginate::Collection.create(page, per_page, @data.length) do |pager|
@@ -81,7 +104,7 @@ module Common
       { pagination: { current_page: page, per_page: per_page, total_pages: total_pages, total_entries: total_entries } }
     end
 
-    def filtered_sort_fields(sort_params, allowed)
+    def sort_fields(sort_params, allowed)
       fields = sort_params.to_s.split(',')
       ordered_fields = convert_fields_to_ordered_hash(fields)
       ordered_fields.select { |k, _| Array.wrap(allowed).include?(k) }

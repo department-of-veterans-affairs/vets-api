@@ -81,12 +81,7 @@
           "type": "object"
         },
         "filter": {
-          "type": "object",
-          "require": ["for", "having"],
-          "properties": {
-            "for": { "type": ["string", "null"] },
-            "having": { "type": ["string", "null"] }
-          }
+          "type": "object"
         },
         "pagination": {
           "type": "object",
