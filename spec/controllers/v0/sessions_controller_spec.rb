@@ -2,8 +2,19 @@
 require 'rails_helper'
 
 RSpec.describe V0::SessionsController, type: :controller do
-  let(:saml_attrs) { { 'uuid' => ['1234'], 'email' => ['test@test.com'] } }
-  let(:response_xml) { '<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"></samlp:Response>' }
+  let(:saml_attrs) { 
+    { 
+    'uuid' => ['1234'],
+    'email' => ['test@test.com'],
+    'fname' => ['abraham'],
+    'lname' => ['lincoln'],
+    'mname' => [''],
+    'social' => ['111-22-3333'],
+    'birth_date' => ['1809-02-12'] 
+    } 
+  }
+  # has an LOA of 'http://idmanagement.gov/ns/assurance/loa/2'
+  let(:response_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_response.xml") }
 
   context 'when not logged in' do
     context 'when browser contains an invalid authorization token' do
@@ -34,17 +45,46 @@ RSpec.describe V0::SessionsController, type: :controller do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'GET saml_callback - creates a session from a valid SAML response' do
-      attributes = double('attributes')
-      saml_response = double('saml_response', is_valid?: true, attributes: attributes)
+    context 'GET saml_callback ' do
+      let(:attributes) { double('attributes') }
+      let(:saml_response) { double('saml_response', is_valid?: true, attributes: attributes) }
 
-      allow(attributes).to receive_message_chain(:all, :to_h).and_return(saml_attrs)
-      allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response)
-      allow(saml_response).to receive(:response).and_return(response_xml)
+      before(:example) do 
+        allow(attributes).to receive_message_chain(:all, :to_h).and_return(saml_attrs)
+        allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response)
+        allow(saml_response).to receive(:response).and_return(response_xml)
+      end
 
-      get :saml_callback
-      expect(response).to have_http_status(:success)
-      expect(JSON.parse(response.body).keys).to include('token', 'uuid')
+      it 'returns a valid token session' do
+        get :saml_callback
+
+        expect(response).to have_http_status(:success)
+        expect(JSON.parse(response.body).keys).to include('token', 'uuid')
+      end
+
+      it 'creates a valid session' do
+        get :saml_callback
+
+        token = JSON.parse(response.body)['token']
+        expect(Session.find(token)).not_to be_nil
+      end
+
+      it 'stores the user' do
+        get :saml_callback
+
+        uuid = JSON.parse(response.body)['uuid']
+        user = User.find(uuid)
+        expect(user).not_to be_nil
+        expect(user.first_name).to eq(saml_attrs['fname'].first)
+      end
+
+      it 'parses and stores level of assurance' do
+        get :saml_callback
+
+        uuid = JSON.parse(response.body)['uuid']
+        user = User.find(uuid)
+        expect(user.level_of_assurance).to eq("http://idmanagement.gov/ns/assurance/loa/2")
+      end
     end
 
     it 'GET saml_callback - returns unauthorized from an invalid SAML response' do
