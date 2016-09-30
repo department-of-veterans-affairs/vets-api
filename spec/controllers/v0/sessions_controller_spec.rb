@@ -2,17 +2,17 @@
 require 'rails_helper'
 
 RSpec.describe V0::SessionsController, type: :controller do
-  let(:saml_attrs) { 
-    { 
-    'uuid' => ['1234'],
-    'email' => ['test@test.com'],
-    'fname' => ['abraham'],
-    'lname' => ['lincoln'],
-    'mname' => [''],
-    'social' => ['111-22-3333'],
-    'birth_date' => ['1809-02-12'] 
-    } 
-  }
+  let(:saml_attrs) do
+    {
+      'uuid' => ['1234'],
+      'email' => ['test@test.com'],
+      'fname' => ['abraham'],
+      'lname' => ['lincoln'],
+      'mname' => [''],
+      'social' => ['111-22-3333'],
+      'birth_date' => ['1809-02-12']
+    }
+  end
   # has an LOA of 'http://idmanagement.gov/ns/assurance/loa/2'
   let(:response_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_response.xml") }
 
@@ -49,7 +49,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       let(:attributes) { double('attributes') }
       let(:saml_response) { double('saml_response', is_valid?: true, attributes: attributes) }
 
-      before(:example) do 
+      before(:example) do
         allow(attributes).to receive_message_chain(:all, :to_h).and_return(saml_attrs)
         allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response)
         allow(saml_response).to receive(:response).and_return(response_xml)
@@ -83,7 +83,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         uuid = JSON.parse(response.body)['uuid']
         user = User.find(uuid)
-        expect(user.level_of_assurance).to eq("http://idmanagement.gov/ns/assurance/loa/2")
+        expect(user.level_of_assurance).to eq('http://idmanagement.gov/ns/assurance/loa/2')
       end
     end
 
