@@ -10,6 +10,6 @@ Figaro.require_keys(
   'MHV_APP_TOKEN',
   'MHV_SM_HOST',
   'MHV_SM_APP_TOKEN',
-  'EVSS_HOST',
+  'EVSS_BASE_URL',
   'MVI_URL'
 )

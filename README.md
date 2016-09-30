@@ -65,7 +65,7 @@ For actual backend testing you will need to reference the appropriate private re
 ### EVSS Disability Claims Setup
 For this app to be properly configured, you will need to specify the following environment variables:
 ```
-EVSS_HOST
+EVSS_BASE_URL
 EVSS_SAMPLE_CLAIMANT_USER
 ```
 
