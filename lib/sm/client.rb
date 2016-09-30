@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 require 'faraday'
-require 'active_support/core_ext/module/delegation'
 require 'multi_json'
 require 'common/client/errors'
 require 'sm/client_session'
