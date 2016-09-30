@@ -29,8 +29,6 @@ module SM
         response.nil? ? nil : response.status
       end
 
-      # FIXME: this is going to need better exception handling for multiple GET requests
-      # get_folder_messages:  Retrieves all messages
       def get_folder_messages(folder_id)
         page = 1
         json = { data: [], errors: {}, metadata: {} }
@@ -40,7 +38,8 @@ module SM
           page_data = perform(:get, path, nil, token_headers)
           json[:data].concat(page_data[:data])
           json[:metadata].merge(page_data[:metadata])
-          break unless page_data[:data].size == 250
+          break unless page_data[:data].size == MHV_MAXIMUM_PER_PAGE
+          page += 1
         end
 
         Common::Collection.new(Message, json)
