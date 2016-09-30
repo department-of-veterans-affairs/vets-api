@@ -11,7 +11,7 @@ module EVSS
     protected
 
     def base_url
-      ENV['EVSS_COMMON_BASE_URL']
+      "#{ENV['EVSS_HOST']}/wss-common-services-web-11.1/rest/"
     end
   end
 end
