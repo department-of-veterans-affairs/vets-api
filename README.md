@@ -62,6 +62,16 @@ MHV_SM_APP_TOKEN
 For an example, see `application.yml.example` - these are just mock endpoints.
 For actual backend testing you will need to reference the appropriate private repository.
 
+### EVSS Disability Claims Setup
+For this app to be properly configured, you will need to specify the following environment variables:
+```
+EVSS_BASE_URL
+EVSS_SAMPLE_CLAIMANT_USER
+```
+
+For an example, see `application.yml.example` - these are just mock endpoints.
+For actual backend testing you will need to reference the appropriate private repository.
+
 ### Facilities Locator Setup
 For this app to be properly configured, you need the following environment variables:
 ```
@@ -69,11 +79,11 @@ VHA_MAPSERVER_URL
 VHA_MAPSERVER_LAYER
 ```
 
-For an example, see `application.yml.example`. 
+For an example, see `application.yml.example`.
 
-For the current maps.va.gov endpoint, you will need to add the VA internal root CA 
-certificate to your trusted certificates. With homebrew this is typically done by 
-appending the exported/downloaded certificate to `<HOMEBREW_DIR>/etc/openssl/cert.pem`. 
+For the current maps.va.gov endpoint, you will need to add the VA internal root CA
+certificate to your trusted certificates. With homebrew this is typically done by
+appending the exported/downloaded certificate to `<HOMEBREW_DIR>/etc/openssl/cert.pem`.
 
 ### Running the App
 1. Start the application: `foreman start`
