@@ -5,7 +5,8 @@ require_dependency 'evss/common_service'
 
 class User < Common::RedisStore
   redis_store REDIS_CONFIG['user_store']['namespace']
-  default_ttl REDIS_CONFIG['user_store']['each_ttl']
+  redis_ttl REDIS_CONFIG['user_store']['each_ttl']
+  redis_key :uuid
 
   # id.me attributes
   attribute :uuid
@@ -19,9 +20,6 @@ class User < Common::RedisStore
   attribute :edipi
   attribute :participant_id
   attribute :ssn
-
-  # Add additional MVI attributes
-  alias redis_key uuid
 
   validates :uuid, presence: true
   validates :email, presence: true

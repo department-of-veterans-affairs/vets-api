@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-# rubocop:disable Style/Alias
 require 'rails_helper'
 require 'common/models/redis_store'
 
@@ -7,10 +6,11 @@ describe Common::RedisStore do
   let(:klass) do
     Class.new(Common::RedisStore) do
       redis_store 'my_namespace'
-      default_ttl 60
+      redis_ttl 60
+      redis_key :uuid
+
       attribute :uuid
       attribute :email
-      alias redis_key uuid
     end
   end
 
@@ -18,8 +18,8 @@ describe Common::RedisStore do
 
   describe 'configuration' do
     it 'should have a configured redis namespace instance' do
-      expect(klass.redis).to be_kind_of(Redis::Namespace)
-      expect(klass.redis.namespace).to eq('my_namespace')
+      expect(klass.redis_namespace).to be_kind_of(Redis::Namespace)
+      expect(klass.redis_namespace.namespace).to eq('my_namespace')
     end
   end
 

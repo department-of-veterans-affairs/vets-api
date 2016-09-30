@@ -3,14 +3,13 @@ require 'common/models/redis_store'
 
 class Session < Common::RedisStore
   redis_store REDIS_CONFIG['session_store']['namespace']
-  default_ttl REDIS_CONFIG['session_store']['each_ttl']
+  redis_ttl REDIS_CONFIG['session_store']['each_ttl']
+  redis_key :token
 
   DEFAULT_TOKEN_LENGTH = 40
 
   attribute :token
   attribute :uuid
-  # Other attributes
-  alias redis_key token
 
   validates :token, presence: true
   # validates other attributes?
