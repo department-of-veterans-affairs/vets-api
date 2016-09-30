@@ -40,6 +40,17 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
     end
   end
 
+  def bool_from_yes_no(*keys)
+    with_object_data(*keys) do |s|
+      case s.downcase
+      when 'yes' then true
+      when 'no' then false
+      else nil
+        # Todo: Log weird input
+      end
+    end
+  end
+
   def date_from_string(*keys, format: '%m/%d/%Y')
     with_object_data(*keys) do |s|
       Date.strptime(s, format)
@@ -47,8 +58,8 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   end
 
   # For date-times recording a computer event and therefore known to the
-  # second EVSS uses a UNIX timestamp in milliseconds. It is mostly for
-  # intent to file and documents.
+  # second EVSS uses a UNIX timestamp in milliseconds. They are mostly
+  # in intent-to-file and documents.
   def date_from_unix_milliseconds(*keys)
     with_object_data(*keys) do |s|
       Time.at(s.to_i / 1000).utc.to_date
