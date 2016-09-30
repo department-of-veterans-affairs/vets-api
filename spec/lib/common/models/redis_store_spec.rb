@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 # rubocop:disable Style/Alias
 require 'rails_helper'
+require 'common/models/redis_store'
 
-describe RedisStore do
+describe Common::RedisStore do
   let(:klass) do
-    Class.new(RedisStore) do
+    Class.new(Common::RedisStore) do
       redis_store 'my_namespace'
       default_ttl 60
       attribute :uuid

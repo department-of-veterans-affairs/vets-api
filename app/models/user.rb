@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 require 'common/models/base'
+require 'common/models/redis_store'
 require_dependency 'evss/common_service'
 
-class User < RedisStore
+class User < Common::RedisStore
   redis_store REDIS_CONFIG['user_store']['namespace']
   default_ttl REDIS_CONFIG['user_store']['each_ttl']
 

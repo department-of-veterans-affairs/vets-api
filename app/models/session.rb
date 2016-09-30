@@ -1,5 +1,7 @@
 # frozen_string_literal: true
-class Session < RedisStore
+require 'common/models/redis_store'
+
+class Session < Common::RedisStore
   redis_store REDIS_CONFIG['session_store']['namespace']
   default_ttl REDIS_CONFIG['session_store']['each_ttl']
 
