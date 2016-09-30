@@ -62,6 +62,16 @@ MHV_SM_APP_TOKEN
 For an example, see `application.yml.example` - these are just mock endpoints.
 For actual backend testing you will need to reference the appropriate private repository.
 
+### EVSS Disability Claims Setup
+For this app to be properly configured, you will need to specify the following environment variables:
+```
+EVSS_BASE_URL
+EVSS_SAMPLE_CLAIMANT_USER
+```
+
+For an example, see `application.yml.example` - these are just mock endpoints.
+For actual backend testing you will need to reference the appropriate private repository.
+
 ### Facilities Locator Setup
 For this app to be properly configured, you need the following environment variables:
 ```
