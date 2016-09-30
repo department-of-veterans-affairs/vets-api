@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'common/models/base'
+require_dependency 'evss/common_service'
 
 class User < RedisStore
   redis_store REDIS_CONFIG['user_store']['namespace']
@@ -23,6 +24,11 @@ class User < RedisStore
 
   validates :uuid, presence: true
   validates :email, presence: true
+
+  def rating_record
+    client = EVSS::CommonService.new(self)
+    client.find_rating_info.body.fetch('ratingRecord', {})
+  end
 
   def self.sample_claimant
     attrs = JSON.load(ENV['EVSS_SAMPLE_CLAIMANT_USER'])

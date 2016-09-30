@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-require 'sm/client'
-
 require 'rails_helper'
 require 'sm/client'
 require 'support/sm_client_helpers'
@@ -58,6 +56,20 @@ describe SM::Client do
           client_response = client.delete_folder(613_557)
           expect(client_response).to eq(200)
         end
+      end
+    end
+  end
+
+  describe 'get_folder_messages (multiple requests based on pagination)' do
+    it 'does 4 total requests and returns 3 results' do
+      VCR.use_cassette('sm/messages/10616687/index_multi_request') do
+        # set the max pages to 1 for testing purposes
+        stub_const('SM::API::Folders::MHV_MAXIMUM_PER_PAGE', 1)
+        # There are 3 records, 1 per page, so it should loop 4 times making requests
+        expect(client).to receive(:perform).and_call_original.exactly(4).times
+        client_response = client.get_folder_messages(0)
+        expect(client_response).to be_a(Common::Collection)
+        expect(client_response.data.size).to eq(3)
       end
     end
   end
