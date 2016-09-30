@@ -21,7 +21,7 @@ module Common
       'lteq' => :<=,
       'gteq' => :>=,
       'not_eq' => :!=
-    }
+    }.with_indifferent_access.freeze
 
     def initialize(klass = Array, data: [], metadata: {}, errors: {})
       @type = klass
