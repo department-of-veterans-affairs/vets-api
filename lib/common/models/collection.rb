@@ -35,7 +35,7 @@ module Common
     end
 
     def find_by(search = {})
-      result = @data.select { |item|  finder(item, search) }
+      result = @data.select { |item| finder(item, search) }
       metadata = @metadata.merge(filter: search)
       Collection.new(type, data: result, metadata: metadata, errors: errors)
     end
