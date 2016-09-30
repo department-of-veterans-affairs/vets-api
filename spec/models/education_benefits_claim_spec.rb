@@ -95,4 +95,13 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       expect(subject.regional_office).to eq("Eastern Region\nVA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616")
     end
   end
+
+  describe '#confirmation_number' do
+    it 'should let you look up a claim from the confirmation number' do
+      subject.save!
+      expect(
+        described_class.find(subject.confirmation_number.gsub('vets_gov_education_benefits_claim_', '').to_i)
+      ).to eq(subject)
+    end
+  end
 end
