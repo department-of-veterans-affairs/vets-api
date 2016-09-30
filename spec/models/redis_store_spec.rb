@@ -8,7 +8,7 @@ describe RedisStore do
       default_ttl 60
       attribute :uuid
       attribute :email
-      alias redis_key uuid
+      alias_method redis_key uuid
     end
   end
 
@@ -35,12 +35,12 @@ describe RedisStore do
     context 'when the model is not saved' do
       it 'returns true if the given key exists' do
         subject.save
-        expect(klass.exists? 'e66fd7b7-94e0-4748-8063-283f55efb0ea').to be_truthy
+        expect(klass.exists?('e66fd7b7-94e0-4748-8063-283f55efb0ea')).to be_truthy
       end
     end
     context 'when the model is saved' do
       it 'returns false' do
-        expect(klass.exists? 'e66fd7b7-94e0-4748-8063-283f55efb0ea').to be_falsey
+        expect(klass.exists?('e66fd7b7-94e0-4748-8063-283f55efb0ea')).to be_falsey
       end
     end
   end
