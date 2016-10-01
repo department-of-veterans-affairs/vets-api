@@ -1,56 +1,88 @@
 # frozen_string_literal: true
-class RedisStore
-  extend ActiveModel::Naming
-  extend ActiveModel::Callbacks
-  define_model_callbacks :initialize, only: :after
+module Common
+  class RedisStore
+    extend ActiveModel::Naming
+    extend ActiveModel::Callbacks
 
-  include ActiveModel::Serialization
-  include ActiveModel::Validations
-  include Virtus.model
-  REDIS_STORE = Redis.current
+    include ActiveModel::Serialization
+    include ActiveModel::Validations
+    include Virtus.model
 
-  def initialize(attributes = {}, persisted = false)
-    super(attributes)
-    @persisted = persisted
-    run_callbacks :initialize
-  end
+    define_model_callbacks :initialize, only: :after
 
-  def self.find(redis_key = nil)
-    attributes = REDIS_STORE.hgetall(redis_key).with_indifferent_access
-    return nil if attributes.blank?
-    object = new(attributes, true)
-    if object.valid?
-      object
-    else
-      REDIS_STORE.del(redis_key)
-      nil
+    class << self
+      attr_accessor :redis_namespace, :redis_namespace_ttl, :redis_namespace_key
     end
-  end
 
-  def self.exists?(redis_key = nil)
-    REDIS_STORE.exists(redis_key)
-  end
+    def self.redis_store(namespace)
+      @redis_namespace = Redis::Namespace.new(namespace, redis: Redis.current)
+    end
+    delegate :redis_namespace, to: 'self.class'
 
-  def self.create(attributes)
-    new(attributes).save
-  end
+    def self.redis_ttl(ttl)
+      @redis_namespace_ttl = ttl
+    end
+    delegate :redis_namespace_ttl, to: 'self.class'
 
-  def save
-    return false unless valid?
-    REDIS_STORE.mapped_hmset(redis_key, attributes)
-    REDIS_STORE.expire(redis_key, self.class::DEFAULT_TTL) if defined? self.class::DEFAULT_TTL
-    @persisted = true
-  end
+    def self.redis_key(key)
+      @redis_namespace_key = key
+    end
+    delegate :redis_namespace_key, to: 'self.class'
 
-  def destroy
-    REDIS_STORE.del(redis_key)
-  end
+    def initialize(attributes = {}, persisted = false)
+      super(attributes)
+      @persisted = persisted
+      run_callbacks :initialize
+    end
 
-  def ttl
-    REDIS_STORE.ttl(redis_key)
-  end
+    def self.find(redis_key = nil)
+      response = redis_namespace.get(redis_key)
+      return nil unless response
+      attributes = Oj.load(response)
+      return nil if attributes.blank?
+      object = new(attributes, true)
+      if object.valid?
+        object
+      else
+        redis_namespace.del(redis_key)
+        nil
+      end
+    end
 
-  def persisted?
-    @persisted == true
+    def self.exists?(redis_key = nil)
+      redis_namespace.exists(redis_key)
+    end
+
+    def self.create(attributes)
+      new(attributes).save
+    end
+
+    def save
+      return false unless valid?
+      redis_namespace.set(attributes[redis_namespace_key], Oj.dump(attributes))
+      if defined? redis_namespace_ttl
+        redis_namespace.expire(
+          attributes[redis_namespace_key], redis_namespace_ttl
+        )
+      end
+      @persisted = true
+    end
+
+    def update(attributes_hash)
+      self.attributes = attributes_hash
+      save
+    end
+
+    def destroy
+      redis_namespace.del(attributes[redis_namespace_key])
+    end
+
+    def ttl
+      redis_namespace.ttl(attributes[redis_namespace_key])
+    end
+
+    def persisted?
+      @persisted
+    end
   end
 end
