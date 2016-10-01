@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 require 'common/models/base'
+require 'common/models/redis_store'
 require_dependency 'evss/common_service'
 
-class User < RedisStore
-  NAMESPACE = REDIS_CONFIG['user_store']['namespace']
-  REDIS_STORE = Redis::Namespace.new(NAMESPACE, redis: Redis.current)
-  DEFAULT_TTL = REDIS_CONFIG['user_store']['each_ttl']
+class User < Common::RedisStore
+  redis_store REDIS_CONFIG['user_store']['namespace']
+  redis_ttl REDIS_CONFIG['user_store']['each_ttl']
+  redis_key :uuid
 
   # id.me attributes
   attribute :uuid
@@ -19,9 +20,6 @@ class User < RedisStore
   attribute :edipi
   attribute :participant_id
   attribute :ssn
-
-  # Add additional MVI attributes
-  alias redis_key uuid
 
   validates :uuid, presence: true
   validates :email, presence: true
