@@ -26,8 +26,12 @@ module V0
     def create
       message = Message.new(message_params)
       raise Common::Exceptions::ValidationErrors, message unless message.valid?
-
-      response = client.post_create_message(message_params)
+      response =
+        if request.content_type == 'multipart/form-data'
+          client.post_create_message_with_attachment(message_params.merge(file: params[:file]))
+        else
+          client.post_create_message(message_params)
+        end
 
       render json: response,
              serializer: MessageSerializer,

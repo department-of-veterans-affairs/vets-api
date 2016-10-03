@@ -48,6 +48,9 @@ module SM
       end
 
       def post_create_message_with_attachment(args = {})
+        json = perform(:post, 'message/attach', args, token_headers)
+        json[:data].delete(:attachments)
+        Message.new(json)
       end
 
       # post_create_message_reply: Replies to a message with the given id,

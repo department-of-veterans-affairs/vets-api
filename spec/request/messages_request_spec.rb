@@ -40,7 +40,7 @@ RSpec.describe 'Messages Integration', type: :request do
     end
   end
 
-  describe '#create' do
+  describe '#create without attachments' do
     let(:message_attributes) { attributes_for(:message).slice(:subject, :category, :recipient_id, :body) }
     let(:params) { { message: message_attributes } }
 
@@ -99,6 +99,25 @@ RSpec.describe 'Messages Integration', type: :request do
         expect(errors['title']).to eq("Category can't be blank")
         expect(errors['code']).to eq('100')
         expect(errors['status']).to eq(422)
+      end
+    end
+  end
+
+  describe '#create with attachments' do
+    let(:message_attributes) { attributes_for(:message).slice(:subject, :category, :recipient_id, :body) }
+    let(:attachment_path) { 'spec/support/fixtures/sm_attachment.png' }
+    let(:attachment_type) { 'image/png' }
+    let(:attachment) { Rack::Test::UploadedFile.new(attachment_path, attachment_type) }
+    let(:params) { { message: message_attributes, file: attachment } }
+
+    context 'with valid attributes' do
+      it 'responds to POST #create' do
+        VCR.use_cassette("sm/messages/#{user_id}/create_multipart") do
+          post '/v0/messaging/health/messages', params
+        end
+        expect(response).to be_success
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('message')
       end
     end
   end
