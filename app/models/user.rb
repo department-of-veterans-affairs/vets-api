@@ -12,8 +12,14 @@ class User < Common::RedisStore
   attribute :uuid
   attribute :email
   attribute :first_name
+  attribute :middle_name
   attribute :last_name
   attribute :zip
+  attribute :ssn
+  attribute :birth_date
+
+  # id.me returned loa
+  attribute :level_of_assurance
 
   # vaafi attributes
   attribute :last_signed_in, Common::UTCTime
