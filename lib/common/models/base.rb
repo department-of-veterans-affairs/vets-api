@@ -17,6 +17,14 @@ module Common
 
     class << self
       attr_accessor :per_page, :max_per_page
+
+      def sortable_attributes
+        @sortable_attributes ||= attribute_set.map { |a| a.name.to_s if a.options[:sortable] }.compact
+      end
+
+      def default_sort
+        @default_sort ||= (attribute_set.find { |a| a.options[:default_sort] } || attribute_set.first).name.to_s
+      end
     end
 
     def initialize(attributes = {})

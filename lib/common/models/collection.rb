@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'forwardable'
 require 'common/models/comparable/descending'
+require 'common/exceptions'
 
 module Common
   # Wrapper for collection to keep aggregates
@@ -47,12 +48,8 @@ module Common
       result
     end
 
-    def sortable_attributes
-      type.attribute_set.map { |attribute| attribute.name.to_s }
-    end
-
-    def sort(sort_params, allowed: sortable_attributes)
-      fields = sort_fields(sort_params, allowed)
+    def sort(sort_params)
+      fields = sort_fields(sort_params || type.default_sort)
       result = @data.sort_by do |item|
         fields.map do |k, v|
           v == 'ASC' ? item.send(k) : Descending.new(item.send(k))
@@ -105,10 +102,12 @@ module Common
       { pagination: { current_page: page, per_page: per_page, total_pages: total_pages, total_entries: total_entries } }
     end
 
-    def sort_fields(sort_params, allowed)
-      fields = sort_params.to_s.split(',')
-      ordered_fields = convert_fields_to_ordered_hash(fields)
-      ordered_fields.select { |k, _| Array.wrap(allowed).include?(k) }
+    def sort_fields(params)
+      params = Array.wrap(params)
+      allowed = type.sortable_attributes
+      not_allowed = params.select { |p| !allowed.include?(p.delete('-')) }.join(', ')
+      raise Common::Exceptions::InvalidSortCriteria.new(type.name, not_allowed) unless not_allowed.empty?
+      convert_fields_to_ordered_hash(params)
     end
 
     def convert_fields_to_ordered_hash(fields)

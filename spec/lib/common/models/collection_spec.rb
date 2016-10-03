@@ -46,7 +46,7 @@ describe Common::Collection do
     end
 
     it 'can sort a collection by multiple fields' do
-      collection = subject.sort('facility_name,-prescription_id')
+      collection = subject.sort(%w(facility_name -prescription_id))
       expect(collection.map(&:prescription_id))
         .to eq([1_435_526, 1_435_525, 1_435_524, 1_435_530, 1_435_528, 1_435_527])
       expect(collection.metadata[:sort]).to eq('facility_name' => 'ASC', 'prescription_id' => 'DESC')

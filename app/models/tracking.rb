@@ -8,9 +8,13 @@ class Tracking < Common::Base
   attribute :facility_name, String
   attribute :rx_info_phone_number, String
   attribute :ndc_number, String
-  attribute :shipped_date, Common::UTCTime
+  attribute :shipped_date, Common::UTCTime, sortable: true
   attribute :delivery_service, String
   attribute :tracking_number, String
+
+  def self.default_sort
+    '-shipped_date'
+  end  
 
   def <=>(other)
     shipped_date <=> other.shipped_date
