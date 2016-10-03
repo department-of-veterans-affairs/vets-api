@@ -63,9 +63,10 @@ module Common
       Collection.new(type, data: result, metadata: metadata, errors: errors)
     end
 
-    def paginate(page: 1, per_page: 10)
-      page = page.to_i
-      per_page = per_page.to_i
+    def paginate(page: nil, per_page: nil)
+      page = page.try(:to_i) || 1
+      max_per_page = type.max_per_page || 100
+      per_page = [(per_page.try(:to_i) || type.per_page || 10), max_per_page].min
       collection = paginator(page, per_page)
       Collection.new(type, data: collection, metadata: metadata.merge(pagination_meta(page, per_page)), errors: errors)
     end

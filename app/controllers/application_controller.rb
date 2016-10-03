@@ -63,4 +63,11 @@ class ApplicationController < ActionController::API
     headers['WWW-Authenticate'] = 'Token realm="Application"'
     render json: 'Not Authorized', status: 401
   end
+
+  def pagination_params
+    {
+      page: params[:page],
+      per_page: params[:per_page]
+    }
+  end
 end

@@ -15,6 +15,10 @@ module Common
     alias to_h attributes
     alias to_hash attributes
 
+    class << self
+      attr_accessor :per_page, :max_per_page
+    end
+
     def initialize(attributes = {})
       @attributes = attributes[:data] || attributes
       @metadata = attributes[:metadata] || {}
