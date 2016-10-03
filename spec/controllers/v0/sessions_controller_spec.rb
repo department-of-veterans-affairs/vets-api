@@ -2,19 +2,23 @@
 require 'rails_helper'
 
 RSpec.describe V0::SessionsController, type: :controller do
+  let(:mvi_user) { FactoryGirl.build(:mvi_user) }
   let(:saml_attrs) do
     {
-      'uuid' => ['1234'],
-      'email' => ['test@test.com'],
-      'fname' => ['abraham'],
-      'lname' => ['lincoln'],
+      'uuid' => [mvi_user.uuid],
+      'email' => [mvi_user.email],
+      'fname' => [mvi_user.first_name],
+      'lname' => [mvi_user.last_name],
       'mname' => [''],
-      'social' => ['111-22-3333'],
-      'birth_date' => ['1809-02-12']
+      'social' => [mvi_user.ssn],
+      'birth_date' => [mvi_user.birth_date.strftime('%Y-%m-%d')]
     }
   end
   # has an LOA of 'http://idmanagement.gov/ns/assurance/loa/2'
   let(:response_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_response.xml") }
+  before(:each) do
+    allow_any_instance_of(UserMviDelegate).to receive(:create).and_return(mvi_user)
+  end
 
   context 'when not logged in' do
     context 'when browser contains an invalid authorization token' do

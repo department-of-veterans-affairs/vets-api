@@ -101,7 +101,7 @@ Endpoint response value can be set by copying mock_mvi_responses.yml.example to
 mock_mvi_responses.yml and updating YAML for the appropriate endpoint:
 ```
 find_candidate:
-  dob: '19800101'
+  birth_date: '19800101'
   edipi: '1234^NI^200DOD^USDOD^A'
   family_name: 'Smith'
   gender: 'M'

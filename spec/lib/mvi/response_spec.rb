@@ -22,7 +22,7 @@ describe MVI::Response do
     describe '.to_h' do
       it 'should filter the patient attributes the system is interested in' do
         expect(valid_response.to_h).to eq(
-          dob: '19800101',
+          birth_date: '19800101',
           edipi: '1234^NI^200DOD^USDOD^A',
           family_name: 'Smith',
           gender: 'M',

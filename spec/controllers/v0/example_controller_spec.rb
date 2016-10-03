@@ -21,7 +21,7 @@ RSpec.describe V0::ExampleController, type: :controller do
         first_name: 'John',
         middle_name: 'William',
         last_name: 'Smith',
-        dob: Time.new(1980, 1, 1),
+        birth_date: Time.new(1980, 1, 1),
         ssn: '555-44-3333'
       )
     end

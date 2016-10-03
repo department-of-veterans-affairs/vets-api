@@ -29,6 +29,8 @@ module V0
         # TODO: also need to make sure error json conforms to api spec
         render json: { errors: @saml_response.errors }, status: :forbidden
       end
+    rescue => e
+      puts e.inspect
     end
 
     private

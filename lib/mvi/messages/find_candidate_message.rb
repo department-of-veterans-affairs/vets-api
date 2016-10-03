@@ -7,25 +7,25 @@ module MVI
     # Builds an MVI SOAP XML message.
     #
     # = Usage
-    # Call the .build passing in the candidate's given and family names, dob, and ssn.
+    # Call the .build passing in the candidate's given and family names, birth_date, and ssn.
     #
     # Example:
-    #  dob = Time.new(1980, 1, 1).utc
-    #  message = MVI::Messages::FindCandidateMessage.new(['John', 'William'], 'Smith', dob, '555-44-3333').to_xml
+    #  birth_date = Time.new(1980, 1, 1).utc
+    #  message = MVI::Messages::FindCandidateMessage.new(['John', 'William'], 'Smith', birth_date, '555-44-3333').to_xml
     #
     class FindCandidateMessage
       include MVI::Messages::MessageBuilder
       EXTENSION = 'PRPA_IN201305UV02'
 
-      attr_reader :given_names, :family_name, :dob, :ssn, :gender
+      attr_reader :given_names, :family_name, :birth_date, :ssn, :gender
 
       validate :validate_types
       validates_format_of :ssn, with: /\d{3}-\d{2}-\d{4}/
 
-      def initialize(given_names, family_name, dob, ssn, gender)
+      def initialize(given_names, family_name, birth_date, ssn, gender)
         @given_names = given_names
         @family_name = family_name
-        @dob = dob
+        @birth_date = birth_date
         @ssn = ssn
         @gender = gender
       end
@@ -45,7 +45,7 @@ module MVI
           errors.add(:given_names, 'should be an array of Strings')
         end
         errors.add(:family_name, 'should be a String') unless @family_name.is_a?(String)
-        errors.add(:dob, 'should be a Time object') unless @dob.is_a?(Time)
+        errors.add(:birth_date, 'should be a Time object') unless @birth_date.is_a?(Time)
       end
 
       def build_body
@@ -89,7 +89,7 @@ module MVI
 
       def build_living_subject_birth_time
         el = element('livingSubjectBirthTime')
-        el << element('value', value: @dob.strftime('%Y%m%d'))
+        el << element('value', value: @birth_date.strftime('%Y%m%d'))
         el << element('semanticsText', text!: 'LivingSubject..birthTime')
       end
 

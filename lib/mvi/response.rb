@@ -30,7 +30,7 @@ module MVI
         given_names: patient[:patient_person][:name].first[:given].map(&:capitalize),
         family_name: patient[:patient_person][:name].first[:family].capitalize,
         gender: patient[:patient_person][:administrative_gender_code][:@code],
-        dob: patient[:patient_person][:birth_time][:@value],
+        birth_date: patient[:patient_person][:birth_time][:@value],
         ssn: patient[:patient_person][:as_other_i_ds][:id][:@extension].gsub(
           /(\d{3})[^\d]?(\d{2})[^\d]?(\d{4})/,
           '\1-\2-\3'

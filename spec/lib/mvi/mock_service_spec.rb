@@ -8,7 +8,7 @@ describe MVI::MockService do
     allow(MVI::MockService).to receive(:mocked_responses)
                      .and_return(
                        'find_candidate' => {
-                         'dob' => '19800101',
+                         'birth_date' => '19800101',
                          'edipi' => '1234^NI^200DOD^USDOD^A',
                          'family_name' => 'Smith',
                          'gender' => 'M',
@@ -21,7 +21,7 @@ describe MVI::MockService do
                      )
     response = MVI::MockService.find_candidate
     expect(response).to eq(
-      'dob' => '19800101',
+      'birth_date' => '19800101',
       'edipi' => '1234^NI^200DOD^USDOD^A',
       'family_name' => 'Smith',
       'gender' => 'M',

@@ -2,29 +2,29 @@
 FactoryGirl.define do
   factory :user, class: 'User' do
     uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
-    email 'john.smith@foo.org'
-    first_name 'John'
-    middle_name 'William'
-    last_name 'Smith'
+    email 'abraham.lincoln@vets.gov'
+    first_name 'abraham'
+    last_name 'lincoln'
     gender 'M'
-    dob Time.new(1980, 1, 1)
-    zip '90210'
+    birth_date Time.new(1809, 2, 12)
+    zip '17325'
     last_signed_in Time.now.utc
     edipi '1234^NI^200DOD^USDOD^A'
     participant_id '123456789'
     ssn '555-44-3333'
+    level_of_assurance 'http://idmanagement.gov/ns/assurance/loa/2'
 
-    factory :user_with_mvi_data do
+    factory :mvi_user do
       mvi { {
         edipi: '1234^NI^200DOD^USDOD^A',
         icn: '1000123456V123456^NI^200M^USVHA^P',
         mhv: '123456^PI^200MHV^USVHA^A',
         status: 'active',
-        given_names: %w(John William),
-        family_name: 'Smith',
+        given_names: %w(abraham),
+        family_name: 'lincoln',
         gender: 'M',
-        dob: '19800101',
-        ssn: '555-44-3333'
+        birth_date: '18090212',
+        ssn: '272-11-1863'
       } }
     end
   end

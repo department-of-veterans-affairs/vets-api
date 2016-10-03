@@ -20,7 +20,7 @@ RSpec.describe V0::UsersController, type: :controller do
         email: 'test@test.com',
         first_name: 'John',
         last_name: 'Smith',
-        dob: Time.new(1980, 1, 1),
+        birth_date: Time.new(1980, 1, 1),
         ssn: '555-44-3333'
       )
     end

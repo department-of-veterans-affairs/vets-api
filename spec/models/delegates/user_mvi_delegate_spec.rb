@@ -12,10 +12,10 @@ describe UserMviDelegate do
         icn: '1000123456V123456^NI^200M^USVHA^P',
         mhv: '123456^PI^200MHV^USVHA^A',
         status: 'active',
-        given_names: %w(John William),
-        family_name: 'Smith',
+        given_names: %w(abraham),
+        family_name: 'lincoln',
         gender: 'M',
-        dob: '19800101',
+        birth_date: '19800101',
         ssn: '555-44-3333'
       )
     end
@@ -24,29 +24,30 @@ describe UserMviDelegate do
       it 'should fetch and add mvi data to the user' do
         mvi_user = UserMviDelegate.new(user).create
         expect(mvi_user.attributes).to eq(
-          dob: user.dob,
+          birth_date: user.birth_date,
           edipi: user.edipi,
           email: user.email,
           first_name: user.first_name,
           gender: user.gender,
-          last_name: 'Smith',
+          last_name: 'lincoln',
           last_signed_in: user.last_signed_in,
-          middle_name: 'William',
+          middle_name: nil,
+          level_of_assurance: 'http://idmanagement.gov/ns/assurance/loa/2',
           mvi: {
             edipi: '1234^NI^200DOD^USDOD^A',
             icn: '1000123456V123456^NI^200M^USVHA^P',
             mhv: '123456^PI^200MHV^USVHA^A',
             status: 'active',
-            given_names: %w(John William),
-            family_name: 'Smith',
+            given_names: %w(abraham),
+            family_name: 'lincoln',
             gender: 'M',
-            dob: '19800101',
+            birth_date: '19800101',
             ssn: '555-44-3333'
           },
           participant_id: user.participant_id,
           ssn: '555-44-3333',
           uuid: user.uuid,
-          zip: '90210'
+          zip: '17325'
         )
       end
     end

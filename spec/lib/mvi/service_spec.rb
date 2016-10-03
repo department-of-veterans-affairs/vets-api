@@ -12,10 +12,10 @@ describe MVI::Service do
 
   let(:given_names) { %w(John William) }
   let(:family_name) { 'Smith' }
-  let(:dob) { Time.new(1980, 1, 1).utc }
+  let(:birth_date) { Time.new(1980, 1, 1).utc }
   let(:ssn) { '555-44-3333' }
   let(:gender) { 'M' }
-  let(:message) { MVI::Messages::FindCandidateMessage.new(given_names, family_name, dob, ssn, gender) }
+  let(:message) { MVI::Messages::FindCandidateMessage.new(given_names, family_name, birth_date, ssn, gender) }
 
   describe '.load_wsdl' do
     it 'should have URI interpolated into wsdl' do
@@ -39,7 +39,7 @@ describe MVI::Service do
           given_names: %w(John William),
           family_name: 'Smith',
           gender: 'M',
-          dob: '19800101',
+          birth_date: '19800101',
           ssn: '555-44-3333'
         )
       end

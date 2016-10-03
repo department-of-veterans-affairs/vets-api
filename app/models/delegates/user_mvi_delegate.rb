@@ -28,7 +28,7 @@ class UserMviDelegate
     MVI::Messages::FindCandidateMessage.new(
       given_names,
       @user.last_name,
-      @user.dob,
+      @user.birth_date,
       @user.ssn,
       @user.gender
     )

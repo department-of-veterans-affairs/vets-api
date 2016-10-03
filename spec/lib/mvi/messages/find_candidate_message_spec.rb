@@ -4,7 +4,7 @@ require 'mvi/messages/find_candidate_message'
 
 describe MVI::Messages::FindCandidateMessage do
   describe '.to_xml' do
-    context 'with first, last, dob, and ssn from auth provider' do
+    context 'with first, last, birth_date, and ssn from auth provider' do
       let(:xml) do
         MVI::Messages::FindCandidateMessage.new(
           %w(John William), 'Smith', Time.new(1980, 1, 1).utc, '555-44-3333', 'M'
@@ -31,11 +31,11 @@ describe MVI::Messages::FindCandidateMessage do
         expect(xml).to eq_text_at_path("#{parameter_list_path}/livingSubjectName/value/family", 'Smith')
       end
 
-      it 'should have a birth time (dob) node' do
+      it 'should have a birth time node' do
         expect(xml).to eq_at_path("#{parameter_list_path}/livingSubjectBirthTime/value/@value", '19800101')
       end
 
-      it 'should have a social security number (ssn) node' do
+      it 'should have a social security number node' do
         expect(xml).to eq_at_path("#{parameter_list_path}/livingSubjectId/value/@extention", '555-44-3333')
       end
 
@@ -53,10 +53,10 @@ describe MVI::Messages::FindCandidateMessage do
     end
 
     context 'with an invalid date' do
-      it 'should be invalid with a DOB error' do
+      it 'should be invalid with a birth date error' do
         m = MVI::Messages::FindCandidateMessage.new(%w(John William), 'Smith', '19800101', '555-44-3333', 'M')
         expect(m.valid?).to be_falsey
-        expect { m.to_xml }.to raise_error(MVI::Messages::MessageBuilderError, 'Dob should be a Time object')
+        expect { m.to_xml }.to raise_error(MVI::Messages::MessageBuilderError, 'Birth date should be a Time object')
       end
     end
 
