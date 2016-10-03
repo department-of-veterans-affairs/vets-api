@@ -17,10 +17,9 @@ class User < Common::RedisStore
   attribute :middle_name
   attribute :last_name
   attribute :gender
-  attribute :dob, Common::UTCTime
+  attribute :birth_date, Common::UTCTime
   attribute :zip
   attribute :ssn
-  attribute :birth_date
 
   # id.me returned loa
   attribute :level_of_assurance

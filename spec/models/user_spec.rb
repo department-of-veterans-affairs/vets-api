@@ -2,40 +2,35 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  context 'on user instantiation' do
+  let(:attributes) do
+    {
 
-    let(:attributes) do
-      {
-        uuid: 'userid:123',
-        email: 'test@test.com',
-        first_name: 'John',
-        middle_name: 'William',
-        last_name: 'Smith',
-        dob: Time.new(1980, 1, 1).utc,
-        ssn: '555-44-3333',
-        gender: 'M'
-      }
+      uuid: 'userid:123',
+      email: 'test@test.com',
+      first_name: 'John',
+      middle_name: 'William',
+      last_name: 'Smith',
+      birth_date: Time.new(1980, 1, 1).utc,
+      ssn: '555-44-3333',
+      gender: 'M'
+    }
+  end
+
+  subject { described_class.new(attributes) }
+
+  context 'user without attributes' do
+    it 'expect ttl to an Integer' do
+      puts subject.inspect
+      expect(subject.ttl).to be_an(Integer)
+      expect(subject.ttl).to be_between(-Float::INFINITY, 0)
     end
 
-    subject { described_class.new(attributes) }
+    it 'assigns an email' do
+      expect(subject.email).to eq('test@test.com')
+    end
 
-    context 'user without attributes' do
-      it 'expect ttl to an Integer' do
-        expect(subject.ttl).to be_an(Integer)
-        expect(subject.ttl).to be_between(-Float::INFINITY, 0)
-      end
-
-      it 'assigns an email' do
-        expect(subject.email).to eq('test@test.com')
-      end
-
-      it 'assigns an uuid' do
-        expect(subject.uuid).to eq('userid:123')
-      end
-
-      it 'has a persisted attribute of false' do
-        expect(subject.persisted?).to be_falsey
-      end
+    it 'assigns an uuid' do
+      expect(subject.uuid).to eq('userid:123')
     end
 
     it 'has a persisted attribute of false' do
@@ -43,7 +38,10 @@ RSpec.describe User, type: :model do
     end
   end
 
-  # TODO(AJD): aren't some of these actually testing RedisStore?
+  it 'has a persisted attribute of false' do
+    expect(subject.persisted?).to be_falsey
+  end
+
   describe 'redis persistence' do
     before(:each) { subject.save }
 
@@ -88,7 +86,7 @@ RSpec.describe User, type: :model do
             }
           )
           expect(subject.attributes).to eq(
-            dob: Time.new(1980, 1, 1).utc,
+            birth_date: Time.new(1980, 1, 1).utc,
             edipi: nil,
             email: attributes[:email],
             first_name: attributes[:first_name],
@@ -104,17 +102,18 @@ RSpec.describe User, type: :model do
             participant_id: nil,
             ssn: '555-44-3333',
             uuid: attributes[:uuid],
-            zip: nil
+            zip: nil,
+            level_of_assurance: nil
           )
         end
       end
     end
-  end
 
-  describe '#destroy' do
-    it 'can destroy a user in redis' do
-      expect(subject.destroy).to eq(1)
-      expect(described_class.find(subject.uuid)).to be_nil
+    describe '#destroy' do
+      it 'can destroy a user in redis' do
+        expect(subject.destroy).to eq(1)
+        expect(described_class.find(subject.uuid)).to be_nil
+      end
     end
   end
 end
