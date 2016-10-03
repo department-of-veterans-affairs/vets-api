@@ -101,6 +101,7 @@ module SM
         conn.request :multipart
         conn.request :url_encoded
         conn.request :json
+        # conn.response :logger, ::Logger.new(STDOUT), bodies: true
 
         conn.adapter Faraday.default_adapter
       end
@@ -126,7 +127,17 @@ module SM
       params = params.transform_keys { |k| k.to_s.camelize(:lower) }
 
       if file.present?
-        { message: params, file: Faraday::UploadIO.new(file.tempfile, file.content_type, file.original_filename) }
+        message_part = Faraday::UploadIO.new(
+          StringIO.new(params.to_json),
+          'application/json',
+          'message'
+        )
+        file_part = Faraday::UploadIO.new(
+          file.tempfile,
+          file.content_type,
+          file.original_filename
+        )
+        { message: message_part, file: file_part }
       else
         params
       end

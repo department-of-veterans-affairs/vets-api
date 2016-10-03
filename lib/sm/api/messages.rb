@@ -48,7 +48,8 @@ module SM
       end
 
       def post_create_message_with_attachment(args = {})
-        json = perform(:post, 'message/attach', args, token_headers)
+        custom_header = token_headers.merge('Content-Transfer-Encoding' => 'binary')
+        json = perform(:post, 'message/attach', args, custom_header)
         json[:data].delete(:attachments)
         Message.new(json)
       end
