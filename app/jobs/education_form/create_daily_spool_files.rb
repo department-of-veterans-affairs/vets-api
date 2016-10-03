@@ -116,11 +116,13 @@ module EducationForm
 
     def full_address(address)
       return '' if address.nil?
-      # TODO: support non american addresses
-      if address.country == 'USA'
-        "#{address.street}
-        #{address.city}, #{address.state}, #{address.postalCode}".upcase
-      end
+
+      [
+        address.street,
+        address.street2,
+        "#{address.city}, #{address.state}, #{address.postalCode}",
+        address.country
+      ].compact.join("\n").upcase
     end
 
     def rotc_scholarship_amounts(scholarships)
