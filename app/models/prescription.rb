@@ -3,12 +3,12 @@ require 'common/models/base'
 # Prescription model
 # Reference: https://github.com/department-of-veterans-affairs/prescriptions-team/blob/master/API/sample_mvh_api_calls
 class Prescription < Common::Base
-  attribute :prescription_id, Integer, sortable: true
-  attribute :refill_status, String, sortable: true
+  attribute :prescription_id, Integer, sortable: true, filterable: true
+  attribute :refill_status, String, sortable: true, filterable: true
   attribute :refill_submit_date, Common::UTCTime
   attribute :refill_date, Common::UTCTime, sortable: true
   attribute :refill_remaining, Integer
-  attribute :facility_name, String, sortable: true
+  attribute :facility_name, String, sortable: true, filterable: true
   attribute :ordered_date, Common::UTCTime, sortable: true
   attribute :quantity, Integer
   attribute :expiration_date, Common::UTCTime

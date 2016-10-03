@@ -14,7 +14,7 @@ class Tracking < Common::Base
 
   def self.default_sort
     '-shipped_date'
-  end  
+  end
 
   def <=>(other)
     shipped_date <=> other.shipped_date

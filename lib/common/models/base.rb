@@ -22,6 +22,10 @@ module Common
         @sortable_attributes ||= attribute_set.map { |a| a.name.to_s if a.options[:sortable] }.compact
       end
 
+      def filterable_attributes
+        @filterable_attributes ||= attribute_set.map { |a| a.name.to_s if a.options[:filterable] }.compact
+      end
+
       def default_sort
         @default_sort ||= (attribute_set.find { |a| a.options[:default_sort] } || attribute_set.first).name.to_s
       end
