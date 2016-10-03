@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   attributes :id, :evss_id, :date_filed, :min_est_date, :max_est_date,
-             :tracked_items, :phase_change_date, :open, :waiver_submitted
+             :phase_change_date, :open, :waiver_submitted
 
   def date_filed
     date_from_string 'date'
@@ -13,10 +13,6 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
 
   def max_est_date
     date_from_string 'maxEstClaimDate'
-  end
-
-  def tracked_items
-    object.data['claimTrackedItems']
   end
 
   def phase_change_date

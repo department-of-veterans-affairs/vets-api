@@ -11,6 +11,11 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
     object.data['poa']
   end
 
+  TRACKED_ITEM_FIELDS = %w[
+    neverReceivedFromOthersList neverReceivedFromYouList
+    receivedFromOthersList receivedFromYouList stillNeedFromYouList
+  ]
+
   def updates
     updates = [
       create_event_from_string_date(:filed, 'date'),
@@ -25,12 +30,19 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
       updates << create_event_from_string_date("phase#{n}", 'claimPhaseDates', "phase#{n}CompleteDate")
     end
 
-    list_objects_with_key(["claimTrackedItems", "stillNeedFromYouList"], ["openedDate"]) do |obj|
-      updates << {
-        type: :requested_item,
-        date: Date.strptime(obj["openedDate"], '%m/%d/%Y'),
-        description: obj['description']
-      }
+    # Add tracked items
+    TRACKED_ITEM_FIELDS.each do |field|
+      list_objects_with_key(["claimTrackedItems", field], ["openedDate"]).each do |obj|
+        updates << {
+          type: field.snakecase,
+          date: Date.strptime(obj['openedDate'], '%m/%d/%Y'),
+          description: obj['description'],
+          display_name: obj['displayedName'],
+          overdue: obj['overdue'],
+          tracked_item_id: obj['trackedItemId'],
+          tracked_item_status: obj['trackedItemStatus']
+        } if obj['openedDate']
+      end
     end
 
     # Filter out events that were nil and make reverse chron
