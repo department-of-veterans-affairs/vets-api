@@ -85,6 +85,7 @@ module SM
     end
 
     def post(path, params = {}, headers = base_headers)
+      params = params.is_a?(Hash) ? camelize_and_jsonify(params) : params
       request(:post, path, params, headers)
     end
 
@@ -118,6 +119,10 @@ module SM
         open_timeout: @config.open_timeout,
         timeout: @config.read_timeout
       }
+    end
+
+    def camelize_and_jsonify(params)
+      params.transform_keys! { |k| k.to_s.camelize(:lower) }.to_json
     end
   end
 end
