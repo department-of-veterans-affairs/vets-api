@@ -117,10 +117,6 @@ module Common
       !type.sortable_attributes.include?(sort_param.delete('-'))
     end
 
-    def filter_type_allowed?(filter_param)
-      !type.filterable_attributes.include?(filter_param)
-    end
-
     def verify_search_params!(search)
       filter_not_allowed = (search.keys.map(&:to_s) - type.filterable_attributes).join(', ')
       raise Common::Exceptions::FilterNotAllowed, filter_not_allowed unless filter_not_allowed.empty?
