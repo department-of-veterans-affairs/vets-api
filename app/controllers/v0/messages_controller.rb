@@ -1,9 +1,19 @@
 # frozen_string_literal: true
 module V0
   class MessagesController < SMController
+    include Filterable
+
+    PERMITTED_FILTERS = {
+      subject: { operations: %w(eq not_eq), values: [String] },
+      recipient_name: { operations: %w(eq not_eq), values: [String] },
+      sent_date: { operations: %w(eq lteq gteq), values: [String] }
+    }.freeze
+
     def index
       resource = client.get_folder_messages(params[:folder_id].to_s)
       raise VA::API::Common::Exceptions::RecordNotFound, params[:folder_id] unless resource.present?
+
+      resource = can_filter?(PERMITTED_FILTERS) ? resource.find_by(params[:filter]) : resource
       resource = resource.paginate(pagination_params)
 
       render json: resource.data,
