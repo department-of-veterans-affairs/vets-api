@@ -4,16 +4,16 @@ module V0
     include Filterable
 
     PERMITTED_FILTERS = {
-      subject: { operations: %w(eq not_eq), values: [String] },
-      recipient_name: { operations: %w(eq not_eq), values: [String] },
-      sent_date: { operations: %w(eq lteq gteq), values: [String] }
+      'subject' => %w(eq not_eq),
+      'sender_name' => %w(eq not_eq),
+      'sent_date' => %w(eq lteq gteq)
     }.freeze
 
     def index
       resource = client.get_folder_messages(params[:folder_id].to_s)
       raise VA::API::Common::Exceptions::RecordNotFound, params[:folder_id] unless resource.present?
 
-      resource = can_filter?(PERMITTED_FILTERS) ? resource.find_by(params[:filter]) : resource
+      resource = can_filter?(Message, PERMITTED_FILTERS) ? resource.find_by(params[:filter]) : resource
       resource = resource.paginate(pagination_params)
 
       render json: resource.data,

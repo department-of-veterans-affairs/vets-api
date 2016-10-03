@@ -2,10 +2,10 @@
 module Filterable
   extend ActiveSupport::Concern
 
-  def can_filter?(permitted = {})
+  def can_filter?(as, permitted = {})
     if params[:filter].present?
       check_syntax
-      check_semantics(permitted)
+      check_semantics(as, permitted)
       true
     else
       false
@@ -19,21 +19,23 @@ module Filterable
 
   def check_syntax
     ok = filter_query.map { |a| a.gsub('filter', '') }.all? { |s| s =~ /\A\[\[.+\]\[.+\]\]=.+\z/ }
-    raise Common::Exceptions::InvalidFiltersSyntax, get_filter_query unless ok
+    raise Common::Exceptions::InvalidFiltersSyntax, filter_query unless ok
   end
 
-  # permitted = { attribute-name: { operations: [...], types: [...] } }
-  def check_semantics(permitted = {})
+  # permitted = { attribute-name => [ operator-list ...] }
+  def check_semantics(as, permitted = {})
+    object = as.new
+
     params[:filter].each_pair do |attribute, predicate|
-      raise Common::Exceptions::FilterNotAllowed, attribute.to_s unless permitted.key?(attribute)
+      raise Common::Exceptions::FilterNotAllowed, attribute unless permitted.key?(attribute)
 
       predicate.each_pair do |op, value|
-        unless permitted[attribute][operations].include?(op)
-          raise Common::Exceptions::FilterNotAllowed, "#{op} for #{attribute}"
-        end
+        raise Common::Exceptions::FilterNotAllowed, "#{op} for #{attribute}" unless permitted[attribute].include?(op)
 
-        unless permitted[attribute][types].any? { |type| value is_a? type }
-          raise Common::Exceptions::FilterNotAllowed, "#{value.class} for #{attribute}"
+        begin
+          object.send(attribute + '=', value)
+        rescue ArgumentError
+          raise Common::Exceptions::FilterNotAllowed, "Conversion of #{value} for #{attribute}"
         end
       end
     end
