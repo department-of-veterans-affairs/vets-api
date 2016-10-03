@@ -62,6 +62,16 @@ MHV_SM_APP_TOKEN
 For an example, see `application.yml.example` - these are just mock endpoints.
 For actual backend testing you will need to reference the appropriate private repository.
 
+### EVSS Disability Claims Setup
+For this app to be properly configured, you will need to specify the following environment variables:
+```
+EVSS_BASE_URL
+EVSS_SAMPLE_CLAIMANT_USER
+```
+
+For an example, see `application.yml.example` - these are just mock endpoints.
+For actual backend testing you will need to reference the appropriate private repository.
+
 ### Facilities Locator Setup
 For this app to be properly configured, you need the following environment variables:
 ```
@@ -69,11 +79,11 @@ VHA_MAPSERVER_URL
 VHA_MAPSERVER_LAYER
 ```
 
-For an example, see `application.yml.example`. 
+For an example, see `application.yml.example`.
 
-For the current maps.va.gov endpoint, you will need to add the VA internal root CA 
-certificate to your trusted certificates. With homebrew this is typically done by 
-appending the exported/downloaded certificate to `<HOMEBREW_DIR>/etc/openssl/cert.pem`. 
+For the current maps.va.gov endpoint, you will need to add the VA internal root CA
+certificate to your trusted certificates. With homebrew this is typically done by
+appending the exported/downloaded certificate to `<HOMEBREW_DIR>/etc/openssl/cert.pem`.
 
 ### Running the App
 1. Start the application: `foreman start`
@@ -85,25 +95,34 @@ appending the exported/downloaded certificate to `<HOMEBREW_DIR>/etc/openssl/cer
 - `bundle exec rake security` - Run the suite of security scanners on the codebase.
 - `bundle exec rake ci` - Run all build steps performed in Travis CI.
 
-### Manually Testing Auth Flow
+### Manually Testing ID.me Authentication Flow
 The first endpoint, below, doesn't require authentication while the second does:
 ```
 curl localhost:3000/v0/status
 curl localhost:3000/v0/welcome
 ```
-It is easiest to go through the auth flow in your browser. Curl or browse to `http://localhost:3000/v0/sessions/new`; copy and paste the ID.me URL into your browser.  Create your ID.me account if you have not already done so. (**Note**: creating your account on the ID.me site is separate from the api.idmelabs.com sandbox) The token returned in the json response at the end of the login flow can be used as follows (You may wish to use Postman instead of curl to test within the browser):
+
+The callback from ID.me is configured to go to `http://localhost:3001/auth/login/callback`, which is a front-end route in production. To test just the API locally, without running the vets-website server, start the vets-api server on port 3001:
+```
+bundle exec rails s -p 3001
+```
+Curl or browse to `http://localhost:3001/v0/sessions/new`; copy and paste the ID.me URL into your browser. Create your ID.me account if you have not already done so (**Note**: creating your account on the ID.me site is separate from the api.idmelabs.com sandbox) or sign in with your username and password.
+
+The token returned in the json response at the end of the login flow can be used as follows (You may wish to use Postman instead of curl to test within the browser):
 
 ```
-curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyyja" localhost:3000/v0/sessions/current
-curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyyja" localhost:3000/v0/profile
+curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyyja" localhost:3001/v0/sessions/current
+curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyyja" localhost:3001/v0/profile
 ```
 
 ## Deployment Instructions
 
-Currently, this API is only deployed to the `dev` environment. Ansible templates and instructions for deploying are in the [devops repo](https://github.com/department-of-veterans-affairs/devops/tree/master/ansible). The `app_name` for this project is `platform-api`. After deploying, you can check that the right version was deployed with:
+Currently, this API is not yet in production. Ansible templates and instructions for deploying are in the [devops repo](https://github.com/department-of-veterans-affairs/devops/tree/master/ansible). The `app_name` for this project is `platform-api`. After deploying, you can check that the right version was deployed with:
 ```
-https://dev.vets.gov/api/v0/status
+https://dev-api.vets.gov/v0/status
 ```
+
+There is also a [jenkins build](https://dev.vets.gov/jenkins/job/vets_gov_deploy_all/) that will deploy all the apps in a certain environment.
 
 ## API Request key formatting
 

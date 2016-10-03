@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://csraciapp6.evss.srarad.com:7003/wss-claims-services-web-3.1/rest/claimServicesExternalService/listAllIntentToFile
+    uri: https://test.vets.gov/wss-claims-services-web-3.1/rest/claimServicesExternalService/listAllIntentToFile
     body:
       encoding: UTF-8
       string: "{}"
