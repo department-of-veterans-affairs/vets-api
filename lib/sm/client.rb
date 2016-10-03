@@ -128,7 +128,7 @@ module SM
       if file.present?
         { message: params, file: Faraday::UploadIO.new(file.tempfile, file.content_type, file.original_filename) }
       else
-        params.to_json
+        params
       end
     end
   end
