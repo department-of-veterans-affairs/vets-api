@@ -25,7 +25,7 @@ module EVSS
     protected
 
     def base_url
-      ENV['EVSS_DOCUMENTS_BASE_URL']
+      "#{ENV['EVSS_BASE_URL']}/wss-document-services-web-3.1/rest/"
     end
   end
 end

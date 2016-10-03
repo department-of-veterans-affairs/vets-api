@@ -16,6 +16,7 @@ Rails.application.routes.draw do
     get 'profile', to: 'users#show'
 
     resource :education_benefits_claims, only: :create
+    resource :disability_rating, only: [:show]
     resources :disability_claims, only: [:index, :show] do
       post :request_decision, on: :member
       resources :documents, only: [:create]
@@ -56,6 +57,11 @@ Rails.application.routes.draw do
   end
 
   root 'v0/example#index', module: 'v0'
+
+  # route for testing with ID.me locally without front-end vets-website repo
+  if Rails.env.development?
+    get '/auth/login/callback', to: 'v0/sessions#saml_callback', module: 'v0'
+  end
 
   if Rails.env.development? || (ENV['SIDEKIQ_ADMIN_PANEL'] == 'true')
     require 'sidekiq/web'

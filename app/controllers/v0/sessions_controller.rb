@@ -42,12 +42,24 @@ module V0
     def user_attributes
       attributes = @saml_response.attributes.all.to_h
       {
-        first_name: attributes['fname']&.first,
-        last_name: attributes['lname']&.first,
-        zip: attributes['zip']&.first,
-        email: attributes['email']&.first,
-        uuid: attributes['uuid']&.first
+        first_name:   attributes['fname']&.first,
+        middle_name:  attributes['mname']&.first,
+        last_name:    attributes['lname']&.first,
+        zip:          attributes['zip']&.first,
+        email:        attributes['email']&.first,
+        ssn:          attributes['social']&.first,
+        birth_date:   attributes['birth_date']&.first,
+        uuid:         attributes['uuid']&.first,
+
+        level_of_assurance: level_of_assurance
       }
+    end
+
+    # Ruby-Saml does not parse the <samlp:Response> xml so we do it ourselves to find
+    # which LOA was performed on the ID.me side.
+    def level_of_assurance
+      Hash.from_xml(@saml_response.response)
+          .dig('Response', 'Assertion', 'AuthnStatement', 'AuthnContext', 'AuthnContextClassRef')
     end
   end
 end
