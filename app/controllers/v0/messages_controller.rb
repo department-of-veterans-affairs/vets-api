@@ -3,7 +3,7 @@ module V0
   class MessagesController < SMController
     def index
       resource = client.get_folder_messages(params[:folder_id].to_s)
-      raise VA::API::Common::Exceptions::RecordNotFound, params[:folder_id] unless resource.present?
+      raise Common::Exceptions::RecordNotFound, params[:folder_id] unless resource.present?
       resource = resource.paginate(pagination_params)
 
       render json: resource.data,
@@ -16,9 +16,10 @@ module V0
       message_id = params[:id].try(:to_i)
       response = client.get_message(message_id)
 
-      raise VA::API::Common::Exceptions::RecordNotFound, message_id unless response.present?
+      raise Common::Exceptions::RecordNotFound, message_id unless response.present?
 
       render json: response,
+             include: :attachments,
              serializer: MessageSerializer,
              meta: response.metadata
     end
@@ -46,7 +47,7 @@ module V0
     def thread
       message_id = params[:id].try(:to_i)
       resource = client.get_message_history(message_id)
-      raise VA::API::Common::Exceptions::RecordNotFound, message_id unless resource.present?
+      raise Common::Exceptions::RecordNotFound, message_id unless resource.present?
       resource = resource.paginate(pagination_params)
 
       render json: resource.data,

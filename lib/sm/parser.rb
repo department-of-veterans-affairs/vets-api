@@ -16,7 +16,7 @@ module SM
       @errors = @parsed_json.delete(:errors) || {}
 
       # TODO: replace _parsed_* with SM specific method to extract relevant attributes for each endpoint.
-      data = parsed_triage || parsed_folders || parsed_messages || parsed_categories
+      data = parsed_triage || parsed_folders || normalize_message(parsed_messages) || parsed_categories
 
       @parsed_json = {
         data: data,
@@ -68,6 +68,27 @@ module SM
 
     def underscore_symbolize(hash)
       hash.deep_transform_keys { |k| k.underscore.to_sym }
+    end
+
+    def normalize_message(object)
+      if object.is_a?(Array)
+        object.map { |a| fix_attachments(a) }
+      else
+        fix_attachments(object)
+      end
+    end
+
+    # TODO: Need to find out from MHV why this structure is not consistently returned
+    # null is acceptable, but combination of Array or Hash is not
+    def fix_attachments(message_json)
+      return message_json.except(:attachments) unless message_json[:attachments].present?
+      message_id = message_json[:id]
+      attachments = Array.wrap(message_json[:attachments])
+      # remove the outermost object name for attachment and inject message_id
+      attachments = attachments.map do |attachment|
+        attachment[:attachment].map { |e| e.merge(message_id: message_id) }
+      end.flatten
+      message_json.merge(attachments: attachments)
     end
   end
 end

@@ -10,6 +10,7 @@ require 'sm/api/triage_teams'
 require 'sm/api/folders'
 require 'sm/api/messages'
 require 'sm/api/message_drafts'
+require 'sm/api/attachments'
 
 module SM
   class Client
@@ -18,6 +19,7 @@ module SM
     include SM::API::Folders
     include SM::API::Messages
     include SM::API::MessageDrafts
+    include SM::API::Attachments
 
     REQUEST_TYPES = %i(get post delete).freeze
     USER_AGENT = 'Vets.gov Agent'
@@ -58,6 +60,12 @@ module SM
     def process_response_or_error
       if @response.body.empty? || @response.body.casecmp('success').zero?
         return @response if @response.status == 200
+      end
+
+      if @response.response_headers['content-type'] == 'application/octet-stream'
+        disposition = @response.response_headers['content-disposition']
+        filename = disposition.gsub('attachment; filename=', '')
+        return { body: @response.body, filename: filename }
       end
 
       json = begin

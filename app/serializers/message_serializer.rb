@@ -14,5 +14,7 @@ class MessageSerializer < ActiveModel::Serializer
   attribute :recipient_name
   attribute :read_receipt
 
+  has_many :attachments, each_serializer: AttachmentSerializer
+
   link(:self) { v0_message_url(object.id) }
 end
