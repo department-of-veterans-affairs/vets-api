@@ -15,7 +15,13 @@ Rails.application.routes.draw do
     get 'user', to: 'users#show'
     get 'profile', to: 'users#show'
 
-    resource :education_benefits_claims, only: :create
+
+    resource :education_benefits_claims, only: [:create] do
+      if Rails.env.development? || (ENV['EDU_FORM_SHOW'] == 'true')
+        get ':id', to: 'education_benefits_claims#show', defaults: { format: :text }
+      end
+    end
+    
     resource :disability_rating, only: [:show]
     resources :disability_claims, only: [:index, :show] do
       post :request_decision, on: :member
