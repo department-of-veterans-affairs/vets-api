@@ -22,7 +22,7 @@ module MVI
       validate :validate_types
       validates_format_of :ssn, with: /\d{3}-\d{2}-\d{4}/
 
-      def initialize(given_names, family_name, birth_date, ssn, gender)
+      def initialize(given_names, family_name, birth_date, ssn, gender = nil)
         @given_names = given_names
         @family_name = family_name
         @birth_date = birth_date
@@ -74,7 +74,7 @@ module MVI
         el << build_living_subject_name
         el << build_living_subject_birth_time
         el << build_living_subject_id
-        el << build_gender
+        el << build_gender unless @gender.nil?
       end
 
       def build_living_subject_name

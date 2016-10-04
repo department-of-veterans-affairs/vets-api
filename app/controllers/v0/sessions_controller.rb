@@ -29,8 +29,6 @@ module V0
         # TODO: also need to make sure error json conforms to api spec
         render json: { errors: @saml_response.errors }, status: :forbidden
       end
-    rescue => e
-      puts e.inspect
     end
 
     private
@@ -50,7 +48,7 @@ module V0
         zip:          attributes['zip']&.first,
         email:        attributes['email']&.first,
         ssn:          attributes['social']&.first,
-        birth_date:   attributes['birth_date']&.first,
+        birth_date:   Time.parse(attributes['birth_date']&.first).utc,
         uuid:         attributes['uuid']&.first,
 
         level_of_assurance: level_of_assurance

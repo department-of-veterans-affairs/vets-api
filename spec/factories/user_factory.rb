@@ -6,7 +6,7 @@ FactoryGirl.define do
     first_name 'abraham'
     last_name 'lincoln'
     gender 'M'
-    birth_date Time.new(1809, 2, 12)
+    birth_date Time.new(1809, 2, 12).utc
     zip '17325'
     last_signed_in Time.now.utc
     edipi '1234^NI^200DOD^USDOD^A'
@@ -15,17 +15,19 @@ FactoryGirl.define do
     level_of_assurance 'http://idmanagement.gov/ns/assurance/loa/2'
 
     factory :mvi_user do
-      mvi { {
-        edipi: '1234^NI^200DOD^USDOD^A',
-        icn: '1000123456V123456^NI^200M^USVHA^P',
-        mhv: '123456^PI^200MHV^USVHA^A',
-        status: 'active',
-        given_names: %w(abraham),
-        family_name: 'lincoln',
-        gender: 'M',
-        birth_date: '18090212',
-        ssn: '272-11-1863'
-      } }
+      mvi do
+        {
+          edipi: '1234^NI^200DOD^USDOD^A',
+          icn: '1000123456V123456^NI^200M^USVHA^P',
+          mhv: '123456^PI^200MHV^USVHA^A',
+          status: 'active',
+          given_names: %w(abraham),
+          family_name: 'lincoln',
+          gender: 'M',
+          birth_date: '18090212',
+          ssn: '272-11-1863'
+        }
+      end
     end
   end
 end

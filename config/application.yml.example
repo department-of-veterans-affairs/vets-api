@@ -22,4 +22,3 @@ VHA_MAPSERVER_LAYER: '0'
 
 # For CORS requests; separate multiple origins with a comma
 WEB_ORIGIN: 'http://localhost:3000,http://localhost:3001'
-MOCK_MVI_SERVICE: true

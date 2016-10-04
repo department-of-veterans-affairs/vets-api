@@ -9,13 +9,10 @@ class UserMviDelegate
   def create
     raise Common::Exceptions::ValidationErrors, @user unless @user.valid?
     message = create_message
-    if message.valid?
-      response = MVI_SERVICE.find_candidate(message)
-      @user.attributes = { mvi: response }
-      @user
-    else
-      raise Common::Exceptions::ValidationErrors, message
-    end
+    raise Common::Exceptions::ValidationErrors, message unless message.valid?
+    response = MVI_SERVICE.find_candidate(message)
+    @user.attributes = { mvi: response }
+    @user
   rescue MVI::ServiceError => e
     # TODO(AJD): add cloud watch metric
     Rails.logger.error "MVI user data not retrieved: service error: #{e.message} for user: #{@user.uuid}"

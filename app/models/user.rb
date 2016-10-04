@@ -30,14 +30,15 @@ class User < Common::RedisStore
   attribute :participant_id
   attribute :ssn
 
-  # Add additional MVI attributes
-  alias redis_key uuid
-
   # mvi 'golden record' data
   attribute :mvi
 
   validates :uuid, presence: true
   validates :email, presence: true
+  validates :first_name, presence: true
+  validates :last_name, presence: true
+  validates :birth_date, presence: true
+  validates :ssn, presence: true
 
   def rating_record
     client = EVSS::CommonService.new(self)

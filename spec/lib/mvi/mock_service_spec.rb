@@ -6,19 +6,19 @@ require 'mvi/messages/find_candidate_message'
 describe MVI::MockService do
   it 'returns YAML hash for find_candidate' do
     allow(MVI::MockService).to receive(:mocked_responses)
-                     .and_return(
-                       'find_candidate' => {
-                         'birth_date' => '19800101',
-                         'edipi' => '1234^NI^200DOD^USDOD^A',
-                         'family_name' => 'Smith',
-                         'gender' => 'M',
-                         'given_names' => %w(John William),
-                         'icn' => '1000123456V123456^NI^200M^USVHA^P',
-                         'mhv_id' => '123456^PI^200MHV^USVHA^A',
-                         'ssn' => '555-44-3333',
-                         'status' => 'active'
-                       }
-                     )
+      .and_return(
+        'find_candidate' => {
+          'birth_date' => '19800101',
+          'edipi' => '1234^NI^200DOD^USDOD^A',
+          'family_name' => 'Smith',
+          'gender' => 'M',
+          'given_names' => %w(John William),
+          'icn' => '1000123456V123456^NI^200M^USVHA^P',
+          'mhv_id' => '123456^PI^200MHV^USVHA^A',
+          'ssn' => '555-44-3333',
+          'status' => 'active'
+        }
+      )
     response = MVI::MockService.find_candidate
     expect(response).to eq(
       'birth_date' => '19800101',

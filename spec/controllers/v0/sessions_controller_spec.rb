@@ -108,7 +108,14 @@ RSpec.describe V0::SessionsController, type: :controller do
 
     before(:each) do
       Session.create(uuid: '1234', token: token)
-      User.create(uuid: '1234', email: 'test@test.com')
+      User.create(
+        uuid: '1234',
+        email: 'test@test.com',
+        first_name: 'abraham',
+        last_name: 'lincoln',
+        birth_date: Time.new(1809, 2, 12).utc,
+        ssn: '111-22-3333'
+      )
     end
 
     it 'returns a JSON the session' do
