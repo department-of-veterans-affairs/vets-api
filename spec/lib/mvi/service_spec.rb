@@ -40,7 +40,7 @@ describe MVI::Service do
           family_name: 'Smith',
           gender: 'M',
           birth_date: '19800101',
-          ssn: '555-44-3333'
+          ssn: '555443333'
         )
       end
     end

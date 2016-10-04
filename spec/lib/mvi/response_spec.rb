@@ -29,7 +29,7 @@ describe MVI::Response do
           given_names: %w(John William),
           icn: '1000123456V123456^NI^200M^USVHA^P',
           mhv: '123456^PI^200MHV^USVHA^A',
-          ssn: '555-44-3333',
+          ssn: '555443333',
           status: 'active'
         )
       end

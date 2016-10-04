@@ -22,7 +22,7 @@ RSpec.describe V0::ExampleController, type: :controller do
         middle_name: 'William',
         last_name: 'Smith',
         birth_date: Time.new(1980, 1, 1).utc,
-        ssn: '555-44-3333'
+        ssn: '555443333'
       )
     end
 

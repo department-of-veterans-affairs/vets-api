@@ -16,7 +16,7 @@ describe Decorators::MviUserDecorator do
         family_name: 'lincoln',
         gender: 'M',
         birth_date: '19800101',
-        ssn: '555-44-3333'
+        ssn: '272111863'
       )
     end
 
@@ -42,10 +42,10 @@ describe Decorators::MviUserDecorator do
             family_name: 'lincoln',
             gender: 'M',
             birth_date: '19800101',
-            ssn: '555-44-3333'
+            ssn: '272111863'
           },
           participant_id: user.participant_id,
-          ssn: '555-44-3333',
+          ssn: '272111863',
           uuid: user.uuid,
           zip: '17325'
         )

@@ -11,7 +11,7 @@ FactoryGirl.define do
     last_signed_in Time.now.utc
     edipi '1234^NI^200DOD^USDOD^A'
     participant_id '123456789'
-    ssn '555-44-3333'
+    ssn '272111863'
     level_of_assurance 'http://idmanagement.gov/ns/assurance/loa/2'
 
     factory :mvi_user do
@@ -25,7 +25,7 @@ FactoryGirl.define do
           family_name: 'lincoln',
           gender: 'M',
           birth_date: '18090212',
-          ssn: '272-11-1863'
+          ssn: '272111863'
         }
       end
     end

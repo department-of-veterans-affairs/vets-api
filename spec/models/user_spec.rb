@@ -11,7 +11,7 @@ RSpec.describe User, type: :model do
       middle_name: 'William',
       last_name: 'Smith',
       birth_date: Time.new(1980, 1, 1).utc,
-      ssn: '555-44-3333',
+      ssn: '555443333',
       gender: 'M'
     }
   end
@@ -20,7 +20,7 @@ RSpec.describe User, type: :model do
 
   context 'with an invalid ssn' do
     it 'should have an error on ssn' do
-      subject.ssn = '111-aa-2222'
+      subject.ssn = '111-22-3333'
       expect(subject.valid?).to be_falsey
       expect(subject.errors[:ssn].size).to eq(1)
     end
@@ -107,7 +107,7 @@ RSpec.describe User, type: :model do
               mhv_id: '123456^PI^200MHV^USVHA^A'
             },
             participant_id: nil,
-            ssn: '555-44-3333',
+            ssn: '555443333',
             uuid: attributes[:uuid],
             zip: nil,
             level_of_assurance: nil

@@ -31,10 +31,7 @@ module MVI
         family_name: patient[:patient_person][:name].first[:family].capitalize,
         gender: patient[:patient_person][:administrative_gender_code][:@code],
         birth_date: patient[:patient_person][:birth_time][:@value],
-        ssn: patient[:patient_person][:as_other_i_ds][:id][:@extension].gsub(
-          /(\d{3})[^\d]?(\d{2})[^\d]?(\d{4})/,
-          '\1-\2-\3'
-        )
+        ssn: patient[:patient_person][:as_other_i_ds][:id][:@extension]
       }.merge(map_correlation_ids(patient[:id]))
     end
 

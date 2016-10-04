@@ -114,7 +114,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         first_name: 'abraham',
         last_name: 'lincoln',
         birth_date: Time.new(1809, 2, 12).utc,
-        ssn: '111-22-3333'
+        ssn: '111223333'
       )
     end
 
