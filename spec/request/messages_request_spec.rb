@@ -20,9 +20,83 @@ RSpec.describe 'Messages Integration', type: :request do
       VCR.use_cassette("sm/messages/#{user_id}/index") do
         get "/v0/messaging/health/folders/#{inbox_id}/messages"
       end
+
       expect(response).to be_success
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('messages')
+    end
+
+    context 'when verifying correct filters' do
+      it 'accepts one attribute' do
+        VCR.use_cassette("sm/messages/#{user_id}/index") do
+          get "/v0/messaging/health/folders/#{inbox_id}/messages?filter[[subject][eq]]=something"
+          expect(response).to be_success
+        end
+      end
+
+      it 'accepts more than 1 attribute' do
+        VCR.use_cassette("sm/messages/#{user_id}/index") do
+          filter = 'filter[[subject][eq]]=something&filter[[sender_name][eq]]=someone'
+          get "/v0/messaging/health/folders/#{inbox_id}/messages?#{filter}"
+          expect(response).to be_success
+        end
+      end
+
+      it 'accepts multiple predicates for a single attribute' do
+        VCR.use_cassette("sm/messages/#{user_id}/index") do
+          filter = 'filter[[sent_date][lteq]]=2016-01-01&filter[[sent_date][gteq]]=2016-01-01'
+          get "/v0/messaging/health/folders/#{inbox_id}/messages?#{filter}"
+          expect(response).to be_success
+        end
+      end
+    end
+
+    context 'when verifying incorrect filters' do
+      it 'accepts only permitted attributes' do
+        VCR.use_cassette("sm/messages/#{user_id}/index") do
+          get "/v0/messaging/health/folders/#{inbox_id}/messages?filter[[blab][eq]]=1"
+
+          error = JSON.parse(response.body)['errors'].first
+
+          expect(response).not_to be_success
+          expect(error['title']).to eq('Filter not allowed')
+          expect(error['detail']).to eq('"blab" is not allowed')
+        end
+      end
+
+      it 'accepts only permitted operations' do
+        VCR.use_cassette("sm/messages/#{user_id}/index") do
+          get "/v0/messaging/health/folders/#{inbox_id}/messages?filter[[sent_date][blah]]=1"
+
+          error = JSON.parse(response.body)['errors'].first
+
+          expect(response).not_to be_success
+          expect(error['title']).to eq('Filter not allowed')
+          expect(error['detail']).to eq('"blah for sent_date" is not allowed')
+        end
+      end
+
+      it 'requires a convertible filter value' do
+        VCR.use_cassette("sm/messages/#{user_id}/index") do
+          get "/v0/messaging/health/folders/#{inbox_id}/messages?filter[[sent_date][eq]]=abcd"
+
+          error = JSON.parse(response.body)['errors'].first
+
+          expect(response).not_to be_success
+          expect(error['title']).to eq('Filter not allowed')
+          expect(error['detail']).to eq('"Conversion of abcd for sent_date" is not allowed')
+        end
+      end
+
+      it 'requires a properly formed grammar' do
+        VCR.use_cassette("sm/messages/#{user_id}/index") do
+          get "/v0/messaging/health/folders/#{inbox_id}/messages?filter[[sent_date][]]=1"
+          error = JSON.parse(response.body)['errors'].first
+
+          expect(response).not_to be_success
+          expect(error['title']).to eq('Invalid filters syntax')
+        end
+      end
     end
   end
 
