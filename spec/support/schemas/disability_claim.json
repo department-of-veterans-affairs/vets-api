@@ -22,7 +22,8 @@
             "phase_dates",
             "tracked_items",
             "va_representative",
-            "development_letter_sent"
+            "development_letter_sent",
+            "sync_failed"
           ],
           "properties": {
             "evss_id": { "type": "integer" },
@@ -35,7 +36,8 @@
             "open": { "type": "boolean" },
             "va_representative": { "type": "string" },
             "waiver_submitted": { "type": "boolean" },
-            "development_letter_sent": { "type": "boolean" }
+            "development_letter_sent": { "type": "boolean" },
+            "sync_failed": { "type": ["boolean", "null"] }
           }
         }
       }

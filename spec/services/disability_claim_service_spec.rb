@@ -3,8 +3,8 @@ require 'rails_helper'
 
 RSpec.describe DisabilityClaimService do
   let(:user) { User.sample_claimant }
-  let(:claim) do
-    FactoryGirl.create(:disability_claim, user_uuid: user.uuid, data: {})
+  let!(:claim) do
+    FactoryGirl.create(:disability_claim, user_uuid: user.uuid)
   end
   let(:client_stub) { instance_double('EVSS::ClaimsService') }
   subject { described_class.new(user) }
@@ -14,7 +14,9 @@ RSpec.describe DisabilityClaimService do
       it 'returns all claims for the user' do
         allow(client_stub).to receive(:all_claims) { raise Faraday::Error::TimeoutError }
         allow(subject).to receive(:client) { client_stub }
-        expect(subject.all).to eq([claim])
+        claims = subject.all
+        expect(claims).to eq([claim])
+        expect(claims.first.sync_failed).to eq(true)
       end
     end
 
@@ -22,7 +24,9 @@ RSpec.describe DisabilityClaimService do
       it 'returns claim' do
         allow(client_stub).to receive(:find_claim_by_id) { raise Faraday::Error::TimeoutError }
         allow(subject).to receive(:client) { client_stub }
-        expect(subject.update_from_remote(claim)).to eq(claim)
+        updated_claim = subject.update_from_remote(claim)
+        expect(updated_claim).to eq(claim)
+        expect(updated_claim.sync_failed).to eq(true)
       end
     end
   end

@@ -2,7 +2,7 @@
 class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   attributes :id, :evss_id, :date_filed, :min_est_date, :max_est_date,
              :tracked_items, :phase_dates, :open, :waiver_submitted,
-             :development_letter_sent
+             :development_letter_sent, :sync_failed
 
   def date_filed
     object.data['date']

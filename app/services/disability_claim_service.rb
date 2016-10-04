@@ -18,7 +18,10 @@ class DisabilityClaimService
     end.flatten
   rescue Faraday::Error::TimeoutError, Timeout::Error => e
     log_error(e)
-    claims_scope.all
+    claims_scope.all.map do |claim|
+      claim.sync_failed = true
+      claim
+    end
   end
 
   def update_from_remote(claim)
@@ -26,6 +29,7 @@ class DisabilityClaimService
       raw_claim = client.find_claim_by_id(claim.evss_id).body.fetch('claim', {})
       claim.update_attributes(data: raw_claim)
     rescue Faraday::Error::TimeoutError, Timeout::Error => e
+      claim.sync_failed = true
       log_error(e)
     end
     claim

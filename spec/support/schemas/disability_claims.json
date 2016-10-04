@@ -23,7 +23,8 @@
               "waiver_submitted",
               "phase_dates",
               "tracked_items",
-              "development_letter_sent"
+              "development_letter_sent",
+              "sync_failed"
             ],
             "properties": {
               "evss_id": { "type": "integer" },
@@ -34,7 +35,8 @@
               "max_est_date": { "type": ["string", "null"] },
               "open": { "type": "boolean" },
               "waiver_submitted": { "type": "boolean" },
-              "development_letter_sent": { "type": "boolean" }
+              "development_letter_sent": { "type": "boolean" },
+              "sync_failed": { "type": ["boolean", "null"] }
             }
           }
         }
