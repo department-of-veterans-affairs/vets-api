@@ -6,10 +6,6 @@ module MVI
     module MessageBuilder
       extend ActiveSupport::Concern
 
-      included do
-        include ActiveModel::Validations
-      end
-
       def to_xml(extension, body)
         message = build_idm(extension)
         message = add_header(message, extension)
