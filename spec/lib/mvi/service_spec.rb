@@ -20,7 +20,7 @@ describe MVI::Service do
   describe '.load_wsdl' do
     it 'should have URI interpolated into wsdl' do
       expect(MVI::Service.client.instance_eval('@wsdl').document).to eq(
-        ERB.new(File.read("#{Rails.root}/config/mvi_schema/IdmWebService_200VGOV.wsdl.erb")).result
+        ERB.new(File.read('config/mvi_schema/IdmWebService_200VGOV.wsdl.erb')).result
       )
     end
   end
@@ -28,7 +28,7 @@ describe MVI::Service do
   describe '.find_candidate' do
     context 'with a valid request' do
       it 'calls the prpa_in201305_uv02 endpoint with a find candidate message' do
-        xml = File.read("#{Rails.root}/spec/support/mvi/find_candidate_response.xml")
+        xml = File.read('spec/support/mvi/find_candidate_response.xml')
         savon.expects(:prpa_in201305_uv02).with(xml: message).returns(xml)
         response = MVI::Service.find_candidate(message)
         expect(response).to eq(
@@ -47,7 +47,7 @@ describe MVI::Service do
 
     context 'when a MVI invalid request response is returned' do
       it 'should raise a invalid request error' do
-        xml = File.read("#{Rails.root}/spec/support/mvi/find_candidate_invalid_response.xml")
+        xml = File.read('spec/support/mvi/find_candidate_invalid_response.xml')
         savon.expects(:prpa_in201305_uv02).with(xml: message).returns(xml)
         expect(Rails.logger).to receive(:error).with(/mvi find_candidate invalid request structure:/)
         expect { MVI::Service.find_candidate(message) }.to raise_error(MVI::InvalidRequestError)
@@ -56,7 +56,7 @@ describe MVI::Service do
 
     context 'when a MVI failure response is returned' do
       it 'should raise a request failure error' do
-        xml = File.read("#{Rails.root}/spec/support/mvi/find_candidate_failure_response.xml")
+        xml = File.read('spec/support/mvi/find_candidate_failure_response.xml')
         savon.expects(:prpa_in201305_uv02).with(xml: message).returns(xml)
         expect(Rails.logger).to receive(:error).with(/mvi find_candidate request failure/)
         expect { MVI::Service.find_candidate(message) }.to raise_error(MVI::RequestFailureError)
@@ -65,7 +65,7 @@ describe MVI::Service do
 
     context 'when a Savon::HTTPError error is returned' do
       it 'should raise a request failure error' do
-        xml = File.read("#{Rails.root}/spec/support/mvi/find_candidate_failure_response.xml")
+        xml = File.read('spec/support/mvi/find_candidate_failure_response.xml')
         response = { code: 500, headers: {}, body: xml }
         savon.expects(:prpa_in201305_uv02).returns(response)
         expect(Rails.logger).to receive(:error).with(/mvi find_candidate http error code: 500 message:/)
@@ -75,7 +75,7 @@ describe MVI::Service do
 
     context 'when a Savon::SOAPFault error is returned' do
       it 'should raise a request failure error' do
-        xml = File.read("#{Rails.root}/spec/support/mvi/find_candidate_soap_fault.xml")
+        xml = File.read('spec/support/mvi/find_candidate_soap_fault.xml')
         response = { code: 500, headers: {}, body: xml }
         savon.expects(:prpa_in201305_uv02).returns(response)
         expect(Rails.logger).to receive(:error).with(/mvi find_candidate soap error code: 500/)
