@@ -58,10 +58,4 @@ describe Decorators::MviUserDecorator do
       end
     end
   end
-  context 'with an invalid user' do
-    let(:user) { FactoryGirl.build(:user, ssn: nil) }
-    it 'should log a warn message' do
-      expect { Decorators::MviUserDecorator.new(user).create }.to raise_error(Common::Exceptions::ValidationErrors)
-    end
-  end
 end

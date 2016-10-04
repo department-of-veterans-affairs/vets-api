@@ -9,7 +9,6 @@ class Decorators::MviUserDecorator
   def create
     raise Common::Exceptions::ValidationErrors, @user unless @user.valid?
     message = create_message
-    raise Common::Exceptions::ValidationErrors, message unless message.valid?
     response = MVI_SERVICE.find_candidate(message)
     @user.attributes = { mvi: response }
     @user

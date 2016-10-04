@@ -28,7 +28,6 @@ module MVI
       end
 
       def to_xml
-        raise FindCandidateMessageError, errors.full_messages.join(', ') unless valid?
         super(EXTENSION, build_body)
       rescue => e
         Rails.logger.error "failed to build find candidate message: #{e.message}"

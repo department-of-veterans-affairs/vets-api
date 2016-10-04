@@ -48,11 +48,18 @@ module V0
         zip:          attributes['zip']&.first,
         email:        attributes['email']&.first,
         ssn:          attributes['social']&.first,
-        birth_date:   Time.parse(attributes['birth_date']&.first).utc,
+        birth_date:   parse_date(attributes['birth_date']&.first),
         uuid:         attributes['uuid']&.first,
 
         level_of_assurance: level_of_assurance
       }
+    end
+
+    def parse_date(date_string)
+      Time.parse(date_string).utc
+    rescue TypeError => e
+      Rails.logger.error "error: #{e.message} when parsing date from saml date string: #{date_string.inspect}"
+      nil
     end
 
     # Ruby-Saml does not parse the <samlp:Response> xml so we do it ourselves to find
