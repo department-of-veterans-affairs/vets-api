@@ -49,7 +49,5 @@ module VetsAPI
     config.middleware.use 'OliveBranch::Middleware'
 
     config.active_job.queue_adapter = :sidekiq
-
-    config.autoload_paths << "#{Rails.root}/app/models/delegates"
   end
 end

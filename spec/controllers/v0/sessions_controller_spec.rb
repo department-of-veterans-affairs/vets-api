@@ -17,7 +17,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   # has an LOA of 'http://idmanagement.gov/ns/assurance/loa/2'
   let(:response_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_response.xml") }
   before(:each) do
-    allow_any_instance_of(UserMviDelegate).to receive(:create).and_return(mvi_user)
+    allow_any_instance_of(Decorators::MviUserDecorator).to receive(:create).and_return(mvi_user)
   end
 
   context 'when not logged in' do

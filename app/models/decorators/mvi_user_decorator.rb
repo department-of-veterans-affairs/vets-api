@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class UserMviDelegate
+class Decorators::MviUserDecorator
   MVI_SERVICE = VetsAPI::Application.config.mvi_service
 
   def initialize(user)

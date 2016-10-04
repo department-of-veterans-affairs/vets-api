@@ -2,7 +2,7 @@
 require 'rails_helper'
 require 'common/exceptions'
 
-describe UserMviDelegate do
+describe Decorators::MviUserDecorator do
   context 'given a valid user' do
     let(:user) { FactoryGirl.build(:user) }
 
@@ -22,7 +22,7 @@ describe UserMviDelegate do
 
     describe '#create' do
       it 'should fetch and add mvi data to the user' do
-        mvi_user = UserMviDelegate.new(user).create
+        mvi_user = Decorators::MviUserDecorator.new(user).create
         expect(mvi_user.attributes).to eq(
           birth_date: user.birth_date,
           edipi: user.edipi,
@@ -54,14 +54,14 @@ describe UserMviDelegate do
     context 'when a MVI::ServiceError is raised' do
       it 'should log an error message' do
         allow(MVI::Service).to receive(:find_candidate).and_raise(MVI::HTTPError)
-        expect { UserMviDelegate.new(user).create }.to raise_error(Common::Exceptions::RecordNotFound)
+        expect { Decorators::MviUserDecorator.new(user).create }.to raise_error(Common::Exceptions::RecordNotFound)
       end
     end
   end
   context 'with an invalid user' do
     let(:user) { FactoryGirl.build(:user, ssn: nil) }
     it 'should log a warn message' do
-      expect { UserMviDelegate.new(user).create }.to raise_error(Common::Exceptions::ValidationErrors)
+      expect { Decorators::MviUserDecorator.new(user).create }.to raise_error(Common::Exceptions::ValidationErrors)
     end
   end
 end
