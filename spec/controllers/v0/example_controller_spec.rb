@@ -15,7 +15,15 @@ RSpec.describe V0::ExampleController, type: :controller do
 
     before(:each) do
       Session.create(uuid: '1234', token: token)
-      User.create(uuid: '1234', email: 'test@test.com')
+      User.create(
+        uuid: '1234',
+        email: 'test@test.com',
+        first_name: 'John',
+        middle_name: 'William',
+        last_name: 'Smith',
+        birth_date: Time.new(1980, 1, 1).utc,
+        ssn: '555443333'
+      )
     end
 
     it 'returns a welcome string with user email in it' do
