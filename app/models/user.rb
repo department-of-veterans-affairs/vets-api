@@ -28,7 +28,6 @@ class User < Common::RedisStore
   attribute :last_signed_in, Common::UTCTime
   attribute :edipi
   attribute :participant_id
-  attribute :ssn
 
   # mvi 'golden record' data
   attribute :mvi
