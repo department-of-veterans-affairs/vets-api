@@ -40,6 +40,8 @@ class User < Common::RedisStore
   validates :birth_date, presence: true
   validates :ssn, presence: true
 
+  validates_format_of :ssn, with: /\d{3}-\d{2}-\d{4}/
+
   def rating_record
     client = EVSS::CommonService.new(self)
     client.find_rating_info.body.fetch('ratingRecord', {})

@@ -51,34 +51,5 @@ describe MVI::Messages::FindCandidateMessage do
         end.to raise_error(ArgumentError, 'wrong number of arguments (given 3, expected 4..5)')
       end
     end
-
-    context 'with an invalid date' do
-      it 'should be invalid with a birth date error' do
-        m = MVI::Messages::FindCandidateMessage.new(%w(John William), 'Smith', '19800101', '555-44-3333', 'M')
-        expect(m.valid?).to be_falsey
-        expect { m.to_xml }.to raise_error(MVI::Messages::MessageBuilderError, 'Birth date should be a Time object')
-      end
-    end
-
-    context 'with invalid name args' do
-      it 'should have a name errors' do
-        m = MVI::Messages::FindCandidateMessage.new(:John, 5, Time.new(1980, 1, 1).utc, '555-44-3333', 'M')
-        expect(m.valid?).to be_falsey
-        expect { m.to_xml }.to raise_error(
-          MVI::Messages::MessageBuilderError,
-          'Given names should be an array of Strings, Family name should be a String'
-        )
-      end
-    end
-
-    context 'with an invalid ssn' do
-      it 'should throw an argument error' do
-        m = MVI::Messages::FindCandidateMessage.new(
-          %w(John William), 'Smith', Time.new(1980, 1, 1).utc, '555-4-3333', 'M'
-        )
-        expect(m.valid?).to be_falsey
-        expect { m.to_xml }.to raise_error(MVI::Messages::MessageBuilderError, 'Ssn is invalid')
-      end
-    end
   end
 end

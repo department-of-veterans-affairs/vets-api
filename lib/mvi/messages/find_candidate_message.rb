@@ -19,9 +19,6 @@ module MVI
 
       attr_reader :given_names, :family_name, :birth_date, :ssn, :gender
 
-      validate :validate_types
-      validates_format_of :ssn, with: /\d{3}-\d{2}-\d{4}/
-
       def initialize(given_names, family_name, birth_date, ssn, gender = nil)
         @given_names = given_names
         @family_name = family_name
@@ -39,14 +36,6 @@ module MVI
       end
 
       private
-
-      def validate_types
-        if !@given_names.is_a?(Array) || @given_names.any? { |i| !i.is_a? String }
-          errors.add(:given_names, 'should be an array of Strings')
-        end
-        errors.add(:family_name, 'should be a String') unless @family_name.is_a?(String)
-        errors.add(:birth_date, 'should be a Time object') unless @birth_date.is_a?(Time)
-      end
 
       def build_body
         control_act_process = build_control_act_process

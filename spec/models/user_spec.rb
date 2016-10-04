@@ -18,9 +18,16 @@ RSpec.describe User, type: :model do
 
   subject { described_class.new(attributes) }
 
+  context 'with an invalid ssn' do
+    it 'should have an error on ssn' do
+      subject.ssn = '111-aa-2222'
+      expect(subject.valid?).to be_falsey
+      expect(subject.errors[:ssn].size).to eq(1)
+    end
+  end
+
   context 'user without attributes' do
     it 'expect ttl to an Integer' do
-      puts subject.inspect
       expect(subject.ttl).to be_an(Integer)
       expect(subject.ttl).to be_between(-Float::INFINITY, 0)
     end
