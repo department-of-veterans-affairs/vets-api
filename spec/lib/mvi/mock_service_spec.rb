@@ -4,6 +4,11 @@ require 'mvi/mock_service'
 require 'mvi/messages/find_candidate_message'
 
 describe MVI::MockService do
+  it 'loads the yaml file only once' do
+    expect(YAML).to receive(:load_file).once.and_return('some yaml')
+    MVI::MockService.mocked_responses
+    MVI::MockService.mocked_responses
+  end
   it 'returns YAML hash for find_candidate' do
     allow(MVI::MockService).to receive(:mocked_responses)
       .and_return(
