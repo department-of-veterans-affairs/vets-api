@@ -21,7 +21,7 @@ describe Common::Exceptions::InvalidResource do
         .to eq(title: 'Invalid resource',
                detail: 'Prescription is not a valid resource',
                code: '101',
-               status: 400)
+               status: '400')
     end
   end
 
@@ -37,7 +37,7 @@ describe Common::Exceptions::InvalidResource do
         .to eq(title: 'Invalid resource',
                detail: 'optional details',
                code: '101',
-               status: 400)
+               status: '400')
     end
   end
 end

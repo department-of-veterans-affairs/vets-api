@@ -21,7 +21,7 @@ describe Common::Exceptions::FilterNotAllowed do
         .to eq(title: 'Filter not allowed',
                detail: '"facility_name" is not allowed',
                code: '104',
-               status: 400)
+               status: '400')
     end
   end
 end

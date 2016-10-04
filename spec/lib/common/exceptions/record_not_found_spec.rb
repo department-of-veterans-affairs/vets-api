@@ -21,7 +21,7 @@ describe Common::Exceptions::RecordNotFound do
         .to eq(title: 'Record not found',
                detail: 'The record identified by 12345678 could not be found',
                code: '404',
-               status: 404)
+               status: '404')
     end
   end
 end

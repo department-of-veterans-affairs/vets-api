@@ -29,7 +29,7 @@ class ApplicationController < ActionController::API
         Common::Exceptions::InternalServerError.new(exception)
       end
 
-    render json: { errors: va_exception.errors }, status: va_exception.errors[0].status
+    render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
 
   def log_error(exception)
