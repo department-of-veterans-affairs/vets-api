@@ -16,8 +16,8 @@ Rails.application.routes.draw do
     get 'profile', to: 'users#show'
 
     resource :education_benefits_claims, only: [:create] do
-      if Rails.env.development? || (ENV['EDU_FORM_SHOW'] == 'true')
-        get ':id', to: 'education_benefits_claims#show', defaults: { format: :text }
+      unless Rails.env.production? && ENV['EDU_FORM_SHOW'] != 'true'
+        get ':id', to: 'education_benefits_claims#show', defaults: { format: :text }, as: :show
       end
     end
 
