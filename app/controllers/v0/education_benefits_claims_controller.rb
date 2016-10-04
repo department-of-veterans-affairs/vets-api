@@ -15,7 +15,7 @@ module V0
     # defense in depth. This functionality should not be included once EducationForm is
     # released in production, but rather should be available in a dedicated admin interface
     def show
-      (redirect_to(root_path) && return) if Rails.env.production? && ENV['EDU_FORM_SHOW'] != 'true'
+      return redirect_to(root_path) if Rails.env.production? && ENV['EDU_FORM_SHOW'] != 'true'
 
       form = EducationBenefitsClaim.find(params[:id])
       txt = ::EducationForm::CreateDailySpoolFiles.new.format_application(form.open_struct_form)
