@@ -2,6 +2,11 @@
 require 'rails_helper'
 
 RSpec.describe 'Documents management', type: :request do
+  let!(:claim) do
+    FactoryGirl.create(:disability_claim, id: 189_625, evss_id: 189_625,
+                                          user_uuid: User.sample_claimant.uuid, data: {})
+  end
+
   it 'should upload a file' do
     VCR.use_cassette('evss/documents/upload') do
       doctors_note = fixture_file_upload(
