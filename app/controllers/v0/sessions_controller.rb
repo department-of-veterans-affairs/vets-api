@@ -35,7 +35,7 @@ module V0
 
     def persist_session_and_user!
       @session = Session.new(user_attributes.slice(:uuid))
-      @current_user = User.find(@session.uuid) || User.new(user_attributes)
+      @current_user = User.find(@session.uuid) || Decorators::MviUserDecorator.new(User.new(user_attributes)).create
       @session.save && @current_user.save
     end
 
@@ -47,12 +47,19 @@ module V0
         last_name:    attributes['lname']&.first,
         zip:          attributes['zip']&.first,
         email:        attributes['email']&.first,
-        ssn:          attributes['social']&.first,
-        birth_date:   attributes['birth_date']&.first,
+        ssn:          attributes['social']&.first.delete('-'),
+        birth_date:   parse_date(attributes['birth_date']&.first),
         uuid:         attributes['uuid']&.first,
 
         level_of_assurance: level_of_assurance
       }
+    end
+
+    def parse_date(date_string)
+      Time.parse(date_string).utc
+    rescue TypeError => e
+      Rails.logger.error "error: #{e.message} when parsing date from saml date string: #{date_string.inspect}"
+      nil
     end
 
     # Ruby-Saml does not parse the <samlp:Response> xml so we do it ourselves to find

@@ -26,3 +26,6 @@ config/application.yml
 
 # Ignore rvm stuff
 .ruby-gemset
+
+# Ignore mock mvi responses
+/config/mvi_schema/mock_mvi_responses.yml
