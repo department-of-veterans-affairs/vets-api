@@ -19,7 +19,7 @@ module SAML
   begin
     parser.parse_remote(CONFIG['metadata_url'], true, settings: SETTINGS)
   rescue OneLogin::RubySaml::HttpError => exception
-    Rails.logger.error "Unable to connect to ID.me to fetch metadata!"
+    Rails.logger.error 'Unable to connect to ID.me to fetch metadata!'
     Rails.logger.error "#{exception.message}."
     Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
   end
