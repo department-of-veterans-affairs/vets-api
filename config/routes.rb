@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'feature_flipper'
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
 
@@ -16,9 +17,10 @@ Rails.application.routes.draw do
     get 'profile', to: 'users#show'
 
     resource :education_benefits_claims, only: [:create] do
-      unless Rails.env.production? && ENV['EDU_FORM_SHOW'] != 'true'
-        get ':id', to: 'education_benefits_claims#show', defaults: { format: :text }, as: :show
-      end
+      get ':id', to: 'education_benefits_claims#show',
+                 defaults: { format: :text },
+                 as: :show,
+                 constraints: ->(_) { FeatureFlipper.show_education_benefit_form? }
     end
 
     resource :disability_rating, only: [:show]
