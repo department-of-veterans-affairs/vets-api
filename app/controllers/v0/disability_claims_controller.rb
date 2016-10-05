@@ -10,12 +10,14 @@ module V0
     end
 
     def show
-      claim = claim_service.find_by_evss_id(params[:id])
+      claim = DisabilityClaim.for_user(current_user).find(params[:id])
+      claim = claim_service.update_from_remote(claim)
       render json: claim, serializer: DisabilityClaimDetailSerializer
     end
 
     def request_decision
-      claim_service.request_decision(params[:id])
+      claim = DisabilityClaim.for_user(current_user).find(params[:id])
+      claim_service.request_decision(claim)
       head :no_content
     end
 
