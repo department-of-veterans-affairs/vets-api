@@ -1,9 +1,18 @@
 # frozen_string_literal: true
 module V0
   class MessagesController < SMController
+    include Filterable
+
+    PERMITTED_FILTERS = {
+      'subject' => %w(eq not_eq),
+      'sender_name' => %w(eq not_eq),
+      'sent_date' => %w(eq lteq gteq)
+    }.freeze
+
     def index
       resource = client.get_folder_messages(params[:folder_id].to_s)
       raise Common::Exceptions::RecordNotFound, params[:folder_id] unless resource.present?
+      resource = filter? ? resource.find_by(params[:filter]) : resource
       resource = resource.paginate(pagination_params)
 
       render json: resource.data,
@@ -90,6 +99,10 @@ module V0
 
     def message_params
       @message_params ||= params.require(:message).permit(:category, :body, :recipient_id, :subject)
+    end
+
+    def filter?
+      can_filter?(Message, PERMITTED_FILTERS)
     end
   end
 end

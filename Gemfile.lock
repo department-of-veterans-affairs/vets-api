@@ -374,7 +374,7 @@ DEPENDENCIES
   savon (~> 2.0)
   sdoc (~> 0.4.0)
   sidekiq
-  simplecov
+  simplecov (~> 0.11)
   spring
   spring-commands-rspec
   timecop
