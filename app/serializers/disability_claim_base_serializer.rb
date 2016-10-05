@@ -31,9 +31,7 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
 
   def with_object_data(*keys)
     val = object.data.dig(*keys)
-    if val.present?
-      yield val
-    end
+    yield val if val.present?
   end
 
   def list_objects_with_key(parents, sub_keys)
@@ -41,9 +39,7 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
     parent = [] if parent.blank?
     parent.each do |obj|
       val = obj.dig(*sub_keys)
-      if val.present?
-        obj
-      end
+      obj if val.present?
     end.compact
   end
 
@@ -52,8 +48,7 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
       case s.downcase
       when 'yes' then true
       when 'no' then false
-      else nil
-        # Todo: Log weird input
+        # TODO: Log weird input
       end
     end
   end
@@ -61,15 +56,6 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   def date_from_string(*keys, format: '%m/%d/%Y')
     with_object_data(*keys) do |s|
       Date.strptime(s, format)
-    end
-  end
-
-  # For date-times recording a computer event and therefore known to the
-  # second EVSS uses a UNIX timestamp in milliseconds. They are mostly
-  # in intent-to-file and documents.
-  def date_from_unix_milliseconds(*keys)
-    with_object_data(*keys) do |s|
-      Time.at(s.to_i / 1000).utc.to_date
     end
   end
 end
