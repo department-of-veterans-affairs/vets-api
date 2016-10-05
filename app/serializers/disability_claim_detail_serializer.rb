@@ -63,4 +63,13 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
     end
     events
   end
+
+  def list_objects_with_key(parents, sub_keys)
+    parent = object.data.dig(*parents)
+    parent = [] if parent.blank?
+    parent.each do |obj|
+      val = obj.dig(*sub_keys)
+      obj if val.present?
+    end.compact
+  end
 end

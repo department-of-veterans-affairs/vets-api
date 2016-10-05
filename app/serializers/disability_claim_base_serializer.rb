@@ -43,21 +43,14 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
     yield val if val.present?
   end
 
-  def list_objects_with_key(parents, sub_keys)
-    parent = object.data.dig(*parents)
-    parent = [] if parent.blank?
-    parent.each do |obj|
-      val = obj.dig(*sub_keys)
-      obj if val.present?
-    end.compact
-  end
-
   def bool_from_yes_no(*keys)
     with_object_data(*keys) do |s|
       case s.downcase
       when 'yes' then true
       when 'no' then false
-        # TODO: Log weird input
+      else
+        Rails.logger.error "Expected EVSS key '#{keys}' to be Yes/No. Got '#{s}'."
+        nil
       end
     end
   end
