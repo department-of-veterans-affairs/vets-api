@@ -1,3 +1,5 @@
+require 'common/exceptions'
+
 # frozen_string_literal: true
 class Decorators::MviUserDecorator
   MVI_SERVICE = VetsAPI::Application.config.mvi_service

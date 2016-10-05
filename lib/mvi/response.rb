@@ -24,18 +24,32 @@ module MVI
     end
 
     def to_h
-      patient = @body[:control_act_process][:subject][:registration_event][:subject1][:patient]
+      patient = @body.dig(:control_act_process, :subject, :registration_event, :subject1, :patient)
+      name = parse_name(patient[:patient_person][:name])
       {
-        status: patient[:status_code][:@code],
-        given_names: patient[:patient_person][:name].first[:given].map(&:capitalize),
-        family_name: patient[:patient_person][:name].first[:family].capitalize,
-        gender: patient[:patient_person][:administrative_gender_code][:@code],
-        birth_date: patient[:patient_person][:birth_time][:@value],
-        ssn: patient[:patient_person][:as_other_i_ds][:id][:@extension]
+        status: patient.dig(:status_code, :@code),
+        given_names: name[:given],
+        family_name: name[:family],
+        gender: patient.dig(:patient_person, :administrative_gender_code, :@code),
+        birth_date: patient.dig(:patient_person, :birth_time, :@value),
+        ssn: patient.dig(:patient_person, :as_other_i_ds, :id, :@extension)
       }.merge(map_correlation_ids(patient[:id]))
     end
 
     private
+
+    # name can be a hash or an array of hashes with extra unneeded details
+    # given may be an array if it includes middle name
+    def parse_name(name)
+      name = [name] if name.is_a? Hash
+      name_hash = [*name].first
+      given = [*name_hash[:given]].map(&:capitalize)
+      family = name_hash[:family].capitalize
+      {given: given, family: family}
+    rescue
+      Rails.logger.warn "MVI::Response.parse_name failed: #{e.message}"
+      {given: nil, family: nil}
+    end
 
     # MVI correlation id source id relationships:
     # {source id}^{id type}^{assigning authority}^{assigning facility}^{id status}
@@ -49,9 +63,11 @@ module MVI
     end
 
     def select_extension(ids, pattern, root)
-      ids.select do |id|
+      extensions = ids.select do |id|
         id[:@extension] =~ pattern && id[:@root] == root
-      end.first[:@extension]
+      end
+      return nil if extensions.empty?
+      extensions.first[:@extension]
     end
   end
 end
