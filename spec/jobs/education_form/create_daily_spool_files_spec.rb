@@ -11,7 +11,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context '#format_application' do
     it 'uses conformant sample data in the tests' do
-      expect(application_1606.form).to match_vets_schema('edu-benefits-schema')
+      expect(application_1606.form).to match_vets_schema('education_benefits')
     end
 
     context 'result tests' do
