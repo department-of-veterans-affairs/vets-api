@@ -45,6 +45,7 @@ module SM
 
       def post_create_message_with_attachment(args = {})
         custom_header = token_headers.merge('Content-Transfer-Encoding' => 'binary')
+        custom_header = custom_header.except('Content-Type')
         json = perform(:post, 'message/attach', args, custom_header)
 
         Message.new(json)

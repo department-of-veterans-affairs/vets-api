@@ -25,6 +25,7 @@ module SM
     USER_AGENT = 'Vets.gov Agent'
     BASE_REQUEST_HEADERS = {
       'Accept' => 'application/json',
+      'Content-Type' => 'application/json',
       'User-Agent' => USER_AGENT
     }.freeze
 
