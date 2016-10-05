@@ -152,8 +152,22 @@ returns
 TBD
 
 #### Filtering
-TBD
+Filtering allows you to select a subset of messages in any folder. The call to list all messages is appended with query parameters that specify which attributes of a message you want to filter and one or more conditions to filter on. The general format is:
+```
+/messaging/health/folders/:id/messages?filter[[attribute][comparison]]=value ...
+```
 
+##### Permitted Comparisons
+At the current time, filtering supports the following comparisons:
+
+| Operator | Description |
+| -------- | ----------- |
+| eq       | Equality    |
+| lteq     | Less than or equal to |
+| gteq     | Greater than or equal to |
+| not_eq   | Not equal |
+
+For example, to return all messages
 #### Sorting
 TBD
 
