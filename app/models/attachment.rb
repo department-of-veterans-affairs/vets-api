@@ -6,8 +6,4 @@ class Attachment < Common::Base
   attribute :id, Integer
   attribute :message_id, Integer
   attribute :name, String
-
-  def <=>(other)
-    id <=> other.id
-  end
 end
