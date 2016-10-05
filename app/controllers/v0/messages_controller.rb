@@ -8,7 +8,7 @@ module V0
 
       render json: resource.data,
              serializer: CollectionSerializer,
-             each_serializer: MessageSerializer,
+             each_serializer: MessagesSerializer,
              meta: resource.metadata
     end
 
@@ -19,8 +19,8 @@ module V0
       raise Common::Exceptions::RecordNotFound, message_id unless response.present?
 
       render json: response,
-             include: :attachments,
              serializer: MessageSerializer,
+             include: 'attachments',
              meta: response.metadata
     end
 
@@ -36,6 +36,7 @@ module V0
 
       render json: response,
              serializer: MessageSerializer,
+             include: 'attachments',
              meta:  {}
     end
 
@@ -52,7 +53,7 @@ module V0
 
       render json: resource.data,
              serializer: CollectionSerializer,
-             each_serializer: MessageSerializer,
+             each_serializer: MessagesSerializer,
              meta: resource.metadata
     end
 
@@ -68,6 +69,7 @@ module V0
 
       render json: resource,
              serializer: MessageSerializer,
+             include: 'attachments',
              status: :created
     end
 

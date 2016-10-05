@@ -3,8 +3,8 @@ require 'common/models/base'
 
 # Attachment model
 class Attachment < Common::Base
-  attribute :id, String
-  attribute :message_id, String
+  attribute :id, Integer
+  attribute :message_id, Integer
   attribute :name, String
 
   def <=>(other)

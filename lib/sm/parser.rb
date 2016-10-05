@@ -71,6 +71,7 @@ module SM
     end
 
     def normalize_message(object)
+      return object if object.blank?
       if object.is_a?(Array)
         object.map { |a| fix_attachments(a) }
       else

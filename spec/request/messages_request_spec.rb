@@ -118,7 +118,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
         expect(response).to be_success
         expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('message')
+        expect(response).to match_response_schema('message_with_attachment')
       end
     end
   end
