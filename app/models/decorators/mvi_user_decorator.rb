@@ -1,3 +1,5 @@
+require 'common/exceptions'
+
 # frozen_string_literal: true
 require 'mvi/service_factory'
 

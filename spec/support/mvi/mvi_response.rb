@@ -1,8 +1,16 @@
 # frozen_string_literal: true
-def mvi_savon_valid_response
+def mvi_valid_response
   instance_double(
     'Savon::Response',
     body: Oj.load(File.read('spec/support/mvi/savon_response_body.json')),
+    xml: File.read('spec/support/mvi/find_candidate_response.xml')
+  )
+end
+
+def mvi_valid_response_missing_attrs
+  instance_double(
+    'Savon::Response',
+    body: Oj.load(File.read('spec/support/mvi/savon_response_body_missing_attrs.json')),
     xml: File.read('spec/support/mvi/find_candidate_response.xml')
   )
 end
