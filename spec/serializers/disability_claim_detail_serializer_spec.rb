@@ -19,4 +19,9 @@ RSpec.describe DisabilityClaimDetailSerializer, type: :serializer do
   it "shouldn't include any extra attributes" do
     expect(attributes.keys.sort).to eq(KEYS.sort)
   end
+
+  it 'should sort the events_timeline' do
+    sorted = attributes['events_timeline'].sort_by { |item| item['date'] }.reverse
+    expect(attributes['events_timeline']).to eq(sorted)
+  end
 end
