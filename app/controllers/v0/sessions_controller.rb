@@ -5,7 +5,7 @@ module V0
 
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      render json: { authenticate_via_get: saml_auth_request.create(SAML::SETTINGS) }
+      render json: { authenticate_via_get: saml_auth_request.create(saml_settings) }
     end
 
     def show
@@ -19,7 +19,7 @@ module V0
 
     def saml_callback
       @saml_response = OneLogin::RubySaml::Response.new(
-        params[:SAMLResponse], settings: SAML::SETTINGS
+        params[:SAMLResponse], settings: saml_settings
       )
 
       if @saml_response.is_valid?
