@@ -24,7 +24,8 @@ describe MVI::MockService do
           'status' => 'active'
         }
       )
-    response = MVI::MockService.find_candidate
+    message = double(MVI::Messages::FindCandidateMessage)
+    response = MVI::MockService.find_candidate(message)
     expect(response).to eq(
       'birth_date' => '19800101',
       'edipi' => '1234^NI^200DOD^USDOD^A',
