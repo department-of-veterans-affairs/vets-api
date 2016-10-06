@@ -18,7 +18,7 @@ RSpec.describe 'Messages Integration', type: :request do
   describe '#show' do
     it 'responds sending data for an attachment' do
       VCR.use_cassette("sm/messages/#{user_id}/attachments/show") do
-        get "/v0/messaging/health/messages/629999/attachments/629993"
+        get '/v0/messaging/health/messages/629999/attachments/629993'
       end
 
       expect(response).to be_success
