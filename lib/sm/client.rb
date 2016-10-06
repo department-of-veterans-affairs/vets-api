@@ -10,6 +10,7 @@ require 'sm/api/triage_teams'
 require 'sm/api/folders'
 require 'sm/api/messages'
 require 'sm/api/message_drafts'
+require 'sm/api/attachments'
 
 module SM
   class Client
@@ -18,11 +19,13 @@ module SM
     include SM::API::Folders
     include SM::API::Messages
     include SM::API::MessageDrafts
+    include SM::API::Attachments
 
     REQUEST_TYPES = %i(get post delete).freeze
     USER_AGENT = 'Vets.gov Agent'
     BASE_REQUEST_HEADERS = {
       'Accept' => 'application/json',
+      'Content-Type' => 'application/json',
       'User-Agent' => USER_AGENT
     }.freeze
 
@@ -56,10 +59,22 @@ module SM
     end
 
     def process_response_or_error
-      if @response.body.empty? || @response.body.casecmp('success').zero?
-        return @response if @response.status == 200
-      end
+      process_no_content_response || process_attachment || process_other
+    end
 
+    def process_no_content_response
+      return unless @response.body.empty? || @response.body.casecmp('success').zero?
+      @response if @response.status == 200
+    end
+
+    def process_attachment
+      return unless @response.response_headers['content-type'] == 'application/octet-stream'
+      disposition = @response.response_headers['content-disposition']
+      filename = disposition.gsub('attachment; filename=', '')
+      { body: @response.body, filename: filename }
+    end
+
+    def process_other
       json = begin
         MultiJson.load(@response.body)
       rescue MultiJson::LoadError => error

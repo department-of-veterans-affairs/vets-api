@@ -18,6 +18,7 @@ class Message < Common::Base
   attribute :recipient_id, Integer
   attribute :recipient_name, String
   attribute :read_receipt, String
+  attribute :attachments, Array['Attachment']
 
   alias attachment? attachment
 
