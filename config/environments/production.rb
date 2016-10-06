@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'mvi/service'
+require 'mvi/mock_service'
 
 Rails.application.configure do
   # Specify environment specific hostname and protocol
@@ -83,5 +83,5 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   # config.active_record.dump_schema_after_migration = false
-  config.mvi_service = MVI::Service
+  config.mvi_service = MVI::MockService
 end

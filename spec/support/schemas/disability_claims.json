@@ -21,21 +21,22 @@
               "max_est_date",
               "open",
               "waiver_submitted",
-              "phase_dates",
+              "phase_change_date",
               "tracked_items",
               "development_letter_sent",
+              "decision_letter_sent",
               "successful_sync"
             ],
             "properties": {
               "evss_id": { "type": "integer" },
               "date_filed": { "type": "string" },
-              "phase_dates": { "type": ["object", "null"] },
-              "tracked_items": { "type": ["object", "null"] },
               "min_est_date": { "type": ["string", "null"] },
               "max_est_date": { "type": ["string", "null"] },
+              "phase_change_date": { "type": ["string", "null"] },
               "open": { "type": "boolean" },
               "waiver_submitted": { "type": "boolean" },
               "development_letter_sent": { "type": "boolean" },
+              "decision_letter_sent" : { "type": "boolean" },
               "successful_sync": { "type": ["boolean"] }
             }
           }
