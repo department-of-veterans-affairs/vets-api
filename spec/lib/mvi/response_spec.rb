@@ -38,7 +38,7 @@ describe MVI::Response do
     end
   end
 
-  context 'with no middle name and missing correlation ids' do
+  context 'with no middle name, missing correlation ids, multiple other_ids' do
     let(:valid_response_missing_attrs) { MVI::Response.new(mvi_valid_response_missing_attrs) }
 
     describe '.to_h' do
@@ -51,7 +51,7 @@ describe MVI::Response do
           given_names: %w(Hector),
           icn: '1008704012V552302^NI^200M^USVHA^P',
           mhv: nil,
-          ssn: '555443333',
+          ssn: '111223333',
           status: 'active'
         )
       end
