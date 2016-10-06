@@ -21,7 +21,7 @@ describe Decorators::MviUserDecorator do
     end
 
     describe '#create' do
-      it 'should fetch and add mvi data to the user' do\
+      it 'should fetch and add mvi data to the user' do
         mvi_user = Decorators::MviUserDecorator.new(user).create
         expect(mvi_user.attributes).to eq(
           birth_date: user.birth_date,
