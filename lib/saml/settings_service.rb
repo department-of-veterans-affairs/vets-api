@@ -15,7 +15,6 @@ module SAML
     def fetch_idp_metadata
       parser = OneLogin::RubySaml::IdpMetadataParser.new
       parser.parse_remote(SAML_CONFIG['metadata_url'], true, settings: SETTINGS)
-      SETTINGS
     end
   end
 end
