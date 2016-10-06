@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module SAML
   # This class is responsible for putting together a complete ruby-saml
   # SETTINGS object, meaning, our static SP settings + the IDP settings
