@@ -1,12 +1,4 @@
 module SAML
-  # populate with SP settings
-  SETTINGS = OneLogin::RubySaml::Settings.new
-  SETTINGS.certificate  = SAML_CONFIG['certificate']
-  SETTINGS.private_key  = SAML_CONFIG['key']
-  SETTINGS.issuer       = SAML_CONFIG['issuer']
-  SETTINGS.assertion_consumer_service_url = SAML_CONFIG['callback_url']
-
-
   # This class is responsible for putting together a complete ruby-saml
   # SETTINGS object, meaning, our static SP settings + the IDP settings
   # which must be fetched once and only once via IDP metadata.
