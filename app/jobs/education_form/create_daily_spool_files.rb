@@ -94,12 +94,14 @@ module EducationForm
     # Used in the INIT header of the 22-1990 template.
     def form_type(application)
       {
+        CH33:       'CH33',
         CH33_30:    'CH33',
         CH33_1606:  'CH33',
         CH33_1607:  'CH33',
         CH1606:     'CH1606',
         CH30:       'CH30',
-        CH32:       'CH32'
+        CH32:       'CH32',
+        NA:         'NA'
       }[application.form.to_sym]
     end
 

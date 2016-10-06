@@ -42,7 +42,21 @@ FactoryGirl.define do
           educationalObjective: '...'
         },
         educationType: 'college',
-
+        postHighSchoolTrainings: [
+          {
+            name: 'OtherCollege Name',
+            dateRange: {
+              from: '01/01/1999',
+              to: '01/01/2000'
+            },
+            city: 'New York',
+            hours: 8,
+            hoursType: 'semester',
+            state: 'NY',
+            degreeReceived: 'BA',
+            major: 'History'
+          }
+        ],
         currentlyActiveDuty: {
           yes: false,
           onTerminalLeave: false,

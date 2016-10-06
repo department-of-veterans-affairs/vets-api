@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "required": ["data"],
+  "required": ["data", "included"],
   "properties": {
     "data": {
       "type": "object",
@@ -67,6 +67,33 @@
           "required": ["self"],
           "properties": {
             "self": { "type": "string" }
+          }
+        }
+      }
+    },
+    "included": {
+      "type": "array",
+      "minItems": 0,
+      "uniqueItems": true,
+      "items": {
+        "required": ["id", "type", "attributes", "links"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "enum": ["attachments"] },
+          "attributes": {
+            "type": "object",
+            "required": ["message_id", "name"],
+            "properties": {
+              "message_id": { "type": "integer" },
+              "name": { "type": "string" }
+            }
+          },
+          "links": {
+            "type": "object",
+            "required": ["download"],
+            "properties": {
+              "download": { "type": "string" }
+            }
           }
         }
       }
