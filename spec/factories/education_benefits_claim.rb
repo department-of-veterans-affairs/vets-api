@@ -107,5 +107,15 @@ FactoryGirl.define do
         faaFlightCertificatesInformation: 'cert1, cert2'
       }.to_json
     end
+
+    factory :education_benefits_claim_with_custom_form do
+      transient do
+        custom_form {}
+      end
+
+      after(:build) do |education_benefits_claim, evaluator|
+        education_benefits_claim.form = education_benefits_claim.parsed_form.merge(evaluator.custom_form).to_json
+      end
+    end
   end
 end
