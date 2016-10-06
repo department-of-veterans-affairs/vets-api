@@ -1,15 +1,16 @@
 # frozen_string_literal: true
-class Decorators::MviUserDecorator
-  MVI_SERVICE = VetsAPI::Application.config.mvi_service
+require 'mvi/service_factory'
 
+class Decorators::MviUserDecorator
   def initialize(user)
     @user = user
+    @mvi_service = MVI::ServiceFactory.get_service(mock_service: ENV['MOCK_MVI_SERVICE'])
   end
 
   def create
     raise Common::Exceptions::ValidationErrors, @user unless @user.valid?
     message = create_message
-    response = MVI_SERVICE.find_candidate(message)
+    response = @mvi_service.find_candidate(message)
     @user.attributes = { mvi: response }
     @user
   rescue MVI::ServiceError => e

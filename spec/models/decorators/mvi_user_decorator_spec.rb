@@ -21,7 +21,7 @@ describe Decorators::MviUserDecorator do
     end
 
     describe '#create' do
-      it 'should fetch and add mvi data to the user' do
+      it 'should fetch and add mvi data to the user' do\
         mvi_user = Decorators::MviUserDecorator.new(user).create
         expect(mvi_user.attributes).to eq(
           birth_date: user.birth_date,
@@ -56,6 +56,12 @@ describe Decorators::MviUserDecorator do
         allow(MVI::Service).to receive(:find_candidate).and_raise(MVI::HTTPError)
         expect { Decorators::MviUserDecorator.new(user).create }.to raise_error(Common::Exceptions::RecordNotFound)
       end
+    end
+  end
+
+  around do |example|
+    ClimateControl.modify MOCK_MVI_SERVICE: 'false' do
+      example.run
     end
   end
 end

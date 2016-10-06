@@ -72,6 +72,8 @@ GEM
       thor (~> 0.18)
     byebug (8.2.2)
     chronic (0.10.2)
+    climate_control (0.0.3)
+      activesupport (>= 3.0)
     coderay (1.1.1)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
@@ -344,6 +346,7 @@ DEPENDENCIES
   brakeman
   bundler-audit
   byebug
+  climate_control (= 0.0.3)
   factory_girl_rails
   fakeredis
   faraday
