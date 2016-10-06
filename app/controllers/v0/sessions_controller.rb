@@ -35,7 +35,13 @@ module V0
 
     def persist_session_and_user!
       @session = Session.new(user_attributes.slice(:uuid))
-      @current_user = User.find(@session.uuid) || Decorators::MviUserDecorator.new(User.new(user_attributes)).create
+
+      if (user_attributes['level_of_assurance'] == 'loa1')
+        @current_user = User.find(@session.uuid) || User.new(user_attributes)
+      else
+        @current_user = User.find(@session.uuid) || Decorators::MviUserDecorator.new(User.new(user_attributes)).create
+      end
+
       @session.save && @current_user.save
     end
 
@@ -65,8 +71,13 @@ module V0
     # Ruby-Saml does not parse the <samlp:Response> xml so we do it ourselves to find
     # which LOA was performed on the ID.me side.
     def level_of_assurance
-      Hash.from_xml(@saml_response.response)
+      loa = Hash.from_xml(@saml_response.response)
           .dig('Response', 'Assertion', 'AuthnStatement', 'AuthnContext', 'AuthnContextClassRef')
+      if loa == 'authentication'
+        'loa1'
+      else
+        'loa3'
+      end
     end
   end
 end

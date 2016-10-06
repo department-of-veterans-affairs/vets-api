@@ -29,3 +29,4 @@ config/application.yml
 
 # Ignore mock mvi responses
 /config/mvi_schema/mock_mvi_responses.yml
+.idea/
