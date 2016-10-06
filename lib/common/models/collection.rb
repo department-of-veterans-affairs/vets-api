@@ -86,7 +86,8 @@ module Common
           mock_comparator_object.send("#{attribute}=", expected_value)
 
           if op == :match
-            Regexp.escape(actual_value) =~ /Regexp.escape(mock_comparator_object.send(attribute))/i
+            rexp = Regexp.escape(Regexp.escape(mock_comparator_object.send(attribute)))
+            Regexp.escape(actual_value) =~ /#{rexp}/i
           else
             actual_value.send(op, mock_comparator_object.send(attribute))
           end

@@ -177,6 +177,13 @@ Multiple attributes may be filtered at the same time, with the attribute conditi
    &filter[[sender_name][eq]]=Smith,%20Bill
 ```
 
+For a last example, to return all messages having the phrase "blood pressure" in the subject line:
+```
+?filter[[subject][match]]=blood%20pressure
+```
+
+The returned JSON contains metadata with the origin filter query parameters.
+
 ##### Permitted Comparisons
 At the current time, filtering supports the following comparisons:
 
@@ -186,8 +193,8 @@ At the current time, filtering supports the following comparisons:
 | lteq     | Less than or equal to |
 | gteq     | Greater than or equal to |
 | not_eq   | Not equal |
+| match    | Inexact match (case-insensitive substring match) |
 
-For example, to return all messages
 #### Sorting
 TBD
 
