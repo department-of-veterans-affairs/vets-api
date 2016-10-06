@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'mvi/response'
+require 'mvi/responses/find_candidate'
 require "#{Rails.root}/spec/support/mvi/mvi_response"
 
-describe MVI::Response do
+describe MVI::Responses::FindCandidate do
   context 'given a valid savon response' do
-    let(:valid_response) { MVI::Response.new(mvi_valid_response) }
+    let(:valid_response) { MVI::Responses::FindCandidate.new(mvi_valid_response) }
 
     describe '#invalid?' do
       it 'should return false' do
@@ -19,10 +19,10 @@ describe MVI::Response do
       end
     end
 
-    describe '.to_h' do
+    describe '.body' do
       context 'with middle name and icn, mhv correlation ids' do
         it 'should filter the patient attributes the system is interested in' do
-          expect(valid_response.to_h).to eq(
+          expect(valid_response.body).to eq(
             birth_date: '19800101',
             edipi: '1234^NI^200DOD^USDOD^A',
             family_name: 'Smith',
@@ -39,11 +39,11 @@ describe MVI::Response do
   end
 
   context 'with no middle name, missing correlation ids, multiple other_ids' do
-    let(:valid_response_missing_attrs) { MVI::Response.new(mvi_valid_response_missing_attrs) }
+    let(:valid_response_missing_attrs) { MVI::Responses::FindCandidate.new(mvi_valid_response_missing_attrs) }
 
     describe '.to_h' do
       it 'should filter with only first name' do
-        expect(valid_response_missing_attrs.to_h).to eq(
+        expect(valid_response_missing_attrs.body).to eq(
           birth_date: '19320205',
           edipi: nil,
           family_name: 'Allen',
@@ -59,7 +59,7 @@ describe MVI::Response do
   end
 
   context 'given an invalid response' do
-    let(:invalid_response) { MVI::Response.new(mvi_savon_invalid_response) }
+    let(:invalid_response) { MVI::Responses::FindCandidate.new(mvi_savon_invalid_response) }
 
     describe '#invalid?' do
       it 'should return false' do
@@ -75,7 +75,7 @@ describe MVI::Response do
   end
 
   context 'given a failure response' do
-    let(:failure_response) { MVI::Response.new(mvi_savon_failure_response) }
+    let(:failure_response) { MVI::Responses::FindCandidate.new(mvi_savon_failure_response) }
 
     describe '#invalid?' do
       it 'should return false' do
