@@ -169,13 +169,10 @@
                   },
                   ":@use": "PHYS"
                 },
-                ":as_other_i_ds": {
+                ":as_other_i_ds": [{
                   ":id": {
-                    ":@extension": "555443333",
+                    ":@extension": "111223333",
                     ":@root": "2.16.840.1.113883.4.1"
-                  },
-                  ":status_code": {
-                    ":@code": "1"
                   },
                   ":scoping_organization": {
                     ":id": {
@@ -185,7 +182,20 @@
                     ":@class_code": "ORG"
                   },
                   ":@class_code": "SSN"
-                }
+                }, {
+                  ":id": {
+                    ":@extension": "796127781^PI^200BRLS^USVBA^A",
+                    ":@root": ""
+                  },
+                  ":scoping_organization": {
+                    ":id": {
+                      ":@root": ""
+                    },
+                    ":@determiner_code": "INSTANCE",
+                    ":@class_code": "ORG"
+                  },
+                  ":@class_code": "PAT"
+                }]
               },
               ":subject_of1": {
                 ":query_match_observation": {

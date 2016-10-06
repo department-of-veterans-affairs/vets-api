@@ -24,7 +24,10 @@ module MVI
     end
 
     def to_h
-      patient = @body.dig(:control_act_process, :subject, :registration_event, :subject1, :patient)
+      subject = @body.dig(:control_act_process, :subject)
+      pp @body unless subject
+      raise MVI::RecordNotFound, 'no subject returned in response' unless subject
+      patient = subject.dig(:registration_event, :subject1, :patient)
       name = parse_name(patient[:patient_person][:name])
       {
         status: patient.dig(:status_code, :@code),
@@ -32,7 +35,7 @@ module MVI
         family_name: name[:family],
         gender: patient.dig(:patient_person, :administrative_gender_code, :@code),
         birth_date: patient.dig(:patient_person, :birth_time, :@value),
-        ssn: patient.dig(:patient_person, :as_other_i_ds, :id, :@extension)
+        ssn: parse_ssn(patient.dig(:patient_person, :as_other_i_ds))
       }.merge(map_correlation_ids(patient[:id]))
     end
 
@@ -46,9 +49,20 @@ module MVI
       given = [*name_hash[:given]].map(&:capitalize)
       family = name_hash[:family].capitalize
       {given: given, family: family}
-    rescue
+    rescue => e
       Rails.logger.warn "MVI::Response.parse_name failed: #{e.message}"
       {given: nil, family: nil}
+    end
+
+    # other_ids can be hash or array of hashes
+    def parse_ssn(other_ids)
+      other_ids = [other_ids] if other_ids.is_a? Hash
+      ssn_id = other_ids.select { |id| id.dig(:id, :@root) == '2.16.840.1.113883.4.1' }
+      return nil if ssn_id.empty?
+      ssn_id.first.dig(:id, :@extension)
+    rescue => e
+      Rails.logger.warn "MVI::Response.parse_ssn failed: #{e.message}"
+      nil
     end
 
     # MVI correlation id source id relationships:
@@ -69,5 +83,9 @@ module MVI
       return nil if extensions.empty?
       extensions.first[:@extension]
     end
+  end
+  class ResponseError < StandardError
+  end
+  class RecordNotFound < MVI::ResponseError
   end
 end
