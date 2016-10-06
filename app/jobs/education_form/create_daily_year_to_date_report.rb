@@ -15,6 +15,7 @@ module EducationForm
 
       EducationBenefitsClaim.find_each do |education_benefits_claim|
         region = education_benefits_claim.region
+
         application_types.each do |application_type|
           submissions[region][application_type] += 1 if education_benefits_claim.open_struct_form.public_send(application_type)
         end
