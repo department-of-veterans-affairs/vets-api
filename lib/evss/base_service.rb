@@ -82,7 +82,9 @@ module EVSS
     end
 
     def cert?
-      !ENV['EVSS_CERT_FILE'].nil? || !ENV['EVSS_CERT_KEY'].nil? || !ENV['EVSS_ROOT_CERT_FILE_PATH'].nil?
+      ENV['EVSS_CERT_FILE'].present? ||
+        ENV['EVSS_CERT_KEY'].present? ||
+        ENV['EVSS_ROOT_CERT_FILE_PATH'].present?
     end
 
     # :nocov:
