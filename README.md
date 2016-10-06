@@ -7,6 +7,7 @@ This project provides common APIs for applications that live on vets.gov. This r
 ### Base Setup
 
 1. Install Ruby 2.3. (It is suggested to use a Ruby version manager such as [rbenv](https://github.com/rbenv/rbenv#installation) and then to [install Ruby 2.3](https://github.com/rbenv/rbenv#installing-ruby-versions)).
+*Note*: rbenv will also provide additional installation instructions in the console output. Make sure to follow those too.
 1. Install Bundler to manage dependencies: `gem install bundler`
 1. Install Postgres (on Mac): `brew install postgres`
 1. Get the code: `git clone https://github.com/department-of-veterans-affairs/vets-api.git; git submodule init; git submodule update`
@@ -15,6 +16,7 @@ This project provides common APIs for applications that live on vets.gov. This r
 ### Database Setup
 1. Start Postgres: `postgres -D /usr/local/var/postgres`
 1. Create dev database: `bundle exec rake db:setup`
+*Note*: This will not work until you set up the environment variables (see below).
 
 ## Application Configuration
 Various ENV variables are required for the application to run. See application.yml.example
@@ -47,7 +49,7 @@ For an example, see `application.yml.example`
   - manually launch Redis `redis-server /usr/local/etc/redis.conf`
 1. Set the environment variables above according to your Redis configuration
 
-Note: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
+*Note*: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
 this is a sign that redis is not currently running or `config/redis.yml` is not using correct host and port.
 
 ### MHV Prescriptions and MHV Secure Messaging Setup
@@ -84,6 +86,33 @@ For an example, see `application.yml.example`.
 For the current maps.va.gov endpoint, you will need to add the VA internal root CA
 certificate to your trusted certificates. With homebrew this is typically done by
 appending the exported/downloaded certificate to `<HOMEBREW_DIR>/etc/openssl/cert.pem`.
+
+### MVI Service
+The Master Veteran Index Service retreives and updates a veterans 'golden record'.
+This service is only available over the VA VPN. A mock service is available for
+testing in development and/or when you don't have VPN access. By default development
+uses MVI::MockService and all other environments use MVI::Service, to change this update 
+the config/environments:
+```
+# live service
+config.mvi_service = MVI::Service
+# mock service
+config.mvi_service = MVI::MockService
+```
+Endpoint response value can be set by copying mock_mvi_responses.yml.example to
+mock_mvi_responses.yml and updating YAML for the appropriate endpoint:
+```
+find_candidate:
+  birth_date: '19800101'
+  edipi: '1234^NI^200DOD^USDOD^A'
+  family_name: 'Smith'
+  gender: 'M'
+  given_names: ['John', 'William']
+  icn: '1000123456V123456^NI^200M^USVHA^P'
+  mhv_id: '123456^PI^200MHV^USVHA^A'
+  ssn: '555-44-3333'
+  status: 'active'
+```
 
 ### Running the App
 1. Start the application: `foreman start`

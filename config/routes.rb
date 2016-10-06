@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'feature_flipper'
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
 
@@ -15,7 +16,13 @@ Rails.application.routes.draw do
     get 'user', to: 'users#show'
     get 'profile', to: 'users#show'
 
-    resource :education_benefits_claims, only: :create
+    resource :education_benefits_claims, only: [:create] do
+      get ':id', to: 'education_benefits_claims#show',
+                 defaults: { format: :text },
+                 as: :show,
+                 constraints: ->(_) { FeatureFlipper.show_education_benefit_form? }
+    end
+
     resource :disability_rating, only: [:show]
     resources :disability_claims, only: [:index, :show] do
       post :request_decision, on: :member
@@ -44,6 +51,7 @@ Rails.application.routes.draw do
           get :categories, on: :collection
           patch :move, on: :member
           post :reply, on: :member
+          resources :attachments, only: [:show], defaults: { format: :json }
         end
 
         resources :message_drafts, only: [:create, :update], defaults: { format: :json }
