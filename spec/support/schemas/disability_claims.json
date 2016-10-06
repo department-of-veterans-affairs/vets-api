@@ -22,6 +22,7 @@
               "open",
               "waiver_submitted",
               "phase_change_date",
+              "documents_needed",
               "development_letter_sent",
               "decision_letter_sent",
               "successful_sync"
@@ -34,6 +35,7 @@
               "phase_change_date": { "type": ["string", "null"] },
               "open": { "type": "boolean" },
               "waiver_submitted": { "type": "boolean" },
+              "documents_needed": { "type": "boolean" },
               "development_letter_sent": { "type": "boolean" },
               "decision_letter_sent" : { "type": "boolean" },
               "successful_sync": { "type": ["boolean"] }

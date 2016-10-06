@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   attributes :id, :evss_id, :date_filed, :min_est_date, :max_est_date,
-             :phase_change_date, :open, :waiver_submitted,
+             :phase_change_date, :open, :waiver_submitted, :documents_needed,
              :development_letter_sent, :decision_letter_sent, :successful_sync
 
   def date_filed
@@ -26,6 +26,10 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
 
   def waiver_submitted
     object.data['waiver5103Submitted']
+  end
+
+  def documents_needed
+    bool_from_yes_no 'attentionNeeded'
   end
 
   def development_letter_sent
