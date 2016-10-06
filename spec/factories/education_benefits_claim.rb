@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 FactoryGirl.define do
-  factory :education_benefits_claim, class: EducationBenefitsClaim do
+  factory :education_benefits_claim do
     form do
       {
         chapter1606: true,
