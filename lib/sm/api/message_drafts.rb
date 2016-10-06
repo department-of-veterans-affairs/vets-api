@@ -6,7 +6,6 @@ module SM
       # a parameter, then the message draft is updated.
       def post_create_message_draft(args = {})
         json = perform(:post, 'message/draft', args, token_headers)
-        json[:data].delete(:attachments)
 
         MessageDraft.new(json)
       end

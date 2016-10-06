@@ -6,7 +6,8 @@ unless ENV['NOCOVERAGE']
   require 'simplecov'
 
   SimpleCov.start do
-    track_files 'lib/**/*.rb app/**/*.rb'
+    track_files '{app,lib}/**/*.rb'
+    add_filter 'lib/tasks/support/shell_command.rb'
     SimpleCov.minimum_coverage_by_file 90
   end
 end
