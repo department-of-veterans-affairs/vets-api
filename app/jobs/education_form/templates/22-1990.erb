@@ -83,16 +83,15 @@ FAA Flight Certificates:
 
       Education After High School
       ---------------------------
-
-Name and Location of College or Training Provider: <% if @applicant.postHighSchoolTrainings %>
-    <%= @applicant.postHighSchoolTrainings&.name %>
-    <%= @applicant.postHighSchoolTrainings.city %>, <%= @applicant.postHighSchoolTrainings.state %>
-    <% end %>
-Date of Training:     From: <%= to_date(@applicant.postHighSchoolTrainings&.from) %> To: <%= to_date(@applicant.postHighSchoolTrainings&.to) %>
-Hours: <%= @applicant.postHighSchoolTrainings&.hours %>
-Degree/Diploma/Certificate: <%= @applicant.postHighSchoolTrainings&.degreeReceived %>
-Major Field/Course of Study: <%= @applicant.postHighSchoolTrainings&.major %>
-
+<% Array(@applicant.postHighSchoolTrainings).each do |training| %>
+Name and Location of College or Training Provider: 
+    <%= training&.name %>
+    <%= training.city %>, <%= training.state %>
+Date of Training:     From: <%= to_date(training&.dateRange&.from) %> To: <%= to_date(training&.dateRange&.to) %>
+Hours: <%= training&.hours %> (<%= training&.hoursType %>)
+Degree/Diploma/Certificate: <%= training&.degreeReceived %>
+Major Field/Course of Study: <%= training&.major %>
+<% end %>
 
         Employment
         ----------

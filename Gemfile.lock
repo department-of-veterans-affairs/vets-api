@@ -1,3 +1,10 @@
+GIT
+  remote: https://github.com/department-of-veterans-affairs/vets-json-schema
+  revision: cdc48375d79cce57ceae86c1095e7a7c00c27324
+  ref: cdc48375d79cce57ceae86c1095e7a7c00c27324
+  specs:
+    vets_json_schema (1.0.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -312,7 +319,6 @@ GEM
       thread_safe (~> 0.1)
     unicode-display_width (1.1.1)
     vcr (3.0.3)
-    vets_json_schema (1.0.0)
     virtus (1.0.5)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
@@ -381,7 +387,7 @@ DEPENDENCIES
   timecop
   tzinfo-data
   vcr
-  vets_json_schema (= 1.0.0)
+  vets_json_schema!
   virtus
   web-console (~> 2.0)
   webmock
