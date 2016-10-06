@@ -24,7 +24,7 @@
               "phase_dates",
               "tracked_items",
               "development_letter_sent",
-              "sync_failed"
+              "successful_sync"
             ],
             "properties": {
               "evss_id": { "type": "integer" },
@@ -36,7 +36,7 @@
               "open": { "type": "boolean" },
               "waiver_submitted": { "type": "boolean" },
               "development_letter_sent": { "type": "boolean" },
-              "sync_failed": { "type": ["boolean", "null"] }
+              "successful_sync": { "type": ["boolean"] }
             }
           }
         }

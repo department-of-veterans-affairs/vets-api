@@ -14,7 +14,7 @@ RSpec.describe DisabilityClaimService do
         claim = FactoryGirl.create(:disability_claim, user_uuid: user.uuid)
         claims = subject.all
         expect(claims).to eq([claim])
-        expect(claims.first.sync_failed).to eq(true)
+        expect(claims.first.successful_sync).to eq(false)
       end
     end
 
@@ -25,7 +25,7 @@ RSpec.describe DisabilityClaimService do
         claim = FactoryGirl.build(:disability_claim, user_uuid: user.uuid)
         updated_claim = subject.update_from_remote(claim)
         expect(updated_claim).to eq(claim)
-        expect(updated_claim.sync_failed).to eq(true)
+        expect(updated_claim.successful_sync).to eq(false)
       end
     end
   end
