@@ -1,0 +1,125 @@
+{
+  "activeDutyKicker": false,
+  "additionalContributions": false,
+  "bankAccount": {
+    "accountNumber": "88888888888",
+    "accountType": "checking",
+    "bankName": "First Bank of JSON",
+    "routingNumber": "123456789"
+  },
+  "chapter1606": true,
+  "chapter33": true,
+  "chapter30": true,
+  "chapter32": true,
+  "currentlyActiveDuty": {
+    "nonVaAssistance": false,
+    "onTerminalLeave": false,
+    "yes": false
+  },
+  "seniorRotc": {
+    "commissionYear": 1981,
+    "rotcScholarshipAmounts": [{
+      "year": 1999,
+      "amount": 99.99
+    },{
+      "year": 2000,
+      "amount": 199.99
+    },{
+      "year": 2001,
+      "amount": 299.99
+    }]
+  },
+  "preferredContactMethod": "email",
+  "nonMilitaryJobs": [
+    {
+      "name": "Clerk",
+      "months": 36,
+      "postMilitaryJob": false
+    },
+    {
+      "name": "Doer",
+      "licenseOrRating": "Higher Up",
+      "months": 18,
+      "postMilitaryJob": false
+    },
+    {
+      "name": "Manager",
+      "licenseOrRating": "Third Class",
+      "months": 8,
+      "postMilitaryJob": true
+    }
+  ], 
+  "educationType": "college",
+  "faaFlightCertificatesInformation": "cert1, cert2",
+  "gender": "M",
+  "highSchoolOrGedCompletionDate": "06/06/2010",
+  "homePhone": "5551110000",
+  "remarks": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet ullamcorper est, in interdum velit. Cras purus orci, varius eget efficitur nec, dapibus id risus. Donec in pellentesque enim. Proin sagittis, elit nec consequat malesuada, nibh justo luctus enim, ac aliquet lorem orci vel neque. Ut eget accumsan ipsum. Cras sed venenatis massa. Duis odio urna, laoreet quis ante sed, facilisis congue purus. Etiam semper facilisis luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam blandit eget nibh at ornare. Sed non porttitor dui. Proin ornare magna diam, ut lacinia magna accumsan euismod.\n\n        Phasellus et nisl id lorem feugiat molestie. Aliquam molestie,\n        nulla eu fringilla finibus, massa lectus varius quam, quis ornare\n        sem lorem lacinia dui. Integer consequat non arcu convallis mollis.\n        Vivamus magna turpis, pharetra non eros at, feugiat rutrum nisl.\n        Maecenas eros tellus, blandit id libero sed, imperdiet fringilla\n        eros. Nulla vel tortor vel neque fermentum laoreet id vitae ex.\n        Mauris posuere lorem tellus. Pellentesque at augue arcu.\n        Vestibulum aliquam urna ac est lacinia, eu congue nisi tempor.\n        ",
+  "reserveKicker": false,
+  "school": {
+    "address": {
+      "city": "Baltimore",
+      "country": "USA",
+      "postalCode": "21231",
+      "state": "MD",
+      "street": "111 Uni Drive"
+    },
+    "educationalObjective": "...",
+    "name": "FakeData University",
+    "startDate": "08/29/2016"
+  },
+  "secondaryContact": {
+    "fullName": "Sibling Olson",
+    "sameAddressAndPhone": true
+  },
+  "serviceBefore1977": {
+    "haveDependents": true,
+    "married": true,
+    "parentDependent": false
+  },
+  "toursOfDuty": [{
+    "dateRange": {
+      "from": "06/26/2012",
+      "to": "04/10/2013"
+    },
+    "involuntarilyCalledToDuty": null,
+    "serviceBranch": "Army Reserve",
+    "serviceStatus": "ACTIVE DUTY TRAINING"
+  }, {
+    "dateRange": {
+      "from": "04/22/2013",
+      "to": "06/14/2013"
+    },
+    "involuntarilyCalledToDuty": null,
+    "serviceBranch": "Army Reserve",
+    "serviceStatus": "ACTIVE DUTY"
+  }],
+  "postHighSchoolTrainings": [
+    {
+      "name": "OtherCollege Name",
+      "dateRange": {
+        "from": "01/01/1999",
+        "to": "01/01/2000"
+      },
+      "city": "New York",
+      "hours": 8,
+      "hoursType": "semester",
+      "state": "NY",
+      "degreeReceived": "BA",
+      "major": "History"
+    }
+  ],
+  "veteranAddress": {
+    "city": "Milwaukee",
+    "country": "USA",
+    "postalCode": "53130",
+    "state": "WI",
+    "street": "123 Main St"
+  },
+  "veteranDateOfBirth": "03/07/1985",
+  "veteranFullName": {
+    "first": "Mark",
+    "last": "Olson"
+  },
+  "veteranSocialSecurityNumber": "111223333"
+}

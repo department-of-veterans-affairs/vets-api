@@ -136,14 +136,14 @@ module EducationForm
       end.join("\n")
     end
 
-    def employment_history(job_history, post_military)
+    def employment_history(job_history, post_military:)
       wrapped_list = Array(job_history).select { |job| job.postMilitaryJob == post_military }
       # we need at least one record to be in the form.
       wrapped_list << OpenStruct.new if wrapped_list.empty?
       wrapped_list.map do |job|
         "        Principal Occupation: #{job.name}
-                 Number of Months: #{job.months}
-                 License or Rating: #{job.licenseOrRating}"
+        Number of Months: #{job.months}
+        License or Rating: #{job.licenseOrRating}"
       end.join("\n\n")
     end
 
