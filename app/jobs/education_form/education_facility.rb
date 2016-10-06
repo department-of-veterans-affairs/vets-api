@@ -44,6 +44,8 @@ module EducationForm
       ]
     }.freeze
 
+    REGIONS = ADDRESSES.keys.map(&:to_s)
+
     def self.region_for(record)
       area = record.school&.address&.state || record.veteranAddress&.state
       case area
