@@ -41,7 +41,7 @@ http_interactions:
         13 Apr 2016 21:17:57 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":35382,"recipientName":"Manivasagam,
         Rajesh","readReceipt":"READ"},{"id":573052,"category":"OTHER","subject":"Release
         16.2- SM last login ","body":null,"attachment":false,"attachments":null,"sentDate":"Mon,
-        11 Apr 2016 15:49:03 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":257555,"recipientName":"ISLAM,
+        11 Apr 2016 15:49:03 GMT","senderId":384939,"senderName":"MVITWO, TEST","recipientId":257555,"recipientName":"ISLAM,
         MOHAMMAD","readReceipt":"READ"}]}'
     http_version:
   recorded_at: Wed, 14 Sep 2016 16:55:37 GMT

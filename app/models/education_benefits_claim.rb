@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 class EducationBenefitsClaim < ActiveRecord::Base
-  FORM_SCHEMA = JSON.parse(File.read(Rails.root.join('app', 'vets-json-schema', 'dist', 'edu-benefits-schema.json')))
+  FORM_SCHEMA = VetsJsonSchema::EDUCATION_BENEFITS
 
   validates(:form, presence: true)
   validate(:form_matches_schema)
