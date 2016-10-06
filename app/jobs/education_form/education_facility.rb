@@ -44,7 +44,7 @@ module EducationForm
       ]
     }.freeze
 
-    REGIONS = ADDRESSES.keys.map(&:to_s)
+    REGIONS = ADDRESSES.keys
 
     def self.region_for(record)
       area = record.school&.address&.state || record.veteranAddress&.state

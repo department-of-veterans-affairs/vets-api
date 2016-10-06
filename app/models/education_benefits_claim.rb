@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 class EducationBenefitsClaim < ActiveRecord::Base
   FORM_SCHEMA = VetsJsonSchema::EDUCATION_BENEFITS
-  APPLICATION_TYPES = %w(chapter33 chapter30 chapter1606 chapter1607 chapter32 chapter35)
+  APPLICATION_TYPES = %w(chapter33 chapter30 chapter1606 chapter32)
 
   validates(:form, presence: true)
   validate(:form_matches_schema)
@@ -24,6 +24,10 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   def self.unprocessed
     where(processed_at: nil)
+  end
+
+  def region
+    EducationForm::EducationFacility.region_for(open_struct_form)
   end
 
   def regional_office
