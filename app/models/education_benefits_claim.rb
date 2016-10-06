@@ -32,7 +32,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
   # TODO: Add logic for determining field type(s) that need to be places in the application header
   def application_type
     return 'CH1606' if @application.chapter1606
-    return 'NA'
+    'NA'
   end
 
   def parsed_form
