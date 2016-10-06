@@ -2,7 +2,7 @@
 class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   attributes :id, :evss_id, :date_filed, :min_est_date, :max_est_date,
              :phase_change_date, :open, :waiver_submitted,
-             :development_letter_sent, :decision_letter_sent, , :successful_sync
+             :development_letter_sent, :decision_letter_sent, :successful_sync
 
   def date_filed
     date_from_string 'date'
@@ -59,6 +59,5 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
     with_object_data(*keys) do |s|
       Date.strptime(s, format)
     end
->>>>>>> origin/master
   end
 end
