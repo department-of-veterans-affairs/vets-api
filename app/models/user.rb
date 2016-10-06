@@ -36,10 +36,7 @@ class User < Common::RedisStore
 
   validates :uuid, presence: true
   validates :email, presence: true
-  validates :first_name, presence: true
-  validates :last_name, presence: true
-  validates :birth_date, presence: true
-  validates :ssn, presence: true, format: /\A\d{9}\z/
+  validates :ssn, format: /\A\d{9}\z/
 
   def rating_record
     client = EVSS::CommonService.new(self)
