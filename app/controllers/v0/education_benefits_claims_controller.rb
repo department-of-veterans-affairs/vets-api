@@ -11,6 +11,17 @@ module V0
       render(json: education_benefits_claim)
     end
 
+    # TODO: This is hidden behind a flag in the routes, but it's duplicated here for some
+    # defense in depth. This functionality should not be included once EducationForm is
+    # released in production, but rather should be available in a dedicated admin interface
+    def show
+      return redirect_to(root_path) unless FeatureFlipper.show_education_benefit_form?
+
+      form = EducationBenefitsClaim.find(params[:id])
+      txt = ::EducationForm::CreateDailySpoolFiles.new.format_application(form.open_struct_form)
+      render text: txt
+    end
+
     private
 
     def education_benefits_claim_params

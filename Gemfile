@@ -30,6 +30,7 @@ gem 'whenever', require: false
 gem 'multi_json'
 gem 'rack-cors', :require => 'rack/cors'
 gem 'net-sftp'
+gem 'vets_json_schema', '1.0.0'
 
 # Amazon Linux's system `json` gem causes conflicts, but
 # `multi_json` will prefer `oj` if installed, so include it here.
