@@ -1,8 +1,11 @@
+# frozen_string_literal: true
 require 'rails_helper'
 
 RSpec.describe EducationForm::CreateDailyYearToDateReport do
-  subject { described_class.new }
-  let(:date) { Date.today }
+  let(:date) { Time.zone.today }
+  subject do
+    described_class.new
+  end
 
   context 'with some sample submissions' do
     before do
@@ -32,50 +35,56 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport do
       end
     end
 
-    describe '#create_csv_array' do
-      it 'should make the right csv array' do
-        expect(subject.create_csv_array(date)).to eq(
-          [
-            ["Submitted Vets.gov Applications - Report FYTD #{date.year} as of #{date}"],
-            ["", "", "DOCUMENT TYPE"],
-            ["RPO", "BENEFIT TYPE", "22-1990"],
-            ["BUFFALO (307)", "chapter33", 2],
-            ["", "chapter30", 0],
-            ["", "chapter1606", 0],
-            ["", "chapter32", 0],
-            ["", "TOTAL", 2],
-            ["ATLANTA (316)", "chapter33", 0],
-            ["", "chapter30", 0],
-            ["", "chapter1606", 0],
-            ["", "chapter32", 0],
-            ["", "TOTAL", 0],
-            ["ST. LOUIS (331)", "chapter33", 0],
-            ["", "chapter30", 0],
-            ["", "chapter1606", 0],
-            ["", "chapter32", 0],
-            ["", "TOTAL", 0],
-            ["MUSKOGEE (351)", "chapter33", 0],
-            ["", "chapter30", 0],
-            ["", "chapter1606", 1],
-            ["", "chapter32", 0],
-            ["", "TOTAL", 1],
-            ["ALL RPOS TOTAL", "", 3],
-            ["", "", "22-1990"]
-          ]
-        )
+    context 'with the date variable set' do
+      subject do
+        job = described_class.new
+        job.instance_variable_set(:@date, date)
+        job
       end
-    end
 
-    describe '#get_submissions' do
-      it 'should return data about the number of submissions' do
-        expect(subject.get_submissions(date)).to eq(
-          {
-            :eastern=>{"chapter33"=>2, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0},
-            :southern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0},
-            :central=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0},
-            :western=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>1, "chapter32"=>0}
-          }
-        )
+      describe '#create_csv_array' do
+        it 'should make the right csv array' do
+          expect(subject.create_csv_array).to eq(
+            [
+              ["Submitted Vets.gov Applications - Report FYTD #{date.year} as of #{date}"],
+              ['', '', 'DOCUMENT TYPE'],
+              ['RPO', 'BENEFIT TYPE', '22-1990'],
+              ['BUFFALO (307)', 'chapter33', 2],
+              ['', 'chapter30', 0],
+              ['', 'chapter1606', 0],
+              ['', 'chapter32', 0],
+              ['', 'TOTAL', 2],
+              ['ATLANTA (316)', 'chapter33', 0],
+              ['', 'chapter30', 0],
+              ['', 'chapter1606', 0],
+              ['', 'chapter32', 0],
+              ['', 'TOTAL', 0],
+              ['ST. LOUIS (331)', 'chapter33', 0],
+              ['', 'chapter30', 0],
+              ['', 'chapter1606', 0],
+              ['', 'chapter32', 0],
+              ['', 'TOTAL', 0],
+              ['MUSKOGEE (351)', 'chapter33', 0],
+              ['', 'chapter30', 0],
+              ['', 'chapter1606', 1],
+              ['', 'chapter32', 0],
+              ['', 'TOTAL', 1],
+              ['ALL RPOS TOTAL', '', 3],
+              ['', '', '22-1990']
+            ]
+          )
+        end
+      end
+
+      describe '#get_submissions' do
+        it 'should return data about the number of submissions' do
+          expect(subject.get_submissions).to eq(
+            eastern: { 'chapter33' => 2, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+            southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+            central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+            western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 }
+          )
+        end
       end
     end
 
@@ -84,7 +93,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport do
         subject.perform(date)
 
         csv_string = CSV.generate do |csv|
-          subject.create_csv_array(date).each do |row|
+          subject.create_csv_array.each do |row|
             csv << row
           end
         end

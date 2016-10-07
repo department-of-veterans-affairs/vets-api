@@ -51,7 +51,7 @@ module EducationForm
       southern: 'ATLANTA (316)',
       central: 'ST. LOUIS (331)',
       western: 'MUSKOGEE (351)'
-    }
+    }.freeze
 
     def self.region_for(record)
       area = record.school&.address&.state || record.veteranAddress&.state
