@@ -32,17 +32,28 @@ module EducationForm
 
       csv_array << ["Submitted Vets.gov Applications - Report FYTD #{date.year} as of #{date}"]
 
-      csv_array << ['RPO', 'BENEFIT TYPE', '22-1990', 'RPO TOTAL']
+      csv_array << ['RPO', 'BENEFIT TYPE', '22-1990']
+
+      grand_total = 0
 
       submissions.each do |region, data|
+        region_submissions_total = 0
+
         data.each_with_index do |(application_type, submissions_count), i|
           csv_array << [
             i == 0 ? region : '',
             application_type,
             submissions_count
           ]
+          region_submissions_total += submissions_count
         end
+
+        csv_array << ['', 'TOTAL', region_submissions_total]
+        grand_total += region_submissions_total
       end
+
+      csv_array << ['ALL RPOS TOTAL', '', grand_total]
+      csv_array << ['', '', '22-1990']
 
       csv_array
     end

@@ -35,8 +35,6 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport do
     describe '#create_csv_array' do
       it 'should make the right csv array' do
         subject.perform(date)
-        # result = subject.create_csv_array(date)
-        binding.pry; fail
       end
     end
 
