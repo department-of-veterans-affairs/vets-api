@@ -22,29 +22,21 @@ http_interactions:
       code: 200
       message: 'OK '
     headers:
+      Date:
+      - Fri, 07 Oct 2016 06:35:19 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
       Connection:
-      - keep-alive
+      - close
+      Transfer-Encoding:
+      - chunked
       Content-Type:
       - application/json
-      Cache-Control:
-      - no-cache
-      Access-Control-Allow-Origin:
-      - "*"
-      Server:
-      - WEBrick/1.3.1 (Ruby/2.3.0/2015-12-25)
-      Date:
-      - Thu, 25 Aug 2016 19:56:16 GMT
-      Content-Length:
-      - '362'
-      Via:
-      - 1.1 vegur
     body:
       encoding: UTF-8
-      string: '{"Important Note:":"None of this data nor user identifiers are real","Using
-        this mock API":"","History for a user":"/rx/v1/history","Prescription status
-        for a user":"/rx/v1/prescription","Prescription status for a specific prescription
-        (id = 1435525)":"/rx/v1/prescription/1435525","Tracking for a specific prescription
-        (id = 1435525)":"/rx/v1/tracking/1435525"}'
+      string: 'Successfully submitted to: DAYT29'
     http_version:
-  recorded_at: Thu, 25 Aug 2016 19:56:18 GMT
+  recorded_at: Fri, 07 Oct 2016 06:35:20 GMT
 recorded_with: VCR 3.0.3
