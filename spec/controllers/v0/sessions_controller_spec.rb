@@ -87,7 +87,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         uuid = JSON.parse(response.body)['uuid']
         user = User.find(uuid)
-        expect(user.level_of_assurance).to eq('http://idmanagement.gov/ns/assurance/loa/2')
+        expect(user.level_of_assurance).to eq(LOA::ONE)
       end
     end
 

@@ -37,6 +37,15 @@ class User < Common::RedisStore
   validates :uuid, presence: true
   validates :email, presence: true
 
+  # conditionally validate if user is LOA3
+  with_options if: :loa3? do |user|
+    user.validates :first_name, presence: true
+    user.validates :last_name, presence: true
+    user.validates :birth_date, presence: true
+    user.validates :ssn, presence: true, format: /\A\d{9}\z/
+  end
+
+
   def rating_record
     client = EVSS::CommonService.new(self)
     client.find_rating_info.body.fetch('ratingRecord', {})
@@ -47,5 +56,9 @@ class User < Common::RedisStore
     attrs = JSON.load(ENV['EVSS_SAMPLE_CLAIMANT_USER'])
     attrs[:last_signed_in] = Time.now.utc
     User.new attrs
+  end
+
+  def loa3?
+    self.level_of_assurance == LOA::THREE
   end
 end
