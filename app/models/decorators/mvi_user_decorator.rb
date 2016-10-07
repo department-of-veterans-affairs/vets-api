@@ -15,10 +15,14 @@ class Decorators::MviUserDecorator
     response = @mvi_service.find_candidate(message)
     @user.attributes = { mvi: response }
     @user
+  rescue MVI::RecordNotFound => e
+    # TODO(AJD): add cloud watch metric
+    Rails.logger.error "MVI record not found for user: #{@user.uuid}"
+    raise Common::Exceptions::RecordNotFound, "User not in found MVI: #{e.message}"
   rescue MVI::ServiceError => e
     # TODO(AJD): add cloud watch metric
-    Rails.logger.error "MVI user data not retrieved: service error: #{e.message} for user: #{@user.uuid}"
-    raise Common::Exceptions::RecordNotFound, "Failed to retrieve MVI data: #{e.message}"
+    Rails.logger.error "Error retrieving MVI data for user: #{@user.uuid}"
+    raise Common::Exceptions::InternalServerError, e
   end
 
   def create_message

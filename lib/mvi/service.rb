@@ -31,7 +31,7 @@ module MVI
       response = MVI::Responses::FindCandidate.new(super(xml: message.to_xml))
       invalid_request_handler('find_candidate', response.body) if response.invalid?
       request_failure_handler('find_candidate', response.body) if response.failure?
-      raise MVI::RecordNotFound, reponse: response unless response.body
+      raise MVI::RecordNotFound.new('MVI subject missing from response body', response) unless response.body
       response.body
     rescue Savon::SOAPFault => e
       # TODO(AJD): cloud watch metric for error code
@@ -69,13 +69,12 @@ module MVI
   end
   class HTTPError < MVI::ServiceError
   end
-  class RecordNotFound < MVI::ServiceError
-    attr_reader :query, :original_response
+  class RecordNotFound < StandardError
+    attr_accessor :query, :original_response
     def initialize(message = nil, response = nil)
+      super(message)
       @query = response.query
       @original_response = response.original_response
-
-      super(message)
     end
   end
 end

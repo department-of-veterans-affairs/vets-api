@@ -10,10 +10,20 @@ module MVI
         invalid_request: 'AR'
       }.freeze
 
+      class << self
+        attr_accessor :endpoint
+      end
+
+      def self.mvi_endpoint(endpoint)
+        @endpoint = endpoint
+      end
+      delegate :endpoint, to: 'self.class'
+
       def initialize(response)
-        @original_body = response.body[:prpa_in201306_uv02]
-        @code = @original_body[:acknowledgement][:type_code][:@code]
-        @original_reponse = response.xml
+        @original_body = response.body[endpoint]
+        @original_response = response.xml
+        @code = @original_body.dig(:acknowledgement, :type_code, :@code)
+        @query = @original_body.dig(:control_act_process, :query_by_parameter)
       end
 
       def invalid?
@@ -22,10 +32,6 @@ module MVI
 
       def failure?
         @code == RESPONSE_CODES[:failure]
-      end
-
-      def record_not_found?
-        @code == RESPONSE_CODES[:record_not_found]
       end
 
       def body
