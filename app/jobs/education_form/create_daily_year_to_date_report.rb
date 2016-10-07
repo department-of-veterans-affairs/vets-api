@@ -1,5 +1,7 @@
 module EducationForm
   class CreateDailyYearToDateReport < ActiveJob::Base
+    require 'csv'
+
     def get_submissions(date)
       submissions = {}
       application_types = EducationBenefitsClaim::APPLICATION_TYPES
@@ -24,7 +26,36 @@ module EducationForm
       submissions
     end
 
-    def perform
+    def create_csv_array(date)
+      submissions = get_submissions(date)
+      csv_array = []
+
+      csv_array << ["Submitted Vets.gov Applications - Report FYTD #{date.year} as of #{date}"]
+
+      csv_array << ['RPO', 'BENEFIT TYPE', '22-1990', 'RPO TOTAL']
+
+      submissions.each do |region, data|
+        data.each_with_index do |(application_type, submissions_count), i|
+          csv_array << [
+            i == 0 ? region : '',
+            application_type,
+            submissions_count
+          ]
+        end
+      end
+
+      csv_array
+    end
+
+    def perform(date)
+      folder = 'tmp/daily_reports'
+      FileUtils.mkdir_p(folder)
+
+      CSV.open("#{folder}/#{date}.csv", 'wb') do |csv|
+        create_csv_array(date).each do |row|
+          csv << row
+        end
+      end
     end
   end
 end

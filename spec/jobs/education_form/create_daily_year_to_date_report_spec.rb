@@ -4,7 +4,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport do
   subject { described_class.new }
   let(:date) { Date.today }
 
-  describe '#get_submissions' do
+  context 'with some sample submissions' do
     before do
       2.times do
         create(
@@ -32,15 +32,25 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport do
       end
     end
 
-    it 'should calculate number of submissions correctly' do
-      expect(subject.get_submissions(date)).to eq(
-        {
-          :eastern=>{"chapter33"=>2, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0},
-          :southern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0},
-          :central=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0},
-          :western=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>1, "chapter32"=>0}
-        }
-      )
+    describe '#create_csv_array' do
+      it 'should make the right csv array' do
+        subject.perform(date)
+        # result = subject.create_csv_array(date)
+        binding.pry; fail
+      end
+    end
+
+    describe '#get_submissions' do
+      it 'should calculate number of submissions correctly' do
+        expect(subject.get_submissions(date)).to eq(
+          {
+            :eastern=>{"chapter33"=>2, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0},
+            :southern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0},
+            :central=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0},
+            :western=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>1, "chapter32"=>0}
+          }
+        )
+      end
     end
   end
 
