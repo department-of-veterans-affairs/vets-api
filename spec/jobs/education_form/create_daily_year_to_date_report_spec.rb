@@ -27,7 +27,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport do
       )
     end
 
-    it 'should calcuate number of submissions correctly' do
+    it 'should calculate number of submissions correctly' do
       expect(subject.get_submissions).to eq(
         {
           :eastern=>{"chapter33"=>2, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0},
