@@ -45,7 +45,6 @@ class User < Common::RedisStore
     user.validates :ssn, presence: true, format: /\A\d{9}\z/
   end
 
-
   def rating_record
     client = EVSS::CommonService.new(self)
     client.find_rating_info.body.fetch('ratingRecord', {})
@@ -59,6 +58,6 @@ class User < Common::RedisStore
   end
 
   def loa3?
-    self.level_of_assurance == LOA::THREE
+    level_of_assurance == LOA::THREE
   end
 end

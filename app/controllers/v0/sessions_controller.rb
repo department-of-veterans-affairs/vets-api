@@ -72,7 +72,7 @@ module V0
     end
 
     def create_new_user
-      if (user_attributes[:level_of_assurance] == LOA::ONE)
+      if user_attributes[:level_of_assurance] == LOA::ONE
         User.new(user_attributes)
       else
         Decorators::MviUserDecorator.new(User.new(user_attributes)).create
