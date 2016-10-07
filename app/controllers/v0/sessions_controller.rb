@@ -35,7 +35,7 @@ module V0
 
     def persist_session_and_user!
       @session = Session.new(user_attributes.slice(:uuid))
-      @current_user = User.find(@session.uuid) || Decorators::MviUserDecorator.new(User.new(user_attributes)).create
+      @current_user = User.find(@session.uuid) || create_new_user
       @session.save && @current_user.save
     end
 
@@ -56,7 +56,7 @@ module V0
     end
 
     def parse_date(date_string)
-      Time.parse(date_string).utc
+      Time.parse(date_string).utc unless date_string.nil?
     rescue TypeError => e
       Rails.logger.error "error: #{e.message} when parsing date from saml date string: #{date_string.inspect}"
       nil
@@ -64,9 +64,19 @@ module V0
 
     # Ruby-Saml does not parse the <samlp:Response> xml so we do it ourselves to find
     # which LOA was performed on the ID.me side.
+    # TODO - remove this method once LOA is returned as a SAML Attribute
     def level_of_assurance
-      Hash.from_xml(@saml_response.response)
-          .dig('Response', 'Assertion', 'AuthnStatement', 'AuthnContext', 'AuthnContextClassRef')
+      raw_loa = Hash.from_xml(@saml_response.response)
+                    .dig('Response', 'Assertion', 'AuthnStatement', 'AuthnContext', 'AuthnContextClassRef')
+      LOA::MAPPING[raw_loa.to_sym]
+    end
+
+    def create_new_user
+      if user_attributes[:level_of_assurance] == LOA::ONE
+        User.new(user_attributes)
+      else
+        Decorators::MviUserDecorator.new(User.new(user_attributes)).create
+      end
     end
   end
 end

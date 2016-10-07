@@ -12,12 +12,25 @@ RSpec.describe User, type: :model do
       last_name: 'Smith',
       birth_date: Time.new(1980, 1, 1).utc,
       ssn: '555443333',
-      gender: 'M'
+      gender: 'M',
+      level_of_assurance: LOA::THREE
     }
   end
 
-  subject { described_class.new(attributes) }
+  describe 'to create a user' do
+    context 'with LOA 1' do
+      it 'should allow a blank ssn' do
+        expect(FactoryGirl.build(:user, level_of_assurance: LOA::ONE, ssn: '')).to be_valid
+      end
+    end
+    context 'with LOA 3' do
+      it 'should not allow a blank ssn' do
+        expect(FactoryGirl.build(:user, level_of_assurance: LOA::THREE, ssn: '')).to_not be_valid
+      end
+    end
+  end
 
+  subject { described_class.new(attributes) }
   context 'with an invalid ssn' do
     it 'should have an error on ssn' do
       subject.ssn = '111-22-3333'
@@ -110,7 +123,7 @@ RSpec.describe User, type: :model do
             ssn: '555443333',
             uuid: attributes[:uuid],
             zip: nil,
-            level_of_assurance: nil
+            level_of_assurance: LOA::THREE
           )
         end
       end
