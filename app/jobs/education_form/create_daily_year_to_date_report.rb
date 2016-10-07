@@ -42,7 +42,7 @@ module EducationForm
 
         data.each_with_index do |(application_type, submissions_count), i|
           csv_array << [
-            i == 0 ? region : '',
+            i == 0 ? EducationFacility::RPO_NAMES[region] : '',
             application_type,
             submissions_count
           ]

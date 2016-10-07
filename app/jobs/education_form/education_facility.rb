@@ -46,6 +46,13 @@ module EducationForm
 
     REGIONS = ADDRESSES.keys
 
+    RPO_NAMES = {
+      eastern: 'BUFFALO (307)',
+      southern: 'ATLANTA (316)',
+      central: 'ST. LOUIS (331)',
+      western: 'MUSKOGEE (351)'
+    }
+
     def self.region_for(record)
       area = record.school&.address&.state || record.veteranAddress&.state
       case area
