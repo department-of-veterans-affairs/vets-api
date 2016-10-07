@@ -67,7 +67,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport do
     end
 
     describe '#get_submissions' do
-      it 'should calculate number of submissions correctly' do
+      it 'should return data about the number of submissions' do
         expect(subject.get_submissions(date)).to eq(
           {
             :eastern=>{"chapter33"=>2, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0},
@@ -78,9 +78,19 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport do
         )
       end
     end
-  end
 
-  it 'should create the year to date report' do
-    # subject.perform
+    describe '#perform' do
+      it 'should create a csv file' do
+        subject.perform(date)
+
+        csv_string = CSV.generate do |csv|
+          subject.create_csv_array(date).each do |row|
+            csv << row
+          end
+        end
+
+        expect(File.read("tmp/daily_reports/#{date}.csv")).to eq(csv_string)
+      end
+    end
   end
 end
