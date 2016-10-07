@@ -55,7 +55,7 @@ module Rx
 
     def process_no_content_response
       # MHV is providing a normal string for successful POST, not JSON
-      return unless @response.body.empty? || @response.body.casecmp('Successfully submitted to: DAYT29').zero?
+      return unless @response.body.empty? || @response.body.start_with?('Successfully submitted to:')
       @response if @response.success?
     end
 
