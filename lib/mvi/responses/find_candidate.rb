@@ -4,10 +4,11 @@ require_relative 'base'
 module MVI
   module Responses
     class FindCandidate < Base
+      mvi_endpoint :prpa_in201306_uv02
+
       def initialize(response)
         super(response)
         @subject = @original_body.dig(:control_act_process, :subject)
-        @query = @original_body.dig(:control_act_process, :query_by_parameter)
       end
 
       def body
