@@ -32,6 +32,7 @@ module EducationForm
 
       csv_array << ["Submitted Vets.gov Applications - Report FYTD #{date.year} as of #{date}"]
 
+      csv_array << ['', '', 'DOCUMENT TYPE']
       csv_array << ['RPO', 'BENEFIT TYPE', '22-1990']
 
       grand_total = 0
