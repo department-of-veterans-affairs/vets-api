@@ -28,6 +28,8 @@ module SAML
       # for full identity proofing, use the LOA3 url.
       settings.authn_context = 'authentication'
       # @settings.authn_context = 'http://idmanagement.gov/ns/assurance/loa/3'
+
+      settings
     end
 
     ## Makes an external web call to get IDP metadata and populates SETTINGS
