@@ -21,7 +21,7 @@ describe Common::Exceptions::InvalidSortCriteria do
         .to eq(title: 'Invalid sort criteria',
                detail: '"sort_criteria" is not a valid sort criteria for "resource"',
                code: '106',
-               status: 400)
+               status: '400')
     end
   end
 end
