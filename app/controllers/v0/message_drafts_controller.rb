@@ -8,7 +8,7 @@ module V0
 
       render json: response,
              serializer: MessageSerializer,
-             meta:  {},
+             include: 'attachments',
              status: :created
     end
 

@@ -147,10 +147,8 @@ RSpec.describe 'Messages Integration', type: :request do
 
         errors = JSON.parse(response.body)['errors'].first
 
-        expect(response).to_not be_success
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(errors['title']).to eq("Recipient can't be blank")
-        expect(errors['code']).to eq('100')
-        expect(errors['status']).to eq(422)
       end
 
       it 'requires a body' do
@@ -158,10 +156,8 @@ RSpec.describe 'Messages Integration', type: :request do
 
         errors = JSON.parse(response.body)['errors'].first
 
-        expect(response).to_not be_success
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(errors['title']).to eq("Body can't be blank")
-        expect(errors['code']).to eq('100')
-        expect(errors['status']).to eq(422)
       end
 
       it 'requires a category' do
@@ -169,10 +165,8 @@ RSpec.describe 'Messages Integration', type: :request do
 
         errors = JSON.parse(response.body)['errors'].first
 
-        expect(response).to_not be_success
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(errors['title']).to eq("Category can't be blank")
-        expect(errors['code']).to eq('100')
-        expect(errors['status']).to eq(422)
       end
     end
   end
@@ -192,7 +186,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
         expect(response).to be_success
         expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('message')
+        expect(response).to match_response_schema('message_with_attachment')
       end
     end
   end
@@ -224,11 +218,11 @@ RSpec.describe 'Messages Integration', type: :request do
 
         errors = JSON.parse(response.body)['errors'].first
 
-        expect(response).to_not be_success
+        expect(response).to have_http_status(:bad_request)
         expect(errors['title']).to eq('Operation failed')
         expect(errors['detail']).to eq('Message service error')
         expect(errors['code']).to eq('900')
-        expect(errors['status']).to eq(400)
+        expect(errors['status']).to eq('400')
       end
 
       it 'requires a body' do
@@ -237,10 +231,8 @@ RSpec.describe 'Messages Integration', type: :request do
 
         errors = JSON.parse(response.body)['errors'].first
 
-        expect(response).to_not be_success
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(errors['title']).to eq("Body can't be blank")
-        expect(errors['code']).to eq('100')
-        expect(errors['status']).to eq(422)
       end
     end
   end

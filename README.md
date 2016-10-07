@@ -7,6 +7,7 @@ This project provides common APIs for applications that live on vets.gov. This r
 ### Base Setup
 
 1. Install Ruby 2.3. (It is suggested to use a Ruby version manager such as [rbenv](https://github.com/rbenv/rbenv#installation) and then to [install Ruby 2.3](https://github.com/rbenv/rbenv#installing-ruby-versions)).
+*Note*: rbenv will also provide additional installation instructions in the console output. Make sure to follow those too.
 1. Install Bundler to manage dependencies: `gem install bundler`
 1. Install Postgres (on Mac): `brew install postgres`
 1. Get the code: `git clone https://github.com/department-of-veterans-affairs/vets-api.git; git submodule init; git submodule update`
@@ -15,6 +16,7 @@ This project provides common APIs for applications that live on vets.gov. This r
 ### Database Setup
 1. Start Postgres: `postgres -D /usr/local/var/postgres`
 1. Create dev database: `bundle exec rake db:setup`
+*Note*: This will not work until you set up the environment variables (see below).
 
 ## Application Configuration
 Various ENV variables are required for the application to run. See application.yml.example
@@ -47,7 +49,7 @@ For an example, see `application.yml.example`
   - manually launch Redis `redis-server /usr/local/etc/redis.conf`
 1. Set the environment variables above according to your Redis configuration
 
-Note: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
+*Note*: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
 this is a sign that redis is not currently running or `config/redis.yml` is not using correct host and port.
 
 ### MHV Prescriptions and MHV Secure Messaging Setup

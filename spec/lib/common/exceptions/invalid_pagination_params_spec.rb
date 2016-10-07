@@ -22,7 +22,7 @@ describe Common::Exceptions::InvalidPaginationParams do
         .to eq(title: 'Invalid pagination params',
                detail: "#{invalid_pagination_parms} are invalid",
                code: '107',
-               status: 400)
+               status: '400')
     end
   end
 
@@ -39,7 +39,7 @@ describe Common::Exceptions::InvalidPaginationParams do
         .to eq(title: 'Invalid pagination params',
                detail: 'optional details',
                code: '107',
-               status: 400)
+               status: '400')
     end
   end
 end

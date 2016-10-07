@@ -14,7 +14,21 @@
           "type": { "enum": ["disability_claims"] },
           "attributes": {
             "type": "object",
-            "required": ["evss_id", "date_filed", "min_est_date", "max_est_date", "open", "waiver_submitted", "phase_change_date", "development_letter_sent", "decision_letter_sent"],
+            "required": [
+              "evss_id",
+              "date_filed",
+              "min_est_date",
+              "max_est_date",
+              "open",
+              "waiver_submitted",
+              "phase_change_date",
+              "documents_needed",
+              "development_letter_sent",
+              "decision_letter_sent",
+              "successful_sync",
+              "updated_at",
+              "phase"
+            ],
             "properties": {
               "evss_id": { "type": "integer" },
               "date_filed": { "type": "string" },
@@ -23,8 +37,12 @@
               "phase_change_date": { "type": ["string", "null"] },
               "open": { "type": "boolean" },
               "waiver_submitted": { "type": "boolean" },
+              "documents_needed": { "type": "boolean" },
               "development_letter_sent": { "type": "boolean" },
-              "decision_letter_sent" : { "type": "boolean" }
+              "decision_letter_sent" : { "type": "boolean" },
+              "successful_sync": { "type": "boolean" },
+              "updated_at": { "type": "string" },
+              "phase": { "type": ["integer", "null"] }
             }
           }
         }

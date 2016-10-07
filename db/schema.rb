@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161003175413) do
+ActiveRecord::Schema.define(version: 20161005170638) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,6 +23,8 @@ ActiveRecord::Schema.define(version: 20161003175413) do
     t.datetime "updated_at", null: false
     t.string   "user_uuid",  null: false
   end
+
+  add_index "disability_claims", ["user_uuid"], name: "index_disability_claims_on_user_uuid", using: :btree
 
   create_table "education_benefits_claims", force: :cascade do |t|
     t.datetime "submitted_at"

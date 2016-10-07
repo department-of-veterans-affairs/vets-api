@@ -21,7 +21,7 @@ describe Common::Exceptions::InvalidFiltersSyntax do
         .to eq(title: 'Invalid filters syntax',
                detail: '{"facility_name"=>"ABC123"} is not a valid syntax for filtering',
                code: '105',
-               status: 400)
+               status: '400')
     end
   end
 end

@@ -41,7 +41,7 @@ describe Common::Exceptions::ValidationErrors do
                detail: 'attr-1 - can\'t be blank',
                source: { pointer: 'data/attributes/attr-1' },
                code: '100',
-               status: 422)
+               status: '422')
     end
 
     it 'the second errors object to have relevant keys' do
@@ -50,7 +50,7 @@ describe Common::Exceptions::ValidationErrors do
                detail: 'attribute2 - can\'t be blank',
                source: { pointer: 'data/attributes/attribute2' },
                code: '100',
-               status: 422)
+               status: '422')
     end
   end
 end

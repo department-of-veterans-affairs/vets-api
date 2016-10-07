@@ -14,7 +14,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       'birth_date' => [mvi_user.birth_date.strftime('%Y-%m-%d')]
     }
   end
-  # has an LOA of 'http://idmanagement.gov/ns/assurance/loa/2'
+  # has an LOA of 'authentication'
   let(:response_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_response.xml") }
   before(:each) do
     allow_any_instance_of(Decorators::MviUserDecorator).to receive(:create).and_return(mvi_user)
@@ -87,7 +87,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         uuid = JSON.parse(response.body)['uuid']
         user = User.find(uuid)
-        expect(user.level_of_assurance).to eq('http://idmanagement.gov/ns/assurance/loa/2')
+        expect(user.level_of_assurance).to eq(LOA::ONE)
       end
     end
 
