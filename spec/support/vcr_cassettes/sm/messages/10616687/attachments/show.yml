@@ -2,51 +2,6 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/session"
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Apptoken:
-      - sjvlB75caM-O37hRpkDxV
-      Mhvcorrelationid:
-      - '10616687'
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Thu, 06 Oct 2016 15:31:35 GMT
-      Server:
-      - Apache/2.2.15 (Red Hat)
-      Content-Length:
-      - '0'
-      Expires:
-      - Thu, 06 Oct 2016 16:31:35 GMT
-      Token:
-      - f9WnYrCHO2A=7iS0ssTJFAqNMqmTqCG4xEdUWqy063M5PuxFPzcDSgY=
-      X-Powered-By:
-      - Servlet/2.5 JSP/2.1
-      Connection:
-      - close
-      Content-Type:
-      - text/html; charset=UTF-8
-    body:
-      encoding: UTF-8
-      string: ''
-    http_version: 
-  recorded_at: Thu, 06 Oct 2016 15:31:35 GMT
-- request:
-    method: get
     uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/629999/attachment/629993"
     body:
       encoding: US-ASCII
@@ -59,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Token:
-      - f9WnYrCHO2A=7iS0ssTJFAqNMqmTqCG4xEdUWqy063M5PuxFPzcDSgY=
+      - <SESSION_TOKEN>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -8107,6 +8062,6 @@ http_interactions:
         YXRlADIwMTYtMTAtMDVUMTg6MTE6NDMtMDQ6MDASbwXXAAAAJXRFWHRkYXRl
         Om1vZGlmeQAyMDE2LTEwLTA1VDE4OjExOjQzLTA0OjAwYzK9awAAAABJRU5E
         rkJggg==
-    http_version: 
+    http_version:
   recorded_at: Thu, 06 Oct 2016 15:31:37 GMT
 recorded_with: VCR 3.0.3
