@@ -7,9 +7,15 @@ module SAML
   class SettingsService
     include Singleton
 
-    attr_reader :settings
+    attr_reader :saml_settings
 
     def initialize
+      @saml_settings ||= fetch_idp_metadata
+    end
+
+    private
+
+    def settings
       # populate with SP settings
       settings = OneLogin::RubySaml::Settings.new
       settings.certificate  = SAML_CONFIG['certificate']
@@ -23,12 +29,6 @@ module SAML
       settings.authn_context = 'authentication'
       # @settings.authn_context = 'http://idmanagement.gov/ns/assurance/loa/3'
     end
-
-    def saml_settings
-      @combined_saml_settings ||= fetch_idp_metadata
-    end
-
-    private
 
     ## Makes an external web call to get IDP metadata and populates SETTINGS
     def fetch_idp_metadata
