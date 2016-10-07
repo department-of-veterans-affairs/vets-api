@@ -4,4 +4,9 @@ namespace :jobs do
   task create_daily_spool_files: :environment do
     EducationForm::CreateDailySpoolFiles.perform_later
   end
+
+  desc 'Email daily year to date report'
+  task create_daily_year_to_date_report: :environment do
+    EducationForm::CreateDailyYearToDateReport.perform_later(Date.today)
+  end
 end
