@@ -28,7 +28,6 @@ RSpec.describe User, type: :model do
         expect(FactoryGirl.build(:user, level_of_assurance: LOA::THREE, ssn: '')).to_not be_valid
       end
     end
-
   end
 
   subject { described_class.new(attributes) }

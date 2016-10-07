@@ -25,7 +25,7 @@ FactoryGirl.define do
           family_name: 'lincoln',
           gender: 'M',
           birth_date: '18090212',
-          ssn: '272111863',
+          ssn: '272111863'
         }
       end
     end
