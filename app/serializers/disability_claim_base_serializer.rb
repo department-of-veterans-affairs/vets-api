@@ -70,20 +70,21 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
     end
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity
+  PHASE_MAPPING = {
+    'claim received' => 1,
+    'under review' => 2,
+    'gathering of evidence' => 3,
+    'review of evidence' => 4,
+    'preparation for decision' => 5,
+    'pending decision approval' => 6,
+    'preparation for notification' => 7,
+    'complete' => 8
+  }.freeze
+
   def phase_from_keys(*keys)
-    case s = object.data.dig(*keys)&.downcase
-    when 'claim received' then 1
-    when 'under review' then 2
-    when 'gathering of evidence' then 3
-    when 'review of evidence' then 4
-    when 'preparation for decision' then 5
-    when 'pending decision approval' then 6
-    when 'preparation for notification' then 7
-    when 'complete' then 8
-    else
-      Rails.logger.error "Expected EVSS #{keys} to be a phase. Got '#{s}'."
-      nil
-    end
+    s = object.data.dig(*keys)&.downcase
+    phase = PHASE_MAPPING[s]
+    Rails.logger.error "Expected EVSS #{keys} to be a phase. Got '#{s}'." unless phase
+    phase
   end
 end
