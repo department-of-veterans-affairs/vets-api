@@ -21,7 +21,7 @@ describe Common::Exceptions::InvalidField do
         .to eq(title: 'Invalid field',
                detail: '"facility_name" is not a valid field for "Tracking"',
                code: '102',
-               status: 400)
+               status: '400')
     end
   end
 end
