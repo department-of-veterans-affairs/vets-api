@@ -76,9 +76,9 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport do
         end
       end
 
-      describe '#get_submissions' do
+      describe '#calculate_submissions' do
         it 'should return data about the number of submissions' do
-          expect(subject.get_submissions).to eq(
+          expect(subject.calculate_submissions).to eq(
             eastern: { 'chapter33' => 2, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
             southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
             central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },

@@ -3,7 +3,7 @@ module EducationForm
   class CreateDailyYearToDateReport < ActiveJob::Base
     require 'csv'
 
-    def get_submissions
+    def calculate_submissions
       submissions = {}
       application_types = EducationBenefitsClaim::APPLICATION_TYPES
 
@@ -38,7 +38,7 @@ module EducationForm
     end
 
     def create_csv_array
-      submissions = get_submissions
+      submissions = calculate_submissions
       csv_array = []
       create_csv_header(csv_array)
 
