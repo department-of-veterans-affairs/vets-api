@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe EducationForm::CreateDailyYearToDateReport do
   subject { described_class.new }
+  let(:date) { Date.today }
 
   describe '#get_submissions' do
     before do
@@ -25,10 +26,14 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport do
           }
         }
       )
+
+      create(:education_benefits_claim).tap do |education_benefits_claim|
+        education_benefits_claim.update_column(:submitted_at, date - 1.year)
+      end
     end
 
     it 'should calculate number of submissions correctly' do
-      expect(subject.get_submissions).to eq(
+      expect(subject.get_submissions(date)).to eq(
         {
           :eastern=>{"chapter33"=>2, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0},
           :southern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0},

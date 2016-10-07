@@ -1,6 +1,6 @@
 module EducationForm
   class CreateDailyYearToDateReport < ActiveJob::Base
-    def get_submissions
+    def get_submissions(date)
       submissions = {}
       application_types = EducationBenefitsClaim::APPLICATION_TYPES
 
@@ -13,7 +13,7 @@ module EducationForm
         submissions[region] = region_submissions
       end
 
-      EducationBenefitsClaim.find_each do |education_benefits_claim|
+      EducationBenefitsClaim.where(submitted_at: date.beginning_of_year..date.end_of_year).find_each do |education_benefits_claim|
         region = education_benefits_claim.region
 
         application_types.each do |application_type|
