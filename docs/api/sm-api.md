@@ -11,7 +11,7 @@ Secure Messaging within vets.gov enables secure, non-emergency, communications b
 | GET /messaging/healthcare/folders/:id             | Returns a folder                    | None                          |
 | POST /messaging/healthcare/folders                | Creates a folder                    | [json payload](#folder)  |
 | DELETE /messaging/healthcare/folders/:id          | Deletes a folder                    | None                          |
-| GET /messaging/health/folders/:folder_id/messages | List messages in folder             | None                          |
+| GET /messaging/health/folders/:folder_id/messages | List messages in folder             | [Filtering](#filtering)              |
 | GET /messaging/health/messages/:id                | Gets a message                      | None                          |
 | GET /messaging/health/messages/:message_id/thread | List messages in thread             | [Pagination](#pagination)     |
 | POST /messaging/health/messages                   | Sends a message.                    | [json payload](#message) |
@@ -151,11 +151,38 @@ returns
 #### Links
 TBD
 
-#### Filtering
-Filtering allows you to select a subset of messages in any folder. The call to list all messages is appended with query parameters that specify which attributes of a message you want to filter and one or more conditions to filter on. The general format is:
+#### <a name="filtering"></a>Filtering
+Filtering allows you to select a subset of messages in any folder. The call to list all messages is appended with query parameters that specify which attributes of a message you want to filter and one or more conditions to filter on.
+
+The general format is:
 ```
 /messaging/health/folders/:id/messages?filter[[attribute][comparison]]=value ...
 ```
+
+For a given attribute, you can combine more than one filter conditions that are logically AND-ed. As an example, suppose you wish to filter all inbox (`:id=0`) messages to show only those messages that were sent between January 1, 2016 and January 31, 2016. The proper filter query for this would be:
+```
+?filter[[sent_date][gteq]]=2016-01-01T00:00:00
+   &filter[[sent_date][lteq]]=2016-01-31T23:59:59
+```
+As another example, suppose you wish to filter all inbox (`:id=0`) messages to show only those messages that were sent on January 1, 2016.The proper filter query for this would be:
+```
+?filter[[sent_date][gteq]]=2016-01-01T00:00:00
+   &filter[[sent_date][lteq]]=2016-01-01T23:59:59
+```
+
+Multiple attributes may be filtered at the same time, with the attribute conditions AND-ed together. For example, to show all inbox messages from "Smith, Bill" sent between January 1, 2016 and January 31, 2016:
+```
+?filter[[sent_date][gteq]]=2016-01-01T00:00:00
+   &filter[[sent_date][lteq]]=2016-01-31T23:59:59
+   &filter[[sender_name][eq]]=Smith,%20Bill
+```
+
+For a last example, to return all messages having the phrase "blood pressure" in the subject line:
+```
+?filter[[subject][match]]=blood%20pressure
+```
+
+The returned JSON contains metadata with the origin filter query parameters.
 
 ##### Permitted Comparisons
 At the current time, filtering supports the following comparisons:
@@ -166,8 +193,8 @@ At the current time, filtering supports the following comparisons:
 | lteq     | Less than or equal to |
 | gteq     | Greater than or equal to |
 | not_eq   | Not equal |
+| match    | Inexact match (case-insensitive substring match) |
 
-For example, to return all messages
 #### Sorting
 TBD
 
