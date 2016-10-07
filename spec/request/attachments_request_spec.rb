@@ -8,7 +8,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
   before(:each) do
     allow_any_instance_of(ApplicationController).to receive(:authenticate).and_return(true)
-    # expect(SM::Client).to receive(:new).once.and_return(authenticated_client)
+    expect(SM::Client).to receive(:new).once.and_return(authenticated_client)
   end
 
   let(:user_id) { ENV['MHV_SM_USER_ID'] }

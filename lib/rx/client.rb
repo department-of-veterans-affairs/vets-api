@@ -50,13 +50,24 @@ module Rx
     end
 
     def process_response_or_error
-      return @response if @response.status == 200 && @response.body.empty?
+      process_no_content_response || process_other
+    end
+
+    def process_no_content_response
+      # MHV is providing a normal string for successful POST, not JSON
+      return unless @response.body.empty? || @response.body.start_with?('Successfully submitted to:')
+      @response if @response.success?
+    end
+
+    def process_other
       json = begin
         MultiJson.load(@response.body)
       rescue MultiJson::LoadError => error
+        # we should log the response body, but i'm reluctant to do it in case it
+        # makes it into production and includes private information.
         raise Common::Client::Errors::Serialization, error
       end
-      return Rx::Parser.new(json).parse! if @response.status == 200
+      return Rx::Parser.new(json).parse! if @response.success?
       raise Common::Client::Errors::ClientResponse.new(@response.status, json)
     end
 
