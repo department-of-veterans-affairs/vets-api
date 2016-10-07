@@ -70,6 +70,7 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
     end
   end
 
+  # rubocop:disable Metrics/CyclomaticComplexity
   def phase_from_keys(*keys)
     case s = object.data.dig(*keys)&.downcase
     when 'claim received' then 1
