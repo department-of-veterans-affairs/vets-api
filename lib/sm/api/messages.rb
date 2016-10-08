@@ -14,10 +14,7 @@ module SM
       # get_message: Retrieves a specific message by id, marking the message as read.
       def get_message(id)
         path = "message/#{id}/read"
-
-        # We do not handle attachments yet.
         json = perform(:get, path, nil, token_headers)
-        json[:data].delete(:attachments)
 
         Message.new(json)
       end
@@ -42,15 +39,15 @@ module SM
       # post_create_message: Creates a new message, without attachments
       def post_create_message(args = {})
         json = perform(:post, 'message', args, token_headers)
-        json[:data].delete(:attachments)
 
         Message.new(json)
       end
 
       def post_create_message_with_attachment(args = {})
         custom_header = token_headers.merge('Content-Transfer-Encoding' => 'binary')
+        custom_header = custom_header.except('Content-Type')
         json = perform(:post, 'message/attach', args, custom_header)
-        json[:data].delete(:attachments)
+
         Message.new(json)
       end
 
@@ -58,7 +55,6 @@ module SM
       # or updates an existing reply, without attachments
       def post_create_message_reply(id, args = {})
         json = perform(:post, "message/#{id}/reply", args, token_headers)
-        json[:data].delete(:attachments)
 
         Message.new(json)
       end

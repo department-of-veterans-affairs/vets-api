@@ -50,15 +50,16 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
     events = []
     TRACKED_ITEM_FIELDS.each do |field|
       list_objects_with_key(['claimTrackedItems', field], ['openedDate']).each do |obj|
+        date = obj['openedDate'] || obj['receivedDate']
         events << {
           type: field.snakecase,
-          date: Date.strptime(obj['openedDate'], '%m/%d/%Y'),
+          date: Date.strptime(date, '%m/%d/%Y'),
           description: obj['description'],
           display_name: obj['displayedName'],
           overdue: obj['overdue'],
           tracked_item_id: obj['trackedItemId'],
           tracked_item_status: obj['trackedItemStatus']
-        } if obj['openedDate']
+        } if date
       end
     end
     events
