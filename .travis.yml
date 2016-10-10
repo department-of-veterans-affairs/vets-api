@@ -27,6 +27,7 @@ before_script:
   - export MVI_URL='http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService'
   - export VHA_MAPSERVER_URL='https://maps.va.gov/server/rest/services/PROJECTS/Facility_Locator/MapServer'
   - export VHA_MAPSERVER_LAYER='0'
+  - export MOCK_MVI_SERVICE=false
 
 script:
   - bundle exec rake db:create db:schema:load ci

@@ -58,4 +58,10 @@ describe Decorators::MviUserDecorator do
       end
     end
   end
+
+  around do |example|
+    ClimateControl.modify MOCK_MVI_SERVICE: 'false' do
+      example.run
+    end
+  end
 end
