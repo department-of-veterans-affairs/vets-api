@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
-  attributes :contention_list, :va_representative, :events_timeline
+  attributes :contention_list, :va_representative, :events_timeline, :files_needed
 
   def contention_list
     object.data['contentionList']
@@ -32,6 +32,13 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
 
   def phase
     phase_from_keys 'claimPhaseDates', 'latestPhaseType'
+  end
+
+  def files_needed
+    list_objects_with_key(
+      %w(claimTrackedItems stillNeedFromYouList),
+      %w(uploadsAllowed)
+    ).count
   end
 
   private

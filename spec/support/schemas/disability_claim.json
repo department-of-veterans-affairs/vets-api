@@ -27,7 +27,8 @@
             "decision_letter_sent",
             "successful_sync",
             "updated_at",
-            "phase"
+            "phase",
+            "files_needed"
           ],
           "properties": {
             "evss_id": { "type": "integer" },
@@ -45,7 +46,8 @@
             "decision_letter_sent": { "type": "boolean" },
             "successful_sync": { "type": "boolean" },
             "updated_at": { "type": "string" },
-            "phase": { "type": ["integer", "null"] }
+            "phase": { "type": ["integer", "null"] },
+            "files_needed":  { "type": "integer"}
           }
         }
       }

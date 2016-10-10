@@ -15,7 +15,7 @@ RSpec.describe DisabilityClaimDetailSerializer, type: :serializer do
              phase_change_date open waiver_submitted contention_list
              va_representative events_timeline development_letter_sent
              decision_letter_sent documents_needed successful_sync updated_at
-             phase).freeze
+             phase files_needed).freeze
 
   it "shouldn't include any extra attributes" do
     expect(attributes.keys.sort).to eq(KEYS.sort)
