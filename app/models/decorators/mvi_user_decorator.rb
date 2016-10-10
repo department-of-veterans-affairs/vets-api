@@ -1,5 +1,3 @@
-require 'common/exceptions'
-
 # frozen_string_literal: true
 require 'common/exceptions'
 require 'mvi/service_factory'
