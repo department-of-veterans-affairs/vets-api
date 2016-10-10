@@ -1,5 +1,5 @@
 def notify(message, color='good') {
-    if (notify_slack) {
+    if (notify_slack.toBoolean()) {
         slackSend message: message,
                   color: color,
                   failOnError: true
