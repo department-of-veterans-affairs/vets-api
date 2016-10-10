@@ -30,6 +30,10 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
     events.compact.sort_by { |h| h[:date] }.reverse
   end
 
+  def phase
+    phase_from_keys 'claimPhaseDates', 'latestPhaseType'
+  end
+
   private
 
   def create_event_from_string_date(type, *from_keys)

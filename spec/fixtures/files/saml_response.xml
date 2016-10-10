@@ -3,7 +3,7 @@
   <saml:Assertion>
     <saml:AuthnStatement>
       <saml:AuthnContext>
-        <saml:AuthnContextClassRef>http://idmanagement.gov/ns/assurance/loa/2</saml:AuthnContextClassRef>
+        <saml:AuthnContextClassRef>authentication</saml:AuthnContextClassRef>
       </saml:AuthnContext>
     </saml:AuthnStatement>
   </saml:Assertion>

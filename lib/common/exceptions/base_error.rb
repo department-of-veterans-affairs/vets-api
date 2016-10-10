@@ -7,6 +7,10 @@ module Common
       def errors
         raise NotImplementedError, 'Subclass of Error must implement errors method'
       end
+
+      def status_code
+        errors&.first&.status&.to_i
+      end
     end
   end
 end
