@@ -14,7 +14,7 @@ module MVI
       def body
         return nil unless @subject
         patient = @subject.dig(:registration_event, :subject1, :patient)
-        name = parse_name(patient[:patient_person][:name])
+        name = parse_name(patient.dig(:patient_person, :name))
         {
           status: patient.dig(:status_code, :@code),
           given_names: name[:given],
