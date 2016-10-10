@@ -25,11 +25,12 @@ describe MVI::Responses::FindCandidate do
           expect(valid_response.body).to eq(
             birth_date: '19800101',
             edipi: '1234^NI^200DOD^USDOD^A',
+            vba_corp_id: '12345678^PI^200CORP^USVBA^A',
             family_name: 'Smith',
             gender: 'M',
             given_names: %w(John William),
             icn: '1000123456V123456^NI^200M^USVHA^P',
-            mhv: '123456^PI^200MHV^USVHA^A',
+            mhv_id: '123456^PI^200MHV^USVHA^A',
             ssn: '555443333',
             status: 'active'
           )
@@ -46,11 +47,12 @@ describe MVI::Responses::FindCandidate do
         expect(valid_response_missing_attrs.body).to eq(
           birth_date: '19320205',
           edipi: nil,
+          mhv_id: nil,
+          vba_corp_id: nil,
           family_name: 'Allen',
           gender: 'M',
           given_names: %w(Hector),
           icn: '1008704012V552302^NI^200M^USVHA^P',
-          mhv: nil,
           ssn: '111223333',
           status: 'active'
         )

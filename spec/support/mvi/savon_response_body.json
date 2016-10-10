@@ -107,6 +107,9 @@
               }, {
                 ":@extension": "1234^NI^200DOD^USDOD^A",
                 ":@root": "2.16.840.1.113883.3.364"
+              }, {
+                ":@extension": "12345678^PI^200CORP^USVBA^A",
+                ":@root": "2.16.840.1.113883.4.349"
               }],
               ":status_code": {
                 ":@code": "active"

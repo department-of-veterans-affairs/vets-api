@@ -12,7 +12,14 @@ class Decorators::MviUserDecorator
     raise Common::Exceptions::ValidationErrors, @user unless @user.valid?
     message = create_message
     response = MVI_SERVICE.find_candidate(message)
-    @user.attributes = { mvi: response }
+    # in most cases (other than ids) the user attributes from the identity provider are more up-to-date
+    # but stashing the MVI data if it's needed for confirmation
+    @user.attributes = {
+      edipi: response[:edipi],
+      participant_id: response[:vba_corp_id],
+      mhv_id: response[:mhv_id],
+      mvi: response
+    }
     @user
   rescue MVI::RecordNotFound => e
     # TODO(AJD): add cloud watch metric

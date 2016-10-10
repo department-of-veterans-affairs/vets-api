@@ -34,7 +34,8 @@ describe MVI::Service do
         expect(response).to eq(
           edipi: '1234^NI^200DOD^USDOD^A',
           icn: '1000123456V123456^NI^200M^USVHA^P',
-          mhv: '123456^PI^200MHV^USVHA^A',
+          mhv_id: '123456^PI^200MHV^USVHA^A',
+          vba_corp_id: '12345678^PI^200CORP^USVBA^A',
           status: 'active',
           given_names: %w(John William),
           family_name: 'Smith',
