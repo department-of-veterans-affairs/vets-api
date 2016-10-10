@@ -19,7 +19,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:response_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_response.xml") }
   before(:each) do
     allow_any_instance_of(Decorators::MviUserDecorator).to receive(:create).and_return(mvi_user)
-    allow_any_instance_of(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
+    allow_any_instance_of(ApplicationController).to receive(:saml_settings).and_return(rubysaml_settings)
   end
 
   context 'when not logged in' do
