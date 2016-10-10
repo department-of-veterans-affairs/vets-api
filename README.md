@@ -90,14 +90,11 @@ appending the exported/downloaded certificate to `<HOMEBREW_DIR>/etc/openssl/cer
 ### MVI Service
 The Master Veteran Index Service retreives and updates a veterans 'golden record'.
 This service is only available over the VA VPN. A mock service is available for
-testing in development and/or when you don't have VPN access. By default development
-uses MVI::MockService and all other environments use MVI::Service, to change this update 
-the config/environments:
+testing in development or when you don't have VPN access. To enable the mock 
+service set MOCK_MVI_SERVICE in config/application.yml to 'true'
 ```
-# live service
-config.mvi_service = MVI::Service
-# mock service
-config.mvi_service = MVI::MockService
+# config/application.yml
+MOCK_MVI_SERVICE = true
 ```
 Endpoint response value can be set by copying mock_mvi_responses.yml.example to
 mock_mvi_responses.yml and updating YAML for the appropriate endpoint:
