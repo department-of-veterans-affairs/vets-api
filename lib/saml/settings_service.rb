@@ -25,7 +25,7 @@ module SAML
 
       # This will get moved out of here and will be set per application
       # To require just a username and password, use "authentication" as the context;
-      # for full identity proofing, use the LOA3 url.
+      # for full identity proofing, use the LOA3 url
       settings.authn_context = 'authentication'
       # @settings.authn_context = 'http://idmanagement.gov/ns/assurance/loa/3'
 
