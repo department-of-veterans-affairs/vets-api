@@ -14,10 +14,4 @@ RSpec.describe SAML::SettingsService do
     @service_instance.instance.saml_settings
     expect(a_request(:get, SAML_CONFIG['metadata_url'])).to have_been_made.times(1)
   end
-
-  it 'should always be the same instance' do
-    stub_request(:get, SAML_CONFIG['metadata_url'])
-    expect(SAML::SettingsService.instance).to be_a_kind_of(SAML::SettingsService)
-    expect(SAML::SettingsService.instance).to eq(SAML::SettingsService.instance)
-  end
 end
