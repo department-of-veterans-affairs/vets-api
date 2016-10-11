@@ -1,14 +1,20 @@
 # frozen_string_literal: true
 module V0
   class TriageTeamsController < SMController
+    SORT_FIELDS   = %w(name).freeze
+    SORT_TYPES    = (SORT_FIELDS + SORT_FIELDS.map { |field| "-#{field}" }).freeze
+    DEFAULT_SORT  = '-name'
+    
     def index
-      teams = client.get_triage_teams
-      raise Common::Exceptions::InternalServerError unless teams.present?
+      resource = client.get_triage_teams
+      resource = resource.sort(params[:sort] || DEFAULT_SORT, allowed: SORT_TYPES)
 
-      render json: teams.data,
+      raise Common::Exceptions::InternalServerError unless resource.present?
+
+      render json: resource.data,
              serializer: CollectionSerializer,
              each_serializer: TriageTeamSerializer,
-             meta: teams.metadata
+             meta: resource.metadata
     end
   end
 end

@@ -3,9 +3,14 @@ module V0
   class MessagesController < SMController
     include Filterable
 
+    SORT_FIELDS   = %w(subject sent_date sender_name recipient_name).freeze
+    SORT_TYPES    = (SORT_FIELDS + SORT_FIELDS.map { |field| "-#{field}" }).freeze
+    DEFAULT_SORT  = '-sent_date'
+
     PERMITTED_FILTERS = {
       'subject' => %w(eq not_eq),
       'sender_name' => %w(eq not_eq),
+      'recipient_name' => %w(eq not_eq),
       'sent_date' => %w(eq lteq gteq)
     }.freeze
 
@@ -13,6 +18,7 @@ module V0
       resource = client.get_folder_messages(params[:folder_id].to_s)
       raise Common::Exceptions::RecordNotFound, params[:folder_id] unless resource.present?
       resource = filter? ? resource.find_by(params[:filter]) : resource
+      resource = resource.sort(params[:sort] || DEFAULT_SORT, allowed: SORT_TYPES)
       resource = resource.paginate(pagination_params)
 
       render json: resource.data,

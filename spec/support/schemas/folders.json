@@ -40,8 +40,11 @@
     },
     "meta": {
       "type": "object",
-      "required": ["pagination"],
+      "required": ["sort", "pagination"],
       "properties": {
+        "sort": {
+          "type": "object"
+        },
         "pagination": {
           "type": "object",
           "required": ["current_page", "per_page", "total_pages", "total_entries"],
