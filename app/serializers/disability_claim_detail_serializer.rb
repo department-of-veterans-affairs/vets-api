@@ -35,10 +35,10 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
   end
 
   def tracked_items
-    files = []
-    items = object.data['consolidatedTrackedItemsList'] || []
-    items.each do |obj|
-      files << {
+    items = []
+    items_src = object.data['consolidatedTrackedItemsList'] || []
+    items_src.each do |obj|
+      items << {
         tracked_item_id: obj['trackedItemId'],
         description: obj['description'],
         display_name: obj['displayedName'],
@@ -53,7 +53,7 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
         suspense_date: date_or_null_from(obj, 'suspenseDate')
       }
     end
-    files
+    items
   end
 
   private
