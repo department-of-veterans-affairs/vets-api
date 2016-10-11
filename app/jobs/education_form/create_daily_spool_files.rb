@@ -91,18 +91,13 @@ module EducationForm
 
     private
 
-    # Used in the INIT header of the 22-1990 template.
+    # If multiple benefit types are selected, we've been told to just include whichever
+    # one is 'first' in the header.
     def form_type(application)
-      {
-        CH33:       'CH33',
-        CH33_30:    'CH33',
-        CH33_1606:  'CH33',
-        CH33_1607:  'CH33',
-        CH1606:     'CH1606',
-        CH30:       'CH30',
-        CH32:       'CH32',
-        NA:         'NA'
-      }[application.form.to_sym]
+      return 'CH1606' if application.chapter1606
+      return 'CH33' if application.chapter33
+      return 'CH30' if application.chapter30
+      return 'CH32' if application.chapter32
     end
 
     # Some descriptive text that's included near the top of the 22-1990 form
