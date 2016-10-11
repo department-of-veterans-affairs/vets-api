@@ -51,13 +51,11 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
   ).freeze
 
   def create_events_for_tracked_items
-    events = []
-    TRACKED_ITEM_FIELDS.each do |field|
-      sub_objects_of('claimTrackedItems', field).each do |obj|
-        events << create_tracked_item_event(field.snakecase, obj)
+    TRACKED_ITEM_FIELDS.map do |field|
+      sub_objects_of('claimTrackedItems', field).map do |obj|
+        create_tracked_item_event(field.snakecase, obj)
       end
-    end
-    events
+    end.flatten
   end
 
   def create_tracked_item_event(type, obj)
