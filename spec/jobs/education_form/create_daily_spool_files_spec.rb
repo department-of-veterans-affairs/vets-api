@@ -19,16 +19,19 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
 
     context 'conformance' do
-      basepath = Rails.root.join('spec', 'fixtures', 'education_benefits_claims')
-      SAMPLE_APPLICATIONS.each do |application_name|
-        it "generates #{application_name} correctly" do
-          json = File.read(File.join(basepath, "#{application_name}.json"))
-          application = EducationBenefitsClaim.new(form: json)
-          result = subject.format_application(application.open_struct_form)
-          spl = File.read(File.join(basepath, "#{application_name}.spl"))
-          expect(result).to eq(spl)
+        basepath = Rails.root.join('spec', 'fixtures', 'education_benefits_claims')
+        SAMPLE_APPLICATIONS.each do |application_name|
+          it "generates #{application_name} correctly" do
+            json = File.read(File.join(basepath, "#{application_name}.json"))
+            expect(json).to match_vets_schema('education_benefits')
+            application = EducationBenefitsClaim.new(form: json)
+            result = Timecop.freeze(Time.zone.parse('2016-10-06 03:00:00 EDT')) do
+              subject.format_application(application.open_struct_form)
+            end
+            spl = File.read(File.join(basepath, "#{application_name}.spl"))
+            expect(result).to eq(spl)
+          end
         end
-      end
     end
 
     context 'result tests' do

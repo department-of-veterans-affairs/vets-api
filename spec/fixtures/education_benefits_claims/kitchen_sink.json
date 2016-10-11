@@ -82,7 +82,7 @@
       "from": "06/26/2012",
       "to": "04/10/2013"
     },
-    "involuntarilyCalledToDuty": null,
+    "involuntarilyCalledToDuty": "n/a",
     "serviceBranch": "Army Reserve",
     "serviceStatus": "ACTIVE DUTY TRAINING"
   }, {
@@ -90,7 +90,7 @@
       "from": "04/22/2013",
       "to": "06/14/2013"
     },
-    "involuntarilyCalledToDuty": null,
+    "involuntarilyCalledToDuty": "yes",
     "serviceBranch": "Army Reserve",
     "serviceStatus": "ACTIVE DUTY"
   }],
