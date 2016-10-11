@@ -18,6 +18,7 @@
     "yes": true
   },
   "civilianBenefitsAssistance": true,
+  "serviceAcademyGraduationYear": 2010,
   "seniorRotc": {
     "commissionYear": 1981,
     "rotcScholarshipAmounts": [{
