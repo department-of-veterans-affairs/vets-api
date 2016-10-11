@@ -11,7 +11,8 @@ RSpec.describe V0::SessionsController, type: :controller do
       'lname' => [mvi_user.last_name],
       'mname' => [''],
       'social' => [mvi_user.ssn],
-      'birth_date' => [mvi_user.birth_date.strftime('%Y-%m-%d')]
+      'birth_date' => [mvi_user.birth_date.strftime('%Y-%m-%d')],
+      'level_of_assurance' => [mvi_user.loa_highest]
     }
   end
   let(:rubysaml_settings) { FactoryGirl.build(:rubysaml_settings) }
@@ -84,12 +85,20 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(user.first_name).to eq(saml_attrs['fname'].first)
       end
 
-      it 'parses and stores level of assurance' do
+      it 'parses and stores the current level of assurance' do
         get :saml_callback
 
         uuid = JSON.parse(response.body)['uuid']
         user = User.find(uuid)
-        expect(user.level_of_assurance).to eq(LOA::ONE)
+        expect(user.loa_current).to eq(LOA::ONE)
+      end
+
+      it 'parses and stores the highest level of assurance proofing' do
+        get :saml_callback
+
+        uuid = JSON.parse(response.body)['uuid']
+        user = User.find(uuid)
+        expect(user.loa_highest).to eq(LOA::THREE)
       end
     end
 
@@ -107,17 +116,11 @@ RSpec.describe V0::SessionsController, type: :controller do
   context 'when logged in' do
     let(:token) { 'abracadabra-open-sesame' }
     let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
+    let(:test_user) { FactoryGirl.build(:user) }
 
     before(:each) do
-      Session.create(uuid: '1234', token: token)
-      User.create(
-        uuid: '1234',
-        email: 'test@test.com',
-        first_name: 'abraham',
-        last_name: 'lincoln',
-        birth_date: Time.new(1809, 2, 12).utc,
-        ssn: '111223333'
-      )
+      Session.create(uuid: test_user.uuid, token: token)
+      User.create(test_user)
     end
 
     it 'returns a JSON the session' do
@@ -127,7 +130,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       json = JSON.parse(response.body)
 
-      expect(json['uuid']).to eq('1234')
+      expect(json['uuid']).to eq(test_user.uuid)
       expect(json['token']).to eq(token)
     end
 

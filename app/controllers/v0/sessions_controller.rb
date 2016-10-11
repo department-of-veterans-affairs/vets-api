@@ -50,8 +50,9 @@ module V0
         ssn:          attributes['social']&.first&.delete('-'),
         birth_date:   parse_date(attributes['birth_date']&.first),
         uuid:         attributes['uuid']&.first,
+        loa_highest:  attributes['level_of_assurance']&.first,
 
-        level_of_assurance: level_of_assurance
+        loa_current: parse_current_loa
       }
     end
 
@@ -65,14 +66,15 @@ module V0
     # Ruby-Saml does not parse the <samlp:Response> xml so we do it ourselves to find
     # which LOA was performed on the ID.me side.
     # TODO - remove this method once LOA is returned as a SAML Attribute
-    def level_of_assurance
+    def parse_current_loa
       raw_loa = Hash.from_xml(@saml_response.response)
                     .dig('Response', 'Assertion', 'AuthnStatement', 'AuthnContext', 'AuthnContextClassRef')
       LOA::MAPPING[raw_loa.to_sym]
     end
 
     def create_new_user
-      if user_attributes[:level_of_assurance] == LOA::ONE
+
+      if user_attributes[:loa_current] == LOA::ONE
         User.new(user_attributes)
       else
         Decorators::MviUserDecorator.new(User.new(user_attributes)).create

@@ -7,6 +7,7 @@ module LOA
 
   MAPPING = {
     'authentication': ONE,
+    'http://idmanagement.gov/ns/assurance/loa/1': ONE,
     'http://idmanagement.gov/ns/assurance/loa/2': TWO,
     'http://idmanagement.gov/ns/assurance/loa/3': THREE
   }.freeze

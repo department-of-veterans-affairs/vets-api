@@ -12,7 +12,8 @@ FactoryGirl.define do
     edipi '1234^NI^200DOD^USDOD^A'
     participant_id '123456789'
     ssn '272111863'
-    level_of_assurance LOA::TWO
+    loa_current LOA::TWO
+    loa_highest LOA::THREE
 
     factory :mvi_user do
       mvi do

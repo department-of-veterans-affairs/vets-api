@@ -13,19 +13,50 @@ RSpec.describe User, type: :model do
       birth_date: Time.new(1980, 1, 1).utc,
       ssn: '555443333',
       gender: 'M',
-      level_of_assurance: LOA::THREE
+      loa_current: LOA::THREE,
+      loa_highest: LOA::THREE
     }
   end
 
   describe 'to create a user' do
     context 'with LOA 1' do
       it 'should allow a blank ssn' do
-        expect(FactoryGirl.build(:user, level_of_assurance: LOA::ONE, ssn: '')).to be_valid
+        expect(FactoryGirl.build(:user, loa_current: LOA::ONE, ssn: '')).to be_valid
+      end
+      it 'should allow a blank gender' do
+        expect(FactoryGirl.build(:user, loa_current: LOA::ONE, gender: '')).to be_valid
+      end
+      it 'should allow a blank middle_name' do
+        expect(FactoryGirl.build(:user, loa_current: LOA::ONE, middle_name: '')).to be_valid
+      end
+      it 'should allow a blank birth_date' do
+        expect(FactoryGirl.build(:user, loa_current: LOA::ONE, birth_date: '')).to be_valid
+      end
+      it 'should allow a blank zip' do
+        expect(FactoryGirl.build(:user, loa_current: LOA::ONE, zip: '')).to be_valid
+      end
+      it 'should allow a blank loa_highest' do
+        expect(FactoryGirl.build(:user, loa_current: LOA::ONE, loa_highest: nil)).to be_valid
+      end
+      it 'should not allow a blank uuid' do
+        expect(FactoryGirl.build(:user, loa_current: LOA::ONE, uuid: '')).to_not be_valid
+      end
+      it 'should not allow a blank email' do
+        expect(FactoryGirl.build(:user, loa_current: LOA::ONE, email: '')).to_not be_valid
       end
     end
     context 'with LOA 3' do
       it 'should not allow a blank ssn' do
-        expect(FactoryGirl.build(:user, level_of_assurance: LOA::THREE, ssn: '')).to_not be_valid
+        expect(FactoryGirl.build(:user, loa_current: LOA::THREE, ssn: '')).to_not be_valid
+      end
+      it 'should not allow a blank first_name' do
+        expect(FactoryGirl.build(:user, loa_current: LOA::THREE, first_name: '')).to_not be_valid
+      end
+      it 'should not allow a blank last_name' do
+        expect(FactoryGirl.build(:user, loa_current: LOA::THREE, last_name: '')).to_not be_valid
+      end
+      it 'should not allow a blank birth_date' do
+        expect(FactoryGirl.build(:user, loa_current: LOA::THREE, birth_date: '')).to_not be_valid
       end
     end
   end
@@ -123,7 +154,8 @@ RSpec.describe User, type: :model do
             ssn: '555443333',
             uuid: attributes[:uuid],
             zip: nil,
-            level_of_assurance: LOA::THREE
+            loa_current: LOA::THREE,
+            loa_highest: LOA::THREE
           )
         end
       end

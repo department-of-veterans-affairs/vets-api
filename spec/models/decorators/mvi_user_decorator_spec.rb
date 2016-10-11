@@ -32,7 +32,8 @@ describe Decorators::MviUserDecorator do
           last_name: 'lincoln',
           last_signed_in: user.last_signed_in,
           middle_name: nil,
-          level_of_assurance: LOA::TWO,
+          loa_current: LOA::TWO,
+          loa_highest: LOA::THREE,
           mvi: {
             edipi: '1234^NI^200DOD^USDOD^A',
             icn: '1000123456V123456^NI^200M^USVHA^P',
