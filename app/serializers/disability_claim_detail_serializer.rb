@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
-  attributes :contention_list, :va_representative, :events_timeline, :files_needed
+  attributes :contention_list, :va_representative, :events_timeline, :tracked_items
 
   def contention_list
     object.data['contentionList']
@@ -34,11 +34,26 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
     phase_from_keys 'claimPhaseDates', 'latestPhaseType'
   end
 
-  def files_needed
-    list_objects_with_key(
-      %w(claimTrackedItems stillNeedFromYouList),
-      %w(uploadsAllowed)
-    ).count
+  def tracked_items
+    files = []
+    items = object.data['consolidatedTrackedItemsList'] || []
+    items.each do |obj|
+      files << {
+        tracked_item_id: obj['trackedItemId'],
+        description: obj['description'],
+        display_name: obj['displayedName'],
+        overdue: obj['overdue'],
+        status: obj['trackedItemStatus'],
+        uploaded: obj['uploaded'],
+        uploads_allowed: obj['uploadsAllowed'],
+        received_date: date_or_null_from(obj, 'receivedDate'),
+        opened_date: date_or_null_from(obj, 'openedDate'),
+        closed_date: date_or_null_from(obj, 'closedDate'),
+        requested_date: date_or_null_from(obj, 'requestedDate'),
+        suspense_date: date_or_null_from(obj, 'suspenseDate')
+      }
+    end
+    files
   end
 
   private
@@ -60,7 +75,7 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
   def create_events_for_tracked_items
     events = []
     TRACKED_ITEM_FIELDS.each do |field|
-      list_objects_with_key(['claimTrackedItems', field], ['openedDate']).each do |obj|
+      sub_objects_with_key_present(['claimTrackedItems', field], ['openedDate']).each do |obj|
         date = obj['openedDate'] || obj['receivedDate']
         events << {
           type: field.snakecase,
@@ -76,12 +91,18 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
     events
   end
 
-  def list_objects_with_key(parents, sub_keys)
+  def sub_objects_with_key_present(parents, sub_keys)
     parent = object.data.dig(*parents)
     parent = [] if parent.blank?
     parent.each do |obj|
       val = obj.dig(*sub_keys)
       obj if val.present?
     end.compact
+  end
+
+  def date_or_null_from(obj, key)
+    date = obj[key]
+    return nil unless date.present?
+    Date.strptime(date, '%m/%d/%Y')
   end
 end

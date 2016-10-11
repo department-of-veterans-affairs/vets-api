@@ -28,7 +28,7 @@
             "successful_sync",
             "updated_at",
             "phase",
-            "files_needed"
+            "tracked_items"
           ],
           "properties": {
             "evss_id": { "type": "integer" },
@@ -47,7 +47,7 @@
             "successful_sync": { "type": "boolean" },
             "updated_at": { "type": "string" },
             "phase": { "type": ["integer", "null"] },
-            "files_needed":  { "type": "integer"}
+            "tracked_items":  { "type": "array", "items": {"type": "object" } }
           }
         }
       }
