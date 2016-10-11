@@ -46,11 +46,11 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
         status: obj['trackedItemStatus'],
         uploaded: obj['uploaded'],
         uploads_allowed: obj['uploadsAllowed'],
-        received_date: date_or_null_from(obj, 'receivedDate'),
-        opened_date: date_or_null_from(obj, 'openedDate'),
-        closed_date: date_or_null_from(obj, 'closedDate'),
-        requested_date: date_or_null_from(obj, 'requestedDate'),
-        suspense_date: date_or_null_from(obj, 'suspenseDate')
+        received_date: date_or_nil_from(obj, 'receivedDate'),
+        opened_date: date_or_nil_from(obj, 'openedDate'),
+        closed_date: date_or_nil_from(obj, 'closedDate'),
+        requested_date: date_or_nil_from(obj, 'requestedDate'),
+        suspense_date: date_or_nil_from(obj, 'suspenseDate')
       }
     end
     items
@@ -100,7 +100,7 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
     end.compact
   end
 
-  def date_or_null_from(obj, key)
+  def date_or_nil_from(obj, key)
     date = obj[key]
     return nil unless date.present?
     Date.strptime(date, '%m/%d/%Y')
