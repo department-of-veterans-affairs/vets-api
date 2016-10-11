@@ -3,7 +3,7 @@ module V0
   class FoldersController < SMController
     SORT_FIELDS   = %w(name).freeze
     SORT_TYPES    = (SORT_FIELDS + SORT_FIELDS.map { |field| "-#{field}" }).freeze
-    DEFAULT_SORT  = '-name'
+    DEFAULT_SORT  = 'name'
 
     def index
       resource = client.get_folders

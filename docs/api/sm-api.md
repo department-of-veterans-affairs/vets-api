@@ -18,7 +18,7 @@ Secure Messaging within vets.gov enables secure, non-emergency, communications b
 | POST /messaging/health/message_drafts             | Creates a draft                     | [json draft payload](#draft-payload) |
 | PUT /messaging/health/message_drafts/:id         | Updates a draft                     | [json draft payload](#draft-payload) |
 | POST /messaging/health/messages/:id/reply | replies to a message | [json payload](#message) |
-| GET /messaging/health/messages/:message_id/attachments/:id | Gets an  attachment | TBD |
+| GET /messaging/health/messages/:message_id/attachments/:id | Gets an  attachment | Todo |
 
 #### <a name="pagination"></a>Pagination Params
 * **page:** The page number of the first message returned
@@ -197,7 +197,17 @@ At the current time, filtering supports the following comparisons:
 | match    | Inexact match (case-insensitive substring match) |
 
 #### Sorting
-TBD
+Results may be sorted in either ascending or descending order.
+
+| Resource | Fields | Default Sort |
+| -------- | ------ | -------------|
+| Folders | name | name (ascending) |
+| Messages | subject, sent_date, recipient_name, sender_name | sent_date (descending) |
+| Prescriptions | prescription_name refill_status ordered_date facility_name | ordered_date (descending)
+| Trackings | shipped_date (descending) |
+| Triage Teams | name (ascending) |
+
+To sort a field
 
 ### Errors and Response Codes
 
