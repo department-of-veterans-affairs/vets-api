@@ -100,7 +100,8 @@ module EducationForm
       return 'CH32' if application.chapter32
     end
 
-    # Some descriptive text that's included near the top of the 22-1990 form
+    # Some descriptive text that's included near the top of the 22-1990 form. Because they can make
+    # multiple selections, we have to go over combinations..
     def disclosure(application)
       contents = File.read(Rails.root.join('app', 'jobs', 'education_form', 'templates', "_#{application.form}.erb"))
       ERB.new(contents).result(binding)
