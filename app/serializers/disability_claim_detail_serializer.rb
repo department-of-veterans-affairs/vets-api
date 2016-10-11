@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
-  attributes :contention_list, :va_representative, :events_timeline, :tracked_items
+  attributes :contention_list, :va_representative, :events_timeline
 
   def contention_list
     object.data['contentionList']
@@ -26,34 +26,12 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
     # Add tracked items
     events += create_events_for_tracked_items
 
-    # Filter out events that were nil and make reverse chron
-    events.compact.sort_by { |h| h[:date] }.reverse
+    # Make reverse chron with nil date items at the end
+    events.compact.sort_by { |h| h[:date] || Date.new }.reverse
   end
 
   def phase
     phase_from_keys 'claimPhaseDates', 'latestPhaseType'
-  end
-
-  def tracked_items
-    items = []
-    items_src = object.data['consolidatedTrackedItemsList'] || []
-    items_src.each do |obj|
-      items << {
-        tracked_item_id: obj['trackedItemId'],
-        description: obj['description'],
-        display_name: obj['displayedName'],
-        overdue: obj['overdue'],
-        status: obj['trackedItemStatus'],
-        uploaded: obj['uploaded'],
-        uploads_allowed: obj['uploadsAllowed'],
-        received_date: date_or_nil_from(obj, 'receivedDate'),
-        opened_date: date_or_nil_from(obj, 'openedDate'),
-        closed_date: date_or_nil_from(obj, 'closedDate'),
-        requested_date: date_or_nil_from(obj, 'requestedDate'),
-        suspense_date: date_or_nil_from(obj, 'suspenseDate')
-      }
-    end
-    items
   end
 
   private
@@ -75,29 +53,39 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
   def create_events_for_tracked_items
     events = []
     TRACKED_ITEM_FIELDS.each do |field|
-      sub_objects_with_key_present(['claimTrackedItems', field], ['openedDate']).each do |obj|
-        date = obj['openedDate'] || obj['receivedDate']
-        events << {
-          type: field.snakecase,
-          date: Date.strptime(date, '%m/%d/%Y'),
-          description: obj['description'],
-          display_name: obj['displayedName'],
-          overdue: obj['overdue'],
-          tracked_item_id: obj['trackedItemId'],
-          tracked_item_status: obj['trackedItemStatus']
-        } if date
+      sub_objects_of('claimTrackedItems', field).each do |obj|
+        events << create_tracked_item_event(field.snakecase, obj)
       end
     end
     events
   end
 
-  def sub_objects_with_key_present(parents, sub_keys)
-    parent = object.data.dig(*parents)
-    parent = [] if parent.blank?
-    parent.each do |obj|
-      val = obj.dig(*sub_keys)
-      obj if val.present?
-    end.compact
+  def create_tracked_item_event(type, obj)
+    event = {
+      type: type,
+      tracked_item_id: obj['trackedItemId'],
+      description: obj['description'],
+      display_name: obj['displayedName'],
+      overdue: obj['overdue'],
+      status: obj['trackedItemStatus'],
+      uploaded: obj['uploaded'],
+      uploads_allowed: obj['uploadsAllowed'],
+      opened_date: date_or_nil_from(obj, 'openedDate'),
+      requested_date: date_or_nil_from(obj, 'requestedDate'),
+      received_date: date_or_nil_from(obj, 'receivedDate'),
+      closed_date: date_or_nil_from(obj, 'closedDate'),
+      suspense_date: date_or_nil_from(obj, 'suspenseDate')
+    }
+    event[:date] = [
+      event[:opened_date], event[:requested_date], event[:received_date],
+      event[:closed_date], event[:suspense_date]
+    ].compact.first
+    event
+  end
+
+  def sub_objects_of(*parents)
+    items = object.data.dig(*parents) || []
+    items.compact
   end
 
   def date_or_nil_from(obj, key)
