@@ -2,10 +2,18 @@
 Gets all data associated to a User.
 
 ## Required Parameters
-### Authorization Header
 `Authorization: Token token=abcd1234...`
 
-## Returns
+## Example
+### Request
+```
+GET /v0/profile HTTP/1.1
+Host: www.vets.gov
+Content-Type: application/json
+Authorization: Token token=RiW_3isZHtUszCLvEAv4vEyCV37K8yFeezQm4fdT
+```
+
+### Response
 ```javascript
 {
   "uuid": "11d21c9bf46642509aba20c4a5d5306d",
