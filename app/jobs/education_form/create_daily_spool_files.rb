@@ -8,8 +8,8 @@ module EducationForm
     require 'ostruct'
 
     queue_as :default
-
-    TEMPLATE = File.read(Rails.root.join('app', 'jobs', 'education_form', 'templates', '22-1990.erb'))
+    TEMPLATE_PATH = Rails.root.join('app', 'jobs', 'education_form', 'templates')
+    TEMPLATE = File.read(File.join(TEMPLATE_PATH, '22-1990.erb'))
 
     WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
 
@@ -101,11 +101,27 @@ module EducationForm
     end
 
     # Some descriptive text that's included near the top of the 22-1990 form. Because they can make
-    # multiple selections, we have to go over combinations..
-    def disclosure(application)
-      contents = File.read(Rails.root.join('app', 'jobs', 'education_form', 'templates', "_#{application.form}.erb"))
-      ERB.new(contents).result(binding)
+    # multiple selections, we have to add all the selected ones.
+    # rubocop:disable Metrics/CyclomaticComplexity
+    def disclosures(application)
+      disclosure_texts = []
+      disclosure_texts << disclosure_for('CH30') if application.chapter30
+      disclosure_texts << disclosure_for('CH1606') if application.chapter1606
+      disclosure_texts << disclosure_for('CH32') if application.chapter32
+      if application.chapter33
+        ch33_type =
+          case application.benefitsRelinquished
+          when 'chapter1607' then 'CH33_1607'
+          when 'chapter1606' then 'CH33_1606'
+          when 'chapter30' then 'CH33_30'
+          else 'CH33'
+          end
+        disclosure_texts << disclosure_for(ch33_type)
+      end
+
+      disclosure_texts.join("\n#{'*' * 78}\n\n")
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def full_name(name)
       return '' if name.nil?
@@ -152,6 +168,11 @@ module EducationForm
     # is this needed? will it the data come in the correct format? better to have the helper..
     def to_date(date)
       date ? date : (' ' * 10) # '00/00/0000'.length
+    end
+
+    def disclosure_for(type)
+      contents = File.read(File.join(TEMPLATE_PATH, "_#{type}.erb"))
+      ERB.new(contents).result(binding)
     end
   end
 end
