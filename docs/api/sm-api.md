@@ -197,17 +197,49 @@ At the current time, filtering supports the following comparisons:
 | match    | Inexact match (case-insensitive substring match) |
 
 #### Sorting
-Results may be sorted in either ascending or descending order.
+The query format to sort the results in an ascending order
+```
+?sort=field-name
+```
+Similarly, to sort the results in a descending order prefix the field name with `-`
+```
+?sort=-field-name
+```
+
+Sorting of result sets is available for:
 
 | Resource | Fields | Default Sort |
 | -------- | ------ | -------------|
 | Folders | name | name (ascending) |
 | Messages | subject, sent_date, recipient_name, sender_name | sent_date (descending) |
-| Prescriptions | prescription_name refill_status ordered_date facility_name | ordered_date (descending)
+| Prescriptions | prescription_name refill_status ordered_date facility_name | ordered_date (descending) |
 | Trackings | shipped_date (descending) |
 | Triage Teams | name (ascending) |
 
-To sort a field
+For example, to sort in ascending order all inbox messages on the sender's name:
+```
+?sort=sender_name
+```
+which returns
+```
+"meta": {
+  "sort": {
+    "sender_name": "ASC"
+  }
+}
+```
+To sort in descending order all inbox messages on the sender's name:
+```
+?sort=-sender_name
+```
+which returns
+```
+"meta": {
+  "sort": {
+    "sender_name": "DESC"
+  }
+}
+```
 
 ### Errors and Response Codes
 
