@@ -36,6 +36,24 @@ describe MVI::Responses::FindCandidate do
           )
         end
       end
+
+      context 'when name parsing fails' do
+        it 'should set the names to false' do
+          allow_any_instance_of(String).to receive(:capitalize).and_raise(StandardError)
+          expect(valid_response.body).to eq(
+            birth_date: '19800101',
+            edipi: '1234^NI^200DOD^USDOD^A',
+            vba_corp_id: '12345678^PI^200CORP^USVBA^A',
+            family_name: nil,
+            gender: 'M',
+            given_names: nil,
+            icn: '1000123456V123456^NI^200M^USVHA^P',
+            mhv_id: '123456^PI^200MHV^USVHA^A',
+            ssn: '555443333',
+            status: 'active'
+          )
+        end
+      end
     end
   end
 
