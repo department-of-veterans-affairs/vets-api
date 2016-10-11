@@ -73,7 +73,6 @@ module V0
     end
 
     def create_new_user
-
       if user_attributes[:loa_current] == LOA::ONE
         User.new(user_attributes)
       else
