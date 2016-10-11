@@ -11,6 +11,10 @@ module EducationForm
     TEMPLATE_PATH = Rails.root.join('app', 'jobs', 'education_form', 'templates')
     TEMPLATE = File.read(File.join(TEMPLATE_PATH, '22-1990.erb'))
 
+    CH33_TYPES = {
+      'chapter1607' => 'CH33_1607', 'chapter1606' => 'CH33_1606', 'chapter30' => 'CH33_30'
+    }.freeze
+
     WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
 
     # TODO: make sure we rescue from all possible SFTP exceptions
@@ -102,26 +106,17 @@ module EducationForm
 
     # Some descriptive text that's included near the top of the 22-1990 form. Because they can make
     # multiple selections, we have to add all the selected ones.
-    # rubocop:disable Metrics/CyclomaticComplexity
     def disclosures(application)
       disclosure_texts = []
       disclosure_texts << disclosure_for('CH30') if application.chapter30
       disclosure_texts << disclosure_for('CH1606') if application.chapter1606
       disclosure_texts << disclosure_for('CH32') if application.chapter32
       if application.chapter33
-        ch33_type =
-          case application.benefitsRelinquished
-          when 'chapter1607' then 'CH33_1607'
-          when 'chapter1606' then 'CH33_1606'
-          when 'chapter30' then 'CH33_30'
-          else 'CH33'
-          end
+        ch33_type = CH33_TYPES.fetch(application.benefitsRelinquished, 'CH33')
         disclosure_texts << disclosure_for(ch33_type)
       end
-
       disclosure_texts.join("\n#{'*' * 78}\n\n")
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
 
     def full_name(name)
       return '' if name.nil?
