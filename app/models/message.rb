@@ -10,12 +10,12 @@ class Message < Common::Base
   include ActiveModel::Validations
 
   # Only validate presence of category, recipient_id if new message or new draft message
-  validates :category, :recipient_id, presence: true, unless: Proc.new { reply? }
+  validates :category, :recipient_id, presence: true, unless: proc { reply? }
   # Always require body to be present: new message, drafts, and replies
   validates :body, presence: true
   # Only validate upload sizes if uploads are present.
-  validate :each_upload_size_validation, if: Proc.new { uploads.present? }
-  validate :total_upload_size_validation, if: Proc.new { uploads.present? }
+  validate :each_upload_size_validation, if: proc { uploads.present? }
+  validate :total_upload_size_validation, if: proc { uploads.present? }
 
   attribute :id, Integer
   attribute :category, String

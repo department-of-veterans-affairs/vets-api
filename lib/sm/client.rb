@@ -114,7 +114,7 @@ module SM
       @connection ||= Faraday.new(@config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options) do |conn|
         conn.request :multipart
         conn.request :json
-        #conn.response :logger, ::Logger.new(STDOUT), bodies: true
+        # conn.response :logger, ::Logger.new(STDOUT), bodies: true
 
         conn.adapter Faraday.default_adapter
       end
@@ -145,12 +145,12 @@ module SM
           'application/json',
           'message'
         )
-        file_parts = uploads.map.with_index do |file, i|
+        file_parts = uploads.map.with_index do |file, _i|
           upload = Faraday::UploadIO.new(
-                     file.tempfile,
-                     file.content_type,
-                     file.original_filename
-                   )
+            file.tempfile,
+            file.content_type,
+            file.original_filename
+          )
           [file.original_filename, upload]
         end
         { 'message' => message_part }.merge(Hash[file_parts])
