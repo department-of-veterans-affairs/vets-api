@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 class EducationBenefitsClaim < ActiveRecord::Base
   FORM_SCHEMA = VetsJsonSchema::EDUCATION_BENEFITS
+  APPLICATION_TYPES = %w(chapter33 chapter30 chapter1606 chapter32).freeze
 
   validates(:form, presence: true)
   validate(:form_matches_schema)
@@ -18,7 +19,22 @@ class EducationBenefitsClaim < ActiveRecord::Base
     @application ||= JSON.parse(form, object_class: OpenStruct)
     @application.form = application_type
     @application.confirmation_number = confirmation_number
+
+    generate_benefits_to_apply_to
+
     @application
+  end
+
+  def generate_benefits_to_apply_to
+    selectedBenefits = []
+    APPLICATION_TYPES.each do |application_type|
+      selectedBenefits << application_type if @application.public_send(application_type)
+    end
+    selectedBenefits = selectedBenefits.join(', ')
+
+    @application.toursOfDuty&.each do |tour|
+      tour.benefitsToApplyTo = selectedBenefits if tour.applyPeriodToSelected
+    end
   end
 
   def self.unprocessed

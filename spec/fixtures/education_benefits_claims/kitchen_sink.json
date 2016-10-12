@@ -95,6 +95,8 @@
     },
     "involuntarilyCalledToDuty": "n/a",
     "serviceBranch": "Army Reserve",
+    "applyPeriodToSelected": false,
+    "benefitsToApplyTo": "chapter32",
     "serviceStatus": "ACTIVE DUTY TRAINING"
   }, {
     "dateRange": {
@@ -103,6 +105,7 @@
     },
     "involuntarilyCalledToDuty": "yes",
     "serviceBranch": "Army Reserve",
+    "applyPeriodToSelected": true,
     "serviceStatus": "ACTIVE DUTY"
   }],
   "postHighSchoolTrainings": [
