@@ -31,6 +31,7 @@ class User < Common::RedisStore
   attribute :edipi
   attribute :participant_id
   attribute :mhv_id
+  attribute :icn
 
   # mvi 'golden record' data
   attribute :mvi

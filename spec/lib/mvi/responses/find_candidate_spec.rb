@@ -39,7 +39,7 @@ describe MVI::Responses::FindCandidate do
 
       context 'when name parsing fails' do
         it 'should set the names to false' do
-          allow_any_instance_of(String).to receive(:capitalize).and_raise(StandardError)
+          allow(valid_response).to receive(:get_patient_name).and_return(nil)
           expect(valid_response.body).to eq(
             birth_date: '19800101',
             edipi: '1234^NI^200DOD^USDOD^A',
@@ -82,7 +82,7 @@ describe MVI::Responses::FindCandidate do
     let(:invalid_response) { MVI::Responses::FindCandidate.new(mvi_savon_invalid_response) }
 
     describe '#invalid?' do
-      it 'should return false' do
+      it 'should return true' do
         expect(invalid_response.invalid?).to be_truthy
       end
     end
@@ -104,7 +104,7 @@ describe MVI::Responses::FindCandidate do
     end
 
     describe '#failure?' do
-      it 'should return false' do
+      it 'should return true' do
         expect(failure_response.failure?).to be_truthy
       end
     end

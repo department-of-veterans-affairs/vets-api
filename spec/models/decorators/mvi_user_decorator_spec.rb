@@ -26,6 +26,7 @@ describe Decorators::MviUserDecorator do
         mvi_user = Decorators::MviUserDecorator.new(user).create
         expect(mvi_user.attributes).to eq(
           birth_date: user.birth_date,
+          icn: user.icn,
           edipi: user.edipi,
           mhv_id: user.mhv_id,
           email: user.email,

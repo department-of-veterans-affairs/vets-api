@@ -16,6 +16,7 @@ class Decorators::MviUserDecorator
     # but stashing the MVI data if it's needed for confirmation
     @user.attributes = {
       edipi: response[:edipi],
+      icn: response[:icn],
       participant_id: response[:vba_corp_id],
       mhv_id: response[:mhv_id],
       mvi: response
