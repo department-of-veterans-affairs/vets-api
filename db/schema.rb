@@ -38,14 +38,13 @@ ActiveRecord::Schema.define(version: 20161012193544) do
   add_index "education_benefits_claims", ["submitted_at"], name: "index_education_benefits_claims_on_submitted_at", using: :btree
 
   create_table "education_benefits_submissions", force: :cascade do |t|
-    t.string   "region",       null: false
-    t.datetime "submitted_at", null: false
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
-    t.boolean  "chapter33",    null: false
-    t.boolean  "chapter30",    null: false
-    t.boolean  "chapter1606",  null: false
-    t.boolean  "chapter32",    null: false
+    t.string   "region",      null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.boolean  "chapter33",   null: false
+    t.boolean  "chapter30",   null: false
+    t.boolean  "chapter1606", null: false
+    t.boolean  "chapter32",   null: false
   end
 
 end
