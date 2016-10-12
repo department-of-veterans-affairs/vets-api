@@ -26,14 +26,14 @@ class EducationBenefitsClaim < ActiveRecord::Base
   end
 
   def generate_benefits_to_apply_to
-    selectedBenefits = []
+    selected_benefits = []
     APPLICATION_TYPES.each do |application_type|
-      selectedBenefits << application_type if @application.public_send(application_type)
+      selected_benefits << application_type if @application.public_send(application_type)
     end
-    selectedBenefits = selectedBenefits.join(', ')
+    selected_benefits = selected_benefits.join(', ')
 
     @application.toursOfDuty&.each do |tour|
-      tour.benefitsToApplyTo = selectedBenefits if tour.applyPeriodToSelected
+      tour.benefitsToApplyTo = selected_benefits if tour.applyPeriodToSelected
     end
   end
 
