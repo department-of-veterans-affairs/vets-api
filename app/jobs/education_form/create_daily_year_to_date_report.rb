@@ -9,10 +9,11 @@ module EducationForm
 
       EducationFacility::REGIONS.each do |region|
         region_submissions = {}
+        this_year_range = @date.beginning_of_year..@date.end_of_year
 
         application_types.each do |application_type|
           region_submissions[application_type] = EducationBenefitsSubmission.where(
-            created_at: @date.beginning_of_year..@date.end_of_year,
+            created_at: this_year_range,
             region: region.to_s,
             application_type => true
           ).count
