@@ -1,7 +1,7 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
   "type" : "object",
-  "required": ["data"],
+  "required": ["data", "meta"],
   "properties": {
     "data" : {
       "type": "array",
@@ -17,6 +17,15 @@
             "type": "object",
             "$ref": "triage_team.json"
           }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["sort"],
+      "properties": {
+        "sort": {
+          "type": "object"
         }
       }
     }
