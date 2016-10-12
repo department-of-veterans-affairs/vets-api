@@ -5,7 +5,7 @@ class AddEducationBenefitsSubmissionsTable < ActiveRecord::Migration
       t.timestamps(null: false)
 
       EducationBenefitsClaim::APPLICATION_TYPES.each do |application_type|
-        t.boolean(application_type, null: false)
+        t.boolean(application_type, null: false, default: false)
       end
     end
   end
