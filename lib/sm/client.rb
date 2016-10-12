@@ -100,6 +100,7 @@ module SM
 
     def post(path, params = {}, headers = base_headers)
       params = params.is_a?(Hash) ? normalize_and_jsonify(params) : params
+      binding.pry
       request(:post, path, params, headers)
     end
 
@@ -116,7 +117,7 @@ module SM
         conn.request :multipart
         conn.request :url_encoded
         conn.request :json
-        # conn.response :logger, ::Logger.new(STDOUT), bodies: true
+        conn.response :logger, ::Logger.new(STDOUT), bodies: true
 
         conn.adapter Faraday.default_adapter
       end
@@ -138,21 +139,25 @@ module SM
     end
 
     def normalize_and_jsonify(params)
-      file = params.delete(:file)
+      uploads = params.delete(:uploads)
       params = params.transform_keys { |k| k.to_s.camelize(:lower) }
 
-      if file.present?
+      if uploads.present?
         message_part = Faraday::UploadIO.new(
           StringIO.new(params.to_json),
           'application/json',
           'message'
         )
-        file_part = Faraday::UploadIO.new(
-          file.tempfile,
-          file.content_type,
-          file.original_filename
-        )
-        { message: message_part, file: file_part }
+        file_parts = uploads.map.with_index do |file, i|
+          upload = Faraday::UploadIO.new(
+                     file.tempfile,
+                     file.content_type,
+                     file.original_filename
+                   )
+          [file.original_filename, upload]
+        end
+        binding.pry
+        { 'message' => message_part }.merge(Hash[file_parts])
       else
         params
       end

@@ -40,14 +40,14 @@ module V0
     end
 
     def create
-      message = Message.new(message_params)
+      message = Message.new(create_message_params)
       raise Common::Exceptions::ValidationErrors, message unless message.valid?
-      response =
-        if request.content_type == 'multipart/form-data'
-          client.post_create_message_with_attachment(message_params.merge(file: params[:file]))
-        else
-          client.post_create_message(message_params)
-        end
+
+      if message.uploads.present?
+        client.post_create_message_with_attachment(create_message_params)
+      else
+        client.post_create_message(message_params)
+      end
 
       render json: response,
              serializer: MessageSerializer,
@@ -105,6 +105,10 @@ module V0
 
     def message_params
       @message_params ||= params.require(:message).permit(:category, :body, :recipient_id, :subject)
+    end
+
+    def create_message_params
+      @create_message_params ||= message_params.merge(uploads: params[:uploads])
     end
 
     def filter?

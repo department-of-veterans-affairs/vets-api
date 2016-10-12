@@ -8,7 +8,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
   before(:each) do
     allow_any_instance_of(ApplicationController).to receive(:authenticate).and_return(true)
-    expect(SM::Client).to receive(:new).once.and_return(authenticated_client)
+    # expect(SM::Client).to receive(:new).once.and_return(authenticated_client)
   end
 
   let(:user_id) { ENV['MHV_SM_USER_ID'] }
@@ -184,6 +184,35 @@ RSpec.describe 'Messages Integration', type: :request do
           post '/v0/messaging/health/messages', params
         end
 
+        expect(response).to be_success
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('message_with_attachment')
+      end
+    end
+
+    context 'with valid attributes for 4 attachments' do
+      let(:attachment_base_path) { 'spec/support/fixtures/' }
+      let(:attachment_type) { 'image/jpg' }
+      let(:uploads) do
+        [
+          #Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file1.jpg', attachment_type),
+          #Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file2.jpg', attachment_type),
+          #Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file3.jpg', attachment_type),
+          Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file4.jpg', attachment_type)
+        ]
+      end
+      let(:params) do
+        {
+          message: message_attributes,
+          uploads: uploads
+        }
+      end
+
+      it 'responds to POST #create' do
+        VCR.use_cassette("sm/messages/#{user_id}/create_multipart2") do
+          post '/v0/messaging/health/messages', params
+        end
+        binding.pry
         expect(response).to be_success
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('message_with_attachment')
