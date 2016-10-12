@@ -14,7 +14,7 @@ RSpec.describe ApplicationController, type: :controller do
     end
 
     def other_error
-      raise VARx::Error::ClientResponse.new(422, JSON_ERROR)
+      raise Common::Client::Errors::ClientResponse.new(422, JSON_ERROR)
     end
   end
 
