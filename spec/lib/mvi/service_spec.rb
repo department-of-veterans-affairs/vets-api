@@ -3,6 +3,7 @@ require 'rails_helper'
 require 'savon/mock/spec_helper'
 require 'mvi/service'
 require 'mvi/messages/find_candidate_message'
+require "#{Rails.root}/spec/support/mvi/mvi_response"
 
 describe MVI::Service do
   include Savon::SpecHelper
@@ -34,7 +35,8 @@ describe MVI::Service do
         expect(response).to eq(
           edipi: '1234^NI^200DOD^USDOD^A',
           icn: '1000123456V123456^NI^200M^USVHA^P',
-          mhv: '123456^PI^200MHV^USVHA^A',
+          mhv_id: '123456^PI^200MHV^USVHA^A',
+          vba_corp_id: '12345678^PI^200CORP^USVBA^A',
           status: 'active',
           given_names: %w(John William),
           family_name: 'Smith',
@@ -81,6 +83,48 @@ describe MVI::Service do
         expect(Rails.logger).to receive(:error).with(/mvi find_candidate soap error code: 500/)
         expect { MVI::Service.find_candidate(message) }.to raise_error(MVI::SOAPError)
       end
+    end
+  end
+
+  describe MVI::RecordNotFound do
+    let(:xml) { File.read('spec/support/mvi/find_candidate_response.xml') }
+    let(:response) { MVI::Responses::FindCandidate.new(mvi_valid_response) }
+    subject { MVI::RecordNotFound.new('an error message', response) }
+
+    it 'includes the query' do
+      expect(subject.query).to eq(
+        initial_quantity: { :@value => '1' },
+        modify_code: { :@code => 'MVI.COMP1' },
+        parameter_list: {
+          living_subject_name: {
+            value: {
+              given: %w(John William),
+              family: 'Smith',
+              :@use => 'L'
+            },
+            semantics_text: 'LivingSubject.name'
+          },
+          living_subject_birth_time: {
+            value: {
+              :@value => '19800101'
+            },
+            semantics_text: 'LivingSubject.birthTime'
+          },
+          living_subject_id: {
+            value: {
+              :@extension => '555-44-3333',
+              :@root => '2.16.840.1.113883.4.1'
+            },
+            semantics_text: 'SSN'
+          }
+        },
+        query_id: { :@extension => '18204', :@root => '2.16.840.1.113883.3.933' },
+        status_code: { :@code => 'new' }
+      )
+    end
+
+    it 'includes the original response' do
+      expect(subject.original_response).to eq(xml)
     end
   end
 end
