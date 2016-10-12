@@ -25,7 +25,6 @@ module SM
     USER_AGENT = 'Vets.gov Agent'
     BASE_REQUEST_HEADERS = {
       'Accept' => 'application/json',
-      'Content-Type' => 'application/json',
       'User-Agent' => USER_AGENT
     }.freeze
 
@@ -100,7 +99,6 @@ module SM
 
     def post(path, params = {}, headers = base_headers)
       params = params.is_a?(Hash) ? normalize_and_jsonify(params) : params
-      binding.pry
       request(:post, path, params, headers)
     end
 
@@ -115,9 +113,8 @@ module SM
     def connection
       @connection ||= Faraday.new(@config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options) do |conn|
         conn.request :multipart
-        conn.request :url_encoded
         conn.request :json
-        conn.response :logger, ::Logger.new(STDOUT), bodies: true
+        #conn.response :logger, ::Logger.new(STDOUT), bodies: true
 
         conn.adapter Faraday.default_adapter
       end
@@ -156,7 +153,6 @@ module SM
                    )
           [file.original_filename, upload]
         end
-        binding.pry
         { 'message' => message_part }.merge(Hash[file_parts])
       else
         params

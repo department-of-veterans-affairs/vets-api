@@ -9,9 +9,13 @@ class Message < Common::Base
 
   include ActiveModel::Validations
 
-  validates :body, :category, :recipient_id, presence: true
-  validate :each_upload_size_validation
-  validate :total_upload_size_validation
+  # Only validate presence of category, recipient_id if new message or new draft message
+  validates :category, :recipient_id, presence: true, unless: Proc.new { reply? }
+  # Always require body to be present: new message, drafts, and replies
+  validates :body, presence: true
+  # Only validate upload sizes if uploads are present.
+  validate :each_upload_size_validation, if: Proc.new { uploads.present? }
+  validate :total_upload_size_validation, if: Proc.new { uploads.present? }
 
   attribute :id, Integer
   attribute :category, String
@@ -35,6 +39,16 @@ class Message < Common::Base
     id <=> other.id
   end
 
+  # This returns self so that it can be chained: Message.new(params).as_reply
+  def as_reply
+    @reply = true
+    self
+  end
+
+  def reply?
+    @reply || false
+  end
+
   private
 
   def total_upload_size
@@ -48,7 +62,6 @@ class Message < Common::Base
   end
 
   def each_upload_size_validation
-    return unless uploads.present?
     uploads.each do |upload|
       next if (upload.size.to_f / MEGABYTE) <= MAX_SINGLE_FILE_SIZE
       errors.add(:base, "#{upload.original_filename} exceeds file size limit of #{MAX_SINGLE_FILE_SIZE} MB")
