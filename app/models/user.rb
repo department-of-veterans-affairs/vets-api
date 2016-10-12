@@ -31,6 +31,8 @@ class User < Common::RedisStore
   # https://en.wikipedia.org/wiki/Defense_Enrollment_Eligibility_Reporting_System#Electronic_data_interchange_personal_identifier
   attribute :edipi
   attribute :participant_id
+  attribute :mhv_id
+  attribute :icn
 
   # mvi 'golden record' data
   attribute :mvi

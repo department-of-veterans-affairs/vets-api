@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'common/exceptions'
 require 'mvi/service_factory'
 
 class Decorators::MviUserDecorator
@@ -11,12 +12,24 @@ class Decorators::MviUserDecorator
     raise Common::Exceptions::ValidationErrors, @user unless @user.valid?
     message = create_message
     response = @mvi_service.find_candidate(message)
-    @user.attributes = { mvi: response }
+    # in most cases (other than ids) the user attributes from the identity provider are more up-to-date
+    # but stashing the MVI data if it's needed for confirmation
+    @user.attributes = {
+      edipi: response[:edipi],
+      icn: response[:icn],
+      participant_id: response[:vba_corp_id],
+      mhv_id: response[:mhv_id],
+      mvi: response
+    }
     @user
+  rescue MVI::RecordNotFound => e
+    # TODO(AJD): add cloud watch metric
+    Rails.logger.error "MVI record not found for user: #{@user.uuid}"
+    raise Common::Exceptions::RecordNotFound, "User not in found MVI: #{e.message}"
   rescue MVI::ServiceError => e
     # TODO(AJD): add cloud watch metric
-    Rails.logger.error "MVI user data not retrieved: service error: #{e.message} for user: #{@user.uuid}"
-    raise Common::Exceptions::RecordNotFound, "Failed to retrieve MVI data: #{e.message}"
+    Rails.logger.error "Error retrieving MVI data for user: #{@user.uuid}"
+    raise Common::Exceptions::InternalServerError, e
   end
 
   def create_message
