@@ -38,6 +38,9 @@ class User < Common::RedisStore
   validates :email, presence: true
   validates :loa, presence: true
 
+  # TODO does ID.me guarantee this attribute? It is REQUIRED for MVI to work
+  # validates :gender, presence: true
+
   # conditionally validate if user is LOA3
   with_options unless: :loa1? do |user|
     user.validates :first_name, presence: true
