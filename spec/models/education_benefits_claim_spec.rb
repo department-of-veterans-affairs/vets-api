@@ -108,16 +108,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   describe '#create_education_benefits_submission' do
     it 'should create an education benefits submission after save' do
       expect do
-        create(
-          :education_benefits_claim_with_custom_form,
-          custom_form: {
-            'school' => {
-              'address' => {
-                'state' => 'CA'
-              }
-            }
-          }
-        )
+        create(:education_benefits_claim_western_region)
       end.to change { EducationBenefitsSubmission.count }.by(1)
 
       expect(EducationBenefitsSubmission.last.attributes.except('id', 'created_at', 'updated_at')).to eq(

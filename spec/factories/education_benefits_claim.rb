@@ -114,7 +114,21 @@ FactoryGirl.define do
       end
 
       after(:build) do |education_benefits_claim, evaluator|
-        education_benefits_claim.form = education_benefits_claim.parsed_form.merge(evaluator.custom_form).to_json
+        education_benefits_claim.form = JSON.parse(education_benefits_claim.form).merge(evaluator.custom_form).to_json
+      end
+
+      factory :education_benefits_claim_western_region do
+        custom_form({
+          'school' => {
+            'address' => {
+              'country' => 'USA',
+              'state' => 'CA',
+              'postalCode' => '90212',
+              'street' => '111 Uni Drive',
+              'city' => 'Los Angeles'
+            }
+          }
+        })
       end
     end
   end

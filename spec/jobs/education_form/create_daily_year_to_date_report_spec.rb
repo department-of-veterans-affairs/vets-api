@@ -19,20 +19,11 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport do
         )
       end
 
-      create(
-        :education_benefits_claim_with_custom_form,
-        custom_form: {
-          'school' => {
-            'address' => {
-              'state' => 'CA'
-            }
-          }
-        }
-      )
+      create(:education_benefits_claim_western_region)
 
-      create(:education_benefits_claim).tap do |education_benefits_claim|
-        education_benefits_claim.update_column(:submitted_at, date - 1.year)
-      end
+      EducationBenefitsClaim.delete_all
+
+      create(:education_benefits_submission, created_at: date - 1.year)
     end
 
     context 'with the date variable set' do

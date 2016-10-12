@@ -9,23 +9,16 @@ module EducationForm
 
       EducationFacility::REGIONS.each do |region|
         region_submissions = {}
+
         application_types.each do |application_type|
-          region_submissions[application_type] = 0
+          region_submissions[application_type] = EducationBenefitsSubmission.where(
+            created_at: @date.beginning_of_year..@date.end_of_year,
+            region: region.to_s,
+            application_type => true
+          ).count
         end
 
         submissions[region] = region_submissions
-      end
-
-      EducationBenefitsClaim
-        .where(submitted_at: @date.beginning_of_year..@date.end_of_year)
-        .find_each do |education_benefits_claim|
-        region = education_benefits_claim.region
-
-        application_types.each do |application_type|
-          if education_benefits_claim.open_struct_form.public_send(application_type)
-            submissions[region][application_type] += 1
-          end
-        end
       end
 
       submissions
