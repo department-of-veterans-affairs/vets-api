@@ -2,6 +2,7 @@
 require 'feature_flipper'
 require 'common/exceptions'
 require 'common/client/errors'
+require_dependency 'saml/settings_service'
 
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
@@ -25,7 +26,8 @@ class ApplicationController < ActionController::API
       when Common::Exceptions::BaseError
         exception
       when Common::Client::Errors::ClientResponse
-        Common::Exceptions::ClientError.new(exception.message.capitalize)
+        meta = exception.to_json unless Rails.env.production?
+        Common::Exceptions::ClientError.new(exception.message.capitalize, meta: meta)
       else
         Common::Exceptions::InternalServerError.new(exception)
       end
@@ -63,5 +65,9 @@ class ApplicationController < ActionController::API
   def render_unauthorized
     headers['WWW-Authenticate'] = 'Token realm="Application"'
     render json: 'Not Authorized', status: 401
+  end
+
+  def saml_settings
+    SAML::SettingsService.instance.saml_settings
   end
 end

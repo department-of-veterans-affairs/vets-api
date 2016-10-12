@@ -5,12 +5,13 @@ module Common
     class ClientError < BaseError
       attr_reader :resource
 
-      def initialize(detail)
+      def initialize(detail, options = {})
         @detail = detail
+        @meta = options[:meta]
       end
 
       def errors
-        Array(SerializableError.new(MinorCodes::CLIENT_ERROR.merge(detail: @detail)))
+        Array(SerializableError.new(MinorCodes::CLIENT_ERROR.merge(detail: @detail, meta: @meta)))
       end
     end
   end

@@ -30,7 +30,7 @@ gem 'whenever', require: false
 gem 'multi_json'
 gem 'rack-cors', :require => 'rack/cors'
 gem 'net-sftp'
-gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', ref: 'cdc48375d79cce57ceae86c1095e7a7c00c27324'
+gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 
 # Amazon Linux's system `json` gem causes conflicts, but
 # `multi_json` will prefer `oj` if installed, so include it here.
@@ -68,6 +68,7 @@ group :test do
   gem 'timecop'
   gem 'vcr'
   gem 'awrence'
+  gem 'climate_control', '0.0.3'
 end
 
 group :development do
