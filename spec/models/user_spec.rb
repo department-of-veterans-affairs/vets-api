@@ -24,17 +24,17 @@ RSpec.describe User, type: :model do
         expect(FactoryGirl.build(:user, loa: loa_one, zip: '')).to be_valid
       end
       it 'should allow a blank loa.highest' do
-        expect(FactoryGirl.build(:user, loa: {current: LOA::ONE, highest:''})).to be_valid
+        expect(FactoryGirl.build(:user, loa: { current: LOA::ONE, highest: '' })).to be_valid
       end
       it 'should not allow a blank uuid' do
         loa1_user.uuid = ''
         expect(loa1_user.valid?).to be_falsey
-        expect(loa1_user.errors[:uuid].size).to be > 0
+        expect(loa1_user.errors[:uuid].size).to be_positive
       end
       it 'should not allow a blank email' do
         loa1_user.email = ''
         expect(loa1_user.valid?).to be_falsey
-        expect(loa1_user.errors[:email].size).to be > 0
+        expect(loa1_user.errors[:email].size).to be_positive
       end
     end
     context 'with LOA 3' do
@@ -42,22 +42,22 @@ RSpec.describe User, type: :model do
       it 'should not allow a blank ssn' do
         loa3_user.ssn = ''
         expect(loa3_user.valid?).to be_falsey
-        expect(loa3_user.errors[:ssn].size).to be > 0
+        expect(loa3_user.errors[:ssn].size).to be_positive
       end
       it 'should not allow a blank first_name' do
         loa3_user.first_name = ''
         expect(loa3_user.valid?).to be_falsey
-        expect(loa3_user.errors[:first_name].size).to be > 0
+        expect(loa3_user.errors[:first_name].size).to be_positive
       end
       it 'should not allow a blank last_name' do
         loa3_user.last_name = ''
         expect(loa3_user.valid?).to be_falsey
-        expect(loa3_user.errors[:last_name].size).to be > 0
+        expect(loa3_user.errors[:last_name].size).to be_positive
       end
       it 'should not allow a blank birth_date' do
         loa3_user.birth_date = ''
         expect(loa3_user.valid?).to be_falsey
-        expect(loa3_user.errors[:birth_date].size).to be > 0
+        expect(loa3_user.errors[:birth_date].size).to be_positive
       end
     end
   end
@@ -72,7 +72,7 @@ RSpec.describe User, type: :model do
   end
 
   context 'user without attributes' do
-    let(:test_user){ FactoryGirl.build(:user) }
+    let(:test_user) { FactoryGirl.build(:user) }
     it 'expect ttl to an Integer' do
       expect(subject.ttl).to be_an(Integer)
       expect(subject.ttl).to be_between(-Float::INFINITY, 0)
@@ -139,11 +139,13 @@ RSpec.describe User, type: :model do
             }
           )
           expect(subject.attributes).to eq(
-            FactoryGirl.build(:user, mvi: {
-              edipi: '1234^NI^200DOD^USDOD^A',
-              icn: '1000123456V123456^NI^200M^USVHA^P',
-              mhv_id: '123456^PI^200MHV^USVHA^A'
-            }).attributes
+            FactoryGirl.build(:user,
+              mvi: {
+                edipi: '1234^NI^200DOD^USDOD^A',
+                icn: '1000123456V123456^NI^200M^USVHA^P',
+                mhv_id: '123456^PI^200MHV^USVHA^A'
+              }
+            ).attributes
           )
         end
       end

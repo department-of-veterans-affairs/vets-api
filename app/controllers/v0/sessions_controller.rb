@@ -50,7 +50,7 @@ module V0
         ssn:          attributes['social']&.first&.delete('-'),
         birth_date:   parse_date(attributes['birth_date']&.first),
         uuid:         attributes['uuid']&.first,
-        loa:          {current: parse_current_loa, highest: attributes['level_of_assurance']&.first,}
+        loa:          { current: parse_current_loa, highest: attributes['level_of_assurance']&.first }
       }
     end
 

@@ -13,8 +13,8 @@ FactoryGirl.define do
     ssn '272111863'
     loa do
       {
-      current: LOA::TWO,
-      highest: LOA::THREE
+        current: LOA::TWO,
+        highest: LOA::THREE
       }
     end
 
