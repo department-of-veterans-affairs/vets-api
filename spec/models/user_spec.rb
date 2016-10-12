@@ -139,7 +139,8 @@ RSpec.describe User, type: :model do
             }
           )
           expect(subject.attributes).to eq(
-            FactoryGirl.build(:user,
+            FactoryGirl.build(
+              :user,
               mvi: {
                 edipi: '1234^NI^200DOD^USDOD^A',
                 icn: '1000123456V123456^NI^200M^USVHA^P',
