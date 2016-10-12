@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require 'savon'
-require_relative 'response'
+require_relative 'responses/find_candidate'
 
 module MVI
   # Wrapper for the MVI (Master Veteran Index) Service. vets.gov has access
@@ -28,10 +28,11 @@ module MVI
     operations :prpa_in201301_uv02, :prpa_in201302_uv02, :prpa_in201305_uv02
 
     def self.prpa_in201305_uv02(message)
-      response = MVI::Response.new(super(xml: message.to_xml))
+      response = MVI::Responses::FindCandidate.new(super(xml: message.to_xml))
       invalid_request_handler('find_candidate', response.body) if response.invalid?
       request_failure_handler('find_candidate', response.body) if response.failure?
-      response.to_h
+      raise MVI::RecordNotFound.new('MVI subject missing from response body', response) unless response.body
+      response.body
     rescue Savon::SOAPFault => e
       # TODO(AJD): cloud watch metric for error code
       Rails.logger.error "mvi find_candidate soap error code: #{e.http.code} message: #{e.message}"
@@ -67,5 +68,13 @@ module MVI
   class SOAPError < MVI::ServiceError
   end
   class HTTPError < MVI::ServiceError
+  end
+  class RecordNotFound < StandardError
+    attr_accessor :query, :original_response
+    def initialize(message = nil, response = nil)
+      super(message)
+      @query = response.query
+      @original_response = response.original_response
+    end
   end
 end

@@ -107,7 +107,9 @@ RSpec.describe User, type: :model do
           )
           expect(subject.attributes).to eq(
             birth_date: Time.new(1980, 1, 1).utc,
+            icn: nil,
             edipi: nil,
+            mhv_id: nil,
             email: attributes[:email],
             first_name: attributes[:first_name],
             gender: attributes[:gender],
