@@ -71,11 +71,9 @@ module V0
     end
 
     def create_new_user
-      if user_attributes[:loa][:current] == LOA::ONE
-        User.new(user_attributes)
-      else
-        Decorators::MviUserDecorator.new(User.new(user_attributes)).create
-      end
+      user = User.new(user_attributes)
+      user = Decorators::MviUserDecorator.new(user).create unless user.loa1?
+      user
     end
   end
 end
