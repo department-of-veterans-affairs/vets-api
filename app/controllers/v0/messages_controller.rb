@@ -40,16 +40,16 @@ module V0
     end
 
     def create
-      message = Message.new(message_params)
+      message = Message.new(create_message_params)
       raise Common::Exceptions::ValidationErrors, message unless message.valid?
-      response =
-        if request.content_type == 'multipart/form-data'
-          client.post_create_message_with_attachment(message_params.merge(file: params[:file]))
-        else
-          client.post_create_message(message_params)
-        end
 
-      render json: response,
+      client_response = if message.uploads.present?
+                          client.post_create_message_with_attachment(create_message_params)
+                        else
+                          client.post_create_message(message_params)
+                        end
+
+      render json: client_response,
              serializer: MessageSerializer,
              include: 'attachments',
              meta:  {}
@@ -73,16 +73,16 @@ module V0
     end
 
     def reply
-      message = Message.new(message_params)
+      message = Message.new(create_message_params).as_reply
+      raise Common::Exceptions::ValidationErrors, message unless message.valid?
 
-      if message.body.blank?
-        message.errors.add(:body, "can't be blank")
-        raise Common::Exceptions::ValidationErrors, message
+      if message.uploads.present?
+        client_response = client.post_create_message_reply_with_attachment(params[:id], create_message_params)
+      else
+        client_response = client.post_create_message_reply(params[:id], message_params)
       end
 
-      resource = client.post_create_message_reply(params[:id], message_params)
-
-      render json: resource,
+      render json: client_response,
              serializer: MessageSerializer,
              include: 'attachments',
              status: :created
@@ -105,6 +105,10 @@ module V0
 
     def message_params
       @message_params ||= params.require(:message).permit(:category, :body, :recipient_id, :subject)
+    end
+
+    def create_message_params
+      @create_message_params ||= message_params.merge(uploads: params[:uploads])
     end
 
     def filter?

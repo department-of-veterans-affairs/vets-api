@@ -25,7 +25,6 @@ module SM
     USER_AGENT = 'Vets.gov Agent'
     BASE_REQUEST_HEADERS = {
       'Accept' => 'application/json',
-      'Content-Type' => 'application/json',
       'User-Agent' => USER_AGENT
     }.freeze
 
@@ -114,7 +113,6 @@ module SM
     def connection
       @connection ||= Faraday.new(@config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options) do |conn|
         conn.request :multipart
-        conn.request :url_encoded
         conn.request :json
         # conn.response :logger, ::Logger.new(STDOUT), bodies: true
 
@@ -138,21 +136,24 @@ module SM
     end
 
     def normalize_and_jsonify(params)
-      file = params.delete(:file)
+      uploads = params.delete(:uploads)
       params = params.transform_keys { |k| k.to_s.camelize(:lower) }
 
-      if file.present?
+      if uploads.present?
         message_part = Faraday::UploadIO.new(
           StringIO.new(params.to_json),
           'application/json',
           'message'
         )
-        file_part = Faraday::UploadIO.new(
-          file.tempfile,
-          file.content_type,
-          file.original_filename
-        )
-        { message: message_part, file: file_part }
+        file_parts = uploads.map.with_index do |file, _i|
+          upload = Faraday::UploadIO.new(
+            file.tempfile,
+            file.content_type,
+            file.original_filename
+          )
+          [file.original_filename, upload]
+        end
+        { 'message' => message_part }.merge(Hash[file_parts])
       else
         params
       end

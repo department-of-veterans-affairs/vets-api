@@ -39,7 +39,6 @@ module SM
       # post_create_message: Creates a new message, without attachments
       def post_create_message(args = {})
         json = perform(:post, 'message', args, token_headers)
-
         Message.new(json)
       end
 
@@ -47,7 +46,13 @@ module SM
         custom_header = token_headers.merge('Content-Transfer-Encoding' => 'binary')
         custom_header = custom_header.except('Content-Type')
         json = perform(:post, 'message/attach', args, custom_header)
+        Message.new(json)
+      end
 
+      def post_create_message_reply_with_attachment(id, args = {})
+        custom_header = token_headers.merge('Content-Transfer-Encoding' => 'binary')
+        custom_header = custom_header.except('Content-Type')
+        json = perform(:post, "message/#{id}/reply/attach", args, custom_header)
         Message.new(json)
       end
 
