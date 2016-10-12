@@ -18,43 +18,30 @@ Authorization: Token token=RiW_3isZHtUszCLvEAv4vEyCV37K8yFeezQm4fdT
 { 
   // guaranteed not-null @ LOA 1
   // "uuid": "11d21c9bf46642509aba20c4a5d5306d",
-  "email": "william.ryan@gmail.com",
-  services: ["service1", "service2"], // service names TBD
-  loa: {current: 'loa1', highest: '<duplicate current if empty>'}
-
-  // guaranteed not-null @ LOA 2 & higher
+  "services": ["service1", "service2"], // service names TBD
   "profile": {
-     "first_name": "WILLIAM",
-     "middle_name": "P",
-     "last_name": "RYAN",
-     "birth_date": "1937-03-07T05:00:00.000Z",
+    // guaranteed not-null @ LOA 1
+    "email": "william.ryan@gmail.com",
+    // guaranteed not-null @ LOA 2 & higher
+    "first_name": "WILLIAM",
+    "middle_name": "P",
+    "last_name": "RYAN",
+    "birth_date": "1937-03-07T05:00:00.000Z",
+    "loa": {
+      "current": 'loa1',
+      "highest": '<duplicate current if empty>'
+    }
+    // these are never guaranteed
+    "gender": null,
+    "zip": null,
+    "last_signed_in": null
   }
-  // "ssn": "111223333",
   "va_profile": {
     "birth_date": '19800101',
     "family_name": nil,
     "gender": 'M',
-    "given_names": nil,
+    "given_names": ['WILLIAM','RYAN'],
     "status": 'active'
-  }
-
-  // never guaranteed
-  "gender": null,
-  "zip": null,
-  "last_signed_in": null,
-  // "edipi": null,
-  // "participant_id": null,
-  // "mvi": {
-      "birth_date": '19800101',
-      "edipi": '1234^NI^200DOD^USDOD^A',
-      "vba_corp_id": '12345678^PI^200CORP^USVBA^A',
-      "family_name": nil,
-      "gender": 'M',
-      "given_names": nil,
-      "icn": '1000123456V123456^NI^200M^USVHA^P',
-      "mhv_id": '123456^PI^200MHV^USVHA^A',
-      "ssn": '111223333',
-      "status": 'active'
   }
 }
 ```
@@ -64,5 +51,3 @@ Authorization: Token token=RiW_3isZHtUszCLvEAv4vEyCV37K8yFeezQm4fdT
 - More specifically, we need to let front end know which systems are available based on MVI data.  Proposal:
 
    {services: ["service1", "service2"]}
-   
-- confirm loa.highest with tanel - is it guaranteed to be returned?
