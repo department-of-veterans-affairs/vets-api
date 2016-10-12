@@ -8,5 +8,7 @@ class AddEducationBenefitsSubmissionsTable < ActiveRecord::Migration
         t.boolean(application_type, null: false, default: false)
       end
     end
+
+    add_index(:education_benefits_submissions, [:region, :created_at])
   end
 end

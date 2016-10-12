@@ -47,4 +47,6 @@ ActiveRecord::Schema.define(version: 20161012193544) do
     t.boolean  "chapter32",   default: false, null: false
   end
 
+  add_index "education_benefits_submissions", ["region", "created_at"], name: "index_education_benefits_submissions_on_region_and_created_at", using: :btree
+
 end
