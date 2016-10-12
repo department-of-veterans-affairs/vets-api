@@ -4,21 +4,21 @@
 Secure Messaging within vets.gov enables secure, non-emergency, communications between veterans and their VA healthcare providers.
 
 ### Available Routes
-| Resource                                          | Description                         | Params                        |
-| ------------------------------------------------- | ----------------------------------- | ------------------------------|
-| GET /messaging/healthcare/recipients              | List possible recipients            | [Pagination](#pagination)     |
-| GET /messaging/healthcare/folders                 | List folders                        | [Pagination](#pagination)     |
-| GET /messaging/healthcare/folders/:id             | Returns a folder                    | None                          |
-| POST /messaging/healthcare/folders                | Creates a folder                    | [json payload](#folder)  |
-| DELETE /messaging/healthcare/folders/:id          | Deletes a folder                    | None                          |
-| GET /messaging/health/folders/:folder_id/messages | List messages in folder             | [Filtering](#filtering)              |
-| GET /messaging/health/messages/:id                | Gets a message                      | None                          |
-| GET /messaging/health/messages/:message_id/thread | List messages in thread             | [Pagination](#pagination)     |
-| POST /messaging/health/messages                   | Sends a message.                    | [json payload](#message) |
-| POST /messaging/health/message_drafts             | Creates a draft                     | [json draft payload](#draft-payload) |
-| PUT /messaging/health/message_drafts/:id         | Updates a draft                     | [json draft payload](#draft-payload) |
-| POST /messaging/health/messages/:id/reply | replies to a message | [json payload](#message) |
-| GET /messaging/health/messages/:message_id/attachments/:id | Gets an  attachment | Todo |
+| Resource                                          | Description                                       | Params                               |
+| ------------------------------------------------- | ------------------------------------------------- | -------------------------------------|
+| GET /messaging/healthcare/recipients              | List possible recipients                          | [Pagination](#pagination)            |
+| GET /messaging/healthcare/folders                 | List folders                                      | [Pagination](#pagination)            |
+| GET /messaging/healthcare/folders/:id             | Returns a folder                                  | None                                 |
+| POST /messaging/healthcare/folders                | Creates a folder                                  | [json payload](#folder)              |
+| DELETE /messaging/healthcare/folders/:id          | Deletes a folder                                  | None                                 |
+| GET /messaging/health/folders/:folder_id/messages | List messages in folder                           | [Filtering](#filtering)              |
+| GET /messaging/health/messages/:id                | Gets a message                                    | None                                 |
+| GET /messaging/health/messages/:message_id/thread | List messages in thread                           | [Pagination](#pagination)            |
+| POST /messaging/health/messages                   | Sends a message. [attachments](#attachments)      | [json payload](#message)             |
+| POST /messaging/health/message_drafts             | Creates a draft                                   | [json draft payload](#draft-payload) |
+| PUT /messaging/health/message_drafts/:id          | Updates a draft                                   | [json draft payload](#draft-payload) |
+| POST /messaging/health/messages/:id/reply         | Replies to a message [attachments](#attachments)  | [json payload](#message)             |
+| GET /messaging/health/messages/:message_id/attachments/:id | Gets an  attachment                      | Will immediately download the file   |
 
 #### <a name="pagination"></a>Pagination Params
 * **page:** The page number of the first message returned
@@ -151,6 +151,45 @@ returns
 ```
 #### Links
 TBD
+
+#### <a name="attachments"></a>Attachments
+New Message and Reply Message support sending file attachments.
+
+To send files, you need to use Content-Type of `'multipart/form-data'`
+You must provide the message object as in url-encoded form data with the messages
+object as usual, and provide an array of uploads outside of the messages object.
+
+For whatever reason, MHV only provides the attachments that were created for the New Message
+not for the Reply. This is something that will need to be discussed with MHV.
+
+An Example Request:
+
+```
+Accept: application/json
+Content-Type: multipart/form-data; boundary="----=_Part_7_22572641.1391727736568"
+Content-Length: 1358
+------=_Part_7_22572641.1391727736568
+Content-Type: application/json; name=message
+Content-Transfer-Encoding: binary
+Content-Disposition: form-data; name="message"; filename="message"
+{
+"category": "MEDICATIONS",
+"subject": "Send Msg via API with Attachment",
+"body": "Test Send a Message to Grp",
+"recipientId": 45961,
+"recipientName": "TEST TRIAGE"
+}
+------=_Part_7_22572641.1391727736568
+Content-Type: image/x-png; name=image1.png
+Content-Transfer-Encoding: binary
+Content-Disposition: form-data; name="uploads[]"; filename="image1.png"
+‰PNG
+------=_Part_7_22572641.1391727736568
+Content-Type: image/x-png; name=image2.png
+Content-Transfer-Encoding: binary
+Content-Disposition: form-data; name="uploads[]"; filename="image2.png"
+‰PNG
+```
 
 #### <a name="filtering"></a>Filtering
 Filtering allows you to select a subset of messages in any folder. The call to list all messages is appended with query parameters that specify which attributes of a message you want to filter and one or more conditions to filter on.
