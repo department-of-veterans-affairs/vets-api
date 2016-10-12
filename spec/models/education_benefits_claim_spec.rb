@@ -112,7 +112,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end.to change { EducationBenefitsSubmission.count }.by(1)
 
       expect(EducationBenefitsSubmission.last.attributes.except('id', 'created_at', 'updated_at')).to eq(
-        {"region"=>"western", "chapter33"=>false, "chapter30"=>false, "chapter1606"=>true, "chapter32"=>false}
+        'region' => 'western', 'chapter33' => false, 'chapter30' => false, 'chapter1606' => true, 'chapter32' => false
       )
     end
   end

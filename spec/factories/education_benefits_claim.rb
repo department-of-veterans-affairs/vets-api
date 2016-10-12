@@ -118,7 +118,7 @@ FactoryGirl.define do
       end
 
       factory :education_benefits_claim_western_region do
-        custom_form({
+        custom_form(
           'school' => {
             'address' => {
               'country' => 'USA',
@@ -128,7 +128,7 @@ FactoryGirl.define do
               'city' => 'Los Angeles'
             }
           }
-        })
+        )
       end
     end
   end
