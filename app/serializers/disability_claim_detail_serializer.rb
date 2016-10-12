@@ -58,6 +58,15 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
     end.flatten
   end
 
+  # Order of EVENT_DATE_FIELDS determines which date trumps in timeline sorting
+  EVENT_DATE_FIELDS = %i(
+    closed_date
+    received_date
+    opened_date
+    requested_date
+    suspense_date
+  ).freeze
+
   def create_tracked_item_event(type, obj)
     event = {
       type: type,
@@ -74,10 +83,7 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
       closed_date: date_or_nil_from(obj, 'closedDate'),
       suspense_date: date_or_nil_from(obj, 'suspenseDate')
     }
-    event[:date] = [
-      event[:opened_date], event[:requested_date], event[:received_date],
-      event[:closed_date], event[:suspense_date]
-    ].compact.first
+    event[:date] = event.slice(*EVENT_DATE_FIELDS).values.compact.first
     event
   end
 
