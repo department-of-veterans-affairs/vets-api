@@ -50,9 +50,7 @@ module V0
         ssn:          attributes['social']&.first&.delete('-'),
         birth_date:   parse_date(attributes['birth_date']&.first),
         uuid:         attributes['uuid']&.first,
-        loa_highest:  attributes['level_of_assurance']&.first,
-
-        loa_current: parse_current_loa
+        loa:          {current: parse_current_loa, highest: attributes['level_of_assurance']&.first,}
       }
     end
 
@@ -73,7 +71,7 @@ module V0
     end
 
     def create_new_user
-      if user_attributes[:loa_current] == LOA::ONE
+      if user_attributes[:loa][:current] == LOA::ONE
         User.new(user_attributes)
       else
         Decorators::MviUserDecorator.new(User.new(user_attributes)).create

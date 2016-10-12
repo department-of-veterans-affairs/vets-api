@@ -20,10 +20,7 @@ class User < Common::RedisStore
   attribute :birth_date, Common::UTCTime
   attribute :zip
   attribute :ssn
-  attribute :loa_highest
-
-  # id.me returned loa
-  attribute :loa_current
+  attribute :loa
 
   # vaafi attributes
   attribute :last_signed_in, Common::UTCTime
@@ -39,10 +36,10 @@ class User < Common::RedisStore
 
   validates :uuid, presence: true
   validates :email, presence: true
-  validates :loa_current, presence: true
+  validates :loa, presence: true
 
   # conditionally validate if user is LOA3
-  with_options if: :loa3? do |user|
+  with_options unless: :loa1? do |user|
     user.validates :first_name, presence: true
     user.validates :last_name, presence: true
     user.validates :birth_date, presence: true
@@ -61,7 +58,7 @@ class User < Common::RedisStore
     User.new attrs
   end
 
-  def loa3?
-    loa_current == LOA::THREE
+  def loa1?
+    loa[:current] == LOA::ONE
   end
 end

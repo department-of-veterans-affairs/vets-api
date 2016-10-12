@@ -12,7 +12,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       'mname' => [''],
       'social' => [mvi_user.ssn],
       'birth_date' => [mvi_user.birth_date.strftime('%Y-%m-%d')],
-      'level_of_assurance' => [mvi_user.loa_highest]
+      'level_of_assurance' => [mvi_user.loa[:highest]]
     }
   end
   let(:rubysaml_settings) { FactoryGirl.build(:rubysaml_settings) }
@@ -90,7 +90,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         uuid = JSON.parse(response.body)['uuid']
         user = User.find(uuid)
-        expect(user.loa_current).to eq(LOA::ONE)
+        expect(user.loa[:current]).to eq(LOA::ONE)
       end
 
       it 'parses and stores the highest level of assurance proofing' do
@@ -98,7 +98,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         uuid = JSON.parse(response.body)['uuid']
         user = User.find(uuid)
-        expect(user.loa_highest).to eq(LOA::THREE)
+        expect(user.loa[:highest]).to eq(LOA::THREE)
       end
     end
 
