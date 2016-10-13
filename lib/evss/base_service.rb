@@ -82,8 +82,8 @@ module EVSS
     end
 
     def cert?
-      ENV['EVSS_CERT_FILE'].present? ||
-        ENV['EVSS_CERT_KEY'].present? ||
+      ENV['EVSS_CERT_FILE_PATH'].present? ||
+        ENV['EVSS_CERT_KEY_PATH'].present? ||
         ENV['EVSS_ROOT_CERT_FILE_PATH'].present?
     end
 
