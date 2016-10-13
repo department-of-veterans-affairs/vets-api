@@ -59,10 +59,6 @@ class User < Common::RedisStore
     level_of_assurance == LOA::THREE
   end
 
-  def async_create_evss_account
-    EVSS::CreateUserAccount.perform_later(evss_auth_headers)
-  end
-
   def rating_record
     client = EVSS::CommonService.new(evss_auth_headers)
     client.find_rating_info(participant_id).body.fetch('ratingRecord', {})
