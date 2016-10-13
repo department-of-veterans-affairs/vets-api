@@ -17,9 +17,14 @@ Rails.application.routes.draw do
     get 'profile', to: 'users#show'
 
     resource :education_benefits_claims, only: [:create] do
+      get 'daily', to: 'education_benefits_claims#daily_file',
+                   defaults: { format: :tar },
+                   as: :daily_file,
+                   constraints: ->(_) { FeatureFlipper.show_education_benefit_form? }
       get ':id', to: 'education_benefits_claims#show',
                  defaults: { format: :text },
                  as: :show,
+                 id: /\d+/,
                  constraints: ->(_) { FeatureFlipper.show_education_benefit_form? }
     end
 

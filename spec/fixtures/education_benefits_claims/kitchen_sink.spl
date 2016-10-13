@@ -69,14 +69,16 @@ Routing/Transit #: 123456789   Account #: 88888888888
 
 Name, Address, & Telephone Number of Contact:
         Sibling Olson
-        Address and Phone same as claimant
+        222 PERSON DRIVE
+        BALTIMORE, MD, 23131
+        USA
+        Phone: 5550001111
 
 
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
-Type of Education or Training: College or Other School (including online
-courses)
+Type of Education or Training: Flight Training
 
 Name and Address of School or Training Establishment:
         FakeData University
@@ -209,7 +211,9 @@ such benefits during any part of your training, check Yes.    YES
            ---------------------------------------------------------
 
 
-N/A
+Married: YES
+Has Dependents: YES
+Parent Dependent: NO
 
 
                                    REMARKS
