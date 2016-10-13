@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://test.vets.gov/wss-common-services-web-11.1/rest/ratingInfoService/11.1/findRatingInfoPID
+    uri: https://test.vets.gov/wss-common-services-web-11.1/rest/ratingInfoService/11.0/findRatingInfoPID
     body:
       encoding: UTF-8
       string: '{"participantId":"123456789"}'

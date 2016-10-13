@@ -1,0 +1,140 @@
+{
+  "claim": {
+    "appealPossible": "No",
+    "attentionNeeded": "Yes",
+    "baseEndProductCode": "020",
+    "benefitClaimTypeCode": "020CLMINC",
+    "claimConsolidatable": false,
+    "claimPhaseDates": {
+      "currentPhaseBack": false,
+      "everPhaseBack": false,
+      "latestPhaseType": "Gathering of Evidence",
+      "phase1CompleteDate": "09/15/2016",
+      "phase2CompleteDate": "09/15/2016",
+      "phaseChangeDate": "09/15/2016",
+      "phaseMaxEstDate": "10/14/2016",
+      "phaseMinEstDate": "11/11/2016",
+      "phaseTypeChangeInd": "23"
+    },
+    "claimTrackedItems": {
+      "neverReceivedFromOthersList": [],
+      "neverReceivedFromYouList": [],
+      "receivedFromOthersList": [],
+      "receivedFromYouList": [],
+      "stillNeedFromOthersList": [
+        {
+          "description": "Medical evidence from private provider",
+          "displayedName": "Request 3",
+          "dvlpmtTc": "CLMNTRQST",
+          "openedDate": "09/15/2016",
+          "overdue": false,
+          "suspenseDate": "09/30/2016",
+          "trackedItemId": 209573,
+          "trackedItemStatus": "NEEDED",
+          "uploaded": false,
+          "uploadsAllowed": true
+        }
+      ],
+      "stillNeedFromYouList": [
+        {
+          "description": "Send verification that you engaged in combat.  Below is a list of individual decorations that will be considered substantiating evidence.\r<br/>\r<br/>Air Force Achievement Medal with \"V\" Device\r<br/>Air Force Combat Action Medal\r<br/>Air Force Commendation Medal with \"V\" Device\r<br/>Air Force Cross\r<br/>Air Medal with \"V\" Device\r<br/>Army Commendation Medal with \"V\" Device\r<br/>Bronze Star Medal with \"V\" Device\r<br/>Combat Action Badge\r<br/>Combat Action Ribbon (Note: Prior to February 1969, the Navy Achievement Medal with \"V\" Device was awarded.)\r<br/>Combat Aircrew Insignia\r<br/>Combat Infantry/Infantryman Badge\r<br/>Combat Medical Badge\r<br/>Distinguished Flying Cross\r<br/>Distinguished Service Cross\r<br/>Joint Service Commendation Medal with \"V\" Device\r<br/>Medal of Honor \r<br/>Navy Commendation Medal with \"V\" Device \r<br/>Navy Cross \r<br/>Purple Heart \r<br/>Silver Star\r<br/>\r<br/>Often service treatment records do not contain entries of treatment given to veterans who served during a period of war and engaged in combat with the enemy.  However, we may accept satisfactory lay or other evidence of in-service occurrence if the evidence is consistent with the conditions and circumstances of your service.\r<br/>* Provide a detailed description of the event resulting in your claimed condition.\r<br/>* Provide the date or dates during combat when you sustained your claimed condition.  We need the month and year if possible.\r<br/>* Provide the location of your assigned duty station and the specific unit to which you were assigned (division, regiment, battalion, and company).",
+          "displayedName": "Request 1",
+          "dvlpmtTc": "CLMNTRQST",
+          "openedDate": "09/15/2016",
+          "overdue": false,
+          "suspenseDate": "10/15/2016",
+          "trackedItemId": 209570,
+          "trackedItemStatus": "NEEDED",
+          "uploaded": false,
+          "uploadsAllowed": true
+        },
+        {
+          "description": "You did not claim a specific disability.  Please tell us the name of your claimed disability.  You may provide this information on the enclosed VA Form 21-4138, Statement in Support of Claim.  Please note that we can not take further action on your claim until we receive this information.",
+          "displayedName": "Request 2",
+          "dvlpmtTc": "CLMNTRQST",
+          "openedDate": "09/15/2016",
+          "overdue": false,
+          "suspenseDate": "10/15/2016",
+          "trackedItemId": 209571,
+          "trackedItemStatus": "NEEDED",
+          "uploaded": false,
+          "uploadsAllowed": true
+        }
+      ]
+    },
+    "consolidatedTrackedItemsList": [
+      {
+        "description": "Send verification that you engaged in combat.  Below is a list of individual decorations that will be considered substantiating evidence.\r<br/>\r<br/>Air Force Achievement Medal with \"V\" Device\r<br/>Air Force Combat Action Medal\r<br/>Air Force Commendation Medal with \"V\" Device\r<br/>Air Force Cross\r<br/>Air Medal with \"V\" Device\r<br/>Army Commendation Medal with \"V\" Device\r<br/>Bronze Star Medal with \"V\" Device\r<br/>Combat Action Badge\r<br/>Combat Action Ribbon (Note: Prior to February 1969, the Navy Achievement Medal with \"V\" Device was awarded.)\r<br/>Combat Aircrew Insignia\r<br/>Combat Infantry/Infantryman Badge\r<br/>Combat Medical Badge\r<br/>Distinguished Flying Cross\r<br/>Distinguished Service Cross\r<br/>Joint Service Commendation Medal with \"V\" Device\r<br/>Medal of Honor \r<br/>Navy Commendation Medal with \"V\" Device \r<br/>Navy Cross \r<br/>Purple Heart \r<br/>Silver Star\r<br/>\r<br/>Often service treatment records do not contain entries of treatment given to veterans who served during a period of war and engaged in combat with the enemy.  However, we may accept satisfactory lay or other evidence of in-service occurrence if the evidence is consistent with the conditions and circumstances of your service.\r<br/>* Provide a detailed description of the event resulting in your claimed condition.\r<br/>* Provide the date or dates during combat when you sustained your claimed condition.  We need the month and year if possible.\r<br/>* Provide the location of your assigned duty station and the specific unit to which you were assigned (division, regiment, battalion, and company).",
+        "displayedName": "Request 1",
+        "dvlpmtTc": "CLMNTRQST",
+        "openedDate": "09/15/2016",
+        "overdue": false,
+        "suspenseDate": "10/15/2016",
+        "trackedItemId": 209570,
+        "trackedItemStatus": "NEEDED",
+        "uploaded": false,
+        "uploadsAllowed": true
+      },
+      {
+        "description": "You did not claim a specific disability.  Please tell us the name of your claimed disability.  You may provide this information on the enclosed VA Form 21-4138, Statement in Support of Claim.  Please note that we can not take further action on your claim until we receive this information.",
+        "displayedName": "Request 2",
+        "dvlpmtTc": "CLMNTRQST",
+        "openedDate": "09/15/2016",
+        "overdue": false,
+        "suspenseDate": "10/15/2016",
+        "trackedItemId": 209571,
+        "trackedItemStatus": "NEEDED",
+        "uploaded": false,
+        "uploadsAllowed": true
+      },
+      {
+        "description": "Medical evidence from private provider",
+        "displayedName": "Request 3",
+        "dvlpmtTc": "CLMNTRQST",
+        "openedDate": "09/15/2016",
+        "overdue": false,
+        "suspenseDate": "09/30/2016",
+        "trackedItemId": 209573,
+        "trackedItemStatus": "NEEDED",
+        "uploaded": false,
+        "uploadsAllowed": true
+      }
+    ],
+    "contentionList": [
+      "Tinnitus (New)",
+      " PTSD (Increase)",
+      " Osteoarthritis of left hip (Secondary)",
+      " left knee (Reopen)"
+    ],
+    "date": "09/10/2016",
+    "dbqList": [],
+    "decisionNotificationSent": "No",
+    "developmentLetterSent": "Yes",
+    "endProductCode": "020",
+    "id": "600085802",
+    "jurisdiction": "St. Petersburg",
+    "mailingAddress": {
+      "addressLine1": "Regional Office",
+      "addressLine2": "PO Box 1437",
+      "addressLine3": "",
+      "city": "St. Petersburg",
+      "state": "FL",
+      "zip": "33731"
+    },
+    "maxEstClaimDate": "02/09/2017",
+    "minEstClaimDate": "12/05/2016",
+    "newEvidenceReceived": false,
+    "pastEstClaimDate": false,
+    "pastEvidenceDueDate": false,
+    "pastPhaseEstDate": false,
+    "poa": "AMERICAN LEGION",
+    "programType": "CPL",
+    "status": "PEND",
+    "statusChanged": false,
+    "statusType": "Compensation",
+    "tempJurisdiction": "",
+    "vbaDocumentList": [],
+    "waiver5103Submitted": false
+  },
+  "messages": []
+}
