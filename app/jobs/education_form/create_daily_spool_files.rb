@@ -122,15 +122,15 @@ module EducationForm
       [name.first, name.middle, name.last].compact.join(' ')
     end
 
-    def full_address(address)
+    def full_address(address, indent: false)
       return '' if address.nil?
-
+      seperator = indent ? "\n        " : "\n"
       [
         address.street,
         address.street2,
         "#{address.city}, #{address.state}, #{address.postalCode}",
         address.country
-      ].compact.join("\n").upcase
+      ].compact.join(seperator).upcase
     end
 
     def rotc_scholarship_amounts(scholarships)
