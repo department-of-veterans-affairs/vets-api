@@ -3,9 +3,13 @@ require_dependency 'evss/base_service'
 
 module EVSS
   class CommonService < BaseService
-    def find_rating_info
+    def find_rating_info(participant_id)
       post 'ratingInfoService/11.1/findRatingInfoPID',
-           { participantId: @user.participant_id }.to_json
+           { participantId: participant_id }.to_json
+    end
+
+    def create_user_account
+      post 'persistentPropertiesService/11.1/createUserAccount'
     end
 
     protected

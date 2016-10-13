@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 require 'common/models/base'
 require 'common/models/redis_store'
-require_dependency 'evss/common_service'
 require 'mvi/messages/find_candidate_message'
 require 'mvi/service'
+require_dependency 'evss/common_service'
+require_dependency 'evss/auth_headers'
 
 class User < Common::RedisStore
   redis_store REDIS_CONFIG['user_store']['namespace']
@@ -47,11 +48,6 @@ class User < Common::RedisStore
     user.validates :ssn, presence: true, format: /\A\d{9}\z/
   end
 
-  def rating_record
-    client = EVSS::CommonService.new(self)
-    client.find_rating_info.body.fetch('ratingRecord', {})
-  end
-
   # TODO(AJD): realize this is temporary but it's also used in specs where it should be stubbed or a factory
   def self.sample_claimant
     attrs = JSON.load(ENV['EVSS_SAMPLE_CLAIMANT_USER'])
@@ -61,5 +57,20 @@ class User < Common::RedisStore
 
   def loa3?
     level_of_assurance == LOA::THREE
+  end
+
+  def async_create_evss_account
+    EVSS::CreateUserAccount.perform_later(evss_auth_headers)
+  end
+
+  def rating_record
+    client = EVSS::CommonService.new(evss_auth_headers)
+    client.find_rating_info(participant_id).body.fetch('ratingRecord', {})
+  end
+
+  private
+
+  def evss_auth_headers
+    @evss_auth_headers ||= EVSS::AuthHeaders.new(self).to_h
   end
 end
