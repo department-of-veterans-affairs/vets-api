@@ -72,10 +72,9 @@ module EducationForm
     end
 
     def create_files(structured_data)
-      if Rails.env.development?
+      if Rails.env.development? || ENV['EDU_SFTP_HOST'].blank?
         write_files(structured_data: structured_data)
       else
-        # TODO: Will be implemented in a follow-up PR.
         Net::SFTP.start(ENV['EDU_SFTP_HOST'], ENV['EDU_SFTP_USER'], password: ENV['EDU_SFTP_PASS']) do |sftp|
           write_files(sftp: sftp, structured_data: structured_data)
         end
@@ -123,15 +122,15 @@ module EducationForm
       [name.first, name.middle, name.last].compact.join(' ')
     end
 
-    def full_address(address)
+    def full_address(address, indent: false)
       return '' if address.nil?
-
+      seperator = indent ? "\n        " : "\n"
       [
         address.street,
         address.street2,
         "#{address.city}, #{address.state}, #{address.postalCode}",
         address.country
-      ].compact.join("\n").upcase
+      ].compact.join(seperator).upcase
     end
 
     def rotc_scholarship_amounts(scholarships)
