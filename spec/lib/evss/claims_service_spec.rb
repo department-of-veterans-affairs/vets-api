@@ -1,13 +1,17 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require_dependency 'evss/claims_service'
+require_dependency 'evss/auth_headers'
 
 describe EVSS::ClaimsService do
   let(:current_user) do
     User.sample_claimant
   end
+  let(:auth_headers) do
+    EVSS::AuthHeaders.new(current_user).to_h
+  end
 
-  subject { described_class.new(current_user) }
+  subject { described_class.new(auth_headers) }
 
   context 'with headers' do
     it 'should get claims' do
