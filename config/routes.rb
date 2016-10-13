@@ -54,7 +54,12 @@ Rails.application.routes.draw do
           resources :attachments, only: [:show], defaults: { format: :json }
         end
 
-        resources :message_drafts, only: [:create, :update], defaults: { format: :json }
+        resources :message_drafts, only: [:create, :update], defaults: { format: :json } do
+          post ':reply_id/replydraft', on: :collection, action: :create_reply_draft, as: :create_reply
+        end
+
+        put 'message_drafts/:reply_id/replydraft/:id',
+            controller: :message_drafts, action: :update_reply_draft, as: :update_reply_draft
       end
     end
 
