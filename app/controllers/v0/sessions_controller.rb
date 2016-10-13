@@ -52,8 +52,7 @@ module V0
         birth_date:     parse_date(attributes['birth_date']&.first),
         uuid:           attributes['uuid']&.first,
         last_signed_in: Time.current.utc,
-
-        level_of_assurance: level_of_assurance
+        loa:            { current: parse_current_loa, highest: attributes['level_of_assurance']&.first }
       }
     end
 
@@ -67,18 +66,16 @@ module V0
     # Ruby-Saml does not parse the <samlp:Response> xml so we do it ourselves to find
     # which LOA was performed on the ID.me side.
     # TODO - remove this method once LOA is returned as a SAML Attribute
-    def level_of_assurance
+    def parse_current_loa
       raw_loa = Hash.from_xml(@saml_response.response)
                     .dig('Response', 'Assertion', 'AuthnStatement', 'AuthnContext', 'AuthnContextClassRef')
       LOA::MAPPING[raw_loa.to_sym]
     end
 
     def create_new_user
-      if user_attributes[:level_of_assurance] == LOA::ONE
-        User.new(user_attributes)
-      else
-        Decorators::MviUserDecorator.new(User.new(user_attributes)).create
-      end
+      user = User.new(user_attributes)
+      user = Decorators::MviUserDecorator.new(user).create unless user.loa1?
+      user
     end
 
     def async_create_evss_account(user)

@@ -49,18 +49,18 @@ module EVSS
     end
 
     def cert?
-      ENV['EVSS_CERT_FILE'].present? ||
-        ENV['EVSS_CERT_KEY'].present? ||
+      ENV['EVSS_CERT_FILE_PATH'].present? ||
+        ENV['EVSS_CERT_KEY_PATH'].present? ||
         ENV['EVSS_ROOT_CERT_FILE_PATH'].present?
     end
 
     # :nocov:
     def client_cert
-      OpenSSL::X509::Certificate.new File.read(ENV['EVSS_CERT_KEY'])
+      OpenSSL::X509::Certificate.new File.read(ENV['EVSS_CERT_KEY_PATH'])
     end
 
     def client_key
-      OpenSSL::PKey::RSA.new File.read(ENV['EVSS_CERT_FILE'])
+      OpenSSL::PKey::RSA.new File.read(ENV['EVSS_CERT_FILE_PATH'])
     end
 
     def root_ca

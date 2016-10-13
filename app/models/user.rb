@@ -21,9 +21,7 @@ class User < Common::RedisStore
   attribute :birth_date, Common::UTCTime
   attribute :zip
   attribute :ssn
-
-  # id.me returned loa
-  attribute :level_of_assurance
+  attribute :loa
 
   # vaafi attributes
   attribute :last_signed_in, Common::UTCTime
@@ -39,9 +37,13 @@ class User < Common::RedisStore
 
   validates :uuid, presence: true
   validates :email, presence: true
+  validates :loa, presence: true
+
+  # TODO: does ID.me guarantee this attribute? It is REQUIRED for MVI to work
+  # validates :gender, presence: true
 
   # conditionally validate if user is LOA3
-  with_options if: :loa3? do |user|
+  with_options unless: :loa1? do |user|
     user.validates :first_name, presence: true
     user.validates :last_name, presence: true
     user.validates :birth_date, presence: true
@@ -55,8 +57,8 @@ class User < Common::RedisStore
     User.new attrs
   end
 
-  def loa3?
-    level_of_assurance == LOA::THREE
+  def loa1?
+    loa[:current] == LOA::ONE
   end
 
   def rating_record
