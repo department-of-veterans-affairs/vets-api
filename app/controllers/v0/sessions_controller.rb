@@ -51,7 +51,7 @@ module V0
         ssn:            attributes['social']&.first&.delete('-'),
         birth_date:     parse_date(attributes['birth_date']&.first),
         uuid:           attributes['uuid']&.first,
-        last_signed_in: Time.zone.now,
+        last_signed_in: Time.current.utc,
 
         level_of_assurance: level_of_assurance
       }
