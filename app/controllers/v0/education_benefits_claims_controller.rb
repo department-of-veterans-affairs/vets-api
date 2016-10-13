@@ -27,7 +27,7 @@ module V0
       known_tmp_path = Rails.root.join('tmp', 'spool_files')
       archive_file = known_tmp_path.join('spool.tar')
 
-      system('bundle', 'exec', 'rake', 'jobs:create_daily_spool_files')
+      ::EducationForm::CreateDailySpoolFiles.perform_now
       system('cd', known_tmp_path.to_s, '&&', 'tar', '-cf', archive_file.to_s, '*.spl')
       send_file archive_file, filename: 'spool.tar'
     end

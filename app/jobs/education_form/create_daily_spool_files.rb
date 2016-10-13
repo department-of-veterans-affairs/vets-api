@@ -72,10 +72,9 @@ module EducationForm
     end
 
     def create_files(structured_data)
-      if Rails.env.development?
+      if Rails.env.development? || ENV['EDU_SFTP_HOST'].blank?
         write_files(structured_data: structured_data)
       else
-        # TODO: Will be implemented in a follow-up PR.
         Net::SFTP.start(ENV['EDU_SFTP_HOST'], ENV['EDU_SFTP_USER'], password: ENV['EDU_SFTP_PASS']) do |sftp|
           write_files(sftp: sftp, structured_data: structured_data)
         end
