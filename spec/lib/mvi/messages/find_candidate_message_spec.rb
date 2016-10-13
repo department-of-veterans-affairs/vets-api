@@ -25,6 +25,20 @@ describe MVI::Messages::FindCandidateMessage do
         expect(xml).to eq_at_path("#{idm_path}/receiver/device/id/@extension", '200M')
       end
 
+      it 'has a dataEnterer node' do
+        expect(xml).to eq_at_path("#{idm_path}/controlActProcess/dataEnterer/@typeCode", 'ENT')
+        expect(xml).to eq_at_path("#{idm_path}/controlActProcess/dataEnterer/@contextControlCode", 'AP')
+        expect(xml).to eq_text_at_path(
+          "#{idm_path}/controlActProcess/dataEnterer/assignedPerson/assignedPerson/name/given[0]", 'John'
+        )
+        expect(xml).to eq_text_at_path(
+          "#{idm_path}/controlActProcess/dataEnterer/assignedPerson/assignedPerson/name/given[1]", 'William'
+        )
+        expect(xml).to eq_text_at_path(
+          "#{idm_path}/controlActProcess/dataEnterer/assignedPerson/assignedPerson/name/family", 'Smith'
+        )
+      end
+
       it 'has a name node' do
         expect(xml).to eq_text_at_path("#{parameter_list_path}/livingSubjectName/value/given[0]", 'John')
         expect(xml).to eq_text_at_path("#{parameter_list_path}/livingSubjectName/value/given[1]", 'William')
