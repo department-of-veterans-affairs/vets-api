@@ -69,6 +69,11 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(JSON.parse(response.body).keys).to include('token', 'uuid')
       end
 
+      it 'creates a job to create an evss user' do
+        ActiveJob::Base.queue_adapter = :test
+        expect { get :saml_callback }.to have_enqueued_job(EVSS::CreateUserAccountJob)
+      end
+
       it 'creates a valid session' do
         get :saml_callback
 
