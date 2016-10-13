@@ -89,11 +89,11 @@ module EVSS
 
     # :nocov:
     def client_cert
-      OpenSSL::X509::Certificate.new File.read(ENV['EVSS_CERT_KEY'])
+      OpenSSL::X509::Certificate.new File.read(ENV['EVSS_CERT_KEY_PATH'])
     end
 
     def client_key
-      OpenSSL::PKey::RSA.new File.read(ENV['EVSS_CERT_FILE'])
+      OpenSSL::PKey::RSA.new File.read(ENV['EVSS_CERT_FILE_PATH'])
     end
 
     def root_ca
