@@ -6,9 +6,11 @@ module Common
 
     include ActiveModel::Serialization
     include ActiveModel::Validations
-    include Virtus.model
+    include Virtus.model(nullify_blank: true)
 
     define_model_callbacks :initialize, only: :after
+
+    REQ_CLASS_INSTANCE_VARS = [:redis_namespace, :redis_namespace_key]
 
     class << self
       attr_accessor :redis_namespace, :redis_namespace_ttl, :redis_namespace_key
@@ -30,6 +32,8 @@ module Common
     delegate :redis_namespace_key, to: 'self.class'
 
     def initialize(attributes = {}, persisted = false)
+      undefined = REQ_CLASS_INSTANCE_VARS.select { |class_var| send(class_var).nil? }
+      raise NoMethodError, "Required class methods #{undefined.join(', ')} are not defined" if undefined.any?
       super(attributes)
       @persisted = persisted
       run_callbacks :initialize
