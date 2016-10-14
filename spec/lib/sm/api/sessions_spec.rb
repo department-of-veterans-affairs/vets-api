@@ -1,32 +1,34 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'sm/client'
+require 'support/sm_client_helpers'
 
 describe SM::Client do
-  let(:config) { SM::Configuration.new(attributes_for(:configuration)) }
-  let(:session) { SM::ClientSession.new(attributes_for(:session, :valid_user)) }
-  let(:invalid_session) { SM::ClientSession.new(attributes_for(:session, :invalid_user)) }
+  include SM::ClientHelpers
 
-  context 'with valid session and configuration' do
-    let(:client) { SM::Client.new(config: config, session: session) }
+  subject(:client) { setup_client }
 
-    it 'gets a valid session' do
-      VCR.use_cassette('sm/sessions/10616687/create') do
-        client_response = client.get_session
-        expect(client_response).to be_a(SM::ClientSession)
-        expect(client_response.token).not_to be_nil
-      end
-    end
+  before(:each) do
+    expect(client.session.token).to be_nil
   end
 
-  context 'with invalid session' do
-    let(:client) { SM::Client.new(config: config, session: invalid_session) }
+  before(:all) do
+    VCR.turn_off!
+  end
 
-    it 'gets a valid session' do
-      VCR.use_cassette('sm/sessions/106166/create_fail') do
-        expect { client.get_session }
-          .to raise_error(Common::Client::Errors::ClientResponse, 'User was not found')
-      end
-    end
+  after(:all) do
+    VCR.turn_on!
+  end
+
+  it 'should have #get_session method' do
+    session = client.get_session
+    expect(session).to be_a(SM::ClientSession)
+    expect(client.session.token).to be_nil
+  end
+
+  it 'should have #authenticate method which calls get_session but assigns new session' do
+    session = client.authenticate
+    expect(session).to be_a(SM::ClientSession)
+    expect(client.session.token).to eq('GkuX2OZ4dCE=48xrH6ObGXZ45ZAg70LBahi7CjswZe8SZGKMUVFIU88=')
   end
 end

@@ -1,19 +1,9 @@
 # frozen_string_literal: true
 module Rx
   module ClientHelpers
-    HOST = 'https://mock-prescriptions-api.herokuapp.com'
+    HOST = ENV['MHV_HOST']
+    APP_TOKEN = 'your-unique-app-token'
     TOKEN = 'GkuX2OZ4dCE=48xrH6ObGXZ45ZAg70LBahi7CjswZe8SZGKMUVFIU88='
-
-    SAMPLE_SESSION_REQUEST = {
-      headers: {
-        'Accept' => 'application/json',
-        'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-        'Apptoken' => 'your-unique-app-token',
-        'Content-Type' => 'application/json',
-        'Mhvcorrelationid' => '123',
-        'User-Agent' => 'Vets.gov Agent'
-      }
-    }.freeze
 
     SAMPLE_SESSION_RESPONSE = {
       status: 200,
@@ -34,19 +24,13 @@ module Rx
 
     def setup_client
       stub_request(:get, "#{HOST}/mhv-api/patient/v1/session")
-        .with(SAMPLE_SESSION_REQUEST)
         .to_return(SAMPLE_SESSION_RESPONSE)
 
-      configuration = Rx::Configuration.new(host: HOST,
-                                            app_token: 'your-unique-app-token')
-      Rx::Client.new(config: configuration, session: { user_id: 123 })
+      Rx::Client.new(session: { user_id: 123 })
     end
 
     def authenticated_client
-      configuration = Rx::Configuration.new(host: HOST,
-                                            app_token: 'your-unique-app-token')
-      Rx::Client.new(config: configuration,
-                     session: { user_id: 123,
+      Rx::Client.new(session: { user_id: 123,
                                 expires_at: Time.current + 60 * 60,
                                 token: TOKEN })
     end
