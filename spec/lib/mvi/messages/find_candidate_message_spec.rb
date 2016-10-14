@@ -39,6 +39,15 @@ describe MVI::Messages::FindCandidateMessage do
         )
       end
 
+      it 'has the correct query parameter order' do
+        parsed_xml = Ox.parse(xml)
+        nodes = parsed_xml.locate(parameter_list_path).first.nodes
+        expect(nodes[0].value).to eq('livingSubjectAdministrativeGender')
+        expect(nodes[1].value).to eq('livingSubjectBirthTime')
+        expect(nodes[2].value).to eq('livingSubjectId')
+        expect(nodes[3].value).to eq('livingSubjectName')
+      end
+
       it 'has a name node' do
         expect(xml).to eq_text_at_path("#{parameter_list_path}/livingSubjectName/value/given[0]", 'John')
         expect(xml).to eq_text_at_path("#{parameter_list_path}/livingSubjectName/value/given[1]", 'William')

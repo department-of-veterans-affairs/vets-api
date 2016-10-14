@@ -17,7 +17,7 @@ module MVI
 
       SSN_ROOT_ID = '2.16.840.1.113883.4.1'
       CORRELATION_ROOT_ID = '2.16.840.1.113883.4.349'
-      EDIPI_ROOT_ID = '2.16.840.1.113883.3.364'
+      EDIPI_ROOT_ID = '2.16.840.1.113883.3.42.10001.100001.12'
 
       def initialize(response)
         super(response)
