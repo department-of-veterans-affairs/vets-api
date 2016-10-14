@@ -37,11 +37,6 @@
     "fullName": "Sibling Olson",
     "sameAddressAndPhone": true
   },
-  "serviceBefore1977": {
-    "haveDependents": true,
-    "married": true,
-    "parentDependent": false
-  },
   "toursOfDuty": [{
     "dateRange": {
       "from": "01/01/2001",

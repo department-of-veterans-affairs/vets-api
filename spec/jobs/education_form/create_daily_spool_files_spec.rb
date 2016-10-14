@@ -105,6 +105,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
 
     it 'writes files out over sftp' do
+      ENV['EDU_SFTP_HOST'] = 'localhost'
       mock_file = double(File)
       mock_writer = StringIO.new
       sftp_mock = double(file: mock_file)
@@ -116,6 +117,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       # read back the written file
       mock_writer.rewind
       expect(mock_writer.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
+      ENV['EDU_SFTP_HOST'] = nil
     end
   end
 
