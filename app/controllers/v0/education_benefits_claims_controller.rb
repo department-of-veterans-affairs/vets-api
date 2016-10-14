@@ -28,7 +28,9 @@ module V0
       archive_file = known_tmp_path.join('spool.tar')
 
       ::EducationForm::CreateDailySpoolFiles.perform_now
-      system('cd', known_tmp_path.to_s, '&&', 'tar', '-cf', archive_file.to_s, '*.spl')
+      Dir.chdir(known_tmp_path.to_s) do
+        system('tar', '-cf', 'spool.tar', '*.spl')
+      end
       send_file archive_file, filename: 'spool.tar'
     end
 
