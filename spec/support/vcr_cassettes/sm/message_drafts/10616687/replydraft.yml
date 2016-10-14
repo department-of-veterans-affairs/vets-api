@@ -2,28 +2,28 @@
 http_interactions:
 - request:
     method: post
-    uri: https://mock-prescriptions-api.herokuapp.com/mhv-api/patient/v1/prescription/rxrefill/1435525
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/631270/replydraft"
     body:
       encoding: UTF-8
-      string: 'null'
+      string: '{"category":"OTHER","subject":"Subject 1","body":"Body 1","recipientId":585986}'
     headers:
       Accept:
-      - application/json
-      Content-Type:
       - application/json
       User-Agent:
       - Vets.gov Agent
       Token:
       - <SESSION_TOKEN>
+      Content-Type:
+      - application/json
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
       code: 200
-      message: 'OK '
+      message: OK
     headers:
       Date:
-      - Fri, 07 Oct 2016 06:35:19 GMT
+      - Wed, 12 Oct 2016 17:07:05 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -36,7 +36,9 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: 'Successfully submitted to: DAYT29'
+      string: '{"id":632528,"category":"OTHER","subject":"Subject 1","body":"Body
+        1","attachment":false,"attachments":{"attachment":[]},"sentDate":"","senderId":384939,"senderName":"MVIONE,
+        TEST","recipientId":585986,"recipientName":"Triage group 311070 test 2","readReceipt":null}'
     http_version:
-  recorded_at: Fri, 07 Oct 2016 06:35:20 GMT
+  recorded_at: Wed, 12 Oct 2016 17:07:05 GMT
 recorded_with: VCR 3.0.3

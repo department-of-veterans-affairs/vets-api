@@ -22,23 +22,19 @@ module Rx
       'User-Agent' => USER_AGENT
     }.freeze
 
-    MHV_CONFIG = Rx::Configuration.new(
-      host: ENV['MHV_HOST'],
-      app_token: ENV['MHV_APP_TOKEN'],
-      enforce_ssl: Rails.env.production?
-    ).freeze
-
     attr_reader :config, :session
 
-    def initialize(config: MHV_CONFIG, session:)
-      @config = config.is_a?(Hash) ? Rx::Configuration.new(config) : config
-      @session = session.is_a?(Hash) ? Rx::ClientSession.new(session) : session
-      raise ArgumentError, 'config is invalid' unless @config.is_a?(Configuration)
-      raise ArgumentError, 'session is invalid' unless @session.valid?
+    def initialize(session:)
+      @config = Rx::Configuration.instance
+      @session = Rx::ClientSession.find_or_build(session)
     end
 
     def authenticate
-      @session = get_session
+      if @session.expired?
+        @session = get_session
+        @session.save
+      end
+      @session
     end
 
     private
@@ -73,7 +69,9 @@ module Rx
 
     def request(method, path, params = {}, headers = {})
       raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
-      connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
+      connection.send(method.to_sym, path, params) do |request|
+        request.headers.update(headers)
+      end.env
     rescue Faraday::Error::TimeoutError, Timeout::Error => error
       raise Common::Client::Errors::RequestTimeout, error
     rescue Faraday::Error::ClientError => error
@@ -93,11 +91,11 @@ module Rx
     end
 
     def connection
-      @connection ||= Faraday.new(@config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options)
+      @connection ||= Faraday.new(config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options)
     end
 
     def auth_headers
-      BASE_REQUEST_HEADERS.merge('appToken' => @config.app_token, 'mhvCorrelationId' => @session.user_id.to_s)
+      BASE_REQUEST_HEADERS.merge('appToken' => config.app_token, 'mhvCorrelationId' => @session.user_id.to_s)
     end
 
     def token_headers
@@ -106,8 +104,8 @@ module Rx
 
     def request_options
       {
-        open_timeout: @config.open_timeout,
-        timeout: @config.read_timeout
+        open_timeout: config.open_timeout,
+        timeout: config.read_timeout
       }
     end
   end
