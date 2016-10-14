@@ -27,7 +27,7 @@ VCR.configure do |c|
     i.response.headers.update('Token' => '<SESSION_TOKEN>')
     i.request.headers.update('Token' => '<SESSION_TOKEN>')
   end
-  c.register_request_matcher :anonymized_session_token do |acutal, expected|
+  c.register_request_matcher :anonymized_session_token do |_acutal, expected|
     actual.headers['Token'] == expected.headers['Token']
   end
 end

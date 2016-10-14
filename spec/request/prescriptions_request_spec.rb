@@ -50,8 +50,8 @@ RSpec.describe 'prescriptions', type: :request do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       # Currently there are no prescriptions having trackings available
-      #expect(response).to match_response_schema('trackings')
-      #expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
+      # expect(response).to match_response_schema('trackings')
+      # expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
     end
   end
 end
