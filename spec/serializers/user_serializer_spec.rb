@@ -31,7 +31,7 @@ RSpec.describe UserSerializer, type: :serializer do
       expect(profile['last_name']).to eq(user.last_name)
     end
     it 'should include birth_date' do
-      expect(Time.parse(profile['birth_date']).httpdate).to eq(user.birth_date.httpdate)
+      expect(Time.zone.parse(profile['birth_date']).httpdate).to eq(user.birth_date.httpdate)
     end
     it 'should include gender' do
       expect(profile['gender']).to eq(user.gender)
@@ -40,7 +40,7 @@ RSpec.describe UserSerializer, type: :serializer do
       expect(profile['zip']).to eq(user.zip)
     end
     it 'should include last_signed_in' do
-      expect(Time.parse(profile['last_signed_in']).httpdate).to eq(user.last_signed_in.httpdate)
+      expect(Time.zone.parse(profile['last_signed_in']).httpdate).to eq(user.last_signed_in.httpdate)
     end
 
     # --- negative tests ---
@@ -53,7 +53,6 @@ RSpec.describe UserSerializer, type: :serializer do
     it 'should not include participant_id in the profile' do
       expect(profile['participant_id']).to be_nil
     end
-
   end
 
   context 'inside "va_profile"' do

@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 class UserSerializer < ActiveModel::Serializer
-
   attributes :services, :profile, :va_profile
 
   def id
@@ -23,11 +22,11 @@ class UserSerializer < ActiveModel::Serializer
 
   def va_profile
     {
-      birth_date:   object.mvi['birth_date'],
-      family_name:  object.mvi['family_name'],
-      gender:       object.mvi['gender'],
-      given_names:  object.mvi['given_names'],
-      status:       object.mvi['status']
+      birth_date:   object.mvi.nil? ? nil : object.mvi['birth_date'],
+      family_name:  object.mvi.nil? ? nil : object.mvi['family_name'],
+      gender:       object.mvi.nil? ? nil : object.mvi['gender'],
+      given_names:  object.mvi.nil? ? nil : object.mvi['given_names'],
+      status:       object.mvi.nil? ? nil : object.mvi['status']
     }
   end
 
