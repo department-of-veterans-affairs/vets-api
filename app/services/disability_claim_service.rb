@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 require_dependency 'evss/claims_service'
+require_dependency 'evss/documents_service'
+require_dependency 'evss/auth_headers'
 
 class DisabilityClaimService
   EVSS_CLAIM_KEYS = %w(openClaims historicalClaims).freeze
@@ -46,11 +48,15 @@ class DisabilityClaimService
   private
 
   def client
-    @client ||= EVSS::ClaimsService.new(@user)
+    @client ||= EVSS::ClaimsService.new(auth_headers)
   end
 
   def document_client
-    @document_client ||= EVSS::DocumentsService.new(@user)
+    @document_client ||= EVSS::DocumentsService.new(auth_headers)
+  end
+
+  def auth_headers
+    @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h
   end
 
   def claims_scope

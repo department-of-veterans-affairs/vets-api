@@ -22,6 +22,18 @@ module V0
       render text: txt
     end
 
+    def daily_file
+      return redirect_to(root_path) unless FeatureFlipper.show_education_benefit_form?
+      known_tmp_path = Rails.root.join('tmp', 'spool_files')
+      archive_file = known_tmp_path.join('spool.tar')
+
+      ::EducationForm::CreateDailySpoolFiles.perform_now
+      Dir.chdir(known_tmp_path.to_s) do
+        system('tar', '-cf', 'spool.tar', '*.spl')
+      end
+      send_file archive_file, filename: 'spool.tar'
+    end
+
     private
 
     def education_benefits_claim_params

@@ -60,7 +60,7 @@
       "postMilitaryJob": true
     }
   ], 
-  "educationType": "college",
+  "educationType": "flightTraining",
   "faaFlightCertificatesInformation": "cert1, cert2",
   "gender": "M",
   "highSchoolOrGedCompletionDate": "06/06/2010",
@@ -81,7 +81,15 @@
   },
   "secondaryContact": {
     "fullName": "Sibling Olson",
-    "sameAddressAndPhone": true
+    "sameAddressAndPhone": false,
+    "address": {
+      "city": "Baltimore",
+      "country": "USA",
+      "postalCode": "23131",
+      "state": "MD",
+      "street": "222 Person Drive"
+    },
+    "phone": "5550001111"
   },
   "serviceBefore1977": {
     "haveDependents": true,
@@ -95,6 +103,8 @@
     },
     "involuntarilyCalledToDuty": "n/a",
     "serviceBranch": "Army Reserve",
+    "applyPeriodToSelected": false,
+    "benefitsToApplyTo": "chapter32",
     "serviceStatus": "ACTIVE DUTY TRAINING"
   }, {
     "dateRange": {
@@ -103,6 +113,7 @@
     },
     "involuntarilyCalledToDuty": "yes",
     "serviceBranch": "Army Reserve",
+    "applyPeriodToSelected": true,
     "serviceStatus": "ACTIVE DUTY"
   }],
   "postHighSchoolTrainings": [
