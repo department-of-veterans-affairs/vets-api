@@ -5,8 +5,11 @@ development: &defaults
   session_store:
     namespace: vets-api-session
     each_ttl: 3600
-  mhv_store:
-    namespace: mhv-service-session
+  rx_store:
+    namespace: rx-service
+    each_ttl: 1200
+  sm_store:
+    namespace: sm-service
     each_ttl: 1200
   user_store:
     namespace: mvi-data
