@@ -40,13 +40,18 @@ Routing/Transit #: <%= @applicant.bankAccount&.routingNumber %>   Account #: <%=
 
 Name, Address, & Telephone Number of Contact:
         <%= @applicant.secondaryContact&.fullName %>
-        <% if @applicant.secondaryContact&.sameAddressAndPhone %>Address and Phone same as claimant<% end %>
+        <%- if @applicant.secondaryContact&.sameAddressAndPhone -%>
+        Address and Phone same as claimant
+        <%- else -%>
+        <%= full_address(@applicant.secondaryContact&.address, indent: true) %>
+        Phone: <%= @applicant.secondaryContact&.phone %>
+        <%- end -%>
 
 
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
-Type of Education or Training: College or Other School (including online courses)
+Type of Education or Training: <%= @applicant.educationType&.titleize %>
 
 Name and Address of School or Training Establishment:
         <%= @applicant.school&.name %>
@@ -143,7 +148,13 @@ For Civilian Employees of the U.S. Federal Government Only. Are you receiving or
            ---------------------------------------------------------
 
 
+<% if @applicant.serviceBefore1977 -%>
+Married: <%= yesno(@applicant.serviceBefore1977.married) %>
+Has Dependents: <%= yesno(@applicant.serviceBefore1977.haveDependents) %>
+Parent Dependent: <%= yesno(@applicant.serviceBefore1977.parentDependent) %>
+<% else -%>
 N/A
+<% end -%>
 
 
                                    REMARKS

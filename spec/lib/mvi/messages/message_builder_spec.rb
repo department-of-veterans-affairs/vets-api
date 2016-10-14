@@ -32,7 +32,7 @@ describe MVI::Messages::MessageBuilder do
     it 'has a creation time node' do
       time = Time.now.utc
       allow(Time).to receive(:now).and_return(time)
-      expect(message.locate('creationTime').first.attributes).to eq(value: time.strftime('%Y%m%d%M%H%M%S'))
+      expect(message.locate('creationTime').first.attributes).to eq(value: time.strftime('%Y%m%d%H%M%S'))
     end
 
     it 'has a version code node' do
@@ -46,7 +46,7 @@ describe MVI::Messages::MessageBuilder do
     end
 
     it 'has a processing code node' do
-      expect(message.locate('processingCode').first.attributes).to eq(code: 'D')
+      expect(message.locate('processingCode').first.attributes).to eq(code: 'T')
     end
 
     it 'has a processing mode code node' do
