@@ -32,10 +32,10 @@ module V0
     end
 
     def update_reply_draft
-      draft = MessageDraft.new(draft_params).as_reply
+      draft = MessageDraft.new(reply_draft_params).as_reply
       raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
 
-      client.post_create_message_draft_reply(params[:reply_id], reply_draft_params.merge(id: params[:id]))
+      client.post_create_message_draft_reply(params[:reply_id], reply_draft_params.merge(id: params[:draft_id]))
       head :no_content
     end
 

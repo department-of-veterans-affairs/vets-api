@@ -58,7 +58,6 @@ RSpec.describe 'Messages Integration', type: :request do
     it 'responds to PUT #update' do
       VCR.use_cassette("sm/message_drafts/#{user_id}/update_replydraft") do
         params[:body] = 'Updated Body'
-
         put "/v0/messaging/health/message_drafts/#{reply_id}/replydraft/#{draft[:id]}", params
       end
 
