@@ -75,10 +75,10 @@ module MVI
 
       def build_parameter_list
         el = element('parameterList')
+        el << build_gender unless @gender.nil?
         el << build_living_subject_birth_time
         el << build_living_subject_id
         el << build_living_subject_name
-        el << build_gender unless @gender.nil?
       end
 
       def build_living_subject_name
