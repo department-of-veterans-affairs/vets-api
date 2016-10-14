@@ -33,6 +33,10 @@ module V0
 
     private
 
+    def sessions_params
+      params.permit(level: Numeric)
+    end
+
     def persist_session_and_user!
       @session = Session.new(user_attributes.slice(:uuid))
       @current_user = User.find(@session.uuid) || create_new_user
@@ -69,7 +73,7 @@ module V0
     def parse_current_loa
       raw_loa = Hash.from_xml(@saml_response.response)
                     .dig('Response', 'Assertion', 'AuthnStatement', 'AuthnContext', 'AuthnContextClassRef')
-      LOA::MAPPING[raw_loa.to_sym]
+      LOA::MAPPING[raw_loa]
     end
 
     def create_new_user

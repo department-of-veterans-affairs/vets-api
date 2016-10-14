@@ -42,6 +42,10 @@ RSpec.describe V0::SessionsController, type: :controller do
       expect(JSON.parse(response.body)).to eq('authenticate_via_get' => 'url_string')
     end
 
+    # TODO: implementing this will be tricky...
+    it 'GET new - with a valid level shows the ID.me authentication url'
+    it 'GET new - with an invalid level returns an error'
+
     it 'GET show - returns unauthorized' do
       get :show
       expect(response).to have_http_status(:unauthorized)

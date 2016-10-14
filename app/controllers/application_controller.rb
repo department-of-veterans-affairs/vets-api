@@ -68,6 +68,8 @@ class ApplicationController < ActionController::API
   end
 
   def saml_settings
-    SAML::SettingsService.instance.saml_settings
+    settings = SAML::SettingsService.instance.saml_settings
+    settings.authn_context = LOA::MAPPING.invert[params.permit(level: Numeric) || 1]
+    settings
   end
 end
