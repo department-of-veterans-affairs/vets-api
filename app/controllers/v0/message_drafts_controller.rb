@@ -8,7 +8,6 @@ module V0
 
       render json: response,
              serializer: MessageSerializer,
-             include: 'attachments',
              status: :created
     end
 
@@ -27,7 +26,6 @@ module V0
       response = client.post_create_message_draft_reply(params[:reply_id], reply_draft_params)
       render json: response,
              serializer: MessageSerializer,
-             include: 'attachments',
              status: :created
     end
 
