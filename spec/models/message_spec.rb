@@ -26,7 +26,7 @@ RSpec.describe Message do
       expect(subject.read_receipt).to eq(params[:read_receipt])
     end
 
-    it 'can sorts by sent_date DESC' do
+    it 'sorts by sent_date DESC' do
       expect([subject, other].sort).to eq([other, subject])
     end
 

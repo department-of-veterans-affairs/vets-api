@@ -6,7 +6,6 @@ module Filterable
     before_action :validate_filter_params!, only: :index
   end
 
-
   def validate_filter_params!
     if params[:filter].present?
       return true if valid_filters?
