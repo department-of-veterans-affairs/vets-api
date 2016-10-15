@@ -70,12 +70,11 @@ class ApplicationController < ActionController::API
   def saml_settings
     SAML::SettingsService.instance.saml_settings
   end
-  
+
   def pagination_params
     {
       page: params[:page],
       per_page: params[:per_page]
     }
   end
-
 end

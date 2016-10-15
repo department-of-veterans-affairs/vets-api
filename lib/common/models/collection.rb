@@ -18,11 +18,11 @@ module Common
     alias to_hash attributes
 
     OPERATIONS_MAP = {
-      'eq' => :==,
-      'lteq' => :<=,
-      'gteq' => :>=,
-      'not_eq' => :!=,
-      'match' => :match
+      'eq' => '==',
+      'lteq' => '<=',
+      'gteq' => '>=',
+      'not_eq' => '!=',
+      'match' => 'match'
     }.with_indifferent_access.freeze
 
     def initialize(klass = Array, data: [], metadata: {}, errors: {})
@@ -36,16 +36,16 @@ module Common
       end
     end
 
-    def find_by(search = {})
-      verify_search_params!(search)
-      result = @data.select { |item| finder(item, search) }
-      metadata = @metadata.merge(filter: search)
+    def find_by(filter = {})
+      verify_filter_params!(filter)
+      result = @data.select { |item| finder(item, filter) }
+      metadata = @metadata.merge(filter: filter)
       Collection.new(type, data: result, metadata: metadata, errors: errors)
     end
 
-    def find_first_by(search = {})
-      verify_search_params!(search)
-      result = @data.detect { |item| finder(item, search) }
+    def find_first_by(filter = {})
+      verify_filter_params!(filter)
+      result = @data.detect { |item| finder(item, filter) }
       return nil if result.nil?
       result.metadata = metadata
       result
@@ -77,8 +77,8 @@ module Common
       @mock_comparator_object ||= type.new
     end
 
-    def finder(object, search)
-      search.all? do |attribute, predicates|
+    def finder(object, filter)
+      filter.all? do |attribute, predicates|
         actual_value = object.send(attribute)
         predicates.all? do |operator, expected_value|
           op = OPERATIONS_MAP.fetch(operator)
@@ -123,10 +123,10 @@ module Common
       !type.sortable_attributes.include?(sort_param.delete('-'))
     end
 
-    def verify_search_params!(search)
-      filter_not_allowed = (search.keys.map(&:to_s) - type.filterable_attributes).join(', ')
+    def verify_filter_params!(filter)
+      filter_not_allowed = (filter.keys.map(&:to_s) - type.filterable_attributes).join(', ')
       raise Common::Exceptions::FilterNotAllowed, filter_not_allowed unless filter_not_allowed.empty?
-      filter_syntax_invalid = (search.values.map(&:keys).flatten - OPERATIONS_MAP.keys).join(', ')
+      filter_syntax_invalid = (filter.values.map(&:keys).flatten - OPERATIONS_MAP.keys).join(', ')
       raise Common::Exceptions::InvalidFiltersSyntax, filter_syntax_invalid unless filter_syntax_invalid.empty?
     end
 
