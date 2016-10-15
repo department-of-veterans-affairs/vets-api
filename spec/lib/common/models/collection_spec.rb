@@ -72,6 +72,9 @@ describe Common::Collection do
     end
 
     it 'can filter a collection by substring matching' do
+      filterable_attributes = { 'prescription_name' => ['match'] }.with_indifferent_access
+      allow(Prescription).to receive(:filterable_attributes).and_return(filterable_attributes)
+
       name_filter = { prescription_name: { match: 'drug 1' } }
       name_filtered_collection = subject.find_by(name_filter)
 

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 module V0
   class PrescriptionsController < RxController
+    include Filterable
     # This index action supports various parameters described below, all are optional
     # This comment can be removed once documentation is finalized
     # @param refill_status - one refill status to filter on

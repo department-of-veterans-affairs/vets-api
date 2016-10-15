@@ -6,7 +6,7 @@ RSpec.describe Message do
     subject { described_class.new(params) }
 
     let(:params) { attributes_for :message }
-    let(:other) { described_class.new(attributes_for(:message)) }
+    let(:other) { described_class.new(attributes_for(:message, sent_date: Time.current)) }
 
     it 'populates attributes' do
       expect(described_class.attribute_set.map(&:name)).to contain_exactly(:id, :category, :subject, :body,
@@ -26,9 +26,8 @@ RSpec.describe Message do
       expect(subject.read_receipt).to eq(params[:read_receipt])
     end
 
-    it 'can be compared by id' do
-      expect(subject <=> other).to eq(-1)
-      expect(other <=> subject).to eq(1)
+    it 'can sorts by sent_date DESC' do
+      expect([subject, other].sort).to eq([other, subject])
     end
 
     describe 'when validating' do

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 module V0
   class MessagesController < SMController
+    include Filterable
+    
     def index
       resource = client.get_folder_messages(params[:folder_id].to_s)
       raise Common::Exceptions::RecordNotFound, params[:folder_id] unless resource.present?

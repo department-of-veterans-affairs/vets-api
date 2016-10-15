@@ -37,14 +37,14 @@ module Common
     end
 
     def find_by(filter = {})
-      verify_filter_params!(filter)
+      verify_filter_keys!(filter)
       result = @data.select { |item| finder(item, filter) }
       metadata = @metadata.merge(filter: filter)
       Collection.new(type, data: result, metadata: metadata, errors: errors)
     end
 
     def find_first_by(filter = {})
-      verify_filter_params!(filter)
+      verify_filter_keys!(filter)
       result = @data.detect { |item| finder(item, filter) }
       return nil if result.nil?
       result.metadata = metadata
@@ -81,10 +81,13 @@ module Common
       filter.all? do |attribute, predicates|
         actual_value = object.send(attribute)
         predicates.all? do |operator, expected_value|
+          valid_operation =  type.filterable_attributes[attribute].include?(operator.to_s)
+          raise Common::Exceptions::FilterNotAllowed, "#{operator} for #{attribute}" unless valid_operation
+
           op = OPERATIONS_MAP.fetch(operator)
           mock_comparator_object.send("#{attribute}=", expected_value)
 
-          if op == :match
+          if op == 'match'
             actual_value.downcase.include?(expected_value.downcase)
           else
             actual_value.send(op, mock_comparator_object.send(attribute))
@@ -123,11 +126,9 @@ module Common
       !type.sortable_attributes.include?(sort_param.delete('-'))
     end
 
-    def verify_filter_params!(filter)
-      filter_not_allowed = (filter.keys.map(&:to_s) - type.filterable_attributes).join(', ')
-      raise Common::Exceptions::FilterNotAllowed, filter_not_allowed unless filter_not_allowed.empty?
-      filter_syntax_invalid = (filter.values.map(&:keys).flatten - OPERATIONS_MAP.keys).join(', ')
-      raise Common::Exceptions::InvalidFiltersSyntax, filter_syntax_invalid unless filter_syntax_invalid.empty?
+    def verify_filter_keys!(filter)
+      failed_attributes = (filter.keys.map(&:to_s) - type.filterable_attributes.keys).join(', ')
+      raise Common::Exceptions::FilterNotAllowed, failed_attributes unless failed_attributes.empty?
     end
 
     def convert_fields_to_ordered_hash(fields)

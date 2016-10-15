@@ -16,22 +16,24 @@ module Common
     alias to_hash attributes
 
     class << self
-      def per_page(value)
-        @per_page = value
+      def per_page(value = nil)
+        @per_page ||= value || 10
       end
 
-      def max_per_page(value)
-        @max_per_page = value
+      def max_per_page(value = nil)
+        @max_per_page ||= value || 100
       end
 
       def sortable_attributes
         @sortable_attributes ||= begin
-          attribute_set.flat_map do |attribute|
-            if attribute.options[:sortable]
-              @default_sort ||= attribute.name.to_s if attribute.options[:sortable][:default]
-              { attribute.name.to_s => attribute.options[:sortable][:order] }
+          Hash[attribute_set.map do |attribute|
+            next unless attribute.options[:sortable]
+            sortable = attribute.options[:sortable].is_a?(Hash) ? attribute.options[:sortable] : { order: 'ASC' }
+            if sortable[:default]
+              @default_sort ||= sortable[:order] == 'DESC' ? "-#{attribute.name}" : attribute.name.to_s
             end
-          end.compact
+            [attribute.name.to_s, sortable[:order]]
+          end.compact].with_indifferent_access
         end
       end
 
@@ -44,9 +46,9 @@ module Common
 
       def filterable_attributes
         @filterable_attributes ||= begin
-          attribute_set.flat_map do |attribute|
-            { attribute.name.to_s => attribute.options[:filterable] } if attribute.options[:filterable]
-          end.compact
+          Hash[attribute_set.map do |attribute|
+            [attribute.name.to_s, attribute.options[:filterable]] if attribute.options[:filterable]
+          end.compact].with_indifferent_access
         end
       end
     end
