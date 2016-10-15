@@ -21,7 +21,7 @@ describe Common::Exceptions::ParameterMissing do
         .to eq(title: 'Missing Parameter',
                detail: 'The required parameter "some_parameter", is missing',
                code: '108',
-               status: 400)
+               status: '400')
     end
   end
 end

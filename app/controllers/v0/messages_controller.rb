@@ -1,14 +1,29 @@
 # frozen_string_literal: true
 module V0
   class MessagesController < SMController
+    include Filterable
+
+    SORT_FIELDS   = %w(subject sent_date sender_name recipient_name).freeze
+    SORT_TYPES    = (SORT_FIELDS + SORT_FIELDS.map { |field| "-#{field}" }).freeze
+    DEFAULT_SORT  = '-sent_date'
+
+    PERMITTED_FILTERS = {
+      'subject' => %w(eq not_eq),
+      'sender_name' => %w(eq not_eq),
+      'recipient_name' => %w(eq not_eq),
+      'sent_date' => %w(eq lteq gteq)
+    }.freeze
+
     def index
       resource = client.get_folder_messages(params[:folder_id].to_s)
-      raise VA::API::Common::Exceptions::RecordNotFound, params[:folder_id] unless resource.present?
+      raise Common::Exceptions::RecordNotFound, params[:folder_id] unless resource.present?
+      resource = filter? ? resource.find_by(params[:filter]) : resource
+      resource = resource.sort(params[:sort] || DEFAULT_SORT, allowed: SORT_TYPES)
       resource = resource.paginate(pagination_params)
 
       render json: resource.data,
              serializer: CollectionSerializer,
-             each_serializer: MessageSerializer,
+             each_serializer: MessagesSerializer,
              meta: resource.metadata
     end
 
@@ -16,21 +31,27 @@ module V0
       message_id = params[:id].try(:to_i)
       response = client.get_message(message_id)
 
-      raise VA::API::Common::Exceptions::RecordNotFound, message_id unless response.present?
+      raise Common::Exceptions::RecordNotFound, message_id unless response.present?
 
       render json: response,
              serializer: MessageSerializer,
+             include: 'attachments',
              meta: response.metadata
     end
 
     def create
-      message = Message.new(message_params)
+      message = Message.new(create_message_params)
       raise Common::Exceptions::ValidationErrors, message unless message.valid?
 
-      response = client.post_create_message(message_params)
+      client_response = if message.uploads.present?
+                          client.post_create_message_with_attachment(create_message_params)
+                        else
+                          client.post_create_message(message_params)
+                        end
 
-      render json: response,
+      render json: client_response,
              serializer: MessageSerializer,
+             include: 'attachments',
              meta:  {}
     end
 
@@ -42,27 +63,28 @@ module V0
     def thread
       message_id = params[:id].try(:to_i)
       resource = client.get_message_history(message_id)
-      raise VA::API::Common::Exceptions::RecordNotFound, message_id unless resource.present?
+      raise Common::Exceptions::RecordNotFound, message_id unless resource.present?
       resource = resource.paginate(pagination_params)
 
       render json: resource.data,
              serializer: CollectionSerializer,
-             each_serializer: MessageSerializer,
+             each_serializer: MessagesSerializer,
              meta: resource.metadata
     end
 
     def reply
-      message = Message.new(message_params)
+      message = Message.new(create_message_params).as_reply
+      raise Common::Exceptions::ValidationErrors, message unless message.valid?
 
-      if message.body.blank?
-        message.errors.add(:body, "can't be blank")
-        raise Common::Exceptions::ValidationErrors, message
+      if message.uploads.present?
+        client_response = client.post_create_message_reply_with_attachment(params[:id], create_message_params)
+      else
+        client_response = client.post_create_message_reply(params[:id], message_params)
       end
 
-      resource = client.post_create_message_reply(params[:id], message_params)
-
-      render json: resource,
+      render json: client_response,
              serializer: MessageSerializer,
+             include: 'attachments',
              status: :created
     end
 
@@ -83,6 +105,14 @@ module V0
 
     def message_params
       @message_params ||= params.require(:message).permit(:category, :body, :recipient_id, :subject)
+    end
+
+    def create_message_params
+      @create_message_params ||= message_params.merge(uploads: params[:uploads])
+    end
+
+    def filter?
+      can_filter?(Message, PERMITTED_FILTERS)
     end
   end
 end

@@ -1,0 +1,110 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/attach"
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        LS0tLS0tLS0tLS0tLVJ1YnlNdWx0aXBhcnRQb3N0DQpDb250ZW50LURpc3Bv
+        c2l0aW9uOiBmb3JtLWRhdGE7IG5hbWU9Im1lc3NhZ2UiOyBmaWxlbmFtZT0i
+        bWVzc2FnZSINCkNvbnRlbnQtTGVuZ3RoOiA4MQ0KQ29udGVudC1UeXBlOiBh
+        cHBsaWNhdGlvbi9qc29uDQpDb250ZW50LVRyYW5zZmVyLUVuY29kaW5nOiBi
+        aW5hcnkNCg0KeyJjYXRlZ29yeSI6Ik9USEVSIiwiYm9keSI6IkJvZHkgMSIs
+        InJlY2lwaWVudElkIjoiNTg1OTg2Iiwic3ViamVjdCI6IlN1YmplY3QgMSJ9
+        DQotLS0tLS0tLS0tLS0tUnVieU11bHRpcGFydFBvc3QNCkNvbnRlbnQtRGlz
+        cG9zaXRpb246IGZvcm0tZGF0YTsgbmFtZT0ic21fZmlsZTEuanBnIjsgZmls
+        ZW5hbWU9InNtX2ZpbGUxLmpwZyINCkNvbnRlbnQtTGVuZ3RoOiA0MDUNCkNv
+        bnRlbnQtVHlwZTogaW1hZ2UvanBnDQpDb250ZW50LVRyYW5zZmVyLUVuY29k
+        aW5nOiBiaW5hcnkNCg0K/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgIC
+        AgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8Q
+        EBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQ
+        EBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAAF
+        AAUDAREAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAAB//EAB0QAAICAwEB
+        AQAAAAAAAAAAAAECAwQFERIGAAf/xAAVAQEBAAAAAAAAAAAAAAAAAAAEBf/E
+        ABwRAAIDAQEBAQAAAAAAAAAAAAECAwQSEQUAIv/aAAwDAQACEQMRAD8AMfSZ
+        nwPlcmI8h+U4m9HZjc1lrXLFQV41nlUx66dSC4dxoLrvk9aB+m3/AFbXnedH
+        bpSMNzSRlWPVGIqzhlyEILCbjBi46gK5ByGzQejSrwtCa7F9lzJVSXrrLJHs
+        ab86VFBVeIMgKqgc+//ZDQotLS0tLS0tLS0tLS0tUnVieU11bHRpcGFydFBv
+        c3QNCkNvbnRlbnQtRGlzcG9zaXRpb246IGZvcm0tZGF0YTsgbmFtZT0ic21f
+        ZmlsZTIuanBnIjsgZmlsZW5hbWU9InNtX2ZpbGUyLmpwZyINCkNvbnRlbnQt
+        TGVuZ3RoOiA0MDcNCkNvbnRlbnQtVHlwZTogaW1hZ2UvanBnDQpDb250ZW50
+        LVRyYW5zZmVyLUVuY29kaW5nOiBiaW5hcnkNCg0K/9j/4AAQSkZJRgABAQAA
+        AQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkK
+        DA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQ
+        CwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ
+        EBAQEBAQEBD/wAARCAAFAAUDAREAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAA
+        AAAABP/EAB0QAAICAgMBAAAAAAAAAAAAAAECAwYFEQQHEiL/xAAVAQEBAAAA
+        AAAAAAAAAAAAAAADBP/EAB8RAAICAgIDAQAAAAAAAAAAAAECAwQFERIiABMV
+        If/aAAwDAQACEQMRAD8AXfLraenrfk69kc5zLKBO8XHknneMQxI7MFAcyMT6
+        kcb9aCLGuvkszYTKpbEtq7CGkDGIlSUB9PQEKDpQw0xUdeZdx+yN5F9ahhsd
+        BmsjXeybzSOEMzRrF62EZ4hBx76DMFVEBGkRV0PP/9kNCi0tLS0tLS0tLS0t
+        LS1SdWJ5TXVsdGlwYXJ0UG9zdA0KQ29udGVudC1EaXNwb3NpdGlvbjogZm9y
+        bS1kYXRhOyBuYW1lPSJzbV9maWxlMy5qcGciOyBmaWxlbmFtZT0ic21fZmls
+        ZTMuanBnIg0KQ29udGVudC1MZW5ndGg6IDQwOQ0KQ29udGVudC1UeXBlOiBp
+        bWFnZS9qcGcNCkNvbnRlbnQtVHJhbnNmZXItRW5jb2Rpbmc6IGJpbmFyeQ0K
+        DQr/2P/gABBKRklGAAEBAAABAAEAAP/bAEMAAwICAgICAwICAgMDAwMEBgQE
+        BAQECAYGBQYJCAoKCQgJCQoMDwwKCw4LCQkNEQ0ODxAQERAKDBITEhATDxAQ
+        EP/bAEMBAwMDBAMECAQECBALCQsQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ
+        EBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEP/AABEIAAUABQMBEQACEQEDEQH/
+        xAAUAAEAAAAAAAAAAAAAAAAAAAAE/8QAHRAAAgICAwEAAAAAAAAAAAAAAQID
+        BAUGABEhB//EABUBAQEAAAAAAAAAAAAAAAAAAAME/8QAHxEAAgICAwADAAAA
+        AAAAAAAAAQIDBBESBQYTABQi/9oADAMBAAIRAxEAPwBerZr6Tl9BxeyNviOl
+        m7cqRV7OGrSmFIhC3jqqFizTMfR0AFChQOuP2HtNXpxry/TEhtRpJkTTxlV0
+        ULGdZDsFwTtgEszsQWZiYuT59OHrVLoVyliPYKGjDKUd0Oz+J9MgKAdVIC/o
+        uxLfP//ZDQotLS0tLS0tLS0tLS0tUnVieU11bHRpcGFydFBvc3QNCkNvbnRl
+        bnQtRGlzcG9zaXRpb246IGZvcm0tZGF0YTsgbmFtZT0ic21fZmlsZTQuanBn
+        IjsgZmlsZW5hbWU9InNtX2ZpbGU0LmpwZyINCkNvbnRlbnQtTGVuZ3RoOiA0
+        MDcNCkNvbnRlbnQtVHlwZTogaW1hZ2UvanBnDQpDb250ZW50LVRyYW5zZmVy
+        LUVuY29kaW5nOiBiaW5hcnkNCg0K/9j/4AAQSkZJRgABAQAAAQABAAD/2wBD
+        AAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJ
+        DRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQ
+        EBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/
+        wAARCAAFAAUDAREAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAABf/EAB4Q
+        AAIBBAMBAAAAAAAAAAAAAAIDAQQFBhEAEiEU/8QAFQEBAQAAAAAAAAAAAAAA
+        AAAABgf/xAAeEQACAgIDAQEAAAAAAAAAAAABAgMEBRIREyEjB//aAAwDAQAC
+        EQMRAD8AJzXNc1VfW0tozK9WgKfaGRbqr5RcaSKnlhAqBHZSjvMa8lhe61xV
+        gaF6XAUsnRsCPujj5V4xOPYYpOR2ltSTKQ2gUMApYF9malUfz7GWrVtrg7QJ
+        OF2MilfnGSPjJEuvo1XTwhmJZnYn/9kNCi0tLS0tLS0tLS0tLS1SdWJ5TXVs
+        dGlwYXJ0UG9zdC0tDQoNCg==
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token:
+      - <SESSION_TOKEN>
+      Content-Transfer-Encoding:
+      - binary
+      Content-Type:
+      - multipart/form-data; boundary=-----------RubyMultipartPost
+      Content-Length:
+      - '2716'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 12 Oct 2016 09:48:13 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '{"id":631264,"category":"OTHER","subject":"Subject 1","body":"Body
+        1","attachment":true,"attachments":{"attachment":[{"id":631259,"name":"sm_file1.jpg"},{"id":631260,"name":"sm_file2.jpg"},{"id":631261,"name":"sm_file3.jpg"},{"id":631262,"name":"sm_file4.jpg"}]},"sentDate":"Wed,
+        12 Oct 2016 09:48:14 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":585986,"recipientName":"Triage
+        group 311070 test 2","readReceipt":null}'
+    http_version:
+  recorded_at: Wed, 12 Oct 2016 09:48:14 GMT
+recorded_with: VCR 3.0.3

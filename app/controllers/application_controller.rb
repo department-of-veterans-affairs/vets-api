@@ -1,6 +1,8 @@
 # frozen_string_literal: true
+require 'feature_flipper'
 require 'common/exceptions'
 require 'common/client/errors'
+require_dependency 'saml/settings_service'
 
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
@@ -24,12 +26,13 @@ class ApplicationController < ActionController::API
       when Common::Exceptions::BaseError
         exception
       when Common::Client::Errors::ClientResponse
-        Common::Exceptions::ClientError.new(exception.message.capitalize)
+        meta = exception.to_json unless Rails.env.production?
+        Common::Exceptions::ClientError.new(exception.message.capitalize, meta: meta)
       else
         Common::Exceptions::InternalServerError.new(exception)
       end
 
-    render json: { errors: va_exception.errors }, status: va_exception.errors[0].status
+    render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
 
   def log_error(exception)
@@ -64,10 +67,15 @@ class ApplicationController < ActionController::API
     render json: 'Not Authorized', status: 401
   end
 
+  def saml_settings
+    SAML::SettingsService.instance.saml_settings
+  end
+  
   def pagination_params
     {
       page: params[:page],
       per_page: params[:per_page]
     }
   end
+
 end

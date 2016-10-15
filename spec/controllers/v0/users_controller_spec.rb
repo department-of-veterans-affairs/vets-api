@@ -12,10 +12,11 @@ RSpec.describe V0::UsersController, type: :controller do
   context 'when logged in' do
     let(:token) { 'abracadabra-open-sesame' }
     let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
+    let(:test_user) { FactoryGirl.build(:user) }
 
     before(:each) do
-      Session.create(uuid: '1234', token: token)
-      User.create(uuid: '1234', email: 'test@test.com')
+      Session.create(uuid: test_user.uuid, token: token)
+      User.create(test_user)
     end
 
     it 'returns a JSON user profile' do
@@ -25,8 +26,8 @@ RSpec.describe V0::UsersController, type: :controller do
 
       json = JSON.parse(response.body)
 
-      expect(json['uuid']).to eq('1234')
-      expect(json['email']).to eq('test@test.com')
+      expect(json['uuid']).to eq(test_user.uuid)
+      expect(json['email']).to eq(test_user.email)
     end
   end
 end

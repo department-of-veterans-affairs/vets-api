@@ -71,6 +71,18 @@ describe Common::Collection do
                filter: filter)
     end
 
+    it 'can filter a collection by substring matching' do
+      name_filter = { prescription_name: { match: 'drug 1' } }
+      name_filtered_collection = subject.find_by(name_filter)
+
+      expect(name_filtered_collection).to be_a(Common::Collection)
+      expect(name_filtered_collection.data.size).to eq(1)
+      expect(name_filtered_collection.metadata)
+        .to eq(updated_at: 'Thu, 26 May 2016 13:05:43 EDT',
+               failed_station_list: '',
+               filter: name_filter)
+    end
+
     it 'can sort a collection' do
       expect(sorted_collection).to be_a(Common::Collection)
       expect(sorted_collection.data.map(&:prescription_id))

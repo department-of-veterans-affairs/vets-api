@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'feature_flipper'
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
 
@@ -15,7 +16,18 @@ Rails.application.routes.draw do
     get 'user', to: 'users#show'
     get 'profile', to: 'users#show'
 
-    resource :education_benefits_claims, only: :create
+    resource :education_benefits_claims, only: [:create] do
+      get :index, to: 'education_benefits_claims#daily_file',
+                  defaults: { format: :tar },
+                  as: :daily_file,
+                  constraints: ->(_) { FeatureFlipper.show_education_benefit_form? }
+      get ':id', to: 'education_benefits_claims#show',
+                 defaults: { format: :text },
+                 as: :show,
+                 id: /\d+/,
+                 constraints: ->(_) { FeatureFlipper.show_education_benefit_form? }
+    end
+
     resource :disability_rating, only: [:show]
     resources :disability_claims, only: [:index, :show] do
       post :request_decision, on: :member
@@ -44,9 +56,13 @@ Rails.application.routes.draw do
           get :categories, on: :collection
           patch :move, on: :member
           post :reply, on: :member
+          resources :attachments, only: [:show], defaults: { format: :json }
         end
 
-        resources :message_drafts, only: [:create, :update], defaults: { format: :json }
+        resources :message_drafts, only: [:create, :update], defaults: { format: :json } do
+          post ':reply_id/replydraft', on: :collection, action: :create_reply_draft, as: :create_reply
+          put ':reply_id/replydraft/:draft_id', on: :collection, action: :update_reply_draft, as: :update_reply
+        end
       end
     end
 

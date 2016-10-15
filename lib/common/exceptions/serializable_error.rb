@@ -16,7 +16,7 @@ module Common
       attribute :code, String
       attribute :source, String
       # attribute :links, Array[String] # commenting this out for now as it complicates things
-      attribute :status, Integer
+      attribute :status, String
       attribute :meta, String
 
       # return only those attributes that have non nil values

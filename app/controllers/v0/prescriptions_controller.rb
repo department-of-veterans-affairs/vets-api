@@ -22,7 +22,7 @@ module V0
     def show
       id = params[:id].try(:to_i)
       resource = client.get_rx(id)
-      raise VA::API::Common::Exceptions::RecordNotFound, id unless resource.present?
+      raise Common::Exceptions::RecordNotFound, id unless resource.present?
       render json: resource,
              serializer: PrescriptionSerializer,
              meta: resource.metadata

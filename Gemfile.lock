@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/department-of-veterans-affairs/vets-json-schema
+  revision: f6dd605ee975e56ed3ffacb009331fad1027b6bb
+  branch: master
+  specs:
+    vets_json_schema (1.0.0)
+      multi_json (~> 1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -72,6 +80,8 @@ GEM
       thor (~> 0.18)
     byebug (8.2.2)
     chronic (0.10.2)
+    climate_control (0.0.3)
+      activesupport (>= 3.0)
     coderay (1.1.1)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
@@ -137,8 +147,8 @@ GEM
     i18n (0.7.0)
     ice_nine (0.11.2)
     json (1.8.3)
-    json-schema (2.5.0)
-      addressable (~> 2.3)
+    json-schema (2.7.0)
+      addressable (>= 2.4)
     jsonapi (0.1.1.beta2)
       json (~> 1.8)
     listen (3.0.6)
@@ -343,6 +353,7 @@ DEPENDENCIES
   brakeman
   bundler-audit
   byebug
+  climate_control (= 0.0.3)
   factory_girl_rails
   fakeredis
   faraday
@@ -374,12 +385,13 @@ DEPENDENCIES
   savon (~> 2.0)
   sdoc (~> 0.4.0)
   sidekiq
-  simplecov
+  simplecov (~> 0.11)
   spring
   spring-commands-rspec
   timecop
   tzinfo-data
   vcr
+  vets_json_schema!
   virtus
   web-console (~> 2.0)
   webmock

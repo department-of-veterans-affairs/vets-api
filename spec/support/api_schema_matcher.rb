@@ -13,9 +13,7 @@ end
 # That's a little too strict for the existing vets-json-schema schemas, and so we don't use it.
 RSpec::Matchers.define :match_vets_schema do |schema|
   match do |data|
-    schema_directory = "#{Dir.pwd}/app/vets-json-schema/dist"
-    schema_path      = "#{schema_directory}/#{schema}.json"
-    @errors = JSON::Validator.fully_validate(schema_path, data, validate_schema: true)
+    @errors = JSON::Validator.fully_validate(VetsJsonSchema.const_get(schema.upcase), data, validate_schema: true)
     @errors == []
   end
 

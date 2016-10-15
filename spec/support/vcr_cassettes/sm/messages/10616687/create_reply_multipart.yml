@@ -1,0 +1,109 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/610114/reply/attach"
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        LS0tLS0tLS0tLS0tLVJ1YnlNdWx0aXBhcnRQb3N0DQpDb250ZW50LURpc3Bv
+        c2l0aW9uOiBmb3JtLWRhdGE7IG5hbWU9Im1lc3NhZ2UiOyBmaWxlbmFtZT0i
+        bWVzc2FnZSINCkNvbnRlbnQtTGVuZ3RoOiAzMQ0KQ29udGVudC1UeXBlOiBh
+        cHBsaWNhdGlvbi9qc29uDQpDb250ZW50LVRyYW5zZmVyLUVuY29kaW5nOiBi
+        aW5hcnkNCg0KeyJib2R5IjoiVGhpcyBpcyBhIHJlcGx5IGJvZHkifQ0KLS0t
+        LS0tLS0tLS0tLVJ1YnlNdWx0aXBhcnRQb3N0DQpDb250ZW50LURpc3Bvc2l0
+        aW9uOiBmb3JtLWRhdGE7IG5hbWU9InNtX2ZpbGUxLmpwZyI7IGZpbGVuYW1l
+        PSJzbV9maWxlMS5qcGciDQpDb250ZW50LUxlbmd0aDogNDA1DQpDb250ZW50
+        LVR5cGU6IGltYWdlL2pwZw0KQ29udGVudC1UcmFuc2Zlci1FbmNvZGluZzog
+        YmluYXJ5DQoNCv/Y/+AAEEpGSUYAAQEAAAEAAQAA/9sAQwADAgICAgIDAgIC
+        AwMDAwQGBAQEBAQIBgYFBgkICgoJCAkJCgwPDAoLDgsJCQ0RDQ4PEBAREAoM
+        EhMSEBMPEBAQ/9sAQwEDAwMEAwQIBAQIEAsJCxAQEBAQEBAQEBAQEBAQEBAQ
+        EBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ/8AAEQgABQAFAwER
+        AAIRAQMRAf/EABQAAQAAAAAAAAAAAAAAAAAAAAf/xAAdEAACAgMBAQEAAAAA
+        AAAAAAABAgMEBRESBgAH/8QAFQEBAQAAAAAAAAAAAAAAAAAABAX/xAAcEQAC
+        AwEBAQEAAAAAAAAAAAABAgMEEhEFACL/2gAMAwEAAhEDEQA/ADH0mZ8D5XJi
+        PIflOJvR2Y3NZa1yxUFeNZ5VMeunUguHcaC675PWgfpt/wBW153nR26UjDc0
+        kZVj1RiKs4ZchCCwm4wYuOoCuQchs0Ho0q8LQmuxfZcyVUl66yyR7Gm/OlRQ
+        VXiDICqoHPv/2Q0KLS0tLS0tLS0tLS0tLVJ1YnlNdWx0aXBhcnRQb3N0DQpD
+        b250ZW50LURpc3Bvc2l0aW9uOiBmb3JtLWRhdGE7IG5hbWU9InNtX2ZpbGUy
+        LmpwZyI7IGZpbGVuYW1lPSJzbV9maWxlMi5qcGciDQpDb250ZW50LUxlbmd0
+        aDogNDA3DQpDb250ZW50LVR5cGU6IGltYWdlL2pwZw0KQ29udGVudC1UcmFu
+        c2Zlci1FbmNvZGluZzogYmluYXJ5DQoNCv/Y/+AAEEpGSUYAAQEAAAEAAQAA
+        /9sAQwADAgICAgIDAgICAwMDAwQGBAQEBAQIBgYFBgkICgoJCAkJCgwPDAoL
+        DgsJCQ0RDQ4PEBAREAoMEhMSEBMPEBAQ/9sAQwEDAwMEAwQIBAQIEAsJCxAQ
+        EBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ
+        EBAQ/8AAEQgABQAFAwERAAIRAQMRAf/EABQAAQAAAAAAAAAAAAAAAAAAAAT/
+        xAAdEAACAgIDAQAAAAAAAAAAAAABAgMGBREEBxIi/8QAFQEBAQAAAAAAAAAA
+        AAAAAAAAAwT/xAAfEQACAgICAwEAAAAAAAAAAAABAgMEBRESIgATFSH/2gAM
+        AwEAAhEDEQA/AF3y62np635OvZHOcyygTvFx5J53jEMSOzBQHMjE+pHG/Wgi
+        xrr5LM2EyqWxLauwhpAxiJUlAfT0BCg6UMNMVHXmXcfsjeRfWoYbHQZrI13s
+        m80jhDM0axethGeIQce+gzBVRARpEVdDz//ZDQotLS0tLS0tLS0tLS0tUnVi
+        eU11bHRpcGFydFBvc3QNCkNvbnRlbnQtRGlzcG9zaXRpb246IGZvcm0tZGF0
+        YTsgbmFtZT0ic21fZmlsZTMuanBnIjsgZmlsZW5hbWU9InNtX2ZpbGUzLmpw
+        ZyINCkNvbnRlbnQtTGVuZ3RoOiA0MDkNCkNvbnRlbnQtVHlwZTogaW1hZ2Uv
+        anBnDQpDb250ZW50LVRyYW5zZmVyLUVuY29kaW5nOiBiaW5hcnkNCg0K/9j/
+        4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgG
+        BgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBD
+        AQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ
+        EBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAAFAAUDAREAAhEBAxEB/8QAFAAB
+        AAAAAAAAAAAAAAAAAAAABP/EAB0QAAICAgMBAAAAAAAAAAAAAAECAwQFBgAR
+        IQf/xAAVAQEBAAAAAAAAAAAAAAAAAAADBP/EAB8RAAICAgMAAwAAAAAAAAAA
+        AAECAwQREgUGEwAUIv/aAAwDAQACEQMRAD8AXq2a+k5fQcXsjb4jpZu3KkVe
+        zhq0phSIQt46qhYs0zH0dABQoUDrj9h7TV6ca8v0xIbUaSZE08ZVdFCxnWQ7
+        BcE7YBLM7EFmYmLk+fTh61S6FcpYj2ChowylHdDs/ifTICgHVSAv6LsS3z//
+        2Q0KLS0tLS0tLS0tLS0tLVJ1YnlNdWx0aXBhcnRQb3N0DQpDb250ZW50LURp
+        c3Bvc2l0aW9uOiBmb3JtLWRhdGE7IG5hbWU9InNtX2ZpbGU0LmpwZyI7IGZp
+        bGVuYW1lPSJzbV9maWxlNC5qcGciDQpDb250ZW50LUxlbmd0aDogNDA3DQpD
+        b250ZW50LVR5cGU6IGltYWdlL2pwZw0KQ29udGVudC1UcmFuc2Zlci1FbmNv
+        ZGluZzogYmluYXJ5DQoNCv/Y/+AAEEpGSUYAAQEAAAEAAQAA/9sAQwADAgIC
+        AgIDAgICAwMDAwQGBAQEBAQIBgYFBgkICgoJCAkJCgwPDAoLDgsJCQ0RDQ4P
+        EBAREAoMEhMSEBMPEBAQ/9sAQwEDAwMEAwQIBAQIEAsJCxAQEBAQEBAQEBAQ
+        EBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQ/8AAEQgA
+        BQAFAwERAAIRAQMRAf/EABQAAQAAAAAAAAAAAAAAAAAAAAX/xAAeEAACAQQD
+        AQAAAAAAAAAAAAACAwEEBQYRABIhFP/EABUBAQEAAAAAAAAAAAAAAAAAAAYH
+        /8QAHhEAAgICAwEBAAAAAAAAAAAAAQIDBAUSERMhIwf/2gAMAwEAAhEDEQA/
+        ACc1zXNVX1tLaMyvVoCn2hkW6q+UXGkip5YQKgR2Uo7zGvJYXutcVYGhelwF
+        LJ0bAj7o4+VeMTj2GKTkdpbUkykNoFDAKWBfZmpVH8+xlq1ba4O0CThdjIpX
+        5xkj4yRLr6NV08IZiWZ2J//ZDQotLS0tLS0tLS0tLS0tUnVieU11bHRpcGFy
+        dFBvc3QtLQ0KDQo=
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token:
+      - <SESSION_TOKEN>
+      Content-Transfer-Encoding:
+      - binary
+      Content-Type:
+      - multipart/form-data; boundary=-----------RubyMultipartPost
+      Content-Length:
+      - '2666'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 12 Oct 2016 11:12:52 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '{"id":631285,"category":"OTHER","subject":"MESSAGE SUBJECT","body":"This
+        is a reply body","attachment":true,"attachments":{"attachment":[]},"sentDate":"Wed,
+        12 Oct 2016 11:12:53 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":585986,"recipientName":"Triage
+        group 311070 test 2","readReceipt":null}'
+    http_version:
+  recorded_at: Wed, 12 Oct 2016 11:12:53 GMT
+recorded_with: VCR 3.0.3

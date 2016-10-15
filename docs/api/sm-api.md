@@ -4,20 +4,21 @@
 Secure Messaging within vets.gov enables secure, non-emergency, communications between veterans and their VA healthcare providers.
 
 ### Available Routes
-| Resource                                          | Description                         | Params                        |
-| ------------------------------------------------- | ----------------------------------- | ------------------------------|
-| GET /messaging/healthcare/recipients              | List possible recipients            | [Pagination](#pagination)     |
-| GET /messaging/healthcare/folders                 | List folders                        | [Pagination](#pagination)     |
-| GET /messaging/healthcare/folders/:id             | Returns a folder                    | None                          |
-| POST /messaging/healthcare/folders                | Creates a folder                    | [json payload](#folder)  |
-| DELETE /messaging/healthcare/folders/:id          | Deletes a folder                    | None                          |
-| GET /messaging/health/folders/:folder_id/messages | List messages in folder             | None                          |
-| GET /messaging/health/messages/:id                | Gets a message                      | None                          |
-| GET /messaging/health/messages/:message_id/thread | List messages in thread             | [Pagination](#pagination)     |
-| POST /messaging/health/messages                   | Sends a message.                    | [json payload](#message) |
-| POST /messaging/health/message_drafts             | Creates a draft                     | [json draft payload](#draft-payload) |
-| PUT /messaging/health/message_drafts/:id         | Updates a draft                     | [json draft payload](#draft-payload) |
-| POST /messaging/health/messages/:id/reply | replies to a message | [json payload](#message) |
+| Resource                                          | Description                                       | Params                               |
+| ------------------------------------------------- | ------------------------------------------------- | -------------------------------------|
+| GET /messaging/healthcare/recipients              | List possible recipients                          | [Pagination](#pagination)            |
+| GET /messaging/healthcare/folders                 | List folders                                      | [Pagination](#pagination)            |
+| GET /messaging/healthcare/folders/:id             | Returns a folder                                  | None                                 |
+| POST /messaging/healthcare/folders                | Creates a folder                                  | [json payload](#folder)              |
+| DELETE /messaging/healthcare/folders/:id          | Deletes a folder                                  | None                                 |
+| GET /messaging/health/folders/:folder_id/messages | List messages in folder                           | [Filtering](#filtering)              |
+| GET /messaging/health/messages/:id                | Gets a message                                    | None                                 |
+| GET /messaging/health/messages/:message_id/thread | List messages in thread                           | [Pagination](#pagination)            |
+| POST /messaging/health/messages                   | Sends a message. [attachments](#attachments)      | [json payload](#message)             |
+| POST /messaging/health/message_drafts             | Creates a draft                                   | [json draft payload](#draft-payload) |
+| PUT /messaging/health/message_drafts/:id          | Updates a draft                                   | [json draft payload](#draft-payload) |
+| POST /messaging/health/messages/:id/reply         | Replies to a message [attachments](#attachments)  | [json payload](#message)             |
+| GET /messaging/health/messages/:message_id/attachments/:id | Gets an  attachment                      | Will immediately download the file   |
 
 #### <a name="pagination"></a>Pagination Params
 * **page:** The page number of the first message returned
@@ -151,11 +152,132 @@ returns
 #### Links
 TBD
 
-#### Filtering
-TBD
+#### <a name="attachments"></a>Attachments
+New Message and Reply Message support sending file attachments.
+
+To send files, you need to use Content-Type of `'multipart/form-data'`
+You must provide the message object as in url-encoded form data with the messages
+object as usual, and provide an array of uploads outside of the messages object.
+
+For whatever reason, MHV only provides the attachments that were created for the New Message
+not for the Reply. This is something that will need to be discussed with MHV.
+
+An Example Request:
+
+```
+Accept: application/json
+Content-Type: multipart/form-data; boundary="----=_Part_7_22572641.1391727736568"
+Content-Length: 1358
+------=_Part_7_22572641.1391727736568
+Content-Type: application/json; name=message
+Content-Transfer-Encoding: binary
+Content-Disposition: form-data; name="message"; filename="message"
+{
+"category": "MEDICATIONS",
+"subject": "Send Msg via API with Attachment",
+"body": "Test Send a Message to Grp",
+"recipientId": 45961,
+"recipientName": "TEST TRIAGE"
+}
+------=_Part_7_22572641.1391727736568
+Content-Type: image/x-png; name=image1.png
+Content-Transfer-Encoding: binary
+Content-Disposition: form-data; name="uploads[]"; filename="image1.png"
+‰PNG
+------=_Part_7_22572641.1391727736568
+Content-Type: image/x-png; name=image2.png
+Content-Transfer-Encoding: binary
+Content-Disposition: form-data; name="uploads[]"; filename="image2.png"
+‰PNG
+```
+
+#### <a name="filtering"></a>Filtering
+Filtering allows you to select a subset of messages in any folder. The call to list all messages is appended with query parameters that specify which attributes of a message you want to filter and one or more conditions to filter on.
+
+The general format is:
+```
+/messaging/health/folders/:id/messages?filter[[attribute][comparison]]=value ...
+```
+
+For a given attribute, you can combine more than one filter conditions that are logically AND-ed. As an example, suppose you wish to filter all inbox (`:id=0`) messages to show only those messages that were sent between January 1, 2016 and January 31, 2016. The proper filter query for this would be:
+```
+?filter[[sent_date][gteq]]=2016-01-01T00:00:00
+   &filter[[sent_date][lteq]]=2016-01-31T23:59:59
+```
+As another example, suppose you wish to filter all inbox (`:id=0`) messages to show only those messages that were sent on January 1, 2016.The proper filter query for this would be:
+```
+?filter[[sent_date][gteq]]=2016-01-01T00:00:00
+   &filter[[sent_date][lteq]]=2016-01-01T23:59:59
+```
+
+Multiple attributes may be filtered at the same time, with the attribute conditions AND-ed together. For example, to show all inbox messages from "Smith, Bill" sent between January 1, 2016 and January 31, 2016:
+```
+?filter[[sent_date][gteq]]=2016-01-01T00:00:00
+   &filter[[sent_date][lteq]]=2016-01-31T23:59:59
+   &filter[[sender_name][eq]]=Smith,%20Bill
+```
+
+For a last example, to return all messages having the phrase "blood pressure" in the subject line:
+```
+?filter[[subject][match]]=blood%20pressure
+```
+
+The returned JSON contains metadata with the origin filter query parameters.
+
+##### Permitted Comparisons
+At the current time, filtering supports the following comparisons:
+
+| Operator | Description |
+| -------- | ----------- |
+| eq       | Equality    |
+| lteq     | Less than or equal to |
+| gteq     | Greater than or equal to |
+| not_eq   | Not equal |
+| match    | Inexact match (case-insensitive substring match) |
 
 #### Sorting
-TBD
+The query format to sort the results in an ascending order
+```
+?sort=field-name
+```
+Similarly, to sort the results in a descending order prefix the field name with `-`
+```
+?sort=-field-name
+```
+
+Sorting of result sets is available for:
+
+| Resource | Fields | Default Sort |
+| -------- | ------ | -------------|
+| Messages | subject, sent_date, recipient_name, sender_name | sent_date (descending) |
+| Prescriptions | prescription_name refill_status ordered_date facility_name | ordered_date (descending) |
+| Trackings | shipped_date (descending) |
+| Triage Teams | name (ascending) |
+
+For example, to sort in ascending order all inbox messages on the sender's name:
+```
+?sort=sender_name
+```
+which returns
+```
+"meta": {
+  "sort": {
+    "sender_name": "ASC"
+  }
+}
+```
+To sort in descending order all inbox messages on the sender's name:
+```
+?sort=-sender_name
+```
+which returns
+```
+"meta": {
+  "sort": {
+    "sender_name": "DESC"
+  }
+}
+```
 
 ### Errors and Response Codes
 

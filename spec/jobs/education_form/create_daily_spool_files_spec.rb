@@ -9,9 +9,29 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
   let(:line_break) { described_class::WINDOWS_NOTEPAD_LINEBREAK }
 
+  SAMPLE_APPLICATIONS = [
+    :simple_ch33, :kitchen_sink
+  ].freeze
+
   context '#format_application' do
     it 'uses conformant sample data in the tests' do
-      expect(application_1606.form).to match_vets_schema('edu-benefits-schema')
+      expect(application_1606.form).to match_vets_schema('education_benefits')
+    end
+
+    context 'conformance' do
+      basepath = Rails.root.join('spec', 'fixtures', 'education_benefits_claims')
+      SAMPLE_APPLICATIONS.each do |application_name|
+        it "generates #{application_name} correctly" do
+          json = File.read(File.join(basepath, "#{application_name}.json"))
+          expect(json).to match_vets_schema('education_benefits')
+          application = EducationBenefitsClaim.new(form: json)
+          result = Timecop.freeze(Time.zone.parse('2016-10-06 03:00:00 EDT')) do
+            subject.format_application(application.open_struct_form)
+          end
+          spl = File.read(File.join(basepath, "#{application_name}.spl"))
+          expect(result).to eq(spl)
+        end
+      end
     end
 
     context 'result tests' do
@@ -85,6 +105,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
 
     it 'writes files out over sftp' do
+      ENV['EDU_SFTP_HOST'] = 'localhost'
       mock_file = double(File)
       mock_writer = StringIO.new
       sftp_mock = double(file: mock_file)
@@ -96,6 +117,37 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       # read back the written file
       mock_writer.rewind
       expect(mock_writer.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
+      ENV['EDU_SFTP_HOST'] = nil
+    end
+  end
+
+  context '#full_address' do
+    let(:address) { application_1606.open_struct_form.veteranAddress }
+
+    subject { described_class.new.send(:full_address, address) }
+
+    context 'with a nil address' do
+      let(:address) { nil }
+
+      it 'should return the blank string' do
+        expect(subject).to eq('')
+      end
+    end
+
+    context 'with no street2' do
+      it 'should format the address correctly' do
+        expect(subject).to eq("123 MAIN ST\nMILWAUKEE, WI, 53130\nUSA")
+      end
+    end
+
+    context 'with a street2' do
+      before do
+        address.street2 = 'apt 2'
+      end
+
+      it 'should format the address correctly' do
+        expect(subject).to eq("123 MAIN ST\nAPT 2\nMILWAUKEE, WI, 53130\nUSA")
+      end
     end
   end
 end

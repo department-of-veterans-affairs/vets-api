@@ -8,8 +8,12 @@ module EducationForm
     require 'ostruct'
 
     queue_as :default
+    TEMPLATE_PATH = Rails.root.join('app', 'jobs', 'education_form', 'templates')
+    TEMPLATE = File.read(File.join(TEMPLATE_PATH, '22-1990.erb'))
 
-    TEMPLATE = File.read(Rails.root.join('app', 'jobs', 'education_form', 'templates', '22-1990.erb'))
+    CH33_TYPES = {
+      'chapter1607' => 'CH33_1607', 'chapter1606' => 'CH33_1606', 'chapter30' => 'CH33_30'
+    }.freeze
 
     WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
 
@@ -68,10 +72,9 @@ module EducationForm
     end
 
     def create_files(structured_data)
-      if Rails.env.development?
+      if Rails.env.development? || ENV['EDU_SFTP_HOST'].blank?
         write_files(structured_data: structured_data)
       else
-        # TODO: Will be implemented in a follow-up PR.
         Net::SFTP.start(ENV['EDU_SFTP_HOST'], ENV['EDU_SFTP_USER'], password: ENV['EDU_SFTP_PASS']) do |sftp|
           write_files(sftp: sftp, structured_data: structured_data)
         end
@@ -91,22 +94,27 @@ module EducationForm
 
     private
 
-    # Used in the INIT header of the 22-1990 template.
+    # If multiple benefit types are selected, we've been told to just include whichever
+    # one is 'first' in the header.
     def form_type(application)
-      {
-        CH33_30:    'CH33',
-        CH33_1606:  'CH33',
-        CH33_1607:  'CH33',
-        CH1606:     'CH1606',
-        CH30:       'CH30',
-        CH32:       'CH32'
-      }[application.form.to_sym]
+      return 'CH1606' if application.chapter1606
+      return 'CH33' if application.chapter33
+      return 'CH30' if application.chapter30
+      return 'CH32' if application.chapter32
     end
 
-    # Some descriptive text that's included near the top of the 22-1990 form
-    def disclosure(application)
-      contents = File.read(Rails.root.join('app', 'jobs', 'education_form', 'templates', "_#{application.form}.erb"))
-      ERB.new(contents).result(binding)
+    # Some descriptive text that's included near the top of the 22-1990 form. Because they can make
+    # multiple selections, we have to add all the selected ones.
+    def disclosures(application)
+      disclosure_texts = []
+      disclosure_texts << disclosure_for('CH30') if application.chapter30
+      disclosure_texts << disclosure_for('CH1606') if application.chapter1606
+      disclosure_texts << disclosure_for('CH32') if application.chapter32
+      if application.chapter33
+        ch33_type = CH33_TYPES.fetch(application.benefitsRelinquished, 'CH33')
+        disclosure_texts << disclosure_for(ch33_type)
+      end
+      disclosure_texts.join("\n#{'*' * 78}\n\n")
     end
 
     def full_name(name)
@@ -114,13 +122,15 @@ module EducationForm
       [name.first, name.middle, name.last].compact.join(' ')
     end
 
-    def full_address(address)
+    def full_address(address, indent: false)
       return '' if address.nil?
-      # TODO: support non american addresses
-      if address.country == 'USA'
-        "#{address.street}
-        #{address.city}, #{address.state}, #{address.postalCode}".upcase
-      end
+      seperator = indent ? "\n        " : "\n"
+      [
+        address.street,
+        address.street2,
+        "#{address.city}, #{address.state}, #{address.postalCode}",
+        address.country
+      ].compact.join(seperator).upcase
     end
 
     def rotc_scholarship_amounts(scholarships)
@@ -132,14 +142,14 @@ module EducationForm
       end.join("\n")
     end
 
-    def employment_history(job_history, post_military)
+    def employment_history(job_history, post_military:)
       wrapped_list = Array(job_history).select { |job| job.postMilitaryJob == post_military }
       # we need at least one record to be in the form.
       wrapped_list << OpenStruct.new if wrapped_list.empty?
       wrapped_list.map do |job|
         "        Principal Occupation: #{job.name}
-                 Number of Months: #{job.months}
-                 License or Rating: #{job.licenseOrRating}"
+        Number of Months: #{job.months}
+        License or Rating: #{job.licenseOrRating}"
       end.join("\n\n")
     end
 
@@ -152,6 +162,11 @@ module EducationForm
     # is this needed? will it the data come in the correct format? better to have the helper..
     def to_date(date)
       date ? date : (' ' * 10) # '00/00/0000'.length
+    end
+
+    def disclosure_for(type)
+      contents = File.read(File.join(TEMPLATE_PATH, "_#{type}.erb"))
+      ERB.new(contents).result(binding)
     end
   end
 end
