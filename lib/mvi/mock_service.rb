@@ -6,7 +6,7 @@ module MVI
     end
 
     def self.find_candidate(_message)
-      mocked_responses['find_candidate']
+      mocked_responses['find_candidate'].with_indifferent_access
     end
   end
 end
