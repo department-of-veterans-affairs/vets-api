@@ -29,7 +29,7 @@ module V0
 
       ::EducationForm::CreateDailySpoolFiles.perform_now
       Dir.chdir(known_tmp_path.to_s) do
-        system('tar', '-cf', 'spool.tar', '*.spl')
+        system('tar -cf spool.tar *.spl')
       end
       send_file archive_file, filename: 'spool.tar'
     end

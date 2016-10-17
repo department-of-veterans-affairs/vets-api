@@ -6,6 +6,7 @@ require_dependency 'saml/settings_service'
 
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
+
   before_action :authenticate
   before_action :set_app_info_headers
   skip_before_action :authenticate, only: [:cors_preflight]
@@ -72,5 +73,12 @@ class ApplicationController < ActionController::API
     # TODO: 'level' needs to be a class with proper validation
     settings.authn_context = LOA::MAPPING.invert[params[:level]&.to_i || 1]
     settings
+  end
+
+  def pagination_params
+    {
+      page: params[:page],
+      per_page: params[:per_page]
+    }
   end
 end

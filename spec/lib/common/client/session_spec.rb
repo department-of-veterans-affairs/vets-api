@@ -3,15 +3,27 @@ require 'rails_helper'
 require_dependency 'common/client/session'
 
 describe Common::Client::Session do
+  class DerivedClass < Common::Client::Session
+    redis_store 'namespace'
+    redis_ttl 900
+    redis_key :user_id
+  end
+
+  context 'base class' do
+    it 'raises NoMethodError unless class instance variables are provided' do
+      expect { described_class.new }.to raise_error(NoMethodError)
+    end
+  end
+
   context 'valid?' do
     it 'returns true if user_id is present' do
-      subject = described_class.new(user_id: '1')
+      subject = DerivedClass.new(user_id: '1')
       expect(subject.user_id).to eq(1)
       expect(subject.valid?).to be_truthy
     end
 
     it 'returns false if user_id is not present' do
-      subject = described_class.new(user_id: '')
+      subject = DerivedClass.new(user_id: '')
       expect(subject.user_id).to be_nil
       expect(subject.valid?).to be_falsey
     end
@@ -19,26 +31,26 @@ describe Common::Client::Session do
 
   context 'expired?' do
     it 'returns true if expires_at is empty' do
-      subject = described_class.new(expires_at: '')
+      subject = DerivedClass.new(expires_at: '')
       expect(subject.expires_at).to be_nil
       expect(subject.expired?).to be_truthy
     end
 
     it 'returns true if expires_at is an expired time' do
-      subject = described_class.new(expires_at: 'Tue, 10 May 2016 16:40:17 GMT')
+      subject = DerivedClass.new(expires_at: 'Tue, 10 May 2016 16:40:17 GMT')
       expect(subject.expires_at).to be_a(Time)
       expect(subject.expired?).to be_truthy
     end
 
     it 'returns false if expires_at is not an expired time' do
-      subject = described_class.new(expires_at: 'Tue, 10 May 2099 16:40:17 GMT')
+      subject = DerivedClass.new(expires_at: 'Tue, 10 May 2099 16:40:17 GMT')
       expect(subject.expires_at).to be_a(Time)
       expect(subject.expired?).to be_falsey
     end
   end
 
   context 'with valid params and token' do
-    subject { described_class.new(user_id: '1', expires_at: 'Tue, 10 May 2016 16:40:17 GMT', token: 'token') }
+    subject { DerivedClass.new(user_id: '1', expires_at: 'Tue, 10 May 2016 16:40:17 GMT', token: 'token') }
 
     it 'responds to token' do
       expect(subject.token).to eq('token')

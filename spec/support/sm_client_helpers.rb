@@ -5,17 +5,6 @@ module SM
     APP_TOKEN = 'fake-app-token'
     TOKEN = 'GkuX2OZ4dCE=48xrH6ObGXZ45ZAg70LBahi7CjswZe8SZGKMUVFIU88='
 
-    SAMPLE_SESSION_REQUEST = {
-      headers: {
-        'Accept' => 'application/json',
-        'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-        'Apptoken' => APP_TOKEN,
-        'Content-Type' => 'application/json',
-        'Mhvcorrelationid' => '10616687',
-        'User-Agent' => 'Vets.gov Agent'
-      }
-    }.freeze
-
     SAMPLE_SESSION_RESPONSE = {
       status: 200,
       body: '',
@@ -33,11 +22,15 @@ module SM
       }
     }.freeze
 
+    def setup_client
+      stub_request(:get, "#{HOST}/mhv-sm-api/patient/v1/session")
+        .to_return(SAMPLE_SESSION_RESPONSE)
+
+      SM::Client.new(session: { user_id: 123 })
+    end
+
     def authenticated_client
-      configuration = SM::Configuration.new(host: HOST,
-                                            app_token: APP_TOKEN)
-      SM::Client.new(config: configuration,
-                     session: { user_id: 123,
+      SM::Client.new(session: { user_id: 123,
                                 expires_at: Time.current + 60 * 60,
                                 token: TOKEN })
     end

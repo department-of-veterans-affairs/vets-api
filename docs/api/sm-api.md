@@ -249,7 +249,6 @@ Sorting of result sets is available for:
 
 | Resource | Fields | Default Sort |
 | -------- | ------ | -------------|
-| Folders | name | name (ascending) |
 | Messages | subject, sent_date, recipient_name, sender_name | sent_date (descending) |
 | Prescriptions | prescription_name refill_status ordered_date facility_name | ordered_date (descending) |
 | Trackings | shipped_date (descending) |

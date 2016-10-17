@@ -70,7 +70,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
           expect(response).not_to be_success
           expect(error['title']).to eq('Filter not allowed')
-          expect(error['detail']).to eq('"blab" is not allowed')
+          expect(error['detail']).to eq('"blab" is not allowed for filtering')
         end
       end
 
@@ -82,7 +82,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
           expect(response).not_to be_success
           expect(error['title']).to eq('Filter not allowed')
-          expect(error['detail']).to eq('"blah for sent_date" is not allowed')
+          expect(error['detail']).to eq('"blah for sent_date" is not allowed for filtering')
         end
       end
 
@@ -93,8 +93,8 @@ RSpec.describe 'Messages Integration', type: :request do
           error = JSON.parse(response.body)['errors'].first
 
           expect(response).not_to be_success
-          expect(error['title']).to eq('Filter not allowed')
-          expect(error['detail']).to eq('"Conversion of abcd for sent_date" is not allowed')
+          expect(error['title']).to eq('Invalid filters syntax')
+          expect(error['detail']).to eq('The syntax for your filters is invalid')
         end
       end
 
