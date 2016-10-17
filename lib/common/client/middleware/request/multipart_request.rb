@@ -14,13 +14,20 @@ module Common
           def call(env)
             if env[:body].is_a?(Hash)
               env[:body].each do |key, value|
-                if value.respond_to?(:to_io)
-                  env[:body][key] = Faraday::UploadIO.new(value, mime_type(value.path), value.path)
-                elsif value.is_a?(Array)
-                end
+                env[:body][key] = io_object_for(value)
               end
             end
             @app.call(env)
+          end
+
+          private
+
+          def io_object_for(value)
+            if value.respond_to?(:to_io)
+              Faraday::UploadIO.new(value, mime_type(value.path), value.path)
+            elsif value.is_a?(Array)
+              value.map { |value| io_object_for(value) }
+            end
           end
         end
       end
