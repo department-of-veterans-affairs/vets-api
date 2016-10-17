@@ -57,15 +57,15 @@ describe MVI::Responses::FindCandidate do
     end
   end
 
-  context 'with no middle name, missing correlation ids, multiple other_ids' do
+  context 'with no middle name, missing and alternate correlation ids, multiple other_ids' do
     let(:valid_response_missing_attrs) { MVI::Responses::FindCandidate.new(mvi_valid_response_missing_attrs) }
 
     describe '.to_h' do
-      it 'should filter with only first name' do
+      it 'should filter with only first name and retrieve correct MHV id' do
         expect(valid_response_missing_attrs.body).to eq(
           birth_date: '19320205',
           edipi: nil,
-          mhv_id: nil,
+          mhv_id: '123456^PI^200MHF^USVHA^A',
           vba_corp_id: nil,
           family_name: 'Allen',
           gender: 'M',
