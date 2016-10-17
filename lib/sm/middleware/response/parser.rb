@@ -3,24 +3,13 @@ module SM
   module Middleware
     module Response
       # class responsible for customizing parsing
-      class Parser < Faraday::Middleware
-        def initialize(app, options = {})
-          super(app)
-        end
-
-        def call(env)
-          finished_response = {}
-          @app.call(env).on_complete do |response|
-            if response.response_headers['content-type'] =~ /\bjson/
-              if response.body.is_a?(Hash)
-                response[:body] = sm_parse(response.body)
-                finished_response = response
-              end
-            end
+      class Parser < Faraday::Response::Middleware
+        def on_callback(env)
+          binding.pry
+          if env.response_headers['content-type'] =~ /\bjson/
+            response[:body] = sm_parse(env.body)
           end
-          finished_response
         end
-
 
         def sm_parse(body = nil)
           @parsed_json = body

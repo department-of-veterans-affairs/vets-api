@@ -3,11 +3,10 @@ module Common
     module Middleware
       module Response
         class Snakecase < Faraday::Response::Middleware
+
           def on_complete(env)
             if env.response_headers['content-type'] =~ /\bjson/
-              if env.body.is_a?(Hash)
-                env.body = parse(env.body)
-              end
+              env.body = parse(env.body)
             end
           end
 

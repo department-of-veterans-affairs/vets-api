@@ -7,6 +7,10 @@ module Common
         class MultipartRequest < Faraday::Middleware
           include MimeTypes
 
+          def initialize(app)
+            super(app)
+          end
+
           def call(env)
             if env[:body].is_a?(Hash)
               env[:body].each do |key, value|

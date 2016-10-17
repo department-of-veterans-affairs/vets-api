@@ -2,10 +2,15 @@ module Common
   module Client
     module Middleware
       module Request
-        class Camelcase < Faraday::Response::Middleware
-          def on_complete(env)
-            if env[:body].is_a?(Hash)
-              env[:body] = camelcase(env[:body])
+        class Camelcase < Faraday::Middleware
+
+          def initialize(app)
+            super(app)
+          end
+
+          def call(env)
+            @app.call.env.on_complete do |response|
+              response[:body] = camelcase(response[:body])
             end
           end
 
