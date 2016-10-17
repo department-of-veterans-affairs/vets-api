@@ -30,7 +30,7 @@ describe MVI::Responses::FindCandidate do
             gender: 'M',
             given_names: %w(John William),
             icn: '1000123456V123456^NI^200M^USVHA^P',
-            mhv_id: '123456^PI^200MHV^USVHA^A',
+            mhv_id: '123456^PI^200MH^USVHA^A',
             ssn: '555443333',
             status: 'active'
           )
@@ -48,7 +48,7 @@ describe MVI::Responses::FindCandidate do
             gender: 'M',
             given_names: nil,
             icn: '1000123456V123456^NI^200M^USVHA^P',
-            mhv_id: '123456^PI^200MHV^USVHA^A',
+            mhv_id: '123456^PI^200MH^USVHA^A',
             ssn: '555443333',
             status: 'active'
           )
