@@ -24,21 +24,6 @@ module Common
               raise Common::Client::Errors::Serialization, error
             end
           end
-
-          private
-
-          def snakecase(parsed_json)
-            case parsed_json
-            when Array
-              parsed_json.map { |hash| underscore_symbolize(hash) }
-            when Hash
-              underscore_symbolize(parsed_json)
-            end
-          end
-
-          def underscore_symbolize(hash)
-            hash.deep_transform_keys { |k| k.underscore.to_sym }
-          end
         end
       end
     end
