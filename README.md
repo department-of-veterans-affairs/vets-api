@@ -97,18 +97,22 @@ service set MOCK_MVI_SERVICE in config/application.yml to 'true'
 MOCK_MVI_SERVICE = true
 ```
 Endpoint response value can be set by copying mock_mvi_responses.yml.example to
-mock_mvi_responses.yml and updating YAML for the appropriate endpoint:
+mock_mvi_responses.yml and updating YAML for the appropriate endpoint. For the find_candidate
+endpoint you can return different responses based on SSN:
 ```
 find_candidate:
-  birth_date: '19800101'
-  edipi: '1234^NI^200DOD^USDOD^A'
-  family_name: 'Smith'
-  gender: 'M'
-  given_names: ['John', 'William']
-  icn: '1000123456V123456^NI^200M^USVHA^P'
-  mhv_id: '123456^PI^200MHV^USVHA^A'
-  ssn: '555-44-3333'
-  status: 'active'
+  555443333:
+    birth_date: '19800101'
+    edipi: '1234^NI^200DOD^USDOD^A'
+    family_name: 'Smith'
+    gender: 'M'
+    given_names: ['John', 'William']
+    icn: '1000123456V123456^NI^200M^USVHA^P'
+    mhv_id: '123456^PI^200MHV^USVHA^A'
+    ssn: '555443333'
+    status: 'active'
+  111223333:
+    # another mock response hash here...
 ```
 
 ### Running the App

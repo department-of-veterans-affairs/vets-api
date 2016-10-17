@@ -7,9 +7,6 @@ class SMController < ApplicationController
   skip_before_action :authenticate
   before_action :authenticate_client
 
-  DEFAULT_PER_PAGE = 10
-  MAXIMUM_PER_PAGE = 100
-
   protected
 
   def client
@@ -18,12 +15,5 @@ class SMController < ApplicationController
 
   def authenticate_client
     client.authenticate if client.session.expired?
-  end
-
-  def pagination_params
-    {
-      page: (params[:page].try(:to_i) || 1),
-      per_page: [(params[:per_page].try(:to_i) || DEFAULT_PER_PAGE), MAXIMUM_PER_PAGE].min
-    }
   end
 end

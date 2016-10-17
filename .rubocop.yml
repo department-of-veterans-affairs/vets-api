@@ -9,6 +9,10 @@ AllCops:
     - 'script/**/*'
     - 'vendor/**/*'
 
+# This allows you to use have writers like self.method_name(name) vs self.method_name=(name)
+Style/TrivialAccessors:
+  AllowDSLWriters: true
+
 # This is the rubocop default but putting it here explicitly
 # strong benefit for code readability and speed in reviewing PRs for code review
 # only use double quote when doing interpolation or complex escape sequences
