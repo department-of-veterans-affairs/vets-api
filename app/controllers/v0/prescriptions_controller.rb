@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 module V0
   class PrescriptionsController < RxController
-    SORT_FIELDS   = %w(prescription_name refill_status ordered_date facility_name).freeze
-    SORT_TYPES    = (SORT_FIELDS + SORT_FIELDS.map { |field| "-#{field}" }).freeze
-    DEFAULT_SORT  = '-ordered_date'
-
+    include Filterable
     # This index action supports various parameters described below, all are optional
     # This comment can be removed once documentation is finalized
     # @param refill_status - one refill status to filter on
@@ -15,7 +12,7 @@ module V0
     def index
       resource = collection_resource
       resource = params[:filter].present? ? resource.find_by(params[:filter]) : resource
-      resource = resource.sort(params[:sort] || DEFAULT_SORT, allowed: SORT_TYPES)
+      resource = resource.sort(params[:sort])
       resource = resource.paginate(pagination_params)
       render json: resource.data,
              serializer: CollectionSerializer,

@@ -28,24 +28,19 @@ module SM
       'User-Agent' => USER_AGENT
     }.freeze
 
-    MHV_CONFIG = SM::Configuration.new(
-      host: ENV['MHV_SM_HOST'],
-      app_token: ENV['MHV_SM_APP_TOKEN'],
-      enforce_ssl: Rails.env.production?
-    ).freeze
-
     attr_reader :config, :session
 
-    def initialize(config: MHV_CONFIG, session:)
-      @config = config.is_a?(Hash) ? SM::Configuration.new(config) : config
-      @session = session.is_a?(Hash) ? SM::ClientSession.new(session) : session
-
-      raise ArgumentError, 'config is invalid' unless @config.is_a?(Configuration)
-      raise ArgumentError, 'session is invalid' unless @session.valid?
+    def initialize(session:)
+      @config = SM::Configuration.instance
+      @session = SM::ClientSession.find_or_build(session)
     end
 
     def authenticate
-      @session = get_session
+      if @session.expired?
+        @session = get_session
+        @session.save
+      end
+      @session
     end
 
     private

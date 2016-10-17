@@ -17,7 +17,7 @@ module Rx
 
       def get_rx(id)
         collection = get_history_rxs
-        collection.find_first_by(prescription_id: { eq: id })
+        collection.find_first_by('prescription_id' => { 'eq' => id })
       end
 
       def get_tracking_rx(id)

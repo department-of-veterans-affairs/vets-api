@@ -5,7 +5,7 @@ class PrescriptionSerializer < ActiveModel::Serializer
   end
 
   link(:self) { v0_prescription_url(object.prescription_id) }
-  link(:tracking) { v0_prescription_trackings_url(object.prescription_id) }
+  link(:tracking) { v0_prescription_trackings_url(object.prescription_id) if object.trackable? }
 
   attribute :prescription_id
   attribute :prescription_number
