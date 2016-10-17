@@ -34,4 +34,15 @@ FactoryGirl.define do
       end
     end
   end
+
+  factory :loa1_user, class: 'User' do
+    uuid 'deadbeef-dead-beef-dead-deadbeefdead'
+    email 'george.washington@vets.gov'
+    loa do
+      {
+        current: LOA::ONE,
+        highest: LOA::ONE
+      }
+    end
+  end
 end
