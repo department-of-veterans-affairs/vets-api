@@ -10,5 +10,5 @@ module LOA
     loa1_mapping_key => ONE,
     'http://idmanagement.gov/ns/assurance/loa/2': TWO,
     'http://idmanagement.gov/ns/assurance/loa/3': THREE
-  }.freeze
+  }.with_indifferent_access.freeze
 end
