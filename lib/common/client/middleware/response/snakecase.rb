@@ -10,7 +10,6 @@ module Common
             end
           end
 
-
           def parse(parsed_json)
             case parsed_json
             when Array

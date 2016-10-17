@@ -9,9 +9,8 @@ module Common
           end
 
           def call(env)
-            @app.call.env.on_complete do |response|
-              response[:body] = camelcase(response[:body])
-            end
+            env[:body] = camelcase(env[:body])
+            @app.call(env)
           end
 
           private

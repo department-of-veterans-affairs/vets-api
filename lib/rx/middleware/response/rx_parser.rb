@@ -3,17 +3,15 @@ module Rx
   module Middleware
     module Response
       # class responsible for customizing parsing
-      class Parser < Faraday::Response::Middleware
+      class RxParser < Faraday::Response::Middleware
         def on_complete(env)
-          if env[:body].is_a?(Hash)
-            @parsed_json = env[:body]
-            env[:body] = parse!
+          if env.response_headers['content-type'] =~ /\bjson/
+            env[:body] = parse(env.body) unless env.body.blank?
           end
         end
 
-        private
-
-        def parse!
+        def parse(body = nil)
+          @parsed_json = body
           @meta_attributes = split_meta_fields!
           @errors = @parsed_json.delete(:errors) || {}
 
@@ -58,4 +56,4 @@ module Rx
   end
 end
 
-Faraday::Response.register_middleware rx_parser: Rx::Middleware::Response::Parser
+Faraday::Response.register_middleware rx_parser: Rx::Middleware::Response::RxParser

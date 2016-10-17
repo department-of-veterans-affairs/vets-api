@@ -40,7 +40,6 @@ module SM
       def post_create_message(args = {})
         r = perform(:post, 'message', args, token_headers)
         json = r.body
-        binding.pry
 
         Message.new(json)
       end

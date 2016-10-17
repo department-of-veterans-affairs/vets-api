@@ -143,7 +143,6 @@ RSpec.describe 'Messages Integration', type: :request do
           post '/v0/messaging/health/messages', message: message_attributes.slice(:recipient_id, :category, :body)
         end
 
-        binding.pry
         expect(response).to be_success
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('message')

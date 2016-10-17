@@ -7,7 +7,7 @@ require 'common/client/middleware/request/multipart_request'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/raise_error'
 require 'common/client/middleware/response/snakecase'
-require 'sm/middleware/response/parser'
+require 'sm/middleware/response/sm_parser'
 require 'sm/client_session'
 require 'sm/configuration'
 require 'sm/api/sessions'
@@ -70,7 +70,6 @@ module SM
     end
 
     def post(path, params = {}, headers = base_headers)
-      params = params.is_a?(Hash) ? normalize_and_jsonify(params) : params
       request(:post, path, params, headers)
     end
 
@@ -84,7 +83,7 @@ module SM
 
     def connection
       @connection ||= Faraday.new(@config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options) do |conn|
-        #conn.request :camelcase
+        conn.request :camelcase
         conn.request :multipart_request
         conn.request :multipart
         conn.request :json
@@ -112,30 +111,6 @@ module SM
         open_timeout: @config.open_timeout,
         timeout: @config.read_timeout
       }
-    end
-
-    def normalize_and_jsonify(params)
-      uploads = params.delete(:uploads)
-      params = params.transform_keys { |k| k.to_s.camelize(:lower) }
-
-      if uploads.present?
-        message_part = Faraday::UploadIO.new(
-          StringIO.new(params.to_json),
-          'application/json',
-          'message'
-        )
-        file_parts = uploads.map.with_index do |file, _i|
-          upload = Faraday::UploadIO.new(
-            file.tempfile,
-            file.content_type,
-            file.original_filename
-          )
-          [file.original_filename, upload]
-        end
-        { 'message' => message_part }.merge(Hash[file_parts])
-      else
-        params
-      end
     end
   end
 end

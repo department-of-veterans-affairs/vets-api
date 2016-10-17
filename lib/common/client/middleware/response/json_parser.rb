@@ -10,7 +10,7 @@ module Common
           def on_complete(env)
             if env.response_headers['content-type'] =~ /\bjson/
               if env.body =~ WHITESPACE_REGEX || env.body =~ MHV_SUCCESS_REGEX
-                env.body = {}
+                env.body = ''
               else
                 env.body = parse(env.body) unless UNPARSABLE_STATUS_CODES.include?(env[:status])
               end

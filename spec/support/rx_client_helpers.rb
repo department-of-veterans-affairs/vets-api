@@ -44,7 +44,7 @@ module Rx
 
       stub_request(method, "#{HOST}/#{api_endpoint}")
         .with(with_opts)
-        .to_return(status: status_code, body: response)
+        .to_return(status: status_code, body: response, headers: { 'Content-Type' => 'application/json' })
     end
   end
 end
