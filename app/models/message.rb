@@ -3,6 +3,9 @@ require 'common/models/base'
 
 # Message model
 class Message < Common::Base
+  per_page 10
+  max_per_page 100
+
   MAX_TOTAL_FILE_SIZE_MB = 6.0
   MAX_SINGLE_FILE_SIZE_MB = 3.0
 
@@ -19,14 +22,14 @@ class Message < Common::Base
 
   attribute :id, Integer
   attribute :category, String
-  attribute :subject, String
+  attribute :subject, String, filterable: %w(eq not_eq), sortable: { order: 'ASC' }
   attribute :body, String
   attribute :attachment, Boolean
-  attribute :sent_date, Common::UTCTime
+  attribute :sent_date, Common::UTCTime, filterable: %w(eq lteq gteq), sortable: { order: 'DESC', default: true }
   attribute :sender_id, Integer
-  attribute :sender_name, String
+  attribute :sender_name, String, filterable: %w(eq not_eq), sortable: { order: 'ASC' }
   attribute :recipient_id, Integer
-  attribute :recipient_name, String
+  attribute :recipient_name, String, filterable: %w(eq not_eq), sortable: { order: 'ASC' }
   attribute :read_receipt, String
   attribute :attachments, Array[Attachment]
 
@@ -35,8 +38,9 @@ class Message < Common::Base
 
   alias attachment? attachment
 
+  # Default sort should be sent date in descending order
   def <=>(other)
-    id <=> other.id
+    -(sent_date <=> other.sent_date)
   end
 
   # This returns self so that it can be chained: Message.new(params).as_reply

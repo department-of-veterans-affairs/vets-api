@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'rails_helper'
+require 'rx/parser'
 
 describe Prescription do
   let(:original_camel_cased_json) { File.read('spec/support/fixtures/get_rx_1435525.json') }
