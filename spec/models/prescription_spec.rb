@@ -3,7 +3,6 @@ require 'rails_helper'
 
 describe Prescription do
   let(:original_camel_cased_json) { File.read('spec/support/fixtures/get_rx_1435525.json') }
-  let(:parsed_json_object) { Rx::Parser.new(JSON.parse(original_camel_cased_json)).parse! }
   let(:json_string) { File.read('spec/support/fixtures/prescription_1435525_snakecase.json').strip }
 
   context 'with valid attributes' do
