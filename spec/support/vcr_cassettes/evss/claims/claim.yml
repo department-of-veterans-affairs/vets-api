@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://test.vets.gov/wss-claims-services-web-3.1/rest/vbaClaimStatusService/getClaimDetailById
+    uri: https://test.vets.gov/wss-claims-services-web-3.0/rest/vbaClaimStatusService/getClaimDetailById
     body:
       encoding: UTF-8
       string: '{"id":"189625"}'

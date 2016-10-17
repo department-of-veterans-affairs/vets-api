@@ -19,7 +19,7 @@ describe Common::Exceptions::FilterNotAllowed do
     it 'the errors object has all relevant keys' do
       expect(subject.errors.first.to_hash)
         .to eq(title: 'Filter not allowed',
-               detail: '"facility_name" is not allowed',
+               detail: '"facility_name" is not allowed for filtering',
                code: '104',
                status: '400')
     end

@@ -69,14 +69,16 @@ Routing/Transit #: 123456789   Account #: 88888888888
 
 Name, Address, & Telephone Number of Contact:
         Sibling Olson
-        Address and Phone same as claimant
+        222 PERSON DRIVE
+        BALTIMORE, MD, 23131
+        USA
+        Phone: 5550001111
 
 
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
-Type of Education or Training: College or Other School (including online
-courses)
+Type of Education or Training: Flight Training
 
 Name and Address of School or Training Establishment:
         FakeData University
@@ -100,10 +102,13 @@ Date Entered   Date Separated     Service Component
 Active Duty    From Active Duty
 06/26/2012     04/10/2013         Army Reserve
                          Service Status:   ACTIVE DUTY TRAINING
-                         Involuntary Call: n/a
+                         Involuntary Call: no
+                         Benefits to Apply to: chapter32
 04/22/2013     06/14/2013         Army Reserve
                          Service Status:   ACTIVE DUTY
                          Involuntary Call: yes
+Benefits to Apply to: chapter33, chapter30,
+chapter1606, chapter32
 
 
 
@@ -209,7 +214,9 @@ such benefits during any part of your training, check Yes.    YES
            ---------------------------------------------------------
 
 
-N/A
+Married: YES
+Has Dependents: YES
+Parent Dependent: NO
 
 
                                    REMARKS

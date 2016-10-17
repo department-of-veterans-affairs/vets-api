@@ -14,6 +14,16 @@ RSpec.describe 'Messages Integration', type: :request do
   let(:user_id) { ENV['MHV_SM_USER_ID'] }
   let(:inbox_id) { 0 }
   let(:message_id) { 573_302 }
+  let(:attachment_base_path) { 'spec/support/fixtures/' }
+  let(:attachment_type) { 'image/jpg' }
+  let(:uploads) do
+    [
+      Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file1.jpg', attachment_type),
+      Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file2.jpg', attachment_type),
+      Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file3.jpg', attachment_type),
+      Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file4.jpg', attachment_type)
+    ]
+  end
 
   describe '#index' do
     it 'responds with all messages in a folder when no pagination is given' do
@@ -60,7 +70,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
           expect(response).not_to be_success
           expect(error['title']).to eq('Filter not allowed')
-          expect(error['detail']).to eq('"blab" is not allowed')
+          expect(error['detail']).to eq('"blab" is not allowed for filtering')
         end
       end
 
@@ -72,7 +82,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
           expect(response).not_to be_success
           expect(error['title']).to eq('Filter not allowed')
-          expect(error['detail']).to eq('"blah for sent_date" is not allowed')
+          expect(error['detail']).to eq('"blah for sent_date" is not allowed for filtering')
         end
       end
 
@@ -83,8 +93,8 @@ RSpec.describe 'Messages Integration', type: :request do
           error = JSON.parse(response.body)['errors'].first
 
           expect(response).not_to be_success
-          expect(error['title']).to eq('Filter not allowed')
-          expect(error['detail']).to eq('"Conversion of abcd for sent_date" is not allowed')
+          expect(error['title']).to eq('Invalid filters syntax')
+          expect(error['detail']).to eq('The syntax for your filters is invalid')
         end
       end
 
@@ -129,7 +139,7 @@ RSpec.describe 'Messages Integration', type: :request do
         expect(response).to match_response_schema('message')
       end
 
-      it 'subject defaults to general query' do
+      it 'subject defaults to general inquery' do
         VCR.use_cassette("sm/messages/#{user_id}/create_no_subject") do
           post '/v0/messaging/health/messages', message: message_attributes.slice(:recipient_id, :category, :body)
         end
@@ -173,17 +183,19 @@ RSpec.describe 'Messages Integration', type: :request do
 
   describe '#create with attachments' do
     let(:message_attributes) { attributes_for(:message).slice(:subject, :category, :recipient_id, :body) }
-    let(:attachment_path) { 'spec/support/fixtures/sm_attachment.png' }
-    let(:attachment_type) { 'image/png' }
-    let(:attachment) { Rack::Test::UploadedFile.new(attachment_path, attachment_type) }
-    let(:params) { { message: message_attributes, file: attachment } }
 
-    context 'with valid attributes' do
+    context 'with valid attributes for 4 attachments' do
+      let(:params) do
+        {
+          message: message_attributes,
+          uploads: uploads
+        }
+      end
+
       it 'responds to POST #create' do
         VCR.use_cassette("sm/messages/#{user_id}/create_multipart") do
           post '/v0/messaging/health/messages', params
         end
-
         expect(response).to be_success
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('message_with_attachment')
@@ -233,6 +245,29 @@ RSpec.describe 'Messages Integration', type: :request do
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(errors['title']).to eq("Body can't be blank")
+      end
+    end
+  end
+
+  describe '#reply with attachments' do
+    let(:reply_message_id) { 610_114 }
+    let(:reply_body) { 'This is a reply body' }
+
+    context 'with valid attributes for 4 attachments' do
+      let(:params) do
+        {
+          message: { body: reply_body },
+          uploads: uploads
+        }
+      end
+
+      it 'responds to POST #reply' do
+        VCR.use_cassette("sm/messages/#{user_id}/create_reply_multipart") do
+          post "/v0/messaging/health/messages/#{reply_message_id}/reply", params
+        end
+        expect(response).to be_success
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('message')
       end
     end
   end

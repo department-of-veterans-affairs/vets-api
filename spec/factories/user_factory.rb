@@ -10,9 +10,13 @@ FactoryGirl.define do
     zip '17325'
     last_signed_in Time.now.utc
     edipi '1234^NI^200DOD^USDOD^A'
-    participant_id '123456789'
     ssn '272111863'
-    level_of_assurance LOA::TWO
+    loa do
+      {
+        current: LOA::TWO,
+        highest: LOA::THREE
+      }
+    end
 
     factory :mvi_user do
       mvi do
@@ -28,6 +32,17 @@ FactoryGirl.define do
           ssn: '272111863'
         }
       end
+    end
+  end
+
+  factory :loa1_user, class: 'User' do
+    uuid 'deadbeef-dead-beef-dead-deadbeefdead'
+    email 'george.washington@vets.gov'
+    loa do
+      {
+        current: LOA::ONE,
+        highest: LOA::ONE
+      }
     end
   end
 end

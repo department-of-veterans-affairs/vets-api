@@ -2,13 +2,15 @@
 module V0
   class TriageTeamsController < SMController
     def index
-      teams = client.get_triage_teams
-      raise Common::Exceptions::InternalServerError unless teams.present?
+      resource = client.get_triage_teams
+      resource = resource.sort(params[:sort])
 
-      render json: teams.data,
+      raise Common::Exceptions::InternalServerError unless resource.present?
+
+      render json: resource.data,
              serializer: CollectionSerializer,
              each_serializer: TriageTeamSerializer,
-             meta: teams.metadata
+             meta: resource.metadata
     end
   end
 end

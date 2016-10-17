@@ -49,7 +49,8 @@
                 <id extension="12345^PI^200HD^USVHA^A" root="2.16.840.1.113883.4.349"/>
                 <id extension="TKIP123456^PI^200IP^USVHA^A" root="2.16.840.1.113883.4.349"/>
                 <id extension="123456^PI^200MHV^USVHA^A" root="2.16.840.1.113883.4.349"/>
-                <id extension="1234^NI^200DOD^USDOD^A" root="2.16.840.1.113883.3.364" />
+                <id extension="1234^NI^200DOD^USDOD^A" root="2.16.840.1.113883.3.42.10001.100001.12" />
+                <id extension="12345678^PI^200CORP^USVBA^A" root="2.16.840.1.113883.4.349"/>
                 <statusCode code="active"/>
                 <patientPerson>
                   <name use="L">

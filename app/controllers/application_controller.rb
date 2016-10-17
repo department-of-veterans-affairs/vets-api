@@ -6,6 +6,7 @@ require_dependency 'saml/settings_service'
 
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
+
   before_action :authenticate
   before_action :set_app_info_headers
   skip_before_action :authenticate, only: [:cors_preflight]
@@ -26,7 +27,8 @@ class ApplicationController < ActionController::API
       when Common::Exceptions::BaseError
         exception
       when Common::Client::Errors::ClientResponse
-        Common::Exceptions::ClientError.new(exception.message.capitalize)
+        meta = exception.to_json unless Rails.env.production?
+        Common::Exceptions::ClientError.new(exception.message.capitalize, meta: meta)
       else
         Common::Exceptions::InternalServerError.new(exception)
       end
@@ -68,5 +70,12 @@ class ApplicationController < ActionController::API
 
   def saml_settings
     SAML::SettingsService.instance.saml_settings
+  end
+
+  def pagination_params
+    {
+      page: params[:page],
+      per_page: params[:per_page]
+    }
   end
 end

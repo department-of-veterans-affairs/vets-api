@@ -2,35 +2,67 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  let(:attributes) do
-    {
+  let(:loa_one) { { current: LOA::ONE } }
+  let(:loa_three) { { current: LOA::THREE } }
 
-      uuid: 'userid:123',
-      email: 'test@test.com',
-      first_name: 'John',
-      middle_name: 'William',
-      last_name: 'Smith',
-      birth_date: Time.new(1980, 1, 1).utc,
-      ssn: '555443333',
-      gender: 'M',
-      level_of_assurance: LOA::THREE
-    }
-  end
-
-  describe 'to create a user' do
+  describe '.create()' do
     context 'with LOA 1' do
+      subject(:loa1_user) { described_class.new(FactoryGirl.build(:user, loa: loa_one)) }
       it 'should allow a blank ssn' do
-        expect(FactoryGirl.build(:user, level_of_assurance: LOA::ONE, ssn: '')).to be_valid
+        expect(FactoryGirl.build(:user, loa: loa_one, ssn: '')).to be_valid
+      end
+      it 'should allow a blank gender' do
+        expect(FactoryGirl.build(:user, loa: loa_one, gender: '')).to be_valid
+      end
+      it 'should allow a blank middle_name' do
+        expect(FactoryGirl.build(:user, loa: loa_one, middle_name: '')).to be_valid
+      end
+      it 'should allow a blank birth_date' do
+        expect(FactoryGirl.build(:user, loa: loa_one, birth_date: '')).to be_valid
+      end
+      it 'should allow a blank zip' do
+        expect(FactoryGirl.build(:user, loa: loa_one, zip: '')).to be_valid
+      end
+      it 'should allow a blank loa.highest' do
+        expect(FactoryGirl.build(:user, loa: { current: LOA::ONE, highest: '' })).to be_valid
+      end
+      it 'should not allow a blank uuid' do
+        loa1_user.uuid = ''
+        expect(loa1_user.valid?).to be_falsey
+        expect(loa1_user.errors[:uuid].size).to be_positive
+      end
+      it 'should not allow a blank email' do
+        loa1_user.email = ''
+        expect(loa1_user.valid?).to be_falsey
+        expect(loa1_user.errors[:email].size).to be_positive
       end
     end
     context 'with LOA 3' do
+      subject(:loa3_user) { described_class.new(FactoryGirl.build(:user, loa: loa_three)) }
       it 'should not allow a blank ssn' do
-        expect(FactoryGirl.build(:user, level_of_assurance: LOA::THREE, ssn: '')).to_not be_valid
+        loa3_user.ssn = ''
+        expect(loa3_user.valid?).to be_falsey
+        expect(loa3_user.errors[:ssn].size).to be_positive
+      end
+      it 'should not allow a blank first_name' do
+        loa3_user.first_name = ''
+        expect(loa3_user.valid?).to be_falsey
+        expect(loa3_user.errors[:first_name].size).to be_positive
+      end
+      it 'should not allow a blank last_name' do
+        loa3_user.last_name = ''
+        expect(loa3_user.valid?).to be_falsey
+        expect(loa3_user.errors[:last_name].size).to be_positive
+      end
+      it 'should not allow a blank birth_date' do
+        loa3_user.birth_date = ''
+        expect(loa3_user.valid?).to be_falsey
+        expect(loa3_user.errors[:birth_date].size).to be_positive
       end
     end
   end
 
-  subject { described_class.new(attributes) }
+  subject { described_class.new(FactoryGirl.build(:user)) }
   context 'with an invalid ssn' do
     it 'should have an error on ssn' do
       subject.ssn = '111-22-3333'
@@ -40,17 +72,18 @@ RSpec.describe User, type: :model do
   end
 
   context 'user without attributes' do
+    let(:test_user) { FactoryGirl.build(:user) }
     it 'expect ttl to an Integer' do
       expect(subject.ttl).to be_an(Integer)
       expect(subject.ttl).to be_between(-Float::INFINITY, 0)
     end
 
     it 'assigns an email' do
-      expect(subject.email).to eq('test@test.com')
+      expect(subject.email).to eq(test_user.email)
     end
 
     it 'assigns an uuid' do
-      expect(subject.uuid).to eq('userid:123')
+      expect(subject.uuid).to eq(test_user.uuid)
     end
 
     it 'has a persisted attribute of false' do
@@ -106,24 +139,14 @@ RSpec.describe User, type: :model do
             }
           )
           expect(subject.attributes).to eq(
-            birth_date: Time.new(1980, 1, 1).utc,
-            edipi: nil,
-            email: attributes[:email],
-            first_name: attributes[:first_name],
-            gender: attributes[:gender],
-            last_name: attributes[:last_name],
-            last_signed_in: nil,
-            middle_name: attributes[:middle_name],
-            mvi: {
-              edipi: '1234^NI^200DOD^USDOD^A',
-              icn: '1000123456V123456^NI^200M^USVHA^P',
-              mhv_id: '123456^PI^200MHV^USVHA^A'
-            },
-            participant_id: nil,
-            ssn: '555443333',
-            uuid: attributes[:uuid],
-            zip: nil,
-            level_of_assurance: LOA::THREE
+            FactoryGirl.build(
+              :user,
+              mvi: {
+                edipi: '1234^NI^200DOD^USDOD^A',
+                icn: '1000123456V123456^NI^200M^USVHA^P',
+                mhv_id: '123456^PI^200MHV^USVHA^A'
+              }
+            ).attributes
           )
         end
       end

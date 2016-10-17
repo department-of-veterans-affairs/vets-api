@@ -1,10 +1,23 @@
 find_candidate:
-  birth_date: '19800101'
-  edipi: '1234^NI^200DOD^USDOD^A'
-  family_name: 'Smith'
-  gender: 'M'
-  given_names: ['John', 'William']
-  icn: '1000123456V123456^NI^200M^USVHA^P'
-  mhv_id: '123456^PI^200MHV^USVHA^A'
-  ssn: '555443333'
-  status: 'active'
+  796295980:
+    birth_date: '19800101'
+    edipi: '1234^NI^200DOD^USDOD^A'
+    family_name: 'Smith'
+    gender: 'M'
+    given_names: ['John', 'William']
+    icn: '1000123456V123456^NI^200M^USVHA^P'
+    mhv_id: '123456^PI^200MHV^USVHA^A'
+    vba_corp_id: '12345678^PI^200CORP^USVBA^A'
+    ssn: '796295980'
+    status: 'active'
+  796143510:
+    birth_date: '19930608'
+    edipi: '1235^NI^200DOD^USDOD^A'
+    family_name: 'Arnold'
+    gender: 'M'
+    given_names: ['Frank', 'Lee']
+    icn: '1000123456V123457^NI^200M^USVHA^P'
+    mhv_id: '123457^PI^200MHV^USVHA^A'
+    vba_corp_id: '12345679^PI^200CORP^USVBA^A'
+    ssn: '796143510'
+    status: 'active'
