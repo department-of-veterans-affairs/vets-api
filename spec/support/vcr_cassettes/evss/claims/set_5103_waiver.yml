@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://csraciapp6.evss.srarad.com:7003/wss-claims-services-web-3.1/rest/vbaClaimStatusService/set5103Waiver
+    uri: https://test.vets.gov/wss-claims-services-web-3.0/rest/vbaClaimStatusService/set5103Waiver
     body:
       encoding: UTF-8
       string: '{"claimId":"189625","systemName":"EBM"}'
@@ -67,6 +67,6 @@ http_interactions:
         {
           "success" : true
         }
-    http_version: 
+    http_version:
   recorded_at: Thu, 01 Sep 2016 21:41:28 GMT
 recorded_with: VCR 3.0.3

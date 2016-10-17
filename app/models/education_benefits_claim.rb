@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 class EducationBenefitsClaim < ActiveRecord::Base
-  FORM_SCHEMA = JSON.parse(File.read(Rails.root.join('app', 'vets-json-schema', 'dist', 'edu-benefits-schema.json')))
+  FORM_SCHEMA = VetsJsonSchema::EDUCATION_BENEFITS
+  APPLICATION_TYPES = %w(chapter33 chapter30 chapter1606 chapter32).freeze
 
   validates(:form, presence: true)
   validate(:form_matches_schema)
@@ -17,7 +18,23 @@ class EducationBenefitsClaim < ActiveRecord::Base
   def open_struct_form
     @application ||= JSON.parse(form, object_class: OpenStruct)
     @application.form = application_type
+    @application.confirmation_number = confirmation_number
+
+    generate_benefits_to_apply_to
+
     @application
+  end
+
+  def generate_benefits_to_apply_to
+    selected_benefits = []
+    APPLICATION_TYPES.each do |application_type|
+      selected_benefits << application_type if @application.public_send(application_type)
+    end
+    selected_benefits = selected_benefits.join(', ')
+
+    @application.toursOfDuty&.each do |tour|
+      tour.benefitsToApplyTo = selected_benefits if tour.applyPeriodToSelected
+    end
   end
 
   def self.unprocessed
@@ -31,10 +48,15 @@ class EducationBenefitsClaim < ActiveRecord::Base
   # TODO: Add logic for determining field type(s) that need to be places in the application header
   def application_type
     return 'CH1606' if @application.chapter1606
+    'NA'
   end
 
   def parsed_form
     @parsed_form ||= JSON.parse(form)
+  end
+
+  def confirmation_number
+    "vets_gov_#{self.class.to_s.underscore}_#{id}"
   end
 
   private

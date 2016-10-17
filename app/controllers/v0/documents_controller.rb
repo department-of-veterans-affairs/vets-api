@@ -5,15 +5,9 @@ module V0
 
     def create
       params.require :file
-      uploaded_io = params[:file]
-      claim_id = params[:disability_claim_id]
-      tracked_item_id = params[:tracked_item]
-
-      claim_service.upload_document(claim_id, uploaded_io, tracked_item_id)
+      claim = DisabilityClaim.for_user(current_user).find(params[:disability_claim_id])
+      claim_service.upload_document(claim, params[:file], params[:tracked_item])
       head :no_content
-
-    rescue ActionController::ParameterMissing => ex
-      raise Common::Exceptions::ParameterMissing, ex.param
     end
 
     private

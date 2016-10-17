@@ -22,23 +22,19 @@ module Rx
       'User-Agent' => USER_AGENT
     }.freeze
 
-    MHV_CONFIG = Rx::Configuration.new(
-      host: ENV['MHV_HOST'],
-      app_token: ENV['MHV_APP_TOKEN'],
-      enforce_ssl: Rails.env.production?
-    ).freeze
-
     attr_reader :config, :session
 
-    def initialize(config: MHV_CONFIG, session:)
-      @config = config.is_a?(Hash) ? Rx::Configuration.new(config) : config
-      @session = session.is_a?(Hash) ? Rx::ClientSession.new(session) : session
-      raise ArgumentError, 'config is invalid' unless @config.is_a?(Configuration)
-      raise ArgumentError, 'session is invalid' unless @session.valid?
+    def initialize(session:)
+      @config = Rx::Configuration.instance
+      @session = Rx::ClientSession.find_or_build(session)
     end
 
     def authenticate
-      @session = get_session
+      if @session.expired?
+        @session = get_session
+        @session.save
+      end
+      @session
     end
 
     private
@@ -50,19 +46,32 @@ module Rx
     end
 
     def process_response_or_error
-      return @response if @response.status == 200 && @response.body.empty?
+      process_no_content_response || process_other
+    end
+
+    def process_no_content_response
+      # MHV is providing a normal string for successful POST, not JSON
+      return unless @response.body.empty? || @response.body.start_with?('Successfully submitted to:')
+      @response if @response.success?
+    end
+
+    def process_other
       json = begin
         MultiJson.load(@response.body)
       rescue MultiJson::LoadError => error
+        # we should log the response body, but i'm reluctant to do it in case it
+        # makes it into production and includes private information.
         raise Common::Client::Errors::Serialization, error
       end
-      return Rx::Parser.new(json).parse! if @response.status == 200
+      return Rx::Parser.new(json).parse! if @response.success?
       raise Common::Client::Errors::ClientResponse.new(@response.status, json)
     end
 
     def request(method, path, params = {}, headers = {})
       raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
-      connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
+      connection.send(method.to_sym, path, params) do |request|
+        request.headers.update(headers)
+      end.env
     rescue Faraday::Error::TimeoutError, Timeout::Error => error
       raise Common::Client::Errors::RequestTimeout, error
     rescue Faraday::Error::ClientError => error
@@ -82,11 +91,11 @@ module Rx
     end
 
     def connection
-      @connection ||= Faraday.new(@config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options)
+      @connection ||= Faraday.new(config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options)
     end
 
     def auth_headers
-      BASE_REQUEST_HEADERS.merge('appToken' => @config.app_token, 'mhvCorrelationId' => @session.user_id.to_s)
+      BASE_REQUEST_HEADERS.merge('appToken' => config.app_token, 'mhvCorrelationId' => @session.user_id.to_s)
     end
 
     def token_headers
@@ -95,8 +104,8 @@ module Rx
 
     def request_options
       {
-        open_timeout: @config.open_timeout,
-        timeout: @config.read_timeout
+        open_timeout: config.open_timeout,
+        timeout: config.read_timeout
       }
     end
   end

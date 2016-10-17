@@ -22,7 +22,7 @@ describe Common::Exceptions::SerializableError do
     let(:attributes) do
       {
         title: 'title', detail: 'detail', id: 123, href: 'href', code: '123',
-        source: 'source', status: 500, meta: 'meta'
+        source: 'source', status: '500', meta: 'meta'
       }
     end
     it 'responds to #to_hash' do

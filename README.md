@@ -7,6 +7,7 @@ This project provides common APIs for applications that live on vets.gov. This r
 ### Base Setup
 
 1. Install Ruby 2.3. (It is suggested to use a Ruby version manager such as [rbenv](https://github.com/rbenv/rbenv#installation) and then to [install Ruby 2.3](https://github.com/rbenv/rbenv#installing-ruby-versions)).
+*Note*: rbenv will also provide additional installation instructions in the console output. Make sure to follow those too.
 1. Install Bundler to manage dependencies: `gem install bundler`
 1. Install Postgres (on Mac): `brew install postgres`
 1. Get the code: `git clone https://github.com/department-of-veterans-affairs/vets-api.git; git submodule init; git submodule update`
@@ -15,6 +16,7 @@ This project provides common APIs for applications that live on vets.gov. This r
 ### Database Setup
 1. Start Postgres: `postgres -D /usr/local/var/postgres`
 1. Create dev database: `bundle exec rake db:setup`
+*Note*: This will not work until you set up the environment variables (see below).
 
 ## Application Configuration
 Various ENV variables are required for the application to run. See application.yml.example
@@ -47,7 +49,7 @@ For an example, see `application.yml.example`
   - manually launch Redis `redis-server /usr/local/etc/redis.conf`
 1. Set the environment variables above according to your Redis configuration
 
-Note: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
+*Note*: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
 this is a sign that redis is not currently running or `config/redis.yml` is not using correct host and port.
 
 ### MHV Prescriptions and MHV Secure Messaging Setup
@@ -74,8 +76,55 @@ AWS_S3_BUCKET
 ```
 Note: Only presence of `S3_UPLOADS` ENV var is checked, not its value
 
+### EVSS Disability Claims Setup
+For this app to be properly configured, you will need to specify the following environment variables:
+```
+EVSS_BASE_URL
+EVSS_SAMPLE_CLAIMANT_USER
+```
+
+For an example, see `application.yml.example` - these are just mock endpoints.
+For actual backend testing you will need to reference the appropriate private repository.
+
+### Facilities Locator Setup
+For this app to be properly configured, you need the following environment variables:
+```
+VHA_MAPSERVER_URL
+VHA_MAPSERVER_LAYER
+```
+
+For an example, see `application.yml.example`.
+
+For the current maps.va.gov endpoint, you will need to add the VA internal root CA
+certificate to your trusted certificates. With homebrew this is typically done by
+appending the exported/downloaded certificate to `<HOMEBREW_DIR>/etc/openssl/cert.pem`.
+
+### MVI Service
+The Master Veteran Index Service retreives and updates a veterans 'golden record'.
+This service is only available over the VA VPN. A mock service is available for
+testing in development or when you don't have VPN access. To enable the mock
+service set MOCK_MVI_SERVICE in config/application.yml to 'true'
+```
+# config/application.yml
+MOCK_MVI_SERVICE = true
+```
+Endpoint response value can be set by copying mock_mvi_responses.yml.example to
+mock_mvi_responses.yml and updating YAML for the appropriate endpoint:
+```
+find_candidate:
+  birth_date: '19800101'
+  edipi: '1234^NI^200DOD^USDOD^A'
+  family_name: 'Smith'
+  gender: 'M'
+  given_names: ['John', 'William']
+  icn: '1000123456V123456^NI^200M^USVHA^P'
+  mhv_id: '123456^PI^200MHV^USVHA^A'
+  ssn: '555-44-3333'
+  status: 'active'
+```
+
 ### Running the App
-1. Start the application: `bundle exec rails s`
+1. Start the application: `foreman start`
 1. Navigate to <http://localhost:3000/v0/status> in your browser.
 
 ## Testing Commands
@@ -84,25 +133,34 @@ Note: Only presence of `S3_UPLOADS` ENV var is checked, not its value
 - `bundle exec rake security` - Run the suite of security scanners on the codebase.
 - `bundle exec rake ci` - Run all build steps performed in Travis CI.
 
-### Manually Testing Auth Flow
+### Manually Testing ID.me Authentication Flow
 The first endpoint, below, doesn't require authentication while the second does:
 ```
 curl localhost:3000/v0/status
 curl localhost:3000/v0/welcome
 ```
-It is easiest to go through the auth flow in your browser. Curl or browse to `http://localhost:3000/v0/sessions/new`; copy and paste the ID.me URL into your browser.  Create your ID.me account if you have not already done so. (**Note**: creating your account on the ID.me site is separate from the api.idmelabs.com sandbox) The token returned in the json response at the end of the login flow can be used as follows (You may wish to use Postman instead of curl to test within the browser):
+
+The callback from ID.me is configured to go to `http://localhost:3001/auth/login/callback`, which is a front-end route in production. To test just the API locally, without running the vets-website server, start the vets-api server on port 3001:
+```
+bundle exec rails s -p 3001
+```
+Curl or browse to `http://localhost:3001/v0/sessions/new`; copy and paste the ID.me URL into your browser. Create your ID.me account if you have not already done so (**Note**: creating your account on the ID.me site is separate from the api.idmelabs.com sandbox) or sign in with your username and password.
+
+The token returned in the json response at the end of the login flow can be used as follows (You may wish to use Postman instead of curl to test within the browser):
 
 ```
-curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyyja" localhost:3000/v0/sessions/current
-curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyyja" localhost:3000/v0/profile
+curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyyja" localhost:3001/v0/sessions/current
+curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyyja" localhost:3001/v0/profile
 ```
 
 ## Deployment Instructions
 
-Currently, this API is only deployed to the `dev` environment. Ansible templates and instructions for deploying are in the [devops repo](https://github.com/department-of-veterans-affairs/devops/tree/master/ansible). The `app_name` for this project is `platform-api`. After deploying, you can check that the right version was deployed with:
+Currently, this API is not yet in production. Ansible templates and instructions for deploying are in the [devops repo](https://github.com/department-of-veterans-affairs/devops/tree/master/ansible). The `app_name` for this project is `platform-api`. After deploying, you can check that the right version was deployed with:
 ```
-https://dev.vets.gov/api/v0/status
+https://dev-api.vets.gov/v0/status
 ```
+
+There is also a [jenkins build](https://dev.vets.gov/jenkins/job/vets_gov_deploy_all/) that will deploy all the apps in a certain environment.
 
 ## API Request key formatting
 

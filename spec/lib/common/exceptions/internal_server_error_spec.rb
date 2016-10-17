@@ -32,7 +32,7 @@ describe Common::Exceptions::InternalServerError do
         expect(subject.errors.first.to_hash)
           .to eq(title: 'Internal Server Error',
                  detail: 'Internal Server Error',
-                 code: '500', status: 500)
+                 code: '500', status: '500')
       end
     end
 
@@ -44,7 +44,7 @@ describe Common::Exceptions::InternalServerError do
           .to eq(title: 'Internal Server Error',
                  detail: 'Internal Server Error',
                  meta: { exception: 'some message', backtrace: nil },
-                 code: '500', status: 500)
+                 code: '500', status: '500')
       end
     end
   end

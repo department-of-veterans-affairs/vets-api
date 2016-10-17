@@ -1,0 +1,44 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/-12345/reply"
+    body:
+      encoding: UTF-8
+      string: '{"category":"OTHER","body":"Body 1","recipientId":"585986","subject":"Subject
+        1"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token:
+      - <SESSION_TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Tue, 27 Sep 2016 19:49:41 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '{"errorCode":904,"developerMessage":"Severity[Error]:message.not.found;","message":"Message
+        Service Error"}'
+    http_version:
+  recorded_at: Tue, 27 Sep 2016 19:49:41 GMT
+recorded_with: VCR 3.0.3

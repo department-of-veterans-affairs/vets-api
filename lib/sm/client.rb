@@ -10,6 +10,7 @@ require 'sm/api/triage_teams'
 require 'sm/api/folders'
 require 'sm/api/messages'
 require 'sm/api/message_drafts'
+require 'sm/api/attachments'
 
 module SM
   class Client
@@ -18,33 +19,28 @@ module SM
     include SM::API::Folders
     include SM::API::Messages
     include SM::API::MessageDrafts
+    include SM::API::Attachments
 
     REQUEST_TYPES = %i(get post delete).freeze
     USER_AGENT = 'Vets.gov Agent'
     BASE_REQUEST_HEADERS = {
       'Accept' => 'application/json',
-      'Content-Type' => 'application/json',
       'User-Agent' => USER_AGENT
     }.freeze
 
-    MHV_CONFIG = SM::Configuration.new(
-      host: ENV['MHV_SM_HOST'],
-      app_token: ENV['MHV_SM_APP_TOKEN'],
-      enforce_ssl: Rails.env.production?
-    ).freeze
-
     attr_reader :config, :session
 
-    def initialize(config: MHV_CONFIG, session:)
-      @config = config.is_a?(Hash) ? SM::Configuration.new(config) : config
-      @session = session.is_a?(Hash) ? SM::ClientSession.new(session) : session
-
-      raise ArgumentError, 'config is invalid' unless @config.is_a?(Configuration)
-      raise ArgumentError, 'session is invalid' unless @session.valid?
+    def initialize(session:)
+      @config = SM::Configuration.instance
+      @session = SM::ClientSession.find_or_build(session)
     end
 
     def authenticate
-      @session = get_session
+      if @session.expired?
+        @session = get_session
+        @session.save
+      end
+      @session
     end
 
     private
@@ -57,10 +53,22 @@ module SM
     end
 
     def process_response_or_error
-      if @response.body.empty? || @response.body.casecmp('success').zero?
-        return @response if @response.status == 200
-      end
+      process_no_content_response || process_attachment || process_other
+    end
 
+    def process_no_content_response
+      return unless @response.body.empty? || @response.body.casecmp('success').zero?
+      @response if @response.status == 200
+    end
+
+    def process_attachment
+      return unless @response.response_headers['content-type'] == 'application/octet-stream'
+      disposition = @response.response_headers['content-disposition']
+      filename = disposition.gsub('attachment; filename=', '')
+      { body: @response.body, filename: filename }
+    end
+
+    def process_other
       json = begin
         MultiJson.load(@response.body)
       rescue MultiJson::LoadError => error
@@ -85,6 +93,7 @@ module SM
     end
 
     def post(path, params = {}, headers = base_headers)
+      params = params.is_a?(Hash) ? normalize_and_jsonify(params) : params
       request(:post, path, params, headers)
     end
 
@@ -99,7 +108,8 @@ module SM
     def connection
       @connection ||= Faraday.new(@config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options) do |conn|
         conn.request :multipart
-        conn.request :url_encoded
+        conn.request :json
+        # conn.response :logger, ::Logger.new(STDOUT), bodies: true
 
         conn.adapter Faraday.default_adapter
       end
@@ -118,6 +128,30 @@ module SM
         open_timeout: @config.open_timeout,
         timeout: @config.read_timeout
       }
+    end
+
+    def normalize_and_jsonify(params)
+      uploads = params.delete(:uploads)
+      params = params.transform_keys { |k| k.to_s.camelize(:lower) }
+
+      if uploads.present?
+        message_part = Faraday::UploadIO.new(
+          StringIO.new(params.to_json),
+          'application/json',
+          'message'
+        )
+        file_parts = uploads.map.with_index do |file, _i|
+          upload = Faraday::UploadIO.new(
+            file.tempfile,
+            file.content_type,
+            file.original_filename
+          )
+          [file.original_filename, upload]
+        end
+        { 'message' => message_part }.merge(Hash[file_parts])
+      else
+        params
+      end
     end
   end
 end

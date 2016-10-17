@@ -5,7 +5,7 @@ describe Common::Exceptions::InvalidFiltersSyntax do
   context 'with no filters provided' do
     it do
       expect { described_class.new }
-        .to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
+        .to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1..2)')
     end
   end
 
@@ -21,7 +21,7 @@ describe Common::Exceptions::InvalidFiltersSyntax do
         .to eq(title: 'Invalid filters syntax',
                detail: '{"facility_name"=>"ABC123"} is not a valid syntax for filtering',
                code: '105',
-               status: 400)
+               status: '400')
     end
   end
 end

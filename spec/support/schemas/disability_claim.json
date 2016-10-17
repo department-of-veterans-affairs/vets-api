@@ -11,18 +11,41 @@
         "type": { "enum": ["disability_claims"] },
         "attributes": {
           "type": "object",
-          "required": ["evss_id", "date_filed", "min_est_date", "max_est_date", "open", "waiver_submitted", "contention_list", "phase_dates", "tracked_items", "va_representative"],
+          "required": [
+            "evss_id",
+            "date_filed",
+            "min_est_date",
+            "max_est_date",
+            "open",
+            "waiver_submitted",
+            "contention_list",
+            "events_timeline",
+            "phase_change_date",
+            "va_representative",
+            "documents_needed",
+            "development_letter_sent",
+            "decision_letter_sent",
+            "successful_sync",
+            "updated_at",
+            "phase"
+          ],
           "properties": {
             "evss_id": { "type": "integer" },
             "date_filed": { "type": "string" },
-            "phase_dates": { "type": ["object", "null"] },
-            "tracked_items": { "type": ["object", "null"] },
             "contention_list": { "type": "array", "items": { "type": "string" } },
+            "events_timeline": { "type": "array", "items": { "type": "object" } },
             "min_est_date": { "type": ["string", "null"] },
             "max_est_date": { "type": ["string", "null"] },
+            "phase_change_date": { "type": ["string", "null"] },
             "open": { "type": "boolean" },
             "va_representative": { "type": "string" },
-            "waiver_submitted": { "type": "boolean" }
+            "waiver_submitted": { "type": "boolean" },
+            "documents_needed": { "type": "boolean" },
+            "development_letter_sent": { "type": "boolean" },
+            "decision_letter_sent": { "type": "boolean" },
+            "successful_sync": { "type": "boolean" },
+            "updated_at": { "type": "string" },
+            "phase": { "type": ["integer", "null"] }
           }
         }
       }

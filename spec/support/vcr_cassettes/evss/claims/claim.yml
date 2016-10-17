@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://csraciapp6.evss.srarad.com:7003/wss-claims-services-web-3.1/rest/vbaClaimStatusService/getClaimDetailById
+    uri: https://test.vets.gov/wss-claims-services-web-3.0/rest/vbaClaimStatusService/getClaimDetailById
     body:
       encoding: UTF-8
       string: '{"id":"189625"}'
@@ -599,6 +599,6 @@ http_interactions:
           },
           "messages" : [ ]
         }
-    http_version: 
+    http_version:
   recorded_at: Wed, 07 Sep 2016 04:42:36 GMT
 recorded_with: VCR 3.0.3

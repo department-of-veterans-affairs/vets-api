@@ -21,6 +21,16 @@ VCR.configure do |c|
   c.hook_into :webmock
   c.configure_rspec_metadata!
   c.filter_sensitive_data('<MHV_SM_HOST>') { ENV['MHV_SM_HOST'] }
+  c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { ENV['MHV_SM_APP_TOKEN'] }
+  c.filter_sensitive_data('<MHV_HOST>') { ENV['MHV_HOST'] }
+  c.filter_sensitive_data('<APP_TOKEN>') { ENV['MHV_APP_TOKEN'] }
+  c.before_record do |i|
+    i.response.headers.update('Token' => '<SESSION_TOKEN>')
+    i.request.headers.update('Token' => '<SESSION_TOKEN>')
+  end
+  c.register_request_matcher :anonymized_session_token do |_acutal, expected|
+    actual.headers['Token'] == expected.headers['Token']
+  end
 end
 
 ActiveRecord::Migration.maintain_test_schema!

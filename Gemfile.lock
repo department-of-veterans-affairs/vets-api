@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/department-of-veterans-affairs/vets-json-schema
+  revision: f6dd605ee975e56ed3ffacb009331fad1027b6bb
+  branch: master
+  specs:
+    vets_json_schema (1.0.0)
+      multi_json (~> 1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -77,6 +85,9 @@ GEM
       json (>= 1.7)
       mime-types (>= 1.16)
       mimemagic (>= 0.3.0)
+    chronic (0.10.2)
+    climate_control (0.0.3)
+      activesupport (>= 3.0)
     coderay (1.1.1)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
@@ -122,7 +133,10 @@ GEM
     fog-xml (0.1.2)
       fog-core
       nokogiri (~> 1.5, >= 1.5.11)
+    foreman (0.82.0)
+      thor (~> 0.19.1)
     formatador (0.2.5)
+    geoservices (0.1.0)
     globalid (0.3.7)
       activesupport (>= 4.1.0)
     guard (2.13.0)
@@ -156,8 +170,8 @@ GEM
     ice_nine (0.11.2)
     ipaddress (0.8.3)
     json (1.8.3)
-    json-schema (2.5.0)
-      addressable (~> 2.3)
+    json-schema (2.7.0)
+      addressable (>= 2.4)
     jsonapi (0.1.1.beta2)
       json (~> 1.8)
     listen (3.0.6)
@@ -205,6 +219,7 @@ GEM
       pry (>= 0.9.10, < 0.11.0)
     puma (2.16.0)
     rack (1.6.4)
+    rack-cors (0.4.0)
     rack-protection (1.5.3)
       rack
     rack-test (0.6.3)
@@ -348,6 +363,8 @@ GEM
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff
+    whenever (0.9.7)
+      chronic (>= 0.6.3)
     will_paginate (3.1.0)
 
 PLATFORMS
@@ -361,12 +378,15 @@ DEPENDENCIES
   bundler-audit
   byebug
   carrierwave (~> 0.11)
+  climate_control (= 0.0.3)
   factory_girl_rails
   fakeredis
   faraday
   faraday_middleware
   figaro
   fog-aws (~> 0.12)
+  foreman
+  geoservices
   guard-rspec (~> 4.7)
   guard-rubocop
   httpclient
@@ -379,6 +399,7 @@ DEPENDENCIES
   pg
   pry-nav
   puma (~> 2.16.0)
+  rack-cors
   rails (= 4.2.7.1)
   rails-api
   rainbow
@@ -390,15 +411,17 @@ DEPENDENCIES
   savon (~> 2.0)
   sdoc (~> 0.4.0)
   sidekiq
-  simplecov
+  simplecov (~> 0.11)
   spring
   spring-commands-rspec
   timecop
   tzinfo-data
   vcr
+  vets_json_schema!
   virtus
   web-console (~> 2.0)
   webmock
+  whenever
   will_paginate
 
 BUNDLED WITH

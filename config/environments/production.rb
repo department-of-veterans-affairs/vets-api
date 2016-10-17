@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 Rails.application.configure do
   # Specify environment specific hostname and protocol
   config.hostname = ENV['HOSTNAME']

@@ -4,10 +4,10 @@ require_dependency 'evss/error_middleware'
 module EVSS
   class BaseService
     SYSTEM_NAME = 'vets.gov'
+    DEFAULT_TIMEOUT = 5 # seconds
 
-    def initialize(user)
-      @user = user
-      @default_timeout = 5 # seconds
+    def initialize(headers)
+      @headers = headers
     end
 
     protected
@@ -29,46 +29,13 @@ module EVSS
     # Uses HTTPClient adapter because headers need to be sent unmanipulated
     # Net/HTTP capitalizes headers
     def conn
-      @conn ||= Faraday.new(base_url, headers: vaafi_headers, ssl: ssl_options) do |faraday|
-        faraday.options.timeout = @default_timeout
+      @conn ||= Faraday.new(base_url, headers: @headers, ssl: ssl_options) do |faraday|
+        faraday.options.timeout = DEFAULT_TIMEOUT
         faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
         faraday.response :json, content_type: /\bjson$/
         faraday.adapter  :httpclient
       end
-    end
-
-    def vaafi_headers
-      @vaafi_headers ||= {
-        # Always the same
-        'va_eauth_csid' => 'DSLogon',
-        # TODO: Change va_eauth_authenticationmethod to vets.gov
-        # once the EVSS team is ready for us to use it
-        'va_eauth_authenticationmethod' => 'DSLogon',
-        'va_eauth_assurancelevel' => '2',
-        'va_eauth_pnidtype' => 'SSN',
-        # Vary by user
-        'va_eauth_firstName' => @user.first_name,
-        'va_eauth_lastName' => @user.last_name,
-        'va_eauth_issueinstant' => Time.now.utc.iso8601,
-        'va_eauth_dodedipnid' => @user.edipi,
-        'va_eauth_pid' => @user.participant_id,
-        'va_eauth_pnid' => @user.ssn,
-        'va_eauth_authorization' => eauth_json
-      }
-    end
-
-    def eauth_json
-      {
-        authorizationResponse: {
-          status: 'VETERAN',
-          idType: 'SSN',
-          id: @user.ssn,
-          edi: @user.edipi,
-          firstName: @user.first_name,
-          lastName: @user.last_name
-        }
-      }.to_json
     end
 
     def ssl_options
@@ -82,16 +49,18 @@ module EVSS
     end
 
     def cert?
-      !ENV['EVSS_CERT_FILE'].nil? || !ENV['EVSS_CERT_KEY'].nil? || !ENV['EVSS_ROOT_CERT_FILE_PATH'].nil?
+      ENV['EVSS_CERT_FILE_PATH'].present? ||
+        ENV['EVSS_CERT_KEY_PATH'].present? ||
+        ENV['EVSS_ROOT_CERT_FILE_PATH'].present?
     end
 
     # :nocov:
     def client_cert
-      OpenSSL::X509::Certificate.new File.read(ENV['EVSS_CERT_KEY'])
+      OpenSSL::X509::Certificate.new File.read(ENV['EVSS_CERT_FILE_PATH'])
     end
 
     def client_key
-      OpenSSL::PKey::RSA.new File.read(ENV['EVSS_CERT_FILE'])
+      OpenSSL::PKey::RSA.new File.read(ENV['EVSS_CERT_KEY_PATH'])
     end
 
     def root_ca

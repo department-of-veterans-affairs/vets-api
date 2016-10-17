@@ -21,7 +21,7 @@ describe Common::Exceptions::InvalidFieldValue do
         .to eq(title: 'Invalid field value',
                detail: '"invalid_value" is not a valid value for "facility_name"',
                code: '103',
-               status: 400)
+               status: '400')
     end
   end
 end

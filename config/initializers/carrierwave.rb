@@ -15,5 +15,5 @@ CarrierWave.configure do |config|
   }
   config.fog_directory = ENV['AWS_S3_BUCKET']
   config.fog_public    = false
-  config.storage       = ENV['S3_UPLOADS'] ? :fog : :file
+  config.storage       = ENV['S3_UPLOADS'].try(:downcase) == 'true' ? :fog : :file
 end

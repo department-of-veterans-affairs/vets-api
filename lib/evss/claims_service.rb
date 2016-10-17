@@ -25,7 +25,7 @@ module EVSS
     protected
 
     def base_url
-      ENV['EVSS_CLAIMS_BASE_URL']
+      "#{ENV['EVSS_BASE_URL']}/wss-claims-services-web-3.0/rest"
     end
   end
 end

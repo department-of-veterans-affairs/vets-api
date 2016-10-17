@@ -10,6 +10,10 @@ RSpec.describe 'Documents management', type: :request do
   end
   let(:tracked_item) { 33 }
   let(:claim_id) { 189_625 }
+  let!(:claim) do
+    FactoryGirl.create(:disability_claim, id: 189_625, evss_id: 189_625,
+                                          user_uuid: User.sample_claimant.uuid, data: {})
+  end
 
   it 'should upload a file' do
     ActiveJob::Base.queue_adapter = :test

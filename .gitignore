@@ -25,4 +25,10 @@ public/assets/**
 config/application.yml
 
 # Ignore rvm stuff
+# Ignore rbenv
 .ruby-gemset
+.rbenv-gemsets
+
+# Ignore mock mvi responses
+/config/mvi_schema/mock_mvi_responses.yml
+.idea/
