@@ -65,7 +65,6 @@ RSpec.describe 'Messages Integration', type: :request do
       it 'accepts only permitted attributes' do
         VCR.use_cassette("sm/messages/#{user_id}/index") do
           get "/v0/messaging/health/folders/#{inbox_id}/messages?filter[[blab][eq]]=1"
-
           error = JSON.parse(response.body)['errors'].first
 
           expect(response).not_to be_success
@@ -144,6 +143,7 @@ RSpec.describe 'Messages Integration', type: :request do
           post '/v0/messaging/health/messages', message: message_attributes.slice(:recipient_id, :category, :body)
         end
 
+        binding.pry
         expect(response).to be_success
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('message')

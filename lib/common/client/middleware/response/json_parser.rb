@@ -8,27 +8,36 @@ module Common
           UNPARSABLE_STATUS_CODES = [204, 301, 302, 304]
 
           def on_complete(env)
-            return unless env.response_headers['content-type'] =~ /\bjson/
-            if respond_to?(:parse)
-              env[:body] = parse_body(env[:body]) unless UNPARSABLE_STATUS_CODES.include?(env[:status])
+            if env.response_headers['content-type'] =~ /\bjson/
+              if env.body =~ WHITESPACE_REGEX || env.body =~ MHV_SUCCESS_REGEX
+                env.body = {}
+              else
+                env.body = parse(env.body) unless UNPARSABLE_STATUS_CODES.include?(env[:status])
+              end
+            end
+          end
+
+          def parse(body = nil)
+            json = begin
+              MultiJson.load(body)
+            rescue MultiJson::LoadError => error
+              raise Common::Client::Errors::Serialization, error
             end
           end
 
           private
 
-          def parse_body(body = nil)
-            case body
-            when WHITESPACE_REGEX, nil
-              nil
-            when MHV_SUCCESS_REGEX
-              nil
-            else
-              json = begin
-                MultiJson.load(body)
-              rescue MultiJson::LoadError => error
-                raise Common::Client::Errors::Serialization, error
-              end
+          def snakecase(parsed_json)
+            case parsed_json
+            when Array
+              parsed_json.map { |hash| underscore_symbolize(hash) }
+            when Hash
+              underscore_symbolize(parsed_json)
             end
+          end
+
+          def underscore_symbolize(hash)
+            hash.deep_transform_keys { |k| k.underscore.to_sym }
           end
         end
       end

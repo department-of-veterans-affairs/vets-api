@@ -4,8 +4,9 @@ module Common
       module Response
         class RaiseError < Faraday::Response::Middleware
           def on_complete(env)
-            return if env.success?
-            raise Common::Client::Errors::ClientResponse.new(env.status.to_i, env[:body])
+            unless env.success?
+              raise Common::Client::Errors::ClientResponse.new(env.status.to_i, env[:body])
+            end  
           end
         end
       end

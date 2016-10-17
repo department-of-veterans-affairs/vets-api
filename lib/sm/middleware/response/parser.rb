@@ -3,18 +3,27 @@ module SM
   module Middleware
     module Response
       # class responsible for customizing parsing
-      class Parser < Faraday::Response::Middleware
-        def on_complete(env)
-          return unless env.response_headers['content-type'] =~ /\bjson/
-          if env[:body].is_a?(Hash)
-            @parsed_json = env[:body]
-            env[:body] = parse!
-          end
+      class Parser < Faraday::Middleware
+        def initialize(app, options = {})
+          super(app)
         end
 
-        private
+        def call(env)
+          finished_response = {}
+          @app.call(env).on_complete do |response|
+            if response.response_headers['content-type'] =~ /\bjson/
+              if response.body.is_a?(Hash)
+                response[:body] = sm_parse(response.body)
+                finished_response = response
+              end
+            end
+          end
+          finished_response
+        end
 
-        def parse!
+
+        def sm_parse(body = nil)
+          @parsed_json = body
           @meta_attributes = split_meta_fields!
           @errors = @parsed_json.delete(:errors) || {}
 
@@ -28,6 +37,8 @@ module SM
 
           @parsed_json
         end
+
+        private
 
         def parsed_folders
           @parsed_json.key?(:system_folder) ? @parsed_json : @parsed_json[:folder]
@@ -51,23 +62,6 @@ module SM
 
         def split_meta_fields!
           {}
-        end
-
-        def snakecase!
-          @parsed_json = snakecase
-        end
-
-        def snakecase
-          case @parsed_json
-          when Array
-            @parsed_json.map { |hash| underscore_symbolize(hash) }
-          when Hash
-            underscore_symbolize(@parsed_json)
-          end
-        end
-
-        def underscore_symbolize(hash)
-          hash.deep_transform_keys { |k| k.underscore.to_sym }
         end
 
         def normalize_message(object)

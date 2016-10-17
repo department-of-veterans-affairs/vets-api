@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 require 'faraday'
-require 'faraday_middleware'
 require 'multi_json'
 require 'common/client/errors'
 require 'common/client/middleware/request/camelcase'

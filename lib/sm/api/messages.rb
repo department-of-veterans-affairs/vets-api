@@ -6,8 +6,8 @@ module SM
     module Messages
       def get_categories
         path = 'message/category'
-
         json = perform(:get, path, nil, token_headers).body
+
         Category.new(json)
       end
 
@@ -38,7 +38,10 @@ module SM
 
       # post_create_message: Creates a new message, without attachments
       def post_create_message(args = {})
-        json = perform(:post, 'message', args, token_headers).body
+        r = perform(:post, 'message', args, token_headers)
+        json = r.body
+        binding.pry
+
         Message.new(json)
       end
 
