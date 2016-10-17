@@ -238,16 +238,16 @@ At the current time, filtering supports the following comparisons:
 #### Sorting
 The query format to sort the results in an ascending order
 ```
-?sort=field-name
+?sort=field_name
 ```
 Similarly, to sort the results in a descending order prefix the field name with `-`
 ```
-?sort=-field-name
+?sort=-field_name
 ```
 
 To sort on multiple fields, use the following syntax:
 ```
-sort[]=field-name1&sort[]=field-name2
+sort[]=field_name1&sort[]=field_name2
 ```
 
 Sorting of result sets is available for:
