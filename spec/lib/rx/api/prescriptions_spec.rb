@@ -28,8 +28,9 @@ describe Rx::Client do
     end
   end
 
-  it 'should have #get_tracking_rx(id) that returns a Tracking' do
+  xit 'should have #get_tracking_rx(id) that returns a Tracking' do
     VCR.use_cassette('prescriptions/nested_resources/responds_to_GET_show_of_nested_tracking_resource') do
+      binding.pry
       response = client.get_tracking_rx(13651310)
       expect(response).to be_a(::Tracking)
       expect(response.prescription_id).to eq(13651310)
