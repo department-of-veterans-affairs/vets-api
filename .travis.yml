@@ -28,6 +28,8 @@ before_script:
   - export EVSS_S3_UPLOADS=false
   - export VHA_MAPSERVER_URL='https://maps.va.gov/server/rest/services/PROJECTS/Facility_Locator/MapServer'
   - export VHA_MAPSERVER_LAYER='0'
+  - export NCA_MAPSERVER_URL='https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/NCA_Facilities/FeatureServer'
+  - export NCA_MAPSERVER_LAYER='0'
   - export MOCK_MVI_SERVICE=false
 
 script:
