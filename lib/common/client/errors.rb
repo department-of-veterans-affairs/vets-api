@@ -43,8 +43,7 @@ module Common
         end
 
         def as_json
-          return debug_hash if defined?(Rails) && (Rails.env.development? || Rails.env.test?)
-          base_json
+          debug_hash
         end
 
         delegate :to_json, to: :as_json

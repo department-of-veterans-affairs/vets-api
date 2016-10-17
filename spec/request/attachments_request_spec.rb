@@ -21,6 +21,7 @@ RSpec.describe 'Messages Integration', type: :request do
         get '/v0/messaging/health/messages/629999/attachments/629993'
       end
 
+      binding.pry
       expect(response).to be_success
       expect(response.headers['Content-Disposition'])
         .to eq('attachment; filename="noise300x200.png"')

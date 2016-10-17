@@ -7,14 +7,14 @@ module SM
       def get_categories
         path = 'message/category'
 
-        json = perform(:get, path, nil, token_headers)
+        json = perform(:get, path, nil, token_headers).body
         Category.new(json)
       end
 
       # get_message: Retrieves a specific message by id, marking the message as read.
       def get_message(id)
         path = "message/#{id}/read"
-        json = perform(:get, path, nil, token_headers)
+        json = perform(:get, path, nil, token_headers).body
 
         Message.new(json)
       end
@@ -23,7 +23,7 @@ module SM
       # is being returned.
       def get_message_history(id)
         path = "message/#{id}/history"
-        json = perform(:get, path, nil, token_headers)
+        json = perform(:get, path, nil, token_headers).body
 
         Common::Collection.new(Message, json)
       end
@@ -31,35 +31,35 @@ module SM
       # get_message_category: Retrieves a specific message by id, marking the message as read.
       def get_message_category
         path = 'message/category'
-        json = perform(:get, path, nil, token_headers)
+        json = perform(:get, path, nil, token_headers).body
 
         Category.new(json)
       end
 
       # post_create_message: Creates a new message, without attachments
       def post_create_message(args = {})
-        json = perform(:post, 'message', args, token_headers)
+        json = perform(:post, 'message', args, token_headers).body
         Message.new(json)
       end
 
       def post_create_message_with_attachment(args = {})
         custom_header = token_headers.merge('Content-Transfer-Encoding' => 'binary')
         custom_header = custom_header.except('Content-Type')
-        json = perform(:post, 'message/attach', args, custom_header)
+        json = perform(:post, 'message/attach', args, custom_header).body
         Message.new(json)
       end
 
       def post_create_message_reply_with_attachment(id, args = {})
         custom_header = token_headers.merge('Content-Transfer-Encoding' => 'binary')
         custom_header = custom_header.except('Content-Type')
-        json = perform(:post, "message/#{id}/reply/attach", args, custom_header)
+        json = perform(:post, "message/#{id}/reply/attach", args, custom_header).body
         Message.new(json)
       end
 
       # post_create_message_reply: Replies to a message with the given id,
       # or updates an existing reply, without attachments
       def post_create_message_reply(id, args = {})
-        json = perform(:post, "message/#{id}/reply", args, token_headers)
+        json = perform(:post, "message/#{id}/reply", args, token_headers).body
 
         Message.new(json)
       end

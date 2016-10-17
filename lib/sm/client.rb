@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 require 'faraday'
+require 'faraday_middleware'
 require 'multi_json'
 require 'common/client/errors'
+require 'common/client/middleware/request/camelcase'
+require 'common/client/middleware/request/multipart_request'
+require 'common/client/middleware/response/json_parser'
+require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/snakecase'
+require 'sm/middleware/response/parser'
 require 'sm/client_session'
 require 'sm/configuration'
-require 'sm/parser'
 require 'sm/api/sessions'
 require 'sm/api/triage_teams'
 require 'sm/api/folders'
@@ -48,35 +54,7 @@ module SM
     def perform(method, path, params = nil, headers = nil)
       raise NoMethodError, "#{method} not implemented" unless REQUEST_TYPES.include?(method)
 
-      @response = send(method, path, params, headers)
-      process_response_or_error
-    end
-
-    def process_response_or_error
-      process_no_content_response || process_attachment || process_other
-    end
-
-    def process_no_content_response
-      return unless @response.body.empty? || @response.body.casecmp('success').zero?
-      @response if @response.status == 200
-    end
-
-    def process_attachment
-      return unless @response.response_headers['content-type'] == 'application/octet-stream'
-      disposition = @response.response_headers['content-disposition']
-      filename = disposition.gsub('attachment; filename=', '')
-      { body: @response.body, filename: filename }
-    end
-
-    def process_other
-      json = begin
-        MultiJson.load(@response.body)
-      rescue MultiJson::LoadError => error
-        raise Common::Client::Errors::Serialization, error
-      end
-
-      return SM::Parser.new(json).parse! if @response.status == 200
-      raise Common::Client::Errors::ClientResponse.new(@response.status, json)
+      send(method, path, params, headers)
     end
 
     def request(method, path, params = {}, headers = {})
@@ -107,8 +85,15 @@ module SM
 
     def connection
       @connection ||= Faraday.new(@config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options) do |conn|
+        conn.request :camelcase
+        conn.request :multipart_request
         conn.request :multipart
         conn.request :json
+
+        conn.response :sm_parser
+        conn.response :snakecase
+        conn.response :raise_error
+        conn.response :json_parser
         # conn.response :logger, ::Logger.new(STDOUT), bodies: true
 
         conn.adapter Faraday.default_adapter

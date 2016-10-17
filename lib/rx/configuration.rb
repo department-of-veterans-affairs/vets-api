@@ -17,5 +17,12 @@ module Rx
     def base_path
       "#{host}/mhv-api/patient/v1/"
     end
+
+    def request_options
+      {
+        open_timeout: open_timeout,
+        timeout: read_timeout
+      }
+    end
   end
 end
