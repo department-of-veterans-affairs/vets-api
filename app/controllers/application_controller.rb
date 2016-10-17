@@ -30,7 +30,6 @@ class ApplicationController < ActionController::API
         meta = exception.to_json unless Rails.env.production?
         Common::Exceptions::ClientError.new(exception.message.capitalize, meta: meta)
       else
-        raise exception
         Common::Exceptions::InternalServerError.new(exception)
       end
 
