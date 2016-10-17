@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 module Common
   module Exceptions
-    # InvalidFiltersSyntax - filter keys are invalid
     class FilterNotAllowed < BaseError
       attr_reader :filter
 
@@ -10,7 +9,7 @@ module Common
       end
 
       def errors
-        detail = "\"#{filter}\" is not allowed"
+        detail = "\"#{filter}\" is not allowed for filtering"
         Array(SerializableError.new(MinorCodes::FILTER_NOT_ALLOWED.merge(detail: detail)))
       end
     end

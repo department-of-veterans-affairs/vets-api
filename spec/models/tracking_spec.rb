@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'rails_helper'
+require 'rx/parser'
 
 describe Tracking do
   let(:original_camel_cased_json) { File.read('spec/support/fixtures/rx_tracking_1435525.json') }
@@ -38,7 +39,7 @@ describe Tracking do
 
       it 'sorts by shipped_date by default' do
         expect(subject.sort.map(&:prescription_id))
-          .to eq([3, 1, 1, 2])
+          .to eq([2, 1, 1, 3])
       end
 
       it 'sorts by sort_by field' do
