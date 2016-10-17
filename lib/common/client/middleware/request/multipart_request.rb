@@ -27,6 +27,8 @@ module Common
               Faraday::UploadIO.new(value, mime_type(value.path), value.path)
             elsif value.is_a?(Array)
               value.map { |value| io_object_for(value) }
+            else
+              value  
             end
           end
         end
