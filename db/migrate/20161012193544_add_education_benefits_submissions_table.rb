@@ -4,7 +4,7 @@ class AddEducationBenefitsSubmissionsTable < ActiveRecord::Migration
       t.string(:region, null: false)
       t.timestamps(null: false)
 
-      EducationBenefitsClaim::APPLICATION_TYPES.each do |application_type|
+      %w(chapter33 chapter30 chapter1606 chapter32).each do |application_type|
         t.boolean(application_type, null: false, default: false)
       end
     end
