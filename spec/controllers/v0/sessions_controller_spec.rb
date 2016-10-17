@@ -2,6 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe V0::SessionsController, type: :controller do
+
   let(:mvi_user) { FactoryGirl.build(:mvi_user) }
   let(:saml_attrs) do
     {
@@ -16,11 +17,15 @@ RSpec.describe V0::SessionsController, type: :controller do
     }
   end
   let(:rubysaml_settings) { FactoryGirl.build(:rubysaml_settings) }
+  let(:settings_no_context) { FactoryGirl.build(:settings_no_context) }
   # has an LOA of 'authentication'
   let(:response_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_response.xml") }
+  let(:settings_service) { class_double(SAML::SettingsService).as_stubbed_const }
+
   before(:each) do
     allow_any_instance_of(Decorators::MviUserDecorator).to receive(:create).and_return(mvi_user)
-    allow_any_instance_of(ApplicationController).to receive(:saml_settings).and_return(rubysaml_settings)
+    # allow_any_instance_of(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
+    allow(settings_service).to receive_message_chain(:instance, :saml_settings).and_return(settings_no_context)
   end
 
   context 'when not logged in' do
@@ -42,9 +47,33 @@ RSpec.describe V0::SessionsController, type: :controller do
       expect(JSON.parse(response.body)).to eq('authenticate_via_get' => 'url_string')
     end
 
-    # TODO: implementing this will be tricky...
-    it 'GET new - with a valid level shows the ID.me authentication url'
-    it 'GET new - with an invalid level returns an error'
+    it 'GET new - with LOA 1 supplied, the saml authn request will use LOA 1' do
+      get :new, level: 1
+
+      response_body = JSON.parse(response.body)
+      authn_request = SAML::AuthnRequestHelper.new(response_body['authenticate_via_get'])
+      expect(authn_request.loa1?).to eq(true)
+    end
+    it 'GET new - with LOA 3 supplied, the saml authn request will use LOA 3' do
+      get :new, level: 3
+
+      response_body = JSON.parse(response.body)
+      authn_request = SAML::AuthnRequestHelper.new(response_body['authenticate_via_get'])
+      expect(authn_request.loa3?).to eq(true)
+    end
+
+    it 'GET new - no level supplied, the saml authn request will use LOA 1' do
+      get :new, level: 3
+
+      response_body = JSON.parse(response.body)
+      authn_request = SAML::AuthnRequestHelper.new(response_body['authenticate_via_get'])
+      expect(authn_request.loa3?).to eq(true)
+    end
+
+    it 'GET new - with an invalid level supplied, http 400 is returned' do
+      get :new, level: 'bad_level!!'
+      expect(response).to have_http_status(:bad_request)
+    end
 
     it 'GET show - returns unauthorized' do
       get :show
