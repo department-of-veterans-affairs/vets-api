@@ -245,6 +245,11 @@ Similarly, to sort the results in a descending order prefix the field name with 
 ?sort=-field-name
 ```
 
+To sort on multiple fields, use the following syntax:
+```
+sort[]=field-name1&sort[]=field-name2
+```
+
 Sorting of result sets is available for:
 
 | Resource | Fields | Default Sort |
@@ -275,6 +280,19 @@ which returns
 "meta": {
   "sort": {
     "sender_name": "DESC"
+  }
+}
+```
+
+To sort by descending `sent_date` followed by ascending `sender_name`:
+```
+sort[]=-sent_date&sort[]=sender_name
+```
+which returns
+```
+"meta":{
+  "sort":{
+    "sent_date":"DESC", "sender_name":"ASC"
   }
 }
 ```
