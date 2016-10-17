@@ -17,9 +17,12 @@ MHV_SM_USER_ID: '10616687'
 EVSS_BASE_URL: 'https://test.vets.gov'
 EVSS_SAMPLE_CLAIMANT_USER: '{"uuid": "1234", "first_name": "Jane","last_name": "Doe","edipi": "1105051936","participant_id": "123456789"}'
 MVI_URL: 'http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService'
+MOCK_MVI_SERVICE: 'true'
 VHA_MAPSERVER_URL: 'https://maps.va.gov/server/rest/services/PROJECTS/Facility_Locator/MapServer'
 VHA_MAPSERVER_LAYER: '0'
-MOCK_MVI_SERVICE: 'true'
+NCA_MAPSERVER_URL: 'https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/NCA_Facilities/FeatureServer'
+NCA_MAPSERVER_LAYER: '0'
+
 
 # For CORS requests; separate multiple origins with a comma
 WEB_ORIGIN: 'http://localhost:3000,http://localhost:3001'
