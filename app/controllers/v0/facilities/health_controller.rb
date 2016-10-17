@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class V0::Facilities::VaController < FacilitiesController
+class V0::Facilities::HealthController < FacilitiesController
   before_action :validate_params, only: [:index]
 
   # Index supports the following query parameters:
