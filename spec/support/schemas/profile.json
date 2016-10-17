@@ -1,0 +1,70 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": "object",
+      "required": ["id", "type", "attributes"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string"},
+        "attributes": {
+          "type": "object",
+          "required": ["services", "profile", "va_profile"],
+          "properties": {
+            "services": { "type": [ "array", null ] },
+            "profile": {
+              "type": "object",
+              "required": [
+                "email",
+                "first_name",
+                "middle_name",
+                "last_name",
+                "birth_date",
+                "gender", "zip",
+                "last_signed_in",
+                "loa"
+              ],
+              "properties": {
+                "email": { "type": "string"},
+                "first_name": { "type": [ "string", null ] },
+                "middle_name": { "type": [ "string", null ] },
+                "last_name": { "type": [ "string", null ] },
+                "birth_date": { "type": [ "string", null ] },
+                "gender": { "type": [ "string", null ] },
+                "zip": { "type": [ "string", null ] },
+                "last_signed_in": { "type": [ "string", null ] },
+                "loa": {
+                  "type": "object",
+                  "required": ["current", "highest"],
+                  "properties": {
+                    "current": { "type": [ "string", null ] },
+                    "highest": { "type": [ "string", null ] }
+                  }
+                }
+              }
+            },
+            "va_profile": {
+              "type": "object",
+              "required": [
+                "birth_date",
+                "family_name",
+                "gender",
+                "given_names",
+                "status"
+              ],
+              "properties": {
+                "birth_date": { "type": [ "string", null ] },
+                "family_name": { "type": [ "string", null ] },
+                "gender": { "type": [ "string", null ] },
+                "given_names": { "type": [ "array", null ] },
+                "status": { "type": [ "string", null ]  }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
