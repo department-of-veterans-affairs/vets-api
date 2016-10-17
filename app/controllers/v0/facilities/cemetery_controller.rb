@@ -22,9 +22,6 @@ class V0::Facilities::CemeteryController < FacilitiesController
   private
 
   def validate_params
-    raise ArgumentError unless params[:bbox].length == 4
-    params[:bbox].each { |x| Float(x) }
-  rescue ArgumentError
-    raise Common::Exceptions::InvalidFieldValue.new('bbox', params[:bbox])
+    validate_bbox
   end
 end
