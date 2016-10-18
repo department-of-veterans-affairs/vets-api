@@ -14,7 +14,7 @@ class Prescription < Common::Base
   attribute :expiration_date, Common::UTCTime
   attribute :prescription_number, String
   attribute :prescription_name, String, sortable: { order: 'ASC' }
-  attribute :dispensed_date, Common::UTCTime
+  attribute :dispensed_date, Common::UTCTime, sortable: { order: 'DESC' }
   attribute :station_number, String
   attribute :is_refillable, Boolean
   attribute :is_trackable, Boolean

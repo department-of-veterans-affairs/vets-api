@@ -48,6 +48,7 @@ module V0
         last_name:      attributes['lname']&.first,
         zip:            attributes['zip']&.first,
         email:          attributes['email']&.first,
+        gender:         attributes['gender']&.first[0].upcase,
         ssn:            attributes['social']&.first&.delete('-'),
         birth_date:     parse_date(attributes['birth_date']&.first),
         uuid:           attributes['uuid']&.first,
