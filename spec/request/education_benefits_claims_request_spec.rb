@@ -74,6 +74,15 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
           "form - can't be blank"
         )
       end
+
+      it 'should log the validation errors' do
+        education_benefits_claim = EducationBenefitsClaim.new(params[:educationBenefitsClaim])
+        education_benefits_claim.valid?
+        allow(Rails.logger).to receive(:error)
+        expect(Rails.logger).to receive(:error).with(education_benefits_claim.errors.full_messages.join(', ')).once
+
+        subject
+      end
     end
   end
 end
