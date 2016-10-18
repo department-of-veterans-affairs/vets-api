@@ -48,6 +48,7 @@ class User < Common::RedisStore
     user.validates :last_name, presence: true
     user.validates :birth_date, presence: true
     user.validates :ssn, presence: true, format: /\A\d{9}\z/
+    user.validates :gender, presence: true, format: /\A(M|F)\z/
   end
 
   # TODO(AJD): realize this is temporary but it's also used in specs where it should be stubbed or a factory
