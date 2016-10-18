@@ -10,6 +10,7 @@ RSpec.describe DisabilityClaim::DocumentUpload, type: :job do
   let(:claim_id) { 189_625 }
   let(:tracked_item_id) { 33 }
   let(:filename) { 'doctors-note.pdf' }
+  let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
 
   it 'retrieves the file and uploads to EVSS' do
     allow(DisabilityClaimDocumentUploader).to receive(:new) { uploader_stub }
@@ -19,6 +20,6 @@ RSpec.describe DisabilityClaim::DocumentUpload, type: :job do
     allow(uploader_stub).to receive(:read) { file }
     expect(uploader_stub).to receive(:remove!).once
     expect(client_stub).to receive(:upload).with(filename, file, claim_id, tracked_item_id)
-    described_class.perform_now(filename, user.vaafi_attrs, 189_625, 33)
+    described_class.perform_now(filename, auth_headers, 189_625, 33)
   end
 end

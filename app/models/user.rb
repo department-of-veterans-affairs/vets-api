@@ -10,7 +10,6 @@ class User < Common::RedisStore
   redis_store REDIS_CONFIG['user_store']['namespace']
   redis_ttl REDIS_CONFIG['user_store']['each_ttl']
   redis_key :uuid
-  VAAFI_ATTRS = %i(edipi participant_id ssn).freeze
 
   # id.me attributes
   attribute :uuid
@@ -56,10 +55,6 @@ class User < Common::RedisStore
     attrs = JSON.load(ENV['EVSS_SAMPLE_CLAIMANT_USER'])
     attrs[:last_signed_in] = Time.now.utc
     User.new attrs
-  end
-
-  def vaafi_attrs
-    attributes.slice(*VAAFI_ATTRS)
   end
 
   def loa1?

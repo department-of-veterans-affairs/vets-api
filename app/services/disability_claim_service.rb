@@ -47,7 +47,7 @@ class DisabilityClaimService
     uploader = DisabilityClaimDocumentUploader.new
     uploader.store!(tempfile)
     DisabilityClaim::DocumentUpload.perform_later(tempfile.original_filename,
-                                                  @user.vaafi_attrs, claim.id,
+                                                  auth_headers, claim.id,
                                                   tracked_item_id)
   end
 
