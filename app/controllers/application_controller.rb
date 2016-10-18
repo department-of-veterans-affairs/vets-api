@@ -71,8 +71,11 @@ class ApplicationController < ActionController::API
   def saml_settings
     settings = SAML::SettingsService.instance.saml_settings
     # TODO: 'level' should be its own class with proper validation
-    settings.authn_context = LOA::MAPPING.invert[params[:level]&.to_i || 1]
+    level = Integer(params[:level]) unless params[:level].nil?
+    settings.authn_context = LOA::MAPPING.invert[level || 1]
     settings
+  rescue ArgumentError
+    render json: {message: "Invalid Level."}, status: :bad_request
   end
 
   def pagination_params

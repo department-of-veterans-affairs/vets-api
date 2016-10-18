@@ -16,7 +16,6 @@ RSpec.describe V0::SessionsController, type: :controller do
       'level_of_assurance' => [mvi_user.loa[:highest]]
     }
   end
-  let(:rubysaml_settings) { FactoryGirl.build(:rubysaml_settings) }
   let(:settings_no_context) { FactoryGirl.build(:settings_no_context) }
   let(:loa1_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/loa1_response.xml") }
   let(:settings_service) { class_double(SAML::SettingsService).as_stubbed_const }
