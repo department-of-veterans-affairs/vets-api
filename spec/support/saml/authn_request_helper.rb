@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 module SAML
+  # The responsibility of this class is to decode+inflate the SAML AuthnRequest that
+  # gets generated for the purpose of testing.  Using this class a tester can see
+  # exactly what kind of AuthNRequest was generated.
   class AuthnRequestHelper
     # from ruby-saml source code
     BASE64_FORMAT = %r(\A[A-Za-z0-9+/]{4}*[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=?\Z)
