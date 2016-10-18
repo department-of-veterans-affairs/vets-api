@@ -11,6 +11,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       'lname' => [mvi_user.last_name],
       'mname' => [''],
       'social' => [mvi_user.ssn],
+      'gender' => ['male'],
       'birth_date' => [mvi_user.birth_date.strftime('%Y-%m-%d')],
       'level_of_assurance' => [mvi_user.loa[:highest]]
     }
@@ -88,6 +89,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         user = User.find(uuid)
         expect(user).not_to be_nil
         expect(user.first_name).to eq(saml_attrs['fname'].first)
+        expect(user.gender).to eq(saml_attrs['gender'].first[0].upcase)
       end
 
       it 'parses and stores the current level of assurance' do
