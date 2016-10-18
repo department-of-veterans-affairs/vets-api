@@ -3,9 +3,10 @@ module V0
   class TriageTeamsController < SMController
     def index
       resource = client.get_triage_teams
-      resource = resource.sort(params[:sort])
-
       raise Common::Exceptions::InternalServerError unless resource.present?
+
+      resource = resource.sort(params[:sort])
+      resource = resource.paginate(pagination_params)
 
       render json: resource.data,
              serializer: CollectionSerializer,
