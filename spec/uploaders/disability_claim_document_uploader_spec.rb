@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe DisabilityClaimDocumentUploader do
-  subject { described_class.new }
+  subject { described_class.new('1234', '11') }
 
   describe 'initialize' do
     context 'when EVSS_AWS_ACCESS_CREDS is not set' do
