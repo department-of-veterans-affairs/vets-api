@@ -17,12 +17,6 @@ module EducationForm
 
     WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
 
-    rescue_from(StandardError) do |e|
-      logger.error(e.message)
-      logger.error(e.backtrace.join("\n"))
-      retry_job(wait: 1.minute)
-    end
-
     def perform
       # Fetch all the records for the day
       records = EducationBenefitsClaim.unprocessed

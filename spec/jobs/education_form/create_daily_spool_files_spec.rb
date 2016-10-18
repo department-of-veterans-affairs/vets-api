@@ -150,17 +150,4 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
     end
   end
-
-  context 'job retrying' do
-    it 'should retry the job after an exception and log the error' do
-      expect(EducationBenefitsClaim).to receive(:unprocessed).once { raise 'foo' }
-      allow(Rails.logger).to receive(:error)
-      expect(Rails.logger).to receive(:error).with('foo').once
-
-      Timecop.freeze do
-        described_class.new.perform_now
-        expect(described_class).to have_been_enqueued.at(1.minute.from_now)
-      end
-    end
-  end
 end
