@@ -33,10 +33,6 @@ module V0
 
     private
 
-    def sessions_params
-      params.permit(level: Numeric)
-    end
-
     def persist_session_and_user!
       @session = Session.new(user_attributes.slice(:uuid))
       @current_user = User.find(@session.uuid) || create_new_user
