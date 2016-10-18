@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
-  attributes :contention_list, :va_representative, :events_timeline
+  attributes :contention_list, :va_representative, :events_timeline, :claim_type
 
   def contention_list
     object.data['contentionList']
@@ -8,6 +8,10 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
 
   def va_representative
     object.data['poa']
+  end
+
+  def claim_type
+    object.data['statusType']
   end
 
   def events_timeline
