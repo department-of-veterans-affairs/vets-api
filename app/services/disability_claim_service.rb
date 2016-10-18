@@ -42,13 +42,12 @@ class DisabilityClaimService
   end
 
   # upload file to s3 and enqueue job to upload to EVSS
-  # TODO (AJM): Unique filename in s3 but preserve original filename when uploading to evss
   def upload_document(claim, tempfile, tracked_item_id)
-    uploader = DisabilityClaimDocumentUploader.new
+    uploader = DisabilityClaimDocumentUploader.new(@user.uuid, tracked_item_id)
     uploader.store!(tempfile)
     DisabilityClaim::DocumentUpload.perform_later(tempfile.original_filename,
-                                                  auth_headers, claim.id,
-                                                  tracked_item_id)
+                                                  auth_headers, @user.uuid,
+                                                  claim.id, tracked_item_id)
   end
 
   private

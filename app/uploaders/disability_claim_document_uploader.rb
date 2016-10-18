@@ -5,13 +5,15 @@ class DisabilityClaimDocumentUploader < CarrierWave::Uploader::Base
 
   before :store, :validate_file_size
 
-  def initialize(*args)
+  def initialize(user_uuid, tracked_item_id)
     super
+    @user_uuid = user_uuid
+    @tracked_item_id = tracked_item_id
     set_storage_options!
   end
 
   def store_dir
-    'disability_claim_documents'
+    "disability_claim_documents/#{@user_uuid}/#{@tracked_item_id}"
   end
 
   def extension_white_list
