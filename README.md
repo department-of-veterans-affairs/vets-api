@@ -64,17 +64,19 @@ MHV_SM_APP_TOKEN
 For an example, see `application.yml.example` - these are just mock endpoints.
 For actual backend testing you will need to reference the appropriate private repository.
 
-### S3 Uploads
+### EVSS S3 Uploads
 Uploaded disability claim documents are handled by CarrierWave and either sent to Amazon S3 or saved to disk.
 To enable S3 uploads, set the following ENV variables:
 ```
-S3_UPLOADS
-AWS_ACCESS_KEY_ID
-AWS_SECRET_ACCESS_KEY
-AWS_S3_REGION
-AWS_S3_BUCKET
+EVSS_S3_UPLOADS
+EVSS_S3_BUCKET
+EVSS_S3_REGION
 ```
-Note: Only presence of `S3_UPLOADS` ENV var is checked, not its value
+The AWS credentials are fetched from the instance metadata and stored in the
+constant `EVSS_AWS_ACCESS_CREDS`. To work with other AWS credentials, the constant
+can be set in the `evss_aws_access_creds.rb` initializer.
+
+Note: `EVSS_S3_UPLOADS` needs to be set to the string 'true' to enable S3 uploads
 
 ### EVSS Disability Claims Setup
 For this app to be properly configured, you will need to specify the following environment variables:

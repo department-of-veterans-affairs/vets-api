@@ -25,18 +25,11 @@ before_script:
   - export EVSS_BASE_URL='https://test.vets.gov'
   - "export EVSS_SAMPLE_CLAIMANT_USER='{\"uuid\": \"1234\", \"first_name\": \"Jane\",\"last_name\": \"Doe\",\"edipi\": \"1105051936\",\"participant_id\": \"123456789\"}'"
   - export MVI_URL='http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService'
-<<<<<<< HEAD
-  - export AWS_ACCESS_KEY_ID='aws_access_key_id'
-  - export AWS_SECRET_ACCESS_KEY='aws_secret_access_key'
-  - export AWS_S3_REGION='aws_s3_region'
-  - export AWS_S3_BUCKET='aws_s3_bucket'
-  
-=======
+  - export EVSS_S3_UPLOADS=false
   - export VHA_MAPSERVER_URL='https://maps.va.gov/server/rest/services/PROJECTS/Facility_Locator/MapServer'
   - export VHA_MAPSERVER_LAYER='0'
   - export MOCK_MVI_SERVICE=false
 
->>>>>>> origin/master
 script:
   - bundle exec rake db:create db:schema:load ci
 

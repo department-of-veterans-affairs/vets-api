@@ -5,6 +5,11 @@ class DisabilityClaimDocumentUploader < CarrierWave::Uploader::Base
 
   before :store, :validate_file_size
 
+  def initialize(*args)
+    super
+    set_storage_options!
+  end
+
   def store_dir
     'disability_claim_documents'
   end
@@ -21,5 +26,21 @@ class DisabilityClaimDocumentUploader < CarrierWave::Uploader::Base
 
   def validate_file_size(file)
     raise CarrierWave::UploadError, 'File size larger than allowed' if file.size > MAX_FILE_SIZE
+  end
+
+  def set_storage_options!
+    if EVSS_AWS_ACCESS_CREDS
+      self.fog_credentials = {
+        provider:              'AWS',
+        aws_access_key_id:     EVSS_AWS_ACCESS_CREDS[:aws_access_key_id],
+        aws_secret_access_key: EVSS_AWS_ACCESS_CREDS[:aws_secret_access_key],
+        region:                ENV['EVSS_S3_REGION']
+      }
+      self.fog_public = false
+      self.fog_directory = ENV['EVSS_S3_BUCKET']
+      self.class.storage = :fog
+    else
+      self.class.storage = :file
+    end
   end
 end

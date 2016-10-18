@@ -12,8 +12,5 @@ Figaro.require_keys(
   'MHV_SM_APP_TOKEN',
   'EVSS_BASE_URL',
   'MVI_URL',
-  'AWS_ACCESS_KEY_ID',
-  'AWS_SECRET_ACCESS_KEY',
-  'AWS_S3_REGION',
-  'AWS_S3_BUCKET'
+  'EVSS_S3_UPLOADS'
 )
