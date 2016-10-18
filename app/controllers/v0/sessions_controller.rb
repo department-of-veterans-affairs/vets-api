@@ -48,18 +48,13 @@ module V0
         last_name:      attributes['lname']&.first,
         zip:            attributes['zip']&.first,
         email:          attributes['email']&.first,
-        gender:         parse_gender(attributes['gender']&.first),
+        gender:         attributes['gender']&.first[0].upcase,
         ssn:            attributes['social']&.first&.delete('-'),
         birth_date:     parse_date(attributes['birth_date']&.first),
         uuid:           attributes['uuid']&.first,
         last_signed_in: Time.current.utc,
         loa:            { current: parse_current_loa, highest: attributes['level_of_assurance']&.first }
       }
-    end
-
-    def parse_gender(gender)
-      return nil unless gender
-      gender[0].upcase
     end
 
     def parse_date(date_string)
