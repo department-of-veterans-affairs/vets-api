@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'forwardable'
+require 'common/models/comparable/ascending'
 require 'common/models/comparable/descending'
 require 'common/exceptions'
 
@@ -55,7 +56,7 @@ module Common
       fields = sort_fields(sort_params || type.default_sort)
       result = @data.sort_by do |item|
         fields.map do |k, v|
-          v == 'ASC' ? item.send(k) : Descending.new(item.send(k))
+          v == 'ASC' ? Ascending.new(item.send(k)) : Descending.new(item.send(k))
         end
       end
 
