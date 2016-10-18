@@ -59,6 +59,30 @@ RSpec.describe User, type: :model do
         expect(loa3_user.valid?).to be_falsey
         expect(loa3_user.errors[:birth_date].size).to be_positive
       end
+      it 'should not allow a blank gender' do
+        loa3_user.gender = ''
+        expect(loa3_user.valid?).to be_falsey
+        expect(loa3_user.errors[:gender].size).to be_positive
+      end
+      it 'should not allow a gender other than M or F' do
+        loa3_user.gender = 'male'
+        expect(loa3_user.valid?).to be_falsey
+        expect(loa3_user.errors[:gender].size).to be_positive
+        loa3_user.gender = 'female'
+        expect(loa3_user.valid?).to be_falsey
+        expect(loa3_user.errors[:gender].size).to be_positive
+        loa3_user.gender = 'Z'
+        expect(loa3_user.valid?).to be_falsey
+        expect(loa3_user.errors[:gender].size).to be_positive
+      end
+      it 'should allow a gender of M' do
+        loa3_user.gender = 'M'
+        expect(loa3_user.valid?).to be_truthy
+      end
+      it 'should allow a gender of F' do
+        loa3_user.gender = 'F'
+        expect(loa3_user.valid?).to be_truthy
+      end
     end
   end
 
