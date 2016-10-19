@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/department-of-veterans-affairs/vets-api.png?label=ready&title=Ready)](https://waffle.io/department-of-veterans-affairs/vets-api)
 # Vets.gov API [![Build Status](https://travis-ci.org/department-of-veterans-affairs/vets-api.svg?branch=master)](https://travis-ci.org/department-of-veterans-affairs/vets-api)
 
 This project provides common APIs for applications that live on vets.gov. This repo is in its infancy - more information coming soon!
