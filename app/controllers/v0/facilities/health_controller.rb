@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class V0::Facilities::VaController < FacilitiesController
+class V0::Facilities::HealthController < FacilitiesController
   before_action :validate_params, only: [:index]
 
   # Index supports the following query parameters:
@@ -23,12 +23,7 @@ class V0::Facilities::VaController < FacilitiesController
   private
 
   def validate_params
-    begin
-      raise ArgumentError unless params[:bbox].length == 4
-      params[:bbox].each { |x| Float(x) }
-    rescue ArgumentError
-      raise Common::Exceptions::InvalidFieldValue.new('bbox', params[:bbox])
-    end
+    validate_bbox
     unknown = params[:services].to_a - VAHealthFacility.service_whitelist
     raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
   end

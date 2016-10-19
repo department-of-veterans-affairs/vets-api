@@ -3,4 +3,11 @@ require_dependency 'facilities/client'
 
 class FacilitiesController < ApplicationController
   skip_before_action :authenticate
+
+  def validate_bbox
+    raise ArgumentError unless params[:bbox].length == 4
+    params[:bbox].each { |x| Float(x) }
+  rescue ArgumentError
+    raise Common::Exceptions::InvalidFieldValue.new('bbox', params[:bbox])
+  end
 end
