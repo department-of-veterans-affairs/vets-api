@@ -1,12 +1,12 @@
 # frozen_string_literal: true
-require 'common/client/middleware/concerns/mime_types'
+require 'rack/mime.rb'
 
 module Common
   module Client
     module Middleware
       module Request
         class MultipartRequest < Faraday::Middleware
-          include MimeTypes
+          include Rack::Mime
 
           def initialize(app)
             super(app)
@@ -25,7 +25,7 @@ module Common
 
           def io_object_for(value)
             if value.respond_to?(:to_io)
-              Faraday::UploadIO.new(value, mime_type(value.path), value.path)
+              Faraday::UploadIO.new(value, mime_type(File.extname(value.path)), value.path)
             elsif value.is_a?(Array)
               value.map { |each_value| io_object_for(each_value) }
             else
