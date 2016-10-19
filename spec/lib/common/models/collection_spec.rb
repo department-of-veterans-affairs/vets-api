@@ -1,119 +1,172 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require_dependency 'common/models/collection'
-# FIXME: Refactor this to be more generic, less dependent on Prescription Fixture
-# require_dependency 'rx/parser'
+require 'common/models/base'
+require 'common/models/collection'
 
 describe Common::Collection do
-  let(:klass) { Prescription }
-  let(:original_camel_cased_json) { File.read('spec/support/fixtures/get_active_rxs.json') }
-  # let(:parsed_json_object) { Rx::Parser.new(JSON.parse(original_camel_cased_json)).parse! }
-  let(:snake_cased_attributes) do
-    %w(refill_status refill_submit_date refill_date refill_remaining facility_name
-       is_refillable is_trackable prescription_id ordered_date quantity expiration_date
-       prescription_number prescription_name dispensed_date station_number)
+  class Author < Common::Base
+    attribute :id, Integer, sortable: { order: 'ASC' }, filterable: %w(eq not_eq)
+    attribute :first_name, String, sortable: { order: 'ASC' }, filterable: %w(eq not_eq match)
+    attribute :last_name, String, sortable: { order: 'ASC' }, filterable: %w(eq not_eq match)
+    attribute :birthdate, Common::UTCTime, sortable: { order: 'DESC' }, filterable: %w(eq lteq gteq not_eq)
+    attribute :zipcode, Integer
+
+    def <=>(other)
+      name <=> other.name
+    end
   end
 
-  subject { described_class.new(klass, parsed_json_object) }
+  FactoryGirl.define do
+    factory :author, class: 'Author' do
+      sequence(:id)         { |n| n }
+      sequence(:first_name) { %w(Al Zoe).sample }
+      sequence(:last_name)  { |n| Faker::Name.last_name + n.to_s }
+      sequence(:birthdate)  { (25..60).to_a.sample.years.ago }
+      zipcode               { Faker::Address.zip }
+    end
+  end
+
+  let(:klass)       { Author }
+  let(:klass_array) { Array.new(25) { |i| attributes_for(:author, id: i + 1) } }
+  subject { described_class.new(klass, data: klass_array, metadata: { nobel_winner: 'Bob Dylan' }, errors: {}) }
 
   xit 'returns a JSON string' do
     expect(subject.to_json).to be_a(String)
   end
 
-  xit 'returns a JSON string whose keys and nested keys are snake cased' do
+  it 'returns a JSON string whose keys' do
     json = JSON.parse(subject.to_json)
-    expect(json.first.keys).to contain_exactly(*snake_cased_attributes)
+    expect(json.first.keys).to contain_exactly(*%w(id first_name last_name birthdate zipcode))
   end
 
-  xit 'can return members' do
-    expect(subject.members.first).to be_a(Prescription)
-  end
-
-  xit 'can return members' do
+  it 'can return members' do
     expect(subject.members).to be_an(Array)
+    expect(subject.members.size).to eq(25)
   end
 
-  xit 'can return metadata' do
-    expect(subject.metadata).to include(failed_station_list: '', updated_at: 'Thu, 26 May 2016 13:05:43 EDT')
+  it 'can return a single member' do
+    expect(subject.members.first).to be_a(Author)
+  end
+
+  it 'can return metadata' do
+    expect(subject.metadata).to include(nobel_winner: 'Bob Dylan')
   end
 
   context 'complex sort' do
-    xit 'can sort a collection in reverse' do
-      collection = subject.sort('-prescription_id')
-      expect(collection.map(&:prescription_id))
-        .to eq([1_435_530, 1_435_528, 1_435_527, 1_435_526, 1_435_525, 1_435_524])
-      expect(collection.metadata[:sort]).to eq('prescription_id' => 'DESC')
+    it 'can sort a collection in reverse' do
+      collection = subject.sort('-id')
+      expect(collection.map(&:id))
+        .to eq((1..25).to_a.reverse)
+      expect(collection.metadata[:sort]).to eq('id' => 'DESC')
     end
 
-    xit 'can sort a collection by multiple fields' do
-      collection = subject.sort(%w(facility_name -prescription_id))
-      expect(collection.map(&:prescription_id))
-        .to eq([1_435_526, 1_435_525, 1_435_524, 1_435_530, 1_435_528, 1_435_527])
-      expect(collection.metadata[:sort]).to eq('facility_name' => 'ASC', 'prescription_id' => 'DESC')
+    it 'can sort a collection by multiple fields' do
+      collection = subject.sort(%w(-first_name last_name))
+      expect(collection.members.first.first_name).to eq('Zoe')
+      expect(collection.members.last.first_name).to eq('Al')
+      expectation = collection.members.each_cons(2).map do |a, b|
+        (a.first_name == b.first_name && a.last_name < b.last_name) ||
+          (a.first_name > b.first_name)
+      end
+      expect(expectation.all?).to eq(true)
+      expect(collection.metadata[:sort]).to eq('first_name' => 'DESC', 'last_name' => 'ASC')
+    end
+
+    it 'can sort nil values, nil is always last regardless of order' do
+      subject.members[5].birthdate = nil
+      subject.members[10].birthdate = nil
+      subject.members[11].birthdate = nil
+      subject.members[12].birthdate = nil
+      expect(subject.members.map(&:birthdate).compact.size).to eq(21)
+      collection = subject.sort('birthdate')
+      expect(collection.members.last(4).map(&:birthdate)).to all(be_nil)
+      collection = subject.sort('-birthdate')
+      expect(collection.members.last(4).map(&:birthdate)).to all(be_nil)
     end
   end
 
-  context 'find_by, sort, and paginate' do
-    let(:filter) { { 'prescription_id' => { 'eq' => 1_435_525 } } }
-    let(:filtered_collection)  { subject.find_by(filter) }
-    let(:sorted_collection)    { subject.sort('prescription_id') }
-    let(:paginated_collection) { subject.paginate(page: 1, per_page: 2) }
-    let(:all_three) do
-      subject.find_by('refill_status' => { 'eq' => 'active' }).sort('-refill_date').paginate(page: 1, per_page: 3)
+  context 'complex filter' do
+    let(:filter_eq) { { first_name: { eq: 'Al' } } }
+    let(:filter_lteq_gteq) { { birthdate: { gteq: 58.years.ago, lteq: 25.years.ago } } }
+    let(:filter_match) { { first_name: { match: 'oe' } } }
+    let(:filter_not_eq) { { first_name: { not_eq: 'Zoe' } } }
+
+    context 'with find_by' do
+      it 'can filter for exact match' do
+        filtered_collection = subject.find_by(filter_eq)
+        expect(filtered_collection).to be_a(Common::Collection)
+        expect(filtered_collection.members.map(&:first_name)).to all(eq('Al'))
+        expect(filtered_collection.metadata)
+          .to eq(nobel_winner: 'Bob Dylan', filter: filter_eq)
+      end
+
+      it 'can filter for a range with lteq and gteq' do
+        filtered_collection = subject.find_by(filter_lteq_gteq)
+        expect(filtered_collection).to be_a(Common::Collection)
+        expect(filtered_collection.members.map(&:birthdate))
+          .to all(be_between(58.years.ago, 25.years.ago))
+        expect(filtered_collection.metadata)
+          .to eq(nobel_winner: 'Bob Dylan', filter: filter_lteq_gteq)
+      end
+
+      it 'can filter for a partial match' do
+        filtered_collection = subject.find_by(filter_match)
+        expect(filtered_collection).to be_a(Common::Collection)
+        expect(filtered_collection.members.map(&:first_name))
+          .to all(eq('Zoe'))
+        expect(filtered_collection.metadata)
+          .to eq(nobel_winner: 'Bob Dylan', filter: filter_match)
+      end
+
+      it 'can filter for not_eq (inequality)' do
+        filtered_collection = subject.find_by(filter_not_eq)
+        expect(filtered_collection).to be_a(Common::Collection)
+        expect(filtered_collection.members.map(&:first_name))
+          .to all(eq('Al'))
+        expect(filtered_collection.metadata)
+          .to eq(nobel_winner: 'Bob Dylan', filter: filter_not_eq)
+      end
     end
 
-    xit 'can filter a collection' do
-      expect(filtered_collection).to be_a(Common::Collection)
-      expect(filtered_collection.data.size).to eq(1)
-      expect(filtered_collection.metadata)
-        .to eq(updated_at: 'Thu, 26 May 2016 13:05:43 EDT',
-               failed_station_list: '',
-               filter: filter)
+    context 'with find_first_by' do
+      it 'can filter for exact match' do
+        author = subject.find_first_by(filter_eq)
+        expect(author).to be_a(Author)
+        expect(author.first_name).to eq('Al')
+      end
+
+      it 'can filter for a range with lteq and gteq' do
+        author = subject.find_first_by(filter_lteq_gteq)
+        expect(author).to be_a(Author)
+        expect(author.birthdate)
+          .to be_between(58.years.ago, 25.years.ago)
+      end
+
+      it 'can filter for a partial match' do
+        author = subject.find_first_by(filter_match)
+        expect(author).to be_a(Author)
+        expect(author.first_name)
+          .to eq('Zoe')
+      end
+
+      it 'can filter for not_eq (inequality)' do
+        author = subject.find_first_by(filter_not_eq)
+        expect(author).to be_a(Author)
+        expect(author.first_name)
+          .to eq('Al')
+      end
     end
+  end
 
-    xit 'can filter a collection by substring matching' do
-      filterable_attributes = { 'prescription_name' => ['match'] }.with_indifferent_access
-      allow(Prescription).to receive(:filterable_attributes).and_return(filterable_attributes)
+  context 'pagination' do
+    it 'can paginate a collection' do
+      paginated_collection = subject.paginate(per_page: 2)
 
-      name_filter = { prescription_name: { match: 'drug 1' } }
-      name_filtered_collection = subject.find_by(name_filter)
-
-      expect(name_filtered_collection).to be_a(Common::Collection)
-      expect(name_filtered_collection.data.size).to eq(1)
-      expect(name_filtered_collection.metadata)
-        .to eq(updated_at: 'Thu, 26 May 2016 13:05:43 EDT',
-               failed_station_list: '',
-               filter: name_filter)
-    end
-
-    xit 'can sort a collection' do
-      expect(sorted_collection).to be_a(Common::Collection)
-      expect(sorted_collection.data.map(&:prescription_id))
-        .to eq([1_435_524, 1_435_525, 1_435_526, 1_435_527, 1_435_528, 1_435_530])
-      expect(sorted_collection.metadata)
-        .to eq(updated_at: 'Thu, 26 May 2016 13:05:43 EDT',
-               failed_station_list: '',
-               sort: { 'prescription_id' => 'ASC' })
-    end
-
-    xit 'can paginate a collection' do
       expect(paginated_collection).to be_a(Common::Collection)
       expect(paginated_collection.data.size).to eq(2)
       expect(paginated_collection.metadata)
-        .to eq(updated_at: 'Thu, 26 May 2016 13:05:43 EDT',
-               failed_station_list: '',
-               pagination: { current_page: 1, per_page: 2, total_pages: 3, total_entries: 6 })
-    end
-
-    xit 'can do all three' do
-      expect(all_three).to be_a(Common::Collection)
-      expect(all_three.data.size).to eq(3)
-      expect(all_three.metadata)
-        .to eq(updated_at: 'Thu, 26 May 2016 13:05:43 EDT',
-               failed_station_list: '',
-               filter: { 'refill_status' => { 'eq' => 'active' } },
-               sort: { 'refill_date' => 'DESC' },
-               pagination: { current_page: 1, per_page: 3, total_pages: 2, total_entries: 6 })
+        .to eq(nobel_winner: 'Bob Dylan',
+               pagination: { current_page: 1, per_page: 2, total_pages: 13, total_entries: 25 })
     end
   end
 end

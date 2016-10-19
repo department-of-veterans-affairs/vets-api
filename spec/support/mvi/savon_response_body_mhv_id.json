@@ -102,7 +102,7 @@
                 ":@extension": "TKIP123456^PI^200IP^USVHA^A",
                 ":@root": "2.16.840.1.113883.4.349"
               }, {
-                ":@extension": "123456^PI^200MH^USVHA^A",
+                ":@extension": "123456^PI^200MHV^USVHA^A",
                 ":@root": "2.16.840.1.113883.4.349"
               }, {
                 ":@extension": "1234^NI^200DOD^USDOD^A",
