@@ -2,9 +2,12 @@
 require 'faraday'
 require 'multi_json'
 require 'common/client/errors'
+require 'common/client/middleware/response/json_parser'
+require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/snakecase'
+require 'rx/middleware/response/rx_parser'
 require 'rx/configuration'
 require 'rx/client_session'
-require 'rx/parser'
 require 'rx/api/prescriptions'
 require 'rx/api/sessions'
 
@@ -41,35 +44,12 @@ module Rx
 
     def perform(method, path, params = nil, headers = nil)
       raise NoMethodError, "#{method} not implemented" unless REQUEST_TYPES.include?(method)
-      @response = send(method, path, params, headers)
-      process_response_or_error
-    end
-
-    def process_response_or_error
-      process_no_content_response || process_other
-    end
-
-    def process_no_content_response
-      # MHV is providing a normal string for successful POST, not JSON
-      return unless @response.body.empty? || @response.body.start_with?('Successfully submitted to:')
-      @response if @response.success?
-    end
-
-    def process_other
-      json = begin
-        MultiJson.load(@response.body)
-      rescue MultiJson::LoadError => error
-        # we should log the response body, but i'm reluctant to do it in case it
-        # makes it into production and includes private information.
-        raise Common::Client::Errors::Serialization, error
-      end
-      return Rx::Parser.new(json).parse! if @response.success?
-      raise Common::Client::Errors::ClientResponse.new(@response.status, json)
+      send(method, path, params, headers)
     end
 
     def request(method, path, params = {}, headers = {})
       raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
-      connection.send(method.to_sym, path, params) do |request|
+      conn.send(method.to_sym, path, params) do |request|
         request.headers.update(headers)
       end.env
     rescue Faraday::Error::TimeoutError, Timeout::Error => error
@@ -90,8 +70,18 @@ module Rx
       raise Common::Client::Errors::NotAuthenticated, 'Not Authenticated'
     end
 
-    def connection
-      @connection ||= Faraday.new(config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options)
+    def conn
+      @conn ||= Faraday.new(config.base_path, headers: BASE_REQUEST_HEADERS, request: config.request_options) do |conn|
+        conn.request :json
+
+        conn.response :rx_parser
+        conn.response :snakecase
+        conn.response :raise_error
+        conn.response :json_parser
+        # conn.response :logger, ::Logger.new(STDOUT), bodies: true
+
+        conn.adapter Faraday.default_adapter
+      end
     end
 
     def auth_headers
@@ -100,13 +90,6 @@ module Rx
 
     def token_headers
       BASE_REQUEST_HEADERS.merge('Token' => @session.token)
-    end
-
-    def request_options
-      {
-        open_timeout: config.open_timeout,
-        timeout: config.read_timeout
-      }
     end
   end
 end

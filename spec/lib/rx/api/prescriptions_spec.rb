@@ -7,46 +7,49 @@ describe Rx::Client do
   include Rx::ClientHelpers
 
   subject(:client) { authenticated_client }
-  let(:active_rxs) { File.read('spec/support/fixtures/get_active_rxs.json') }
-  let(:history_rxs) { File.read('spec/support/fixtures/get_history_rxs.json') }
-  let(:rx) { File.read('spec/support/fixtures/get_rx_1435525.json') }
   let(:post_refill_error) { File.read('spec/support/fixtures/post_refill_error.json') }
   let(:tracking_rx) { File.read('spec/support/fixtures/rx_tracking_1435525.json') }
 
   it 'should have #get_active_rxs that returns a Collection' do
-    stub_varx_request(:get, 'mhv-api/patient/v1/prescription/getactiverx', active_rxs)
-    expect(client.get_active_rxs).to be_a(Common::Collection)
+    VCR.use_cassette('prescriptions/responds_to_GET_index_with_refill_status_active') do
+      expect(client.get_active_rxs).to be_a(Common::Collection)
+    end
   end
 
   it 'should have #get_history_rxs that returns a Collection' do
-    stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs)
-    expect(client.get_history_rxs).to be_a(Common::Collection)
+    VCR.use_cassette('prescriptions/responds_to_GET_index_with_no_parameters') do
+      expect(client.get_history_rxs).to be_a(Common::Collection)
+    end
   end
 
   it 'should have #get_rx(id) that returns a Prescription' do
-    stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs)
-    expect(client.get_rx(1_435_525)).to be_a(::Prescription)
+    VCR.use_cassette('prescriptions/responds_to_GET_show') do
+      expect(client.get_rx(13_650_546)).to be_a(Prescription)
+    end
   end
 
   it 'should have #get_tracking_rx(id) that returns a Tracking' do
-    stub_varx_request(:get, 'mhv-api/patient/v1/prescription/rxtracking/1435525', tracking_rx)
-    response = client.get_tracking_rx(1_435_525)
-    expect(response).to be_a(::Tracking)
-    expect(response.prescription_id).to eq(1_435_525)
+    VCR.use_cassette('prescriptions/nested_resources/responds_to_GET_show_of_nested_tracking_resource') do
+      response = client.get_tracking_rx(13_650_541)
+      expect(response).to be_a(Tracking)
+      expect(response.prescription_id).to eq(13_650_541)
+    end
   end
 
   it 'should have #get_tracking_history_rx(id) that returns a collection of Tracking items' do
-    stub_varx_request(:get, 'mhv-api/patient/v1/prescription/rxtracking/1435525', tracking_rx)
-    response = client.get_tracking_history_rx(1_435_525)
-    expect(response).to be_a(Common::Collection)
-    expect(response.members.first.prescription_id).to eq(1_435_525)
+    VCR.use_cassette('prescriptions/nested_resources/responds_to_GET_show_of_nested_tracking_resource') do
+      response = client.get_tracking_history_rx(13_650_541)
+      expect(response).to be_a(Common::Collection)
+      expect(response.members.first.prescription_id).to eq(13_650_541)
+    end
   end
 
   it 'should post a refill successfully' do
-    stub_varx_request(:post, 'mhv-api/patient/v1/prescription/rxrefill/1435525', nil)
-    response = client.post_refill_rx(1_435_525)
-    expect(response.status).to equal 200
-    expect(response.body).to eq('')
+    VCR.use_cassette('prescriptions/responds_to_POST_refill') do
+      response = client.post_refill_rx(13_568_747)
+      expect(response.status).to equal 200
+      expect(response.body).to eq(nil)
+    end
   end
 
   context 'errors' do

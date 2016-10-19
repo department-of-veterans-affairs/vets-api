@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'rx/client'
-require 'support/rx_client_helpers'
 
 RSpec.describe 'prescriptions', type: :request do
   before(:each) do
@@ -46,12 +45,11 @@ RSpec.describe 'prescriptions', type: :request do
 
   context 'nested resources', :vcr do
     it 'responds to GET #show of nested tracking resource', :vcr do
-      get '/v0/prescriptions/13651310/trackings'
+      get '/v0/prescriptions/13650541/trackings'
       expect(response).to be_success
       expect(response.body).to be_a(String)
-      # Currently there are no prescriptions having trackings available
-      # expect(response).to match_response_schema('trackings')
-      # expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
+      expect(response).to match_response_schema('trackings')
+      expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
     end
   end
 end

@@ -26,16 +26,14 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 14 Oct 2016 06:47:29 GMT
+      - Wed, 19 Oct 2016 09:05:28 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Content-Length:
       - '0'
       Expires:
-      - Fri, 14 Oct 2016 06:57:29 GMT
+      - Wed, 19 Oct 2016 09:15:28 GMT
       Token: "<SESSION_TOKEN>"
-      X-Powered-By:
-      - Servlet/2.5 JSP/2.1
       Connection:
       - close
       Content-Type:
@@ -44,10 +42,10 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Fri, 14 Oct 2016 06:47:30 GMT
+  recorded_at: Wed, 19 Oct 2016 09:05:28 GMT
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-api/patient/v1/prescription/rxtracking/13651310"
+    uri: "<MHV_HOST>/mhv-api/patient/v1/prescription/rxtracking/13650541"
     body:
       encoding: US-ASCII
       string: ''
@@ -67,11 +65,9 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 14 Oct 2016 06:47:31 GMT
+      - Wed, 19 Oct 2016 09:05:28 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
-      X-Powered-By:
-      - Servlet/2.5 JSP/2.1
       Connection:
       - close
       Transfer-Encoding:
@@ -81,7 +77,15 @@ http_interactions:
       Token: "<SESSION_TOKEN>"
     body:
       encoding: UTF-8
-      string: '{"prescriptionName":"ASPIRIN 325MG EC TAB","prescriptionNumber":"2719558","facilityName":"DAYT29","rxInfoPhoneNumber":"","ndcNumber":"","lastUpdatedtime":"","trackingInfo":[]}'
+      string: '{"prescriptionName":"PAROXETINE HCL 30MG TAB","prescriptionNumber":"2719551","facilityName":"DAYT29","rxInfoPhoneNumber":"(555)772-0956","ndcNumber":"00781171601","lastUpdatedtime":"Mon,
+        12 Sep 2016 04:30:15 EDT","trackingInfo":[{"shippedDate":"Wed, 07 Sep 2016
+        00:00:00 EDT","deliveryService":"UsPS","trackingNumber":"657068347565","otherPrescriptionListIncluded":[{"prescriptionName":"SIROLIMUS
+        1MG TAB","prescriptionNumber":"2719536","ndcNumber":"00781171601","stationNumber":"989"}]},{"shippedDate":"Wed,
+        06 Jul 2016 00:00:00 EDT","deliveryService":"UsPS","trackingNumber":"345787647659","otherPrescriptionListIncluded":[{"prescriptionName":"CARBAMAZEPINE
+        (TEGRETOL) 200MG TAB","prescriptionNumber":"2719552","ndcNumber":"07985440050","stationNumber":"989"}]},{"shippedDate":"Sun,
+        26 Jun 2016 00:00:00 EDT","deliveryService":"UsPS","trackingNumber":"345787647655","otherPrescriptionListIncluded":[{"prescriptionName":"ETHAMBUTOL
+        HCL 100MG TAB","prescriptionNumber":"2719553","ndcNumber":"00078042034","stationNumber":"989"},{"prescriptionName":"TERAZOSIN
+        HCL 10MG CAP","prescriptionNumber":"2719554","ndcNumber":"07985440050","stationNumber":"989"}]}]}'
     http_version: 
-  recorded_at: Fri, 14 Oct 2016 06:47:31 GMT
+  recorded_at: Wed, 19 Oct 2016 09:05:28 GMT
 recorded_with: VCR 3.0.3

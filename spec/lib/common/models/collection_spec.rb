@@ -30,10 +30,6 @@ describe Common::Collection do
   let(:klass_array) { Array.new(25) { |i| attributes_for(:author, id: i + 1) } }
   subject { described_class.new(klass, data: klass_array, metadata: { nobel_winner: 'Bob Dylan' }, errors: {}) }
 
-  it 'returns a JSON string' do
-    expect(subject.to_json).to be_a(String)
-  end
-
   it 'returns a JSON string whose keys' do
     json = JSON.parse(subject.to_json)
     expect(json.first.keys).to contain_exactly(*%w(id first_name last_name birthdate zipcode))
