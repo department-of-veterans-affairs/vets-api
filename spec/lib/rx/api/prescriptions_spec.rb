@@ -49,6 +49,17 @@ describe Rx::Client do
     expect(response.body).to eq('')
   end
 
+  context 'when there is an outage' do
+    before do
+      BREAKERS_RX_SERVICE.begin_forced_outage!
+    end
+
+    it 'does not post to the service and gets a 503' do
+      # stub_varx_request(:post, 'mhv-api/patient/v1/prescription/rxrefill/1435525', nil)
+      expect { client.post_refill_rx(1_435_525) }.to raise_error(Breakers::OutageException)
+    end
+  end
+
   context 'errors' do
     subject(:not_authenticated_client) { setup_client }
     let(:base_path) { "#{Rx::ClientHelpers::HOST}/mhv-api/patient/v1" }
