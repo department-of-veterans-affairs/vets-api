@@ -93,7 +93,7 @@ module Rx
     def connection
       @connection ||= Faraday.new(config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options) do |conn|
         conn.use :breakers
-        conn.adapter :httpclient
+        conn.adapter Faraday.default_adapter
       end
     end
 

@@ -51,10 +51,10 @@ describe Rx::Client do
 
   context 'when there is an outage' do
     before do
-      BREAKERS_RX_SERVICE.begin_forced_outage!
+      Rx::Configuration.instance.breakers_service.begin_forced_outage!
     end
 
-    it 'does not post to the service and gets a 503' do
+    it 'does not post to the service and gets an error' do
       # stub_varx_request(:post, 'mhv-api/patient/v1/prescription/rxrefill/1435525', nil)
       expect { client.post_refill_rx(1_435_525) }.to raise_error(Breakers::OutageException)
     end
