@@ -1,13 +1,12 @@
+# frozen_string_literal: true
 module Common
   module Client
     module Middleware
       module Response
         class Snakecase < Faraday::Response::Middleware
-
           def on_complete(env)
-            if env.response_headers['content-type'] =~ /\bjson/
-              env.body = parse(env.body)
-            end
+            return unless env.response_headers['content-type'] =~ /\bjson/
+            env.body = parse(env.body)
           end
 
           def parse(parsed_json)

@@ -1,9 +1,9 @@
+# frozen_string_literal: true
 module Common
   module Client
     module Middleware
       module Request
         class Camelcase < Faraday::Middleware
-
           def initialize(app)
             super(app)
           end

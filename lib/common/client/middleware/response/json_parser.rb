@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module Common
   module Client
     module Middleware
@@ -5,7 +6,7 @@ module Common
         class JsonParser < Faraday::Response::Middleware
           WHITESPACE_REGEX = /\A^\s*$\z/
           MHV_SUCCESS_REGEX = /^success/i
-          UNPARSABLE_STATUS_CODES = [204, 301, 302, 304]
+          UNPARSABLE_STATUS_CODES = [204, 301, 302, 304].freeze
 
           def on_complete(env)
             if env.response_headers['content-type'] =~ /\bjson/
@@ -18,11 +19,9 @@ module Common
           end
 
           def parse(body = nil)
-            json = begin
-              MultiJson.load(body)
-            rescue MultiJson::LoadError => error
-              raise Common::Client::Errors::Serialization, error
-            end
+            MultiJson.load(body)
+          rescue MultiJson::LoadError => error
+            raise Common::Client::Errors::Serialization, error
           end
         end
       end

@@ -49,7 +49,7 @@ module Rx
 
     def request(method, path, params = {}, headers = {})
       raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
-      connection.send(method.to_sym, path, params) do |request|
+      conn.send(method.to_sym, path, params) do |request|
         request.headers.update(headers)
       end.env
     rescue Faraday::Error::TimeoutError, Timeout::Error => error
@@ -70,8 +70,8 @@ module Rx
       raise Common::Client::Errors::NotAuthenticated, 'Not Authenticated'
     end
 
-    def connection
-      @connection ||= Faraday.new(config.base_path, headers: BASE_REQUEST_HEADERS, request: config.request_options) do |conn|
+    def conn
+      @conn ||= Faraday.new(config.base_path, headers: BASE_REQUEST_HEADERS, request: config.request_options) do |conn|
         conn.request :json
 
         conn.response :rx_parser

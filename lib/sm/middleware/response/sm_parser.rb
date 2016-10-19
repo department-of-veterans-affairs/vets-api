@@ -5,9 +5,8 @@ module SM
       # class responsible for customizing parsing
       class SMParser < Faraday::Response::Middleware
         def on_complete(env)
-          if env.response_headers['content-type'] =~ /\bjson/
-            env[:body] = parse(env.body) unless env.body.blank?
-          end
+          return unless env.response_headers['content-type'] =~ /\bjson/
+          env[:body] = parse(env.body) unless env.body.blank?
         end
 
         def parse(body = nil)

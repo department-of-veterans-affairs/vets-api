@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'common/client/middleware/concerns/mime_types'
 
 module Common
@@ -26,9 +27,9 @@ module Common
             if value.respond_to?(:to_io)
               Faraday::UploadIO.new(value, mime_type(value.path), value.path)
             elsif value.is_a?(Array)
-              value.map { |value| io_object_for(value) }
+              value.map { |each_value| io_object_for(each_value) }
             else
-              value  
+              value
             end
           end
         end
