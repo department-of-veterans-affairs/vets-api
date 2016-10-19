@@ -35,7 +35,6 @@ describe Tracking do
       subject { [t1, t2, t3, t4] }
 
       it 'sorts by shipped_date by default' do
-        binding.pry
         expect(subject.sort.map(&:prescription_id))
           .to eq([2, 1, 1, 3])
       end

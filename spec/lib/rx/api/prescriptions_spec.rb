@@ -24,24 +24,24 @@ describe Rx::Client do
 
   it 'should have #get_rx(id) that returns a Prescription' do
     VCR.use_cassette('prescriptions/responds_to_GET_show') do
-      expect(client.get_rx(13650546)).to be_a(::Prescription)
+      expect(client.get_rx(13650546)).to be_a(Prescription)
     end
   end
 
-  xit 'should have #get_tracking_rx(id) that returns a Tracking' do
+  it 'should have #get_tracking_rx(id) that returns a Tracking' do
     VCR.use_cassette('prescriptions/nested_resources/responds_to_GET_show_of_nested_tracking_resource') do
-      binding.pry
-      response = client.get_tracking_rx(13651310)
-      expect(response).to be_a(::Tracking)
-      expect(response.prescription_id).to eq(13651310)
+      response = client.get_tracking_rx(13650541)
+      expect(response).to be_a(Tracking)
+      expect(response.prescription_id).to eq(13650541)
     end
   end
 
   it 'should have #get_tracking_history_rx(id) that returns a collection of Tracking items' do
-    stub_varx_request(:get, 'mhv-api/patient/v1/prescription/rxtracking/1435525', tracking_rx)
-    response = client.get_tracking_history_rx(1_435_525)
-    expect(response).to be_a(Common::Collection)
-    expect(response.members.first.prescription_id).to eq(1_435_525)
+    VCR.use_cassette('prescriptions/nested_resources/responds_to_GET_show_of_nested_tracking_resource') do
+      response = client.get_tracking_history_rx(13650541)
+      expect(response).to be_a(Common::Collection)
+      expect(response.members.first.prescription_id).to eq(13650541)
+    end  
   end
 
   it 'should post a refill successfully' do
