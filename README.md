@@ -69,12 +69,11 @@ Uploaded disability claim documents are handled by CarrierWave and either sent t
 To enable S3 uploads, set the following ENV variables:
 ```
 EVSS_S3_UPLOADS
-EVSS_S3_BUCKET
-EVSS_S3_REGION
+EVSS_AWS_S3_REGION
+EVSS_AWS_S3_BUCKET
+EVSS_AWS_ACCESS_KEY_ID
+EVSS_AWS_SECRET_ACCESS_KEY
 ```
-The AWS credentials are fetched from the instance metadata and stored in the
-constant `EVSS_AWS_ACCESS_CREDS`. To work with other AWS credentials, the constant
-can be set in the `evss_aws_access_creds.rb` initializer.
 
 Note: `EVSS_S3_UPLOADS` needs to be set to the string 'true' to enable S3 uploads
 
@@ -109,7 +108,7 @@ by devops or your team.
 # config/application.yml
 MVI_URL = '...'
 ```
-Since that URL is only accessible over the VA VPN a mock service is included in the project. 
+Since that URL is only accessible over the VA VPN a mock service is included in the project.
 To enable it set MOCK_MVI_SERVICE in config/application.yml to 'true'
 ```
 # config/application.yml
