@@ -21,6 +21,7 @@ VHA_MAPSERVER_URL: 'https://maps.va.gov/server/rest/services/PROJECTS/Facility_L
 VHA_MAPSERVER_LAYER: '0'
 MVI_URL: 'http://see.project.readme.for.instructions.org'
 MOCK_MVI_SERVICE: 'true'
+STAGING_EMAIL: 'true'
 
 # For CORS requests; separate multiple origins with a comma
 WEB_ORIGIN: 'http://localhost:3000,http://localhost:3001'

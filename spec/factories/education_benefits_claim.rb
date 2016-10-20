@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 FactoryGirl.define do
-  factory :education_benefits_claim, class: EducationBenefitsClaim do
+  factory :education_benefits_claim do
     form do
       {
         chapter1606: true,
@@ -106,6 +106,30 @@ FactoryGirl.define do
         ],
         faaFlightCertificatesInformation: 'cert1, cert2'
       }.to_json
+    end
+
+    factory :education_benefits_claim_with_custom_form do
+      transient do
+        custom_form {}
+      end
+
+      after(:build) do |education_benefits_claim, evaluator|
+        education_benefits_claim.form = JSON.parse(education_benefits_claim.form).merge(evaluator.custom_form).to_json
+      end
+
+      factory :education_benefits_claim_western_region do
+        custom_form(
+          'school' => {
+            'address' => {
+              'country' => 'USA',
+              'state' => 'CA',
+              'postalCode' => '90212',
+              'street' => '111 Uni Drive',
+              'city' => 'Los Angeles'
+            }
+          }
+        )
+      end
     end
   end
 end

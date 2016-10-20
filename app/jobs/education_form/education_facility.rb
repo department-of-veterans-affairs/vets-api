@@ -44,6 +44,15 @@ module EducationForm
       ]
     }.freeze
 
+    REGIONS = ADDRESSES.keys
+
+    RPO_NAMES = {
+      eastern: 'BUFFALO (307)',
+      southern: 'ATLANTA (316)',
+      central: 'ST. LOUIS (331)',
+      western: 'MUSKOGEE (351)'
+    }.freeze
+
     FACILITY_IDS = {
       eastern: 307,
       southern: 306,
