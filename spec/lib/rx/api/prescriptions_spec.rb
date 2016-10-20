@@ -102,32 +102,4 @@ describe Rx::Client do
         .to raise_error(Common::Client::Errors::ClientResponse, 'Prescription is not Refillable')
     end
   end
-
-  context 'integration test for breakers' do
-    it 'is raises a breakers exception after 50% failure rate' do
-      now = Time.current
-      start_time = now - 120
-      Timecop.freeze(start_time)
-
-      stub_varx_request(:get, 'mhv-api/patient/v1/prescription/getactiverx', active_rxs, status_code: 200)
-      20.times do
-        client.get_active_rxs
-      end
-
-      stub_varx_request(:get, 'mhv-api/patient/v1/prescription/getactiverx', active_rxs, status_code: 500)
-      20.times do
-        begin
-          client.get_active_rxs
-        rescue Common::Client::Errors::ClientResponse
-          nil
-        end
-      end
-
-      expect { client.get_active_rxs }.to raise_exception(Breakers::OutageException)
-
-      Timecop.freeze(now)
-      stub_varx_request(:get, 'mhv-api/patient/v1/prescription/getactiverx', active_rxs, status_code: 200)
-      expect(client.get_active_rxs).to be_a(Common::Collection)
-    end
-  end
 end

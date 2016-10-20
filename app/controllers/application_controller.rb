@@ -29,6 +29,8 @@ class ApplicationController < ActionController::API
       when Common::Client::Errors::ClientResponse
         meta = exception.to_json unless Rails.env.production?
         Common::Exceptions::ClientError.new(exception.message.capitalize, meta: meta)
+      when Breakers::OutageException
+        Common::Exceptions::ServiceOutage.new(exception.outage)
       else
         Common::Exceptions::InternalServerError.new(exception)
       end
