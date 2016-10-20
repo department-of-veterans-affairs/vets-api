@@ -1,5 +1,8 @@
 require "rails_helper"
 
 RSpec.describe ReportMailer, type: :mailer do
-  pending "add some examples to (or delete) #{__FILE__}"
+  describe '#year_to_date_report_email' do
+    it 'should send the right email' do
+    end
+  end
 end
