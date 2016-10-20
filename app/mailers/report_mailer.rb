@@ -3,7 +3,8 @@ class ReportMailer < ApplicationMailer
   default to: 'lihan@adhocteam.us'
 
   def year_to_date_report_email(report)
-    attachments['report.csv'] = report
+    # TODO add report as s3 upload
+    # attachments['report.csv'] = report
 
     mail(
       subject: 'Year to date report',
