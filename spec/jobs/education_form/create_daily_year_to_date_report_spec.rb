@@ -91,6 +91,12 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport do
 
         expect(File.read("tmp/daily_reports/#{date}.csv")).to eq(csv_string)
       end
+
+      it 'should send an email' do
+        expect { subject.perform(date) }.to change {
+          ActionMailer::Base.deliveries.count
+        }.by(1)
+      end
     end
   end
 end
