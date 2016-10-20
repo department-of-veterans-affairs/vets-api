@@ -39,9 +39,10 @@ describe MVI::MockService do
     end
 
     context 'when SSN lookup fails' do
+      let(:ssn) { '111223333' }
       before(:each) do
         allow(MVI::MockService).to receive(:mocked_responses).and_return(yaml_hash)
-        allow(message).to receive(:ssn).and_return('111223333')
+        allow(message).to receive(:ssn).and_return(ssn)
       end
 
       it 'invokes the real service' do
@@ -52,7 +53,7 @@ describe MVI::MockService do
       context 'when the real service raises an error' do
         it 'logs and re-raises an error' do
           allow(MVI::Service).to receive(:find_candidate).and_raise(MVI::HTTPError)
-          expected_message = 'No user found by key 111223333 in mock_mvi_responses.yml, '\
+          expected_message = "No user found by key #{ssn} in mock_mvi_responses.yml, "\
             'the real service was invoked but received an error: MVI::HTTPError'
           expect(Rails.logger).to receive(:error).once.with(expected_message)
           expect { MVI::MockService.find_candidate(message) }.to raise_error(MVI::HTTPError)
