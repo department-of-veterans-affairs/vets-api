@@ -71,7 +71,11 @@ class ApplicationController < ActionController::API
   end
 
   def saml_settings
-    SAML::SettingsService.instance.saml_settings
+    settings = SAML::SettingsService.instance.saml_settings
+    # TODO: 'level' should be its own class with proper validation
+    level = LOA::MAPPING.invert[params[:level]&.to_i]
+    settings.authn_context = level || LOA::MAPPING.invert[1]
+    settings
   end
 
   def pagination_params
