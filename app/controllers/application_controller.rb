@@ -74,8 +74,6 @@ class ApplicationController < ActionController::API
     level = Integer(params[:level]) unless params[:level].nil?
     settings.authn_context = LOA::MAPPING.invert[level || 1]
     settings
-  rescue ArgumentError
-    render json: {message: "Invalid Level."}, status: :bad_request
   end
 
   def pagination_params
