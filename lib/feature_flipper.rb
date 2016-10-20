@@ -5,8 +5,8 @@ module FeatureFlipper
     !(Rails.env.production? && ENV['EDU_FORM_SHOW']&.downcase != 'true')
   end
 
-  def self.email_token_present?
-    ENV['GOVDELIVERY_TOKEN'].present?
+  def self.send_email?
+    ENV['GOVDELIVERY_TOKEN'].present? && !Rails.env.test?
   end
 
   def self.staging_email?

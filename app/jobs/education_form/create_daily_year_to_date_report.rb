@@ -64,14 +64,19 @@ module EducationForm
       @date = date
       folder = 'tmp/daily_reports'
       FileUtils.mkdir_p(folder)
+      filename = "#{folder}/#{@date}.csv"
 
-      CSV.open("#{folder}/#{@date}.csv", 'wb') do |csv|
+      CSV.open(filename, 'wb') do |csv|
         create_csv_array.each do |row|
           csv << row
         end
       end
 
-      # TODO: email the csv file
+      if FeatureFlipper.send_email?
+        # TODO set to deliver_later for production
+        ReportMailer.year_to_date_report_email(File.read(filename)).deliver_now
+      end
+
       # TODO: add rake task to cron
     end
   end
