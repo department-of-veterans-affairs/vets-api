@@ -51,7 +51,7 @@ module EducationForm
       western: 351
     }.freeze
 
-    def self.facility_for(region: record)
+    def self.facility_for(region:)
       FACILITY_IDS[region]
     end
 
