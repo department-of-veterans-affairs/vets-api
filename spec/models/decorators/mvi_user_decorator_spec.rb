@@ -37,7 +37,9 @@ describe Decorators::MviUserDecorator do
         it 'should log an error message' do
           allow(MVI::Service).to receive(:find_candidate).and_raise(MVI::HTTPError)
           expect(Rails.logger).to receive(:error).once.with(/Error retrieving MVI data for user:/)
-          expect { Decorators::MviUserDecorator.new(user).create }.to raise_error(Common::Exceptions::InternalServerError)
+          expect { Decorators::MviUserDecorator.new(user).create }.to raise_error(
+            Common::Exceptions::InternalServerError
+          )
         end
       end
     end

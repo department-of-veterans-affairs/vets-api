@@ -34,7 +34,7 @@ FactoryGirl.define do
           icn: '1000123456V123456^NI^200M^USVHA^P',
           mhv_id: '123456^PI^200MH^USVHA^A',
           ssn: '272111863',
-          status: 'active',
+          status: 'active'
         }
       end
     end
