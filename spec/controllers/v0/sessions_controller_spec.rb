@@ -2,7 +2,6 @@
 require 'rails_helper'
 
 RSpec.describe V0::SessionsController, type: :controller do
-
   let(:mvi_user) { FactoryGirl.build(:mvi_user) }
   let(:saml_attrs) do
     {

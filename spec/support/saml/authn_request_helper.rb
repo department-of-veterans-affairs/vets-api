@@ -47,7 +47,7 @@ module SAML
     end
 
     def base64_encoded?(string)
-      !!string.gsub(/[\r\n]|\\r|\\n/, '').match(BASE64_FORMAT)
+      !(!string.gsub(/[\r\n]|\\r|\\n/, '').match(BASE64_FORMAT))
     end
 
     def inflate(deflated)
