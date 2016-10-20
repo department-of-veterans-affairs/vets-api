@@ -23,12 +23,6 @@ module SAML
       settings.issuer       = SAML_CONFIG['issuer']
       settings.assertion_consumer_service_url = SAML_CONFIG['callback_url']
 
-      # This will get moved out of here and will be set per application
-      # To require just a username and password, use "authentication" as the context;
-      # for full identity proofing, use the LOA3 url
-      settings.authn_context = 'authentication'
-      # @settings.authn_context = 'http://idmanagement.gov/ns/assurance/loa/3'
-
       settings
     end
 
