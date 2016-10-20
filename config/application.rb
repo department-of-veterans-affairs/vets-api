@@ -1,14 +1,13 @@
 # frozen_string_literal: true
 require File.expand_path('../boot', __FILE__)
 
-require 'feature_flipper'
 require 'rails'
 # Pick the frameworks you want:
 require 'active_model/railtie'
 require 'active_job/railtie'
 require 'active_record/railtie'
 require 'action_controller/railtie'
-require 'action_mailer/railtie' if FeatureFlipper.email_token_present?
+# require 'action_mailer/railtie'
 # require "action_view/railtie"
 # require "sprockets/railtie"
 
@@ -50,13 +49,5 @@ module VetsAPI
     config.middleware.use 'OliveBranch::Middleware'
 
     config.active_job.queue_adapter = :sidekiq
-
-    if FeatureFlipper.email_token_present?
-      config.action_mailer.delivery_method = :govdelivery_tms
-      config.action_mailer.govdelivery_tms_settings = {
-        auth_token: ENV['GOVDELIVERY_TOKEN'],
-        api_root: "https://#{FeatureFlipper.staging_email? ? 'stage-' : ''}tms.govdelivery.com"
-      }
-    end
   end
 end
