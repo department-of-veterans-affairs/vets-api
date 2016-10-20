@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 08611cffceda1272b4da7cad83a9c7786da80010
+  revision: 5c358a99c7d6cdc92530f427738d692446cbb350
   branch: master
   specs:
     vets_json_schema (1.0.0)
@@ -74,11 +74,20 @@ GEM
       sass (~> 3.0)
       slim (>= 1.3.6, < 4.0)
       terminal-table (~> 1.4)
+    breakers (0.2.0)
+      faraday (>= 0.7.4, < 0.10)
+      multi_json (~> 1.0)
     builder (3.2.2)
     bundler-audit (0.5.0)
       bundler (~> 1.2)
       thor (~> 0.18)
     byebug (8.2.2)
+    carrierwave (0.11.2)
+      activemodel (>= 3.2.0)
+      activesupport (>= 3.2.0)
+      json (>= 1.7)
+      mime-types (>= 1.16)
+      mimemagic (>= 0.3.0)
     chronic (0.10.2)
     climate_control (0.0.3)
       activesupport (>= 3.0)
@@ -97,6 +106,7 @@ GEM
     encryptor (3.0.0)
     equalizer (0.0.11)
     erubis (2.7.0)
+    excon (0.52.0)
     factory_girl (4.7.0)
       activesupport (>= 3.0.0)
     factory_girl_rails (4.7.0)
@@ -113,6 +123,21 @@ GEM
     ffi (1.9.10)
     figaro (1.1.1)
       thor (~> 0.14)
+    fog-aws (0.12.0)
+      fog-core (~> 1.38)
+      fog-json (~> 1.0)
+      fog-xml (~> 0.1)
+      ipaddress (~> 0.8)
+    fog-core (1.42.0)
+      builder
+      excon (~> 0.49)
+      formatador (~> 0.2)
+    fog-json (1.0.2)
+      fog-core (~> 1.0)
+      multi_json (~> 1.10)
+    fog-xml (0.1.2)
+      fog-core
+      nokogiri (~> 1.5, >= 1.5.11)
     foreman (0.82.0)
       thor (~> 0.19.1)
     formatador (0.2.5)
@@ -148,6 +173,7 @@ GEM
       socksify
     i18n (0.7.0)
     ice_nine (0.11.2)
+    ipaddress (0.8.3)
     json (1.8.3)
     json-schema (2.7.0)
       addressable (>= 2.4)
@@ -165,6 +191,7 @@ GEM
     mime-types (3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2016.0521)
+    mimemagic (0.3.2)
     mini_portile2 (2.1.0)
     minitest (5.9.0)
     multi_json (1.12.1)
@@ -353,8 +380,10 @@ DEPENDENCIES
   attr_encrypted
   awrence
   brakeman
+  breakers
   bundler-audit
   byebug
+  carrierwave (~> 0.11)
   climate_control (= 0.0.3)
   factory_girl_rails
   faker
@@ -362,6 +391,7 @@ DEPENDENCIES
   faraday
   faraday_middleware
   figaro
+  fog-aws (~> 0.12)
   foreman
   geoservices
   guard-rspec (~> 4.7)

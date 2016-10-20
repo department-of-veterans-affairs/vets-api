@@ -107,10 +107,10 @@ module SM
 
     def connection
       @connection ||= Faraday.new(@config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options) do |conn|
+        conn.use :breakers
         conn.request :multipart
         conn.request :json
         # conn.response :logger, ::Logger.new(STDOUT), bodies: true
-
         conn.adapter Faraday.default_adapter
       end
     end
