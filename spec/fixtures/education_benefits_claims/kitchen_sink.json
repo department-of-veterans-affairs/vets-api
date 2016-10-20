@@ -35,11 +35,11 @@
   "seniorRotcScholarshipProgram": true,
   "email": "test@sample.com",
   "activeDutyRepayingPeriod": {
-      "from": "09/09/2012",
-      "to": "10/10/2013"
+      "from": "2012-09-09",
+      "to": "2013-10-10"
   },
   "preferredContactMethod": "email",
-  "educationStartDate": "12/31/1999",
+  "educationStartDate": "1999-12-31",
   "educationObjective": "Major in JSON document creation",
   "nonMilitaryJobs": [
     {
@@ -63,7 +63,7 @@
   "educationType": "flightTraining",
   "faaFlightCertificatesInformation": "cert1, cert2",
   "gender": "M",
-  "highSchoolOrGedCompletionDate": "06/06/2010",
+  "highSchoolOrGedCompletionDate": "2010-06-06",
   "homePhone": "5551110000",
   "remarks": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet ullamcorper est, in interdum velit. Cras purus orci, varius eget efficitur nec, dapibus id risus. Donec in pellentesque enim. Proin sagittis, elit nec consequat malesuada, nibh justo luctus enim, ac aliquet lorem orci vel neque. Ut eget accumsan ipsum. Cras sed venenatis massa. Duis odio urna, laoreet quis ante sed, facilisis congue purus. Etiam semper facilisis luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam blandit eget nibh at ornare. Sed non porttitor dui. Proin ornare magna diam, ut lacinia magna accumsan euismod.\n\n        Phasellus et nisl id lorem feugiat molestie. Aliquam molestie,\n        nulla eu fringilla finibus, massa lectus varius quam, quis ornare\n        sem lorem lacinia dui. Integer consequat non arcu convallis mollis.\n        Vivamus magna turpis, pharetra non eros at, feugiat rutrum nisl.\n        Maecenas eros tellus, blandit id libero sed, imperdiet fringilla\n        eros. Nulla vel tortor vel neque fermentum laoreet id vitae ex.\n        Mauris posuere lorem tellus. Pellentesque at augue arcu.\n        Vestibulum aliquam urna ac est lacinia, eu congue nisi tempor.\n        ",
   "reserveKicker": true,
@@ -77,7 +77,7 @@
     },
     "educationalObjective": "...",
     "name": "FakeData University",
-    "startDate": "08/29/2016"
+    "startDate": "2016-08-29"
   },
   "secondaryContact": {
     "fullName": "Sibling Olson",
@@ -98,8 +98,8 @@
   },
   "toursOfDuty": [{
     "dateRange": {
-      "from": "06/26/2012",
-      "to": "04/10/2013"
+      "from": "2012-06-26",
+      "to": "2013-04-10"
     },
     "involuntarilyCalledToDuty": "no",
     "serviceBranch": "Army Reserve",
@@ -108,8 +108,8 @@
     "serviceStatus": "ACTIVE DUTY TRAINING"
   }, {
     "dateRange": {
-      "from": "04/22/2013",
-      "to": "06/14/2013"
+      "from": "2013-04-22",
+      "to": "2013-06-14"
     },
     "involuntarilyCalledToDuty": "yes",
     "serviceBranch": "Army Reserve",
@@ -120,8 +120,8 @@
     {
       "name": "OtherCollege Name",
       "dateRange": {
-        "from": "01/01/1999",
-        "to": "01/01/2000"
+        "from": "1999-01-01",
+        "to": "2000-01-01"
       },
       "city": "New York",
       "hours": 8,
@@ -138,7 +138,7 @@
     "state": "WI",
     "street": "123 Main St"
   },
-  "veteranDateOfBirth": "03/07/1985",
+  "veteranDateOfBirth": "1985-03-07",
   "veteranFullName": {
     "first": "Mark",
     "last": "Olson"
