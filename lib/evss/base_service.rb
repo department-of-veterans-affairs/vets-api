@@ -10,6 +10,19 @@ module EVSS
       @headers = headers
     end
 
+    def self.create_breakers_service(name:, url:)
+      path = URI.parse(url).path
+      host = URI.parse(url).host
+      matcher = proc do |request_env|
+        request_env.url.host == host && request_env.url.path =~ /^#{path}/
+      end
+
+      Breakers::Service.new(
+        name: name,
+        request_matcher: matcher
+      )
+    end
+
     protected
 
     def get(url)
@@ -31,6 +44,7 @@ module EVSS
     def conn
       @conn ||= Faraday.new(base_url, headers: @headers, ssl: ssl_options) do |faraday|
         faraday.options.timeout = DEFAULT_TIMEOUT
+        faraday.use      :breakers
         faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
         faraday.response :json, content_type: /\bjson$/

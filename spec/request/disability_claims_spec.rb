@@ -37,4 +37,14 @@ RSpec.describe 'disability Claims management', type: :request do
       expect(response).to have_http_status(:internal_server_error)
     end
   end
+
+  context 'with an outage' do
+    before do
+      EVSS::ClaimsService.breakers_service.begin_forced_outage!
+    end
+
+    it 'raises an error' do
+      expect { EVSS::ClaimsService.new({}).all_claims }.to raise_exception(Breakers::OutageException)
+    end
+  end
 end

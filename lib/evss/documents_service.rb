@@ -3,6 +3,8 @@ require_dependency 'evss/base_service'
 
 module EVSS
   class DocumentsService < BaseService
+    BASE_URL = "#{ENV['EVSS_BASE_URL']}/wss-document-services-web-3.0/rest/"
+
     def all_documents
       get 'documents/getAllDocuments'
     end
@@ -22,10 +24,14 @@ module EVSS
       end
     end
 
+    def self.breakers_service
+      BaseService.create_breakers_service(name: 'EVSS/Documents', url: BASE_URL)
+    end
+
     protected
 
     def base_url
-      "#{ENV['EVSS_BASE_URL']}/wss-document-services-web-3.0/rest/"
+      BASE_URL
     end
   end
 end
