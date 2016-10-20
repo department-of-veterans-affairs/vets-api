@@ -15,6 +15,14 @@ def mvi_valid_response_missing_attrs
   )
 end
 
+def mvi_valid_response_mhv_id
+  instance_double(
+    'Savon::Response',
+    body: Oj.load(File.read('spec/support/mvi/savon_response_body_mhv_id.json')),
+    xml: File.read('spec/support/mvi/find_candidate_response.xml')
+  )
+end
+
 def mvi_savon_invalid_response
   xml = File.read('spec/support/mvi/find_candidate_invalid_response.xml')
   bad_response('AR', xml)

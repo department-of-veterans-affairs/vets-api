@@ -28,9 +28,13 @@ gem 'savon', '~> 2.0'
 gem 'sidekiq'
 gem 'whenever', require: false
 gem 'multi_json'
+gem "fog-aws", "~> 0.12"
+gem 'carrierwave', '~> 0.11'
+
 gem 'rack-cors', :require => 'rack/cors'
 gem 'net-sftp'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
+gem 'breakers'
 
 # Amazon Linux's system `json` gem causes conflicts, but
 # `multi_json` will prefer `oj` if installed, so include it here.
@@ -62,6 +66,7 @@ group :development, :test do
 end
 
 group :test do
+  gem 'faker'
   gem 'simplecov', '~> 0.11', require: false
   gem 'webmock'
   gem 'fakeredis'

@@ -17,5 +17,20 @@ module Rx
     def base_path
       "#{host}/mhv-api/patient/v1/"
     end
+
+    def breakers_service
+      return @service if defined?(@service)
+
+      path = URI.parse(base_path).path
+      host = URI.parse(base_path).host
+      matcher = proc do |request_env|
+        request_env.url.host == host && request_env.url.path =~ /^#{path}/
+      end
+
+      @service = Breakers::Service.new(
+        name: 'Rx',
+        request_matcher: matcher
+      )
+    end
   end
 end

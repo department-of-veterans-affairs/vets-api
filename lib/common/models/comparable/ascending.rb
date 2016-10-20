@@ -2,7 +2,7 @@
 # This is just a wrapper around an object to compare in descending order
 # This is invoked by collection.rb
 module Common
-  class Descending
+  class Ascending
     include Comparable
     attr_reader :obj
 
@@ -15,7 +15,7 @@ module Common
       return  0 if !obj && !other.obj
       return  1 unless obj
       return -1 unless other.obj
-      -(obj <=> other.obj)
+      obj <=> other.obj
     end
   end
 end

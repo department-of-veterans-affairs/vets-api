@@ -25,6 +25,7 @@ before_script:
   - export EVSS_BASE_URL='https://test.vets.gov'
   - "export EVSS_SAMPLE_CLAIMANT_USER='{\"uuid\": \"1234\", \"first_name\": \"Jane\",\"last_name\": \"Doe\",\"edipi\": \"1105051936\",\"participant_id\": \"123456789\"}'"
   - export MVI_URL='http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService'
+  - export EVSS_S3_UPLOADS=false
   - export VHA_MAPSERVER_URL='https://maps.va.gov/server/rest/services/PROJECTS/Facility_Locator/MapServer'
   - export VHA_MAPSERVER_LAYER='0'
   - export MOCK_MVI_SERVICE=false

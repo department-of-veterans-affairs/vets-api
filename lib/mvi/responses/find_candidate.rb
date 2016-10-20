@@ -74,7 +74,7 @@ module MVI
       def map_correlation_ids(ids)
         {
           icn: select_extension(ids, /^\w+\^NI\^\w+\^\w+\^\w+$/, CORRELATION_ROOT_ID),
-          mhv_id: select_extension(ids, /^\w+\^PI\^200MHV\^\w+\^\w+$/, CORRELATION_ROOT_ID),
+          mhv_id: select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/, CORRELATION_ROOT_ID),
           edipi: select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^\w+$/, EDIPI_ROOT_ID),
           vba_corp_id: select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^\w+$/, CORRELATION_ROOT_ID)
         }
