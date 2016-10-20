@@ -105,7 +105,7 @@ RSpec.describe Message do
         end
 
         it 'requires a body' do
-          expect(build(:message_draft, :with_message,  body: '').as_replydraft).to_not be_valid
+          expect(build(:message_draft, :with_message, body: '').as_replydraft).to_not be_valid
         end
       end
     end

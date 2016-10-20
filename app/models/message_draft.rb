@@ -7,17 +7,17 @@ class MessageDraft < Message
 
   attribute :has_message, Boolean
 
-  def has_message?
+  def message?
     has_message
   end
 
   private
 
   def check_as_reply_draft
-    self.errors[:base] << 'Draft cannot be treated as a reply draft.' unless has_message?
+    errors[:base] << 'Draft cannot be treated as a reply draft.' unless message?
   end
 
   def check_as_draft
-    self.errors[:base] << 'Reply draft cannot be treated as draft' if has_message?
+    errors[:base] << 'Reply draft cannot be treated as draft' if message?
   end
 end
