@@ -41,8 +41,13 @@ class DisabilityClaimService
     client.submit_5103_waiver(claim.evss_id).body
   end
 
+  # upload file to s3 and enqueue job to upload to EVSS
   def upload_document(claim, tempfile, tracked_item_id)
-    document_client.upload(tempfile.original_filename, tempfile.read, claim.evss_id, tracked_item_id).body
+    uploader = DisabilityClaimDocumentUploader.new(@user.uuid, tracked_item_id)
+    uploader.store!(tempfile)
+    DisabilityClaim::DocumentUpload.perform_later(tempfile.original_filename,
+                                                  auth_headers, @user.uuid,
+                                                  claim.id, tracked_item_id)
   end
 
   private

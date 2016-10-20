@@ -30,7 +30,7 @@ describe MVI::Responses::FindCandidate do
             gender: 'M',
             given_names: %w(John William),
             icn: '1000123456V123456^NI^200M^USVHA^P',
-            mhv_id: '123456^PI^200MHV^USVHA^A',
+            mhv_id: '123456^PI^200MH^USVHA^A',
             ssn: '555443333',
             status: 'active'
           )
@@ -48,7 +48,7 @@ describe MVI::Responses::FindCandidate do
             gender: 'M',
             given_names: nil,
             icn: '1000123456V123456^NI^200M^USVHA^P',
-            mhv_id: '123456^PI^200MHV^USVHA^A',
+            mhv_id: '123456^PI^200MH^USVHA^A',
             ssn: '555443333',
             status: 'active'
           )
@@ -57,21 +57,42 @@ describe MVI::Responses::FindCandidate do
     end
   end
 
-  context 'with no middle name, missing correlation ids, multiple other_ids' do
+  context 'with no middle name, missing and alternate correlation ids, multiple other_ids' do
     let(:valid_response_missing_attrs) { MVI::Responses::FindCandidate.new(mvi_valid_response_missing_attrs) }
 
     describe '.to_h' do
-      it 'should filter with only first name' do
+      it 'should filter with only first name and retrieve correct MHV id' do
         expect(valid_response_missing_attrs.body).to eq(
           birth_date: '19320205',
           edipi: nil,
-          mhv_id: nil,
+          mhv_id: '123456^PI^200MHS^USVHA^A',
           vba_corp_id: nil,
           family_name: 'Allen',
           gender: 'M',
           given_names: %w(Hector),
           icn: '1008704012V552302^NI^200M^USVHA^P',
           ssn: '111223333',
+          status: 'active'
+        )
+      end
+    end
+  end
+
+  context 'with no middle name, missing and alternate correlation ids, multiple other_ids' do
+    let(:valid_response_mhv_id) { MVI::Responses::FindCandidate.new(mvi_valid_response_mhv_id) }
+
+    describe '.to_h' do
+      it 'should retrieve the correct MHV id' do
+        expect(valid_response_mhv_id.body).to eq(
+          birth_date: '19800101',
+          edipi: '1234^NI^200DOD^USDOD^A',
+          vba_corp_id: '12345678^PI^200CORP^USVBA^A',
+          family_name: 'Smith',
+          gender: 'M',
+          given_names: %w(John William),
+          icn: '1000123456V123456^NI^200M^USVHA^P',
+          mhv_id: '123456^PI^200MHV^USVHA^A',
+          ssn: '555443333',
           status: 'active'
         )
       end

@@ -6,7 +6,10 @@ module V0
     def create
       education_benefits_claim = EducationBenefitsClaim.new(education_benefits_claim_params)
 
-      raise Common::Exceptions::ValidationErrors, education_benefits_claim unless education_benefits_claim.save
+      unless education_benefits_claim.save
+        logger.error(education_benefits_claim.errors.full_messages.join(', '))
+        raise Common::Exceptions::ValidationErrors, education_benefits_claim
+      end
 
       render(json: education_benefits_claim)
     end
