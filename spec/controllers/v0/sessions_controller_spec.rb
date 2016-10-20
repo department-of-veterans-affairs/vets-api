@@ -67,9 +67,12 @@ RSpec.describe V0::SessionsController, type: :controller do
       expect(authn_request.loa1?).to eq(true)
     end
 
-    it 'GET new - with an invalid level supplied, we return an error' do
+    it 'GET new - with an invalid level supplied, we default to LOA 1' do
       get :new, level: 'bad_level!!'
-      expect(response).to have_http_status(:internal_server_error)
+
+      response_body = JSON.parse(response.body)
+      authn_request = SAML::AuthnRequestHelper.new(response_body['authenticate_via_get'])
+      expect(authn_request.loa1?).to eq(true)
     end
 
     it 'GET show - returns unauthorized' do

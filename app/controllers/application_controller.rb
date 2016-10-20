@@ -71,8 +71,8 @@ class ApplicationController < ActionController::API
   def saml_settings
     settings = SAML::SettingsService.instance.saml_settings
     # TODO: 'level' should be its own class with proper validation
-    level = Integer(params[:level]) unless params[:level].nil?
-    settings.authn_context = LOA::MAPPING.invert[level || 1]
+    level = LOA::MAPPING.invert[params[:level]&.to_i]
+    settings.authn_context = level || LOA::MAPPING.invert[1]
     settings
   end
 
