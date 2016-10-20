@@ -13,6 +13,7 @@ require 'support/carrierwave_spec_helper'
 require 'support/xml_matchers'
 require 'support/api_schema_matcher'
 require 'support/validation_helpers'
+require 'support/saml/authn_request_helper'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
@@ -42,6 +43,7 @@ RSpec.configure do |config|
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
   config.include(ValidationHelpers, type: :model)
+  config.include(SAML, type: :controller)
 
   # Adding support for url_helper
   config.include Rails.application.routes.url_helpers

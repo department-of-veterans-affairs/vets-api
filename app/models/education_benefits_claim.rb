@@ -11,6 +11,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   # initially only completed claims are allowed, later we can allow claims that dont have a submitted_at yet
   before_validation(:set_submitted_at, on: :create)
+  after_save(:create_education_benefits_submission)
 
   # This converts the form data into an OpenStruct object so that the template
   # rendering can be cleaner. Piping it through the JSON serializer was a quick
@@ -41,6 +42,10 @@ class EducationBenefitsClaim < ActiveRecord::Base
     where(processed_at: nil)
   end
 
+  def region
+    EducationForm::EducationFacility.region_for(open_struct_form)
+  end
+
   def regional_office
     EducationForm::EducationFacility.regional_office_for(open_struct_form)
   end
@@ -60,6 +65,14 @@ class EducationBenefitsClaim < ActiveRecord::Base
   end
 
   private
+
+  def create_education_benefits_submission
+    if submitted_at.present? && submitted_at_was.nil?
+      EducationBenefitsSubmission.create!(
+        parsed_form.slice(*APPLICATION_TYPES).merge(region: region)
+      )
+    end
+  end
 
   def form_is_string
     form.is_a?(String)
