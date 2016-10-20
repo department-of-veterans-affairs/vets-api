@@ -90,6 +90,12 @@ RSpec.describe Message do
           expect(build(:message, category: '').as_reply).to be_valid
         end
       end
+
+      context 'replydraft' do
+        it 'requires a body' do
+          expect(build(:message, body: '').as_reply).to_not be_valid        
+        end
+      end
     end
   end
 end
