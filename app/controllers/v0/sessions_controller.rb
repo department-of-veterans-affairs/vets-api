@@ -70,7 +70,7 @@ module V0
     def parse_current_loa
       raw_loa = Hash.from_xml(@saml_response.response)
                     .dig('Response', 'Assertion', 'AuthnStatement', 'AuthnContext', 'AuthnContextClassRef')
-      LOA::MAPPING[raw_loa.to_sym]
+      LOA::MAPPING[raw_loa]
     end
 
     def create_new_user

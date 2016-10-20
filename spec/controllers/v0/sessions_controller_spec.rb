@@ -16,12 +16,13 @@ RSpec.describe V0::SessionsController, type: :controller do
       'level_of_assurance' => [mvi_user.loa[:highest]]
     }
   end
-  let(:rubysaml_settings) { FactoryGirl.build(:rubysaml_settings) }
-  # has an LOA of 'authentication'
-  let(:response_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_response.xml") }
+  let(:settings_no_context) { FactoryGirl.build(:settings_no_context) }
+  let(:loa1_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/loa1_response.xml") }
+  let(:settings_service) { class_double(SAML::SettingsService).as_stubbed_const }
+
   before(:each) do
     allow_any_instance_of(Decorators::MviUserDecorator).to receive(:create).and_return(mvi_user)
-    allow_any_instance_of(ApplicationController).to receive(:saml_settings).and_return(rubysaml_settings)
+    allow(settings_service).to receive_message_chain(:instance, :saml_settings).and_return(settings_no_context)
   end
 
   context 'when not logged in' do
@@ -43,6 +44,37 @@ RSpec.describe V0::SessionsController, type: :controller do
       expect(JSON.parse(response.body)).to eq('authenticate_via_get' => 'url_string')
     end
 
+    it 'GET new - with LOA 1 supplied, the saml authn request will use LOA 1' do
+      get :new, level: 1
+
+      response_body = JSON.parse(response.body)
+      authn_request = SAML::AuthnRequestHelper.new(response_body['authenticate_via_get'])
+      expect(authn_request.loa1?).to eq(true)
+    end
+    it 'GET new - with LOA 3 supplied, the saml authn request will use LOA 3' do
+      get :new, level: 3
+
+      response_body = JSON.parse(response.body)
+      authn_request = SAML::AuthnRequestHelper.new(response_body['authenticate_via_get'])
+      expect(authn_request.loa3?).to eq(true)
+    end
+
+    it 'GET new - no level supplied, the saml authn request will use LOA 1' do
+      get :new
+
+      response_body = JSON.parse(response.body)
+      authn_request = SAML::AuthnRequestHelper.new(response_body['authenticate_via_get'])
+      expect(authn_request.loa1?).to eq(true)
+    end
+
+    it 'GET new - with an invalid level supplied, we default to LOA 1' do
+      get :new, level: 'bad_level!!'
+
+      response_body = JSON.parse(response.body)
+      authn_request = SAML::AuthnRequestHelper.new(response_body['authenticate_via_get'])
+      expect(authn_request.loa1?).to eq(true)
+    end
+
     it 'GET show - returns unauthorized' do
       get :show
       expect(response).to have_http_status(:unauthorized)
@@ -60,7 +92,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       before(:example) do
         allow(attributes).to receive_message_chain(:all, :to_h).and_return(saml_attrs)
         allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response)
-        allow(saml_response).to receive(:response).and_return(response_xml)
+        allow(saml_response).to receive(:response).and_return(loa1_xml)
       end
 
       it 'returns a valid token session' do
