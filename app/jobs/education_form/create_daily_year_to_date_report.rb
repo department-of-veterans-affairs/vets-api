@@ -73,7 +73,6 @@ module EducationForm
       end
 
       if FeatureFlipper.send_email?
-        # TODO set to deliver_later for production
         ReportMailer.year_to_date_report_email(File.read(filename)).deliver_now
       end
 
