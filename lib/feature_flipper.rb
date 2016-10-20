@@ -4,4 +4,12 @@ module FeatureFlipper
     # Visible in all situations except in production where EDU_FORM_SHOW is not true
     !(Rails.env.production? && ENV['EDU_FORM_SHOW']&.downcase != 'true')
   end
+
+  def self.email_token_present?
+    ENV['GOVDELIVERY_TOKEN'].present?
+  end
+
+  def self.staging_email?
+    ENV['STAGING_EMAIL'] == 'true'
+  end
 end
