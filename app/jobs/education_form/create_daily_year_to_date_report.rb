@@ -72,9 +72,8 @@ module EducationForm
         end
       end
 
-      if FeatureFlipper.send_email?
-        ReportMailer.year_to_date_report_email(File.read(filename)).deliver_now
-      end
+      return unless FeatureFlipper.send_email?
+      ReportMailer.year_to_date_report_email(File.read(filename)).deliver_now
 
       # TODO: add rake task to cron
     end
