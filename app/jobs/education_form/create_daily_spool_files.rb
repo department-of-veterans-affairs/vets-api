@@ -17,11 +17,6 @@ module EducationForm
 
     WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
 
-    # TODO: make sure we rescue from all possible SFTP exceptions
-    rescue_from(Net::ReadTimeout) do
-      retry_job(wait: 1.minute)
-    end
-
     def perform
       # Fetch all the records for the day
       records = EducationBenefitsClaim.unprocessed
@@ -47,7 +42,8 @@ module EducationForm
 
     def write_files(sftp: nil, structured_data:)
       structured_data.each do |region, records|
-        filename = "#{Time.zone.today.strftime('%F')}-#{region}.spl"
+        region_id = EducationFacility.facility_for(region: region)
+        filename = "#{region_id}_#{Time.zone.today.strftime('%F').tr('-', '_')}_vetsgov.spl"
         file_class =
           if sftp.nil?
             dir_name = 'tmp/spool_files'

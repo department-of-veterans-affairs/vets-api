@@ -9,7 +9,7 @@ FactoryGirl.define do
           last: 'Olson'
         },
         gender: 'M',
-        veteranDateOfBirth: '03/07/1985',
+        veteranDateOfBirth: '1985-03-07',
         veteranSocialSecurityNumber: '111223333',
         veteranAddress: {
           country: 'USA',
@@ -38,7 +38,7 @@ FactoryGirl.define do
             street: '111 Uni Drive',
             city: 'Baltimore'
           },
-          startDate: '08/29/2016',
+          startDate: '2016-08-29',
           educationalObjective: '...'
         },
         educationType: 'college',
@@ -46,8 +46,8 @@ FactoryGirl.define do
           {
             name: 'OtherCollege Name',
             dateRange: {
-              from: '01/01/1999',
-              to: '01/01/2000'
+              from: '1999-01-01',
+              to: '2000-01-01'
             },
             city: 'New York',
             hours: 8,
@@ -62,7 +62,7 @@ FactoryGirl.define do
           onTerminalLeave: false,
           nonVaAssistance: false
         },
-        highSchoolOrGedCompletionDate: '06/06/2010',
+        highSchoolOrGedCompletionDate: '2010-06-06',
         additionalContributions: false,
         activeDutyKicker: false,
         reserveKicker: false,
@@ -87,8 +87,8 @@ FactoryGirl.define do
         toursOfDuty: [
           {
             dateRange: {
-              from: '01/01/2001',
-              to: '10/10/2010'
+              from: '2001-01-01',
+              to: '2010-10-10'
             },
             serviceBranch: 'Army',
             serviceStatus: 'Active Duty',
@@ -96,8 +96,8 @@ FactoryGirl.define do
           },
           {
             dateRange: {
-              from: '01/01/1995',
-              to: '10/10/1998'
+              from: '1995-01-01',
+              to: '1998-10-10'
             },
             serviceBranch: 'Army',
             serviceStatus: 'Honorable Discharge',

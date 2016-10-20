@@ -5,13 +5,21 @@ RSpec.describe DisabilityClaimDocumentUploader do
   subject { described_class.new('1234', '11') }
 
   describe 'initialize' do
-    context 'when EVSS_AWS_ACCESS_CREDS is not set' do
+    context 'when EVSS_S3_UPLOADS is "false"' do
       it 'should set storage to file' do
-        stub_const('EVSS_AWS_ACCESS_CREDS', nil)
-        expect(subject.class.storage).to eq(CarrierWave::Storage::File)
+        ClimateControl.modify(EVSS_S3_UPLOADS: 'false') do
+          expect(subject.class.storage).to eq(CarrierWave::Storage::File)
+        end
       end
     end
-    context 'when EVSS_AWS_ACCESS_CREDS is set' do
+    context 'when EVSS_S3_UPLOADS is nil' do
+      it 'should set storage to file' do
+        ClimateControl.modify(EVSS_S3_UPLOADS: nil) do
+          expect(subject.class.storage).to eq(CarrierWave::Storage::File)
+        end
+      end
+    end
+    context 'when EVSS_S3_UPLOADS is "true"' do
       it 'should set storage to fog' do
         stub_const('EVSS_AWS_ACCESS_CREDS', aws_access_key_id: 'aws_access_key_id',
                                             aws_secret_access_key: 'aws_secret_access_key')
