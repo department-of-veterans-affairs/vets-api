@@ -91,9 +91,21 @@ RSpec.describe Message do
         end
       end
 
-      context 'replydraft' do
+      context 'drafts and replydraft' do
+        let(:draft_with_message) { build(:message_draft, :with_message) }
+        let(:draft) { build(:message_draft) }
+
+        it 'drafts must not be tied to a mesage' do
+          draft_with_message.valid?
+          expect(draft_with_message).not_to be_valid
+        end
+
+        it 'reply drafts must be tied to a mesage' do
+          expect(draft.as_replydraft).not_to be_valid
+        end
+
         it 'requires a body' do
-          expect(build(:message, body: '').as_reply).to_not be_valid
+          expect(build(:message_draft, :with_message,  body: '').as_replydraft).to_not be_valid
         end
       end
     end

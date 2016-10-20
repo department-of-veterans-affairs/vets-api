@@ -12,15 +12,17 @@ module V0
     end
 
     def update
-      draft = MessageDraft.new(draft_params)
+      params = draft_params.merge(history: has_history?(params[:id]))
+
+      draft = MessageDraft.new(params)
       raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
 
-      client.post_create_message_draft(draft_params.merge(id: params[:id]))
+      client.post_create_message_draft(params.merge(id: params[:id]))
       head :no_content
     end
 
     def create_reply_draft
-      draft = MessageDraft.new(reply_draft_params).as_reply
+      draft = MessageDraft.new(reply_draft_params).as_replydraft
       raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
 
       response = client.post_create_message_draft_reply(params[:reply_id], reply_draft_params)
@@ -30,7 +32,7 @@ module V0
     end
 
     def update_reply_draft
-      draft = MessageDraft.new(reply_draft_params).as_reply
+      draft = MessageDraft.new(reply_draft_params).as_replydraft
       raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
 
       client.post_create_message_draft_reply(params[:reply_id], reply_draft_params.merge(id: params[:draft_id]))
@@ -45,6 +47,10 @@ module V0
 
     def reply_draft_params
       @reply_draft_params ||= params.require(:message_draft).permit(:body)
+    end
+
+    def has_history?(id)
+      @has_history ||= client.get_message_history(id).length > 0
     end
   end
 end
