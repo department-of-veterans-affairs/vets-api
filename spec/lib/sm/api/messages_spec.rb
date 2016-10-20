@@ -83,6 +83,20 @@ describe SM::Client do
           expect(client_response).to be_a(Message)
         end
       end
+
+      context 'when there is an outage' do
+        before do
+          SM::Configuration.instance.breakers_service.begin_forced_outage!
+        end
+
+        it 'does not post to the service and gets an error' do
+          VCR.use_cassette('sm/messages/10616687/update_draft') do
+            new_draft[:id] = 620_096
+            new_draft[:body] = 'Updated Body'
+            expect { client.post_create_message_draft(new_draft) }.to raise_error(Breakers::OutageException)
+          end
+        end
+      end
     end
   end
 

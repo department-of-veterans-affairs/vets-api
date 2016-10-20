@@ -9,6 +9,7 @@ require 'rspec/rails'
 require 'webmock/rspec'
 require 'support/factory_girl'
 require 'support/serializer_spec_helper'
+require 'support/carrierwave_spec_helper'
 require 'support/xml_matchers'
 require 'support/api_schema_matcher'
 require 'support/validation_helpers'
@@ -72,4 +73,12 @@ RSpec.configure do |config|
 
   # serializer_spec_helper
   config.include SerializerSpecHelper, type: :serializer
+
+  # clean up carrierwave uploads
+  # https://github.com/carrierwaveuploader/carrierwave/wiki/How-to:-Cleanup-after-your-Rspec-tests
+  config.after(:all) do
+    if Rails.env.test?
+      FileUtils.rm_rf(Dir["#{Rails.root}/spec/support/uploads"])
+    end
+  end
 end
