@@ -101,11 +101,11 @@ RSpec.describe Message do
         end
 
         it 'reply drafts must be tied to a mesage' do
-          expect(draft.as_replydraft).not_to be_valid
+          expect(draft.as_reply).not_to be_valid
         end
 
         it 'requires a body' do
-          expect(build(:message_draft, :with_message, body: '').as_replydraft).to_not be_valid
+          expect(build(:message_draft, :with_message, body: '').as_reply).to_not be_valid
         end
       end
     end

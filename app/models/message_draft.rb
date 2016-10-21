@@ -2,8 +2,8 @@
 
 # Message drafts are essentially messages with an implied folder (drafts), and if a reply an implied message
 class MessageDraft < Message
-  validate :check_as_reply_draft, if: proc { replydraft? }
-  validate :check_as_draft, unless: proc { replydraft? }
+  validate :check_as_replydraft, if: proc { reply? }
+  validate :check_as_draft, unless: proc { reply? }
 
   attribute :has_message, Boolean
 
@@ -13,11 +13,11 @@ class MessageDraft < Message
 
   private
 
-  def check_as_reply_draft
-    errors[:base] << 'Draft cannot be treated as a reply draft.' unless message?
+  def check_as_replydraft
+    errors[:base] << 'This draft requires a reply-to message.' unless message?
   end
 
   def check_as_draft
-    errors[:base] << 'Reply draft cannot be treated as draft' if message?
+    errors[:base] << 'This draft cannot have a reply-to message' if message?
   end
 end
