@@ -14,7 +14,7 @@ module MVI
       end
     rescue MVI::ServiceError, HTTPI::SSLError => e
       Rails.logger.error "No user found by key #{message.ssn} in mock_mvi_responses.yml, "\
-      "the real service was invoked but received an error: #{e.message}"
+      "the remote service was invoked but received an error: #{e.message}"
       raise e
     end
   end
