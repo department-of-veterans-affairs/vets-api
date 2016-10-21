@@ -25,6 +25,35 @@ Style/Documentation:
 Style/ClassAndModuleChildren:
   Enabled: false
 
+# This cop forces you to put a return at the beginning of a block of code rather than having an if statement
+# whose body carries to the end of the function. For example:
+#
+# def foo
+#   ...
+#   if test
+#     ...
+#   end
+# end
+#
+# would be considered bad, and the cop would force you to put a `return if !test` before that block and
+# then remove the if. The problem is that this hides intent, since the if test does have a purpose in
+# readability, and it could also be easier for future changes to miss the return statement and add code
+# after it expecting it to be executed.
+Style/GuardClause:
+  Enabled: false
+
+# This is pretty much the same thing as the one above. Inside a loop, it forces you to use next to skip
+# iteration rather than using an if block that runs to the end of the loop, and it suffers from the same
+# problems as above.
+Style/Next:
+  Enabled: false
+
+# This forces you to replace things like: `[1, 2, 3].length == 0` with `[1,2,3].empty?`. The problem is that
+# not all things that implement length also implement empty? so you will get errors that cannot be resolved,
+# and the cop will encourage you to do things that are incorrect.
+Style/ZeroLengthPredicate:
+  Enabled: false
+
 Metrics/LineLength:
   Max: 120
 
