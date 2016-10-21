@@ -2,7 +2,7 @@
 namespace :jobs do
   desc 'Create daily spool files'
   task create_daily_spool_files: :environment do
-    EducationForm::CreateDailySpoolFiles.perform_later
+    EducationForm::CreateDailySpoolFiles.perform_async
   end
 
   desc 'Email daily year to date report'
