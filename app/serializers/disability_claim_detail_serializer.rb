@@ -108,7 +108,12 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
         file_type: obj['documentTypeLabel'],
         document_type: obj['documentTypeCode'],
         filename: obj['originalFileName'],
-        upload_date: unix_date_or_nil_from(obj, 'uploadDate')
+        # %Q is the C-strftime flag for milliseconds since Unix epoch.
+        # For date-times recording a computer event and therefore known
+        # to the second EVSS uses a UNIX timestamp in milliseconds.
+        # Round it to the day. Not sure what timezone they're using,
+        # so could be off by 1 day.
+        upload_date: date_or_nil_from(obj, 'uploadDate', '%Q')
       }
     end
   end
@@ -118,18 +123,9 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
     items.compact
   end
 
-  def date_or_nil_from(obj, key)
+  def date_or_nil_from(obj, key, format: '%m/%d/%Y')
     date = obj[key]
     return nil unless date.present?
-    Date.strptime(date, '%m/%d/%Y')
-  end
-
-  # For date-times recording a computer event and therefore known to the
-  # second EVSS uses a UNIX timestamp in milliseconds. Round it to the
-  # day. Not sure what timezone they're using, so could be off by 1 day.
-  def unix_date_or_nil_from(obj, key)
-    date = obj[key]
-    return nil unless date.present?
-    Time.at(date.to_i / 1000).utc.to_date
+    Date.strptime(date.to_s, format)
   end
 end
