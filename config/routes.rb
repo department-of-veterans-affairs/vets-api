@@ -67,6 +67,7 @@ Rails.application.routes.draw do
     end
 
     scope :facilities, module: 'facilities' do
+      resources :va, only: [:index, :show], defaults: { format: :json }
       resources :health, only: [:index, :show], defaults: { format: :json }
       resources :cemetery, only: [:index, :show], defaults: { format: :json }
       resources :choiceact, only: [:index, :show], defaults: { format: :json }

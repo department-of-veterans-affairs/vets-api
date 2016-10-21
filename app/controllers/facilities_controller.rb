@@ -4,7 +4,7 @@ require_dependency 'facilities/client'
 class FacilitiesController < ApplicationController
   skip_before_action :authenticate
 
-  def validate_bbox
+  def validate_params
     raise ArgumentError unless params[:bbox].length == 4
     params[:bbox].each { |x| Float(x) }
   rescue ArgumentError

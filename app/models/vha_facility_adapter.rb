@@ -1,50 +1,55 @@
 # frozen_string_literal: true
-require_dependency 'facilities/client'
+# frozen_string_literal: true
+class VHAFacilityAdapter
+  VHA_URL = +ENV['VHA_MAPSERVER_URL']
+  VHA_LAYER = ENV['VHA_MAPSERVER_LAYER']
+  VHA_ID_FIELD = 'StationNum'
+  FACILITY_TYPE = 'va_health_facility'
 
-class VAHealthFacility < ActiveModelSerializers::Model
-  attr_accessor :station_id, :station_number, :visn_id, :name, :classification, :lat, :long,
-                :address, :phone, :hours, :services
-
-  def self.query(bbox:, services:)
-    results = client.query(bbox: bbox.join(','),
-                           where: VAHealthFacility.where_clause(services))
-    results.each_with_object([]) do |record, facs|
-      facs << VAHealthFacility.from_gis(record)
-    end
+  def initialize
+    @client = Facilities::Client.new(url: VHA_URL, layer: VHA_LAYER, id_field: VHA_ID_FIELD)
   end
 
-  def self.find_by_id(id:)
-    results = client.get(identifier: id)
-    VAHealthFacility.from_gis(results.first) unless results.blank?
+  def query(bbox, services = nil)
+    @client.query(bbox: bbox.join(','),
+                  where: VHAFacilityAdapter.where_clause(services))
   end
 
-  def self.service_whitelist
-    SERVICE_HIERARCHY.flatten(2)
+  def find_by(id:)
+    @client.get(identifier: id)
   end
 
   def self.where_clause(services)
     services.map { |s| "#{s}='YES'" }.join(' AND ') unless services.nil?
   end
 
-  def self.from_gis(record)
+  def from_gis(record)
     attrs = record['attributes']
-    m = VAHealthFacility.from_gis_attrs(TOP_KEYMAP, attrs)
-    m[:address] = VAHealthFacility.from_gis_attrs(ADDR_KEYMAP, attrs)
-    m[:phone] = VAHealthFacility.from_gis_attrs(PHONE_KEYMAP, attrs)
-    m[:hours] = VAHealthFacility.from_gis_attrs(HOURS_KEYMAP, attrs)
-    m[:services] = VAHealthFacility.services_from_gis(attrs)
-    VAHealthFacility.new(m)
+    m = from_gis_attrs(TOP_KEYMAP, attrs)
+    m[:facility_type] = FACILITY_TYPE
+    m[:address] = {}
+    m[:address][:physical] = from_gis_attrs(ADDR_KEYMAP, attrs)
+    m[:address][:physical][:zip] = attrs['Zip'] + '-' + attrs['Zip4']
+    m[:address][:mailing] = {}
+    m[:phone] = from_gis_attrs(PHONE_KEYMAP, attrs)
+    m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
+    m[:services] = services_from_gis(attrs)
+    VAFacility.new(m)
+  end
+
+  def service_whitelist
+    SERVICE_HIERARCHY.flatten(2)
   end
 
   TOP_KEYMAP = {
-    station_id: 'StationID', station_number: 'StationNum', visn_id: 'VisnID',
+    unique_id: 'StationNum',
     name: 'StationNam', classification: 'CocClassif',
     lat: 'Latitude', long: 'Longitude'
   }.freeze
 
   ADDR_KEYMAP = {
     'building' => 'Building', 'street' => 'Street', 'suite' => 'Suite',
-    'city' => 'City', 'state' => 'State', 'zip' => 'Zip', 'zip4' => 'Zip4'
+    'city' => 'City', 'state' => 'State'
   }.freeze
 
   PHONE_KEYMAP = {
@@ -57,12 +62,6 @@ class VAHealthFacility < ActiveModelSerializers::Model
   HOURS_KEYMAP = %w(
     Monday Tuesday Wednesday Thursday Friday Saturday Sunday
   ).each_with_object({}) { |d, h| h[d] = d }
-
-  def self.from_gis_attrs(km, attrs)
-    km.each_with_object({}) do |(k, v), h|
-      h[k] = attrs[v]
-    end
-  end
 
   SERVICE_HIERARCHY = {
     'Audiology' => [],
@@ -95,7 +94,13 @@ class VAHealthFacility < ActiveModelSerializers::Model
     'WellnessAndPreventativeCare' => []
   }.freeze
 
-  def self.services_from_gis(attrs)
+  def from_gis_attrs(km, attrs)
+    km.each_with_object({}) do |(k, v), h|
+      h[k] = attrs[v]
+    end
+  end
+
+  def services_from_gis(attrs)
     SERVICE_HIERARCHY.each_with_object([]) do |(k, v), l|
       next unless attrs[k] == 'YES'
       sl2 = []
@@ -104,13 +109,5 @@ class VAHealthFacility < ActiveModelSerializers::Model
       end
       l << { 'sl1' => [k], 'sl2' => sl2 }
     end
-  end
-
-  URL = +ENV['VHA_MAPSERVER_URL']
-  LAYER = ENV['VHA_MAPSERVER_LAYER']
-  ID_FIELD = 'StationNum'
-
-  def self.client
-    @client ||= Facilities::Client.new(url: URL, layer: LAYER, id_field: ID_FIELD)
   end
 end
