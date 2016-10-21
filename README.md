@@ -64,6 +64,19 @@ MHV_SM_APP_TOKEN
 For an example, see `application.yml.example` - these are just mock endpoints.
 For actual backend testing you will need to reference the appropriate private repository.
 
+### EVSS S3 Uploads
+Uploaded disability claim documents are handled by CarrierWave and either sent to Amazon S3 or saved to disk.
+To enable S3 uploads, set the following ENV variables:
+```
+EVSS_S3_UPLOADS
+EVSS_AWS_S3_REGION
+EVSS_AWS_S3_BUCKET
+EVSS_AWS_ACCESS_KEY_ID
+EVSS_AWS_SECRET_ACCESS_KEY
+```
+
+Note: `EVSS_S3_UPLOADS` needs to be set to the string 'true' to enable S3 uploads
+
 ### EVSS Disability Claims Setup
 For this app to be properly configured, you will need to specify the following environment variables:
 ```
@@ -89,15 +102,20 @@ appending the exported/downloaded certificate to `<HOMEBREW_DIR>/etc/openssl/cer
 
 ### MVI Service
 The Master Veteran Index Service retreives and updates a veterans 'golden record'.
-This service is only available over the VA VPN. A mock service is available for
-testing in development or when you don't have VPN access. To enable the mock 
-service set MOCK_MVI_SERVICE in config/application.yml to 'true'
+Update the `MVI_URL` env var in config/application.yml with the value given to you
+by devops or your team.
+```
+# config/application.yml
+MVI_URL = '...'
+```
+Since that URL is only accessible over the VA VPN a mock service is included in the project.
+To enable it set MOCK_MVI_SERVICE in config/application.yml to 'true'
 ```
 # config/application.yml
 MOCK_MVI_SERVICE = true
 ```
-Endpoint response value can be set by copying mock_mvi_responses.yml.example to
-mock_mvi_responses.yml and updating YAML for the appropriate endpoint. For the find_candidate
+Endpoint response values can be set by copying mock_mvi_responses.yml.example to
+mock_mvi_responses.yml. For the find_candidate
 endpoint you can return different responses based on SSN:
 ```
 find_candidate:

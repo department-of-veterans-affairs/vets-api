@@ -91,7 +91,10 @@ module Rx
     end
 
     def connection
-      @connection ||= Faraday.new(config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options)
+      @connection ||= Faraday.new(config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options) do |conn|
+        conn.use :breakers
+        conn.adapter Faraday.default_adapter
+      end
     end
 
     def auth_headers

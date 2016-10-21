@@ -9,9 +9,11 @@ require 'rspec/rails'
 require 'webmock/rspec'
 require 'support/factory_girl'
 require 'support/serializer_spec_helper'
+require 'support/carrierwave_spec_helper'
 require 'support/xml_matchers'
 require 'support/api_schema_matcher'
 require 'support/validation_helpers'
+require 'support/saml/authn_request_helper'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
@@ -41,6 +43,7 @@ RSpec.configure do |config|
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
   config.include(ValidationHelpers, type: :model)
+  config.include(SAML, type: :controller)
 
   # Adding support for url_helper
   config.include Rails.application.routes.url_helpers
@@ -72,4 +75,12 @@ RSpec.configure do |config|
 
   # serializer_spec_helper
   config.include SerializerSpecHelper, type: :serializer
+
+  # clean up carrierwave uploads
+  # https://github.com/carrierwaveuploader/carrierwave/wiki/How-to:-Cleanup-after-your-Rspec-tests
+  config.after(:all) do
+    if Rails.env.test?
+      FileUtils.rm_rf(Dir["#{Rails.root}/spec/support/uploads"])
+    end
+  end
 end
