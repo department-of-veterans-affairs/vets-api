@@ -2,12 +2,17 @@
 require 'net/sftp'
 
 module EducationForm
-  class CreateDailySpoolFiles < ActiveJob::Base
+  class CreateDailySpoolFiles
+    include Sidekiq::Worker
     include ActionView::Helpers::TextHelper # Needed for word_wrap
     require 'erb'
     require 'ostruct'
 
-    queue_as :default
+    sidekiq_options queue: :default,
+                    # Stop multiple rake tasks from running this concurrently
+                    unique: :until_timeout,
+                    unique_expiration: 1.minute
+
     TEMPLATE_PATH = Rails.root.join('app', 'jobs', 'education_form', 'templates')
     TEMPLATE = File.read(File.join(TEMPLATE_PATH, '22-1990.erb'))
 
