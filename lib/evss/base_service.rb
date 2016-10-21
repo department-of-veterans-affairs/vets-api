@@ -34,7 +34,7 @@ module EVSS
     end
 
     def base_url
-      raise NotImplementedError, 'Subclass of BaseService must implement base_url method'
+      self.class::BASE_URL
     end
 
     private

@@ -11,13 +11,11 @@ describe EVSS::BaseService do
     end
 
     it 'raises an error on get' do
-      expect { service.send(:get, 'vbaClaimStatusService/getClaims') }.to raise_exception(Breakers::OutageException)
+      expect { service.all_claims }.to raise_exception(Breakers::OutageException)
     end
 
     it 'raises an error on post' do
-      expect do
-        service.send(:post, 'claimServicesExternalService/listAllIntentToFile')
-      end.to raise_exception(Breakers::OutageException)
+      expect { service.find_claim_by_id(123) }.to raise_exception(Breakers::OutageException)
     end
   end
 end

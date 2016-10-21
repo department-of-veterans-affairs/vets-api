@@ -27,11 +27,5 @@ module EVSS
     def self.breakers_service
       BaseService.create_breakers_service(name: 'EVSS/Documents', url: BASE_URL)
     end
-
-    protected
-
-    def base_url
-      BASE_URL
-    end
   end
 end
