@@ -24,11 +24,11 @@ RSpec.describe DisabilityClaimDocumentUploader do
         env_vars = {
           EVSS_S3_UPLOADS: 'true',
           EVSS_AWS_S3_BUCKET: 'evss_s3_bucket',
-          EVSS_AWS_S3_REGION: 'evss_s3_region',
-          EVSS_AWS_ACCESS_KEY_ID: 'aws_access_key_id',
-          EVSS_AWS_SECRET_ACCESS_KEY: 'aws_secret_access_key'
+          EVSS_AWS_S3_REGION: 'evss_s3_region'
         }
         ClimateControl.modify(env_vars) do
+          allow(EVSS::AwsCreds).to receive(:fetch).and_return(aws_access_key_id: 'aws_access_key_id',
+                                                              aws_secret_access_key: 'aws_secret_access_key')
           expect(subject.class.storage).to eq(CarrierWave::Storage::Fog)
           expect(subject.fog_credentials).to eq(provider: 'AWS',
                                                 aws_access_key_id: 'aws_access_key_id',
