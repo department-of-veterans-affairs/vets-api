@@ -1,3 +1,4 @@
+
 source 'https://rubygems.org'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
@@ -59,6 +60,9 @@ group :development, :test do
   gem 'factory_girl_rails'
 
   gem 'foreman'
+
+  # This is handy for debugging purposes, produces curl output for easily communicating with MHV
+  gem 'faraday_curl'
 end
 
 group :test do

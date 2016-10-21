@@ -68,7 +68,6 @@ module SM
 
       # post_move_message: Moves a message from its current folder to another
       def post_move_message(id, folder_id)
-        token_headers = token_headers.merge('Content-Type' => 'application/json')
         response = perform(:post, "message/#{id}/move/tofolder/#{folder_id}", nil, token_headers)
 
         response.nil? ? nil : response.status
@@ -76,7 +75,8 @@ module SM
 
       # delete_folder: Deletes a folder.
       def delete_message(id)
-        response = perform(:post, "message/#{id}", nil, token_headers)
+        response = perform(:delete, "message/#{id}", nil, token_headers)
+        
         response.nil? ? nil : response.status
       end
 

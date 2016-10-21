@@ -9,8 +9,8 @@ RSpec.describe 'sm', type: :request do
   # or run each spec individually (move first)
   # bundle exec rspec --order default
 
-  let(:move_message_id)     { 653030 }
-  let(:destroy_message_id)  { 653030 }
+  let(:move_message_id)     { 635008 }
+  let(:destroy_message_id)  { 635008 }
   let(:existing_folder_id)  { 610965 }
 
   describe 'messages' do
@@ -82,14 +82,14 @@ RSpec.describe 'sm', type: :request do
     describe 'non idempotent actions' do
       it 'responds to PATCH #move', :vcr do
         patch "/v0/messaging/health/messages/#{move_message_id}/move?folder_id=#{existing_folder_id}"
-        binding.pry
+
         expect(response).to be_success
         expect(response).to have_http_status(:no_content)
       end
 
       it 'responds to DELETE', :vcr do
         delete "/v0/messaging/health/messages/#{destroy_message_id}"
-
+        
         expect(response).to be_success
         expect(response).to have_http_status(:no_content)
       end

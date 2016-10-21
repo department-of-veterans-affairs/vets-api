@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'faraday/error'
+require 'rack/utils'
 
 # FIXME: this needs to be adapted to use va-api-common style errors
 module Common
@@ -31,11 +32,11 @@ module Common
         end
 
         def minor
-          @parsed_json['errorCode']
+          @parsed_json['errorCode'] || major
         end
 
         def message
-          @parsed_json['message']
+          @parsed_json['message'].try(:capitalize) || rack_default_message
         end
 
         def developer_message
@@ -53,6 +54,10 @@ module Common
         end
 
         private
+
+        def rack_default_message
+          Rack::Utils::HTTP_STATUS_CODES.fetch(major, 'Service Unavailable')
+        end
 
         def base_json
           { major: major, minor: minor, message: message }
