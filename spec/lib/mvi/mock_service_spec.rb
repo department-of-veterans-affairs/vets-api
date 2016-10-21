@@ -54,7 +54,7 @@ describe MVI::MockService do
         it 'logs and re-raises an error' do
           allow(MVI::Service).to receive(:find_candidate).and_raise(MVI::HTTPError)
           expected_message = "No user found by key #{ssn} in mock_mvi_responses.yml, "\
-            'the real service was invoked but received an error: MVI::HTTPError'
+            'the remote service was invoked but received an error: MVI::HTTPError'
           expect(Rails.logger).to receive(:error).once.with(expected_message)
           expect { MVI::MockService.find_candidate(message) }.to raise_error(MVI::HTTPError)
         end
