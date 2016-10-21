@@ -29,7 +29,7 @@ gem 'sidekiq'
 gem 'sidekiq-unique-jobs'
 gem 'whenever', require: false
 gem 'multi_json'
-gem "fog-aws", "~> 0.12"
+gem 'carrierwave-aws'
 gem 'carrierwave', '~> 0.11'
 
 gem 'rack-cors', :require => 'rack/cors'
