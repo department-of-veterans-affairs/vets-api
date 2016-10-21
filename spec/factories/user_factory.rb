@@ -19,17 +19,22 @@ FactoryGirl.define do
     end
 
     factory :mvi_user do
+      edipi '1234'
+      icn '1000123456V123456'
+      mhv_id '123456'
+      participant_id '12345678'
       mvi do
         {
-          edipi: '1234^NI^200DOD^USDOD^A',
-          icn: '1000123456V123456^NI^200M^USVHA^P',
-          mhv: '123456^PI^200MHV^USVHA^A',
-          status: 'active',
-          given_names: %w(abraham),
-          family_name: 'lincoln',
-          gender: 'M',
           birth_date: '18090212',
-          ssn: '272111863'
+          edipi: '1234^NI^200DOD^USDOD^A',
+          vba_corp_id: '12345678^PI^200CORP^USVBA^A',
+          family_name: 'Lincoln',
+          gender: 'M',
+          given_names: %w(Abraham),
+          icn: '1000123456V123456^NI^200M^USVHA^P',
+          mhv_id: '123456^PI^200MH^USVHA^A',
+          ssn: '272111863',
+          status: 'active'
         }
       end
     end
