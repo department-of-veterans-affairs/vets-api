@@ -79,12 +79,13 @@ module V0
     end
 
     def saml_user
-      @saml_user || create_saml_user
+      @saml_user ||= create_saml_user
     end
 
     def create_saml_user
-      @saml_user = User.new(user_attributes)
-      @saml_user = Decorators::MviUserDecorator.new(@saml_user).create unless @saml_user.loa1?
+      user = User.new(user_attributes)
+      user = Decorators::MviUserDecorator.new(user).create unless user.loa1?
+      user
     end
 
     def async_create_evss_account(user)

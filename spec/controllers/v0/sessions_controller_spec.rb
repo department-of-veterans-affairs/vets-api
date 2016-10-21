@@ -121,6 +121,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         User.create(loa1_user)
 
         get :saml_callback
+        assert_response :success
 
         uuid = JSON.parse(response.body)['uuid']
         user = User.find(uuid)
@@ -141,6 +142,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       it 'creates a valid session' do
         get :saml_callback
+        assert_response :success
 
         token = JSON.parse(response.body)['token']
         expect(Session.find(token)).not_to be_nil
@@ -148,6 +150,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       it 'stores the user' do
         get :saml_callback
+        assert_response :success
 
         uuid = JSON.parse(response.body)['uuid']
         user = User.find(uuid)
@@ -158,6 +161,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       it 'parses and stores the current level of assurance' do
         get :saml_callback
+        assert_response :success
 
         uuid = JSON.parse(response.body)['uuid']
         user = User.find(uuid)
@@ -166,6 +170,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       it 'parses and stores the highest level of assurance proofing' do
         get :saml_callback
+        assert_response :success
 
         uuid = JSON.parse(response.body)['uuid']
         user = User.find(uuid)
