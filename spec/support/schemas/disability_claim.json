@@ -28,7 +28,8 @@
             "successful_sync",
             "updated_at",
             "phase",
-            "claim_type"
+            "claim_type",
+            "documents"
           ],
           "properties": {
             "evss_id": { "type": "integer" },
@@ -47,7 +48,8 @@
             "successful_sync": { "type": "boolean" },
             "updated_at": { "type": "string" },
             "phase": { "type": ["integer", "null"] },
-            "claim_type": { "type": "string" }
+            "claim_type": { "type": "string" },
+            "documents": { "type": "array", "items": { "type": "object" } }
           }
         }
       }

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
-  attributes :contention_list, :va_representative, :events_timeline, :claim_type
+  attributes :contention_list, :va_representative, :events_timeline,
+             :claim_type, :documents
 
   def contention_list
     object.data['contentionList']
@@ -36,6 +37,14 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
 
   def phase
     phase_from_keys 'claimPhaseDates', 'latestPhaseType'
+  end
+
+  def documents
+    TRACKED_ITEM_FIELDS.map do |field|
+      sub_objects_of('claimTrackedItems', field).map do |obj|
+        create_documents(field.snakecase, obj['vbaDocuments'] || [])
+      end
+    end.flatten
   end
 
   private
@@ -91,6 +100,19 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
     event
   end
 
+  def create_documents(type, objs)
+    objs.map do |obj|
+      {
+        type: type,
+        tracked_item_id: obj['trackedItemId'],
+        file_type: obj['documentTypeLabel'],
+        document_type: obj['documentTypeCode'],
+        filename: obj['originalFileName'],
+        upload_date: unix_date_or_nil_from(obj, 'uploadDate')
+      }
+    end
+  end
+
   def sub_objects_of(*parents)
     items = object.data.dig(*parents) || []
     items.compact
@@ -100,5 +122,14 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
     date = obj[key]
     return nil unless date.present?
     Date.strptime(date, '%m/%d/%Y')
+  end
+
+  # For date-times recording a computer event and therefore known to the
+  # second EVSS uses a UNIX timestamp in milliseconds. Round it to the
+  # day. Not sure what timezone they're using, so could be off by 1 day.
+  def unix_date_or_nil_from(obj, key)
+    date = obj[key]
+    return nil unless date.present?
+    Time.at(date.to_i / 1000).utc.to_date
   end
 end
