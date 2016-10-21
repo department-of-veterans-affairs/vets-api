@@ -30,7 +30,7 @@ module V0
       known_tmp_path = Rails.root.join('tmp', 'spool_files')
       archive_file = known_tmp_path.join('spool.tar')
 
-      ::EducationForm::CreateDailySpoolFiles.perform_now
+      ::EducationForm::CreateDailySpoolFiles.new.perform
       Dir.chdir(known_tmp_path.to_s) do
         system('tar -cf spool.tar *.spl')
       end
