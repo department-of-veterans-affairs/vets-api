@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
-  attributes :contention_list, :va_representative, :events_timeline,
-             :claim_type, :documents
+  attributes :contention_list, :va_representative, :events_timeline, :claim_type
 
   def contention_list
     object.data['contentionList']
@@ -37,14 +36,6 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
 
   def phase
     phase_from_keys 'claimPhaseDates', 'latestPhaseType'
-  end
-
-  def documents
-    TRACKED_ITEM_FIELDS.map do |field|
-      sub_objects_of('claimTrackedItems', field).map do |obj|
-        create_documents(field.snakecase, obj['vbaDocuments'] || [])
-      end
-    end.flatten
   end
 
   private
@@ -94,16 +85,16 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
       requested_date: date_or_nil_from(obj, 'requestedDate'),
       received_date: date_or_nil_from(obj, 'receivedDate'),
       closed_date: date_or_nil_from(obj, 'closedDate'),
-      suspense_date: date_or_nil_from(obj, 'suspenseDate')
+      suspense_date: date_or_nil_from(obj, 'suspenseDate'),
+      documents: create_documents(obj['vbaDocuments'] || [])
     }
     event[:date] = event.slice(*EVENT_DATE_FIELDS).values.compact.first
     event
   end
 
-  def create_documents(type, objs)
+  def create_documents(objs)
     objs.map do |obj|
       {
-        type: type,
         tracked_item_id: obj['trackedItemId'],
         file_type: obj['documentTypeLabel'],
         document_type: obj['documentTypeCode'],
@@ -113,7 +104,7 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
         # to the second EVSS uses a UNIX timestamp in milliseconds.
         # Round it to the day. Not sure what timezone they're using,
         # so could be off by 1 day.
-        upload_date: date_or_nil_from(obj, 'uploadDate', '%Q')
+        upload_date: date_or_nil_from(obj, 'uploadDate', format: '%Q')
       }
     end
   end
