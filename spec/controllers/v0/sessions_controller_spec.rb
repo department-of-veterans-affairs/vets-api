@@ -18,6 +18,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
   let(:settings_no_context) { FactoryGirl.build(:settings_no_context) }
   let(:loa1_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/loa1_response.xml") }
+  let(:loa3_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/loa3_response.xml") }
   let(:settings_service) { class_double(SAML::SettingsService).as_stubbed_const }
 
   before(:each) do
@@ -86,6 +87,22 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
 
     context 'GET saml_callback ' do
+      let(:token) { 'abracadabra-open-sesame' }
+      let(:loa1_user) { build :loa1_user }
+      let(:loa3_user) { build :loa3_user }
+      let(:loa3_saml_attrs) do
+        {
+          'uuid' => [loa3_user.uuid],
+          'email' => [loa3_user.email],
+          'fname' => [loa3_user.first_name],
+          'lname' => [loa3_user.last_name],
+          'mname' => [''],
+          'social' => [loa3_user.ssn],
+          'gender' => ['male'],
+          'birth_date' => [loa3_user.birth_date.strftime('%Y-%m-%d')],
+          'level_of_assurance' => [loa3_user.loa[:highest]]
+        }
+      end
       let(:attributes) { double('attributes') }
       let(:saml_response) { double('saml_response', is_valid?: true, attributes: attributes) }
 
@@ -93,6 +110,21 @@ RSpec.describe V0::SessionsController, type: :controller do
         allow(attributes).to receive_message_chain(:all, :to_h).and_return(saml_attrs)
         allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response)
         allow(saml_response).to receive(:response).and_return(loa1_xml)
+      end
+
+      it 'should uplevel an LOA 1 session to LOA 3' do
+        allow(saml_response).to receive(:response).and_return(loa3_xml)
+        allow(attributes).to receive_message_chain(:all, :to_h).and_return(loa3_saml_attrs)
+        allow_any_instance_of(Decorators::MviUserDecorator).to receive(:create).and_return(loa3_user)
+
+        Session.create(uuid: loa1_user.uuid, token: token)
+        User.create(loa1_user)
+
+        get :saml_callback
+
+        uuid = JSON.parse(response.body)['uuid']
+        user = User.find(uuid)
+        expect(user.attributes).to eq(loa3_user.attributes)
       end
 
       it 'returns a valid token session' do
