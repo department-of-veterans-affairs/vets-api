@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 08611cffceda1272b4da7cad83a9c7786da80010
+  revision: 5c358a99c7d6cdc92530f427738d692446cbb350
   branch: master
   specs:
     vets_json_schema (1.0.0)
@@ -144,6 +144,11 @@ GEM
     geoservices (0.1.0)
     globalid (0.3.7)
       activesupport (>= 4.1.0)
+    govdelivery-tms (0.9.4)
+      activesupport
+      faraday
+      faraday_middleware
+      mime-types
     guard (2.13.0)
       formatador (>= 0.2.4)
       listen (>= 2.7, <= 4.0)
@@ -394,6 +399,7 @@ DEPENDENCIES
   fog-aws (~> 0.12)
   foreman
   geoservices
+  govdelivery-tms
   guard-rspec (~> 4.7)
   guard-rubocop
   httpclient

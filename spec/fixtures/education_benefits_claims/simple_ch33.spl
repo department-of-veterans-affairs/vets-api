@@ -35,7 +35,7 @@ under Chapter 33 are not payable prior to that date.
                             APPLICANT INFORMATION
                             ---------------------
 
-SSN: 111223333         Sex: M             Date of Birth: 03/07/1985
+SSN: 111223333         Sex: M             Date of Birth: 1985-03-07
 
 Name:   Mark Olson
 
@@ -84,10 +84,10 @@ Are you Now On Terminal Leave Just Before Discharge? NO
 
 Date Entered   Date Separated     Service Component
 Active Duty    From Active Duty
-01/01/2001     10/10/2010         Army
+2001-01-01     2010-10-10         Army
                          Service Status:   Active Duty
                          Involuntary Call: yes
-01/01/1995     10/10/1998         Army
+1995-01-01     1998-10-10         Army
                          Service Status:   Honorable Discharge
                          Involuntary Call: yes
 
@@ -96,7 +96,7 @@ Active Duty    From Active Duty
                     EDUCATION AND EMPLOYMENT INFORMATION
                     ------------------------------------
 
-Date Received High School Diploma or Equivalency Certificate: 06/06/2010
+Date Received High School Diploma or Equivalency Certificate: 2010-06-06
 
 FAA Flight Certificates:
 cert1, cert2
@@ -107,7 +107,7 @@ cert1, cert2
 Name and Location of College or Training Provider: 
     OtherCollege Name
     New York, NY
-Date of Training:     From: 01/01/1999 To: 01/01/2000
+Date of Training:     From: 1999-01-01 To: 2000-01-01
 Hours: 8 (semester)
 Degree/Diploma/Certificate: BA
 Major Field/Course of Study: History

@@ -31,15 +31,15 @@ class DisabilityClaimDocumentUploader < CarrierWave::Uploader::Base
   end
 
   def set_storage_options!
-    if EVSS_AWS_ACCESS_CREDS
+    if ENV['EVSS_S3_UPLOADS'] == 'true'
       self.fog_credentials = {
         provider:              'AWS',
-        aws_access_key_id:     EVSS_AWS_ACCESS_CREDS[:aws_access_key_id],
-        aws_secret_access_key: EVSS_AWS_ACCESS_CREDS[:aws_secret_access_key],
-        region:                ENV['EVSS_S3_REGION']
+        aws_access_key_id:     ENV['EVSS_AWS_ACCESS_KEY_ID'],
+        aws_secret_access_key: ENV['EVSS_AWS_SECRET_ACCESS_KEY'],
+        region:                ENV['EVSS_AWS_S3_REGION']
       }
       self.fog_public = false
-      self.fog_directory = ENV['EVSS_S3_BUCKET']
+      self.fog_directory = ENV['EVSS_AWS_S3_BUCKET']
       self.class.storage = :fog
     else
       self.class.storage = :file
