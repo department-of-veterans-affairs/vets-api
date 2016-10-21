@@ -58,11 +58,11 @@ module Rx
       raise Common::Client::Errors::Client, error
     end
 
-    def get(path, params = {}, headers = base_headers)
+    def get(path, params = nil, headers = base_headers)
       request(:get, path, params, headers)
     end
 
-    def post(path, params = {}, headers = base_headers)
+    def post(path, params = nil, headers = base_headers)
       request(:post, path, params.to_json, headers)
     end
 

@@ -32,11 +32,11 @@ module V0
       message = Message.new(create_message_params)
       raise Common::Exceptions::ValidationErrors, message unless message.valid?
 
-      client_response = if message.uploads.present?
-                          client.post_create_message_with_attachment(create_message_params)
-                        else
-                          client.post_create_message(message_params)
-                        end
+      if message.uploads.present?
+        client_response = client.post_create_message_with_attachment(create_message_params)
+      else
+        client_response = client.post_create_message(message_params)
+      end
 
       render json: client_response,
              serializer: MessageSerializer,

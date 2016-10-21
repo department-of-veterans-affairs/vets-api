@@ -11,7 +11,7 @@ describe SM::Client do
   describe 'get_folders' do
     context 'with valid session and configuration' do
       it 'gets a collection of folders' do
-        VCR.use_cassette('sm/folders/10616687/index') do
+        VCR.use_cassette('sm/folders/responds_to_GET_index') do
           client_response = client.get_folders
           expect(client_response).to be_a(Common::Collection)
           expect(client_response.type).to eq(Folder)
@@ -25,7 +25,7 @@ describe SM::Client do
       let(:id) { 0 }
 
       it 'gets a single folder' do
-        VCR.use_cassette('sm/folders/10616687/show') do
+        VCR.use_cassette('sm/folders/responds_to_GET_show') do
           client_response = client.get_folder(id)
           expect(client_response).to be_a(Folder)
         end
@@ -38,7 +38,7 @@ describe SM::Client do
       let(:name) { "test folder create name #{Time.now.utc.strftime('%y%m%d%H%M%S')}" }
 
       it 'creates a folder with given name' do
-        VCR.use_cassette('sm/folders/10616687/create_valid') do
+        VCR.use_cassette('sm/folders/responds_to_POST_create') do
           client_response = client.post_create_folder(name)
           expect(client_response).to be_a(Folder)
         end
@@ -51,8 +51,7 @@ describe SM::Client do
 
     context 'with a valid id' do
       it 'deletes the folder and returns 200' do
-        VCR.use_cassette('sm/folders/10616687/delete_valid') do
-          # cassette_setup = client.post_create_folder(name)
+        VCR.use_cassette('sm/folders/responds_to_DELETE_destroy') do
           client_response = client.delete_folder(613_557)
           expect(client_response).to eq(200)
         end
@@ -62,7 +61,7 @@ describe SM::Client do
 
   describe 'get_folder_messages (multiple requests based on pagination)' do
     it 'does 4 total requests and returns 3 results' do
-      VCR.use_cassette('sm/messages/10616687/index_multi_request') do
+      VCR.use_cassette('sm/folders/nested_resources/responds_to_GET_index_of_messages') do
         # set the max pages to 1 for testing purposes
         stub_const('SM::API::Folders::MHV_MAXIMUM_PER_PAGE', 1)
         # There are 3 records, 1 per page, so it should loop 4 times making requests

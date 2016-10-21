@@ -3,23 +3,17 @@ require 'rails_helper'
 require 'sm/client'
 require 'support/sm_client_helpers'
 
-RSpec.describe 'Messages Integration', type: :request do
-  include SM::ClientHelpers
+RSpec.describe 'sm', type: :request do
+  context 'messages/nested_resources' do
+    before(:each) do
+      allow_any_instance_of(ApplicationController).to receive(:authenticate).and_return(true)
+    end
 
-  before(:each) do
-    allow_any_instance_of(ApplicationController).to receive(:authenticate).and_return(true)
-    expect(SM::Client).to receive(:new).once.and_return(authenticated_client)
-  end
+    let(:inbox_id) { 0 }
+    let(:message_id) { 573_302 }
 
-  let(:user_id) { ENV['MHV_SM_USER_ID'] }
-  let(:inbox_id) { 0 }
-  let(:message_id) { 573_302 }
-
-  describe '#show' do
-    it 'responds sending data for an attachment' do
-      VCR.use_cassette("sm/messages/#{user_id}/attachments/show") do
-        get '/v0/messaging/health/messages/629999/attachments/629993'
-      end
+    it 'responds to GET #show of attachments', :vcr do
+      get '/v0/messaging/health/messages/629999/attachments/629993'
 
       expect(response).to be_success
       expect(response.headers['Content-Disposition'])

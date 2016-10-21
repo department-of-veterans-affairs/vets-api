@@ -1,0 +1,85 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/session"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apptoken:
+      - "<MHV_SM_APP_TOKEN>"
+      Mhvcorrelationid:
+      - '10616687'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Token: "<SESSION_TOKEN>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 20 Oct 2016 09:34:17 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      Content-Length:
+      - '0'
+      Expires:
+      - Thu, 20 Oct 2016 10:34:17 GMT
+      Token: "<SESSION_TOKEN>"
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Content-Type:
+      - text/html; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Thu, 20 Oct 2016 09:34:17 GMT
+- request:
+    method: get
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/triageteam"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 20 Oct 2016 09:34:17 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json
+      Token: "<SESSION_TOKEN>"
+    body:
+      encoding: UTF-8
+      string: '{"triageTeam":[{"name":"Triage group 311070 test 1","relationType":"PATIENT","triageTeamId":585968},{"name":"Triage
+        group 311070 test 2","relationType":"PATIENT","triageTeamId":585986},{"name":"Vets.gov
+        Testing_DAYT29","relationType":"PATIENT","triageTeamId":613586}]}'
+    http_version: 
+  recorded_at: Thu, 20 Oct 2016 09:34:18 GMT
+recorded_with: VCR 3.0.3
