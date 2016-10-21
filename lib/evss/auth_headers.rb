@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require_dependency 'evss/error_middleware'
 
 module EVSS
   class AuthHeaders

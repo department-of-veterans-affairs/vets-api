@@ -15,10 +15,10 @@ class Decorators::MviUserDecorator
     # in most cases (other than ids) the user attributes from the identity provider are more up-to-date
     # but stashing the MVI data if it's needed for confirmation
     @user.attributes = {
-      edipi: response[:edipi],
-      icn: response[:icn],
-      participant_id: response[:vba_corp_id],
-      mhv_id: response[:mhv_id],
+      edipi: select_source_id(response[:edipi]),
+      icn: select_source_id(response[:icn]),
+      participant_id: select_source_id(response[:vba_corp_id]),
+      mhv_id: select_source_id(response[:mhv_id]),
       mvi: response
     }
     @user
@@ -32,6 +32,8 @@ class Decorators::MviUserDecorator
     raise Common::Exceptions::InternalServerError, e
   end
 
+  private
+
   def create_message
     given_names = [@user.first_name]
     given_names.push @user.middle_name unless @user.middle_name.nil?
@@ -42,5 +44,10 @@ class Decorators::MviUserDecorator
       @user.ssn,
       @user.gender
     )
+  end
+
+  def select_source_id(correlation_id)
+    return nil unless correlation_id
+    correlation_id.split('^').first
   end
 end
