@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require_dependency 'evss/aws_creds'
 
 class DisabilityClaimDocumentUploader < CarrierWave::Uploader::Base
   MAX_FILE_SIZE = 25.megabytes
@@ -33,16 +32,12 @@ class DisabilityClaimDocumentUploader < CarrierWave::Uploader::Base
 
   def set_storage_options!
     if ENV['EVSS_S3_UPLOADS'] == 'true'
-      aws_creds = EVSS::AwsCreds.fetch
-      self.fog_credentials = {
-        provider:              'AWS',
-        aws_access_key_id:     aws_creds[:aws_access_key_id],
-        aws_secret_access_key: aws_creds[:aws_secret_access_key],
-        region:                ENV['EVSS_AWS_S3_REGION']
+      self.aws_credentials = {
+        region: ENV['EVSS_AWS_S3_REGION']
       }
-      self.fog_public = false
-      self.fog_directory = ENV['EVSS_AWS_S3_BUCKET']
-      self.class.storage = :fog
+      self.aws_acl = 'private'
+      self.aws_bucket = ENV['EVSS_AWS_S3_BUCKET']
+      self.class.storage = :aws
     else
       self.class.storage = :file
     end
