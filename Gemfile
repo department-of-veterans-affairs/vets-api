@@ -26,6 +26,7 @@ gem 'olive_branch'
 gem 'ox', '~> 2.4'
 gem 'savon', '~> 2.0'
 gem 'sidekiq'
+gem 'sidekiq-unique-jobs'
 gem 'whenever', require: false
 gem 'multi_json'
 gem 'carrierwave-aws'
