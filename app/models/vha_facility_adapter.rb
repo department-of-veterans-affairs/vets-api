@@ -29,7 +29,8 @@ class VHAFacilityAdapter
     m[:facility_type] = FACILITY_TYPE
     m[:address] = {}
     m[:address][:physical] = from_gis_attrs(ADDR_KEYMAP, attrs)
-    m[:address][:physical][:zip] = attrs['Zip'] + '-' + attrs['Zip4']
+    m[:address][:physical][:zip] = attrs['Zip']
+    m[:address][:physical][:zip] << '-' + attrs['Zip4'] unless attrs['Zip4'].strip.empty?
     m[:address][:mailing] = {}
     m[:phone] = from_gis_attrs(PHONE_KEYMAP, attrs)
     m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
@@ -96,7 +97,7 @@ class VHAFacilityAdapter
 
   def from_gis_attrs(km, attrs)
     km.each_with_object({}) do |(k, v), h|
-      h[k] = attrs[v]
+      h[k] = if attrs[v].respond_to?(:strip) then attrs[v].strip else attrs[v] end
     end
   end
 

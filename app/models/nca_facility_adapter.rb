@@ -58,7 +58,7 @@ class NCAFacilityAdapter
 
   def from_gis_attrs(km, attrs)
     km.each_with_object({}) do |(k, v), h|
-      h[k] = attrs[v]
+      h[k] = if attrs[v].respond_to?(:strip) then attrs[v].strip else attrs[v] end
     end
   end
 end
