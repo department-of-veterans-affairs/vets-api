@@ -12,14 +12,24 @@ RSpec.describe 'Documents management', type: :request do
   let(:claim_id) { 189_625 }
   let!(:claim) do
     FactoryGirl.create(:disability_claim, id: 189_625, evss_id: 189_625,
-                                          user_uuid: User.sample_claimant.uuid, data: {})
+                                          user_uuid: user.uuid, data: {})
+  end
+  let(:user) do
+    user = FactoryGirl.build(:mvi_user)
+    user.save
+    user
+  end
+  let(:session) do
+    session = Session.new(uuid: user.uuid)
+    session.save
+    session
   end
 
   it 'should upload a file' do
     ActiveJob::Base.queue_adapter = :test
     params = { file: file, tracked_item: tracked_item }
     expect do
-      post "/v0/disability_claims/#{claim_id}/documents", params
+      post "/v0/disability_claims/#{claim_id}/documents", params, 'Authorization' => "Token token=#{session.token}"
     end.to have_enqueued_job(DisabilityClaim::DocumentUpload)
     expect(response).to be_success
     expect(response.body).to be_empty
