@@ -67,6 +67,10 @@ class User < Common::RedisStore
     client.find_rating_info(participant_id).body.fetch('ratingRecord', {})
   end
 
+  def evss_attrs?
+    edipi.present? && ssn.present? && participant_id.present?
+  end
+
   private
 
   def evss_auth_headers

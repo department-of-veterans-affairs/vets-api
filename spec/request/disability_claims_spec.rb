@@ -5,6 +5,15 @@ RSpec.describe 'disability Claims management', type: :request do
   let(:user) { FactoryGirl.create(:mvi_user) }
   let(:session) { Session.create(uuid: user.uuid) }
 
+  context 'for a user without evss attrs' do
+    let(:user) { FactoryGirl.create(:user, edipi: nil) }
+
+    it 'returns a 403' do
+      get '/v0/disability_claims', nil, 'Authorization' => "Token token=#{session.token}"
+      expect(response).to have_http_status(:forbidden)
+    end
+  end
+
   it 'lists all Claims' do
     VCR.use_cassette('evss/claims/claims') do
       get '/v0/disability_claims', nil, 'Authorization' => "Token token=#{session.token}"

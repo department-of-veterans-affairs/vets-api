@@ -18,6 +18,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
   let(:settings_no_context) { FactoryGirl.build(:settings_no_context) }
   let(:loa1_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/loa1_response.xml") }
+  let(:loa3_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/loa3_response.xml") }
   let(:settings_service) { class_double(SAML::SettingsService).as_stubbed_const }
 
   before(:each) do
@@ -102,9 +103,15 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(JSON.parse(response.body).keys).to include('token', 'uuid')
       end
 
-      it 'creates a job to create an evss user' do
+      it 'creates a job to create an evss user when user has loa3 and evss attrs' do
         ActiveJob::Base.queue_adapter = :test
+        allow(saml_response).to receive(:response).and_return(loa3_xml)
         expect { get :saml_callback }.to have_enqueued_job(EVSS::CreateUserAccountJob)
+      end
+
+      it 'does not create a job to create an evss user when user has loa1 and missing evss attrs' do
+        ActiveJob::Base.queue_adapter = :test
+        expect { get :saml_callback }.to_not have_enqueued_job(EVSS::CreateUserAccountJob)
       end
 
       it 'creates a valid session' do
