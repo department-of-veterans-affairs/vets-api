@@ -58,7 +58,9 @@ module Common
     end
 
     def self.create(attributes)
-      new(attributes).save
+      instance = new(attributes)
+      instance.save
+      instance
     end
 
     def save
@@ -70,6 +72,10 @@ module Common
         )
       end
       @persisted = true
+    end
+
+    def save!
+      raise Common::Exceptions::ValidationErrors, self unless save
     end
 
     def update(attributes_hash)

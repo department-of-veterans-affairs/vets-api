@@ -2,16 +2,8 @@
 require 'rails_helper'
 
 RSpec.describe 'disability Claims management', type: :request do
-  let(:user) do
-    user = FactoryGirl.build(:mvi_user)
-    user.save
-    user
-  end
-  let(:session) do
-    session = Session.new(uuid: user.uuid)
-    session.save
-    session
-  end
+  let(:user) { FactoryGirl.create(:mvi_user) }
+  let(:session) { Session.create(uuid: user.uuid) }
 
   it 'lists all Claims' do
     VCR.use_cassette('evss/claims/claims') do

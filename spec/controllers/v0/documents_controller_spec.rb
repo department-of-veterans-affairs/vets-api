@@ -2,16 +2,8 @@
 require 'rails_helper'
 
 RSpec.describe V0::DocumentsController, type: :controller do
-  let(:user) do
-    user = FactoryGirl.build(:mvi_user)
-    user.save
-    user
-  end
-  let(:session) do
-    session = Session.new(uuid: user.uuid)
-    session.save
-    session
-  end
+  let(:user) { FactoryGirl.create(:mvi_user) }
+  let(:session) { Session.create(uuid: user.uuid) }
 
   context 'with no file param' do
     it 'returns bad request' do

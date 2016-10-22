@@ -14,16 +14,8 @@ RSpec.describe 'Documents management', type: :request do
     FactoryGirl.create(:disability_claim, id: 189_625, evss_id: 189_625,
                                           user_uuid: user.uuid, data: {})
   end
-  let(:user) do
-    user = FactoryGirl.build(:mvi_user)
-    user.save
-    user
-  end
-  let(:session) do
-    session = Session.new(uuid: user.uuid)
-    session.save
-    session
-  end
+  let(:user) { FactoryGirl.create(:mvi_user) }
+  let(:session) { Session.create(uuid: user.uuid) }
 
   it 'should upload a file' do
     ActiveJob::Base.queue_adapter = :test
