@@ -14,14 +14,14 @@ describe SM::Client do
   let(:draft) { attributes_for(:message).slice(:category, :subject, :body, :recipient_id) }
 
   it 'should #post_create_message_draft to create new draft' do
-    VCR.use_cassette("sm/message_drafts/responds_to_POST_create") do
+    VCR.use_cassette('sm/message_drafts/responds_to_POST_create') do
       client_response = client.post_create_message_draft(draft)
       expect(client_response).to be_a(MessageDraft)
     end
   end
 
   it 'should #post_create_message_draft to update existing draft' do
-    VCR.use_cassette("sm/message_drafts/responds_to_PUT_update") do
+    VCR.use_cassette('sm/message_drafts/responds_to_PUT_update') do
       draft[:id] = draft_to_update
       draft[:subject] = 'Updated Subject'
 
@@ -32,14 +32,14 @@ describe SM::Client do
   end
 
   it 'should #post_create_message_draft_reply to create new reply draft' do
-    VCR.use_cassette("sm/reply_drafts/responds_to_POST_create") do
+    VCR.use_cassette('sm/reply_drafts/responds_to_POST_create') do
       client_response = client.post_create_message_draft_reply(reply_id, draft)
       expect(client_response).to be_a(MessageDraft)
     end
   end
 
   it 'should #post_create_message_draft_reply to update an existing reply draft' do
-    VCR.use_cassette("sm/reply_drafts/responds_to_PUT_update") do
+    VCR.use_cassette('sm/reply_drafts/responds_to_PUT_update') do
       draft[:id] = replydraft_to_update
       draft[:body] = 'Updated Body'
 

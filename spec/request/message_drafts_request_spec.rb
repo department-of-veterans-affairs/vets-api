@@ -23,7 +23,7 @@ RSpec.describe 'sm', type: :request do
 
     it 'responds to PUT #update', :vcr do
       params[:message_draft][:subject] = 'Updated Subject'
-      put "/v0/messaging/health/message_drafts/653149", params
+      put '/v0/messaging/health/message_drafts/653149', params
 
       expect(response).to be_success
       expect(response).to have_http_status(:no_content)

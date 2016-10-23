@@ -45,14 +45,14 @@ module SM
       end
 
       def post_create_message_with_attachment(args = {})
-        params  = { uploads: args.delete(:uploads), message: args }
+        params = { uploads: args.delete(:uploads), message: args }
 
         json = perform(:post, 'message/attach', params, token_headers).body
         Message.new(json)
       end
 
       def post_create_message_reply_with_attachment(id, args = {})
-        params  = { uploads: args.delete(:uploads), message: args }
+        params = { uploads: args.delete(:uploads), message: args }
 
         json = perform(:post, "message/#{id}/reply/attach", params, token_headers).body
         Message.new(json)
@@ -76,10 +76,9 @@ module SM
       # delete_folder: Deletes a folder.
       def delete_message(id)
         response = perform(:delete, "message/#{id}", nil, token_headers)
-        
+
         response.nil? ? nil : response.status
       end
-
     end
   end
 end

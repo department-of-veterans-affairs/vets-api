@@ -10,8 +10,8 @@ RSpec.describe 'sm', type: :request do
     # make sure to run rspec in default order (not rand),
     # or run each spec individually (create first)
     # bundle exec rspec --order default
-    let(:params_for_create) { { folder: { name: "test folder #{rand(100..10000)}" } } }
-    let(:destroy_folder_id) { 653164 }
+    let(:params_for_create) { { folder: { name: "test folder #{rand(100..10_000)}" } } }
+    let(:destroy_folder_id) { 653_164 }
 
     before(:each) do
       allow_any_instance_of(ApplicationController).to receive(:authenticate).and_return(true)
