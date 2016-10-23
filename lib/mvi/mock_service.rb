@@ -10,19 +10,12 @@ module MVI
       if response
         response
       else
-        {
-          birth_date: '18090212',
-          edipi: '1234^NI^200DOD^USDOD^A',
-          family_name: 'Lincoln',
-          gender: 'M',
-          given_names: ['Abraham'],
-          icn: '1000123456V123456^NI^200M^USVHA^P',
-          mhv_id: '123456^PI^200MHV^USVHA^A',
-          vba_corp_id: '12345678^PI^200CORP^USVBA^A',
-          ssn: '272112222',
-          status: 'deceased'
-        }
+        MVI::Service.find_candidate(message)
       end
+    rescue MVI::ServiceError, HTTPI::SSLError => e
+      Rails.logger.error "No user found by key #{message.ssn} in mock_mvi_responses.yml, "\
+      "the remote service was invoked but received an error: #{e.message}"
+      raise e
     end
   end
 end
