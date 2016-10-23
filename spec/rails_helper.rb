@@ -24,11 +24,8 @@ VCR.configure do |c|
   c.filter_sensitive_data('<MHV_HOST>') { ENV['MHV_HOST'] }
   c.filter_sensitive_data('<APP_TOKEN>') { ENV['MHV_APP_TOKEN'] }
   c.before_record do |i|
-    i.response.headers.update('Token' => '<SESSION_TOKEN>')
-    i.request.headers.update('Token' => '<SESSION_TOKEN>')
-  end
-  c.register_request_matcher :anonymized_session_token do |_acutal, expected|
-    actual.headers['Token'] == expected.headers['Token']
+    i.response.headers.update('Token' => '<SESSION_TOKEN>') if i.response.headers.keys.include?('Token')
+    i.request.headers.update('Token' => '<SESSION_TOKEN>') if i.request.headers.keys.include?('Token')
   end
 end
 
