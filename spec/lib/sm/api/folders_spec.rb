@@ -51,8 +51,8 @@ describe SM::Client do
 
     context 'with a valid id' do
       it 'deletes the folder and returns 200' do
-        VCR.use_cassette('sm/folders//non_idempotent_actions/responds_to_DELETE_destroy') do
-          client_response = client.delete_folder(613_557)
+        VCR.use_cassette('sm/folders/non_idempotent_actions/responds_to_DELETE_destroy') do
+          client_response = client.delete_folder(653_164)
           expect(client_response).to eq(200)
         end
       end

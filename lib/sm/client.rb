@@ -83,8 +83,8 @@ module SM
 
     def connection
       @connection ||= Faraday.new(@config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options) do |conn|
-        # conn.request :camelcase
-        # conn.request :multipart_request
+        conn.request :camelcase
+        conn.request :multipart_request
         conn.request :multipart
         conn.request :json
         # conn.request :curl, ::Logger.new(STDOUT), :warn

@@ -24,13 +24,13 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 20 Oct 2016 09:34:20 GMT
+      - Sun, 23 Oct 2016 10:23:11 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Content-Length:
       - '0'
       Expires:
-      - Thu, 20 Oct 2016 10:34:20 GMT
+      - Sun, 23 Oct 2016 11:23:11 GMT
       Token: "<SESSION_TOKEN>"
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
@@ -42,13 +42,13 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Thu, 20 Oct 2016 09:34:20 GMT
+  recorded_at: Sun, 23 Oct 2016 10:23:11 GMT
 - request:
     method: post
     uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/631270/replydraft"
     body:
       encoding: UTF-8
-      string: '{"body":"Body 1","id":"573073"}'
+      string: '{"body":"Updated Body","id":"653146"}'
     headers:
       Accept:
       - application/json
@@ -65,7 +65,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 20 Oct 2016 09:34:20 GMT
+      - Sun, 23 Oct 2016 10:23:18 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -79,9 +79,9 @@ http_interactions:
       Token: "<SESSION_TOKEN>"
     body:
       encoding: UTF-8
-      string: '{"id":573073,"category":"OTHER","subject":"Updated Subject","body":"Body
-        1","attachment":false,"attachments":{"attachment":[]},"sentDate":"","senderId":384939,"senderName":"MVIONE,
+      string: '{"id":653146,"category":"OTHER","subject":"Subject 1","body":"Updated
+        Body","attachment":false,"attachments":{"attachment":[]},"sentDate":"","senderId":384939,"senderName":"MVIONE,
         TEST","recipientId":585986,"recipientName":"Triage group 311070 test 2","readReceipt":null}'
     http_version: 
-  recorded_at: Thu, 20 Oct 2016 09:34:20 GMT
+  recorded_at: Sun, 23 Oct 2016 10:23:18 GMT
 recorded_with: VCR 3.0.3
