@@ -9,7 +9,7 @@ RSpec.describe 'sm', type: :request do
   # or run each spec individually (move first)
   # bundle exec rspec --order default
 
-  let(:move_message_id)     { 635008 }
+  let(:move_message_id)     { 634998 }
   let(:destroy_message_id)  { 635008 }
   let(:existing_folder_id)  { 610965 }
 

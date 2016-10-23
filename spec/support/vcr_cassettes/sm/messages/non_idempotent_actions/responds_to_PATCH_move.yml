@@ -17,20 +17,19 @@ http_interactions:
       - '10616687'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Token: "<SESSION_TOKEN>"
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Fri, 21 Oct 2016 10:25:21 GMT
+      - Sun, 23 Oct 2016 10:54:35 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Content-Length:
       - '0'
       Expires:
-      - Fri, 21 Oct 2016 11:25:21 GMT
+      - Sun, 23 Oct 2016 11:54:35 GMT
       Token: "<SESSION_TOKEN>"
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
@@ -42,30 +41,30 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Fri, 21 Oct 2016 10:25:21 GMT
+  recorded_at: Sun, 23 Oct 2016 10:54:35 GMT
 - request:
     method: post
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/635008/move/tofolder/610965"
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/634998/move/tofolder/610965"
     body:
       encoding: UTF-8
-      string: ''
+      string: "{}"
     headers:
       Accept:
       - application/json
       User-Agent:
       - Vets.gov Agent
       Token: "<SESSION_TOKEN>"
-      Content-Length:
-      - '0'
+      Content-Type:
+      - application/json
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 400
-      message: Bad Request
+      code: 200
+      message: OK
     headers:
       Date:
-      - Fri, 21 Oct 2016 10:25:21 GMT
+      - Sun, 23 Oct 2016 10:54:36 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -75,12 +74,10 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Content-Type:
-      - text/xml
-      Token: "<SESSION_TOKEN>"
+      - application/json
     body:
       encoding: UTF-8
-      string: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><Error><developerMessage></developerMessage><errorCode>99</errorCode><message>Unknown
-        application error occurred</message></Error>
+      string: Success
     http_version: 
-  recorded_at: Fri, 21 Oct 2016 10:25:21 GMT
+  recorded_at: Sun, 23 Oct 2016 10:54:36 GMT
 recorded_with: VCR 3.0.3
