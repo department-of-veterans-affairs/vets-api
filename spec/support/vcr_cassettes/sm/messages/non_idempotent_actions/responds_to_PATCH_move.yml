@@ -24,13 +24,13 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 20 Oct 2016 20:07:38 GMT
+      - Fri, 21 Oct 2016 10:25:21 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Content-Length:
       - '0'
       Expires:
-      - Thu, 20 Oct 2016 21:07:38 GMT
+      - Fri, 21 Oct 2016 11:25:21 GMT
       Token: "<SESSION_TOKEN>"
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
@@ -42,12 +42,12 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Thu, 20 Oct 2016 20:07:38 GMT
+  recorded_at: Fri, 21 Oct 2016 10:25:21 GMT
 - request:
-    method: get
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/category"
+    method: post
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/635008/move/tofolder/610965"
     body:
-      encoding: US-ASCII
+      encoding: UTF-8
       string: ''
     headers:
       Accept:
@@ -55,15 +55,17 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Token: "<SESSION_TOKEN>"
+      Content-Length:
+      - '0'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 200
-      message: OK
+      code: 400
+      message: Bad Request
     headers:
       Date:
-      - Thu, 20 Oct 2016 20:07:38 GMT
+      - Fri, 21 Oct 2016 10:25:21 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -73,11 +75,12 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Content-Type:
-      - application/json
+      - text/xml
       Token: "<SESSION_TOKEN>"
     body:
       encoding: UTF-8
-      string: '{"messageCategoryType":["OTHER","APPOINTMENTS","MEDICATIONS","TEST_RESULTS","EDUCATION"]}'
+      string: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><Error><developerMessage></developerMessage><errorCode>99</errorCode><message>Unknown
+        application error occurred</message></Error>
     http_version: 
-  recorded_at: Thu, 20 Oct 2016 20:07:38 GMT
+  recorded_at: Fri, 21 Oct 2016 10:25:21 GMT
 recorded_with: VCR 3.0.3

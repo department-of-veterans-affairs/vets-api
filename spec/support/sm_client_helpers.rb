@@ -3,7 +3,7 @@ module SM
   module ClientHelpers
     HOST = ENV['MHV_SM_HOST']
     APP_TOKEN = 'fake-app-token'
-    TOKEN = 'GkuX2OZ4dCE=48xrH6ObGXZ45ZAg70LBahi7CjswZe8SZGKMUVFIU88='
+    TOKEN = '2exSxvcXq/Q=8RXZtaeZrRAkyXTbXfQrjWMVqSza277kcExaQM/BTOE='
 
     SAMPLE_SESSION_RESPONSE = {
       status: 200,

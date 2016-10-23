@@ -1,0 +1,98 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/session"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apptoken:
+      - "<MHV_SM_APP_TOKEN>"
+      Mhvcorrelationid:
+      - '10616687'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Token: "<SESSION_TOKEN>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sun, 23 Oct 2016 08:59:13 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      Content-Length:
+      - '0'
+      Expires:
+      - Sun, 23 Oct 2016 09:59:13 GMT
+      Token: "<SESSION_TOKEN>"
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Content-Type:
+      - text/html; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Sun, 23 Oct 2016 08:59:13 GMT
+- request:
+    method: get
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder/0/message/page/1/pageSize/250"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sun, 23 Oct 2016 08:59:13 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json
+      Token: "<SESSION_TOKEN>"
+    body:
+      encoding: UTF-8
+      string: '{"message":[{"id":634998,"category":"EDUCATION","subject":"This is
+        a new subject","body":null,"attachment":false,"attachments":null,"sentDate":"Wed,
+        12 Oct 2016 23:03:49 GMT","senderId":621356,"senderName":"KARSHENAS, KAMYAR","recipientId":384939,"recipientName":"MVIONE,
+        TEST","readReceipt":"READ"},{"id":629999,"category":"OTHER","subject":"Multiple
+        File Attachments","body":null,"attachment":true,"attachments":null,"sentDate":"Wed,
+        05 Oct 2016 22:21:44 GMT","senderId":621356,"senderName":"KARSHENAS, KAMYAR","recipientId":384939,"recipientName":"MVIONE,
+        TEST","readReceipt":"READ"},{"id":621407,"category":"OTHER","subject":"some
+        really new subject","body":null,"attachment":false,"attachments":null,"sentDate":"Fri,
+        16 Sep 2016 16:30:06 GMT","senderId":621355,"senderName":"HARBATKIN, MARC","recipientId":384939,"recipientName":"MVIONE,
+        TEST","readReceipt":"READ"},{"id":573314,"category":"OTHER","subject":"Release
+        16.2- SM last login ","body":null,"attachment":false,"attachments":null,"sentDate":"Wed,
+        13 Apr 2016 21:35:00 GMT","senderId":35382,"senderName":"Manivasagam, Rajesh","recipientId":384939,"recipientName":"MVIONE,
+        TEST","readReceipt":"READ"},{"id":573302,"category":"OTHER","subject":"Release
+        16.2- SM last login ","body":null,"attachment":false,"attachments":null,"sentDate":"Wed,
+        13 Apr 2016 21:17:57 GMT","senderId":35382,"senderName":"Manivasagam, Rajesh","recipientId":384939,"recipientName":"MVIONE,
+        TEST","readReceipt":"READ"}]}'
+    http_version: 
+  recorded_at: Sun, 23 Oct 2016 08:59:13 GMT
+recorded_with: VCR 3.0.3

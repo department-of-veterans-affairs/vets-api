@@ -19,7 +19,6 @@ RSpec.describe 'sm', type: :request do
     end
 
     let(:user_id) { ENV['MHV_SM_USER_ID'] }
-    let(:inbox_id) { 0 }
     let(:message_id) { 573_302 }
     let(:thread_id) { 573_059 }
     let(:attachment_base_path) { 'spec/support/fixtures/' }
@@ -31,28 +30,6 @@ RSpec.describe 'sm', type: :request do
         Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file3.jpg', attachment_type),
         Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file4.jpg', attachment_type)
       ]
-    end
-
-    describe 'responds to GET #index' do
-      it 'complete collection', :vcr do
-        get "/v0/messaging/health/folders/#{inbox_id}/messages"
-
-        expect(response).to be_success
-        expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('messages')
-      end
-
-      it 'filtered for multiple attributes', :vcr do
-        filter = 'filter[[subject][eq]]=something&filter[[sender_name][eq]]=someone'
-        get "/v0/messaging/health/folders/#{inbox_id}/messages?#{filter}"
-        expect(response).to be_success
-      end
-
-      it 'filtered for multiple predicates on single field', :vcr do
-        filter = 'filter[[sent_date][lteq]]=2016-01-01&filter[[sent_date][gteq]]=2016-01-01'
-        get "/v0/messaging/health/folders/#{inbox_id}/messages?#{filter}"
-        expect(response).to be_success
-      end
     end
 
     it 'responds to GET #show', :vcr do
@@ -71,7 +48,7 @@ RSpec.describe 'sm', type: :request do
       expect(response).to match_response_schema('messages')
     end
 
-    it 'responds to GET messages/categories', :vcr do
+    it 'responds to GET categories', :vcr do
       get '/v0/messaging/health/messages/categories'
 
       expect(response).to be_success
@@ -89,7 +66,7 @@ RSpec.describe 'sm', type: :request do
 
       it 'responds to DELETE', :vcr do
         delete "/v0/messaging/health/messages/#{destroy_message_id}"
-        
+
         expect(response).to be_success
         expect(response).to have_http_status(:no_content)
       end

@@ -1,0 +1,84 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/session"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apptoken:
+      - "<MHV_SM_APP_TOKEN>"
+      Mhvcorrelationid:
+      - '10616687'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Token: "<SESSION_TOKEN>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 21 Oct 2016 10:25:19 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      Content-Length:
+      - '0'
+      Expires:
+      - Fri, 21 Oct 2016 11:25:20 GMT
+      Token: "<SESSION_TOKEN>"
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Content-Type:
+      - text/html; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Fri, 21 Oct 2016 10:25:20 GMT
+- request:
+    method: delete
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/635008"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Fri, 21 Oct 2016 10:25:20 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - text/xml
+      Token: "<SESSION_TOKEN>"
+    body:
+      encoding: UTF-8
+      string: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><Error><developerMessage></developerMessage><errorCode>99</errorCode><message>Unknown
+        application error occurred</message></Error>
+    http_version: 
+  recorded_at: Fri, 21 Oct 2016 10:25:21 GMT
+recorded_with: VCR 3.0.3

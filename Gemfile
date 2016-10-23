@@ -61,7 +61,7 @@ group :development, :test do
 
   gem 'foreman'
 
-  # This is handy for debugging purposes, produces curl output for easily communicating with MHV
+  # This is handy for debugging purposes, produces curl output for easily communicating with MHV about issuesss
   gem 'faraday_curl'
 end
 

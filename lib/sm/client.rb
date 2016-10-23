@@ -51,13 +51,12 @@ module SM
 
     private
 
-    def perform(method, path, params = nil, headers = nil)
+    def perform(method, path, params, headers = token_headers)
       raise NoMethodError, "#{method} not implemented" unless REQUEST_TYPES.include?(method)
-
-      send(method, path, params, headers)
+      send(method, path, params || {}, headers)
     end
 
-    def request(method, path, params = {}, headers = {})
+    def request(method, path, params, headers = {})
       raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
       connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
     rescue Faraday::Error::TimeoutError, Timeout::Error => error
@@ -66,15 +65,15 @@ module SM
       raise Common::Client::Errors::Client, error
     end
 
-    def get(path, params = nil, headers = base_headers)
+    def get(path, params, headers = base_headers)
       request(:get, path, params, headers)
     end
 
-    def post(path, params = nil, headers = base_headers)
+    def post(path, params, headers = base_headers)
       request(:post, path, params, headers)
     end
 
-    def delete(path, params = nil, headers = base_headers)
+    def delete(path, params, headers = base_headers)
       request(:delete, path, params, headers)
     end
 
@@ -84,11 +83,11 @@ module SM
 
     def connection
       @connection ||= Faraday.new(@config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options) do |conn|
-        conn.request :camelcase
-        conn.request :multipart_request
+        # conn.request :camelcase
+        # conn.request :multipart_request
         conn.request :multipart
         conn.request :json
-        conn.request :curl, ::Logger.new(STDOUT), :warn
+        # conn.request :curl, ::Logger.new(STDOUT), :warn
 
         conn.response :sm_parser
         conn.response :snakecase

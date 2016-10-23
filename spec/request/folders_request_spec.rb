@@ -50,4 +50,30 @@ RSpec.describe 'sm', type: :request do
       end
     end
   end
+
+  describe 'nested resources' do
+    describe 'responds to GET index of messages' do
+      let(:inbox_id) { 0 }
+      let(:filter_attributes) { 'filter[[subject][eq]]=something&filter[[sender_name][eq]]=someone' }
+      let(:filter_predicates) { 'filter[[sent_date][lteq]]=2016-01-01&filter[[sent_date][gteq]]=2016-01-01' }
+
+      it 'complete collection', :vcr do
+        get "/v0/messaging/health/folders/#{inbox_id}/messages"
+
+        expect(response).to be_success
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('messages')
+      end
+
+      it 'filtered for multiple attributes', :vcr do
+        get "/v0/messaging/health/folders/#{inbox_id}/messages?#{filter_attributes}"
+        expect(response).to be_success
+      end
+
+      it 'filtered for multiple predicates on single field', :vcr do
+        get "/v0/messaging/health/folders/#{inbox_id}/messages?#{filter_predicates}"
+        expect(response).to be_success
+      end
+    end
+  end
 end
