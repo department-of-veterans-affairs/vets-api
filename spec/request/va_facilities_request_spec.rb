@@ -8,7 +8,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
-      expect(json['data']['id']).to eq('648A4')
+      expect(json['data']['id']).to eq('vha_648A4')
     end
   end
 
@@ -18,7 +18,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
-      expect(json['data']['id']).to eq('888')
+      expect(json['data']['id']).to eq('nca_888')
     end
   end
 
