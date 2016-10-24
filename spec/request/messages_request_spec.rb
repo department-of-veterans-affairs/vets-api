@@ -137,7 +137,7 @@ RSpec.describe 'Messages Integration', type: :request do
     let(:message_id) { 573_052 }
 
     it 'responds to PATCH messages/move' do
-      VCR.use_cassette("sm_client/messages/moves_a_message_with_id") do
+      VCR.use_cassette('sm_client/messages/moves_a_message_with_id') do
         patch "/v0/messaging/health/messages/#{message_id}/move?folder_id=0"
       end
 
