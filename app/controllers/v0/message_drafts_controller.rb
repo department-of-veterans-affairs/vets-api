@@ -15,9 +15,7 @@ module V0
       draft = MessageDraft.new(draft_params)
       raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
 
-      draft_response = client.post_create_message_draft(draft_params.merge(id: params[:id]))
-      raise Common::Exceptions::ValidationsErrors, draft_response unless draft_response.valid?
-
+      client.post_create_message_draft(draft_params.merge(id: params[:id]))
       head :no_content
     end
 
@@ -35,10 +33,9 @@ module V0
       draft = MessageDraft.new(reply_draft_params.merge(has_message: true)).as_reply
       raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
 
-      draft_response = client.post_create_message_draft_reply(
+      client.post_create_message_draft_reply(
         params[:reply_id], reply_draft_params.merge(id: params[:draft_id])
       )
-      raise Common::Exceptions::ValidationsErrors, draft_response unless draft_response.valid?
 
       head :no_content
     end
