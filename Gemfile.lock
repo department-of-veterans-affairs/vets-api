@@ -97,7 +97,6 @@ GEM
     carrierwave-aws (1.0.2)
       aws-sdk (~> 2.0)
       carrierwave (>= 0.7, < 2.0)
-    chronic (0.10.2)
     climate_control (0.0.3)
       activesupport (>= 3.0)
     coderay (1.1.1)
@@ -166,6 +165,7 @@ GEM
     haml (4.0.7)
       tilt
     hashdiff (0.3.0)
+    hashie (3.4.6)
     highline (1.7.8)
     httpclient (2.8.2.3)
     httpi (2.4.2)
@@ -301,6 +301,7 @@ GEM
       sexp_processor (~> 4.0)
     ruby_parser (3.8.1)
       sexp_processor (~> 4.1)
+    rufus-scheduler (3.1.10)
     safe_yaml (1.0.4)
     sass (3.4.21)
     savon (2.11.1)
@@ -321,6 +322,12 @@ GEM
       connection_pool (~> 2.2, >= 2.2.0)
       rack-protection (~> 1.5)
       redis (~> 3.2, >= 3.2.1)
+    sidekiq-scheduler (2.0.19)
+      hashie (~> 3.4)
+      redis (~> 3)
+      rufus-scheduler (~> 3.1.8)
+      sidekiq (>= 3)
+      tilt (>= 1.4.0)
     sidekiq-unique-jobs (4.0.18)
       sidekiq (>= 2.6)
       thor
@@ -371,8 +378,6 @@ GEM
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff
-    whenever (0.9.7)
-      chronic (>= 0.6.3)
     will_paginate (3.1.0)
 
 PLATFORMS
@@ -423,6 +428,7 @@ DEPENDENCIES
   savon (~> 2.0)
   sdoc (~> 0.4.0)
   sidekiq
+  sidekiq-scheduler (~> 2.0)
   sidekiq-unique-jobs
   simplecov (~> 0.11)
   spring
@@ -434,7 +440,6 @@ DEPENDENCIES
   virtus
   web-console (~> 2.0)
   webmock
-  whenever
   will_paginate
 
 BUNDLED WITH
