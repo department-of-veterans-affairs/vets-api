@@ -36,7 +36,7 @@ RSpec.describe 'Messages Integration', type: :request do
       ]
     end
     let(:message_params) { attributes_for(:message, subject: 'Subject 1', body: 'Body 1') }
-    let(:params) { { message_params.slice(:subject, :category, :recipient_id, :body) } }
+    let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
     let(:params_with_attachments) { { message: params }.merge(uploads: uploads) }
 
     context 'message' do
