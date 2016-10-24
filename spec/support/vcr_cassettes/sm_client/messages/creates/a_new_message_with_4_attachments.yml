@@ -86,7 +86,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 24 Oct 2016 11:00:05 GMT
+      - Mon, 24 Oct 2016 14:27:03 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -99,10 +99,10 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: '{"id":655518,"category":"OTHER","subject":"CI Run","body":"Continuous
-        Integration","attachment":true,"attachments":{"attachment":[{"id":655513,"name":"sm_file1.jpg"},{"id":655514,"name":"sm_file2.jpg"},{"id":655515,"name":"sm_file3.jpg"},{"id":655516,"name":"sm_file4.jpg"}]},"sentDate":"Mon,
-        24 Oct 2016 11:00:06 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":585986,"recipientName":"Triage
+      string: '{"id":655604,"category":"OTHER","subject":"CI Run","body":"Continuous
+        Integration","attachment":true,"attachments":{"attachment":[{"id":655599,"name":"sm_file1.jpg"},{"id":655600,"name":"sm_file2.jpg"},{"id":655601,"name":"sm_file3.jpg"},{"id":655602,"name":"sm_file4.jpg"}]},"sentDate":"Mon,
+        24 Oct 2016 14:27:03 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":585986,"recipientName":"Triage
         group 311070 test 2","readReceipt":null}'
     http_version: 
-  recorded_at: Mon, 24 Oct 2016 11:00:06 GMT
+  recorded_at: Mon, 24 Oct 2016 14:27:03 GMT
 recorded_with: VCR 3.0.3

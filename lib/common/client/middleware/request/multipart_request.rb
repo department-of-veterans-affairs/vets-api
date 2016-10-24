@@ -15,14 +15,14 @@ module Common
           def call(env)
             return @app.call(env) unless env[:body].is_a?(Hash)
 
-            @io_keys = []
+            io_keys = []
 
             env[:body].each do |key, value|
-              env[:body][key] = io_object_for(key, value)
+              env[:body][key] = io_object_for(key, value, io_keys)
             end
 
-            if @io_keys.any?
-              env[:body].except(*@io_keys.uniq).each do |key, value|
+            if io_keys.any?
+              env[:body].except(*io_keys.uniq).each do |key, value|
                 env[:body][key] = make_io_for_body(key, value)
               end
             end
@@ -32,16 +32,16 @@ module Common
 
           private
 
-          def io_object_for(key, value)
+          def io_object_for(key, value, io_keys)
             if value.respond_to?(:to_io)
-              @io_keys << key
+              io_keys << key
               Faraday::UploadIO.new(
                 value,
                 mime_type(File.extname(value.path)),
                 file_name(value)
               )
             elsif value.is_a?(Array)
-              value.map { |each_value| io_object_for(key, each_value) }
+              value.map { |each_value| io_object_for(key, each_value, io_keys) }
             else
               value
             end

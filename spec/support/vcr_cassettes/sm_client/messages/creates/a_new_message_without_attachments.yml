@@ -23,7 +23,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 24 Oct 2016 11:00:04 GMT
+      - Mon, 24 Oct 2016 14:27:01 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -36,10 +36,10 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: '{"id":655484,"category":"OTHER","subject":"CI Run","body":"Continuous
+      string: '{"id":655570,"category":"OTHER","subject":"CI Run","body":"Continuous
         Integration","attachment":false,"attachments":{"attachment":[]},"sentDate":"Mon,
-        24 Oct 2016 11:00:04 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":585986,"recipientName":"Triage
+        24 Oct 2016 14:27:01 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":585986,"recipientName":"Triage
         group 311070 test 2","readReceipt":null}'
     http_version: 
-  recorded_at: Mon, 24 Oct 2016 11:00:04 GMT
+  recorded_at: Mon, 24 Oct 2016 14:27:01 GMT
 recorded_with: VCR 3.0.3

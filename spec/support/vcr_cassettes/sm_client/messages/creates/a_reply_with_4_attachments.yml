@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/655484/reply/attach"
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/655570/reply/attach"
     body:
       encoding: ASCII-8BIT
       string: !binary |-
@@ -86,7 +86,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 24 Oct 2016 11:00:04 GMT
+      - Mon, 24 Oct 2016 14:27:01 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -99,10 +99,10 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: '{"id":655498,"category":"OTHER","subject":"CI Run","body":"Continuous
-        Integration","attachment":true,"attachments":{"attachment":[{"id":655489,"name":"sm_file1.jpg"},{"id":655490,"name":"sm_file2.jpg"},{"id":655491,"name":"sm_file3.jpg"},{"id":655492,"name":"sm_file4.jpg"}]},"sentDate":"Mon,
-        24 Oct 2016 11:00:05 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":585986,"recipientName":"Triage
+      string: '{"id":655584,"category":"OTHER","subject":"CI Run","body":"Continuous
+        Integration","attachment":true,"attachments":{"attachment":[{"id":655575,"name":"sm_file1.jpg"},{"id":655576,"name":"sm_file2.jpg"},{"id":655577,"name":"sm_file3.jpg"},{"id":655578,"name":"sm_file4.jpg"}]},"sentDate":"Mon,
+        24 Oct 2016 14:27:02 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":585986,"recipientName":"Triage
         group 311070 test 2","readReceipt":null}'
     http_version: 
-  recorded_at: Mon, 24 Oct 2016 11:00:05 GMT
+  recorded_at: Mon, 24 Oct 2016 14:27:02 GMT
 recorded_with: VCR 3.0.3
