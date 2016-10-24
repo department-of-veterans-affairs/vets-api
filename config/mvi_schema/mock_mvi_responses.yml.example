@@ -1,5 +1,5 @@
 find_candidate:
-  796295980:
+  '796295980':
     birth_date: '19800101'
     edipi: '1234^NI^200DOD^USDOD^A'
     family_name: 'Smith'
@@ -10,7 +10,7 @@ find_candidate:
     vba_corp_id: '12345678^PI^200CORP^USVBA^A'
     ssn: '796295980'
     status: 'active'
-  796143510:
+  '796143510':
     birth_date: '19930608'
     edipi: '1235^NI^200DOD^USDOD^A'
     family_name: 'Arnold'
@@ -20,4 +20,54 @@ find_candidate:
     mhv_id: '123457^PI^200MHV^USVHA^A'
     vba_corp_id: '12345679^PI^200CORP^USVBA^A'
     ssn: '796143510'
+    status: 'active'
+  '796122306':
+    birth_date: '19490304'
+    edipi: '1005133340^NI^200DOD^USDOD^A'
+    family_name: 'Jenkins'
+    gender: 'M'
+    given_names: ['Mitchell', 'G']
+    icn: '1000123456V123457^NI^200M^USVHA^P'
+    vba_corp_id: '600043167^PI^200CORP^USVBA^A'
+    ssn: '796122306'
+    status: 'active'
+  '796127587':
+    birth_date: '19470629'
+    edipi: '1005392639^NI^200DOD^USDOD^A'
+    family_name: 'Barrett'
+    gender: 'M'
+    given_names: ['Jesus', 'A']
+    icn: '1000123456V123457^NI^200M^USVHA^P'
+    vba_corp_id: '600043193^PI^200CORP^USVBA^A'
+    ssn: '796127587'
+    status: 'active'
+  '796140438':
+    birth_date: '19660926'
+    edipi: '1006467969^NI^200DOD^USDOD^A'
+    family_name: 'Greene'
+    gender: 'M'
+    given_names: ['Gilbert', 'L']
+    icn: '1000123456V123457^NI^200M^USVHA^P'
+    vba_corp_id: '600043285^PI^200CORP^USVBA^A'
+    ssn: '796140438'
+    status: 'active'
+  '796143570':
+    birth_date: '19870130'
+    edipi: '1006467969^NI^200DOD^USDOD^A'
+    family_name: 'Davis'
+    gender: 'M'
+    given_names: ['Walter', 'Tyler']
+    icn: '1000123456V123457^NI^200M^USVHA^P'
+    vba_corp_id: '600043217^PI^200CORP^USVBA^A'
+    ssn: '796143570'
+    status: 'active'
+  '796122472':
+    birth_date: '19500114'
+    edipi: '1005138104^NI^200DOD^USDOD^A'
+    family_name: 'Morales'
+    gender: 'M'
+    given_names: ['Alfredo', 'J']
+    icn: '1000123456V123457^NI^200M^USVHA^P'
+    vba_corp_id: '600043169^PI^200CORP^USVBA^A'
+    ssn: '796122472'
     status: 'active'
