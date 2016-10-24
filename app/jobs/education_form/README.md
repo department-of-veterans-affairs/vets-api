@@ -13,6 +13,6 @@
 If you want to generate spool files locally, you have two options:
 
 * With at least Sidekiq running, run `rake jobs:create_daily_spool_files`
-* With a rails console (`bin/rails c`), run `EducationForm::CreateDailySpoolFiles.perform_now`
+* With a rails console (`bin/rails c`), run `EducationForm::CreateDailySpoolFiles.new.perform`
 
 The files will be written into `tmp/spool_files`, with each regional file starting with the current date.

@@ -93,6 +93,14 @@ module Common
         title: 'Internal Server Error',
         detail: 'Internal Server Error'
       }.freeze
+
+      SERVICE_OUTAGE = {
+        type: :other,
+        code: '503',
+        status: MajorCodes::SERVICE_OUTAGE,
+        title: 'Backend Service Outage',
+        detail: 'Backend Service Outage'
+      }.freeze
     end
   end
 end

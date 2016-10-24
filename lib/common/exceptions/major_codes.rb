@@ -9,6 +9,7 @@ module Common
       RECORD_NOT_FOUND     = '404' # Record not found *Important* - use this instead of forbidden for resources
       UNPROCESSABLE_ENTITY = '422' # ie. Model Validations
       SERVER_ERROR         = '500'
+      SERVICE_OUTAGE       = '503' # Breakers reports an outage, 503 is "Service Unavaible"
     end
   end
 end

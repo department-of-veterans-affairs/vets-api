@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'mvi/mock_service'
+require 'mvi/service'
 require 'mvi/messages/find_candidate_message'
 
 describe MVI::MockService do
@@ -37,21 +38,27 @@ describe MVI::MockService do
       expect(MVI::MockService.find_candidate(message)).to eq(yaml_hash.dig('find_candidate', '555443333'))
     end
 
-    it 'returns a default value if SSN lookup fails' do
-      allow(MVI::MockService).to receive(:mocked_responses).and_return(yaml_hash)
-      allow(message).to receive(:ssn).and_return('111223333')
-      expect(MVI::MockService.find_candidate(message)).to eq(
-        birth_date: '18090212',
-        edipi: '1234^NI^200DOD^USDOD^A',
-        family_name: 'Lincoln',
-        gender: 'M',
-        given_names: %w(Abraham),
-        icn: '1000123456V123456^NI^200M^USVHA^P',
-        mhv_id: '123456^PI^200MHV^USVHA^A',
-        ssn: '272112222',
-        status: 'deceased',
-        vba_corp_id: '12345678^PI^200CORP^USVBA^A'
-      )
+    context 'when SSN lookup fails' do
+      let(:ssn) { '111223333' }
+      before(:each) do
+        allow(MVI::MockService).to receive(:mocked_responses).and_return(yaml_hash)
+        allow(message).to receive(:ssn).and_return(ssn)
+      end
+
+      it 'invokes the real service' do
+        expect(MVI::Service).to receive(:find_candidate).once
+        MVI::MockService.find_candidate(message)
+      end
+
+      context 'when the real service raises an error' do
+        it 'logs and re-raises an error' do
+          allow(MVI::Service).to receive(:find_candidate).and_raise(MVI::HTTPError)
+          expected_message = "No user found by key #{ssn} in mock_mvi_responses.yml, "\
+            'the remote service was invoked but received an error: MVI::HTTPError'
+          expect(Rails.logger).to receive(:error).once.with(expected_message)
+          expect { MVI::MockService.find_candidate(message) }.to raise_error(MVI::HTTPError)
+        end
+      end
     end
   end
 end
