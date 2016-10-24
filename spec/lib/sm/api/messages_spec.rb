@@ -31,12 +31,12 @@ describe 'sm client' do
       expect(client.delete_message(destroy_message_id)).to eq(200)
     end
 
-    xit "moves a message with id", :vcr do
+    xit 'moves a message with id', :vcr do
       expect(client.post_move_message(move_message_id, 0)).to eq(200)
       expect(client.post_move_message(move_message_id, existing_folder_id)).to eq(200)
     end
 
-    it "gets a message with id", :vcr do
+    it 'gets a message with id', :vcr do
       message = client.get_message(existing_message_id)
       expect(message.attributes[:id]).to eq(existing_message_id)
       expect(message.attributes[:subject].strip).to eq('Release 16.2- SM last login')
@@ -76,7 +76,7 @@ describe 'sm client' do
         ]
       end
       let(:params) { @params }
-      let(:params_with_attachments) { {message: params}.merge(uploads: uploads) }
+      let(:params_with_attachments) { { message: params }.merge(uploads: uploads) }
 
       it 'a new message without attachments' do
         expect(created_message).to be_a(Message)
@@ -105,14 +105,14 @@ describe 'sm client' do
     end
 
     context 'nested resources' do
-      let(:message_id)    { 629999 }
-      let(:attachment_id) { 629993 }
+      let(:message_id)    { 629_999 }
+      let(:attachment_id) { 629_993 }
 
       it 'gets a single attachment by id', :vcr do
         attachment = client.get_attachment(message_id, attachment_id)
 
-        expect(attachment[:filename]).to eq("noise300x200.png")
-        expect(attachment[:body].encoding.to_s).to eq("ASCII-8BIT")
+        expect(attachment[:filename]).to eq('noise300x200.png')
+        expect(attachment[:body].encoding.to_s).to eq('ASCII-8BIT')
       end
     end
   end

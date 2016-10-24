@@ -14,7 +14,7 @@ describe 'sm client' do
       end
     end
 
-    subject(:client)  { @client }
+    subject(:client) { @client }
 
     it 'gets a collection of triage team recipients', :vcr do
       folders = client.get_triage_teams

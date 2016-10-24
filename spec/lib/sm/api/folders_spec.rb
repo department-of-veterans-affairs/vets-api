@@ -15,7 +15,7 @@ describe 'sm client' do
     end
 
     subject(:client)  { @client }
-    let(:folder_name) { "test folder #{rand(100..100_000)}"}
+    let(:folder_name) { "test folder #{rand(100..100_000)}" }
     let(:folder_id)   { 0 }
 
     it 'gets a collection of folders', :vcr do

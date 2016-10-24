@@ -16,7 +16,7 @@ RSpec.describe 'Folders Integration', type: :request do
 
   describe '#index' do
     it 'responds to GET #index' do
-      VCR.use_cassette("sm_client/folders/gets_a_collection_of_folders") do
+      VCR.use_cassette('sm_client/folders/gets_a_collection_of_folders') do
         get '/v0/messaging/health/folders'
       end
 
@@ -29,7 +29,7 @@ RSpec.describe 'Folders Integration', type: :request do
   describe '#show' do
     context 'with valid id' do
       it 'response to GET #show' do
-        VCR.use_cassette("sm_client/folders/gets_a_single_folder") do
+        VCR.use_cassette('sm_client/folders/gets_a_single_folder') do
           get "/v0/messaging/health/folders/#{inbox_id}"
         end
 
@@ -45,7 +45,7 @@ RSpec.describe 'Folders Integration', type: :request do
       let(:params) { { folder: { name: 'test folder create name 160805101218' } } }
 
       it 'response to POST #create' do
-        VCR.use_cassette("sm_client/folders/creates_a_folder_and_deletes_a_folder") do
+        VCR.use_cassette('sm_client/folders/creates_a_folder_and_deletes_a_folder') do
           post '/v0/messaging/health/folders', params
         end
 
@@ -61,7 +61,7 @@ RSpec.describe 'Folders Integration', type: :request do
       let(:id) { 655_395 }
 
       it 'responds to DELETE #destroy' do
-        VCR.use_cassette("sm_client/folders/creates_a_folder_and_deletes_a_folder") do
+        VCR.use_cassette('sm_client/folders/creates_a_folder_and_deletes_a_folder') do
           delete "/v0/messaging/health/folders/#{id}"
         end
 
@@ -73,7 +73,7 @@ RSpec.describe 'Folders Integration', type: :request do
 
   describe 'nested resources' do
     it 'gets messages#index' do
-      VCR.use_cassette("sm_client/folders/nested_resources/gets_a_collection_of_messages") do
+      VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
         get "/v0/messaging/health/folders/#{inbox_id}/messages"
       end
 

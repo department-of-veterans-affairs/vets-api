@@ -16,7 +16,7 @@ RSpec.describe 'Messages Integration', type: :request do
   let(:message_id) { 573_059 }
 
   it 'responds to GET #show' do
-    VCR.use_cassette("sm_client/messages/gets_a_message_with_id") do
+    VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
       get "/v0/messaging/health/messages/#{message_id}"
     end
 
@@ -41,7 +41,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
     context 'message' do
       it 'without attachments' do
-        VCR.use_cassette("sm_client/messages/creates/a_new_message_without_attachments") do
+        VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
           post '/v0/messaging/health/messages', params
         end
 
@@ -53,7 +53,7 @@ RSpec.describe 'Messages Integration', type: :request do
       end
 
       it 'with attachments' do
-        VCR.use_cassette("sm_client/messages/creates/a_new_message_with_4_attachments") do
+        VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
           post '/v0/messaging/health/messages', params_with_attachments
         end
 
@@ -66,10 +66,10 @@ RSpec.describe 'Messages Integration', type: :request do
     end
 
     context 'reply' do
-      let(:reply_message_id) { 655484 }
+      let(:reply_message_id) { 655_484 }
 
       it 'without attachments' do
-        VCR.use_cassette("sm_client/messages/creates/a_reply_without_attachments") do
+        VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
           post "/v0/messaging/health/messages/#{reply_message_id}/reply", params
         end
 
@@ -81,7 +81,7 @@ RSpec.describe 'Messages Integration', type: :request do
       end
 
       it 'with attachments' do
-        VCR.use_cassette("sm_client/messages/creates/a_reply_with_4_attachments") do
+        VCR.use_cassette('sm_client/messages/creates/a_reply_with_4_attachments') do
           post "/v0/messaging/health/messages/#{reply_message_id}/reply", params_with_attachments
         end
 
@@ -98,7 +98,7 @@ RSpec.describe 'Messages Integration', type: :request do
     let(:thread_id) { 573_059 }
 
     it 'responds to GET #thread' do
-      VCR.use_cassette("sm_client/messages/gets_a_message_thread") do
+      VCR.use_cassette('sm_client/messages/gets_a_message_thread') do
         get "/v0/messaging/health/messages/#{thread_id}/thread"
       end
 
@@ -110,7 +110,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
   describe '#categories' do
     it 'responds to GET messages/categories' do
-      VCR.use_cassette("sm_client/messages/gets_message_categories") do
+      VCR.use_cassette('sm_client/messages/gets_message_categories') do
         get '/v0/messaging/health/messages/categories'
       end
 

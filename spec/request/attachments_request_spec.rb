@@ -17,7 +17,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
   describe '#show' do
     it 'responds sending data for an attachment' do
-      VCR.use_cassette("sm_client/messages/nested_resources/gets_a_single_attachment_by_id") do
+      VCR.use_cassette('sm_client/messages/nested_resources/gets_a_single_attachment_by_id') do
         get '/v0/messaging/health/messages/629999/attachments/629993'
       end
 
