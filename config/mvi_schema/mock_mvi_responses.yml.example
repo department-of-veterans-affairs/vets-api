@@ -1,5 +1,5 @@
 find_candidate:
-  796295980:
+  "796295980":
     birth_date: '19800101'
     edipi: '1234^NI^200DOD^USDOD^A'
     family_name: 'Smith'
@@ -10,7 +10,7 @@ find_candidate:
     vba_corp_id: '12345678^PI^200CORP^USVBA^A'
     ssn: '796295980'
     status: 'active'
-  796143510:
+  "796143510":
     birth_date: '19930608'
     edipi: '1235^NI^200DOD^USDOD^A'
     family_name: 'Arnold'
