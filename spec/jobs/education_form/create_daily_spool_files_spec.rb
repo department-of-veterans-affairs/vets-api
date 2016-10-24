@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'sidekiq/testing'
-Sidekiq::Testing.inline!
-Sidekiq::Logging.logger = nil
 
 RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :education_benefits do
   subject { described_class.new }

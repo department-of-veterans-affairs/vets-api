@@ -67,7 +67,7 @@ class DisabilityClaimService
   def upload_document(claim, tempfile, tracked_item_id)
     uploader = DisabilityClaimDocumentUploader.new(@user.uuid, tracked_item_id)
     uploader.store!(tempfile)
-    DisabilityClaim::DocumentUpload.perform_later(tempfile.original_filename,
+    DisabilityClaim::DocumentUpload.perform_async(tempfile.original_filename,
                                                   auth_headers, @user.uuid,
                                                   claim.id, tracked_item_id)
   end

@@ -16,11 +16,10 @@ RSpec.describe 'Documents management', type: :request do
   end
 
   it 'should upload a file' do
-    ActiveJob::Base.queue_adapter = :test
     params = { file: file, tracked_item: tracked_item }
     expect do
       post "/v0/disability_claims/#{claim_id}/documents", params
-    end.to have_enqueued_job(DisabilityClaim::DocumentUpload)
+    end.to change(DisabilityClaim::DocumentUpload.jobs, :size).by(1)
     expect(response).to be_success
     expect(response.body).to be_empty
   end
