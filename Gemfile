@@ -65,6 +65,10 @@ group :development, :test do
   gem 'factory_girl_rails'
 
   gem 'foreman'
+
+  # This middleware logs your HTTP requests as CURL compatible commands so you can share the calls with downstream
+  # assists in debugging
+  gem 'faraday_curl'
 end
 
 group :test do
