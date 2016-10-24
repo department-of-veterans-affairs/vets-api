@@ -23,7 +23,7 @@ describe Common::Client::Errors::ClientResponse do
     end
 
     it 'should have message' do
-      expect(subject.message).to eq('Prescription is not Refillable')
+      expect(subject.message).to eq('Prescription is not refillable')
     end
 
     it 'should have developer message' do
