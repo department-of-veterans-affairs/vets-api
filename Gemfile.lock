@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 5c358a99c7d6cdc92530f427738d692446cbb350
+  revision: 6944bf0984f9ebce16b3a7029c13808150611bde
   branch: master
   specs:
     vets_json_schema (1.0.0)
@@ -126,6 +126,8 @@ GEM
       redis (~> 3.0)
     faraday (0.9.2)
       multipart-post (>= 1.2, < 3)
+    faraday_curl (0.0.2)
+      faraday (>= 0.9.0)
     faraday_middleware (0.10.0)
       faraday (>= 0.7.4, < 0.10)
     ffi (1.9.10)
@@ -391,6 +393,7 @@ DEPENDENCIES
   faker
   fakeredis
   faraday
+  faraday_curl
   faraday_middleware
   figaro
   foreman
