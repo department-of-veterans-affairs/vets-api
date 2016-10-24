@@ -11,7 +11,7 @@ module EducationForm
     require 'erb'
     require 'ostruct'
 
-    TEMPLATE_PATH = Rails.root.join('app', 'jobs', 'education_form', 'templates')
+    TEMPLATE_PATH = Rails.root.join('app', 'workers', 'education_form', 'templates')
     TEMPLATE = File.read(File.join(TEMPLATE_PATH, '22-1990.erb'))
 
     CH33_TYPES = {
