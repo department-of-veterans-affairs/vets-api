@@ -38,6 +38,12 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
     end
 
+    it 'GET new - contains a RelayState' do
+      get :new
+      response_body = JSON.parse(response.body)
+      expect(response_body['authenticate_via_get']).to include('RelayState=')
+    end
+
     it 'GET new - shows the ID.me authentication url' do
       allow_any_instance_of(OneLogin::RubySaml::Authrequest)
         .to receive(:create).and_return('url_string')
