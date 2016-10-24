@@ -1,163 +1,118 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'sm/client'
-require 'support/sm_client_helpers'
 
-describe SM::Client do
-  include SM::ClientHelpers
-
-  subject(:client) { authenticated_client }
-
-  describe 'get_message' do
-    context 'with valid id' do
-      let(:id) { 573_302 }
-      let(:message_subj) { 'Release 16.2- SM last login' }
-      let(:client_response) do
-        VCR.use_cassette('sm/messages/10616687/show') do
-          client.get_message(id)
+describe 'sm client' do
+  describe 'messages' do
+    before(:all) do
+      VCR.use_cassette 'sm_client/session', record: :new_episodes do
+        @client ||= begin
+          client = SM::Client.new(session: { user_id: ENV['MHV_SM_USER_ID'] })
+          client.authenticate
+          client
         end
       end
-
-      it 'gets a message by message id' do
-        expect(client_response.attributes[:id]).to eq(id)
-        expect(client_response.attributes[:subject].strip).to eq(message_subj)
-      end
-
-      it 'marks a message read' do
-        expect(client_response.attributes[:read_receipt]).to eq('READ')
-      end
-    end
-  end
-
-  describe 'get_message_history' do
-    context 'with valid id' do
-      # Note history does not seem to work with a new message and new replay
-      let(:id) { 573_059 }
-
-      let(:client_response) do
-        VCR.use_cassette('sm/messages/10616687/thread') do
-          client.get_message_history(id)
-        end
-      end
-
-      it 'gets a message by message id' do
-        expect(client_response.data.class).to eq(Array)
-        expect(client_response.data.size).to eq(2)
-      end
-    end
-  end
-
-  describe 'get_message_category' do
-    let(:client_response) do
-      VCR.use_cassette('sm/messages/10616687/category') do
-        client.get_message_category
-      end
     end
 
-    it 'retrieves an array of categories' do
-      expect(client_response).to be_a(Category)
-      expect(client_response.message_category_type).to contain_exactly(
+    let(:client)              { @client }
+    let(:existing_message_id) { 573_059 }
+    let(:move_message_id)     { 634_998 }
+    let(:destroy_message_id)  { 635_008 }
+    let(:existing_folder_id)  { 610_965 }
+
+    it 'raises an error when a service outage exists', :vcr do
+      SM::Configuration.instance.breakers_service.begin_forced_outage!
+      expect { client.get_message(existing_message_id) }
+        .to raise_error(Breakers::OutageException)
+      SM::Configuration.instance.breakers_service.end_forced_outage!
+    end
+
+    xit 'deletes the message with id', :vcr do
+      expect(client.delete_message(destroy_message_id)).to eq(200)
+    end
+
+    xit "moves a message with id", :vcr do
+      expect(client.post_move_message(move_message_id, 0)).to eq(200)
+      expect(client.post_move_message(move_message_id, existing_folder_id)).to eq(200)
+    end
+
+    it "gets a message with id", :vcr do
+      message = client.get_message(existing_message_id)
+      expect(message.attributes[:id]).to eq(existing_message_id)
+      expect(message.attributes[:subject].strip).to eq('Release 16.2- SM last login')
+    end
+
+    it 'gets a message thread', :vcr do
+      thread = client.get_message_history(existing_message_id)
+      expect(thread).to be_a(Common::Collection)
+      expect(thread.members.size).to eq(2)
+    end
+
+    it 'gets message categories', :vcr do
+      categories = client.get_categories
+      expect(categories).to be_a(Category)
+      expect(categories.message_category_type).to contain_exactly(
         'OTHER', 'APPOINTMENTS', 'MEDICATIONS', 'TEST_RESULTS', 'EDUCATION'
       )
     end
-  end
 
-  describe 'post_create_message_draft' do
-    let(:new_draft) do
-      attributes_for(:message).slice(:subject, :recipient_id, :category, :body)
-    end
-
-    context 'with valid attributes' do
-      it 'creates a new draft without attachments' do
-        VCR.use_cassette('sm/messages/10616687/create_draft') do
-          client_response = client.post_create_message_draft(new_draft)
-          expect(client_response).to be_a(Message)
+    context 'creates' do
+      before(:all) do
+        VCR.use_cassette 'sm_client/messages/creates/a_new_message_without_attachments' do
+          message_attributes = attributes_for(:message, subject: 'CI Run', body: 'Continuous Integration')
+          @params = message_attributes.slice(:subject, :category, :recipient_id, :body)
+          @created_message = @client.post_create_message(@params)
         end
       end
 
-      it 'updates an existing draft' do
-        VCR.use_cassette('sm/messages/10616687/update_draft') do
-          new_draft[:id] = 620_096
-          new_draft[:body] = 'Updated Body'
-          client_response = client.post_create_message_draft(new_draft)
-          expect(client_response).to be_a(Message)
-        end
+      let(:created_message)       { @created_message }
+      let(:attachment_type)       { 'image/jpg' }
+      let(:uploads) do
+        [
+          Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file1.jpg', attachment_type),
+          Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file2.jpg', attachment_type),
+          Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file3.jpg', attachment_type),
+          Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file4.jpg', attachment_type)
+        ]
+      end
+      let(:params) { @params }
+      let(:params_with_attachments) { {message: params}.merge(uploads: uploads) }
+
+      it 'a new message without attachments' do
+        expect(created_message).to be_a(Message)
       end
 
-      context 'when there is an outage' do
-        before do
-          SM::Configuration.instance.breakers_service.begin_forced_outage!
-        end
-
-        it 'does not post to the service and gets an error' do
-          VCR.use_cassette('sm/messages/10616687/update_draft') do
-            new_draft[:id] = 620_096
-            new_draft[:body] = 'Updated Body'
-            expect { client.post_create_message_draft(new_draft) }.to raise_error(Breakers::OutageException)
-          end
-        end
-      end
-    end
-  end
-
-  describe 'post_create_message' do
-    let(:new_message) do
-      attributes_for(:message).slice(:subject, :recipient_id, :category, :body)
-    end
-
-    context 'with valid attributes' do
-      it 'creates and sends a new message without attachments' do
-        VCR.use_cassette('sm/messages/10616687/create') do
-          client_response = client.post_create_message(new_message)
-          expect(client_response).to be_a(Message)
-        end
+      it 'a reply without attachments', :vcr do
+        reply_message = client.post_create_message_reply(created_message.id, params)
+        expect(reply_message).to be_a(Message)
       end
 
-      it 'sends a draft message without attachments' do
-        VCR.use_cassette('sm/messages/10616687/create_message_from_draft') do
-          new_message[:id] = 610_105
+      it 'a new message with 4 attachments', :vcr do
+        message = client.post_create_message_with_attachment(params_with_attachments)
 
-          client_response = client.post_create_message(new_message)
-          expect(client_response).to be_a(Message)
-        end
+        expect(message).to be_a(Message)
+        expect(message.attachments.size).to eq(4)
+        expect(message.attachments[0]).to be_an(Attachment)
+      end
+
+      it 'a reply with 4 attachments', :vcr do
+        message = client.post_create_message_reply_with_attachment(created_message.id, params_with_attachments)
+
+        expect(message).to be_a(Message)
+        expect(message.attachments.size).to eq(4)
+        expect(message.attachments[0]).to be_an(Attachment)
       end
     end
-  end
 
-  describe 'post_create_message_reply' do
-    context 'with a non-draft reply with valid attributes and without attachements' do
-      let(:reply_body) { 'This is a reply body' }
+    context 'nested resources' do
+      let(:message_id)    { 629999 }
+      let(:attachment_id) { 629993 }
 
-      it 'replies to a message by id' do
-        VCR.use_cassette('sm/messages/10616687/create_message_reply') do
-          # cassette_setup = client.post_create_message(attributes_for(:message).slice(:body))
-          client_response = client.post_create_message_reply(610_114, body: reply_body)
-          expect(client_response).to be_a(Message)
-        end
-      end
-    end
-  end
+      it 'gets a single attachment by id', :vcr do
+        attachment = client.get_attachment(message_id, attachment_id)
 
-  describe 'move_message' do
-    let(:msg_id) { 573_052 }
-
-    context 'with valid id' do
-      it 'moves the message' do
-        VCR.use_cassette('sm/messages/10616687/move') do
-          expect(client.post_move_message(msg_id, 610_965)).to eq(200)
-        end
-      end
-    end
-  end
-
-  describe 'delete_message' do
-    let(:msg_id) { 573_034 }
-
-    context 'with valid id' do
-      it 'deletes the message' do
-        VCR.use_cassette('sm/messages/10616687/delete') do
-          expect(client.delete_message(msg_id)).to eq(200)
-        end
+        expect(attachment[:filename]).to eq("noise300x200.png")
+        expect(attachment[:body].encoding.to_s).to eq("ASCII-8BIT")
       end
     end
   end
