@@ -53,7 +53,7 @@ module V0
         birth_date:     parse_date(attributes['birth_date']&.first),
         uuid:           attributes['uuid']&.first,
         last_signed_in: Time.current.utc,
-        loa:            { current: parse_current_loa, highest: attributes['level_of_assurance']&.first }
+        loa:            { current: parse_current_loa, highest: attributes['level_of_assurance']&.first&.to_i }
       }
     end
 
