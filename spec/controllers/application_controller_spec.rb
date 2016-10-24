@@ -43,7 +43,7 @@ RSpec.describe ApplicationController, type: :controller do
     end
   end
 
-  context 'InvalidServerError' do
+  context 'ClientResponseError' do
     subject { JSON.parse(response.body)['errors'].first }
     before(:each) { routes.draw { get 'other_error' => 'anonymous#other_error' } }
     let(:keys_for_production) { %w(title detail code status) }
