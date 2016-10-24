@@ -86,7 +86,7 @@ module V0
 
     def async_create_evss_account(user)
       auth_headers = EVSS::AuthHeaders.new(user).to_h
-      EVSS::CreateUserAccountJob.perform_later(auth_headers)
+      EVSS::CreateUserAccountJob.perform_async(auth_headers)
     end
   end
 end

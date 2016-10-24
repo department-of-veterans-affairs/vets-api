@@ -2,8 +2,8 @@
 require_dependency 'evss/common_service'
 
 module EVSS
-  class CreateUserAccountJob < ActiveJob::Base
-    queue_as :default
+  class CreateUserAccountJob
+    include Sidekiq::Worker
 
     def perform(headers)
       client = EVSS::CommonService.new(headers)

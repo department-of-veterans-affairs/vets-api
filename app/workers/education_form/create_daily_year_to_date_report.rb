@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 module EducationForm
-  class CreateDailyYearToDateReport < ActiveJob::Base
+  class CreateDailyYearToDateReport
+    include Sidekiq::Worker
     require 'csv'
 
     def calculate_submissions
