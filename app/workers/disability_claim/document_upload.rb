@@ -1,5 +1,7 @@
 # frozen_string_literal: true
-class DisabilityClaim::DocumentUpload < ActiveJob::Base
+class DisabilityClaim::DocumentUpload
+  include Sidekiq::Worker
+
   def perform(filename, auth_headers, user_uuid, claim_id, tracked_item_id)
     client = EVSS::DocumentsService.new(auth_headers)
     uploader = DisabilityClaimDocumentUploader.new(user_uuid, tracked_item_id)
