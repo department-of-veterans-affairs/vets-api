@@ -11,7 +11,6 @@ require 'sm/api/folders'
 require 'sm/api/messages'
 require 'sm/api/message_drafts'
 require 'sm/api/attachments'
-require 'faraday_curl' if Rails.env.development?
 
 module SM
   class Client
