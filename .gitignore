@@ -35,3 +35,6 @@ config/application.yml
 
 # And byebug's history file
 .byebug_history
+
+# Ignore .DS_Store
+.DS_Store

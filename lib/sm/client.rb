@@ -110,6 +110,9 @@ module SM
         conn.use :breakers
         conn.request :multipart
         conn.request :json
+        # Uncomment this out for generating curl output to send to MHV dev and test only
+        # conn.request :curl, ::Logger.new(STDOUT), :warn
+
         # conn.response :logger, ::Logger.new(STDOUT), bodies: true
         conn.adapter Faraday.default_adapter
       end

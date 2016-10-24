@@ -29,7 +29,7 @@ gem 'sidekiq'
 gem 'sidekiq-unique-jobs'
 gem 'whenever', require: false
 gem 'multi_json'
-gem "fog-aws", "~> 0.12"
+gem 'carrierwave-aws'
 gem 'carrierwave', '~> 0.11'
 
 gem 'rack-cors', :require => 'rack/cors'
@@ -65,6 +65,10 @@ group :development, :test do
   gem 'factory_girl_rails'
 
   gem 'foreman'
+
+  # This middleware logs your HTTP requests as CURL compatible commands so you can share the calls with downstream
+  # assists in debugging
+  gem 'faraday_curl'
 end
 
 group :test do
