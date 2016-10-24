@@ -12,10 +12,10 @@ module V0
     end
 
     def update
-      draft = MessageDraft.new(draft_params)
-      raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
+      draft = client.post_create_message_draft(draft_params.merge(id: params[:id]))
 
-      client.post_create_message_draft(draft_params.merge(id: params[:id]))
+      # draft will fail validation if its a reply draft.
+      raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
       head :no_content
     end
 
