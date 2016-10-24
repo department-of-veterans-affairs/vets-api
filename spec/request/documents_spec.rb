@@ -20,7 +20,7 @@ RSpec.describe 'Documents management', type: :request do
     expect do
       post "/v0/disability_claims/#{claim_id}/documents", params
     end.to change(DisabilityClaim::DocumentUpload.jobs, :size).by(1)
-    expect(response).to be_success
-    expect(response.body).to be_empty
+    expect(response.status).to eq(202)
+    expect(JSON.parse(response.body)['job_id']).not_to be_empty
   end
 end

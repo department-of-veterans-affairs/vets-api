@@ -84,4 +84,8 @@ class ApplicationController < ActionController::API
       per_page: params[:per_page]
     }
   end
+
+  def render_job_id(jid)
+    render json: { job_id: jid }, status: 202
+  end
 end
