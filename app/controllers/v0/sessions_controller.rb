@@ -65,11 +65,8 @@ module V0
     end
 
     def parse_gender(gender)
-      if gender.nil?
-        nil
-      else
-        gender[0].upcase
-      end
+      return nil unless gender
+      gender[0].upcase
     end
 
     # Ruby-Saml does not parse the <samlp:Response> xml so we do it ourselves to find
