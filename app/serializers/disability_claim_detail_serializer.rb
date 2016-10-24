@@ -85,10 +85,28 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
       requested_date: date_or_nil_from(obj, 'requestedDate'),
       received_date: date_or_nil_from(obj, 'receivedDate'),
       closed_date: date_or_nil_from(obj, 'closedDate'),
-      suspense_date: date_or_nil_from(obj, 'suspenseDate')
+      suspense_date: date_or_nil_from(obj, 'suspenseDate'),
+      documents: create_documents(obj['vbaDocuments'] || [])
     }
     event[:date] = event.slice(*EVENT_DATE_FIELDS).values.compact.first
     event
+  end
+
+  def create_documents(objs)
+    objs.map do |obj|
+      {
+        tracked_item_id: obj['trackedItemId'],
+        file_type: obj['documentTypeLabel'],
+        document_type: obj['documentTypeCode'],
+        filename: obj['originalFileName'],
+        # %Q is the C-strftime flag for milliseconds since Unix epoch.
+        # For date-times recording a computer event and therefore known
+        # to the second EVSS uses a UNIX timestamp in milliseconds.
+        # Round it to the day. Not sure what timezone they're using,
+        # so could be off by 1 day.
+        upload_date: date_or_nil_from(obj, 'uploadDate', format: '%Q')
+      }
+    end
   end
 
   def sub_objects_of(*parents)
@@ -96,9 +114,9 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
     items.compact
   end
 
-  def date_or_nil_from(obj, key)
+  def date_or_nil_from(obj, key, format: '%m/%d/%Y')
     date = obj[key]
     return nil unless date.present?
-    Date.strptime(date, '%m/%d/%Y')
+    Date.strptime(date.to_s, format)
   end
 end

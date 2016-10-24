@@ -4,10 +4,23 @@ require_dependency 'evss/error_middleware'
 module EVSS
   class BaseService
     SYSTEM_NAME = 'vets.gov'
-    DEFAULT_TIMEOUT = 5 # seconds
+    DEFAULT_TIMEOUT = 5 # in seconds
 
     def initialize(headers)
       @headers = headers
+    end
+
+    def self.create_breakers_service(name:, url:)
+      path = URI.parse(url).path
+      host = URI.parse(url).host
+      matcher = proc do |request_env|
+        request_env.url.host == host && request_env.url.path =~ /^#{path}/
+      end
+
+      Breakers::Service.new(
+        name: name,
+        request_matcher: matcher
+      )
     end
 
     protected
@@ -21,7 +34,7 @@ module EVSS
     end
 
     def base_url
-      raise NotImplementedError, 'Subclass of BaseService must implement base_url method'
+      self.class::BASE_URL
     end
 
     private
@@ -31,6 +44,7 @@ module EVSS
     def conn
       @conn ||= Faraday.new(base_url, headers: @headers, ssl: ssl_options) do |faraday|
         faraday.options.timeout = DEFAULT_TIMEOUT
+        faraday.use      :breakers
         faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
         faraday.response :json, content_type: /\bjson$/
