@@ -4,7 +4,7 @@ class NCAFacilityAdapter
   NCA_URL = +ENV['NCA_MAPSERVER_URL']
   NCA_LAYER = ENV['NCA_MAPSERVER_LAYER']
   NCA_ID_FIELD = 'CEMETERY_I'
-  FACILITY_TYPE = 'va_cemetery_facility'
+  FACILITY_TYPE = 'va_cemetery'
 
   def initialize
     @client = Facilities::Client.new(url: NCA_URL, layer: NCA_LAYER, id_field: NCA_ID_FIELD)
