@@ -99,7 +99,7 @@ describe Rx::Client do
                         post_refill_error,
                         status_code: 400)
       expect { client.post_refill_rx(1_435_525) }
-        .to raise_error(Common::Client::Errors::ClientResponse, 'Prescription is not Refillable')
+        .to raise_error(Common::Client::Errors::ClientResponse, 'Prescription is not refillable')
     end
   end
 end

@@ -7,11 +7,12 @@ module Common
 
       def initialize(detail, options = {})
         @detail = detail
-        @meta = options[:meta]
+        @source = options[:source].presence
+        @meta = options[:meta].presence unless Rails.env.production?
       end
 
       def errors
-        Array(SerializableError.new(MinorCodes::CLIENT_ERROR.merge(detail: @detail, meta: @meta)))
+        Array(SerializableError.new(MinorCodes::CLIENT_ERROR.merge(detail: @detail, source: @source, meta: @meta)))
       end
     end
   end
