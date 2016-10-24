@@ -27,7 +27,7 @@ gem 'ox', '~> 2.4'
 gem 'savon', '~> 2.0'
 gem 'sidekiq'
 gem 'sidekiq-unique-jobs'
-gem 'whenever', require: false
+gem 'sidekiq-scheduler', '~> 2.0'
 gem 'multi_json'
 gem 'carrierwave-aws'
 gem 'carrierwave', '~> 0.11'
