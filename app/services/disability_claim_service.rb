@@ -68,6 +68,8 @@ class DisabilityClaimService
     DisabilityClaim.for_user(@user)
   end
 
+  # Codes for claim types that are disability claims. See
+  # https://github.com/department-of-veterans-affairs/sunsets-team/blob/master/track-claim-status/technical/Dis_Clm_types.md
   DISABILITY_BENEFIT_CODES = %w(
     010DICI 010DICP 010EPDMR8 010EXPDMR8 010INITMORE8 010IPDD2D
     010IPDSEP 010LCOMP 010LCOMPBDD 010LCOMPD2D 010LCOMPP 010LCOMPPRD
