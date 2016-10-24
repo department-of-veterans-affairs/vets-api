@@ -42,7 +42,7 @@ RSpec.describe 'Messages Integration', type: :request do
     context 'message' do
       it 'without attachments' do
         VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
-          post '/v0/messaging/health/messages', params
+          post '/v0/messaging/health/messages', message: params
         end
 
         expect(response).to be_success
@@ -70,7 +70,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
       it 'without attachments' do
         VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
-          post "/v0/messaging/health/messages/#{reply_message_id}/reply", params
+          post "/v0/messaging/health/messages/#{reply_message_id}/reply", message: params
         end
 
         expect(response).to be_success
@@ -120,12 +120,12 @@ RSpec.describe 'Messages Integration', type: :request do
     end
   end
 
-  describe '#move' do
+  describe '#destroy' do
     let(:message_id) { 573_052 }
 
-    xit 'responds to PATCH messages/move' do
-      VCR.use_cassette("sm_client/messages/#{user_id}/move") do
-        patch "/v0/messaging/health/messages/#{message_id}/move?folder_id=610965"
+    it 'responds to DELETE' do
+      VCR.use_cassette('sm_client/messages/deletes_the_message_with_id') do
+        delete "/v0/messaging/health/messages/#{message_id}"
       end
 
       expect(response).to be_success
@@ -133,12 +133,12 @@ RSpec.describe 'Messages Integration', type: :request do
     end
   end
 
-  describe '#destroy' do
-    let(:message_id) { 573_034 }
+  describe '#move' do
+    let(:message_id) { 573_052 }
 
-    xit 'responds to DELETE' do
-      VCR.use_cassette('sm_client/messages/10616687/delete') do
-        delete "/v0/messaging/health/messages/#{message_id}"
+    it 'responds to PATCH messages/move' do
+      VCR.use_cassette("sm_client/messages/moves_a_message_with_id") do
+        patch "/v0/messaging/health/messages/#{message_id}/move?folder_id=0"
       end
 
       expect(response).to be_success

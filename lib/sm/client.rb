@@ -92,12 +92,12 @@ module SM
       request(:get, path, params, headers)
     end
 
-    def post(path, params = nil, headers = base_headers)
+    def post(path, params = {}, headers = base_headers)
       request(:post, path, params, headers)
     end
 
-    def delete(path, _params = {}, headers = base_headers)
-      request(:delete, path, nil, headers)
+    def delete(path, params = {}, headers = base_headers)
+      request(:delete, path, params, headers)
     end
 
     def raise_not_authenticated

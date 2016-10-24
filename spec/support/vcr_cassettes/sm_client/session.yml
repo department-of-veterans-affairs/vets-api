@@ -23,13 +23,13 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 24 Oct 2016 14:27:01 GMT
+      - Mon, 24 Oct 2016 14:52:50 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Content-Length:
       - '0'
       Expires:
-      - Mon, 24 Oct 2016 15:27:01 GMT
+      - Mon, 24 Oct 2016 15:52:50 GMT
       Token: "<SESSION_TOKEN>"
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
@@ -41,5 +41,5 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Mon, 24 Oct 2016 14:27:01 GMT
+  recorded_at: Mon, 24 Oct 2016 14:52:50 GMT
 recorded_with: VCR 3.0.3

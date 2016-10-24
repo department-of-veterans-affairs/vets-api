@@ -16,8 +16,8 @@ describe 'sm client' do
 
     let(:client)              { @client }
     let(:existing_message_id) { 573_059 }
-    let(:move_message_id)     { 634_998 }
-    let(:destroy_message_id)  { 635_008 }
+    let(:move_message_id)     { 573_052 }
+    let(:destroy_message_id)  { 573_052 }
     let(:existing_folder_id)  { 610_965 }
 
     it 'raises an error when a service outage exists', :vcr do
@@ -27,13 +27,13 @@ describe 'sm client' do
       SM::Configuration.instance.breakers_service.end_forced_outage!
     end
 
-    xit 'deletes the message with id', :vcr do
+    it 'deletes the message with id', :vcr do
       expect(client.delete_message(destroy_message_id)).to eq(200)
     end
 
-    xit 'moves a message with id', :vcr do
+    # Move the previously deleted message back to the inbox
+    it 'moves a message with id', :vcr do
       expect(client.post_move_message(move_message_id, 0)).to eq(200)
-      expect(client.post_move_message(move_message_id, existing_folder_id)).to eq(200)
     end
 
     it 'gets a message with id', :vcr do

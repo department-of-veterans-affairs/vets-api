@@ -31,14 +31,12 @@ module SM
       end
 
       def post_create_message_with_attachment(args = {})
-        custom_header = token_headers.except('Content-Type')
-        json = perform(:post, 'message/attach', args, custom_header)
+        json = perform(:post, 'message/attach', args, token_headers)
         Message.new(json)
       end
 
       def post_create_message_reply_with_attachment(id, args = {})
-        custom_header = token_headers.except('Content-Type')
-        json = perform(:post, "message/#{id}/reply/attach", args, custom_header)
+        json = perform(:post, "message/#{id}/reply/attach", args, token_headers)
         Message.new(json)
       end
 
@@ -49,13 +47,15 @@ module SM
       end
 
       def post_move_message(id, folder_id)
-        response = perform(:post, "message/#{id}/move/tofolder/#{folder_id}", nil, token_headers)
+        custom_headers = token_headers.merge('Content-Type' => 'application/json')
+        response = perform(:post, "message/#{id}/move/tofolder/#{folder_id}", nil, custom_headers)
 
         response.nil? ? nil : response.status
       end
 
       def delete_message(id)
-        response = perform(:post, "message/#{id}", nil, token_headers)
+        custom_headers = token_headers.merge('Content-Type' => 'application/json')
+        response = perform(:post, "message/#{id}", nil, custom_headers)
 
         response.nil? ? nil : response.status
       end
