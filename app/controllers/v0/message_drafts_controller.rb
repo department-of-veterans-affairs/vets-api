@@ -20,11 +20,12 @@ module V0
     end
 
     def create_reply_draft
-      draft = MessageDraft.new(reply_draft_params.merge(has_message: true)).as_reply
+      draft = client.post_create_message_draft_reply(params[:reply_id], reply_draft_params)
+
+      # draft will fail validation if its not a reply draft.
       raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
 
-      draft_response = client.post_create_message_draft_reply(params[:reply_id], reply_draft_params)
-      render json: draft_response,
+      render json: draft,
              serializer: MessageSerializer,
              status: :created
     end
