@@ -71,19 +71,6 @@ FactoryGirl.define do
           haveDependents: true,
           parentDependent: false
         },
-        # rubocop:disable LineLength
-        remarks: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet ullamcorper est, in interdum velit. Cras purus orci, varius eget efficitur nec, dapibus id risus. Donec in pellentesque enim. Proin sagittis, elit nec consequat malesuada, nibh justo luctus enim, ac aliquet lorem orci vel neque. Ut eget accumsan ipsum. Cras sed venenatis massa. Duis odio urna, laoreet quis ante sed, facilisis congue purus. Etiam semper facilisis luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam blandit eget nibh at ornare. Sed non porttitor dui. Proin ornare magna diam, ut lacinia magna accumsan euismod.
-
-        Phasellus et nisl id lorem feugiat molestie. Aliquam molestie,
-        nulla eu fringilla finibus, massa lectus varius quam, quis ornare
-        sem lorem lacinia dui. Integer consequat non arcu convallis mollis.
-        Vivamus magna turpis, pharetra non eros at, feugiat rutrum nisl.
-        Maecenas eros tellus, blandit id libero sed, imperdiet fringilla
-        eros. Nulla vel tortor vel neque fermentum laoreet id vitae ex.
-        Mauris posuere lorem tellus. Pellentesque at augue arcu.
-        Vestibulum aliquam urna ac est lacinia, eu congue nisi tempor.
-        ",
-        # rubocop:enable LineLength
         toursOfDuty: [
           {
             dateRange: {

@@ -136,8 +136,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       it 'creates a job to create an evss user' do
-        ActiveJob::Base.queue_adapter = :test
-        expect { get :saml_callback }.to have_enqueued_job(EVSS::CreateUserAccountJob)
+        expect { get :saml_callback }.to change(EVSS::CreateUserAccountJob.jobs, :size).by(1)
       end
 
       it 'creates a valid session' do

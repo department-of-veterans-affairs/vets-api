@@ -18,7 +18,7 @@ class DisabilityClaimService
         create_or_update_claim(raw_claim)
       end
     end.flatten
-  rescue Faraday::Error::TimeoutError, Timeout::Error => e
+  rescue Faraday::Error::TimeoutError, Breakers::OutageException => e
     log_error(e)
     claims_scope.all.map do |claim|
       claim.successful_sync = false
@@ -30,7 +30,7 @@ class DisabilityClaimService
     begin
       raw_claim = client.find_claim_by_id(claim.evss_id).body.fetch('claim', {})
       claim.update_attributes(data: raw_claim, successful_sync: true)
-    rescue Faraday::Error::TimeoutError, Timeout::Error => e
+    rescue Faraday::Error::TimeoutError, Breakers::OutageException => e
       claim.successful_sync = false
       log_error(e)
     end
@@ -45,7 +45,7 @@ class DisabilityClaimService
   def upload_document(claim, tempfile, tracked_item_id)
     uploader = DisabilityClaimDocumentUploader.new(@user.uuid, tracked_item_id)
     uploader.store!(tempfile)
-    DisabilityClaim::DocumentUpload.perform_later(tempfile.original_filename,
+    DisabilityClaim::DocumentUpload.perform_async(tempfile.original_filename,
                                                   auth_headers, @user.uuid,
                                                   claim.id, tracked_item_id)
   end
