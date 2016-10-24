@@ -1,5 +1,4 @@
-transmit_education_spool_files:
+CreateDailySpoolFiles:
   cron: "0 3 * * * America/New_York"
   class: EducationForm::CreateDailySpoolFiles
-  queue: default
   description: "Generate a daily set of spool files and transmit them over SFTP to a backend system"
