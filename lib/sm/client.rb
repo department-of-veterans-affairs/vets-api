@@ -11,6 +11,7 @@ require 'sm/api/folders'
 require 'sm/api/messages'
 require 'sm/api/message_drafts'
 require 'sm/api/attachments'
+require 'faraday_curl'
 
 module SM
   class Client
@@ -110,6 +111,8 @@ module SM
         conn.use :breakers
         conn.request :multipart
         conn.request :json
+        # conn.request :curl, ::Logger.new(STDOUT), :warn
+
         # conn.response :logger, ::Logger.new(STDOUT), bodies: true
         conn.adapter Faraday.default_adapter
       end

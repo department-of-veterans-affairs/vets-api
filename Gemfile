@@ -90,4 +90,8 @@ group :development do
   # POSIX systems should have this already, so we're not going to bring it in on other platforms
   gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
   gem 'guard-rubocop'
+
+  # This middleware logs your HTTP requests as CURL compatible commands so you can share the calls with downstream
+  # assists in debugging
+  gem 'faraday_curl'
 end
