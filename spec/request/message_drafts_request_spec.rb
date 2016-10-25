@@ -9,7 +9,7 @@ RSpec.describe 'Messages Integration', type: :request do
   let(:reply_id)               { 631_270 }
   let(:created_draft_id)       { 655_626 }
   let(:created_draft_reply_id) { 655_628 }
-  let(:draft)        { attributes_for(:message, body: 'Body 1', subject: 'Subject 1') }
+  let(:draft) { attributes_for(:message, body: 'Body 1', subject: 'Subject 1') }
   let(:params) { draft.slice(:category, :subject, :body, :recipient_id) }
 
   before(:each) do
