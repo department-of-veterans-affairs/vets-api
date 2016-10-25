@@ -6,7 +6,7 @@ module V0
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
       # TODO: RelayState value should come from the ?location query param
-      render json: { authenticate_via_get: saml_auth_request.create(saml_settings, RelayState: '/profile') }
+      render json: { authenticate_via_get: saml_auth_request.create(saml_settings, RelayState: location_param) }
     end
 
     def show
@@ -25,7 +25,7 @@ module V0
 
       if @saml_response.is_valid?
         persist_session_and_user!
-        render json: @session, status: :created
+        redirect_to params[:RelayState]
       else
         # TODO: also need to make sure error json conforms to api spec
         render json: { errors: @saml_response.errors }, status: :forbidden
@@ -79,8 +79,7 @@ module V0
     # which LOA was performed on the ID.me side.
     # TODO - remove this method once LOA is returned as a SAML Attribute
     def parse_current_loa
-      raw_loa = Hash.from_xml(@saml_response.response)
-                    .dig('Response', 'Assertion', 'AuthnStatement', 'AuthnContext', 'AuthnContextClassRef')
+      raw_loa = REXML::XPath.first(@saml_response.decrypted_document, "//saml:AuthnContextClassRef")&.text
       LOA::MAPPING[raw_loa]
     end
 
@@ -97,6 +96,13 @@ module V0
     def async_create_evss_account(user)
       auth_headers = EVSS::AuthHeaders.new(user).to_h
       EVSS::CreateUserAccountJob.perform_async(auth_headers)
+    end
+
+    def location_param
+      # TODO: use a real default here specific to the env type
+      default_path = 'http://localhost:3001/profile'
+      # TODO: validate 'location' query param to only allow a path and not a full url
+      params[:location] || default_path
     end
   end
 end
