@@ -71,6 +71,14 @@ module Common
         title: 'Missing Parameter'
       }.freeze
 
+      UNAUTHORIZED = {
+        type: :custom,
+        code: '401',
+        status: MajorCodes::UNAUTHORIZED,
+        title: 'Not Authorized',
+        detail: 'Not Authorized'
+      }
+
       # Deliberately not implementing this one, because RECORD_NOT_FOUND
       # should be used instead.
       FORBIDDEN = {
