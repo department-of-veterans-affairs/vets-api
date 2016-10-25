@@ -18,10 +18,7 @@ RSpec.describe 'Documents management', type: :request do
   end
 
   it 'should upload a file' do
-    params = {
-      file: file, tracked_item: tracked_item,
-      document_type: document_type, document_description: document_description
-    }
+    params = { file: file, tracked_item: tracked_item, document_type: document_type }
     expect do
       post "/v0/disability_claims/#{claim_id}/documents", params
     end.to change(DisabilityClaim::DocumentUpload.jobs, :size).by(1)

@@ -11,7 +11,7 @@ module V0
       document_data.file_name = params[:file].original_filename
       document_data.tracked_item_id = params[:tracked_item]
       document_data.document_type = params[:document_type]
-      document_data.description = params[:document_description]
+      document_data.validate!
       jid = claim_service.upload_document(params[:file], document_data)
       render_job_id(jid)
     end
