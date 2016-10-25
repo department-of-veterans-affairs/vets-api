@@ -1,0 +1,45 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/655570/reply"
+    body:
+      encoding: UTF-8
+      string: '{"subject":"CI Run","category":"OTHER","recipientId":585986,"body":"Continuous
+        Integration"}'
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Content-Type:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 24 Oct 2016 14:27:02 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '{"id":655594,"category":"OTHER","subject":"CI Run","body":"Continuous
+        Integration","attachment":false,"attachments":{"attachment":[]},"sentDate":"Mon,
+        24 Oct 2016 14:27:02 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":585986,"recipientName":"Triage
+        group 311070 test 2","readReceipt":null}'
+    http_version: 
+  recorded_at: Mon, 24 Oct 2016 14:27:03 GMT
+recorded_with: VCR 3.0.3
