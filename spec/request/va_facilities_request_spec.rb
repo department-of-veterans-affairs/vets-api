@@ -2,6 +2,14 @@
 require 'rails_helper'
 
 RSpec.describe 'VA GIS Integration', type: :request do
+
+  before(:all) do
+    VCR.use_cassette('facilities/va/warmup') do 
+      # Warm up client library initial request so it doesn't need to appear in all cassettes
+      get '/v0/facilities/va/?bbox[]=-122&bbox[]=45&bbox[]=-122&bbox[]=45'
+    end
+  end
+
   it 'responds to GET #show for VHA prefix' do
     VCR.use_cassette('facilities/va/vha_648A4') do
       get '/v0/facilities/va/vha_648A4'
