@@ -5,7 +5,7 @@ require 'support/rx_client_helpers'
 
 RSpec.describe 'prescriptions', type: :request do
   before(:each) do
-    use_authenticated_current_user(klass: V0::PrescriptionsController, current_user: build(:prescription_user))
+    use_authenticated_current_user(current_user: build(:prescription_user))
   end
 
   it 'responds to GET #show', :vcr do
