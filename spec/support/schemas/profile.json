@@ -39,8 +39,8 @@
                   "type": "object",
                   "required": ["current", "highest"],
                   "properties": {
-                    "current": { "type": [ "string", null ] },
-                    "highest": { "type": [ "string", null ] }
+                    "current": { "type": "integer" },
+                    "highest": { "type": [ "integer", null ] }
                   }
                 }
               }

@@ -7,6 +7,6 @@ namespace :jobs do
 
   desc 'Email daily year to date report'
   task create_daily_year_to_date_report: :environment do
-    EducationForm::CreateDailyYearToDateReport.perform_later(Time.zone.today)
+    EducationForm::CreateDailyYearToDateReport.perform_async(Time.zone.today)
   end
 end
