@@ -2,8 +2,6 @@
 module SM
   module API
     module MessageDrafts
-      # post_create_message_draft: Creates a new draft, without attachments. If an id is included as
-      # a parameter, then the message draft is updated.
       def post_create_message_draft(args = {})
         # Prevent call if this is a reply draft, otherwise reply-to message suject can change.
         validate_draft(args)

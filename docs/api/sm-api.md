@@ -4,21 +4,23 @@
 Secure Messaging within vets.gov enables secure, non-emergency, communications between veterans and their VA healthcare providers.
 
 ### Available Routes
-| Resource                                          | Description                                       | Params                               |
-| ------------------------------------------------- | ------------------------------------------------- | -------------------------------------|
-| GET /messaging/healthcare/recipients              | List possible recipients                          | [Pagination](#pagination)            |
-| GET /messaging/healthcare/folders                 | List folders                                      | [Pagination](#pagination)            |
-| GET /messaging/healthcare/folders/:id             | Returns a folder                                  | None                                 |
-| POST /messaging/healthcare/folders                | Creates a folder                                  | [json payload](#folder)              |
-| DELETE /messaging/healthcare/folders/:id          | Deletes a folder                                  | None                                 |
-| GET /messaging/health/folders/:folder_id/messages | List messages in folder                           | [Filtering](#filtering)              |
-| GET /messaging/health/messages/:id                | Gets a message                                    | None                                 |
-| GET /messaging/health/messages/:message_id/thread | List messages in thread                           | [Pagination](#pagination)            |
-| POST /messaging/health/messages                   | Sends a message. [attachments](#attachments)      | [json payload](#message)             |
-| POST /messaging/health/message_drafts             | Creates a draft                                   | [json draft payload](#draft-payload) |
-| PUT /messaging/health/message_drafts/:id          | Updates a draft                                   | [json draft payload](#draft-payload) |
-| POST /messaging/health/messages/:id/reply         | Replies to a message [attachments](#attachments)  | [json payload](#message)             |
-| GET /messaging/health/messages/:message_id/attachments/:id | Gets an  attachment                      | Will immediately download the file   |
+| Resource                                                            | Description                                 | Params                                          |
+| ------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------|
+| GET /messaging/healthcare/recipients                                | List possible recipients                    | [Pagination](#pagination)                       |
+| GET /messaging/healthcare/folders                                   | List folders                                | [Pagination](#pagination)                       |
+| GET /messaging/healthcare/folders/:id                               | Returns a folder                            | None                                            |
+| POST /messaging/healthcare/folders                                  | Creates a folder                            | [json payload](#folder)                         |
+| DELETE /messaging/healthcare/folders/:id                            | Deletes a folder                            | None                                            |
+| GET /messaging/health/folders/:folder_id/messages                   | List messages in folder                     | [Filtering](#filtering)                         |
+| GET /messaging/health/messages/:id                                  | Gets a message                              | None                                            |
+| GET /messaging/health/messages/:message_id/thread                   | List messages in thread                     | [Pagination](#pagination)                       |
+| POST /messaging/health/messages                                     | Sends a message. [attach](#attachments)     | [json payload](#message)                        |
+| POST /messaging/health/message_drafts                               | Creates a draft                             | [json draft payload](#draft-payload)            |
+| PUT /messaging/health/message_drafts/:id                            | Updates a draft                             | [json draft payload](#draft-payload)            |
+| POST /v0/messaging/health/message_drafts/:reply/replydraft          | Creates a reply draft to message :reply     | [json reply-draft-payload](#replydraft-payload) |
+| PUT /v0/messaging/health/message_drafts/:reply/replydraft/:draft_id | Updates a reply draft to message :reply     | [json reply-draft-payload](#replydraft-payload) |
+| POST /messaging/health/messages/:id/reply                           | Replies to a message [attach](#attachments) | [json payload](#message)                        |
+| GET /messaging/health/messages/:message_id/attachments/:id          | Gets an  attachment                         | Will immediately download the file              |
 
 #### <a name="pagination"></a>Pagination Params
 * **page:** The page number of the first message returned
@@ -81,7 +83,7 @@ Response
 `STATUS: 201`
 
 #### <a name="draft-payload"></a>Updating/Creating a Message Draft
-Creating or updating a message draft require the same payload. For example,
+Creating or updating a message draft requires the same payload. For example,
 
 Request:
 
@@ -93,19 +95,93 @@ Request:
     "category": "A category from the list of available categories",
     "subject": "Message Subject",
     "body": "The message body.",
-    "recipient_id": 1
+    "recipient_id": 585986
   }
 }
 ```
 
-Response
+Response (for create)
 
-`STATUS: 204`
+`STATUS: 201`
 
+```json
+{
+  "data": {
+    "id": "655626",
+    "type": "message_drafts",
+    "attributes": {
+      "message_id": 655626,
+      "category": "A category from the list of available categories",
+      "subject": "Message Subject",
+      "body": "The message body.",
+      "attachment": false,
+      "sent_date": null,
+      "sender_id": 384939,
+      "sender_name": "MVIONE, TEST",
+      "recipient_id": 585986,
+      "recipient_name": "Triage Group 2",
+      "read_receipt": null
+    },
+    "relationships": {
+      "attachments": {
+        "data": []
+      }
+    },
+    "links": {
+      "self": "http://www.example.com/v0/messaging/health/messages/655626"
+    }
+  }
+}
 ```
-  UPDATE THIS
+
+#### <a name="replydraft-payload"></a>Updating/Creating a Message Reply Draft
+Creating or updating a message reply draft requires the same payload. For example,
+
+Request:
+
+`PUT /messaging/health/message_drafts/:id` with the following payload:
+
+```json
+{
+  "message_draft": {
+    "body": "The message body.",
+  }
+}
 ```
 
+Response (for create)
+
+`STATUS: 201`
+
+```json
+{
+  "data": {
+    "id": "655626",
+    "type": "message_drafts",
+    "attributes": {
+      "message_id": 655626,
+      "category": "A category from the list of available categories",
+      "subject": "Message Subject",
+      "body": "The message body.",
+      "attachment": false,
+      "sent_date": null,
+      "sender_id": 384939,
+      "sender_name": "MVIONE, TEST",
+      "recipient_id": 585986,
+      "recipient_name": "Triage Group 2",
+      "read_receipt": null
+    },
+    "relationships": {
+      "attachments": {
+        "data": []
+      }
+    },
+    "links": {
+      "self": "http://www.example.com/v0/messaging/health/messages/655626"
+    }
+  }
+}
+```
 
 ### Supported Formats
 <ul><li>JSON</li></ul>
@@ -152,7 +228,7 @@ returns
 #### Links
 TBD
 
-#### <a name="attachments"></a>Attachments
+#### <a name="attach"></a>Attachments
 New Message and Reply Message support sending file attachments.
 
 To send files, you need to use Content-Type of `'multipart/form-data'`
