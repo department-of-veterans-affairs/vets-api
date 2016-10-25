@@ -18,6 +18,7 @@ gem 'pg'
 gem 'json-schema'
 gem 'active_model_serializers', '~> 0.10.0'
 gem 'will_paginate'
+gem 'sentry-raven'            # Sentry integration. SENTRY_DSN provided in ENV
 gem 'faraday'
 gem 'faraday_middleware'
 gem 'httpclient'
