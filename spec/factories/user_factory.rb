@@ -43,11 +43,41 @@ FactoryGirl.define do
   factory :loa1_user, class: 'User' do
     uuid 'deadbeef-dead-beef-dead-deadbeefdead'
     email 'george.washington@vets.gov'
+    last_signed_in Time.now.utc
     loa do
       {
         current: LOA::ONE,
         highest: LOA::ONE
       }
+    end
+
+    factory :loa3_user do
+      first_name 'george'
+      last_name 'washington'
+      gender 'M'
+      birth_date Time.new(1732, 2, 22).utc
+      zip '17325'
+      edipi '1234^NI^200DOD^USDOD^A'
+      ssn '111223333'
+      loa do
+        {
+          current: LOA::THREE,
+          highest: LOA::THREE
+        }
+      end
+      mvi do
+        {
+          edipi: '1234^NI^200DOD^USDOD^A',
+          icn: '1000123456V123456^NI^200M^USVHA^P',
+          mhv: '123456^PI^200MHV^USVHA^A',
+          status: 'active',
+          given_names: %w(george),
+          family_name: 'washington',
+          gender: 'M',
+          birth_date: '17320222',
+          ssn: '111223333'
+        }
+      end
     end
   end
 end

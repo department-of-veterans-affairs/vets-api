@@ -4,16 +4,14 @@ require 'net/sftp'
 module EducationForm
   class CreateDailySpoolFiles
     include Sidekiq::Worker
+    sidekiq_options queue: 'default',
+                    retry: true
+
     include ActionView::Helpers::TextHelper # Needed for word_wrap
     require 'erb'
     require 'ostruct'
 
-    sidekiq_options queue: :default,
-                    # Stop multiple rake tasks from running this concurrently
-                    unique: :until_timeout,
-                    unique_expiration: 1.minute
-
-    TEMPLATE_PATH = Rails.root.join('app', 'jobs', 'education_form', 'templates')
+    TEMPLATE_PATH = Rails.root.join('app', 'workers', 'education_form', 'templates')
     TEMPLATE = File.read(File.join(TEMPLATE_PATH, '22-1990.erb'))
 
     CH33_TYPES = {
@@ -61,7 +59,7 @@ module EducationForm
             sftp.file
           end
 
-        Rails.logger.tagged('EDUForm') { |l| l.info("Writing #{records.count} application(s) to #{filename}") }
+        logger.info("Writing #{records.count} application(s) to #{filename}")
         f = file_class.open(filename, 'w')
         contents = records.map do |record|
           format_application(record)
@@ -73,6 +71,7 @@ module EducationForm
     end
 
     def create_files(structured_data)
+      logger.error('No applications to write') if structured_data.empty?
       if Rails.env.development? || ENV['EDU_SFTP_HOST'].blank?
         write_files(structured_data: structured_data)
       else
