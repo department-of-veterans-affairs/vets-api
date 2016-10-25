@@ -6,7 +6,7 @@ module V0
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
       # TODO: RelayState value should come from the ?location query param
-      render json: { authenticate_via_get: saml_auth_request.create(saml_settings, { RelayState: '/profile' }) }
+      render json: { authenticate_via_get: saml_auth_request.create(saml_settings, RelayState: '/profile') }
     end
 
     def show

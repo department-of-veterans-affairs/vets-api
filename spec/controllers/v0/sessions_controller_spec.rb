@@ -126,7 +126,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         Session.create(uuid: loa1_user.uuid, token: token)
         User.create(loa1_user)
 
-        get :saml_callback
+        post :saml_callback
         assert_response :success
 
         uuid = JSON.parse(response.body)['uuid']
@@ -135,18 +135,18 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       it 'returns a valid token session' do
-        get :saml_callback
+        post :saml_callback
 
         expect(response).to have_http_status(:success)
         expect(JSON.parse(response.body).keys).to include('token', 'uuid')
       end
 
       it 'creates a job to create an evss user' do
-        expect { get :saml_callback }.to change(EVSS::CreateUserAccountJob.jobs, :size).by(1)
+        expect { post :saml_callback }.to change(EVSS::CreateUserAccountJob.jobs, :size).by(1)
       end
 
       it 'creates a valid session' do
-        get :saml_callback
+        post :saml_callback
         assert_response :success
 
         token = JSON.parse(response.body)['token']
@@ -154,7 +154,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       it 'stores the user' do
-        get :saml_callback
+        post :saml_callback
         assert_response :success
 
         uuid = JSON.parse(response.body)['uuid']
@@ -165,7 +165,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       it 'parses and stores the current level of assurance' do
-        get :saml_callback
+        post :saml_callback
         assert_response :success
 
         uuid = JSON.parse(response.body)['uuid']
@@ -174,7 +174,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       it 'parses and stores the highest level of assurance proofing' do
-        get :saml_callback
+        post :saml_callback
         assert_response :success
 
         uuid = JSON.parse(response.body)['uuid']
@@ -188,7 +188,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       allow(OneLogin::RubySaml::Response)
         .to receive(:new).and_return(double('saml_response', is_valid?: false, errors: errors))
 
-      get :saml_callback
+      post :saml_callback
       expect(response).to have_http_status(:forbidden)
       expect(JSON.parse(response.body)['errors']).to eq(['Response is invalid'])
     end
