@@ -6,8 +6,11 @@ require 'support/sm_client_helpers'
 RSpec.describe 'Messages Integration', type: :request do
   include SM::ClientHelpers
 
-  let(:draft) { attributes_for(:message_draft) }
-  let(:user_id) { ENV['MHV_SM_USER_ID'] }
+  let(:reply_id)               { 631_270 }
+  let(:created_draft_id)       { 655_626 }
+  let(:created_draft_reply_id) { 655_628 }
+  let(:draft) { attributes_for(:message, body: 'Body 1', subject: 'Subject 1') }
+  let(:params) { draft.slice(:category, :subject, :body, :recipient_id) }
 
   before(:each) do
     allow_any_instance_of(ApplicationController).to receive(:authenticate).and_return(true)
@@ -18,7 +21,7 @@ RSpec.describe 'Messages Integration', type: :request do
     let(:params) { { message_draft: draft.slice(:category, :subject, :body, :recipient_id) } }
 
     it 'responds to POST #create' do
-      VCR.use_cassette("sm/message_drafts/#{user_id}/create") do
+      VCR.use_cassette('sm_client/message_drafts/creates_a_draft') do
         post '/v0/messaging/health/message_drafts', params
       end
 
@@ -29,10 +32,11 @@ RSpec.describe 'Messages Integration', type: :request do
     end
 
     it 'responds to PUT #update' do
-      VCR.use_cassette("sm/message_drafts/#{user_id}/update") do
+      VCR.use_cassette('sm_client/message_drafts/updates_a_draft') do
         params[:subject] = 'Updated Subject'
+        params[:id] = created_draft_id
 
-        put "/v0/messaging/health/message_drafts/#{draft[:id]}", params
+        put "/v0/messaging/health/message_drafts/#{created_draft_id}", params
       end
 
       expect(response).to be_success
@@ -42,10 +46,9 @@ RSpec.describe 'Messages Integration', type: :request do
 
   describe 'reply drafts' do
     let(:params) { { message_draft: draft.slice(:body) } }
-    let(:reply_id) { 631_270 }
 
     it 'responds to POST #create' do
-      VCR.use_cassette("sm/message_drafts/#{user_id}/replydraft") do
+      VCR.use_cassette('sm_client/message_drafts/creates_a_draft_reply') do
         post "/v0/messaging/health/message_drafts/#{reply_id}/replydraft", params
       end
 
@@ -56,9 +59,10 @@ RSpec.describe 'Messages Integration', type: :request do
     end
 
     it 'responds to PUT #update' do
-      VCR.use_cassette("sm/message_drafts/#{user_id}/update_replydraft") do
+      VCR.use_cassette('sm_client/message_drafts/updates_a_draft_reply') do
         params[:body] = 'Updated Body'
-        put "/v0/messaging/health/message_drafts/#{reply_id}/replydraft/#{draft[:id]}", params
+        params[:id] = created_draft_reply_id
+        put "/v0/messaging/health/message_drafts/#{reply_id}/replydraft/#{created_draft_reply_id}", params
       end
 
       expect(response).to be_success

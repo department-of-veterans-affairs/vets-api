@@ -18,12 +18,11 @@ RSpec.describe 'Documents management', type: :request do
   let(:session) { Session.create(uuid: user.uuid) }
 
   it 'should upload a file' do
-    ActiveJob::Base.queue_adapter = :test
     params = { file: file, tracked_item: tracked_item }
     expect do
       post "/v0/disability_claims/#{claim_id}/documents", params, 'Authorization' => "Token token=#{session.token}"
-    end.to have_enqueued_job(DisabilityClaim::DocumentUpload)
-    expect(response).to be_success
-    expect(response.body).to be_empty
+    end.to change(DisabilityClaim::DocumentUpload.jobs, :size).by(1)
+    expect(response.status).to eq(202)
+    expect(JSON.parse(response.body)['job_id']).to eq(DisabilityClaim::DocumentUpload.jobs.first['jid'])
   end
 end

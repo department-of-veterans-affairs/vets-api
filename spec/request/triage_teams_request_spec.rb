@@ -10,7 +10,7 @@ RSpec.describe 'Triage Teams Integration', type: :request do
     allow_any_instance_of(ApplicationController).to receive(:authenticate).and_return(true)
     expect(SM::Client).to receive(:new).once.and_return(authenticated_client)
 
-    VCR.use_cassette('sm/triage_teams/10616687/index') do
+    VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
       get '/v0/messaging/health/recipients'
     end
 

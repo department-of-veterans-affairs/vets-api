@@ -87,6 +87,22 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
 
     context 'GET saml_callback ' do
+      let(:token) { 'abracadabra-open-sesame' }
+      let(:loa1_user) { build :loa1_user }
+      let(:loa3_user) { build :loa3_user }
+      let(:loa3_saml_attrs) do
+        {
+          'uuid' => [loa3_user.uuid],
+          'email' => [loa3_user.email],
+          'fname' => [loa3_user.first_name],
+          'lname' => [loa3_user.last_name],
+          'mname' => [''],
+          'social' => [loa3_user.ssn],
+          'gender' => ['male'],
+          'birth_date' => [loa3_user.birth_date.strftime('%Y-%m-%d')],
+          'level_of_assurance' => [loa3_user.loa[:highest]]
+        }
+      end
       let(:attributes) { double('attributes') }
       let(:saml_response) { double('saml_response', is_valid?: true, attributes: attributes) }
 
@@ -94,6 +110,22 @@ RSpec.describe V0::SessionsController, type: :controller do
         allow(attributes).to receive_message_chain(:all, :to_h).and_return(saml_attrs)
         allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response)
         allow(saml_response).to receive(:response).and_return(loa1_xml)
+      end
+
+      it 'should uplevel an LOA 1 session to LOA 3' do
+        allow(saml_response).to receive(:response).and_return(loa3_xml)
+        allow(attributes).to receive_message_chain(:all, :to_h).and_return(loa3_saml_attrs)
+        allow_any_instance_of(Decorators::MviUserDecorator).to receive(:create).and_return(loa3_user)
+
+        Session.create(uuid: loa1_user.uuid, token: token)
+        User.create(loa1_user)
+
+        get :saml_callback
+        assert_response :success
+
+        uuid = JSON.parse(response.body)['uuid']
+        user = User.find(uuid)
+        expect(user.attributes).to eq(loa3_user.attributes)
       end
 
       it 'returns a valid token session' do
@@ -104,18 +136,17 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       it 'creates a job to create an evss user when user has loa3 and evss attrs' do
-        ActiveJob::Base.queue_adapter = :test
         allow(saml_response).to receive(:response).and_return(loa3_xml)
-        expect { get :saml_callback }.to have_enqueued_job(EVSS::CreateUserAccountJob)
+        expect { get :saml_callback }.to change(EVSS::CreateUserAccountJob.jobs, :size).by(1)
       end
 
-      it 'does not create a job to create an evss user when user has loa1 and missing evss attrs' do
-        ActiveJob::Base.queue_adapter = :test
-        expect { get :saml_callback }.to_not have_enqueued_job(EVSS::CreateUserAccountJob)
+      it 'does not create a job to create an evss user when user has loa1' do
+        expect { get :saml_callback }.to_not change(EVSS::CreateUserAccountJob.jobs, :size)
       end
 
       it 'creates a valid session' do
         get :saml_callback
+        assert_response :success
 
         token = JSON.parse(response.body)['token']
         expect(Session.find(token)).not_to be_nil
@@ -123,6 +154,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       it 'stores the user' do
         get :saml_callback
+        assert_response :success
 
         uuid = JSON.parse(response.body)['uuid']
         user = User.find(uuid)
@@ -133,6 +165,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       it 'parses and stores the current level of assurance' do
         get :saml_callback
+        assert_response :success
 
         uuid = JSON.parse(response.body)['uuid']
         user = User.find(uuid)
@@ -141,6 +174,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       it 'parses and stores the highest level of assurance proofing' do
         get :saml_callback
+        assert_response :success
 
         uuid = JSON.parse(response.body)['uuid']
         user = User.find(uuid)

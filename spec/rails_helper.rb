@@ -26,17 +26,18 @@ VCR.configure do |c|
   c.filter_sensitive_data('<MHV_HOST>') { ENV['MHV_HOST'] }
   c.filter_sensitive_data('<APP_TOKEN>') { ENV['MHV_APP_TOKEN'] }
   c.before_record do |i|
-    i.response.headers.update('Token' => '<SESSION_TOKEN>')
-    i.request.headers.update('Token' => '<SESSION_TOKEN>')
-  end
-  c.register_request_matcher :anonymized_session_token do |_acutal, expected|
-    actual.headers['Token'] == expected.headers['Token']
+    %i(response request).each do |env|
+      next unless i.send(env).headers.keys.include?('Token')
+      i.send(env).headers.update('Token' => '<SESSION_TOKEN>')
+    end
   end
 end
 
 ActiveRecord::Migration.maintain_test_schema!
 
-ActiveJob::Base.queue_adapter = :test
+require 'sidekiq/testing'
+Sidekiq::Testing.fake!
+Sidekiq::Logging.logger = nil
 
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures

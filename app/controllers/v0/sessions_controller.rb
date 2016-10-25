@@ -35,9 +35,14 @@ module V0
 
     def persist_session_and_user!
       @session = Session.new(user_attributes.slice(:uuid))
-      @current_user = User.find(@session.uuid) || create_new_user
+      @current_user = User.find(@session.uuid)
+      @current_user = saml_user if @current_user.nil? || up_level?
       @session.save && @current_user.save
       async_create_evss_account(@current_user)
+    end
+
+    def up_level?
+      @current_user.loa[:current] <= saml_user.loa[:current]
     end
 
     def user_attributes
@@ -53,7 +58,7 @@ module V0
         birth_date:     parse_date(attributes['birth_date']&.first),
         uuid:           attributes['uuid']&.first,
         last_signed_in: Time.current.utc,
-        loa:            { current: parse_current_loa, highest: attributes['level_of_assurance']&.first }
+        loa:            { current: parse_current_loa, highest: attributes['level_of_assurance']&.first&.to_i }
       }
     end
 
@@ -78,7 +83,11 @@ module V0
       LOA::MAPPING[raw_loa]
     end
 
-    def create_new_user
+    def saml_user
+      @saml_user ||= create_saml_user
+    end
+
+    def create_saml_user
       user = User.new(user_attributes)
       user = Decorators::MviUserDecorator.new(user).create unless user.loa1?
       user
@@ -87,7 +96,7 @@ module V0
     def async_create_evss_account(user)
       return unless user.evss_attrs?
       auth_headers = EVSS::AuthHeaders.new(user).to_h
-      EVSS::CreateUserAccountJob.perform_later(auth_headers)
+      EVSS::CreateUserAccountJob.perform_async(auth_headers)
     end
   end
 end

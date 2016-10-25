@@ -1,75 +1,58 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'sm/client'
-require 'support/sm_client_helpers'
 
-describe SM::Client do
-  include SM::ClientHelpers
-
-  subject(:client) { authenticated_client }
-
-  describe 'get_folders' do
-    context 'with valid session and configuration' do
-      it 'gets a collection of folders' do
-        VCR.use_cassette('sm/folders/10616687/index') do
-          client_response = client.get_folders
-          expect(client_response).to be_a(Common::Collection)
-          expect(client_response.type).to eq(Folder)
+describe 'sm client' do
+  describe 'folders' do
+    before(:all) do
+      VCR.use_cassette 'sm_client/session', record: :new_episodes do
+        @client ||= begin
+          client = SM::Client.new(session: { user_id: ENV['MHV_SM_USER_ID'] })
+          client.authenticate
+          client
         end
       end
     end
-  end
 
-  describe 'get_folder' do
-    context 'with valid session and configuration' do
-      let(:id) { 0 }
+    subject(:client)  { @client }
+    let(:folder_name) { "test folder #{rand(100..100_000)}" }
+    let(:folder_id)   { 0 }
 
-      it 'gets a single folder' do
-        VCR.use_cassette('sm/folders/10616687/show') do
-          client_response = client.get_folder(id)
-          expect(client_response).to be_a(Folder)
-        end
-      end
+    it 'gets a collection of folders', :vcr do
+      folders = client.get_folders
+      expect(folders).to be_a(Common::Collection)
+      expect(folders.type).to eq(Folder)
     end
-  end
 
-  describe 'post_create_folder' do
-    context 'with valid characters in name' do
-      let(:name) { "test folder create name #{Time.now.utc.strftime('%y%m%d%H%M%S')}" }
-
-      it 'creates a folder with given name' do
-        VCR.use_cassette('sm/folders/10616687/create_valid') do
-          client_response = client.post_create_folder(name)
-          expect(client_response).to be_a(Folder)
-        end
-      end
+    it 'gets a single folder', :vcr do
+      folder = client.get_folder(folder_id)
+      expect(folder).to be_a(Folder)
     end
-  end
 
-  describe 'delete_folder' do
-    let(:name) { "test folder delete name #{Time.now.utc.strftime('%y%m%d%H%M%S')}" }
+    it 'creates a folder and deletes a folder', :vcr do
+      created_folder = client.post_create_folder(folder_name)
+      expect(created_folder).to be_a(Folder)
 
-    context 'with a valid id' do
-      it 'deletes the folder and returns 200' do
-        VCR.use_cassette('sm/folders/10616687/delete_valid') do
-          # cassette_setup = client.post_create_folder(name)
-          client_response = client.delete_folder(613_557)
-          expect(client_response).to eq(200)
-        end
-      end
+      client_response = client.delete_folder(created_folder.id)
+      expect(client_response).to eq(200)
     end
-  end
 
-  describe 'get_folder_messages (multiple requests based on pagination)' do
-    it 'does 4 total requests and returns 3 results' do
-      VCR.use_cassette('sm/messages/10616687/index_multi_request') do
+    context 'nested resources' do
+      it 'gets a collection of messages (mhv max)', :vcr do
         # set the max pages to 1 for testing purposes
-        stub_const('SM::API::Folders::MHV_MAXIMUM_PER_PAGE', 1)
-        # There are 3 records, 1 per page, so it should loop 4 times making requests
-        expect(client).to receive(:perform).and_call_original.exactly(4).times
-        client_response = client.get_folder_messages(0)
-        expect(client_response).to be_a(Common::Collection)
-        expect(client_response.data.size).to eq(3)
+        stub_const('SM::API::Folders::MHV_MAXIMUM_PER_PAGE', 2)
+        # There are 5 records, 2 per page, so it should loop 3 times making requests
+        expect(client).to receive(:perform).and_call_original.exactly(3).times
+        messages = client.get_folder_messages(folder_id)
+        expect(messages).to be_a(Common::Collection)
+        expect(messages.data.size).to eq(5)
+      end
+
+      it 'gets a collection of messages', :vcr do
+        expect(client).to receive(:perform).and_call_original.exactly(1).times
+        messages = client.get_folder_messages(folder_id)
+        expect(messages).to be_a(Common::Collection)
+        expect(messages.data.size).to eq(5)
       end
     end
   end

@@ -11,7 +11,6 @@ module SM
         Category.new(json)
       end
 
-      # get_message: Retrieves a specific message by id, marking the message as read.
       def get_message(id)
         path = "message/#{id}/read"
         json = perform(:get, path, nil, token_headers)
@@ -19,8 +18,6 @@ module SM
         Message.new(json)
       end
 
-      # get_message_history: Retrieves a thread of messages, not including the message whosse history
-      # is being returned.
       def get_message_history(id)
         path = "message/#{id}/history"
         json = perform(:get, path, nil, token_headers)
@@ -28,54 +25,44 @@ module SM
         Common::Collection.new(Message, json)
       end
 
-      # get_message_category: Retrieves a specific message by id, marking the message as read.
-      def get_message_category
-        path = 'message/category'
-        json = perform(:get, path, nil, token_headers)
-
-        Category.new(json)
-      end
-
-      # post_create_message: Creates a new message, without attachments
       def post_create_message(args = {})
         json = perform(:post, 'message', args, token_headers)
         Message.new(json)
       end
 
       def post_create_message_with_attachment(args = {})
-        custom_header = token_headers.merge('Content-Transfer-Encoding' => 'binary')
-        custom_header = custom_header.except('Content-Type')
-        json = perform(:post, 'message/attach', args, custom_header)
+        json = perform(:post, 'message/attach', args, token_headers)
         Message.new(json)
       end
 
       def post_create_message_reply_with_attachment(id, args = {})
-        custom_header = token_headers.merge('Content-Transfer-Encoding' => 'binary')
-        custom_header = custom_header.except('Content-Type')
-        json = perform(:post, "message/#{id}/reply/attach", args, custom_header)
+        json = perform(:post, "message/#{id}/reply/attach", args, token_headers)
         Message.new(json)
       end
 
-      # post_create_message_reply: Replies to a message with the given id,
-      # or updates an existing reply, without attachments
       def post_create_message_reply(id, args = {})
         json = perform(:post, "message/#{id}/reply", args, token_headers)
 
         Message.new(json)
       end
 
-      # post_move_message: Moves a message from its current folder to another
       def post_move_message(id, folder_id)
-        response = perform(:post, "message/#{id}/move/tofolder/#{folder_id}", nil, token_headers)
+        custom_headers = token_headers.merge('Content-Type' => 'application/json')
+        response = perform(:post, "message/#{id}/move/tofolder/#{folder_id}", nil, custom_headers)
 
         response.nil? ? nil : response.status
       end
 
-      # delete_folder: Deletes a folder.
       def delete_message(id)
-        response = perform(:post, "message/#{id}", nil, token_headers)
+        custom_headers = token_headers.merge('Content-Type' => 'application/json')
+        response = perform(:post, "message/#{id}", nil, custom_headers)
 
         response.nil? ? nil : response.status
+      end
+
+      def get_attachment(message_id, attachment_id)
+        path = "message/#{message_id}/attachment/#{attachment_id}"
+        perform(:get, path, nil, token_headers)
       end
     end
   end

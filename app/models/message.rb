@@ -13,23 +13,25 @@ class Message < Common::Base
 
   # Only validate presence of category, recipient_id if new message or new draft message
   validates :category, :recipient_id, presence: true, unless: proc { reply? }
+
   # Always require body to be present: new message, drafts, and replies
   validates :body, presence: true
   validates :uploads, length: { maximum: 4, message: 'has too many files (maximum is 4 files)' }
+
   # Only validate upload sizes if uploads are present.
   validate :each_upload_size_validation, if: proc { uploads.present? }
   validate :total_upload_size_validation, if: proc { uploads.present? }
 
   attribute :id, Integer
   attribute :category, String
-  attribute :subject, String, filterable: %w(eq not_eq), sortable: { order: 'ASC' }
+  attribute :subject, String, filterable: %w(eq not_eq match), sortable: { order: 'ASC' }
   attribute :body, String
   attribute :attachment, Boolean
   attribute :sent_date, Common::UTCTime, filterable: %w(eq lteq gteq), sortable: { order: 'DESC', default: true }
   attribute :sender_id, Integer
-  attribute :sender_name, String, filterable: %w(eq not_eq), sortable: { order: 'ASC' }
+  attribute :sender_name, String, filterable: %w(eq not_eq match), sortable: { order: 'ASC' }
   attribute :recipient_id, Integer
-  attribute :recipient_name, String, filterable: %w(eq not_eq), sortable: { order: 'ASC' }
+  attribute :recipient_name, String, filterable: %w(eq not_eq match), sortable: { order: 'ASC' }
   attribute :read_receipt, String
   attribute :attachments, Array[Attachment]
 
