@@ -41,9 +41,9 @@ describe SM::Client do
         draft[:id] = draft_to_update
         draft[:subject] = 'Updated Subject'
 
-        client_response = client.post_create_message_draft_reply(reply_id, draft)
-        expect(client_response).to be_a(MessageDraft)
-        expect(client_response).not_to be_valid
+        expect{
+          client.post_create_message_draft_reply(reply_id, draft)
+        }.to raise_error(Common::Exceptions::ValidationErrors)
       end
     end
   end
@@ -76,9 +76,9 @@ describe SM::Client do
         draft[:id] = replydraft_to_update
         draft[:body] = 'Updated Body'
 
-        client_response = client.post_create_message_draft(draft)
-        expect(client_response).to be_a(MessageDraft)
-        expect(client_response).not_to be_valid
+        expect{
+          client.post_create_message_draft(draft)
+        }.to raise_error(Common::Exceptions::ValidationErrors)
       end
     end
   end

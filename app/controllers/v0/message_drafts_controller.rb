@@ -2,9 +2,6 @@
 module V0
   class MessageDraftsController < SMController
     def create
-      draft = MessageDraft.new(draft_params)
-      raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
-
       draft_response = client.post_create_message_draft(draft_params)
       render json: draft_response,
              serializer: MessageSerializer,
@@ -13,31 +10,20 @@ module V0
 
     def update
       draft = client.post_create_message_draft(draft_params.merge(id: params[:id]))
-
-      # draft will fail validation if its a reply draft.
-      raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
       head :no_content
     end
 
     def create_reply_draft
-      draft = client.post_create_message_draft_reply(params[:reply_id], reply_draft_params)
-
-      # draft will fail validation if its not a reply draft.
-      raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
-
-      render json: draft,
+      draft_response = client.post_create_message_draft_reply(params[:reply_id], reply_draft_params)
+      render json: draft_response,
              serializer: MessageSerializer,
              status: :created
     end
 
     def update_reply_draft
-      draft = MessageDraft.new(reply_draft_params.merge(has_message: true)).as_reply
-      raise Common::Exceptions::ValidationErrors, draft unless draft.valid?
-
       client.post_create_message_draft_reply(
         params[:reply_id], reply_draft_params.merge(id: params[:draft_id])
       )
-
       head :no_content
     end
 
