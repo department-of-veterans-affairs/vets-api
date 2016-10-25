@@ -25,4 +25,10 @@ RSpec.describe 'Documents management', type: :request do
     expect(response.status).to eq(202)
     expect(JSON.parse(response.body)['job_id']).to eq(DisabilityClaim::DocumentUpload.jobs.first['jid'])
   end
+
+  it 'should reject claims with invalid document_types' do
+    params = { file: file, tracked_item: tracked_item, document_type: 'invalid type' }
+    post "/v0/disability_claims/#{claim_id}/documents", params
+    expect(response.status).to eq(400)
+  end
 end
