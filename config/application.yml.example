@@ -20,6 +20,8 @@ EVSS_S3_UPLOADS: 'false'
 VHA_MAPSERVER_URL: 'https://maps.va.gov/server/rest/services/PROJECTS/Facility_Locator/MapServer'
 VHA_MAPSERVER_LAYER: '0'
 MVI_URL: 'http://see.project.readme.for.instructions.org'
+MVI_CLIENT_CERT_PATH: '/fake/client/cert/path'
+MVI_CLIENT_KEY_PATH: '/fake/client/key/path'
 MOCK_MVI_SERVICE: 'true'
 STAGING_EMAIL: 'true'
 

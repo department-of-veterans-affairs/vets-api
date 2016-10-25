@@ -20,11 +20,18 @@ module MVI
   class Service
     extend Savon::Model
 
-    def self.load_wsdl
-      @wsdl ||= ERB.new(File.read('config/mvi_schema/IdmWebService_200VGOV.wsdl.erb')).result
+    def self.options
+      opts = {
+        wsdl: @wsdl ||= ERB.new(File.read('config/mvi_schema/IdmWebService_200VGOV.wsdl.erb')).result
+      }
+      if ENV['MVI_CLIENT_CERT_PATH'] && ENV['MVI_CLIENT_KEY_PATH']
+        opts[:ssl_cert_file] = ENV['MVI_CLIENT_CERT_PATH']
+        opts[:ssl_cert_key_file] = ENV['MVI_CLIENT_KEY_PATH']
+      end
+      opts
     end
 
-    client wsdl: load_wsdl
+    client options
     operations :prpa_in201301_uv02, :prpa_in201302_uv02, :prpa_in201305_uv02
 
     def self.prpa_in201305_uv02(message)
