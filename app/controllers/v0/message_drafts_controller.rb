@@ -9,7 +9,7 @@ module V0
     end
 
     def update
-      draft = client.post_create_message_draft(draft_params.merge(id: params[:id]))
+      client.post_create_message_draft(draft_params.merge(id: params[:id]))
       head :no_content
     end
 
