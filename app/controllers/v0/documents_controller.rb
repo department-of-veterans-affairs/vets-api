@@ -6,8 +6,8 @@ module V0
     def create
       params.require :file
       claim = DisabilityClaim.for_user(current_user).find(params[:disability_claim_id])
-      claim_service.upload_document(claim, params[:file], params[:tracked_item])
-      head :no_content
+      jid = claim_service.upload_document(claim, params[:file], params[:tracked_item])
+      render_job_id(jid)
     end
 
     private

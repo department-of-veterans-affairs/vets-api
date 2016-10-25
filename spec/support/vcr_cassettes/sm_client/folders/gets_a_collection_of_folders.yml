@@ -1,0 +1,54 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 24 Oct 2016 04:52:03 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '{"folder":[{"id":0,"name":"Inbox","count":5,"unreadCount":0,"systemFolder":true},{"id":-2,"name":"Drafts","count":60,"unreadCount":43,"systemFolder":true},{"id":-1,"name":"Sent","count":265,"unreadCount":0,"systemFolder":true},{"id":-3,"name":"Deleted","count":1,"unreadCount":0,"systemFolder":true},{"id":623382,"name":"a
+        valid name 123","count":1,"unreadCount":0,"systemFolder":false},{"id":610965,"name":"AATestKhan","count":1,"unreadCount":0,"systemFolder":false},{"id":631915,"name":"b
+        test","count":0,"unreadCount":0,"systemFolder":false},{"id":631916,"name":"c
+        test","count":0,"unreadCount":0,"systemFolder":false},{"id":631914,"name":"d
+        test","count":0,"unreadCount":0,"systemFolder":false},{"id":623588,"name":"foobar
+        folder 20160927","count":0,"unreadCount":0,"systemFolder":false},{"id":629878,"name":"new
+        folder","count":0,"unreadCount":0,"systemFolder":false},{"id":623410,"name":"test
+        folder 11","count":0,"unreadCount":0,"systemFolder":false},{"id":655391,"name":"test
+        folder 11159","count":0,"unreadCount":0,"systemFolder":false},{"id":655390,"name":"test
+        folder 25927","count":0,"unreadCount":0,"systemFolder":false},{"id":653161,"name":"test
+        folder 4477","count":0,"unreadCount":0,"systemFolder":false},{"id":655392,"name":"test
+        folder 53387","count":0,"unreadCount":0,"systemFolder":false},{"id":623442,"name":"test
+        folder ale2x","count":0,"unreadCount":0,"systemFolder":false},{"id":623441,"name":"test
+        folder alex","count":0,"unreadCount":0,"systemFolder":false},{"id":631275,"name":"test
+        folder create name 160805101299","count":0,"unreadCount":0,"systemFolder":false},{"id":648757,"name":"This
+        is a test folder name","count":0,"unreadCount":0,"systemFolder":false}]}'
+    http_version: 
+  recorded_at: Mon, 24 Oct 2016 04:52:03 GMT
+recorded_with: VCR 3.0.3

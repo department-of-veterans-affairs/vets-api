@@ -2,6 +2,8 @@
 require 'faraday'
 require 'multi_json'
 require 'common/client/errors'
+require 'common/client/middleware/request/multipart_request'
+require 'common/client/middleware/request/camelcase'
 require 'sm/client_session'
 require 'sm/configuration'
 require 'sm/parser'
@@ -10,7 +12,6 @@ require 'sm/api/triage_teams'
 require 'sm/api/folders'
 require 'sm/api/messages'
 require 'sm/api/message_drafts'
-require 'sm/api/attachments'
 
 module SM
   class Client
@@ -19,7 +20,6 @@ module SM
     include SM::API::Folders
     include SM::API::Messages
     include SM::API::MessageDrafts
-    include SM::API::Attachments
 
     REQUEST_TYPES = %i(get post delete).freeze
     USER_AGENT = 'Vets.gov Agent'
@@ -40,7 +40,7 @@ module SM
         @session = get_session
         @session.save
       end
-      @session
+      self
     end
 
     private
@@ -93,12 +93,11 @@ module SM
     end
 
     def post(path, params = {}, headers = base_headers)
-      params = params.is_a?(Hash) ? normalize_and_jsonify(params) : params
       request(:post, path, params, headers)
     end
 
-    def delete(path, _params = {}, headers = base_headers)
-      request(:delete, path, nil, headers)
+    def delete(path, params = {}, headers = base_headers)
+      request(:delete, path, params, headers)
     end
 
     def raise_not_authenticated
@@ -108,6 +107,8 @@ module SM
     def connection
       @connection ||= Faraday.new(@config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options) do |conn|
         conn.use :breakers
+        conn.request :camelcase
+        conn.request :multipart_request
         conn.request :multipart
         conn.request :json
         # Uncomment this out for generating curl output to send to MHV dev and test only
@@ -131,30 +132,6 @@ module SM
         open_timeout: @config.open_timeout,
         timeout: @config.read_timeout
       }
-    end
-
-    def normalize_and_jsonify(params)
-      uploads = params.delete(:uploads)
-      params = params.transform_keys { |k| k.to_s.camelize(:lower) }
-
-      if uploads.present?
-        message_part = Faraday::UploadIO.new(
-          StringIO.new(params.to_json),
-          'application/json',
-          'message'
-        )
-        file_parts = uploads.map.with_index do |file, _i|
-          upload = Faraday::UploadIO.new(
-            file.tempfile,
-            file.content_type,
-            file.original_filename
-          )
-          [file.original_filename, upload]
-        end
-        { 'message' => message_part }.merge(Hash[file_parts])
-      else
-        params
-      end
     end
   end
 end
