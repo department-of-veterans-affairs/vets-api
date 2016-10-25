@@ -10,7 +10,7 @@ pipeline {
   agent label:''
   stages {
     stage('Notify Slack') {
-      notify """Deploying `vets-api` to `${environment}`.
+      notify """Deploying `${application}` to `${environment}`.
                |${currentBuild.rawBuild.getCauses()[0].getShortDescription()}
                |${currentBuild.getAbsoluteUrl()}""".stripMargin()
     }
@@ -38,7 +38,7 @@ pipeline {
       dir('ansible') {
         sh  "bash -c 'source venv/bin/activate && ansible-playbook " +
             "-e env=${environment} " +
-            "-e app_name=platform-api " +
+            "-e app_name=${application} " +
             "-e force_ami=${force_ami} " +
             "-i inventory " +
             "aws-deploy-app.yml'"
@@ -48,11 +48,11 @@ pipeline {
 
   notifications {
     success {
-      notify """Successfully deployed `vets-api` to `${environment}`.
+      notify """Successfully deployed `${application}` to `${environment}`.
                |Took ${currentBuild.rawBuild.getDurationString()}""".stripMargin()
     }
     failure {
-      notify "Failed to deploy `vets-api` to `${environment}`!", 'danger'
+      notify "Failed to deploy `${application}` to `${environment}`!", 'danger'
     }
   }
 }
