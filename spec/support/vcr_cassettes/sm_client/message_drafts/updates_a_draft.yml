@@ -1,11 +1,47 @@
 ---
 http_interactions:
 - request:
-    method: post
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/631270/replydraft"
+    method: get
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/655626/history"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 25 Oct 2016 06:58:56 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json
     body:
       encoding: UTF-8
-      string: '{"category":"OTHER","subject":"Subject 1","body":"Body 1","recipientId":585986}'
+      string: '{"message":[]}'
+    http_version: 
+  recorded_at: Tue, 25 Oct 2016 06:58:57 GMT
+- request:
+    method: post
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/draft"
+    body:
+      encoding: UTF-8
+      string: '{"category":"OTHER","subject":"Updated Subject","body":"Body 1","recipientId":585986,"id":655626}'
     headers:
       Accept:
       - application/json
@@ -22,7 +58,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 24 Oct 2016 08:45:16 GMT
+      - Tue, 25 Oct 2016 06:58:57 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       X-Powered-By:
@@ -35,49 +71,9 @@ http_interactions:
       - application/json
     body:
       encoding: UTF-8
-      string: '{"id":655478,"category":"OTHER","subject":"Subject 1","body":"Body
+      string: '{"id":655626,"category":"OTHER","subject":"Updated Subject","body":"Body
         1","attachment":false,"attachments":{"attachment":[]},"sentDate":"","senderId":384939,"senderName":"MVIONE,
         TEST","recipientId":585986,"recipientName":"Triage group 311070 test 2","readReceipt":null}'
     http_version: 
-  recorded_at: Mon, 24 Oct 2016 08:45:16 GMT
-- request:
-    method: post
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/631270/replydraft"
-    body:
-      encoding: UTF-8
-      string: '{"category":"OTHER","subject":"Subject 1","body":"Updated Body","recipientId":585986,"id":655478}'
-    headers:
-      Accept:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Token: "<SESSION_TOKEN>"
-      Content-Type:
-      - application/json
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Mon, 24 Oct 2016 08:45:16 GMT
-      Server:
-      - Apache/2.2.15 (Red Hat)
-      X-Powered-By:
-      - Servlet/2.5 JSP/2.1
-      Connection:
-      - close
-      Transfer-Encoding:
-      - chunked
-      Content-Type:
-      - application/json
-    body:
-      encoding: UTF-8
-      string: '{"id":655478,"category":"OTHER","subject":"Subject 1","body":"Updated
-        Body","attachment":false,"attachments":{"attachment":[]},"sentDate":"","senderId":384939,"senderName":"MVIONE,
-        TEST","recipientId":585986,"recipientName":"Triage group 311070 test 2","readReceipt":null}'
-    http_version: 
-  recorded_at: Mon, 24 Oct 2016 08:45:16 GMT
+  recorded_at: Tue, 25 Oct 2016 06:58:57 GMT
 recorded_with: VCR 3.0.3
