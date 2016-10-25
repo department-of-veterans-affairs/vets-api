@@ -5,11 +5,12 @@ require 'support/rx_client_helpers'
 
 RSpec.describe 'prescriptions', type: :request do
   before(:each) do
-    allow_any_instance_of(ApplicationController).to receive(:authenticate).and_return(true)
+    use_authenticated_current_user(klass: V0::PrescriptionsController, current_user: build(:prescription_user))
   end
 
   it 'responds to GET #show', :vcr do
     get '/v0/prescriptions/13651310'
+
     expect(response).to be_success
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('prescription')

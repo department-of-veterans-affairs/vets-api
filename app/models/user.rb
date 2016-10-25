@@ -67,6 +67,15 @@ class User < Common::RedisStore
     client.find_rating_info(participant_id).body.fetch('ratingRecord', {})
   end
 
+  # This is a helper method for pulling mhv_correlation_id
+  def mhv_correlation_id
+    @mhv_correlation_id ||= begin
+      return nil unless mvi.present?
+      return nil unless mvi[:mhv_id]
+      mvi[:mhv_id].split('^').first
+    end
+  end
+
   private
 
   def evss_auth_headers

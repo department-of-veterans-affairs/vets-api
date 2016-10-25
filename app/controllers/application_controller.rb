@@ -65,6 +65,10 @@ class ApplicationController < ActionController::API
     end
   end
 
+  def current_user
+    @current_user
+  end
+
   def render_unauthorized
     headers['WWW-Authenticate'] = 'Token realm="Application"'
     render json: 'Not Authorized', status: 401

@@ -14,6 +14,7 @@ require 'support/xml_matchers'
 require 'support/api_schema_matcher'
 require 'support/validation_helpers'
 require 'support/saml/authn_request_helper'
+require 'support/authenticated_session_helper'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
@@ -77,6 +78,9 @@ RSpec.configure do |config|
 
   # serializer_spec_helper
   config.include SerializerSpecHelper, type: :serializer
+
+  # authentication_session_helper
+  config.include AuthenticatedSessionHelper, type: :request
 
   # clean up carrierwave uploads
   # https://github.com/carrierwaveuploader/carrierwave/wiki/How-to:-Cleanup-after-your-Rspec-tests

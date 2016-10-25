@@ -17,7 +17,7 @@ RSpec.describe 'breakers', type: :request do
   end
 
   before(:each) do
-    allow_any_instance_of(ApplicationController).to receive(:authenticate).and_return(true)
+    use_authenticated_current_user(current_user: build(:prescription_user))
     allow_any_instance_of(Rx::Client).to receive(:get_session).and_return(session)
   end
 
