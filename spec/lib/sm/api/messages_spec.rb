@@ -68,22 +68,6 @@ describe SM::Client do
     end
 
     context 'with valid attributes' do
-      it 'creates a new draft without attachments' do
-        VCR.use_cassette('sm/messages/10616687/create_draft') do
-          client_response = client.post_create_message_draft(new_draft)
-          expect(client_response).to be_a(Message)
-        end
-      end
-
-      it 'updates an existing draft' do
-        VCR.use_cassette('sm/messages/10616687/update_draft') do
-          new_draft[:id] = 620_096
-          new_draft[:body] = 'Updated Body'
-          client_response = client.post_create_message_draft(new_draft)
-          expect(client_response).to be_a(Message)
-        end
-      end
-
       context 'when there is an outage' do
         before do
           SM::Configuration.instance.breakers_service.begin_forced_outage!
