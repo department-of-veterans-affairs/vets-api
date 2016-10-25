@@ -16,6 +16,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
   describe 'drafts' do
     let(:params) { { message_draft: draft.slice(:category, :subject, :body, :recipient_id) } }
+    let(:draft_to_update) { 653_450 }
 
     it 'responds to POST #create' do
       VCR.use_cassette('sm_client/message_drafts/creates_and_updates_new_message_draft') do
@@ -43,6 +44,7 @@ RSpec.describe 'Messages Integration', type: :request do
   describe 'reply drafts' do
     let(:params) { { message_draft: draft.slice(:body) } }
     let(:reply_id) { 631_270 }
+    let(:replydraft_to_update) { 653_456 }
 
     it 'responds to POST #create' do
       VCR.use_cassette('sm_client/message_drafts/creates_and_updates_new_message_draft_reply') do

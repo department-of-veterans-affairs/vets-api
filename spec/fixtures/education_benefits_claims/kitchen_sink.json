@@ -65,7 +65,6 @@
   "gender": "M",
   "highSchoolOrGedCompletionDate": "2010-06-06",
   "homePhone": "5551110000",
-  "remarks": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet ullamcorper est, in interdum velit. Cras purus orci, varius eget efficitur nec, dapibus id risus. Donec in pellentesque enim. Proin sagittis, elit nec consequat malesuada, nibh justo luctus enim, ac aliquet lorem orci vel neque. Ut eget accumsan ipsum. Cras sed venenatis massa. Duis odio urna, laoreet quis ante sed, facilisis congue purus. Etiam semper facilisis luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam blandit eget nibh at ornare. Sed non porttitor dui. Proin ornare magna diam, ut lacinia magna accumsan euismod.\n\n        Phasellus et nisl id lorem feugiat molestie. Aliquam molestie,\n        nulla eu fringilla finibus, massa lectus varius quam, quis ornare\n        sem lorem lacinia dui. Integer consequat non arcu convallis mollis.\n        Vivamus magna turpis, pharetra non eros at, feugiat rutrum nisl.\n        Maecenas eros tellus, blandit id libero sed, imperdiet fringilla\n        eros. Nulla vel tortor vel neque fermentum laoreet id vitae ex.\n        Mauris posuere lorem tellus. Pellentesque at augue arcu.\n        Vestibulum aliquam urna ac est lacinia, eu congue nisi tempor.\n        ",
   "reserveKicker": true,
   "school": {
     "address": {

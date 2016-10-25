@@ -27,7 +27,7 @@ gem 'ox', '~> 2.4'
 gem 'savon', '~> 2.0'
 gem 'sidekiq'
 gem 'sidekiq-unique-jobs'
-gem 'whenever', require: false
+gem 'sidekiq-scheduler', '~> 2.0'
 gem 'multi_json'
 gem 'carrierwave-aws'
 gem 'carrierwave', '~> 0.11'
@@ -65,6 +65,10 @@ group :development, :test do
   gem 'factory_girl_rails'
 
   gem 'foreman'
+
+  # This middleware logs your HTTP requests as CURL compatible commands so you can share the calls with downstream
+  # assists in debugging
+  gem 'faraday_curl'
 end
 
 group :test do

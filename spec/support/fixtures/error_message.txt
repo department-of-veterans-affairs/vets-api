@@ -1,1 +1,1 @@
-{"major":400,"minor":139,"message":"Prescription is not Refillable","developer_message":"","error":null,"cause":{}}
+{"major":400,"minor":139,"message":"Prescription is not refillable","developer_message":"","error":null,"cause":{}}
