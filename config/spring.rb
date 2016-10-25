@@ -1,1 +1,2 @@
-Spring.watch "config/application.yml"
+# frozen_string_literal: true
+Spring.watch 'config/application.yml'
