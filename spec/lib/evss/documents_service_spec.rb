@@ -10,6 +10,9 @@ describe EVSS::DocumentsService do
   let(:auth_headers) do
     EVSS::AuthHeaders.new(current_user).to_h
   end
+  let(:document_data) do
+    EVSS::DocumentData.new(189_625, 33, 'L023', 'Other Correspondence', 'doctors-note.pdf')
+  end
 
   subject { described_class.new(auth_headers) }
 
@@ -25,7 +28,7 @@ describe EVSS::DocumentsService do
       VCR.use_cassette('evss/documents/upload') do
         demo_file_name = "#{::Rails.root}/spec/fixtures/files/doctors-note.pdf"
         File.open(demo_file_name, 'rb') do |f|
-          response = subject.upload('doctors-note.pdf', f, 189_625, 33)
+          response = subject.upload(f, document_data)
           expect(response).to be_success
         end
       end

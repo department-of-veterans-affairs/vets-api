@@ -10,13 +10,18 @@ RSpec.describe 'Documents management', type: :request do
   end
   let(:tracked_item) { 33 }
   let(:claim_id) { 189_625 }
+  let(:document_type) { 'L023' }
+  let(:document_description) { 'Other Correspondence' }
   let!(:claim) do
     FactoryGirl.create(:disability_claim, id: 189_625, evss_id: 189_625,
                                           user_uuid: User.sample_claimant.uuid, data: {})
   end
 
   it 'should upload a file' do
-    params = { file: file, tracked_item: tracked_item }
+    params = {
+      file: file, tracked_item: tracked_item,
+      document_type: document_type, document_description: document_description
+    }
     expect do
       post "/v0/disability_claims/#{claim_id}/documents", params
     end.to change(DisabilityClaim::DocumentUpload.jobs, :size).by(1)

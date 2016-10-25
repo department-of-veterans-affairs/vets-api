@@ -2,6 +2,9 @@
 require_dependency 'evss/base_service'
 
 module EVSS
+  # DocumentData is a struct class bundling together the required attributes of a file upload
+  DocumentData = Struct.new(:claim_id, :tracked_item_id, :document_type, :description, :file_name)
+
   class DocumentsService < BaseService
     BASE_URL = "#{ENV['EVSS_BASE_URL']}/wss-document-services-web-3.0/rest/"
 
@@ -9,18 +12,17 @@ module EVSS
       get 'documents/getAllDocuments'
     end
 
-    def upload(file_name, file_body, claim_id, tracked_item_id)
+    def upload(file_body, document_data)
       headers = { 'Content-Type' => 'application/octet-stream' }
       post 'queuedDocumentUploadService/ajaxUploadFile', file_body, headers do |req|
         req.params['systemName'] = SYSTEM_NAME
-        # TODO: Get real doctypes/descriptions
-        req.params['docType'] = 'L023'
-        req.params['docTypeDescription'] = 'Other Correspondence'
-        req.params['claimId'] = claim_id
+        req.params['docType'] = document_data.document_type
+        req.params['docTypeDescription'] = document_data.description
+        req.params['claimId'] = document_data.claim_id
         # In theory one document can correspond to multiple tracked items
         # To do that, add multiple query parameters
-        req.params['trackedItemIds'] = tracked_item_id
-        req.params['qqfile'] = file_name
+        req.params['trackedItemIds'] = document_data.tracked_item_id
+        req.params['qqfile'] = document_data.file_name
       end
     end
 
