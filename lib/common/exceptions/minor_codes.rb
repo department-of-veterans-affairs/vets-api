@@ -77,7 +77,7 @@ module Common
         status: MajorCodes::UNAUTHORIZED,
         title: 'Not Authorized',
         detail: 'Not Authorized'
-      }
+      }.freeze
 
       # Deliberately not implementing this one, because RECORD_NOT_FOUND
       # should be used instead.

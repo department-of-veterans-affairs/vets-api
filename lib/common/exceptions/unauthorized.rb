@@ -8,7 +8,7 @@ module Common
       end
 
       def errors
-        detail = @detail || "Not Authorized"
+        detail = @detail || 'Not Authorized'
         Array(SerializableError.new(MinorCodes::UNAUTHORIZED.merge(detail: detail)))
       end
     end
