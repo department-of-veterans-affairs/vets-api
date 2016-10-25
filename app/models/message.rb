@@ -13,9 +13,11 @@ class Message < Common::Base
 
   # Only validate presence of category, recipient_id if new message or new draft message
   validates :category, :recipient_id, presence: true, unless: proc { reply? }
+
   # Always require body to be present: new message, drafts, and replies
   validates :body, presence: true
   validates :uploads, length: { maximum: 4, message: 'has too many files (maximum is 4 files)' }
+
   # Only validate upload sizes if uploads are present.
   validate :each_upload_size_validation, if: proc { uploads.present? }
   validate :total_upload_size_validation, if: proc { uploads.present? }
