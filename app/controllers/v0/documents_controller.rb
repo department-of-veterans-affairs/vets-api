@@ -7,7 +7,7 @@ module V0
       params.require :file
       claim = DisabilityClaim.for_user(current_user).find(params[:disability_claim_id])
       document_data = EVSS::DocumentData.new
-      document_data.claim_id = claim.id
+      document_data.evss_claim_id = claim.evss_id
       document_data.file_name = params[:file].original_filename
       document_data.tracked_item_id = params[:tracked_item]
       document_data.document_type = params[:document_type]
