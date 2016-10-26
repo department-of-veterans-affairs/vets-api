@@ -79,8 +79,6 @@ module Common
         detail: 'Not Authorized'
       }.freeze
 
-      # Deliberately not implementing this one, because RECORD_NOT_FOUND
-      # should be used instead.
       FORBIDDEN = {
         type: :custom,
         code: '403',
