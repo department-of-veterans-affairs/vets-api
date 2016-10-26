@@ -8,7 +8,7 @@ module MVI
     def self.find_candidate(message)
       response = mocked_responses.dig('find_candidate', message.ssn)
       if response
-        response
+        ActiveSupport::HashWithIndifferentAccess.new(response)
       else
         MVI::Service.find_candidate(message)
       end
