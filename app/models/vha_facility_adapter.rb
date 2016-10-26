@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-# frozen_string_literal: true
 class VHAFacilityAdapter
   VHA_URL = +ENV['VHA_MAPSERVER_URL']
   VHA_LAYER = ENV['VHA_MAPSERVER_LAYER']
@@ -29,8 +28,9 @@ class VHAFacilityAdapter
     m[:facility_type] = FACILITY_TYPE
     m[:address] = {}
     m[:address][:physical] = from_gis_attrs(ADDR_KEYMAP, attrs)
-    m[:address][:physical][:zip] = attrs['Zip']
-    m[:address][:physical][:zip] << '-' + attrs['Zip4'] unless attrs['Zip4'].strip.empty?
+    m[:address][:physical][:zip] = attrs['Zip'].to_s
+    m[:address][:physical][:zip] << '-' + attrs['Zip4'].to_s unless
+      attrs['Zip4'].to_s.strip.empty?
     m[:address][:mailing] = {}
     m[:phone] = from_gis_attrs(PHONE_KEYMAP, attrs)
     m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
