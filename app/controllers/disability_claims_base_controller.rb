@@ -6,7 +6,9 @@ class DisabilityClaimsBaseController < ApplicationController
   protected
 
   def authorize_user
-    head(403) unless current_user.evss_attrs?
+    unless current_user.evss_attrs?
+      raise Common::Exceptions::Forbidden, detail: 'You do not have access to claim status'
+    end
   end
 
   def claim_service
