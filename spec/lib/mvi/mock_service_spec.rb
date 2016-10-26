@@ -35,7 +35,9 @@ describe MVI::MockService do
     it 'returns YAML hash for find_candidate by SSN' do
       allow(MVI::MockService).to receive(:mocked_responses).and_return(yaml_hash)
       allow(message).to receive(:ssn).and_return('555443333')
-      expect(MVI::MockService.find_candidate(message)).to eq(yaml_hash.dig('find_candidate', '555443333'))
+      response = MVI::MockService.find_candidate(message)
+      expect(response).to eq(yaml_hash.dig('find_candidate', '555443333'))
+      expect(response[:birth_date]).to eq('19800101')
     end
 
     context 'when SSN lookup fails' do
