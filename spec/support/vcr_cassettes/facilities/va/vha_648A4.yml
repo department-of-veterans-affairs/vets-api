@@ -1,0 +1,135 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_Facilities/FeatureServer?f=json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - services3.arcgis.com
+      Token: "<SESSION_TOKEN>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - '734082939'
+      Server:
+      - Microsoft-IIS/8.5
+      X-Arcgis-Instance:
+      - MTSDS_Web_IN_10
+      X-Powered-By:
+      - ASP.NET
+      Access-Control-Allow-Origin:
+      - "*"
+      Date:
+      - Fri, 21 Oct 2016 23:42:14 GMT
+      Content-Length:
+      - '627'
+      Token: "<SESSION_TOKEN>"
+    body:
+      encoding: ASCII-8BIT
+      string: '{"currentVersion":10.41,"serviceItemId":"bfd04fe65092468ca904697942ab696a","serviceDescription":"","hasVersionedData":false,"supportsDisconnectedEditing":false,"hasStaticData":true,"maxRecordCount":2000,"supportedQueryFormats":"JSON","capabilities":"Query","description":"","copyrightText":"","spatialReference":{"wkid":102100,"latestWkid":3857},"initialExtent":{"xmin":-19000904.270065553,"ymin":-1606157.9059831309,"xmax":16222522.397490788,"ymax":9563162.5390994027,"spatialReference":{"wkid":102100,"latestWkid":3857}},"fullExtent":{"xmin":-19000904.270065553,"ymin":-1606157.9059831309,"xmax":16222522.397490788,"ymax":9563162.5390994027,"spatialReference":{"wkid":102100,"latestWkid":3857}},"allowGeometryUpdates":true,"units":"esriMeters","size":1105920,"syncEnabled":false,"supportsApplyEditsWithGlobalIds":false,"editorTrackingInfo":{"enableEditorTracking":false,"enableOwnershipAccessControl":false,"allowOthersToQuery":true,"allowOthersToUpdate":true,"allowOthersToDelete":false,"allowAnonymousToUpdate":true,"allowAnonymousToDelete":true},"xssPreventionInfo":{"xssPreventionEnabled":true,"xssPreventionRule":"InputOnly","xssInputRule":"rejectInvalid"},"layers":[{"id":0,"name":"VHA_Facilities","parentLayerId":-1,"defaultVisibility":true,"subLayerIds":null,"minScale":0,"maxScale":0}],"tables":[]}'
+    http_version: 
+  recorded_at: Fri, 21 Oct 2016 23:42:13 GMT
+- request:
+    method: get
+    uri: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/NCA_Facilities/FeatureServer?f=json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - services3.arcgis.com
+      Token: "<SESSION_TOKEN>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - "-2073295673"
+      Server:
+      - Microsoft-IIS/8.5
+      X-Arcgis-Instance:
+      - MTSDS_Web_IN_5
+      X-Powered-By:
+      - ASP.NET
+      Access-Control-Allow-Origin:
+      - "*"
+      Date:
+      - Fri, 21 Oct 2016 23:42:14 GMT
+      Content-Length:
+      - '627'
+      Token: "<SESSION_TOKEN>"
+    body:
+      encoding: ASCII-8BIT
+      string: '{"currentVersion":10.41,"serviceItemId":"aa43af51407340ea9a0fc7fd9e945c1a","serviceDescription":"","hasVersionedData":false,"supportsDisconnectedEditing":false,"hasStaticData":true,"maxRecordCount":2000,"supportedQueryFormats":"JSON","capabilities":"Query","description":"","copyrightText":"","spatialReference":{"wkid":102100,"latestWkid":3857},"initialExtent":{"xmin":-17570944.343753345,"ymin":2085521.365712136,"xmax":-7366152.4423543438,"ymax":8688647.0390275568,"spatialReference":{"wkid":102100,"latestWkid":3857}},"fullExtent":{"xmin":-17570944.343753345,"ymin":2085521.365712136,"xmax":-7366152.4423543438,"ymax":8688647.0390275568,"spatialReference":{"wkid":102100,"latestWkid":3857}},"allowGeometryUpdates":true,"units":"esriMeters","size":163840,"syncEnabled":false,"supportsApplyEditsWithGlobalIds":false,"editorTrackingInfo":{"enableEditorTracking":false,"enableOwnershipAccessControl":false,"allowOthersToQuery":true,"allowOthersToUpdate":true,"allowOthersToDelete":false,"allowAnonymousToUpdate":true,"allowAnonymousToDelete":true},"xssPreventionInfo":{"xssPreventionEnabled":true,"xssPreventionRule":"InputOnly","xssInputRule":"rejectInvalid"},"layers":[{"id":0,"name":"NCA_Facilities","parentLayerId":-1,"defaultVisibility":true,"subLayerIds":null,"minScale":0,"maxScale":0}],"tables":[]}'
+    http_version: 
+  recorded_at: Fri, 21 Oct 2016 23:42:14 GMT
+- request:
+    method: post
+    uri: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_Facilities/FeatureServer/0/query
+    body:
+      encoding: US-ASCII
+      string: f=json&where=StationNum%3D%27648A4%27&inSR=4326&outSR=4326&returnGeometry=true&returnCountOnly=false&outFields=*&resultRecordCount&returnDistinctValues=false&orderByFields=StationNum
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Token: "<SESSION_TOKEN>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - sd48_1613943923
+      Server:
+      - Microsoft-IIS/8.5
+      X-Arcgis-Instance:
+      - MTSDS_Web_IN_9
+      X-Powered-By:
+      - ASP.NET
+      Access-Control-Allow-Origin:
+      - "*"
+      Date:
+      - Fri, 21 Oct 2016 23:42:15 GMT
+      Content-Length:
+      - '991'
+      Token: "<SESSION_TOKEN>"
+    body:
+      encoding: ASCII-8BIT
+      string: '{"objectIdFieldName":"FID","globalIdFieldName":"","geometryType":"esriGeometryPoint","spatialReference":{"wkid":4326,"latestWkid":4326},"fields":[{"name":"FID","type":"esriFieldTypeInteger","alias":"FID","sqlType":"sqlTypeInteger","domain":null,"defaultValue":null},{"name":"OBJECTID","type":"esriFieldTypeInteger","alias":"OBJECTID","sqlType":"sqlTypeInteger","domain":null,"defaultValue":null},{"name":"FacilityDa","type":"esriFieldTypeString","alias":"FacilityDa","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Outpatient","type":"esriFieldTypeDate","alias":"Outpatient","sqlType":"sqlTypeTimestamp2","length":8,"domain":null,"defaultValue":null},{"name":"StationID","type":"esriFieldTypeInteger","alias":"StationID","sqlType":"sqlTypeInteger","domain":null,"defaultValue":null},{"name":"VisnID","type":"esriFieldTypeInteger","alias":"VisnID","sqlType":"sqlTypeInteger","domain":null,"defaultValue":null},{"name":"StationNum","type":"esriFieldTypeString","alias":"StationNum","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"StationNam","type":"esriFieldTypeString","alias":"StationNam","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"CommonStat","type":"esriFieldTypeString","alias":"CommonStat","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"CocClassif","type":"esriFieldTypeString","alias":"CocClassif","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"CocClass_1","type":"esriFieldTypeString","alias":"CocClass_1","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Building","type":"esriFieldTypeString","alias":"Building","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Street","type":"esriFieldTypeString","alias":"Street","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Suite","type":"esriFieldTypeString","alias":"Suite","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"City","type":"esriFieldTypeString","alias":"City","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"State","type":"esriFieldTypeString","alias":"State","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Zip","type":"esriFieldTypeString","alias":"Zip","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Zip4","type":"esriFieldTypeString","alias":"Zip4","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"MainPhone","type":"esriFieldTypeString","alias":"MainPhone","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"MainFax","type":"esriFieldTypeString","alias":"MainFax","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"AfterHours","type":"esriFieldTypeString","alias":"AfterHours","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"PatientAdv","type":"esriFieldTypeString","alias":"PatientAdv","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Enrollment","type":"esriFieldTypeString","alias":"Enrollment","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"PharmacyPh","type":"esriFieldTypeString","alias":"PharmacyPh","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Monday","type":"esriFieldTypeString","alias":"Monday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Tuesday","type":"esriFieldTypeString","alias":"Tuesday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Wednesday","type":"esriFieldTypeString","alias":"Wednesday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Thursday","type":"esriFieldTypeString","alias":"Thursday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Friday","type":"esriFieldTypeString","alias":"Friday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Saturday","type":"esriFieldTypeString","alias":"Saturday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Sunday","type":"esriFieldTypeString","alias":"Sunday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Latitude","type":"esriFieldTypeDouble","alias":"Latitude","sqlType":"sqlTypeFloat","domain":null,"defaultValue":null},{"name":"Longitude","type":"esriFieldTypeDouble","alias":"Longitude","sqlType":"sqlTypeFloat","domain":null,"defaultValue":null}],"features":[{"attributes":{"FID":560,"OBJECTID":1510,"FacilityDa":"8-19-2016","Outpatient":1472428800000,"StationID":539,"VisnID":20,"StationNum":"648A4","StationNam":"Portland
+        VA Medical Center-Vancouver","CommonStat":"Portland-Vancouver","CocClassif":"VA
+        Medical Center (VAMC)","CocClass_1":"Firm","Building":" ","Street":"1601 East
+        4th Plain Boulevard","Suite":" ","City":"Vancouver","State":"WA","Zip":"98661","Zip4":"3753","MainPhone":"360-759-1901
+        x","MainFax":"360-690-0864 x","AfterHours":"360-696-4061 x","PatientAdv":"503-273-5308
+        x","Enrollment":"503-273-5069 x","PharmacyPh":"503-273-5183 x","Monday":"730AM-430PM","Tuesday":"730AM-630PM","Wednesday":"730AM-430PM","Thursday":"730AM-430PM","Friday":"730AM-430PM","Saturday":"800AM-1000AM","Sunday":"-","Latitude":45.63941626,"Longitude":-122.65528736},"geometry":{"x":-122.65530186353662,"y":45.639421733971851}}]}'
+    http_version: 
+  recorded_at: Fri, 21 Oct 2016 23:42:15 GMT
+recorded_with: VCR 3.0.3

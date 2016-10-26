@@ -23,7 +23,7 @@ module Facilities
         outFields: '*',
         resultRecordCount: nil, # limit, numeric
         returnDistinctValues: false,
-        orderByFields: 'StationID'
+        orderByFields: @id_field
       }
       response = @service.query(@layer, params)
       response['features']
@@ -42,7 +42,7 @@ module Facilities
         outFields: '*',
         resultRecordCount: nil, # limit, numeric
         returnDistinctValues: false,
-        orderByFields: 'StationID'
+        orderByFields: @id_field
       }
       response = @service.query(@layer, params)
       response['features']
