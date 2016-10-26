@@ -4,6 +4,7 @@ development: &defaults
   metadata_url: https://api.idmelabs.com/saml/metadata
   certificate: <%= File.read(File.expand_path(ENV["CERTIFICATE_FILE"])).dump %>
   key: <%= File.read(File.expand_path(ENV["KEY_FILE"])).dump %>
+  relay_url: http://localhost:3001
 
 test:
   <<: *defaults
@@ -16,3 +17,4 @@ production:
   metadata_url: <%= ENV["METADATA_URL"] %>
   certificate: <%= File.read(File.expand_path(ENV["CERTIFICATE_FILE"])).dump %>
   key: <%= File.read(File.expand_path(ENV["KEY_FILE"])).dump %>
+  relay_url: <%=ENV["RELAY_URL"] %>

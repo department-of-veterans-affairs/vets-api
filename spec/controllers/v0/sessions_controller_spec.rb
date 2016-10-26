@@ -20,7 +20,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:loa1_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/loa1_response.xml") }
   let(:loa3_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/loa3_response.xml") }
   let(:settings_service) { class_double(SAML::SettingsService).as_stubbed_const }
-  let(:fake_relay) { 'http://www.somesite.com' }
+  let(:fake_relay) { '/some/resource' }
   let(:query_token) { Rack::Utils.parse_query(URI.parse(response.location).query)['token'] }
 
   before(:each) do
@@ -44,6 +44,20 @@ RSpec.describe V0::SessionsController, type: :controller do
       get :new
       response_body = JSON.parse(response.body)
       expect(response_body['authenticate_via_get']).to include('RelayState=')
+    end
+
+    it 'GET new - defaults the location query param when an invalid location is supplied' do
+      get :new, RelayState: "i am invalid! ^%"
+      assert_response :success
+      unescaped_url = URI.unescape(JSON.parse(response.body)['authenticate_via_get'])
+      expect(unescaped_url).to include('RelayState=/profile')
+    end
+
+    it 'GET new - defaults the location query param when no value is provided' do
+      get :new
+      assert_response :success
+      unescaped_url = URI.unescape(JSON.parse(response.body)['authenticate_via_get'])
+      expect(unescaped_url).to include('RelayState=/profile')
     end
 
     it 'GET new - shows the ID.me authentication url' do

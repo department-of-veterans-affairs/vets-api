@@ -25,7 +25,7 @@ module V0
 
       if @saml_response.is_valid?
         persist_session_and_user!
-        redirect_to "#{params[:RelayState]}?token=#{@session.token}"
+        redirect_to relay_destination
       else
         # TODO: also need to make sure error json conforms to api spec
         render json: { errors: @saml_response.errors }, status: :forbidden
@@ -75,9 +75,6 @@ module V0
       gender[0].upcase
     end
 
-    # Ruby-Saml does not parse the <samlp:Response> xml so we do it ourselves to find
-    # which LOA was performed on the ID.me side.
-    # TODO - remove this method once LOA is returned as a SAML Attribute
     def parse_current_loa
       raw_loa = REXML::XPath.first(@saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
       LOA::MAPPING[raw_loa]
@@ -99,10 +96,14 @@ module V0
     end
 
     def location_param
-      # TODO: use a real default here specific to the env type
-      default_path = 'http://localhost:3001/profile'
-      # TODO: validate 'location' query param to only allow a path and not a full url
-      params[:location] || default_path
+      # Regex explanation:
+      # - must begin with forward-slash: /
+      # - allowable chars: a-z, A-Z, 0-9, _, -, /
+      /\A\/[a-zA-Z0-9\/_-]+\z/.match(params[:location])&.to_s || '/profile'
+    end
+
+    def relay_destination
+      "#{SAML_CONFIG['relay_url']}#{params[:RelayState]}?token=#{@session.token}"
     end
   end
 end
