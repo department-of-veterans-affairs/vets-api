@@ -55,8 +55,7 @@ class VHAFacilityAdapter
 
   PHONE_KEYMAP = {
     'main' => 'MainPhone', 'fax' => 'MainFax', 'after_hours' => 'AfterHours',
-    'patient_advocate' => 'PatientAdv',
-    'enrollment_coordinator' => 'Enrollment',
+    'patient_advocate' => 'PatientAdv', 'enrollment_coordinator' => 'Enrollment',
     'pharmacy' => 'PharmacyPh'
   }.freeze
 
@@ -95,12 +94,18 @@ class VHAFacilityAdapter
     'WellnessAndPreventativeCare' => []
   }.freeze
 
+  # Build a sub-section of the VAFacility model from a flat GIS attribute list,
+  # according to the provided key mapping dict. Strip whitespace from string values.
   def from_gis_attrs(km, attrs)
     km.each_with_object({}) do |(k, v), h|
       h[k] = (attrs[v].respond_to?(:strip) ? attrs[v].strip : attrs[v])
     end
   end
 
+  # Construct the services hierarchy from a flat GIS attribute list.
+  # The hierarchy of Level 1/Level 2 services is defined statically above.
+  # Return a list of dicts each containing key 'sl1' => Level 1 service and
+  # 'sl2' => list of Level 2 services
   def services_from_gis(attrs)
     SERVICE_HIERARCHY.each_with_object([]) do |(k, v), l|
       next unless attrs[k] == 'YES'

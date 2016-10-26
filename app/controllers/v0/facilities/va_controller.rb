@@ -22,18 +22,23 @@ class V0::Facilities::VaController < FacilitiesController
 
   private
 
-  TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specfied'
   def validate_params
     super
+    validate_no_services_without_type
+    validate_type_and_services_known unless params[:type].nil?
+  end
+
+  def validate_no_services_without_type
     if params[:type].nil? && !params[:services].nil?
       raise Common::Exceptions::ParameterMissing.new('type', detail: TYPE_SERVICE_ERR)
     end
-    unless params[:type].nil?
-      unless VAFacility::TYPES.include?(params[:type])
-        raise Common::Exceptions::InvalidFieldValue.new('type', params[:type])
-      end
-      unknown = params[:services].to_a - VAFacility.service_whitelist(params[:type])
-      raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
-    end
+  end
+
+  TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specfied'
+  def validate_type_and_services_known
+    raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
+      VAFacility::TYPES.include?(params[:type])
+    unknown = params[:services].to_a - VAFacility.service_whitelist(params[:type])
+    raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
   end
 end

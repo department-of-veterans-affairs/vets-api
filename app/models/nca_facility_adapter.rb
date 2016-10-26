@@ -56,6 +56,8 @@ class NCAFacilityAdapter
     'main' => 'PHONE', 'fax' => 'FAX'
   }.freeze
 
+  # Build a sub-section of the VAFacility model from a flat GIS attribute list,
+  # according to the provided key mapping dict. Strip whitespace from string values.
   def from_gis_attrs(km, attrs)
     km.each_with_object({}) do |(k, v), h|
       h[k] = (attrs[v].respond_to?(:strip) ? attrs[v].strip : attrs[v])
