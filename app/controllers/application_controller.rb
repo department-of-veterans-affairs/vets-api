@@ -24,8 +24,6 @@ class ApplicationController < ActionController::API
       case exception
       when ActionController::ParameterMissing
         Common::Exceptions::ParameterMissing.new(exception.param)
-      when Common::Exceptions::Unauthorized
-        headers['WWW-Authenticate'] = 'Token realm="Application"'
       when Common::Exceptions::BaseError
         exception
       when Common::Client::Errors::ClientResponse
@@ -37,6 +35,9 @@ class ApplicationController < ActionController::API
         Common::Exceptions::InternalServerError.new(exception)
       end
 
+    if va_exception.is_a?(Common::Exceptions::Unauthorized)
+      headers['WWW-Authenticate'] = 'Token realm="Application"'
+    end
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
 
