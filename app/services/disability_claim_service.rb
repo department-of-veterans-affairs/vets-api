@@ -64,10 +64,10 @@ class DisabilityClaimService
   end
 
   # upload file to s3 and enqueue job to upload to EVSS
-  def upload_document(file_body, document_data)
-    uploader = DisabilityClaimDocumentUploader.new(@user.uuid, document_data.tracked_item_id)
+  def upload_document(file_body, disability_claim_document)
+    uploader = DisabilityClaimDocumentUploader.new(@user.uuid, disability_claim_document.tracked_item_id)
     uploader.store!(file_body)
-    DisabilityClaim::DocumentUpload.perform_async(document_data, auth_headers, @user.uuid)
+    DisabilityClaim::DocumentUpload.perform_async(auth_headers, @user.uuid, disability_claim_document.to_h)
   end
 
   private

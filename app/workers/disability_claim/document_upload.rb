@@ -2,12 +2,13 @@
 class DisabilityClaim::DocumentUpload
   include Sidekiq::Worker
 
-  def perform(document_data, auth_headers, user_uuid)
+  def perform(auth_headers, user_uuid, document_hash)
+    document = DisabilityClaimDocument.new document_hash
     client = EVSS::DocumentsService.new(auth_headers)
-    uploader = DisabilityClaimDocumentUploader.new(user_uuid, document_data.tracked_item_id)
-    uploader.retrieve_from_store!(document_data.file_name)
+    uploader = DisabilityClaimDocumentUploader.new(user_uuid, document.tracked_item_id)
+    uploader.retrieve_from_store!(document.file_name)
     file_body = uploader.read
-    client.upload(file_body, document_data)
+    client.upload(file_body, document)
     uploader.remove!
   end
 end

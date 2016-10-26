@@ -1,7 +1,5 @@
 # frozen_string_literal: true
-class DisabilityClaimDocument
-  include ActiveModel::Validations
-
+class DisabilityClaimDocument < ActiveModelSerializers::Model
   attr_accessor :evss_claim_id, :tracked_item_id, :document_type, :file_name
 
   validates(:file_name, presence: true)
@@ -31,9 +29,24 @@ class DisabilityClaimDocument
     'L070' => 'Photographs',
     'L023' => 'Other Correspondence'
   }.freeze
+  # rubocop:enable LineLength
 
   def description
     DOCUMENT_TYPES[document_type]
+  end
+
+  def to_h
+    {
+      evss_claim_id: @evss_claim_id,
+      tracked_item_id: @tracked_item_id,
+      document_type: @document_type,
+      file_name: @file_name
+    }
+  end
+
+  def ==(other)
+    evss_claim_id == other.evss_claim_id && tracked_item_id == other.tracked_item_id &&
+      document_type == other.document_type && file_name == other.file_name
   end
 
   private
