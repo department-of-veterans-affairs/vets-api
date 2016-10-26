@@ -25,7 +25,7 @@ module V0
 
       if @saml_response.is_valid?
         persist_session_and_user!
-        redirect_to params[:RelayState]
+        redirect_to "#{params[:RelayState]}?token=#{@session.token}"
       else
         # TODO: also need to make sure error json conforms to api spec
         render json: { errors: @saml_response.errors }, status: :forbidden
