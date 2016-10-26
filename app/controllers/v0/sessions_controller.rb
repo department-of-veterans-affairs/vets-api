@@ -99,7 +99,7 @@ module V0
       # Regex explanation:
       # - must begin with forward-slash: /
       # - allowable chars: a-z, A-Z, 0-9, _, -, /
-      /\A\/[a-zA-Z0-9\/_-]+\z/.match(params[:location])&.to_s || '/profile'
+      %r{\A\/[a-zA-Z0-9\/_-]+\z}.match(params[:location])&.to_s || '/profile'
     end
 
     def relay_destination

@@ -40,14 +40,8 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
     end
 
-    it 'GET new - contains a RelayState' do
-      get :new
-      response_body = JSON.parse(response.body)
-      expect(response_body['authenticate_via_get']).to include('RelayState=')
-    end
-
     it 'GET new - defaults the location query param when an invalid location is supplied' do
-      get :new, RelayState: "i am invalid! ^%"
+      get :new, RelayState: 'an/invalid/path'
       assert_response :success
       unescaped_url = URI.unescape(JSON.parse(response.body)['authenticate_via_get'])
       expect(unescaped_url).to include('RelayState=/profile')
