@@ -71,6 +71,11 @@ class User < Common::RedisStore
     edipi.present? && ssn.present? && participant_id.present?
   end
 
+  # This is a helper method for pulling mhv_correlation_id
+  def mhv_correlation_id
+    @mhv_correlation_id ||= mvi&.fetch(:mhv_id, nil)&.split('^')&.first
+  end
+
   private
 
   def evss_auth_headers

@@ -40,6 +40,27 @@ FactoryGirl.define do
     end
   end
 
+  factory :prescription_user, class: 'User' do
+    edipi '1234'
+    icn '1000123456V123456'
+    mhv_id '123456'
+    participant_id '12345678'
+    mvi do
+      {
+        birth_date: '18090212',
+        edipi: '1234^NI^200DOD^USDOD^A',
+        vba_corp_id: '12345678^PI^200CORP^USVBA^A',
+        family_name: 'Lincoln',
+        gender: 'M',
+        given_names: %w(Abraham),
+        icn: '1000123456V123456^NI^200M^USVHA^P',
+        mhv_id: "#{ENV['MHV_USER_ID']}^PI^200MH^USVHA^A",
+        ssn: '272111863',
+        status: 'active'
+      }
+    end
+  end
+
   factory :loa1_user, class: 'User' do
     uuid 'deadbeef-dead-beef-dead-deadbeefdead'
     email 'george.washington@vets.gov'
