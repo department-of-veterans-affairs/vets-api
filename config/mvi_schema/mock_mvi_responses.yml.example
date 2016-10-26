@@ -4,7 +4,7 @@ find_candidate:
     edipi: ~
     family_name: 'ALLEN'
     gender: 'M'
-    given_names: ["HECTOR", "J"]
+    given_names: ['HECTOR', 'J']
     icn: '1008704012V552302^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -15,7 +15,7 @@ find_candidate:
     edipi: '1005079124^NI^200DOD^USDOD^A'
     family_name: 'ANDERSON'
     gender: 'M'
-    given_names: ["GREG", "A"]
+    given_names: ['GREG', 'A']
     icn: '1008596379V859838^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -26,7 +26,7 @@ find_candidate:
     edipi: ~
     family_name: 'MITCHELL'
     gender: 'F'
-    given_names: ["ANDREA", "L"]
+    given_names: ['ANDREA', 'L']
     icn: '1008713769V295460^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -37,7 +37,7 @@ find_candidate:
     edipi: ~
     family_name: 'ANDREWS'
     gender: 'M'
-    given_names: ["KENNETH", "William"]
+    given_names: ['KENNETH', 'William']
     icn: '1008712062V663378^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32323473^PI^200CORP^USVBA^A'
@@ -48,7 +48,7 @@ find_candidate:
     edipi: ~
     family_name: 'ARMSTRONG'
     gender: 'M'
-    given_names: ["ALFREDO", "M"]
+    given_names: ['ALFREDO', 'M']
     icn: '1008714366V137722^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -59,7 +59,7 @@ find_candidate:
     edipi: ~
     family_name: 'ARNOLD'
     gender: 'M'
-    given_names: ["FRANK", "LEE"]
+    given_names: ['FRANK', 'LEE']
     icn: '1008712353V735015^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -70,7 +70,7 @@ find_candidate:
     edipi: ~
     family_name: 'BISHOP'
     gender: 'M'
-    given_names: ["ERIC", "Victor"]
+    given_names: ['ERIC', 'Victor']
     icn: '1008691287V879036^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -81,7 +81,7 @@ find_candidate:
     edipi: '1007451748^NI^200DOD^USDOD^A'
     family_name: 'BROOKS'
     gender: 'M'
-    given_names: ["JERRY", "M"]
+    given_names: ['JERRY', 'M']
     icn: '1008709435V263289^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -92,7 +92,7 @@ find_candidate:
     edipi: '1005072030^NI^200DOD^USDOD^A'
     family_name: 'CALDWELL'
     gender: 'M'
-    given_names: ["EDDIE", "J"]
+    given_names: ['EDDIE', 'J']
     icn: '1008596380V707659^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32323479^PI^200CORP^USVBA^A'
@@ -103,7 +103,7 @@ find_candidate:
     edipi: ~
     family_name: 'CAMPBELL'
     gender: 'F'
-    given_names: ["DEBBIE", "M"]
+    given_names: ['DEBBIE', 'M']
     icn: '1008710255V058302^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '600062099^PI^200CORP^USVBA^A'
@@ -114,7 +114,7 @@ find_candidate:
     edipi: ~
     family_name: 'BARRETT'
     gender: 'M'
-    given_names: ["CHAD", "E"]
+    given_names: ['CHAD', 'E']
     icn: '1008714328V191861^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -125,7 +125,7 @@ find_candidate:
     edipi: ~
     family_name: 'COLE'
     gender: 'M'
-    given_names: ["KYLE", "M"]
+    given_names: ['KYLE', 'M']
     icn: '1008710012V828560^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -136,7 +136,7 @@ find_candidate:
     edipi: ~
     family_name: 'CURTIS'
     gender: 'F'
-    given_names: ["MARGIE"]
+    given_names: ['MARGIE']
     icn: '1008711067V677657^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318135^PI^200CORP^USVBA^A'
@@ -147,7 +147,7 @@ find_candidate:
     edipi: ~
     family_name: 'DANIELS'
     gender: 'M'
-    given_names: ["WILLIAM", "C"]
+    given_names: ['WILLIAM', 'C']
     icn: '1008712744V146015^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '600033523^PI^200CORP^USVBA^A'
@@ -158,7 +158,7 @@ find_candidate:
     edipi: '1006467969^NI^200DOD^USDOD^A'
     family_name: 'DAVIS'
     gender: 'M'
-    given_names: ["WALTER", "TYLER"]
+    given_names: ['WALTER', 'TYLER']
     icn: '1008714607V082809^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '600043217^PI^200CORP^USVBA^A'
@@ -169,7 +169,7 @@ find_candidate:
     edipi: ~
     family_name: 'ELLIS'
     gender: 'F'
-    given_names: ["TAMARA", "E"]
+    given_names: ['TAMARA', 'E']
     icn: '1008710221V418539^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -180,7 +180,7 @@ find_candidate:
     edipi: ~
     family_name: 'FORD'
     gender: 'M'
-    given_names: ["WESLEY", "Watson"]
+    given_names: ['WESLEY', 'Watson']
     icn: '1008710003V120120^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -191,7 +191,7 @@ find_candidate:
     edipi: ~
     family_name: 'FOSTER'
     gender: 'F'
-    given_names: ["PAULINE", "E"]
+    given_names: ['PAULINE', 'E']
     icn: '1008711068V745112^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318138^PI^200CORP^USVBA^A'
@@ -202,7 +202,7 @@ find_candidate:
     edipi: ~
     family_name: 'FREEMAN'
     gender: 'M'
-    given_names: ["MELVIN", "V"]
+    given_names: ['MELVIN', 'V']
     icn: '1008711070V155561^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318143^PI^200CORP^USVBA^A'
@@ -213,7 +213,7 @@ find_candidate:
     edipi: ~
     family_name: 'FREEMAN'
     gender: 'M'
-    given_names: ["RUSSELL", "James"]
+    given_names: ['RUSSELL', 'James']
     icn: '1008692950V235502^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318142^PI^200CORP^USVBA^A'
@@ -224,7 +224,7 @@ find_candidate:
     edipi: ~
     family_name: 'GARDNER'
     gender: 'M'
-    given_names: ["HERBERT", "MICHAEL"]
+    given_names: ['HERBERT', 'MICHAEL']
     icn: '1008711071V330950^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318144^PI^200CORP^USVBA^A'
@@ -235,7 +235,7 @@ find_candidate:
     edipi: ~
     family_name: 'GARDNER'
     gender: 'M'
-    given_names: ["SAM", "ROBERT"]
+    given_names: ['SAM', 'ROBERT']
     icn: '1008711072V462819^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318145^PI^200CORP^USVBA^A'
@@ -246,7 +246,7 @@ find_candidate:
     edipi: ~
     family_name: 'GEORGE'
     gender: 'M'
-    given_names: ["JESSE", "J"]
+    given_names: ['JESSE', 'J']
     icn: '1008709967V630431^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -257,7 +257,7 @@ find_candidate:
     edipi: ~
     family_name: 'GIBSON'
     gender: 'M'
-    given_names: ["SIDNEY", "A"]
+    given_names: ['SIDNEY', 'A']
     icn: '1008711073V616774^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318146^PI^200CORP^USVBA^A'
@@ -268,7 +268,7 @@ find_candidate:
     edipi: ~
     family_name: 'GRAY'
     gender: 'M'
-    given_names: ["JESSE"]
+    given_names: ['JESSE']
     icn: '1008711076V809443^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318149^PI^200CORP^USVBA^A'
@@ -279,7 +279,7 @@ find_candidate:
     edipi: ~
     family_name: 'HARRIS'
     gender: 'F'
-    given_names: ["JUNE", "R"]
+    given_names: ['JUNE', 'R']
     icn: '1008711077V588395^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318150^PI^200CORP^USVBA^A'
@@ -290,7 +290,7 @@ find_candidate:
     edipi: ~
     family_name: 'HAYES'
     gender: 'M'
-    given_names: ["JEFFERY", "J"]
+    given_names: ['JEFFERY', 'J']
     icn: '1008701807V660197^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '600043202^PI^200CORP^USVBA^A'
@@ -301,7 +301,7 @@ find_candidate:
     edipi: ~
     family_name: 'HORTON'
     gender: 'M'
-    given_names: ["EVERETT", "Avery"]
+    given_names: ['EVERETT', 'Avery']
     icn: '1008711078V291287^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318151^PI^200CORP^USVBA^A'
@@ -312,7 +312,7 @@ find_candidate:
     edipi: ~
     family_name: 'HOWELL'
     gender: 'M'
-    given_names: ["MATHEW", "A"]
+    given_names: ['MATHEW', 'A']
     icn: '1008711079V027032^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318153^PI^200CORP^USVBA^A'
@@ -323,7 +323,7 @@ find_candidate:
     edipi: '1292690947^NI^200DOD^USDOD^A'
     family_name: 'HUNTER'
     gender: 'M'
-    given_names: ["JULIO", "E"]
+    given_names: ['JULIO', 'E']
     icn: '1008596378V923986^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318156^PI^200CORP^USVBA^A'
@@ -334,7 +334,7 @@ find_candidate:
     edipi: '1005396162^NI^200DOD^USDOD^A'
     family_name: 'MOORE'
     gender: 'F'
-    given_names: ["JANET", "L"]
+    given_names: ['JANET', 'L']
     icn: '1008710092V112476^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32317886^PI^200CORP^USVBA^A'
@@ -345,7 +345,7 @@ find_candidate:
     edipi: ~
     family_name: 'BARRETT'
     gender: 'M'
-    given_names: ["JESUS", "A"]
+    given_names: ['JESUS', 'A']
     icn: '1008701809V976331^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '600043193^PI^200CORP^USVBA^A'
@@ -356,7 +356,7 @@ find_candidate:
     edipi: ~
     family_name: 'LAWRENCE'
     gender: 'M'
-    given_names: ["DARYL", "F"]
+    given_names: ['DARYL', 'F']
     icn: '1008711082V575772^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318157^PI^200CORP^USVBA^A'
@@ -367,7 +367,7 @@ find_candidate:
     edipi: ~
     family_name: 'LEE'
     gender: 'M'
-    given_names: ["RALPH", "E"]
+    given_names: ['RALPH', 'E']
     icn: '1008711084V002120^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318159^PI^200CORP^USVBA^A'
@@ -378,7 +378,7 @@ find_candidate:
     edipi: ~
     family_name: 'MARSHALL'
     gender: 'M'
-    given_names: ["MELVIN", "R"]
+    given_names: ['MELVIN', 'R']
     icn: '1008711085V186449^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318160^PI^200CORP^USVBA^A'
@@ -389,7 +389,7 @@ find_candidate:
     edipi: '1005138104^NI^200DOD^USDOD^A'
     family_name: 'MORALES'
     gender: 'M'
-    given_names: ["ALFREDO", "J"]
+    given_names: ['ALFREDO', 'J']
     icn: '1008703680V285027^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '600043169^PI^200CORP^USVBA^A'
@@ -400,7 +400,7 @@ find_candidate:
     edipi: '1008346433^NI^200DOD^USDOD^A'
     family_name: 'OLSON'
     gender: 'M'
-    given_names: ["HARRY", "J"]
+    given_names: ['HARRY', 'J']
     icn: '1008596381V985114^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -411,7 +411,7 @@ find_candidate:
     edipi: ~
     family_name: 'PATTERSON'
     gender: 'M'
-    given_names: ["CHRISTIAN", "Fitzgerald"]
+    given_names: ['CHRISTIAN', 'Fitzgerald']
     icn: '1008691167V254462^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318091^PI^200CORP^USVBA^A'
@@ -422,7 +422,7 @@ find_candidate:
     edipi: ~
     family_name: 'PRICE'
     gender: 'M'
-    given_names: ["JESSIE", "F"]
+    given_names: ['JESSIE', 'F']
     icn: '1008701880V790698^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -433,7 +433,7 @@ find_candidate:
     edipi: ~
     family_name: 'RAY'
     gender: 'F'
-    given_names: ["ANA", "D"]
+    given_names: ['ANA', 'D']
     icn: '1008712476V222549^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -444,7 +444,7 @@ find_candidate:
     edipi: ~
     family_name: 'REID'
     gender: 'F'
-    given_names: ["JENNY", "Kadeshia"]
+    given_names: ['JENNY', 'Kadeshia']
     icn: '1008702225V536415^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '600017293^PI^200CORP^USVBA^A'
@@ -455,7 +455,7 @@ find_candidate:
     edipi: ~
     family_name: 'REID'
     gender: 'M'
-    given_names: ["MARTIN", "Ray"]
+    given_names: ['MARTIN', 'Ray']
     icn: '1008701927V867370^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318168^PI^200CORP^USVBA^A'
@@ -466,7 +466,7 @@ find_candidate:
     edipi: ~
     family_name: 'REID'
     gender: 'F'
-    given_names: ["MATTIE", "May"]
+    given_names: ['MATTIE', 'May']
     icn: '1008709764V627989^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318167^PI^200CORP^USVBA^A'
@@ -477,7 +477,7 @@ find_candidate:
     edipi: ~
     family_name: 'RILEY'
     gender: 'M'
-    given_names: ["WILLARD", "J"]
+    given_names: ['WILLARD', 'J']
     icn: '1008691084V540033^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -488,7 +488,7 @@ find_candidate:
     edipi: ~
     family_name: 'ROBERTS'
     gender: 'M'
-    given_names: ["THEODORE", "Matthew"]
+    given_names: ['THEODORE', 'Matthew']
     icn: '1008711090V693416^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318169^PI^200CORP^USVBA^A'
@@ -499,7 +499,7 @@ find_candidate:
     edipi: ~
     family_name: 'ROBERTSON'
     gender: 'F'
-    given_names: ["JO", "M"]
+    given_names: ['JO', 'M']
     icn: '1008691085V202565^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -510,7 +510,7 @@ find_candidate:
     edipi: ~
     family_name: 'ROSE'
     gender: 'M'
-    given_names: ["ARTHUR", "E"]
+    given_names: ['ARTHUR', 'E']
     icn: '1008691040V020761^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -521,7 +521,7 @@ find_candidate:
     edipi: '1021267380^NI^200DOD^USDOD^A'
     family_name: 'SIMS'
     gender: 'M'
-    given_names: ["SALVADOR", "H"]
+    given_names: ['SALVADOR', 'H']
     icn: '1008709835V747620^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318570^PI^200CORP^USVBA^A'
@@ -532,7 +532,7 @@ find_candidate:
     edipi: ~
     family_name: 'SPENCER'
     gender: 'M'
-    given_names: ["SAM", "Lee"]
+    given_names: ['SAM', 'Lee']
     icn: '1008702103V181634^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -543,7 +543,7 @@ find_candidate:
     edipi: ~
     family_name: 'SCOTT'
     gender: 'M'
-    given_names: ["FREDERICK", "Bradley"]
+    given_names: ['FREDERICK', 'Bradley']
     icn: '1008711092V958203^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318171^PI^200CORP^USVBA^A'
@@ -554,7 +554,7 @@ find_candidate:
     edipi: ~
     family_name: 'SCOTT'
     gender: 'F'
-    given_names: ["PENNY", "M"]
+    given_names: ['PENNY', 'M']
     icn: '1008711093V831025^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318172^PI^200CORP^USVBA^A'
@@ -565,7 +565,7 @@ find_candidate:
     edipi: ~
     family_name: 'SCOTT'
     gender: 'M'
-    given_names: ["RAY", "A"]
+    given_names: ['RAY', 'A']
     icn: '1008691082V917396^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318173^PI^200CORP^USVBA^A'
@@ -576,7 +576,7 @@ find_candidate:
     edipi: ~
     family_name: 'SPENCER'
     gender: 'M'
-    given_names: ["DWAYNE", "E"]
+    given_names: ['DWAYNE', 'E']
     icn: '1008691575V571431^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -587,7 +587,7 @@ find_candidate:
     edipi: '1005361920^NI^200DOD^USDOD^A'
     family_name: 'STEPHENS'
     gender: 'M'
-    given_names: ["BRIAN", "J"]
+    given_names: ['BRIAN', 'J']
     icn: '1008709838V592386^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32245561^PI^200CORP^USVBA^A'
@@ -598,7 +598,7 @@ find_candidate:
     edipi: '1384220343^NI^200DOD^USDOD^A'
     family_name: 'STEPHENS'
     gender: 'F'
-    given_names: ["RUTH", "Reyes"]
+    given_names: ['RUTH', 'Reyes']
     icn: '1008709839V226238^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32238885^PI^200CORP^USVBA^A'
@@ -609,7 +609,7 @@ find_candidate:
     edipi: '1077041105^NI^200DOD^USDOD^A'
     family_name: 'STEWART'
     gender: 'M'
-    given_names: ["DAVE", "A"]
+    given_names: ['DAVE', 'A']
     icn: '1008709840V869759^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318572^PI^200CORP^USVBA^A'
@@ -620,7 +620,7 @@ find_candidate:
     edipi: ~
     family_name: 'WAGNER'
     gender: 'M'
-    given_names: ["VERNON", "D"]
+    given_names: ['VERNON', 'D']
     icn: '1008713407V668256^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -631,7 +631,7 @@ find_candidate:
     edipi: ~
     family_name: 'WARREN'
     gender: 'M'
-    given_names: ["KENT", "L"]
+    given_names: ['KENT', 'L']
     icn: '1008711094V567547^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318174^PI^200CORP^USVBA^A'
@@ -642,7 +642,7 @@ find_candidate:
     edipi: ~
     family_name: 'WATSON'
     gender: 'M'
-    given_names: ["JEFF", "Terrel"]
+    given_names: ['JEFF', 'Terrel']
     icn: '1008711095V215992^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318189^PI^200CORP^USVBA^A'
@@ -653,7 +653,7 @@ find_candidate:
     edipi: ~
     family_name: 'WATSON'
     gender: 'M'
-    given_names: ["RUSSELL", "Renee"]
+    given_names: ['RUSSELL', 'Renee']
     icn: '1008691083V875288^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -664,7 +664,7 @@ find_candidate:
     edipi: ~
     family_name: 'WELLS'
     gender: 'M'
-    given_names: ["GLEN", "Lee"]
+    given_names: ['GLEN', 'Lee']
     icn: '1008711097V142730^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318192^PI^200CORP^USVBA^A'
@@ -675,7 +675,7 @@ find_candidate:
     edipi: ~
     family_name: 'WHEELER'
     gender: 'M'
-    given_names: ["LEONARD", "A"]
+    given_names: ['LEONARD', 'A']
     icn: '1008702155V142394^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32253559^PI^200CORP^USVBA^A'
@@ -686,7 +686,7 @@ find_candidate:
     edipi: ~
     family_name: 'WILSON'
     gender: 'F'
-    given_names: ["LEONA", "C"]
+    given_names: ['LEONA', 'C']
     icn: '1008691603V292665^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -697,7 +697,7 @@ find_candidate:
     edipi: '1025579697^NI^200DOD^USDOD^A'
     family_name: 'WOOD'
     gender: 'F'
-    given_names: ["JAMIE", "J"]
+    given_names: ['JAMIE', 'J']
     icn: '1008709398V910373^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: ~
@@ -708,7 +708,7 @@ find_candidate:
     edipi: ~
     family_name: 'WRIGHT'
     gender: 'M'
-    given_names: ["TOMMY", "V"]
+    given_names: ['TOMMY', 'V']
     icn: '1008711105V820155^NI^200M^USVHA^P'
     mhv_id: ~
     vba_corp_id: '32318200^PI^200CORP^USVBA^A'
