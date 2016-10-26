@@ -44,6 +44,6 @@ FactoryGirl.define do
         'y' => 5_700_180.43265912
       }
     end
-    initialize_with { {'attributes' => gis_attrs, 'geometry' => geometry} }
+    initialize_with { { 'attributes' => gis_attrs, 'geometry' => geometry } }
   end
 end
