@@ -179,9 +179,8 @@ RSpec.describe V0::SessionsController, type: :controller do
       allow(OneLogin::RubySaml::Response)
         .to receive(:new).and_return(double('saml_response', is_valid?: false, errors: errors))
 
-      post :saml_callback, RelayState: fake_relay
-      expect(response).to have_http_status(:forbidden)
-      expect(JSON.parse(response.body)['errors']).to eq(['Response is invalid'])
+      expect(post :saml_callback).to redirect_to("#{SAML_CONFIG['relay_url']}#{SAML_CONFIG['fail_path']}")
+      expect(response).to have_http_status(:found)
     end
   end
 

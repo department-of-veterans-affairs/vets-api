@@ -25,10 +25,9 @@ module V0
 
       if @saml_response.is_valid?
         persist_session_and_user!
-        redirect_to relay_destination
+        redirect_to relay_success
       else
-        # TODO: also need to make sure error json conforms to api spec
-        render json: { errors: @saml_response.errors }, status: :forbidden
+        redirect_to relay_failure
       end
     end
 
@@ -102,8 +101,13 @@ module V0
       %r{\A\/[a-zA-Z0-9\/_-]+\z}.match(params[:location])&.to_s || '/profile'
     end
 
-    def relay_destination
+    def relay_success
       "#{SAML_CONFIG['relay_url']}#{params[:RelayState]}?token=#{@session.token}"
+    end
+
+    def relay_failure
+      # TODO: url
+      "#{SAML_CONFIG['relay_url']}#{SAML_CONFIG['fail_path']}"
     end
   end
 end

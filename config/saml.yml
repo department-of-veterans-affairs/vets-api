@@ -5,6 +5,7 @@ development: &defaults
   certificate: <%= File.read(File.expand_path(ENV["CERTIFICATE_FILE"])).dump %>
   key: <%= File.read(File.expand_path(ENV["KEY_FILE"])).dump %>
   relay_url: http://localhost:3001
+  fail_path: /auth_failure
 
 test:
   <<: *defaults
@@ -18,3 +19,4 @@ production:
   certificate: <%= File.read(File.expand_path(ENV["CERTIFICATE_FILE"])).dump %>
   key: <%= File.read(File.expand_path(ENV["KEY_FILE"])).dump %>
   relay_url: <%=ENV["RELAY_URL"] %>
+  fail_path: <%=ENV["FAIL_PATH"] %>
