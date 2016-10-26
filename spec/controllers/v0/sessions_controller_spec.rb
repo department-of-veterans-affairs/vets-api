@@ -20,7 +20,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:loa1_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/loa1_response.xml") }
   let(:loa3_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/loa3_response.xml") }
   let(:settings_service) { class_double(SAML::SettingsService).as_stubbed_const }
-  let(:fake_relay) { "http://www.somesite.com" }
+  let(:fake_relay) { 'http://www.somesite.com' }
   let(:query_token) { Rack::Utils.parse_query(URI.parse(response.location).query)['token'] }
 
   before(:each) do
@@ -117,11 +117,10 @@ RSpec.describe V0::SessionsController, type: :controller do
       before(:example) do
         allow(attributes).to receive_message_chain(:all, :to_h).and_return(saml_attrs)
         allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response)
-        allow(saml_response).to receive(:response).and_return(loa1_xml)
+        allow(saml_response).to receive(:decrypted_document).and_return(REXML::Document.new(loa3_xml))
       end
 
       it 'should uplevel an LOA 1 session to LOA 3' do
-        allow(saml_response).to receive(:decrypted_document).and_return(REXML::Document.new(loa3_xml))
         allow(attributes).to receive_message_chain(:all, :to_h).and_return(loa3_saml_attrs)
         allow_any_instance_of(Decorators::MviUserDecorator).to receive(:create).and_return(loa3_user)
 
@@ -136,32 +135,28 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       it 'returns a valid session and user' do
-        allow(saml_response).to receive(:decrypted_document).and_return(REXML::Document.new(loa3_xml))
         post :saml_callback, RelayState: fake_relay
 
         token = Rack::Utils.parse_query(URI.parse(response.location).query)['token']
         session = Session.find(token)
         expect(session).to_not be_nil
-        expect(User.find(session.uuid)).to eq(loa3_user)
+        expect(User.find(session.uuid).attributes).to eq(mvi_user.attributes)
       end
 
       it 'creates a job to create an evss user' do
-        allow(saml_response).to receive(:decrypted_document).and_return(REXML::Document.new(loa3_xml))
         expect { post :saml_callback, RelayState: fake_relay }.to change(EVSS::CreateUserAccountJob.jobs, :size).by(1)
       end
 
       it 'parses and stores the current level of assurance' do
-        allow(saml_response).to receive(:decrypted_document).and_return(REXML::Document.new(loa1_xml))
         post :saml_callback, RelayState: fake_relay
         assert_response :found
 
         session = Session.find(query_token)
         user = User.find(session.uuid)
-        expect(user.loa[:current]).to eq(LOA::ONE)
+        expect(user.loa[:current]).to eq(LOA::TWO)
       end
 
       it 'parses and stores the highest level of assurance proofing' do
-        allow(saml_response).to receive(:decrypted_document).and_return(REXML::Document.new(loa3_xml))
         post :saml_callback, RelayState: fake_relay
         assert_response :found
 
