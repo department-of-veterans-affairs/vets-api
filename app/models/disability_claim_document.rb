@@ -1,6 +1,13 @@
 # frozen_string_literal: true
-class DisabilityClaimDocument < ActiveModelSerializers::Model
-  attr_accessor :evss_claim_id, :tracked_item_id, :document_type, :file_name
+require 'common/models/base'
+
+class DisabilityClaimDocument < Common::Base
+  include ActiveModel::Validations
+
+  attribute :evss_claim_id, Integer
+  attribute :tracked_item_id, Integer
+  attribute :document_type, String
+  attribute :file_name, String
 
   validates(:file_name, presence: true)
   validate :known_document_type?
@@ -35,18 +42,8 @@ class DisabilityClaimDocument < ActiveModelSerializers::Model
     DOCUMENT_TYPES[document_type]
   end
 
-  def to_h
-    {
-      evss_claim_id: @evss_claim_id,
-      tracked_item_id: @tracked_item_id,
-      document_type: @document_type,
-      file_name: @file_name
-    }
-  end
-
   def ==(other)
-    evss_claim_id == other.evss_claim_id && tracked_item_id == other.tracked_item_id &&
-      document_type == other.document_type && file_name == other.file_name
+    attributes == other.attributes
   end
 
   private
