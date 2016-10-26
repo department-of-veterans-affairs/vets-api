@@ -8,28 +8,37 @@ class V0::Facilities::VaController < FacilitiesController
   # @param type - Optional facility type, values = all (default), health, benefits, cemetery
   # @param services - Optional specialty services filter
   def index
-    results = VAHealthFacility.query(bbox: params[:bbox], services: params[:services])
+    results = VAFacility.query(bbox: params[:bbox], type: params[:type], services: params[:services])
     render json: results,
            serializer: CollectionSerializer,
-           each_serializer: VAHealthFacilitySerializer
+           each_serializer: VAFacilitySerializer
   end
 
   def show
-    results = VAHealthFacility.find_by_id(id: params[:id])
+    results = VAFacility.find_by(id: params[:id])
     raise Common::Exceptions::RecordNotFound, params[:id] if results.nil?
-    render json: results, serializer: VAHealthFacilitySerializer
+    render json: results, serializer: VAFacilitySerializer
   end
 
   private
 
   def validate_params
-    begin
-      raise ArgumentError unless params[:bbox].length == 4
-      params[:bbox].each { |x| Float(x) }
-    rescue ArgumentError
-      raise Common::Exceptions::InvalidFieldValue.new('bbox', params[:bbox])
+    super
+    validate_no_services_without_type
+    validate_type_and_services_known unless params[:type].nil?
+  end
+
+  def validate_no_services_without_type
+    if params[:type].nil? && !params[:services].nil?
+      raise Common::Exceptions::ParameterMissing.new('type', detail: TYPE_SERVICE_ERR)
     end
-    unknown = params[:services].to_a - VAHealthFacility.service_whitelist
+  end
+
+  TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specfied'
+  def validate_type_and_services_known
+    raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
+      VAFacility::TYPES.include?(params[:type])
+    unknown = params[:services].to_a - VAFacility.service_whitelist(params[:type])
     raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
   end
 end

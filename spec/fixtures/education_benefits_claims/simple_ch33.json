@@ -17,9 +17,8 @@
   "educationType": "college",
   "faaFlightCertificatesInformation": "cert1, cert2",
   "gender": "M",
-  "highSchoolOrGedCompletionDate": "06/06/2010",
+  "highSchoolOrGedCompletionDate": "2010-06-06",
   "homePhone": "5551110000",
-  "remarks": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet ullamcorper est, in interdum velit. Cras purus orci, varius eget efficitur nec, dapibus id risus. Donec in pellentesque enim. Proin sagittis, elit nec consequat malesuada, nibh justo luctus enim, ac aliquet lorem orci vel neque. Ut eget accumsan ipsum. Cras sed venenatis massa. Duis odio urna, laoreet quis ante sed, facilisis congue purus. Etiam semper facilisis luctus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam blandit eget nibh at ornare. Sed non porttitor dui. Proin ornare magna diam, ut lacinia magna accumsan euismod.\n\n        Phasellus et nisl id lorem feugiat molestie. Aliquam molestie,\n        nulla eu fringilla finibus, massa lectus varius quam, quis ornare\n        sem lorem lacinia dui. Integer consequat non arcu convallis mollis.\n        Vivamus magna turpis, pharetra non eros at, feugiat rutrum nisl.\n        Maecenas eros tellus, blandit id libero sed, imperdiet fringilla\n        eros. Nulla vel tortor vel neque fermentum laoreet id vitae ex.\n        Mauris posuere lorem tellus. Pellentesque at augue arcu.\n        Vestibulum aliquam urna ac est lacinia, eu congue nisi tempor.\n        ",
   "reserveKicker": false,
   "school": {
     "address": {
@@ -37,23 +36,18 @@
     "fullName": "Sibling Olson",
     "sameAddressAndPhone": true
   },
-  "serviceBefore1977": {
-    "haveDependents": true,
-    "married": true,
-    "parentDependent": false
-  },
   "toursOfDuty": [{
     "dateRange": {
-      "from": "01/01/2001",
-      "to": "10/10/2010"
+      "from": "2001-01-01",
+      "to": "2010-10-10"
     },
     "involuntarilyCalledToDuty": "yes",
     "serviceBranch": "Army",
     "serviceStatus": "Active Duty"
   }, {
     "dateRange": {
-      "from": "01/01/1995",
-      "to": "10/10/1998"
+      "from": "1995-01-01",
+      "to": "1998-10-10"
     },
     "involuntarilyCalledToDuty": "yes",
     "serviceBranch": "Army",
@@ -63,8 +57,8 @@
     {
       "name": "OtherCollege Name",
       "dateRange": {
-        "from": "01/01/1999",
-        "to": "01/01/2000"
+        "from": "1999-01-01",
+        "to": "2000-01-01"
       },
       "city": "New York",
       "hours": 8,
@@ -81,7 +75,7 @@
     "state": "WI",
     "street": "123 Main St"
   },
-  "veteranDateOfBirth": "03/07/1985",
+  "veteranDateOfBirth": "1985-03-07",
   "veteranFullName": {
     "first": "Mark",
     "last": "Olson"

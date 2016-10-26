@@ -3,6 +3,8 @@ require_dependency 'evss/base_service'
 
 module EVSS
   class ClaimsService < BaseService
+    BASE_URL = "#{ENV['EVSS_BASE_URL']}/wss-claims-services-web-3.0/rest"
+
     def all_claims
       get 'vbaClaimStatusService/getClaims'
     end
@@ -22,10 +24,8 @@ module EVSS
       }.to_json
     end
 
-    protected
-
-    def base_url
-      "#{ENV['EVSS_BASE_URL']}/wss-claims-services-web-3.1/rest"
+    def self.breakers_service
+      BaseService.create_breakers_service(name: 'EVSS/Claims', url: BASE_URL)
     end
   end
 end

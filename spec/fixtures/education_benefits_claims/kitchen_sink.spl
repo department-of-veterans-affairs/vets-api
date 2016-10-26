@@ -48,7 +48,7 @@ under Chapter 33 are not payable prior to that date.
                             APPLICANT INFORMATION
                             ---------------------
 
-SSN: 111223333         Sex: M             Date of Birth: 03/07/1985
+SSN: 111223333         Sex: M             Date of Birth: 1985-03-07
 
 Name:   Mark Olson
 
@@ -69,14 +69,16 @@ Routing/Transit #: 123456789   Account #: 88888888888
 
 Name, Address, & Telephone Number of Contact:
         Sibling Olson
-        Address and Phone same as claimant
+        222 PERSON DRIVE
+        BALTIMORE, MD, 23131
+        USA
+        Phone: 5550001111
 
 
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
-Type of Education or Training: College or Other School (including online
-courses)
+Type of Education or Training: Flight Training
 
 Name and Address of School or Training Establishment:
         FakeData University
@@ -84,7 +86,7 @@ Name and Address of School or Training Establishment:
 BALTIMORE, MD, 21231
 USA
 
-Date You Started or Will Start Training: 12/31/1999
+Date You Started or Will Start Training: 1999-12-31
 
 Education or Career Goal: Major in JSON document creation
 
@@ -98,19 +100,22 @@ Are you Now On Terminal Leave Just Before Discharge? YES
 
 Date Entered   Date Separated     Service Component
 Active Duty    From Active Duty
-06/26/2012     04/10/2013         Army Reserve
+2012-06-26     2013-04-10         Army Reserve
                          Service Status:   ACTIVE DUTY TRAINING
-                         Involuntary Call: n/a
-04/22/2013     06/14/2013         Army Reserve
+                         Involuntary Call: no
+                         Benefits to Apply to: chapter32
+2013-04-22     2013-06-14         Army Reserve
                          Service Status:   ACTIVE DUTY
                          Involuntary Call: yes
+Benefits to Apply to: chapter33, chapter30,
+chapter1606, chapter32
 
 
 
                     EDUCATION AND EMPLOYMENT INFORMATION
                     ------------------------------------
 
-Date Received High School Diploma or Equivalency Certificate: 06/06/2010
+Date Received High School Diploma or Equivalency Certificate: 2010-06-06
 
 FAA Flight Certificates:
 cert1, cert2
@@ -121,7 +126,7 @@ cert1, cert2
 Name and Location of College or Training Provider: 
     OtherCollege Name
     New York, NY
-Date of Training:     From: 01/01/1999 To: 01/01/2000
+Date of Training:     From: 1999-01-01 To: 2000-01-01
 Hours: 8 (semester)
 Degree/Diploma/Certificate: BA
 Major Field/Course of Study: History
@@ -186,9 +191,9 @@ under Section 2107, Title 10 U.S. Code?   YES
 Did you have a period of active duty that the Department of Defense counts for
 purposes of repaying an education loan?    YES
 
-        Start Date: 09/09/2012
+        Start Date: 2012-09-09
 
-        End Date: 10/10/2013
+        End Date: 2013-10-10
 
 For Active Duty Claimants Only. Are you receiving or do you anticipate
 receiving any money (including but not limited to Federal Tuition Assistance)
@@ -209,30 +214,9 @@ such benefits during any part of your training, check Yes.    YES
            ---------------------------------------------------------
 
 
-N/A
-
-
-                                   REMARKS
-                                   -------
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet
-ullamcorper est, in interdum velit. Cras purus orci, varius eget efficitur
-nec, dapibus id risus. Donec in pellentesque enim. Proin sagittis, elit nec
-consequat malesuada, nibh justo luctus enim, ac aliquet lorem orci vel neque.
-Ut eget accumsan ipsum. Cras sed venenatis massa. Duis odio urna, laoreet quis
-ante sed, facilisis congue purus. Etiam semper facilisis luctus. Class aptent
-taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.
-Etiam blandit eget nibh at ornare. Sed non porttitor dui. Proin ornare magna
-diam, ut lacinia magna accumsan euismod.
-
-        Phasellus et nisl id lorem feugiat molestie. Aliquam molestie,
-        nulla eu fringilla finibus, massa lectus varius quam, quis ornare
-        sem lorem lacinia dui. Integer consequat non arcu convallis mollis.
-        Vivamus magna turpis, pharetra non eros at, feugiat rutrum nisl.
-        Maecenas eros tellus, blandit id libero sed, imperdiet fringilla
-        eros. Nulla vel tortor vel neque fermentum laoreet id vitae ex.
-        Mauris posuere lorem tellus. Pellentesque at augue arcu.
-        Vestibulum aliquam urna ac est lacinia, eu congue nisi tempor.
-        
+Married: YES
+Has Dependents: YES
+Parent Dependent: NO
 
 
       Certification and Signature of Applicant

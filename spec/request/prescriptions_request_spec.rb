@@ -1,70 +1,67 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'rx/client'
-require 'support/rx_client_helpers'
 
-RSpec.describe 'Prescriptions Integration', type: :request do
-  include Rx::ClientHelpers
-  before(:each) do
-    allow_any_instance_of(ApplicationController).to receive(:authenticate).and_return(true)
-    expect(Rx::Client).to receive(:new).once.and_return(authenticated_client)
+RSpec.describe 'prescriptions', type: :request do
+  let(:current_user) { build(:prescription_user) }
+  before(:each)      { use_authenticated_current_user(current_user: current_user) }
+
+  context 'forbidden user' do
+    let(:current_user) { build(:user) }
+
+    it 'raises access denied', :vcr do
+      get '/v0/prescriptions/13651310'
+
+      expect(response).to have_http_status(:forbidden)
+      expect(JSON.parse(response.body)['errors'].first['detail'])
+        .to eq('You do not have access to prescriptions')
+    end
   end
 
-  it 'responds to GET #show' do
-    VCR.use_cassette('prescriptions/1435525/index/no_parameters') do
-      get '/v0/prescriptions/1435525'
+  it 'responds to GET #show', :vcr do
+    get '/v0/prescriptions/13651310'
+
+    expect(response).to be_success
+    expect(response.body).to be_a(String)
+    expect(response).to match_response_schema('prescription')
+  end
+
+  it 'responds to GET #index with no parameters', :vcr do
+    get '/v0/prescriptions'
+    expect(response).to be_success
+    expect(response.body).to be_a(String)
+    expect(response).to match_response_schema('prescriptions')
+    expect(JSON.parse(response.body)['meta']['sort']).to eq('ordered_date' => 'DESC')
+  end
+
+  it 'responds to GET #index with refill_status=active', :vcr do
+    get '/v0/prescriptions?refill_status=active'
+    expect(response).to be_success
+    expect(response.body).to be_a(String)
+    expect(response).to match_response_schema('prescriptions')
+    expect(JSON.parse(response.body)['meta']['sort']).to eq('ordered_date' => 'DESC')
+  end
+
+  it 'responds to GET #index with filter', :vcr do
+    get '/v0/prescriptions?filter[[refill_status][eq]]=refillinprocess'
+    expect(response).to be_success
+    expect(response.body).to be_a(String)
+    expect(response).to match_response_schema('prescriptions_filtered')
+  end
+
+  it 'responds to POST #refill', :vcr do
+    patch '/v0/prescriptions/13568747/refill'
+    expect(response).to be_success
+    expect(response.body).to be_empty
+  end
+
+  context 'nested resources', :vcr do
+    it 'responds to GET #show of nested tracking resource', :vcr do
+      get '/v0/prescriptions/13650541/trackings'
       expect(response).to be_success
       expect(response.body).to be_a(String)
-      expect(response).to match_response_schema('prescription')
-    end
-  end
-
-  it 'responds to GET #index with no parameters' do
-    VCR.use_cassette('prescriptions/1435525/index/no_parameters') do
-      get '/v0/prescriptions'
-      expect(response).to be_success
-      expect(response.body).to be_a(String)
-      expect(response).to match_response_schema('prescriptions')
-      expect(JSON.parse(response.body)['meta']['sort']).to eq('ordered_date' => 'DESC')
-    end
-  end
-
-  it 'responds to GET #index with refill_status=active' do
-    VCR.use_cassette('prescriptions/1435525/index/refill_status_active') do
-      get '/v0/prescriptions?refill_status=active'
-      expect(response).to be_success
-      expect(response.body).to be_a(String)
-      expect(response).to match_response_schema('prescriptions')
-      expect(JSON.parse(response.body)['meta']['sort']).to eq('ordered_date' => 'DESC')
-    end
-  end
-
-  it 'responds to GET #index with filter' do
-    VCR.use_cassette('prescriptions/1435525/index/refill_status_unknown') do
-      get '/v0/prescriptions?filter[[refill_status][eq]]=unknown'
-      expect(response).to be_success
-      expect(response.body).to be_a(String)
-      expect(response).to match_response_schema('prescriptions_filtered')
-    end
-  end
-
-  it 'responds to POST #refill' do
-    VCR.use_cassette('prescriptions/refill_action') do
-      patch '/v0/prescriptions/1435525/refill'
-      expect(response).to be_success
-      expect(response.body).to be_empty
-    end
-  end
-
-  context 'nested resources' do
-    it 'responds to GET #show of nested tracking resource' do
-      VCR.use_cassette('prescriptions/1435525/tracking') do
-        get '/v0/prescriptions/1435525/trackings'
-        expect(response).to be_success
-        expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('trackings')
-        expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
-      end
+      expect(response).to match_response_schema('trackings')
+      expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
     end
   end
 end

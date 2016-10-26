@@ -18,6 +18,7 @@ gem 'pg'
 gem 'json-schema'
 gem 'active_model_serializers', '~> 0.10.0'
 gem 'will_paginate'
+gem 'sentry-raven'            # Sentry integration. SENTRY_DSN provided in ENV
 gem 'faraday'
 gem 'faraday_middleware'
 gem 'httpclient'
@@ -26,11 +27,17 @@ gem 'olive_branch'
 gem 'ox', '~> 2.4'
 gem 'savon', '~> 2.0'
 gem 'sidekiq'
-gem 'whenever', require: false
+gem 'sidekiq-unique-jobs'
+gem 'sidekiq-scheduler', '~> 2.0'
 gem 'multi_json'
+gem 'carrierwave-aws'
+gem 'carrierwave', '~> 0.11'
+
 gem 'rack-cors', :require => 'rack/cors'
 gem 'net-sftp'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
+gem 'breakers'
+gem 'govdelivery-tms', require: 'govdelivery/tms/mail/delivery_method'
 
 # Amazon Linux's system `json` gem causes conflicts, but
 # `multi_json` will prefer `oj` if installed, so include it here.
@@ -59,9 +66,14 @@ group :development, :test do
   gem 'factory_girl_rails'
 
   gem 'foreman'
+
+  # This middleware logs your HTTP requests as CURL compatible commands so you can share the calls with downstream
+  # assists in debugging
+  gem 'faraday_curl'
 end
 
 group :test do
+  gem 'faker'
   gem 'simplecov', '~> 0.11', require: false
   gem 'webmock'
   gem 'fakeredis'

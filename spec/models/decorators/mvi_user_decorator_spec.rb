@@ -5,61 +5,58 @@ require 'common/exceptions'
 describe Decorators::MviUserDecorator do
   context 'given a valid user' do
     let(:user) { FactoryGirl.build(:user) }
-
-    before(:each) do
-      allow(MVI::Service).to receive(:find_candidate).and_return(
-        edipi: '1234^NI^200DOD^USDOD^A',
-        icn: '1000123456V123456^NI^200M^USVHA^P',
-        mhv_id: '123456^PI^200MHV^USVHA^A',
-        vba_corp_id: '12345678^PI^200CORP^USVBA^A',
-        status: 'active',
-        given_names: %w(abraham),
-        family_name: 'lincoln',
-        gender: 'M',
-        birth_date: '19800101',
-        ssn: '272111863'
-      )
+    let(:mvi_user) { FactoryGirl.build(:mvi_user) }
+    let(:find_candidate_response) do
+      {
+        birth_date: mvi_user.birth_date.strftime('%Y%m%d'),
+        edipi: mvi_user.mvi[:edipi],
+        vba_corp_id: mvi_user.mvi[:vba_corp_id],
+        family_name: mvi_user.mvi[:family_name],
+        gender: mvi_user.mvi[:gender],
+        given_names: mvi_user.mvi[:given_names],
+        icn: mvi_user.mvi[:icn],
+        mhv_id: mvi_user.mvi[:mhv_id],
+        ssn: mvi_user.mvi[:ssn],
+        status: mvi_user.mvi[:status]
+      }
     end
 
-    describe '#create' do
-      it 'should fetch and add mvi data to the user' do
-        mvi_user = Decorators::MviUserDecorator.new(user).create
-        expect(mvi_user.attributes).to eq(
-          birth_date: user.birth_date,
-          icn: user.icn,
-          edipi: user.edipi,
-          mhv_id: user.mhv_id,
-          email: user.email,
-          first_name: user.first_name,
-          gender: user.gender,
-          last_name: 'lincoln',
-          last_signed_in: user.last_signed_in,
-          middle_name: nil,
-          level_of_assurance: LOA::TWO,
-          mvi: {
-            edipi: '1234^NI^200DOD^USDOD^A',
-            icn: '1000123456V123456^NI^200M^USVHA^P',
-            mhv_id: '123456^PI^200MHV^USVHA^A',
-            vba_corp_id: '12345678^PI^200CORP^USVBA^A',
-            status: 'active',
-            given_names: %w(abraham),
-            family_name: 'lincoln',
-            gender: 'M',
-            birth_date: '19800101',
-            ssn: '272111863'
-          },
-          participant_id: user.participant_id,
-          ssn: '272111863',
-          uuid: user.uuid,
-          zip: '17325'
-        )
+    context 'when all correlation ids have values' do
+      before(:each) do
+        allow(MVI::Service).to receive(:find_candidate).and_return(find_candidate_response)
+      end
+
+      describe '#create' do
+        it 'should fetch and add mvi data to the user' do
+          mvi_user = Decorators::MviUserDecorator.new(user).create
+          expected_user = FactoryGirl.build(:mvi_user)
+          expect(mvi_user.attributes).to eq(expected_user.attributes)
+        end
+      end
+      context 'when a MVI::ServiceError is raised' do
+        it 'should log an error message' do
+          allow(MVI::Service).to receive(:find_candidate).and_raise(MVI::HTTPError)
+          expect(Rails.logger).to receive(:error).once.with(/Error retrieving MVI data for user:/)
+          expect { Decorators::MviUserDecorator.new(user).create }.to raise_error(
+            Common::Exceptions::InternalServerError
+          )
+        end
       end
     end
-    context 'when a MVI::ServiceError is raised' do
-      it 'should log an error message' do
-        allow(MVI::Service).to receive(:find_candidate).and_raise(MVI::HTTPError)
-        expect(Rails.logger).to receive(:error).once.with(/Error retrieving MVI data for user:/)
-        expect { Decorators::MviUserDecorator.new(user).create }.to raise_error(Common::Exceptions::InternalServerError)
+
+    context 'when a correlation id is nil' do
+      before(:each) do
+        find_candidate_response[:edipi] = nil
+        allow(MVI::Service).to receive(:find_candidate).and_return(find_candidate_response)
+      end
+
+      describe '#create' do
+        it 'should fetch and add mvi data to the user' do
+          mvi_user = Decorators::MviUserDecorator.new(user).create
+          expected_user = FactoryGirl.build(:mvi_user, edipi: nil)
+          expected_user.mvi[:edipi] = nil
+          expect(mvi_user.attributes).to eq(expected_user.attributes)
+        end
       end
     end
   end

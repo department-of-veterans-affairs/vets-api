@@ -3,15 +3,19 @@ require_dependency 'evss/base_service'
 
 module EVSS
   class CommonService < BaseService
-    def find_rating_info
-      post 'ratingInfoService/11.1/findRatingInfoPID',
-           { participantId: @user.participant_id }.to_json
+    BASE_URL = "#{ENV['EVSS_BASE_URL']}/wss-common-services-web-11.0/rest/"
+
+    def find_rating_info(participant_id)
+      post 'ratingInfoService/11.0/findRatingInfoPID',
+           { participantId: participant_id }.to_json
     end
 
-    protected
+    def create_user_account
+      post 'persistentPropertiesService/11.0/createUserAccount'
+    end
 
-    def base_url
-      "#{ENV['EVSS_BASE_URL']}/wss-common-services-web-11.1/rest/"
+    def self.breakers_service
+      BaseService.create_breakers_service(name: 'EVSS/Common', url: BASE_URL)
     end
   end
 end

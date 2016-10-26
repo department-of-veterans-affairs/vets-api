@@ -11,19 +11,16 @@ module SM
         Common::Collection.new(Folder, json)
       end
 
-      # get_folder: Retrieves a folder by its id.
       def get_folder(id)
         json = perform(:get, "folder/#{id}", nil, token_headers)
         Folder.new(json)
       end
 
-      # post_create_folder: Creates a folder.
       def post_create_folder(name)
         json = perform(:post, 'folder', %({ "name":"#{name}" }), token_headers)
         Folder.new(json)
       end
 
-      ## delete_folder: Deletes a folder.
       def delete_folder(id)
         response = perform(:delete, "folder/#{id}", nil, token_headers)
         response.nil? ? nil : response.status

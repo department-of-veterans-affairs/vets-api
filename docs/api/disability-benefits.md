@@ -306,6 +306,7 @@ Content-Type: application/json
 ```
 curl /v0/disability_claims/189625/documents \
   -F tracked_item=1 \
+  -F doc_type='L307'
   -F file="@/path/to/a/file.jpg"
 ```
 * Example response:

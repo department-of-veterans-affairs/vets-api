@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 class EducationBenefitsClaim < ActiveRecord::Base
   FORM_SCHEMA = VetsJsonSchema::EDUCATION_BENEFITS
+  APPLICATION_TYPES = %w(chapter33 chapter30 chapter1606 chapter32).freeze
 
   validates(:form, presence: true)
   validate(:form_matches_schema)
@@ -10,6 +11,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   # initially only completed claims are allowed, later we can allow claims that dont have a submitted_at yet
   before_validation(:set_submitted_at, on: :create)
+  after_save(:create_education_benefits_submission)
 
   # This converts the form data into an OpenStruct object so that the template
   # rendering can be cleaner. Piping it through the JSON serializer was a quick
@@ -18,11 +20,30 @@ class EducationBenefitsClaim < ActiveRecord::Base
     @application ||= JSON.parse(form, object_class: OpenStruct)
     @application.form = application_type
     @application.confirmation_number = confirmation_number
+
+    generate_benefits_to_apply_to
+
     @application
+  end
+
+  def generate_benefits_to_apply_to
+    selected_benefits = []
+    APPLICATION_TYPES.each do |application_type|
+      selected_benefits << application_type if @application.public_send(application_type)
+    end
+    selected_benefits = selected_benefits.join(', ')
+
+    @application.toursOfDuty&.each do |tour|
+      tour.benefitsToApplyTo = selected_benefits if tour.applyPeriodToSelected
+    end
   end
 
   def self.unprocessed
     where(processed_at: nil)
+  end
+
+  def region
+    EducationForm::EducationFacility.region_for(open_struct_form)
   end
 
   def regional_office
@@ -44,6 +65,14 @@ class EducationBenefitsClaim < ActiveRecord::Base
   end
 
   private
+
+  def create_education_benefits_submission
+    if submitted_at.present? && submitted_at_was.nil?
+      EducationBenefitsSubmission.create!(
+        parsed_form.slice(*APPLICATION_TYPES).merge(region: region)
+      )
+    end
+  end
 
   def form_is_string
     form.is_a?(String)

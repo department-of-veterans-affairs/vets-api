@@ -6,6 +6,7 @@ require_dependency 'saml/settings_service'
 
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
+
   before_action :authenticate
   before_action :set_app_info_headers
   skip_before_action :authenticate, only: [:cors_preflight]
@@ -26,12 +27,17 @@ class ApplicationController < ActionController::API
       when Common::Exceptions::BaseError
         exception
       when Common::Client::Errors::ClientResponse
-        meta = exception.to_json unless Rails.env.production?
-        Common::Exceptions::ClientError.new(exception.message.capitalize, meta: meta)
+        additional_attributes = { source: exception.developer_message, meta: exception.as_json }
+        Common::Exceptions::ClientError.new(exception.message, additional_attributes)
+      when Breakers::OutageException
+        Common::Exceptions::ServiceOutage.new(exception.outage)
       else
         Common::Exceptions::InternalServerError.new(exception)
       end
 
+    if va_exception.is_a?(Common::Exceptions::Unauthorized)
+      headers['WWW-Authenticate'] = 'Token realm="Application"'
+    end
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
 
@@ -62,12 +68,28 @@ class ApplicationController < ActionController::API
     end
   end
 
+  attr_reader :current_user
+
   def render_unauthorized
-    headers['WWW-Authenticate'] = 'Token realm="Application"'
-    render json: 'Not Authorized', status: 401
+    raise Common::Exceptions::Unauthorized
   end
 
   def saml_settings
-    SAML::SettingsService.instance.saml_settings
+    settings = SAML::SettingsService.instance.saml_settings
+    # TODO: 'level' should be its own class with proper validation
+    level = LOA::MAPPING.invert[params[:level]&.to_i]
+    settings.authn_context = level || LOA::MAPPING.invert[1]
+    settings
+  end
+
+  def pagination_params
+    {
+      page: params[:page],
+      per_page: params[:per_page]
+    }
+  end
+
+  def render_job_id(jid)
+    render json: { job_id: jid }, status: 202
   end
 end

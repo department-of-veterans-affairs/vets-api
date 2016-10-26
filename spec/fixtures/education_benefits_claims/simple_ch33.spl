@@ -35,7 +35,7 @@ under Chapter 33 are not payable prior to that date.
                             APPLICANT INFORMATION
                             ---------------------
 
-SSN: 111223333         Sex: M             Date of Birth: 03/07/1985
+SSN: 111223333         Sex: M             Date of Birth: 1985-03-07
 
 Name:   Mark Olson
 
@@ -62,8 +62,7 @@ Name, Address, & Telephone Number of Contact:
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
-Type of Education or Training: College or Other School (including online
-courses)
+Type of Education or Training: College
 
 Name and Address of School or Training Establishment:
         FakeData University
@@ -85,10 +84,10 @@ Are you Now On Terminal Leave Just Before Discharge? NO
 
 Date Entered   Date Separated     Service Component
 Active Duty    From Active Duty
-01/01/2001     10/10/2010         Army
+2001-01-01     2010-10-10         Army
                          Service Status:   Active Duty
                          Involuntary Call: yes
-01/01/1995     10/10/1998         Army
+1995-01-01     1998-10-10         Army
                          Service Status:   Honorable Discharge
                          Involuntary Call: yes
 
@@ -97,7 +96,7 @@ Active Duty    From Active Duty
                     EDUCATION AND EMPLOYMENT INFORMATION
                     ------------------------------------
 
-Date Received High School Diploma or Equivalency Certificate: 06/06/2010
+Date Received High School Diploma or Equivalency Certificate: 2010-06-06
 
 FAA Flight Certificates:
 cert1, cert2
@@ -108,7 +107,7 @@ cert1, cert2
 Name and Location of College or Training Provider: 
     OtherCollege Name
     New York, NY
-Date of Training:     From: 01/01/1999 To: 01/01/2000
+Date of Training:     From: 1999-01-01 To: 2000-01-01
 Hours: 8 (semester)
 Degree/Diploma/Certificate: BA
 Major Field/Course of Study: History
@@ -193,29 +192,6 @@ such benefits during any part of your training, check Yes.    N/A
 
 
 N/A
-
-
-                                   REMARKS
-                                   -------
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin sit amet
-ullamcorper est, in interdum velit. Cras purus orci, varius eget efficitur
-nec, dapibus id risus. Donec in pellentesque enim. Proin sagittis, elit nec
-consequat malesuada, nibh justo luctus enim, ac aliquet lorem orci vel neque.
-Ut eget accumsan ipsum. Cras sed venenatis massa. Duis odio urna, laoreet quis
-ante sed, facilisis congue purus. Etiam semper facilisis luctus. Class aptent
-taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.
-Etiam blandit eget nibh at ornare. Sed non porttitor dui. Proin ornare magna
-diam, ut lacinia magna accumsan euismod.
-
-        Phasellus et nisl id lorem feugiat molestie. Aliquam molestie,
-        nulla eu fringilla finibus, massa lectus varius quam, quis ornare
-        sem lorem lacinia dui. Integer consequat non arcu convallis mollis.
-        Vivamus magna turpis, pharetra non eros at, feugiat rutrum nisl.
-        Maecenas eros tellus, blandit id libero sed, imperdiet fringilla
-        eros. Nulla vel tortor vel neque fermentum laoreet id vitae ex.
-        Mauris posuere lorem tellus. Pellentesque at augue arcu.
-        Vestibulum aliquam urna ac est lacinia, eu congue nisi tempor.
-        
 
 
       Certification and Signature of Applicant

@@ -9,20 +9,14 @@ RSpec.describe V0::UsersController, type: :controller do
     end
   end
 
-  context 'when logged in' do
+  context 'when logged in as an LOA1 user' do
     let(:token) { 'abracadabra-open-sesame' }
     let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
+    let(:loa1_user) { build :loa1_user }
 
     before(:each) do
-      Session.create(uuid: '1234', token: token)
-      User.create(
-        uuid: '1234',
-        email: 'test@test.com',
-        first_name: 'John',
-        last_name: 'Smith',
-        birth_date: Time.new(1980, 1, 1).utc,
-        ssn: '555443333'
-      )
+      Session.create(uuid: loa1_user.uuid, token: token)
+      User.create(loa1_user)
     end
 
     it 'returns a JSON user profile' do
@@ -32,8 +26,7 @@ RSpec.describe V0::UsersController, type: :controller do
 
       json = JSON.parse(response.body)
 
-      expect(json['uuid']).to eq('1234')
-      expect(json['email']).to eq('test@test.com')
+      expect(json['data']['attributes']['profile']['email']).to eq(loa1_user.email)
     end
   end
 end

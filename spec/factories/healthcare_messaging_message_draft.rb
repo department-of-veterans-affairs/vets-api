@@ -12,5 +12,10 @@ FactoryGirl.define do
     recipient_id 585_986
     recipient_name 'Triage group 311070 test 2'
     read_receipt 'null'
+    has_message false
+
+    trait :with_message do
+      has_message true
+    end
   end
 end

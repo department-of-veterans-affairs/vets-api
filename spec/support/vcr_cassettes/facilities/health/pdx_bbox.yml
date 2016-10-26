@@ -1,0 +1,114 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://maps.va.gov/server/rest/services/PROJECTS/Facility_Locator/MapServer?f=json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - maps.va.gov
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Cache-Control:
+      - private, must-revalidate, max-age=0
+      Content-Length:
+      - '698'
+      Content-Type:
+      - text/plain;charset=utf-8
+      Expires:
+      - Wed, 31 Dec 1969 18:00:00 CST
+      Etag:
+      - 7a5cec03
+      Server:
+      - ''
+      - Microsoft-IIS/8.5
+      Set-Cookie:
+      - AGS_ROLES="419jqfa+uOZgYod4xPOQ8Q=="; Version=1; Max-Age=60; Expires=Thu,
+        22-Sep-2016 23:31:51 GMT; Path=/server/rest; Secure; HttpOnly
+      X-Aspnet-Version:
+      - 4.0.30319
+      X-Powered-By:
+      - ASP.NET
+      Date:
+      - Thu, 22 Sep 2016 23:30:51 GMT
+    body:
+      encoding: ASCII-8BIT
+      string: '{"currentVersion":10.3,"serviceDescription":"VHA Facilities for the
+        VA Facility Locator","mapName":"Layers","description":"","copyrightText":"VSSC","supportsDynamicLayers":false,"layers":[{"id":0,"name":"GIS_VA.DBO.FacilityLocator","parentLayerId":-1,"defaultVisibility":true,"subLayerIds":null,"minScale":0,"maxScale":0}],"tables":[],"spatialReference":{"wkid":4326,"latestWkid":4326},"singleFusedMapCache":false,"initialExtent":{"xmin":-125.24908472295178,"ymin":35.92224388587604,"xmax":-66.52438982870885,"ymax":59.36242534577838,"spatialReference":{"wkid":4326,"latestWkid":4326}},"fullExtent":{"xmin":-170.68800339999996,"ymin":-14.278233439999951,"xmax":145.72940300000005,"ymax":64.82780256000007,"spatialReference":{"wkid":4326,"latestWkid":4326}},"minScale":0,"maxScale":0,"units":"esriDecimalDegrees","supportedImageFormatTypes":"PNG32,PNG24,PNG,JPG,DIB,TIFF,EMF,PS,PDF,GIF,SVG,SVGZ,BMP","documentInfo":{"Title":"","Author":"","Comments":"","Subject":"","Category":"","AntialiasingMode":"None","TextAntialiasingMode":"Force","Keywords":"va,facility
+        locator,facilitiy,vha"},"capabilities":"Map,Query,Data","supportedQueryFormats":"JSON,
+        AMF","exportTilesAllowed":false,"maxRecordCount":3000,"maxImageHeight":4096,"maxImageWidth":4096,"supportedExtensions":""}'
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 23:30:51 GMT
+- request:
+    method: post
+    uri: https://maps.va.gov/server/rest/services/PROJECTS/Facility_Locator/MapServer/0/query
+    body:
+      encoding: US-ASCII
+      string: f=json&geometry=-122.440689%2C45.451913%2C-122.786758%2C45.64&geometryType=esriGeometryEnvelope&where=1%3D1&inSR=4326&outSR=4326&returnGeometry=true&returnCountOnly=false&outFields=*&resultRecordCount&returnDistinctValues=false&orderByFields=StationID
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Cache-Control:
+      - private, must-revalidate, max-age=0
+      Content-Length:
+      - '2885'
+      Content-Type:
+      - text/plain;charset=utf-8
+      Etag:
+      - 1cef8f6e
+      Server:
+      - ''
+      - Microsoft-IIS/8.5
+      Set-Cookie:
+      - AGS_ROLES="419jqfa+uOZgYod4xPOQ8Q=="; Version=1; Max-Age=60; Expires=Thu,
+        22-Sep-2016 23:31:51 GMT; Path=/server/rest; Secure; HttpOnly
+      X-Aspnet-Version:
+      - 4.0.30319
+      X-Powered-By:
+      - ASP.NET
+      Date:
+      - Thu, 22 Sep 2016 23:30:51 GMT
+    body:
+      encoding: ASCII-8BIT
+      string: '{"displayFieldName":"StationName","fieldAliases":{"OBJECTID":"OBJECTID","FacilityDataDate":"FacilityDataDate","OutpatientServicesDataDate":"OutpatientServicesDataDate","StationID":"StationID","VisnID":"VisnID","StationNumber":"StationNumber","StationName":"StationName","CommonStationName":"CommonStationName","CocClassification":"CocClassification","CocClassificationAttribute":"CocClassificationAttribute","Building":"Building","Street":"Street","Suite":"Suite","City":"City","State":"State","Zip":"Zip","Zip4":"Zip4","MainPhone":"MainPhone","MainFax":"MainFax","AfterHoursPhone":"AfterHoursPhone","PatientAdvocatePhone":"PatientAdvocatePhone","EnrollmentCoordinatorPhone":"EnrollmentCoordinatorPhone","PharmacyPhone":"PharmacyPhone","Monday":"Monday","Tuesday":"Tuesday","Wednesday":"Wednesday","Thursday":"Thursday","Friday":"Friday","Saturday":"Saturday","Sunday":"Sunday","Latitude":"Latitude","Longitude":"Longitude","Audiology":"Audiology","ComplementaryAlternativeMed":"ComplementaryAlternativeMed","DentalServices":"DentalServices","DiagnosticServices":"DiagnosticServices","ImagingAndRadiology":"ImagingAndRadiology","LabServices":"LabServices","EmergencyDept":"EmergencyDept","EyeCare":"EyeCare","MentalHealthCare":"MentalHealthCare","OutpatientMHCare":"OutpatientMHCare","OutpatientSpecMHCare":"OutpatientSpecMHCare","VocationalAssistance":"VocationalAssistance","OutpatientMedicalSpecialty":"OutpatientMedicalSpecialty","AllergyAndImmunology":"AllergyAndImmunology","CardiologyCareServices":"CardiologyCareServices","DermatologyCareServices":"DermatologyCareServices","Diabetes":"Diabetes","Dialysis":"Dialysis","Endocrinology":"Endocrinology","Gastroenterology":"Gastroenterology","Hematology":"Hematology","InfectiousDisease":"InfectiousDisease","InternalMedicine":"InternalMedicine","Nephrology":"Nephrology","Neurology":"Neurology","Oncology":"Oncology","PulmonaryRespiratoryDisease":"PulmonaryRespiratoryDisease","Rheumatology":"Rheumatology","SleepMedicine":"SleepMedicine","OutpatientSurgicalSpecialty":"OutpatientSurgicalSpecialty","CardiacSurgery":"CardiacSurgery","ColoRectalSurgery":"ColoRectalSurgery","ENT":"ENT","GeneralSurgery":"GeneralSurgery","Gynecology":"Gynecology","Neurosurgery":"Neurosurgery","Orthopedics":"Orthopedics","PainManagement":"PainManagement","PlasticSurgery":"PlasticSurgery","Podiatry":"Podiatry","ThoracicSurgery":"ThoracicSurgery","Urology":"Urology","VascularSurgery":"VascularSurgery","PrimaryCare":"PrimaryCare","Rehabilitation":"Rehabilitation","UrgentCare":"UrgentCare","WellnessAndPreventativeCare":"WellnessAndPreventativeCare"},"geometryType":"esriGeometryPoint","spatialReference":{"wkid":4326,"latestWkid":4326},"fields":[{"name":"OBJECTID","type":"esriFieldTypeOID","alias":"OBJECTID"},{"name":"FacilityDataDate","type":"esriFieldTypeString","alias":"FacilityDataDate","length":1024},{"name":"OutpatientServicesDataDate","type":"esriFieldTypeDate","alias":"OutpatientServicesDataDate","length":36},{"name":"StationID","type":"esriFieldTypeInteger","alias":"StationID"},{"name":"VisnID","type":"esriFieldTypeSmallInteger","alias":"VisnID"},{"name":"StationNumber","type":"esriFieldTypeString","alias":"StationNumber","length":1024},{"name":"StationName","type":"esriFieldTypeString","alias":"StationName","length":1024},{"name":"CommonStationName","type":"esriFieldTypeString","alias":"CommonStationName","length":1024},{"name":"CocClassification","type":"esriFieldTypeString","alias":"CocClassification","length":1073741822},{"name":"CocClassificationAttribute","type":"esriFieldTypeString","alias":"CocClassificationAttribute","length":1073741822},{"name":"Building","type":"esriFieldTypeString","alias":"Building","length":1024},{"name":"Street","type":"esriFieldTypeString","alias":"Street","length":1024},{"name":"Suite","type":"esriFieldTypeString","alias":"Suite","length":1024},{"name":"City","type":"esriFieldTypeString","alias":"City","length":1024},{"name":"State","type":"esriFieldTypeString","alias":"State","length":1024},{"name":"Zip","type":"esriFieldTypeString","alias":"Zip","length":1024},{"name":"Zip4","type":"esriFieldTypeString","alias":"Zip4","length":1024},{"name":"MainPhone","type":"esriFieldTypeString","alias":"MainPhone","length":1024},{"name":"MainFax","type":"esriFieldTypeString","alias":"MainFax","length":1024},{"name":"AfterHoursPhone","type":"esriFieldTypeString","alias":"AfterHoursPhone","length":1024},{"name":"PatientAdvocatePhone","type":"esriFieldTypeString","alias":"PatientAdvocatePhone","length":1024},{"name":"EnrollmentCoordinatorPhone","type":"esriFieldTypeString","alias":"EnrollmentCoordinatorPhone","length":1024},{"name":"PharmacyPhone","type":"esriFieldTypeString","alias":"PharmacyPhone","length":1024},{"name":"Monday","type":"esriFieldTypeString","alias":"Monday","length":1024},{"name":"Tuesday","type":"esriFieldTypeString","alias":"Tuesday","length":1024},{"name":"Wednesday","type":"esriFieldTypeString","alias":"Wednesday","length":1024},{"name":"Thursday","type":"esriFieldTypeString","alias":"Thursday","length":1024},{"name":"Friday","type":"esriFieldTypeString","alias":"Friday","length":1024},{"name":"Saturday","type":"esriFieldTypeString","alias":"Saturday","length":1024},{"name":"Sunday","type":"esriFieldTypeString","alias":"Sunday","length":1024},{"name":"Latitude","type":"esriFieldTypeDouble","alias":"Latitude"},{"name":"Longitude","type":"esriFieldTypeDouble","alias":"Longitude"},{"name":"Audiology","type":"esriFieldTypeString","alias":"Audiology","length":3},{"name":"ComplementaryAlternativeMed","type":"esriFieldTypeString","alias":"ComplementaryAlternativeMed","length":3},{"name":"DentalServices","type":"esriFieldTypeString","alias":"DentalServices","length":3},{"name":"DiagnosticServices","type":"esriFieldTypeString","alias":"DiagnosticServices","length":3},{"name":"ImagingAndRadiology","type":"esriFieldTypeString","alias":"ImagingAndRadiology","length":3},{"name":"LabServices","type":"esriFieldTypeString","alias":"LabServices","length":3},{"name":"EmergencyDept","type":"esriFieldTypeString","alias":"EmergencyDept","length":3},{"name":"EyeCare","type":"esriFieldTypeString","alias":"EyeCare","length":3},{"name":"MentalHealthCare","type":"esriFieldTypeString","alias":"MentalHealthCare","length":3},{"name":"OutpatientMHCare","type":"esriFieldTypeString","alias":"OutpatientMHCare","length":3},{"name":"OutpatientSpecMHCare","type":"esriFieldTypeString","alias":"OutpatientSpecMHCare","length":3},{"name":"VocationalAssistance","type":"esriFieldTypeString","alias":"VocationalAssistance","length":3},{"name":"OutpatientMedicalSpecialty","type":"esriFieldTypeString","alias":"OutpatientMedicalSpecialty","length":3},{"name":"AllergyAndImmunology","type":"esriFieldTypeString","alias":"AllergyAndImmunology","length":3},{"name":"CardiologyCareServices","type":"esriFieldTypeString","alias":"CardiologyCareServices","length":3},{"name":"DermatologyCareServices","type":"esriFieldTypeString","alias":"DermatologyCareServices","length":3},{"name":"Diabetes","type":"esriFieldTypeString","alias":"Diabetes","length":3},{"name":"Dialysis","type":"esriFieldTypeString","alias":"Dialysis","length":3},{"name":"Endocrinology","type":"esriFieldTypeString","alias":"Endocrinology","length":3},{"name":"Gastroenterology","type":"esriFieldTypeString","alias":"Gastroenterology","length":3},{"name":"Hematology","type":"esriFieldTypeString","alias":"Hematology","length":3},{"name":"InfectiousDisease","type":"esriFieldTypeString","alias":"InfectiousDisease","length":3},{"name":"InternalMedicine","type":"esriFieldTypeString","alias":"InternalMedicine","length":3},{"name":"Nephrology","type":"esriFieldTypeString","alias":"Nephrology","length":3},{"name":"Neurology","type":"esriFieldTypeString","alias":"Neurology","length":3},{"name":"Oncology","type":"esriFieldTypeString","alias":"Oncology","length":3},{"name":"PulmonaryRespiratoryDisease","type":"esriFieldTypeString","alias":"PulmonaryRespiratoryDisease","length":3},{"name":"Rheumatology","type":"esriFieldTypeString","alias":"Rheumatology","length":3},{"name":"SleepMedicine","type":"esriFieldTypeString","alias":"SleepMedicine","length":3},{"name":"OutpatientSurgicalSpecialty","type":"esriFieldTypeString","alias":"OutpatientSurgicalSpecialty","length":3},{"name":"CardiacSurgery","type":"esriFieldTypeString","alias":"CardiacSurgery","length":3},{"name":"ColoRectalSurgery","type":"esriFieldTypeString","alias":"ColoRectalSurgery","length":3},{"name":"ENT","type":"esriFieldTypeString","alias":"ENT","length":3},{"name":"GeneralSurgery","type":"esriFieldTypeString","alias":"GeneralSurgery","length":3},{"name":"Gynecology","type":"esriFieldTypeString","alias":"Gynecology","length":3},{"name":"Neurosurgery","type":"esriFieldTypeString","alias":"Neurosurgery","length":3},{"name":"Orthopedics","type":"esriFieldTypeString","alias":"Orthopedics","length":3},{"name":"PainManagement","type":"esriFieldTypeString","alias":"PainManagement","length":3},{"name":"PlasticSurgery","type":"esriFieldTypeString","alias":"PlasticSurgery","length":3},{"name":"Podiatry","type":"esriFieldTypeString","alias":"Podiatry","length":3},{"name":"ThoracicSurgery","type":"esriFieldTypeString","alias":"ThoracicSurgery","length":3},{"name":"Urology","type":"esriFieldTypeString","alias":"Urology","length":3},{"name":"VascularSurgery","type":"esriFieldTypeString","alias":"VascularSurgery","length":3},{"name":"PrimaryCare","type":"esriFieldTypeString","alias":"PrimaryCare","length":3},{"name":"Rehabilitation","type":"esriFieldTypeString","alias":"Rehabilitation","length":3},{"name":"UrgentCare","type":"esriFieldTypeString","alias":"UrgentCare","length":3},{"name":"WellnessAndPreventativeCare","type":"esriFieldTypeString","alias":"WellnessAndPreventativeCare","length":3}],"features":[{"attributes":{"OBJECTID":1736,"FacilityDataDate":"8-19-2016","OutpatientServicesDataDate":1472428800000,"StationID":538,"VisnID":20,"StationNumber":"648","StationName":"Portland
+        VA Medical Center","CommonStationName":"Portland","CocClassification":"VA
+        Medical Center (VAMC)","CocClassificationAttribute":"Firm","Building":"","Street":"3710
+        Southwest US Veterans Hospital Road","Suite":null,"City":"Portland","State":"OR","Zip":"97239","Zip4":"2964","MainPhone":"503-721-1498
+        x","MainFax":"503-273-5319 x","AfterHoursPhone":"503-220-8262 x","PatientAdvocatePhone":"503-273-5308
+        x","EnrollmentCoordinatorPhone":"503-273-5069 x","PharmacyPhone":"503-273-5183
+        x","Monday":"24/7","Tuesday":"24/7","Wednesday":"24/7","Thursday":"24/7","Friday":"24/7","Saturday":"24/7","Sunday":"24/7","Latitude":45.497461450000003,"Longitude":-122.68287208,"Audiology":"YES","ComplementaryAlternativeMed":"NO","DentalServices":"YES","DiagnosticServices":"YES","ImagingAndRadiology":"YES","LabServices":"YES","EmergencyDept":"YES","EyeCare":"YES","MentalHealthCare":"YES","OutpatientMHCare":"YES","OutpatientSpecMHCare":"YES","VocationalAssistance":"YES","OutpatientMedicalSpecialty":"YES","AllergyAndImmunology":"NO","CardiologyCareServices":"YES","DermatologyCareServices":"YES","Diabetes":"YES","Dialysis":"YES","Endocrinology":"YES","Gastroenterology":"YES","Hematology":"YES","InfectiousDisease":"YES","InternalMedicine":"YES","Nephrology":"YES","Neurology":"YES","Oncology":"YES","PulmonaryRespiratoryDisease":"YES","Rheumatology":"YES","SleepMedicine":"YES","OutpatientSurgicalSpecialty":"YES","CardiacSurgery":"NO","ColoRectalSurgery":"NO","ENT":"YES","GeneralSurgery":"YES","Gynecology":"YES","Neurosurgery":"YES","Orthopedics":"YES","PainManagement":"YES","PlasticSurgery":"YES","Podiatry":"YES","ThoracicSurgery":"NO","Urology":"YES","VascularSurgery":"YES","PrimaryCare":"YES","Rehabilitation":"YES","UrgentCare":"NO","WellnessAndPreventativeCare":"YES"},"geometry":{"x":-122.68288655824787,"y":45.497466912945164}},{"attributes":{"OBJECTID":1510,"FacilityDataDate":"8-19-2016","OutpatientServicesDataDate":1472428800000,"StationID":539,"VisnID":20,"StationNumber":"648A4","StationName":"Portland
+        VA Medical Center-Vancouver","CommonStationName":"Portland-Vancouver","CocClassification":"VA
+        Medical Center (VAMC)","CocClassificationAttribute":"Firm","Building":null,"Street":"1601
+        East 4th Plain Boulevard","Suite":null,"City":"Vancouver","State":"WA","Zip":"98661","Zip4":"3753","MainPhone":"360-759-1901
+        x","MainFax":"360-690-0864 x","AfterHoursPhone":"360-696-4061 x","PatientAdvocatePhone":"503-273-5308
+        x","EnrollmentCoordinatorPhone":"503-273-5069 x","PharmacyPhone":"503-273-5183
+        x","Monday":"730AM-430PM","Tuesday":"730AM-630PM","Wednesday":"730AM-430PM","Thursday":"730AM-430PM","Friday":"730AM-430PM","Saturday":"800AM-1000AM","Sunday":"-","Latitude":45.639416259999997,"Longitude":-122.65528736,"Audiology":"YES","ComplementaryAlternativeMed":"NO","DentalServices":"YES","DiagnosticServices":"YES","ImagingAndRadiology":"YES","LabServices":"NO","EmergencyDept":"NO","EyeCare":"YES","MentalHealthCare":"YES","OutpatientMHCare":"YES","OutpatientSpecMHCare":"YES","VocationalAssistance":"YES","OutpatientMedicalSpecialty":"NO","AllergyAndImmunology":"NO","CardiologyCareServices":"NO","DermatologyCareServices":"NO","Diabetes":"NO","Dialysis":"NO","Endocrinology":"NO","Gastroenterology":"NO","Hematology":"NO","InfectiousDisease":"NO","InternalMedicine":"NO","Nephrology":"NO","Neurology":"NO","Oncology":"NO","PulmonaryRespiratoryDisease":"NO","Rheumatology":"NO","SleepMedicine":"NO","OutpatientSurgicalSpecialty":"YES","CardiacSurgery":"NO","ColoRectalSurgery":"NO","ENT":"NO","GeneralSurgery":"NO","Gynecology":"NO","Neurosurgery":"NO","Orthopedics":"NO","PainManagement":"NO","PlasticSurgery":"NO","Podiatry":"YES","ThoracicSurgery":"NO","Urology":"NO","VascularSurgery":"NO","PrimaryCare":"YES","Rehabilitation":"YES","UrgentCare":"NO","WellnessAndPreventativeCare":"YES"},"geometry":{"x":-122.65530186353662,"y":45.639421733971858}},{"attributes":{"OBJECTID":1629,"FacilityDataDate":"8-19-2016","OutpatientServicesDataDate":1472428800000,"StationID":4187,"VisnID":20,"StationNumber":"648GI","StationName":"Portland
+        VA Clinic","CommonStationName":"Portland-1st Avenue","CocClassification":"Primary
+        Care CBOC","CocClassificationAttribute":"Save Rating","Building":"Lawrence
+        Building","Street":"308 Southwest 1st Avenue","Suite":"Suite 155","City":"Portland","State":"OR","Zip":"97204","Zip4":"3432","MainPhone":"503-808-1256
+        x","MainFax":"503-808-1900 x","AfterHoursPhone":"800-273-8255 x","PatientAdvocatePhone":"503-273-5308
+        x","EnrollmentCoordinatorPhone":"503-273-5069 x","PharmacyPhone":"503-273-5183
+        x","Monday":"800AM-430PM","Tuesday":"800AM-430PM","Wednesday":"800AM-430PM","Thursday":"800AM-430PM","Friday":"800AM-430PM","Saturday":"-","Sunday":"-","Latitude":45.520173040000003,"Longitude":-122.67221794,"Audiology":"NO","ComplementaryAlternativeMed":"NO","DentalServices":"NO","DiagnosticServices":"NO","ImagingAndRadiology":"NO","LabServices":"NO","EmergencyDept":"NO","EyeCare":"NO","MentalHealthCare":"NO","OutpatientMHCare":"NO","OutpatientSpecMHCare":"NO","VocationalAssistance":"NO","OutpatientMedicalSpecialty":"NO","AllergyAndImmunology":"NO","CardiologyCareServices":"NO","DermatologyCareServices":"NO","Diabetes":"NO","Dialysis":"NO","Endocrinology":"NO","Gastroenterology":"NO","Hematology":"NO","InfectiousDisease":"NO","InternalMedicine":"NO","Nephrology":"NO","Neurology":"NO","Oncology":"NO","PulmonaryRespiratoryDisease":"NO","Rheumatology":"NO","SleepMedicine":"NO","OutpatientSurgicalSpecialty":"NO","CardiacSurgery":"NO","ColoRectalSurgery":"NO","ENT":"NO","GeneralSurgery":"NO","Gynecology":"NO","Neurosurgery":"NO","Orthopedics":"NO","PainManagement":"NO","PlasticSurgery":"NO","Podiatry":"NO","ThoracicSurgery":"NO","Urology":"NO","VascularSurgery":"NO","PrimaryCare":"NO","Rehabilitation":"NO","UrgentCare":"NO","WellnessAndPreventativeCare":"NO"},"geometry":{"x":-122.67223242130494,"y":45.520178505352128}}]}'
+    http_version: 
+  recorded_at: Thu, 22 Sep 2016 23:30:52 GMT
+recorded_with: VCR 3.0.3

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'config_helper'
 
 Rails.application.configure do
   # Specify environment specific hostname and protocol
@@ -44,4 +45,5 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+  ConfigHelper.setup_action_mailer(config)
 end

@@ -6,7 +6,10 @@ module V0
     def create
       education_benefits_claim = EducationBenefitsClaim.new(education_benefits_claim_params)
 
-      raise Common::Exceptions::ValidationErrors, education_benefits_claim unless education_benefits_claim.save
+      unless education_benefits_claim.save
+        logger.error(education_benefits_claim.errors.full_messages.join(', '))
+        raise Common::Exceptions::ValidationErrors, education_benefits_claim
+      end
 
       render(json: education_benefits_claim)
     end
@@ -20,6 +23,18 @@ module V0
       form = EducationBenefitsClaim.find(params[:id])
       txt = ::EducationForm::CreateDailySpoolFiles.new.format_application(form.open_struct_form)
       render text: txt
+    end
+
+    def daily_file
+      return redirect_to(root_path) unless FeatureFlipper.show_education_benefit_form?
+      known_tmp_path = Rails.root.join('tmp', 'spool_files')
+      archive_file = known_tmp_path.join('spool.tar')
+
+      ::EducationForm::CreateDailySpoolFiles.new.perform
+      Dir.chdir(known_tmp_path.to_s) do
+        system('tar -cf spool.tar *.spl')
+      end
+      send_file archive_file, filename: 'spool.tar'
     end
 
     private

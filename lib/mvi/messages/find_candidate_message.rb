@@ -47,6 +47,22 @@ module MVI
       def build_control_act_process
         el = element('controlActProcess', classCode: 'CACT', moodCode: 'EVN')
         el << element('code', code: 'PRPA_TE201305UV02', codeSystem: '2.16.840.1.113883.1.6')
+        el << build_data_enterer
+      end
+
+      def build_data_enterer
+        el = element('dataEnterer', typeCode: 'ENT', contextControlCode: 'AP')
+        assigned_person = element('assignedPerson', classCode: 'ASSIGNED')
+        assigned_person << element('id', extension: @ssn, root: '2.16.840.1.113883.777.999')
+        assigned_person_instance = element('assignedPerson', classCode: 'PSN', determinerCode: 'INSTANCE')
+        name = element('name')
+        @given_names.each do |given_name|
+          name << element('given', text!: given_name)
+        end
+        name << element('family', text!: @family_name)
+        assigned_person_instance << name
+        assigned_person << assigned_person_instance
+        el << assigned_person
       end
 
       def build_query_by_parameter
@@ -54,15 +70,15 @@ module MVI
         el << element('queryId', root: '1.2.840.114350.1.13.28.1.18.5.999', extension: '18204')
         el << element('statusCode', code: 'new')
         el << element('modifyCode', code: 'MVI.COMP1')
-        el << element('initialValue', value: 1)
+        el << element('initialQuantity', value: 1)
       end
 
       def build_parameter_list
         el = element('parameterList')
-        el << build_living_subject_name
+        el << build_gender
         el << build_living_subject_birth_time
         el << build_living_subject_id
-        el << build_gender unless @gender.nil?
+        el << build_living_subject_name
       end
 
       def build_living_subject_name
@@ -73,24 +89,25 @@ module MVI
         end
         value << element('family', text!: @family_name)
         el << value
+        el << element('semanticsText', text!: 'Legal Name')
       end
 
       def build_living_subject_birth_time
         el = element('livingSubjectBirthTime')
         el << element('value', value: @birth_date.strftime('%Y%m%d'))
-        el << element('semanticsText', text!: 'LivingSubject..birthTime')
+        el << element('semanticsText', text!: 'Date of Birth')
       end
 
       def build_living_subject_id
         el = element('livingSubjectId')
-        el << element('value', root: '2.16.840.1.113883.4.1', extention: @ssn)
+        el << element('value', root: '2.16.840.1.113883.4.1', extension: @ssn)
         el << element('semanticsText', text!: 'SSN')
       end
 
       def build_gender
         el = element('livingSubjectAdministrativeGender')
         el << element('value', code: @gender)
-        el << element('semanticsText', text!: 'LivingSubject.administrativeGender')
+        el << element('semanticsText', text!: 'Gender')
       end
     end
     class FindCandidateMessageError < MessageBuilderError

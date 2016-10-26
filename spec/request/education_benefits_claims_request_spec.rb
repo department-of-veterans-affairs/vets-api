@@ -14,6 +14,19 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
     end
   end
 
+  describe 'GET daily' do
+    let(:submission) { FactoryGirl.create(:education_benefits_claim) }
+    subject do
+      submission.save
+      get(daily_file_v0_education_benefits_claims_path(format: :tar))
+    end
+
+    it 'should send a tar file successfully' do
+      subject
+      expect(response.body).not_to be_empty
+    end
+  end
+
   describe 'POST create' do
     subject do
       post(
@@ -60,6 +73,15 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
         expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
           "form - can't be blank"
         )
+      end
+
+      it 'should log the validation errors' do
+        education_benefits_claim = EducationBenefitsClaim.new(params[:educationBenefitsClaim])
+        education_benefits_claim.valid?
+        allow(Rails.logger).to receive(:error)
+        expect(Rails.logger).to receive(:error).with(education_benefits_claim.errors.full_messages.join(', ')).once
+
+        subject
       end
     end
   end

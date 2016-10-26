@@ -1,33 +1,61 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'sm/client'
-require 'support/sm_client_helpers'
 
-describe SM::Client do
-  include SM::ClientHelpers
-
-  subject(:client) { authenticated_client }
-  let(:user_id) { 10_616_687 }
-  let(:draft_to_update) { 573_073 }
-
-  describe 'post_create_message_draft' do
-    let(:draft) { attributes_for(:message).slice(:category, :subject, :body, :recipient_id) }
-
-    it 'creates a new draft without attachments' do
-      VCR.use_cassette("sm/message_drafts/#{user_id}/create") do
-        client_response = client.post_create_message_draft(draft)
-        expect(client_response).to be_a(MessageDraft)
+describe 'sm client' do
+  describe 'message drafts' do
+    before(:all) do
+      VCR.use_cassette 'sm_client/session', record: :new_episodes do
+        @client ||= begin
+          client = SM::Client.new(session: { user_id: ENV['MHV_SM_USER_ID'] })
+          client.authenticate
+          client
+        end
       end
     end
 
-    it 'updates an existing draft' do
-      VCR.use_cassette("sm/message_drafts/#{user_id}/update") do
-        draft[:id] = draft_to_update
-        draft[:subject] = 'Updated Subject'
+    let(:client)       { @client }
+    let(:reply_id)     { 631_270 }
+    let(:draft)        { attributes_for(:message, body: 'Body 1', subject: 'Subject 1') }
+    let(:draft_params) { draft.slice(:category, :subject, :body, :recipient_id) }
 
-        client_response = client.post_create_message_draft(draft)
-        expect(client_response).to be_a(MessageDraft)
-        expect(client_response.subject).to eq('Updated Subject')
+    it 'creates and updates new message draft', :vcr do
+      message_draft = nil
+
+      VCR.use_cassette 'sm_client/message_drafts/creates_a_draft' do
+        message_draft = client.post_create_message_draft(draft_params)
+        expect(message_draft).to be_a(MessageDraft)
+        expect(message_draft.subject).to eq('Subject 1')
+      end
+
+      draft_params[:id] = message_draft.id
+      draft_params[:subject] = 'Updated Subject'
+
+      VCR.use_cassette 'sm_client/message_drafts/updates_a_draft' do
+        updated_message_draft = client.post_create_message_draft(draft_params)
+        expect(updated_message_draft).to be_a(MessageDraft)
+        expect(updated_message_draft.subject).to eq('Updated Subject')
+        expect(updated_message_draft.id).to eq(message_draft.id)
+      end
+    end
+
+    it 'creates and updates new message draft reply' do
+      message_draft_reply = nil
+
+      VCR.use_cassette('sm_client/message_drafts/creates_a_draft_reply') do
+        message_draft_reply = client.post_create_message_draft_reply(reply_id, draft_params)
+        expect(message_draft_reply).to be_a(MessageDraft)
+        expect(message_draft_reply.body).to eq('Body 1')
+      end
+
+      draft_params[:id] = message_draft_reply.id
+      draft_params[:body] = 'Updated Body'
+
+      VCR.use_cassette('sm_client/message_drafts/updates_a_draft_reply') do
+        updated_message_draft_reply = client.post_create_message_draft_reply(reply_id, draft_params)
+        expect(updated_message_draft_reply).to be_a(MessageDraft)
+        expect(updated_message_draft_reply.body).to eq('Updated Body')
+        expect(updated_message_draft_reply.id).to eq(message_draft_reply.id)
       end
     end
   end

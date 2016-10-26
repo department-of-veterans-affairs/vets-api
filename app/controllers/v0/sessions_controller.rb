@@ -35,23 +35,30 @@ module V0
 
     def persist_session_and_user!
       @session = Session.new(user_attributes.slice(:uuid))
-      @current_user = User.find(@session.uuid) || create_new_user
+      @current_user = User.find(@session.uuid)
+      @current_user = saml_user if @current_user.nil? || up_level?
       @session.save && @current_user.save
+      async_create_evss_account(@current_user)
+    end
+
+    def up_level?
+      @current_user.loa[:current] <= saml_user.loa[:current]
     end
 
     def user_attributes
       attributes = @saml_response.attributes.all.to_h
       {
-        first_name:   attributes['fname']&.first,
-        middle_name:  attributes['mname']&.first,
-        last_name:    attributes['lname']&.first,
-        zip:          attributes['zip']&.first,
-        email:        attributes['email']&.first,
-        ssn:          attributes['social']&.first&.delete('-'),
-        birth_date:   parse_date(attributes['birth_date']&.first),
-        uuid:         attributes['uuid']&.first,
-
-        level_of_assurance: level_of_assurance
+        first_name:     attributes['fname']&.first,
+        middle_name:    attributes['mname']&.first,
+        last_name:      attributes['lname']&.first,
+        zip:            attributes['zip']&.first,
+        email:          attributes['email']&.first,
+        gender:         parse_gender(attributes['gender']&.first),
+        ssn:            attributes['social']&.first&.delete('-'),
+        birth_date:     parse_date(attributes['birth_date']&.first),
+        uuid:           attributes['uuid']&.first,
+        last_signed_in: Time.current.utc,
+        loa:            { current: parse_current_loa, highest: attributes['level_of_assurance']&.first&.to_i }
       }
     end
 
@@ -62,21 +69,33 @@ module V0
       nil
     end
 
+    def parse_gender(gender)
+      return nil unless gender
+      gender[0].upcase
+    end
+
     # Ruby-Saml does not parse the <samlp:Response> xml so we do it ourselves to find
     # which LOA was performed on the ID.me side.
     # TODO - remove this method once LOA is returned as a SAML Attribute
-    def level_of_assurance
+    def parse_current_loa
       raw_loa = Hash.from_xml(@saml_response.response)
                     .dig('Response', 'Assertion', 'AuthnStatement', 'AuthnContext', 'AuthnContextClassRef')
-      LOA::MAPPING[raw_loa.to_sym]
+      LOA::MAPPING[raw_loa]
     end
 
-    def create_new_user
-      if user_attributes[:level_of_assurance] == LOA::ONE
-        User.new(user_attributes)
-      else
-        Decorators::MviUserDecorator.new(User.new(user_attributes)).create
-      end
+    def saml_user
+      @saml_user ||= create_saml_user
+    end
+
+    def create_saml_user
+      user = User.new(user_attributes)
+      user = Decorators::MviUserDecorator.new(user).create unless user.loa1?
+      user
+    end
+
+    def async_create_evss_account(user)
+      auth_headers = EVSS::AuthHeaders.new(user).to_h
+      EVSS::CreateUserAccountJob.perform_async(auth_headers)
     end
   end
 end

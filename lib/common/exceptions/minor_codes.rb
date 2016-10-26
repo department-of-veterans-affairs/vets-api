@@ -71,12 +71,20 @@ module Common
         title: 'Missing Parameter'
       }.freeze
 
-      # Deliberately not implementing this one, because RECORD_NOT_FOUND
-      # should be used instead.
+      UNAUTHORIZED = {
+        type: :custom,
+        code: '401',
+        status: MajorCodes::UNAUTHORIZED,
+        title: 'Not Authorized',
+        detail: 'Not Authorized'
+      }.freeze
+
       FORBIDDEN = {
         type: :custom,
         code: '403',
-        status: MajorCodes::FORBIDDEN
+        status: MajorCodes::FORBIDDEN,
+        title: 'Forbidden',
+        detail: 'Forbidden'
       }.freeze
 
       RECORD_NOT_FOUND = {
@@ -92,6 +100,14 @@ module Common
         status: MajorCodes::SERVER_ERROR,
         title: 'Internal Server Error',
         detail: 'Internal Server Error'
+      }.freeze
+
+      SERVICE_OUTAGE = {
+        type: :other,
+        code: '503',
+        status: MajorCodes::SERVICE_OUTAGE,
+        title: 'Backend Service Outage',
+        detail: 'Backend Service Outage'
       }.freeze
     end
   end

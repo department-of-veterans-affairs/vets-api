@@ -2,6 +2,8 @@
 require 'faraday'
 require 'multi_json'
 require 'common/client/errors'
+require 'common/client/middleware/request/multipart_request'
+require 'common/client/middleware/request/camelcase'
 require 'sm/client_session'
 require 'sm/configuration'
 require 'sm/parser'
@@ -10,7 +12,6 @@ require 'sm/api/triage_teams'
 require 'sm/api/folders'
 require 'sm/api/messages'
 require 'sm/api/message_drafts'
-require 'sm/api/attachments'
 
 module SM
   class Client
@@ -19,7 +20,6 @@ module SM
     include SM::API::Folders
     include SM::API::Messages
     include SM::API::MessageDrafts
-    include SM::API::Attachments
 
     REQUEST_TYPES = %i(get post delete).freeze
     USER_AGENT = 'Vets.gov Agent'
@@ -28,24 +28,19 @@ module SM
       'User-Agent' => USER_AGENT
     }.freeze
 
-    MHV_CONFIG = SM::Configuration.new(
-      host: ENV['MHV_SM_HOST'],
-      app_token: ENV['MHV_SM_APP_TOKEN'],
-      enforce_ssl: Rails.env.production?
-    ).freeze
-
     attr_reader :config, :session
 
-    def initialize(config: MHV_CONFIG, session:)
-      @config = config.is_a?(Hash) ? SM::Configuration.new(config) : config
-      @session = session.is_a?(Hash) ? SM::ClientSession.new(session) : session
-
-      raise ArgumentError, 'config is invalid' unless @config.is_a?(Configuration)
-      raise ArgumentError, 'session is invalid' unless @session.valid?
+    def initialize(session:)
+      @config = SM::Configuration.instance
+      @session = SM::ClientSession.find_or_build(session)
     end
 
     def authenticate
-      @session = get_session
+      if @session.expired?
+        @session = get_session
+        @session.save
+      end
+      self
     end
 
     private
@@ -98,12 +93,11 @@ module SM
     end
 
     def post(path, params = {}, headers = base_headers)
-      params = params.is_a?(Hash) ? normalize_and_jsonify(params) : params
       request(:post, path, params, headers)
     end
 
-    def delete(path, _params = {}, headers = base_headers)
-      request(:delete, path, nil, headers)
+    def delete(path, params = {}, headers = base_headers)
+      request(:delete, path, params, headers)
     end
 
     def raise_not_authenticated
@@ -112,10 +106,15 @@ module SM
 
     def connection
       @connection ||= Faraday.new(@config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options) do |conn|
+        conn.use :breakers
+        conn.request :camelcase
+        conn.request :multipart_request
         conn.request :multipart
         conn.request :json
-        # conn.response :logger, ::Logger.new(STDOUT), bodies: true
+        # Uncomment this out for generating curl output to send to MHV dev and test only
+        # conn.request :curl, ::Logger.new(STDOUT), :warn
 
+        # conn.response :logger, ::Logger.new(STDOUT), bodies: true
         conn.adapter Faraday.default_adapter
       end
     end
@@ -133,30 +132,6 @@ module SM
         open_timeout: @config.open_timeout,
         timeout: @config.read_timeout
       }
-    end
-
-    def normalize_and_jsonify(params)
-      uploads = params.delete(:uploads)
-      params = params.transform_keys { |k| k.to_s.camelize(:lower) }
-
-      if uploads.present?
-        message_part = Faraday::UploadIO.new(
-          StringIO.new(params.to_json),
-          'application/json',
-          'message'
-        )
-        file_parts = uploads.map.with_index do |file, _i|
-          upload = Faraday::UploadIO.new(
-            file.tempfile,
-            file.content_type,
-            file.original_filename
-          )
-          [file.original_filename, upload]
-        end
-        { 'message' => message_part }.merge(Hash[file_parts])
-      else
-        params
-      end
     end
   end
 end
