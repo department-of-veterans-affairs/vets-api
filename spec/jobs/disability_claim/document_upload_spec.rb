@@ -1,13 +1,21 @@
 # frozen_string_literal: true
 require 'rails_helper'
+require_dependency 'evss/claims_service'
+require_dependency 'evss/auth_headers'
 
 RSpec.describe DisabilityClaim::DocumentUpload, type: :job do
   let(:client_stub) { instance_double('EVSS::DocumentsService') }
   let(:uploader_stub) { instance_double('DisabilityClaimDocumentUploader') }
   let(:user) { User.sample_claimant }
-  let(:claim_id) { 189_625 }
-  let(:tracked_item_id) { 33 }
   let(:filename) { 'doctors-note.pdf' }
+  let(:document_data) do
+    DisabilityClaimDocument.new(
+      evss_claim_id: 189_625,
+      file_name: 'doctors-note.pdf',
+      tracked_item_id: 33,
+      document_type: 'L023'
+    )
+  end
   let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
 
   it 'retrieves the file and uploads to EVSS' do
@@ -17,7 +25,7 @@ RSpec.describe DisabilityClaim::DocumentUpload, type: :job do
     allow(uploader_stub).to receive(:retrieve_from_store!).with(filename) { file }
     allow(uploader_stub).to receive(:read) { file }
     expect(uploader_stub).to receive(:remove!).once
-    expect(client_stub).to receive(:upload).with(filename, file, claim_id, tracked_item_id)
-    described_class.new.perform(filename, auth_headers, user.uuid, 189_625, 33)
+    expect(client_stub).to receive(:upload).with(file, document_data)
+    described_class.new.perform(auth_headers, user.uuid, document_data.to_h)
   end
 end
