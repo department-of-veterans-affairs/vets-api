@@ -17,7 +17,7 @@ find_candidate:
     gender: 'M'
     given_names: ['GREG', 'A']
     icn: '1008596379V859838^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_id: '12210827'
     vba_corp_id: ~
     ssn: '796121200'
     status: 'active'
@@ -28,7 +28,7 @@ find_candidate:
     gender: 'F'
     given_names: ['ANDREA', 'L']
     icn: '1008713769V295460^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_id: '12210827'
     vba_corp_id: ~
     ssn: '796127781'
     status: 'active'
@@ -39,7 +39,7 @@ find_candidate:
     gender: 'M'
     given_names: ['KENNETH', 'William']
     icn: '1008712062V663378^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_id: '12210827'
     vba_corp_id: '32323473^PI^200CORP^USVBA^A'
     ssn: '796295980'
     status: 'active'
@@ -50,7 +50,7 @@ find_candidate:
     gender: 'M'
     given_names: ['ALFREDO', 'M']
     icn: '1008714366V137722^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_id: '12210827'
     vba_corp_id: ~
     ssn: '796012476'
     status: 'active'
@@ -61,7 +61,7 @@ find_candidate:
     gender: 'M'
     given_names: ['FRANK', 'LEE']
     icn: '1008712353V735015^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_id: '12210827'
     vba_corp_id: ~
     ssn: '796143510'
     status: 'active'
