@@ -9,6 +9,7 @@ class DisabilityClaimDocument < Common::Base
   attribute :document_type, String
   attribute :file_name, String
 
+  validates(:tracked_item_id, presence: true)
   validates(:file_name, presence: true)
   validate :known_document_type?
 

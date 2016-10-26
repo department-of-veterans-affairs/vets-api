@@ -8,7 +8,7 @@ RSpec.describe 'Documents management', type: :request do
       'application/pdf'
     )
   end
-  let(:tracked_item) { 33 }
+  let(:tracked_item_id) { 33 }
   let(:claim_id) { 189_625 }
   let(:document_type) { 'L023' }
   let!(:claim) do
@@ -17,7 +17,7 @@ RSpec.describe 'Documents management', type: :request do
   end
 
   it 'should upload a file' do
-    params = { file: file, tracked_item: tracked_item, document_type: document_type }
+    params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }
     expect do
       post "/v0/disability_claims/#{claim_id}/documents", params
     end.to change(DisabilityClaim::DocumentUpload.jobs, :size).by(1)
@@ -26,7 +26,13 @@ RSpec.describe 'Documents management', type: :request do
   end
 
   it 'should reject files with invalid document_types' do
-    params = { file: file, tracked_item: tracked_item, document_type: 'invalid type' }
+    params = { file: file, tracked_item_id: tracked_item_id, document_type: 'invalid type' }
+    post "/v0/disability_claims/#{claim_id}/documents", params
+    expect(response.status).to eq(422)
+  end
+
+  it 'should reject requests without a tracked_item_id' do
+    params = { file: file, tracked_item_id: '', document_type: document_type }
     post "/v0/disability_claims/#{claim_id}/documents", params
     expect(response.status).to eq(422)
   end
