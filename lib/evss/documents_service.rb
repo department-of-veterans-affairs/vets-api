@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'common/exceptions'
 require_dependency 'evss/base_service'
 
 module EVSS
