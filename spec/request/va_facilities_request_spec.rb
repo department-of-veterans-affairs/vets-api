@@ -29,6 +29,16 @@ RSpec.describe 'VA GIS Integration', type: :request do
     end
   end
 
+  it 'responds to GET #show for VBA prefix' do
+    VCR.use_cassette('facilities/va/vba_314c') do
+      get '/v0/facilities/va/vba_314c'
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data']['id']).to eq('vba_314c')
+    end
+  end
+
   it 'responds to GET #show without prefix' do
     VCR.use_cassette('facilities/va/nonexistent_noprefix') do
       get '/v0/facilities/va/684A4'
@@ -49,12 +59,12 @@ RSpec.describe 'VA GIS Integration', type: :request do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
-      expect(json['data'].length).to eq(4)
+      expect(json['data'].length).to eq(8)
     end
   end
 
   it 'responds to GET #index with bbox and health type' do
-    VCR.use_cassette('facilities/va/pdx_bbox') do
+    VCR.use_cassette('facilities/va/pdx_bbox_health') do
       get '/v0/facilities/va?type=health&bbox[]=-122.440689&bbox[]=45.451913&bbox[]=-122.786758&bbox[]=45.64'
       expect(response).to be_success
       expect(response.body).to be_a(String)
@@ -73,6 +83,26 @@ RSpec.describe 'VA GIS Integration', type: :request do
     end
   end
 
+  it 'responds to GET #index with bbox and benefits type' do
+    VCR.use_cassette('facilities/va/ny_bbox_benefits') do
+      get '/v0/facilities/va?type=benefits&bbox[]=-73.401&bbox[]=40.685&bbox[]=-77.36&bbox[]=43.03'
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(3)
+    end
+  end
+
+  it 'responds to GET #index with bbox and filter' do
+    VCR.use_cassette('facilities/va/ny_bbox_benefits_filtered') do
+      get '/v0/facilities/va?type=benefits&bbox[]=-73.401&bbox[]=40.685&bbox[]=-77.36&bbox[]=43.03&services[]=EmploymentAssistance'
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(2)
+    end
+  end
+
   it 'returns 400 for invalid type parameter' do
     VCR.use_cassette('facilities/va/bad_type_param') do
       get '/v0/facilities/va?type=bogus&bbox[]=-73.401&bbox[]=40.685&bbox[]=-77.36&bbox[]=43.03'
@@ -87,9 +117,16 @@ RSpec.describe 'VA GIS Integration', type: :request do
     end
   end
 
-  it 'returns 400 for query with unknown service' do
+  it 'returns 400 for health query with unknown service' do
     VCR.use_cassette('facilities/va/service_type_params') do
       get '/v0/facilities/va?type=health&services[]=OilChange&bbox[]=-73.401&bbox[]=40.685&bbox[]=-77.36&bbox[]=43.03'
+      expect(response).to have_http_status(:bad_request)
+    end
+  end
+
+ it 'returns 400 for benefits query with unknown service' do
+    VCR.use_cassette('facilities/va/service_type_params') do
+      get '/v0/facilities/va?type=benefits&services[]=Haircut&bbox[]=-73.401&bbox[]=40.685&bbox[]=-77.36&bbox[]=43.03'
       expect(response).to have_http_status(:bad_request)
     end
   end
