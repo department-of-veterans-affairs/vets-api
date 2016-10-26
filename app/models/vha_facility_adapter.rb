@@ -34,7 +34,8 @@ class VHAFacilityAdapter
     m[:address][:mailing] = {}
     m[:phone] = from_gis_attrs(PHONE_KEYMAP, attrs)
     m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
-    m[:services] = services_from_gis(attrs)
+    m[:services] = {}
+    m[:services][:health] = services_from_gis(attrs)
     VAFacility.new(m)
   end
 
@@ -49,7 +50,7 @@ class VHAFacilityAdapter
   }.freeze
 
   ADDR_KEYMAP = {
-    'building' => 'Building', 'street' => 'Street', 'suite' => 'Suite',
+    'address_1' => 'Street', 'address_2' => 'Building', 'address_3' => 'Suite',
     'city' => 'City', 'state' => 'State'
   }.freeze
 
