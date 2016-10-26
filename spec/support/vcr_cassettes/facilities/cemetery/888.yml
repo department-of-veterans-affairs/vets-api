@@ -1,0 +1,92 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/NCA_Facilities/FeatureServer?f=json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - services3.arcgis.com
+      Token: "<SESSION_TOKEN>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - '1319231489'
+      Server:
+      - Microsoft-IIS/8.5
+      X-Arcgis-Instance:
+      - MTSDS_Web_IN_12
+      X-Powered-By:
+      - ASP.NET
+      Access-Control-Allow-Origin:
+      - "*"
+      Date:
+      - Mon, 17 Oct 2016 21:16:44 GMT
+      Content-Length:
+      - '628'
+      Token: "<SESSION_TOKEN>"
+    body:
+      encoding: ASCII-8BIT
+      string: '{"currentVersion":10.41,"serviceItemId":"d20207c189bd4e6ab7444ee4acb08b24","serviceDescription":"","hasVersionedData":false,"supportsDisconnectedEditing":false,"hasStaticData":true,"maxRecordCount":2000,"supportedQueryFormats":"JSON","capabilities":"Query","description":"","copyrightText":"","spatialReference":{"wkid":102100,"latestWkid":3857},"initialExtent":{"xmin":-17570944.343753345,"ymin":2085521.365712136,"xmax":-7366152.4423543438,"ymax":8688647.0390275568,"spatialReference":{"wkid":102100,"latestWkid":3857}},"fullExtent":{"xmin":-17570944.343753345,"ymin":2085521.365712136,"xmax":-7366152.4423543438,"ymax":8688647.0390275568,"spatialReference":{"wkid":102100,"latestWkid":3857}},"allowGeometryUpdates":true,"units":"esriMeters","size":163840,"syncEnabled":false,"supportsApplyEditsWithGlobalIds":false,"editorTrackingInfo":{"enableEditorTracking":false,"enableOwnershipAccessControl":false,"allowOthersToQuery":true,"allowOthersToUpdate":true,"allowOthersToDelete":false,"allowAnonymousToUpdate":true,"allowAnonymousToDelete":true},"xssPreventionInfo":{"xssPreventionEnabled":true,"xssPreventionRule":"InputOnly","xssInputRule":"rejectInvalid"},"layers":[{"id":0,"name":"NCA_Facilities","parentLayerId":-1,"defaultVisibility":true,"subLayerIds":null,"minScale":0,"maxScale":0}],"tables":[]}'
+    http_version: 
+  recorded_at: Mon, 17 Oct 2016 21:16:44 GMT
+- request:
+    method: post
+    uri: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/NCA_Facilities/FeatureServer/0/query
+    body:
+      encoding: US-ASCII
+      string: f=json&where=CEMETERY_I%3D%27888%27&inSR=4326&outSR=4326&returnGeometry=true&returnCountOnly=false&outFields=*&resultRecordCount&returnDistinctValues=false&orderByFields=CEMETERY_I
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Token: "<SESSION_TOKEN>"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - sd46_30344499
+      Server:
+      - Microsoft-IIS/8.5
+      X-Arcgis-Instance:
+      - MTSDS_Web_IN_13
+      X-Powered-By:
+      - ASP.NET
+      Access-Control-Allow-Origin:
+      - "*"
+      Date:
+      - Mon, 17 Oct 2016 21:16:45 GMT
+      Content-Length:
+      - '714'
+      Token: "<SESSION_TOKEN>"
+    body:
+      encoding: ASCII-8BIT
+      string: '{"objectIdFieldName":"FID","globalIdFieldName":"","geometryType":"esriGeometryPoint","spatialReference":{"wkid":4326,"latestWkid":4326},"fields":[{"name":"FID","type":"esriFieldTypeInteger","alias":"FID","sqlType":"sqlTypeInteger","domain":null,"defaultValue":null},{"name":"FULL_NAME","type":"esriFieldTypeString","alias":"FULL_NAME","sqlType":"sqlTypeNVarchar","length":250,"domain":null,"defaultValue":null},{"name":"SHORT_NAME","type":"esriFieldTypeString","alias":"SHORT_NAME","sqlType":"sqlTypeNVarchar","length":250,"domain":null,"defaultValue":null},{"name":"CEMETERY_A","type":"esriFieldTypeString","alias":"CEMETERY_A","sqlType":"sqlTypeNVarchar","length":100,"domain":null,"defaultValue":null},{"name":"CEMETERY_1","type":"esriFieldTypeString","alias":"CEMETERY_1","sqlType":"sqlTypeNVarchar","length":100,"domain":null,"defaultValue":null},{"name":"CEMETERY_S","type":"esriFieldTypeString","alias":"CEMETERY_S","sqlType":"sqlTypeNVarchar","length":100,"domain":null,"defaultValue":null},{"name":"CEMETERY_Z","type":"esriFieldTypeString","alias":"CEMETERY_Z","sqlType":"sqlTypeNVarchar","length":10,"domain":null,"defaultValue":null},{"name":"MAIL_ADDRE","type":"esriFieldTypeString","alias":"MAIL_ADDRE","sqlType":"sqlTypeNVarchar","length":100,"domain":null,"defaultValue":null},{"name":"MAIL_ADD_1","type":"esriFieldTypeString","alias":"MAIL_ADD_1","sqlType":"sqlTypeNVarchar","length":100,"domain":null,"defaultValue":null},{"name":"MAIL_CITY","type":"esriFieldTypeString","alias":"MAIL_CITY","sqlType":"sqlTypeNVarchar","length":100,"domain":null,"defaultValue":null},{"name":"MAIL_STATE","type":"esriFieldTypeString","alias":"MAIL_STATE","sqlType":"sqlTypeNVarchar","length":2,"domain":null,"defaultValue":null},{"name":"MAIL_ZIP","type":"esriFieldTypeString","alias":"MAIL_ZIP","sqlType":"sqlTypeNVarchar","length":10,"domain":null,"defaultValue":null},{"name":"PHONE","type":"esriFieldTypeString","alias":"PHONE","sqlType":"sqlTypeNVarchar","length":12,"domain":null,"defaultValue":null},{"name":"FAX","type":"esriFieldTypeString","alias":"FAX","sqlType":"sqlTypeNVarchar","length":12,"domain":null,"defaultValue":null},{"name":"GOVERNING_","type":"esriFieldTypeInteger","alias":"GOVERNING_","sqlType":"sqlTypeInteger","domain":null,"defaultValue":null},{"name":"COMMENTS","type":"esriFieldTypeString","alias":"COMMENTS","sqlType":"sqlTypeNVarchar","length":250,"domain":null,"defaultValue":null},{"name":"CEMETERY_C","type":"esriFieldTypeString","alias":"CEMETERY_C","sqlType":"sqlTypeNVarchar","length":100,"domain":null,"defaultValue":null},{"name":"CEMETERY_I","type":"esriFieldTypeString","alias":"CEMETERY_I","sqlType":"sqlTypeNVarchar","length":12,"domain":null,"defaultValue":null},{"name":"CEM_TYPE","type":"esriFieldTypeString","alias":"CEM_TYPE","sqlType":"sqlTypeNVarchar","length":50,"domain":null,"defaultValue":null},{"name":"DISTRICT","type":"esriFieldTypeString","alias":"DISTRICT","sqlType":"sqlTypeNVarchar","length":50,"domain":null,"defaultValue":null},{"name":"STATUS","type":"esriFieldTypeString","alias":"STATUS","sqlType":"sqlTypeNVarchar","length":50,"domain":null,"defaultValue":null}],"features":[{"attributes":{"FID":19,"FULL_NAME":"Fort
+        Logan National Cemetery","SHORT_NAME":"Ft. Logan","CEMETERY_A":"4400 W Kenyon
+        Ave","CEMETERY_1":"\u003cNull\u003e","CEMETERY_S":"Denver","CEMETERY_Z":"80236","MAIL_ADDRE":"4400
+        W Kenyon Ave","MAIL_ADD_1":"\u003cNull\u003e","MAIL_CITY":"Denver","MAIL_STATE":"CO","MAIL_ZIP":"80236","PHONE":"303-761-0117","FAX":"303-781-9378","GOVERNING_":0,"COMMENTS":"
+        ","CEMETERY_C":"Denver","CEMETERY_I":"888","CEM_TYPE":"National Cemetery","DISTRICT":"Continental
+        District","STATUS":"Open"},"geometry":{"x":-105.05285939585188,"y":39.645574026263766}}]}'
+    http_version: 
+  recorded_at: Mon, 17 Oct 2016 21:16:45 GMT
+recorded_with: VCR 3.0.3
