@@ -4,9 +4,7 @@ require_dependency 'evss/documents_service'
 require_dependency 'evss/auth_headers'
 
 describe EVSS::DocumentsService do
-  let(:current_user) do
-    User.sample_claimant
-  end
+  let(:current_user) { FactoryGirl.create(:mvi_user) }
   let(:auth_headers) do
     EVSS::AuthHeaders.new(current_user).to_h
   end
