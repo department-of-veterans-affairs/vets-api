@@ -69,7 +69,7 @@ class User < Common::RedisStore
 
   # This is a helper method for pulling mhv_correlation_id
   def mhv_correlation_id
-    @mhv_correlation_id ||= mvi[:mhv_id]&.split('^')&.first
+    @mhv_correlation_id ||= mvi&.fetch(:mvi_id, nil)&.split('^')&.first
   end
 
   private
