@@ -11,7 +11,6 @@ RSpec.describe 'Documents management', type: :request do
   let(:tracked_item) { 33 }
   let(:claim_id) { 189_625 }
   let(:document_type) { 'L023' }
-  let(:document_description) { 'Other Correspondence' }
   let!(:claim) do
     FactoryGirl.create(:disability_claim, id: 189_625, evss_id: 189_625,
                                           user_uuid: User.sample_claimant.uuid, data: {})
@@ -26,9 +25,9 @@ RSpec.describe 'Documents management', type: :request do
     expect(JSON.parse(response.body)['job_id']).to eq(DisabilityClaim::DocumentUpload.jobs.first['jid'])
   end
 
-  it 'should reject claims with invalid document_types' do
+  it 'should reject files with invalid document_types' do
     params = { file: file, tracked_item: tracked_item, document_type: 'invalid type' }
     post "/v0/disability_claims/#{claim_id}/documents", params
-    expect(response.status).to eq(400)
+    expect(response.status).to eq(422)
   end
 end

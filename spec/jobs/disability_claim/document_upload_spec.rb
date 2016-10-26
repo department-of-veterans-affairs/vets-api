@@ -7,7 +7,12 @@ RSpec.describe DisabilityClaim::DocumentUpload, type: :job do
   let(:user) { User.sample_claimant }
   let(:filename) { 'doctors-note.pdf' }
   let(:document_data) do
-    EVSS::DocumentData.new(189_625, 33, 'L023', 'Other Correspondence', 'doctors-note.pdf')
+    dd = DisabilityClaimDocument.new
+    dd.evss_claim_id = 189_625
+    dd.tracked_item_id = 33
+    dd.document_type = 'L023'
+    dd.file_name = 'doctors-note.pdf'
+    dd
   end
   let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
 

@@ -11,7 +11,12 @@ describe EVSS::DocumentsService do
     EVSS::AuthHeaders.new(current_user).to_h
   end
   let(:document_data) do
-    EVSS::DocumentData.new(189_625, 33, 'L023', 'Other Correspondence', 'doctors-note.pdf')
+    dd = DisabilityClaimDocument.new
+    dd.evss_claim_id = 189_625
+    dd.tracked_item_id = 33
+    dd.document_type = 'L023'
+    dd.file_name = 'doctors-note.pdf'
+    dd
   end
 
   subject { described_class.new(auth_headers) }
