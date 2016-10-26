@@ -14,11 +14,15 @@ class RxController < ApplicationController
   end
 
   def authorize_rx
-    mhv_correlation_id || raise(Common::Exceptions::Unauthorized)
+    mhv_correlation_id || raise_access_denied
   end
 
   def mhv_correlation_id
     current_user.mhv_correlation_id
+  end
+
+  def raise_access_denied
+    raise Common::Exceptions::Forbidden, detail: 'You do not have access to prescriptions'
   end
 
   def authenticate_client

@@ -24,6 +24,8 @@ class ApplicationController < ActionController::API
       case exception
       when ActionController::ParameterMissing
         Common::Exceptions::ParameterMissing.new(exception.param)
+      when Common::Exceptions::Unauthorized
+        headers['WWW-Authenticate'] = 'Token realm="Application"'
       when Common::Exceptions::BaseError
         exception
       when Common::Client::Errors::ClientResponse
@@ -68,8 +70,7 @@ class ApplicationController < ActionController::API
   attr_reader :current_user
 
   def render_unauthorized
-    headers['WWW-Authenticate'] = 'Token realm="Application"'
-    render json: 'Not Authorized', status: 401
+    raise Common::Exceptions::Unauthorized
   end
 
   def saml_settings

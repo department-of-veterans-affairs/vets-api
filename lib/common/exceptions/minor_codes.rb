@@ -84,7 +84,9 @@ module Common
       FORBIDDEN = {
         type: :custom,
         code: '403',
-        status: MajorCodes::FORBIDDEN
+        status: MajorCodes::FORBIDDEN,
+        title: 'Forbidden',
+        detail: 'Forbidden'
       }.freeze
 
       RECORD_NOT_FOUND = {

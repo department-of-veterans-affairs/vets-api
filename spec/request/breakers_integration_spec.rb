@@ -3,6 +3,7 @@ require 'rails_helper'
 require 'rx/client'
 require 'support/rx_client_helpers'
 
+# TODO: possibly refactor this spec to be generic, not dependent on PrescriptionsController
 RSpec.describe 'breakers', type: :request do
   include Rx::ClientHelpers
 
