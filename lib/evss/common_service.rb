@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require_dependency 'evss/base_service'
+require 'evss/base_service'
 
 module EVSS
   class CommonService < BaseService

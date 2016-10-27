@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require_dependency 'evss/common_service'
+require 'evss/common_service'
 
 module EVSS
   class CreateUserAccountJob
