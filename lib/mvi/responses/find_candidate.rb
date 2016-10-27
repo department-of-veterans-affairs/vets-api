@@ -24,6 +24,9 @@ module MVI
       SUBJECT_XPATH = 'controlActProcess/subject'
       PATIENT_XPATH = 'registrationEvent/subject1/patient'
       STATUS_XPATH = 'statusCode/@code'
+      GENDER_XPATH = 'patientPerson/administrativeGenderCode/@code'
+      DOB_XPATH = 'patientPerson/birthTime/@value'
+      SSN_XPATH = 'patientPerson/asOtherIDs'
 
       def initialize(response)
         super(response)
@@ -37,9 +40,9 @@ module MVI
           status: locate_element(patient, STATUS_XPATH),
           given_names: name[:given],
           family_name: name[:family],
-          gender: locate_element(patient, 'patientPerson/administrativeGenderCode/@code'),
-          birth_date: locate_element(patient, 'patientPerson/birthTime/@value'),
-          ssn: parse_ssn(locate_element(patient, 'patientPerson/asOtherIDs'))
+          gender: locate_element(patient, GENDER_XPATH),
+          birth_date: locate_element(patient, DOB_XPATH),
+          ssn: parse_ssn(locate_element(patient, SSN_XPATH))
         }.merge(map_correlation_ids(patient.locate('id')))
       end
 
