@@ -39,19 +39,20 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(response).to have_http_status(:unauthorized)
       end
     end
+    describe 'and an invalid location query param is supplied' do
+      it 'that is blank, GET new - defaults to /profile' do
+        get :new, location: 'a/invalid/path'
+        assert_response :success
+        unescaped_url = URI.unescape(JSON.parse(response.body)['authenticate_via_get'])
+        expect(unescaped_url).to include('RelayState=/profile')
+      end
 
-    it 'GET new - defaults the location query param when an invalid location is supplied' do
-      get :new, RelayState: 'an/invalid/path'
-      assert_response :success
-      unescaped_url = URI.unescape(JSON.parse(response.body)['authenticate_via_get'])
-      expect(unescaped_url).to include('RelayState=/profile')
-    end
-
-    it 'GET new - defaults the location query param when no value is provided' do
-      get :new
-      assert_response :success
-      unescaped_url = URI.unescape(JSON.parse(response.body)['authenticate_via_get'])
-      expect(unescaped_url).to include('RelayState=/profile')
+      it 'that contains disallowed chars, GET new - defaults to /profile' do
+        get :new, location: '/?/badchars/&'
+        assert_response :success
+        unescaped_url = URI.unescape(JSON.parse(response.body)['authenticate_via_get'])
+        expect(unescaped_url).to include('RelayState=/profile')
+      end
     end
 
     it 'GET new - shows the ID.me authentication url' do
