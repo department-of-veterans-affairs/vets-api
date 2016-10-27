@@ -15,11 +15,18 @@ describe MVI::Service do
       ssn: '796122306'
     )
   end
-
   let(:message) do
     MVI::Messages::FindCandidateMessage.new(
       [user.first_name, user.middle_name], user.last_name, user.birth_date, user.ssn, user.gender
     )
+  end
+  let(:cert) { instance_double('OpenSSL::X509::Certificate') }
+  let(:key) { instance_double('OpenSSL::PKey::RSA') }
+
+  before(:each) do
+    allow(File).to receive(:read).and_return('foo')
+    allow(OpenSSL::X509::Certificate).to receive(:new).and_return(cert)
+    allow(OpenSSL::PKey::RSA).to receive(:new).and_return(key)
   end
 
   describe '.options' do
@@ -32,14 +39,9 @@ describe MVI::Service do
       end
     end
     context 'when there are SSL options' do
-      let(:cert) { instance_double('OpenSSL::X509::Certificate') }
-      let(:key) { instance_double('OpenSSL::PKey::RSA') }
       it 'should return the wsdl, cert and key paths' do
         ClimateControl.modify MVI_CLIENT_CERT_PATH: '/certs/fake_cert.pem',
                               MVI_CLIENT_KEY_PATH: '/certs/fake_key.pem' do
-          allow(File).to receive(:read).and_return('foo')
-          allow(OpenSSL::X509::Certificate).to receive(:new).and_return(cert)
-          allow(OpenSSL::PKey::RSA).to receive(:new).and_return(key)
           expect(MVI::Service.options).to eq(
             url: ENV['MVI_URL'],
             ssl: {
