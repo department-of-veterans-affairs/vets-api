@@ -342,7 +342,7 @@ find_candidate:
     status: 'active'
   "796127587":
     birth_date: '19470101'
-    edipi: ~
+    edipi: '1005392639^NI^200DOD^USDOD^A'
     family_name: 'BARRETT'
     gender: 'M'
     given_names: ['JESUS', 'A']
