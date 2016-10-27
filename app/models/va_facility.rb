@@ -2,8 +2,8 @@
 require 'facilities/client'
 
 class VAFacility < ActiveModelSerializers::Model
-  attr_accessor :unique_id, :name, :facility_type, :classification, :lat, :long,
-                :address, :phone, :hours, :services
+  attr_accessor :unique_id, :name, :facility_type, :classification, :website,
+                :lat, :long, :address, :phone, :hours, :services
 
   HEALTH = 'health'
   CEMETERY = 'cemetery'
