@@ -21,8 +21,8 @@ RSpec.describe 'Fetching profile data', type: :request do
     end
 
     it 'gives me the list of available services' do
-      expect(JSON.parse(response.body)['data']['attributes']['services']).to eq(
-        %w(facility-locator hca edu-benefits disability-benefits user-profile)
+      expect(JSON.parse(response.body)['data']['attributes']['services'].sort).to eq(
+        %w(facilities hca edu-benefits disability-benefits user-profile).sort
       )
     end
   end
@@ -44,8 +44,8 @@ RSpec.describe 'Fetching profile data', type: :request do
     end
 
     it 'gives me the list of available services' do
-      expect(JSON.parse(response.body)['data']['attributes']['services']).to eq(
-        %w(facility-locator hca edu-benefits user-profile)
+      expect(JSON.parse(response.body)['data']['attributes']['services'].sort).to eq(
+        %w(facilities hca edu-benefits user-profile).sort
       )
     end
   end
