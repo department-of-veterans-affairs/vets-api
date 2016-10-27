@@ -44,3 +44,7 @@ def bad_response(code, xml)
     xml: xml
   )
 end
+
+def mvi_query_json
+  File.read('spec/support/mvi/query.json')
+end

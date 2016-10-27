@@ -26,7 +26,7 @@ module MVI
         @original_response = response.body
         @original_body = locate_element(Ox.parse(@original_response), "env:Body/idm:#{endpoint.to_s}")
         @code = locate_element(@original_body, CODE_XPATH)
-        @query = locate_element(@original_body, QUERY_XPATH)
+        @query = locate_element(@original_body, QUERY_XPATH).to_json
       end
 
       def invalid?

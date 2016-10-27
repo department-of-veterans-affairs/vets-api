@@ -106,43 +106,21 @@ describe MVI::Service do
   end
 
   describe MVI::RecordNotFound do
+    let(:query_json) { mvi_query_json }
+    let(:xml) { '<env:Envelope></env:Envelope>' }
     let(:response) { instance_double('MVI::Responses::FindCandidate') }
     subject { MVI::RecordNotFound.new('an error message', response) }
 
-    it 'includes the query' do
-      allow(response).to receive(:query).and_return
-      expect(subject.query).to eq(
-        initial_quantity: { :@value => '1' },
-        modify_code: { :@code => 'MVI.COMP1' },
-        parameter_list: {
-          living_subject_name: {
-            value: {
-              given: %w(John William),
-              family: 'Smith',
-              :@use => 'L'
-            },
-            semantics_text: 'LivingSubject.name'
-          },
-          living_subject_birth_time: {
-            value: {
-              :@value => '19800101'
-            },
-            semantics_text: 'LivingSubject.birthTime'
-          },
-          living_subject_id: {
-            value: {
-              :@extension => '555-44-3333',
-              :@root => '2.16.840.1.113883.4.1'
-            },
-            semantics_text: 'SSN'
-          }
-        },
-        query_id: { :@extension => '18204', :@root => '2.16.840.1.113883.3.933' },
-        status_code: { :@code => 'new' }
-      )
+    before(:each) do
+      allow(response).to receive(:query).and_return(mvi_query_json)
+      allow(response).to receive(:original_response).and_return(xml)
     end
 
-    it 'includes the original response' do
+    it 'includes the query as json' do
+      expect(subject.query).to eq(mvi_query_json)
+    end
+
+    it 'includes the original response as xml' do
       expect(subject.original_response).to eq(xml)
     end
   end
