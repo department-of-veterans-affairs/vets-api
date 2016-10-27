@@ -11,7 +11,7 @@ class VHAFacilityAdapter
 
   def query(bbox, services = nil)
     @client.query(bbox: bbox.join(','),
-                  where: VHAFacilityAdapter.where_clause(services))
+                  where: self.class.where_clause(services))
   end
 
   def find_by(id:)
@@ -22,7 +22,7 @@ class VHAFacilityAdapter
     services.map { |s| "#{s}='YES'" }.join(' AND ') unless services.nil?
   end
 
-  def from_gis(record)
+  def self.from_gis(record)
     attrs = record['attributes']
     m = from_gis_attrs(TOP_KEYMAP, attrs)
     m[:facility_type] = FACILITY_TYPE
@@ -34,7 +34,8 @@ class VHAFacilityAdapter
     m[:address][:mailing] = {}
     m[:phone] = from_gis_attrs(PHONE_KEYMAP, attrs)
     m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
-    m[:services] = services_from_gis(attrs)
+    m[:services] = {}
+    m[:services][:health] = services_from_gis(attrs)
     VAFacility.new(m)
   end
 
@@ -49,7 +50,7 @@ class VHAFacilityAdapter
   }.freeze
 
   ADDR_KEYMAP = {
-    'building' => 'Building', 'street' => 'Street', 'suite' => 'Suite',
+    'address_1' => 'Street', 'address_2' => 'Building', 'address_3' => 'Suite',
     'city' => 'City', 'state' => 'State'
   }.freeze
 
@@ -96,7 +97,7 @@ class VHAFacilityAdapter
 
   # Build a sub-section of the VAFacility model from a flat GIS attribute list,
   # according to the provided key mapping dict. Strip whitespace from string values.
-  def from_gis_attrs(km, attrs)
+  def self.from_gis_attrs(km, attrs)
     km.each_with_object({}) do |(k, v), h|
       h[k] = (attrs[v].respond_to?(:strip) ? attrs[v].strip : attrs[v])
     end
@@ -106,7 +107,7 @@ class VHAFacilityAdapter
   # The hierarchy of Level 1/Level 2 services is defined statically above.
   # Return a list of dicts each containing key 'sl1' => Level 1 service and
   # 'sl2' => list of Level 2 services
-  def services_from_gis(attrs)
+  def self.services_from_gis(attrs)
     SERVICE_HIERARCHY.each_with_object([]) do |(k, v), l|
       next unless attrs[k] == 'YES'
       sl2 = []
