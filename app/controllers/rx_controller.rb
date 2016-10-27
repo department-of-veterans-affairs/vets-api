@@ -4,7 +4,9 @@ require_dependency 'rx/client'
 class RxController < ApplicationController
   include ActionController::Serialization
 
-  before_action :authorize_rx
+  # Temporarily disabling authenticate from ApplicationController
+  skip_before_action :authenticate
+  # before_action :authorize_rx
   before_action :authenticate_client
 
   protected
@@ -18,7 +20,9 @@ class RxController < ApplicationController
   end
 
   def mhv_correlation_id
-    current_user.mhv_correlation_id
+    # Temporarily disabling token based auth and MVI based integration of fetching mhv id
+    # current_user.mhv_correlation_id
+    ENV['MHV_USER_ID']
   end
 
   def raise_access_denied
