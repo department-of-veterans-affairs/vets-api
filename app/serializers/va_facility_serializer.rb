@@ -4,7 +4,7 @@ class VAFacilitySerializer < ActiveModel::Serializer
     "#{PREFIX_MAP[object.facility_type]}_#{object.unique_id}"
   end
 
-  attributes :unique_id, :name, :facility_type, :classification, :lat, :long,
+  attributes :unique_id, :name, :facility_type, :classification, :website, :lat, :long,
              :address, :phone, :hours, :services
 
   PREFIX_MAP = {
