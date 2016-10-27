@@ -15,9 +15,9 @@ class RxController < ApplicationController
     @client ||= Rx::Client.new(session: { user_id: mhv_correlation_id })
   end
 
-  def authorize_rx
-    mhv_correlation_id || raise_access_denied
-  end
+  # def authorize_rx
+  #   mhv_correlation_id || raise_access_denied
+  # end
 
   def mhv_correlation_id
     # Temporarily disabling token based auth and MVI based integration of fetching mhv id
@@ -25,9 +25,9 @@ class RxController < ApplicationController
     ENV['MHV_USER_ID']
   end
 
-  def raise_access_denied
-    raise Common::Exceptions::Forbidden, detail: 'You do not have access to prescriptions'
-  end
+  # def raise_access_denied
+  #   raise Common::Exceptions::Forbidden, detail: 'You do not have access to prescriptions'
+  # end
 
   def authenticate_client
     client.authenticate if client.session.expired?
