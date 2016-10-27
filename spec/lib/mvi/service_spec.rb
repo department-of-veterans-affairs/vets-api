@@ -2,7 +2,6 @@
 require 'rails_helper'
 require 'mvi/service'
 require 'mvi/messages/find_candidate_message'
-require "#{Rails.root}/spec/support/mvi/mvi_response"
 
 describe MVI::Service do
   let(:user) do
@@ -108,18 +107,18 @@ describe MVI::Service do
   end
 
   describe MVI::RecordNotFound do
-    let(:query_json) { mvi_query_json }
+    let(:query_json) { File.read('spec/support/mvi/query.json')  }
     let(:xml) { '<env:Envelope></env:Envelope>' }
     let(:response) { instance_double('MVI::Responses::FindCandidate') }
     subject { MVI::RecordNotFound.new('an error message', response) }
 
     before(:each) do
-      allow(response).to receive(:query).and_return(mvi_query_json)
+      allow(response).to receive(:query).and_return(File.read('spec/support/mvi/query.json'))
       allow(response).to receive(:original_response).and_return(xml)
     end
 
     it 'includes the query as json' do
-      expect(subject.query).to eq(mvi_query_json)
+      expect(subject.query).to eq(query_json)
     end
 
     it 'includes the original response as xml' do
