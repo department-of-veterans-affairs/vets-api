@@ -39,19 +39,19 @@ describe Prescription do
   context 'it sorts' do
     let(:p1) { described_class.new(parsed_json_object) }
     let(:p2) { described_class.new(parsed_json_object) }
-    let(:p3) { described_class.new(data_attr_merge(prescription_id: '2', refill_date: Time.now.utc)) }
-    let(:p4) { described_class.new(data_attr_merge(prescription_id: '3', refill_data: 1.year.ago.utc)) }
+    let(:p3) { described_class.new(data_attr_merge(prescription_id: '2', refill_submit_date: Time.now.utc)) }
+    let(:p4) { described_class.new(data_attr_merge(prescription_id: '3', refill_submit_date: 1.year.ago.utc)) }
 
     subject { [p1, p2, p3, p4] }
 
-    it 'sorts by prescription_id by default' do
+    it 'sorts by refill_submit_date by default' do
       expect(subject.sort.map(&:prescription_id))
         .to eq([2, 3, 1_435_525, 1_435_525])
     end
 
     it 'sorts by sort_by field' do
-      expect(subject.sort_by(&:refill_date).map(&:prescription_id))
-        .to eq([1_435_525, 1_435_525, 3, 2])
+      expect(subject.sort_by(&:refill_submit_date).map(&:prescription_id))
+        .to eq([3, 1_435_525, 1_435_525, 2])
     end
   end
 

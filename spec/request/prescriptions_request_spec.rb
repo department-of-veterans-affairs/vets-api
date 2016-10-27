@@ -31,7 +31,7 @@ RSpec.describe 'prescriptions', type: :request do
     expect(response).to be_success
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('prescriptions')
-    expect(JSON.parse(response.body)['meta']['sort']).to eq('ordered_date' => 'DESC')
+    expect(JSON.parse(response.body)['meta']['sort']).to eq('refill_submit_date' => 'DESC')
   end
 
   it 'responds to GET #index with refill_status=active', :vcr do
@@ -39,7 +39,7 @@ RSpec.describe 'prescriptions', type: :request do
     expect(response).to be_success
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('prescriptions')
-    expect(JSON.parse(response.body)['meta']['sort']).to eq('ordered_date' => 'DESC')
+    expect(JSON.parse(response.body)['meta']['sort']).to eq('refill_submit_date' => 'DESC')
   end
 
   it 'responds to GET #index with filter', :vcr do
