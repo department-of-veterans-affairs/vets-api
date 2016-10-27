@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require_dependency 'facilities/client'
+require 'facilities/client'
 
 class VAFacility < ActiveModelSerializers::Model
   attr_accessor :unique_id, :name, :facility_type, :classification, :lat, :long,

@@ -16,16 +16,6 @@ describe Common::Collection do
     end
   end
 
-  FactoryGirl.define do
-    factory :author, class: 'Author' do
-      sequence(:id)         { |n| n }
-      sequence(:first_name) { %w(Al Zoe).sample }
-      sequence(:last_name)  { |n| Faker::Name.last_name + n.to_s }
-      sequence(:birthdate)  { (25..60).to_a.sample.years.ago }
-      zipcode               { Faker::Address.zip }
-    end
-  end
-
   let(:klass)       { Author }
   let(:klass_array) { Array.new(25) { |i| attributes_for(:author, id: i + 1) } }
   subject { described_class.new(klass, data: klass_array, metadata: { nobel_winner: 'Bob Dylan' }, errors: {}) }
