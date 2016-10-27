@@ -7,7 +7,7 @@ class NCAFacilityAdapter
   FACILITY_TYPE = 'va_cemetery'
 
   def initialize
-    @client = Facilities::Client.new(url: NCA_URL, layer: NCA_LAYER, id_field: NCA_ID_FIELD)
+    @client = Facilities::Client.new(url: NCA_URL, id_field: NCA_ID_FIELD)
   end
 
   def query(bbox, _services)
@@ -15,7 +15,7 @@ class NCAFacilityAdapter
   end
 
   def find_by(id:)
-    @client.get(identifier: id)
+    @client.get(id: id)
   end
 
   def self.from_gis(record)
