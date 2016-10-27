@@ -151,8 +151,13 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(User.find(session.uuid).attributes).to eq(mvi_user.attributes)
       end
 
-      it 'creates a job to create an evss user' do
-        expect { post :saml_callback, RelayState: fake_relay }.to change(EVSS::CreateUserAccountJob.jobs, :size).by(1)
+      it 'creates a job to create an evss user when user has loa3 and evss attrs' do
+        expect { get :saml_callback }.to change(EVSS::CreateUserAccountJob.jobs, :size).by(1)
+      end
+
+      it 'does not create a job to create an evss user when user has loa1' do
+        allow(saml_response).to receive(:decrypted_document).and_return(REXML::Document.new(loa1_xml))
+        expect { get :saml_callback }.to_not change(EVSS::CreateUserAccountJob.jobs, :size)
       end
 
       it 'parses and stores the current level of assurance' do
