@@ -18,7 +18,9 @@ describe MVI::ServiceFactory do
     context 'when MOCK_MVI_SERVICE is false' do
       it 'should return the real service' do
         ClimateControl.modify MOCK_MVI_SERVICE: 'false' do
-          expect(MVI::ServiceFactory.get_service(mock_service: ENV['MOCK_MVI_SERVICE'])).to be_an_instance_of(MVI::Service)
+          expect(
+            MVI::ServiceFactory.get_service(mock_service: ENV['MOCK_MVI_SERVICE'])
+          ).to be_an_instance_of(MVI::Service)
         end
       end
     end
@@ -32,7 +34,9 @@ describe MVI::ServiceFactory do
     context 'when MOCK_MVI_SERVICE is true' do
       it 'should return the mock service' do
         ClimateControl.modify MOCK_MVI_SERVICE: 'true' do
-          expect(MVI::ServiceFactory.get_service(mock_service: ENV['MOCK_MVI_SERVICE'])).to be_an_instance_of(MVI::MockService)
+          expect(
+            MVI::ServiceFactory.get_service(mock_service: ENV['MOCK_MVI_SERVICE'])
+          ).to be_an_instance_of(MVI::MockService)
         end
       end
     end

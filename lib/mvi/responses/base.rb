@@ -24,7 +24,7 @@ module MVI
 
       def initialize(response)
         @original_response = response.body
-        @original_body = locate_element(Ox.parse(@original_response), "env:Body/idm:#{endpoint.to_s}")
+        @original_body = locate_element(Ox.parse(@original_response), "env:Body/idm:#{endpoint}")
         @code = locate_element(@original_body, CODE_XPATH)
         @query = locate_element(@original_body, QUERY_XPATH).to_json
       end

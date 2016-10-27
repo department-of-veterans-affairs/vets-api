@@ -75,7 +75,7 @@ module MVI
 
       def select_ssn_element(other_ids)
         other_ids.each do |oi|
-          node = oi.nodes.select { |node| node.attributes[:root] == SSN_ROOT_ID }
+          node = oi.nodes.select { |n| n.attributes[:root] == SSN_ROOT_ID }
           return node.first unless node.empty?
         end
       end
@@ -84,7 +84,7 @@ module MVI
       # {source id}^{id type}^{assigning authority}^{assigning facility}^{id status}
       # NI = national identifier, PI = patient identifier
       def map_correlation_ids(ids)
-        ids = ids.map { |id| id.attributes }
+        ids = ids.map(&:attributes)
         {
           icn: select_extension(ids, /^\w+\^NI\^\w+\^\w+\^\w+$/, CORRELATION_ROOT_ID),
           mhv_id: select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/, CORRELATION_ROOT_ID),
