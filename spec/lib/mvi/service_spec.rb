@@ -18,11 +18,28 @@ describe MVI::Service do
   let(:gender) { 'M' }
   let(:message) { MVI::Messages::FindCandidateMessage.new(given_names, family_name, birth_date, ssn, gender) }
 
-  describe '.load_wsdl' do
-    it 'should have URI interpolated into wsdl' do
-      expect(MVI::Service.client.instance_eval('@wsdl').document).to eq(
-        ERB.new(File.read('config/mvi_schema/IdmWebService_200VGOV.wsdl.erb')).result
-      )
+  describe '.options' do
+    context 'when there are no SSL options' do
+      it 'should only return the wsdl' do
+        ClimateControl.modify MVI_CLIENT_CERT_PATH: nil,
+                              MVI_CLIENT_KEY_PATH: nil do
+          expect(MVI::Service.options).to eq(
+            wsdl: ERB.new(File.read('config/mvi_schema/IdmWebService_200VGOV.wsdl.erb')).result
+          )
+        end
+      end
+    end
+    context 'when there are SSL options' do
+      it 'should return the wsdl, cert and key paths' do
+        ClimateControl.modify MVI_CLIENT_CERT_PATH: '/certs/fake_cert.pem',
+                              MVI_CLIENT_KEY_PATH: '/certs/fake_key.pem' do
+          expect(MVI::Service.options).to eq(
+            wsdl: ERB.new(File.read('config/mvi_schema/IdmWebService_200VGOV.wsdl.erb')).result,
+            ssl_cert_file: '/certs/fake_cert.pem',
+            ssl_cert_key_file: '/certs/fake_key.pem'
+          )
+        end
+      end
     end
   end
 

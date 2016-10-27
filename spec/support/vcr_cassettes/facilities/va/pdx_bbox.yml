@@ -1,11 +1,11 @@
 ---
 http_interactions:
 - request:
-    method: get
-    uri: https://maps.va.gov/server/rest/services/PROJECTS/Facility_Locator/MapServer?f=json
+    method: post
+    uri: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_Facilities/FeatureServer/0/query
     body:
       encoding: US-ASCII
-      string: ''
+      string: f=json&geometry=-122.440689%2C45.451913%2C-122.786758%2C45.64&geometryType=esriGeometryEnvelope&where=1%3D1&inSR=4326&outSR=4326&returnGeometry=true&returnCountOnly=false&outFields=*&resultRecordCount&returnDistinctValues=false&orderByFields=StationNum
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -13,49 +13,53 @@ http_interactions:
       - "*/*"
       User-Agent:
       - Ruby
-      Host:
-      - maps.va.gov
   response:
     status:
       code: 200
       message: OK
     headers:
-      Cache-Control:
-      - private, must-revalidate, max-age=0
-      Content-Length:
-      - '698'
       Content-Type:
-      - text/plain;charset=utf-8
-      Expires:
-      - Wed, 31 Dec 1969 18:00:00 CST
+      - text/plain; charset=utf-8
       Etag:
-      - 7a5cec03
+      - sd48_1613943923
       Server:
-      - ''
       - Microsoft-IIS/8.5
-      Set-Cookie:
-      - AGS_ROLES="419jqfa+uOZgYod4xPOQ8Q=="; Version=1; Max-Age=60; Expires=Thu,
-        22-Sep-2016 23:31:51 GMT; Path=/server/rest; Secure; HttpOnly
-      X-Aspnet-Version:
-      - 4.0.30319
+      X-Arcgis-Instance:
+      - MTSDS_Web_IN_9
       X-Powered-By:
       - ASP.NET
+      Access-Control-Allow-Origin:
+      - "*"
       Date:
-      - Thu, 22 Sep 2016 23:30:51 GMT
+      - Wed, 26 Oct 2016 21:22:44 GMT
+      Content-Length:
+      - '1343'
     body:
       encoding: ASCII-8BIT
-      string: '{"currentVersion":10.3,"serviceDescription":"VHA Facilities for the
-        VA Facility Locator","mapName":"Layers","description":"","copyrightText":"VSSC","supportsDynamicLayers":false,"layers":[{"id":0,"name":"GIS_VA.DBO.FacilityLocator","parentLayerId":-1,"defaultVisibility":true,"subLayerIds":null,"minScale":0,"maxScale":0}],"tables":[],"spatialReference":{"wkid":4326,"latestWkid":4326},"singleFusedMapCache":false,"initialExtent":{"xmin":-125.24908472295178,"ymin":35.92224388587604,"xmax":-66.52438982870885,"ymax":59.36242534577838,"spatialReference":{"wkid":4326,"latestWkid":4326}},"fullExtent":{"xmin":-170.68800339999996,"ymin":-14.278233439999951,"xmax":145.72940300000005,"ymax":64.82780256000007,"spatialReference":{"wkid":4326,"latestWkid":4326}},"minScale":0,"maxScale":0,"units":"esriDecimalDegrees","supportedImageFormatTypes":"PNG32,PNG24,PNG,JPG,DIB,TIFF,EMF,PS,PDF,GIF,SVG,SVGZ,BMP","documentInfo":{"Title":"","Author":"","Comments":"","Subject":"","Category":"","AntialiasingMode":"None","TextAntialiasingMode":"Force","Keywords":"va,facility
-        locator,facilitiy,vha"},"capabilities":"Map,Query,Data","supportedQueryFormats":"JSON,
-        AMF","exportTilesAllowed":false,"maxRecordCount":3000,"maxImageHeight":4096,"maxImageWidth":4096,"supportedExtensions":""}'
+      string: '{"objectIdFieldName":"FID","globalIdFieldName":"","geometryType":"esriGeometryPoint","spatialReference":{"wkid":4326,"latestWkid":4326},"fields":[{"name":"FID","type":"esriFieldTypeInteger","alias":"FID","sqlType":"sqlTypeInteger","domain":null,"defaultValue":null},{"name":"OBJECTID","type":"esriFieldTypeInteger","alias":"OBJECTID","sqlType":"sqlTypeInteger","domain":null,"defaultValue":null},{"name":"FacilityDa","type":"esriFieldTypeString","alias":"FacilityDa","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Outpatient","type":"esriFieldTypeDate","alias":"Outpatient","sqlType":"sqlTypeTimestamp2","length":8,"domain":null,"defaultValue":null},{"name":"StationID","type":"esriFieldTypeInteger","alias":"StationID","sqlType":"sqlTypeInteger","domain":null,"defaultValue":null},{"name":"VisnID","type":"esriFieldTypeInteger","alias":"VisnID","sqlType":"sqlTypeInteger","domain":null,"defaultValue":null},{"name":"StationNum","type":"esriFieldTypeString","alias":"StationNum","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"StationNam","type":"esriFieldTypeString","alias":"StationNam","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"CommonStat","type":"esriFieldTypeString","alias":"CommonStat","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"CocClassif","type":"esriFieldTypeString","alias":"CocClassif","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"CocClass_1","type":"esriFieldTypeString","alias":"CocClass_1","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Building","type":"esriFieldTypeString","alias":"Building","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Street","type":"esriFieldTypeString","alias":"Street","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Suite","type":"esriFieldTypeString","alias":"Suite","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"City","type":"esriFieldTypeString","alias":"City","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"State","type":"esriFieldTypeString","alias":"State","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Zip","type":"esriFieldTypeString","alias":"Zip","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Zip4","type":"esriFieldTypeString","alias":"Zip4","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"MainPhone","type":"esriFieldTypeString","alias":"MainPhone","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"MainFax","type":"esriFieldTypeString","alias":"MainFax","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"AfterHours","type":"esriFieldTypeString","alias":"AfterHours","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"PatientAdv","type":"esriFieldTypeString","alias":"PatientAdv","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Enrollment","type":"esriFieldTypeString","alias":"Enrollment","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"PharmacyPh","type":"esriFieldTypeString","alias":"PharmacyPh","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Monday","type":"esriFieldTypeString","alias":"Monday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Tuesday","type":"esriFieldTypeString","alias":"Tuesday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Wednesday","type":"esriFieldTypeString","alias":"Wednesday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Thursday","type":"esriFieldTypeString","alias":"Thursday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Friday","type":"esriFieldTypeString","alias":"Friday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Saturday","type":"esriFieldTypeString","alias":"Saturday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Sunday","type":"esriFieldTypeString","alias":"Sunday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Latitude","type":"esriFieldTypeDouble","alias":"Latitude","sqlType":"sqlTypeFloat","domain":null,"defaultValue":null},{"name":"Longitude","type":"esriFieldTypeDouble","alias":"Longitude","sqlType":"sqlTypeFloat","domain":null,"defaultValue":null}],"features":[{"attributes":{"FID":1049,"OBJECTID":1736,"FacilityDa":"8-19-2016","Outpatient":1472428800000,"StationID":538,"VisnID":20,"StationNum":"648","StationNam":"Portland
+        VA Medical Center","CommonStat":"Portland","CocClassif":"VA Medical Center
+        (VAMC)","CocClass_1":"Firm","Building":" ","Street":"3710 Southwest US Veterans
+        Hospital Road","Suite":" ","City":"Portland","State":"OR","Zip":"97239","Zip4":"2964","MainPhone":"503-721-1498
+        x","MainFax":"503-273-5319 x","AfterHours":"503-220-8262 x","PatientAdv":"503-273-5308
+        x","Enrollment":"503-273-5069 x","PharmacyPh":"503-273-5183 x","Monday":"24/7","Tuesday":"24/7","Wednesday":"24/7","Thursday":"24/7","Friday":"24/7","Saturday":"24/7","Sunday":"24/7","Latitude":45.49746145,"Longitude":-122.68287208},"geometry":{"x":-122.68288655824787,"y":45.497466912945164}},{"attributes":{"FID":560,"OBJECTID":1510,"FacilityDa":"8-19-2016","Outpatient":1472428800000,"StationID":539,"VisnID":20,"StationNum":"648A4","StationNam":"Portland
+        VA Medical Center-Vancouver","CommonStat":"Portland-Vancouver","CocClassif":"VA
+        Medical Center (VAMC)","CocClass_1":"Firm","Building":" ","Street":"1601 East
+        4th Plain Boulevard","Suite":" ","City":"Vancouver","State":"WA","Zip":"98661","Zip4":"3753","MainPhone":"360-759-1901
+        x","MainFax":"360-690-0864 x","AfterHours":"360-696-4061 x","PatientAdv":"503-273-5308
+        x","Enrollment":"503-273-5069 x","PharmacyPh":"503-273-5183 x","Monday":"730AM-430PM","Tuesday":"730AM-630PM","Wednesday":"730AM-430PM","Thursday":"730AM-430PM","Friday":"730AM-430PM","Saturday":"800AM-1000AM","Sunday":"-","Latitude":45.63941626,"Longitude":-122.65528736},"geometry":{"x":-122.65530186353662,"y":45.639421733971851}},{"attributes":{"FID":499,"OBJECTID":1629,"FacilityDa":"8-19-2016","Outpatient":1472428800000,"StationID":4187,"VisnID":20,"StationNum":"648GI","StationNam":"Portland
+        VA Clinic","CommonStat":"Portland-1st Avenue","CocClassif":"Primary Care CBOC","CocClass_1":"Save
+        Rating","Building":"Lawrence Building","Street":"308 Southwest 1st Avenue","Suite":"Suite
+        155","City":"Portland","State":"OR","Zip":"97204","Zip4":"3432","MainPhone":"503-808-1256
+        x","MainFax":"503-808-1900 x","AfterHours":"800-273-8255 x","PatientAdv":"503-273-5308
+        x","Enrollment":"503-273-5069 x","PharmacyPh":"503-273-5183 x","Monday":"800AM-430PM","Tuesday":"800AM-430PM","Wednesday":"800AM-430PM","Thursday":"800AM-430PM","Friday":"800AM-430PM","Saturday":"-","Sunday":"-","Latitude":45.52017304,"Longitude":-122.67221794},"geometry":{"x":-122.67223242130494,"y":45.520178505352142}}]}'
     http_version: 
-  recorded_at: Thu, 22 Sep 2016 23:30:51 GMT
+  recorded_at: Wed, 26 Oct 2016 21:22:46 GMT
 - request:
     method: post
-    uri: https://maps.va.gov/server/rest/services/PROJECTS/Facility_Locator/MapServer/0/query
+    uri: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/NCA_Facilities/FeatureServer/0/query
     body:
       encoding: US-ASCII
-      string: f=json&geometry=-122.440689%2C45.451913%2C-122.786758%2C45.64&geometryType=esriGeometryEnvelope&where=1%3D1&inSR=4326&outSR=4326&returnGeometry=true&returnCountOnly=false&outFields=*&resultRecordCount&returnDistinctValues=false&orderByFields=StationID
+      string: f=json&geometry=-122.440689%2C45.451913%2C-122.786758%2C45.64&geometryType=esriGeometryEnvelope&where=1%3D1&inSR=4326&outSR=4326&returnGeometry=true&returnCountOnly=false&outFields=*&resultRecordCount&returnDistinctValues=false&orderByFields=CEMETERY_I
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -68,47 +72,109 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Cache-Control:
-      - private, must-revalidate, max-age=0
-      Content-Length:
-      - '2885'
       Content-Type:
-      - text/plain;charset=utf-8
+      - text/plain; charset=utf-8
       Etag:
-      - 1cef8f6e
+      - sd47_241061920
       Server:
-      - ''
       - Microsoft-IIS/8.5
-      Set-Cookie:
-      - AGS_ROLES="419jqfa+uOZgYod4xPOQ8Q=="; Version=1; Max-Age=60; Expires=Thu,
-        22-Sep-2016 23:31:51 GMT; Path=/server/rest; Secure; HttpOnly
-      X-Aspnet-Version:
-      - 4.0.30319
+      X-Arcgis-Instance:
+      - MTSDS_Web_IN_8
       X-Powered-By:
       - ASP.NET
+      Access-Control-Allow-Origin:
+      - "*"
       Date:
-      - Thu, 22 Sep 2016 23:30:51 GMT
+      - Wed, 26 Oct 2016 21:22:45 GMT
+      Content-Length:
+      - '702'
     body:
       encoding: ASCII-8BIT
-      string: '{"displayFieldName":"StationName","fieldAliases":{"OBJECTID":"OBJECTID","FacilityDataDate":"FacilityDataDate","OutpatientServicesDataDate":"OutpatientServicesDataDate","StationID":"StationID","VisnID":"VisnID","StationNumber":"StationNumber","StationName":"StationName","CommonStationName":"CommonStationName","CocClassification":"CocClassification","CocClassificationAttribute":"CocClassificationAttribute","Building":"Building","Street":"Street","Suite":"Suite","City":"City","State":"State","Zip":"Zip","Zip4":"Zip4","MainPhone":"MainPhone","MainFax":"MainFax","AfterHoursPhone":"AfterHoursPhone","PatientAdvocatePhone":"PatientAdvocatePhone","EnrollmentCoordinatorPhone":"EnrollmentCoordinatorPhone","PharmacyPhone":"PharmacyPhone","Monday":"Monday","Tuesday":"Tuesday","Wednesday":"Wednesday","Thursday":"Thursday","Friday":"Friday","Saturday":"Saturday","Sunday":"Sunday","Latitude":"Latitude","Longitude":"Longitude","Audiology":"Audiology","ComplementaryAlternativeMed":"ComplementaryAlternativeMed","DentalServices":"DentalServices","DiagnosticServices":"DiagnosticServices","ImagingAndRadiology":"ImagingAndRadiology","LabServices":"LabServices","EmergencyDept":"EmergencyDept","EyeCare":"EyeCare","MentalHealthCare":"MentalHealthCare","OutpatientMHCare":"OutpatientMHCare","OutpatientSpecMHCare":"OutpatientSpecMHCare","VocationalAssistance":"VocationalAssistance","OutpatientMedicalSpecialty":"OutpatientMedicalSpecialty","AllergyAndImmunology":"AllergyAndImmunology","CardiologyCareServices":"CardiologyCareServices","DermatologyCareServices":"DermatologyCareServices","Diabetes":"Diabetes","Dialysis":"Dialysis","Endocrinology":"Endocrinology","Gastroenterology":"Gastroenterology","Hematology":"Hematology","InfectiousDisease":"InfectiousDisease","InternalMedicine":"InternalMedicine","Nephrology":"Nephrology","Neurology":"Neurology","Oncology":"Oncology","PulmonaryRespiratoryDisease":"PulmonaryRespiratoryDisease","Rheumatology":"Rheumatology","SleepMedicine":"SleepMedicine","OutpatientSurgicalSpecialty":"OutpatientSurgicalSpecialty","CardiacSurgery":"CardiacSurgery","ColoRectalSurgery":"ColoRectalSurgery","ENT":"ENT","GeneralSurgery":"GeneralSurgery","Gynecology":"Gynecology","Neurosurgery":"Neurosurgery","Orthopedics":"Orthopedics","PainManagement":"PainManagement","PlasticSurgery":"PlasticSurgery","Podiatry":"Podiatry","ThoracicSurgery":"ThoracicSurgery","Urology":"Urology","VascularSurgery":"VascularSurgery","PrimaryCare":"PrimaryCare","Rehabilitation":"Rehabilitation","UrgentCare":"UrgentCare","WellnessAndPreventativeCare":"WellnessAndPreventativeCare"},"geometryType":"esriGeometryPoint","spatialReference":{"wkid":4326,"latestWkid":4326},"fields":[{"name":"OBJECTID","type":"esriFieldTypeOID","alias":"OBJECTID"},{"name":"FacilityDataDate","type":"esriFieldTypeString","alias":"FacilityDataDate","length":1024},{"name":"OutpatientServicesDataDate","type":"esriFieldTypeDate","alias":"OutpatientServicesDataDate","length":36},{"name":"StationID","type":"esriFieldTypeInteger","alias":"StationID"},{"name":"VisnID","type":"esriFieldTypeSmallInteger","alias":"VisnID"},{"name":"StationNumber","type":"esriFieldTypeString","alias":"StationNumber","length":1024},{"name":"StationName","type":"esriFieldTypeString","alias":"StationName","length":1024},{"name":"CommonStationName","type":"esriFieldTypeString","alias":"CommonStationName","length":1024},{"name":"CocClassification","type":"esriFieldTypeString","alias":"CocClassification","length":1073741822},{"name":"CocClassificationAttribute","type":"esriFieldTypeString","alias":"CocClassificationAttribute","length":1073741822},{"name":"Building","type":"esriFieldTypeString","alias":"Building","length":1024},{"name":"Street","type":"esriFieldTypeString","alias":"Street","length":1024},{"name":"Suite","type":"esriFieldTypeString","alias":"Suite","length":1024},{"name":"City","type":"esriFieldTypeString","alias":"City","length":1024},{"name":"State","type":"esriFieldTypeString","alias":"State","length":1024},{"name":"Zip","type":"esriFieldTypeString","alias":"Zip","length":1024},{"name":"Zip4","type":"esriFieldTypeString","alias":"Zip4","length":1024},{"name":"MainPhone","type":"esriFieldTypeString","alias":"MainPhone","length":1024},{"name":"MainFax","type":"esriFieldTypeString","alias":"MainFax","length":1024},{"name":"AfterHoursPhone","type":"esriFieldTypeString","alias":"AfterHoursPhone","length":1024},{"name":"PatientAdvocatePhone","type":"esriFieldTypeString","alias":"PatientAdvocatePhone","length":1024},{"name":"EnrollmentCoordinatorPhone","type":"esriFieldTypeString","alias":"EnrollmentCoordinatorPhone","length":1024},{"name":"PharmacyPhone","type":"esriFieldTypeString","alias":"PharmacyPhone","length":1024},{"name":"Monday","type":"esriFieldTypeString","alias":"Monday","length":1024},{"name":"Tuesday","type":"esriFieldTypeString","alias":"Tuesday","length":1024},{"name":"Wednesday","type":"esriFieldTypeString","alias":"Wednesday","length":1024},{"name":"Thursday","type":"esriFieldTypeString","alias":"Thursday","length":1024},{"name":"Friday","type":"esriFieldTypeString","alias":"Friday","length":1024},{"name":"Saturday","type":"esriFieldTypeString","alias":"Saturday","length":1024},{"name":"Sunday","type":"esriFieldTypeString","alias":"Sunday","length":1024},{"name":"Latitude","type":"esriFieldTypeDouble","alias":"Latitude"},{"name":"Longitude","type":"esriFieldTypeDouble","alias":"Longitude"},{"name":"Audiology","type":"esriFieldTypeString","alias":"Audiology","length":3},{"name":"ComplementaryAlternativeMed","type":"esriFieldTypeString","alias":"ComplementaryAlternativeMed","length":3},{"name":"DentalServices","type":"esriFieldTypeString","alias":"DentalServices","length":3},{"name":"DiagnosticServices","type":"esriFieldTypeString","alias":"DiagnosticServices","length":3},{"name":"ImagingAndRadiology","type":"esriFieldTypeString","alias":"ImagingAndRadiology","length":3},{"name":"LabServices","type":"esriFieldTypeString","alias":"LabServices","length":3},{"name":"EmergencyDept","type":"esriFieldTypeString","alias":"EmergencyDept","length":3},{"name":"EyeCare","type":"esriFieldTypeString","alias":"EyeCare","length":3},{"name":"MentalHealthCare","type":"esriFieldTypeString","alias":"MentalHealthCare","length":3},{"name":"OutpatientMHCare","type":"esriFieldTypeString","alias":"OutpatientMHCare","length":3},{"name":"OutpatientSpecMHCare","type":"esriFieldTypeString","alias":"OutpatientSpecMHCare","length":3},{"name":"VocationalAssistance","type":"esriFieldTypeString","alias":"VocationalAssistance","length":3},{"name":"OutpatientMedicalSpecialty","type":"esriFieldTypeString","alias":"OutpatientMedicalSpecialty","length":3},{"name":"AllergyAndImmunology","type":"esriFieldTypeString","alias":"AllergyAndImmunology","length":3},{"name":"CardiologyCareServices","type":"esriFieldTypeString","alias":"CardiologyCareServices","length":3},{"name":"DermatologyCareServices","type":"esriFieldTypeString","alias":"DermatologyCareServices","length":3},{"name":"Diabetes","type":"esriFieldTypeString","alias":"Diabetes","length":3},{"name":"Dialysis","type":"esriFieldTypeString","alias":"Dialysis","length":3},{"name":"Endocrinology","type":"esriFieldTypeString","alias":"Endocrinology","length":3},{"name":"Gastroenterology","type":"esriFieldTypeString","alias":"Gastroenterology","length":3},{"name":"Hematology","type":"esriFieldTypeString","alias":"Hematology","length":3},{"name":"InfectiousDisease","type":"esriFieldTypeString","alias":"InfectiousDisease","length":3},{"name":"InternalMedicine","type":"esriFieldTypeString","alias":"InternalMedicine","length":3},{"name":"Nephrology","type":"esriFieldTypeString","alias":"Nephrology","length":3},{"name":"Neurology","type":"esriFieldTypeString","alias":"Neurology","length":3},{"name":"Oncology","type":"esriFieldTypeString","alias":"Oncology","length":3},{"name":"PulmonaryRespiratoryDisease","type":"esriFieldTypeString","alias":"PulmonaryRespiratoryDisease","length":3},{"name":"Rheumatology","type":"esriFieldTypeString","alias":"Rheumatology","length":3},{"name":"SleepMedicine","type":"esriFieldTypeString","alias":"SleepMedicine","length":3},{"name":"OutpatientSurgicalSpecialty","type":"esriFieldTypeString","alias":"OutpatientSurgicalSpecialty","length":3},{"name":"CardiacSurgery","type":"esriFieldTypeString","alias":"CardiacSurgery","length":3},{"name":"ColoRectalSurgery","type":"esriFieldTypeString","alias":"ColoRectalSurgery","length":3},{"name":"ENT","type":"esriFieldTypeString","alias":"ENT","length":3},{"name":"GeneralSurgery","type":"esriFieldTypeString","alias":"GeneralSurgery","length":3},{"name":"Gynecology","type":"esriFieldTypeString","alias":"Gynecology","length":3},{"name":"Neurosurgery","type":"esriFieldTypeString","alias":"Neurosurgery","length":3},{"name":"Orthopedics","type":"esriFieldTypeString","alias":"Orthopedics","length":3},{"name":"PainManagement","type":"esriFieldTypeString","alias":"PainManagement","length":3},{"name":"PlasticSurgery","type":"esriFieldTypeString","alias":"PlasticSurgery","length":3},{"name":"Podiatry","type":"esriFieldTypeString","alias":"Podiatry","length":3},{"name":"ThoracicSurgery","type":"esriFieldTypeString","alias":"ThoracicSurgery","length":3},{"name":"Urology","type":"esriFieldTypeString","alias":"Urology","length":3},{"name":"VascularSurgery","type":"esriFieldTypeString","alias":"VascularSurgery","length":3},{"name":"PrimaryCare","type":"esriFieldTypeString","alias":"PrimaryCare","length":3},{"name":"Rehabilitation","type":"esriFieldTypeString","alias":"Rehabilitation","length":3},{"name":"UrgentCare","type":"esriFieldTypeString","alias":"UrgentCare","length":3},{"name":"WellnessAndPreventativeCare","type":"esriFieldTypeString","alias":"WellnessAndPreventativeCare","length":3}],"features":[{"attributes":{"OBJECTID":1736,"FacilityDataDate":"8-19-2016","OutpatientServicesDataDate":1472428800000,"StationID":538,"VisnID":20,"StationNumber":"648","StationName":"Portland
-        VA Medical Center","CommonStationName":"Portland","CocClassification":"VA
-        Medical Center (VAMC)","CocClassificationAttribute":"Firm","Building":"","Street":"3710
-        Southwest US Veterans Hospital Road","Suite":null,"City":"Portland","State":"OR","Zip":"97239","Zip4":"2964","MainPhone":"503-721-1498
-        x","MainFax":"503-273-5319 x","AfterHoursPhone":"503-220-8262 x","PatientAdvocatePhone":"503-273-5308
-        x","EnrollmentCoordinatorPhone":"503-273-5069 x","PharmacyPhone":"503-273-5183
-        x","Monday":"24/7","Tuesday":"24/7","Wednesday":"24/7","Thursday":"24/7","Friday":"24/7","Saturday":"24/7","Sunday":"24/7","Latitude":45.497461450000003,"Longitude":-122.68287208,"Audiology":"YES","ComplementaryAlternativeMed":"NO","DentalServices":"YES","DiagnosticServices":"YES","ImagingAndRadiology":"YES","LabServices":"YES","EmergencyDept":"YES","EyeCare":"YES","MentalHealthCare":"YES","OutpatientMHCare":"YES","OutpatientSpecMHCare":"YES","VocationalAssistance":"YES","OutpatientMedicalSpecialty":"YES","AllergyAndImmunology":"NO","CardiologyCareServices":"YES","DermatologyCareServices":"YES","Diabetes":"YES","Dialysis":"YES","Endocrinology":"YES","Gastroenterology":"YES","Hematology":"YES","InfectiousDisease":"YES","InternalMedicine":"YES","Nephrology":"YES","Neurology":"YES","Oncology":"YES","PulmonaryRespiratoryDisease":"YES","Rheumatology":"YES","SleepMedicine":"YES","OutpatientSurgicalSpecialty":"YES","CardiacSurgery":"NO","ColoRectalSurgery":"NO","ENT":"YES","GeneralSurgery":"YES","Gynecology":"YES","Neurosurgery":"YES","Orthopedics":"YES","PainManagement":"YES","PlasticSurgery":"YES","Podiatry":"YES","ThoracicSurgery":"NO","Urology":"YES","VascularSurgery":"YES","PrimaryCare":"YES","Rehabilitation":"YES","UrgentCare":"NO","WellnessAndPreventativeCare":"YES"},"geometry":{"x":-122.68288655824787,"y":45.497466912945164}},{"attributes":{"OBJECTID":1510,"FacilityDataDate":"8-19-2016","OutpatientServicesDataDate":1472428800000,"StationID":539,"VisnID":20,"StationNumber":"648A4","StationName":"Portland
-        VA Medical Center-Vancouver","CommonStationName":"Portland-Vancouver","CocClassification":"VA
-        Medical Center (VAMC)","CocClassificationAttribute":"Firm","Building":null,"Street":"1601
-        East 4th Plain Boulevard","Suite":null,"City":"Vancouver","State":"WA","Zip":"98661","Zip4":"3753","MainPhone":"360-759-1901
-        x","MainFax":"360-690-0864 x","AfterHoursPhone":"360-696-4061 x","PatientAdvocatePhone":"503-273-5308
-        x","EnrollmentCoordinatorPhone":"503-273-5069 x","PharmacyPhone":"503-273-5183
-        x","Monday":"730AM-430PM","Tuesday":"730AM-630PM","Wednesday":"730AM-430PM","Thursday":"730AM-430PM","Friday":"730AM-430PM","Saturday":"800AM-1000AM","Sunday":"-","Latitude":45.639416259999997,"Longitude":-122.65528736,"Audiology":"YES","ComplementaryAlternativeMed":"NO","DentalServices":"YES","DiagnosticServices":"YES","ImagingAndRadiology":"YES","LabServices":"NO","EmergencyDept":"NO","EyeCare":"YES","MentalHealthCare":"YES","OutpatientMHCare":"YES","OutpatientSpecMHCare":"YES","VocationalAssistance":"YES","OutpatientMedicalSpecialty":"NO","AllergyAndImmunology":"NO","CardiologyCareServices":"NO","DermatologyCareServices":"NO","Diabetes":"NO","Dialysis":"NO","Endocrinology":"NO","Gastroenterology":"NO","Hematology":"NO","InfectiousDisease":"NO","InternalMedicine":"NO","Nephrology":"NO","Neurology":"NO","Oncology":"NO","PulmonaryRespiratoryDisease":"NO","Rheumatology":"NO","SleepMedicine":"NO","OutpatientSurgicalSpecialty":"YES","CardiacSurgery":"NO","ColoRectalSurgery":"NO","ENT":"NO","GeneralSurgery":"NO","Gynecology":"NO","Neurosurgery":"NO","Orthopedics":"NO","PainManagement":"NO","PlasticSurgery":"NO","Podiatry":"YES","ThoracicSurgery":"NO","Urology":"NO","VascularSurgery":"NO","PrimaryCare":"YES","Rehabilitation":"YES","UrgentCare":"NO","WellnessAndPreventativeCare":"YES"},"geometry":{"x":-122.65530186353662,"y":45.639421733971858}},{"attributes":{"OBJECTID":1629,"FacilityDataDate":"8-19-2016","OutpatientServicesDataDate":1472428800000,"StationID":4187,"VisnID":20,"StationNumber":"648GI","StationName":"Portland
-        VA Clinic","CommonStationName":"Portland-1st Avenue","CocClassification":"Primary
-        Care CBOC","CocClassificationAttribute":"Save Rating","Building":"Lawrence
-        Building","Street":"308 Southwest 1st Avenue","Suite":"Suite 155","City":"Portland","State":"OR","Zip":"97204","Zip4":"3432","MainPhone":"503-808-1256
-        x","MainFax":"503-808-1900 x","AfterHoursPhone":"800-273-8255 x","PatientAdvocatePhone":"503-273-5308
-        x","EnrollmentCoordinatorPhone":"503-273-5069 x","PharmacyPhone":"503-273-5183
-        x","Monday":"800AM-430PM","Tuesday":"800AM-430PM","Wednesday":"800AM-430PM","Thursday":"800AM-430PM","Friday":"800AM-430PM","Saturday":"-","Sunday":"-","Latitude":45.520173040000003,"Longitude":-122.67221794,"Audiology":"NO","ComplementaryAlternativeMed":"NO","DentalServices":"NO","DiagnosticServices":"NO","ImagingAndRadiology":"NO","LabServices":"NO","EmergencyDept":"NO","EyeCare":"NO","MentalHealthCare":"NO","OutpatientMHCare":"NO","OutpatientSpecMHCare":"NO","VocationalAssistance":"NO","OutpatientMedicalSpecialty":"NO","AllergyAndImmunology":"NO","CardiologyCareServices":"NO","DermatologyCareServices":"NO","Diabetes":"NO","Dialysis":"NO","Endocrinology":"NO","Gastroenterology":"NO","Hematology":"NO","InfectiousDisease":"NO","InternalMedicine":"NO","Nephrology":"NO","Neurology":"NO","Oncology":"NO","PulmonaryRespiratoryDisease":"NO","Rheumatology":"NO","SleepMedicine":"NO","OutpatientSurgicalSpecialty":"NO","CardiacSurgery":"NO","ColoRectalSurgery":"NO","ENT":"NO","GeneralSurgery":"NO","Gynecology":"NO","Neurosurgery":"NO","Orthopedics":"NO","PainManagement":"NO","PlasticSurgery":"NO","Podiatry":"NO","ThoracicSurgery":"NO","Urology":"NO","VascularSurgery":"NO","PrimaryCare":"NO","Rehabilitation":"NO","UrgentCare":"NO","WellnessAndPreventativeCare":"NO"},"geometry":{"x":-122.67223242130494,"y":45.520178505352128}}]}'
+      string: '{"objectIdFieldName":"FID","globalIdFieldName":"","geometryType":"esriGeometryPoint","spatialReference":{"wkid":4326,"latestWkid":4326},"fields":[{"name":"FID","type":"esriFieldTypeInteger","alias":"FID","sqlType":"sqlTypeInteger","domain":null,"defaultValue":null},{"name":"FULL_NAME","type":"esriFieldTypeString","alias":"FULL_NAME","sqlType":"sqlTypeNVarchar","length":250,"domain":null,"defaultValue":null},{"name":"SHORT_NAME","type":"esriFieldTypeString","alias":"SHORT_NAME","sqlType":"sqlTypeNVarchar","length":250,"domain":null,"defaultValue":null},{"name":"CEMETERY_A","type":"esriFieldTypeString","alias":"CEMETERY_A","sqlType":"sqlTypeNVarchar","length":100,"domain":null,"defaultValue":null},{"name":"CEMETERY_1","type":"esriFieldTypeString","alias":"CEMETERY_1","sqlType":"sqlTypeNVarchar","length":100,"domain":null,"defaultValue":null},{"name":"CEMETERY_S","type":"esriFieldTypeString","alias":"CEMETERY_S","sqlType":"sqlTypeNVarchar","length":100,"domain":null,"defaultValue":null},{"name":"CEMETERY_Z","type":"esriFieldTypeString","alias":"CEMETERY_Z","sqlType":"sqlTypeNVarchar","length":10,"domain":null,"defaultValue":null},{"name":"MAIL_ADDRE","type":"esriFieldTypeString","alias":"MAIL_ADDRE","sqlType":"sqlTypeNVarchar","length":100,"domain":null,"defaultValue":null},{"name":"MAIL_ADD_1","type":"esriFieldTypeString","alias":"MAIL_ADD_1","sqlType":"sqlTypeNVarchar","length":100,"domain":null,"defaultValue":null},{"name":"MAIL_CITY","type":"esriFieldTypeString","alias":"MAIL_CITY","sqlType":"sqlTypeNVarchar","length":100,"domain":null,"defaultValue":null},{"name":"MAIL_STATE","type":"esriFieldTypeString","alias":"MAIL_STATE","sqlType":"sqlTypeNVarchar","length":2,"domain":null,"defaultValue":null},{"name":"MAIL_ZIP","type":"esriFieldTypeString","alias":"MAIL_ZIP","sqlType":"sqlTypeNVarchar","length":10,"domain":null,"defaultValue":null},{"name":"PHONE","type":"esriFieldTypeString","alias":"PHONE","sqlType":"sqlTypeNVarchar","length":12,"domain":null,"defaultValue":null},{"name":"FAX","type":"esriFieldTypeString","alias":"FAX","sqlType":"sqlTypeNVarchar","length":12,"domain":null,"defaultValue":null},{"name":"GOVERNING_","type":"esriFieldTypeInteger","alias":"GOVERNING_","sqlType":"sqlTypeInteger","domain":null,"defaultValue":null},{"name":"COMMENTS","type":"esriFieldTypeString","alias":"COMMENTS","sqlType":"sqlTypeNVarchar","length":250,"domain":null,"defaultValue":null},{"name":"CEMETERY_C","type":"esriFieldTypeString","alias":"CEMETERY_C","sqlType":"sqlTypeNVarchar","length":100,"domain":null,"defaultValue":null},{"name":"CEMETERY_I","type":"esriFieldTypeString","alias":"CEMETERY_I","sqlType":"sqlTypeNVarchar","length":12,"domain":null,"defaultValue":null},{"name":"CEM_TYPE","type":"esriFieldTypeString","alias":"CEM_TYPE","sqlType":"sqlTypeNVarchar","length":50,"domain":null,"defaultValue":null},{"name":"DISTRICT","type":"esriFieldTypeString","alias":"DISTRICT","sqlType":"sqlTypeNVarchar","length":50,"domain":null,"defaultValue":null},{"name":"STATUS","type":"esriFieldTypeString","alias":"STATUS","sqlType":"sqlTypeNVarchar","length":50,"domain":null,"defaultValue":null}],"features":[{"attributes":{"FID":87,"FULL_NAME":"Willamette
+        National Cemetery","SHORT_NAME":"Willamette","CEMETERY_A":"11800 SE Mt Scott
+        Blvd","CEMETERY_1":" ","CEMETERY_S":"OR","CEMETERY_Z":"97086-6937","MAIL_ADDRE":"11800
+        SE Mt Scott Blvd","MAIL_ADD_1":" ","MAIL_CITY":"Portland","MAIL_STATE":"OR","MAIL_ZIP":"97086-6937","PHONE":"503-273-5250","FAX":"503-273-5251","GOVERNING_":0,"COMMENTS":"
+        ","CEMETERY_C":"Portland","CEMETERY_I":"907","CEM_TYPE":"National Cemetery","DISTRICT":"Pacific
+        District","STATUS":"Open"},"geometry":{"x":-122.54084469610189,"y":45.456838595583996}}]}'
     http_version: 
-  recorded_at: Thu, 22 Sep 2016 23:30:52 GMT
+  recorded_at: Wed, 26 Oct 2016 21:22:46 GMT
+- request:
+    method: post
+    uri: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VBA_Facilities/FeatureServer/0/query
+    body:
+      encoding: US-ASCII
+      string: f=json&geometry=-122.440689%2C45.451913%2C-122.786758%2C45.64&geometryType=esriGeometryEnvelope&where=1%3D1&inSR=4326&outSR=4326&returnGeometry=true&returnCountOnly=false&outFields=*&resultRecordCount&returnDistinctValues=false&orderByFields=Facility_1
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - sd49_-1582148741
+      Server:
+      - Microsoft-IIS/8.5
+      X-Arcgis-Instance:
+      - MTSDS_Web_IN_5
+      X-Powered-By:
+      - ASP.NET
+      Access-Control-Allow-Origin:
+      - "*"
+      Date:
+      - Wed, 26 Oct 2016 21:22:44 GMT
+      Content-Length:
+      - '1719'
+    body:
+      encoding: ASCII-8BIT
+      string: '{"objectIdFieldName":"FID","globalIdFieldName":"","geometryType":"esriGeometryPoint","spatialReference":{"wkid":4326,"latestWkid":4326},"fields":[{"name":"FID","type":"esriFieldTypeInteger","alias":"FID","sqlType":"sqlTypeInteger","domain":null,"defaultValue":null},{"name":"ObjectID","type":"esriFieldTypeInteger","alias":"ObjectID","sqlType":"sqlTypeInteger","domain":null,"defaultValue":null},{"name":"Facility_N","type":"esriFieldTypeString","alias":"Facility_N","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Facility_1","type":"esriFieldTypeString","alias":"Facility_1","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Classifica","type":"esriFieldTypeString","alias":"Classifica","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Address_1","type":"esriFieldTypeString","alias":"Address_1","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Address__2","type":"esriFieldTypeString","alias":"Address__2","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"City_1","type":"esriFieldTypeString","alias":"City_1","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"State","type":"esriFieldTypeString","alias":"State","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Zip","type":"esriFieldTypeString","alias":"Zip","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Phone","type":"esriFieldTypeString","alias":"Phone","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Fax","type":"esriFieldTypeString","alias":"Fax","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Monday","type":"esriFieldTypeString","alias":"Monday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Tuesday","type":"esriFieldTypeString","alias":"Tuesday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Wednesday","type":"esriFieldTypeString","alias":"Wednesday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Thursday","type":"esriFieldTypeString","alias":"Thursday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Friday","type":"esriFieldTypeString","alias":"Friday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Saturday","type":"esriFieldTypeString","alias":"Saturday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Sunday","type":"esriFieldTypeString","alias":"Sunday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Comments","type":"esriFieldTypeString","alias":"Comments","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Other_Serv","type":"esriFieldTypeString","alias":"Other_Serv","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Apply_Bene","type":"esriFieldTypeString","alias":"Apply_Bene","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Career_Cou","type":"esriFieldTypeString","alias":"Career_Cou","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"School_Ass","type":"esriFieldTypeString","alias":"School_Ass","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Vocational","type":"esriFieldTypeString","alias":"Vocational","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Transition","type":"esriFieldTypeString","alias":"Transition","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Predischar","type":"esriFieldTypeString","alias":"Predischar","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Employment","type":"esriFieldTypeString","alias":"Employment","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Financial_","type":"esriFieldTypeString","alias":"Financial_","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Housing_As","type":"esriFieldTypeString","alias":"Housing_As","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Disability","type":"esriFieldTypeString","alias":"Disability","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Education_","type":"esriFieldTypeString","alias":"Education_","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Insurance_","type":"esriFieldTypeString","alias":"Insurance_","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Vocationa_","type":"esriFieldTypeString","alias":"Vocationa_","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Survivor__","type":"esriFieldTypeString","alias":"Survivor__","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Updating_I","type":"esriFieldTypeString","alias":"Updating_I","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Updating__","type":"esriFieldTypeString","alias":"Updating__","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Burial_Ass","type":"esriFieldTypeString","alias":"Burial_Ass","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"eBenefits_","type":"esriFieldTypeString","alias":"eBenefits_","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"IDE_System","type":"esriFieldTypeString","alias":"IDE_System","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Homeless_A","type":"esriFieldTypeString","alias":"Homeless_A","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Organizati","type":"esriFieldTypeString","alias":"Organizati","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null}],"features":[{"attributes":{"FID":58,"ObjectID":272,"Facility_N":"Portland
+        Regional Benefit Office","Facility_1":"348","Classifica":"Regional Office","Address_1":"100
+        SW Main Street","Address__2":"Floor 2","City_1":"Portland","State":"OR","Zip":"97204","Phone":"800-827-1000","Fax":"503-412-4733","Monday":"8
+        am - 4 pm","Tuesday":"8 am - 4 pm","Wednesday":"8 am - 4 pm","Thursday":"8
+        am - 4 pm","Friday":"8 am - 4 pm","Saturday":"Closed","Sunday":"Closed","Comments":"
+        ","Other_Serv":" ","Apply_Bene":"Yes","Career_Cou":"No","School_Ass":"Yes","Vocational":"No","Transition":"No","Predischar":"No","Employment":"No","Financial_":"No","Housing_As":"No","Disability":"Yes","Education_":"No","Insurance_":"No","Vocationa_":"No","Survivor__":"Yes","Updating_I":"Yes","Updating__":"Yes","Burial_Ass":"Yes","eBenefits_":"Yes","IDE_System":"No","Homeless_A":"Yes","Organizati":"VBA"},"geometry":{"x":-122.67551734399972,"y":45.515162285000486}},{"attributes":{"FID":258,"ObjectID":329,"Facility_N":"Portland  Regional
+        Office Vocational Rehabilitation Division","Facility_1":"348a","Classifica":"Voc
+        Rehab Office","Address_1":"100 SW Main St","Address__2":"Floor 2","City_1":"Portland","State":"OR","Zip":"97204","Phone":"503-412-4577","Fax":"503-412-4740","Monday":"8
+        am - 4 pm","Tuesday":"8 am - 4 pm","Wednesday":"8 am - 4 pm","Thursday":"8
+        am - 4 pm","Friday":"8 am - 4 pm","Saturday":"Closed","Sunday":"Closed","Comments":"
+        ","Other_Serv":"Educational and Vocational Counseling for service members
+        and Veterans, Independent Living assessment and provision of services, personal
+        adjustment counseling, referrals for intensive health services at VAMC, referrals
+        to community support services, sur","Apply_Bene":"Yes","Career_Cou":"Yes","School_Ass":"Yes","Vocational":"Yes","Transition":"Yes","Predischar":"Yes","Employment":"Yes","Financial_":"Yes","Housing_As":"Yes","Disability":"No","Education_":"Yes","Insurance_":"No","Vocationa_":"Yes","Survivor__":"No","Updating_I":"Yes","Updating__":"No","Burial_Ass":"No","eBenefits_":"Yes","IDE_System":"No","Homeless_A":"No","Organizati":"VBA"},"geometry":{"x":-122.67551734399972,"y":45.515162285000486}},{"attributes":{"FID":262,"ObjectID":331,"Facility_N":"Portland  Regional
+        Office Vocational Rehabilitation Division Vancouver Outbased Office","Facility_1":"348a","Classifica":"Voc
+        Rehab Office","Address_1":"1601 E Fourth Pain Blvd","Address__2":"V3CH31,
+        Bldg 18","City_1":"Vancouver","State":"WA","Zip":"98661","Phone":"503-412-4577","Fax":"360-759-1679","Monday":"8
+        am -4:30 pm","Tuesday":"8 am -4:30 pm","Wednesday":"8 am -4:30 pm","Thursday":"8
+        am -4:30 pm","Friday":"8 am -4:30 pm","Saturday":"Closed","Sunday":"Closed","Comments":"
+        ","Other_Serv":"Educational and Vocational Counseling for service members
+        and Veterans, Independent Living assessment and provision of services, personal
+        adjustment counseling, referrals for intensive health services at VAMC, referrals
+        to community support services, sur","Apply_Bene":"Yes","Career_Cou":"Yes","School_Ass":"Yes","Vocational":"Yes","Transition":"Yes","Predischar":"Yes","Employment":"Yes","Financial_":"Yes","Housing_As":"Yes","Disability":"Yes","Education_":"Yes","Insurance_":"No","Vocationa_":"Yes","Survivor__":"No","Updating_I":"Yes","Updating__":"No","Burial_Ass":"Yes","eBenefits_":"Yes","IDE_System":"No","Homeless_A":"Yes","Organizati":"VBA"},"geometry":{"x":-122.65528736299973,"y":45.639416260000466}},{"attributes":{"FID":266,"ObjectID":333,"Facility_N":"Portland  Regional
+        Office Vocational Rehabilitation Division VetSuccess on Campus Portland State
+        University","Facility_1":"348d","Classifica":"Voc Rehab Office","Address_1":"724
+        SW Harrison","Address__2":" ","City_1":"Portland","State":"OR","Zip":"97204","Phone":"503-412-4577","Fax":"N/A","Monday":"8
+        am -4:30 pm","Tuesday":"8 am -4:30 pm","Wednesday":"8 am -4:30 pm","Thursday":"8
+        am -4:30 pm","Friday":"8 am -4:30 pm","Saturday":"Closed","Sunday":"Closed","Comments":"
+        ","Other_Serv":"On campus outreach to Veterans, Referrals fro VA health services,
+        adjustment counseling, job placement assistance coordination, referrals to
+        campus services, expertise to PCC community of Veteran experience, assist
+        with academic counseling.","Apply_Bene":"Yes","Career_Cou":"Yes","School_Ass":"Yes","Vocational":"Yes","Transition":"Yes","Predischar":"Yes","Employment":"Yes","Financial_":"Yes","Housing_As":"Yes","Disability":"Yes","Education_":"Yes","Insurance_":"Yes","Vocationa_":"Yes","Survivor__":"Yes","Updating_I":"Yes","Updating__":"No","Burial_Ass":"No","eBenefits_":"Yes","IDE_System":"No","Homeless_A":"Yes","Organizati":"VBA"},"geometry":{"x":-122.68447748699971,"y":45.511442719000449}},{"attributes":{"FID":268,"ObjectID":334,"Facility_N":"Portland  Regional
+        Office Vocational Rehabilitation Division VetSuccess on Campus Portland Community
+        College","Facility_1":"348e","Classifica":"Voc Rehab Office","Address_1":"
+        ","Address__2":"P.O. Box 19000","City_1":"Portland","State":"OR","Zip":"97280","Phone":"503-412-4577","Fax":"N/A","Monday":"8
+        am -4:30 pm","Tuesday":"8 am -4:30 pm","Wednesday":"8 am -4:30 pm","Thursday":"8
+        am -4:30 pm","Friday":"8 am -4:30 pm","Saturday":"Closed","Sunday":"Closed","Comments":"
+        ","Other_Serv":"On campus outreach to Veterans, Referrals fro VA health services,
+        adjustment counseling, job placement assistance coordination, referrals to
+        campus services, expertise to PCC community of Veteran experience, assist
+        with academic counseling.","Apply_Bene":"Yes","Career_Cou":"Yes","School_Ass":"Yes","Vocational":"Yes","Transition":"Yes","Predischar":"Yes","Employment":"Yes","Financial_":"Yes","Housing_As":"Yes","Disability":"Yes","Education_":"Yes","Insurance_":"Yes","Vocationa_":"Yes","Survivor__":"Yes","Updating_I":"Yes","Updating__":"No","Burial_Ass":"No","eBenefits_":"Yes","IDE_System":"No","Homeless_A":"Yes","Organizati":"VBA"},"geometry":{"x":-122.71790769099972,"y":45.4682579140005}}]}'
+    http_version: 
+  recorded_at: Wed, 26 Oct 2016 21:22:47 GMT
 recorded_with: VCR 3.0.3

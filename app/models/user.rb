@@ -51,13 +51,6 @@ class User < Common::RedisStore
     user.validates :gender, presence: true, format: /\A(M|F)\z/
   end
 
-  # TODO(AJD): realize this is temporary but it's also used in specs where it should be stubbed or a factory
-  def self.sample_claimant
-    attrs = JSON.load(ENV['EVSS_SAMPLE_CLAIMANT_USER'])
-    attrs[:last_signed_in] = Time.now.utc
-    User.new attrs
-  end
-
   def loa1?
     loa[:current] == LOA::ONE
   end
@@ -65,6 +58,15 @@ class User < Common::RedisStore
   def rating_record
     client = EVSS::CommonService.new(evss_auth_headers)
     client.find_rating_info(participant_id).body.fetch('ratingRecord', {})
+  end
+
+  def evss_attrs?
+    edipi.present? && ssn.present? && participant_id.present?
+  end
+
+  # This is a helper method for pulling mhv_correlation_id
+  def mhv_correlation_id
+    @mhv_correlation_id ||= mvi&.fetch(:mhv_id, nil)&.split('^')&.first
   end
 
   private
