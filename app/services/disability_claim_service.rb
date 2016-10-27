@@ -1,7 +1,7 @@
 # frozen_string_literal: true
-require_dependency 'evss/claims_service'
-require_dependency 'evss/documents_service'
-require_dependency 'evss/auth_headers'
+require 'evss/claims_service'
+require 'evss/documents_service'
+require 'evss/auth_headers'
 
 class DisabilityClaimService
   EVSS_CLAIM_KEYS = %w(openClaims historicalClaims).freeze
