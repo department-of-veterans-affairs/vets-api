@@ -9,8 +9,14 @@ http_interactions:
     headers:
       User-Agent:
       - Faraday v0.9.2
+      Date:
+      - Thu, 27 Oct 2016 22:25:35 GMT
+      Content-Length:
+      - '19'
       Content-Type:
       - text/xml;charset=UTF-8
+      Soapaction:
+      - PRPA_IN201305UV02
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -23,13 +29,13 @@ http_interactions:
       Connection:
       - close
       Date:
-      - Thu, 27 Oct 2016 05:56:37 GMT
+      - Thu, 27 Oct 2016 22:05:34 GMT
       Content-Length:
       - '2408'
       Content-Type:
       - text/html; charset=UTF-8
       Set-Cookie:
-      - JSESSIONID=n7f4YRXVPBN0XRDT749qrTKpk5rLvcLykqzS2YRlqWP48plvD3KT!211273948;
+      - JSESSIONID=GkwnYS6T4yjwsJC8pdjKpzpWc1XJgsyySbSqyv7QytqNh64bsX6b!1604350384;
         path=/; HttpOnly
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
@@ -61,5 +67,5 @@ http_interactions:
         weblogic.servlet.internal.ServletRequestImpl.run(ServletRequestImpl.java:1490)\n\tat
         weblogic.work.ExecuteThread.execute(ExecuteThread.java:256)\n\tat weblogic.work.ExecuteThread.run(ExecuteThread.java:221)\n</pre></FONT></TD></TR>\n</TABLE>\n\n</BODY>\n</HTML>\n"
     http_version: 
-  recorded_at: Thu, 27 Oct 2016 06:16:29 GMT
+  recorded_at: Thu, 27 Oct 2016 22:25:36 GMT
 recorded_with: VCR 3.0.3
