@@ -44,7 +44,7 @@ module MVI
       private
 
       def locate_element(el, path)
-        el.locate(path).first
+        el.locate(path)&.first
       end
     end
     class NotImplementedError < StandardError
