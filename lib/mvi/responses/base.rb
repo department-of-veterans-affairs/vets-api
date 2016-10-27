@@ -10,6 +10,9 @@ module MVI
         invalid_request: 'AR'
       }.freeze
 
+      CODE_XPATH = 'acknowledgement/typeCode/@code'
+      QUERY_XPATH = 'controlActProcess/queryByParameter'
+
       class << self
         attr_accessor :endpoint
       end
@@ -20,10 +23,10 @@ module MVI
       delegate :endpoint, to: 'self.class'
 
       def initialize(response)
-        @original_body = response.body[endpoint]
-        @original_response = response.xml
-        @code = @original_body.dig(:acknowledgement, :type_code, :@code)
-        @query = @original_body.dig(:control_act_process, :query_by_parameter)
+        @original_response = response.body
+        @original_body = locate_element(Ox.parse(@original_response), "env:Body/idm:#{endpoint.to_s}")
+        @code = locate_element(@original_body, CODE_XPATH)
+        @query = locate_element(@original_body, QUERY_XPATH)
       end
 
       def invalid?
@@ -36,6 +39,12 @@ module MVI
 
       def body
         raise MVI::Responses::NotImplementedError, 'subclass is expected to implement .body'
+      end
+
+      private
+
+      def locate_element(el, path)
+        el.locate(path).first
       end
     end
     class NotImplementedError < StandardError

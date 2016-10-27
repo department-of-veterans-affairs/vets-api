@@ -1,0 +1,126 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService
+    body:
+      encoding: UTF-8
+      string: |
+        <env:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <env:Header/>
+          <env:Body>
+            <idm:PRPA_IN201305UV02 xmlns:idm="http://vaww.oed.oit.va.gov" xmlns:xsi="http://www.w3.org/2001/XMLSchema‐instance" xsi:schemaLocation="urn:hl7‐org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201305UV02.xsd" xmlns="urn:hl7‐org:v3" ITSVersion="XML_1.0">
+              <id root="1.2.840.114350.1.13.0.1.7.1.1" extension="200VGOV-2c3c0c78-5e44-4ad2-b542-11388c3e45cd"/>
+              <creationTime value="20161027055921"/>
+              <versionCode code="3.0"/>
+              <interactionId root="2.16.840.1.113883.1.6" extension="PRPA_IN201305UV02"/>
+              <processingCode code="T"/>
+              <processingModeCode code="T"/>
+              <acceptAckCode code="AL"/>
+              <receiver typeCode="RCV">
+                <device classCode="DEV" determinerCode="INSTANCE">
+                  <id root="1.2.840.114350.1.13.999.234" extension="200M"/>
+                </device>
+              </receiver>
+              <controlActProcess classCode="CACT" moodCode="EVN">
+                <code code="PRPA_TE201305UV02" codeSystem="2.16.840.1.113883.1.6"/>
+                <dataEnterer typeCode="ENT" contextControlCode="AP">
+                  <assignedPerson classCode="ASSIGNED">
+                    <id extension="796122306" root="2.16.840.1.113883.777.999"/>
+                    <assignedPerson classCode="PSN" determinerCode="INSTANCE">
+                      <name>
+                        <given>Mitchell</given>
+                        <given>G</given>
+                        <family>Jenkins</family>
+                      </name>
+                    </assignedPerson>
+                  </assignedPerson>
+                </dataEnterer>
+                <queryByParameter>
+                  <queryId root="1.2.840.114350.1.13.28.1.18.5.999" extension="18204"/>
+                  <statusCode code="new"/>
+                  <modifyCode code="MVI.COMP1"/>
+                  <initialQuantity value="1"/>
+                  <parameterList>
+                    <livingSubjectAdministrativeGender>
+                      <value code="M"/>
+                      <semanticsText>Gender</semanticsText>
+                    </livingSubjectAdministrativeGender>
+                    <livingSubjectBirthTime>
+                      <value value="19490304"/>
+                      <semanticsText>Date of Birth</semanticsText>
+                    </livingSubjectBirthTime>
+                    <livingSubjectId>
+                      <value root="2.16.840.1.113883.4.1" extension="796122306"/>
+                      <semanticsText>SSN</semanticsText>
+                    </livingSubjectId>
+                    <livingSubjectName>
+                      <value use="L">
+                        <given>Mitchell</given>
+                        <given>G</given>
+                        <family>Jenkins</family>
+                      </value>
+                      <semanticsText>Legal Name</semanticsText>
+                    </livingSubjectName>
+                  </parameterList>
+                </queryByParameter>
+              </controlActProcess>
+            </idm:PRPA_IN201305UV02>
+          </env:Body>
+        </env:Envelope>
+    headers:
+      User-Agent:
+      - Faraday v0.9.2
+      Content-Type:
+      - text/xml;charset=UTF-8
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 27 Oct 2016 05:42:32 GMT
+      Content-Length:
+      - '2634'
+      Content-Type:
+      - text/xml
+      Set-Cookie:
+      - JSESSIONID=n01BYRTLh7l2bbfMGfxLXypM7mXN9ZL7hhw7mSgYrpXDHZYschJJ!211273948;
+        path=/; HttpOnly
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+    body:
+      encoding: UTF-8
+      string: '<env:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><env:Header/><env:Body><idm:PRPA_IN201306UV02
+        xmlns="urn:hl7-org:v3" xmlns:idm="http://vaww.oed.oit.va.gov" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd"><id
+        extension="WSDOC1610270042323931331393315" root="2.16.840.1.113883.4.349"/><creationTime
+        value="20161027004232"/><versionCode code="3.0"/><interactionId extension="PRPA_IN201306UV02"
+        root="2.16.840.1.113883.1.6"/><processingCode code="T"/><processingModeCode
+        code="T"/><acceptAckCode code="NE"/><receiver typeCode="RCV"><device determinerCode="INSTANCE"
+        classCode="DEV"><id root="null"/></device></receiver><sender typeCode="SND"><device
+        determinerCode="INSTANCE" classCode="DEV"><id extension="200M" root="2.16.840.1.113883.4.349"/></device></sender><acknowledgement><typeCode
+        code="AR"/><targetMessage><id extension="200VGOV-2c3c0c78-5e44-4ad2-b542-11388c3e45cd"
+        root="1.2.840.114350.1.13.0.1.7.1.1"/></targetMessage><acknowledgementDetail><code
+        codeSystem="2.16.840.1.113883.5.1100" code="INTERR" displayName="Internal
+        System Error"/><text>Invalid MVI Registration: No Sender</text></acknowledgementDetail><acknowledgementDetail><text>Invalid
+        MVI Registration: No Sender</text></acknowledgementDetail></acknowledgement><controlActProcess
+        classCode="CACT" moodCode="EVN"><code codeSystem="2.16.840.1.113883.1.6" code="PRPA_TE201306UV02"/><queryAck><queryId
+        extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><queryResponseCode
+        code="AE"/><resultCurrentQuantity value="0"/></queryAck><queryByParameter><queryId
+        extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><statusCode code="new"/><modifyCode
+        code="MVI.COMP1"/><initialQuantity value="1"/><parameterList><livingSubjectAdministrativeGender><value
+        code="M"/><semanticsText>Gender</semanticsText></livingSubjectAdministrativeGender><livingSubjectBirthTime><value
+        value="19490304"/><semanticsText>Date of Birth</semanticsText></livingSubjectBirthTime><livingSubjectId><value
+        extension="796122306" root="2.16.840.1.113883.4.1"/><semanticsText>SSN</semanticsText></livingSubjectId><livingSubjectName><value
+        use="L"><given>Mitchell</given><given>G</given><family>Jenkins</family></value><semanticsText>Legal
+        Name</semanticsText></livingSubjectName></parameterList></queryByParameter></controlActProcess></idm:PRPA_IN201306UV02></env:Body></env:Envelope>'
+    http_version: 
+  recorded_at: Thu, 27 Oct 2016 06:02:24 GMT
+recorded_with: VCR 3.0.3
