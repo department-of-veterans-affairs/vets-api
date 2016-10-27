@@ -107,7 +107,7 @@ describe MVI::Service do
   end
 
   describe MVI::RecordNotFound do
-    let(:query_json) { File.read('spec/support/mvi/query.json')  }
+    let(:query_json) { File.read('spec/support/mvi/query.json') }
     let(:xml) { '<env:Envelope></env:Envelope>' }
     let(:response) { instance_double('MVI::Responses::FindCandidate') }
     subject { MVI::RecordNotFound.new('an error message', response) }
