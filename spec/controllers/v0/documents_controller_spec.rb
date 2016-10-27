@@ -2,8 +2,12 @@
 require 'rails_helper'
 
 RSpec.describe V0::DocumentsController, type: :controller do
+  let(:user) { FactoryGirl.create(:mvi_user) }
+  let(:session) { Session.create(uuid: user.uuid) }
+
   context 'with no file param' do
-    it 'returns unauthorized' do
+    it 'returns bad request' do
+      request.headers['Authorization'] = "Token token=#{session.token}"
       post :create, disability_claim_id: 3
       expect(response).to have_http_status(:bad_request)
     end
