@@ -3,7 +3,7 @@ development: &defaults
   callback_url: http://localhost:3000/auth/saml/callback
   metadata_url: https://api.idmelabs.com/saml/metadata
   certificate: <%= File.read(File.expand_path(ENV["SAML_CERTIFICATE_FILE"])).dump %>
-  key: <%= File.read(File.expand_path(ENV["SAML_SP_KEY_FILE"])).dump %>
+  key: <%= File.read(File.expand_path(ENV["SAML_KEY_FILE"])).dump %>
   relay_url: http://localhost:3001
   fail_path: /auth_failure
 
@@ -17,6 +17,6 @@ production:
   callback_url: <%=ENV["CALLBACK_URL"] %>
   metadata_url: <%= ENV["METADATA_URL"] %>
   certificate: <%= File.read(File.expand_path(ENV["SAML_CERTIFICATE_FILE"])).dump %>
-  key: <%= File.read(File.expand_path(ENV["SAML_SP_KEY_FILE"])).dump %>
+  key: <%= File.read(File.expand_path(ENV["SAML_KEY_FILE"])).dump %>
   relay_url: <%=ENV["WEB_ORIGIN"] %>
   fail_path: <%=ENV["SAML_FAILURE_PATH"] %>
