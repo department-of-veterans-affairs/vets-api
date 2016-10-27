@@ -6,7 +6,7 @@ class VHAFacilityAdapter
   FACILITY_TYPE = 'va_health_facility'
 
   def initialize
-    @client = Facilities::Client.new(url: VHA_URL, layer: VHA_LAYER, id_field: VHA_ID_FIELD)
+    @client = Facilities::Client.new(url: VHA_URL, id_field: VHA_ID_FIELD)
   end
 
   def query(bbox, services = nil)
@@ -15,7 +15,7 @@ class VHAFacilityAdapter
   end
 
   def find_by(id:)
-    @client.get(identifier: id)
+    @client.get(id: id)
   end
 
   def self.where_clause(services)

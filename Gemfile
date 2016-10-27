@@ -32,6 +32,7 @@ gem 'sidekiq-scheduler', '~> 2.0'
 gem 'multi_json'
 gem 'carrierwave-aws'
 gem 'carrierwave', '~> 0.11'
+gem 'typhoeus'
 
 gem 'rack-cors', :require => 'rack/cors'
 gem 'net-sftp'
