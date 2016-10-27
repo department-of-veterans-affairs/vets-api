@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe ReportMailer, type: [:mailer, :reports_mail] do
+RSpec.describe ReportMailer, type: [:mailer, :aws_helpers] do
   describe '#year_to_date_report_email' do
     let(:filename) { 'foo' }
     let(:mail) { described_class.year_to_date_report_email(filename).deliver_now }

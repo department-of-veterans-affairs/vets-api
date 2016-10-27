@@ -47,7 +47,7 @@ RSpec.configure do |config|
 
   config.include(ValidationHelpers, type: :model)
   config.include(SAML, type: :controller)
-  config.include(AwsHelpers, type: :reports_mail)
+  config.include(AwsHelpers, type: :aws_helpers)
 
   # Adding support for url_helper
   config.include Rails.application.routes.url_helpers
