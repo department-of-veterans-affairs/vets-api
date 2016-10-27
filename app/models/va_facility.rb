@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require_dependency 'facilities/client'
+require 'facilities/client'
 
 class VAFacility < ActiveModelSerializers::Model
   attr_accessor :unique_id, :name, :facility_type, :classification, :lat, :long,
@@ -12,7 +12,7 @@ class VAFacility < ActiveModelSerializers::Model
   VBA = 'vba'
   NCA = 'nca'
 
-  TYPES = [HEALTH, CEMETERY].freeze
+  TYPES = [HEALTH, CEMETERY, BENEFITS].freeze
   ID_PREFIXES = {
     VHA => HEALTH,
     NCA => CEMETERY,
@@ -25,7 +25,7 @@ class VAFacility < ActiveModelSerializers::Model
       adapter = client_adapter(t)
       results = adapter.query(bbox, services)
       results&.each do |record|
-        facilities << adapter.from_gis(record)
+        facilities << adapter.class.from_gis(record)
       end
     end
   end
@@ -34,7 +34,7 @@ class VAFacility < ActiveModelSerializers::Model
     prefix, station = id.split('_')
     adapter = client_adapter(ID_PREFIXES[prefix])
     results = adapter&.find_by(id: station)
-    adapter&.from_gis(results.first) unless results.blank?
+    adapter.class&.from_gis(results.first) unless results.blank?
   end
 
   def self.service_whitelist(prefix)
@@ -49,7 +49,8 @@ class VAFacility < ActiveModelSerializers::Model
   def self.init_adapters
     {
       HEALTH => VHAFacilityAdapter.new,
-      CEMETERY => NCAFacilityAdapter.new
+      CEMETERY => NCAFacilityAdapter.new,
+      BENEFITS => VBAFacilityAdapter.new
     }
   end
 end

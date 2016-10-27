@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require_dependency 'evss/claims_service'
+require 'evss/claims_service'
 
 describe EVSS::BaseService do
   context 'with an outage' do

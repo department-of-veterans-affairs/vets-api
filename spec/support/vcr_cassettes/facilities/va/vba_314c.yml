@@ -1,0 +1,46 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VBA_Facilities/FeatureServer/0/query
+    body:
+      encoding: US-ASCII
+      string: f=json&where=Facility_1%3D%27314c%27&inSR=4326&outSR=4326&returnGeometry=true&returnCountOnly=false&outFields=*&resultRecordCount&returnDistinctValues=false&orderByFields=Facility_1
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - sd49_-1582148741
+      Server:
+      - Microsoft-IIS/8.5
+      X-Arcgis-Instance:
+      - MTSDS_Web_IN_8
+      X-Powered-By:
+      - ASP.NET
+      Access-Control-Allow-Origin:
+      - "*"
+      Date:
+      - Wed, 26 Oct 2016 21:20:54 GMT
+      Content-Length:
+      - '1062'
+    body:
+      encoding: ASCII-8BIT
+      string: '{"objectIdFieldName":"FID","globalIdFieldName":"","geometryType":"esriGeometryPoint","spatialReference":{"wkid":4326,"latestWkid":4326},"fields":[{"name":"FID","type":"esriFieldTypeInteger","alias":"FID","sqlType":"sqlTypeInteger","domain":null,"defaultValue":null},{"name":"ObjectID","type":"esriFieldTypeInteger","alias":"ObjectID","sqlType":"sqlTypeInteger","domain":null,"defaultValue":null},{"name":"Facility_N","type":"esriFieldTypeString","alias":"Facility_N","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Facility_1","type":"esriFieldTypeString","alias":"Facility_1","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Classifica","type":"esriFieldTypeString","alias":"Classifica","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Address_1","type":"esriFieldTypeString","alias":"Address_1","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Address__2","type":"esriFieldTypeString","alias":"Address__2","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"City_1","type":"esriFieldTypeString","alias":"City_1","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"State","type":"esriFieldTypeString","alias":"State","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Zip","type":"esriFieldTypeString","alias":"Zip","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Phone","type":"esriFieldTypeString","alias":"Phone","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Fax","type":"esriFieldTypeString","alias":"Fax","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Monday","type":"esriFieldTypeString","alias":"Monday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Tuesday","type":"esriFieldTypeString","alias":"Tuesday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Wednesday","type":"esriFieldTypeString","alias":"Wednesday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Thursday","type":"esriFieldTypeString","alias":"Thursday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Friday","type":"esriFieldTypeString","alias":"Friday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Saturday","type":"esriFieldTypeString","alias":"Saturday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Sunday","type":"esriFieldTypeString","alias":"Sunday","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Comments","type":"esriFieldTypeString","alias":"Comments","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Other_Serv","type":"esriFieldTypeString","alias":"Other_Serv","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Apply_Bene","type":"esriFieldTypeString","alias":"Apply_Bene","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Career_Cou","type":"esriFieldTypeString","alias":"Career_Cou","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"School_Ass","type":"esriFieldTypeString","alias":"School_Ass","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Vocational","type":"esriFieldTypeString","alias":"Vocational","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Transition","type":"esriFieldTypeString","alias":"Transition","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Predischar","type":"esriFieldTypeString","alias":"Predischar","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Employment","type":"esriFieldTypeString","alias":"Employment","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Financial_","type":"esriFieldTypeString","alias":"Financial_","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Housing_As","type":"esriFieldTypeString","alias":"Housing_As","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Disability","type":"esriFieldTypeString","alias":"Disability","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Education_","type":"esriFieldTypeString","alias":"Education_","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Insurance_","type":"esriFieldTypeString","alias":"Insurance_","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Vocationa_","type":"esriFieldTypeString","alias":"Vocationa_","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Survivor__","type":"esriFieldTypeString","alias":"Survivor__","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Updating_I","type":"esriFieldTypeString","alias":"Updating_I","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Updating__","type":"esriFieldTypeString","alias":"Updating__","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Burial_Ass","type":"esriFieldTypeString","alias":"Burial_Ass","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"eBenefits_","type":"esriFieldTypeString","alias":"eBenefits_","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"IDE_System","type":"esriFieldTypeString","alias":"IDE_System","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Homeless_A","type":"esriFieldTypeString","alias":"Homeless_A","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null},{"name":"Organizati","type":"esriFieldTypeString","alias":"Organizati","sqlType":"sqlTypeNVarchar","length":254,"domain":null,"defaultValue":null}],"features":[{"attributes":{"FID":1,"ObjectID":133,"Facility_N":"Norfolk
+        State University","Facility_1":"314c","Classifica":"VetSuccess on Campus","Address_1":"700
+        Park Avenue","Address__2":" ","City_1":"Norfolk","State":"VA","Zip":"23504","Phone":"757-823-8551","Fax":"757-823-2078","Monday":"N/A","Tuesday":"N/A","Wednesday":"7:00
+        - 4:30pm","Thursday":"7:00 - 4:30pm","Friday":"N/A","Saturday":"N/A","Sunday":"N/A","Comments":"?VSOC
+        at different location M, T & F","Other_Serv":" ","Apply_Bene":"Yes","Career_Cou":"Yes","School_Ass":"Yes","Vocational":"Yes","Transition":"No","Predischar":"No","Employment":"Yes","Financial_":"No","Housing_As":"No","Disability":"No","Education_":"Yes","Insurance_":"No","Vocationa_":"Yes","Survivor__":"No","Updating_I":"Yes","Updating__":"Yes","Burial_Ass":"No","eBenefits_":"Yes","IDE_System":"No","Homeless_A":"No","Organizati":"VBA"},"geometry":{"x":-76.269505123999636,"y":36.8476574990005}}]}'
+    http_version: 
+  recorded_at: Wed, 26 Oct 2016 21:20:53 GMT
+recorded_with: VCR 3.0.3

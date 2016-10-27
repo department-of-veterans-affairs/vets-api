@@ -135,8 +135,13 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(JSON.parse(response.body).keys).to include('token', 'uuid')
       end
 
-      it 'creates a job to create an evss user' do
+      it 'creates a job to create an evss user when user has loa3 and evss attrs' do
+        allow(saml_response).to receive(:response).and_return(loa3_xml)
         expect { get :saml_callback }.to change(EVSS::CreateUserAccountJob.jobs, :size).by(1)
+      end
+
+      it 'does not create a job to create an evss user when user has loa1' do
+        expect { get :saml_callback }.to_not change(EVSS::CreateUserAccountJob.jobs, :size)
       end
 
       it 'creates a valid session' do

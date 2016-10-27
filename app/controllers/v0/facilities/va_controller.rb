@@ -34,7 +34,7 @@ class V0::Facilities::VaController < FacilitiesController
     end
   end
 
-  TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specfied'
+  TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
   def validate_type_and_services_known
     raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
       VAFacility::TYPES.include?(params[:type])
