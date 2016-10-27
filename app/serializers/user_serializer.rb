@@ -31,7 +31,10 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def services
-    # TODO: build the available services based on available ID's
-    []
+    %w(facilities hca edu-benefits).tap do |service_list|
+      service_list += %w(rx messaging) if object.can_access_mhv?
+      service_list << 'disability-benefits' if object.can_access_evss?
+      service_list << 'user-profile' if object.can_access_user_profile?
+    end
   end
 end

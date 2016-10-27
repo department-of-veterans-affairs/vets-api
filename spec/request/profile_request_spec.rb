@@ -6,32 +6,47 @@ RSpec.describe 'Fetching profile data', type: :request do
 
   context 'when an LOA 3 user is logged in' do
     let(:mvi_user) { build :mvi_user }
-    it 'GET /profile - returns proper json' do
+
+    before do
       Session.create(uuid: mvi_user.uuid, token: token)
       User.create(mvi_user)
 
       auth_header = { 'Authorization' => "Token token=#{token}" }
       get v0_profile_url, nil, auth_header
+    end
 
+    it 'GET /profile - returns proper json' do
       assert_response :success
-
       expect(response).to match_response_schema('profile')
+    end
+
+    it 'gives me the list of available services' do
+      expect(JSON.parse(response.body)['data']['attributes']['services']).to eq(
+        %w(facility-locator hca edu-benefits disability-benefits user-profile)
+      )
     end
   end
 
   context 'when an LOA 1 user is logged in' do
     let(:loa1_user) { build :loa1_user }
 
-    it 'GET /profile - returns proper json' do
+    before do
       Session.create(uuid: loa1_user.uuid, token: token)
       User.create(loa1_user)
 
       auth_header = { 'Authorization' => "Token token=#{token}" }
       get v0_profile_url, nil, auth_header
+    end
 
+    it 'GET /profile - returns proper json' do
       assert_response :success
-
       expect(response).to match_response_schema('profile')
+    end
+
+    it 'gives me the list of available services' do
+      expect(JSON.parse(response.body)['data']['attributes']['services']).to eq(
+        %w(facility-locator hca edu-benefits user-profile)
+      )
     end
   end
 end
