@@ -144,7 +144,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       it 'returns a valid session and user' do
-        post :saml_callback, RelayState: fake_relay
+        post :saml_callback
 
         token = Rack::Utils.parse_query(URI.parse(response.location).query)['token']
         session = Session.find(token)
