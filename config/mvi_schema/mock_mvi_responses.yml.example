@@ -84,8 +84,19 @@ find_candidate:
     given_names: ['JERRY', 'M']
     icn: '1008709435V263289^NI^200M^USVHA^P'
     mhv_id: '12210827^PI^200MH^USVHA^A'
-    vba_corp_id: ~
+    vba_corp_id: '600036156'
     ssn: '796148937'
+    status: 'active'
+  "796186272":
+    birth_date: '19751126'
+    edipi: '1019787741'
+    family_name: 'BROOKS'
+    gender: 'M'
+    given_names: ['JAIME', 'L']
+    icn: ~
+    mhv_id: ~
+    vba_corp_id: '600036156'
+    ssn: '796186272'
     status: 'active'
   "796121086":
     birth_date: '19330101'
@@ -386,13 +397,13 @@ find_candidate:
     status: 'active'
   "796122472":
     birth_date: '19500101'
-    edipi: ~
+    edipi: '1005138104'
     family_name: 'MORALES'
     gender: 'M'
     given_names: ['ALFREDO', 'J']
     icn: '1008703680V285027^NI^200M^USVHA^P'
     mhv_id: ~
-    vba_corp_id: ~
+    vba_corp_id: '600043169'
     ssn: '796122472'
     status: 'active'
   "796136308":
@@ -713,4 +724,15 @@ find_candidate:
     mhv_id: ~
     vba_corp_id: '32318200^PI^200CORP^USVBA^A'
     ssn: '796030117'
+    status: 'active'
+  "796123607":
+    birth_date: '19960101'
+    edipi: '1005169255'
+    family_name: 'WEAVER'
+    gender: 'M'
+    given_names: ['JOHNNIE', 'L']
+    icn: ~
+    mhv_id: ~
+    vba_corp_id: '600043180'
+    ssn: '796123607'
     status: 'active'
