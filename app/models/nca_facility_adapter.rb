@@ -18,7 +18,7 @@ class NCAFacilityAdapter
     @client.get(identifier: id)
   end
 
-  def from_gis(record)
+  def self.from_gis(record)
     attrs = record['attributes']
     m = from_gis_attrs(TOP_KEYMAP, attrs)
     m[:facility_type] = FACILITY_TYPE
@@ -29,7 +29,7 @@ class NCAFacilityAdapter
     m[:address][:mailing] = from_gis_attrs(MAIL_ADDR_KEYMAP, attrs)
     m[:phone] = from_gis_attrs(PHONE_KEYMAP, attrs)
     m[:hours] = {}
-    m[:services] = []
+    m[:services] = {}
     VAFacility.new(m)
   end
 
@@ -43,12 +43,12 @@ class NCAFacilityAdapter
   }.freeze
 
   ADDR_KEYMAP = {
-    'address1' => 'CEMETERY_A', 'address2' => 'CEMETERY_1',
+    'address_1' => 'CEMETERY_A', 'address_2' => 'CEMETERY_1', 'address_3' => '',
     'city' => 'CEMETERY_C', 'state' => 'CEMETERY_S', 'zip' => 'CEMETERY_Z'
   }.freeze
 
   MAIL_ADDR_KEYMAP = {
-    'address1' => 'MAIL_ADDRE', 'address2' => 'MAIL_ADD_1',
+    'address_1' => 'MAIL_ADDRE', 'address_2' => 'MAIL_ADD_1', 'address_3' => '',
     'city' => 'MAIL_CITY', 'state' => 'MAIL_STATE', 'zip' => 'MAIL_ZIP'
   }.freeze
 
@@ -58,7 +58,7 @@ class NCAFacilityAdapter
 
   # Build a sub-section of the VAFacility model from a flat GIS attribute list,
   # according to the provided key mapping dict. Strip whitespace from string values.
-  def from_gis_attrs(km, attrs)
+  def self.from_gis_attrs(km, attrs)
     km.each_with_object({}) do |(k, v), h|
       h[k] = (attrs[v].respond_to?(:strip) ? attrs[v].strip : attrs[v])
     end
