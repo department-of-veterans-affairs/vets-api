@@ -56,7 +56,7 @@ describe MVI::Service do
   describe '.find_candidate' do
     context 'with a valid request' do
       it 'calls the find_candidate endpoint with a find candidate message' do
-        VCR.use_cassette('mvi/find_candidate/valid', record: :none) do
+        VCR.use_cassette('mvi/find_candidate/valid') do
           response = subject.find_candidate(message)
           expect(response).to eq(
             edipi: nil,
@@ -78,7 +78,7 @@ describe MVI::Service do
       it 'should raise a invalid request error' do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow(message).to receive(:to_xml).and_return(invalid_xml)
-        VCR.use_cassette('mvi/find_candidate/invalid', record: :none) do
+        VCR.use_cassette('mvi/find_candidate/invalid') do
           expect(Rails.logger).to receive(:error).with(/mvi find_candidate invalid request structure:/)
           expect { subject.find_candidate(message) }.to raise_error(MVI::InvalidRequestError)
         end
@@ -89,7 +89,7 @@ describe MVI::Service do
       it 'should raise a request failure error' do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow(message).to receive(:to_xml).and_return(invalid_xml)
-        VCR.use_cassette('mvi/find_candidate/failure', record: :none) do
+        VCR.use_cassette('mvi/find_candidate/failure') do
           expect(Rails.logger).to receive(:error).with(/mvi find_candidate request failure/)
           expect { subject.find_candidate(message) }.to raise_error(MVI::RequestFailureError)
         end
@@ -99,7 +99,7 @@ describe MVI::Service do
     context 'when a status of 500 is returned' do
       it 'should raise a request failure error' do
         allow(message).to receive(:to_xml).and_return('<nobeuno></nobeuno>')
-        VCR.use_cassette('mvi/find_candidate/five_hundred', record: :none) do
+        VCR.use_cassette('mvi/find_candidate/five_hundred') do
           expect { subject.find_candidate(message) }.to raise_error(MVI::HTTPError)
         end
       end
