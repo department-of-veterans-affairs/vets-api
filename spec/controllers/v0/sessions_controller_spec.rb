@@ -20,6 +20,8 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:loa1_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/loa1_response.xml") }
   let(:loa3_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/loa3_response.xml") }
   let(:settings_service) { class_double(SAML::SettingsService).as_stubbed_const }
+  let(:fake_relay) { '/some/resource' }
+  let(:query_token) { Rack::Utils.parse_query(URI.parse(response.location).query)['token'] }
 
   before(:each) do
     allow_any_instance_of(Decorators::MviUserDecorator).to receive(:create).and_return(mvi_user)
@@ -109,87 +111,67 @@ RSpec.describe V0::SessionsController, type: :controller do
       before(:example) do
         allow(attributes).to receive_message_chain(:all, :to_h).and_return(saml_attrs)
         allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response)
-        allow(saml_response).to receive(:response).and_return(loa1_xml)
+        allow(saml_response).to receive(:decrypted_document).and_return(REXML::Document.new(loa3_xml))
       end
 
       it 'should uplevel an LOA 1 session to LOA 3' do
-        allow(saml_response).to receive(:response).and_return(loa3_xml)
         allow(attributes).to receive_message_chain(:all, :to_h).and_return(loa3_saml_attrs)
         allow_any_instance_of(Decorators::MviUserDecorator).to receive(:create).and_return(loa3_user)
 
         Session.create(uuid: loa1_user.uuid, token: token)
         User.create(loa1_user)
 
-        get :saml_callback
-        assert_response :success
+        post :saml_callback, RelayState: fake_relay
+        assert_response :found
 
-        uuid = JSON.parse(response.body)['uuid']
-        user = User.find(uuid)
+        user = User.find(loa1_user.uuid)
         expect(user.attributes).to eq(loa3_user.attributes)
       end
 
-      it 'returns a valid token session' do
-        get :saml_callback
+      it 'returns a valid session and user' do
+        post :saml_callback
 
-        expect(response).to have_http_status(:success)
-        expect(JSON.parse(response.body).keys).to include('token', 'uuid')
+        token = Rack::Utils.parse_query(URI.parse(response.location).query)['token']
+        session = Session.find(token)
+        expect(session).to_not be_nil
+        expect(User.find(session.uuid).attributes).to eq(mvi_user.attributes)
       end
 
       it 'creates a job to create an evss user when user has loa3 and evss attrs' do
-        allow(saml_response).to receive(:response).and_return(loa3_xml)
         expect { get :saml_callback }.to change(EVSS::CreateUserAccountJob.jobs, :size).by(1)
       end
 
       it 'does not create a job to create an evss user when user has loa1' do
+        allow(saml_response).to receive(:decrypted_document).and_return(REXML::Document.new(loa1_xml))
         expect { get :saml_callback }.to_not change(EVSS::CreateUserAccountJob.jobs, :size)
       end
 
-      it 'creates a valid session' do
-        get :saml_callback
-        assert_response :success
-
-        token = JSON.parse(response.body)['token']
-        expect(Session.find(token)).not_to be_nil
-      end
-
-      it 'stores the user' do
-        get :saml_callback
-        assert_response :success
-
-        uuid = JSON.parse(response.body)['uuid']
-        user = User.find(uuid)
-        expect(user).not_to be_nil
-        expect(user.first_name).to eq(saml_attrs['fname'].first)
-        expect(user.gender).to eq(saml_attrs['gender'].first[0].upcase)
-      end
-
       it 'parses and stores the current level of assurance' do
-        get :saml_callback
-        assert_response :success
+        post :saml_callback, RelayState: fake_relay
+        assert_response :found
 
-        uuid = JSON.parse(response.body)['uuid']
-        user = User.find(uuid)
-        expect(user.loa[:current]).to eq(LOA::ONE)
+        session = Session.find(query_token)
+        user = User.find(session.uuid)
+        expect(user.loa[:current]).to eq(LOA::TWO)
       end
 
       it 'parses and stores the highest level of assurance proofing' do
-        get :saml_callback
-        assert_response :success
+        post :saml_callback, RelayState: fake_relay
+        assert_response :found
 
-        uuid = JSON.parse(response.body)['uuid']
-        user = User.find(uuid)
+        session = Session.find(query_token)
+        user = User.find(session.uuid)
         expect(user.loa[:highest]).to eq(LOA::THREE)
       end
     end
 
-    it 'GET saml_callback - returns unauthorized from an invalid SAML response' do
+    it 'GET saml_callback - responds with a redirect to an auth failure page' do
       errors = ['Response is invalid']
       allow(OneLogin::RubySaml::Response)
         .to receive(:new).and_return(double('saml_response', is_valid?: false, errors: errors))
 
-      get :saml_callback
-      expect(response).to have_http_status(:forbidden)
-      expect(JSON.parse(response.body)['errors']).to eq(['Response is invalid'])
+      expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
+      expect(response).to have_http_status(:found)
     end
   end
 

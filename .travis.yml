@@ -8,8 +8,9 @@ branches:
   - master
 before_script:
 - export HOSTNAME="www.example.com"
-- export CERTIFICATE_FILE="spec/support/certificates/ruby-saml.crt"
-- export KEY_FILE="spec/support/certificates/ruby-saml.key"
+- export SAML_CERTIFICATE_FILE="spec/support/certificates/ruby-saml.crt"
+- export SAML_KEY_FILE="spec/support/certificates/ruby-saml.key"
+- export SAML_RELAY="http://localhost:3001/auth/login/callback"
 - export REDIS_HOST="localhost"
 - export REDIS_PORT="6379"
 - export MHV_HOST='https://mock-prescriptions-api.herokuapp.com'
