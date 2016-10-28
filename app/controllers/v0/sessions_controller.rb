@@ -5,7 +5,6 @@ module V0
 
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      # TODO: RelayState value should come from the ?location query param
       render json: { authenticate_via_get: saml_auth_request.create(saml_settings) }
     end
 
@@ -25,7 +24,7 @@ module V0
 
       if @saml_response.is_valid?
         persist_session_and_user!
-        redirect_to SAML_CONFIG['relay'] + "?token=#{@session.token}"
+        redirect_to SAML_CONFIG['relay'] + '?token=' + @session.token
       else
         redirect_to SAML_CONFIG['relay'] + '?auth=fail'
       end
