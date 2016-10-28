@@ -23,8 +23,7 @@ class VAFacility < ActiveModelSerializers::Model
   def self.query(bbox:, type:, services:)
     query_types = type.nil? ? TYPES : [type]
     requests = query_types.map { |t| client_adapter(t).query(bbox, services) }
-    mc = Facilities::MultiClient.new    
-    responses = mc.run(requests)
+    responses = multi_client.run(requests)
     query_types.zip(responses).each_with_object([]) do |tr, facilities|
       adapter = client_adapter(tr.first)
       tr.second&.each do |record|
@@ -36,15 +35,18 @@ class VAFacility < ActiveModelSerializers::Model
   def self.find_by(id:)
     prefix, station = id.split('_')
     adapter = client_adapter(ID_PREFIXES[prefix])
-    request = adapter&.find_by(id: station)
-    mc = Facilities::MultiClient.new 
-    responses = mc.run([request])
-    results = responses.first
-    adapter.class&.from_gis(responses.first.first) unless responses.first.blank? 
+    return nil unless adapter
+    request = adapter.find_by(id: station)
+    responses = multi_client.run([request])
+    adapter.class&.from_gis(responses.first.first) unless responses.first.blank?
   end
 
   def self.service_whitelist(prefix)
     client_adapter(prefix)&.service_whitelist
+  end
+
+  def self.multi_client
+    @mc ||= Facilities::MultiClient.new
   end
 
   def self.client_adapter(prefix)
