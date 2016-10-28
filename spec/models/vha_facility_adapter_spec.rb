@@ -22,4 +22,24 @@ RSpec.describe VHAFacilityAdapter, type: :adapter do
     model = described_class.from_gis(input)
     expect(model.address[:physical][:zip]).to eq('97239')
   end
+
+  it '#it handles mh_phone without extension' do
+    input = FactoryGirl.build(:vha_gis_record)
+    model = described_class.from_gis(input)
+    expect(model.phone[:mental_health_clinic]).to eq('5032735187')
+  end
+
+  it '#it handles mh_phone with extension' do
+    input = FactoryGirl.build(:vha_gis_record)
+    input['attributes']['Extension'] = 12_345
+    model = described_class.from_gis(input)
+    expect(model.phone[:mental_health_clinic]).to eq('5032735187 x 12345')
+  end
+
+  it '#it handles no mh_phone' do
+    input = FactoryGirl.build(:vha_gis_record)
+    input['attributes']['MHClinicPh'] = 0
+    model = described_class.from_gis(input)
+    expect(model.phone[:mental_health_clinic]).to eq('')
+  end
 end

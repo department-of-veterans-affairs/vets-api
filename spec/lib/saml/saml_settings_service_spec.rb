@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require_dependency 'saml/settings_service'
+require 'saml/settings_service'
 
 RSpec.describe SAML::SettingsService do
   # testing singletons is tricky since it may be initialized in a previous spec example,

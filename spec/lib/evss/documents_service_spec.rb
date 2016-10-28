@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require_dependency 'evss/documents_service'
-require_dependency 'evss/auth_headers'
+require 'evss/documents_service'
+require 'evss/auth_headers'
 
 describe EVSS::DocumentsService do
   let(:current_user) { FactoryGirl.create(:mvi_user) }

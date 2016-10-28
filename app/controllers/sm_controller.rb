@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require_dependency 'sm/client'
+require 'sm/client'
 
 class SMController < ApplicationController
   include ActionController::Serialization

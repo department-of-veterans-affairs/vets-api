@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require_dependency 'evss/documents_service'
+require 'evss/documents_service'
 
 class DisabilityClaim < ActiveRecord::Base
   attr_accessor :successful_sync
