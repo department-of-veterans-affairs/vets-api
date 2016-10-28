@@ -39,21 +39,6 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(response).to have_http_status(:unauthorized)
       end
     end
-    describe 'and an invalid location query param is supplied' do
-      it 'that is blank, GET new - defaults to /profile' do
-        get :new, location: 'a/invalid/path'
-        assert_response :success
-        unescaped_url = URI.unescape(JSON.parse(response.body)['authenticate_via_get'])
-        expect(unescaped_url).to include('RelayState=/profile')
-      end
-
-      it 'that contains disallowed chars, GET new - defaults to /profile' do
-        get :new, location: '/?/badchars/&'
-        assert_response :success
-        unescaped_url = URI.unescape(JSON.parse(response.body)['authenticate_via_get'])
-        expect(unescaped_url).to include('RelayState=/profile')
-      end
-    end
 
     it 'GET new - shows the ID.me authentication url' do
       allow_any_instance_of(OneLogin::RubySaml::Authrequest)
@@ -180,12 +165,12 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
     end
 
-    it 'GET saml_callback - returns unauthorized from an invalid SAML response' do
+    it 'GET saml_callback - responds with a redirect to an auth failure page' do
       errors = ['Response is invalid']
       allow(OneLogin::RubySaml::Response)
         .to receive(:new).and_return(double('saml_response', is_valid?: false, errors: errors))
 
-      expect(post(:saml_callback)).to redirect_to("#{SAML_CONFIG['relay_url']}#{SAML_CONFIG['fail_path']}")
+      expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
       expect(response).to have_http_status(:found)
     end
   end

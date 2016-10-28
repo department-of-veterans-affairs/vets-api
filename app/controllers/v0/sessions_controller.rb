@@ -6,7 +6,7 @@ module V0
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
       # TODO: RelayState value should come from the ?location query param
-      render json: { authenticate_via_get: saml_auth_request.create(saml_settings, RelayState: location_param) }
+      render json: { authenticate_via_get: saml_auth_request.create(saml_settings) }
     end
 
     def show
@@ -25,9 +25,9 @@ module V0
 
       if @saml_response.is_valid?
         persist_session_and_user!
-        redirect_to relay_success
+        redirect_to SAML_CONFIG['relay'] + "?token=#{@session.token}"
       else
-        redirect_to relay_failure
+        redirect_to SAML_CONFIG['relay'] + '?auth=fail'
       end
     end
 
@@ -93,22 +93,6 @@ module V0
       return unless user.evss_attrs?
       auth_headers = EVSS::AuthHeaders.new(user).to_h
       EVSS::CreateUserAccountJob.perform_async(auth_headers)
-    end
-
-    def location_param
-      # Regex explanation:
-      # - must begin with forward-slash: /
-      # - allowable chars: a-z, A-Z, 0-9, _, -, /
-      %r{\A\/[a-zA-Z0-9\/_-]+\z}.match(params[:location])&.to_s || '/profile'
-    end
-
-    def relay_success
-      "#{SAML_CONFIG['relay_url']}#{params[:RelayState]}?token=#{@session.token}"
-    end
-
-    def relay_failure
-      # TODO: url
-      "#{SAML_CONFIG['relay_url']}#{SAML_CONFIG['fail_path']}"
     end
   end
 end
