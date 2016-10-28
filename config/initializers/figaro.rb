@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 Figaro.require_keys(
   'HOSTNAME',
-  'CERTIFICATE_FILE',
-  'KEY_FILE',
+  'SAML_CERTIFICATE_FILE',
+  'SAML_KEY_FILE',
   'REDIS_HOST',
   'REDIS_PORT',
   'DB_ENCRYPTION_KEY',
