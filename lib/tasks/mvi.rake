@@ -35,6 +35,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
     end
 
     users = []
+    found_users = []
     CSV.foreach(
       ENV['csv'],
       headers: true, header_converters: :symbol, converters: :all
@@ -53,11 +54,16 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
         found += 1
         puts "Found #{found} of #{i} users:\n\n"
         pp user
+        found_users << user
       rescue => e
         puts "User query failed: #{e.message}"
       end
       puts "\n-----------------------------------------------------------------\n"
     end
+
+    puts "\nDONE!\n"
+
+    puts Oj.dump(found_users, mode: :compat)
   end
 end
 
