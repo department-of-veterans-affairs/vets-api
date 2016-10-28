@@ -6,7 +6,7 @@ module FeatureFlipper
   end
 
   def self.send_email?
-    ENV['GOVDELIVERY_TOKEN'].present? || Rails.env.test?
+    ENV['GOV_DELIVERY_TOKEN'].present? || Rails.env.test?
   end
 
   def self.staging_email?
