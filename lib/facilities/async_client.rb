@@ -4,7 +4,7 @@ require 'typhoeus'
 module Facilities
   class Client
     def initialize(url:, id_field:)
-      @url = [url,'query'].join('/')
+      @url = [url, 'query'].join('/')
       @id_field = id_field
     end
 
