@@ -1,6 +1,3 @@
-// For copy/pasting into each repo.
-// TODO(knkski): Get this working:
-// https://github.com/jenkinsci/workflow-remote-loader-plugin
 def notify(message, color='good') {
     if (notify_slack.toBoolean()) {
         slackSend message: message,
