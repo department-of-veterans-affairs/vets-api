@@ -16,15 +16,17 @@ RSpec.describe DisabilityClaimDetailSerializer, type: :serializer do
   end
 
   context 'with HTML in the description' do
-    let(:disability_claim) { FactoryGirl.build(:disability_claim, data: {
-        'claimTrackedItems': {
-          'stillNeedFromYouList': [
-            {
-              description: 'this has <h1>HTML</h1>'
-            }
-          ]
-        }
-    })}
+    let(:disability_claim) do
+      FactoryGirl.build(:disability_claim, data: {
+                          'claimTrackedItems': {
+                            'stillNeedFromYouList': [
+                              {
+                                description: 'this has <h1>HTML</h1>'
+                              }
+                            ]
+                          }
+                        })
+    end
     it 'strips the HTML tags' do
       expect(attributes['events_timeline'][0]['description']).to eq('this has HTML')
     end
