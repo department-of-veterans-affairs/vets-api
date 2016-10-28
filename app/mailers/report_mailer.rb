@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 class ReportMailer < ApplicationMailer
+  YEAR_TO_DATE_REPORT_TEXT = 'Year to date report'
   # TODO: change this for production
   default to: 'lihan@adhocteam.us'
 
@@ -10,8 +11,8 @@ class ReportMailer < ApplicationMailer
     url = obj.presigned_url(:get, expires_in: 1.week)
 
     mail(
-      subject: 'Year to date report',
-      body: "Year to date report (link expires in one week)<br>#{url}"
+      subject: YEAR_TO_DATE_REPORT_TEXT,
+      body: "#{YEAR_TO_DATE_REPORT_TEXT} (link expires in one week)<br>#{url}"
     )
   end
 
