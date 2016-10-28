@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'rails_helper'
+require 'backend_services'
 
 RSpec.describe 'Fetching profile data', type: :request do
   let(:token) { 'abracadabra-open-sesame' }
@@ -22,7 +23,13 @@ RSpec.describe 'Fetching profile data', type: :request do
 
     it 'gives me the list of available services' do
       expect(JSON.parse(response.body)['data']['attributes']['services'].sort).to eq(
-        %w(facilities hca edu-benefits disability-benefits user-profile).sort
+        [
+          BackendServices::FACILITIES,
+          BackendServices::HCA,
+          BackendServices::EDUCATION_BENEFITS,
+          BackendServices::DISABILITY_BENEFITS,
+          BackendServices::USER_PROFILE
+        ].sort
       )
     end
   end
@@ -45,7 +52,12 @@ RSpec.describe 'Fetching profile data', type: :request do
 
     it 'gives me the list of available services' do
       expect(JSON.parse(response.body)['data']['attributes']['services'].sort).to eq(
-        %w(facilities hca edu-benefits user-profile).sort
+        [
+          BackendServices::FACILITIES,
+          BackendServices::HCA,
+          BackendServices::EDUCATION_BENEFITS,
+          BackendServices::USER_PROFILE
+        ].sort
       )
     end
   end
