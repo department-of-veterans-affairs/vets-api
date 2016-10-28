@@ -102,6 +102,16 @@ describe 'sm client' do
         expect(message.attachments.size).to eq(4)
         expect(message.attachments[0]).to be_an(Attachment)
       end
+
+      it 'cannot send reply draft as message', :vcr do
+        draft = attributes_for(:message_draft, id: 655_623).slice(:id, :subject, :body, :recipient_id)
+        expect { client.post_create_message(draft) }.to raise_error(Common::Exceptions::ValidationErrors)
+      end
+
+      it 'cannot send draft as reply', :vcr do
+        draft = attributes_for(:message_draft, id: 655_626).slice(:id, :subject, :body, :recipient_id)
+        expect { client.post_create_message_reply(631_270, draft) }.to raise_error(Common::Exceptions::ValidationErrors)
+      end
     end
 
     context 'nested resources' do

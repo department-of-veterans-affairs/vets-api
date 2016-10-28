@@ -3,8 +3,8 @@ require 'common/models/base'
 require 'common/models/redis_store'
 require 'mvi/messages/find_candidate_message'
 require 'mvi/service'
-require_dependency 'evss/common_service'
-require_dependency 'evss/auth_headers'
+require 'evss/common_service'
+require 'evss/auth_headers'
 
 class User < Common::RedisStore
   redis_store REDIS_CONFIG['user_store']['namespace']

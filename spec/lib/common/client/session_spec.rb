@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require_dependency 'common/client/session'
+require 'common/client/session'
 
 describe Common::Client::Session do
   class DerivedClass < Common::Client::Session
