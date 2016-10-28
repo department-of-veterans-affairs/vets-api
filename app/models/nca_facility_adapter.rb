@@ -38,8 +38,8 @@ class NCAFacilityAdapter
   end
 
   TOP_KEYMAP = {
-    unique_id: 'CEMETERY_I',
-    name: 'FULL_NAME', classification: 'CEM_TYPE'
+    unique_id: 'CEMETERY_I', name: 'FULL_NAME', classification: 'CEM_TYPE',
+    website: 'First_InternetAddress'
   }.freeze
 
   ADDR_KEYMAP = {

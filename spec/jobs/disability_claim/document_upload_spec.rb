@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require_dependency 'evss/claims_service'
-require_dependency 'evss/auth_headers'
+require 'evss/claims_service'
+require 'evss/auth_headers'
 
 RSpec.describe DisabilityClaim::DocumentUpload, type: :job do
   let(:client_stub) { instance_double('EVSS::DocumentsService') }

@@ -35,7 +35,10 @@ FactoryGirl.define do
         'Saturday' => '24/7',
         'Sunday' => '24/7',
         'Latitude' => 45.49746145,
-        'Longitude' => -122.68287208
+        'Longitude' => -122.68287208,
+        'MHClinicPh' => 5_032_735_187,
+        'Extension' => 0,
+        'First_Inte' => 'http://www.portland.va.gov/'
       }
     end
     geometry do

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require_dependency 'rx/client'
+require 'rx/client'
 
 class RxController < ApplicationController
   include ActionController::Serialization
