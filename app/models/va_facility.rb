@@ -1,6 +1,6 @@
 # frozen_string_literal: true
-require_dependency 'facilities/async_client'
-require_dependency 'facilities/multi_client'
+require 'facilities/async_client'
+require 'facilities/multi_client'
 
 class VAFacility < ActiveModelSerializers::Model
   attr_accessor :unique_id, :name, :facility_type, :classification, :website,
