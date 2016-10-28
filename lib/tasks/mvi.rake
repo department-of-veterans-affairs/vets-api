@@ -1,8 +1,5 @@
 # frozen_string_literal: true
-require 'mvi/messages/find_candidate_message'
-require 'mvi/service'
 require 'csv'
-require 'benchmark'
 
 namespace :mvi do
   desc 'Given user attributes, run a find candidate query'
