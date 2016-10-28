@@ -1,6 +1,9 @@
 # frozen_string_literal: true
-StatsD.backend = if Rails.env.development? || Rails.env.test?
-                   StatsD::Instrument::Backends::LoggerBackend.new(Rails.logger)
+host = ENV['STATSD_HOST']
+port = ENV['STATSD_PORT']
+
+StatsD.backend = if host.present? && port.present?
+                   StatsD::Instrument::Backends::UDPBackend.new("#{host}:#{port}", :statsd)
                  else
-                   StatsD::Instrument::Backends::UDPBackend.new("#{ENV['STATSD_HOST']}:#{ENV['STATSD_PORT']}", :statsd)
+                   StatsD::Instrument::Backends::LoggerBackend.new(Rails.logger)
                  end
