@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 6944bf0984f9ebce16b3a7029c13808150611bde
+  revision: 7c612829e0862c8a4aee9ff15badf13c968d46d6
   branch: master
   specs:
     vets_json_schema (1.0.0)
@@ -448,4 +448,4 @@ DEPENDENCIES
   will_paginate
 
 BUNDLED WITH
-   1.13.1
+   1.13.6

@@ -23,11 +23,11 @@ class Decorators::MviUserDecorator
     }
     @user
   rescue MVI::RecordNotFound => e
-    # TODO(AJD): add cloud watch metric
+    # TODO(AJD): add metric
     Rails.logger.error "MVI record not found for user: #{@user.uuid}"
     raise Common::Exceptions::RecordNotFound, "User not in found MVI: #{e.message}"
   rescue MVI::ServiceError => e
-    # TODO(AJD): add cloud watch metric
+    # TODO(AJD): add metric
     Rails.logger.error "Error retrieving MVI data for user: #{@user.uuid}"
     raise Common::Exceptions::InternalServerError, e
   end
