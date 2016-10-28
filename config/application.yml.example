@@ -26,7 +26,7 @@ MVI_URL: 'http://see.project.readme.for.instructions.org'
 MVI_CLIENT_CERT_PATH: '/fake/client/cert/path'
 MVI_CLIENT_KEY_PATH: '/fake/client/key/path'
 MOCK_MVI_SERVICE: 'true'
-GOV_DELIVERY_SERVER: staging-tms.govdelivery.com
+GOV_DELIVERY_SERVER: stage-tms.govdelivery.com
 
 # For CORS requests; separate multiple origins with a comma
 WEB_ORIGIN: 'http://localhost:3000,http://localhost:3001'

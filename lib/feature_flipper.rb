@@ -10,6 +10,6 @@ module FeatureFlipper
   end
 
   def self.staging_email?
-    ENV['GOV_DELIVERY_SERVER'].include?('staging')
+    ENV['GOV_DELIVERY_SERVER'].include?('stage')
   end
 end
