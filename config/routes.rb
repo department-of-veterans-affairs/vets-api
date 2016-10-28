@@ -4,12 +4,11 @@ Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
 
   get '/saml/metadata', to: 'saml#metadata'
-  get '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
   post '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
 
   namespace :v0, defaults: { format: 'json' } do
     resource :sessions, only: [:new, :destroy] do
-      get :saml_callback, to: 'sessions#saml_callback'
+      post :saml_callback, to: 'sessions#saml_callback'
       get 'current', to: 'sessions#show'
     end
 
@@ -73,11 +72,6 @@ Rails.application.routes.draw do
   end
 
   root 'v0/example#index', module: 'v0'
-
-  # route for testing with ID.me locally without front-end vets-website repo
-  if Rails.env.development?
-    get '/auth/login/callback', to: 'v0/sessions#saml_callback', module: 'v0'
-  end
 
   if Rails.env.development? || (ENV['SIDEKIQ_ADMIN_PANEL'] == 'true')
     require 'sidekiq/web'

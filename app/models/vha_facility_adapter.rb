@@ -33,6 +33,7 @@ class VHAFacilityAdapter
       attrs['Zip4'].to_s.strip.empty?
     m[:address][:mailing] = {}
     m[:phone] = from_gis_attrs(PHONE_KEYMAP, attrs)
+    m[:phone][:mental_health_clinic] = mh_clinic_phone(attrs)
     m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
     m[:services] = {}
     m[:services][:health] = services_from_gis(attrs)
@@ -44,9 +45,8 @@ class VHAFacilityAdapter
   end
 
   TOP_KEYMAP = {
-    unique_id: 'StationNum',
-    name: 'StationNam', classification: 'CocClassif',
-    lat: 'Latitude', long: 'Longitude'
+    unique_id: 'StationNum', name: 'StationNam', classification: 'CocClassif',
+    website: 'First_Inte', lat: 'Latitude', long: 'Longitude'
   }.freeze
 
   ADDR_KEYMAP = {
@@ -94,6 +94,13 @@ class VHAFacilityAdapter
     'UrgentCare' => [],
     'WellnessAndPreventativeCare' => []
   }.freeze
+
+  def self.mh_clinic_phone(attrs)
+    return '' if (attrs['MHClinicPh']).zero?
+    result = attrs['MHClinicPh'].to_s
+    result << ' x ' + attrs['Extension'].to_s unless (attrs['Extension']).zero?
+    result
+  end
 
   # Build a sub-section of the VAFacility model from a flat GIS attribute list,
   # according to the provided key mapping dict. Strip whitespace from string values.

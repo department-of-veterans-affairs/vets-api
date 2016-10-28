@@ -23,7 +23,7 @@ describe Decorators::MviUserDecorator do
 
     context 'when all correlation ids have values' do
       before(:each) do
-        allow(MVI::Service).to receive(:find_candidate).and_return(find_candidate_response)
+        allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_return(find_candidate_response)
       end
 
       describe '#create' do
@@ -35,7 +35,7 @@ describe Decorators::MviUserDecorator do
       end
       context 'when a MVI::ServiceError is raised' do
         it 'should log an error message' do
-          allow(MVI::Service).to receive(:find_candidate).and_raise(MVI::HTTPError)
+          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(MVI::HTTPError)
           expect(Rails.logger).to receive(:error).once.with(/Error retrieving MVI data for user:/)
           expect { Decorators::MviUserDecorator.new(user).create }.to raise_error(
             Common::Exceptions::InternalServerError
@@ -47,7 +47,7 @@ describe Decorators::MviUserDecorator do
     context 'when a correlation id is nil' do
       before(:each) do
         find_candidate_response[:edipi] = nil
-        allow(MVI::Service).to receive(:find_candidate).and_return(find_candidate_response)
+        allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_return(find_candidate_response)
       end
 
       describe '#create' do

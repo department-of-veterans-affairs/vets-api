@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require_dependency 'common/client/errors'
+require 'common/client/errors'
 
 # FIXME: Add this spec
 describe Common::Client::Errors::ClientResponse do
