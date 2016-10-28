@@ -16,14 +16,8 @@ pipeline {
     }
 
     stage('Checkout Code') {
-      checkout changelog: false,
-               poll: false,
-               scm: [$class: 'GitSCM', branches: [[name: '*/master']],
-               doGenerateSubmoduleConfigurations: false,
-               extensions: [
-                 [$class: 'SubmoduleOption', disableSubmodules: false, parentCredentials: false, recursiveSubmodules: true, reference: '', trackingSubmodules: false]
-               ],
-               submoduleCfg: [],
+      checkout scm: [$class: 'GitSCM', branches: [[name: '*/master']],
+               extensions: [[$class: 'SubmoduleOption', recursiveSubmodules: true]],
                userRemoteConfigs: [[url: 'git@github.com:department-of-veterans-affairs/devops.git']]]
     }
 
@@ -40,6 +34,7 @@ pipeline {
             "-e env=${environment} " +
             "-e app_name=${application} " +
             "-e force_ami=${force_ami} " +
+            "-e git_version=${branch}"
             "-i inventory " +
             "aws-deploy-app.yml'"
       }
@@ -52,8 +47,8 @@ pipeline {
                |Took ${currentBuild.rawBuild.getDurationString()}""".stripMargin()
     }
     failure {
-      notify "Failed to deploy `${application}` to `${environment}`!", 'danger'
+      notify """Failed to deploy `${application}` to `${environment}`!
+               |${currentBuild.getAbsoluteUrl()}console""".stripMargin(), 'danger'
     }
   }
 }
-
