@@ -44,6 +44,7 @@ module MVI
       private
 
       def locate_element(el, path)
+        return nil unless el
         el.locate(path)&.first
       end
     end

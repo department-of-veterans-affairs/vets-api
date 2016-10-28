@@ -67,7 +67,7 @@ describe MVI::Responses::FindCandidate do
     let(:body) { File.read('spec/support/mvi/find_candidate_missing_attrs.xml') }
     let(:find_candidate_missing_attrs) { MVI::Responses::FindCandidate.new(faraday_response) }
 
-    describe '.to_h' do
+    describe '#body' do
       it 'should filter with only first name and retrieve correct MHV id' do
         allow(faraday_response).to receive(:body) { body }
         expect(find_candidate_missing_attrs.body).to eq(
@@ -88,26 +88,21 @@ describe MVI::Responses::FindCandidate do
 
   context 'with no middle name, missing and alternate correlation ids, multiple other_ids' do
     let(:faraday_response) { instance_double('Faraday::Response') }
-    let(:body) { File.read('spec/support/mvi/find_candidate_response.xml') }
+    let(:body) { File.read('spec/support/mvi/find_candidate_no_subject.xml') }
     let(:find_candidate_response_mhv_id) { MVI::Responses::FindCandidate.new(faraday_response) }
 
-    describe '.to_h' do
-      it 'should retrieve the correct MHV id' do
+    describe '#body' do
+      it 'return nil if the response includes no suject element' do
         allow(faraday_response).to receive(:body) { body }
-        expect(find_candidate_response_mhv_id.body).to eq(
-          birth_date: '19800101',
-          edipi: '1234^NI^200DOD^USDOD^A',
-          vba_corp_id: '12345678^PI^200CORP^USVBA^A',
-          family_name: 'Smith',
-          gender: 'M',
-          given_names: %w(John William),
-          icn: '1000123456V123456^NI^200M^USVHA^P',
-          mhv_id: '123456^PI^200MHV^USVHA^A',
-          ssn: '555443333',
-          status: 'active'
-        )
+        expect(find_candidate_response_mhv_id.body).to be_nil
       end
     end
+  end
+
+  context 'with no subject element' do
+    let(:faraday_response) { instance_double('Faraday::Response') }
+    let(:body) { File.read('spec/support/mvi/find_candidate_response.xml') }
+    let(:find_candidate_no_subject) { MVI::Responses::FindCandidate.new(faraday_response) }
   end
 
   context 'given an invalid response' do
