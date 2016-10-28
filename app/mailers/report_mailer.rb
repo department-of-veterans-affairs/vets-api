@@ -15,7 +15,7 @@ class ReportMailer < ApplicationMailer
 
     mail(
       subject: 'Year to date report',
-      body: "Year to date report<br>#{url}"
+      body: "Year to date report (link expires in one week)<br>#{url}"
     )
   end
 end
