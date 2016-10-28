@@ -14,7 +14,7 @@ RSpec.describe ReportMailer, type: [:mailer, :aws_helpers] do
     it 'should send the right email' do
       subject
       text = 'Year to date report'
-      expect(mail.body.encoded).to eq("#{text}<br>#{subject}")
+      expect(mail.body.encoded).to eq("#{text} (link expires in one week)<br>#{subject}")
       expect(mail.subject).to eq(text)
     end
   end
