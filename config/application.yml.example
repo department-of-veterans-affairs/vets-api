@@ -3,8 +3,8 @@
 # Change to match your local settings and save the file as application.yml
 
 HOSTNAME: www.example.com # This is used by json links, could be used elsewhere if we want
-CERTIFICATE_FILE: ~/.certs/vetsgov-localhost.crt
-KEY_FILE: ~/.certs/vetsgov-localhost.key
+SAML_CERTIFICATE_FILE: ~/.certs/vetsgov-localhost.crt
+SAML_KEY_FILE: ~/.certs/vetsgov-localhost.key
 REDIS_HOST: localhost
 REDIS_PORT: "6379"
 MHV_HOST: 'https://mock-prescriptions-api.herokuapp.com'
