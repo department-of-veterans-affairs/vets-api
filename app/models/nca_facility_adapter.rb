@@ -2,7 +2,6 @@
 # frozen_string_literal: true
 class NCAFacilityAdapter
   NCA_URL = +ENV['NCA_MAPSERVER_URL']
-  NCA_LAYER = ENV['NCA_MAPSERVER_LAYER']
   NCA_ID_FIELD = 'CEMETERY_I'
   FACILITY_TYPE = 'va_cemetery'
 
