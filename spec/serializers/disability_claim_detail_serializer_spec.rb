@@ -10,4 +10,8 @@ RSpec.describe DisabilityClaimDetailSerializer, type: :serializer do
   it 'should include id' do
     expect(data['id']).to eq(disability_claim.id.to_s)
   end
+
+  it 'should not include raw HTML' do
+    expect(attributes.to_json.to_s.include?('<')).to be(false)
+  end
 end
