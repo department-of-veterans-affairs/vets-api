@@ -22,3 +22,12 @@ Figaro.require_keys(
   'VBA_MAPSERVER_URL',
   'VBA_MAPSERVER_LAYER'
 )
+
+if Rails.env.production?
+  Figaro.require_keys(
+    'REPORTS_AWS_ACCESS_KEY_ID',
+    'REPORTS_AWS_SECRET_ACCESS_KEY',
+    'REPORTS_AWS_S3_REGION',
+    'REPORTS_AWS_S3_BUCKET'
+  )
+end

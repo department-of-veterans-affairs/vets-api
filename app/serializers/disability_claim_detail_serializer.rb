@@ -75,7 +75,7 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
     event = {
       type: type,
       tracked_item_id: obj['trackedItemId'],
-      description: obj['description'],
+      description: ActionView::Base.full_sanitizer.sanitize(obj['description']),
       display_name: obj['displayedName'],
       overdue: obj['overdue'],
       status: obj['trackedItemStatus'],
