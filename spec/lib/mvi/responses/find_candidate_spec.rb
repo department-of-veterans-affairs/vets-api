@@ -117,7 +117,7 @@ describe MVI::Responses::FindCandidate do
           mhv_id: nil,
           ssn: '796127160',
           status: 'active',
-          vba_corp_id: '32318174^PI^200CORP^USVBA^A',
+          vba_corp_id: '32318174^PI^200CORP^USVBA^A'
         )
       end
     end
