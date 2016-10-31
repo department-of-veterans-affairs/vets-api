@@ -5,6 +5,7 @@ require File.expand_path('../../config/environment', __FILE__)
 # Prevent database truncation if the environment is production
 abort('The Rails environment is running in production mode!') if Rails.env.production?
 require 'spec_helper'
+require 'statsd-instrument'
 require 'rspec/rails'
 require 'webmock/rspec'
 require 'support/factory_girl'
@@ -83,6 +84,8 @@ RSpec.configure do |config|
 
   # authentication_session_helper
   config.include AuthenticatedSessionHelper, type: :request
+
+  config.include StatsD::Instrument::Matchers
 
   # clean up carrierwave uploads
   # https://github.com/carrierwaveuploader/carrierwave/wiki/How-to:-Cleanup-after-your-Rspec-tests

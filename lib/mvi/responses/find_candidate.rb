@@ -35,6 +35,7 @@ module MVI
 
       def body
         patient = locate_element(@subject, PATIENT_XPATH)
+        return nil unless patient
         name = parse_name(get_patient_name(patient))
         {
           status: locate_element(patient, STATUS_XPATH),
