@@ -16,6 +16,7 @@ require 'support/api_schema_matcher'
 require 'support/validation_helpers'
 require 'support/saml/authn_request_helper'
 require 'support/authenticated_session_helper'
+require 'support/aws_helpers'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
@@ -48,6 +49,7 @@ RSpec.configure do |config|
 
   config.include(ValidationHelpers, type: :model)
   config.include(SAML, type: :controller)
+  config.include(AwsHelpers, type: :aws_helpers)
 
   # Adding support for url_helper
   config.include Rails.application.routes.url_helpers
