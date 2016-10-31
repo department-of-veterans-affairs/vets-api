@@ -61,8 +61,8 @@ module EducationForm
       csv_array
     end
 
-    def perform(date)
-      @date = date
+    def perform
+      @date = Time.zone.today
       folder = 'tmp/daily_reports'
       FileUtils.mkdir_p(folder)
       filename = "#{folder}/#{@date}.csv"
@@ -75,8 +75,6 @@ module EducationForm
 
       return unless FeatureFlipper.send_email?
       ReportMailer.year_to_date_report_email(filename).deliver_now
-
-      # TODO: add rake task to cron
     end
   end
 end
