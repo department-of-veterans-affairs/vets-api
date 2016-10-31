@@ -1,3 +1,6 @@
+// For copy/pasting into each repo.
+// TODO(knkski): Get this working:
+// https://github.com/jenkinsci/workflow-remote-loader-plugin
 def notify(message, color='good') {
     if (notify_slack.toBoolean()) {
         slackSend message: message,
@@ -34,7 +37,7 @@ pipeline {
             "-e env=${environment} " +
             "-e app_name=${application} " +
             "-e force_ami=${force_ami} " +
-            "-e git_version=${branch} " +
+            "-e git_version=${branch.split('/')[-1]} " +
             "-i inventory " +
             "aws-deploy-app.yml'"
       }
