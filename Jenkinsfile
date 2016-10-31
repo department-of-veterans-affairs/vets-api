@@ -16,7 +16,9 @@ pipeline {
     }
 
     stage('Checkout Code') {
-      checkout scm: [$class: 'GitSCM', branches: [[name: '*/master']],
+      checkout poll: false,
+               changelog: false,
+               scm: [$class: 'GitSCM', branches: [[name: '*/master']],
                extensions: [[$class: 'SubmoduleOption', recursiveSubmodules: true]],
                userRemoteConfigs: [[url: 'git@github.com:department-of-veterans-affairs/devops.git']]]
     }
@@ -34,7 +36,7 @@ pipeline {
             "-e env=${environment} " +
             "-e app_name=${application} " +
             "-e force_ami=${force_ami} " +
-            "-e git_version=${branch}"
+            "-e git_version=${branch.split('/')[-1]} " +
             "-i inventory " +
             "aws-deploy-app.yml'"
       }
