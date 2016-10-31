@@ -34,7 +34,7 @@ pipeline {
             "-e env=${environment} " +
             "-e app_name=${application} " +
             "-e force_ami=${force_ami} " +
-            "-e git_version=${branch} " +
+            "-e git_version=${branch.split('/')[-1]} " +
             "-i inventory " +
             "aws-deploy-app.yml'"
       }
