@@ -42,7 +42,7 @@ module MVI
       response = MVI::Responses::FindCandidate.new(faraday_response)
       invalid_request_handler('find_candidate', response.original_response) if response.invalid?
       request_failure_handler('find_candidate', response.original_response) if response.failure?
-      raise MVI::RecordNotFound.new('MVI subject missing from response body', response) unless response.subject
+      raise MVI::RecordNotFound.new('MVI subject missing from response body', response) unless response.body
       response.body
     rescue Faraday::ConnectionFailed => e
       Rails.logger.error "mvi find_candidate socket error: #{e.message}"

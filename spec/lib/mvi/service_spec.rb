@@ -104,6 +104,29 @@ describe MVI::Service do
         end
       end
     end
+
+    context 'when no subject is returned in the response body' do
+      let(:user) do
+        FactoryGirl.build(
+          :user,
+          first_name: 'Earl',
+          last_name: 'Stephens',
+          middle_name: 'M',
+          birth_date: Time.parse('1978-06-11').utc,
+          ssn: '796188587'
+        )
+      end
+      let(:message) do
+        MVI::Messages::FindCandidateMessage.new(
+          [user.first_name, user.middle_name], user.last_name, user.birth_date, user.ssn, user.gender
+        )
+      end
+      it 'raises an MVI::RecordNotFound error' do
+        VCR.use_cassette('mvi/find_candidate/no_subject') do
+          expect { subject.find_candidate(message) }.to raise_error(MVI::RecordNotFound)
+        end
+      end
+    end
   end
 
   describe MVI::RecordNotFound do
