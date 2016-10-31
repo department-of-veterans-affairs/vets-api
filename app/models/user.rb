@@ -55,18 +55,34 @@ class User < Common::RedisStore
     loa[:current] == LOA::ONE
   end
 
+  def loa2?
+    loa[:current] == LOA::TWO
+  end
+
+  def loa3?
+    loa[:current] == LOA::THREE
+  end
+
   def rating_record
     client = EVSS::CommonService.new(evss_auth_headers)
     client.find_rating_info(participant_id).body.fetch('ratingRecord', {})
   end
 
-  def evss_attrs?
-    edipi.present? && ssn.present? && participant_id.present?
-  end
-
   # This is a helper method for pulling mhv_correlation_id
   def mhv_correlation_id
     @mhv_correlation_id ||= mvi&.fetch(:mhv_id, nil)&.split('^')&.first
+  end
+
+  def can_access_user_profile?
+    loa1? || loa2? || loa3?
+  end
+
+  def can_access_mhv?
+    loa3? && mhv_correlation_id.present?
+  end
+
+  def can_access_evss?
+    edipi.present? && ssn.present? && participant_id.present?
   end
 
   private
