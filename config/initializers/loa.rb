@@ -5,9 +5,8 @@ module LOA
   TWO   = 2
   THREE = 3
 
-  loa1_mapping_key = Rails.env.development? ? 'authentication' : 'http://idmanagement.gov/ns/assurance/loa/1'
   MAPPING = {
-    loa1_mapping_key => ONE,
+    'http://idmanagement.gov/ns/assurance/loa/1': ONE,
     'http://idmanagement.gov/ns/assurance/loa/2': TWO,
     'http://idmanagement.gov/ns/assurance/loa/3': THREE
   }.with_indifferent_access.freeze
