@@ -65,10 +65,9 @@ module MVI
         request.headers['SOAPAction'] = operation
         request.body = body
       end
-      puts response.inspect
       unless response.status == 200
         Rails.logger.error response.body
-        raise MVI::HTTPError.new("MVI returned a #{response.status} response")
+        raise MVI::HTTPError.new('MVI HTTP call failed', response.status)
       end
       response
     end
@@ -90,6 +89,11 @@ module MVI
   class InvalidRequestError < MVI::ServiceError
   end
   class HTTPError < MVI::ServiceError
+    attr_accessor :code
+    def initialize(message = nil, code = nil)
+      super(message)
+      @code = code
+    end
   end
   class RecordNotFound < StandardError
     attr_accessor :query, :original_response

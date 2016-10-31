@@ -26,6 +26,10 @@ class Decorators::MviUserDecorator
     # TODO(AJD): add metric
     Rails.logger.error "MVI record not found for user: #{@user.uuid}"
     raise Common::Exceptions::RecordNotFound, "User not in found MVI: #{e.message}"
+  rescue MVI::HTTPError => e
+    # TODO(AJD): add metric
+    Rails.logger.error "MVI returned HTTP error code: #{e.code} for user: #{@user.uuid}"
+    raise Common::Exceptions::InternalServerError, e
   rescue MVI::ServiceError => e
     # TODO(AJD): add metric
     Rails.logger.error "Error retrieving MVI data for user: #{@user.uuid}"
