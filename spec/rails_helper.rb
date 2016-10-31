@@ -5,6 +5,7 @@ require File.expand_path('../../config/environment', __FILE__)
 # Prevent database truncation if the environment is production
 abort('The Rails environment is running in production mode!') if Rails.env.production?
 require 'spec_helper'
+require 'statsd-instrument'
 require 'rspec/rails'
 require 'webmock/rspec'
 require 'support/factory_girl'
@@ -15,6 +16,7 @@ require 'support/api_schema_matcher'
 require 'support/validation_helpers'
 require 'support/saml/authn_request_helper'
 require 'support/authenticated_session_helper'
+require 'support/aws_helpers'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
@@ -26,6 +28,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { ENV['MHV_SM_APP_TOKEN'] }
   c.filter_sensitive_data('<MHV_HOST>') { ENV['MHV_HOST'] }
   c.filter_sensitive_data('<APP_TOKEN>') { ENV['MHV_APP_TOKEN'] }
+  c.filter_sensitive_data('<MVI_URL>') { ENV['MVI_URL'] }
   c.before_record do |i|
     %i(response request).each do |env|
       next unless i.send(env).headers.keys.include?('Token')
@@ -46,6 +49,7 @@ RSpec.configure do |config|
 
   config.include(ValidationHelpers, type: :model)
   config.include(SAML, type: :controller)
+  config.include(AwsHelpers, type: :aws_helpers)
 
   # Adding support for url_helper
   config.include Rails.application.routes.url_helpers
@@ -80,6 +84,8 @@ RSpec.configure do |config|
 
   # authentication_session_helper
   config.include AuthenticatedSessionHelper, type: :request
+
+  config.include StatsD::Instrument::Matchers
 
   # clean up carrierwave uploads
   # https://github.com/carrierwaveuploader/carrierwave/wiki/How-to:-Cleanup-after-your-Rspec-tests
