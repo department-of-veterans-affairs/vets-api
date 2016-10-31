@@ -24,10 +24,9 @@ module V0
 
       if @saml_response.is_valid?
         persist_session_and_user!
-        render json: @session, status: :created
+        redirect_to SAML_CONFIG['relay'] + '?token=' + @session.token
       else
-        # TODO: also need to make sure error json conforms to api spec
-        render json: { errors: @saml_response.errors }, status: :forbidden
+        redirect_to SAML_CONFIG['relay'] + '?auth=fail'
       end
     end
 
@@ -74,12 +73,8 @@ module V0
       gender[0].upcase
     end
 
-    # Ruby-Saml does not parse the <samlp:Response> xml so we do it ourselves to find
-    # which LOA was performed on the ID.me side.
-    # TODO - remove this method once LOA is returned as a SAML Attribute
     def parse_current_loa
-      raw_loa = Hash.from_xml(@saml_response.response)
-                    .dig('Response', 'Assertion', 'AuthnStatement', 'AuthnContext', 'AuthnContextClassRef')
+      raw_loa = REXML::XPath.first(@saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
       LOA::MAPPING[raw_loa]
     end
 
@@ -94,7 +89,7 @@ module V0
     end
 
     def async_create_evss_account(user)
-      return unless user.evss_attrs?
+      return unless user.can_access_evss?
       auth_headers = EVSS::AuthHeaders.new(user).to_h
       EVSS::CreateUserAccountJob.perform_async(auth_headers)
     end

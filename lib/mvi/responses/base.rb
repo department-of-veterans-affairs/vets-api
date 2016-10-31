@@ -23,8 +23,9 @@ module MVI
       delegate :endpoint, to: 'self.class'
 
       def initialize(response)
-        @original_response = response.body
-        @original_body = locate_element(Ox.parse(@original_response), "env:Body/idm:#{endpoint}")
+        @original_response = ensure_xml_prolog(response.body)
+        doc = Ox.parse(@original_response)
+        @original_body = locate_element(doc, "env:Envelope/env:Body/idm:#{endpoint}")
         @code = locate_element(@original_body, CODE_XPATH)
         @query = locate_element(@original_body, QUERY_XPATH).to_json
       end
@@ -43,7 +44,13 @@ module MVI
 
       private
 
+      def ensure_xml_prolog(xml)
+        xml.prepend('<?xml version="1.0" encoding="UTF-8"?>') unless xml =~ /^<\?xml/
+        xml
+      end
+
       def locate_element(el, path)
+        return nil unless el
         el.locate(path)&.first
       end
     end

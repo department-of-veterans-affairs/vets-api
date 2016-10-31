@@ -8,10 +8,12 @@ unless ENV['NOCOVERAGE']
   SimpleCov.start do
     track_files '{app,lib}/**/*.rb'
     add_filter 'config/initializers/sidekiq.rb'
+    add_filter 'config/initializers/statsd.rb'
     add_filter 'lib/tasks/support/shell_command.rb'
     add_filter 'lib/config_helper.rb'
     add_filter 'lib/feature_flipper.rb'
     add_filter 'spec/support/authenticated_session_helper'
+    add_filter 'config/initializers/figaro.rb'
     SimpleCov.minimum_coverage_by_file 90
   end
 end
@@ -41,6 +43,7 @@ RSpec.configure do |config|
 
   config.filter_run focus: true
   config.run_all_when_everything_filtered = true
+
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
   # assertions if you prefer.
