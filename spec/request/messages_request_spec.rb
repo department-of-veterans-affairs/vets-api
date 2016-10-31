@@ -35,7 +35,7 @@ RSpec.describe 'Messages Integration', type: :request do
         Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file4.jpg', attachment_type)
       ]
     end
-    let(:message_params) { attributes_for(:message, subject: 'Subject 1', body: 'Body 1') }
+    let(:message_params) { attributes_for(:message, subject: 'CI Run', body: 'Continuous Integration') }
     let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
     let(:params_with_attachments) { { message: params }.merge(uploads: uploads) }
 
