@@ -20,7 +20,8 @@ Figaro.require_keys(
   'NCA_MAPSERVER_URL',
   'NCA_MAPSERVER_LAYER',
   'VBA_MAPSERVER_URL',
-  'VBA_MAPSERVER_LAYER'
+  'VBA_MAPSERVER_LAYER',
+  'GOV_DELIVERY_SERVER'
 )
 
 if Rails.env.production?
