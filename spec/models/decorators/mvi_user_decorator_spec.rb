@@ -35,8 +35,10 @@ describe Decorators::MviUserDecorator do
       end
       context 'when a MVI::ServiceError is raised' do
         it 'should log an error message' do
-          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(MVI::HTTPError)
-          expect(Rails.logger).to receive(:error).once.with(/Error retrieving MVI data for user:/)
+          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(
+            MVI::HTTPError.new('MVI HTTP call failed', 500)
+          )
+          expect(Rails.logger).to receive(:error).once.with(/MVI returned HTTP error code: 500 for user:/)
           expect { Decorators::MviUserDecorator.new(user).create }.to raise_error(
             Common::Exceptions::InternalServerError
           )

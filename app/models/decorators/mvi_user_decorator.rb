@@ -29,6 +29,7 @@ class Decorators::MviUserDecorator
   rescue MVI::HTTPError => e
     # TODO(AJD): add metric
     Rails.logger.error "MVI returned HTTP error code: #{e.code} for user: #{@user.uuid}"
+    # Rails.logger.error "MVI returned HTTP error code:"
     raise Common::Exceptions::InternalServerError, e
   rescue MVI::ServiceError => e
     # TODO(AJD): add metric

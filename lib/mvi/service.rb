@@ -39,16 +39,14 @@ module MVI
 
     def find_candidate(message)
       faraday_response = call(OPERATIONS[:find_candidate], message.to_xml)
-      puts faraday_response.inspect
       response = MVI::Responses::FindCandidate.new(faraday_response)
       invalid_request_handler('find_candidate', response.original_response) if response.invalid?
       request_failure_handler('find_candidate', response.original_response) if response.failure?
       raise MVI::RecordNotFound.new('MVI subject missing from response body', response) unless response.body
       response.body
     rescue Faraday::ConnectionFailed => e
-      Rails.logger.error "mvi find_candidate socket error: #{e.message}"
-      message = 'mvi requires a vpn connection, or use the mock mvi service as detailed in the project README'
-      raise MVI::ServiceError, message
+      Rails.logger.error "MVI find_candidate connection failed: #{e.message}"
+      raise MVI::ServiceError, 'MVI connection failed'
     end
 
     private
