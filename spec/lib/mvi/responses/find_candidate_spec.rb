@@ -86,7 +86,7 @@ describe MVI::Responses::FindCandidate do
     end
   end
 
-  context 'with no middle name, missing and alternate correlation ids, multiple other_ids' do
+  context 'with no subject element' do
     let(:faraday_response) { instance_double('Faraday::Response') }
     let(:body) { File.read('spec/support/mvi/find_candidate_no_subject.xml') }
     let(:find_candidate_response_mhv_id) { MVI::Responses::FindCandidate.new(faraday_response) }
@@ -99,10 +99,28 @@ describe MVI::Responses::FindCandidate do
     end
   end
 
-  context 'with no subject element' do
+  context 'when there is no xml prolog in the response' do
     let(:faraday_response) { instance_double('Faraday::Response') }
-    let(:body) { File.read('spec/support/mvi/find_candidate_response.xml') }
-    let(:find_candidate_no_subject) { MVI::Responses::FindCandidate.new(faraday_response) }
+    let(:body) { File.read('spec/support/mvi/find_candidate_response_no_prolog.xml') }
+    let(:find_candidate_alternate_response) { MVI::Responses::FindCandidate.new(faraday_response) }
+
+    describe '#body' do
+      it 'still parses the body correctly' do
+        allow(faraday_response).to receive(:body) { body }
+        expect(find_candidate_alternate_response.body).to eq(
+          birth_date: nil,
+          edipi: nil,
+          family_name: 'Warren',
+          gender: 'M',
+          given_names: %w(Kent L),
+          icn: '1008711094V567547^NI^200M^USVHA^P',
+          mhv_id: nil,
+          ssn: '796127160',
+          status: 'active',
+          vba_corp_id: '32318174^PI^200CORP^USVBA^A',
+        )
+      end
+    end
   end
 
   context 'given an invalid response' do
