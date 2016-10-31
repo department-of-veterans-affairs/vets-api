@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'breakers/statsd_plugin'
 require 'rx/configuration'
 require 'sm/configuration'
 
@@ -19,10 +20,13 @@ services = [
   EVSS::DocumentsService.breakers_service
 ]
 
+plugin = Breakers::StatsdPlugin.new
+
 client = Breakers::Client.new(
   redis_connection: redis_namespace,
   services: services,
-  logger: Rails.logger
+  logger: Rails.logger,
+  plugins: [plugin]
 )
 
 # No need to prefix it when using the namespace
