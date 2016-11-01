@@ -1,16 +1,13 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'sm/client'
-require 'support/sm_client_helpers'
 
 RSpec.describe 'Folders Integration', type: :request do
-  include SM::ClientHelpers
-
   before(:each) do
-    allow_any_instance_of(ApplicationController).to receive(:authenticate).and_return(true)
-    expect(SM::Client).to receive(:new).once.and_return(authenticated_client)
+    use_authenticated_current_user(current_user: current_user)
   end
 
+  let(:current_user) { build(:mhv_user) }
   let(:user_id) { ENV['MHV_SM_USER_ID'] }
   let(:inbox_id) { 0 }
 

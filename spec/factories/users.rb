@@ -40,11 +40,17 @@ FactoryGirl.define do
     end
   end
 
-  factory :prescription_user, class: 'User' do
+  factory :mhv_user, class: 'User' do
     edipi '1234'
     icn '1000123456V123456'
     mhv_id '123456'
     participant_id '12345678'
+    loa do
+      {
+        current: LOA::THREE,
+        highest: LOA::THREE
+      }
+    end
     mvi do
       {
         birth_date: '18090212',

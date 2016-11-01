@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'sm/client'
-require 'support/sm_client_helpers'
 
 RSpec.describe 'Messages Integration', type: :request do
-  include SM::ClientHelpers
-
+  let(:current_user) { build(:mhv_user) }
   let(:reply_id)               { 631_270 }
   let(:created_draft_id)       { 655_626 }
   let(:created_draft_reply_id) { 655_628 }
@@ -13,8 +11,7 @@ RSpec.describe 'Messages Integration', type: :request do
   let(:params) { draft.slice(:category, :subject, :body, :recipient_id) }
 
   before(:each) do
-    allow_any_instance_of(ApplicationController).to receive(:authenticate).and_return(true)
-    expect(SM::Client).to receive(:new).once.and_return(authenticated_client)
+    use_authenticated_current_user(current_user: current_user)
   end
 
   describe 'drafts' do
