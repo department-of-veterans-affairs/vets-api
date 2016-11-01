@@ -7,7 +7,6 @@ branches:
   only:
   - master
 before_script:
-<<<<<<< HEAD
 - export HOSTNAME="www.example.com"
 - export SAML_CERTIFICATE_FILE="spec/support/certificates/ruby-saml.crt"
 - export SAML_KEY_FILE="spec/support/certificates/ruby-saml.key"
