@@ -6,13 +6,6 @@ RSpec.describe 'VA GIS Integration', type: :request do
   PDX_BBOX = 'bbox[]=-122.440689&bbox[]=45.451913&bbox[]=-122.786758&bbox[]=45.64'
   NY_BBOX = 'bbox[]=-73.401&bbox[]=40.685&bbox[]=-77.36&bbox[]=43.03'
 
-  before(:all) do
-    VCR.use_cassette('facilities/va/warmup') do
-      # Warm up client library initial request so it doesn't need to appear in all cassettes
-      get '/v0/facilities/va/?bbox[]=-122&bbox[]=45&bbox[]=-122&bbox[]=45'
-    end
-  end
-
   it 'responds to GET #show for VHA prefix' do
     VCR.use_cassette('facilities/va/vha_648A4') do
       get '/v0/facilities/va/vha_648A4'

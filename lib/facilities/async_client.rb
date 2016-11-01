@@ -1,14 +1,11 @@
 # frozen_string_literal: true
-require 'geoservices'
-require 'openssl'
+require 'typhoeus'
 
 module Facilities
   class Client
-    def initialize(url:, layer:, id_field:)
-      @url = url
-      @layer = layer
+    def initialize(url:, id_field:)
+      @url = [url, 'query'].join('/')
       @id_field = id_field
-      @service = Geoservice::MapService.new(url: @url)
     end
 
     def query(bbox:, where: nil)
@@ -21,18 +18,17 @@ module Facilities
         returnGeometry: true,
         returnCountOnly: false,
         outFields: '*',
-        resultRecordCount: nil, # limit, numeric
         returnDistinctValues: false,
-        orderByFields: @id_field
+        orderByFields: @id_field,
+        f: 'json'
       }
-      response = @service.query(@layer, params)
-      response['features']
+      Typhoeus::Request.new(@url, params: params)
     end
 
-    def get(identifier:)
+    def get(id:)
       # TODO: ActiveRecord.Santizers.ClassMethods.santize_sql_for_conditions
       # looks stronger for complete where clause, but is protected
-      where_clause = "#{@id_field}=#{ActiveRecord::Base.sanitize(identifier)}"
+      where_clause = "#{@id_field}=#{ActiveRecord::Base.sanitize(id)}"
       params = {
         where: where_clause,
         inSR: 4326,
@@ -40,12 +36,11 @@ module Facilities
         returnGeometry: true,
         returnCountOnly: false,
         outFields: '*',
-        resultRecordCount: nil, # limit, numeric
         returnDistinctValues: false,
-        orderByFields: @id_field
+        orderByFields: @id_field,
+        f: 'json'
       }
-      response = @service.query(@layer, params)
-      response['features']
+      Typhoeus::Request.new(@url, params: params)
     end
   end
 end
