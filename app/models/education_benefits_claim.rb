@@ -11,7 +11,19 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   # initially only completed claims are allowed, later we can allow claims that dont have a submitted_at yet
   before_validation(:set_submitted_at, on: :create)
+  after_validation(:set_region)
   after_save(:create_education_benefits_submission)
+
+  # For console access only, right now.
+  def reprocess_at(region)
+    key = region.to_sym
+    unless EducationForm::EducationFacility::REGIONS.include?(key)
+      raise "Invalid region. Must be one of #{EducationForm::EducationFacility::REGIONS.join(', ')}"
+    end
+    self.regional_processing_office = region
+    self.processed_at = nil
+    save
+  end
 
   # This converts the form data into an OpenStruct object so that the template
   # rendering can be cleaner. Piping it through the JSON serializer was a quick
@@ -91,5 +103,14 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   def set_submitted_at
     self.submitted_at = Time.zone.now
+  end
+
+  def set_region
+    # If we are unable to parse the form data, we can set the region to nil
+    # and will be handled upstream
+
+    self.regional_processing_office ||= region.to_s
+  rescue
+    nil
   end
 end
