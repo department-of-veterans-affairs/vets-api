@@ -28,7 +28,7 @@ module MVI
       opts = {
         url: ENV['MVI_URL']
       }
-      if ENV['MVI_CLIENT_CERT_PATH'] && ENV['MVI_CLIENT_KEY_PATH']
+      if ENV['MVI_CLIENT_CERT_PATH'] && ENV['MVI_CLIENT_KEY_PATH'] && !Rails.env.development?
         opts[:ssl] = {
           client_cert: OpenSSL::X509::Certificate.new(File.read(ENV['MVI_CLIENT_CERT_PATH'])),
           client_key: OpenSSL::PKey::RSA.new(File.read(ENV['MVI_CLIENT_KEY_PATH']))

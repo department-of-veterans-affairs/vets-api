@@ -38,16 +38,28 @@ describe MVI::Service do
       end
     end
     context 'when there are SSL options' do
-      it 'should return the wsdl, cert and key paths' do
-        ClimateControl.modify MVI_CLIENT_CERT_PATH: '/certs/fake_cert.pem',
-                              MVI_CLIENT_KEY_PATH: '/certs/fake_key.pem' do
-          expect(MVI::Service.options).to eq(
-            url: ENV['MVI_URL'],
-            ssl: {
-              client_cert: cert,
-              client_key: key
-            }
-          )
+      context 'in development env' do
+        it 'should only return the wsdl' do
+          Rails.env.stub(development?: true)
+          ClimateControl.modify MVI_CLIENT_CERT_PATH: nil,
+            MVI_CLIENT_KEY_PATH: nil do
+            expect(MVI::Service.options).to eq(url: ENV['MVI_URL'])
+          end
+        end
+      end
+      context 'not in development env' do
+        it 'should return the wsdl, cert and key paths' do
+          Rails.env.stub(development?: false)
+          ClimateControl.modify MVI_CLIENT_CERT_PATH: '/certs/fake_cert.pem',
+            MVI_CLIENT_KEY_PATH: '/certs/fake_key.pem' do
+            expect(MVI::Service.options).to eq(
+              url: ENV['MVI_URL'],
+              ssl: {
+                client_cert: cert,
+                client_key: key
+              }
+            )
+          end
         end
       end
     end
