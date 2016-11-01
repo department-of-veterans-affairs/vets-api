@@ -14,10 +14,11 @@ redis_namespace = Redis::Namespace.new('breakers', redis: redis)
 
 services = [
   Rx::Configuration.instance.breakers_service,
-  SM::Configuration.instance.breakers_service,
-  EVSS::ClaimsService.breakers_service,
-  EVSS::CommonService.breakers_service,
-  EVSS::DocumentsService.breakers_service
+  SM::Configuration.instance.breakers_service
+  # TODO: (AJM) Disabled for testing, add these back in for launch
+  # EVSS::ClaimsService.breakers_service,
+  # EVSS::CommonService.breakers_service,
+  # EVSS::DocumentsService.breakers_service
 ]
 
 plugin = Breakers::StatsdPlugin.new
