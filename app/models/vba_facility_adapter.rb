@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 class VBAFacilityAdapter
   VBA_URL = +ENV['VBA_MAPSERVER_URL']
-  VBA_LAYER = ENV['VBA_MAPSERVER_LAYER']
   VBA_ID_FIELD = 'Facility_Number'
   FACILITY_TYPE = 'va_benefits_facility'
 
   def initialize
-    @client = Facilities::Client.new(url: VBA_URL, layer: VBA_LAYER, id_field: VBA_ID_FIELD)
+    @client = Facilities::Client.new(url: VBA_URL, id_field: VBA_ID_FIELD)
   end
 
   def query(bbox, services = nil)
@@ -15,7 +14,7 @@ class VBAFacilityAdapter
   end
 
   def find_by(id:)
-    @client.get(identifier: id)
+    @client.get(id: id)
   end
 
   def self.where_clause(services)
