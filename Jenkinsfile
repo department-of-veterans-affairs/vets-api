@@ -16,7 +16,9 @@ pipeline {
     }
 
     stage('Checkout Code') {
-      checkout scm: [$class: 'GitSCM', branches: [[name: '*/master']],
+      checkout poll: false,
+               changelog: false,
+               scm: [$class: 'GitSCM', branches: [[name: '*/master']],
                extensions: [[$class: 'SubmoduleOption', recursiveSubmodules: true]],
                userRemoteConfigs: [[url: 'git@github.com:department-of-veterans-affairs/devops.git']]]
     }
