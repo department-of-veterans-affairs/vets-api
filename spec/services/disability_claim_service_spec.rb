@@ -23,9 +23,11 @@ RSpec.describe DisabilityClaimService do
         allow(client_stub).to receive(:find_claim_by_id) { raise Faraday::Error::TimeoutError }
         allow(subject).to receive(:client) { client_stub }
         claim = FactoryGirl.build(:disability_claim, user_uuid: user.uuid)
+        time_before_update = Time.current.utc
         updated_claim = subject.update_from_remote(claim)
         expect(updated_claim).to eq(claim)
         expect(updated_claim.successful_sync).to eq(false)
+        expect(updated_claim.updated_at).to be <= time_before_update
       end
     end
   end
