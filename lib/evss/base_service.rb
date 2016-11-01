@@ -4,7 +4,7 @@ require 'evss/error_middleware'
 module EVSS
   class BaseService
     SYSTEM_NAME = 'vets.gov'
-    DEFAULT_TIMEOUT = 10 # in seconds
+    DEFAULT_TIMEOUT = 15 # in seconds
 
     def initialize(headers)
       @headers = headers
