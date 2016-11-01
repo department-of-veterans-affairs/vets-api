@@ -2,7 +2,7 @@
 require 'feature_flipper'
 require 'common/exceptions'
 require 'common/client/errors'
-require_dependency 'saml/settings_service'
+require 'saml/settings_service'
 
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods

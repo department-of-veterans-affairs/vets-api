@@ -32,18 +32,18 @@ gem 'sidekiq-scheduler', '~> 2.0'
 gem 'multi_json'
 gem 'carrierwave-aws'
 gem 'carrierwave', '~> 0.11'
+gem 'typhoeus'
 
 gem 'rack-cors', :require => 'rack/cors'
 gem 'net-sftp'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'breakers'
 gem 'govdelivery-tms', require: 'govdelivery/tms/mail/delivery_method'
+gem 'statsd-instrument'
 
 # Amazon Linux's system `json` gem causes conflicts, but
 # `multi_json` will prefer `oj` if installed, so include it here.
 gem 'oj'
-
-gem 'geoservices'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

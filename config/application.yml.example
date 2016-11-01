@@ -3,8 +3,8 @@
 # Change to match your local settings and save the file as application.yml
 
 HOSTNAME: www.example.com # This is used by json links, could be used elsewhere if we want
-CERTIFICATE_FILE: ~/.certs/vetsgov-localhost.crt
-KEY_FILE: ~/.certs/vetsgov-localhost.key
+SAML_CERTIFICATE_FILE: ~/.certs/vetsgov-localhost.crt
+SAML_KEY_FILE: ~/.certs/vetsgov-localhost.key
 REDIS_HOST: localhost
 REDIS_PORT: "6379"
 MHV_HOST: 'https://mock-prescriptions-api.herokuapp.com'
@@ -15,12 +15,10 @@ MHV_SM_HOST: 'https://test.vets.gov'
 MHV_SM_APP_TOKEN: 'fake-app-token'
 MHV_SM_USER_ID: '10616687'
 EVSS_BASE_URL: 'https://test.vets.gov'
-EVSS_SAMPLE_CLAIMANT_USER: '{"uuid": "1234", "first_name": "Jane","last_name": "Doe","edipi": "1105051936","participant_id": "123456789"}'
 EVSS_S3_UPLOADS: 'false'
-VHA_MAPSERVER_URL: 'https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_Facilities/FeatureServer'
-VHA_MAPSERVER_LAYER: '0'
-NCA_MAPSERVER_URL: 'https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/NCA_Facilities/FeatureServer'
-NCA_MAPSERVER_LAYER: '0'
+VHA_MAPSERVER_URL: 'https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_Facilities/FeatureServer/0'
+NCA_MAPSERVER_URL: 'https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/NCA_Facilities/FeatureServer/0'
+VBA_MAPSERVER_URL: 'https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VBA_Facilities/FeatureServer/0'
 MVI_URL: 'http://see.project.readme.for.instructions.org'
 MVI_CLIENT_CERT_PATH: '/fake/client/cert/path'
 MVI_CLIENT_KEY_PATH: '/fake/client/key/path'

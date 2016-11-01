@@ -1,7 +1,7 @@
 # frozen_string_literal: true
-require_dependency 'evss/claims_service'
-require_dependency 'evss/documents_service'
-require_dependency 'evss/auth_headers'
+require 'evss/claims_service'
+require 'evss/documents_service'
+require 'evss/auth_headers'
 
 class DisabilityClaimService
   EVSS_CLAIM_KEYS = %w(openClaims historicalClaims).freeze
@@ -64,12 +64,10 @@ class DisabilityClaimService
   end
 
   # upload file to s3 and enqueue job to upload to EVSS
-  def upload_document(claim, tempfile, tracked_item_id)
-    uploader = DisabilityClaimDocumentUploader.new(@user.uuid, tracked_item_id)
-    uploader.store!(tempfile)
-    DisabilityClaim::DocumentUpload.perform_async(tempfile.original_filename,
-                                                  auth_headers, @user.uuid,
-                                                  claim.id, tracked_item_id)
+  def upload_document(file_body, disability_claim_document)
+    uploader = DisabilityClaimDocumentUploader.new(@user.uuid, disability_claim_document.tracked_item_id)
+    uploader.store!(file_body)
+    DisabilityClaim::DocumentUpload.perform_async(auth_headers, @user.uuid, disability_claim_document.to_h)
   end
 
   private

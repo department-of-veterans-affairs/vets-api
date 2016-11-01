@@ -3,8 +3,8 @@ require 'common/models/base'
 require 'common/models/redis_store'
 require 'mvi/messages/find_candidate_message'
 require 'mvi/service'
-require_dependency 'evss/common_service'
-require_dependency 'evss/auth_headers'
+require 'evss/common_service'
+require 'evss/auth_headers'
 
 class User < Common::RedisStore
   redis_store REDIS_CONFIG['user_store']['namespace']
@@ -51,15 +51,16 @@ class User < Common::RedisStore
     user.validates :gender, presence: true, format: /\A(M|F)\z/
   end
 
-  # TODO(AJD): realize this is temporary but it's also used in specs where it should be stubbed or a factory
-  def self.sample_claimant
-    attrs = JSON.load(ENV['EVSS_SAMPLE_CLAIMANT_USER'])
-    attrs[:last_signed_in] = Time.now.utc
-    User.new attrs
-  end
-
   def loa1?
     loa[:current] == LOA::ONE
+  end
+
+  def loa2?
+    loa[:current] == LOA::TWO
+  end
+
+  def loa3?
+    loa[:current] == LOA::THREE
   end
 
   def rating_record
@@ -70,6 +71,18 @@ class User < Common::RedisStore
   # This is a helper method for pulling mhv_correlation_id
   def mhv_correlation_id
     @mhv_correlation_id ||= mvi&.fetch(:mhv_id, nil)&.split('^')&.first
+  end
+
+  def can_access_user_profile?
+    loa1? || loa2? || loa3?
+  end
+
+  def can_access_mhv?
+    loa3? && mhv_correlation_id.present?
+  end
+
+  def can_access_evss?
+    edipi.present? && ssn.present? && participant_id.present?
   end
 
   private

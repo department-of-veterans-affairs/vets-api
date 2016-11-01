@@ -1,0 +1,49 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VBA_Facilities/FeatureServer/0/query?f=json&inSR=4326&orderByFields=Facility_Number&outFields=*&outSR=4326&returnCountOnly=false&returnDistinctValues=false&returnGeometry=true&where=Facility_Number=%27314c%27
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Typhoeus - https://github.com/typhoeus/typhoeus
+      Expect:
+      - ''
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - sd57_-1966319286
+      Server:
+      - Microsoft-IIS/8.5
+      X-Arcgis-Instance:
+      - MTSDS_Web_IN_11
+      X-Powered-By:
+      - ASP.NET
+      Access-Control-Allow-Origin:
+      - "*"
+      Date:
+      - Fri, 28 Oct 2016 00:03:58 GMT
+      Content-Length:
+      - '7761'
+    body:
+      encoding: UTF-8
+      string: '{"objectIdFieldName":"ObjectID","globalIdFieldName":"","geometryType":"esriGeometryPoint","spatialReference":{"wkid":4326,"latestWkid":4326},"fields":[{"name":"ObjectID","type":"esriFieldTypeOID","alias":"ObjectID","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"Facility_Name","type":"esriFieldTypeString","alias":"Facility_Name","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Facility_Number","type":"esriFieldTypeString","alias":"Facility_Number","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Classification","type":"esriFieldTypeString","alias":"Classification","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Address_1","type":"esriFieldTypeString","alias":"Address_1","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Address__2","type":"esriFieldTypeString","alias":"Address_
+        2","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"City_1","type":"esriFieldTypeString","alias":"City","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"State","type":"esriFieldTypeString","alias":"State","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Zip","type":"esriFieldTypeString","alias":"Zip","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Phone","type":"esriFieldTypeString","alias":"Phone","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Fax","type":"esriFieldTypeString","alias":"Fax","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Monday","type":"esriFieldTypeString","alias":"Monday","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Tuesday","type":"esriFieldTypeString","alias":"Tuesday","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Wednesday","type":"esriFieldTypeString","alias":"Wednesday","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Thursday","type":"esriFieldTypeString","alias":"Thursday","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Friday","type":"esriFieldTypeString","alias":"Friday","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Saturday","type":"esriFieldTypeString","alias":"Saturday","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Sunday","type":"esriFieldTypeString","alias":"Sunday","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Comments","type":"esriFieldTypeString","alias":"
+        Comments","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Other_Services","type":"esriFieldTypeString","alias":"Other_Services
+        ","sqlType":"sqlTypeOther","length":345,"domain":null,"defaultValue":null},{"name":"Apply_Benefits","type":"esriFieldTypeString","alias":"Apply_Benefits","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Career_Counseling","type":"esriFieldTypeString","alias":"Career_Counseling","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"School_Assistance","type":"esriFieldTypeString","alias":"School_Assistance","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Vocational_Assistance","type":"esriFieldTypeString","alias":"Vocational_Assistance","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Transition_Assistance","type":"esriFieldTypeString","alias":"Transition_Assistance","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Predischarge_Assistance","type":"esriFieldTypeString","alias":"Predischarge_Assistance","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Employment_Assistance","type":"esriFieldTypeString","alias":"Employment_Assistance","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Financial_Counseling","type":"esriFieldTypeString","alias":"Financial_Counseling","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Housing_Assistance","type":"esriFieldTypeString","alias":"Housing_Assistance","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Disability_Assistance","type":"esriFieldTypeString","alias":"Disability_Assistance","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Education_Assistance","type":"esriFieldTypeString","alias":"Education_Assistance","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Insurance_Assistance","type":"esriFieldTypeString","alias":"Insurance_Assistance","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Vocationa_Assistance","type":"esriFieldTypeString","alias":"Vocationa_Assistance","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Survivor__Assistance","type":"esriFieldTypeString","alias":"Survivor
+        _Assistance","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Updating_Information","type":"esriFieldTypeString","alias":"Updating_Information","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Updating__Deposit_Information","type":"esriFieldTypeString","alias":"Updating
+        _Deposit_Information","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Burial_Assistance","type":"esriFieldTypeString","alias":"Burial_Assistance","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"eBenefits_Assistance","type":"esriFieldTypeString","alias":"eBenefits_Assistance","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"IDE_System","type":"esriFieldTypeString","alias":"IDE_System","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Homeless_Assistance","type":"esriFieldTypeString","alias":"Homeless_Assistance","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Organization","type":"esriFieldTypeString","alias":"Organization","sqlType":"sqlTypeOther","length":255,"domain":null,"defaultValue":null},{"name":"Lat","type":"esriFieldTypeDouble","alias":"Lat","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"Long","type":"esriFieldTypeDouble","alias":"Long","sqlType":"sqlTypeOther","domain":null,"defaultValue":null}],"features":[{"attributes":{"ObjectID":133,"Facility_Name":"Norfolk
+        State University","Facility_Number":"314c","Classification":"VetSuccess on
+        Campus","Address_1":"700 Park Avenue","Address__2":"","City_1":"Norfolk","State":"VA","Zip":"23504","Phone":"757-823-8551","Fax":"757-823-2078","Monday":"N/A","Tuesday":"N/A","Wednesday":"7:00
+        - 4:30pm","Thursday":"7:00 - 4:30pm","Friday":"N/A","Saturday":"N/A","Sunday":"N/A","Comments":"?VSOC
+        at different location M, T & F","Other_Services":"","Apply_Benefits":"Yes","Career_Counseling":"Yes","School_Assistance":"Yes","Vocational_Assistance":"Yes","Transition_Assistance":"No","Predischarge_Assistance":"No","Employment_Assistance":"Yes","Financial_Counseling":"No","Housing_Assistance":"No","Disability_Assistance":"No","Education_Assistance":"Yes","Insurance_Assistance":"No","Vocationa_Assistance":"Yes","Survivor__Assistance":"No","Updating_Information":"Yes","Updating__Deposit_Information":"Yes","Burial_Assistance":"No","eBenefits_Assistance":"Yes","IDE_System":"No","Homeless_Assistance":"No","Organization":"VBA","Lat":36.8476574990005,"Long":-76.2695051239996},"geometry":{"x":-76.269505123999636,"y":36.847657499000491}}]}'
+    http_version: 
+  recorded_at: Fri, 28 Oct 2016 00:03:57 GMT
+recorded_with: VCR 3.0.3

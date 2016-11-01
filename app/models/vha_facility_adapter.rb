@@ -1,28 +1,27 @@
 # frozen_string_literal: true
 class VHAFacilityAdapter
   VHA_URL = +ENV['VHA_MAPSERVER_URL']
-  VHA_LAYER = ENV['VHA_MAPSERVER_LAYER']
   VHA_ID_FIELD = 'StationNum'
   FACILITY_TYPE = 'va_health_facility'
 
   def initialize
-    @client = Facilities::Client.new(url: VHA_URL, layer: VHA_LAYER, id_field: VHA_ID_FIELD)
+    @client = Facilities::Client.new(url: VHA_URL, id_field: VHA_ID_FIELD)
   end
 
   def query(bbox, services = nil)
     @client.query(bbox: bbox.join(','),
-                  where: VHAFacilityAdapter.where_clause(services))
+                  where: self.class.where_clause(services))
   end
 
   def find_by(id:)
-    @client.get(identifier: id)
+    @client.get(id: id)
   end
 
   def self.where_clause(services)
     services.map { |s| "#{s}='YES'" }.join(' AND ') unless services.nil?
   end
 
-  def from_gis(record)
+  def self.from_gis(record)
     attrs = record['attributes']
     m = from_gis_attrs(TOP_KEYMAP, attrs)
     m[:facility_type] = FACILITY_TYPE
@@ -33,8 +32,10 @@ class VHAFacilityAdapter
       attrs['Zip4'].to_s.strip.empty?
     m[:address][:mailing] = {}
     m[:phone] = from_gis_attrs(PHONE_KEYMAP, attrs)
+    m[:phone][:mental_health_clinic] = mh_clinic_phone(attrs)
     m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
-    m[:services] = services_from_gis(attrs)
+    m[:services] = {}
+    m[:services][:health] = services_from_gis(attrs)
     VAFacility.new(m)
   end
 
@@ -43,13 +44,12 @@ class VHAFacilityAdapter
   end
 
   TOP_KEYMAP = {
-    unique_id: 'StationNum',
-    name: 'StationNam', classification: 'CocClassif',
-    lat: 'Latitude', long: 'Longitude'
+    unique_id: 'StationNum', name: 'StationNam', classification: 'CocClassif',
+    website: 'First_Inte', lat: 'Latitude', long: 'Longitude'
   }.freeze
 
   ADDR_KEYMAP = {
-    'building' => 'Building', 'street' => 'Street', 'suite' => 'Suite',
+    'address_1' => 'Street', 'address_2' => 'Building', 'address_3' => 'Suite',
     'city' => 'City', 'state' => 'State'
   }.freeze
 
@@ -94,9 +94,16 @@ class VHAFacilityAdapter
     'WellnessAndPreventativeCare' => []
   }.freeze
 
+  def self.mh_clinic_phone(attrs)
+    return '' if (attrs['MHClinicPh']).zero?
+    result = attrs['MHClinicPh'].to_s
+    result << ' x ' + attrs['Extension'].to_s unless (attrs['Extension']).zero?
+    result
+  end
+
   # Build a sub-section of the VAFacility model from a flat GIS attribute list,
   # according to the provided key mapping dict. Strip whitespace from string values.
-  def from_gis_attrs(km, attrs)
+  def self.from_gis_attrs(km, attrs)
     km.each_with_object({}) do |(k, v), h|
       h[k] = (attrs[v].respond_to?(:strip) ? attrs[v].strip : attrs[v])
     end
@@ -106,7 +113,7 @@ class VHAFacilityAdapter
   # The hierarchy of Level 1/Level 2 services is defined statically above.
   # Return a list of dicts each containing key 'sl1' => Level 1 service and
   # 'sl2' => list of Level 2 services
-  def services_from_gis(attrs)
+  def self.services_from_gis(attrs)
     SERVICE_HIERARCHY.each_with_object([]) do |(k, v), l|
       next unless attrs[k] == 'YES'
       sl2 = []
