@@ -44,7 +44,7 @@ describe Prescription do
 
     subject { [p1, p2, p3, p4] }
 
-    it 'sorts by refill_submit_date by default' do
+    it 'sorts by prescription_name by default' do
       expect(subject.sort.map(&:prescription_id))
         .to eq([2, 3, 1_435_525, 1_435_525])
     end
