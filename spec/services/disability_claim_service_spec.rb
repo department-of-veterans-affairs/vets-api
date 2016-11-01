@@ -31,6 +31,7 @@ RSpec.describe DisabilityClaimService do
   end
 
   # TODO: (AJM) add these tests back when turning breakers back on (post testing)
+  # :nocov:
   context 'when EVSS client has an outage' do
     describe '#all' do
       xit 'returns all claims for the user' do
@@ -51,5 +52,6 @@ RSpec.describe DisabilityClaimService do
         expect(updated_claim.successful_sync).to eq(false)
       end
     end
+    # :nocov:
   end
 end

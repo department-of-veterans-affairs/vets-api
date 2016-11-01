@@ -2,6 +2,8 @@
 require 'rails_helper'
 require 'evss/claims_service'
 
+# :nocov:
+# TODO: (AJM) Add these back when breakers is turned back on
 describe EVSS::BaseService do
   context 'with an outage' do
     let(:service) { EVSS::ClaimsService.new({}) }
@@ -10,7 +12,6 @@ describe EVSS::BaseService do
       EVSS::ClaimsService.breakers_service.begin_forced_outage!
     end
 
-    # TODO: (AJM) Add these back when breakers is turned back on
     xit 'raises an error on get' do
       expect { service.all_claims }.to raise_exception(Breakers::OutageException)
     end
@@ -20,3 +21,4 @@ describe EVSS::BaseService do
     end
   end
 end
+# :nocov:
