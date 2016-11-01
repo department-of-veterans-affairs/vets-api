@@ -4,23 +4,25 @@ require 'common/models/collection'
 module SM
   module API
     module Messages
+      CONTENT_DISPOSITION = 'attachment; filename='
+
       def get_categories
         path = 'message/category'
 
-        json = perform(:get, path, nil, token_headers)
+        json = perform(:get, path, nil, token_headers).body
         Category.new(json)
       end
 
       def get_message(id)
         path = "message/#{id}/read"
-        json = perform(:get, path, nil, token_headers)
+        json = perform(:get, path, nil, token_headers).body
 
         Message.new(json)
       end
 
       def get_message_history(id)
         path = "message/#{id}/history"
-        json = perform(:get, path, nil, token_headers)
+        json = perform(:get, path, nil, token_headers).body
 
         Common::Collection.new(Message, json)
       end
@@ -28,28 +30,28 @@ module SM
       def post_create_message(args = {})
         validate_create_context(args)
 
-        json = perform(:post, 'message', args, token_headers)
+        json = perform(:post, 'message', args, token_headers).body
         Message.new(json)
       end
 
       def post_create_message_with_attachment(args = {})
         validate_create_context(args)
 
-        json = perform(:post, 'message/attach', args, token_headers)
+        json = perform(:post, 'message/attach', args, token_headers).body
         Message.new(json)
       end
 
       def post_create_message_reply_with_attachment(id, args = {})
         validate_reply_context(args)
 
-        json = perform(:post, "message/#{id}/reply/attach", args, token_headers)
+        json = perform(:post, "message/#{id}/reply/attach", args, token_headers).body
         Message.new(json)
       end
 
       def post_create_message_reply(id, args = {})
         validate_reply_context(args)
 
-        json = perform(:post, "message/#{id}/reply", args, token_headers)
+        json = perform(:post, "message/#{id}/reply", args, token_headers).body
         Message.new(json)
       end
 
@@ -69,7 +71,10 @@ module SM
 
       def get_attachment(message_id, attachment_id)
         path = "message/#{message_id}/attachment/#{attachment_id}"
-        perform(:get, path, nil, token_headers)
+
+        response = perform(:get, path, nil, token_headers)
+        filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '')
+        { body: response.body, filename: filename }
       end
 
       def validate_create_context(args)

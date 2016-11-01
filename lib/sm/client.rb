@@ -2,11 +2,14 @@
 require 'faraday'
 require 'multi_json'
 require 'common/client/errors'
-require 'common/client/middleware/request/multipart_request'
 require 'common/client/middleware/request/camelcase'
+require 'common/client/middleware/request/multipart_request'
+require 'common/client/middleware/response/json_parser'
+require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/snakecase'
+require 'sm/middleware/response/sm_parser'
 require 'sm/client_session'
 require 'sm/configuration'
-require 'sm/parser'
 require 'sm/api/sessions'
 require 'sm/api/triage_teams'
 require 'sm/api/folders'
@@ -45,38 +48,10 @@ module SM
 
     private
 
-    def perform(method, path, params = nil, headers = nil)
+    def perform(method, path, params, headers = nil)
       raise NoMethodError, "#{method} not implemented" unless REQUEST_TYPES.include?(method)
 
-      @response = send(method, path, params, headers)
-      process_response_or_error
-    end
-
-    def process_response_or_error
-      process_no_content_response || process_attachment || process_other
-    end
-
-    def process_no_content_response
-      return unless @response.body.empty? || @response.body.casecmp('success').zero?
-      @response if @response.status == 200
-    end
-
-    def process_attachment
-      return unless @response.response_headers['content-type'] == 'application/octet-stream'
-      disposition = @response.response_headers['content-disposition']
-      filename = disposition.gsub('attachment; filename=', '')
-      { body: @response.body, filename: filename }
-    end
-
-    def process_other
-      json = begin
-        MultiJson.load(@response.body)
-      rescue MultiJson::LoadError => error
-        raise Common::Client::Errors::Serialization, error
-      end
-
-      return SM::Parser.new(json).parse! if @response.status == 200
-      raise Common::Client::Errors::ClientResponse.new(@response.status, json)
+      send(method, path, params || {}, headers)
     end
 
     def request(method, path, params = {}, headers = {})
@@ -88,15 +63,15 @@ module SM
       raise Common::Client::Errors::Client, error
     end
 
-    def get(path, params = {}, headers = base_headers)
+    def get(path, params, headers = base_headers)
       request(:get, path, params, headers)
     end
 
-    def post(path, params = {}, headers = base_headers)
+    def post(path, params, headers = base_headers)
       request(:post, path, params, headers)
     end
 
-    def delete(path, params = {}, headers = base_headers)
+    def delete(path, params, headers = base_headers)
       request(:delete, path, params, headers)
     end
 
@@ -115,6 +90,11 @@ module SM
         # conn.request :curl, ::Logger.new(STDOUT), :warn
 
         # conn.response :logger, ::Logger.new(STDOUT), bodies: true
+        conn.response :sm_parser
+        conn.response :snakecase
+        conn.response :raise_error
+        conn.response :json_parser
+
         conn.adapter Faraday.default_adapter
       end
     end
