@@ -51,7 +51,7 @@ class DisabilityClaimService
   def update_from_remote(claim)
     begin
       raw_claim = client.find_claim_by_id(claim.evss_id).body.fetch('claim', {})
-      claim.update_attributes(data: raw_claim, successful_sync: true)
+      claim.update_evss_data raw_claim
     rescue Faraday::Error::TimeoutError, Breakers::OutageException => e
       claim.successful_sync = false
       log_error(e)
@@ -90,7 +90,7 @@ class DisabilityClaimService
 
   def create_or_update_claim(raw_claim)
     claim = claims_scope.where(evss_id: raw_claim['id']).first_or_initialize(data: {})
-    claim.update_attributes(data: claim.data.merge(raw_claim), successful_sync: true)
+    claim.update_evss_data raw_claim
     claim
   end
 

@@ -10,5 +10,6 @@ FactoryGirl.define do
         JSON.parse raw_claim
       end
     end
+    updated_at { Time.current.utc }
   end
 end
