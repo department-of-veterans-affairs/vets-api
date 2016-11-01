@@ -33,7 +33,7 @@ ActiveRecord::Schema.define(version: 20161101142229) do
     t.datetime "updated_at",                 null: false
     t.string   "encrypted_form",             null: false
     t.string   "encrypted_form_iv",          null: false
-    t.string   "regional_processing_office"
+    t.string   "regional_processing_office", null: false
   end
 
   add_index "education_benefits_claims", ["submitted_at"], name: "index_education_benefits_claims_on_submitted_at", using: :btree

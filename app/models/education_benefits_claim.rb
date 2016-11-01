@@ -11,7 +11,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   # initially only completed claims are allowed, later we can allow claims that dont have a submitted_at yet
   before_validation(:set_submitted_at, on: :create)
-  after_validation(:set_region)
+  before_save(:set_region)
   after_save(:create_education_benefits_submission)
 
   # For console access only, right now.
@@ -106,11 +106,6 @@ class EducationBenefitsClaim < ActiveRecord::Base
   end
 
   def set_region
-    # If we are unable to parse the form data, we can set the region to nil
-    # and will be handled upstream
-
     self.regional_processing_office ||= region.to_s
-  rescue
-    nil
   end
 end
