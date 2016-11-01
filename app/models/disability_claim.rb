@@ -7,7 +7,7 @@ class DisabilityClaim < ActiveRecord::Base
   scope :for_user, ->(user) { where(user_uuid: user.uuid) }
 
   def update_evss_data(raw_claim)
-    update_attributes(data: data.merge(raw_claim), successful_sync: true)
+    update_attributes(data: raw_claim, successful_sync: true)
     touch # Ensure that updated_at is touched
   end
 end
