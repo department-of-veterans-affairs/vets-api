@@ -26,12 +26,12 @@ module MVI
 
     def self.options
       opts = {
-        url: ENV['MVI_URL']
+        url: MVI::Settings::URL
       }
-      if ENV['MVI_CLIENT_CERT_PATH'] && ENV['MVI_CLIENT_KEY_PATH'] && !Rails.env.development?
+      if MVI::Settings::SSL_CERT && MVI::Settings::SSL_KEY
         opts[:ssl] = {
-          client_cert: OpenSSL::X509::Certificate.new(File.read(ENV['MVI_CLIENT_CERT_PATH'])),
-          client_key: OpenSSL::PKey::RSA.new(File.read(ENV['MVI_CLIENT_KEY_PATH']))
+          client_cert: MVI::Settings::SSL_CERT,
+          client_key: MVI::Settings::SSL_KEY
         }
       end
       opts
@@ -88,6 +88,7 @@ module MVI
   end
   class HTTPError < MVI::ServiceError
     attr_accessor :code
+
     def initialize(message = nil, code = nil)
       super(message)
       @code = code
@@ -95,6 +96,7 @@ module MVI
   end
   class RecordNotFound < StandardError
     attr_accessor :query, :original_response
+
     def initialize(message = nil, response = nil)
       super(message)
       @query = response.query
