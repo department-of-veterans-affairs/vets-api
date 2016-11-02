@@ -6,7 +6,8 @@ namespace :redis do
   desc 'Flush RedisStore: Session'
   task :flush_session_store do
     namespace = Session.new.redis_namespace.namespace
-    Redis.current.scan_each(match: /^#{namespace}/) do |key|
+    redis = Redis.current
+    redis.scan_each(match: /^#{namespace}/) do |key|
       redis.del(key)
     end
   end
@@ -14,7 +15,8 @@ namespace :redis do
   desc 'Flush RedisStore: User'
   task :flush_users_store do
     namespace = User.new.redis_namespace.namespace
-    Redis.current.scan_each(match: /^#{namespace}/) do |key|
+    redis = Redis.current
+    redis.scan_each(match: /^#{namespace}/) do |key|
       redis.del(key)
     end
   end
