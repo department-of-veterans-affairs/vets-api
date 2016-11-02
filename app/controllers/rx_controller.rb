@@ -4,7 +4,7 @@ require 'rx/client'
 class RxController < ApplicationController
   include ActionController::Serialization
 
-  skip_before_action :authenticate
+  before_action :authenticate
   before_action :authorize_rx
   before_action :authenticate_client
 

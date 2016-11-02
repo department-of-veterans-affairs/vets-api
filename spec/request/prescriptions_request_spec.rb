@@ -18,7 +18,7 @@ RSpec.describe 'prescriptions', type: :request do
 
     it 'raises access denied' do
       get '/v0/prescriptions/13651310'
-      binding.pry
+
       expect(response).to have_http_status(:forbidden)
       expect(JSON.parse(response.body)['errors'].first['detail'])
         .to eq('You do not have access to prescriptions')
