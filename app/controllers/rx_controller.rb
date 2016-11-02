@@ -12,18 +12,13 @@ class RxController < ApplicationController
   protected
 
   def client
-    @client ||= Rx::Client.new(session: { user_id: mhv_correlation_id })
+    # @client ||= Rx::Client.new(session: { user_id: current_user.mhv_correlation_id })
+    @client ||= Rx::Client.new(session: { user_id: ENV['MHV_USER_ID'] })
   end
 
   # def authorize_rx
-  #   mhv_correlation_id || raise_access_denied
+  #   current_user&.can_access_mhv? || raise_access_denied
   # end
-
-  def mhv_correlation_id
-    # Temporarily disabling token based auth and MVI based integration of fetching mhv id
-    # current_user.mhv_correlation_id
-    ENV['MHV_USER_ID']
-  end
 
   # def raise_access_denied
   #   raise Common::Exceptions::Forbidden, detail: 'You do not have access to prescriptions'

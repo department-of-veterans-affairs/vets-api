@@ -9,6 +9,7 @@ unless ENV['NOCOVERAGE']
     track_files '{app,lib}/**/*.rb'
     add_filter 'config/initializers/sidekiq.rb'
     add_filter 'config/initializers/statsd.rb'
+    add_filter 'config/initializers/mvi_settings.rb'
     add_filter 'lib/tasks/support/shell_command.rb'
     add_filter 'lib/config_helper.rb'
     add_filter 'lib/feature_flipper.rb'

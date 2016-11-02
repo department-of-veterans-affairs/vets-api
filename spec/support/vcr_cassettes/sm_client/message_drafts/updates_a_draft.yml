@@ -34,7 +34,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"message":[]}'
-    http_version: 
+    http_version:
   recorded_at: Tue, 25 Oct 2016 06:58:57 GMT
 - request:
     method: post
@@ -74,6 +74,6 @@ http_interactions:
       string: '{"id":655626,"category":"OTHER","subject":"Updated Subject","body":"Body
         1","attachment":false,"attachments":{"attachment":[]},"sentDate":"","senderId":384939,"senderName":"MVIONE,
         TEST","recipientId":585986,"recipientName":"Triage group 311070 test 2","readReceipt":null}'
-    http_version: 
+    http_version:
   recorded_at: Tue, 25 Oct 2016 06:58:57 GMT
 recorded_with: VCR 3.0.3
