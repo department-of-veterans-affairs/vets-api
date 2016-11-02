@@ -22,11 +22,11 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   end
 
   def open
-    object.data['claimCompleteDate'].blank?
+    object_data['claimCompleteDate'].blank?
   end
 
   def waiver_submitted
-    object.data['waiver5103Submitted']
+    object_data['waiver5103Submitted']
   end
 
   def documents_needed
@@ -48,7 +48,7 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   protected
 
   def with_object_data(*keys)
-    val = object.data.dig(*keys)
+    val = object_data.dig(*keys)
     yield val if val.present?
   end
 
@@ -82,7 +82,7 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   }.freeze
 
   def phase_from_keys(*keys)
-    s = object.data.dig(*keys)&.downcase
+    s = object_data.dig(*keys)&.downcase
     phase = PHASE_MAPPING[s]
     Rails.logger.error "Expected EVSS #{keys} to be a phase. Got '#{s}'." unless phase
     phase
