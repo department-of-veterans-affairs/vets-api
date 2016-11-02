@@ -8059,6 +8059,6 @@ http_interactions:
         YXRlADIwMTYtMTAtMDVUMTg6MTE6NDMtMDQ6MDASbwXXAAAAJXRFWHRkYXRl
         Om1vZGlmeQAyMDE2LTEwLTA1VDE4OjExOjQzLTA0OjAwYzK9awAAAABJRU5E
         rkJggg==
-    http_version: 
+    http_version:
   recorded_at: Mon, 24 Oct 2016 09:42:11 GMT
 recorded_with: VCR 3.0.3

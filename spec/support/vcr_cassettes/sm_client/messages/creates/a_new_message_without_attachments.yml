@@ -40,6 +40,6 @@ http_interactions:
         Integration","attachment":false,"attachments":{"attachment":[]},"sentDate":"Mon,
         24 Oct 2016 14:27:01 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":585986,"recipientName":"Triage
         group 311070 test 2","readReceipt":null}'
-    http_version: 
+    http_version:
   recorded_at: Mon, 24 Oct 2016 14:27:01 GMT
 recorded_with: VCR 3.0.3

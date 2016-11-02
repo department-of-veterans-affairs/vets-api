@@ -6,8 +6,8 @@ require 'support/rx_client_helpers'
 RSpec.describe 'prescriptions', type: :request do
   include Rx::ClientHelpers
 
-  let(:current_user) { build(:prescription_user) }
-  # before(:each)      { use_authenticated_current_user(current_user: current_user) }
+  let(:current_user) { build(:mhv_user) }
+
   before(:each) do
     allow_any_instance_of(RxController).to receive(:client).and_return(authenticated_client)
   end
