@@ -41,6 +41,8 @@ module MVI
     def find_candidate(message)
       faraday_response = call(OPERATIONS[:find_candidate], message.to_xml)
       response = MVI::Responses::FindCandidate.new(faraday_response)
+      puts "invalid #{response.invalid?}"
+      puts "failure #{response.failure?}"
       invalid_request_handler('find_candidate', response.original_response) if response.invalid?
       request_failure_handler('find_candidate', response.original_response) if response.failure?
       raise MVI::RecordNotFound.new('MVI subject missing from response body', response) unless response.body
@@ -80,6 +82,7 @@ module MVI
         request.headers['SOAPAction'] = operation
         request.body = body
       end
+      puts response.inspect
       unless response.status == 200
         Rails.logger.error response.body
         raise MVI::HTTPError.new('MVI HTTP call failed', response.status)
@@ -88,11 +91,13 @@ module MVI
     end
 
     def invalid_request_handler(operation, xml)
+      puts "B"
       Rails.logger.error "mvi #{operation} invalid request structure: #{xml}"
       raise MVI::InvalidRequestError
     end
 
     def request_failure_handler(operation, xml)
+      puts "C"
       Rails.logger.error "mvi #{operation} request failure: #{xml}"
       raise MVI::RequestFailureError
     end
