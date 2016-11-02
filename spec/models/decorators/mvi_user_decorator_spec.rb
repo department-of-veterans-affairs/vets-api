@@ -34,7 +34,7 @@ describe Decorators::MviUserDecorator do
         end
       end
       context 'when a MVI::HTTPError is raised' do
-        it 'should log an error message' do
+        it 'should log an error message and return the unmodified user' do
           allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(
             MVI::HTTPError.new('MVI HTTP call failed', 500)
           )
@@ -45,12 +45,22 @@ describe Decorators::MviUserDecorator do
         end
       end
       context 'when a MVI::ServiceError is raised' do
-        it 'should log an error message' do
+        it 'should log an error message and return the unmodified user' do
           allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(MVI::ServiceError)
           expect(Rails.logger).to receive(:error).once.with(/Error retrieving MVI data for user:/)
           expect { Decorators::MviUserDecorator.new(user).create }.to raise_error(
             Common::Exceptions::InternalServerError
           )
+        end
+      end
+      context 'when MVI::RecordNotFound' do
+        it 'should log an error message and return the unmodified user' do
+          r = instance_double('MVI::Responses::FindCandidateResponse')
+          allow(r).to receive(:query).and_return('foo')
+          allow(r).to receive(:original_response).and_return('foo')
+          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(MVI::RecordNotFound.new('not found', r))
+          expect(Rails.logger).to receive(:error).once.with(/Error retrieving MVI data for user:/)
+          expect(Decorators::MviUserDecorator.new(user).create).to_not be_nil
         end
       end
     end
