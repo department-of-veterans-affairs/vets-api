@@ -11,10 +11,6 @@ module MHVControllerConcerns
     current_user&.can_access_mhv? || raise_access_denied
   end
 
-  def raise_access_denied
-    raise Common::Exceptions::Forbidden, detail: 'You do not have access to prescriptions'
-  end
-
   def authenticate_client
     client.authenticate if client.session.expired?
   end
