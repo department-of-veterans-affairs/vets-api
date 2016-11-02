@@ -6,7 +6,7 @@ module SM
         # Prevent call if this is a reply draft, otherwise reply-to message suject can change.
         validate_draft(args)
 
-        json = perform(:post, 'message/draft', args, token_headers)
+        json = perform(:post, 'message/draft', args, token_headers).body
         MessageDraft.new(json)
       end
 
@@ -14,7 +14,7 @@ module SM
         # prevent call if this an existing draft with no association to a reply-to message
         validate_reply_draft(args)
 
-        json = perform(:post, "message/#{id}/replydraft", args, token_headers)
+        json = perform(:post, "message/#{id}/replydraft", args, token_headers).body
         json[:data][:has_message] = true
 
         MessageDraft.new(json).as_reply
