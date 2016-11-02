@@ -1,18 +1,16 @@
 ---
 http_interactions:
 - request:
-    method: post
-    uri: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_Facilities/FeatureServer/0/query
+    method: get
+    uri: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_Facilities/FeatureServer/0/query?f=json&geometry=-122.440689,45.451913,-122.786758,45.64&geometryType=esriGeometryEnvelope&inSR=4326&orderByFields=StationNum&outFields=*&outSR=4326&returnCountOnly=false&returnDistinctValues=false&returnGeometry=true&where=
     body:
       encoding: US-ASCII
-      string: f=json&geometry=-122.440689%2C45.451913%2C-122.786758%2C45.64&geometryType=esriGeometryEnvelope&where=1%3D1&inSR=4326&outSR=4326&returnGeometry=true&returnCountOnly=false&outFields=*&resultRecordCount&returnDistinctValues=false&orderByFields=StationNum
+      string: ''
     headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
       User-Agent:
-      - Ruby
+      - Typhoeus - https://github.com/typhoeus/typhoeus
+      Expect:
+      - ''
   response:
     status:
       code: 200
@@ -25,17 +23,17 @@ http_interactions:
       Server:
       - Microsoft-IIS/8.5
       X-Arcgis-Instance:
-      - MTSDS_Web_IN_9
+      - MTSDS_Web_IN_11
       X-Powered-By:
       - ASP.NET
       Access-Control-Allow-Origin:
       - "*"
       Date:
-      - Thu, 27 Oct 2016 22:05:16 GMT
+      - Fri, 28 Oct 2016 00:04:00 GMT
       Content-Length:
-      - '1462'
+      - '7905'
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: '{"objectIdFieldName":"OBJECTID_1","globalIdFieldName":"","geometryType":"esriGeometryPoint","spatialReference":{"wkid":4326,"latestWkid":4326},"fields":[{"name":"OBJECTID_1","type":"esriFieldTypeOID","alias":"OBJECTID_1","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"OBJECTID","type":"esriFieldTypeInteger","alias":"OBJECTID","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"FacilityDa","type":"esriFieldTypeString","alias":"FacilityDa","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Outpatient","type":"esriFieldTypeDate","alias":"Outpatient","sqlType":"sqlTypeOther","length":8,"domain":null,"defaultValue":null},{"name":"StationID","type":"esriFieldTypeInteger","alias":"StationID","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"VisnID","type":"esriFieldTypeSmallInteger","alias":"VisnID","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"StationNum","type":"esriFieldTypeString","alias":"StationNum","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"StationNam","type":"esriFieldTypeString","alias":"StationNam","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"CommonStat","type":"esriFieldTypeString","alias":"CommonStat","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"CocClassif","type":"esriFieldTypeString","alias":"CocClassif","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"CocClass_1","type":"esriFieldTypeString","alias":"CocClass_1","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Building","type":"esriFieldTypeString","alias":"Building","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Street","type":"esriFieldTypeString","alias":"Street","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Suite","type":"esriFieldTypeString","alias":"Suite","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"City","type":"esriFieldTypeString","alias":"City","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"State","type":"esriFieldTypeString","alias":"State","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Zip","type":"esriFieldTypeString","alias":"Zip","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Zip4","type":"esriFieldTypeString","alias":"Zip4","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"MainPhone","type":"esriFieldTypeString","alias":"MainPhone","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"MainFax","type":"esriFieldTypeString","alias":"MainFax","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"AfterHours","type":"esriFieldTypeString","alias":"AfterHours","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"PatientAdv","type":"esriFieldTypeString","alias":"PatientAdv","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Enrollment","type":"esriFieldTypeString","alias":"Enrollment","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"PharmacyPh","type":"esriFieldTypeString","alias":"PharmacyPh","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Monday","type":"esriFieldTypeString","alias":"Monday","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Tuesday","type":"esriFieldTypeString","alias":"Tuesday","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Wednesday","type":"esriFieldTypeString","alias":"Wednesday","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Thursday","type":"esriFieldTypeString","alias":"Thursday","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Friday","type":"esriFieldTypeString","alias":"Friday","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Saturday","type":"esriFieldTypeString","alias":"Saturday","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Sunday","type":"esriFieldTypeString","alias":"Sunday","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Latitude","type":"esriFieldTypeDouble","alias":"Latitude","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"Longitude","type":"esriFieldTypeDouble","alias":"Longitude","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"MHClinicPh","type":"esriFieldTypeDouble","alias":"Mental
         Health Phone Number","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"Extension","type":"esriFieldTypeInteger","alias":"Extension","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"First_Inte","type":"esriFieldTypeString","alias":"Website
         URL","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null}],"features":[{"attributes":{"OBJECTID_1":981,"OBJECTID":1736,"FacilityDa":"8-19-2016","Outpatient":1472428800000,"StationID":538,"VisnID":20,"StationNum":"648","StationNam":"Portland
@@ -56,5 +54,5 @@ http_interactions:
         x","Enrollment":"503-273-5069 x","PharmacyPh":"503-273-5183 x","Monday":"800AM-430PM","Tuesday":"800AM-430PM","Wednesday":"800AM-430PM","Thursday":"800AM-430PM","Friday":"800AM-430PM","Saturday":"-","Sunday":"-","Latitude":45.52017304,"Longitude":-122.67221794,"MHClinicPh":0,"Extension":0,"First_Inte":"
         "},"geometry":{"x":-122.67223242099993,"y":45.52017850500016}}]}'
     http_version: 
-  recorded_at: Thu, 27 Oct 2016 22:05:19 GMT
+  recorded_at: Fri, 28 Oct 2016 00:03:57 GMT
 recorded_with: VCR 3.0.3

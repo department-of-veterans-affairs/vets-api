@@ -26,12 +26,12 @@ module MVI
 
     def self.options
       opts = {
-        url: ENV['MVI_URL']
+        url: MVI::Settings::URL
       }
-      if ENV['MVI_CLIENT_CERT_PATH'] && ENV['MVI_CLIENT_KEY_PATH']
+      if MVI::Settings::SSL_CERT && MVI::Settings::SSL_KEY
         opts[:ssl] = {
-          client_cert: OpenSSL::X509::Certificate.new(File.read(ENV['MVI_CLIENT_CERT_PATH'])),
-          client_key: OpenSSL::PKey::RSA.new(File.read(ENV['MVI_CLIENT_KEY_PATH']))
+          client_cert: MVI::Settings::SSL_CERT,
+          client_key: MVI::Settings::SSL_KEY
         }
       end
       opts
@@ -45,9 +45,8 @@ module MVI
       raise MVI::RecordNotFound.new('MVI subject missing from response body', response) unless response.body
       response.body
     rescue Faraday::ConnectionFailed => e
-      Rails.logger.error "mvi find_candidate socket error: #{e.message}"
-      message = 'mvi requires a vpn connection, or use the mock mvi service as detailed in the project README'
-      raise MVI::ServiceError, message
+      Rails.logger.error "MVI find_candidate connection failed: #{e.message}"
+      raise MVI::ServiceError, 'MVI connection failed'
     end
 
     private
@@ -64,7 +63,10 @@ module MVI
         request.headers['SOAPAction'] = operation
         request.body = body
       end
-      raise MVI::HTTPError unless response.status == 200
+      unless response.status == 200
+        Rails.logger.error response.body
+        raise MVI::HTTPError.new('MVI HTTP call failed', response.status)
+      end
       response
     end
 
@@ -85,9 +87,16 @@ module MVI
   class InvalidRequestError < MVI::ServiceError
   end
   class HTTPError < MVI::ServiceError
+    attr_accessor :code
+
+    def initialize(message = nil, code = nil)
+      super(message)
+      @code = code
+    end
   end
   class RecordNotFound < StandardError
     attr_accessor :query, :original_response
+
     def initialize(message = nil, response = nil)
       super(message)
       @query = response.query
