@@ -34,8 +34,6 @@ class Decorators::MviUserDecorator
     # TODO(AJD): add metric
     Rails.logger.error "Error retrieving MVI data for user: #{@user.uuid}"
     raise Common::Exceptions::InternalServerError, e
-  ensure
-    @user
   end
 
   private
