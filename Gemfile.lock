@@ -325,6 +325,9 @@ GEM
       connection_pool (~> 2.2, >= 2.2.0)
       rack-protection (>= 1.5.0)
       redis (~> 3.2, >= 3.2.1)
+    sidekiq-instrument (0.2.1)
+      sidekiq (~> 4.0)
+      statsd-instrument (~> 2.0, >= 2.0.4)
     sidekiq-scheduler (2.0.19)
       hashie (~> 3.4)
       redis (~> 3)
@@ -434,6 +437,7 @@ DEPENDENCIES
   sdoc (~> 0.4.0)
   sentry-raven
   sidekiq
+  sidekiq-instrument
   sidekiq-scheduler (~> 2.0)
   sidekiq-unique-jobs
   simplecov (~> 0.11)

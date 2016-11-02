@@ -2,3 +2,7 @@ CreateDailySpoolFiles:
   cron: "0 3 * * * America/New_York"
   class: EducationForm::CreateDailySpoolFiles
   description: "Generate a daily set of spool files and transmit them over SFTP to a backend system"
+
+SidekiqStatsJob:
+  every: 1m
+  description: "Update Sidekiq stats for export to statsd gauges"
