@@ -78,8 +78,13 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
       it 'should log the validation errors' do
         education_benefits_claim = EducationBenefitsClaim.new(params[:educationBenefitsClaim])
         education_benefits_claim.valid?
+        validation_error = education_benefits_claim.errors.full_messages.join(', ')
+
         allow(Rails.logger).to receive(:error)
-        expect(Rails.logger).to receive(:error).with(education_benefits_claim.errors.full_messages.join(', ')).once
+        expect(Rails.logger).to receive(:error).with(validation_error).once
+
+        expect(Raven).to receive(:tags_context).once.with(validation: 'education_benefits_claim')
+        expect(Raven).to receive(:capture_exception).once.with(validation_error)
 
         subject
       end
