@@ -79,7 +79,7 @@ RSpec.describe UserSerializer, type: :serializer do
       let(:data) { JSON.parse(subject)['data'] }
       let(:attributes) { data['attributes'] }
       let(:va_profile) { attributes['va_profile'] }
-      
+
       it 'returns va_profile as null' do
         expect(va_profile).to be_nil
       end
