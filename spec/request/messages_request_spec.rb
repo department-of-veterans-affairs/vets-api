@@ -146,4 +146,15 @@ RSpec.describe 'Messages Integration', type: :request do
       expect(response).to have_http_status(:no_content)
     end
   end
+
+  context 'with an LOA1 user' do
+    let(:current_user) { build(:loa1_user) }
+
+    it 'gives me a 401' do
+      get "/v0/messaging/health/messages/#{message_id}"
+
+      expect(response).not_to be_success
+      expect(response.status).to eq(403)
+    end
+  end
 end
