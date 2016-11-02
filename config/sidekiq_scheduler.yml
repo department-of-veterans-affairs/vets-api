@@ -9,5 +9,5 @@ DeleteOldApplications:
   description: "Clear out processed 22-1990 applications that are older than 1 month"
 
 SidekiqStatsJob:
-  every: 1m
+  cron: "* * * * *"
   description: "Update Sidekiq stats for export to statsd gauges"
