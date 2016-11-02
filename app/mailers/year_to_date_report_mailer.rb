@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 class YearToDateReportMailer < ApplicationMailer
-  YEAR_TO_DATE_REPORT_TEXT = 'Year to date report'
+  REPORT_TEXT = 'Year to date report'
 
-  YEAR_TO_DATE_VA_STAKEHOLDERS = {
+  VA_STAKEHOLDERS = {
     to: %w(
       Christopher.Marino2@va.gov
       224A.VBACO@va.gov
@@ -35,13 +35,13 @@ class YearToDateReportMailer < ApplicationMailer
     if FeatureFlipper.staging_email?
       opt[:to] = 'lihan@adhocteam.us'
     else
-      opt = YEAR_TO_DATE_VA_STAKEHOLDERS.clone
+      opt = VA_STAKEHOLDERS.clone
     end
 
     mail(
       opt.merge(
-        subject: YEAR_TO_DATE_REPORT_TEXT,
-        body: "#{YEAR_TO_DATE_REPORT_TEXT} (link expires in one week)<br>#{url}"
+        subject: REPORT_TEXT,
+        body: "#{REPORT_TEXT} (link expires in one week)<br>#{url}"
       )
     )
   end
