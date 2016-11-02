@@ -37,7 +37,7 @@ module EducationForm
       regional_data = Hash.new { |h, k| h[k] = [] }
       records.each do |record|
         form = record.open_struct_form
-        region_key = EducationFacility.region_for(form)
+        region_key = record.regional_processing_office&.to_sym
         regional_data[region_key] << form
       end
       regional_data
