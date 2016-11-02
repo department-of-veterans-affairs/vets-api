@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'common/models/collection'
 
 class V0::Facilities::VaController < FacilitiesController
   before_action :validate_params, only: [:index]
@@ -9,9 +10,12 @@ class V0::Facilities::VaController < FacilitiesController
   # @param services - Optional specialty services filter
   def index
     results = VAFacility.query(bbox: params[:bbox], type: params[:type], services: params[:services])
-    render json: results,
+    resource = Common::Collection.new(::VAFacility, results)
+    resource = resource.paginate(pagination_params)
+    render json: resource.data,
            serializer: CollectionSerializer,
-           each_serializer: VAFacilitySerializer
+           each_serializer: VAFacilitySerializer,
+           meta: resource.metadata
   end
 
   def show
