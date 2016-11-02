@@ -16,7 +16,7 @@ SidekiqStatsJob:
   cron: "* * * * *"
   description: "Update Sidekiq stats for export to statsd gauges"
 
-DeleteOldApplications:
-  cron: "0 0 * * * America/New_York"
+DeleteOldClaims:
+  cron: "0 2 * * * America/New_York"
   class: EVSS::DeleteOldClaims
   description: "Clear out EVSS disability claims that have not been updated in 24 hours"
