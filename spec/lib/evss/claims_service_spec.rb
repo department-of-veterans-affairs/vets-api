@@ -27,12 +27,5 @@ describe EVSS::ClaimsService do
         expect(response).to be_success
       end
     end
-
-    it 'should post create_intent_to_file' do
-      VCR.use_cassette('evss/claims/create_intent_to_file') do
-        response = subject.create_intent_to_file
-        expect(response).to be_success
-      end
-    end
   end
 end
