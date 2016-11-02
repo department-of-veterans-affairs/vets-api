@@ -16,3 +16,14 @@ If you want to generate spool files locally, you have two options:
 * With a rails console (`bin/rails c`), run `EducationForm::CreateDailySpoolFiles.new.perform`
 
 The files will be written into `tmp/spool_files`, with each regional file starting with the current date.
+
+## Reprocessing an application
+
+If an application needs to go to a different processing center, we can take the ID and queue it up to be sent over the next time the spool file job runs:
+
+```
+application_id = ###
+new_region = one of 'eastern', 'western', 'southern', or 'central'
+application = EducationBenefitsClaim.find(application_id)
+application.reprocess_at(region)
+```
