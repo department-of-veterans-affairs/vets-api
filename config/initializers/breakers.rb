@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'breakers/statsd_plugin'
 require 'rx/configuration'
 require 'sm/configuration'
 
@@ -13,16 +14,20 @@ redis_namespace = Redis::Namespace.new('breakers', redis: redis)
 
 services = [
   Rx::Configuration.instance.breakers_service,
-  SM::Configuration.instance.breakers_service,
-  EVSS::ClaimsService.breakers_service,
-  EVSS::CommonService.breakers_service,
-  EVSS::DocumentsService.breakers_service
+  SM::Configuration.instance.breakers_service
+  # TODO: (AJM) Disabled for testing, add these back in for launch
+  # EVSS::ClaimsService.breakers_service,
+  # EVSS::CommonService.breakers_service,
+  # EVSS::DocumentsService.breakers_service
 ]
+
+plugin = Breakers::StatsdPlugin.new
 
 client = Breakers::Client.new(
   redis_connection: redis_namespace,
   services: services,
-  logger: Rails.logger
+  logger: Rails.logger,
+  plugins: [plugin]
 )
 
 # No need to prefix it when using the namespace

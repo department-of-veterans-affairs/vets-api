@@ -2,7 +2,7 @@
 require 'feature_flipper'
 require 'common/exceptions'
 require 'common/client/errors'
-require_dependency 'saml/settings_service'
+require 'saml/settings_service'
 
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
@@ -35,6 +35,9 @@ class ApplicationController < ActionController::API
         Common::Exceptions::InternalServerError.new(exception)
       end
 
+    if va_exception.is_a?(Common::Exceptions::Unauthorized)
+      headers['WWW-Authenticate'] = 'Token realm="Application"'
+    end
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
 
@@ -65,9 +68,10 @@ class ApplicationController < ActionController::API
     end
   end
 
+  attr_reader :current_user
+
   def render_unauthorized
-    headers['WWW-Authenticate'] = 'Token realm="Application"'
-    render json: 'Not Authorized', status: 401
+    raise Common::Exceptions::Unauthorized
   end
 
   def saml_settings

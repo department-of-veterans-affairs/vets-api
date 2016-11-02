@@ -1,0 +1,58 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_Facilities/FeatureServer/0/query?f=json&geometry=-122.440689,45.451913,-122.786758,45.64&geometryType=esriGeometryEnvelope&inSR=4326&orderByFields=StationNum&outFields=*&outSR=4326&returnCountOnly=false&returnDistinctValues=false&returnGeometry=true&where=
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Typhoeus - https://github.com/typhoeus/typhoeus
+      Expect:
+      - ''
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - sd58_474509621
+      Server:
+      - Microsoft-IIS/8.5
+      X-Arcgis-Instance:
+      - MTSDS_Web_IN_11
+      X-Powered-By:
+      - ASP.NET
+      Access-Control-Allow-Origin:
+      - "*"
+      Date:
+      - Fri, 28 Oct 2016 00:04:00 GMT
+      Content-Length:
+      - '7905'
+    body:
+      encoding: UTF-8
+      string: '{"objectIdFieldName":"OBJECTID_1","globalIdFieldName":"","geometryType":"esriGeometryPoint","spatialReference":{"wkid":4326,"latestWkid":4326},"fields":[{"name":"OBJECTID_1","type":"esriFieldTypeOID","alias":"OBJECTID_1","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"OBJECTID","type":"esriFieldTypeInteger","alias":"OBJECTID","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"FacilityDa","type":"esriFieldTypeString","alias":"FacilityDa","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Outpatient","type":"esriFieldTypeDate","alias":"Outpatient","sqlType":"sqlTypeOther","length":8,"domain":null,"defaultValue":null},{"name":"StationID","type":"esriFieldTypeInteger","alias":"StationID","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"VisnID","type":"esriFieldTypeSmallInteger","alias":"VisnID","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"StationNum","type":"esriFieldTypeString","alias":"StationNum","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"StationNam","type":"esriFieldTypeString","alias":"StationNam","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"CommonStat","type":"esriFieldTypeString","alias":"CommonStat","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"CocClassif","type":"esriFieldTypeString","alias":"CocClassif","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"CocClass_1","type":"esriFieldTypeString","alias":"CocClass_1","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Building","type":"esriFieldTypeString","alias":"Building","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Street","type":"esriFieldTypeString","alias":"Street","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Suite","type":"esriFieldTypeString","alias":"Suite","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"City","type":"esriFieldTypeString","alias":"City","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"State","type":"esriFieldTypeString","alias":"State","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Zip","type":"esriFieldTypeString","alias":"Zip","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Zip4","type":"esriFieldTypeString","alias":"Zip4","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"MainPhone","type":"esriFieldTypeString","alias":"MainPhone","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"MainFax","type":"esriFieldTypeString","alias":"MainFax","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"AfterHours","type":"esriFieldTypeString","alias":"AfterHours","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"PatientAdv","type":"esriFieldTypeString","alias":"PatientAdv","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Enrollment","type":"esriFieldTypeString","alias":"Enrollment","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"PharmacyPh","type":"esriFieldTypeString","alias":"PharmacyPh","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Monday","type":"esriFieldTypeString","alias":"Monday","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Tuesday","type":"esriFieldTypeString","alias":"Tuesday","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Wednesday","type":"esriFieldTypeString","alias":"Wednesday","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Thursday","type":"esriFieldTypeString","alias":"Thursday","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Friday","type":"esriFieldTypeString","alias":"Friday","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Saturday","type":"esriFieldTypeString","alias":"Saturday","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Sunday","type":"esriFieldTypeString","alias":"Sunday","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null},{"name":"Latitude","type":"esriFieldTypeDouble","alias":"Latitude","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"Longitude","type":"esriFieldTypeDouble","alias":"Longitude","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"MHClinicPh","type":"esriFieldTypeDouble","alias":"Mental
+        Health Phone Number","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"Extension","type":"esriFieldTypeInteger","alias":"Extension","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"First_Inte","type":"esriFieldTypeString","alias":"Website
+        URL","sqlType":"sqlTypeOther","length":254,"domain":null,"defaultValue":null}],"features":[{"attributes":{"OBJECTID_1":981,"OBJECTID":1736,"FacilityDa":"8-19-2016","Outpatient":1472428800000,"StationID":538,"VisnID":20,"StationNum":"648","StationNam":"Portland
+        VA Medical Center","CommonStat":"Portland","CocClassif":"VA Medical Center
+        (VAMC)","CocClass_1":"Firm","Building":" ","Street":"3710 Southwest US Veterans
+        Hospital Road","Suite":" ","City":"Portland","State":"OR","Zip":"97239","Zip4":"2964","MainPhone":"503-721-1498
+        x","MainFax":"503-273-5319 x","AfterHours":"503-220-8262 x","PatientAdv":"503-273-5308
+        x","Enrollment":"503-273-5069 x","PharmacyPh":"503-273-5183 x","Monday":"24/7","Tuesday":"24/7","Wednesday":"24/7","Thursday":"24/7","Friday":"24/7","Saturday":"24/7","Sunday":"24/7","Latitude":45.49746145,"Longitude":-122.68287208,"MHClinicPh":5032735187,"Extension":0,"First_Inte":"http://www.portland.va.gov/"},"geometry":{"x":-122.68288655799995,"y":45.497466912999982}},{"attributes":{"OBJECTID_1":912,"OBJECTID":1510,"FacilityDa":"8-19-2016","Outpatient":1472428800000,"StationID":539,"VisnID":20,"StationNum":"648A4","StationNam":"Portland
+        VA Medical Center-Vancouver","CommonStat":"Portland-Vancouver","CocClassif":"VA
+        Medical Center (VAMC)","CocClass_1":"Firm","Building":" ","Street":"1601 East
+        4th Plain Boulevard","Suite":" ","City":"Vancouver","State":"WA","Zip":"98661","Zip4":"3753","MainPhone":"360-759-1901
+        x","MainFax":"360-690-0864 x","AfterHours":"360-696-4061 x","PatientAdv":"503-273-5308
+        x","Enrollment":"503-273-5069 x","PharmacyPh":"503-273-5183 x","Monday":"730AM-430PM","Tuesday":"730AM-630PM","Wednesday":"730AM-430PM","Thursday":"730AM-430PM","Friday":"730AM-430PM","Saturday":"800AM-1000AM","Sunday":"-","Latitude":45.63941626,"Longitude":-122.65528736,"MHClinicPh":5032735187,"Extension":0,"First_Inte":"http://www.portland.va.gov/locations/vancouver.asp"},"geometry":{"x":-122.65530186399985,"y":45.639421734000052}},{"attributes":{"OBJECTID_1":145,"OBJECTID":1629,"FacilityDa":"8-19-2016","Outpatient":1472428800000,"StationID":4187,"VisnID":20,"StationNum":"648GI","StationNam":"Portland
+        VA Clinic","CommonStat":"Portland-1st Avenue","CocClassif":"Primary Care CBOC","CocClass_1":"Save
+        Rating","Building":"Lawrence Building","Street":"308 Southwest 1st Avenue","Suite":"Suite
+        155","City":"Portland","State":"OR","Zip":"97204","Zip4":"3432","MainPhone":"503-808-1256
+        x","MainFax":"503-808-1900 x","AfterHours":"800-273-8255 x","PatientAdv":"503-273-5308
+        x","Enrollment":"503-273-5069 x","PharmacyPh":"503-273-5183 x","Monday":"800AM-430PM","Tuesday":"800AM-430PM","Wednesday":"800AM-430PM","Thursday":"800AM-430PM","Friday":"800AM-430PM","Saturday":"-","Sunday":"-","Latitude":45.52017304,"Longitude":-122.67221794,"MHClinicPh":0,"Extension":0,"First_Inte":"
+        "},"geometry":{"x":-122.67223242099993,"y":45.52017850500016}}]}'
+    http_version: 
+  recorded_at: Fri, 28 Oct 2016 00:03:57 GMT
+recorded_with: VCR 3.0.3

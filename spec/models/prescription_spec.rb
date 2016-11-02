@@ -1,14 +1,11 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'rx/parser'
 
 describe Prescription do
-  let(:original_camel_cased_json) { File.read('spec/support/fixtures/get_rx_1435525.json') }
-  let(:parsed_json_object) { Rx::Parser.new(JSON.parse(original_camel_cased_json)).parse! }
-  let(:json_string) { File.read('spec/support/fixtures/prescription_1435525_snakecase.json').strip }
+  let(:prescription_attributes) { attributes_for(:prescription) }
 
   context 'with valid attributes' do
-    subject { described_class.new(parsed_json_object) }
+    subject { described_class.new(prescription_attributes) }
 
     it 'has attributes' do
       expect(subject).to have_attributes(refill_status: 'active', refill_remaining: 9, facility_name: 'ABC1223',
@@ -37,10 +34,10 @@ describe Prescription do
   end
 
   context 'it sorts' do
-    let(:p1) { described_class.new(parsed_json_object) }
-    let(:p2) { described_class.new(parsed_json_object) }
-    let(:p3) { described_class.new(data_attr_merge(prescription_id: '2', refill_date: Time.now.utc)) }
-    let(:p4) { described_class.new(data_attr_merge(prescription_id: '3', refill_data: 1.year.ago.utc)) }
+    let(:p1) { described_class.new(prescription_attributes) }
+    let(:p2) { described_class.new(prescription_attributes) }
+    let(:p3) { described_class.new(attributes_for(:prescription, prescription_id: '2', refill_date: Time.now.utc)) }
+    let(:p4) { described_class.new(attributes_for(:prescription, prescription_id: '3', refill_data: 1.year.ago.utc)) }
 
     subject { [p1, p2, p3, p4] }
 
@@ -53,10 +50,5 @@ describe Prescription do
       expect(subject.sort_by(&:refill_date).map(&:prescription_id))
         .to eq([1_435_525, 1_435_525, 3, 2])
     end
-  end
-
-  def data_attr_merge(attributes = {})
-    data = parsed_json_object[:data]
-    parsed_json_object.merge(data: data.merge(attributes))
   end
 end

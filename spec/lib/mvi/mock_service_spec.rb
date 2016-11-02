@@ -7,8 +7,8 @@ require 'mvi/messages/find_candidate_message'
 describe MVI::MockService do
   it 'loads the yaml file only once' do
     expect(YAML).to receive(:load_file).once.and_return('some yaml')
-    MVI::MockService.mocked_responses
-    MVI::MockService.mocked_responses
+    subject.mocked_responses
+    subject.mocked_responses
   end
 
   describe '.find_candidate' do
@@ -33,30 +33,32 @@ describe MVI::MockService do
     let(:message) { double(MVI::Messages::FindCandidateMessage) }
 
     it 'returns YAML hash for find_candidate by SSN' do
-      allow(MVI::MockService).to receive(:mocked_responses).and_return(yaml_hash)
+      allow(subject).to receive(:mocked_responses).and_return(yaml_hash)
       allow(message).to receive(:ssn).and_return('555443333')
-      expect(MVI::MockService.find_candidate(message)).to eq(yaml_hash.dig('find_candidate', '555443333'))
+      response = subject.find_candidate(message)
+      expect(response).to eq(yaml_hash.dig('find_candidate', '555443333'))
+      expect(response[:birth_date]).to eq('19800101')
     end
 
     context 'when SSN lookup fails' do
       let(:ssn) { '111223333' }
       before(:each) do
-        allow(MVI::MockService).to receive(:mocked_responses).and_return(yaml_hash)
+        allow(subject).to receive(:mocked_responses).and_return(yaml_hash)
         allow(message).to receive(:ssn).and_return(ssn)
       end
 
       it 'invokes the real service' do
-        expect(MVI::Service).to receive(:find_candidate).once
-        MVI::MockService.find_candidate(message)
+        expect(subject).to receive(:find_candidate).once
+        subject.find_candidate(message)
       end
 
       context 'when the real service raises an error' do
         it 'logs and re-raises an error' do
-          allow(MVI::Service).to receive(:find_candidate).and_raise(MVI::HTTPError)
+          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(MVI::HTTPError)
           expected_message = "No user found by key #{ssn} in mock_mvi_responses.yml, "\
             'the remote service was invoked but received an error: MVI::HTTPError'
           expect(Rails.logger).to receive(:error).once.with(expected_message)
-          expect { MVI::MockService.find_candidate(message) }.to raise_error(MVI::HTTPError)
+          expect { subject.find_candidate(message) }.to raise_error(MVI::HTTPError)
         end
       end
     end

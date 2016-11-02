@@ -1,19 +1,17 @@
 # frozen_string_literal: true
-require_dependency 'rx/client'
+require 'rx/client'
 
 class RxController < ApplicationController
   include ActionController::Serialization
-
-  skip_before_action :authenticate
-  before_action :authenticate_client
+  include MHVControllerConcerns
 
   protected
 
   def client
-    @client ||= Rx::Client.new(session: { user_id: ENV['MHV_USER_ID'] })
+    @client ||= Rx::Client.new(session: { user_id: current_user.mhv_correlation_id })
   end
 
-  def authenticate_client
-    client.authenticate if client.session.expired?
+  def raise_access_denied
+    raise Common::Exceptions::Forbidden, detail: 'You do not have access to prescriptions'
   end
 end

@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require_dependency 'evss/claims_service'
-require_dependency 'evss/auth_headers'
+require 'evss/claims_service'
+require 'evss/auth_headers'
 
 describe EVSS::ClaimsService do
-  let(:current_user) do
-    User.sample_claimant
-  end
+  let(:current_user) { FactoryGirl.create(:mvi_user) }
   let(:auth_headers) do
     EVSS::AuthHeaders.new(current_user).to_h
   end
@@ -14,6 +12,8 @@ describe EVSS::ClaimsService do
   subject { described_class.new(auth_headers) }
 
   context 'with headers' do
+    let(:evss_id) { 189_625 }
+
     it 'should get claims' do
       VCR.use_cassette('evss/claims/claims') do
         response = subject.all_claims
@@ -21,9 +21,9 @@ describe EVSS::ClaimsService do
       end
     end
 
-    it 'should post create_intent_to_file' do
-      VCR.use_cassette('evss/claims/create_intent_to_file') do
-        response = subject.create_intent_to_file
+    it 'should post a 5103 waiver' do
+      VCR.use_cassette('evss/claims/set_5103_waiver') do
+        response = subject.submit_5103_waiver(evss_id)
         expect(response).to be_success
       end
     end

@@ -1,15 +1,16 @@
 # frozen_string_literal: true
-require_dependency 'evss/error_middleware'
+require 'evss/error_middleware'
 
 module EVSS
   class BaseService
     SYSTEM_NAME = 'vets.gov'
-    DEFAULT_TIMEOUT = 10 # in seconds
+    DEFAULT_TIMEOUT = 15 # in seconds
 
     def initialize(headers)
       @headers = headers
     end
 
+    # :nocov:
     def self.create_breakers_service(name:, url:)
       path = URI.parse(url).path
       host = URI.parse(url).host
@@ -22,6 +23,7 @@ module EVSS
         request_matcher: matcher
       )
     end
+    # :nocov:
 
     protected
 

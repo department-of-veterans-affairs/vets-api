@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require_dependency 'evss/base_service'
+require 'evss/base_service'
 
 module EVSS
   class CommonService < BaseService
@@ -10,6 +10,8 @@ module EVSS
            { participantId: participant_id }.to_json
     end
 
+    # :nocov:
+    # TODO: (AJM) Add spec to cover this
     def create_user_account
       post 'persistentPropertiesService/11.0/createUserAccount'
     end
@@ -17,5 +19,6 @@ module EVSS
     def self.breakers_service
       BaseService.create_breakers_service(name: 'EVSS/Common', url: BASE_URL)
     end
+    # :nocov:
   end
 end
