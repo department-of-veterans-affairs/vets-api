@@ -6,12 +6,12 @@ module Rx
     # This module defines the prescription actions
     module Prescriptions
       def get_active_rxs
-        json = perform(:get, 'prescription/getactiverx', nil, token_headers)
+        json = perform(:get, 'prescription/getactiverx', nil, token_headers).body
         Common::Collection.new(::Prescription, json)
       end
 
       def get_history_rxs
-        json = perform(:get, 'prescription/gethistoryrx', nil, token_headers)
+        json = perform(:get, 'prescription/gethistoryrx', nil, token_headers).body
         Common::Collection.new(::Prescription, json)
       end
 
@@ -21,13 +21,13 @@ module Rx
       end
 
       def get_tracking_rx(id)
-        json = perform(:get, "prescription/rxtracking/#{id}", nil, token_headers)
+        json = perform(:get, "prescription/rxtracking/#{id}", nil, token_headers).body
         data = json[:data].first.merge(prescription_id: id)
         Tracking.new(json.merge(data: data))
       end
 
       def get_tracking_history_rx(id)
-        json = perform(:get, "prescription/rxtracking/#{id}", nil, token_headers)
+        json = perform(:get, "prescription/rxtracking/#{id}", nil, token_headers).body
         tracking_history = json[:data].map { |t| Hash[t].merge(prescription_id: id) }
         Common::Collection.new(::Tracking, json.merge(data: tracking_history))
       end

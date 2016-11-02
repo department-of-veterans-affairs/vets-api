@@ -2,49 +2,6 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-api/patient/v1/session"
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Apptoken:
-      - "<APP_TOKEN>"
-      Mhvcorrelationid:
-      - '12210827'
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Token: "<SESSION_TOKEN>"
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Wed, 19 Oct 2016 09:05:28 GMT
-      Server:
-      - Apache/2.2.15 (Red Hat)
-      Content-Length:
-      - '0'
-      Expires:
-      - Wed, 19 Oct 2016 09:15:28 GMT
-      Token: "<SESSION_TOKEN>"
-      Connection:
-      - close
-      Content-Type:
-      - text/html; charset=UTF-8
-    body:
-      encoding: UTF-8
-      string: ''
-    http_version:
-  recorded_at: Wed, 19 Oct 2016 09:05:28 GMT
-- request:
-    method: get
     uri: "<MHV_HOST>/mhv-api/patient/v1/prescription/rxtracking/13650541"
     body:
       encoding: US-ASCII
@@ -65,7 +22,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 19 Oct 2016 09:05:28 GMT
+      - Wed, 02 Nov 2016 05:15:15 GMT
       Server:
       - Apache/2.2.15 (Red Hat)
       Connection:
@@ -74,7 +31,6 @@ http_interactions:
       - chunked
       Content-Type:
       - application/json
-      Token: "<SESSION_TOKEN>"
     body:
       encoding: UTF-8
       string: '{"prescriptionName":"PAROXETINE HCL 30MG TAB","prescriptionNumber":"2719551","facilityName":"DAYT29","rxInfoPhoneNumber":"(555)772-0956","ndcNumber":"00781171601","lastUpdatedtime":"Mon,
@@ -86,6 +42,6 @@ http_interactions:
         26 Jun 2016 00:00:00 EDT","deliveryService":"UsPS","trackingNumber":"345787647655","otherPrescriptionListIncluded":[{"prescriptionName":"ETHAMBUTOL
         HCL 100MG TAB","prescriptionNumber":"2719553","ndcNumber":"00078042034","stationNumber":"989"},{"prescriptionName":"TERAZOSIN
         HCL 10MG CAP","prescriptionNumber":"2719554","ndcNumber":"07985440050","stationNumber":"989"}]}]}'
-    http_version:
-  recorded_at: Wed, 19 Oct 2016 09:05:28 GMT
+    http_version: 
+  recorded_at: Wed, 02 Nov 2016 05:15:15 GMT
 recorded_with: VCR 3.0.3
