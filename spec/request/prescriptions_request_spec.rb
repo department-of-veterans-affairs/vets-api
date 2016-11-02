@@ -9,7 +9,7 @@ RSpec.describe 'prescriptions', type: :request do
   let(:current_user) { build(:mhv_user) }
 
   before(:each) do
-    allow_any_instance_of(RxController).to receive(:client).and_return(authenticated_client)
+    allow(Rx::Client).to receive(:new).and_return(authenticated_client)
     use_authenticated_current_user(current_user: current_user)
   end
 
