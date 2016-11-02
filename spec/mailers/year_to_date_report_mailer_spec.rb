@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe ReportMailer, type: [:mailer, :aws_helpers] do
+RSpec.describe YearToDateReportMailer, type: [:mailer, :aws_helpers] do
   describe '#year_to_date_report_email' do
     let(:filename) { 'foo' }
-    let(:mail) { described_class.year_to_date_report_email(filename).deliver_now }
+    let(:mail) { described_class.build(filename).deliver_now }
     subject do
       stub_reports_s3(filename) do
         mail

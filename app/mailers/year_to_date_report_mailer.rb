@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class ReportMailer < ApplicationMailer
+class YearToDateReportMailer < ApplicationMailer
   YEAR_TO_DATE_REPORT_TEXT = 'Year to date report'
 
   YEAR_TO_DATE_VA_STAKEHOLDERS = {
@@ -25,7 +25,7 @@ class ReportMailer < ApplicationMailer
     )
   }.freeze
 
-  def year_to_date_report_email(report_file)
+  def build(report_file)
     s3_resource = new_s3_resource
     obj = s3_resource.bucket(s3_bucket).object("#{SecureRandom.uuid}.csv")
     obj.upload_file(report_file, content_type: 'text/csv')
