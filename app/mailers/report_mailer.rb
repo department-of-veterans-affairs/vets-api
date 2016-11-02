@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 class ReportMailer < ApplicationMailer
   YEAR_TO_DATE_REPORT_TEXT = 'Year to date report'
-  # TODO: change this for production
-  default to: 'lihan@adhocteam.us'
 
   def year_to_date_report_email(report_file)
     s3_resource = new_s3_resource
@@ -10,10 +8,38 @@ class ReportMailer < ApplicationMailer
     obj.upload_file(report_file, content_type: 'text/csv')
     url = obj.presigned_url(:get, expires_in: 1.week)
 
-    mail(
+    opt = {}
+    if FeatureFlipper.staging_email?
+      opt[:to] = 'lihan@adhocteam.us'
+    else
+      opt.merge!(
+        to: %w[
+          Christopher.Marino2@va.gov
+          224A.VBACO@va.gov
+          rodney.alexander@va.gov
+          URSULA.BRITT@va.gov
+          Carolyn.McCollam@va.gov
+          shay.norton@va.gov
+          Christina.DiTucci@va.gov
+        ],
+        cc: %w[
+          robert.orifici@va.gov
+          Erin.Haskins@va.gov
+          Shante.Kinzie@va.gov
+          Brandye.Terrell@va.gov
+          michele.mendola@va.gov
+          Schnell.Carraway@va.gov
+          Danita.Johnson@va.gov
+          jude.lopez1@va.gov
+          Steven.Wayland@va.gov
+        ]
+      )
+    end
+
+    mail(opt.merge(
       subject: YEAR_TO_DATE_REPORT_TEXT,
       body: "#{YEAR_TO_DATE_REPORT_TEXT} (link expires in one week)<br>#{url}"
-    )
+    ))
   end
 
   private
