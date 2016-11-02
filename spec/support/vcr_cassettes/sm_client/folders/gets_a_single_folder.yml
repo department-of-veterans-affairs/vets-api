@@ -34,6 +34,6 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"id":0,"name":"Inbox","count":5,"unreadCount":0,"systemFolder":true}'
-    http_version: 
+    http_version:
   recorded_at: Mon, 24 Oct 2016 04:52:02 GMT
 recorded_with: VCR 3.0.3

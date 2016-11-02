@@ -94,6 +94,6 @@ http_interactions:
         24 Jan 2016 00:00:00 EST","quantity":15,"expirationDate":"Tue, 24 Jan 2017
         00:00:00 EST","prescriptionNumber":"2719472","prescriptionName":"MIRTAZAPINE
         15MG TAB","dispensedDate":null,"stationNumber":"989"}]}'
-    http_version: 
+    http_version:
   recorded_at: Wed, 02 Nov 2016 05:14:58 GMT
 recorded_with: VCR 3.0.3

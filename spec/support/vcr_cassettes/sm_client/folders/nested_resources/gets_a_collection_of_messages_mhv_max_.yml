@@ -40,7 +40,7 @@ http_interactions:
         File Attachments","body":null,"attachment":true,"attachments":null,"sentDate":"Wed,
         05 Oct 2016 22:21:44 GMT","senderId":621356,"senderName":"KARSHENAS, KAMYAR","recipientId":384939,"recipientName":"MVIONE,
         TEST","readReceipt":"READ"}]}'
-    http_version: 
+    http_version:
   recorded_at: Mon, 24 Oct 2016 04:52:03 GMT
 - request:
     method: get
@@ -82,7 +82,7 @@ http_interactions:
         16.2- SM last login ","body":null,"attachment":false,"attachments":null,"sentDate":"Wed,
         13 Apr 2016 21:35:00 GMT","senderId":35382,"senderName":"Manivasagam, Rajesh","recipientId":384939,"recipientName":"MVIONE,
         TEST","readReceipt":"READ"}]}'
-    http_version: 
+    http_version:
   recorded_at: Mon, 24 Oct 2016 04:52:03 GMT
 - request:
     method: get
@@ -121,6 +121,6 @@ http_interactions:
         SM last login ","body":null,"attachment":false,"attachments":null,"sentDate":"Wed,
         13 Apr 2016 21:17:57 GMT","senderId":35382,"senderName":"Manivasagam, Rajesh","recipientId":384939,"recipientName":"MVIONE,
         TEST","readReceipt":"READ"}]}'
-    http_version: 
+    http_version:
   recorded_at: Mon, 24 Oct 2016 04:52:04 GMT
 recorded_with: VCR 3.0.3
