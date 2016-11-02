@@ -19,7 +19,7 @@ describe 'rx client' do
       end
     end
 
-    let(:client)  { @client }
+    let(:client) { @client }
 
     it 'gets a list of active prescriptions', :vcr do
       client_response = client.get_active_rxs
@@ -41,7 +41,7 @@ describe 'rx client' do
       client_response = client.post_refill_rx(13_568_747)
       expect(client_response.status).to equal 200
       # This is what MHV returns, even though we don't care
-      expect(client_response.body).to eq({ status: 'success' })
+      expect(client_response.body).to eq(status: 'success')
     end
 
     context 'nested resources' do
