@@ -32,6 +32,7 @@ module V0
       message = Message.new(message_params.merge(upload_params))
       raise Common::Exceptions::ValidationErrors, message unless message.valid?
 
+      message_params[:id] = message_params.delete(:draft_id) if message_params[:draft_id].present?
       create_message_params = { message: message_params }.merge(upload_params)
 
       client_response = if message.uploads.present?
@@ -66,6 +67,7 @@ module V0
       message = Message.new(message_params.merge(upload_params)).as_reply
       raise Common::Exceptions::ValidationErrors, message unless message.valid?
 
+      message_params[:id] = message_params.delete(:draft_id) if message_params[:draft_id].present?
       create_message_params = { message: message_params }.merge(upload_params)
 
       if message.uploads.present?
