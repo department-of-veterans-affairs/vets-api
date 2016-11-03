@@ -56,7 +56,6 @@ module V0
       message_id = params[:id].try(:to_i)
       resource = client.get_message_history(message_id)
       raise Common::Exceptions::RecordNotFound, message_id unless resource.present?
-      resource = resource.paginate(pagination_params)
 
       render json: resource.data,
              serializer: CollectionSerializer,
