@@ -64,6 +64,11 @@ RSpec.describe User, type: :model do
         expect(loa3_user.valid?).to be_truthy
         expect(loa3_user.errors[:gender].size).to eq(0)
       end
+      it 'should allow a nil gender' do
+        loa3_user.gender = nil
+        expect(loa3_user.valid?).to be_truthy
+        expect(loa3_user.errors[:gender].size).to eq(0)
+      end
       it 'should not allow a gender other than M or F' do
         loa3_user.gender = 'male'
         expect(loa3_user.valid?).to be_falsey
