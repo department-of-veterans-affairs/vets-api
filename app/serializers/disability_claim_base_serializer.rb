@@ -42,7 +42,7 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   end
 
   def phase
-    phase_from_keys 'status'
+    raise NotImplementedError, 'Subclass of DisabilityClaimBaseSerializer must implement phase method'
   end
 
   protected
@@ -86,5 +86,11 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
     phase = PHASE_MAPPING[s]
     Rails.logger.error "Expected EVSS #{keys} to be a phase. Got '#{s}'." unless phase
     phase
+  end
+
+  # object_data mediates whether a class uses object.data or
+  # object.list_data as the basis of serialization.
+  def object_data
+    raise NotImplementedError, 'Subclass of DisabilityClaimBaseSerializer must implement object_data method'
   end
 end
