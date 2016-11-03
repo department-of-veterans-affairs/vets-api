@@ -105,7 +105,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
       expect(response).to be_success
       expect(response.body).to be_a(String)
-      expect(response).to match_response_schema('messages')
+      expect(response).to match_response_schema('messages_thread')
     end
   end
 
