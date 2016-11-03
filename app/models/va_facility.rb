@@ -6,9 +6,6 @@ class VAFacility < ActiveModelSerializers::Model
   attr_accessor :unique_id, :name, :facility_type, :classification, :website,
                 :lat, :long, :address, :phone, :hours, :services
 
-  per_page = 10
-  max_per_page = 100
-
   HEALTH = 'health'
   CEMETERY = 'cemetery'
   BENEFITS = 'benefits'
@@ -63,5 +60,13 @@ class VAFacility < ActiveModelSerializers::Model
       CEMETERY => NCAFacilityAdapter.new,
       BENEFITS => VBAFacilityAdapter.new
     }
+  end
+
+  def self.per_page
+    20
+  end
+
+  def self.max_per_page
+    100
   end
 end
