@@ -53,6 +53,20 @@ describe Decorators::MviUserDecorator do
           )
         end
       end
+      context 'when MVI::RecordNotFound is raised' do
+        it 'should log an error message and return the unmodified user' do
+          response = instance_double('MVI::Responses::FindCandidateResponse')
+          allow(response).to receive(:query).and_return('foo')
+          allow(response).to receive(:original_response).and_return('foo')
+          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(
+            MVI::RecordNotFound.new('not found', response)
+          )
+          expect(Rails.logger).to receive(:error).once.with(/MVI record not found for user:/)
+          user_result = Decorators::MviUserDecorator.new(user).create
+          expect(user_result).to_not be_nil
+          expect(user_result.mvi).to be_nil
+        end
+      end
     end
 
     context 'when a correlation id is nil' do

@@ -12,6 +12,8 @@ describe EVSS::ClaimsService do
   subject { described_class.new(auth_headers) }
 
   context 'with headers' do
+    let(:evss_id) { 189_625 }
+
     it 'should get claims' do
       VCR.use_cassette('evss/claims/claims') do
         response = subject.all_claims
@@ -19,9 +21,9 @@ describe EVSS::ClaimsService do
       end
     end
 
-    it 'should post create_intent_to_file' do
-      VCR.use_cassette('evss/claims/create_intent_to_file') do
-        response = subject.create_intent_to_file
+    it 'should post a 5103 waiver' do
+      VCR.use_cassette('evss/claims/set_5103_waiver') do
+        response = subject.submit_5103_waiver(evss_id)
         expect(response).to be_success
       end
     end

@@ -60,7 +60,7 @@ class DisabilityClaimService
   end
 
   def request_decision(claim)
-    client.submit_5103_waiver(claim.evss_id).body
+    DisabilityClaim::RequestDecision.perform_async(auth_headers, claim.evss_id)
   end
 
   # upload file to s3 and enqueue job to upload to EVSS

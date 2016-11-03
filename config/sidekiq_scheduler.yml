@@ -1,4 +1,26 @@
+# Use `cron` or `at` option to specify that a job should run as scheduled once
+# over all workers. The `every` option will run the job once per worker instance
+# at the specified interval.
+
 CreateDailySpoolFiles:
   cron: "0 3 * * * America/New_York"
   class: EducationForm::CreateDailySpoolFiles
   description: "Generate a daily set of spool files and transmit them over SFTP to a backend system"
+
+EducationForm::CreateDailyYearToDateReport:
+  cron: "0 4 * * * America/New_York"
+  description: "Send the daily report to VA stakeholders about Education Benefits submissions"
+
+DeleteOldApplications:
+  cron: "0 0 * * * America/New_York"
+  class: EducationForm::DeleteOldApplications
+  description: "Clear out processed 22-1990 applications that are older than 1 month"
+
+SidekiqStatsJob:
+  cron: "* * * * *"
+  description: "Update Sidekiq stats for export to statsd gauges"
+
+DeleteOldClaims:
+  cron: "0 2 * * * America/New_York"
+  class: EVSS::DeleteOldClaims
+  description: "Clear out EVSS disability claims that have not been updated in 24 hours"

@@ -6,9 +6,11 @@ require 'support/sm_client_helpers'
 RSpec.describe 'Triage Teams Integration', type: :request do
   include SM::ClientHelpers
 
+  let(:current_user) { build(:mhv_user) }
+
   it 'responds to GET #index' do
-    allow_any_instance_of(ApplicationController).to receive(:authenticate).and_return(true)
-    expect(SM::Client).to receive(:new).once.and_return(authenticated_client)
+    allow(SM::Client).to receive(:new).and_return(authenticated_client)
+    use_authenticated_current_user(current_user: current_user)
 
     VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
       get '/v0/messaging/health/recipients'
