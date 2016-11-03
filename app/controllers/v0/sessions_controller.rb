@@ -21,6 +21,9 @@ module V0
         saml_settings.name_identifier_value = @session.uuid
       end
 
+      saml_settings.security[:logout_requests_signed] = true
+      saml_settings.security[:embed_sign] = true
+
       render json: { logout_via_get: logout_request.create(saml_settings, RelayState: saml_logout_url) }, status: 202
     end
 
@@ -124,20 +127,14 @@ module V0
 
       logger.info "LogoutResponse is: #{logout_response}"
 
-      #
-      # The response is going to be invalid. When I jump in with the debugger it says the document
-      # enclosed in the SAML response is:
-      #
-      # <samlp:Response Destination='http://localhost:3000/auth/saml/logout' ID='_c7218fac146d44cd9027d4ec7398847b' InResponseTo='_ebce7393-a0bc-434c-ab2f-da8683d05fe7' IssueInstant='2016-11-03T18:43:51Z' Version='2.0' xmlns:saml='urn:oasis:names:tc:SAML:2.0:assertion' xmlns:samlp='urn:oasis:names:tc:SAML:2.0:protocol'>
-      #   <saml:Issuer>api.idmelabs.com</saml:Issuer>
-      #   <samlp:Status>
-      #     <samlp:StatusCode Value='urn:oasis:names:tc:SAML:2.0:status:Requester'/>
-      #     <samlp:StatusMessage>Received logout without an EncryptedID.</samlp:StatusMessage>
-      #   </samlp:Status>
-      # </samlp:Response>
       if !logout_response.validate
         logger.error 'The SAML Logout Response is invalid'
       elsif logout_response.success?
+        #
+        # @session is nil because this action cannot do authentication. But I need to
+        # find the session and destroy it in Redis. The logout_response doesn't seem to
+        # contain the uuid for the session, so what to do?
+        #
         logger.info "Delete session for '#{@session.uuid}'"
         delete_session
       end
