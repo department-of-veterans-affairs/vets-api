@@ -3,6 +3,8 @@ require 'common/exceptions'
 require 'mvi/service_factory'
 
 class Decorators::MviUserDecorator
+  NOT_FOUND = 'not found'
+
   def initialize(user)
     @user = user
     @mvi_service = MVI::ServiceFactory.get_service(mock_service: ENV['MOCK_MVI_SERVICE'])
@@ -12,6 +14,23 @@ class Decorators::MviUserDecorator
     raise Common::Exceptions::ValidationErrors, @user unless @user.valid?
     message = create_message
     response = @mvi_service.find_candidate(message)
+    user_with_mvi_attributes(response)
+  rescue MVI::RecordNotFound
+    # TODO(AJD): add metric
+    Rails.logger.error "MVI record not found for user: #{@user.uuid}"
+    @user.attributes = { mvi: NOT_FOUND }
+    @user
+  rescue MVI::HTTPError => e
+    # TODO(AJD): add metric
+    Rails.logger.error "MVI HTTP error code: #{e.code} for user: #{@user.uuid}"
+    @user
+  rescue MVI::ServiceError => e
+    # TODO(AJD): add metric
+    Rails.logger.error "MVI service error: #{e.message} for user: #{@user.uuid}"
+    @user
+  end
+
+  def user_with_mvi_attributes(response)
     # in most cases (other than ids) the user attributes from the identity provider are more up-to-date
     # but stashing the MVI data if it's needed for confirmation
     @user.attributes = {
@@ -22,18 +41,6 @@ class Decorators::MviUserDecorator
       mvi: response
     }
     @user
-  rescue MVI::RecordNotFound
-    # TODO(AJD): add metric
-    Rails.logger.error "MVI record not found for user: #{@user.uuid}"
-    @user
-  rescue MVI::HTTPError => e
-    # TODO(AJD): add metric
-    Rails.logger.error "MVI returned HTTP error code: #{e.code} for user: #{@user.uuid}"
-    raise Common::Exceptions::InternalServerError, e
-  rescue MVI::ServiceError => e
-    # TODO(AJD): add metric
-    Rails.logger.error "Error retrieving MVI data for user: #{@user.uuid}"
-    raise Common::Exceptions::InternalServerError, e
   end
 
   private

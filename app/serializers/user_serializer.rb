@@ -23,7 +23,7 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def va_profile
-    return nil if object.mvi.nil?
+    return object.mvi unless object.mvi.is_a?(Hash)
     {
       birth_date:   object.mvi['birth_date'],
       family_name:  object.mvi['family_name'],

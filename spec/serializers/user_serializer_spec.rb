@@ -84,5 +84,16 @@ RSpec.describe UserSerializer, type: :serializer do
         expect(va_profile).to be_nil
       end
     end
+
+    context 'when user.mvi is not found' do
+      let(:user) { build :user, mvi: 'not found' }
+      let(:data) { JSON.parse(subject)['data'] }
+      let(:attributes) { data['attributes'] }
+      let(:va_profile) { attributes['va_profile'] }
+
+      it 'returns va_profile as null' do
+        expect(va_profile).to eq('not found')
+      end
+    end
   end
 end
