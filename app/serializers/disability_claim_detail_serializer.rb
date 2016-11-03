@@ -40,6 +40,10 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
 
   private
 
+  def object_data
+    object.data
+  end
+
   def create_event_from_string_date(type, *from_keys)
     date = date_from_string(*from_keys)
     return nil unless date

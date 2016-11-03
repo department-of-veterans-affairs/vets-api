@@ -4,7 +4,7 @@ module V0
     def index
       render json: claim_service.all,
              serializer: ActiveModel::Serializer::CollectionSerializer,
-             each_serializer: DisabilityClaimBaseSerializer
+             each_serializer: DisabilityClaimListSerializer
     end
 
     def show

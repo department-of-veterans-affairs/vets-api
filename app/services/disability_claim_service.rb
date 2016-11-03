@@ -90,7 +90,7 @@ class DisabilityClaimService
 
   def create_or_update_claim(raw_claim)
     claim = claims_scope.where(evss_id: raw_claim['id']).first_or_initialize(data: {})
-    claim.update_attributes(data: claim.data.merge(raw_claim), successful_sync: true)
+    claim.update_attributes(list_data: raw_claim, successful_sync: true)
     claim
   end
 
