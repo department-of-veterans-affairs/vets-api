@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 class VHAFacilityAdapter
   VHA_URL = +ENV['VHA_MAPSERVER_URL']
-  VHA_ID_FIELD = 'StationNum'
+  VHA_ID_FIELD = 'StationNumber'
   FACILITY_TYPE = 'va_health_facility'
 
   def initialize
@@ -44,8 +44,8 @@ class VHAFacilityAdapter
   end
 
   TOP_KEYMAP = {
-    unique_id: 'StationNum', name: 'StationNam', classification: 'CocClassif',
-    website: 'First_Inte', lat: 'Latitude', long: 'Longitude'
+    unique_id: 'StationNumber', name: 'StationName', classification: 'CocClassification',
+    website: 'First_InternetAddress', lat: 'Latitude', long: 'Longitude'
   }.freeze
 
   ADDR_KEYMAP = {
@@ -54,9 +54,10 @@ class VHAFacilityAdapter
   }.freeze
 
   PHONE_KEYMAP = {
-    'main' => 'MainPhone', 'fax' => 'MainFax', 'after_hours' => 'AfterHours',
-    'patient_advocate' => 'PatientAdv', 'enrollment_coordinator' => 'Enrollment',
-    'pharmacy' => 'PharmacyPh'
+    'main' => 'MainPhone', 'fax' => 'MainFax', 'after_hours' => 'AfterHoursPhone',
+    'patient_advocate' => 'PatientAdvocatePhone',
+    'enrollment_coordinator' => 'EnrollmentCoordinatorPhone',
+    'pharmacy' => 'PharmacyPhone'
   }.freeze
 
   HOURS_KEYMAP = %w(
@@ -95,9 +96,10 @@ class VHAFacilityAdapter
   }.freeze
 
   def self.mh_clinic_phone(attrs)
-    return '' if (attrs['MHClinicPh']).zero?
-    result = attrs['MHClinicPh'].to_s
-    result << ' x ' + attrs['Extension'].to_s unless (attrs['Extension']).zero?
+    return '' if (attrs['MHClinicPhone']).blank? || (attrs['MHClinicPhone']).zero?
+    result = attrs['MHClinicPhone'].to_s
+    result << ' x ' + attrs['Extension'].to_s unless
+      (attrs['Extension']).blank? || (attrs['Extension']).zero?
     result
   end
 
