@@ -10,5 +10,12 @@ FactoryGirl.define do
         JSON.parse raw_claim
       end
     end
+    list_data do
+      fixture_file_name = "#{::Rails.root}/spec/fixtures/disability_claim/claim-list.json"
+      File.open(fixture_file_name, 'rb') do |f|
+        raw_claim = f.read
+        JSON.parse raw_claim
+      end
+    end
   end
 end
