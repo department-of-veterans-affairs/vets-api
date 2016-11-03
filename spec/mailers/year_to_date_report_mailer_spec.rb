@@ -25,27 +25,20 @@ RSpec.describe YearToDateReportMailer, type: [:mailer, :aws_helpers] do
 
       it 'should email the va stakeholders' do
         subject
-        expect(mail.to).to eq(
-          ['Christopher.Marino2@va.gov',
-           '224A.VBACO@va.gov',
-           'rodney.alexander@va.gov',
-           'URSULA.BRITT@va.gov',
-           'Carolyn.McCollam@va.gov',
-           'shay.norton@va.gov',
-           'Christina.DiTucci@va.gov']
-        )
-
-        expect(mail.cc).to eq(
-          ['robert.orifici@va.gov',
-           'Erin.Haskins@va.gov',
-           'Shante.Kinzie@va.gov',
-           'Brandye.Terrell@va.gov',
-           'michele.mendola@va.gov',
-           'Schnell.Carraway@va.gov',
-           'Danita.Johnson@va.gov',
-           'jude.lopez1@va.gov',
-           'Steven.Wayland@va.gov']
-        )
+        expect(mail.to).to eq(%w(
+          Christopher.Marino2@va.gov
+          224B.VBAVACO@va.gov
+          rodney.alexander@va.gov
+          Carolyn.McCollam@va.gov
+          shay.norton@va.gov
+          Christina.DiTucci@va.gov
+          Brandye.Terrell@va.gov
+          michele.mendola@va.gov
+          jude.lopez1@va.gov
+          Christopher.Sutherland@va.gov
+          John.McNeal@va.gov
+          Anne.kainic@va.gov
+        ))
       end
     end
   end
