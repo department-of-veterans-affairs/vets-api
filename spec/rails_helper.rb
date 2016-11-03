@@ -11,7 +11,6 @@ require 'rspec/rails'
 require 'webmock/rspec'
 require 'support/factory_girl'
 require 'support/serializer_spec_helper'
-require 'support/carrierwave_spec_helper'
 require 'support/xml_matchers'
 require 'support/api_schema_matcher'
 require 'support/validation_helpers'
@@ -43,6 +42,8 @@ ActiveRecord::Migration.maintain_test_schema!
 require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 Sidekiq::Logging.logger = nil
+
+CarrierWave.root = "#{Rails.root}/spec/support/uploads/"
 
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
@@ -87,6 +88,10 @@ RSpec.configure do |config|
   config.include AuthenticatedSessionHelper, type: :request
 
   config.include StatsD::Instrument::Matchers
+
+  config.before(:each) do
+    Sidekiq::Worker.clear_all
+  end
 
   # clean up carrierwave uploads
   # https://github.com/carrierwaveuploader/carrierwave/wiki/How-to:-Cleanup-after-your-Rspec-tests
