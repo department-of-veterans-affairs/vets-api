@@ -85,7 +85,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
         create_daily_year_to_date_report = described_class.new
 
         stub_reports_s3(filename) do
-          create_daily_year_to_date_report.perform(date)
+          create_daily_year_to_date_report.perform
         end
 
         create_daily_year_to_date_report
