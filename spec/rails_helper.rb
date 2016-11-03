@@ -89,6 +89,10 @@ RSpec.configure do |config|
 
   config.include StatsD::Instrument::Matchers
 
+  config.before(:each) do
+    Sidekiq::Worker.clear_all
+  end
+
   # clean up carrierwave uploads
   # https://github.com/carrierwaveuploader/carrierwave/wiki/How-to:-Cleanup-after-your-Rspec-tests
   config.after(:all) do
