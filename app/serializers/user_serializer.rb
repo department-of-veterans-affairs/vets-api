@@ -23,12 +23,13 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def va_profile
+    return nil if object.mvi.nil?
     {
-      birth_date:   object.mvi.nil? ? nil : object.mvi['birth_date'],
-      family_name:  object.mvi.nil? ? nil : object.mvi['family_name'],
-      gender:       object.mvi.nil? ? nil : object.mvi['gender'],
-      given_names:  object.mvi.nil? ? nil : object.mvi['given_names'],
-      status:       object.mvi.nil? ? nil : object.mvi['status']
+      birth_date:   object.mvi['birth_date'],
+      family_name:  object.mvi['family_name'],
+      gender:       object.mvi['gender'],
+      given_names:  object.mvi['given_names'],
+      status:       object.mvi['status']
     }
   end
 

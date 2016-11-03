@@ -6,6 +6,7 @@ require File.expand_path('../../config/environment', __FILE__)
 abort('The Rails environment is running in production mode!') if Rails.env.production?
 require 'spec_helper'
 require 'statsd-instrument'
+require 'statsd/instrument/matchers'
 require 'rspec/rails'
 require 'webmock/rspec'
 require 'support/factory_girl'
