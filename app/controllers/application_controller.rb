@@ -9,10 +9,19 @@ class ApplicationController < ActionController::API
 
   before_action :authenticate
   before_action :set_app_info_headers
-  skip_before_action :authenticate, only: [:cors_preflight]
+  skip_before_action :authenticate, only: [:cors_preflight, :routing_error]
 
   def cors_preflight
     head(:ok)
+  end
+
+  def routing_error
+    raise Common::Exceptions::RoutingError.new(params[:path])
+  end
+
+  def action_missing(m, *args, &block)
+    Rails.logger.error(m)
+    raise Common::Exceptions::RoutingError.new
   end
 
   private
@@ -22,8 +31,6 @@ class ApplicationController < ActionController::API
 
     va_exception =
       case exception
-      when ActionController::RoutingError
-        Common::Exceptions::RoutingError.new
       when ActionController::ParameterMissing
         Common::Exceptions::ParameterMissing.new(exception.param)
       when Common::Exceptions::BaseError
