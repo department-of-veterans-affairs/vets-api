@@ -3,17 +3,15 @@ require 'rails_helper'
 
 RSpec.describe 'exceptions', type: :request do
   context 'authorization' do
-    it "renders json for not authorized" do
+    it 'renders json for not authorized' do
       get '/v0/prescriptions'
       expect(response).to have_http_status(:unauthorized)
       expect(JSON.parse(response.body)['errors'].first)
         .to eq(
-          {
-            "title" => "Not Authorized",
-            "detail"=>"Not Authorized",
-            "code"=>"401",
-            "status"=>"401"
-          }
+          'title' => 'Not Authorized',
+          'detail' => 'Not Authorized',
+          'code' => '401',
+          'status' => '401'
         )
     end
   end
@@ -25,12 +23,10 @@ RSpec.describe 'exceptions', type: :request do
         expect(response).to have_http_status(:not_found)
         expect(JSON.parse(response.body)['errors'].first)
           .to eq(
-            {
-              "title" => "Not Found",
-              "detail"=>"There are no routes matching your request: an_unknown_route",
-              "code"=>"411",
-              "status"=>"404"
-            }
+            'title' => 'Not Found',
+            'detail' => 'There are no routes matching your request: an_unknown_route',
+            'code' => '411',
+            'status' => '404'
           )
       end
     end
