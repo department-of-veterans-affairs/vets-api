@@ -9,7 +9,7 @@ RSpec.describe 'Triage Teams Integration', type: :request do
   let(:current_user) { build(:mhv_user) }
 
   it 'responds to GET #index' do
-    allow_any_instance_of(SMController).to receive(:client).and_return(authenticated_client)
+    allow(SM::Client).to receive(:new).and_return(authenticated_client)
     use_authenticated_current_user(current_user: current_user)
 
     VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do

@@ -12,7 +12,7 @@ RSpec.describe 'Messages Integration', type: :request do
   let(:message_id) { 573_302 }
 
   before(:each) do
-    allow_any_instance_of(SMController).to receive(:client).and_return(authenticated_client)
+    allow(SM::Client).to receive(:new).and_return(authenticated_client)
     use_authenticated_current_user(current_user: current_user)
   end
 

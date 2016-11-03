@@ -14,7 +14,7 @@ RSpec.describe 'Messages Integration', type: :request do
   let(:params) { draft.slice(:category, :subject, :body, :recipient_id) }
 
   before(:each) do
-    allow_any_instance_of(SMController).to receive(:client).and_return(authenticated_client)
+    allow(SM::Client).to receive(:new).and_return(authenticated_client)
     use_authenticated_current_user(current_user: current_user)
   end
 
