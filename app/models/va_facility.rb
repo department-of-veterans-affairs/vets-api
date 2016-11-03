@@ -22,13 +22,26 @@ class VAFacility < ActiveModelSerializers::Model
 
   def self.query(bbox:, type:, services:)
     query_types = type.nil? ? TYPES : [type]
-    requests = query_types.map { |t| client_adapter(t).query(bbox, services) }
+    bbox_num = bbox.map { |x| Float(x) }
+    requests = query_types.map { |t| client_adapter(t).query(bbox_num, services) }
     responses = multi_client.run(requests)
-    query_types.zip(responses).each_with_object([]) do |tr, facilities|
-      adapter = client_adapter(tr.first)
-      tr.second&.each do |record|
+    facilities = []
+    query_types.zip(responses).each do |(t, rs)|
+      adapter = client_adapter(t)
+      rs&.each do |record|
         facilities << adapter.class.from_gis(record)
       end
+    end
+    facilities.sort_by(&(dist_from_center bbox_num))
+  end
+
+  # Naive distance calculation, but accurate enough for map display sorting.
+  # If greater precision is ever needed, use Haversine formula.
+  def self.dist_from_center(bbox)
+    lambda do |facility|
+      center_x = (bbox[0] + bbox[2]) / 2.0
+      center_y = (bbox[1] + bbox[3]) / 2.0
+      Math.sqrt((facility.long - center_x)**2 + (facility.lat - center_y)**2)
     end
   end
 
