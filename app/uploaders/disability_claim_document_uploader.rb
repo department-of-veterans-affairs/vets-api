@@ -13,7 +13,9 @@ class DisabilityClaimDocumentUploader < CarrierWave::Uploader::Base
   end
 
   def store_dir
-    "disability_claim_documents/#{@user_uuid}/#{@tracked_item_id}"
+    store_dir = "disability_claim_documents/#{@user_uuid}"
+    store_dir += "/#{@tracked_item_id}" if @tracked_item_id
+    store_dir
   end
 
   def extension_white_list
