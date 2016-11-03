@@ -64,9 +64,12 @@ class DisabilityClaimService
   end
 
   # upload file to s3 and enqueue job to upload to EVSS
-  def upload_document(file_body, disability_claim_document)
+  def upload_document(file, disability_claim_document)
     uploader = DisabilityClaimDocumentUploader.new(@user.uuid, disability_claim_document.tracked_item_id)
-    uploader.store!(file_body)
+    uploader.store!(file)
+    # the uploader sanitizes the filename before storing, so set our doc to match
+    # TODO: set this directly on the model, need to modify common/model/base to update attributes hash
+    disability_claim_document.attributes[:file_name] = uploader.filename
     DisabilityClaim::DocumentUpload.perform_async(auth_headers, @user.uuid, disability_claim_document.to_h)
   end
 
@@ -90,7 +93,7 @@ class DisabilityClaimService
 
   def create_or_update_claim(raw_claim)
     claim = claims_scope.where(evss_id: raw_claim['id']).first_or_initialize(data: {})
-    claim.update_attributes(data: claim.data.merge(raw_claim), successful_sync: true)
+    claim.update_attributes(list_data: raw_claim, successful_sync: true)
     claim
   end
 
