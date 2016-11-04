@@ -127,10 +127,8 @@ module V0
 
     def delete_session(token)
       session = Session.find(token)
-      user = User.find(session.uuid)
-      logger.info "Delete session and user for '#{session.uuid}'"
+      logger.info "Delete session for '#{session.uuid}'"
       session.destroy
-      user.destroy
     end
     # :nocov:
   end
