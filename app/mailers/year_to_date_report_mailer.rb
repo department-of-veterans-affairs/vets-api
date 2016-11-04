@@ -5,23 +5,17 @@ class YearToDateReportMailer < ApplicationMailer
   VA_STAKEHOLDERS = {
     to: %w(
       Christopher.Marino2@va.gov
-      224A.VBACO@va.gov
+      224B.VBAVACO@va.gov
       rodney.alexander@va.gov
-      URSULA.BRITT@va.gov
       Carolyn.McCollam@va.gov
       shay.norton@va.gov
       Christina.DiTucci@va.gov
-    ),
-    cc: %w(
-      robert.orifici@va.gov
-      Erin.Haskins@va.gov
-      Shante.Kinzie@va.gov
       Brandye.Terrell@va.gov
       michele.mendola@va.gov
-      Schnell.Carraway@va.gov
-      Danita.Johnson@va.gov
       jude.lopez1@va.gov
-      Steven.Wayland@va.gov
+      Christopher.Sutherland@va.gov
+      John.McNeal@va.gov
+      Anne.kainic@va.gov
     )
   }.freeze
 
