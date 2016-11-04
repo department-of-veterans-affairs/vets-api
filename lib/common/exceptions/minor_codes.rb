@@ -94,6 +94,14 @@ module Common
         title: 'Record not found'
       }.freeze
 
+      ROUTING_ERROR = {
+        type: :other,
+        code: '411',
+        status: MajorCodes::RECORD_NOT_FOUND,
+        title: 'Not Found',
+        detail: 'There are no routes matching your request'
+      }.freeze
+
       INTERNAL_SERVER_ERROR = {
         type: :other,
         code: '500',
