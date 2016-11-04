@@ -11,6 +11,7 @@ before_script:
 - export SAML_CERTIFICATE_FILE="spec/support/certificates/ruby-saml.crt"
 - export SAML_KEY_FILE="spec/support/certificates/ruby-saml.key"
 - export SAML_RELAY="http://localhost:3001/auth/login/callback"
+- export SAML_LOGOUT_RELAY="http://localhost:3001/logout"
 - export REDIS_HOST="localhost"
 - export REDIS_PORT="6379"
 - export MHV_HOST='https://mock-prescriptions-api.herokuapp.com'
