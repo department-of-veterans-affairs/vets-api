@@ -78,4 +78,7 @@ Rails.application.routes.draw do
     require 'sidekiq-scheduler/web'
     mount Sidekiq::Web, at: '/sidekiq'
   end
+
+  # This globs all unmatched routes and routes them as routing errors
+  match '*path', to: 'application#routing_error', via: %i(get post put patch delete)
 end

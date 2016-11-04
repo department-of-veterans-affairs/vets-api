@@ -54,8 +54,8 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
   end
 
   TRACKED_ITEM_FIELDS = %w(
-    neverReceivedFromOthersList neverReceivedFromYouList
-    receivedFromOthersList receivedFromYouList stillNeedFromYouList
+    neverReceivedFromOthersList neverReceivedFromYouList receivedFromOthersList
+    receivedFromYouList stillNeedFromYouList stillNeedFromOthersList
   ).freeze
 
   def create_events_for_tracked_items
