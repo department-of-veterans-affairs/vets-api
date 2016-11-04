@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'backend_services'
+
 class UserSerializer < ActiveModel::Serializer
   attributes :services, :profile, :va_profile
 
@@ -21,17 +23,25 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def va_profile
+    return nil if object.mvi.nil?
     {
-      birth_date:   object.mvi.nil? ? nil : object.mvi['birth_date'],
-      family_name:  object.mvi.nil? ? nil : object.mvi['family_name'],
-      gender:       object.mvi.nil? ? nil : object.mvi['gender'],
-      given_names:  object.mvi.nil? ? nil : object.mvi['given_names'],
-      status:       object.mvi.nil? ? nil : object.mvi['status']
+      birth_date:   object.mvi['birth_date'],
+      family_name:  object.mvi['family_name'],
+      gender:       object.mvi['gender'],
+      given_names:  object.mvi['given_names'],
+      status:       object.mvi['status']
     }
   end
 
   def services
-    # TODO: build the available services based on available ID's
-    []
+    [
+      BackendServices::FACILITIES,
+      BackendServices::HCA,
+      BackendServices::EDUCATION_BENEFITS
+    ].tap do |service_list|
+      service_list += [BackendServices::RX, BackendServices::MESSAGING] if object.can_access_mhv?
+      service_list << BackendServices::DISABILITY_BENEFITS if object.can_access_evss?
+      service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
+    end
   end
 end

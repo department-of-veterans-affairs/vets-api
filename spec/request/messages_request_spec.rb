@@ -6,14 +6,15 @@ require 'support/sm_client_helpers'
 RSpec.describe 'Messages Integration', type: :request do
   include SM::ClientHelpers
 
-  before(:each) do
-    allow_any_instance_of(ApplicationController).to receive(:authenticate).and_return(true)
-    expect(SM::Client).to receive(:new).once.and_return(authenticated_client)
-  end
-
+  let(:current_user) { build(:mhv_user) }
   let(:user_id) { ENV['MHV_SM_USER_ID'] }
   let(:inbox_id) { 0 }
   let(:message_id) { 573_059 }
+
+  before(:each) do
+    allow(SM::Client).to receive(:new).and_return(authenticated_client)
+    use_authenticated_current_user(current_user: current_user)
+  end
 
   it 'responds to GET #show' do
     VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
@@ -35,7 +36,7 @@ RSpec.describe 'Messages Integration', type: :request do
         Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file4.jpg', attachment_type)
       ]
     end
-    let(:message_params) { attributes_for(:message, subject: 'Subject 1', body: 'Body 1') }
+    let(:message_params) { attributes_for(:message, subject: 'CI Run', body: 'Continuous Integration') }
     let(:params) { message_params.slice(:subject, :category, :recipient_id, :body) }
     let(:params_with_attachments) { { message: params }.merge(uploads: uploads) }
 
@@ -104,7 +105,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
       expect(response).to be_success
       expect(response.body).to be_a(String)
-      expect(response).to match_response_schema('messages')
+      expect(response).to match_response_schema('messages_thread')
     end
   end
 
@@ -143,6 +144,17 @@ RSpec.describe 'Messages Integration', type: :request do
 
       expect(response).to be_success
       expect(response).to have_http_status(:no_content)
+    end
+  end
+
+  context 'with an LOA1 user' do
+    let(:current_user) { build(:loa1_user) }
+
+    it 'gives me a 401' do
+      get "/v0/messaging/health/messages/#{message_id}"
+
+      expect(response).not_to be_success
+      expect(response.status).to eq(403)
     end
   end
 end

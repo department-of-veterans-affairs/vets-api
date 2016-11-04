@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 class VHAFacilityAdapter
   VHA_URL = +ENV['VHA_MAPSERVER_URL']
-  VHA_LAYER = ENV['VHA_MAPSERVER_LAYER']
-  VHA_ID_FIELD = 'StationNum'
+  VHA_ID_FIELD = 'StationNumber'
   FACILITY_TYPE = 'va_health_facility'
 
   def initialize
-    @client = Facilities::Client.new(url: VHA_URL, layer: VHA_LAYER, id_field: VHA_ID_FIELD)
+    @client = Facilities::Client.new(url: VHA_URL, id_field: VHA_ID_FIELD)
   end
 
   def query(bbox, services = nil)
@@ -15,7 +14,7 @@ class VHAFacilityAdapter
   end
 
   def find_by(id:)
-    @client.get(identifier: id)
+    @client.get(id: id)
   end
 
   def self.where_clause(services)
@@ -33,6 +32,7 @@ class VHAFacilityAdapter
       attrs['Zip4'].to_s.strip.empty?
     m[:address][:mailing] = {}
     m[:phone] = from_gis_attrs(PHONE_KEYMAP, attrs)
+    m[:phone][:mental_health_clinic] = mh_clinic_phone(attrs)
     m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
     m[:services] = {}
     m[:services][:health] = services_from_gis(attrs)
@@ -44,9 +44,8 @@ class VHAFacilityAdapter
   end
 
   TOP_KEYMAP = {
-    unique_id: 'StationNum',
-    name: 'StationNam', classification: 'CocClassif',
-    lat: 'Latitude', long: 'Longitude'
+    unique_id: 'StationNumber', name: 'StationName', classification: 'CocClassification',
+    website: 'First_InternetAddress', lat: 'Latitude', long: 'Longitude'
   }.freeze
 
   ADDR_KEYMAP = {
@@ -55,9 +54,10 @@ class VHAFacilityAdapter
   }.freeze
 
   PHONE_KEYMAP = {
-    'main' => 'MainPhone', 'fax' => 'MainFax', 'after_hours' => 'AfterHours',
-    'patient_advocate' => 'PatientAdv', 'enrollment_coordinator' => 'Enrollment',
-    'pharmacy' => 'PharmacyPh'
+    'main' => 'MainPhone', 'fax' => 'MainFax', 'after_hours' => 'AfterHoursPhone',
+    'patient_advocate' => 'PatientAdvocatePhone',
+    'enrollment_coordinator' => 'EnrollmentCoordinatorPhone',
+    'pharmacy' => 'PharmacyPhone'
   }.freeze
 
   HOURS_KEYMAP = %w(
@@ -94,6 +94,14 @@ class VHAFacilityAdapter
     'UrgentCare' => [],
     'WellnessAndPreventativeCare' => []
   }.freeze
+
+  def self.mh_clinic_phone(attrs)
+    return '' if (attrs['MHClinicPhone']).blank? || (attrs['MHClinicPhone']).zero?
+    result = attrs['MHClinicPhone'].to_s
+    result << ' x ' + attrs['Extension'].to_s unless
+      (attrs['Extension']).blank? || (attrs['Extension']).zero?
+    result
+  end
 
   # Build a sub-section of the VAFacility model from a flat GIS attribute list,
   # according to the provided key mapping dict. Strip whitespace from string values.

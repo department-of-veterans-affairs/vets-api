@@ -38,6 +38,6 @@ http_interactions:
       string: '{"id":655626,"category":"OTHER","subject":"Subject 1","body":"Body
         1","attachment":false,"attachments":{"attachment":[]},"sentDate":"","senderId":384939,"senderName":"MVIONE,
         TEST","recipientId":585986,"recipientName":"Triage group 311070 test 2","readReceipt":null}'
-    http_version: 
+    http_version:
   recorded_at: Tue, 25 Oct 2016 06:58:56 GMT
 recorded_with: VCR 3.0.3

@@ -35,8 +35,9 @@ module EducationForm
         'Decatur, GA 30031-7022'
       ],
       central: [
-        'P.O. Box 66830',
-        'St. Louis, MO 63166-6830'
+        '9770 Page Avenue',
+        'Suite 101 Education',
+        'St. Louis, MO 63132-1502'
       ],
       western: [
         'P.O. Box 8888',
@@ -55,7 +56,7 @@ module EducationForm
 
     FACILITY_IDS = {
       eastern: 307,
-      southern: 306,
+      southern: 316,
       central: 331,
       western: 351
     }.freeze

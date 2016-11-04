@@ -23,7 +23,7 @@ describe Decorators::MviUserDecorator do
 
     context 'when all correlation ids have values' do
       before(:each) do
-        allow(MVI::Service).to receive(:find_candidate).and_return(find_candidate_response)
+        allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_return(find_candidate_response)
       end
 
       describe '#create' do
@@ -33,13 +33,38 @@ describe Decorators::MviUserDecorator do
           expect(mvi_user.attributes).to eq(expected_user.attributes)
         end
       end
+      context 'when a MVI::HTTPError is raised' do
+        it 'should log an error message' do
+          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(
+            MVI::HTTPError.new('MVI HTTP call failed', 500)
+          )
+          expect(Rails.logger).to receive(:error).once.with(/MVI returned HTTP error code: 500 for user:/)
+          expect { Decorators::MviUserDecorator.new(user).create }.to raise_error(
+            Common::Exceptions::InternalServerError
+          )
+        end
+      end
       context 'when a MVI::ServiceError is raised' do
         it 'should log an error message' do
-          allow(MVI::Service).to receive(:find_candidate).and_raise(MVI::HTTPError)
+          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(MVI::ServiceError)
           expect(Rails.logger).to receive(:error).once.with(/Error retrieving MVI data for user:/)
           expect { Decorators::MviUserDecorator.new(user).create }.to raise_error(
             Common::Exceptions::InternalServerError
           )
+        end
+      end
+      context 'when MVI::RecordNotFound is raised' do
+        it 'should log an error message and return the unmodified user' do
+          response = instance_double('MVI::Responses::FindCandidateResponse')
+          allow(response).to receive(:query).and_return('foo')
+          allow(response).to receive(:original_response).and_return('foo')
+          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(
+            MVI::RecordNotFound.new('not found', response)
+          )
+          expect(Rails.logger).to receive(:error).once.with(/MVI record not found for user:/)
+          user_result = Decorators::MviUserDecorator.new(user).create
+          expect(user_result).to_not be_nil
+          expect(user_result.mvi).to be_nil
         end
       end
     end
@@ -47,7 +72,7 @@ describe Decorators::MviUserDecorator do
     context 'when a correlation id is nil' do
       before(:each) do
         find_candidate_response[:edipi] = nil
-        allow(MVI::Service).to receive(:find_candidate).and_return(find_candidate_response)
+        allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_return(find_candidate_response)
       end
 
       describe '#create' do

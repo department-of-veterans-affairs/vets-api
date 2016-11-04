@@ -29,8 +29,11 @@ module V0
     end
 
     def create
-      message = Message.new(create_message_params)
+      message = Message.new(message_params.merge(upload_params))
       raise Common::Exceptions::ValidationErrors, message unless message.valid?
+
+      message_params[:id] = message_params.delete(:draft_id) if message_params[:draft_id].present?
+      create_message_params = { message: message_params }.merge(upload_params)
 
       client_response = if message.uploads.present?
                           client.post_create_message_with_attachment(create_message_params)
@@ -53,7 +56,6 @@ module V0
       message_id = params[:id].try(:to_i)
       resource = client.get_message_history(message_id)
       raise Common::Exceptions::RecordNotFound, message_id unless resource.present?
-      resource = resource.paginate(pagination_params)
 
       render json: resource.data,
              serializer: CollectionSerializer,
@@ -62,8 +64,11 @@ module V0
     end
 
     def reply
-      message = Message.new(create_message_params).as_reply
+      message = Message.new(message_params.merge(upload_params)).as_reply
       raise Common::Exceptions::ValidationErrors, message unless message.valid?
+
+      message_params[:id] = message_params.delete(:draft_id) if message_params[:draft_id].present?
+      create_message_params = { message: message_params }.merge(upload_params)
 
       if message.uploads.present?
         client_response = client.post_create_message_reply_with_attachment(params[:id], create_message_params)
@@ -96,8 +101,8 @@ module V0
       @message_params ||= params.require(:message).permit(:category, :body, :recipient_id, :subject)
     end
 
-    def create_message_params
-      @create_message_params ||= message_params.merge(uploads: params[:uploads])
+    def upload_params
+      @upload_params ||= { uploads: params[:uploads] }
     end
   end
 end

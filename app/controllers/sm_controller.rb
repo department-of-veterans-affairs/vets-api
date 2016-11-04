@@ -3,17 +3,15 @@ require 'sm/client'
 
 class SMController < ApplicationController
   include ActionController::Serialization
-
-  skip_before_action :authenticate
-  before_action :authenticate_client
+  include MHVControllerConcerns
 
   protected
 
   def client
-    @client ||= SM::Client.new(session: { user_id: ENV['MHV_SM_USER_ID'] })
+    @client ||= SM::Client.new(session: { user_id: current_user.mhv_correlation_id })
   end
 
-  def authenticate_client
-    client.authenticate if client.session.expired?
+  def raise_access_denied
+    raise Common::Exceptions::Forbidden, detail: 'You do not have access to messaging'
   end
 end

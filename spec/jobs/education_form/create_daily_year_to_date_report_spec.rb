@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe EducationForm::CreateDailyYearToDateReport do
+RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
   let(:date) { Time.zone.today }
   subject do
     described_class.new
@@ -80,8 +80,19 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport do
     end
 
     describe '#perform' do
+      let(:filename) { "tmp/daily_reports/#{date}.csv" }
+      subject do
+        create_daily_year_to_date_report = described_class.new
+
+        stub_reports_s3(filename) do
+          create_daily_year_to_date_report.perform
+        end
+
+        create_daily_year_to_date_report
+      end
+
       it 'should create a csv file' do
-        subject.perform(date)
+        subject
 
         csv_string = CSV.generate do |csv|
           subject.create_csv_array.each do |row|
@@ -89,11 +100,11 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport do
           end
         end
 
-        expect(File.read("tmp/daily_reports/#{date}.csv")).to eq(csv_string)
+        expect(File.read(filename)).to eq(csv_string)
       end
 
       it 'should send an email' do
-        expect { subject.perform(date) }.to change {
+        expect { subject }.to change {
           ActionMailer::Base.deliveries.count
         }.by(1)
       end

@@ -2,12 +2,11 @@
 # frozen_string_literal: true
 class NCAFacilityAdapter
   NCA_URL = +ENV['NCA_MAPSERVER_URL']
-  NCA_LAYER = ENV['NCA_MAPSERVER_LAYER']
   NCA_ID_FIELD = 'CEMETERY_I'
   FACILITY_TYPE = 'va_cemetery'
 
   def initialize
-    @client = Facilities::Client.new(url: NCA_URL, layer: NCA_LAYER, id_field: NCA_ID_FIELD)
+    @client = Facilities::Client.new(url: NCA_URL, id_field: NCA_ID_FIELD)
   end
 
   def query(bbox, _services)
@@ -15,7 +14,7 @@ class NCAFacilityAdapter
   end
 
   def find_by(id:)
-    @client.get(identifier: id)
+    @client.get(id: id)
   end
 
   def self.from_gis(record)
@@ -38,8 +37,8 @@ class NCAFacilityAdapter
   end
 
   TOP_KEYMAP = {
-    unique_id: 'CEMETERY_I',
-    name: 'FULL_NAME', classification: 'CEM_TYPE'
+    unique_id: 'CEMETERY_I', name: 'FULL_NAME', classification: 'CEM_TYPE',
+    website: 'First_InternetAddress'
   }.freeze
 
   ADDR_KEYMAP = {

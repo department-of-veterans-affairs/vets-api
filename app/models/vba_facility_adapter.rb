@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 class VBAFacilityAdapter
   VBA_URL = +ENV['VBA_MAPSERVER_URL']
-  VBA_LAYER = ENV['VBA_MAPSERVER_LAYER']
-  VBA_ID_FIELD = 'Facility_1'
+  VBA_ID_FIELD = 'Facility_Number'
   FACILITY_TYPE = 'va_benefits_facility'
 
   def initialize
-    @client = Facilities::Client.new(url: VBA_URL, layer: VBA_LAYER, id_field: VBA_ID_FIELD)
+    @client = Facilities::Client.new(url: VBA_URL, id_field: VBA_ID_FIELD)
   end
 
   def query(bbox, services = nil)
@@ -15,7 +14,7 @@ class VBAFacilityAdapter
   end
 
   def find_by(id:)
-    @client.get(identifier: id)
+    @client.get(id: id)
   end
 
   def self.where_clause(services)
@@ -26,8 +25,6 @@ class VBAFacilityAdapter
     attrs = record['attributes']
     m = from_gis_attrs(TOP_KEYMAP, attrs)
     m[:facility_type] = FACILITY_TYPE
-    m[:lat] = record['geometry']['y']
-    m[:long] = record['geometry']['x']
     m[:address] = {}
     m[:address][:physical] = from_gis_attrs(ADDR_KEYMAP, attrs)
     m[:address][:mailing] = {}
@@ -44,8 +41,9 @@ class VBAFacilityAdapter
   end
 
   TOP_KEYMAP = {
-    unique_id: 'Facility_1',
-    name: 'Facility_N', classification: 'Classifica'
+    unique_id: 'Facility_Number',
+    name: 'Facility_Name', classification: 'Classification',
+    lat: 'Lat', long: 'Long'
   }.freeze
 
   ADDR_KEYMAP = {
@@ -62,28 +60,28 @@ class VBAFacilityAdapter
   ).each_with_object({}) { |d, h| h[d] = d }
 
   SERVICES_MAP = {
-    'ApplyingForBenefits' => 'Apply_Bene',
-    'CareerCounseling' => 'Career_Cou',
-    'SchoolAssistance' => 'School_Ass',
-    'VocationalRehabilitationCareerAssistance' => 'Vocational',
-    'TransitionAssistance' => 'Transition',
-    'Pre-dischargeAssistance' => 'Predischar',
-    'EmploymentAssistance' => 'Employment',
-    'FinancialCounseling' => 'Financial_',
-    'HousingAssistance' => 'Housing_As',
-    'DisabilityClaimAssistance' => 'Disability',
-    'EducationClaimAssistance' => 'Education_',
-    'InsuranceClaimAssistance' => 'Insurance_',
-    'VocationalRehabilitationClaimAssistance' => 'Vocationa_',
-    'SurvivorClaimAssistance' => 'Survivor__',
-    'UpdatingContactInformation' => 'Updating_I',
-    'UpdatingDirectDepositInformation' => 'Updating__',
-    'BurialClaimAssistance' => 'Burial_Ass',
-    'eBenefitsLogonAssistance' => 'eBenefits_',
+    'ApplyingForBenefits' => 'Apply_Benefits',
+    'CareerCounseling' => 'Career_Counseling',
+    'SchoolAssistance' => 'School_Assistance',
+    'VocationalRehabilitationCareerAssistance' => 'Vocational_Assistance',
+    'TransitionAssistance' => 'Transition_Assistance',
+    'Pre-dischargeAssistance' => 'Predischarge_Assistance',
+    'EmploymentAssistance' => 'Employment_Assistance',
+    'FinancialCounseling' => 'Financial_Counseling',
+    'HousingAssistance' => 'Housing_Assistance',
+    'DisabilityClaimAssistance' => 'Disability_Assistance',
+    'EducationClaimAssistance' => 'Education_Assistance',
+    'InsuranceClaimAssistance' => 'Insurance_Assistance',
+    'VocationalRehabilitationClaimAssistance' => 'Vocationa_Assistance',
+    'SurvivorClaimAssistance' => 'Survivor__Assistance',
+    'UpdatingContactInformation' => 'Updating_Information',
+    'UpdatingDirectDepositInformation' => 'Updating__Deposit_Information',
+    'BurialClaimAssistance' => 'Burial_Assistance',
+    'eBenefitsLogonAssistance' => 'eBenefits_Assistance',
     'IntegratedDisabilityEvaluationSystem' => 'IDE_System',
-    'HomelessAssistance' => 'Homeless_A'
+    'HomelessAssistance' => 'Homeless_Assistance'
   }.freeze
-  OTHER_SERVICES = 'Other_Serv'
+  OTHER_SERVICES = 'Other_Services'
 
   # Build a sub-section of the VAFacility model from a flat GIS attribute list,
   # according to the provided key mapping dict. Strip whitespace from string values.

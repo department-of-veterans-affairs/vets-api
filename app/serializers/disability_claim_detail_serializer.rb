@@ -40,6 +40,10 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
 
   private
 
+  def object_data
+    object.data
+  end
+
   def create_event_from_string_date(type, *from_keys)
     date = date_from_string(*from_keys)
     return nil unless date
@@ -75,7 +79,7 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
     event = {
       type: type,
       tracked_item_id: obj['trackedItemId'],
-      description: obj['description'],
+      description: ActionView::Base.full_sanitizer.sanitize(obj['description']),
       display_name: obj['displayedName'],
       overdue: obj['overdue'],
       status: obj['trackedItemStatus'],

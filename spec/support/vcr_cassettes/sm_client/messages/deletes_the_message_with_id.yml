@@ -38,6 +38,6 @@ http_interactions:
     body:
       encoding: UTF-8
       string: Success
-    http_version: 
+    http_version:
   recorded_at: Mon, 24 Oct 2016 14:52:51 GMT
 recorded_with: VCR 3.0.3

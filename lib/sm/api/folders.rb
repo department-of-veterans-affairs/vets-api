@@ -7,17 +7,17 @@ module SM
       MHV_MAXIMUM_PER_PAGE = 250
 
       def get_folders
-        json = perform(:get, 'folder', nil, token_headers)
+        json = perform(:get, 'folder', nil, token_headers).body
         Common::Collection.new(Folder, json)
       end
 
       def get_folder(id)
-        json = perform(:get, "folder/#{id}", nil, token_headers)
+        json = perform(:get, "folder/#{id}", nil, token_headers).body
         Folder.new(json)
       end
 
       def post_create_folder(name)
-        json = perform(:post, 'folder', %({ "name":"#{name}" }), token_headers)
+        json = perform(:post, 'folder', { 'name' => name }, token_headers).body
         Folder.new(json)
       end
 
@@ -32,7 +32,7 @@ module SM
 
         loop do
           path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{MHV_MAXIMUM_PER_PAGE}"
-          page_data = perform(:get, path, nil, token_headers)
+          page_data = perform(:get, path, nil, token_headers).body
           json[:data].concat(page_data[:data])
           json[:metadata].merge(page_data[:metadata])
           break unless page_data[:data].size == MHV_MAXIMUM_PER_PAGE

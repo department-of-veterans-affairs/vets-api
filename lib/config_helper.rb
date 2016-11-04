@@ -8,8 +8,8 @@ module ConfigHelper
     if FeatureFlipper.send_email?
       config.action_mailer.delivery_method = :govdelivery_tms
       config.action_mailer.govdelivery_tms_settings = {
-        auth_token: ENV['GOVDELIVERY_TOKEN'],
-        api_root: "https://#{FeatureFlipper.staging_email? ? 'stage-' : ''}tms.govdelivery.com"
+        auth_token: ENV['GOV_DELIVERY_TOKEN'],
+        api_root: "https://#{ENV['GOV_DELIVERY_SERVER']}"
       }
     end
   end

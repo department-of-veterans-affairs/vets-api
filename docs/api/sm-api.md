@@ -82,6 +82,22 @@ Response
 
 `STATUS: 201`
 
+If the message being created (i.e. sent) is a draft, then the draft_id of the draft message
+[Creating a message draft](#draft-payload) is placed in the payload:
+
+```json
+{
+  "message": {
+    "draft_id": 123456,
+    "category": "A category from the list of available categories",
+    "subject": "Message Subject",
+    "body": "The message body.",
+    "recipient_id": 1
+  }
+}
+```
+
+
 #### <a name="draft-payload"></a>Updating/Creating a Message Draft
 Creating or updating a message draft requires the same payload. For example,
 

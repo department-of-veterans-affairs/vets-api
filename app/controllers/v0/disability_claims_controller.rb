@@ -4,7 +4,7 @@ module V0
     def index
       render json: claim_service.all,
              serializer: ActiveModel::Serializer::CollectionSerializer,
-             each_serializer: DisabilityClaimBaseSerializer
+             each_serializer: DisabilityClaimListSerializer
     end
 
     def show
@@ -15,8 +15,8 @@ module V0
 
     def request_decision
       claim = DisabilityClaim.for_user(current_user).find(params[:id])
-      claim_service.request_decision(claim)
-      head :no_content
+      jid = claim_service.request_decision(claim)
+      render_job_id(jid)
     end
   end
 end
