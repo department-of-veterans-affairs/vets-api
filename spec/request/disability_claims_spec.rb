@@ -29,7 +29,7 @@ RSpec.describe 'disability Claims management', type: :request do
 
     it 'sets 5103 waiver when requesting a decision' do
       expect do
-        post '/v0/disability_claims/1/request_decision', nil, 'Authorization' => "Token token=#{session.token}"
+        post '/v0/disability_claims/189625/request_decision', nil, 'Authorization' => "Token token=#{session.token}"
       end.to change(DisabilityClaim::RequestDecision.jobs, :size).by(1)
       expect(response.status).to eq(202)
       expect(JSON.parse(response.body)['job_id']).to eq(DisabilityClaim::RequestDecision.jobs.first['jid'])
@@ -37,7 +37,7 @@ RSpec.describe 'disability Claims management', type: :request do
 
     it 'shows a single Claim' do
       VCR.use_cassette('evss/claims/claim') do
-        get '/v0/disability_claims/1', nil, 'Authorization' => "Token token=#{session.token}"
+        get '/v0/disability_claims/189625', nil, 'Authorization' => "Token token=#{session.token}"
         expect(response).to match_response_schema('disability_claim')
       end
     end

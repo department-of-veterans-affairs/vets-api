@@ -8,7 +8,7 @@ RSpec.describe DisabilityClaimDetailSerializer, type: :serializer do
   subject { serialize(disability_claim, serializer_class: DisabilityClaimDetailSerializer) }
 
   it 'should include id' do
-    expect(data['id']).to eq(disability_claim.id.to_s)
+    expect(data['id']).to eq(disability_claim.evss_id.to_s)
   end
 
   it 'should not include raw HTML' do
@@ -42,6 +42,26 @@ RSpec.describe DisabilityClaimDetailSerializer, type: :serializer do
     end
     it 'should not use list_data' do
       expect(attributes['waiver_submitted']).to eq true
+    end
+  end
+
+  context 'with items in vbaDocuments' do
+    let(:raw_data) do
+      fixture_file_name = "#{::Rails.root}/spec/fixtures/disability_claim/claim-with-documents.json"
+      File.open(fixture_file_name, 'rb') do |f|
+        raw_claim = f.read
+        JSON.parse raw_claim
+      end
+    end
+    let(:disability_claim) do
+      FactoryGirl.build(:disability_claim, data: raw_data)
+    end
+    let(:other_documents) do
+      attributes['events_timeline'].select { |obj| obj['type'] == 'other_documents_list' }
+    end
+    it 'should only add documents without a tracked_item_id into other_documents_list' do
+      expect(other_documents.count).to eq 1
+      expect(other_documents.select { |obj| !obj['tracked_item_id'].nil? }.count).to eq 0
     end
   end
 end
