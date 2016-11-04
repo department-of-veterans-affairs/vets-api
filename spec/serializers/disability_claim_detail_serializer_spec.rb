@@ -56,11 +56,12 @@ RSpec.describe DisabilityClaimDetailSerializer, type: :serializer do
     let(:disability_claim) do
       FactoryGirl.build(:disability_claim, data: raw_data)
     end
-    let(:other_documents_count) do
-      attributes['events_timeline'].count { |obj| obj['type'] == 'other_documents_list' }
+    let(:other_documents) do
+      attributes['events_timeline'].select { |obj| obj['type'] == 'other_documents_list' }
     end
-    it 'should not duplicate documents' do
-      expect(other_documents_count).to eq 1
+    it 'should only add documents without a tracked_item_id into other_documents_list' do
+      expect(other_documents.count).to eq 1
+      expect(other_documents.select { |obj| !obj['tracked_item_id'].nil? }.count).to eq 0
     end
   end
 end
