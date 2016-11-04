@@ -97,7 +97,7 @@ module V0
 
     def create_saml_user
       user = User.new(user_attributes)
-      user = Decorators::MviUserDecorator.new(user).create unless user.loa1?
+      user = Decorators::MviUserDecorator.new(user).create unless user.loa1? || user.gender.nil?
       user
     end
 

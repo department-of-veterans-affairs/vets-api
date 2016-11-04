@@ -12,8 +12,9 @@ RSpec.describe DisabilityClaimService do
         allow(client_stub).to receive(:all_claims) { raise Faraday::Error::TimeoutError }
         allow(subject).to receive(:client) { client_stub }
         claim = FactoryGirl.create(:disability_claim, user_uuid: user.uuid)
-        claims = subject.all
+        claims, synchronized = subject.all
         expect(claims).to eq([claim])
+        expect(synchronized).to eq(false)
         expect(claims.first.successful_sync).to eq(false)
       end
     end
@@ -23,10 +24,34 @@ RSpec.describe DisabilityClaimService do
         allow(client_stub).to receive(:find_claim_by_id) { raise Faraday::Error::TimeoutError }
         allow(subject).to receive(:client) { client_stub }
         claim = FactoryGirl.build(:disability_claim, user_uuid: user.uuid)
-        updated_claim = subject.update_from_remote(claim)
+        updated_claim, synchronized = subject.update_from_remote(claim)
         expect(updated_claim).to eq(claim)
+        expect(synchronized).to eq(false)
         expect(updated_claim.successful_sync).to eq(false)
       end
+    end
+  end
+
+  describe '#upload_document' do
+    let(:tempfile) do
+      f = Tempfile.new(['file with spaces', '.txt'])
+      f.write('test')
+      f.rewind
+      f
+    end
+    let(:document) { DisabilityClaimDocument.new(tracked_item_id: 1) }
+
+    it 'enqueues a job' do
+      expect do
+        subject.upload_document(tempfile, document)
+      end.to change(DisabilityClaim::DocumentUpload.jobs, :size).by(1)
+    end
+
+    it 'updates document with sanitized filename' do
+      subject.upload_document(tempfile, document)
+      job = DisabilityClaim::DocumentUpload.jobs.last
+      doc_args = job['args'].last
+      expect(doc_args['file_name']).to match(/file_with_spaces.*\.txt/)
     end
   end
 
