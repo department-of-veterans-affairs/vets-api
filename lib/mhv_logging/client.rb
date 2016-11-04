@@ -4,16 +4,20 @@ require 'common/client/errors'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/raise_error'
 require 'common/client/middleware/response/snakecase'
-require 'mhv_logging/configuration'
-require 'mhv_logging/client_session'
 require 'mhv_logging/api/audits'
-require 'mhv_logging/api/sessions'
+require 'rx/api/sessions'
+require 'rx/configuration'
+require 'rx/client_session'
+
+# NOTE: This client uses the exact same configuration, breakers, and client session
+# as Rx does. It is the same server, but we're building it as a separate client
+# for better separation of concerns since it can be invoked when using secure messaging
 
 module MHVLogging
   # Core class responsible for api interface operations
   class Client
     include MHVLogging::API::Audits
-    include MHVLogging::API::Sessions
+    include Rx::API::Sessions
 
     REQUEST_TYPES = %i(get post).freeze
     USER_AGENT = 'Vets.gov Agent'
@@ -26,8 +30,8 @@ module MHVLogging
     attr_reader :config, :session
 
     def initialize(session:)
-      @config = MHVLogging::Configuration.instance
-      @session = MHVLogging::ClientSession.find_or_build(session)
+      @config = Rx::Configuration.instance
+      @session = Rx::ClientSession.find_or_build(session)
     end
 
     # Note this uses the same session store as Rx

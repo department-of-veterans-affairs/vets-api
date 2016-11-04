@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module MHVLogging
   module API
-    # This module defines the prescription actions
+    # This module defines the actions that audits can perform
     module Audits
       def auditlogin
         body = { isSuccessful: true, activityDetails: 'Signed in Vets.gov' }

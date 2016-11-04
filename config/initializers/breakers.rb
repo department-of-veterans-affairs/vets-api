@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 require 'breakers/statsd_plugin'
-require 'mhv_logging/configuration'
 require 'rx/configuration'
 require 'sm/configuration'
 
@@ -16,7 +15,6 @@ redis_namespace = Redis::Namespace.new('breakers', redis: redis)
 services = [
   Rx::Configuration.instance.breakers_service,
   SM::Configuration.instance.breakers_service,
-  MHVLogging::Configuration.instance.breakers_service
   # TODO: (AJM) Disabled for testing, add these back in for launch
   # EVSS::ClaimsService.breakers_service,
   # EVSS::CommonService.breakers_service,
