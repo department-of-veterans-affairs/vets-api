@@ -3,14 +3,17 @@ module SAML
   # This class is responsible for putting together a complete ruby-saml
   # SETTINGS object, meaning, our static SP settings + the IDP settings
   # which must be fetched once and only once via IDP metadata.
-  require 'singleton'
   class SettingsService
-    include Singleton
-
     attr_reader :saml_settings
 
+    METADATA_URI = URI(SAML_CONFIG['metadata_url'])
+
     def initialize
-      @saml_settings ||= fetch_idp_metadata
+      @saml_settings = create_settings_from_metadata
+    end
+
+    def self.metadata
+      @metadata ||= Net::HTTP.get(METADATA_URI)
     end
 
     private
@@ -31,9 +34,9 @@ module SAML
     end
 
     ## Makes an external web call to get IDP metadata and populates SETTINGS
-    def fetch_idp_metadata
+    def create_settings_from_metadata
       parser = OneLogin::RubySaml::IdpMetadataParser.new
-      parser.parse_remote(SAML_CONFIG['metadata_url'], true, settings: settings)
+      parser.parse(self.class.metadata, settings: settings)
     end
   end
 end
