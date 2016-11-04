@@ -74,8 +74,7 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
     docs = sub_objects_of('vbaDocumentList').select { |obj| obj['trackedItemId'].nil? }
     docs = create_documents docs
     docs.map do |obj|
-      obj[:type] = :other_documents_list
-      obj
+      obj.merge(type: :other_documents_list, date: obj[:upload_date])
     end
   end
 
