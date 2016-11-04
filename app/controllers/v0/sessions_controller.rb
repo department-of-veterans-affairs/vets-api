@@ -118,8 +118,10 @@ module V0
 
       if !logout_response.validate
         logger.error 'The SAML Logout Response is invalid'
+        redirect_to SAML_CONFIG['logout_relay'] + '?success=false'
       elsif logout_response.success?
         delete_session(params[:RelayState])
+        redirect_to SAML_CONFIG['logout_relay'] + '?success=true'
       end
     end
 
