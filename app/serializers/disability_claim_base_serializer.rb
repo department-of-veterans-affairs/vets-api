@@ -31,7 +31,7 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
     object_data['claimCompleteDate'].blank?
   end
 
-  # TODO (CMJ): When we have time, rename to requested_decision for better consistency
+  # TODO: (CMJ) When we have time, rename to requested_decision for better consistency
   def waiver_submitted
     object.requested_decision || object_data['waiver5103Submitted']
   end
