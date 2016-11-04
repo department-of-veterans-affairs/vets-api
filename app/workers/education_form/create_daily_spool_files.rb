@@ -46,7 +46,7 @@ module EducationForm
     def write_files(sftp: nil, structured_data:)
       structured_data.each do |region, records|
         region_id = EducationFacility.facility_for(region: region)
-        filename = "#{region_id}_#{Time.zone.today.strftime('%F').tr('-', '_')}_vetsgov.spl"
+        filename = "#{region_id}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
         file_class =
           if sftp.nil?
             dir_name = 'tmp/spool_files'
