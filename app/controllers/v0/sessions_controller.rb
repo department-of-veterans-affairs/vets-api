@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module V0
   class SessionsController < ApplicationController
-    skip_before_action :authenticate, only: [:new, :saml_callback, :saml_logout]
+    skip_before_action :authenticate, only: [:new, :saml_callback, :saml_logout_callback]
 
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
