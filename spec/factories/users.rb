@@ -44,7 +44,8 @@ FactoryGirl.define do
   factory :mhv_user, class: 'User' do
     edipi '1234'
     icn '1000123456V123456'
-    mhv_id '123456'
+    mhv_id ENV['MHV_USER_ID']
+    mhv_last_signed_in Time.current
     participant_id '12345678'
     loa do
       {
@@ -66,6 +67,10 @@ FactoryGirl.define do
         ssn: '272111863',
         active_status: 'active'
       }
+    end
+
+    trait :mhv_not_logged_in do
+      mhv_last_signed_in nil
     end
   end
 
