@@ -3,7 +3,7 @@ module V0
   class DocumentsController < DisabilityClaimsBaseController
     def create
       params.require :file
-      claim = DisabilityClaim.for_user(current_user).find(params[:disability_claim_id])
+      claim = DisabilityClaim.for_user(current_user).find_by(evss_id: params[:disability_claim_id])
       document_data = DisabilityClaimDocument.new(
         evss_claim_id: claim.evss_id,
         file_name: params[:file].original_filename,

@@ -8,7 +8,7 @@ RSpec.describe DisabilityClaimListSerializer, type: :serializer do
   subject { serialize(disability_claim, serializer_class: DisabilityClaimListSerializer) }
 
   it 'should include id' do
-    expect(data['id']).to eq(disability_claim.id.to_s)
+    expect(data['id']).to eq(disability_claim.evss_id.to_s)
   end
 
   context 'with different data and list_data' do
