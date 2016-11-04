@@ -13,7 +13,12 @@ module SAML
     end
 
     def self.metadata
-      @metadata ||= Net::HTTP.get(METADATA_URI)
+      return @metadata if defined?(@metadata)
+      http = Net::HTTP.new(METADATA_URI.host, METADATA_URI.port)
+      http.use_ssl = true
+      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      get = Net::HTTP::Get.new(METADATA_URI.request_uri)
+      @metadata = http.request(get).body
     end
 
     private
