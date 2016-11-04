@@ -38,7 +38,7 @@ module MVI
         return nil unless patient
         name = parse_name(get_patient_name(patient))
         {
-          status: locate_element(patient, STATUS_XPATH),
+          active_status: locate_element(patient, STATUS_XPATH),
           given_names: name[:given],
           family_name: name[:family],
           gender: locate_element(patient, GENDER_XPATH),
