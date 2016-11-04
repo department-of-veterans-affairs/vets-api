@@ -5,6 +5,10 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
              :development_letter_sent, :decision_letter_sent, :successful_sync,
              :updated_at, :phase
 
+  def id
+    object.evss_id
+  end
+
   def date_filed
     date_from_string 'date'
   end
