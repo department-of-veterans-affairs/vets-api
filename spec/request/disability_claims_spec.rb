@@ -48,5 +48,17 @@ RSpec.describe 'disability Claims management', type: :request do
       get '/v0/disability_claims/2', nil, 'Authorization' => "Token token=#{session.token}"
       expect(response).to have_http_status(:internal_server_error)
     end
+
+    context '5103 waiver has not been submitted yet' do
+      before do
+        claim.requested_decision = false
+        claim.save
+      end
+      it 'has waiver_submitted set after requesting a decision' do
+        expect(claim.requested_decision).to eq(false)
+        post '/v0/disability_claims/189625/request_decision', nil, 'Authorization' => "Token token=#{session.token}"
+        expect(claim.reload.requested_decision).to eq(true)
+      end
+    end
   end
 end
