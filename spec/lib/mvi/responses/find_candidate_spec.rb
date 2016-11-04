@@ -37,7 +37,7 @@ describe MVI::Responses::FindCandidate do
             icn: '1000123456V123456^NI^200M^USVHA^P',
             mhv_id: '123456^PI^200MHV^USVHA^A',
             ssn: '555443333',
-            status: 'active'
+            active_status: 'active'
           )
         end
       end
@@ -55,7 +55,7 @@ describe MVI::Responses::FindCandidate do
             icn: '1000123456V123456^NI^200M^USVHA^P',
             mhv_id: '123456^PI^200MHV^USVHA^A',
             ssn: '555443333',
-            status: 'active'
+            active_status: 'active'
           )
         end
       end
@@ -80,7 +80,7 @@ describe MVI::Responses::FindCandidate do
           given_names: %w(Mitchell),
           icn: '1008714701V416111^NI^200M^USVHA^P',
           ssn: '796122306',
-          status: 'active'
+          active_status: 'active'
         )
       end
     end
@@ -116,7 +116,7 @@ describe MVI::Responses::FindCandidate do
           icn: '1008711094V567547^NI^200M^USVHA^P',
           mhv_id: nil,
           ssn: '796127160',
-          status: 'active',
+          active_status: 'active',
           vba_corp_id: '32318174^PI^200CORP^USVBA^A'
         )
       end

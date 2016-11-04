@@ -87,7 +87,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
     end
 
-    let(:filename) { '307_2016_09_16_vetsgov.spl' }
+    let(:filename) { '307_09162016_vetsgov.spl' }
 
     context 'in the development env' do
       let(:file_path) { "tmp/spool_files/#{filename}" }

@@ -31,32 +31,36 @@ class DisabilityClaimService
 
   def all
     raw_claims = client.all_claims.body
-    EVSS_CLAIM_KEYS.each_with_object([]) do |key, claims|
+    claims = EVSS_CLAIM_KEYS.each_with_object([]) do |key, claim_accum|
       next unless raw_claims[key]
       disability_claims = raw_claims[key].select do |raw_claim|
         DISABILITY_BENEFIT_CODES.include? raw_claim['benefitClaimTypeCode']
       end
-      claims << disability_claims.map do |raw_claim|
+      claim_accum << disability_claims.map do |raw_claim|
         create_or_update_claim(raw_claim)
       end
     end.flatten
+    return claims, true
   rescue Faraday::Error::TimeoutError, Breakers::OutageException => e
     log_error(e)
-    claims_scope.all.map do |claim|
+    claims = claims_scope.all.map do |claim|
       claim.successful_sync = false
       claim
     end
+    return claims, false
   end
 
   def update_from_remote(claim)
     begin
       raw_claim = client.find_claim_by_id(claim.evss_id).body.fetch('claim', {})
       claim.update_attributes(data: raw_claim, successful_sync: true)
+      successful_sync = true
     rescue Faraday::Error::TimeoutError, Breakers::OutageException => e
       claim.successful_sync = false
       log_error(e)
+      successful_sync = false
     end
-    claim
+    [claim, successful_sync]
   end
 
   def request_decision(claim)

@@ -10,26 +10,28 @@ class UserSerializer < ActiveModel::Serializer
 
   def profile
     {
-      email:          object.email,
-      first_name:     object.first_name,
-      middle_name:    object.middle_name,
-      last_name:      object.last_name,
-      birth_date:     object.birth_date,
-      gender:         object.gender,
-      zip:            object.zip,
+      email: object.email,
+      first_name: object.first_name,
+      middle_name: object.middle_name,
+      last_name: object.last_name,
+      birth_date: object.birth_date,
+      gender: object.gender,
+      zip: object.zip,
       last_signed_in: object.last_signed_in,
-      loa:            object.loa
+      loa: object.loa
     }
   end
 
   def va_profile
-    return nil if object.mvi.nil?
+    return { status: 'NOT_AUTHORIZED' } if object.mvi.nil?
+    return { status: object.mvi[:status] } unless object.mvi[:status] == 'OK'
     {
-      birth_date:   object.mvi['birth_date'],
-      family_name:  object.mvi['family_name'],
-      gender:       object.mvi['gender'],
-      given_names:  object.mvi['given_names'],
-      status:       object.mvi['status']
+      status: object.mvi[:status],
+      birth_date: object.mvi[:birth_date],
+      family_name: object.mvi[:family_name],
+      gender: object.mvi[:gender],
+      given_names: object.mvi[:given_names],
+      active_status: object.mvi[:active_status]
     }
   end
 
