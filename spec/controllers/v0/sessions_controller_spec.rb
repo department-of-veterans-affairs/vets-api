@@ -198,9 +198,8 @@ RSpec.describe V0::SessionsController, type: :controller do
 
     it 'destroys a session' do
       request.env['HTTP_AUTHORIZATION'] = auth_header
-      expect_any_instance_of(Session).to receive(:destroy)
       delete :destroy
-      expect(response).to have_http_status(:no_content)
+      expect(response).to have_http_status(202)
     end
   end
 end

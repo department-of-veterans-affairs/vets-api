@@ -14,8 +14,7 @@ module V0
 
     def destroy
       logout_request = OneLogin::RubySaml::Logoutrequest.new
-      session[:slo_transaction_id] = logout_request.uuid
-      logger.info "New SP SLO for userid '#{@session.uuid}' transactionid '#{session[:slo_transaction_id]}'"
+      logger.info "New SP SLO for userid '#{@session.uuid}'"
 
       if saml_settings.name_identifier_value.nil?
         saml_settings.name_identifier_value = @session.uuid
@@ -24,15 +23,12 @@ module V0
       saml_settings.security[:logout_requests_signed] = true
       saml_settings.security[:embed_sign] = true
 
-      render json: { logout_via_get: logout_request.create(saml_settings, RelayState: saml_logout_url) }, status: 202
+      render json: { logout_via_get: logout_request.create(saml_settings, RelayState: @session.token) }, status: 202
     end
 
     def saml_logout
-      # # If the IDP has initiated the logout, generate a response to it
-      if params[:SAMLRequest]
-        handle_idp_initiated_logout
-      # We initiated an SLO and are receiving the bounce-back after the IDP performed it
-      elsif params[:SAMLResponse]
+      if params[:SAMLResponse]
+        # We initiated an SLO and are receiving the bounce-back after the IDP performed it
         handle_completed_slo
       end
     end
@@ -114,60 +110,24 @@ module V0
       EVSS::CreateUserAccountJob.perform_async(auth_headers)
     end
 
+    # :nocov:
     def handle_completed_slo
-      if session.key? :slo_transaction_id
-        logout_response = OneLogin::RubySaml::Logoutresponse.new(
-          params[:SAMLResponse],
-          saml_settings,
-          matches_request_id: session[:slo_transaction_id]
-        )
-      else
-        logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings)
-      end
+      logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings)
 
       logger.info "LogoutResponse is: #{logout_response}"
 
       if !logout_response.validate
         logger.error 'The SAML Logout Response is invalid'
       elsif logout_response.success?
-        #
-        # @session is nil because this action cannot do authentication. But I need to
-        # find the session and destroy it in Redis. The logout_response doesn't seem to
-        # contain the uuid for the session, so what to do?
-        #
-        logger.info "Delete session for '#{@session.uuid}'"
-        delete_session
+        delete_session(params[:RelayState])
       end
     end
 
-    def handle_idp_initiated_logout
-      logout_request = OneLogin::RubySaml::SloLogoutrequest.new(params[:SAMLRequest])
-
-      unless logout_request.is_valid?
-        logger.error 'IdP initiated LogoutRequest was not valid!'
-        render inline: logger.error
-        return
-      end
-
-      logger.info "IdP initiated logout for #{logout_request.name_id}"
-
-      # Actually log out this session
-      delete_session
-
-      # Generate a response to the IdP.
-      logout_request_id = logout_request.id
-      logout_response = OneLogin::RubySaml::SloLogoutresponse.new.create(
-        saml_settings,
-        logout_request_id,
-        nil,
-        RelayState: params[:RelayState]
-      )
-
-      redirect_to logout_response
+    def delete_session(token)
+      session = Session.find(token)
+      logger.info "Delete session for '#{session.uuid}'"
+      session.destroy
     end
-
-    def delete_session
-      @session.destroy
-    end
+    # :nocov:
   end
 end
