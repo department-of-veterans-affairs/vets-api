@@ -41,7 +41,7 @@ module VetsAPI
       allow do
         origins { |source, _env| ENV['WEB_ORIGIN'].split(',').include?(source) }
         resource '*', headers: :any,
-                      methods: [:get, :post, :put, :delete, :options],
+                      methods: :any,
                       credentials: true
       end
     end

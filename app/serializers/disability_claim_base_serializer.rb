@@ -5,6 +5,12 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
              :development_letter_sent, :decision_letter_sent, :successful_sync,
              :updated_at, :phase
 
+  # Our IDs are not stable due to 24 hour expiration, use EVSS IDs for consistency
+  # This can be removed if our IDs become stable
+  def id
+    object.evss_id
+  end
+
   def date_filed
     date_from_string 'date'
   end

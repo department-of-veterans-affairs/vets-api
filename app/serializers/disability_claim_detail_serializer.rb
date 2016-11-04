@@ -30,6 +30,9 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
     # Add tracked items
     events += create_events_for_tracked_items
 
+    # Add documents not associated with a tracked item
+    events += create_events_for_documents
+
     # Make reverse chron with nil date items at the end
     events.compact.sort_by { |h| h[:date] || Date.new }.reverse
   end
@@ -64,6 +67,15 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
         create_tracked_item_event(field.snakecase, obj)
       end
     end.flatten
+  end
+
+  def create_events_for_documents
+    # Objects with trackedItemId are part of other events, so don't duplicate them
+    docs = sub_objects_of('vbaDocumentList').select { |obj| obj['trackedItemId'].nil? }
+    docs = create_documents docs
+    docs.map do |obj|
+      obj.merge(type: :other_documents_list, date: obj[:upload_date])
+    end
   end
 
   # Order of EVENT_DATE_FIELDS determines which date trumps in timeline sorting
