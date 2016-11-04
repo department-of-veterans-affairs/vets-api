@@ -9,11 +9,21 @@ class ApplicationController < ActionController::API
 
   before_action :authenticate
   before_action :set_app_info_headers
-  skip_before_action :authenticate, only: [:cors_preflight]
+  skip_before_action :authenticate, only: [:cors_preflight, :routing_error]
 
   def cors_preflight
     head(:ok)
   end
+
+  def routing_error
+    raise Common::Exceptions::RoutingError, params[:path]
+  end
+
+  # I'm commenting this out for now, we can put it back in if we encounter it
+  # def action_missing(m, *_args)
+  #   Rails.logger.error(m)
+  #   raise Common::Exceptions::RoutingError
+  # end
 
   private
 
