@@ -12,8 +12,9 @@ RSpec.describe DisabilityClaimService do
         allow(client_stub).to receive(:all_claims) { raise Faraday::Error::TimeoutError }
         allow(subject).to receive(:client) { client_stub }
         claim = FactoryGirl.create(:disability_claim, user_uuid: user.uuid)
-        claims = subject.all
+        claims, synchronized = subject.all
         expect(claims).to eq([claim])
+        expect(synchronized).to eq(false)
         expect(claims.first.successful_sync).to eq(false)
       end
     end
@@ -23,8 +24,9 @@ RSpec.describe DisabilityClaimService do
         allow(client_stub).to receive(:find_claim_by_id) { raise Faraday::Error::TimeoutError }
         allow(subject).to receive(:client) { client_stub }
         claim = FactoryGirl.build(:disability_claim, user_uuid: user.uuid)
-        updated_claim = subject.update_from_remote(claim)
+        updated_claim, synchronized = subject.update_from_remote(claim)
         expect(updated_claim).to eq(claim)
+        expect(synchronized).to eq(false)
         expect(updated_claim.successful_sync).to eq(false)
       end
     end
