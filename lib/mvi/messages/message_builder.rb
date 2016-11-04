@@ -42,7 +42,7 @@ module MVI
         message << element('creationTime', value: Time.now.utc.strftime('%Y%m%d%H%M%S'))
         message << element('versionCode', code: '3.0')
         message << element('interactionId', root: '2.16.840.1.113883.1.6', extension: extension)
-        message << element('processingCode', code: Rails.env.production? ? 'P' : 'T')
+        message << element('processingCode', code: ENV['MVI_PROCESSING_CODE'])
         message << element('processingModeCode', code: 'T')
         message << element('acceptAckCode', code: 'AL')
         message << build_receiver
