@@ -48,19 +48,25 @@
             "va_profile": {
               "type": ["object", "null"],
               "required": [
-                "birth_date",
-                "family_name",
-                "gender",
-                "given_names",
                 "status"
               ],
-              "properties": {
-                "birth_date": { "type": [ "string", null ] },
-                "family_name": { "type": [ "string", null ] },
-                "gender": { "type": [ "string", null ] },
-                "given_names": { "type": [ "array", null ] },
-                "status": { "type": [ "string", null ]  }
-              }
+              "oneOf": [
+                {
+                  "properties": {
+                    "status": { "type": [ "string" ]  }
+                  }
+                },
+                {
+                  "properties": {
+                    "birth_date": { "type": "string" },
+                    "family_name": { "type": "string" },
+                    "gender": { "type": "string" },
+                    "given_names": { "type": "array" },
+                    "active_status": { "type": "string"  },
+                    "status": { "type": "string"  }
+                  }
+                }
+              ]
             }
           }
         }

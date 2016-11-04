@@ -58,7 +58,7 @@ describe MVI::Service do
             icn: '1008714701V416111^NI^200M^USVHA^P',
             mhv_id: nil,
             vba_corp_id: '9100792239^PI^200CORP^USVBA^A',
-            status: 'active',
+            active_status: 'active',
             given_names: %w(Mitchell G),
             family_name: 'Jenkins',
             gender: 'M',
