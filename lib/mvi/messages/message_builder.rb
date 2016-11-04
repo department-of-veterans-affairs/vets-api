@@ -42,7 +42,7 @@ module MVI
         message << element('creationTime', value: Time.now.utc.strftime('%Y%m%d%H%M%S'))
         message << element('versionCode', code: '3.0')
         message << element('interactionId', root: '2.16.840.1.113883.1.6', extension: extension)
-        message << element('processingCode', code: ENV['MVI_PROCESSING_CODE'])
+        message << element('processingCode', code: processing_code)
         message << element('processingModeCode', code: 'T')
         message << element('acceptAckCode', code: 'AL')
         message << build_receiver
@@ -74,6 +74,12 @@ module MVI
           'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance'
         )
         env << element('env:Header')
+      end
+
+      private
+
+      def processing_code
+        ENV['MVI_PROCESSING_CODE']
       end
     end
     class MessageBuilderError < StandardError
