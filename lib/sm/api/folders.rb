@@ -17,7 +17,7 @@ module SM
       end
 
       def post_create_folder(name)
-        json = perform(:post, 'folder', %({ "name":"#{name}" }), token_headers).body
+        json = perform(:post, 'folder', { 'name' => name }, token_headers).body
         Folder.new(json)
       end
 
