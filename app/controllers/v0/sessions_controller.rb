@@ -16,17 +16,14 @@ module V0
       logout_request = OneLogin::RubySaml::Logoutrequest.new
       logger.info "New SP SLO for userid '#{@session.uuid}'"
 
-      if saml_settings.name_identifier_value.nil?
-        saml_settings.name_identifier_value = @session.uuid
-      end
-
+      saml_settings.name_identifier_value = @session.uuid
       saml_settings.security[:logout_requests_signed] = true
       saml_settings.security[:embed_sign] = true
 
       render json: { logout_via_get: logout_request.create(saml_settings, RelayState: @session.token) }, status: 202
     end
 
-    def saml_logout
+    def saml_logout_callback
       if params[:SAMLResponse]
         # We initiated an SLO and are receiving the bounce-back after the IDP performed it
         handle_completed_slo
@@ -126,9 +123,7 @@ module V0
     end
 
     def delete_session(token)
-      session = Session.find(token)
-      logger.info "Delete session for '#{session.uuid}'"
-      session.destroy
+      Session.find(token)&.destroy
     end
     # :nocov:
   end

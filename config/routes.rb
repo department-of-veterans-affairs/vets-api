@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
 
   get '/saml/metadata', to: 'saml#metadata'
-  get '/auth/saml/logout', to: 'v0/sessions#saml_logout', as: 'saml_logout'
+  get '/auth/saml/logout', to: 'v0/sessions#saml_logout_callback', as: 'saml_logout'
   post '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
 
   namespace :v0, defaults: { format: 'json' } do
