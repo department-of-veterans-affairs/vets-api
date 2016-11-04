@@ -35,6 +35,10 @@ class User < Common::RedisStore
   # mvi 'golden record' data
   attribute :mvi
 
+  # mhv_last_signed_in used to determine whether we need to notify MHV audit logging
+  # This is set to Time.now when any MHV session is first created, and nulled, when logout
+  attribute :mhv_last_signed_in, Common::UTCTime
+
   validates :uuid, presence: true
   validates :email, presence: true
   validates :loa, presence: true

@@ -12,6 +12,7 @@ module MHVControllerConcerns
   end
 
   def authenticate_client
+    MHVLogging::Service.login(current_user)
     client.authenticate if client.session.expired?
   end
 end
