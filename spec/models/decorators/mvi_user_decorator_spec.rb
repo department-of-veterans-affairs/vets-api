@@ -17,7 +17,7 @@ describe Decorators::MviUserDecorator do
         icn: mvi_user.mvi[:icn],
         mhv_id: mvi_user.mvi[:mhv_id],
         ssn: mvi_user.mvi[:ssn],
-        status: mvi_user.mvi[:status]
+        active_status: mvi_user.mvi[:active_status]
       }
     end
 
@@ -38,19 +38,21 @@ describe Decorators::MviUserDecorator do
           allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(
             MVI::HTTPError.new('MVI HTTP call failed', 500)
           )
-          expect(Rails.logger).to receive(:error).once.with(/MVI returned HTTP error code: 500 for user:/)
-          expect { Decorators::MviUserDecorator.new(user).create }.to raise_error(
-            Common::Exceptions::InternalServerError
-          )
+          expect(Rails.logger).to receive(:error).once.with(/MVI HTTP error code: 500 for user:/)
+          user_result = Decorators::MviUserDecorator.new(user).create
+          expect(user_result).to_not be_nil
+          expect(user_result.attributes).to eq(user.attributes)
+          expect(user_result.mvi).to eq(status: Decorators::MviUserDecorator::MVI_RESPONSE_STATUS[:server_error])
         end
       end
       context 'when a MVI::ServiceError is raised' do
         it 'should log an error message' do
-          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(MVI::ServiceError)
-          expect(Rails.logger).to receive(:error).once.with(/Error retrieving MVI data for user:/)
-          expect { Decorators::MviUserDecorator.new(user).create }.to raise_error(
-            Common::Exceptions::InternalServerError
-          )
+          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(MVI::InvalidRequestError)
+          expect(Rails.logger).to receive(:error).once.with(/MVI service error: MVI::InvalidRequestError for user:/)
+          user_result = Decorators::MviUserDecorator.new(user).create
+          expect(user_result).to_not be_nil
+          expect(user_result.attributes).to eq(user.attributes)
+          expect(user_result.mvi).to eq(status: Decorators::MviUserDecorator::MVI_RESPONSE_STATUS[:server_error])
         end
       end
       context 'when MVI::RecordNotFound is raised' do
@@ -64,7 +66,7 @@ describe Decorators::MviUserDecorator do
           expect(Rails.logger).to receive(:error).once.with(/MVI record not found for user:/)
           user_result = Decorators::MviUserDecorator.new(user).create
           expect(user_result).to_not be_nil
-          expect(user_result.mvi).to be_nil
+          expect(user_result.mvi).to eq(status: Decorators::MviUserDecorator::MVI_RESPONSE_STATUS[:not_found])
         end
       end
     end
