@@ -6,8 +6,8 @@ class MHVLoggingService
     return false if current_user.mhv_correlation_id.nil? || current_user.mhv_last_signed_in
     # Otherwise send the login audit trail
     MHVLogging::Client.new(session: { user_id: current_user.mhv_correlation_id })
-      .authenticate
-      .auditlogin
+                      .authenticate
+                      .auditlogin
     # Update the user object with the time of login
     current_user.mhv_last_signed_in = Time.current
     current_user.save
@@ -19,8 +19,8 @@ class MHVLoggingService
     return false unless current_user.mhv_correlation_id.nil? || current_user.mhv_last_signed_in
     # Otherwise send the logout audit trail
     MHVLogging::Client.new(session: { user_id: current_user.mhv_correlation_id })
-      .authenticate
-      .auditlogout
+                      .authenticate
+                      .auditlogout
     # Update the user object with nil to indicate not logged in
     current_user.mhv_last_signed_in = nil
     current_user.save
