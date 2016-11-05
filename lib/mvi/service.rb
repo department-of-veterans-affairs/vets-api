@@ -67,7 +67,6 @@ module MVI
         Rails.logger.error response.body
         raise MVI::HTTPError.new('MVI HTTP call failed', response.status)
       end
-      raise MVI::HTTPError.new('MVI internal server error', 500) if body_has_error(response.body)
       response
     end
 
@@ -79,17 +78,6 @@ module MVI
     def request_failure_handler(operation, xml)
       Rails.logger.error "mvi #{operation} request failure: #{xml}"
       raise MVI::RequestFailureError
-    end
-
-    def body_has_error(body)
-      doc = Ox.parse(body)
-      fault_element = doc.locate('env:Envelope/env:Body/env:Fault').first
-      return false unless fault_element
-      fault_code = fault_element.locate('faultcode').first
-      fault_string = fault_element.locate('faultstring').first
-      Rails.logger.error "MVI fault code: #{fault_code.nodes.first}" if fault_code
-      Rails.logger.error "MVI fault string: #{fault_string.nodes.first}" if fault_string
-      true
     end
   end
   class ServiceError < StandardError
