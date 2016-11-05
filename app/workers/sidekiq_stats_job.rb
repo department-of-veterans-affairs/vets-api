@@ -4,4 +4,6 @@ class SidekiqStatsJob < Sidekiq::Instrument::Worker
     processed
     failed
   ).freeze
+
+  sidekiq_options queue: 'critical'
 end
