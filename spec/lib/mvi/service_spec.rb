@@ -122,6 +122,16 @@ describe MVI::Service do
         end
       end
     end
+
+    context 'when MVI returns 500 but VAAFI sends 200' do
+      it 'raises an MVI::HTTPError' do
+        VCR.use_cassette('mvi/find_candidate/internal_server_error') do
+          expect(Rails.logger).to receive(:error).with('MVI fault code: env:Server').once
+          expect(Rails.logger).to receive(:error).with('MVI fault string: Internal Error (from server)').once
+          expect { subject.find_candidate(message) }.to raise_error(MVI::HTTPError, 'MVI internal server error')
+        end
+      end
+    end
   end
 
   describe MVI::RecordNotFound do
