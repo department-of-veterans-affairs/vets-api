@@ -15,7 +15,7 @@ module Rx
     end
 
     def base_path
-      "#{host}/mhv-api/patient/v1/"
+      "#{host}/mhv-api/"
     end
 
     def breakers_service
