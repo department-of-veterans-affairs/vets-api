@@ -24,8 +24,9 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:query_token) { Rack::Utils.parse_query(URI.parse(response.location).query)['token'] }
 
   before(:each) do
+    stub_request(:get, SAML_CONFIG['metadata_url']).to_return(body: 'abc')
     allow_any_instance_of(Decorators::MviUserDecorator).to receive(:create).and_return(mvi_user)
-    allow(settings_service).to receive_message_chain(:instance, :saml_settings).and_return(settings_no_context)
+    allow_any_instance_of(SAML::SettingsService).to receive(:saml_settings).and_return(settings_no_context)
   end
 
   context 'when not logged in' do
