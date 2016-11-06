@@ -8,6 +8,6 @@ RSpec.describe SAML::SettingsService do
     SAML::SettingsService.new.saml_settings
     SAML::SettingsService.new.saml_settings
     SAML::SettingsService.new.saml_settings
-    expect(a_request(:get, SAML_CONFIG['metadata_url'])).to have_been_made.times(1)
+    expect(a_request(:get, SAML_CONFIG['metadata_url'])).to have_been_made.at_most_once
   end
 end
