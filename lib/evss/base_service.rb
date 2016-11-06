@@ -10,7 +10,6 @@ module EVSS
       @headers = headers
     end
 
-    # :nocov:
     def self.create_breakers_service(name:, url:)
       path = URI.parse(url).path
       host = URI.parse(url).host
@@ -23,7 +22,6 @@ module EVSS
         request_matcher: matcher
       )
     end
-    # :nocov:
 
     protected
 
