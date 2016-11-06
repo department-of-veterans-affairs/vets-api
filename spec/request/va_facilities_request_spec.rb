@@ -5,6 +5,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   BASE_QUERY_PATH = '/v0/facilities/va?'
   PDX_BBOX = 'bbox[]=-122.440689&bbox[]=45.451913&bbox[]=-122.786758&bbox[]=45.64'
   NY_BBOX = 'bbox[]=-73.401&bbox[]=40.685&bbox[]=-77.36&bbox[]=43.03'
+  DEGEN_BBOX = 'bbox[]=-100&bbox[]=45&bbox[]=-100&bbox[]=45'
 
   it 'responds to GET #show for VHA prefix' do
     VCR.use_cassette('facilities/va/vha_648A4') do
@@ -124,6 +125,13 @@ RSpec.describe 'VA GIS Integration', type: :request do
   it 'returns 400 for benefits query with unknown service' do
     VCR.use_cassette('facilities/va/service_type_params') do
       get BASE_QUERY_PATH + NY_BBOX + '&type=benefits&services[]=Haircut'
+      expect(response).to have_http_status(:bad_request)
+    end
+  end
+
+  it 'returns 400 for error from GIS' do
+    VCR.use_cassette('facilities/va/point_bbox') do
+      get BASE_QUERY_PATH + DEGEN_BBOX + '&type=benefits'
       expect(response).to have_http_status(:bad_request)
     end
   end
