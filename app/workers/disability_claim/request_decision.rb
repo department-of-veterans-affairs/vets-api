@@ -4,6 +4,6 @@ class DisabilityClaim::RequestDecision
 
   def perform(auth_headers, evss_id)
     client = EVSS::ClaimsService.new(auth_headers)
-    client.submit_5103_waiver(evss_id)
+    client.request_decision(evss_id)
   end
 end

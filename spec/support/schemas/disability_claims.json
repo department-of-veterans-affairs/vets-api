@@ -47,6 +47,13 @@
           }
         }
       }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["successful_sync"],
+      "properties": {
+        "successful_sync": { "type": "boolean" }
+      }
     }
   }
 }

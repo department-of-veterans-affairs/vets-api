@@ -58,7 +58,7 @@ describe MVI::Service do
             icn: '1008714701V416111^NI^200M^USVHA^P',
             mhv_id: nil,
             vba_corp_id: '9100792239^PI^200CORP^USVBA^A',
-            status: 'active',
+            active_status: 'active',
             given_names: %w(Mitchell G),
             family_name: 'Jenkins',
             gender: 'M',
@@ -119,6 +119,16 @@ describe MVI::Service do
       it 'raises an MVI::RecordNotFound error' do
         VCR.use_cassette('mvi/find_candidate/no_subject') do
           expect { subject.find_candidate(message) }.to raise_error(MVI::RecordNotFound)
+        end
+      end
+    end
+
+    context 'when MVI returns 500 but VAAFI sends 200' do
+      it 'raises an MVI::HTTPError' do
+        VCR.use_cassette('mvi/find_candidate/internal_server_error') do
+          expect(Rails.logger).to receive(:error).with('MVI fault code: env:Server').once
+          expect(Rails.logger).to receive(:error).with('MVI fault string: Internal Error (from server)').once
+          expect { subject.find_candidate(message) }.to raise_error(MVI::HTTPError, 'MVI internal server error')
         end
       end
     end

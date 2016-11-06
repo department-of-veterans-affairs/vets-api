@@ -36,6 +36,18 @@ RSpec.describe DisabilityClaimDocumentUploader do
     end
   end
 
+  describe '#store_dir' do
+    it 'omits the tracked item id if it is nil' do
+      subject = described_class.new('1234abc', nil)
+      expect(subject.store_dir).to eq('disability_claim_documents/1234abc')
+    end
+
+    it 'includes the uuid and tracked item id' do
+      subject = described_class.new('1234abc', '13')
+      expect(subject.store_dir).to eq('disability_claim_documents/1234abc/13')
+    end
+  end
+
   describe '#store!' do
     it 'raises an error when the file is larger than 25 megabytes' do
       file = double(size: 25.megabytes + 1)

@@ -1,0 +1,39 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MHV_HOST>/mhv-api/patient/v1/activity/auditlogout"
+    body:
+      encoding: UTF-8
+      string: '{"isSuccessful":true,"activityDetails":"Signed out Vets.gov"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 04 Nov 2016 04:59:00 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '{"status":"success" }'
+    http_version: 
+  recorded_at: Fri, 04 Nov 2016 04:59:00 GMT
+recorded_with: VCR 3.0.3
