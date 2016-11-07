@@ -29,6 +29,7 @@ class NCAFacilityAdapter
     m[:phone] = from_gis_attrs(PHONE_KEYMAP, attrs)
     m[:hours] = {}
     m[:services] = {}
+    m[:feedback] = {}
     VAFacility.new(m)
   end
 
