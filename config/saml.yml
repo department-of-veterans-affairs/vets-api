@@ -5,6 +5,7 @@ development: &defaults
   certificate: <%= File.read(File.expand_path(ENV["SAML_CERTIFICATE_FILE"])).dump %>
   key: <%= File.read(File.expand_path(ENV['SAML_KEY_FILE'])).dump %>
   relay: http://localhost:3001/auth/login/callback
+  logout_relay: http://localhost:3001/logout
 
 test:
   <<: *defaults
@@ -18,3 +19,4 @@ production:
   certificate: <%= File.read(File.expand_path(ENV["SAML_CERTIFICATE_FILE"])).dump %>
   key: <%= File.read(File.expand_path(ENV["SAML_KEY_FILE"])).dump %>
   relay: <%= ENV["SAML_RELAY"] %>
+  logout_relay: <%= ENV["SAML_LOGOUT_RELAY"] %>

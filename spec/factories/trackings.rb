@@ -8,7 +8,7 @@ FactoryGirl.define do
     facility_name         'ABC123'
     rx_info_phone_number  '(333)772-1111'
     ndc_number            '12345678910'
-    shipped_date          1.week.ago.utc
+    shipped_date          Time.parse('Thu, 12 Oct 2016 00:00:00 EDT').in_time_zone
     delivery_service      'UPS'
   end
 end

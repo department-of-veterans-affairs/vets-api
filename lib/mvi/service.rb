@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'savon'
+require 'mvi/settings'
 require_relative 'responses/find_candidate'
 
 module MVI
@@ -26,12 +27,12 @@ module MVI
 
     def self.options
       opts = {
-        url: ENV['MVI_URL']
+        url: MVI::Settings::URL
       }
-      if ENV['MVI_CLIENT_CERT_PATH'] && ENV['MVI_CLIENT_KEY_PATH']
+      if MVI::Settings::SSL_CERT && MVI::Settings::SSL_KEY
         opts[:ssl] = {
-          client_cert: OpenSSL::X509::Certificate.new(File.read(ENV['MVI_CLIENT_CERT_PATH'])),
-          client_key: OpenSSL::PKey::RSA.new(File.read(ENV['MVI_CLIENT_KEY_PATH']))
+          client_cert: MVI::Settings::SSL_CERT,
+          client_key: MVI::Settings::SSL_KEY
         }
       end
       opts
@@ -49,10 +50,26 @@ module MVI
       raise MVI::ServiceError, 'MVI connection failed'
     end
 
+    def self.breakers_service
+      path = URI.parse(options[:url]).path
+      host = URI.parse(options[:url]).host
+      matcher = proc do |request_env|
+        request_env.url.host == host && request_env.url.path =~ /^#{path}/
+      end
+
+      @service = Breakers::Service.new(
+        name: 'MVI',
+        request_matcher: matcher
+      )
+    end
+
     private
 
     def connection
-      @conn ||= Faraday.new(MVI::Service.options)
+      @conn ||= Faraday.new(MVI::Service.options) do |conn|
+        conn.use :breakers
+        conn.adapter Faraday.default_adapter
+      end
     end
 
     def call(operation, body)
@@ -88,6 +105,7 @@ module MVI
   end
   class HTTPError < MVI::ServiceError
     attr_accessor :code
+
     def initialize(message = nil, code = nil)
       super(message)
       @code = code
@@ -95,6 +113,7 @@ module MVI
   end
   class RecordNotFound < StandardError
     attr_accessor :query, :original_response
+
     def initialize(message = nil, response = nil)
       super(message)
       @query = response.query

@@ -17,7 +17,8 @@ Figaro.require_keys(
   'EVSS_S3_UPLOADS',
   'VHA_MAPSERVER_URL',
   'NCA_MAPSERVER_URL',
-  'VBA_MAPSERVER_URL'
+  'VBA_MAPSERVER_URL',
+  'GOV_DELIVERY_SERVER'
 )
 
 if Rails.env.production?

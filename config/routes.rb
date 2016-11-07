@@ -4,11 +4,13 @@ Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
 
   get '/saml/metadata', to: 'saml#metadata'
+  get '/auth/saml/logout', to: 'v0/sessions#saml_logout_callback', as: 'saml_logout'
   post '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
 
   namespace :v0, defaults: { format: 'json' } do
     resource :sessions, only: [:new, :destroy] do
       post :saml_callback, to: 'sessions#saml_callback'
+      post :saml_slo_callback, to: 'sessions#saml_slo_callback'
       get 'current', to: 'sessions#show'
     end
 
@@ -78,4 +80,7 @@ Rails.application.routes.draw do
     require 'sidekiq-scheduler/web'
     mount Sidekiq::Web, at: '/sidekiq'
   end
+
+  # This globs all unmatched routes and routes them as routing errors
+  match '*path', to: 'application#routing_error', via: %i(get post put patch delete)
 end

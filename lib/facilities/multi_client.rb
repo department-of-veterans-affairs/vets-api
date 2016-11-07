@@ -17,8 +17,10 @@ module Facilities
         raise Common::Client::Errors::ClientResponse.new(req.reponse.code, {}) unless
           req.response.success?
         result = JSON.parse(req.response.body)
-        raise Common::Client::Errors::ClientResponse.new(result['error']['code'], {}) if
-          result['error']
+        if result['error']
+          Rails.logger.error "GIS returned error: #{result['error']['code']}, message: #{result['error']['message']}"
+          raise Common::Client::Errors::ClientResponse.new(result['error']['code'], {})
+        end
         result['features']
       end
     end

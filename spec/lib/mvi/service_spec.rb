@@ -23,32 +23,27 @@ describe MVI::Service do
   let(:key) { instance_double('OpenSSL::PKey::RSA') }
 
   before(:each) do
-    allow(File).to receive(:read).and_return('foo')
-    allow(OpenSSL::X509::Certificate).to receive(:new).and_return(cert)
-    allow(OpenSSL::PKey::RSA).to receive(:new).and_return(key)
+    stub_const('MVI::Settings::SSL_CERT', cert)
+    stub_const('MVI::Settings::SSL_KEY', key)
   end
 
   describe '.options' do
     context 'when there are no SSL options' do
       it 'should only return the wsdl' do
-        ClimateControl.modify MVI_CLIENT_CERT_PATH: nil,
-                              MVI_CLIENT_KEY_PATH: nil do
-          expect(MVI::Service.options).to eq(url: ENV['MVI_URL'])
-        end
+        stub_const('MVI::Settings::SSL_CERT', nil)
+        stub_const('MVI::Settings::SSL_KEY', nil)
+        expect(MVI::Service.options).to eq(url: ENV['MVI_URL'])
       end
     end
     context 'when there are SSL options' do
       it 'should return the wsdl, cert and key paths' do
-        ClimateControl.modify MVI_CLIENT_CERT_PATH: '/certs/fake_cert.pem',
-                              MVI_CLIENT_KEY_PATH: '/certs/fake_key.pem' do
-          expect(MVI::Service.options).to eq(
-            url: ENV['MVI_URL'],
-            ssl: {
-              client_cert: cert,
-              client_key: key
-            }
-          )
-        end
+        expect(MVI::Service.options).to eq(
+          url: ENV['MVI_URL'],
+          ssl: {
+            client_cert: cert,
+            client_key: key
+          }
+        )
       end
     end
   end
@@ -63,7 +58,7 @@ describe MVI::Service do
             icn: '1008714701V416111^NI^200M^USVHA^P',
             mhv_id: nil,
             vba_corp_id: '9100792239^PI^200CORP^USVBA^A',
-            status: 'active',
+            active_status: 'active',
             given_names: %w(Mitchell G),
             family_name: 'Jenkins',
             gender: 'M',
@@ -124,6 +119,23 @@ describe MVI::Service do
       it 'raises an MVI::RecordNotFound error' do
         VCR.use_cassette('mvi/find_candidate/no_subject') do
           expect { subject.find_candidate(message) }.to raise_error(MVI::RecordNotFound)
+        end
+      end
+
+      context 'with an ongoing breakers outage' do
+        it 'returns the correct thing' do
+          MVI::Service.breakers_service.begin_forced_outage!
+          expect { subject.find_candidate(message) }.to raise_error(Breakers::OutageException)
+        end
+      end
+    end
+
+    context 'when MVI returns 500 but VAAFI sends 200' do
+      it 'raises an MVI::HTTPError' do
+        VCR.use_cassette('mvi/find_candidate/internal_server_error') do
+          expect(Rails.logger).to receive(:error).with('MVI fault code: env:Server').once
+          expect(Rails.logger).to receive(:error).with('MVI fault string: Internal Error (from server)').once
+          expect { subject.find_candidate(message) }.to raise_error(MVI::HTTPError, 'MVI internal server error')
         end
       end
     end

@@ -5,6 +5,12 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
              :development_letter_sent, :decision_letter_sent, :successful_sync,
              :updated_at, :phase
 
+  # Our IDs are not stable due to 24 hour expiration, use EVSS IDs for consistency
+  # This can be removed if our IDs become stable
+  def id
+    object.evss_id
+  end
+
   def date_filed
     date_from_string 'date'
   end
@@ -22,11 +28,12 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   end
 
   def open
-    object.data['claimCompleteDate'].blank?
+    object_data['claimCompleteDate'].blank?
   end
 
+  # TODO: (CMJ) When we have time, rename to requested_decision for better consistency
   def waiver_submitted
-    object.data['waiver5103Submitted']
+    object.requested_decision || object_data['waiver5103Submitted']
   end
 
   def documents_needed
@@ -42,13 +49,13 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   end
 
   def phase
-    phase_from_keys 'status'
+    raise NotImplementedError, 'Subclass of DisabilityClaimBaseSerializer must implement phase method'
   end
 
   protected
 
   def with_object_data(*keys)
-    val = object.data.dig(*keys)
+    val = object_data.dig(*keys)
     yield val if val.present?
   end
 
@@ -82,9 +89,15 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   }.freeze
 
   def phase_from_keys(*keys)
-    s = object.data.dig(*keys)&.downcase
+    s = object_data.dig(*keys)&.downcase
     phase = PHASE_MAPPING[s]
     Rails.logger.error "Expected EVSS #{keys} to be a phase. Got '#{s}'." unless phase
     phase
+  end
+
+  # object_data mediates whether a class uses object.data or
+  # object.list_data as the basis of serialization.
+  def object_data
+    raise NotImplementedError, 'Subclass of DisabilityClaimBaseSerializer must implement object_data method'
   end
 end

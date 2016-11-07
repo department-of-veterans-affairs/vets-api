@@ -16,7 +16,7 @@ RSpec.describe 'breakers', type: :request do
       token: Rx::ClientHelpers::TOKEN
     )
   end
-  let(:user) { build(:prescription_user) }
+  let(:user) { build(:mhv_user) }
 
   before(:each) do
     allow_any_instance_of(ApplicationController).to receive(:authenticate_token).and_return(:true)

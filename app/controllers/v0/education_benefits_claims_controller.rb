@@ -7,7 +7,12 @@ module V0
       education_benefits_claim = EducationBenefitsClaim.new(education_benefits_claim_params)
 
       unless education_benefits_claim.save
-        logger.error(education_benefits_claim.errors.full_messages.join(', '))
+        validation_error = education_benefits_claim.errors.full_messages.join(', ')
+
+        Raven.tags_context(validation: 'education_benefits_claim')
+        Raven.capture_exception(validation_error)
+
+        logger.error(validation_error)
         raise Common::Exceptions::ValidationErrors, education_benefits_claim
       end
 

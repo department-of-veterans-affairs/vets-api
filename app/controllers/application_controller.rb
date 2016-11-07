@@ -9,11 +9,21 @@ class ApplicationController < ActionController::API
 
   before_action :authenticate
   before_action :set_app_info_headers
-  skip_before_action :authenticate, only: [:cors_preflight]
+  skip_before_action :authenticate, only: [:cors_preflight, :routing_error]
 
   def cors_preflight
     head(:ok)
   end
+
+  def routing_error
+    raise Common::Exceptions::RoutingError, params[:path]
+  end
+
+  # I'm commenting this out for now, we can put it back in if we encounter it
+  # def action_missing(m, *_args)
+  #   Rails.logger.error(m)
+  #   raise Common::Exceptions::RoutingError
+  # end
 
   private
 
@@ -42,6 +52,7 @@ class ApplicationController < ActionController::API
   end
 
   def log_error(exception)
+    Raven.capture_exception(exception) if ENV['SENTRY_DSN'].present?
     Rails.logger.error "#{exception.message}."
     Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
   end
@@ -75,7 +86,7 @@ class ApplicationController < ActionController::API
   end
 
   def saml_settings
-    settings = SAML::SettingsService.instance.saml_settings
+    settings = SAML::SettingsService.new.saml_settings
     # TODO: 'level' should be its own class with proper validation
     level = LOA::MAPPING.invert[params[:level]&.to_i]
     settings.authn_context = level || LOA::MAPPING.invert[1]
