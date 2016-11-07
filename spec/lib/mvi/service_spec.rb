@@ -121,6 +121,13 @@ describe MVI::Service do
           expect { subject.find_candidate(message) }.to raise_error(MVI::RecordNotFound)
         end
       end
+
+      context 'with an ongoing breakers outage' do
+        it 'returns the correct thing' do
+          MVI::Service.breakers_service.begin_forced_outage!
+          expect { subject.find_candidate(message) }.to raise_error(Breakers::OutageException)
+        end
+      end
     end
 
     context 'when MVI returns 500 but VAAFI sends 200' do

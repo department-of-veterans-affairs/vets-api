@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'savon'
+require 'mvi/settings'
 require_relative 'responses/find_candidate'
 
 module MVI
@@ -49,10 +50,26 @@ module MVI
       raise MVI::ServiceError, 'MVI connection failed'
     end
 
+    def self.breakers_service
+      path = URI.parse(options[:url]).path
+      host = URI.parse(options[:url]).host
+      matcher = proc do |request_env|
+        request_env.url.host == host && request_env.url.path =~ /^#{path}/
+      end
+
+      @service = Breakers::Service.new(
+        name: 'MVI',
+        request_matcher: matcher
+      )
+    end
+
     private
 
     def connection
-      @conn ||= Faraday.new(MVI::Service.options)
+      @conn ||= Faraday.new(MVI::Service.options) do |conn|
+        conn.use :breakers
+        conn.adapter Faraday.default_adapter
+      end
     end
 
     def call(operation, body)
