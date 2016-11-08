@@ -8,7 +8,7 @@ FactoryGirl.define do
     expires_at 'Thu, 26 Dec 2015 15:54:21 GMT'
 
     trait :valid_user do
-      user_id ENV['MHV_SM_USER_ID']
+      user_id '10616687'
       token nil
       expires_at nil
     end
