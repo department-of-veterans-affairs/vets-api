@@ -35,7 +35,7 @@ describe MVI::Responses::FindCandidate do
             gender: 'M',
             given_names: %w(John William),
             icn: '1000123456V123456^NI^200M^USVHA^P',
-            mhv_id: '123456^PI^200MHV^USVHA^A',
+            mhv_ids: ['123456^PI^200MHV^USVHA^A'],
             ssn: '555443333',
             active_status: 'active'
           )
@@ -53,7 +53,7 @@ describe MVI::Responses::FindCandidate do
             gender: 'M',
             given_names: nil,
             icn: '1000123456V123456^NI^200M^USVHA^P',
-            mhv_id: '123456^PI^200MHV^USVHA^A',
+            mhv_ids: ['123456^PI^200MHV^USVHA^A'],
             ssn: '555443333',
             active_status: 'active'
           )
@@ -73,7 +73,7 @@ describe MVI::Responses::FindCandidate do
         expect(find_candidate_missing_attrs.body).to eq(
           birth_date: '19490304',
           edipi: nil,
-          mhv_id: '1100792239^PI^200MHS^USVHA^A',
+          mhv_ids: ['1100792239^PI^200MHS^USVHA^A'],
           vba_corp_id: '9100792239^PI^200CORP^USVBA^A',
           family_name: 'Jenkins',
           gender: 'M',
@@ -114,7 +114,7 @@ describe MVI::Responses::FindCandidate do
           gender: 'M',
           given_names: %w(Kent L),
           icn: '1008711094V567547^NI^200M^USVHA^P',
-          mhv_id: nil,
+          mhv_ids: nil,
           ssn: '796127160',
           active_status: 'active',
           vba_corp_id: '32318174^PI^200CORP^USVBA^A'
@@ -164,6 +164,31 @@ describe MVI::Responses::FindCandidate do
       it 'should return true' do
         expect(find_candidate_failure_response.failure?).to be_truthy
       end
+    end
+  end
+
+  context 'with multiple MHV IDs' do
+    let(:faraday_response) { instance_double('Faraday::Response') }
+    let(:body) { File.read('spec/support/mvi/find_candidate_multiple_mhv_response.xml') }
+    let(:find_candidate_multiple_mhvids) { MVI::Responses::FindCandidate.new(faraday_response) }
+
+    before(:each) do
+      allow(faraday_response).to receive(:body) { body }
+    end
+
+    it 'returns an array of mhv ids' do
+      expect(find_candidate_multiple_mhvids.body).to eq(
+        birth_date: '19800101',
+        edipi: '1122334455^NI^200DOD^USDOD^A',
+        vba_corp_id: '12345678^PI^200CORP^USVBA^A',
+        family_name: 'Ranger',
+        gender: 'M',
+        given_names: %w(Steve A),
+        icn: '12345678901234567^NI^200M^USVHA^P',
+        mhv_ids: %w(12345678901^PI^200MH^USVHA^A 12345678902^PI^200MH^USVHA^A),
+        ssn: '111223333',
+        active_status: 'active'
+      )
     end
   end
 end

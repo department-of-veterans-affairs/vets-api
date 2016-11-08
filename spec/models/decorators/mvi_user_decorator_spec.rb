@@ -15,7 +15,7 @@ describe Decorators::MviUserDecorator do
         gender: mvi_user.mvi[:gender],
         given_names: mvi_user.mvi[:given_names],
         icn: mvi_user.mvi[:icn],
-        mhv_id: mvi_user.mvi[:mhv_id],
+        mhv_ids: mvi_user.mvi[:mhv_ids],
         ssn: mvi_user.mvi[:ssn],
         active_status: mvi_user.mvi[:active_status]
       }
