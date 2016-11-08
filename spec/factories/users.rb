@@ -32,7 +32,7 @@ FactoryGirl.define do
           gender: 'M',
           given_names: %w(Abraham),
           icn: '1000123456V123456^NI^200M^USVHA^P',
-          mhv_ids: '123456^PI^200MH^USVHA^A',
+          mhv_ids: ['123456^PI^200MH^USVHA^A'],
           ssn: '272111863',
           active_status: 'active'
         }
@@ -61,7 +61,7 @@ FactoryGirl.define do
         gender: 'M',
         given_names: %w(Abraham),
         icn: '1000123456V123456^NI^200M^USVHA^P',
-        mhv_ids: "#{ENV['MHV_USER_ID']}^PI^200MH^USVHA^A",
+        mhv_ids: ["#{ENV['MHV_USER_ID']}^PI^200MH^USVHA^A"],
         ssn: '272111863',
         active_status: 'active'
       }
@@ -102,7 +102,6 @@ FactoryGirl.define do
           status: 'OK',
           edipi: '1234^NI^200DOD^USDOD^A',
           icn: '1000123456V123456^NI^200M^USVHA^P',
-          mhv: '123456^PI^200MHV^USVHA^A',
           active_status: 'active',
           given_names: %w(george),
           family_name: 'washington',
