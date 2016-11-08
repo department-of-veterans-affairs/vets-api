@@ -7,7 +7,7 @@ describe 'mhv logging client' do
     before(:all) do
       VCR.use_cassette 'mhv_logging_client/session', record: :new_episodes do
         @client ||= begin
-          client = MHVLogging::Client.new(session: { user_id: ENV['MHV_USER_ID'] })
+          client = MHVLogging::Client.new(session: { user_id: '12210827' })
           client.authenticate
           client
         end

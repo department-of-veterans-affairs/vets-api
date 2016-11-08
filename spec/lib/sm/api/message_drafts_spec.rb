@@ -7,7 +7,7 @@ describe 'sm client' do
     before(:all) do
       VCR.use_cassette 'sm_client/session', record: :new_episodes do
         @client ||= begin
-          client = SM::Client.new(session: { user_id: ENV['MHV_SM_USER_ID'] })
+          client = SM::Client.new(session: { user_id: '10616687' })
           client.authenticate
           client
         end
