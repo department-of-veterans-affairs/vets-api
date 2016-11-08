@@ -70,7 +70,9 @@ class User < Common::RedisStore
 
   # This is a helper method for pulling mhv_correlation_id
   def mhv_correlation_ids
-    @mhv_correlation_ids ||= mvi&.fetch(:mhv_ids, nil)&.map { |mhv_id| mhv_id.split('^')&.first }.compact
+    @mhv_correlation_ids ||= mvi&.fetch(:mhv_ids, [])
+                                 .map { |mhv_id| mhv_id.split('^')&.first }
+                                 .compact
   end
 
   def can_access_user_profile?
