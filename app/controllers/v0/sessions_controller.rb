@@ -114,7 +114,13 @@ module V0
         logger.error "ERROR MESSAGES #{logout_response.errors.join(' ---- ')}"
         redirect_to SAML_CONFIG['logout_relay'] + '?success=false'
       elsif logout_response.success?
-        MHVLoggingService.logout(current_user)
+        begin
+          session = Session.find(params[:RelayState])
+          user = User.find(session.uuid)
+          MHVLoggingService.logout(user)
+        rescue
+          logger.error "Error in MHV Logout: #{e.message}"
+        end
         delete_session(params[:RelayState])
         redirect_to SAML_CONFIG['logout_relay'] + '?success=true'
       end
