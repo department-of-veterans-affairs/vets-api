@@ -21,7 +21,6 @@ FactoryGirl.define do
     factory :mvi_user do
       edipi '1234'
       icn '1000123456V123456'
-      mhv_id '123456'
       participant_id '12345678'
       mvi do
         {
@@ -33,7 +32,7 @@ FactoryGirl.define do
           gender: 'M',
           given_names: %w(Abraham),
           icn: '1000123456V123456^NI^200M^USVHA^P',
-          mhv_id: '123456^PI^200MH^USVHA^A',
+          mhv_ids: '123456^PI^200MH^USVHA^A',
           ssn: '272111863',
           active_status: 'active'
         }
@@ -44,7 +43,6 @@ FactoryGirl.define do
   factory :mhv_user, class: 'User' do
     edipi '1234'
     icn '1000123456V123456'
-    mhv_id ENV['MHV_USER_ID']
     mhv_last_signed_in Time.current
     participant_id '12345678'
     loa do
@@ -63,7 +61,7 @@ FactoryGirl.define do
         gender: 'M',
         given_names: %w(Abraham),
         icn: '1000123456V123456^NI^200M^USVHA^P',
-        mhv_id: "#{ENV['MHV_USER_ID']}^PI^200MH^USVHA^A",
+        mhv_ids: "#{ENV['MHV_USER_ID']}^PI^200MH^USVHA^A",
         ssn: '272111863',
         active_status: 'active'
       }

@@ -56,7 +56,7 @@ describe MVI::Service do
           expect(response).to eq(
             edipi: nil,
             icn: '1008714701V416111^NI^200M^USVHA^P',
-            mhv_id: nil,
+            mhv_ids: nil,
             vba_corp_id: '9100792239^PI^200CORP^USVBA^A',
             active_status: 'active',
             given_names: %w(Mitchell G),

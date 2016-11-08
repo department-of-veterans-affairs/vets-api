@@ -29,7 +29,6 @@ class User < Common::RedisStore
   # https://en.wikipedia.org/wiki/Defense_Enrollment_Eligibility_Reporting_System#Electronic_data_interchange_personal_identifier
   attribute :edipi
   attribute :participant_id
-  attribute :mhv_id
   attribute :icn
 
   # mvi 'golden record' data
@@ -71,7 +70,7 @@ class User < Common::RedisStore
 
   # This is a helper method for pulling mhv_correlation_id
   def mhv_correlation_id
-    @mhv_correlation_id ||= mvi&.fetch(:mhv_id, nil)&.split('^')&.first
+    @mhv_correlation_id ||= mvi&.fetch(:mhv_ids, nil)&.split('^')&.first
   end
 
   def can_access_user_profile?
