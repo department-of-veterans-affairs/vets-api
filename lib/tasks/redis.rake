@@ -37,7 +37,7 @@ namespace :redis do
 
       redis.set "mvi-data:#{uuid}", {
         ":uuid": uuid,
-        ":email": 'vets.gov.user+134@gmail.com',
+        ":email": "vets.gov.user+#{rand(200)}@gmail.com",
         ":first_name": 'TEST',
         ":middle_name": 'T',
         ":last_name": 'USER',
@@ -55,9 +55,9 @@ namespace :redis do
           "^t": Time.now.utc
         },
         ":edipi": nil,
-        ":participant_id": '600017293',
+        ":participant_id": '600062099',
         ":mhv_id": nil,
-        ":icn": '1008702225V536415',
+        ":icn": '1008710255V058302',
         ":mvi": {
           "^o": 'ActiveSupport::HashWithIndifferentAccess',
           "self": {
@@ -66,9 +66,9 @@ namespace :redis do
             "family_name": 'USER',
             "gender": 'M',
             "given_names": ['TEST'],
-            "icn": '1008702225V536415^NI^200M^USVHA^P',
+            "icn": '1008710255V058302^NI^200M^USVHA^P',
             "mhv_id": nil,
-            "vba_corp_id": '600017293^PI^200CORP^USVBA^A',
+            "vba_corp_id": '600062099^PI^200CORP^USVBA^A',
             "ssn": '123456789',
             "status": 'OK'
           }
