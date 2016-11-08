@@ -36,6 +36,8 @@ class VHAFacilityAdapter
     m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
     m[:services] = {}
     m[:services][:health] = services_from_gis(attrs)
+    m[:feedback] = {}
+    m[:feedback][:health] = from_gis_attrs(FEEDBACK_KEYMAP, attrs)
     VAFacility.new(m)
   end
 
@@ -63,6 +65,13 @@ class VHAFacilityAdapter
   HOURS_KEYMAP = %w(
     Monday Tuesday Wednesday Thursday Friday Saturday Sunday
   ).each_with_object({}) { |d, h| h[d] = d }
+
+  FEEDBACK_KEYMAP = {
+    'primary_care_routine' => 'Primary_Care_Routine_1',
+    'primary_care_urgent' => 'Primary_Care_Urgent_1',
+    'specialty_care_routine' => 'Specialty_Care_Routine',
+    'specialty_care_urgent' => 'Specialty_Care_Urgent'
+  }.freeze
 
   SERVICE_HIERARCHY = {
     'Audiology' => [],
