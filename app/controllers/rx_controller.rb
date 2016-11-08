@@ -8,7 +8,7 @@ class RxController < ApplicationController
   protected
 
   def client
-    @client ||= Rx::Client.new(session: { user_id: current_user.mhv_correlation_ids.first })
+    @client ||= Rx::Client.new(session: { user_id: current_user.mhv_correlation_id })
   end
 
   def raise_access_denied

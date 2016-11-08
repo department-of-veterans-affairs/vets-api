@@ -8,10 +8,10 @@ class SMController < ApplicationController
   protected
 
   def client
-    @client ||= SM::Client.new(session: { user_id: current_user.mhv_correlation_ids.first })
+    @client ||= SM::Client.new(session: { user_id: current_user.mhv_correlation_id })
   end
 
   def raise_access_denied
-    raise Common::Exceptions::Forbidden, detail: 'You do not have access to messaging'
+    raise Common::Exceptions::Forbidden, detail: 'You do not have access to messaging'``
   end
 end
