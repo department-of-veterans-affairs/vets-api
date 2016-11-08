@@ -16,10 +16,6 @@ module V0
       logout_request = OneLogin::RubySaml::Logoutrequest.new
       logger.info "New SP SLO for userid '#{@session.uuid}'"
 
-      saml_settings.name_identifier_value = @session.uuid
-      saml_settings.security[:logout_requests_signed] = true
-      saml_settings.security[:embed_sign] = true
-
       render json: { logout_via_get: logout_request.create(saml_settings, RelayState: @session.token) }, status: 202
     end
 
