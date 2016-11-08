@@ -113,8 +113,9 @@ module V0
 
       logger.info "LogoutResponse is: #{logout_response}"
 
-      if !logout_response.validate
+      if !logout_response.validate(true)
         logger.error 'The SAML Logout Response is invalid'
+        logger.error "ERROR MESSAGES #{logout_response.errors.join(' ---- ')}"
         redirect_to SAML_CONFIG['logout_relay'] + '?success=false'
       elsif logout_response.success?
         MHVLoggingService.logout(current_user)
