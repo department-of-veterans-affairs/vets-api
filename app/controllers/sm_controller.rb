@@ -8,7 +8,7 @@ class SMController < ApplicationController
   protected
 
   def client
-    @client ||= SM::Client.new(session: { user_id: current_user.mhv_correlation_id })
+    @client ||= SM::Client.new(session: { user_id: current_user.mhv_correlation_ids.first })
   end
 
   def raise_access_denied
