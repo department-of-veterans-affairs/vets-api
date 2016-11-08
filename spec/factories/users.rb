@@ -61,7 +61,7 @@ FactoryGirl.define do
         gender: 'M',
         given_names: %w(Abraham),
         icn: '1000123456V123456^NI^200M^USVHA^P',
-        mhv_id: '12210827^PI^200MH^USVHA^A',
+        mhv_ids: ['12210827^PI^200MH^USVHA^A'],
         ssn: '272111863',
         active_status: 'active'
       }
