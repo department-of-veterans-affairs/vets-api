@@ -78,16 +78,6 @@ describe MVI::Service do
           expect { subject.find_candidate(message) }.to raise_error(MVI::InvalidRequestError)
         end
       end
-
-      context 'with multiple matches' do
-        it 'raises a record not found error' do
-          response = instance_double('Faraday::Response')
-          multiple_xml = File.read('spec/support/mvi/find_candidate_multiple_match_request.xml')
-          allow(response).to receive(:env).and_return({status: 200, body: multiple_xml})
-          allow_any_instance_of(Faraday::Connection).to receive(:post).and_return(response)
-          expect { subject.find_candidate(message) }.to raise_error(MVI::InvalidRequestError)
-        end
-      end
     end
 
     context 'when a MVI failure response is returned' do
@@ -146,6 +136,14 @@ describe MVI::Service do
           expect(Rails.logger).to receive(:error).with('MVI fault code: env:Server').once
           expect(Rails.logger).to receive(:error).with('MVI fault string: Internal Error (from server)').once
           expect { subject.find_candidate(message) }.to raise_error(MVI::HTTPError, 'MVI internal server error')
+        end
+      end
+    end
+
+    context 'when MVI multiple match failure response' do
+      it 'raises MVI::RecordNotFound' do
+        VCR.use_cassette('mvi/find_candidate/failure_multiple_matches') do
+          expect { subject.find_candidate(message) }.to raise_error(MVI::RecordNotFound)
         end
       end
     end
