@@ -89,8 +89,8 @@ class User < Common::RedisStore
 
   def mhv_correlation_ids
     @mhv_correlation_ids ||= mvi&.fetch(:mhv_ids, [])
-                                 .map { |mhv_id| mhv_id.split('^')&.first }
-                                 .compact
+                             .map { |mhv_id| mhv_id.split('^')&.first }
+                             .compact
   end
 
   def evss_auth_headers
