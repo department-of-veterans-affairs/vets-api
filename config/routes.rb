@@ -11,11 +11,9 @@ Rails.application.routes.draw do
     resource :sessions, only: [:new, :destroy] do
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
-      get 'current', to: 'sessions#show'
     end
 
-    get 'user', to: 'users#show'
-    get 'profile', to: 'users#show'
+    resource :user, only: [:show]
 
     resource :education_benefits_claims, only: [:create] do
       get :index, to: 'education_benefits_claims#daily_file',
