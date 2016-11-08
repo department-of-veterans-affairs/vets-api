@@ -118,7 +118,7 @@ module V0
           session = Session.find(params[:RelayState])
           user = User.find(session.uuid)
           MHVLoggingService.logout(user)
-        rescue
+        rescue => e
           logger.error "Error in MHV Logout: #{e.message}"
         end
         delete_session(params[:RelayState])
