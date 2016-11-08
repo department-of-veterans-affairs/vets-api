@@ -56,7 +56,7 @@ namespace :redis do
         },
         ":edipi": nil,
         ":participant_id": '600062099',
-        ":mhv_id": nil,
+        ":mhv_id": %w(12210827 10894456 13408508 13492196).sample,
         ":icn": '1008710255V058302',
         ":mvi": {
           "^o": 'ActiveSupport::HashWithIndifferentAccess',
