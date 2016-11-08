@@ -9,7 +9,7 @@ describe 'rx client' do
   describe 'prescriptions' do
     let(:post_refill_error) { File.read('spec/support/fixtures/post_refill_error.json') }
 
-    before(:all) do
+    before(:each) do
       VCR.use_cassette 'rx_client/session', record: :new_episodes do
         @client ||= begin
           client = Rx::Client.new(session: { user_id: ENV['MHV_USER_ID'] })
