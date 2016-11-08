@@ -33,6 +33,7 @@ class VBAFacilityAdapter
     m[:hours][:notes] = attrs['Comments']
     m[:services] = {}
     m[:services][:benefits] = services_from_gis(attrs)
+    m[:feedback] = {}
     VAFacility.new(m)
   end
 
