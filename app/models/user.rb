@@ -69,10 +69,8 @@ class User < Common::RedisStore
   end
 
   # This is a helper method for pulling mhv_correlation_id
-  def mhv_correlation_ids
-    @mhv_correlation_ids ||= mvi&.fetch(:mhv_ids, [])
-                                 .map { |mhv_id| mhv_id.split('^')&.first }
-                                 .compact
+  def mhv_correlation_id
+    mhv_correlation_ids.first
   end
 
   def can_access_user_profile?
@@ -88,6 +86,12 @@ class User < Common::RedisStore
   end
 
   private
+
+  def mhv_correlation_ids
+    @mhv_correlation_ids ||= mvi&.fetch(:mhv_ids, [])
+                                 .map { |mhv_id| mhv_id.split('^')&.first }
+                                 .compact
+  end
 
   def evss_auth_headers
     @evss_auth_headers ||= EVSS::AuthHeaders.new(self).to_h
