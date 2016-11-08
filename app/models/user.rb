@@ -69,8 +69,8 @@ class User < Common::RedisStore
   end
 
   # This is a helper method for pulling mhv_correlation_id
-  def mhv_correlation_id
-    @mhv_correlation_id ||= mvi&.fetch(:mhv_ids, nil)&.split('^')&.first
+  def mhv_correlation_ids
+    @mhv_correlation_ids ||= mvi&.fetch(:mhv_ids, nil)&.map { |mhv_id| mhv_id.split('^')&.first }.compact
   end
 
   def can_access_user_profile?
@@ -78,7 +78,7 @@ class User < Common::RedisStore
   end
 
   def can_access_mhv?
-    loa3? && mhv_correlation_id.present?
+    loa3? && mhv_correlation_ids.length == 1
   end
 
   def can_access_evss?
