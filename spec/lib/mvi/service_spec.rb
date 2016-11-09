@@ -10,7 +10,7 @@ describe MVI::Service do
       first_name: 'Mitchell',
       last_name: 'Jenkins',
       middle_name: 'G',
-      birth_date: Time.parse('1949-03-04').utc,
+      birth_date: '1949-03-04',
       ssn: '796122306'
     )
   end
