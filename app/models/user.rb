@@ -88,9 +88,11 @@ class User < Common::RedisStore
   private
 
   def mhv_correlation_ids
-    @mhv_correlation_ids ||= mvi&.fetch(:mhv_ids, [])
-                             .map { |mhv_id| mhv_id.split('^')&.first }
-                             .compact
+    return @mhv_correlation_ids if @mhv_correlation_ids
+    ids = mvi&.dig(:mhv_ids)
+    ids = [] unless ids
+    @mhv_correlation_ids = ids.map { |mhv_id| mhv_id.split('^')&.first }.compact
+    @mhv_correlation_ids
   end
 
   def evss_auth_headers
