@@ -146,23 +146,58 @@ describe MVI::Responses::FindCandidate do
   end
 
   context 'given a failure response' do
-    let(:faraday_response) { instance_double('Faraday::Response') }
-    let(:body) { File.read('spec/support/mvi/find_candidate_failure_response.xml') }
-    let(:find_candidate_failure_response) { MVI::Responses::FindCandidate.new(faraday_response) }
+    context 'invalid registration identification' do
+      let(:faraday_response) { instance_double('Faraday::Response') }
+      let(:body) { File.read('spec/support/mvi/find_candidate_failure_response.xml') }
+      let(:find_candidate_failure_response) { MVI::Responses::FindCandidate.new(faraday_response) }
 
-    before(:each) do
-      allow(faraday_response).to receive(:body) { body }
-    end
+      before(:each) do
+        allow(faraday_response).to receive(:body) { body }
+      end
 
-    describe '#invalid?' do
-      it 'should return false' do
-        expect(find_candidate_failure_response.invalid?).to be_falsey
+      describe '#invalid?' do
+        it 'should return false' do
+          expect(find_candidate_failure_response.invalid?).to be_falsey
+        end
+      end
+
+      describe '#failure?' do
+        it 'should return true' do
+          expect(find_candidate_failure_response.failure?).to be_truthy
+        end
+      end
+
+      describe '#multiple_match?' do
+        it 'should return false' do
+          expect(find_candidate_failure_response.multiple_match?).to be_falsey
+        end
       end
     end
+    context 'multiple match' do
+      let(:faraday_response) { instance_double('Faraday::Response') }
+      let(:body) { File.read('spec/support/mvi/find_candidate_multiple_match_response.xml') }
+      let(:find_candidate_multiple_response) { MVI::Responses::FindCandidate.new(faraday_response) }
 
-    describe '#failure?' do
-      it 'should return true' do
-        expect(find_candidate_failure_response.failure?).to be_truthy
+      before(:each) do
+        allow(faraday_response).to receive(:body) { body }
+      end
+
+      describe '#invalid?' do
+        it 'should return false' do
+          expect(find_candidate_multiple_response.invalid?).to be_falsey
+        end
+      end
+
+      describe '#failure?' do
+        it 'should return true' do
+          expect(find_candidate_multiple_response.failure?).to be_truthy
+        end
+      end
+
+      describe '#multiple_match?' do
+        it 'should return true' do
+          expect(find_candidate_multiple_response.multiple_match?).to be_truthy
+        end
       end
     end
   end
