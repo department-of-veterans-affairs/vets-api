@@ -16,10 +16,6 @@ module V0
       logout_request = OneLogin::RubySaml::Logoutrequest.new
       logger.info "New SP SLO for userid '#{@session.uuid}'"
 
-      saml_settings.name_identifier_value = @session.uuid
-      saml_settings.security[:logout_requests_signed] = true
-      saml_settings.security[:embed_sign] = true
-
       render json: { logout_via_get: logout_request.create(saml_settings, RelayState: @session.token) }, status: 202
     end
 
@@ -113,11 +109,18 @@ module V0
 
       logger.info "LogoutResponse is: #{logout_response}"
 
-      if !logout_response.validate
+      if !logout_response.validate(true)
         logger.error 'The SAML Logout Response is invalid'
+        logger.error "ERROR MESSAGES #{logout_response.errors.join(' ---- ')}"
         redirect_to SAML_CONFIG['logout_relay'] + '?success=false'
       elsif logout_response.success?
-        MHVLoggingService.logout(current_user)
+        begin
+          session = Session.find(params[:RelayState])
+          user = User.find(session.uuid)
+          MHVLoggingService.logout(user)
+        rescue => e
+          logger.error "Error in MHV Logout: #{e.message}"
+        end
         delete_session(params[:RelayState])
         redirect_to SAML_CONFIG['logout_relay'] + '?success=true'
       end
