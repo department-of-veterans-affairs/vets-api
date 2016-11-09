@@ -27,6 +27,9 @@ module MVI
       GENDER_XPATH = 'patientPerson/administrativeGenderCode/@code'
       DOB_XPATH = 'patientPerson/birthTime/@value'
       SSN_XPATH = 'patientPerson/asOtherIDs'
+      ACKNOWLEDGEMENT_DETAIL_XPATH = 'acknowledgement/acknowledgementDetail/text'
+
+      MULTIPLE_MATCHES_FOUND = 'Multiple Matches Found'
 
       def initialize(response)
         super(response)
@@ -45,6 +48,12 @@ module MVI
           birth_date: locate_element(patient, DOB_XPATH),
           ssn: parse_ssn(locate_element(patient, SSN_XPATH))
         }.merge(map_correlation_ids(patient.locate('id')))
+      end
+
+      def multiple_match?
+        acknowledgement_detail = locate_element(@original_body, ACKNOWLEDGEMENT_DETAIL_XPATH)
+        return false unless acknowledgement_detail
+        acknowledgement_detail.nodes.first == MULTIPLE_MATCHES_FOUND
       end
 
       private

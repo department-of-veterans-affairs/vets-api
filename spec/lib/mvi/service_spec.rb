@@ -139,6 +139,14 @@ describe MVI::Service do
         end
       end
     end
+
+    context 'when MVI multiple match failure response' do
+      it 'raises MVI::RecordNotFound' do
+        VCR.use_cassette('mvi/find_candidate/failure_multiple_matches') do
+          expect { subject.find_candidate(message) }.to raise_error(MVI::RecordNotFound)
+        end
+      end
+    end
   end
 
   describe MVI::RecordNotFound do
