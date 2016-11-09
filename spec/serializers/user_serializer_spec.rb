@@ -31,7 +31,7 @@ RSpec.describe UserSerializer, type: :serializer do
       expect(profile['last_name']).to eq(user.last_name)
     end
     it 'should include birth_date' do
-      expect(Time.zone.parse(profile['birth_date']).httpdate).to eq(user.birth_date.httpdate)
+      expect(profile['birth_date']).to eq(user.birth_date)
     end
     it 'should include gender' do
       expect(profile['gender']).to eq(user.gender)
