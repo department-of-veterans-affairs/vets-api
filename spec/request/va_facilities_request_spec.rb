@@ -57,7 +57,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
-      expect(json['data'].length).to eq(8)
+      expect(json['data'].length).to eq(9)
     end
   end
 
@@ -87,17 +87,17 @@ RSpec.describe 'VA GIS Integration', type: :request do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
-      expect(json['data'].length).to eq(3)
+      expect(json['data'].length).to eq(11)
     end
   end
 
   it 'responds to GET #index with bbox and filter' do
     VCR.use_cassette('facilities/va/ny_bbox_benefits_filtered') do
-      get BASE_QUERY_PATH + NY_BBOX + '&type=benefits&services[]=EmploymentAssistance'
+      get BASE_QUERY_PATH + NY_BBOX + '&type=benefits&services[]=DisabilityClaimAssistance'
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
-      expect(json['data'].length).to eq(2)
+      expect(json['data'].length).to eq(6)
     end
   end
 
