@@ -36,11 +36,10 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       it 'GET show - returns unauthorized' do
         request.env['HTTP_AUTHORIZATION'] = auth_header
-        get :show
+        delete :destroy
         expect(response).to have_http_status(:unauthorized)
       end
     end
-
     it 'GET new - shows the ID.me authentication url' do
       allow_any_instance_of(OneLogin::RubySaml::Authrequest)
         .to receive(:create).and_return('url_string')
@@ -77,11 +76,6 @@ RSpec.describe V0::SessionsController, type: :controller do
       response_body = JSON.parse(response.body)
       authn_request = SAML::AuthnRequestHelper.new(response_body['authenticate_via_get'])
       expect(authn_request.loa1?).to eq(true)
-    end
-
-    it 'GET show - returns unauthorized' do
-      get :show
-      expect(response).to have_http_status(:unauthorized)
     end
 
     it 'DELETE destroy - returns returns unauthorized' do
@@ -184,17 +178,6 @@ RSpec.describe V0::SessionsController, type: :controller do
     before(:each) do
       Session.create(uuid: test_user.uuid, token: token)
       User.create(test_user)
-    end
-
-    it 'returns a JSON the session' do
-      request.env['HTTP_AUTHORIZATION'] = auth_header
-      get :show
-      assert_response :success
-
-      json = JSON.parse(response.body)
-
-      expect(json['uuid']).to eq(test_user.uuid)
-      expect(json['token']).to eq(token)
     end
 
     it 'destroys a session' do

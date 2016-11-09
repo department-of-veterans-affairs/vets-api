@@ -41,6 +41,7 @@ module MVI
     def find_candidate(message)
       faraday_response = call(OPERATIONS[:find_candidate], message.to_xml)
       response = MVI::Responses::FindCandidate.new(faraday_response)
+      raise MVI::RecordNotFound.new('MVI multiple matches found', response) if response.multiple_match?
       invalid_request_handler('find_candidate', response.original_response) if response.invalid?
       request_failure_handler('find_candidate', response.original_response) if response.failure?
       raise MVI::RecordNotFound.new('MVI subject missing from response body', response) unless response.body

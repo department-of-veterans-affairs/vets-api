@@ -56,7 +56,7 @@ describe MVI::Service do
           expect(response).to eq(
             edipi: nil,
             icn: '1008714701V416111^NI^200M^USVHA^P',
-            mhv_id: nil,
+            mhv_ids: nil,
             vba_corp_id: '9100792239^PI^200CORP^USVBA^A',
             active_status: 'active',
             given_names: %w(Mitchell G),
@@ -136,6 +136,14 @@ describe MVI::Service do
           expect(Rails.logger).to receive(:error).with('MVI fault code: env:Server').once
           expect(Rails.logger).to receive(:error).with('MVI fault string: Internal Error (from server)').once
           expect { subject.find_candidate(message) }.to raise_error(MVI::HTTPError, 'MVI internal server error')
+        end
+      end
+    end
+
+    context 'when MVI multiple match failure response' do
+      it 'raises MVI::RecordNotFound' do
+        VCR.use_cassette('mvi/find_candidate/failure_multiple_matches') do
+          expect { subject.find_candidate(message) }.to raise_error(MVI::RecordNotFound)
         end
       end
     end

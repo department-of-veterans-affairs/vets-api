@@ -8,10 +8,6 @@ module V0
       render json: { authenticate_via_get: saml_auth_request.create(saml_settings) }
     end
 
-    def show
-      render json: @session
-    end
-
     def destroy
       logout_request = OneLogin::RubySaml::Logoutrequest.new
       logger.info "New SP SLO for userid '#{@session.uuid}'"
