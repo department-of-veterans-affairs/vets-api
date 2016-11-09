@@ -452,7 +452,7 @@ DEPENDENCIES
   virtus
   web-console (~> 2.0)
   webmock
-  will_paginate
+  will_paginate (~> 3.1.0)
 
 BUNDLED WITH
    1.13.6

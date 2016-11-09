@@ -4,13 +4,12 @@ source 'https://rubygems.org'
 gem 'rails', '4.2.7.1'
 gem "puma", "~> 2.16.0"
 gem 'ruby-saml', '~> 1.3.0'
-gem 'sdoc', '~> 0.4.0', group: :doc  # bundle exec rake doc:rails generates the API under doc/api.
 gem 'active_model_serializers', '~> 0.10.0'
-gem 'redis', '~>3.2'
-gem 'redis-namespace'
-gem 'pg'
+gem 'redis', '~> 3.2'
 
 # Other
+gem 'pg'                             # Postgres ActiveRecord Adapter
+gem 'redis-namespace'
 gem 'rails-api'                      # emphasize this is an api only app
 gem 'rack-cors', :require => 'rack/cors'
 
@@ -19,7 +18,7 @@ gem 'virtus'
 gem 'attr_encrypted'
 gem 'json-schema'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
-gem 'will_paginate'
+gem 'will_paginate', '~> 3.1.0'
 
 # External Requests and Parsing
 gem 'govdelivery-tms', require: 'govdelivery/tms/mail/delivery_method'
@@ -47,6 +46,9 @@ gem 'carrierwave', '~> 0.11'
 gem 'figaro'
 gem 'sentry-raven'                  # Sentry integration. SENTRY_DSN provided in ENV
 gem 'statsd-instrument'
+
+# Documentation
+gem 'sdoc', '~> 0.4.0', group: :doc  # bundle exec rake doc:rails generates the API under doc/api.
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
