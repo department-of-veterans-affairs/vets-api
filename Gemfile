@@ -6,7 +6,6 @@ gem "puma", "~> 2.16.0"
 gem 'ruby-saml', '~> 1.3.0'
 gem 'sdoc', '~> 0.4.0', group: :doc  # bundle exec rake doc:rails generates the API under doc/api.
 gem 'rails-api'                      # emphasize this is an api only app
-gem 'olive_branch'
 gem 'active_model_serializers', '~> 0.10.0'
 gem 'redis'
 gem 'redis-namespace'
@@ -32,6 +31,7 @@ gem 'multi_json'
 gem 'oj'                      # Faster JSON parser, will be used automatically when using MultiJson
 gem 'ox', '~> 2.4'
 gem 'savon', '~> 2.0'
+gem 'olive_branch'
 
 # Queing and Image Processing
 gem 'sidekiq'
