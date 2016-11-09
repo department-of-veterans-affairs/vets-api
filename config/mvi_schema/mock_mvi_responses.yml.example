@@ -314,7 +314,7 @@ find_candidate:
     gender: 'M'
     given_names: ['EVERETT', 'Avery']
     icn: '1008711078V291287^NI^200M^USVHA^P'
-    mhv_ids: ~
+    mhv_ids: ['13492196^PI^200MH^USVHA^A']
     vba_corp_id: '32318151^PI^200CORP^USVBA^A'
     ssn: '796377148'
     status: 'active'
@@ -325,7 +325,7 @@ find_candidate:
     gender: 'M'
     given_names: ['MATHEW', 'A']
     icn: '1008711079V027032^NI^200M^USVHA^P'
-    mhv_ids: ~
+    mhv_ids: ['10894456^PI^200MH^USVHA^A']
     vba_corp_id: '32318153^PI^200CORP^USVBA^A'
     ssn: '796131275'
     status: 'active'
@@ -347,7 +347,7 @@ find_candidate:
     gender: 'F'
     given_names: ['JANET', 'L']
     icn: '1008710092V112476^NI^200M^USVHA^P'
-    mhv_ids: ~
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '32317886^PI^200CORP^USVBA^A'
     ssn: '796127677'
     status: 'active'
