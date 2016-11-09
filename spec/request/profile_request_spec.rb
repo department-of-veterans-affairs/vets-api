@@ -13,10 +13,10 @@ RSpec.describe 'Fetching profile data', type: :request do
       User.create(mvi_user)
 
       auth_header = { 'Authorization' => "Token token=#{token}" }
-      get v0_profile_url, nil, auth_header
+      get v0_user_url, nil, auth_header
     end
 
-    it 'GET /profile - returns proper json' do
+    it 'GET /v0/user - returns proper json' do
       assert_response :success
       expect(response).to match_response_schema('profile')
     end
@@ -42,10 +42,10 @@ RSpec.describe 'Fetching profile data', type: :request do
       User.create(loa1_user)
 
       auth_header = { 'Authorization' => "Token token=#{token}" }
-      get v0_profile_url, nil, auth_header
+      get v0_user_url, nil, auth_header
     end
 
-    it 'GET /profile - returns proper json' do
+    it 'GET /v0/user - returns proper json' do
       assert_response :success
       expect(response).to match_response_schema('profile')
     end
