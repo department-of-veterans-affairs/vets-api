@@ -28,7 +28,7 @@ gem 'faraday_middleware'
 gem 'httpclient'
 gem 'typhoeus'
 gem 'breakers'
-gem 'multi_json'
+gem 'multi_json'              # THIS DEPENDENCY SHOULD BE REMOVED, it's meant for gems, just use OJ instead
 gem 'oj'                      # Faster JSON parser, will be used automatically when using MultiJson
 gem 'ox', '~> 2.4'
 gem 'savon', '~> 2.0'
