@@ -14,7 +14,7 @@ module Facilities
       @hydra.run
       requests.map do |req|
         raise Common::Client::RequestTimeout if req.response.timed_out?
-        raise Common::Client::Errors::ClientResponse.new(req.reponse.code, {}) unless
+        raise Common::Client::Errors::ClientResponse.new(req.response.code, {}) unless
           req.response.success?
         result = JSON.parse(req.response.body)
         if result['error']
