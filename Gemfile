@@ -5,11 +5,13 @@ gem 'rails', '4.2.7.1'
 gem "puma", "~> 2.16.0"
 gem 'ruby-saml', '~> 1.3.0'
 gem 'sdoc', '~> 0.4.0', group: :doc  # bundle exec rake doc:rails generates the API under doc/api.
-gem 'rails-api'                      # emphasize this is an api only app
 gem 'active_model_serializers', '~> 0.10.0'
-gem 'redis'
+gem 'redis', '~>3.2'
 gem 'redis-namespace'
 gem 'pg'
+
+# Other
+gem 'rails-api'                      # emphasize this is an api only app
 gem 'rack-cors', :require => 'rack/cors'
 
 # Model Helpers
