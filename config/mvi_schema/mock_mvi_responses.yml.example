@@ -336,7 +336,7 @@ find_candidate:
     gender: 'M'
     given_names: ['JULIO', 'E']
     icn: '1008596378V923986^NI^200M^USVHA^P'
-    mhv_ids: ~
+    mhv_ids: ['13408508^PI^200MH^USVHA^A']
     vba_corp_id: '32318156^PI^200CORP^USVBA^A'
     ssn: '796378321'
     status: 'active'
