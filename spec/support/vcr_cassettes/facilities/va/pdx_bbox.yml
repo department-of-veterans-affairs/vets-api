@@ -23,13 +23,13 @@ http_interactions:
       Server:
       - Microsoft-IIS/8.5
       X-Arcgis-Instance:
-      - MTSDS_Web_IN_8
+      - MTSDS_Web_IN_3
       X-Powered-By:
       - ASP.NET
       Access-Control-Allow-Origin:
       - "*"
       Date:
-      - Wed, 09 Nov 2016 19:33:55 GMT
+      - Wed, 09 Nov 2016 21:53:58 GMT
       Content-Length:
       - '19289'
     body:
@@ -60,7 +60,7 @@ http_interactions:
         x","EnrollmentCoordinatorPhone":"503-273-5069 x","PharmacyPhone":"503-273-5183
         x","Monday":"800AM-430PM","Tuesday":"800AM-430PM","Wednesday":"800AM-430PM","Thursday":"800AM-430PM","Friday":"800AM-430PM","Saturday":"-","Sunday":"-","Latitude":45.52017304,"Longitude":-122.67221794,"Audiology":"","ComplementaryAlternativeMed":"","DentalServices":"","DiagnosticServices":"","ImagingAndRadiology":"","LabServices":"","EmergencyDept":"","EyeCare":"","MentalHealthCare":"NO","OutpatientMHCare":"","OutpatientSpecMHCare":"","VocationalAssistance":"","OutpatientMedicalSpecialty":"","AllergyAndImmunology":"","CardiologyCareServices":"","DermatologyCareServices":"","Diabetes":"","Dialysis":"","Endocrinology":"","Gastroenterology":"","Hematology":"","InfectiousDisease":"","InternalMedicine":"","Nephrology":"","Neurology":"","Oncology":"","PulmonaryRespiratoryDisease":"","Rheumatology":"","SleepMedicine":"","OutpatientSurgicalSpecialty":"","CardiacSurgery":"","ColoRectalSurgery":"","ENT":"","GeneralSurgery":"","Gynecology":"","Neurosurgery":"","Orthopedics":"","PainManagement":"","PlasticSurgery":"","Podiatry":"","ThoracicSurgery":"","Urology":"","VascularSurgery":"","PrimaryCare":"NO","Rehabilitation":"","UrgentCare":"","WellnessAndPreventativeCare":"","First_InternetAddress":null,"MHClinicPhone":null,"Extension":null,"Primary_Care_Urgent":null,"Primary_Care_Routine":null,"Specialty_Care_Urgent":null,"Specialty_Care_Routine":null},"geometry":{"x":-122.67223242130494,"y":45.520178505352142}}]}'
     http_version: 
-  recorded_at: Wed, 09 Nov 2016 19:34:02 GMT
+  recorded_at: Wed, 09 Nov 2016 21:53:55 GMT
 - request:
     method: get
     uri: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/NCA_Facilities/FeatureServer/0/query?f=json&geometry=-122.440689,45.451913,-122.786758,45.64&geometryType=esriGeometryEnvelope&inSR=4326&orderByFields=CEMETERY_I&outFields=*&outSR=4326&returnCountOnly=false&returnDistinctValues=false&returnGeometry=true&where=
@@ -84,13 +84,13 @@ http_interactions:
       Server:
       - Microsoft-IIS/8.5
       X-Arcgis-Instance:
-      - MTSDS_Web_IN_2
+      - MTSDS_Web_IN_10
       X-Powered-By:
       - ASP.NET
       Access-Control-Allow-Origin:
       - "*"
       Date:
-      - Wed, 09 Nov 2016 19:33:56 GMT
+      - Wed, 09 Nov 2016 21:53:58 GMT
       Content-Length:
       - '3902'
     body:
@@ -103,7 +103,7 @@ http_interactions:
         ","CEMETERY_C":"Portland","CEMETERY_I":"907","CEM_TYPE":"National Cemetery","DISTRICT":"Pacific
         District","STATUS":"Open","First_InternetAddress":"http://www.cem.va.gov/cems/nchp/willamette.asp"},"geometry":{"x":-122.54084469610189,"y":45.456838595584038}}]}'
     http_version: 
-  recorded_at: Wed, 09 Nov 2016 19:34:02 GMT
+  recorded_at: Wed, 09 Nov 2016 21:53:55 GMT
 - request:
     method: get
     uri: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VBA_Facilities/FeatureServer/0/query?f=json&geometry=-122.440689,45.451913,-122.786758,45.64&geometryType=esriGeometryEnvelope&inSR=4326&orderByFields=Facility_Number&outFields=*&outSR=4326&returnCountOnly=false&returnDistinctValues=false&returnGeometry=true&where=
@@ -127,13 +127,13 @@ http_interactions:
       Server:
       - Microsoft-IIS/8.5
       X-Arcgis-Instance:
-      - MTSDS_Web_IN_7
+      - MTSDS_Web_IN_8
       X-Powered-By:
       - ASP.NET
       Access-Control-Allow-Origin:
       - "*"
       Date:
-      - Wed, 09 Nov 2016 19:33:56 GMT
+      - Wed, 09 Nov 2016 21:53:58 GMT
       Content-Length:
       - '13909'
     body:
@@ -173,5 +173,5 @@ http_interactions:
         survivors and dependents'' assistance, assistance with school issues. ","Organization":"VBA","Modified_By":"Furman,
         Billy, VBAVACO","Type":"Item","Path":"sites/vetsgov/Lists/RO_Info","Lat":45.63941626,"Long":-122.6552874,"First_InternetAddress":null},"geometry":{"x":-122.65528739999996,"y":45.639416260000075}}]}'
     http_version: 
-  recorded_at: Wed, 09 Nov 2016 19:34:02 GMT
+  recorded_at: Wed, 09 Nov 2016 21:53:55 GMT
 recorded_with: VCR 3.0.3
