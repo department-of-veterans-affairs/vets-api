@@ -74,6 +74,7 @@ class User < Common::RedisStore
   end
 
   def mvi
+    return nil unless loa3?
     @mvi ||= Mvi.from_user(self).query
   end
 
@@ -107,7 +108,7 @@ class User < Common::RedisStore
   end
 
   def select_source_id(correlation_id)
-    return nil unless correlation_id
+    return nil unless correlation_id && loa3?
     correlation_id.split('^')&.first
   end
 end
