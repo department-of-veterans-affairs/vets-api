@@ -88,9 +88,7 @@ module V0
     end
 
     def create_saml_user
-      user = User.new(user_attributes)
-      user = Decorators::MviUserDecorator.new(user).create unless user.loa1? || user.gender.nil?
-      user
+      User.new(user_attributes)
     end
 
     def async_create_evss_account(user)

@@ -5,6 +5,7 @@ require 'mvi/messages/find_candidate_message'
 require 'mvi/service'
 require 'evss/common_service'
 require 'evss/auth_headers'
+require 'mvi/service_factory'
 
 class User < Common::RedisStore
   redis_store REDIS_CONFIG['user_store']['namespace']
@@ -25,14 +26,6 @@ class User < Common::RedisStore
 
   # vaafi attributes
   attribute :last_signed_in, Common::UTCTime
-  # Electronic data interchange personal identifier, aka DoD ID
-  # https://en.wikipedia.org/wiki/Defense_Enrollment_Eligibility_Reporting_System#Electronic_data_interchange_personal_identifier
-  attribute :edipi
-  attribute :participant_id
-  attribute :icn
-
-  # mvi 'golden record' data
-  attribute :mvi
 
   # mhv_last_signed_in used to determine whether we need to notify MHV audit logging
   # This is set to Time.now when any MHV session is first created, and nulled, when logout
@@ -68,11 +61,6 @@ class User < Common::RedisStore
     client.find_rating_info(participant_id).body.fetch('ratingRecord', {})
   end
 
-  # This is a helper method for pulling mhv_correlation_id
-  def mhv_correlation_id
-    mhv_correlation_ids.first
-  end
-
   def can_access_user_profile?
     loa1? || loa2? || loa3?
   end
@@ -85,17 +73,41 @@ class User < Common::RedisStore
     edipi.present? && ssn.present? && participant_id.present?
   end
 
+  def mvi
+    @mvi ||= Mvi.from_user(self).query
+  end
+
+  def edipi
+    select_source_id(mvi[:edipi])
+  end
+
+  def icn
+    select_source_id(mvi[:icn])
+  end
+
+  def participant_id
+    select_source_id(mvi[:vba_corp_id])
+  end
+
+  def mhv_correlation_id
+    mhv_correlation_ids.first
+  end
+
   private
 
   def mhv_correlation_ids
     return @mhv_correlation_ids if @mhv_correlation_ids
     ids = mvi&.dig(:mhv_ids)
     ids = [] unless ids
-    @mhv_correlation_ids = ids.map { |mhv_id| mhv_id.split('^')&.first }.compact
-    @mhv_correlation_ids
+    ids.map { |mhv_id| select_source_id(mhv_id) }.compact
   end
 
   def evss_auth_headers
     @evss_auth_headers ||= EVSS::AuthHeaders.new(self).to_h
+  end
+
+  def select_source_id(correlation_id)
+    return nil unless correlation_id
+    correlation_id.split('^')&.first
   end
 end

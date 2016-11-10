@@ -34,10 +34,6 @@ module MVI
         raise
       end
 
-      def digest
-        Digest::SHA256.base64digest(instance_values.flatten(2).join)
-      end
-
       private
 
       def build_body
