@@ -428,7 +428,7 @@ DEPENDENCIES
   rails (= 4.2.7.1)
   rails-api
   rainbow
-  redis
+  redis (~> 3.2)
   redis-namespace
   rspec-rails (~> 3.5)
   rubocop (~> 0.42.0)
@@ -452,7 +452,7 @@ DEPENDENCIES
   virtus
   web-console (~> 2.0)
   webmock
-  will_paginate
+  will_paginate (~> 3.1.0)
 
 BUNDLED WITH
    1.13.6

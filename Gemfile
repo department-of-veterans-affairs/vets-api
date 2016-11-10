@@ -1,50 +1,54 @@
 source 'https://rubygems.org'
 
-# Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
+# Core Components - These should have pessimistic versioning
 gem 'rails', '4.2.7.1'
 gem "puma", "~> 2.16.0"
 gem 'ruby-saml', '~> 1.3.0'
-# bundle exec rake doc:rails generates the API under doc/api.
-gem 'sdoc', '~> 0.4.0', group: :doc
-#redis and redis-namespace for session and mvi persistence
-gem 'redis'
-gem 'redis-namespace'
-#virtus for attribute type coercion
-gem 'virtus'
-#emphasize this is an api only app
-gem 'rails-api'
-gem 'figaro'
-gem 'pg'
-gem 'json-schema'
 gem 'active_model_serializers', '~> 0.10.0'
-gem 'will_paginate'
-gem 'sentry-raven'            # Sentry integration. SENTRY_DSN provided in ENV
+gem 'redis', '~> 3.2'
+
+# Other
+gem 'pg'                             # Postgres ActiveRecord Adapter
+gem 'redis-namespace'
+gem 'rails-api'                      # emphasize this is an api only app
+gem 'rack-cors', :require => 'rack/cors'
+
+# Model Helpers
+gem 'virtus'
+gem 'attr_encrypted'
+gem 'json-schema'
+gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
+gem 'will_paginate', '~> 3.1.0'
+
+# External Requests and Parsing
+gem 'govdelivery-tms', require: 'govdelivery/tms/mail/delivery_method'
+gem 'net-sftp'
 gem 'faraday'
 gem 'faraday_middleware'
 gem 'httpclient'
-gem 'attr_encrypted'
-gem 'olive_branch'
+gem 'typhoeus'
+gem 'breakers'
+gem 'multi_json'              # THIS DEPENDENCY SHOULD BE REMOVED, it's meant for gems, just use OJ instead
+gem 'oj'                      # Faster JSON parser, will be used automatically when using MultiJson
 gem 'ox', '~> 2.4'
 gem 'savon', '~> 2.0'
+gem 'olive_branch'
+
+# Queing and Image Processing
 gem 'sidekiq'
 gem 'sidekiq-unique-jobs'
 gem 'sidekiq-scheduler', '~> 2.0'
 gem 'sidekiq-instrument'
-gem 'multi_json'
 gem 'carrierwave-aws'
 gem 'carrierwave', '~> 0.11'
-gem 'typhoeus'
 
-gem 'rack-cors', :require => 'rack/cors'
-gem 'net-sftp'
-gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
-gem 'breakers'
-gem 'govdelivery-tms', require: 'govdelivery/tms/mail/delivery_method'
+# Errors and Error Reporting
+gem 'figaro'
+gem 'sentry-raven'                  # Sentry integration. SENTRY_DSN provided in ENV
 gem 'statsd-instrument'
 
-# Amazon Linux's system `json` gem causes conflicts, but
-# `multi_json` will prefer `oj` if installed, so include it here.
-gem 'oj'
+# Documentation
+gem 'sdoc', '~> 0.4.0', group: :doc  # bundle exec rake doc:rails generates the API under doc/api.
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
