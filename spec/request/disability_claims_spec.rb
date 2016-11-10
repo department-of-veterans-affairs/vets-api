@@ -46,7 +46,7 @@ RSpec.describe 'disability Claims management', type: :request do
       FactoryGirl.create(:disability_claim, id: 2, evss_id: 189_625,
                                             user_uuid: 'xyz')
       get '/v0/disability_claims/2', nil, 'Authorization' => "Token token=#{session.token}"
-      expect(response).to have_http_status(:internal_server_error)
+      expect(response).to have_http_status(:not_found)
     end
 
     context '5103 waiver has not been submitted yet' do
