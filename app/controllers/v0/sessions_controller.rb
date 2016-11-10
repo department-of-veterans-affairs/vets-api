@@ -74,7 +74,12 @@ module V0
     end
 
     def parse_gender(gender)
-      return nil unless gender
+      # Last resort for a prod-only bug.  If this exists beyond
+      # nov 11, yell at Bill Ryan immediately.
+      # https://github.com/department-of-veterans-affairs/vets.gov-team/issues/407
+      # TODO: REMOVE THIS!
+      Rails.logger.debug "BILLRYAN Gender = #{gender}"
+      return nil if gender.blank?
       gender[0].upcase
     end
 
