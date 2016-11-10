@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'csv'
+require 'json'
 
 namespace :mvi do
   desc 'Given user attributes, run a find candidate query'
@@ -19,7 +20,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
         ssn: ENV['ssn'],
         email: 'foo@bar.og'
       )
-      pp user
+      puts user.to_json
     rescue => e
       puts "User query failed: #{e.message}"
     end
@@ -53,7 +54,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
         user = find_user(u)
         found += 1
         puts "Found #{found} of #{i} users:\n\n"
-        pp user
+        puts user.to_json
         found_users << user
       rescue => e
         puts "User query failed: #{e.message}"
