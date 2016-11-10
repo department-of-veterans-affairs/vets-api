@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://test.vets.gov/wss-document-services-web-3.0/rest/documents/getAllDocuments
+    uri: <EVSS_BASE_URL>/wss-document-services-web-3.0/rest/documents/getAllDocuments
     body:
       encoding: UTF-8
       string: ''

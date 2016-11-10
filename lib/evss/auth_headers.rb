@@ -13,10 +13,9 @@ module EVSS
         # TODO: Change va_eauth_authenticationmethod to vets.gov
         # once the EVSS team is ready for us to use it
         'va_eauth_authenticationmethod' => 'DSLogon',
-        # TODO: (CMJ or AJM) Change to user.loa from ID.me
-        'va_eauth_assurancelevel' => '2',
         'va_eauth_pnidtype' => 'SSN',
         # Vary by user
+        'va_eauth_assurancelevel' => @user.loa[:current].to_s,
         'va_eauth_firstName' => @user.first_name,
         'va_eauth_lastName' => @user.last_name,
         'va_eauth_issueinstant' => @user.last_signed_in.iso8601,
