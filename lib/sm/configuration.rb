@@ -27,9 +27,19 @@ module SM
         request_env.url.host == host && request_env.url.path =~ /^#{path}/
       end
 
+      exception_handler = proc do |exception|
+        # :nocov:
+        if exception.is_a?(Common::Client::Errors::ClientResponse)
+          return (500..599).cover?(e.major)
+        end
+        false
+        # :nocov:
+      end
+
       @service = Breakers::Service.new(
         name: 'SM',
-        request_matcher: matcher
+        request_matcher: matcher,
+        exception_handler: exception_handler
       )
     end
   end
