@@ -6,7 +6,7 @@ FactoryGirl.define do
     first_name 'abraham'
     last_name 'lincoln'
     gender 'M'
-    birth_date Time.new(1809, 2, 12).utc
+    birth_date '1809-02-12'
     zip '17325'
     last_signed_in Time.now.utc
     edipi '1234^NI^200DOD^USDOD^A'
@@ -87,7 +87,7 @@ FactoryGirl.define do
       first_name 'george'
       last_name 'washington'
       gender 'M'
-      birth_date Time.new(1732, 2, 22).utc
+      birth_date '1732-02-22'
       zip '17325'
       edipi '1234^NI^200DOD^USDOD^A'
       ssn '111223333'

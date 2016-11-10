@@ -8,7 +8,7 @@ describe Decorators::MviUserDecorator do
     let(:mvi_user) { FactoryGirl.build(:mvi_user) }
     let(:find_candidate_response) do
       {
-        birth_date: mvi_user.birth_date.strftime('%Y%m%d'),
+        birth_date: Date.parse(mvi_user.birth_date).strftime('%Y%m%d'),
         edipi: mvi_user.mvi[:edipi],
         vba_corp_id: mvi_user.mvi[:vba_corp_id],
         family_name: mvi_user.mvi[:family_name],

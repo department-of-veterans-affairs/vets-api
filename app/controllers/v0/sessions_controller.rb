@@ -59,18 +59,11 @@ module V0
         email:          attributes['email']&.first,
         gender:         parse_gender(attributes['gender']&.first),
         ssn:            attributes['social']&.first&.delete('-'),
-        birth_date:     parse_date(attributes['birth_date']&.first),
+        birth_date:     attributes['birth_date']&.first,
         uuid:           attributes['uuid']&.first,
         last_signed_in: Time.current.utc,
         loa:            { current: parse_current_loa, highest: attributes['level_of_assurance']&.first&.to_i }
       }
-    end
-
-    def parse_date(date_string)
-      Time.parse(date_string).utc unless date_string.nil?
-    rescue TypeError => e
-      Rails.logger.error "error: #{e.message} when parsing date from saml date string: #{date_string.inspect}"
-      nil
     end
 
     def parse_gender(gender)

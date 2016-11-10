@@ -94,7 +94,7 @@ module MVI
 
       def build_living_subject_birth_time
         el = element('livingSubjectBirthTime')
-        el << element('value', value: @birth_date.strftime('%Y%m%d'))
+        el << element('value', value: Date.parse(@birth_date)&.strftime('%Y%m%d'))
         el << element('semanticsText', text!: 'Date of Birth')
       end
 

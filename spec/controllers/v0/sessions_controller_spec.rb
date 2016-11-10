@@ -12,7 +12,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       'mname' => [''],
       'social' => [mvi_user.ssn],
       'gender' => ['male'],
-      'birth_date' => [mvi_user.birth_date.strftime('%Y-%m-%d')],
+      'birth_date' => [mvi_user.birth_date],
       'level_of_assurance' => [mvi_user.loa[:highest]]
     }
   end
@@ -96,7 +96,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           'mname' => [''],
           'social' => [loa3_user.ssn],
           'gender' => ['male'],
-          'birth_date' => [loa3_user.birth_date.strftime('%Y-%m-%d')],
+          'birth_date' => [loa3_user.birth_date],
           'level_of_assurance' => [loa3_user.loa[:highest]]
         }
       end

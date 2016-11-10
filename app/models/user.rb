@@ -18,7 +18,7 @@ class User < Common::RedisStore
   attribute :middle_name
   attribute :last_name
   attribute :gender
-  attribute :birth_date, Common::UTCTime
+  attribute :birth_date
   attribute :zip
   attribute :ssn
   attribute :loa
