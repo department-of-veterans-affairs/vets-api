@@ -62,7 +62,7 @@ module V0
         birth_date:     attributes['birth_date']&.first,
         uuid:           attributes['uuid']&.first,
         last_signed_in: Time.current.utc,
-        loa:            { current: parse_current_loa, highest: attributes['level_of_assurance']&.first&.to_i }
+        loa:            { current: loa_current, highest: attributes['level_of_assurance']&.first&.to_i || loa_current }
       }
     end
 
@@ -71,9 +71,9 @@ module V0
       gender[0].upcase
     end
 
-    def parse_current_loa
-      raw_loa = REXML::XPath.first(@saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
-      LOA::MAPPING[raw_loa]
+    def loa_current
+      @raw_loa ||= REXML::XPath.first(@saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
+      LOA::MAPPING[@raw_loa]
     end
 
     def saml_user
