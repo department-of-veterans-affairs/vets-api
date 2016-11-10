@@ -7,7 +7,7 @@ require 'common/client/errors'
 
 describe 'Response Middleware' do
   let(:message_json) { attributes_for(:message).to_json }
-  let(:four_o_four) { { "errorCode": 400, "message": 'Record Not Found' }.to_json }
+  let(:five_o_o) { { "errorCode": 500, "message": 'Server Error' }.to_json }
 
   subject(:faraday_client) do
     Faraday.new do |conn|
@@ -17,7 +17,7 @@ describe 'Response Middleware' do
 
       conn.adapter :test do |stub|
         stub.get('ok') { [200, { 'Content-Type' => 'application/json' }, message_json] }
-        stub.get('not-found') { [404, { 'Content-Type' => 'application/json' }, four_o_four] }
+        stub.get('error') { [500, { 'Content-Type' => 'application/json' }, five_o_o] }
       end
     end
   end
@@ -30,7 +30,7 @@ describe 'Response Middleware' do
   end
 
   it 'raises client response error' do
-    expect { subject.get('not-found') }
+    expect { subject.get('error') }
       .to raise_error(Common::Client::Errors::ClientResponse)
   end
 end
