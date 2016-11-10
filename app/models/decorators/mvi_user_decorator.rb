@@ -17,7 +17,8 @@ class Decorators::MviUserDecorator
   def create
     raise Common::Exceptions::ValidationErrors, @user unless @user.valid?
     message = create_message
-    response = @mvi_service.find_candidate(message)
+    cached = MviStore.find(message.digest)
+    response = cached&.response || query_and_cache_by(message)
     user_with_mvi_attributes(response)
   rescue MVI::RecordNotFound
     # TODO(AJD): add metric
@@ -34,6 +35,12 @@ class Decorators::MviUserDecorator
   end
 
   private
+
+  def query_and_cache_by(message)
+    response = @mvi_service.find_candidate(message)
+    MviStore.new(message_hash: message.digest, response: response).save
+    response
+  end
 
   def create_message
     given_names = [@user.first_name]
