@@ -7,6 +7,13 @@ require 'saml/settings_service'
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
 
+  SKIP_SENTRY_EXCEPTION_TYPES = [
+    Common::Exceptions::Unauthorized,
+    Common::Exceptions::RoutingError,
+    Common::Exceptions::Forbidden,
+    Breakers::OutageException
+  ].freeze
+
   before_action :authenticate
   before_action :set_app_info_headers
   skip_before_action :authenticate, only: [:cors_preflight, :routing_error]
@@ -52,7 +59,9 @@ class ApplicationController < ActionController::API
   end
 
   def log_error(exception)
-    Raven.capture_exception(exception) if ENV['SENTRY_DSN'].present?
+    unless SKIP_SENTRY_EXCEPTION_TYPES.include?(exception.class)
+      Raven.capture_exception(exception) if ENV['SENTRY_DSN'].present?
+    end
     Rails.logger.error "#{exception.message}."
     Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
   end
