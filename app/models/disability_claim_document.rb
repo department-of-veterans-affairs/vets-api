@@ -49,9 +49,7 @@ class DisabilityClaimDocument < Common::Base
 
   # Redefining attributes method so that it picks up changes made after initialization
   def attributes
-    Hash[attribute_set.map do |attribute|
-      [attribute.name.to_s, send(attribute.name)]
-    end]
+    Hash[attribute_set.map { |attr| [attr.name.to_s, send(attr.name)] }]
   end
 
   alias to_h attributes
