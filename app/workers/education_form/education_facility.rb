@@ -10,9 +10,9 @@ module EducationForm
       RI VT VA
     ).freeze
 
-    SOUTHERN = [
-      'GA', 'NC', 'PR', 'US Virgin Islands', 'APO/FPO AA'
-    ].freeze
+    SOUTHERN = %w(
+      GA NC PR VI AA
+    ).freeze
 
     CENTRAL = %w(
       CO IA IL IN KS KY MI MN MO MT
@@ -21,8 +21,8 @@ module EducationForm
 
     WESTERN = [
       'AK', ' AL', 'AR', 'AZ', 'CA', 'FL', 'HI', 'ID', 'LA', 'MS',
-      'NM', 'NV', 'OK', 'OR', 'SC', 'TX', 'UT', 'WA', 'Philippines',
-      'Guam', 'APO/FPO AP'
+      'NM', 'NV', 'OK', 'OR', 'SC', 'TX', 'UT', 'WA',
+      'GU', 'AP'
     ].freeze
 
     ADDRESSES = {
@@ -65,7 +65,11 @@ module EducationForm
       FACILITY_IDS[region]
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity
     def self.region_for(record)
+      # special case Philippines
+      return :western if (record.school&.address&.country || record.veteranAddress&.country) == 'PHL'
+
       area = record.school&.address&.state || record.veteranAddress&.state
       case area
       when *EASTERN
@@ -80,6 +84,7 @@ module EducationForm
         DEFAULT
       end
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def self.regional_office_for(record)
       region = region_for(record)
