@@ -20,6 +20,10 @@ SidekiqStatsJob:
   cron: "* * * * *"
   description: "Update Sidekiq stats for export to statsd gauges"
 
+Rx::CoreHealthCheckJob:
+  cron: "* * * * *"
+  description: "Check MHV RX reachability"
+ 
 DeleteOldClaims:
   cron: "0 2 * * * America/New_York"
   class: EVSS::DeleteOldClaims
