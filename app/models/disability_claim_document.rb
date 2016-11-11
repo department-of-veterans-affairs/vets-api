@@ -47,6 +47,16 @@ class DisabilityClaimDocument < Common::Base
     attributes == other.attributes
   end
 
+  # Redefining attributes method so that it picks up changes made after initialization
+  def attributes
+    Hash[attribute_set.map do |attribute|
+      [attribute.name.to_s, send(attribute.name)]
+    end]
+  end
+
+  alias to_h attributes
+  alias to_hash attributes
+
   private
 
   def known_document_type?
