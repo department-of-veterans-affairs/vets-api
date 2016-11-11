@@ -25,7 +25,6 @@
               "documents_needed",
               "development_letter_sent",
               "decision_letter_sent",
-              "successful_sync",
               "updated_at",
               "phase"
             ],
@@ -40,7 +39,6 @@
               "documents_needed": { "type": "boolean" },
               "development_letter_sent": { "type": "boolean" },
               "decision_letter_sent" : { "type": "boolean" },
-              "successful_sync": { "type": "boolean" },
               "updated_at": { "type": "string" },
               "phase": { "type": ["integer", "null"] }
             }
