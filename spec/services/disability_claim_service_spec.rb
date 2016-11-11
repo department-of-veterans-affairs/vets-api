@@ -15,7 +15,6 @@ RSpec.describe DisabilityClaimService do
         claims, synchronized = subject.all
         expect(claims).to eq([claim])
         expect(synchronized).to eq(false)
-        expect(claims.first.successful_sync).to eq(false)
       end
     end
 
@@ -27,7 +26,6 @@ RSpec.describe DisabilityClaimService do
         updated_claim, synchronized = subject.update_from_remote(claim)
         expect(updated_claim).to eq(claim)
         expect(synchronized).to eq(false)
-        expect(updated_claim.successful_sync).to eq(false)
       end
     end
   end
