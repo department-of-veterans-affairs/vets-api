@@ -5,7 +5,7 @@ module EducationForm
   class CreateDailySpoolFiles
     include Sidekiq::Worker
     sidekiq_options queue: 'default',
-                    retry: true
+                    retry: 5
 
     include ActionView::Helpers::TextHelper # Needed for word_wrap
     require 'erb'

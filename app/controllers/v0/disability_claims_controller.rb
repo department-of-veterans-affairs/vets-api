@@ -11,6 +11,7 @@ module V0
 
     def show
       claim = DisabilityClaim.for_user(current_user).find_by(evss_id: params[:id])
+      raise Common::Exceptions::RecordNotFound, params[:id] unless claim
       claim, synchronized = claim_service.update_from_remote(claim)
       render json: claim, serializer: DisabilityClaimDetailSerializer,
              meta: { successful_sync: synchronized }
@@ -18,6 +19,7 @@ module V0
 
     def request_decision
       claim = DisabilityClaim.for_user(current_user).find_by(evss_id: params[:id])
+      raise Common::Exceptions::RecordNotFound, params[:id] unless claim
       jid = claim_service.request_decision(claim)
       claim.requested_decision = true
       claim.save

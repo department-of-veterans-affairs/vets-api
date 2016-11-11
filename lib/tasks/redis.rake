@@ -55,14 +55,14 @@ namespace :redis do
         ":last_signed_in": {
           "^t": Time.now.utc
         },
-        ":edipi": nil,
+        ":edipi": '1005079124',
         ":participant_id": '600062099',
         ":icn": '1008710255V058302',
         ":mvi": {
           "^o": 'ActiveSupport::HashWithIndifferentAccess',
           "self": {
             "birth_date": '19840101',
-            "edipi": nil,
+            "edipi": '1005079124',
             "family_name": 'USER',
             "gender": 'M',
             "given_names": ['TEST'],
