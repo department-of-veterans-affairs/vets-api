@@ -18,7 +18,7 @@ class UserSerializer < ActiveModel::Serializer
       gender: object.gender,
       zip: object.zip,
       last_signed_in: object.last_signed_in,
-      loa: object.loa
+      loa_highest: object.loa_highest
     }
   end
 
@@ -30,9 +30,9 @@ class UserSerializer < ActiveModel::Serializer
       BackendServices::HCA,
       BackendServices::EDUCATION_BENEFITS
     ]
-    service_list += [BackendServices::RX, BackendServices::MESSAGING] if object.can_access_mhv?
+    service_list += [BackendServices::RX, BackendServices::MESSAGING] if object.can_access_mhv?(instance_options[:session])
     service_list << BackendServices::DISABILITY_BENEFITS if object.can_access_evss?
-    service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
+    service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?(instance_options[:session])
     service_list
   end
 end
