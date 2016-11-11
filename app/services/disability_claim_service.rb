@@ -83,10 +83,6 @@ class DisabilityClaimService
     @client ||= EVSS::ClaimsService.new(auth_headers)
   end
 
-  def document_client
-    @document_client ||= EVSS::DocumentsService.new(auth_headers)
-  end
-
   def auth_headers
     @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h
   end
