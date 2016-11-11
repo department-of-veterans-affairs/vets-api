@@ -30,9 +30,10 @@ module SM
       exception_handler = proc do |exception|
         # :nocov:
         if exception.is_a?(Common::Client::Errors::ClientResponse)
-          return (500..599).cover?(e.major)
+          (500..599).cover?(exception.major)
+        else
+          false
         end
-        false
         # :nocov:
       end
 
