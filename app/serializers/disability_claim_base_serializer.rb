@@ -2,7 +2,7 @@
 class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   attributes :id, :evss_id, :date_filed, :min_est_date, :max_est_date,
              :phase_change_date, :open, :waiver_submitted, :documents_needed,
-             :development_letter_sent, :decision_letter_sent, :successful_sync,
+             :development_letter_sent, :decision_letter_sent,
              :updated_at, :phase
 
   # Our IDs are not stable due to 24 hour expiration, use EVSS IDs for consistency

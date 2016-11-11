@@ -19,8 +19,7 @@ module V0
     def request_decision
       claim = DisabilityClaim.for_user(current_user).find_by(evss_id: params[:id])
       jid = claim_service.request_decision(claim)
-      claim.requested_decision = true
-      claim.save
+      claim.update_attributes(requested_decision: true)
       render_job_id(jid)
     end
   end
