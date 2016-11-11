@@ -18,6 +18,7 @@
             "max_est_date",
             "open",
             "waiver_submitted",
+            "requested_decision",
             "contention_list",
             "events_timeline",
             "phase_change_date",
@@ -27,7 +28,9 @@
             "decision_letter_sent",
             "updated_at",
             "phase",
-            "claim_type"
+            "claim_type",
+            "ever_phase_back",
+            "current_phase_back"
           ],
           "properties": {
             "evss_id": { "type": "integer" },
@@ -40,12 +43,15 @@
             "open": { "type": "boolean" },
             "va_representative": { "type": "string" },
             "waiver_submitted": { "type": "boolean" },
+            "requested_decision": { "type": "boolean" },
             "documents_needed": { "type": "boolean" },
             "development_letter_sent": { "type": "boolean" },
             "decision_letter_sent": { "type": "boolean" },
             "updated_at": { "type": "string" },
             "phase": { "type": ["integer", "null"] },
-            "claim_type": { "type": "string" }
+            "claim_type": { "type": "string" },
+            "ever_phase_back": { "type": "boolean" },
+            "current_phase_back": { "type": "boolean" }
           }
         }
       }
