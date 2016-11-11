@@ -14,7 +14,7 @@ module MVI
   # Calls endpoints as class methods, if successful it will return a ruby hash of the SOAP XML response.
   #
   # Example:
-  #  birth_date = Time.new(1980, 1, 1).utc
+  #  birth_date = '1980-1-1'
   #  message = MVI::Messages::FindCandidateMessage.new(['John', 'William'], 'Smith', birth_date, '555-44-3333').to_xml
   #  response = MVI::Service.new.find_candidate(message)
   #
@@ -41,6 +41,7 @@ module MVI
     def find_candidate(message)
       faraday_response = call(OPERATIONS[:find_candidate], message.to_xml)
       response = MVI::Responses::FindCandidate.new(faraday_response)
+      raise MVI::RecordNotFound.new('MVI multiple matches found', response) if response.multiple_match?
       invalid_request_handler('find_candidate', response.original_response) if response.invalid?
       request_failure_handler('find_candidate', response.original_response) if response.failure?
       raise MVI::RecordNotFound.new('MVI subject missing from response body', response) unless response.body

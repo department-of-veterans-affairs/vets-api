@@ -60,7 +60,6 @@ class Decorators::MviUserDecorator
       edipi: select_source_id(response[:edipi]),
       icn: select_source_id(response[:icn]),
       participant_id: select_source_id(response[:vba_corp_id]),
-      mhv_id: select_source_id(response[:mhv_id]),
       mvi: response
     }
     @user

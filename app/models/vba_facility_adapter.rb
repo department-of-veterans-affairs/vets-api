@@ -18,7 +18,7 @@ class VBAFacilityAdapter
   end
 
   def self.where_clause(services)
-    services.map { |s| "#{SERVICES_MAP[s]}='Yes'" }.join(' AND ') unless services.nil?
+    services.map { |s| "#{SERVICES_MAP[s]}='YES'" }.join(' AND ') unless services.nil?
   end
 
   def self.from_gis(record)
@@ -33,6 +33,7 @@ class VBAFacilityAdapter
     m[:hours][:notes] = attrs['Comments']
     m[:services] = {}
     m[:services][:benefits] = services_from_gis(attrs)
+    m[:feedback] = {}
     VAFacility.new(m)
   end
 
@@ -42,13 +43,13 @@ class VBAFacilityAdapter
 
   TOP_KEYMAP = {
     unique_id: 'Facility_Number',
-    name: 'Facility_Name', classification: 'Classification',
-    lat: 'Lat', long: 'Long'
+    name: 'Facility_Name', classification: 'Facility_Type',
+    website: 'First_InternetAddress', lat: 'Lat', long: 'Long'
   }.freeze
 
   ADDR_KEYMAP = {
-    'address_1' => 'Address_1', 'address_2' => 'Address__2', 'address_3' => '',
-    'city' => 'City_1', 'state' => 'State', 'zip' => 'Zip'
+    'address_1' => 'Address_1', 'address_2' => 'Address_2', 'address_3' => '',
+    'city' => 'City', 'state' => 'State', 'zip' => 'Zip'
   }.freeze
 
   PHONE_KEYMAP = {
@@ -60,26 +61,21 @@ class VBAFacilityAdapter
   ).each_with_object({}) { |d, h| h[d] = d }
 
   SERVICES_MAP = {
-    'ApplyingForBenefits' => 'Apply_Benefits',
-    'CareerCounseling' => 'Career_Counseling',
-    'SchoolAssistance' => 'School_Assistance',
-    'VocationalRehabilitationCareerAssistance' => 'Vocational_Assistance',
-    'TransitionAssistance' => 'Transition_Assistance',
-    'Pre-dischargeAssistance' => 'Predischarge_Assistance',
-    'EmploymentAssistance' => 'Employment_Assistance',
-    'FinancialCounseling' => 'Financial_Counseling',
-    'HousingAssistance' => 'Housing_Assistance',
-    'DisabilityClaimAssistance' => 'Disability_Assistance',
-    'EducationClaimAssistance' => 'Education_Assistance',
-    'InsuranceClaimAssistance' => 'Insurance_Assistance',
-    'VocationalRehabilitationClaimAssistance' => 'Vocationa_Assistance',
-    'SurvivorClaimAssistance' => 'Survivor__Assistance',
-    'UpdatingContactInformation' => 'Updating_Information',
-    'UpdatingDirectDepositInformation' => 'Updating__Deposit_Information',
-    'BurialClaimAssistance' => 'Burial_Assistance',
-    'eBenefitsLogonAssistance' => 'eBenefits_Assistance',
-    'IntegratedDisabilityEvaluationSystem' => 'IDE_System',
-    'HomelessAssistance' => 'Homeless_Assistance'
+    'ApplyingForBenefits' => 'Applying_for_Benefits',
+    'BurialClaimAssistance' => 'Burial_Claim_assistance',
+    'DisabilityClaimAssistance' => 'Disability_Claim_assistance',
+    'eBenefitsRegistrationAssistance' => 'eBenefits_Registration',
+    'EducationAndCareerCounseling' => 'Education_and_Career_Counseling',
+    'EducationClaimAssistance' => 'Education_Claim_Assistance',
+    'FamilyMemberClaimAssistance' => 'Family_Member_Claim_Assistance',
+    'HomelessAssistance' => 'Homeless_Assistance',
+    'VAHomeLoanAssistance' => 'VA_Home_Loan_Assistance',
+    'InsuranceClaimAssistanceAndFinancialCounseling' => 'Insurance_Claim_Assistance_and_',
+    'IntegratedDisabilityEvaluationSystemAssistance' => 'IDES',
+    'PreDischargeClaimAssistance' => 'Pre_Discharge_Claim_Assistance',
+    'TransitionAssistance' => 'Transition Assistance',
+    'UpdatingDirectDepositInformation' => 'Updating_Direct_Deposit_Informa',
+    'VocationalRehabilitationAndEmploymentAssistance' => 'Vocational_Rehabilitation_Emplo'
   }.freeze
   OTHER_SERVICES = 'Other_Services'
 
@@ -97,7 +93,7 @@ class VBAFacilityAdapter
       'other' => attrs[OTHER_SERVICES]
     }
     services[:standard] = SERVICES_MAP.each_with_object([]) do |(k, v), l|
-      l << k if attrs[v] == 'Yes'
+      l << k if attrs[v] == 'YES'
     end
     services
   end

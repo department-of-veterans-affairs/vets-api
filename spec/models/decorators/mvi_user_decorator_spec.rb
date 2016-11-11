@@ -8,14 +8,14 @@ describe Decorators::MviUserDecorator do
     let(:mvi_user) { FactoryGirl.build(:mvi_user) }
     let(:find_candidate_response) do
       {
-        birth_date: mvi_user.birth_date.strftime('%Y%m%d'),
+        birth_date: Date.parse(mvi_user.birth_date).strftime('%Y%m%d'),
         edipi: mvi_user.mvi[:edipi],
         vba_corp_id: mvi_user.mvi[:vba_corp_id],
         family_name: mvi_user.mvi[:family_name],
         gender: mvi_user.mvi[:gender],
         given_names: mvi_user.mvi[:given_names],
         icn: mvi_user.mvi[:icn],
-        mhv_id: mvi_user.mvi[:mhv_id],
+        mhv_ids: mvi_user.mvi[:mhv_ids],
         ssn: mvi_user.mvi[:ssn],
         active_status: mvi_user.mvi[:active_status]
       }

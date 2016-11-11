@@ -5,7 +5,7 @@ module EducationForm
   class CreateDailySpoolFiles
     include Sidekiq::Worker
     sidekiq_options queue: 'default',
-                    retry: true
+                    retry: 5
 
     include ActionView::Helpers::TextHelper # Needed for word_wrap
     require 'erb'
@@ -71,9 +71,11 @@ module EducationForm
     end
 
     def create_files(structured_data)
-      logger.error('No applications to write') if structured_data.empty?
+      logger.error('No applications to write') && return if structured_data.empty?
       if Rails.env.development? || ENV['EDU_SFTP_HOST'].blank?
         write_files(structured_data: structured_data)
+      elsif ENV['EDU_SFTP_PASS'].blank?
+        raise "EDU_SFTP_PASS not set for #{ENV['EDU_SFTP_USER']}@#{ENV['EDU_SFTP_HOST']}"
       else
         Net::SFTP.start(ENV['EDU_SFTP_HOST'], ENV['EDU_SFTP_USER'], password: ENV['EDU_SFTP_PASS']) do |sftp|
           write_files(sftp: sftp, structured_data: structured_data)

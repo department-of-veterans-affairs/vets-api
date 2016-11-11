@@ -18,7 +18,7 @@ class User < Common::RedisStore
   attribute :middle_name
   attribute :last_name
   attribute :gender
-  attribute :birth_date, Common::UTCTime
+  attribute :birth_date
   attribute :zip
   attribute :ssn
   attribute :loa
@@ -29,7 +29,6 @@ class User < Common::RedisStore
   # https://en.wikipedia.org/wiki/Defense_Enrollment_Eligibility_Reporting_System#Electronic_data_interchange_personal_identifier
   attribute :edipi
   attribute :participant_id
-  attribute :mhv_id
   attribute :icn
 
   # mvi 'golden record' data
@@ -71,7 +70,7 @@ class User < Common::RedisStore
 
   # This is a helper method for pulling mhv_correlation_id
   def mhv_correlation_id
-    @mhv_correlation_id ||= mvi&.fetch(:mhv_id, nil)&.split('^')&.first
+    mhv_correlation_ids.first
   end
 
   def can_access_user_profile?
@@ -79,7 +78,7 @@ class User < Common::RedisStore
   end
 
   def can_access_mhv?
-    loa3? && mhv_correlation_id.present?
+    loa3? && mhv_correlation_ids.length == 1
   end
 
   def can_access_evss?
@@ -87,6 +86,14 @@ class User < Common::RedisStore
   end
 
   private
+
+  def mhv_correlation_ids
+    return @mhv_correlation_ids if @mhv_correlation_ids
+    ids = mvi&.dig(:mhv_ids)
+    ids = [] unless ids
+    @mhv_correlation_ids = ids.map { |mhv_id| mhv_id.split('^')&.first }.compact
+    @mhv_correlation_ids
+  end
 
   def evss_auth_headers
     @evss_auth_headers ||= EVSS::AuthHeaders.new(self).to_h
