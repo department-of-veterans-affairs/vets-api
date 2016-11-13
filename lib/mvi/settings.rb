@@ -2,6 +2,8 @@
 module MVI
   module Settings
     URL = ENV['MVI_URL']
+    OPEN_TIMEOUT = ENV['MVI_OPEN_TIMEOUT'].to_i
+    TIMEOUT = ENV['MVI_TIMEOUT'].to_i
     SSL_CERT = begin
       OpenSSL::X509::Certificate.new(File.read(ENV['MVI_CLIENT_CERT_PATH']))
     rescue => e
