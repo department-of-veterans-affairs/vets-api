@@ -75,7 +75,7 @@ class User < Common::RedisStore
 
   def mvi
     return nil unless loa3?
-    @mvi ||= Mvi.from_user(self).query
+    @mvi ||= Mvi.from_user(self).fetch
   end
 
   def edipi

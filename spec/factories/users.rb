@@ -9,7 +9,6 @@ FactoryGirl.define do
     birth_date '1809-02-12'
     zip '17325'
     last_signed_in Time.now.utc
-    edipi '1234^NI^200DOD^USDOD^A'
     ssn '272111863'
     loa do
       {
@@ -19,11 +18,8 @@ FactoryGirl.define do
     end
 
     factory :mvi_user do
-      edipi '1234'
-      icn '1000123456V123456'
-      participant_id '12345678'
-      mvi do
-        {
+      after(:build) do |mu|
+        mu.stub(:mvi).and_return(
           status: 'OK',
           birth_date: '18090212',
           edipi: '1234^NI^200DOD^USDOD^A',
@@ -35,7 +31,25 @@ FactoryGirl.define do
           mhv_ids: ['123456^PI^200MH^USVHA^A'],
           ssn: '272111863',
           active_status: 'active'
-        }
+        )
+      end
+    end
+
+    factory :mvi_user_not_found do
+      after(:build) do |mu|
+        mu.stub(:mvi).and_return(
+          status: 'NOT_FOUND',
+          birth_date: '18090212',
+          edipi: '1234^NI^200DOD^USDOD^A',
+          vba_corp_id: '12345678^PI^200CORP^USVBA^A',
+          family_name: 'Lincoln',
+          gender: 'M',
+          given_names: %w(Abraham),
+          icn: '1000123456V123456^NI^200M^USVHA^P',
+          mhv_ids: ['123456^PI^200MH^USVHA^A'],
+          ssn: '272111863',
+          active_status: 'active'
+        )
       end
     end
   end
