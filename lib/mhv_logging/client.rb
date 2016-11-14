@@ -4,8 +4,6 @@ require 'common/client/errors'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/raise_error'
 require 'common/client/middleware/response/snakecase'
-require 'mhv_logging/api/audits'
-require 'rx/api/sessions'
 require 'rx/configuration'
 require 'rx/client_session'
 
@@ -16,9 +14,6 @@ require 'rx/client_session'
 module MHVLogging
   # Core class responsible for api interface operations
   class Client
-    include MHVLogging::API::Audits
-    include Rx::API::Sessions
-
     REQUEST_TYPES = %i(get post).freeze
     USER_AGENT = 'Vets.gov Agent'
     BASE_REQUEST_HEADERS = {
@@ -41,6 +36,25 @@ module MHVLogging
         @session.save
       end
       self
+    end
+
+    def auditlogin
+      body = { isSuccessful: true, activityDetails: 'Signed in Vets.gov' }
+      perform(:post, 'activity/auditlogin', body, token_headers)
+    end
+
+    def auditlogout
+      body = { isSuccessful: true, activityDetails: 'Signed out Vets.gov' }
+      perform(:post, 'activity/auditlogout', body, token_headers)
+    end
+
+    def get_session
+      env = perform(:get, 'session', nil, auth_headers)
+      req_headers = env.request_headers
+      res_headers = env.response_headers
+      Rx::ClientSession.new(user_id: req_headers['mhvCorrelationId'],
+                            expires_at: res_headers['expires'],
+                            token: res_headers['token'])
     end
 
     private
