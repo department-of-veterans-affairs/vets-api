@@ -1,10 +1,11 @@
+# frozen_string_literal: true
 require 'faraday'
 require 'common/client/errors'
 
 module Common
   module Client
     class Base
-      class << self    
+      class << self
         def configuration(configuration = nil)
           @configuration ||= configuration.instance
         end
@@ -29,7 +30,7 @@ module Common
       def request(method, path, params = {}, headers = {})
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
-      rescue Faraday::ClientError, Timeout::Error => error
+      rescue Faraday::ClientError, Timeout::Error
         raise Common::Client::Errors::Client
       end
 
@@ -39,10 +40,6 @@ module Common
 
       def post(path, params, headers = base_headers)
         request(:post, path, params, headers)
-      end
-
-      def patch(path, params, headers = base_headers)
-        request(:patch, path, params, headers)
       end
 
       def put(path, params, headers = base_headers)
