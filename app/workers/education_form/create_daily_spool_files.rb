@@ -64,8 +64,10 @@ module EducationForm
         records.each do |record|
           record.update_attributes!(processed_at: Time.zone.now)
         end
+        log_write(records, region, filename)
       end
     end
+
 
     def create_files(structured_data)
       logger.error('No applications to write') && return if structured_data.empty?
@@ -96,6 +98,15 @@ module EducationForm
     end
 
     private
+
+    def log_write(records, region_id, filename)
+      logger.info("Writing #{records.count} application(s) to #{filename}")
+      UA_TRACKERS['education_benefits'].event(category: 'Daily Transmissions',
+                                              action: 'spool-file-written',
+                                              label: "RPO #{region_id}",
+                                              value: records.count,
+                                              non_interactive: true)
+    end
 
     # If multiple benefit types are selected, we've been told to just include whichever
     # one is 'first' in the header.

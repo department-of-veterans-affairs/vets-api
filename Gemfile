@@ -39,6 +39,7 @@ gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/
 gem 'breakers'
 gem 'govdelivery-tms', require: 'govdelivery/tms/mail/delivery_method'
 gem 'statsd-instrument'
+gem 'staccato'
 
 # Amazon Linux's system `json` gem causes conflicts, but
 # `multi_json` will prefer `oj` if installed, so include it here.
