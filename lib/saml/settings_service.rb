@@ -32,6 +32,7 @@ module SAML
       settings.assertion_consumer_service_url = SAML_CONFIG['callback_url']
 
       settings.security[:authn_requests_signed]   = true
+      settings.security[:logout_requests_signed]  = true
       settings.security[:embed_sign]              = false
       settings.security[:signature_method] = XMLSecurity::Document::RSA_SHA1
 

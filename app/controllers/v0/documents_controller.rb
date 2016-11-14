@@ -4,6 +4,7 @@ module V0
     def create
       params.require :file
       claim = DisabilityClaim.for_user(current_user).find_by(evss_id: params[:disability_claim_id])
+      raise Common::Exceptions::RecordNotFound, params[:disability_claim_id] unless claim
       document_data = DisabilityClaimDocument.new(
         evss_claim_id: claim.evss_id,
         file_name: params[:file].original_filename,

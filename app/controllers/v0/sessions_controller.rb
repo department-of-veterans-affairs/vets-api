@@ -8,17 +8,9 @@ module V0
       render json: { authenticate_via_get: saml_auth_request.create(saml_settings) }
     end
 
-    def show
-      render json: @session
-    end
-
     def destroy
       logout_request = OneLogin::RubySaml::Logoutrequest.new
       logger.info "New SP SLO for userid '#{@session.uuid}'"
-
-      saml_settings.name_identifier_value = @session.uuid
-      saml_settings.security[:logout_requests_signed] = true
-      saml_settings.security[:embed_sign] = true
 
       render json: { logout_via_get: logout_request.create(saml_settings, RelayState: @session.token) }, status: 202
     end
@@ -67,18 +59,11 @@ module V0
         email:          attributes['email']&.first,
         gender:         parse_gender(attributes['gender']&.first),
         ssn:            attributes['social']&.first&.delete('-'),
-        birth_date:     parse_date(attributes['birth_date']&.first),
+        birth_date:     attributes['birth_date']&.first,
         uuid:           attributes['uuid']&.first,
         last_signed_in: Time.current.utc,
-        loa:            { current: parse_current_loa, highest: attributes['level_of_assurance']&.first&.to_i }
+        loa:            { current: loa_current, highest: attributes['level_of_assurance']&.first&.to_i || loa_current }
       }
-    end
-
-    def parse_date(date_string)
-      Time.parse(date_string).utc unless date_string.nil?
-    rescue TypeError => e
-      Rails.logger.error "error: #{e.message} when parsing date from saml date string: #{date_string.inspect}"
-      nil
     end
 
     def parse_gender(gender)
@@ -86,9 +71,9 @@ module V0
       gender[0].upcase
     end
 
-    def parse_current_loa
-      raw_loa = REXML::XPath.first(@saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
-      LOA::MAPPING[raw_loa]
+    def loa_current
+      @raw_loa ||= REXML::XPath.first(@saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
+      LOA::MAPPING[@raw_loa]
     end
 
     def saml_user
@@ -113,11 +98,18 @@ module V0
 
       logger.info "LogoutResponse is: #{logout_response}"
 
-      if !logout_response.validate
+      if !logout_response.validate(true)
         logger.error 'The SAML Logout Response is invalid'
+        logger.error "ERROR MESSAGES #{logout_response.errors.join(' ---- ')}"
         redirect_to SAML_CONFIG['logout_relay'] + '?success=false'
       elsif logout_response.success?
-        MHVLoggingService.logout(current_user)
+        begin
+          session = Session.find(params[:RelayState])
+          user = User.find(session.uuid)
+          MHVLoggingService.logout(user)
+        rescue => e
+          logger.error "Error in MHV Logout: #{e.message}"
+        end
         delete_session(params[:RelayState])
         redirect_to SAML_CONFIG['logout_relay'] + '?success=true'
       end

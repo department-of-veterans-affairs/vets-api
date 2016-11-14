@@ -12,7 +12,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       'mname' => [''],
       'social' => [mvi_user.ssn],
       'gender' => ['male'],
-      'birth_date' => [mvi_user.birth_date.strftime('%Y-%m-%d')],
+      'birth_date' => [mvi_user.birth_date],
       'level_of_assurance' => [mvi_user.loa[:highest]]
     }
   end
@@ -36,11 +36,10 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       it 'GET show - returns unauthorized' do
         request.env['HTTP_AUTHORIZATION'] = auth_header
-        get :show
+        delete :destroy
         expect(response).to have_http_status(:unauthorized)
       end
     end
-
     it 'GET new - shows the ID.me authentication url' do
       allow_any_instance_of(OneLogin::RubySaml::Authrequest)
         .to receive(:create).and_return('url_string')
@@ -79,11 +78,6 @@ RSpec.describe V0::SessionsController, type: :controller do
       expect(authn_request.loa1?).to eq(true)
     end
 
-    it 'GET show - returns unauthorized' do
-      get :show
-      expect(response).to have_http_status(:unauthorized)
-    end
-
     it 'DELETE destroy - returns returns unauthorized' do
       delete :destroy
       expect(response).to have_http_status(:unauthorized)
@@ -102,17 +96,25 @@ RSpec.describe V0::SessionsController, type: :controller do
           'mname' => [''],
           'social' => [loa3_user.ssn],
           'gender' => ['male'],
-          'birth_date' => [loa3_user.birth_date.strftime('%Y-%m-%d')],
+          'birth_date' => [loa3_user.birth_date],
           'level_of_assurance' => [loa3_user.loa[:highest]]
         }
       end
       let(:attributes) { double('attributes') }
       let(:saml_response) { double('saml_response', is_valid?: true, attributes: attributes) }
+      let(:created_session) { Session.find(query_token) }
+      let(:created_user) { User.find(created_session.uuid) }
 
       before(:example) do
         allow(attributes).to receive_message_chain(:all, :to_h).and_return(saml_attrs)
         allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response)
         allow(saml_response).to receive(:decrypted_document).and_return(REXML::Document.new(loa3_xml))
+      end
+
+      it 'should default loa.highest to loa.current if highest is null' do
+        saml_attrs.delete 'level_of_assurance'
+        post :saml_callback
+        expect(created_user.loa['highest']).to eq(created_user.loa['current'])
       end
 
       it 'should uplevel an LOA 1 session to LOA 3' do
@@ -132,10 +134,8 @@ RSpec.describe V0::SessionsController, type: :controller do
       it 'returns a valid session and user' do
         post :saml_callback
 
-        token = Rack::Utils.parse_query(URI.parse(response.location).query)['token']
-        session = Session.find(token)
-        expect(session).to_not be_nil
-        expect(User.find(session.uuid).attributes).to eq(mvi_user.attributes)
+        expect(created_session).to_not be_nil
+        expect(created_user.attributes).to eq(mvi_user.attributes)
       end
 
       it 'creates a job to create an evss user when user has loa3 and evss attrs' do
@@ -150,19 +150,13 @@ RSpec.describe V0::SessionsController, type: :controller do
       it 'parses and stores the current level of assurance' do
         post :saml_callback, RelayState: fake_relay
         assert_response :found
-
-        session = Session.find(query_token)
-        user = User.find(session.uuid)
-        expect(user.loa[:current]).to eq(LOA::TWO)
+        expect(created_user.loa[:current]).to eq(LOA::TWO)
       end
 
       it 'parses and stores the highest level of assurance proofing' do
         post :saml_callback, RelayState: fake_relay
         assert_response :found
-
-        session = Session.find(query_token)
-        user = User.find(session.uuid)
-        expect(user.loa[:highest]).to eq(LOA::THREE)
+        expect(created_user.loa[:highest]).to eq(LOA::THREE)
       end
     end
 
@@ -184,17 +178,6 @@ RSpec.describe V0::SessionsController, type: :controller do
     before(:each) do
       Session.create(uuid: test_user.uuid, token: token)
       User.create(test_user)
-    end
-
-    it 'returns a JSON the session' do
-      request.env['HTTP_AUTHORIZATION'] = auth_header
-      get :show
-      assert_response :success
-
-      json = JSON.parse(response.body)
-
-      expect(json['uuid']).to eq(test_user.uuid)
-      expect(json['token']).to eq(token)
     end
 
     it 'destroys a session' do
