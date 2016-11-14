@@ -5,12 +5,7 @@ class MHVLoggingService
     # If login has already been submitted, do nothing
     return false if current_user.mhv_correlation_id.nil? || current_user.mhv_last_signed_in
     # Otherwise send the login audit trail
-    MHVLogging::Client.new(session: { user_id: current_user.mhv_correlation_id })
-                      .authenticate
-                      .auditlogin
-    # Update the user object with the time of login
-    current_user.mhv_last_signed_in = Time.current
-    current_user.save
+    MHV::AuditLoginJob.perform_async(current_user.uuid)
     true
   end
 
@@ -18,12 +13,7 @@ class MHVLoggingService
     # If login has never been sent, no need to send logout
     return false unless current_user.mhv_correlation_id.nil? || current_user.mhv_last_signed_in
     # Otherwise send the logout audit trail
-    MHVLogging::Client.new(session: { user_id: current_user.mhv_correlation_id })
-                      .authenticate
-                      .auditlogout
-    # Update the user object with nil to indicate not logged in
-    current_user.mhv_last_signed_in = nil
-    current_user.save
+    MHV::AuditLogoutJob.perform_async(current_user.uuid, current_user.mhv_correlation_id)
     true
   end
 end
