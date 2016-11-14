@@ -47,7 +47,5 @@ module VetsAPI
     end
 
     config.middleware.use 'OliveBranch::Middleware'
-
-    config.filter_parameters << :form
   end
 end
