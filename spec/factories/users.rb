@@ -41,10 +41,16 @@ FactoryGirl.define do
   end
 
   factory :mhv_user, class: 'User' do
+    uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
     edipi '1234'
     icn '1000123456V123456'
     mhv_last_signed_in Time.current
     participant_id '12345678'
+    email 'abraham.lincoln@vets.gov'
+    first_name 'abraham'
+    last_name 'lincoln'
+    birth_date Time.new(1809, 2, 12).utc
+    ssn '272111863'
     loa do
       {
         current: LOA::THREE,
