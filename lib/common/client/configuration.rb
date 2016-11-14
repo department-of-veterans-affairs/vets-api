@@ -2,7 +2,7 @@
 module Common
   module Client
     class Configuration
-      REQUEST_TYPES = %i(get put post patch delete).freeze
+      REQUEST_TYPES = %i(get put post delete).freeze
       USER_AGENT = 'Vets.gov Agent'
       BASE_REQUEST_HEADERS = {
         'Accept' => 'application/json',
