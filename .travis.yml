@@ -6,6 +6,7 @@ addons:
 branches:
   only:
   - master
+  - production
 before_script:
 - export HOSTNAME="www.example.com"
 - export SAML_CERTIFICATE_FILE="spec/support/certificates/ruby-saml.crt"
@@ -22,6 +23,8 @@ before_script:
 - export EVSS_BASE_URL='https://test.vets.gov'
 - 'export EVSS_SAMPLE_CLAIMANT_USER=''{"uuid": "1234", "first_name": "Jane","last_name":
   "Doe","edipi": "1105051936","participant_id": "123456789"}'''
+- export MVI_OPEN_TIMEOUT='2'
+- export MVI_TIMEOUT='10'
 - export MVI_CLIENT_CERT_PATH='/fake/client/cert/path'
 - export MVI_CLIENT_KEY_PATH='/fake/client/key/path'
 - export MVI_PROCESSING_CODE='T'

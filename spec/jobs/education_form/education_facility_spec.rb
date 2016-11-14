@@ -8,7 +8,6 @@ RSpec.describe EducationForm::EducationFacility do
   describe '#regional_office_for' do
     {
       eastern: ['VA', "Eastern Region\nVA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"],
-      southern: ['PR', "Southern Region\nVA Regional Office\nP.O. Box 100022\nDecatur, GA 30031-7022"],
       # rubocop:disable Metrics/LineLength
       central: ['CO', "Central Region\nVA Regional Office\n9770 Page Avenue\nSuite 101 Education\nSt. Louis, MO 63132-1502"],
       # rubocop:enable Metrics/LineLength
