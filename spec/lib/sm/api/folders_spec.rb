@@ -19,7 +19,9 @@ describe 'sm client' do
     let(:folder_id)   { 0 }
 
     it 'gets a collection of folders', :vcr do
+      binding.pry
       folders = client.get_folders
+      binding.pry
       expect(folders).to be_a(Common::Collection)
       expect(folders.type).to eq(Folder)
     end

@@ -2,6 +2,8 @@
 require 'faraday'
 require 'multi_json'
 require 'common/client/errors'
+require 'common/client/concerns/client_methods'
+require 'common/client/concerns/session_based_client'
 require 'common/client/middleware/request/camelcase'
 require 'common/client/middleware/request/multipart_request'
 require 'common/client/middleware/response/json_parser'
@@ -18,6 +20,8 @@ require 'sm/api/message_drafts'
 
 module SM
   class Client
+    include Common::ClientMethods
+    include Common::SessionBasedClient
     include SM::API::Sessions
     include SM::API::TriageTeams
     include SM::API::Folders
@@ -29,55 +33,6 @@ module SM
     def initialize(session:)
       @config = SM::Configuration.instance
       @session = SM::ClientSession.find_or_build(session)
-    end
-
-    def authenticate
-      if @session.expired?
-        @session = get_session
-        @session.save
-      end
-      self
-    end
-
-    private
-
-    def perform(method, path, params, headers = nil)
-      raise NoMethodError, "#{method} not implemented" unless config.request_types.include?(method)
-
-      send(method, path, params || {}, headers)
-    end
-
-    def request(method, path, params = {}, headers = {})
-      raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
-      connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
-    rescue Faraday::Error::TimeoutError, Timeout::Error => error
-      raise Common::Client::Errors::RequestTimeout, error
-    rescue Faraday::Error::ClientError => error
-      raise Common::Client::Errors::Client, error
-    end
-
-    def get(path, params, headers = base_headers)
-      request(:get, path, params, headers)
-    end
-
-    def post(path, params, headers = base_headers)
-      request(:post, path, params, headers)
-    end
-
-    def delete(path, params, headers = base_headers)
-      request(:delete, path, params, headers)
-    end
-
-    def raise_not_authenticated
-      raise Common::Client::Errors::NotAuthenticated, 'Not Authenticated'
-    end
-
-    def auth_headers
-      config.base_request_headers.merge('appToken' => config.app_token, 'mhvCorrelationId' => session.user_id.to_s)
-    end
-
-    def token_headers
-      config.base_request_headers.merge('Token' => session.token)
     end
 
     def connection

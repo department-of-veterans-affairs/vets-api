@@ -2,6 +2,8 @@
 require 'faraday'
 require 'multi_json'
 require 'common/client/errors'
+require 'common/client/concerns/client_methods'
+require 'common/client/concerns/session_based_client'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/raise_error'
 require 'common/client/middleware/response/snakecase'
@@ -14,60 +16,17 @@ require 'rx/api/sessions'
 module Rx
   # Core class responsible for api interface operations
   class Client
+    include Common::ClientMethods
+    include Common::SessionBasedClient
     include Rx::API::Prescriptions
     include Rx::API::Sessions
-
-    attr_reader :config, :session
 
     def initialize(session:)
       @config = Rx::Configuration.instance
       @session = Rx::ClientSession.find_or_build(session)
     end
 
-    def authenticate
-      if @session.expired?
-        @session = get_session
-        @session.save
-      end
-      self
-    end
-
     private
-
-    def perform(method, path, params, headers = nil)
-      raise NoMethodError, "#{method} not implemented" unless config.request_types.include?(method)
-
-      send(method, path, params || {}, headers)
-    end
-
-    def request(method, path, params = {}, headers = {})
-      raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
-      connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
-    rescue Faraday::Error::TimeoutError, Timeout::Error => error
-      raise Common::Client::Errors::RequestTimeout, error
-    rescue Faraday::Error::ClientError => error
-      raise Common::Client::Errors::Client, error
-    end
-
-    def get(path, params, headers = base_headers)
-      request(:get, path, params, headers)
-    end
-
-    def post(path, params, headers = base_headers)
-      request(:post, path, params, headers)
-    end
-
-    def raise_not_authenticated
-      raise Common::Client::Errors::NotAuthenticated, 'Not Authenticated'
-    end
-
-    def auth_headers
-      config.base_request_headers.merge('appToken' => config.app_token, 'mhvCorrelationId' => @session.user_id.to_s)
-    end
-
-    def token_headers
-      config.base_request_headers.merge('Token' => @session.token)
-    end
 
     def connection
       @connection ||= Faraday.new(config.base_path, headers: config.base_request_headers, request: config.request_options) do |conn|
