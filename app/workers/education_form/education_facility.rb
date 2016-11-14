@@ -6,24 +6,23 @@ module EducationForm
     DEFAULT = :eastern
 
     EASTERN = %w(
-      CT DE DC ME MD MA NH NJ NY PA
-      RI VT VA
+      CT DE DC ME MD MA NC NH NJ NY PA RI VT VA
+      VI AA
     ).freeze
 
-    SOUTHERN = %w(
-      GA NC PR VI AA
-    ).freeze
+    # We need to keep SOUTHERN because existing records will have
+    # this as a region, and we need to conitnue to show the counts
+    # in the YTD reports.
+    SOUTHERN = %w().freeze
 
     CENTRAL = %w(
-      CO IA IL IN KS KY MI MN MO MT
-      NE ND OH SD TN WV WI WY
+      CO IA IL IN KS KY MI MN MO MT NE ND OH SD TN WV WI WY
     ).freeze
 
-    WESTERN = [
-      'AK', ' AL', 'AR', 'AZ', 'CA', 'FL', 'HI', 'ID', 'LA', 'MS',
-      'NM', 'NV', 'OK', 'OR', 'SC', 'TX', 'UT', 'WA',
-      'GU', 'AP'
-    ].freeze
+    WESTERN = %w(
+      AK AL AR AZ CA FL GA HI ID LA MS NM NV OK OR SC TX UT WA
+      GU PR AP
+    ).freeze
 
     ADDRESSES = {
       eastern: [
