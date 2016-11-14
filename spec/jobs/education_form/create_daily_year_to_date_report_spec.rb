@@ -12,6 +12,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       2.times do
         create(
           :education_benefits_claim_with_custom_form,
+          processed_at: date,
           custom_form: {
             'chapter1606' => false,
             'chapter33' => true
@@ -19,18 +20,24 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
         )
       end
 
-      create(:education_benefits_claim_western_region)
+      create(:education_benefits_claim_western_region, processed_at: date)
 
       EducationBenefitsClaim.delete_all
 
-      create(:education_benefits_submission, created_at: date - 1.year)
+      create(:education_benefits_submission, created_at: date - 1.year, status: 'processed')
+
+      create(:education_benefits_submission, status: 'submitted')
     end
 
     context 'with the date variable set' do
-      subject do
+      let(:job_with_date) do
         job = described_class.new
         job.instance_variable_set(:@date, date)
         job
+      end
+
+      subject do
+        job_with_date
       end
 
       describe '#create_csv_array' do
@@ -68,13 +75,25 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       end
 
       describe '#calculate_submissions' do
-        it 'should return data about the number of submissions' do
-          expect(subject.calculate_submissions).to eq(
-            eastern: { 'chapter33' => 2, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-            southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-            central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-            western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 }
-          )
+        subject do
+          job_with_date.calculate_submissions(range_type: range_type, status: status)
+        end
+
+        context 'for the current year' do
+          let(:range_type) { :year }
+
+          context 'for processed applications' do
+            let(:status) { :processed }
+
+            it 'should return data about the number of submissions' do
+              expect(subject).to eq(
+                eastern: { 'chapter33' => 2, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 }
+              )
+            end
+          end
         end
       end
     end

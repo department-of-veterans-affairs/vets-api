@@ -4,20 +4,22 @@ module EducationForm
     include Sidekiq::Worker
     require 'csv'
 
-    def calculate_submissions
+    def calculate_submissions(range_type: :year, status: :processed)
       submissions = {}
       application_types = EducationBenefitsClaim::APPLICATION_TYPES
+      range = @date.public_send("beginning_of_#{range_type}")..@date.end_of_day
 
       EducationFacility::REGIONS.each do |region|
         region_submissions = {}
-        this_year_range = @date.beginning_of_year..@date.end_of_year
 
         application_types.each do |application_type|
-          region_submissions[application_type] = EducationBenefitsSubmission.where(
-            created_at: this_year_range,
+          relation = EducationBenefitsSubmission.where(
+            created_at: range,
             region: region.to_s,
             application_type => true
-          ).count
+          )
+          relation = relation.where(status: 'processed') if status == :processed
+          region_submissions[application_type] = relation.count
         end
 
         submissions[region] = region_submissions
@@ -62,7 +64,8 @@ module EducationForm
     end
 
     def perform
-      @date = Time.zone.today
+      # use yesterday as the date otherwise we will miss applications that are submitted after the report is run
+      @date = Time.zone.today - 1.day
       folder = 'tmp/daily_reports'
       FileUtils.mkdir_p(folder)
       filename = "#{folder}/#{@date}.csv"
