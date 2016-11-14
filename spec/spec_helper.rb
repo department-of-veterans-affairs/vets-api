@@ -16,6 +16,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/feature_flipper.rb'
     add_filter 'spec/support/authenticated_session_helper'
     add_filter 'config/initializers/figaro.rb'
+    add_filter 'config/initializers/staccato.rb'
     SimpleCov.minimum_coverage_by_file 90
   end
 end
