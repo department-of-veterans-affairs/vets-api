@@ -8,6 +8,8 @@ module MHV
     def perform(uuid)
       user = User.find(uuid)
 
+      return if user.mhv_last_signed_in
+
       MHVLogging::Client.new(session: { user_id: user.mhv_correlation_id })
                         .authenticate
                         .auditlogin
