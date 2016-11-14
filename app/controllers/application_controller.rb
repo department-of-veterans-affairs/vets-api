@@ -86,11 +86,16 @@ class ApplicationController < ActionController::API
   end
 
   def saml_settings
-    settings = SAML::SettingsService.new.saml_settings
+    if defined?(@saml_settings)
+      @saml_settings.name_identifier_value = @session&.uuid
+      return @saml_settings
+    end
+    @saml_settings = SAML::SettingsService.new.saml_settings
     # TODO: 'level' should be its own class with proper validation
     level = LOA::MAPPING.invert[params[:level]&.to_i]
-    settings.authn_context = level || LOA::MAPPING.invert[1]
-    settings
+    @saml_settings.authn_context = level || LOA::MAPPING.invert[1]
+    @saml_settings.name_identifier_value = @session&.uuid
+    @saml_settings
   end
 
   def pagination_params

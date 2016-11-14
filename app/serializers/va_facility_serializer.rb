@@ -5,7 +5,7 @@ class VAFacilitySerializer < ActiveModel::Serializer
   end
 
   attributes :unique_id, :name, :facility_type, :classification, :website, :lat, :long,
-             :address, :phone, :hours, :services
+             :address, :phone, :hours, :services, :feedback
 
   PREFIX_MAP = {
     'va_health_facility' => 'vha',

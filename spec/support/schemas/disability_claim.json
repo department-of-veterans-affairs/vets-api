@@ -28,7 +28,9 @@
             "successful_sync",
             "updated_at",
             "phase",
-            "claim_type"
+            "claim_type",
+            "ever_phase_back",
+            "current_phase_back"
           ],
           "properties": {
             "evss_id": { "type": "integer" },
@@ -47,7 +49,9 @@
             "successful_sync": { "type": "boolean" },
             "updated_at": { "type": "string" },
             "phase": { "type": ["integer", "null"] },
-            "claim_type": { "type": "string" }
+            "claim_type": { "type": "string" },
+            "ever_phase_back": { "type": "boolean" },
+            "current_phase_back": { "type": "boolean" }
           }
         }
       }

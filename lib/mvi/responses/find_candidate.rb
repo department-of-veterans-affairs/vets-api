@@ -27,6 +27,9 @@ module MVI
       GENDER_XPATH = 'patientPerson/administrativeGenderCode/@code'
       DOB_XPATH = 'patientPerson/birthTime/@value'
       SSN_XPATH = 'patientPerson/asOtherIDs'
+      ACKNOWLEDGEMENT_DETAIL_XPATH = 'acknowledgement/acknowledgementDetail/text'
+
+      MULTIPLE_MATCHES_FOUND = 'Multiple Matches Found'
 
       def initialize(response)
         super(response)
@@ -45,6 +48,12 @@ module MVI
           birth_date: locate_element(patient, DOB_XPATH),
           ssn: parse_ssn(locate_element(patient, SSN_XPATH))
         }.merge(map_correlation_ids(patient.locate('id')))
+      end
+
+      def multiple_match?
+        acknowledgement_detail = locate_element(@original_body, ACKNOWLEDGEMENT_DETAIL_XPATH)
+        return false unless acknowledgement_detail
+        acknowledgement_detail.nodes.first == MULTIPLE_MATCHES_FOUND
       end
 
       private
@@ -90,10 +99,10 @@ module MVI
       def map_correlation_ids(ids)
         ids = ids.map(&:attributes)
         {
-          icn: select_extension(ids, /^\w+\^NI\^\w+\^\w+\^\w+$/, CORRELATION_ROOT_ID),
-          mhv_id: select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/, CORRELATION_ROOT_ID),
-          edipi: select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^\w+$/, EDIPI_ROOT_ID),
-          vba_corp_id: select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^\w+$/, CORRELATION_ROOT_ID)
+          icn: select_extension(ids, /^\w+\^NI\^\w+\^\w+\^\w+$/, CORRELATION_ROOT_ID)&.first,
+          mhv_ids: select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/, CORRELATION_ROOT_ID),
+          edipi: select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^\w+$/, EDIPI_ROOT_ID)&.first,
+          vba_corp_id: select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^\w+$/, CORRELATION_ROOT_ID)&.first
         }
       end
 
@@ -102,7 +111,7 @@ module MVI
           id[:extension] =~ pattern && id[:root] == root
         end
         return nil if extensions.empty?
-        extensions.first[:extension]
+        extensions.map { |e| e[:extension] }
       end
     end
   end

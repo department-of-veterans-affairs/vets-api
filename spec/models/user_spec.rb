@@ -187,5 +187,20 @@ RSpec.describe User, type: :model do
         expect(described_class.find(subject.uuid)).to be_nil
       end
     end
+
+    describe '#mhv_correlation_id' do
+      context 'when mhv ids are nil' do
+        let(:user) { FactoryGirl.build(:user) }
+        it 'has a mhv correlation id of nil' do
+          expect(user.mhv_correlation_id).to be_nil
+        end
+      end
+      context 'when there are mhv ids' do
+        let(:mvi_user) { FactoryGirl.build(:mvi_user) }
+        it 'has a mhv correlation id' do
+          expect(mvi_user.mhv_correlation_id).to eq('123456')
+        end
+      end
+    end
   end
 end

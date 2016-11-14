@@ -7,7 +7,7 @@ describe MVI::Messages::FindCandidateMessage do
     context 'with first, last, birth_date, and ssn from auth provider' do
       let(:xml) do
         MVI::Messages::FindCandidateMessage.new(
-          %w(John William), 'Smith', Time.new(1980, 1, 1).utc, '555-44-3333', 'M'
+          %w(John William), 'Smith', '1980-1-1', '555-44-3333', 'M'
         ).to_xml
       end
       let(:idm_path) { 'env:Body/idm:PRPA_IN201305UV02' }

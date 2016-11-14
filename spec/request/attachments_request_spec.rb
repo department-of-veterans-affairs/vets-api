@@ -7,7 +7,7 @@ RSpec.describe 'Messages Integration', type: :request do
   include SM::ClientHelpers
 
   let(:current_user) { build(:mhv_user) }
-  let(:user_id) { ENV['MHV_SM_USER_ID'] }
+  let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
   let(:message_id) { 573_302 }
 
