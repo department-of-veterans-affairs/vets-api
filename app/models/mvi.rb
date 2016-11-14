@@ -23,7 +23,7 @@ class Mvi < Common::RedisStore
     mvi
   end
 
-  def query
+  def fetch
     cached = Mvi.find(@user.uuid)
     return cached&.response if cached
     message = create_message
