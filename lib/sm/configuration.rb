@@ -28,5 +28,25 @@ module SM
         request_matcher: matcher
       )
     end
+
+    def connection
+      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+        conn.use :breakers
+        conn.request :camelcase
+        conn.request :multipart_request
+        conn.request :multipart
+        conn.request :json
+        # Uncomment this out for generating curl output to send to MHV dev and test only
+        # conn.request :curl, ::Logger.new(STDOUT), :warn
+
+        # conn.response :logger, ::Logger.new(STDOUT), bodies: true
+        conn.response :sm_parser
+        conn.response :snakecase
+        conn.response :raise_error
+        conn.response :json_parser
+
+        conn.adapter Faraday.default_adapter
+      end
+    end
   end
 end

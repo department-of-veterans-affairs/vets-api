@@ -1,7 +1,5 @@
 # frozen_string_literal: true
-require 'faraday'
-require 'common/client/errors'
-require 'common/client/concerns/client_methods'
+require 'common/client/base'
 require 'common/client/concerns/mhv_session_based_client'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/raise_error'
@@ -17,14 +15,18 @@ require 'rx/client_session'
 
 module MHVLogging
   # Core class responsible for api interface operations
-  class Client
+  class Client < Common::Client::Base
     include Common::Client::MHVSessionBasedClient
     include MHVLogging::API::Audits
     include Rx::API::Sessions
 
+    configuration Rx::Configuration
+    session_klass Rx::ClientSession
+
+    private
+
     def connection
-      @connection ||= Faraday.new(config.base_path, headers: config.base_request_headers, request: config.request_options) do |conn|
-        conn.use :breakers
+      Faraday.new(config.base_path, headers: config.base_request_headers, request: config.request_options) do |conn|
         conn.request :json
         # Uncomment this out for generating curl output to send to MHV dev and test only
         # conn.request :curl, ::Logger.new(STDOUT), :warn
@@ -35,10 +37,6 @@ module MHVLogging
         conn.response :json_parser
         conn.adapter Faraday.default_adapter
       end
-    end
-
-    def configuration_and_session_namespace
-      "Rx"
     end
   end
 end

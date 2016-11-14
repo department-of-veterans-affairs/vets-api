@@ -1,9 +1,24 @@
+require 'faraday'
+require 'common/client/errors'
+
 module Common
   module Client
-    module ClientMethods
-      extend ActiveSupport::Concern
+    class Base
+      class << self    
+        def configuration(configuration = nil)
+          @configuration ||= configuration.instance
+        end
+      end
 
       private
+
+      def config
+        self.class.configuration
+      end
+
+      def connection
+        config.connection
+      end
 
       def perform(method, path, params, headers = nil)
         raise NoMethodError, "#{method} not implemented" unless config.request_types.include?(method)
@@ -14,10 +29,8 @@ module Common
       def request(method, path, params = {}, headers = {})
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
-      rescue Faraday::Error::TimeoutError, Timeout::Error => error
-        raise Common::Client::Errors::RequestTimeout, error
-      rescue Faraday::Error::ClientError => error
-        raise Common::Client::Errors::Client, error
+      rescue Faraday::ClientError, Timeout::Error => error
+        raise Common::Client::Errors::Client
       end
 
       def get(path, params, headers = base_headers)
@@ -42,15 +55,6 @@ module Common
 
       def raise_not_authenticated
         raise Common::Client::Errors::NotAuthenticated, 'Not Authenticated'
-      end
-
-
-      def configuration_and_session_namespace
-        self.class.name.to_s.split("::")[0..-2].join("::")
-      end
-
-      def namespaced(class_name)
-        "#{configuration_and_session_namespace}::#{class_name}".safe_constantize
       end
     end
   end

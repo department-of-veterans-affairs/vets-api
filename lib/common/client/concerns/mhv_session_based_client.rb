@@ -1,24 +1,14 @@
 # frozen_string_literal: true
-require 'common/client/concerns/client_methods'
-
 module Common
   module Client
     module MHVSessionBasedClient
       extend ActiveSupport::Concern
 
-      included do
-        include Common::Client::ClientMethods
+      def initialize(session:)
+        @session = self.class.session_klass.find_or_build(session)
       end
 
       attr_reader :session
-
-      def initialize(session: )
-        @session = namespaced('ClientSession').find_or_build(session)
-      end
-
-      def config
-        namespaced('Configuration').instance
-      end
 
       def authenticate
         if session.expired?
@@ -26,6 +16,12 @@ module Common
           @session.save
         end
         self
+      end
+
+      module ClassMethods
+        def session_klass(klass = nil)
+          @session_klass ||= klass
+        end
       end
 
       private
