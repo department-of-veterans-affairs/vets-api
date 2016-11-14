@@ -44,7 +44,7 @@ class ApplicationController < ActionController::API
       when Common::Client::Errors::Error
         # SSLError, ConnectionFailed, SerializationError, etc
         Raven.capture_exception(exception.cause) if ENV['SENTRY_DSN'].present? && exception.cause.present?
-        Common::Exceptions::ServiceOutage.new(detail: 'Backend Service Outage')
+        Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
       else
         Common::Exceptions::InternalServerError.new(exception)
       end
