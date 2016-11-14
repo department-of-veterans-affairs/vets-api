@@ -15,6 +15,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
   before_validation(:set_submitted_at, on: :create)
   before_save(:set_region)
   after_save(:create_education_benefits_submission)
+  after_save(:update_education_benefits_submission_status)
 
   # For console access only, right now.
   def reprocess_at(region)
@@ -88,6 +89,12 @@ class EducationBenefitsClaim < ActiveRecord::Base
           education_benefits_claim: self
         )
       )
+    end
+  end
+
+  def update_education_benefits_submission_status
+    if processed_at.present? && processed_at_was.nil?
+      education_benefits_submission.update_attributes!(status: 'processed')
     end
   end
 

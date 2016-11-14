@@ -105,6 +105,18 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
   end
 
+  describe '#update_education_benefits_submission_status' do
+    subject do
+      education_benefits_claim = create(:education_benefits_claim)
+      education_benefits_claim.update_attributes!(processed_at: Time.zone.now)
+      education_benefits_claim
+    end
+
+    it 'should update the education_benefits_submission status' do
+      expect(subject.education_benefits_submission.status).to eq('processed')
+    end
+  end
+
   describe '#create_education_benefits_submission' do
     subject { create(:education_benefits_claim_western_region) }
 
