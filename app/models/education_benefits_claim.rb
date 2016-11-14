@@ -82,7 +82,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
   private
 
   def create_education_benefits_submission
-    if submitted_at.present? && submitted_at_was.nil?
+    if submitted_at.present? && submitted_at_was.nil? && education_benefits_submission.blank?
       EducationBenefitsSubmission.create!(
         parsed_form.slice(*APPLICATION_TYPES).merge(
           region: region,

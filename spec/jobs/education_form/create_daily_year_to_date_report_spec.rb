@@ -24,7 +24,10 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
 
       EducationBenefitsClaim.delete_all
 
+      # outside of yearly range
       create(:education_benefits_submission, created_at: date - 1.year, status: 'processed')
+      # outside of daily range
+      create(:education_benefits_submission, created_at: date - 1.month, status: 'processed')
 
       create(:education_benefits_submission, status: 'submitted')
     end
@@ -79,21 +82,50 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
           job_with_date.calculate_submissions(range_type: range_type, status: status)
         end
 
+        def self.verify_status_numbers(status, result)
+          context "for #{status} applications" do
+            let(:status) { status }
+
+            it 'should return data about the number of submissions' do
+              expect(subject).to eq(result)
+            end
+          end
+        end
+
         context 'for the current year' do
           let(:range_type) { :year }
 
-          context 'for processed applications' do
-            let(:status) { :processed }
+          verify_status_numbers(:processed,
+            eastern: { 'chapter33' => 3, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+            southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+            central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+            western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 }
+          )
 
-            it 'should return data about the number of submissions' do
-              expect(subject).to eq(
-                eastern: { 'chapter33' => 2, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 }
-              )
-            end
-          end
+          verify_status_numbers(:submitted,
+            eastern: { 'chapter33' => 4, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+            southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+            central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+            western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 }
+          )
+        end
+
+        context 'for the current day' do
+          let(:range_type) { :day }
+
+          verify_status_numbers(:processed,
+            eastern: { 'chapter33' => 2, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+            southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+            central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+            western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 }
+          )
+
+          verify_status_numbers(:submitted,
+            eastern: { 'chapter33' => 3, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+            southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+            central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+            western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 }
+          )
         end
       end
     end
