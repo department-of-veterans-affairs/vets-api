@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'faraday/error'
+require 'common/exceptions/serializable_error'
 require 'rack/utils'
 
 # FIXME: this needs to be adapted to use va-api-common style errors
@@ -9,11 +10,9 @@ module Common
     module Errors
       class Error < StandardError; end
 
-      class NotAuthenticated < Error; end
       class Client < Error; end
+      class NotAuthenticated < Error; end
       class Serialization < Error; end
-      class RequestTimeout < ::Faraday::Error::TimeoutError; end
-      class ConnectionFailed < ::Faraday::Error::ConnectionFailed; end
 
       # This error class is for wrapping errors returned from underlying services
       class ClientResponse < Error
