@@ -6,6 +6,14 @@ RSpec.describe MHVLoggingService do
   subject(:login_service) { described_class.login(mhv_user) }
   subject(:logout_service) { described_class.logout(mhv_user) }
 
+  before(:each) do
+    Sidekiq::Testing.inline!
+  end
+
+  after(:each) do
+    Sidekiq::Testing.fake!
+  end
+
   let(:authenticated_client) do
     MHVLogging::Client.new(session: { user_id: mhv_user.mhv_correlation_id,
                                       expires_at: Time.current + 60 * 60,
@@ -15,13 +23,13 @@ RSpec.describe MHVLoggingService do
   before(:each) { allow(MHVLogging::Client).to receive(:new).and_return(authenticated_client) }
 
   context 'with current_user not having logged in to MHV' do
-    let(:mhv_user) { build(:mhv_user, :mhv_not_logged_in) }
+    let(:mhv_user) { create(:mhv_user, :mhv_not_logged_in) }
 
     it 'posts audit log when not logged in' do
       VCR.use_cassette('mhv_logging_client/audits/submits_an_audit_log_for_signing_in') do
         expect(mhv_user.mhv_last_signed_in).to be_nil
         expect(login_service).to eq(true)
-        expect(mhv_user.mhv_last_signed_in).to be_a(Time)
+        expect(User.find(mhv_user.uuid).mhv_last_signed_in).to be_a(Time)
       end
     end
 
@@ -33,7 +41,7 @@ RSpec.describe MHVLoggingService do
   end
 
   context 'with current_user having already logged in to MHV' do
-    let(:mhv_user) { build(:mhv_user) }
+    let(:mhv_user) { create(:mhv_user) }
 
     it 'posts audit log when not logged in' do
       expect(mhv_user.mhv_last_signed_in).to be_a(Time)
@@ -45,7 +53,7 @@ RSpec.describe MHVLoggingService do
       VCR.use_cassette('mhv_logging_client/audits/submits_an_audit_log_for_signing_out') do
         expect(mhv_user.mhv_last_signed_in).to be_a(Time)
         expect(logout_service).to eq(true)
-        expect(mhv_user.mhv_last_signed_in).to be_nil
+        expect(User.find(mhv_user.uuid).mhv_last_signed_in).to be_nil
       end
     end
   end
