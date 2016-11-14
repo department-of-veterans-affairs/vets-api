@@ -73,8 +73,6 @@ module EducationForm
       case area
       when *EASTERN
         :eastern
-      when *SOUTHERN
-        :southern
       when *CENTRAL
         :central
       when *WESTERN
