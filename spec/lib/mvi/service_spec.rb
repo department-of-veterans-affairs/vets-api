@@ -91,6 +91,14 @@ describe MVI::Service do
       end
     end
 
+    context 'with an MVI timeout' do
+      it 'should raise a service error' do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+        expect(Rails.logger).to receive(:error).with('MVI find_candidate timeout')
+        expect { subject.find_candidate(message) }.to raise_error(MVI::ServiceError)
+      end
+    end
+
     context 'when a status of 500 is returned' do
       it 'should raise a request failure error' do
         allow(message).to receive(:to_xml).and_return('<nobeuno></nobeuno>')
