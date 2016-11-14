@@ -1,21 +1,18 @@
 # frozen_string_literal: true
+require 'common/client/configuration'
 require 'singleton'
+
 module Rx
   # Configuration class used to setup the environment used by client
-  class Configuration
+  class Configuration < Common::Client::Configuration
     include Singleton
 
-    attr_reader :host, :app_token, :open_timeout, :read_timeout
-
-    def initialize
-      @host = ENV['MHV_HOST']
-      @app_token = ENV['MHV_APP_TOKEN']
-      @open_timeout = 15
-      @read_timeout = 15
+    def app_token
+      ENV['MHV_APP_TOKEN']
     end
 
     def base_path
-      "#{host}/mhv-api/patient/v1/"
+      "#{ENV['MHV_HOST']}/mhv-api/patient/v1/"
     end
 
     def breakers_service

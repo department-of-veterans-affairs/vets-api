@@ -1,21 +1,17 @@
 # frozen_string_literal: true
+require 'common/client/configuration'
 require 'singleton'
 
 module SM
-  class Configuration
+  class Configuration < Common::Client::Configuration
     include Singleton
 
-    attr_reader :host, :app_token, :open_timeout, :read_timeout
-
-    def initialize
-      @host = ENV['MHV_SM_HOST']
-      @app_token = ENV['MHV_SM_APP_TOKEN']
-      @open_timeout = 15
-      @read_timeout = 15
+    def app_token
+      ENV['MHV_SM_APP_TOKEN']
     end
 
     def base_path
-      "#{@host}/mhv-sm-api/patient/v1/"
+      "#{ENV['MHV_SM_HOST']}/mhv-sm-api/patient/v1/"
     end
 
     def breakers_service
