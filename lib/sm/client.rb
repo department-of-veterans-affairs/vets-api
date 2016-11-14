@@ -3,7 +3,7 @@ require 'faraday'
 require 'multi_json'
 require 'common/client/errors'
 require 'common/client/concerns/client_methods'
-require 'common/client/concerns/session_based_client'
+require 'common/client/concerns/mhv_session_based_client'
 require 'common/client/middleware/request/camelcase'
 require 'common/client/middleware/request/multipart_request'
 require 'common/client/middleware/response/json_parser'
@@ -20,20 +20,12 @@ require 'sm/api/message_drafts'
 
 module SM
   class Client
-    include Common::ClientMethods
-    include Common::SessionBasedClient
+    include Common::Client::MHVSessionBasedClient
     include SM::API::Sessions
     include SM::API::TriageTeams
     include SM::API::Folders
     include SM::API::Messages
     include SM::API::MessageDrafts
-
-    attr_reader :config, :session
-
-    def initialize(session:)
-      @config = SM::Configuration.instance
-      @session = SM::ClientSession.find_or_build(session)
-    end
 
     def connection
       @connection ||= Faraday.new(config.base_path, headers: config.base_request_headers, request: config.request_options) do |conn|

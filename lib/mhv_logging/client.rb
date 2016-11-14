@@ -2,7 +2,7 @@
 require 'faraday'
 require 'common/client/errors'
 require 'common/client/concerns/client_methods'
-require 'common/client/concerns/session_based_client'
+require 'common/client/concerns/mhv_session_based_client'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/raise_error'
 require 'common/client/middleware/response/snakecase'
@@ -11,22 +11,16 @@ require 'rx/api/sessions'
 require 'rx/configuration'
 require 'rx/client_session'
 
-# NOTE: This client uses the exact same configuration, breakers, and client session
+# NOTE: This client uses the exact same configuration and client session
 # as Rx does. It is the same server, but we're building it as a separate client
 # for better separation of concerns since it can be invoked when using secure messaging
 
 module MHVLogging
   # Core class responsible for api interface operations
   class Client
-    include Common::ClientMethods
-    include Common::SessionBasedClient
+    include Common::Client::MHVSessionBasedClient
     include MHVLogging::API::Audits
     include Rx::API::Sessions
-
-    def initialize(session:)
-      @config = Rx::Configuration.instance
-      @session = Rx::ClientSession.find_or_build(session)
-    end
 
     def connection
       @connection ||= Faraday.new(config.base_path, headers: config.base_request_headers, request: config.request_options) do |conn|
@@ -41,6 +35,10 @@ module MHVLogging
         conn.response :json_parser
         conn.adapter Faraday.default_adapter
       end
+    end
+
+    def configuration_and_session_namespace
+      "Rx"
     end
   end
 end
