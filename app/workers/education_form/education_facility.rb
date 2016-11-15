@@ -6,24 +6,23 @@ module EducationForm
     DEFAULT = :eastern
 
     EASTERN = %w(
-      CT DE DC ME MD MA NH NJ NY PA
-      RI VT VA
+      CT DE DC ME MD MA NC NH NJ NY PA RI VT VA
+      VI AA
     ).freeze
 
-    SOUTHERN = [
-      'GA', 'NC', 'PR', 'US Virgin Islands', 'APO/FPO AA'
-    ].freeze
+    # We need to keep SOUTHERN because existing records will have
+    # this as a region, and we need to conitnue to show the counts
+    # in the YTD reports.
+    SOUTHERN = %w().freeze
 
     CENTRAL = %w(
-      CO IA IL IN KS KY MI MN MO MT
-      NE ND OH SD TN WV WI WY
+      CO IA IL IN KS KY MI MN MO MT NE ND OH SD TN WV WI WY
     ).freeze
 
-    WESTERN = [
-      'AK', ' AL', 'AR', 'AZ', 'CA', 'FL', 'HI', 'ID', 'LA', 'MS',
-      'NM', 'NV', 'OK', 'OR', 'SC', 'TX', 'UT', 'WA', 'Philippines',
-      'Guam', 'APO/FPO AP'
-    ].freeze
+    WESTERN = %w(
+      AK AL AR AZ CA FL GA HI ID LA MS NM NV OK OR SC TX UT WA
+      GU PR AP
+    ).freeze
 
     ADDRESSES = {
       eastern: [
@@ -65,13 +64,15 @@ module EducationForm
       FACILITY_IDS[region]
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity
     def self.region_for(record)
+      # special case Philippines
+      return :western if (record.school&.address&.country || record.veteranAddress&.country) == 'PHL'
+
       area = record.school&.address&.state || record.veteranAddress&.state
       case area
       when *EASTERN
         :eastern
-      when *SOUTHERN
-        :southern
       when *CENTRAL
         :central
       when *WESTERN
@@ -80,6 +81,7 @@ module EducationForm
         DEFAULT
       end
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def self.regional_office_for(record)
       region = region_for(record)

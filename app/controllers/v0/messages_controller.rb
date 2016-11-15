@@ -98,7 +98,7 @@ module V0
     private
 
     def message_params
-      @message_params ||= params.require(:message).permit(:category, :body, :recipient_id, :subject)
+      @message_params ||= params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject)
     end
 
     def upload_params
