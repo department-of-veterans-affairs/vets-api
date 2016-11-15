@@ -69,6 +69,16 @@ module EducationForm
       csv_array
     end
 
+    def create_totals_row(text_rows, totals)
+      row = text_rows.clone
+
+      row << totals[:yearly]
+      row << totals[:daily_submitted]
+      row << totals[:daily_processed]
+
+      row
+    end
+
     def convert_submissions_to_csv_array
       submissions_csv_array = []
       submissions = {
@@ -80,35 +90,15 @@ module EducationForm
 
       submissions[:yearly].each do |region, regional_yearly_submissions|
         submissions_total = TOTALS_HASH.dup
+        data_row = create_csv_data_row(regional_yearly_submissions, region, submissions, submissions_total)
+        submissions_csv_array += data_row
 
-        submissions_csv_array +=
-          create_csv_data_row(
-            regional_yearly_submissions,
-            region,
-            submissions,
-            submissions_total
-          )
+        submissions_csv_array << create_totals_row(['', 'TOTAL'], submissions_total)
 
-        submissions_csv_array << [
-          '',
-          'TOTAL',
-          submissions_total[:yearly],
-          submissions_total[:daily_submitted],
-          submissions_total[:daily_processed]
-        ]
-
-        grand_totals.each do |type, _|
-          grand_totals[type] += submissions_total[type]
-        end
+        grand_totals.each { |t, _| grand_totals[t] += submissions_total[t] }
       end
 
-      submissions_csv_array << [
-        'ALL RPOS TOTAL',
-        '',
-        grand_totals[:yearly],
-        grand_totals[:daily_submitted],
-        grand_totals[:daily_processed]
-      ]
+      submissions_csv_array << create_totals_row(['ALL RPOS TOTAL', ''], grand_totals)
 
       submissions_csv_array
     end
