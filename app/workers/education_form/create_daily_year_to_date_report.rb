@@ -4,6 +4,12 @@ module EducationForm
     include Sidekiq::Worker
     require 'csv'
 
+    TOTALS_HASH = {
+      yearly: 0,
+      daily_submitted: 0,
+      daily_processed: 0
+    }.freeze
+
     def calculate_submissions(range_type: :year, status: :processed)
       submissions = {}
       application_types = EducationBenefitsClaim::APPLICATION_TYPES
@@ -28,59 +34,72 @@ module EducationForm
       submissions
     end
 
-    def create_csv_header(csv_array)
+    def create_csv_header
+      csv_array = []
+
       csv_array << ["Submitted Vets.gov Applications - Report FYTD #{@date.year} as of #{@date}"]
       csv_array << ['', '', 'DOCUMENT TYPE']
       csv_array << ['RPO', 'BENEFIT TYPE', '22-1990']
       csv_array << ['', '', @date.year, '', @date.to_s]
       csv_array << ['', '', '', 'Submitted', 'Uploaded to TIMS']
+
+      csv_array
     end
 
-    def create_csv_array
-      submissions = calculate_submissions
-      daily_submitted = calculate_submissions(range_type: :day, status: :submitted)
-      daily_processed = calculate_submissions(range_type: :day, status: :processed)
+    def create_csv_data_row(regional_yearly_submissions, region, submissions, submissions_total)
       csv_array = []
-      create_csv_header(csv_array)
 
-      grand_totals = {
-        yearly: 0,
-        daily_submitted: 0,
-        daily_processed: 0
+      regional_yearly_submissions.each_with_index do |(application_type, yearly_processed_count), i|
+        daily_submitted_count = submissions[:daily_submitted][region][application_type]
+        daily_processed_count = submissions[:daily_processed][region][application_type]
+
+        csv_array << [
+          i.zero? ? EducationFacility::RPO_NAMES[region] : '',
+          application_type,
+          yearly_processed_count,
+          daily_submitted_count,
+          daily_processed_count
+        ]
+
+        submissions_total[:yearly] += yearly_processed_count
+        submissions_total[:daily_submitted] += daily_submitted_count
+        submissions_total[:daily_processed] += daily_processed_count
+      end
+
+      csv_array
+    end
+
+    def convert_submissions_to_csv_array
+      submissions_csv_array = []
+      submissions = {
+        yearly: calculate_submissions,
+        daily_submitted: calculate_submissions(range_type: :day, status: :submitted),
+        daily_processed: calculate_submissions(range_type: :day, status: :processed)
       }
+      grand_totals = TOTALS_HASH.dup
 
-      submissions.each do |region, data|
-        submissions_total = {
-          yearly: 0,
-          daily_submitted: 0,
-          daily_processed: 0
-        }
+      submissions[:yearly].each do |region, regional_yearly_submissions|
+        submissions_total = TOTALS_HASH.dup
 
-        data.each_with_index do |(application_type, yearly_processed_count), i|
-          daily_submitted_count = daily_submitted[region][application_type]
-          daily_processed_count = daily_processed[region][application_type]
+        submissions_csv_array += create_csv_data_row(regional_yearly_submissions, region, submissions, submissions_total)
 
-          csv_array << [
-            i.zero? ? EducationFacility::RPO_NAMES[region] : '',
-            application_type,
-            yearly_processed_count,
-            daily_submitted_count,
-            daily_processed_count
-          ]
-
-          submissions_total[:yearly] += yearly_processed_count
-          submissions_total[:daily_submitted] += daily_submitted_count
-          submissions_total[:daily_processed] += daily_processed_count
-        end
-
-        csv_array << ['', 'TOTAL', submissions_total[:yearly], submissions_total[:daily_submitted], submissions_total[:daily_processed]]
+        submissions_csv_array << ['', 'TOTAL', submissions_total[:yearly], submissions_total[:daily_submitted], submissions_total[:daily_processed]]
 
         grand_totals.each do |type, _|
           grand_totals[type] += submissions_total[type]
         end
       end
 
-      csv_array << ['ALL RPOS TOTAL', '', grand_totals[:yearly], grand_totals[:daily_submitted], grand_totals[:daily_processed]]
+      submissions_csv_array << ['ALL RPOS TOTAL', '', grand_totals[:yearly], grand_totals[:daily_submitted], grand_totals[:daily_processed]]
+
+      submissions_csv_array
+    end
+
+    def create_csv_array
+      csv_array = []
+
+      csv_array += create_csv_header
+      csv_array += convert_submissions_to_csv_array
       csv_array << ['', '', '22-1990']
 
       csv_array
