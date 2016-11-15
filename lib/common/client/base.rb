@@ -17,8 +17,9 @@ module Common
         self.class.configuration
       end
 
+      # memoize the connection from config
       def connection
-        config.connection
+        @connection ||= config.connection
       end
 
       def perform(method, path, params, headers = nil)

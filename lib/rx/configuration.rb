@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 require 'common/client/configuration'
-require 'singleton'
 
 module Rx
   # Configuration class used to setup the environment used by client
   class Configuration < Common::Client::Configuration
-    include Singleton
-
     def app_token
       ENV['MHV_APP_TOKEN']
     end

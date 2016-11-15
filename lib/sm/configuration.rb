@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 require 'common/client/configuration'
-require 'singleton'
 
 module SM
   class Configuration < Common::Client::Configuration
-    include Singleton
-
     def app_token
       ENV['MHV_SM_APP_TOKEN']
     end
