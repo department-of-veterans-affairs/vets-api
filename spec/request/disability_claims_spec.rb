@@ -5,8 +5,6 @@ RSpec.describe 'disability Claims management', type: :request do
   let(:user) { FactoryGirl.create(:loa3_user) }
   let(:session) { Session.create(uuid: user.uuid) }
 
-  before(:each) { stub_mvi }
-
   context 'for a user without evss attrs' do
     before(:each) { stub_mvi_not_found }
 

@@ -5,8 +5,6 @@ RSpec.describe V0::DocumentsController, type: :controller do
   let(:user) { FactoryGirl.create(:loa3_user) }
   let(:session) { Session.create(uuid: user.uuid) }
 
-  before(:each) { stub_mvi }
-
   context 'with no file param' do
     it 'returns bad request' do
       request.headers['Authorization'] = "Token token=#{session.token}"

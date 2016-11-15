@@ -11,7 +11,6 @@ RSpec.describe 'Fetching profile data', type: :request do
     before do
       Session.create(uuid: loa3_user.uuid, token: token)
       User.create(loa3_user)
-      stub_mvi
       auth_header = { 'Authorization' => "Token token=#{token}" }
       get v0_user_url, nil, auth_header
     end

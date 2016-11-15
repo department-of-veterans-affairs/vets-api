@@ -9,7 +9,6 @@ describe EVSS::ClaimsService do
     EVSS::AuthHeaders.new(current_user).to_h
   end
 
-  before(:each) { stub_mvi }
   subject { described_class.new(auth_headers) }
 
   context 'with headers' do

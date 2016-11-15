@@ -10,8 +10,6 @@ RSpec.describe UserSerializer, type: :serializer do
 
   subject { serialize(user, serializer_class: described_class) }
 
-  before(:each) { stub_mvi }
-
   it 'should not include ssn anywhere' do
     expect(attributes['ssn']).to be_nil
     expect(profile['ssn']).to be_nil
