@@ -79,15 +79,15 @@ class User < Common::RedisStore
   end
 
   def edipi
-    select_source_id(mvi[:edipi])
+    select_source_id(:edipi)
   end
 
   def icn
-    select_source_id(mvi[:icn])
+    select_source_id(:icn)
   end
 
   def participant_id
-    select_source_id(mvi[:vba_corp_id])
+    select_source_id(:vba_corp_id)
   end
 
   def mhv_correlation_id
@@ -100,7 +100,7 @@ class User < Common::RedisStore
     return @mhv_correlation_ids if @mhv_correlation_ids
     ids = mvi&.dig(:mhv_ids)
     ids = [] unless ids
-    ids.map { |mhv_id| select_source_id(mhv_id) }.compact
+    ids.map { |mhv_id| mhv_id.split('^')&.first }.compact
   end
 
   def evss_auth_headers
@@ -108,7 +108,7 @@ class User < Common::RedisStore
   end
 
   def select_source_id(correlation_id)
-    return nil unless correlation_id && loa3?
-    correlation_id.split('^')&.first
+    return nil unless mvi&.dig(correlation_id) && loa3?
+    mvi[correlation_id].split('^')&.first
   end
 end
