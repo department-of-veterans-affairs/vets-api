@@ -6,11 +6,11 @@ RSpec.describe 'Fetching profile data', type: :request do
   let(:token) { 'abracadabra-open-sesame' }
 
   context 'when an LOA 3 user is logged in' do
-    let(:mvi_user) { build :mvi_user }
+    let(:mhv_user) { build :mhv_user }
 
     before do
-      Session.create(uuid: mvi_user.uuid, token: token)
-      User.create(mvi_user)
+      Session.create(uuid: mhv_user.uuid, token: token)
+      User.create(mhv_user)
 
       auth_header = { 'Authorization' => "Token token=#{token}" }
       get v0_user_url, nil, auth_header
@@ -28,7 +28,9 @@ RSpec.describe 'Fetching profile data', type: :request do
           BackendServices::HCA,
           BackendServices::EDUCATION_BENEFITS,
           BackendServices::DISABILITY_BENEFITS,
-          BackendServices::USER_PROFILE
+          BackendServices::USER_PROFILE,
+          BackendServices::RX,
+          BackendServices::MESSAGING
         ].sort
       )
     end
