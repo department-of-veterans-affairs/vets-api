@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 require 'faraday/error'
-require 'common/exceptions/serializable_error'
 require 'rack/utils'
 
 # FIXME: this needs to be adapted to use va-api-common style errors
