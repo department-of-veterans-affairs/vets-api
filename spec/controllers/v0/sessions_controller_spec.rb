@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe V0::SessionsController, type: :controller do
-  let(:user) { FactoryGirl.build(:user) }
+  let(:mvi_user) { FactoryGirl.build(:mvi_user) }
   let(:saml_attrs) do
     {
       'uuid' => [mvi_user.uuid],
@@ -25,6 +25,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   before(:each) do
     stub_request(:get, SAML_CONFIG['metadata_url']).to_return(body: 'abc')
+    allow_any_instance_of(Decorators::MviUserDecorator).to receive(:create).and_return(mvi_user)
     allow_any_instance_of(SAML::SettingsService).to receive(:saml_settings).and_return(settings_no_context)
   end
 
@@ -118,6 +119,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       it 'should uplevel an LOA 1 session to LOA 3' do
         allow(attributes).to receive_message_chain(:all, :to_h).and_return(loa3_saml_attrs)
+        allow_any_instance_of(Decorators::MviUserDecorator).to receive(:create).and_return(loa3_user)
 
         Session.create(uuid: loa1_user.uuid, token: token)
         User.create(loa1_user)
