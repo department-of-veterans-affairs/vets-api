@@ -43,27 +43,45 @@ module EducationForm
       csv_array = []
       create_csv_header(csv_array)
 
-      grand_total = 0
+      grand_totals = {
+        yearly: 0,
+        daily_submitted: 0,
+        daily_processed: 0
+      }
 
       submissions.each do |region, data|
+        submissions_total = {
+          yearly: 0,
+          daily_submitted: 0,
+          daily_processed: 0
+        }
         region_submissions_total = 0
 
-        data.each_with_index do |(application_type, submissions_count), i|
+        data.each_with_index do |(application_type, yearly_processed_count), i|
+          daily_submitted_count = daily_submitted[region][application_type]
+          daily_processed_count = daily_processed[region][application_type]
+
           csv_array << [
             i.zero? ? EducationFacility::RPO_NAMES[region] : '',
             application_type,
-            submissions_count,
-            daily_submitted[region][application_type],
-            daily_processed[region][application_type]
+            yearly_processed_count,
+            daily_submitted_count,
+            daily_processed_count
           ]
-          region_submissions_total += submissions_count
+
+          submissions_total[:yearly] += yearly_processed_count
+          submissions_total[:daily_submitted] += daily_submitted_count
+          submissions_total[:daily_processed] += daily_processed_count
         end
 
-        csv_array << ['', 'TOTAL', region_submissions_total]
-        grand_total += region_submissions_total
+        csv_array << ['', 'TOTAL', submissions_total[:yearly], submissions_total[:daily_submitted], submissions_total[:daily_processed]]
+
+        grand_totals.each do |type, _|
+          grand_totals[type] += submissions_total[type]
+        end
       end
 
-      csv_array << ['ALL RPOS TOTAL', '', grand_total]
+      csv_array << ['ALL RPOS TOTAL', '', grand_totals[:yearly], grand_totals[:daily_submitted], grand_totals[:daily_processed]]
       csv_array << ['', '', '22-1990']
 
       csv_array
