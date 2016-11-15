@@ -22,6 +22,7 @@ module MHVLogging
 
     private
 
+    # Override connection in superclass because we don't want breakers for this client
     def connection
       @connection ||= Faraday.new(config.base_path, headers: config.base_request_headers, request: config.request_options) do |conn|
         conn.request :json
