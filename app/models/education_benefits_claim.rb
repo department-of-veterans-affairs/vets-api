@@ -94,7 +94,8 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   def update_education_benefits_submission_status
     if processed_at.present? && processed_at_was.nil?
-      education_benefits_submission.update_attributes!(status: 'processed')
+      # old claims don't have an education benefits submission associated
+      education_benefits_submission&.update_attributes!(status: 'processed')
     end
   end
 
