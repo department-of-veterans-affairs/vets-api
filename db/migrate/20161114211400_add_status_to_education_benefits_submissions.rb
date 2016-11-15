@@ -4,8 +4,6 @@ class AddStatusToEducationBenefitsSubmissions < ActiveRecord::Migration
     EducationBenefitsSubmission.update_all(status: 'processed')
 
     add_column(:education_benefits_submissions, :education_benefits_claim_id, :integer)
-    # don't know id for old submissions but it doesn't matter
-    EducationBenefitsSubmission.update_all(education_benefits_claim_id: (EducationBenefitsClaim.first&.id || 1))
-    change_column(:education_benefits_submissions, :education_benefits_claim_id, :integer, null: false)
+    add_index(:education_benefits_submissions, :education_benefits_claim_id, unique: true, name: :index_education_benefits_claim_id)
   end
 end

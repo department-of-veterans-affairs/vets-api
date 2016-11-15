@@ -49,9 +49,10 @@ ActiveRecord::Schema.define(version: 20161114211400) do
     t.boolean  "chapter1606",                 default: false,       null: false
     t.boolean  "chapter32",                   default: false,       null: false
     t.string   "status",                      default: "submitted", null: false
-    t.integer  "education_benefits_claim_id",                       null: false
+    t.integer  "education_benefits_claim_id"
   end
 
+  add_index "education_benefits_submissions", ["education_benefits_claim_id"], name: "index_education_benefits_claim_id", unique: true, using: :btree
   add_index "education_benefits_submissions", ["region", "created_at"], name: "index_education_benefits_submissions_on_region_and_created_at", using: :btree
 
 end
