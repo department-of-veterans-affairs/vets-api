@@ -29,7 +29,7 @@ module EducationForm
       create_files(regional_data)
       # mark the records as processed
       records.find_each do |record|
-        record.update_attributes(processed_at: Time.zone.now)
+        record.update_attributes!(processed_at: Time.zone.now)
       end
       # TODO: Log the success/failure of the submission somewhere
       true
