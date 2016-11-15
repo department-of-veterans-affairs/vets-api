@@ -55,7 +55,6 @@ module EducationForm
           daily_submitted: 0,
           daily_processed: 0
         }
-        region_submissions_total = 0
 
         data.each_with_index do |(application_type, yearly_processed_count), i|
           daily_submitted_count = daily_submitted[region][application_type]
