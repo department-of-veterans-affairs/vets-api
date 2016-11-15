@@ -26,6 +26,6 @@ module SM
     include SM::API::MessageDrafts
 
     configuration SM::Configuration
-    session_klass SM::ClientSession
+    client_session SM::ClientSession
   end
 end

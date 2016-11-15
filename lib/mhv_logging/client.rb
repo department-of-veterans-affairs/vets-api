@@ -21,7 +21,7 @@ module MHVLogging
     include Rx::API::Sessions
 
     configuration Rx::Configuration
-    session_klass Rx::ClientSession
+    client_session Rx::ClientSession
 
     private
 

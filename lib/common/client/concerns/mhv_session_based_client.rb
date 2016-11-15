@@ -5,7 +5,7 @@ module Common
       extend ActiveSupport::Concern
 
       def initialize(session:)
-        @session = self.class.session_klass.find_or_build(session)
+        @session = self.class.client_session.find_or_build(session)
       end
 
       attr_reader :session
@@ -19,8 +19,8 @@ module Common
       end
 
       module ClassMethods
-        def session_klass(klass = nil)
-          @session_klass ||= klass
+        def client_session(klass = nil)
+          @client_session ||= klass
         end
       end
 
