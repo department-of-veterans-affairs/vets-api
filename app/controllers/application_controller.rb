@@ -43,7 +43,6 @@ class ApplicationController < ActionController::API
         Common::Exceptions::ServiceOutage.new(exception.outage)
       when Common::Client::Errors::Error
         # SSLError, ConnectionFailed, SerializationError, etc
-        Raven.capture_exception(exception.cause) if ENV['SENTRY_DSN'].present? && exception.cause.present?
         Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
       else
         Common::Exceptions::InternalServerError.new(exception)
@@ -56,7 +55,9 @@ class ApplicationController < ActionController::API
   end
 
   def log_error(exception)
-    Raven.capture_exception(exception) if ENV['SENTRY_DSN'].present?
+    # Since we're rescuing and raising a different exception in many places, it might be best
+    # to report the cause of the exception when present
+    Raven.capture_exception(exception.cause.presence || exception) if ENV['SENTRY_DSN'].present?
     Rails.logger.error "#{exception.message}."
     Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
   end

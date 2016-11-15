@@ -90,18 +90,9 @@ RSpec.describe ApplicationController, type: :controller do
     end
 
     it 'makes a call to sentry when there is cause' do
-      expect(Raven).to receive(:capture_exception).twice
-      ClimateControl.modify SENTRY_DSN: 'T' do
-        get :client_connection_failed
-      end
-      expect(JSON.parse(response.body)['errors'].first['title'])
-        .to eq('Backend Service Outage')
-    end
-
-    it 'does not make a call to sentry when no cause' do
       expect(Raven).to receive(:capture_exception).once
       ClimateControl.modify SENTRY_DSN: 'T' do
-        get :client_connection_failed_no_sentry
+        get :client_connection_failed
       end
       expect(JSON.parse(response.body)['errors'].first['title'])
         .to eq('Backend Service Outage')
