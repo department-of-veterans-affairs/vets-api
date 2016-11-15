@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 require 'common/client/base'
 require 'common/client/concerns/mhv_session_based_client'
-require 'mhv_logging/api/audits'
 require 'rx/configuration'
 require 'rx/client_session'
 
@@ -13,10 +12,19 @@ module MHVLogging
   # Core class responsible for api interface operations
   class Client < Common::Client::Base
     include Common::Client::MHVSessionBasedClient
-    include MHVLogging::API::Audits
 
     configuration Rx::Configuration
     client_session Rx::ClientSession
+
+    def auditlogin
+      body = { isSuccessful: true, activityDetails: 'Signed in Vets.gov' }
+      perform(:post, 'activity/auditlogin', body, token_headers)
+    end
+
+    def auditlogout
+      body = { isSuccessful: true, activityDetails: 'Signed out Vets.gov' }
+      perform(:post, 'activity/auditlogout', body, token_headers)
+    end
 
     private
 

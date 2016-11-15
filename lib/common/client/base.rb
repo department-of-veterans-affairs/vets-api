@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'faraday'
 require 'common/client/errors'
+require 'common/models/collection'
 
 module Common
   module Client
