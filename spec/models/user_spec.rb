@@ -156,31 +156,6 @@ RSpec.describe User, type: :model do
       end
     end
 
-    describe '#update' do
-      context 'with a partial update' do
-        it 'updates only user the user attributes passed in as arguments' do
-          expect(subject).to receive(:save).once
-          subject.update(
-            mvi: {
-              edipi: '1234^NI^200DOD^USDOD^A',
-              icn: '1000123456V123456^NI^200M^USVHA^P',
-              mhv_id: '123456^PI^200MHV^USVHA^A'
-            }
-          )
-          expect(subject.attributes).to eq(
-            FactoryGirl.build(
-              :user,
-              mvi: {
-                edipi: '1234^NI^200DOD^USDOD^A',
-                icn: '1000123456V123456^NI^200M^USVHA^P',
-                mhv_id: '123456^PI^200MHV^USVHA^A'
-              }
-            ).attributes
-          )
-        end
-      end
-    end
-
     describe '#destroy' do
       it 'can destroy a user in redis' do
         expect(subject.destroy).to eq(1)
@@ -190,15 +165,16 @@ RSpec.describe User, type: :model do
 
     describe '#mhv_correlation_id' do
       context 'when mhv ids are nil' do
-        let(:user) { FactoryGirl.build(:user) }
+        let(:user) { FactoryGirl.build(:loa1_user) }
         it 'has a mhv correlation id of nil' do
           expect(user.mhv_correlation_id).to be_nil
         end
       end
       context 'when there are mhv ids' do
-        let(:mvi_user) { FactoryGirl.build(:mvi_user) }
+        let(:user) { FactoryGirl.build(:loa3_user) }
+        before(:each) { stub_mvi }
         it 'has a mhv correlation id' do
-          expect(mvi_user.mhv_correlation_id).to eq('123456')
+          expect(user.mhv_correlation_id).to eq('123456')
         end
       end
     end

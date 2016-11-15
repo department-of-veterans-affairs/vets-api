@@ -2,8 +2,10 @@
 require 'rails_helper'
 
 RSpec.describe EVSS::CreateUserAccountJob, type: :job do
-  let(:user) { FactoryGirl.create(:mvi_user) }
+  let(:user) { FactoryGirl.create(:loa3_user) }
   let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
+
+  before(:each) { stub_mvi }
 
   it 'calls create_user_account EVSS API' do
     client_stub = instance_double('EVSS::CommonService')

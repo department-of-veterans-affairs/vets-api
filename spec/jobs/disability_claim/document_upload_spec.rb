@@ -6,7 +6,7 @@ require 'evss/auth_headers'
 RSpec.describe DisabilityClaim::DocumentUpload, type: :job do
   let(:client_stub) { instance_double('EVSS::DocumentsService') }
   let(:uploader_stub) { instance_double('DisabilityClaimDocumentUploader') }
-  let(:user) { FactoryGirl.create(:mvi_user) }
+  let(:user) { FactoryGirl.create(:loa3_user) }
   let(:filename) { 'doctors-note.pdf' }
   let(:document_data) do
     DisabilityClaimDocument.new(
@@ -17,6 +17,8 @@ RSpec.describe DisabilityClaim::DocumentUpload, type: :job do
     )
   end
   let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
+
+  before(:each) { stub_mvi }
 
   it 'retrieves the file and uploads to EVSS' do
     allow(DisabilityClaimDocumentUploader).to receive(:new) { uploader_stub }
