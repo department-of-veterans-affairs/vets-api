@@ -41,7 +41,7 @@ class ApplicationController < ActionController::API
         Common::Exceptions::ClientError.new(exception.message, additional_attributes)
       when Breakers::OutageException
         Common::Exceptions::ServiceOutage.new(exception.outage)
-      when Common::Client::Errors::Error
+      when Common::Client::Errors::ClientError
         # SSLError, ConnectionFailed, SerializationError, etc
         Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
       else

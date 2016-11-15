@@ -31,7 +31,7 @@ module Common
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
       rescue Faraday::ClientError, Timeout::Error
-        raise Common::Client::Errors::Client
+        raise Common::Client::Errors::ClientError
       end
 
       def get(path, params, headers = base_headers)
