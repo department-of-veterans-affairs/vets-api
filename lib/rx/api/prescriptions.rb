@@ -33,8 +33,9 @@ module Rx
       end
 
       def post_refill_rx(id)
-        perform(:post, "prescription/rxrefill/#{id}", nil, token_headers)
+        result = perform(:post, "prescription/rxrefill/#{id}", nil, token_headers)
         StatsD.increment('api.prescriptions.refill.request.succeeded', 1)
+        result
       rescue
         StatsD.increment('api.prescriptions.refill.request.failed', 1)
         raise
