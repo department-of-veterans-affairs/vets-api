@@ -74,7 +74,6 @@ module MHVLogging
 
     def connection
       @connection ||= Faraday.new(config.base_path, headers: BASE_REQUEST_HEADERS, request: request_options) do |conn|
-        conn.use :breakers
         conn.request :json
         # Uncomment this out for generating curl output to send to MHV dev and test only
         # conn.request :curl, ::Logger.new(STDOUT), :warn

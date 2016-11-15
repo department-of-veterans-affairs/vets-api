@@ -49,6 +49,9 @@ module MVI
     rescue Faraday::ConnectionFailed => e
       Rails.logger.error "MVI find_candidate connection failed: #{e.message}"
       raise MVI::ServiceError, 'MVI connection failed'
+    rescue Faraday::TimeoutError
+      Rails.logger.error 'MVI find_candidate timeout'
+      raise MVI::ServiceError, 'MVI timeout error'
     end
 
     def self.breakers_service
@@ -68,6 +71,8 @@ module MVI
 
     def connection
       @conn ||= Faraday.new(MVI::Service.options) do |conn|
+        conn.options.open_timeout = MVI::Settings::OPEN_TIMEOUT
+        conn.options.timeout = MVI::Settings::TIMEOUT
         conn.use :breakers
         conn.adapter Faraday.default_adapter
       end

@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: post
-    uri: <EVSS_BASE_URL>/wss-claims-services-web-3.0/rest/vbaClaimStatusService/set5103Waiver
+    uri: <EVSS_BASE_URL>/wss-common-services-web-11.0/rest/persistentPropertiesService/11.0/createUserAccount
     body:
       encoding: UTF-8
-      string: '{"claimId":189625,"systemName":"vets.gov"}'
+      string: ''
     headers:
       User-Agent:
       - Faraday v0.9.2
@@ -14,7 +14,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Mon, 24 Oct 2016 21:52:06 GMT
+      - Thu, 10 Nov 2016 23:07:19 GMT
       Va-Eauth-Csid:
       - DSLogon
       Va-Eauth-Authenticationmethod:
@@ -28,7 +28,7 @@ http_interactions:
       Va-Eauth-Lastname:
       - WEAVER
       Va-Eauth-Issueinstant:
-      - '2016-10-24T21:52:06Z'
+      - '2016-11-10T23:07:19Z'
       Va-Eauth-Dodedipnid:
       - 1005169255
       Va-Eauth-Pid:
@@ -39,41 +39,31 @@ http_interactions:
       - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":796123607,"edi":1005169255,"firstName":"JOHNNIE","lastName":"WEAVER"}}'
       Content-Type:
       - application/json
-      Token: "<SESSION_TOKEN>"
+      Content-Length:
+      - '0'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Mon, 24 Oct 2016 21:52:06 GMT
-      Server:
-      - Apache
-      Content-Type:
-      - application/json
-      X-Powered-By:
-      - Servlet/2.5 JSP/2.1
-      Set-Cookie:
-      - INT_EBN_ROUTEID_PRIMARY=.1_1_1; path=/
-      - WSS-CLAIMS-SERVICES_JSESSIONID=udj4rd8Zef8SupfGsPcKa6WPsJV55uflfRKXKVRWwIGLHZ0yMctH!-1307054188;
-        path=/; HttpOnly
-      Via:
-      - 1.1 int.ebenefits.va.gov:444
-      Vary:
-      - Accept-Encoding,User-Agent
-      Content-Encoding:
-      - gzip
-      X-Ua-Compatible:
-      - IE=Edge
+      - Thu, 10 Nov 2016 23:07:19 GMT
       Transfer-Encoding:
       - chunked
-      Token: "<SESSION_TOKEN>"
+      Content-Type:
+      - application/json
+      Set-Cookie:
+      - WSS-COMMON-SERVICES_JSESSIONID=iR1QftapPiAghH4Mv79ZLA969zJvi38r2VrLlgW7xisYn2oYq5Q6!-1455037248;
+        path=/; HttpOnly
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
     body:
       encoding: UTF-8
       string: |-
         {
-          "success" : true
+          "lastLoginTime" : 1478810964000,
+          "userAccountId" : 106360
         }
     http_version:
-  recorded_at: Mon, 24 Oct 2016 21:52:14 GMT
+  recorded_at: Thu, 10 Nov 2016 23:07:19 GMT
 recorded_with: VCR 3.0.3
