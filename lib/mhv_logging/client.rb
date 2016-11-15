@@ -2,7 +2,6 @@
 require 'common/client/base'
 require 'common/client/concerns/mhv_session_based_client'
 require 'mhv_logging/api/audits'
-require 'rx/api/sessions'
 require 'rx/configuration'
 require 'rx/client_session'
 
@@ -15,7 +14,6 @@ module MHVLogging
   class Client < Common::Client::Base
     include Common::Client::MHVSessionBasedClient
     include MHVLogging::API::Audits
-    include Rx::API::Sessions
 
     configuration Rx::Configuration
     client_session Rx::ClientSession
