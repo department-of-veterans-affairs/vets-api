@@ -1,5 +1,4 @@
 source 'https://rubygems.org'
-
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.7.1'
 gem "puma", "~> 2.16.0"
@@ -45,6 +44,9 @@ gem 'statsd-instrument'
 # Amazon Linux's system `json` gem causes conflicts, but
 # `multi_json` will prefer `oj` if installed, so include it here.
 gem 'oj'
+
+
+gem 'iconv'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
