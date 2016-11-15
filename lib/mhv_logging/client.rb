@@ -24,17 +24,18 @@ module MHVLogging
 
     # Override connection in superclass because we don't want breakers for this client
     def connection
-      @connection ||= Faraday.new(config.base_path, headers: config.base_request_headers, request: config.request_options) do |conn|
-        conn.request :json
-        # Uncomment this out for generating curl output to send to MHV dev and test only
-        # conn.request :curl, ::Logger.new(STDOUT), :warn
+      @connection ||=
+        Faraday.new(config.base_path, headers: config.base_request_headers, request: config.request_options) do |conn|
+          conn.request :json
+          # Uncomment this out for generating curl output to send to MHV dev and test only
+          # conn.request :curl, ::Logger.new(STDOUT), :warn
 
-        # conn.response :logger, ::Logger.new(STDOUT), bodies: true
-        conn.response :snakecase
-        conn.response :raise_error
-        conn.response :json_parser
-        conn.adapter Faraday.default_adapter
-      end
+          # conn.response :logger, ::Logger.new(STDOUT), bodies: true
+          conn.response :snakecase
+          conn.response :raise_error
+          conn.response :json_parser
+          conn.adapter Faraday.default_adapter
+        end
     end
   end
 end
