@@ -81,16 +81,34 @@ module EducationForm
       submissions[:yearly].each do |region, regional_yearly_submissions|
         submissions_total = TOTALS_HASH.dup
 
-        submissions_csv_array += create_csv_data_row(regional_yearly_submissions, region, submissions, submissions_total)
+        submissions_csv_array +=
+          create_csv_data_row(
+            regional_yearly_submissions,
+            region,
+            submissions,
+            submissions_total
+          )
 
-        submissions_csv_array << ['', 'TOTAL', submissions_total[:yearly], submissions_total[:daily_submitted], submissions_total[:daily_processed]]
+        submissions_csv_array << [
+          '',
+          'TOTAL',
+          submissions_total[:yearly],
+          submissions_total[:daily_submitted],
+          submissions_total[:daily_processed]
+        ]
 
         grand_totals.each do |type, _|
           grand_totals[type] += submissions_total[type]
         end
       end
 
-      submissions_csv_array << ['ALL RPOS TOTAL', '', grand_totals[:yearly], grand_totals[:daily_submitted], grand_totals[:daily_processed]]
+      submissions_csv_array << [
+        'ALL RPOS TOTAL',
+        '',
+        grand_totals[:yearly],
+        grand_totals[:daily_submitted],
+        grand_totals[:daily_processed]
+      ]
 
       submissions_csv_array
     end
