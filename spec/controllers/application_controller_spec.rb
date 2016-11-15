@@ -22,10 +22,6 @@ RSpec.describe ApplicationController, type: :controller do
       client = Rx::Client.new(session: { user_id: 123 })
       client.get_session
     end
-
-    def client_connection_failed_no_sentry
-      raise Common::Client::Errors::Error
-    end
   end
 
   context 'RecordNotFound' do
@@ -85,11 +81,11 @@ RSpec.describe ApplicationController, type: :controller do
         get 'client_connection_failed' => 'anonymous#client_connection_failed'
         get 'client_connection_failed_no_sentry' => 'anonymous#client_connection_failed_no_sentry'
       end
-      allow_any_instance_of(Rx::Client)
-        .to receive(:connection).and_raise(Faraday::ConnectionFailed, 'some message')
     end
 
     it 'makes a call to sentry when there is cause' do
+      allow_any_instance_of(Rx::Client)
+        .to receive(:connection).and_raise(Faraday::ConnectionFailed, 'some message')
       expect(Raven).to receive(:capture_exception).once
       ClimateControl.modify SENTRY_DSN: 'T' do
         get :client_connection_failed
