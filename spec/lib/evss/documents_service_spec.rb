@@ -17,7 +17,6 @@ describe EVSS::DocumentsService do
     )
   end
 
-  before(:each) { stub_mvi }
   subject { described_class.new(auth_headers) }
 
   context 'with headers' do

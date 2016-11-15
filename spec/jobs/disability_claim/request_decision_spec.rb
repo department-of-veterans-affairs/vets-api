@@ -9,8 +9,6 @@ RSpec.describe DisabilityClaim::RequestDecision, type: :job do
   let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
   let(:evss_id) { 189_625 }
 
-  before(:each) { stub_mvi }
-
   it 'posts a waiver to EVSS' do
     allow(EVSS::ClaimsService).to receive(:new) { client_stub }
     expect(client_stub).to receive(:request_decision).with(evss_id)

@@ -18,8 +18,6 @@ RSpec.describe DisabilityClaim::DocumentUpload, type: :job do
   end
   let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
 
-  before(:each) { stub_mvi }
-
   it 'retrieves the file and uploads to EVSS' do
     allow(DisabilityClaimDocumentUploader).to receive(:new) { uploader_stub }
     allow(EVSS::DocumentsService).to receive(:new) { client_stub }

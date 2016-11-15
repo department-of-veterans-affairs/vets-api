@@ -17,7 +17,6 @@ require 'support/validation_helpers'
 require 'support/saml/authn_request_helper'
 require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
-require 'support/mvi/stub_mvi'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 

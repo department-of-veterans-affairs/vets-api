@@ -17,8 +17,6 @@ RSpec.describe 'Documents management', type: :request do
   let(:user) { FactoryGirl.create(:loa3_user) }
   let(:session) { Session.create(uuid: user.uuid) }
 
-  before(:each) { stub_mvi }
-
   it 'should upload a file' do
     params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }
     expect do

@@ -6,8 +6,6 @@ RSpec.describe DisabilityClaimService do
   let(:client_stub) { instance_double('EVSS::ClaimsService') }
   subject { described_class.new(user) }
 
-  before(:each) { stub_mvi }
-
   context 'when EVSS client times out' do
     describe '#all' do
       it 'returns all claims for the user' do
