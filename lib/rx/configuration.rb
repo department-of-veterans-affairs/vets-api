@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 require 'common/client/configuration'
+require 'common/client/middleware/response/json_parser'
+require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/snakecase'
+require 'rx/middleware/response/rx_parser'
 
 module Rx
   # Configuration class used to setup the environment used by client

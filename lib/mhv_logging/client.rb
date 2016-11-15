@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 require 'common/client/base'
 require 'common/client/concerns/mhv_session_based_client'
-require 'common/client/middleware/response/json_parser'
-require 'common/client/middleware/response/raise_error'
-require 'common/client/middleware/response/snakecase'
 require 'mhv_logging/api/audits'
 require 'rx/api/sessions'
 require 'rx/configuration'
@@ -26,7 +23,7 @@ module MHVLogging
     private
 
     def connection
-      Faraday.new(config.base_path, headers: config.base_request_headers, request: config.request_options) do |conn|
+      @connection ||= Faraday.new(config.base_path, headers: config.base_request_headers, request: config.request_options) do |conn|
         conn.request :json
         # Uncomment this out for generating curl output to send to MHV dev and test only
         # conn.request :curl, ::Logger.new(STDOUT), :warn

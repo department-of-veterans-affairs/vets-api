@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 require 'common/client/base'
 require 'common/client/concerns/mhv_session_based_client'
-require 'common/client/middleware/response/json_parser'
-require 'common/client/middleware/response/raise_error'
-require 'common/client/middleware/response/snakecase'
-require 'rx/middleware/response/rx_parser'
 require 'rx/configuration'
 require 'rx/client_session'
 require 'rx/api/prescriptions'

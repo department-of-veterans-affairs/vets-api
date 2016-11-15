@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 require 'common/client/configuration'
+require 'common/client/middleware/request/camelcase'
+require 'common/client/middleware/request/multipart_request'
+require 'common/client/middleware/response/json_parser'
+require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/snakecase'
+require 'sm/middleware/response/sm_parser'
 
 module SM
   class Configuration < Common::Client::Configuration
