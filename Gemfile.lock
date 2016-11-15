@@ -416,7 +416,6 @@ DEPENDENCIES
   guard-rubocop
   httpclient
   json-schema
-  multi_json
   net-sftp
   oj
   olive_branch
