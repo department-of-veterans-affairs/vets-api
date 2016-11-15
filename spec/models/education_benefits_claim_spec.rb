@@ -106,14 +106,26 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   end
 
   describe '#update_education_benefits_submission_status' do
+    let(:education_benefits_claim) { create(:education_benefits_claim) }
+
     subject do
-      education_benefits_claim = create(:education_benefits_claim)
       education_benefits_claim.update_attributes!(processed_at: Time.zone.now)
       education_benefits_claim
     end
 
     it 'should update the education_benefits_submission status' do
       expect(subject.education_benefits_submission.status).to eq('processed')
+    end
+
+    context 'when the education_benefits_submission is missing' do
+      before do
+        education_benefits_claim.education_benefits_submission.destroy
+        education_benefits_claim.reload
+      end
+
+      it 'the callback shouldnt raise error' do
+        subject
+      end
     end
   end
 
