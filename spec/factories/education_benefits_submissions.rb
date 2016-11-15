@@ -5,7 +5,7 @@ FactoryGirl.define do
     chapter33(true)
 
     after(:build) do |education_benefits_submission|
-      # have to it this way otherwise 2 submissions get created because of education benefits claim callback
+      # have to do it this way otherwise 2 submissions get created because of education benefits claim callback
       education_benefits_submission.education_benefits_claim = build(:education_benefits_claim)
     end
   end
