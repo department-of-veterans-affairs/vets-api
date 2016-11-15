@@ -55,8 +55,7 @@ class ApplicationController < ActionController::API
   end
 
   def log_error(exception)
-    # Since we're rescuing and raising a different exception in many places, it might be best
-    # to report the cause of the exception when present
+    # report the original 'cause' of the exception when present
     Raven.capture_exception(exception.cause.presence || exception) if ENV['SENTRY_DSN'].present?
     Rails.logger.error "#{exception.message}."
     Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
