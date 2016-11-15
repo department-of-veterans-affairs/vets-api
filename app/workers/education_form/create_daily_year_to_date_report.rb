@@ -32,10 +32,14 @@ module EducationForm
       csv_array << ["Submitted Vets.gov Applications - Report FYTD #{@date.year} as of #{@date}"]
       csv_array << ['', '', 'DOCUMENT TYPE']
       csv_array << ['RPO', 'BENEFIT TYPE', '22-1990']
+      csv_array << ['', '', @date.year, '', @date.to_s]
+      csv_array << ['', '', '', 'Submitted', 'Uploaded to TIMS']
     end
 
     def create_csv_array
       submissions = calculate_submissions
+      daily_submitted = calculate_submissions(range_type: :day, status: :submitted)
+      daily_processed = calculate_submissions(range_type: :day, status: :processed)
       csv_array = []
       create_csv_header(csv_array)
 
@@ -48,7 +52,9 @@ module EducationForm
           csv_array << [
             i.zero? ? EducationFacility::RPO_NAMES[region] : '',
             application_type,
-            submissions_count
+            submissions_count,
+            daily_submitted[region][application_type],
+            daily_processed[region][application_type]
           ]
           region_submissions_total += submissions_count
         end
