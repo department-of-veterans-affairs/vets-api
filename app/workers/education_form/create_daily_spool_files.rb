@@ -29,7 +29,9 @@ module EducationForm
       # Create a remote file for each region, and write the records into them
       create_files(regional_data)
       # mark the records as processed
-      records.update_all(processed_at: Time.zone.now)
+      records.find_each do |record|
+        record.update_attributes!(processed_at: Time.zone.now)
+      end
       # TODO: Log the success/failure of the submission somewhere
       true
     end
