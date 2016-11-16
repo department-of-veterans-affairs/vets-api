@@ -20,13 +20,6 @@ describe EVSS::DocumentsService do
   subject { described_class.new(auth_headers) }
 
   context 'with headers' do
-    it 'should get claims' do
-      VCR.use_cassette('evss/documents/all_documents') do
-        response = subject.all_documents
-        expect(response).to be_success
-      end
-    end
-
     it 'should upload documents' do
       VCR.use_cassette('evss/documents/upload') do
         demo_file_name = "#{::Rails.root}/spec/fixtures/files/doctors-note.pdf"
