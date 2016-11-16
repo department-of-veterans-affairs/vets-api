@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe UserSerializer, type: :serializer do
-  let(:user) { build :mvi_user }
+  let(:user) { build :loa3_user }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
   let(:profile) { attributes['profile'] }
@@ -88,10 +88,10 @@ RSpec.describe UserSerializer, type: :serializer do
     end
 
     context 'when user.mvi is not found' do
-      let(:user) do
-        build :user, mvi: {
+      before do
+        allow_any_instance_of(Mvi).to receive(:fetch).and_return(
           status: 'NOT_FOUND'
-        }
+        )
       end
       let(:data) { JSON.parse(subject)['data'] }
       let(:attributes) { data['attributes'] }

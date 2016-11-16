@@ -41,10 +41,10 @@ module MVI
     def find_candidate(message)
       faraday_response = call(OPERATIONS[:find_candidate], message.to_xml)
       response = MVI::Responses::FindCandidate.new(faraday_response)
-      raise MVI::RecordNotFound.new('MVI multiple matches found', response) if response.multiple_match?
-      invalid_request_handler('find_candidate', response.original_response) if response.invalid?
-      request_failure_handler('find_candidate', response.original_response) if response.failure?
-      raise MVI::RecordNotFound.new('MVI subject missing from response body', response) unless response.body
+      raise MVI::RecordNotFound.new('MVI multiple matches found') if response.multiple_match?
+      raise MVI::InvalidRequestError if response.invalid?
+      raise MVI::RequestFailureError if response.failure?
+      raise MVI::RecordNotFound.new('MVI subject missing from response body') unless response.body
       response.body
     rescue Faraday::ConnectionFailed => e
       Rails.logger.error "MVI find_candidate connection failed: #{e.message}"
@@ -92,16 +92,6 @@ module MVI
       end
       response
     end
-
-    def invalid_request_handler(operation, xml)
-      Rails.logger.error "mvi #{operation} invalid request structure: #{xml}"
-      raise MVI::InvalidRequestError
-    end
-
-    def request_failure_handler(operation, xml)
-      Rails.logger.error "mvi #{operation} request failure: #{xml}"
-      raise MVI::RequestFailureError
-    end
   end
   class ServiceError < StandardError
   end
@@ -118,12 +108,5 @@ module MVI
     end
   end
   class RecordNotFound < StandardError
-    attr_accessor :query, :original_response
-
-    def initialize(message = nil, response = nil)
-      super(message)
-      @query = response.query
-      @original_response = response.original_response
-    end
   end
 end

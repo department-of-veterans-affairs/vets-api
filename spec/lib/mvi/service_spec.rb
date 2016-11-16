@@ -74,7 +74,6 @@ describe MVI::Service do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow(message).to receive(:to_xml).and_return(invalid_xml)
         VCR.use_cassette('mvi/find_candidate/invalid') do
-          expect(Rails.logger).to receive(:error).with(/mvi find_candidate invalid request structure:/)
           expect { subject.find_candidate(message) }.to raise_error(MVI::InvalidRequestError)
         end
       end
@@ -85,7 +84,6 @@ describe MVI::Service do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow(message).to receive(:to_xml).and_return(invalid_xml)
         VCR.use_cassette('mvi/find_candidate/failure') do
-          expect(Rails.logger).to receive(:error).with(/mvi find_candidate request failure/)
           expect { subject.find_candidate(message) }.to raise_error(MVI::RequestFailureError)
         end
       end
@@ -154,26 +152,6 @@ describe MVI::Service do
           expect { subject.find_candidate(message) }.to raise_error(MVI::RecordNotFound)
         end
       end
-    end
-  end
-
-  describe MVI::RecordNotFound do
-    let(:query_json) { File.read('spec/support/mvi/query.json') }
-    let(:xml) { '<env:Envelope></env:Envelope>' }
-    let(:response) { instance_double('MVI::Responses::FindCandidate') }
-    subject { MVI::RecordNotFound.new('an error message', response) }
-
-    before(:each) do
-      allow(response).to receive(:query).and_return(File.read('spec/support/mvi/query.json'))
-      allow(response).to receive(:original_response).and_return(xml)
-    end
-
-    it 'includes the query as json' do
-      expect(subject.query).to eq(query_json)
-    end
-
-    it 'includes the original response as xml' do
-      expect(subject.original_response).to eq(xml)
     end
   end
 end

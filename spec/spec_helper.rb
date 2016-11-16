@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'fakeredis/rspec'
+require 'support/mvi/stub_mvi'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
@@ -66,6 +67,12 @@ RSpec.configure do |config|
     # a real object. This is generally recommended, and will default to
     # `true` in RSpec 4.
     mocks.verify_partial_doubles = true
+  end
+
+  config.before(:each) do |example|
+    unless example.metadata[:skip_mvi]
+      stub_mvi
+    end
   end
 
   # The settings below are suggested to provide a good initial experience
