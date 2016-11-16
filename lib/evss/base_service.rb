@@ -37,13 +37,17 @@ module EVSS
       self.class::BASE_URL
     end
 
+    def timeout
+      self.class::DEFAULT_TIMEOUT
+    end
+
     private
 
     # Uses HTTPClient adapter because headers need to be sent unmanipulated
     # Net/HTTP capitalizes headers
     def conn
       @conn ||= Faraday.new(base_url, headers: @headers, ssl: ssl_options) do |faraday|
-        faraday.options.timeout = DEFAULT_TIMEOUT
+        faraday.options.timeout = timeout
         faraday.use      :breakers
         faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
