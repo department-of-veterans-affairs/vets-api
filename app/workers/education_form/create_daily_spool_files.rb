@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'net/sftp'
+require 'iconv'
 
 module EducationForm
   class CreateDailySpoolFiles
@@ -28,7 +29,9 @@ module EducationForm
       # Create a remote file for each region, and write the records into them
       create_files(regional_data)
       # mark the records as processed
-      records.update_all(processed_at: Time.zone.now)
+      records.find_each do |record|
+        record.update_attributes!(processed_at: Time.zone.now)
+      end
       # TODO: Log the success/failure of the submission somewhere
       true
     end
@@ -53,7 +56,6 @@ module EducationForm
             FileUtils.mkdir_p(dir_name)
 
             filename = "#{dir_name}/#{filename}"
-
             File
           else
             sftp.file
@@ -78,8 +80,10 @@ module EducationForm
         raise "EDU_SFTP_PASS not set for #{ENV['EDU_SFTP_USER']}@#{ENV['EDU_SFTP_HOST']}"
       else
         Net::SFTP.start(ENV['EDU_SFTP_HOST'], ENV['EDU_SFTP_USER'], password: ENV['EDU_SFTP_PASS']) do |sftp|
+          logger.info('Connected to SFTP')
           write_files(sftp: sftp, structured_data: structured_data)
         end
+        logger.info('Disconnected from SFTP')
       end
     end
 
@@ -90,8 +94,10 @@ module EducationForm
       # the spool file has a requirement that lines be 80 bytes (not characters), and since they
       # use windows-style newlines, that leaves us with a width of 78
       wrapped = word_wrap(@application_template.result(binding), line_width: 78)
+      # We can only send ASCII, so make a best-effort at that.
+      transliterated = Iconv.iconv('ascii//translit', 'utf-8', wrapped).first
       # The spool file must actually use windows style linebreaks
-      wrapped.gsub("\n", WINDOWS_NOTEPAD_LINEBREAK)
+      transliterated.gsub("\n", WINDOWS_NOTEPAD_LINEBREAK)
     end
 
     private

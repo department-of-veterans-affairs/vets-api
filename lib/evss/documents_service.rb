@@ -4,10 +4,8 @@ require 'evss/base_service'
 module EVSS
   class DocumentsService < BaseService
     BASE_URL = "#{ENV['EVSS_BASE_URL']}/wss-document-services-web-3.0/rest/"
-
-    def all_documents
-      get 'documents/getAllDocuments'
-    end
+    # this service is only used from an async worker so long timeout is acceptable here
+    DEFAULT_TIMEOUT = 180 # seconds
 
     def upload(file_body, document_data)
       headers = { 'Content-Type' => 'application/octet-stream' }
