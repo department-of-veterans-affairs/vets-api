@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'digest'
 require 'common/models/redis_store'
 require 'mvi/service_factory'
 
