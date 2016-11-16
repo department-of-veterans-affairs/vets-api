@@ -10,7 +10,6 @@ module EVSS
            { participantId: participant_id }.to_json
     end
 
-    # TODO: (AJM) Add spec to cover this
     def create_user_account
       post 'persistentPropertiesService/11.0/createUserAccount'
     end

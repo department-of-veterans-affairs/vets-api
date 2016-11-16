@@ -40,7 +40,7 @@ describe 'sm client' do
     context 'nested resources' do
       it 'gets a collection of messages (mhv max)', :vcr do
         # set the max pages to 1 for testing purposes
-        stub_const('SM::API::Folders::MHV_MAXIMUM_PER_PAGE', 2)
+        stub_const('SM::Client::MHV_MAXIMUM_PER_PAGE', 2)
         # There are 5 records, 2 per page, so it should loop 3 times making requests
         expect(client).to receive(:perform).and_call_original.exactly(3).times
         messages = client.get_folder_messages(folder_id)

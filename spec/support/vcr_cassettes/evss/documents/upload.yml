@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://test.vets.gov/wss-document-services-web-3.0/rest/queuedDocumentUploadService/ajaxUploadFile?claimId=189625&docType=L023&docTypeDescription=Other%20Correspondence&qqfile=doctors-note.pdf&systemName=vets.gov&trackedItemIds=33
+    uri: <EVSS_BASE_URL>/wss-document-services-web-3.0/rest/queuedDocumentUploadService/ajaxUploadFile?claimId=189625&docType=L023&docTypeDescription=Other%20Correspondence&qqfile=doctors-note.pdf&systemName=vets.gov&trackedItemIds=33
     body:
       encoding: ASCII-8BIT
       string: !binary |-

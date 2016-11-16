@@ -3,6 +3,8 @@ require 'typhoeus'
 
 module Facilities
   class Client
+    REQUEST_TIMEOUT = 6
+
     def initialize(url:, id_field:)
       @url = [url, 'query'].join('/')
       @id_field = id_field
@@ -22,7 +24,8 @@ module Facilities
         orderByFields: @id_field,
         f: 'json'
       }
-      Typhoeus::Request.new(@url, params: params)
+      Typhoeus::Request.new(@url, params: params, timeout: REQUEST_TIMEOUT,
+                                  connecttimeout: REQUEST_TIMEOUT)
     end
 
     def get(id:)
@@ -40,7 +43,8 @@ module Facilities
         orderByFields: @id_field,
         f: 'json'
       }
-      Typhoeus::Request.new(@url, params: params)
+      Typhoeus::Request.new(@url, params: params, timeout: REQUEST_TIMEOUT,
+                                  connecttimeout: REQUEST_TIMEOUT)
     end
   end
 end

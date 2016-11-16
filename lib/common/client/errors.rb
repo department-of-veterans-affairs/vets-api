@@ -9,11 +9,9 @@ module Common
     module Errors
       class Error < StandardError; end
 
-      class NotAuthenticated < Error; end
-      class Client < Error; end
-      class Serialization < Error; end
-      class RequestTimeout < ::Faraday::Error::TimeoutError; end
-      class ConnectionFailed < ::Faraday::Error::ConnectionFailed; end
+      class ClientError < Error; end
+      class NotAuthenticated < ClientError; end
+      class Serialization < ClientError; end
 
       # This error class is for wrapping errors returned from underlying services
       class ClientResponse < Error
