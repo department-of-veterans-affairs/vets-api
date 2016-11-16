@@ -73,9 +73,6 @@ Metrics/ClassLength:
 Metrics/AbcSize:
   Max: 40
 
-# excluding these because get_session implies HTTP GET, and is useful
+# removing rule because get_session implies HTTP GET, and informs method
 Style/AccessorMethodName:
-  Exclude:
-    - 'lib/rx/**/*'
-    - 'lib/sm/**/*'
-    - 'lib/mhv_logging/**/*'
+  Enabled: false
