@@ -105,6 +105,30 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
   end
 
+  describe '#update_education_benefits_submission_status' do
+    let(:education_benefits_claim) { create(:education_benefits_claim) }
+
+    subject do
+      education_benefits_claim.update_attributes!(processed_at: Time.zone.now)
+      education_benefits_claim
+    end
+
+    it 'should update the education_benefits_submission status' do
+      expect(subject.education_benefits_submission.status).to eq('processed')
+    end
+
+    context 'when the education_benefits_submission is missing' do
+      before do
+        education_benefits_claim.education_benefits_submission.destroy
+        education_benefits_claim.reload
+      end
+
+      it 'the callback shouldnt raise error' do
+        subject
+      end
+    end
+  end
+
   describe '#create_education_benefits_submission' do
     subject { create(:education_benefits_claim_western_region) }
 
@@ -114,7 +138,13 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end.to change { EducationBenefitsSubmission.count }.by(1)
 
       expect(EducationBenefitsSubmission.last.attributes.except('id', 'created_at', 'updated_at')).to eq(
-        'region' => 'western', 'chapter33' => false, 'chapter30' => false, 'chapter1606' => true, 'chapter32' => false
+        'region' => 'western',
+        'chapter33' => false,
+        'chapter30' => false,
+        'chapter1606' => true,
+        'chapter32' => false,
+        'status' => 'submitted',
+        'education_benefits_claim_id' => subject.id
       )
     end
 
