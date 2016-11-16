@@ -2,18 +2,18 @@
 require 'rails_helper'
 
 RSpec.describe V0::SessionsController, type: :controller do
-  let(:mvi_user) { FactoryGirl.build(:mvi_user) }
+  let(:user) { FactoryGirl.build(:user) }
   let(:saml_attrs) do
     {
-      'uuid' => [mvi_user.uuid],
-      'email' => [mvi_user.email],
-      'fname' => [mvi_user.first_name],
-      'lname' => [mvi_user.last_name],
+      'uuid' => [user.uuid],
+      'email' => [user.email],
+      'fname' => [user.first_name],
+      'lname' => [user.last_name],
       'mname' => [''],
-      'social' => [mvi_user.ssn],
+      'social' => [user.ssn],
       'gender' => ['male'],
-      'birth_date' => [mvi_user.birth_date],
-      'level_of_assurance' => [mvi_user.loa[:highest]]
+      'birth_date' => [user.birth_date],
+      'level_of_assurance' => [user.loa[:highest]]
     }
   end
   let(:settings_no_context) { FactoryGirl.build(:settings_no_context) }
@@ -25,7 +25,6 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   before(:each) do
     stub_request(:get, SAML_CONFIG['metadata_url']).to_return(body: 'abc')
-    allow_any_instance_of(Decorators::MviUserDecorator).to receive(:create).and_return(mvi_user)
     allow_any_instance_of(SAML::SettingsService).to receive(:saml_settings).and_return(settings_no_context)
   end
 
@@ -119,7 +118,6 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       it 'should uplevel an LOA 1 session to LOA 3' do
         allow(attributes).to receive_message_chain(:all, :to_h).and_return(loa3_saml_attrs)
-        allow_any_instance_of(Decorators::MviUserDecorator).to receive(:create).and_return(loa3_user)
 
         Session.create(uuid: loa1_user.uuid, token: token)
         User.create(loa1_user)
@@ -135,7 +133,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         post :saml_callback
 
         expect(created_session).to_not be_nil
-        expect(created_user.attributes).to eq(mvi_user.attributes)
+        expect(created_user.attributes).to eq(user.attributes)
       end
 
       it 'creates a job to create an evss user when user has loa3 and evss attrs' do

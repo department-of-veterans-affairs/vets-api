@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe UserSerializer, type: :serializer do
-  let(:user) { build :mvi_user }
+  let(:user) { build :loa3_user }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
   let(:profile) { attributes['profile'] }
@@ -80,6 +80,10 @@ RSpec.describe UserSerializer, type: :serializer do
       let(:attributes) { data['attributes'] }
       let(:va_profile) { attributes['va_profile'] }
 
+      before(:each) do
+        allow_any_instance_of(User).to receive(:mvi).and_return(nil)
+      end
+
       it 'returns va_profile as null' do
         expect(va_profile).to eq(
           'status' => 'NOT_AUTHORIZED'
@@ -88,14 +92,16 @@ RSpec.describe UserSerializer, type: :serializer do
     end
 
     context 'when user.mvi is not found' do
-      let(:user) do
-        build :user, mvi: {
-          status: 'NOT_FOUND'
-        }
-      end
+      let(:user) { build :user }
       let(:data) { JSON.parse(subject)['data'] }
       let(:attributes) { data['attributes'] }
       let(:va_profile) { attributes['va_profile'] }
+
+      before(:each) do
+        allow_any_instance_of(User).to receive(:mvi).and_return(
+          status: 'NOT_FOUND'
+        )
+      end
 
       it 'returns va_profile as null' do
         expect(va_profile).to eq(
