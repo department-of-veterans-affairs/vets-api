@@ -70,9 +70,7 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do |example|
-    unless example.metadata[:skip_mvi]
-      stub_mvi
-    end
+    stub_mvi unless example.metadata[:skip_mvi]
   end
 
   # The settings below are suggested to provide a good initial experience

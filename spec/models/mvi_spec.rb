@@ -22,8 +22,8 @@ describe Mvi, skip_mvi: true do
 
   describe '.from_user' do
     it 'creates an instance with user attributes' do
-      expect(mvi.uuid).to eq (user.uuid)
-      expect(mvi.user).to eq (user)
+      expect(mvi.uuid).to eq(user.uuid)
+      expect(mvi.user).to eq(user)
     end
   end
 
@@ -34,10 +34,10 @@ describe Mvi, skip_mvi: true do
           allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_return(find_candidate_response)
           expect(mvi.redis_namespace).to receive(:set).once.with(
             user.uuid,
-            Oj.dump({
+            Oj.dump(
               uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
               response: find_candidate_response.merge(status: 'OK')
-            })
+            )
           )
           expect_any_instance_of(MVI::Service).to receive(:find_candidate).once
           expect(mvi.fetch).to eq(find_candidate_response)

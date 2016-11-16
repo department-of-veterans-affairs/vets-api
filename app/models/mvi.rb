@@ -55,8 +55,8 @@ class Mvi < Common::RedisStore
 
   def query_and_cache
     self.response = query
-    self.response[:status] = MVI_RESPONSE_STATUS[:ok]
-    self.save
+    response[:status] = MVI_RESPONSE_STATUS[:ok]
+    save
     response
   rescue MVI::RecordNotFound
     Rails.logger.error "MVI record not found for user: #{@user.uuid}"

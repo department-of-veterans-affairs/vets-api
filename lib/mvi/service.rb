@@ -41,10 +41,10 @@ module MVI
     def find_candidate(message)
       faraday_response = call(OPERATIONS[:find_candidate], message.to_xml)
       response = MVI::Responses::FindCandidate.new(faraday_response)
-      raise MVI::RecordNotFound.new('MVI multiple matches found') if response.multiple_match?
+      raise MVI::RecordNotFound, 'MVI multiple matches found' if response.multiple_match?
       raise MVI::InvalidRequestError if response.invalid?
       raise MVI::RequestFailureError if response.failure?
-      raise MVI::RecordNotFound.new('MVI subject missing from response body') unless response.body
+      raise MVI::RecordNotFound, 'MVI subject missing from response body' unless response.body
       response.body
     rescue Faraday::ConnectionFailed => e
       Rails.logger.error "MVI find_candidate connection failed: #{e.message}"
