@@ -105,7 +105,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       let(:created_user) { User.find(created_session.uuid) }
 
       before(:example) do
-        allow(attributes).to receive_message_chain(:all, :to_h).and_return(saml_attrs)
+        allow(attributes).to receive_message_chain(:all, :to_h).and_return(loa3_saml_attrs)
         allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response)
         allow(saml_response).to receive(:decrypted_document).and_return(REXML::Document.new(loa3_xml))
       end
@@ -133,7 +133,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         post :saml_callback
 
         expect(created_session).to_not be_nil
-        expect(created_user.attributes).to eq(user.attributes)
+        expect(created_user.attributes[:uuid]).to eq(user.attributes[:uuid])
       end
 
       it 'creates a job to create an evss user when user has loa3 and evss attrs' do
@@ -148,7 +148,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       it 'parses and stores the current level of assurance' do
         post :saml_callback, RelayState: fake_relay
         assert_response :found
-        expect(created_user.loa[:current]).to eq(LOA::TWO)
+        expect(created_user.loa[:current]).to eq(LOA::THREE)
       end
 
       it 'parses and stores the highest level of assurance proofing' do

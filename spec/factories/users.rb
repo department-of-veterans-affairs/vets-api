@@ -16,6 +16,24 @@ FactoryGirl.define do
         highest: LOA::THREE
       }
     end
+
+    factory :loa1_user do
+      loa do
+        {
+          current: LOA::ONE,
+          highest: LOA::ONE
+        }
+      end
+    end
+
+    factory :loa3_user do
+      loa do
+        {
+          current: LOA::THREE,
+          highest: LOA::THREE
+        }
+      end
+    end
   end
 
   factory :mhv_user, class: 'User' do
@@ -35,33 +53,6 @@ FactoryGirl.define do
 
     trait :mhv_not_logged_in do
       mhv_last_signed_in nil
-    end
-  end
-
-  factory :loa1_user, class: 'User' do
-    uuid 'deadbeef-dead-beef-dead-deadbeefdead'
-    email 'george.washington@vets.gov'
-    last_signed_in Time.now.utc
-    loa do
-      {
-        current: LOA::ONE,
-        highest: LOA::ONE
-      }
-    end
-
-    factory :loa3_user do
-      first_name 'george'
-      last_name 'washington'
-      gender 'M'
-      birth_date '1732-02-22'
-      zip '17325'
-      ssn '111223333'
-      loa do
-        {
-          current: LOA::THREE,
-          highest: LOA::THREE
-        }
-      end
     end
   end
 end
