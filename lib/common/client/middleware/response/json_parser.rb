@@ -19,8 +19,8 @@ module Common
           end
 
           def parse(body = nil)
-            MultiJson.load(body)
-          rescue MultiJson::LoadError => error
+            Oj.load(body)
+          rescue Oj::Error => error
             raise Common::Client::Errors::Serialization, error
           end
         end

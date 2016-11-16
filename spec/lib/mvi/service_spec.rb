@@ -10,7 +10,7 @@ describe MVI::Service do
       first_name: 'Mitchell',
       last_name: 'Jenkins',
       middle_name: 'G',
-      birth_date: Time.parse('1949-03-04').utc,
+      birth_date: '1949-03-04',
       ssn: '796122306'
     )
   end
@@ -56,7 +56,7 @@ describe MVI::Service do
           expect(response).to eq(
             edipi: nil,
             icn: '1008714701V416111^NI^200M^USVHA^P',
-            mhv_id: nil,
+            mhv_ids: nil,
             vba_corp_id: '9100792239^PI^200CORP^USVBA^A',
             active_status: 'active',
             given_names: %w(Mitchell G),
@@ -91,6 +91,14 @@ describe MVI::Service do
       end
     end
 
+    context 'with an MVI timeout' do
+      it 'should raise a service error' do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+        expect(Rails.logger).to receive(:error).with('MVI find_candidate timeout')
+        expect { subject.find_candidate(message) }.to raise_error(MVI::ServiceError)
+      end
+    end
+
     context 'when a status of 500 is returned' do
       it 'should raise a request failure error' do
         allow(message).to receive(:to_xml).and_return('<nobeuno></nobeuno>')
@@ -107,7 +115,7 @@ describe MVI::Service do
           first_name: 'Earl',
           last_name: 'Stephens',
           middle_name: 'M',
-          birth_date: Time.parse('1978-06-11').utc,
+          birth_date: '1978-06-11',
           ssn: '796188587'
         )
       end

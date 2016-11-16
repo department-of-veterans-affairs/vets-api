@@ -21,13 +21,15 @@
               "max_est_date",
               "open",
               "waiver_submitted",
+              "requested_decision",
               "phase_change_date",
               "documents_needed",
               "development_letter_sent",
               "decision_letter_sent",
-              "successful_sync",
               "updated_at",
-              "phase"
+              "phase",
+              "ever_phase_back",
+              "current_phase_back"
             ],
             "properties": {
               "evss_id": { "type": "integer" },
@@ -37,12 +39,14 @@
               "phase_change_date": { "type": ["string", "null"] },
               "open": { "type": "boolean" },
               "waiver_submitted": { "type": "boolean" },
+              "requested_decision": { "type": "boolean" },
               "documents_needed": { "type": "boolean" },
               "development_letter_sent": { "type": "boolean" },
               "decision_letter_sent" : { "type": "boolean" },
-              "successful_sync": { "type": "boolean" },
               "updated_at": { "type": "string" },
-              "phase": { "type": ["integer", "null"] }
+              "phase": { "type": ["integer", "null"] },
+              "ever_phase_back": { "type": "boolean" },
+              "current_phase_back": { "type": "boolean" }
             }
           }
         }

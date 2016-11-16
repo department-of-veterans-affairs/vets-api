@@ -65,17 +65,18 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   context '#group_submissions_by_region' do
     it 'takes a list of records into chunked forms' do
       base_address = { street: 'A', city: 'B', country: 'USA' }
-
+      # rubocop:disable LineLength
       eastern = EducationBenefitsClaim.create(form: { school: { address: base_address.merge(state: 'MD') } }.to_json)
       southern = EducationBenefitsClaim.create(form: { school: { address: base_address.merge(state: 'GA') } }.to_json)
       central = EducationBenefitsClaim.create(form: { veteranAddress: base_address.merge(state: 'WI') }.to_json)
       eastern_default = EducationBenefitsClaim.create(form: {}.to_json)
       western = EducationBenefitsClaim.create(form: { veteranAddress: base_address.merge(state: 'OK') }.to_json)
+      western_phl = EducationBenefitsClaim.create(form: { veteranAddress: base_address.merge(state: 'XX', country: 'PHL') }.to_json)
+      # rubocop:enable LineLength
 
-      output = subject.group_submissions_by_region([eastern, central, southern, eastern_default, western])
+      output = subject.group_submissions_by_region([eastern, central, southern, eastern_default, western, western_phl])
       expect(output[:eastern].length).to be(2)
-      expect(output[:western].length).to be(1)
-      expect(output[:southern].length).to be(1)
+      expect(output[:western].length).to be(3)
       expect(output[:central].length).to be(1)
     end
   end
@@ -107,19 +108,19 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
 
     it 'writes files out over sftp' do
-      ENV['EDU_SFTP_HOST'] = 'localhost'
-      mock_file = double(File)
-      mock_writer = StringIO.new
-      sftp_mock = double(file: mock_file)
-      expect(Net::SFTP).to receive(:start).once.and_yield(sftp_mock)
-      expect(mock_file).to receive('open').with(filename, 'w').and_return(mock_writer)
-      expect(mock_writer).to receive('close').once
-      perform_with_frozen_time
+      ClimateControl.modify EDU_SFTP_HOST: 'localhost', EDU_SFTP_PASS: 'test' do
+        mock_file = double(File)
+        mock_writer = StringIO.new
+        sftp_mock = double(file: mock_file)
+        expect(Net::SFTP).to receive(:start).once.and_yield(sftp_mock)
+        expect(mock_file).to receive('open').with(filename, 'w').and_return(mock_writer)
+        expect(mock_writer).to receive('close').once
+        perform_with_frozen_time
 
-      # read back the written file
-      mock_writer.rewind
-      expect(mock_writer.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
-      ENV['EDU_SFTP_HOST'] = nil
+        # read back the written file
+        mock_writer.rewind
+        expect(mock_writer.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
+      end
     end
   end
 

@@ -6,7 +6,7 @@ find_candidate:
     gender: 'M'
     given_names: ['HECTOR', 'J']
     icn: '1008704012V552302^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: ~
     ssn: '796126859'
     status: 'active'
@@ -17,7 +17,7 @@ find_candidate:
     gender: 'M'
     given_names: ['GREG', 'A']
     icn: '1008596379V859838^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '796121200'
     status: 'active'
@@ -28,7 +28,7 @@ find_candidate:
     gender: 'F'
     given_names: ['ANDREA', 'L']
     icn: '1008713769V295460^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '796127781'
     status: 'active'
@@ -39,7 +39,7 @@ find_candidate:
     gender: 'M'
     given_names: ['KENNETH', 'William']
     icn: '1008712062V663378^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '32323473^PI^200CORP^USVBA^A'
     ssn: '796295980'
     status: 'active'
@@ -50,7 +50,7 @@ find_candidate:
     gender: 'M'
     given_names: ['ALFREDO', 'M']
     icn: '1008714366V137722^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '796012476'
     status: 'active'
@@ -61,7 +61,7 @@ find_candidate:
     gender: 'M'
     given_names: ['FRANK', 'LEE']
     icn: '1008712353V735015^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '796143510'
     status: 'active'
@@ -72,7 +72,7 @@ find_candidate:
     gender: 'M'
     given_names: ['ERIC', 'Victor']
     icn: '1008691287V879036^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '796169727'
     status: 'active'
@@ -83,7 +83,7 @@ find_candidate:
     gender: 'M'
     given_names: ['JERRY', 'M']
     icn: '1008709435V263289^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '600036156^NI^200DOD^USDOD^A'
     ssn: '796148937'
     status: 'active'
@@ -94,7 +94,7 @@ find_candidate:
     gender: 'M'
     given_names: ['JAIME', 'L']
     icn: ~
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '600036156^NI^200DOD^USDOD^A'
     ssn: '796186272'
     status: 'active'
@@ -105,7 +105,7 @@ find_candidate:
     gender: 'M'
     given_names: ['EDDIE', 'J']
     icn: '1008596380V707659^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '32323479^PI^200CORP^USVBA^A'
     ssn: '796121086'
     status: 'active'
@@ -116,7 +116,7 @@ find_candidate:
     gender: 'F'
     given_names: ['DEBBIE', 'M']
     icn: '1008710255V058302^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '600062099^PI^200CORP^USVBA^A'
     ssn: '796249005'
     status: 'active'
@@ -127,7 +127,7 @@ find_candidate:
     gender: 'M'
     given_names: ['CHAD', 'E']
     icn: '1008714328V191861^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '796263749'
     status: 'active'
@@ -138,7 +138,7 @@ find_candidate:
     gender: 'M'
     given_names: ['KYLE', 'M']
     icn: '1008710012V828560^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '796131752'
     status: 'active'
@@ -149,7 +149,7 @@ find_candidate:
     gender: 'F'
     given_names: ['MARGIE']
     icn: '1008711067V677657^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '32318135^PI^200CORP^USVBA^A'
     ssn: '796163672'
     status: 'active'
@@ -160,7 +160,7 @@ find_candidate:
     gender: 'M'
     given_names: ['WILLIAM', 'C']
     icn: '1008712744V146015^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '600033523^PI^200CORP^USVBA^A'
     ssn: '796127196'
     status: 'active'
@@ -171,7 +171,7 @@ find_candidate:
     gender: 'M'
     given_names: ['WALTER', 'TYLER']
     icn: '1008714607V082809^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '600043217^PI^200CORP^USVBA^A'
     ssn: '796143570'
     status: 'active'
@@ -182,7 +182,7 @@ find_candidate:
     gender: 'F'
     given_names: ['TAMARA', 'E']
     icn: '1008710221V418539^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '796130115'
     status: 'active'
@@ -193,7 +193,7 @@ find_candidate:
     gender: 'M'
     given_names: ['WESLEY', 'Watson']
     icn: '1008710003V120120^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '796043735'
     status: 'active'
@@ -204,7 +204,7 @@ find_candidate:
     gender: 'F'
     given_names: ['PAULINE', 'E']
     icn: '1008711068V745112^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '32318138^PI^200CORP^USVBA^A'
     ssn: '796330625'
     status: 'active'
@@ -215,7 +215,7 @@ find_candidate:
     gender: 'M'
     given_names: ['MELVIN', 'V']
     icn: '1008711070V155561^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '32318143^PI^200CORP^USVBA^A'
     ssn: '796184750'
     status: 'active'
@@ -226,7 +226,7 @@ find_candidate:
     gender: 'M'
     given_names: ['RUSSELL', 'James']
     icn: '1008692950V235502^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318142^PI^200CORP^USVBA^A'
     ssn: '796149080'
     status: 'active'
@@ -237,7 +237,7 @@ find_candidate:
     gender: 'M'
     given_names: ['HERBERT', 'MICHAEL']
     icn: '1008711071V330950^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318144^PI^200CORP^USVBA^A'
     ssn: '796122369'
     status: 'active'
@@ -248,7 +248,7 @@ find_candidate:
     gender: 'M'
     given_names: ['SAM', 'ROBERT']
     icn: '1008711072V462819^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318145^PI^200CORP^USVBA^A'
     ssn: '796246997'
     status: 'active'
@@ -259,7 +259,7 @@ find_candidate:
     gender: 'M'
     given_names: ['JESSE', 'J']
     icn: '1008709967V630431^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: ~
     ssn: '796330163'
     status: 'active'
@@ -270,7 +270,7 @@ find_candidate:
     gender: 'M'
     given_names: ['SIDNEY', 'A']
     icn: '1008711073V616774^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318146^PI^200CORP^USVBA^A'
     ssn: '796127094'
     status: 'active'
@@ -281,7 +281,7 @@ find_candidate:
     gender: 'M'
     given_names: ['JESSE']
     icn: '1008711076V809443^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318149^PI^200CORP^USVBA^A'
     ssn: '796378881'
     status: 'active'
@@ -292,7 +292,7 @@ find_candidate:
     gender: 'F'
     given_names: ['JUNE', 'R']
     icn: '1008711077V588395^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318150^PI^200CORP^USVBA^A'
     ssn: '796184459'
     status: 'active'
@@ -303,7 +303,7 @@ find_candidate:
     gender: 'M'
     given_names: ['JEFFERY', 'J']
     icn: '1008701807V660197^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '600043202^PI^200CORP^USVBA^A'
     ssn: '796131729'
     status: 'active'
@@ -314,7 +314,7 @@ find_candidate:
     gender: 'M'
     given_names: ['EVERETT', 'Avery']
     icn: '1008711078V291287^NI^200M^USVHA^P'
-    mhv_id: '13492196^PI^200MH^USVHA^A'
+    mhv_ids: ['13492196^PI^200MH^USVHA^A']
     vba_corp_id: '32318151^PI^200CORP^USVBA^A'
     ssn: '796377148'
     status: 'active'
@@ -325,7 +325,7 @@ find_candidate:
     gender: 'M'
     given_names: ['MATHEW', 'A']
     icn: '1008711079V027032^NI^200M^USVHA^P'
-    mhv_id: '10894456^PI^200MH^USVHA^A'
+    mhv_ids: ['10894456^PI^200MH^USVHA^A']
     vba_corp_id: '32318153^PI^200CORP^USVBA^A'
     ssn: '796131275'
     status: 'active'
@@ -336,7 +336,7 @@ find_candidate:
     gender: 'M'
     given_names: ['JULIO', 'E']
     icn: '1008596378V923986^NI^200M^USVHA^P'
-    mhv_id: '13408508^PI^200MH^USVHA^A'
+    mhv_ids: ['13408508^PI^200MH^USVHA^A']
     vba_corp_id: '32318156^PI^200CORP^USVBA^A'
     ssn: '796378321'
     status: 'active'
@@ -347,7 +347,7 @@ find_candidate:
     gender: 'F'
     given_names: ['JANET', 'L']
     icn: '1008710092V112476^NI^200M^USVHA^P'
-    mhv_id: '12210827^PI^200MH^USVHA^A'
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '32317886^PI^200CORP^USVBA^A'
     ssn: '796127677'
     status: 'active'
@@ -358,7 +358,7 @@ find_candidate:
     gender: 'M'
     given_names: ['JESUS', 'A']
     icn: '1008701809V976331^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '600043193^PI^200CORP^USVBA^A'
     ssn: '796127587'
     status: 'active'
@@ -369,7 +369,7 @@ find_candidate:
     gender: 'M'
     given_names: ['DARYL', 'F']
     icn: '1008711082V575772^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318157^PI^200CORP^USVBA^A'
     ssn: '796153447'
     status: 'active'
@@ -380,7 +380,7 @@ find_candidate:
     gender: 'M'
     given_names: ['RALPH', 'E']
     icn: '1008711084V002120^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318159^PI^200CORP^USVBA^A'
     ssn: '796378782'
     status: 'active'
@@ -391,7 +391,7 @@ find_candidate:
     gender: 'M'
     given_names: ['MELVIN', 'R']
     icn: '1008711085V186449^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318160^PI^200CORP^USVBA^A'
     ssn: '796147495'
     status: 'active'
@@ -402,7 +402,7 @@ find_candidate:
     gender: 'M'
     given_names: ['ALFREDO', 'J']
     icn: '1008703680V285027^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '600043169^PI^200CORP^USVBA^A'
     ssn: '796122472'
     status: 'active'
@@ -413,7 +413,7 @@ find_candidate:
     gender: 'M'
     given_names: ['HARRY', 'J']
     icn: '1008596381V985114^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: ~
     ssn: '796136308'
     status: 'active'
@@ -424,7 +424,7 @@ find_candidate:
     gender: 'M'
     given_names: ['CHRISTIAN', 'Fitzgerald']
     icn: '1008691167V254462^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318091^PI^200CORP^USVBA^A'
     ssn: '796218467'
     status: 'active'
@@ -435,7 +435,7 @@ find_candidate:
     gender: 'M'
     given_names: ['JESSIE', 'F']
     icn: '1008701880V790698^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: ~
     ssn: '796126978'
     status: 'active'
@@ -446,7 +446,7 @@ find_candidate:
     gender: 'F'
     given_names: ['ANA', 'D']
     icn: '1008712476V222549^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: ~
     ssn: '796025480'
     status: 'active'
@@ -457,7 +457,7 @@ find_candidate:
     gender: 'F'
     given_names: ['JENNY', 'Kadeshia']
     icn: '1008702225V536415^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '600017293^PI^200CORP^USVBA^A'
     ssn: '796364561'
     status: 'active'
@@ -468,7 +468,7 @@ find_candidate:
     gender: 'M'
     given_names: ['MARTIN', 'Ray']
     icn: '1008701927V867370^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318168^PI^200CORP^USVBA^A'
     ssn: '796018229'
     status: 'active'
@@ -479,7 +479,7 @@ find_candidate:
     gender: 'F'
     given_names: ['MATTIE', 'May']
     icn: '1008709764V627989^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318167^PI^200CORP^USVBA^A'
     ssn: '796109651'
     status: 'active'
@@ -490,7 +490,7 @@ find_candidate:
     gender: 'M'
     given_names: ['WILLARD', 'J']
     icn: '1008691084V540033^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: ~
     ssn: '796013145'
     status: 'active'
@@ -501,7 +501,7 @@ find_candidate:
     gender: 'M'
     given_names: ['THEODORE', 'Matthew']
     icn: '1008711090V693416^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318169^PI^200CORP^USVBA^A'
     ssn: '796019724'
     status: 'active'
@@ -512,7 +512,7 @@ find_candidate:
     gender: 'F'
     given_names: ['JO', 'M']
     icn: '1008691085V202565^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: ~
     ssn: '796044205'
     status: 'active'
@@ -523,7 +523,7 @@ find_candidate:
     gender: 'M'
     given_names: ['ARTHUR', 'E']
     icn: '1008691040V020761^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: ~
     ssn: '796220828'
     status: 'active'
@@ -534,7 +534,7 @@ find_candidate:
     gender: 'M'
     given_names: ['SALVADOR', 'H']
     icn: '1008709835V747620^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318570^PI^200CORP^USVBA^A'
     ssn: '796013160'
     status: 'active'
@@ -545,7 +545,7 @@ find_candidate:
     gender: 'M'
     given_names: ['SAM', 'Lee']
     icn: '1008702103V181634^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: ~
     ssn: '796053870'
     status: 'active'
@@ -556,7 +556,7 @@ find_candidate:
     gender: 'M'
     given_names: ['FREDERICK', 'Bradley']
     icn: '1008711092V958203^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318171^PI^200CORP^USVBA^A'
     ssn: '796128747'
     status: 'active'
@@ -567,7 +567,7 @@ find_candidate:
     gender: 'F'
     given_names: ['PENNY', 'M']
     icn: '1008711093V831025^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318172^PI^200CORP^USVBA^A'
     ssn: '796128750'
     status: 'active'
@@ -578,7 +578,7 @@ find_candidate:
     gender: 'M'
     given_names: ['RAY', 'A']
     icn: '1008691082V917396^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318173^PI^200CORP^USVBA^A'
     ssn: '796128748'
     status: 'active'
@@ -589,7 +589,7 @@ find_candidate:
     gender: 'M'
     given_names: ['DWAYNE', 'E']
     icn: '1008691575V571431^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: ~
     ssn: '796153369'
     status: 'active'
@@ -600,7 +600,7 @@ find_candidate:
     gender: 'M'
     given_names: ['BRIAN', 'J']
     icn: '1008709838V592386^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32245561^PI^200CORP^USVBA^A'
     ssn: '796127242'
     status: 'active'
@@ -611,7 +611,7 @@ find_candidate:
     gender: 'F'
     given_names: ['RUTH', 'Reyes']
     icn: '1008709839V226238^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32238885^PI^200CORP^USVBA^A'
     ssn: '796018805'
     status: 'active'
@@ -622,7 +622,7 @@ find_candidate:
     gender: 'M'
     given_names: ['DAVE', 'A']
     icn: '1008709840V869759^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318572^PI^200CORP^USVBA^A'
     ssn: '796110951'
     status: 'active'
@@ -633,7 +633,7 @@ find_candidate:
     gender: 'M'
     given_names: ['VERNON', 'D']
     icn: '1008713407V668256^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: ~
     ssn: '796140369'
     status: 'active'
@@ -644,7 +644,7 @@ find_candidate:
     gender: 'M'
     given_names: ['KENT', 'L']
     icn: '1008711094V567547^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318174^PI^200CORP^USVBA^A'
     ssn: '796127160'
     status: 'active'
@@ -655,7 +655,7 @@ find_candidate:
     gender: 'M'
     given_names: ['JEFF', 'Terrel']
     icn: '1008711095V215992^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318189^PI^200CORP^USVBA^A'
     ssn: '796246757'
     status: 'active'
@@ -666,7 +666,7 @@ find_candidate:
     gender: 'M'
     given_names: ['RUSSELL', 'Renee']
     icn: '1008691083V875288^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: ~
     ssn: '796079018'
     status: 'active'
@@ -677,7 +677,7 @@ find_candidate:
     gender: 'M'
     given_names: ['GLEN', 'Lee']
     icn: '1008711097V142730^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318192^PI^200CORP^USVBA^A'
     ssn: '796231077'
     status: 'active'
@@ -688,7 +688,7 @@ find_candidate:
     gender: 'M'
     given_names: ['LEONARD', 'A']
     icn: '1008702155V142394^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32253559^PI^200CORP^USVBA^A'
     ssn: '796017172'
     status: 'active'
@@ -699,7 +699,7 @@ find_candidate:
     gender: 'F'
     given_names: ['LEONA', 'C']
     icn: '1008691603V292665^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: ~
     ssn: '796066619'
     status: 'active'
@@ -710,7 +710,7 @@ find_candidate:
     gender: 'F'
     given_names: ['JAMIE', 'J']
     icn: '1008709398V910373^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: ~
     ssn: '796060339'
     status: 'active'
@@ -721,7 +721,7 @@ find_candidate:
     gender: 'M'
     given_names: ['TOMMY', 'V']
     icn: '1008711105V820155^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '32318200^PI^200CORP^USVBA^A'
     ssn: '796030117'
     status: 'active'
@@ -732,7 +732,7 @@ find_candidate:
     gender: 'M'
     given_names: ['Mitchell', 'G']
     icn: '1008714701V416111^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '600043167^PI^200CORP^USVBA^A'
     ssn: '796122306'
     status: 'active'
@@ -743,7 +743,7 @@ find_candidate:
     gender: 'F'
     given_names: ['Loretta', 'E']
     icn: '1008701808V712482^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '600048569^PI^200CORP^USVBA^A'
     ssn: '796184647'
     status: 'active'
@@ -754,7 +754,7 @@ find_candidate:
     gender: 'M'
     given_names: ['Gilbert', 'L']
     icn: ~
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '600043285^PI^200CORP^USVBA^A'
     ssn: '796140438'
     status: 'active'
@@ -765,17 +765,61 @@ find_candidate:
     gender: 'M'
     given_names: ['Alex', 'L']
     icn: '1008691086V086957^NI^200M^USVHA^P'
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '600043164^PI^200CORP^USVBA^A'
     ssn: '796122076'
   "796123607":
-    birth_date: '19960101'
+    birth_date: '19960710'
     edipi: '1005169255^NI^200DOD^USDOD^A'
     family_name: 'WEAVER'
     gender: 'M'
     given_names: ['JOHNNIE', 'L']
     icn: ~
-    mhv_id: ~
+    mhv_ids: ~
     vba_corp_id: '600043180^NI^200DOD^USDOD^A'
     ssn: '796123607'
     status: 'active'
+  "666717635":
+    birth_date: '19960710'
+    edipi: ~
+    family_name: 'GPRSRESYSFIVE'
+    gender: 'F'
+    given_names: ['ALANA']
+    icn: ~
+    mhv_ids: ['13492196^PI^200MH^USVHA^A']
+    vba_corp_id: ~
+    ssn: '666717635'
+    status: 'active'
+  "666271152":
+    birth_date: '19960710'
+    edipi: ~
+    family_name: 'GPKTESTNINE'
+    gender: 'M'
+    given_names: ['JERRY']
+    icn: ~
+    mhv_ids: ['10894456^PI^200MH^USVHA^A']
+    vba_corp_id: ~
+    ssn: '666271152'
+    status: 'active'
+  "666360333":
+    birth_date: '19960710'
+    edipi: ~
+    family_name: 'GPKSYSNINETEST'
+    gender: 'M'
+    given_names: ['JUHN']
+    icn: ~
+    mhv_ids: ['13408508^PI^200MH^USVHA^A']
+    vba_corp_id: ~
+    ssn: '666360333'
+    status: 'active'  
+  "666512797":
+    birth_date: '19960710'
+    edipi: ~
+    family_name: 'GPTESTKFIVE'
+    gender: 'M'
+    given_names: ['SEAN']
+    icn: ~
+    mhv_ids: ['12210827^PI^200MH^USVHA^A']
+    vba_corp_id: ~
+    ssn: '666512797'
+    status: 'active'  

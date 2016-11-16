@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 require 'net/sftp'
+require 'iconv'
 
 module EducationForm
   class CreateDailySpoolFiles
     include Sidekiq::Worker
     sidekiq_options queue: 'default',
-                    retry: true
+                    retry: 5
 
     include ActionView::Helpers::TextHelper # Needed for word_wrap
     require 'erb'
@@ -53,7 +54,6 @@ module EducationForm
             FileUtils.mkdir_p(dir_name)
 
             filename = "#{dir_name}/#{filename}"
-
             File
           else
             sftp.file
@@ -71,13 +71,17 @@ module EducationForm
     end
 
     def create_files(structured_data)
-      logger.error('No applications to write') if structured_data.empty?
+      logger.error('No applications to write') && return if structured_data.empty?
       if Rails.env.development? || ENV['EDU_SFTP_HOST'].blank?
         write_files(structured_data: structured_data)
+      elsif ENV['EDU_SFTP_PASS'].blank?
+        raise "EDU_SFTP_PASS not set for #{ENV['EDU_SFTP_USER']}@#{ENV['EDU_SFTP_HOST']}"
       else
         Net::SFTP.start(ENV['EDU_SFTP_HOST'], ENV['EDU_SFTP_USER'], password: ENV['EDU_SFTP_PASS']) do |sftp|
+          logger.info('Connected to SFTP')
           write_files(sftp: sftp, structured_data: structured_data)
         end
+        logger.info('Disconnected from SFTP')
       end
     end
 
@@ -88,8 +92,10 @@ module EducationForm
       # the spool file has a requirement that lines be 80 bytes (not characters), and since they
       # use windows-style newlines, that leaves us with a width of 78
       wrapped = word_wrap(@application_template.result(binding), line_width: 78)
+      # We can only send ASCII, so make a best-effort at that.
+      transliterated = Iconv.iconv('ascii//translit', 'utf-8', wrapped).first
       # The spool file must actually use windows style linebreaks
-      wrapped.gsub("\n", WINDOWS_NOTEPAD_LINEBREAK)
+      transliterated.gsub("\n", WINDOWS_NOTEPAD_LINEBREAK)
     end
 
     private
