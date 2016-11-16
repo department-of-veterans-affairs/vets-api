@@ -7,10 +7,6 @@ module EVSS
     # this service is only used from an async worker so long timeout is acceptable here
     DEFAULT_TIMEOUT = 180
 
-    def all_documents
-      get 'documents/getAllDocuments'
-    end
-
     def upload(file_body, document_data)
       headers = { 'Content-Type' => 'application/octet-stream' }
       post 'queuedDocumentUploadService/ajaxUploadFile', file_body, headers do |req|
