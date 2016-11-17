@@ -198,8 +198,8 @@ curl /v0/disability_claims/189625/documents \
   -H 'Authorization: Token token=ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789abcde' \
   -H 'Accept: application/json' \
   -H 'X-Key-Inflection: camel' \
-  -F tracked_item=1 \
-  -F doc_type='L307' \
+  -F tracked_item_id=1 \
+  -F document_type='L307' \
   -F file="@/path/to/a/file.jpg"
 ```
 * Example response:
