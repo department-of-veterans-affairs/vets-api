@@ -7,7 +7,7 @@ class StatsdMiddleware
   def call(env)
     start_time = Time.current
     status, headers, response = @app.call(env)
-    duration = Time.current - start_time
+    duration = (Time.current - start_time) * 1000.0
 
     controller = env['action_dispatch.request.path_parameters'][:controller]
     action = env['action_dispatch.request.path_parameters'][:action]
