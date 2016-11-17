@@ -19,3 +19,14 @@ def stub_mvi
     )
   )
 end
+
+def stub_mvi_not_found
+  allow(Mvi).to receive(:find).and_return(
+    Mvi.new(
+      uuid: 'abc123',
+      response: {
+        status: 'NOT_FOUND'
+      }
+    )
+  )
+end

@@ -65,49 +65,26 @@ class User < Common::RedisStore
   end
 
   def can_access_mhv?
-    loa3? && mhv_correlation_ids.length == 1
+    loa3? && mhv_correlation_id
   end
 
   def can_access_evss?
     edipi.present? && ssn.present? && participant_id.present?
   end
 
-  def edipi
-    select_source_id(:edipi)
-  end
-
-  def icn
-    select_source_id(:icn)
-  end
-
-  def participant_id
-    select_source_id(:vba_corp_id)
-  end
-
-  def mhv_correlation_id
-    mhv_correlation_ids.first
-  end
-
-  def mvi
-    return nil unless loa3?
-    @mvi ||= Mvi.from_user(self).fetch
-  end
+  delegate :edipi, to: :mvi
+  delegate :icn, to: :mvi
+  delegate :mhv_correlation_id, to: :mvi
+  delegate :participant_id, to: :mvi
+  delegate :va_profile, to: :mvi
 
   private
 
-  def mhv_correlation_ids
-    return @mhv_correlation_ids if @mhv_correlation_ids
-    ids = mvi&.dig(:mhv_ids)
-    ids = [] unless ids
-    ids.map { |mhv_id| mhv_id.split('^')&.first }.compact
+  def mvi
+    @mvi ||= Mvi.from_user(self)
   end
 
   def evss_auth_headers
     @evss_auth_headers ||= EVSS::AuthHeaders.new(self).to_h
-  end
-
-  def select_source_id(correlation_id)
-    return nil unless mvi&.dig(correlation_id) && loa3?
-    mvi[correlation_id].split('^')&.first
   end
 end

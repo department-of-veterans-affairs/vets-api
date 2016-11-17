@@ -3,7 +3,7 @@ require 'rails_helper'
 require 'common/exceptions'
 
 describe Mvi, skip_mvi: true do
-  let(:user) { FactoryGirl.build(:user) }
+  let(:user) { FactoryGirl.build(:loa3_user) }
   let(:mvi) { Mvi.from_user(user) }
   let(:find_candidate_response) do
     {
@@ -40,7 +40,10 @@ describe Mvi, skip_mvi: true do
             )
           )
           expect_any_instance_of(MVI::Service).to receive(:find_candidate).once
-          expect(mvi.fetch).to eq(find_candidate_response)
+          expect(mvi.edipi).to eq(find_candidate_response[:edipi].split('^').first)
+          expect(mvi.icn).to eq(find_candidate_response[:icn].split('^').first)
+          expect(mvi.mhv_correlation_id).to eq(find_candidate_response[:mhv_ids].first.split('^').first)
+          expect(mvi.participant_id).to eq(find_candidate_response[:vba_corp_id].split('^').first)
         end
       end
 
@@ -50,7 +53,7 @@ describe Mvi, skip_mvi: true do
             MVI::HTTPError.new('MVI HTTP call failed', 500)
           )
           expect(Rails.logger).to receive(:error).once.with(/MVI HTTP error code: 500 for user:/)
-          expect(mvi.fetch).to eq(status: Mvi::MVI_RESPONSE_STATUS[:server_error])
+          expect(mvi.va_profile).to eq(status: Mvi::MVI_RESPONSE_STATUS[:server_error])
         end
       end
 
@@ -58,7 +61,7 @@ describe Mvi, skip_mvi: true do
         it 'should log an error message and return status not found' do
           allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(MVI::InvalidRequestError)
           expect(Rails.logger).to receive(:error).once.with(/MVI service error: MVI::InvalidRequestError for user:/)
-          expect(mvi.fetch).to eq(status: Mvi::MVI_RESPONSE_STATUS[:server_error])
+          expect(mvi.va_profile).to eq(status: Mvi::MVI_RESPONSE_STATUS[:server_error])
         end
       end
 
@@ -68,7 +71,7 @@ describe Mvi, skip_mvi: true do
             MVI::RecordNotFound.new('not found')
           )
           expect(Rails.logger).to receive(:error).once.with(/MVI record not found for user:/)
-          expect(mvi.fetch).to eq(status: Mvi::MVI_RESPONSE_STATUS[:not_found])
+          expect(mvi.va_profile).to eq(status: Mvi::MVI_RESPONSE_STATUS[:not_found])
         end
       end
     end
@@ -78,7 +81,14 @@ describe Mvi, skip_mvi: true do
         mvi.response = find_candidate_response.merge(status: 'OK')
         mvi.save
         expect_any_instance_of(MVI::Service).to_not receive(:find_candidate)
-        expect(mvi.fetch).to eq(find_candidate_response.merge(status: 'OK'))
+        expect(mvi.va_profile).to eq(
+          active_status: 'active',
+          birth_date: '19800101',
+          family_name: 'Smith',
+          gender: 'M',
+          given_names: %w(John William),
+          status: Mvi::MVI_RESPONSE_STATUS[:ok]
+        )
       end
     end
   end

@@ -20,12 +20,17 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
         email: 'foo@bar.com',
         uuid: SecureRandom.uuid,
         loa: {
-          current: LOA::TWO,
+          current: LOA::THREE,
           highest: LOA::THREE
         }
       )
-      mvi = Mvi.from_user(user).query
-      puts Oj.dump(mvi)
+      puts Oj.dump(
+        edipi: user.edipi,
+        icn: user.icn,
+        mhv_correlation_id: user.mhv_correlation_id,
+        participant_id: user.participant_id,
+        va_profile: user.va_profile
+      )
     rescue => e
       puts "User query failed: #{e.message}"
     end
