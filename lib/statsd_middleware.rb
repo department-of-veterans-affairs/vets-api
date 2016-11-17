@@ -5,12 +5,19 @@ class StatsdMiddleware
   end
 
   def call(env)
+    start_time = Time.current
     status, headers, response = @app.call(env)
-    params = env['action_dispatch.request.path_parameters']
-    key = "api.external.request#status=#{status},controller=#{params[:controller]},action=#{params[:action]}"
+    duration = Time.current - start_time
+
+    controller = env['action_dispatch.request.path_parameters'][:controller]
+    action = env['action_dispatch.request.path_parameters'][:action]
+    status_key = "api.external.request#status=#{status},controller=#{controller},action=#{action}"
+    duration_key = "api.external.request.duration#controller=#{controller},action=#{action}"
+
     # rubocop:disable Lint/HandleExceptions
     begin
-      StatsD.increment(key, 1)
+      StatsD.increment(status_key, 1)
+      StatsD.measure(duration_key, duration)
     rescue
       # we want to ensure this doesn't break the response cyce
     end

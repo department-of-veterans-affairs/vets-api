@@ -18,18 +18,42 @@ RSpec.describe StatsdMiddleware, type: :request do
     )
   end
   let(:user) { build(:mhv_user) }
+  let(:now) { Time.current }
 
   before(:each) do
     allow_any_instance_of(ApplicationController).to receive(:authenticate_token).and_return(:true)
     allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
     allow_any_instance_of(Rx::Client).to receive(:get_session).and_return(session)
+    Timecop.freeze(now)
   end
 
-  it 'sends data to statsd' do
+  it 'sends status data to statsd' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
     key = 'api.external.request#status=200,controller=v0/prescriptions,action=index'
     expect do
       get '/v0/prescriptions'
     end.to trigger_statsd_increment(key, times: 1, value: 1)
+  end
+
+  it 'sends duration data to statsd' do
+    stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
+    key = 'api.external.request.duration#controller=v0/prescriptions,action=index'
+    expect do
+      get '/v0/prescriptions'
+    end.to trigger_statsd_measure(key, times: 1, value: 0.0)
+  end
+
+  it 'handles a missing route correctly' do
+    key = 'api.external.request#status=404,controller=application,action=routing_error'
+    expect do
+      get '/v0/blahblah'
+    end.to trigger_statsd_increment(key, times: 1, value: 1)
+  end
+
+  it 'provides duration for missing routes' do
+    key = 'api.external.request.duration#controller=application,action=routing_error'
+    expect do
+      get '/v0/blahblah'
+    end.to trigger_statsd_measure(key, times: 1, value: 0.0)
   end
 end
