@@ -109,17 +109,13 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
     it 'writes files out over sftp' do
       ClimateControl.modify EDU_SFTP_HOST: 'localhost', EDU_SFTP_PASS: 'test' do
-        mock_file = double(File)
-        mock_writer = StringIO.new
-        sftp_mock = double(file: mock_file)
+        sftp_mock = double
         expect(Net::SFTP).to receive(:start).once.and_yield(sftp_mock)
-        expect(mock_file).to receive('open').with(filename, 'w').and_return(mock_writer)
-        expect(mock_writer).to receive('close').once
+        expect(sftp_mock).to receive(:upload!) do |contents, path|
+          expect(path).to eq filename
+          expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
+        end
         perform_with_frozen_time
-
-        # read back the written file
-        mock_writer.rewind
-        expect(mock_writer.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
       end
     end
   end

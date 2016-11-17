@@ -50,25 +50,21 @@ module EducationForm
       structured_data.each do |region, records|
         region_id = EducationFacility.facility_for(region: region)
         filename = "#{region_id}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
-        file_class =
-          if sftp.nil?
-            dir_name = 'tmp/spool_files'
-            FileUtils.mkdir_p(dir_name)
-
-            filename = "#{dir_name}/#{filename}"
-            File
-          else
-            sftp.file
-          end
-
         logger.info("Writing #{records.count} application(s) to #{filename}")
-        f = file_class.open(filename, 'w')
         contents = records.map do |record|
           format_application(record)
         end.join(WINDOWS_NOTEPAD_LINEBREAK)
 
-        f.write(contents)
-        f.close
+        if sftp
+          sftp.upload!(StringIO.new(contents), filename)
+        else
+          dir_name = Rails.root.join('tmp', 'spool_files')
+          FileUtils.mkdir_p(dir_name)
+          local_filename = File.join(dir_name, filename)
+          File.open(local_filename, 'w') do |f|
+            f.write(contents)
+          end
+        end
       end
     end
 
