@@ -28,20 +28,14 @@ module EducationForm
       regional_data = group_submissions_by_region(records)
       # Create a remote file for each region, and write the records into them
       create_files(regional_data)
-      # mark the records as processed
-      records.find_each do |record|
-        record.update_attributes!(processed_at: Time.zone.now)
-      end
-      # TODO: Log the success/failure of the submission somewhere
       true
     end
 
     def group_submissions_by_region(records)
       regional_data = Hash.new { |h, k| h[k] = [] }
       records.each do |record|
-        form = record.open_struct_form
         region_key = record.regional_processing_office&.to_sym
-        regional_data[region_key] << form
+        regional_data[region_key] << record
       end
       regional_data
     end
@@ -51,8 +45,9 @@ module EducationForm
         region_id = EducationFacility.facility_for(region: region)
         filename = "#{region_id}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
         logger.info("Writing #{records.count} application(s) to #{filename}")
+        # create the single textual spool file
         contents = records.map do |record|
-          format_application(record)
+          format_application(record.open_struct_form)
         end.join(WINDOWS_NOTEPAD_LINEBREAK)
 
         if sftp
@@ -60,10 +55,14 @@ module EducationForm
         else
           dir_name = Rails.root.join('tmp', 'spool_files')
           FileUtils.mkdir_p(dir_name)
-          local_filename = File.join(dir_name, filename)
-          File.open(local_filename, 'w') do |f|
+          File.open(File.join(dir_name, filename), 'w') do |f|
             f.write(contents)
           end
+        end
+
+        # mark the records as processed once the file has been written
+        records.each do |record|
+          record.update_attributes!(processed_at: Time.zone.now)
         end
       end
     end

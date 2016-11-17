@@ -98,8 +98,10 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
 
       it 'writes a file to the tmp dir' do
+        expect(EducationBenefitsClaim.unprocessed).not_to be_empty
         perform_with_frozen_time
         expect(File.read(file_path).include?('APPLICATION FOR VA EDUCATION BENEFITS')).to eq(true)
+        expect(EducationBenefitsClaim.unprocessed).to be_empty
       end
 
       after do
@@ -108,6 +110,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
 
     it 'writes files out over sftp' do
+      expect(EducationBenefitsClaim.unprocessed).not_to be_empty
       ClimateControl.modify EDU_SFTP_HOST: 'localhost', EDU_SFTP_PASS: 'test' do
         sftp_mock = double
         expect(Net::SFTP).to receive(:start).once.and_yield(sftp_mock)
@@ -116,6 +119,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
           expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
         end
         perform_with_frozen_time
+        expect(EducationBenefitsClaim.unprocessed).to be_empty
       end
     end
   end
