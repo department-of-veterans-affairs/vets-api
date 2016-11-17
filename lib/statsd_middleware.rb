@@ -14,14 +14,10 @@ class StatsdMiddleware
     status_key = "api.external.request#status=#{status},controller=#{controller},action=#{action}"
     duration_key = "api.external.request.duration#controller=#{controller},action=#{action}"
 
-    # rubocop:disable Lint/HandleExceptions
-    begin
-      StatsD.increment(status_key, 1)
-      StatsD.measure(duration_key, duration)
-    rescue
-      # we want to ensure this doesn't break the response cyce
-    end
-    # rubocop:enable Lint/HandleExceptions
+    # rubocop:disable Style/RescueModifier
+    StatsD.increment(status_key, 1) rescue nil
+    StatsD.measure(duration_key, duration) rescue nil
+    # rubocop:enable Style/RescueModifier
     [status, headers, response]
   end
 end
