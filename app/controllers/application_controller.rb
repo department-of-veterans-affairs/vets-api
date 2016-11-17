@@ -55,7 +55,7 @@ class ApplicationController < ActionController::API
     if va_exception.is_a?(Common::Exceptions::Unauthorized)
       headers['WWW-Authenticate'] = 'Token realm="Application"'
     elsif va_exception.is_a?(Common::Exceptions::MethodNotAllowed)
-      headers['Allow'] = va_exception.allowed_methods.map(&:upcase).join(", ")
+      headers['Allow'] = va_exception.allowed_methods.map(&:upcase).join(', ')
     end
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
