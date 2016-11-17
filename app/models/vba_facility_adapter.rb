@@ -37,7 +37,7 @@ class VBAFacilityAdapter
     VAFacility.new(m)
   end
 
-  def service_whitelist
+  def self.service_whitelist
     SERVICES_MAP.keys
   end
 

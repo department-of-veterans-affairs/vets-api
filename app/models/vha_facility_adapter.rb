@@ -41,7 +41,7 @@ class VHAFacilityAdapter
     VAFacility.new(m)
   end
 
-  def service_whitelist
+  def self.service_whitelist
     SERVICE_HIERARCHY.flatten(2)
   end
 
