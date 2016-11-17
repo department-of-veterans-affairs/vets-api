@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 require 'facilities/async_client'
 require 'facilities/multi_client'
+require 'facilities/local_cache'
 
 class VAFacility < ActiveModelSerializers::Model
   attr_accessor :unique_id, :name, :facility_type, :classification, :website,
                 :lat, :long, :address, :phone, :hours, :services, :feedback
+
+  @@lock = Mutex.new
 
   HEALTH = 'health'
   CEMETERY = 'cemetery'
@@ -23,14 +26,19 @@ class VAFacility < ActiveModelSerializers::Model
   def self.query(bbox:, type:, services:)
     query_types = type.nil? ? TYPES : [type]
     bbox_num = bbox.map { |x| Float(x) }
-    requests = query_types.map { |t| client_adapter(t).query(bbox_num, services) }
-    responses = multi_client.run(requests)
+    #requests = query_types.map { |t| client_adapter(t).query(bbox_num, services) }
+    #responses = multi_client.run(requests)
+    #facilities = []
+    #query_types.zip(responses).each do |(t, rs)|
+    #  adapter = client_adapter(t)
+    #  rs&.each do |record|
+    #    facilities << adapter.class.from_gis(record)
+    #  end
+    #end
     facilities = []
-    query_types.zip(responses).each do |(t, rs)|
-      adapter = client_adapter(t)
-      rs&.each do |record|
-        facilities << adapter.class.from_gis(record)
-      end
+    query_types.each do |t|
+      store = client_adapter(t)
+      facilities += store.query(bbox_num).to_a
     end
     facilities.sort_by(&(dist_from_center bbox_num))
   end
@@ -49,13 +57,13 @@ class VAFacility < ActiveModelSerializers::Model
     prefix, station = id.split('_')
     adapter = client_adapter(ID_PREFIXES[prefix])
     return nil unless adapter
-    request = adapter.find_by(id: station)
-    responses = multi_client.run([request])
-    adapter.class&.from_gis(responses.first.first) unless responses.first.blank?
+    adapter.get(station)
+    #responses = multi_client.run([request])
+    #adapter.class&.from_gis(responses.first.first) unless responses.first.blank?
   end
 
   def self.service_whitelist(prefix)
-    client_adapter(prefix)&.service_whitelist
+    client_adapter(prefix)&.adapter&.service_whitelist
   end
 
   def self.multi_client
@@ -63,15 +71,17 @@ class VAFacility < ActiveModelSerializers::Model
   end
 
   def self.client_adapter(prefix)
-    @client_map ||= init_adapters
+    @@lock.synchronize do
+      @client_map ||= init_adapters
+    end
     @client_map[prefix]
   end
 
   def self.init_adapters
     {
-      HEALTH => VHAFacilityAdapter.new,
-      CEMETERY => NCAFacilityAdapter.new,
-      BENEFITS => VBAFacilityAdapter.new
+      HEALTH => Facilities::LocalStore.new(ENV['VHA_MAPSERVER_URL'], nil, VHAFacilityAdapter),
+      CEMETERY => Facilities::LocalStore.new(ENV['NCA_MAPSERVER_URL'], nil, NCAFacilityAdapter),
+      BENEFITS => Facilities::LocalStore.new(ENV['VBA_MAPSERVER_URL'], nil, VBAFacilityAdapter)
     }
   end
 

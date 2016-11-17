@@ -33,7 +33,7 @@ class NCAFacilityAdapter
     VAFacility.new(m)
   end
 
-  def service_whitelist
+  def self.service_whitelist
     []
   end
 
