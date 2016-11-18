@@ -19,7 +19,7 @@ module Facilities
       @conn = Faraday.new(:url => @url) do |conn|
         conn.options.open_timeout = OPEN_TIMEOUT
         conn.options.timeout = REQUEST_TIMEOUT
-        conn.response :logger
+        # conn.response :logger
         # TODO conn.use :breakers
         conn.adapter Faraday.default_adapter 
       end
@@ -33,16 +33,13 @@ module Facilities
       end
     end
 
-    def query(bbox) 
+    def query(bbox, services = nil)
       check_for_freshness
+      filter = services ? @adapter.with_services(services) : lambda { |_| true }
       @mutex.synchronize do
-        @coordinates.select(&(within bbox)).sort_by(&(dist_from_center bbox)).map { |p| p.facility }
+        @coordinates.select(&(within bbox)).sort_by(&(dist_from_center bbox)).map { |p| p.facility }.select(&filter)
       end
     end
-
-    #def query_n(bbox)
-    #  coordinates.sort_by(&dist_from_center bbox)
-    #end
 
     def within(bbox)
       x_min, x_max = bbox[0] < bbox[2] ? [bbox[0], bbox[2]] : [bbox[2], bbox[0]]
@@ -63,18 +60,16 @@ module Facilities
     end
 
     def check_for_freshness
-      puts Time.current
-      puts @last_check
+      puts "Checking, now #{Time.current} vs. #{@last_check}"
       return unless Time.current > (@last_check + GIS_CHECK_FREQUENCY)
       @mutex.synchronize do
-        puts "gonna check"
+        puts "Time to check freshness"
         return unless Time.current > (@last_check + GIS_CHECK_FREQUENCY)
-        @last_check = Time.current
         current_edit = gis_edit_date
-        puts current_edit
-        puts @last_gis_update
+        puts "Checking, we have #{current_edit} vs. #{@last_gis_update}"
         return if current_edit == @last_gis_update
         refresh
+        @last_check = Time.current
         @last_gis_update = current_edit
       end
     end
@@ -88,7 +83,7 @@ module Facilities
     end
 
     def refresh
-       puts 'refresh'
+       puts 'Refreshing from GIS'
        query_url = [@url, 'query'].join('/')
        count_params = {
          where: '1=1',

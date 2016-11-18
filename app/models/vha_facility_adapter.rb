@@ -1,24 +1,12 @@
 # frozen_string_literal: true
 class VHAFacilityAdapter
-  VHA_URL = +ENV['VHA_MAPSERVER_URL']
   VHA_ID_FIELD = 'StationNumber'
   FACILITY_TYPE = 'va_health_facility'
 
-  def initialize
-    @client = Facilities::Client.new(url: VHA_URL, id_field: VHA_ID_FIELD)
-  end
-
-  def query(bbox, services = nil)
-    @client.query(bbox: bbox.join(','),
-                  where: self.class.where_clause(services))
-  end
-
-  def find_by(id:)
-    @client.get(id: id)
-  end
-
-  def self.where_clause(services)
-    services.map { |s| "#{s}='YES'" }.join(' AND ') unless services.nil?
+  def self.with_services(services)
+    lambda do |facility|
+      services.all? { |s| facility.services[:health].any { |x| x.flatten(2).contain? s }}
+    end
   end
 
   def self.from_gis(record)
