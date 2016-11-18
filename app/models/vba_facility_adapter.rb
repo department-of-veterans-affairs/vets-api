@@ -1,24 +1,12 @@
 # frozen_string_literal: true
 class VBAFacilityAdapter
-  VBA_URL = +ENV['VBA_MAPSERVER_URL']
   VBA_ID_FIELD = 'Facility_Number'
   FACILITY_TYPE = 'va_benefits_facility'
 
-  def initialize
-    @client = Facilities::Client.new(url: VBA_URL, id_field: VBA_ID_FIELD)
-  end
-
-  def query(bbox, services = nil)
-    @client.query(bbox: bbox.join(','),
-                  where: self.class.where_clause(services))
-  end
-
-  def find_by(id:)
-    @client.get(id: id)
-  end
-
-  def self.where_clause(services)
-    services.map { |s| "#{SERVICES_MAP[s]}='YES'" }.join(' AND ') unless services.nil?
+  def self.with_services(services)
+    lambda do |facility|
+      services.all? { |s| facility.services[:benefits][:standard].include? s }
+    end
   end
 
   def self.from_gis(record)
