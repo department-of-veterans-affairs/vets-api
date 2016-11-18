@@ -50,7 +50,7 @@ Authorization: Token token=RiW_3isZHtUszCLvEAv4vEyCV37K8yFeezQm4fdT
         "gender": "M",
         "given_names": ["WILLIAM","P"],
         "status": "OK", // possible values [OK, NOT_FOUND, SERVER_ERROR]
-        "active_status": null
+        "active_status": null // possible values [active, new]
       }
     }
   }
