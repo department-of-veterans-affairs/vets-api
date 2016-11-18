@@ -56,6 +56,7 @@ class Mvi < Common::RedisStore
   private
 
   def mhv_correlation_ids
+    return nil unless mvi_response
     ids = mvi_response&.dig(:mhv_ids)
     ids = [] unless ids
     ids.map { |mhv_id| mhv_id.split('^')&.first }.compact

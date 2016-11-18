@@ -42,6 +42,7 @@ FactoryGirl.define do
     email 'abraham.lincoln@vets.gov'
     first_name 'abraham'
     last_name 'lincoln'
+    gender 'M'
     birth_date Time.new(1809, 2, 12).utc
     ssn '272111863'
     loa do
