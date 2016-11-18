@@ -9,11 +9,11 @@
 
 | Resource  | Description | Params |
 | --------- | ----------- | ------ |
-| GET [/prescriptions](api-docs/prescriptions.md)  | Returns all VA prescriptions for the patient that are or were fillable online. Includes historical/inactive prescriptions. | <ul><li>refill_status: See chart below</li></ul> |
-| GET [/prescriptions/:id](api-docs/prescriptions-id.md)  | Returns a single VA prescription based on prescription id. | N/A |
-| GET [/prescriptions/active](api-docs/prescriptions-active.md)  | Returns all current VA prescriptions for the patient that are fillable online.  | N/A |
-| PATCH [/prescriptions/:id/refill](api-docs/prescriptions-id-refill.md)  | Submits a refill for the prescription ID provided.  | N/A |
-| GET [/prescriptions/:prescription_id/trackings](api-docs/prescriptions-prescription_id-tracking.md)  | Returns all the tracking information of the provided prescription as a collection.  | <ul><li>prescription_id: id of the prescription you want to obtain tracking info for <i>(Currently required)</i></li><li>id: the tracking id of the shipment <i>(Currently not supported)</i></li></ul> |
+| GET [/prescriptions](rx/prescriptions.md)  | Returns all VA prescriptions for the patient that are or were fillable online. Includes historical/inactive prescriptions. | <ul><li>refill_status: See chart below</li></ul> |
+| GET [/prescriptions/:id](rx/prescriptions-id.md)  | Returns a single VA prescription based on prescription id. | N/A |
+| GET [/prescriptions/active](rx/prescriptions-active.md)  | Returns all current VA prescriptions for the patient that are fillable online.  | N/A |
+| PATCH [/prescriptions/:id/refill](rx/prescriptions-id-refill.md)  | Submits a refill for the prescription ID provided.  | N/A |
+| GET [/prescriptions/:prescription_id/trackings](rx/prescriptions-prescription_id-tracking.md)  | Returns all the tracking information of the provided prescription as a collection.  | <ul><li>prescription_id: id of the prescription you want to obtain tracking info for <i>(Currently required)</i></li><li>id: the tracking id of the shipment <i>(Currently not supported)</i></li></ul> |
 
 ##### Supported Formats
 * JSON
