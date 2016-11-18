@@ -1,3 +1,4 @@
+
 def env_vars = [
     'RAILS_ENV=test',
     'HOSTNAME=www.example.com',
