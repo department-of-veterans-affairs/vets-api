@@ -4,7 +4,7 @@ require 'evss/documents_service'
 require 'evss/auth_headers'
 
 class DisabilityClaimService
-  EVSS_CLAIM_KEYS = %w(openClaims historicalClaims).freeze
+  EVSS_CLAIM_KEYS = %w(open_claims historical_claims).freeze
 
   # Codes for claim types that are disability claims. See
   # https://github.com/department-of-veterans-affairs/sunsets-team/blob/master/track-claim-status/technical/Dis_Clm_types.md
@@ -34,7 +34,7 @@ class DisabilityClaimService
     claims = EVSS_CLAIM_KEYS.each_with_object([]) do |key, claim_accum|
       next unless raw_claims[key]
       disability_claims = raw_claims[key].select do |raw_claim|
-        DISABILITY_BENEFIT_CODES.include? raw_claim['benefitClaimTypeCode']
+        DISABILITY_BENEFIT_CODES.include? raw_claim['benefit_claim_type_code']
       end
       claim_accum << disability_claims.map do |raw_claim|
         create_or_update_claim(raw_claim)
@@ -69,6 +69,12 @@ class DisabilityClaimService
     # the uploader sanitizes the filename before storing, so set our doc to match
     disability_claim_document.file_name = uploader.filename
     DisabilityClaim::DocumentUpload.perform_async(auth_headers, @user.uuid, disability_claim_document.to_h)
+  end
+
+  def rating_info
+    client = EVSS::CommonService.new(auth_headers)
+    body = client.find_rating_info(@user.participant_id).body.fetch('rating_record', {})
+    DisabilityRating.new(body['disability_rating_record'])
   end
 
   private
