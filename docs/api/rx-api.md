@@ -47,11 +47,11 @@ Pagination data will be returned in the JSON response as follows:
 Links that can be used to display the pagination are also returned in the response:
 ```javascript
 "links": {
-  "self": "http:\/\/ec2-52-90-149-185.compute-1.amazonaws.com:3004\/prescriptions\/v1\/prescriptions?",
-  "first": "http:\/\/ec2-52-90-149-185.compute-1.amazonaws.com:3004\/prescriptions\/v1\/prescriptions?page=1&per_page=10",
+  "self": "http:\/\/ec2-52-90-149-185.compute-1.amazonaws.com:3004\/rx\/v1\/prescriptions?",
+  "first": "http:\/\/ec2-52-90-149-185.compute-1.amazonaws.com:3004\/rx\/v1\/prescriptions?page=1&per_page=10",
   "prev": null,
-  "next": "http:\/\/ec2-52-90-149-185.compute-1.amazonaws.com:3004\/prescriptions\/v1\/prescriptions?page=2&per_page=10",
-  "last": "http:\/\/ec2-52-90-149-185.compute-1.amazonaws.com:3004\/prescriptions\/v1\/prescriptions?page=2&per_page=10"
+  "next": "http:\/\/ec2-52-90-149-185.compute-1.amazonaws.com:3004\/rx\/v1\/prescriptions?page=2&per_page=10",
+  "last": "http:\/\/ec2-52-90-149-185.compute-1.amazonaws.com:3004\/rx\/v1\/prescriptions?page=2&per_page=10"
 },
 ```
 
