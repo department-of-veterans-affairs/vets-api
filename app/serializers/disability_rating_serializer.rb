@@ -6,4 +6,8 @@ class DisabilityRatingSerializer < ActiveModel::Serializer
   def id
     nil
   end
+
+  def service_connected_combined_degree
+    object.serviceConnectedCombinedDegree
+  end
 end
