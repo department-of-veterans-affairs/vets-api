@@ -13,7 +13,7 @@ module EducationForm
     def calculate_submissions(range_type: :year, status: :processed)
       submissions = {}
       application_types = EducationBenefitsClaim::APPLICATION_TYPES
-      range = @date.public_send("beginning_of_#{range_type}")..@date.end_of_day
+      range = @ranges[range_type]
 
       EducationFacility::REGIONS.each do |region|
         region_submissions = {}
@@ -37,10 +37,15 @@ module EducationForm
     def create_csv_header
       csv_array = []
 
+      @ranges = {}
+      %i(day year).each do |range_type|
+        @ranges[range_type] = @date.public_send("beginning_of_#{range_type}")..@date.end_of_day
+      end
+
       csv_array << ["Submitted Vets.gov Applications - Report FYTD #{@date.year} as of #{@date}"]
       csv_array << ['', '', 'DOCUMENT TYPE']
       csv_array << ['RPO', 'BENEFIT TYPE', '22-1990']
-      csv_array << ['', '', @date.year, '', @date.to_s]
+      csv_array << ['', '', @ranges[:year].to_s, '', @ranges[:day].to_s]
       csv_array << ['', '', '', 'Submitted', 'Uploaded to TIMS']
 
       csv_array
