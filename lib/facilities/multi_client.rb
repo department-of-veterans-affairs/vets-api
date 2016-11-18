@@ -13,7 +13,10 @@ module Facilities
       requests.each { |req| @hydra.queue req }
       @hydra.run
       requests.map do |req|
-        raise Common::Client::RequestTimeout if req.response.timed_out?
+        if req.response.timed_out?
+          Rails.logger.error "GIS request timed out: #{req.url}"
+          raise Common::Client::Errors::RequestTimeout
+        end
         raise Common::Client::Errors::ClientResponse.new(req.response.code, {}) unless
           req.response.success?
         result = JSON.parse(req.response.body)

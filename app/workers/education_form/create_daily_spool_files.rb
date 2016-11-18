@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 require 'net/sftp'
+require 'iconv'
 
 module EducationForm
   class CreateDailySpoolFiles
     include Sidekiq::Worker
     sidekiq_options queue: 'default',
-                    retry: true
+                    retry: 5
 
     include ActionView::Helpers::TextHelper # Needed for word_wrap
     require 'erb'
@@ -27,18 +28,14 @@ module EducationForm
       regional_data = group_submissions_by_region(records)
       # Create a remote file for each region, and write the records into them
       create_files(regional_data)
-      # mark the records as processed
-      records.update_all(processed_at: Time.zone.now)
-      # TODO: Log the success/failure of the submission somewhere
       true
     end
 
     def group_submissions_by_region(records)
       regional_data = Hash.new { |h, k| h[k] = [] }
       records.each do |record|
-        form = record.open_struct_form
         region_key = record.regional_processing_office&.to_sym
-        regional_data[region_key] << form
+        regional_data[region_key] << record
       end
       regional_data
     end
@@ -47,37 +44,41 @@ module EducationForm
       structured_data.each do |region, records|
         region_id = EducationFacility.facility_for(region: region)
         filename = "#{region_id}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
-        file_class =
-          if sftp.nil?
-            dir_name = 'tmp/spool_files'
-            FileUtils.mkdir_p(dir_name)
-
-            filename = "#{dir_name}/#{filename}"
-
-            File
-          else
-            sftp.file
-          end
-
         logger.info("Writing #{records.count} application(s) to #{filename}")
-        f = file_class.open(filename, 'w')
+        # create the single textual spool file
         contents = records.map do |record|
-          format_application(record)
+          format_application(record.open_struct_form)
         end.join(WINDOWS_NOTEPAD_LINEBREAK)
 
-        f.write(contents)
-        f.close
+        if sftp
+          sftp.upload!(StringIO.new(contents), filename)
+        else
+          dir_name = Rails.root.join('tmp', 'spool_files')
+          FileUtils.mkdir_p(dir_name)
+          File.open(File.join(dir_name, filename), 'w') do |f|
+            f.write(contents)
+          end
+        end
+
+        # mark the records as processed once the file has been written
+        records.each do |record|
+          record.update_attributes!(processed_at: Time.zone.now)
+        end
       end
     end
 
     def create_files(structured_data)
-      logger.error('No applications to write') if structured_data.empty?
+      logger.error('No applications to write') && return if structured_data.empty?
       if Rails.env.development? || ENV['EDU_SFTP_HOST'].blank?
         write_files(structured_data: structured_data)
+      elsif ENV['EDU_SFTP_PASS'].blank?
+        raise "EDU_SFTP_PASS not set for #{ENV['EDU_SFTP_USER']}@#{ENV['EDU_SFTP_HOST']}"
       else
         Net::SFTP.start(ENV['EDU_SFTP_HOST'], ENV['EDU_SFTP_USER'], password: ENV['EDU_SFTP_PASS']) do |sftp|
+          logger.info('Connected to SFTP')
           write_files(sftp: sftp, structured_data: structured_data)
         end
+        logger.info('Disconnected from SFTP')
       end
     end
 
@@ -88,8 +89,10 @@ module EducationForm
       # the spool file has a requirement that lines be 80 bytes (not characters), and since they
       # use windows-style newlines, that leaves us with a width of 78
       wrapped = word_wrap(@application_template.result(binding), line_width: 78)
+      # We can only send ASCII, so make a best-effort at that.
+      transliterated = Iconv.iconv('ascii//translit', 'utf-8', wrapped).first
       # The spool file must actually use windows style linebreaks
-      wrapped.gsub("\n", WINDOWS_NOTEPAD_LINEBREAK)
+      transliterated.gsub("\n", WINDOWS_NOTEPAD_LINEBREAK)
     end
 
     private

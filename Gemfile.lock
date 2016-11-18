@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 7c612829e0862c8a4aee9ff15badf13c968d46d6
+  revision: 257777275869377d4d0c65348a97bf9c7df51d4a
   branch: master
   specs:
     vets_json_schema (1.0.0)
@@ -80,7 +80,7 @@ GEM
       sass (~> 3.0)
       slim (>= 1.3.6, < 4.0)
       terminal-table (~> 1.4)
-    breakers (0.2.2)
+    breakers (0.2.3)
       faraday (>= 0.7.4, < 0.10)
       multi_json (~> 1.0)
     builder (3.2.2)
@@ -174,6 +174,7 @@ GEM
       socksify
     i18n (0.7.0)
     ice_nine (0.11.2)
+    iconv (1.0.4)
     jmespath (1.3.1)
     json (1.8.3)
     json-schema (2.7.0)
@@ -415,8 +416,8 @@ DEPENDENCIES
   guard-rspec (~> 4.7)
   guard-rubocop
   httpclient
+  iconv
   json-schema
-  multi_json
   net-sftp
   oj
   olive_branch

@@ -39,6 +39,7 @@ class DisabilityClaimDocumentUploader < CarrierWave::Uploader::Base
       }
       self.aws_acl = 'private'
       self.aws_bucket = ENV['EVSS_AWS_S3_BUCKET']
+      self.aws_attributes = { server_side_encryption: 'AES256' }
       self.class.storage = :aws
     else
       self.class.storage = :file

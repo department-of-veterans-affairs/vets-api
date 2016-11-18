@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'rails_helper'
+require 'rx/client'
 
 RSpec.describe ApplicationController, type: :controller do
   controller do
@@ -15,6 +16,11 @@ RSpec.describe ApplicationController, type: :controller do
 
     def other_error
       raise Common::Client::Errors::ClientResponse.new(422, JSON_ERROR)
+    end
+
+    def client_connection_failed
+      client = Rx::Client.new(session: { user_id: 123 })
+      client.get_session
     end
   end
 
@@ -66,6 +72,26 @@ RSpec.describe ApplicationController, type: :controller do
         expect(subject.keys)
           .to eq(keys_for_production)
       end
+    end
+  end
+
+  context 'ConnectionFailed Error' do
+    before(:each) do
+      routes.draw do
+        get 'client_connection_failed' => 'anonymous#client_connection_failed'
+        get 'client_connection_failed_no_sentry' => 'anonymous#client_connection_failed_no_sentry'
+      end
+    end
+
+    it 'makes a call to sentry when there is cause' do
+      allow_any_instance_of(Rx::Client)
+        .to receive(:connection).and_raise(Faraday::ConnectionFailed, 'some message')
+      expect(Raven).to receive(:capture_exception).once
+      ClimateControl.modify SENTRY_DSN: 'T' do
+        get :client_connection_failed
+      end
+      expect(JSON.parse(response.body)['errors'].first['title'])
+        .to eq('Backend Service Outage')
     end
   end
 end

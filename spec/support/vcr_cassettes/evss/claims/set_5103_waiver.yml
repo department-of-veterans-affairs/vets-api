@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://test.vets.gov/wss-claims-services-web-3.0/rest/vbaClaimStatusService/set5103Waiver
+    uri: <EVSS_BASE_URL>/wss-claims-services-web-3.0/rest/vbaClaimStatusService/set5103Waiver
     body:
       encoding: UTF-8
       string: '{"claimId":189625,"systemName":"vets.gov"}'

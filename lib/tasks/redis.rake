@@ -29,7 +29,7 @@ namespace :redis do
     args[:count].to_i.times do
       uuid = SecureRandom.uuid.delete '-'
       token = SecureRandom.uuid.delete '-'
-      mhv_id = args[:mhv_id] || %w(12210827 10894456 13408508 13492196).sample
+      mhv_ids = [args[:mhv_id] || %w(12210827 10894456 13408508 13492196).sample]
 
       redis.set "vets-api-session:#{token}", {
         ":uuid": uuid,
@@ -55,20 +55,19 @@ namespace :redis do
         ":last_signed_in": {
           "^t": Time.now.utc
         },
-        ":edipi": nil,
+        ":edipi": '1005079124',
         ":participant_id": '600062099',
-        ":mhv_id": mhv_id,
         ":icn": '1008710255V058302',
         ":mvi": {
           "^o": 'ActiveSupport::HashWithIndifferentAccess',
           "self": {
             "birth_date": '19840101',
-            "edipi": nil,
+            "edipi": '1005079124',
             "family_name": 'USER',
             "gender": 'M',
             "given_names": ['TEST'],
             "icn": '1008710255V058302^NI^200M^USVHA^P',
-            "mhv_id": mhv_id,
+            "mhv_ids": mhv_ids,
             "vba_corp_id": '600062099^PI^200CORP^USVBA^A',
             "ssn": '123456789',
             "status": 'OK'

@@ -2,8 +2,9 @@
 class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   attributes :id, :evss_id, :date_filed, :min_est_date, :max_est_date,
              :phase_change_date, :open, :waiver_submitted, :documents_needed,
-             :development_letter_sent, :decision_letter_sent, :successful_sync,
-             :updated_at, :phase
+             :development_letter_sent, :decision_letter_sent,
+             :updated_at, :phase, :ever_phase_back, :current_phase_back,
+             :requested_decision
 
   # Our IDs are not stable due to 24 hour expiration, use EVSS IDs for consistency
   # This can be removed if our IDs become stable
@@ -27,13 +28,25 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
     date_from_string 'claimPhaseDates', 'phaseChangeDate'
   end
 
+  def ever_phase_back
+    object_data.dig 'claimPhaseDates', 'everPhaseBack'
+  end
+
+  def current_phase_back
+    object_data.dig 'claimPhaseDates', 'currentPhaseBack'
+  end
+
   def open
     object_data['claimCompleteDate'].blank?
   end
 
-  # TODO: (CMJ) When we have time, rename to requested_decision for better consistency
-  def waiver_submitted
+  def requested_decision
     object.requested_decision || object_data['waiver5103Submitted']
+  end
+
+  # TODO: (CMJ) Remove once front end is integrated
+  def waiver_submitted
+    requested_decision
   end
 
   def documents_needed
