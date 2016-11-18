@@ -50,7 +50,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
               ["Submitted Vets.gov Applications - Report FYTD #{date.year} as of #{date}"],
               ['', '', 'DOCUMENT TYPE'],
               ['RPO', 'BENEFIT TYPE', '22-1990'],
-              ['', '', date.year, '', date.to_s],
+              ['', '', (date.beginning_of_year..date.end_of_day).to_s, '', (date.beginning_of_day..date.end_of_day).to_s],
               ['', '', '', 'Submitted', 'Uploaded to TIMS'],
               ['BUFFALO (307)', 'chapter33', 3, 3, 2],
               ['', 'chapter30', 0, 0, 0],
