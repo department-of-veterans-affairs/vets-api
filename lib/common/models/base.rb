@@ -5,15 +5,12 @@ require 'common/models/attribute_types/utc_time'
 module Common
   # This is a base serialization class
   class Base
-    include Comparable
-    include ActiveModel::Serialization
     extend ActiveModel::Naming
+    include ActiveModel::Serialization
+    include Comparable
     include Virtus.model(nullify_blank: true)
 
-    attr_reader :attributes
     attr_accessor :metadata, :errors_hash
-    alias to_h attributes
-    alias to_hash attributes
 
     class << self
       def per_page(value = nil)
@@ -53,14 +50,23 @@ module Common
       end
     end
 
-    def initialize(attributes = {})
-      @attributes = attributes[:data] || attributes
-      @metadata = attributes[:metadata] || {}
-      @errors_hash = attributes[:errors] || {}
-      @attributes.each do |key, value|
-        setter = "#{key.to_s.underscore}=".to_sym
-        send(setter, value) if respond_to?(setter)
-      end
+    def initialize(init_attributes = {})
+      super(init_attributes[:data] || init_attributes)
+      @metadata = init_attributes[:metadata] || {}
+      @errors_hash = init_attributes[:errors] || {}
+      @original_attributes = attributes
+    end
+
+    def changed?
+      changed.any?
+    end
+
+    def changed
+      attributes.map { |k, v| k if @original_attributes[k] != v }.compact
+    end
+
+    def changes
+      Hash[changed.map { |k, _v| [k, [@original_attributes[k], attributes[k]]] }]
     end
   end
 end
