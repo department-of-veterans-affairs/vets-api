@@ -1,4 +1,3 @@
-
 def env_vars = [
     'RAILS_ENV=test',
     'HOSTNAME=www.example.com',
@@ -30,21 +29,10 @@ def env_vars = [
 ]
 
 pipeline {
-  agent label:'swarm'
+  agent label:'vets-api-linting'
   stages {
-    stage('Test Stage') {
-      echo "Hello World!"
-    }
-
     stage('Checkout Code') {
-      checkout([
-        $class: 'GitSCM',
-        branches: [[name: '*/master']],
-        doGenerateSubmoduleConfigurations: false,
-        extensions: [],
-        submoduleCfg: [],
-        userRemoteConfigs: [[url: 'https://github.com/department-of-veterans-affairs/vets-api.git']]
-      ])
+      checkout scm
     }
 
     stage('Run tests') {
@@ -55,4 +43,3 @@ pipeline {
     }
   }
 }
-
