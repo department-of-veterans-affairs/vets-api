@@ -11,8 +11,6 @@ module Common
     include Virtus.model(nullify_blank: true)
 
     attr_accessor :metadata, :errors_hash
-    alias to_h attributes
-    alias to_hash attributes
 
     class << self
       def per_page(value = nil)
