@@ -18,7 +18,7 @@ class Mvi < Common::RedisStore
   attribute :response
 
   def self.from_user(user)
-    mvi = Mvi.find_or_create(user.uuid)
+    mvi = Mvi.find_or_build(user.uuid)
     mvi.user = user
     mvi
   end

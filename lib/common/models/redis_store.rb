@@ -53,7 +53,7 @@ module Common
       end
     end
 
-    def self.find_or_create(redis_key)
+    def self.find_or_build(redis_key)
       find(redis_key) || new(Hash[@redis_namespace_key, redis_key])
     end
 
