@@ -7,7 +7,7 @@ Gets all data associated to a User.
 ## Example
 ### Request
 ```
-GET /v0/profile HTTP/1.1
+GET /v0/user HTTP/1.1
 Host: www.vets.gov
 Content-Type: application/json
 Authorization: Token token=RiW_3isZHtUszCLvEAv4vEyCV37K8yFeezQm4fdT
@@ -20,8 +20,13 @@ Authorization: Token token=RiW_3isZHtUszCLvEAv4vEyCV37K8yFeezQm4fdT
     "id": "",
     "type": "users",
     "attributes": {
-      // guaranteed not-null @ LOA 1
-      "services": ["service1", "service2"], // service names TBD
+      // possible values: [facilities, hca, edu-benefits, rx, messaging, disability-benefits, user-profile]
+      "services": [
+        "facilities",
+        "hca",
+        "edu-benefits",
+        "user-profile"
+      ],
       "profile": {
         // guaranteed not-null @ LOA 1
         "email": "william.ryan@gmail.com",
@@ -29,30 +34,25 @@ Authorization: Token token=RiW_3isZHtUszCLvEAv4vEyCV37K8yFeezQm4fdT
         "first_name": "WILLIAM",
         "middle_name": "P",
         "last_name": "RYAN",
-        "birth_date": "1937-03-07T05:00:00.000Z",
+        "birth_date": "1937-03-07",
         "loa": {
-          "current": 'loa1',
-          "highest": '<duplicate current if empty>'
-        }
+          "current": 3,
+          "highest": 3
+        },
         // these are never guaranteed
-        "gender": null,
-        "zip": null,
-        "last_signed_in": null
+        "gender": "M",
+        "zip": "01975",
+        "last_signed_in": "2016-11-18T15:43:52.746Z"
       }
       "va_profile": {
-        "birth_date": '19800101',
-        "family_name": nil,
-        "gender": 'M',
-        "given_names": ['WILLIAM','RYAN'],
-        "status": 'active'
+        "birth_date": "19370307"
+        "family_name": "RYAN",
+        "gender": "M",
+        "given_names": ["WILLIAM","P"],
+        "status": "OK", // possible values [OK, NOT_FOUND, SERVER_ERROR]
+        "active_status": null
       }
     }
   }
 }
 ```
-
-### Notes
-- We need to let front-end know whether or not we have MVI data
-- More specifically, we need to let front end know which systems are available based on MVI data.  Proposal:
-
-   {services: ["service1", "service2"]}
