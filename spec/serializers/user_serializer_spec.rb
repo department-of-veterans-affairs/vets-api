@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe UserSerializer, type: :serializer do
-  let(:user) { build :mvi_user }
+  let(:user) { build :loa3_user }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
   let(:profile) { attributes['profile'] }
@@ -58,19 +58,19 @@ RSpec.describe UserSerializer, type: :serializer do
   context 'inside "va_profile"' do
     context 'when user.mvi is not nil' do
       it 'should include birth_date' do
-        expect(va_profile['birth_date']).to eq(user.mvi[:birth_date])
+        expect(va_profile['birth_date']).to eq(user.va_profile[:birth_date])
       end
       it 'should include family_name' do
-        expect(va_profile['family_name']).to eq(user.mvi[:family_name])
+        expect(va_profile['family_name']).to eq(user.va_profile[:family_name])
       end
       it 'should include gender' do
-        expect(va_profile['gender']).to eq(user.mvi[:gender])
+        expect(va_profile['gender']).to eq(user.va_profile[:gender])
       end
       it 'should include given_names' do
-        expect(va_profile['given_names']).to eq(user.mvi[:given_names])
+        expect(va_profile['given_names']).to eq(user.va_profile[:given_names])
       end
       it 'should include status' do
-        expect(va_profile['status']).to eq(user.mvi[:status])
+        expect(va_profile['status']).to eq(user.va_profile[:status])
       end
     end
 
@@ -88,11 +88,8 @@ RSpec.describe UserSerializer, type: :serializer do
     end
 
     context 'when user.mvi is not found' do
-      let(:user) do
-        build :user, mvi: {
-          status: 'NOT_FOUND'
-        }
-      end
+      before { stub_mvi_not_found }
+
       let(:data) { JSON.parse(subject)['data'] }
       let(:attributes) { data['attributes'] }
       let(:va_profile) { attributes['va_profile'] }

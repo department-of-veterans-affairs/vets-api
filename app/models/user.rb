@@ -25,14 +25,6 @@ class User < Common::RedisStore
 
   # vaafi attributes
   attribute :last_signed_in, Common::UTCTime
-  # Electronic data interchange personal identifier, aka DoD ID
-  # https://en.wikipedia.org/wiki/Defense_Enrollment_Eligibility_Reporting_System#Electronic_data_interchange_personal_identifier
-  attribute :edipi
-  attribute :participant_id
-  attribute :icn
-
-  # mvi 'golden record' data
-  attribute :mvi
 
   # mhv_last_signed_in used to determine whether we need to notify MHV audit logging
   # This is set to Time.now when any MHV session is first created, and nulled, when logout
@@ -68,31 +60,28 @@ class User < Common::RedisStore
     client.find_rating_info(participant_id).body.fetch('ratingRecord', {})
   end
 
-  # This is a helper method for pulling mhv_correlation_id
-  def mhv_correlation_id
-    mhv_correlation_ids.first
-  end
-
   def can_access_user_profile?
     loa1? || loa2? || loa3?
   end
 
   def can_access_mhv?
-    loa3? && mhv_correlation_ids.length == 1
+    loa3? && mhv_correlation_id
   end
 
   def can_access_evss?
     edipi.present? && ssn.present? && participant_id.present?
   end
 
+  delegate :edipi, to: :mvi
+  delegate :icn, to: :mvi
+  delegate :mhv_correlation_id, to: :mvi
+  delegate :participant_id, to: :mvi
+  delegate :va_profile, to: :mvi
+
   private
 
-  def mhv_correlation_ids
-    return @mhv_correlation_ids if @mhv_correlation_ids
-    ids = mvi&.dig(:mhv_ids)
-    ids = [] unless ids
-    @mhv_correlation_ids = ids.map { |mhv_id| mhv_id.split('^')&.first }.compact
-    @mhv_correlation_ids
+  def mvi
+    @mvi ||= Mvi.from_user(self)
   end
 
   def evss_auth_headers
