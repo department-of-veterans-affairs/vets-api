@@ -1,4 +1,4 @@
-# GET /profile
+# GET /v0/user
 Gets all data associated to a User.
 
 ## Required Parameters
@@ -7,7 +7,7 @@ Gets all data associated to a User.
 ## Example
 ### Request
 ```
-GET /v0/user HTTP/1.1
+GET http://api.vets.gov/v0/user HTTP/1.1
 Host: www.vets.gov
 Content-Type: application/json
 Authorization: Token token=RiW_3isZHtUszCLvEAv4vEyCV37K8yFeezQm4fdT
