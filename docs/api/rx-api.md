@@ -9,11 +9,11 @@
 
 | Resource  | Description | Params |
 | --------- | ----------- | ------ |
-| GET [/prescriptions](rx/prescriptions.md)  | Returns all VA prescriptions for the patient that are or were fillable online. Includes historical/inactive prescriptions. | <ul><li>refill_status: See chart below</li></ul> |
-| GET [/prescriptions/:id](rx/prescriptions-id.md)  | Returns a single VA prescription based on prescription id. | N/A |
-| GET [/prescriptions/active](rx/prescriptions-active.md)  | Returns all current VA prescriptions for the patient that are fillable online.  | N/A |
-| PATCH [/prescriptions/:id/refill](rx/prescriptions-id-refill.md)  | Submits a refill for the prescription ID provided.  | N/A |
-| GET [/prescriptions/:prescription_id/trackings](rx/prescriptions-prescription_id-tracking.md)  | Returns all the tracking information of the provided prescription as a collection.  | <ul><li>prescription_id: id of the prescription you want to obtain tracking info for <i>(Currently required)</i></li><li>id: the tracking id of the shipment <i>(Currently not supported)</i></li></ul> |
+| GET [/prescriptions](prescriptions/prescriptions.md)  | Returns all VA prescriptions for the patient that are or were fillable online. Includes historical/inactive prescriptions. | <ul><li>refill_status: See chart below</li></ul> |
+| GET [/prescriptions/:id](prescriptions/prescriptions-id.md)  | Returns a single VA prescription based on prescription id. | N/A |
+| GET [/prescriptions/active](prescriptions/prescriptions-active.md)  | Returns all current VA prescriptions for the patient that are fillable online.  | N/A |
+| PATCH [/prescriptions/:id/refill](prescriptions/prescriptions-id-refill.md)  | Submits a refill for the prescription ID provided.  | N/A |
+| GET [/prescriptions/:prescription_id/trackings](prescriptions/prescriptions-prescription_id-tracking.md)  | Returns all the tracking information of the provided prescription as a collection.  | <ul><li>prescription_id: id of the prescription you want to obtain tracking info for <i>(Currently required)</i></li><li>id: the tracking id of the shipment <i>(Currently not supported)</i></li></ul> |
 
 ##### Supported Formats
 * JSON
@@ -47,11 +47,11 @@ Pagination data will be returned in the JSON response as follows:
 Links that can be used to display the pagination are also returned in the response:
 ```javascript
 "links": {
-  "self": "http:\/\/ec2-52-90-149-185.compute-1.amazonaws.com:3004\/rx\/v1\/prescriptions?",
-  "first": "http:\/\/ec2-52-90-149-185.compute-1.amazonaws.com:3004\/rx\/v1\/prescriptions?page=1&per_page=10",
+  "self": "http:\/\/ec2-52-90-149-185.compute-1.amazonaws.com:3004\/prescriptions\/v1\/prescriptions?",
+  "first": "http:\/\/ec2-52-90-149-185.compute-1.amazonaws.com:3004\/prescriptions\/v1\/prescriptions?page=1&per_page=10",
   "prev": null,
-  "next": "http:\/\/ec2-52-90-149-185.compute-1.amazonaws.com:3004\/rx\/v1\/prescriptions?page=2&per_page=10",
-  "last": "http:\/\/ec2-52-90-149-185.compute-1.amazonaws.com:3004\/rx\/v1\/prescriptions?page=2&per_page=10"
+  "next": "http:\/\/ec2-52-90-149-185.compute-1.amazonaws.com:3004\/prescriptions\/v1\/prescriptions?page=2&per_page=10",
+  "last": "http:\/\/ec2-52-90-149-185.compute-1.amazonaws.com:3004\/prescriptions\/v1\/prescriptions?page=2&per_page=10"
 },
 ```
 
