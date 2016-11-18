@@ -81,6 +81,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
 
       describe '#calculate_submissions' do
         subject do
+          job_with_date.create_csv_header
           job_with_date.calculate_submissions(range_type: range_type, status: status)
         end
 
