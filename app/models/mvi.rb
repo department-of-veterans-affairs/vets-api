@@ -56,19 +56,18 @@ class Mvi < Common::RedisStore
   private
 
   def mhv_correlation_ids
-    return nil unless @user.loa3?
     ids = mvi_response&.dig(:mhv_ids)
     ids = [] unless ids
     ids.map { |mhv_id| mhv_id.split('^')&.first }.compact
   end
 
   def select_source_id(correlation_id)
-    return nil unless @user.loa3?
     return nil unless mvi_response&.dig(correlation_id)
     mvi_response[correlation_id].split('^')&.first
   end
 
   def mvi_response
+    return nil unless @user.loa3? && !user.gender.nil?
     response || query_and_cache_response
   end
 
@@ -77,6 +76,7 @@ class Mvi < Common::RedisStore
   end
 
   def create_message
+    raise Common::Exceptions::ValidationErrors, @user unless @user.valid?
     given_names = [@user.first_name]
     given_names.push @user.middle_name unless @user.middle_name.nil?
     MVI::Messages::FindCandidateMessage.new(
