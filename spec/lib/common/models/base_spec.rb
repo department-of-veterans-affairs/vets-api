@@ -27,11 +27,11 @@ describe Common::Base do
     it 'responds to sortable_attributes' do
       expect(subject.sortable_attributes)
         .to eq(
-                'id' => 'ASC',
-                'first_name' => 'ASC',
-                'last_name' => 'ASC',
-                'birthdate' => 'DESC'
-              )
+          'id' => 'ASC',
+          'first_name' => 'ASC',
+          'last_name' => 'ASC',
+          'birthdate' => 'DESC'
+        )
     end
 
     it 'responds to default_sort' do
@@ -42,11 +42,11 @@ describe Common::Base do
     it 'responds to filterable_attributes' do
       expect(subject.filterable_attributes)
         .to eq(
-                'id' => %w(eq not_eq),
-                'first_name' => %w(eq not_eq match),
-                'last_name' => %w(eq not_eq match),
-                'birthdate' => %w(eq lteq gteq not_eq)
-              )
+          'id' => %w(eq not_eq),
+          'first_name' => %w(eq not_eq match),
+          'last_name' => %w(eq not_eq match),
+          'birthdate' => %w(eq lteq gteq not_eq)
+        )
     end
   end
 
@@ -58,13 +58,13 @@ describe Common::Base do
       expect(subject.first_name).to eq('Jill')
       expect(subject.last_name).to eq('')
       expect(subject.birthdate).to be_nil
-      expect(subject.zipcode).to eq(20001)
+      expect(subject.zipcode).to eq(20_001)
     end
 
     it 'responds to attributes, to_h, and, to_hash' do
       expect(subject.attributes).to eq(subject.to_h)
       expect(subject.attributes).to eq(subject.to_hash)
-      expect(subject.attributes).to eq(id: 1, first_name: 'Jill', last_name: '', birthdate: nil, zipcode: 20001)
+      expect(subject.attributes).to eq(id: 1, first_name: 'Jill', last_name: '', birthdate: nil, zipcode: 20_001)
     end
 
     it 'identifies if values are changed?' do
@@ -74,7 +74,7 @@ describe Common::Base do
       subject.first_name = 'Jack'
       expect(subject.changed?).to eq(true)
       expect(subject.changed).to eq([:first_name])
-      expect(subject.changes).to eq({first_name: %w(Jill Jack)})
+      expect(subject.changes).to eq(first_name: %w(Jill Jack))
     end
   end
 end
