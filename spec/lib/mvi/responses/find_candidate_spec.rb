@@ -5,7 +5,7 @@ require 'mvi/responses/find_candidate'
 describe MVI::Responses::FindCandidate do
   context 'given a valid savon response' do
     let(:faraday_response) { instance_double('Faraday::Response') }
-    let(:body) { File.read('spec/support/mvi/find_candidate_response.xml') }
+    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response.xml')) }
     let(:find_candidate_response) { MVI::Responses::FindCandidate.new(faraday_response) }
 
     before(:each) do
@@ -64,7 +64,7 @@ describe MVI::Responses::FindCandidate do
 
   context 'with no middle name, missing and alternate correlation ids, multiple other_ids' do
     let(:faraday_response) { instance_double('Faraday::Response') }
-    let(:body) { File.read('spec/support/mvi/find_candidate_missing_attrs.xml') }
+    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_missing_attrs.xml')) }
     let(:find_candidate_missing_attrs) { MVI::Responses::FindCandidate.new(faraday_response) }
 
     describe '#body' do
@@ -88,7 +88,7 @@ describe MVI::Responses::FindCandidate do
 
   context 'with no subject element' do
     let(:faraday_response) { instance_double('Faraday::Response') }
-    let(:body) { File.read('spec/support/mvi/find_candidate_no_subject.xml') }
+    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_no_subject.xml')) }
     let(:find_candidate_response_mhv_id) { MVI::Responses::FindCandidate.new(faraday_response) }
 
     describe '#body' do
@@ -101,7 +101,7 @@ describe MVI::Responses::FindCandidate do
 
   context 'when there is no xml prolog in the response' do
     let(:faraday_response) { instance_double('Faraday::Response') }
-    let(:body) { File.read('spec/support/mvi/find_candidate_response_no_prolog.xml') }
+    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response_no_prolog.xml')) }
     let(:find_candidate_alternate_response) { MVI::Responses::FindCandidate.new(faraday_response) }
 
     describe '#body' do
@@ -125,7 +125,7 @@ describe MVI::Responses::FindCandidate do
 
   context 'given an invalid response' do
     let(:faraday_response) { instance_double('Faraday::Response') }
-    let(:body) { File.read('spec/support/mvi/find_candidate_invalid_response.xml') }
+    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_invalid_response.xml')) }
     let(:find_candidate_invalid_response) { MVI::Responses::FindCandidate.new(faraday_response) }
 
     before(:each) do
@@ -148,7 +148,7 @@ describe MVI::Responses::FindCandidate do
   context 'given a failure response' do
     context 'invalid registration identification' do
       let(:faraday_response) { instance_double('Faraday::Response') }
-      let(:body) { File.read('spec/support/mvi/find_candidate_failure_response.xml') }
+      let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_failure_response.xml')) }
       let(:find_candidate_failure_response) { MVI::Responses::FindCandidate.new(faraday_response) }
 
       before(:each) do
@@ -175,7 +175,7 @@ describe MVI::Responses::FindCandidate do
     end
     context 'multiple match' do
       let(:faraday_response) { instance_double('Faraday::Response') }
-      let(:body) { File.read('spec/support/mvi/find_candidate_multiple_match_response.xml') }
+      let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_multiple_match_response.xml')) }
       let(:find_candidate_multiple_response) { MVI::Responses::FindCandidate.new(faraday_response) }
 
       before(:each) do
@@ -204,7 +204,7 @@ describe MVI::Responses::FindCandidate do
 
   context 'with multiple MHV IDs' do
     let(:faraday_response) { instance_double('Faraday::Response') }
-    let(:body) { File.read('spec/support/mvi/find_candidate_multiple_mhv_response.xml') }
+    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_multiple_mhv_response.xml')) }
     let(:find_candidate_multiple_mhvids) { MVI::Responses::FindCandidate.new(faraday_response) }
 
     before(:each) do

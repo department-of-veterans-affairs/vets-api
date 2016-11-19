@@ -47,28 +47,28 @@ describe Mvi, skip_mvi: true do
         end
       end
 
-      context 'when a MVI::HTTPError is raised' do
+      context 'when a MVI::Errors::HTTPError is raised' do
         it 'should log an error message and return status server error' do
           allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(
-            MVI::HTTPError.new('MVI HTTP call failed', 500)
+            MVI::Errors::HTTPError.new('MVI HTTP call failed', 500)
           )
           expect(Rails.logger).to receive(:error).once.with(/MVI HTTP error code: 500 for user:/)
           expect(mvi.va_profile).to eq(status: Mvi::MVI_RESPONSE_STATUS[:server_error])
         end
       end
 
-      context 'when a MVI::ServiceError is raised' do
+      context 'when a MVI::Errors::ServiceError is raised' do
         it 'should log an error message and return status not found' do
-          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(MVI::InvalidRequestError)
-          expect(Rails.logger).to receive(:error).once.with(/MVI service error: MVI::InvalidRequestError for user:/)
+          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(MVI::Errors::InvalidRequestError)
+          expect(Rails.logger).to receive(:error).once.with(/MVI service error: MVI::Errors::InvalidRequestError for user:/)
           expect(mvi.va_profile).to eq(status: Mvi::MVI_RESPONSE_STATUS[:server_error])
         end
       end
 
-      context 'when MVI::RecordNotFound is raised' do
+      context 'when MVI::Errors::RecordNotFound is raised' do
         it 'should log an error message and return status not found' do
           allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(
-            MVI::RecordNotFound.new('not found')
+            MVI::Errors::RecordNotFound.new('not found')
           )
           expect(Rails.logger).to receive(:error).once.with(/MVI record not found for user:/)
           expect(mvi.va_profile).to eq(status: Mvi::MVI_RESPONSE_STATUS[:not_found])
