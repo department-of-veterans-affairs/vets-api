@@ -70,10 +70,8 @@ Rails.application.routes.draw do
     end
 
     scope :gibct do
-      resources :institutions, only: [:index], defaults: { format: :json } do
+      resources :institutions, only: [:index, :show] do
         get :autocomplete, on: :collection
-        get :search, on: :collection
-        get :profile, on: :collection
       end
     end
   end
