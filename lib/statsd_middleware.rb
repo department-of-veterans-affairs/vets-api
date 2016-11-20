@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 class StatsdMiddleware
-  STATUS_KEY   = "api.rack.request"
-  DURATION_KEY = "api.rack.request.duration"
+  STATUS_KEY   = 'api.rack.request'
+  DURATION_KEY = 'api.rack.request.duration'
 
   def initialize(app)
     @app = app
