@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 class StatsdMiddleware
+  STATUS_KEY   = "api.rack.request"
+  DURATION_KEY = "api.rack.request.duration"
+
   def initialize(app)
     @app = app
   end
@@ -11,12 +14,13 @@ class StatsdMiddleware
 
     controller = env['action_dispatch.request.path_parameters'][:controller]
     action = env['action_dispatch.request.path_parameters'][:action]
-    status_key = "api.rack.request#status=#{status},controller=#{controller},action=#{action}"
-    duration_key = "api.rack.request.duration#controller=#{controller},action=#{action}"
+
+    duration_tags = ["controller:#{controller}", "action:#{action}"]
+    status_tags = duration_tags + ["status:#{status}"]
 
     # rubocop:disable Style/RescueModifier
-    StatsD.increment(status_key, 1) rescue nil
-    StatsD.measure(duration_key, duration) rescue nil
+    StatsD.increment(STATUS_KEY, tags: status_tags) rescue nil
+    StatsD.measure(DURATION_KEY, duration, tags: duration_tags) rescue nil
     # rubocop:enable Style/RescueModifier
     [status, headers, response]
   end
