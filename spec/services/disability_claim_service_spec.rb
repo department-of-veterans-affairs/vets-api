@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe DisabilityClaimService do
-  let(:user) { FactoryGirl.create(:mvi_user) }
+  let(:user) { FactoryGirl.create(:loa3_user) }
   let(:client_stub) { instance_double('EVSS::ClaimsService') }
   subject { described_class.new(user) }
 
