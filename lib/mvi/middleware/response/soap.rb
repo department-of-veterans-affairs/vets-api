@@ -20,7 +20,7 @@ module MVI
         private
 
         def ensure_xml_prolog(xml)
-          xml.prepend('<?xml version="1.0" encoding="UTF-8"?>') unless xml =~ /^<\?xml/
+          xml = xml.dup.prepend('<?xml version="1.0" encoding="UTF-8"?>') unless xml =~ /^<\?xml/
           xml
         end
 

@@ -60,7 +60,9 @@ describe Mvi, skip_mvi: true do
       context 'when a MVI::Errors::ServiceError is raised' do
         it 'should log an error message and return status not found' do
           allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(MVI::Errors::InvalidRequestError)
-          expect(Rails.logger).to receive(:error).once.with(/MVI service error: MVI::Errors::InvalidRequestError for user:/)
+          expect(Rails.logger).to receive(:error).once.with(
+            /MVI service error: MVI::Errors::InvalidRequestError for user:/
+          )
           expect(mvi.va_profile).to eq(status: Mvi::MVI_RESPONSE_STATUS[:server_error])
         end
       end
