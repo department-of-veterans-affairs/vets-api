@@ -32,13 +32,17 @@ pipeline {
   agent label:'vets-api-linting'
   stages {
     stage('Checkout Code') {
-      checkout scm
+      steps {
+        checkout scm
+      }
     }
 
     stage('Run tests') {
-      sh 'bash --login -c "bundle install --path vendor/bundle --without development"'
-      withEnv(env_vars) {
-        sh 'bash --login -c "bundle exec rake db:create db:schema:load ci"'
+      steps {
+        sh 'bash --login -c "bundle install --path vendor/bundle --without development"'
+        withEnv(env_vars) {
+          sh 'bash --login -c "bundle exec rake db:create db:schema:load ci"'
+        }
       }
     }
   }
