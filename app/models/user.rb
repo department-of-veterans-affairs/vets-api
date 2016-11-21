@@ -61,6 +61,8 @@ class User < Common::RedisStore
   end
 
   def can_access_evss?
+    # TODO : this should have a session.loa3 check.  Although,
+    # ssn.present? acts as an implicit session.loa3? check
     edipi.present? && ssn.present? && participant_id.present?
   end
 
