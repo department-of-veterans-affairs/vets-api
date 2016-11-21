@@ -22,7 +22,9 @@ class UserSerializer < ActiveModel::Serializer
     }
   end
 
-  delegate :va_profile, to: :object
+  def va_profile
+    Mvi.from_user(object).va_profile(instance_options[:session])
+  end
 
   def services
     service_list = [

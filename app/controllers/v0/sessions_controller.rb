@@ -43,13 +43,8 @@ module V0
 
     def persist_session_and_user
       @session = Session.new(user_attributes.slice(:uuid).merge({level: loa_current}))
-      @current_user = User.find(@session.uuid)
-      @current_user = saml_user if @current_user.nil? || up_level?
+      @current_user = saml_user
       @session.save && @current_user.save
-    end
-
-    def up_level?
-      @session.level <= loa_current
     end
 
     def user_attributes

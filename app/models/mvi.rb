@@ -39,8 +39,9 @@ class Mvi < Common::RedisStore
     mhv_correlation_ids&.first
   end
 
-  def va_profile
-    return { status: 'NOT_AUTHORIZED' } unless @user.loa3?
+  def va_profile(session)
+    # TODO : this logic belongs in a serializer
+    return { status: 'NOT_AUTHORIZED' } unless session.loa3?
     response = mvi_response
     return response unless response[:status] == MVI_RESPONSE_STATUS[:ok]
     {
@@ -68,7 +69,7 @@ class Mvi < Common::RedisStore
   end
 
   def mvi_response
-    return nil unless @user.loa3? && !user.gender.nil?
+    return nil unless user.valid? && !user.gender.nil?
     response || query_and_cache_response
   end
 
