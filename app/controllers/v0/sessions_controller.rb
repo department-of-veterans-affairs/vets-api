@@ -33,7 +33,7 @@ module V0
 
       if @saml_response.is_valid? && persist_session_and_user
         async_create_evss_account(@current_user)
-        redirect_to SAML_CONFIG['relay'] + '?token=' + @session.token
+        redirect_to SAML_CONFIG['relay'] + '?token=' + @session.token + '&level=' + @session.level.to_s
       else
         redirect_to SAML_CONFIG['relay'] + '?auth=fail'
       end
@@ -42,7 +42,7 @@ module V0
     private
 
     def persist_session_and_user
-      @session = Session.new(user_attributes.slice(:uuid).merge({level: loa_current}))
+      @session = Session.new(user_attributes.slice(:uuid).merge(level: loa_current))
       @current_user = saml_user
       @session.save && @current_user.save
     end

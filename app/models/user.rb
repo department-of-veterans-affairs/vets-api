@@ -34,7 +34,7 @@ class User < Common::RedisStore
   validates :email, presence: true
 
   # conditionally validate if user is LOA3
-  with_options({on: :loa3_user}) do |user|
+  with_options(on: :loa3_user) do |user|
     user.validates :first_name, presence: true
     user.validates :last_name, presence: true
     user.validates :birth_date, presence: true
