@@ -5,7 +5,7 @@ require 'evss/auth_headers'
 
 RSpec.describe DisabilityClaim::RequestDecision, type: :job do
   let(:client_stub) { instance_double('EVSS::ClaimsService') }
-  let(:user) { FactoryGirl.build(:mvi_user) }
+  let(:user) { FactoryGirl.build(:loa3_user) }
   let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
   let(:evss_id) { 189_625 }
 

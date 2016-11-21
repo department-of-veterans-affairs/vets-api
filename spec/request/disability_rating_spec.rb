@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Disability rating', type: :request do
-  let(:user) { FactoryGirl.create(:mvi_user) }
+  let(:user) { FactoryGirl.create(:loa3_user) }
   let(:session) { Session.create(uuid: user.uuid) }
 
   it 'shows the disability rating record' do

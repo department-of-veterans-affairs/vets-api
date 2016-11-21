@@ -22,18 +22,7 @@ class UserSerializer < ActiveModel::Serializer
     }
   end
 
-  def va_profile
-    return { status: 'NOT_AUTHORIZED' } if object.mvi.nil?
-    return { status: object.mvi[:status] } unless object.mvi[:status] == 'OK'
-    {
-      status: object.mvi[:status],
-      birth_date: object.mvi[:birth_date],
-      family_name: object.mvi[:family_name],
-      gender: object.mvi[:gender],
-      given_names: object.mvi[:given_names],
-      active_status: object.mvi[:active_status]
-    }
-  end
+  delegate :va_profile, to: :object
 
   def services
     service_list = [
