@@ -3,7 +3,7 @@ require 'rails_helper'
 require 'common/client/errors'
 
 # FIXME: Add this spec
-describe Common::Client::Errors::ClientResponse do
+describe Common::Client::Errors::APIError do
   subject { described_class.new(status_code, parsed_json) }
 
   context 'with status code 400 and error 139' do

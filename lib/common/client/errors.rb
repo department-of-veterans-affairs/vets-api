@@ -8,8 +8,8 @@ module Common
       class ClientError < Error; end
       class NotAuthenticated < ClientError; end
       class Serialization < ClientError; end
+
+      require 'common/client/errors/api_error'
     end
   end
 end
-
-require 'common/client/client_response'

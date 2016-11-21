@@ -1,14 +1,11 @@
 # frozen_string_literal: true
-require 'common/client/errors'
-require 'faraday/error'
 require 'rack/utils'
 
-# FIXME: this needs to be adapted to use va-api-common style errors
 module Common
   module Client
     module Errors
-      # This error class is for Server Responses
-      class ClientResponse < Error
+      # This error class is for handling errors coming from downstream API / Server response
+      class APIError < Error
         def initialize(status_code, parsed_json)
           @status_code = status_code
           @parsed_json = parsed_json

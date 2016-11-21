@@ -28,7 +28,7 @@ module SM
 
       exception_handler = proc do |exception|
         # :nocov:
-        if exception.is_a?(Common::Client::Errors::ClientResponse)
+        if exception.is_a?(Common::Client::Errors::APIError)
           (500..599).cover?(exception.major)
         else
           false
