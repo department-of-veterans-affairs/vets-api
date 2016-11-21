@@ -15,7 +15,7 @@ RSpec.describe ApplicationController, type: :controller do
     end
 
     def other_error
-      raise Common::Client::Errors::APIError.new(422, JSON_ERROR)
+      raise Common::Client::Errors::BackendServiceError.new(422, JSON_ERROR)
     end
 
     def client_connection_failed
@@ -49,7 +49,7 @@ RSpec.describe ApplicationController, type: :controller do
     end
   end
 
-  context 'APIErrorError' do
+  context 'BackendServiceErrorError' do
     subject { JSON.parse(response.body)['errors'].first }
     before(:each) { routes.draw { get 'other_error' => 'anonymous#other_error' } }
     let(:keys_for_production) { %w(title detail code status) }

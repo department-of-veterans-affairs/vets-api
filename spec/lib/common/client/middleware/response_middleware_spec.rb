@@ -31,6 +31,6 @@ describe 'Response Middleware' do
 
   it 'raises client response error' do
     expect { subject.get('not-found') }
-      .to raise_error(Common::Client::Errors::APIError)
+      .to raise_error(Common::Client::Errors::BackendServiceError)
   end
 end

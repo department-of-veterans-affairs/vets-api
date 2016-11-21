@@ -5,7 +5,7 @@ module Common
   module Client
     module Errors
       # This error class is for handling errors coming from downstream API / Server response
-      class APIError < Error
+      class BackendServiceError < Error
         def initialize(status_code, parsed_json)
           @status_code = status_code
           @parsed_json = parsed_json

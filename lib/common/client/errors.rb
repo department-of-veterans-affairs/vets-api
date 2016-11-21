@@ -9,7 +9,7 @@ module Common
       class NotAuthenticated < ClientError; end
       class Serialization < ClientError; end
 
-      require 'common/client/errors/api_error'
+      require 'common/client/errors/backend_service_error'
     end
   end
 end
