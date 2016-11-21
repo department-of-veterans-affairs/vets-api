@@ -16,6 +16,8 @@ class YearToDateReportMailer < ApplicationMailer
       Christopher.Sutherland@va.gov
       John.McNeal@va.gov
       Anne.kainic@va.gov
+      leanna@adhocteam.us
+      dan.hoicowitz.va@gmail.com
     )
   }.freeze
 

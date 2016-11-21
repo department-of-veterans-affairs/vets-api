@@ -18,32 +18,23 @@ class UserSerializer < ActiveModel::Serializer
       gender: object.gender,
       zip: object.zip,
       last_signed_in: object.last_signed_in,
-      loa: object.loa
+      loa_highest: object.loa_highest
     }
   end
 
   def va_profile
-    return { status: 'NOT_AUTHORIZED' } if object.mvi.nil?
-    return { status: object.mvi[:status] } unless object.mvi[:status] == 'OK'
-    {
-      status: object.mvi[:status],
-      birth_date: object.mvi[:birth_date],
-      family_name: object.mvi[:family_name],
-      gender: object.mvi[:gender],
-      given_names: object.mvi[:given_names],
-      active_status: object.mvi[:active_status]
-    }
+    Mvi.from_user(object).va_profile(instance_options[:session])
   end
 
   def services
-    [
+    service_list = [
       BackendServices::FACILITIES,
       BackendServices::HCA,
       BackendServices::EDUCATION_BENEFITS
-    ].tap do |service_list|
-      service_list += [BackendServices::RX, BackendServices::MESSAGING] if object.can_access_mhv?
-      service_list << BackendServices::DISABILITY_BENEFITS if object.can_access_evss?
-      service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
-    end
+    ]
+    service_list += [BackendServices::RX, BackendServices::MESSAGING] if object.can_access_mhv?(instance_options[:session])
+    service_list << BackendServices::DISABILITY_BENEFITS if object.can_access_evss?
+    service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?(instance_options[:session])
+    service_list
   end
 end

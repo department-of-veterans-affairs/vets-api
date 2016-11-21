@@ -15,6 +15,10 @@ module V0
       render json: { logout_via_get: logout_request.create(saml_settings, RelayState: @session.token) }, status: 202
     end
 
+    def show
+      render json: @session
+    end
+
     def saml_logout_callback
       if params[:SAMLResponse]
         # We initiated an SLO and are receiving the bounce-back after the IDP performed it
@@ -27,9 +31,9 @@ module V0
         params[:SAMLResponse], settings: saml_settings
       )
 
-      if @saml_response.is_valid?
-        persist_session_and_user!
-        redirect_to SAML_CONFIG['relay'] + '?token=' + @session.token
+      if @saml_response.is_valid? && persist_session_and_user
+        async_create_evss_account(@current_user)
+        redirect_to SAML_CONFIG['relay'] + '?token=' + @session.token + '&level=' + @session.level.to_s
       else
         redirect_to SAML_CONFIG['relay'] + '?auth=fail'
       end
@@ -37,16 +41,10 @@ module V0
 
     private
 
-    def persist_session_and_user!
-      @session = Session.new(user_attributes.slice(:uuid))
-      @current_user = User.find(@session.uuid)
-      @current_user = saml_user if @current_user.nil? || up_level?
+    def persist_session_and_user
+      @session = Session.new(user_attributes.slice(:uuid).merge(level: loa_current))
+      @current_user = saml_user
       @session.save && @current_user.save
-      async_create_evss_account(@current_user)
-    end
-
-    def up_level?
-      @current_user.loa[:current] <= saml_user.loa[:current]
     end
 
     def user_attributes
@@ -62,7 +60,7 @@ module V0
         birth_date:     attributes['birth_date']&.first,
         uuid:           attributes['uuid']&.first,
         last_signed_in: Time.current.utc,
-        loa:            { current: loa_current, highest: attributes['level_of_assurance']&.first&.to_i || loa_current }
+        loa_highest:    attributes['level_of_assurance']&.first&.to_i || loa_current
       }
     end
 
@@ -81,9 +79,7 @@ module V0
     end
 
     def create_saml_user
-      user = User.new(user_attributes)
-      user = Decorators::MviUserDecorator.new(user).create unless user.loa1? || user.gender.nil?
-      user
+      User.new(user_attributes)
     end
 
     def async_create_evss_account(user)

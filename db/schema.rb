@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161104193741) do
+ActiveRecord::Schema.define(version: 20161114211400) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,15 +41,18 @@ ActiveRecord::Schema.define(version: 20161104193741) do
   add_index "education_benefits_claims", ["submitted_at"], name: "index_education_benefits_claims_on_submitted_at", using: :btree
 
   create_table "education_benefits_submissions", force: :cascade do |t|
-    t.string   "region",                      null: false
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
-    t.boolean  "chapter33",   default: false, null: false
-    t.boolean  "chapter30",   default: false, null: false
-    t.boolean  "chapter1606", default: false, null: false
-    t.boolean  "chapter32",   default: false, null: false
+    t.string   "region",                                            null: false
+    t.datetime "created_at",                                        null: false
+    t.datetime "updated_at",                                        null: false
+    t.boolean  "chapter33",                   default: false,       null: false
+    t.boolean  "chapter30",                   default: false,       null: false
+    t.boolean  "chapter1606",                 default: false,       null: false
+    t.boolean  "chapter32",                   default: false,       null: false
+    t.string   "status",                      default: "submitted", null: false
+    t.integer  "education_benefits_claim_id"
   end
 
+  add_index "education_benefits_submissions", ["education_benefits_claim_id"], name: "index_education_benefits_claim_id", unique: true, using: :btree
   add_index "education_benefits_submissions", ["region", "created_at"], name: "index_education_benefits_submissions_on_region_and_created_at", using: :btree
 
 end

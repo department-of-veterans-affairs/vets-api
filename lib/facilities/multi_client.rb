@@ -2,6 +2,7 @@
 require 'typhoeus'
 require 'json'
 require 'common/client/errors'
+require 'common/exceptions'
 
 module Facilities
   class MultiClient
@@ -13,7 +14,10 @@ module Facilities
       requests.each { |req| @hydra.queue req }
       @hydra.run
       requests.map do |req|
-        raise Common::Client::RequestTimeout if req.response.timed_out?
+        if req.response.timed_out?
+          Rails.logger.error "GIS request timed out: #{req.url}"
+          raise Common::Exceptions::ClientError.new('Facility request timed out', {})
+        end
         raise Common::Client::Errors::ClientResponse.new(req.response.code, {}) unless
           req.response.success?
         result = JSON.parse(req.response.body)

@@ -4,7 +4,7 @@ require 'evss/documents_service'
 require 'evss/auth_headers'
 
 describe EVSS::DocumentsService do
-  let(:current_user) { FactoryGirl.create(:mvi_user) }
+  let(:current_user) { FactoryGirl.create(:loa3_user) }
   let(:auth_headers) do
     EVSS::AuthHeaders.new(current_user).to_h
   end
@@ -20,13 +20,6 @@ describe EVSS::DocumentsService do
   subject { described_class.new(auth_headers) }
 
   context 'with headers' do
-    it 'should get claims' do
-      VCR.use_cassette('evss/documents/all_documents') do
-        response = subject.all_documents
-        expect(response).to be_success
-      end
-    end
-
     it 'should upload documents' do
       VCR.use_cassette('evss/documents/upload') do
         demo_file_name = "#{::Rails.root}/spec/fixtures/files/doctors-note.pdf"

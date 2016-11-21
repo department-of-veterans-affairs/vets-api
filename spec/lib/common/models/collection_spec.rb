@@ -2,20 +2,9 @@
 require 'rails_helper'
 require 'common/models/base'
 require 'common/models/collection'
+require 'support/author'
 
 describe Common::Collection do
-  class Author < Common::Base
-    attribute :id, Integer, sortable: { order: 'ASC' }, filterable: %w(eq not_eq)
-    attribute :first_name, String, sortable: { order: 'ASC' }, filterable: %w(eq not_eq match)
-    attribute :last_name, String, sortable: { order: 'ASC' }, filterable: %w(eq not_eq match)
-    attribute :birthdate, Common::UTCTime, sortable: { order: 'DESC' }, filterable: %w(eq lteq gteq not_eq)
-    attribute :zipcode, Integer
-
-    def <=>(other)
-      name <=> other.name
-    end
-  end
-
   let(:klass)       { Author }
   let(:klass_array) { Array.new(25) { |i| attributes_for(:author, id: i + 1) } }
   subject { described_class.new(klass, data: klass_array, metadata: { nobel_winner: 'Bob Dylan' }, errors: {}) }

@@ -21,18 +21,10 @@ class User < Common::RedisStore
   attribute :birth_date
   attribute :zip
   attribute :ssn
-  attribute :loa
+  attribute :loa_highest
 
   # vaafi attributes
   attribute :last_signed_in, Common::UTCTime
-  # Electronic data interchange personal identifier, aka DoD ID
-  # https://en.wikipedia.org/wiki/Defense_Enrollment_Eligibility_Reporting_System#Electronic_data_interchange_personal_identifier
-  attribute :edipi
-  attribute :participant_id
-  attribute :icn
-
-  # mvi 'golden record' data
-  attribute :mvi
 
   # mhv_last_signed_in used to determine whether we need to notify MHV audit logging
   # This is set to Time.now when any MHV session is first created, and nulled, when logout
@@ -40,27 +32,14 @@ class User < Common::RedisStore
 
   validates :uuid, presence: true
   validates :email, presence: true
-  validates :loa, presence: true
 
   # conditionally validate if user is LOA3
-  with_options unless: :loa1? do |user|
+  with_options(on: :loa3_user) do |user|
     user.validates :first_name, presence: true
     user.validates :last_name, presence: true
     user.validates :birth_date, presence: true
     user.validates :ssn, presence: true, format: /\A\d{9}\z/
     user.validates :gender, format: /\A(M|F)\z/, allow_blank: true
-  end
-
-  def loa1?
-    loa[:current] == LOA::ONE
-  end
-
-  def loa2?
-    loa[:current] == LOA::TWO
-  end
-
-  def loa3?
-    loa[:current] == LOA::THREE
   end
 
   def rating_record
@@ -73,26 +52,30 @@ class User < Common::RedisStore
     mhv_correlation_ids.first
   end
 
-  def can_access_user_profile?
-    loa1? || loa2? || loa3?
+  def can_access_user_profile?(session)
+    session.loa1? || session.loa2? || session.loa3?
   end
 
-  def can_access_mhv?
-    loa3? && mhv_correlation_ids.length == 1
+  def can_access_mhv?(session)
+    session.loa3? && mhv_correlation_id
   end
 
   def can_access_evss?
+    # TODO : this should have a session.loa3 check.  Although,
+    # ssn.present? acts as an implicit session.loa3? check
     edipi.present? && ssn.present? && participant_id.present?
   end
 
+  delegate :edipi, to: :mvi
+  delegate :icn, to: :mvi
+  delegate :mhv_correlation_id, to: :mvi
+  delegate :participant_id, to: :mvi
+  delegate :va_profile, to: :mvi
+
   private
 
-  def mhv_correlation_ids
-    return @mhv_correlation_ids if @mhv_correlation_ids
-    ids = mvi&.dig(:mhv_ids)
-    ids = [] unless ids
-    @mhv_correlation_ids = ids.map { |mhv_id| mhv_id.split('^')&.first }.compact
-    @mhv_correlation_ids
+  def mvi
+    @mvi ||= Mvi.from_user(self)
   end
 
   def evss_auth_headers

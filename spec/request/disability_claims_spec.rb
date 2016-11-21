@@ -2,11 +2,30 @@
 require 'rails_helper'
 
 RSpec.describe 'disability Claims management', type: :request do
-  let(:user) { FactoryGirl.create(:mvi_user) }
+  let(:user) { FactoryGirl.create(:loa3_user) }
   let(:session) { Session.create(uuid: user.uuid) }
 
   context 'for a user without evss attrs' do
-    let(:user) { FactoryGirl.create(:user, edipi: nil) }
+    before do
+      allow(Mvi).to receive(:find).and_return(
+        Mvi.new(
+          uuid: 'abc123',
+          response: {
+            status: 'OK',
+            birth_date: '18090212',
+            edipi: nil,
+            vba_corp_id: '12345678^PI^200CORP^USVBA^A',
+            family_name: 'Lincoln',
+            gender: 'M',
+            given_names: %w(Abraham),
+            icn: '1000123456V123456^NI^200M^USVHA^P',
+            mhv_ids: ['123456^PI^200MH^USVHA^A'],
+            ssn: '272111863',
+            active_status: 'active'
+          }
+        )
+      )
+    end
 
     it 'returns a 403' do
       get '/v0/disability_claims', nil, 'Authorization' => "Token token=#{session.token}"

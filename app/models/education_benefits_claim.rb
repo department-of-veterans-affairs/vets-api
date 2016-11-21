@@ -7,12 +7,15 @@ class EducationBenefitsClaim < ActiveRecord::Base
   validate(:form_matches_schema)
   validate(:form_must_be_string)
 
+  has_one(:education_benefits_submission, inverse_of: :education_benefits_claim)
+
   attr_encrypted(:form, key: ENV['DB_ENCRYPTION_KEY'])
 
   # initially only completed claims are allowed, later we can allow claims that dont have a submitted_at yet
   before_validation(:set_submitted_at, on: :create)
   before_save(:set_region)
   after_save(:create_education_benefits_submission)
+  after_save(:update_education_benefits_submission_status)
 
   # For console access only, right now.
   def reprocess_at(region)
@@ -79,10 +82,20 @@ class EducationBenefitsClaim < ActiveRecord::Base
   private
 
   def create_education_benefits_submission
-    if submitted_at.present? && submitted_at_was.nil?
+    if submitted_at.present? && submitted_at_was.nil? && education_benefits_submission.blank?
       EducationBenefitsSubmission.create!(
-        parsed_form.slice(*APPLICATION_TYPES).merge(region: region)
+        parsed_form.slice(*APPLICATION_TYPES).merge(
+          region: region,
+          education_benefits_claim: self
+        )
       )
+    end
+  end
+
+  def update_education_benefits_submission_status
+    if processed_at.present? && processed_at_was.nil?
+      # old claims don't have an education benefits submission associated
+      education_benefits_submission&.update_attributes!(status: 'processed')
     end
   end
 
