@@ -4,7 +4,7 @@ require 'evss/claims_service'
 require 'evss/auth_headers'
 
 describe EVSS::ClaimsService do
-  let(:current_user) { FactoryGirl.create(:mvi_user) }
+  let(:current_user) { FactoryGirl.create(:loa3_user) }
   let(:auth_headers) do
     EVSS::AuthHeaders.new(current_user).to_h
   end
