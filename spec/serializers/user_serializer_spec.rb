@@ -9,12 +9,7 @@ RSpec.describe UserSerializer, type: :serializer do
   let(:profile) { attributes['profile'] }
   let(:va_profile) { attributes['va_profile'] }
 
-  before do
-    #subject.instance_variable_set(:@instance_options, {:session => session})
-    allow(subject).to receive(:instance_options).and_return( { session: session } )
-  end
-
-  subject { serialize(user, serializer_class: described_class ) }
+  subject { serialize(user, serializer_class: described_class, session: session ) }
 
   it 'should not include ssn anywhere' do
     expect(attributes['ssn']).to be_nil
@@ -81,7 +76,7 @@ RSpec.describe UserSerializer, type: :serializer do
     end
 
     context 'when user.mvi is nil' do
-      let(:user) { build :user }
+      let(:user) { build :loa1_user }
       let(:data) { JSON.parse(subject)['data'] }
       let(:attributes) { data['attributes'] }
       let(:va_profile) { attributes['va_profile'] }
