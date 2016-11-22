@@ -77,10 +77,9 @@ describe Mvi, skip_mvi: true do
     end
 
     context 'when there is cached data' do
-      it 'returns the cached data' do
-        mvi.response = find_candidate_response.merge(status: 'OK')
-        mvi.save
-        expect_any_instance_of(MVI::Service).to_not receive(:find_candidate)
+      let(:user) { FactoryGirl.build(:loa3_user, gender: nil) }
+      let(:mvi) { Mvi.from_user(user) }
+      it 'returns nil' do
         expect(mvi.va_profile).to eq(
           active_status: 'active',
           birth_date: '19800101',
