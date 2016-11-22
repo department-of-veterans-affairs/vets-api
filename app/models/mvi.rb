@@ -70,7 +70,7 @@ class Mvi < Common::RedisStore
 
   def mvi_response
     return nil unless @user.loa3?
-    response || query_and_cache_response
+    @memoized_response ||= response || query_and_cache_response
   end
 
   def mvi_service
