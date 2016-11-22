@@ -23,11 +23,14 @@ RSpec.describe MHVLoggingService do
   before(:each) { allow(MHVLogging::Client).to receive(:new).and_return(authenticated_client) }
 
   context 'with current_user not having logged in to MHV' do
-    let(:mhv_user) { create(:mhv_user, :mhv_not_logged_in) }
+    let(:session) { create(:loa3_session) }
+    let(:mhv_user) { create(:mhv_user, :mhv_not_logged_in, uuid: session.uuid, session: session) }
 
     it 'posts audit log when not logged in' do
       VCR.use_cassette('mhv_logging_client/audits/submits_an_audit_log_for_signing_in') do
         expect(mhv_user.mhv_last_signed_in).to be_nil
+        # TODO : fix this expectation - the async AuditLoginJob only keys off of
+        # user.uuid which ultimately calls into the mvi model which will have a nil session
         expect(login_service).to eq(true)
         expect(User.find(mhv_user.uuid).mhv_last_signed_in).to be_a(Time)
       end
@@ -41,7 +44,8 @@ RSpec.describe MHVLoggingService do
   end
 
   context 'with current_user having already logged in to MHV' do
-    let(:mhv_user) { create(:mhv_user) }
+    let(:session) { create(:loa3_session) }
+    let(:mhv_user) { create(:mhv_user, uuid: session.uuid, session: session) }
 
     it 'posts audit log when not logged in' do
       expect(mhv_user.mhv_last_signed_in).to be_a(Time)
