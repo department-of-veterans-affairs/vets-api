@@ -24,7 +24,7 @@
                 "birth_date",
                 "gender", "zip",
                 "last_signed_in",
-                "loa"
+                "loa_highest"
               ],
               "properties": {
                 "email": { "type": "string"},
@@ -35,14 +35,7 @@
                 "gender": { "type": [ "string", null ] },
                 "zip": { "type": [ "string", null ] },
                 "last_signed_in": { "type": [ "string", null ] },
-                "loa": {
-                  "type": "object",
-                  "required": ["current", "highest"],
-                  "properties": {
-                    "current": { "type": "integer" },
-                    "highest": { "type": [ "integer", null ] }
-                  }
-                }
+                "loa_highest": { "type": "integer" }
               }
             },
             "va_profile": {
