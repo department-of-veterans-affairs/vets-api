@@ -5,7 +5,7 @@ class VAFacility < ActiveModelSerializers::Model
   attr_accessor :unique_id, :name, :facility_type, :classification, :website,
                 :lat, :long, :address, :phone, :hours, :services, :feedback
 
-  @@lock = Mutex.new
+  @lock = Mutex.new
 
   HEALTH = 'health'
   CEMETERY = 'cemetery'
@@ -54,7 +54,7 @@ class VAFacility < ActiveModelSerializers::Model
   end
 
   def self.client_adapter(prefix)
-    @@lock.synchronize do
+    @lock.synchronize do
       @client_map ||= init_adapters
     end
     @client_map[prefix]

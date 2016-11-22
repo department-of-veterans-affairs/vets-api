@@ -25,7 +25,7 @@ module Facilities
           Rails.logger.error "GIS returned error: #{doc['error']['code']}, message: #{doc['error']['message']}"
           raise Facilities::Errors::RequestError.new(doc['error']['message'], doc['error']['code'])
         end
-      end   
+      end
     end
   end
 end
