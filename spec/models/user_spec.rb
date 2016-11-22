@@ -41,52 +41,52 @@ RSpec.describe User, type: :model do
       subject(:loa3_user) { described_class.new(FactoryGirl.build(:user, loa: loa_three)) }
       it 'should not allow a blank ssn' do
         loa3_user.ssn = ''
-        expect(loa3_user.valid?).to be_falsey
+        expect(loa3_user.valid?(:loa3_user)).to be_falsey
         expect(loa3_user.errors[:ssn].size).to be_positive
       end
       it 'should not allow a blank first_name' do
         loa3_user.first_name = ''
-        expect(loa3_user.valid?).to be_falsey
+        expect(loa3_user.valid?(:loa3_user)).to be_falsey
         expect(loa3_user.errors[:first_name].size).to be_positive
       end
       it 'should not allow a blank last_name' do
         loa3_user.last_name = ''
-        expect(loa3_user.valid?).to be_falsey
+        expect(loa3_user.valid?(:loa3_user)).to be_falsey
         expect(loa3_user.errors[:last_name].size).to be_positive
       end
       it 'should not allow a blank birth_date' do
         loa3_user.birth_date = ''
-        expect(loa3_user.valid?).to be_falsey
+        expect(loa3_user.valid?(:loa3_user)).to be_falsey
         expect(loa3_user.errors[:birth_date].size).to be_positive
       end
       it 'should allow a blank gender' do
         loa3_user.gender = ''
-        expect(loa3_user.valid?).to be_truthy
+        expect(loa3_user.valid?(:loa3_user)).to be_truthy
         expect(loa3_user.errors[:gender].size).to eq(0)
       end
       it 'should allow a nil gender' do
         loa3_user.gender = nil
-        expect(loa3_user.valid?).to be_truthy
+        expect(loa3_user.valid?(:loa3_user)).to be_truthy
         expect(loa3_user.errors[:gender].size).to eq(0)
       end
       it 'should not allow a gender other than M or F' do
         loa3_user.gender = 'male'
-        expect(loa3_user.valid?).to be_falsey
+        expect(loa3_user.valid?(:loa3_user)).to be_falsey
         expect(loa3_user.errors[:gender].size).to be_positive
         loa3_user.gender = 'female'
-        expect(loa3_user.valid?).to be_falsey
+        expect(loa3_user.valid?(:loa3_user)).to be_falsey
         expect(loa3_user.errors[:gender].size).to be_positive
         loa3_user.gender = 'Z'
-        expect(loa3_user.valid?).to be_falsey
+        expect(loa3_user.valid?(:loa3_user)).to be_falsey
         expect(loa3_user.errors[:gender].size).to be_positive
       end
       it 'should allow a gender of M' do
         loa3_user.gender = 'M'
-        expect(loa3_user.valid?).to be_truthy
+        expect(loa3_user.valid?(:loa3_user)).to be_truthy
       end
       it 'should allow a gender of F' do
         loa3_user.gender = 'F'
-        expect(loa3_user.valid?).to be_truthy
+        expect(loa3_user.valid?(:loa3_user)).to be_truthy
       end
     end
   end
@@ -95,7 +95,7 @@ RSpec.describe User, type: :model do
   context 'with an invalid ssn' do
     it 'should have an error on ssn' do
       subject.ssn = '111-22-3333'
-      expect(subject.valid?).to be_falsey
+      expect(subject.valid?(:loa3_user)).to be_falsey
       expect(subject.errors[:ssn].size).to eq(1)
     end
   end
