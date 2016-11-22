@@ -23,7 +23,7 @@ module Facilities
     end
 
     def last_edit_date
-      response = @conn.get '', f: 'json'
+      response = @conn.get('', f: 'json')
       response.body.dig('editingInfo', 'lastEditDate')
     rescue Faraday::ConnectionFailed => e
       Rails.logger.warn "Facility lastEditDate check connection failed: #{e.message}"
