@@ -15,7 +15,7 @@ module EVSS
         'va_eauth_authenticationmethod' => 'DSLogon',
         'va_eauth_pnidtype' => 'SSN',
         # Vary by user
-        'va_eauth_assurancelevel' => @user.loa[:current].to_s,
+        'va_eauth_assurancelevel' => @user.session.level.to_s,
         'va_eauth_firstName' => @user.first_name,
         'va_eauth_lastName' => @user.last_name,
         'va_eauth_issueinstant' => @user.last_signed_in.iso8601,
