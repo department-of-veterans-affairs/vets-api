@@ -43,8 +43,7 @@ Authorization: Token token=RiW_3isZHtUszCLvEAv4vEyCV37K8yFeezQm4fdT
         "birth_date": '19800101',
         "family_name": nil,
         "gender": 'M',
-        "given_names": ['WILLIAM','RYAN'],
-        "status": 'active'
+        "given_names": ['WILLIAM','RYAN']
       }
     }
   }
