@@ -8,7 +8,7 @@ module MHVControllerConcerns
   end
 
   def authorize
-    current_user&.can_access_mhv? || raise_access_denied
+    current_user&.can_access_mhv?(@session) || raise_access_denied
   end
 
   def authenticate_client

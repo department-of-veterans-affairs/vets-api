@@ -3,12 +3,18 @@ require 'rails_helper'
 
 RSpec.describe UserSerializer, type: :serializer do
   let(:user) { build :loa3_user }
+  let(:session) { build :loa3_session, uuid: user.uuid }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
   let(:profile) { attributes['profile'] }
   let(:va_profile) { attributes['va_profile'] }
 
-  subject { serialize(user, serializer_class: described_class) }
+  before do
+    #subject.instance_variable_set(:@instance_options, {:session => session})
+    allow(subject).to receive(:instance_options).and_return( { session: session } )
+  end
+
+  subject { serialize(user, serializer_class: described_class ) }
 
   it 'should not include ssn anywhere' do
     expect(attributes['ssn']).to be_nil
