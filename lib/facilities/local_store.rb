@@ -20,7 +20,7 @@ module Facilities
       @client = BulkClient.new(@url)
       @index = {}
       @coordinates = []
-      check_for_freshness
+      # check_for_freshness
     end
 
     def get(id)
@@ -100,10 +100,10 @@ module Facilities
       @index = new_index
       @coordinates = new_coordinates
     end
-  end
 
-  def log_error(e)
-    Rails.logger.error "Unexpected error refreshing facilities: #{e.message}"
-    Raven.capture_exception(e) if ENV['SENTRY_DSN'].present?
+    def log_error(e)
+      Rails.logger.error "Unexpected error refreshing facilities: #{e.message}"
+      Raven.capture_exception(e) if ENV['SENTRY_DSN'].present?
+    end
   end
 end
