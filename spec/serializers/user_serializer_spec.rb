@@ -2,14 +2,14 @@
 require 'rails_helper'
 
 RSpec.describe UserSerializer, type: :serializer do
-  let(:user) { build :loa3_user }
-  let(:session) { build :loa3_session, uuid: user.uuid }
+  let(:session) { build :loa3_session }
+  let(:user) { build :loa3_user, uuid: session.uuid, session: session }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
   let(:profile) { attributes['profile'] }
   let(:va_profile) { attributes['va_profile'] }
 
-  subject { serialize(user, serializer_class: described_class, session: session ) }
+  subject { serialize(user, serializer_class: described_class) }
 
   it 'should not include ssn anywhere' do
     expect(attributes['ssn']).to be_nil
@@ -76,7 +76,8 @@ RSpec.describe UserSerializer, type: :serializer do
     end
 
     context 'when user.mvi is nil' do
-      let(:user) { build :loa1_user }
+      let(:session) { build :loa1_session }
+      let(:user) { build :loa1_user, uuid: session.uuid, session: session }
       let(:data) { JSON.parse(subject)['data'] }
       let(:attributes) { data['attributes'] }
       let(:va_profile) { attributes['va_profile'] }

@@ -11,6 +11,8 @@ class User < Common::RedisStore
   redis_ttl REDIS_CONFIG['user_store']['each_ttl']
   redis_key :uuid
 
+  attr_accessor :session
+
   # id.me attributes
   attribute :uuid
   attribute :email
@@ -52,11 +54,11 @@ class User < Common::RedisStore
     mhv_correlation_ids.first
   end
 
-  def can_access_user_profile?(session)
+  def can_access_user_profile?
     session.loa1? || session.loa2? || session.loa3?
   end
 
-  def can_access_mhv?(session)
+  def can_access_mhv?
     session.loa3? && mhv_correlation_id
   end
 

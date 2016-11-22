@@ -43,7 +43,8 @@ module V0
 
     def persist_session_and_user
       @session = Session.new(user_attributes.slice(:uuid).merge(level: loa_current))
-      @current_user = saml_user
+      @current_user = User.new(user_attributes)
+      @current_user.session = @session
       @session.save && @current_user.save
     end
 
@@ -72,14 +73,6 @@ module V0
     def loa_current
       @raw_loa ||= REXML::XPath.first(@saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
       LOA::MAPPING[@raw_loa]
-    end
-
-    def saml_user
-      @saml_user ||= create_saml_user
-    end
-
-    def create_saml_user
-      User.new(user_attributes)
     end
 
     def async_create_evss_account(user)

@@ -23,7 +23,7 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def va_profile
-    Mvi.from_user(object).va_profile(instance_options[:session])
+    Mvi.from_user(object).va_profile
   end
 
   def services
@@ -32,9 +32,9 @@ class UserSerializer < ActiveModel::Serializer
       BackendServices::HCA,
       BackendServices::EDUCATION_BENEFITS
     ]
-    service_list += [BackendServices::RX, BackendServices::MESSAGING] if object.can_access_mhv?(instance_options[:session])
+    service_list += [BackendServices::RX, BackendServices::MESSAGING] if object.can_access_mhv?
     service_list << BackendServices::DISABILITY_BENEFITS if object.can_access_evss?
-    service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?(instance_options[:session])
+    service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
     service_list
   end
 end

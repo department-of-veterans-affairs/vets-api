@@ -39,9 +39,9 @@ class Mvi < Common::RedisStore
     mhv_correlation_ids&.first
   end
 
-  def va_profile(session)
+  def va_profile
     # TODO : this logic belongs in a serializer
-    return { status: 'NOT_AUTHORIZED' } unless session.loa3?
+    return { status: 'NOT_AUTHORIZED' } unless user.session.loa3?
     response = mvi_response
     return { status: 'SERVER_ERROR' } unless response
     return response unless response[:status] == MVI_RESPONSE_STATUS[:ok]
@@ -56,20 +56,20 @@ class Mvi < Common::RedisStore
 
   private
 
-  def mhv_correlation_ids(session)
-    return nil unless mvi_response(session)
-    ids = mvi_response(session)&.dig(:mhv_ids)
+  def mhv_correlation_ids
+    return nil unless mvi_response
+    ids = mvi_response&.dig(:mhv_ids)
     ids = [] unless ids
     ids.map { |mhv_id| mhv_id.split('^')&.first }.compact
   end
 
   def select_source_id(correlation_id)
-    return nil unless mvi_response(session)&.dig(correlation_id)
-    mvi_response(session)[correlation_id].split('^')&.first
+    return nil unless mvi_response&.dig(correlation_id)
+    mvi_response[correlation_id].split('^')&.first
   end
 
-  def mvi_response(session)
-    return nil unless session.loa3?
+  def mvi_response
+    return nil unless user.session.loa3?
     @memoized_response ||= response || query_and_cache_response
   end
 

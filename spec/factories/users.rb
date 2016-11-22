@@ -27,7 +27,7 @@ FactoryGirl.define do
     last_name 'lincoln'
     gender 'M'
     birth_date Time.new(1809, 2, 12).utc
-    ssn '272111863'
+    ssn '272111864'
     loa_highest LOA::THREE
     trait :mhv_not_logged_in do
       mhv_last_signed_in nil
