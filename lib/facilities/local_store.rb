@@ -11,11 +11,11 @@ module Facilities
     REQUEST_TIMEOUT = 6
     Pointer = Struct.new(:x, :y, :facility)
 
-    def initialize(url, type, adapter)
+    def initialize(url, _type, adapter)
       @url = url
       @adapter = adapter
       @mutex = Mutex.new
-      @last_check = Time.new(0)
+      @last_check = Time.new(0).utc
       @current_gis_update = 0
       @client = BulkClient.new(@url)
       @index = {}
@@ -32,20 +32,24 @@ module Facilities
 
     def query(bbox, services = nil)
       check_for_freshness
-      filter = services ? @adapter.with_services(services) : lambda { |_| true }
+      filter = services ? @adapter.with_services(services) : ->(_) { true }
       @mutex.synchronize do
-        @coordinates.select(&(within bbox)).sort_by(&(dist_from_center bbox)).map { |p| p.facility }.select(&filter)
+        @coordinates.select(&(within bbox)).sort_by(&(dist_from_center bbox)).map(&:facility).select(&filter)
       end
     end
 
     def within(bbox)
-      x_min, x_max = bbox[0] < bbox[2] ? [bbox[0], bbox[2]] : [bbox[2], bbox[0]]
-      y_min, y_max = bbox[1] < bbox[3] ? [bbox[1], bbox[3]] : [bbox[3], bbox[1]]
+      x_min, x_max = min_max(bbox[0], bbox[2])
+      y_min, y_max = min_max(bbox[1], bbox[3])
       lambda do |point|
         return false if point.x.nil? || point.y.nil?
         x_min < point.x && point.x < x_max &&
-        y_min < point.y && point.y < y_max
+          y_min < point.y && point.y < y_max
       end
+    end
+
+    def min_max(x, y)
+      x < y ? [x, y] : [y, x]
     end
 
     def dist_from_center(bbox)
@@ -70,20 +74,19 @@ module Facilities
           @last_check = Time.current
           @current_gis_update = last_edit
         rescue Facilities::Errors::ServiceError => e
-          Raven.capture_exception(e) if ENV['SENTRY_DSN'].present?
+          log_error e
         rescue => e
-          Rails.logger.error "Unexpected error refreshing facilities: #{e.message}"
-          Raven.capture_exception(e) if ENV['SENTRY_DSN'].present?
+          log_error e
         end
       end
     end
- 
+
     # Decide whether current stored data is up to date w.r.t. to retrieved lastEditDate
     # Additionally, if we could not retrieve lastEditDate and we have _some_ data to
     # work with, then set last_check timestamp and try again at next interval.
     def up_to_date?(last_edit)
       Rails.logger.debug "Currently have data #{@current_gis_update}, latest is #{last_edit}"
-      @last_check = Time.current if (last_edit.nil? && @current_gis_update != 0)
+      @last_check = Time.current if last_edit.nil? && @current_gis_update.nonzero?
       @current_gis_update == last_edit
     end
 
@@ -97,6 +100,10 @@ module Facilities
       @index = new_index
       @coordinates = new_coordinates
     end
+  end
 
+  def log_error(e)
+    Rails.logger.error "Unexpected error refreshing facilities: #{e.message}"
+    Raven.capture_exception(e) if ENV['SENTRY_DSN'].present?
   end
 end
