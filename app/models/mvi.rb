@@ -42,6 +42,7 @@ class Mvi < Common::RedisStore
   def va_profile
     return { status: 'NOT_AUTHORIZED' } unless @user.loa3?
     response = mvi_response
+    return { status: 'SERVER_ERROR' } unless response
     return response unless response[:status] == MVI_RESPONSE_STATUS[:ok]
     {
       status: response[:status],
@@ -68,8 +69,8 @@ class Mvi < Common::RedisStore
   end
 
   def mvi_response
-    return nil unless @user.loa3? && !user.gender.nil?
-    response || query_and_cache_response
+    return nil unless @user.loa3?
+    @memoized_response ||= response || query_and_cache_response
   end
 
   def mvi_service
@@ -77,7 +78,7 @@ class Mvi < Common::RedisStore
   end
 
   def create_message
-    raise Common::Exceptions::ValidationErrors, @user unless @user.valid?
+    raise Common::Exceptions::ValidationErrors, @user unless @user.valid?(:loa3_user)
     given_names = [@user.first_name]
     given_names.push @user.middle_name unless @user.middle_name.nil?
     MVI::Messages::FindCandidateMessage.new(
