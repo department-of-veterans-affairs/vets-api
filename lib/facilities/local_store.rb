@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'facilities/bulk_client'
 
 module Facilities
   class LocalStore
@@ -15,14 +16,10 @@ module Facilities
       @adapter = adapter
       @mutex = Mutex.new
       @last_check = Time.new(0)
-      @last_gis_update = 0
-      @conn = Faraday.new(:url => @url) do |conn|
-        conn.options.open_timeout = OPEN_TIMEOUT
-        conn.options.timeout = REQUEST_TIMEOUT
-        # conn.response :logger
-        # TODO conn.use :breakers
-        conn.adapter Faraday.default_adapter 
-      end
+      @current_gis_update = 0
+      @client = BulkClient.new(@url)
+      @index = {}
+      @coordinates = []
       check_for_freshness
     end
 
@@ -60,67 +57,34 @@ module Facilities
     end
 
     def check_for_freshness
-      puts "Checking, now #{Time.current} vs. #{@last_check}"
       return unless Time.current > (@last_check + GIS_CHECK_FREQUENCY)
       @mutex.synchronize do
-        puts "Time to check freshness"
         return unless Time.current > (@last_check + GIS_CHECK_FREQUENCY)
-        current_edit = gis_edit_date
-        puts "Checking, we have #{current_edit} vs. #{@last_gis_update}"
-        return if current_edit == @last_gis_update
-        refresh
-        @last_check = Time.current
-        @last_gis_update = current_edit
+        last_edit = @client.last_edit_date
+        return if up_to_date?(last_edit)
+        begin
+          facilities = @client.fetch_all
+          return if facilities.to_a.empty?
+          Rails.logger.debug "Indexing #{facilities.length} facilities"
+          index(facilities.map { |x| @adapter.from_gis x })
+          @last_check = Time.current
+          @current_gis_update = last_edit
+        rescue Facilities::Errors::ServiceError => e
+          Raven.capture_exception(e) if ENV['SENTRY_DSN'].present?
+        rescue => e
+          Rails.logger.error "Unexpected error refreshing facilities: #{e.message}"
+          Raven.capture_exception(e) if ENV['SENTRY_DSN'].present?
+        end
       end
     end
-
-    def gis_edit_date
-      puts @url
-      response = @conn.get '', { :f => 'json' }
-      return nil unless response.status == 200
-      result = JSON.parse(response.body)
-      result&.[]('editingInfo')&.[]('lastEditDate')
-    end
-
-    def refresh
-       puts 'Refreshing from GIS'
-       query_url = [@url, 'query'].join('/')
-       count_params = {
-         where: '1=1',
-         returnCountOnly: true,
-         f: 'json'
-       }
-       response = @conn.get query_url, count_params
-       # TODO Error handling
-       count = JSON.parse(response.body)&.[]('count')
-       params = {
-         where: '1=1',
-         inSR: 4326,
-         outSR: 4326,
-         returnGeometry: true,
-         outFields: '*',
-         f: 'json'
-       }
-       max = (count / BATCH_SIZE).ceil - 1
-       facilities = []
-       (0..max).each do |i|
-         params['resultOffset'] = (i * BATCH_SIZE).to_i
-         params['resultRecordCount'] = BATCH_SIZE.to_i
-         response = @conn.get query_url, params
-         # TODO Error handling
-         parse(response.body, facilities)
-       end
-       index(facilities)
-    end
-
-    def parse(response, facilities)
-      result = JSON.parse(response)
-      if result['error']
-        Rails.logger.error "GIS returned error: #{result['error']['code']}, message: #{result['error']['message']}"
-      end
-      result['features'].each do |f|
-        facilities << @adapter.from_gis(f)
-      end
+ 
+    # Decide whether current stored data is up to date w.r.t. to retrieved lastEditDate
+    # Additionally, if we could not retrieve lastEditDate and we have _some_ data to
+    # work with, then set last_check timestamp and try again at next interval.
+    def up_to_date?(last_edit)
+      Rails.logger.debug "Currently have data #{@current_gis_update}, latest is #{last_edit}"
+      @last_check = Time.current if (last_edit.nil? && @current_gis_update != 0)
+      @current_gis_update == last_edit
     end
 
     def index(facilities)
