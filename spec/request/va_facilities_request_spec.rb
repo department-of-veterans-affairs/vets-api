@@ -8,7 +8,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   DEGEN_BBOX = 'bbox[]=-100&bbox[]=45&bbox[]=-100&bbox[]=45'
 
   it 'responds to GET #show for VHA prefix' do
-    VCR.use_cassette('facilities/va/vha_648A4') do
+    VCR.use_cassette('facilities/va/bulk_load') do
       get '/v0/facilities/va/vha_648A4'
       expect(response).to be_success
       expect(response.body).to be_a(String)
@@ -18,7 +18,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   end
 
   it 'responds to GET #show for NCA prefix' do
-    VCR.use_cassette('facilities/va/nca_888') do
+    VCR.use_cassette('facilities/va/bulk_load') do
       get '/v0/facilities/va/nca_888'
       expect(response).to be_success
       expect(response.body).to be_a(String)
@@ -28,7 +28,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   end
 
   it 'responds to GET #show for VBA prefix' do
-    VCR.use_cassette('facilities/va/vba_314c') do
+    VCR.use_cassette('facilities/va/bulk_load') do
       get '/v0/facilities/va/vba_314c'
       expect(response).to be_success
       expect(response.body).to be_a(String)
@@ -38,21 +38,21 @@ RSpec.describe 'VA GIS Integration', type: :request do
   end
 
   it 'responds to GET #show without prefix' do
-    VCR.use_cassette('facilities/va/nonexistent_noprefix') do
+    VCR.use_cassette('facilities/va/bulk_load') do
       get '/v0/facilities/va/684A4'
       expect(response).to have_http_status(:not_found)
     end
   end
 
   it 'responds to GET #show non-existent' do
-    VCR.use_cassette('facilities/va/nonexistent_cemetery') do
+    VCR.use_cassette('facilities/va/bulk_load') do
       get '/v0/facilities/va/nca_9999999'
       expect(response).to have_http_status(:not_found)
     end
   end
 
   it 'responds to GET #index with bbox' do
-    VCR.use_cassette('facilities/va/pdx_bbox') do
+    VCR.use_cassette('facilities/va/bulk_load') do
       get BASE_QUERY_PATH + PDX_BBOX
       expect(response).to be_success
       expect(response.body).to be_a(String)
@@ -62,7 +62,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   end
 
   it 'responds to GET #index with bbox and health type' do
-    VCR.use_cassette('facilities/va/pdx_bbox_health') do
+    VCR.use_cassette('facilities/va/bulk_load') do
       get BASE_QUERY_PATH + PDX_BBOX + '&type=health'
       expect(response).to be_success
       expect(response.body).to be_a(String)
@@ -72,7 +72,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   end
 
   it 'responds to GET #index with bbox and cemetery type' do
-    VCR.use_cassette('facilities/va/ny_bbox') do
+    VCR.use_cassette('facilities/va/bulk_load') do
       get BASE_QUERY_PATH + NY_BBOX + '&type=cemetery'
       expect(response).to be_success
       expect(response.body).to be_a(String)
@@ -82,7 +82,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   end
 
   it 'responds to GET #index with bbox and benefits type' do
-    VCR.use_cassette('facilities/va/ny_bbox_benefits') do
+    VCR.use_cassette('facilities/va/bulk_load') do
       get BASE_QUERY_PATH + NY_BBOX + '&type=benefits'
       expect(response).to be_success
       expect(response.body).to be_a(String)
@@ -92,7 +92,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   end
 
   it 'responds to GET #index with bbox and filter' do
-    VCR.use_cassette('facilities/va/ny_bbox_benefits_filtered') do
+    VCR.use_cassette('facilities/va/bulk_load') do
       get BASE_QUERY_PATH + NY_BBOX + '&type=benefits&services[]=DisabilityClaimAssistance'
       expect(response).to be_success
       expect(response.body).to be_a(String)
@@ -102,33 +102,34 @@ RSpec.describe 'VA GIS Integration', type: :request do
   end
 
   it 'returns 400 for invalid type parameter' do
-    VCR.use_cassette('facilities/va/bad_type_param') do
+    VCR.use_cassette('facilities/va/bulk_load') do
       get BASE_QUERY_PATH + NY_BBOX + '&type=bogus'
       expect(response).to have_http_status(:bad_request)
     end
   end
 
   it 'returns 400 for query with services but no type' do
-    VCR.use_cassette('facilities/va/service_type_params') do
+    VCR.use_cassette('facilities/va/bulk_load') do
       get BASE_QUERY_PATH + NY_BBOX + '&services[]=EyeCare'
       expect(response).to have_http_status(:bad_request)
     end
   end
 
   it 'returns 400 for health query with unknown service' do
-    VCR.use_cassette('facilities/va/service_type_params') do
+    VCR.use_cassette('facilities/va/bulk_load') do
       get BASE_QUERY_PATH + NY_BBOX + '&type=health&services[]=OilChange'
       expect(response).to have_http_status(:bad_request)
     end
   end
 
   it 'returns 400 for benefits query with unknown service' do
-    VCR.use_cassette('facilities/va/service_type_params') do
+    VCR.use_cassette('facilities/va/bulk_load') do
       get BASE_QUERY_PATH + NY_BBOX + '&type=benefits&services[]=Haircut'
       expect(response).to have_http_status(:bad_request)
     end
   end
 
+<<<<<<< HEAD
   it 'returns 400 for error from GIS' do
     VCR.use_cassette('facilities/va/point_bbox') do
       get BASE_QUERY_PATH + DEGEN_BBOX + '&type=benefits'
@@ -136,6 +137,8 @@ RSpec.describe 'VA GIS Integration', type: :request do
     end
   end
 
+=======
+>>>>>>> Specs
   context 'with bad bbox param' do
     it 'returns 400 for nonsense bbox' do
       get '/v0/facilities/va?bbox[]=everywhere'

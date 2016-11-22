@@ -5,7 +5,7 @@ class VHAFacilityAdapter
 
   def self.with_services(services)
     lambda do |facility|
-      services.all? { |s| facility.services[:health].any { |x| x.flatten(2).contain? s } }
+      services.all? { |s| facility.services[:health].any? { |x| x.flatten(2).include? s } }
     end
   end
 
