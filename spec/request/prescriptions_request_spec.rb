@@ -6,7 +6,8 @@ require 'support/rx_client_helpers'
 RSpec.describe 'prescriptions', type: :request do
   include Rx::ClientHelpers
 
-  let(:current_user) { build(:mhv_user) }
+  let(:session) { build(:loa3_session) }
+  let(:current_user) { build(:mhv_user, uuid: session.uuid, session: session) }
 
   before(:each) do
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
@@ -14,7 +15,8 @@ RSpec.describe 'prescriptions', type: :request do
   end
 
   context 'forbidden user' do
-    let(:current_user) { build(:user) }
+    let(:session) { build(:loa1_session) }
+    let(:current_user) { build(:loa1_user, uuid: session.uuid, session: session) }
 
     it 'raises access denied' do
       get '/v0/prescriptions/13651310'
