@@ -24,9 +24,18 @@ module Common
             hash.deep_transform_keys { |k| k.underscore.to_sym }
           end
         end
+
+        class SnakecaseString < Snakecase
+          private
+
+          def underscore_symbolize(hash)
+            hash.deep_transform_keys(&:underscore)
+          end
+        end
       end
     end
   end
 end
 
 Faraday::Response.register_middleware snakecase: Common::Client::Middleware::Response::Snakecase
+Faraday::Response.register_middleware snakecase_string: Common::Client::Middleware::Response::SnakecaseString
