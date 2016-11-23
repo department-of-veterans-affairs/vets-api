@@ -73,6 +73,28 @@ describe MVI::Messages::FindCandidateMessage do
       end
     end
 
+    context 'with nil gender' do
+      let(:xml) do
+        MVI::Messages::FindCandidateMessage.new(
+          %w(John William), 'Smith', '1980-1-1', '555-44-3333', nil
+        ).to_xml
+      end
+      let(:idm_path) { 'env:Body/idm:PRPA_IN201305UV02' }
+      let(:parameter_list_path) { "#{idm_path}/controlActProcess/queryByParameter/parameterList" }
+
+      it 'does not have a gender node' do
+        expect(xml).to eq_at_path("#{parameter_list_path}/livingSubjectAdministrativeGender/value/@code", nil)
+      end
+
+      it 'has the correct query parameter order' do
+        parsed_xml = Ox.parse(xml)
+        nodes = parsed_xml.locate(parameter_list_path).first.nodes
+        expect(nodes[0].value).to eq('livingSubjectBirthTime')
+        expect(nodes[1].value).to eq('livingSubjectId')
+        expect(nodes[2].value).to eq('livingSubjectName')
+      end
+    end
+
     context 'missing arguments' do
       it 'should throw an argument error' do
         expect do
