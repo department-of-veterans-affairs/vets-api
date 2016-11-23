@@ -11,7 +11,7 @@ module SAML
 
       def saml_settings
         @saml_settings ||= OneLogin::RubySaml::IdpMetadataParser.new.parse(metadata, settings: settings)
-      rescue StandardError => e
+      rescue => e
         Rails.logger.error "SAML::SettingService failed to parse SAML metadata: #{e.message}"
         raise e
       end
@@ -29,14 +29,16 @@ module SAML
       def metadata
         return @metadata unless @metadata.nil?
         begin
-          try ||= 0
+          attempt ||= 0
           response = connection.get
           raise SAML::InternalServerError, response.status if (500..504).cover? response.status.to_i
           @metadata = response.body
         rescue StandardError => e
-          Rails.logger.error "Failed to load SAML metadata: #{e.message}: try #{try + 1} of #{METADATA_RETRIES}"
-          sleep try * 0.25
-          retry if (try += 1) < METADATA_RETRIES
+          Rails.logger.error "Failed to load SAML metadata: #{e.message}: try #{attempt + 1} of #{METADATA_RETRIES}"
+          if (attempt += 1) < METADATA_RETRIES
+            sleep attempt * 0.25
+            retry
+          end
         end
       end
 
