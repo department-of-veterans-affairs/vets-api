@@ -33,17 +33,15 @@ module SAML
       memoize :connection
 
       def metadata
-        begin
-          attempt ||= 0
-          response = connection.get
-          raise SAML::InternalServerError, response.status if (400..504).cover? response.status.to_i
-          response.body
-        rescue StandardError => e
-          Rails.logger.error "Failed to load SAML metadata: #{e.message}: try #{attempt + 1} of #{METADATA_RETRIES}"
-          if (attempt += 1) < METADATA_RETRIES
-            sleep attempt * 0.25
-            retry
-          end
+        attempt ||= 0
+        response = connection.get
+        raise SAML::InternalServerError, response.status if (400..504).cover? response.status.to_i
+        response.body
+      rescue StandardError => e
+        Rails.logger.error "Failed to load SAML metadata: #{e.message}: try #{attempt + 1} of #{METADATA_RETRIES}"
+        if (attempt += 1) < METADATA_RETRIES
+          sleep attempt * 0.25
+          retry
         end
       end
 
