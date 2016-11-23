@@ -171,15 +171,17 @@ RSpec.describe User, type: :model do
 
     describe '#mhv_correlation_id' do
       context 'when mhv ids are nil' do
-        let(:user) { FactoryGirl.build(:loa1_user) }
+        let(:session) { build(:loa1_session) }
+        let(:user) { build(:loa1_user, uuid: session.uuid, session: session) }
         it 'has a mhv correlation id of nil' do
           expect(user.mhv_correlation_id).to be_nil
         end
       end
       context 'when there are mhv ids' do
-        let(:loa3_user) { FactoryGirl.build(:loa3_user) }
+        let(:session) { build(:loa3_session) }
+        let(:user) { build(:loa3_user, uuid: session.uuid, session: session) }
         it 'has a mhv correlation id' do
-          expect(loa3_user.mhv_correlation_id).to eq('123456')
+          expect(user.mhv_correlation_id).to eq('123456')
         end
       end
     end
