@@ -10,20 +10,21 @@ RSpec.describe StatsdMiddleware, type: :request do
 
   let(:active_rxs) { File.read('spec/support/fixtures/get_active_rxs.json') }
   let(:history_rxs) { File.read('spec/support/fixtures/get_history_rxs.json') }
-  let(:session) do
+  let(:rx_session) do
     Rx::ClientSession.new(
       user_id: '123',
       expires_at: 3.weeks.from_now,
       token: Rx::ClientHelpers::TOKEN
     )
   end
-  let(:user) { build(:mhv_user) }
+  let(:session) { build(:loa3_session) }
+  let(:user) { build(:mhv_user, uuid: session.uuid, session: session) }
   let(:now) { Time.current }
 
   before(:each) do
     allow_any_instance_of(ApplicationController).to receive(:authenticate_token).and_return(:true)
     allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
-    allow_any_instance_of(Rx::Client).to receive(:get_session).and_return(session)
+    allow_any_instance_of(Rx::Client).to receive(:get_session).and_return(rx_session)
     Timecop.freeze(now)
   end
 

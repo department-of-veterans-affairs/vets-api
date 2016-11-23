@@ -4,7 +4,8 @@ require 'evss/documents_service'
 require 'evss/auth_headers'
 
 describe EVSS::DocumentsService do
-  let(:current_user) { FactoryGirl.create(:loa3_user) }
+  let(:session) { create(:loa3_session) }
+  let(:current_user) { create(:loa3_user, uuid: session.uuid, session: session) }
   let(:auth_headers) do
     EVSS::AuthHeaders.new(current_user).to_h
   end

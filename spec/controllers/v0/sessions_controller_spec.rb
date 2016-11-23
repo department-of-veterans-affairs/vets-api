@@ -2,7 +2,8 @@
 require 'rails_helper'
 
 RSpec.describe V0::SessionsController, type: :controller do
-  let(:user) { FactoryGirl.build(:user) }
+  let(:session) { build(:loa3_session) }
+  let(:user) { build(:loa3_user, uuid: session.uuid, session: session) }
   let(:saml_attrs) do
     {
       'uuid' => [user.uuid],
@@ -13,7 +14,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       'social' => [user.ssn],
       'gender' => ['male'],
       'birth_date' => [user.birth_date],
-      'level_of_assurance' => [user.loa[:highest]]
+      'level_of_assurance' => [user.loa_highest]
     }
   end
   let(:settings_no_context) { FactoryGirl.build(:settings_no_context) }
@@ -84,8 +85,8 @@ RSpec.describe V0::SessionsController, type: :controller do
 
     context 'GET saml_callback ' do
       let(:token) { 'abracadabra-open-sesame' }
-      let(:loa1_user) { build :loa1_user }
-      let(:loa3_user) { build :loa3_user }
+      let(:loa1_user) { build(:loa1_user) }
+      let(:loa3_user) { build(:loa3_user) }
       let(:loa3_saml_attrs) do
         {
           'uuid' => [loa3_user.uuid],
@@ -96,7 +97,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           'social' => [loa3_user.ssn],
           'gender' => ['male'],
           'birth_date' => [loa3_user.birth_date],
-          'level_of_assurance' => [loa3_user.loa[:highest]]
+          'level_of_assurance' => [loa3_user.loa_highest]
         }
       end
       let(:attributes) { double('attributes') }
@@ -110,10 +111,10 @@ RSpec.describe V0::SessionsController, type: :controller do
         allow(saml_response).to receive(:decrypted_document).and_return(REXML::Document.new(loa3_xml))
       end
 
-      it 'should default loa.highest to loa.current if highest is null' do
+      it 'should default loa_highest to session.level if loa_highest is nil' do
         saml_attrs.delete 'level_of_assurance'
         post :saml_callback
-        expect(created_user.loa['highest']).to eq(created_user.loa['current'])
+        expect(created_user.loa_highest).to eq(session.level)
       end
 
       it 'should uplevel an LOA 1 session to LOA 3' do
@@ -133,7 +134,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         post :saml_callback
 
         expect(created_session).to_not be_nil
-        expect(created_user.attributes[:uuid]).to eq(user.attributes[:uuid])
+        expect(created_user.attributes[:uuid]).to eq(loa3_user.attributes[:uuid])
       end
 
       it 'creates a job to create an evss user when user has loa3 and evss attrs' do
@@ -146,15 +147,15 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       it 'parses and stores the current level of assurance' do
-        post :saml_callback, RelayState: fake_relay
+        post :saml_callback
         assert_response :found
-        expect(created_user.loa[:current]).to eq(LOA::THREE)
+        expect(session.level).to eq(LOA::THREE)
       end
 
       it 'parses and stores the highest level of assurance proofing' do
-        post :saml_callback, RelayState: fake_relay
+        post :saml_callback
         assert_response :found
-        expect(created_user.loa[:highest]).to eq(LOA::THREE)
+        expect(created_user.loa_highest).to eq(LOA::THREE)
       end
     end
 
@@ -169,14 +170,9 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
 
   context 'when logged in' do
-    let(:token) { 'abracadabra-open-sesame' }
-    let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
-    let(:test_user) { FactoryGirl.build(:user) }
-
-    before(:each) do
-      Session.create(uuid: test_user.uuid, token: token)
-      User.create(test_user)
-    end
+    let(:session) { create(:loa1_session) }
+    let!(:user) { create(:loa1_user, uuid: session.uuid, session: session) }
+    let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(session.token) }
 
     it 'destroys a session' do
       request.env['HTTP_AUTHORIZATION'] = auth_header
