@@ -4,45 +4,59 @@ module SAML
   # SETTINGS object, meaning, our static SP settings + the IDP settings
   # which must be fetched once and only once via IDP metadata.
   class SettingsService
-    attr_reader :saml_settings
+    class << self
+      METADATA_RETRIES = 3
+      OPEN_TIMEOUT = 2
+      TIMEOUT = 15
 
-    METADATA_URI = URI(SAML_CONFIG['metadata_url'])
+      def saml_settings
+        OneLogin::RubySaml::IdpMetadataParser.new.parse(metadata, settings: settings)
+      rescue StandardError => e
+        Rails.logger.error "SAML::SettingService failed to parse SAML metadata: #{e.message}"
+        raise e
+      end
 
-    def initialize
-      @saml_settings = create_settings_from_metadata
+      private
+
+      def connection
+        @connection ||= Faraday.new(SAML_CONFIG['metadata_url']) do |conn|
+          conn.options.open_timeout = OPEN_TIMEOUT
+          conn.options.timeout = TIMEOUT
+          conn.adapter :net_http
+        end
+      end
+
+      def metadata
+        return @metadata unless @metadata.nil?
+        begin
+          try ||= 0
+          response = connection.get
+          raise SAML::InternalServerError, response.status if (500..504).cover? response.status.to_i
+          @metadata = response.body
+        rescue StandardError => e
+          Rails.logger.error "Failed to load SAML metadata: #{e.message}: try #{try + 1} of #{METADATA_RETRIES}"
+          sleep try * 0.25
+          retry if (try += 1) < METADATA_RETRIES
+        end
+      end
+
+      def settings
+        settings = OneLogin::RubySaml::Settings.new
+
+        settings.certificate = SAML_CONFIG['certificate']
+        settings.private_key = SAML_CONFIG['key']
+        settings.issuer = SAML_CONFIG['issuer']
+        settings.assertion_consumer_service_url = SAML_CONFIG['callback_url']
+
+        settings.security[:authn_requests_signed] = true
+        settings.security[:logout_requests_signed] = true
+        settings.security[:embed_sign] = false
+        settings.security[:signature_method] = XMLSecurity::Document::RSA_SHA1
+
+        settings
+      end
     end
-
-    def self.metadata
-      return @metadata if defined?(@metadata)
-      http = Net::HTTP.new(METADATA_URI.host, METADATA_URI.port)
-      http.use_ssl = true
-      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-      get = Net::HTTP::Get.new(METADATA_URI.request_uri)
-      @metadata = http.request(get).body
-    end
-
-    private
-
-    def settings
-      # populate with SP settings
-      settings = OneLogin::RubySaml::Settings.new
-      settings.certificate  = SAML_CONFIG['certificate']
-      settings.private_key  = SAML_CONFIG['key']
-      settings.issuer       = SAML_CONFIG['issuer']
-      settings.assertion_consumer_service_url = SAML_CONFIG['callback_url']
-
-      settings.security[:authn_requests_signed]   = true
-      settings.security[:logout_requests_signed]  = true
-      settings.security[:embed_sign]              = false
-      settings.security[:signature_method] = XMLSecurity::Document::RSA_SHA1
-
-      settings
-    end
-
-    ## Makes an external web call to get IDP metadata and populates SETTINGS
-    def create_settings_from_metadata
-      parser = OneLogin::RubySaml::IdpMetadataParser.new
-      parser.parse(self.class.metadata, settings: settings)
-    end
+  end
+  class InternalServerError < StandardError
   end
 end

@@ -94,7 +94,7 @@ class ApplicationController < ActionController::API
       @saml_settings.name_identifier_value = @session&.uuid
       return @saml_settings
     end
-    @saml_settings = SAML::SettingsService.new.saml_settings
+    @saml_settings = SAML::SettingsService.saml_settings
     # TODO: 'level' should be its own class with proper validation
     level = LOA::MAPPING.invert[params[:level]&.to_i]
     @saml_settings.authn_context = level || LOA::MAPPING.invert[1]
