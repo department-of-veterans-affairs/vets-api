@@ -9,8 +9,7 @@ module Common
       end
 
       def errors
-        detail = "\"#{filter}\" is not allowed for filtering"
-        Array(SerializableError.new(MinorCodes::FILTER_NOT_ALLOWED.merge(detail: detail)))
+        Array(SerializableError.new(i18n_interpolated(detail: { filter: @filter })))
       end
     end
   end

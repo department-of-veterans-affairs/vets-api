@@ -37,8 +37,12 @@ class ApplicationController < ActionController::API
       when Common::Exceptions::BaseError
         exception
       when Common::Client::Errors::BackendServiceError
-        additional_attributes = { source: exception.developer_message, meta: exception.as_json }
-        Common::Exceptions::ClientError.new(exception.message, additional_attributes)
+        additional_attributes = {
+          detail: exception.message,
+          source: exception.developer_message,
+          meta: exception.as_json
+        }
+        Common::Exceptions::ClientError.new(nil, additional_attributes)
       when Breakers::OutageException
         Common::Exceptions::ServiceOutage.new(exception.outage)
       when Common::Client::Errors::ClientError

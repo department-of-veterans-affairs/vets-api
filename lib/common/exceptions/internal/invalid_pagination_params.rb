@@ -7,12 +7,11 @@ module Common
 
       def initialize(pagination_params, options = {})
         @pagination_params = pagination_params
-        @detail = options[:detail]
+        @detail = options[:detail] || i18n_field(:detail, params: @pagination_params)
       end
 
       def errors
-        detail = @detail || "#{pagination_params} are invalid"
-        Array(SerializableError.new(MinorCodes::INVALID_PAGINATION_PARAMS.merge(detail: detail)))
+        Array(SerializableError.new(i18n_data.merge(detail: @detail)))
       end
     end
   end

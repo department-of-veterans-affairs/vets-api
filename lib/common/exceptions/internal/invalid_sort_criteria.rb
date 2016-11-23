@@ -11,8 +11,7 @@ module Common
       end
 
       def errors
-        detail = "\"#{sort_criteria}\" is not a valid sort criteria for \"#{resource}\""
-        Array(SerializableError.new(MinorCodes::INVALID_SORT_CRITERIA.merge(detail: detail)))
+        Array(SerializableError.new(i18n_interpolated(detail: { sort_criteria: @sort_criteria, resource: @resource })))
       end
     end
   end

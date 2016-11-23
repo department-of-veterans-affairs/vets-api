@@ -11,8 +11,7 @@ module Common
       end
 
       def errors
-        detail = "\"#{value}\" is not a valid value for \"#{field}\""
-        Array(SerializableError.new(MinorCodes::INVALID_FIELD_VALUE.merge(detail: detail)))
+        Array(SerializableError.new(i18n_interpolated(detail: { field: @field, value: @value })))
       end
     end
   end

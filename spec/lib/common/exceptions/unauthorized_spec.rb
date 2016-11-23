@@ -10,8 +10,8 @@ describe Common::Exceptions::Unauthorized do
 
   it 'the errors object has all relevant keys' do
     expect(subject.errors.first.to_hash)
-      .to eq(title: 'Not Authorized',
-             detail: 'Not Authorized',
+      .to eq(title: 'Not authorized',
+             detail: 'Not authorized',
              code: '401',
              status: '401')
   end
@@ -21,7 +21,7 @@ describe Common::Exceptions::Unauthorized do
 
     it 'has unique detail' do
       expect(subject.errors.first.to_hash)
-        .to eq(title: 'Not Authorized',
+        .to eq(title: 'Not authorized',
                detail: 'updated detail',
                code: '401',
                status: '401')

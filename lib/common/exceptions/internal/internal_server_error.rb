@@ -12,7 +12,7 @@ module Common
 
       def errors
         meta = { exception: exception.message, backtrace: exception.backtrace } unless ::Rails.env.production?
-        Array(SerializableError.new(MinorCodes::INTERNAL_SERVER_ERROR.merge(meta: meta)))
+        Array(SerializableError.new(i18n_data.merge(meta: meta)))
       end
     end
   end

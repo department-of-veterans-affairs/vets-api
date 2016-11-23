@@ -91,7 +91,7 @@ RSpec.describe ApplicationController, type: :controller do
         get :client_connection_failed
       end
       expect(JSON.parse(response.body)['errors'].first['title'])
-        .to eq('Backend Service Outage')
+        .to eq('Service unavailable')
     end
   end
 end
