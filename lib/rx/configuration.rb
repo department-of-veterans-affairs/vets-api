@@ -26,7 +26,7 @@ module Rx
       end
 
       exception_handler = proc do |exception|
-        if exception.is_a?(Common::Client::Errors::ClientResponse)
+        if exception.is_a?(Common::Client::Errors::BackendServiceError)
           (500..599).cover?(exception.major)
         else
           false

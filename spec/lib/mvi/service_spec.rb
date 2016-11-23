@@ -69,6 +69,42 @@ describe MVI::Service do
       end
     end
 
+    context 'with a valid request without gender' do
+      let(:user) do
+        FactoryGirl.build(
+          :user,
+          first_name: 'Mitchell',
+          last_name: 'Jenkins',
+          middle_name: 'G',
+          birth_date: '1949-03-04',
+          ssn: '796122306',
+          gender: nil
+        )
+      end
+      let(:message) do
+        MVI::Messages::FindCandidateMessage.new(
+          [user.first_name, user.middle_name], user.last_name, user.birth_date, user.ssn, user.gender
+        )
+      end
+      it 'calls the find_candidate endpoint with a find candidate message' do
+        VCR.use_cassette('mvi/find_candidate/valid_no_gender') do
+          response = subject.find_candidate(message)
+          expect(response).to eq(
+            edipi: nil,
+            icn: '1008714701V416111^NI^200M^USVHA^P',
+            mhv_ids: nil,
+            vba_corp_id: '9100792239^PI^200CORP^USVBA^A',
+            active_status: 'active',
+            given_names: %w(Mitchell G),
+            family_name: 'Jenkins',
+            gender: 'M',
+            birth_date: '19490304',
+            ssn: '796122306'
+          )
+        end
+      end
+    end
+
     context 'when a MVI invalid request response is returned' do
       it 'should raise a invalid request error' do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
