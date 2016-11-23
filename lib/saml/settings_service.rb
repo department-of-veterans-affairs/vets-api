@@ -10,7 +10,7 @@ module SAML
       TIMEOUT = 15
 
       def saml_settings
-        OneLogin::RubySaml::IdpMetadataParser.new.parse(metadata, settings: settings)
+        @saml_settings ||= OneLogin::RubySaml::IdpMetadataParser.new.parse(metadata, settings: settings)
       rescue StandardError => e
         Rails.logger.error "SAML::SettingService failed to parse SAML metadata: #{e.message}"
         raise e
