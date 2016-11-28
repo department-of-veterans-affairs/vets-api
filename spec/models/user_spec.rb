@@ -5,6 +5,32 @@ RSpec.describe User, type: :model do
   let(:loa_one) { { current: LOA::ONE } }
   let(:loa_three) { { current: LOA::THREE } }
 
+  describe '.from_merged_attrs()' do
+    subject(:loa1_user) { build(:loa1_user) }
+    subject(:loa3_user) { build(:loa3_user) }
+    it 'should not down-level' do
+      user = described_class.from_merged_attrs(loa3_user, loa1_user)
+      expect(user.loa[:current]).to eq(loa3_user.loa[:current])
+      expect(user.loa[:highest]).to eq(loa3_user.loa[:highest])
+      expect(user).to be_valid
+    end
+    it 'should up-level' do
+      user = described_class.from_merged_attrs(loa1_user, loa3_user)
+      expect(user.loa[:current]).to eq(loa3_user.loa[:current])
+      expect(user.loa[:highest]).to eq(loa3_user.loa[:highest])
+      expect(user).to be_valid
+    end
+    it 'should use newer attrs unless they are empty or nil' do
+      new_user = build(:loa1_user, first_name: 'George', last_name: 'Washington', gender: '', birth_date: nil)
+      user = described_class.from_merged_attrs(loa3_user, new_user)
+      expect(user.first_name).to eq('George')
+      expect(user.last_name).to eq('Washington')
+      expect(user.gender).to eq(loa3_user.gender)
+      expect(user.birth_date).to eq(loa3_user.birth_date)
+      expect(user.zip).to eq(loa3_user.zip)
+    end
+  end
+
   describe '.create()' do
     context 'with LOA 1' do
       subject(:loa1_user) { described_class.new(FactoryGirl.build(:user, loa: loa_one)) }

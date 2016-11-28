@@ -27,8 +27,8 @@ module V0
         params[:SAMLResponse], settings: saml_settings
       )
 
-      if @saml_response.is_valid?
-        persist_session_and_user!
+      if @saml_response.is_valid? && persist_session_and_user
+        async_create_evss_account(@current_user)
         redirect_to SAML_CONFIG['relay'] + '?token=' + @session.token
       else
         redirect_to SAML_CONFIG['relay'] + '?auth=fail'
@@ -37,16 +37,11 @@ module V0
 
     private
 
-    def persist_session_and_user!
+    def persist_session_and_user
       @session = Session.new(user_attributes.slice(:uuid))
       @current_user = User.find(@session.uuid)
-      @current_user = saml_user if @current_user.nil? || up_level?
+      @current_user = (@current_user.nil?) ? saml_user : User.from_merged_attrs(@current_user, saml_user)
       @session.save && @current_user.save
-      async_create_evss_account(@current_user)
-    end
-
-    def up_level?
-      @current_user.loa[:current] <= saml_user.loa[:current]
     end
 
     def user_attributes
@@ -77,11 +72,7 @@ module V0
     end
 
     def saml_user
-      @saml_user ||= create_saml_user
-    end
-
-    def create_saml_user
-      User.new(user_attributes)
+      @saml_user ||= User.new(user_attributes)
     end
 
     def async_create_evss_account(user)
@@ -114,7 +105,9 @@ module V0
     end
 
     def delete_session(token)
-      Session.find(token)&.destroy
+      session = Session.find(token)
+      User.find(session.uuid).destroy
+      session.destroy
     end
     # :nocov:
   end
