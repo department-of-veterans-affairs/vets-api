@@ -78,8 +78,4 @@ class User < Common::RedisStore
   def mvi
     @mvi ||= Mvi.from_user(self)
   end
-
-  def evss_auth_headers
-    @evss_auth_headers ||= EVSS::AuthHeaders.new(self).to_h
-  end
 end
