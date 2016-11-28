@@ -23,10 +23,8 @@ module MVI
       delegate :endpoint, to: 'self.class'
 
       def initialize(response)
-        @original_response = ensure_xml_prolog(response.body)
-        doc = Ox.parse(@original_response)
-        raise MVI::HTTPError.new('MVI internal server error', 500) if doc_includes_error(doc)
-        @original_body = locate_element(doc, "env:Envelope/env:Body/idm:#{endpoint}")
+        @original_response = response.body
+        @original_body = locate_element(@original_response, "env:Envelope/env:Body/idm:#{endpoint}")
         @code = locate_element(@original_body, CODE_XPATH)
         @query = locate_element(@original_body, QUERY_XPATH).to_json
       end
@@ -45,24 +43,9 @@ module MVI
 
       private
 
-      def ensure_xml_prolog(xml)
-        xml.prepend('<?xml version="1.0" encoding="UTF-8"?>') unless xml =~ /^<\?xml/
-        xml
-      end
-
       def locate_element(el, path)
         return nil unless el
         el.locate(path)&.first
-      end
-
-      def doc_includes_error(doc)
-        fault_element = doc.locate('env:Envelope/env:Body/env:Fault').first
-        return false unless fault_element
-        fault_code = fault_element.locate('faultcode').first
-        fault_string = fault_element.locate('faultstring').first
-        Rails.logger.error "MVI fault code: #{fault_code.nodes.first}" if fault_code
-        Rails.logger.error "MVI fault string: #{fault_string.nodes.first}" if fault_string
-        true
       end
     end
     class NotImplementedError < StandardError

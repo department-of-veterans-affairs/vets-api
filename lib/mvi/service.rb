@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 require 'savon'
 require 'mvi/settings'
-require_relative 'responses/find_candidate'
+require 'mvi/errors/errors'
+require 'mvi/responses/find_candidate'
+require 'mvi/middleware/request/soap'
+require 'mvi/middleware/response/soap'
 
 module MVI
   # Wrapper for the MVI (Master Veteran Index) Service. vets.gov has access
@@ -39,19 +42,19 @@ module MVI
     end
 
     def find_candidate(message)
-      faraday_response = call(OPERATIONS[:find_candidate], message.to_xml)
+      faraday_response = connection.post '', message.to_xml, soapaction: OPERATIONS[:find_candidate]
       response = MVI::Responses::FindCandidate.new(faraday_response)
-      raise MVI::RecordNotFound, 'MVI multiple matches found' if response.multiple_match?
-      raise MVI::InvalidRequestError if response.invalid?
-      raise MVI::RequestFailureError if response.failure?
-      raise MVI::RecordNotFound, 'MVI subject missing from response body' unless response.body
+      raise MVI::Errors::RecordNotFound, 'MVI multiple matches found' if response.multiple_match?
+      raise MVI::Errors::InvalidRequestError if response.invalid?
+      raise MVI::Errors::RequestFailureError if response.failure?
+      raise MVI::Errors::RecordNotFound, 'MVI subject missing from response body' unless response.body
       response.body
     rescue Faraday::ConnectionFailed => e
       Rails.logger.error "MVI find_candidate connection failed: #{e.message}"
-      raise MVI::ServiceError, 'MVI connection failed'
+      raise MVI::Errors::ServiceError, 'MVI connection failed'
     rescue Faraday::TimeoutError
       Rails.logger.error 'MVI find_candidate timeout'
-      raise MVI::ServiceError, 'MVI timeout error'
+      raise MVI::Errors::ServiceError, 'MVI timeout error'
     end
 
     def self.breakers_service
@@ -73,40 +76,11 @@ module MVI
       @conn ||= Faraday.new(MVI::Service.options) do |conn|
         conn.options.open_timeout = MVI::Settings::OPEN_TIMEOUT
         conn.options.timeout = MVI::Settings::TIMEOUT
+        conn.use MVI::Middleware::Request::Soap
+        conn.use MVI::Middleware::Response::Soap
         conn.use :breakers
         conn.adapter Faraday.default_adapter
       end
     end
-
-    def call(operation, body)
-      response = connection.post '' do |request|
-        request.headers['Date'] = Time.now.utc.strftime('%a, %d %b %Y %H:%M:%S GMT')
-        request.headers['Content-Length'] = body.bytesize.to_s
-        request.headers['Content-Type'] = 'text/xml;charset=UTF-8'
-        request.headers['SOAPAction'] = operation
-        request.body = body
-      end
-      unless response.status == 200
-        Rails.logger.error response.body
-        raise MVI::HTTPError.new('MVI HTTP call failed', response.status)
-      end
-      response
-    end
-  end
-  class ServiceError < StandardError
-  end
-  class RequestFailureError < MVI::ServiceError
-  end
-  class InvalidRequestError < MVI::ServiceError
-  end
-  class HTTPError < MVI::ServiceError
-    attr_accessor :code
-
-    def initialize(message = nil, code = nil)
-      super(message)
-      @code = code
-    end
-  end
-  class RecordNotFound < StandardError
   end
 end
