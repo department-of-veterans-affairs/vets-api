@@ -55,11 +55,6 @@ class User < Common::RedisStore
     loa[:current] == LOA::THREE
   end
 
-  def rating_record
-    client = EVSS::CommonService.new(evss_auth_headers)
-    client.find_rating_info(participant_id).body.fetch('ratingRecord', {})
-  end
-
   def can_access_user_profile?
     loa1? || loa2? || loa3?
   end
@@ -82,9 +77,5 @@ class User < Common::RedisStore
 
   def mvi
     @mvi ||= Mvi.from_user(self)
-  end
-
-  def evss_auth_headers
-    @evss_auth_headers ||= EVSS::AuthHeaders.new(self).to_h
   end
 end
