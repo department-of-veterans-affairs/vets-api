@@ -95,13 +95,13 @@ class Mvi < Common::RedisStore
     self.response = query_response
     save
     response
-  rescue MVI::RecordNotFound
+  rescue MVI::Errors::RecordNotFound
     Rails.logger.error "MVI record not found for user: #{@user.uuid}"
     { status: MVI_RESPONSE_STATUS[:not_found] }
-  rescue MVI::HTTPError => e
+  rescue MVI::Errors::HTTPError => e
     Rails.logger.error "MVI HTTP error code: #{e.code} for user: #{@user.uuid}"
     { status: MVI_RESPONSE_STATUS[:server_error] }
-  rescue MVI::ServiceError => e
+  rescue MVI::Errors::ServiceError => e
     Rails.logger.error "MVI service error: #{e.message} for user: #{@user.uuid}"
     { status: MVI_RESPONSE_STATUS[:server_error] }
   end
