@@ -31,7 +31,7 @@ module V0
         async_create_evss_account(@current_user)
         redirect_to SAML_CONFIG['relay'] + '?token=' + @session.token
       else
-        logger.warn "Authentication attempt did not succeed in saml_callback, reasons..."
+        logger.warn 'Authentication attempt did not succeed in saml_callback, reasons...'
         logger.warn "  SAML Response: valid?=#{@saml_response.is_valid?} errors=#{@saml_response.errors}"
         logger.warn "  User: valid?=#{@current_user&.valid?} errors=#{@current_user&.errors&.messages}"
         logger.warn "  Session: valid?=#{@session&.valid?} errors=#{@session&.errors&.messages}"
@@ -44,7 +44,7 @@ module V0
     def persist_session_and_user
       @session = Session.new(user_attributes.slice(:uuid))
       @current_user = User.find(@session.uuid)
-      @current_user = (@current_user.nil?) ? saml_user : User.from_merged_attrs(@current_user, saml_user)
+      @current_user = @current_user.nil? ? saml_user : User.from_merged_attrs(@current_user, saml_user)
       @session.save && @current_user.save
     end
 
