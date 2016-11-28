@@ -3,7 +3,6 @@ require 'rails_helper'
 require 'backend_services'
 
 RSpec.describe 'Fetching profile data', type: :request do
-
   context 'when an LOA 3 user is logged in' do
     let(:session) { build :loa3_session }
     let(:user) { build :loa3_user, uuid: session.uuid, session: session }
