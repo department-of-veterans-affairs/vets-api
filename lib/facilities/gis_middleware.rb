@@ -29,3 +29,5 @@ module Facilities
     end
   end
 end
+
+Faraday::Response.register_middleware gis_json: Facilities::Middleware::GISJson

@@ -29,7 +29,7 @@ module Facilities
       @conn = Faraday.new(url: @url) do |conn|
         conn.options.open_timeout = OPEN_TIMEOUT
         conn.options.timeout = REQUEST_TIMEOUT
-        conn.response Facilities::Middleware::GISJson
+        conn.response :gis_json
         # conn.response :logger
         # TODO conn.use :breaker
         conn.adapter Faraday.default_adapter
