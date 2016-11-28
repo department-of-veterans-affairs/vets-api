@@ -4,6 +4,11 @@ module Common
     module Middleware
       module Response
         class Snakecase < Faraday::Response::Middleware
+          def initialize(app, options = { symbolize: true })
+            super(app)
+            @symbolize = options[:symbolize]
+          end
+
           def on_complete(env)
             return unless env.response_headers['content-type'] =~ /\bjson/
             env.body = parse(env.body)
@@ -12,24 +17,20 @@ module Common
           def parse(parsed_json)
             case parsed_json
             when Array
-              parsed_json.map { |hash| underscore_symbolize(hash) }
+              parsed_json.map { |hash| transform(hash) }
             when Hash
-              underscore_symbolize(parsed_json)
+              transform(parsed_json)
             end
           end
 
           private
 
-          def underscore_symbolize(hash)
-            hash.deep_transform_keys { |k| k.underscore.to_sym }
-          end
-        end
-
-        class SnakecaseString < Snakecase
-          private
-
-          def underscore_symbolize(hash)
-            hash.deep_transform_keys(&:underscore)
+          def transform(hash)
+            if @symbolize
+              hash.deep_transform_keys { |k| k.underscore.to_sym }
+            else
+              hash.deep_transform_keys(&:underscore)
+            end
           end
         end
       end
@@ -38,4 +39,3 @@ module Common
 end
 
 Faraday::Response.register_middleware snakecase: Common::Client::Middleware::Response::Snakecase
-Faraday::Response.register_middleware snakecase_string: Common::Client::Middleware::Response::SnakecaseString
