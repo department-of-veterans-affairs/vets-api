@@ -78,7 +78,6 @@ class User < Common::RedisStore
     end.reduce({}, :merge)
 
     # for loa, we want the higher of the two
-    byebug
     attrs[:loa][:current] = [existing_user[:loa][:current], new_user[:loa][:current]].max
     attrs[:loa][:highest] = [existing_user[:loa][:highest], new_user[:loa][:highest]].max
 
