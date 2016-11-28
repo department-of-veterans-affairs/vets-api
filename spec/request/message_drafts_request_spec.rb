@@ -6,7 +6,8 @@ require 'support/sm_client_helpers'
 RSpec.describe 'Messages Integration', type: :request do
   include SM::ClientHelpers
 
-  let(:current_user) { build(:mhv_user) }
+  let(:session) { build(:loa3_session) }
+  let(:current_user) { build(:mhv_user, uuid: session.uuid, session: session) }
   let(:reply_id)               { 631_270 }
   let(:created_draft_id)       { 655_626 }
   let(:created_draft_reply_id) { 655_628 }

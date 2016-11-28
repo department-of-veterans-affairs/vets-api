@@ -11,6 +11,8 @@ class User < Common::RedisStore
   redis_ttl REDIS_CONFIG['user_store']['each_ttl']
   redis_key :uuid
 
+  attr_accessor :session
+
   # id.me attributes
   attribute :uuid
   attribute :email
@@ -21,7 +23,7 @@ class User < Common::RedisStore
   attribute :birth_date
   attribute :zip
   attribute :ssn
-  attribute :loa
+  attribute :loa_highest
 
   # vaafi attributes
   attribute :last_signed_in, Common::UTCTime
@@ -32,7 +34,6 @@ class User < Common::RedisStore
 
   validates :uuid, presence: true
   validates :email, presence: true
-  validates :loa, presence: true
 
   # conditionally validate if user is LOA3
   with_options(on: :loa3_user) do |user|
@@ -43,32 +44,27 @@ class User < Common::RedisStore
     user.validates :gender, format: /\A(M|F)\z/, allow_blank: true
   end
 
-  def loa1?
-    loa[:current] == LOA::ONE
-  end
-
-  def loa2?
-    loa[:current] == LOA::TWO
-  end
-
-  def loa3?
-    loa[:current] == LOA::THREE
-  end
-
   def rating_record
     client = EVSS::CommonService.new(evss_auth_headers)
     client.find_rating_info(participant_id).body.fetch('ratingRecord', {})
   end
 
+  # This is a helper method for pulling mhv_correlation_id
+  def mhv_correlation_id
+    mhv_correlation_ids.first
+  end
+
   def can_access_user_profile?
-    loa1? || loa2? || loa3?
+    session.loa1? || session.loa2? || session.loa3?
   end
 
   def can_access_mhv?
-    loa3? && mhv_correlation_id
+    session.loa3? && mhv_correlation_id
   end
 
   def can_access_evss?
+    # TODO : this should have a session.loa3 check.  Although,
+    # ssn.present? acts as an implicit session.loa3? check
     edipi.present? && ssn.present? && participant_id.present?
   end
 

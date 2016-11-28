@@ -6,7 +6,8 @@ require 'support/sm_client_helpers'
 RSpec.describe 'Triage Teams Integration', type: :request do
   include SM::ClientHelpers
 
-  let(:current_user) { build(:mhv_user) }
+  let(:session) { build(:loa3_session) }
+  let(:current_user) { build(:mhv_user, uuid: session.uuid, session: session) }
 
   it 'responds to GET #index' do
     allow(SM::Client).to receive(:new).and_return(authenticated_client)

@@ -7,24 +7,30 @@ RSpec.describe User, type: :model do
 
   describe '.create()' do
     context 'with LOA 1' do
-      subject(:loa1_user) { described_class.new(FactoryGirl.build(:user, loa: loa_one)) }
+      subject(:loa1_user) { FactoryGirl.build(:loa1_user) }
       it 'should allow a blank ssn' do
-        expect(FactoryGirl.build(:user, loa: loa_one, ssn: '')).to be_valid
+        loa1_user.ssn = ''
+        expect(loa1_user).to be_valid
       end
       it 'should allow a blank gender' do
-        expect(FactoryGirl.build(:user, loa: loa_one, gender: '')).to be_valid
+        loa1_user.gender = ''
+        expect(loa1_user).to be_valid
       end
       it 'should allow a blank middle_name' do
-        expect(FactoryGirl.build(:user, loa: loa_one, middle_name: '')).to be_valid
+        loa1_user.middle_name = ''
+        expect(loa1_user).to be_valid
       end
       it 'should allow a blank birth_date' do
-        expect(FactoryGirl.build(:user, loa: loa_one, birth_date: '')).to be_valid
+        loa1_user.birth_date = ''
+        expect(loa1_user).to be_valid
       end
       it 'should allow a blank zip' do
-        expect(FactoryGirl.build(:user, loa: loa_one, zip: '')).to be_valid
+        loa1_user.zip = ''
+        expect(loa1_user).to be_valid
       end
-      it 'should allow a blank loa.highest' do
-        expect(FactoryGirl.build(:user, loa: { current: LOA::ONE, highest: '' })).to be_valid
+      it 'should allow a blank loa_highest' do
+        loa1_user.loa_highest = ''
+        expect(loa1_user).to be_valid
       end
       it 'should not allow a blank uuid' do
         loa1_user.uuid = ''
@@ -38,7 +44,7 @@ RSpec.describe User, type: :model do
       end
     end
     context 'with LOA 3' do
-      subject(:loa3_user) { described_class.new(FactoryGirl.build(:user, loa: loa_three)) }
+      subject(:loa3_user) { described_class.new(FactoryGirl.build(:loa3_user)) }
       it 'should not allow a blank ssn' do
         loa3_user.ssn = ''
         expect(loa3_user.valid?(:loa3_user)).to be_falsey
@@ -91,7 +97,7 @@ RSpec.describe User, type: :model do
     end
   end
 
-  subject { described_class.new(FactoryGirl.build(:user)) }
+  subject { described_class.new(FactoryGirl.build(:loa3_user)) }
   context 'with an invalid ssn' do
     it 'should have an error on ssn' do
       subject.ssn = '111-22-3333'
@@ -101,7 +107,7 @@ RSpec.describe User, type: :model do
   end
 
   context 'user without attributes' do
-    let(:test_user) { FactoryGirl.build(:user) }
+    let(:test_user) { FactoryGirl.build(:loa3_user) }
     it 'expect ttl to an Integer' do
       expect(subject.ttl).to be_an(Integer)
       expect(subject.ttl).to be_between(-Float::INFINITY, 0)
@@ -165,15 +171,17 @@ RSpec.describe User, type: :model do
 
     describe '#mhv_correlation_id' do
       context 'when mhv ids are nil' do
-        let(:user) { FactoryGirl.build(:user) }
+        let(:session) { build(:loa1_session) }
+        let(:user) { build(:loa1_user, uuid: session.uuid, session: session) }
         it 'has a mhv correlation id of nil' do
           expect(user.mhv_correlation_id).to be_nil
         end
       end
       context 'when there are mhv ids' do
-        let(:loa3_user) { FactoryGirl.build(:loa3_user) }
+        let(:session) { build(:loa3_session) }
+        let(:user) { build(:loa3_user, uuid: session.uuid, session: session) }
         it 'has a mhv correlation id' do
-          expect(loa3_user.mhv_correlation_id).to eq('123456')
+          expect(user.mhv_correlation_id).to eq('123456')
         end
       end
     end

@@ -40,7 +40,8 @@ class Mvi < Common::RedisStore
   end
 
   def va_profile
-    return { status: 'NOT_AUTHORIZED' } unless @user.loa3?
+    # TODO : this logic belongs in a serializer
+    return { status: 'NOT_AUTHORIZED' } unless user.session.loa3?
     response = mvi_response
     return { status: 'SERVER_ERROR' } unless response
     return response unless response[:status] == MVI_RESPONSE_STATUS[:ok]
@@ -68,7 +69,7 @@ class Mvi < Common::RedisStore
   end
 
   def mvi_response
-    return nil unless @user.loa3?
+    return nil unless user.session.loa3?
     @memoized_response ||= response || query_and_cache_response
   end
 

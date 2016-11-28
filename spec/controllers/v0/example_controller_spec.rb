@@ -10,20 +10,20 @@ RSpec.describe V0::ExampleController, type: :controller do
   end
 
   context 'when logged in' do
-    let(:token) { 'abracadabra-open-sesame' }
-    let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
-    let(:test_user) { FactoryGirl.build(:user) }
+    let(:loa1_session) { build :loa1_session }
+    let(:loa1_user) { build :loa1_user, uuid: loa1_session.uuid }
+    let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(loa1_session.token) }
 
     before(:each) do
-      Session.create(uuid: test_user.uuid, token: token)
-      User.create(test_user)
+      Session.create(loa1_session)
+      User.create(loa1_user)
     end
 
     it 'returns a welcome string with user email in it' do
       request.env['HTTP_AUTHORIZATION'] = auth_header
       get :welcome
       assert_response :success
-      expect(JSON.parse(response.body)['message']).to eq("You are logged in as #{test_user.email}")
+      expect(JSON.parse(response.body)['message']).to eq("You are logged in as #{loa1_user.email}")
     end
   end
 end

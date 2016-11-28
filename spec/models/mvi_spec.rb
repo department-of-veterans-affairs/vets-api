@@ -3,7 +3,8 @@ require 'rails_helper'
 require 'common/exceptions'
 
 describe Mvi, skip_mvi: true do
-  let(:user) { FactoryGirl.build(:loa3_user) }
+  let(:session) { build(:loa3_session) }
+  let(:user) { build(:loa3_user, uuid: session.uuid, session: session) }
   let(:mvi) { Mvi.from_user(user) }
   let(:find_candidate_response) do
     {
@@ -35,7 +36,7 @@ describe Mvi, skip_mvi: true do
           expect(mvi.redis_namespace).to receive(:set).once.with(
             user.uuid,
             Oj.dump(
-              uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+              uuid: user.uuid,
               response: find_candidate_response.merge(status: 'OK')
             )
           )

@@ -10,12 +10,12 @@ RSpec.describe 'Documents management', type: :request do
   end
   let(:tracked_item_id) { 33 }
   let(:document_type) { 'L023' }
+  let(:session) { create(:loa3_session) }
+  let(:user) { create(:loa3_user, uuid: session.uuid, session: session) }
   let!(:claim) do
     FactoryGirl.create(:disability_claim, id: 1, evss_id: 189_625,
                                           user_uuid: user.uuid, data: {})
   end
-  let(:user) { FactoryGirl.create(:loa3_user) }
-  let(:session) { Session.create(uuid: user.uuid) }
 
   it 'should upload a file' do
     params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }

@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe Session, type: :model do
-  let(:attributes) { {} }
+  let(:attributes) { { level: LOA::ONE } }
   subject { described_class.new(attributes) }
 
   context 'session without attributes' do
@@ -25,6 +25,7 @@ RSpec.describe Session, type: :model do
 
     context 'save' do
       it 'sets persisted flag to true' do
+        expect(subject.errors.messages).to eq({})
         expect(subject.persisted?).to be_truthy
       end
 

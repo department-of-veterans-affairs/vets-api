@@ -3,16 +3,15 @@ require 'rails_helper'
 require 'backend_services'
 
 RSpec.describe 'Fetching profile data', type: :request do
-  let(:token) { 'abracadabra-open-sesame' }
-
   context 'when an LOA 3 user is logged in' do
-    let(:mhv_user) { build :mhv_user }
+    let(:session) { build :loa3_session }
+    let(:user) { build :loa3_user, uuid: session.uuid, session: session }
 
     before do
-      Session.create(uuid: mhv_user.uuid, token: token)
-      User.create(mhv_user)
+      Session.create(session)
+      User.create(user)
 
-      auth_header = { 'Authorization' => "Token token=#{token}" }
+      auth_header = { 'Authorization' => "Token token=#{session.token}" }
       get v0_user_url, nil, auth_header
     end
 
@@ -37,13 +36,14 @@ RSpec.describe 'Fetching profile data', type: :request do
   end
 
   context 'when an LOA 1 user is logged in' do
-    let(:loa1_user) { build :loa1_user }
+    let(:session) { build :loa1_session }
+    let(:user) { build :loa1_user, uuid: session.uuid, session: session }
 
     before do
-      Session.create(uuid: loa1_user.uuid, token: token)
-      User.create(loa1_user)
+      Session.create(session)
+      User.create(user)
 
-      auth_header = { 'Authorization' => "Token token=#{token}" }
+      auth_header = { 'Authorization' => "Token token=#{session.token}" }
       get v0_user_url, nil, auth_header
     end
 

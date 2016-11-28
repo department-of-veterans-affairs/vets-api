@@ -2,7 +2,8 @@
 require 'rails_helper'
 
 RSpec.describe DisabilityClaimService do
-  let(:user) { FactoryGirl.create(:loa3_user) }
+  let(:session) { create(:loa3_session) }
+  let(:user) { create(:loa3_user, uuid: session.uuid, session: session) }
   let(:client_stub) { instance_double('EVSS::ClaimsService') }
   subject { described_class.new(user) }
 

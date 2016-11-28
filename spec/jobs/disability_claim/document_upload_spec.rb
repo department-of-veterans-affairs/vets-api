@@ -6,7 +6,8 @@ require 'evss/auth_headers'
 RSpec.describe DisabilityClaim::DocumentUpload, type: :job do
   let(:client_stub) { instance_double('EVSS::DocumentsService') }
   let(:uploader_stub) { instance_double('DisabilityClaimDocumentUploader') }
-  let(:user) { FactoryGirl.create(:loa3_user) }
+  let(:session) { create(:loa3_session) }
+  let(:user) { create(:loa3_user, uuid: session.uuid, session: session) }
   let(:filename) { 'doctors-note.pdf' }
   let(:document_data) do
     DisabilityClaimDocument.new(

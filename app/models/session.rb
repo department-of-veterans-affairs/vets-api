@@ -10,11 +10,25 @@ class Session < Common::RedisStore
 
   attribute :token
   attribute :uuid
+  attribute :level
 
   validates :token, presence: true
+  validates :level, presence: true, inclusion: { in: [LOA::ONE, LOA::TWO, LOA::THREE] }
   # validates other attributes?
 
   after_initialize :setup_defaults
+
+  def loa1?
+    level == LOA::ONE
+  end
+
+  def loa2?
+    level == LOA::TWO
+  end
+
+  def loa3?
+    level == LOA::THREE
+  end
 
   private
 

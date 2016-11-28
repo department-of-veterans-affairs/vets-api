@@ -18,11 +18,13 @@ class UserSerializer < ActiveModel::Serializer
       gender: object.gender,
       zip: object.zip,
       last_signed_in: object.last_signed_in,
-      loa: object.loa
+      loa_highest: object.loa_highest
     }
   end
 
-  delegate :va_profile, to: :object
+  def va_profile
+    Mvi.from_user(object).va_profile
+  end
 
   def services
     service_list = [

@@ -80,6 +80,7 @@ class ApplicationController < ActionController::API
         ::Digest::SHA256.hexdigest(@session.token)
       )
       @current_user = User.find(@session.uuid)
+      @current_user.session = @session
     end
   end
 

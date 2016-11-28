@@ -1,38 +1,21 @@
 # frozen_string_literal: true
 FactoryGirl.define do
-  factory :user, class: 'User' do
+  # this factory represents a "typical" LOA 1 user, in that, these
+  # are the attributes ID.me will return for LOA 1
+  factory :loa1_user, class: 'User' do
     uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
     email 'abraham.lincoln@vets.gov'
     first_name 'abraham'
     last_name 'lincoln'
-    gender 'M'
-    birth_date '1809-02-12'
-    zip '17325'
-    last_signed_in Time.now.utc
-    ssn '272111863'
-    loa do
-      {
-        current: LOA::TWO,
-        highest: LOA::THREE
-      }
-    end
+    loa_highest LOA::THREE
 
-    factory :loa1_user do
-      loa do
-        {
-          current: LOA::ONE,
-          highest: LOA::ONE
-        }
-      end
-    end
-
+    # these are the additional attributes returned by ID.me for LOA 3
     factory :loa3_user do
-      loa do
-        {
-          current: LOA::THREE,
-          highest: LOA::THREE
-        }
-      end
+      ssn '272111863'
+      zip '17325'
+      gender 'M'
+      birth_date '1809-02-12'
+      last_signed_in Time.now.utc
     end
   end
 
@@ -44,14 +27,8 @@ FactoryGirl.define do
     last_name 'lincoln'
     gender 'M'
     birth_date Time.new(1809, 2, 12).utc
-    ssn '272111863'
-    loa do
-      {
-        current: LOA::THREE,
-        highest: LOA::THREE
-      }
-    end
-
+    ssn '272111864'
+    loa_highest LOA::THREE
     trait :mhv_not_logged_in do
       mhv_last_signed_in nil
     end

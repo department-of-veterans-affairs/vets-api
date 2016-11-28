@@ -1,30 +1,16 @@
 # frozen_string_literal: true
-require './lib/sm/client_session'
-
 FactoryGirl.define do
-  factory :session, class: SM::ClientSession do
-    user_id 1234
-    token 'o7nsKRFVeijDG8u59/D6JOMrCmXMZO8p'
-    expires_at 'Thu, 26 Dec 2015 15:54:21 GMT'
+  factory :session, class: Session do
+    uuid  '11d21c9bf46642509aba20c4a5d5306d'
 
-    trait :valid_user do
-      user_id '10616687'
-      token nil
-      expires_at nil
+    factory :loa1_session do
+      token 'a-EKsT-sBZZC1Zt6XiSLn7hp2Mb5p9G2b8rPrtzy'
+      level LOA::ONE
     end
 
-    trait :invalid_user do
-      user_id 106_166
-      token nil
-      expires_at nil
-    end
-
-    trait :earlier do
-      expires_at 'Thu, 26 Dec 2015 15:54:20 GMT'
-    end
-
-    trait :later do
-      expires_at 'Thu, 26 Dec 2015 15:54:22 GMT'
+    factory :loa3_session do
+      token 'rJuxrfwURpVgrN_yNVU8DqDgeCBKwFRQNiLVMJjs'
+      level LOA::THREE
     end
   end
 end

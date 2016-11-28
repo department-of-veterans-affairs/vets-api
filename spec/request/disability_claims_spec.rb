@@ -2,8 +2,8 @@
 require 'rails_helper'
 
 RSpec.describe 'disability Claims management', type: :request do
-  let(:user) { FactoryGirl.create(:loa3_user) }
-  let(:session) { Session.create(uuid: user.uuid) }
+  let(:session) { create(:loa3_session) }
+  let!(:user) { create(:loa3_user, uuid: session.uuid, session: session) }
 
   context 'for a user without evss attrs' do
     before do
