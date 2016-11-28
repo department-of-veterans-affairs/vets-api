@@ -17,31 +17,31 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   end
 
   def min_est_date
-    date_from_string 'minEstClaimDate'
+    date_from_string 'min_est_claim_date'
   end
 
   def max_est_date
-    date_from_string 'maxEstClaimDate'
+    date_from_string 'max_est_claim_date'
   end
 
   def phase_change_date
-    date_from_string 'claimPhaseDates', 'phaseChangeDate'
+    date_from_string 'claim_phase_dates', 'phase_change_date'
   end
 
   def ever_phase_back
-    object_data.dig 'claimPhaseDates', 'everPhaseBack'
+    object_data.dig 'claim_phase_dates', 'ever_phase_back'
   end
 
   def current_phase_back
-    object_data.dig 'claimPhaseDates', 'currentPhaseBack'
+    object_data.dig 'claim_phase_dates', 'current_phase_back'
   end
 
   def open
-    object_data['claimCompleteDate'].blank?
+    object_data['claim_complete_date'].blank?
   end
 
   def requested_decision
-    object.requested_decision || object_data['waiver5103Submitted']
+    object.requested_decision || object_data['waiver5103_submitted']
   end
 
   # TODO: (CMJ) Remove once front end is integrated
@@ -50,15 +50,15 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   end
 
   def documents_needed
-    bool_from_yes_no 'attentionNeeded'
+    bool_from_yes_no 'attention_needed'
   end
 
   def development_letter_sent
-    bool_from_yes_no 'developmentLetterSent'
+    bool_from_yes_no 'development_letter_sent'
   end
 
   def decision_letter_sent
-    bool_from_yes_no 'decisionNotificationSent'
+    bool_from_yes_no 'decision_notification_sent'
   end
 
   def phase

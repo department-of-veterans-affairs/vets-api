@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'evss/error_middleware'
+require 'evss/snake_case_middleware'
 
 module EVSS
   class BaseService
@@ -51,7 +52,7 @@ module EVSS
         faraday.use      :breakers
         faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
-        faraday.response :json, content_type: /\bjson$/
+        faraday.use      EVSS::SnakeCaseMiddleware, content_type: /\bjson$/
         faraday.adapter  :httpclient
       end
     end
