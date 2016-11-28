@@ -9,6 +9,21 @@ module Facilities
     OPEN_TIMEOUT = 2
     REQUEST_TIMEOUT = 6
 
+    COUNT_PARAMS = {
+      where: '1=1',
+      returnCountOnly: true,
+      f: 'json'
+    }.freeze
+
+    ALL_PARAMS = {
+      where: '1=1',
+      inSR: 4326,
+      outSR: 4326,
+      returnGeometry: true,
+      outFields: '*',
+      f: 'json'
+    }.freeze
+
     def initialize(url)
       @url = url
       @conn = Faraday.new(url: @url) do |conn|
@@ -51,25 +66,10 @@ module Facilities
       raise
     end
 
-    COUNT_PARAMS = {
-      where: '1=1',
-      returnCountOnly: true,
-      f: 'json'
-    }.freeze
-
     def get_count(url)
       response = @conn.get url, COUNT_PARAMS
       response.body.dig('count')
     end
-
-    ALL_PARAMS = {
-      where: '1=1',
-      inSR: 4326,
-      outSR: 4326,
-      returnGeometry: true,
-      outFields: '*',
-      f: 'json'
-    }.freeze
 
     def fetch_in_batches(url, count)
       max = (count / BATCH_SIZE).ceil - 1
