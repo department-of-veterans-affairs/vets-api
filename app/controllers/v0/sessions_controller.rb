@@ -31,6 +31,10 @@ module V0
         async_create_evss_account(@current_user)
         redirect_to SAML_CONFIG['relay'] + '?token=' + @session.token
       else
+        logger.warn "Authentication attempt did not succeed in saml_callback, reasons..."
+        logger.warn "  SAML Response: valid?=#{@saml_response.is_valid?} errors=#{@saml_response.errors}"
+        logger.warn "  User: valid?=#{@current_user&.valid?} errors=#{@current_user&.errors&.messages}"
+        logger.warn "  Session: valid?=#{@session&.valid?} errors=#{@session&.errors&.messages}"
         redirect_to SAML_CONFIG['relay'] + '?auth=fail'
       end
     end
