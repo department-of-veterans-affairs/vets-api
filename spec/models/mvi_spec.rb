@@ -82,7 +82,6 @@ describe Mvi, skip_mvi: true do
         mvi.save
         expect_any_instance_of(MVI::Service).to_not receive(:find_candidate)
         expect(mvi.va_profile).to eq(
-          active_status: 'active',
           birth_date: '19800101',
           family_name: 'Smith',
           gender: 'M',
