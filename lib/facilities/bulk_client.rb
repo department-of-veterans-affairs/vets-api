@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-# frozen_string_literal: true
 require 'facilities/gis_middleware'
 
 # Client class for doing periodic bulk refreshes of GIS data.
@@ -15,7 +14,7 @@ module Facilities
       @conn = Faraday.new(url: @url) do |conn|
         conn.options.open_timeout = OPEN_TIMEOUT
         conn.options.timeout = REQUEST_TIMEOUT
-        conn.use Facilities::Middleware::GISJson
+        conn.response Facilities::Middleware::GISJson
         # conn.response :logger
         # TODO conn.use :breaker
         conn.adapter Faraday.default_adapter
