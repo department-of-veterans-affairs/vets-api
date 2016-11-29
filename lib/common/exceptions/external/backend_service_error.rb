@@ -2,7 +2,7 @@
 module Common
   module Exceptions
     # ClientError - Generic Backend errors returned from api calls
-    class ClientError < BaseError
+    class BackendServiceError < BaseError
       def initialize(error_klass = nil, options = {})
         @error_klass = error_klass || 'client_error'
         @detail = options[:detail]
