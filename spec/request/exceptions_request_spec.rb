@@ -8,8 +8,8 @@ RSpec.describe 'exceptions', type: :request do
       expect(response).to have_http_status(:unauthorized)
       expect(JSON.parse(response.body)['errors'].first)
         .to eq(
-          'title' => 'Not Authorized',
-          'detail' => 'Not Authorized',
+          'title' => 'Not authorized',
+          'detail' => 'Not authorized',
           'code' => '401',
           'status' => '401'
         )
@@ -23,7 +23,7 @@ RSpec.describe 'exceptions', type: :request do
         expect(response).to have_http_status(:not_found)
         expect(JSON.parse(response.body)['errors'].first)
           .to eq(
-            'title' => 'Not Found',
+            'title' => 'Not found',
             'detail' => 'There are no routes matching your request: an_unknown_route',
             'code' => '411',
             'status' => '404'
