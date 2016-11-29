@@ -1,15 +1,12 @@
 # frozen_string_literal: true
 require 'facilities/bulk_client'
+require 'facilities/point'
 
 module Facilities
   class LocalStore
     attr_reader :adapter
 
     GIS_CHECK_FREQUENCY = 1.hour
-    BATCH_SIZE = 1000.0
-    OPEN_TIMEOUT = 2
-    REQUEST_TIMEOUT = 6
-    Pointer = Struct.new(:x, :y, :facility)
 
     def initialize(url, _type, adapter)
       @url = url
@@ -20,47 +17,29 @@ module Facilities
       @client = BulkClient.new(@url)
       @index = {}
       @coordinates = []
-      # check_for_freshness
     end
 
     def get(id)
-      check_for_freshness
+      check_freshness_and_update
       @mutex.synchronize do
         return @index[id]
       end
     end
 
     def query(bbox, services = nil)
-      check_for_freshness
-      filter = services ? @adapter.with_services(services) : ->(_) { true }
+      check_freshness_and_update
       @mutex.synchronize do
-        @coordinates.select(&(within bbox)).sort_by(&(dist_from_center bbox)).map(&:facility).select(&filter)
+        result = @coordinates.select { |p| p.within?(bbox) }
+        result = result.sort_by { |p| p.dist_from_center(bbox) }
+        result = result.map(&:facility)
+        if services
+          result = result.select { |f| @adapter.services?(f, services) }
+        end
+        result
       end
     end
 
-    def within(bbox)
-      x_min, x_max = min_max(bbox[0], bbox[2])
-      y_min, y_max = min_max(bbox[1], bbox[3])
-      lambda do |point|
-        return false if point.x.nil? || point.y.nil?
-        x_min < point.x && point.x < x_max &&
-          y_min < point.y && point.y < y_max
-      end
-    end
-
-    def min_max(x, y)
-      x < y ? [x, y] : [y, x]
-    end
-
-    def dist_from_center(bbox)
-      center_x = (bbox[0] + bbox[2]) / 2.0
-      center_y = (bbox[1] + bbox[3]) / 2.0
-      lambda do |point|
-        Math.sqrt((point.x - center_x)**2 + (point.y - center_y)**2)
-      end
-    end
-
-    def check_for_freshness
+    def check_freshness_and_update
       return unless Time.current > (@last_check + GIS_CHECK_FREQUENCY)
       @mutex.synchronize do
         return unless Time.current > (@last_check + GIS_CHECK_FREQUENCY)
@@ -95,7 +74,7 @@ module Facilities
         index[f.unique_id] = f
       end
       new_coordinates = facilities.each_with_object([]) do |f, coordinates|
-        coordinates << Pointer.new(f.long, f.lat, f)
+        coordinates << Point.new(f.long, f.lat, f)
       end
       @index = new_index
       @coordinates = new_coordinates

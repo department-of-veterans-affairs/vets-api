@@ -3,10 +3,8 @@ class VBAFacilityAdapter
   VBA_ID_FIELD = 'Facility_Number'
   FACILITY_TYPE = 'va_benefits_facility'
 
-  def self.with_services(services)
-    lambda do |facility|
-      services.all? { |s| facility.services[:benefits][:standard].include? s }
-    end
+  def self.services?(facility, services)
+    services.all? { |s| facility.services[:benefits][:standard].include? s }
   end
 
   def self.from_gis(record)
