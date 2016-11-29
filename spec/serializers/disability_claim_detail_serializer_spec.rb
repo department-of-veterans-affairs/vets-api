@@ -18,8 +18,8 @@ RSpec.describe DisabilityClaimDetailSerializer, type: :serializer do
   context 'with HTML in the description' do
     let(:disability_claim) do
       FactoryGirl.build(:disability_claim, data: {
-                          'claimTrackedItems': {
-                            'stillNeedFromYouList': [
+                          'claim_tracked_items': {
+                            'still_need_from_you_list': [
                               {
                                 description: 'this has <h1>HTML</h1>'
                               }
@@ -35,9 +35,9 @@ RSpec.describe DisabilityClaimDetailSerializer, type: :serializer do
   context 'with different data and list_data' do
     let(:disability_claim) do
       FactoryGirl.build(:disability_claim, data: {
-                          'waiver5103Submitted': true
+                          'waiver5103_submitted': true
                         }, list_data: {
-                          'waiver5103Submitted': false
+                          'waiver5103_submitted': false
                         })
     end
     it 'should not use list_data' do
@@ -50,7 +50,7 @@ RSpec.describe DisabilityClaimDetailSerializer, type: :serializer do
       fixture_file_name = "#{::Rails.root}/spec/fixtures/disability_claim/claim-with-documents.json"
       File.open(fixture_file_name, 'rb') do |f|
         raw_claim = f.read
-        JSON.parse raw_claim
+        JSON.parse(raw_claim).deep_transform_keys!(&:underscore)
       end
     end
     let(:disability_claim) do
