@@ -70,11 +70,7 @@ class User < Common::RedisStore
   def self.from_merged_attrs(existing_user, new_user)
     # we want to always use the more recent attrs so long as they exist
     attrs = new_user.attributes.map do |key, val|
-      if val.blank?
-        { key => existing_user[key] }
-      else
-        { key => val }
-      end
+      { key => val.presence || existing_user[key] }
     end.reduce({}, :merge)
 
     # for loa, we want the higher of the two
