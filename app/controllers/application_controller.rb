@@ -23,7 +23,11 @@ class ApplicationController < ActionController::API
   end
 
   def routing_error
-    raise Common::Exceptions::RoutingError, params[:path]
+    if allowed_verbs&.empty?
+      raise Common::Exceptions::RoutingError, params[:path]
+    else
+      raise Common::Exceptions::MethodNotAllowed, allowed_verbs
+    end
   end
 
   # I'm commenting this out for now, we can put it back in if we encounter it
@@ -57,6 +61,8 @@ class ApplicationController < ActionController::API
 
     if va_exception.is_a?(Common::Exceptions::Unauthorized)
       headers['WWW-Authenticate'] = 'Token realm="Application"'
+    elsif va_exception.is_a?(Common::Exceptions::MethodNotAllowed)
+      headers['Allow'] = va_exception.allowed_methods.map(&:upcase).join(', ')
     end
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
@@ -120,5 +126,17 @@ class ApplicationController < ActionController::API
 
   def render_job_id(jid)
     render json: { job_id: jid }, status: 202
+  end
+
+  def allowed_verbs
+    all_methods = ActionDispatch::Routing::HTTP_METHODS
+    @allowed_verbs ||= all_methods.select do |verb|
+      begin
+        match = Rails.application.routes.recognize_path(params[:path], method: verb)
+        match[:action] != 'routing_error' && match[:action] != 'cors_preflight'
+      rescue ActionController::RoutingError
+        nil
+      end
+    end
   end
 end

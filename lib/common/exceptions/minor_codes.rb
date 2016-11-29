@@ -94,6 +94,14 @@ module Common
         title: 'Record not found'
       }.freeze
 
+      METHOD_NOT_ALLOWED = {
+        type: :id,
+        code: '405',
+        status: MajorCodes::METHOD_NOT_ALLOWED,
+        title: 'Method not Allowed',
+        detail: 'Method not allowed on your request'
+      }.freeze
+
       ROUTING_ERROR = {
         type: :other,
         code: '411',
