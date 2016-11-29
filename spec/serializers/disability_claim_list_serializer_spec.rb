@@ -14,9 +14,9 @@ RSpec.describe DisabilityClaimListSerializer, type: :serializer do
   context 'with different data and list_data' do
     let(:disability_claim) do
       FactoryGirl.build(:disability_claim, data: {
-                          'waiver5103Submitted': false
+                          'waiver5103_submitted': false
                         }, list_data: {
-                          'waiver5103Submitted': true
+                          'waiver5103_submitted': true
                         })
     end
     it 'should not use object.data' do

@@ -51,7 +51,8 @@ module EVSS
         faraday.use      :breakers
         faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
-        faraday.response :json, content_type: /\bjson$/
+        faraday.response :snakecase, symbolize: false
+        faraday.response :json
         faraday.adapter  :httpclient
       end
     end
