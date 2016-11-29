@@ -8,9 +8,11 @@ class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
 
   SKIP_SENTRY_EXCEPTION_TYPES = [
-    Common::Exceptions::Unauthorized,
-    Common::Exceptions::RoutingError,
     Common::Exceptions::Forbidden,
+    Common::Exceptions::InvalidFieldValue,
+    Common::Exceptions::RoutingError,
+    Common::Exceptions::Unauthorized,
+    Common::Exceptions::ValidationErrors,
     Breakers::OutageException
   ].freeze
 
