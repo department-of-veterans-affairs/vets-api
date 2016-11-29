@@ -13,7 +13,7 @@ development: &defaults
     each_ttl: 1200
   user_store:
     namespace: users
-    each_ttl: 86400
+    each_ttl: 3600
   mvi_store:
     namespace: mvi-service
     each_ttl: 86400
