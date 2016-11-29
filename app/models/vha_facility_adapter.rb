@@ -3,10 +3,8 @@ class VHAFacilityAdapter
   VHA_ID_FIELD = 'StationNumber'
   FACILITY_TYPE = 'va_health_facility'
 
-  def self.with_services(services)
-    lambda do |facility|
-      services.all? { |s| facility.services[:health].any? { |x| x.flatten(2).include? s } }
-    end
+  def self.services?(facility, services)
+    services.all? { |s| facility.services[:health].any? { |x| x.flatten(2).include? s } }
   end
 
   def self.from_gis(record)
