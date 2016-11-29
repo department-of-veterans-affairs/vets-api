@@ -340,6 +340,7 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
+    staccato (0.5.0)
     statsd-instrument (2.1.1)
     temple (0.7.6)
     terminal-table (1.5.2)
@@ -422,6 +423,7 @@ DEPENDENCIES
   simplecov (~> 0.11)
   spring
   spring-commands-rspec
+  staccato
   statsd-instrument
   timecop
   typhoeus

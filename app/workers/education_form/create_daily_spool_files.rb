@@ -44,7 +44,6 @@ module EducationForm
       structured_data.each do |region, records|
         region_id = EducationFacility.facility_for(region: region)
         filename = "#{region_id}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
-        logger.info("Writing #{records.count} application(s) to #{filename}")
         # create the single textual spool file
         contents = records.map do |record|
           format_application(record.open_struct_form)
@@ -61,9 +60,11 @@ module EducationForm
         end
 
         # mark the records as processed once the file has been written
+        # this should be an each / update_attributes to trigger callbacks
         records.each do |record|
           record.update_attributes!(processed_at: Time.zone.now)
         end
+        log_write(records, region, filename)
       end
     end
 
@@ -96,6 +97,15 @@ module EducationForm
     end
 
     private
+
+    def log_write(records, region_id, filename)
+      logger.info("Writing #{records.count} application(s) to #{filename}")
+      UA_TRACKERS['education_benefits'].event(category: 'Daily Transmissions',
+                                              action: 'spool-file-written',
+                                              label: "RPO #{region_id}",
+                                              value: records.count,
+                                              non_interactive: true)
+    end
 
     # If multiple benefit types are selected, we've been told to just include whichever
     # one is 'first' in the header.
