@@ -3,6 +3,10 @@ class NCAFacilityAdapter
   NCA_ID_FIELD = 'CEMETERY_I'
   FACILITY_TYPE = 'va_cemetery'
 
+  def self.services?(_facility, _services)
+    false
+  end
+
   def self.from_gis(record)
     attrs = record['attributes']
     m = from_gis_attrs(TOP_KEYMAP, attrs)

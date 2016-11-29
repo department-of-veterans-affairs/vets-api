@@ -79,7 +79,10 @@ module Facilities
           resultOffset: (i * BATCH_SIZE).to_i,
           resultRecordCount: BATCH_SIZE.to_i
         }
-        response = @conn.get url, ALL_PARAMS.merge(batch_params)
+        response = @conn.get do |req|
+          req.url url, ALL_PARAMS.merge(batch_params)
+          req.options.timeout = REQUEST_TIMEOUT * 2
+        end
         facilities += response.body.dig('features').to_a
       end
       facilities
