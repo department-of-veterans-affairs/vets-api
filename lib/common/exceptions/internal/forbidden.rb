@@ -8,8 +8,7 @@ module Common
       end
 
       def errors
-        detail = @detail || 'Forbidden'
-        Array(SerializableError.new(MinorCodes::FORBIDDEN.merge(detail: detail)))
+        Array(SerializableError.new(i18n_data.merge(detail: @detail)))
       end
     end
   end

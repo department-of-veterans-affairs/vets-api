@@ -18,7 +18,7 @@ describe Common::Exceptions::ParameterMissing do
 
     it 'the errors object has all relevant keys' do
       expect(subject.errors.first.to_hash)
-        .to eq(title: 'Missing Parameter',
+        .to eq(title: 'Missing parameter',
                detail: 'The required parameter "some_parameter", is missing',
                code: '108',
                status: '400')

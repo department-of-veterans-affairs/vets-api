@@ -3,13 +3,14 @@ module Common
   module Exceptions
     # Routing Error - if route is invalid
     class RoutingError < BaseError
+      attr_reader :path
+
       def initialize(path = nil)
-        detail = MinorCodes::ROUTING_ERROR[:detail]
-        @detail = path.present? ? "#{detail}: #{path}" : detail
+        @path = path
       end
 
       def errors
-        Array(SerializableError.new(MinorCodes::ROUTING_ERROR.merge(detail: @detail)))
+        Array(SerializableError.new(i18n_interpolated(detail: { path: @path })))
       end
     end
   end
