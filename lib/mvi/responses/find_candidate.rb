@@ -3,10 +3,10 @@ require_relative 'base'
 
 module MVI
   module Responses
-    # Parses the MVI Savon response for the find candidate endpoint (prpa_in201306_uv02).
+    # Parses the response for the find candidate endpoint (prpa_in201306_uv02).
     #
     # = Usage
-    # The original Savon response is a complex Hash of the xml returned by MVI.
+    # The original response is a complex Hash of the xml returned by MVI.
     # See specs/support/mvi/savon_response_body.json for an example of the hierarchy
     #
     # Example:

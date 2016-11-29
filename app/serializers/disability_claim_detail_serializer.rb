@@ -64,7 +64,7 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
   def create_events_for_tracked_items
     TRACKED_ITEM_FIELDS.map do |field|
       sub_objects_of('claim_tracked_items', field).map do |obj|
-        create_tracked_item_event(field.snakecase, obj)
+        create_tracked_item_event(field.underscore, obj)
       end
     end.flatten
   end
