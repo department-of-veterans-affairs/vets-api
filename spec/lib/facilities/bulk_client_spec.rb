@@ -5,16 +5,14 @@ require 'facilities/bulk_client'
 describe Facilities::BulkClient do
   let(:conn) { instance_double('Faraday::Connection') }
   let(:count_args) { { where: '1=1', returnCountOnly: true, f: 'json' } }
+  let(:conn_failed) { Faraday::ConnectionFailed.new(nil) }
+  let(:err_response) { Facilities::Errors::RequestError.new('Error response', 400) }
   subject { described_class.new('http://www.example.com') }
-
-  before(:each) do
-    subject.instance_variable_set(:@conn, conn)
-  end
 
   describe '.last_edit_date' do
     context 'with a timeout' do
       it 'should return nil' do
-        allow(conn).to receive(:get).and_raise(Faraday::TimeoutError)
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
         response = subject.last_edit_date
         expect(response).to be_nil
       end
@@ -22,7 +20,7 @@ describe Facilities::BulkClient do
 
     context 'with a connection error' do
       it 'should return nil' do
-        allow(conn).to receive(:get).with('', f: 'json').and_raise(Faraday::ConnectionFailed.new(nil))
+        allow_any_instance_of(Faraday::Connection).to receive(:get).with('', f: 'json').and_raise(conn_failed)
         result = subject.last_edit_date
         expect(result).to be_nil
       end
@@ -30,8 +28,7 @@ describe Facilities::BulkClient do
 
     context 'with a service error' do
       it 'should return nil' do
-        allow(conn).to receive(:get).with('', f: 'json')
-          .and_raise(Facilities::Errors::RequestError.new('Error response', 400))
+        allow_any_instance_of(Faraday::Connection).to receive(:get).with('', f: 'json').and_raise(err_response)
         result = subject.last_edit_date
         expect(result).to be_nil
       end
@@ -41,21 +38,21 @@ describe Facilities::BulkClient do
   describe '.fetch_all' do
     context 'with a timeout' do
       it 'should raise error' do
-        allow(conn).to receive(:get).and_raise(Faraday::TimeoutError)
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
         expect { subject.fetch_all }.to raise_error(Facilities::Errors::ServiceError)
       end
     end
 
     context 'with a connection error' do
       it 'should raise error' do
-        allow(conn).to receive(:get).and_raise(Faraday::ConnectionFailed.new(nil))
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(conn_failed)
         expect { subject.fetch_all }.to raise_error(Facilities::Errors::ServiceError)
       end
     end
 
     context 'with a service error' do
       it 'should raise error' do
-        allow(conn).to receive(:get).and_raise(Facilities::Errors::RequestError.new('Error response', 400))
+        allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(err_response)
         expect { subject.fetch_all }.to raise_error(Facilities::Errors::ServiceError)
       end
     end
