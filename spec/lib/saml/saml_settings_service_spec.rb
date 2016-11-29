@@ -21,7 +21,8 @@ RSpec.describe SAML::SettingsService do
         stub_request(:get, SAML_CONFIG['metadata_url']).to_return(
           status: 500, body: 'bad news bears'
         )
-        expect(Rails.logger).to receive(:error).exactly(3).times.with(/Failed to load SAML metadata: 500: try \d of 3/)
+        expect(Rails.logger).to receive(:warn).exactly(2).times.with(/Failed to load SAML metadata: 500: try \d of 3/)
+        expect(Rails.logger).to receive(:error).exactly(1).times.with(/Failed to load SAML metadata: 500: try \d of 3/)
         SAML::SettingsService.saml_settings(true)
       end
     end
