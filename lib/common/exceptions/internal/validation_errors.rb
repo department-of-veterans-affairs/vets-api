@@ -21,7 +21,7 @@ module Common
       private
 
       def error_attributes(key, message, full_message)
-        MinorCodes::VALIDATION_ERRORS.merge(
+        i18n_data.merge(
           title: full_message,
           detail: "#{key.to_s.underscore.dasherize} - #{message}",
           source: { pointer: "data/attributes/#{key.to_s.underscore.dasherize}" }

@@ -5,12 +5,11 @@ module Common
     class ServiceOutage < BaseError
       def initialize(outage = nil, options = {})
         @outage = outage
-        @detail = options[:detail]
+        @detail = options[:detail] || i18n_field(:detail, service: @outage.service.name, since: @outage.start_time)
       end
 
       def errors
-        detail = @detail || "An outage has been reported on the #{@outage.service.name} since #{@outage.start_time}"
-        Array(SerializableError.new(MinorCodes::SERVICE_OUTAGE.merge(detail: detail)))
+        Array(SerializableError.new(i18n_data.merge(detail: @detail)))
       end
     end
   end

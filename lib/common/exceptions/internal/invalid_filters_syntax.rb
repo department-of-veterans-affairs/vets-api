@@ -7,12 +7,11 @@ module Common
 
       def initialize(filters, options = {})
         @filters = filters
-        @detail = options[:detail]
+        @detail = options[:detail] || i18n_field(:detail, filters: @filters)
       end
 
       def errors
-        detail = @detail || "#{filters} is not a valid syntax for filtering"
-        Array(SerializableError.new(MinorCodes::INVALID_FILTERS_SYNTAX.merge(detail: detail)))
+        Array(SerializableError.new(i18n_data.merge(detail: @detail)))
       end
     end
   end
