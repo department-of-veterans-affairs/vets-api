@@ -7,6 +7,13 @@ require 'saml/settings_service'
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
 
+  SKIP_SENTRY_EXCEPTION_TYPES = [
+    Common::Exceptions::Unauthorized,
+    Common::Exceptions::RoutingError,
+    Common::Exceptions::Forbidden,
+    Breakers::OutageException
+  ].freeze
+
   before_action :authenticate
   before_action :set_app_info_headers
   skip_before_action :authenticate, only: [:cors_preflight, :routing_error]
@@ -37,8 +44,12 @@ class ApplicationController < ActionController::API
       when Common::Exceptions::BaseError
         exception
       when Common::Client::Errors::BackendServiceError
-        additional_attributes = { source: exception.developer_message, meta: exception.as_json }
-        Common::Exceptions::ClientError.new(exception.message, additional_attributes)
+        additional_attributes = {
+          detail: exception.message,
+          source: exception.developer_message,
+          meta: exception.as_json
+        }
+        Common::Exceptions::BackendServiceException.new(nil, additional_attributes)
       when Breakers::OutageException
         Common::Exceptions::ServiceOutage.new(exception.outage)
       when Common::Client::Errors::ClientError
@@ -55,8 +66,10 @@ class ApplicationController < ActionController::API
   end
 
   def log_error(exception)
-    # report the original 'cause' of the exception when present
-    Raven.capture_exception(exception.cause.presence || exception) if ENV['SENTRY_DSN'].present?
+    unless SKIP_SENTRY_EXCEPTION_TYPES.include?(exception.class)
+      # report the original 'cause' of the exception when present
+      Raven.capture_exception(exception.cause.presence || exception) if ENV['SENTRY_DSN'].present?
+    end
     Rails.logger.error "#{exception.message}."
     Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
   end

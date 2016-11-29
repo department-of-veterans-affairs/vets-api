@@ -15,13 +15,17 @@ module Common
       attribute :href, String
       attribute :code, String
       attribute :source, String
-      # attribute :links, Array[String] # commenting this out for now as it complicates things
+      attribute :links, Array[String]
       attribute :status, String
       attribute :meta, String
 
+      def detail
+        super || title
+      end
+
       # return only those attributes that have non nil values
       def to_hash
-        Hash[attribute_set.map { |a| [a.name, send(a.name)] unless send(a.name).nil? }.compact]
+        Hash[attribute_set.map { |a| [a.name, send(a.name)] if send(a.name).present? }.compact]
       end
     end
   end

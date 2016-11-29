@@ -7,12 +7,11 @@ module Common
 
       def initialize(resource, options = {})
         @resource = resource
-        @detail = options[:detail]
+        @detail = options[:detail] || i18n_field(:detail, resource: @resource)
       end
 
       def errors
-        detail = @detail || "#{resource} is not a valid resource"
-        Array(SerializableError.new(MinorCodes::INVALID_RESOURCE.merge(detail: detail)))
+        Array(SerializableError.new(i18n_data.merge(detail: @detail)))
       end
     end
   end
