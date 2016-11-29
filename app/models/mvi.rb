@@ -42,14 +42,14 @@ class Mvi < Common::RedisStore
   def va_profile
     return { status: 'NOT_AUTHORIZED' } unless @user.loa3?
     response = mvi_response
+    return { status: 'SERVER_ERROR' } unless response
     return response unless response[:status] == MVI_RESPONSE_STATUS[:ok]
     {
       status: response[:status],
       birth_date: response[:birth_date],
       family_name: response[:family_name],
       gender: response[:gender],
-      given_names: response[:given_names],
-      active_status: response[:active_status]
+      given_names: response[:given_names]
     }
   end
 
@@ -68,8 +68,8 @@ class Mvi < Common::RedisStore
   end
 
   def mvi_response
-    return nil unless @user.loa3? && !user.gender.nil?
-    response || query_and_cache_response
+    return nil unless @user.loa3?
+    @memoized_response ||= response || query_and_cache_response
   end
 
   def mvi_service
@@ -77,7 +77,7 @@ class Mvi < Common::RedisStore
   end
 
   def create_message
-    raise Common::Exceptions::ValidationErrors, @user unless @user.valid?
+    raise Common::Exceptions::ValidationErrors, @user unless @user.valid?(:loa3_user)
     given_names = [@user.first_name]
     given_names.push @user.middle_name unless @user.middle_name.nil?
     MVI::Messages::FindCandidateMessage.new(
@@ -95,13 +95,13 @@ class Mvi < Common::RedisStore
     self.response = query_response
     save
     response
-  rescue MVI::RecordNotFound
+  rescue MVI::Errors::RecordNotFound
     Rails.logger.error "MVI record not found for user: #{@user.uuid}"
     { status: MVI_RESPONSE_STATUS[:not_found] }
-  rescue MVI::HTTPError => e
+  rescue MVI::Errors::HTTPError => e
     Rails.logger.error "MVI HTTP error code: #{e.code} for user: #{@user.uuid}"
     { status: MVI_RESPONSE_STATUS[:server_error] }
-  rescue MVI::ServiceError => e
+  rescue MVI::Errors::ServiceError => e
     Rails.logger.error "MVI service error: #{e.message} for user: #{@user.uuid}"
     { status: MVI_RESPONSE_STATUS[:server_error] }
   end

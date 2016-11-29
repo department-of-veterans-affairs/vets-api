@@ -9,7 +9,7 @@ describe MVI::Responses::Base do
     end
   end
   let(:faraday_response) { instance_double('Faraday::Response') }
-  let(:body) { File.read('spec/support/mvi/find_candidate_response.xml') }
+  let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response.xml')) }
 
   before(:each) do
     allow(faraday_response).to receive(:body) { body }

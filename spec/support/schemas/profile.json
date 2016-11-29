@@ -62,7 +62,6 @@
                     "family_name": { "type": "string" },
                     "gender": { "type": "string" },
                     "given_names": { "type": "array" },
-                    "active_status": { "type": "string"  },
                     "status": { "type": "string"  }
                   }
                 }

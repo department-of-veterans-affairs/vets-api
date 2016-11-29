@@ -35,7 +35,7 @@ class User < Common::RedisStore
   validates :loa, presence: true
 
   # conditionally validate if user is LOA3
-  with_options unless: :loa1? do |user|
+  with_options(on: :loa3_user) do |user|
     user.validates :first_name, presence: true
     user.validates :last_name, presence: true
     user.validates :birth_date, presence: true
@@ -53,11 +53,6 @@ class User < Common::RedisStore
 
   def loa3?
     loa[:current] == LOA::THREE
-  end
-
-  def rating_record
-    client = EVSS::CommonService.new(evss_auth_headers)
-    client.find_rating_info(participant_id).body.fetch('ratingRecord', {})
   end
 
   def can_access_user_profile?
@@ -82,9 +77,5 @@ class User < Common::RedisStore
 
   def mvi
     @mvi ||= Mvi.from_user(self)
-  end
-
-  def evss_auth_headers
-    @evss_auth_headers ||= EVSS::AuthHeaders.new(self).to_h
   end
 end
