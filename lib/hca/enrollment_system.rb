@@ -18,6 +18,10 @@ module HCA
       }
     }
 
+    def has_financial_flag(veteran)
+      veteran[:understandsFinancialDisclosure] || veteran[:discloseFinancialInformation]
+    end
+
     def transform(data)
     end
   end
