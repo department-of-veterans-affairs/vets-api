@@ -27,7 +27,7 @@ class ApplicationController < ActionController::API
   end
 
   def raise_500
-    100/0
+    100 / 0
   end
 
   # I'm commenting this out for now, we can put it back in if we encounter it
