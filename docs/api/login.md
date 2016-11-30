@@ -10,12 +10,12 @@ The API's involved with log in and out.  Many API's require an auth token to use
 
 ## Examples
 #### Request
-**Note** An invalid value of `level` will default to `level=1`.
 ```
 GET /v0/sessions/new?level=3 HTTP/1.1
 Host: www.vets.gov
 Content-Type: application/json
 ```
+<sub><sup>**Note** An invalid value of `level` will default to `level=1`.</sup></sub>
 #### Response
 ```javascript
 {
