@@ -1,6 +1,8 @@
-module HCA::EnrollmentSystem
-  module_function
+module HCA
+  module EnrollmentSystem
+    module_function
 
-  def transform(data)
+    def transform(data)
+    end
   end
 end
