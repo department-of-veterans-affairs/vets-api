@@ -57,4 +57,24 @@ describe HCA::EnrollmentSystem do
       end
     end
   end
+
+  describe '#format_address' do
+    it 'should format the address correctly' do
+      address = {
+        "street" => "123 NW 8th St",
+        "street2" =>  "",
+        "street3" =>  "",
+        "city" =>  "Dulles",
+        "country" =>  "USA",
+        "postalCode" =>  "13AA",
+        "provinceCode" =>  "ProvinceName",
+        "state" =>  "VA",
+        "zipcode" =>  "20101-0101"
+      }
+
+      expect(described_class.format_address(address)).to eq(
+        {"city"=>"Dulles", "country"=>"USA", "line1"=>"123 NW 8th St", "state"=>"VA", "zipCode"=>"20101", "zipPlus4"=>"0101"}
+      )
+    end
+  end
 end

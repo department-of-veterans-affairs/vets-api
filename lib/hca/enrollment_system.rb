@@ -35,7 +35,12 @@ module HCA
       if address['country'] == 'USA'
         formatted['state'] = address['state']
         formatted.merge!(format_zipcode(address['zipcode']))
+      else
+        formatted['provinceCode'] = address['state'] || address['provinceCode']
+        formatted['postalCode'] = address['zipcode'] || address['postalCode']
       end
+
+      formatted
     end
 
     def format_zipcode(zipcode)
