@@ -15,7 +15,7 @@ GET /v0/sessions/new?level=3 HTTP/1.1
 Host: www.vets.gov
 Content-Type: application/json
 ```
-<sub><sup>**Note** An invalid value of `level` will default to `level=1`.</sup></sub>
+**Note** An invalid value of `level` will default to `level=1`.
 #### Response
 ```javascript
 {
