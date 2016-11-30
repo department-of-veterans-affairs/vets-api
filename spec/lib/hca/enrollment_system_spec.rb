@@ -59,8 +59,8 @@ describe HCA::EnrollmentSystem do
   end
 
   describe '#format_address' do
-    it 'should format the address correctly' do
-      address = {
+    let(:test_address) do
+      {
         "street" => "123 NW 8th St",
         "street2" =>  "",
         "street3" =>  "",
@@ -71,10 +71,24 @@ describe HCA::EnrollmentSystem do
         "state" =>  "VA",
         "zipcode" =>  "20101-0101"
       }
+    end
 
-      expect(described_class.format_address(address)).to eq(
+    it 'should format the address correctly' do
+      expect(described_class.format_address(test_address)).to eq(
         {"city"=>"Dulles", "country"=>"USA", "line1"=>"123 NW 8th St", "state"=>"VA", "zipCode"=>"20101", "zipPlus4"=>"0101"}
       )
+    end
+
+    context 'with a non american address' do
+      before do
+        test_address['country'] = 'COM'
+      end
+
+      it 'should format the address correctly' do
+        expect(described_class.format_address(test_address)).to eq(
+          {"city"=>"Dulles", "country"=>"COM", "line1"=>"123 NW 8th St", "provinceCode"=>"VA", "postalCode"=>"20101-0101"}
+        )
+      end
     end
   end
 end
