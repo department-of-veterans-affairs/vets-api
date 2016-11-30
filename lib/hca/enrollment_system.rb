@@ -3,17 +3,17 @@ module HCA
     module_function
 
     FORM_TEMPLATE = {
-      form: {
-        formIdentifier: {
-          type: '100',
-          value: '1010EZ',
-          version: 1986360435
+      "form" => {
+        "formIdentifier" => {
+          "type" => "100",
+          "value" => "1010EZ",
+          "version" => 1986360435
         }
       },
-      identity: {
-        authenticationLevel: {
-          type: '100',
-          value: 'anonymous'
+      "identity" => {
+        "authenticationLevel" => {
+          "type" => "100",
+          "value" => "anonymous"
         }
       }
     }
