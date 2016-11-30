@@ -3,7 +3,7 @@ require 'rails_helper'
 require 'mvi/responses/find_candidate'
 
 describe MVI::Responses::FindCandidate do
-  context 'given a valid savon response' do
+  context 'given a valid response' do
     let(:faraday_response) { instance_double('Faraday::Response') }
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response.xml')) }
     let(:find_candidate_response) { MVI::Responses::FindCandidate.new(faraday_response) }

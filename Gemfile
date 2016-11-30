@@ -24,7 +24,6 @@ gem 'httpclient'
 gem 'attr_encrypted'
 gem 'olive_branch'
 gem 'ox', '~> 2.4'
-gem 'savon', '~> 2.0'
 gem 'sidekiq'
 gem 'sidekiq-unique-jobs'
 gem 'sidekiq-scheduler', '~> 2.0'
@@ -39,6 +38,7 @@ gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/
 gem 'breakers'
 gem 'govdelivery-tms', require: 'govdelivery/tms/mail/delivery_method'
 gem 'statsd-instrument'
+gem 'memoist'
 
 # Amazon Linux's system `json` gem causes conflicts, but
 # `multi_json` will prefer `oj` if installed, so include it here.

@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'savon'
 require 'mvi/settings'
 require 'mvi/errors/errors'
 require 'mvi/responses/find_candidate'
