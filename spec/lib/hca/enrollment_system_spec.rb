@@ -32,4 +32,29 @@ describe HCA::EnrollmentSystem do
       end
     end
   end
+
+  describe '#format_zipcode' do
+    [
+      [
+        '12345',
+        { 'zipCode' => '12345', 'zipPlus4' => nil }
+      ],
+      [
+        '12345-1234',
+        { 'zipCode' => '12345', 'zipPlus4' => '1234' }
+      ],
+      [
+        '12345-123',
+        { 'zipCode' => '12345', 'zipPlus4' => nil }
+      ]
+    ].each do |test_data|
+      zipcode = test_data[0]
+
+      context "with a zip of #{zipcode}" do
+        it 'should format the zipcode correctly' do
+          expect(described_class.format_zipcode(zipcode)).to eq(test_data[1])
+        end
+      end
+    end
+  end
 end
