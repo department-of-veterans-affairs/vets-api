@@ -78,6 +78,9 @@ Rails.application.routes.draw do
     mount Sidekiq::Web, at: '/sidekiq'
   end
 
+  # This is a temporary route that will be removed after testing
+  match 'v0/raise_500', to: 'application#raise_500', via: :get
+
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i(get post put patch delete)
 end

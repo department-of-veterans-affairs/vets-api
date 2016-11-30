@@ -16,7 +16,7 @@ class ApplicationController < ActionController::API
 
   before_action :authenticate
   before_action :set_app_info_headers
-  skip_before_action :authenticate, only: [:cors_preflight, :routing_error]
+  skip_before_action :authenticate, only: [:cors_preflight, :routing_error, :raise_500]
 
   def cors_preflight
     head(:ok)
@@ -24,6 +24,10 @@ class ApplicationController < ActionController::API
 
   def routing_error
     raise Common::Exceptions::RoutingError, params[:path]
+  end
+
+  def raise_500
+    100/0
   end
 
   # I'm commenting this out for now, we can put it back in if we encounter it
