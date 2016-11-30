@@ -7,12 +7,12 @@ require 'common/client/errors'
 
 describe 'Response Middleware' do
   let(:message_json) { attributes_for(:message).to_json }
-  let(:four_o_four) { { "errorCode": 400, "message": 'Record Not Found' }.to_json }
+  let(:four_o_four) { { "errorCode": 400, "message": 'Record Not Found', "developerMessage": 'blah' }.to_json }
 
   subject(:faraday_client) do
     Faraday.new do |conn|
       conn.response :snakecase
-      conn.response :raise_error
+      conn.response :raise_error, 'Rx', code_key: 'errorCode', detail_key: 'message', source_key: 'developerMessage'
       conn.response :json_parser
 
       conn.adapter :test do |stub|
@@ -31,6 +31,10 @@ describe 'Response Middleware' do
 
   it 'raises client response error' do
     expect { subject.get('not-found') }
-      .to raise_error(Common::Client::Errors::BackendServiceError)
+      .to raise_error do |error|
+        expect(error).to be_a(Common::Exceptions::BackendServiceException)
+        binding.pry
+        expect(error.message).to eq('Record not found')
+      end
   end
 end

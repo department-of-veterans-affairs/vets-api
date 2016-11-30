@@ -12,6 +12,10 @@ module Common
         @meta = options[:meta] unless Rails.env.production?
       end
 
+      def message
+        i18n_data('title')
+      end
+
       def errors
         Array(SerializableError.new(i18n_data.merge(detail: @detail, source: @source, meta: @meta)))
       end

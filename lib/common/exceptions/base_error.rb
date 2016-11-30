@@ -11,6 +11,10 @@ module Common
         errors&.first&.status&.to_i
       end
 
+      def message
+        i18n_data('title')
+      end
+
       private
 
       def i18n_key
