@@ -25,7 +25,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   before(:each) do
     stub_request(:get, SAML_CONFIG['metadata_url']).to_return(body: 'abc')
-    allow_any_instance_of(SAML::SettingsService).to receive(:saml_settings).and_return(settings_no_context)
+    allow(SAML::SettingsService).to receive(:saml_settings).and_return(settings_no_context)
   end
 
   context 'when not logged in' do

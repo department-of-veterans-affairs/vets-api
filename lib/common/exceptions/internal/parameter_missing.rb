@@ -7,12 +7,11 @@ module Common
 
       def initialize(param, options = {})
         @param = param
-        @detail = options[:detail]
+        @detail = options[:detail] || i18n_field(:detail, param: @param)
       end
 
       def errors
-        detail = @detail || "The required parameter \"#{param}\", is missing"
-        Array(SerializableError.new(MinorCodes::PARAMETER_MISSING.merge(detail: detail)))
+        Array(SerializableError.new(i18n_data.merge(detail: @detail)))
       end
     end
   end

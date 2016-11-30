@@ -3,7 +3,7 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
   attributes :contention_list, :va_representative, :events_timeline, :claim_type
 
   def contention_list
-    object.data['contentionList']
+    object.data['contention_list']
   end
 
   def va_representative
@@ -11,19 +11,19 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
   end
 
   def claim_type
-    object.data['statusType']
+    object.data['status_type']
   end
 
   def events_timeline
     events = [
       create_event_from_string_date(:filed, 'date'),
-      create_event_from_string_date(:completed, 'claimCompleteDate')
+      create_event_from_string_date(:completed, 'claim_complete_date')
     ]
 
     # Do the 8 phases
     (1..8).each do |n|
       events << create_event_from_string_date(
-        "phase#{n}", 'claimPhaseDates', "phase#{n}CompleteDate"
+        "phase#{n}", 'claim_phase_dates', "phase#{n}_complete_date"
       )
     end
 
@@ -38,7 +38,7 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
   end
 
   def phase
-    phase_from_keys 'claimPhaseDates', 'latestPhaseType'
+    phase_from_keys 'claim_phase_dates', 'latest_phase_type'
   end
 
   private
@@ -57,21 +57,21 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
   end
 
   TRACKED_ITEM_FIELDS = %w(
-    neverReceivedFromOthersList neverReceivedFromYouList receivedFromOthersList
-    receivedFromYouList stillNeedFromYouList stillNeedFromOthersList
+    never_received_from_others_list never_received_from_you_list received_from_others_list
+    received_from_you_list still_need_from_you_list still_need_from_others_list
   ).freeze
 
   def create_events_for_tracked_items
     TRACKED_ITEM_FIELDS.map do |field|
-      sub_objects_of('claimTrackedItems', field).map do |obj|
-        create_tracked_item_event(field.snakecase, obj)
+      sub_objects_of('claim_tracked_items', field).map do |obj|
+        create_tracked_item_event(field.underscore, obj)
       end
     end.flatten
   end
 
   def create_events_for_documents
     # Objects with trackedItemId are part of other events, so don't duplicate them
-    docs = sub_objects_of('vbaDocumentList').select { |obj| obj['trackedItemId'].nil? }
+    docs = sub_objects_of('vba_document_list').select { |obj| obj['tracked_item_id'].nil? }
     docs = create_documents docs
     docs.map do |obj|
       obj.merge(type: :other_documents_list, date: obj[:upload_date])
@@ -90,19 +90,19 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
   def create_tracked_item_event(type, obj)
     event = {
       type: type,
-      tracked_item_id: obj['trackedItemId'],
+      tracked_item_id: obj['tracked_item_id'],
       description: ActionView::Base.full_sanitizer.sanitize(obj['description']),
-      display_name: obj['displayedName'],
+      display_name: obj['displayed_name'],
       overdue: obj['overdue'],
-      status: obj['trackedItemStatus'],
+      status: obj['tracked_item_status'],
       uploaded: obj['uploaded'],
-      uploads_allowed: obj['uploadsAllowed'],
-      opened_date: date_or_nil_from(obj, 'openedDate'),
-      requested_date: date_or_nil_from(obj, 'requestedDate'),
-      received_date: date_or_nil_from(obj, 'receivedDate'),
-      closed_date: date_or_nil_from(obj, 'closedDate'),
-      suspense_date: date_or_nil_from(obj, 'suspenseDate'),
-      documents: create_documents(obj['vbaDocuments'] || [])
+      uploads_allowed: obj['uploads_allowed'],
+      opened_date: date_or_nil_from(obj, 'opened_date'),
+      requested_date: date_or_nil_from(obj, 'requested_date'),
+      received_date: date_or_nil_from(obj, 'received_date'),
+      closed_date: date_or_nil_from(obj, 'closed_date'),
+      suspense_date: date_or_nil_from(obj, 'suspense_date'),
+      documents: create_documents(obj['vba_documents'] || [])
     }
     event[:date] = event.slice(*EVENT_DATE_FIELDS).values.compact.first
     event
@@ -111,16 +111,16 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
   def create_documents(objs)
     objs.map do |obj|
       {
-        tracked_item_id: obj['trackedItemId'],
-        file_type: obj['documentTypeLabel'],
-        document_type: obj['documentTypeCode'],
-        filename: obj['originalFileName'],
+        tracked_item_id: obj['tracked_item_id'],
+        file_type: obj['document_type_label'],
+        document_type: obj['document_type_code'],
+        filename: obj['original_file_name'],
         # %Q is the C-strftime flag for milliseconds since Unix epoch.
         # For date-times recording a computer event and therefore known
         # to the second EVSS uses a UNIX timestamp in milliseconds.
         # Round it to the day. Not sure what timezone they're using,
         # so could be off by 1 day.
-        upload_date: date_or_nil_from(obj, 'uploadDate', format: '%Q')
+        upload_date: date_or_nil_from(obj, 'upload_date', format: '%Q')
       }
     end
   end

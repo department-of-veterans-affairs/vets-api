@@ -10,8 +10,7 @@ module Common
       end
 
       def errors
-        detail = "The record identified by #{id} could not be found"
-        Array(SerializableError.new(MinorCodes::RECORD_NOT_FOUND.merge(detail: detail)))
+        Array(SerializableError.new(i18n_interpolated(detail: { id: @id })))
       end
     end
   end

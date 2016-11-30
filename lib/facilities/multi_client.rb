@@ -16,7 +16,7 @@ module Facilities
       requests.map do |req|
         if req.response.timed_out?
           Rails.logger.error "GIS request timed out: #{req.url}"
-          raise Common::Exceptions::ClientError.new('Facility request timed out', {})
+          raise Common::Client::Errors::ClientError.new('Facility request timed out', {})
         end
         raise Common::Client::Errors::BackendServiceError.new(req.response.code, {}) unless
           req.response.success?

@@ -1,0 +1,117 @@
+en:
+  common:
+    exceptions:
+      defaults: &defaults
+        # title: required always
+        # detail: optional, if not provided it will default to title
+        # code: required always, must be unique to a specific title - no two code and titles can overlap
+        # status: require always, corresponds to the HTTP Status code
+        # links: optional, could contain an 'about' link to further details
+        # source: optional, an object containing references to the source of the error (pointer to json in validation)
+        # meta: optional, contains information suitable for debugging, VISIBLE IN PRODUCTION
+        detail: ~
+        links: ~
+        source: ~
+        meta: ~
+# INTERNAL EXCEPTIONS
+      validation_errors:
+        <<: *defaults
+        title: Validation error
+        code: 100
+        status: 422
+      invalid_resource:
+        <<: *defaults
+        title: Invalid resource
+        detail: "%{resource} is not a valid resource"
+        code: 101
+        status: 400
+      invalid_field:
+        <<: *defaults
+        title: Invalid field
+        detail: "\"%{field}\" is not a valid field for \"%{type}\""
+        code: 102
+        status: 400
+      invalid_field_value:
+        <<: *defaults
+        title: Invalid field value
+        detail: "\"%{value}\" is not a valid value for \"%{field}\""
+        code: 103
+        status: 400
+      filter_not_allowed:
+        <<: *defaults
+        title: Filter not allowed
+        detail: "\"%{filter}\" is not allowed for filtering"
+        code: 104
+        status: 400
+      invalid_filters_syntax:
+        <<: *defaults
+        title: Invalid filters syntax
+        detail: "%{filters} is not a valid syntax for filtering"
+        code: 105
+        status: 400
+      invalid_sort_criteria:
+        <<: *defaults
+        title: Invalid sort criteria
+        detail: "\"%{sort_criteria}\" is not a valid sort criteria for \"%{resource}\""
+        code: 106
+        status: 400
+      invalid_pagination_params:
+        <<: *defaults
+        title: Invalid pagination params
+        detail: "%{params} are invalid"
+        code: 107
+        status: 400
+      parameter_missing:
+        <<: *defaults
+        title: Missing parameter
+        detail: "The required parameter \"%{param}\", is missing"
+        code: 108
+        status: 400
+      unauthorized:
+        <<: *defaults
+        title: Not authorized
+        code: 401
+        status: 401
+      forbidden:
+        <<: *defaults
+        title: Forbidden
+        code: 403
+        status: 403
+      record_not_found:
+        <<: *defaults
+        title: Record not found
+        detail: "The record identified by %{id} could not be found"
+        code: 404
+        status: 404
+      routing_error:
+        <<: *defaults
+        title: Not found
+        detail: "There are no routes matching your request: %{path}"
+        code: 411
+        status: 404
+      internal_server_error:
+        <<: *defaults
+        title: Internal server error
+        code: 500
+        status: 500
+      service_outage:
+        <<: *defaults
+        title: Service unavailable
+        detail: "An outage has been reported on the %{service} since %{since}"
+        code: 503
+        status: 503
+# EXTERNAL EXCEPTIONS
+    # This is a Generic Error corresponding to backend services
+      client_error: &external_defaults
+        <<: *defaults
+        title: 'Operation failed' # To be used when no external minor code is mappable
+        code: 'VA900'
+        status: 400
+    # All error codes below this line, use the same exception class bad_request
+    # need to be mapped properly using specific codes described below
+    # Below this line just define the minor code as key to be used by client error
+    # RX122:
+    #   <<: *external_defaults
+    #   code: 'RX122'
+    #   detail: 'Prescription could not be filled'
+    #   status: bad_request
