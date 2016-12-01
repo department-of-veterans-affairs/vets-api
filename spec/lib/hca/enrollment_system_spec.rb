@@ -101,11 +101,13 @@ describe HCA::EnrollmentSystem do
     ]
   )
 
-  # describe '#spanish_hispanic_to_sds_code' do
-  #   [
-  #     [true, '2135-2'],
-  #     [false, '2186-5'],
-  #     ['foo', '0000-0']
-  #   ]
-  # end
+  test_method(
+    described_class,
+    'spanish_hispanic_to_sds_code',
+    [
+      [true, '2135-2'],
+      [false, '2186-5'],
+      ['foo', '0000-0']
+    ]
+  )
 end
