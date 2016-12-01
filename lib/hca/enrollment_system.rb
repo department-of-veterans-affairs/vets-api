@@ -55,6 +55,23 @@ module HCA
       }
     end
 
+    def marital_status_to_sds_code(marital_status)
+      case marital_status
+      when 'Married'
+        'M'
+      when 'Never Married'
+        'S'
+      when 'Separated'
+        'A'
+      when 'Widowed'
+        'W'
+      when 'Divorced'
+        'D'
+      else
+        'U'
+      end
+    end
+
     def transform(data)
     end
   end

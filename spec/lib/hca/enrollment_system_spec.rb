@@ -100,4 +100,24 @@ describe HCA::EnrollmentSystem do
       end
     end
   end
+
+  describe '#marital_status_to_sds_code' do
+    [
+      ['Married', 'M'],
+      ['Never Married', 'S'],
+      ['Separated', 'A'],
+      ['Widowed', 'W'],
+      ['Divorced', 'D'],
+      ['foo', 'U']
+    ].each do |test_data|
+      marital_status = test_data[0]
+      return_val = test_data[1]
+
+      context "with a marital_status of #{marital_status}" do
+        it "should return #{return_val}" do
+          expect(described_class.marital_status_to_sds_code(marital_status)).to eq(return_val)
+        end
+      end
+    end
+  end
 end
