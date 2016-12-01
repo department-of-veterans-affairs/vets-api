@@ -7,20 +7,20 @@ describe HCA::EnrollmentSystem do
     [
       {
         data: {
-          understandsFinancialDisclosure: true
+          'understandsFinancialDisclosure' => true
         },
         return_val: true
       },
       {
         data: {
-          discloseFinancialInformation: true
+          'discloseFinancialInformation' => true
         },
         return_val: true
       },
       {
         data: {
-          discloseFinancialInformation: false,
-          understandsFinancialDisclosure: false
+          'discloseFinancialInformation' => false,
+          'understandsFinancialDisclosure' => false
         },
         return_val: false
       }

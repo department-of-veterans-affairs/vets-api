@@ -19,7 +19,7 @@ module HCA
     }
 
     def has_financial_flag(veteran)
-      veteran[:understandsFinancialDisclosure] || veteran[:discloseFinancialInformation]
+      veteran['understandsFinancialDisclosure'] || veteran['discloseFinancialInformation']
     end
 
     def format_address(address)
