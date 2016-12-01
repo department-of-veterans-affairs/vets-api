@@ -110,4 +110,53 @@ describe HCA::EnrollmentSystem do
       ['foo', '0000-0']
     ]
   )
+
+  test_method(
+    described_class,
+    'phone_number_from_veteran',
+    [
+      [
+        {
+          'homePhone' => '1234'
+        },
+        [
+          {
+            'phoneNumber' => '1234',
+            'type' => '1'
+          }
+        ]
+      ],
+      [
+        {
+          'mobilePhone' => '1234'
+        },
+        [
+          {
+            'phoneNumber' => '1234',
+            'type' => '4'
+          }
+        ]
+      ],
+      [
+        {
+          'homePhone' => '1234',
+          'mobilePhone' => '4'
+        },
+        [
+          {
+            'phoneNumber' => '1234',
+            'type' => '1'
+          },
+          {
+            'phoneNumber' => '4',
+            'type' => '4'
+          }
+        ]
+      ],
+      [
+        {},
+        nil
+      ]
+    ]
+  )
 end

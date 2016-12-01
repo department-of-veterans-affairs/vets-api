@@ -83,6 +83,22 @@ module HCA
       end
     end
 
+    def phone_number_from_veteran(veteran)
+      return if veteran['homePhone'].blank? && veteran['mobilePhone'].blank?
+
+      phone = []
+      %w(homePhone mobilePhone).each do |type|
+        number = veteran[type]
+
+        phone << {
+          'phoneNumber' => number,
+          'type' => (type == 'homePhone' ? '1' : '4')
+        } if number.present?
+      end
+
+      phone
+    end
+
     def transform(data)
     end
   end
