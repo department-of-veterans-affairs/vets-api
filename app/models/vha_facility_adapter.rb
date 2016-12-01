@@ -35,6 +35,7 @@ class VHAFacilityAdapter
     m[:phone][:mental_health_clinic] = mh_clinic_phone(attrs)
     m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
     m[:services] = {}
+    m[:services][:last_updated] = services_date(attrs)
     m[:services][:health] = services_from_gis(attrs)
     m[:feedback] = {}
     m[:feedback][:health] = from_gis_attrs(FEEDBACK_KEYMAP, attrs)
@@ -110,6 +111,10 @@ class VHAFacilityAdapter
     result << ' x ' + attrs['Extension'].to_s unless
       (attrs['Extension']).blank? || (attrs['Extension']).zero?
     result
+  end
+
+  def self.services_date(attrs)
+    Time.at(attrs['OutpatientServicesDataDate'] / 1000).utc.to_date.iso8601 if attrs['OutpatientServicesDataDate']
   end
 
   # Build a sub-section of the VAFacility model from a flat GIS attribute list,
