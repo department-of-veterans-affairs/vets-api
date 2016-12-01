@@ -3,7 +3,7 @@ require 'rails_helper'
 require 'hca/enrollment_system'
 
 describe HCA::EnrollmentSystem do
-  describe '#has_financial_flag' do
+  describe '#financial_flag?' do
     [
       {
         data: {
@@ -27,7 +27,7 @@ describe HCA::EnrollmentSystem do
     ].each do |test_data|
       context "with data #{test_data[:data]}" do
         it "should return #{test_data[:return_val]} for has_financial_flag" do
-          expect(described_class.has_financial_flag(test_data[:data])).to eq(test_data[:return_val])
+          expect(described_class.financial_flag?(test_data[:data])).to eq(test_data[:return_val])
         end
       end
     end
@@ -61,21 +61,26 @@ describe HCA::EnrollmentSystem do
   describe '#format_address' do
     let(:test_address) do
       {
-        "street" => "123 NW 8th St",
-        "street2" =>  "",
-        "street3" =>  "",
-        "city" =>  "Dulles",
-        "country" =>  "USA",
-        "postalCode" =>  "13AA",
-        "provinceCode" =>  "ProvinceName",
-        "state" =>  "VA",
-        "zipcode" =>  "20101-0101"
+        'street' => '123 NW 8th St',
+        'street2' =>  '',
+        'street3' =>  '',
+        'city' => 'Dulles',
+        'country' => 'USA',
+        'postalCode' => '13AA',
+        'provinceCode' => 'ProvinceName',
+        'state' => 'VA',
+        'zipcode' => '20101-0101'
       }
     end
 
     it 'should format the address correctly' do
       expect(described_class.format_address(test_address)).to eq(
-        {"city"=>"Dulles", "country"=>"USA", "line1"=>"123 NW 8th St", "state"=>"VA", "zipCode"=>"20101", "zipPlus4"=>"0101"}
+        'city' => 'Dulles',
+        'country' => 'USA',
+        'line1' => '123 NW 8th St',
+        'state' => 'VA',
+        'zipCode' => '20101',
+        'zipPlus4' => '0101'
       )
     end
 
@@ -86,7 +91,11 @@ describe HCA::EnrollmentSystem do
 
       it 'should format the address correctly' do
         expect(described_class.format_address(test_address)).to eq(
-          {"city"=>"Dulles", "country"=>"COM", "line1"=>"123 NW 8th St", "provinceCode"=>"VA", "postalCode"=>"20101-0101"}
+          'city' => 'Dulles',
+          'country' => 'COM',
+          'line1' => '123 NW 8th St',
+          'provinceCode' => 'VA',
+          'postalCode' => '20101-0101'
         )
       end
     end

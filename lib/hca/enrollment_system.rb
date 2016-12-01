@@ -1,24 +1,25 @@
+# frozen_string_literal: true
 module HCA
   module EnrollmentSystem
     module_function
 
     FORM_TEMPLATE = {
-      "form" => {
-        "formIdentifier" => {
-          "type" => "100",
-          "value" => "1010EZ",
-          "version" => 1986360435
+      'form' => {
+        'formIdentifier' => {
+          'type' => '100',
+          'value' => '1010EZ',
+          'version' => 1_986_360_435
         }
       },
-      "identity" => {
-        "authenticationLevel" => {
-          "type" => "100",
-          "value" => "anonymous"
+      'identity' => {
+        'authenticationLevel' => {
+          'type' => '100',
+          'value' => 'anonymous'
         }
       }
-    }
+    }.freeze
 
-    def has_financial_flag(veteran)
+    def financial_flag?(veteran)
       veteran['understandsFinancialDisclosure'] || veteran['discloseFinancialInformation']
     end
 
@@ -48,7 +49,7 @@ module HCA
       zip_plus_4 = numeric_zip[5..8]
       zip_plus_4 = nil if !zip_plus_4.nil? && zip_plus_4.size != 4
 
-      formatted = {
+      {
         'zipCode' => numeric_zip[0..4],
         'zipPlus4' => zip_plus_4
       }
