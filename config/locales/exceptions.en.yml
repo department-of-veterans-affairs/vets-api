@@ -110,8 +110,8 @@ en:
     # All error codes below this line, use the same exception class bad_request
     # need to be mapped properly using specific codes described below
     # Below this line just define the minor code as key to be used by client error
-    # RX122:
-    #   <<: *external_defaults
-    #   code: 'RX122'
-    #   detail: 'Prescription could not be filled'
-    #   status: bad_request
+      RX139:
+        <<: *external_defaults
+        code: 'RX139'
+        detail: 'Prescription is not refillable'
+        status: 400

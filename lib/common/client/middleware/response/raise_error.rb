@@ -30,10 +30,10 @@ module Common
 
           def i18n_error_key(env)
             if I18n.exists?("common.exceptions.#{code(env)}")
-              "common.exceptions.#{code(env)}"
+              code(env)
             else
               Rails.logger.warn "The following exception should be added to locales: \n #{response_values(env)}"
-              'common.exceptions.backend_service_exception'
+              'backend_service_exception'
             end
           end
 

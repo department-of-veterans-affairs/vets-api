@@ -6,7 +6,7 @@ module Common
     class BackendServiceException < BaseError
       def initialize(i18n_key = nil, response_values = {})
         @response_values = response_values
-        @i18n_key = i18n_key
+        @i18n_key = i18n_key || 'backend_service_exception'
       end
 
       def message
@@ -20,7 +20,7 @@ module Common
       private
 
       def i18n_key
-        @i18n_key || 'common.exceptions.backend_service_exception'
+        "common.exceptions.#{@i18n_key}"
       end
     end
   end
