@@ -181,4 +181,32 @@ describe HCA::EnrollmentSystem do
       ]
     ]
   )
+
+  test_method(
+    described_class,
+    'veteran_to_races',
+    [
+      [
+        {
+          'isAmericanIndianOrAlaskanNative' => true
+        },
+        {
+          'race' => ['1002-5']
+        }
+      ],
+      [
+        {
+          'isAmericanIndianOrAlaskanNative' => true,
+          'isWhite' => true
+        },
+        {
+          'race' => ['1002-5', '2106-3']
+        }
+      ],
+      [
+        {},
+        nil
+      ],
+    ]
+  )
 end

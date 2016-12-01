@@ -113,6 +113,19 @@ module HCA
       ]
     end
 
+    def veteran_to_races(veteran)
+      races = []
+      races << '1002-5' if veteran['isAmericanIndianOrAlaskanNative']
+      races << '2028-9' if veteran['isAsian']
+      races << '2054-5' if veteran['isBlackOrAfricanAmerican']
+      races << '2076-8' if veteran['isNativeHawaiianOrOtherPacificIslander']
+      races << '2106-3' if veteran['isWhite']
+
+      return if races.size == 0
+
+      { 'race' => races }
+    end
+
     def transform(data)
     end
   end
