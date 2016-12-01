@@ -159,4 +159,26 @@ describe HCA::EnrollmentSystem do
       ]
     ]
   )
+
+  test_method(
+    described_class,
+    'email_from_veteran',
+    [
+      [
+        { 'email' => 'f@f.com' },
+        [
+          {
+            'email' => {
+              'address' => 'f@f.com',
+              'type' => '1'
+            }
+          }
+        ]
+      ],
+      [
+        {},
+        nil
+      ]
+    ]
+  )
 end

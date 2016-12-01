@@ -99,6 +99,20 @@ module HCA
       phone
     end
 
+    def email_from_veteran(veteran)
+      email = veteran['email']
+      return if email.blank?
+
+      return [
+        {
+          'email' => {
+            'address' => email,
+            'type' => '1'
+          }
+        }
+      ]
+    end
+
     def transform(data)
     end
   end
