@@ -19,31 +19,33 @@ module Common
 
           def on_complete(env)
             return if env.success?
-            binding.pry
-            raise error_klass.new(error_type(env), response_values(env))
+            raise error_klass.new(i18n_error_key(env), response_values(env))
           end
 
           private
 
           def code(env)
-            env[:body][code_key]
+            "#{service_acronym.upcase}#{env[:body][code_key]}"
           end
 
-          def error_type(env)
-            if code(env).present?
-              "#{service_acronym.upcase}#{code(env)}"
+          def i18n_error_key(env)
+            if I18n.exists?("common.exceptions.#{code(env)}")
+              "common.exceptions.#{code(env)}"
             else
-              nil
+              Rails.logger.warn "The following exception should be added to locales: \n #{response_values(env)}"
+              'common.exceptions.backend_service_exception'
             end
           end
 
+          # This method is not to be used for passing options. It is used to notify that
+          # a new error was presented from a backend service that is not currently mapped
+          # in locales
           def response_values(env)
             {
               status: env.status.to_i,
               detail: env[:body][detail_key],
               code:   code(env),
-              source: env[:body][source_key],
-              meta:   env[:body][meta_key]
+              source: env[:body][source_key]
             }
           end
         end

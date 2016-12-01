@@ -30,11 +30,12 @@ describe 'Response Middleware' do
   end
 
   it 'raises client response error' do
+    message = 'BackendServiceException: {:status=>404, :detail=>"Record Not Found", :code=>"RX400", :source=>"blah"}'
     expect { subject.get('not-found') }
       .to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)
-        binding.pry
-        expect(error.message).to eq('Record not found')
+        expect(error.message)
+          .to eq(message)
       end
   end
 end

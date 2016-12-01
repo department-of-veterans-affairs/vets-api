@@ -1,29 +1,26 @@
 # frozen_string_literal: true
 module Common
   module Exceptions
-    # BackendServiceException - This will eventually receive a Common::Client::Errors:BackendServiceError
-    # It should not be invoked directly by clients at any time. The Client:Error should be
-    # rescued and this should be raised instead.
+    # BackendServiceException - This will return a generic error, to customize
+    # you must define the minor code in the locales file.
     class BackendServiceException < BaseError
-      def initialize(error_klass = nil, options = {})
-        @error_klass = error_klass || 'client_error'
-        @detail = options[:detail]
-        @source = options[:source]
-        @meta = options[:meta] unless Rails.env.production?
+      def initialize(i18n_key = nil, response_values = {})
+        @response_values = response_values
+        @i18n_key = i18n_key
       end
 
       def message
-        i18n_data('title')
+        "BackendServiceException: #{@response_values}"
       end
 
       def errors
-        Array(SerializableError.new(i18n_data.merge(detail: @detail, source: @source, meta: @meta)))
+        Array(SerializableError.new(i18n_data))
       end
 
       private
 
       def i18n_key
-        "common.exceptions.#{@error_klass}"
+        @i18n_key || 'common.exceptions.backend_service_exception'
       end
     end
   end

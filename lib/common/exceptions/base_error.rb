@@ -12,7 +12,7 @@ module Common
       end
 
       def message
-        i18n_data('title')
+        i18n_data[:title]
       end
 
       private

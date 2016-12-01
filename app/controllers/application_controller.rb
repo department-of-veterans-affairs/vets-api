@@ -47,13 +47,6 @@ class ApplicationController < ActionController::API
         Common::Exceptions::ParameterMissing.new(exception.param)
       when Common::Exceptions::BaseError
         exception
-      when Common::Client::Errors::BackendServiceError
-        additional_attributes = {
-          detail: exception.message,
-          source: exception.developer_message,
-          meta: exception.as_json
-        }
-        Common::Exceptions::BackendServiceException.new(nil, additional_attributes)
       when Breakers::OutageException
         Common::Exceptions::ServiceOutage.new(exception.outage)
       when Common::Client::Errors::ClientError

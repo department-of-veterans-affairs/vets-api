@@ -15,7 +15,7 @@ RSpec.describe ApplicationController, type: :controller do
     end
 
     def other_error
-      raise Common::Client::Errors::BackendServiceError.new(422, JSON_ERROR)
+      raise Common::Exceptions::BackendServiceException.new('RX139')
     end
 
     def client_connection_failed

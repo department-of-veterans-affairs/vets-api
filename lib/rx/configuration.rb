@@ -26,7 +26,7 @@ module Rx
       end
 
       exception_handler = proc do |exception|
-        if exception.is_a?(Common::Client::Errors::BackendServiceError)
+        if exception.is_a?(Common::Exceptions::BackendServiceException)
           (500..599).cover?(exception.major)
         else
           false
@@ -50,7 +50,7 @@ module Rx
         # conn.response :logger, ::Logger.new(STDOUT), bodies: true
         conn.response :rx_parser
         conn.response :snakecase
-        conn.response :raise_error
+        conn.response :raise_error, 'RX', code_key: 'errorCode', detail_key: 'message', source_key: 'developerMessage'
         conn.response :json_parser
 
         conn.adapter Faraday.default_adapter

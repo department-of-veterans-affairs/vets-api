@@ -38,7 +38,7 @@ module MHVLogging
 
           # conn.response :logger, ::Logger.new(STDOUT), bodies: true
           conn.response :snakecase
-          conn.response :raise_error
+          conn.response :raise_error, 'MHV', code_key: 'errorCode', detail_key: 'message', source_key: 'developerMessage'
           conn.response :json_parser
           conn.adapter Faraday.default_adapter
         end
