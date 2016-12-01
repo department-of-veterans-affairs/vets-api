@@ -5,6 +5,8 @@ module Common
     # you must define the minor code in the locales file and call this class from
     # raise_error middleware.
     class BackendServiceException < BaseError
+      attr_reader :response_values
+
       def initialize(key = nil, response_values = {})
         if response_values[:status]&.between?(400, 999)
           @response_values = response_values
@@ -15,7 +17,7 @@ module Common
       end
 
       def message
-        "BackendServiceException: #{@response_values}"
+        "BackendServiceException: #{response_values}"
       end
 
       def errors
@@ -25,18 +27,22 @@ module Common
       private
 
       # The http status code. This is very important and required for rendering
+      # unless you've specified that you want the status code to be something other
+      # then 400 explicitly it will default to 400. IT WILL NOT DEFAULT to whatever
+      # was provided by the backend service, because the backend service response
+      # might not always be rele
       def _status
-        @response_values[:status] || 400
+        i18n_data[:detail].presence || 400
       end
 
       # Default detail should be based on i18n but fallback if it is explicitly set to nil
       def _detail
-        i18n_data[:detail].presence || @response_values[:detail]
+        i18n_data[:detail].presence || response_values[:detail]
       end
 
       # This should usually be a developer message of some sort from the backend service
       def _source
-        @response_values[:source]
+        response_values[:source]
       end
 
       def i18n_key
