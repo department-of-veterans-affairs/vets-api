@@ -72,6 +72,17 @@ module HCA
       end
     end
 
+    def spanish_hispanic_to_sds_code(is_spanish_hispanic_latino)
+      case is_spanish_hispanic_latino
+      when true
+        '2135-2'
+      when false
+        '2186-5'
+      else
+        '0000-0'
+      end
+    end
+
     def transform(data)
     end
   end

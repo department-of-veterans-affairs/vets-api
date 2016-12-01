@@ -3,37 +3,32 @@ require 'rails_helper'
 require 'hca/enrollment_system'
 
 describe HCA::EnrollmentSystem do
-  describe '#financial_flag?' do
+
+  test_method(
+    described_class,
+    'financial_flag?',
     [
-      {
-        data: {
-          'understandsFinancialDisclosure' => true
-        },
-        return_val: true
-      },
-      {
-        data: {
-          'discloseFinancialInformation' => true
-        },
-        return_val: true
-      },
-      {
-        data: {
+      [
+        { 'understandsFinancialDisclosure' => true },
+        true
+      ],
+      [
+        { 'discloseFinancialInformation' => true },
+        true
+      ],
+      [
+        {
           'discloseFinancialInformation' => false,
           'understandsFinancialDisclosure' => false
         },
-        return_val: false
-      }
-    ].each do |test_data|
-      context "with data #{test_data[:data]}" do
-        it "should return #{test_data[:return_val]} for has_financial_flag" do
-          expect(described_class.financial_flag?(test_data[:data])).to eq(test_data[:return_val])
-        end
-      end
-    end
-  end
+        false
+      ],
+    ]
+  )
 
-  describe '#format_zipcode' do
+  test_method(
+    described_class,
+    'format_zipcode',
     [
       [
         '12345',
@@ -47,16 +42,8 @@ describe HCA::EnrollmentSystem do
         '12345-123',
         { 'zipCode' => '12345', 'zipPlus4' => nil }
       ]
-    ].each do |test_data|
-      zipcode = test_data[0]
-
-      context "with a zip of #{zipcode}" do
-        it 'should format the zipcode correctly' do
-          expect(described_class.format_zipcode(zipcode)).to eq(test_data[1])
-        end
-      end
-    end
-  end
+    ]
+  )
 
   describe '#format_address' do
     let(:test_address) do
@@ -101,7 +88,9 @@ describe HCA::EnrollmentSystem do
     end
   end
 
-  describe '#marital_status_to_sds_code' do
+  test_method(
+    described_class,
+    'marital_status_to_sds_code',
     [
       %w(Married M),
       ['Never Married', 'S'],
@@ -109,15 +98,14 @@ describe HCA::EnrollmentSystem do
       %w(Widowed W),
       %w(Divorced D),
       %w(foo U)
-    ].each do |test_data|
-      marital_status = test_data[0]
-      return_val = test_data[1]
+    ]
+  )
 
-      context "with a marital_status of #{marital_status}" do
-        it "should return #{return_val}" do
-          expect(described_class.marital_status_to_sds_code(marital_status)).to eq(return_val)
-        end
-      end
-    end
-  end
+  # describe '#spanish_hispanic_to_sds_code' do
+  #   [
+  #     [true, '2135-2'],
+  #     [false, '2186-5'],
+  #     ['foo', '0000-0']
+  #   ]
+  # end
 end
