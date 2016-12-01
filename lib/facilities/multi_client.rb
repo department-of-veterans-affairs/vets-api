@@ -18,9 +18,14 @@ module Facilities
           Rails.logger.error "GIS request timed out: #{req.url}"
           raise Common::Client::Errors::ClientError.new('Facility request timed out', {})
         end
-        raise Common::Client::Errors::BackendServiceError.new(req.response.code, {}) unless
-          req.response.success?
-        result = JSON.parse(req.response.body)
+        raise Common::Client::Errors::BackendServiceError.new(req.response.code, {}) unless req.response&.success?
+
+        begin
+          result = JSON.parse(req.response.body)
+        rescue JSON::ParserError
+          # What to raise here?
+        end
+
         if result['error']
           Rails.logger.error "GIS returned error: #{result['error']['code']}, message: #{result['error']['message']}"
           raise Common::Client::Errors::BackendServiceError.new(result['error']['code'], {})

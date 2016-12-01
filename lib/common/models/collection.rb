@@ -31,7 +31,8 @@ module Common
       @attributes = data
       @metadata = metadata
       @errors = errors
-      (@data = data) && return if defined?(::WillPaginate::Collection) && data.is_a?(WillPaginate::Collection)
+      @data = data || []
+      return if defined?(::WillPaginate::Collection) && data.is_a?(WillPaginate::Collection)
       @data = data.collect do |element|
         element.is_a?(Hash) ? klass.new(element) : element
       end
