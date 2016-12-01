@@ -5,7 +5,7 @@ require 'hca/configuration'
 module HCA
   # Core class responsible for api interface operations
   class Client < Common::Client::Base
-    configuration Rx::Configuration
+    configuration HCA::Configuration
 
     # add your methods here
 =begin
