@@ -1,20 +1,10 @@
 # frozen_string_literal: true
-# frozen_string_literal: true
 class NCAFacilityAdapter
-  NCA_URL = +ENV['NCA_MAPSERVER_URL']
   NCA_ID_FIELD = 'CEMETERY_I'
   FACILITY_TYPE = 'va_cemetery'
 
-  def initialize
-    @client = Facilities::Client.new(url: NCA_URL, id_field: NCA_ID_FIELD)
-  end
-
-  def query(bbox, _services)
-    @client.query(bbox: bbox.join(','))
-  end
-
-  def find_by(id:)
-    @client.get(id: id)
+  def self.services?(_facility, _services)
+    false
   end
 
   def self.from_gis(record)
@@ -33,7 +23,7 @@ class NCAFacilityAdapter
     VAFacility.new(m)
   end
 
-  def service_whitelist
+  def self.service_whitelist
     []
   end
 
