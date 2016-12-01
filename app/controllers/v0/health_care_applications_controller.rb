@@ -5,12 +5,8 @@ module V0
 
     def create
       health_care_application = params[:form]
-
-      if health_care_application.submit
-        render json: { success: true, confirmation: health_care_application.confirmation_id }
-      else 
-        render json: { success: false }
-      end
+      puts health_care_application
+      render json: { success: true, confirmation: 13}
     end
 
     def index
