@@ -27,7 +27,10 @@ Rails.application.routes.draw do
                  constraints: ->(_) { FeatureFlipper.show_education_benefit_form? }
     end
 
-    resource :health_care_application, only: [:create]
+    resource :health_care_application, only: [:create, :index] do
+      post :create
+      get :index
+    end
 
     resource :disability_rating, only: [:show]
     resources :disability_claims, only: [:index, :show] do

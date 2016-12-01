@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module V0
-  class HealthCareApplicationController < ApplicationController
+  class HealthCareApplicationsController < ApplicationController
     skip_before_action(:authenticate)
 
     def create
@@ -11,6 +11,10 @@ module V0
       else 
         render json: { success: false }
       end
+    end
+
+    def index
+      render json: { greeting: 'Hi there' }
     end
   end
 end
