@@ -103,12 +103,12 @@ describe HCA::EnrollmentSystem do
 
   describe '#marital_status_to_sds_code' do
     [
-      ['Married', 'M'],
+      %w(Married M),
       ['Never Married', 'S'],
-      ['Separated', 'A'],
-      ['Widowed', 'W'],
-      ['Divorced', 'D'],
-      ['foo', 'U']
+      %w(Separated A),
+      %w(Widowed W),
+      %w(Divorced D),
+      %w(foo U)
     ].each do |test_data|
       marital_status = test_data[0]
       return_val = test_data[1]
