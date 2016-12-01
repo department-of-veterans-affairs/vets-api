@@ -10,7 +10,7 @@ module V0
         render json: { success: true }
       else
         render json: { success: false }
-      end 
+      end
     end
 
     def index
