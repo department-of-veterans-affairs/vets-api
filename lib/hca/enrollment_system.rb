@@ -5,6 +5,14 @@ module HCA
   module EnrollmentSystem
     module_function
 
+    RACE_CODES = {
+      'isAmericanIndianOrAlaskanNative' => '1002-5',
+      'isAsian' => '2028-9',
+      'isBlackOrAfricanAmerican' => '2054-5',
+      'isNativeHawaiianOrOtherPacificIslander' => '2076-8',
+      'isWhite' => '2106-3'
+    }.freeze
+
     FORM_TEMPLATE = {
       'form' => {
         'formIdentifier' => {
@@ -117,11 +125,9 @@ module HCA
 
     def veteran_to_races(veteran)
       races = []
-      races << '1002-5' if veteran['isAmericanIndianOrAlaskanNative']
-      races << '2028-9' if veteran['isAsian']
-      races << '2054-5' if veteran['isBlackOrAfricanAmerican']
-      races << '2076-8' if veteran['isNativeHawaiianOrOtherPacificIslander']
-      races << '2106-3' if veteran['isWhite']
+      RACE_CODES.each do |race_key, code|
+        races << code if veteran[race_key]
+      end
 
       return if races.size.zero?
 
