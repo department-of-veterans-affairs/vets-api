@@ -1,3 +1,5 @@
+require 'hca/validations'
+
 # frozen_string_literal: true
 module HCA
   module EnrollmentSystem
@@ -132,37 +134,19 @@ module HCA
 
       {
         'dob' => Validations.date_of_birth(veteran['spouseDateOfBirth']),
-        'givenName' => Validations.validate_name(veteran['spouseFullName']['first']),
-        'middleName' => Validations.validate_name(veteran['spouseFullName']['middle']),
-        'familyName' => Validations.validate_name(veteran['spouseFullName']['last']),
-        'suffix' => Validations.validate_name(veteran['spouseFullName']['suffix']),
+        'givenName' => Validations.validate_name(data: veteran['spouseFullName']['first']),
+        'middleName' => Validations.validate_name(data: veteran['spouseFullName']['middle']),
+        'familyName' => Validations.validate_name(data: veteran['spouseFullName']['last']),
+        'suffix' => Validations.validate_name(data: veteran['spouseFullName']['suffix']),
         'relationship' => 2,
         'startDate' => Validations.date_of_birth(veteran['dateOfMarriage']),
         'ssns' => {
           'ssn' => {
-            'ssnText'
+            'ssnText' => Validations.validate_ssn(veteran['spouseSocialSecurityNumber'])
           }
-        }
+        },
+        'address' => address
       }
-
-      # const address = formatAddress(veteran.spouseAddress);
-      # address.phoneNumber = veteran.spousePhone;
-
-      # return {
-      #   dob: validations.dateOfBirth(veteran.spouseDateOfBirth),
-      #   givenName: validations.validateName(veteran.spouseFullName.first),
-      #   middleName: validations.validateName(veteran.spouseFullName.middle),
-      #   familyName: validations.validateName(veteran.spouseFullName.last),
-      #   suffix: validations.validateName(veteran.spouseFullName.suffix),
-      #   relationship: 2,
-      #   startDate: validations.dateOfBirth(veteran.dateOfMarriage),
-      #   ssns: {
-      #     ssn: {
-      #       ssnText: validations.validateSsn(veteran.spouseSocialSecurityNumber)
-      #     }
-      #   },
-      #   address
-      # };
     end
 
     def transform(data)

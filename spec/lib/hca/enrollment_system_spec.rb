@@ -3,6 +3,20 @@ require 'rails_helper'
 require 'hca/enrollment_system'
 
 describe HCA::EnrollmentSystem do
+  TEST_ADDRESS = {
+    'street' => '123 NW 8th St',
+    'street2' =>  '',
+    'street3' =>  '',
+    'city' => 'Dulles',
+    'country' => 'USA',
+    'postalCode' => '13AA',
+    'provinceCode' => 'ProvinceName',
+    'state' => 'VA',
+    'zipcode' => '20101-0101'
+  }.freeze
+
+  let(:test_address) { TEST_ADDRESS.dup }
+
   test_method(
     described_class,
     'financial_flag?',
@@ -45,20 +59,6 @@ describe HCA::EnrollmentSystem do
   )
 
   describe '#format_address' do
-    let(:test_address) do
-      {
-        'street' => '123 NW 8th St',
-        'street2' =>  '',
-        'street3' =>  '',
-        'city' => 'Dulles',
-        'country' => 'USA',
-        'postalCode' => '13AA',
-        'provinceCode' => 'ProvinceName',
-        'state' => 'VA',
-        'zipcode' => '20101-0101'
-      }
-    end
-
     it 'should format the address correctly' do
       expect(described_class.format_address(test_address)).to eq(
         'city' => 'Dulles',
@@ -206,6 +206,47 @@ describe HCA::EnrollmentSystem do
         {},
         nil
       ],
+    ]
+  )
+
+  test_method(
+    described_class,
+    'veteran_to_spouse_info',
+    [
+      [
+        {
+          'spouseAddress' => TEST_ADDRESS,
+          'spousePhone' => '1112221234',
+          "spouseDateOfBirth" => "1980-04-06",
+          "spouseFullName" => {
+            "first" => "FirstSpouse",
+            "middle" => "MiddleSpouse",
+            "last" => "LastSpouse",
+            "suffix" => "Sr."
+          },
+          "dateOfMarriage" => "1983-05-10",
+          "spouseSocialSecurityNumber" => "111-22-1234",
+        },
+        {
+          "dob"=>"04/06/1980",
+          "givenName"=>"FIRSTSPOUSE",
+          "middleName"=>"MIDDLESPOUSE",
+          "familyName"=>"LASTSPOUSE",
+          "suffix"=>"SR.",
+          "relationship"=>2,
+          "startDate"=>"05/10/1983",
+          "ssns"=>{"ssn"=>{"ssnText"=>"111221234"}},
+          "address"=> {
+            'city' => 'Dulles',
+            'country' => 'USA',
+            'line1' => '123 NW 8th St',
+            'state' => 'VA',
+            'zipCode' => '20101',
+            'zipPlus4' => '0101',
+            'phoneNumber' => '1112221234'
+          }
+        }
+      ]
     ]
   )
 end
