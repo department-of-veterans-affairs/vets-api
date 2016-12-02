@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module V0
-  class HealthCareApplicationsController < ApplicationController
+  class HealthCareApplicationController < ApplicationController
     skip_before_action(:authenticate)
 
     def create
