@@ -2,6 +2,7 @@ require 'hca/validations'
 
 # frozen_string_literal: true
 module HCA
+  # rubocop:disable ModuleLength
   module EnrollmentSystem
     module_function
 
@@ -222,4 +223,5 @@ module HCA
     def transform(data)
     end
   end
+  # rubocop:enable ModuleLength
 end
