@@ -200,6 +200,21 @@ module HCA
       }
     end
 
+    def child_relationship_to_sds_code(child_relationship)
+      case child_relationship
+      when 'Daughter'
+        4
+      when 'Son'
+        3
+      when 'Stepson'
+        5
+      when 'Stepdaughter'
+        6
+      else
+        nil
+      end
+    end
+
     def transform(data)
     end
   end
