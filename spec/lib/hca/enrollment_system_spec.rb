@@ -35,7 +35,7 @@ describe HCA::EnrollmentSystem do
           'understandsFinancialDisclosure' => false
         },
         false
-      ],
+      ]
     ]
   )
 
@@ -205,7 +205,7 @@ describe HCA::EnrollmentSystem do
       [
         {},
         nil
-      ],
+      ]
     ]
   )
 
@@ -217,26 +217,26 @@ describe HCA::EnrollmentSystem do
         {
           'spouseAddress' => TEST_ADDRESS,
           'spousePhone' => '1112221234',
-          "spouseDateOfBirth" => "1980-04-06",
-          "spouseFullName" => {
-            "first" => "FirstSpouse",
-            "middle" => "MiddleSpouse",
-            "last" => "LastSpouse",
-            "suffix" => "Sr."
+          'spouseDateOfBirth' => '1980-04-06',
+          'spouseFullName' => {
+            'first' => 'FirstSpouse',
+            'middle' => 'MiddleSpouse',
+            'last' => 'LastSpouse',
+            'suffix' => 'Sr.'
           },
-          "dateOfMarriage" => "1983-05-10",
-          "spouseSocialSecurityNumber" => "111-22-1234",
+          'dateOfMarriage' => '1983-05-10',
+          'spouseSocialSecurityNumber' => '111-22-1234'
         },
         {
-          "dob"=>"04/06/1980",
-          "givenName"=>"FIRSTSPOUSE",
-          "middleName"=>"MIDDLESPOUSE",
-          "familyName"=>"LASTSPOUSE",
-          "suffix"=>"SR.",
-          "relationship"=>2,
-          "startDate"=>"05/10/1983",
-          "ssns"=>{"ssn"=>{"ssnText"=>"111221234"}},
-          "address"=> {
+          'dob' => '04/06/1980',
+          'givenName' => 'FIRSTSPOUSE',
+          'middleName' => 'MIDDLESPOUSE',
+          'familyName' => 'LASTSPOUSE',
+          'suffix' => 'SR.',
+          'relationship' => 2,
+          'startDate' => '05/10/1983',
+          'ssns' => { 'ssn' => { 'ssnText' => '111221234' } },
+          'address' => {
             'city' => 'Dulles',
             'country' => 'USA',
             'line1' => '123 NW 8th St',
@@ -256,23 +256,23 @@ describe HCA::EnrollmentSystem do
     [
       [
         {
-          "grossIncome" => 991.9,
-          "netIncome" => 981.2,
-          "otherIncome" => 91.9
+          'grossIncome' => 991.9,
+          'netIncome' => 981.2,
+          'otherIncome' => 91.9
         },
         {
-          "income" => [
+          'income' => [
             {
-              "amount" => 991.9,
-              "type" => 7
+              'amount' => 991.9,
+              'type' => 7
             },
             {
-              "amount" => 981.2,
-              "type" => 13
+              'amount' => 981.2,
+              'type' => 13
             },
             {
-              "amount" => 91.9,
-              "type" => 10
+              'amount' => 91.9,
+              'type' => 10
             }
           ]
         }
@@ -285,7 +285,7 @@ describe HCA::EnrollmentSystem do
     'resource_to_expense_collection',
     [
       [
-        { "childEducationExpenses" => 1198.11 },
+        { 'childEducationExpenses' => 1198.11 },
         {
           'expense' => [{
             'amount' => 1198.11,

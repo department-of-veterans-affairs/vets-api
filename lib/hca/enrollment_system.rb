@@ -105,7 +105,7 @@ module HCA
       email = veteran['email']
       return if email.blank?
 
-      return [
+      [
         {
           'email' => {
             'address' => email,
@@ -123,7 +123,7 @@ module HCA
       races << '2076-8' if veteran['isNativeHawaiianOrOtherPacificIslander']
       races << '2106-3' if veteran['isWhite']
 
-      return if races.size == 0
+      return if races.size.zero?
 
       { 'race' => races }
     end
@@ -167,7 +167,7 @@ module HCA
         end
       end
 
-      return if income_collection.size == 0
+      return if income_collection.size.zero?
 
       {
         'income' => income_collection
@@ -178,10 +178,10 @@ module HCA
       expense_collection = []
 
       [
-        ['educationExpense', '3'],
-        ['childEducationExpenses', '16'],
-        ['funeralExpense', '19'],
-        ['medicalExpense', '18']
+        %w(educationExpense 3),
+        %w(childEducationExpenses 16),
+        %w(funeralExpense 19),
+        %w(medicalExpense 18)
       ].each do |expense_type|
         expense = resource[expense_type[0]]
 
@@ -193,7 +193,7 @@ module HCA
         end
       end
 
-      return if expense_collection.size == 0
+      return if expense_collection.size.zero?
 
       {
         'expense' => expense_collection
@@ -210,8 +210,6 @@ module HCA
         5
       when 'Stepdaughter'
         6
-      else
-        nil
       end
     end
 

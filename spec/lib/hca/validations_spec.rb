@@ -32,9 +32,9 @@ describe HCA::Validations do
     described_class,
     'validate_name',
     [
-      [ { data: 'foo' }, 'FOO'],
-      [ { data: 'foo', count: 2 }, 'FO'],
-      [ { data: 1 }, '']
+      [{ data: 'foo' }, 'FOO'],
+      [{ data: 'foo', count: 2 }, 'FO'],
+      [{ data: 1 }, '']
     ]
   )
 
@@ -44,9 +44,9 @@ describe HCA::Validations do
     [
       ['', ''],
       [['1'], ''],
-      [111111111, ''],
+      [111_111_111, ''],
       ['000111111', ''],
-      ['210438765', '210438765'],
+      %w(210438765 210438765),
       ['210-43-8765', '210438765'],
       ['1112233334444', '']
     ]
