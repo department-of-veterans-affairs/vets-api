@@ -27,4 +27,14 @@ describe HCA::Validations do
       [{ data: 'dog', count: 10 }, 'Dog']
     ]
   )
+
+  test_method(
+    described_class,
+    'validate_name',
+    [
+      [ { data: 'foo' }, 'FOO'],
+      [ { data: 'foo', count: 2 }, 'FO'],
+      [ { data: 1 }, '']
+    ]
+  )
 end

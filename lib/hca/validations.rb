@@ -23,5 +23,11 @@ module HCA
 
       validated_string
     end
+
+    def validate_name(*args)
+      formatted_name = validate_string(*args)
+      return '' if formatted_name.blank?
+      formatted_name.upcase
+    end
   end
 end
