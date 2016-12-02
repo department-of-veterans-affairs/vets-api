@@ -23,13 +23,13 @@ http_interactions:
       Server:
       - Microsoft-IIS/8.5
       X-Arcgis-Instance:
-      - MTSDS_Web_IN_3
+      - MTSDS_Web_IN_1
       X-Powered-By:
       - ASP.NET
       Access-Control-Allow-Origin:
       - "*"
       Date:
-      - Wed, 09 Nov 2016 21:53:58 GMT
+      - Fri, 02 Dec 2016 00:24:47 GMT
       Content-Length:
       - '19289'
     body:
@@ -60,5 +60,5 @@ http_interactions:
         x","EnrollmentCoordinatorPhone":"503-273-5069 x","PharmacyPhone":"503-273-5183
         x","Monday":"800AM-430PM","Tuesday":"800AM-430PM","Wednesday":"800AM-430PM","Thursday":"800AM-430PM","Friday":"800AM-430PM","Saturday":"-","Sunday":"-","Latitude":45.52017304,"Longitude":-122.67221794,"Audiology":"","ComplementaryAlternativeMed":"","DentalServices":"","DiagnosticServices":"","ImagingAndRadiology":"","LabServices":"","EmergencyDept":"","EyeCare":"","MentalHealthCare":"NO","OutpatientMHCare":"","OutpatientSpecMHCare":"","VocationalAssistance":"","OutpatientMedicalSpecialty":"","AllergyAndImmunology":"","CardiologyCareServices":"","DermatologyCareServices":"","Diabetes":"","Dialysis":"","Endocrinology":"","Gastroenterology":"","Hematology":"","InfectiousDisease":"","InternalMedicine":"","Nephrology":"","Neurology":"","Oncology":"","PulmonaryRespiratoryDisease":"","Rheumatology":"","SleepMedicine":"","OutpatientSurgicalSpecialty":"","CardiacSurgery":"","ColoRectalSurgery":"","ENT":"","GeneralSurgery":"","Gynecology":"","Neurosurgery":"","Orthopedics":"","PainManagement":"","PlasticSurgery":"","Podiatry":"","ThoracicSurgery":"","Urology":"","VascularSurgery":"","PrimaryCare":"NO","Rehabilitation":"","UrgentCare":"","WellnessAndPreventativeCare":"","First_InternetAddress":null,"MHClinicPhone":null,"Extension":null,"Primary_Care_Urgent":null,"Primary_Care_Routine":null,"Specialty_Care_Urgent":null,"Specialty_Care_Routine":null},"geometry":{"x":-122.67223242130494,"y":45.520178505352142}}]}'
     http_version: 
-  recorded_at: Wed, 09 Nov 2016 21:53:55 GMT
+  recorded_at: Fri, 02 Dec 2016 00:24:41 GMT
 recorded_with: VCR 3.0.3

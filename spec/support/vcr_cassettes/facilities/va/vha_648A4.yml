@@ -23,13 +23,13 @@ http_interactions:
       Server:
       - Microsoft-IIS/8.5
       X-Arcgis-Instance:
-      - MTSDS_Web_IN_3
+      - MTSDS_Web_IN_1
       X-Powered-By:
       - ASP.NET
       Access-Control-Allow-Origin:
       - "*"
       Date:
-      - Wed, 09 Nov 2016 21:53:59 GMT
+      - Fri, 02 Dec 2016 00:24:47 GMT
       Content-Length:
       - '15112'
     body:
@@ -48,5 +48,5 @@ http_interactions:
         x","EnrollmentCoordinatorPhone":"503-273-5069 x","PharmacyPhone":"503-273-5183
         x","Monday":"730AM-430PM","Tuesday":"730AM-630PM","Wednesday":"730AM-430PM","Thursday":"730AM-430PM","Friday":"730AM-430PM","Saturday":"800AM-1000AM","Sunday":"-","Latitude":45.63941626,"Longitude":-122.65528736,"Audiology":"","ComplementaryAlternativeMed":"","DentalServices":"","DiagnosticServices":"","ImagingAndRadiology":"","LabServices":"","EmergencyDept":"","EyeCare":"","MentalHealthCare":"YES","OutpatientMHCare":"","OutpatientSpecMHCare":"","VocationalAssistance":"","OutpatientMedicalSpecialty":"","AllergyAndImmunology":"","CardiologyCareServices":"","DermatologyCareServices":"","Diabetes":"","Dialysis":"","Endocrinology":"","Gastroenterology":"","Hematology":"","InfectiousDisease":"","InternalMedicine":"","Nephrology":"","Neurology":"","Oncology":"","PulmonaryRespiratoryDisease":"","Rheumatology":"","SleepMedicine":"","OutpatientSurgicalSpecialty":"","CardiacSurgery":"","ColoRectalSurgery":"","ENT":"","GeneralSurgery":"","Gynecology":"","Neurosurgery":"","Orthopedics":"","PainManagement":"","PlasticSurgery":"","Podiatry":"","ThoracicSurgery":"","Urology":"","VascularSurgery":"","PrimaryCare":"YES","Rehabilitation":"","UrgentCare":"","WellnessAndPreventativeCare":"","First_InternetAddress":"http://www.portland.va.gov/locations/vancouver.asp","MHClinicPhone":5032735187,"Extension":null,"Primary_Care_Urgent":0.595,"Primary_Care_Routine":0.772,"Specialty_Care_Urgent":null,"Specialty_Care_Routine":null},"geometry":{"x":-122.65530186353662,"y":45.639421733971858}}]}'
     http_version: 
-  recorded_at: Wed, 09 Nov 2016 21:53:55 GMT
+  recorded_at: Fri, 02 Dec 2016 00:24:41 GMT
 recorded_with: VCR 3.0.3
