@@ -16,14 +16,13 @@ module Facilities
       requests.map do |req|
         if req.response.timed_out?
           Rails.logger.error "GIS request timed out: #{req.url}"
-          raise Common::Client::Errors::ClientError.new('Facility request timed out', {})
+          raise Common::Client::Errors::ClientError.new('Facility request timed out')
         end
-        raise Common::Exceptions::BackendServiceException.new(req.response.code, {}) unless
-          req.response.success?
+        raise Common::Exceptions::BackendServiceException.new(nil, status: req.response.code) unless req.response.success?
         result = JSON.parse(req.response.body)
         if result['error']
           Rails.logger.error "GIS returned error: #{result['error']['code']}, message: #{result['error']['message']}"
-          raise Common::Exceptions::BackendServiceException.new(result['error']['code'], {})
+          raise Common::Exceptions::BackendServiceException.new(nil, status: result['error']['code'])
         end
         result['features']
       end
