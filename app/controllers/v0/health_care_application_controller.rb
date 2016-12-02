@@ -7,14 +7,14 @@ module V0
       health_care_application = params[:form]
 
       if health_care_application
-        render json: { success: true }
+        render(json: { success: true })
       else
-        render json: { success: false }
+        render(json: { success: false })
       end
     end
 
     def index
-      render json: { greeting: 'Hi there' }
+      render(json: { greeting: 'Hi there' })
     end
   end
 end
