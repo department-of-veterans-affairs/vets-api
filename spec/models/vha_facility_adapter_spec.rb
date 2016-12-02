@@ -56,4 +56,11 @@ RSpec.describe VHAFacilityAdapter, type: :adapter do
     model = described_class.from_gis(input)
     expect(model.phone[:mental_health_clinic]).to eq('')
   end
+
+  it 'filters unapproved services' do
+    input = FactoryGirl.build(:vha_gis_record)
+    input['attributes']['InfectiousDisease'] = 'YES'
+    model = described_class.from_gis(input)
+    expect(model.services[:health].length).to eq(2)
+  end
 end

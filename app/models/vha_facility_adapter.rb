@@ -35,6 +35,7 @@ class VHAFacilityAdapter
     m[:phone][:mental_health_clinic] = mh_clinic_phone(attrs)
     m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
     m[:services] = {}
+    m[:services][:last_updated] = services_date(attrs)
     m[:services][:health] = services_from_gis(attrs)
     m[:feedback] = {}
     m[:feedback][:health] = from_gis_attrs(FEEDBACK_KEYMAP, attrs)
@@ -104,12 +105,22 @@ class VHAFacilityAdapter
     'WellnessAndPreventativeCare' => []
   }.freeze
 
+  # Filter services based on what has been organizationally approved for publication
+  APPROVED_SERVICES = %w(
+    MentalHealthCare
+    PrimaryCare
+  ).freeze
+
   def self.mh_clinic_phone(attrs)
     return '' if (attrs['MHClinicPhone']).blank? || (attrs['MHClinicPhone']).zero?
     result = attrs['MHClinicPhone'].to_s
     result << ' x ' + attrs['Extension'].to_s unless
       (attrs['Extension']).blank? || (attrs['Extension']).zero?
     result
+  end
+
+  def self.services_date(attrs)
+    Time.at(attrs['OutpatientServicesDataDate'] / 1000).utc.to_date.iso8601 if attrs['OutpatientServicesDataDate']
   end
 
   # Build a sub-section of the VAFacility model from a flat GIS attribute list,
@@ -126,10 +137,10 @@ class VHAFacilityAdapter
   # 'sl2' => list of Level 2 services
   def self.services_from_gis(attrs)
     SERVICE_HIERARCHY.each_with_object([]) do |(k, v), l|
-      next unless attrs[k] == 'YES'
+      next unless attrs[k] == 'YES' && APPROVED_SERVICES.include?(k)
       sl2 = []
       v.each do |sk|
-        sl2 << sk if attrs[sk] == 'YES'
+        sl2 << sk if attrs[sk] == 'YES' && APPROVED_SERVICES.include?(sk)
       end
       l << { 'sl1' => [k], 'sl2' => sl2 }
     end
