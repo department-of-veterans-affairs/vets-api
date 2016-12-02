@@ -307,4 +307,43 @@ describe HCA::EnrollmentSystem do
       ['', nil]
     ]
   )
+
+  test_method(
+    described_class,
+    'child_to_dependent_info',
+    [
+      [
+        {
+          "childFullName": {
+            "first": "FirstChildA",
+            "middle": "MiddleChildA",
+            "last": "LastChildA",
+            "suffix": "Jr."
+          },
+          "childRelation": "Stepson",
+          "childSocialSecurityNumber": "111-22-9876",
+          "childBecameDependent": "1992-04-07",
+          "childDateOfBirth": "1982-05-05",
+          "childDisabledBefore18": true,
+          "childAttendedSchoolLastYear": true,
+          "childEducationExpenses": 45.2,
+          "childCohabitedLastYear": true,
+          "childReceivedSupportLastYear": false,
+          "grossIncome": 991.9,
+          "netIncome": 981.2,
+          "otherIncome": 91.9
+        }.deep_stringify_keys,
+        {
+          "dob"=>"05/05/1982",
+          "givenName"=>"FIRSTCHILDA",
+          "middleName"=>"MIDDLECHILDA",
+          "familyName"=>"LASTCHILDA",
+          "suffix"=>"JR.",
+          "relationship"=>5,
+          "ssns"=>{"ssn"=>{"ssnText"=>"111229876"}},
+          "startDate"=>"04/07/1992"
+        }
+      ]
+    ]
+  )
 end

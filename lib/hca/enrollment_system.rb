@@ -220,6 +220,23 @@ module HCA
       end
     end
 
+    def child_to_dependent_info(child)
+      {
+        'dob' => Validations.date_of_birth(child['childDateOfBirth']),
+        'givenName' => Validations.validate_name(data: child['childFullName']['first']),
+        'middleName' => Validations.validate_name(data: child['childFullName']['middle']),
+        'familyName' => Validations.validate_name(data: child['childFullName']['last']),
+        'suffix' => Validations.validate_name(data: child['childFullName']['suffix']),
+        'relationship' => child_relationship_to_sds_code(child['childRelation']),
+        'ssns' => {
+          'ssn' => {
+            'ssnText' => Validations.validate_ssn(child['childSocialSecurityNumber'])
+          }
+        },
+        'startDate' => Validations.date_of_birth(child['childBecameDependent'])
+      }
+    end
+
     def transform(data)
     end
   end
