@@ -12,8 +12,6 @@ class DisabilityClaimDocument < Common::Base
   validates(:tracked_item_id, presence: true)
   validates(:file_name, presence: true)
   validate :known_document_type?
-
-  # rubocop:disable LineLength
   DOCUMENT_TYPES = {
     'L029' => 'Copy of a DD214',
     'L450' => 'STR - Dental - Photocopy',
