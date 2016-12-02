@@ -249,4 +249,34 @@ describe HCA::EnrollmentSystem do
       ]
     ]
   )
+
+  test_method(
+    described_class,
+    'resource_to_income_collection',
+    [
+      [
+        {
+          "grossIncome" => 991.9,
+          "netIncome" => 981.2,
+          "otherIncome" => 91.9
+        },
+        {
+          "income" => [
+            {
+              "amount" => 991.9,
+              "type" => 7
+            },
+            {
+              "amount" => 981.2,
+              "type" => 13
+            },
+            {
+              "amount" => 91.9,
+              "type" => 10
+            }
+          ]
+        }
+      ]
+    ]
+  )
 end

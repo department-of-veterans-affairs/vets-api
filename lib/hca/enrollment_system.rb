@@ -149,6 +149,31 @@ module HCA
       }
     end
 
+    def resource_to_income_collection(resource)
+      income_collection = []
+
+      [
+        ['grossIncome', 7],
+        ['netIncome', 13],
+        ['otherIncome', 10]
+      ].each do |income_type|
+        income = resource[income_type[0]]
+
+        if income.present?
+          income_collection << {
+            'amount' => income,
+            'type' => income_type[1]
+          }
+        end
+      end
+
+      return if income_collection.size == 0
+
+      {
+        'income' => income_collection
+      }
+    end
+
     def transform(data)
     end
   end
