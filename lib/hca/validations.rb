@@ -10,5 +10,18 @@ module HCA
 
       parsed_dob.strftime('%m/%d/%Y')
     end
+
+    def validate_string(data:, count: nil, nullable: false)
+      blank_data = data.blank?
+
+      return if nullable && blank_data
+      return '' if blank_data || !data.is_a?(String)
+
+      validated_string = data.clone
+      validated_string[0] = validated_string[0].capitalize
+      validated_string = validated_string[0, count] unless count.nil?
+
+      validated_string
+    end
   end
 end
