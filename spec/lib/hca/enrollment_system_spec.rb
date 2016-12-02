@@ -279,4 +279,20 @@ describe HCA::EnrollmentSystem do
       ]
     ]
   )
+
+  test_method(
+    described_class,
+    'resource_to_expense_collection',
+    [
+      [
+        { "childEducationExpenses" => 1198.11 },
+        {
+          'expense' => [{
+            'amount' => 1198.11,
+            'expenseType' => '16'
+          }]
+        }
+      ]
+    ]
+  )
 end

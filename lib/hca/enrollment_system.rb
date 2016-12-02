@@ -174,6 +174,32 @@ module HCA
       }
     end
 
+    def resource_to_expense_collection(resource)
+      expense_collection = []
+
+      [
+        ['educationExpense', '3'],
+        ['childEducationExpenses', '16'],
+        ['funeralExpense', '19'],
+        ['medicalExpense', '18']
+      ].each do |expense_type|
+        expense = resource[expense_type[0]]
+
+        if expense.present?
+          expense_collection << {
+            'amount' => expense,
+            'expenseType' => expense_type[1]
+          }
+        end
+      end
+
+      return if expense_collection.size == 0
+
+      {
+        'expense' => expense_collection
+      }
+    end
+
     def transform(data)
     end
   end
