@@ -87,7 +87,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
-      expect(json['data'].length).to eq(11)
+      expect(json['data'].length).to eq(12)
     end
   end
 
@@ -97,7 +97,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
-      expect(json['data'].length).to eq(6)
+      expect(json['data'].length).to eq(7)
     end
   end
 
@@ -132,7 +132,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   it 'returns 400 for error from GIS' do
     VCR.use_cassette('facilities/va/point_bbox') do
       get BASE_QUERY_PATH + DEGEN_BBOX + '&type=benefits'
-      expect(response).to have_http_status(:bad_request)
+      expect(response).to have_http_status(:service_unavailable)
     end
   end
 

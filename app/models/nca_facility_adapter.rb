@@ -27,7 +27,7 @@ class NCAFacilityAdapter
     m[:address][:physical] = from_gis_attrs(ADDR_KEYMAP, attrs)
     m[:address][:mailing] = from_gis_attrs(MAIL_ADDR_KEYMAP, attrs)
     m[:phone] = from_gis_attrs(PHONE_KEYMAP, attrs)
-    m[:hours] = {}
+    m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
     m[:services] = {}
     m[:feedback] = {}
     VAFacility.new(m)
@@ -39,7 +39,7 @@ class NCAFacilityAdapter
 
   TOP_KEYMAP = {
     unique_id: 'CEMETERY_I', name: 'FULL_NAME', classification: 'CEM_TYPE',
-    website: 'First_InternetAddress'
+    website: 'Website_URL'
   }.freeze
 
   ADDR_KEYMAP = {
@@ -55,6 +55,10 @@ class NCAFacilityAdapter
   PHONE_KEYMAP = {
     'main' => 'PHONE', 'fax' => 'FAX'
   }.freeze
+
+  HOURS_KEYMAP = %w(
+    Monday Tuesday Wednesday Thursday Friday Saturday Sunday
+  ).each_with_object({}) { |d, h| h[d] = d }
 
   # Build a sub-section of the VAFacility model from a flat GIS attribute list,
   # according to the provided key mapping dict. Strip whitespace from string values.

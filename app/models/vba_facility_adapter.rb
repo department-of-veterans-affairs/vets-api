@@ -30,7 +30,6 @@ class VBAFacilityAdapter
     m[:address][:mailing] = {}
     m[:phone] = from_gis_attrs(PHONE_KEYMAP, attrs)
     m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
-    m[:hours][:notes] = attrs['Comments']
     m[:services] = {}
     m[:services][:benefits] = services_from_gis(attrs)
     m[:feedback] = {}
@@ -44,7 +43,7 @@ class VBAFacilityAdapter
   TOP_KEYMAP = {
     unique_id: 'Facility_Number',
     name: 'Facility_Name', classification: 'Facility_Type',
-    website: 'First_InternetAddress', lat: 'Lat', long: 'Long'
+    website: 'Website_URL', lat: 'Lat', long: 'Long'
   }.freeze
 
   ADDR_KEYMAP = {
