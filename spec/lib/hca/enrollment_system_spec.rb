@@ -3,7 +3,6 @@ require 'rails_helper'
 require 'hca/enrollment_system'
 
 describe HCA::EnrollmentSystem do
-
   test_method(
     described_class,
     'financial_flag?',

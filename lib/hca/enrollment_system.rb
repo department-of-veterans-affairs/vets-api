@@ -126,6 +126,34 @@ module HCA
       { 'race' => races }
     end
 
+    def veteran_to_spouse_info(veteran)
+      # address = format_address(veteran['spouseAddress'])
+      # address['phoneNumber'] = veteran['spousePhone']
+
+      # {
+      #   'dob' => 
+      # }
+
+      # const address = formatAddress(veteran.spouseAddress);
+      # address.phoneNumber = veteran.spousePhone;
+
+      # return {
+      #   dob: validations.dateOfBirth(veteran.spouseDateOfBirth),
+      #   givenName: validations.validateName(veteran.spouseFullName.first),
+      #   middleName: validations.validateName(veteran.spouseFullName.middle),
+      #   familyName: validations.validateName(veteran.spouseFullName.last),
+      #   suffix: validations.validateName(veteran.spouseFullName.suffix),
+      #   relationship: 2,
+      #   startDate: validations.dateOfBirth(veteran.dateOfMarriage),
+      #   ssns: {
+      #     ssn: {
+      #       ssnText: validations.validateSsn(veteran.spouseSocialSecurityNumber)
+      #     }
+      #   },
+      #   address
+      # };
+    end
+
     def transform(data)
     end
   end
