@@ -13,4 +13,18 @@ describe HCA::Validations do
       ['1974-12-01', '12/01/1974']
     ]
   )
+
+  test_method(
+    described_class,
+    'validate_string',
+    [
+      [{ nullable: true, data: '' }, nil],
+      [{ data: '' }, ''],
+      [{ data: 1 }, ''],
+      [{ data: 'dog' }, 'Dog'],
+      [{ data: 'dog', count: 2 }, 'Do'],
+      [{ data: 'DOG' }, 'DOG'],
+      [{ data: 'dog', count: 10 }, 'Dog']
+    ]
+  )
 end

@@ -17,7 +17,7 @@ module HCA
       return if nullable && blank_data
       return '' if blank_data || !data.is_a?(String)
 
-      validated_string = data.clone
+      validated_string = data.dup
       validated_string[0] = validated_string[0].capitalize
       validated_string = validated_string[0, count] unless count.nil?
 
