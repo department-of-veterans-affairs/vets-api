@@ -127,12 +127,23 @@ module HCA
     end
 
     def veteran_to_spouse_info(veteran)
-      # address = format_address(veteran['spouseAddress'])
-      # address['phoneNumber'] = veteran['spousePhone']
+      address = format_address(veteran['spouseAddress'])
+      address['phoneNumber'] = veteran['spousePhone']
 
-      # {
-      #   'dob' => 
-      # }
+      {
+        'dob' => Validations.date_of_birth(veteran['spouseDateOfBirth']),
+        'givenName' => Validations.validate_name(veteran['spouseFullName']['first']),
+        'middleName' => Validations.validate_name(veteran['spouseFullName']['middle']),
+        'familyName' => Validations.validate_name(veteran['spouseFullName']['last']),
+        'suffix' => Validations.validate_name(veteran['spouseFullName']['suffix']),
+        'relationship' => 2,
+        'startDate' => Validations.date_of_birth(veteran['dateOfMarriage']),
+        'ssns' => {
+          'ssn' => {
+            'ssnText'
+          }
+        }
+      }
 
       # const address = formatAddress(veteran.spouseAddress);
       # address.phoneNumber = veteran.spousePhone;
