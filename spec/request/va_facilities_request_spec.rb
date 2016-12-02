@@ -132,7 +132,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   it 'returns 400 for error from GIS' do
     VCR.use_cassette('facilities/va/point_bbox') do
       get BASE_QUERY_PATH + DEGEN_BBOX + '&type=benefits'
-      expect(response).to have_http_status(:bad_request)
+      expect(response).to have_http_status(:service_unavailable)
     end
   end
 
