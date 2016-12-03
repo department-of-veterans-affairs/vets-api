@@ -17,15 +17,15 @@ describe HCA::EnrollmentSystem do
 
   TEST_CHILD = {
     "childFullName": {
-      "first": "FirstChildA",
-      "middle": "MiddleChildA",
-      "last": "LastChildA",
-      "suffix": "Jr."
+      "first": 'FirstChildA',
+      "middle": 'MiddleChildA',
+      "last": 'LastChildA',
+      "suffix": 'Jr.'
     },
-    "childRelation": "Stepson",
-    "childSocialSecurityNumber": "111-22-9876",
-    "childBecameDependent": "1992-04-07",
-    "childDateOfBirth": "1982-05-05",
+    "childRelation": 'Stepson',
+    "childSocialSecurityNumber": '111-22-9876',
+    "childBecameDependent": '1992-04-07',
+    "childDateOfBirth": '1982-05-05',
     "childDisabledBefore18": true,
     "childAttendedSchoolLastYear": true,
     "childEducationExpenses": 45.2,
@@ -336,14 +336,14 @@ describe HCA::EnrollmentSystem do
       [
         TEST_CHILD,
         {
-          "dob"=>"05/05/1982",
-          "givenName"=>"FIRSTCHILDA",
-          "middleName"=>"MIDDLECHILDA",
-          "familyName"=>"LASTCHILDA",
-          "suffix"=>"JR.",
-          "relationship"=>5,
-          "ssns"=>{"ssn"=>{"ssnText"=>"111229876"}},
-          "startDate"=>"04/07/1992"
+          'dob' => '05/05/1982',
+          'givenName' => 'FIRSTCHILDA',
+          'middleName' => 'MIDDLECHILDA',
+          'familyName' => 'LASTCHILDA',
+          'suffix' => 'JR.',
+          'relationship' => 5,
+          'ssns' => { 'ssn' => { 'ssnText' => '111229876' } },
+          'startDate' => '04/07/1992'
         }
       ]
     ]
@@ -355,21 +355,30 @@ describe HCA::EnrollmentSystem do
     [
       [
         TEST_CHILD,
-        {"incomes"=>{"income"=>[{"amount"=>991.9, "type"=>7}, {"amount"=>981.2, "type"=>13}, {"amount"=>91.9, "type"=>10}]},
-         "expenses"=>{"expense"=>[{"amount"=>45.2, "expenseType"=>"16"}]},
-         "dependentInfo"=>
-          {"dob"=>"05/05/1982",
-           "givenName"=>"FIRSTCHILDA",
-           "middleName"=>"MIDDLECHILDA",
-           "familyName"=>"LASTCHILDA",
-           "suffix"=>"JR.",
-           "relationship"=>5,
-           "ssns"=>{"ssn"=>{"ssnText"=>"111229876"}},
-           "startDate"=>"04/07/1992"},
-         "livedWithPatient"=>true,
-         "incapableOfSelfSupport"=>true,
-         "attendedSchool"=>true,
-         "contributedToSupport"=>false}
+        {
+          'incomes' => {
+            'income' => [
+              { 'amount' => 991.9, 'type' => 7 },
+              { 'amount' => 981.2, 'type' => 13 },
+              { 'amount' => 91.9, 'type' => 10 }
+            ]
+          },
+          'expenses' => { 'expense' => [{ 'amount' => 45.2, 'expenseType' => '16' }] },
+          'dependentInfo' => {
+            'dob' => '05/05/1982',
+            'givenName' => 'FIRSTCHILDA',
+            'middleName' => 'MIDDLECHILDA',
+            'familyName' => 'LASTCHILDA',
+            'suffix' => 'JR.',
+            'relationship' => 5,
+            'ssns' => { 'ssn' => { 'ssnText' => '111229876' } },
+            'startDate' => '04/07/1992'
+          },
+          'livedWithPatient' => true,
+          'incapableOfSelfSupport' => true,
+          'attendedSchool' => true,
+          'contributedToSupport' => false
+        }
       ]
     ]
   )
