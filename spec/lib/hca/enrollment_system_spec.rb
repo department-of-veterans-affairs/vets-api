@@ -15,6 +15,27 @@ describe HCA::EnrollmentSystem do
     'zipcode' => '20101-0101'
   }.freeze
 
+  TEST_CHILD = {
+    "childFullName": {
+      "first": "FirstChildA",
+      "middle": "MiddleChildA",
+      "last": "LastChildA",
+      "suffix": "Jr."
+    },
+    "childRelation": "Stepson",
+    "childSocialSecurityNumber": "111-22-9876",
+    "childBecameDependent": "1992-04-07",
+    "childDateOfBirth": "1982-05-05",
+    "childDisabledBefore18": true,
+    "childAttendedSchoolLastYear": true,
+    "childEducationExpenses": 45.2,
+    "childCohabitedLastYear": true,
+    "childReceivedSupportLastYear": false,
+    "grossIncome": 991.9,
+    "netIncome": 981.2,
+    "otherIncome": 91.9
+  }.deep_stringify_keys
+
   let(:test_address) { TEST_ADDRESS.dup }
 
   test_method(
@@ -313,26 +334,7 @@ describe HCA::EnrollmentSystem do
     'child_to_dependent_info',
     [
       [
-        {
-          "childFullName": {
-            "first": "FirstChildA",
-            "middle": "MiddleChildA",
-            "last": "LastChildA",
-            "suffix": "Jr."
-          },
-          "childRelation": "Stepson",
-          "childSocialSecurityNumber": "111-22-9876",
-          "childBecameDependent": "1992-04-07",
-          "childDateOfBirth": "1982-05-05",
-          "childDisabledBefore18": true,
-          "childAttendedSchoolLastYear": true,
-          "childEducationExpenses": 45.2,
-          "childCohabitedLastYear": true,
-          "childReceivedSupportLastYear": false,
-          "grossIncome": 991.9,
-          "netIncome": 981.2,
-          "otherIncome": 91.9
-        }.deep_stringify_keys,
+        TEST_CHILD,
         {
           "dob"=>"05/05/1982",
           "givenName"=>"FIRSTCHILDA",
@@ -343,6 +345,31 @@ describe HCA::EnrollmentSystem do
           "ssns"=>{"ssn"=>{"ssnText"=>"111229876"}},
           "startDate"=>"04/07/1992"
         }
+      ]
+    ]
+  )
+
+  test_method(
+    described_class,
+    'child_to_dependent_financials_info',
+    [
+      [
+        TEST_CHILD,
+        {"incomes"=>{"income"=>[{"amount"=>991.9, "type"=>7}, {"amount"=>981.2, "type"=>13}, {"amount"=>91.9, "type"=>10}]},
+         "expenses"=>{"expense"=>[{"amount"=>45.2, "expenseType"=>"16"}]},
+         "dependentInfo"=>
+          {"dob"=>"05/05/1982",
+           "givenName"=>"FIRSTCHILDA",
+           "middleName"=>"MIDDLECHILDA",
+           "familyName"=>"LASTCHILDA",
+           "suffix"=>"JR.",
+           "relationship"=>5,
+           "ssns"=>{"ssn"=>{"ssnText"=>"111229876"}},
+           "startDate"=>"04/07/1992"},
+         "livedWithPatient"=>true,
+         "incapableOfSelfSupport"=>true,
+         "attendedSchool"=>true,
+         "contributedToSupport"=>false}
       ]
     ]
   )

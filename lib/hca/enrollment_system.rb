@@ -237,6 +237,18 @@ module HCA
       }
     end
 
+    def child_to_dependent_financials_info(child)
+      {
+        'incomes' => resource_to_income_collection(child),
+        'expenses' => resource_to_expense_collection(child),
+        'dependentInfo' => child_to_dependent_info(child),
+        'livedWithPatient' => child['childCohabitedLastYear'],
+        'incapableOfSelfSupport' => child['childDisabledBefore18'],
+        'attendedSchool' => child['childAttendedSchoolLastYear'],
+        'contributedToSupport' => child['childReceivedSupportLastYear']
+      }
+    end
+
     def transform(data)
     end
   end
