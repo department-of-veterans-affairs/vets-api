@@ -36,6 +36,20 @@ describe HCA::EnrollmentSystem do
     "otherIncome": 91.9
   }.deep_stringify_keys
 
+  TEST_SPOUSE = {
+    'spouseAddress' => TEST_ADDRESS,
+    'spousePhone' => '1112221234',
+    'spouseDateOfBirth' => '1980-04-06',
+    'spouseFullName' => {
+      'first' => 'FirstSpouse',
+      'middle' => 'MiddleSpouse',
+      'last' => 'LastSpouse',
+      'suffix' => 'Sr.'
+    },
+    'dateOfMarriage' => '1983-05-10',
+    'spouseSocialSecurityNumber' => '111-22-1234'
+  }
+
   CHILD_DEPENDENT_FINANCIALS = {
     'incomes' => {
       'income' => [
@@ -260,19 +274,7 @@ describe HCA::EnrollmentSystem do
     'veteran_to_spouse_info',
     [
       [
-        {
-          'spouseAddress' => TEST_ADDRESS,
-          'spousePhone' => '1112221234',
-          'spouseDateOfBirth' => '1980-04-06',
-          'spouseFullName' => {
-            'first' => 'FirstSpouse',
-            'middle' => 'MiddleSpouse',
-            'last' => 'LastSpouse',
-            'suffix' => 'Sr.'
-          },
-          'dateOfMarriage' => '1983-05-10',
-          'spouseSocialSecurityNumber' => '111-22-1234'
-        },
+        TEST_SPOUSE,
         {
           'dob' => '04/06/1980',
           'givenName' => 'FIRSTSPOUSE',
@@ -396,6 +398,49 @@ describe HCA::EnrollmentSystem do
         }
       ],
       [{ 'children' => [] }, nil]
+    ]
+  )
+
+  test_method(
+    described_class,
+    'veteran_to_spouse_financials',
+    [
+      [{ 'maritalStatus' => 'Single' }, nil],
+      [{ 'maritalStatus' => 'Married' }, nil],
+      [
+        {
+          'maritalStatus' => 'Married',
+          'understandsFinancialDisclosure' => true,
+          "spouseGrossIncome" => 64.1,
+          "spouseNetIncome" => 35.1,
+          "spouseOtherIncome" => 12.3,
+          "cohabitedLastYear" => true,
+          'provideSupportLastYear' => false
+        }.merge(TEST_SPOUSE),
+        {
+          "spouseFinancials"=>
+          {"incomes"=>{"income"=>[{"amount"=>64.1, "type"=>7}, {"amount"=>35.1, "type"=>13}, {"amount"=>12.3, "type"=>10}]},
+           "spouse"=>
+            {"dob"=>"04/06/1980",
+             "givenName"=>"FIRSTSPOUSE",
+             "middleName"=>"MIDDLESPOUSE",
+             "familyName"=>"LASTSPOUSE",
+             "suffix"=>"SR.",
+             "relationship"=>2,
+             "startDate"=>"05/10/1983",
+             "ssns"=>{"ssn"=>{"ssnText"=>"111221234"}},
+             "address"=>
+              {"city"=>"Dulles",
+               "country"=>"USA",
+               "line1"=>"123 NW 8th St",
+               "state"=>"VA",
+               "zipCode"=>"20101",
+               "zipPlus4"=>"0101",
+               "phoneNumber"=>"1112221234"}},
+           "contributedToSpousalSupport"=>false,
+           "livedWithPatient"=>true}
+        }
+      ]
     ]
   )
 end

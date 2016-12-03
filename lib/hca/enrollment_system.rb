@@ -29,7 +29,6 @@ module HCA
         }
       }
     }.freeze
-
     def financial_flag?(veteran)
       veteran['understandsFinancialDisclosure'] || veteran['discloseFinancialInformation']
     end
@@ -259,6 +258,30 @@ module HCA
           end
         }
       end
+    end
+
+    def veteran_to_spouse_financials(veteran)
+      if !%w(Married Separated).include?(veteran['maritalStatus']) || !financial_flag?(veteran)
+        return
+      end
+
+      spouse_income = resource_to_income_collection(
+        'grossIncome' => veteran['spouseGrossIncome'],
+        'netIncome' => veteran['spouseNetIncome'],
+        'otherIncome' => veteran['spouseOtherIncome']
+      )
+
+      cohabited_last_year = veteran['cohabitedLastYear']
+      cohabited_last_year = false if cohabited_last_year.blank?
+
+      {
+        'spouseFinancials' => {
+          'incomes' => spouse_income,
+          'spouse' => veteran_to_spouse_info(veteran),
+          'contributedToSpousalSupport' => veteran['provideSupportLastYear'],
+          'livedWithPatient' => cohabited_last_year
+        }
+      }
     end
 
     def transform(data)
