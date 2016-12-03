@@ -36,6 +36,31 @@ describe HCA::EnrollmentSystem do
     "otherIncome": 91.9
   }.deep_stringify_keys
 
+  CHILD_DEPENDENT_FINANCIALS = {
+    'incomes' => {
+      'income' => [
+        { 'amount' => 991.9, 'type' => 7 },
+        { 'amount' => 981.2, 'type' => 13 },
+        { 'amount' => 91.9, 'type' => 10 }
+      ]
+    },
+    'expenses' => { 'expense' => [{ 'amount' => 45.2, 'expenseType' => '16' }] },
+    'dependentInfo' => {
+      'dob' => '05/05/1982',
+      'givenName' => 'FIRSTCHILDA',
+      'middleName' => 'MIDDLECHILDA',
+      'familyName' => 'LASTCHILDA',
+      'suffix' => 'JR.',
+      'relationship' => 5,
+      'ssns' => { 'ssn' => { 'ssnText' => '111229876' } },
+      'startDate' => '04/07/1992'
+    },
+    'livedWithPatient' => true,
+    'incapableOfSelfSupport' => true,
+    'attendedSchool' => true,
+    'contributedToSupport' => false
+  }
+
   let(:test_address) { TEST_ADDRESS.dup }
 
   test_method(
@@ -355,31 +380,22 @@ describe HCA::EnrollmentSystem do
     [
       [
         TEST_CHILD,
-        {
-          'incomes' => {
-            'income' => [
-              { 'amount' => 991.9, 'type' => 7 },
-              { 'amount' => 981.2, 'type' => 13 },
-              { 'amount' => 91.9, 'type' => 10 }
-            ]
-          },
-          'expenses' => { 'expense' => [{ 'amount' => 45.2, 'expenseType' => '16' }] },
-          'dependentInfo' => {
-            'dob' => '05/05/1982',
-            'givenName' => 'FIRSTCHILDA',
-            'middleName' => 'MIDDLECHILDA',
-            'familyName' => 'LASTCHILDA',
-            'suffix' => 'JR.',
-            'relationship' => 5,
-            'ssns' => { 'ssn' => { 'ssnText' => '111229876' } },
-            'startDate' => '04/07/1992'
-          },
-          'livedWithPatient' => true,
-          'incapableOfSelfSupport' => true,
-          'attendedSchool' => true,
-          'contributedToSupport' => false
-        }
+        CHILD_DEPENDENT_FINANCIALS
       ]
+    ]
+  )
+
+  test_method(
+    described_class,
+    'veteran_to_dependent_financials_collection',
+    [
+      [
+        { 'children' => [TEST_CHILD] },
+        {
+          'dependentFinancials' => [CHILD_DEPENDENT_FINANCIALS]
+        }
+      ],
+      [{ 'children' => [] }, nil]
     ]
   )
 end

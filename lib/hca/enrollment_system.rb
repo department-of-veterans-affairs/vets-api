@@ -249,6 +249,20 @@ module HCA
       }
     end
 
+    def veteran_to_dependent_financials_collection(veteran)
+      children = veteran['children']
+
+      if children.present?
+        {
+          'dependentFinancials' => children.map do |child|
+            child_to_dependent_financials_info(child)
+          end
+        }
+      else
+        nil
+      end
+    end
+
     def transform(data)
     end
   end
