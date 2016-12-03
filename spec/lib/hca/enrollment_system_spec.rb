@@ -59,7 +59,7 @@ describe HCA::EnrollmentSystem do
     'incapableOfSelfSupport' => true,
     'attendedSchool' => true,
     'contributedToSupport' => false
-  }
+  }.freeze
 
   let(:test_address) { TEST_ADDRESS.dup }
 

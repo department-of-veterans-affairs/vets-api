@@ -258,8 +258,6 @@ module HCA
             child_to_dependent_financials_info(child)
           end
         }
-      else
-        nil
       end
     end
 
