@@ -286,8 +286,12 @@ module HCA
       end
     end
 
+    def spouse?(veteran)
+      %w(Married Separated).include?(veteran['maritalStatus'])
+    end
+
     def veteran_to_spouse_financials(veteran)
-      if !%w(Married Separated).include?(veteran['maritalStatus']) || !financial_flag?(veteran)
+      if !spouse?(veteran) || !financial_flag?(veteran)
         return
       end
 
