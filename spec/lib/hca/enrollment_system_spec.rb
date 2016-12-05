@@ -718,12 +718,12 @@ describe HCA::EnrollmentSystem do
       [
         TEST_CHILD,
         {
-          "contactType"=>11,
-          "relationship"=>"Stepson",
-          "givenName"=>"FIRSTCHILDA",
-          "middleName"=>"MIDDLECHILDA",
-          "familyName"=>"LASTCHILDA",
-          "suffix"=>"JR."
+          'contactType' => 11,
+          'relationship' => 'Stepson',
+          'givenName' => 'FIRSTCHILDA',
+          'middleName' => 'MIDDLECHILDA',
+          'familyName' => 'LASTCHILDA',
+          'suffix' => 'JR.'
         }
       ]
     ]

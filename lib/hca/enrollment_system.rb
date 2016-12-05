@@ -291,9 +291,7 @@ module HCA
     end
 
     def veteran_to_spouse_financials(veteran)
-      if !spouse?(veteran) || !financial_flag?(veteran)
-        return
-      end
+      return if !spouse?(veteran) || !financial_flag?(veteran)
 
       spouse_income = resource_to_income_collection(
         'grossIncome' => veteran['spouseGrossIncome'],
