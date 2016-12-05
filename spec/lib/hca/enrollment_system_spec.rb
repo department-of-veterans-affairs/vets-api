@@ -48,7 +48,7 @@ describe HCA::EnrollmentSystem do
     },
     'dateOfMarriage' => '1983-05-10',
     'spouseSocialSecurityNumber' => '111-22-1234'
-  }
+  }.freeze
 
   CHILD_DEPENDENT_FINANCIALS = {
     'incomes' => {
@@ -411,34 +411,41 @@ describe HCA::EnrollmentSystem do
         {
           'maritalStatus' => 'Married',
           'understandsFinancialDisclosure' => true,
-          "spouseGrossIncome" => 64.1,
-          "spouseNetIncome" => 35.1,
-          "spouseOtherIncome" => 12.3,
-          "cohabitedLastYear" => true,
+          'spouseGrossIncome' => 64.1,
+          'spouseNetIncome' => 35.1,
+          'spouseOtherIncome' => 12.3,
+          'cohabitedLastYear' => true,
           'provideSupportLastYear' => false
         }.merge(TEST_SPOUSE),
         {
-          "spouseFinancials"=>
-          {"incomes"=>{"income"=>[{"amount"=>64.1, "type"=>7}, {"amount"=>35.1, "type"=>13}, {"amount"=>12.3, "type"=>10}]},
-           "spouse"=>
-            {"dob"=>"04/06/1980",
-             "givenName"=>"FIRSTSPOUSE",
-             "middleName"=>"MIDDLESPOUSE",
-             "familyName"=>"LASTSPOUSE",
-             "suffix"=>"SR.",
-             "relationship"=>2,
-             "startDate"=>"05/10/1983",
-             "ssns"=>{"ssn"=>{"ssnText"=>"111221234"}},
-             "address"=>
-              {"city"=>"Dulles",
-               "country"=>"USA",
-               "line1"=>"123 NW 8th St",
-               "state"=>"VA",
-               "zipCode"=>"20101",
-               "zipPlus4"=>"0101",
-               "phoneNumber"=>"1112221234"}},
-           "contributedToSpousalSupport"=>false,
-           "livedWithPatient"=>true}
+          'spouseFinancials' => {
+            'incomes' => {
+              'income' => [
+                { 'amount' => 64.1, 'type' => 7 },
+                { 'amount' => 35.1, 'type' => 13 },
+                { 'amount' => 12.3, 'type' => 10 }
+              ]
+            },
+            'spouse' =>
+            { 'dob' => '04/06/1980',
+              'givenName' => 'FIRSTSPOUSE',
+              'middleName' => 'MIDDLESPOUSE',
+              'familyName' => 'LASTSPOUSE',
+              'suffix' => 'SR.',
+              'relationship' => 2,
+              'startDate' => '05/10/1983',
+              'ssns' => { 'ssn' => { 'ssnText' => '111221234' } },
+              'address' =>
+              { 'city' => 'Dulles',
+                'country' => 'USA',
+                'line1' => '123 NW 8th St',
+                'state' => 'VA',
+                'zipCode' => '20101',
+                'zipPlus4' => '0101',
+                'phoneNumber' => '1112221234' } },
+            'contributedToSpousalSupport' => false,
+            'livedWithPatient' => true
+          }
         }
       ]
     ]
@@ -450,17 +457,17 @@ describe HCA::EnrollmentSystem do
     [
       [
         {
-          "insuranceName": "MyInsruance",
-          "insurancePolicyHolderName": "FirstName ZZTEST",
-          "insurancePolicyNumber": "P1234",
-          "insuranceGroupCode": "G1234"
+          "insuranceName": 'MyInsruance',
+          "insurancePolicyHolderName": 'FirstName ZZTEST',
+          "insurancePolicyNumber": 'P1234',
+          "insuranceGroupCode": 'G1234'
         }.stringify_keys,
         {
-          "companyName"=>"MyInsruance",
-          "policyHolderName"=>"FirstName ZZTEST",
-          "policyNumber"=>"P1234",
-          "groupNumber"=>"G1234",
-          "insuranceMappingTypeName"=>"PI"
+          'companyName' => 'MyInsruance',
+          'policyHolderName' => 'FirstName ZZTEST',
+          'policyNumber' => 'P1234',
+          'groupNumber' => 'G1234',
+          'insuranceMappingTypeName' => 'PI'
         }
       ]
     ]
