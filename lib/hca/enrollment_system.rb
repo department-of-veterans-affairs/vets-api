@@ -147,9 +147,7 @@ module HCA
         'relationship' => 2,
         'startDate' => Validations.date_of_birth(veteran['dateOfMarriage']),
         'ssns' => {
-          'ssn' => {
-            'ssnText' => Validations.validate_ssn(veteran['spouseSocialSecurityNumber'])
-          }
+          'ssn' => ssn_to_ssntext(veteran['spouseSocialSecurityNumber'])
         },
         'address' => address
       }
@@ -228,9 +226,7 @@ module HCA
         'suffix' => Validations.validate_name(data: child['childFullName']['suffix']),
         'relationship' => child_relationship_to_sds_code(child['childRelation']),
         'ssns' => {
-          'ssn' => {
-            'ssnText' => Validations.validate_ssn(child['childSocialSecurityNumber'])
-          }
+          'ssn' => ssn_to_ssntext(child['childSocialSecurityNumber'])
         },
         'startDate' => Validations.date_of_birth(child['childBecameDependent'])
       }
@@ -292,6 +288,48 @@ module HCA
         'groupNumber' => provider['insuranceGroupCode'],
         'insuranceMappingTypeName' => 'PI'
       }
+    end
+
+    def ssn_to_ssntext(ssn)
+      {
+        'ssnText' => Validations.validate_ssn(ssn)
+      }
+    end
+
+    def veteran_to_person_info(veteran)
+      veteran_full_name = veteran['veteranFullName']
+
+      {
+        'firstName' => Validations.validate_name(
+          data: veteran_full_name['first'],
+          count: 30
+        ),
+        'middleName' => Validations.validate_name(
+          data: veteran_full_name['middle'],
+          count: 30,
+          nullable: true
+        ),
+        'lastName' => Validations.validate_name(
+          data: veteran_full_name['last'],
+          count: 30
+        ),
+        'suffix' => Validations.validate_name(
+          data: veteran_full_name['suffix']
+        ),
+        'gender' => veteran['gender'],
+        'dob' => Validations.date_of_birth(veteran['veteranDateOfBirth']),
+        'mothersMaidenName' => Validations.validate_string(
+          data: veteran['mothersMaidenName'],
+          count: 35,
+          nullable: true
+        ),
+        'placeOfBirthCity' => Validations.validate_string(
+          data: veteran['cityOfBirth'],
+          count: 20,
+          nullable: true
+        ),
+        'placeOfBirthState' => veteran['stateOfBirth']
+      }.merge(ssn_to_ssntext(veteran['veteranSocialSecurityNumber']))
     end
 
     def transform(data)
