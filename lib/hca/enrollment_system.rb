@@ -178,17 +178,13 @@ module HCA
 
       {
         'dob' => Validations.date_of_birth(veteran['spouseDateOfBirth']),
-        'givenName' => Validations.validate_name(data: veteran['spouseFullName']['first']),
-        'middleName' => Validations.validate_name(data: veteran['spouseFullName']['middle']),
-        'familyName' => Validations.validate_name(data: veteran['spouseFullName']['last']),
-        'suffix' => Validations.validate_name(data: veteran['spouseFullName']['suffix']),
         'relationship' => 2,
         'startDate' => Validations.date_of_birth(veteran['dateOfMarriage']),
         'ssns' => {
           'ssn' => ssn_to_ssntext(veteran['spouseSocialSecurityNumber'])
         },
         'address' => address
-      }
+      }.merge(convert_full_name_alt(veteran['spouseFullName']))
     end
 
     def resource_to_income_collection(resource)
@@ -258,16 +254,12 @@ module HCA
     def child_to_dependent_info(child)
       {
         'dob' => Validations.date_of_birth(child['childDateOfBirth']),
-        'givenName' => Validations.validate_name(data: child['childFullName']['first']),
-        'middleName' => Validations.validate_name(data: child['childFullName']['middle']),
-        'familyName' => Validations.validate_name(data: child['childFullName']['last']),
-        'suffix' => Validations.validate_name(data: child['childFullName']['suffix']),
         'relationship' => child_relationship_to_sds_code(child['childRelation']),
         'ssns' => {
           'ssn' => ssn_to_ssntext(child['childSocialSecurityNumber'])
         },
         'startDate' => Validations.date_of_birth(child['childBecameDependent'])
-      }
+      }.merge(convert_full_name_alt(child['childFullName']))
     end
 
     def child_to_dependent_financials_info(child)
@@ -352,6 +344,15 @@ module HCA
         'suffix' => Validations.validate_name(
           data: full_name['suffix']
         )
+      }
+    end
+
+    def convert_full_name_alt(full_name)
+      {
+        'givenName' => Validations.validate_name(data: full_name['first']),
+        'middleName' => Validations.validate_name(data: full_name['middle']),
+        'familyName' => Validations.validate_name(data: full_name['last']),
+        'suffix' => Validations.validate_name(data: full_name['suffix'])
       }
     end
 
@@ -465,6 +466,13 @@ module HCA
 
     def relationship_to_contact_type(relationship)
       RELATIONSHIP_CODES[relationship]
+    end
+
+    def child_to_association(child)
+      {
+        'contactType' => relationship_to_contact_type('Dependent'),
+        'relationship' => child['childRelation']
+      }.merge(convert_full_name_alt(child['childFullName']))
     end
 
     def transform(data)

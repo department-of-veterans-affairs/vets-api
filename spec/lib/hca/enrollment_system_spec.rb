@@ -710,4 +710,22 @@ describe HCA::EnrollmentSystem do
       ['foo', nil]
     ]
   )
+
+  test_method(
+    described_class,
+    'child_to_association',
+    [
+      [
+        TEST_CHILD,
+        {
+          "contactType"=>11,
+          "relationship"=>"Stepson",
+          "givenName"=>"FIRSTCHILDA",
+          "middleName"=>"MIDDLECHILDA",
+          "familyName"=>"LASTCHILDA",
+          "suffix"=>"JR."
+        }
+      ]
+    ]
+  )
 end
