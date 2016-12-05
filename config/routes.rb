@@ -15,17 +15,7 @@ Rails.application.routes.draw do
 
     resource :user, only: [:show]
 
-    resource :education_benefits_claims, only: [:create] do
-      get :index, to: 'education_benefits_claims#daily_file',
-                  defaults: { format: :tar },
-                  as: :daily_file,
-                  constraints: ->(_) { FeatureFlipper.show_education_benefit_form? }
-      get ':id', to: 'education_benefits_claims#show',
-                 defaults: { format: :text },
-                 as: :show,
-                 id: /\d+/,
-                 constraints: ->(_) { FeatureFlipper.show_education_benefit_form? }
-    end
+    resource :education_benefits_claims, only: [:create]
 
     resource :disability_rating, only: [:show]
     resources :disability_claims, only: [:index, :show] do
