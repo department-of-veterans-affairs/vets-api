@@ -45,6 +45,14 @@ module HCA
       'f.scouts old' => 14
     }.freeze
 
+    DISCHARGE_CODES = {
+      'honorable' => 1,
+      'general' => 3,
+      'bad-conduct' => 6,
+      'dishonorable' => 2,
+      'undesirable' => 5
+    }
+
     def financial_flag?(veteran)
       veteran['understandsFinancialDisclosure'] || veteran['discloseFinancialInformation']
     end
@@ -353,6 +361,10 @@ module HCA
 
     def service_branch_to_sds_code(service_branch)
       SERVICE_BRANCH_CODES[service_branch] || 6
+    end
+
+    def discharge_type_to_sds_code(discharge_type)
+      DISCHARGE_CODES[discharge_type] || 4
     end
 
     def transform(data)

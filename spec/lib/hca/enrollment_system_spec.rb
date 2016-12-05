@@ -527,4 +527,17 @@ describe HCA::EnrollmentSystem do
       ['foo', 6]
     ]
   )
+
+  test_method(
+    described_class,
+    'discharge_type_to_sds_code',
+    [
+      ['honorable', 1],
+      ['general', 3],
+      ['bad-conduct', 6],
+      ['dishonorable', 2],
+      ['undesirable', 5],
+      ['foo', 4]
+    ]
+  )
 end
