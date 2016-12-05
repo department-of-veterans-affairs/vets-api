@@ -428,28 +428,22 @@ module HCA
     def veteran_to_financials_info(veteran)
       return unless financial_flag?(veteran)
 
-      expenses = resource_to_expense_collection(
-        'educationExpense' => veteran['deductibleEducationExpenses'],
-        'funeralExpense' => veteran['deductibleFuneralExpenses'],
-        'medicalExpense' => veteran['deductibleMedicalExpenses']
-      )
-      incomes = resource_to_income_collection(
-        'grossIncome' => veteran['veteranGrossIncome'],
-        'netIncome' => veteran['veteranNetIncome'],
-        'otherIncome' => veteran['veteranOtherIncome']
-      )
-
-      dependent_financials = veteran_to_dependent_financials_collection(veteran)
-      spouse_financials = veteran_to_spouse_financials(veteran)
-
       {
         'incomeTest' => { 'discloseFinancialInformation' => true },
         'financialStatement' => {
-          'expenses' => expenses,
-          'incomes' => incomes,
-          'spouseFinancialsList' => spouse_financials,
+          'expenses' => resource_to_expense_collection(
+            'educationExpense' => veteran['deductibleEducationExpenses'],
+            'funeralExpense' => veteran['deductibleFuneralExpenses'],
+            'medicalExpense' => veteran['deductibleMedicalExpenses']
+          ),
+          'incomes' => resource_to_income_collection(
+            'grossIncome' => veteran['veteranGrossIncome'],
+            'netIncome' => veteran['veteranNetIncome'],
+            'otherIncome' => veteran['veteranOtherIncome']
+          ),
+          'spouseFinancialsList' => veteran_to_spouse_financials(veteran),
           'marriedLastCalendarYear' => veteran['maritalStatus'] == 'Married',
-          'dependentFinancialsList' => dependent_financials,
+          'dependentFinancialsList' => veteran_to_dependent_financials_collection(veteran),
           'numberOfDependentChildren' => veteran['children'].size
         }
       }
