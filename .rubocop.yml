@@ -76,3 +76,9 @@ Metrics/AbcSize:
 # removing rule because get_session implies HTTP GET, and informs method
 Style/AccessorMethodName:
   Enabled: false
+
+# instead of variable = if condition
+# if condition
+#   variable = assigment
+Style/ConditionalAssignment:
+  Enabled: false
