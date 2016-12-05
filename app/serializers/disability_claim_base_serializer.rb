@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'common/serializers/helpers'
+
 class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   attributes :id, :evss_id, :date_filed, :min_est_date, :max_est_date,
              :phase_change_date, :open, :waiver_submitted, :documents_needed,
@@ -6,27 +8,22 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
              :updated_at, :phase, :ever_phase_back, :current_phase_back,
              :requested_decision
 
+  extend Common::Serializer
+
   # Our IDs are not stable due to 24 hour expiration, use EVSS IDs for consistency
   # This can be removed if our IDs become stable
   def id
     object.evss_id
   end
 
-  def date_filed
-    date_from_string 'date'
-  end
+  date_attr 'date', override_name: 'date_filed'
+  date_attr 'claim_phase_dates', 'phase_change_date'
+  date_attr 'min_est_claim_date', override_name: 'min_est_date'
+  date_attr 'max_est_claim_date', override_name: 'max_est_date'
 
-  def min_est_date
-    date_from_string 'min_est_claim_date'
-  end
-
-  def max_est_date
-    date_from_string 'max_est_claim_date'
-  end
-
-  def phase_change_date
-    date_from_string 'claim_phase_dates', 'phase_change_date'
-  end
+  yes_no_attr 'development_letter_sent'
+  yes_no_attr 'decision_notification_sent', override_name: 'decision_letter_sent'
+  yes_no_attr 'attention_needed', override_name: 'documents_needed'
 
   def ever_phase_back
     object_data.dig 'claim_phase_dates', 'ever_phase_back'
@@ -49,46 +46,11 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
     requested_decision
   end
 
-  def documents_needed
-    bool_from_yes_no 'attention_needed'
-  end
-
-  def development_letter_sent
-    bool_from_yes_no 'development_letter_sent'
-  end
-
-  def decision_letter_sent
-    bool_from_yes_no 'decision_notification_sent'
-  end
-
   def phase
     raise NotImplementedError, 'Subclass of DisabilityClaimBaseSerializer must implement phase method'
   end
 
   protected
-
-  def with_object_data(*keys)
-    val = object_data.dig(*keys)
-    yield val if val.present?
-  end
-
-  def bool_from_yes_no(*keys)
-    with_object_data(*keys) do |s|
-      case s.downcase
-      when 'yes' then true
-      when 'no' then false
-      else
-        Rails.logger.error "Expected EVSS key '#{keys}' to be Yes/No. Got '#{s}'."
-        nil
-      end
-    end
-  end
-
-  def date_from_string(*keys, format: '%m/%d/%Y')
-    with_object_data(*keys) do |s|
-      Date.strptime(s, format)
-    end
-  end
 
   PHASE_MAPPING = {
     'claim received' => 1,
