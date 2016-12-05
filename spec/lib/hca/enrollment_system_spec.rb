@@ -611,4 +611,37 @@ describe HCA::EnrollmentSystem do
       ]
     ]
   )
+
+  test_method(
+    described_class,
+    'veteran_to_enrollment_determination_info',
+    [
+      [
+        {
+          "isMedicaidEligible": true,
+          "exposedToRadiation": true,
+          "radiumTreatments": true,
+          "isVaServiceConnected": false,
+          "swAsiaCombat": true,
+          "vietnamService": true,
+          "campLejeune": true
+        }.deep_stringify_keys,
+        {
+          "eligibleForMedicaid": true,
+          "noseThroatRadiumInfo": {
+            "receivingTreatment": true
+          },
+          "serviceConnectionAward": {
+            "serviceConnectedIndicator": false
+          },
+          "specialFactors": {
+            "agentOrangeInd": true,
+            "envContaminantsInd": true,
+            "campLejeuneInd": true,
+            "radiationExposureInd": true
+          }
+        }.deep_stringify_keys
+      ]
+    ]
+  )
 end

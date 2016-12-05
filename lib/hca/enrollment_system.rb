@@ -407,6 +407,24 @@ module HCA
       }
     end
 
+    def veteran_to_enrollment_determination_info(veteran)
+      {
+        'eligibleForMedicaid' => veteran['isMedicaidEligible'],
+        'noseThroatRadiumInfo' => {
+          'receivingTreatment' => veteran['radiumTreatments']
+        },
+        'serviceConnectionAward' => {
+          'serviceConnectedIndicator' => veteran['isVaServiceConnected']
+        },
+        'specialFactors' => {
+          'agentOrangeInd' => veteran['vietnamService'],
+          'envContaminantsInd' => veteran['swAsiaCombat'],
+          'campLejeuneInd' => veteran['campLejeune'],
+          'radiationExposureInd' => veteran['exposedToRadiation']
+        }
+      }
+    end
+
     def transform(data)
     end
   end
