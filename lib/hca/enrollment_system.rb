@@ -284,6 +284,16 @@ module HCA
       }
     end
 
+    def provider_to_insurance_info(provider)
+      {
+        'companyName' => provider['insuranceName'],
+        'policyHolderName' => provider['insurancePolicyHolderName'],
+        'policyNumber' => provider['insurancePolicyNumber'],
+        'groupNumber' => provider['insuranceGroupCode'],
+        'insuranceMappingTypeName' => 'PI'
+      }
+    end
+
     def transform(data)
     end
   end

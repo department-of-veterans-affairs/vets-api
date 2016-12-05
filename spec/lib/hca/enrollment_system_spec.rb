@@ -443,4 +443,26 @@ describe HCA::EnrollmentSystem do
       ]
     ]
   )
+
+  test_method(
+    described_class,
+    'provider_to_insurance_info',
+    [
+      [
+        {
+          "insuranceName": "MyInsruance",
+          "insurancePolicyHolderName": "FirstName ZZTEST",
+          "insurancePolicyNumber": "P1234",
+          "insuranceGroupCode": "G1234"
+        }.stringify_keys,
+        {
+          "companyName"=>"MyInsruance",
+          "policyHolderName"=>"FirstName ZZTEST",
+          "policyNumber"=>"P1234",
+          "groupNumber"=>"G1234",
+          "insuranceMappingTypeName"=>"PI"
+        }
+      ]
+    ]
+  )
 end
