@@ -53,6 +53,20 @@ module HCA
       'undesirable' => 5
     }.freeze
 
+    RELATIONSHIP_CODES = {
+      'Primary Next of Kin' => 1,
+      'Other Next of Kin' => 2,
+      'Emergency Contact' => 3,
+      'Other emergency contact' => 4,
+      'Designee' => 5,
+      'Beneficiary Representative' => 6,
+      'Power of Attorney' => 7,
+      'Guardian VA' => 8,
+      'Guardian Civil' => 9,
+      'Spouse' => 10,
+      'Dependent' => 11
+    }
+
     def financial_flag?(veteran)
       veteran['understandsFinancialDisclosure'] || veteran['discloseFinancialInformation']
     end
@@ -447,6 +461,10 @@ module HCA
           'numberOfDependentChildren' => veteran['children'].size
         }
       }
+    end
+
+    def relationship_to_contact_type(relationship)
+      RELATIONSHIP_CODES[relationship]
     end
 
     def transform(data)

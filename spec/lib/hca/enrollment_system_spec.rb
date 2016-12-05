@@ -691,4 +691,23 @@ describe HCA::EnrollmentSystem do
       ]
     ]
   )
+
+  test_method(
+    described_class,
+    'relationship_to_contact_type',
+    [
+      ['Primary Next of Kin', 1],
+      ['Other Next of Kin', 2],
+      ['Emergency Contact', 3],
+      ['Other emergency contact', 4],
+      ['Designee', 5],
+      ['Beneficiary Representative', 6],
+      ['Power of Attorney', 7],
+      ['Guardian VA', 8],
+      ['Guardian Civil', 9],
+      ['Spouse', 10],
+      ['Dependent', 11],
+      ['foo', nil]
+    ]
+  )
 end
