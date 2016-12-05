@@ -55,7 +55,7 @@ Style/ZeroLengthPredicate:
   Enabled: false
 
 Metrics/LineLength:
-  Max: 140
+  Max: 120
 
 Rails:
   Enabled: true

@@ -65,6 +65,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   context '#group_submissions_by_region' do
     it 'takes a list of records into chunked forms' do
       base_address = { street: 'A', city: 'B', country: 'USA' }
+      # rubocop:disable LineLength
       eastern = EducationBenefitsClaim.create(form: { school: { address: base_address.merge(state: 'MD') } }.to_json)
       southern = EducationBenefitsClaim.create(form: { school: { address: base_address.merge(state: 'GA') } }.to_json)
       central = EducationBenefitsClaim.create(form: { veteranAddress: base_address.merge(state: 'WI') }.to_json)
