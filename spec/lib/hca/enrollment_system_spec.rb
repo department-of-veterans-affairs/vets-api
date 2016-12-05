@@ -60,6 +60,37 @@ describe HCA::EnrollmentSystem do
     'provideSupportLastYear' => false
   }.merge(TEST_SPOUSE).freeze
 
+  CONVERTED_SPOUSE_FINANCIALS = {
+    'spouseFinancials' => {
+      'incomes' => {
+        'income' => [
+          { 'amount' => 64.1, 'type' => 7 },
+          { 'amount' => 35.1, 'type' => 13 },
+          { 'amount' => 12.3, 'type' => 10 }
+        ]
+      },
+      'spouse' =>
+      { 'dob' => '04/06/1980',
+        'givenName' => 'FIRSTSPOUSE',
+        'middleName' => 'MIDDLESPOUSE',
+        'familyName' => 'LASTSPOUSE',
+        'suffix' => 'SR.',
+        'relationship' => 2,
+        'startDate' => '05/10/1983',
+        'ssns' => { 'ssn' => { 'ssnText' => '111221234' } },
+        'address' =>
+        { 'city' => 'Dulles',
+          'country' => 'USA',
+          'line1' => '123 NW 8th St',
+          'state' => 'VA',
+          'zipCode' => '20101',
+          'zipPlus4' => '0101',
+          'phoneNumber' => '1112221234' } },
+      'contributedToSpousalSupport' => false,
+      'livedWithPatient' => true
+    }
+  }
+
   CHILD_DEPENDENT_FINANCIALS = {
     'incomes' => {
       'income' => [
@@ -419,36 +450,7 @@ describe HCA::EnrollmentSystem do
       [{ 'maritalStatus' => 'Married' }, nil],
       [
         SPOUSE_FINANCIALS,
-        {
-          'spouseFinancials' => {
-            'incomes' => {
-              'income' => [
-                { 'amount' => 64.1, 'type' => 7 },
-                { 'amount' => 35.1, 'type' => 13 },
-                { 'amount' => 12.3, 'type' => 10 }
-              ]
-            },
-            'spouse' =>
-            { 'dob' => '04/06/1980',
-              'givenName' => 'FIRSTSPOUSE',
-              'middleName' => 'MIDDLESPOUSE',
-              'familyName' => 'LASTSPOUSE',
-              'suffix' => 'SR.',
-              'relationship' => 2,
-              'startDate' => '05/10/1983',
-              'ssns' => { 'ssn' => { 'ssnText' => '111221234' } },
-              'address' =>
-              { 'city' => 'Dulles',
-                'country' => 'USA',
-                'line1' => '123 NW 8th St',
-                'state' => 'VA',
-                'zipCode' => '20101',
-                'zipPlus4' => '0101',
-                'phoneNumber' => '1112221234' } },
-            'contributedToSpousalSupport' => false,
-            'livedWithPatient' => true
-          }
-        }
+        CONVERTED_SPOUSE_FINANCIALS
       ]
     ]
   )
@@ -659,55 +661,33 @@ describe HCA::EnrollmentSystem do
           "veteranGrossIncome": 123.33,
           "veteranNetIncome": 90.11,
           "veteranOtherIncome": 10.1,
-          'children' => [TEST_CHILD],
-        }.merge(SPOUSE_FINANCIALS),
+          'children' => [TEST_CHILD]
+        }.merge(SPOUSE_FINANCIALS).deep_stringify_keys,
         {
-          "incomeTest"=>{"discloseFinancialInformation"=>true},
-          "financialStatement"=>
-           {"expenses"=>nil,
-            "incomes"=>nil,
-            "spouseFinancialsList"=>
-             {"spouseFinancials"=>
-               {"incomes"=>{"income"=>[{"amount"=>64.1, "type"=>7}, {"amount"=>35.1,  "type"=>13}, {"amount"=>12.3, "type"=>10}]},
-                "spouse"=>
-                 {"dob"=>"04/06/1980",
-                  "givenName"=>"FIRSTSPOUSE",
-                  "middleName"=>"MIDDLESPOUSE",
-                  "familyName"=>"LASTSPOUSE",
-                  "suffix"=>"SR.",
-                  "relationship"=>2,
-                  "startDate"=>"05/10/1983",
-                  "ssns"=>{"ssn"=>{"ssnText"=>"111221234"}},
-                  "address"=>
-                   {"city"=>"Dulles",
-                    "country"=>"USA",
-                    "line1"=>"123 NW 8th St",
-                    "state"=>"VA",
-                    "zipCode"=>"20101",
-                    "zipPlus4"=>"0101",
-                    "phoneNumber"=>"1112221234"}},
-                "contributedToSpousalSupport"=>false,
-                "livedWithPatient"=>true}},
-            "marriedLastCalendarYear"=>true,
-            "dependentFinancialsList"=>
-             {"dependentFinancials"=>
-               [{"incomes"=>{"income"=>[{"amount"=>991.9, "type"=>7}, {"amount"=> 981.2, "type"=>13}, {"amount"=>91.9, "type"=>10}]},
-                 "expenses"=>{"expense"=>[{"amount"=>45.2, "expenseType"=>"16"}]},
-                 "dependentInfo"=>
-                  {"dob"=>"05/05/1982",
-                   "givenName"=>"FIRSTCHILDA",
-                   "middleName"=>"MIDDLECHILDA",
-                   "familyName"=>"LASTCHILDA",
-                   "suffix"=>"JR.",
-                   "relationship"=>5,
-                   "ssns"=>{"ssn"=>{"ssnText"=>"111229876"}},
-                   "startDate"=>"04/07/1992"},
-                 "livedWithPatient"=>true,
-                 "incapableOfSelfSupport"=>true,
-                 "attendedSchool"=>true,
-                 "contributedToSupport"=>false}]},
-            "numberOfDependentChildren"=>1}
+          'incomeTest' => { 'discloseFinancialInformation' => true },
+          'financialStatement' => {
+            'expenses' => {
+              "expense"=> [
+                {"amount"=>77.77, "expenseType"=>"3"},
+                {"amount"=>44.44, "expenseType"=>"19"},
+                {"amount"=>33.3, "expenseType"=>"18"}
+              ]
+            },
+            'incomes' => {
+              "income"=> [
+                {"amount"=>123.33, "type"=>7},
+                {"amount"=>90.11, "type"=>13},
+                {"amount"=>10.1, "type"=>10}
+              ]
+            },
+            'spouseFinancialsList' => CONVERTED_SPOUSE_FINANCIALS,
+            'marriedLastCalendarYear' => true,
+            'dependentFinancialsList' => {
+              'dependentFinancials' => [CHILD_DEPENDENT_FINANCIALS]
+            },
+            'numberOfDependentChildren' => 1
           }
+        }
       ]
     ]
   )
