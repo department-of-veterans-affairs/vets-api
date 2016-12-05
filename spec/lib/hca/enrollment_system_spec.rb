@@ -89,7 +89,7 @@ describe HCA::EnrollmentSystem do
       'contributedToSpousalSupport' => false,
       'livedWithPatient' => true
     }
-  }
+  }.freeze
 
   CHILD_DEPENDENT_FINANCIALS = {
     'incomes' => {
@@ -667,17 +667,17 @@ describe HCA::EnrollmentSystem do
           'incomeTest' => { 'discloseFinancialInformation' => true },
           'financialStatement' => {
             'expenses' => {
-              "expense"=> [
-                {"amount"=>77.77, "expenseType"=>"3"},
-                {"amount"=>44.44, "expenseType"=>"19"},
-                {"amount"=>33.3, "expenseType"=>"18"}
+              'expense' => [
+                { 'amount' => 77.77, 'expenseType' => '3' },
+                { 'amount' => 44.44, 'expenseType' => '19' },
+                { 'amount' => 33.3, 'expenseType' => '18' }
               ]
             },
             'incomes' => {
-              "income"=> [
-                {"amount"=>123.33, "type"=>7},
-                {"amount"=>90.11, "type"=>13},
-                {"amount"=>10.1, "type"=>10}
+              'income' => [
+                { 'amount' => 123.33, 'type' => 7 },
+                { 'amount' => 90.11, 'type' => 13 },
+                { 'amount' => 10.1, 'type' => 10 }
               ]
             },
             'spouseFinancialsList' => CONVERTED_SPOUSE_FINANCIALS,
