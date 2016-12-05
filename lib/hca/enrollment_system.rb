@@ -51,7 +51,7 @@ module HCA
       'bad-conduct' => 6,
       'dishonorable' => 2,
       'undesirable' => 5
-    }
+    }.freeze
 
     def financial_flag?(veteran)
       veteran['understandsFinancialDisclosure'] || veteran['discloseFinancialInformation']
