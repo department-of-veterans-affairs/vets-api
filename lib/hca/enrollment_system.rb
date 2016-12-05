@@ -335,6 +335,37 @@ module HCA
       }.merge(ssn_to_ssntext(veteran['veteranSocialSecurityNumber'])))
     end
 
+    def service_branch_to_sds_code(service_branch)
+      case service_branch
+      when 'army'
+        1
+      when 'air force'
+        2
+      when 'navy'
+        3
+      when 'marine corps'
+        4
+      when 'coast guard'
+        5
+      when 'merchant seaman'
+        7
+      when 'noaa'
+        10
+      when 'usphs'
+        9
+      when 'f.commonwealth'
+        11
+      when 'f.guerilla'
+        12
+      when 'f.scouts new'
+        13
+      when 'f.scouts old'
+        14
+      else
+        6
+      end
+    end
+
     def transform(data)
     end
   end

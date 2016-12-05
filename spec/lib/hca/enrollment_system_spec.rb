@@ -507,4 +507,24 @@ describe HCA::EnrollmentSystem do
       ]
     ]
   )
+
+  test_method(
+    described_class,
+    'service_branch_to_sds_code',
+    [
+      ['army', 1],
+      ['air force', 2],
+      ['navy', 3],
+      ['marine corps', 4],
+      ['coast guard', 5],
+      ['merchant seaman', 7],
+      ['noaa', 10],
+      ['usphs', 9],
+      ['f.commonwealth', 11],
+      ['f.guerilla', 12],
+      ['f.scouts new', 13],
+      ['f.scouts old', 14],
+      ['foo', 6]
+    ]
+  )
 end
