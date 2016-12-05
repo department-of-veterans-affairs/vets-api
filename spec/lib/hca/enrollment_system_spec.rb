@@ -573,4 +573,42 @@ describe HCA::EnrollmentSystem do
       ]
     ]
   )
+
+  test_method(
+    described_class,
+    'veteran_to_insurance_collection',
+    [
+      [
+        {
+          "providers": [
+            {
+              "insuranceName": "MyInsruance",
+              "insurancePolicyHolderName": "FirstName ZZTEST",
+              "insurancePolicyNumber": "P1234",
+              "insuranceGroupCode": "G1234"
+            }
+          ],
+          "isEnrolledMedicarePartA": true,
+          "medicarePartAEffectiveDate": "1999-10-16"
+        }.deep_stringify_keys,
+        {
+          "insurance": [
+            {
+              "companyName": "MyInsruance",
+              "policyHolderName": "FirstName ZZTEST",
+              "policyNumber": "P1234",
+              "groupNumber": "G1234",
+              "insuranceMappingTypeName": "PI"
+            },
+            {
+              "companyName": "Medicare",
+              "enrolledInPartA": true,
+              "insuranceMappingTypeName": "MDCR",
+              "partAEffectiveDate": "10/16/1999"
+            }
+          ]
+        }.deep_stringify_keys
+      ]
+    ]
+  )
 end

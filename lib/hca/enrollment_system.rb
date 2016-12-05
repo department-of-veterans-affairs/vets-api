@@ -386,6 +386,27 @@ module HCA
       }
     end
 
+    def veteran_to_insurance_collection(veteran)
+      insurance_collection = veteran['providers'].map do |provider|
+        provider_to_insurance_info(provider)
+      end
+
+      if veteran['isEnrolledMedicarePartA']
+        insurance_collection << {
+          'companyName' => 'Medicare',
+          'enrolledInPartA' => veteran['isEnrolledMedicarePartA'],
+          'insuranceMappingTypeName' => 'MDCR',
+          'partAEffectiveDate' => Validations.date_of_birth(veteran['medicarePartAEffectiveDate'])
+        }
+      end
+
+      return if insurance_collection.blank?
+
+      {
+        'insurance' => insurance_collection
+      }
+    end
+
     def transform(data)
     end
   end
