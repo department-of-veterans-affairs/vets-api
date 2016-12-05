@@ -1,14 +1,34 @@
 # frozen_string_literal: true
-require 'common/serializers/helpers'
-
 class DisabilityClaimBaseSerializer < ActiveModel::Serializer
+  def self.date_attr(*names, override_name: nil, format: '%m/%d/%Y')
+    name = override_name || names.last
+    define_method(name) do
+      date = object_data.dig(*names)
+      return unless date
+      Date.strptime(date, format)
+    end
+  end
+
+  def self.yes_no_attr(*names, override_name: nil)
+    name = override_name || names.last
+    define_method(name) do
+      s = object_data.dig(*names)
+      return unless s
+      case s.downcase
+      when 'yes' then true
+      when 'no' then false
+      else
+        Rails.logger.error "Expected key EVSS '#{keys}' to be Yes/No. Got '#{s}'."
+        nil
+      end
+    end
+  end
+
   attributes :id, :evss_id, :date_filed, :min_est_date, :max_est_date,
              :phase_change_date, :open, :waiver_submitted, :documents_needed,
              :development_letter_sent, :decision_letter_sent,
              :updated_at, :phase, :ever_phase_back, :current_phase_back,
              :requested_decision
-
-  extend Common::Serializer
 
   # Our IDs are not stable due to 24 hour expiration, use EVSS IDs for consistency
   # This can be removed if our IDs become stable
