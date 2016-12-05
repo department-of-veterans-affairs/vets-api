@@ -24,6 +24,9 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
     end
   end
 
+  private_class_method :date_attr
+  private_class_method :yes_no_attr
+
   attributes :id, :evss_id, :date_filed, :min_est_date, :max_est_date,
              :phase_change_date, :open, :waiver_submitted, :documents_needed,
              :development_letter_sent, :decision_letter_sent,
