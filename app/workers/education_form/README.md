@@ -23,7 +23,7 @@ If an application needs to go to a different processing center, we can take the 
 
 ```
 application_id = ###
-new_region = one of 'eastern', 'western', 'southern', or 'central'
+new_region = one of 'eastern', 'western', or 'central'
 application = EducationBenefitsClaim.find(application_id)
 application.reprocess_at(region)
 ```
