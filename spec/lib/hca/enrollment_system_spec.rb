@@ -480,29 +480,29 @@ describe HCA::EnrollmentSystem do
       [
         {
           "veteranFullName": {
-            "first": "FirstName",
-            "middle": "MiddleName",
-            "last": "ZZTEST",
-            "suffix": "Jr."
+            "first": 'FirstName',
+            "middle": 'MiddleName',
+            "last": 'ZZTEST',
+            "suffix": 'Jr.'
           },
-          "mothersMaidenName": "Maiden",
-          "veteranSocialSecurityNumber": "111-11-1234",
-          "gender": "F",
-          "cityOfBirth": "Springfield",
-          "stateOfBirth": "AK",
-          "veteranDateOfBirth": "1923-01-02",
+          "mothersMaidenName": 'Maiden',
+          "veteranSocialSecurityNumber": '111-11-1234',
+          "gender": 'F',
+          "cityOfBirth": 'Springfield',
+          "stateOfBirth": 'AK',
+          "veteranDateOfBirth": '1923-01-02'
         }.deep_stringify_keys,
         {
-          "firstName"=>"FIRSTNAME",
-          "middleName"=>"MIDDLENAME",
-          "lastName"=>"ZZTEST",
-          "suffix"=>"JR.",
-          "gender"=>"F",
-          "dob"=>"01/02/1923",
-          "mothersMaidenName"=>"Maiden",
-          "placeOfBirthCity"=>"Springfield",
-          "placeOfBirthState"=>"AK",
-          "ssnText"=>"111111234"
+          'firstName' => 'FIRSTNAME',
+          'middleName' => 'MIDDLENAME',
+          'lastName' => 'ZZTEST',
+          'suffix' => 'JR.',
+          'gender' => 'F',
+          'dob' => '01/02/1923',
+          'mothersMaidenName' => 'Maiden',
+          'placeOfBirthCity' => 'Springfield',
+          'placeOfBirthState' => 'AK',
+          'ssnText' => '111111234'
         }
       ]
     ]

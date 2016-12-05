@@ -296,26 +296,29 @@ module HCA
       }
     end
 
-    def veteran_to_person_info(veteran)
-      veteran_full_name = veteran['veteranFullName']
-
+    def convert_full_name(full_name)
       {
         'firstName' => Validations.validate_name(
-          data: veteran_full_name['first'],
+          data: full_name['first'],
           count: 30
         ),
         'middleName' => Validations.validate_name(
-          data: veteran_full_name['middle'],
+          data: full_name['middle'],
           count: 30,
           nullable: true
         ),
         'lastName' => Validations.validate_name(
-          data: veteran_full_name['last'],
+          data: full_name['last'],
           count: 30
         ),
         'suffix' => Validations.validate_name(
-          data: veteran_full_name['suffix']
-        ),
+          data: full_name['suffix']
+        )
+      }
+    end
+
+    def veteran_to_person_info(veteran)
+      convert_full_name(veteran['veteranFullName']).merge({
         'gender' => veteran['gender'],
         'dob' => Validations.date_of_birth(veteran['veteranDateOfBirth']),
         'mothersMaidenName' => Validations.validate_string(
@@ -329,7 +332,7 @@ module HCA
           nullable: true
         ),
         'placeOfBirthState' => veteran['stateOfBirth']
-      }.merge(ssn_to_ssntext(veteran['veteranSocialSecurityNumber']))
+      }.merge(ssn_to_ssntext(veteran['veteranSocialSecurityNumber'])))
     end
 
     def transform(data)
