@@ -367,6 +367,25 @@ module HCA
       DISCHARGE_CODES[discharge_type] || 4
     end
 
+    def veteran_to_military_service_info(veteran)
+      {
+        'dischargeDueToDisability' => veteran['disabledInLineOfDuty'],
+        'militaryServiceSiteRecords' => {
+          'militaryServiceSiteRecord' => {
+            'militaryServiceEpisodes' => {
+              'militaryServiceEpisode' => {
+                'dischargeType' => discharge_type_to_sds_code(veteran['dischargeType']),
+                'startDate' => Validations.date_of_birth(veteran['lastEntryDate']),
+                'endDate' => Validations.date_of_birth(veteran['lastDischargeDate']),
+                'serviceBranch' => service_branch_to_sds_code(veteran['lastServiceBranch'])
+              }
+            },
+            'site' => veteran['vaMedicalFacility']
+          }
+        }
+      }
+    end
+
     def transform(data)
     end
   end

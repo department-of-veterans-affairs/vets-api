@@ -540,4 +540,37 @@ describe HCA::EnrollmentSystem do
       ['foo', 4]
     ]
   )
+
+  test_method(
+    described_class,
+    'veteran_to_military_service_info',
+    [
+      [
+        {
+          'disabledInLineOfDuty' => true,
+          'dischargeType' => 'general',
+          'lastEntryDate' => '1980-03-07',
+          'lastDischargeDate' => "1984-07-08",
+          'lastServiceBranch' => "merchant seaman",
+          'vaMedicalFacility' => "689A4"
+        },
+        {
+          "dischargeDueToDisability": true,
+          "militaryServiceSiteRecords": {
+            "militaryServiceSiteRecord": {
+              "militaryServiceEpisodes": {
+                "militaryServiceEpisode": {
+                  "dischargeType": 3,
+                  "startDate": "03/07/1980",
+                  "endDate": "07/08/1984",
+                  "serviceBranch": 7
+                }
+              },
+              "site": "689A4"
+            }
+          }
+        }.deep_stringify_keys
+      ]
+    ]
+  )
 end
