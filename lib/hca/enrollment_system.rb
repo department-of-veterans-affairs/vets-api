@@ -65,7 +65,7 @@ module HCA
       'Guardian Civil' => 9,
       'Spouse' => 10,
       'Dependent' => 11
-    }
+    }.freeze
 
     def financial_flag?(veteran)
       veteran['understandsFinancialDisclosure'] || veteran['discloseFinancialInformation']
