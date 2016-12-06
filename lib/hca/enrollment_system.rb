@@ -567,6 +567,9 @@ module HCA
           'appMethod' => '1'
         }
       }
+
+      convert_hash_values(request)
+      request
     end
   end
   # rubocop:enable ModuleLength
