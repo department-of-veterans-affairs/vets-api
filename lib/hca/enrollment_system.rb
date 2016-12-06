@@ -477,6 +477,16 @@ module HCA
       }.merge(convert_full_name_alt(child['childFullName']))
     end
 
+    def spouse_to_association(veteran)
+      if spouse?(veteran) && financial_flag?(veteran)
+        {
+          'address' => format_address(veteran['spouseAddress']),
+          'contactType' => relationship_to_contact_type('Spouse'),
+          'relationship' => 'SPOUSE'
+        }.merge(convert_full_name_alt(veteran['spouseFullName']))
+      end
+    end
+
     def transform(data)
     end
   end
