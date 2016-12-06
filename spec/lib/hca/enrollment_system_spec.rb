@@ -778,7 +778,7 @@ describe HCA::EnrollmentSystem do
       [
         { 'children' => [TEST_CHILD] },
         {
-          "association"=> [
+          'association' => [
             CONVERTED_CHILD_ASSOCIATION
           ]
         }
@@ -788,7 +788,7 @@ describe HCA::EnrollmentSystem do
           'children' => [TEST_CHILD]
         }.merge(TEST_SPOUSE_WITH_DISCLOSURE),
         {
-          "association"=> [
+          'association' => [
             CONVERTED_CHILD_ASSOCIATION,
             CONVERTED_SPOUSE_ASSOCIATION
           ]
