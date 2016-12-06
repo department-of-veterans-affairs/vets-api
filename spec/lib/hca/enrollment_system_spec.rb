@@ -739,15 +739,20 @@ describe HCA::EnrollmentSystem do
           'understandsFinancialDisclosure' => true
         ),
         {
-          "address"=>{
-            "city"=>"Dulles", "country"=>"USA", "line1"=>"123 NW 8th St", "state"=>"VA", "zipCode"=>"20101", "zipPlus4"=>"0101"
+          'address' => {
+            'city' => 'Dulles',
+            'country' => 'USA',
+            'line1' => '123 NW 8th St',
+            'state' => 'VA',
+            'zipCode' => '20101',
+            'zipPlus4' => '0101'
           },
-          "contactType"=>10,
-          "relationship"=>"SPOUSE",
-          "givenName"=>"FIRSTSPOUSE",
-          "middleName"=>"MIDDLESPOUSE",
-          "familyName"=>"LASTSPOUSE",
-          "suffix"=>"SR."
+          'contactType' => 10,
+          'relationship' => 'SPOUSE',
+          'givenName' => 'FIRSTSPOUSE',
+          'middleName' => 'MIDDLESPOUSE',
+          'familyName' => 'LASTSPOUSE',
+          'suffix' => 'SR.'
         }
       ],
       [
