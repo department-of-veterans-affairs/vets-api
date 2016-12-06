@@ -17,7 +17,6 @@ require 'support/validation_helpers'
 require 'support/saml/authn_request_helper'
 require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
-require 'support/spec_builders'
 require 'common/exceptions'
 
 WebMock.disable_net_connect!(allow_localhost: true)
@@ -91,8 +90,6 @@ RSpec.configure do |config|
   config.include AuthenticatedSessionHelper, type: :request
 
   config.include StatsD::Instrument::Matchers
-
-  config.include SpecBuilders
 
   config.before(:each) do
     Sidekiq::Worker.clear_all
