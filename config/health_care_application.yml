@@ -1,0 +1,34 @@
+endpoints:
+  c7401: 'http://vaausesrapp803.aac.va.gov:7401/voa/voaSvc'
+  e7401: 'http://vaausappesr801.aac.va.gov:7401/voa/voaSvc'
+  e6401: 'https://vaausesrapp803.aac.va.gov:6401/voa/voaSvc'
+  d7401: &d7401 'http://vaausappesr800.aac.va.gov:7401/voa/voaSvc?wsdl'
+  esSqa: 'https://vaww.esrstage1a.aac.va.gov/voa/voaSvc'
+  esDev: 'https://vaww.esrdev30.aac.va.gov:8432/voa/voaSvc'
+  esPreprod: &pre_prod 'https://vaww.esrpre-prod.aac.va.gov/voa/voaSvc'
+  esProd: &prod 'https://vaww.esr.aac.va.gov/voa/voaSvc'
+
+trust_chains:
+  internal: &internal
+    - 'VA Internal Subordinate CA 1.pem'
+    - 'VA Internal Root CA.pem'
+  common: &common
+    - 'Veterans Affairs Device CA B2.pem'
+    - 'Betrusted Production SSP CA A1.pem'
+    - 'Federal Common Policy CA.pem'
+
+test:
+  endpoint: ~
+  ca: ~
+
+development:
+  endpoint: *d7401
+  ca: *common
+
+staging:
+  endpoint: *pre_prod
+  ca: *common
+
+production:
+  endpoint: *prod
+  ca: *internal

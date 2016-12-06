@@ -26,5 +26,8 @@ MVI_PROCESSING_CODE: 'T'
 MOCK_MVI_SERVICE: 'true'
 GOV_DELIVERY_SERVER: stage-tms.govdelivery.com
 
+HEALTH_CARE_APPLICATION_CERTIFICATE_FILE: ~
+HEALTH_CARE_APPLICATION_KEY_FILE: ~
+
 # For CORS requests; separate multiple origins with a comma
 WEB_ORIGIN: 'http://localhost:3000,http://localhost:3001'

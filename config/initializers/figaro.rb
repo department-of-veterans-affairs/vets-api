@@ -18,7 +18,7 @@ Figaro.require_keys(
   'VHA_MAPSERVER_URL',
   'NCA_MAPSERVER_URL',
   'VBA_MAPSERVER_URL',
-  'GOV_DELIVERY_SERVER'
+  'GOV_DELIVERY_SERVER',
 )
 
 if Rails.env.production?
@@ -29,6 +29,8 @@ if Rails.env.production?
     'REPORTS_AWS_S3_BUCKET',
     'EDU_SFTP_HOST',
     'EDU_SFTP_USER',
-    'EDU_SFTP_PASS'
+    'EDU_SFTP_PASS',
+    'HEALTH_CARE_APPLICATION_CERTIFICATE_FILE',
+    'HEALTH_CARE_APPLICATION_KEY_FILE'
   )
 end
