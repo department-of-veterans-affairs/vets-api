@@ -873,15 +873,15 @@ describe HCA::EnrollmentSystem do
       end
 
       expect(described_class.veteran_to_summary(veteran)).to eq(
-        {"associations"=>"association_collection",
-         "demographics"=>"demographics_info",
-         "enrollmentDeterminationInfo"=>"enrollment_determination_info",
-         "financialsInfo"=>"financials_info",
-         "insuranceList"=>"insurance_collection",
-         "militaryServiceInfo"=>"military_service_info",
-         "prisonerOfWarInfo"=>{"powIndicator"=>true},
-         "purpleHeart"=>{"indicator"=>false},
-         "personInfo"=>"person_info"}
+        'associations' => 'association_collection',
+        'demographics' => 'demographics_info',
+        'enrollmentDeterminationInfo' => 'enrollment_determination_info',
+        'financialsInfo' => 'financials_info',
+        'insuranceList' => 'insurance_collection',
+        'militaryServiceInfo' => 'military_service_info',
+        'prisonerOfWarInfo' => { 'powIndicator' => true },
+        'purpleHeart' => { 'indicator' => false },
+        'personInfo' => 'person_info'
       )
     end
   end
