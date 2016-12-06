@@ -800,4 +800,53 @@ describe HCA::EnrollmentSystem do
       ]
     ]
   )
+
+  test_method(
+    described_class,
+    'veteran_to_demographics_info',
+    [
+      [
+        {
+          "veteranAddress": {
+            "street": "123 NW 5th St",
+            "street2": "",
+            "street3": "",
+            "city": "Ontario",
+            "country": "CAN",
+            "state": "ON",
+            "provinceCode": "ProvinceName",
+            "zipcode": "21231",
+            "postalCode": "13AA"
+          },
+          wantsInitialVaContact: true,
+          "email": "foo@example.com",
+          "homePhone": "1231241234",
+          "isSpanishHispanicLatino": true,
+          "isWhite": true,
+          "maritalStatus": "Married",
+          "vaMedicalFacility": "689A4",
+          "isEssentialAcaCoverage": true,
+        }.deep_stringify_keys,
+        {
+          "appointmentRequestResponse"=>true,
+         "contactInfo"=>
+          {"addresses"=>
+            {"address"=>
+              {"city"=>"Ontario",
+               "country"=>"CAN",
+               "line1"=>"123 NW 5th St",
+               "provinceCode"=>"ON",
+               "postalCode"=>"21231",
+               "addressTypeCode"=>"P"}},
+           "emails"=>[{"email"=>{"address"=>"foo@example.com", "type"=>"1"}}],
+           "phones"=>[{"phoneNumber"=>"1231241234", "type"=>"1"}]},
+         "ethnicity"=>"2135-2",
+         "maritalStatus"=>"M",
+         "preferredFacility"=>"689A4",
+         "races"=>{"race"=>["2106-3"]},
+         "acaIndicator"=>true
+       }
+      ]
+    ]
+  )
 end

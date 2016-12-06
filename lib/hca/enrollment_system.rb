@@ -502,6 +502,27 @@ module HCA
       { 'association' => associations }
     end
 
+    def veteran_to_demographics_info(veteran)
+      address = format_address(veteran['veteranAddress'])
+      address['addressTypeCode'] = 'P'
+
+      {
+        'appointmentRequestResponse' => veteran['wantsInitialVaContact'],
+        'contactInfo' => {
+          'addresses' => {
+            'address' => address
+          },
+          'emails' => email_from_veteran(veteran),
+          'phones' => phone_number_from_veteran(veteran)
+        },
+        'ethnicity' => spanish_hispanic_to_sds_code(veteran['isSpanishHispanicLatino']),
+        'maritalStatus' => marital_status_to_sds_code(veteran['maritalStatus']),
+        'preferredFacility' => veteran['vaMedicalFacility'],
+        'races' => veteran_to_races(veteran),
+        'acaIndicator' => veteran['isEssentialAcaCoverage']
+      }
+    end
+
     def transform(data)
     end
   end
