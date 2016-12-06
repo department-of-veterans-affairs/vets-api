@@ -76,8 +76,8 @@ module V0
     end
 
     def loa_highest(attributes)
-      logger.warn 'LOA.highest is nil!' if attributes['level_of_assurance']&.first&.to_i.nil?
-      loa_highest = attributes['level_of_assurance']&.first&.to_i || loa_current
+      logger.warn 'LOA.highest is nil!' if (loa = attributes['level_of_assurance']&.first&.to_i).nil?
+      loa_highest = loa || loa_current
       logger.warn 'LOA.highest is less than LOA.current' if loa_highest < loa_current
       [loa_current, loa_highest].max
     end
