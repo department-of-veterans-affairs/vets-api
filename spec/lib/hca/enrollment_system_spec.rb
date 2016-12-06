@@ -50,6 +50,11 @@ describe HCA::EnrollmentSystem do
     'spouseSocialSecurityNumber' => '111-22-1234'
   }.freeze
 
+  TEST_SPOUSE_WITH_DISCLOSURE = TEST_SPOUSE.merge(
+    'maritalStatus' => 'Married',
+    'understandsFinancialDisclosure' => true
+  ).freeze
+
   SPOUSE_FINANCIALS = {
     'maritalStatus' => 'Married',
     'understandsFinancialDisclosure' => true,
@@ -89,6 +94,32 @@ describe HCA::EnrollmentSystem do
       'contributedToSpousalSupport' => false,
       'livedWithPatient' => true
     }
+  }.freeze
+
+  CONVERTED_CHILD_ASSOCIATION = {
+    'contactType' => 11,
+    'relationship' => 'Stepson',
+    'givenName' => 'FIRSTCHILDA',
+    'middleName' => 'MIDDLECHILDA',
+    'familyName' => 'LASTCHILDA',
+    'suffix' => 'JR.'
+  }.freeze
+
+  CONVERTED_SPOUSE_ASSOCIATION = {
+    'address' => {
+      'city' => 'Dulles',
+      'country' => 'USA',
+      'line1' => '123 NW 8th St',
+      'state' => 'VA',
+      'zipCode' => '20101',
+      'zipPlus4' => '0101'
+    },
+    'contactType' => 10,
+    'relationship' => 'SPOUSE',
+    'givenName' => 'FIRSTSPOUSE',
+    'middleName' => 'MIDDLESPOUSE',
+    'familyName' => 'LASTSPOUSE',
+    'suffix' => 'SR.'
   }.freeze
 
   CHILD_DEPENDENT_FINANCIALS = {
@@ -717,14 +748,7 @@ describe HCA::EnrollmentSystem do
     [
       [
         TEST_CHILD,
-        {
-          'contactType' => 11,
-          'relationship' => 'Stepson',
-          'givenName' => 'FIRSTCHILDA',
-          'middleName' => 'MIDDLECHILDA',
-          'familyName' => 'LASTCHILDA',
-          'suffix' => 'JR.'
-        }
+        CONVERTED_CHILD_ASSOCIATION
       ]
     ]
   )
@@ -734,26 +758,8 @@ describe HCA::EnrollmentSystem do
     'spouse_to_association',
     [
       [
-        TEST_SPOUSE.merge(
-          'maritalStatus' => 'Married',
-          'understandsFinancialDisclosure' => true
-        ),
-        {
-          'address' => {
-            'city' => 'Dulles',
-            'country' => 'USA',
-            'line1' => '123 NW 8th St',
-            'state' => 'VA',
-            'zipCode' => '20101',
-            'zipPlus4' => '0101'
-          },
-          'contactType' => 10,
-          'relationship' => 'SPOUSE',
-          'givenName' => 'FIRSTSPOUSE',
-          'middleName' => 'MIDDLESPOUSE',
-          'familyName' => 'LASTSPOUSE',
-          'suffix' => 'SR.'
-        }
+        TEST_SPOUSE_WITH_DISCLOSURE,
+        CONVERTED_SPOUSE_ASSOCIATION
       ],
       [
         {
@@ -761,6 +767,24 @@ describe HCA::EnrollmentSystem do
           'understandsFinancialDisclosure' => true
         },
         nil
+      ]
+    ]
+  )
+
+  test_method(
+    described_class,
+    'veteran_to_association_collection',
+    [
+      [
+        {
+          'children' => [TEST_CHILD]
+        }.merge(TEST_SPOUSE_WITH_DISCLOSURE),
+        {
+          "association"=> [
+            CONVERTED_CHILD_ASSOCIATION,
+            CONVERTED_SPOUSE_ASSOCIATION
+          ]
+        }
       ]
     ]
   )

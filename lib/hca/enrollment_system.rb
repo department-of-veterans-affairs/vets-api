@@ -487,6 +487,21 @@ module HCA
       end
     end
 
+    def veteran_to_association_collection(veteran)
+      associations = []
+      children = veteran['children'].map do |child|
+        child_to_association(child)
+      end.compact
+      spouse = spouse_to_association(veteran)
+
+      associations += children
+      associations << spouse if spouse.present?
+
+      return if associations.blank?
+
+      { 'association' => associations }
+    end
+
     def transform(data)
     end
   end
