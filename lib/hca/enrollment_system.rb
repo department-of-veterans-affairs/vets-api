@@ -523,6 +523,24 @@ module HCA
       }
     end
 
+    def veteran_to_summary(veteran)
+      {
+        'associations' => veteran_to_association_collection(veteran),
+        'demographics' => veteran_to_demographics_info(veteran),
+        'enrollmentDeterminationInfo' => veteran_to_enrollment_determination_info(veteran),
+        'financialsInfo' => veteran_to_financials_info(veteran),
+        'insuranceList' => veteran_to_insurance_collection(veteran),
+        'militaryServiceInfo' => veteran_to_military_service_info(veteran),
+        'prisonerOfWarInfo' => {
+          'powIndicator' => veteran['isFormerPow']
+        },
+        'purpleHeart' => {
+          'indicator' => veteran['purpleHeartRecipient']
+        },
+        'personInfo' => veteran_to_person_info(veteran)
+      }
+    end
+
     def transform(data)
     end
   end

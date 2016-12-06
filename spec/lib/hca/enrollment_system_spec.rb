@@ -849,4 +849,40 @@ describe HCA::EnrollmentSystem do
       ]
     ]
   )
+
+  describe '#veteran_to_summary' do
+    let(:veteran) do
+      {
+        'isFormerPow' => true,
+        'purpleHeartRecipient' => false
+      }
+    end
+
+    it 'should return the right hash' do
+      %w(
+        association_collection
+        demographics_info
+        enrollment_determination_info
+        financials_info
+        insurance_collection
+        military_service_info
+        person_info
+      ).each do |type|
+        expect(described_class).to receive("veteran_to_#{type}")
+          .once.with(veteran).and_return(type)
+      end
+
+      expect(described_class.veteran_to_summary(veteran)).to eq(
+        {"associations"=>"association_collection",
+         "demographics"=>"demographics_info",
+         "enrollmentDeterminationInfo"=>"enrollment_determination_info",
+         "financialsInfo"=>"financials_info",
+         "insuranceList"=>"insurance_collection",
+         "militaryServiceInfo"=>"military_service_info",
+         "prisonerOfWarInfo"=>{"powIndicator"=>true},
+         "purpleHeart"=>{"indicator"=>false},
+         "personInfo"=>"person_info"}
+      )
+    end
+  end
 end
