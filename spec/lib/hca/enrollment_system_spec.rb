@@ -885,4 +885,22 @@ describe HCA::EnrollmentSystem do
       )
     end
   end
+
+  test_method(
+    described_class,
+    'convert_hash_values',
+    [
+      [
+        {
+          a: 1,
+          b: { c: true },
+          d: 'true',
+          e: [
+            { a: 1.1 }, b: { c: false }
+          ]
+        },
+        {:a=>"1", :b=>{:c=>"true"}, :d=>"true", :e=>[{:a=>"1.1"}, {:b=>{:c=>"false"}}]}
+      ],
+    ]
+  )
 end

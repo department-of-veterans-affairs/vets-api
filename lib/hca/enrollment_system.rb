@@ -541,7 +541,32 @@ module HCA
       }
     end
 
-    def transform(data)
+    def convert_hash_values(hash)
+      hash.each do |k, v|
+        if v.is_a?(Hash)
+          convert_hash_values(v)
+        elsif v.is_a?(Array)
+          # only array of hashes exist
+          v.each do |hash|
+            convert_hash_values(hash)
+          end
+        elsif v.in?([true, false]) || v.is_a?(Numeric)
+          hash[k] = v.to_s
+        end
+      end
+    end
+
+    def veteran_to_save_submit_form(veteran)
+      return {} if veteran.blank?
+
+      request = FORM_TEMPLATE.dup
+      request['form']['summary'] = veteran_to_summary(veteran)
+      request['form']['applications'] = {
+        'applicationInfo' => {
+          'appDate' => Time.zone.now.utc.strftime('%Y-%m-%d'),
+          'appMethod' => '1'
+        }
+      }
     end
   end
   # rubocop:enable ModuleLength
