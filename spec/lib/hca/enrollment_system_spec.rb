@@ -776,6 +776,14 @@ describe HCA::EnrollmentSystem do
     'veteran_to_association_collection',
     [
       [
+        { 'children' => [TEST_CHILD] },
+        {
+          "association"=> [
+            CONVERTED_CHILD_ASSOCIATION
+          ]
+        }
+      ],
+      [
         {
           'children' => [TEST_CHILD]
         }.merge(TEST_SPOUSE_WITH_DISCLOSURE),
@@ -785,6 +793,10 @@ describe HCA::EnrollmentSystem do
             CONVERTED_SPOUSE_ASSOCIATION
           ]
         }
+      ],
+      [
+        { 'children' => [] },
+        nil
       ]
     ]
   )
