@@ -2,31 +2,6 @@
 require 'rails_helper'
 
 RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serializer] do
-  describe 'GET show' do
-    let(:submission) { FactoryGirl.create(:education_benefits_claim) }
-    subject do
-      get(show_v0_education_benefits_claims_path(id: submission.id, format: :text))
-    end
-
-    it 'should render the spool file entry for the form' do
-      subject
-      expect(response.body).to include('APPLICATION FOR VA EDUCATION BENEFITS')
-    end
-  end
-
-  describe 'GET daily' do
-    let(:submission) { FactoryGirl.create(:education_benefits_claim) }
-    subject do
-      submission.save
-      get(daily_file_v0_education_benefits_claims_path(format: :tar))
-    end
-
-    it 'should send a tar file successfully' do
-      subject
-      expect(response.body).not_to be_empty
-    end
-  end
-
   describe 'POST create' do
     subject do
       post(
