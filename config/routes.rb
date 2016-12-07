@@ -15,17 +15,7 @@ Rails.application.routes.draw do
 
     resource :user, only: [:show]
 
-    resource :education_benefits_claims, only: [:create] do
-      get :index, to: 'education_benefits_claims#daily_file',
-                  defaults: { format: :tar },
-                  as: :daily_file,
-                  constraints: ->(_) { FeatureFlipper.show_education_benefit_form? }
-      get ':id', to: 'education_benefits_claims#show',
-                 defaults: { format: :text },
-                 as: :show,
-                 id: /\d+/,
-                 constraints: ->(_) { FeatureFlipper.show_education_benefit_form? }
-    end
+    resource :education_benefits_claims, only: [:create]
 
     resource :disability_rating, only: [:show]
     resources :disability_claims, only: [:index, :show] do
@@ -77,9 +67,6 @@ Rails.application.routes.draw do
     require 'sidekiq-scheduler/web'
     mount Sidekiq::Web, at: '/sidekiq'
   end
-
-  # This is a temporary route that will be removed after testing
-  match 'v0/raise_500', to: 'application#raise_500', via: :get
 
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i(get post put patch delete)
