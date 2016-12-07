@@ -288,7 +288,7 @@ describe HCA::EnrollmentSystem do
           'mobilePhone' => '4'
         },
         {
-          'phone' =>[
+          'phone' => [
             {
               'phoneNumber' => '1234',
               'type' => '1'
@@ -855,10 +855,9 @@ describe HCA::EnrollmentSystem do
                 'postalCode' => '21231',
                 'addressTypeCode' => 'P' } },
             'emails' => [{ 'email' => { 'address' => 'foo@example.com', 'type' => '1' } }],
-            'phones' =>{
-              'phone' =>[{ 'phoneNumber' => '1231241234', 'type' => '1' }]
-            }
-          },
+            'phones' => {
+              'phone' => [{ 'phoneNumber' => '1231241234', 'type' => '1' }]
+            } },
           'ethnicity' => '2135-2',
           'maritalStatus' => 'M',
           'preferredFacility' => '689A4',
@@ -919,13 +918,13 @@ describe HCA::EnrollmentSystem do
           ]
         },
         {
-          :a=>"1",
-          :b=>{:c=>"true"},
-          :d=>"true",
-          :e=>[
-            {:a=>"1.1"},
-            {:b=>{:c=>"false"}},
-            "false"
+          a: '1',
+          b: { c: 'true' },
+          d: 'true',
+          e: [
+            { a: '1.1' },
+            { b: { c: 'false' } },
+            'false'
           ]
         }
       ]
