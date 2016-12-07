@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 class EducationBenefitsClaim < ActiveRecord::Base
-  FORM_SCHEMA = VetsJsonSchema::EDUCATION_BENEFITS
+  FORM_SCHEMA = VetsJsonSchema::EDU_BENEFITS
   APPLICATION_TYPES = %w(chapter33 chapter30 chapter1606 chapter32).freeze
 
   validates(:form, presence: true)

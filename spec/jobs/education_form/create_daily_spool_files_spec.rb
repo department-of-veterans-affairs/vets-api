@@ -15,7 +15,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context '#format_application' do
     it 'uses conformant sample data in the tests' do
-      expect(application_1606.form).to match_vets_schema('education_benefits')
+      expect(application_1606.form).to match_vets_schema('edu_benefits')
     end
 
     context 'conformance' do
@@ -23,7 +23,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       SAMPLE_APPLICATIONS.each do |application_name|
         it "generates #{application_name} correctly" do
           json = File.read(File.join(basepath, "#{application_name}.json"))
-          expect(json).to match_vets_schema('education_benefits')
+          expect(json).to match_vets_schema('edu_benefits')
           application = EducationBenefitsClaim.new(form: json)
           result = Timecop.freeze(Time.zone.parse('2016-10-06 03:00:00 EDT')) do
             subject.format_application(application.open_struct_form)
