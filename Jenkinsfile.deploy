@@ -23,7 +23,7 @@ pipeline {
                  changelog: false,
                  scm: [$class: 'GitSCM', branches: [[name: '*/jenkins-utility-vpc']],
                  extensions: [[$class: 'SubmoduleOption', recursiveSubmodules: true]],
-                 userRemoteConfigs: [[url: 'git@github.com:department-of-veterans-affairs/evops.git']]]
+                 userRemoteConfigs: [[url: 'git@github.com:department-of-veterans-affairs/devops.git']]]
       }
     }
 
