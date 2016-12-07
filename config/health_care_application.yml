@@ -1,10 +1,6 @@
 endpoints:
-  c7401: 'http://vaausesrapp803.aac.va.gov:7401/voa/voaSvc'
-  e7401: 'http://vaausappesr801.aac.va.gov:7401/voa/voaSvc'
-  e6401: 'https://vaausesrapp803.aac.va.gov:6401/voa/voaSvc'
-  d7401: &d7401 'http://vaausappesr800.aac.va.gov:7401/voa/voaSvc?wsdl'
-  esSqa: 'https://vaww.esrstage1a.aac.va.gov/voa/voaSvc'
-  esDev: 'https://vaww.esrdev30.aac.va.gov:8432/voa/voaSvc'
+  esSqa: &es_sqa 'https://vaww.esrstage1a.aac.va.gov/voa/voaSvc'
+  esDev: &es_dev 'https://vaww.esrdev30.aac.va.gov:8432/voa/voaSvc'
   esPreprod: &pre_prod 'https://vaww.esrpre-prod.aac.va.gov/voa/voaSvc'
   esProd: &prod 'https://vaww.esr.aac.va.gov/voa/voaSvc'
 
@@ -22,7 +18,7 @@ test:
   ca: ~
 
 development:
-  endpoint: *d7401
+  endpoint: *es_sqa
   ca: *common
 
 staging:
