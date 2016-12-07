@@ -61,7 +61,7 @@ module V0
         birth_date:     attributes['birth_date']&.first,
         uuid:           attributes['uuid']&.first,
         last_signed_in: Time.current.utc,
-        loa:            { current: loa_current, highest: attributes['level_of_assurance']&.first&.to_i || loa_current }
+        loa:            { current: loa_current, highest: loa_highest(attributes) }
       }
     end
 
@@ -73,6 +73,13 @@ module V0
     def loa_current
       @raw_loa ||= REXML::XPath.first(@saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
       LOA::MAPPING[@raw_loa]
+    end
+
+    def loa_highest(attributes)
+      logger.warn 'LOA.highest is nil!' if (loa = attributes['level_of_assurance']&.first&.to_i).nil?
+      loa_highest = loa || loa_current
+      logger.warn 'LOA.highest is less than LOA.current' if loa_highest < loa_current
+      [loa_current, loa_highest].max
     end
 
     def saml_user
