@@ -2,6 +2,7 @@
 require 'common/client/configuration'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/mhv_errors'
 require 'common/client/middleware/response/snakecase'
 require 'rx/middleware/response/rx_parser'
 
@@ -50,7 +51,8 @@ module Rx
         # conn.response :logger, ::Logger.new(STDOUT), bodies: true
         conn.response :rx_parser
         conn.response :snakecase
-        conn.response :raise_error, 'RX', code_key: 'errorCode', detail_key: 'message', source_key: 'developerMessage'
+        conn.response :raise_error, error_prefix: 'RX'
+        conn.response :mhv_errors
         conn.response :json_parser
 
         conn.adapter Faraday.default_adapter

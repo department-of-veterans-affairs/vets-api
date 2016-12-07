@@ -38,9 +38,8 @@ module MHVLogging
 
           # conn.response :logger, ::Logger.new(STDOUT), bodies: true
           conn.response :snakecase
-          # rubocop:disable LineLength
-          conn.response :raise_error, 'MHV', code_key: 'errorCode', detail_key: 'message', source_key: 'developerMessage'
-          # rubocop:enable LineLength
+          conn.response :raise_error, error_prefix: 'MHV'
+          conn.response :mhv_errors
           conn.response :json_parser
           conn.adapter Faraday.default_adapter
         end

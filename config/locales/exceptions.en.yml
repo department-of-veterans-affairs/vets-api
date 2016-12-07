@@ -110,6 +110,8 @@ en:
     # All error codes below this line, use the same exception class bad_request
     # need to be mapped properly using specific codes described below
     # Below this line just define the minor code as key to be used by client error
+      VA900:
+        <<: *external_defaults
       RX139:
         <<: *external_defaults
         code: 'RX139'

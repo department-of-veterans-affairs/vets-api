@@ -4,6 +4,7 @@ require 'common/client/middleware/request/camelcase'
 require 'common/client/middleware/request/multipart_request'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/mhv_errors'
 require 'common/client/middleware/response/snakecase'
 require 'sm/middleware/response/sm_parser'
 
@@ -56,7 +57,8 @@ module SM
         # conn.response :logger, ::Logger.new(STDOUT), bodies: true
         conn.response :sm_parser
         conn.response :snakecase
-        conn.response :raise_error, 'SM', code_key: 'errorCode', detail_key: 'message', source_key: 'developerMessage'
+        conn.response :raise_error, error_prefix: 'SM'
+        conn.response :mhv_errors
         conn.response :json_parser
 
         conn.adapter Faraday.default_adapter
