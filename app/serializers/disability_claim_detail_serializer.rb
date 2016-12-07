@@ -48,7 +48,7 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
   end
 
   def create_event_from_string_date(type, *from_keys)
-    date = object.data.dig(from_keys)
+    date = object.data.dig(*from_keys)
     return nil unless date
     {
       type: type,
