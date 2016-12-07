@@ -149,6 +149,16 @@ describe HCA::EnrollmentSystem do
 
   let(:test_address) { TEST_ADDRESS.dup }
 
+  %w(veteran result).each do |file|
+    let("test_#{file}") do
+      JSON.parse(
+        File.read(
+          Rails.root.join('spec', 'fixtures', 'hca', "#{file}.json")
+        )
+      )
+    end
+  end
+
   test_method(
     described_class,
     'financial_flag?',
@@ -924,13 +934,8 @@ describe HCA::EnrollmentSystem do
 
   describe '#veteran_to_save_submit_form' do
     it 'should return the right result' do
-      basepath = Rails.root.join('spec', 'fixtures', 'hca')
-      veteran = JSON.parse(File.read(File.join(basepath, 'fake-application.json')))
-      result = JSON.parse(File.read(File.join(basepath, 'golden-soap-submission.json')))
-
       Timecop.freeze(Date.new(2015, 10, 21)) do
-        # binding.pry; fail
-        expect(described_class.veteran_to_save_submit_form(veteran)).to eq(result)
+        expect(described_class.veteran_to_save_submit_form(test_veteran)).to eq(test_result)
       end
     end
   end
