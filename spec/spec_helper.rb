@@ -2,6 +2,7 @@
 require 'fakeredis/rspec'
 require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
+require 'support/api_schema_matcher'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']

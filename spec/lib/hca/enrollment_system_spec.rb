@@ -939,4 +939,10 @@ describe HCA::EnrollmentSystem do
       end
     end
   end
+
+  describe 'hca json schema' do
+    it 'test application should pass json schema' do
+      expect(test_veteran.to_json).to match_vets_schema('healthcare_application')
+    end
+  end
 end
