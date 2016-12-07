@@ -250,39 +250,45 @@ describe HCA::EnrollmentSystem do
         {
           'homePhone' => '1234'
         },
-        [
-          {
-            'phoneNumber' => '1234',
-            'type' => '1'
-          }
-        ]
+        {
+          'phone' => [
+            {
+              'phoneNumber' => '1234',
+              'type' => '1'
+            }
+          ]
+        }
       ],
       [
         {
           'mobilePhone' => '1234'
         },
-        [
-          {
-            'phoneNumber' => '1234',
-            'type' => '4'
-          }
-        ]
+        {
+          'phone' => [
+            {
+              'phoneNumber' => '1234',
+              'type' => '4'
+            }
+          ]
+        }
       ],
       [
         {
           'homePhone' => '1234',
           'mobilePhone' => '4'
         },
-        [
-          {
-            'phoneNumber' => '1234',
-            'type' => '1'
-          },
-          {
-            'phoneNumber' => '4',
-            'type' => '4'
-          }
-        ]
+        {
+          'phone' =>[
+            {
+              'phoneNumber' => '1234',
+              'type' => '1'
+            },
+            {
+              'phoneNumber' => '4',
+              'type' => '4'
+            }
+          ]
+        }
       ],
       [
         {},
@@ -839,7 +845,10 @@ describe HCA::EnrollmentSystem do
                 'postalCode' => '21231',
                 'addressTypeCode' => 'P' } },
             'emails' => [{ 'email' => { 'address' => 'foo@example.com', 'type' => '1' } }],
-            'phones' => [{ 'phoneNumber' => '1231241234', 'type' => '1' }] },
+            'phones' =>{
+              'phone' =>[{ 'phoneNumber' => '1231241234', 'type' => '1' }]
+            }
+          },
           'ethnicity' => '2135-2',
           'maritalStatus' => 'M',
           'preferredFacility' => '689A4',
@@ -896,11 +905,33 @@ describe HCA::EnrollmentSystem do
           b: { c: true },
           d: 'true',
           e: [
-            { a: 1.1 }, b: { c: false }
+            { a: 1.1 }, { b: { c: false } }, false
           ]
         },
-        {:a=>"1", :b=>{:c=>"true"}, :d=>"true", :e=>[{:a=>"1.1"}, {:b=>{:c=>"false"}}]}
-      ],
+        {
+          :a=>"1",
+          :b=>{:c=>"true"},
+          :d=>"true",
+          :e=>[
+            {:a=>"1.1"},
+            {:b=>{:c=>"false"}},
+            "false"
+          ]
+        }
+      ]
     ]
   )
+
+  describe '#veteran_to_save_submit_form' do
+    it 'should return the right result' do
+      basepath = Rails.root.join('spec', 'fixtures', 'hca')
+      veteran = JSON.parse(File.read(File.join(basepath, 'fake-application.json')))
+      result = JSON.parse(File.read(File.join(basepath, 'golden-soap-submission.json')))
+
+      Timecop.freeze(Date.new(2015, 10, 21)) do
+        # binding.pry; fail
+        expect(described_class.veteran_to_save_submit_form(veteran)).to eq(result)
+      end
+    end
+  end
 end

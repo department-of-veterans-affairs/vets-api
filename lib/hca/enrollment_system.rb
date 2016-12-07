@@ -144,7 +144,7 @@ module HCA
         } if number.present?
       end
 
-      phone
+      { 'phone' => phone }
     end
 
     def email_from_veteran(veteran)
@@ -541,18 +541,23 @@ module HCA
       }
     end
 
+    def convert_value(value)
+      if value.is_a?(Hash)
+        convert_hash_values(value)
+      elsif value.is_a?(Array)
+        value.map do |item|
+          convert_value(item)
+        end
+      elsif value.in?([true, false]) || value.is_a?(Numeric)
+        value.to_s
+      else
+        value
+      end
+    end
+
     def convert_hash_values(hash)
       hash.each do |k, v|
-        if v.is_a?(Hash)
-          convert_hash_values(v)
-        elsif v.is_a?(Array)
-          # only array of hashes exist
-          v.each do |hash|
-            convert_hash_values(hash)
-          end
-        elsif v.in?([true, false]) || v.is_a?(Numeric)
-          hash[k] = v.to_s
-        end
+        hash[k] = convert_value(v)
       end
     end
 
