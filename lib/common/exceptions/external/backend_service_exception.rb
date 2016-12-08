@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 module Common
   module Exceptions
-
-    class UnmappedBackendServiceException < StandardError
+    class UnmappedBackendServiceException < StandardError; end
     # BackendServiceException - This will return a generic error, to customize
     # you must define the minor code in the locales file and call this class from
     # raise_error middleware.
