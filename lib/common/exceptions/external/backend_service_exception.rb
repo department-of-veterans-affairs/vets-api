@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 module Common
   module Exceptions
+    # This class is just used for Raven logging, not actually raised
     class UnmappedBackendServiceException < StandardError; end
-    # BackendServiceException - This will return a generic error, to customize
+
+    # This will return a generic error, to customize
     # you must define the minor code in the locales file and call this class from
     # raise_error middleware.
     class BackendServiceException < BaseError
@@ -15,8 +17,8 @@ module Common
         warn_about_error_not_in_locales!
       end
 
-      # The message will be the actual backend service response, not the rendered one.
-      # NOTE: the code will not be the original
+      # The message will be the actual backend service response from middleware,
+      # not the I18n version.
       def message
         "BackendServiceException: #{response_values.merge(code: code)}"
       end
