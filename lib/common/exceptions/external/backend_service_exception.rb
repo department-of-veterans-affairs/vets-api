@@ -67,7 +67,7 @@ module Common
 
       def validate_arguments!
         raise ArgumentError, "i18n key (#{@key}) is invalid" unless I18n.exists?(i18n_key)
-        raise ArgumentError, "status (#{status}) is not in 4xx range" unless status.between?(400, 499)
+        raise ArgumentError, "status (#{status}) is not in range" unless status.between?(400, 599)
       end
 
       # This just reports to Sentry that an unmapped backend service exception was
