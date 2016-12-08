@@ -14,7 +14,7 @@ end
 RSpec::Matchers.define :match_vets_schema do |schema|
   match do |data|
     @errors = JSON::Validator.fully_validate(VetsJsonSchema.const_get(schema.upcase), data, validate_schema: true)
-    @errors == []
+    @errors.empty?
   end
 
   failure_message do |_actual|
