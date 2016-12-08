@@ -74,5 +74,11 @@ RSpec.describe DisabilityClaimDetailSerializer, type: :serializer do
     it 'should have a phase 7 event' do
       expect(attributes['events_timeline'].select { |obj| obj['type'] == 'phase7' }.count).to eq 1
     end
+
+    let(:date_str) { Date.new(2012, 8, 10).to_json[1...-1] } # Strip quotes around date string
+
+    it 'should have the right date for phase 7' do
+      expect(attributes['events_timeline'].select { |obj| obj['type'] == 'phase7' }.first['date']).to eq date_str
+    end
   end
 end
