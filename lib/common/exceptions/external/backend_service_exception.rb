@@ -15,8 +15,10 @@ module Common
         warn_about_error_not_in_locales!
       end
 
+      # The message will be the actual backend service response, not the rendered one.
+      # NOTE: the code will not be the original
       def message
-        "BackendServiceException: #{response_values}"
+        "BackendServiceException: #{response_values.merge(code: code)}"
       end
 
       def errors
@@ -26,7 +28,7 @@ module Common
       private
 
       def render_overides
-        { code: code, detail: detail, status: status, source: source }
+        { status: status, detail: detail, code: code, source: source }
       end
 
       # REQUIRED - This is the i18n code returned from raise_error middleware. If it exists in
@@ -86,7 +88,7 @@ module Common
       end
 
       def i18n_key
-        "common.exceptions.#{@key}"
+        "common.exceptions.#{code}"
       end
     end
   end

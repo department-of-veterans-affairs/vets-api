@@ -18,30 +18,8 @@ module SM
       "#{ENV['MHV_SM_HOST']}/mhv-sm-api/patient/v1/"
     end
 
-    def breakers_service
-      return @service if defined?(@service)
-
-      path = URI.parse(base_path).path
-      host = URI.parse(base_path).host
-      matcher = proc do |request_env|
-        request_env.url.host == host && request_env.url.path =~ /^#{path}/
-      end
-
-      exception_handler = proc do |exception|
-        # :nocov:
-        if exception.is_a?(Common::Exceptions::BackendServiceException)
-          (500..599).cover?(exception.response_values[:status])
-        else
-          false
-        end
-        # :nocov:
-      end
-
-      @service = Breakers::Service.new(
-        name: 'SM',
-        request_matcher: matcher,
-        exception_handler: exception_handler
-      )
+    def service_name
+      'SM'
     end
 
     def connection
@@ -57,7 +35,7 @@ module SM
         # conn.response :logger, ::Logger.new(STDOUT), bodies: true
         conn.response :sm_parser
         conn.response :snakecase
-        conn.response :raise_error, error_prefix: 'SM'
+        conn.response :raise_error, error_prefix: service_name
         conn.response :mhv_errors
         conn.response :json_parser
 
