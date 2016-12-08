@@ -43,7 +43,7 @@ module Common
             {
               status: status,
               detail: body['detail'],
-              code:   i18n_key,
+              code:   "#{error_prefix.upcase}#{body['code']}",
               source: body['source']
             }
           end
