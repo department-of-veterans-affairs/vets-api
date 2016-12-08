@@ -177,7 +177,9 @@ describe MVI::Service do
         VCR.use_cassette('mvi/find_candidate/internal_server_error') do
           expect(Rails.logger).to receive(:error).with('MVI fault code: env:Server').once
           expect(Rails.logger).to receive(:error).with('MVI fault string: Internal Error (from server)').once
-          expect { subject.find_candidate(message) }.to raise_error(SOAP::Errors::HTTPError, 'MVI internal server error')
+          expect do
+            subject.find_candidate(message)
+          end.to raise_error(SOAP::Errors::HTTPError, 'MVI internal server error')
         end
       end
     end
@@ -185,7 +187,9 @@ describe MVI::Service do
     context 'when MVI multiple match failure response' do
       it 'raises SOAP::Errors::RecordNotFound' do
         VCR.use_cassette('mvi/find_candidate/failure_multiple_matches') do
-          expect { subject.find_candidate(message) }.to raise_error(SOAP::Errors::RecordNotFound)
+          expect do
+            subject.find_candidate(message)
+          end.to raise_error(SOAP::Errors::RecordNotFound)
         end
       end
     end

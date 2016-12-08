@@ -55,7 +55,7 @@ module HealthCareApplications
         conn.options.open_timeout = 10  # TODO(molson): Make a config/setting
         conn.options.timeout = 15       # TODO(molson): Make a config/setting
         conn.use SOAP::Middleware::Request::Headers
-        conn.use SOAP::Middleware::Response::Parse, name: "HCA-ES"
+        conn.use SOAP::Middleware::Response::Parse, name: 'HCA-ES'
         conn.adapter Faraday.default_adapter
       end
     end
