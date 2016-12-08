@@ -46,7 +46,7 @@ module Common
               code: '#{response_values[:code]}'
               detail: '#{response_values[:detail]}'
               status: <http status code you want rendered (400 or 422)>
-              source: #{response_values[:source].presence || '~'}
+              source: ~
           MESSAGE
           exception = UnmappedBackendServiceException.new(message)
           Rails.logger.warn message
@@ -77,6 +77,7 @@ module Common
       end
 
       # This should usually be a developer message of some sort from the backend service
+      # if it one is not provided by the backend leave this as nil in I18n
       def source
         response_values[:source]
       end
