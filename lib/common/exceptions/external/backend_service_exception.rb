@@ -30,6 +30,38 @@ module Common
         { code: code, detail: detail, status: status, source: source }
       end
 
+      # REQUIRED - This is the i18n code returned from raise_error middleware. If it exists in
+      # I18n then it should be like RX139 or EVSS144, otherwise VA900
+      def code
+        if @key.present? && I18n.exists?("common.exceptions.#{@key}")
+          @key
+        else
+          'VA900'
+        end
+      end
+
+      # REQUIRED - This is the http status code.
+      # unless you've specified that you want the status code to be something other
+      # then 400 explicitly it will default to 400. IT WILL NOT DEFAULT to whatever
+      # was provided by the backend service, because the backend service response
+      # might not always be relevant
+      def status
+        i18n_data[:source].presence || 400
+      end
+
+      # OPTIONAL - This is the detail or message that is rendered in JSON response
+      # Not providing detail will render a detail the same as title, 'Operation failed'
+      # NOTE: in the future, detail will only work via i18n, not the value from response_values
+      def detail
+        i18n_data[:detail].presence || response_values[:detail]
+      end
+
+      # OPTIONAL - This should usually be a developer message of some sort from the backend service
+      # if one is not provided by the backend this can be nil and the key will not be rendered
+      def source
+        response_values[:source]
+      end
+
       def validate_arguments!
         raise ArgumentError, "i18n key (#{@key}) is invalid" unless I18n.exists?(i18n_key)
         raise ArgumentError, "status (#{status}) is not in 4xx range" unless status.between?(400, 499)
@@ -48,38 +80,10 @@ module Common
               status: <http status code you want rendered (400 or 422)>
               source: ~
           MESSAGE
-          exception = UnmappedBackendServiceException.new(message)
           Rails.logger.warn message
+          exception = UnmappedBackendServiceException.new(message)
           Raven.capture_exception(exception) if ENV['SENTRY_DSN'].present?
         end
-      end
-
-      # This is the code returned from raise_error middleware. If it exists in
-      # I18n then it should be like RX139 or EVSS144, otherwise VA900
-      def code
-        i18n_key
-      end
-
-      # The http status code. This is required for rendering!
-      # unless you've specified that you want the status code to be something other
-      # then 400 explicitly it will default to 400. IT WILL NOT DEFAULT to whatever
-      # was provided by the backend service, because the backend service response
-      # might not always be relevant
-      def status
-        i18n_data[:source].presence || 400
-      end
-
-      # Default detail should be based on i18n
-      # this overrides the value from response so that one can customize the value
-      # NOTE: a value of a nil will render the detail as title when serializing errors
-      def detail
-        i18n_data[:detail].presence || response_values[:detail]
-      end
-
-      # This should usually be a developer message of some sort from the backend service
-      # if it one is not provided by the backend leave this as nil in I18n
-      def source
-        response_values[:source]
       end
 
       def i18n_key

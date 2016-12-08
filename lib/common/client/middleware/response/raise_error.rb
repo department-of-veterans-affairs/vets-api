@@ -32,11 +32,7 @@ module Common
           end
 
           def i18n_key
-            if I18n.exists?("common.exceptions.#{error_prefix.upcase}#{body['code']}")
-              "#{error_prefix.upcase}#{body['code']}"
-            else
-              'VA900'
-            end
+            "#{error_prefix.upcase}#{body['code']}"
           end
 
           def response_values
