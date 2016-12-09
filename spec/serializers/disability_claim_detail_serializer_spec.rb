@@ -64,4 +64,21 @@ RSpec.describe DisabilityClaimDetailSerializer, type: :serializer do
       expect(other_documents.select { |obj| !obj['tracked_item_id'].nil? }.count).to eq 0
     end
   end
+
+  context 'with some phase dates' do
+    it 'should not have a phase 1..6 event' do
+      (1..6).each do |i|
+        expect(attributes['events_timeline'].select { |obj| obj['type'] == "phase#{i}" }.count).to eq 0
+      end
+    end
+    it 'should have a phase 7 event' do
+      expect(attributes['events_timeline'].select { |obj| obj['type'] == 'phase7' }.count).to eq 1
+    end
+
+    let(:date_str) { Date.new(2012, 8, 10).to_json[1...-1] } # Strip quotes around date string
+
+    it 'should have the right date for phase 7' do
+      expect(attributes['events_timeline'].select { |obj| obj['type'] == 'phase7' }.first['date']).to eq date_str
+    end
+  end
 end
