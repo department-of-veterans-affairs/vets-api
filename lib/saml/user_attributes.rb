@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 module SAML
-  class DeSerializer
-
+  class UserAttributes
     ## saml_response = OneLogin::RubySaml::Response
     def initialize(saml_response)
       @saml_response = saml_response
     end
 
-    def user_attributes
+    def to_hash
       attributes = @saml_response.attributes.all.to_h
       {
         first_name:     attributes['fname']&.first,

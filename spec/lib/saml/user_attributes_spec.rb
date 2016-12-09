@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'saml/de_serializer'
+require 'saml/user_attributes'
 
-RSpec.describe SAML::DeSerializer do
+RSpec.describe SAML::UserAttributes do
   let(:loa1_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/loa1_response.xml") }
   let(:loa3_xml) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/loa3_response.xml") }
   let(:loa1_saml_attrs) do
@@ -13,27 +13,19 @@ RSpec.describe SAML::DeSerializer do
     }
   end
   let(:loa3_saml_attrs) do
-    loa1_saml_attrs.merge({
-
-      'fname'      => ['John'],
-      'lname'      => ['Adams'],
-      'mname'      => [''],
-      'social'     => ['11122333'],
-      'gender'     => ['male'],
-      'birth_date' => ['1735-10-30'],
-      'level_of_assurance' => [3]
-    })
+    loa1_saml_attrs.merge('fname' => ['John'],
+                          'lname'      => ['Adams'],
+                          'mname'      => [''],
+                          'social'     => ['11122333'],
+                          'gender'     => ['male'],
+                          'birth_date' => ['1735-10-30'],
+                          'level_of_assurance' => [3])
   end
   let(:saml_response) { double('saml_response') }
-  let(:described_instance) { described_class.new(double('saml_response')) }
-
-  before do
-    described_instance.instance_variable_set(:@saml_response, saml_response)
-  end
-
+  let(:described_instance) { described_class.new(saml_response) }
 
   context 'LOA highest is lower than LOA current' do
-    let(:user) { User.new(described_instance.user_attributes) }
+    let(:user) { User.new(described_instance) }
     before do
       loa3_saml_attrs['level_of_assurance'] = [1]
       allow(saml_response).to receive_message_chain(:attributes, :all, :to_h).and_return(loa3_saml_attrs)
@@ -49,7 +41,7 @@ RSpec.describe SAML::DeSerializer do
   end
 
   context 'when LOA highest is nil' do
-    let(:user) { User.new(described_instance.user_attributes) }
+    let(:user) { User.new(described_instance) }
     before do
       loa1_saml_attrs['level_of_assurance'] = []
       allow(saml_response).to receive_message_chain(:attributes, :all, :to_h).and_return(loa1_saml_attrs)
@@ -64,7 +56,7 @@ RSpec.describe SAML::DeSerializer do
     end
     it 'logs a warning' do
       expect(Rails.logger).to receive(:warn).at_least(:once)
-      described_instance.user_attributes
+      user
     end
   end
 
@@ -75,7 +67,7 @@ RSpec.describe SAML::DeSerializer do
     end
 
     it 'properly constructs a user' do
-      expect(User.new(described_instance.user_attributes)).to be_valid
+      expect(User.new(described_instance)).to be_valid
     end
   end
 
@@ -86,12 +78,12 @@ RSpec.describe SAML::DeSerializer do
     end
 
     it 'properly constructs a user' do
-      expect(User.new(described_instance.user_attributes)).to be_valid
+      expect(User.new(described_instance)).to be_valid
     end
   end
 
   context 'when gender is nil' do
-    let(:user) { User.new(described_instance.user_attributes) }
+    let(:user) { User.new(described_instance) }
     before do
       loa1_saml_attrs['gender'] = nil
       allow(saml_response).to receive_message_chain(:attributes, :all, :to_h).and_return(loa1_saml_attrs)

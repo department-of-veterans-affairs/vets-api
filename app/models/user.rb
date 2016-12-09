@@ -5,7 +5,7 @@ require 'mvi/messages/find_candidate_message'
 require 'mvi/service'
 require 'evss/common_service'
 require 'evss/auth_headers'
-require 'saml/de_serializer'
+require 'saml/user_attributes'
 
 class User < Common::RedisStore
   redis_store REDIS_CONFIG['user_store']['namespace']
@@ -82,7 +82,7 @@ class User < Common::RedisStore
   end
 
   def self.from_saml(saml_response)
-    User.new(SAML::DeSerializer.new(saml_response).user_attributes)
+    User.new(SAML::UserAttributes.new(saml_response))
   end
 
   delegate :edipi, to: :mvi
