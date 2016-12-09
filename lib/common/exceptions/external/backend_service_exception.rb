@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 module Common
   module Exceptions
-    # This class is just used for Raven logging, not actually raised
-    class UnmappedBackendServiceException < StandardError; end
-
     # This will return a generic error, to customize
     # you must define the minor code in the locales file and call this class from
     # raise_error middleware.
@@ -84,8 +81,7 @@ module Common
               source: ~
           MESSAGE
           Rails.logger.warn message
-          exception = UnmappedBackendServiceException.new(message)
-          Raven.capture_exception(exception) if ENV['SENTRY_DSN'].present?
+          Raven.capture_message(message, level: :warning) if ENV['SENTRY_DSN'].present?
         end
       end
 
