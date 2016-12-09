@@ -5,6 +5,7 @@ require 'mvi/messages/find_candidate_message'
 require 'mvi/service'
 require 'evss/common_service'
 require 'evss/auth_headers'
+require 'saml/de_serializer'
 
 class User < Common::RedisStore
   redis_store REDIS_CONFIG['user_store']['namespace']
@@ -78,6 +79,10 @@ class User < Common::RedisStore
     attrs[:loa][:highest] = [existing_user[:loa][:highest], new_user[:loa][:highest]].max
 
     User.new(attrs)
+  end
+
+  def self.from_saml(saml_response)
+    User.new(SAML::DeSerializer.new(saml_response).user_attributes)
   end
 
   delegate :edipi, to: :mvi
