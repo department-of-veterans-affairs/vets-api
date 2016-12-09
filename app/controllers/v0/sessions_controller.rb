@@ -117,8 +117,10 @@ module V0
 
     def delete_session(token)
       session = Session.find(token)
-      User.find(session.uuid).destroy
-      session.destroy
+      unless session.nil?
+        User.find(session.uuid)&.destroy
+        session.destroy
+      end
     end
     # :nocov:
   end
