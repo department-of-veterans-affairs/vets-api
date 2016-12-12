@@ -48,7 +48,7 @@ class VHAFacilityAdapter
 
   TOP_KEYMAP = {
     unique_id: 'StationNumber', name: 'StationName', classification: 'CocClassification',
-    website: 'First_InternetAddress', lat: 'Latitude', long: 'Longitude'
+    website: 'Website_URL', lat: 'Latitude', long: 'Longitude'
   }.freeze
 
   ADDR_KEYMAP = {
