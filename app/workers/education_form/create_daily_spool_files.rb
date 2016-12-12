@@ -52,6 +52,7 @@ module EducationForm
 
         if sftp
           sftp.upload!(StringIO.new(contents), filename)
+          StatsD.increment("worker.education_benefits_claim.221990.#{region_id}")
         else
           dir_name = Rails.root.join('tmp', 'spool_files')
           FileUtils.mkdir_p(dir_name)

@@ -118,7 +118,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
           expect(path).to eq filename
           expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
         end
-        perform_with_frozen_time
+
+        expect { perform_with_frozen_time }.to trigger_statsd_increment('worker.education_benefits_claim.221990.307')
+
         expect(EducationBenefitsClaim.unprocessed).to be_empty
       end
     end
