@@ -62,9 +62,7 @@ module EducationForm
         end
 
         # mark the records as processed once the file has been written
-        records.each do |record|
-          record.update_attributes!(processed_at: Time.zone.now)
-        end
+        records.each { |r| r.update_attributes!(processed_at: Time.zone.now) }
       end
     end
 
