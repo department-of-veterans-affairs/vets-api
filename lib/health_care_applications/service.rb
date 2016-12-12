@@ -1,33 +1,32 @@
 # frozen_string_literal: true
 require 'soap/middleware/request/headers'
 require 'soap/middleware/response/parse'
+require 'health_care_applications/settings'
 
 module HealthCareApplications
   class Service
-    HEALTH_CHECK_ID = 377_609_264
-
-    def submit_application(form)
-      # TODO(molson): Apply HCA transform on form
-      submission = soap.build_request(:save_submit_form, form)
-      post(submission)
-    end
-
     def health_check
-      submission = soap.build_request(:get_form_submission_status, message: { formSubmissionId: HEALTH_CHECK_ID })
-      post(submission)
+      submission = soap.build_request(:get_form_submission_status, message:
+        { formSubmissionId: HealthCareApplications::Settings::HEALTH_CHECK_ID })
+      response = post(submission)
+      root = response.body.locate('S:Envelope/S:Body/retrieveFormSubmissionStatusResponse').first
+      {
+        id: root.locate('formSubmissionId').first.text.to_i,
+        timestamp: root.locate('timeStamp').first.text
+      }
     end
 
     def self.options
       opts = {
-        url: HEALTH_CARE_APPLICATION_CONFIG[:endpoint],
+        url: HealthCareApplications::Settings::ENDPOINT,
         ssl: {
           verify: true,
-          cert_store: HEALTH_CARE_APPLICATION_CONFIG[:cert_store]
+          cert_store: HealthCareApplications::Settings::CERT_STORE
         }
       }
-      if HEALTH_CARE_APPLICATION_CONFIG[:cert_path] && HEALTH_CARE_APPLICATION_CONFIG[:key_path]
-        opts[:ssl].merge(client_cert: HEALTH_CARE_APPLICATION_CONFIG[:cert_path],
-                         client_key: HEALTH_CARE_APPLICATION_CONFIG[:key_path])
+      if HealthCareApplications::Settings::SSL_CERT && HealthCareApplications::Settings::SSL_KEY
+        opts[:ssl].merge!(client_cert: HealthCareApplications::Settings::SSL_CERT,
+                          client_key: HealthCareApplications::Settings::SSL_KEY)
       end
       opts
     end
@@ -41,7 +40,7 @@ module HealthCareApplications
     def soap
       # Savon *seems* like it should be setting these things correctly
       # from what the docs say. Our WSDL file is weird, maybe?
-      Savon.client(wsdl: HEALTH_CARE_APPLICATION_CONFIG[:wsdl],
+      Savon.client(wsdl: HealthCareApplications::Settings::WSDL,
                    env_namespace: :soap,
                    element_form_default: :qualified,
                    namespaces: {

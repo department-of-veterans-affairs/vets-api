@@ -1,6 +1,6 @@
 endpoints:
   esSqa: &es_sqa 'https://vaww.esrstage1a.aac.va.gov/voa/voaSvc'
-  esDev: &es_dev 'https://vaww.esrdev30.aac.va.gov:8432/voa/voaSvc'
+  esDev: &es_dev 'https://vaww.esrdev30.aac.va.gov:8433/voa/voaSvc?wsdl'
   esPreprod: &pre_prod 'https://vaww.esrpre-prod.aac.va.gov/voa/voaSvc'
   esProd: &prod 'https://vaww.esr.aac.va.gov/voa/voaSvc'
 
@@ -14,11 +14,11 @@ trust_chains:
     - 'Federal Common Policy CA.pem'
 
 test:
-  endpoint: ~
-  ca: ~
+  endpoint: *es_dev
+  ca: *common
 
 development:
-  endpoint: *es_sqa
+  endpoint: *es_dev
   ca: *common
 
 staging:
