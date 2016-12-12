@@ -69,10 +69,10 @@ class VBAFacilityAdapter
     'FamilyMemberClaimAssistance' => 'Family_Member_Claim_Assistance',
     'HomelessAssistance' => 'Homeless_Assistance',
     'VAHomeLoanAssistance' => 'VA_Home_Loan_Assistance',
-    'InsuranceClaimAssistanceAndFinancialCounseling' => 'Insurance_Claim_Assistance_and_',
+    'InsuranceClaimAssistanceAndFinancialCounseling' => 'Insurance_Claim_Assistance',
     'IntegratedDisabilityEvaluationSystemAssistance' => 'IDES',
     'PreDischargeClaimAssistance' => 'Pre_Discharge_Claim_Assistance',
-    'TransitionAssistance' => 'Transition Assistance',
+    'TransitionAssistance' => 'Transition_Assistance',
     'UpdatingDirectDepositInformation' => 'Updating_Direct_Deposit_Informa',
     'VocationalRehabilitationAndEmploymentAssistance' => 'Vocational_Rehabilitation_Emplo'
   }.freeze
