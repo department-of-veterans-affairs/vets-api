@@ -3,6 +3,8 @@ module V0
   class EducationBenefitsClaimsController < ApplicationController
     skip_before_action(:authenticate)
 
+    STATSD_SUBMISSION_KEY = 'api.education_benefits_claim.221990.'
+
     def create
       education_benefits_claim = EducationBenefitsClaim.new(education_benefits_claim_params)
 
@@ -13,8 +15,12 @@ module V0
         Raven.capture_exception(validation_error)
 
         logger.error(validation_error)
+
+        StatsD.increment("#{STATSD_SUBMISSION_KEY}failure")
         raise Common::Exceptions::ValidationErrors, education_benefits_claim
       end
+
+      StatsD.increment("#{STATSD_SUBMISSION_KEY}success")
 
       render(json: education_benefits_claim)
     end
