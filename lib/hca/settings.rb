@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-module HealthCareApplications
+module HCA
   module Settings
     CONFIG = Rails.application.config_for(:health_care_application).freeze
 

@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 require 'soap/middleware/request/headers'
 require 'soap/middleware/response/parse'
-require 'health_care_applications/settings'
+require 'hca/settings'
 
-module HealthCareApplications
+module HCA
   class Service
     def health_check
       submission = soap.build_request(:get_form_submission_status, message:
-        { formSubmissionId: HealthCareApplications::Settings::HEALTH_CHECK_ID })
+        { formSubmissionId: HCA::Settings::HEALTH_CHECK_ID })
       response = post(submission)
       root = response.body.locate('S:Envelope/S:Body/retrieveFormSubmissionStatusResponse').first
       {
@@ -18,15 +18,15 @@ module HealthCareApplications
 
     def self.options
       opts = {
-        url: HealthCareApplications::Settings::ENDPOINT,
+        url: HCA::Settings::ENDPOINT,
         ssl: {
           verify: true,
-          cert_store: HealthCareApplications::Settings::CERT_STORE
+          cert_store: HCA::Settings::CERT_STORE
         }
       }
-      if HealthCareApplications::Settings::SSL_CERT && HealthCareApplications::Settings::SSL_KEY
-        opts[:ssl].merge!(client_cert: HealthCareApplications::Settings::SSL_CERT,
-                          client_key: HealthCareApplications::Settings::SSL_KEY)
+      if HCA::Settings::SSL_CERT && HCA::Settings::SSL_KEY
+        opts[:ssl].merge!(client_cert: HCA::Settings::SSL_CERT,
+                          client_key: HCA::Settings::SSL_KEY)
       end
       opts
     end
@@ -40,7 +40,7 @@ module HealthCareApplications
     def soap
       # Savon *seems* like it should be setting these things correctly
       # from what the docs say. Our WSDL file is weird, maybe?
-      Savon.client(wsdl: HealthCareApplications::Settings::WSDL,
+      Savon.client(wsdl: HCA::Settings::WSDL,
                    env_namespace: :soap,
                    element_form_default: :qualified,
                    namespaces: {
@@ -50,7 +50,7 @@ module HealthCareApplications
     end
 
     def connection
-      @conn ||= Faraday.new(HealthCareApplications::Service.options) do |conn|
+      @conn ||= Faraday.new(HCA::Service.options) do |conn|
         conn.options.open_timeout = 10  # TODO(molson): Make a config/setting
         conn.options.timeout = 15       # TODO(molson): Make a config/setting
         conn.use SOAP::Middleware::Request::Headers
