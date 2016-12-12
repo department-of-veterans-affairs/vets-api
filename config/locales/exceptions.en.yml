@@ -102,7 +102,7 @@ en:
         status: 503
 # EXTERNAL EXCEPTIONS
     # This is a Generic Error corresponding to backend services
-      client_error: &external_defaults
+      backend_service_exception: &external_defaults
         <<: *defaults
         title: 'Operation failed' # To be used when no external minor code is mappable
         code: 'VA900'
@@ -110,8 +110,10 @@ en:
     # All error codes below this line, use the same exception class bad_request
     # need to be mapped properly using specific codes described below
     # Below this line just define the minor code as key to be used by client error
-    # RX122:
-    #   <<: *external_defaults
-    #   code: 'RX122'
-    #   detail: 'Prescription could not be filled'
-    #   status: bad_request
+      VA900:
+        <<: *external_defaults
+      RX139:
+        <<: *external_defaults
+        code: 'RX139'
+        detail: 'Prescription is not refillable'
+        status: 400

@@ -8,8 +8,6 @@ module Common
       class ClientError < Error; end
       class NotAuthenticated < ClientError; end
       class Serialization < ClientError; end
-
-      require 'common/client/errors/backend_service_error'
     end
   end
 end
