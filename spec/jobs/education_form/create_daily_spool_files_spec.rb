@@ -119,7 +119,10 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
           expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
         end
 
-        expect { perform_with_frozen_time }.to trigger_statsd_increment('worker.education_benefits_claim.221990.307')
+        expect { perform_with_frozen_time }.to trigger_statsd_gauge(
+          'worker.education_benefits_claim.221990.307',
+          value: 1
+        )
 
         expect(EducationBenefitsClaim.unprocessed).to be_empty
       end
