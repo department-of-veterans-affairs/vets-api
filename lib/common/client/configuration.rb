@@ -16,8 +16,18 @@ module Common
         'User-Agent' => USER_AGENT
       }.freeze
 
+      def initialize
+        # verify that these are implemented
+        base_path
+        service_name
+      end
+
       def base_path
         raise NotImplementedError, 'Subclass of Configuration must implement base_path'
+      end
+
+      def service_name
+        raise NotImplementedError, 'Subclass of Configuration must implement service_name'
       end
 
       def open_timeout
@@ -41,6 +51,30 @@ module Common
           open_timeout: open_timeout,
           timeout: read_timeout
         }
+      end
+
+      def breakers_service
+        return @service if defined?(@service)
+
+        path = URI.parse(base_path).path
+        host = URI.parse(base_path).host
+        matcher = proc do |request_env|
+          request_env.url.host == host && request_env.url.path =~ /^#{path}/
+        end
+
+        exception_handler = proc do |exception|
+          if exception.is_a?(Common::Exceptions::BackendServiceException)
+            (500..599).cover?(exception.response_values[:status])
+          else
+            false
+          end
+        end
+
+        @service = Breakers::Service.new(
+          name: service_name,
+          request_matcher: matcher,
+          exception_handler: exception_handler
+        )
       end
     end
   end

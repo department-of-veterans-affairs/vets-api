@@ -15,7 +15,7 @@ RSpec.describe ApplicationController, type: :controller do
     end
 
     def other_error
-      raise Common::Client::Errors::BackendServiceError.new(422, JSON_ERROR)
+      raise Common::Exceptions::BackendServiceException, 'RX139'
     end
 
     def client_connection_failed
@@ -58,7 +58,7 @@ RSpec.describe ApplicationController, type: :controller do
     context 'with Rails.env.test or Rails.env.development' do
       it 'renders json object with developer attributes' do
         get :other_error
-        expect(subject.keys).to eq(keys_for_development)
+        expect(subject.keys).to eq(keys_for_production)
       end
     end
 
