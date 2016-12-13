@@ -33,6 +33,10 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
           JSON.parse(serialize(EducationBenefitsClaim.last)).to_camelback_keys.to_json
         )
       end
+
+      it 'should increment statsd' do
+        expect { subject }.to trigger_statsd_increment('api.education_benefits_claim.221990.success')
+      end
     end
 
     context 'with invalid params' do
@@ -62,6 +66,10 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
         expect(Raven).to receive(:capture_exception).once.with(validation_error)
 
         subject
+      end
+
+      it 'should increment statsd' do
+        expect { subject }.to trigger_statsd_increment('api.education_benefits_claim.221990.failure')
       end
     end
   end
