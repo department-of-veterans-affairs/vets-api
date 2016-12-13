@@ -38,7 +38,8 @@ module MHVLogging
 
           # conn.response :logger, ::Logger.new(STDOUT), bodies: true
           conn.response :snakecase
-          conn.response :raise_error
+          conn.response :raise_error, error_prefix: 'MHV'
+          conn.response :mhv_errors
           conn.response :json_parser
           conn.adapter Faraday.default_adapter
         end
