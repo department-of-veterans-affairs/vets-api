@@ -3,10 +3,45 @@ module Common
   module Client
     module Middleware
       module Response
+        class BackendUnhandledException < StandardError; end
+
         class RaiseError < Faraday::Response::Middleware
+          attr_reader :error_prefix, :body, :status
+
+          def initialize(app, options = {})
+            # set the error prefix to something like 'RX' or 'SM'
+            @error_prefix = options[:error_prefix] || 'VA'
+            super(app)
+          end
+
           def on_complete(env)
             return if env.success?
-            raise Common::Client::Errors::BackendServiceError.new(env.status.to_i, env[:body])
+            @body = env[:body]
+            @status = env.status.to_i
+            raise_error!
+          end
+
+          private
+
+          def raise_error!
+            if status&.between?(400, 599)
+              raise Common::Exceptions::BackendServiceException.new(service_specific_i18n_key, response_values)
+            else
+              raise BackendUnhandledException, "Unhandled Exception - status: #{@status}, body: #{@body}"
+            end
+          end
+
+          def service_specific_i18n_key
+            "#{error_prefix.upcase}#{body['code']}"
+          end
+
+          def response_values
+            {
+              status: status,
+              detail: body['detail'],
+              code:   service_specific_i18n_key,
+              source: body['source']
+            }
           end
         end
       end
