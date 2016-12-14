@@ -9,7 +9,7 @@ module EVSS
       configuration EVSS::MHVCF::Configuration
 
       def get_forms
-        json = perform(:get, 'getInflightForms', nil).body
+        perform(:get, 'getInflightForms', nil).body
       end
     end
   end

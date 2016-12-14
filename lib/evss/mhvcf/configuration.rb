@@ -8,13 +8,13 @@ module EVSS
   module MHVCF
     class Configuration < Common::Client::Configuration
       def base_path
-        "https://pint.vdc.va.gov:444/wssweb/domain1/vii-app-1.2/rest"
+        'https://pint.vdc.va.gov:444/wssweb/domain1/vii-app-1.2/rest'
       end
 
       def service_name
         'MHVCF'
       end
-      
+
       # :nocov:
       def ssl_options
         {
