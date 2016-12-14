@@ -52,6 +52,7 @@ module EducationForm
 
         if sftp
           sftp.upload!(StringIO.new(contents), filename)
+          StatsD.gauge("worker.education_benefits_claim.221990.#{region_id}", records.count)
         else
           dir_name = Rails.root.join('tmp', 'spool_files')
           FileUtils.mkdir_p(dir_name)
@@ -61,9 +62,7 @@ module EducationForm
         end
 
         # mark the records as processed once the file has been written
-        records.each do |record|
-          record.update_attributes!(processed_at: Time.zone.now)
-        end
+        records.each { |r| r.update_attributes!(processed_at: Time.zone.now) }
       end
     end
 

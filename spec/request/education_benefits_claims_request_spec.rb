@@ -2,31 +2,6 @@
 require 'rails_helper'
 
 RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serializer] do
-  describe 'GET show' do
-    let(:submission) { FactoryGirl.create(:education_benefits_claim) }
-    subject do
-      get(show_v0_education_benefits_claims_path(id: submission.id, format: :text))
-    end
-
-    it 'should render the spool file entry for the form' do
-      subject
-      expect(response.body).to include('APPLICATION FOR VA EDUCATION BENEFITS')
-    end
-  end
-
-  describe 'GET daily' do
-    let(:submission) { FactoryGirl.create(:education_benefits_claim) }
-    subject do
-      submission.save
-      get(daily_file_v0_education_benefits_claims_path(format: :tar))
-    end
-
-    it 'should send a tar file successfully' do
-      subject
-      expect(response.body).not_to be_empty
-    end
-  end
-
   describe 'POST create' do
     subject do
       post(
@@ -58,6 +33,10 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
           JSON.parse(serialize(EducationBenefitsClaim.last)).to_camelback_keys.to_json
         )
       end
+
+      it 'should increment statsd' do
+        expect { subject }.to trigger_statsd_increment('api.education_benefits_claim.221990.success')
+      end
     end
 
     context 'with invalid params' do
@@ -87,6 +66,10 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
         expect(Raven).to receive(:capture_exception).once.with(validation_error)
 
         subject
+      end
+
+      it 'should increment statsd' do
+        expect { subject }.to trigger_statsd_increment('api.education_benefits_claim.221990.failure')
       end
     end
   end

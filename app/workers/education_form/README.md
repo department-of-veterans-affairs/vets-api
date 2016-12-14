@@ -2,8 +2,8 @@
 
 * A series of Spool Files are created with applications grouped into regions
   * The files are created from individual applications stored in the database for a given day
-  * The applications are stored in a format that matches vets-json-schema/dist/edu-benefits-schema.json
-  * The applications are formatted and concatenated according to the 22-1990.erb template
+  * The applications are stored in a format that matches the edu-benefits schema in the vets-json-schema repo
+  * The applications are formatted and concatenated using the 22-1990.erb template
   * The file must use windows-style newlines, and have a maximum line length of 78 characters before the newlines
 
 * The generated files are SFTPed to a remote system or systems.
@@ -23,7 +23,7 @@ If an application needs to go to a different processing center, we can take the 
 
 ```
 application_id = ###
-new_region = one of 'eastern', 'western', 'southern', or 'central'
+new_region = one of 'eastern', 'western', or 'central'
 application = EducationBenefitsClaim.find(application_id)
 application.reprocess_at(region)
 ```

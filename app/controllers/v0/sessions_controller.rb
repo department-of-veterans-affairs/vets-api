@@ -42,41 +42,13 @@ module V0
     private
 
     def persist_session_and_user
-      @session = Session.new(user_attributes.slice(:uuid))
+      saml_user = User.from_saml(@saml_response)
+
+      @session = Session.new(uuid: saml_user.uuid)
       @current_user = User.find(@session.uuid)
+
       @current_user = @current_user.nil? ? saml_user : User.from_merged_attrs(@current_user, saml_user)
       @session.save && @current_user.save
-    end
-
-    def user_attributes
-      attributes = @saml_response.attributes.all.to_h
-      {
-        first_name:     attributes['fname']&.first,
-        middle_name:    attributes['mname']&.first,
-        last_name:      attributes['lname']&.first,
-        zip:            attributes['zip']&.first,
-        email:          attributes['email']&.first,
-        gender:         parse_gender(attributes['gender']&.first),
-        ssn:            attributes['social']&.first&.delete('-'),
-        birth_date:     attributes['birth_date']&.first,
-        uuid:           attributes['uuid']&.first,
-        last_signed_in: Time.current.utc,
-        loa:            { current: loa_current, highest: attributes['level_of_assurance']&.first&.to_i || loa_current }
-      }
-    end
-
-    def parse_gender(gender)
-      return nil unless gender
-      gender[0].upcase
-    end
-
-    def loa_current
-      @raw_loa ||= REXML::XPath.first(@saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
-      LOA::MAPPING[@raw_loa]
-    end
-
-    def saml_user
-      @saml_user ||= User.new(user_attributes)
     end
 
     def async_create_evss_account(user)
@@ -110,8 +82,10 @@ module V0
 
     def delete_session(token)
       session = Session.find(token)
-      User.find(session.uuid).destroy
-      session.destroy
+      unless session.nil?
+        User.find(session.uuid)&.destroy
+        session.destroy
+      end
     end
     # :nocov:
   end
