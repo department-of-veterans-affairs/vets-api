@@ -7,8 +7,9 @@ module SAML
     # from ruby-saml source code
     BASE64_FORMAT = %r(\A[A-Za-z0-9+/]{4}*[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=?\Z)
 
-    def initialize(url)
-      @authn_request = url
+    def initialize(response)
+      response_body = JSON.parse(response.body)
+      @authn_request = response_body['authenticate_via_get']
       @authn_request.slice!('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
       @authn_request = URI.unescape(@authn_request)
 
