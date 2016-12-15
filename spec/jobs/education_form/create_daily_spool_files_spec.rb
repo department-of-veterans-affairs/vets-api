@@ -66,12 +66,12 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     it 'takes a list of records into chunked forms' do
       base_address = { street: 'A', city: 'B', country: 'USA' }
       # rubocop:disable LineLength
-      eastern = EducationBenefitsClaim.create(form: { school: { address: base_address.merge(state: 'MD') } }.to_json)
-      southern = EducationBenefitsClaim.create(form: { school: { address: base_address.merge(state: 'GA') } }.to_json)
-      central = EducationBenefitsClaim.create(form: { veteranAddress: base_address.merge(state: 'WI') }.to_json)
-      eastern_default = EducationBenefitsClaim.create(form: {}.to_json)
-      western = EducationBenefitsClaim.create(form: { veteranAddress: base_address.merge(state: 'OK') }.to_json)
-      western_phl = EducationBenefitsClaim.create(form: { veteranAddress: base_address.merge(state: 'XX', country: 'PHL') }.to_json)
+      eastern = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, school: { address: base_address.merge(state: 'MD') } }.to_json)
+      southern = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, school: { address: base_address.merge(state: 'GA') } }.to_json)
+      central = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, veteranAddress: base_address.merge(state: 'WI') }.to_json)
+      eastern_default = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true }.to_json)
+      western = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, veteranAddress: base_address.merge(state: 'OK') }.to_json)
+      western_phl = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, veteranAddress: base_address.merge(state: 'XX', country: 'PHL') }.to_json)
       # rubocop:enable LineLength
 
       output = subject.group_submissions_by_region([eastern, central, southern, eastern_default, western, western_phl])
