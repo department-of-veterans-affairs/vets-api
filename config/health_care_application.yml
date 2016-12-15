@@ -21,10 +21,6 @@ development:
   endpoint: *es_dev
   ca: *common
 
-staging:
-  endpoint: *pre_prod
-  ca: *common
-
 production:
-  endpoint: *prod
-  ca: *internal
+  endpoint: <%= ENV['ES_URL'] %>
+  ca: ~

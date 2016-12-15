@@ -15,7 +15,7 @@ module HCA
     WSDL = Rails.root.join('config', 'health_care_application', 'wsdl', 'voa.wsdl')
     ENDPOINT = CONFIG['endpoint']
     CERT_STORE = cert_store(CONFIG['ca'])
-    SSL_CERT = ENV['HEALTH_CARE_APPLICATION_CERTIFICATE_FILE']
-    SSL_KEY = ENV['HEALTH_CARE_APPLICATION_KEY_FILE']
+    SSL_CERT = ENV['ES_CLIENT_CERT_PATH']
+    SSL_KEY = ENV['ES_CLIENT_KEY_PATH']
   end
 end
