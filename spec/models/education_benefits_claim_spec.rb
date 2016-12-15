@@ -27,6 +27,17 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
 
     describe '#form_matches_schema' do
+      context 'verifies that privacyAgreementAccepted is true' do
+        [[true, true], [false, false], [nil, false]].each do |value, answer|
+          it "when the value is #{value}" do
+            attributes[:form] = {
+              privacyAgreementAccepted: value
+            }.to_json
+            assert_equal answer, subject.valid?
+          end
+        end
+      end
+
       it 'should be valid on a valid form' do
         expect_attr_valid(subject, :form)
       end
