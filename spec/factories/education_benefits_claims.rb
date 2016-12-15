@@ -91,7 +91,8 @@ FactoryGirl.define do
             involuntarilyCalledToDuty: 'yes'
           }
         ],
-        faaFlightCertificatesInformation: 'cert1, cert2'
+        faaFlightCertificatesInformation: 'cert1, cert2',
+        privacyAgreementAccepted: true
       }.to_json
     end
 
