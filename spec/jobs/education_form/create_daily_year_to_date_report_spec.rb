@@ -14,6 +14,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
           :education_benefits_claim_with_custom_form,
           processed_at: date,
           custom_form: {
+            'privacyAgreementAccepted' => true,
             'chapter1606' => false,
             'chapter33' => true
           }
