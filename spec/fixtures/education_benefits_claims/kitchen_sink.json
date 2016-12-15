@@ -12,6 +12,7 @@
   "chapter30": true,
   "chapter32": true,
   "benefitsRelinquished": "chapter1607",
+  "benefitsRelinquishedDate":"2016-12-15",
   "currentlyActiveDuty": {
     "nonVaAssistance": true,
     "onTerminalLeave": true,
