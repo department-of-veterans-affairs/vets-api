@@ -4,7 +4,7 @@ require 'rails_helper'
 RSpec.describe EducationBenefitsClaim, type: :model do
   let(:attributes) do
     {
-      form: { chapter30: true }.to_json
+      form: { chapter30: true, privacyAgreementAccepted: true }.to_json
     }
   end
   subject { described_class.new(attributes) }
@@ -45,7 +45,8 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       context 'with an invalid form' do
         before do
           attributes[:form] = {
-            chapter30: 0
+            chapter30: 0,
+            privacyAgreementAccepted: true
           }.to_json
         end
 
