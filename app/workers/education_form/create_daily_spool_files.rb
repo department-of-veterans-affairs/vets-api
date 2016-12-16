@@ -45,6 +45,7 @@ module EducationForm
         region_id = EducationFacility.facility_for(region: region)
         filename = "#{region_id}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
         logger.info("Writing #{records.count} application(s) to #{filename}")
+        logger.info("IDs: #{records.map(&:id)}")
         # create the single textual spool file
         contents = records.map do |record|
           format_application(record.open_struct_form)
@@ -62,7 +63,7 @@ module EducationForm
         end
 
         # mark the records as processed once the file has been written
-        records.each { |r| r.update_attributes!(processed_at: Time.zone.now) }
+        records.each { |r| r.update_attribute(:processed_at, Time.zone.now) }
       end
     end
 

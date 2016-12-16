@@ -109,6 +109,7 @@ class VHAFacilityAdapter
   APPROVED_SERVICES = %w(
     MentalHealthCare
     PrimaryCare
+    DentalServices
   ).freeze
 
   def self.mh_clinic_phone(attrs)
