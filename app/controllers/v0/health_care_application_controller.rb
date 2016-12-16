@@ -1,6 +1,8 @@
 # frozen_string_literal: true
+require 'hca/service'
+
 module V0
-  class HealthCareApplicationsController < ApplicationController
+  class HealthCareApplicationController < ApplicationController
     skip_before_action(:authenticate)
 
     def create
@@ -11,6 +13,11 @@ module V0
       else
         render(json: { success: false })
       end
+    end
+
+    def healthcheck
+      service = HCA::Service.new
+      render(json: service.health_check)
     end
   end
 end
