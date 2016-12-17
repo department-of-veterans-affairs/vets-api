@@ -8,7 +8,7 @@ module EVSS
   module MHVCF
     class Configuration < Common::Client::Configuration
       def base_path
-        'https://pint.vdc.va.gov:444/wssweb/domain1/vii-app-1.2/rest'
+        "#{ENV['EVSS_CONSENT_FORM_BASE_URL']}/wssweb/domain1/vii-app-1.2/rest"
       end
 
       def service_name
@@ -19,19 +19,19 @@ module EVSS
       def ssl_options
         {
           version: :TLSv1_2,
-          verify: true,
+          verify: false,
           client_cert: client_cert,
           client_key: client_key,
-          ca_file: root_ca
+          ca_file: OpenSSL::X509::DEFAULT_CERT_FILE
         }
       end
 
       def client_cert
-        OpenSSL::X509::Certificate.new File.read(ENV['EVSS_CERT_FILE_PATH'])
+        OpenSSL::X509::Certificate.new File.read(File.expand_path(ENV['EVSS_CERT_FILE_PATH']))
       end
 
       def client_key
-        OpenSSL::PKey::RSA.new File.read(ENV['EVSS_CERT_KEY_PATH'])
+        OpenSSL::PKey::RSA.new File.read(File.expand_path(ENV['EVSS_CERT_KEY_PATH']))
       end
 
       def root_ca
@@ -40,7 +40,7 @@ module EVSS
       # :nocov:
 
       def connection
-        Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+        Faraday.new(base_path, headers: {}, request: request_options, ssl: ssl_options) do |conn|
           conn.use :breakers
           conn.request :json
           # Uncomment this out for generating curl output to send to MHV dev and test only
