@@ -14,7 +14,7 @@ module BB
     end
 
     def base_path
-      "#{ENV['MHV_HOST']}/mhv-api/patient/v1/"
+      "#{ENV['MHV_HOST']}/mhv-api/patient/v1/bluebutton/"
     end
 
     def service_name

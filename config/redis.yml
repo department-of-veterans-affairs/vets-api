@@ -11,9 +11,6 @@ development: &defaults
   sm_store:
     namespace: sm-service
     each_ttl: 1200
-  bb_store:
-    namespace: sm-service
-    each_ttl: 1200
   user_store:
     namespace: users
     each_ttl: 3600
