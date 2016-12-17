@@ -16,7 +16,7 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
       let(:params) do
         {
           educationBenefitsClaim: {
-            form: { preferredContactMethod: 'mail' }.to_json
+            form: { privacyAgreementAccepted: true, preferredContactMethod: 'mail' }.to_json
           }
         }
       end
