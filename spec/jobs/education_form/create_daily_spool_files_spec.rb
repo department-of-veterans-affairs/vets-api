@@ -25,7 +25,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
           json = File.read(File.join(basepath, "#{application_name}.json"))
           expect(json).to match_vets_schema('edu_benefits')
           application = EducationBenefitsClaim.new(form: json)
-          result = Timecop.freeze(Time.zone.parse('2016-10-06 03:00:00 EDT')) do
+          result = Timecop.freeze(Time.zone.parse('2016-10-06 03:02:01 EDT')) do
             subject.format_application(application.open_struct_form)
           end
           spl = File.read(File.join(basepath, "#{application_name}.spl"))
@@ -83,12 +83,12 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context 'create_files' do
     def perform_with_frozen_time
-      Timecop.freeze(Time.zone.parse('2016-09-16 03:00:00 EDT')) do
+      Timecop.freeze(Time.zone.parse('2016-09-16 03:02:01 EDT')) do
         subject.perform
       end
     end
 
-    let(:filename) { '307_09162016_vetsgov.spl' }
+    let(:filename) { '307_09162016_070201_vetsgov.spl' }
 
     context 'in the development env' do
       let(:file_path) { "tmp/spool_files/#{filename}" }
