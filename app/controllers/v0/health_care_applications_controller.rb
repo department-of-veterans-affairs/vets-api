@@ -2,7 +2,7 @@
 require 'hca/service'
 
 module V0
-  class HealthCareApplicationController < ApplicationController
+  class HealthCareApplicationsController < ApplicationController
     skip_before_action(:authenticate)
 
     def create
