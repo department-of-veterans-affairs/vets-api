@@ -12,6 +12,7 @@
   "chapter30": true,
   "chapter32": true,
   "benefitsRelinquished": "chapter1607",
+  "benefitsRelinquishedDate":"2016-12-15",
   "currentlyActiveDuty": {
     "nonVaAssistance": true,
     "onTerminalLeave": true,
@@ -59,7 +60,7 @@
       "months": 8,
       "postMilitaryJob": true
     }
-  ], 
+  ],
   "educationType": "flightTraining",
   "faaFlightCertificatesInformation": "cert1, cert2",
   "gender": "M",
@@ -142,5 +143,6 @@
     "first": "Mark",
     "last": "Olson"
   },
-  "veteranSocialSecurityNumber": "111223333"
+  "veteranSocialSecurityNumber": "111223333",
+  "privacyAgreementAccepted": true
 }

@@ -20,10 +20,12 @@ module HCA
       opts = {
         url: HCA::Settings::ENDPOINT,
         ssl: {
-          verify: true,
-          cert_store: HCA::Settings::CERT_STORE
+          verify: true
         }
       }
+      if HCA::Settings::CERT_STORE
+        opts[:ssl][:cert_store] = HCA::Settings::CERT_STORE
+      end
       if HCA::Settings::SSL_CERT && HCA::Settings::SSL_KEY
         opts[:ssl].merge!(client_cert: HCA::Settings::SSL_CERT,
                           client_key: HCA::Settings::SSL_KEY)
