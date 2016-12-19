@@ -24,7 +24,7 @@ module HCA
         }
       }
       if HCA::Settings::CERT_STORE
-        opts[:ssl].merge!(cert_store: HCA::Settings::CERT_STORE)
+        opts[:ssl][:cert_store] = HCA::Settings::CERT_STORE
       end
       if HCA::Settings::SSL_CERT && HCA::Settings::SSL_KEY
         opts[:ssl].merge!(client_cert: HCA::Settings::SSL_CERT,
