@@ -425,7 +425,7 @@ find_candidate:
     given_names: ['CHRISTIAN', 'Fitzgerald']
     icn: '1008691167V254462^NI^200M^USVHA^P'
     mhv_ids: ~
-    vba_corp_id: '32318091^PI^200CORP^USVBA^A'
+    vba_corp_id: '600056914^PI^200CORP^USVBA^A'
     ssn: '796218467'
     status: 'active'
   "796126978":
@@ -667,7 +667,7 @@ find_candidate:
     given_names: ['RUSSELL', 'Renee']
     icn: '1008691083V875288^NI^200M^USVHA^P'
     mhv_ids: ~
-    vba_corp_id: '32238884^PI^200CORP^USVBA^A'
+    vba_corp_id: '600097643^PI^200CORP^USVBA^A'
     ssn: '796079018'
     status: 'active'
   "796151611":
@@ -678,7 +678,7 @@ find_candidate:
     given_names: ['DANNY', 'Derrick']
     icn: '1008691083V875288^NI^200M^USVHA^P'
     mhv_ids: ~
-    vba_corp_id: '32245527^PI^200CORP^USVBA^A'
+    vba_corp_id: '600043220^PI^200CORP^USVBA^A'
     ssn: '796151611'
     status: 'active'
   "796231077":
