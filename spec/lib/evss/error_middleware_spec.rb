@@ -10,7 +10,7 @@ describe EVSS::ErrorMiddleware do
 
   it 'should raise the proper error' do
     VCR.use_cassette('evss/claims/claim_with_errors') do
-      expect{claims_service.find_claim_by_id 1}.to raise_exception(described_class::EVSSError)
+      expect { claims_service.find_claim_by_id 1 }.to raise_exception(described_class::EVSSError)
     end
   end
 end
