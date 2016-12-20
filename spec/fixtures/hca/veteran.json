@@ -74,7 +74,7 @@
       },
       "childRelation": "Stepson",
       "childSocialSecurityNumber": "111-22-9876",
-      "childBecameDependent": "1992-04-07", 
+      "childBecameDependent": "1992-04-07",
       "childDateOfBirth": "1982-05-05",
       "childDisabledBefore18": true,
       "childAttendedSchoolLastYear": true,
@@ -139,5 +139,6 @@
   "vietnamService": true,
   "exposedToRadiation": true,
   "radiumTreatments": true,
-  "campLejeune": true
+  "campLejeune": true,
+  "privacyAgreementAccepted": true
 }
