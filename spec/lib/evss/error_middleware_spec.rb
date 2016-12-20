@@ -4,7 +4,7 @@ require 'evss/claims_service'
 require 'evss/auth_headers'
 
 describe EVSS::ErrorMiddleware do
-  let(:current_user) { FactoryGirl.create(:loa3_user) }
+  let(:current_user) { FactoryGirl.build(:loa3_user) }
   let(:auth_headers) { EVSS::AuthHeaders.new(current_user).to_h }
   let(:claims_service) { EVSS::ClaimsService.new(auth_headers) }
 
