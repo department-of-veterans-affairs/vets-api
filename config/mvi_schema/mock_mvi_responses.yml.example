@@ -210,13 +210,13 @@ find_candidate:
     status: 'active'
   "796184750":
     birth_date: '19711119'
-    edipi: ~
+    edipi: '1019061961^NI^200DOD^USDOD^A'
     family_name: 'FREEMAN'
     gender: 'M'
     given_names: ['MELVIN', 'V']
     icn: '1008711070V155561^NI^200M^USVHA^P'
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
-    vba_corp_id: '32318143^PI^200CORP^USVBA^A'
+    vba_corp_id: '600075670^PI^200CORP^USVBA^A'
     ssn: '796184750'
     status: 'active'
   "796149080":
