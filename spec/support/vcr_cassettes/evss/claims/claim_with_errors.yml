@@ -1,0 +1,72 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<EVSS_BASE_URL>/wss-claims-services-web-3.0/rest/vbaClaimStatusService/getClaimDetailById"
+    body:
+      encoding: UTF-8
+      string: '{"id":1}'
+    headers:
+      User-Agent:
+      - Faraday v0.9.2
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip,deflate
+      Date:
+      - Tue, 20 Dec 2016 19:15:07 GMT
+      Va-Eauth-Csid:
+      - DSLogon
+      Va-Eauth-Authenticationmethod:
+      - DSLogon
+      Va-Eauth-Pnidtype:
+      - SSN
+      Va-Eauth-Assurancelevel:
+      - '3'
+      Va-Eauth-Firstname:
+      - JOHNNIE
+      Va-Eauth-Lastname:
+      - WEAVER
+      Va-Eauth-Issueinstant:
+      - '2016-12-20T19:15:06Z'
+      Va-Eauth-Dodedipnid:
+      - 1005169255
+      Va-Eauth-Pid:
+      - 600043180
+      Va-Eauth-Pnid:
+      - '796123607'
+      Va-Eauth-Authorization:
+      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796123607","edi":1005169255,"firstName":"JOHNNIE","lastName":"WEAVER"}}'
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 20 Dec 2016 19:15:07 GMT
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json
+      X-Wily-Servlet:
+      - Encrypt1 hR/KG2GOR16aRfvv3/q1AW0eXDaeERIVopFkOCXDj8aBMFJ3Yx6n3JU460kEeiDI+f7tx96uM7rd6Q66kG1F301pdCrOJfMsJBfCUXtpBBUC10v84zvjZZhZrTuMJwibXwrFyA6VYWhxQ0aj5bSLXKVvNWBYquJXTZ8L8ia/vdk=
+      Set-Cookie:
+      - WSS-CLAIMS-SERVICES_JSESSIONID=5l0dqJ_O0aHwf8reh_NHEMP-WiCFS9bGoH6MIW9RuPVmfrghW-00!590015968;
+        path=/; HttpOnly
+      X-Wily-Info:
+      - Clear guid=1DA89FCF0AE153E02F47B505DCDDA909
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "messages" : [ {
+            "key" : "NullPointerException",
+            "severity" : "ERROR",
+            "text" : "Could not retrieve claim status."
+          } ]
+        }
+    http_version: 
+  recorded_at: Tue, 20 Dec 2016 19:15:19 GMT
+recorded_with: VCR 3.0.3

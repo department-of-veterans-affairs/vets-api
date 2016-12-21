@@ -124,14 +124,16 @@ module SM
     def post_create_message_with_attachment(args = {})
       validate_create_context(args)
 
-      json = perform(:post, 'message/attach', args, token_headers).body
+      custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
+      json = perform(:post, 'message/attach', args, custom_headers).body
       Message.new(json)
     end
 
     def post_create_message_reply_with_attachment(id, args = {})
       validate_reply_context(args)
 
-      json = perform(:post, "message/#{id}/reply/attach", args, token_headers).body
+      custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
+      json = perform(:post, "message/#{id}/reply/attach", args, custom_headers).body
       Message.new(json)
     end
 
