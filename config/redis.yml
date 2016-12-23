@@ -17,6 +17,9 @@ development: &defaults
   mvi_store:
     namespace: mvi-service
     each_ttl: 86400
+  saml_store:
+    namespace: single-logout-request
+    each_ttl: 3600
 
 test:
   <<: *defaults
