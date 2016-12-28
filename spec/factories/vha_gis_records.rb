@@ -83,7 +83,7 @@ FactoryGirl.define do
         'UrgentCare' => '',
         'WellnessAndPreventativeCare' => '',
         'First_InternetAddress' => 'http://www.portland.va.gov/',
-        'MHClinicPhone' => 5_032_735_187,
+        'MHClinicPhone' => '5032735187',
         'Extension' => nil
       }
     end
