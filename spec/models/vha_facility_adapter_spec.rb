@@ -36,9 +36,16 @@ RSpec.describe VHAFacilityAdapter, type: :adapter do
     expect(model.phone[:mental_health_clinic]).to eq('5032735187 x 12345')
   end
 
-  it '#it handles zero mh_phone' do
+  it '#it handles empty mh_phone' do
     input = FactoryGirl.build(:vha_gis_record)
-    input['attributes']['MHClinicPhone'] = 0
+    input['attributes']['MHClinicPhone'] = ''
+    model = described_class.from_gis(input)
+    expect(model.phone[:mental_health_clinic]).to eq('')
+  end
+
+  it '#it handles nil mh_phone' do
+    input = FactoryGirl.build(:vha_gis_record)
+    input['attributes']['MHClinicPhone'] = nil
     model = described_class.from_gis(input)
     expect(model.phone[:mental_health_clinic]).to eq('')
   end
