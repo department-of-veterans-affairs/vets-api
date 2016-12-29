@@ -120,8 +120,12 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         end
 
         expect { perform_with_frozen_time }.to trigger_statsd_gauge(
-          'worker.education_benefits_claim.221990.307',
-          value: 1
+          'worker.education_benefits_claim.transmissions',
+          value: 1,
+          tags: [
+            'form:22-1990',
+            'rpo:307'
+          ]
         )
 
         expect(EducationBenefitsClaim.unprocessed).to be_empty
