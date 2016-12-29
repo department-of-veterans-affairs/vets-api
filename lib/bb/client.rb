@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'common/client/base'
 require 'common/client/concerns/mhv_session_based_client'
+require 'bb/form'
 require 'bb/configuration'
 require 'rx/client_session'
 
@@ -12,20 +13,14 @@ module BB
     configuration BB::Configuration
     client_session Rx::ClientSession
 
-    # TODO: might need to implement bb_parser referenced in configuration
-    # The purpose of this parser is to normalize the JSON such that it can
-    # be coerced by JSON
-    # TODO: Needs model 'ExtractStatus'
     def get_extract_status
       json = perform(:get, 'bluebutton/extractstatus', nil, token_headers).body
-      #Common::Collection.new(ExtractStatus, json)
+      Common::Collection.new(ExtractStatus, json)
     end
 
-    # TODO: Needs model 'EligibleDataClass'
-    # Used for validating the params in post_generate
     def get_eligible_data_classes
       json = perform(:get, 'bluebutton/geteligibledataclass', nil, token_headers).body
-      #Common::Collection.new(EligibleDataClasses, json)
+      EligibleDataClasses.new(json)
     end
 
     # These PDFs take time to generate, hence why this separate call.
@@ -33,10 +28,9 @@ module BB
     # downloading the report when it is available. It's not yet clear how this is possible
     # without a polling mechanism to see which reports are available.
     def post_generate(params)
-      params[:from_date] = params[:from_date].delete.httpdate
-      params[:to_date] = params[:to_date].delete.httpdate
-      perform(:post, 'bluebutton/generate', params, token_headers).body
-      # somehow return the date the report will be done getting generated
+      form = BB::Form.new(self, params)
+      raise Common::Exceptions::ValidationErrors, form unless form.valid?
+      json = perform(:post, 'bluebutton/generate', form.params, token_headers).body
     end
 
     def get_download_report(doctype)
