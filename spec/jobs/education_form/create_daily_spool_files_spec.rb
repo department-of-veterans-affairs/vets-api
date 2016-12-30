@@ -124,7 +124,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
   end
 
-  xcontext '#full_address' do
+  context '#full_address' do
     let(:address) { application_1606.open_struct_form.veteranAddress }
 
     subject { described_class.new.send(:full_address, address) }
