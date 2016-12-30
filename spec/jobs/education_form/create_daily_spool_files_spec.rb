@@ -115,7 +115,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
           'worker.education_benefits_claim.transmissions',
           value: 1,
           tags: [
-            'form:22-1990',
             'rpo:307'
           ]
         )
@@ -125,7 +124,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
   end
 
-  context '#full_address' do
+  xcontext '#full_address' do
     let(:address) { application_1606.open_struct_form.veteranAddress }
 
     subject { described_class.new.send(:full_address, address) }
