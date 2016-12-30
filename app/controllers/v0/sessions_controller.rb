@@ -87,23 +87,15 @@ module V0
     # :nocov:
 
     def log_errors
-      saml_error    = "valid?=#{@saml_response.is_valid?} errors=#{@saml_response.errors}"
-      user_error    = "valid?=#{@current_user&.valid?} errors=#{@current_user&.errors&.full_messages}"
-      session_error = "valid?=#{@session&.valid?} errors=#{@session&.errors&.full_messages}"
+      message = <<-MESSAGE.strip_heredoc
+        SAML Login attempt failed! Reasons...
+          saml:    'valid?=#{@saml_response.is_valid?} errors=#{@saml_response.errors}'
+          user:    'valid?=#{@current_user&.valid?} errors=#{@current_user&.errors&.full_messages}'
+          session: 'valid?=#{@session&.valid?} errors=#{@session&.errors&.full_messages}'
+      MESSAGE
 
-      logger.error 'Login with ID.me failed!'
-      logger.error saml_error
-      logger.error user_error
-      logger.error session_error
-
-      if ENV['SENTRY_DSN'].present?
-        Raven.extra_context(
-          saml_response: saml_error,
-          session: session_error,
-          user: user_error
-        )
-        Raven.capture_exception('Login with ID.me failed!')
-      end
+      logger.error message
+      Raven.capture_message(message) if ENV['SENTRY_DSN'].present?
     end
   end
 end
