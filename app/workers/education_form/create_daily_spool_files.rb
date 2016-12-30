@@ -8,13 +8,15 @@ module EducationForm
     sidekiq_options queue: 'default',
                     retry: 5
 
-    require 'ostruct'
-
     WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
 
-    def perform
-      # Fetch all the records for the day
-      records = EducationBenefitsClaim.unprocessed
+    # Setting the default value to the `unprocessed` scope is safe
+    # because the execution of the query itself is defered until the
+    # data is accessed by the code inside of the method.
+    # Be *EXTREMELY* careful running this manually as it may overwrite
+    # existing files on the SFTP server if one was already written out
+    # for the day.
+    def perform(records: EducationBenefitsClaim.unprocessed)
       # Group the formatted records into different regions
       regional_data = group_submissions_by_region(records)
       # Create a remote file for each region, and write the records into them
