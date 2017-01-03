@@ -7,6 +7,25 @@ describe HCA::Service do
   let(:key) { instance_double('OpenSSL::PKey::RSA') }
   let(:store) { instance_double('OpenSSL::X509::Store') }
 
+  describe '#submit_form' do
+    context 'conformance tests', run_at: '2016-12-12' do
+      root = Rails.root.join('spec', 'fixtures', 'hca', 'conformance')
+      Dir[File.join(root, '*.json')].map { |f| File.basename(f, '.json') }.each do |form|
+        it "properly formats #{form} for transmission" do
+          json = JSON.load(root.join("#{form}.json"))
+          xml = File.read(root.join("#{form}.xml"))
+          expect(subject).to receive(:post) do |arg|
+            submission = arg.body
+            pretty_printed = Ox.dump(Ox.parse(submission).locate('soap:Envelope/soap:Body/ns1:submitFormRequest').first)
+            expect(xml).to eq(pretty_printed[1..-1])
+          end
+
+          subject.submit_form(json)
+        end
+      end
+    end
+  end
+
   describe '#health_check' do
     context 'with a valid request' do
       it 'returns the id and a timestamp' do
