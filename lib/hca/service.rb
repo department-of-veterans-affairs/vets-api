@@ -9,7 +9,7 @@ module HCA
     def submit_form(form)
       formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(form)
       submission = soap.build_request(:save_submit_form, message: formatted)
-      response = post(submission)
+      post(submission)
     end
 
     def health_check
