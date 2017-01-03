@@ -73,6 +73,16 @@ RSpec.configure do |config|
     stub_mvi unless example.metadata[:skip_mvi]
   end
 
+  config.around(:each) do |example|
+    if example.metadata[:run_at]
+      Timecop.freeze(Time.zone.parse(example.metadata[:run_at])) do
+        example.run
+      end
+    else
+      example.run
+    end
+  end
+
   # The settings below are suggested to provide a good initial experience
   # with RSpec, but feel free to customize to your heart's content.
   #   # These two settings work together to allow you to limit a spec run
