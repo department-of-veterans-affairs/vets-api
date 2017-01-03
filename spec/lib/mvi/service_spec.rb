@@ -19,34 +19,6 @@ describe MVI::Service do
       [user.first_name, user.middle_name], user.last_name, user.birth_date, user.ssn, user.gender
     )
   end
-  let(:cert) { instance_double('OpenSSL::X509::Certificate') }
-  let(:key) { instance_double('OpenSSL::PKey::RSA') }
-
-  before(:each) do
-    stub_const('MVI::Settings::SSL_CERT', cert)
-    stub_const('MVI::Settings::SSL_KEY', key)
-  end
-
-  describe '.options' do
-    context 'when there are no SSL options' do
-      it 'should only return the wsdl' do
-        stub_const('MVI::Settings::SSL_CERT', nil)
-        stub_const('MVI::Settings::SSL_KEY', nil)
-        expect(MVI::Service.options).to eq(url: ENV['MVI_URL'])
-      end
-    end
-    context 'when there are SSL options' do
-      it 'should return the wsdl, cert and key paths' do
-        expect(MVI::Service.options).to eq(
-          url: ENV['MVI_URL'],
-          ssl: {
-            client_cert: cert,
-            client_key: key
-          }
-        )
-      end
-    end
-  end
 
   describe '.find_candidate' do
     context 'with a valid request' do
@@ -128,7 +100,7 @@ describe MVI::Service do
     context 'with an MVI timeout' do
       it 'should raise a service error' do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
-        expect(Rails.logger).to receive(:error).with('MVI find_candidate timeout')
+        expect(Rails.logger).to receive(:error).with('MVI find_candidate error: timeout')
         expect { subject.find_candidate(message) }.to raise_error(SOAP::Errors::ServiceError)
       end
     end
@@ -166,7 +138,7 @@ describe MVI::Service do
 
       context 'with an ongoing breakers outage' do
         it 'returns the correct thing' do
-          MVI::Service.breakers_service.begin_forced_outage!
+          MVI::Configuration.instance.breakers_service.begin_forced_outage!
           expect { subject.find_candidate(message) }.to raise_error(Breakers::OutageException)
         end
       end
