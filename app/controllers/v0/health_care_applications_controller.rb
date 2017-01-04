@@ -6,7 +6,17 @@ module V0
     skip_before_action(:authenticate)
 
     def create
-      service.submit_form(params[:form])
+      begin
+        service.submit_form(params[:form])
+      rescue SOAP::Errors::ServiceError => e
+        raise Common::Exceptions::BackendServiceException.new(
+          nil,
+          {
+            detail: e.message
+          }
+        )
+      end
+
       render(json: { success: true })
     end
 

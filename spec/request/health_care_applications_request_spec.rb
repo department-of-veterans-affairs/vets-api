@@ -45,16 +45,22 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
         subject
         expect(JSON.parse(response.body)['success']).to eq(true)
       end
-    end
 
-    context 'with invalid params' do
-      let(:params) do
-        {}
-      end
+      context 'with a SOAP error' do
+        before do
+          allow_any_instance_of(HCA::Service).to receive(:post) do
+            raise SOAP::Errors::HTTPError, 'error message'
+          end
+        end
 
-      it 'should render failure' do
-        subject
-        expect(JSON.parse(response.body)['success']).to eq(false)
+        it 'should render error message' do
+          subject
+
+          expect(response.code).to eq('400')
+          expect(JSON.parse(response.body)).to eq(
+            {"errors"=>[{"title"=>"Operation failed", "detail"=>"error message", "code"=>"VA900", "status"=>"400"}]}
+          )
+        end
       end
     end
   end
