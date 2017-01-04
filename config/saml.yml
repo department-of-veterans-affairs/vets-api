@@ -1,7 +1,7 @@
 development: &defaults
   issuer: saml-rp.vetsgov.localhost
   callback_url: http://localhost:3000/auth/saml/callback
-  metadata_url: https://api.idmelabs.com/saml/metadata
+  metadata_url: https://api.idmelabs.com/saml/metadata/provider
   certificate: <%= File.read(File.expand_path(ENV["SAML_CERTIFICATE_FILE"])).dump %>
   key: <%= File.read(File.expand_path(ENV['SAML_KEY_FILE'])).dump %>
   relay: http://localhost:3001/auth/login/callback
