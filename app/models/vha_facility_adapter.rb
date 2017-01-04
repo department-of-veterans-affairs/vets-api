@@ -68,10 +68,10 @@ class VHAFacilityAdapter
   ).each_with_object({}) { |d, h| h[d] = d }
 
   FEEDBACK_KEYMAP = {
-    'primary_care_routine' => 'Primary_Care_Routine',
-    'primary_care_urgent' => 'Primary_Care_Urgent',
-    'specialty_care_routine' => 'Specialty_Care_Routine',
-    'specialty_care_urgent' => 'Specialty_Care_Urgent'
+    'primary_care_routine' => 'Primary_Care_Routine_Score',
+    'primary_care_urgent' => 'Primary_Care_Urgent_Score',
+    'specialty_care_routine' => 'Specialty_Care_Routine_Score',
+    'specialty_care_urgent' => 'Specialty_Care_Urgent_Score'
   }.freeze
 
   SERVICE_HIERARCHY = {
@@ -109,10 +109,11 @@ class VHAFacilityAdapter
   APPROVED_SERVICES = %w(
     MentalHealthCare
     PrimaryCare
+    DentalServices
   ).freeze
 
   def self.mh_clinic_phone(attrs)
-    return '' if (attrs['MHClinicPhone']).blank? || (attrs['MHClinicPhone']).zero?
+    return '' if (attrs['MHClinicPhone']).blank?
     result = attrs['MHClinicPhone'].to_s
     result << ' x ' + attrs['Extension'].to_s unless
       (attrs['Extension']).blank? || (attrs['Extension']).zero?

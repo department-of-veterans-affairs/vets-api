@@ -4,7 +4,7 @@ module EducationForm
     include Sidekiq::Worker
 
     def perform
-      records = EducationBenefitsClaim.where("processed_at < '#{1.month.ago}'")
+      records = EducationBenefitsClaim.where("processed_at < '#{2.months.ago}'")
       logger.info("Deleting #{records.count} old 22-1990s")
       records.delete_all
     end

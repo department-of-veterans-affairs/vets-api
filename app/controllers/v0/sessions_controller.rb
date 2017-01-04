@@ -12,7 +12,10 @@ module V0
       logout_request = OneLogin::RubySaml::Logoutrequest.new
       logger.info "New SP SLO for userid '#{@session.uuid}'"
 
-      render json: { logout_via_get: logout_request.create(saml_settings, RelayState: @session.token) }, status: 202
+      # cache the request for @session.token lookup when we receive the response
+      SingleLogoutRequest.create(uuid: logout_request.uuid, token: @session.token)
+
+      render json: { logout_via_get: logout_request.create(saml_settings) }, status: 202
     end
 
     def saml_logout_callback
@@ -31,10 +34,7 @@ module V0
         async_create_evss_account(@current_user)
         redirect_to SAML_CONFIG['relay'] + '?token=' + @session.token
       else
-        logger.warn 'Authentication attempt did not succeed in saml_callback, reasons...'
-        logger.warn "  SAML Response: valid?=#{@saml_response.is_valid?} errors=#{@saml_response.errors}"
-        logger.warn "  User: valid?=#{@current_user&.valid?} errors=#{@current_user&.errors&.messages}"
-        logger.warn "  Session: valid?=#{@session&.valid?} errors=#{@session&.errors&.messages}"
+        log_errors
         redirect_to SAML_CONFIG['relay'] + '?auth=fail'
       end
     end
@@ -60,6 +60,7 @@ module V0
     # :nocov:
     def handle_completed_slo
       logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings)
+      logout_request = SingleLogoutRequest.find(logout_response.in_response_to)
 
       logger.info "LogoutResponse is: #{logout_response}"
 
@@ -69,13 +70,14 @@ module V0
         redirect_to SAML_CONFIG['logout_relay'] + '?success=false'
       elsif logout_response.success?
         begin
-          session = Session.find(params[:RelayState])
+          session = Session.find(logout_request.token)
           user = User.find(session.uuid)
           MHVLoggingService.logout(user)
         rescue => e
           logger.error "Error in MHV Logout: #{e.message}"
         end
-        delete_session(params[:RelayState])
+        delete_session(logout_request.token)
+        logout_request.destroy
         redirect_to SAML_CONFIG['logout_relay'] + '?success=true'
       end
     end
@@ -88,5 +90,17 @@ module V0
       end
     end
     # :nocov:
+
+    def log_errors
+      message = <<-MESSAGE.strip_heredoc
+        SAML Login attempt failed! Reasons...
+          saml:    'valid?=#{@saml_response.is_valid?} errors=#{@saml_response.errors}'
+          user:    'valid?=#{@current_user&.valid?} errors=#{@current_user&.errors&.full_messages}'
+          session: 'valid?=#{@session&.valid?} errors=#{@session&.errors&.full_messages}'
+      MESSAGE
+
+      logger.error message
+      Raven.capture_message(message) if ENV['SENTRY_DSN'].present?
+    end
   end
 end

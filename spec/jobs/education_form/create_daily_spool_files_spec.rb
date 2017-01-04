@@ -18,16 +18,14 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       expect(application_1606.form).to match_vets_schema('edu_benefits')
     end
 
-    context 'conformance' do
+    context 'conformance', run_at: '2016-10-06 03:00:00 EDT' do
       basepath = Rails.root.join('spec', 'fixtures', 'education_benefits_claims')
       SAMPLE_APPLICATIONS.each do |application_name|
         it "generates #{application_name} correctly" do
           json = File.read(File.join(basepath, "#{application_name}.json"))
           expect(json).to match_vets_schema('edu_benefits')
           application = EducationBenefitsClaim.new(form: json)
-          result = Timecop.freeze(Time.zone.parse('2016-10-06 03:00:00 EDT')) do
-            subject.format_application(application.open_struct_form)
-          end
+          result = subject.format_application(application.open_struct_form)
           spl = File.read(File.join(basepath, "#{application_name}.spl"))
           expect(result).to eq(spl)
         end
@@ -66,12 +64,12 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     it 'takes a list of records into chunked forms' do
       base_address = { street: 'A', city: 'B', country: 'USA' }
       # rubocop:disable LineLength
-      eastern = EducationBenefitsClaim.create(form: { school: { address: base_address.merge(state: 'MD') } }.to_json)
-      southern = EducationBenefitsClaim.create(form: { school: { address: base_address.merge(state: 'GA') } }.to_json)
-      central = EducationBenefitsClaim.create(form: { veteranAddress: base_address.merge(state: 'WI') }.to_json)
-      eastern_default = EducationBenefitsClaim.create(form: {}.to_json)
-      western = EducationBenefitsClaim.create(form: { veteranAddress: base_address.merge(state: 'OK') }.to_json)
-      western_phl = EducationBenefitsClaim.create(form: { veteranAddress: base_address.merge(state: 'XX', country: 'PHL') }.to_json)
+      eastern = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, school: { address: base_address.merge(state: 'MD') } }.to_json)
+      southern = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, school: { address: base_address.merge(state: 'GA') } }.to_json)
+      central = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, veteranAddress: base_address.merge(state: 'WI') }.to_json)
+      eastern_default = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true }.to_json)
+      western = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, veteranAddress: base_address.merge(state: 'OK') }.to_json)
+      western_phl = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, veteranAddress: base_address.merge(state: 'XX', country: 'PHL') }.to_json)
       # rubocop:enable LineLength
 
       output = subject.group_submissions_by_region([eastern, central, southern, eastern_default, western, western_phl])
@@ -81,13 +79,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
   end
 
-  context 'create_files' do
-    def perform_with_frozen_time
-      Timecop.freeze(Time.zone.parse('2016-09-16 03:00:00 EDT')) do
-        subject.perform
-      end
-    end
-
+  context 'create_files', run_at: '2016-09-16 03:00:00 EDT' do
     let(:filename) { '307_09162016_vetsgov.spl' }
 
     context 'in the development env' do
@@ -99,7 +91,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
       it 'writes a file to the tmp dir' do
         expect(EducationBenefitsClaim.unprocessed).not_to be_empty
-        perform_with_frozen_time
+        subject.perform
         expect(File.read(file_path).include?('APPLICATION FOR VA EDUCATION BENEFITS')).to eq(true)
         expect(EducationBenefitsClaim.unprocessed).to be_empty
       end
@@ -119,9 +111,13 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
           expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
         end
 
-        expect { perform_with_frozen_time }.to trigger_statsd_gauge(
-          'worker.education_benefits_claim.221990.307',
-          value: 1
+        expect { subject.perform }.to trigger_statsd_gauge(
+          'worker.education_benefits_claim.transmissions',
+          value: 1,
+          tags: [
+            'form:22-1990',
+            'rpo:307'
+          ]
         )
 
         expect(EducationBenefitsClaim.unprocessed).to be_empty
