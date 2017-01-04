@@ -25,12 +25,7 @@ module EducationForm
     end
 
     def group_submissions_by_region(records)
-      regional_data = Hash.new { |h, k| h[k] = [] }
-      records.each do |record|
-        region_key = record.regional_processing_office&.to_sym
-        regional_data[region_key] << record
-      end
-      regional_data
+      records.group_by { |r| r.regional_processing_office.to_sym }
     end
 
     def write_files(sftp: nil, structured_data:)
