@@ -5,7 +5,7 @@ require 'hca/service'
 RSpec.describe 'Health Care Application Integration', type: [:request, :serializer] do
   describe 'GET healthcheck' do
     subject do
-      get(v0_health_care_application_healthcheck_url)
+      get(healthcheck_v0_health_care_applications_path)
     end
     let(:body) { { 'up' => true } }
     let(:es_stub) { double(health_check: { up: true }) }
