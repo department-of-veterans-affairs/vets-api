@@ -1,0 +1,59 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://pint1.vaebnapp71.aac.va.gov:8001/wssweb/vii-app-1.2/rest/wssweb/domain1/vii-app-1.2/rest/getInflightForms
+    body:
+      encoding: UTF-8
+      string: "{}"
+    headers:
+      User-Agent:
+      - Faraday v0.9.2
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip,deflate
+      Date:
+      - Tue, 03 Jan 2017 17:30:40 GMT
+      Va-Eauth-Csid:
+      - DSLogon
+      Va-Eauth-Authenticationmethod:
+      - DSLogon
+      Va-Eauth-Pnidtype:
+      - SSN
+      Va-Eauth-Assurancelevel:
+      - '2'
+      Va-Eauth-Firstname:
+      - Johnnie
+      Va-Eauth-Lastname:
+      - Weaver
+      Va-Eauth-Issueinstant:
+      - '2017-01-03T17:30:34Z'
+      Va-Eauth-Dodedipnid:
+      - '1005169255'
+      Va-Eauth-Pid:
+      - '600043180'
+      Va-Eauth-Pnid:
+      - '796123607'
+      Va-Eauth-Authorization:
+      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796123607","edi":"1005169255","firstName":"Johnnie","lastName":"Weaver"}}'
+      Content-Type:
+      - application/json
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Date:
+      - Tue, 03 Jan 2017 17:30:29 GMT
+      Content-Length:
+      - '131'
+      Content-Type:
+      - text/html; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: "\r\n<!DOCTYPE html>\r\n<html>\r\n\t<head>\r\n\t\t<title>Page Not Found</title>\r\n\t</head>\r\n\t<body>\r\n\t\tPage
+        Not Found\r\n\t</body>\r\n</html>\r\n\r\n\r\n\r\n"
+    http_version: 
+  recorded_at: Tue, 03 Jan 2017 17:30:41 GMT
+recorded_with: VCR 3.0.3

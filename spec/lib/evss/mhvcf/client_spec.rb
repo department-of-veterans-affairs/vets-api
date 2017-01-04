@@ -4,12 +4,13 @@ require 'evss/mhvcf/client'
 
 describe 'evss mhvcf' do
   subject(:client) { EVSS::MHVCF::Client.new }
-  let(:user) { build(:user) }
+  let(:user) { build(:evss_user) }
 
   # This is a useful spec to test negative case of SSL certificate being invalid.
   it 'gets inflight forms', :vcr do
+    binding.pry
     expect(client.user(user).get_forms).to eq({})
-
+    binding.pry
     # raise_error do |error|
     #   expect(error).to be_a(Common::Client::Errors::ClientError)
     #   expect(error.cause).to be_a(Faraday::SSLError)

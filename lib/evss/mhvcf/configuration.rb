@@ -50,7 +50,8 @@ module EVSS
           conn.response :snakecase
           conn.response :json_parser
 
-          conn.adapter Faraday.default_adapter
+          #conn.adapter Faraday.default_adapter
+          conn.adapter  :httpclient
         end
       end
     end
