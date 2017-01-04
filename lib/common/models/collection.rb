@@ -27,6 +27,7 @@ module Common
     }.with_indifferent_access.freeze
 
     def initialize(klass = Array, data: [], metadata: {}, errors: {})
+      data = Array.wrap(data) # If data is passed in as nil, wrap it as an empty array
       @type = klass
       @attributes = data
       @metadata = metadata

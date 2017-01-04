@@ -39,7 +39,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       it 'redirects to an auth failure page if saml_response is invalid' do
         allow(OneLogin::RubySaml::Response).to receive(:new).and_return(invalid_saml_response)
 
-        expect(Rails.logger).to receive(:warn).exactly(4).times
+        expect(Rails.logger).to receive(:error).exactly(1).times
         expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
         expect(response).to have_http_status(:found)
       end
