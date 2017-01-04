@@ -72,6 +72,8 @@ module HCA
     end
 
     def format_address(address)
+      return {} if address.blank?
+
       formatted = address.slice('city', 'country')
       formatted['line1'] = address['street']
 
@@ -329,6 +331,8 @@ module HCA
     end
 
     def convert_full_name(full_name)
+      return {} if full_name.blank?
+
       {
         'firstName' => Validations.validate_name(
           data: full_name['first'],
@@ -404,7 +408,7 @@ module HCA
     end
 
     def veteran_to_insurance_collection(veteran)
-      insurance_collection = veteran['providers'].map do |provider|
+      insurance_collection = (veteran['providers'] || []).map do |provider|
         provider_to_insurance_info(provider)
       end
 
