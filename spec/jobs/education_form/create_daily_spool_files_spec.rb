@@ -115,7 +115,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
           'worker.education_benefits_claim.transmissions',
           value: 1,
           tags: [
-            'rpo:307'
+            'rpo:307',
+            'form:22-1990'
           ]
         )
 

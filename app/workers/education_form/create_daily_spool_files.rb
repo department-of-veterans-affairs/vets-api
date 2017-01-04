@@ -37,10 +37,10 @@ module EducationForm
       structured_data.each do |region, records|
         region_id = EducationFacility.facility_for(region: region)
         filename = "#{region_id}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
-        log_submissions(records, filename, region_id)
+        log_submissions(records, filename)
         # create the single textual spool file
         contents = records.map do |record|
-          format_application(record.open_struct_form)
+          format_application(record.open_struct_form, rpo: region_id)
         end.join(WINDOWS_NOTEPAD_LINEBREAK)
 
         if sftp
@@ -52,8 +52,8 @@ module EducationForm
             f.write(contents)
           end
         end
-
-        # mark the records as processed once the file has been written
+        # track and update the records as processed once the file has been successfully written
+        track_submissions(region_id)
         records.each { |r| r.update_attribute(:processed_at, Time.zone.now) }
       end
     end
@@ -74,8 +74,12 @@ module EducationForm
     end
 
     # Convert the JSON document into the text format that we submit to the backend
-    def format_application(form)
-      EducationForm::Forms::Base.build(form).format
+    def format_application(data, rpo: 0)
+      form = EducationForm::Forms::Base.build(data)
+      # TODO(molson): Once we have a column in the db with the form type, we can move
+      # this tracking code to somewhere more reasonable.
+      track_form_type(form.class::TYPE, rpo)
+      form.format
     rescue => e
       logger.error("Could not format #{form.confirmation_number}")
       raise e
@@ -83,11 +87,30 @@ module EducationForm
 
     private
 
-    def log_submissions(records, filename, region_id)
+    # Useful for debugging which records were or were not sent over successfully,
+    # in case of network failures.
+    def log_submissions(records, filename)
       logger.info("Writing #{records.count} application(s) to #{filename}")
       logger.info("IDs: #{records.map(&:id)}")
-      StatsD.gauge('worker.education_benefits_claim.transmissions', records.count, tags:
-        { rpo: region_id })
+    end
+
+    # Useful for alerting and monitoring the numbers of successfully send submissions
+    # per-rpo, rather than the number of records that were *prepared* to be sent.
+    def track_submissions(region_id)
+      stats[region_id].each do |type, count|
+        StatsD.gauge('worker.education_benefits_claim.transmissions',
+                     count,
+                     tags: { rpo: region_id,
+                             form: type })
+      end
+    end
+
+    def track_form_type(type, rpo)
+      stats[rpo][type] += 1
+    end
+
+    def stats
+      @stats ||= Hash.new(Hash.new(0))
     end
   end
 end
