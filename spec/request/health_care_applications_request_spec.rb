@@ -41,8 +41,8 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
       end
 
       it 'should render success' do
+        allow_any_instance_of(HCA::Service).to receive(:post).and_return(true)
         subject
-        binding.pry; fail
         expect(JSON.parse(response.body)['success']).to eq(true)
       end
     end
