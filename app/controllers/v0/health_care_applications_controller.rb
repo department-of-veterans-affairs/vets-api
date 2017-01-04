@@ -6,18 +6,18 @@ module V0
     skip_before_action(:authenticate)
 
     def create
-      health_care_application = params[:form]
-
-      if health_care_application
-        render(json: { success: true })
-      else
-        render(json: { success: false })
-      end
+      service.submit_form(params[:form])
+      render(json: { success: true })
     end
 
     def healthcheck
-      service = HCA::Service.new
       render(json: service.health_check)
+    end
+
+    private
+
+    def service
+      HCA::Service.new
     end
   end
 end

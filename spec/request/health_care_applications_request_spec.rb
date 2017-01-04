@@ -20,7 +20,7 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
   describe 'POST create' do
     subject do
       post(
-        v0_health_care_application_url,
+        v0_health_care_applications_path,
         params.to_json,
         'CONTENT_TYPE' => 'application/json',
         'HTTP_X_KEY_INFLECTION' => 'camel'
@@ -42,6 +42,7 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
 
       it 'should render success' do
         subject
+        binding.pry; fail
         expect(JSON.parse(response.body)['success']).to eq(true)
       end
     end

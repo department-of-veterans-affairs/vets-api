@@ -489,7 +489,7 @@ module HCA
 
     def veteran_to_association_collection(veteran)
       associations = []
-      children = veteran['children'].map do |child|
+      children = (veteran['children'] || []).map do |child|
         child_to_association(child)
       end.compact
       spouse = spouse_to_association(veteran)
