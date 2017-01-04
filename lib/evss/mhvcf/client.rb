@@ -3,6 +3,7 @@
 require 'common/client/base'
 require 'evss/auth_headers'
 require 'evss/mhvcf/configuration'
+require 'evss/mhvcf/get_in_flight_forms_request_form'
 
 module EVSS
   module MHVCF
@@ -16,8 +17,10 @@ module EVSS
         self
       end
 
-      def post_inflight_forms
-        perform(:post, 'getInflightForms', nil).body
+      def post_get_inflight_forms(params)
+        form = EVSS::MHVCF::GetInFlightFormsRequestForm.new(params)
+        raise Common::Exceptions::ValidationErrors, form unless form.valid?
+        perform(:post, 'getInflightForms', form.params).body
       end
 
       private

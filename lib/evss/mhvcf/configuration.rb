@@ -8,7 +8,7 @@ module EVSS
   module MHVCF
     class Configuration < Common::Client::Configuration
       def base_path
-        "#{ENV['EVSS_CONSENT_FORM_BASE_URL']}/wssweb/domain1/vii-app-1.2/rest"
+        "#{ENV['EVSS_CONSENT_FORM_BASE_URL']}/wssweb/vii-app-1.2/rest/patientAuthService/1.2/"
       end
 
       def service_name
