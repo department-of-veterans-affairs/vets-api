@@ -47,30 +47,30 @@ describe Mvi, skip_mvi: true do
         end
       end
 
-      context 'when a MVI::Errors::HTTPError is raised' do
+      context 'when a SOAP::Errors::HTTPError is raised' do
         it 'should log an error message and return status server error' do
           allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(
-            MVI::Errors::HTTPError.new('MVI HTTP call failed', 500)
+            SOAP::Errors::HTTPError.new('MVI HTTP call failed', 500)
           )
           expect(Rails.logger).to receive(:error).once.with(/MVI HTTP error code: 500 for user:/)
           expect(mvi.va_profile).to eq(status: Mvi::MVI_RESPONSE_STATUS[:server_error])
         end
       end
 
-      context 'when a MVI::Errors::ServiceError is raised' do
+      context 'when a SOAP::Errors::ServiceError is raised' do
         it 'should log an error message and return status not found' do
-          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(MVI::Errors::InvalidRequestError)
+          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(SOAP::Errors::InvalidRequestError)
           expect(Rails.logger).to receive(:error).once.with(
-            /MVI service error: MVI::Errors::InvalidRequestError for user:/
+            /MVI service error: SOAP::Errors::InvalidRequestError for user:/
           )
           expect(mvi.va_profile).to eq(status: Mvi::MVI_RESPONSE_STATUS[:server_error])
         end
       end
 
-      context 'when MVI::Errors::RecordNotFound is raised' do
+      context 'when SOAP::Errors::RecordNotFound is raised' do
         it 'should log an error message and return status not found' do
           allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(
-            MVI::Errors::RecordNotFound.new('not found')
+            SOAP::Errors::RecordNotFound.new('not found')
           )
           expect(Rails.logger).to receive(:error).once.with(/MVI record not found for user:/)
           expect(mvi.va_profile).to eq(status: Mvi::MVI_RESPONSE_STATUS[:not_found])
