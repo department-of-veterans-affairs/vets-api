@@ -1,0 +1,112 @@
+<ns1:submitFormRequest>
+  <ns1:form>
+    <ns1:formIdentifier>
+      <ns1:type>100</ns1:type>
+      <ns1:value>1010EZ</ns1:value>
+      <ns1:version>1986360435</ns1:version>
+    </ns1:formIdentifier>
+    <ns1:summary>
+      <ns1:associations xsi:nil="true"/>
+      <ns1:demographics>
+        <ns1:appointmentRequestResponse>false</ns1:appointmentRequestResponse>
+        <ns1:contactInfo>
+          <ns1:addresses>
+            <ns1:address>
+              <ns1:city>Washington</ns1:city>
+              <ns1:country>USA</ns1:country>
+              <ns1:line1>123 NW 5th St</ns1:line1>
+              <ns1:state>DC</ns1:state>
+              <ns1:zipCode>20005</ns1:zipCode>
+              <ns1:zipPlus4 xsi:nil="true"/>
+              <ns1:addressTypeCode>P</ns1:addressTypeCode>
+            </ns1:address>
+          </ns1:addresses>
+          <ns1:emails>
+            <ns1:email>
+              <ns1:address>foo_bar@example.com</ns1:address>
+              <ns1:type>1</ns1:type>
+            </ns1:email>
+          </ns1:emails>
+          <ns1:phones>
+            <ns1:phone>
+              <ns1:phoneNumber>1231241234</ns1:phoneNumber>
+              <ns1:type>1</ns1:type>
+            </ns1:phone>
+            <ns1:phone>
+              <ns1:phoneNumber>1235551234</ns1:phoneNumber>
+              <ns1:type>4</ns1:type>
+            </ns1:phone>
+          </ns1:phones>
+        </ns1:contactInfo>
+        <ns1:ethnicity>2186-5</ns1:ethnicity>
+        <ns1:maritalStatus>M</ns1:maritalStatus>
+        <ns1:preferredFacility>523</ns1:preferredFacility>
+        <ns1:races xsi:nil="true"/>
+        <ns1:acaIndicator>false</ns1:acaIndicator>
+      </ns1:demographics>
+      <ns1:enrollmentDeterminationInfo>
+        <ns1:eligibleForMedicaid>false</ns1:eligibleForMedicaid>
+        <ns1:noseThroatRadiumInfo>
+          <ns1:receivingTreatment>false</ns1:receivingTreatment>
+        </ns1:noseThroatRadiumInfo>
+        <ns1:serviceConnectionAward>
+          <ns1:serviceConnectedIndicator>false</ns1:serviceConnectedIndicator>
+        </ns1:serviceConnectionAward>
+        <ns1:specialFactors>
+          <ns1:agentOrangeInd>false</ns1:agentOrangeInd>
+          <ns1:envContaminantsInd>false</ns1:envContaminantsInd>
+          <ns1:campLejeuneInd>false</ns1:campLejeuneInd>
+          <ns1:radiationExposureInd>false</ns1:radiationExposureInd>
+        </ns1:specialFactors>
+      </ns1:enrollmentDeterminationInfo>
+      <ns1:financialsInfo xsi:nil="true"/>
+      <ns1:insuranceList xsi:nil="true"/>
+      <ns1:militaryServiceInfo>
+        <ns1:dischargeDueToDisability>false</ns1:dischargeDueToDisability>
+        <ns1:militaryServiceSiteRecords>
+          <ns1:militaryServiceSiteRecord>
+            <ns1:militaryServiceEpisodes>
+              <ns1:militaryServiceEpisode>
+                <ns1:dischargeType>1</ns1:dischargeType>
+                <ns1:startDate>01/01/2001</ns1:startDate>
+                <ns1:endDate>01/02/2001</ns1:endDate>
+                <ns1:serviceBranch>2</ns1:serviceBranch>
+              </ns1:militaryServiceEpisode>
+            </ns1:militaryServiceEpisodes>
+            <ns1:site>523</ns1:site>
+          </ns1:militaryServiceSiteRecord>
+        </ns1:militaryServiceSiteRecords>
+      </ns1:militaryServiceInfo>
+      <ns1:prisonerOfWarInfo>
+        <ns1:powIndicator>false</ns1:powIndicator>
+      </ns1:prisonerOfWarInfo>
+      <ns1:purpleHeart>
+        <ns1:indicator>false</ns1:indicator>
+      </ns1:purpleHeart>
+      <ns1:personInfo>
+        <ns1:firstName>FIRSTNAME</ns1:firstName>
+        <ns1:middleName/>
+        <ns1:lastName>ZZTEST</ns1:lastName>
+        <ns1:suffix/>
+        <ns1:gender>M</ns1:gender>
+        <ns1:dob>01/01/1977</ns1:dob>
+        <ns1:mothersMaidenName xsi:nil="true"/>
+        <ns1:placeOfBirthCity xsi:nil="true"/>
+        <ns1:placeOfBirthState xsi:nil="true"/>
+        <ns1:ssnText>111229999</ns1:ssnText>
+      </ns1:personInfo>
+    </ns1:summary>
+    <ns1:applications>
+      <ns1:applicationInfo>
+        <ns1:appDate>2016-12-12</ns1:appDate>
+        <ns1:appMethod>1</ns1:appMethod>
+      </ns1:applicationInfo>
+    </ns1:applications>
+  </ns1:form>
+  <ns1:identity>
+    <ns1:authenticationLevel>
+      <ns1:type>100</ns1:type>
+      <ns1:value>anonymous</ns1:value>
+    </ns1:authenticationLevel>
+  </ns1:identity>
+</ns1:submitFormRequest>

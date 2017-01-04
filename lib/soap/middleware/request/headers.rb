@@ -1,8 +1,8 @@
 # frozen_string_literal: true
-module MVI
+module SOAP
   module Middleware
     module Request
-      class Soap < Faraday::Response::Middleware
+      class Headers < Faraday::Response::Middleware
         def call(env)
           env.request_headers['Date'] = Time.now.utc.strftime('%a, %d %b %Y %H:%M:%S GMT')
           env.request_headers['Content-Length'] = env.body.bytesize.to_s
