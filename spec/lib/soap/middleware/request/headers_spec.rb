@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'mvi/middleware/response/soap'
+require 'soap/middleware/request/headers'
 
-describe MVI::Middleware::Request::Soap do
+describe SOAP::Middleware::Request::Headers do
   context 'with a request without headers' do
     let(:env) { instance_double('Faraday::Env') }
     let(:request_headers) { { 'User-Agent' => 'Faraday v0.9.2', 'Soapaction' => 'PRPA_IN201305UV02' } }
