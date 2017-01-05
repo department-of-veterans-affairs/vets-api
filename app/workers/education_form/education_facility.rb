@@ -68,9 +68,14 @@ module EducationForm
     def self.region_for(model)
       record = model.open_struct_form
       # special case Philippines
-      return :western if (record.school&.address&.country || record.veteranAddress&.country) == 'PHL'
+      return :western if model.is_1990? && (record.school&.address&.country || record.veteranAddress&.country) == 'PHL'
 
-      area = record.school&.address&.state || record.veteranAddress&.state
+      area = if model.is_1990?
+        record.school&.address&.state || record.veteranAddress&.state
+      else
+        # TODO handle 1995
+      end
+
       case area
       when *EASTERN
         :eastern
