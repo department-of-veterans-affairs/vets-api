@@ -13,9 +13,7 @@ module V0
 
         raise Common::Exceptions::BackendServiceException.new(
           nil,
-          {
-            detail: e.message
-          }
+          detail: e.message
         )
       end
 

@@ -62,7 +62,9 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
 
           expect(response.code).to eq('400')
           expect(JSON.parse(response.body)).to eq(
-            {"errors"=>[{"title"=>"Operation failed", "detail"=>"error message", "code"=>"VA900", "status"=>"400"}]}
+            'errors' => [
+              { 'title' => 'Operation failed', 'detail' => 'error message', 'code' => 'VA900', 'status' => '400' }
+            ]
           )
         end
       end
