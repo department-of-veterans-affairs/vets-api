@@ -18,7 +18,7 @@ describe Common::Exceptions::SchemaValidationErrors do
 
       expect(errors.size).to eq(1)
       expect(errors[0].to_hash).to eq(
-        {:title=>"Validation error", :detail=>"error 1", :code=>"109", :status=>"422"}
+        title: 'Validation error', detail: 'error 1', code: '109', status: '422'
       )
     end
   end

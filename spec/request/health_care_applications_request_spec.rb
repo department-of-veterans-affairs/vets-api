@@ -6,7 +6,7 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
   let(:test_veteran) do
     JSON.parse(
       File.read(
-        Rails.root.join('spec', 'fixtures', 'hca', "veteran.json")
+        Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
       )
     )
   end

@@ -18,4 +18,3 @@ require 'common/exceptions/internal/validation_errors'
 require 'common/exceptions/internal/unauthorized'
 require 'common/exceptions/internal/forbidden'
 require 'common/exceptions/external/backend_service_exception'
-
