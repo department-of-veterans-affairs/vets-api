@@ -26,5 +26,9 @@ MVI_PROCESSING_CODE: 'T'
 MOCK_MVI_SERVICE: 'true'
 GOV_DELIVERY_SERVER: stage-tms.govdelivery.com
 
+ES_URL: 'https://test.vets.gov'
+ES_CLIENT_CERT_PATH: '/fake/client/cert/path'
+ES_CLIENT_KEY_PATH: '/fake/client/key/path'
+
 # For CORS requests; separate multiple origins with a comma
 WEB_ORIGIN: 'http://localhost:3000,http://localhost:3001'
