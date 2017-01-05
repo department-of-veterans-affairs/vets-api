@@ -9,7 +9,6 @@ require 'evss/claims_service'
 require 'evss/common_service'
 require 'evss/documents_service'
 
-
 # Read the redis config, create a connection and a namespace for breakers
 redis_config = Rails.application.config_for(:redis).freeze
 redis = Redis.new(redis_config['redis'])

@@ -2,9 +2,9 @@
 require 'common/client/base'
 require 'mvi/configuration'
 require 'mvi/responses/find_candidate'
-require 'soap/errors'
 require 'common/client/middleware/request/soap_headers'
 require 'common/client/middleware/response/soap_parser'
+require 'mvi/errors/errors'
 
 module MVI
   # Wrapper for the MVI (Master Veteran Index) Service. vets.gov has access
@@ -33,17 +33,17 @@ module MVI
     def find_candidate(message)
       raw_response = perform(:post, '', message.to_xml, soapaction: OPERATIONS[:find_candidate])
       response = MVI::Responses::FindCandidate.new(raw_response)
-      raise SOAP::Errors::RecordNotFound, 'MVI multiple matches found' if response.multiple_match?
-      raise SOAP::Errors::InvalidRequestError if response.invalid?
-      raise SOAP::Errors::RequestFailureError if response.failure?
-      raise SOAP::Errors::RecordNotFound, 'MVI subject missing from response body' unless response.body
+      raise MVI::Errors::RecordNotFound, 'MVI multiple matches found' if response.multiple_match?
+      raise MVI::Errors::InvalidRequestError if response.invalid?
+      raise MVI::Errors::RequestFailureError if response.failure?
+      raise MVI::Errors::RecordNotFound, 'MVI subject missing from response body' unless response.body
       response.body
     rescue Faraday::ConnectionFailed => e
       Rails.logger.error "MVI find_candidate connection failed: #{e.message}"
-      raise SOAP::Errors::ServiceError, 'MVI connection failed'
+      raise MVI::Errors::ServiceError, 'MVI connection failed'
     rescue Common::Client::Errors::ClientError => e
       Rails.logger.error "MVI find_candidate error: #{e.message}"
-      raise SOAP::Errors::ServiceError
+      raise MVI::Errors::ServiceError
     end
   end
 end

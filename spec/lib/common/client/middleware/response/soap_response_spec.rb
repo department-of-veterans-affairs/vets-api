@@ -57,7 +57,7 @@ describe Common::Client::Middleware::Response::SOAPParser do
 
     it 'raises an MVI::Errors::HTTPError' do
       expect { connection.get 'http://somewhere.gov' }.to raise_error(
-        SOAP::Errors::HTTPError, 'MVI internal server error'
+        Common::Client::Errors::HTTPError, 'SOAP service returned internal server error'
       )
     end
   end

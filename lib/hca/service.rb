@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 require 'common/client/base'
-require 'soap/middleware/request/headers'
-require 'soap/middleware/response/parse'
 require 'hca/enrollment_system'
 
 module HCA

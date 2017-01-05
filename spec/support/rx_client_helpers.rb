@@ -13,7 +13,7 @@ module Rx
     end
 
     def stub_varx_request(method, api_endpoint, response_hash, opts = {})
-      with_opts = { headers: Rx::Configuration::base_request_headers.merge('Token' => TOKEN) }
+      with_opts = { headers: Rx::Configuration.base_request_headers.merge('Token' => TOKEN) }
       with_opts[:body] = opts[:body] unless opts[:body].nil?
       status_code = opts[:status_code] || 200
 

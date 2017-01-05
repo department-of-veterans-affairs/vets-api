@@ -8,11 +8,10 @@ module Common
             case env.status
             when 200
               doc = Ox.parse(ensure_xml_prolog(env.body))
-              raise SOAP::Errors::HTTPError.new('MVI internal server error', 500) if doc_includes_error(doc)
+              raise Common::Client::Errors::HTTPError.new('SOAP service returned internal server error', 500) if doc_includes_error(doc)
               env.body = doc
             else
-              Rails.logger.error env.body
-              raise SOAP::Errors::HTTPError.new('MVI HTTP call failed', env.status)
+              raise Common::Client::Errors::HTTPError.new('SOAP HTTP call failed', env.status)
             end
           end
 
@@ -26,10 +25,6 @@ module Common
           def doc_includes_error(doc)
             fault_element = doc.locate('env:Envelope/env:Body/env:Fault').first
             return false unless fault_element
-            fault_code = fault_element.locate('faultcode').first
-            fault_string = fault_element.locate('faultstring').first
-            Rails.logger.error "MVI fault code: #{fault_code.nodes.first}" if fault_code
-            Rails.logger.error "MVI fault string: #{fault_string.nodes.first}" if fault_string
             true
           end
         end

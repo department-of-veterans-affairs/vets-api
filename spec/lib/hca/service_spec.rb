@@ -42,7 +42,7 @@ describe HCA::Service do
     context 'with a valid request' do
       it 'raises an exception' do
         VCR.use_cassette('hca/health_check_downtime', match_requests_on: [:body]) do
-          expect { subject.health_check }.to raise_error(SOAP::Errors::HTTPError)
+          expect { subject.health_check }.to raise_error(Common::Client::Errors::HTTPError)
         end
       end
     end
