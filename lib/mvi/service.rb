@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 require 'mvi/settings'
-require 'mvi/errors/errors'
 require 'mvi/responses/find_candidate'
-require 'mvi/middleware/request/soap'
-require 'mvi/middleware/response/soap'
+require 'soap/errors'
+require 'soap/middleware/request/headers'
+require 'soap/middleware/response/parse'
 
 module MVI
   # Wrapper for the MVI (Master Veteran Index) Service. vets.gov has access
@@ -43,17 +43,17 @@ module MVI
     def find_candidate(message)
       faraday_response = connection.post '', message.to_xml, soapaction: OPERATIONS[:find_candidate]
       response = MVI::Responses::FindCandidate.new(faraday_response)
-      raise MVI::Errors::RecordNotFound, 'MVI multiple matches found' if response.multiple_match?
-      raise MVI::Errors::InvalidRequestError if response.invalid?
-      raise MVI::Errors::RequestFailureError if response.failure?
-      raise MVI::Errors::RecordNotFound, 'MVI subject missing from response body' unless response.body
+      raise SOAP::Errors::RecordNotFound, 'MVI multiple matches found' if response.multiple_match?
+      raise SOAP::Errors::InvalidRequestError if response.invalid?
+      raise SOAP::Errors::RequestFailureError if response.failure?
+      raise SOAP::Errors::RecordNotFound, 'MVI subject missing from response body' unless response.body
       response.body
     rescue Faraday::ConnectionFailed => e
       Rails.logger.error "MVI find_candidate connection failed: #{e.message}"
-      raise MVI::Errors::ServiceError, 'MVI connection failed'
+      raise SOAP::Errors::ServiceError, 'MVI connection failed'
     rescue Faraday::TimeoutError
       Rails.logger.error 'MVI find_candidate timeout'
-      raise MVI::Errors::ServiceError, 'MVI timeout error'
+      raise SOAP::Errors::ServiceError, 'MVI timeout error'
     end
 
     def self.breakers_service
@@ -75,8 +75,8 @@ module MVI
       @conn ||= Faraday.new(MVI::Service.options) do |conn|
         conn.options.open_timeout = MVI::Settings::OPEN_TIMEOUT
         conn.options.timeout = MVI::Settings::TIMEOUT
-        conn.use MVI::Middleware::Request::Soap
-        conn.use MVI::Middleware::Response::Soap
+        conn.use SOAP::Middleware::Request::Headers
+        conn.use SOAP::Middleware::Response::Parse, name: 'MVI'
         conn.use :breakers
         conn.adapter Faraday.default_adapter
       end
