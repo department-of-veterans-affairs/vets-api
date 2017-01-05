@@ -35,7 +35,6 @@ class EducationBenefitsClaim < ActiveRecord::Base
   # and easy way to deeply transform the object.
   def open_struct_form
     @application ||= JSON.parse(form, object_class: OpenStruct)
-    @application.form = application_type
     @application.confirmation_number = confirmation_number
 
     generate_benefits_to_apply_to
@@ -65,12 +64,6 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   def regional_office
     EducationForm::EducationFacility.regional_office_for(open_struct_form)
-  end
-
-  # TODO: Add logic for determining field type(s) that need to be places in the application header
-  def application_type
-    return 'CH1606' if @application.chapter1606
-    'NA'
   end
 
   def parsed_form
