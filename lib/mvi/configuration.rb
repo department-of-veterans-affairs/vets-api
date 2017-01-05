@@ -39,8 +39,6 @@ module MVI
           client_cert: MVI::Configuration::SSL_CERT,
           client_key: MVI::Configuration::SSL_KEY
         }
-      else
-        nil
       end
     end
 
