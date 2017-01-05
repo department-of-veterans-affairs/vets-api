@@ -3,6 +3,14 @@ require 'rails_helper'
 require 'hca/service'
 
 RSpec.describe 'Health Care Application Integration', type: [:request, :serializer] do
+  let(:test_veteran) do
+    JSON.parse(
+      File.read(
+        Rails.root.join('spec', 'fixtures', 'hca', "veteran.json")
+      )
+    )
+  end
+
   describe 'GET healthcheck' do
     subject do
       get(healthcheck_v0_health_care_applications_path)
@@ -30,13 +38,7 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
     context 'with valid params' do
       let(:params) do
         {
-          form: {
-            summary: {
-              personInfo: {
-                firstName: 'William'
-              }.to_json
-            }
-          }
+          form: test_veteran.to_json
         }
       end
 

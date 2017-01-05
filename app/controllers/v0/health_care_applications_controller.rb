@@ -6,8 +6,15 @@ module V0
     skip_before_action(:authenticate)
 
     def create
+      form = JSON.parse(params[:form])
+      validation_errors = JSON::Validator.fully_validate(VetsJsonSchema::HEALTHCARE_APPLICATION, form, validate_schema: true)
+
+      if validation_errors.present?
+        # TODO render errors
+      end
+
       begin
-        service.submit_form(params[:form])
+        service.submit_form(form)
       rescue SOAP::Errors::ServiceError => e
         Raven.capture_exception(e)
 
