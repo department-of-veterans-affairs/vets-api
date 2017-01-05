@@ -81,6 +81,11 @@ Rails.application.configure do
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new
 
+  STDOUT.sync = config.autoflush_log
+  config.logger = ActiveSupport::Logger.new(STDOUT)
+  config.logger.formatter = config.log_formatter
+  config.logger.level = config.log_level
+
   # Do not dump schema after migrations.
   # config.active_record.dump_schema_after_migration = false
   ConfigHelper.setup_action_mailer(config)
