@@ -1,0 +1,26 @@
+endpoints:
+  esSqa: &es_sqa 'https://vaww.esrstage1a.aac.va.gov/voa/voaSvc'
+  esDev: &es_dev 'https://vaww.esrdev30.aac.va.gov:8433/voa/voaSvc?wsdl'
+  esPreprod: &pre_prod 'https://vaww.esrpre-prod.aac.va.gov/voa/voaSvc'
+  esProd: &prod 'https://vaww.esr.aac.va.gov/voa/voaSvc'
+
+trust_chains:
+  internal: &internal
+    - 'VA Internal Subordinate CA 1.pem'
+    - 'VA Internal Root CA.pem'
+  common: &common
+    - 'Veterans Affairs Device CA B2.pem'
+    - 'Betrusted Production SSP CA A1.pem'
+    - 'Federal Common Policy CA.pem'
+
+test:
+  endpoint: *es_dev
+  ca: *common
+
+development:
+  endpoint: *es_dev
+  ca: *common
+
+production:
+  endpoint: <%= ENV['ES_URL'] %>
+  ca: ~

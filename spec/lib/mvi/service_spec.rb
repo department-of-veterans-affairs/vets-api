@@ -110,7 +110,7 @@ describe MVI::Service do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow(message).to receive(:to_xml).and_return(invalid_xml)
         VCR.use_cassette('mvi/find_candidate/invalid') do
-          expect { subject.find_candidate(message) }.to raise_error(MVI::Errors::InvalidRequestError)
+          expect { subject.find_candidate(message) }.to raise_error(SOAP::Errors::InvalidRequestError)
         end
       end
     end
@@ -120,7 +120,7 @@ describe MVI::Service do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow(message).to receive(:to_xml).and_return(invalid_xml)
         VCR.use_cassette('mvi/find_candidate/failure') do
-          expect { subject.find_candidate(message) }.to raise_error(MVI::Errors::RequestFailureError)
+          expect { subject.find_candidate(message) }.to raise_error(SOAP::Errors::RequestFailureError)
         end
       end
     end
@@ -129,7 +129,7 @@ describe MVI::Service do
       it 'should raise a service error' do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(Rails.logger).to receive(:error).with('MVI find_candidate timeout')
-        expect { subject.find_candidate(message) }.to raise_error(MVI::Errors::ServiceError)
+        expect { subject.find_candidate(message) }.to raise_error(SOAP::Errors::ServiceError)
       end
     end
 
@@ -137,7 +137,7 @@ describe MVI::Service do
       it 'should raise a request failure error' do
         allow(message).to receive(:to_xml).and_return('<nobeuno></nobeuno>')
         VCR.use_cassette('mvi/find_candidate/five_hundred') do
-          expect { subject.find_candidate(message) }.to raise_error(MVI::Errors::HTTPError)
+          expect { subject.find_candidate(message) }.to raise_error(SOAP::Errors::HTTPError)
         end
       end
     end
@@ -158,9 +158,9 @@ describe MVI::Service do
           [user.first_name, user.middle_name], user.last_name, user.birth_date, user.ssn, user.gender
         )
       end
-      it 'raises an MVI::Errors::RecordNotFound error' do
+      it 'raises an SOAP::Errors::RecordNotFound error' do
         VCR.use_cassette('mvi/find_candidate/no_subject') do
-          expect { subject.find_candidate(message) }.to raise_error(MVI::Errors::RecordNotFound)
+          expect { subject.find_candidate(message) }.to raise_error(SOAP::Errors::RecordNotFound)
         end
       end
 
@@ -173,19 +173,23 @@ describe MVI::Service do
     end
 
     context 'when MVI returns 500 but VAAFI sends 200' do
-      it 'raises an MVI::Errors::HTTPError' do
+      it 'raises an SOAP::Errors::HTTPError' do
         VCR.use_cassette('mvi/find_candidate/internal_server_error') do
           expect(Rails.logger).to receive(:error).with('MVI fault code: env:Server').once
           expect(Rails.logger).to receive(:error).with('MVI fault string: Internal Error (from server)').once
-          expect { subject.find_candidate(message) }.to raise_error(MVI::Errors::HTTPError, 'MVI internal server error')
+          expect do
+            subject.find_candidate(message)
+          end.to raise_error(SOAP::Errors::HTTPError, 'MVI internal server error')
         end
       end
     end
 
     context 'when MVI multiple match failure response' do
-      it 'raises MVI::Errors::RecordNotFound' do
+      it 'raises SOAP::Errors::RecordNotFound' do
         VCR.use_cassette('mvi/find_candidate/failure_multiple_matches') do
-          expect { subject.find_candidate(message) }.to raise_error(MVI::Errors::RecordNotFound)
+          expect do
+            subject.find_candidate(message)
+          end.to raise_error(SOAP::Errors::RecordNotFound)
         end
       end
     end
