@@ -19,6 +19,12 @@ class EducationBenefitsClaim < ActiveRecord::Base
   after_save(:create_education_benefits_submission)
   after_save(:update_education_benefits_submission_status)
 
+  FORM_TYPES.each do |type|
+    define_method("is_#{type}?") do
+      form_type == type
+    end
+  end
+
   # For console access only, right now.
   def reprocess_at(region)
     key = region.to_sym

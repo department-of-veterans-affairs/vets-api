@@ -75,6 +75,22 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
   end
 
+  %w(1990 1995).each do |form_type|
+    method = "is_#{form_type}?"
+
+    describe "##{method}" do
+      it "should return false when it's not the right type" do
+        subject.form_type = 'foo'
+        expect(subject.public_send(method)).to eq(false)
+      end
+
+      it "should return true when it's the right type" do
+        subject.form_type = form_type
+        expect(subject.public_send(method)).to eq(true)
+      end
+    end
+  end
+
   describe 'form field' do
     it 'should encrypt and decrypt the form field' do
       subject.save!
