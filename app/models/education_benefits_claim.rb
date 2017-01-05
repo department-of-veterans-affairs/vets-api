@@ -43,7 +43,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
     @application ||= JSON.parse(form, object_class: OpenStruct)
     @application.confirmation_number = confirmation_number
 
-    generate_benefits_to_apply_to
+    generate_benefits_to_apply_to if is_1990?
 
     @application
   end
