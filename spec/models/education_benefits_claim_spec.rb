@@ -26,6 +26,16 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end
     end
 
+    it 'should validate inclusion of form_type' do
+      %w(1990 1995).each do |form_type|
+        subject.form_type = form_type
+        expect_attr_valid(subject, :form)
+      end
+
+      subject.form_type = 'foo'
+      expect_attr_invalid(subject, :form_type, 'is not included in the list')
+    end
+
     describe '#form_matches_schema' do
       context 'verifies that privacyAgreementAccepted is true' do
         [[true, true], [false, false], [nil, false]].each do |value, answer|
