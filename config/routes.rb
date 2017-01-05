@@ -15,7 +15,11 @@ Rails.application.routes.draw do
 
     resource :user, only: [:show]
 
-    resource :education_benefits_claims, only: [:create]
+    resource :education_benefits_claims, only: [:create] do
+      collection do
+        post(':form_type', to: :create)
+      end
+    end
 
     resource :health_care_application, only: [:create] do
       resource :healthcheck, only: [:show], to: 'health_care_applications#healthcheck'
