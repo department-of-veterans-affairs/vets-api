@@ -47,13 +47,17 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
       end
 
       context 'with a SOAP error' do
+        let(:error) { SOAP::Errors::HTTPError.new('error message') }
+
         before do
           allow_any_instance_of(HCA::Service).to receive(:post) do
-            raise SOAP::Errors::HTTPError, 'error message'
+            raise error
           end
         end
 
         it 'should render error message' do
+          expect(Raven).to receive(:capture_exception).with(error).once
+
           subject
 
           expect(response.code).to eq('400')
