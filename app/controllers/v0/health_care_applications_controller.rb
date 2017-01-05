@@ -10,7 +10,7 @@ module V0
       validation_errors = JSON::Validator.fully_validate(VetsJsonSchema::HEALTHCARE_APPLICATION, form, validate_schema: true)
 
       if validation_errors.present?
-        # TODO render errors
+        raise Common::Exceptions::SchemaValidationErrors.new(validation_errors)
       end
 
       begin

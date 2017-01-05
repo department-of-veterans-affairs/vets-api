@@ -35,6 +35,25 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
       )
     end
 
+    context 'with invalid params' do
+      let(:params) do
+        {
+          form: test_veteran.except('privacyAgreementAccepted').to_json
+        }
+      end
+
+      it 'should show the validation errors' do
+        subject
+
+        expect(response.code).to eq('422')
+        expect(
+          JSON.parse(response.body)['errors'][0]['detail'].include?(
+            "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
+          )
+        ).to eq(true)
+      end
+    end
+
     context 'with valid params' do
       let(:params) do
         {
