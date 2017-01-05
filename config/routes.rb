@@ -17,7 +17,7 @@ Rails.application.routes.draw do
 
     resource :education_benefits_claims, only: [:create] do
       collection do
-        post(':form_type', to: :create)
+        post(':form_type', to: :create, as: :form_type)
       end
     end
 
