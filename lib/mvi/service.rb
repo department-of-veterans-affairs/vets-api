@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 require 'common/client/base'
 require 'mvi/configuration'
-require 'mvi/settings'
 require 'mvi/responses/find_candidate'
 require 'soap/errors'
 require 'common/client/middleware/request/soap_headers'
@@ -44,7 +43,7 @@ module MVI
       raise SOAP::Errors::ServiceError, 'MVI connection failed'
     rescue Common::Client::Errors::ClientError => e
       Rails.logger.error "MVI find_candidate error: #{e.message}"
-      raise MVI::Errors::ServiceError
+      raise SOAP::Errors::ServiceError
     end
   end
 end

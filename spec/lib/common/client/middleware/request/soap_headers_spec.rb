@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'rails_helper'
+require 'common/client/middleware/request/soap_headers'
 
 describe Common::Client::Middleware::Request::SOAPHeaders do
   context 'with a request without headers' do

@@ -26,7 +26,7 @@ module MVI
     end
 
     def base_path
-      MVI::Settings::URL
+      ENV['MVI_URL']
     end
 
     def service_name
