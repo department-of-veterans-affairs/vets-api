@@ -24,6 +24,7 @@ gem 'httpclient'
 gem 'attr_encrypted'
 gem 'olive_branch'
 gem 'ox', '~> 2.4'
+gem 'savon'
 gem 'sidekiq'
 gem 'sidekiq-unique-jobs'
 gem 'sidekiq-scheduler', '~> 2.0'
@@ -97,4 +98,8 @@ group :development do
   # POSIX systems should have this already, so we're not going to bring it in on other platforms
   gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
   gem 'guard-rubocop'
+end
+
+group :production do
+  gem 'rails_12factor'
 end
