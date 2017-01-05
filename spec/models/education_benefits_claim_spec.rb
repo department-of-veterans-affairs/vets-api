@@ -170,20 +170,46 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   describe '#create_education_benefits_submission' do
     subject { create(:education_benefits_claim_western_region) }
 
+    def associated_submission
+      subject.education_benefits_submission.attributes.except('id', 'created_at', 'updated_at')
+    end
+
     it 'should create an education benefits submission after submission' do
       expect do
         subject
       end.to change { EducationBenefitsSubmission.count }.by(1)
 
-      expect(EducationBenefitsSubmission.last.attributes.except('id', 'created_at', 'updated_at')).to eq(
+      expect(associated_submission).to eq(
         'region' => 'western',
         'chapter33' => false,
         'chapter30' => false,
         'chapter1606' => true,
         'chapter32' => false,
         'status' => 'submitted',
+        'form_type' => '1990',
         'education_benefits_claim_id' => subject.id
       )
+    end
+
+    context 'with a form type of 1995' do
+      subject do
+        create(:education_benefits_claim, form_type: '1995')
+      end
+
+      it 'should create a submission' do
+        subject
+
+        expect(associated_submission).to eq(
+          "region"=>"eastern",
+          "chapter33"=>false,
+          "chapter30"=>false,
+          "chapter1606"=>false,
+          "chapter32"=>false,
+          "status"=>"submitted",
+          "education_benefits_claim_id"=>subject.id,
+          "form_type"=>"1995"
+        )
+      end
     end
 
     it "shouldn't create a submission after save if it was already submitted" do
