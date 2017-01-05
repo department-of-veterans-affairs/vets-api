@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 module V0
-  class DocumentsController < DisabilityClaimsBaseController
+  class DocumentsController < EVSSClaimsBaseController
     def create
       params.require :file
-      claim = DisabilityClaim.for_user(current_user).find_by(evss_id: params[:disability_claim_id])
-      raise Common::Exceptions::RecordNotFound, params[:disability_claim_id] unless claim
-      document_data = DisabilityClaimDocument.new(
+      claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:evss_id])
+      raise Common::Exceptions::RecordNotFound, params[:evss_id] unless claim
+      document_data = EVSSClaimDocument.new(
         evss_claim_id: claim.evss_id,
         file_name: params[:file].original_filename,
         tracked_item_id: params[:tracked_item_id],

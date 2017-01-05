@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe DisabilityClaimDocumentUploader do
+RSpec.describe EVSSClaimDocumentUploader do
   subject { described_class.new('1234', '11') }
 
   describe 'initialize' do
@@ -39,12 +39,12 @@ RSpec.describe DisabilityClaimDocumentUploader do
   describe '#store_dir' do
     it 'omits the tracked item id if it is nil' do
       subject = described_class.new('1234abc', nil)
-      expect(subject.store_dir).to eq('disability_claim_documents/1234abc')
+      expect(subject.store_dir).to eq('evss_claim_documents/1234abc')
     end
 
     it 'includes the uuid and tracked item id' do
       subject = described_class.new('1234abc', '13')
-      expect(subject.store_dir).to eq('disability_claim_documents/1234abc/13')
+      expect(subject.store_dir).to eq('evss_claim_documents/1234abc/13')
     end
   end
 

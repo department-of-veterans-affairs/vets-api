@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
+class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
   attributes :contention_list, :va_representative, :events_timeline, :claim_type
 
   def contention_list

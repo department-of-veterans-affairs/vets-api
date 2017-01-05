@@ -27,7 +27,7 @@ RSpec.describe 'Fetching user data', type: :request do
           BackendServices::FACILITIES,
           BackendServices::HCA,
           BackendServices::EDUCATION_BENEFITS,
-          BackendServices::DISABILITY_BENEFITS,
+          BackendServices::EVSS_BENEFITS,
           BackendServices::USER_PROFILE,
           BackendServices::RX,
           BackendServices::MESSAGING

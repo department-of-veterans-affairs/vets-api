@@ -5,6 +5,6 @@ class BackendServices
   EDUCATION_BENEFITS = 'edu-benefits'
   RX = 'rx'
   MESSAGING = 'messaging'
-  DISABILITY_BENEFITS = 'disability-benefits'
+  EVSS_BENEFITS = 'evss-benefits'
   USER_PROFILE = 'user-profile'
 end

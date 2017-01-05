@@ -22,7 +22,8 @@ Rails.application.routes.draw do
     end
 
     resource :disability_rating, only: [:show]
-    resources :disability_claims, only: [:index, :show] do
+    # TODO: How to handle old URLs? Redirect?
+    resources :evss_claims, only: [:index, :show] do
       post :request_decision, on: :member
       resources :documents, only: [:create]
     end

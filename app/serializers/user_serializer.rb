@@ -31,7 +31,7 @@ class UserSerializer < ActiveModel::Serializer
       BackendServices::EDUCATION_BENEFITS
     ]
     service_list += [BackendServices::RX, BackendServices::MESSAGING] if object.can_access_mhv?
-    service_list << BackendServices::DISABILITY_BENEFITS if object.can_access_evss?
+    service_list << BackendServices::EVSS_BENEFITS if object.can_access_evss?
     service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
     service_list
   end

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class DisabilityClaim::RequestDecision
+class EVSSClaim::RequestDecision
   include Sidekiq::Worker
 
   def perform(auth_headers, evss_id)

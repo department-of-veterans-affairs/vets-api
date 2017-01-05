@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 require 'rails_helper'
+
+require 'evss/request_decision'
 require 'evss/claims_service'
 require 'evss/auth_headers'
 
-RSpec.describe DisabilityClaim::RequestDecision, type: :job do
+RSpec.describe EVSSClaim::RequestDecision, type: :job do
   let(:client_stub) { instance_double('EVSS::ClaimsService') }
   let(:user) { FactoryGirl.build(:loa3_user) }
   let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
