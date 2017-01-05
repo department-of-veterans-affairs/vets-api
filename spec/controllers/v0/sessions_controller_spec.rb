@@ -48,10 +48,6 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
-        it 'performs normal redirect_to logging' do
-          #expect(Rails.logger).to receive(:info).with("Redirected to #{SAML_CONFIG['relay']}?auth=fail").exactly(1).times
-          post :saml_callback
-        end
       end
     end
   end

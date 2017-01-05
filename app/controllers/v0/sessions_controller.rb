@@ -32,11 +32,10 @@ module V0
 
       if @saml_response.is_valid? && persist_session_and_user
         async_create_evss_account(@current_user)
-        #redirect_to SAML_CONFIG['relay'] + '?token=' + @session.token
+        # redirect_to SAML_CONFIG['relay'] + '?token=' + @session.token
         redirect_to SAML_CONFIG['relay'] + '?token=' + @session.token
       else
         log_errors
-        byebug
         redirect_to SAML_CONFIG['relay'] + '?auth=fail'
       end
     end
