@@ -65,11 +65,11 @@ class EducationBenefitsClaim < ActiveRecord::Base
   end
 
   def region
-    EducationForm::EducationFacility.region_for(open_struct_form)
+    EducationForm::EducationFacility.region_for(self)
   end
 
   def regional_office
-    EducationForm::EducationFacility.regional_office_for(open_struct_form)
+    EducationForm::EducationFacility.regional_office_for(self)
   end
 
   def parsed_form

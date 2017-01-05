@@ -65,7 +65,8 @@ module EducationForm
     end
 
     # rubocop:disable Metrics/CyclomaticComplexity
-    def self.region_for(record)
+    def self.region_for(model)
+      record = model.open_struct_form
       # special case Philippines
       return :western if (record.school&.address&.country || record.veteranAddress&.country) == 'PHL'
 
@@ -83,8 +84,8 @@ module EducationForm
     end
     # rubocop:enable Metrics/CyclomaticComplexity
 
-    def self.regional_office_for(record)
-      region = region_for(record)
+    def self.regional_office_for(model)
+      region = region_for(model)
       address = ["#{region.to_s.capitalize} Region", 'VA Regional Office']
       address += ADDRESSES[region]
       address.join("\n")
