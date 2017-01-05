@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 class EducationBenefitsClaim < ActiveRecord::Base
-  FORM_SCHEMA = VetsJsonSchema::EDU_BENEFITS
+  FORM_SCHEMAS = {
+    '1990' => VetsJsonSchema::EDU_BENEFITS
+  }
   FORM_TYPES = %w(1990 1995)
   APPLICATION_TYPES = %w(chapter33 chapter30 chapter1606 chapter32).freeze
 
@@ -118,8 +120,9 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   def form_matches_schema
     return unless form_is_string
+    # TODO add 1995 schema
 
-    errors[:form].concat(JSON::Validator.fully_validate(FORM_SCHEMA, parsed_form))
+    errors[:form].concat(JSON::Validator.fully_validate(FORM_SCHEMAS['1990'], parsed_form)) if is_1990?
   end
 
   def set_submitted_at
