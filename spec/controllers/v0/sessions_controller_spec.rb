@@ -36,17 +36,22 @@ RSpec.describe V0::SessionsController, type: :controller do
         post :saml_callback
         expect(User.find(uuid).loa).to eq(highest: LOA::THREE, current: LOA::THREE)
       end
-      it 'redirects to an auth failure page if saml_response is invalid' do
-        allow(OneLogin::RubySaml::Response).to receive(:new).and_return(invalid_saml_response)
-
-        expect(Rails.logger).to receive(:error).exactly(1).times
-        expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
-        expect(response).to have_http_status(:found)
-      end
       it 'creates a valid session and user' do
         post :saml_callback
         expect(User.find(uuid)).to_not be_nil
         expect(User.find(uuid).attributes).to eq(User.from_merged_attrs(loa1_user, loa3_user).attributes)
+      end
+      context ' when SAMLResponse is invalid' do
+        before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(invalid_saml_response) }
+        it 'redirects to an auth failure page' do
+          expect(Rails.logger).to receive(:error).exactly(1).times
+          expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
+          expect(response).to have_http_status(:found)
+        end
+        it 'performs normal redirect_to logging' do
+          #expect(Rails.logger).to receive(:info).with("Redirected to #{SAML_CONFIG['relay']}?auth=fail").exactly(1).times
+          post :saml_callback
+        end
       end
     end
   end

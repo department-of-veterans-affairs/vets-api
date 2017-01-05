@@ -22,6 +22,7 @@ module V0
     end
 
     def create
+      puts "Bill WZ here : #{create_folder_params}"
       folder = Folder.new(create_folder_params)
       raise Common::Exceptions::ValidationErrors, folder unless folder.valid?
 
