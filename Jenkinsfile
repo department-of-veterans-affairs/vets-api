@@ -26,6 +26,9 @@ def env_vars = [
     'VBA_MAPSERVER_URL=https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VBA_Facilities/FeatureServer/0',
     'MOCK_MVI_SERVICE=false',
     'GOV_DELIVERY_SERVER=stage-tms.govdelivery.com',
+    'ES_URL=https://test.vets.gov',
+    'ES_CLIENT_CERT_PATH=/fake/client/cert/path',
+    'ES_CLIENT_KEY_PATH=/fake/client/key/path'
 ]
 
 pipeline {

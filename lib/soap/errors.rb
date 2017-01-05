@@ -1,13 +1,13 @@
 # frozen_string_literal: true
-module MVI
+module SOAP
   module Errors
     class ServiceError < StandardError
     end
-    class RequestFailureError < MVI::Errors::ServiceError
+    class RequestFailureError < SOAP::Errors::ServiceError
     end
-    class InvalidRequestError < MVI::Errors::ServiceError
+    class InvalidRequestError < SOAP::Errors::ServiceError
     end
-    class HTTPError < MVI::Errors::ServiceError
+    class HTTPError < SOAP::Errors::ServiceError
       attr_accessor :code
 
       def initialize(message = nil, code = nil)
