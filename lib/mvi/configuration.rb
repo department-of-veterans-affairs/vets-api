@@ -3,6 +3,7 @@ require 'common/client/configuration/soap'
 
 module MVI
   class Configuration < Common::Client::Configuration::SOAP
+    # :nocov:
     def self.default_mvi_open_timeout
       Rails.logger.warn 'MVI_OPEN_TIMEOUT env variable not set, using default'
       2
@@ -12,6 +13,7 @@ module MVI
       Rails.logger.warn 'MVI_TIMEOUT env variable not set, using default'
       10
     end
+    # :nocov:
 
     URL = ENV['MVI_URL']
     OPEN_TIMEOUT = ENV['MVI_OPEN_TIMEOUT']&.to_i || default_mvi_open_timeout
