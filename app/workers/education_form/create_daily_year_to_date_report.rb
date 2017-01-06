@@ -15,20 +15,31 @@ module EducationForm
       application_types = EducationBenefitsClaim::APPLICATION_TYPES
       range = @ranges[range_type]
 
-      EducationFacility::REGIONS.each do |region|
-        region_submissions = {}
+      EducationBenefitsClaim::FORM_TYPES.each do |form_type|
+        form_submissions = {}
 
-        application_types.each do |application_type|
+        EducationFacility::REGIONS.each do |region|
+          region_submissions = {}
+
           relation = EducationBenefitsSubmission.where(
             created_at: range,
             region: region.to_s,
-            application_type => true
+            form_type: form_type
           )
           relation = relation.where(status: 'processed') if status == :processed
-          region_submissions[application_type] = relation.count
+
+          if form_type == '1990'
+            application_types.each do |application_type|
+              region_submissions[application_type] = relation.where(application_type => true).count
+            end
+          else
+            region_submissions[:all] = relation.count
+          end
+
+          form_submissions[region] = region_submissions
         end
 
-        submissions[region] = region_submissions
+        submissions[form_type] = form_submissions
       end
 
       submissions

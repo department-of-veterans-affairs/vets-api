@@ -31,6 +31,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       create(:education_benefits_submission, created_at: date - 26.hours, status: 'processed')
 
       create(:education_benefits_submission, created_at: date, status: 'submitted')
+      create(:education_benefits_submission, form_type: '1995')
     end
 
     context 'with the date variable set' do
@@ -104,18 +105,24 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
 
           verify_status_numbers(
             :processed,
-            eastern: { 'chapter33' => 3, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-            southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-            central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-            western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 }
+            {"1990"=>
+              {eastern: { 'chapter33' => 3, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+               southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606'    => 0, 'chapter32' => 0 },
+               central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' =>    0, 'chapter32' => 0 },
+               western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 }},
+             "1995"=>{:eastern=>{:all=>0}, :southern=>{:all=>0}, :central=>{:all=>0}, :western=>{:all=>0}}
+            }
           )
 
           verify_status_numbers(
             :submitted,
-            eastern: { 'chapter33' => 4, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-            southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-            central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-            western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 }
+            {"1990"=>
+              {:eastern=>{"chapter33"=>4, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0},
+               :southern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0},
+               :central=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0},
+               :western=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>1, "chapter32"=>0}},
+             "1995"=>{:eastern=>{:all=>1}, :southern=>{:all=>0}, :central=>{:all=>0}, :western=>{:all=>0}}
+            }
           )
         end
 
