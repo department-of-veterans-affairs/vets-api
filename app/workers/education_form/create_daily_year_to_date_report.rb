@@ -53,11 +53,14 @@ module EducationForm
         @ranges[range_type] = @date.public_send("beginning_of_#{range_type}")..@date.end_of_day
       end
 
+      ranges_header = [@ranges[:year].to_s, '', @ranges[:day].to_s]
+      submitted_header = ['', 'Submitted', 'Uploaded to TIMS']
+
       csv_array << ["Submitted Vets.gov Applications - Report FYTD #{@date.year} as of #{@date}"]
       csv_array << ['', '', 'DOCUMENT TYPE']
-      csv_array << ['RPO', 'BENEFIT TYPE', '22-1990']
-      csv_array << ['', '', @ranges[:year].to_s, '', @ranges[:day].to_s]
-      csv_array << ['', '', '', 'Submitted', 'Uploaded to TIMS']
+      csv_array << ['RPO', 'BENEFIT TYPE', '22-1990', '', '', '22-1995']
+      csv_array << ['', ''] + ranges_header * 2
+      csv_array << ['', ''] + submitted_header * 2
 
       csv_array
     end
