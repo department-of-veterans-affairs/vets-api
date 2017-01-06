@@ -3,8 +3,8 @@ module V0
   class DocumentsController < EVSSClaimsBaseController
     def create
       params.require :file
-      claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:evss_id])
-      raise Common::Exceptions::RecordNotFound, params[:evss_id] unless claim
+      claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:evss_claim_id])
+      raise Common::Exceptions::RecordNotFound, params[:evss_claim_id] unless claim
       document_data = EVSSClaimDocument.new(
         evss_claim_id: claim.evss_id,
         file_name: params[:file].original_filename,

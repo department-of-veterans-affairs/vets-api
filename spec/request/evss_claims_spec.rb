@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
+require 'evss/request_decision'
+
 RSpec.describe 'EVSS Claims management', type: :request do
   let(:user) { FactoryGirl.create(:loa3_user) }
   let(:session) { Session.create(uuid: user.uuid) }
