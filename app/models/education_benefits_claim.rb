@@ -2,8 +2,8 @@
 class EducationBenefitsClaim < ActiveRecord::Base
   FORM_SCHEMAS = {
     '1990' => VetsJsonSchema::EDU_BENEFITS
-  }
-  FORM_TYPES = %w(1990 1995)
+  }.freeze
+  FORM_TYPES = %w(1990 1995).freeze
   APPLICATION_TYPES = %w(chapter33 chapter30 chapter1606 chapter32).freeze
 
   validates(:form, :form_type, presence: true)
@@ -88,9 +88,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
     if submitted_at.present? && submitted_at_was.nil? && education_benefits_submission.blank?
       opt = {}
 
-      if is_1990?
-        opt = parsed_form.slice(*APPLICATION_TYPES)
-      end
+      opt = parsed_form.slice(*APPLICATION_TYPES) if is_1990?
 
       EducationBenefitsSubmission.create!(
         opt.merge(
@@ -120,7 +118,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   def form_matches_schema
     return unless form_is_string
-    # TODO add 1995 schema
+    # TODO: add 1995 schema
 
     errors[:form].concat(JSON::Validator.fully_validate(FORM_SCHEMAS['1990'], parsed_form)) if is_1990?
   end
