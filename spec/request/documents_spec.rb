@@ -12,7 +12,7 @@ RSpec.describe 'Documents management', type: :request do
   let(:document_type) { 'L023' }
   let!(:claim) do
     FactoryGirl.create(:evss_claim, id: 1, evss_id: 189_625,
-                                          user_uuid: user.uuid, data: {})
+                                    user_uuid: user.uuid, data: {})
   end
   let(:user) { FactoryGirl.create(:loa3_user) }
   let(:session) { Session.create(uuid: user.uuid) }
