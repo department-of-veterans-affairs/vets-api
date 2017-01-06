@@ -53,7 +53,8 @@ module HCA
         ssl[:cert_store] = HCA::Configuration::CERT_STORE
       end
       if HCA::Configuration::SSL_CERT && HCA::Configuration::SSL_KEY
-        ssl.merge!(client_cert: HCA::Configuration::SSL_CERT, client_key: HCA::Configuration::SSL_KEY)
+        ssl[:client_cert] = HCA::Configuration::SSL_CERT
+        ssl[:client_key] = HCA::Configuration::SSL_KEY
       end
       ssl
     end

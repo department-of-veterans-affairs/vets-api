@@ -8,7 +8,7 @@ module Common
             case env.status
             when 200
               doc = Ox.parse(ensure_xml_prolog(env.body))
-              if doc_includes_error(doc)
+              if doc_includes_error?(doc)
                 raise Common::Client::Errors::HTTPError.new('SOAP service returned internal server error', 500)
               end
               env.body = doc
@@ -24,10 +24,8 @@ module Common
             xml
           end
 
-          def doc_includes_error(doc)
-            fault_element = doc.locate('env:Envelope/env:Body/env:Fault').first
-            return false unless fault_element
-            true
+          def doc_includes_error?(doc)
+            !doc.locate('env:Envelope/env:Body/env:Fault').empty?
           end
         end
       end
