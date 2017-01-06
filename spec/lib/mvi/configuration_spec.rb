@@ -33,4 +33,22 @@ describe MVI::Configuration do
       end
     end
   end
+  describe '.default_mvi_open_timeout' do
+    context 'when MVI_OPEN_TIMEOUT is not set' do
+      it 'should use the defaul' do
+        ClimateControl.modify MVI_OPEN_TIMEOUT: nil do
+          expect(MVI::Configuration::OPEN_TIMEOUT).to eq(2)
+        end
+      end
+    end
+  end
+  describe '.default_mvi_timeout' do
+    context 'when MVI_TIMEOUT is not set' do
+      it 'should use the default' do
+        ClimateControl.modify MVI_TIMEOUT: nil do
+          expect(MVI::Configuration::TIMEOUT).to eq(10)
+        end
+      end
+    end
+  end
 end
