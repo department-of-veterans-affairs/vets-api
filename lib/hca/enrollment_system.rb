@@ -545,13 +545,14 @@ module HCA
       }
     end
 
-    def convert_value(value)
+    def convert_value!(value)
       if value.is_a?(Hash)
-        convert_hash_values(value)
+        convert_hash_values!(value)
       elsif value.is_a?(Array)
-        value.map do |item|
-          convert_value(item)
+        result = value.map do |item|
+          convert_value!(item)
         end
+        result.delete_if(&:blank?)
       elsif value.in?([true, false]) || value.is_a?(Numeric)
         value.to_s
       else
@@ -559,10 +560,11 @@ module HCA
       end
     end
 
-    def convert_hash_values(hash)
+    def convert_hash_values!(hash)
       hash.each do |k, v|
-        hash[k] = convert_value(v)
+        hash[k] = convert_value!(v)
       end
+      hash.delete_if { |_k, v| v.blank? }
     end
 
     def veteran_to_save_submit_form(veteran)
@@ -577,7 +579,7 @@ module HCA
         }
       }
 
-      convert_hash_values(request)
+      convert_hash_values!(request)
       request
     end
   end

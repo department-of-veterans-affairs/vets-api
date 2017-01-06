@@ -30,7 +30,6 @@
             <ns1:line1>123 NW 8th St</ns1:line1>
             <ns1:state>VA</ns1:state>
             <ns1:zipCode>20101</ns1:zipCode>
-            <ns1:zipPlus4 xsi:nil="true"/>
           </ns1:address>
           <ns1:contactType>10</ns1:contactType>
           <ns1:relationship>SPOUSE</ns1:relationship>
@@ -50,7 +49,6 @@
               <ns1:line1>123 NW 5th St</ns1:line1>
               <ns1:state>DC</ns1:state>
               <ns1:zipCode>20005</ns1:zipCode>
-              <ns1:zipPlus4 xsi:nil="true"/>
               <ns1:addressTypeCode>P</ns1:addressTypeCode>
             </ns1:address>
           </ns1:addresses>
@@ -162,7 +160,6 @@
                   <ns1:line1>123 NW 8th St</ns1:line1>
                   <ns1:state>VA</ns1:state>
                   <ns1:zipCode>20101</ns1:zipCode>
-                  <ns1:zipPlus4 xsi:nil="true"/>
                   <ns1:phoneNumber>1112221234</ns1:phoneNumber>
                 </ns1:address>
                 <ns1:givenName>FIRSTSPOUSE</ns1:givenName>

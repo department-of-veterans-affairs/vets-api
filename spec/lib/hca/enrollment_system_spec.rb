@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'spec_helper'
+require 'rails_helper'
 require 'hca/enrollment_system'
 
 describe HCA::EnrollmentSystem do
@@ -906,7 +907,7 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
-    'convert_hash_values',
+    'convert_hash_values!',
     [
       [
         {

@@ -6,7 +6,6 @@
       <ns1:version>1986360435</ns1:version>
     </ns1:formIdentifier>
     <ns1:summary>
-      <ns1:associations xsi:nil="true"/>
       <ns1:demographics>
         <ns1:appointmentRequestResponse>true</ns1:appointmentRequestResponse>
         <ns1:contactInfo>
@@ -17,7 +16,6 @@
               <ns1:line1>123 NW 5th St</ns1:line1>
               <ns1:state>DC</ns1:state>
               <ns1:zipCode>20005</ns1:zipCode>
-              <ns1:zipPlus4 xsi:nil="true"/>
               <ns1:addressTypeCode>P</ns1:addressTypeCode>
             </ns1:address>
           </ns1:addresses>
@@ -65,7 +63,6 @@
           <ns1:radiationExposureInd>true</ns1:radiationExposureInd>
         </ns1:specialFactors>
       </ns1:enrollmentDeterminationInfo>
-      <ns1:financialsInfo xsi:nil="true"/>
       <ns1:insuranceList>
         <ns1:insurance>
           <ns1:companyName>MyInsruance</ns1:companyName>

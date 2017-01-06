@@ -6,7 +6,6 @@
       <ns1:version>1986360435</ns1:version>
     </ns1:formIdentifier>
     <ns1:summary>
-      <ns1:associations xsi:nil="true"/>
       <ns1:demographics>
         <ns1:appointmentRequestResponse>true</ns1:appointmentRequestResponse>
         <ns1:contactInfo>
@@ -100,9 +99,7 @@
               <ns1:type>10</ns1:type>
             </ns1:income>
           </ns1:incomes>
-          <ns1:spouseFinancialsList xsi:nil="true"/>
           <ns1:marriedLastCalendarYear>false</ns1:marriedLastCalendarYear>
-          <ns1:dependentFinancialsList xsi:nil="true"/>
           <ns1:numberOfDependentChildren>0</ns1:numberOfDependentChildren>
         </ns1:financialStatement>
       </ns1:financialsInfo>

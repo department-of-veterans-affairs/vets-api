@@ -188,7 +188,6 @@
                   <ns1:type>10</ns1:type>
                 </ns1:income>
               </ns1:incomes>
-              <ns1:expenses xsi:nil="true"/>
               <ns1:dependentInfo>
                 <ns1:dob>05/05/1982</ns1:dob>
                 <ns1:relationship>5</ns1:relationship>
@@ -223,7 +222,6 @@
                   <ns1:type>10</ns1:type>
                 </ns1:income>
               </ns1:incomes>
-              <ns1:expenses xsi:nil="true"/>
               <ns1:dependentInfo>
                 <ns1:dob>03/07/1996</ns1:dob>
                 <ns1:relationship>6</ns1:relationship>

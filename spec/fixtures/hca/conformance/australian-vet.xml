@@ -28,8 +28,6 @@
             <ns1:city>Sydney</ns1:city>
             <ns1:country>AUS</ns1:country>
             <ns1:line1>123 NW 8th St</ns1:line1>
-            <ns1:provinceCode xsi:nil="true"/>
-            <ns1:postalCode xsi:nil="true"/>
           </ns1:address>
           <ns1:contactType>10</ns1:contactType>
           <ns1:relationship>SPOUSE</ns1:relationship>
@@ -158,8 +156,6 @@
                   <ns1:city>Sydney</ns1:city>
                   <ns1:country>AUS</ns1:country>
                   <ns1:line1>123 NW 8th St</ns1:line1>
-                  <ns1:provinceCode xsi:nil="true"/>
-                  <ns1:postalCode xsi:nil="true"/>
                   <ns1:phoneNumber>1112221234</ns1:phoneNumber>
                 </ns1:address>
                 <ns1:givenName>FIRSTSPOUSE</ns1:givenName>
@@ -188,7 +184,6 @@
                   <ns1:type>10</ns1:type>
                 </ns1:income>
               </ns1:incomes>
-              <ns1:expenses xsi:nil="true"/>
               <ns1:dependentInfo>
                 <ns1:dob>05/05/1982</ns1:dob>
                 <ns1:relationship>5</ns1:relationship>
@@ -223,7 +218,6 @@
                   <ns1:type>10</ns1:type>
                 </ns1:income>
               </ns1:incomes>
-              <ns1:expenses xsi:nil="true"/>
               <ns1:dependentInfo>
                 <ns1:dob>03/07/1996</ns1:dob>
                 <ns1:relationship>6</ns1:relationship>

@@ -159,7 +159,6 @@
             </ns1:spouseFinancials>
           </ns1:spouseFinancialsList>
           <ns1:marriedLastCalendarYear>true</ns1:marriedLastCalendarYear>
-          <ns1:dependentFinancialsList xsi:nil="true"/>
           <ns1:numberOfDependentChildren>0</ns1:numberOfDependentChildren>
         </ns1:financialStatement>
       </ns1:financialsInfo>

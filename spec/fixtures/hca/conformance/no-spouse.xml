@@ -34,7 +34,6 @@
               <ns1:line1>123 NW 5th St</ns1:line1>
               <ns1:state>DC</ns1:state>
               <ns1:zipCode>20005</ns1:zipCode>
-              <ns1:zipPlus4 xsi:nil="true"/>
               <ns1:addressTypeCode>P</ns1:addressTypeCode>
             </ns1:address>
           </ns1:addresses>
@@ -115,7 +114,6 @@
               <ns1:type>10</ns1:type>
             </ns1:income>
           </ns1:incomes>
-          <ns1:spouseFinancialsList xsi:nil="true"/>
           <ns1:marriedLastCalendarYear>false</ns1:marriedLastCalendarYear>
           <ns1:dependentFinancialsList>
             <ns1:dependentFinancials>
@@ -133,7 +131,6 @@
                   <ns1:type>10</ns1:type>
                 </ns1:income>
               </ns1:incomes>
-              <ns1:expenses xsi:nil="true"/>
               <ns1:dependentInfo>
                 <ns1:dob>05/05/1982</ns1:dob>
                 <ns1:relationship>5</ns1:relationship>
@@ -168,7 +165,6 @@
                   <ns1:type>10</ns1:type>
                 </ns1:income>
               </ns1:incomes>
-              <ns1:expenses xsi:nil="true"/>
               <ns1:dependentInfo>
                 <ns1:dob>03/07/1996</ns1:dob>
                 <ns1:relationship>6</ns1:relationship>

@@ -6,7 +6,6 @@
       <ns1:version>1986360435</ns1:version>
     </ns1:formIdentifier>
     <ns1:summary>
-      <ns1:associations xsi:nil="true"/>
       <ns1:demographics>
         <ns1:appointmentRequestResponse>false</ns1:appointmentRequestResponse>
         <ns1:contactInfo>
@@ -17,7 +16,6 @@
               <ns1:line1>123 NW 5th St</ns1:line1>
               <ns1:state>DC</ns1:state>
               <ns1:zipCode>20005</ns1:zipCode>
-              <ns1:zipPlus4 xsi:nil="true"/>
               <ns1:addressTypeCode>P</ns1:addressTypeCode>
             </ns1:address>
           </ns1:addresses>
@@ -41,7 +39,6 @@
         <ns1:ethnicity>2186-5</ns1:ethnicity>
         <ns1:maritalStatus>M</ns1:maritalStatus>
         <ns1:preferredFacility>523</ns1:preferredFacility>
-        <ns1:races xsi:nil="true"/>
         <ns1:acaIndicator>false</ns1:acaIndicator>
       </ns1:demographics>
       <ns1:enrollmentDeterminationInfo>
@@ -59,8 +56,6 @@
           <ns1:radiationExposureInd>false</ns1:radiationExposureInd>
         </ns1:specialFactors>
       </ns1:enrollmentDeterminationInfo>
-      <ns1:financialsInfo xsi:nil="true"/>
-      <ns1:insuranceList xsi:nil="true"/>
       <ns1:militaryServiceInfo>
         <ns1:dischargeDueToDisability>false</ns1:dischargeDueToDisability>
         <ns1:militaryServiceSiteRecords>
@@ -85,14 +80,9 @@
       </ns1:purpleHeart>
       <ns1:personInfo>
         <ns1:firstName>FIRSTNAME</ns1:firstName>
-        <ns1:middleName/>
         <ns1:lastName>ZZTEST</ns1:lastName>
-        <ns1:suffix/>
         <ns1:gender>M</ns1:gender>
         <ns1:dob>01/01/1977</ns1:dob>
-        <ns1:mothersMaidenName xsi:nil="true"/>
-        <ns1:placeOfBirthCity xsi:nil="true"/>
-        <ns1:placeOfBirthState xsi:nil="true"/>
         <ns1:ssnText>111229999</ns1:ssnText>
       </ns1:personInfo>
     </ns1:summary>
