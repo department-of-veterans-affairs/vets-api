@@ -11,8 +11,7 @@ module V0
       unless education_benefits_claim.save
         validation_error = education_benefits_claim.errors.full_messages.join(', ')
 
-        Raven.tags_context(validation: 'education_benefits_claim')
-        Raven.capture_exception(validation_error)
+        Raven.capture_message(validation_error, tags: { validation: 'education_benefits_claim' })
 
         logger.error(validation_error)
 

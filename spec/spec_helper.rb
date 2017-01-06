@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 require 'fakeredis/rspec'
 require 'support/mvi/stub_mvi'
+require 'support/spec_builders'
+require 'support/api_schema_matcher'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
@@ -71,6 +73,18 @@ RSpec.configure do |config|
 
   config.before(:each) do |example|
     stub_mvi unless example.metadata[:skip_mvi]
+  end
+
+  config.include SpecBuilders
+
+  config.around(:each) do |example|
+    if example.metadata[:run_at]
+      Timecop.freeze(Time.zone.parse(example.metadata[:run_at])) do
+        example.run
+      end
+    else
+      example.run
+    end
   end
 
   # The settings below are suggested to provide a good initial experience
