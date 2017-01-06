@@ -70,11 +70,11 @@ module EducationForm
       # special case Philippines
       return :western if model.is_1990? && (record.school&.address&.country || record.veteranAddress&.country) == 'PHL'
 
-      area = if model.is_1990?
-        record.school&.address&.state || record.veteranAddress&.state
-      else
-        # TODO handle 1995
-      end
+      area =
+        if model.is_1990?
+          record.school&.address&.state || record.veteranAddress&.state
+        end
+      # TODO: handle 1995
 
       case area
       when *EASTERN

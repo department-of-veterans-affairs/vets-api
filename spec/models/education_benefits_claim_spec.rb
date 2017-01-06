@@ -200,14 +200,14 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         subject
 
         expect(associated_submission).to eq(
-          "region"=>"eastern",
-          "chapter33"=>false,
-          "chapter30"=>false,
-          "chapter1606"=>false,
-          "chapter32"=>false,
-          "status"=>"submitted",
-          "education_benefits_claim_id"=>subject.id,
-          "form_type"=>"1995"
+          'region' => 'eastern',
+          'chapter33' => false,
+          'chapter30' => false,
+          'chapter1606' => false,
+          'chapter32' => false,
+          'status' => 'submitted',
+          'education_benefits_claim_id' => subject.id,
+          'form_type' => '1995'
         )
       end
     end
