@@ -48,6 +48,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
         it 'should make the right csv array' do
           year_range = (date.beginning_of_year..date.end_of_day).to_s
           day_range = (date.beginning_of_day..date.end_of_day).to_s
+          binding.pry; fail
 
           expect(subject.create_csv_array).to eq(
             [
