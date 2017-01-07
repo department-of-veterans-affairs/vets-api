@@ -138,7 +138,7 @@ module EducationForm
 
         submissions_csv_array << create_totals_row(['', 'TOTAL'], submissions_total)
 
-        grand_totals.each do |form_type, form_submissions|
+        submissions_total.each do |form_type, form_submissions|
           form_submissions.each do |range_type, total|
             grand_totals[form_type][range_type] += total
           end
