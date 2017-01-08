@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'common/client/configuration'
+require 'common/client/configuration/rest'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/raise_error'
 require 'common/client/middleware/response/mhv_errors'
@@ -8,7 +8,7 @@ require 'rx/middleware/response/rx_parser'
 
 module Rx
   # Configuration class used to setup the environment used by client
-  class Configuration < Common::Client::Configuration
+  class Configuration < Common::Client::Configuration::REST
     def app_token
       ENV['MHV_APP_TOKEN']
     end
