@@ -10,10 +10,21 @@ module EducationForm
       daily_processed: 0
     }.freeze
 
+    def build_submission_relation(range_type, region, form_type, status)
+      range = @ranges[range_type]
+      relation = EducationBenefitsSubmission.where(
+        created_at: range,
+        region: region.to_s,
+        form_type: form_type
+      )
+      relation = relation.where(status: 'processed') if status == :processed
+
+      relation
+    end
+
     def calculate_submissions(range_type: :year, status: :processed)
       submissions = {}
       application_types = EducationBenefitsClaim::APPLICATION_TYPES
-      range = @ranges[range_type]
 
       EducationBenefitsClaim::FORM_TYPES.each do |form_type|
         form_submissions = {}
@@ -21,12 +32,7 @@ module EducationForm
         EducationFacility::REGIONS.each do |region|
           region_submissions = {}
 
-          relation = EducationBenefitsSubmission.where(
-            created_at: range,
-            region: region.to_s,
-            form_type: form_type
-          )
-          relation = relation.where(status: 'processed') if status == :processed
+          relation = build_submission_relation(range_type, region, form_type, status)
 
           if form_type == '1990'
             application_types.each do |application_type|
