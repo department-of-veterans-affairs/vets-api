@@ -98,8 +98,11 @@ module EducationForm
     def log_submissions(records, filename, region_id)
       logger.info("Writing #{records.count} application(s) to #{filename}")
       logger.info("IDs: #{records.map(&:id)}")
-      StatsD.gauge('worker.education_benefits_claim.transmissions', records.count, tags:
-        { form: '22-1990', rpo: region_id })
+      StatsD.gauge(
+        'worker.education_benefits_claim.transmissions',
+        records.count,
+        tags: ['form:22-1990', "rpo:#{region_id}"]
+      )
     end
 
     # If multiple benefit types are selected, we've been told to just include whichever
