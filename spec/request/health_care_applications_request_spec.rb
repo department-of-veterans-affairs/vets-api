@@ -68,7 +68,7 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
       end
 
       context 'with a SOAP error' do
-        let(:error) { SOAP::Errors::HTTPError.new('error message') }
+        let(:error) { Common::Client::Errors::HTTPError.new('error message') }
 
         before do
           allow_any_instance_of(HCA::Service).to receive(:post) do

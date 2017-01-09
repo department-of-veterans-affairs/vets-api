@@ -19,7 +19,7 @@ module V0
 
       begin
         service.submit_form(form)
-      rescue SOAP::Errors::ServiceError => e
+      rescue Common::Client::Errors::ClientError => e
         Raven.capture_exception(e)
 
         raise Common::Exceptions::BackendServiceException.new(
