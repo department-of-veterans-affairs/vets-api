@@ -71,7 +71,7 @@ module EducationForm
       csv_array
     end
 
-    def create_csv_data_row(region, submissions, submissions_total)
+    def create_csv_data_block(region, submissions, submissions_total)
       csv_array = []
       application_types = EducationBenefitsClaim::APPLICATION_TYPES
 
@@ -139,8 +139,7 @@ module EducationForm
       EducationFacility::REGIONS.each do |region|
         submissions_total = get_totals_hash_with_form_types
 
-        data_row = create_csv_data_row(region, submissions, submissions_total)
-        submissions_csv_array += data_row
+        submissions_csv_array += create_csv_data_block(region, submissions, submissions_total)
 
         submissions_csv_array << create_totals_row(['', 'TOTAL'], submissions_total)
 
