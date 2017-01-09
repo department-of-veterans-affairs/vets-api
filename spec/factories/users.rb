@@ -45,7 +45,7 @@ FactoryGirl.define do
     last_name 'Weaver'
     gender 'M'
     birth_date Time.new(1809, 2, 12).utc
-    last_signed_in Time.now.utc
+    last_signed_in Time.current.utc
     ssn '796123607'
 
     loa do

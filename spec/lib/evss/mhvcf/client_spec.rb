@@ -6,16 +6,34 @@ describe 'evss mhvcf' do
   subject(:client) { EVSS::MHVCF::Client.new }
   let(:user) { build(:evss_user) }
 
-  # This is a useful spec to test negative case of SSL certificate being invalid.
-  it 'gets inflight forms', :vcr do
-    binding.pry
-    expect(client.user(user).get_forms).to eq({})
-    binding.pry
-    # raise_error do |error|
-    #   expect(error).to be_a(Common::Client::Errors::ClientError)
-    #   expect(error.cause).to be_a(Faraday::SSLError)
-    #   ssl_error = 'SSL_connect returned=1 errno=0 state=error: certificate verify failed'
-    #   expect(error.cause.message).to eq(ssl_error)
-    # end
+  # This code is deliberately commented out. Here for testing purposes only.
+  # it 'gets form configs', :vcr do
+  #   expect(client.user(user).get_get_form_configs).to eq({})
+  # end
+
+  it 'searches for inflight forms', :vcr do
+    expect(client.user(user).post_get_in_flight_forms).to eq({})
+  end
+
+  context 'form submital' do
+    let(:valid_attrs) do
+      {
+        patient_full_name: [user.first_name, user.middle_name, user.last_name].compact.join(' '),
+        ssn: user.ssn,
+        ssn_masked: '*' * 5 + user.ssn.chars.last(4).join,
+        dob: user.birth_date.strftime('%d/%m/%Y'),
+        patient_phone_number: nil,
+        date_sign: Time.current.strftime('%d/%m/%Y')
+      }
+    end
+
+    it 'raises errors if form is invalid' do
+      expect { client.user(user).post_submit_form({}) }
+        .to raise_error(Common::Exceptions::ValidationErrors)
+    end
+
+    it 'submits the form', :vcr do
+      expect(client.user(user).post_submit_form(valid_attrs))
+    end
   end
 end

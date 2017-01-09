@@ -8,7 +8,7 @@ module EVSS
   module MHVCF
     class Configuration < Common::Client::Configuration
       def base_path
-        "#{ENV['EVSS_CONSENT_FORM_BASE_URL']}/wssweb/vii-app-1.2/rest/patientAuthService/1.2/"
+        "#{ENV['EVSS_CONSENT_FORM_BASE_URL']}/wssweb/vii-app-1.2/rest/"
       end
 
       def service_name
@@ -27,11 +27,11 @@ module EVSS
       end
 
       def client_cert
-        OpenSSL::X509::Certificate.new File.read(File.expand_path(ENV['EVSS_CERT_FILE_PATH']))
+        OpenSSL::X509::Certificate.new File.read(File.expand_path(ENV['EVSS_CERT_FILE_PATH'])) rescue nil
       end
 
       def client_key
-        OpenSSL::PKey::RSA.new File.read(File.expand_path(ENV['EVSS_CERT_KEY_PATH']))
+        OpenSSL::PKey::RSA.new File.read(File.expand_path(ENV['EVSS_CERT_KEY_PATH'])) rescue nil
       end
 
       def root_ca
@@ -50,7 +50,7 @@ module EVSS
           conn.response :snakecase
           conn.response :json_parser
 
-          #conn.adapter Faraday.default_adapter
+          # conn.adapter Faraday.default_adapter
           conn.adapter  :httpclient
         end
       end
