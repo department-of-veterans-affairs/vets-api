@@ -891,16 +891,18 @@ describe HCA::EnrollmentSystem do
           .once.with(veteran).and_return(type)
       end
 
-      expect(described_class.veteran_to_summary(veteran)).to eq(
-        'associations' => 'association_collection',
-        'demographics' => 'demographics_info',
-        'enrollmentDeterminationInfo' => 'enrollment_determination_info',
-        'financialsInfo' => 'financials_info',
-        'insuranceList' => 'insurance_collection',
-        'militaryServiceInfo' => 'military_service_info',
-        'prisonerOfWarInfo' => { 'powIndicator' => true },
-        'purpleHeart' => { 'indicator' => false },
-        'personInfo' => 'person_info'
+      result = described_class.veteran_to_summary(veteran)
+      result.delete(:attributes!)
+      expect(result).to eq(
+        'eeSummary:associations' => 'association_collection',
+        'eeSummary:demographics' => 'demographics_info',
+        'eeSummary:enrollmentDeterminationInfo' => 'enrollment_determination_info',
+        'eeSummary:financialsInfo' => 'financials_info',
+        'eeSummary:insuranceList' => 'insurance_collection',
+        'eeSummary:militaryServiceInfo' => 'military_service_info',
+        'eeSummary:prisonerOfWarInfo' => { 'eeSummary:powIndicator' => true },
+        'eeSummary:purpleHeart' => { 'eeSummary:indicator' => false },
+        'eeSummary:personInfo' => 'person_info'
       )
     end
   end
@@ -935,7 +937,7 @@ describe HCA::EnrollmentSystem do
   describe '#veteran_to_save_submit_form' do
     it 'should return the right result' do
       Timecop.freeze(Date.new(2015, 10, 21)) do
-        expect(described_class.veteran_to_save_submit_form(test_veteran)).to eq(test_result)
+        expect(described_class.veteran_to_save_submit_form(test_veteran).with_indifferent_access).to eq(test_result)
       end
     end
   end
