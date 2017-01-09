@@ -26,14 +26,14 @@ module Common
       def perform(method, path, params, headers = nil)
         raise NoMethodError, "#{method} not implemented" unless config.request_types.include?(method)
 
-        send(method, path, params || {}, headers)
+        send(method, path, params || {}, headers || {})
       end
 
       def request(method, path, params = {}, headers = {})
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
-      rescue Faraday::ClientError, Timeout::Error
-        raise Common::Client::Errors::ClientError
+      rescue Faraday::ClientError, Timeout::Error => e
+        raise Common::Client::Errors::ClientError, e.message
       end
 
       def get(path, params, headers = base_headers)

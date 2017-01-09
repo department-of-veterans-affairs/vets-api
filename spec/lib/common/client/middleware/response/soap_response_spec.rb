@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'soap/middleware/response/parse'
+require 'common/client/middleware/response/soap_parser'
 
-describe SOAP::Middleware::Response::Parse do
+describe Common::Client::Middleware::Response::SOAPParser do
   let(:connection) do
     Faraday.new do |conn|
-      conn.use SOAP::Middleware::Response::Parse, name: 'TESTAPP'
+      conn.use Common::Client::Middleware::Response::SOAPParser
       conn.adapter Faraday.default_adapter
     end
   end
@@ -55,9 +55,9 @@ describe SOAP::Middleware::Response::Parse do
       )
     end
 
-    it 'raises an SOAP::Errors::HTTPError' do
+    it 'raises an MVI::Errors::HTTPError' do
       expect { connection.get 'http://somewhere.gov' }.to raise_error(
-        SOAP::Errors::HTTPError, 'TESTAPP internal server error'
+        Common::Client::Errors::HTTPError, 'SOAP service returned internal server error'
       )
     end
   end

@@ -2,7 +2,7 @@
 require 'rails_helper'
 require 'backend_services'
 
-RSpec.describe 'Fetching profile data', type: :request do
+RSpec.describe 'Fetching user data', type: :request do
   let(:token) { 'abracadabra-open-sesame' }
 
   context 'when an LOA 3 user is logged in' do
@@ -18,7 +18,7 @@ RSpec.describe 'Fetching profile data', type: :request do
 
     it 'GET /v0/user - returns proper json' do
       assert_response :success
-      expect(response).to match_response_schema('profile')
+      expect(response).to match_response_schema('user_loa3')
     end
 
     it 'gives me the list of available services' do
@@ -49,7 +49,7 @@ RSpec.describe 'Fetching profile data', type: :request do
 
     it 'GET /v0/user - returns proper json' do
       assert_response :success
-      expect(response).to match_response_schema('profile')
+      expect(response).to match_response_schema('user_loa1')
     end
 
     it 'gives me the list of available services' do
