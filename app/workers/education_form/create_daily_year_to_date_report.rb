@@ -71,6 +71,29 @@ module EducationForm
       csv_array
     end
 
+    def create_data_row(on_last_index, application_type, region, submissions, submissions_total)
+      row = []
+
+      EducationBenefitsClaim::FORM_TYPES.each do |form_type|
+        if form_type == '1995'
+          if on_last_index
+            application_type = :all
+          else
+            next
+          end
+        end
+
+        TOTALS_HASH.keys.each do |range_type|
+          num_submissions = submissions[range_type][form_type][region][application_type]
+          row << num_submissions
+
+          submissions_total[form_type][range_type] += num_submissions
+        end
+      end
+
+      row
+    end
+
     def create_csv_data_block(region, submissions, submissions_total)
       csv_array = []
       application_types = EducationBenefitsClaim::APPLICATION_TYPES
@@ -82,22 +105,13 @@ module EducationForm
           application_type
         ]
 
-        EducationBenefitsClaim::FORM_TYPES.each do |form_type|
-          if form_type == '1995'
-            if on_last_index
-              application_type = :all
-            else
-              next
-            end
-          end
-
-          TOTALS_HASH.keys.each do |range_type|
-            num_submissions = submissions[range_type][form_type][region][application_type]
-            row << num_submissions
-
-            submissions_total[form_type][range_type] += num_submissions
-          end
-        end
+        row += create_data_row(
+          on_last_index,
+          application_type,
+          region,
+          submissions,
+          submissions_total
+        )
 
         csv_array << row
       end
