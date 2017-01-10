@@ -17,8 +17,10 @@ Rails.application.routes.draw do
 
     resource :education_benefits_claims, only: [:create]
 
-    resource :health_care_application, only: [:create] do
-      resource :healthcheck, only: [:show], to: 'health_care_applications#healthcheck'
+    resource :health_care_applications, only: [:create] do
+      collection do
+        get(:healthcheck)
+      end
     end
 
     resource :disability_rating, only: [:show]
