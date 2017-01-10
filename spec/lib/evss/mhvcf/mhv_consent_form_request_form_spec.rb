@@ -47,7 +47,7 @@ describe EVSS::MHVCF::MHVConsentFormRequestForm do
     it 'form_data has data fields' do
       data_fields = subject.params[:form_data][:form_field_data]
       expect(data_fields).to be_an(Array)
-      data = data_fields.inject({}) { |a, e| a.merge(e[:name] => e[:values].first) }
+      data = data_fields.inject({}) { |a, e| a.merge(e[:name].snakecase.to_sym => e[:values].first) }
       expect(data).to eq(valid_attrs)
     end
   end

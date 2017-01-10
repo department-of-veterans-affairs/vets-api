@@ -22,7 +22,7 @@ module EVSS
       validates :dob, :date_sign,
                 presence: true,
                 format: { with: %r(\d{2}\/\d{2}\/\d{4}), message: 'Date must be in the following format: mm/dd/yyyy' }
-      #validates :patient_phone_number, presence: true # additional Validations?
+      validates :patient_phone_number, presence: true
 
       # The EVSS submit endpoint is designed to be generic, to support multiple different
       # forms. As such, the way params are to be sent is this strange sort of tuple syntax
@@ -46,7 +46,7 @@ module EVSS
       def attribute_tuple_set
         attribute_set.map do |attribute|
           {
-            name: attribute.name,
+            name: attribute.name.to_s.camelize(:lower),
             values: Array.wrap(send(attribute.name))
           }
         end

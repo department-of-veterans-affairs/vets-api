@@ -33,9 +33,9 @@ module EVSS
 
       # This is just used for testing / development purposes, there is no need to have
       # this available at runtime, so it is commented out for now
-      # def get_get_form_configs
-      #   perform(:get, 'formService/1.2/getFormConfigs', nil).body
-      # end
+      def get_get_form_configs
+        perform(:get, 'formService/1.2/getFormConfigs', nil).body
+      end
 
       private
 

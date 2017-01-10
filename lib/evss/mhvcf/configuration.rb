@@ -27,11 +27,15 @@ module EVSS
       end
 
       def client_cert
-        OpenSSL::X509::Certificate.new File.read(File.expand_path(ENV['EVSS_CERT_FILE_PATH'])) rescue nil
+        OpenSSL::X509::Certificate.new File.read(File.expand_path(ENV['EVSS_CERT_FILE_PATH']))
+      rescue
+        nil
       end
 
       def client_key
-        OpenSSL::PKey::RSA.new File.read(File.expand_path(ENV['EVSS_CERT_KEY_PATH'])) rescue nil
+        OpenSSL::PKey::RSA.new File.read(File.expand_path(ENV['EVSS_CERT_KEY_PATH']))
+      rescue
+        nil
       end
 
       def root_ca
@@ -42,16 +46,16 @@ module EVSS
       def connection
         Faraday.new(base_path, headers: {}, request: request_options, ssl: ssl_options) do |conn|
           conn.use :breakers
+          conn.request :camelcase
           conn.request :json
           # Uncomment this out for generating curl output to send to MHV dev and test only
-          conn.request :curl, ::Logger.new(STDOUT), :warn
+          # conn.request :curl, ::Logger.new(STDOUT), :warn
 
-          conn.response :logger, ::Logger.new(STDOUT), bodies: true
+          # conn.response :logger, ::Logger.new(STDOUT), bodies: true
           conn.response :snakecase
           conn.response :json_parser
 
-          # conn.adapter Faraday.default_adapter
-          conn.adapter  :httpclient
+          conn.adapter Faraday.default_adapter
         end
       end
     end

@@ -14,11 +14,11 @@ module EVSS
       VALID_FORM_TYPES = %w(10-0525 10-5345A-MHV 10-0485 10-0484 10-0525A).freeze
       VALID_STATUS_TYPES = %w(IN_PROGRESS SUBMITTED REVOKED FAILED).freeze
 
-      validates_inclusion_of :form_type, in: VALID_FORM_TYPES
-      validates_inclusion_of :status, in: VALID_STATUS_TYPES
+      validates_inclusion_of :form_type, in: VALID_FORM_TYPES, allow_blank: true
+      validates_inclusion_of :status, in: VALID_STATUS_TYPES, allow_blank: true
 
       def params
-        { get_in_flight_forms_request: { form_type: form_type, status: status } }
+        { form_type: form_type, status: status }.compact
       end
     end
   end
