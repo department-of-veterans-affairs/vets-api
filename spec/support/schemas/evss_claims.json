@@ -11,7 +11,7 @@
         "required": ["id", "type", "attributes"],
         "properties": {
           "id": { "type": "string"},
-          "type": { "enum": ["disability_claims"] },
+          "type": { "enum": ["evss_claims"] },
           "attributes": {
             "type": "object",
             "required": [

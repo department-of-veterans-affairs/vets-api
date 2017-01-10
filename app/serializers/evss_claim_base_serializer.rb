@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class DisabilityClaimBaseSerializer < ActiveModel::Serializer
+class EVSSClaimBaseSerializer < ActiveModel::Serializer
   def self.date_attr(*names, override_name: nil, format: '%m/%d/%Y')
     name = override_name || names.last
     define_method(name) do
@@ -74,7 +74,7 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   end
 
   def phase
-    raise NotImplementedError, 'Subclass of DisabilityClaimBaseSerializer must implement phase method'
+    raise NotImplementedError, 'Subclass of EVSSClaimBaseSerializer must implement phase method'
   end
 
   protected
@@ -100,6 +100,6 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   # object_data mediates whether a class uses object.data or
   # object.list_data as the basis of serialization.
   def object_data
-    raise NotImplementedError, 'Subclass of DisabilityClaimBaseSerializer must implement object_data method'
+    raise NotImplementedError, 'Subclass of EVSSClaimBaseSerializer must implement object_data method'
   end
 end
