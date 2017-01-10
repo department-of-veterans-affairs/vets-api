@@ -60,7 +60,8 @@ Rails.application.configure do
     :uuid,
     proc do |request|
       if request.headers['Authorization'].present?
-        Digest::SHA1.hexdigest(request.headers['Authorization'])[0..20]
+        request.headers['Authorization'] =~ /Token token=(.*)/
+        Session.obscure_token(Regexp.last_match[1])
       else
         'unauthenticated'
       end

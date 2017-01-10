@@ -16,6 +16,10 @@ class Session < Common::RedisStore
 
   after_initialize :setup_defaults
 
+  def self.obscure_token(token)
+    Digest::SHA1.hexdigest(token)[0..20]
+  end
+
   private
 
   def secure_random_token(length = DEFAULT_TOKEN_LENGTH)
