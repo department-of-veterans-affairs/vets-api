@@ -17,7 +17,7 @@ class Session < Common::RedisStore
   after_initialize :setup_defaults
 
   def self.obscure_token(token)
-    Digest::SHA1.hexdigest(token)[0..20]
+    Digest::SHA256.hexdigest(token)[0..20]
   end
 
   private
