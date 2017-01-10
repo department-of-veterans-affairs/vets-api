@@ -59,7 +59,7 @@ group :development, :test do
   gem 'rubocop', '~> 0.42.0', require: false
 
   # Security scanners
-  gem 'brakeman', '3.4.1'
+  gem 'brakeman'
   gem 'bundler-audit'
 
   # Testing tools

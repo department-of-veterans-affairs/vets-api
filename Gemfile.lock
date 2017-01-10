@@ -372,7 +372,7 @@ DEPENDENCIES
   active_model_serializers (~> 0.10.0)
   attr_encrypted
   awrence
-  brakeman (= 3.4.1)
+  brakeman
   breakers
   bundler-audit
   byebug
