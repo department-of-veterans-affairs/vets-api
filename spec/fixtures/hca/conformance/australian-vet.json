@@ -9,7 +9,7 @@
   "veteranSocialSecurityNumber": "111-11-1234",
   "gender": "F",
   "cityOfBirth": "Springfield",
-  "stateOfBirth": "AK",
+  "stateOfBirth": "Other",
   "veteranDateOfBirth": "1923-01-02",
   "maritalStatus": "Married",
   "isVaServiceConnected": false,

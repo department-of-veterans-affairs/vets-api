@@ -378,8 +378,16 @@ module HCA
           count: 20,
           nullable: true
         ),
-        'placeOfBirthState' => veteran['stateOfBirth']
+        'placeOfBirthState' => convert_birth_state(veteran['stateOfBirth'])
       }.merge(ssn_to_ssntext(veteran['veteranSocialSecurityNumber'])))
+    end
+
+    def convert_birth_state(birth_state)
+      if birth_state == 'Other'
+        'FOREIGN COUNTRY'
+      else
+        birth_state
+      end
     end
 
     def service_branch_to_sds_code(service_branch)
