@@ -8,7 +8,8 @@ module HCA
 
     def submit_form(form)
       formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(form)
-      submission = soap.build_request(:save_submit_form, message: formatted)
+      content = Gyoku.xml(formatted)
+      submission = soap.build_request(:save_submit_form, message: content)
       post_submission(submission)
     end
 
