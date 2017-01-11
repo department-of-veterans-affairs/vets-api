@@ -51,7 +51,6 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
             .to redirect_to(SAML_CONFIG['logout_relay'] + '?success=false')
         end
-        it 'logs to Sentry'
       end
       context ' logout_response is success' do
         before do
