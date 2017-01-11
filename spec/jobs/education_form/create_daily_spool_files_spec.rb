@@ -14,6 +14,13 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   ].freeze
 
   context '#format_application' do
+    it 'logs an error if the record is invalid' do
+      expect(application_1606).to receive(:open_struct_form).once.and_return(OpenStruct.new)
+      expect { subject.format_application(application_1606) }.to raise_error(EducationForm::FormattingError) do |error|
+        expect(error.cause.message).to match(/NilClass/)
+      end
+    end
+
     it 'uses conformant sample data in the tests' do
       expect(application_1606.form).to match_vets_schema('edu_benefits')
     end
@@ -25,7 +32,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
           json = File.read(File.join(basepath, "#{application_name}.json"))
           expect(json).to match_vets_schema('edu_benefits')
           application = EducationBenefitsClaim.new(form: json)
-          result = subject.format_application(application.open_struct_form)
+          result = subject.format_application(application).text
           spl = File.read(File.join(basepath, "#{application_name}.spl"))
           expect(result).to eq(spl)
         end
@@ -33,7 +40,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
 
     context 'result tests' do
-      subject { described_class.new.format_application(application_1606.open_struct_form) }
+      subject { described_class.new.format_application(application_1606).text }
 
       # TODO: Does it make sense to check against a known-good submission? Probably.
       it 'formats a 22-1990 submission in textual form' do
@@ -105,11 +112,12 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
       ClimateControl.modify EDU_SFTP_HOST: 'localhost', EDU_SFTP_PASS: 'test' do
         sftp_mock = double
-        expect(Net::SFTP).to receive(:start).once.and_yield(sftp_mock)
+        expect(Net::SFTP).to receive(:start).once.and_return(sftp_mock)
         expect(sftp_mock).to receive(:upload!) do |contents, path|
           expect(path).to eq filename
           expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
         end
+        expect(sftp_mock).to receive(:close)
 
         expect { subject.perform }.to trigger_statsd_gauge(
           'worker.education_benefits_claim.transmissions',

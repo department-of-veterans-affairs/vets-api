@@ -6,14 +6,15 @@ module EducationForm::Forms
 
     TEMPLATE_PATH = Rails.root.join('app', 'workers', 'education_form', 'templates')
     WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
-    attr_accessor :form
+    attr_accessor :form, :record, :text
 
     def self.build(app)
       VA1990.new(app)
     end
 
     def initialize(app)
-      @form = app
+      @record = app
+      @form = app.open_struct_form
     end
 
     # Convert the JSON/OStruct document into the text format that we submit to the backend
