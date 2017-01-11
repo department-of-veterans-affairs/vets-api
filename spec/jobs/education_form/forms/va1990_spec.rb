@@ -10,6 +10,27 @@ RSpec.describe EducationForm::Forms::VA1990, type: :model, form: :education_bene
     expect(described_class::TYPE).to eq('22-1990')
   end
 
+  SAMPLE_APPLICATIONS = [
+    :simple_ch33, :kitchen_sink
+  ].freeze
+
+  # For each sample application we have, format it and compare it against a 'known good'
+  # copy of that submission. This technically covers all the helper logic found in the
+  # `Form` specs, but are a good safety net for tracking how forms change over time.
+  context '#text', run_at: '2016-10-06 03:00:00 EDT' do
+    basepath = Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1990')
+    SAMPLE_APPLICATIONS.each do |application_name|
+      it "generates #{application_name} correctly" do
+        json = File.read(File.join(basepath, "#{application_name}.json"))
+        expect(json).to match_vets_schema('edu_benefits')
+        test_application = EducationBenefitsClaim.new(form: json)
+        result = described_class.new(test_application).text
+        spl = File.read(File.join(basepath, "#{application_name}.spl"))
+        expect(result).to eq(spl)
+      end
+    end
+  end
+
   context '#rotc_scholarship_amounts' do
     it 'always outputs 5 double-spaced lines' do
       output = subject.rotc_scholarship_amounts(nil)

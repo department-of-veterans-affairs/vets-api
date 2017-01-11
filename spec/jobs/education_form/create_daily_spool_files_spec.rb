@@ -9,10 +9,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
   let(:line_break) { EducationForm::WINDOWS_NOTEPAD_LINEBREAK }
 
-  SAMPLE_APPLICATIONS = [
-    :simple_ch33, :kitchen_sink
-  ].freeze
-
   context '#format_application' do
     it 'logs an error if the record is invalid' do
       expect(application_1606).to receive(:open_struct_form).once.and_return(OpenStruct.new)
@@ -21,22 +17,10 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
     end
 
-    it 'uses conformant sample data in the tests' do
-      expect(application_1606.form).to match_vets_schema('edu_benefits')
-    end
-
-    context 'conformance', run_at: '2016-10-06 03:00:00 EDT' do
-      basepath = Rails.root.join('spec', 'fixtures', 'education_benefits_claims')
-      SAMPLE_APPLICATIONS.each do |application_name|
-        it "generates #{application_name} correctly" do
-          json = File.read(File.join(basepath, "#{application_name}.json"))
-          expect(json).to match_vets_schema('edu_benefits')
-          application = EducationBenefitsClaim.new(form: json)
-          result = subject.format_application(application).text
-          spl = File.read(File.join(basepath, "#{application_name}.spl"))
-          expect(result).to eq(spl)
-        end
-      end
+    it 'tracks and returns a form object' do
+      expect(subject).to receive(:track_form_type).with('22-1990', 999)
+      result = subject.format_application(application_1606, rpo: 999)
+      expect(result).to be_a(EducationForm::Forms::VA1990)
     end
 
     context 'result tests' do
