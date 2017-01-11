@@ -5,6 +5,12 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
   let!(:application) { FactoryGirl.create(:education_benefits_claim) }
   let(:renderer) { described_class.new(application) }
 
+  context 'build' do
+    it 'returns 1990 forms' do
+      expect(described_class.build(application)).to be_a(EducationForm::Forms::VA1990)
+    end
+  end
+
   context 'yesno' do
     it 'returns N/A for nil values' do
       expect(renderer.yesno(nil)).to eq('N/A')
