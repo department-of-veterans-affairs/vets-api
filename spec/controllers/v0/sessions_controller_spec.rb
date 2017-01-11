@@ -15,9 +15,15 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:invalid_saml_response) { double('saml_response', is_valid?: false, errors: ['ruh roh']) }
 
   let(:logout_uuid) { '1234' }
-  let(:invalid_logout_response) { double('logout_response', validate: false, in_response_to: logout_uuid, errors: ['bad thing']) }
-  let(:unsuccesful_logout_response) { double('logout_response', validate: true,  in_response_to: logout_uuid, errors: ['bad thing']) }
-  let(:succesful_logout_response) { double('logout_response', validate: true, success?: true, in_response_to: logout_uuid, errors: []) }
+  let(:invalid_logout_response) do
+    double('logout_response', validate: false, in_response_to: logout_uuid, errors: ['bad thing'])
+  end
+  let(:unsuccesful_logout_response) do
+    double('logout_response', validate: true, in_response_to: logout_uuid, errors: ['bad thing'])
+  end
+  let(:succesful_logout_response) do
+    double('logout_response', validate: true, success?: true, in_response_to: logout_uuid, errors: [])
+  end
 
   before do
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
@@ -40,9 +46,10 @@ RSpec.describe V0::SessionsController, type: :controller do
       context ' logout_response is invalid' do
         before do
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(invalid_logout_response)
-       end
+        end
         it 'redirects to error' do
-          expect(post :saml_logout_callback, { SAMLResponse: '-' }).to redirect_to(SAML_CONFIG['logout_relay'] + '?success=false')
+          expect(post(:saml_logout_callback, SAMLResponse: '-'))
+            .to redirect_to(SAML_CONFIG['logout_relay'] + '?success=false')
         end
         it 'logs to Sentry'
       end
@@ -53,8 +60,8 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'redirects to success and destroy the session' do
           expect(Session.find(token)).to_not be_nil
           expect(User.find(uuid)).to_not be_nil
-          expect(post :saml_logout_callback, { SAMLResponse: '-' })
-            .to redirect_to(redirect_to SAML_CONFIG['logout_relay'] + '?success=true')
+          expect(post(:saml_logout_callback, SAMLResponse: '-'))
+            .to redirect_to(redirect_to(SAML_CONFIG['logout_relay'] + '?success=true'))
           expect(Session.find(token)).to be_nil
           expect(User.find(uuid)).to be_nil
         end
