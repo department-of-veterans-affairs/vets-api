@@ -68,7 +68,7 @@ module EducationForm
     # TODO(molson): Remove this in further refactors. Specs depend on `create_files`
     # for right now.
     def create_files(structured_data)
-      writer = EducationForm::Writer::Factory.get_writer.new
+      writer = EducationForm::Writer::Factory.get_writer.new(logger: logger)
       write_files(writer, structured_data: structured_data)
     end
 

@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 module EducationForm
   class Writer::Local
-    def initialize
+    def initialize(logger:)
+      @logger = logger
       @dir = Rails.root.join('tmp', 'spool_files')
       FileUtils.mkdir_p(@dir)
     end

@@ -88,6 +88,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context 'create_files', run_at: '2016-09-16 03:00:00 EDT' do
     let(:filename) { '307_09162016_vetsgov.spl' }
+    let!(:second_record) { FactoryGirl.create(:education_benefits_claim) }
 
     context 'in the development env' do
       let(:file_path) { "tmp/spool_files/#{filename}" }
@@ -99,7 +100,12 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       it 'writes a file to the tmp dir' do
         expect(EducationBenefitsClaim.unprocessed).not_to be_empty
         subject.perform
-        expect(File.read(file_path).include?('APPLICATION FOR VA EDUCATION BENEFITS')).to eq(true)
+        contents = File.read(file_path)
+        expect(contents).to include('APPLICATION FOR VA EDUCATION BENEFITS')
+        # Concatenation is done in #write_files, so check for it here in the caller
+        expect(contents).to include("*END*#{line_break}*INIT*")
+        expect(contents).to include(second_record.confirmation_number)
+        expect(contents).to include(application_1606.confirmation_number)
         expect(EducationBenefitsClaim.unprocessed).to be_empty
       end
 
@@ -121,7 +127,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
         expect { subject.perform }.to trigger_statsd_gauge(
           'worker.education_benefits_claim.transmissions',
-          value: 1,
+          value: 2,
           tags: [
             'rpo:307',
             'form:22-1990'
