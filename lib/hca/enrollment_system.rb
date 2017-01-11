@@ -15,17 +15,19 @@ module HCA
     }.freeze
 
     FORM_TEMPLATE = {
-      'form' => {
-        'formIdentifier' => {
-          'type' => '100',
-          'value' => '1010EZ',
-          'version' => 1_986_360_435
+      'va:form' => {
+        '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+        'va:formIdentifier' => {
+          'va:type' => '100',
+          'va:value' => '1010EZ',
+          'va:version' => 1_986_360_435
         }
       },
-      'identity' => {
-        'authenticationLevel' => {
-          'type' => '100',
-          'value' => 'anonymous'
+      'va:identity' => {
+        '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+        'va:authenticationLevel' => {
+          'va:type' => '100',
+          'va:value' => 'anonymous'
         }
       }
     }.freeze
@@ -528,7 +530,7 @@ module HCA
     end
 
     def veteran_to_summary(veteran)
-      {
+      data = {
         'associations' => veteran_to_association_collection(veteran),
         'demographics' => veteran_to_demographics_info(veteran),
         'enrollmentDeterminationInfo' => veteran_to_enrollment_determination_info(veteran),
@@ -543,15 +545,34 @@ module HCA
         },
         'personInfo' => veteran_to_person_info(veteran)
       }
+      data = prepend_namespace(data)
+      # This *must* be a symbol. It's a special flag for the Goyuko library.
+      data[:attributes!] = data.keys.each_with_object({}) do |attribute, memo|
+        memo[attribute] = { 'xmlns:eeSummary' => 'http://jaxws.webservices.esr.med.va.gov/schemas' }
+      end
+      data
     end
 
-    def convert_value(value)
-      if value.is_a?(Hash)
-        convert_hash_values(value)
-      elsif value.is_a?(Array)
-        value.map do |item|
-          convert_value(item)
+    def prepend_namespace(data)
+      if data.is_a? Hash
+        data.each_with_object({}) do |(k, v), memo|
+          memo["eeSummary:#{k}"] = prepend_namespace(v)
         end
+      elsif data.is_a?(Array)
+        data.map { |i| prepend_namespace(i) }
+      else
+        data
+      end
+    end
+
+    def convert_value!(value)
+      if value.is_a?(Hash)
+        convert_hash_values!(value)
+      elsif value.is_a?(Array)
+        result = value.map do |item|
+          convert_value!(item)
+        end
+        result.delete_if(&:blank?)
       elsif value.in?([true, false]) || value.is_a?(Numeric)
         value.to_s
       else
@@ -559,25 +580,26 @@ module HCA
       end
     end
 
-    def convert_hash_values(hash)
+    def convert_hash_values!(hash)
       hash.each do |k, v|
-        hash[k] = convert_value(v)
+        hash[k] = convert_value!(v)
       end
+      hash.delete_if { |_k, v| v.blank? }
     end
 
     def veteran_to_save_submit_form(veteran)
       return {} if veteran.blank?
 
       request = FORM_TEMPLATE.dup
-      request['form']['summary'] = veteran_to_summary(veteran)
-      request['form']['applications'] = {
-        'applicationInfo' => {
-          'appDate' => Time.zone.now.utc.strftime('%Y-%m-%d'),
-          'appMethod' => '1'
-        }
+      request['va:form']['va:summary'] = veteran_to_summary(veteran)
+      request['va:form']['va:applications'] = {
+        'va:applicationInfo' => [{
+          'va:appDate' => Time.zone.now.utc.strftime('%Y-%m-%d'),
+          'va:appMethod' => '1'
+        }]
       }
 
-      convert_hash_values(request)
+      convert_hash_values!(request)
       request
     end
   end
