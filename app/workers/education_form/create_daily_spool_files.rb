@@ -3,6 +3,8 @@ require 'net/sftp'
 require 'iconv'
 
 module EducationForm
+  WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
+
   class FormattingError < StandardError
   end
 
@@ -10,8 +12,6 @@ module EducationForm
     include Sidekiq::Worker
     sidekiq_options queue: 'default',
                     retry: 5
-
-    WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
 
     # Setting the default value to the `unprocessed` scope is safe
     # because the execution of the query itself is defered until the
@@ -53,7 +53,7 @@ module EducationForm
         filename = "#{region_id}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
         log_submissions(records, filename)
         # create the single textual spool file
-        contents = records.map(&:text).join(WINDOWS_NOTEPAD_LINEBREAK)
+        contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
 
         writer.write(contents, filename)
 

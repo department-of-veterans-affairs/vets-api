@@ -7,7 +7,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   let!(:application_1606) do
     FactoryGirl.create(:education_benefits_claim)
   end
-  let(:line_break) { described_class::WINDOWS_NOTEPAD_LINEBREAK }
+  let(:line_break) { EducationForm::WINDOWS_NOTEPAD_LINEBREAK }
 
   SAMPLE_APPLICATIONS = [
     :simple_ch33, :kitchen_sink
@@ -42,27 +42,12 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     context 'result tests' do
       subject { described_class.new.format_application(application_1606).text }
 
-      # TODO: Does it make sense to check against a known-good submission? Probably.
-      it 'formats a 22-1990 submission in textual form' do
-        expect(subject).to include("*INIT*\r\nMARK\r\n\r\nOLSON")
-        expect(subject).to include('Name:   Mark Olson')
-        expect(subject).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
-      end
-
       it 'outputs a valid spool file fragment' do
         expect(subject.lines.select { |line| line.length > 80 }).to be_empty
       end
 
-      it 'includes the faa flight certificates' do
-        expect(subject).to include("FAA Flight Certificates:#{line_break}cert1, cert2#{line_break}")
-      end
-
-      it 'includes the confirmation number' do
-        expect(subject).to include("Confirmation #:  #{application_1606.confirmation_number}")
-      end
-
-      it "includes the veteran's postal code" do
-        expect(subject).to include(application_1606.open_struct_form.veteranAddress.postalCode)
+      it 'contains only windows-style newlines' do
+        expect(subject).to_not match(/([^\r]\n)/)
       end
     end
   end
