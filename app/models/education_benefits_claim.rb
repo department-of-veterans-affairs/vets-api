@@ -119,6 +119,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   def form_matches_schema
     return unless form_is_string
+    return unless FORM_TYPES.include?(form_type)
 
     errors[:form].concat(JSON::Validator.fully_validate(FORM_SCHEMAS[form_type], parsed_form))
   end
