@@ -35,7 +35,6 @@ pipeline {
   agent {
     label 'vets-api-linting'
   }
-
   stages {
     stage('Checkout Code') {
       steps {
