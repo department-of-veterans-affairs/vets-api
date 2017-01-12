@@ -35,7 +35,7 @@ gem 'typhoeus'
 
 gem 'rack-cors', :require => 'rack/cors'
 gem 'net-sftp'
-gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
+gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', ref: '52d421959259c20b3001a5559364c52fe2bbe9c9'
 gem 'breakers'
 gem 'govdelivery-tms', require: 'govdelivery/tms/mail/delivery_method'
 gem 'statsd-instrument'
