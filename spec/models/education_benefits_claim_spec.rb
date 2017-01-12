@@ -37,39 +37,68 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
 
     describe '#form_matches_schema' do
-      context 'verifies that privacyAgreementAccepted is true' do
-        [[true, true], [false, false], [nil, false]].each do |value, answer|
-          it "when the value is #{value}" do
-            attributes[:form] = {
-              privacyAgreementAccepted: value
-            }.to_json
-            assert_equal answer, subject.valid?
-          end
-        end
-      end
-
-      it 'should be valid on a valid form' do
-        expect_attr_valid(subject, :form)
-      end
-
-      context 'with an invalid form' do
-        before do
-          attributes[:form] = {
-            chapter30: 0,
-            privacyAgreementAccepted: true
-          }.to_json
-        end
-
+      def self.expect_json_schema_error(text)
         it 'should have a json schema error' do
           subject.valid?
           form_errors = subject.errors[:form]
 
           expect(form_errors.size).to eq(1)
-          expect(
-            form_errors[0].include?(
-              "The property '#/chapter30' of type Fixnum did not match the following type: boolean"
-            )
-          ).to eq(true)
+          expect(form_errors[0].include?(text)).to eq(true)
+        end
+      end
+
+      context '1990 form' do
+        context 'verifies that privacyAgreementAccepted is true' do
+          [[true, true], [false, false], [nil, false]].each do |value, answer|
+            it "when the value is #{value}" do
+              attributes[:form] = {
+                privacyAgreementAccepted: value
+              }.to_json
+              assert_equal answer, subject.valid?
+            end
+          end
+        end
+
+        it 'should be valid on a valid form' do
+          expect_attr_valid(subject, :form)
+        end
+
+        context 'with an invalid form' do
+          before do
+            attributes[:form] = {
+              chapter30: 0,
+              privacyAgreementAccepted: true
+            }.to_json
+          end
+
+          expect_json_schema_error("The property '#/chapter30' of type Fixnum did not match the following type: boolean")
+        end
+      end
+
+      context '1995 form' do
+        before do
+          subject.form_type = '1995'
+          subject.form = form.to_json
+        end
+
+        context 'with a valid form' do
+          let(:form) do
+            {
+              vaFileNumber: '123'
+            }
+          end
+
+          it 'should be valid' do
+            expect_attr_valid(subject, :form)
+          end
+        end
+
+        context 'with an invalid form' do
+          let(:form) do
+            { veteranFullName: 'bob' }
+          end
+
+          expect_json_schema_error("The property '#/veteranFullName' of type String did not match the following type: object")
         end
       end
     end
