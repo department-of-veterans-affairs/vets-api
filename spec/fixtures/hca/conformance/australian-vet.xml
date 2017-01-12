@@ -287,7 +287,7 @@
         <eeSummary:dob>01/02/1923</eeSummary:dob>
         <eeSummary:mothersMaidenName>Maiden</eeSummary:mothersMaidenName>
         <eeSummary:placeOfBirthCity>Springfield</eeSummary:placeOfBirthCity>
-        <eeSummary:placeOfBirthState>Other</eeSummary:placeOfBirthState>
+        <eeSummary:placeOfBirthState>FOREIGN COUNTRY</eeSummary:placeOfBirthState>
         <eeSummary:ssnText>111111234</eeSummary:ssnText>
       </eeSummary:personInfo>
     </va:summary>

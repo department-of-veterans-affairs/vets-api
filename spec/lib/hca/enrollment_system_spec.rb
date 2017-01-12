@@ -563,13 +563,13 @@ describe HCA::EnrollmentSystem do
     described_class,
     'convert_birth_state',
     [
-      [
-        'MN',
-        'MN',
-      ],
+      %w(
+        MN
+        MN
+      ),
       [
         'Other',
-        'FOREIGN COUNTRY',
+        'FOREIGN COUNTRY'
       ]
     ]
   )
