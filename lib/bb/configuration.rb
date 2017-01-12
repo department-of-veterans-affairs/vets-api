@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'common/client/configuration'
+require 'common/client/configuration/rest'
 require 'common/client/middleware/request/camelcase'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/raise_error'
@@ -9,7 +9,7 @@ require 'bb/middleware/response/bb_parser'
 
 module BB
   # Configuration class used to setup the environment used by client
-  class Configuration < Common::Client::Configuration
+  class Configuration < Common::Client::Configuration::REST
     def app_token
       ENV['MHV_APP_TOKEN']
     end
@@ -28,9 +28,9 @@ module BB
         conn.request :camelcase
         conn.request :json
         # Uncomment this out for generating curl output to send to MHV dev and test only
-        conn.request :curl, ::Logger.new(STDOUT), :warn
+        # conn.request :curl, ::Logger.new(STDOUT), :warn
 
-        conn.response :logger, ::Logger.new(STDOUT), bodies: true
+        # conn.response :logger, ::Logger.new(STDOUT), bodies: true
         conn.response :bb_parser
         conn.response :snakecase
         conn.response :raise_error, error_prefix: service_name

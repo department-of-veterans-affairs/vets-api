@@ -8,8 +8,4 @@ class ExtractStatus < Common::Base
   attribute :status, String
   attribute :created_on, Common::UTCTime
   attribute :station_number, String
-
-  def <=>(other)
-    extract_type <=> other.extract_type
-  end
 end

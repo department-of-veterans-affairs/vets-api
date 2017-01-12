@@ -1,13 +1,8 @@
 # frozen_string_literal: true
-require 'active_model'
-require 'common/models/attribute_types/utc_time'
+require 'common/models/form'
 
 module BB
-  class Form
-    extend ActiveModel::Naming
-    include ActiveModel::Validations
-    include Virtus.model(nullify_blank: true)
-
+  class GenerateReportRequestForm < Common::Form
     attribute :from_date, Common::UTCTime
     attribute :to_date, Common::UTCTime
     attribute :data_classes, Array[String]

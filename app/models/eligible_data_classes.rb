@@ -10,9 +10,4 @@ class EligibleDataClasses < Common::Base
   def id
     Digest::MD5.hexdigest(instance_variable_get(:@original_attributes).to_json)
   end
-
-  # EligibleDataClasses are simply an array, and you can't really compare an array of arrays
-  def <=>(other)
-    data_class_id <=> other.data_class_id
-  end
 end
