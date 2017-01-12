@@ -7,7 +7,7 @@ task :security do
 
   puts 'running Brakeman security scan...'
   brakeman_result = ShellCommand.run(
-    'brakeman --exit-on-warn --run-all-checks --confidence-level=2'
+    'brakeman --exit-on-warn --run-all-checks --confidence-level=2 --format=plain'
   )
 
   puts 'running bundle-audit to check for insecure dependencies...'

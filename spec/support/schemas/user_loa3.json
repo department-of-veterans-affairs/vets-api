@@ -28,10 +28,10 @@
               ],
               "properties": {
                 "email": { "type": "string"},
-                "first_name": { "type": [ "string", null ] },
+                "first_name": { "type": "string" },
                 "middle_name": { "type": [ "string", null ] },
-                "last_name": { "type": [ "string", null ] },
-                "birth_date": { "type": [ "string", null ] },
+                "last_name": { "type": "string" },
+                "birth_date": { "type": "string" },
                 "gender": { "type": [ "string", null ] },
                 "zip": { "type": [ "string", null ] },
                 "last_signed_in": { "type": [ "string", null ] },
@@ -40,7 +40,7 @@
                   "required": ["current", "highest"],
                   "properties": {
                     "current": { "type": "integer" },
-                    "highest": { "type": [ "integer", null ] }
+                    "highest": { "type": "integer" }
                   }
                 }
               }
