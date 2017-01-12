@@ -7,7 +7,9 @@ def notify(message, color='good') {
 }
 
 pipeline {
-  agent label:''
+  agent {
+    label 'app-deploys'
+  }
   stages {
     stage('Notify Slack') {
       steps {
