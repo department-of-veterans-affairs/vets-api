@@ -40,7 +40,7 @@ describe 'bb client' do
     expect(client_response).to be_a(EligibleDataClasses)
     expect(client_response.data_classes).to be_an(Array)
     expect(client_response.data_classes).to all(be_a(String))
-    expect(client_response.id).to eq('c07a392ac00e579fddd2910869b42379')
+    expect(client_response.id).to eq('d101ca2db427ecfb9cb1854d0638b326dad3e74bf2b121d3066dba0e8fec6856')
   end
 
   # This requests to generate a report. It just returns success, no file is returned.

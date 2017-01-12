@@ -8,6 +8,6 @@ class EligibleDataClasses < Common::Base
 
   # checksum of the original attributes returned for uniqueness
   def id
-    Digest::MD5.hexdigest(instance_variable_get(:@original_attributes).to_json)
+    Digest::SHA256.hexdigest(instance_variable_get(:@original_attributes).to_json)
   end
 end
