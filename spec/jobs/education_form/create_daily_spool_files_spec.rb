@@ -13,6 +13,23 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     :simple_ch33, :kitchen_sink
   ].freeze
 
+  context '#perform' do
+    context 'skips holidays' do
+      it 'when observed', run_at: '2017-01-02 03:00:00 EDT' do
+        expect(subject).not_to receive(:create_files)
+        expect(subject.logger).to receive(:info).with("Skipping on a Holiday: New Year's Day")
+        expect(subject.perform).to be false
+      end
+
+      it 'but not informal ones', run_at: '2017-04-01 03:00:00 EDT' do
+        # Sanity check that this *is* an informal holiday we're testing
+        expect(Holidays.on(Time.zone.today, :us, :informal).first[:name]).to eq("April Fool's Day")
+        expect(subject).to receive(:create_files)
+        expect(subject.perform).to be true
+      end
+    end
+  end
+
   context '#format_application' do
     it 'uses conformant sample data in the tests' do
       expect(application_1606.form).to match_vets_schema('edu_benefits')

@@ -156,6 +156,7 @@ GEM
       builder (>= 2.1.2)
     hashdiff (0.3.0)
     hashie (3.4.6)
+    holidays (5.3.0)
     httpclient (2.8.2.3)
     httpi (2.4.2)
       rack
@@ -391,6 +392,7 @@ DEPENDENCIES
   guard-rspec (~> 4.7)
   guard-rubocop
   gyoku
+  holidays
   httpclient
   iconv
   json-schema
