@@ -91,7 +91,7 @@ module V0
 
     def log_errors
       message = <<-MESSAGE.strip_heredoc
-        SAML Login attempt failed! Reasons...
+        SAML Login attempt failed! Reasons....
           saml:    'valid?=#{@saml_response.is_valid?} errors=#{@saml_response.errors}'
           user:    'valid?=#{@current_user&.valid?} errors=#{@current_user&.errors&.full_messages}'
           session: 'valid?=#{@session&.valid?} errors=#{@session&.errors&.full_messages}'
