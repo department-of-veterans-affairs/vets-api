@@ -57,7 +57,6 @@ module V0
       EVSS::CreateUserAccountJob.perform_async(auth_headers)
     end
 
-    # :nocov:
     def handle_completed_slo
       logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings)
       logout_request = SingleLogoutRequest.find(logout_response.in_response_to)
@@ -89,7 +88,6 @@ module V0
         session.destroy
       end
     end
-    # :nocov:
 
     def log_errors
       message = <<-MESSAGE.strip_heredoc
