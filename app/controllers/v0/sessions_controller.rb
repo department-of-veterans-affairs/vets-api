@@ -68,13 +68,15 @@ module V0
 
     def handle_completed_slo
       logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings)
-      logout_request = SingleLogoutRequest.find(logout_response&.in_response_to)
+      logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
+      session         = Session.find(logout_request&.token)
+      user            = User.find(session&.uuid)
 
       errors = []
       errors.concat(logout_response.errors) unless logout_response.validate(true)
       errors << "Logout Request not found! ID=#{logout_response&.in_response_to}" if logout_request.nil?
-      errors << 'Session not found!' if (session = Session.find(logout_request&.token)).nil?
-      errors << 'User not found!' if (user = User.find(session&.uuid)).nil?
+      errors << 'Session not found!' if session.nil?
+      errors << 'User not found!' if user.nil?
 
       if errors.size.positive?
         log_errors("SAML Logout failed!\n  " + errors.join("\n  "))
