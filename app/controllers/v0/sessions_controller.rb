@@ -33,6 +33,9 @@ module V0
       if @saml_response.is_valid? && persist_session_and_user
         async_create_evss_account(@current_user)
         redirect_to SAML_CONFIG['relay'] + '?token=' + @session.token
+
+        obscure_token = Session.obscure_token(@session.token)
+        Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
       else
         message = <<-MESSAGE.strip_heredoc
           SAML Login attempt failed! Reasons...
