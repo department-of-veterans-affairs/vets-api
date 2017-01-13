@@ -46,7 +46,7 @@ gem 'memoist'
 # `multi_json` will prefer `oj` if installed, so include it here.
 gem 'oj'
 
-
+gem 'holidays'
 gem 'iconv'
 
 group :development, :test do

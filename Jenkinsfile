@@ -32,7 +32,9 @@ def env_vars = [
 ]
 
 pipeline {
-  agent label:'vets-api-linting'
+  agent {
+    label 'vets-api-linting'
+  }
   stages {
     stage('Checkout Code') {
       steps {
