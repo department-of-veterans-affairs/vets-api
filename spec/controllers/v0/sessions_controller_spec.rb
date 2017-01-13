@@ -14,6 +14,17 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:valid_saml_response) { double('saml_response', is_valid?: true) }
   let(:invalid_saml_response) { double('saml_response', is_valid?: false, errors: ['ruh roh']) }
 
+  let(:logout_uuid) { '1234' }
+  let(:invalid_logout_response) do
+    double('logout_response', validate: false, in_response_to: logout_uuid, errors: ['bad thing'])
+  end
+  let(:unsuccesful_logout_response) do
+    double('logout_response', validate: true, in_response_to: logout_uuid, errors: ['bad thing'])
+  end
+  let(:succesful_logout_response) do
+    double('logout_response', validate: true, success?: true, in_response_to: logout_uuid, errors: [])
+  end
+
   before do
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
     allow(OneLogin::RubySaml::Response).to receive(:new).and_return(valid_saml_response)
@@ -25,10 +36,35 @@ RSpec.describe V0::SessionsController, type: :controller do
       Session.create(uuid: uuid, token: token)
       User.create(loa1_user.attributes)
     end
-    it 'destroys a session' do
+    it 'returns a logout url' do
       request.env['HTTP_AUTHORIZATION'] = auth_header
       delete :destroy
       expect(response).to have_http_status(202)
+    end
+    context ' logout has been requested' do
+      before { SingleLogoutRequest.create(uuid: logout_uuid, token: token) }
+      context ' logout_response is invalid' do
+        before do
+          allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(invalid_logout_response)
+        end
+        it 'redirects to error' do
+          expect(post(:saml_logout_callback, SAMLResponse: '-'))
+            .to redirect_to(SAML_CONFIG['logout_relay'] + '?success=false')
+        end
+      end
+      context ' logout_response is success' do
+        before do
+          allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(succesful_logout_response)
+        end
+        it 'redirects to success and destroy the session' do
+          expect(Session.find(token)).to_not be_nil
+          expect(User.find(uuid)).to_not be_nil
+          expect(post(:saml_logout_callback, SAMLResponse: '-'))
+            .to redirect_to(redirect_to(SAML_CONFIG['logout_relay'] + '?success=true'))
+          expect(Session.find(token)).to be_nil
+          expect(User.find(uuid)).to be_nil
+        end
+      end
     end
     describe ' POST saml_callback' do
       it 'uplevels an LOA 1 session to LOA 3' do

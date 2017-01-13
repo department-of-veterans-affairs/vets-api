@@ -1,0 +1,80 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_HOST>/mhv-api/patient/v1/bluebutton/geteligibledataclass"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 29 Dec 2016 05:57:44 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      X-Frame-Options:
+      - SAMEORIGIN
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '{"dataClasses":["seiactivityjournal","seiallergies","seidemographics","familyhealthhistory","seifoodjournal","healthcareproviders","healthinsurance","seiimmunizations","labsandtests","medicalevents","medications","militaryhealthhistory","seimygoalscurrent","seimygoalscompleted","treatmentfacilities","vitalsandreadings","prescriptions","medications","vaallergies","vaadmissionsanddischarges","futureappointments","pastappointments","vademographics","vaekg","vaimmunizations","vachemlabs","vaprogressnotes","vapathology","vaproblemlist","varadiology","vahth","wellness","dodmilitaryservice"]}'
+    http_version: 
+  recorded_at: Thu, 29 Dec 2016 05:57:45 GMT
+- request:
+    method: post
+    uri: "<MHV_HOST>/mhv-api/patient/v1/bluebutton/generate"
+    body:
+      encoding: UTF-8
+      string: '{"fromDate":"Fri, 29 Dec 2006 05:57:44 GMT","toDate":"Thu, 29 Dec 2016
+        05:57:44 GMT","dataClasses":["seiactivityjournal","seiallergies","seidemographics","familyhealthhistory","seifoodjournal","healthcareproviders","healthinsurance","seiimmunizations","labsandtests","medicalevents","medications","militaryhealthhistory","seimygoalscurrent","seimygoalscompleted","treatmentfacilities","vitalsandreadings","prescriptions","medications","vaallergies","vaadmissionsanddischarges","futureappointments","pastappointments","vademographics","vaekg","vaimmunizations","vachemlabs","vaprogressnotes","vapathology","vaproblemlist","varadiology","vahth","wellness","dodmilitaryservice"]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 29 Dec 2016 05:57:45 GMT
+      Server:
+      - Apache/2.2.15 (Red Hat)
+      X-Frame-Options:
+      - SAMEORIGIN
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json
+    body:
+      encoding: UTF-8
+      string: '{"status" : "OK","description" : null,"nextDate" : {} }'
+    http_version: 
+  recorded_at: Thu, 29 Dec 2016 05:57:46 GMT
+recorded_with: VCR 3.0.3
