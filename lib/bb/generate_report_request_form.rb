@@ -10,7 +10,9 @@ module BB
     attr_reader :client
 
     validates :from_date, :to_date, date: true
-    validates :from_date, date: { before: :to_date, message: 'must be before to date' }
+    # leaving this validation out for now, will test and see if it is required or if
+    # MHV error is preferable.
+    # validates :from_date, date: { before: :to_date, message: 'must be before to date' }
     validates :data_classes, presence: true
     validate  :data_classes_belongs_to_eligible_data_classes
 

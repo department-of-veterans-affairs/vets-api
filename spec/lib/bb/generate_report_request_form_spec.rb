@@ -43,7 +43,6 @@ describe BB::GenerateReportRequestForm do
       expect(subject.errors.full_messages)
         .to eq([
                  'From date is not a date',
-                 'From date must be before to date',
                  'To date is not a date',
                  "Data classes can't be blank"
                ])
@@ -60,7 +59,8 @@ describe BB::GenerateReportRequestForm do
         .to eq(from_date: time_after.httpdate, to_date: time_before.httpdate, data_classes: eligible_data_classes)
     end
 
-    it 'returns valid false with errors' do
+    # This spec can be added again in the future if desired, but for not leave as MHV error
+    xit 'returns valid false with errors' do
       expect(subject.valid?).to be_falsey
       expect(subject.errors.full_messages)
         .to eq(['From date must be before to date'])
