@@ -3,7 +3,6 @@ require 'rails_helper'
 
 RSpec.describe EducationForm::EducationFacility do
   let(:education_benefits_claim) { build(:education_benefits_claim) }
-  let(:record) { education_benefits_claim.open_struct_form }
 
   describe '#regional_office_for' do
     {
@@ -21,7 +20,7 @@ RSpec.describe EducationForm::EducationFacility do
         end
 
         it 'should return the right address' do
-          expect(described_class.regional_office_for(record)).to eq(region_data[1])
+          expect(described_class.regional_office_for(education_benefits_claim)).to eq(region_data[1])
         end
       end
     end

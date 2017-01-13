@@ -10,25 +10,42 @@ module EducationForm
       daily_processed: 0
     }.freeze
 
+    def build_submission_relation(range_type, region, form_type, status)
+      range = @ranges[range_type]
+      relation = EducationBenefitsSubmission.where(
+        created_at: range,
+        region: region.to_s,
+        form_type: form_type
+      )
+      relation = relation.where(status: 'processed') if status == :processed
+
+      relation
+    end
+
     def calculate_submissions(range_type: :year, status: :processed)
       submissions = {}
       application_types = EducationBenefitsClaim::APPLICATION_TYPES
-      range = @ranges[range_type]
 
-      EducationFacility::REGIONS.each do |region|
-        region_submissions = {}
+      EducationBenefitsClaim::FORM_TYPES.each do |form_type|
+        form_submissions = {}
 
-        application_types.each do |application_type|
-          relation = EducationBenefitsSubmission.where(
-            created_at: range,
-            region: region.to_s,
-            application_type => true
-          )
-          relation = relation.where(status: 'processed') if status == :processed
-          region_submissions[application_type] = relation.count
+        EducationFacility::REGIONS.each do |region|
+          region_submissions = {}
+
+          relation = build_submission_relation(range_type, region, form_type, status)
+
+          if form_type == '1990'
+            application_types.each do |application_type|
+              region_submissions[application_type] = relation.where(application_type => true).count
+            end
+          else
+            region_submissions[:all] = relation.count
+          end
+
+          form_submissions[region] = region_submissions
         end
 
-        submissions[region] = region_submissions
+        submissions[form_type] = form_submissions
       end
 
       submissions
@@ -42,33 +59,61 @@ module EducationForm
         @ranges[range_type] = @date.public_send("beginning_of_#{range_type}")..@date.end_of_day
       end
 
+      ranges_header = [@ranges[:year].to_s, '', @ranges[:day].to_s]
+      submitted_header = ['', 'Submitted', 'Uploaded to TIMS']
+
       csv_array << ["Submitted Vets.gov Applications - Report FYTD #{@date.year} as of #{@date}"]
       csv_array << ['', '', 'DOCUMENT TYPE']
-      csv_array << ['RPO', 'BENEFIT TYPE', '22-1990']
-      csv_array << ['', '', @ranges[:year].to_s, '', @ranges[:day].to_s]
-      csv_array << ['', '', '', 'Submitted', 'Uploaded to TIMS']
+      csv_array << ['RPO', 'BENEFIT TYPE', '22-1990', '', '', '22-1995']
+      csv_array << ['', ''] + ranges_header * 2
+      csv_array << ['', ''] + submitted_header * 2
 
       csv_array
     end
 
-    def create_csv_data_row(regional_yearly_submissions, region, submissions, submissions_total)
+    def create_data_row(on_last_index, application_type, region, submissions, submissions_total)
+      row = []
+
+      EducationBenefitsClaim::FORM_TYPES.each do |form_type|
+        if form_type == '1995'
+          if on_last_index
+            application_type = :all
+          else
+            next
+          end
+        end
+
+        TOTALS_HASH.keys.each do |range_type|
+          num_submissions = submissions[range_type][form_type][region][application_type]
+          row << num_submissions
+
+          submissions_total[form_type][range_type] += num_submissions
+        end
+      end
+
+      row
+    end
+
+    def create_csv_data_block(region, submissions, submissions_total)
       csv_array = []
+      application_types = EducationBenefitsClaim::APPLICATION_TYPES
 
-      regional_yearly_submissions.each_with_index do |(application_type, yearly_processed_count), i|
-        daily_submitted_count = submissions[:daily_submitted][region][application_type]
-        daily_processed_count = submissions[:daily_processed][region][application_type]
-
-        csv_array << [
+      application_types.each_with_index do |application_type, i|
+        on_last_index = i == (application_types.size - 1)
+        row = [
           i.zero? ? EducationFacility::RPO_NAMES[region] : '',
-          application_type,
-          yearly_processed_count,
-          daily_submitted_count,
-          daily_processed_count
+          application_type
         ]
 
-        submissions_total[:yearly] += yearly_processed_count
-        submissions_total[:daily_submitted] += daily_submitted_count
-        submissions_total[:daily_processed] += daily_processed_count
+        row += create_data_row(
+          on_last_index,
+          application_type,
+          region,
+          submissions,
+          submissions_total
+        )
+
+        csv_array << row
       end
 
       csv_array
@@ -77,11 +122,23 @@ module EducationForm
     def create_totals_row(text_rows, totals)
       row = text_rows.clone
 
-      row << totals[:yearly]
-      row << totals[:daily_submitted]
-      row << totals[:daily_processed]
+      EducationBenefitsClaim::FORM_TYPES.each do |form_type|
+        TOTALS_HASH.keys.each do |range_type|
+          row << totals[form_type][range_type]
+        end
+      end
 
       row
+    end
+
+    def get_totals_hash_with_form_types
+      totals = {}
+
+      EducationBenefitsClaim::FORM_TYPES.each do |form_type|
+        totals[form_type] = TOTALS_HASH.dup
+      end
+
+      totals
     end
 
     def convert_submissions_to_csv_array
@@ -91,16 +148,20 @@ module EducationForm
         daily_submitted: calculate_submissions(range_type: :day, status: :submitted),
         daily_processed: calculate_submissions(range_type: :day, status: :processed)
       }
-      grand_totals = TOTALS_HASH.dup
+      grand_totals = get_totals_hash_with_form_types
 
-      submissions[:yearly].each do |region, regional_yearly_submissions|
-        submissions_total = TOTALS_HASH.dup
-        data_row = create_csv_data_row(regional_yearly_submissions, region, submissions, submissions_total)
-        submissions_csv_array += data_row
+      EducationFacility::REGIONS.each do |region|
+        submissions_total = get_totals_hash_with_form_types
+
+        submissions_csv_array += create_csv_data_block(region, submissions, submissions_total)
 
         submissions_csv_array << create_totals_row(['', 'TOTAL'], submissions_total)
 
-        grand_totals.each { |t, _| grand_totals[t] += submissions_total[t] }
+        submissions_total.each do |form_type, form_submissions|
+          form_submissions.each do |range_type, total|
+            grand_totals[form_type][range_type] += total
+          end
+        end
       end
 
       submissions_csv_array << create_totals_row(['ALL RPOS TOTAL', ''], grand_totals)
@@ -113,7 +174,7 @@ module EducationForm
 
       csv_array += create_csv_header
       csv_array += convert_submissions_to_csv_array
-      csv_array << ['', '', '22-1990']
+      csv_array << ['', '', '22-1990', '', '', '22-1995']
 
       csv_array
     end

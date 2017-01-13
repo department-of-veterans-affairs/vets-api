@@ -119,5 +119,10 @@ FactoryGirl.define do
         )
       end
     end
+
+    factory :education_benefits_claim_1995 do
+      form({}.to_json)
+      form_type('1995')
+    end
   end
 end
