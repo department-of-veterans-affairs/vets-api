@@ -35,7 +35,7 @@ module V0
         redirect_to SAML_CONFIG['relay'] + '?token=' + @session.token
 
         obscure_token = Session.obscure_token(@session.token)
-        Rails.logger.info("Logged in user with id: #{@session.uuid}, token: #{obscure_token}")
+        Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
       else
         log_errors
         redirect_to SAML_CONFIG['relay'] + '?auth=fail'
