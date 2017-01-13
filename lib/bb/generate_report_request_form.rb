@@ -9,8 +9,9 @@ module BB
 
     attr_reader :client
 
-    validates :from_date, :to_date, :data_classes, presence: true
-    validate  :from_date_is_before_to_date
+    validates :from_date, :to_date, date: true
+    validates :from_date, date: { before: :to_date, message: 'must be before to date' }
+    validates :data_classes, presence: true
     validate  :data_classes_belongs_to_eligible_data_classes
 
     def initialize(client, attributes = {})
@@ -26,12 +27,6 @@ module BB
 
     def eligible_data_classes
       @eligible_data_classes ||= client.get_eligible_data_classes.data_classes
-    end
-
-    def from_date_is_before_to_date
-      if from_date.present? && to_date.present? && to_date < from_date
-        errors.add(:base, 'From date must occur before to date')
-      end
     end
 
     def data_classes_belongs_to_eligible_data_classes

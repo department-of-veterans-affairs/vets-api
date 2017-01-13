@@ -41,7 +41,12 @@ describe BB::GenerateReportRequestForm do
     it 'returns valid false with errors' do
       expect(subject.valid?).to be_falsey
       expect(subject.errors.full_messages)
-        .to eq(["From date can't be blank", "To date can't be blank", "Data classes can't be blank"])
+        .to eq([
+                 'From date is not a date',
+                 'From date must be before to date',
+                 'To date is not a date',
+                 "Data classes can't be blank"
+               ])
     end
   end
 
@@ -58,7 +63,7 @@ describe BB::GenerateReportRequestForm do
     it 'returns valid false with errors' do
       expect(subject.valid?).to be_falsey
       expect(subject.errors.full_messages)
-        .to eq(['From date must occur before to date'])
+        .to eq(['From date must be before to date'])
     end
   end
 
