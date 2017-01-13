@@ -56,7 +56,17 @@ Rails.application.configure do
   config.log_level = :info
 
   # Prepend all log lines with the following tags.
-  config.log_tags = [:uuid]
+  config.log_tags = [
+    :uuid,
+    proc do |request|
+      if request.headers['Authorization'].present?
+        request.headers['Authorization'] =~ /Token token=(.*)/
+        Session.obscure_token(Regexp.last_match[1])
+      else
+        'unauthenticated'
+      end
+    end
+  ]
 
   # Use a different logger for distributed setups.
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
