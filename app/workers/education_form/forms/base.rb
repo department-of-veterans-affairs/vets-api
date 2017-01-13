@@ -9,7 +9,8 @@ module EducationForm::Forms
     attr_accessor :form, :record, :text
 
     def self.build(app)
-      VA1990.new(app)
+      klass = app.is_1990? ? VA1990 : VA1995
+      klass.new(app)
     end
 
     def initialize(app)
