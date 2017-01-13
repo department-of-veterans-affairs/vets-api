@@ -390,6 +390,7 @@ DEPENDENCIES
   govdelivery-tms
   guard-rspec (~> 4.7)
   guard-rubocop
+  gyoku
   httpclient
   iconv
   json-schema
