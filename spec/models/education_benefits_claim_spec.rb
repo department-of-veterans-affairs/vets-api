@@ -71,7 +71,9 @@ RSpec.describe EducationBenefitsClaim, type: :model do
             }.to_json
           end
 
-          expect_json_schema_error("The property '#/chapter30' of type Fixnum did not match the following type: boolean")
+          expect_json_schema_error(
+            "The property '#/chapter30' of type Fixnum did not match the following type: boolean"
+          )
         end
       end
 
@@ -98,7 +100,9 @@ RSpec.describe EducationBenefitsClaim, type: :model do
             { veteranFullName: 'bob' }
           end
 
-          expect_json_schema_error("The property '#/veteranFullName' of type String did not match the following type: object")
+          expect_json_schema_error(
+            "The property '#/veteranFullName' of type String did not match the following type: object"
+          )
         end
       end
     end
