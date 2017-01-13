@@ -25,6 +25,7 @@ gem 'attr_encrypted'
 gem 'olive_branch'
 gem 'ox', '~> 2.4'
 gem 'savon'
+gem 'gyoku'
 gem 'sidekiq'
 gem 'sidekiq-unique-jobs'
 gem 'sidekiq-scheduler', '~> 2.0'
@@ -45,7 +46,7 @@ gem 'memoist'
 # `multi_json` will prefer `oj` if installed, so include it here.
 gem 'oj'
 
-
+gem 'holidays'
 gem 'iconv'
 
 group :development, :test do

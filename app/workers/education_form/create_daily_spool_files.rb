@@ -20,6 +20,7 @@ module EducationForm
     # existing files on the SFTP server if one was already written out
     # for the day.
     def perform(records: EducationBenefitsClaim.unprocessed)
+      return false if federal_holiday?
       # Group the formatted records into different regions
       regional_data = group_submissions_by_region(records)
       formatted_records = format_records(regional_data)
@@ -83,6 +84,16 @@ module EducationForm
     end
 
     private
+
+    def federal_holiday?
+      holiday = Holidays.on(Time.zone.today, :us, :observed)
+      if holiday.empty?
+        false
+      else
+        logger.info("Skipping on a Holiday: #{holiday.first[:name]}")
+        true
+      end
+    end
 
     # Useful for debugging which records were or were not sent over successfully,
     # in case of network failures.
