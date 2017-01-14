@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe EducationForm::Forms::VA1995 do
-  let(:education_benefits_claim) { create(:education_benefits_claim_1995) }
+  let(:education_benefits_claim) { build(:education_benefits_claim_1995) }
 
   subject { described_class.new(education_benefits_claim) }
 
@@ -11,8 +11,12 @@ RSpec.describe EducationForm::Forms::VA1995 do
   end
 
   describe '#text' do
+    before do
+      education_benefits_claim.form = File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'kitchen_sink.json'))
+    end
+
     it 'should generate the spool file correctly' do
-      subject.text
+      puts subject.text
     end
   end
 end

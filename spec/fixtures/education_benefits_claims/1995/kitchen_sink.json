@@ -1,0 +1,18 @@
+{
+  "veteranFullName": {
+    "first": "first",
+    "middle": "middle",
+    "last": "last"
+  },
+  "veteranSocialSecurityNumber": "111223333",
+  "newSchool": {
+    "name": "school name",
+    "address": {
+      "city": "Baltimore",
+      "country": "USA",
+      "postalCode": "21231",
+      "state": "MD",
+      "street": "111 Uni Drive"
+    }
+  }
+}
