@@ -12,7 +12,7 @@ RSpec.describe EducationForm::Forms::VA1995 do
 
   describe '#text' do
     it 'should generate the spool file correctly' do
-      
+      subject.text
     end
   end
 end

@@ -1,12 +1,4 @@
-*INIT*
-<%= @applicant.veteranFullName.first.upcase %>
-<%= @applicant.veteranFullName.middle&.upcase %>
-<%= @applicant.veteranFullName.last.upcase %>
-<%= @applicant.veteranSocialSecurityNumber&.gsub(/[^\d]/,'') %>
-<%= @applicant.veteranSocialSecurityNumber&.gsub(/[^\d]/,'') %>
-V1990
-
-<%= @applicant.school&.name&.upcase %>
+<%= header %>
 <%= form_type(@applicant) %>
 *START*
 VA Form 22-1990

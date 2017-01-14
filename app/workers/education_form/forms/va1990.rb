@@ -21,8 +21,7 @@ module EducationForm::Forms
     end
 
     def disclosure_for(type)
-      contents = File.read(File.join(TEMPLATE_PATH, '1990-disclosure', "_#{type}.erb"))
-      ERB.new(contents).result(binding)
+      "#{parse_with_template_path("1990-disclosure/_#{type}")}\n"
     end
 
     # Some descriptive text that's included near the top of the 22-1990 form. Because they can make

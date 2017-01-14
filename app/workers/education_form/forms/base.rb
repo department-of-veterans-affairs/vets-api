@@ -23,15 +23,31 @@ module EducationForm::Forms
 
     # Convert the JSON/OStruct document into the text format that we submit to the backend
     def format
-      template ||= ERB.new(self.class::TEMPLATE, nil, '-')
       @applicant = @form
       # the spool file has a requirement that lines be 80 bytes (not characters), and since they
       # use windows-style newlines, that leaves us with a width of 78
-      wrapped = word_wrap(template.result(binding), line_width: 78)
+      wrapped = word_wrap(parse_with_template(self.class::TEMPLATE), line_width: 78)
       # We can only send ASCII, so make a best-effort at that.
       transliterated = Iconv.iconv('ascii//translit', 'utf-8', wrapped).first
       # The spool file must actually use windows style linebreaks
       transliterated.gsub("\n", EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
+    end
+
+    def parse_with_template(template)
+      ERB.new(template, nil, '-').result(binding).rstrip
+    end
+
+    def parse_with_template_path(path)
+      parse_with_template(get_template(path))
+    end
+
+    def header
+      parse_with_template_path('header')
+    end
+
+    def get_template(filename)
+      # TODO DRY
+      File.read(File.join(TEMPLATE_PATH, "#{filename}.erb"))
     end
 
     ### Common ERB Helpers
