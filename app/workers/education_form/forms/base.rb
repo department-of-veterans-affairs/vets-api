@@ -1,3 +1,5 @@
+require './app/workers/education_form/create_daily_spool_files'
+
 # frozen_string_literal: true
 module EducationForm::Forms
   class Base
@@ -16,6 +18,7 @@ module EducationForm::Forms
     def initialize(app)
       @record = app
       @form = app.open_struct_form
+      @text = format unless self.class == Base
     end
 
     # Convert the JSON/OStruct document into the text format that we submit to the backend

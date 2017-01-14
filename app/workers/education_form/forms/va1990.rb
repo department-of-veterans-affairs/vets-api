@@ -11,11 +11,6 @@ module EducationForm::Forms
 
     TYPE = '22-1990'
 
-    def initialize(app)
-      super
-      @text = format
-    end
-
     # If multiple benefit types are selected, we've been told to just include whichever
     # one is 'first' in the header.
     def form_type(application)
