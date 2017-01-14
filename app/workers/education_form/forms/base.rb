@@ -26,7 +26,7 @@ module EducationForm::Forms
       @applicant = @form
       # the spool file has a requirement that lines be 80 bytes (not characters), and since they
       # use windows-style newlines, that leaves us with a width of 78
-      wrapped = word_wrap(parse_with_template(self.class::TEMPLATE), line_width: 78)
+      wrapped = word_wrap(parse_with_template_path("#{@record.form_type}"), line_width: 78)
       # We can only send ASCII, so make a best-effort at that.
       transliterated = Iconv.iconv('ascii//translit', 'utf-8', wrapped).first
       # The spool file must actually use windows style linebreaks

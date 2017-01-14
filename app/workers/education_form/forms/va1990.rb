@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 module EducationForm::Forms
   class VA1990 < Base
-    TEMPLATE = File.read(File.join(TEMPLATE_PATH, '1990.erb'))
-
     ### ERB HELPERS
 
     CH33_TYPES = {
