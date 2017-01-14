@@ -16,6 +16,7 @@ RSpec.describe EducationForm::Forms::VA1995 do
     end
 
     it 'should generate the spool file correctly' do
+      expect(education_benefits_claim.valid?).to eq(true)
       puts subject.text
     end
   end
