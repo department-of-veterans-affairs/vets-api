@@ -44,7 +44,7 @@ pipeline {
 
     stage('Run tests') {
       steps {
-        sh 'bash --login -c "bundle install --path vendor/bundle --without development"'
+        sh 'bash --login -c "bundle install --without development"'
         withEnv(env_vars) {
           sh 'bash --login -c "bundle exec rake db:create db:schema:load ci"'
         }
