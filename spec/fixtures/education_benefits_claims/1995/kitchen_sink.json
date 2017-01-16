@@ -26,5 +26,7 @@
     "street": "123 Main St"
   },
   "civilianBenefitsAssistance": true,
-  "email": "test@sample.com"
+  "email": "test@sample.com",
+  "benefit": "transferOfEntitlement",
+  "educationType": "tuitionTopUp"
 }
