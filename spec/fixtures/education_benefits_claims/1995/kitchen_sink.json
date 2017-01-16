@@ -17,5 +17,12 @@
   },
   "vaFileNumber": "vafile123",
   "homePhone": "5551110000",
-  "mobilePhone": "5551110001"
+  "mobilePhone": "5551110001",
+  "veteranAddress": {
+    "city": "Milwaukee",
+    "country": "USA",
+    "postalCode": "53130",
+    "state": "WI",
+    "street": "123 Main St"
+  }
 }
