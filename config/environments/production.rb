@@ -59,8 +59,8 @@ Rails.application.configure do
   config.log_tags = [
     :uuid,
     proc do |request|
-      if request.headers['Authorization'].present?
-        request.headers['Authorization'] =~ /Token token=(.*)/
+      byebug
+      if request.headers['Authorization'] =~ /Token token=(.*)/
         Session.obscure_token(Regexp.last_match[1])
       else
         'unauthenticated'
