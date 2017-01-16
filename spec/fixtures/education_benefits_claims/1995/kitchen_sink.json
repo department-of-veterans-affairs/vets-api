@@ -15,5 +15,7 @@
       "street": "111 Uni Drive"
     }
   },
-  "vaFileNumber": "vafile123"
+  "vaFileNumber": "vafile123",
+  "homePhone": "5551110000",
+  "mobilePhone": "5551110001"
 }
