@@ -29,5 +29,6 @@
   "email": "test@sample.com",
   "benefit": "transferOfEntitlement",
   "educationType": "tuitionTopUp",
-  "educationObjective": "bachelor's degree"
+  "educationObjective": "bachelor's degree",
+  "programName": "program name"
 }
