@@ -41,5 +41,12 @@
   "benefit": "transferOfEntitlement",
   "educationType": "tuitionTopUp",
   "educationObjective": "bachelor's degree",
+  "bankAccountChange": "start",
+  "bankAccount": {
+    "accountNumber": "88888888888",
+    "accountType": "checking",
+    "bankName": "First Bank of JSON",
+    "routingNumber": "123456789"
+  },
   "programName": "program name"
 }

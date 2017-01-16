@@ -49,3 +49,16 @@ EVENING: <%= @applicant.homePhone %>
 
 4E. TELL US WHEN AND WHY YOU STOPPED TRAINING AT YOUR PRIOR SCHOOL OR ESTABLISHMENT. CONTINUE IN REMARKS, ITEM 10, OR ON A SEPARATE SHEET IF NECESSARY.
 <%= @applicant.reasonForChange %>
+
+        PART III - DIRECT DEPOSIT INFORMATION
+        ---------------------
+
+5. DIRECT DEPOSIT: <%= @applicant.bankAccountChange&.upcase %> EFT
+
+A. TYPE OF ACCOUNT: <%= @applicant.bankAccount&.accountType %>
+
+B. NAME OF FINANCIAL INSTITUTION: <%= @applicant.bankAccount&.bankName %>
+
+C. 9 DIGIT ROUTING OR TRANSIT NUMBER: <%= @applicant.bankAccount&.routingNumber %>
+
+D. ACCOUNT NUMBER: <%= @applicant.bankAccount&.accountNumber %>
