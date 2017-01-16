@@ -37,3 +37,9 @@ EVENING: <%= @applicant.homePhone %>
  YOU WORKING TOWARD?: <%= @applicant.educationObjective %>
 
 4B. WHAT IS THE NAME OF THE PROGRAM YOU ARE REQUESTING?: <%= @applicant.programName %>
+
+4C. IF CHANGING SCHOOLS, PROVIDE NAME AND COMPLETE ADDRESS
+ OF NEW SCHOOL OR TRAINING ESTABLISHMENT YOU ARE PLANNING
+ TO ATTEND (If applicable):
+<%= @applicant.newSchool&.name %>
+<%= full_address(@applicant.newSchool&.address) %>
