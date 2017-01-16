@@ -41,5 +41,4 @@ EVENING: <%= @applicant.homePhone %>
 4C. IF CHANGING SCHOOLS, PROVIDE NAME AND COMPLETE ADDRESS
  OF NEW SCHOOL OR TRAINING ESTABLISHMENT YOU ARE PLANNING
  TO ATTEND (If applicable):
-<%= @applicant.newSchool&.name %>
-<%= full_address(@applicant.newSchool&.address) %>
+<%= school_name_and_addr(@applicant.newSchool) %>

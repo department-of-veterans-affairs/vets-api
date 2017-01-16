@@ -68,6 +68,15 @@ module EducationForm::Forms
       [name.first, name.middle, name.last].compact.join(' ')
     end
 
+    def school_name_and_addr(school)
+      return '' if school.nil?
+
+      [
+        school.name,
+        full_address(school.address)
+      ].compact.join("\n")
+    end
+
     def full_address(address, indent: false)
       return '' if address.nil?
       seperator = indent ? "\n        " : "\n"
