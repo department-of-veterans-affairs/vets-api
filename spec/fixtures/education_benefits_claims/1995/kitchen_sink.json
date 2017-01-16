@@ -28,5 +28,6 @@
   "civilianBenefitsAssistance": true,
   "email": "test@sample.com",
   "benefit": "transferOfEntitlement",
-  "educationType": "tuitionTopUp"
+  "educationType": "tuitionTopUp",
+  "educationObjective": "bachelor's degree"
 }
