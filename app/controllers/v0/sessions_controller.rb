@@ -37,13 +37,7 @@ module V0
         obscure_token = Session.obscure_token(@session.token)
         Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
       else
-        message = <<-MESSAGE.strip_heredoc
-          SAML Login attempt failed! Reasons...
-            saml:    'valid?=#{@saml_response.is_valid?} errors=#{@saml_response.errors}'
-            user:    'valid?=#{@current_user&.valid?} errors=#{@current_user&.errors&.full_messages}'
-            session: 'valid?=#{@session&.valid?} errors=#{@session&.errors&.full_messages}'
-        MESSAGE
-        log_errors(message)
+        login_error
         redirect_to SAML_CONFIG['relay'] + '?auth=fail'
       end
     end
@@ -58,6 +52,16 @@ module V0
 
       @current_user = @current_user.nil? ? saml_user : User.from_merged_attrs(@current_user, saml_user)
       @session.save && @current_user.save
+    end
+
+    def login_error
+      message = <<-MESSAGE.strip_heredoc
+        SAML Login attempt failed! Reasons...
+          saml:    'valid?=#{@saml_response.is_valid?} errors=#{@saml_response.errors}'
+          user:    'valid?=#{@current_user&.valid?} errors=#{@current_user&.errors&.full_messages}'
+          session: 'valid?=#{@session&.valid?} errors=#{@session&.errors&.full_messages}'
+      MESSAGE
+      log_errors(message)
     end
 
     def async_create_evss_account(user)
