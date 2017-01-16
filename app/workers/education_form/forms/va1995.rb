@@ -5,5 +5,11 @@ module EducationForm::Forms
     def school
       @applicant.newSchool
     end
+
+    def full_name
+      name = @applicant.veteranFullName
+      return '' if name.nil?
+      [name.last, name.first, name.middle].compact.join(' ')
+    end
   end
 end

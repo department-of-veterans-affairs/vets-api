@@ -8,22 +8,20 @@ DEC 2016
   FOR VETERANS, SERVICEPERSONS & MEMBERS OF THE SELECTED RESERVE
   --------------------------------------------------------------
 
-        APPLICANT INFORMATION
+        PART I - IDENTIFICATION AND PERSONAL INFORMATION
         ---------------------
 
-1. VA FILE NUMBER: <%= @applicant.vaFileNumber %>
+1A. NAME OF APPLICANT (Last, First, Middle): <%= full_name %>
 
-2. SOCIAL SECURITY NUMBER: <%= @applicant.veteranSocialSecurityNumber %>
-
-3. FIRST-MIDDLE-LAST NAME OF APPLICANT: <%= full_name(@applicant.veteranFullName) %>
-
-4a. HOME (Evening) TELEPHONE NO.: <%= @applicant.homePhone %>
-
-4b. WORK (Daytime) PHONE NO.: <%= @applicant.mobilePhone %>
-
-5. MAILING ADDRESS:
+1B. MAILING ADDRESS:
 <%= full_address(@applicant.veteranAddress) %>
 
-6. ANSWER ONLY IF YOU'RE A FEDERAL GOVERNMENT EMPLOYEE: DO YOU EXPECT TO
-RECEIVE EDUCATIONAL BENEFITS UNDER THE GOVERNMENT EMPLOYEE'S TRAINING ACT
-FOR THE SAME TIME YOU WILL RECEIVE VA EDUCATION BENEFITS?: <%= yesno(@applicant.civilianBenefitsAssistance) %>
+1C. APPLICANT'S TELEPHONE NUMBER
+DAY: <%= @applicant.mobilePhone %>
+EVENING: <%= @applicant.homePhone %>
+
+1D. VA FILE NUMBER: <%= @applicant.vaFileNumber %>
+
+1E. APPLICANT'S E-MAIL ADDRESS: <%= @applicant.email %>
+
+1F. SOCIAL SECURITY OF APPLICANT: <%= @applicant.veteranSocialSecurityNumber %>

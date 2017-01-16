@@ -25,5 +25,6 @@
     "state": "WI",
     "street": "123 Main St"
   },
-  "civilianBenefitsAssistance": true
+  "civilianBenefitsAssistance": true,
+  "email": "test@sample.com"
 }
