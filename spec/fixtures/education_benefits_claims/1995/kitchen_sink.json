@@ -24,5 +24,6 @@
     "postalCode": "53130",
     "state": "WI",
     "street": "123 Main St"
-  }
+  },
+  "civilianBenefitsAssistance": true
 }
