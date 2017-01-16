@@ -15,6 +15,17 @@
       "street": "111 Uni Drive"
     }
   },
+  "oldSchool": {
+    "name": "old school name",
+    "address": {
+      "city": "Baltimore",
+      "country": "USA",
+      "postalCode": "21231",
+      "state": "MD",
+      "street": "111 Uni Drive"
+    }
+  },
+  "reasonForChange": "reason for change",
   "vaFileNumber": "vafile123",
   "homePhone": "5551110000",
   "mobilePhone": "5551110001",

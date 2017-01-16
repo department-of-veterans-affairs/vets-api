@@ -42,3 +42,10 @@ EVENING: <%= @applicant.homePhone %>
  OF NEW SCHOOL OR TRAINING ESTABLISHMENT YOU ARE PLANNING
  TO ATTEND (If applicable):
 <%= school_name_and_addr(@applicant.newSchool) %>
+
+4D. PROVIDE NAME AND COMPLETE ADDRESS OF PREVIOUS SCHOOL OR
+ TRAINING ESTABLISHMENT (If only changing schools, list current school.):
+<%= school_name_and_addr(@applicant.oldSchool) %>
+
+4E. TELL US WHEN AND WHY YOU STOPPED TRAINING AT YOUR PRIOR SCHOOL OR ESTABLISHMENT. CONTINUE IN REMARKS, ITEM 10, OR ON A SEPARATE SHEET IF NECESSARY.
+<%= @applicant.reasonForChange %>
