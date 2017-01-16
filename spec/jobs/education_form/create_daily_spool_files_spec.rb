@@ -72,7 +72,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
 
     context 'with a 1995 form' do
-      let(:application_1606) { create(:education_benefits_claim_1995) }
+      let(:application_1606) { create(:education_benefits_claim_1995_full_form) }
 
       it 'tracks the 1995 form' do
         expect(subject).to receive(:track_form_type).with('22-1995', 999)
