@@ -13,10 +13,10 @@ RSpec.describe EducationForm::Forms::VA1995 do
   describe '#text' do
     before do
       education_benefits_claim.form = File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'kitchen_sink.json'))
+      education_benefits_claim.save!
     end
 
     it 'should generate the spool file correctly' do
-      expect(education_benefits_claim.valid?).to eq(true)
       puts subject.text
     end
   end
