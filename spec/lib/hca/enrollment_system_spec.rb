@@ -567,10 +567,10 @@ describe HCA::EnrollmentSystem do
         MN
         MN
       ),
-      [
-        'Other',
-        'FG'
-      ]
+      %w(
+        Other
+        FG
+      )
     ]
   )
 

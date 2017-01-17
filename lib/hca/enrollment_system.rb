@@ -20,7 +20,7 @@ module HCA
         'va:formIdentifier' => {
           'va:type' => '100',
           'va:value' => '1010EZ',
-          'va:version' => 1_986_360_435
+          'va:version' => 2_986_360_436
         }
       },
       'va:identity' => {
