@@ -19,8 +19,8 @@ RSpec.describe EducationForm::Forms::VA1995 do
       allow(education_benefits_claim).to receive(:id).and_return(1)
     end
 
-    it 'should generate the spool file correctly' do
-      expect(subject.text).to eq(File.read("#{kitchen_sink}spl").rstrip)
+    it 'should generate the spool file correctly', run_at: '2017-01-17 03:00:00 -0500' do
+      expect(subject.text).to eq(File.read("#{kitchen_sink}spl").rstrip.gsub("\n", EducationForm::WINDOWS_NOTEPAD_LINEBREAK))
     end
   end
 end
