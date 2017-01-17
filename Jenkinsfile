@@ -32,7 +32,9 @@ def env_vars = [
 ]
 
 pipeline {
-  agent label:'vets-api-linting'
+  agent {
+    label 'vets-api-linting'
+  }
   stages {
     stage('Checkout Code') {
       steps {
@@ -42,7 +44,7 @@ pipeline {
 
     stage('Run tests') {
       steps {
-        sh 'bash --login -c "bundle install --path vendor/bundle --without development"'
+        sh 'bash --login -c "bundle install --without development -j 4"'
         withEnv(env_vars) {
           sh 'bash --login -c "bundle exec rake db:create db:schema:load ci"'
         }

@@ -13,6 +13,52 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     :simple_ch33, :kitchen_sink
   ].freeze
 
+  context 'scheduling' do
+    context 'job only runs on business days', run_at: '2016-12-31 00:00:00 EDT' do
+      let(:scheduler) { Rufus::Scheduler.new }
+      let(:possible_runs) do
+        { '2017-01-02 03:00:00 -0500': false,
+          '2017-01-03 03:00:00 -0500': true,
+          '2017-01-04 03:00:00 -0500': true,
+          '2017-01-05 03:00:00 -0500': true,
+          '2017-01-06 03:00:00 -0500': true }
+      end
+
+      before do
+        yaml = YAML.load_file(File.join(Rails.root, 'config', 'sidekiq_scheduler.yml'))
+        cron = yaml['CreateDailySpoolFiles']['cron']
+        scheduler.schedule_cron(cron) {} # schedule_cron requires a block
+      end
+
+      it 'is only triggered by sidekiq-scheduler on weekdays' do
+        upcoming_runs = scheduler.timeline(Time.zone.now, 1.week.from_now).map(&:first)
+        expected_runs = possible_runs.keys.map { |d| Time.zone.parse(d.to_s) }
+        expect(upcoming_runs).to eq(expected_runs)
+      end
+
+      it 'should skip observed holidays' do
+        possible_runs.each do |day, should_run|
+          Timecop.freeze(Time.zone.parse(day.to_s).beginning_of_day) do
+            expect(subject.perform).to be(should_run)
+          end
+        end
+      end
+    end
+
+    it 'should log a message on holidays', run_at: '2017-01-02 03:00:00 EDT' do
+      expect(subject).not_to receive(:create_files)
+      expect(subject.logger).to receive(:info).with("Skipping on a Holiday: New Year's Day")
+      expect(subject.perform).to be false
+    end
+
+    it 'should not skip informal holidays', run_at: '2017-04-01 03:00:00 EDT' do
+      # Sanity check that this *is* an informal holiday we're testing
+      expect(Holidays.on(Time.zone.today, :us, :informal).first[:name]).to eq("April Fool's Day")
+      expect(subject).to receive(:create_files)
+      expect(subject.perform).to be true
+    end
+  end
+
   context '#format_application' do
     it 'uses conformant sample data in the tests' do
       expect(application_1606.form).to match_vets_schema('edu_benefits')
@@ -115,42 +161,12 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
           'worker.education_benefits_claim.transmissions',
           value: 1,
           tags: [
-            'form:22-1990',
-            'rpo:307'
+            'rpo:307',
+            'form:22-1990'
           ]
         )
 
         expect(EducationBenefitsClaim.unprocessed).to be_empty
-      end
-    end
-  end
-
-  context '#full_address' do
-    let(:address) { application_1606.open_struct_form.veteranAddress }
-
-    subject { described_class.new.send(:full_address, address) }
-
-    context 'with a nil address' do
-      let(:address) { nil }
-
-      it 'should return the blank string' do
-        expect(subject).to eq('')
-      end
-    end
-
-    context 'with no street2' do
-      it 'should format the address correctly' do
-        expect(subject).to eq("123 MAIN ST\nMILWAUKEE, WI, 53130\nUSA")
-      end
-    end
-
-    context 'with a street2' do
-      before do
-        address.street2 = 'apt 2'
-      end
-
-      it 'should format the address correctly' do
-        expect(subject).to eq("123 MAIN ST\nAPT 2\nMILWAUKEE, WI, 53130\nUSA")
       end
     end
   end
