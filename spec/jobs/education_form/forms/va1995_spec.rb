@@ -11,7 +11,7 @@ RSpec.describe EducationForm::Forms::VA1995 do
   end
 
   describe '#text' do
-    let(:kitchen_sink) { './spec/fixtures/education_benefits_claims/1995/kitchen_sink.' }
+    let(:kitchen_sink) { 'spec/fixtures/education_benefits_claims/1995/kitchen_sink.' }
 
     before do
       education_benefits_claim.form = File.read("#{kitchen_sink}json")
