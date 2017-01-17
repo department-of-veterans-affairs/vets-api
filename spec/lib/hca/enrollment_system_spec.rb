@@ -569,7 +569,7 @@ describe HCA::EnrollmentSystem do
       ),
       [
         'Other',
-        'FOREIGN COUNTRY'
+        'FG'
       ]
     ]
   )

@@ -384,7 +384,7 @@ module HCA
 
     def convert_birth_state(birth_state)
       if birth_state == 'Other'
-        'FOREIGN COUNTRY'
+        'FG'
       else
         birth_state
       end

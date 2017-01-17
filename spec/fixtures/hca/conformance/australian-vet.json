@@ -55,6 +55,8 @@
     "street2": "",
     "street3": "",
     "city": "Sydney",
+    "provinceCode": "New South Wales",
+    "postalCode": "2000",
     "country": "AUS"
   },
   "spousePhone": "1112221234",
