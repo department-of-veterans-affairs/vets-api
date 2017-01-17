@@ -38,6 +38,10 @@ Rails.application.routes.draw do
       resources :trackings, only: :index, controller: :trackings
     end
 
+    resource :health_records, only: [:new, :create, :show], defaults: { format: :json } do
+      get :refresh, to: 'health_records#refresh', on: :collection
+    end
+
     scope :messaging do
       scope :health do
         resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'
