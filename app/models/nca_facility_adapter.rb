@@ -3,7 +3,7 @@ class NCAFacilityAdapter
   NCA_ID_FIELD = 'CEMETERY_I'
   FACILITY_TYPE = 'va_cemetery'
 
-  def self.services?(_facility, _services)
+  def self.facility_offers_services?(_facility, _services)
     false
   end
 
@@ -23,7 +23,7 @@ class NCAFacilityAdapter
     VAFacility.new(m)
   end
 
-  def self.service_whitelist
+  def self.supported_services
     []
   end
 

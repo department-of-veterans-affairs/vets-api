@@ -45,7 +45,7 @@ class V0::Facilities::VaController < FacilitiesController
   def validate_type_and_services_known
     raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
       VAFacility::TYPES.include?(params[:type])
-    unknown = params[:services].to_a - VAFacility.service_whitelist(params[:type])
+    unknown = params[:services].to_a - VAFacility.supported_services(params[:type])
     raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
   end
 end

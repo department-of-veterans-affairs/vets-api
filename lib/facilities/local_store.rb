@@ -33,7 +33,7 @@ module Facilities
         result = result.sort_by { |p| p.dist_from_center(bbox) }
         result = result.map(&:facility)
         if services
-          result = result.select { |f| @adapter.services?(f, services) }
+          result = result.select { |f| @adapter.facility_offers_services?(f, services) }
         end
         result
       end

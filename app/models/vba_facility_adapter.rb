@@ -3,7 +3,7 @@ class VBAFacilityAdapter
   VBA_ID_FIELD = 'Facility_Number'
   FACILITY_TYPE = 'va_benefits_facility'
 
-  def self.services?(facility, services)
+  def self.facility_offers_services?(facility, services)
     services.all? { |s| facility.services[:benefits][:standard].include? s }
   end
 
@@ -22,7 +22,7 @@ class VBAFacilityAdapter
     VAFacility.new(m)
   end
 
-  def self.service_whitelist
+  def self.supported_services
     SERVICES_MAP.keys
   end
 

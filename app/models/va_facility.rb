@@ -49,8 +49,8 @@ class VAFacility < ActiveModelSerializers::Model
     adapter.get(station)
   end
 
-  def self.service_whitelist(prefix)
-    client_adapter(prefix)&.adapter&.service_whitelist
+  def self.supported_services(prefix)
+    client_adapter(prefix)&.adapter&.supported_services
   end
 
   def self.client_adapter(prefix)

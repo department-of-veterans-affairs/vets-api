@@ -3,7 +3,7 @@ class VHAFacilityAdapter
   VHA_ID_FIELD = 'StationNumber'
   FACILITY_TYPE = 'va_health_facility'
 
-  def self.services?(facility, services)
+  def self.facility_offers_services?(facility, services)
     services.all? { |s| facility.services[:health].any? { |x| x.flatten(2).include? s } }
   end
 
@@ -28,7 +28,7 @@ class VHAFacilityAdapter
     VAFacility.new(m)
   end
 
-  def self.service_whitelist
+  def self.supported_services
     SERVICE_HIERARCHY.flatten(2)
   end
 

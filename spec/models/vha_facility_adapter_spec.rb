@@ -71,17 +71,17 @@ RSpec.describe VHAFacilityAdapter, type: :adapter do
     expect(model.services[:health].length).to eq(2)
   end
 
-  describe '.services?' do
+  describe '.facility_offers_services?' do
     it 'should return true for existent service' do
       input = FactoryGirl.build(:vha_gis_record)
       model = described_class.from_gis(input)
-      expect(described_class.services?(model, ['PrimaryCare'])).to eq(true)
+      expect(described_class.facility_offers_services?(model, ['PrimaryCare'])).to eq(true)
     end
 
     it 'should return false for non-existent service' do
       input = FactoryGirl.build(:vha_gis_record)
       model = described_class.from_gis(input)
-      expect(described_class.services?(model, ['Neurology'])).to eq(false)
+      expect(described_class.facility_offers_services?(model, ['Neurology'])).to eq(false)
     end
   end
 end
