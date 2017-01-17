@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
-  attributes :contention_list, :va_representative, :events_timeline, :claim_type
+  attributes :contention_list, :va_representative, :events_timeline
 
   def contention_list
     object.data['contention_list']
@@ -8,10 +8,6 @@ class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
 
   def va_representative
     object.data['poa']
-  end
-
-  def claim_type
-    object.data['status_type']
   end
 
   def events_timeline
