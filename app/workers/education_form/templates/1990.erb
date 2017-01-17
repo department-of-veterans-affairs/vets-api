@@ -158,7 +158,4 @@ Signature of Applicant                                               Date
       Certification for Persons on Active Duty
 Signature/Title/Branch of Armed Forces Education Service Officer     Date
 
-Electronically Received by VA:  <%= to_date(Date.today) %>
-Confirmation #:  <%= @applicant.confirmation_number %>
-
-*END*
+<%= parse_with_template_path('footer') %>

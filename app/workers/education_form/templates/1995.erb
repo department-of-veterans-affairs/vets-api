@@ -62,3 +62,28 @@ B. NAME OF FINANCIAL INSTITUTION: <%= @applicant.bankAccount&.bankName %>
 C. 9 DIGIT ROUTING OR TRANSIT NUMBER: <%= @applicant.bankAccount&.routingNumber %>
 
 D. ACCOUNT NUMBER: <%= @applicant.bankAccount&.accountNumber %>
+
+        PART IV - MISCELLANEOUS INFORMATION
+        ---------------------
+
+6. INFORMATION ON DEPENDENTS (COMPLETE THIS ITEM ONLY IF YOU SERVED BEFORE JANUARY 1, 1977 (or had a delayed entry before January 2, 1978) AND YOU CURRENTLY HAVE DEPENDENTS.)
+
+A. ARE YOU CURRENTLY MARRIED?: <%= yesno(@applicant.serviceBefore1977&.married) %>
+
+B. HAVE DEPENDENTS: <%= yesno(@applicant.serviceBefore1977&.haveDependents) %>
+
+C. IS EITHER YOUR FATHER OR MOTHER DEPENDENT UPON YOU FOR FINANCIAL SUPPORT?: <%= yesno(@applicant.serviceBefore1977&.parentDependent) %>
+
+7. RECENT PERIODS OF SERVICE (PERIODS OF ACTIVE DUTY SINCE YOUR INITIAL PERIOD OF ACTIVE DUTY.) Please complete this section for each period of your active duty since your initial period of active duty if you have not previously reported this information. It will help VA process your claim if you attach a certified copy of "Member 4 Copy" of your DD Form 214 for each period of active service. (Don't report Active Duty for Training.)
+
+<% @applicant.toursOfDuty&.each do |tour| -%>
+A. BRANCH OF SERVICE AND RESERVE OR GUARD COMPONENT SERVED IN DURING ACTIVE DUTY: <%= tour.serviceBranch %>
+B. BEGINNING AND ENDING DATES OF ACTIVE DUTY: <%= tour.dateRange.from %> <%= tour.dateRange.to %>
+
+<% end %>
+8. DO YOU EXPECT TO RECEIVE EDUCATIONAL BENEFITS UNDER THE GOVERNMENT EMPLOYEE'S TRAINING ACT (GETA) FOR THE SAME COURSE(S) YOU WILL RECEIVE VA EDUCATION BENEFITS? (Answer only if you are a Federal Government employee): <%= yesno(@applicant.civilianBenefitsAssistance) %>
+
+9. ARE YOU RECEIVING OR DO YOU ANTICIPATE RECEIVING ANY MONEY (including but not limited to Federal Tuition Assistance) FROM THE ARMED FORCES OR PUBLIC HEALTH SERVICE FOR THE COURSE FOR WHICH YOU HAVE APPLIED TO VA FOR EDUCATION BENEFITS? IF YOU WILL RECEIVE SUCH BENEFITS, CHECK "YES." SHOW COMPLETE DETAILS IN THE REMARKS SECTION TO INCLUDE THE SOURCE OF THE FUNDS. NOTE: IF YOU ARE APPLYING FOR THE TUITION ASSISTANCE TOP-UP BENEFIT, CHECK "NO." (Answer only if you are on Active Duty): <%= yesno(@applicant.nonVaAssistance) %>
+
+10. REMARKS
+<%= @applicant.remarks %>

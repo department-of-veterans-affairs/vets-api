@@ -48,5 +48,24 @@
     "bankName": "First Bank of JSON",
     "routingNumber": "123456789"
   },
+  "serviceBefore1977": {
+    "haveDependents": true,
+    "married": true,
+    "parentDependent": false
+  },
+  "toursOfDuty": [{
+    "dateRange": {
+      "from": "2012-06-26",
+      "to": "2013-04-10"
+    },
+    "serviceBranch": "Army Reserve"
+  }, {
+    "dateRange": {
+      "from": "2013-04-22",
+      "to": "2013-06-14"
+    },
+    "serviceBranch": "navy"
+  }],
+  "civilianBenefitsAssistance": true,
   "programName": "program name"
 }
