@@ -21,8 +21,10 @@ Rails.application.routes.draw do
       end
     end
 
-    resource :health_care_application, only: [:create] do
-      resource :healthcheck, only: [:show], to: 'health_care_applications#healthcheck'
+    resource :health_care_applications, only: [:create] do
+      collection do
+        get(:healthcheck)
+      end
     end
 
     resource :disability_rating, only: [:show]
