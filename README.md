@@ -1,4 +1,4 @@
-# Vets.gov API [![Build Status](https://travis-ci.org/department-of-veterans-affairs/vets-api.svg?branch=master)](https://travis-ci.org/department-of-veterans-affairs/vets-api)
+# Vets.gov API [![Build Status](https://dev.vets.gov/jenkins/buildStatus/icon?job=department-of-veterans-affairs/vets-api/master&build=5)](http://jenkins.vetsgov-internal/job/department-of-veterans-affairs/job/vets-api/job/master/5/)
 
 This project provides common APIs for applications that live on vets.gov. This repo is in its infancy - more information coming soon!
 
