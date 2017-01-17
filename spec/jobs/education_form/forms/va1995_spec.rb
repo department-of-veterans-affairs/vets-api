@@ -11,13 +11,16 @@ RSpec.describe EducationForm::Forms::VA1995 do
   end
 
   describe '#text' do
+    let(:kitchen_sink) { './spec/fixtures/education_benefits_claims/1995/kitchen_sink.' }
+
     before do
-      education_benefits_claim.form = File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'kitchen_sink.json'))
+      education_benefits_claim.form = File.read("#{kitchen_sink}json")
       education_benefits_claim.save!
+      allow(education_benefits_claim).to receive(:id).and_return(1)
     end
 
     it 'should generate the spool file correctly' do
-      puts subject.text
+      expect(subject.text).to eq(File.read("#{kitchen_sink}spl").rstrip)
     end
   end
 end

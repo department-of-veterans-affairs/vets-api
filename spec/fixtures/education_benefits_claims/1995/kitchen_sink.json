@@ -67,5 +67,7 @@
     "serviceBranch": "navy"
   }],
   "civilianBenefitsAssistance": true,
+  "nonVaAssistance": true,
+  "remarks": "remarks",
   "programName": "program name"
 }
