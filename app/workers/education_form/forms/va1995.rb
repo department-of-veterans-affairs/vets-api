@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module EducationForm::Forms
   class VA1995 < Base
     TYPE = '22-1995'

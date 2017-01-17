@@ -20,7 +20,10 @@ RSpec.describe EducationForm::Forms::VA1995 do
     end
 
     it 'should generate the spool file correctly', run_at: '2017-01-17 03:00:00 -0500' do
-      expect(subject.text).to eq(File.read("#{kitchen_sink}spl").rstrip.gsub("\n", EducationForm::WINDOWS_NOTEPAD_LINEBREAK))
+      expected_text = File.read("#{kitchen_sink}spl").rstrip
+      expected_text.gsub!("\n", EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
+
+      expect(subject.text).to eq(expected_text)
     end
   end
 end
