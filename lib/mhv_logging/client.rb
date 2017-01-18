@@ -32,11 +32,18 @@ module MHVLogging
     def connection
       @connection ||=
         Faraday.new(config.base_path, headers: config.base_request_headers, request: config.request_options) do |conn|
-          conn.request :json
-          # Uncomment this out for generating curl output to send to MHV dev and test only
-          # conn.request :curl, ::Logger.new(STDOUT), :warn
+          verbose_logging = false
 
-          # conn.response :logger, ::Logger.new(STDOUT), bodies: true
+          conn.request :json
+
+          # NOTE: To avoid having PII accidentally logged, only change the verbose_flag up above
+          if !Rails.env.production? && verbose_logging
+            # generating curl output to send to MHV dev and test only
+            conn.request :curl, ::Logger.new(STDOUT), :warn
+            # logs a verbose response including body
+            conn.response :logger, ::Logger.new(STDOUT), bodies: true
+          end
+
           conn.response :snakecase
           conn.response :raise_error, error_prefix: 'MHV'
           conn.response :mhv_errors
