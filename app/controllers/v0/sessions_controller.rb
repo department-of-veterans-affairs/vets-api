@@ -78,7 +78,8 @@ module V0
 
       errors = []
       errors.concat(logout_response.errors) unless logout_response.validate(true)
-      errors << "Logout Request not found! ID=#{logout_response&.in_response_to}" if logout_request.nil?
+      errors << 'inResponseTo attribute is nil!' if logout_response&.in_response_to.nil?
+      errors << 'Logout Request not found!' if logout_request.nil?
       errors << 'Session not found!' if session.nil?
       errors << 'User not found!' if user.nil?
 
