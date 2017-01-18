@@ -3,12 +3,15 @@ require 'net/sftp'
 require 'iconv'
 
 module EducationForm
+  WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
+
+  class FormattingError < StandardError
+  end
+
   class CreateDailySpoolFiles
     include Sidekiq::Worker
     sidekiq_options queue: 'default',
                     retry: 5
-
-    WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
 
     # Setting the default value to the `unprocessed` scope is safe
     # because the execution of the query itself is defered until the
@@ -19,9 +22,11 @@ module EducationForm
     def perform(records: EducationBenefitsClaim.unprocessed)
       return false if federal_holiday?
       # Group the formatted records into different regions
+      logger.info("Processing #{records.count} application(s)")
       regional_data = group_submissions_by_region(records)
+      formatted_records = format_records(regional_data)
       # Create a remote file for each region, and write the records into them
-      create_files(regional_data)
+      create_files(formatted_records)
       true
     end
 
@@ -29,56 +34,54 @@ module EducationForm
       records.group_by { |r| r.regional_processing_office.to_sym }
     end
 
-    def write_files(sftp: nil, structured_data:)
+    # Convert the records into instances of their form representation.
+    # The conversion into 'spool file format' takes place here, rather
+    # than when we're writing the files so we can hold the connection
+    # open for a shorter period of time.
+    def format_records(grouped_data)
+      grouped_data.each do |region, v|
+        region_id = EducationFacility.facility_for(region: region)
+        grouped_data[region] = v.map do |record|
+          format_application(record, rpo: region_id)
+        end
+      end
+    end
+
+    # Write out the combined spool files for each region along with recording
+    # and tracking successful transfers.
+    def write_files(writer, structured_data:)
       structured_data.each do |region, records|
         region_id = EducationFacility.facility_for(region: region)
         filename = "#{region_id}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
         log_submissions(records, filename)
         # create the single textual spool file
-        contents = records.map do |record|
-          format_application(record.open_struct_form, rpo: region_id)
-        end.join(WINDOWS_NOTEPAD_LINEBREAK)
+        contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
 
-        if sftp
-          sftp.upload!(StringIO.new(contents), filename)
-        else
-          dir_name = Rails.root.join('tmp', 'spool_files')
-          FileUtils.mkdir_p(dir_name)
-          File.open(File.join(dir_name, filename), 'w') do |f|
-            f.write(contents)
-          end
-        end
+        writer.write(contents, filename)
+
         # track and update the records as processed once the file has been successfully written
         track_submissions(region_id)
-        records.each { |r| r.update_attribute(:processed_at, Time.zone.now) }
+        records.each { |r| r.record.update_attribute(:processed_at, Time.zone.now) }
       end
+    ensure
+      writer.close
     end
 
+    # TODO(molson): Remove this in further refactors. Specs depend on `create_files`
+    # for right now.
     def create_files(structured_data)
-      logger.error('No applications to write') && return if structured_data.empty?
-      if Rails.env.development? || ENV['EDU_SFTP_HOST'].blank?
-        write_files(structured_data: structured_data)
-      elsif ENV['EDU_SFTP_PASS'].blank?
-        raise "EDU_SFTP_PASS not set for #{ENV['EDU_SFTP_USER']}@#{ENV['EDU_SFTP_HOST']}"
-      else
-        Net::SFTP.start(ENV['EDU_SFTP_HOST'], ENV['EDU_SFTP_USER'], password: ENV['EDU_SFTP_PASS']) do |sftp|
-          logger.info('Connected to SFTP')
-          write_files(sftp: sftp, structured_data: structured_data)
-        end
-        logger.info('Disconnected from SFTP')
-      end
+      writer = EducationForm::Writer::Factory.get_writer.new(logger: logger)
+      write_files(writer, structured_data: structured_data)
     end
 
-    # Convert the JSON document into the text format that we submit to the backend
     def format_application(data, rpo: 0)
       form = EducationForm::Forms::Base.build(data)
       # TODO(molson): Once we have a column in the db with the form type, we can move
       # this tracking code to somewhere more reasonable.
       track_form_type(form.class::TYPE, rpo)
-      form.format
-    rescue => e
-      logger.error("Could not format #{form.confirmation_number}")
-      raise e
+      form
+    rescue
+      raise FormattingError, "Could not format #{data.confirmation_number}"
     end
 
     private
@@ -96,8 +99,9 @@ module EducationForm
     # Useful for debugging which records were or were not sent over successfully,
     # in case of network failures.
     def log_submissions(records, filename)
+      ids = records.map { |r| r.record.id }
       logger.info("Writing #{records.count} application(s) to #{filename}")
-      logger.info("IDs: #{records.map(&:id)}")
+      logger.info("IDs: #{ids}")
     end
 
     # Useful for alerting and monitoring the numbers of successfully send submissions
