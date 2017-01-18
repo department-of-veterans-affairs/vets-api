@@ -18,9 +18,6 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:invalid_logout_response) do
     double('logout_response', validate: false, in_response_to: logout_uuid, errors: ['bad thing'])
   end
-  let(:unsuccesful_logout_response) do
-    double('logout_response', validate: true, in_response_to: logout_uuid, errors: ['bad thing'])
-  end
   let(:succesful_logout_response) do
     double('logout_response', validate: true, success?: true, in_response_to: logout_uuid, errors: [])
   end
@@ -41,6 +38,11 @@ RSpec.describe V0::SessionsController, type: :controller do
       delete :destroy
       expect(response).to have_http_status(202)
     end
+    it 'responds with error when logout request is not found' do
+      expect(Rails.logger).to receive(:error).exactly(1).times
+      expect(post(:saml_logout_callback, SAMLResponse: '-'))
+        .to redirect_to(SAML_CONFIG['logout_relay'] + '?success=false')
+    end
     context ' logout has been requested' do
       before { SingleLogoutRequest.create(uuid: logout_uuid, token: token) }
       context ' logout_response is invalid' do
@@ -48,6 +50,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(invalid_logout_response)
         end
         it 'redirects to error' do
+          expect(Rails.logger).to receive(:error).with(/bad thing/).exactly(1).times
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
             .to redirect_to(SAML_CONFIG['logout_relay'] + '?success=false')
         end
