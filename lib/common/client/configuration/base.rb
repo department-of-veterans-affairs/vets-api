@@ -1,9 +1,12 @@
 # frozen_string_literal: true
+require 'common/client/concerns/verbose_logging'
+
 module Common
   module Client
     module Configuration
       class Base
         include Singleton
+        include Common::Client::VerboseLogging
 
         class_attribute :open_timeout
         class_attribute :read_timeout

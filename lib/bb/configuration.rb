@@ -24,19 +24,12 @@ module BB
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-        verbose_logging = false
-
         conn.use :breakers
         conn.request :camelcase
         conn.request :json
 
-        # NOTE: To avoid having PII accidentally logged, only change the verbose_flag up above
-        if !Rails.env.production? && verbose_logging
-          # generating curl output to send to MHV dev and test only
-          conn.request :curl, ::Logger.new(STDOUT), :warn
-          # logs a verbose response including body
-          conn.response :logger, ::Logger.new(STDOUT), bodies: true
-        end
+        # Uncomment this if you want curl command equivalent or response output to log
+        # log_curl_and_response_ouput
 
         conn.response :bb_parser
         conn.response :snakecase

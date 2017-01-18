@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'common/client/base'
 require 'common/client/concerns/mhv_session_based_client'
+require 'common/client/concerns/verbose_logging'
 require 'rx/configuration'
 require 'rx/client_session'
 
@@ -12,6 +13,7 @@ module MHVLogging
   # Core class responsible for api interface operations
   class Client < Common::Client::Base
     include Common::Client::MHVSessionBasedClient
+    include Common::Client::VerboseLogging
 
     configuration Rx::Configuration
     client_session Rx::ClientSession
@@ -32,17 +34,10 @@ module MHVLogging
     def connection
       @connection ||=
         Faraday.new(config.base_path, headers: config.base_request_headers, request: config.request_options) do |conn|
-          verbose_logging = false
-
           conn.request :json
 
-          # NOTE: To avoid having PII accidentally logged, only change the verbose_flag up above
-          if !Rails.env.production? && verbose_logging
-            # generating curl output to send to MHV dev and test only
-            conn.request :curl, ::Logger.new(STDOUT), :warn
-            # logs a verbose response including body
-            conn.response :logger, ::Logger.new(STDOUT), bodies: true
-          end
+          # Uncomment this if you want curl command equivalent or response output to log
+          # log_curl_and_response_ouput
 
           conn.response :snakecase
           conn.response :raise_error, error_prefix: 'MHV'
