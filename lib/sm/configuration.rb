@@ -33,7 +33,7 @@ module SM
         conn.request :json
 
         # NOTE: To avoid having PII accidentally logged, only change the verbose_flag up above
-        if Rails.env.test? && verbose_logging
+        if !Rails.env.production? && verbose_logging
           # generating curl output to send to MHV dev and test only
           conn.request :curl, ::Logger.new(STDOUT), :warn
           # logs a verbose response including body
