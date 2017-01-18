@@ -22,6 +22,7 @@ module EducationForm
     def perform(records: EducationBenefitsClaim.unprocessed)
       return false if federal_holiday?
       # Group the formatted records into different regions
+      logger.info("Processing #{records.count} application(s)")
       regional_data = group_submissions_by_region(records)
       formatted_records = format_records(regional_data)
       # Create a remote file for each region, and write the records into them
