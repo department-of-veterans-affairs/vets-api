@@ -7,11 +7,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   let!(:application_1606) do
     FactoryGirl.create(:education_benefits_claim)
   end
-  let(:line_break) { described_class::WINDOWS_NOTEPAD_LINEBREAK }
-
-  SAMPLE_APPLICATIONS = [
-    :simple_ch33, :kitchen_sink
-  ].freeze
+  let(:line_break) { EducationForm::WINDOWS_NOTEPAD_LINEBREAK }
 
   context 'scheduling' do
     context 'job only runs on business days', run_at: '2016-12-31 00:00:00 EDT' do
@@ -60,48 +56,41 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
 
   context '#format_application' do
-    it 'uses conformant sample data in the tests' do
-      expect(application_1606.form).to match_vets_schema('edu_benefits')
+    it 'logs an error if the record is invalid' do
+      expect(application_1606).to receive(:open_struct_form).once.and_return(OpenStruct.new)
+      expect { subject.format_application(application_1606) }.to raise_error(EducationForm::FormattingError) do |error|
+        expect(error.cause.message).to match(/NilClass/)
+      end
     end
 
-    context 'conformance', run_at: '2016-10-06 03:00:00 EDT' do
-      basepath = Rails.root.join('spec', 'fixtures', 'education_benefits_claims')
-      SAMPLE_APPLICATIONS.each do |application_name|
-        it "generates #{application_name} correctly" do
-          json = File.read(File.join(basepath, "#{application_name}.json"))
-          expect(json).to match_vets_schema('edu_benefits')
-          application = EducationBenefitsClaim.new(form: json)
-          result = subject.format_application(application.open_struct_form)
-          spl = File.read(File.join(basepath, "#{application_name}.spl"))
-          expect(result).to eq(spl)
-        end
-      end
+    it 'tracks and returns a form object' do
+      expect(subject).to receive(:track_form_type).with('22-1990', 999)
+      result = subject.format_application(application_1606, rpo: 999)
+      expect(result).to be_a(EducationForm::Forms::VA1990)
     end
 
     context 'result tests' do
-      subject { described_class.new.format_application(application_1606.open_struct_form) }
-
-      # TODO: Does it make sense to check against a known-good submission? Probably.
-      it 'formats a 22-1990 submission in textual form' do
-        expect(subject).to include("*INIT*\r\nMARK\r\n\r\nOLSON")
-        expect(subject).to include('Name:   Mark Olson')
-        expect(subject).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
-      end
+      subject { described_class.new.format_application(application_1606).text }
 
       it 'outputs a valid spool file fragment' do
         expect(subject.lines.select { |line| line.length > 80 }).to be_empty
       end
 
-      it 'includes the faa flight certificates' do
-        expect(subject).to include("FAA Flight Certificates:#{line_break}cert1, cert2#{line_break}")
+      it 'contains only windows-style newlines' do
+        expect(subject).to_not match(/([^\r]\n)/)
       end
+    end
+  end
 
-      it 'includes the confirmation number' do
-        expect(subject).to include("Confirmation #:  #{application_1606.confirmation_number}")
+  context '#perform' do
+    context 'with no records' do
+      before do
+        EducationBenefitsClaim.delete_all
       end
-
-      it "includes the veteran's postal code" do
-        expect(subject).to include(application_1606.open_struct_form.veteranAddress.postalCode)
+      it 'prints a statement and exits' do
+        expect(subject).not_to receive(:create_files)
+        expect(subject.logger).to receive(:info).with('No records to process.')
+        expect(subject.perform).to be(true)
       end
     end
   end
@@ -127,6 +116,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context 'create_files', run_at: '2016-09-16 03:00:00 EDT' do
     let(:filename) { '307_09162016_vetsgov.spl' }
+    let!(:second_record) { FactoryGirl.create(:education_benefits_claim) }
 
     context 'in the development env' do
       let(:file_path) { "tmp/spool_files/#{filename}" }
@@ -138,7 +128,12 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       it 'writes a file to the tmp dir' do
         expect(EducationBenefitsClaim.unprocessed).not_to be_empty
         subject.perform
-        expect(File.read(file_path).include?('APPLICATION FOR VA EDUCATION BENEFITS')).to eq(true)
+        contents = File.read(file_path)
+        expect(contents).to include('APPLICATION FOR VA EDUCATION BENEFITS')
+        # Concatenation is done in #write_files, so check for it here in the caller
+        expect(contents).to include("*END*#{line_break}*INIT*")
+        expect(contents).to include(second_record.confirmation_number)
+        expect(contents).to include(application_1606.confirmation_number)
         expect(EducationBenefitsClaim.unprocessed).to be_empty
       end
 
@@ -150,16 +145,19 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     it 'writes files out over sftp' do
       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
       ClimateControl.modify EDU_SFTP_HOST: 'localhost', EDU_SFTP_PASS: 'test' do
-        sftp_mock = double
-        expect(Net::SFTP).to receive(:start).once.and_yield(sftp_mock)
+        sftp_session_mock = instance_double('Net::SSH::Connection::Session')
+        sftp_mock = instance_double('Net::SFTP::Session', session: sftp_session_mock)
+
+        expect(Net::SFTP).to receive(:start).once.and_return(sftp_mock)
+        expect(sftp_mock).to receive(:open?).once.and_return(true)
         expect(sftp_mock).to receive(:upload!) do |contents, path|
           expect(path).to eq filename
           expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
         end
-
+        expect(sftp_session_mock).to receive(:close)
         expect { subject.perform }.to trigger_statsd_gauge(
           'worker.education_benefits_claim.transmissions',
-          value: 1,
+          value: 2,
           tags: [
             'rpo:307',
             'form:22-1990'
