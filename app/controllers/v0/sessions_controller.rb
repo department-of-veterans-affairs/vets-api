@@ -102,7 +102,7 @@ module V0
       errors
     end
 
-    def log_errors(message, context={})
+    def log_errors(message, context = {})
       logger.error message
       if ENV['SENTRY_DSN'].present?
         Raven.extra_context(context) unless !context.is_a?(Hash) || context.empty?
