@@ -5,14 +5,7 @@ require 'bb/client'
 
 describe BB::GenerateReportRequestForm do
   let(:eligible_data_classes) do
-    %w( seiactivityjournal seiallergies seidemographics familyhealthhistory
-        seifoodjournal healthcareproviders healthinsurance seiimmunizations
-        labsandtests medicalevents medications militaryhealthhistory
-        seimygoalscurrent seimygoalscompleted treatmentfacilities
-        vitalsandreadings prescriptions medications vaallergies
-        vaadmissionsanddischarges futureappointments pastappointments
-        vademographics vaekg vaimmunizations vachemlabs vaprogressnotes
-        vapathology vaproblemlist varadiology vahth wellness dodmilitaryservice )
+    BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES
   end
 
   let(:bb_client) do
@@ -59,7 +52,7 @@ describe BB::GenerateReportRequestForm do
         .to eq(from_date: time_after.httpdate, to_date: time_before.httpdate, data_classes: eligible_data_classes)
     end
 
-    # This spec can be added again in the future if desired, but for not leave as MHV error
+    # This spec can be added again in the future if desired, but for now leave as MHV error
     xit 'returns valid false with errors' do
       expect(subject.valid?).to be_falsey
       expect(subject.errors.full_messages)

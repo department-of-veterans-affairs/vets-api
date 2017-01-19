@@ -33,10 +33,11 @@ module MHVLogging
       @connection ||=
         Faraday.new(config.base_path, headers: config.base_request_headers, request: config.request_options) do |conn|
           conn.request :json
-          # Uncomment this out for generating curl output to send to MHV dev and test only
-          # conn.request :curl, ::Logger.new(STDOUT), :warn
 
-          # conn.response :logger, ::Logger.new(STDOUT), bodies: true
+          # Uncomment this if you want curl command equivalent or response output to log
+          # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
+          # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
+
           conn.response :snakecase
           conn.response :raise_error, error_prefix: 'MHV'
           conn.response :mhv_errors

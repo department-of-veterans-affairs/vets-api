@@ -13,8 +13,9 @@ module EducationForm
     end
 
     def close
+      return unless sftp && sftp.open?
       @logger.info('Disconnected from SFTP')
-      sftp.close
+      sftp.session.close
       true
     end
 
