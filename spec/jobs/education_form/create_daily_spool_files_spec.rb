@@ -132,14 +132,15 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     it 'writes files out over sftp' do
       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
       ClimateControl.modify EDU_SFTP_HOST: 'localhost', EDU_SFTP_PASS: 'test' do
-        sftp_mock = double
+        sftp_session_mock = double
+        sftp_mock = double(session: sftp_session_mock)
+
         expect(Net::SFTP).to receive(:start).once.and_return(sftp_mock)
         expect(sftp_mock).to receive(:upload!) do |contents, path|
           expect(path).to eq filename
           expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
         end
-        expect(sftp_mock).to receive(:close)
-
+        expect(sftp_mock.session).to receive(:close)
         expect { subject.perform }.to trigger_statsd_gauge(
           'worker.education_benefits_claim.transmissions',
           value: 2,
