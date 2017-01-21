@@ -21,7 +21,8 @@ Figaro.require_keys(
   'GOV_DELIVERY_SERVER',
   'ES_URL',
   'ES_CLIENT_CERT_PATH',
-  'ES_CLIENT_KEY_PATH'
+  'ES_CLIENT_KEY_PATH',
+  'GIDS_HOST'
 )
 
 if Rails.env.production?
