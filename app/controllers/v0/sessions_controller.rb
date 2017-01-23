@@ -71,7 +71,7 @@ module V0
     end
 
     def handle_completed_slo
-      logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings)
+      logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings, get_params: params)
       logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
       session         = Session.find(logout_request&.token)
       user            = User.find(session&.uuid)
