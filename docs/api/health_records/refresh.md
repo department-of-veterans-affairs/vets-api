@@ -4,6 +4,18 @@
 
 GET /health_records/refresh
 
+##### Important Note
+
+While the response below is more or less instant, this response will signify when the last refresh completed. A refresh typically takes 12-15 minutes, and these are batched
+and controller by MHV. They update the data from VISTA and other partners, and sometimes
+this batched job may even fail.
+
+That being said, a call to refresh will only trigger a single batch per day. That batched job should complete within 12-15 minutes, if it fails, it will be reattempted later.
+
+The way this endpoint can be used is to call this refresh endpoint in a polling mechanism
+to determine when the data has been fully refreshed. After the 12-15 minute job completes successfully, the dates returned will be updated and this can be used to show
+a user that the data has been refreshed and a new report can be generated with the updated data.
+
 ##### Example response
 
 ```javascript

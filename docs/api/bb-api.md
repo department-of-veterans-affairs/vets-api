@@ -13,6 +13,13 @@
 | POST /health_records | Generates the report | Triggers a call to generate the health record | from_date, to_date, data_classes (all are required) |
 | GET /health_records | Returns a health record | doctype: pdf/txt (must be bone of 'pdf or test' - defaults to pdf) |
 
+##### Note
+
+The call to generate a report should make the PDF more or less available right away.
+It is possible however that a call to generate the report at MHV takes longer than time it takes for user to click the download report.
+In this scenario, it is as yet unclear what the error returned will be from MHV. And unclear what special handling is prudent.
+This is an example of something we will have to discover more in testing. 
+
 ##### Supported Formats
 * JSON
 

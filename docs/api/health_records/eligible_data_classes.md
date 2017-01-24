@@ -4,6 +4,16 @@
 
 GET /health_records/eligible_data_classes
 
+##### Important Note
+
+The eligible data classes endpoint should be used to determine what data is available for
+a given veteran that requests a health record. The data classes map directly to the checkboxes that are selected and should be used to dynamically generate the form used to
+generate the report.
+
+There is a server side validation to ensure that the data classes passed to the generate
+endpoint are a part of this request. Note also, that doing a PHR refresh may add additional eligible data classes or possibly retire old ones to reflect the updated data
+that is available. As such, one should bust any caching that is done, when refreshing the data for a given day.
+
 ##### Example response
 
 ```javascript
