@@ -41,12 +41,13 @@ gem 'breakers'
 gem 'govdelivery-tms', require: 'govdelivery/tms/mail/delivery_method'
 gem 'statsd-instrument'
 gem 'memoist'
+gem 'date_validator'
 
 # Amazon Linux's system `json` gem causes conflicts, but
 # `multi_json` will prefer `oj` if installed, so include it here.
 gem 'oj'
 
-
+gem 'holidays'
 gem 'iconv'
 
 group :development, :test do
