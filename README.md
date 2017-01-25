@@ -3,6 +3,7 @@
 This project provides common APIs for applications that live on vets.gov. This repo is in its infancy - more information coming soon!
 
 ## Developer Setup
+As an alternative, you may use [Docker to setup Postgres, Redis, & specific version of Ruby](#development-setup--docker-)
 
 ### Base Setup
 
@@ -173,6 +174,19 @@ The token returned in the json response at the end of the login flow can be used
 curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyyja" localhost:3001/v0/sessions/current
 curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyyja" localhost:3001/v0/profile
 ```
+
+## Development Setup ( Docker )
+
+To run the api via docker from the root of the project run the following commands
+
+```
+docker-compose build
+docker-compse up
+```
+
+The API will then be available on port 3000 of the docker host.
+
+Environmental variables are defined in docker-compose.yml and can be overridden on the command line before the `docker-compose up` invocation
 
 ## Deployment Instructions
 

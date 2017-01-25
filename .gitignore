@@ -38,3 +38,8 @@ config/application.yml
 
 # Ignore .DS_Store
 .DS_Store
+
+# Ignore the docker runtime folders
+tmp/
+data/
+log/*

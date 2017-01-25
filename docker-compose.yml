@@ -1,0 +1,79 @@
+# Compose stack to run vets-api
+version: '2.1'
+services:
+  postgres:
+    image: "postgres:9.6"
+    environment:
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
+      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+    volumes:
+      - "./data:/var/lib/postgresql/data"
+  redis:
+    image: "redis:3.2"
+
+  vets-api:
+    build: .
+    volumes:
+      - ".:/src/vets-api"
+    ports:
+      - 3000:3000
+    environment:
+      RAILS_ENV: "${RAILS_ENV:-development}"
+      HOSTNAME: "${HOSTNAME:-localhost}"
+      WEB_ORIGIN: "${WEB_ORIGIN:-http://locahost:3000}"
+      #Database ( Enable connection pooling at a reasonable level )
+      POSTGRES_HOST: "${POSTGRES_HOST:-postgres}"
+      POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
+      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
+      DATABASE_URL: "postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
+      DB_ENCRYPTION_KEY: "${DB_ENCRYPTION_KEY:-f01ff8ebd1a2b053ad697ae1f0d86adb48ebb708021e4c76c3807d37f6b4e389d5aa45ea171f2f5074222784c1ee2bb8272390d1b9517a7a6987c22733ef00b2}"
+      # ID.me
+      SAML_CERTIFICATE_FILE: "${SAML_CERTIFICATE_FILE:-spec/support/certificates/ruby-saml.crt}"
+      SAML_KEY_FILE: "${SAML_KEY_FILE:-spec/support/certificates/ruby-saml.key}"
+      SAML_RELAY: "${SAML_RELAY:-http://localhost:3001/auth/login/callback}"
+      SAML_LOGOUT_RELAY: "${SAML_LOGOUT_RELAY:-http://localhost:3001/logout}"
+      #Redis
+      REDIS_HOST: "${REDIS_HOST:-redis}"
+      REDIS_PORT: "${REDIS_PORT:-6379}"
+      #MyHealtheVet
+      MHV_HOST: "${MHV_HOST:-https://mock-prescriptions-api.herokuapp.com}"
+      MHV_APP_TOKEN: "${MHV_APP_TOKEN:-fake-app-token}"
+      MHV_SM_HOST: "${MHV_SM_HOST:-https://test.vets.gov}"
+      MHV_SM_APP_TOKEN: "${MHV_SM_APP_TOKEN:-fake-app-token}"
+      # Enterprise Veterens Self Service (Portal)
+      EVSS_S3_UPLOADS: "${EVSS_S3_UPLOADS:-false}"
+      EVSS_AWS_S3_REGION: "${EVSS_AWS_S3_REGION}"
+      EVSS_AWS_S3_BUCKET: "${EVSS_AWS_S3_BUCKET}"
+      EVSS_AWS_ACCESS_KEY_ID: "${EVSS_AWS_ACCESS_KEY_ID}"
+      EVSS_AWS_SECRET_ACCESS_KEY: "${EVSS_AWS_SECRET_ACCESS_KEY}"
+      EVSS_BASE_URL: "${EVSS_BASE_URL:-https://test.vets.gov}"
+      EVSS_SAMPLE_CLAIMANT_USER: '{"uuid": "1234", "first_name": "Jane", "last_name":"Doe", "edipi": "1105051936", "participant_id": "123456789"}'
+      # Education Benefits
+      GOV_DELIVERY_SERVER: "${GOV_DELIVERY_SERVER:-stage-tms.govdelivery.com}"
+      GOV_DELIVERY_TOKEN: "${GOV_DELIVERY_TOKEN}"
+      REPORTS_AWS_ACCESS_KEY_ID: "${REPORTS_AWS_ACCESS_KEY_ID}"
+      REPORTS_AWS_SECRET_ACCESS_KEY: "${REPORTS_AWS_SECRET_ACCESS_KEY}"
+      REPORTS_AWS_S3_REGION: "${REPORTS_AWS_S3_REGION}"
+      REPORTS_AWS_S3_BUCKET: "${REPORTS_AWS_S3_BUCKET}"
+      # Facilities Locator
+      VHA_MAPSERVER_URL: "${VHA_MAPSERVER_URL:-https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_Facilities/FeatureServer/0}"
+      NCA_MAPSERVER_URL: "${NCA_MAPSERVER_URL:-https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/NCA_Facilities/FeatureServer/0}"
+      VBA_MAPSERVER_URL: "${VBA_MAPSERVER_URL:-https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VBA_Facilities/FeatureServer/0}"
+      VHA_MAPSERVER_LAYER: "${VHA_MAPSERVER_LAYER}"
+      # MVI
+      MVI_URL: "${MVI_URL:-http://www.example.com/}"
+      MVI_TIMEOUT: ${MVI_TIMEOUT:-10}
+      MVI_CLIENT_CERT_PATH: "${MVI_CLIENT_CERT_PATH:-/fake/client/cert/path}"
+      MVI_CLIENT_KEY_PATH: "${MVI_CLIENT_KEY_PATH:-/fake/client/key/path}"
+      MVI_PROCESSING_CODE: "${MVI_PROCESSING_CODE:-T}"
+      MOCK_MVI_SERVICE: "${MOCK_MVI_SERVICE:-true}"
+      # ES
+      ES_URL: "${ES_URL:-https://test.vets.gov}"
+      ES_CLIENT_CERT_PATH: "${ES_CLIENT_CERT_PATH}:-/fake/client/cert/path}"
+      ES_CLIENT_KEY_PATH: "${ES_CLIENT_KEY_PATH:-/fake/client/key/pat}"
+
+    links:
+      - postgres
+      - redis
+    command: "/src/vets-api/run.sh"
