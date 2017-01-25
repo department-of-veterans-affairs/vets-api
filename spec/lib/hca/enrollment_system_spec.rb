@@ -561,6 +561,21 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
+    'convert_birth_state',
+    [
+      %w(
+        MN
+        MN
+      ),
+      %w(
+        Other
+        FG
+      )
+    ]
+  )
+
+  test_method(
+    described_class,
     'service_branch_to_sds_code',
     [
       ['army', 1],

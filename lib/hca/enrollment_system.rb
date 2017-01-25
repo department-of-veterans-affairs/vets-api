@@ -20,7 +20,7 @@ module HCA
         'va:formIdentifier' => {
           'va:type' => '100',
           'va:value' => '1010EZ',
-          'va:version' => 1_986_360_435
+          'va:version' => 2_986_360_436
         }
       },
       'va:identity' => {
@@ -378,8 +378,16 @@ module HCA
           count: 20,
           nullable: true
         ),
-        'placeOfBirthState' => veteran['stateOfBirth']
+        'placeOfBirthState' => convert_birth_state(veteran['stateOfBirth'])
       }.merge(ssn_to_ssntext(veteran['veteranSocialSecurityNumber'])))
+    end
+
+    def convert_birth_state(birth_state)
+      if birth_state == 'Other'
+        'FG'
+      else
+        birth_state
+      end
     end
 
     def service_branch_to_sds_code(service_branch)
