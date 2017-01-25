@@ -13,6 +13,7 @@ describe HCA::Service do
       Dir[File.join(root, '*.json')].map { |f| File.basename(f, '.json') }.each do |form|
         it "properly formats #{form} for transmission" do
           json = JSON.load(root.join("#{form}.json"))
+          expect(json).to match_vets_schema('healthcare_application')
           xml = File.read(root.join("#{form}.xml"))
           expect(subject).to receive(:post_submission) do |arg|
             submission = arg.body
