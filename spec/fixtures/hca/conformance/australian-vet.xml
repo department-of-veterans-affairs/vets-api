@@ -3,7 +3,7 @@
     <va:formIdentifier>
       <va:type>100</va:type>
       <va:value>1010EZ</va:value>
-      <va:version>1986360435</va:version>
+      <va:version>2986360436</va:version>
     </va:formIdentifier>
     <va:summary>
       <eeSummary:associations xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas">
@@ -28,6 +28,8 @@
             <eeSummary:city>Sydney</eeSummary:city>
             <eeSummary:country>AUS</eeSummary:country>
             <eeSummary:line1>123 NW 8th St</eeSummary:line1>
+            <eeSummary:provinceCode>New South Wales</eeSummary:provinceCode>
+            <eeSummary:postalCode>2000</eeSummary:postalCode>
           </eeSummary:address>
           <eeSummary:contactType>10</eeSummary:contactType>
           <eeSummary:relationship>SPOUSE</eeSummary:relationship>
@@ -156,6 +158,8 @@
                   <eeSummary:city>Sydney</eeSummary:city>
                   <eeSummary:country>AUS</eeSummary:country>
                   <eeSummary:line1>123 NW 8th St</eeSummary:line1>
+                  <eeSummary:provinceCode>New South Wales</eeSummary:provinceCode>
+                  <eeSummary:postalCode>2000</eeSummary:postalCode>
                   <eeSummary:phoneNumber>1112221234</eeSummary:phoneNumber>
                 </eeSummary:address>
                 <eeSummary:givenName>FIRSTSPOUSE</eeSummary:givenName>
@@ -287,7 +291,7 @@
         <eeSummary:dob>01/02/1923</eeSummary:dob>
         <eeSummary:mothersMaidenName>Maiden</eeSummary:mothersMaidenName>
         <eeSummary:placeOfBirthCity>Springfield</eeSummary:placeOfBirthCity>
-        <eeSummary:placeOfBirthState>AK</eeSummary:placeOfBirthState>
+        <eeSummary:placeOfBirthState>FG</eeSummary:placeOfBirthState>
         <eeSummary:ssnText>111111234</eeSummary:ssnText>
       </eeSummary:personInfo>
     </va:summary>
