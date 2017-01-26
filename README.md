@@ -45,8 +45,13 @@ Some configuration is required in order to run various features of `vets-api`.  
 - [Education Benefits](/docs/setup/edu_benefits.md)
 - [Master Veteran Index (MVI)](/docs/setup/mvi.md)
 
-### Running the App
-`vets-api` requires postgres, Redis, & the rails server.  To manually run each:
+## Running the App
+Vets-api` requires:
+- postgres
+- Redis
+- rails server
+
+To manually run each:
 1. `postgres -D /usr/local/var/postgres`
 1. `redis-server /usr/local/etc/redis.conf`
 1. `bundle exec rails` server from <GITHUB_HOME>/vets-api/
@@ -55,7 +60,7 @@ Some configuration is required in order to run various features of `vets-api`.  
 1. Start the application: `foreman start`
 1. Navigate to <http://localhost:3000/v0/status> in your browser.
 
-## Testing Commands
+### Testing Commands
 - `bundle exec rake lint` - Run the full suite of linters on the codebase.
 - `bundle exec guard` - Runs the guard test server that reruns your tests after files are saved. Useful for TDD!
 - `bundle exec rake security` - Run the suite of security scanners on the codebase.
@@ -63,7 +68,7 @@ Some configuration is required in order to run various features of `vets-api`.  
 
 ## Deployment Instructions
 
-Currently, this API is not yet in production. Ansible templates and instructions for deploying are in the [devops repo](https://github.com/department-of-veterans-affairs/devops/tree/master/ansible). The `app_name` for this project is `platform-api`. After deploying, you can check that the right version was deployed with:
+Ansible templates and instructions for deploying are in the [devops repo](https://github.com/department-of-veterans-affairs/devops/tree/master/ansible). The `app_name` for this project is `platform-api`. After deploying, you can check that the right version was deployed with:
 ```
 https://dev-api.vets.gov/v0/status
 ```
