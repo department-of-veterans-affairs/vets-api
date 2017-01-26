@@ -69,6 +69,8 @@ Rails.application.routes.draw do
     scope :facilities, module: 'facilities' do
       resources :va, only: [:index, :show], defaults: { format: :json }
     end
+
+    resource :forms, only: [:show, :update]
   end
 
   root 'v0/example#index', module: 'v0'
