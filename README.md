@@ -3,7 +3,7 @@
 This project provides common APIs for applications that live on vets.gov.
 
 ## Developer Setup
-Vets-api` requires:
+Vets-api requires:
 - postgres
 - Redis
 - rails server
@@ -40,7 +40,7 @@ For an example, see `application.yml.example`
 *Note*: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
 this is a sign that redis is not currently running or `config/redis.yml` is not using correct host and port.
 
-### Application Configuration
+### Optional Application Configuration
 The following features require additional configuration, click for details.
 - [Authentication with ID.me](/docs/setup/authentication_with_idme.md)
 - [EVSS](/docs/setup/evss.md)
