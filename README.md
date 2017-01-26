@@ -3,6 +3,10 @@
 This project provides common APIs for applications that live on vets.gov.
 
 ## Developer Setup
+Vets-api` requires:
+- postgres
+- Redis
+- rails server
 
 ### Base Setup
 
@@ -19,7 +23,7 @@ This project provides common APIs for applications that live on vets.gov.
 *Note*: This will not work until you set up the environment variables (see below).
 
 ### Redis Setup
-For this app to be properly configured, you will need to specify the following environment variables:
+You will need to specify the following environment variables:
 ```
 REDIS_HOST
 REDIS_PORT
@@ -37,7 +41,7 @@ For an example, see `application.yml.example`
 this is a sign that redis is not currently running or `config/redis.yml` is not using correct host and port.
 
 ### Application Configuration
-Some configuration is required in order to run various features of `vets-api`.  Without one or more of these features, `vets-api` will still run, but in some limited fasion.  Most configuration can be seen in [application.yml.example](config/application.yml.example).  To configure each feature:
+The following features require additional configuration, click for details.
 - [Authentication with ID.me](/docs/setup/authentication_with_idme.md)
 - [EVSS](/docs/setup/evss.md)
 - [Facilities Locator](/docs/setup/facilities_locator.md)
@@ -45,13 +49,11 @@ Some configuration is required in order to run various features of `vets-api`.  
 - [Education Benefits](/docs/setup/edu_benefits.md)
 - [Master Veteran Index (MVI)](/docs/setup/mvi.md)
 
-## Running the App
-Vets-api` requires:
-- postgres
-- Redis
-- rails server
+Vets-api will still run in a limited capacity without configuring any of the features.
 
-To manually run each:
+## Running the App
+Manually run each:
+
 1. `postgres -D /usr/local/var/postgres`
 1. `redis-server /usr/local/etc/redis.conf`
 1. `bundle exec rails` server from <GITHUB_HOME>/vets-api/
