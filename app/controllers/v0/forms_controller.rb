@@ -3,6 +3,7 @@ module V0
   class FormsController < ApplicationController
     def show
       form = SerializedForm.where(form_id: params[:id], user_uuid: @current_user.uuid).first
+      raise Common::Exceptions::RecordNotFound.new(params[:id]) unless form
       render json: form.form_data
     end
 
