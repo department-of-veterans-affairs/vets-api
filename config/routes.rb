@@ -8,6 +8,8 @@ Rails.application.routes.draw do
   post '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
 
   namespace :v0, defaults: { format: 'json' } do
+    resources :forms, only: [:show, :update]
+
     resource :sessions, only: [:new, :destroy] do
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
@@ -25,7 +27,7 @@ Rails.application.routes.draw do
 
     resource :disability_rating, only: [:show]
     resources :disability_claims, only: [:index, :show] do
-      post :request_decision, on: :member
+      # post :request_decision, on: :member
       resources :documents, only: [:create]
     end
 
@@ -69,8 +71,6 @@ Rails.application.routes.draw do
     scope :facilities, module: 'facilities' do
       resources :va, only: [:index, :show], defaults: { format: :json }
     end
-
-    resource :forms, only: [:show, :update]
   end
 
   root 'v0/example#index', module: 'v0'
