@@ -1,0 +1,100 @@
+FactoryGirl.define do
+  factory :serialized_form do
+    user_uuid '5090027a-b9f2-44c4-acd7-45f2640d5e83'
+    form_id '22-1990'
+    form_data do
+      {
+        chapter1606: true,
+        veteranFullName: {
+          first: 'Mark',
+          last: 'Olson'
+        },
+        gender: 'M',
+        veteranDateOfBirth: '1985-03-07',
+        veteranSocialSecurityNumber: '111223333',
+        veteranAddress: {
+          country: 'USA',
+          state: 'WI',
+          postalCode: '53130',
+          street: '123 Main St',
+          city: 'Milwaukee'
+        },
+        homePhone: '5551110000',
+        secondaryContact: {
+          fullName: 'Sibling Olson',
+          sameAddressAndPhone: true
+        },
+        bankAccount: {
+          accountType: 'checking',
+          bankName: 'First Bank of JSON',
+          routingNumber: '123456789',
+          accountNumber: '88888888888'
+        },
+        school: {
+          name: 'FakeData University',
+          address: {
+            country: 'USA',
+            state: 'MD',
+            postalCode: '21231',
+            street: '111 Uni Drive',
+            city: 'Baltimore'
+          },
+          startDate: '2016-08-29',
+          educationalObjective: '...'
+        },
+        educationType: 'college',
+        postHighSchoolTrainings: [
+          {
+            name: 'OtherCollege Name',
+            dateRange: {
+              from: '1999-01-01',
+              to: '2000-01-01'
+            },
+            city: 'New York',
+            hours: 8,
+            hoursType: 'semester',
+            state: 'NY',
+            degreeReceived: 'BA',
+            major: 'History'
+          }
+        ],
+        currentlyActiveDuty: {
+          yes: false,
+          onTerminalLeave: false,
+          nonVaAssistance: false
+        },
+        highSchoolOrGedCompletionDate: '2010-06-06',
+        additionalContributions: false,
+        activeDutyKicker: false,
+        reserveKicker: false,
+        serviceBefore1977: {
+          married: true,
+          haveDependents: true,
+          parentDependent: false
+        },
+        toursOfDuty: [
+          {
+            dateRange: {
+              from: '2001-01-01',
+              to: '2010-10-10'
+            },
+            serviceBranch: 'Army',
+            serviceStatus: 'Active Duty',
+            involuntarilyCalledToDuty: 'yes'
+          },
+          {
+            dateRange: {
+              from: '1995-01-01',
+              to: '1998-10-10'
+            },
+            serviceBranch: 'Army',
+            serviceStatus: 'Honorable Discharge',
+            involuntarilyCalledToDuty: 'yes'
+          }
+        ],
+        faaFlightCertificatesInformation: 'cert1, cert2',
+        privacyAgreementAccepted: true
+      }.to_json
+    end
+  end
+end
