@@ -51,4 +51,16 @@ pipeline {
       }
     }
   }
+
+  post {
+    success {
+      build job: 'vets-api-branch-deploy',
+            wait: false,
+            parameters: [[
+              $class: 'GitParameterValue',
+              name: 'branch',
+              value: scm.branches[0].name
+            ]]
+    }
+  }
 }
