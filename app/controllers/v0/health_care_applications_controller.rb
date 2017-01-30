@@ -17,6 +17,9 @@ module V0
         raise Common::Exceptions::SchemaValidationErrors, validation_errors
       end
 
+      authenticate_token
+      service = HCA::Service.new(@current_user)
+
       begin
         service.submit_form(form)
       rescue Common::Client::Errors::ClientError => e
@@ -32,13 +35,7 @@ module V0
     end
 
     def healthcheck
-      render(json: service.health_check)
-    end
-
-    private
-
-    def service
-      HCA::Service.new
+      render(json: HCA::Service.new.health_check)
     end
   end
 end
