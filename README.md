@@ -97,6 +97,8 @@ If you spot a bug, let us know! File a GitHub Issue for this project. When filin
     - The actual outcome (include screen shot or error logs)
 - Label: Apply the label `bug`
 
+For security related bugs unfit for public viewing, email us feedback@va.gov
+
 **Code Submissions**
 
 This project logs all work needed and work being actively worked on via GitHub Issues. Submissions related to these are especially appreciated, but patches and additions outside of these are also great.
