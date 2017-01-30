@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   post '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
 
   namespace :v0, defaults: { format: 'json' } do
-    resources :forms, only: [:show, :update]
+    resources :in_progress_forms, only: [:show, :update]
 
     resource :sessions, only: [:new, :destroy] do
       post :saml_callback, to: 'sessions#saml_callback'

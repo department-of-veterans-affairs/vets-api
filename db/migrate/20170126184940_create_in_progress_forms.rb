@@ -1,7 +1,7 @@
-class CreateSerializedForms < ActiveRecord::Migration
+class CreateInProgressForms < ActiveRecord::Migration
   def change
     enable_extension 'uuid-ossp'
-    create_table :serialized_forms do |t|
+    create_table :in_progress_forms do |t|
       t.uuid :user_uuid, null: false
       t.string :form_id, null: false
       t.string :encrypted_form_data, null: false
@@ -9,7 +9,7 @@ class CreateSerializedForms < ActiveRecord::Migration
       t.timestamps null: false
     end
 
-    add_index(:serialized_forms, :user_uuid)
-    add_index(:serialized_forms, :form_id)
+    add_index(:in_progress_forms, :user_uuid)
+    add_index(:in_progress_forms, :form_id)
   end
 end

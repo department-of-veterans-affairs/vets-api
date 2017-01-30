@@ -56,7 +56,7 @@ ActiveRecord::Schema.define(version: 20170126184940) do
   add_index "education_benefits_submissions", ["education_benefits_claim_id"], name: "index_education_benefits_claim_id", unique: true, using: :btree
   add_index "education_benefits_submissions", ["region", "created_at"], name: "index_education_benefits_submissions_on_region_and_created_at", using: :btree
 
-  create_table "serialized_forms", force: :cascade do |t|
+  create_table "in_progress_forms", force: :cascade do |t|
     t.uuid     "user_uuid",              null: false
     t.string   "form_id",                null: false
     t.string   "encrypted_form_data",    null: false
@@ -65,7 +65,7 @@ ActiveRecord::Schema.define(version: 20170126184940) do
     t.datetime "updated_at",             null: false
   end
 
-  add_index "serialized_forms", ["form_id"], name: "index_serialized_forms_on_form_id", using: :btree
-  add_index "serialized_forms", ["user_uuid"], name: "index_serialized_forms_on_user_uuid", using: :btree
+  add_index "in_progress_forms", ["form_id"], name: "index_in_progress_forms_on_form_id", using: :btree
+  add_index "in_progress_forms", ["user_uuid"], name: "index_in_progress_forms_on_user_uuid", using: :btree
 
 end

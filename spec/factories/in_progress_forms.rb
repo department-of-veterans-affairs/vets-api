@@ -1,5 +1,6 @@
+# frozen_string_literal: true
 FactoryGirl.define do
-  factory :serialized_form do
+  factory :in_progress_form do
     user_uuid '5090027a-b9f2-44c4-acd7-45f2640d5e83'
     form_id '22-1990'
     form_data do
@@ -97,7 +98,7 @@ FactoryGirl.define do
       }.to_json
     end
 
-    factory :serialized_update_form do
+    factory :in_progress_update_form do
       form_data do
         {
           chapter1606: true,
