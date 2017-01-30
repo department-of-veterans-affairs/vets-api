@@ -8,6 +8,8 @@ module V0
     end
 
     def update
+      form = SerializedForm.first_or_initialize(form_id: params[:id], user_uuid: @current_user.uuid)
+      form.update(form_data: params[:form_data])
       head :ok
     end
   end
