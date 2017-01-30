@@ -1,5 +1,9 @@
+# frozen_string_literal: true
 require 'rails_helper'
+require 'support/attr_encrypted_matcher'
 
 RSpec.describe SerializedForm, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  describe 'form encryption' do
+    it { should encrypt(:form_data) }
+  end
 end
