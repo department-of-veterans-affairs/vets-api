@@ -595,7 +595,7 @@ module HCA
       hash.delete_if { |_k, v| v.blank? }
     end
 
-    def veteran_to_save_submit_form(veteran)
+    def veteran_to_save_submit_form(veteran, current_user)
       return {} if veteran.blank?
 
       request = FORM_TEMPLATE.dup
