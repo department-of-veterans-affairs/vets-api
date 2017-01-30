@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-RSpec::Matchers.define :encrypt do |attribute|
+RSpec::Matchers.define :encrypts do |attribute|
   encrypted_attribute = ('encrypted_' + attribute.to_s)
 
   match do |model|
