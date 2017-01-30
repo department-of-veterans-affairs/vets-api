@@ -27,7 +27,7 @@ Rails.application.routes.draw do
 
     resource :disability_rating, only: [:show]
     resources :disability_claims, only: [:index, :show] do
-      # post :request_decision, on: :member
+      post :request_decision, on: :member
       resources :documents, only: [:create]
     end
 
