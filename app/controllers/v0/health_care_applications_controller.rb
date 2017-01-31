@@ -18,10 +18,9 @@ module V0
       end
 
       authenticate_token
-      service = HCA::Service.new(@current_user)
 
       begin
-        service.submit_form(form)
+        HCA::Service.new(@current_user).submit_form(form)
       rescue Common::Client::Errors::ClientError => e
         Raven.capture_exception(e)
 
