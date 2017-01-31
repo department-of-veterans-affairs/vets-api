@@ -7,13 +7,14 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
     described_class.new
   end
 
-  context 'with some sample submissions' do
+  context 'with some sample submissions', run_at: '2017-01-03 03:00:00 EDT' do
     before do
       2.times do
         create(
           :education_benefits_claim_with_custom_form,
           processed_at: date,
           custom_form: {
+            'privacyAgreementAccepted' => true,
             'chapter1606' => false,
             'chapter33' => true
           }
@@ -26,10 +27,10 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
 
       # outside of yearly range
       create(:education_benefits_submission, created_at: date - 1.year, status: 'processed')
-      # outside of daily range
-      create(:education_benefits_submission, created_at: date - 1.month, status: 'processed')
+      # outside of daily range, given the timecop freeze.
+      create(:education_benefits_submission, created_at: date - 26.hours, status: 'processed')
 
-      create(:education_benefits_submission, status: 'submitted')
+      create(:education_benefits_submission, created_at: date, status: 'submitted')
     end
 
     context 'with the date variable set' do

@@ -16,7 +16,7 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
       let(:params) do
         {
           educationBenefitsClaim: {
-            form: { preferredContactMethod: 'mail' }.to_json
+            form: { privacyAgreementAccepted: true, preferredContactMethod: 'mail' }.to_json
           }
         }
       end
@@ -62,8 +62,9 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
         allow(Rails.logger).to receive(:error)
         expect(Rails.logger).to receive(:error).with(validation_error).once
 
-        expect(Raven).to receive(:tags_context).once.with(validation: 'education_benefits_claim')
-        expect(Raven).to receive(:capture_exception).once.with(validation_error)
+        expect(Raven).to receive(:capture_message)
+          .once
+          .with(validation_error, tags: { validation: 'education_benefits_claim' })
 
         subject
       end

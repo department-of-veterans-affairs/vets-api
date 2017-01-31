@@ -19,34 +19,6 @@ describe MVI::Service do
       [user.first_name, user.middle_name], user.last_name, user.birth_date, user.ssn, user.gender
     )
   end
-  let(:cert) { instance_double('OpenSSL::X509::Certificate') }
-  let(:key) { instance_double('OpenSSL::PKey::RSA') }
-
-  before(:each) do
-    stub_const('MVI::Settings::SSL_CERT', cert)
-    stub_const('MVI::Settings::SSL_KEY', key)
-  end
-
-  describe '.options' do
-    context 'when there are no SSL options' do
-      it 'should only return the wsdl' do
-        stub_const('MVI::Settings::SSL_CERT', nil)
-        stub_const('MVI::Settings::SSL_KEY', nil)
-        expect(MVI::Service.options).to eq(url: ENV['MVI_URL'])
-      end
-    end
-    context 'when there are SSL options' do
-      it 'should return the wsdl, cert and key paths' do
-        expect(MVI::Service.options).to eq(
-          url: ENV['MVI_URL'],
-          ssl: {
-            client_cert: cert,
-            client_key: key
-          }
-        )
-      end
-    end
-  end
 
   describe '.find_candidate' do
     context 'with a valid request' do
@@ -128,7 +100,7 @@ describe MVI::Service do
     context 'with an MVI timeout' do
       it 'should raise a service error' do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
-        expect(Rails.logger).to receive(:error).with('MVI find_candidate timeout')
+        expect(Rails.logger).to receive(:error).with('MVI find_candidate error: timeout')
         expect { subject.find_candidate(message) }.to raise_error(MVI::Errors::ServiceError)
       end
     end
@@ -137,7 +109,7 @@ describe MVI::Service do
       it 'should raise a request failure error' do
         allow(message).to receive(:to_xml).and_return('<nobeuno></nobeuno>')
         VCR.use_cassette('mvi/find_candidate/five_hundred') do
-          expect { subject.find_candidate(message) }.to raise_error(MVI::Errors::HTTPError)
+          expect { subject.find_candidate(message) }.to raise_error(MVI::Errors::ServiceError)
         end
       end
     end
@@ -166,18 +138,18 @@ describe MVI::Service do
 
       context 'with an ongoing breakers outage' do
         it 'returns the correct thing' do
-          MVI::Service.breakers_service.begin_forced_outage!
+          MVI::Configuration.instance.breakers_service.begin_forced_outage!
           expect { subject.find_candidate(message) }.to raise_error(Breakers::OutageException)
         end
       end
     end
 
     context 'when MVI returns 500 but VAAFI sends 200' do
-      it 'raises an MVI::Errors::HTTPError' do
+      it 'raises an Common::Client::Errors::HTTPError' do
         VCR.use_cassette('mvi/find_candidate/internal_server_error') do
-          expect(Rails.logger).to receive(:error).with('MVI fault code: env:Server').once
-          expect(Rails.logger).to receive(:error).with('MVI fault string: Internal Error (from server)').once
-          expect { subject.find_candidate(message) }.to raise_error(MVI::Errors::HTTPError, 'MVI internal server error')
+          expect do
+            subject.find_candidate(message)
+          end.to raise_error(MVI::Errors::ServiceError)
         end
       end
     end
@@ -185,7 +157,9 @@ describe MVI::Service do
     context 'when MVI multiple match failure response' do
       it 'raises MVI::Errors::RecordNotFound' do
         VCR.use_cassette('mvi/find_candidate/failure_multiple_matches') do
-          expect { subject.find_candidate(message) }.to raise_error(MVI::Errors::RecordNotFound)
+          expect do
+            subject.find_candidate(message)
+          end.to raise_error(MVI::Errors::RecordNotFound)
         end
       end
     end

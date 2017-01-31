@@ -34,6 +34,10 @@ before_script:
 - export VBA_MAPSERVER_URL='https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VBA_Facilities/FeatureServer/0'
 - export MOCK_MVI_SERVICE=false
 - export GOV_DELIVERY_SERVER='stage-tms.govdelivery.com'
+- export ES_URL='https://test.vets.gov'
+- export ES_CLIENT_CERT_PATH='/fake/client/cert/path'
+- export ES_CLIENT_KEY_PATH='/fake/client/key/path'
+
 script:
 - bundle exec rake db:create db:schema:load ci
 bundler_args: "--without development"

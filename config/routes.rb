@@ -17,6 +17,12 @@ Rails.application.routes.draw do
 
     resource :education_benefits_claims, only: [:create]
 
+    resource :health_care_applications, only: [:create] do
+      collection do
+        get(:healthcheck)
+      end
+    end
+
     resource :disability_rating, only: [:show]
     resources :disability_claims, only: [:index, :show] do
       post :request_decision, on: :member
@@ -30,6 +36,11 @@ Rails.application.routes.draw do
       get :active, to: 'prescriptions#index', on: :collection, defaults: { refill_status: 'active' }
       patch :refill, to: 'prescriptions#refill', on: :member
       resources :trackings, only: :index, controller: :trackings
+    end
+
+    resource :health_records, only: [:create, :show], defaults: { format: :json } do
+      get :refresh, to: 'health_records#refresh', on: :collection
+      get :eligible_data_classes, to: 'health_records#eligible_data_classes', on: :collection
     end
 
     scope :messaging do

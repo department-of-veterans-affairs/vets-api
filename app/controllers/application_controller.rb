@@ -16,6 +16,7 @@ class ApplicationController < ActionController::API
 
   before_action :authenticate
   before_action :set_app_info_headers
+  before_action :set_raven_uuid_tag
   skip_before_action :authenticate, only: [:cors_preflight, :routing_error]
 
   def cors_preflight
@@ -65,6 +66,10 @@ class ApplicationController < ActionController::API
     end
     Rails.logger.error "#{exception.message}."
     Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
+  end
+
+  def set_raven_uuid_tag
+    Raven.extra_context(request_uuid: request.uuid)
   end
 
   def set_app_info_headers

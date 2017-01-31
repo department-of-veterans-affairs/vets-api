@@ -67,6 +67,11 @@ en:
         detail: "The required parameter \"%{param}\", is missing"
         code: 108
         status: 400
+      schema_validation_errors:
+        <<: *defaults
+        title: Validation error
+        code: 109
+        status: 422
       unauthorized:
         <<: *defaults
         title: Not authorized

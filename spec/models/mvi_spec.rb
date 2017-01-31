@@ -50,7 +50,7 @@ describe Mvi, skip_mvi: true do
       context 'when a MVI::Errors::HTTPError is raised' do
         it 'should log an error message and return status server error' do
           allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(
-            MVI::Errors::HTTPError.new('MVI HTTP call failed', 500)
+            Common::Client::Errors::HTTPError.new('MVI HTTP call failed', 500)
           )
           expect(Rails.logger).to receive(:error).once.with(/MVI HTTP error code: 500 for user:/)
           expect(mvi.va_profile).to eq(status: Mvi::MVI_RESPONSE_STATUS[:server_error])
