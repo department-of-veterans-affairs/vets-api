@@ -12,7 +12,7 @@ module MVI
       else
         MVI::Service.new.find_candidate(message)
       end
-    rescue Common::Client::Errors::HTTPError
+    rescue Common::Client::Errors::HTTPError => e
       Rails.logger.error "No user found by key #{message.ssn} in mock_mvi_responses.yml, "\
       "the remote service was invoked but received an error: #{e.message}"
       raise e
