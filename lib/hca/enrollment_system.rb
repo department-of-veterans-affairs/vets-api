@@ -598,7 +598,7 @@ module HCA
     def veteran_to_save_submit_form(veteran)
       return {} if veteran.blank?
 
-      request = FORM_TEMPLATE.dup
+      request = FORM_TEMPLATE.deep_dup
       request['va:form']['va:summary'] = veteran_to_summary(veteran)
       request['va:form']['va:applications'] = {
         'va:applicationInfo' => [{
