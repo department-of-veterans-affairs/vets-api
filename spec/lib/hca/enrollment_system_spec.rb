@@ -949,10 +949,36 @@ describe HCA::EnrollmentSystem do
   )
 
   describe '#veteran_to_save_submit_form' do
+    subject do
+      described_class.veteran_to_save_submit_form(test_veteran, nil).with_indifferent_access
+    end
+
     it 'should return the right result' do
       Timecop.freeze(Date.new(2015, 10, 21)) do
-        expect(described_class.veteran_to_save_submit_form(test_veteran, nil).with_indifferent_access).to eq(test_result)
+        expect(subject).to eq(test_result)
       end
+    end
+
+    it "shouldn't modify the form template" do
+      subject
+
+      expect(described_class::FORM_TEMPLATE).to eq(
+        'va:form' => {
+          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+          'va:formIdentifier' => {
+            'va:type' => '100',
+            'va:value' => '1010EZ',
+            'va:version' => 2_986_360_436
+          }
+        },
+        'va:identity' => {
+          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+          'va:authenticationLevel' => {
+            'va:type' => '100',
+            'va:value' => 'anonymous'
+          }
+        }
+      )
     end
   end
 
