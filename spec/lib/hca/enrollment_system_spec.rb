@@ -962,7 +962,7 @@ describe HCA::EnrollmentSystem do
     it "shouldn't modify the form template" do
       subject
 
-      expect(described_class::FORM_TEMPLATE).to eq({
+      expect(described_class::FORM_TEMPLATE).to eq(
         'va:form' => {
           '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
           'va:formIdentifier' => {
@@ -978,7 +978,7 @@ describe HCA::EnrollmentSystem do
             'va:value' => 'anonymous'
           }
         }
-      })
+      )
     end
   end
 
