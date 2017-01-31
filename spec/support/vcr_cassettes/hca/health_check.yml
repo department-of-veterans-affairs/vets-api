@@ -40,6 +40,6 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Body><retrieveFormSubmissionStatusResponse
         xmlns:ns2="http://jaxws.webservices.esr.med.va.gov/schemas" xmlns="http://va.gov/schema/esr/voa/v1"><formSubmissionId>377609264</formSubmissionId><message/><timeStamp>2016-12-12T08:06:08.423-06:00</timeStamp></retrieveFormSubmissionStatusResponse></S:Body></S:Envelope>
-    http_version: 
+    http_version:
   recorded_at: Mon, 12 Dec 2016 14:06:08 GMT
 recorded_with: VCR 3.0.3
