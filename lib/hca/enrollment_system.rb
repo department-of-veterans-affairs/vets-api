@@ -14,7 +14,7 @@ module HCA
       'isWhite' => '2106-3'
     }.freeze
 
-    FORM_TEMPLATE = {
+    FORM_TEMPLATE = IceNine.deep_freeze(
       'va:form' => {
         '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
         'va:formIdentifier' => {
@@ -30,7 +30,7 @@ module HCA
           'va:value' => 'anonymous'
         }
       }
-    }.freeze
+    )
 
     SERVICE_BRANCH_CODES = {
       'army' => 1,

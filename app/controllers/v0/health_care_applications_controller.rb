@@ -19,7 +19,7 @@ module V0
 
       authenticate_token
 
-      begin
+      result = begin
         HCA::Service.new(@current_user).submit_form(form)
       rescue Common::Client::Errors::ClientError => e
         Raven.capture_exception(e)
@@ -30,7 +30,7 @@ module V0
         )
       end
 
-      render(json: { success: true })
+      render(json: result)
     end
 
     def healthcheck
