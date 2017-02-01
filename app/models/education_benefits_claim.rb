@@ -131,11 +131,12 @@ class EducationBenefitsClaim < ActiveRecord::Base
       schema = schema.deep_dup
       required = []
 
-      required << if parsed_form['veteranSocialSecurityNumber'].blank?
-        'vaFileNumber'
-      else
-        'veteranSocialSecurityNumber'
-      end
+      required <<
+        if parsed_form['veteranSocialSecurityNumber'].blank?
+          'vaFileNumber'
+        else
+          'veteranSocialSecurityNumber'
+        end
 
       schema['required'] = required
     end
