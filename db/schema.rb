@@ -11,10 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161128193206) do
+ActiveRecord::Schema.define(version: 20170126184940) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "uuid-ossp"
 
   create_table "disability_claims", force: :cascade do |t|
     t.integer  "evss_id",                            null: false
@@ -54,5 +55,17 @@ ActiveRecord::Schema.define(version: 20161128193206) do
 
   add_index "education_benefits_submissions", ["education_benefits_claim_id"], name: "index_education_benefits_claim_id", unique: true, using: :btree
   add_index "education_benefits_submissions", ["region", "created_at"], name: "index_education_benefits_submissions_on_region_and_created_at", using: :btree
+
+  create_table "in_progress_forms", force: :cascade do |t|
+    t.uuid     "user_uuid",              null: false
+    t.string   "form_id",                null: false
+    t.string   "encrypted_form_data",    null: false
+    t.string   "encrypted_form_data_iv", null: false
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
+  add_index "in_progress_forms", ["form_id"], name: "index_in_progress_forms_on_form_id", using: :btree
+  add_index "in_progress_forms", ["user_uuid"], name: "index_in_progress_forms_on_user_uuid", using: :btree
 
 end
