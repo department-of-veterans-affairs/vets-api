@@ -121,13 +121,26 @@ class EducationBenefitsClaim < ActiveRecord::Base
     return unless form_is_string
     return unless FORM_TYPES.include?(form_type)
 
-    errors[:form].concat(JSON::Validator.fully_validate(FORM_SCHEMAS[form_type], parsed_form))
+    errors[:form].concat(JSON::Validator.fully_validate(get_form_schema, parsed_form))
   end
 
   def get_form_schema
+    schema = FORM_SCHEMAS[form_type]
+
     if is_1995?
-      schema = FORM_SCHEMAS[form_type].deep_dup
+      schema = schema.deep_dup
+      required = []
+
+      required << if parsed_form['veteranSocialSecurityNumber'].blank?
+        'vaFileNumber'
+      else
+        'veteranSocialSecurityNumber'
+      end
+
+      schema['required'] = required
     end
+
+    schema
   end
 
   def set_submitted_at

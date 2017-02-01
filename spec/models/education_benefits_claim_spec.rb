@@ -97,11 +97,11 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
         context 'with an invalid form' do
           let(:form) do
-            { veteranFullName: 'bob' }
+            {}
           end
 
           expect_json_schema_error(
-            "The property '#/veteranFullName' of type String did not match the following type: object"
+            "The property '#/' did not contain a required property of 'vaFileNumber'"
           )
         end
       end
