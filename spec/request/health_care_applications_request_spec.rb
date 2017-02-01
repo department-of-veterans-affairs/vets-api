@@ -15,13 +15,17 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
     subject do
       get(healthcheck_v0_health_care_applications_path)
     end
-    let(:body) { { 'up' => true } }
+    let(:body) do
+      { 'formSubmissionId' => 377_609_264,
+        'timestamp' => '2016-12-12T08:06:08.423-06:00' }
+    end
     let(:es_stub) { double(health_check: { up: true }) }
 
     it 'should call ES' do
-      allow(HCA::Service).to receive(:new) { es_stub }
-      subject
-      expect(JSON.parse(response.body)).to eq(body)
+      VCR.use_cassette('hca/health_check', match_requests_on: [:body]) do
+        subject
+        expect(JSON.parse(response.body)).to eq(body)
+      end
     end
   end
 
@@ -60,11 +64,17 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
           form: test_veteran.to_json
         }
       end
+      let(:body) do
+        { 'formSubmissionId' => 40_124_668_140,
+          'timestamp' => '2016-05-25T04:59:39.345-05:00',
+          'success' => true }
+      end
 
-      it 'should render success' do
-        allow_any_instance_of(HCA::Service).to receive(:post)
-        subject
-        expect(JSON.parse(response.body)['success']).to eq(true)
+      it 'should render success', run_at: '2017-01-31' do
+        VCR.use_cassette('hca/submit', match_requests_on: [:body]) do
+          subject
+          expect(JSON.parse(response.body)).to eq(body)
+        end
       end
 
       context 'with a SOAP error' do

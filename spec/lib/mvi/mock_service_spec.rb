@@ -57,7 +57,7 @@ describe MVI::MockService do
           allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(Common::Client::Errors::HTTPError)
           expected_message = "No user found by key #{ssn} in mock_mvi_responses.yml, "\
             'the remote service was invoked but received an error: Common::Client::Errors::HTTPError'
-          expect(Rails.logger).to receive(:error).once.with(expected_message)
+          expect(Rails.logger).to receive(:error).with(expected_message)
           expect { subject.find_candidate(message) }.to raise_error(Common::Client::Errors::HTTPError)
         end
       end
