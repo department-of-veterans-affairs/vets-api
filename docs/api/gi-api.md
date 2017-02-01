@@ -22,7 +22,7 @@ Consumers of this API are not authenticated or rate-limited. Requests are not en
 ###### Institution Search Filter Params
 
 | Query Param  | Description | Example Values |
-| --------- | ----------- |
+| --------- | ----------- | ----- |
 | name | Partially match institution names and cities. | duluth |
 | type_name | Include institutions of a specific type. | ojt, private, foreign, correspondence, flight, for profit, public |
 | state | Two-letter state abbreviation | MN |
