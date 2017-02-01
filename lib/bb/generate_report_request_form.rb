@@ -3,6 +3,15 @@ require 'common/models/form'
 
 module BB
   class GenerateReportRequestForm < Common::Form
+    ELIGIBLE_DATA_CLASSES = %w( seiactivityjournal seiallergies seidemographics
+                                familyhealthhistory seifoodjournal healthcareproviders healthinsurance
+                                seiimmunizations labsandtests medicalevents medications militaryhealthhistory
+                                seimygoalscurrent seimygoalscompleted treatmentfacilities
+                                vitalsandreadings prescriptions medications vaallergies
+                                vaadmissionsanddischarges futureappointments pastappointments
+                                vademographics vaekg vaimmunizations vachemlabs vaprogressnotes
+                                vapathology vaproblemlist varadiology vahth wellness dodmilitaryservice ).freeze
+
     attribute :from_date, Common::UTCTime
     attribute :to_date, Common::UTCTime
     attribute :data_classes, Array[String]

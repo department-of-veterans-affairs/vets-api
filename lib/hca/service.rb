@@ -6,11 +6,21 @@ module HCA
   class Service < Common::Client::Base
     configuration HCA::Configuration
 
+    def initialize(current_user = nil)
+      @current_user = current_user
+    end
+
     def submit_form(form)
-      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(form)
+      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(form, @current_user)
       content = Gyoku.xml(formatted)
       submission = soap.build_request(:save_submit_form, message: content)
-      post_submission(submission)
+      response = post_submission(submission)
+      root = response.body.locate('S:Envelope/S:Body/submitFormResponse').first
+      {
+        success: true,
+        formSubmissionId: root.locate('formSubmissionId').first.text.to_i,
+        timestamp: root.locate('timeStamp').first.text
+      }
     end
 
     def health_check
@@ -19,7 +29,7 @@ module HCA
       response = post_submission(submission)
       root = response.body.locate('S:Envelope/S:Body/retrieveFormSubmissionStatusResponse').first
       {
-        id: root.locate('formSubmissionId').first.text.to_i,
+        formSubmissionId: root.locate('formSubmissionId').first.text.to_i,
         timestamp: root.locate('timeStamp').first.text
       }
     end
