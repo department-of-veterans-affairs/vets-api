@@ -71,19 +71,16 @@ module V0
     end
 
     def handle_completed_slo
-      logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings)
+      logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings, get_params: params)
       logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
       session         = Session.find(logout_request&.token)
       user            = User.find(session&.uuid)
 
-      errors = []
-      errors.concat(logout_response.errors) unless logout_response.validate(true)
-      errors << "Logout Request not found! ID=#{logout_response&.in_response_to}" if logout_request.nil?
-      errors << 'Session not found!' if session.nil?
-      errors << 'User not found!' if user.nil?
+      errors = build_logout_errors(logout_response, logout_request, session, user)
 
       if errors.size.positive?
-        log_errors("SAML Logout failed!\n  " + errors.join("\n  "))
+        extra_context = { in_response_to: logout_response&.in_response_to }
+        log_errors("SAML Logout failed!\n  " + errors.join("\n  "), extra_context)
         redirect_to SAML_CONFIG['logout_relay'] + '?success=false'
       else
         logout_request.destroy
@@ -95,9 +92,22 @@ module V0
       end
     end
 
-    def log_errors(message)
+    def build_logout_errors(logout_response, logout_request, session, user)
+      errors = []
+      errors.concat(logout_response.errors) unless logout_response.validate(true)
+      errors << 'inResponseTo attribute is nil!' if logout_response&.in_response_to.nil?
+      errors << 'Logout Request not found!' if logout_request.nil?
+      errors << 'Session not found!' if session.nil?
+      errors << 'User not found!' if user.nil?
+      errors
+    end
+
+    def log_errors(message, context = {})
       logger.error message
-      Raven.capture_message(message) if ENV['SENTRY_DSN'].present?
+      if ENV['SENTRY_DSN'].present?
+        Raven.extra_context(context) unless !context.is_a?(Hash) || context.empty?
+        Raven.capture_message(message)
+      end
     end
   end
 end
