@@ -124,6 +124,12 @@ class EducationBenefitsClaim < ActiveRecord::Base
     errors[:form].concat(JSON::Validator.fully_validate(FORM_SCHEMAS[form_type], parsed_form))
   end
 
+  def get_form_schema
+    if is_1995?
+      schema = FORM_SCHEMAS[form_type].deep_dup
+    end
+  end
+
   def set_submitted_at
     self.submitted_at = Time.zone.now
   end
