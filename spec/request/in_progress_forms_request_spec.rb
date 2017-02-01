@@ -55,7 +55,8 @@ RSpec.describe 'in progress forms', type: :request do
       let(:update_form) { FactoryGirl.create(:in_progress_update_form, user_uuid: user.uuid) }
 
       it 'updates the form' do
-        expect_any_instance_of(InProgressForm).to receive(:update).with(form_data: update_form.form_data).and_return(true)
+        expect_any_instance_of(InProgressForm).to receive(:update)
+          .with(form_data: update_form.form_data).and_return(true)
         put v0_in_progress_form_url(existing_form.form_id), { form_data: update_form.form_data }, auth_header
         expect(response).to have_http_status(:ok)
       end
