@@ -65,6 +65,6 @@ describe 'bb client' do
   it 'gets a text version of a report', :vcr do
     client_response = client.get_download_report('txt')
     expect(client_response.response_headers['content-type'])
-      .to eq('text/plain; charset=UTF-8')
+      .to eq('text/plain')
   end
 end

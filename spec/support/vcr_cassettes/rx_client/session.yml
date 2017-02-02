@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_HOST>/mhv-api/patient/v1/session"
+    uri: "<MHV_SM_HOST>/mhv-api/patient/v1/session"
     body:
       encoding: US-ASCII
       string: ''
@@ -24,22 +24,18 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Date:
-      - Wed, 02 Nov 2016 05:14:48 GMT
       Server:
-      - Apache/2.2.15 (Red Hat)
+      - Apache-Coyote/1.1
+      Expires:
+      - Thu, 02 Feb 2017 18:03:23 GMT
+      Token: "<SESSION_TOKEN>"
       Content-Length:
       - '0'
-      Expires:
-      - Wed, 02 Nov 2016 05:24:49 GMT
-      Token: "<SESSION_TOKEN>"
-      Connection:
-      - close
-      Content-Type:
-      - text/html; charset=UTF-8
+      Date:
+      - Thu, 02 Feb 2017 17:53:23 GMT
     body:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Wed, 02 Nov 2016 05:14:49 GMT
+  recorded_at: Thu, 02 Feb 2017 17:53:23 GMT
 recorded_with: VCR 3.0.3
