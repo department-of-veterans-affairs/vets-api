@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'rails_helper'
+require 'evss/document_upload'
 
 RSpec.describe 'Documents management', type: :request do
   let(:file) do

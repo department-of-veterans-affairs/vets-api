@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'common/models/base'
+require 'pdf/reader'
 
 class EVSSClaimDocument < Common::Base
   include ActiveModel::Validations
@@ -8,10 +9,12 @@ class EVSSClaimDocument < Common::Base
   attribute :tracked_item_id, Integer
   attribute :document_type, String
   attribute :file_name, String
+  attribute :file_obj
 
   validates(:tracked_item_id, presence: true)
   validates(:file_name, presence: true)
   validate :known_document_type?
+  validate :unencrypted_pdf?
 
   # rubocop:disable LineLength
   DOCUMENT_TYPES = {
@@ -47,9 +50,20 @@ class EVSSClaimDocument < Common::Base
     attributes == other.attributes
   end
 
+  def to_serializable_hash
+    # file_obj is not suitable for serialization
+    to_hash.tap { |h| h.delete :file_obj }
+  end
+
   private
 
   def known_document_type?
     errors.add(:base, 'Must use a known document type') unless description
+  end
+
+  def unencrypted_pdf?
+    return unless file_name =~ /pdf$/i
+    xref = PDF::Reader::XRef.new file_obj.tempfile
+    errors.add(:file_obj, 'PDF must not be encrypted') if xref.trailer[:Encrypt].present?
   end
 end
