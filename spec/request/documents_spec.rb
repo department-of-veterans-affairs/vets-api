@@ -38,4 +38,19 @@ RSpec.describe 'Documents management', type: :request do
     post '/v0/evss_claims/189625/documents', params, 'Authorization' => "Token token=#{session.token}"
     expect(response.status).to eq(422)
   end
+
+  context 'with locked PDF' do
+    let(:locked_file) do
+      fixture_file_upload(
+        "#{::Rails.root}/spec/fixtures/files/locked-pdf.pdf",
+        'application/pdf'
+      )
+    end
+
+    it 'should reject locked PDFs' do
+      params = { file: locked_file, tracked_item_id: tracked_item_id, document_type: document_type }
+      post '/v0/evss_claims/189625/documents', params, 'Authorization' => "Token token=#{session.token}"
+      expect(response.status).to eq(422)
+    end
+  end
 end
