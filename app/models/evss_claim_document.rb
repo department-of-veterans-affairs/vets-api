@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 require 'common/models/base'
+require 'iconv'
 require 'pdf/reader'
+require 'rchardet'
 
 class EVSSClaimDocument < Common::Base
   include ActiveModel::Validations
+  include ActiveModel::Validations::Callbacks
 
   attribute :evss_claim_id, Integer
   attribute :tracked_item_id, Integer
@@ -15,6 +18,7 @@ class EVSSClaimDocument < Common::Base
   validates(:file_name, presence: true)
   validate :known_document_type?
   validate :unencrypted_pdf?
+  before_validation :normalize_text
 
   # rubocop:disable LineLength
   DOCUMENT_TYPES = {
@@ -68,5 +72,23 @@ class EVSSClaimDocument < Common::Base
     file_obj.tempfile.rewind
   rescue PDF::Reader::MalformedPDFError
     errors.add(:file_obj, 'PDF is malformed')
+  end
+
+  def normalize_text
+    return unless file_name =~ /\.txt$/i
+    text = file_obj.read
+    file_obj.rewind
+    cd = CharDet.detect text
+    if cd['confidence'] < 0.5
+      errors.add(:file_obj, 'Cannot guess encoding of text')
+      return false
+    end
+    return if cd['encoding'] == 'ascii'
+    text = Iconv.iconv('ascii//translit', cd["encoding"], text)
+    file_obj.tempfile.write text
+    file_obj.rewind
+  rescue Iconv::IllegalSequence
+    errors.add(:file_obj, 'Text contains illegal characters')
+    false
   end
 end
