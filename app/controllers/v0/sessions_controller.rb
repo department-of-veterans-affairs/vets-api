@@ -5,7 +5,8 @@ module V0
 
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      render json: { authenticate_via_get: saml_auth_request.create(saml_settings) }
+      options = (Rails.env.development?) ? { RelayState: ENV['TBD'] } : {}
+      render json: { authenticate_via_get: saml_auth_request.create(saml_settings, options) }
     end
 
     def destroy
