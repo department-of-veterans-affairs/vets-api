@@ -5,8 +5,7 @@ module V0
 
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      options = (Rails.env.development?) ? { RelayState: ENV['TBD'] } : {}
-      render json: { authenticate_via_get: saml_auth_request.create(saml_settings, options) }
+      render json: { authenticate_via_get: saml_auth_request.create(saml_settings, saml_options) }
     end
 
     def destroy
@@ -16,7 +15,7 @@ module V0
       # cache the request for @session.token lookup when we receive the response
       SingleLogoutRequest.create(uuid: logout_request.uuid, token: @session.token)
 
-      render json: { logout_via_get: logout_request.create(saml_settings) }, status: 202
+      render json: { logout_via_get: logout_request.create(saml_settings, saml_options) }, status: 202
     end
 
     def saml_logout_callback
@@ -108,6 +107,14 @@ module V0
       if ENV['SENTRY_DSN'].present?
         Raven.extra_context(context) unless !context.is_a?(Hash) || context.empty?
         Raven.capture_message(message)
+      end
+    end
+
+    def saml_options
+      if Rails.env.development? && ENV['TBD'].blank? == false
+        { RelayState: ENV['TBD'] }
+      else
+        {}
       end
     end
   end
