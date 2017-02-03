@@ -2,8 +2,9 @@
 require 'rails_helper'
 
 RSpec.describe Session, type: :model do
-  let(:attributes) { {} }
+  let(:attributes) { { uuid: 'abcd-1234' } }
   subject { described_class.new(attributes) }
+  let(:token) { subject.token }
 
   context 'session without attributes' do
     it 'expect ttl to an Integer' do
@@ -31,6 +32,29 @@ RSpec.describe Session, type: :model do
       it 'sets the ttl countdown' do
         expect(subject.ttl).to be_an(Integer)
         expect(subject.ttl).to be_between(0, 3600)
+      end
+
+      it 'will not extend a session beyond the maximum ttl' do
+        start_time = Time.current
+        Timecop.freeze(start_time)
+        session = Session.find(token)
+        session.save
+        expect(session).to_not be_nil
+        expect(session.ttl).to eq(Session.redis_namespace_ttl)
+
+        # extend session in increments of half default Session TTL
+        increment = Session.redis_namespace_ttl / 2
+        for i in 1..22 do
+          Timecop.freeze(start_time + (increment*i).seconds)
+          session.save
+          expect(session.ttl).to eq(Session.redis_namespace_ttl)
+        end
+
+        Timecop.freeze(start_time + (23*increment).seconds)
+        session.save
+        expect(session.ttl).to eq(Session.redis_namespace_ttl / 2)
+
+        # TODO test for when we're over the time (behavior TBD)
       end
     end
 
