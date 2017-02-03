@@ -62,9 +62,10 @@ class EVSSClaimDocument < Common::Base
   end
 
   def unencrypted_pdf?
-    return unless file_name =~ /pdf$/i
+    return unless file_name =~ /\.pdf$/i
     xref = PDF::Reader::XRef.new file_obj.tempfile
     errors.add(:file_obj, 'PDF must not be encrypted') if xref.trailer[:Encrypt].present?
+    file_obj.tempfile.rewind
   rescue PDF::Reader::MalformedPDFError
     errors.add(:file_obj, 'PDF is malformed')
   end
