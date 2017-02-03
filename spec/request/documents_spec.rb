@@ -53,4 +53,19 @@ RSpec.describe 'Documents management', type: :request do
       expect(response.status).to eq(422)
     end
   end
+
+  context 'with a false file extension' do
+    let(:tempfile) do
+      f = Tempfile.new(['not-a', '.pdf'])
+      f.write('I am not a PDF')
+      f.rewind
+      fixture_file_upload(f.path, 'application/pdf')
+    end
+
+    it 'should reject a file that is not really a PDF' do
+      params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
+      post '/v0/evss_claims/189625/documents', params, 'Authorization' => "Token token=#{session.token}"
+      expect(response.status).to eq(422)
+    end
+  end
 end
