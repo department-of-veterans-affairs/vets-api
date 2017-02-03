@@ -2,13 +2,12 @@
 require 'common/models/redis_store'
 
 class Session < Common::RedisStore
-
   redis_store REDIS_CONFIG['session_store']['namespace']
   redis_ttl REDIS_CONFIG['session_store']['each_ttl']
   redis_key :token
 
   DEFAULT_TOKEN_LENGTH = 40
-  MAX_SESSION_TTL = 12.hours
+  MAX_SESSION_TTL      = 12.hours
 
   attribute :token
   attribute :uuid
@@ -16,6 +15,9 @@ class Session < Common::RedisStore
 
   validates :token, presence: true
   validates :uuid, presence: true
+  validates :created_at, presence: true
+
+  validate :within_maximum_ttl?
   # validates other attributes?
 
   after_initialize :setup_defaults
@@ -25,11 +27,9 @@ class Session < Common::RedisStore
   end
 
   def save
-    max_time_left = (@created_at + MAX_SESSION_TTL - Time.now.utc).round
-    if max_time_left <= 0
-      # bad - could theoretically happen though
-    elsif max_time_left < redis_namespace_ttl
-      super(max_time_left)
+    time_left = max_ttl
+    if time_left < redis_namespace_ttl
+      super(time_left)
     else
       super
     end
@@ -50,6 +50,16 @@ class Session < Common::RedisStore
     unless persisted?
       @token ||= secure_random_token
       @created_at ||= Time.now.utc
+    end
+  end
+
+  def max_ttl
+    (@created_at + MAX_SESSION_TTL - Time.now.utc).round
+  end
+
+  def within_maximum_ttl?
+    if max_ttl.negative?
+      errors.add(:created_at, "is more than the max of [#{MAX_SESSION_TTL}] ago. Session is too old")
     end
   end
 end

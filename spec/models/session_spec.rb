@@ -44,17 +44,19 @@ RSpec.describe Session, type: :model do
 
         # extend session in increments of half default Session TTL
         increment = Session.redis_namespace_ttl / 2
-        for i in 1..22 do
-          Timecop.freeze(start_time + (increment*i).seconds)
+        22.times do |i|
+          Timecop.freeze(start_time + (increment * i).seconds)
           session.save
           expect(session.ttl).to eq(Session.redis_namespace_ttl)
         end
 
-        Timecop.freeze(start_time + (23*increment).seconds)
+        Timecop.freeze(start_time + (23 * increment).seconds)
         session.save
         expect(session.ttl).to eq(Session.redis_namespace_ttl / 2)
 
-        # TODO test for when we're over the time (behavior TBD)
+        Timecop.freeze(start_time + (25 * increment).seconds)
+        expect(session.save).to eq(false)
+        expect(session.errors.messages).to include(:created_at)
       end
     end
 
