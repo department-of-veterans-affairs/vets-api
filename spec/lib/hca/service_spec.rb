@@ -2,10 +2,25 @@
 require 'rails_helper'
 require 'hca/service'
 
-describe HCA::Service do
+describe HCA::Service, skip_mvi: true do
   let(:cert) { instance_double('OpenSSL::X509::Certificate') }
   let(:key) { instance_double('OpenSSL::PKey::RSA') }
   let(:store) { instance_double('OpenSSL::X509::Store') }
+  let(:response) do
+    double(body: Ox.parse(%(
+    <?xml version='1.0' encoding='UTF-8'?>
+    <S:Envelope>
+      <S:Body>
+        <submitFormResponse>
+          <status>100</status>
+          <formSubmissionId>40124668140</formSubmissionId>
+          <message><type>Form successfully received for EE processing</type></message>
+          <timeStamp>2016-05-25T04:59:39.345-05:00</timeStamp>
+        </submitFormResponse>
+      </S:Body>
+    </S:Envelope>
+     )))
+  end
 
   describe '#submit_form' do
     context 'conformance tests', run_at: '2016-12-12' do
@@ -13,12 +28,13 @@ describe HCA::Service do
       Dir[File.join(root, '*.json')].map { |f| File.basename(f, '.json') }.each do |form|
         it "properly formats #{form} for transmission" do
           json = JSON.load(root.join("#{form}.json"))
+          expect(json).to match_vets_schema('healthcare_application')
           xml = File.read(root.join("#{form}.xml"))
           expect(subject).to receive(:post_submission) do |arg|
             submission = arg.body
             pretty_printed = Ox.dump(Ox.parse(submission).locate('soap:Envelope/soap:Body/ns1:submitFormRequest').first)
             expect(xml).to eq(pretty_printed[1..-1])
-          end
+          end.and_return(response)
 
           subject.submit_form(json)
         end
@@ -32,7 +48,7 @@ describe HCA::Service do
         VCR.use_cassette('hca/health_check', match_requests_on: [:body]) do
           response = subject.health_check
           expect(response).to eq(
-            id: ::HCA::Configuration::HEALTH_CHECK_ID,
+            formSubmissionId: ::HCA::Configuration::HEALTH_CHECK_ID,
             timestamp: '2016-12-12T08:06:08.423-06:00'
           )
         end

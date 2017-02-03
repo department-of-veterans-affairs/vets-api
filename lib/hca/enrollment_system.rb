@@ -14,13 +14,13 @@ module HCA
       'isWhite' => '2106-3'
     }.freeze
 
-    FORM_TEMPLATE = {
+    FORM_TEMPLATE = IceNine.deep_freeze(
       'va:form' => {
         '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
         'va:formIdentifier' => {
           'va:type' => '100',
           'va:value' => '1010EZ',
-          'va:version' => 1_986_360_435
+          'va:version' => 2_986_360_436
         }
       },
       'va:identity' => {
@@ -30,7 +30,7 @@ module HCA
           'va:value' => 'anonymous'
         }
       }
-    }.freeze
+    )
 
     SERVICE_BRANCH_CODES = {
       'army' => 1,
@@ -378,8 +378,16 @@ module HCA
           count: 20,
           nullable: true
         ),
-        'placeOfBirthState' => veteran['stateOfBirth']
+        'placeOfBirthState' => convert_birth_state(veteran['stateOfBirth'])
       }.merge(ssn_to_ssntext(veteran['veteranSocialSecurityNumber'])))
+    end
+
+    def convert_birth_state(birth_state)
+      if birth_state == 'Other'
+        'FG'
+      else
+        birth_state
+      end
     end
 
     def service_branch_to_sds_code(service_branch)
@@ -587,10 +595,27 @@ module HCA
       hash.delete_if { |_k, v| v.blank? }
     end
 
-    def veteran_to_save_submit_form(veteran)
+    def build_form_for_user(current_user)
+      form = FORM_TEMPLATE.deep_dup
+      return form if current_user.nil?
+      user_id = current_user.icn || current_user.edipi
+      return form if user_id.blank?
+
+      form_identifier = form['va:form']['va:formIdentifier']
+      form_identifier['va:type'] = '102'
+      form_identifier['va:value'] = '1010HS'
+
+      authentication_level = form['va:identity']['va:authenticationLevel']
+      authentication_level['va:type'] = '102'
+      authentication_level['va:value'] = user_id.to_s
+
+      form
+    end
+
+    def veteran_to_save_submit_form(veteran, current_user)
       return {} if veteran.blank?
 
-      request = FORM_TEMPLATE.dup
+      request = build_form_for_user(current_user)
       request['va:form']['va:summary'] = veteran_to_summary(veteran)
       request['va:form']['va:applications'] = {
         'va:applicationInfo' => [{
