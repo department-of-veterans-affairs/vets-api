@@ -68,4 +68,35 @@ RSpec.describe 'Documents management', type: :request do
       expect(response.status).to eq(422)
     end
   end
+
+  context 'with an emoji in text' do
+    let(:tempfile) do
+      f = Tempfile.new(['test', '.txt'])
+      f.write("I \u{1f4a9} Unicode!")
+      f.rewind
+      fixture_file_upload(f.path, 'text/plain')
+    end
+
+    it 'should reject a text file containing untranslatable characters' do
+      params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
+      post '/v0/evss_claims/189625/documents', params, 'Authorization' => "Token token=#{session.token}"
+      expect(response.status).to eq(422)
+    end
+  end
+
+  context 'with an accent in text' do
+    let(:tempfile) do
+      f = Tempfile.new(['test', '.txt'])
+      f.write("Let's go to the caf\xe9!")
+      f.rewind
+      fixture_file_upload(f.path, 'text/plain')
+    end
+
+    it 'should accept a text file containing translatable characters' do
+      params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
+      post '/v0/evss_claims/189625/documents', params, 'Authorization' => "Token token=#{session.token}"
+      expect(response.status).to eq(202)
+      expect(JSON.parse(response.body)['job_id']).to eq(EVSSClaim::DocumentUpload.jobs.first['jid'])
+    end
+  end
 end

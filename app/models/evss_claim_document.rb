@@ -84,7 +84,7 @@ class EVSSClaimDocument < Common::Base
       return false
     end
     return if cd['encoding'] == 'ascii'
-    text = Iconv.iconv('ascii//translit', cd["encoding"], text)
+    text = Iconv.iconv('ascii//translit', cd['encoding'], text)
     file_obj.tempfile.write text
     file_obj.rewind
   rescue Iconv::IllegalSequence
