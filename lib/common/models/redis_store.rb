@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# frozen_string_literal: true
 module Common
   class RedisStore
     extend ActiveModel::Naming
@@ -67,12 +68,12 @@ module Common
       instance
     end
 
-    def save(ttl = nil)
+    def save
       return false unless valid?
       redis_namespace.set(attributes[redis_namespace_key], Oj.dump(attributes))
       if defined? redis_namespace_ttl
         redis_namespace.expire(
-          attributes[redis_namespace_key], ttl || redis_namespace_ttl
+          attributes[redis_namespace_key], redis_namespace_ttl
         )
       end
       @persisted = true
