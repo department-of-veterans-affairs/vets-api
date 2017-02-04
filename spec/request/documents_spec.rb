@@ -72,7 +72,7 @@ RSpec.describe 'Documents management', type: :request do
   context 'with an emoji in text' do
     let(:tempfile) do
       f = Tempfile.new(['test', '.txt'])
-      f.write("I \u{1f4a9} Unicode!".encode("utf-16"))
+      f.write("I \u2661 Unicode!")
       f.rewind
       fixture_file_upload(f.path, 'text/plain')
     end
