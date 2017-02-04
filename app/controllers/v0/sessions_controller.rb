@@ -111,11 +111,7 @@ module V0
     end
 
     def saml_options
-      if Rails.env.development? && ENV['TBD'].blank? == false
-        { RelayState: ENV['TBD'] }
-      else
-        {}
-      end
+      ENV['TBD'].blank? ? {} : { RelayState: ENV['TBD'] }
     end
   end
 end
