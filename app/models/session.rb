@@ -26,15 +26,6 @@ class Session < Common::RedisStore
     Digest::SHA256.hexdigest(token)[0..20]
   end
 
-  def save
-    time_left = max_ttl
-    if time_left < redis_namespace_ttl
-      super(time_left)
-    else
-      super
-    end
-  end
-
   private
 
   def secure_random_token(length = DEFAULT_TOKEN_LENGTH)
