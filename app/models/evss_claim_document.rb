@@ -83,7 +83,7 @@ class EVSSClaimDocument < Common::Base
     file_obj.rewind
     cd = CharDet.detect text
     if cd['confidence'] < MINIMUM_ENCODING_CONFIDENCE
-      errors.add(:file_obj, 'Cannot guess encoding of text')
+      errors.add(:file_obj, 'Cannot read file encoding. Text files must be ASCII encoded.')
       return false
     end
     return if cd['encoding'] == EVSS_TEXT_ENCODING
