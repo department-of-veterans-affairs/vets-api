@@ -14,11 +14,11 @@ class EVSSClaimDocument < Common::Base
   attribute :file_name, String
   attribute :file_obj
 
-  validates(:tracked_item_id, presence: true)
   validates(:file_name, presence: true)
   validate :known_document_type?
   validate :unencrypted_pdf?
   before_validation :normalize_text
+  before_validation :normalize_tracked_item_id
 
   # rubocop:disable LineLength
   DOCUMENT_TYPES = {
@@ -93,5 +93,10 @@ class EVSSClaimDocument < Common::Base
   rescue Iconv::IllegalSequence
     errors.add(:file_obj, 'Text contains illegal characters')
     false
+  end
+
+  # The front-end URL encodes nil tracked_item_id as the string 'null'
+  def normalize_tracked_item_id
+    self['tracked_item_id'] = nil if tracked_item_id == 'null'
   end
 end
