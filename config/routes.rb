@@ -13,6 +13,7 @@ Rails.application.routes.draw do
     resource :sessions, only: [:new, :destroy] do
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
+      put :renew, to: 'sessions#renew'
     end
 
     resource :user, only: [:show]
