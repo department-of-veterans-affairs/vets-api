@@ -46,7 +46,7 @@ class EVSSClaimDocument < Common::Base
   }.freeze
   # rubocop:enable LineLength
 
-  EVSS_ENCODING = 'ascii'
+  EVSS_TEXT_ENCODING = 'ascii'  # EVSS only accepts text files written in ASCII
   MINIMUM_ENCODING_CONFIDENCE = 0.5
 
   def description
@@ -86,8 +86,9 @@ class EVSSClaimDocument < Common::Base
       errors.add(:file_obj, 'Cannot guess encoding of text')
       return false
     end
-    return if cd['encoding'] == EVSS_ENCODING
-    text = Iconv.iconv(EVSS_ENCODING, cd['encoding'], text)
+    return if cd['encoding'] == EVSS_TEXT_ENCODING
+    text = Iconv.iconv(EVSS_TEXT_ENCODING, cd['encoding'], text)
+    file_obj.tempfile.encoding EVSS_TEXT_ENCODING
     file_obj.tempfile.write text
     file_obj.rewind
   rescue Iconv::IllegalSequence
