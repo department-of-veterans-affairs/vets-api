@@ -8,6 +8,14 @@ module Common
       class ClientError < Error; end
       class NotAuthenticated < ClientError; end
       class Serialization < ClientError; end
+      class HTTPError < ClientError
+        attr_accessor :code
+
+        def initialize(message = nil, code = nil)
+          super(message)
+          @code = code
+        end
+      end
     end
   end
 end

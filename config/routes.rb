@@ -8,6 +8,8 @@ Rails.application.routes.draw do
   post '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
 
   namespace :v0, defaults: { format: 'json' } do
+    resources :in_progress_forms, only: [:show, :update]
+
     resource :sessions, only: [:new, :destroy] do
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
@@ -16,6 +18,12 @@ Rails.application.routes.draw do
     resource :user, only: [:show]
 
     resource :education_benefits_claims, only: [:create]
+
+    resource :health_care_applications, only: [:create] do
+      collection do
+        get(:healthcheck)
+      end
+    end
 
     resource :disability_rating, only: [:show]
     resources :disability_claims, only: [:index, :show] do
@@ -30,6 +38,11 @@ Rails.application.routes.draw do
       get :active, to: 'prescriptions#index', on: :collection, defaults: { refill_status: 'active' }
       patch :refill, to: 'prescriptions#refill', on: :member
       resources :trackings, only: :index, controller: :trackings
+    end
+
+    resource :health_records, only: [:create, :show], defaults: { format: :json } do
+      get :refresh, to: 'health_records#refresh', on: :collection
+      get :eligible_data_classes, to: 'health_records#eligible_data_classes', on: :collection
     end
 
     scope :messaging do

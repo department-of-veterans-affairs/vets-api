@@ -7,14 +7,6 @@ module MVI
     end
     class InvalidRequestError < MVI::Errors::ServiceError
     end
-    class HTTPError < MVI::Errors::ServiceError
-      attr_accessor :code
-
-      def initialize(message = nil, code = nil)
-        super(message)
-        @code = code
-      end
-    end
     class RecordNotFound < StandardError
     end
   end

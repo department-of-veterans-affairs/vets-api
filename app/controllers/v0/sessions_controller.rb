@@ -12,7 +12,10 @@ module V0
       logout_request = OneLogin::RubySaml::Logoutrequest.new
       logger.info "New SP SLO for userid '#{@session.uuid}'"
 
-      render json: { logout_via_get: logout_request.create(saml_settings, RelayState: @session.token) }, status: 202
+      # cache the request for @session.token lookup when we receive the response
+      SingleLogoutRequest.create(uuid: logout_request.uuid, token: @session.token)
+
+      render json: { logout_via_get: logout_request.create(saml_settings) }, status: 202
     end
 
     def saml_logout_callback
@@ -30,11 +33,11 @@ module V0
       if @saml_response.is_valid? && persist_session_and_user
         async_create_evss_account(@current_user)
         redirect_to SAML_CONFIG['relay'] + '?token=' + @session.token
+
+        obscure_token = Session.obscure_token(@session.token)
+        Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
       else
-        logger.warn 'Authentication attempt did not succeed in saml_callback, reasons...'
-        logger.warn "  SAML Response: valid?=#{@saml_response.is_valid?} errors=#{@saml_response.errors}"
-        logger.warn "  User: valid?=#{@current_user&.valid?} errors=#{@current_user&.errors&.messages}"
-        logger.warn "  Session: valid?=#{@session&.valid?} errors=#{@session&.errors&.messages}"
+        login_error
         redirect_to SAML_CONFIG['relay'] + '?auth=fail'
       end
     end
@@ -51,42 +54,60 @@ module V0
       @session.save && @current_user.save
     end
 
+    def login_error
+      message = <<-MESSAGE.strip_heredoc
+        SAML Login attempt failed! Reasons...
+          saml:    'valid?=#{@saml_response.is_valid?} errors=#{@saml_response.errors}'
+          user:    'valid?=#{@current_user&.valid?} errors=#{@current_user&.errors&.full_messages}'
+          session: 'valid?=#{@session&.valid?} errors=#{@session&.errors&.full_messages}'
+      MESSAGE
+      log_errors(message)
+    end
+
     def async_create_evss_account(user)
       return unless user.can_access_evss?
       auth_headers = EVSS::AuthHeaders.new(user).to_h
       EVSS::CreateUserAccountJob.perform_async(auth_headers)
     end
 
-    # :nocov:
     def handle_completed_slo
-      logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings)
+      logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings, get_params: params)
+      logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
+      session         = Session.find(logout_request&.token)
+      user            = User.find(session&.uuid)
 
-      logger.info "LogoutResponse is: #{logout_response}"
+      errors = build_logout_errors(logout_response, logout_request, session, user)
 
-      if !logout_response.validate(true)
-        logger.error 'The SAML Logout Response is invalid'
-        logger.error "ERROR MESSAGES #{logout_response.errors.join(' ---- ')}"
+      if errors.size.positive?
+        extra_context = { in_response_to: logout_response&.in_response_to }
+        log_errors("SAML Logout failed!\n  " + errors.join("\n  "), extra_context)
         redirect_to SAML_CONFIG['logout_relay'] + '?success=false'
-      elsif logout_response.success?
-        begin
-          session = Session.find(params[:RelayState])
-          user = User.find(session.uuid)
-          MHVLoggingService.logout(user)
-        rescue => e
-          logger.error "Error in MHV Logout: #{e.message}"
-        end
-        delete_session(params[:RelayState])
+      else
+        logout_request.destroy
+        session.destroy
+        user.destroy
         redirect_to SAML_CONFIG['logout_relay'] + '?success=true'
+        # even if mhv logout raises exception, still consider logout successful from browser POV
+        MHVLoggingService.logout(user)
       end
     end
 
-    def delete_session(token)
-      session = Session.find(token)
-      unless session.nil?
-        User.find(session.uuid)&.destroy
-        session.destroy
+    def build_logout_errors(logout_response, logout_request, session, user)
+      errors = []
+      errors.concat(logout_response.errors) unless logout_response.validate(true)
+      errors << 'inResponseTo attribute is nil!' if logout_response&.in_response_to.nil?
+      errors << 'Logout Request not found!' if logout_request.nil?
+      errors << 'Session not found!' if session.nil?
+      errors << 'User not found!' if user.nil?
+      errors
+    end
+
+    def log_errors(message, context = {})
+      logger.error message
+      if ENV['SENTRY_DSN'].present?
+        Raven.extra_context(context) unless !context.is_a?(Hash) || context.empty?
+        Raven.capture_message(message)
       end
     end
-    # :nocov:
   end
 end

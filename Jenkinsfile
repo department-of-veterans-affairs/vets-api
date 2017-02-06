@@ -26,10 +26,15 @@ def env_vars = [
     'VBA_MAPSERVER_URL=https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VBA_Facilities/FeatureServer/0',
     'MOCK_MVI_SERVICE=false',
     'GOV_DELIVERY_SERVER=stage-tms.govdelivery.com',
+    'ES_URL=https://test.vets.gov',
+    'ES_CLIENT_CERT_PATH=/fake/client/cert/path',
+    'ES_CLIENT_KEY_PATH=/fake/client/key/path'
 ]
 
 pipeline {
-  agent label:'vets-api-linting'
+  agent {
+    label 'vets-api-linting'
+  }
   stages {
     stage('Checkout Code') {
       steps {
@@ -39,11 +44,23 @@ pipeline {
 
     stage('Run tests') {
       steps {
-        sh 'bash --login -c "bundle install --path vendor/bundle --without development"'
+        sh 'bash --login -c "bundle install --without development -j 4"'
         withEnv(env_vars) {
           sh 'bash --login -c "bundle exec rake db:create db:schema:load ci"'
         }
       }
+    }
+  }
+
+  post {
+    success {
+      build job: 'vets-api-branch-deploy',
+            wait: false,
+            parameters: [[
+              $class: 'GitParameterValue',
+              name: 'branch',
+              value: scm.branches[0].name
+            ]]
     }
   }
 }

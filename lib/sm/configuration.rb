@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'common/client/configuration'
+require 'common/client/configuration/rest'
 require 'common/client/middleware/request/camelcase'
 require 'common/client/middleware/request/multipart_request'
 require 'common/client/middleware/response/json_parser'
@@ -9,7 +9,7 @@ require 'common/client/middleware/response/snakecase'
 require 'sm/middleware/response/sm_parser'
 
 module SM
-  class Configuration < Common::Client::Configuration
+  class Configuration < Common::Client::Configuration::REST
     def app_token
       ENV['MHV_SM_APP_TOKEN']
     end
@@ -29,10 +29,11 @@ module SM
         conn.request :multipart_request
         conn.request :multipart
         conn.request :json
-        # Uncomment this out for generating curl output to send to MHV dev and test only
-        # conn.request :curl, ::Logger.new(STDOUT), :warn
 
-        # conn.response :logger, ::Logger.new(STDOUT), bodies: true
+        # Uncomment this if you want curl command equivalent or response output to log
+        # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
+        # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
+
         conn.response :sm_parser
         conn.response :snakecase
         conn.response :raise_error, error_prefix: service_name
