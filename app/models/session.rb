@@ -38,10 +38,8 @@ class Session < Common::RedisStore
   end
 
   def setup_defaults
-    unless persisted?
-      @token ||= secure_random_token
-      @created_at ||= Time.now.utc
-    end
+    @token ||= secure_random_token
+    @created_at ||= Time.now.utc
   end
 
   def max_ttl
