@@ -100,5 +100,57 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
         end
       end
     end
+
+    context 'With Australian vet' do
+      let(:test_australian) do
+        JSON.parse(
+          File.read(
+            Rails.root.join('spec', 'fixtures', 'hca', 'conformance', 'australian-vet.json')
+          )
+        )
+      end
+
+      let(:params) do
+        {
+          form: test_australian.to_json
+        }
+      end
+      let(:body) do
+        {"errors"=>[{"title"=>"Operation failed", "detail"=>"Failed to open TCP connection to vaww.esrdev30.aac.va.gov:8433 (getaddrinfo: nodename nor servname provided, or not known)", "code"=>"VA900", "status"=>"400"}]}
+      end
+
+      it 'should render success', run_at: '2017-01-31' do
+        VCR.use_cassette('hca/australian', match_requests_on: [:body], :record => :all) do
+          subject
+          expect(JSON.parse(response.body)).to eq(body)
+        end
+      end
+    end
+
+    context 'With Canadian vet' do
+      let(:test_canadian) do
+        JSON.parse(
+          File.read(
+            Rails.root.join('spec', 'fixtures', 'hca', 'conformance', 'canadian-vet.json')
+          )
+        )
+      end
+
+      let(:params) do
+        {
+          form: test_canadian.to_json
+        }
+      end
+      let(:body) do
+        {"errors"=>[{"title"=>"Operation failed", "detail"=>"Failed to open TCP connection to vaww.esrdev30.aac.va.gov:8433 (getaddrinfo: nodename nor servname provided, or not known)", "code"=>"VA900", "status"=>"400"}]}
+      end
+
+      it 'should render success', run_at: '2017-01-31' do
+        VCR.use_cassette('hca/canadian', match_requests_on: [:body], :record => :all) do
+          subject
+          expect(JSON.parse(response.body)).to eq(body)
+        end
+      end
+    end
   end
 end
