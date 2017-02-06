@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 require 'common/models/base'
-require 'iconv'
 require 'pdf/reader'
-require 'rchardet'
 
 class EVSSClaimDocument < Common::Base
   include ActiveModel::Validations
@@ -80,19 +78,12 @@ class EVSSClaimDocument < Common::Base
   def normalize_text
     return unless file_name =~ /\.txt$/i
     text = file_obj.read
-    file_obj.rewind
-    cd = CharDet.detect text
-    if cd['confidence'] < MINIMUM_ENCODING_CONFIDENCE
-      errors.add(:base, 'Cannot read file encoding. Text files must be ASCII encoded.')
-      return false
-    end
-    return if cd['encoding'] == EVSS_TEXT_ENCODING
-    text = Iconv.iconv(EVSS_TEXT_ENCODING, cd['encoding'], text)
-    file_obj.tempfile.encoding EVSS_TEXT_ENCODING
+    text = text.encode(EVSS_TEXT_ENCODING)
+    file_obj.tempfile = Tempfile.new(encoding: EVSS_TEXT_ENCODING)
     file_obj.tempfile.write text
-    file_obj.rewind
-  rescue Iconv::IllegalSequence
-    errors.add(:base, 'Text contains illegal characters')
+    file_obj.tempfile.rewind
+  rescue Encoding::UndefinedConversionError
+    errors.add(:base, 'Cannot read file encoding. Text files must be ASCII encoded.')
     false
   end
 

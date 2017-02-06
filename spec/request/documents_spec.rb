@@ -88,7 +88,9 @@ RSpec.describe 'Documents management', type: :request do
       params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
       post '/v0/evss_claims/189625/documents', params, 'Authorization' => "Token token=#{session.token}"
       expect(response.status).to eq(422)
-      expect(JSON.parse(response.body)['errors'].first['title']).to eq('Text contains illegal characters')
+      expect(JSON.parse(response.body)['errors'].first['title']).to eq(
+        'Cannot read file encoding. Text files must be ASCII encoded.'
+      )
     end
   end
 
