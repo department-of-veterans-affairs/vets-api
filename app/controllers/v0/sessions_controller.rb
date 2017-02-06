@@ -111,7 +111,7 @@ module V0
     end
 
     def saml_options
-      ENV['TBD'].blank? ? {} : { RelayState: ENV['TBD'] }
+      ENV['REVIEW_INSTANCE_SLUG'].blank? ? {} : { RelayState: ENV['REVIEW_INSTANCE_SLUG'] }
     end
   end
 end
