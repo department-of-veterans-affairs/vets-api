@@ -17,7 +17,7 @@ module V0
         raise Common::Exceptions::SchemaValidationErrors, validation_errors
       end
 
-      begin
+      result = begin
         service.submit_form(form)
       rescue Common::Client::Errors::ClientError => e
         Raven.capture_exception(e)
@@ -28,7 +28,7 @@ module V0
         )
       end
 
-      render(json: { success: true })
+      render(json: result)
     end
 
     def healthcheck

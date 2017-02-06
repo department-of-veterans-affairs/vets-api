@@ -398,6 +398,7 @@ DEPENDENCIES
   gyoku
   holidays
   httpclient
+  ice_nine
   iconv
   json-schema
   memoist
