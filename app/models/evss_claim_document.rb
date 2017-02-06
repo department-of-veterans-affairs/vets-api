@@ -71,10 +71,10 @@ class EVSSClaimDocument < Common::Base
   def unencrypted_pdf?
     return unless file_name =~ /\.pdf$/i
     xref = PDF::Reader::XRef.new file_obj.tempfile
-    errors.add(:file_obj, 'PDF must not be encrypted') if xref.trailer[:Encrypt].present?
+    errors.add(:base, 'PDF must not be encrypted') if xref.trailer[:Encrypt].present?
     file_obj.tempfile.rewind
   rescue PDF::Reader::MalformedPDFError
-    errors.add(:file_obj, 'PDF is malformed')
+    errors.add(:base, 'PDF is malformed')
   end
 
   def normalize_text
@@ -83,7 +83,7 @@ class EVSSClaimDocument < Common::Base
     file_obj.rewind
     cd = CharDet.detect text
     if cd['confidence'] < MINIMUM_ENCODING_CONFIDENCE
-      errors.add(:file_obj, 'Cannot read file encoding. Text files must be ASCII encoded.')
+      errors.add(:base, 'Cannot read file encoding. Text files must be ASCII encoded.')
       return false
     end
     return if cd['encoding'] == EVSS_TEXT_ENCODING
@@ -92,7 +92,7 @@ class EVSSClaimDocument < Common::Base
     file_obj.tempfile.write text
     file_obj.rewind
   rescue Iconv::IllegalSequence
-    errors.add(:file_obj, 'Text contains illegal characters')
+    errors.add(:base, 'Text contains illegal characters')
     false
   end
 
