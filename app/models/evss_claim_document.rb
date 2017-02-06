@@ -10,13 +10,12 @@ class EVSSClaimDocument < Common::Base
   attribute :tracked_item_id, Integer
   attribute :document_type, String
   attribute :file_name, String
-  attribute :file_obj
+  attribute :file_obj, ActionDispatch::Http::UploadedFile
 
   validates(:file_name, presence: true)
   validate :known_document_type?
   validate :unencrypted_pdf?
   before_validation :normalize_text
-  before_validation :normalize_tracked_item_id
 
   # rubocop:disable LineLength
   DOCUMENT_TYPES = {
@@ -60,6 +59,12 @@ class EVSSClaimDocument < Common::Base
     to_hash.tap { |h| h.delete :file_obj }
   end
 
+  # The front-end URLencodes a nil tracked_item_id as the string 'null'
+  def tracked_item_id=(num)
+    num = nil if num == 'null'
+    super num
+  end
+
   private
 
   def known_document_type?
@@ -85,10 +90,5 @@ class EVSSClaimDocument < Common::Base
   rescue Encoding::UndefinedConversionError
     errors.add(:base, 'Cannot read file encoding. Text files must be ASCII encoded.')
     false
-  end
-
-  # The front-end URL encodes nil tracked_item_id as the string 'null'
-  def normalize_tracked_item_id
-    self['tracked_item_id'] = nil if tracked_item_id == 'null'
   end
 end
