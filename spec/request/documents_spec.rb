@@ -84,10 +84,10 @@ RSpec.describe 'Documents management', type: :request do
     end
   end
 
-  context 'with an accent in text' do
+  context 'with UTF-16 ASCII text' do
     let(:tempfile) do
-      f = Tempfile.new(['test', '.txt'])
-      f.write("Let's go to the caf\xe9!")
+      f = Tempfile.new(['test', '.txt'], encoding: 'utf-16be')
+      f.write("I love nulls")
       f.rewind
       fixture_file_upload(f.path, 'text/plain')
     end
