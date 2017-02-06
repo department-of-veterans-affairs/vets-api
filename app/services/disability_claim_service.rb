@@ -6,25 +6,6 @@ require 'evss/auth_headers'
 class DisabilityClaimService
   EVSS_CLAIM_KEYS = %w(open_claims historical_claims).freeze
 
-  # Codes for claim types that are disability claims. See
-  # https://github.com/department-of-veterans-affairs/sunsets-team/blob/master/track-claim-status/technical/Dis_Clm_types.md
-  DISABILITY_BENEFIT_CODES = %w(
-    010DICI 010DICP 010EPDMR8 010EXPDMR8 010INITMORE8 010IPDD2D
-    010IPDSEP 010LCOMP 010LCOMPBDD 010LCOMPD2D 010LCOMPP 010LCOMPPRD
-    010LCOMPSEP 010PD 010PDFDC 010PREDMORE8 010QP 011IPDD2D 017IPDD2D
-    020CLMINC 020CPHLP 020DS 020DSI 020EPDSUPP 020EXPD 020INCMPRVSC
-    020NEW 020NEWBDD 020NHPNH10 020NI 020NR 20NRI 020PD 020PDD2D
-    020PDFDC 020PDSEP 020PREDSUPP 020QP 020RCOMP 020RI 020RN 020SCOMPBDD
-    020SCOMPPRD 020SD2D 020SMB 020SSEP 020SUPP 20WCP 021PDD2D 025NA
-    025NHP 025NR 110DILCI 110DLCP 110EPDLS8 110EXPDLS8 110INITLESS8
-    110LCOMP 110LCOMP7 110LCOMP7BDD 110LCOMP7PRD 110LCOMPD2D 110LCOMPSEP
-    110PD 110PDFDC 110PDID2D 110PDISEP 110PREDLESS8 110QP 110WCP
-    111PDID2D 117PDID2D 400EPDLS8 400EPDMR8 400EPDSUPP 400EXPDLS8
-    400EXPDMR8 400EXPDSUPP 400ILCOMPD2D 400ILCOMPSEP 400INITLESS8
-    400INITMORE8 400LCOMPD2D 400LCOMPSEP 400PDD2D 400PDSEP 400PREDSCHRG
-    400SD2D 400SSEP 400SUPP 930RC 930RVWRF
-  ).to_set.freeze
-
   def initialize(user)
     @user = user
   end
@@ -33,10 +14,7 @@ class DisabilityClaimService
     raw_claims = client.all_claims.body
     claims = EVSS_CLAIM_KEYS.each_with_object([]) do |key, claim_accum|
       next unless raw_claims[key]
-      disability_claims = raw_claims[key].select do |raw_claim|
-        DISABILITY_BENEFIT_CODES.include? raw_claim['benefit_claim_type_code']
-      end
-      claim_accum << disability_claims.map do |raw_claim|
+      claim_accum << raw_claims[key].map do |raw_claim|
         create_or_update_claim(raw_claim)
       end
     end.flatten
