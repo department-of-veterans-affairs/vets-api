@@ -108,12 +108,11 @@ RSpec.describe 'Documents management', type: :request do
     end
   end
 
-
   context 'with a PDF pretending to be text' do
     let(:tempfile) do
       f = Tempfile.new(['test', '.txt'], encoding: 'utf-16be')
       pdf = File.open("#{::Rails.root}/spec/fixtures/files/doctors-note.pdf", 'rb')
-      FileUtils::copy_stream(pdf, f)
+      FileUtils.copy_stream(pdf, f)
       pdf.close
       f.rewind
       fixture_file_upload(f.path, 'text/plain')
@@ -123,7 +122,9 @@ RSpec.describe 'Documents management', type: :request do
       params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
       post '/v0/evss_claims/189625/documents', params, 'Authorization' => "Token token=#{session.token}"
       expect(response.status).to eq(422)
-      expect(JSON.parse(response.body)['errors'].first['title']).to eq('Cannot read file encoding. Text files must be ASCII encoded.')
+      expect(JSON.parse(response.body)['errors'].first['title']).to eq(
+        'Cannot read file encoding. Text files must be ASCII encoded.'
+      )
     end
   end
 end
