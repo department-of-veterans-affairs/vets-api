@@ -67,7 +67,6 @@ module EducationForm
     # rubocop:disable Metrics/CyclomaticComplexity
     def self.region_for(model)
       record = model.open_struct_form
-      # TODO: handle 1995
       country = record.school&.address&.country || record.veteranAddress&.country
       # special case Philippines
       return :western if country == 'PHL'
