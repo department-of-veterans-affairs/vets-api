@@ -69,5 +69,6 @@
   "civilianBenefitsAssistance": true,
   "nonVaAssistance": true,
   "remarks": "remarks",
-  "programName": "program name"
+  "programName": "program name",
+  "privacyAgreementAccepted": true
 }
