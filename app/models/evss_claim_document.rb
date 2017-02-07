@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'common/models/base'
 
-class DisabilityClaimDocument < Common::Base
+class EVSSClaimDocument < Common::Base
   include ActiveModel::Validations
 
   attribute :evss_claim_id, Integer

@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 require 'rails_helper'
+
 require 'evss/request_decision'
 
-RSpec.describe 'disability Claims management', type: :request do
+RSpec.describe 'EVSS Claims management', type: :request do
   let(:user) { FactoryGirl.create(:loa3_user) }
   let(:session) { Session.create(uuid: user.uuid) }
 
@@ -29,14 +30,14 @@ RSpec.describe 'disability Claims management', type: :request do
     end
 
     it 'returns a 403' do
-      get '/v0/disability_claims', nil, 'Authorization' => "Token token=#{session.token}"
+      get '/v0/evss_claims', nil, 'Authorization' => "Token token=#{session.token}"
       expect(response).to have_http_status(:forbidden)
     end
   end
 
   it 'lists all Claims' do
     VCR.use_cassette('evss/claims/claims') do
-      get '/v0/disability_claims', nil, 'Authorization' => "Token token=#{session.token}"
+      get '/v0/evss_claims', nil, 'Authorization' => "Token token=#{session.token}"
       expect(response).to match_response_schema('evss_claims')
     end
   end
@@ -49,7 +50,7 @@ RSpec.describe 'disability Claims management', type: :request do
 
     it 'sets 5103 waiver when requesting a decision' do
       expect do
-        post '/v0/disability_claims/189625/request_decision', nil, 'Authorization' => "Token token=#{session.token}"
+        post '/v0/evss_claims/189625/request_decision', nil, 'Authorization' => "Token token=#{session.token}"
       end.to change(EVSSClaim::RequestDecision.jobs, :size).by(1)
       expect(response.status).to eq(202)
       expect(JSON.parse(response.body)['job_id']).to eq(EVSSClaim::RequestDecision.jobs.first['jid'])
@@ -57,7 +58,7 @@ RSpec.describe 'disability Claims management', type: :request do
 
     it 'shows a single Claim' do
       VCR.use_cassette('evss/claims/claim') do
-        get '/v0/disability_claims/189625', nil, 'Authorization' => "Token token=#{session.token}"
+        get '/v0/evss_claims/189625', nil, 'Authorization' => "Token token=#{session.token}"
         expect(response).to match_response_schema('evss_claim')
       end
     end
@@ -65,7 +66,7 @@ RSpec.describe 'disability Claims management', type: :request do
     it 'user cannot access claim of another user' do
       FactoryGirl.create(:evss_claim, id: 2, evss_id: 189_625,
                                       user_uuid: 'xyz')
-      get '/v0/disability_claims/2', nil, 'Authorization' => "Token token=#{session.token}"
+      get '/v0/evss_claims/2', nil, 'Authorization' => "Token token=#{session.token}"
       expect(response).to have_http_status(:not_found)
     end
 
@@ -76,7 +77,7 @@ RSpec.describe 'disability Claims management', type: :request do
       end
       it 'has waiver_submitted set after requesting a decision' do
         expect(claim.requested_decision).to eq(false)
-        post '/v0/disability_claims/189625/request_decision', nil, 'Authorization' => "Token token=#{session.token}"
+        post '/v0/evss_claims/189625/request_decision', nil, 'Authorization' => "Token token=#{session.token}"
         expect(claim.reload.requested_decision).to eq(true)
       end
     end
