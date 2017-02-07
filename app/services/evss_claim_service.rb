@@ -3,7 +3,7 @@ require 'evss/claims_service'
 require 'evss/documents_service'
 require 'evss/auth_headers'
 
-class DisabilityClaimService
+class EVSSClaimService
   EVSS_CLAIM_KEYS = %w(open_claims historical_claims).freeze
 
   def initialize(user)
@@ -37,16 +37,16 @@ class DisabilityClaimService
   end
 
   def request_decision(claim)
-    DisabilityClaim::RequestDecision.perform_async(auth_headers, claim.evss_id)
+    EVSSClaim::RequestDecision.perform_async(auth_headers, claim.evss_id)
   end
 
   # upload file to s3 and enqueue job to upload to EVSS
-  def upload_document(file, disability_claim_document)
-    uploader = DisabilityClaimDocumentUploader.new(@user.uuid, disability_claim_document.tracked_item_id)
+  def upload_document(file, evss_claim_document)
+    uploader = EVSSClaimDocumentUploader.new(@user.uuid, evss_claim_document.tracked_item_id)
     uploader.store!(file)
     # the uploader sanitizes the filename before storing, so set our doc to match
-    disability_claim_document.file_name = uploader.filename
-    DisabilityClaim::DocumentUpload.perform_async(auth_headers, @user.uuid, disability_claim_document.to_h)
+    evss_claim_document.file_name = uploader.filename
+    EVSSClaim::DocumentUpload.perform_async(auth_headers, @user.uuid, evss_claim_document.to_h)
   end
 
   def rating_info
@@ -66,7 +66,7 @@ class DisabilityClaimService
   end
 
   def claims_scope
-    DisabilityClaim.for_user(@user)
+    EVSSClaim.for_user(@user)
   end
 
   def create_or_update_claim(raw_claim)

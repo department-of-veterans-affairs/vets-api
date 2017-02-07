@@ -17,10 +17,8 @@ module V0
         raise Common::Exceptions::SchemaValidationErrors, validation_errors
       end
 
-      authenticate_token
-
       result = begin
-        HCA::Service.new(@current_user).submit_form(form)
+        service.submit_form(form)
       rescue Common::Client::Errors::ClientError => e
         Raven.capture_exception(e)
 
@@ -34,7 +32,13 @@ module V0
     end
 
     def healthcheck
-      render(json: HCA::Service.new.health_check)
+      render(json: service.health_check)
+    end
+
+    private
+
+    def service
+      HCA::Service.new
     end
   end
 end

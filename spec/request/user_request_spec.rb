@@ -27,6 +27,8 @@ RSpec.describe 'Fetching user data', type: :request do
           BackendServices::FACILITIES,
           BackendServices::HCA,
           BackendServices::EDUCATION_BENEFITS,
+          BackendServices::EVSS_CLAIMS,
+          # TODO: (CMJ, AJM) Remove DISABILITY_BENEFITS after updating front-end
           BackendServices::DISABILITY_BENEFITS,
           BackendServices::USER_PROFILE,
           BackendServices::RX,

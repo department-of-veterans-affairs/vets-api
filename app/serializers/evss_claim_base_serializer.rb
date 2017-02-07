@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class DisabilityClaimBaseSerializer < ActiveModel::Serializer
+class EVSSClaimBaseSerializer < ActiveModel::Serializer
   def self.date_attr(*names, override_name: nil, format: '%m/%d/%Y')
     name = override_name || names.last
     define_method(name) do
@@ -31,7 +31,7 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
              :phase_change_date, :open, :waiver_submitted, :documents_needed,
              :development_letter_sent, :decision_letter_sent,
              :updated_at, :phase, :ever_phase_back, :current_phase_back,
-             :requested_decision
+             :requested_decision, :claim_type
 
   # Our IDs are not stable due to 24 hour expiration, use EVSS IDs for consistency
   # This can be removed if our IDs become stable
@@ -69,8 +69,12 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
     requested_decision
   end
 
+  def claim_type
+    object_data['status_type']
+  end
+
   def phase
-    raise NotImplementedError, 'Subclass of DisabilityClaimBaseSerializer must implement phase method'
+    raise NotImplementedError, 'Subclass of EVSSClaimBaseSerializer must implement phase method'
   end
 
   protected
@@ -96,6 +100,6 @@ class DisabilityClaimBaseSerializer < ActiveModel::Serializer
   # object_data mediates whether a class uses object.data or
   # object.list_data as the basis of serialization.
   def object_data
-    raise NotImplementedError, 'Subclass of DisabilityClaimBaseSerializer must implement object_data method'
+    raise NotImplementedError, 'Subclass of EVSSClaimBaseSerializer must implement object_data method'
   end
 end

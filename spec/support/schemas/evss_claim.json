@@ -8,7 +8,7 @@
       "required": ["id", "type", "attributes"],
       "properties": {
         "id": { "type": "string" },
-        "type": { "enum": ["disability_claims"] },
+        "type": { "enum": ["evss_claims"] },
         "attributes": {
           "type": "object",
           "required": [
@@ -30,7 +30,8 @@
             "phase",
             "claim_type",
             "ever_phase_back",
-            "current_phase_back"
+            "current_phase_back",
+            "claim_type"
           ],
           "properties": {
             "evss_id": { "type": "integer" },
@@ -51,7 +52,8 @@
             "phase": { "type": ["integer", "null"] },
             "claim_type": { "type": "string" },
             "ever_phase_back": { "type": "boolean" },
-            "current_phase_back": { "type": "boolean" }
+            "current_phase_back": { "type": "boolean" },
+            "claim_type": { "type": ["string", "null"] }
           }
         }
       }
