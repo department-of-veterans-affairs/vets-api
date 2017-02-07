@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DisabilityClaimsBaseController < ApplicationController
+class EVSSClaimsBaseController < ApplicationController
   before_action :authorize_user
 
   protected
@@ -12,6 +12,6 @@ class DisabilityClaimsBaseController < ApplicationController
   end
 
   def claim_service
-    @claim_service ||= DisabilityClaimService.new(current_user)
+    @claim_service ||= EVSSClaimService.new(current_user)
   end
 end

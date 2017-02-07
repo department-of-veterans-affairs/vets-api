@@ -210,13 +210,13 @@ find_candidate:
     status: 'active'
   "796184750":
     birth_date: '19711119'
-    edipi: ~
+    edipi: '1019061961^NI^200DOD^USDOD^A'
     family_name: 'FREEMAN'
     gender: 'M'
     given_names: ['MELVIN', 'V']
     icn: '1008711070V155561^NI^200M^USVHA^P'
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
-    vba_corp_id: '32318143^PI^200CORP^USVBA^A'
+    vba_corp_id: '600075670^PI^200CORP^USVBA^A'
     ssn: '796184750'
     status: 'active'
   "796149080":
@@ -419,13 +419,13 @@ find_candidate:
     status: 'active'
   "796218467":
     birth_date: '19640304'
-    edipi: ~
+    edipi: '1043719340^NI^200DOD^USDOD^A'
     family_name: 'PATTERSON'
     gender: 'M'
     given_names: ['CHRISTIAN', 'Fitzgerald']
     icn: '1008691167V254462^NI^200M^USVHA^P'
     mhv_ids: ~
-    vba_corp_id: '32318091^PI^200CORP^USVBA^A'
+    vba_corp_id: '600056914^PI^200CORP^USVBA^A'
     ssn: '796218467'
     status: 'active'
   "796126978":
@@ -661,14 +661,25 @@ find_candidate:
     status: 'active'
   "796079018":
     birth_date: '19610902'
-    edipi: ~
+    edipi: '1105051936^NI^200DOD^USDOD^A'
     family_name: 'WATSON'
     gender: 'M'
     given_names: ['RUSSELL', 'Renee']
     icn: '1008691083V875288^NI^200M^USVHA^P'
     mhv_ids: ~
-    vba_corp_id: ~
+    vba_corp_id: '600097643^PI^200CORP^USVBA^A'
     ssn: '796079018'
+    status: 'active'
+  "796151611":
+    birth_date: '19610902'
+    edipi: '1008081642^NI^200DOD^USDOD^A'
+    family_name: 'WHEELER'
+    gender: 'M'
+    given_names: ['DANNY', 'Derrick']
+    icn: '1008691083V875288^NI^200M^USVHA^P'
+    mhv_ids: ~
+    vba_corp_id: '600043220^PI^200CORP^USVBA^A'
+    ssn: '796151611'
     status: 'active'
   "796231077":
     birth_date: '19711208'
@@ -811,7 +822,7 @@ find_candidate:
     mhv_ids: ['13408508^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '666360333'
-    status: 'active'  
+    status: 'active'
   "666512797":
     birth_date: '19960710'
     edipi: ~
@@ -822,4 +833,4 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '666512797'
-    status: 'active'  
+    status: 'active'

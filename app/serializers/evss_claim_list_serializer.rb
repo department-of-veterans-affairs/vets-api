@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class DisabilityClaimListSerializer < DisabilityClaimBaseSerializer
+class EVSSClaimListSerializer < EVSSClaimBaseSerializer
   def phase
     phase_from_keys 'status'
   end
