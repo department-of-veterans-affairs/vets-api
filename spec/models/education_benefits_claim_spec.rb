@@ -47,6 +47,12 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         end
       end
 
+      def self.expect_form_valid
+        it 'should be valid' do
+          expect_attr_valid(subject, :form)
+        end
+      end
+
       context '1990 form' do
         context 'verifies that privacyAgreementAccepted is true' do
           [[true, true], [false, false], [nil, false]].each do |value, answer|
@@ -84,24 +90,34 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         end
 
         context 'with a valid form' do
-          let(:form) do
-            {
-              vaFileNumber: '123'
-            }
+          context 'with a file number but no ssn' do
+            let(:form) do
+              {
+                vaFileNumber: '123'
+              }
+            end
+
+            expect_form_valid
           end
 
-          it 'should be valid' do
-            expect_attr_valid(subject, :form)
+          context 'with a ssn but no file number' do
+            let(:form) do
+              {
+                veteranSocialSecurityNumber: '111223333'
+              }
+            end
+
+            expect_form_valid
           end
         end
 
         context 'with an invalid form' do
           let(:form) do
-            { veteranFullName: 'bob' }
+            {}
           end
 
           expect_json_schema_error(
-            "The property '#/veteranFullName' of type String did not match the following type: object"
+            "The property '#/' did not contain a required property of 'vaFileNumber'"
           )
         end
       end
