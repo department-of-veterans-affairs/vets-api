@@ -121,7 +121,9 @@ FactoryGirl.define do
     end
 
     factory :education_benefits_claim_1995 do
-      form({}.to_json)
+      form({
+        veteranSocialSecurityNumber: '111223333'
+      }.to_json)
       form_type('1995')
 
       factory :education_benefits_claim_1995_full_form do

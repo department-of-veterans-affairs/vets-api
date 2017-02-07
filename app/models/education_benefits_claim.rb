@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 class EducationBenefitsClaim < ActiveRecord::Base
-  FORM_SCHEMAS = {
+  FORM_SCHEMAS = IceNine.deep_freeze(
     '1990' => VetsJsonSchema::EDU_BENEFITS,
     '1995' => VetsJsonSchema::CHANGE_OF_PROGRAM
-  }.freeze
+  )
   FORM_TYPES = %w(1990 1995).freeze
   APPLICATION_TYPES = %w(chapter33 chapter30 chapter1606 chapter32).freeze
 
