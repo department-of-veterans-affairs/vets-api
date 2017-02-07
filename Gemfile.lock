@@ -263,7 +263,6 @@ GEM
     rb-fsevent (0.9.7)
     rb-inotify (0.9.7)
       ffi (>= 0.5.0)
-    rchardet (1.6.1)
     rdoc (4.2.2)
       json (~> 1.4)
     redis (3.3.1)
@@ -426,7 +425,6 @@ DEPENDENCIES
   rails (= 4.2.7.1)
   rails-api
   rainbow
-  rchardet
   redis
   redis-namespace
   rspec-rails (~> 3.5)
