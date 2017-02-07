@@ -93,7 +93,8 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           context 'with a file number but no ssn' do
             let(:form) do
               {
-                vaFileNumber: '123'
+                vaFileNumber: 'c12345678',
+                privacyAgreementAccepted: true
               }
             end
 
@@ -103,7 +104,8 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           context 'with a ssn but no file number' do
             let(:form) do
               {
-                veteranSocialSecurityNumber: '111223333'
+                veteranSocialSecurityNumber: '111223333',
+                privacyAgreementAccepted: true
               }
             end
 
@@ -113,7 +115,9 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
         context 'with an invalid form' do
           let(:form) do
-            {}
+            {
+              privacyAgreementAccepted: true
+            }
           end
 
           expect_json_schema_error(
