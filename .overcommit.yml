@@ -4,9 +4,11 @@ PreCommit:
   BundleCheck:
     enabled: true
 
+  # Warns if any TODO or FIXMEs are added.
   FixMe:
     enabled: true
 
+  # Disallows commits on these branches. Always work in a branch!
   ForbiddenBranches:
     enabled: true
     branch_patterns:
@@ -14,12 +16,15 @@ PreCommit:
       - 'production'
       - 'release-*'
 
+  # Disallow local filesystem paths in the Gemfile
   LocalPathsInGemfile:
     enabled: true
 
+  # Check for internal VA addresses in new commits
   InternalAddresses:
     enabled: true
 
+  # Re-run rubocop before allowing a commit to cut down on 'lint fix' commits
   RuboCop:
     enabled: true
     on_warn: fail # Treat all warnings as failures
@@ -27,6 +32,7 @@ PreCommit:
     exclude:
       - 'Gemfile'
 
+  # Warn on trailing whitespace, which Rubocop may also catch.
   TrailingWhitespace:
     enabled: true
     exclude:
@@ -35,6 +41,7 @@ PreCommit:
       - '**/*.yml.example'
       - '**/*.md'
 
+  # Ensures YAMLs are valid
   YamlSyntax:
     enabled: true
 
@@ -47,19 +54,22 @@ PrePush:
       - 'production'
       - 'release-*'
 
+  # Re-run Brakeman before pushing, as it's quick.
   Brakeman:
     enabled: true
     command: ['bundle', 'exec', 'brakeman']
 
 PostCheckout:
-  ALL: # Special hook name that customizes all hooks of this type
-    quiet: true # Change all post-checkout hooks to only display output on failure
+  ALL:
+    quiet: true
 
+  # Run `bundle install` if the Gemfile or Gemfile lock change during a checkout
   BundleInstall:
     enabled: true
     quiet: false
 
 PostRewrite:
+  # Run `bundle install` if the Gemfile or Gemfile lock change during a checkout
   BundleInstall:
     enabled: true
     quiet: false

@@ -17,6 +17,7 @@ Vets-api requires:
 1. Install Postgres (on Mac): `brew install postgres`
 1. Get the code: `git clone https://github.com/department-of-veterans-affairs/vets-api.git; git submodule init; git submodule update`
 1. Install gem dependencies: `cd vets-api; bundle install`
+1. Optionally install overcommit `overcommit --install --sign`
 
 ### Database Setup
 1. Start Postgres: `postgres -D /usr/local/var/postgres`
