@@ -119,5 +119,17 @@ FactoryGirl.define do
         )
       end
     end
+
+    factory :education_benefits_claim_1995 do
+      form({
+        veteranSocialSecurityNumber: '111223333',
+        privacyAgreementAccepted: true
+      }.to_json)
+      form_type('1995')
+
+      factory :education_benefits_claim_1995_full_form do
+        form(File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'kitchen_sink.json')))
+      end
+    end
   end
 end

@@ -63,10 +63,22 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
     end
 
-    it 'tracks and returns a form object' do
-      expect(subject).to receive(:track_form_type).with('22-1990', 999)
-      result = subject.format_application(application_1606, rpo: 999)
-      expect(result).to be_a(EducationForm::Forms::VA1990)
+    context 'with a 1990 form' do
+      it 'tracks and returns a form object' do
+        expect(subject).to receive(:track_form_type).with('22-1990', 999)
+        result = subject.format_application(application_1606, rpo: 999)
+        expect(result).to be_a(EducationForm::Forms::VA1990)
+      end
+    end
+
+    context 'with a 1995 form' do
+      let(:application_1606) { create(:education_benefits_claim_1995_full_form) }
+
+      it 'tracks the 1995 form' do
+        expect(subject).to receive(:track_form_type).with('22-1995', 999)
+        result = subject.format_application(application_1606, rpo: 999)
+        expect(result).to be_a(EducationForm::Forms::VA1995)
+      end
     end
 
     context 'result tests' do
