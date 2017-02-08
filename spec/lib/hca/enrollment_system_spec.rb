@@ -1014,13 +1014,16 @@ describe HCA::EnrollmentSystem do
 
       let(:current_user) { build(:user) }
       let(:user_id) { '123' }
+      let(:icn_id) { 1 }
+      let(:edipi_id) { 2 }
+      let(:auth_type_id) { nil }
       let(:form_with_user) do
         {
           'va:form' => {
             '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
             'va:formIdentifier' => {
-              'va:type' => '102',
-              'va:value' => '1010HS',
+              'va:type' => '100',
+              'va:value' => '1010EZ',
               'va:version' => 2_986_360_436
             }
           },
@@ -1028,8 +1031,9 @@ describe HCA::EnrollmentSystem do
             '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
             'va:authenticationLevel' => {
               'va:type' => '102',
-              'va:value' => user_id
-            }
+              'va:value' => 'Assurance Level 2'
+            },
+            'va:veteranIdentifier' => { 'va:type' => auth_type_id, 'va:value' => '123' }
           }
         }
       end
@@ -1039,15 +1043,17 @@ describe HCA::EnrollmentSystem do
       end
 
       context 'when the user has an icn' do
+        let(:auth_type_id) { icn_id }
         before do
-          expect(current_user).to receive(:icn).once.and_return(user_id)
+          expect(current_user).to receive(:icn).twice.and_return(user_id)
         end
 
         should_return_user_id
 
         context 'when the user has an edipi' do
+          let(:auth_type_id) { icn_id }
           before do
-            allow(current_user).to receive(:edipi).and_return('456')
+            allow(current_user).to receive(:edipi).twice.and_return('456')
           end
 
           should_return_user_id
@@ -1055,8 +1061,9 @@ describe HCA::EnrollmentSystem do
       end
 
       context 'when the user has an edipi' do
+        let(:auth_type_id) { edipi_id }
         before do
-          expect(current_user).to receive(:edipi).once.and_return(user_id)
+          expect(current_user).to receive(:edipi).twice.and_return(user_id)
         end
 
         should_return_user_id

@@ -21,22 +21,24 @@ describe HCA::Service do
     </S:Envelope>
      )))
   end
+  let(:current_user) { FactoryGirl.build(:loa3_user) }
 
   describe '#submit_form' do
     context 'conformance tests', run_at: '2016-12-12' do
       root = Rails.root.join('spec', 'fixtures', 'hca', 'conformance')
       Dir[File.join(root, '*.json')].map { |f| File.basename(f, '.json') }.each do |form|
         it "properly formats #{form} for transmission" do
+          service = form =~ /authenticated/ ? described_class.new(current_user) : described_class.new
           json = JSON.load(root.join("#{form}.json"))
           expect(json).to match_vets_schema('healthcare_application')
           xml = File.read(root.join("#{form}.xml"))
-          expect(subject).to receive(:post_submission) do |arg|
+          expect(service).to receive(:post_submission) do |arg|
             submission = arg.body
             pretty_printed = Ox.dump(Ox.parse(submission).locate('soap:Envelope/soap:Body/ns1:submitFormRequest').first)
-            expect(xml).to eq(pretty_printed[1..-1])
+            expect(pretty_printed[1..-1]).to eq(xml)
           end.and_return(response)
 
-          subject.submit_form(json)
+          service.submit_form(json)
         end
       end
     end

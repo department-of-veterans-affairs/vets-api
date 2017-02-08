@@ -3,7 +3,6 @@ endpoints:
   esDev: &es_dev 'https://vaww.esrdev30.aac.va.gov:8433/voa/voaSvc?wsdl'
   esPreprod: &pre_prod 'https://vaww.esrpre-prod.aac.va.gov/voa/voaSvc'
   esProd: &prod 'https://vaww.esr.aac.va.gov/voa/voaSvc'
-
 trust_chains:
   internal: &internal
     - 'VA Internal Subordinate CA 1.pem'

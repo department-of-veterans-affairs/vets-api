@@ -598,17 +598,21 @@ module HCA
     def build_form_for_user(current_user)
       form = FORM_TEMPLATE.deep_dup
       return form if current_user.nil?
-      user_id = current_user.icn || current_user.edipi
+      (user_id, id_type) = if current_user.icn
+                             [current_user.icn, 1]
+                           elsif current_user.edipi
+                             [current_user.edipi, 2]
+                           end
       return form if user_id.blank?
-
-      form_identifier = form['va:form']['va:formIdentifier']
-      form_identifier['va:type'] = '102'
-      form_identifier['va:value'] = '1010HS'
 
       authentication_level = form['va:identity']['va:authenticationLevel']
       authentication_level['va:type'] = '102'
-      authentication_level['va:value'] = user_id.to_s
+      authentication_level['va:value'] = 'Assurance Level 2'
 
+      form['va:identity']['va:veteranIdentifier'] = {
+        'va:type' => id_type,
+        'va:value' => user_id.to_s
+      }
       form
     end
 
