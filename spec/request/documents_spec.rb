@@ -40,7 +40,7 @@ RSpec.describe 'Documents management', type: :request do
     args = EVSSClaim::DocumentUpload.jobs.first['args'][2]
     expect(response.status).to eq(202)
     expect(JSON.parse(response.body)['job_id']).to eq(EVSSClaim::DocumentUpload.jobs.first['jid'])
-    expect(args.key? 'tracked_item_id')
+    expect(args.key?('tracked_item_id')).to eq(true)
     expect(args['tracked_item_id']).to be_nil
   end
 
@@ -97,7 +97,7 @@ RSpec.describe 'Documents management', type: :request do
   context 'with UTF-16 ASCII text' do
     let(:tempfile) do
       f = Tempfile.new(['test', '.txt'], encoding: 'utf-16be')
-      f.write("I love nulls")
+      f.write('I love nulls')
       f.rewind
       fixture_file_upload(f.path, 'text/plain')
     end

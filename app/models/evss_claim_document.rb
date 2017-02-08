@@ -43,7 +43,7 @@ class EVSSClaimDocument < Common::Base
   }.freeze
   # rubocop:enable LineLength
 
-  EVSS_TEXT_ENCODING = 'ascii'  # EVSS only accepts text files written in ASCII
+  EVSS_TEXT_ENCODING = 'ascii' # EVSS only accepts text files written in ASCII
   MINIMUM_ENCODING_CONFIDENCE = 0.5
 
   def description
