@@ -1,6 +1,6 @@
 # frozen_string_literal: true
-class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
-  attributes :contention_list, :va_representative, :events_timeline, :claim_type
+class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
+  attributes :contention_list, :va_representative, :events_timeline
 
   def contention_list
     object.data['contention_list']
@@ -8,10 +8,6 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
 
   def va_representative
     object.data['poa']
-  end
-
-  def claim_type
-    object.data['status_type']
   end
 
   def events_timeline
@@ -82,12 +78,14 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
   EVENT_DATE_FIELDS = %i(
     closed_date
     received_date
+    upload_date
     opened_date
     requested_date
     suspense_date
   ).freeze
 
   def create_tracked_item_event(type, obj)
+    documents = create_documents(obj['vba_documents'] || [])
     event = {
       type: type,
       tracked_item_id: obj['tracked_item_id'],
@@ -102,7 +100,8 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
       received_date: date_or_nil_from(obj, 'received_date'),
       closed_date: date_or_nil_from(obj, 'closed_date'),
       suspense_date: date_or_nil_from(obj, 'suspense_date'),
-      documents: create_documents(obj['vba_documents'] || [])
+      documents: documents,
+      upload_date: latest_upload_date(documents)
     }
     event[:date] = event.slice(*EVENT_DATE_FIELDS).values.compact.first
     event
@@ -134,5 +133,9 @@ class DisabilityClaimDetailSerializer < DisabilityClaimBaseSerializer
     date = obj[key]
     return nil unless date.present?
     Date.strptime(date.to_s, format)
+  end
+
+  def latest_upload_date(documents)
+    documents.map { |doc| doc[:upload_date] }.sort.reverse.first
   end
 end

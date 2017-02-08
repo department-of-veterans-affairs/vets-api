@@ -27,7 +27,11 @@ module V0
     private
 
     def education_benefits_claim_params
-      params.require(:education_benefits_claim).permit(:form)
+      allowed_params = params.require(:education_benefits_claim).permit(:form)
+      form_type = params[:form_type]
+      allowed_params[:form_type] = form_type if form_type.present?
+
+      allowed_params
     end
   end
 end

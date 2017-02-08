@@ -17,7 +17,11 @@ Rails.application.routes.draw do
 
     resource :user, only: [:show]
 
-    resource :education_benefits_claims, only: [:create]
+    resource :education_benefits_claims, only: [:create] do
+      collection do
+        post(':form_type', action: :create, as: :form_type)
+      end
+    end
 
     resource :health_care_applications, only: [:create] do
       collection do
@@ -26,7 +30,14 @@ Rails.application.routes.draw do
     end
 
     resource :disability_rating, only: [:show]
-    resources :disability_claims, only: [:index, :show] do
+
+    # TODO: Remove this resource/subresource when FE is updated
+    resources :disability_claims, only: [:index, :show], controller: 'evss_claims', as: :evss_claim do
+      post :request_decision, on: :member
+      resources :documents, only: [:create]
+    end
+
+    resources :evss_claims, only: [:index, :show] do
       post :request_decision, on: :member
       resources :documents, only: [:create]
     end

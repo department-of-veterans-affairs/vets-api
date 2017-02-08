@@ -1,0 +1,9 @@
+*INIT*
+<%= @applicant.veteranFullName.first.upcase %>
+<%= @applicant.veteranFullName.middle&.upcase %>
+<%= @applicant.veteranFullName.last.upcase %>
+<%= @applicant.veteranSocialSecurityNumber&.gsub(/[^\d]/,'') %>
+<%= @applicant.veteranSocialSecurityNumber&.gsub(/[^\d]/,'') %>
+V<%= @record.form_type %>
+
+<%= school&.name&.upcase %>
