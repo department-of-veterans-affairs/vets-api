@@ -162,8 +162,12 @@
   </va:form>
   <va:identity xmlns:va="http://va.gov/schema/esr/voa/v1">
     <va:authenticationLevel>
-      <va:type>100</va:type>
-      <va:value>anonymous</va:value>
+      <va:type>102</va:type>
+      <va:value>Assurance Level 2</va:value>
     </va:authenticationLevel>
+    <va:veteranIdentifier>
+      <va:type>1</va:type>
+      <va:value>1000123456V123456</va:value>
+    </va:veteranIdentifier>
   </va:identity>
 </ns1:submitFormRequest>
