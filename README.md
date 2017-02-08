@@ -17,6 +17,11 @@ Vets-api requires:
 1. Install Postgres (on Mac): `brew install postgres`
 1. Get the code: `git clone https://github.com/department-of-veterans-affairs/vets-api.git; git submodule init; git submodule update`
 1. Install gem dependencies: `cd vets-api; bundle install`
+1. Create a application.yml `cat ./application.yml.example > ./application.yml`
+1. Setup localhost certificates / keys
+  - Create a hidden folder in home directory:  `mkdir ~/.certs`
+  - Copy the [certificate](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Identity%20Discovery%202016/certificates/vetsgov-localhost.crt) to ~/.certs
+  - Copy the [key](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Identity%20Discovery%202016/certificates/vetsgov-localhost.key) to ~/.certs
 
 ### Database Setup
 1. Start Postgres: `postgres -D /usr/local/var/postgres`
@@ -24,19 +29,14 @@ Vets-api requires:
 *Note*: This will not work until you set up the environment variables (see below).
 
 ### Redis Setup
-You will need to specify the following environment variables:
-```
-REDIS_HOST
-REDIS_PORT
-```
-
-For an example, see `application.yml.example`
 
 1. Install Redis (on mac): `brew install redis`
 1. Follow post install instructions
   - always have Redis running as service
   - manually launch Redis `redis-server /usr/local/etc/redis.conf`
-1. Set the environment variables above according to your Redis configuration
+3. Set the environment variables above according to your Redis configuration
+
+  
 
 *Note*: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
 this is a sign that redis is not currently running or `config/redis.yml` is not using correct host and port.
