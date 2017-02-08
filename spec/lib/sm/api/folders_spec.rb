@@ -5,7 +5,7 @@ require 'sm/client'
 describe 'sm client' do
   describe 'folders' do
     before(:all) do
-      VCR.use_cassette 'sm_client/session', record: :new_episodes do
+      VCR.use_cassette 'sm_client/folders_session', record: :new_episodes do
         @client ||= begin
           client = SM::Client.new(session: { user_id: '10616687' })
           client.authenticate
@@ -41,18 +41,18 @@ describe 'sm client' do
       it 'gets a collection of messages (mhv max)', :vcr do
         # set the max pages to 1 for testing purposes
         stub_const('SM::Client::MHV_MAXIMUM_PER_PAGE', 2)
-        # There are 5 records, 2 per page, so it should loop 3 times making requests
-        expect(client).to receive(:perform).and_call_original.exactly(3).times
+        # There are 10 records, 2 per page, so it should loop 6 times making requests
+        expect(client).to receive(:perform).and_call_original.exactly(6).times
         messages = client.get_folder_messages(folder_id)
         expect(messages).to be_a(Common::Collection)
-        expect(messages.data.size).to eq(5)
+        expect(messages.data.size).to eq(10)
       end
 
       it 'gets a collection of messages', :vcr do
         expect(client).to receive(:perform).and_call_original.exactly(1).times
         messages = client.get_folder_messages(folder_id)
         expect(messages).to be_a(Common::Collection)
-        expect(messages.data.size).to eq(5)
+        expect(messages.data.size).to eq(10)
       end
     end
   end
