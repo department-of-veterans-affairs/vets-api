@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_SM_HOST>/mhv-api/patient/v1/prescription/gethistoryrx"
+    uri: "<MHV_HOST>/mhv-api/patient/v1/prescription/gethistoryrx"
     body:
       encoding: US-ASCII
       string: ''

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_SM_HOST>/mhv-api/patient/v1/activity/auditlogin"
+    uri: "<MHV_HOST>/mhv-api/patient/v1/activity/auditlogin"
     body:
       encoding: UTF-8
       string: '{"isSuccessful":true,"activityDetails":"Signed in Vets.gov"}'
