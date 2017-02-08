@@ -5,7 +5,7 @@ require 'sm/client'
 describe 'sm client' do
   describe 'triage_teams' do
     before(:all) do
-      VCR.use_cassette 'sm_client/session', record: :new_episodes do
+      VCR.use_cassette 'sm_client/triage_teams_session', record: :new_episodes do
         @client ||= begin
           client = SM::Client.new(session: { user_id: '10616687' })
           client.authenticate

@@ -7,9 +7,9 @@ RSpec.describe 'Messages Integration', type: :request do
   include SM::ClientHelpers
 
   let(:current_user) { build(:mhv_user) }
-  let(:reply_id)               { 631_270 }
-  let(:created_draft_id)       { 655_626 }
-  let(:created_draft_reply_id) { 655_628 }
+  let(:reply_id)               { 674_874 }
+  let(:created_draft_id)       { 674_942 }
+  let(:created_draft_reply_id) { 674_944 }
   let(:draft) { attributes_for(:message, body: 'Body 1', subject: 'Subject 1') }
   let(:params) { draft.slice(:category, :subject, :body, :recipient_id) }
 
