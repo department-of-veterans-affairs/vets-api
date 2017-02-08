@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 module EducationForm::Forms
   class VA1990 < Base
-    TEMPLATE = File.read(File.join(TEMPLATE_PATH, '1990.erb'))
-
     ### ERB HELPERS
 
     CH33_TYPES = {
@@ -10,11 +8,6 @@ module EducationForm::Forms
     }.freeze
 
     TYPE = '22-1990'
-
-    def initialize(app)
-      super
-      @text = format
-    end
 
     # If multiple benefit types are selected, we've been told to just include whichever
     # one is 'first' in the header.
@@ -26,8 +19,7 @@ module EducationForm::Forms
     end
 
     def disclosure_for(type)
-      contents = File.read(File.join(TEMPLATE_PATH, '1990-disclosure', "_#{type}.erb"))
-      ERB.new(contents).result(binding)
+      "#{parse_with_template_path("1990-disclosure/_#{type}")}\n"
     end
 
     # Some descriptive text that's included near the top of the 22-1990 form. Because they can make
@@ -62,6 +54,10 @@ module EducationForm::Forms
         Number of Months: #{job.months}
         License or Rating: #{job.licenseOrRating}"
       end.join("\n\n")
+    end
+
+    def school
+      @applicant.school
     end
   end
 end

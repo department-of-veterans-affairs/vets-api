@@ -20,11 +20,12 @@ ActiveRecord::Schema.define(version: 20170126184940) do
   create_table "education_benefits_claims", force: :cascade do |t|
     t.datetime "submitted_at"
     t.datetime "processed_at"
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
-    t.string   "encrypted_form",             null: false
-    t.string   "encrypted_form_iv",          null: false
-    t.string   "regional_processing_office", null: false
+    t.datetime "created_at",                                  null: false
+    t.datetime "updated_at",                                  null: false
+    t.string   "encrypted_form",                              null: false
+    t.string   "encrypted_form_iv",                           null: false
+    t.string   "regional_processing_office",                  null: false
+    t.string   "form_type",                  default: "1990", null: false
   end
 
   add_index "education_benefits_claims", ["submitted_at"], name: "index_education_benefits_claims_on_submitted_at", using: :btree
@@ -39,10 +40,11 @@ ActiveRecord::Schema.define(version: 20170126184940) do
     t.boolean  "chapter32",                   default: false,       null: false
     t.string   "status",                      default: "submitted", null: false
     t.integer  "education_benefits_claim_id"
+    t.string   "form_type",                   default: "1990",      null: false
   end
 
   add_index "education_benefits_submissions", ["education_benefits_claim_id"], name: "index_education_benefits_claim_id", unique: true, using: :btree
-  add_index "education_benefits_submissions", ["region", "created_at"], name: "index_education_benefits_submissions_on_region_and_created_at", using: :btree
+  add_index "education_benefits_submissions", ["region", "created_at", "form_type"], name: "index_edu_benefits_subs_ytd", using: :btree
 
   create_table "evss_claims", force: :cascade do |t|
     t.integer  "evss_id",                            null: false
