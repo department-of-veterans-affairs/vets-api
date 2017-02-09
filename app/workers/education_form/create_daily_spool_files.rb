@@ -31,7 +31,9 @@ module EducationForm
       regional_data = group_submissions_by_region(records)
       formatted_records = format_records(regional_data)
       # Create a remote file for each region, and write the records into them
-      create_files(formatted_records)
+      writer = EducationForm::Writer::Factory.get_writer.new(logger: logger)
+      write_files(writer, structured_data: formatted_records)
+
       true
     end
 
@@ -70,13 +72,6 @@ module EducationForm
       end
     ensure
       writer.close
-    end
-
-    # TODO(molson): Remove this in further refactors. Specs depend on `create_files`
-    # for right now.
-    def create_files(structured_data)
-      writer = EducationForm::Writer::Factory.get_writer.new(logger: logger)
-      write_files(writer, structured_data: structured_data)
     end
 
     def format_application(data, rpo: 0)
