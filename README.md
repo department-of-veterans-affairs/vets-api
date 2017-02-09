@@ -15,9 +15,9 @@ Vets-api requires:
 *Note*: rbenv will also provide additional installation instructions in the console output. Make sure to follow those too.
 1. Install Bundler to manage dependencies: `gem install bundler`
 1. Install Postgres (on Mac): `brew install postgres`
-1. Get the code: `git clone https://github.com/department-of-veterans-affairs/vets-api.git; git submodule init; git submodule update`
+1. Get the code: `git clone https://github.com/department-of-veterans-affairs/vets-api.git; cd vets-api; git submodule init; git submodule update`
 1. Install gem dependencies: `cd vets-api; bundle install`
-1. Create a application.yml `cat ./application.yml.example > ./application.yml`
+1. Create a application.yml `cat ../config/application.yml.example > ./config/application.yml`
 1. Setup localhost certificates / keys
   - Create a hidden folder in home directory:  `mkdir ~/.certs`
   - Copy the [certificate](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Identity%20Discovery%202016/certificates/vetsgov-localhost.crt) to ~/.certs
