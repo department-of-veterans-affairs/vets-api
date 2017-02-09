@@ -64,7 +64,7 @@
   "educationType": "flightTraining",
   "faaFlightCertificatesInformation": "cert1, cert2",
   "gender": "M",
-  "highSchoolOrGedCompletionDate": "2010-06-06",
+  "highSchoolOrGedCompletionDate": "2010-06-XX",
   "homePhone": "5551110000",
   "reserveKicker": true,
   "school": {

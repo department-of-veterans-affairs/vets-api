@@ -15,10 +15,10 @@ before_script:
 - export SAML_LOGOUT_RELAY="http://localhost:3001/logout"
 - export REDIS_HOST="localhost"
 - export REDIS_PORT="6379"
-- export MHV_HOST='https://mock-prescriptions-api.herokuapp.com'
+- export MHV_HOST='https://mhv-api.example.com'
 - export MHV_APP_TOKEN='fake-app-token'
 - export DB_ENCRYPTION_KEY='f01ff8ebd1a2b053ad697ae1f0d86adb48ebb708021e4c76c3807d37f6b4e389d5aa45ea171f2f5074222784c1ee2bb8272390d1b9517a7a6987c22733ef00b2'
-- export MHV_SM_HOST='https://test.vets.gov'
+- export MHV_SM_HOST='https://mhv-api.example.com'
 - export MHV_SM_APP_TOKEN='fake-app-token'
 - export EVSS_BASE_URL='https://test.vets.gov'
 - 'export EVSS_SAMPLE_CLAIMANT_USER=''{"uuid": "1234", "first_name": "Jane","last_name":

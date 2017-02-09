@@ -59,7 +59,7 @@ module EducationForm::Forms
 
     # is this needed? will it the data come in the correct format? better to have the helper..
     def to_date(date)
-      date ? date.to_date : (' ' * 10) # '00/00/0000'.length
+      date ? date : (' ' * 10) # '00/00/0000'.length
     end
 
     def full_name(name)
