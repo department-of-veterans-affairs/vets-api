@@ -121,7 +121,7 @@ class VHAFacilityAdapter
   end
 
   def self.services_date(attrs)
-    Time.at(attrs['OutpatientServicesDataDate'] / 1000).utc.to_date.iso8601 if attrs['OutpatientServicesDataDate']
+    Date.strptime(attrs['FacilityDataDate'], '%m-%d-%Y').iso8601 if attrs['FacilityDataDate']
   end
 
   # Build a sub-section of the VAFacility model from a flat GIS attribute list,
