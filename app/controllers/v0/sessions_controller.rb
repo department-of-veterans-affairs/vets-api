@@ -60,12 +60,12 @@ module V0
 
     def handle_login_error
       if clicked_deny?
-        log_warning(CLICKED_DENY_MSG, error_details: @saml_response.errors)
+        warning_log(CLICKED_DENY_MSG, error_details: @saml_response.errors)
       elsif auth_too_late?
-        log_warning(TOO_LATE_MSG, error_details: @saml_response.errors)
+        warnin_log(TOO_LATE_MSG, error_details: @saml_response.errors)
       else
         # not sure what happened, log generically
-        log_error(generic_login_error)
+        error_log(generic_login_error)
       end
     end
 
@@ -85,7 +85,7 @@ module V0
 
       if errors.size.positive?
         extra_context = { in_response_to: logout_response&.in_response_to }
-        log_error("SAML Logout failed!\n  " + errors.join("\n  "), extra_context)
+        error_log("SAML Logout failed!\n  " + errors.join("\n  "), extra_context)
         redirect_to SAML_CONFIG['logout_relay'] + '?success=false'
       else
         logout_request.destroy
@@ -107,13 +107,13 @@ module V0
       errors
     end
 
-    def log_warning(message, context = {})
-      logger.warn message + ' : ' + context.to_s
+    def warning_log(message, context = {})
+      logger.warn(message + ' : ' + context.to_s)
       log_to_sentry(message, 'warning', context)
     end
 
-    def log_error(message, context = {})
-      logger.error message + ' : ' + context.to_s
+    def error_log(message, context = {})
+      logger.error(message + ' : ' + context.to_s)
       log_to_sentry(message, 'error', context)
     end
 
