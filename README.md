@@ -34,7 +34,6 @@ Vets-api requires:
 1. Follow post install instructions
   - always have Redis running as service
   - manually launch Redis `redis-server /usr/local/etc/redis.conf`
-  
 
 *Note*: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
 this is a sign that redis is not currently running or `config/redis.yml` is not using correct host and port.
