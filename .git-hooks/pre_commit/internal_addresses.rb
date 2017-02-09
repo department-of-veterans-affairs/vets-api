@@ -9,7 +9,7 @@ module Overcommit::Hook::PreCommit
         begin
           contents = File.read(file)
           errors << "#{file}: Includes 10.X.Y.Z address" if contents =~ /10\.\d+\.\d+\.\d+/
-          errors << "#{file}: Includes vaww address" if contents =~ /vawww\./
+          errors << "#{file}: Includes vaww address" if contents =~ /vaww\./
         rescue
           unparsable << "Could not match against #{file}"
         end
