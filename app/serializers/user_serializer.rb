@@ -22,7 +22,15 @@ class UserSerializer < ActiveModel::Serializer
     }
   end
 
-  delegate :va_profile, to: :object
+  def va_profile
+    {
+      status: object.va_profile[:status],
+      birth_date: object.va_profile[:birth_date],
+      family_name: object.va_profile[:family_name],
+      gender: object.va_profile[:birth_date],
+      given_names: object.va_profile[:given_names]
+    }
+  end
 
   def services
     service_list = [

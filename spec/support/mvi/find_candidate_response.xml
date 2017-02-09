@@ -70,6 +70,13 @@
                   </name>
                   <administrativeGenderCode code="M"/>
                   <birthTime value="19800101"/>
+                  <addr use="PHYS">
+                    <streetAddressLine>121 A St</streetAddressLine>
+                    <city>Austin</city>
+                    <state>TX</state>
+                    <postalCode>78772</postalCode>
+                    <country>USA</country>
+                  </addr>
                   <multipleBirthInd value="true"/>
                   <asOtherIDs classCode="SSN">
                     <id extension="555443333" root="2.16.840.1.113883.4.1"/>

@@ -49,7 +49,8 @@ class Mvi < Common::RedisStore
       birth_date: response[:birth_date],
       family_name: response[:family_name],
       gender: response[:gender],
-      given_names: response[:given_names]
+      given_names: response[:given_names],
+      address: response[:address]
     }
   end
 

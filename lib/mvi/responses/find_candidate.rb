@@ -28,6 +28,7 @@ module MVI
       DOB_XPATH = 'patientPerson/birthTime/@value'
       SSN_XPATH = 'patientPerson/asOtherIDs'
       NAME_XPATH = 'patientPerson/name'
+      ADDRESS_XPATH = 'patientPerson/addr'
       ACKNOWLEDGEMENT_DETAIL_XPATH = 'acknowledgement/acknowledgementDetail/text'
 
       MULTIPLE_MATCHES_FOUND = 'Multiple Matches Found'
@@ -47,7 +48,8 @@ module MVI
           family_name: name[:family],
           gender: locate_element(patient, GENDER_XPATH),
           birth_date: locate_element(patient, DOB_XPATH),
-          ssn: parse_ssn(locate_element(patient, SSN_XPATH))
+          ssn: parse_ssn(locate_element(patient, SSN_XPATH)),
+          address: parse_address(patient)
         }.merge(map_correlation_ids(patient.locate('id')))
       end
 
@@ -85,6 +87,11 @@ module MVI
       rescue => e
         Rails.logger.warn "MVI::Response.parse_ssn failed: #{e.message}"
         nil
+      end
+
+      def parse_address(patient)
+        el = locate_element(patient, ADDRESS_XPATH)
+        el.nodes.map { |n| { n.value.to_sym => n.nodes.first } }.reduce({}, :merge)
       end
 
       def select_ssn_element(other_ids)

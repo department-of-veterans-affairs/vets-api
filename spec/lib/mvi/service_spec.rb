@@ -35,7 +35,14 @@ describe MVI::Service do
             family_name: 'Jenkins',
             gender: 'M',
             birth_date: '19490304',
-            ssn: '796122306'
+            ssn: '796122306',
+            address: {
+              streetAddressLine: '121 A St',
+              city: 'Austin',
+              state: 'TX',
+              postalCode: '78772',
+              country: 'USA'
+            }
           )
         end
       end
@@ -71,7 +78,14 @@ describe MVI::Service do
             family_name: 'Jenkins',
             gender: 'M',
             birth_date: '19490304',
-            ssn: '796122306'
+            ssn: '796122306',
+            address: {
+              streetAddressLine: '121 A St',
+              city: 'Austin',
+              state: 'TX',
+              postalCode: '78772',
+              country: 'USA'
+            }
           )
         end
       end

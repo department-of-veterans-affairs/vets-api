@@ -88,7 +88,8 @@ describe Mvi, skip_mvi: true do
           family_name: 'Smith',
           gender: 'M',
           given_names: %w(John William),
-          status: Mvi::MVI_RESPONSE_STATUS[:ok]
+          status: Mvi::MVI_RESPONSE_STATUS[:ok],
+          address: nil
         )
       end
     end

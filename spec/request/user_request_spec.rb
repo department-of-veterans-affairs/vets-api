@@ -18,6 +18,7 @@ RSpec.describe 'Fetching user data', type: :request do
 
     it 'GET /v0/user - returns proper json' do
       assert_response :success
+      puts response.body
       expect(response).to match_response_schema('user_loa3')
     end
 

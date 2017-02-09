@@ -3,8 +3,11 @@ module V0
   class InProgressFormsController < ApplicationController
     def show
       form = InProgressForm.where(form_id: params[:id], user_uuid: @current_user.uuid).take
-      raise Common::Exceptions::RecordNotFound, params[:id] unless form
-      render json: form.form_data
+      if form
+        render json: form.form_data
+      else
+
+      end
     end
 
     def update
