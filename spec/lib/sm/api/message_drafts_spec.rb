@@ -5,7 +5,7 @@ require 'sm/client'
 describe 'sm client' do
   describe 'message drafts' do
     before(:all) do
-      VCR.use_cassette 'sm_client/session', record: :new_episodes do
+      VCR.use_cassette 'sm_client/message_drafts_session', record: :new_episodes do
         @client ||= begin
           client = SM::Client.new(session: { user_id: '10616687' })
           client.authenticate
@@ -15,7 +15,7 @@ describe 'sm client' do
     end
 
     let(:client)       { @client }
-    let(:reply_id)     { 631_270 }
+    let(:reply_id)     { 674_874 }
     let(:draft)        { attributes_for(:message, body: 'Body 1', subject: 'Subject 1') }
     let(:draft_params) { draft.slice(:category, :subject, :body, :recipient_id) }
 

@@ -59,7 +59,7 @@ RSpec.describe 'Folders Integration', type: :request do
 
   describe '#destroy' do
     context 'with valid folder id' do
-      let(:id) { 655_395 }
+      let(:id) { 674_886 }
 
       it 'responds to DELETE #destroy' do
         VCR.use_cassette('sm_client/folders/creates_a_folder_and_deletes_a_folder') do

@@ -67,7 +67,7 @@ RSpec.describe 'Messages Integration', type: :request do
     end
 
     context 'reply' do
-      let(:reply_message_id) { 655_570 }
+      let(:reply_message_id) { 674_838 }
 
       it 'without attachments' do
         VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do

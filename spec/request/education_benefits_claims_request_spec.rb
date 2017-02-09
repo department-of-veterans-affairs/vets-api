@@ -3,13 +3,35 @@ require 'rails_helper'
 
 RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serializer] do
   describe 'POST create' do
+    let(:path) { v0_education_benefits_claims_path }
+
     subject do
       post(
-        v0_education_benefits_claims_path,
+        path,
         params.to_json,
         'CONTENT_TYPE' => 'application/json',
         'HTTP_X_KEY_INFLECTION' => 'camel'
       )
+    end
+
+    context 'with a form_type passed in' do
+      let(:form_type) { '1995' }
+      let(:params) do
+        {
+          educationBenefitsClaim: {
+            form: build(:education_benefits_claim_1995).form
+          }
+        }
+      end
+
+      let(:path) do
+        form_type_v0_education_benefits_claims_path(form_type: form_type)
+      end
+
+      it 'should create a 1995 form' do
+        expect { subject }.to change { EducationBenefitsClaim.count }.by(1)
+        expect(EducationBenefitsClaim.last.form_type).to eq(form_type)
+      end
     end
 
     context 'with valid params' do
