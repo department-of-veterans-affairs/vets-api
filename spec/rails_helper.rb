@@ -30,12 +30,6 @@ VCR.configure do |c|
   c.filter_sensitive_data('<APP_TOKEN>') { ENV['MHV_APP_TOKEN'] }
   c.filter_sensitive_data('<MVI_URL>') { ENV['MVI_URL'] }
   c.filter_sensitive_data('<EVSS_BASE_URL>') { ENV['EVSS_BASE_URL'] }
-  c.before_record do |i|
-    %i(response request).each do |env|
-      next unless i.send(env).headers.keys.include?('Token')
-      i.send(env).headers.update('Token' => '<SESSION_TOKEN>')
-    end
-  end
 end
 
 ActiveRecord::Migration.maintain_test_schema!
