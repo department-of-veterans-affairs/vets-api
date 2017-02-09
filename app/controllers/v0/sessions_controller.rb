@@ -1,6 +1,10 @@
 # frozen_string_literal: true
+require 'saml/auth_response_handling'
+
 module V0
   class SessionsController < ApplicationController
+    include SAML::AuthResponseHandling
+
     skip_before_action :authenticate, only: [:new, :saml_callback, :saml_logout_callback]
 
     def new
@@ -37,7 +41,7 @@ module V0
         obscure_token = Session.obscure_token(@session.token)
         Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
       else
-        login_error
+        handle_login_error
         redirect_to SAML_CONFIG['relay'] + '?auth=fail'
       end
     end
@@ -54,14 +58,15 @@ module V0
       @session.save && @current_user.save
     end
 
-    def login_error
-      message = <<-MESSAGE.strip_heredoc
-        SAML Login attempt failed! Reasons...
-          saml:    'valid?=#{@saml_response.is_valid?} errors=#{@saml_response.errors}'
-          user:    'valid?=#{@current_user&.valid?} errors=#{@current_user&.errors&.full_messages}'
-          session: 'valid?=#{@session&.valid?} errors=#{@session&.errors&.full_messages}'
-      MESSAGE
-      log_errors(message)
+    def handle_login_error
+      if clicked_deny?
+        log_warning(CLICKED_DENY_MSG, error_details: @saml_response.errors)
+      elsif auth_too_late?
+        log_warning(TOO_LATE_MSG, error_details: @saml_response.errors)
+      else
+        # not sure what happened, log generically
+        log_error(generic_login_error)
+      end
     end
 
     def async_create_evss_account(user)
@@ -80,7 +85,7 @@ module V0
 
       if errors.size.positive?
         extra_context = { in_response_to: logout_response&.in_response_to }
-        log_errors("SAML Logout failed!\n  " + errors.join("\n  "), extra_context)
+        log_error("SAML Logout failed!\n  " + errors.join("\n  "), extra_context)
         redirect_to SAML_CONFIG['logout_relay'] + '?success=false'
       else
         logout_request.destroy
@@ -102,11 +107,20 @@ module V0
       errors
     end
 
-    def log_errors(message, context = {})
-      logger.error message
+    def log_warning(message, context = {})
+      logger.warn message + ' : ' + context.to_s
+      log_to_sentry(message, 'warning', context)
+    end
+
+    def log_error(message, context = {})
+      logger.error message + ' : ' + context.to_s
+      log_to_sentry(message, 'error', context)
+    end
+
+    def log_to_sentry(message, level, context = {})
       if ENV['SENTRY_DSN'].present?
         Raven.extra_context(context) unless !context.is_a?(Hash) || context.empty?
-        Raven.capture_message(message)
+        Raven.capture_message(message, level: level)
       end
     end
 
