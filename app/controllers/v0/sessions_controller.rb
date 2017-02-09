@@ -60,12 +60,12 @@ module V0
 
     def handle_login_error
       if clicked_deny?
-        warning_log(CLICKED_DENY_MSG, error_details: @saml_response.errors)
+        log_to_sentry(CLICKED_DENY_MSG, :warn, app_details: @saml_response.errors)
       elsif auth_too_late?
-        warnin_log(TOO_LATE_MSG, error_details: @saml_response.errors)
+        log_to_sentry(TOO_LATE_MSG, :warn, app_details: @saml_response.errors)
       else
         # not sure what happened, log generically
-        error_log(generic_login_error)
+        log_to_sentry(generic_login_error, :error)
       end
     end
 
@@ -85,7 +85,7 @@ module V0
 
       if errors.size.positive?
         extra_context = { in_response_to: logout_response&.in_response_to }
-        error_log("SAML Logout failed!\n  " + errors.join("\n  "), extra_context)
+        log_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
         redirect_to SAML_CONFIG['logout_relay'] + '?success=false'
       else
         logout_request.destroy
@@ -107,17 +107,8 @@ module V0
       errors
     end
 
-    def warning_log(message, context = {})
-      logger.warn(message + ' : ' + context.to_s)
-      log_to_sentry(message, 'warning', context)
-    end
-
-    def error_log(message, context = {})
-      logger.error(message + ' : ' + context.to_s)
-      log_to_sentry(message, 'error', context)
-    end
-
     def log_to_sentry(message, level, context = {})
+      logger.send(level.to_sym, message + ' : ' + context.to_s)
       if ENV['SENTRY_DSN'].present?
         Raven.extra_context(context) unless !context.is_a?(Hash) || context.empty?
         Raven.capture_message(message, level: level)
