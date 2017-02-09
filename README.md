@@ -16,7 +16,7 @@ Vets-api requires:
 1. Install Bundler to manage dependencies: `gem install bundler`
 1. Install Postgres (on Mac): `brew install postgres`
 1. Get the code: `git clone https://github.com/department-of-veterans-affairs/vets-api.git; cd vets-api; git submodule init; git submodule update`
-1. Install gem dependencies: `cd vets-api; bundle install`
+1. Install gem dependencies: `bundle install`
 1. Create a application.yml `cat ./config/application.yml.example > ./config/application.yml`
 1. Setup localhost certificates / keys
   - Create a hidden folder in home directory:  `mkdir ~/.certs`
