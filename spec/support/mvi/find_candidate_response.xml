@@ -68,6 +68,7 @@
                   <name use="C">
                     <family>SMITH</family>
                   </name>
+                  <telecom value="1112223333" use="HP"/>
                   <administrativeGenderCode code="M"/>
                   <birthTime value="19800101"/>
                   <addr use="PHYS">

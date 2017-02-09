@@ -37,12 +37,14 @@ describe MVI::Service do
             birth_date: '19490304',
             ssn: '796122306',
             address: {
-              streetAddressLine: '121 A St',
+              street_address_line: '121 A St',
               city: 'Austin',
               state: 'TX',
-              postalCode: '78772',
+              postal_code: '78772',
               country: 'USA'
-            }
+            },
+            suffix: nil,
+            home_phone: nil
           )
         end
       end
@@ -80,12 +82,14 @@ describe MVI::Service do
             birth_date: '19490304',
             ssn: '796122306',
             address: {
-              streetAddressLine: '121 A St',
+              street_address_line: '121 A St',
               city: 'Austin',
               state: 'TX',
-              postalCode: '78772',
+              postal_code: '78772',
               country: 'USA'
-            }
+            },
+            suffix: nil,
+            home_phone: nil
           )
         end
       end

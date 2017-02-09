@@ -39,12 +39,14 @@ describe MVI::Responses::FindCandidate do
             ssn: '555443333',
             active_status: 'active',
             address: {
-              streetAddressLine: '121 A St',
+              street_address_line: '121 A St',
               city: 'Austin',
               state: 'TX',
-              postalCode: '78772',
+              postal_code: '78772',
               country: 'USA'
-            }
+            },
+            home_phone: '1112223333',
+            suffix: 'Sr'
           )
         end
       end
@@ -64,12 +66,14 @@ describe MVI::Responses::FindCandidate do
             ssn: '555443333',
             active_status: 'active',
             address: {
-              streetAddressLine: '121 A St',
+              street_address_line: '121 A St',
               city: 'Austin',
               state: 'TX',
-              postalCode: '78772',
+              postal_code: '78772',
               country: 'USA'
-            }
+            },
+            home_phone: '1112223333',
+            suffix: nil
           )
         end
       end
@@ -96,12 +100,14 @@ describe MVI::Responses::FindCandidate do
           ssn: '796122306',
           active_status: 'active',
           address: {
-            streetAddressLine: '121 A St',
+            street_address_line: '121 A St',
             city: 'Austin',
             state: 'TX',
-            postalCode: '78772',
+            postal_code: '78772',
             country: 'USA'
-          }
+          },
+          home_phone: nil,
+          suffix: nil
         )
       end
     end
@@ -221,12 +227,14 @@ describe MVI::Responses::FindCandidate do
         ssn: '111223333',
         active_status: 'active',
         address: {
-          streetAddressLine: '42 MAIN ST',
+          street_address_line: '42 MAIN ST',
           city: 'SPRINGFIELD',
           state: 'IL',
-          postalCode: '62722',
+          postal_code: '62722',
           country: 'USA'
-        }
+        },
+        home_phone: '1112223333 p1',
+        suffix: nil
       )
     end
   end
