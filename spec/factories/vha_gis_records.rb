@@ -82,9 +82,14 @@ FactoryGirl.define do
         'Rehabilitation' => '',
         'UrgentCare' => '',
         'WellnessAndPreventativeCare' => '',
-        'First_InternetAddress' => 'http://www.portland.va.gov/',
+        'Website_URL' => 'http://www.portland.va.gov/',
         'MHClinicPhone' => '5032735187',
-        'Extension' => nil
+        'Extension' => nil,
+        'Primary_Care_Urgent_Score' => 0.66,
+        'Specialty_Care_Urgent_Score' => 0.67,
+        'Primary_Care_Routine_Score' => 0.81,
+        'Specialty_Care_Routine_Score' => 0.77,
+        'ScoreDateRange' => 'Jun 2016 - Nov 2016'
       }
     end
     geometry do
