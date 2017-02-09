@@ -618,7 +618,7 @@ describe HCA::EnrollmentSystem do
           'lastEntryDate' => '1980-03-07',
           'lastDischargeDate' => '1984-07-08',
           'lastServiceBranch' => 'merchant seaman',
-          'vaMedicalFacility' => '689A4'
+          'vaMedicalFacility' => '608'
         },
         {
           "dischargeDueToDisability": true,
@@ -632,7 +632,7 @@ describe HCA::EnrollmentSystem do
                   "serviceBranch": 7
                 }
               },
-              "site": '689A4'
+              "site": '608'
             }
           }
         }.deep_stringify_keys
@@ -855,7 +855,7 @@ describe HCA::EnrollmentSystem do
           "isSpanishHispanicLatino": true,
           "isWhite": true,
           "maritalStatus": 'Married',
-          "vaMedicalFacility": '689A4',
+          "vaMedicalFacility": '608',
           "isEssentialAcaCoverage": true
         }.deep_stringify_keys,
         {
@@ -875,7 +875,7 @@ describe HCA::EnrollmentSystem do
             } },
           'ethnicity' => '2135-2',
           'maritalStatus' => 'M',
-          'preferredFacility' => '689A4',
+          'preferredFacility' => '608',
           'races' => { 'race' => ['2106-3'] },
           'acaIndicator' => true
         }

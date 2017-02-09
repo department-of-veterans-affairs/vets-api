@@ -85,14 +85,14 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
         before do
           allow(Mvi).to receive(:find).and_return(
             Mvi.new(uuid: 'abc123',
-                    response: { icn: '0000001008589264V993783000000^NI^200M^USVHA^P' })
+                    response: { icn: '0000001008596053V965934000000^NI^200M^USVHA^P' })
           )
           use_authenticated_current_user(current_user: current_user)
         end
 
         let(:body) do
-          { 'formSubmissionId' => 40_125_311_011,
-            'timestamp' => '2017-02-08T11:04:36.037-06:00',
+          { 'formSubmissionId' => 40_125_311_094,
+            'timestamp' => '2017-02-08T13:50:32.020-06:00',
             'success' => true }
         end
 
