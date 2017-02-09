@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/655570/reply/attach"
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/674838/reply/attach"
     body:
       encoding: ASCII-8BIT
       string: !binary |-
@@ -11,7 +11,7 @@ http_interactions:
         bWVzc2FnZSINCkNvbnRlbnQtTGVuZ3RoOiA5Mg0KQ29udGVudC1UeXBlOiBh
         cHBsaWNhdGlvbi9qc29uDQpDb250ZW50LVRyYW5zZmVyLUVuY29kaW5nOiBi
         aW5hcnkNCg0KeyJzdWJqZWN0IjoiQ0kgUnVuIiwiY2F0ZWdvcnkiOiJPVEhF
-        UiIsInJlY2lwaWVudElkIjo1ODU5ODYsImJvZHkiOiJDb250aW51b3VzIElu
+        UiIsInJlY2lwaWVudElkIjo2MTM1ODYsImJvZHkiOiJDb250aW51b3VzIElu
         dGVncmF0aW9uIn0NCi0tLS0tLS0tLS0tLS1SdWJ5TXVsdGlwYXJ0UG9zdA0K
         Q29udGVudC1EaXNwb3NpdGlvbjogZm9ybS1kYXRhOyBuYW1lPSJ1cGxvYWRz
         W10iOyBmaWxlbmFtZT0ic21fZmlsZTEuanBnIg0KQ29udGVudC1MZW5ndGg6
@@ -71,11 +71,11 @@ http_interactions:
     headers:
       Accept:
       - application/json
+      Content-Type:
+      - multipart/form-data; boundary=-----------RubyMultipartPost
       User-Agent:
       - Vets.gov Agent
       Token: "<SESSION_TOKEN>"
-      Content-Type:
-      - multipart/form-data; boundary=-----------RubyMultipartPost
       Content-Length:
       - '2775'
       Accept-Encoding:
@@ -85,24 +85,22 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Date:
-      - Thu, 27 Oct 2016 15:12:05 GMT
       Server:
-      - Apache/2.2.15 (Red Hat)
+      - Apache-Coyote/1.1
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
-      Connection:
-      - close
-      Transfer-Encoding:
-      - chunked
       Content-Type:
       - application/json
+      Content-Length:
+      - '447'
+      Date:
+      - Tue, 31 Jan 2017 21:30:50 GMT
     body:
       encoding: UTF-8
-      string: '{"id":657610,"category":"OTHER","subject":"CI Run","body":"Continuous
-        Integration","attachment":true,"attachments":{"attachment":[{"id":657601,"name":"sm_file1.jpg"},{"id":657602,"name":"sm_file2.jpg"},{"id":657603,"name":"sm_file3.jpg"},{"id":657604,"name":"sm_file4.jpg"}]},"sentDate":"Thu,
-        27 Oct 2016 15:12:05 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":585986,"recipientName":"Triage
-        group 311070 test 2","readReceipt":null}'
-    http_version:
-  recorded_at: Thu, 27 Oct 2016 15:12:05 GMT
+      string: '{"id":674865,"category":"OTHER","subject":"CI Run","body":"Continuous
+        Integration","attachment":true,"attachments":{"attachment":[{"id":674861,"name":"sm_file1.jpg"},{"id":674862,"name":"sm_file2.jpg"},{"id":674863,"name":"sm_file3.jpg"},{"id":674864,"name":"sm_file4.jpg"}]},"sentDate":"Tue,
+        31 Jan 2017 21:30:50 GMT","senderId":384939,"senderName":"MVIONE, TEST","recipientId":613586,"recipientName":"Vets.gov
+        Testing_DAYT29","readReceipt":null}'
+    http_version: 
+  recorded_at: Tue, 31 Jan 2017 21:30:50 GMT
 recorded_with: VCR 3.0.3
