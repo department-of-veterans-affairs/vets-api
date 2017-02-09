@@ -53,7 +53,7 @@ Manually run each:
 
 1. `postgres -D /usr/local/var/postgres`
 1. `redis-server /usr/local/etc/redis.conf`
-1. `bundle exec rails` server from <GITHUB_HOME>/vets-api/
+1. `bundle exec rails server` from <GITHUB_HOME>/vets-api/
 
 #### Running the App with Foreman
 1. Start the application: `foreman start`
