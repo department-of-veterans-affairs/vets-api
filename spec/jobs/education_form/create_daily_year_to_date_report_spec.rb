@@ -59,7 +59,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
                '2017-01-01..2017-01-03 23:59:59 UTC',
                '',
                '2017-01-03 00:00:00 UTC..2017-01-03 23:59:59 UTC'],
-              ['', '', '', 'Submitted', 'Sent to spool file', '', 'Submitted', 'Sent to spool file'],
+              ['', '', '', 'Submitted', 'Sent to Spool File', '', 'Submitted', 'Sent to Spool File'],
               ['BUFFALO (307)', 'chapter33', 3, 3, 2],
               ['', 'chapter30', 0, 0, 0],
               ['', 'chapter1606', 0, 0, 0],

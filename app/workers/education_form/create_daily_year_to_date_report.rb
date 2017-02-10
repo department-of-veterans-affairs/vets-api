@@ -60,7 +60,7 @@ module EducationForm
       end
 
       ranges_header = [@ranges[:year].to_s, '', @ranges[:day].to_s]
-      submitted_header = ['', 'Submitted', 'Sent to spool file']
+      submitted_header = ['', 'Submitted', 'Sent to Spool File']
 
       csv_array << ["Submitted Vets.gov Applications - Report FYTD #{@date.year} as of #{@date}"]
       csv_array << ['', '', 'DOCUMENT TYPE']
