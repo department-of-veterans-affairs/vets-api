@@ -59,12 +59,15 @@ module V0
     end
 
     def handle_login_error
+      err_prefix = 'SAML Login Fail : '
       if clicked_deny?
-        log_to_sentry(CLICKED_DENY_MSG, :warn, app_details: @saml_response.errors)
+        log_to_sentry(err_prefix + CLICKED_DENY_MSG, :warn, saml_errors: @saml_response.errors)
       elsif auth_too_late?
-        log_to_sentry(TOO_LATE_MSG, :warn, app_details: @saml_response.errors)
+        log_to_sentry(err_prefix + TOO_LATE_MSG, :warn, saml_errors: @saml_response.errors)
+      elsif auth_too_early?
+        log_to_sentry(err_prefix + TOO_EARLY_MSG, :error, saml_errors: @saml_response.errors)
       else
-        # not sure what happened, log generically
+        # we're not sure what happened, log generically
         log_to_sentry(generic_login_error, :error)
       end
     end

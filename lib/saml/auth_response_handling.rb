@@ -3,6 +3,7 @@ module SAML
   module AuthResponseHandling
     CLICKED_DENY_MSG = 'Subject did not consent to attribute release'
     TOO_LATE_MSG     = 'Current time is on or after NotOnOrAfter condition'
+    TOO_EARLY_MSG    = 'Current time is earlier than NotBefore condition'
 
     def clicked_deny?
       only_one_error? && @saml_response.status_message == CLICKED_DENY_MSG
@@ -10,6 +11,10 @@ module SAML
 
     def auth_too_late?
       only_one_error? && @saml_response.errors[0].include?(TOO_LATE_MSG)
+    end
+
+    def auth_too_early?
+      only_one_error? && @saml_response.errors[0].include?(TOO_EARLY_MSG)
     end
 
     def only_one_error?

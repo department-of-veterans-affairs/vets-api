@@ -12,10 +12,21 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:rubysaml_settings) { build(:rubysaml_settings) }
 
   let(:valid_saml_response) { double('saml_response', is_valid?: true) }
-  let(:invalid_saml_response) do
+  let(:saml_response_click_deny) do
     double('saml_response', is_valid?: false,
                             errors: ['ruh roh'],
                             status_message: SAML::AuthResponseHandling::CLICKED_DENY_MSG)
+  end
+  let(:saml_response_too_late) do
+    double('saml_response', is_valid?: false, status_message: '',
+                            errors: ['Current time is on or after NotOnOrAfter ' \
+                              'condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)'])
+  end
+  # "Current time is earlier than NotBefore condition #{(now + allowed_clock_drift)} < #{not_before})"
+  let(:saml_response_too_early) do
+    double('saml_response', is_valid?: false, status_message: '',
+                            errors: ['Current time is earlier than NotBefore ' \
+                              'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'])
   end
 
   let(:logout_uuid) { '1234' }
@@ -84,10 +95,26 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(User.find(uuid)).to_not be_nil
         expect(User.find(uuid).attributes).to eq(User.from_merged_attrs(loa1_user, loa3_user).attributes)
       end
-      context ' when SAMLResponse is invalid' do
-        before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(invalid_saml_response) }
+      context ' when user clicked DENY' do
+        before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
         it 'redirects to an auth failure page' do
-          expect(Rails.logger).to receive(:warn).exactly(1).times
+          expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthResponseHandling::CLICKED_DENY_MSG}/)
+          expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
+          expect(response).to have_http_status(:found)
+        end
+      end
+      context ' when too much time passed to consume the SAML Assertion' do
+        before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_late) }
+        it 'redirects to an auth failure page' do
+          expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthResponseHandling::TOO_LATE_MSG}/)
+          expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
+          expect(response).to have_http_status(:found)
+        end
+      end
+      context ' when clock drift causes us to consume the Assertion before its creation' do
+        before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_early) }
+        it 'redirects to an auth failure page' do
+          expect(Rails.logger).to receive(:error).with(/#{SAML::AuthResponseHandling::TOO_EARLY_MSG}/)
           expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
