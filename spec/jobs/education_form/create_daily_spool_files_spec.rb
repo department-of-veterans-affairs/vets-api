@@ -42,7 +42,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
 
     it 'should log a message on holidays', run_at: '2017-01-02 03:00:00 EDT' do
-      expect(subject).not_to receive(:create_files)
+      expect(subject).not_to receive(:write_files)
       expect(subject.logger).to receive(:info).with("Skipping on a Holiday: New Year's Day")
       expect(subject.perform).to be false
     end
@@ -50,7 +50,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     it 'should not skip informal holidays', run_at: '2017-04-01 03:00:00 EDT' do
       # Sanity check that this *is* an informal holiday we're testing
       expect(Holidays.on(Time.zone.today, :us, :informal).first[:name]).to eq("April Fool's Day")
-      expect(subject).to receive(:create_files)
+      expect(subject).to receive(:write_files)
       expect(subject.perform).to be true
     end
   end
@@ -100,7 +100,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         EducationBenefitsClaim.delete_all
       end
       it 'prints a statement and exits' do
-        expect(subject).not_to receive(:create_files)
+        expect(subject).not_to receive(:write_files)
         expect(subject.logger).to receive(:info).with('No records to process.')
         expect(subject.perform).to be(true)
       end
@@ -126,7 +126,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
   end
 
-  context 'create_files', run_at: '2016-09-16 03:00:00 EDT' do
+  context 'write_files', run_at: '2016-09-16 03:00:00 EDT' do
     let(:filename) { '307_09162016_vetsgov.spl' }
     let!(:second_record) { FactoryGirl.create(:education_benefits_claim) }
 
