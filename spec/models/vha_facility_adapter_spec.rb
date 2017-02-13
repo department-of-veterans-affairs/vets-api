@@ -70,4 +70,10 @@ RSpec.describe VHAFacilityAdapter, type: :adapter do
     model = described_class.from_gis(input)
     expect(model.services[:health].length).to eq(2)
   end
+
+  it 'populates access to care date range field' do
+    input = FactoryGirl.build(:vha_gis_record)
+    model = described_class.from_gis(input)
+    expect(model.feedback[:health]['effective_date_range']).to eq('Jun 2016 - Nov 2016')
+  end
 end
