@@ -1,10 +1,8 @@
 # frozen_string_literal: true
-require 'saml/auth_response_handling'
+require 'saml/auth_fail_handler'
 
 module V0
   class SessionsController < ApplicationController
-    include SAML::AuthResponseHandling
-
     skip_before_action :authenticate, only: [:new, :saml_callback, :saml_logout_callback]
 
     def new
@@ -59,16 +57,11 @@ module V0
     end
 
     def handle_login_error
-      err_prefix = 'SAML Login Fail : '
-      if clicked_deny?
-        log_to_sentry(err_prefix + CLICKED_DENY_MSG, :warn, saml_errors: @saml_response.errors)
-      elsif auth_too_late?
-        log_to_sentry(err_prefix + TOO_LATE_MSG, :warn, saml_errors: @saml_response.errors)
-      elsif auth_too_early?
-        log_to_sentry(err_prefix + TOO_EARLY_MSG, :error, saml_errors: @saml_response.errors)
+      fail_handler = SAML::AuthFailHandler.new(@saml_response)
+      if fail_handler.known_error?
+        log_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
       else
-        # we're not sure what happened, log generically
-        log_to_sentry(generic_login_error, :error)
+        log_to_sentry(fail_handler.generic_error_message, :error)
       end
     end
 

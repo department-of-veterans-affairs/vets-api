@@ -15,7 +15,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:saml_response_click_deny) do
     double('saml_response', is_valid?: false,
                             errors: ['ruh roh'],
-                            status_message: SAML::AuthResponseHandling::CLICKED_DENY_MSG)
+                            status_message: 'Subject did not consent to attribute release')
   end
   let(:saml_response_too_late) do
     double('saml_response', is_valid?: false, status_message: '',
@@ -98,7 +98,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context ' when user clicked DENY' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
         it 'redirects to an auth failure page' do
-          expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthResponseHandling::CLICKED_DENY_MSG}/)
+          expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::CLICKED_DENY_MSG}/)
           expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
@@ -106,7 +106,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context ' when too much time passed to consume the SAML Assertion' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_late) }
         it 'redirects to an auth failure page' do
-          expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthResponseHandling::TOO_LATE_MSG}/)
+          expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::TOO_LATE_MSG}/)
           expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
@@ -114,7 +114,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context ' when clock drift causes us to consume the Assertion before its creation' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_early) }
         it 'redirects to an auth failure page' do
-          expect(Rails.logger).to receive(:error).with(/#{SAML::AuthResponseHandling::TOO_EARLY_MSG}/)
+          expect(Rails.logger).to receive(:error).with(/#{SAML::AuthFailHandler::TOO_EARLY_MSG}/)
           expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
