@@ -1,10 +1,11 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 49d1e410da436d1bc1945d84927e231b19441df8
+  revision: 19a3ba97353afcde5469310e47f6c29a66d2e49f
   branch: 1995e-schema
   specs:
     vets_json_schema (1.5.0)
       multi_json (~> 1.0)
+      script_utils (= 0.0.4)
 
 GEM
   remote: https://rubygems.org/
@@ -299,6 +300,7 @@ GEM
       nokogiri (>= 1.4.0)
       nori (~> 2.4)
       wasabi (~> 3.4)
+    script_utils (0.0.4)
     sdoc (0.4.1)
       json (~> 1.7, >= 1.7.7)
       rdoc (~> 4.0)
