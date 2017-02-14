@@ -7,10 +7,15 @@ module EducationForm::Forms
       @applicant.newSchool
     end
 
-    def full_name
-      name = @applicant.veteranFullName
-      return '' if name.nil?
-      [name.last, name.first, name.middle].compact.join(' ')
+    def form_type(applicant)
+      case applicant.benefit
+        when 'chapter30' then "CH30"
+        when 'chapter32' then "CH32"
+        when 'chapter33' then "CH33"
+        when 'chapter1606' then "CH1606"
+        when 'chapter1607' then "CH1607"
+        when 'transferOfEntitlement' then "TOE"
+      end
     end
 
     def direct_deposit_type(type)

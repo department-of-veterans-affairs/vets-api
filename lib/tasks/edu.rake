@@ -5,6 +5,6 @@ namespace :edu do
     raise 'need to give an id. edu:print[{id}]' if args[:id].blank?
     id = args[:id].gsub(/\D/, '').to_i
     app = EducationBenefitsClaim.find(id)
-    puts EducationForm::Forms::Base.build(app).format
+    puts EducationForm::Forms::Base.build(app).text
   end
 end

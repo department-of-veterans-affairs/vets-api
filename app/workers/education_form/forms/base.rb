@@ -61,6 +61,10 @@ module EducationForm::Forms
       bool ? 'YES' : 'NO'
     end
 
+    def value_or_na(value)
+      value.nil? ? "N/A" : value
+    end
+
     # is this needed? will it the data come in the correct format? better to have the helper..
     def to_date(date)
       date ? date : (' ' * 10) # '00/00/0000'.length
@@ -68,7 +72,7 @@ module EducationForm::Forms
 
     def full_name(name)
       return '' if name.nil?
-      [name.first, name.middle, name.last].compact.join(' ')
+      [name.first, name.middle, name.last, name&.suffix].compact.join(' ')
     end
 
     def school_name_and_addr(school)
