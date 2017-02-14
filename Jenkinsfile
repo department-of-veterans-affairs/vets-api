@@ -57,11 +57,13 @@ pipeline {
     }
 
     stage('Review') {
-      steps { 
-        if (!isReviewable()) {
-          return
+      when {
+        expression {
+          return isReviewable()
         }
+      }
 
+      steps { 
         build job: 'vets-review-instance-deploy', parameters: [
           stringParam(name: 'devops_branch', value: 'master'),
           stringParam(name: 'api_branch', value: env.BRANCH_NAME),
