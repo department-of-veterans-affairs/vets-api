@@ -31,6 +31,11 @@ def env_vars = [
     'ES_CLIENT_KEY_PATH=/fake/client/key/path'
 ]
 
+def isReviewable = {
+  env.BRANCH_NAME != 'production' &&
+    env.BRANCH_NAME != 'master'
+}
+
 pipeline {
   agent {
     label 'vets-api-linting'
@@ -49,6 +54,19 @@ pipeline {
           sh 'bash --login -c "bundle exec rake db:create db:schema:load ci"'
         }
       }
+    }
+
+    stage('Review') {
+      if (!isReviewable()) {
+        return
+      }
+
+      build job: 'vets-review-instance-deploy', parameters: [
+        stringParam(name: 'devops_branch', value: 'master'),
+        stringParam(name: 'api_branch', value: env.BRANCH_NAME),
+        stringParam(name: 'web_branch', value: 'master'),
+        stringParam(name: 'source_repo', value: 'vets-api'),
+      ], wait: false
     }
   }
 
