@@ -57,16 +57,18 @@ pipeline {
     }
 
     stage('Review') {
-      if (!isReviewable()) {
-        return
-      }
+      steps { 
+        if (!isReviewable()) {
+          return
+        }
 
-      build job: 'vets-review-instance-deploy', parameters: [
-        stringParam(name: 'devops_branch', value: 'master'),
-        stringParam(name: 'api_branch', value: env.BRANCH_NAME),
-        stringParam(name: 'web_branch', value: 'master'),
-        stringParam(name: 'source_repo', value: 'vets-api'),
-      ], wait: false
+        build job: 'vets-review-instance-deploy', parameters: [
+          stringParam(name: 'devops_branch', value: 'master'),
+          stringParam(name: 'api_branch', value: env.BRANCH_NAME),
+          stringParam(name: 'web_branch', value: 'master'),
+          stringParam(name: 'source_repo', value: 'vets-api'),
+        ], wait: false
+      }
     }
   }
 
