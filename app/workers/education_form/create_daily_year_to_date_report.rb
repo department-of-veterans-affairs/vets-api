@@ -34,7 +34,7 @@ module EducationForm
 
           relation = build_submission_relation(range_type, region, form_type, status)
 
-          if form_type == '1990'
+          if form_type.include?('1990')
             application_types.each do |application_type|
               region_submissions[application_type] = relation.where(application_type => true).count
             end
@@ -64,6 +64,7 @@ module EducationForm
 
       csv_array << ["Submitted Vets.gov Applications - Report FYTD #{@date.year} as of #{@date}"]
       csv_array << ['', '', 'DOCUMENT TYPE']
+      # TODO put all forms here
       csv_array << ['RPO', 'BENEFIT TYPE', '22-1990', '', '', '22-1995']
       csv_array << ['', ''] + ranges_header * 2
       csv_array << ['', ''] + submitted_header * 2
