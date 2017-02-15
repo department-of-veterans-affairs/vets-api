@@ -27,6 +27,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
 
     it 'should validate inclusion of form_type' do
+      # TODO: add 1990e
       %w(1990 1995).each do |form_type|
         subject.form_type = form_type
         expect_attr_valid(subject, :form_type)
@@ -261,6 +262,27 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           'status' => 'submitted',
           'education_benefits_claim_id' => subject.id,
           'form_type' => '1995'
+        )
+      end
+    end
+
+    context 'with a form type of 1990e' do
+      subject do
+        create(:education_benefits_claim_1990e)
+      end
+
+      it 'should create a submission' do
+        subject
+
+        expect(associated_submission).to eq(
+          'region' => 'eastern',
+          'chapter33' => false,
+          'chapter30' => false,
+          'chapter1606' => true,
+          'chapter32' => false,
+          'status' => 'submitted',
+          'education_benefits_claim_id' => subject.id,
+          'form_type' => '1990e'
         )
       end
     end

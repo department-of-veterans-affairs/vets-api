@@ -90,7 +90,11 @@ class EducationBenefitsClaim < ActiveRecord::Base
     if submitted_at.present? && submitted_at_was.nil? && education_benefits_submission.blank?
       opt = {}
 
-      opt = parsed_form.slice(*APPLICATION_TYPES) if is_1990?
+      if is_1990?
+        opt = parsed_form.slice(*APPLICATION_TYPES)
+      elsif is_1990e?
+        opt[parsed_form['benefit']] = true
+      end
 
       EducationBenefitsSubmission.create!(
         opt.merge(
