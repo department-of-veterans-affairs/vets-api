@@ -57,7 +57,7 @@ module V0
     end
 
     def handle_login_error
-      fail_handler = SAML::AuthFailHandler.new(@saml_response)
+      fail_handler = SAML::AuthFailHandler.new(@saml_response, @current_user, @session)
       if fail_handler.known_error?
         log_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
       else

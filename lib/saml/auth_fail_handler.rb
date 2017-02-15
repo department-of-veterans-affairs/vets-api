@@ -7,8 +7,11 @@ module SAML
     TOO_LATE_MSG     = 'Current time is on or after NotOnOrAfter condition'
     TOO_EARLY_MSG    = 'Current time is earlier than NotBefore condition'
 
-    def initialize(saml_response)
+    def initialize(saml_response, user, session)
       @saml_response = saml_response
+      @current_user = user
+      @session = session
+
       @message = nil
       @level   = nil
       @context = nil

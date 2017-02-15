@@ -7,11 +7,13 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
   let(:loa1_user) { build(:loa1_user, uuid: uuid) }
   let(:loa3_user) { build(:loa3_user, uuid: uuid) }
+  let(:invalid_user) { build(:loa3_user, uuid: '') }
 
   let(:settings_no_context) { build(:settings_no_context) }
   let(:rubysaml_settings) { build(:rubysaml_settings) }
 
-  let(:valid_saml_response) { double('saml_response', is_valid?: true) }
+  let(:valid_saml_response) { double('saml_response', is_valid?: true, errors: []) }
+  let(:invalid_saml_response) { double('saml_response', is_valid?: false) }
   let(:saml_response_click_deny) do
     double('saml_response', is_valid?: false,
                             errors: ['ruh roh'],
@@ -117,6 +119,14 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(Rails.logger).to receive(:error).with(/#{SAML::AuthFailHandler::TOO_EARLY_MSG}/)
           expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
           expect(response).to have_http_status(:found)
+        end
+      end
+      context ' when a required saml attribute is missing' do
+        before { allow(User).to receive(:from_saml).and_return(invalid_user) }
+        it 'logs a generic error' do
+          # user:    'valid?=false errors=[\"Uuid can't be blank\"]'
+          expect(Rails.logger).to receive(:error).with(/user:    \'valid\?=false errors=\["Uuid can\'t be blank"\]/)
+          expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
         end
       end
     end
