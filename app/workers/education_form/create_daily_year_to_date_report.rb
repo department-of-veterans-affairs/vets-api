@@ -64,7 +64,7 @@ module EducationForm
 
       csv_array << ["Submitted Vets.gov Applications - Report FYTD #{@date.year} as of #{@date}"]
       csv_array << ['', '', 'DOCUMENT TYPE']
-      # TODO put all forms here
+      # TODO: put all forms here
       csv_array << ['RPO', 'BENEFIT TYPE', '22-1990', '', '', '22-1995']
       csv_array << ['', ''] + ranges_header * 2
       csv_array << ['', ''] + submitted_header * 2
