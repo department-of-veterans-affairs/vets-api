@@ -65,7 +65,7 @@ module EducationForm
       csv_array << ["Submitted Vets.gov Applications - Report FYTD #{@date.year} as of #{@date}"]
       csv_array << ['', '', 'DOCUMENT TYPE']
       # TODO: put all forms here
-      csv_array << ['RPO', 'BENEFIT TYPE', '22-1990', '', '', '22-1995']
+      csv_array << ['RPO', 'BENEFIT TYPE', '22-1990', '', '', '22-1995', '', '', '22-1990e']
       csv_array << ['', ''] + ranges_header * 2
       csv_array << ['', ''] + submitted_header * 2
 
@@ -76,16 +76,13 @@ module EducationForm
       row = []
 
       EducationBenefitsClaim::FORM_TYPES.each do |form_type|
-        if form_type == '1995'
-          if on_last_index
-            application_type = :all
-          else
-            next
-          end
+        if form_type == '1995' && !on_last_index
+          next row += ['', '', '']
         end
 
         TOTALS_HASH.keys.each do |range_type|
-          num_submissions = submissions[range_type][form_type][region][application_type]
+          application_type_key = form_type == '1995' ? :all : application_type
+          num_submissions = submissions[range_type][form_type][region][application_type_key]
           row << num_submissions
 
           submissions_total[form_type][range_type] += num_submissions
