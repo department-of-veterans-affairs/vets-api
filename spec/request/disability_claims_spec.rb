@@ -50,9 +50,9 @@ RSpec.describe 'disability Claims management', type: :request do
     it 'sets 5103 waiver when requesting a decision' do
       expect do
         post '/v0/disability_claims/189625/request_decision', nil, 'Authorization' => "Token token=#{session.token}"
-      end.to change(EVSSClaim::RequestDecision.jobs, :size).by(1)
+      end.to change(EVSS::RequestDecision.jobs, :size).by(1)
       expect(response.status).to eq(202)
-      expect(JSON.parse(response.body)['job_id']).to eq(EVSSClaim::RequestDecision.jobs.first['jid'])
+      expect(JSON.parse(response.body)['job_id']).to eq(EVSS::RequestDecision.jobs.first['jid'])
     end
 
     it 'shows a single Claim' do

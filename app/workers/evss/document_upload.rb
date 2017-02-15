@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class EVSSClaim::DocumentUpload
+class EVSS::DocumentUpload
   include Sidekiq::Worker
 
   def perform(auth_headers, user_uuid, document_hash)
@@ -10,5 +10,15 @@ class EVSSClaim::DocumentUpload
     file_body = uploader.read
     client.upload(file_body, document)
     uploader.remove!
+  end
+end
+
+# Allows gracefully migrating tasks in queue
+# TODO(knkski): Remove after migration
+class EVSSClaim::DocumentUpload
+  include Sidekiq::Worker
+
+  def perform(auth_headers, user_uuid, document_hash)
+    EVSS::DocumentUpload.new.perform(auth_headers, user_uuid, document_hash)
   end
 end
