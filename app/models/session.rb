@@ -7,11 +7,17 @@ class Session < Common::RedisStore
   redis_key :token
 
   DEFAULT_TOKEN_LENGTH = 40
+  MAX_SESSION_TTL      = 12.hours
 
   attribute :token
   attribute :uuid
+  attribute :created_at
 
   validates :token, presence: true
+  validates :uuid, presence: true
+  validates :created_at, presence: true
+
+  validate :within_maximum_ttl?
   # validates other attributes?
 
   after_initialize :setup_defaults
@@ -32,6 +38,17 @@ class Session < Common::RedisStore
   end
 
   def setup_defaults
-    @token ||= secure_random_token unless persisted?
+    @token ||= secure_random_token
+    @created_at ||= Time.now.utc
+  end
+
+  def max_ttl
+    (@created_at + MAX_SESSION_TTL - Time.now.utc).round
+  end
+
+  def within_maximum_ttl?
+    if max_ttl.negative?
+      errors.add(:created_at, "is more than the max of [#{MAX_SESSION_TTL}] ago. Session is too old")
+    end
   end
 end

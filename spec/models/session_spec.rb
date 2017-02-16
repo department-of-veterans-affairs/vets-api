@@ -2,8 +2,9 @@
 require 'rails_helper'
 
 RSpec.describe Session, type: :model do
-  let(:attributes) { {} }
+  let(:attributes) { { uuid: 'abcd-1234' } }
   subject { described_class.new(attributes) }
+  let(:token) { subject.token }
 
   context 'session without attributes' do
     it 'expect ttl to an Integer' do
@@ -31,6 +32,27 @@ RSpec.describe Session, type: :model do
       it 'sets the ttl countdown' do
         expect(subject.ttl).to be_an(Integer)
         expect(subject.ttl).to be_between(0, 3600)
+      end
+
+      it 'will not extend a session beyond the maximum ttl' do
+        start_time = Time.current
+        Timecop.freeze(start_time)
+
+        # keep extending session so Redis doesn't kill it
+        increment = subject.redis_namespace_ttl - 1.minute
+        max_hours = described_class::MAX_SESSION_TTL / 1.hour
+        (1..max_hours).each do |hour|
+          Timecop.freeze(start_time + increment * hour)
+          expect(subject.save).to eq(true)
+          expect(subject.ttl).to eq(Session.redis_namespace_ttl)
+        end
+
+        # we should no longer be able to extend the session
+        Timecop.freeze(start_time + increment * (max_hours + 1))
+        expect(subject.save).to eq(false)
+        expect(subject.errors.messages).to include(:created_at)
+
+        Timecop.return
       end
     end
 
