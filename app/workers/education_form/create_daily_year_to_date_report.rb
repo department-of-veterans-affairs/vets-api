@@ -187,12 +187,12 @@ module EducationForm
 
     def perform
       # use yesterday as the date otherwise we will miss applications that are submitted after the report is run
-      # @date = Time.zone.today - 1.day
+      @date = Time.zone.today - 1.day
       folder = 'tmp/daily_reports'
       FileUtils.mkdir_p(folder)
       filename = "#{folder}/#{@date}.csv"
 
-      return CSV.open(filename, 'wb') do |csv|
+      CSV.open(filename, 'wb') do |csv|
         create_csv_array.each do |row|
           csv << row
         end
