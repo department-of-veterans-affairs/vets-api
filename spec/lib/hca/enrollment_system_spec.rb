@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'spec_helper'
+require 'rails_helper'
 require 'hca/enrollment_system'
 
 describe HCA::EnrollmentSystem do
@@ -561,6 +561,21 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
+    'convert_birth_state',
+    [
+      %w(
+        MN
+        MN
+      ),
+      %w(
+        Other
+        FG
+      )
+    ]
+  )
+
+  test_method(
+    described_class,
     'service_branch_to_sds_code',
     [
       ['army', 1],
@@ -890,23 +905,25 @@ describe HCA::EnrollmentSystem do
           .once.with(veteran).and_return(type)
       end
 
-      expect(described_class.veteran_to_summary(veteran)).to eq(
-        'associations' => 'association_collection',
-        'demographics' => 'demographics_info',
-        'enrollmentDeterminationInfo' => 'enrollment_determination_info',
-        'financialsInfo' => 'financials_info',
-        'insuranceList' => 'insurance_collection',
-        'militaryServiceInfo' => 'military_service_info',
-        'prisonerOfWarInfo' => { 'powIndicator' => true },
-        'purpleHeart' => { 'indicator' => false },
-        'personInfo' => 'person_info'
+      result = described_class.veteran_to_summary(veteran)
+      result.delete(:attributes!)
+      expect(result).to eq(
+        'eeSummary:associations' => 'association_collection',
+        'eeSummary:demographics' => 'demographics_info',
+        'eeSummary:enrollmentDeterminationInfo' => 'enrollment_determination_info',
+        'eeSummary:financialsInfo' => 'financials_info',
+        'eeSummary:insuranceList' => 'insurance_collection',
+        'eeSummary:militaryServiceInfo' => 'military_service_info',
+        'eeSummary:prisonerOfWarInfo' => { 'eeSummary:powIndicator' => true },
+        'eeSummary:purpleHeart' => { 'eeSummary:indicator' => false },
+        'eeSummary:personInfo' => 'person_info'
       )
     end
   end
 
   test_method(
     described_class,
-    'convert_hash_values',
+    'convert_hash_values!',
     [
       [
         {
@@ -932,10 +949,36 @@ describe HCA::EnrollmentSystem do
   )
 
   describe '#veteran_to_save_submit_form' do
+    subject do
+      described_class.veteran_to_save_submit_form(test_veteran).with_indifferent_access
+    end
+
     it 'should return the right result' do
       Timecop.freeze(Date.new(2015, 10, 21)) do
-        expect(described_class.veteran_to_save_submit_form(test_veteran)).to eq(test_result)
+        expect(subject).to eq(test_result)
       end
+    end
+
+    it "shouldn't modify the form template" do
+      subject
+
+      expect(described_class::FORM_TEMPLATE).to eq(
+        'va:form' => {
+          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+          'va:formIdentifier' => {
+            'va:type' => '100',
+            'va:value' => '1010EZ',
+            'va:version' => 2_986_360_436
+          }
+        },
+        'va:identity' => {
+          '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+          'va:authenticationLevel' => {
+            'va:type' => '100',
+            'va:value' => 'anonymous'
+          }
+        }
+      )
     end
   end
 

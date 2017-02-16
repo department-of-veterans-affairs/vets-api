@@ -90,5 +90,6 @@
   "vietnamService": true,
   "exposedToRadiation": true,
   "radiumTreatments": true,
-  "campLejeune": true
+  "campLejeune": true,
+  "privacyAgreementAccepted": true
 }

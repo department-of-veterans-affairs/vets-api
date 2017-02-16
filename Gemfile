@@ -25,6 +25,7 @@ gem 'attr_encrypted'
 gem 'olive_branch'
 gem 'ox', '~> 2.4'
 gem 'savon'
+gem 'gyoku'
 gem 'sidekiq'
 gem 'sidekiq-unique-jobs'
 gem 'sidekiq-scheduler', '~> 2.0'
@@ -40,13 +41,16 @@ gem 'breakers'
 gem 'govdelivery-tms', require: 'govdelivery/tms/mail/delivery_method'
 gem 'statsd-instrument'
 gem 'memoist'
+gem 'date_validator'
 
 # Amazon Linux's system `json` gem causes conflicts, but
 # `multi_json` will prefer `oj` if installed, so include it here.
 gem 'oj'
 
-
+gem 'holidays'
 gem 'iconv'
+gem 'ice_nine'
+gem 'pdf-reader'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

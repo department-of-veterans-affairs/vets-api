@@ -6,18 +6,39 @@ module V0
     skip_before_action(:authenticate)
 
     def create
-      health_care_application = params[:form]
+      form = JSON.parse(params[:form])
+      validation_errors = JSON::Validator.fully_validate(
+        VetsJsonSchema::HEALTHCARE_APPLICATION,
+        form,
+        validate_schema: true
+      )
 
-      if health_care_application
-        render(json: { success: true })
-      else
-        render(json: { success: false })
+      if validation_errors.present?
+        raise Common::Exceptions::SchemaValidationErrors, validation_errors
       end
+
+      result = begin
+        service.submit_form(form)
+      rescue Common::Client::Errors::ClientError => e
+        Raven.capture_exception(e)
+
+        raise Common::Exceptions::BackendServiceException.new(
+          nil,
+          detail: e.message
+        )
+      end
+
+      render(json: result)
     end
 
     def healthcheck
-      service = HCA::Service.new
       render(json: service.health_check)
+    end
+
+    private
+
+    def service
+      HCA::Service.new
     end
   end
 end

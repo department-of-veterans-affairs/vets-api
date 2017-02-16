@@ -1,9 +1,14 @@
 # frozen_string_literal: true
 class EducationBenefitsClaim < ActiveRecord::Base
-  FORM_SCHEMA = VetsJsonSchema::EDU_BENEFITS
+  FORM_SCHEMAS = IceNine.deep_freeze(
+    '1990' => VetsJsonSchema::EDU_BENEFITS,
+    '1995' => VetsJsonSchema::CHANGE_OF_PROGRAM
+  )
+  FORM_TYPES = %w(1990 1995).freeze
   APPLICATION_TYPES = %w(chapter33 chapter30 chapter1606 chapter32).freeze
 
-  validates(:form, presence: true)
+  validates(:form, :form_type, presence: true)
+  validates(:form_type, inclusion: FORM_TYPES)
   validate(:form_matches_schema)
   validate(:form_must_be_string)
 
@@ -16,6 +21,12 @@ class EducationBenefitsClaim < ActiveRecord::Base
   before_save(:set_region)
   after_save(:create_education_benefits_submission)
   after_save(:update_education_benefits_submission_status)
+
+  FORM_TYPES.each do |type|
+    define_method("is_#{type}?") do
+      form_type == type
+    end
+  end
 
   # For console access only, right now.
   def reprocess_at(region)
@@ -33,10 +44,9 @@ class EducationBenefitsClaim < ActiveRecord::Base
   # and easy way to deeply transform the object.
   def open_struct_form
     @application ||= JSON.parse(form, object_class: OpenStruct)
-    @application.form = application_type
     @application.confirmation_number = confirmation_number
 
-    generate_benefits_to_apply_to
+    generate_benefits_to_apply_to if is_1990?
 
     @application
   end
@@ -58,17 +68,11 @@ class EducationBenefitsClaim < ActiveRecord::Base
   end
 
   def region
-    EducationForm::EducationFacility.region_for(open_struct_form)
+    EducationForm::EducationFacility.region_for(self)
   end
 
   def regional_office
-    EducationForm::EducationFacility.regional_office_for(open_struct_form)
-  end
-
-  # TODO: Add logic for determining field type(s) that need to be places in the application header
-  def application_type
-    return 'CH1606' if @application.chapter1606
-    'NA'
+    EducationForm::EducationFacility.regional_office_for(self)
   end
 
   def parsed_form
@@ -83,9 +87,14 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   def create_education_benefits_submission
     if submitted_at.present? && submitted_at_was.nil? && education_benefits_submission.blank?
+      opt = {}
+
+      opt = parsed_form.slice(*APPLICATION_TYPES) if is_1990?
+
       EducationBenefitsSubmission.create!(
-        parsed_form.slice(*APPLICATION_TYPES).merge(
+        opt.merge(
           region: region,
+          form_type: form_type,
           education_benefits_claim: self
         )
       )
@@ -110,8 +119,9 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   def form_matches_schema
     return unless form_is_string
+    return unless FORM_TYPES.include?(form_type)
 
-    errors[:form].concat(JSON::Validator.fully_validate(FORM_SCHEMA, parsed_form))
+    errors[:form].concat(JSON::Validator.fully_validate(FORM_SCHEMAS[form_type], parsed_form))
   end
 
   def set_submitted_at

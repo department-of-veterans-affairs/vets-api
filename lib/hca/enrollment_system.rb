@@ -14,21 +14,23 @@ module HCA
       'isWhite' => '2106-3'
     }.freeze
 
-    FORM_TEMPLATE = {
-      'form' => {
-        'formIdentifier' => {
-          'type' => '100',
-          'value' => '1010EZ',
-          'version' => 1_986_360_435
+    FORM_TEMPLATE = IceNine.deep_freeze(
+      'va:form' => {
+        '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+        'va:formIdentifier' => {
+          'va:type' => '100',
+          'va:value' => '1010EZ',
+          'va:version' => 2_986_360_436
         }
       },
-      'identity' => {
-        'authenticationLevel' => {
-          'type' => '100',
-          'value' => 'anonymous'
+      'va:identity' => {
+        '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
+        'va:authenticationLevel' => {
+          'va:type' => '100',
+          'va:value' => 'anonymous'
         }
       }
-    }.freeze
+    )
 
     SERVICE_BRANCH_CODES = {
       'army' => 1,
@@ -72,6 +74,8 @@ module HCA
     end
 
     def format_address(address)
+      return {} if address.blank?
+
       formatted = address.slice('city', 'country')
       formatted['line1'] = address['street']
 
@@ -329,6 +333,8 @@ module HCA
     end
 
     def convert_full_name(full_name)
+      return {} if full_name.blank?
+
       {
         'firstName' => Validations.validate_name(
           data: full_name['first'],
@@ -372,8 +378,16 @@ module HCA
           count: 20,
           nullable: true
         ),
-        'placeOfBirthState' => veteran['stateOfBirth']
+        'placeOfBirthState' => convert_birth_state(veteran['stateOfBirth'])
       }.merge(ssn_to_ssntext(veteran['veteranSocialSecurityNumber'])))
+    end
+
+    def convert_birth_state(birth_state)
+      if birth_state == 'Other'
+        'FG'
+      else
+        birth_state
+      end
     end
 
     def service_branch_to_sds_code(service_branch)
@@ -404,7 +418,7 @@ module HCA
     end
 
     def veteran_to_insurance_collection(veteran)
-      insurance_collection = veteran['providers'].map do |provider|
+      insurance_collection = (veteran['providers'] || []).map do |provider|
         provider_to_insurance_info(provider)
       end
 
@@ -489,7 +503,7 @@ module HCA
 
     def veteran_to_association_collection(veteran)
       associations = []
-      children = veteran['children'].map do |child|
+      children = (veteran['children'] || []).map do |child|
         child_to_association(child)
       end.compact
       spouse = spouse_to_association(veteran)
@@ -524,7 +538,7 @@ module HCA
     end
 
     def veteran_to_summary(veteran)
-      {
+      data = {
         'associations' => veteran_to_association_collection(veteran),
         'demographics' => veteran_to_demographics_info(veteran),
         'enrollmentDeterminationInfo' => veteran_to_enrollment_determination_info(veteran),
@@ -539,15 +553,34 @@ module HCA
         },
         'personInfo' => veteran_to_person_info(veteran)
       }
+      data = prepend_namespace(data)
+      # This *must* be a symbol. It's a special flag for the Goyuko library.
+      data[:attributes!] = data.keys.each_with_object({}) do |attribute, memo|
+        memo[attribute] = { 'xmlns:eeSummary' => 'http://jaxws.webservices.esr.med.va.gov/schemas' }
+      end
+      data
     end
 
-    def convert_value(value)
-      if value.is_a?(Hash)
-        convert_hash_values(value)
-      elsif value.is_a?(Array)
-        value.map do |item|
-          convert_value(item)
+    def prepend_namespace(data)
+      if data.is_a? Hash
+        data.each_with_object({}) do |(k, v), memo|
+          memo["eeSummary:#{k}"] = prepend_namespace(v)
         end
+      elsif data.is_a?(Array)
+        data.map { |i| prepend_namespace(i) }
+      else
+        data
+      end
+    end
+
+    def convert_value!(value)
+      if value.is_a?(Hash)
+        convert_hash_values!(value)
+      elsif value.is_a?(Array)
+        result = value.map do |item|
+          convert_value!(item)
+        end
+        result.delete_if(&:blank?)
       elsif value.in?([true, false]) || value.is_a?(Numeric)
         value.to_s
       else
@@ -555,25 +588,26 @@ module HCA
       end
     end
 
-    def convert_hash_values(hash)
+    def convert_hash_values!(hash)
       hash.each do |k, v|
-        hash[k] = convert_value(v)
+        hash[k] = convert_value!(v)
       end
+      hash.delete_if { |_k, v| v.blank? }
     end
 
     def veteran_to_save_submit_form(veteran)
       return {} if veteran.blank?
 
-      request = FORM_TEMPLATE.dup
-      request['form']['summary'] = veteran_to_summary(veteran)
-      request['form']['applications'] = {
-        'applicationInfo' => {
-          'appDate' => Time.zone.now.utc.strftime('%Y-%m-%d'),
-          'appMethod' => '1'
-        }
+      request = FORM_TEMPLATE.deep_dup
+      request['va:form']['va:summary'] = veteran_to_summary(veteran)
+      request['va:form']['va:applications'] = {
+        'va:applicationInfo' => [{
+          'va:appDate' => Time.zone.now.utc.strftime('%Y-%m-%d'),
+          'va:appMethod' => '1'
+        }]
       }
 
-      convert_hash_values(request)
+      convert_hash_values!(request)
       request
     end
   end

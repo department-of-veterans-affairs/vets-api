@@ -1,8 +1,14 @@
-# Vets.gov API [![Build Status](https://travis-ci.org/department-of-veterans-affairs/vets-api.svg?branch=master)](https://travis-ci.org/department-of-veterans-affairs/vets-api)
+# Vets.gov API [![Build Status](https://dev.vets.gov/jenkins/buildStatus/icon?job=department-of-veterans-affairs/vets-api/master&build=5)](http://jenkins.vetsgov-internal/job/department-of-veterans-affairs/job/vets-api/job/master/5/)
 
-This project provides common APIs for applications that live on vets.gov. This repo is in its infancy - more information coming soon!
+This project provides common APIs for applications that live on vets.gov.
+
+
 
 ## Developer Setup
+Vets-api requires:
+- postgres
+- Redis
+- rails server
 
 ### Base Setup
 
@@ -10,173 +16,59 @@ This project provides common APIs for applications that live on vets.gov. This r
 *Note*: rbenv will also provide additional installation instructions in the console output. Make sure to follow those too.
 1. Install Bundler to manage dependencies: `gem install bundler`
 1. Install Postgres (on Mac): `brew install postgres`
-1. Get the code: `git clone https://github.com/department-of-veterans-affairs/vets-api.git; git submodule init; git submodule update`
-1. Install gem dependencies: `cd vets-api; bundle install`
+1. Get the code: `git clone https://github.com/department-of-veterans-affairs/vets-api.git; cd vets-api; git submodule init; git submodule update`
+1. Install gem dependencies: `bundle install`
+1. Create a application.yml `cat ./config/application.yml.example > ./config/application.yml`
+1. Setup localhost certificates / keys
+  - Create a hidden folder in home directory:  `mkdir ~/.certs`
+  - Copy the [certificate](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Identity%20Discovery%202016/certificates/vetsgov-localhost.crt) to ~/.certs
+  - Copy the [key](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Identity%20Discovery%202016/certificates/vetsgov-localhost.key) to ~/.certs
 
 ### Database Setup
 1. Start Postgres: `postgres -D /usr/local/var/postgres`
 1. Create dev database: `bundle exec rake db:setup`
-*Note*: This will not work until you set up the environment variables (see below).
-
-## Application Configuration
-Various ENV variables are required for the application to run. See application.yml.example
-
-### ID.me Certificate Setup
-For the ID.me SAML auth integration to work, you will need the following environment variables set:
-```
-CERTIFICATE_FILE
-KEY_FILE
-```
-
-For an example, see `application.yml.example`
-For local development, ID.me has configured their sandbox with a cert that developers can share.
-
-1. Download the [key and certificate files](https://github.com/department-of-veterans-affairs/platform-team/tree/master/identity/certificates)
-1. Set the environment variables above to point to your local copies of the files
 
 ### Redis Setup
-For this app to be properly configured, you will need to specify the following environment variables:
-```
-REDIS_HOST
-REDIS_PORT
-```
-
-For an example, see `application.yml.example`
 
 1. Install Redis (on mac): `brew install redis`
 1. Follow post install instructions
   - always have Redis running as service
   - manually launch Redis `redis-server /usr/local/etc/redis.conf`
-1. Set the environment variables above according to your Redis configuration
 
 *Note*: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
 this is a sign that redis is not currently running or `config/redis.yml` is not using correct host and port.
 
-### MHV Prescriptions and MHV Secure Messaging Setup
-For this app to be properly configured, you will need to specify the following environment variables:
-```
-MHV_HOST
-MHV_APP_TOKEN
-MHV_SM_HOST
-MHV_SM_APP_TOKEN
-```
+### Optional Application Configuration
+The following features require additional configuration, click for details.
+- [Authentication with ID.me](/docs/setup/authentication_with_idme.md)
+- [EVSS](/docs/setup/evss.md)
+- [Facilities Locator](/docs/setup/facilities_locator.md)
+- [My HealtheVet (MHV)](/docs/setup/mhv.md)
+- [Education Benefits](/docs/setup/edu_benefits.md)
+- [Master Veteran Index (MVI)](/docs/setup/mvi.md)
 
-For an example, see `application.yml.example` - these are just mock endpoints.
-For actual backend testing you will need to reference the appropriate private repository.
+Vets-api will still run in a limited capacity without configuring any of the features.
 
-### EVSS S3 Uploads
-Uploaded disability claim documents are handled by CarrierWave and either sent to Amazon S3 or saved to disk.
-To enable S3 uploads, set the following ENV variables:
-```
-EVSS_S3_UPLOADS
-EVSS_AWS_S3_REGION
-EVSS_AWS_S3_BUCKET
-EVSS_AWS_ACCESS_KEY_ID
-EVSS_AWS_SECRET_ACCESS_KEY
-```
+## Running the App
+Manually run each:
 
-Note: `EVSS_S3_UPLOADS` needs to be set to the string 'true' to enable S3 uploads
+1. `postgres -D /usr/local/var/postgres`
+1. `redis-server /usr/local/etc/redis.conf`
+1. `bundle exec rails server` from <GITHUB_HOME>/vets-api/
 
-### Education Benefits Year to Date Report
-The year to date report uses GovDelivery to send the email and S3 to upload a link to the generated csv file.
-To test sending the report, set the following ENV variables:
-```
-GOV_DELIVERY_TOKEN
-REPORTS_AWS_ACCESS_KEY_ID
-REPORTS_AWS_SECRET_ACCESS_KEY
-REPORTS_AWS_S3_REGION
-REPORTS_AWS_S3_BUCKET
-```
-
-### EVSS Disability Claims Setup
-For this app to be properly configured, you will need to specify the following environment variables:
-```
-EVSS_BASE_URL
-EVSS_SAMPLE_CLAIMANT_USER
-```
-
-For an example, see `application.yml.example` - these are just mock endpoints.
-For actual backend testing you will need to reference the appropriate private repository.
-
-### Facilities Locator Setup
-For this app to be properly configured, you need the following environment variables:
-```
-VHA_MAPSERVER_URL
-VHA_MAPSERVER_LAYER
-```
-
-For an example, see `application.yml.example`.
-
-For the current maps.va.gov endpoint, you will need to add the VA internal root CA
-certificate to your trusted certificates. With homebrew this is typically done by
-appending the exported/downloaded certificate to `<HOMEBREW_DIR>/etc/openssl/cert.pem`.
-
-### MVI Service
-The Master Veteran Index Service retreives and updates a veterans 'golden record'.
-Update the `MVI_URL` env var in config/application.yml with the value given to you
-by devops or your team.
-```
-# config/application.yml
-MVI_URL = '...'
-```
-Since that URL is only accessible over the VA VPN a mock service is included in the project.
-To enable it set MOCK_MVI_SERVICE in config/application.yml to 'true'
-```
-# config/application.yml
-MOCK_MVI_SERVICE = true
-```
-Endpoint response values can be set by copying mock_mvi_responses.yml.example to
-mock_mvi_responses.yml. For the find_candidate
-endpoint you can return different responses based on SSN:
-```
-find_candidate:
-  555443333:
-    birth_date: '19800101'
-    edipi: '1234^NI^200DOD^USDOD^A'
-    family_name: 'Smith'
-    gender: 'M'
-    given_names: ['John', 'William']
-    icn: '1000123456V123456^NI^200M^USVHA^P'
-    mhv_id: '123456^PI^200MHV^USVHA^A'
-    ssn: '555443333'
-    status: 'active'
-  111223333:
-    # another mock response hash here...
-```
-
-### Running the App
-1. Start the application: `foreman start`
+#### Running the App with Foreman
+1. Start the application: `bundle exec foreman start`
 1. Navigate to <http://localhost:3000/v0/status> in your browser.
 
-## Testing Commands
+### Testing Commands
 - `bundle exec rake lint` - Run the full suite of linters on the codebase.
 - `bundle exec guard` - Runs the guard test server that reruns your tests after files are saved. Useful for TDD!
 - `bundle exec rake security` - Run the suite of security scanners on the codebase.
 - `bundle exec rake ci` - Run all build steps performed in Travis CI.
 
-### Manually Testing ID.me Authentication Flow
-The first endpoint, below, doesn't require authentication while the second does:
-```
-curl localhost:3000/v0/status
-curl localhost:3000/v0/welcome
-```
-
-The callback from ID.me is configured to go to `http://localhost:3001/auth/login/callback`, which is a front-end route in production. To test just the API locally, without running the vets-website server, start the vets-api server on port 3001:
-```
-bundle exec rails s -p 3001
-```
-Curl or browse to `http://localhost:3001/v0/sessions/new`; copy and paste the ID.me URL into your browser. Create your ID.me account if you have not already done so (**Note**: creating your account on the ID.me site is separate from the api.idmelabs.com sandbox) or sign in with your username and password.
-
-The token returned in the json response at the end of the login flow can be used as follows (You may wish to use Postman instead of curl to test within the browser):
-
-```
-curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyyja" localhost:3001/v0/sessions/current
-curl --header "Authorization: Token token=GvmkAW231VxGHkYxyppr2QQsi1D7PStqeiJXyyja" localhost:3001/v0/profile
-```
-
 ## Deployment Instructions
 
-Currently, this API is not yet in production. Ansible templates and instructions for deploying are in the [devops repo](https://github.com/department-of-veterans-affairs/devops/tree/master/ansible). The `app_name` for this project is `platform-api`. After deploying, you can check that the right version was deployed with:
+Ansible templates and instructions for deploying are in the [devops repo](https://github.com/department-of-veterans-affairs/devops/tree/master/ansible). The `app_name` for this project is `platform-api`. After deploying, you can check that the right version was deployed with:
 ```
 https://dev-api.vets.gov/v0/status
 ```
@@ -202,6 +94,8 @@ If you spot a bug, let us know! File a GitHub Issue for this project. When filin
     - The expected outcome
     - The actual outcome (include screen shot or error logs)
 - Label: Apply the label `bug`
+
+For security related bugs unfit for public viewing, email us feedback@va.gov
 
 **Code Submissions**
 

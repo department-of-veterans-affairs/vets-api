@@ -9,7 +9,7 @@ RSpec.describe DisabilityClaim::DocumentUpload, type: :job do
   let(:user) { FactoryGirl.create(:loa3_user) }
   let(:filename) { 'doctors-note.pdf' }
   let(:document_data) do
-    DisabilityClaimDocument.new(
+    EVSSClaimDocument.new(
       evss_claim_id: 189_625,
       file_name: filename,
       tracked_item_id: 33,

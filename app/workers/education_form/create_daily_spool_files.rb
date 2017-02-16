@@ -3,178 +3,124 @@ require 'net/sftp'
 require 'iconv'
 
 module EducationForm
+  WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
+
+  class FormattingError < StandardError
+  end
+
   class CreateDailySpoolFiles
     include Sidekiq::Worker
     sidekiq_options queue: 'default',
                     retry: 5
 
-    include ActionView::Helpers::TextHelper # Needed for word_wrap
-    require 'erb'
-    require 'ostruct'
-
-    TEMPLATE_PATH = Rails.root.join('app', 'workers', 'education_form', 'templates')
-    TEMPLATE = File.read(File.join(TEMPLATE_PATH, '22-1990.erb'))
-
-    CH33_TYPES = {
-      'chapter1607' => 'CH33_1607', 'chapter1606' => 'CH33_1606', 'chapter30' => 'CH33_30'
-    }.freeze
-
-    WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
-
-    def perform
-      # Fetch all the records for the day
-      records = EducationBenefitsClaim.unprocessed
+    # Setting the default value to the `unprocessed` scope is safe
+    # because the execution of the query itself is defered until the
+    # data is accessed by the code inside of the method.
+    # Be *EXTREMELY* careful running this manually as it may overwrite
+    # existing files on the SFTP server if one was already written out
+    # for the day.
+    def perform(records: EducationBenefitsClaim.unprocessed)
+      return false if federal_holiday?
       # Group the formatted records into different regions
+      if records.count.zero?
+        logger.info('No records to process.')
+        return true
+      else
+        logger.info("Processing #{records.count} application(s)")
+      end
       regional_data = group_submissions_by_region(records)
+      formatted_records = format_records(regional_data)
       # Create a remote file for each region, and write the records into them
-      create_files(regional_data)
+      writer = EducationForm::Writer::Factory.get_writer.new(logger: logger)
+      write_files(writer, structured_data: formatted_records)
+
       true
     end
 
     def group_submissions_by_region(records)
-      regional_data = Hash.new { |h, k| h[k] = [] }
-      records.each do |record|
-        region_key = record.regional_processing_office&.to_sym
-        regional_data[region_key] << record
-      end
-      regional_data
+      records.group_by { |r| r.regional_processing_office.to_sym }
     end
 
-    def write_files(sftp: nil, structured_data:)
+    # Convert the records into instances of their form representation.
+    # The conversion into 'spool file format' takes place here, rather
+    # than when we're writing the files so we can hold the connection
+    # open for a shorter period of time.
+    def format_records(grouped_data)
+      grouped_data.each do |region, v|
+        region_id = EducationFacility.facility_for(region: region)
+        grouped_data[region] = v.map do |record|
+          format_application(record, rpo: region_id)
+        end
+      end
+    end
+
+    # Write out the combined spool files for each region along with recording
+    # and tracking successful transfers.
+    def write_files(writer, structured_data:)
       structured_data.each do |region, records|
         region_id = EducationFacility.facility_for(region: region)
         filename = "#{region_id}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
-        log_submissions(records, filename, region_id)
+        log_submissions(records, filename)
         # create the single textual spool file
-        contents = records.map do |record|
-          format_application(record.open_struct_form)
-        end.join(WINDOWS_NOTEPAD_LINEBREAK)
+        contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
 
-        if sftp
-          sftp.upload!(StringIO.new(contents), filename)
-        else
-          dir_name = Rails.root.join('tmp', 'spool_files')
-          FileUtils.mkdir_p(dir_name)
-          File.open(File.join(dir_name, filename), 'w') do |f|
-            f.write(contents)
-          end
-        end
+        writer.write(contents, filename)
 
-        # mark the records as processed once the file has been written
-        records.each { |r| r.update_attribute(:processed_at, Time.zone.now) }
+        # track and update the records as processed once the file has been successfully written
+        track_submissions(region_id)
+        records.each { |r| r.record.update_attribute(:processed_at, Time.zone.now) }
       end
+    ensure
+      writer.close
     end
 
-    def create_files(structured_data)
-      logger.error('No applications to write') && return if structured_data.empty?
-      if Rails.env.development? || ENV['EDU_SFTP_HOST'].blank?
-        write_files(structured_data: structured_data)
-      elsif ENV['EDU_SFTP_PASS'].blank?
-        raise "EDU_SFTP_PASS not set for #{ENV['EDU_SFTP_USER']}@#{ENV['EDU_SFTP_HOST']}"
-      else
-        Net::SFTP.start(ENV['EDU_SFTP_HOST'], ENV['EDU_SFTP_USER'], password: ENV['EDU_SFTP_PASS']) do |sftp|
-          logger.info('Connected to SFTP')
-          write_files(sftp: sftp, structured_data: structured_data)
-        end
-        logger.info('Disconnected from SFTP')
-      end
-    end
-
-    # Convert the JSON document into the text format that we submit to the backend
-    def format_application(form)
-      @application_template ||= ERB.new(TEMPLATE, nil, '-')
-      @applicant = form
-      # the spool file has a requirement that lines be 80 bytes (not characters), and since they
-      # use windows-style newlines, that leaves us with a width of 78
-      wrapped = word_wrap(@application_template.result(binding), line_width: 78)
-      # We can only send ASCII, so make a best-effort at that.
-      transliterated = Iconv.iconv('ascii//translit', 'utf-8', wrapped).first
-      # The spool file must actually use windows style linebreaks
-      transliterated.gsub("\n", WINDOWS_NOTEPAD_LINEBREAK)
+    def format_application(data, rpo: 0)
+      form = EducationForm::Forms::Base.build(data)
+      # TODO(molson): Once we have a column in the db with the form type, we can move
+      # this tracking code to somewhere more reasonable.
+      track_form_type(form.class::TYPE, rpo)
+      form
+    rescue
+      raise FormattingError, "Could not format #{data.confirmation_number}"
     end
 
     private
 
-    def log_submissions(records, filename, region_id)
-      logger.info("Writing #{records.count} application(s) to #{filename}")
-      logger.info("IDs: #{records.map(&:id)}")
-      StatsD.gauge('worker.education_benefits_claim.transmissions', records.count, tags:
-        { form: '22-1990', rpo: region_id })
-    end
-
-    # If multiple benefit types are selected, we've been told to just include whichever
-    # one is 'first' in the header.
-    def form_type(application)
-      return 'CH1606' if application.chapter1606
-      return 'CH33' if application.chapter33
-      return 'CH30' if application.chapter30
-      return 'CH32' if application.chapter32
-    end
-
-    # Some descriptive text that's included near the top of the 22-1990 form. Because they can make
-    # multiple selections, we have to add all the selected ones.
-    def disclosures(application)
-      disclosure_texts = []
-      disclosure_texts << disclosure_for('CH30') if application.chapter30
-      disclosure_texts << disclosure_for('CH1606') if application.chapter1606
-      disclosure_texts << disclosure_for('CH32') if application.chapter32
-      if application.chapter33
-        ch33_type = CH33_TYPES.fetch(application.benefitsRelinquished, 'CH33')
-        disclosure_texts << disclosure_for(ch33_type)
+    def federal_holiday?
+      holiday = Holidays.on(Time.zone.today, :us, :observed)
+      if holiday.empty?
+        false
+      else
+        logger.info("Skipping on a Holiday: #{holiday.first[:name]}")
+        true
       end
-      disclosure_texts.join("\n#{'*' * 78}\n\n")
     end
 
-    def full_name(name)
-      return '' if name.nil?
-      [name.first, name.middle, name.last].compact.join(' ')
+    # Useful for debugging which records were or were not sent over successfully,
+    # in case of network failures.
+    def log_submissions(records, filename)
+      ids = records.map { |r| r.record.id }
+      logger.info("Writing #{records.count} application(s) to #{filename}")
+      logger.info("IDs: #{ids}")
     end
 
-    def full_address(address, indent: false)
-      return '' if address.nil?
-      seperator = indent ? "\n        " : "\n"
-      [
-        address.street,
-        address.street2,
-        "#{address.city}, #{address.state}, #{address.postalCode}",
-        address.country
-      ].compact.join(seperator).upcase
+    # Useful for alerting and monitoring the numbers of successfully send submissions
+    # per-rpo, rather than the number of records that were *prepared* to be sent.
+    def track_submissions(region_id)
+      stats[region_id].each do |type, count|
+        StatsD.gauge('worker.education_benefits_claim.transmissions',
+                     count,
+                     tags: { rpo: region_id,
+                             form: type })
+      end
     end
 
-    def rotc_scholarship_amounts(scholarships)
-      # there are 5 years, all of which can be blank.
-      # Wrap the array to a size of 5 to meet this requirement
-      wrapped_list = Array(scholarships)
-      Array.new(5) do |idx|
-        "            Year #{idx + 1}:          Amount: #{wrapped_list[idx]&.amount}\n"
-      end.join("\n")
+    def track_form_type(type, rpo)
+      stats[rpo][type] += 1
     end
 
-    def employment_history(job_history, post_military:)
-      wrapped_list = Array(job_history).select { |job| job.postMilitaryJob == post_military }
-      # we need at least one record to be in the form.
-      wrapped_list << OpenStruct.new if wrapped_list.empty?
-      wrapped_list.map do |job|
-        "        Principal Occupation: #{job.name}
-        Number of Months: #{job.months}
-        License or Rating: #{job.licenseOrRating}"
-      end.join("\n\n")
-    end
-
-    # N/A is used for "the user wasn't shown this option", which is distinct from Y/N.
-    def yesno(bool)
-      return 'N/A' if bool.nil?
-      bool ? 'YES' : 'NO'
-    end
-
-    # is this needed? will it the data come in the correct format? better to have the helper..
-    def to_date(date)
-      date ? date : (' ' * 10) # '00/00/0000'.length
-    end
-
-    def disclosure_for(type)
-      contents = File.read(File.join(TEMPLATE_PATH, "_#{type}.erb"))
-      ERB.new(contents).result(binding)
+    def stats
+      @stats ||= Hash.new(Hash.new(0))
     end
   end
 end
