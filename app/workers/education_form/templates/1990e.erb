@@ -15,10 +15,10 @@ DEC 2016
 
 SSN: <%= @applicant.relativeSocialSecurityNumber %>         Sex: <%= @applicant.gender %>             Date of Birth: <%= @applicant.relativeDateOfBirth %>
 
-Name:   <%= full_name(@applicant.veteranFullName) %>
+Name:   <%= full_name(@applicant.relativeFullName) %>
 
 Address:
-<%= full_address(@applicant.veteranAddress) %>
+<%= full_address(@applicant.relativeAddress) %>
 
 Telephone Numbers:     Home:    <%= @applicant.homePhone %>
                        Mobile:  <%= @applicant.mobilePhone %>
