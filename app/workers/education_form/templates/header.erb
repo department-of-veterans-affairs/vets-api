@@ -4,6 +4,6 @@
 <%= @applicant.veteranFullName.last.upcase %>
 <%= @applicant.veteranSocialSecurityNumber&.gsub(/[^\d]/,'') %>
 <%= @applicant.veteranSocialSecurityNumber&.gsub(/[^\d]/,'') %>
-V<%= @record.form_type %>
+V<%= header_form_type %>
 
 <%= school&.name&.upcase %>

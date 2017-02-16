@@ -15,6 +15,10 @@ module EducationForm::Forms
       klass.new(app)
     end
 
+    def header_form_type
+      @record.form_type
+    end
+
     def initialize(app)
       @record = app
       @form = app.open_struct_form
