@@ -18,6 +18,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/config_helper.rb'
     add_filter 'lib/feature_flipper.rb'
     add_filter 'spec/support/authenticated_session_helper'
+    add_filter 'spec/support/attr_encrypted_matcher'
     add_filter 'config/initializers/figaro.rb'
     SimpleCov.minimum_coverage_by_file 90
   end
