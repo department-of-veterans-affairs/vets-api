@@ -19,6 +19,6 @@ class EVSSClaim::DocumentUpload
   include Sidekiq::Worker
 
   def perform(auth_headers, user_uuid, document_hash)
-    EVSS::DocumentUpload.new.perform(auth_headers, user_uuid, document_hash)
+    EVSS::DocumentUpload.perform_async(auth_headers, user_uuid, document_hash)
   end
 end

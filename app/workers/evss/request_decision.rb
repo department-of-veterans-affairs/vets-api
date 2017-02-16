@@ -14,6 +14,6 @@ class EVSSClaim::RequestDecision
   include Sidekiq::Worker
 
   def perform(auth_headers, evss_id)
-    EVSS::RequestDecision.new.perform(auth_headers, evss_id)
+    EVSS::RequestDecision.perform_async(auth_headers, evss_id)
   end
 end
