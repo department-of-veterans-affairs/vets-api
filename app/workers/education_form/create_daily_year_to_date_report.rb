@@ -53,6 +53,7 @@ module EducationForm
 
     def create_csv_header
       csv_array = []
+      num_form_types = EducationBenefitsClaim::FORM_TYPES.size
 
       @ranges = {}
       %i(day year).each do |range_type|
@@ -64,10 +65,9 @@ module EducationForm
 
       csv_array << ["Submitted Vets.gov Applications - Report FYTD #{@date.year} as of #{@date}"]
       csv_array << ['', '', 'DOCUMENT TYPE']
-      # TODO: put all forms here
       csv_array << ['RPO', 'BENEFIT TYPE'] + form_type_headers
-      csv_array << ['', ''] + ranges_header * 2
-      csv_array << ['', ''] + submitted_header * 2
+      csv_array << ['', ''] + ranges_header * num_form_types
+      csv_array << ['', ''] + submitted_header * num_form_types
 
       csv_array
     end
