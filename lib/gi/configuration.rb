@@ -3,9 +3,8 @@ require 'common/client/configuration/rest'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/raise_error'
 require 'common/client/middleware/response/snakecase'
-require 'gi/middleware/response/link_transformer'
 
-module Gi
+module GI
   # Configuration class used to setup the environment used by client
   class Configuration < Common::Client::Configuration::REST
 
@@ -14,7 +13,7 @@ module Gi
     end
 
     def service_name
-      'Gi'
+      'GI'
     end
 
     def connection
@@ -26,7 +25,6 @@ module Gi
         conn.response :snakecase
         conn.response :raise_error, error_prefix: service_name
         conn.response :json_parser
-        conn.response :link_transformer
 
         conn.adapter Faraday.default_adapter
       end
