@@ -10,6 +10,16 @@ module EducationForm
       daily_processed: 0
     }.freeze
 
+    FORM_TYPE_HEADERS = lambda do
+      headers = []
+
+      EducationBenefitsClaim::FORM_TYPES.each do |form_type|
+        headers += ["22-#{form_type}", '', '']
+      end
+
+      headers
+    end.().freeze
+
     def build_submission_relation(range_type, region, form_type, status)
       range = @ranges[range_type]
       relation = EducationBenefitsSubmission.where(
@@ -65,21 +75,11 @@ module EducationForm
 
       csv_array << ["Submitted Vets.gov Applications - Report FYTD #{@date.year} as of #{@date}"]
       csv_array << ['', '', 'DOCUMENT TYPE']
-      csv_array << ['RPO', 'BENEFIT TYPE'] + form_type_headers
+      csv_array << ['RPO', 'BENEFIT TYPE'] + FORM_TYPE_HEADERS
       csv_array << ['', ''] + ranges_header * num_form_types
       csv_array << ['', ''] + submitted_header * num_form_types
 
       csv_array
-    end
-
-    def form_type_headers
-      headers = []
-
-      EducationBenefitsClaim::FORM_TYPES.each do |form_type|
-        headers += ["22-#{form_type}", '', '']
-      end
-
-      headers
     end
 
     def create_data_row(on_last_index, application_type, region, submissions, submissions_total)
@@ -180,7 +180,7 @@ module EducationForm
 
       csv_array += create_csv_header
       csv_array += convert_submissions_to_csv_array
-      csv_array << ['', ''] + form_type_headers
+      csv_array << ['', ''] + FORM_TYPE_HEADERS
 
       csv_array
     end
