@@ -31,6 +31,11 @@ def env_vars = [
     'ES_CLIENT_KEY_PATH=/fake/client/key/path'
 ]
 
+def isReviewable = {
+  env.BRANCH_NAME != 'production' &&
+    env.BRANCH_NAME != 'master'
+}
+
 pipeline {
   agent {
     label 'vets-api-linting'
@@ -39,6 +44,23 @@ pipeline {
     stage('Checkout Code') {
       steps {
         checkout scm
+      }
+    }
+
+    stage('Review') {
+      steps {
+        script {
+          if (!isReviewable()) {
+            return
+          }
+
+          build job: 'vets-review-instance-deploy', parameters: [
+            stringParam(name: 'devops_branch', value: 'master'),
+            stringParam(name: 'api_branch', value: 'master'),
+            stringParam(name: 'web_branch', value: env.BRANCH_NAME),
+            stringParam(name: 'source_repo', value: 'vets-website'),
+          ]
+        }
       }
     }
 
