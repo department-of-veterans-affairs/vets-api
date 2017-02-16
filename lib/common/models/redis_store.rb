@@ -96,6 +96,10 @@ module Common
       redis_namespace.ttl(attributes[redis_namespace_key])
     end
 
+    def expire(ttl)
+      redis_namespace.expire(attributes[redis_namespace_key], ttl)
+    end
+
     def persisted?
       @persisted
     end
