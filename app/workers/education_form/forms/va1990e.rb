@@ -6,5 +6,9 @@ module EducationForm::Forms
     def header_form_type
       'E1990'
     end
+
+    def benefit_type(application)
+      application.benefit.gsub('chapter', 'CH')
+    end
   end
 end

@@ -11,7 +11,7 @@ module EducationForm::Forms
 
     # If multiple benefit types are selected, we've been told to just include whichever
     # one is 'first' in the header.
-    def form_type(application)
+    def benefit_type(application)
       return 'CH1606' if application.chapter1606
       return 'CH33' if application.chapter33
       return 'CH30' if application.chapter30
