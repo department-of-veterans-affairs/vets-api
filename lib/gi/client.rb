@@ -8,7 +8,7 @@ module GI
     configuration GI::Configuration
 
     def get_autocomplete_suggestions(term)
-      perform(:get, 'institutions/autocomplete', {term: term}, nil).body
+      perform(:get, 'institutions/autocomplete', { term: term }, nil).body
     end
 
     def get_calculator_constants

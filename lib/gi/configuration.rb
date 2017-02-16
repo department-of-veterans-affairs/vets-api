@@ -7,7 +7,6 @@ require 'common/client/middleware/response/snakecase'
 module GI
   # Configuration class used to setup the environment used by client
   class Configuration < Common::Client::Configuration::REST
-
     def base_path
       "#{ENV['GIDS_HOST']}/v0/"
     end
@@ -20,8 +19,10 @@ module GI
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
         conn.use :breakers
         conn.request :json
+        # Uncomment this out for generating curl output to send to MHV dev and test only
+        # conn.request :curl, ::Logger.new(STDOUT), :warn
 
-        conn.response :logger, ::Logger.new(STDOUT), bodies: true # todo: rm this
+        # conn.response :logger, ::Logger.new(STDOUT), bodies: true
         conn.response :snakecase
         conn.response :raise_error, error_prefix: service_name
         conn.response :json_parser
