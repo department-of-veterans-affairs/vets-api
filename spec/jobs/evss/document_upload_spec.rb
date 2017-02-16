@@ -39,10 +39,10 @@ RSpec.describe EVSSClaim::DocumentUpload, type: :job do
   let(:filename) { 'doctors-note.pdf' }
   let(:document_data) do
     EVSSClaimDocument.new(
-        evss_claim_id: 189_625,
-        file_name: filename,
-        tracked_item_id: 33,
-        document_type: 'L023'
+      evss_claim_id: 189_625,
+      file_name: filename,
+      tracked_item_id: 33,
+      document_type: 'L023'
     )
   end
   let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
