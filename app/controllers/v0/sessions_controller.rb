@@ -44,16 +44,6 @@ module V0
       end
     end
 
-    def renew
-      if @session.save
-        @current_user.save
-        # TODO: - save other stuff associated with a "vets.gov session"
-        head :no_content
-      else
-        render json: { errors: @session.errors }, status: :conflict
-      end
-    end
-
     private
 
     def persist_session_and_user

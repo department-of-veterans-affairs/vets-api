@@ -40,7 +40,7 @@ RSpec.describe Session, type: :model do
 
         # keep extending session so Redis doesn't kill it
         increment = subject.redis_namespace_ttl - 1.minute
-        max_hours = described_class::MAX_SESSION_TTL / 1.hour
+        max_hours = described_class::MAX_SESSION_LIFETIME / 1.hour
         (1..max_hours).each do |hour|
           Timecop.freeze(start_time + increment * hour)
           expect(subject.save).to eq(true)

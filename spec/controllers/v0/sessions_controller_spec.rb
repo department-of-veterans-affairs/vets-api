@@ -50,16 +50,6 @@ RSpec.describe V0::SessionsController, type: :controller do
       Session.create(uuid: uuid, token: token)
       User.create(loa1_user.attributes)
     end
-    it ' PUT#renew extends the session' do
-      request.env['HTTP_AUTHORIZATION'] = auth_header
-      start_time = Time.current
-      Timecop.freeze(start_time + 20.minutes)
-      session = Session.find(token)
-      expect(session.ttl).to eq(session.redis_namespace_ttl - 20.minutes)
-      put :renew
-      expect(response).to have_http_status(:no_content)
-      expect(session.ttl).to eq(session.redis_namespace_ttl)
-    end
     it 'returns a logout url' do
       request.env['HTTP_AUTHORIZATION'] = auth_header
       delete :destroy
@@ -143,12 +133,6 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
 
   context 'when not logged in' do
-    describe ' PUT renew' do
-      it 'returns unauthorized' do
-        put :renew
-        expect(response).to have_http_status(:unauthorized)
-      end
-    end
     describe ' GET new' do
       it 'creates the saml authn request with LOA 1 if supplied level=1' do
         get :new, level: 1

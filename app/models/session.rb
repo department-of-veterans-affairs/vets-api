@@ -7,7 +7,7 @@ class Session < Common::RedisStore
   redis_key :token
 
   DEFAULT_TOKEN_LENGTH = 40
-  MAX_SESSION_TTL      = 12.hours
+  MAX_SESSION_LIFETIME = 12.hours
 
   attribute :token
   attribute :uuid
@@ -43,12 +43,12 @@ class Session < Common::RedisStore
   end
 
   def max_ttl
-    (@created_at + MAX_SESSION_TTL - Time.now.utc).round
+    (@created_at + MAX_SESSION_LIFETIME - Time.now.utc).round
   end
 
   def within_maximum_ttl?
     if max_ttl.negative?
-      errors.add(:created_at, "is more than the max of [#{MAX_SESSION_TTL}] ago. Session is too old")
+      errors.add(:created_at, "is more than the max of [#{MAX_SESSION_LIFETIME}] ago. Session is too old")
     end
   end
 end
