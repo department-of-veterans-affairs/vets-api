@@ -65,20 +65,28 @@ module EducationForm
       csv_array << ["Submitted Vets.gov Applications - Report FYTD #{@date.year} as of #{@date}"]
       csv_array << ['', '', 'DOCUMENT TYPE']
       # TODO: put all forms here
-      csv_array << ['RPO', 'BENEFIT TYPE', '22-1990', '', '', '22-1995', '', '', '22-1990e']
+      csv_array << ['RPO', 'BENEFIT TYPE'] + form_type_headers
       csv_array << ['', ''] + ranges_header * 2
       csv_array << ['', ''] + submitted_header * 2
 
       csv_array
     end
 
+    def form_type_headers
+      headers = []
+
+      EducationBenefitsClaim::FORM_TYPES.each do |form_type|
+        headers += ["22-#{form_type}", '', '']
+      end
+
+      headers
+    end
+
     def create_data_row(on_last_index, application_type, region, submissions, submissions_total)
       row = []
 
       EducationBenefitsClaim::FORM_TYPES.each do |form_type|
-        if form_type == '1995' && !on_last_index
-          next row += ['', '', '']
-        end
+        next row += ['', '', ''] if form_type == '1995' && !on_last_index
 
         TOTALS_HASH.keys.each do |range_type|
           application_type_key = form_type == '1995' ? :all : application_type
@@ -172,19 +180,19 @@ module EducationForm
 
       csv_array += create_csv_header
       csv_array += convert_submissions_to_csv_array
-      csv_array << ['', '', '22-1990', '', '', '22-1995']
+      csv_array << ['', ''] + form_type_headers
 
       csv_array
     end
 
     def perform
       # use yesterday as the date otherwise we will miss applications that are submitted after the report is run
-      @date = Time.zone.today - 1.day
+      # @date = Time.zone.today - 1.day
       folder = 'tmp/daily_reports'
       FileUtils.mkdir_p(folder)
       filename = "#{folder}/#{@date}.csv"
 
-      CSV.open(filename, 'wb') do |csv|
+      return CSV.open(filename, 'wb') do |csv|
         create_csv_array.each do |row|
           csv << row
         end
