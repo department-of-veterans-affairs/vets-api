@@ -3,6 +3,7 @@
 This project provides common APIs for applications that live on vets.gov.
 
 
+
 ## Developer Setup
 Vets-api requires:
 - postgres
@@ -56,7 +57,7 @@ Manually run each:
 1. `bundle exec rails server` from <GITHUB_HOME>/vets-api/
 
 #### Running the App with Foreman
-1. Start the application: `foreman start`
+1. Start the application: `bundle exec foreman start`
 1. Navigate to <http://localhost:3000/v0/status> in your browser.
 
 ### Testing Commands
