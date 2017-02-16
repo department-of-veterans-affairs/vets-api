@@ -64,7 +64,7 @@ Manually run each:
 - `bundle exec rake lint` - Run the full suite of linters on the codebase.
 - `bundle exec guard` - Runs the guard test server that reruns your tests after files are saved. Useful for TDD!
 - `bundle exec rake security` - Run the suite of security scanners on the codebase.
-- `bundle exec rake ci` - Run all build steps performed in Travis CI.
+- `bundle exec rake ci` - Run all build steps performed in Jenkins.
 
 ## Deployment Instructions
 
