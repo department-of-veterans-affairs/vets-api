@@ -19,6 +19,10 @@ module EducationForm::Forms
       @record.form_type
     end
 
+    def school
+      @applicant.school
+    end
+
     def initialize(app)
       @record = app
       @form = app.open_struct_form

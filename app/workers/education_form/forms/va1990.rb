@@ -55,9 +55,5 @@ module EducationForm::Forms
         License or Rating: #{job.licenseOrRating}"
       end.join("\n\n")
     end
-
-    def school
-      @applicant.school
-    end
   end
 end
