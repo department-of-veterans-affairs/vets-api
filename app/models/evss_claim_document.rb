@@ -1,17 +1,21 @@
 # frozen_string_literal: true
 require 'common/models/base'
+require 'pdf/reader'
 
 class EVSSClaimDocument < Common::Base
   include ActiveModel::Validations
+  include ActiveModel::Validations::Callbacks
 
   attribute :evss_claim_id, Integer
   attribute :tracked_item_id, Integer
   attribute :document_type, String
   attribute :file_name, String
+  attribute :file_obj, ActionDispatch::Http::UploadedFile
 
-  validates(:tracked_item_id, presence: true)
   validates(:file_name, presence: true)
   validate :known_document_type?
+  validate :unencrypted_pdf?
+  before_validation :normalize_text
 
   # rubocop:disable LineLength
   DOCUMENT_TYPES = {
@@ -39,6 +43,9 @@ class EVSSClaimDocument < Common::Base
   }.freeze
   # rubocop:enable LineLength
 
+  EVSS_TEXT_ENCODING = 'ascii' # EVSS only accepts text files written in ASCII
+  MINIMUM_ENCODING_CONFIDENCE = 0.5
+
   def description
     DOCUMENT_TYPES[document_type]
   end
@@ -47,9 +54,41 @@ class EVSSClaimDocument < Common::Base
     attributes == other.attributes
   end
 
+  def to_serializable_hash
+    # file_obj is not suitable for serialization
+    to_hash.tap { |h| h.delete :file_obj }
+  end
+
+  # The front-end URLencodes a nil tracked_item_id as the string 'null'
+  def tracked_item_id=(num)
+    num = nil if num == 'null'
+    super num
+  end
+
   private
 
   def known_document_type?
     errors.add(:base, 'Must use a known document type') unless description
+  end
+
+  def unencrypted_pdf?
+    return unless file_name =~ /\.pdf$/i
+    xref = PDF::Reader::XRef.new file_obj.tempfile
+    errors.add(:base, 'PDF must not be encrypted') if xref.trailer[:Encrypt].present?
+    file_obj.tempfile.rewind
+  rescue PDF::Reader::MalformedPDFError
+    errors.add(:base, 'PDF is malformed')
+  end
+
+  def normalize_text
+    return unless file_name =~ /\.txt$/i
+    text = file_obj.read
+    text = text.encode(EVSS_TEXT_ENCODING)
+    file_obj.tempfile = Tempfile.new(encoding: EVSS_TEXT_ENCODING)
+    file_obj.tempfile.write text
+    file_obj.tempfile.rewind
+  rescue Encoding::UndefinedConversionError
+    errors.add(:base, 'Cannot read file encoding. Text files must be ASCII encoded.')
+    false
   end
 end

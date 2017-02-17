@@ -28,6 +28,6 @@ RSpec.describe EVSSClaim::DocumentUpload, type: :job do
     allow(uploader_stub).to receive(:read) { file }
     expect(uploader_stub).to receive(:remove!).once
     expect(client_stub).to receive(:upload).with(file, document_data)
-    described_class.new.perform(auth_headers, user.uuid, document_data.to_h)
+    described_class.new.perform(auth_headers, user.uuid, document_data.to_serializable_hash)
   end
 end
