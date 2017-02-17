@@ -17,13 +17,18 @@ class Session < Common::RedisStore
   validates :uuid, presence: true
   validates :created_at, presence: true
 
-  validate :within_maximum_ttl?
+  validate :within_maximum_ttl
   # validates other attributes?
 
   after_initialize :setup_defaults
 
   def self.obscure_token(token)
     Digest::SHA256.hexdigest(token)[0..20]
+  end
+
+  def expire(ttl)
+    return false if beyond_max_ttl?
+    super(ttl)
   end
 
   private
@@ -42,12 +47,13 @@ class Session < Common::RedisStore
     @created_at ||= Time.now.utc
   end
 
-  def max_ttl
-    (@created_at + MAX_SESSION_LIFETIME - Time.now.utc).round
+  def beyond_max_ttl?
+    time_remaining = (@created_at + MAX_SESSION_LIFETIME - Time.now.utc).round
+    time_remaining.negative?
   end
 
-  def within_maximum_ttl?
-    if max_ttl.negative?
+  def within_maximum_ttl
+    if beyond_max_ttl?
       errors.add(:created_at, "is more than the max of [#{MAX_SESSION_LIFETIME}] ago. Session is too old")
     end
   end
