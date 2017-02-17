@@ -19,7 +19,7 @@ module GI
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
         conn.use :breakers
         conn.request :json
-        # Uncomment this out for generating curl output to send to MHV dev and test only
+        # Uncomment this out for generating curl output
         # conn.request :curl, ::Logger.new(STDOUT), :warn
 
         # conn.response :logger, ::Logger.new(STDOUT), bodies: true
