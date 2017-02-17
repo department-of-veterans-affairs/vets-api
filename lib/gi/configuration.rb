@@ -18,7 +18,6 @@ module GI
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
         conn.use :breakers
-        conn.use Faraday::Request::BasicAuthentication, ENV['GIDS_USER'], ENV['GIDS_PASS']
         conn.request :json
         # Uncomment this out for generating curl output to send to MHV dev and test only
          conn.request :curl, ::Logger.new(STDOUT), :warn
