@@ -46,19 +46,13 @@ pipeline {
       steps {
         step([
           $class: 'GitHubCommitStatusSetter',
-          reposSource: [
-            $class: "ManuallyEnteredRepositorySource",
-            url: "https://github.com/department-of-veterans-affairs/vets-api"
-          ],
-          contextSource: [
-            $class: 'ManuallyEnteredCommitContextSource',
-            context: "some/context"
+          statusBackrefSource: [
+            $class: 'ManuallyEnteredBackrefSource',
+            backref: 'https://www.google.com/'
           ],
           statusResultSource: [
             $class: 'ConditionalStatusResultSource',
-            results: [[
-              $class: 'AnyBuildResult', state: "SUCCESS", message: "Woo!"
-            ]]
+            results: []
           ]
         ])
       }
