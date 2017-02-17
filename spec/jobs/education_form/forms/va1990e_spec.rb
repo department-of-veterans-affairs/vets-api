@@ -22,21 +22,5 @@ RSpec.describe EducationForm::Forms::VA1990e do
     end
   end
 
-  describe '#text' do
-    let(:kitchen_sink) { 'spec/fixtures/education_benefits_claims/1990e/kitchen_sink.' }
-
-    before do
-      education_benefits_claim.form = File.read("#{kitchen_sink}json")
-      education_benefits_claim.save!
-      allow(education_benefits_claim).to receive(:id).and_return(1)
-    end
-
-    it 'should generate the spool file correctly', run_at: '2017-01-17 03:00:00 -0500' do
-      binding.pry; fail
-      expected_text = File.read("#{kitchen_sink}spl").rstrip
-      expected_text.gsub!("\n", EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
-
-      expect(subject.text).to eq(expected_text)
-    end
-  end
+  test_spool_file('1990e', 'kitchen_sink')
 end
