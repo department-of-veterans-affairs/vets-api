@@ -48,7 +48,7 @@ pipeline {
           $class: 'GitHubCommitStatusSetter',
           contextSource: [
             $class: 'ManuallyEnteredCommitContextSource',
-            context: context
+            context: "some/context"
           ],
           statusResultSource: [
             $class: 'ConditionalStatusResultSource',
