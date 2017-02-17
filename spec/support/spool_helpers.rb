@@ -1,7 +1,9 @@
+# frozen_string_literal: true
 module SpoolHelpers
   extend ActiveSupport::Concern
 
   module ClassMethods
+    # rubocop:disable Metrics/MethodLength
     def test_spool_file(form_type, test_name)
       describe "#{form_type} #{test_name} spool test" do
         let(:file_prefix) { "spec/fixtures/education_benefits_claims/#{form_type}/#{test_name}." }

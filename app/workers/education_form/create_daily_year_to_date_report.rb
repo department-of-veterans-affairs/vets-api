@@ -18,7 +18,7 @@ module EducationForm
       end
 
       headers
-    end.().freeze
+    end.call.freeze
 
     def build_submission_relation(range_type, region, form_type, status)
       range = @ranges[range_type]
