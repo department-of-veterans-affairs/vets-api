@@ -83,11 +83,13 @@ Rails.application.routes.draw do
       resources :va, only: [:index, :show], defaults: { format: :json }
     end
 
-    scope :gi do
-      get '/institutions/autocomplete' => 'gi#autocomplete'
-      get '/institutions/:id' => 'gi#show'
-      get '/institutions' => 'gi#index'
-      get '/calculator/constants' => 'gi#constants'
+    scope :gi, module: 'gi' do
+      resources :institutions, only: :show, defaults: { format: :json } do
+        get :search, on: :collection
+        get :autocomplete, on: :collection
+      end
+
+      resources :calculator_constants, only: :index, defaults: { format: :json }
     end
   end
 
