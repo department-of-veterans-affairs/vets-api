@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'saml/auth_fail_handler'
+
 module V0
   class SessionsController < ApplicationController
     skip_before_action :authenticate, only: [:new, :saml_callback, :saml_logout_callback]
@@ -37,7 +39,7 @@ module V0
         obscure_token = Session.obscure_token(@session.token)
         Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
       else
-        login_error
+        handle_login_error
         redirect_to SAML_CONFIG['relay'] + '?auth=fail'
       end
     end
@@ -54,14 +56,13 @@ module V0
       @session.save && @current_user.save
     end
 
-    def login_error
-      message = <<-MESSAGE.strip_heredoc
-        SAML Login attempt failed! Reasons...
-          saml:    'valid?=#{@saml_response.is_valid?} errors=#{@saml_response.errors}'
-          user:    'valid?=#{@current_user&.valid?} errors=#{@current_user&.errors&.full_messages}'
-          session: 'valid?=#{@session&.valid?} errors=#{@session&.errors&.full_messages}'
-      MESSAGE
-      log_errors(message)
+    def handle_login_error
+      fail_handler = SAML::AuthFailHandler.new(@saml_response, @current_user, @session)
+      if fail_handler.known_error?
+        log_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
+      else
+        log_to_sentry(fail_handler.generic_error_message, :error)
+      end
     end
 
     def async_create_evss_account(user)
@@ -80,7 +81,7 @@ module V0
 
       if errors.size.positive?
         extra_context = { in_response_to: logout_response&.in_response_to }
-        log_errors("SAML Logout failed!\n  " + errors.join("\n  "), extra_context)
+        log_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
         redirect_to SAML_CONFIG['logout_relay'] + '?success=false'
       else
         logout_request.destroy
@@ -102,11 +103,11 @@ module V0
       errors
     end
 
-    def log_errors(message, context = {})
-      logger.error message
+    def log_to_sentry(message, level, context = {})
+      logger.send(level.to_sym, message + ' : ' + context.to_s)
       if ENV['SENTRY_DSN'].present?
         Raven.extra_context(context) unless !context.is_a?(Hash) || context.empty?
-        Raven.capture_message(message)
+        Raven.capture_message(message, level: level)
       end
     end
 

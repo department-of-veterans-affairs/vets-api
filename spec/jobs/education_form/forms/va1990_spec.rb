@@ -22,11 +22,13 @@ RSpec.describe EducationForm::Forms::VA1990, type: :model, form: :education_bene
     SAMPLE_APPLICATIONS.each do |application_name|
       it "generates #{application_name} correctly" do
         json = File.read(File.join(basepath, "#{application_name}.json"))
-        expect(json).to match_vets_schema('edu_benefits')
-        test_application = EducationBenefitsClaim.create!(form: json)
+        test_application = EducationBenefitsClaim.create!(form_type: 1990, form: json)
         allow(test_application).to receive(:id).and_return(1)
+
         result = described_class.new(test_application).text
         spl = File.read(File.join(basepath, "#{application_name}.spl"))
+
+        expect(json).to match_vets_schema('edu_benefits')
         expect(result).to eq(spl.rstrip)
       end
     end
