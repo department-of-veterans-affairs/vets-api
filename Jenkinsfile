@@ -46,6 +46,10 @@ pipeline {
       steps {
         step([
           $class: 'GitHubCommitStatusSetter',
+          reposSource: [
+            $class: "ManuallyEnteredRepositorySource",
+            url: "https://github.com/department-of-veterans-affairs/vets-api"
+          ],
           contextSource: [
             $class: 'ManuallyEnteredCommitContextSource',
             context: "some/context"
