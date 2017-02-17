@@ -74,50 +74,22 @@ Since High School
           ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
           ----------------------------------------------------------
 
-Did you make additional contributions (up to $600) to increase the amount
-of your monthly benefits?   <%= yesno(@applicant.additionalContributions) %>
-
-Do you qualify for a Kicker (sometimes called a College Fund) based on
-your military service?
-
-    Active Duty Kicker:   <%= yesno(@applicant.activeDutyKicker) %>
-
-    Reserve Kicker:    <%= yesno(@applicant.reserveKicker) %>
-
-If you graduated from a military service academy, specify the year you graduated and received your commission: <%= @applicant.serviceAcademyGraduationYear %>
-
-ROTC Scholarship Program and Officer's Commission. Were you commissioned as the result of a Senior ROTC (Reserve Officers Training Corps) Scholarship Program?    <%= yesno(@applicant.seniorRotc.present?) %>
-
-        Year of Commission: <%= @applicant.seniorRotc&.commissionYear %>
-
-        Scholarship Amounts:
-<%= rotc_scholarship_amounts(@applicant.seniorRotc&.rotcScholarshipAmounts) %>
-
-Senior ROTC Scholarship Program. Are you currently participating in a Senior ROTC Scholarship Program which pays for your tuition, fees, books and supplies under Section 2107, Title 10 U.S. Code?   <%= yesno(@applicant.seniorRotcScholarshipProgram) %>
-
-Did you have a period of active duty that the Department of Defense counts for purposes of repaying an education loan?    <%= yesno(@applicant.activeDutyRepayingPeriod.present?) %>
-
-        Start Date: <%= to_date(@applicant.activeDutyRepayingPeriod&.from) %>
-
-        End Date: <%= to_date(@applicant.activeDutyRepayingPeriod&.to) %>
-
-For Active Duty Claimants Only. Are you receiving or do you anticipate receiving any money (including but not limited to Federal Tuition Assistance) from the Armed Forces or Public Health Service for the course for which you have applied to the VA for Education Benefits?  If you receive such benefits during any part of your training, check 'Yes.' Note:  If you are only applying for Tuition Assistance Top-Up, check 'No' to this item.    <%= yesno(@applicant.currentlyActiveDuty&.nonVaAssistance) %>
+For Active Duty Claimants Only. Are you receiving or do you anticipate receiving any money (including but not limited to Federal Tuition Assistance) from the Armed Forces or Public Health Service for the course for which you have applied to the VA for Education Benefits?  If you receive such benefits during any part of your training, check 'Yes.' Note:  If you are only applying for Tuition Assistance Top-Up, check 'No' to this item.    <%= yesno(@applicant.nonVaAssistance) %>
 
 For Civilian Employees of the U.S. Federal Government Only. Are you receiving or do you anticipate receiving any money from your agency (including but not limited to the Government Employees Training Act) for the same period for which you have applied to the VA for Education Benefits? If you will receive such benefits during any part of your training, check Yes.    <%= yesno(@applicant.civilianBenefitsAssistance) %>
 
 
-                        MARITAL AND DEPENDENCY STATUS
-           (For Applicants with Military Service Before Jan 1, 1977)
-           ---------------------------------------------------------
+                         Service Member Information
+                         --------------------------
 
+SSN:   <%= @applicant.veteranSocialSecurityNumber %>
 
-<% if @applicant.serviceBefore1977 -%>
-Married: <%= yesno(@applicant.serviceBefore1977.married) %>
-Has Dependents: <%= yesno(@applicant.serviceBefore1977.haveDependents) %>
-Parent Dependent: <%= yesno(@applicant.serviceBefore1977.parentDependent) %>
-<% else -%>
-N/A
-<% end -%>
+Branch of Service:   <%= @applicant.serviceBranch %>
+
+Name:   <%= full_name(@applicant.veteranFullName) %>
+
+Address:
+<%= full_address(@applicant.veteranAddress) %>
 
 
       Certification and Signature of Applicant
