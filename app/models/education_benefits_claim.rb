@@ -84,18 +84,24 @@ class EducationBenefitsClaim < ActiveRecord::Base
     "vets_gov_#{self.class.to_s.underscore}_#{id}"
   end
 
+  def selected_benefits
+    benefits = {}
+
+    if is_1990?
+      benefits = parsed_form.slice(*APPLICATION_TYPES)
+    elsif is_1990e?
+      benefit = parsed_form['benefit']
+      benefits[benefit] = true if benefit.present?
+    end
+
+    benefits
+  end
+
   private
 
   def create_education_benefits_submission
     if submitted_at.present? && submitted_at_was.nil? && education_benefits_submission.blank?
-      opt = {}
-
-      if is_1990?
-        opt = parsed_form.slice(*APPLICATION_TYPES)
-      elsif is_1990e?
-        benefit = parsed_form['benefit']
-        opt[benefit] = true if benefit.present?
-      end
+      opt = selected_benefits
 
       EducationBenefitsSubmission.create!(
         opt.merge(
