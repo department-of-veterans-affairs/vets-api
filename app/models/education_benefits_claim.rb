@@ -93,7 +93,8 @@ class EducationBenefitsClaim < ActiveRecord::Base
       if is_1990?
         opt = parsed_form.slice(*APPLICATION_TYPES)
       elsif is_1990e?
-        opt[parsed_form['benefit']] = true
+        benefit = parsed_form['benefit']
+        opt[benefit] = true if benefit.present?
       end
 
       EducationBenefitsSubmission.create!(

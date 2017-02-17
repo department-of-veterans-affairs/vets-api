@@ -16,6 +16,7 @@ module EducationForm::Forms
     end
 
     def disclosure_for(type)
+      return if type.blank?
       "#{parse_with_template_path("1990-disclosure/_#{type}")}\n"
     end
 
