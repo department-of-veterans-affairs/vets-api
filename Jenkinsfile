@@ -45,21 +45,18 @@ pipeline {
     stage('test') {
       steps {
         step([
-            $class: "GitHubCommitStatusSetter",
-            statusBackrefSource: [
-              $class: "ManuallyEnteredBackrefSource",
-              backref: "http://www.google.com/",
-            ],
-            statusResultSource: [
-              $class: "ConditionalStatusResultSource",
-              results: [],
-              results: [[
-                $class: "AnyBuildResult",
-                message: "Testing message",
-                state: "SUCCESS",
-              ]]
-            ]
-        ]);
+          $class: 'GitHubCommitStatusSetter',
+          contextSource: [
+            $class: 'ManuallyEnteredCommitContextSource',
+            context: context
+          ],
+          statusResultSource: [
+            $class: 'ConditionalStatusResultSource',
+            results: [[
+              $class: 'AnyBuildResult', state: "SUCCESS", message: "Woo!"
+            ]]
+          ]
+        ])
       }
     }
   }
