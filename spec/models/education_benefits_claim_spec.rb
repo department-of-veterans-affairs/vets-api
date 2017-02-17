@@ -37,6 +37,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
 
     describe '#form_matches_schema' do
+      # TODO add 1990e
       def self.expect_json_schema_error(text)
         it 'should have a json schema error' do
           subject.valid?
@@ -128,7 +129,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
   end
 
-  %w(1990 1995).each do |form_type|
+  %w(1990 1995 1990e).each do |form_type|
     method = "is_#{form_type}?"
 
     describe "##{method}" do
