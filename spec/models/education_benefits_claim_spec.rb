@@ -37,7 +37,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
 
     describe '#form_matches_schema' do
-      # TODO: add 1990e
       def self.expect_json_schema_error(text)
         it 'should have a json schema error' do
           subject.valid?
@@ -80,6 +79,33 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
           expect_json_schema_error(
             "The property '#/chapter30' of type Fixnum did not match the following type: boolean"
+          )
+        end
+      end
+
+      context '1990e form' do
+        before do
+          subject.form_type = '1990e'
+          subject.form = form.to_json
+        end
+
+        context 'with a valid form' do
+          let(:form) do
+            {
+              privacyAgreementAccepted: true
+            }
+          end
+
+          expect_form_valid
+        end
+
+        context 'with an invalid form' do
+          let(:form) do
+            {}
+          end
+
+          expect_json_schema_error(
+            "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
           )
         end
       end
