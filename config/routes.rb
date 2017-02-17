@@ -31,12 +31,6 @@ Rails.application.routes.draw do
 
     resource :disability_rating, only: [:show]
 
-    # TODO: Remove this resource/subresource when FE is updated
-    resources :disability_claims, only: [:index, :show], controller: 'evss_claims', as: :evss_claim do
-      post :request_decision, on: :member
-      resources :documents, only: [:create]
-    end
-
     resources :evss_claims, only: [:index, :show] do
       post :request_decision, on: :member
       resources :documents, only: [:create]
@@ -81,6 +75,15 @@ Rails.application.routes.draw do
 
     scope :facilities, module: 'facilities' do
       resources :va, only: [:index, :show], defaults: { format: :json }
+    end
+
+    scope :gi, module: 'gi' do
+      resources :institutions, only: :show, defaults: { format: :json } do
+        get :search, on: :collection
+        get :autocomplete, on: :collection
+      end
+
+      resources :calculator_constants, only: :index, defaults: { format: :json }
     end
   end
 

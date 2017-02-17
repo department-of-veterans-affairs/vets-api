@@ -37,16 +37,22 @@ RSpec.describe EVSSClaimService do
       f.rewind
       f
     end
-    let(:document) { EVSSClaimDocument.new(tracked_item_id: 1) }
+    let(:document) do
+      EVSSClaimDocument.new(
+        tracked_item_id: 1,
+        file_obj: tempfile,
+        file_name: File.basename(tempfile.path)
+      )
+    end
 
     it 'enqueues a job' do
       expect do
-        subject.upload_document(tempfile, document)
+        subject.upload_document(document)
       end.to change(EVSSClaim::DocumentUpload.jobs, :size).by(1)
     end
 
     it 'updates document with sanitized filename' do
-      subject.upload_document(tempfile, document)
+      subject.upload_document(document)
       job = EVSSClaim::DocumentUpload.jobs.last
       doc_args = job['args'].last
       expect(doc_args['file_name']).to match(/file_with_spaces.*\.txt/)

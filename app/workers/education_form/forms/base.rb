@@ -47,7 +47,11 @@ module EducationForm::Forms
     end
 
     def parse_with_template(template)
-      ERB.new(template, nil, '-').result(binding).rstrip
+      # Because our template files end in newlines, we have to
+      # chomp off the final rendered line to get the correct
+      # output. Any intentionally blank lines before the final
+      # one will remain.
+      ERB.new(template, nil, '-').result(binding).chomp
     end
 
     def parse_with_template_path(path)
