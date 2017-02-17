@@ -48,7 +48,7 @@ pipeline {
           $class: 'GitHubCommitStatusSetter',
           reposSource: [
             $class: "ManuallyEnteredRepositorySource",
-            url: "department-of-veterans-affairs/vets-api"
+            url: "https://github.com/department-of-veterans-affairs/vets-api"
           ],
           contextSource: [
             $class: 'ManuallyEnteredCommitContextSource',
