@@ -8,19 +8,18 @@ require 'support/api_schema_matcher'
 unless ENV['NOCOVERAGE']
   require 'simplecov'
 
-  if ARGV.grep(/spec\.rb/).empty?
-    SimpleCov.start do
-      track_files '{app,lib}/**/*.rb'
-      add_filter 'config/initializers/sidekiq.rb'
-      add_filter 'config/initializers/statsd.rb'
-      add_filter 'config/initializers/mvi_settings.rb'
-      add_filter 'lib/tasks/support/shell_command.rb'
-      add_filter 'lib/config_helper.rb'
-      add_filter 'lib/feature_flipper.rb'
-      add_filter 'spec/support/authenticated_session_helper'
-      add_filter 'config/initializers/figaro.rb'
-      SimpleCov.minimum_coverage_by_file 90
-    end
+  SimpleCov.start do
+    track_files '{app,lib}/**/*.rb'
+    add_filter 'config/initializers/sidekiq.rb'
+    add_filter 'config/initializers/statsd.rb'
+    add_filter 'config/initializers/mvi_settings.rb'
+    add_filter 'lib/tasks/support/shell_command.rb'
+    add_filter 'lib/config_helper.rb'
+    add_filter 'lib/feature_flipper.rb'
+    add_filter 'spec/support/authenticated_session_helper'
+    add_filter 'spec/support/attr_encrypted_matcher'
+    add_filter 'config/initializers/figaro.rb'
+    SimpleCov.minimum_coverage_by_file 90
   end
 end
 

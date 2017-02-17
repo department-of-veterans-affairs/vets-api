@@ -6,24 +6,32 @@ RSpec.describe EducationForm::Forms::VA1995 do
 
   subject { described_class.new(education_benefits_claim) }
 
+  SAMPLE_APPLICATIONS = [
+    :minimal, :kitchen_sink
+  ].freeze
+
   it 'has a 22-1995 type' do
     expect(described_class::TYPE).to eq('22-1995')
   end
 
-  describe '#text' do
-    let(:kitchen_sink) { 'spec/fixtures/education_benefits_claims/1995/kitchen_sink.' }
+  # For each sample application we have, format it and compare it against a 'known good'
+  # copy of that submission. This technically covers all the helper logic found in the
+  # `Form` specs, but are a good safety net for tracking how forms change over time.
+  context '#text', run_at: '2016-10-06 03:00:00 EDT' do
+    basepath = Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995')
+    SAMPLE_APPLICATIONS.each do |application_name|
+      it "generates #{application_name} correctly" do
+        json = File.read(File.join(basepath, "#{application_name}.json"))
+        test_application = EducationBenefitsClaim.create!(form_type: 1995, form: json)
+        allow(test_application).to receive(:id).and_return(1)
 
-    before do
-      education_benefits_claim.form = File.read("#{kitchen_sink}json")
-      education_benefits_claim.save!
-      allow(education_benefits_claim).to receive(:id).and_return(1)
-    end
+        result = described_class.new(test_application).text
+        result.gsub!(EducationForm::WINDOWS_NOTEPAD_LINEBREAK, "\n")
+        spl = File.read(File.join(basepath, "#{application_name}.spl"))
 
-    it 'should generate the spool file correctly', run_at: '2017-01-17 03:00:00 -0500' do
-      expected_text = File.read("#{kitchen_sink}spl").rstrip
-      expected_text.gsub!("\n", EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
-
-      expect(subject.text).to eq(expected_text)
+        expect(json).to match_vets_schema('change_of_program')
+        expect(result).to eq(spl.rstrip)
+      end
     end
   end
 end
