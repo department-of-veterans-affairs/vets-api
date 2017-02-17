@@ -7,12 +7,29 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
   let(:loa1_user) { build(:loa1_user, uuid: uuid) }
   let(:loa3_user) { build(:loa3_user, uuid: uuid) }
+  let(:invalid_user) { build(:loa3_user, uuid: '') }
 
   let(:settings_no_context) { build(:settings_no_context) }
   let(:rubysaml_settings) { build(:rubysaml_settings) }
 
-  let(:valid_saml_response) { double('saml_response', is_valid?: true) }
-  let(:invalid_saml_response) { double('saml_response', is_valid?: false, errors: ['ruh roh']) }
+  let(:valid_saml_response) { double('saml_response', is_valid?: true, errors: []) }
+  let(:invalid_saml_response) { double('saml_response', is_valid?: false) }
+  let(:saml_response_click_deny) do
+    double('saml_response', is_valid?: false,
+                            errors: ['ruh roh'],
+                            status_message: 'Subject did not consent to attribute release')
+  end
+  let(:saml_response_too_late) do
+    double('saml_response', is_valid?: false, status_message: '',
+                            errors: ['Current time is on or after NotOnOrAfter ' \
+                              'condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)'])
+  end
+  # "Current time is earlier than NotBefore condition #{(now + allowed_clock_drift)} < #{not_before})"
+  let(:saml_response_too_early) do
+    double('saml_response', is_valid?: false, status_message: '',
+                            errors: ['Current time is earlier than NotBefore ' \
+                              'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'])
+  end
 
   let(:logout_uuid) { '1234' }
   let(:invalid_logout_response) do
@@ -80,10 +97,34 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(User.find(uuid)).to_not be_nil
         expect(User.find(uuid).attributes).to eq(User.from_merged_attrs(loa1_user, loa3_user).attributes)
       end
-      context ' when SAMLResponse is invalid' do
-        before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(invalid_saml_response) }
+      context ' when user clicked DENY' do
+        before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
         it 'redirects to an auth failure page' do
-          expect(Rails.logger).to receive(:error).exactly(1).times
+          expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::CLICKED_DENY_MSG}/)
+          expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
+          expect(response).to have_http_status(:found)
+        end
+      end
+      context ' when too much time passed to consume the SAML Assertion' do
+        before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_late) }
+        it 'redirects to an auth failure page' do
+          expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::TOO_LATE_MSG}/)
+          expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
+          expect(response).to have_http_status(:found)
+        end
+      end
+      context ' when clock drift causes us to consume the Assertion before its creation' do
+        before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_early) }
+        it 'redirects to an auth failure page' do
+          expect(Rails.logger).to receive(:error).with(/#{SAML::AuthFailHandler::TOO_EARLY_MSG}/)
+          expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
+          expect(response).to have_http_status(:found)
+        end
+      end
+      context ' when a required saml attribute is missing' do
+        before { allow(User).to receive(:from_saml).and_return(invalid_user) }
+        it 'logs a generic error' do
+          expect(Rails.logger).to receive(:error).with(/user:    \'valid\?=false errors=\["Uuid can\'t be blank"\]/)
           expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
