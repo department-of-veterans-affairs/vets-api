@@ -45,6 +45,8 @@ Education or Career Goal: <%= @applicant.educationObjective %>
                     EDUCATION AND EMPLOYMENT INFORMATION
                     ------------------------------------
 
+RELATIONSHIP TO SERVICE MEMBER:  <%= @applicant.relationship&.upcase %>
+
 Date Received High School Diploma or Equivalency Certificate: <%= to_date(@applicant.highSchoolOrGedCompletionDate) %>
 
 FAA Flight Certificates:
