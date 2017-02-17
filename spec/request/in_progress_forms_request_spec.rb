@@ -23,9 +23,27 @@ RSpec.describe 'in progress forms', type: :request do
     end
 
     context 'when a form is not found' do
-      it 'responds with a 404' do
-        get v0_in_progress_form_url(99), nil, auth_header
-        expect(response).to have_http_status(:not_found)
+      it 'returns pre-fill data' do
+        get v0_in_progress_form_url('healthcare_application'), nil, auth_header
+        expect(response.body).to eq({
+          'veteranFullName' => {
+            'first' => 'Abraham',
+            'middle' => nil,
+            'last' => 'Lincoln',
+            'suffix' => nil
+          },
+          'gender' => 'M',
+          'veteranDateOfBirth' => '1809-02-12',
+          'veteranAddress' => {
+            'street' => '140 Rock Creek Church Road NW',
+            'street_2' => nil,
+            'city' => 'Washington',
+            'state' => 'DC',
+            'country' => 'USA',
+            'postal_code' => '20011'
+          },
+          'homePhone' => '2028290436'
+        }.to_json)
       end
     end
   end
@@ -56,7 +74,7 @@ RSpec.describe 'in progress forms', type: :request do
 
       it 'updates the form' do
         expect_any_instance_of(InProgressForm).to receive(:update)
-          .with(form_data: update_form.form_data).and_return(true)
+                                                    .with(form_data: update_form.form_data).and_return(true)
         put v0_in_progress_form_url(existing_form.form_id), { form_data: update_form.form_data }, auth_header
         expect(response).to have_http_status(:ok)
       end

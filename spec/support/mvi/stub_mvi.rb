@@ -4,8 +4,8 @@ def stub_mvi
     Mvi.new(
       uuid: 'abc123',
       response: {
-        status: 'OKKKK',
-        birth_date: '18090212',
+        status: 'OK',
+        date_of_birth: '18090212',
         edipi: '1234^NI^200DOD^USDOD^A',
         vba_corp_id: '12345678^PI^200CORP^USVBA^A',
         family_name: 'Lincoln',
@@ -23,7 +23,7 @@ def stub_mvi
           country: 'USA'
         },
         home_phone: '2028290436',
-        suffix: '2028290436'
+        suffix: nil
       }
     )
   )

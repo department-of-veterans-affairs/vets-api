@@ -4,68 +4,40 @@ require 'support/attr_encrypted_matcher'
 
 RSpec.describe FormProfile, type: :model do
   let(:user) { build(:loa3_user) }
-
-  describe 'form encryption' do
-    it 'encrypts form applicant_information' do
-      expect(subject).to encrypt_attr(:form_profile)
-    end
+  let(:expected) do
+    {
+      'veteranFullName' => {
+        'first' => 'Abraham',
+        'middle' => nil,
+        'last' => 'Lincoln',
+        'suffix' => nil
+      },
+      'veteranDateOfBirth' => '1809-02-12',
+      'veteranAddress' => {
+        'street' => '140 Rock Creek Church Road NW',
+        'street_2' => nil,
+        'city' => 'Washington',
+        'state' => 'DC',
+        'country' => 'USA',
+        'postal_code' => '20011'
+      },
+      'gender' => 'M',
+      'homePhone' => '2028290436'
+    }
   end
 
-  describe '#query' do
-    context 'when there is no form profile record' do
+  describe '#prefill_form' do
+    context 'with a healthcare application form' do
       it 'should return the va profile' do
         expect(Mvi).to receive(:find).once
-        expect(subject.query(user, 'edu_benefits')).to eq({
-          veteranInformation: {
-            fullName: {
-              first: 'Abraham',
-              middle: nil,
-              last: 'Lincoln',
-              suffix: nil
-            }
-          },
-          contactInformation: {
-            address: {
-              street: '140 Rock Creek Church Road NW',
-              street2: nil,
-              city: 'Washington',
-              state: 'DC',
-              postalCode: '20011',
-              country: 'USA'
-            },
-            homePhone: '2028290436',
-            mobilePhone: nil
-          }
-        })
+        expect(JSON.load(subject.prefill_form('healthcare_application', user).to_json)).to eq(expected)
       end
     end
-    context 'when there is a form profile record with missing properties' do
-      let!(:in_progress_form) { FactoryGirl.create(:form_profile) }
 
+    context 'with an education benefits form' do
       it 'should return the stored profile rather than the va profile' do
         expect(Mvi).to_not receive(:find).once
-        expect(subject.query(user, 'edu_benefits')).to eq({
-          veteranInformation: {
-            fullName: {
-              first: 'Abraham',
-              middle: 'Vampire Hunter',
-              last: 'Lincoln',
-              suffix: nil
-            }
-          },
-          contactInformation: {
-            address: {
-              street: '140 Rock Creek Church Road NW',
-              street2: nil,
-              city: 'Washington',
-              state: 'DC',
-              postalCode: '20011',
-              country: 'USA'
-            },
-            homePhone: '2028290436',
-            mobilePhone: nil
-          }
-        })
+        expect(JSON.load(subject.prefill_form('edu_benefits', user).to_json)).to eq(expected)
       end
     end
   end

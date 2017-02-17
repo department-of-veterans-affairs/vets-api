@@ -58,7 +58,7 @@ ActiveRecord::Schema.define(version: 20170209223501) do
 
   add_index "evss_claims", ["user_uuid"], name: "index_evss_claims_on_user_uuid", using: :btree
 
-  create_table "form_profile_caches", force: :cascade do |t|
+  create_table "form_profiles", force: :cascade do |t|
     t.uuid     "user_uuid",                 null: false
     t.string   "encrypted_form_profile",    null: false
     t.string   "encrypted_form_profile_iv", null: false
@@ -66,7 +66,7 @@ ActiveRecord::Schema.define(version: 20170209223501) do
     t.datetime "updated_at",                null: false
   end
 
-  add_index "form_profile_caches", ["user_uuid"], name: "index_form_profile_caches_on_user_uuid", using: :btree
+  add_index "form_profiles", ["user_uuid"], name: "index_form_profiles_on_user_uuid", using: :btree
 
   create_table "in_progress_forms", force: :cascade do |t|
     t.uuid     "user_uuid",              null: false
