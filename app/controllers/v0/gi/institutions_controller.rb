@@ -2,9 +2,9 @@
 module V0
   module GI
     class InstitutionsController < GIController
-      WHITELIST = %w(name page per_page type_name school_type country state
-                     student_veteran_group yellow_ribbon_scholarship
-                     principles_of_excellence eight_keys_to_veteran_success).freeze
+      SEARCH_KEYS = %w(name page per_page type_name school_type country state
+                       student_veteran_group yellow_ribbon_scholarship
+                       principles_of_excellence eight_keys_to_veteran_success).freeze
 
       def autocomplete
         render json: client.get_autocomplete_suggestions(params[:term])
@@ -21,7 +21,7 @@ module V0
       private
 
       def whitelisted_search_params
-        params.select { |k, _v| WHITELIST.include?(k) }
+        params.select { |k, _v| SEARCH_KEYS.include?(k) }
       end
     end
   end

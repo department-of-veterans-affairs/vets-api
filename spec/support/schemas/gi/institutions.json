@@ -5,11 +5,9 @@
     "meta": {
       "type": "object",
       "properties": {
-        "version": { "type": "integer" }
-      },
-      "required": [
-        "version"
-      ]
+        "version": { "type": "integer" },
+        "count": { "type": "integer" }
+      }
     },
     "data": {
       "type": "array",
@@ -52,50 +50,15 @@
               "yr": { "type": "boolean" },
               "poe": { "type": "boolean" },
               "eight_keys": { "type": "boolean" }
-            },
-            "required": [
-              "name",
-              "facility_code",
-              "type",
-              "city",
-              "state",
-              "zip",
-              "country",
-              "locale_type",
-              "highest_degree",
-              "student_count",
-              "caution_flag",
-              "caution_flag_reason",
-              "created_at",
-              "updated_at",
-              "bah",
-              "tuition_in_state",
-              "tuition_out_of_state",
-              "books",
-              "student_veteran",
-              "yr",
-              "poe",
-              "eight_keys"
-            ]
+            }
           },
           "links": {
             "type": "object",
             "properties": {
-              "website": { "type": ["null", "string"] },
-              "scorecard": { "type": ["null", "string"] },
               "self": { "type": "string" }
-            },
-            "required": [
-              "self"
-            ]
+            }
           }
-        },
-        "required": [
-          "id",
-          "type",
-          "attributes",
-          "links"
-        ]
+        }
       }
     },
     "links": {

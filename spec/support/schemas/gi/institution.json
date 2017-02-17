@@ -6,10 +6,7 @@
       "type": "object",
       "properties": {
         "version": { "type": "integer" }
-      },
-      "required": [
-        "version"
-      ]
+      }
     },
     "data": {
       "type": "object",
@@ -114,125 +111,19 @@
                 "jobs_by_ope_id_do_not_sum": { "type": "integer" },
                 "transcript_by_ope_id_do_not_sum": { "type": "integer" },
                 "other_by_ope_id_do_not_sum": { "type": "integer" }
-              },
-              "required": [
-                "facility_code",
-                "financial_by_fac_code",
-                "quality_by_fac_code",
-                "refund_by_fac_code",
-                "marketing_by_fac_code",
-                "accreditation_by_fac_code",
-                "degree_requirements_by_fac_code",
-                "student_loans_by_fac_code",
-                "grades_by_fac_code",
-                "credit_transfer_by_fac_code",
-                "credit_job_by_fac_code",
-                "job_by_fac_code",
-                "transcript_by_fac_code",
-                "other_by_fac_code",
-                "main_campus_roll_up",
-                "financial_by_ope_id_do_not_sum",
-                "quality_by_ope_id_do_not_sum",
-                "refund_by_ope_id_do_not_sum",
-                "marketing_by_ope_id_do_not_sum",
-                "accreditation_by_ope_id_do_not_sum",
-                "degree_requirements_by_ope_id_do_not_sum",
-                "student_loans_by_ope_id_do_not_sum",
-                "grades_by_ope_id_do_not_sum",
-                "credit_transfer_by_ope_id_do_not_sum",
-                "jobs_by_ope_id_do_not_sum",
-                "transcript_by_ope_id_do_not_sum",
-                "other_by_ope_id_do_not_sum"
-              ]
+              }
             },
             "created_at": { "type": "string" },
             "updated_at": { "type": "string" }
-          },
-          "required": [
-            "name",
-            "facility_code",
-            "type",
-            "city",
-            "state",
-            "zip",
-            "country",
-            "flight",
-            "correspondence",
-            "bah",
-            "cross",
-            "ope",
-            "locale_type",
-            "student_count",
-            "undergrad_enrollment",
-            "yr",
-            "student_veteran",
-            "student_veteran_link",
-            "poe",
-            "eight_keys",
-            "dodmou",
-            "sec_702",
-            "vet_success_name",
-            "vet_success_email",
-            "credit_for_mil_training",
-            "vet_poc",
-            "student_vet_grp_ipeds",
-            "soc_member",
-            "highest_degree",
-            "retention_rate_veteran_ba",
-            "retention_all_students_ba",
-            "retention_rate_veteran_otb",
-            "retention_all_students_otb",
-            "persistance_rate_veteran_ba",
-            "persistance_rate_veteran_otb",
-            "graduation_rate_veteran",
-            "graduation_rate_all_students",
-            "transfer_out_rate_veteran",
-            "transfer_out_rate_all_students",
-            "salary_all_students",
-            "repayment_rate_all_students",
-            "avg_stu_loan_debt",
-            "calendar",
-            "tuition_in_state",
-            "tuition_out_of_state",
-            "books",
-            "online_all",
-            "p911_tuition_fees",
-            "p911_recipients",
-            "p911_yellow_ribbon",
-            "p911_yr_recipients",
-            "accredited",
-            "accreditation_type",
-            "accreditation_status",
-            "caution_flag",
-            "caution_flag_reason",
-            "complaints",
-            "created_at",
-            "updated_at"
-          ]
+          }
         },
         "links": {
           "type": "object",
           "properties": {
-            "website": { "type": ["null", "string"] },
-            "scorecard": { "type": ["null", "string"] },
-            "vet_website_link": { "type": ["null", "string"] },
             "self": { "type": "string" }
-          },
-          "required": [
-            "self"
-          ]
+          }
         }
-      },
-      "required": [
-        "id",
-        "type",
-        "attributes",
-        "links"
-      ]
+      }
     }
-  },
-  "required": [
-    "meta",
-    "data"
-  ]
+  }
 }

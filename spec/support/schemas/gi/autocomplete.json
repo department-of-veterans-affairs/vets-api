@@ -5,11 +5,9 @@
     "meta": {
       "type": "object",
       "properties": {
-        "version": { "type": "integer" }
-      },
-      "required": [
-        "version"
-      ]
+        "version": { "type": "integer" },
+        "term": { "type": "string" }
+      }
     },
     "data": {
       "type": "array",
@@ -20,22 +18,14 @@
           "id": { "type": "integer" },
           "value": { "type": "string" },
           "label": { "type": "string" }
-        },
-        "required": [
-          "id",
-          "value",
-          "label"
-        ]
+        }
       }
     },
     "links": {
       "type": "object",
       "properties": {
         "self": { "type": "string" }
-      },
-      "required": [
-        "self"
-      ]
+      }
     }
   },
   "required": [
