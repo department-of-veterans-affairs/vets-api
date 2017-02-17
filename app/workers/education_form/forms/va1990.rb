@@ -18,10 +18,6 @@ module EducationForm::Forms
       return 'CH32' if application.chapter32
     end
 
-    def disclosure_for(type)
-      "#{parse_with_template_path("1990-disclosure/_#{type}")}\n"
-    end
-
     # Some descriptive text that's included near the top of the 22-1990 form. Because they can make
     # multiple selections, we have to add all the selected ones.
     def disclosures(application)

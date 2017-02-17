@@ -15,6 +15,10 @@ module EducationForm::Forms
       klass.new(app)
     end
 
+    def disclosure_for(type)
+      "#{parse_with_template_path("1990-disclosure/_#{type}")}\n"
+    end
+
     def header_form_type
       @record.form_type
     end
