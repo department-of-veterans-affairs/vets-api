@@ -67,11 +67,8 @@ Major Field/Course of Study: <%= training&.major %>
         Employment
         ----------
 
-Before Entering Military Service
-<%= employment_history(@applicant.nonMilitaryJobs, post_military: false) %>
-
-After Leaving Military Service
-<%= employment_history(@applicant.nonMilitaryJobs, post_military: true) %>
+Since High School
+<%= employment_history(@applicant.nonMilitaryJobs) %>
 
 
           ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
