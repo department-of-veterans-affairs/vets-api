@@ -8,7 +8,7 @@ module GI
   # Configuration class used to setup the environment used by client
   class Configuration < Common::Client::Configuration::REST
     def base_path
-      "#{ENV['GIDS_HOST']}/v0/"
+      "#{ENV['GIDS_URL']}/v0/"
     end
 
     def service_name
