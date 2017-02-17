@@ -42,25 +42,44 @@ pipeline {
       }
     }
 
-    stage('Run tests') {
-      steps {
-        sh 'bash --login -c "bundle install --without development -j 4"'
-        withEnv(env_vars) {
-          sh 'bash --login -c "bundle exec rake db:create db:schema:load ci"'
-        }
-      }
-    }
+    // stage('Run tests') {
+    //   steps {
+    //     sh 'bash --login -c "bundle install --without development -j 4"'
+    //     withEnv(env_vars) {
+    //       sh 'bash --login -c "bundle exec rake db:create db:schema:load ci"'
+    //     }
+    //   }
+    // }
   }
 
   post {
-    success {
-      build job: 'vets-api-branch-deploy',
-            wait: false,
-            parameters: [[
-              $class: 'GitParameterValue',
-              name: 'branch',
-              value: scm.branches[0].name
+    // success {
+    //   build job: 'vets-api-branch-deploy',
+    //         wait: false,
+    //         parameters: [[
+    //           $class: 'GitParameterValue',
+    //           name: 'branch',
+    //           value: scm.branches[0].name
+    //         ]]
+    // }
+
+    always {
+      step([
+          $class: "GitHubCommitStatusSetter",
+          statusBackrefSource: [
+            $class: "ManuallyEnteredBackrefSource",
+            backref: "http://www.google.com/",
+          ],
+          statusResultSource: [
+            $class: "ConditionalStatusResultSource",
+            results: [],
+            results: [[
+              $class: "AnyBuildResult",
+              message: "Testing message",
+              state: "SUCCESS",
             ]]
+          ]
+      ]);
     }
   }
 }
