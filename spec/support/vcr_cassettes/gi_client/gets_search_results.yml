@@ -13,8 +13,6 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Authorization:
-      - Basic dmV0ZXJhbnM6YW0zcmljYQ==
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -25,7 +23,7 @@ http_interactions:
       Server:
       - openresty
       Date:
-      - Fri, 17 Feb 2017 06:46:14 GMT
+      - Fri, 17 Feb 2017 20:28:49 GMT
       Content-Type:
       - application/json; charset=utf-8
       Transfer-Encoding:
@@ -43,9 +41,9 @@ http_interactions:
       X-Frame-Options:
       - SAMEORIGIN
       X-Request-Id:
-      - 68fd621e-759f-4aa8-98ff-b5dc88ab9799
+      - 0a2b3d32-f0fb-4c26-9d5c-77ee8dfcf2c8
       X-Runtime:
-      - '0.115864'
+      - '0.156926'
       X-Xss-Protection:
       - 1; mode=block
       Access-Control-Allow-Credentials:
@@ -78,5 +76,5 @@ http_interactions:
         ILLINOIS-PEORIA","facility_code":"20604113","type":"ojt","city":"peoria","state":"IL","zip":"61615","country":"usa","highest_degree":null,"locale_type":null,"student_count":0,"caution_flag":false,"caution_flag_reason":null,"created_at":"2017-02-16T22:55:37.039Z","updated_at":"2017-02-16T22:55:37.039Z","bah":1203.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":false,"yr":false,"poe":false,"eight_keys":false},"links":{"self":"https://dev-api.vets.gov/gids/v0/institutions/20604113"}},{"id":"1040","type":"institutions","attributes":{"name":"AMEREN
         ILLINOIS-PERSIMMON","facility_code":"20596413","type":"ojt","city":"peoria","state":"IL","zip":"61602","country":"usa","highest_degree":null,"locale_type":null,"student_count":0,"caution_flag":false,"caution_flag_reason":null,"created_at":"2017-02-16T22:55:37.039Z","updated_at":"2017-02-16T22:55:37.039Z","bah":1203.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":false,"yr":false,"poe":false,"eight_keys":false},"links":{"self":"https://dev-api.vets.gov/gids/v0/institutions/20596413"}}],"links":{"self":"https://dev-api.vets.gov/gids/v0/institutions?name=illinois","first":"https://dev-api.vets.gov/gids/v0/institutions?name=illinois\u0026page=1\u0026per_page=10","prev":null,"next":"https://dev-api.vets.gov/gids/v0/institutions?name=illinois\u0026page=2\u0026per_page=10","last":"https://dev-api.vets.gov/gids/v0/institutions?name=illinois\u0026page=22\u0026per_page=10"},"meta":{"version":1,"count":215}}'
     http_version: 
-  recorded_at: Fri, 17 Feb 2017 06:46:21 GMT
+  recorded_at: Fri, 17 Feb 2017 20:28:49 GMT
 recorded_with: VCR 3.0.3
