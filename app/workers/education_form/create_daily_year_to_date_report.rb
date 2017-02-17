@@ -10,15 +10,9 @@ module EducationForm
       daily_processed: 0
     }.freeze
 
-    FORM_TYPE_HEADERS = lambda do
-      headers = []
-
-      EducationBenefitsClaim::FORM_TYPES.each do |form_type|
-        headers += ["22-#{form_type}", '', '']
-      end
-
-      headers
-    end.call.freeze
+    FORM_TYPE_HEADERS = EducationBenefitsClaim::FORM_TYPES.map do |form_type|
+      ["22-#{form_type}", '', '']
+    end.flatten.freeze
 
     def build_submission_relation(range_type, region, form_type, status)
       range = @ranges[range_type]
