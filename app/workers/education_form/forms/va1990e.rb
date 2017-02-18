@@ -7,6 +7,14 @@ module EducationForm::Forms
       'E1990'
     end
 
+    def applicant_name
+      @applicant.relativeFullName
+    end
+
+    def applicant_ssn
+      @applicant.relativeSocialSecurityNumber
+    end
+
     def benefit_type(application)
       application.benefit&.gsub('chapter', 'CH')
     end
