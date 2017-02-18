@@ -28,6 +28,14 @@ module EducationForm::Forms
       @applicant.school
     end
 
+    def applicant_name
+      @applicant.veteranFullName
+    end
+
+    def applicant_ssn
+      @applicant.veteranSocialSecurityNumber
+    end
+
     def initialize(app)
       @record = app
       @form = app.open_struct_form

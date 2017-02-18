@@ -1,9 +1,10 @@
 *INIT*
-<%= @applicant.veteranFullName&.first&.upcase %>
-<%= @applicant.veteranFullName&.middle&.upcase %>
-<%= @applicant.veteranFullName&.last&.upcase %>
-<%= @applicant.veteranSocialSecurityNumber&.gsub(/[^\d]/,'') %>
-<%= @applicant.veteranSocialSecurityNumber&.gsub(/[^\d]/,'') %>
+<%= applicant_name&.first&.upcase %>
+<%= applicant_name&.middle&.upcase %>
+<%= applicant_name&.last&.upcase %>
+<% [@applicant.veteranSocialSecurityNumber, applicant_ssn].each do |ssn| -%>
+<%= ssn&.gsub(/[^\d]/, '') %>
+<% end -%>
 V<%= header_form_type %>
 
 <%= school&.name&.upcase %>
