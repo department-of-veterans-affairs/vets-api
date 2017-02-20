@@ -97,7 +97,7 @@ class ApplicationController < ActionController::API
 
   def extend_session
     @session.expire(Session.redis_namespace_ttl)
-    @current_user.expire(User.redis_namespace_ttl)
+    @current_user&.expire(User.redis_namespace_ttl)
   end
 
   attr_reader :current_user
