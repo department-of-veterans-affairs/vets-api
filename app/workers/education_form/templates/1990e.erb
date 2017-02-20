@@ -25,9 +25,7 @@ Telephone Numbers:     Home:    <%= @applicant.homePhone %>
 
 Email Address:  <%= @applicant.email %>
 
-Direct Deposit:     Type of Account: <%= @applicant.bankAccount&.accountType %>
-Name of Financial Inst.: <%= @applicant.bankAccount&.bankName %>
-Routing/Transit #: <%= @applicant.bankAccount&.routingNumber %>   Account #: <%= @applicant.bankAccount&.accountNumber %>
+<%= parse_with_template_path('bank_account') %>
 
 
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
