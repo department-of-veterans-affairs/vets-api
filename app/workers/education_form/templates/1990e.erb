@@ -33,9 +33,7 @@ Email Address:  <%= @applicant.email %>
 
 Type of Education or Training: <%= @applicant.educationType&.titleize %>
 
-Name and Address of School or Training Establishment:
-        <%= @applicant.school&.name %>
-<%= full_address(@applicant.school&.address) %>
+<%= parse_with_template_path('school') %>
 
 Education or Career Goal: <%= @applicant.educationObjective %>
 

@@ -43,9 +43,7 @@ Name, Address, & Telephone Number of Contact:
 
 Type of Education or Training: <%= @applicant.educationType&.titleize %>
 
-Name and Address of School or Training Establishment:
-        <%= @applicant.school&.name %>
-<%= full_address(@applicant.school&.address) %>
+<%= parse_with_template_path('school') %>
 
 Date You Started or Will Start Training: <%= @applicant.educationStartDate %>
 
