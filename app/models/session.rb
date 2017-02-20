@@ -26,7 +26,7 @@ class Session < Common::RedisStore
   end
 
   def expire(ttl)
-    return false if beyond_max_ttl?
+    return false if invalid?
     super(ttl)
   end
 
@@ -46,13 +46,9 @@ class Session < Common::RedisStore
     @created_at ||= Time.now.utc
   end
 
-  def beyond_max_ttl?
-    time_remaining = (@created_at + MAX_SESSION_LIFETIME - Time.now.utc).round
-    time_remaining.negative?
-  end
-
   def within_maximum_ttl
-    if beyond_max_ttl?
+    time_remaining = (@created_at + MAX_SESSION_LIFETIME - Time.now.utc).round
+    if time_remaining.negative?
       errors.add(:created_at, "is more than the max of [#{MAX_SESSION_LIFETIME}] ago. Session is too old")
     end
   end

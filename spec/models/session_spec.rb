@@ -33,25 +33,15 @@ RSpec.describe Session, type: :model do
         expect(subject.ttl).to be_between(0, 3600)
       end
 
+      it 'will extend a session within the maximum ttl' do
+        subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME - 1.minute)
+        expect(subject.expire(3600)).to eq(true)
+      end
+
       it 'will not extend a session beyond the maximum ttl' do
-        start_time = Time.current
-        Timecop.freeze(start_time)
-
-        # keep extending session so Redis doesn't kill it
-        increment = subject.redis_namespace_ttl - 1.minute
-        max_hours = described_class::MAX_SESSION_LIFETIME / 1.hour
-        (1..max_hours).each do |hour|
-          Timecop.freeze(start_time + increment * hour)
-          expect(subject.save).to eq(true)
-          expect(subject.ttl).to eq(Session.redis_namespace_ttl)
-        end
-
-        # we should no longer be able to extend the session
-        Timecop.freeze(start_time + increment * (max_hours + 1))
-        expect(subject.save).to eq(false)
+        subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME + 1.minute)
+        expect(subject.expire(3600)).to eq(false)
         expect(subject.errors.messages).to include(:created_at)
-
-        Timecop.return
       end
     end
 
