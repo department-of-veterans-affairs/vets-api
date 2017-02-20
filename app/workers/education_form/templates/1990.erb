@@ -77,17 +77,7 @@ Date Received High School Diploma or Equivalency Certificate: <%= to_date(@appli
 FAA Flight Certificates:
 <%= @applicant.faaFlightCertificatesInformation %>
 
-      Education After High School
-      ---------------------------
-<% Array(@applicant.postHighSchoolTrainings).each do |training| %>
-Name and Location of College or Training Provider:
-    <%= training&.name %>
-    <%= training.city %>, <%= training.state %>
-Date of Training:     From: <%= to_date(training&.dateRange&.from) %> To: <%= to_date(training&.dateRange&.to) %>
-Hours: <%= training&.hours %> (<%= training&.hoursType %>)
-Degree/Diploma/Certificate: <%= training&.degreeReceived %>
-Major Field/Course of Study: <%= training&.major %>
-<% end %>
+<%= parse_with_template_path('post_high_school_trainings') %>
 
         Employment
         ----------
