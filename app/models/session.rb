@@ -18,7 +18,6 @@ class Session < Common::RedisStore
   validates :created_at, presence: true
 
   validate :within_maximum_ttl
-  # validates other attributes?
 
   after_initialize :setup_defaults
 
