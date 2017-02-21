@@ -81,4 +81,17 @@ RSpec.describe 'prescriptions', type: :request do
     expect(response.headers['Content-Type']).to eq('application/pdf')
     expect(response.body).to be_a(String)
   end
+
+  it 'responds to GET #show with txt to fetch the txt version of created report' do
+    VCR.use_cassette('bb_client/gets_a_text_version_of_a_report') do
+      get '/v0/health_records', doc_type: 'txt'
+    end
+
+    expect(response).to be_success
+    expect(response.headers['Content-Disposition'])
+      .to eq('inline; filename=mhv_GPTESTKFIVE_20170130_1901.txt')
+    expect(response.headers['Content-Transfer-Encoding']).to eq('binary')
+    expect(response.headers['Content-Type']).to eq('text/plain')
+    expect(response.body).to be_a(String)
+  end
 end
