@@ -12,5 +12,13 @@ module EducationForm::Forms
       return '' if name.nil?
       [name.last, name.first, name.middle].compact.join(' ')
     end
+
+    def direct_deposit_type(type)
+      case type&.upcase
+      when 'STARTUPDATE' then 'Start or Update'
+      when 'STOP' then 'Stop'
+      when 'NOCHANGE' then 'Do Not Change'
+      end
+    end
   end
 end

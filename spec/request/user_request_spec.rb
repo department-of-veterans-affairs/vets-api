@@ -30,7 +30,8 @@ RSpec.describe 'Fetching user data', type: :request do
           BackendServices::EVSS_CLAIMS,
           BackendServices::USER_PROFILE,
           BackendServices::RX,
-          BackendServices::MESSAGING
+          BackendServices::MESSAGING,
+          BackendServices::HEALTH_RECORDS
         ].sort
       )
     end
