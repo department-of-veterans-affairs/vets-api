@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# TODO(AJD): Virtus POROs for now, will become ActiveRecords when the profile is persisted
+# TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
   include Virtus.model
 
@@ -51,7 +51,7 @@ class FormProfile
   def prefill_form(form_id, user)
     @applicant_information = initialize_application_information(user)
     @contact_information = initialize_contact_information(user)
-    mappings = mappings_from_schema(form_id)
+    mappings = mappings_for_form(form_id)
     generate_prefill(mappings)
   end
 
@@ -84,21 +84,20 @@ class FormProfile
     )
   end
 
-  def mappings_from_schema(form_id)
+  def mappings_for_form(form_id)
     @mappings ||= Hash.new do |h, key|
-      form_schema = VetsJsonSchema.const_get(form_id.snakecase.upcase)
-      form_schema['properties']
-        .select { |_k, v| v.key?('vaProfile') }
-        .map { |k, v| { k => v['vaProfile'] } }
-        .reduce({}, :merge)
+      file = File.join(Rails.root, 'config', 'form_profile_mappings', "#{form_id}.yml")
+      raise IOError.new("Form profile mapping file is missing for form id #{form_id}") unless File.exists?(file)
+      form_schema = YAML.load_file(file)
+      h[key] = form_schema
     end
     @mappings[form_id]
   end
 
   def generate_prefill(mappings)
     mappings.map do |k, v|
-      method_chain = v.split('/').map { |i| i.snakecase.to_sym }
-      { k => call_methods(method_chain) }
+      method_chain = v.map { |i| i.to_sym }
+      { k.camelize(:lower) => call_methods(method_chain) }
     end.reduce({}, :merge)
   end
 

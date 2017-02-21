@@ -49,7 +49,7 @@ module MVI
           family_name: name[:family],
           suffix: name[:suffix],
           gender: locate_element(patient, GENDER_XPATH),
-          date_of_birth: locate_element(patient, DOB_XPATH),
+          birth_date: locate_element(patient, DOB_XPATH),
           ssn: parse_ssn(locate_element(patient, SSN_XPATH)),
           address: parse_address(patient),
           home_phone: parse_phone(patient)

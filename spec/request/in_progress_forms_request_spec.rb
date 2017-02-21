@@ -46,6 +46,14 @@ RSpec.describe 'in progress forms', type: :request do
         }.to_json)
       end
     end
+
+    context 'when a form mapping is not found' do
+      it 'returns a 500' do
+        get v0_in_progress_form_url('foo'), nil, auth_header
+        puts Oj.load(response.body)['errors'].first['meta'].is_a?(Hash)
+        expect(response).to have_http_status(500)
+      end
+    end
   end
 
   describe 'PUT' do

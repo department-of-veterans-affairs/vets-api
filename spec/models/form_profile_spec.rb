@@ -28,16 +28,22 @@ RSpec.describe FormProfile, type: :model do
 
   describe '#prefill_form' do
     context 'with a healthcare application form' do
-      it 'should return the va profile' do
+      it 'returns the va profile' do
         expect(Mvi).to receive(:find).once
         expect(JSON.load(subject.prefill_form('healthcare_application', user).to_json)).to eq(expected)
       end
     end
 
     context 'with an education benefits form' do
-      it 'should return the stored profile rather than the va profile' do
+      it 'returns the stored profile rather than the va profile' do
         expect(Mvi).to_not receive(:find).once
         expect(JSON.load(subject.prefill_form('edu_benefits', user).to_json)).to eq(expected)
+      end
+    end
+
+    context 'when the form mapping can not be found' do
+      it 'raises an IOError' do
+        expect { subject.prefill_form('foo', user) }.to raise_error(IOError)
       end
     end
   end

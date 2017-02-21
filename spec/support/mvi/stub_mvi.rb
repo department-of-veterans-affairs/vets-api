@@ -5,7 +5,7 @@ def stub_mvi
       uuid: 'abc123',
       response: {
         status: 'OK',
-        date_of_birth: '18090212',
+        birth_date: '18090212',
         edipi: '1234^NI^200DOD^USDOD^A',
         vba_corp_id: '12345678^PI^200CORP^USVBA^A',
         family_name: 'Lincoln',
