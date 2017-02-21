@@ -53,7 +53,7 @@ EVENING: <%= @applicant.homePhone %>
         PART III - DIRECT DEPOSIT INFORMATION
         ---------------------
 
-5. DIRECT DEPOSIT: <%= direct_deposit_type %> EFT
+5. DIRECT DEPOSIT: <%= direct_deposit_type(@applicant.bankAccountChange&.upcase) %> EFT
 
 A. TYPE OF ACCOUNT: <%= @applicant.bankAccount&.accountType %>
 

@@ -13,8 +13,8 @@ module EducationForm::Forms
       [name.last, name.first, name.middle].compact.join(' ')
     end
 
-    def direct_deposit_type
-      case @applicant.bankAccountChange&.upcase
+    def direct_deposit_type(type)
+      case type&.upcase
       when 'STARTUPDATE' then 'Start or Update'
       when 'STOP' then 'Stop'
       when 'NOCHANGE' then 'Do Not Change'
