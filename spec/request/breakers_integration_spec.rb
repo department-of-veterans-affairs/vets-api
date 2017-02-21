@@ -24,6 +24,15 @@ RSpec.describe 'breakers', type: :request do
     allow_any_instance_of(Rx::Client).to receive(:get_session).and_return(session)
   end
 
+  after(:all) do
+    # Breakers doesn't have a global 'reset', so just blow away the connection's db entirely.
+    # Not clearing the breakers would cause subsequent RX calls to fail after the breaker is
+    # triggered in this group.
+
+    # fakeredis/rspec has a `before` callback, but it's for the suite, not each example. Oops.
+    Breakers.client.redis_connection.flushdb
+  end
+
   context 'integration test for breakers' do
     it 'raises a breakers exception after 50% failure rate' do
       now = Time.current
