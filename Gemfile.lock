@@ -1,10 +1,11 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 757b112a45c0534286c2843c801a92fb657ca562
+  revision: aecb4c72b921aebcf9a82c48ef63acc5ff0cbd99
   branch: master
   specs:
-    vets_json_schema (1.4.1)
+    vets_json_schema (1.5.1)
       multi_json (~> 1.0)
+      script_utils (= 0.0.4)
 
 GEM
   remote: https://rubygems.org/
@@ -309,6 +310,7 @@ GEM
       nokogiri (>= 1.4.0)
       nori (~> 2.4)
       wasabi (~> 3.4)
+    script_utils (0.0.4)
     sdoc (0.4.1)
       json (~> 1.7, >= 1.7.7)
       rdoc (~> 4.0)
@@ -452,4 +454,4 @@ DEPENDENCIES
   will_paginate
 
 BUNDLED WITH
-   1.13.7
+   1.14.4
