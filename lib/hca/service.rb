@@ -15,7 +15,7 @@ module HCA
       {
         success: true,
         formSubmissionId: root.locate('formSubmissionId').first.text.to_i,
-        timestamp: root.locate('timeStamp').first.text
+        timestamp: root.locate('timeStamp').first&.text || Time.now.getlocal.to_s
       }
     end
 
@@ -26,7 +26,7 @@ module HCA
       root = response.body.locate('S:Envelope/S:Body/retrieveFormSubmissionStatusResponse').first
       {
         formSubmissionId: root.locate('formSubmissionId').first.text.to_i,
-        timestamp: root.locate('timeStamp').first.text
+        timestamp: root.locate('timeStamp').first&.text || Time.now.getlocal.to_s
       }
     end
 

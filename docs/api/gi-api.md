@@ -14,10 +14,10 @@ Consumers of this API are not authenticated or rate-limited. Requests are not en
 
 | Resource  | Description | Params | Proxied Resource |
 | --------- | ----------- | ------ | ------------- |
-| GET /gi/institutions?  | Returns summarized institution search results.  | <ul><li><i>Several optional parameters for filtering the result set are enumerated below.</i></li></ul> | /v0/institutions |
+| GET /gi/institutions/search?  | Returns summarized institution search results.  | <ul><li><i>Several optional parameters for filtering the result set are enumerated below.</i></li></ul> | /v0/institutions |
 | GET /gi/institutions/autocomplete?term=harv  | Returns a collection of institution names and facility codes matching the search term. | <ul><li>term: characters intended to match names or numeric facility codes <i>(Required)</i></li><li>returns a maximum of 6 results</li></ul> |  /v0/institutions/autocomplete |
 | GET /gi/institutions/:facility_code  | Returns the profile attributes of an institution.  | <ul><li>facility_code: facility code of the institution<i>(Required)</i></li></ul> | /v0/institutions/:facility_code |
-| GET /gi/calculator/constants  | Returns values required for benefit calculations.  | <ul></ul> | /v0/calculator/constants |
+| GET /gi/calculator_constants  | Returns values required for benefit calculations.  | <ul></ul> | /v0/calculator/constants |
 
 ###### Institution Search Filter Params
 
