@@ -1,7 +1,6 @@
-# Vets.gov API [![Build Status](https://dev.vets.gov/jenkins/buildStatus/icon?job=department-of-veterans-affairs/vets-api/master&build=5)](http://jenkins.vetsgov-internal/job/department-of-veterans-affairs/job/vets-api/job/master/5/)
+# Vets.gov API [![Build Status](https://dev.vets.gov/jenkins/buildStatus/icon?job=department-of-veterans-affairs/vets-api/master)](http://jenkins.vetsgov-internal/job/department-of-veterans-affairs/job/vets-api/job/master/)
 
 This project provides common APIs for applications that live on vets.gov.
-
 
 ## Developer Setup
 Vets-api requires:
@@ -11,21 +10,28 @@ Vets-api requires:
 
 ### Base Setup
 
+To start, fetch this code: `git clone https://github.com/department-of-veterans-affairs/vets-api.git`
+
+#### Automated
+
+*From the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd .` if you're on a mac. It will ensure that you have all development dependencies setup*
+
+#### Alternative
 1. Install Ruby 2.3. (It is suggested to use a Ruby version manager such as [rbenv](https://github.com/rbenv/rbenv#installation) and then to [install Ruby 2.3](https://github.com/rbenv/rbenv#installing-ruby-versions)).
 *Note*: rbenv will also provide additional installation instructions in the console output. Make sure to follow those too.
 1. Install Bundler to manage dependencies: `gem install bundler`
 1. Install Postgres (on Mac): `brew install postgres`
-1. Get the code: `git clone https://github.com/department-of-veterans-affairs/vets-api.git; git submodule init; git submodule update`
+1. Install Redis (on Mac): `brew install redis`
 1. Install gem dependencies: `cd vets-api; bundle install`
-1. Optionally install overcommit `overcommit --install --sign`
+1. Install overcommit `overcommit --install --sign`
 
-### Database Setup
-1. Start Postgres: `postgres -D /usr/local/var/postgres`
+##### Database Setup
+1. Start Postgres: `brew services start postgres`
 1. Create dev database: `bundle exec rake db:setup`
 *Note*: This will not work until you set up the environment variables (see below).
 
-### Redis Setup
-You will need to specify the following environment variables:
+##### Redis Setup
+You will need to specify the following environment variables in `application.yml`:
 ```
 REDIS_HOST
 REDIS_PORT
@@ -33,15 +39,14 @@ REDIS_PORT
 
 For an example, see `application.yml.example`
 
-1. Install Redis (on mac): `brew install redis`
 1. Follow post install instructions
   - always have Redis running as service
-  - manually launch Redis `redis-server /usr/local/etc/redis.conf`
+  - manually launch Redis `brew services start redis`
 1. Set the environment variables above according to your Redis configuration
 
 *Note*: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
 this is a sign that redis is not currently running or `config/redis.yml` is not using correct host and port.
-
+Tra
 ### Optional Application Configuration
 The following features require additional configuration, click for details.
 - [Authentication with ID.me](/docs/setup/authentication_with_idme.md)
@@ -68,7 +73,7 @@ Manually run each:
 - `bundle exec rake lint` - Run the full suite of linters on the codebase.
 - `bundle exec guard` - Runs the guard test server that reruns your tests after files are saved. Useful for TDD!
 - `bundle exec rake security` - Run the suite of security scanners on the codebase.
-- `bundle exec rake ci` - Run all build steps performed in Travis CI.
+- `bundle exec rake ci` - Run all build steps performed in CI.
 
 ## Deployment Instructions
 
