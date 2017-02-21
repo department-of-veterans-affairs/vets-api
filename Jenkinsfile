@@ -12,6 +12,7 @@ def env_vars = [
     'DB_ENCRYPTION_KEY=f01ff8ebd1a2b053ad697ae1f0d86adb48ebb708021e4c76c3807d37f6b4e389d5aa45ea171f2f5074222784c1ee2bb8272390d1b9517a7a6987c22733ef00b2',
     'MHV_SM_HOST=https://mhv-api.example.com',
     'MHV_SM_APP_TOKEN=fake-app-token',
+    'GIDS_URL=https://dev.vets.gov/gids',
     'EVSS_BASE_URL=https://test.vets.gov',
     'EVSS_SAMPLE_CLAIMANT_USER={"uuid": "1234", "first_name": "Jane", "last_name":"Doe", "edipi": "1105051936", "participant_id": "123456789"}',
     'MVI_URL=http://www.example.com/',
@@ -54,13 +55,12 @@ pipeline {
 
   post {
     success {
-      build job: 'vets-api-branch-deploy',
-            wait: false,
-            parameters: [[
-              $class: 'GitParameterValue',
-              name: 'branch',
-              value: scm.branches[0].name
-            ]]
+      build job: 'vets-review-instance-deploy', parameters: [
+        stringParam(name: 'devops_branch', value: 'master'),
+        stringParam(name: 'api_branch', value: scm.branches[0].name),
+        stringParam(name: 'web_branch', value: 'master'),
+        stringParam(name: 'source_repo', value: 'vets-api'),
+      ], wait: false
     }
   }
 }

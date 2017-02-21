@@ -1,0 +1,80 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://dev.vets.gov/gids/v0/institutions?name=illinois
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - openresty
+      Date:
+      - Fri, 17 Feb 2017 20:28:49 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      Etag:
+      - W/"8d67b6b7a1d15c4ba660dd057b96b87a"
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Request-Id:
+      - 0a2b3d32-f0fb-4c26-9d5c-77ee8dfcf2c8
+      X-Runtime:
+      - '0.156926'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Content-Security-Policy-Report-Only:
+      - default-src 'self'; script-src 'self' https://dap.digitalgov.gov https://www.google-analytics.com
+        http://www.google-analytics.com https://search.usa.gov http://search.usa.gov
+        https://*.uservoice.com https://www.googletagmanager.com 'unsafe-inline';
+        style-src 'self' https://fonts.googleapis.com https://search.usa.gov http://search.usa.gov
+        'unsafe-inline'; img-src 'self' https://www.google-analytics.com https://api.mapbox.com
+        https://d15vqlr7iz6e8x.cloudfront.net; font-src 'self' https://fonts.gstatic.com;
+        connect-src 'self' http://localhost:4000 https://*.vets.gov; media-src 'none';
+        object-src 'none'; child-src https://www.googletagmanager.com https://*.uservoice.com;
+        form-action 'self' https://search.vets.gov; block-all-mixed-content; reflected-xss
+        filter; base-uri http://*.vets.gov; manifest-src 'none'; frame-ancestors 'none';
+        referrer origin;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":[{"id":"1032","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS-BELLEVILLE","facility_code":"30594913","type":"ojt","city":"belleville","state":"IL","zip":"62221","country":"usa","highest_degree":null,"locale_type":null,"student_count":0,"caution_flag":false,"caution_flag_reason":null,"created_at":"2017-02-16T22:55:37.039Z","updated_at":"2017-02-16T22:55:37.039Z","bah":1224.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":false,"yr":false,"poe":false,"eight_keys":false},"links":{"self":"https://dev-api.vets.gov/gids/v0/institutions/30594913"}},{"id":"1033","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS-BLOOMINGTON","facility_code":"20603713","type":"ojt","city":"bloomington","state":"IL","zip":"61707","country":"usa","highest_degree":null,"locale_type":null,"student_count":0,"caution_flag":false,"caution_flag_reason":null,"created_at":"2017-02-16T22:55:37.039Z","updated_at":"2017-02-16T22:55:37.039Z","bah":null,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":false,"yr":false,"poe":false,"eight_keys":false},"links":{"self":"https://dev-api.vets.gov/gids/v0/institutions/20603713"}},{"id":"1034","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS-DECATUR","facility_code":"30568513","type":"ojt","city":"decatur","state":"IL","zip":"62521","country":"usa","highest_degree":null,"locale_type":null,"student_count":0,"caution_flag":false,"caution_flag_reason":null,"created_at":"2017-02-16T22:55:37.039Z","updated_at":"2017-02-16T22:55:37.039Z","bah":1098.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":false,"yr":false,"poe":false,"eight_keys":false},"links":{"self":"https://dev-api.vets.gov/gids/v0/institutions/30568513"}},{"id":"1031","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS KEWANEE","facility_code":"30595613","type":"ojt","city":"kewanee","state":"IL","zip":"61443","country":"usa","highest_degree":null,"locale_type":null,"student_count":0,"caution_flag":false,"caution_flag_reason":null,"created_at":"2017-02-16T22:55:37.039Z","updated_at":"2017-02-16T22:55:37.039Z","bah":1197.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":false,"yr":false,"poe":false,"eight_keys":false},"links":{"self":"https://dev-api.vets.gov/gids/v0/institutions/30595613"}},{"id":"1035","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS-LASALLE","facility_code":"20603113","type":"ojt","city":"lasalle","state":"IL","zip":"61301","country":"usa","highest_degree":null,"locale_type":null,"student_count":0,"caution_flag":false,"caution_flag_reason":null,"created_at":"2017-02-16T22:55:37.039Z","updated_at":"2017-02-16T22:55:37.039Z","bah":1218.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":false,"yr":false,"poe":false,"eight_keys":false},"links":{"self":"https://dev-api.vets.gov/gids/v0/institutions/20603113"}},{"id":"1036","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS-MARION","facility_code":"30594313","type":"ojt","city":"marion","state":"IL","zip":"62959","country":"usa","highest_degree":null,"locale_type":null,"student_count":0,"caution_flag":false,"caution_flag_reason":null,"created_at":"2017-02-16T22:55:37.039Z","updated_at":"2017-02-16T22:55:37.039Z","bah":1236.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":false,"yr":false,"poe":false,"eight_keys":false},"links":{"self":"https://dev-api.vets.gov/gids/v0/institutions/30594313"}},{"id":"1037","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS-MARYVILLE","facility_code":"30595013","type":"ojt","city":"maryville","state":"IL","zip":"62062","country":"usa","highest_degree":null,"locale_type":null,"student_count":0,"caution_flag":false,"caution_flag_reason":null,"created_at":"2017-02-16T22:55:37.039Z","updated_at":"2017-02-16T22:55:37.039Z","bah":1395.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":false,"yr":false,"poe":false,"eight_keys":false},"links":{"self":"https://dev-api.vets.gov/gids/v0/institutions/30595013"}},{"id":"1038","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS-MATTOON","facility_code":"10721513","type":"ojt","city":"mattoon","state":"IL","zip":"61938","country":"usa","highest_degree":null,"locale_type":null,"student_count":0,"caution_flag":false,"caution_flag_reason":null,"created_at":"2017-02-16T22:55:37.039Z","updated_at":"2017-02-16T22:55:37.039Z","bah":1158.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":false,"yr":false,"poe":false,"eight_keys":false},"links":{"self":"https://dev-api.vets.gov/gids/v0/institutions/10721513"}},{"id":"1039","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS-PEORIA","facility_code":"20604113","type":"ojt","city":"peoria","state":"IL","zip":"61615","country":"usa","highest_degree":null,"locale_type":null,"student_count":0,"caution_flag":false,"caution_flag_reason":null,"created_at":"2017-02-16T22:55:37.039Z","updated_at":"2017-02-16T22:55:37.039Z","bah":1203.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":false,"yr":false,"poe":false,"eight_keys":false},"links":{"self":"https://dev-api.vets.gov/gids/v0/institutions/20604113"}},{"id":"1040","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS-PERSIMMON","facility_code":"20596413","type":"ojt","city":"peoria","state":"IL","zip":"61602","country":"usa","highest_degree":null,"locale_type":null,"student_count":0,"caution_flag":false,"caution_flag_reason":null,"created_at":"2017-02-16T22:55:37.039Z","updated_at":"2017-02-16T22:55:37.039Z","bah":1203.0,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"student_veteran":false,"yr":false,"poe":false,"eight_keys":false},"links":{"self":"https://dev-api.vets.gov/gids/v0/institutions/20596413"}}],"links":{"self":"https://dev-api.vets.gov/gids/v0/institutions?name=illinois","first":"https://dev-api.vets.gov/gids/v0/institutions?name=illinois\u0026page=1\u0026per_page=10","prev":null,"next":"https://dev-api.vets.gov/gids/v0/institutions?name=illinois\u0026page=2\u0026per_page=10","last":"https://dev-api.vets.gov/gids/v0/institutions?name=illinois\u0026page=22\u0026per_page=10"},"meta":{"version":1,"count":215}}'
+    http_version: 
+  recorded_at: Fri, 17 Feb 2017 20:28:49 GMT
+recorded_with: VCR 3.0.3
