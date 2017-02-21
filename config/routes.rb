@@ -76,6 +76,15 @@ Rails.application.routes.draw do
     scope :facilities, module: 'facilities' do
       resources :va, only: [:index, :show], defaults: { format: :json }
     end
+
+    scope :gi, module: 'gi' do
+      resources :institutions, only: :show, defaults: { format: :json } do
+        get :search, on: :collection
+        get :autocomplete, on: :collection
+      end
+
+      resources :calculator_constants, only: :index, defaults: { format: :json }
+    end
   end
 
   root 'v0/example#index', module: 'v0'
