@@ -20,4 +20,13 @@ RSpec.describe EducationForm::Forms::VA1995 do
   SAMPLE_APPLICATIONS.each do |application_name|
     test_spool_file('1995', application_name)
   end
+
+  context '#direct_deposit_type' do
+    let(:education_benefits_claim) { create(:education_benefits_claim_1995_full_form) }
+    it 'converts internal keys to text' do
+      expect(subject.direct_deposit_type('startUpdate')).to eq('Start or Update')
+      expect(subject.direct_deposit_type('stop')).to eq('Stop')
+      expect(subject.direct_deposit_type('noChange')).to eq('Do Not Change')
+    end
+  end
 end
