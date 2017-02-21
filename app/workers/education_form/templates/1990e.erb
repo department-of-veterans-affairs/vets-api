@@ -20,8 +20,7 @@ Name:   <%= full_name(@applicant.relativeFullName) %>
 Address:
 <%= full_address(@applicant.relativeAddress) %>
 
-Telephone Numbers:     Home:    <%= @applicant.homePhone %>
-                       Mobile:  <%= @applicant.mobilePhone %>
+<%= parse_with_template_path('phone_numbers') %>
 
 Email Address:  <%= @applicant.email %>
 
