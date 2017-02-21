@@ -22,9 +22,9 @@ RSpec.describe 'Documents management', type: :request do
     params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }
     expect do
       post '/v0/evss_claims/189625/documents', params, 'Authorization' => "Token token=#{session.token}"
-    end.to change(EVSSClaim::DocumentUpload.jobs, :size).by(1)
+    end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
-    expect(JSON.parse(response.body)['job_id']).to eq(EVSSClaim::DocumentUpload.jobs.first['jid'])
+    expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
   end
 
   it 'should reject files with invalid document_types' do
@@ -37,9 +37,9 @@ RSpec.describe 'Documents management', type: :request do
   it 'should normalize requests with a null tracked_item_id' do
     params = { file: file, tracked_item_id: 'null', document_type: document_type }
     post '/v0/evss_claims/189625/documents', params, 'Authorization' => "Token token=#{session.token}"
-    args = EVSSClaim::DocumentUpload.jobs.first['args'][2]
+    args = EVSS::DocumentUpload.jobs.first['args'][2]
     expect(response.status).to eq(202)
-    expect(JSON.parse(response.body)['job_id']).to eq(EVSSClaim::DocumentUpload.jobs.first['jid'])
+    expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
     expect(args.key?('tracked_item_id')).to eq(true)
     expect(args['tracked_item_id']).to be_nil
   end
@@ -106,7 +106,7 @@ RSpec.describe 'Documents management', type: :request do
       params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
       post '/v0/evss_claims/189625/documents', params, 'Authorization' => "Token token=#{session.token}"
       expect(response.status).to eq(202)
-      expect(JSON.parse(response.body)['job_id']).to eq(EVSSClaim::DocumentUpload.jobs.first['jid'])
+      expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
     end
   end
 
