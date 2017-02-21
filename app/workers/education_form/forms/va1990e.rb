@@ -11,6 +11,10 @@ module EducationForm::Forms
       @applicant.relativeFullName
     end
 
+    def non_va_assistance
+      @applicant.nonVaAssistance
+    end
+
     def applicant_ssn
       @applicant.relativeSocialSecurityNumber
     end
