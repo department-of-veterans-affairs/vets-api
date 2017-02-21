@@ -55,13 +55,12 @@ pipeline {
 
   post {
     success {
-      build job: 'vets-api-branch-deploy',
-            wait: false,
-            parameters: [[
-              $class: 'GitParameterValue',
-              name: 'branch',
-              value: scm.branches[0].name
-            ]]
+      build job: 'vets-review-instance-deploy', parameters: [
+        stringParam(name: 'devops_branch', value: 'master'),
+        stringParam(name: 'api_branch', value: scm.branches[0].name),
+        stringParam(name: 'web_branch', value: 'master'),
+        stringParam(name: 'source_repo', value: 'vets-api'),
+      ], wait: false
     }
   }
 }
