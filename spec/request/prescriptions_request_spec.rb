@@ -69,7 +69,7 @@ RSpec.describe 'prescriptions', type: :request do
 
   it 'responds to POST #refill' do
     VCR.use_cassette('rx_client/prescriptions/refills_a_prescription') do
-      patch '/v0/prescriptions/13568747/refill'
+      patch '/v0/prescriptions/13650545/refill'
     end
 
     expect(response).to be_success

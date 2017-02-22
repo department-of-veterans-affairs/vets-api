@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class EVSSClaim::DocumentUpload
+class EVSS::DocumentUpload
   include Sidekiq::Worker
 
   def perform(auth_headers, user_uuid, document_hash)
@@ -9,7 +9,16 @@ class EVSSClaim::DocumentUpload
     uploader.retrieve_from_store!(document.file_name)
     file_body = uploader.read
     client.upload(file_body, document)
-    Rails.logger.info("File uploaded to EVSS: #{document_hash.inspect}")
     uploader.remove!
+  end
+end
+
+# Allows gracefully migrating tasks in queue
+# TODO(knkski): Remove after migration
+class EVSSClaim::DocumentUpload
+  include Sidekiq::Worker
+
+  def perform(auth_headers, user_uuid, document_hash)
+    EVSS::DocumentUpload.perform_async(auth_headers, user_uuid, document_hash)
   end
 end

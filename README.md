@@ -21,14 +21,20 @@ To start, fetch this code: `git clone https://github.com/department-of-veterans-
 *Note*: rbenv will also provide additional installation instructions in the console output. Make sure to follow those too.
 1. Install Bundler to manage dependencies: `gem install bundler`
 1. Install Postgres (on Mac): `brew install postgres`
+
 1. Install Redis (on Mac): `brew install redis`
 1. Install gem dependencies: `cd vets-api; bundle install`
 1. Install overcommit `overcommit --install --sign`
+1. Create a application.yml `cat ./config/application.yml.example > ./config/application.yml`
+1. Setup localhost certificates / keys
+  - Create a hidden folder in home directory:  `mkdir ~/.certs`
+  - Copy the [certificate](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Identity%20Discovery%202016/certificates/vetsgov-localhost.crt) to ~/.certs
+  - Copy the [key](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Identity%20Discovery%202016/certificates/vetsgov-localhost.key) to ~/.certs
+
 
 ##### Database Setup
 1. Start Postgres: `brew services start postgres`
 1. Create dev database: `bundle exec rake db:setup`
-*Note*: This will not work until you set up the environment variables (see below).
 
 ##### Redis Setup
 You will need to specify the following environment variables in `application.yml`:
@@ -43,6 +49,7 @@ For an example, see `application.yml.example`
   - always have Redis running as service
   - manually launch Redis `brew services start redis`
 1. Set the environment variables above according to your Redis configuration
+
 
 *Note*: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
 this is a sign that redis is not currently running or `config/redis.yml` is not using correct host and port.
@@ -63,10 +70,10 @@ Manually run each:
 
 1. `postgres -D /usr/local/var/postgres`
 1. `redis-server /usr/local/etc/redis.conf`
-1. `bundle exec rails` server from <GITHUB_HOME>/vets-api/
+1. `bundle exec rails server` from <GITHUB_HOME>/vets-api/
 
 #### Running the App with Foreman
-1. Start the application: `foreman start`
+1. Start the application: `bundle exec foreman start`
 1. Navigate to <http://localhost:3000/v0/status> in your browser.
 
 ### Testing Commands
