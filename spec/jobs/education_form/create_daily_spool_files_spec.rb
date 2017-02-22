@@ -156,28 +156,33 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
     it 'writes files out over sftp' do
       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
-      ClimateControl.modify EDU_SFTP_HOST: 'localhost', EDU_SFTP_PASS: 'test' do
-        sftp_session_mock = instance_double('Net::SSH::Connection::Session')
-        sftp_mock = instance_double('Net::SFTP::Session', session: sftp_session_mock)
+      Settings.edu.sftp.host = 'localhost'
+      Settings.edu.sftp.pass = 'test'
 
-        expect(Net::SFTP).to receive(:start).once.and_return(sftp_mock)
-        expect(sftp_mock).to receive(:open?).once.and_return(true)
-        expect(sftp_mock).to receive(:upload!) do |contents, path|
-          expect(path).to eq filename
-          expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
-        end
-        expect(sftp_session_mock).to receive(:close)
-        expect { subject.perform }.to trigger_statsd_gauge(
-          'worker.education_benefits_claim.transmissions',
-          value: 2,
-          tags: [
-            'rpo:307',
-            'form:22-1990'
-          ]
-        )
+      sftp_session_mock = instance_double('Net::SSH::Connection::Session')
+      sftp_mock = instance_double('Net::SFTP::Session', session: sftp_session_mock)
 
-        expect(EducationBenefitsClaim.unprocessed).to be_empty
+      expect(Net::SFTP).to receive(:start).once.and_return(sftp_mock)
+      expect(sftp_mock).to receive(:open?).once.and_return(true)
+      expect(sftp_mock).to receive(:upload!) do |contents, path|
+        expect(path).to eq filename
+        expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
       end
+      expect(sftp_session_mock).to receive(:close)
+      expect { subject.perform }.to trigger_statsd_gauge(
+        'worker.education_benefits_claim.transmissions',
+        value: 2,
+        tags: [
+          'rpo:307',
+          'form:22-1990'
+        ]
+      )
+
+      expect(EducationBenefitsClaim.unprocessed).to be_empty
+
+
+      Settings.edu.sftp.host = nil
+      Settings.edu.sftp.pass = nil
     end
   end
 end

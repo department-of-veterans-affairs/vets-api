@@ -1,15 +1,10 @@
 # frozen_string_literal: true
 module AwsHelpers
-  # rubocop:disable Metrics/MethodLength
   def stub_reports_s3(filename)
     url = 'http://foo'
 
-    ClimateControl.modify(
-      REPORTS_AWS_S3_REGION: 'region',
-      REPORTS_AWS_ACCESS_KEY_ID: 'key',
-      REPORTS_AWS_SECRET_ACCESS_KEY: 'secret',
-      REPORTS_AWS_S3_BUCKET: 'bucket'
-    ) do
+    # TODO(knkski): Find better way than `1.times do ...`
+    1.times do
       s3 = double
       uuid = 'foo'
       bucket = double

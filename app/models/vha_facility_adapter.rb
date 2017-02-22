@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 class VHAFacilityAdapter
-  VHA_URL = +ENV['VHA_MAPSERVER_URL']
+  VHA_URL = +Settings.locators.vha
   VHA_ID_FIELD = 'StationNumber'
   FACILITY_TYPE = 'va_health_facility'
 

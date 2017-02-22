@@ -27,7 +27,7 @@ bundle exec rails s -p 3001
 1. Curl or browse to `http://localhost:3001/v0/sessions/new`
 2. Copy and paste the ID.me URL into your browser.
 3. Enter ID.me credentials (Create your ID.me account if you have not already done so.  **Note**: creating your account on the ID.me site (https://api.id.me/) is separate from the sandbox (https://api.idmelabs.com) or sign in with your username and password.)
-4. The browser should get redirected to `SAML_CONFIG['relay']` (default: http://localhost:3001/auth/login/callback?token=abcd1234-efgh5678)
+4. The browser should get redirected to `Settings.saml.relay` (default: http://localhost:3001/auth/login/callback?token=abcd1234-efgh5678)
 5. Copy the token value and attempt the following curl commands:
 
 ```

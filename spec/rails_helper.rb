@@ -24,13 +24,13 @@ VCR.configure do |c|
   c.cassette_library_dir = 'spec/support/vcr_cassettes'
   c.hook_into :webmock
   c.configure_rspec_metadata!
-  c.filter_sensitive_data('<MHV_SM_HOST>') { ENV['MHV_SM_HOST'] }
-  c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { ENV['MHV_SM_APP_TOKEN'] }
-  c.filter_sensitive_data('<MHV_HOST>') { ENV['MHV_HOST'] }
-  c.filter_sensitive_data('<GIDS_URL>') { ENV['GIDS_URL'] }
-  c.filter_sensitive_data('<APP_TOKEN>') { ENV['MHV_APP_TOKEN'] }
-  c.filter_sensitive_data('<MVI_URL>') { ENV['MVI_URL'] }
-  c.filter_sensitive_data('<EVSS_BASE_URL>') { ENV['EVSS_BASE_URL'] }
+  c.filter_sensitive_data('<APP_TOKEN>') { Settings.mhv.rx.app_token }
+  c.filter_sensitive_data('<EVSS_BASE_URL>') { Settings.evss.url }
+  c.filter_sensitive_data('<GIDS_URL>') { Settings.gids.url }
+  c.filter_sensitive_data('<MHV_HOST>') { Settings.mhv.rx.host }
+  c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { Settings.mhv.sm.app_token }
+  c.filter_sensitive_data('<MHV_SM_HOST>') { Settings.mhv.sm.host }
+  c.filter_sensitive_data('<MVI_URL>') { Settings.mvi.url }
   c.before_record do |i|
     %i(response request).each do |env|
       next unless i.send(env).headers.keys.include?('Token')

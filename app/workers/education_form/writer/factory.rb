@@ -2,10 +2,10 @@
 module EducationForm
   class Writer::Factory
     def self.get_writer
-      if Rails.env.development? || ENV['EDU_SFTP_HOST'].blank?
+      if Rails.env.development? || Settings.edu.sftp.host.blank?
         EducationForm::Writer::Local
-      elsif ENV['EDU_SFTP_PASS'].blank?
-        raise "EDU_SFTP_PASS not set for #{ENV['EDU_SFTP_USER']}@#{ENV['EDU_SFTP_HOST']}"
+      elsif Settings.edu.sftp.pass.blank?
+        raise "Settings.edu.sftp.pass not set for #{Settings.edu.sftp.user}@#{Settings.edu.sftp.host}"
       else
         EducationForm::Writer::Remote
       end

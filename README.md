@@ -33,22 +33,26 @@ To start, fetch this code: `git clone https://github.com/department-of-veterans-
 
 
 ##### Database Setup
+
 1. Start Postgres: `brew services start postgres`
 1. Create dev database: `bundle exec rake db:setup`
 
-##### Redis Setup
-You will need to specify the following environment variables in `application.yml`:
-```
-REDIS_HOST
-REDIS_PORT
-```
 
-For an example, see `application.yml.example`
+##### Redis Setup
+
+Redis is configured to use `localhost:6379` by default. If your setup differs
+from this, customize it by adding something like this to
+`config/settings.local.yml`:
+
+```yaml
+redis:
+  host: redis_host
+  port: 9999
+```
 
 1. Follow post install instructions
   - always have Redis running as service
   - manually launch Redis `brew services start redis`
-1. Set the environment variables above according to your Redis configuration
 
 
 *Note*: If you encounter `Redis::CannotConnectError: Error connecting to Redis on localhost:6379 (Errno::ECONNREFUSED)`
