@@ -2,7 +2,7 @@
 require 'rails_helper'
 require 'hca/service'
 
-describe HCA::Service do
+describe HCA::Service, skip_mvi: true do
   let(:cert) { instance_double('OpenSSL::X509::Certificate') }
   let(:key) { instance_double('OpenSSL::PKey::RSA') }
   let(:store) { instance_double('OpenSSL::X509::Store') }
@@ -21,24 +21,22 @@ describe HCA::Service do
     </S:Envelope>
      )))
   end
-  let(:current_user) { FactoryGirl.build(:loa3_user) }
 
   describe '#submit_form' do
     context 'conformance tests', run_at: '2016-12-12' do
       root = Rails.root.join('spec', 'fixtures', 'hca', 'conformance')
       Dir[File.join(root, '*.json')].map { |f| File.basename(f, '.json') }.each do |form|
         it "properly formats #{form} for transmission" do
-          service = form =~ /authenticated/ ? described_class.new(current_user) : described_class.new
           json = JSON.load(root.join("#{form}.json"))
           expect(json).to match_vets_schema('healthcare_application')
           xml = File.read(root.join("#{form}.xml"))
-          expect(service).to receive(:post_submission) do |arg|
+          expect(subject).to receive(:post_submission) do |arg|
             submission = arg.body
             pretty_printed = Ox.dump(Ox.parse(submission).locate('soap:Envelope/soap:Body/ns1:submitFormRequest').first)
-            expect(pretty_printed[1..-1]).to eq(xml)
+            expect(xml).to eq(pretty_printed[1..-1])
           end.and_return(response)
 
-          service.submit_form(json)
+          subject.submit_form(json)
         end
       end
     end

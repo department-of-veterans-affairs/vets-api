@@ -618,7 +618,7 @@ describe HCA::EnrollmentSystem do
           'lastEntryDate' => '1980-03-07',
           'lastDischargeDate' => '1984-07-08',
           'lastServiceBranch' => 'merchant seaman',
-          'vaMedicalFacility' => '608'
+          'vaMedicalFacility' => '689A4'
         },
         {
           "dischargeDueToDisability": true,
@@ -632,7 +632,7 @@ describe HCA::EnrollmentSystem do
                   "serviceBranch": 7
                 }
               },
-              "site": '608'
+              "site": '689A4'
             }
           }
         }.deep_stringify_keys
@@ -855,7 +855,7 @@ describe HCA::EnrollmentSystem do
           "isSpanishHispanicLatino": true,
           "isWhite": true,
           "maritalStatus": 'Married',
-          "vaMedicalFacility": '608',
+          "vaMedicalFacility": '689A4',
           "isEssentialAcaCoverage": true
         }.deep_stringify_keys,
         {
@@ -875,7 +875,7 @@ describe HCA::EnrollmentSystem do
             } },
           'ethnicity' => '2135-2',
           'maritalStatus' => 'M',
-          'preferredFacility' => '608',
+          'preferredFacility' => '689A4',
           'races' => { 'race' => ['2106-3'] },
           'acaIndicator' => true
         }
@@ -950,7 +950,7 @@ describe HCA::EnrollmentSystem do
 
   describe '#veteran_to_save_submit_form' do
     subject do
-      described_class.veteran_to_save_submit_form(test_veteran, nil).with_indifferent_access
+      described_class.veteran_to_save_submit_form(test_veteran).with_indifferent_access
     end
 
     it 'should return the right result' do
@@ -985,89 +985,6 @@ describe HCA::EnrollmentSystem do
   describe 'hca json schema' do
     it 'test application should pass json schema' do
       expect(test_veteran.to_json).to match_vets_schema('healthcare_application')
-    end
-  end
-
-  describe '#build_form_for_user' do
-    def self.should_return_template
-      it 'should return the form template' do
-        expect(subject).to eq(described_class::FORM_TEMPLATE)
-      end
-    end
-
-    subject do
-      described_class.build_form_for_user(current_user)
-    end
-
-    context 'with no user' do
-      let(:current_user) { nil }
-
-      should_return_template
-    end
-
-    context 'with a user' do
-      def self.should_return_user_id
-        it 'should include the user id in the authentication level' do
-          expect(subject).to eq(form_with_user)
-        end
-      end
-
-      let(:current_user) { build(:user) }
-      let(:user_id) { '123' }
-      let(:icn_id) { 1 }
-      let(:edipi_id) { 2 }
-      let(:auth_type_id) { nil }
-      let(:form_with_user) do
-        {
-          'va:form' => {
-            '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
-            'va:formIdentifier' => {
-              'va:type' => '100',
-              'va:value' => '1010EZ',
-              'va:version' => 2_986_360_436
-            }
-          },
-          'va:identity' => {
-            '@xmlns:va' => 'http://va.gov/schema/esr/voa/v1',
-            'va:authenticationLevel' => {
-              'va:type' => '102',
-              'va:value' => 'Assurance Level 2'
-            },
-            'va:veteranIdentifier' => { 'va:type' => auth_type_id, 'va:value' => '123' }
-          }
-        }
-      end
-
-      context 'when the user doesnt have an id' do
-        should_return_template
-      end
-
-      context 'when the user has an icn' do
-        let(:auth_type_id) { icn_id }
-        before do
-          expect(current_user).to receive(:icn).twice.and_return(user_id)
-        end
-
-        should_return_user_id
-
-        context 'when the user has an edipi' do
-          let(:auth_type_id) { icn_id }
-          before do
-            allow(current_user).to receive(:edipi).twice.and_return('456')
-          end
-
-          should_return_user_id
-        end
-      end
-
-      context 'when the user has an edipi' do
-        let(:auth_type_id) { edipi_id }
-        before do
-          expect(current_user).to receive(:edipi).twice.and_return(user_id)
-        end
-
-        should_return_user_id
-      end
     end
   end
 end
