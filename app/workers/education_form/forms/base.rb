@@ -34,7 +34,11 @@ module EducationForm::Forms
     end
 
     def parse_with_template(template)
-      ERB.new(template, nil, '-').result(binding).rstrip
+      # Because our template files end in newlines, we have to
+      # chomp off the final rendered line to get the correct
+      # output. Any intentionally blank lines before the final
+      # one will remain.
+      ERB.new(template, nil, '-').result(binding).chomp
     end
 
     def parse_with_template_path(path)
@@ -59,7 +63,7 @@ module EducationForm::Forms
 
     # is this needed? will it the data come in the correct format? better to have the helper..
     def to_date(date)
-      date ? date.to_date : (' ' * 10) # '00/00/0000'.length
+      date ? date : (' ' * 10) # '00/00/0000'.length
     end
 
     def full_name(name)

@@ -37,16 +37,16 @@ class EVSSClaimService
   end
 
   def request_decision(claim)
-    EVSSClaim::RequestDecision.perform_async(auth_headers, claim.evss_id)
+    EVSS::RequestDecision.perform_async(auth_headers, claim.evss_id)
   end
 
   # upload file to s3 and enqueue job to upload to EVSS
-  def upload_document(file, evss_claim_document)
+  def upload_document(evss_claim_document)
     uploader = EVSSClaimDocumentUploader.new(@user.uuid, evss_claim_document.tracked_item_id)
-    uploader.store!(file)
+    uploader.store!(evss_claim_document.file_obj)
     # the uploader sanitizes the filename before storing, so set our doc to match
     evss_claim_document.file_name = uploader.filename
-    EVSSClaim::DocumentUpload.perform_async(auth_headers, @user.uuid, evss_claim_document.to_h)
+    EVSS::DocumentUpload.perform_async(auth_headers, @user.uuid, evss_claim_document.to_serializable_hash)
   end
 
   def rating_info

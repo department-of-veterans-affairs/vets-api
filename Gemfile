@@ -50,6 +50,7 @@ gem 'oj'
 gem 'holidays'
 gem 'iconv'
 gem 'ice_nine'
+gem 'pdf-reader'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -72,7 +73,7 @@ group :development, :test do
   gem 'factory_girl_rails'
 
   gem 'foreman'
-
+  gem 'overcommit'
   # This middleware logs your HTTP requests as CURL compatible commands so you can share the calls with downstream
   # assists in debugging
   gem 'faraday_curl'
