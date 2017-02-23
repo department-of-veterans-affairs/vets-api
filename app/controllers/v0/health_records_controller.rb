@@ -25,7 +25,7 @@ module V0
     end
 
     def show
-      # doc_type will default to 'pdf' if any value, including nil is provided. 
+      # doc_type will default to 'pdf' if any value, including nil is provided.
       doc_type = params[:doc_type] == 'txt' ? 'txt' : 'pdf'
       resource = client.get_download_report(doc_type)
 

@@ -10,5 +10,5 @@ class BackendServices
   RX = 'rx'
   MESSAGING = 'messaging'
   HEALTH_RECORDS = 'health-records'
-  MHV_BASED_SERVICES = [RX, MESSAGING, HEALTH_RECORDS]
+  MHV_BASED_SERVICES = [RX, MESSAGING, HEALTH_RECORDS].freeze
 end

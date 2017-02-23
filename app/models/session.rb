@@ -10,6 +10,7 @@ class Session < Common::RedisStore
 
   attribute :token
   attribute :uuid
+  attribute :created_at
 
   validates :token, presence: true
   # validates other attributes?
@@ -33,5 +34,6 @@ class Session < Common::RedisStore
 
   def setup_defaults
     @token ||= secure_random_token unless persisted?
+    @created_at ||= Time.now.utc
   end
 end

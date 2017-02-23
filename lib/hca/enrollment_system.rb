@@ -595,10 +595,33 @@ module HCA
       hash.delete_if { |_k, v| v.blank? }
     end
 
-    def veteran_to_save_submit_form(veteran)
+    def build_form_for_user(current_user)
+      form = FORM_TEMPLATE.deep_dup
+      return form if current_user.nil?
+      (user_id, id_type) = if current_user.icn
+                             [current_user.icn, 1]
+                           elsif current_user.edipi
+                             [current_user.edipi, 2]
+                           else
+                             [nil, nil]
+                           end
+      return form if user_id.nil?
+
+      authentication_level = form['va:identity']['va:authenticationLevel']
+      authentication_level['va:type'] = '102'
+      authentication_level['va:value'] = 'Assurance Level 2'
+
+      form['va:identity']['va:veteranIdentifier'] = {
+        'va:type' => id_type,
+        'va:value' => user_id.to_s
+      }
+      form
+    end
+
+    def veteran_to_save_submit_form(veteran, current_user)
       return {} if veteran.blank?
 
-      request = FORM_TEMPLATE.deep_dup
+      request = build_form_for_user(current_user)
       request['va:form']['va:summary'] = veteran_to_summary(veteran)
       request['va:form']['va:applications'] = {
         'va:applicationInfo' => [{
