@@ -602,8 +602,10 @@ module HCA
                              [current_user.icn, 1]
                            elsif current_user.edipi
                              [current_user.edipi, 2]
+                           else
+                             [nil, nil]
                            end
-      return form if user_id.blank?
+      return form if user_id.nil?
 
       authentication_level = form['va:identity']['va:authenticationLevel']
       authentication_level['va:type'] = '102'

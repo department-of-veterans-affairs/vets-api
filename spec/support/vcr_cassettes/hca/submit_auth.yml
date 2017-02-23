@@ -23,7 +23,7 @@ http_interactions:
         xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:indicator>false</eeSummary:indicator></eeSummary:purpleHeart><eeSummary:personInfo
         xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas"><eeSummary:firstName>FIRSTNAME</eeSummary:firstName><eeSummary:middleName>MIDDLENAME</eeSummary:middleName><eeSummary:lastName>ZZTEST</eeSummary:lastName><eeSummary:suffix>JR.</eeSummary:suffix><eeSummary:gender>F</eeSummary:gender><eeSummary:dob>01/02/1923</eeSummary:dob><eeSummary:mothersMaidenName>Maiden</eeSummary:mothersMaidenName><eeSummary:placeOfBirthCity>Springfield</eeSummary:placeOfBirthCity><eeSummary:placeOfBirthState>AK</eeSummary:placeOfBirthState><eeSummary:ssnText>111111234</eeSummary:ssnText></eeSummary:personInfo></va:summary><va:applications><va:applicationInfo><va:appDate>2017-01-31</va:appDate><va:appMethod>1</va:appMethod></va:applicationInfo></va:applications></va:form><va:identity
         xmlns:va="http://va.gov/schema/esr/voa/v1"><va:authenticationLevel><va:type>102</va:type><va:value>Assurance
-        Level 2</va:value></va:authenticationLevel><va:veteranIdentifier><va:type>1</va:type><va:value>0000001008596053V965934000000</va:value></va:veteranIdentifier></va:identity></ns1:submitFormRequest></soap:Body></soap:Envelope>
+        Level 2</va:value></va:authenticationLevel><va:veteranIdentifier><va:type>1</va:type><va:value>1000123456V123456</va:value></va:veteranIdentifier></va:identity></ns1:submitFormRequest></soap:Body></soap:Envelope>
     headers:
       Accept:
       - text/xml;charset=UTF-8
