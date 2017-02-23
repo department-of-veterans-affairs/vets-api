@@ -15,6 +15,10 @@ RSpec.describe Session, type: :model do
       expect(subject.token.length).to eq(40)
     end
 
+    it 'assigns a created_at timestamp' do
+      expect(subject.created_at).to be_within(1.second).of(Time.now.utc)
+    end
+
     it 'has a persisted attribute of false' do
       expect(subject.persisted?).to be_falsey
     end
@@ -60,6 +64,12 @@ RSpec.describe Session, type: :model do
 
       it 'returns nil if session was not found' do
         expect(described_class.find('non-existant-token')).to be_nil
+      end
+
+      it 'does not change the created_at timestamp' do
+        orig_created_at = found_session.created_at
+        expect(found_session.save).to eq(true)
+        expect(found_session.created_at).to eq(orig_created_at)
       end
     end
 

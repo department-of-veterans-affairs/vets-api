@@ -70,7 +70,7 @@
         },
         "eeSummary:ethnicity": "2135-2",
         "eeSummary:maritalStatus": "M",
-        "eeSummary:preferredFacility": "689A4",
+        "eeSummary:preferredFacility": "608",
         "eeSummary:races": {
           "eeSummary:race": ["1002-5", "2028-9", "2054-5", "2076-8", "2106-3"]
         },
@@ -268,7 +268,7 @@
                 "eeSummary:serviceBranch": "7"
               }
             },
-            "eeSummary:site": "689A4"
+            "eeSummary:site": "608"
           }
         }
       },

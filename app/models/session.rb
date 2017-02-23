@@ -42,16 +42,8 @@ class Session < Common::RedisStore
   end
 
   def setup_defaults
-    # is this an existing old session without :created_at?
-    session_is_old = @created_at.nil? && persisted?
-
     @token ||= secure_random_token
     @created_at ||= Time.now.utc
-
-    # sessions only get saved at creation time.  For an existing session with a nil :created_at,
-    # we must forcibly re-save to redis else :created_at will always be nil and the session could
-    # theoretically last forever.  After being deployed 12 hours, this logic can be deleted then re-deployed
-    save if session_is_old
   end
 
   def within_maximum_ttl
