@@ -1,0 +1,96 @@
+#!/bin/sh
+set -e
+command_exists () {
+    type "$1" &> /dev/null ;
+}
+RED=`tput setaf 1`
+GREEN=`tput setaf 2`
+RESET=`tput sgr0`
+
+# Check for homebrew
+if command_exists brew ; then
+  brew update
+  echo "${GREEN} * Updated Homebrew.${RESET}"
+else
+  echo "${RED} * Installing Homebrew.${RESET}"
+  cd ~
+  mkdir .homebrew
+  curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C .homebrew
+  echo 'export PATH=~/.homebrew/bin:$PATH' >> ~/.bash_profile
+  source ~/.bash_profile
+  brew update
+  brew analytics off
+  cd -
+fi
+
+# Check for development deps
+
+if command_exists rbenv ; then
+  echo "${GREEN} * rbenv already installed.${RESET}"
+else
+  echo "${RED} * Installing rbenv.${RESET}"
+  brew install rbenv
+  echo "eval \"\$(rbenv init -)\"" >> ~/.bash_profile
+  source ~/.bash_profile
+fi
+
+if command_exists ruby-build ; then
+  echo "${GREEN} * Ruby build is already installed.${RESET}"
+else
+  echo "${RED} * Installing ruby-build${RESET}"
+  brew install ruby-build
+fi
+
+if rbenv versions | grep $(rbenv local) ; then
+  echo "${GREEN} * Ruby $(rbenv local) is installed.${RESET}"
+else
+  echo "${RED} * Installing Ruby $(rbenv local).${RESET}"
+  rbenv install $(rbenv local)
+  rbenv rehash
+  source ~/.bash_profile
+  gem install bundler
+fi
+
+if command_exists rbenv-bundler ; then
+  echo "${GREEN} * rbenv-bundler is already installed.${RESET}"
+else
+  echo "${RED} * Installing rbenv-bundler${RESET}"
+  brew install rbenv-bundler
+  rbenv rehash
+fi
+
+source ~/.bash_profile
+# Check for application deps
+
+if command_exists redis-server ; then
+  echo "${GREEN} * redis already installed.${RESET}"
+else
+  echo "${RED} * Installing Redis. ${RESET}"
+  brew install redis
+fi
+
+brew services start redis
+
+if command_exists postgres ; then
+  echo "${GREEN} * PostgreSQL already installed.${RESET}"
+else
+  echo "${RED} * Installing PostgreSQL. ${RESET}"
+  brew install postgresql
+fi
+
+brew services start postgresql
+
+# Install ruby / vet-api deps
+
+bundle install -j4
+rbenv rehash && cd .
+bundle exec overcommit --install --sign
+
+rake db:create db:setup db:seed
+
+cp config/mvi_schema/mock_mvi_responses.yml.example config/mvi_schema/mock_mvi_responses.yml
+cp config/application.yml.example config/application.yml
+
+# Run a test to make sure things are working after setup
+
+rake
