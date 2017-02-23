@@ -50,7 +50,6 @@ RSpec.describe 'in progress forms', type: :request do
     context 'when a form mapping is not found' do
       it 'returns a 500' do
         get v0_in_progress_form_url('foo'), nil, auth_header
-        puts Oj.load(response.body)['errors'].first['meta'].is_a?(Hash)
         expect(response).to have_http_status(500)
       end
     end
@@ -82,7 +81,7 @@ RSpec.describe 'in progress forms', type: :request do
 
       it 'updates the form' do
         expect_any_instance_of(InProgressForm).to receive(:update)
-                                                    .with(form_data: update_form.form_data).and_return(true)
+          .with(form_data: update_form.form_data).and_return(true)
         put v0_in_progress_form_url(existing_form.form_id), { form_data: update_form.form_data }, auth_header
         expect(response).to have_http_status(:ok)
       end

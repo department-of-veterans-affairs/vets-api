@@ -24,7 +24,7 @@ class UserSerializer < ActiveModel::Serializer
 
   def va_profile
     status = object.va_profile[:status]
-    return { status: status} unless status == 'OK'
+    return { status: status } unless status == 'OK'
     {
       status: object.va_profile[:status],
       birth_date: object.va_profile[:birth_date],

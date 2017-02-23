@@ -78,7 +78,6 @@ module MVI
         suffix = name_element.locate('suffix')&.first&.nodes&.first&.capitalize
         { given: given, family: family, suffix: suffix }
       rescue => e
-        puts e.message
         Rails.logger.warn "MVI::Response.parse_name failed: #{e.message}"
         { given: nil, family: nil }
       end

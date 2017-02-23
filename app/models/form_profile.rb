@@ -87,7 +87,7 @@ class FormProfile
   def mappings_for_form(form_id)
     @mappings ||= Hash.new do |h, key|
       file = File.join(Rails.root, 'config', 'form_profile_mappings', "#{form_id}.yml")
-      raise IOError.new("Form profile mapping file is missing for form id #{form_id}") unless File.exists?(file)
+      raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
       form_schema = YAML.load_file(file)
       h[key] = form_schema
     end
@@ -96,13 +96,13 @@ class FormProfile
 
   def generate_prefill(mappings)
     mappings.map do |k, v|
-      method_chain = v.map { |i| i.to_sym }
+      method_chain = v.map(&:to_sym)
       { k.camelize(:lower) => call_methods(method_chain) }
     end.reduce({}, :merge)
   end
 
   def call_methods(methods)
-    methods.inject(self) { |obj, method| obj.send method }
+    methods.inject(self) { |a, e| a.send e }
   rescue NoMethodError
     nil
   end

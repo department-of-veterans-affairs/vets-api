@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# rubocop:disable Metrics/MethodLength
 def stub_mvi
   allow(Mvi).to receive(:find).and_return(
     Mvi.new(

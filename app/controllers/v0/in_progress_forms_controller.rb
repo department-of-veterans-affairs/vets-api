@@ -2,13 +2,9 @@
 module V0
   class InProgressFormsController < ApplicationController
     def show
-      id = params[:id]
-      form = InProgressForm.form_for_user(id, @current_user)
-      if form
-        result = form.form_data
-      else
-        result = FormProfile.new.prefill_form(id, @current_user)
-      end
+      form_id = params[:id]
+      form = InProgressForm.form_for_user(form_id, @current_user)
+      result = form ? form.form_data : FormProfile.new.prefill_form(form_id, @current_user)
       render json: result
     end
 
