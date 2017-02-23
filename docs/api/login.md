@@ -5,8 +5,8 @@ The API's involved with log in and out.  Many API's require an auth token to use
 # APIs
 | Http Verb | Path                 | Parameters                                              | Response                                        | Description                                                                   |
 |-----------|----------------------|---------------------------------------------------------|-------------------------------------------------|-------------------------------------------------------------------------------|
-| GET       | /v0/sessions/new     | url query param `level` possible values 1, 3            | `{"authenticat_via_vet": "\<ID.ME AUTH URL\>"}` | Gets an ID.me auth url at the specified level of assurance                   |
-| DELETE    | /v0/sessions         | request header `Authorization: Token token=abcd1234...` | `{"logout_va_get": "\<ID.ME LOGOUT URL\>"`      | Gets an ID.me single logout url that may be used to destroy the vets.gov & ID.me sessions |
+| GET       | /v0/sessions/new     | url query param `level` possible values 1, 3            | `{"authenticat_via_vet": "\<ID.ME AUTH URL\>"}` | Gets an ID.me auth url at the specified level of assurance.  ID.me Auth URL may only be used once; this API must be called each time a login is attempted.                   |
+| DELETE    | /v0/sessions         | request header `Authorization: Token token=abcd1234...` | `{"logout_va_get": "\<ID.ME LOGOUT URL\>"`      | Gets an ID.me single logout url that may be used to destroy the vets.gov & ID.me sessions.  ID.me logout URL may only be used once; this API must be called each time a logout is attempted. |
 
 ## Examples
 #### Request
