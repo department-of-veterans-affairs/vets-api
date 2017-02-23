@@ -64,43 +64,16 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
           form: test_veteran.to_json
         }
       end
-
-      context 'anonymously' do
-        let(:body) do
-          { 'formSubmissionId' => 40_124_668_140,
-            'timestamp' => '2016-05-25T04:59:39.345-05:00',
-            'success' => true }
-        end
-
-        it 'should render success', run_at: '2017-01-31' do
-          VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
-            subject
-            expect(JSON.parse(response.body)).to eq(body)
-          end
-        end
+      let(:body) do
+        { 'formSubmissionId' => 40_124_668_140,
+          'timestamp' => '2016-05-25T04:59:39.345-05:00',
+          'success' => true }
       end
 
-      context 'while authenticated', skip_mvi: true do
-        let(:current_user) { build(:mhv_user) }
-        before do
-          allow(Mvi).to receive(:find).and_return(
-            Mvi.new(uuid: 'abc123',
-                    response: { icn: '1000123456V123456^NI^200M^USVHA^P' })
-          )
-          use_authenticated_current_user(current_user: current_user)
-        end
-
-        let(:body) do
-          { 'formSubmissionId' => 40_125_311_094,
-            'timestamp' => '2017-02-08T13:50:32.020-06:00',
-            'success' => true }
-        end
-
-        it 'should render success', run_at: '2017-01-31' do
-          VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
-            subject
-            expect(JSON.parse(response.body)).to eq(body)
-          end
+      it 'should render success', run_at: '2017-01-31' do
+        VCR.use_cassette('hca/submit', match_requests_on: [:body]) do
+          subject
+          expect(JSON.parse(response.body)).to eq(body)
         end
       end
 

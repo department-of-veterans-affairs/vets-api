@@ -41,7 +41,7 @@
         </eeSummary:contactInfo>
         <eeSummary:ethnicity>2135-2</eeSummary:ethnicity>
         <eeSummary:maritalStatus>S</eeSummary:maritalStatus>
-        <eeSummary:preferredFacility>608</eeSummary:preferredFacility>
+        <eeSummary:preferredFacility>689A4</eeSummary:preferredFacility>
         <eeSummary:races>
           <eeSummary:race>1002-5</eeSummary:race>
           <eeSummary:race>2028-9</eeSummary:race>
@@ -130,7 +130,7 @@
                 <eeSummary:serviceBranch>7</eeSummary:serviceBranch>
               </eeSummary:militaryServiceEpisode>
             </eeSummary:militaryServiceEpisodes>
-            <eeSummary:site>608</eeSummary:site>
+            <eeSummary:site>689A4</eeSummary:site>
           </eeSummary:militaryServiceSiteRecord>
         </eeSummary:militaryServiceSiteRecords>
       </eeSummary:militaryServiceInfo>
@@ -162,12 +162,8 @@
   </va:form>
   <va:identity xmlns:va="http://va.gov/schema/esr/voa/v1">
     <va:authenticationLevel>
-      <va:type>102</va:type>
-      <va:value>Assurance Level 2</va:value>
+      <va:type>100</va:type>
+      <va:value>anonymous</va:value>
     </va:authenticationLevel>
-    <va:veteranIdentifier>
-      <va:type>1</va:type>
-      <va:value>1000123456V123456</va:value>
-    </va:veteranIdentifier>
   </va:identity>
 </ns1:submitFormRequest>

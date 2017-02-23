@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://es-dev/voa/voaSvc?wsdl
+    uri: https://vaww.esrdev30.aac.va.gov:8433/voa/voaSvc?wsdl
     body:
       encoding: UTF-8
       string: <?xml version="1.0" encoding="UTF-8"?><soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema"
