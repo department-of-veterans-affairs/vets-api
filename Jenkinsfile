@@ -32,11 +32,6 @@ def env_vars = [
     'ES_CLIENT_KEY_PATH=/fake/client/key/path'
 ]
 
-def isReviewable = {
-  env.BRANCH_NAME != 'production' &&
-    env.BRANCH_NAME != 'master'
-}
-
 pipeline {
   agent {
     label 'vets-api-linting'
@@ -60,7 +55,7 @@ pipeline {
     stage('Review') {
       when {
         expression {
-          return isReviewable()
+          !['master', 'production'].contains(env.BRANCH_NAME)
         }
       }
 
@@ -72,17 +67,6 @@ pipeline {
           stringParam(name: 'source_repo', value: 'vets-api'),
         ], wait: false
       }
-    }
-  }
-
-  post {
-    success {
-      build job: 'vets-review-instance-deploy', parameters: [
-        stringParam(name: 'devops_branch', value: 'master'),
-        stringParam(name: 'api_branch', value: scm.branches[0].name),
-        stringParam(name: 'web_branch', value: 'master'),
-        stringParam(name: 'source_repo', value: 'vets-api'),
-      ], wait: false
     }
   }
 }
