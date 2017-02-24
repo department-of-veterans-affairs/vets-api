@@ -62,7 +62,7 @@ module EducationForm::Forms
     end
 
     def value_or_na(value)
-      value.nil? ? "N/A" : value
+      value.nil? ? 'N/A' : value
     end
 
     # is this needed? will it the data come in the correct format? better to have the helper..

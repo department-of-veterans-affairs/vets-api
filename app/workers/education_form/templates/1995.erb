@@ -2,7 +2,7 @@
 <%= form_type(@applicant) %>
 *START*
 VA Form 22-1995
-FEB 2017
+MAY 2015
 
 
             REQUEST FOR CHANGE OF PROGRAM OR PLACE OF TRAINING
@@ -25,7 +25,7 @@ Telephone Numbers:     Home:    <%= @applicant.homePhone %>
 Email Address:  <%= @applicant.email %>
 Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
 
-Direct Deposit: <%= @applicant.bankAccountChange&.upcase %> EFT
+Direct Deposit: <%= direct_deposit_type(@applicant.bankAccountChange&.upcase) %> EFT
 Type of Account: <%= @applicant.bankAccount&.accountType %>
 Routing/Transit #: <%= @applicant.bankAccount&.routingNumber %>
 Account #: <%= @applicant.bankAccount&.accountNumber %>
