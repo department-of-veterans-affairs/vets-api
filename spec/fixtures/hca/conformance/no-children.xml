@@ -57,7 +57,7 @@
         </eeSummary:contactInfo>
         <eeSummary:ethnicity>2135-2</eeSummary:ethnicity>
         <eeSummary:maritalStatus>M</eeSummary:maritalStatus>
-        <eeSummary:preferredFacility>608</eeSummary:preferredFacility>
+        <eeSummary:preferredFacility>689A4</eeSummary:preferredFacility>
         <eeSummary:races>
           <eeSummary:race>1002-5</eeSummary:race>
           <eeSummary:race>2028-9</eeSummary:race>
@@ -189,7 +189,7 @@
                 <eeSummary:serviceBranch>7</eeSummary:serviceBranch>
               </eeSummary:militaryServiceEpisode>
             </eeSummary:militaryServiceEpisodes>
-            <eeSummary:site>608</eeSummary:site>
+            <eeSummary:site>689A4</eeSummary:site>
           </eeSummary:militaryServiceSiteRecord>
         </eeSummary:militaryServiceSiteRecords>
       </eeSummary:militaryServiceInfo>
