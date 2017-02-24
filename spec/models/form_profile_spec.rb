@@ -26,17 +26,19 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  after(:each) do
+    subject.class.instance_variable_set(:@mappings, nil)
+  end
+
   describe '#prefill_form' do
     context 'with a healthcare application form' do
-      it 'returns the va profile' do
-        expect(Mvi).to receive(:find).once
+      it 'returns the va profile mapped to the healthcare form' do
         expect(JSON.load(subject.prefill_form('healthcare_application', user).to_json)).to eq(expected)
       end
     end
 
     context 'with an education benefits form' do
-      it 'returns the stored profile rather than the va profile' do
-        expect(Mvi).to_not receive(:find).once
+      it 'returns va profile mapped to the education benefits form' do
         expect(JSON.load(subject.prefill_form('edu_benefits', user).to_json)).to eq(expected)
       end
     end
@@ -44,6 +46,19 @@ RSpec.describe FormProfile, type: :model do
     context 'when the form mapping can not be found' do
       it 'raises an IOError' do
         expect { subject.prefill_form('foo', user) }.to raise_error(IOError)
+      end
+    end
+  end
+
+  describe '.mappings_for_form' do
+    context 'with multiple form profile instances' do
+      let(:instance1) { FormProfile.new }
+      let(:instance2) { FormProfile.new }
+
+      it 'loads the yaml file only once' do
+        expect(YAML).to receive(:load_file).once.and_return('foo' => %w(bar bar))
+        instance1.prefill_form('healthcare_application', user)
+        instance2.prefill_form('healthcare_application', user)
       end
     end
   end

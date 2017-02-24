@@ -41,6 +41,17 @@ class FormProfile
   attribute :applicant_information, FormApplicantInformation
   attribute :contact_information, FormContactInformation
 
+  def self.mappings_for_form(form_id)
+    @mappings ||= {}
+    @mappings[form_id] || (@mappings[form_id] = load_form_mapping(form_id))
+  end
+
+  def self.load_form_mapping(form_id)
+    file = File.join(Rails.root, 'config', 'form_profile_mappings', "#{form_id}.yml")
+    raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
+    YAML.load_file(file)
+  end
+
   # Collects data the VA has on hand for a user. The data may come from many databases/services.
   # In case of collisions, preference is given in this order:
   # * The form profile cache (the record for this class)
@@ -51,7 +62,7 @@ class FormProfile
   def prefill_form(form_id, user)
     @applicant_information = initialize_application_information(user)
     @contact_information = initialize_contact_information(user)
-    mappings = mappings_for_form(form_id)
+    mappings = self.class.mappings_for_form(form_id)
     generate_prefill(mappings)
   end
 
@@ -82,16 +93,6 @@ class FormProfile
       },
       home_phone: user.va_profile[:home_phone]
     )
-  end
-
-  def mappings_for_form(form_id)
-    @mappings ||= Hash.new do |h, key|
-      file = File.join(Rails.root, 'config', 'form_profile_mappings', "#{form_id}.yml")
-      raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
-      form_schema = YAML.load_file(file)
-      h[key] = form_schema
-    end
-    @mappings[form_id]
   end
 
   def generate_prefill(mappings)
