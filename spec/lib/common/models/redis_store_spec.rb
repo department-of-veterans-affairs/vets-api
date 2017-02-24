@@ -68,15 +68,6 @@ describe Common::RedisStore do
     end
   end
 
-  describe '#expire' do
-    it 'updates the redis ttl of the model instance' do
-      subject.save
-      expect(subject.ttl).to eq(60)
-      subject.expire(100)
-      expect(subject.ttl).to eq(100)
-    end
-  end
-
   describe '#destroy' do
     it 'removes itself from redis with the correct namespace' do
       expect_any_instance_of(Redis).to receive(:del).once.with(
