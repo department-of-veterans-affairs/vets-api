@@ -3,22 +3,22 @@ module EducationForm::Forms
   class VA1995 < Base
     TYPE = '22-1995'
 
+    FORM_TYPES = {
+      'chapter30': 'CH30',
+      'chapter32': 'CH32',
+      'chapter33': 'CH33',
+      'chapter1606': 'CH1606',
+      'chapter1607': 'CH1607',
+      'transferOfEntitlement': 'TOE'
+    }.freeze
+
     def school
       @applicant.newSchool
     end
 
-    # rubocop:disable Metrics/CyclomaticComplexity
     def form_type(applicant)
-      case applicant.benefit
-      when 'chapter30' then 'CH30'
-      when 'chapter32' then 'CH32'
-      when 'chapter33' then 'CH33'
-      when 'chapter1606' then 'CH1606'
-      when 'chapter1607' then 'CH1607'
-      when 'transferOfEntitlement' then 'TOE'
-      end
+      FORM_TYPES.fetch(applicant.benefit.to_sym)
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
 
     def direct_deposit_type(type)
       case type&.upcase
