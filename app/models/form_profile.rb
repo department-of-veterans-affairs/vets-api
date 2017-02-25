@@ -20,7 +20,7 @@ class FormAddress
   attribute :postal_code
 end
 
-class FormApplicantInformation
+class FormIdentityInformation
   include Virtus.model
 
   attribute :full_name, FormFullName
@@ -38,7 +38,7 @@ end
 class FormProfile
   include Virtus.model
 
-  attribute :applicant_information, FormApplicantInformation
+  attribute :identity_information, FormIdentityInformation
   attribute :contact_information, FormContactInformation
 
   def self.mappings_for_form(form_id)
@@ -60,7 +60,7 @@ class FormProfile
   # * TODO(AJD): MIS (military history)
   #
   def prefill_form(form_id, user)
-    @applicant_information = initialize_application_information(user)
+    @identity_information = initialize_identity_information(user)
     @contact_information = initialize_contact_information(user)
     mappings = self.class.mappings_for_form(form_id)
     generate_prefill(mappings)
@@ -68,8 +68,8 @@ class FormProfile
 
   private
 
-  def initialize_application_information(user)
-    FormApplicantInformation.new(
+  def initialize_identity_information(user)
+    FormIdentityInformation.new(
       full_name: {
         first: user.first_name&.capitalize,
         middle: user.middle_name&.capitalize,
