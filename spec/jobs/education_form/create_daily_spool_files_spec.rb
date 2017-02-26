@@ -180,7 +180,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
       expect(EducationBenefitsClaim.unprocessed).to be_empty
 
-
       Settings.edu.sftp.host = nil
       Settings.edu.sftp.pass = nil
     end
