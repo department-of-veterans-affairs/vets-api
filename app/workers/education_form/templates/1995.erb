@@ -2,7 +2,7 @@
 <%= form_type(@applicant) %>
 *START*
 VA Form 22-1995
-MAY 2015
+DEC 2016
 
 
             REQUEST FOR CHANGE OF PROGRAM OR PLACE OF TRAINING
@@ -33,7 +33,7 @@ Account #: <%= @applicant.bankAccount&.accountNumber %>
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
-Benefit You Want to Transfer: <%= @applicant.benefit&.titleize %>
+Benefit You Are Receiving: <%= @applicant.benefit&.titleize %>
 Type of Education or Training: <%= @applicant.educationType&.titleize %>
 Education or Career Goal: <%= @applicant.educationObjective %>
 
@@ -43,7 +43,7 @@ New School or Training Establishment:
 Current/Prior School or Training Establishment:
 <%= school_name_and_addr(@applicant.oldSchool) %>
 
-Date of Change: <%= @applicant.trainingEndDate %>
+Date You Stopped Training: <%= @applicant.trainingEndDate %>
 Reason for Change: <%= @applicant.reasonForChange %>
 
 

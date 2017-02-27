@@ -9,7 +9,7 @@ module EducationForm::Forms
       'chapter33': 'CH33',
       'chapter1606': 'CH1606',
       'chapter1607': 'CH1607',
-      'transferOfEntitlement': 'TOE'
+      'transferOfEntitlement': 'TransferOfEntitlement'
     }.freeze
 
     def school
