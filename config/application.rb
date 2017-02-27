@@ -32,6 +32,8 @@ module VetsAPI
 
     config.api_only = true
 
+    config.relative_url_root = Settings.relative_url_root
+
     # This prevents rails from escaping html like & in links when working with JSON
     config.active_support.escape_html_entities_in_json = false
 

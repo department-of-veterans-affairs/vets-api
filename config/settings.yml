@@ -7,7 +7,11 @@ db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb48ebb708021e4c76c3807d37f6b4e
 
 database_url: postgres:///vets-api
 
+relative_url_root: /
+
 secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d0bef5c7fdab73cd05685d8fe1dd589287d78b38e4de7116fbe14461e414072677
+
+review_instance_slug: ~
 
 # Settings for Education Benefits
 edu:

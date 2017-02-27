@@ -112,7 +112,7 @@ module V0
     end
 
     def saml_options
-      ENV['REVIEW_INSTANCE_SLUG'].blank? ? {} : { RelayState: ENV['REVIEW_INSTANCE_SLUG'] }
+      Settings.review_instance_slug.blank? ? {} : { RelayState: Settings.review_instance_slug }
     end
   end
 end
