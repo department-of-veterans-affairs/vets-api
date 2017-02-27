@@ -33,13 +33,13 @@ RSpec.describe FormProfile, type: :model do
   describe '#prefill_form' do
     context 'with a healthcare application form' do
       it 'returns the va profile mapped to the healthcare form' do
-        expect(JSON.load(subject.prefill_form('healthcare_application', user).to_json)).to eq(expected)
+        expect(Oj.load(subject.prefill_form('healthcare_application', user).to_json)).to eq(expected)
       end
     end
 
     context 'with an education benefits form' do
       it 'returns va profile mapped to the education benefits form' do
-        expect(JSON.load(subject.prefill_form('edu_benefits', user).to_json)).to eq(expected)
+        expect(Oj.load(subject.prefill_form('edu_benefits', user).to_json)).to eq(expected)
       end
     end
 
