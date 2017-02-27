@@ -17,7 +17,7 @@ module EducationForm::Forms
     end
 
     def form_type(applicant)
-      FORM_TYPES.fetch(applicant.benefit.to_sym)
+      FORM_TYPES[applicant.benefit&.to_sym]
     end
 
     def direct_deposit_type(type)
