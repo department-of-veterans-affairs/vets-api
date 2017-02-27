@@ -12,7 +12,6 @@ evss:
     region: ...
 ```
 
-
 ## EVSS Disability Claims Setup
 
 For this app to be properly configured, you will need to copy the following
