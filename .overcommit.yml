@@ -40,6 +40,7 @@ PreCommit:
       - '**/*.yml'
       - '**/*.yml.example'
       - '**/*.md'
+      - 'spec/fixtures/**/*'
 
   # Ensures YAMLs are valid
   YamlSyntax:
