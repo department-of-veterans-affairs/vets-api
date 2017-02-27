@@ -26,7 +26,7 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd .
   - It is suggested that you use a Ruby version manager such as
     [rbenv](https://github.com/rbenv/rbenv#installation) and
     [install Ruby 2.3](https://github.com/rbenv/rbenv#installing-ruby-versions).
-  - *Note*: rbenv will also provide additional installation instructions in the
+  - *NOTE*: rbenv will also provide additional installation instructions in the
     console output. Make sure to follow those too.
 1. Install Bundler to manage dependencies
   - `gem install bundler`
@@ -41,9 +41,12 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd .
 1. Install overcommit `overcommit --install --sign`
 1. Setup localhost certificates / keys
   - Create a hidden folder in your home directory:  `mkdir ~/.certs`
-  - TODO(knkski): These are in a private repo...
   - Copy the [certificate][certificate] to `~/.certs/vetsgov-localhost.crt`
   - Copy the [key][key] to `~/.certs/vetsgov-localhost.key`
+  - *NOTE*: If you don't have access to these keys, running the following
+    commands will provide basic functionality, such as for running unit tests:
+  - `touch ~/.certs/vetsgov-localhost.crt`
+  - `touch ~/.certs/vetsgov-localhost.key`
 1. Create dev database: `bundle exec rake db:setup`
 
 
