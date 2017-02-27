@@ -7,22 +7,22 @@ RSpec.describe FormProfile, type: :model do
   let(:expected) do
     {
       'veteranFullName' => {
-        'first' => 'Abraham',
+        'first' => user.first_name&.capitalize,
         'middle' => nil,
-        'last' => 'Lincoln',
+        'last' => user.last_name&.capitalize,
         'suffix' => nil
       },
-      'veteranDateOfBirth' => '1809-02-12',
+      'veteranDateOfBirth' => user.birth_date,
       'veteranAddress' => {
-        'street' => '140 Rock Creek Church Road NW',
+        'street' => user.va_profile[:address][:street_address_line],
         'street_2' => nil,
-        'city' => 'Washington',
-        'state' => 'DC',
-        'country' => 'USA',
-        'postal_code' => '20011'
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code]
       },
-      'gender' => 'M',
-      'homePhone' => '2028290436'
+      'gender' => user.gender,
+      'homePhone' => user.va_profile[:home_phone]
     }
   end
 
