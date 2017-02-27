@@ -1,91 +1,87 @@
 <%= header %>
-
+<%= form_type(@applicant) %>
 *START*
 VA Form 22-1995
 DEC 2016
 
-        REQUEST FOR CHANGE OF PROGRAM OR PLACE OF TRAINING
-  FOR VETERANS, SERVICEPERSONS & MEMBERS OF THE SELECTED RESERVE
-  --------------------------------------------------------------
 
-        PART I - IDENTIFICATION AND PERSONAL INFORMATION
-        ---------------------
+            REQUEST FOR CHANGE OF PROGRAM OR PLACE OF TRAINING
+      FOR VETERANS, SERVICEPERSONS & MEMBERS OF THE SELECTED RESERVE
+                    -------------------------------------
 
-1A. NAME OF APPLICANT (Last, First, Middle): <%= full_name %>
+                            APPLICANT INFORMATION
+                            ---------------------
 
-1B. MAILING ADDRESS:
+SSN: <%= value_or_na(@applicant.veteranSocialSecurityNumber) %>    VA File Number: <%= value_or_na(@applicant.vaFileNumber) %>
+
+Name:   <%= full_name(@applicant.veteranFullName) %>
+
+Address:
 <%= full_address(@applicant.veteranAddress) %>
 
-1C. APPLICANT'S TELEPHONE NUMBER
-DAY: <%= @applicant.mobilePhone %>
-EVENING: <%= @applicant.homePhone %>
+Telephone Numbers:     Home:    <%= @applicant.homePhone %>
+                       Mobile:  <%= @applicant.mobilePhone %>
 
-1D. VA FILE NUMBER: <%= @applicant.vaFileNumber %>
+Email Address:  <%= @applicant.email %>
+Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
 
-1E. APPLICANT'S E-MAIL ADDRESS: <%= @applicant.email %>
+Direct Deposit: <%= direct_deposit_type(@applicant.bankAccountChange&.upcase) %> EFT
+Type of Account: <%= @applicant.bankAccount&.accountType %>
+Routing/Transit #: <%= @applicant.bankAccount&.routingNumber %>
+Account #: <%= @applicant.bankAccount&.accountNumber %>
 
-1F. SOCIAL SECURITY OF APPLICANT: <%= @applicant.veteranSocialSecurityNumber %>
+                  TYPE AND PROGRAM OF EDUCATION OR TRAINING
+                  -----------------------------------------
 
-        PART II - YOUR PROGRAM INFORMATION
-        ---------------------
+Benefit You Are Receiving: <%= @applicant.benefit&.titleize %>
+Type of Education or Training: <%= @applicant.educationType&.titleize %>
+Education or Career Goal: <%= @applicant.educationObjective %>
 
-2. EDUCATION BENEFIT YOU WANT TO RECEIVE: <%= @applicant.benefit %>
-
-3. HOW WILL YOU TAKE TRAINING?: <%= @applicant.educationType %>
-
-4A. WHAT EDUCATIONAL, PROFESSIONAL OR VOCATIONAL GOAL ARE
- YOU WORKING TOWARD?: <%= @applicant.educationObjective %>
-
-4B. WHAT IS THE NAME OF THE PROGRAM YOU ARE REQUESTING?: <%= @applicant.programName %>
-
-4C. IF CHANGING SCHOOLS, PROVIDE NAME AND COMPLETE ADDRESS
- OF NEW SCHOOL OR TRAINING ESTABLISHMENT YOU ARE PLANNING
- TO ATTEND (If applicable):
+New School or Training Establishment:
 <%= school_name_and_addr(@applicant.newSchool) %>
 
-4D. PROVIDE NAME AND COMPLETE ADDRESS OF PREVIOUS SCHOOL OR
- TRAINING ESTABLISHMENT (If only changing schools, list current school.):
+Current/Prior School or Training Establishment:
 <%= school_name_and_addr(@applicant.oldSchool) %>
 
-4E. TELL US WHEN AND WHY YOU STOPPED TRAINING AT YOUR PRIOR SCHOOL OR ESTABLISHMENT. CONTINUE IN REMARKS, ITEM 10, OR ON A SEPARATE SHEET IF NECESSARY.
-<%= @applicant.reasonForChange %>
+Date You Stopped Training: <%= @applicant.trainingEndDate %>
+Reason for Change: <%= @applicant.reasonForChange %>
 
-        PART III - DIRECT DEPOSIT INFORMATION
-        ---------------------
 
-5. DIRECT DEPOSIT: <%= direct_deposit_type(@applicant.bankAccountChange&.upcase) %> EFT
+                       ACTIVE DUTY SERVICE INFORMATION
+                       -------------------------------
 
-A. TYPE OF ACCOUNT: <%= @applicant.bankAccount&.accountType %>
-
-B. NAME OF FINANCIAL INSTITUTION: <%= @applicant.bankAccount&.bankName %>
-
-C. 9 DIGIT ROUTING OR TRANSIT NUMBER: <%= @applicant.bankAccount&.routingNumber %>
-
-D. ACCOUNT NUMBER: <%= @applicant.bankAccount&.accountNumber %>
-
-        PART IV - MISCELLANEOUS INFORMATION
-        ---------------------
-
-6. INFORMATION ON DEPENDENTS (COMPLETE THIS ITEM ONLY IF YOU SERVED BEFORE JANUARY 1, 1977 (or had a delayed entry before January 2, 1978) AND YOU CURRENTLY HAVE DEPENDENTS.)
-
-A. ARE YOU CURRENTLY MARRIED?: <%= yesno(@applicant.serviceBefore1977&.married) %>
-
-B. HAVE DEPENDENTS: <%= yesno(@applicant.serviceBefore1977&.haveDependents) %>
-
-C. IS EITHER YOUR FATHER OR MOTHER DEPENDENT UPON YOU FOR FINANCIAL SUPPORT?: <%= yesno(@applicant.serviceBefore1977&.parentDependent) %>
-
-7. RECENT PERIODS OF SERVICE (PERIODS OF ACTIVE DUTY SINCE YOUR INITIAL PERIOD OF ACTIVE DUTY.) Please complete this section for each period of your active duty since your initial period of active duty if you have not previously reported this information. It will help VA process your claim if you attach a certified copy of "Member 4 Copy" of your DD Form 214 for each period of active service. (Don't report Active Duty for Training.)
-
-<% @applicant.toursOfDuty&.each do |tour| -%>
-A. BRANCH OF SERVICE AND RESERVE OR GUARD COMPONENT SERVED IN DURING ACTIVE DUTY: <%= tour.serviceBranch %>
-B. BEGINNING AND ENDING DATES OF ACTIVE DUTY: <%= tour.dateRange.from %> <%= tour.dateRange.to %>
-
+Date Entered   Date Separated     Service Component
+<% @applicant&.toursOfDuty&.each do |tour| -%>
+<%= tour.dateRange.from %>     <%= tour.dateRange.to %>         <%= tour.serviceBranch %>
 <% end %>
-8. DO YOU EXPECT TO RECEIVE EDUCATIONAL BENEFITS UNDER THE GOVERNMENT EMPLOYEE'S TRAINING ACT (GETA) FOR THE SAME COURSE(S) YOU WILL RECEIVE VA EDUCATION BENEFITS? (Answer only if you are a Federal Government employee): <%= yesno(@applicant.civilianBenefitsAssistance) %>
 
-9. ARE YOU RECEIVING OR DO YOU ANTICIPATE RECEIVING ANY MONEY (including but not limited to Federal Tuition Assistance) FROM THE ARMED FORCES OR PUBLIC HEALTH SERVICE FOR THE COURSE FOR WHICH YOU HAVE APPLIED TO VA FOR EDUCATION BENEFITS? IF YOU WILL RECEIVE SUCH BENEFITS, CHECK "YES." SHOW COMPLETE DETAILS IN THE REMARKS SECTION TO INCLUDE THE SOURCE OF THE FUNDS. NOTE: IF YOU ARE APPLYING FOR THE TUITION ASSISTANCE TOP-UP BENEFIT, CHECK "NO." (Answer only if you are on Active Duty): <%= yesno(@applicant.nonVaAssistance) %>
 
-10. REMARKS
-<%= @applicant.remarks %>
+          ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
+          ----------------------------------------------------------
+
+For Active Duty Claimants Only. Are you receiving or do you anticipate receiving any money (including but not limited to Federal Tuition Assistance) from the Armed Forces or Public Health Service for the course for which you have applied to the VA for Education Benefits?  If you receive such benefits during any part of your training, check 'Yes.' Note:  If you are only applying for Tuition Assistance Top-Up, check 'No' to this item.    <%= yesno(@applicant.nonVaAssistance) %>
+
+For Civilian Employees of the U.S. Federal Government Only. Are you receiving or do you anticipate receiving any money from your agency (including but not limited to the Government Employees Training Act) for the same period for which you have applied to the VA for Education Benefits? If you will receive such benefits during any part of your training, check Yes.    <%= yesno(@applicant.civilianBenefitsAssistance) %>
+
+
+                        MARITAL AND DEPENDENCY STATUS
+           (For Applicants with Military Service Before Jan 1, 1977)
+           ---------------------------------------------------------
+
+
+<% if @applicant.serviceBefore1977 -%>
+Married: <%= yesno(@applicant.serviceBefore1977.married) %>
+Has Dependents: <%= yesno(@applicant.serviceBefore1977.haveDependents) %>
+Parent Dependent: <%= yesno(@applicant.serviceBefore1977.parentDependent) %>
+<% else -%>
+N/A
+<% end -%>
+
+
+      Certification and Signature of Applicant
+Signature of Applicant                                               Date
+
+      Certification for Persons on Active Duty
+Signature/Title/Branch of Armed Forces Education Service Officer     Date
 
 <%= parse_with_template_path('footer') %>
