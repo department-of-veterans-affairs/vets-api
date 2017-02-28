@@ -18,13 +18,15 @@
   "oldSchool": {
     "name": "old school name",
     "address": {
-      "city": "Baltimore",
+      "city": "Anytown",
       "country": "USA",
-      "postalCode": "21231",
-      "state": "MD",
-      "street": "111 Uni Drive"
+      "postalCode": "41414",
+      "state": "MA",
+      "street": "2222 Uni Drive"
     }
   },
+  "preferredContactMethod": "email",
+  "trainingEndDate": "2007-06-XX",
   "reasonForChange": "reason for change",
   "vaFileNumber": "c12345678",
   "homePhone": "5551110000",

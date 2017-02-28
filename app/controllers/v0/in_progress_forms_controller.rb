@@ -2,9 +2,10 @@
 module V0
   class InProgressFormsController < ApplicationController
     def show
-      form = InProgressForm.where(form_id: params[:id], user_uuid: @current_user.uuid).take
-      raise Common::Exceptions::RecordNotFound, params[:id] unless form
-      render json: form.form_data
+      form_id = params[:id]
+      form = InProgressForm.form_for_user(form_id, @current_user)
+      result = form ? form.form_data : FormProfile.new.prefill_form(form_id, @current_user)
+      render json: result
     end
 
     def update
