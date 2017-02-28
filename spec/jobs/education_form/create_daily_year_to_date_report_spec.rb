@@ -32,6 +32,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       create(:education_benefits_submission, created_at: date, status: 'submitted')
       create(:education_benefits_submission, form_type: '1995')
       create(:education_benefits_submission, form_type: '1990e')
+      create(:education_benefits_submission, form_type: '5490')
     end
 
     context 'with the date variable set' do
@@ -110,6 +111,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
             let(:status) { status }
 
             it 'should return data about the number of submissions' do
+              binding.pry; fail
               expect(subject).to eq(result)
             end
           end
