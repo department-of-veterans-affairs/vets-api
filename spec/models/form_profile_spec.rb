@@ -26,7 +26,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  after(:each) do
+  before(:each) do
     subject.class.instance_variable_set(:@mappings, nil)
   end
 
