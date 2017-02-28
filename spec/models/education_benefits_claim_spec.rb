@@ -182,7 +182,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
   end
 
-  %w(1990 1995 1990e).each do |form_type|
+  %w(1990 1995 1990e 5490).each do |form_type|
     method = "is_#{form_type}?"
 
     describe "##{method}" do
