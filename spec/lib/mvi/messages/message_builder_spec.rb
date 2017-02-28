@@ -48,14 +48,16 @@ describe MVI::Messages::MessageBuilder do
     describe 'processing code node' do
       context 'in non-production environments' do
         it 'has a processing code node of T' do
-          Settings.mvi.processing_code = 'T'
-          expect(message.locate('processingCode').first.attributes).to eq(code: 'T')
+          with_settings(Settings.mvi, {processing_code: 'T'}) do
+            expect(message.locate('processingCode').first.attributes).to eq(code: 'T')
+          end
         end
       end
       context 'in production environments' do
         it 'has a processing code node of P' do
-          Settings.mvi.processing_code = 'P'
-          expect(message.locate('processingCode').first.attributes).to eq(code: 'P')
+          with_settings(Settings.mvi, {processing_code: 'P'}) do
+            expect(message.locate('processingCode').first.attributes).to eq(code: 'P')
+          end
         end
       end
     end

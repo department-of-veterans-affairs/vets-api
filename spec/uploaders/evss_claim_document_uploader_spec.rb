@@ -7,26 +7,26 @@ RSpec.describe EVSSClaimDocumentUploader do
   describe 'initialize' do
     context 'when uploads are disabled' do
       it 'should set storage to file' do
-        Settings.evss.s3.uploads_enabled = false
-        expect(subject.class.storage).to eq(CarrierWave::Storage::File)
+        with_settings(Settings.evss.s3, {uploads_enabled: false}) do
+          expect(subject.class.storage).to eq(CarrierWave::Storage::File)
+        end
       end
     end
     context 'when uploads are set to nil' do
       it 'should set storage to file' do
-        Settings.evss.s3.uploads_enabled = nil
-        expect(subject.class.storage).to eq(CarrierWave::Storage::File)
-        Settings.evss.s3.uploads_enabled = false
+        with_settings(Settings.evss.s3, {uploads_enabled: nil}) do
+          expect(subject.class.storage).to eq(CarrierWave::Storage::File)
+        end
       end
     end
     context 'when uploads are enabled' do
       it 'should set storage to fog' do
-        Settings.evss.s3.uploads_enabled = true
-
-        expect(subject.class.storage).to eq(CarrierWave::Storage::AWS)
-        expect(subject.aws_credentials).to eq(region: 'evss_s3_region')
-        expect(subject.aws_acl).to eq('private')
-        expect(subject.aws_bucket).to eq('evss_s3_bucket')
-        Settings.evss.s3.uploads_enabled = false
+        with_settings(Settings.evss.s3, {uploads_enabled: true}) do
+          expect(subject.class.storage).to eq(CarrierWave::Storage::AWS)
+          expect(subject.aws_credentials).to eq(region: 'evss_s3_region')
+          expect(subject.aws_acl).to eq('private')
+          expect(subject.aws_bucket).to eq('evss_s3_bucket')
+        end
       end
     end
   end

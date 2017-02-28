@@ -20,6 +20,32 @@ require 'common/exceptions'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
+# Helper function for testing changes to the global Settings object
+# Pass in the particular settings object that you want to change,
+# along with temporary values that should be set on that object.
+# For example,
+#
+# with_settings(Settings.some_group, {foo: 'temp1', bar: 'temp2'}) do
+#   expect(something).to equal(2)
+# end
+def with_settings(settings, temp_values)
+  old_settings = temp_values.keys.map {|k| [k, settings[k]] }.to_h
+
+  # The `Config` object doesn't support `.merge!`, so manually copy
+  # the updated values.
+  begin
+    temp_values.each do |k, v|
+      settings[k] = v
+    end
+
+    yield
+  ensure
+    old_settings.each do |k, v|
+      settings[k] = v
+    end
+  end
+end
+
 VCR.configure do |c|
   c.cassette_library_dir = 'spec/support/vcr_cassettes'
   c.hook_into :webmock
