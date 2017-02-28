@@ -13,6 +13,7 @@ module EducationForm::Forms
     # one is 'first' in the header.
     def benefit_type(application)
       return 'CH1606' if application.chapter1606
+      return 'CH1607' if application.chapter1607
       return 'CH33' if application.chapter33
       return 'CH30' if application.chapter30
       return 'CH32' if application.chapter32
