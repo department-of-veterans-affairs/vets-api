@@ -56,7 +56,13 @@ RSpec.describe FormProfile, type: :model do
       let(:instance2) { FormProfile.new }
 
       it 'loads the yaml file only once' do
-        expect(YAML).to receive(:load_file).once.and_return('foo' => %w(bar bar))
+        expect(YAML).to receive(:load_file).once.and_return(
+          'veteran_full_name' => ['identity_information', 'full_name'],
+          'gender' => ['identity_information', 'gender'],
+          'veteran_date_of_birth' => ['identity_information', 'date_of_birth'],
+          'veteran_address' => ['contact_information', 'address'],
+          'home_phone' => ['contact_information', 'home_phone']
+        )
         instance1.prefill_form('healthcare_application', user)
         instance2.prefill_form('healthcare_application', user)
       end
