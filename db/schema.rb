@@ -41,7 +41,7 @@ ActiveRecord::Schema.define(version: 20170228013605) do
     t.string   "status",                      default: "submitted", null: false
     t.integer  "education_benefits_claim_id"
     t.string   "form_type",                   default: "1990",      null: false
-    t.boolean  "chapter_35",                  default: false,       null: false
+    t.boolean  "chapter35",                   default: false,       null: false
   end
 
   add_index "education_benefits_submissions", ["education_benefits_claim_id"], name: "index_education_benefits_claim_id", unique: true, using: :btree
