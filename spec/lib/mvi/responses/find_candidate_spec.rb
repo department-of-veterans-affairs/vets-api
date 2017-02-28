@@ -37,7 +37,16 @@ describe MVI::Responses::FindCandidate do
             icn: '1000123456V123456^NI^200M^USVHA^P',
             mhv_ids: ['123456^PI^200MHV^USVHA^A'],
             ssn: '555443333',
-            active_status: 'active'
+            active_status: 'active',
+            address: {
+              street_address_line: '121 A St',
+              city: 'Austin',
+              state: 'TX',
+              postal_code: '78772',
+              country: 'USA'
+            },
+            home_phone: '1112223333',
+            suffix: 'Sr'
           )
         end
       end
@@ -55,7 +64,16 @@ describe MVI::Responses::FindCandidate do
             icn: '1000123456V123456^NI^200M^USVHA^P',
             mhv_ids: ['123456^PI^200MHV^USVHA^A'],
             ssn: '555443333',
-            active_status: 'active'
+            active_status: 'active',
+            address: {
+              street_address_line: '121 A St',
+              city: 'Austin',
+              state: 'TX',
+              postal_code: '78772',
+              country: 'USA'
+            },
+            home_phone: '1112223333',
+            suffix: nil
           )
         end
       end
@@ -80,7 +98,16 @@ describe MVI::Responses::FindCandidate do
           given_names: %w(Mitchell),
           icn: '1008714701V416111^NI^200M^USVHA^P',
           ssn: '796122306',
-          active_status: 'active'
+          active_status: 'active',
+          address: {
+            street_address_line: '121 A St',
+            city: 'Austin',
+            state: 'TX',
+            postal_code: '78772',
+            country: 'USA'
+          },
+          home_phone: nil,
+          suffix: nil
         )
       end
     end
@@ -198,7 +225,16 @@ describe MVI::Responses::FindCandidate do
         icn: '12345678901234567^NI^200M^USVHA^P',
         mhv_ids: %w(12345678901^PI^200MH^USVHA^A 12345678902^PI^200MH^USVHA^A),
         ssn: '111223333',
-        active_status: 'active'
+        active_status: 'active',
+        address: {
+          street_address_line: '42 MAIN ST',
+          city: 'SPRINGFIELD',
+          state: 'IL',
+          postal_code: '62722',
+          country: 'USA'
+        },
+        home_phone: '1112223333 p1',
+        suffix: nil
       )
     end
   end

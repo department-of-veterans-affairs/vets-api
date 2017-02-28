@@ -22,4 +22,7 @@ Sidekiq.configure_client do |config|
   config.client_middleware do |chain|
     chain.add Sidekiq::Instrument::ClientMiddleware
   end
+
+  # Remove the default error handler
+  config.error_handlers.delete_if { |handler| handler.is_a?(Sidekiq::ExceptionHandler::Logger) }
 end
