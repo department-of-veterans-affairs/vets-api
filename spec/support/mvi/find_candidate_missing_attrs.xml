@@ -81,9 +81,7 @@
                       code="M"/>
                   <birthTime value="19490304"/>
                   <addr use="PHYS">
-                    <streetAddressLine>121
-                      A St
-                    </streetAddressLine>
+                    <streetAddressLine>121 A St</streetAddressLine>
                     <city>Austin</city>
                     <state>TX</state>
                     <postalCode>78772</postalCode>
