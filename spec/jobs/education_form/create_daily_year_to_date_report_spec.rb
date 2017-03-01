@@ -2,18 +2,18 @@
 require 'rails_helper'
 
 RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
-  let(:date) { Time.zone.today }
+  let(:date) { Time.zone.today - 1.day }
   subject do
     described_class.new
   end
 
-  context 'with some sample submissions', run_at: '2017-01-03 03:00:00 EDT' do
+  context 'with some sample submissions', run_at: '2017-01-04 03:00:00 EDT' do
     before do
       2.times do
-        create(:education_benefits_submission, status: :processed)
+        create(:education_benefits_submission, status: :processed, created_at: date)
       end
 
-      create(:education_benefits_submission, status: :processed, region: :western, chapter33: false, chapter1606: true)
+      create(:education_benefits_submission, status: :processed, region: :western, chapter33: false, chapter1606: true, created_at: date)
 
       # outside of yearly range
       create(:education_benefits_submission, created_at: date - 1.year, status: 'processed')
@@ -21,9 +21,9 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       create(:education_benefits_submission, created_at: date - 26.hours, status: 'processed')
 
       create(:education_benefits_submission, created_at: date, status: 'submitted')
-      create(:education_benefits_submission, form_type: '1995')
-      create(:education_benefits_submission, form_type: '1990e')
-      create(:education_benefits_submission, form_type: '5490')
+      create(:education_benefits_submission, form_type: '1995', created_at: date)
+      create(:education_benefits_submission, form_type: '1990e', created_at: date)
+      create(:education_benefits_submission, form_type: '5490', created_at: date)
     end
 
     context 'with the date variable set' do
