@@ -109,7 +109,6 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       end
 
       describe '#calculate_submissions' do
-        # rubocop:disable LineLength
         subject do
           job_with_date.create_csv_header
           job_with_date.calculate_submissions(range_type: range_type, status: status)
@@ -120,101 +119,23 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
             let(:status) { status }
 
             it 'should return data about the number of submissions' do
-              expect(subject).to eq(result)
+              expect(subject.deep_stringify_keys).to eq(result)
             end
           end
         end
 
-        context 'for the current year' do
-          let(:range_type) { :year }
+        %i(day year).each do |range_type|
+          %i(processed submitted).each do |status|
+            context "for the current #{range_type}" do
+              let(:range_type) { range_type }
 
-          verify_status_numbers(
-            :processed,
-            '1990' =>
-              { eastern: { 'chapter33' => 3, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0, 'chapter35' => 0 } },
-            '1995' => { eastern: { all: 0 }, southern: { all: 0 }, central: { all: 0 }, western: { all: 0 } },
-            '1990e' =>
-              { eastern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 } },
-            '5490' =>
-              { eastern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 } }
-          )
-
-          verify_status_numbers(
-            :submitted,
-            '1990' =>
-              { eastern: { 'chapter33' => 4, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0, 'chapter35' => 0 } },
-            '1995' => { eastern: { all: 1 }, southern: { all: 0 }, central: { all: 0 }, western: { all: 0 } },
-            '1990e' =>
-              { eastern: { 'chapter33' => 1, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 } },
-            '5490' =>
-              { eastern: { 'chapter33' => 1, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 } }
-
-          )
+              verify_status_numbers(
+                status,
+                JSON.parse(File.read("spec/fixtures/education_form/ytd_#{range_type}_#{status}.json"))
+              )
+            end
+          end
         end
-
-        context 'for the current day' do
-          let(:range_type) { :day }
-
-          verify_status_numbers(
-            :processed,
-            '1990' =>
-              { eastern: { 'chapter33' => 2, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0, 'chapter35' => 0 } },
-            '1995' => { eastern: { all: 0 }, southern: { all: 0 }, central: { all: 0 }, western: { all: 0 } },
-            '1990e' =>
-              { eastern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 } },
-            '5490' =>
-              { eastern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 } }
-
-          )
-
-          verify_status_numbers(
-            :submitted,
-            '1990' =>
-              { eastern: { 'chapter33' => 3, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0, 'chapter35' => 0 } },
-            '1995' => { eastern: { all: 1 }, southern: { all: 0 }, central: { all: 0 }, western: { all: 0 } },
-            '1990e' =>
-              { eastern: { 'chapter33' => 1, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 } },
-            '5490' =>
-              { eastern: { 'chapter33' => 1, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0, 'chapter35' => 0 } }
-          )
-        end
-        # rubocop:enable LineLength
       end
     end
 
