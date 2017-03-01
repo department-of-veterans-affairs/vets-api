@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# rubocop:disable Metrics/MethodLength
 def stub_mvi
   allow(Mvi).to receive(:find).and_return(
     Mvi.new(
@@ -14,7 +15,16 @@ def stub_mvi
         icn: '1000123456V123456^NI^200M^USVHA^P',
         mhv_ids: ['123456^PI^200MH^USVHA^A'],
         ssn: '272111863',
-        active_status: 'active'
+        active_status: 'active',
+        address: {
+          street_address_line: '140 Rock Creek Church Road NW',
+          city: 'Washington',
+          state: 'DC',
+          postal_code: '20011',
+          country: 'USA'
+        },
+        home_phone: '2028290436',
+        suffix: nil
       }
     )
   )
