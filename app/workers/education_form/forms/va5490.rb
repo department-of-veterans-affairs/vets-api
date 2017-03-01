@@ -4,5 +4,9 @@ module EducationForm::Forms
     def applicant_name
       @applicant.relativeFullName
     end
+
+    def applicant_ssn
+      @applicant.relativeSocialSecurityNumber
+    end
   end
 end
