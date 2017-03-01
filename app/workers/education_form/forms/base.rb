@@ -15,6 +15,10 @@ module EducationForm::Forms
       klass.new(app)
     end
 
+    def benefit_type(application)
+      application.benefit&.gsub('chapter', 'CH')
+    end
+
     def disclosure_for(type)
       return if type.blank?
       "#{parse_with_template_path("1990-disclosure/_#{type}")}\n"
