@@ -8,5 +8,9 @@ module EducationForm::Forms
     def applicant_ssn
       @applicant.relativeSocialSecurityNumber
     end
+
+    def school
+      @applicant.educationProgram
+    end
   end
 end
