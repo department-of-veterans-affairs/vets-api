@@ -51,16 +51,22 @@ pipeline {
         }
       }
     }
-  }
 
-  post {
-    success {
-      build job: 'vets-review-instance-deploy', parameters: [
-        stringParam(name: 'devops_branch', value: 'master'),
-        stringParam(name: 'api_branch', value: scm.branches[0].name),
-        stringParam(name: 'web_branch', value: 'master'),
-        stringParam(name: 'source_repo', value: 'vets-api'),
-      ], wait: false
+    stage('Review') {
+      when {
+        expression {
+          !['master', 'production'].contains(env.BRANCH_NAME)
+        }
+      }
+
+      steps { 
+        build job: 'vets-review-instance-deploy', parameters: [
+          stringParam(name: 'devops_branch', value: 'master'),
+          stringParam(name: 'api_branch', value: env.BRANCH_NAME),
+          stringParam(name: 'web_branch', value: 'master'),
+          stringParam(name: 'source_repo', value: 'vets-api'),
+        ], wait: false
+      }
     }
   }
 }

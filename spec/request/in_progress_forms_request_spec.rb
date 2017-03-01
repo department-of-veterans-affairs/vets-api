@@ -9,6 +9,13 @@ RSpec.describe 'in progress forms', type: :request do
   before do
     Session.create(uuid: user.uuid, token: token)
     User.create(user)
+    allow(YAML).to receive(:load_file).and_return(
+      'veteran_full_name' => ['identity_information', 'full_name'],
+      'gender' => ['identity_information', 'gender'],
+      'veteran_date_of_birth' => ['identity_information', 'date_of_birth'],
+      'veteran_address' => ['contact_information', 'address'],
+      'home_phone' => ['contact_information', 'home_phone']
+    )
   end
 
   describe 'GET' do
@@ -23,9 +30,34 @@ RSpec.describe 'in progress forms', type: :request do
     end
 
     context 'when a form is not found' do
-      it 'responds with a 404' do
-        get v0_in_progress_form_url(99), nil, auth_header
-        expect(response).to have_http_status(:not_found)
+      it 'returns pre-fill data' do
+        get v0_in_progress_form_url('healthcare_application'), nil, auth_header
+        expect(response.body).to eq({
+          'veteranFullName' => {
+            'first' => 'Abraham',
+            'middle' => nil,
+            'last' => 'Lincoln',
+            'suffix' => nil
+          },
+          'gender' => 'M',
+          'veteranDateOfBirth' => '1809-02-12',
+          'veteranAddress' => {
+            'street' => '140 Rock Creek Church Road NW',
+            'street_2' => nil,
+            'city' => 'Washington',
+            'state' => 'DC',
+            'country' => 'USA',
+            'postal_code' => '20011'
+          },
+          'homePhone' => '2028290436'
+        }.to_json)
+      end
+    end
+
+    context 'when a form mapping is not found' do
+      it 'returns a 500' do
+        get v0_in_progress_form_url('foo'), nil, auth_header
+        expect(response).to have_http_status(500)
       end
     end
   end
