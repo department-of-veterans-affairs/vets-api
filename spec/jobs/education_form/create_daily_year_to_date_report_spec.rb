@@ -112,42 +112,43 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
 
           verify_status_numbers(
             :processed,
-            '1990' =>
-              { eastern: { 'chapter33' => 3, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 } },
-            '1995' => { eastern: { all: 0 }, southern: { all: 0 }, central: { all: 0 }, western: { all: 0 } },
-            '1990e' =>
-              { eastern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } },
-            '5490' =>
-              { eastern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } }
+            {"1990"=>
+              {:eastern=>{"chapter33"=>3, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :southern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :central=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :western=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>1, "chapter32"=>0, "chapter35"=>0}},
+             "1995"=>{:eastern=>{:all=>0}, :southern=>{:all=>0}, :central=>{:all=>0}, :western=>{:all=>0}},
+             "1990e"=>
+              {:eastern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :southern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :central=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :western=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0}},
+             "5490"=>
+              {:eastern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :southern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :central=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :western=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0}}}
           )
 
           verify_status_numbers(
             :submitted,
-            '1990' =>
-              { eastern: { 'chapter33' => 4, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 } },
-            '1995' => { eastern: { all: 1 }, southern: { all: 0 }, central: { all: 0 }, western: { all: 0 } },
-            '1990e' =>
-              { eastern: { 'chapter33' => 1, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } },
-            '5490' =>
-              { eastern: { 'chapter33' => 1, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } }
+            {"1990"=>
+              {:eastern=>{"chapter33"=>4, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :southern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :central=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :western=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>1, "chapter32"=>0, "chapter35"=>0}},
+             "1995"=>{:eastern=>{:all=>1}, :southern=>{:all=>0}, :central=>{:all=>0}, :western=>{:all=>0}},
+             "1990e"=>
+              {:eastern=>{"chapter33"=>1, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :southern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :central=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :western=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0}},
+             "5490"=>
+              {:eastern=>{"chapter33"=>1, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :southern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :central=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :western=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0}}}
+
           )
         end
 
@@ -156,43 +157,43 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
 
           verify_status_numbers(
             :processed,
-            '1990' =>
-              { eastern: { 'chapter33' => 2, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 } },
-            '1995' => { eastern: { all: 0 }, southern: { all: 0 }, central: { all: 0 }, western: { all: 0 } },
-            '1990e' =>
-              { eastern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } },
-            '5490' =>
-              { eastern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } }
+            {"1990"=>
+              {:eastern=>{"chapter33"=>2, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :southern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :central=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :western=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>1, "chapter32"=>0, "chapter35"=>0}},
+             "1995"=>{:eastern=>{:all=>0}, :southern=>{:all=>0}, :central=>{:all=>0}, :western=>{:all=>0}},
+             "1990e"=>
+              {:eastern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :southern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :central=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :western=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0}},
+             "5490"=>
+              {:eastern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :southern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :central=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :western=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0}}}
+
           )
 
           verify_status_numbers(
             :submitted,
-            '1990' =>
-              { eastern: { 'chapter33' => 3, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 } },
-            '1995' => { eastern: { all: 1 }, southern: { all: 0 }, central: { all: 0 }, western: { all: 0 } },
-            '1990e' =>
-              { eastern: { 'chapter33' => 1, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } },
-            '5490' =>
-              { eastern: { 'chapter33' => 1, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } }
-
+            {"1990"=>
+              {:eastern=>{"chapter33"=>3, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :southern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :central=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :western=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>1, "chapter32"=>0, "chapter35"=>0}},
+             "1995"=>{:eastern=>{:all=>1}, :southern=>{:all=>0}, :central=>{:all=>0}, :western=>{:all=>0}},
+             "1990e"=>
+              {:eastern=>{"chapter33"=>1, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :southern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :central=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :western=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0}},
+             "5490"=>
+              {:eastern=>{"chapter33"=>1, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :southern=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :central=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0},
+               :western=>{"chapter33"=>0, "chapter30"=>0, "chapter1606"=>0, "chapter32"=>0, "chapter35"=>0}}}
           )
         end
       end
