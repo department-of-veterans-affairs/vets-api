@@ -3,8 +3,6 @@ module V0
   class EducationBenefitsClaimsController < ApplicationController
     skip_before_action(:authenticate)
 
-    STATSD_SUBMISSION_KEY = 'api.education_benefits_claim.221990.'
-
     def create
       education_benefits_claim = EducationBenefitsClaim.new(education_benefits_claim_params)
 
@@ -15,11 +13,11 @@ module V0
 
         logger.error(validation_error)
 
-        StatsD.increment("#{STATSD_SUBMISSION_KEY}failure")
+        StatsD.increment("#{stats_key}.failure")
         raise Common::Exceptions::ValidationErrors, education_benefits_claim
       end
 
-      StatsD.increment("#{STATSD_SUBMISSION_KEY}success")
+      StatsD.increment("#{stats_key}.success")
 
       render(json: education_benefits_claim)
     end
@@ -32,6 +30,11 @@ module V0
       allowed_params[:form_type] = form_type if form_type.present?
 
       allowed_params
+    end
+
+    def stats_key
+      form = education_benefits_claim_params[:form_type] || '1990'
+      "api.education_benefits_claim.22#{form}"
     end
   end
 end
