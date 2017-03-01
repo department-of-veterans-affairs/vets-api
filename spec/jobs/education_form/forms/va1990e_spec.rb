@@ -6,10 +6,6 @@ RSpec.describe EducationForm::Forms::VA1990e do
 
   subject { described_class.new(education_benefits_claim) }
 
-  it 'has a 22-1990e type' do
-    expect(described_class::TYPE).to eq('22-1990e')
-  end
-
   context 'method tests' do
     before do
       allow_any_instance_of(described_class).to receive(:format)

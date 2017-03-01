@@ -292,6 +292,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         'chapter30' => false,
         'chapter1606' => true,
         'chapter32' => false,
+        'chapter35' => false,
         'status' => 'submitted',
         'form_type' => '1990',
         'education_benefits_claim_id' => subject.id
@@ -312,6 +313,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           'chapter30' => false,
           'chapter1606' => false,
           'chapter32' => false,
+          'chapter35' => false,
           'status' => 'submitted',
           'education_benefits_claim_id' => subject.id,
           'form_type' => '1995'
@@ -333,6 +335,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           'chapter30' => false,
           'chapter1606' => true,
           'chapter32' => false,
+          'chapter35' => false,
           'status' => 'submitted',
           'education_benefits_claim_id' => subject.id,
           'form_type' => '1990e'
