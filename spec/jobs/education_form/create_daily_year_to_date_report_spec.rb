@@ -111,7 +111,6 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
             let(:status) { status }
 
             it 'should return data about the number of submissions' do
-              binding.pry; fail
               expect(subject).to eq(result)
             end
           end
@@ -132,6 +131,11 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
               { eastern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } },
+            '5490' =>
+              { eastern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } }
           )
 
@@ -144,6 +148,11 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
                 western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 } },
             '1995' => { eastern: { all: 1 }, southern: { all: 0 }, central: { all: 0 }, western: { all: 0 } },
             '1990e' =>
+              { eastern: { 'chapter33' => 1, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } },
+            '5490' =>
               { eastern: { 'chapter33' => 1, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
@@ -166,6 +175,11 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
               { eastern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } },
+            '5490' =>
+              { eastern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } }
           )
 
@@ -181,7 +195,13 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
               { eastern: { 'chapter33' => 1, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } },
+            '5490' =>
+              { eastern: { 'chapter33' => 1, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } }
+
           )
         end
       end
