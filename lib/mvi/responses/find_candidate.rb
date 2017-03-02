@@ -95,6 +95,7 @@ module MVI
 
       def parse_address(patient)
         el = locate_element(patient, ADDRESS_XPATH)
+        return nil unless el
         el.nodes.map { |n| { n.value.snakecase.to_sym => n.nodes.first } }.reduce({}, :merge)
       end
 
