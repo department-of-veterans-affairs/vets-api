@@ -1,7 +1,7 @@
 development: &defaults
   redis:
-    host: <%= ENV["REDIS_HOST"] %>
-    port: <%= ENV["REDIS_PORT"] %>
+    host: <%= Settings.redis.host %>
+    port: <%= Settings.redis.port %>
   session_store:
     namespace: vets-api-session
     each_ttl: 3600

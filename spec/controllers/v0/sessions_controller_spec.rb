@@ -58,7 +58,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     it 'responds with error when logout request is not found' do
       expect(Rails.logger).to receive(:error).exactly(1).times
       expect(post(:saml_logout_callback, SAMLResponse: '-'))
-        .to redirect_to(SAML_CONFIG['logout_relay'] + '?success=false')
+        .to redirect_to(Settings.saml.logout_relay + '?success=false')
     end
     context ' logout has been requested' do
       before { SingleLogoutRequest.create(uuid: logout_uuid, token: token) }
@@ -69,7 +69,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'redirects to error' do
           expect(Rails.logger).to receive(:error).with(/bad thing/).exactly(1).times
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
-            .to redirect_to(SAML_CONFIG['logout_relay'] + '?success=false')
+            .to redirect_to(Settings.saml.logout_relay + '?success=false')
         end
       end
       context ' logout_response is success' do
@@ -80,7 +80,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(Session.find(token)).to_not be_nil
           expect(User.find(uuid)).to_not be_nil
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
-            .to redirect_to(redirect_to(SAML_CONFIG['logout_relay'] + '?success=true'))
+            .to redirect_to(redirect_to(Settings.saml.logout_relay + '?success=true'))
           expect(Session.find(token)).to be_nil
           expect(User.find(uuid)).to be_nil
         end
@@ -101,7 +101,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
         it 'redirects to an auth failure page' do
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::CLICKED_DENY_MSG}/)
-          expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
       end
@@ -109,7 +109,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_late) }
         it 'redirects to an auth failure page' do
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::TOO_LATE_MSG}/)
-          expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
       end
@@ -117,7 +117,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_early) }
         it 'redirects to an auth failure page' do
           expect(Rails.logger).to receive(:error).with(/#{SAML::AuthFailHandler::TOO_EARLY_MSG}/)
-          expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
       end
@@ -125,7 +125,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         before { allow(User).to receive(:from_saml).and_return(invalid_user) }
         it 'logs a generic error' do
           expect(Rails.logger).to receive(:error).with(/user:    \'valid\?=false errors=\["Uuid can\'t be blank"\]/)
-          expect(post(:saml_callback)).to redirect_to(SAML_CONFIG['relay'] + '?auth=fail')
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
       end

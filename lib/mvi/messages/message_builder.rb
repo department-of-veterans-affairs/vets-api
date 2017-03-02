@@ -79,7 +79,7 @@ module MVI
       private
 
       def processing_code
-        ENV['MVI_PROCESSING_CODE']
+        Settings.mvi.processing_code
       end
     end
     class MessageBuilderError < StandardError

@@ -46,16 +46,16 @@ describe MVI::Messages::MessageBuilder do
     end
 
     describe 'processing code node' do
-      context 'in non production environments' do
+      context 'in non-production environments' do
         it 'has a processing code node of T' do
-          ClimateControl.modify MVI_PROCESSING_CODE: 'T' do
+          with_settings(Settings.mvi, {processing_code: 'T'}) do
             expect(message.locate('processingCode').first.attributes).to eq(code: 'T')
           end
         end
       end
       context 'in production environments' do
         it 'has a processing code node of P' do
-          ClimateControl.modify MVI_PROCESSING_CODE: 'P' do
+          with_settings(Settings.mvi, {processing_code: 'P'}) do
             expect(message.locate('processingCode').first.attributes).to eq(code: 'P')
           end
         end

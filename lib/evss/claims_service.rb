@@ -3,7 +3,7 @@ require 'evss/base_service'
 
 module EVSS
   class ClaimsService < BaseService
-    BASE_URL = "#{ENV['EVSS_BASE_URL']}/wss-claims-services-web-3.0/rest"
+    BASE_URL = "#{Settings.evss.url}/wss-claims-services-web-3.0/rest"
 
     def all_claims
       get 'vbaClaimStatusService/getClaims'

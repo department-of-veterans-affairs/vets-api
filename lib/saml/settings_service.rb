@@ -24,7 +24,7 @@ module SAML
       private
 
       def connection
-        Faraday.new(SAML_CONFIG['metadata_url']) do |conn|
+        Faraday.new(Settings.saml.metadata_url) do |conn|
           conn.options.open_timeout = OPEN_TIMEOUT
           conn.options.timeout = TIMEOUT
           conn.adapter :net_http
@@ -50,10 +50,10 @@ module SAML
       def settings
         settings = OneLogin::RubySaml::Settings.new
 
-        settings.certificate = SAML_CONFIG['certificate']
-        settings.private_key = SAML_CONFIG['key']
-        settings.issuer = SAML_CONFIG['issuer']
-        settings.assertion_consumer_service_url = SAML_CONFIG['callback_url']
+        settings.certificate = Settings.saml.certificate
+        settings.private_key = Settings.saml.key
+        settings.issuer = Settings.saml.issuer
+        settings.assertion_consumer_service_url = Settings.saml.callback_url
 
         settings.security[:authn_requests_signed] = true
         settings.security[:logout_requests_signed] = true

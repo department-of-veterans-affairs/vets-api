@@ -99,6 +99,9 @@ GEM
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     concurrent-ruby (1.0.2)
+    config (1.4.0)
+      activesupport (>= 3.0)
+      deep_merge (~> 1.1.1)
     connection_pool (2.2.0)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
@@ -106,6 +109,7 @@ GEM
       activemodel
       activesupport
     debug_inspector (0.0.2)
+    deep_merge (1.1.1)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.2.5)
@@ -402,6 +406,7 @@ DEPENDENCIES
   carrierwave (~> 0.11)
   carrierwave-aws
   climate_control (= 0.0.3)
+  config
   date_validator
   factory_girl_rails
   faker
