@@ -5,8 +5,6 @@ require 'common/client/middleware/response/soap_parser'
 
 module HCA
   class Configuration < Common::Client::Configuration::SOAP
-    CONFIG = Rails.application.config_for(:health_care_application).freeze
-
     def self.cert_store(paths)
       store = OpenSSL::X509::Store.new
       Array(paths).each do |path|
@@ -17,10 +15,10 @@ module HCA
 
     HEALTH_CHECK_ID = 377_609_264
     WSDL = Rails.root.join('config', 'health_care_application', 'wsdl', 'voa.wsdl')
-    CERT_STORE = (cert_store(CONFIG['ca']) if CONFIG['ca'])
+    CERT_STORE = cert_store(Settings.hca.ca)
 
     SSL_CERT = begin
-      OpenSSL::X509::Certificate.new(File.read(ENV['ES_CLIENT_CERT_PATH']))
+      OpenSSL::X509::Certificate.new(File.read(Settings.hca.cert_path))
     rescue => e
       # :nocov:
       Rails.logger.warn "Could not load ES SSL cert: #{e.message}"
@@ -30,7 +28,7 @@ module HCA
     end
 
     SSL_KEY = begin
-      OpenSSL::PKey::RSA.new(File.read(ENV['ES_CLIENT_KEY_PATH']))
+      OpenSSL::PKey::RSA.new(File.read(Settings.hca.key_path))
     rescue => e
       # :nocov:
       Rails.logger.warn "Could not load ES SSL key: #{e.message}"
@@ -40,7 +38,7 @@ module HCA
     end
 
     def base_path
-      CONFIG['endpoint']
+      Settings.hca.endpoint
     end
 
     def service_name

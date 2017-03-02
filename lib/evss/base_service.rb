@@ -68,22 +68,23 @@ module EVSS
     end
 
     def cert?
-      ENV['EVSS_CERT_FILE_PATH'].present? ||
-        ENV['EVSS_CERT_KEY_PATH'].present? ||
-        ENV['EVSS_ROOT_CERT_FILE_PATH'].present?
+      # TODO(knkski): Is this logic correct?
+      Settings.evss.cert_path.present? ||
+        Settings.evss.key_path.present? ||
+        Settings.evss.root_cert_path.present?
     end
 
     # :nocov:
     def client_cert
-      OpenSSL::X509::Certificate.new File.read(ENV['EVSS_CERT_FILE_PATH'])
+      OpenSSL::X509::Certificate.new File.read(Settings.evss.cert_path)
     end
 
     def client_key
-      OpenSSL::PKey::RSA.new File.read(ENV['EVSS_CERT_KEY_PATH'])
+      OpenSSL::PKey::RSA.new File.read(Settings.evss.key_path)
     end
 
     def root_ca
-      ENV['EVSS_ROOT_CERT_FILE_PATH']
+      Settings.evss.root_cert_path
     end
     # :nocov:
   end

@@ -156,7 +156,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
     it 'writes files out over sftp' do
       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
-      ClimateControl.modify EDU_SFTP_HOST: 'localhost', EDU_SFTP_PASS: 'test' do
+
+      with_settings(Settings.edu.sftp, host: 'localhost', pass: 'test') do
         sftp_session_mock = instance_double('Net::SSH::Connection::Session')
         sftp_mock = instance_double('Net::SFTP::Session', session: sftp_session_mock)
 

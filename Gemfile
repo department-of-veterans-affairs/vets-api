@@ -13,6 +13,7 @@ gem 'virtus'
 #emphasize this is an api only app
 gem 'rails-api'
 gem 'figaro'
+gem 'config'
 gem 'pg'
 gem 'json-schema'
 gem 'active_model_serializers', '~> 0.10.0'

@@ -33,21 +33,20 @@ describe MVI::Configuration do
       end
     end
   end
+
+  # TODO(knkski): These tests probably aren't doing anything useful.
   describe '.default_mvi_open_timeout' do
-    context 'when MVI_OPEN_TIMEOUT is not set' do
-      it 'should use the defaul' do
-        ClimateControl.modify MVI_OPEN_TIMEOUT: nil do
-          expect(MVI::Configuration::OPEN_TIMEOUT).to eq(2)
-        end
+    context 'when Settings.mvi.open_timeout is not set' do
+      it 'should use the default' do
+        expect(MVI::Configuration::OPEN_TIMEOUT).to eq(2)
       end
     end
   end
+
   describe '.default_mvi_timeout' do
-    context 'when MVI_TIMEOUT is not set' do
+    context 'when Settings.mvi.timeout is not set' do
       it 'should use the default' do
-        ClimateControl.modify MVI_TIMEOUT: nil do
-          expect(MVI::Configuration::TIMEOUT).to eq(10)
-        end
+        expect(MVI::Configuration::TIMEOUT).to eq(10)
       end
     end
   end
