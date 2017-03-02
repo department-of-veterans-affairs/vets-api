@@ -6,7 +6,7 @@ RSpec.describe EducationForm::Writer::Factory, type: :model, form: :education_be
   it 'raises an error if in production but lacking auth keys' do
     expect(Rails.env).to receive('development?').once { false }
 
-    with_settings(Settings.edu.sftp, {host: 'localhost', pass: nil}) do
+    with_settings(Settings.edu.sftp, host: 'localhost', pass: nil) do
       expect { subject.get_writer }.to raise_error(Exception, /Settings.edu.sftp.pass not set/)
     end
   end
@@ -19,7 +19,7 @@ RSpec.describe EducationForm::Writer::Factory, type: :model, form: :education_be
   it 'writes to production when possible' do
     expect(Rails.env).to receive('development?').once { false }
 
-    with_settings(Settings.edu.sftp, {host: 'localhost', pass: 'test'}) do
+    with_settings(Settings.edu.sftp, host: 'localhost', pass: 'test') do
       expect(subject.get_writer).to be(EducationForm::Writer::Remote)
     end
   end
