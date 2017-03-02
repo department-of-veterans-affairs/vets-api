@@ -17,3 +17,5 @@ Name:   <%= full_name(@applicant.relativeFullName) %>
 
 Address:
 <%= full_address(@applicant.relativeAddress) %>
+
+<%= parse_with_template_path('phone_numbers') %>
