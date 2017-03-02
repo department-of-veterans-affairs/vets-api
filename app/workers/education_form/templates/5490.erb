@@ -12,3 +12,8 @@ JAN 2009
                             ---------------------
 
 <%= ssn_gender_dob(false) %>
+
+Name:   <%= full_name(@applicant.relativeFullName) %>
+
+Address:
+<%= full_address(@applicant.relativeAddress) %>
