@@ -15,6 +15,12 @@ module EducationForm::Forms
       klass.new(app)
     end
 
+    def ssn_gender_dob(veteran = true)
+      prefix = veteran ? 'veteran' : 'relative'
+
+      "SSN: #{@applicant.public_send("#{prefix}SocialSecurityNumber")}         Sex: #{@applicant.gender}             Date of Birth: #{@applicant.public_send("#{prefix}DateOfBirth")}"
+    end
+
     def benefit_type(application)
       application.benefit&.gsub('chapter', 'CH')
     end
