@@ -76,7 +76,7 @@ class Mvi < Common::RedisStore
   end
 
   def mvi_service
-    @service ||= MVI::ServiceFactory.get_service(mock_service: ENV['MOCK_MVI_SERVICE'])
+    @service ||= MVI::ServiceFactory.get_service(mock_service: Settings.mvi.mock)
   end
 
   def create_message

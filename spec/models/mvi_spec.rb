@@ -103,9 +103,5 @@ describe Mvi, skip_mvi: true do
     end
   end
 
-  around do |example|
-    ClimateControl.modify MOCK_MVI_SERVICE: 'false' do
-      example.run
-    end
-  end
+  around(&:run)
 end
