@@ -77,6 +77,27 @@ describe MVI::Responses::FindCandidate do
           )
         end
       end
+
+      context 'with a missing address' do
+        let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response_nil_address.xml')) }
+        it 'should set the address to nil' do
+          expect(find_candidate_response.body).to eq(
+            birth_date: '19800101',
+            edipi: '1234^NI^200DOD^USDOD^A',
+            vba_corp_id: '12345678^PI^200CORP^USVBA^A',
+            family_name: 'Smith',
+            gender: 'M',
+            given_names: %w(John William),
+            icn: '1000123456V123456^NI^200M^USVHA^P',
+            mhv_ids: ['123456^PI^200MHV^USVHA^A'],
+            ssn: '555443333',
+            active_status: 'active',
+            address: nil,
+            home_phone: '1112223333',
+            suffix: 'Sr'
+          )
+        end
+      end
     end
   end
 
