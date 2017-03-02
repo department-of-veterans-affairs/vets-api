@@ -29,7 +29,7 @@ WebMock.disable_net_connect!(allow_localhost: true)
 #   expect(something).to equal(2)
 # end
 def with_settings(settings, temp_values)
-  old_settings = temp_values.keys.map {|k| [k, settings[k]] }.to_h
+  old_settings = temp_values.keys.map { |k| [k, settings[k]] }.to_h
 
   # The `Config` object doesn't support `.merge!`, so manually copy
   # the updated values.

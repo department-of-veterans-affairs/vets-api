@@ -2,7 +2,6 @@
 module V0
   module GI
     class InstitutionsController < GIController
-
       def autocomplete
         render json: client.get_autocomplete_suggestions(params[:term])
       end
