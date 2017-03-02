@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module Rx
   module ClientHelpers
-    HOST = ENV['MHV_HOST']
+    HOST = Settings.mhv.rx.host
     CONTENT_TYPE = 'application/json'
     APP_TOKEN = 'your-unique-app-token'
     TOKEN = 'GkuX2OZ4dCE=48xrH6ObGXZ45ZAg70LBahi7CjswZe8SZGKMUVFIU88='

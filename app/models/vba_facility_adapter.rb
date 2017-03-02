@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 class VBAFacilityAdapter
-  VBA_URL = +ENV['VBA_MAPSERVER_URL']
+  VBA_URL = +Settings.locators.vba
   VBA_ID_FIELD = 'Facility_Number'
   FACILITY_TYPE = 'va_benefits_facility'
 
