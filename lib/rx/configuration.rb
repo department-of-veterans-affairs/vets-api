@@ -10,11 +10,11 @@ module Rx
   # Configuration class used to setup the environment used by client
   class Configuration < Common::Client::Configuration::REST
     def app_token
-      ENV['MHV_APP_TOKEN']
+      Settings.mhv.rx.app_token
     end
 
     def base_path
-      "#{ENV['MHV_HOST']}/mhv-api/patient/v1/"
+      "#{Settings.mhv.rx.host}/mhv-api/patient/v1/"
     end
 
     def service_name
