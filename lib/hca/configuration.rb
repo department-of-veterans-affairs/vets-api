@@ -16,10 +16,10 @@ module HCA
     HEALTH_CHECK_ID = 377_609_264
     WSDL = Rails.root.join('config', 'health_care_application', 'wsdl', 'voa.wsdl')
     CERT_STORE = if Settings.hca.ca&.empty?
-      nil
-    else
-      cert_store(Settings.hca.ca)
-    end
+                   nil
+                 else
+                   cert_store(Settings.hca.ca)
+                 end
 
     SSL_CERT = begin
       OpenSSL::X509::Certificate.new(File.read(Settings.hca.cert_path))
