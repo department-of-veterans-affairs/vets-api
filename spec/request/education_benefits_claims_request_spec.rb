@@ -32,6 +32,10 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
         expect { subject }.to change { EducationBenefitsClaim.count }.by(1)
         expect(EducationBenefitsClaim.last.form_type).to eq(form_type)
       end
+
+      it 'should increment statsd' do
+        expect { subject }.to trigger_statsd_increment('api.education_benefits_claim.221995.success')
+      end
     end
 
     context 'with valid params' do
