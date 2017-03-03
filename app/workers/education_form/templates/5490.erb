@@ -53,3 +53,5 @@ Name and Location of School:
 Date of Training:     From: <%= to_date(@applicant.highSchool&.dateRange&.from) %> To: <%= to_date(@applicant.highSchool&.dateRange&.to) %>
 Hours: <%= @applicant.highSchool&.hours %> (<%= @applicant.highSchool&.hoursType %>)
 Degree/Diploma/Certificate: <%= @applicant.highSchool&.degreeReceived %>
+
+<%= parse_with_template_path('post_high_school_trainings') %>
