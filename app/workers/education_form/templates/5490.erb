@@ -25,3 +25,15 @@ Email Address:  <%= @applicant.email %>
 <%= parse_with_template_path('bank_account') %>
 
 <%= parse_with_template_path('secondary_contact') %>
+
+
+                  TYPE AND PROGRAM OF EDUCATION OR TRAINING
+                  -----------------------------------------
+
+Type of Education or Training: <%= school&.educationType&.titleize %>
+
+<%= parse_with_template_path('school') %>
+
+Date You Started or Will Start Training: <%= @applicant.educationStartDate %>
+
+Education or Career Goal: <%= @applicant.educationObjective %>
