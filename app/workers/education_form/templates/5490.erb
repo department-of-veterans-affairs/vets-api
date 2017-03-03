@@ -8,6 +8,17 @@ JAN 2009
       (Under Provisions of chapters 33 and 35 of Title 38, U.S.C)
       -----------------------------------------------------------
 
+      BENEFIT ELECTION
+      ----------------
+
+Relationship to service member:  <%= @applicant.relationship&.upcase %>
+
+<% if @applicant.spouseInfo.present? -%>
+Is a divorce or annulment pending?: <%= yesno(@applicant.spouseInfo.divorcePending) %>
+
+Have you remarried since the death of the veteran?: <%= yesno(@applicant.spouseInfo.remarried) %>
+<% end -%>
+
 EDUCATION BENEFIT BEING APPLIED FOR: <%= @applicant.benefit %>
 
 <% if @applicant.benefitsRelinquishedDate.present? -%>
@@ -54,10 +65,14 @@ In what state do you anticipate living while participating in this training: <%=
 Would you like to receive vocational and educational counseling?: <%= yesno(@applicant.educationalCounseling) %>
 
 
+                    APPLICATION HISTORY
+                    -------------------
+
+Previously applied for VA benefits? <%= yesno(previously_applied_for_benefits?) %>
+
+
                     EDUCATION AND EMPLOYMENT INFORMATION
                     ------------------------------------
-
-Relationship to service member:  <%= @applicant.relationship&.upcase %>
 
 Applicant's disposition from high school: <%= high_school_status %>
 
@@ -107,11 +122,7 @@ Is qualifying individual on active duty: <%= yesno(@applicant.currentlyActiveDut
 
 Outstanding felony or warrant: <%= yesno(@applicant.outstandingFelony) %>
 
-<% if @applicant.spouseInfo.present? -%>
-Is a divorce or annulment pending?: <%= yesno(@applicant.spouseInfo.divorcePending) %>
 
-Have you remarried since the death of the veteran?: <%= yesno(@applicant.spouseInfo.remarried) %>
-<% end -%>
 
 
 
