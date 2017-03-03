@@ -8,6 +8,9 @@ JAN 2009
       (Under Provisions of chapters 33 and 35 of Title 38, U.S.C)
       -----------------------------------------------------------
 
+EDUCATION BENEFIT BEING APPLIED FOR: <%= @applicant.benefit %>
+
+
                             APPLICANT INFORMATION
                             ---------------------
 
@@ -41,6 +44,10 @@ Education or Career Goal: <%= @applicant.educationObjective %>
 Restorative training: <%= yesno(@applicant.restorativeTraining) %>
 
 Vocational training: <%= yesno(@applicant.vocationalTraining) %>
+
+In what state do you anticipate living while participating in this training: <%= @applicant.trainingState %>
+
+Would you like to receive vocational and educational counseling?: <%= yesno(@applicant.educationalCounseling) %>
 
 
                     EDUCATION AND EMPLOYMENT INFORMATION
@@ -79,6 +86,11 @@ Source of educational assistance for government employee: <%= @applicant.civilia
                          SERVICE MEMBER INFORMATION
                          --------------------------
 
+Name:   <%= full_name(@applicant.veteranFullName) %>
+
+Address:
+<%= full_address(@applicant.veteranAddress) %>
+
 SSN:   <%= @applicant.veteranSocialSecurityNumber %>
 
 Branch of Service:   <%= @applicant.serviceBranch %>
@@ -91,10 +103,13 @@ Is qualifying individual on active duty: <%= yesno(@applicant.currentlyActiveDut
 
 Outstanding felony or warrant: <%= yesno(@applicant.outstandingFelony) %>
 
-Name:   <%= full_name(@applicant.veteranFullName) %>
+<% if @applicant.spouseInfo.present? -%>
+Is a divorce or annulment pending?: <%= yesno(@applicant.spouseInfo.divorcePending) %>
 
-Address:
-<%= full_address(@applicant.veteranAddress) %>
+Have you remarried since the death of the veteran?: <%= yesno(@applicant.spouseInfo.remarried) %>
+<% end -%>
+
+
 
 
 
