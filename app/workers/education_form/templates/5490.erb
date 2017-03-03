@@ -42,3 +42,14 @@ Education or Career Goal: <%= @applicant.educationObjective %>
                     ------------------------------------
 
 Applicant's disposition from high school: <%= high_school_status %>
+
+Applicant's date of disposition: <%= @applicant.highSchool&.highSchoolOrGedCompletionDate %>
+
+      High School
+      ---------------------------
+Name and Location of School:
+    <%= @applicant.highSchool&.name %>
+    <%= @applicant.highSchool&.city %>, <%= @applicant.highSchool&.state %>
+Date of Training:     From: <%= to_date(@applicant.highSchool&.dateRange&.from) %> To: <%= to_date(@applicant.highSchool&.dateRange&.to) %>
+Hours: <%= @applicant.highSchool&.hours %> (<%= @applicant.highSchool&.hoursType %>)
+Degree/Diploma/Certificate: <%= @applicant.highSchool&.degreeReceived %>
