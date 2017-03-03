@@ -218,7 +218,7 @@ GEM
     overcommit (0.37.0)
       childprocess (~> 0.5.8)
       iniparse (~> 1.4)
-    ox (2.4.4)
+    ox (2.4.9)
     parser (2.3.1.2)
       ast (~> 2.2)
     pdf-reader (1.4.1)
@@ -430,7 +430,7 @@ DEPENDENCIES
   oj
   olive_branch
   overcommit
-  ox (~> 2.4)
+  ox
   pdf-reader
   pg
   pry-nav
