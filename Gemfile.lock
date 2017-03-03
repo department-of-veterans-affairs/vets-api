@@ -242,7 +242,7 @@ GEM
       pry (>= 0.9.10, < 0.11.0)
     puma (2.16.0)
     rack (1.6.5)
-    rack-cors (0.4.0)
+    rack-cors (0.4.1)
     rack-protection (1.5.3)
       rack
     rack-test (0.6.3)
