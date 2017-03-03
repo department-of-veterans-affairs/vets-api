@@ -171,7 +171,7 @@ GEM
     hashdiff (0.3.0)
     hashery (2.1.2)
     hashie (3.4.6)
-    holidays (5.3.0)
+    holidays (5.4.0)
     httpclient (2.8.3)
     httpi (2.4.2)
       rack
