@@ -84,6 +84,8 @@ Date of death or MIA/POW: <%= @applicant.veteranDateOfDeath %>
 
 Is qualifying individual on active duty: <%= yesno(@applicant.currentlyActiveDuty) %>
 
+Outstanding felony or warrant: <%= yesno(@applicant.outstandingFelony) %>
+
 Name:   <%= full_name(@applicant.veteranFullName) %>
 
 Address:
