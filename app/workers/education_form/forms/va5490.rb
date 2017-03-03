@@ -12,5 +12,20 @@ module EducationForm::Forms
     def school
       @applicant.educationProgram
     end
+
+    def high_school_status
+      key = {
+        'graduated' => 'Graduated from high school',
+        'discontinued' => 'Discontinued high school',
+        'graduationExpected' => 'Expect to graduate from high school',
+        'ged' => 'Awarded GED',
+        'neverAttended' => 'Never attended high school'
+      }
+
+      status = @applicant.highSchool&.status
+      return if status.nil?
+
+      key[status]
+    end
   end
 end
