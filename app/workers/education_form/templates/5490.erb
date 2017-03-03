@@ -41,6 +41,8 @@ Education or Career Goal: <%= @applicant.educationObjective %>
                     EDUCATION AND EMPLOYMENT INFORMATION
                     ------------------------------------
 
+Relationship to service member:  <%= @applicant.relationship&.upcase %>
+
 Applicant's disposition from high school: <%= high_school_status %>
 
 Applicant's date of disposition: <%= @applicant.highSchool&.highSchoolOrGedCompletionDate %>
@@ -79,6 +81,8 @@ Branch of Service:   <%= @applicant.serviceBranch %>
 Veteran's date of birth: <%= @applicant.veteranDateOfBirth %>
 
 Date of death or MIA/POW: <%= @applicant.veteranDateOfDeath %>
+
+Is qualifying individual on active duty: <%= yesno(@applicant.currentlyActiveDuty) %>
 
 Name:   <%= full_name(@applicant.veteranFullName) %>
 
