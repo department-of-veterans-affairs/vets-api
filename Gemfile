@@ -82,7 +82,7 @@ end
 
 group :test do
   gem 'faker'
-  gem 'simplecov', '~> 0.11', require: false
+  gem 'simplecov', require: false
   gem 'webmock'
   gem 'fakeredis'
   gem 'timecop'

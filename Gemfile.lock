@@ -349,9 +349,9 @@ GEM
     sidekiq-unique-jobs (4.0.18)
       sidekiq (>= 2.6)
       thor
-    simplecov (0.11.2)
+    simplecov (0.13.0)
       docile (~> 1.1.0)
-      json (~> 1.8)
+      json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.0)
     slop (3.6.0)
@@ -456,7 +456,7 @@ DEPENDENCIES
   sidekiq-instrument
   sidekiq-scheduler (~> 2.0)
   sidekiq-unique-jobs
-  simplecov (~> 0.11)
+  simplecov
   spring
   spring-commands-rspec
   statsd-instrument
