@@ -88,7 +88,7 @@ group :test do
   gem 'timecop'
   gem 'vcr'
   gem 'awrence'
-  gem 'climate_control', '0.0.3'
+  gem 'climate_control'
 end
 
 group :development do

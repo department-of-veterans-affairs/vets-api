@@ -95,8 +95,7 @@ GEM
       activesupport
     childprocess (0.5.9)
       ffi (~> 1.0, >= 1.0.11)
-    climate_control (0.0.3)
-      activesupport (>= 3.0)
+    climate_control (0.1.0)
     coderay (1.1.1)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
@@ -410,7 +409,7 @@ DEPENDENCIES
   byebug
   carrierwave (~> 0.11)
   carrierwave-aws
-  climate_control (= 0.0.3)
+  climate_control
   config
   date_validator
   factory_girl_rails
