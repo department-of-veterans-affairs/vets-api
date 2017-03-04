@@ -3,7 +3,7 @@ require 'rails_helper'
 require 'mhv_account/client'
 
 describe 'mhv account client' do
-  let(:client) { MHVAccount::Client.new }
+  let(:client) { MHVAC::Client.new }
 
   # Need to pull the last updated to determine the staleness / freshness of the data
   # will revisit this later.
