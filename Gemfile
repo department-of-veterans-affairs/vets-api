@@ -13,9 +13,10 @@ gem 'virtus'
 #emphasize this is an api only app
 gem 'rails-api'
 gem 'figaro'
+gem 'config'
 gem 'pg'
 gem 'json-schema'
-gem 'active_model_serializers', '~> 0.10.0'
+gem 'active_model_serializers'
 gem 'will_paginate'
 gem 'sentry-raven'            # Sentry integration. SENTRY_DSN provided in ENV
 gem 'faraday'
@@ -23,7 +24,7 @@ gem 'faraday_middleware'
 gem 'httpclient'
 gem 'attr_encrypted'
 gem 'olive_branch'
-gem 'ox', '~> 2.4'
+gem 'ox'
 gem 'savon'
 gem 'gyoku'
 gem 'sidekiq'
@@ -73,7 +74,7 @@ group :development, :test do
   gem 'factory_girl_rails'
 
   gem 'foreman'
-
+  gem 'overcommit'
   # This middleware logs your HTTP requests as CURL compatible commands so you can share the calls with downstream
   # assists in debugging
   gem 'faraday_curl'
@@ -81,13 +82,13 @@ end
 
 group :test do
   gem 'faker'
-  gem 'simplecov', '~> 0.11', require: false
+  gem 'simplecov', require: false
   gem 'webmock'
   gem 'fakeredis'
   gem 'timecop'
   gem 'vcr'
   gem 'awrence'
-  gem 'climate_control', '0.0.3'
+  gem 'climate_control'
 end
 
 group :development do

@@ -1,20 +1,28 @@
 ## MVI Service
-The Master Veteran Index Service retreives and updates a veterans 'golden record'.
-Update the `MVI_URL` env var in config/application.yml with the value given to you
-by devops or your team.
+
+The Master Veteran Index service retrieves and updates a veteran's 'golden
+record'. To configure `vets-api` for use with MVI, configure
+`config/settings.local.yml` with the settings given to you by devops or your
+team. For example,
+
 ```
-# config/application.yml
-MVI_URL = '...'
+# config/settings.local.yml
+mvi:
+  url: ...
 ```
-Since that URL is only accessible over the VA VPN a mock service is included in the project.
-To enable it set MOCK_MVI_SERVICE in config/application.yml to 'true'
+
+Since that URL is only accessible over the VA VPN a mock service is included in
+the project. To enable it, add this to `config/settings.local.yml`:
+
 ```
-# config/application.yml
-MOCK_MVI_SERVICE = true
+mvi:
+  mock: true
 ```
-Endpoint response values can be set by copying mock_mvi_responses.yml.example to
-mock_mvi_responses.yml. For the find_candidate
-endpoint you can return different responses based on SSN:
+
+Endpoint response values can be set by copying `mock_mvi_responses.yml.example`
+to `mock_mvi_responses.yml`. For the `find_candidate` endpoint you can return
+different responses based on SSN:
+
 ```
 find_candidate:
   555443333:

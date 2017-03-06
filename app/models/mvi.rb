@@ -48,8 +48,11 @@ class Mvi < Common::RedisStore
       status: response[:status],
       birth_date: response[:birth_date],
       family_name: response[:family_name],
+      suffix: response[:suffix],
       gender: response[:gender],
-      given_names: response[:given_names]
+      given_names: response[:given_names],
+      address: response[:address],
+      home_phone: response[:home_phone]
     }
   end
 
@@ -73,7 +76,7 @@ class Mvi < Common::RedisStore
   end
 
   def mvi_service
-    @service ||= MVI::ServiceFactory.get_service(mock_service: ENV['MOCK_MVI_SERVICE'])
+    @service ||= MVI::ServiceFactory.get_service(mock_service: Settings.mvi.mock)
   end
 
   def create_message

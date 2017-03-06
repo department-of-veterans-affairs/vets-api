@@ -28,6 +28,8 @@ module MVI
       DOB_XPATH = 'patientPerson/birthTime/@value'
       SSN_XPATH = 'patientPerson/asOtherIDs'
       NAME_XPATH = 'patientPerson/name'
+      ADDRESS_XPATH = 'patientPerson/addr'
+      PHONE = 'patientPerson/telecom'
       ACKNOWLEDGEMENT_DETAIL_XPATH = 'acknowledgement/acknowledgementDetail/text'
 
       MULTIPLE_MATCHES_FOUND = 'Multiple Matches Found'
@@ -45,9 +47,12 @@ module MVI
           active_status: locate_element(patient, STATUS_XPATH),
           given_names: name[:given],
           family_name: name[:family],
+          suffix: name[:suffix],
           gender: locate_element(patient, GENDER_XPATH),
           birth_date: locate_element(patient, DOB_XPATH),
-          ssn: parse_ssn(locate_element(patient, SSN_XPATH))
+          ssn: parse_ssn(locate_element(patient, SSN_XPATH)),
+          address: parse_address(patient),
+          home_phone: parse_phone(patient)
         }.merge(map_correlation_ids(patient.locate('id')))
       end
 
@@ -70,7 +75,8 @@ module MVI
         name_element = [*name].first
         given = [*name_element.locate('given')].map { |el| el.nodes.first.capitalize }
         family = name_element.locate('family').first.nodes.first.capitalize
-        { given: given, family: family }
+        suffix = name_element.locate('suffix')&.first&.nodes&.first&.capitalize
+        { given: given, family: family, suffix: suffix }
       rescue => e
         Rails.logger.warn "MVI::Response.parse_name failed: #{e.message}"
         { given: nil, family: nil }
@@ -85,6 +91,18 @@ module MVI
       rescue => e
         Rails.logger.warn "MVI::Response.parse_ssn failed: #{e.message}"
         nil
+      end
+
+      def parse_address(patient)
+        el = locate_element(patient, ADDRESS_XPATH)
+        return nil unless el
+        el.nodes.map { |n| { n.value.snakecase.to_sym => n.nodes.first } }.reduce({}, :merge)
+      end
+
+      def parse_phone(patient)
+        el = locate_element(patient, PHONE)
+        return nil unless el
+        el.attributes[:value]
       end
 
       def select_ssn_element(other_ids)

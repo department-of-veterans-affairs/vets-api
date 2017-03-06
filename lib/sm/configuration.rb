@@ -11,11 +11,11 @@ require 'sm/middleware/response/sm_parser'
 module SM
   class Configuration < Common::Client::Configuration::REST
     def app_token
-      ENV['MHV_SM_APP_TOKEN']
+      Settings.mhv.sm.app_token
     end
 
     def base_path
-      "#{ENV['MHV_SM_HOST']}/mhv-sm-api/patient/v1/"
+      "#{Settings.mhv.sm.host}/mhv-sm-api/patient/v1/"
     end
 
     def service_name
