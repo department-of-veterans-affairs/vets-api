@@ -7,7 +7,7 @@ module BB
                                 familyhealthhistory seifoodjournal healthcareproviders healthinsurance
                                 seiimmunizations labsandtests medicalevents medications militaryhealthhistory
                                 seimygoalscurrent seimygoalscompleted treatmentfacilities
-                                vitalsandreadings prescriptions medications vaallergies
+                                vitalsandreadings prescriptions vaallergies
                                 vaadmissionsanddischarges futureappointments pastappointments
                                 vademographics vaekg vaimmunizations vachemlabs vaprogressnotes
                                 vapathology vaproblemlist varadiology vahth wellness dodmilitaryservice ).freeze
