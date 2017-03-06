@@ -10,7 +10,7 @@ RSpec.describe EducationForm::Forms::VA5490 do
     allow_any_instance_of(described_class).to receive(:format)
   end
 
-  describe '#previously_applied_for_benefits?' do
+  describe 'previous benefits' do
     context 'without previous benefits' do
       before do
         education_benefits_claim.form = {
@@ -28,7 +28,7 @@ RSpec.describe EducationForm::Forms::VA5490 do
         }.to_json
       end
 
-      it 'should return false' do
+      it 'previously_applied_for_benefits? should return false' do
         expect(subject.previously_applied_for_benefits?).to eq(false)
       end
     end
@@ -38,19 +38,23 @@ RSpec.describe EducationForm::Forms::VA5490 do
         education_benefits_claim.form = {
           privacyAgreementAccepted: true,
           previousBenefits: {
-            disability: false,
-            dic: false,
-            chapter31: false,
+            disability: true,
+            dic: true,
+            chapter31: true,
             ownServiceBenefits: 'foo',
-            chapter35: false,
-            chapter33: false,
-            transferOfEntitlement: false,
-            other: ''
+            chapter35: true,
+            chapter33: true,
+            transferOfEntitlement: true,
+            other: 'other'
           }
         }.to_json
       end
 
-      it 'should return true' do
+      it 'previous_benefits should return the right value' do
+        expect(subject.previous_benefits).to eq("DISABILITY COMPENSATION OR PENSION\nDEPENDENTS' INDEMNITY COMPENSATION\nVOCATIONAL REHABILITATION BENEFITS (Chapter 31)\nVETERANS EDUCATION ASSISTANCE BASED ON SOMEONE ELSE'S SERVICE: CHAPTER 35 - SURVIVORS' AND DEPENDENTS' EDUCATIONAL ASSISTANCE PROGRAM (DEA)\nVETERANS EDUCATION ASSISTANCE BASED ON SOMEONE ELSE'S SERVICE: CHAPTER 33 - POST-9/11 GI BILL MARINE GUNNERY SERGEANT DAVID FRY SCHOLARSHIP\nVETERANS EDUCATION ASSISTANCE BASED ON SOMEONE ELSE'S SERVICE: TRANSFERRED ENTITLEMENT\nVETERANS EDUCATION ASSISTANCE BASED ON YOUR OWN SERVICE SPECIFY BENEFIT(S): foo\nOTHER (Specify benefit(s): other")
+      end
+
+      it 'previously_applied_for_benefits? should return true' do
         expect(subject.previously_applied_for_benefits?).to eq(true)
       end
     end
