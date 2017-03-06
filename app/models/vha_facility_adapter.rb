@@ -34,11 +34,10 @@ class VHAFacilityAdapter
     m[:phone] = from_gis_attrs(PHONE_KEYMAP, attrs)
     m[:phone][:mental_health_clinic] = mh_clinic_phone(attrs)
     m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
-    m[:services] = {}
-    m[:services][:last_updated] = services_date(attrs)
-    m[:services][:health] = services_from_gis(attrs)
-    m[:feedback] = {}
-    m[:feedback][:health] = from_gis_attrs(FEEDBACK_KEYMAP, attrs)
+    m[:services] = { last_updated: services_date(attrs),
+                     health: services_from_gis(attrs) }
+    m[:feedback] = feedback_data(attrs)
+    m[:access] = { health: from_gis_attrs(ACCESS_KEYMAP, attrs) }
     VAFacility.new(m)
   end
 
@@ -73,6 +72,28 @@ class VHAFacilityAdapter
     'primary_care_urgent' => 'Primary_Care_Urgent_Score',
     'specialty_care_routine' => 'Specialty_Care_Routine_Score',
     'specialty_care_urgent' => 'Specialty_Care_Urgent_Score'
+  }.freeze
+
+  # Secondary set of key mappings to seamlessly transition between
+  # GIS schema update. Once schema has settled on this, the above keymap
+  # will be obsolete.
+  FEEDBACK_KEYMAP_ALT = {
+    'effective_date_range' => 'SHEP_ScoreDateRange',
+    'primary_care_routine' => 'SHEP_Primary_Care_Routine',
+    'primary_care_urgent' => 'SHEP_Primary_Care_Urgent',
+    'specialty_care_routine' => 'SHEP_Specialty_Care_Routine',
+    'specialty_care_urgent' => 'SHEP_Specialty_Care_Urgent'
+  }.freeze
+
+  ACCESS_KEYMAP = {
+    'primary_care_wait_days' => 'ACCESS_Primary_Care_Score',
+    'primary_care_wait_sample_size' => 'ACCESS_Primary_Care_Sample',
+    'specialty_care_wait_days' => 'ACCESS_Specialty_Care_Score',
+    'specialty_care_wait_sample_size' => 'ACCESS_Specialty_Care_Sample',
+    'mental_health_wait_days' => 'ACCESS_Mental_Health_Score',
+    'mental_health_wait_sample_size' => 'ACCESS_Mental_Health_Sample',
+    'urgent_consult_percentage' => 'ACCESS_Stat_Consult_Score',
+    'urgent_consult_sample_size' => 'ACCESS_Stat_Consult_Sample'
   }.freeze
 
   SERVICE_HIERARCHY = {
@@ -119,6 +140,14 @@ class VHAFacilityAdapter
     result << ' x ' + attrs['Extension'].to_s unless
       (attrs['Extension']).blank? || (attrs['Extension']).zero?
     result
+  end
+
+  def self.feedback_data(attrs)
+    section = from_gis_attrs(FEEDBACK_KEYMAP, attrs)
+    section.merge!(from_gis_attrs(FEEDBACK_KEYMAP_ALT, attrs)) do |_k, v1, v2|
+      v2.nil? ? v1 : v2
+    end
+    { health: section }
   end
 
   def self.services_date(attrs)
