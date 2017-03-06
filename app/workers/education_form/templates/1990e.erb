@@ -40,7 +40,7 @@ Education or Career Goal: <%= @applicant.educationObjective %>
                     EDUCATION AND EMPLOYMENT INFORMATION
                     ------------------------------------
 
-RELATIONSHIP TO SERVICE MEMBER:  <%= @applicant.relationship&.upcase %>
+Relationship to service member:  <%= @applicant.relationship&.upcase %>
 
 Date Received High School Diploma or Equivalency Certificate: <%= to_date(@applicant.highSchoolOrGedCompletionDate) %>
 
@@ -64,7 +64,7 @@ Since High School
 <%= parse_with_template_path('civilian_benefits_assistance') %>
 
 
-                         Service Member Information
+                         SERVICE MEMBER INFORMATION
                          --------------------------
 
 SSN:   <%= @applicant.veteranSocialSecurityNumber %>
