@@ -17,8 +17,11 @@ module EducationForm::Forms
 
     def ssn_gender_dob(veteran = true)
       prefix = veteran ? 'veteran' : 'relative'
+      ssn = @applicant.public_send("#{prefix}SocialSecurityNumber")
+      gender = @applicant.gender
+      dob = @applicant.public_send("#{prefix}DateOfBirth")
 
-      "SSN: #{@applicant.public_send("#{prefix}SocialSecurityNumber")}         Sex: #{@applicant.gender}             Date of Birth: #{@applicant.public_send("#{prefix}DateOfBirth")}"
+      "SSN: #{ssn}         Sex: #{gender}             Date of Birth: #{dob}"
     end
 
     def benefit_type(application)
