@@ -57,6 +57,10 @@ pipeline {
     success {
       notify """Successfully deployed `${application}` to `${environment}`.
                |Took ${currentBuild.rawBuild.getDurationString()}""".stripMargin()
+      build job: "vets-api-worker-${environment}", parameters: [
+        booleanParam(name: 'notify_slack', value: notify_slack.toBoolean()),
+        booleanParam(name: 'force_ami', value: force_ami.toBoolean()),
+      ]
     }
     failure {
       notify """Failed to deploy `${application}` to `${environment}`!
