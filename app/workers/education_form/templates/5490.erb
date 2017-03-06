@@ -17,6 +17,8 @@ Relationship to service member:  <%= @applicant.relationship&.upcase %>
 Is a divorce or annulment pending?: <%= yesno(@applicant.spouseInfo.divorcePending) %>
 
 Have you remarried since the death of the veteran?: <%= yesno(@applicant.spouseInfo.remarried) %>
+
+Remarried date: <%= to_date(@applicant.spouseInfo.remarriageDate) %>
 <% end -%>
 
 EDUCATION BENEFIT BEING APPLIED FOR: <%= @applicant.benefit %>
