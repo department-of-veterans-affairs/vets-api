@@ -40,18 +40,7 @@ module EducationForm::Forms
     end
 
     def previously_applied_for_benefits?
-      previous_benefits = @form.previousBenefits
-      return false if previous_benefits.blank?
-
-      PREVIOUS_BENEFITS.keys.each do |previous_benefit|
-        return true if previous_benefits.public_send(previous_benefit)
-      end
-
-      %w(ownServiceBenefits other).each do |previous_benefit|
-        return true if previous_benefits.public_send(previous_benefit).present?
-      end
-
-      false
+      !previous_benefits.blank?
     end
 
     def previous_benefits
