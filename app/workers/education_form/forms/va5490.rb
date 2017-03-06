@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 module EducationForm::Forms
   class VA5490 < Base
+    # rubocop:disable LineLength
     PREVIOUS_BENEFITS = {
       'disability' => 'DISABILITY COMPENSATION OR PENSION',
       'dic' => "DEPENDENTS' INDEMNITY COMPENSATION",
@@ -9,6 +10,7 @@ module EducationForm::Forms
       'chapter33' => "VETERANS EDUCATION ASSISTANCE BASED ON SOMEONE ELSE'S SERVICE: CHAPTER 33 - POST-9/11 GI BILL MARINE GUNNERY SERGEANT DAVID FRY SCHOLARSHIP",
       'transferOfEntitlement' => "VETERANS EDUCATION ASSISTANCE BASED ON SOMEONE ELSE'S SERVICE: TRANSFERRED ENTITLEMENT"
     }.freeze
+    # rubocop:enable LineLength
 
     def applicant_name
       @applicant.relativeFullName
@@ -64,7 +66,10 @@ module EducationForm::Forms
       end
 
       if previous_benefits.ownServiceBenefits.present?
-        previous_benefits_arr << "VETERANS EDUCATION ASSISTANCE BASED ON YOUR OWN SERVICE SPECIFY BENEFIT(S): #{previous_benefits.ownServiceBenefits}"
+        own_service_benefits_txt = 'VETERANS EDUCATION ASSISTANCE BASED ON YOUR OWN SERVICE SPECIFY BENEFIT(S): '
+        own_service_benefits_txt += previous_benefits.ownServiceBenefits
+
+        previous_benefits_arr << own_service_benefits_txt
       end
 
       if previous_benefits.other.present?
