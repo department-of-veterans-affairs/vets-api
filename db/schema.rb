@@ -58,6 +58,18 @@ ActiveRecord::Schema.define(version: 20170126184940) do
 
   add_index "evss_claims", ["user_uuid"], name: "index_evss_claims_on_user_uuid", using: :btree
 
+  create_table "evss_claims", force: :cascade do |t|
+    t.integer  "evss_id",                            null: false
+    t.json     "data",                               null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
+    t.string   "user_uuid",                          null: false
+    t.json     "list_data",          default: {},    null: false
+    t.boolean  "requested_decision", default: false, null: false
+  end
+
+  add_index "evss_claims", ["user_uuid"], name: "index_evss_claims_on_user_uuid", using: :btree
+
   create_table "in_progress_forms", force: :cascade do |t|
     t.uuid     "user_uuid",              null: false
     t.string   "form_id",                null: false
