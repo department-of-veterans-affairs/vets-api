@@ -19,8 +19,8 @@ Is a divorce or annulment pending?: <%= yesno(@applicant.spouseInfo.divorcePendi
 Have you remarried since the death of the veteran?: <%= yesno(@applicant.spouseInfo.remarried) %>
 
 Remarried date: <%= to_date(@applicant.spouseInfo.remarriageDate) %>
-<% end -%>
 
+<% end -%>
 EDUCATION BENEFIT BEING APPLIED FOR: <%= @applicant.benefit %>
 
 <% if @applicant.benefitsRelinquishedDate.present? -%>
@@ -79,6 +79,14 @@ Name of individual who previously claimed: <%= full_name(@applicant.previousBene
 SSN of individual who previously previously claimed: <%= @applicant.previousBenefits&.veteranSocialSecurityNumber %>
 
 
+                  ACTIVE DUTY SERVICE INFORMATION
+                  -------------------------------
+
+Served on active duty?: <%= yesno(@applicant.toursOfDuty.present?) %>
+
+<%= parse_with_template_path('tours_of_duty') %>
+
+
                     EDUCATION AND EMPLOYMENT INFORMATION
                     ------------------------------------
 
@@ -102,6 +110,13 @@ Degree/Diploma/Certificate: <%= @applicant.highSchool&.degreeReceived %>
 
 Since High School
 <%= employment_history(@applicant.nonMilitaryJobs) %>
+
+CIVILIAN EMPLOYEE OF THE US GOVERNMENT: Do you expect to receive funds
+from your agency or department for the same courses for which you expect to
+receive VA educational assistance?: <%= yesno(@applicant.civilianBenefitsAssistance) %>
+
+Source of educational assistance for government employee: <%= @applicant.civilianBenefitsSource %>
+
 
           ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
           ----------------------------------------------------------
