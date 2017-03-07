@@ -37,7 +37,7 @@
       "from": "2012-06-26",
       "to": "2013-04-10"
     },
-    "hours": "40",
+    "hours": 40,
     "hoursType": "semester",
     "degreeReceived": "diploma",
     "status": "graduated",

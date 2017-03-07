@@ -63,4 +63,6 @@ RSpec.describe EducationForm::Forms::VA5490 do
       end
     end
   end
+
+  test_spool_file('5490', 'kitchen_sink')
 end
