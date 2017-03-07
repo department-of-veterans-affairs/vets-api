@@ -72,7 +72,11 @@ Would you like to receive vocational and educational counseling?: <%= yesno(@app
 
 Previously applied for VA benefits? <%= yesno(previously_applied_for_benefits?) %>
 
+Previously claimed benefits: <%= previous_benefits %>
+
 Name of individual who previously claimed: <%= full_name(@applicant.previousBenefits&.veteranFullName) %>
+
+SSN of individual who previously previously claimed: <%= @applicant.previousBenefits&.veteranSocialSecurityNumber %>
 
 
                     EDUCATION AND EMPLOYMENT INFORMATION
