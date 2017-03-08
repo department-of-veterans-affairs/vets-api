@@ -1,3 +1,5 @@
 Raven.configure do |config|
-  config.dsn = Settings.sentry.dsn
+  if Settings.sentry.dsn
+    config.dsn = Settings.sentry.dsn
+  end
 end
