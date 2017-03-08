@@ -72,7 +72,8 @@ Would you like to receive vocational and educational counseling?: <%= yesno(@app
 
 Previously applied for VA benefits? <%= yesno(previously_applied_for_benefits?) %>
 
-Previously claimed benefits: <%= previous_benefits %>
+Previously claimed benefits:
+<%= previous_benefits %>
 
 Name of individual who previously claimed: <%= full_name(@applicant.previousBenefits&.veteranFullName) %>
 
@@ -111,12 +112,6 @@ Degree/Diploma/Certificate: <%= @applicant.highSchool&.degreeReceived %>
 Since High School
 <%= employment_history(@applicant.nonMilitaryJobs) %>
 
-CIVILIAN EMPLOYEE OF THE US GOVERNMENT: Do you expect to receive funds
-from your agency or department for the same courses for which you expect to
-receive VA educational assistance?: <%= yesno(@applicant.civilianBenefitsAssistance) %>
-
-Source of educational assistance for government employee: <%= @applicant.civilianBenefitsSource %>
-
 
           ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
           ----------------------------------------------------------
@@ -129,9 +124,6 @@ Source of educational assistance for government employee: <%= @applicant.civilia
                          --------------------------
 
 Name:   <%= full_name(@applicant.veteranFullName) %>
-
-Address:
-<%= full_address(@applicant.veteranAddress) %>
 
 SSN:   <%= @applicant.veteranSocialSecurityNumber %>
 

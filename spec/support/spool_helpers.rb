@@ -24,7 +24,6 @@ module SpoolHelpers
         end
 
         it 'should generate the spool file correctly', run_at: '2017-01-17 03:00:00 -0500' do
-          binding.pry; fail
           windows_linebreak = EducationForm::WINDOWS_NOTEPAD_LINEBREAK
           expected_text = File.read("#{file_prefix}spl").rstrip
           expected_text.gsub!("\n", windows_linebreak) unless expected_text.include?(windows_linebreak)
