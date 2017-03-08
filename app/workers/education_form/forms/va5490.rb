@@ -12,6 +12,14 @@ module EducationForm::Forms
     }.freeze
     # rubocop:enable LineLength
 
+    HIGH_SCHOOL_STATUS = {
+      'graduated' => 'Graduated from high school',
+      'discontinued' => 'Discontinued high school',
+      'graduationExpected' => 'Expect to graduate from high school',
+      'ged' => 'Awarded GED',
+      'neverAttended' => 'Never attended high school'
+    }.freeze
+
     def applicant_name
       @applicant.relativeFullName
     end
@@ -25,18 +33,10 @@ module EducationForm::Forms
     end
 
     def high_school_status
-      key = {
-        'graduated' => 'Graduated from high school',
-        'discontinued' => 'Discontinued high school',
-        'graduationExpected' => 'Expect to graduate from high school',
-        'ged' => 'Awarded GED',
-        'neverAttended' => 'Never attended high school'
-      }
-
       status = @applicant.highSchool&.status
       return if status.nil?
 
-      key[status]
+      HIGH_SCHOOL_STATUS[status]
     end
 
     def previously_applied_for_benefits?
