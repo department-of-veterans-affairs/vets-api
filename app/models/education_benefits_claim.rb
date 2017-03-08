@@ -8,9 +8,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
   )
   FORM_TYPES = FORM_SCHEMAS.keys
 
-  APPLICATION_TYPES = EducationBenefitsSubmission.column_names.find_all do |column_name|
-    column_name.include?('chapter')
-  end.freeze
+  APPLICATION_TYPES = %w(chapter33 chapter30 chapter1606 chapter32 chapter35).freeze
 
   validates(:form, :form_type, presence: true)
   validates(:form_type, inclusion: FORM_TYPES)
