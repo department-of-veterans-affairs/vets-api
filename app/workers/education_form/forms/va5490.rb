@@ -40,7 +40,7 @@ module EducationForm::Forms
     end
 
     def previously_applied_for_benefits?
-      !previous_benefits.blank?
+      previous_benefits.present?
     end
 
     def previous_benefits
