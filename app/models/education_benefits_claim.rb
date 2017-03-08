@@ -19,7 +19,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   has_one(:education_benefits_submission, inverse_of: :education_benefits_claim)
 
-  attr_encrypted(:form, key: ENV['DB_ENCRYPTION_KEY'])
+  attr_encrypted(:form, key: Settings.db_encryption_key)
 
   # initially only completed claims are allowed, later we can allow claims that dont have a submitted_at yet
   before_validation(:set_submitted_at, on: :create)

@@ -3,6 +3,7 @@ require 'hca/service'
 
 module V0
   class HealthCareApplicationsController < ApplicationController
+    # We call authenticate_token because auth is optional on this endpoint.
     skip_before_action(:authenticate)
 
     def create
@@ -17,8 +18,10 @@ module V0
         raise Common::Exceptions::SchemaValidationErrors, validation_errors
       end
 
+      authenticate_token
+
       result = begin
-        service.submit_form(form)
+        HCA::Service.new(current_user).submit_form(form)
       rescue Common::Client::Errors::ClientError => e
         Raven.capture_exception(e)
 
@@ -32,13 +35,7 @@ module V0
     end
 
     def healthcheck
-      render(json: service.health_check)
-    end
-
-    private
-
-    def service
-      HCA::Service.new
+      render(json: HCA::Service.new.health_check)
     end
   end
 end

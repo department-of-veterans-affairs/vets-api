@@ -5,22 +5,22 @@ module MVI
   class Configuration < Common::Client::Configuration::SOAP
     # :nocov:
     def self.default_mvi_open_timeout
-      Rails.logger.warn 'MVI_OPEN_TIMEOUT env variable not set, using default'
+      Rails.logger.warn 'Settings.mvi.open_timeout not set, using default'
       2
     end
 
     def self.default_mvi_timeout
-      Rails.logger.warn 'MVI_TIMEOUT env variable not set, using default'
+      Rails.logger.warn 'Settings.mvi.timeout not set, using default'
       10
     end
     # :nocov:
 
-    URL = ENV['MVI_URL']
-    OPEN_TIMEOUT = ENV['MVI_OPEN_TIMEOUT']&.to_i || default_mvi_open_timeout
-    TIMEOUT = ENV['MVI_TIMEOUT']&.to_i || default_mvi_timeout
+    URL = Settings.mvi.url
+    OPEN_TIMEOUT = Settings.mvi.open_timeout&.to_i || default_mvi_open_timeout
+    TIMEOUT = Settings.mvi.timeout&.to_i || default_mvi_timeout
 
     SSL_CERT = begin
-      OpenSSL::X509::Certificate.new(File.read(ENV['MVI_CLIENT_CERT_PATH']))
+      OpenSSL::X509::Certificate.new(File.read(Settings.mvi.client_cert_path))
     rescue => e
       # :nocov:
       Rails.logger.warn "Could not load MVI SSL cert: #{e.message}"
@@ -30,7 +30,7 @@ module MVI
     end
 
     SSL_KEY = begin
-      OpenSSL::PKey::RSA.new(File.read(ENV['MVI_CLIENT_KEY_PATH']))
+      OpenSSL::PKey::RSA.new(File.read(Settings.mvi.client_key_path))
     rescue => e
       # :nocov:
       Rails.logger.warn "Could not load MVI SSL key: #{e.message}"
@@ -40,7 +40,7 @@ module MVI
     end
 
     def base_path
-      ENV['MVI_URL']
+      Settings.mvi.url
     end
 
     def service_name
