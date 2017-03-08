@@ -46,13 +46,10 @@ module EducationForm::Forms
     def previous_benefits
       previous_benefits = @form.previousBenefits
       return if previous_benefits.blank?
-      previous_benefits_arr = []
 
-      PREVIOUS_BENEFITS.keys.each do |previous_benefit|
-        if previous_benefits.public_send(previous_benefit)
-          previous_benefits_arr << PREVIOUS_BENEFITS[previous_benefit]
-        end
-      end
+      previous_benefits_arr = previous_benefits.to_h.map do |key, value|
+        PREVIOUS_BENEFITS[key.to_s] if value == true
+      end.compact
 
       if previous_benefits.ownServiceBenefits.present?
         own_service_benefits_txt = 'VETERANS EDUCATION ASSISTANCE BASED ON YOUR OWN SERVICE SPECIFY BENEFIT(S): '
