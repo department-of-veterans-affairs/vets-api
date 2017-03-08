@@ -1,0 +1,16 @@
+secret_key_base: be8e6b6b16993e899c2c4fd08f7c6a6e5ad5f295b369d22f126d4569d2a0e44c4f04b13c02d65ab701452ef0a24ed2db7af441214ed5ae98c6113442f5846605
+
+mvi:
+  url: http://www.example.com/
+  mock: false
+
+reports:
+  aws:
+    access_key_id: key
+    bucket: bucket
+    region: region
+    secret_access_key: secret
+
+saml:
+  cert_path: spec/support/certificates/ruby-saml.crt
+  key_path: spec/support/certificates/ruby-saml.key

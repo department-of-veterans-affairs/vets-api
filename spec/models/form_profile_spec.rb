@@ -26,7 +26,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  after(:each) do
+  before(:each) do
     subject.class.instance_variable_set(:@mappings, nil)
   end
 
@@ -56,7 +56,13 @@ RSpec.describe FormProfile, type: :model do
       let(:instance2) { FormProfile.new }
 
       it 'loads the yaml file only once' do
-        expect(YAML).to receive(:load_file).once.and_return('foo' => %w(bar bar))
+        expect(YAML).to receive(:load_file).once.and_return(
+          'veteran_full_name' => %w(identity_information full_name),
+          'gender' => %w(identity_information gender),
+          'veteran_date_of_birth' => %w(identity_information date_of_birth),
+          'veteran_address' => %w(contact_information address),
+          'home_phone' => %w(contact_information home_phone)
+        )
         instance1.prefill_form('healthcare_application', user)
         instance2.prefill_form('healthcare_application', user)
       end

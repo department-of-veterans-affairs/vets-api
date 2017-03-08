@@ -30,7 +30,7 @@ RSpec.describe 'breakers', type: :request do
     # triggered in this group.
 
     # fakeredis/rspec has a `before` callback, but it's for the suite, not each example. Oops.
-    Breakers.client.redis_connection.flushdb
+    Breakers.client.redis_connection.redis.flushdb
   end
 
   context 'integration test for breakers' do

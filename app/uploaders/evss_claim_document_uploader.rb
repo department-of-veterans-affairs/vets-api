@@ -33,12 +33,12 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   end
 
   def set_storage_options!
-    if ENV['EVSS_S3_UPLOADS'] == 'true'
+    if Settings.evss.s3.uploads_enabled
       self.aws_credentials = {
-        region: ENV['EVSS_AWS_S3_REGION']
+        region: Settings.evss.s3.region
       }
       self.aws_acl = 'private'
-      self.aws_bucket = ENV['EVSS_AWS_S3_BUCKET']
+      self.aws_bucket = Settings.evss.s3.bucket
       self.aws_attributes = { server_side_encryption: 'AES256' }
       self.class.storage = :aws
     else
