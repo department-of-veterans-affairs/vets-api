@@ -10,7 +10,7 @@ module BB
                                 vitalsandreadings prescriptions vaallergies
                                 vaadmissionsanddischarges futureappointments pastappointments
                                 vademographics vaekg vaimmunizations vachemlabs vaprogressnotes
-                                vapathology vaproblemlist varadiology vahth wellness dodmilitaryservice ).freeze
+                                vapathology vaproblemlist varadiology vahth wellness dodmilitaryservice ).uniq.freeze
 
     attribute :from_date, Common::UTCTime
     attribute :to_date, Common::UTCTime
