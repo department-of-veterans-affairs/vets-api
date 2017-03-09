@@ -62,7 +62,7 @@ class ApplicationController < ActionController::API
   def log_error(exception)
     unless SKIP_SENTRY_EXCEPTION_TYPES.include?(exception.class)
       # report the original 'cause' of the exception when present
-      Raven.capture_exception(exception.cause.presence || exception) if ENV['SENTRY_DSN'].present?
+      Raven.capture_exception(exception.cause.presence || exception) if Settings.sentry.dsn.present?
     end
     Rails.logger.error "#{exception.message}."
     Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
