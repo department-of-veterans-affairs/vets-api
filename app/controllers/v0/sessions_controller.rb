@@ -105,7 +105,7 @@ module V0
 
     def log_to_sentry(message, level, context = {})
       logger.send(level.to_sym, message + ' : ' + context.to_s)
-      if ENV['SENTRY_DSN'].present?
+      if Settings.sentry.dsn.present?
         Raven.extra_context(context) unless !context.is_a?(Hash) || context.empty?
         Raven.capture_message(message, level: level)
       end

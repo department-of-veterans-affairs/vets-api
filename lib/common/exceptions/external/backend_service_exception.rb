@@ -85,7 +85,7 @@ module Common
               source: ~
           MESSAGE
           Rails.logger.warn message
-          Raven.capture_message(message, level: :warning) if ENV['SENTRY_DSN'].present?
+          Raven.capture_message(message, level: :warning) if Settings.sentry.dsn.present?
         end
       end
 
@@ -94,7 +94,7 @@ module Common
         if code == 'VA900'
           message = "Unmapped VA900 (Backend Response: { status: #{original_status}, message: #{original_body}) }"
           Rails.logger.warn message
-          Raven.capture_message(message, level: :warning) if ENV['SENTRY_DSN'].present?
+          Raven.capture_message(message, level: :warning) if Settings.sentry.dsn.present?
         end
       end
 
