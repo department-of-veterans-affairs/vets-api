@@ -5,13 +5,16 @@ module Common
     # you must define the minor code in the locales file and call this class from
     # raise_error middleware.
     class BackendServiceException < BaseError
-      attr_reader :response_values
+      attr_reader :response_values, :original_status, :original_body
 
-      def initialize(key = nil, response_values = {})
+      def initialize(key = nil, response_values = {}, original_status = nil, original_body = nil)
         @response_values = response_values
         @key = key || 'VA900'
+        @original_status = original_status
+        @original_body = original_body
         validate_arguments!
         warn_about_error_not_in_locales!
+        warn_about_va900!
       end
 
       # The message will be the actual backend service response from middleware,
@@ -71,6 +74,7 @@ module Common
       # identified it does not actually raise an exception.
       # NOTE: in the future detail will just fallback to 'Operation failed'
       def warn_about_error_not_in_locales!
+        return if code == 'VA900'
         unless i18n_data[:detail].present?
           message = <<-MESSAGE.strip_heredoc
             Referencing detail from response values is deprecated. Add the following to exceptions.en.yml
@@ -81,7 +85,16 @@ module Common
               source: ~
           MESSAGE
           Rails.logger.warn message
-          Raven.capture_message(message, level: :warning) if ENV['SENTRY_DSN'].present?
+          Raven.capture_message(message, level: :warning) if Settings.sentry.dsn.present?
+        end
+      end
+
+      # Logging the VA900 errors when they occur (result of backend service providing unparsable errors)
+      def warn_about_va900!
+        if code == 'VA900'
+          message = "Unmapped VA900 (Backend Response: { status: #{original_status}, message: #{original_body}) }"
+          Rails.logger.warn message
+          Raven.capture_message(message, level: :warning) if Settings.sentry.dsn.present?
         end
       end
 
