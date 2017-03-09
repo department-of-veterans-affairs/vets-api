@@ -13,6 +13,8 @@ secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d
 
 review_instance_slug: ~
 
+sidekiq_admin_panel: false
+
 # Settings for Education Benefits
 edu:
   show_form: true
@@ -99,3 +101,10 @@ saml:
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
   relay: http://localhost:3001/auth/login/callback
   logout_relay: http://localhost:3001/logout
+
+sentry:
+  dsn: ~
+
+statsd:
+  host: ~
+  port: ~
