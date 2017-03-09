@@ -30,7 +30,7 @@ Email Address:  <%= @applicant.email %>
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
-Type of Education or Training: <%= @applicant.educationType&.titleize %>
+Type of Education or Training: <%= school&.educationType&.titleize %>
 
 <%= parse_with_template_path('school') %>
 

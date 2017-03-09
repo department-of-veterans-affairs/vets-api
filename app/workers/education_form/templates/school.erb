@@ -1,3 +1,3 @@
 Name and Address of School or Training Establishment:
-        <%= @applicant.school&.name %>
-<%= full_address(@applicant.school&.address) %>
+        <%= school&.name %>
+<%= full_address(school&.address) %>
