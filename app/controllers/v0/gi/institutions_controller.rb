@@ -2,16 +2,12 @@
 module V0
   module GI
     class InstitutionsController < GIController
-      SEARCH_KEYS = %w(name page per_page type_name school_type country state
-                       student_veteran_group yellow_ribbon_scholarship
-                       principles_of_excellence eight_keys_to_veteran_success).freeze
-
       def autocomplete
         render json: client.get_autocomplete_suggestions(params[:term])
       end
 
       def search
-        render json: client.get_search_results(whitelisted_search_params)
+        render json: client.get_search_results(search_params)
       end
 
       def show
@@ -20,8 +16,8 @@ module V0
 
       private
 
-      def whitelisted_search_params
-        params.select { |k, _v| SEARCH_KEYS.include?(k) }
+      def search_params
+        params.except(:action, :controller, :format)
       end
     end
   end
