@@ -111,6 +111,7 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
           allow_any_instance_of(HCA::Service).to receive(:post) do
             raise error
           end
+          stub_const('ENV', ENV.to_hash.merge('SENTRY_DSN' => 'doesnt matter'))
         end
 
         it 'should render error message' do

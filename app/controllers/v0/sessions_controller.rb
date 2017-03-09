@@ -3,6 +3,7 @@ require 'saml/auth_fail_handler'
 
 module V0
   class SessionsController < ApplicationController
+    #include SentryLogging
     skip_before_action :authenticate, only: [:new, :saml_callback, :saml_logout_callback]
 
     def new
@@ -59,9 +60,9 @@ module V0
     def handle_login_error
       fail_handler = SAML::AuthFailHandler.new(@saml_response, @current_user, @session)
       if fail_handler.known_error?
-        log_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
+        log_message_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
       else
-        log_to_sentry(fail_handler.generic_error_message, :error)
+        log_message_to_sentry(fail_handler.generic_error_message, :error)
       end
     end
 
@@ -81,7 +82,7 @@ module V0
 
       if errors.size.positive?
         extra_context = { in_response_to: logout_response&.in_response_to }
-        log_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
+        log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
         redirect_to Settings.saml.logout_relay + '?success=false'
       else
         logout_request.destroy
@@ -101,14 +102,6 @@ module V0
       errors << 'Session not found!' if session.nil?
       errors << 'User not found!' if user.nil?
       errors
-    end
-
-    def log_to_sentry(message, level, context = {})
-      logger.send(level.to_sym, message + ' : ' + context.to_s)
-      if Settings.sentry.dsn.present?
-        Raven.extra_context(context) unless !context.is_a?(Hash) || context.empty?
-        Raven.capture_message(message, level: level)
-      end
     end
 
     def saml_options
