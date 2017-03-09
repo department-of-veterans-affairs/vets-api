@@ -106,5 +106,5 @@ sentry:
   dsn: ~
 
 statsd:
-  host: localhost
-  port: 8125
+  host: ~
+  port: ~
