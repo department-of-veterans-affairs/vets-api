@@ -89,7 +89,7 @@ Rails.application.routes.draw do
 
   root 'v0/example#index', module: 'v0'
 
-  if Rails.env.development? || (ENV['SIDEKIQ_ADMIN_PANEL'] == 'true')
+  if Rails.env.development? || (Settings.sidekiq_admin_panel)
     require 'sidekiq/web'
     require 'sidekiq-scheduler/web'
     mount Sidekiq::Web, at: '/sidekiq'
