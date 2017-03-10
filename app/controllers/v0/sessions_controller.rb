@@ -3,7 +3,6 @@ require 'saml/auth_fail_handler'
 
 module V0
   class SessionsController < ApplicationController
-    #include SentryLogging
     skip_before_action :authenticate, only: [:new, :saml_callback, :saml_logout_callback]
 
     def new
