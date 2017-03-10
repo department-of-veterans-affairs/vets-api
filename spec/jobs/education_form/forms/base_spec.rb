@@ -32,7 +32,7 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
     end
 
     it 'should return the benefit type shorthand' do
-      expect(subject.benefit_type(education_benefits_claim.open_struct_form)).to eq('CH1606')
+      expect(subject.benefit_type(education_benefits_claim.open_struct_form)).to eq('CH33')
     end
   end
 

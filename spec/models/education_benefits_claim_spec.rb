@@ -331,9 +331,9 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
         expect(associated_submission).to eq(
           'region' => 'eastern',
-          'chapter33' => false,
+          'chapter33' => true,
           'chapter30' => false,
-          'chapter1606' => true,
+          'chapter1606' => false,
           'chapter32' => false,
           'chapter35' => false,
           'status' => 'submitted',

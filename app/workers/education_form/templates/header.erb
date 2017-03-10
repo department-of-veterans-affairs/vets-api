@@ -1,10 +1,9 @@
 *INIT*
-<% %w(first middle last).each do |name| -%>
-<%= applicant_name&.public_send(name)&.upcase %>
-<% end -%>
-<% [@applicant.veteranSocialSecurityNumber, applicant_ssn].each do |ssn| -%>
-<%= ssn&.gsub(/[^\d]/, '') %>
-<% end -%>
+<%= applicant_name&.first&.upcase %>
+<%= applicant_name&.middle&.upcase %>
+<%= applicant_name&.last&.upcase %>
+<%= @applicant.veteranSocialSecurityNumber&.gsub(/[^\d]/, '') %>
+<%= applicant_ssn&.gsub(/[^\d]/, '') %>
 V<%= header_form_type %>
 
 <%= school&.name&.upcase %>

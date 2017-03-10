@@ -26,8 +26,8 @@
   "relationship": "spouse",
   "highSchoolOrGedCompletionDate": "2010-06-XX",
   "benefit": "chapter33",
-  "educationType": "flightTraining",
-  "school": {
+  "educationProgram": {
+    "educationType": "flightTraining",
     "address": {
       "city": "Baltimore",
       "country": "USA",

@@ -5,6 +5,10 @@ module EducationForm::Forms
       'E1990'
     end
 
+    def school
+      @applicant.educationProgram
+    end
+
     def applicant_name
       @applicant.relativeFullName
     end
