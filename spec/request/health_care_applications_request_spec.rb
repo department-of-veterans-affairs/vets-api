@@ -113,6 +113,9 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
           end
           Settings.sentry.dsn = 'asdf'
         end
+        after do
+          Settings.sentry.dsn = nil
+        end
 
         it 'should render error message' do
           expect(Raven).to receive(:capture_exception).with(error).twice

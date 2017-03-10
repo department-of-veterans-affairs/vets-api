@@ -71,9 +71,8 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
           educationBenefitsClaim: { form: nil }
         }
       end
-      before do
-        stub_const('ENV', ENV.to_hash.merge('SENTRY_DSN' => 'doesnt matter'))
-      end
+      before { Settings.sentry.dsn = 'asdf' }
+      after { Settings.sentry.dsn = nil;}
 
       it 'should render json of the errors' do
         subject
