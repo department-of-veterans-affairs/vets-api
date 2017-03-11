@@ -147,5 +147,12 @@ FactoryGirl.define do
       }.to_json)
       form_type('5490')
     end
+
+    factory :education_benefits_claim_1990n do
+      form({
+        privacyAgreementAccepted: true
+      }.to_json)
+      form_type('1990n')
+    end
   end
 end
