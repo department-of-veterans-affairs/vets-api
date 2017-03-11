@@ -83,57 +83,32 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         end
       end
 
-      context '1990e form' do
-        before do
-          subject.form_type = '1990e'
-          subject.form = form.to_json
-        end
-
-        context 'with a valid form' do
-          let(:form) do
-            {
-              privacyAgreementAccepted: true
-            }
+      %w(1990e 5490 1990n).each do |form_type|
+        context "#{form_type} form" do
+          before do
+            subject.form_type = form_type
+            subject.form = form.to_json
           end
 
-          expect_form_valid
-        end
+          context 'with a valid form' do
+            let(:form) do
+              {
+                privacyAgreementAccepted: true
+              }
+            end
 
-        context 'with an invalid form' do
-          let(:form) do
-            {}
+            expect_form_valid
           end
 
-          expect_json_schema_error(
-            "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
-          )
-        end
-      end
+          context 'with an invalid form' do
+            let(:form) do
+              {}
+            end
 
-      context '5490 form' do
-        before do
-          subject.form_type = '5490'
-          subject.form = form.to_json
-        end
-
-        context 'with a valid form' do
-          let(:form) do
-            {
-              privacyAgreementAccepted: true
-            }
+            expect_json_schema_error(
+              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
+            )
           end
-
-          expect_form_valid
-        end
-
-        context 'with an invalid form' do
-          let(:form) do
-            {}
-          end
-
-          expect_json_schema_error(
-            "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
-          )
         end
       end
 
