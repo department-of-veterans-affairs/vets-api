@@ -27,7 +27,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
 
     it 'should validate inclusion of form_type' do
-      %w(1990 1995 1990e 5490).each do |form_type|
+      %w(1990 1995 1990e 5490 1990n).each do |form_type|
         subject.form_type = form_type
         expect_attr_valid(subject, :form_type)
       end
