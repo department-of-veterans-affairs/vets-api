@@ -71,6 +71,8 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
           educationBenefitsClaim: { form: nil }
         }
       end
+      before { Settings.sentry.dsn = 'asdf' }
+      after { Settings.sentry.dsn = nil }
 
       it 'should render json of the errors' do
         subject
@@ -88,9 +90,8 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
         allow(Rails.logger).to receive(:error)
         expect(Rails.logger).to receive(:error).with(validation_error).once
 
-        expect(Raven).to receive(:capture_message)
-          .once
-          .with(validation_error, tags: { validation: 'education_benefits_claim' })
+        expect(Raven).to receive(:tags_context).once.with(validation: 'education_benefits_claim')
+        expect(Raven).to receive(:capture_message).once.with(validation_error, level: :error)
 
         subject
       end
