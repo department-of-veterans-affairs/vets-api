@@ -120,10 +120,6 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
             let(:status) { status }
 
             it 'should return data about the number of submissions' do
-              if subject.deep_stringify_keys != result
-                binding.pry; fail
-              end
-
               expect(subject.deep_stringify_keys).to eq(result)
             end
           end
