@@ -91,7 +91,7 @@ module EducationForm
         next row += ['', '', ''] if form_type == '1995' && !on_last_index
 
         TOTALS_HASH.keys.each do |range_type|
-          application_type_key = form_type == '1995' ? :all : application_type
+          application_type_key = show_individual_benefits(form_type) ? application_type : :all
           num_submissions = submissions[range_type][form_type][region][application_type_key]
           row << num_submissions
 
