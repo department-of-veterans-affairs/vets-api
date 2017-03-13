@@ -2,8 +2,8 @@
 require 'rails_helper'
 require 'sentry_logging'
 
-RSpec.describe SentryLogging do
-  let(:class_instance) { (Class.new { include SentryLogging }).new }
+shared_examples 'a sentry logger' do
+  let(:class_instance) { described_class.new }
   let(:exception) { StandardError.new }
   subject { class_instance }
 

@@ -39,7 +39,12 @@ class ApplicationController < ActionController::API
 
   rescue_from 'Exception' do |exception|
     # report the original 'cause' of the exception when present
-    log_exception_to_sentry(exception) unless SKIP_SENTRY_EXCEPTION_TYPES.include?(exception.class)
+    if SKIP_SENTRY_EXCEPTION_TYPES.include?(exception.class) == false
+      log_exception_to_sentry(exception)
+    else
+      Rails.logger.error "#{exception.message}."
+      Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
+    end
 
     va_exception =
       case exception
