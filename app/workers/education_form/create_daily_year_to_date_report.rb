@@ -88,7 +88,7 @@ module EducationForm
       row = []
 
       EducationBenefitsClaim::FORM_TYPES.each do |form_type|
-        next row += ['', '', ''] if form_type == '1995' && !on_last_index
+        next row += ['', '', ''] if !show_individual_benefits(form_type) && !on_last_index
 
         TOTALS_HASH.keys.each do |range_type|
           application_type_key = show_individual_benefits(form_type) ? application_type : :all
