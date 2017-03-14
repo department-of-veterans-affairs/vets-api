@@ -19,6 +19,19 @@ module EducationForm::Forms
       klass.new(app)
     end
 
+    def ssn_gender_dob(veteran = true)
+      prefix = veteran ? 'veteran' : 'relative'
+      ssn = @applicant.public_send("#{prefix}SocialSecurityNumber")
+      gender = @applicant.gender
+      dob = @applicant.public_send("#{prefix}DateOfBirth")
+
+      "SSN: #{ssn}         Sex: #{gender}             Date of Birth: #{dob}"
+    end
+
+    def benefit_type(application)
+      application.benefit&.gsub('chapter', 'CH')
+    end
+
     def disclosure_for(type)
       return if type.blank?
       "#{parse_with_template_path("1990-disclosure/_#{type}")}\n"
