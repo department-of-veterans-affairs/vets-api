@@ -83,6 +83,7 @@
     "first": "John",
     "last": "Doe"
   },
+  "preferredContactMethod": "email",
   "veteranAddress": {
     "city": "Milwaukee",
     "country": "USA",

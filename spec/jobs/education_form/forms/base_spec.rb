@@ -24,6 +24,18 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
     end
   end
 
+  describe '#benefit_type' do
+    let(:education_benefits_claim) { build(:education_benefits_claim_1990e) }
+
+    subject do
+      described_class.new(education_benefits_claim)
+    end
+
+    it 'should return the benefit type shorthand' do
+      expect(subject.benefit_type(education_benefits_claim.open_struct_form)).to eq('CH33')
+    end
+  end
+
   context '#full_name' do
     let(:name) { OpenStruct.new(first: 'Mark', last: 'Olson') }
     subject { renderer.full_name(name) }
