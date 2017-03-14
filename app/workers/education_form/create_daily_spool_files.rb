@@ -108,10 +108,7 @@ module EducationForm
     # per-rpo, rather than the number of records that were *prepared* to be sent.
     def track_submissions(region_id)
       stats[region_id].each do |type, count|
-        StatsD.gauge('worker.education_benefits_claim.transmissions',
-                     count,
-                     tags: { rpo: region_id,
-                             form: type })
+        StatsD.gauge("worker.education_benefits_claim.transmissions.#{region_id}.#{type}", count)
       end
     end
 
