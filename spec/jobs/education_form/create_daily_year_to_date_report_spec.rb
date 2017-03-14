@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
+def get_education_form_fixture(filename)
+  JSON.parse(File.read("spec/fixtures/education_form/#{filename}.json"))
+end
+
 RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
   let(:date) { Time.zone.today - 1.day }
   subject do
@@ -48,7 +52,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       describe '#create_csv_array' do
         it 'should make the right csv array' do
           expect(subject.create_csv_array).to eq(
-            JSON.parse(File.read('spec/fixtures/education_form/create_csv_array.json'))
+            get_education_form_fixture('create_csv_array')
           )
         end
       end
@@ -76,7 +80,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
 
               verify_status_numbers(
                 status,
-                JSON.parse(File.read("spec/fixtures/education_form/ytd_#{range_type}_#{status}.json"))
+                get_education_form_fixture("ytd_#{range_type}_#{status}")
               )
             end
           end
