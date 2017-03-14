@@ -151,5 +151,6 @@
       "months": 8
     }
   ],
+  "preferredContactMethod": "email",
   "privacyAgreementAccepted": true
 }
