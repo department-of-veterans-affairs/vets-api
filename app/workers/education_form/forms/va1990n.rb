@@ -4,5 +4,9 @@ module EducationForm::Forms
     def school
       @applicant.educationProgram
     end
+
+    def non_va_assistance
+      @applicant.currentlyActiveDuty&.nonVaAssistance
+    end
   end
 end

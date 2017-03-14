@@ -39,3 +39,23 @@ If during the review made by VA I am found to be eligible for more than one bene
                        ACTIVE DUTY SERVICE INFORMATION
                        -------------------------------
 
+Are You Now On Active Duty?   <%= yesno(@applicant.currentlyActiveDuty.yes) %>
+
+Are you Now On Terminal Leave Just Before Discharge? <%= yesno(@applicant.currentlyActiveDuty.onTerminalLeave) %>
+
+<%= parse_with_template_path('tours_of_duty') %>
+
+          ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
+          ----------------------------------------------------------
+
+Are you currently participating in a senior ROTC scholarship program which pays for your tuition, fees, books and supplies under section 2107, title 10, u.s. code? <%= yesno(@applicant.seniorRotcScholarshipProgram) %>
+
+<%= parse_with_template_path('non_va_assistance') %>
+
+<%= parse_with_template_path('civilian_benefits_assistance') %>
+
+Source of educational assistance for government employee: <%= @applicant.civilianBenefitsSource %>
+
+<%= parse_with_template_path('signatures') %>
+
+<%= parse_with_template_path('footer') %>
