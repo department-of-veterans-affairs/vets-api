@@ -17,21 +17,8 @@ RSpec.describe EducationForm::Forms::VA1990, type: :model, form: :education_bene
   # For each sample application we have, format it and compare it against a 'known good'
   # copy of that submission. This technically covers all the helper logic found in the
   # `Form` specs, but are a good safety net for tracking how forms change over time.
-  context '#text', run_at: '2016-10-06 03:00:00 EDT' do
-    basepath = Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1990')
-    SAMPLE_APPLICATIONS.each do |application_name|
-      it "generates #{application_name} correctly" do
-        json = File.read(File.join(basepath, "#{application_name}.json"))
-        test_application = EducationBenefitsClaim.create!(form_type: 1990, form: json)
-        allow(test_application).to receive(:id).and_return(1)
-
-        result = described_class.new(test_application).text
-        spl = File.read(File.join(basepath, "#{application_name}.spl"))
-
-        expect(json).to match_vets_schema('edu_benefits')
-        expect(result).to eq(spl.rstrip)
-      end
-    end
+  SAMPLE_APPLICATIONS.each do |application_name|
+    test_spool_file('1990', application_name)
   end
 
   context '#rotc_scholarship_amounts' do

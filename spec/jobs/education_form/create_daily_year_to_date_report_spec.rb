@@ -31,6 +31,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
 
       create(:education_benefits_submission, created_at: date, status: 'submitted')
       create(:education_benefits_submission, form_type: '1995')
+      create(:education_benefits_submission, form_type: '1990e')
     end
 
     context 'with the date variable set' do
@@ -47,42 +48,53 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       describe '#create_csv_array' do
         it 'should make the right csv array' do
           expect(subject.create_csv_array).to eq(
-            [
-              ['Submitted Vets.gov Applications - Report FYTD 2017 as of 2017-01-03'],
-              ['', '', 'DOCUMENT TYPE'],
-              ['RPO', 'BENEFIT TYPE', '22-1990', '', '', '22-1995'],
-              ['',
-               '',
-               '2017-01-01..2017-01-03 23:59:59 UTC',
-               '',
-               '2017-01-03 00:00:00 UTC..2017-01-03 23:59:59 UTC',
-               '2017-01-01..2017-01-03 23:59:59 UTC',
-               '',
-               '2017-01-03 00:00:00 UTC..2017-01-03 23:59:59 UTC'],
-              ['', '', '', 'Submitted', 'Sent to Spool File', '', 'Submitted', 'Sent to Spool File'],
-              ['BUFFALO (307)', 'chapter33', 3, 3, 2],
-              ['', 'chapter30', 0, 0, 0],
-              ['', 'chapter1606', 0, 0, 0],
-              ['', 'chapter32', 0, 0, 0, 0, 1, 0],
-              ['', 'TOTAL', 3, 3, 2, 0, 1, 0],
-              ['ATLANTA (316)', 'chapter33', 0, 0, 0],
-              ['', 'chapter30', 0, 0, 0],
-              ['', 'chapter1606', 0, 0, 0],
-              ['', 'chapter32', 0, 0, 0, 0, 0, 0],
-              ['', 'TOTAL', 0, 0, 0, 0, 0, 0],
-              ['ST. LOUIS (331)', 'chapter33', 0, 0, 0],
-              ['', 'chapter30', 0, 0, 0],
-              ['', 'chapter1606', 0, 0, 0],
-              ['', 'chapter32', 0, 0, 0, 0, 0, 0],
-              ['', 'TOTAL', 0, 0, 0, 0, 0, 0],
-              ['MUSKOGEE (351)', 'chapter33', 0, 0, 0],
-              ['', 'chapter30', 0, 0, 0],
-              ['', 'chapter1606', 1, 1, 1],
-              ['', 'chapter32', 0, 0, 0, 0, 0, 0],
-              ['', 'TOTAL', 1, 1, 1, 0, 0, 0],
-              ['ALL RPOS TOTAL', '', 4, 4, 3, 0, 1, 0],
-              ['', '', '22-1990', '', '', '22-1995']
-            ]
+            [['Submitted Vets.gov Applications - Report FYTD 2017 as of 2017-01-03'],
+             ['', '', 'DOCUMENT TYPE'],
+             ['RPO', 'BENEFIT TYPE', '22-1990', '', '', '22-1995', '', '', '22-1990e', '', ''],
+             ['',
+              '',
+              '2017-01-01..2017-01-03 23:59:59 UTC',
+              '',
+              '2017-01-03 00:00:00 UTC..2017-01-03 23:59:59 UTC',
+              '2017-01-01..2017-01-03 23:59:59 UTC',
+              '',
+              '2017-01-03 00:00:00 UTC..2017-01-03 23:59:59 UTC',
+              '2017-01-01..2017-01-03 23:59:59 UTC',
+              '',
+              '2017-01-03 00:00:00 UTC..2017-01-03 23:59:59 UTC'],
+             ['',
+              '',
+              '',
+              'Submitted',
+              'Sent to Spool File',
+              '',
+              'Submitted',
+              'Sent to Spool File',
+              '',
+              'Submitted',
+              'Sent to Spool File'],
+             ['BUFFALO (307)', 'chapter33', 3, 3, 2, '', '', '', 0, 1, 0],
+             ['', 'chapter30', 0, 0, 0, '', '', '', 0, 0, 0],
+             ['', 'chapter1606', 0, 0, 0, '', '', '', 0, 0, 0],
+             ['', 'chapter32', 0, 0, 0, 0, 1, 0, 0, 0, 0],
+             ['', 'TOTAL', 3, 3, 2, 0, 1, 0, 0, 1, 0],
+             ['ATLANTA (316)', 'chapter33', 0, 0, 0, '', '', '', 0, 0, 0],
+             ['', 'chapter30', 0, 0, 0, '', '', '', 0, 0, 0],
+             ['', 'chapter1606', 0, 0, 0, '', '', '', 0, 0, 0],
+             ['', 'chapter32', 0, 0, 0, 0, 0, 0, 0, 0, 0],
+             ['', 'TOTAL', 0, 0, 0, 0, 0, 0, 0, 0, 0],
+             ['ST. LOUIS (331)', 'chapter33', 0, 0, 0, '', '', '', 0, 0, 0],
+             ['', 'chapter30', 0, 0, 0, '', '', '', 0, 0, 0],
+             ['', 'chapter1606', 0, 0, 0, '', '', '', 0, 0, 0],
+             ['', 'chapter32', 0, 0, 0, 0, 0, 0, 0, 0, 0],
+             ['', 'TOTAL', 0, 0, 0, 0, 0, 0, 0, 0, 0],
+             ['MUSKOGEE (351)', 'chapter33', 0, 0, 0, '', '', '', 0, 0, 0],
+             ['', 'chapter30', 0, 0, 0, '', '', '', 0, 0, 0],
+             ['', 'chapter1606', 1, 1, 1, '', '', '', 0, 0, 0],
+             ['', 'chapter32', 0, 0, 0, 0, 0, 0, 0, 0, 0],
+             ['', 'TOTAL', 1, 1, 1, 0, 0, 0, 0, 0, 0],
+             ['ALL RPOS TOTAL', '', 4, 4, 3, 0, 1, 0, 0, 1, 0],
+             ['', '', '22-1990', '', '', '22-1995', '', '', '22-1990e', '', '']]
           )
         end
       end
@@ -111,9 +123,14 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
             '1990' =>
               { eastern: { 'chapter33' => 3, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
-                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' =>    0, 'chapter32' => 0 },
+                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 } },
-            '1995' => { eastern: { all: 0 }, southern: { all: 0 }, central: { all: 0 }, western: { all: 0 } }
+            '1995' => { eastern: { all: 0 }, southern: { all: 0 }, central: { all: 0 }, western: { all: 0 } },
+            '1990e' =>
+              { eastern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } }
           )
 
           verify_status_numbers(
@@ -123,7 +140,12 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
                 southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 } },
-            '1995' => { eastern: { all: 1 }, southern: { all: 0 }, central: { all: 0 }, western: { all: 0 } }
+            '1995' => { eastern: { all: 1 }, southern: { all: 0 }, central: { all: 0 }, western: { all: 0 } },
+            '1990e' =>
+              { eastern: { 'chapter33' => 1, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } }
           )
         end
 
@@ -137,7 +159,12 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
                 southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 } },
-            '1995' => { eastern: { all: 0 }, southern: { all: 0 }, central: { all: 0 }, western: { all: 0 } }
+            '1995' => { eastern: { all: 0 }, southern: { all: 0 }, central: { all: 0 }, western: { all: 0 } },
+            '1990e' =>
+              { eastern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } }
           )
 
           verify_status_numbers(
@@ -147,7 +174,12 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
                 southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
                 western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 1, 'chapter32' => 0 } },
-            '1995' => { eastern: { all: 1 }, southern: { all: 0 }, central: { all: 0 }, western: { all: 0 } }
+            '1995' => { eastern: { all: 1 }, southern: { all: 0 }, central: { all: 0 }, western: { all: 0 } },
+            '1990e' =>
+              { eastern: { 'chapter33' => 1, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                southern: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                central: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 },
+                western: { 'chapter33' => 0, 'chapter30' => 0, 'chapter1606' => 0, 'chapter32' => 0 } }
           )
         end
       end
