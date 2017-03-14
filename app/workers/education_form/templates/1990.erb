@@ -1,5 +1,5 @@
 <%= header %>
-<%= form_type(@applicant) %>
+<%= benefit_type(@applicant) %>
 *START*
 VA Form 22-1990
 DEC 2016
@@ -20,15 +20,12 @@ Name:   <%= full_name(@applicant.veteranFullName) %>
 Address:
 <%= full_address(@applicant.veteranAddress) %>
 
-Telephone Numbers:     Home:    <%= @applicant.homePhone %>
-                       Mobile:  <%= @applicant.mobilePhone %>
+<%= parse_with_template_path('phone_numbers') %>
 
 Email Address:  <%= @applicant.email %>
 Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
 
-Direct Deposit:     Type of Account: <%= @applicant.bankAccount&.accountType %>
-Name of Financial Inst.: <%= @applicant.bankAccount&.bankName %>
-Routing/Transit #: <%= @applicant.bankAccount&.routingNumber %>   Account #: <%= @applicant.bankAccount&.accountNumber %>
+<%= parse_with_template_path('bank_account') %>
 
 Name, Address, & Telephone Number of Contact:
         <%= @applicant.secondaryContact&.fullName %>
@@ -45,9 +42,7 @@ Name, Address, & Telephone Number of Contact:
 
 Type of Education or Training: <%= @applicant.educationType&.titleize %>
 
-Name and Address of School or Training Establishment:
-        <%= @applicant.school&.name %>
-<%= full_address(@applicant.school&.address) %>
+<%= parse_with_template_path('school') %>
 
 Date You Started or Will Start Training: <%= @applicant.educationStartDate %>
 
@@ -81,17 +76,7 @@ Date Received High School Diploma or Equivalency Certificate: <%= to_date(@appli
 FAA Flight Certificates:
 <%= @applicant.faaFlightCertificatesInformation %>
 
-      Education After High School
-      ---------------------------
-<% Array(@applicant.postHighSchoolTrainings).each do |training| %>
-Name and Location of College or Training Provider:
-    <%= training&.name %>
-    <%= training.city %>, <%= training.state %>
-Date of Training:     From: <%= to_date(training&.dateRange&.from) %> To: <%= to_date(training&.dateRange&.to) %>
-Hours: <%= training&.hours %> (<%= training&.hoursType %>)
-Degree/Diploma/Certificate: <%= training&.degreeReceived %>
-Major Field/Course of Study: <%= training&.major %>
-<% end %>
+<%= parse_with_template_path('post_high_school_trainings') %>
 
         Employment
         ----------
@@ -133,9 +118,9 @@ Did you have a period of active duty that the Department of Defense counts for p
 
         End Date: <%= to_date(@applicant.activeDutyRepayingPeriod&.to) %>
 
-For Active Duty Claimants Only. Are you receiving or do you anticipate receiving any money (including but not limited to Federal Tuition Assistance) from the Armed Forces or Public Health Service for the course for which you have applied to the VA for Education Benefits?  If you receive such benefits during any part of your training, check 'Yes.' Note:  If you are only applying for Tuition Assistance Top-Up, check 'No' to this item.    <%= yesno(@applicant.currentlyActiveDuty&.nonVaAssistance) %>
+<%= parse_with_template_path('non_va_assistance') %>
 
-For Civilian Employees of the U.S. Federal Government Only. Are you receiving or do you anticipate receiving any money from your agency (including but not limited to the Government Employees Training Act) for the same period for which you have applied to the VA for Education Benefits? If you will receive such benefits during any part of your training, check Yes.    <%= yesno(@applicant.civilianBenefitsAssistance) %>
+<%= parse_with_template_path('civilian_benefits_assistance') %>
 
 
                         MARITAL AND DEPENDENCY STATUS
@@ -152,10 +137,6 @@ N/A
 <% end -%>
 
 
-      Certification and Signature of Applicant
-Signature of Applicant                                               Date
-
-      Certification for Persons on Active Duty
-Signature/Title/Branch of Armed Forces Education Service Officer     Date
+<%= parse_with_template_path('signatures') %>
 
 <%= parse_with_template_path('footer') %>

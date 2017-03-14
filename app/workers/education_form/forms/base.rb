@@ -15,6 +15,27 @@ module EducationForm::Forms
       klass.new(app)
     end
 
+    def disclosure_for(type)
+      return if type.blank?
+      "#{parse_with_template_path("1990-disclosure/_#{type}")}\n"
+    end
+
+    def header_form_type
+      @record.form_type
+    end
+
+    def school
+      @applicant.school
+    end
+
+    def applicant_name
+      @applicant.veteranFullName
+    end
+
+    def applicant_ssn
+      @applicant.veteranSocialSecurityNumber
+    end
+
     def initialize(app)
       @record = app
       @form = app.open_struct_form
@@ -93,6 +114,18 @@ module EducationForm::Forms
         "#{address.city}, #{address.state}, #{address.postalCode}",
         address.country
       ].compact.join(seperator).upcase
+    end
+
+    def employment_history(job_history, post_military: nil)
+      wrapped_list = Array(job_history)
+      wrapped_list = wrapped_list.select { |job| job.postMilitaryJob == post_military } unless post_military.nil?
+      # we need at least one record to be in the form.
+      wrapped_list << OpenStruct.new if wrapped_list.empty?
+      wrapped_list.map do |job|
+        "        Principal Occupation: #{job.name}
+        Number of Months: #{job.months}
+        License or Rating: #{job.licenseOrRating}"
+      end.join("\n\n")
     end
   end
 end
