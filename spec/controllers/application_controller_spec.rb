@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'rx/client'
+require 'lib/sentry_logging_spec_helper'
 
 RSpec.describe ApplicationController, type: :controller do
+  it_behaves_like 'a sentry logger'
   controller do
     skip_before_action :authenticate
 
