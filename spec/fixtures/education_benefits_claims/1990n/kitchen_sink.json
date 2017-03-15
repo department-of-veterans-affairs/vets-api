@@ -1,3 +1,9 @@
 {
+  "email": "a@a.com",
+  "educationObjective": "bachelors",
+  "payHighestRateBenefit": true,
+  "seniorRotcScholarshipProgram": true,
+  "civilianBenefitsAssistance": true,
+  "civilianBenefitsSource": "edu dept",
   "privacyAgreementAccepted": true
 }
