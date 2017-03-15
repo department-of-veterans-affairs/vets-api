@@ -31,6 +31,7 @@ module MVI
     configuration MVI::Configuration
 
     def find_profile(user)
+      return MVI::Responses::FindProfileResponse.with_not_authorized unless user.loa3?
       raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
       MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
     rescue Faraday::ConnectionFailed => e

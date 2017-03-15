@@ -1,0 +1,86 @@
+# frozen_string_literal: true
+FactoryGirl.define do
+  factory :mvi_profile_address, class: 'MviProfileAddress' do
+    street { Faker::Address.street_address }
+    city { Faker::Address.city }
+    state { Faker::Address.state }
+    postal_code { Faker::Address.zip }
+    country 'USA'
+
+    factory :mvi_profile_address_austin do
+      street '121 A St'
+      city 'Austin'
+      state 'TX'
+      postal_code '78772'
+    end
+
+    factory :mvi_profile_address_springfield do
+      street '42 MAIN ST'
+      city 'SPRINGFIELD'
+      state 'IL'
+      postal_code '62722'
+    end
+  end
+end
+
+FactoryGirl.define do
+  factory :mvi_profile, class: 'MviProfile' do
+    given_names { 2.times.map { Faker::Name.first_name } }
+    family_name { Faker::Name.last_name }
+    suffix { Faker::Name.suffix }
+    gender { Faker::Medical::Patient.gender }
+    birth_date { Faker::Date.between(80.years.ago, 30.years.ago).strftime('%Y%m%d') }
+    ssn { Faker::Medical::SSN.ssn }
+    address { build(:mvi_profile_address) }
+    home_phone { Faker::PhoneNumber.phone_number }
+    icn { Faker::Number.number(17) }
+    mhv_ids { 2.times.map { Faker::Number.number(11) } }
+    edipi { Faker::Number.number(10) }
+    vba_corp_id { Faker::Number.number(10) }
+
+    factory :mvi_profile_valid do
+      given_names %w(John William)
+      family_name 'Smith'
+      suffix 'Sr'
+      gender 'M'
+      birth_date '19800101'
+      ssn '555443333'
+      address { build(:mvi_profile_address_austin) }
+      home_phone '1112223333'
+      icn '1000123456V123456'
+      mhv_ids ['123456']
+      edipi '1234'
+      vba_corp_id nil
+    end
+
+    factory :mvi_profile_missing_attrs do
+      given_names %w(Mitchell)
+      family_name 'Jenkins'
+      suffix nil
+      gender 'M'
+      birth_date '19490304'
+      ssn '796122306'
+      address { build(:mvi_profile_address_austin) }
+      home_phone nil
+      icn '1008714701V416111'
+      mhv_ids ['1100792239']
+      vba_corp_id nil
+      edipi nil
+    end
+
+    factory :mvi_profile_mvi_mhvids do
+      given_names %w(Steve A)
+      family_name 'Ranger'
+      suffix nil
+      gender 'M'
+      birth_date '19800101'
+      ssn '111223333'
+      address { build(:mvi_profile_address_springfield) }
+      home_phone '1112223333 p1'
+      icn '12345678901234567'
+      mhv_ids %w(12345678901 12345678902)
+      edipi '1122334455'
+      vba_corp_id nil
+    end
+  end
+end

@@ -37,7 +37,9 @@ module MVI
       end
 
       def failed_or_invalid?
-        [EXTERNAL_RESPONSE_CODES[:failure], EXTERNAL_RESPONSE_CODES[:invalid_request]].include? @code
+        result = [EXTERNAL_RESPONSE_CODES[:failure], EXTERNAL_RESPONSE_CODES[:invalid_request]].include? @code
+        Rails.logger.warn "MVI returned response with code: #{@code}" if result
+        result
       end
 
       def multiple_match?
