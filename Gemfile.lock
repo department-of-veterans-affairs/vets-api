@@ -127,6 +127,8 @@ GEM
       railties (>= 3.0.0)
     faker (1.6.3)
       i18n (~> 0.5)
+    faker-medical (0.5.2)
+      faker
     fakeredis (0.5.0)
       redis (~> 3.0)
     faraday (0.9.2)
@@ -415,6 +417,7 @@ DEPENDENCIES
   date_validator
   factory_girl_rails
   faker
+  faker-medical
   fakeredis
   faraday
   faraday_curl

@@ -5,8 +5,6 @@ require 'mvi/responses/find_profile_response'
 class Mvi
   attr_accessor :user, :mvi_response
 
-  NOT_AUTHORIZED = 'NOT_AUTHORIZED'
-
   def initialize(user)
     @user = user
   end

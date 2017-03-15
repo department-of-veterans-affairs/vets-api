@@ -26,7 +26,6 @@ class MviProfile
   attribute :vba_corp_id, String
 
   def mhv_correlation_id
-    ids = [] unless mhv_ids
-    ids&.first
+    @mhv_ids&.first
   end
 end

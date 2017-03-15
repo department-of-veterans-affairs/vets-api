@@ -24,7 +24,8 @@ module MVI
       RESPONSE_STATUS = {
         ok: 'OK',
         not_found: 'NOT_FOUND',
-        server_error: 'SERVER_ERROR'
+        server_error: 'SERVER_ERROR',
+        not_authorized: 'NOT_AUTHORIZED'
       }.freeze
 
       def self.with_server_error
@@ -37,6 +38,13 @@ module MVI
       def self.with_not_found
         FindProfileResponse.new(
           status: FindProfileResponse::RESPONSE_STATUS[:not_found],
+          profile: MviProfile.new
+        )
+      end
+
+      def self.with_not_authorized
+        FindProfileResponse.new(
+          status: FindProfileResponse::RESPONSE_STATUS[:not_authorized],
           profile: MviProfile.new
         )
       end
