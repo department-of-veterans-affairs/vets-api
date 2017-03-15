@@ -9,9 +9,6 @@ module SAML
     class << self
       extend Memoist
 
-      # used as a hack for testing
-      attr_accessor :fetch_attempted
-
       METADATA_RETRIES = 3
       OPEN_TIMEOUT = 2
       TIMEOUT = 15
