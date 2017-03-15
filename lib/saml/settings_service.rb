@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'memoist'
+require 'sentry_logging'
 
 module SAML
   # This class is responsible for putting together a complete ruby-saml
@@ -7,6 +8,7 @@ module SAML
   # which must be fetched once and only once via IDP metadata.
   class SettingsService
     class << self
+      include SentryLogging
       extend Memoist
 
       METADATA_RETRIES = 3
@@ -25,7 +27,7 @@ module SAML
       def merged_saml_settings
         OneLogin::RubySaml::IdpMetadataParser.new.parse(metadata, settings: settings)
       rescue => e
-        Rails.logger.error "SAML::SettingService failed to parse SAML metadata: #{e.message}"
+        log_message_to_sentry("SAML::SettingService failed to parse SAML metadata: #{e.message}", :error)
         raise e
       end
       memoize :merged_saml_settings
@@ -54,7 +56,7 @@ module SAML
       rescue StandardError => e
         attempt += 1
         msg = "Failed to load SAML metadata: #{e.message}: try #{attempt} of #{METADATA_RETRIES}"
-        attempt >= METADATA_RETRIES ? Rails.logger.error(msg) : Rails.logger.warn(msg)
+        attempt >= METADATA_RETRIES ? log_message_to_sentry(msg, :error) : log_message_to_sentry(msg, :warn)
         if attempt < METADATA_RETRIES
           sleep attempt * 0.25
           retry

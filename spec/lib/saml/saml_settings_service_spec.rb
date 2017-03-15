@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'saml/settings_service'
+require 'lib/sentry_logging_spec_helper'
 
 RSpec.describe SAML::SettingsService do
   let(:success_response_body) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/metadata_response_body.txt") }
