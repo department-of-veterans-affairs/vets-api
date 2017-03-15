@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'common/client/base'
 require 'mvi/configuration'
-require 'mvi/responses/find_candidate'
+require 'mvi/responses/find_profile_response'
 require 'common/client/middleware/request/soap_headers'
 require 'common/client/middleware/response/soap_parser'
 require 'mvi/errors/errors'
@@ -25,25 +25,38 @@ module MVI
     OPERATIONS = {
       add_person: 'PRPA_IN201301UV02',
       update_person: 'PRPA_IN201302UV02',
-      find_candidate: 'PRPA_IN201305UV02'
+      find_profile: 'PRPA_IN201305UV02'
     }.freeze
 
     configuration MVI::Configuration
 
-    def find_candidate(message)
-      raw_response = perform(:post, '', message.to_xml, soapaction: OPERATIONS[:find_candidate])
-      response = MVI::Responses::FindCandidate.new(raw_response)
-      raise MVI::Errors::RecordNotFound, 'MVI multiple matches found' if response.multiple_match?
-      raise MVI::Errors::InvalidRequestError if response.invalid?
-      raise MVI::Errors::RequestFailureError if response.failure?
-      raise MVI::Errors::RecordNotFound, 'MVI subject missing from response body' unless response.body
-      response.body
+    def find_profile(user)
+      raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
+      response = MVI::Responses::FindProfileResponse.new(raw_response)
+      raise MVI::Errors::ServiceError if response.server_error?
+      raise MVI::Errors::RecordNotFound if response.not_found?
+      response
     rescue Faraday::ConnectionFailed => e
       Rails.logger.error "MVI find_candidate connection failed: #{e.message}"
       raise MVI::Errors::ServiceError, 'MVI connection failed'
     rescue Common::Client::Errors::ClientError => e
       Rails.logger.error "MVI find_candidate error: #{e.message}"
       raise MVI::Errors::ServiceError
+    end
+
+    private
+
+    def create_profile_message(user)
+      raise Common::Exceptions::ValidationErrors, user unless user.valid?(:loa3_user)
+      given_names = [user.first_name]
+      given_names.push user.middle_name unless user.middle_name.nil?
+      MVI::Messages::FindCandidateMessage.new(
+        given_names,
+        user.last_name,
+        user.birth_date,
+        user.ssn,
+        user.gender
+      ).to_xml
     end
   end
 end

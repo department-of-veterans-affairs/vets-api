@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'mvi/responses/find_candidate'
+require 'mvi/responses/find_profile_response'
 
 describe MVI::Responses::Base do
   let(:klass) do

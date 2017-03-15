@@ -24,13 +24,6 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
           highest: LOA::THREE
         }
       )
-      puts Oj.dump(
-        edipi: user.edipi,
-        icn: user.icn,
-        mhv_correlation_id: user.mhv_correlation_id,
-        participant_id: user.participant_id,
-        va_profile: user.va_profile
-      )
     rescue => e
       puts "User query failed: #{e.message}"
     end
@@ -51,4 +44,56 @@ def validate_date(s)
 rescue => e
   puts e.message
   false
+end
+
+namespace :mvi do
+  desc 'Query MVI dev user'
+  task dev_found: :environment do
+    begin
+      user = User.new(
+        uuid: SecureRandom.uuid,
+        first_name: 'KENT',
+        middle_name: 'L',
+        last_name: 'WARREN',
+        birth_date: '1936-07-14',
+        gender: 'M',
+        ssn: '796127160',
+        email: 'vets.gov.user+206@gmail.com',
+        loa: {
+          current: LOA::THREE,
+          highest: LOA::THREE
+        }
+      )
+      puts user.va_profile.inspect
+    rescue => e
+      puts "User query failed: #{e.message}"
+      puts e.backtrace
+    end
+  end
+end
+
+namespace :mvi do
+  desc 'Query MVI dev user'
+  task dev_not_found: :environment do
+    begin
+      user = User.new(
+        uuid: SecureRandom.uuid,
+        first_name: 'Foo',
+        middle_name: 'B',
+        last_name: 'Fooman',
+        birth_date: '1901-01-01',
+        gender: 'M',
+        ssn: '111221122',
+        email: 'foo@bar.com',
+        loa: {
+          current: LOA::THREE,
+          highest: LOA::THREE
+        }
+      )
+      puts user.va_profile.inspect
+    rescue => e
+      puts "User query failed: #{e.message}"
+      puts e.backtrace
+    end
+  end
 end

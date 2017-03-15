@@ -31,7 +31,7 @@ describe Mvi, skip_mvi: true do
     context 'when the cache is empty' do
       context 'with a succesful MVI response' do
         it 'should cache and return the response' do
-          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_return(find_candidate_response)
+          allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(find_candidate_response)
           expect(mvi.redis_namespace).to receive(:set).once.with(
             user.uuid,
             Oj.dump(
@@ -39,7 +39,7 @@ describe Mvi, skip_mvi: true do
               response: find_candidate_response.merge(status: 'OK')
             )
           )
-          expect_any_instance_of(MVI::Service).to receive(:find_candidate).once
+          expect_any_instance_of(MVI::Service).to receive(:find_profile).once
           expect(mvi.edipi).to eq(find_candidate_response[:edipi].split('^').first)
           expect(mvi.icn).to eq(find_candidate_response[:icn].split('^').first)
           expect(mvi.mhv_correlation_id).to eq(find_candidate_response[:mhv_ids].first.split('^').first)
@@ -49,7 +49,7 @@ describe Mvi, skip_mvi: true do
 
       context 'when a MVI::Errors::HTTPError is raised' do
         it 'should log an error message and return status server error' do
-          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(
+          allow_any_instance_of(MVI::Service).to receive(:find_profile).and_raise(
             Common::Client::Errors::HTTPError.new('MVI HTTP call failed', 500)
           )
           expect(Rails.logger).to receive(:error).once.with(/MVI HTTP error code: 500 for user:/)
@@ -59,7 +59,7 @@ describe Mvi, skip_mvi: true do
 
       context 'when a MVI::Errors::ServiceError is raised' do
         it 'should log an error message and return status not found' do
-          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(MVI::Errors::InvalidRequestError)
+          allow_any_instance_of(MVI::Service).to receive(:find_profile).and_raise(MVI::Errors::InvalidRequestError)
           expect(Rails.logger).to receive(:error).once.with(
             /MVI service error: MVI::Errors::InvalidRequestError for user:/
           )
@@ -69,7 +69,7 @@ describe Mvi, skip_mvi: true do
 
       context 'when MVI::Errors::RecordNotFound is raised' do
         it 'should log an error message and return status not found' do
-          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(
+          allow_any_instance_of(MVI::Service).to receive(:find_profile).and_raise(
             MVI::Errors::RecordNotFound.new('not found')
           )
           expect(Rails.logger).to receive(:error).once.with(/MVI record not found for user:/)
@@ -82,7 +82,7 @@ describe Mvi, skip_mvi: true do
       it 'returns the cached data' do
         mvi.response = find_candidate_response.merge(status: 'OK')
         mvi.save
-        expect_any_instance_of(MVI::Service).to_not receive(:find_candidate)
+        expect_any_instance_of(MVI::Service).to_not receive(:find_profile)
         expect(mvi.va_profile).to eq(
           birth_date: '19800101',
           family_name: 'Smith',
@@ -99,7 +99,7 @@ describe Mvi, skip_mvi: true do
 
   context 'when all correlation ids have values' do
     before(:each) do
-      allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_return(find_candidate_response)
+      allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(find_candidate_response)
     end
   end
 

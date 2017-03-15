@@ -48,13 +48,13 @@ describe MVI::MockService do
       end
 
       it 'invokes the real service' do
-        expect(subject).to receive(:find_candidate).once
+        expect(subject).to receive(:find_profile).once
         subject.find_candidate(message)
       end
 
       context 'when the real service raises an error' do
         it 'logs and re-raises an error' do
-          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(Common::Client::Errors::HTTPError)
+          allow_any_instance_of(MVI::Service).to receive(:find_profile).and_raise(Common::Client::Errors::HTTPError)
           expected_message = "No user found by key #{ssn} in mock_mvi_responses.yml, "\
             'the remote service was invoked but received an error: Common::Client::Errors::HTTPError'
           expect(Rails.logger).to receive(:error).with(expected_message)
