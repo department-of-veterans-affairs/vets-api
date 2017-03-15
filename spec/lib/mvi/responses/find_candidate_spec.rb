@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'mvi/responses/find_candidate'
+require 'mvi/responses/find_profile_response'
 
-describe MVI::Responses::FindCandidate do
+describe MVI::Responses::FindProfileResponse do
   context 'given a valid response' do
     let(:faraday_response) { instance_double('Faraday::Response') }
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response.xml')) }
-    let(:find_candidate_response) { MVI::Responses::FindCandidate.new(faraday_response) }
+    let(:find_candidate_response) { MVI::Responses::FindProfileResponse.new(faraday_response) }
 
     before(:each) do
       allow(faraday_response).to receive(:body) { body }
@@ -104,7 +104,7 @@ describe MVI::Responses::FindCandidate do
   context 'with no middle name, missing and alternate correlation ids, multiple other_ids' do
     let(:faraday_response) { instance_double('Faraday::Response') }
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_missing_attrs.xml')) }
-    let(:find_candidate_missing_attrs) { MVI::Responses::FindCandidate.new(faraday_response) }
+    let(:find_candidate_missing_attrs) { MVI::Responses::FindProfileResponse.new(faraday_response) }
 
     describe '#body' do
       it 'should filter with only first name and retrieve correct MHV id' do
@@ -137,7 +137,7 @@ describe MVI::Responses::FindCandidate do
   context 'with no subject element' do
     let(:faraday_response) { instance_double('Faraday::Response') }
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_no_subject.xml')) }
-    let(:find_candidate_response_mhv_id) { MVI::Responses::FindCandidate.new(faraday_response) }
+    let(:find_candidate_response_mhv_id) { MVI::Responses::FindProfileResponse.new(faraday_response) }
 
     describe '#body' do
       it 'return nil if the response includes no suject element' do
@@ -150,7 +150,7 @@ describe MVI::Responses::FindCandidate do
   context 'given an invalid response' do
     let(:faraday_response) { instance_double('Faraday::Response') }
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_invalid_response.xml')) }
-    let(:find_candidate_invalid_response) { MVI::Responses::FindCandidate.new(faraday_response) }
+    let(:find_candidate_invalid_response) { MVI::Responses::FindProfileResponse.new(faraday_response) }
 
     before(:each) do
       allow(faraday_response).to receive(:body) { body }
@@ -173,7 +173,7 @@ describe MVI::Responses::FindCandidate do
     context 'invalid registration identification' do
       let(:faraday_response) { instance_double('Faraday::Response') }
       let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_failure_response.xml')) }
-      let(:find_candidate_failure_response) { MVI::Responses::FindCandidate.new(faraday_response) }
+      let(:find_candidate_failure_response) { MVI::Responses::FindProfileResponse.new(faraday_response) }
 
       before(:each) do
         allow(faraday_response).to receive(:body) { body }
@@ -200,7 +200,7 @@ describe MVI::Responses::FindCandidate do
     context 'multiple match' do
       let(:faraday_response) { instance_double('Faraday::Response') }
       let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_multiple_match_response.xml')) }
-      let(:find_candidate_multiple_response) { MVI::Responses::FindCandidate.new(faraday_response) }
+      let(:find_candidate_multiple_response) { MVI::Responses::FindProfileResponse.new(faraday_response) }
 
       before(:each) do
         allow(faraday_response).to receive(:body) { body }
@@ -229,7 +229,7 @@ describe MVI::Responses::FindCandidate do
   context 'with multiple MHV IDs' do
     let(:faraday_response) { instance_double('Faraday::Response') }
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_multiple_mhv_response.xml')) }
-    let(:find_candidate_multiple_mhvids) { MVI::Responses::FindCandidate.new(faraday_response) }
+    let(:find_candidate_multiple_mhvids) { MVI::Responses::FindProfileResponse.new(faraday_response) }
 
     before(:each) do
       allow(faraday_response).to receive(:body) { body }

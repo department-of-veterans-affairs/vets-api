@@ -24,7 +24,7 @@ describe MVI::Service do
     context 'with a valid request' do
       it 'calls the find_candidate endpoint with a find candidate message' do
         VCR.use_cassette('mvi/find_candidate/valid') do
-          response = subject.find_candidate(message)
+          response = subject.find_profile(message)
           expect(response).to eq(
             edipi: nil,
             icn: '1008714701V416111^NI^200M^USVHA^P',
@@ -69,7 +69,7 @@ describe MVI::Service do
       end
       it 'calls the find_candidate endpoint with a find candidate message' do
         VCR.use_cassette('mvi/find_candidate/valid_no_gender') do
-          response = subject.find_candidate(message)
+          response = subject.find_profile(message)
           expect(response).to eq(
             edipi: nil,
             icn: '1008714701V416111^NI^200M^USVHA^P',
@@ -100,7 +100,7 @@ describe MVI::Service do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow(message).to receive(:to_xml).and_return(invalid_xml)
         VCR.use_cassette('mvi/find_candidate/invalid') do
-          expect { subject.find_candidate(message) }.to raise_error(MVI::Errors::InvalidRequestError)
+          expect { subject.find_profile(message) }.to raise_error(MVI::Errors::InvalidRequestError)
         end
       end
     end
@@ -110,7 +110,7 @@ describe MVI::Service do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow(message).to receive(:to_xml).and_return(invalid_xml)
         VCR.use_cassette('mvi/find_candidate/failure') do
-          expect { subject.find_candidate(message) }.to raise_error(MVI::Errors::RequestFailureError)
+          expect { subject.find_profile(message) }.to raise_error(MVI::Errors::RequestFailureError)
         end
       end
     end
@@ -119,7 +119,7 @@ describe MVI::Service do
       it 'should raise a service error' do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(Rails.logger).to receive(:error).with('MVI find_candidate error: timeout')
-        expect { subject.find_candidate(message) }.to raise_error(MVI::Errors::ServiceError)
+        expect { subject.find_profile(message) }.to raise_error(MVI::Errors::ServiceError)
       end
     end
 
@@ -127,7 +127,7 @@ describe MVI::Service do
       it 'should raise a request failure error' do
         allow(message).to receive(:to_xml).and_return('<nobeuno></nobeuno>')
         VCR.use_cassette('mvi/find_candidate/five_hundred') do
-          expect { subject.find_candidate(message) }.to raise_error(MVI::Errors::ServiceError)
+          expect { subject.find_profile(message) }.to raise_error(MVI::Errors::ServiceError)
         end
       end
     end
@@ -150,14 +150,14 @@ describe MVI::Service do
       end
       it 'raises an MVI::Errors::RecordNotFound error' do
         VCR.use_cassette('mvi/find_candidate/no_subject') do
-          expect { subject.find_candidate(message) }.to raise_error(MVI::Errors::RecordNotFound)
+          expect { subject.find_profile(message) }.to raise_error(MVI::Errors::RecordNotFound)
         end
       end
 
       context 'with an ongoing breakers outage' do
         it 'returns the correct thing' do
           MVI::Configuration.instance.breakers_service.begin_forced_outage!
-          expect { subject.find_candidate(message) }.to raise_error(Breakers::OutageException)
+          expect { subject.find_profile(message) }.to raise_error(Breakers::OutageException)
         end
       end
     end
@@ -166,7 +166,7 @@ describe MVI::Service do
       it 'raises an Common::Client::Errors::HTTPError' do
         VCR.use_cassette('mvi/find_candidate/internal_server_error') do
           expect do
-            subject.find_candidate(message)
+            subject.find_profile(message)
           end.to raise_error(MVI::Errors::ServiceError)
         end
       end
@@ -176,7 +176,7 @@ describe MVI::Service do
       it 'raises MVI::Errors::RecordNotFound' do
         VCR.use_cassette('mvi/find_candidate/failure_multiple_matches') do
           expect do
-            subject.find_candidate(message)
+            subject.find_profile(message)
           end.to raise_error(MVI::Errors::RecordNotFound)
         end
       end

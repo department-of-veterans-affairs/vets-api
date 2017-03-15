@@ -94,6 +94,6 @@ class User < Common::RedisStore
   private
 
   def mvi
-    @mvi ||= Mvi.from_user(self)
+    @mvi ||= Mvi.new(self)
   end
 end

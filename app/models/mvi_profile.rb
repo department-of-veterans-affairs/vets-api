@@ -1,0 +1,36 @@
+# frozen_string_literal: true
+class MviProfileAddress
+  include Virtus.model
+
+  attribute :street, String
+  attribute :city, String
+  attribute :state, String
+  attribute :postal_code, String
+  attribute :country, String
+end
+
+class MviProfile < Common::RedisStore
+  redis_store REDIS_CONFIG['mvi_profile']['namespace']
+  redis_ttl REDIS_CONFIG['mvi_profile']['each_ttl']
+  redis_key :uuid
+
+  attribute :uuid
+  attribute :status, String
+  attribute :given_names, Array[String]
+  attribute :family_name, String
+  attribute :suffix, String
+  attribute :gender, String
+  attribute :birth_date, String
+  attribute :ssn, String
+  attribute :address, MviProfileAddress
+  attribute :home_phone, String
+  attribute :icn, String
+  attribute :mhv_ids, Array[String]
+  attribute :edipi, String
+  attribute :vba_corp_id, String
+
+  def mhv_correlation_id
+    ids = [] unless mhv_ids
+    ids&.first
+  end
+end

@@ -10,7 +10,7 @@ module MVI
       if response
         ActiveSupport::HashWithIndifferentAccess.new(response)
       else
-        MVI::Service.new.find_candidate(message)
+        MVI::Service.new.find_profile(message)
       end
     rescue Common::Client::Errors::HTTPError => e
       Rails.logger.error "No user found by key #{message.ssn} in mock_mvi_responses.yml, "\
