@@ -64,7 +64,7 @@ namespace :mvi do
           highest: LOA::THREE
         }
       )
-      puts user.va_profile.inspect
+      puts ActiveModelSerializers::SerializableResource.new(user, adapter: :json).as_json
     rescue => e
       puts "User query failed: #{e.message}"
       puts e.backtrace
@@ -90,7 +90,7 @@ namespace :mvi do
           highest: LOA::THREE
         }
       )
-      puts user.va_profile.inspect
+      puts ActiveModelSerializers::SerializableResource.new(user, adapter: :json).as_json
     rescue => e
       puts "User query failed: #{e.message}"
       puts e.backtrace

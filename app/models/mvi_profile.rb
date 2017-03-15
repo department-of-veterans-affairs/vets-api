@@ -9,13 +9,9 @@ class MviProfileAddress
   attribute :country, String
 end
 
-class MviProfile < Common::RedisStore
-  redis_store REDIS_CONFIG['mvi_profile']['namespace']
-  redis_ttl REDIS_CONFIG['mvi_profile']['each_ttl']
-  redis_key :uuid
+class MviProfile
+  include Virtus.model
 
-  attribute :uuid
-  attribute :status, String
   attribute :given_names, Array[String]
   attribute :family_name, String
   attribute :suffix, String

@@ -4,6 +4,10 @@ require_relative 'base'
 module MVI
   module Responses
     class ProfileParser
+      BODY_XPATH = 'env:Envelope/env:Body/idm:PRPA_IN201306UV02'
+      CODE_XPATH = 'acknowledgement/typeCode/@code'
+      QUERY_XPATH = 'controlActProcess/queryByParameter'
+
       SSN_ROOT_ID = '2.16.840.1.113883.4.1'
       CORRELATION_ROOT_ID = '2.16.840.1.113883.4.349'
       EDIPI_ROOT_ID = '2.16.840.1.113883.3.42.10001.100001.12'
@@ -18,14 +22,32 @@ module MVI
       ADDRESS_XPATH = 'patientPerson/addr'
       PHONE = 'patientPerson/telecom'
 
-      attr_writer :xml
+      ACKNOWLEDGEMENT_DETAIL_XPATH = 'acknowledgement/acknowledgementDetail/text'
+      MULTIPLE_MATCHES_FOUND = 'Multiple Matches Found'
 
-      def initialize(xml)
-        @xml = xml
+      EXTERNAL_RESPONSE_CODES = {
+        success: 'AA',
+        failure: 'AE',
+        invalid_request: 'AR'
+      }.freeze
+
+      def initialize(response)
+        @original_body = locate_element(response.body, BODY_XPATH)
+        @code = locate_element(@original_body, CODE_XPATH)
+      end
+
+      def failed_or_invalid?
+        [EXTERNAL_RESPONSE_CODES[:failure], EXTERNAL_RESPONSE_CODES[:invalid_request]].include? @code
+      end
+
+      def multiple_match?
+        acknowledgement_detail = locate_element(@original_body, ACKNOWLEDGEMENT_DETAIL_XPATH)
+        return false unless acknowledgement_detail
+        acknowledgement_detail.nodes.first == MULTIPLE_MATCHES_FOUND
       end
 
       def parse
-        subject = locate_element(@xml, SUBJECT_XPATH)
+        subject = locate_element(@original_body, SUBJECT_XPATH)
         return nil unless subject
         patient = locate_element(subject, PATIENT_XPATH)
         return nil unless patient
