@@ -1,27 +1,38 @@
 # frozen_string_literal: true
 require 'mvi/service_factory'
+require 'mvi/responses/find_profile_response'
 
 class Mvi
-  attr_accessor :user, :profile_response
+  attr_accessor :user, :mvi_response
+
+  NOT_AUTHORIZED = 'NOT_AUTHORIZED'
 
   def initialize(user)
     @user = user
   end
 
-  def va_profile
-    @profile_response ||= fetch_from_redis_or_service
+  def profile
+    mvi_response.profile
+  end
+
+  def status
+    mvi_response.status
   end
 
   private
 
-  def fetch_from_redis_or_service
-    MviProfile.find(@user.uuid) || query_and_cache_profile
+  def mvi_response
+    @mvi_response ||= response_from_redis_or_service
   end
 
-  def query_and_cache_profile
+  def response_from_redis_or_service
+    MVI::Responses::FindProfileResponse.find(@user.uuid) || query_and_cache_response
+  end
+
+  def query_and_cache_response
     response = mvi_service.find_profile(@user)
-    response.profile.save
-    response.profile
+    response.save if response.ok?
+    response
   end
 
   def mvi_service

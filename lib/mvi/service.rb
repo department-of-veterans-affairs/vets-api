@@ -32,16 +32,13 @@ module MVI
 
     def find_profile(user)
       raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
-      response = MVI::Responses::FindProfileResponse.new(raw_response)
-      raise MVI::Errors::ServiceError if response.server_error?
-      raise MVI::Errors::RecordNotFound if response.not_found?
-      response
+      MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
     rescue Faraday::ConnectionFailed => e
       Rails.logger.error "MVI find_candidate connection failed: #{e.message}"
-      raise MVI::Errors::ServiceError, 'MVI connection failed'
+      MVI::Responses::FindProfileResponse.with_server_error
     rescue Common::Client::Errors::ClientError => e
       Rails.logger.error "MVI find_candidate error: #{e.message}"
-      raise MVI::Errors::ServiceError
+      MVI::Responses::FindProfileResponse.with_server_error
     end
 
     private

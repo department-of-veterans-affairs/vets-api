@@ -13,13 +13,13 @@ module MVI
     # Example:
     #  response = MVI::Responses::FindCandidate.new(mvi_response)
     #
-    class FindProfileResponse < Base
-      mvi_endpoint :PRPA_IN201306UV02
+    class FindProfileResponse < Common::RedisStore
+      redis_store REDIS_CONFIG['mvi_profile']['namespace']
+      redis_ttl REDIS_CONFIG['mvi_profile']['each_ttl']
+      redis_key :uuid
 
-      attr_reader :status, :profile
-
-      ACKNOWLEDGEMENT_DETAIL_XPATH = 'acknowledgement/acknowledgementDetail/text'
-      MULTIPLE_MATCHES_FOUND = 'Multiple Matches Found'
+      attribute :status
+      attribute :profile
 
       RESPONSE_STATUS = {
         ok: 'OK',
@@ -27,12 +27,34 @@ module MVI
         server_error: 'SERVER_ERROR'
       }.freeze
 
-      def initialize(response)
-        super(response)
-        raise MVI::Errors::InvalidRequestError if invalid?
-        raise MVI::Errors::RequestFailureError if failure?
-        @profile = ProfileParser.new(@original_body).parse
-        @status = set_status
+      def self.with_server_error
+        FindProfileResponse.new(
+          status: FindProfileResponse::RESPONSE_STATUS[:server_error],
+          profile: MviProfile.new
+        )
+      end
+
+      def self.with_not_found
+        FindProfileResponse.new(
+          status: FindProfileResponse::RESPONSE_STATUS[:not_found],
+          profile: MviProfile.new
+        )
+      end
+
+      def self.with_parsed_response(response)
+        profile_parser = ProfileParser.new(response)
+        raise MVI::Errors::ServiceError if profile_parser.failed_or_invalid?
+        raise MVI::Errors::RecordNotFound if profile_parser.multiple_match?
+        profile = profile_parser.parse
+        raise MVI::Errors::RecordNotFound unless profile
+        FindProfileResponse.new(
+          status: RESPONSE_STATUS[:ok],
+          profile: profile
+        )
+      rescue MVI::Errors::ServiceError
+        MVI::Responses::FindProfileResponse.with_server_error
+      rescue MVI::Errors::RecordNotFound
+        MVI::Responses::FindProfileResponse.with_not_found
       end
 
       def ok?
@@ -45,27 +67,6 @@ module MVI
 
       def server_error?
         @status == RESPONSE_STATUS[:server_error]
-      end
-
-      private
-
-      def set_status
-        case
-        when multiple_match? || @profile.nil?
-          RESPONSE_STATUS[:not_found]
-        when invalid?
-          RESPONSE_STATUS[:server_error]
-        when failure?
-          RESPONSE_STATUS[:server_error]
-        else
-          RESPONSE_STATUS[:ok]
-        end
-      end
-
-      def multiple_match?
-        acknowledgement_detail = locate_element(@original_body, ACKNOWLEDGEMENT_DETAIL_XPATH)
-        return false unless acknowledgement_detail
-        acknowledgement_detail.nodes.first == MULTIPLE_MATCHES_FOUND
       end
     end
   end
