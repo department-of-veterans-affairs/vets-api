@@ -7,7 +7,8 @@ module V0
 
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      render json: { authenticate_via_get: saml_auth_request.create(saml_settings, saml_options) }
+      authn_request = saml_auth_request.create(saml_settings, saml_options)
+      render json: { authenticate_via_get: authn_request }
     end
 
     def destroy

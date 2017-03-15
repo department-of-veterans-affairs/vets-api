@@ -9,19 +9,35 @@ module SAML
     class << self
       extend Memoist
 
+      # used as a hack for testing
+      attr_accessor :fetch_attempted
+
       METADATA_RETRIES = 3
       OPEN_TIMEOUT = 2
       TIMEOUT = 15
 
       def saml_settings
+        if @fetch_attempted.nil? || metadata_successfully_retrieved?
+          merged_saml_settings
+        else
+          # retrieve was attempted but failed, blow away memoized data and try again
+          merged_saml_settings(true)
+        end
+      end
+
+      def merged_saml_settings
         OneLogin::RubySaml::IdpMetadataParser.new.parse(metadata, settings: settings)
       rescue => e
         Rails.logger.error "SAML::SettingService failed to parse SAML metadata: #{e.message}"
         raise e
       end
-      memoize :saml_settings
+      memoize :merged_saml_settings
 
       private
+
+      def metadata_successfully_retrieved?
+        merged_saml_settings&.idp_sso_target_url&.blank? == false
+      end
 
       def connection
         Faraday.new(Settings.saml.metadata_url) do |conn|
@@ -33,6 +49,7 @@ module SAML
       memoize :connection
 
       def metadata
+        @fetch_attempted = true
         attempt ||= 0
         response = connection.get
         raise SAML::InternalServerError, response.status if (400..504).cover? response.status.to_i
