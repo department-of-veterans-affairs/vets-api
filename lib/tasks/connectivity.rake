@@ -2,9 +2,10 @@
 
 # Checks backend connectivity to the various VA machines. Run with
 # `RAILS_ENV=production bundle exec rake connectivity:all`
+# Also does sanity check to ensure that logs directory is writeable
 
 # Allows running on development machines
-Rails.logger = Logger.new('connectivity.log')
+Rails.logger = Logger.new(STDOUT)
 
 # For Rx/SM
 REDIS_CONFIG = Rails.application.config_for(:redis).freeze
@@ -20,8 +21,19 @@ require 'rx/client'
 require 'sm/client'
 
 namespace :connectivity do
-  desc 'Create daily spool files'
-  task all: [:edu, :evss, :gi, :hca, :mvi, :redis, :rx, :sm, :statsd, :vha]
+  desc 'Check connectivity to all backend services'
+  task all: [:db, :edu, :evss, :gi, :hca, :logs, :mvi, :redis, :rx, :sm, :statsd, :vha]
+
+  desc 'Check DB'
+  task db: :environment do
+    begin
+      EVSSClaim::all
+      puts "DB connection success for #{Settings.database_url}."
+    rescue => e
+      puts "DB connection unsuccessful for #{Settings.database_url}!"
+      puts " - Error encountered: `#{e}`"
+    end
+  end
 
   desc 'Check Edu SFTP'
   task edu: :environment do
@@ -68,6 +80,15 @@ namespace :connectivity do
     rescue => e
       puts "HCA connection unsuccessful for #{Settings.hca.endpoint}!"
       puts " - Error encountered: `#{e}`"
+    end
+  end
+
+  desc 'Check that logs are writeable'
+  task logs: :environment do
+    if File.writable?(Rails.root.join("log"))
+      puts "Logging directory is writeable."
+    else
+      puts "Logging directory is not writeable!"
     end
   end
 
