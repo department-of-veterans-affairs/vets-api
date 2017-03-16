@@ -18,7 +18,7 @@ module MVI
   #
   # Example:
   #  birth_date = '1980-1-1'
-  #  message = MVI::Messages::FindCandidateMessage.new(['John', 'William'], 'Smith', birth_date, '555-44-3333').to_xml
+  #  message = MVI::Messages::FindCandidateMessage.new(['John', 'William'], 'Smith', birth_date, '555-44-3333')
   #  response = MVI::Service.new.find_candidate(message)
   #
   class Service < Common::Client::Base
