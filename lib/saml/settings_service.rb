@@ -56,10 +56,12 @@ module SAML
       rescue StandardError => e
         attempt += 1
         msg = "Failed to load SAML metadata: #{e.message}: try #{attempt} of #{METADATA_RETRIES}"
-        attempt >= METADATA_RETRIES ? log_message_to_sentry(msg, :error) : log_message_to_sentry(msg, :warn)
         if attempt < METADATA_RETRIES
+          log_message_to_sentry(msg, :warn)
           sleep attempt * 0.25
           retry
+        else
+          log_message_to_sentry(msg, :error)
         end
       end
 
