@@ -19,8 +19,7 @@ module SAML
         if @fetch_attempted.nil? || metadata_successfully_retrieved?
           merged_saml_settings
         else
-          # retrieve was attempted but failed, blow away memoized data and try again
-          merged_saml_settings(true)
+          refresh_saml_settings
         end
       end
 
@@ -33,6 +32,11 @@ module SAML
       memoize :merged_saml_settings
 
       private
+
+      def refresh_saml_settings
+        # passing true reloads cache. See: https://github.com/matthewrudy/memoist#usage
+        merged_saml_settings(true)
+      end
 
       def metadata_successfully_retrieved?
         merged_saml_settings&.idp_sso_target_url&.blank? == false
