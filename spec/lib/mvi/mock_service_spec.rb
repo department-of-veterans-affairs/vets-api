@@ -2,7 +2,7 @@
 require 'rails_helper'
 require 'mvi/mock_service'
 require 'mvi/service'
-require 'mvi/messages/find_candidate_message'
+require 'mvi/messages/find_profile_message'
 
 describe MVI::MockService do
   it 'loads the yaml file only once' do
@@ -11,10 +11,10 @@ describe MVI::MockService do
     subject.mocked_responses
   end
 
-  describe '.find_candidate' do
+  describe '.find_profile' do
     let(:yaml_hash) do
       {
-        'find_candidate' => {
+        'find_profile' => {
           '555443333' => {
             'birth_date' => '19800101',
             'edipi' => '1234^NI^200DOD^USDOD^A',
@@ -30,13 +30,13 @@ describe MVI::MockService do
       }
     end
 
-    let(:message) { double(MVI::Messages::FindCandidateMessage) }
+    let(:message) { double(MVI::Messages::FindProfileMessage) }
 
-    it 'returns YAML hash for find_candidate by SSN' do
+    it 'returns YAML hash for find_profile by SSN' do
       allow(subject).to receive(:mocked_responses).and_return(yaml_hash)
       allow(message).to receive(:ssn).and_return('555443333')
       response = subject.find_candidate(message)
-      expect(response).to eq(yaml_hash.dig('find_candidate', '555443333'))
+      expect(response).to eq(yaml_hash.dig('find_profile', '555443333'))
       expect(response[:birth_date]).to eq('19800101')
     end
 

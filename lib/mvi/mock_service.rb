@@ -6,7 +6,7 @@ module MVI
     end
 
     def find_candidate(message)
-      response = mocked_responses.dig('find_candidate', message.ssn)
+      response = mocked_responses.dig('find_profile', message.ssn)
       if response
         ActiveSupport::HashWithIndifferentAccess.new(response)
       else
