@@ -131,5 +131,21 @@ FactoryGirl.define do
         form(File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'kitchen_sink.json')))
       end
     end
+
+    factory :education_benefits_claim_1990e do
+      form({
+        benefit: 'chapter33',
+        privacyAgreementAccepted: true
+      }.to_json)
+      form_type('1990e')
+    end
+
+    factory :education_benefits_claim_5490 do
+      form({
+        benefit: 'chapter35',
+        privacyAgreementAccepted: true
+      }.to_json)
+      form_type('5490')
+    end
   end
 end
