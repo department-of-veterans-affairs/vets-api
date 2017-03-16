@@ -95,7 +95,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
 
   context '#perform' do
-    context 'with no records' do
+    context 'with no records', run_at: '2016-09-16 03:00:00 EDT' do
       before do
         EducationBenefitsClaim.delete_all
       end

@@ -1,5 +1,4 @@
+# frozen_string_literal: true
 Raven.configure do |config|
-  if Settings.sentry.dsn
-    config.dsn = Settings.sentry.dsn
-  end
+  config.dsn = Settings.sentry.dsn if Settings.sentry.dsn
 end

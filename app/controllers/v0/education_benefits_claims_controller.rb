@@ -9,9 +9,7 @@ module V0
       unless education_benefits_claim.save
         validation_error = education_benefits_claim.errors.full_messages.join(', ')
 
-        Raven.capture_message(validation_error, tags: { validation: 'education_benefits_claim' })
-
-        logger.error(validation_error)
+        log_message_to_sentry(validation_error, :error, {}, validation: 'education_benefits_claim')
 
         StatsD.increment("#{stats_key}.failure")
         raise Common::Exceptions::ValidationErrors, education_benefits_claim
