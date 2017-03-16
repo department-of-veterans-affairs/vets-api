@@ -11,7 +11,7 @@ module MVI
   # to three MVI endpoints:
   # * PRPA_IN201301UV02 (TODO(AJD): Add Person)
   # * PRPA_IN201302UV02 (TODO(AJD): Update Person)
-  # * PRPA_IN201305UV02 (aliased as .find_candidate)
+  # * PRPA_IN201305UV02 (aliased as .find_profile)
   #
   # = Usage
   # Calls endpoints as class methods, if successful it will return a ruby hash of the SOAP XML response.
@@ -19,7 +19,7 @@ module MVI
   # Example:
   #  birth_date = '1980-1-1'
   #  message = MVI::Messages::FindCandidateMessage.new(['John', 'William'], 'Smith', birth_date, '555-44-3333').to_xml
-  #  response = MVI::Service.new.find_candidate(message)
+  #  response = MVI::Service.new.find_profile(message)
   #
   class Service < Common::Client::Base
     OPERATIONS = {
@@ -35,10 +35,10 @@ module MVI
       raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
       MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
     rescue Faraday::ConnectionFailed => e
-      Rails.logger.error "MVI find_candidate connection failed: #{e.message}"
+      Rails.logger.error "MVI find_profile connection failed: #{e.message}"
       MVI::Responses::FindProfileResponse.with_server_error
     rescue Common::Client::Errors::ClientError => e
-      Rails.logger.error "MVI find_candidate error: #{e.message}"
+      Rails.logger.error "MVI find_profile error: #{e.message}"
       MVI::Responses::FindProfileResponse.with_server_error
     end
 
@@ -48,7 +48,7 @@ module MVI
       raise Common::Exceptions::ValidationErrors, user unless user.valid?(:loa3_user)
       given_names = [user.first_name]
       given_names.push user.middle_name unless user.middle_name.nil?
-      MVI::Messages::FindCandidateMessage.new(
+      MVI::Messages::FindProfileMessage.new(
         given_names,
         user.last_name,
         user.birth_date,
