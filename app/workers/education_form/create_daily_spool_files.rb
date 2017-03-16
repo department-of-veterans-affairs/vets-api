@@ -76,9 +76,7 @@ module EducationForm
 
     def format_application(data, rpo: 0)
       form = EducationForm::Forms::Base.build(data)
-      # TODO(molson): Once we have a column in the db with the form type, we can move
-      # this tracking code to somewhere more reasonable.
-      track_form_type(form.class::TYPE, rpo)
+      track_form_type("22-#{data.form_type}", rpo)
       form
     rescue
       raise FormattingError, "Could not format #{data.confirmation_number}"
