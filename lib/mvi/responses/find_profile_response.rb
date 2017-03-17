@@ -31,28 +31,28 @@ module MVI
       def self.with_server_error
         FindProfileResponse.new(
           status: FindProfileResponse::RESPONSE_STATUS[:server_error],
-          profile: MviProfile.new
+          profile: nil
         )
       end
 
       def self.with_not_found
         FindProfileResponse.new(
           status: FindProfileResponse::RESPONSE_STATUS[:not_found],
-          profile: MviProfile.new
+          profile: nil
         )
       end
 
       def self.with_not_authorized
         FindProfileResponse.new(
           status: FindProfileResponse::RESPONSE_STATUS[:not_authorized],
-          profile: MviProfile.new
+          profile: nil
         )
       end
 
       def self.with_parsed_response(response)
         profile_parser = ProfileParser.new(response)
-        raise MVI::Errors::ServiceError if profile_parser.failed_or_invalid?
         raise MVI::Errors::RecordNotFound if profile_parser.multiple_match?
+        raise MVI::Errors::ServiceError if profile_parser.failed_or_invalid?
         profile = profile_parser.parse
         raise MVI::Errors::RecordNotFound unless profile
         FindProfileResponse.new(

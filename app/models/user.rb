@@ -85,10 +85,10 @@ class User < Common::RedisStore
     User.new(SAML::UserAttributes.new(saml_response))
   end
 
-  delegate :edipi, to: :va_profile
-  delegate :icn, to: :va_profile
-  delegate :mhv_correlation_id, to: :va_profile
-  delegate :participant_id, to: :va_profile
+  delegate :edipi, to: :mvi
+  delegate :icn, to: :mvi
+  delegate :mhv_correlation_id, to: :mvi
+  delegate :participant_id, to: :mvi
 
   def va_profile
     mvi.profile

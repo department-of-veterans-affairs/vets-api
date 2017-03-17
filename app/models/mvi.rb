@@ -17,6 +17,22 @@ class Mvi
     mvi_response.status
   end
 
+  def edipi
+    profile&.edipi
+  end
+
+  def icn
+    profile&.icn
+  end
+
+  def mhv_correlation_id
+    profile&.mhv_correlation_id
+  end
+
+  def participant_id
+    profile&.participant_id
+  end
+
   private
 
   def mvi_response
