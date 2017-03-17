@@ -7,11 +7,15 @@ module EducationForm::Forms
     require 'erb'
 
     TEMPLATE_PATH = Rails.root.join('app', 'workers', 'education_form', 'templates')
+    FORM_CLASSES = {
+      '1990' => VA1990,
+      '1995' => VA1995
+    }.freeze
 
     attr_accessor :form, :record, :text
 
     def self.build(app)
-      klass = app.is_1990? ? VA1990 : VA1995
+      klass = FORM_CLASSES.fetch(app.form_type)
       klass.new(app)
     end
 
