@@ -86,14 +86,12 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       context '1990e form' do
         before do
           subject.form_type = '1990e'
-          subject.form = form.to_json
+          subject.form = form
         end
 
         context 'with a valid form' do
           let(:form) do
-            {
-              privacyAgreementAccepted: true
-            }
+            build(:education_benefits_claim_1990e).form
           end
 
           expect_form_valid
@@ -101,7 +99,8 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
         context 'with an invalid form' do
           let(:form) do
-            {}
+            form = JSON.parse(build(:education_benefits_claim_1990e).form)
+            form.except('privacyAgreementAccepted').to_json
           end
 
           expect_json_schema_error(
