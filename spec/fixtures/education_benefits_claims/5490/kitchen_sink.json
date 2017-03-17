@@ -5,7 +5,7 @@
   "outstandingFelony": true,
   "restorativeTraining": true,
   "vocationalTraining": true,
-  "trainingState": "DC",
+  "trainingState": "virginia",
   "educationObjective": "bachelors",
   "educationalCounseling": true,
   "spouseInfo": {
@@ -151,5 +151,6 @@
       "months": 8
     }
   ],
+  "preferredContactMethod": "email",
   "privacyAgreementAccepted": true
 }
