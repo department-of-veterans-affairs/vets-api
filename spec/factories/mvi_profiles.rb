@@ -30,7 +30,7 @@ FactoryGirl.define do
     suffix { Faker::Name.suffix }
     gender { Faker::Medical::Patient.gender }
     birth_date { Faker::Date.between(80.years.ago, 30.years.ago).strftime('%Y%m%d') }
-    ssn { Faker::Medical::SSN.ssn }
+    ssn { Faker::Medical::SSN.ssn.gsub('-', '') }
     address { build(:mvi_profile_address) }
     home_phone { Faker::PhoneNumber.phone_number }
     icn { Faker::Number.number(17) }
