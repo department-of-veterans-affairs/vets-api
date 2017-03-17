@@ -9,6 +9,7 @@ module EducationForm
   end
 
   class CreateDailySpoolFiles
+    LIVE_FORM_TYPES = %w(1990 1995).freeze
     include Sidekiq::Worker
     sidekiq_options queue: 'default',
                     retry: 5
@@ -19,7 +20,7 @@ module EducationForm
     # Be *EXTREMELY* careful running this manually as it may overwrite
     # existing files on the SFTP server if one was already written out
     # for the day.
-    def perform(records: EducationBenefitsClaim.unprocessed)
+    def perform(records: EducationBenefitsClaim.unprocessed.where(form_type: LIVE_FORM_TYPES))
       return false if federal_holiday?
       # Group the formatted records into different regions
       if records.count.zero?
@@ -106,10 +107,7 @@ module EducationForm
     # per-rpo, rather than the number of records that were *prepared* to be sent.
     def track_submissions(region_id)
       stats[region_id].each do |type, count|
-        StatsD.gauge('worker.education_benefits_claim.transmissions',
-                     count,
-                     tags: { rpo: region_id,
-                             form: type })
+        StatsD.gauge("worker.education_benefits_claim.transmissions.#{region_id}.#{type}", count)
       end
     end
 

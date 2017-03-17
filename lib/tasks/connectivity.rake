@@ -37,7 +37,7 @@ namespace :connectivity do
   desc 'Check DB'
   task db: :environment do
     check 'DB', Settings.database_url do
-      EVSSClaim::all.length
+      EVSSClaim.all.length
     end
   end
 
@@ -76,10 +76,10 @@ namespace :connectivity do
 
   desc 'Check that logs are writeable'
   task logs: :environment do
-    if File.writable?(Rails.root.join("log"))
-      puts "Logging directory is writeable."
+    if File.writable?(Rails.root.join('log'))
+      puts 'Logging directory is writeable.'
     else
-      puts "Logging directory is not writeable!"
+      puts 'Logging directory is not writeable!'
     end
   end
 
@@ -92,7 +92,8 @@ namespace :connectivity do
         loa: {
           current: LOA::THREE,
           highest: LOA::THREE
-      })
+        }
+      )
       user.va_profile
     end
   end

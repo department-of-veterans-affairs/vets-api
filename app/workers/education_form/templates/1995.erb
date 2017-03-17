@@ -52,7 +52,7 @@ Reason for Change: <%= @applicant.reasonForChange %>
 
 Date Entered   Date Separated     Service Component
 <% @applicant&.toursOfDuty&.each do |tour| -%>
-<%= tour.dateRange.from %>     <%= tour.dateRange.to %>         <%= tour.serviceBranch %>
+<%= to_date(tour.dateRange&.from) %>     <%= to_date(tour.dateRange&.to) %>         <%= tour.serviceBranch %>
 <% end %>
 
 
