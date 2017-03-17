@@ -6,10 +6,6 @@ RSpec.describe EducationForm::Forms::VA1990, type: :model, form: :education_bene
 
   subject { described_class.new(application) }
 
-  it 'has a 22-1990 type' do
-    expect(described_class::TYPE).to eq('22-1990')
-  end
-
   SAMPLE_APPLICATIONS = [
     :simple_ch33, :kitchen_sink
   ].freeze

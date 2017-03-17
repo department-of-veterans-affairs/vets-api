@@ -7,8 +7,6 @@ module EducationForm::Forms
       'chapter1607' => 'CH33_1607', 'chapter1606' => 'CH33_1606', 'chapter30' => 'CH33_30'
     }.freeze
 
-    TYPE = '22-1990'
-
     # If multiple benefit types are selected, we've been told to just include whichever
     # one is 'first' in the header.
     def benefit_type(application)
