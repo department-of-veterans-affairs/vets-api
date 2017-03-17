@@ -83,7 +83,33 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         end
       end
 
-      %w(1990e 5490 1990n).each do |form_type|
+      context '1990e form' do
+        before do
+          subject.form_type = '1990e'
+          subject.form = form
+        end
+
+        context 'with a valid form' do
+          let(:form) do
+            build(:education_benefits_claim_1990e).form
+          end
+
+          expect_form_valid
+        end
+
+        context 'with an invalid form' do
+          let(:form) do
+            form = JSON.parse(build(:education_benefits_claim_1990e).form)
+            form.except('privacyAgreementAccepted').to_json
+          end
+
+          expect_json_schema_error(
+            "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
+          )
+        end
+      end
+
+      %w(5490 1990n).each do |form_type|
         context "#{form_type} form" do
           before do
             subject.form_type = form_type
