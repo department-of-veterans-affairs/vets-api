@@ -38,7 +38,7 @@ module EducationForm
 
           relation = build_submission_relation(range_type, region, form_type, status)
 
-          if form_type.include?('1990')
+          if form_type != '1995'
             application_types.each do |application_type|
               region_submissions[application_type] = relation.where(application_type => true).count
             end
