@@ -5,6 +5,11 @@ require 'lib/sentry_logging_spec_helper'
 
 RSpec.describe SAML::SettingsService do
   let(:success_response_body) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/metadata_response_body.txt") }
+  before do
+    # stub out the sleep call to increase rspec speed
+    allow(SAML::SettingsService).to receive(:sleep)
+  end
+
   describe '.saml_settings' do
     context 'with a 200 response' do
       before { stub_request(:get, Settings.saml.metadata_url).to_return(status: 200, body: success_response_body) }
