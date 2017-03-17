@@ -6,6 +6,12 @@ def notify(message, color='good') {
     }
 }
 
+def delay() {
+    if (${application} == 'vets-api-worker') {
+        sleep time: 1, unit: 'MINUTES'
+    }
+}
+
 pipeline {
   agent {
     label 'app-deploys'
@@ -35,6 +41,12 @@ pipeline {
           sh 'virtualenv venv'
           sh 'venv/bin/pip install -r requirements.txt'
         }
+      }
+    }
+
+    stage('De-synchronize') {
+      steps {
+        delay
       }
     }
 
