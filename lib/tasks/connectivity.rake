@@ -48,6 +48,7 @@ namespace :connectivity do
         Settings.edu.sftp.host,
         Settings.edu.sftp.user,
         password: Settings.edu.sftp.pass,
+        port: Settings.edu.sftp.port,
         non_interactive: true
       )
     end
