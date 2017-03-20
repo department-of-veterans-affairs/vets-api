@@ -128,7 +128,7 @@ module EducationForm::Forms
       [
         address.street,
         address.street2,
-        "#{address.city}, #{address.state}, #{address.postalCode}",
+        [address.city, address.state, address.postalCode].compact.join(', '),
         address.country
       ].compact.join(seperator).upcase
     end
