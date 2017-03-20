@@ -7,6 +7,9 @@
 	"vaFileNumber": "12345678",
 	"newSchool": {},
 	"oldSchool": {},
+	"toursOfDuty": [{
+		"serviceBranch": "Army"
+	}],
 	"preferredContactMethod": "mail",
 	"veteranAddress": {
 		"street": "123 Central St",
@@ -16,5 +19,4 @@
 		"postalCode": "21231"
 	},
 	"email": "test@sample.com",
-	"bankAccount": {}
-}
+	"bankAccount": {}}

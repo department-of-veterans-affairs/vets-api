@@ -84,6 +84,7 @@
     "last": "Doe"
   },
   "preferredContactMethod": "email",
+  "vaFileNumber": "c12345678",
   "veteranAddress": {
     "city": "Milwaukee",
     "country": "USA",
