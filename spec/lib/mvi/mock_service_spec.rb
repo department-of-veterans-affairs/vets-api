@@ -5,7 +5,6 @@ require 'mvi/service'
 require 'mvi/messages/find_profile_message'
 
 describe MVI::MockService do
-
   describe '#mocked_responses' do
     it 'loads the yaml file only once' do
       expect(YAML).to receive(:load_file).once.and_return('some yaml')

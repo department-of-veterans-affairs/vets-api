@@ -9,30 +9,29 @@ class Mvi
     @user = user
   end
 
-  def profile
-    return nil unless @user.loa3?
-    mvi_response.profile
-  end
-
   def status
     return MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:not_authorized] unless @user.loa3?
     mvi_response.status
   end
 
   def edipi
-    profile&.edipi
+    return nil unless @user.loa3?
+    mvi_response&.profile&.edipi
   end
 
   def icn
-    profile&.icn
+    return nil unless @user.loa3?
+    mvi_response&.profile&.icn
   end
 
   def mhv_correlation_id
-    profile&.mhv_correlation_id
+    return nil unless @user.loa3?
+    mvi_response&.profile&.mhv_correlation_id
   end
 
   def participant_id
-    profile&.participant_id
+    return nil unless @user.loa3?
+    mvi_response&.profile&.participant_id
   end
 
   private
