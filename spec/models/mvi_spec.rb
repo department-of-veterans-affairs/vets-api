@@ -28,7 +28,6 @@ describe Mvi, skip_mvi: true do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
         expect(profile_response.redis_namespace).to receive(:set).once
         expect_any_instance_of(MVI::Service).to receive(:find_profile).once
-        expect(mvi.profile).to have_deep_attributes(mvi_profile)
         expect(mvi.status).to eq('OK')
       end
     end

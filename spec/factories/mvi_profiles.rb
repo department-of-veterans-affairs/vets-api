@@ -25,16 +25,16 @@ end
 
 FactoryGirl.define do
   factory :mvi_profile, class: 'MviProfile' do
-    given_names { 2.times.map { Faker::Name.first_name } }
+    given_names { Array.new(2) { Faker::Name.first_name } }
     family_name { Faker::Name.last_name }
     suffix { Faker::Name.suffix }
     gender { Faker::Medical::Patient.gender }
     birth_date { Faker::Date.between(80.years.ago, 30.years.ago).strftime('%Y%m%d') }
-    ssn { Faker::Medical::SSN.ssn.gsub('-', '') }
+    ssn { Faker::Medical::SSN.ssn.delete('-') }
     address { build(:mvi_profile_address) }
     home_phone { Faker::PhoneNumber.phone_number }
     icn { Faker::Number.number(17) }
-    mhv_ids { 2.times.map { Faker::Number.number(11) } }
+    mhv_ids { Array.new(2) { Faker::Number.number(11) } }
     edipi { Faker::Number.number(10) }
     participant_id { Faker::Number.number(10) }
 
