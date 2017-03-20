@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require_relative 'base'
 require_relative 'profile_parser'
 require 'common/models/redis_store'
 

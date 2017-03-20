@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-require_relative 'base'
-
 module MVI
   module Responses
     class ProfileParser
