@@ -36,7 +36,7 @@ FactoryGirl.define do
     icn { Faker::Number.number(17) }
     mhv_ids { 2.times.map { Faker::Number.number(11) } }
     edipi { Faker::Number.number(10) }
-    vba_corp_id { Faker::Number.number(10) }
+    participant_id { Faker::Number.number(10) }
 
     factory :mvi_profile_valid do
       given_names %w(John William)
@@ -50,7 +50,7 @@ FactoryGirl.define do
       icn '1000123456V123456'
       mhv_ids ['123456']
       edipi '1234'
-      vba_corp_id nil
+      participant_id '12345678'
     end
 
     factory :mvi_profile_missing_attrs do
@@ -64,7 +64,7 @@ FactoryGirl.define do
       home_phone nil
       icn '1008714701V416111'
       mhv_ids ['1100792239']
-      vba_corp_id nil
+      participant_id '9100792239'
       edipi nil
     end
 
@@ -80,7 +80,7 @@ FactoryGirl.define do
       icn '12345678901234567'
       mhv_ids %w(12345678901 12345678902)
       edipi '1122334455'
-      vba_corp_id nil
+      participant_id '12345678'
     end
   end
 end

@@ -8,7 +8,6 @@ describe MVI::Responses::FindProfileResponse do
   let(:ok_response) { MVI::Responses::FindProfileResponse.with_parsed_response(faraday_response) }
   let(:error_response) { MVI::Responses::FindProfileResponse.with_server_error }
   let(:not_found_response) { MVI::Responses::FindProfileResponse.with_not_found }
-  let(:not_authed_response) { MVI::Responses::FindProfileResponse.with_not_authorized }
 
   before(:each) do
     allow(faraday_response).to receive(:body) { body }
@@ -23,17 +22,8 @@ describe MVI::Responses::FindProfileResponse do
 
   describe '.with_not_found' do
     it 'builds a response with a nil profile and a status of NOT_FOUND' do
-      response = MVI::Responses::FindProfileResponse.with_not_found
       expect(not_found_response.status).to eq('NOT_FOUND')
       expect(not_found_response.profile).to be_nil
-    end
-  end
-
-  describe '.with_not_authorized' do
-    it 'builds a response with a nil profile and a status of NOT_AUTHORIZED' do
-      response = MVI::Responses::FindProfileResponse.with_not_authorized
-      expect(not_authed_response.status).to eq('NOT_AUTHORIZED')
-      expect(not_authed_response.profile).to be_nil
     end
   end
 

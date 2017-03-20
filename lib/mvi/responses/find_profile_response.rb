@@ -14,10 +14,11 @@ module MVI
     #  response = MVI::Responses::FindCandidate.new(mvi_response)
     #
     class FindProfileResponse < Common::RedisStore
-      redis_store REDIS_CONFIG['mvi_profile']['namespace']
-      redis_ttl REDIS_CONFIG['mvi_profile']['each_ttl']
+      redis_store REDIS_CONFIG['mvi_profile_response']['namespace']
+      redis_ttl REDIS_CONFIG['mvi_profile_response']['each_ttl']
       redis_key :uuid
 
+      attribute :uuid
       attribute :status
       attribute :profile
 
@@ -38,13 +39,6 @@ module MVI
       def self.with_not_found
         FindProfileResponse.new(
           status: FindProfileResponse::RESPONSE_STATUS[:not_found],
-          profile: nil
-        )
-      end
-
-      def self.with_not_authorized
-        FindProfileResponse.new(
-          status: FindProfileResponse::RESPONSE_STATUS[:not_authorized],
           profile: nil
         )
       end
@@ -75,6 +69,11 @@ module MVI
 
       def server_error?
         @status == RESPONSE_STATUS[:server_error]
+      end
+
+      def cache_for_user(user)
+        @uuid = user.uuid
+        save
       end
     end
   end
