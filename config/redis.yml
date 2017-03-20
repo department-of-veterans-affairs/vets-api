@@ -14,11 +14,8 @@ development: &defaults
   user_store:
     namespace: users
     each_ttl: 3600
-  mvi_store:
-    namespace: mvi-service
-    each_ttl: 86400
-  mvi_profile:
-    namespace: mvi-profile
+  mvi_profile_response:
+    namespace: mvi-profile-response
     each_ttl: 86400
   saml_store:
     namespace: single-logout-request

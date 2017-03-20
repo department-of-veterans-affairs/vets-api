@@ -23,7 +23,7 @@ class MviProfile
   attribute :icn, String
   attribute :mhv_ids, Array[String]
   attribute :edipi, String
-  attribute :vba_corp_id, String
+  attribute :participant_id, String
 
   def mhv_correlation_id
     @mhv_ids&.first
