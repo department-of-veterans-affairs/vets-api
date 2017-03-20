@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'net/sftp'
 require 'iconv'
+require 'sentry_logging'
 
 module EducationForm
   WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
@@ -10,6 +11,7 @@ module EducationForm
 
   class CreateDailySpoolFiles
     include Sidekiq::Worker
+    include SentryLogging
     sidekiq_options queue: 'default',
                     retry: 5
 
@@ -46,12 +48,14 @@ module EducationForm
     # than when we're writing the files so we can hold the connection
     # open for a shorter period of time.
     def format_records(grouped_data)
-      grouped_data.each do |region, v|
+      raw_groups = grouped_data.each do |region, v|
         region_id = EducationFacility.facility_for(region: region)
         grouped_data[region] = v.map do |record|
           format_application(record, rpo: region_id)
-        end
+        end.compact
       end
+      # delete any regions that only had malformed claims before returning
+      raw_groups.delete_if { |_, v| v.empty? }
     end
 
     # Write out the combined spool files for each region along with recording
@@ -81,7 +85,10 @@ module EducationForm
       track_form_type(form.class::TYPE, rpo)
       form
     rescue
-      raise FormattingError, "Could not format #{data.confirmation_number}"
+      StatsD.increment('worker.education_benefits_claim.failed_formatting')
+      exception = FormattingError.new("Could not format #{data.confirmation_number}")
+      log_exception_to_sentry(exception)
+      nil
     end
 
     private
