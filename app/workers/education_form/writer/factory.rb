@@ -5,7 +5,8 @@ module EducationForm
       if Rails.env.development? || Settings.edu.sftp.host.blank?
         EducationForm::Writer::Local
       elsif Settings.edu.sftp.pass.blank?
-        raise "Settings.edu.sftp.pass not set for #{Settings.edu.sftp.user}@#{Settings.edu.sftp.host}"
+        raise "Settings.edu.sftp.pass not set for #{Settings.edu.sftp.user}"\
+              "@#{Settings.edu.sftp.host}:#{Settings.edu.sftp.port}"
       else
         EducationForm::Writer::Remote
       end
