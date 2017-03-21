@@ -22,6 +22,7 @@ edu:
     host: ~
     pass: ~
     user: ~
+    port: ~
 
 # Settings for EVSS
 evss:
