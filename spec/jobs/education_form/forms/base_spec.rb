@@ -73,6 +73,27 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
       end
     end
 
+    context 'with no state' do
+      before do
+        address.state = nil
+      end
+
+      it 'should format the address correctly' do
+        expect(subject).to eq("123 MAIN ST\nMILWAUKEE, 53130\nUSA")
+      end
+
+      context 'with no city and zip' do
+        before do
+          address.city = nil
+          address.postalCode = nil
+        end
+
+        it 'should format the address correctly' do
+          expect(subject).to eq("123 MAIN ST\n\nUSA")
+        end
+      end
+    end
+
     context 'with a street2' do
       before do
         address.street2 = 'apt 2'
