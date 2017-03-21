@@ -109,7 +109,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         end
       end
 
-      %w(5490 1990n).each do |form_type|
+      %w(5490 5495 1990n).each do |form_type|
         context "#{form_type} form" do
           before do
             subject.form_type = form_type
