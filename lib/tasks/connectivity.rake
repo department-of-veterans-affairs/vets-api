@@ -113,10 +113,8 @@ namespace :connectivity do
           highest: LOA::THREE
         }
       )
- 
-      if user.va_profile[:status] == 'SERVER_ERROR'
-        raise ConnectivityError.new
-      end
+
+      raise ConnectivityError if user.va_profile[:status] == 'SERVER_ERROR'
     end
   end
 
