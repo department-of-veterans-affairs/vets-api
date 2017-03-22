@@ -148,7 +148,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context 'write_files', run_at: '2016-09-16 03:00:00 EDT' do
     let(:filename) { '307_09162016_vetsgov.spl' }
-    let!(:second_record) { FactoryGirl.create(:education_benefits_claim) }
+    let!(:second_record) { FactoryGirl.create(:education_benefits_claim_1995) }
 
     context 'in the development env' do
       let(:file_path) { "tmp/spool_files/#{filename}" }
@@ -189,12 +189,11 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         end
         expect(sftp_session_mock).to receive(:close)
         expect { subject.perform }.to trigger_statsd_gauge(
-          'worker.education_benefits_claim.transmissions',
-          value: 2,
-          tags: [
-            'rpo:307',
-            'form:22-1990'
-          ]
+          'worker.education_benefits_claim.transmissions.307.22-1990',
+          value: 1
+        ).and trigger_statsd_gauge(
+          'worker.education_benefits_claim.transmissions.307.22-1995',
+          value: 1
         )
 
         expect(EducationBenefitsClaim.unprocessed).to be_empty
