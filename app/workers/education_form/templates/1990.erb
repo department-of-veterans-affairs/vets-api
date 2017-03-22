@@ -13,7 +13,7 @@ DEC 2016
                             APPLICANT INFORMATION
                             ---------------------
 
-SSN: <%= @applicant.veteranSocialSecurityNumber %>         Sex: <%= @applicant.gender %>             Date of Birth: <%= @applicant.veteranDateOfBirth %>
+<%= ssn_gender_dob %>
 
 Name:   <%= full_name(@applicant.veteranFullName) %>
 
@@ -27,14 +27,7 @@ Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
 
 <%= parse_with_template_path('bank_account') %>
 
-Name, Address, & Telephone Number of Contact:
-        <%= @applicant.secondaryContact&.fullName %>
-        <%- if @applicant.secondaryContact&.sameAddressAndPhone -%>
-        Address and Phone same as claimant
-        <%- else -%>
-        <%= full_address(@applicant.secondaryContact&.address, indent: true) %>
-        Phone: <%= @applicant.secondaryContact&.phone %>
-        <%- end -%>
+<%= parse_with_template_path('secondary_contact') %>
 
 
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
@@ -56,16 +49,7 @@ Are You Now On Active Duty?   <%= yesno(@applicant.currentlyActiveDuty.yes) %>
 
 Are you Now On Terminal Leave Just Before Discharge? <%= yesno(@applicant.currentlyActiveDuty.onTerminalLeave) %>
 
-Date Entered   Date Separated     Service Component
-Active Duty    From Active Duty
-<% @applicant&.toursOfDuty&.each do |tour| -%>
-<%= tour.dateRange.from %>     <%= tour.dateRange.to %>         <%= tour.serviceBranch %>
-                         Service Status:   <%= tour.serviceStatus %>
-                         Involuntary Call: <%= tour.involuntarilyCalledToDuty %>
-<% if tour.benefitsToApplyTo.present? -%>
-                         Benefits to Apply to: <%= tour.benefitsToApplyTo %>
-<% end -%>
-<% end %>
+<%= parse_with_template_path('tours_of_duty') %>
 
 
                     EDUCATION AND EMPLOYMENT INFORMATION

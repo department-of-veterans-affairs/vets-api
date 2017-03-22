@@ -10,10 +10,6 @@ RSpec.describe EducationForm::Forms::VA1995 do
     :minimal, :kitchen_sink
   ].freeze
 
-  it 'has a 22-1995 type' do
-    expect(described_class::TYPE).to eq('22-1995')
-  end
-
   # For each sample application we have, format it and compare it against a 'known good'
   # copy of that submission. This technically covers all the helper logic found in the
   # `Form` specs, but are a good safety net for tracking how forms change over time.

@@ -7,12 +7,29 @@ module EducationForm::Forms
     require 'erb'
 
     TEMPLATE_PATH = Rails.root.join('app', 'workers', 'education_form', 'templates')
+    FORM_CLASSES = {
+      '1990' => VA1990,
+      '1995' => VA1995
+    }.freeze
 
     attr_accessor :form, :record, :text
 
     def self.build(app)
-      klass = app.is_1990? ? VA1990 : VA1995
+      klass = FORM_CLASSES.fetch(app.form_type)
       klass.new(app)
+    end
+
+    def ssn_gender_dob(veteran = true)
+      prefix = veteran ? 'veteran' : 'relative'
+      ssn = @applicant.public_send("#{prefix}SocialSecurityNumber")
+      gender = @applicant.gender
+      dob = @applicant.public_send("#{prefix}DateOfBirth")
+
+      "SSN: #{ssn}         Sex: #{gender}             Date of Birth: #{dob}"
+    end
+
+    def benefit_type(application)
+      application.benefit&.gsub('chapter', 'CH')
     end
 
     def disclosure_for(type)
@@ -111,7 +128,7 @@ module EducationForm::Forms
       [
         address.street,
         address.street2,
-        "#{address.city}, #{address.state}, #{address.postalCode}",
+        [address.city, address.state, address.postalCode].compact.join(', '),
         address.country
       ].compact.join(seperator).upcase
     end
