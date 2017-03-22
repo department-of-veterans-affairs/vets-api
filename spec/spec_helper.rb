@@ -73,6 +73,17 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
 
+  config.before(:suite) do
+    # Some specs stub out `YAML.load_file`, which I18n uses to load the
+    # translation files. Because rspec runs things in random order, it's
+    # possible that the YAML.load_file that's stubbed out for a spec
+    # could actually be called by I18n if translations are required before
+    # the functionality being tested. Once loaded, the translations stay
+    # loaded, so we may as well take the hit and load them right away.
+    # Verified working on --seed 11101, commit e378e8
+    I18n.locale_available?(:en)
+  end
+
   config.before(:each) do |example|
     stub_mvi unless example.metadata[:skip_mvi]
   end
