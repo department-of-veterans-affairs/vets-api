@@ -19,6 +19,14 @@ module EducationForm::Forms
       klass.new(app)
     end
 
+    def direct_deposit_type(type)
+      case type&.upcase
+      when 'STARTUPDATE' then 'Start or Update'
+      when 'STOP' then 'Stop'
+      when 'NOCHANGE' then 'Do Not Change'
+      end
+    end
+
     def ssn_gender_dob(veteran = true)
       prefix = veteran ? 'veteran' : 'relative'
       ssn = @applicant.public_send("#{prefix}SocialSecurityNumber")
