@@ -12,24 +12,21 @@ module MVI
   # * PRPA_IN201301UV02 (TODO(AJD): Add Person)
   # * PRPA_IN201302UV02 (TODO(AJD): Update Person)
   # * PRPA_IN201305UV02 (aliased as .find_profile)
-  #
-  # = Usage
-  # Calls endpoints as class methods, if successful it will return a ruby hash of the SOAP XML response.
-  #
-  # Example:
-  #  birth_date = '1980-1-1'
-  #  message = MVI::Messages::FindCandidateMessage.new(['John', 'William'], 'Smith', birth_date, '555-44-3333').to_xml
-  #  response = MVI::Service.new.find_profile(message)
-  #
   class Service < Common::Client::Base
+    # The MVI Service SOAP operations vets.gov has access to
     OPERATIONS = {
       add_person: 'PRPA_IN201301UV02',
       update_person: 'PRPA_IN201302UV02',
       find_profile: 'PRPA_IN201305UV02'
     }.freeze
 
+    # @return [MVI::Configuration] the configuration for this service
     configuration MVI::Configuration
 
+    # Given a user queries MVI and returns their VA profile.
+    #
+    # @param user [User] the user to query MVI for
+    # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
     def find_profile(user)
       raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
       MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)

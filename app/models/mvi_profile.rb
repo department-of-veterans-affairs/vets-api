@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+
+# A vets primary address in MVI
 class MviProfileAddress
   include Virtus.model
 
@@ -9,6 +11,7 @@ class MviProfileAddress
   attribute :country, String
 end
 
+# A vets attributes in MVI
 class MviProfile
   include Virtus.model
 

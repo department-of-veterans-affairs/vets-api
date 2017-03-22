@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 module MVI
   module Responses
+    # Parses a MVI response and returns a MviProfile
     class ProfileParser
       BODY_XPATH = 'env:Envelope/env:Body/idm:PRPA_IN201306UV02'
       CODE_XPATH = 'acknowledgement/typeCode/@code'
@@ -23,29 +24,43 @@ module MVI
       ACKNOWLEDGEMENT_DETAIL_XPATH = 'acknowledgement/acknowledgementDetail/text'
       MULTIPLE_MATCHES_FOUND = 'Multiple Matches Found'
 
+      # MVI response code options.
       EXTERNAL_RESPONSE_CODES = {
         success: 'AA',
         failure: 'AE',
         invalid_request: 'AR'
       }.freeze
 
+      # Creates a new parser instance.
+      #
+      # @param response [struct Faraday::Env] the Faraday response
+      # @return [ProfileParser] an instance of this class
       def initialize(response)
         @original_body = locate_element(response.body, BODY_XPATH)
         @code = locate_element(@original_body, CODE_XPATH)
       end
 
+      # MVI returns failed or invalid codes if the request is malformed or MVI throws an internal error.
+      #
+      # @return [Boolean] has failed or invalid code?
       def failed_or_invalid?
         result = [EXTERNAL_RESPONSE_CODES[:failure], EXTERNAL_RESPONSE_CODES[:invalid_request]].include? @code
         Rails.logger.warn "MVI returned response with code: #{@code}" if result
         result
       end
 
+      # MVI returns multiple match warnings if a query returns more than one match.
+      #
+      # @return [Boolean] has a multiple match warning?
       def multiple_match?
         acknowledgement_detail = locate_element(@original_body, ACKNOWLEDGEMENT_DETAIL_XPATH)
         return false unless acknowledgement_detail
         acknowledgement_detail.nodes.first == MULTIPLE_MATCHES_FOUND
       end
 
+      # Parse the response and builds an MviProfile.
+      #
+      # @return [MviProfile] the profile from the parsed response
       def parse
         subject = locate_element(@original_body, SUBJECT_XPATH)
         return nil unless subject

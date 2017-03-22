@@ -4,24 +4,22 @@ require 'common/models/redis_store'
 
 module MVI
   module Responses
-    # Parses the response for the find candidate endpoint (prpa_in201306_uv02).
-    #
-    # = Usage
-    # The original response is a complex Hash of the xml returned by MVI.
-    # See specs/support/mvi/savon_response_body.json for an example of the hierarchy
-    #
-    # Example:
-    #  response = MVI::Responses::FindCandidate.new(mvi_response)
-    #
+    # Cacheable response from MVI's find profile endpoint (prpa_in201306_uv02).
     class FindProfileResponse < Common::RedisStore
       redis_store REDIS_CONFIG['mvi_profile_response']['namespace']
       redis_ttl REDIS_CONFIG['mvi_profile_response']['each_ttl']
       redis_key :uuid
 
+      # @return [String] The user uuid to use as a Redis key for the cached response
       attribute :uuid
+
+      # @return [String] The status of the response
       attribute :status
+
+      # @return [MviProfile] The parsed MVI profile
       attribute :profile
 
+      # MVI response status options
       RESPONSE_STATUS = {
         ok: 'OK',
         not_found: 'NOT_FOUND',
@@ -29,6 +27,9 @@ module MVI
         not_authorized: 'NOT_AUTHORIZED'
       }.freeze
 
+      # Builds a response with a server error status and a nil profile
+      #
+      # @return [MVI::Responses::FindProfileResponse] the response
       def self.with_server_error
         FindProfileResponse.new(
           status: FindProfileResponse::RESPONSE_STATUS[:server_error],
@@ -36,6 +37,9 @@ module MVI
         )
       end
 
+      # Builds a response with a not found status and a nil profile
+      #
+      # @return [MVI::Responses::FindProfileResponse] the response
       def self.with_not_found
         FindProfileResponse.new(
           status: FindProfileResponse::RESPONSE_STATUS[:not_found],
@@ -43,6 +47,10 @@ module MVI
         )
       end
 
+      # Builds a response with a ok status and a parsed response
+      #
+      # @param response [Ox::Element] ox element returned from the soap service middleware
+      # @return [MVI::Responses::FindProfileResponse] response with a parsed MviProfile
       def self.with_parsed_response(response)
         profile_parser = ProfileParser.new(response)
         raise MVI::Errors::RecordNotFound if profile_parser.multiple_match?
