@@ -212,7 +212,7 @@ GEM
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
-    nokogiri (1.7.0.1)
+    nokogiri (1.7.1)
       mini_portile2 (~> 2.1.0)
     nori (2.6.0)
     notiffany (0.0.8)
@@ -435,6 +435,7 @@ DEPENDENCIES
   json-schema
   memoist
   net-sftp
+  nokogiri (~> 1.7.1)
   oj
   olive_branch
   overcommit
