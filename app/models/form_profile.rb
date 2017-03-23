@@ -74,7 +74,7 @@ class FormProfile
         first: user.first_name&.capitalize,
         middle: user.middle_name&.capitalize,
         last: user.last_name&.capitalize,
-        suffix: user.va_profile[:suffix]
+        suffix: user.va_profile.suffix
       },
       date_of_birth: user.birth_date,
       gender: user.gender
@@ -84,14 +84,14 @@ class FormProfile
   def initialize_contact_information(user)
     FormContactInformation.new(
       address: {
-        street: user.va_profile[:address][:street_address_line],
+        street: user.va_profile.address.street,
         street2: nil,
-        city: user.va_profile[:address][:city],
-        state: user.va_profile[:address][:state],
-        postal_code: user.va_profile[:address][:postal_code],
-        country: user.va_profile[:address][:country]
+        city: user.va_profile.address.city,
+        state: user.va_profile.address.state,
+        postal_code: user.va_profile.address.postal_code,
+        country: user.va_profile.address.country
       },
-      home_phone: user.va_profile[:home_phone]
+      home_phone: user.va_profile.home_phone
     )
   end
 

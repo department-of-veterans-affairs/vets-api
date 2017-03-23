@@ -43,6 +43,7 @@ gem 'govdelivery-tms', require: 'govdelivery/tms/mail/delivery_method'
 gem 'statsd-instrument'
 gem 'memoist'
 gem 'date_validator'
+gem 'nokogiri', '~> 1.7.1'
 
 # Amazon Linux's system `json` gem causes conflicts, but
 # `multi_json` will prefer `oj` if installed, so include it here.
@@ -82,6 +83,7 @@ end
 
 group :test do
   gem 'faker'
+  gem 'faker-medical'
   gem 'simplecov', require: false
   gem 'webmock'
   gem 'fakeredis'
