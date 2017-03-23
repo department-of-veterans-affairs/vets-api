@@ -19,7 +19,7 @@ module SAML
       TIMEOUT = 15
 
       def saml_settings
-        if !HealthStatus.fetch_attempted? || HealthStatus.metadata_retrieved?
+        if HealthStatus.healthy?
           merged_saml_settings
         else
           refresh_saml_settings
