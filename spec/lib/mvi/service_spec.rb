@@ -14,7 +14,9 @@ describe MVI::Service do
     }
     build(:loa3_user, user_hash)
   end
-  let(:mvi_profile) { build(:mvi_profile_missing_attrs, given_names: %w(Mitchell G), mhv_ids: nil) }
+  let(:mvi_profile) do
+    build(:mvi_profile_response, :missing_attrs, :address_austin, given_names: %w(Mitchell G))
+  end
 
   describe '.find_profile' do
     context 'with a valid request' do

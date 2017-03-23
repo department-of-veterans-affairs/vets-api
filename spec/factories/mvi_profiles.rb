@@ -38,49 +38,48 @@ FactoryGirl.define do
     edipi { Faker::Number.number(10) }
     participant_id { Faker::Number.number(10) }
 
-    factory :mvi_profile_valid do
+    factory :mvi_profile_response do
       given_names %w(John William)
       family_name 'Smith'
       suffix 'Sr'
       gender 'M'
       birth_date '19800101'
       ssn '555443333'
-      address { build(:mvi_profile_address_austin) }
       home_phone '1112223333'
       icn '1000123456V123456'
       mhv_ids ['123456']
       edipi '1234'
       participant_id '12345678'
-    end
 
-    factory :mvi_profile_missing_attrs do
-      given_names %w(Mitchell)
-      family_name 'Jenkins'
-      suffix nil
-      gender 'M'
-      birth_date '19490304'
-      ssn '796122306'
-      address { build(:mvi_profile_address_austin) }
-      home_phone nil
-      icn '1008714701V416111'
-      mhv_ids ['1100792239']
-      participant_id '9100792239'
-      edipi nil
-    end
+      trait :missing_attrs do
+        given_names %w(Mitchell)
+        family_name 'Jenkins'
+        suffix nil
+        birth_date '19490304'
+        ssn '796122306'
+        home_phone nil
+        icn '1008714701V416111'
+        mhv_ids nil
+        participant_id '9100792239'
+        edipi nil
+      end
 
-    factory :mvi_profile_mvi_mhvids do
-      given_names %w(Steve A)
-      family_name 'Ranger'
-      suffix nil
-      gender 'M'
-      birth_date '19800101'
-      ssn '111223333'
-      address { build(:mvi_profile_address_springfield) }
-      home_phone '1112223333 p1'
-      icn '12345678901234567'
-      mhv_ids %w(12345678901 12345678902)
-      edipi '1122334455'
-      participant_id '12345678'
+      trait :multiple_mhvids do
+        given_names %w(Steve A)
+        family_name 'Ranger'
+        suffix nil
+        ssn '111223333'
+        address { build(:mvi_profile_address_springfield) }
+        home_phone '1112223333 p1'
+        icn '12345678901234567'
+        mhv_ids %w(12345678901 12345678902)
+        edipi '1122334455'
+        participant_id '12345678'
+      end
+
+      trait :address_austin do
+        address { build(:mvi_profile_address_austin) }
+      end
     end
   end
 end

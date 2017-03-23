@@ -19,13 +19,15 @@ describe MVI::Responses::ProfileParser do
     end
 
     describe '#parse' do
-      let(:mvi_profile) { build(:mvi_profile_valid) }
+      let(:mvi_profile) { build(:mvi_profile_response, :address_austin) }
       it 'returns a MviProfile with the parsed attributes' do
         expect(parser.parse).to have_deep_attributes(mvi_profile)
       end
 
       context 'when name parsing fails' do
-        let(:mvi_profile) { build(:mvi_profile_valid, family_name: nil, given_names: nil, suffix: nil) }
+        let(:mvi_profile) do
+          build(:mvi_profile_response, :address_austin, family_name: nil, given_names: nil, suffix: nil)
+        end
         it 'should set the names to false' do
           allow(parser).to receive(:get_patient_name).and_return(nil)
           expect(parser.parse).to have_deep_attributes(mvi_profile)
@@ -34,7 +36,7 @@ describe MVI::Responses::ProfileParser do
 
       context 'with a missing address' do
         let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response_nil_address.xml')) }
-        let(:mvi_profile) { build(:mvi_profile_valid, address: nil) }
+        let(:mvi_profile) { build(:mvi_profile_response, address: nil) }
         it 'should set the address to nil' do
           expect(parser.parse).to have_deep_attributes(mvi_profile)
         end
@@ -42,7 +44,7 @@ describe MVI::Responses::ProfileParser do
 
       context 'with no middle name, missing and alternate correlation ids, multiple other_ids' do
         let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_missing_attrs.xml')) }
-        let(:mvi_profile) { build(:mvi_profile_missing_attrs) }
+        let(:mvi_profile) { build(:mvi_profile_response, :missing_attrs, :address_austin, mhv_ids: ['1100792239']) }
         it 'should filter with only first name and retrieve correct MHV id' do
           expect(parser.parse).to have_deep_attributes(mvi_profile)
         end
@@ -52,7 +54,7 @@ describe MVI::Responses::ProfileParser do
 
   context 'with no subject element' do
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_no_subject.xml')) }
-    let(:mvi_profile) { build(:mvi_profile_missing_attrs) }
+    let(:mvi_profile) { build(:mvi_profile_response, :missing_attrs) }
 
     describe '#parse' do
       it 'return nil if the response includes no suject element' do
@@ -108,7 +110,7 @@ describe MVI::Responses::ProfileParser do
 
   context 'with multiple MHV IDs' do
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_multiple_mhv_response.xml')) }
-    let(:mvi_profile) { build(:mvi_profile_mvi_mhvids) }
+    let(:mvi_profile) { build(:mvi_profile_response, :multiple_mhvids) }
 
     before(:each) do
       allow(faraday_response).to receive(:body) { body }
