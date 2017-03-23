@@ -9,7 +9,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: ~
     ssn: '796126859'
-    status: 'active'
   "796121200":
     birth_date: '19330405'
     edipi: '1005079124^NI^200DOD^USDOD^A'
@@ -20,7 +19,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '796121200'
-    status: 'active'
   "796127781":
     birth_date: '19591201'
     edipi: ~
@@ -31,7 +29,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '796127781'
-    status: 'active'
   "796295980":
     birth_date: '19900220'
     edipi: ~
@@ -42,7 +39,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '32323473^PI^200CORP^USVBA^A'
     ssn: '796295980'
-    status: 'active'
   "796012476":
     birth_date: '19930608'
     edipi: ~
@@ -53,7 +49,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '796012476'
-    status: 'active'
   "796143510":
     birth_date: '19800220'
     edipi: ~
@@ -64,7 +59,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '796143510'
-    status: 'active'
   "796169727":
     birth_date: '19630705'
     edipi: ~
@@ -75,7 +69,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '796169727'
-    status: 'active'
   "796148937":
     birth_date: '19470925'
     edipi: '1007451748^NI^200DOD^USDOD^A'
@@ -86,7 +79,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '600036156^NI^200DOD^USDOD^A'
     ssn: '796148937'
-    status: 'active'
   "796186272":
     birth_date: '19751126'
     edipi: '1019787741^NI^200DOD^USDOD^A'
@@ -97,7 +89,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '600036156^NI^200DOD^USDOD^A'
     ssn: '796186272'
-    status: 'active'
   "796121086":
     birth_date: '19331027'
     edipi: '1005072030^NI^200DOD^USDOD^A'
@@ -108,7 +99,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '32323479^PI^200CORP^USVBA^A'
     ssn: '796121086'
-    status: 'active'
   "796249005":
     birth_date: '19630726'
     edipi: ~
@@ -119,7 +109,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '600062099^PI^200CORP^USVBA^A'
     ssn: '796249005'
-    status: 'active'
   "796263749":
     birth_date: '19750512'
     edipi: ~
@@ -130,7 +119,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '796263749'
-    status: 'active'
   "796131752":
     birth_date: '19361120'
     edipi: ~
@@ -141,7 +129,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '796131752'
-    status: 'active'
   "796163672":
     birth_date: '19530211'
     edipi: ~
@@ -152,7 +139,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '32318135^PI^200CORP^USVBA^A'
     ssn: '796163672'
-    status: 'active'
   "796127196":
     birth_date: '19370307'
     edipi: ~
@@ -163,7 +149,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '600033523^PI^200CORP^USVBA^A'
     ssn: '796127196'
-    status: 'active'
   "796143570":
     birth_date: '19870130'
     edipi: '1006467969^NI^200DOD^USDOD^A'
@@ -174,7 +159,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '600043217^PI^200CORP^USVBA^A'
     ssn: '796143570'
-    status: 'active'
   "796130115":
     birth_date: '19670619'
     edipi: ~
@@ -185,7 +169,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '796130115'
-    status: 'active'
   "796043735":
     birth_date: '19860506'
     edipi: ~
@@ -196,7 +179,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '796043735'
-    status: 'active'
   "796330625":
     birth_date: '19760609'
     edipi: ~
@@ -207,7 +189,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '32318138^PI^200CORP^USVBA^A'
     ssn: '796330625'
-    status: 'active'
   "796184750":
     birth_date: '19711119'
     edipi: '1019061961^NI^200DOD^USDOD^A'
@@ -218,7 +199,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '600075670^PI^200CORP^USVBA^A'
     ssn: '796184750'
-    status: 'active'
   "796149080":
     birth_date: '19691105'
     edipi: ~
@@ -229,7 +209,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318142^PI^200CORP^USVBA^A'
     ssn: '796149080'
-    status: 'active'
   "796122369":
     birth_date: '19830221'
     edipi: ~
@@ -240,7 +219,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318144^PI^200CORP^USVBA^A'
     ssn: '796122369'
-    status: 'active'
   "796246997":
     birth_date: '19690623'
     edipi: ~
@@ -251,7 +229,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318145^PI^200CORP^USVBA^A'
     ssn: '796246997'
-    status: 'active'
   "796330163":
     birth_date: '19500131'
     edipi: ~
@@ -262,7 +239,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: ~
     ssn: '796330163'
-    status: 'active'
   "796127094":
     birth_date: '19330804'
     edipi: ~
@@ -273,7 +249,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318146^PI^200CORP^USVBA^A'
     ssn: '796127094'
-    status: 'active'
   "796378881":
     birth_date: '19541215'
     edipi: ~
@@ -284,7 +259,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318149^PI^200CORP^USVBA^A'
     ssn: '796378881'
-    status: 'active'
   "796184459":
     birth_date: '19551227'
     edipi: ~
@@ -295,7 +269,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318150^PI^200CORP^USVBA^A'
     ssn: '796184459'
-    status: 'active'
   "796131729":
     birth_date: '19370925'
     edipi: ~
@@ -306,7 +279,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '600043202^PI^200CORP^USVBA^A'
     ssn: '796131729'
-    status: 'active'
   "796377148":
     birth_date: '19820423'
     edipi: ~
@@ -317,7 +289,6 @@ find_candidate:
     mhv_ids: ['13492196^PI^200MH^USVHA^A']
     vba_corp_id: '32318151^PI^200CORP^USVBA^A'
     ssn: '796377148'
-    status: 'active'
   "796131275":
     birth_date: '19270118'
     edipi: ~
@@ -328,7 +299,6 @@ find_candidate:
     mhv_ids: ['10894456^PI^200MH^USVHA^A']
     vba_corp_id: '32318153^PI^200CORP^USVBA^A'
     ssn: '796131275'
-    status: 'active'
   "796378321":
     birth_date: '19511118'
     edipi: '1292690947^NI^200DOD^USDOD^A'
@@ -339,7 +309,6 @@ find_candidate:
     mhv_ids: ['13408508^PI^200MH^USVHA^A']
     vba_corp_id: '32318156^PI^200CORP^USVBA^A'
     ssn: '796378321'
-    status: 'active'
   "796127677":
     birth_date: '19490506'
     edipi: '1005396162^NI^200DOD^USDOD^A'
@@ -350,7 +319,6 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: '32317886^PI^200CORP^USVBA^A'
     ssn: '796127677'
-    status: 'active'
   "796127587":
     birth_date: '19470629'
     edipi: '1005392639^NI^200DOD^USDOD^A'
@@ -361,7 +329,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '600043193^PI^200CORP^USVBA^A'
     ssn: '796127587'
-    status: 'active'
   "796153447":
     birth_date: '19530215'
     edipi: ~
@@ -372,7 +339,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318157^PI^200CORP^USVBA^A'
     ssn: '796153447'
-    status: 'active'
   "796378782":
     birth_date: '19481030'
     edipi: ~
@@ -383,7 +349,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318159^PI^200CORP^USVBA^A'
     ssn: '796378782'
-    status: 'active'
   "796147495":
     birth_date: '19920827'
     edipi: ~
@@ -394,7 +359,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318160^PI^200CORP^USVBA^A'
     ssn: '796147495'
-    status: 'active'
   "796122472":
     birth_date: '19500114'
     edipi: '1005138104^NI^200DOD^USDOD^A'
@@ -405,7 +369,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '600043169^PI^200CORP^USVBA^A'
     ssn: '796122472'
-    status: 'active'
   "796136308":
     birth_date: '19790620'
     edipi: '1008346433^NI^200DOD^USDOD^A'
@@ -416,7 +379,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: ~
     ssn: '796136308'
-    status: 'active'
   "796218467":
     birth_date: '19640304'
     edipi: '1043719340^NI^200DOD^USDOD^A'
@@ -427,7 +389,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '600056914^PI^200CORP^USVBA^A'
     ssn: '796218467'
-    status: 'active'
   "796126978":
     birth_date: '19340407'
     edipi: ~
@@ -438,7 +399,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: ~
     ssn: '796126978'
-    status: 'active'
   "796025480":
     birth_date: '19940607'
     edipi: ~
@@ -449,7 +409,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: ~
     ssn: '796025480'
-    status: 'active'
   "796364561":
     birth_date: '19840219'
     edipi: ~
@@ -460,7 +419,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '600017293^PI^200CORP^USVBA^A'
     ssn: '796364561'
-    status: 'active'
   "796018229":
     birth_date: '19770704'
     edipi: ~
@@ -471,7 +429,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318168^PI^200CORP^USVBA^A'
     ssn: '796018229'
-    status: 'active'
   "796109651":
     birth_date: '19640414'
     edipi: ~
@@ -482,7 +439,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318167^PI^200CORP^USVBA^A'
     ssn: '796109651'
-    status: 'active'
   "796013145":
     birth_date: '19590225'
     edipi: ~
@@ -493,7 +449,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: ~
     ssn: '796013145'
-    status: 'active'
   "796019724":
     birth_date: '19860228'
     edipi: ~
@@ -504,7 +459,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318169^PI^200CORP^USVBA^A'
     ssn: '796019724'
-    status: 'active'
   "796044205":
     birth_date: '19540927'
     edipi: ~
@@ -515,7 +469,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: ~
     ssn: '796044205'
-    status: 'active'
   "796220828":
     birth_date: '19540526'
     edipi: ~
@@ -526,7 +479,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: ~
     ssn: '796220828'
-    status: 'active'
   "796013160":
     birth_date: '19331228'
     edipi: '1021267380^NI^200DOD^USDOD^A'
@@ -537,7 +489,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318570^PI^200CORP^USVBA^A'
     ssn: '796013160'
-    status: 'active'
   "796053870":
     birth_date: '19650326'
     edipi: ~
@@ -548,7 +499,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: ~
     ssn: '796053870'
-    status: 'active'
   "796128747":
     birth_date: '19930111'
     edipi: ~
@@ -559,7 +509,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318171^PI^200CORP^USVBA^A'
     ssn: '796128747'
-    status: 'active'
   "796128750":
     birth_date: '19611222'
     edipi: ~
@@ -570,7 +519,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318172^PI^200CORP^USVBA^A'
     ssn: '796128750'
-    status: 'active'
   "796128748":
     birth_date: '19780419'
     edipi: ~
@@ -581,7 +529,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318173^PI^200CORP^USVBA^A'
     ssn: '796128748'
-    status: 'active'
   "796153369":
     birth_date: '19580224'
     edipi: ~
@@ -592,7 +539,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: ~
     ssn: '796153369'
-    status: 'active'
   "796127242":
     birth_date: '19390820'
     edipi: '1005361920^NI^200DOD^USDOD^A'
@@ -603,7 +549,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32245561^PI^200CORP^USVBA^A'
     ssn: '796127242'
-    status: 'active'
   "796018805":
     birth_date: '19820710'
     edipi: '1384220343^NI^200DOD^USDOD^A'
@@ -614,7 +559,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32238885^PI^200CORP^USVBA^A'
     ssn: '796018805'
-    status: 'active'
   "796110951":
     birth_date: '19920422'
     edipi: '1077041105^NI^200DOD^USDOD^A'
@@ -625,7 +569,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318572^PI^200CORP^USVBA^A'
     ssn: '796110951'
-    status: 'active'
   "796140369":
     birth_date: '19650715'
     edipi: ~
@@ -636,7 +579,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: ~
     ssn: '796140369'
-    status: 'active'
   "796127160":
     birth_date: '19360714'
     edipi: ~
@@ -647,7 +589,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318174^PI^200CORP^USVBA^A'
     ssn: '796127160'
-    status: 'active'
   "796246757":
     birth_date: '19680105'
     edipi: ~
@@ -658,7 +599,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318189^PI^200CORP^USVBA^A'
     ssn: '796246757'
-    status: 'active'
   "796079018":
     birth_date: '19610902'
     edipi: '1105051936^NI^200DOD^USDOD^A'
@@ -669,7 +609,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '600097643^PI^200CORP^USVBA^A'
     ssn: '796079018'
-    status: 'active'
   "796151611":
     birth_date: '19610902'
     edipi: '1008081642^NI^200DOD^USDOD^A'
@@ -680,7 +619,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '600043220^PI^200CORP^USVBA^A'
     ssn: '796151611'
-    status: 'active'
   "796231077":
     birth_date: '19711208'
     edipi: ~
@@ -691,7 +629,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318192^PI^200CORP^USVBA^A'
     ssn: '796231077'
-    status: 'active'
   "796017172":
     birth_date: '19591101'
     edipi: ~
@@ -702,7 +639,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32253559^PI^200CORP^USVBA^A'
     ssn: '796017172'
-    status: 'active'
   "796066619":
     birth_date: '19480928'
     edipi: ~
@@ -713,7 +649,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: ~
     ssn: '796066619'
-    status: 'active'
   "796060339":
     birth_date: '19450524'
     edipi: '1025579697^NI^200DOD^USDOD^A'
@@ -724,7 +659,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: ~
     ssn: '796060339'
-    status: 'active'
   "796030117":
     birth_date: '19961117'
     edipi: ~
@@ -735,7 +669,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '32318200^PI^200CORP^USVBA^A'
     ssn: '796030117'
-    status: 'active'
   "796122306":
     birth_date: '19490304'
     edipi: '1005133340^NI^200DOD^USDOD^A'
@@ -746,7 +679,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '600043167^PI^200CORP^USVBA^A'
     ssn: '796122306'
-    status: 'active'
   "796184647":
     birth_date: '19640605'
     edipi: '1019031833^NI^200DOD^USDOD^A'
@@ -757,7 +689,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '600048569^PI^200CORP^USVBA^A'
     ssn: '796184647'
-    status: 'active'
   "796140438":
     birth_date: '19660926'
     edipi: '1006467969^NI^200DOD^USDOD^A'
@@ -768,7 +699,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '600043285^PI^200CORP^USVBA^A'
     ssn: '796140438'
-    status: 'active'
   "796122076":
     birth_date: '19460725'
     edipi: '1005127285^NI^200DOD^USDOD^A'
@@ -789,7 +719,6 @@ find_candidate:
     mhv_ids: ~
     vba_corp_id: '600043180^NI^200DOD^USDOD^A'
     ssn: '796123607'
-    status: 'active'
   "666717635":
     birth_date: '19960710'
     edipi: ~
@@ -800,7 +729,6 @@ find_candidate:
     mhv_ids: ['13492196^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '666717635'
-    status: 'active'
   "666271152":
     birth_date: '19960710'
     edipi: ~
@@ -811,7 +739,6 @@ find_candidate:
     mhv_ids: ['10894456^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '666271152'
-    status: 'active'
   "666360333":
     birth_date: '19960710'
     edipi: ~
@@ -822,7 +749,6 @@ find_candidate:
     mhv_ids: ['13408508^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '666360333'
-    status: 'active'
   "666512797":
     birth_date: '19960710'
     edipi: ~
@@ -833,4 +759,3 @@ find_candidate:
     mhv_ids: ['12210827^PI^200MH^USVHA^A']
     vba_corp_id: ~
     ssn: '666512797'
-    status: 'active'

@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'mvi/messages/find_candidate_message'
+require 'mvi/messages/find_profile_message'
 
-describe MVI::Messages::FindCandidateMessage do
+describe MVI::Messages::FindProfileMessage do
   describe '.to_xml' do
     context 'with first, last, birth_date, and ssn from auth provider' do
       let(:xml) do
-        MVI::Messages::FindCandidateMessage.new(
+        MVI::Messages::FindProfileMessage.new(
           %w(John William), 'Smith', '1980-1-1', '555-44-3333', 'M'
         ).to_xml
       end
@@ -75,7 +75,7 @@ describe MVI::Messages::FindCandidateMessage do
 
     context 'with nil gender' do
       let(:xml) do
-        MVI::Messages::FindCandidateMessage.new(
+        MVI::Messages::FindProfileMessage.new(
           %w(John William), 'Smith', '1980-1-1', '555-44-3333', nil
         ).to_xml
       end
@@ -98,7 +98,7 @@ describe MVI::Messages::FindCandidateMessage do
     context 'missing arguments' do
       it 'should throw an argument error' do
         expect do
-          MVI::Messages::FindCandidateMessage.new(%w(John William), 'Smith', Time.new(1980, 1, 1).utc)
+          MVI::Messages::FindProfileMessage.new(%w(John William), 'Smith', Time.new(1980, 1, 1).utc)
         end.to raise_error(ArgumentError, 'wrong number of arguments (given 3, expected 4..5)')
       end
     end
