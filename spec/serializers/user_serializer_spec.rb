@@ -70,7 +70,7 @@ RSpec.describe UserSerializer, type: :serializer do
         expect(va_profile['given_names']).to eq(user.va_profile[:given_names])
       end
       it 'should include status' do
-        expect(va_profile['status']).to eq(user.va_profile[:status])
+        expect(va_profile['status']).to eq('OK')
       end
     end
 
