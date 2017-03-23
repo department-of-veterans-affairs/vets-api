@@ -28,6 +28,7 @@ describe HCA::Service do
       root = Rails.root.join('spec', 'fixtures', 'hca', 'conformance')
       Dir[File.join(root, '*.json')].map { |f| File.basename(f, '.json') }.each do |form|
         it "properly formats #{form} for transmission" do
+          allow_any_instance_of(Mvi).to receive(:icn).and_return('1000123456V123456')
           service = form =~ /authenticated/ ? described_class.new(current_user) : described_class.new
           json = JSON.load(root.join("#{form}.json"))
           expect(json).to match_vets_schema('healthcare_application')

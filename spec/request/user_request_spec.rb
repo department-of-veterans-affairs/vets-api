@@ -37,7 +37,7 @@ RSpec.describe 'Fetching user data', type: :request do
     end
   end
 
-  context 'when an LOA 1 user is logged in' do
+  context 'when an LOA 1 user is logged in', :skip_mvi do
     let(:loa1_user) { build :loa1_user }
 
     before do
