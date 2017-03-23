@@ -10,11 +10,11 @@ RSpec.describe FormProfile, type: :model do
         'first' => user.first_name&.capitalize,
         'middle' => nil,
         'last' => user.last_name&.capitalize,
-        'suffix' => nil
+        'suffix' => user.va_profile[:suffix]
       },
       'veteranDateOfBirth' => user.birth_date,
       'veteranAddress' => {
-        'street' => user.va_profile[:address][:street_address_line],
+        'street' => user.va_profile[:address][:street],
         'street_2' => nil,
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],

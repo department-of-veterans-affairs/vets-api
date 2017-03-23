@@ -13,7 +13,7 @@ module MVI
     #  birth_date = Time.new(1980, 1, 1).utc
     #  message = MVI::Messages::FindCandidateMessage.new(['John', 'William'], 'Smith', birth_date, '555-44-3333').to_xml
     #
-    class FindCandidateMessage
+    class FindProfileMessage
       include MVI::Messages::MessageBuilder
       EXTENSION = 'PRPA_IN201305UV02'
 

@@ -1,21 +1,11 @@
 # frozen_string_literal: true
-require_relative 'base'
-
 module MVI
   module Responses
-    # Parses the response for the find candidate endpoint (prpa_in201306_uv02).
-    #
-    # = Usage
-    # The original response is a complex Hash of the xml returned by MVI.
-    # See specs/support/mvi/savon_response_body.json for an example of the hierarchy
-    #
-    # Example:
-    #  response = MVI::Responses::FindCandidate.new(mvi_response)
-    #
-    class FindCandidate < Base
-      mvi_endpoint :PRPA_IN201306UV02
-
-      attr_reader :subject
+    # Parses a MVI response and returns a MviProfile
+    class ProfileParser
+      BODY_XPATH = 'env:Envelope/env:Body/idm:PRPA_IN201306UV02'
+      CODE_XPATH = 'acknowledgement/typeCode/@code'
+      QUERY_XPATH = 'controlActProcess/queryByParameter'
 
       SSN_ROOT_ID = '2.16.840.1.113883.4.1'
       CORRELATION_ROOT_ID = '2.16.840.1.113883.4.349'
@@ -30,21 +20,61 @@ module MVI
       NAME_XPATH = 'patientPerson/name'
       ADDRESS_XPATH = 'patientPerson/addr'
       PHONE = 'patientPerson/telecom'
-      ACKNOWLEDGEMENT_DETAIL_XPATH = 'acknowledgement/acknowledgementDetail/text'
 
+      ACKNOWLEDGEMENT_DETAIL_XPATH = 'acknowledgement/acknowledgementDetail/text'
       MULTIPLE_MATCHES_FOUND = 'Multiple Matches Found'
 
+      # MVI response code options.
+      EXTERNAL_RESPONSE_CODES = {
+        success: 'AA',
+        failure: 'AE',
+        invalid_request: 'AR'
+      }.freeze
+
+      # Creates a new parser instance.
+      #
+      # @param response [struct Faraday::Env] the Faraday response
+      # @return [ProfileParser] an instance of this class
       def initialize(response)
-        super(response)
-        @subject = locate_element(@original_body, SUBJECT_XPATH)
+        @original_body = locate_element(response.body, BODY_XPATH)
+        @code = locate_element(@original_body, CODE_XPATH)
       end
 
-      def body
-        patient = locate_element(@subject, PATIENT_XPATH)
+      # MVI returns failed or invalid codes if the request is malformed or MVI throws an internal error.
+      #
+      # @return [Boolean] has failed or invalid code?
+      def failed_or_invalid?
+        result = [EXTERNAL_RESPONSE_CODES[:failure], EXTERNAL_RESPONSE_CODES[:invalid_request]].include? @code
+        Rails.logger.warn "MVI returned response with code: #{@code}" if result
+        result
+      end
+
+      # MVI returns multiple match warnings if a query returns more than one match.
+      #
+      # @return [Boolean] has a multiple match warning?
+      def multiple_match?
+        acknowledgement_detail = locate_element(@original_body, ACKNOWLEDGEMENT_DETAIL_XPATH)
+        return false unless acknowledgement_detail
+        acknowledgement_detail.nodes.first == MULTIPLE_MATCHES_FOUND
+      end
+
+      # Parse the response and builds an MviProfile.
+      #
+      # @return [MviProfile] the profile from the parsed response
+      def parse
+        subject = locate_element(@original_body, SUBJECT_XPATH)
+        return nil unless subject
+        patient = locate_element(subject, PATIENT_XPATH)
         return nil unless patient
+        build_mvi_profile(patient)
+      end
+
+      private
+
+      def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
-        {
-          active_status: locate_element(patient, STATUS_XPATH),
+        correlation_ids = map_correlation_ids(patient.locate('id'))
+        MviProfile.new(
           given_names: name[:given],
           family_name: name[:family],
           suffix: name[:suffix],
@@ -52,17 +82,13 @@ module MVI
           birth_date: locate_element(patient, DOB_XPATH),
           ssn: parse_ssn(locate_element(patient, SSN_XPATH)),
           address: parse_address(patient),
-          home_phone: parse_phone(patient)
-        }.merge(map_correlation_ids(patient.locate('id')))
+          home_phone: parse_phone(patient),
+          icn: correlation_ids[:icn],
+          mhv_ids: correlation_ids[:mhv_ids],
+          edipi: correlation_ids[:edipi],
+          participant_id: correlation_ids[:vba_corp_id]
+        )
       end
-
-      def multiple_match?
-        acknowledgement_detail = locate_element(@original_body, ACKNOWLEDGEMENT_DETAIL_XPATH)
-        return false unless acknowledgement_detail
-        acknowledgement_detail.nodes.first == MULTIPLE_MATCHES_FOUND
-      end
-
-      private
 
       def get_patient_name(patient)
         locate_element(patient, NAME_XPATH)
@@ -96,7 +122,9 @@ module MVI
       def parse_address(patient)
         el = locate_element(patient, ADDRESS_XPATH)
         return nil unless el
-        el.nodes.map { |n| { n.value.snakecase.to_sym => n.nodes.first } }.reduce({}, :merge)
+        address_hash = el.nodes.map { |n| { n.value.snakecase.to_sym => n.nodes.first } }.reduce({}, :merge)
+        address_hash[:street] = address_hash.delete :street_address_line
+        MviProfileAddress.new(address_hash)
       end
 
       def parse_phone(patient)
@@ -130,7 +158,12 @@ module MVI
           id[:extension] =~ pattern && id[:root] == root
         end
         return nil if extensions.empty?
-        extensions.map { |e| e[:extension] }
+        extensions.map { |e| e[:extension].split('^')&.first }
+      end
+
+      def locate_element(el, path)
+        return nil unless el
+        el.locate(path)&.first
       end
     end
   end
