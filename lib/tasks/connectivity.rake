@@ -20,6 +20,8 @@ require 'mvi/service'
 require 'rx/client'
 require 'sm/client'
 
+class ConnectivityError < StandardError; end
+
 # Convenience function that runs a connectivity example and prints out
 # success/error messages
 def check(name, config)
@@ -48,6 +50,7 @@ namespace :connectivity do
         Settings.edu.sftp.host,
         Settings.edu.sftp.user,
         password: Settings.edu.sftp.pass,
+        port: Settings.edu.sftp.port,
         non_interactive: true
       )
     end
@@ -56,7 +59,17 @@ namespace :connectivity do
   desc 'Check EVSS'
   task evss: :environment do
     check 'EVSS', Settings.evss.url do
-      EVSS::ClaimsService.new({}).all_claims
+      begin
+        EVSS::ClaimsService.new({}).all_claims
+        # Should return an XML 403 response, which Faraday fails parsing,
+        # since it expects JSON
+        puts "EVSS connection super success for #{Settings.evss.url}!"
+      rescue Faraday::ParsingError
+        puts "EVSS connection success for #{Settings.evss.url}."
+      rescue => e
+        puts "EVSS connection unsuccessful for #{Settings.evss.url}!"
+        puts " - Error encountered: `#{e}`"
+      end
     end
   end
 
@@ -86,15 +99,22 @@ namespace :connectivity do
   desc 'Check MVI'
   task mvi: :environment do
     check 'MVI', Settings.mvi.url do
-      user = FactoryGirl.build(
-        :user,
+      user = User.new(
+        first_name: 'John',
+        last_name: 'Smith',
+        middle_name: 'W',
+        birth_date: '1945-01-25',
+        gender: 'M',
+        ssn: '555443333',
+        email: 'foo@bar.com',
         uuid: SecureRandom.uuid,
         loa: {
           current: LOA::THREE,
           highest: LOA::THREE
         }
       )
-      user.va_profile
+
+      raise ConnectivityError if user.va_profile[:status] == 'SERVER_ERROR'
     end
   end
 
