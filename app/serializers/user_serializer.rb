@@ -23,14 +23,14 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def va_profile
-    status = object.va_profile[:status]
+    status = object.va_profile_status
     return { status: status } unless status == 'OK'
     {
-      status: object.va_profile[:status],
-      birth_date: object.va_profile[:birth_date],
-      family_name: object.va_profile[:family_name],
-      gender: object.va_profile[:gender],
-      given_names: object.va_profile[:given_names]
+      status: status,
+      birth_date: object.va_profile.birth_date,
+      family_name: object.va_profile.family_name,
+      gender: object.va_profile.gender,
+      given_names: object.va_profile.given_names
     }
   end
 
