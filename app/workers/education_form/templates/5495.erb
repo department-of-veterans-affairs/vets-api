@@ -78,3 +78,7 @@ Relationship to service member:  <%= @applicant.relationship&.upcase %>
 Outstanding felony or warrant: <%= yesno(@applicant.outstandingFelony) %>
 
 Remarks: <%= @applicant.remarks %>
+
+<%= parse_with_template_path('signatures') %>
+
+<%= parse_with_template_path('footer') %>
