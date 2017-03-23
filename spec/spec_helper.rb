@@ -4,6 +4,7 @@ require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
 require 'support/api_schema_matcher'
 require 'support/spool_helpers'
+require 'support/have_deep_attributes_matcher'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
