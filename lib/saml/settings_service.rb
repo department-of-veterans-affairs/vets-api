@@ -22,11 +22,11 @@ module SAML
         if HealthStatus.healthy?
           merged_saml_settings
         else
+          log_message_to_sentry(HealthStatus.error_message, :error) unless fetch_attempted.nil?
           refresh_saml_settings
         end
       end
 
-      # only made public for specs
       def merged_saml_settings
         OneLogin::RubySaml::IdpMetadataParser.new.parse(metadata, settings: settings)
       rescue => e
