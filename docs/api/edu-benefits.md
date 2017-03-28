@@ -43,7 +43,7 @@ Content-Type: application/json
       "submittedAt": "2016-09-09T23:48:07.766Z",
       // address of the VA regional office where it will be processed
       "regionalOffice": "Eastern Region\nVA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616",
-      "confirmationNumber": "vets_gov_education_benefits_claim_18"
+      "confirmationNumber": "V-EBC-18"
     }
   }
 }
