@@ -9,7 +9,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
       end
 
       return_val
-    end.()
+    end.call
   )
   FORM_TYPES = FORM_SCHEMAS.keys
 
