@@ -12,6 +12,11 @@ FactoryGirl.define do
     idp_slo_target_url              'https://api.idmelabs.com/saml/SingleLogoutService'
     idp_sso_target_url              'https://api.idmelabs.com/saml/SingleSignOnService'
     name_identifier_format          'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified'
+
+    trait :invalid_cert do
+      # fun fact - this is an actual cert ID.me once served to us in prod (it contains \r chars)
+      idp_cert File.read("#{::Rails.root}/spec/fixtures/files/invalid_idme_cert.crt")
+    end
   end
 
   factory :settings_no_context, class: 'OneLogin::RubySaml::Settings' do
