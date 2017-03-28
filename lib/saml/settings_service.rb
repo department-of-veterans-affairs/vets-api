@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'memoist'
 require 'sentry_logging'
+require 'saml/health_status'
 
 module SAML
   # This class is responsible for putting together a complete ruby-saml
@@ -11,14 +12,17 @@ module SAML
       include SentryLogging
       extend Memoist
 
+      attr_reader :fetch_attempted
+
       METADATA_RETRIES = 3
       OPEN_TIMEOUT = 2
       TIMEOUT = 15
 
       def saml_settings
-        if @fetch_attempted.nil? || metadata_successfully_retrieved?
+        if HealthStatus.healthy?
           merged_saml_settings
         else
+          log_message_to_sentry(HealthStatus.error_message, :error) unless fetch_attempted.nil?
           refresh_saml_settings
         end
       end
@@ -36,10 +40,6 @@ module SAML
       def refresh_saml_settings
         # passing true reloads cache. See: https://github.com/matthewrudy/memoist#usage
         merged_saml_settings(true)
-      end
-
-      def metadata_successfully_retrieved?
-        merged_saml_settings&.idp_sso_target_url&.blank? == false
       end
 
       def connection
