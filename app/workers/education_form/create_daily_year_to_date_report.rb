@@ -110,7 +110,7 @@ module EducationForm
         on_last_index = i == (application_types.size - 1)
         row = [
           i.zero? ? EducationFacility::RPO_NAMES[region] : '',
-          application_type
+          application_type.humanize(capitalize: false)
         ]
 
         row += create_data_row(
