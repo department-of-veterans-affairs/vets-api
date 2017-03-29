@@ -120,6 +120,14 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
+        it 'increments the failed statsd counter' do
+          once = { times: 1, value: 1 }
+          expect do
+            post(:saml_callback)
+          end.to trigger_statsd_increment(
+            described_class::STATSD_LOGIN_FAILED_KEY, tags: ['error:auth_too_early'], **once
+          ) & trigger_statsd_increment(described_class::STATSD_LOGIN_TOTAL_KEY, **once)
+        end
       end
       context ' when a required saml attribute is missing' do
         before { allow(User).to receive(:from_saml).and_return(invalid_user) }
