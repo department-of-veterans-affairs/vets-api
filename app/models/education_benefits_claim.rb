@@ -83,7 +83,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
   end
 
   def confirmation_number
-    "vets_gov_#{self.class.to_s.underscore}_#{id}"
+    "V-EBC-#{id}"
   end
 
   def selected_benefits
