@@ -4,7 +4,8 @@ class EducationBenefitsClaim < ActiveRecord::Base
     '1990' => VetsJsonSchema::EDU_BENEFITS,
     '1995' => VetsJsonSchema::CHANGE_OF_PROGRAM,
     '1990e' => VetsJsonSchema::TRANSFER_BENEFITS,
-    '5490' => VetsJsonSchema::DEPENDENTS_BENEFITS
+    '5490' => VetsJsonSchema::DEPENDENTS_BENEFITS,
+    '1990n' => VetsJsonSchema::NCS_BENEFITS
   )
   FORM_TYPES = FORM_SCHEMAS.keys
 

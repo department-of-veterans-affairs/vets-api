@@ -102,5 +102,19 @@
       "chapter32": 0,
       "chapter35": 0
     }
+  },
+  "1990n": {
+    "eastern": {
+      "all": 1
+    },
+    "southern": {
+      "all": 0
+    },
+    "central": {
+      "all": 0
+    },
+    "western": {
+      "all": 0
+    }
   }
 }
