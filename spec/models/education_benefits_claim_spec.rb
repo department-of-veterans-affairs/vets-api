@@ -333,7 +333,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         submission_attributes.merge(
           'region' => 'western',
           'chapter1606' => true,
-          'form_type' => '1990',
+          'form_type' => '1990'
         )
       )
     end
