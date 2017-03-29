@@ -27,7 +27,7 @@ module EducationForm
     end
 
     def show_individual_benefits(form_type)
-      if form_type == '1995' || form_type == '1990n'
+      if form_type == '1990n'
         false
       else
         true
