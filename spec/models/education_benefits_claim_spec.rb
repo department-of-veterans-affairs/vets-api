@@ -343,6 +343,8 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           'chapter32' => false,
           'chapter35' => false,
           'status' => 'submitted',
+          'transfer_of_entitlement' => true,
+          'chapter1607' => false,
           'education_benefits_claim_id' => subject.id,
           'form_type' => '1995'
         )
