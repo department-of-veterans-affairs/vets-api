@@ -4,7 +4,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
     lambda do
       return_val = {}
 
-      %w(1990 1995 1990e 5490).each do |form_type|
+      %w(1990 1995 1990e 5490 1990n).each do |form_type|
         return_val[form_type] = VetsJsonSchema::SCHEMAS["22-#{form_type.upcase}"]
       end
 
@@ -88,7 +88,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
   end
 
   def confirmation_number
-    "vets_gov_#{self.class.to_s.underscore}_#{id}"
+    "V-EBC-#{id}"
   end
 
   def selected_benefits

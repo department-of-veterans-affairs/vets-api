@@ -27,7 +27,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
 
     it 'should validate inclusion of form_type' do
-      %w(1990 1995 1990e 5490).each do |form_type|
+      %w(1990 1995 1990e 5490 1990n).each do |form_type|
         subject.form_type = form_type
         expect_attr_valid(subject, :form_type)
       end
@@ -109,6 +109,35 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         end
       end
 
+      %w(5490 1990n).each do |form_type|
+        context "#{form_type} form" do
+          before do
+            subject.form_type = form_type
+            subject.form = form.to_json
+          end
+
+          context 'with a valid form' do
+            let(:form) do
+              {
+                privacyAgreementAccepted: true
+              }
+            end
+
+            expect_form_valid
+          end
+
+          context 'with an invalid form' do
+            let(:form) do
+              {}
+            end
+
+            expect_json_schema_error(
+              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
+            )
+          end
+        end
+      end
+
       context '5490 form' do
         before do
           subject.form_type = '5490'
@@ -181,7 +210,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
   end
 
-  %w(1990 1995 1990e 5490).each do |form_type|
+  %w(1990 1995 1990e 5490 1990n).each do |form_type|
     method = "is_#{form_type}?"
 
     describe "##{method}" do
@@ -244,7 +273,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     it 'should let you look up a claim from the confirmation number' do
       subject.save!
       expect(
-        described_class.find(subject.confirmation_number.gsub('vets_gov_education_benefits_claim_', '').to_i)
+        described_class.find(subject.confirmation_number.gsub('V-EBC-', '').to_i)
       ).to eq(subject)
     end
   end
@@ -360,6 +389,28 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           'status' => 'submitted',
           'education_benefits_claim_id' => subject.id,
           'form_type' => '5490'
+        )
+      end
+    end
+
+    context 'with a form type of 1990n' do
+      subject do
+        create(:education_benefits_claim_1990n)
+      end
+
+      it 'should create a submission' do
+        subject
+
+        expect(associated_submission).to eq(
+          'region' => 'eastern',
+          'chapter33' => false,
+          'chapter30' => false,
+          'chapter1606' => false,
+          'chapter32' => false,
+          'chapter35' => false,
+          'status' => 'submitted',
+          'education_benefits_claim_id' => subject.id,
+          'form_type' => '1990n'
         )
       end
     end

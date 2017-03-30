@@ -1,28 +1,27 @@
 *INIT*
-FIRST
-MIDDLE
-LAST
-111223333
-111223333
-V1995
+MARK
 
-SCHOOL NAME
-TransferOfEntitlement
+OLSON
+111223333
+111223333
+V1990n
+
+FAKEDATA UNIVERSITY
 *START*
-VA Form 22-1995
+VA Form 22-1990N
 DEC 2016
 
+APPLICATION FOR VA EDUCATION BENEFITS UNDER THE NATIONAL CALL TO SERVICE (NCS)
+PROGRAM
+-------------------------------------
 
-            REQUEST FOR CHANGE OF PROGRAM OR PLACE OF TRAINING
-      FOR VETERANS, SERVICEPERSONS & MEMBERS OF THE SELECTED RESERVE
-                    -------------------------------------
 
                             APPLICANT INFORMATION
                             ---------------------
 
-SSN: 111223333    VA File Number: c12345678
+SSN: 111223333         Sex: M             Date of Birth: 1985-03-07
 
-Name:   first middle last
+Name:   Mark Olson
 
 Address:
 123 MAIN ST
@@ -32,48 +31,54 @@ USA
 Telephone Numbers:     Home:    5551110000
                        Mobile:  5551110001
 
-Email Address:  test@sample.com
+Email Address:  a@a.com
 Preferred Method of Contact: email
 
-Direct Deposit: Start or Update EFT
-Type of Account: checking
-Routing/Transit #: 123456789
-Account #: 88888888888
+Direct Deposit:     Type of Account: checking
+Name of Financial Inst.: First Bank of JSON
+Routing/Transit #: 123456789   Account #: 88888888888
+
 
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
-Benefit You Are Receiving: Transfer Of Entitlement
-Type of Education or Training: Tuition Top Up
-Education or Career Goal: bachelor's degree
+Type of Education or Training: Flight Training
 
-New School or Training Establishment:
-school name
+Name and Address of School or Training Establishment:
+        FakeData University
 111 UNI DRIVE
 BALTIMORE, MD, 21231
 USA
 
-Current/Prior School or Training Establishment:
-old school name
-2222 UNI DRIVE
-ANYTOWN, MA, 41414
-USA
+Education or Career Goal: bachelors
 
-Date You Stopped Training: 2007-06-XX
-Reason for Change: reason for change
-
+If during the review made by VA I am found to be eligible for more than one
+benefit, I authorize VA to pay the benefit with the highest monthly rate: YES
 
                        ACTIVE DUTY SERVICE INFORMATION
                        -------------------------------
 
-Date Entered   Date Separated     Service Component
-2012-06-26     2013-04-10         Army Reserve
-2013-04-22     2013-06-14         navy
+Are You Now On Active Duty?   YES
 
+Are you Now On Terminal Leave Just Before Discharge? YES
+
+Date Entered   Date Separated     Service Component
+Active Duty    From Active Duty
+2012-06-26     2013-04-10         Army Reserve
+                         Service Status:   ACTIVE DUTY TRAINING
+                         Involuntary Call: no
+                         Benefits to Apply to: chapter32
+2013-04-22     2013-06-14         Army Reserve
+                         Service Status:   ACTIVE DUTY
+                         Involuntary Call: yes
 
 
           ENTITLEMENT TO AND USAGE OF ADDITIONAL TYPES OF ASSISTANCE
           ----------------------------------------------------------
+
+Are you currently participating in a senior ROTC scholarship program which
+pays for your tuition, fees, books and supplies under section 2107, title 10,
+u.s. code? YES
 
 For Active Duty Claimants Only. Are you receiving or do you anticipate
 receiving any money (including but not limited to Federal Tuition Assistance)
@@ -88,16 +93,7 @@ limited to the Government Employees Training Act) for the same period for
 which you have applied to the VA for Education Benefits? If you will receive
 such benefits during any part of your training, check Yes.    YES
 
-
-                        MARITAL AND DEPENDENCY STATUS
-           (For Applicants with Military Service Before Jan 1, 1977)
-           ---------------------------------------------------------
-
-
-Married: YES
-Has Dependents: YES
-Parent Dependent: NO
-
+Source of educational assistance for government employee: edu dept
 
       Certification and Signature of Applicant
 Signature of Applicant                                               Date
