@@ -1,5 +1,7 @@
-PATH
-  remote: ../vets-json-schema
+GIT
+  remote: https://github.com/department-of-veterans-affairs/vets-json-schema
+  revision: e0de10f658092f07b056e6e9f529354b3427900a
+  branch: master
   specs:
     vets_json_schema (2.0.0)
       multi_json (~> 1.0)
