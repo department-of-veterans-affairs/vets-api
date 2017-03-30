@@ -26,6 +26,14 @@ module EducationForm
       relation
     end
 
+    def show_individual_benefits(form_type)
+      if form_type == '1995' || form_type == '1990n'
+        false
+      else
+        true
+      end
+    end
+
     def calculate_submissions(range_type: :year, status: :processed)
       submissions = {}
       application_types = EducationBenefitsClaim::APPLICATION_TYPES
@@ -38,7 +46,7 @@ module EducationForm
 
           relation = build_submission_relation(range_type, region, form_type, status)
 
-          if form_type != '1995'
+          if show_individual_benefits(form_type)
             application_types.each do |application_type|
               region_submissions[application_type] = relation.where(application_type => true).count
             end
@@ -80,10 +88,10 @@ module EducationForm
       row = []
 
       EducationBenefitsClaim::FORM_TYPES.each do |form_type|
-        next row += ['', '', ''] if form_type == '1995' && !on_last_index
+        next row += ['', '', ''] if !show_individual_benefits(form_type) && !on_last_index
 
         TOTALS_HASH.keys.each do |range_type|
-          application_type_key = form_type == '1995' ? :all : application_type
+          application_type_key = show_individual_benefits(form_type) ? application_type : :all
           num_submissions = submissions[range_type][form_type][region][application_type_key]
           row << num_submissions
 
