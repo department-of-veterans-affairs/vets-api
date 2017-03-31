@@ -11,7 +11,7 @@ StatsD.backend = if host.present? && port.present?
 # Initialize session controller metric counters at 0
 
 StatsD.increment(V0::SessionsController::STATSD_LOGIN_TOTAL_KEY, 0)
-StatsD.increment(V0::SessionsController::STATSD_LOGIN_FAILED_KEY, 0)
+StatsD.increment(V0::SessionsController::STATSD_LOGIN_FAILED_KEY, 0, tags: ['error:unknown'])
 
 SAML::AuthFailHandler::KNOWN_ERRORS.each do |known_error|
   StatsD.increment(V0::SessionsController::STATSD_LOGIN_FAILED_KEY, 0, tags: ["error:#{known_error}"])
