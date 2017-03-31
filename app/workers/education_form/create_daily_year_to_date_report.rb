@@ -27,7 +27,7 @@ module EducationForm
     end
 
     def show_individual_benefits(form_type)
-      if form_type == '1995' || form_type == '1990n'
+      if form_type == '1990n'
         false
       else
         true
@@ -110,7 +110,7 @@ module EducationForm
         on_last_index = i == (application_types.size - 1)
         row = [
           i.zero? ? EducationFacility::RPO_NAMES[region] : '',
-          application_type
+          application_type.humanize(capitalize: false)
         ]
 
         row += create_data_row(
