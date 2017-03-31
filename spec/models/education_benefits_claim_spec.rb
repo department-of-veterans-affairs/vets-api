@@ -305,6 +305,21 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   describe '#create_education_benefits_submission' do
     subject { create(:education_benefits_claim_western_region) }
 
+    let(:submission_attributes) do
+      {
+        'region' => 'eastern',
+        'chapter33' => false,
+        'chapter30' => false,
+        'chapter1606' => false,
+        'chapter32' => false,
+        'chapter35' => false,
+        'status' => 'submitted',
+        'transfer_of_entitlement' => false,
+        'chapter1607' => false,
+        'education_benefits_claim_id' => subject.id
+      }
+    end
+
     def associated_submission
       subject.education_benefits_submission.attributes.except('id', 'created_at', 'updated_at')
     end
@@ -315,15 +330,11 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end.to change { EducationBenefitsSubmission.count }.by(1)
 
       expect(associated_submission).to eq(
-        'region' => 'western',
-        'chapter33' => false,
-        'chapter30' => false,
-        'chapter1606' => true,
-        'chapter32' => false,
-        'chapter35' => false,
-        'status' => 'submitted',
-        'form_type' => '1990',
-        'education_benefits_claim_id' => subject.id
+        submission_attributes.merge(
+          'region' => 'western',
+          'chapter1606' => true,
+          'form_type' => '1990'
+        )
       )
     end
 
@@ -336,15 +347,10 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         subject
 
         expect(associated_submission).to eq(
-          'region' => 'eastern',
-          'chapter33' => false,
-          'chapter30' => false,
-          'chapter1606' => false,
-          'chapter32' => false,
-          'chapter35' => false,
-          'status' => 'submitted',
-          'education_benefits_claim_id' => subject.id,
-          'form_type' => '1995'
+          submission_attributes.merge(
+            'form_type' => '1995',
+            'transfer_of_entitlement' => true
+          )
         )
       end
     end
@@ -358,15 +364,10 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         subject
 
         expect(associated_submission).to eq(
-          'region' => 'eastern',
-          'chapter33' => true,
-          'chapter30' => false,
-          'chapter1606' => false,
-          'chapter32' => false,
-          'chapter35' => false,
-          'status' => 'submitted',
-          'education_benefits_claim_id' => subject.id,
-          'form_type' => '1990e'
+          submission_attributes.merge(
+            'chapter33' => true,
+            'form_type' => '1990e'
+          )
         )
       end
     end
@@ -380,15 +381,10 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         subject
 
         expect(associated_submission).to eq(
-          'region' => 'eastern',
-          'chapter33' => false,
-          'chapter30' => false,
-          'chapter1606' => false,
-          'chapter32' => false,
-          'chapter35' => true,
-          'status' => 'submitted',
-          'education_benefits_claim_id' => subject.id,
-          'form_type' => '5490'
+          submission_attributes.merge(
+            'chapter35' => true,
+            'form_type' => '5490'
+          )
         )
       end
     end
@@ -402,15 +398,9 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         subject
 
         expect(associated_submission).to eq(
-          'region' => 'eastern',
-          'chapter33' => false,
-          'chapter30' => false,
-          'chapter1606' => false,
-          'chapter32' => false,
-          'chapter35' => false,
-          'status' => 'submitted',
-          'education_benefits_claim_id' => subject.id,
-          'form_type' => '1990n'
+          submission_attributes.merge(
+            'form_type' => '1990n'
+          )
         )
       end
     end
