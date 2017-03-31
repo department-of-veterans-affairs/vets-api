@@ -9,7 +9,15 @@ class EducationBenefitsClaim < ActiveRecord::Base
   )
   FORM_TYPES = FORM_SCHEMAS.keys
 
-  APPLICATION_TYPES = %w(chapter33 chapter30 chapter1606 chapter32 chapter35).freeze
+  APPLICATION_TYPES = %w(
+    chapter33
+    chapter30
+    chapter1606
+    chapter32
+    chapter35
+    transfer_of_entitlement
+    chapter1607
+  ).freeze
 
   validates(:form, :form_type, presence: true)
   validates(:form_type, inclusion: FORM_TYPES)
@@ -92,8 +100,8 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
     if is_1990?
       benefits = parsed_form.slice(*APPLICATION_TYPES)
-    elsif is_1990e? || is_5490?
-      benefit = parsed_form['benefit']
+    elsif is_1990e? || is_5490? || is_1995?
+      benefit = parsed_form['benefit']&.underscore
       benefits[benefit] = true if benefit.present?
     end
 
