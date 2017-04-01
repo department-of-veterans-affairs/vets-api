@@ -83,6 +83,36 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         end
       end
 
+      %w(1990e 5490).each do |form_type|
+        context "#{form_type} form" do
+          before do
+            subject.form_type = form_type
+            subject.form = form
+          end
+
+          let(:valid_form) do
+            build("education_benefits_claim_#{form_type}").form
+          end
+
+          context 'with a valid form' do
+            let(:form) { valid_form }
+
+            expect_form_valid
+          end
+
+          context 'with an invalid form' do
+            let(:form) do
+              form = JSON.parse(valid_form)
+              form.except('privacyAgreementAccepted').to_json
+            end
+
+            expect_json_schema_error(
+              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
+            )
+          end
+        end
+      end
+
       context '1990e form' do
         before do
           subject.form_type = '1990e'
@@ -109,7 +139,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         end
       end
 
-      %w(5490 1990n).each do |form_type|
+      %w(1990n).each do |form_type|
         context "#{form_type} form" do
           before do
             subject.form_type = form_type
@@ -135,33 +165,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
               "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
             )
           end
-        end
-      end
-
-      context '5490 form' do
-        before do
-          subject.form_type = '5490'
-          subject.form = form.to_json
-        end
-
-        context 'with a valid form' do
-          let(:form) do
-            {
-              privacyAgreementAccepted: true
-            }
-          end
-
-          expect_form_valid
-        end
-
-        context 'with an invalid form' do
-          let(:form) do
-            {}
-          end
-
-          expect_json_schema_error(
-            "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
-          )
         end
       end
 

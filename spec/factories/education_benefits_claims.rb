@@ -145,6 +145,7 @@ FactoryGirl.define do
     factory :education_benefits_claim_5490 do
       form({
         benefit: 'chapter35',
+        veteranSocialSecurityNumber: '111223333',
         privacyAgreementAccepted: true
       }.to_json)
       form_type('5490')
