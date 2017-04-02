@@ -122,6 +122,10 @@ FactoryGirl.define do
 
     factory :education_benefits_claim_1995 do
       form({
+        veteranFullName: {
+          first: 'Mark',
+          last: 'Olson'
+        },
         veteranSocialSecurityNumber: '111223333',
         benefit: 'transferOfEntitlement',
         privacyAgreementAccepted: true
