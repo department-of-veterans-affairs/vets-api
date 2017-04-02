@@ -50,7 +50,6 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
 
       describe '#create_csv_array' do
         it 'should make the right csv array' do
-          binding.pry; fail
           expect(subject.create_csv_array).to eq(
             get_education_form_fixture('create_csv_array')
           )
