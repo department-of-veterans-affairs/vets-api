@@ -42,7 +42,14 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
       let(:params) do
         {
           educationBenefitsClaim: {
-            form: { privacyAgreementAccepted: true, preferredContactMethod: 'mail' }.to_json
+            form: {
+              privacyAgreementAccepted: true,
+              veteranFullName: {
+                "first": "Mark",
+                "last": "Olson"
+              },
+              preferredContactMethod: 'mail'
+            }.to_json
           }
         }
       end
