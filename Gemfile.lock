@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: e2ee0fb59e07f2cd05cada7cac3fdf4462acbe0b
+  revision: 09795db7e42d6802c5dc2f5dff1a1493e8729004
   branch: add-bank-acct-change
   specs:
-    vets_json_schema (1.9.1)
+    vets_json_schema (2.0.1)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 

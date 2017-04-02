@@ -4,7 +4,14 @@ require 'rails_helper'
 RSpec.describe EducationBenefitsClaim, type: :model do
   let(:attributes) do
     {
-      form: { chapter30: true, privacyAgreementAccepted: true }.to_json
+      form: {
+        chapter30: true,
+        veteranFullName: {
+          first: 'Mark',
+          last: 'Olson'
+        },
+        privacyAgreementAccepted: true
+      }.to_json
     }
   end
   subject { described_class.new(attributes) }
@@ -58,6 +65,10 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           [[true, true], [false, false], [nil, false]].each do |value, answer|
             it "when the value is #{value}" do
               attributes[:form] = {
+                veteranFullName: {
+                  first: 'Mark',
+                  last: 'Olson'
+                },
                 privacyAgreementAccepted: value
               }.to_json
               assert_equal answer, subject.valid?
@@ -73,6 +84,10 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           before do
             attributes[:form] = {
               chapter30: 0,
+              veteranFullName: {
+                first: 'Mark',
+                last: 'Olson'
+              },
               privacyAgreementAccepted: true
             }.to_json
           end
@@ -80,6 +95,36 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           expect_json_schema_error(
             "The property '#/chapter30' of type Fixnum did not match the following type: boolean"
           )
+        end
+      end
+
+      %w(1990e 5490 1990n 1995 5495).each do |form_type|
+        context "#{form_type} form" do
+          before do
+            subject.form_type = form_type
+            subject.form = form
+          end
+
+          let(:valid_form) do
+            build("education_benefits_claim_#{form_type}").form
+          end
+
+          context 'with a valid form' do
+            let(:form) { valid_form }
+
+            expect_form_valid
+          end
+
+          context 'with an invalid form' do
+            let(:form) do
+              form = JSON.parse(valid_form)
+              form.except('privacyAgreementAccepted').to_json
+            end
+
+            expect_json_schema_error(
+              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
+            )
+          end
         end
       end
 
@@ -105,105 +150,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
           expect_json_schema_error(
             "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
-          )
-        end
-      end
-
-      %w(5490 5495 1990n).each do |form_type|
-        context "#{form_type} form" do
-          before do
-            subject.form_type = form_type
-            subject.form = form.to_json
-          end
-
-          context 'with a valid form' do
-            let(:form) do
-              {
-                privacyAgreementAccepted: true
-              }
-            end
-
-            expect_form_valid
-          end
-
-          context 'with an invalid form' do
-            let(:form) do
-              {}
-            end
-
-            expect_json_schema_error(
-              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
-            )
-          end
-        end
-      end
-
-      context '5490 form' do
-        before do
-          subject.form_type = '5490'
-          subject.form = form.to_json
-        end
-
-        context 'with a valid form' do
-          let(:form) do
-            {
-              privacyAgreementAccepted: true
-            }
-          end
-
-          expect_form_valid
-        end
-
-        context 'with an invalid form' do
-          let(:form) do
-            {}
-          end
-
-          expect_json_schema_error(
-            "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
-          )
-        end
-      end
-
-      context '1995 form' do
-        before do
-          subject.form_type = '1995'
-          subject.form = form.to_json
-        end
-
-        context 'with a valid form' do
-          context 'with a file number but no ssn' do
-            let(:form) do
-              {
-                vaFileNumber: 'c12345678',
-                privacyAgreementAccepted: true
-              }
-            end
-
-            expect_form_valid
-          end
-
-          context 'with a ssn but no file number' do
-            let(:form) do
-              {
-                veteranSocialSecurityNumber: '111223333',
-                privacyAgreementAccepted: true
-              }
-            end
-
-            expect_form_valid
-          end
-        end
-
-        context 'with an invalid form' do
-          let(:form) do
-            {
-              privacyAgreementAccepted: true
-            }
-          end
-
-          expect_json_schema_error(
-            "The property '#/' did not contain a required property of 'vaFileNumber'"
           )
         end
       end
@@ -273,7 +219,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     it 'should let you look up a claim from the confirmation number' do
       subject.save!
       expect(
-        described_class.find(subject.confirmation_number.gsub('vets_gov_education_benefits_claim_', '').to_i)
+        described_class.find(subject.confirmation_number.gsub('V-EBC-', '').to_i)
       ).to eq(subject)
     end
   end
@@ -305,6 +251,21 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   describe '#create_education_benefits_submission' do
     subject { create(:education_benefits_claim_western_region) }
 
+    let(:submission_attributes) do
+      {
+        'region' => 'eastern',
+        'chapter33' => false,
+        'chapter30' => false,
+        'chapter1606' => false,
+        'chapter32' => false,
+        'chapter35' => false,
+        'status' => 'submitted',
+        'transfer_of_entitlement' => false,
+        'chapter1607' => false,
+        'education_benefits_claim_id' => subject.id
+      }
+    end
+
     def associated_submission
       subject.education_benefits_submission.attributes.except('id', 'created_at', 'updated_at')
     end
@@ -315,15 +276,11 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end.to change { EducationBenefitsSubmission.count }.by(1)
 
       expect(associated_submission).to eq(
-        'region' => 'western',
-        'chapter33' => false,
-        'chapter30' => false,
-        'chapter1606' => true,
-        'chapter32' => false,
-        'chapter35' => false,
-        'status' => 'submitted',
-        'form_type' => '1990',
-        'education_benefits_claim_id' => subject.id
+        submission_attributes.merge(
+          'region' => 'western',
+          'chapter1606' => true,
+          'form_type' => '1990'
+        )
       )
     end
 
@@ -336,15 +293,10 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         subject
 
         expect(associated_submission).to eq(
-          'region' => 'eastern',
-          'chapter33' => false,
-          'chapter30' => false,
-          'chapter1606' => false,
-          'chapter32' => false,
-          'chapter35' => false,
-          'status' => 'submitted',
-          'education_benefits_claim_id' => subject.id,
-          'form_type' => '1995'
+          submission_attributes.merge(
+            'form_type' => '1995',
+            'transfer_of_entitlement' => true
+          )
         )
       end
     end
@@ -358,15 +310,10 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         subject
 
         expect(associated_submission).to eq(
-          'region' => 'eastern',
-          'chapter33' => true,
-          'chapter30' => false,
-          'chapter1606' => false,
-          'chapter32' => false,
-          'chapter35' => false,
-          'status' => 'submitted',
-          'education_benefits_claim_id' => subject.id,
-          'form_type' => '1990e'
+          submission_attributes.merge(
+            'chapter33' => true,
+            'form_type' => '1990e'
+          )
         )
       end
     end
@@ -380,15 +327,10 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         subject
 
         expect(associated_submission).to eq(
-          'region' => 'eastern',
-          'chapter33' => false,
-          'chapter30' => false,
-          'chapter1606' => false,
-          'chapter32' => false,
-          'chapter35' => true,
-          'status' => 'submitted',
-          'education_benefits_claim_id' => subject.id,
-          'form_type' => '5490'
+          submission_attributes.merge(
+            'chapter35' => true,
+            'form_type' => '5490'
+          )
         )
       end
     end
@@ -402,15 +344,9 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         subject
 
         expect(associated_submission).to eq(
-          'region' => 'eastern',
-          'chapter33' => false,
-          'chapter30' => false,
-          'chapter1606' => false,
-          'chapter32' => false,
-          'chapter35' => false,
-          'status' => 'submitted',
-          'education_benefits_claim_id' => subject.id,
-          'form_type' => '1990n'
+          submission_attributes.merge(
+            'form_type' => '1990n'
+          )
         )
       end
     end
@@ -424,15 +360,10 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         subject
 
         expect(associated_submission).to eq(
-          'region' => 'eastern',
-          'chapter33' => false,
-          'chapter30' => false,
-          'chapter1606' => false,
-          'chapter32' => false,
-          'chapter35' => true,
-          'status' => 'submitted',
-          'education_benefits_claim_id' => subject.id,
-          'form_type' => '5495'
+          submission_attributes.merge(
+            'form_type' => '5495',
+            'chapter35' => true
+          )
         )
       end
     end
