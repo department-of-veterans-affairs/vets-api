@@ -37,7 +37,6 @@ gem 'typhoeus'
 
 gem 'rack-cors', :require => 'rack/cors'
 gem 'net-sftp'
-# TODO: change branch to master when it's been merged
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'add-bank-acct-change'
 gem 'breakers'
 gem 'govdelivery-tms', require: 'govdelivery/tms/mail/delivery_method'
