@@ -147,20 +147,16 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         { state: 'XX', country: 'PHL' }
       ].each do |address_data|
         submissions << EducationBenefitsClaim.create(
-          {
-            form: base_form.merge(
-              school: {
-                address: base_address.merge(address_data)
-              }
-            ).to_json
-          }
+          form: base_form.merge(
+            school: {
+              address: base_address.merge(address_data)
+            }
+          ).to_json
         )
       end
 
       submissions << EducationBenefitsClaim.create(
-        {
-          form: base_form.to_json
-        }
+        form: base_form.to_json
       )
 
       output = subject.group_submissions_by_region(submissions)
