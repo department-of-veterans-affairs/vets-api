@@ -140,6 +140,10 @@ FactoryGirl.define do
     factory :education_benefits_claim_1990e do
       form({
         benefit: 'chapter33',
+        relativeFullName: {
+          first: 'Mark',
+          last: 'Olson'
+        },
         veteranSocialSecurityNumber: '111223333',
         privacyAgreementAccepted: true
       }.to_json)
@@ -150,6 +154,10 @@ FactoryGirl.define do
       form({
         benefit: 'chapter35',
         veteranSocialSecurityNumber: '111223333',
+        relativeFullName: {
+          first: 'Mark',
+          last: 'Olson'
+        },
         privacyAgreementAccepted: true
       }.to_json)
       form_type('5490')
@@ -157,6 +165,10 @@ FactoryGirl.define do
 
     factory :education_benefits_claim_1990n do
       form({
+        veteranFullName: {
+          first: 'Mark',
+          last: 'Olson'
+        },
         privacyAgreementAccepted: true
       }.to_json)
       form_type('1990n')

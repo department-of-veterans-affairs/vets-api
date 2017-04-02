@@ -4,7 +4,14 @@ require 'rails_helper'
 RSpec.describe EducationBenefitsClaim, type: :model do
   let(:attributes) do
     {
-      form: { chapter30: true, privacyAgreementAccepted: true }.to_json
+      form: {
+        chapter30: true,
+        veteranFullName: {
+          first: 'Mark',
+          last: 'Olson'
+        },
+        privacyAgreementAccepted: true
+      }.to_json
     }
   end
   subject { described_class.new(attributes) }
@@ -58,6 +65,10 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           [[true, true], [false, false], [nil, false]].each do |value, answer|
             it "when the value is #{value}" do
               attributes[:form] = {
+                veteranFullName: {
+                  first: 'Mark',
+                  last: 'Olson'
+                },
                 privacyAgreementAccepted: value
               }.to_json
               assert_equal answer, subject.valid?
@@ -73,6 +84,10 @@ RSpec.describe EducationBenefitsClaim, type: :model do
           before do
             attributes[:form] = {
               chapter30: 0,
+              veteranFullName: {
+                first: 'Mark',
+                last: 'Olson'
+              },
               privacyAgreementAccepted: true
             }.to_json
           end
@@ -83,7 +98,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         end
       end
 
-      %w(1990e 5490).each do |form_type|
+      %w(1990e 5490 1990n 1995).each do |form_type|
         context "#{form_type} form" do
           before do
             subject.form_type = form_type
@@ -135,78 +150,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
           expect_json_schema_error(
             "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
-          )
-        end
-      end
-
-      %w(1990n).each do |form_type|
-        context "#{form_type} form" do
-          before do
-            subject.form_type = form_type
-            subject.form = form.to_json
-          end
-
-          context 'with a valid form' do
-            let(:form) do
-              {
-                privacyAgreementAccepted: true
-              }
-            end
-
-            expect_form_valid
-          end
-
-          context 'with an invalid form' do
-            let(:form) do
-              {}
-            end
-
-            expect_json_schema_error(
-              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
-            )
-          end
-        end
-      end
-
-      context '1995 form' do
-        before do
-          subject.form_type = '1995'
-          subject.form = form.to_json
-        end
-
-        context 'with a valid form' do
-          context 'with a file number but no ssn' do
-            let(:form) do
-              {
-                vaFileNumber: 'c12345678',
-                privacyAgreementAccepted: true
-              }
-            end
-
-            expect_form_valid
-          end
-
-          context 'with a ssn but no file number' do
-            let(:form) do
-              {
-                veteranSocialSecurityNumber: '111223333',
-                privacyAgreementAccepted: true
-              }
-            end
-
-            expect_form_valid
-          end
-        end
-
-        context 'with an invalid form' do
-          let(:form) do
-            {
-              privacyAgreementAccepted: true
-            }
-          end
-
-          expect_json_schema_error(
-            "The property '#/' did not contain a required property of 'vaFileNumber'"
           )
         end
       end
