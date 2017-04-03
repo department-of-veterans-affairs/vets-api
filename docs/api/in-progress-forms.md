@@ -75,7 +75,7 @@ Content-Type: application/json
   },
   "secondaryContact": {
     "fullName": "Sibling Olson",
-    "sameAddressAndPhone": true
+    "sameAddress": true
   },
   "serviceBefore1977": {
     "haveDependents": true,
