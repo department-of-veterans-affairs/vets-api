@@ -129,17 +129,37 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context '#group_submissions_by_region' do
     it 'takes a list of records into chunked forms' do
+      base_form = {
+        veteranFullName: {
+          first: 'Mark',
+          last: 'Olson'
+        },
+        privacyAgreementAccepted: true
+      }
       base_address = { street: 'A', city: 'B', country: 'USA' }
-      # rubocop:disable LineLength
-      eastern = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, school: { address: base_address.merge(state: 'MD') } }.to_json)
-      southern = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, school: { address: base_address.merge(state: 'GA') } }.to_json)
-      central = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, veteranAddress: base_address.merge(state: 'WI') }.to_json)
-      eastern_default = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true }.to_json)
-      western = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, veteranAddress: base_address.merge(state: 'OK') }.to_json)
-      western_phl = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, veteranAddress: base_address.merge(state: 'XX', country: 'PHL') }.to_json)
-      # rubocop:enable LineLength
+      submissions = []
 
-      output = subject.group_submissions_by_region([eastern, central, southern, eastern_default, western, western_phl])
+      [
+        { state: 'MD' },
+        { state: 'GA' },
+        { state: 'WI' },
+        { state: 'OK' },
+        { state: 'XX', country: 'PHL' }
+      ].each do |address_data|
+        submissions << EducationBenefitsClaim.create(
+          form: base_form.merge(
+            school: {
+              address: base_address.merge(address_data)
+            }
+          ).to_json
+        )
+      end
+
+      submissions << EducationBenefitsClaim.create(
+        form: base_form.to_json
+      )
+
+      output = subject.group_submissions_by_region(submissions)
       expect(output[:eastern].length).to be(2)
       expect(output[:western].length).to be(3)
       expect(output[:central].length).to be(1)

@@ -59,7 +59,7 @@ module EducationForm::Forms
       end
 
       if previous_benefits.other.present?
-        previous_benefits_arr << "OTHER (Specify benefit(s): #{previous_benefits.other}"
+        previous_benefits_arr << "OTHER; Specify benefit(s): #{previous_benefits.other}"
       end
 
       previous_benefits_arr.join("\n")
