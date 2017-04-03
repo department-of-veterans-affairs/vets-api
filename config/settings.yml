@@ -29,6 +29,10 @@ evss:
   cert_path: ~
   key_path: ~
   root_cert_path: ~
+  versions:
+    claims: 3.0
+    common: 11.0
+    documents: 3.0
   s3:
     uploads_enabled: false
     bucket: evss_s3_bucket
