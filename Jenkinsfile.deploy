@@ -49,8 +49,12 @@ pipeline {
     }
 
     stage('De-synchronize') {
+      when {
+        expression { return application == 'vets-api-worker' }
+      }
+
       steps {
-        delay
+        sleep time: 1, unit: 'MINUTES'
       }
     }
 
