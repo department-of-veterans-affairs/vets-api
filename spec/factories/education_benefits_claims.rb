@@ -21,7 +21,7 @@ FactoryGirl.define do
         homePhone: '5551110000',
         secondaryContact: {
           fullName: 'Sibling Olson',
-          sameAddressAndPhone: true
+          sameAddress: true
         },
         bankAccount: {
           accountType: 'checking',
