@@ -9,7 +9,7 @@ module V0
     def create
       form = JSON.parse(params[:form])
       validation_errors = JSON::Validator.fully_validate(
-        VetsJsonSchema::HEALTHCARE_APPLICATION,
+        VetsJsonSchema::SCHEMAS['10-10EZ'],
         form,
         validate_schema: true
       )
