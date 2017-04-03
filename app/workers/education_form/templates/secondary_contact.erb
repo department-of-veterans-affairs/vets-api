@@ -1,6 +1,6 @@
 Name, Address, & Telephone Number of Contact:
         <%= @applicant.secondaryContact&.fullName %>
-        <%- if @applicant.secondaryContact&.sameAddress || @applicant.secondaryContact&.sameAddressAndPhone -%>
+        <%- if @applicant.secondaryContact&.sameAddress -%>
         Address and Phone same as claimant
         <%- else -%>
         <%= full_address(@applicant.secondaryContact&.address, indent: true) %>
