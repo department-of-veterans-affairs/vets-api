@@ -6,16 +6,6 @@ def notify(message, color='good') {
     }
 }
 
-// Delay is introduced to de-synchronize the vets-api
-// and vets-api-worker deployments that are triggered simultaneously
-// on a merge to this repository. The simultaneous deployments
-// were leading to a race condition during the db migration step.
-def delay() {
-    if (${application} == 'vets-api-worker') {
-        sleep time: 1, unit: 'MINUTES'
-    }
-}
-
 pipeline {
   agent {
     label 'app-deploys'
@@ -48,6 +38,10 @@ pipeline {
       }
     }
 
+    // Delay is introduced to de-synchronize the vets-api
+    // and vets-api-worker deployments that are triggered simultaneously
+    // on a merge to this repository. The simultaneous deployments
+    // were leading to a race condition during the db migration step.
     stage('De-synchronize') {
       when {
         expression { return application == 'vets-api-worker' }
