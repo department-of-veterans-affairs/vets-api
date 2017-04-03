@@ -81,7 +81,7 @@
   },
   "secondaryContact": {
     "fullName": "Sibling Olson",
-    "sameAddressAndPhone": false,
+    "sameAddress": false,
     "address": {
       "city": "Baltimore",
       "country": "USA",
