@@ -7,18 +7,11 @@ module EducationForm::Forms
     require 'erb'
 
     TEMPLATE_PATH = Rails.root.join('app', 'workers', 'education_form', 'templates')
-    # These are the classes we can generate spool files for
-    FORM_CLASSES = {
-      '1990' => VA1990,
-      '1995' => VA1995,
-      '1990e' => VA1990e,
-      '5490' => VA5490
-    }.freeze
 
     attr_accessor :form, :record, :text
 
     def self.build(app)
-      klass = FORM_CLASSES.fetch(app.form_type)
+      klass = "EducationForm::Forms::VA#{app.form_type}".constantize
       klass.new(app)
     end
 
@@ -78,6 +71,8 @@ module EducationForm::Forms
       wrapped = word_wrap(parse_with_template_path(@record.form_type), line_width: 78)
       # We can only send ASCII, so make a best-effort at that.
       transliterated = Iconv.iconv('ascii//translit', 'utf-8', wrapped).first
+      # Trim any lines that end in whitespace, but keep the lines themselves
+      transliterated.gsub!(/[ ]+\n/, "\n")
       # The spool file must actually use windows style linebreaks
       transliterated.gsub("\n", EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
     end
