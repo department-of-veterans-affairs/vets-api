@@ -24,10 +24,7 @@ Address:
 Email Address:  <%= @applicant.email %>
 Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
 
-Direct Deposit: <%= direct_deposit_type(@applicant.bankAccountChange&.upcase) %> EFT
-Type of Account: <%= @applicant.bankAccount&.accountType %>
-Routing/Transit #: <%= @applicant.bankAccount&.routingNumber %>
-Account #: <%= @applicant.bankAccount&.accountNumber %>
+<%= parse_with_template_path('bank_account') %>
 
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------

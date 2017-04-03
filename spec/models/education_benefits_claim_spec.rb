@@ -34,7 +34,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
 
     it 'should validate inclusion of form_type' do
-      %w(1990 1995 1990e 5490 1990n).each do |form_type|
+      %w(1990 1995 1990e 5490 1990n 5495).each do |form_type|
         subject.form_type = form_type
         expect_attr_valid(subject, :form_type)
       end
@@ -98,7 +98,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         end
       end
 
-      %w(1990e 5490 1990n 1995).each do |form_type|
+      %w(1990e 5490 1990n 1995 5495).each do |form_type|
         context "#{form_type} form" do
           before do
             subject.form_type = form_type
@@ -156,7 +156,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
   end
 
-  %w(1990 1995 1990e 5490 1990n).each do |form_type|
+  %w(1990 1995 1990e 5490 5495 1990n).each do |form_type|
     method = "is_#{form_type}?"
 
     describe "##{method}" do
@@ -346,6 +346,23 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         expect(associated_submission).to eq(
           submission_attributes.merge(
             'form_type' => '1990n'
+          )
+        )
+      end
+    end
+
+    context 'with a form type of 5495' do
+      subject do
+        create(:education_benefits_claim_5495)
+      end
+
+      it 'should create a submission' do
+        subject
+
+        expect(associated_submission).to eq(
+          submission_attributes.merge(
+            'form_type' => '5495',
+            'chapter35' => true
           )
         )
       end
