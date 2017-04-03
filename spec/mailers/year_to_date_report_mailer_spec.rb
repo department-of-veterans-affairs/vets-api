@@ -41,6 +41,7 @@ RSpec.describe YearToDateReportMailer, type: [:mailer, :aws_helpers] do
             Anne.kainic@va.gov
             ian@adhocteam.us
             dan.hoicowitz.va@gmail.com
+            mark@adhocteam.us
           )
         )
       end
