@@ -8,19 +8,9 @@ JAN 2009
       (Under Provisions of chapters 33 and 35 of Title 38, U.S.C)
       -----------------------------------------------------------
 
-      BENEFIT ELECTION
-      ----------------
+                              BENEFIT ELECTION
+                              ----------------
 
-Relationship to service member:  <%= @applicant.relationship&.upcase %>
-
-<% if @applicant.spouseInfo.present? -%>
-Is a divorce or annulment pending?: <%= yesno(@applicant.spouseInfo.divorcePending) %>
-
-Have you remarried since the death of the veteran?: <%= yesno(@applicant.spouseInfo.remarried) %>
-
-Remarried date: <%= to_date(@applicant.spouseInfo.remarriageDate) %>
-
-<% end -%>
 EDUCATION BENEFIT BEING APPLIED FOR: <%= @applicant.benefit %>
 
 <% if @applicant.benefitsRelinquishedDate.present? -%>
@@ -47,6 +37,34 @@ Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
 
 <%= parse_with_template_path('secondary_contact') %>
 
+Relationship to service member:  <%= @applicant.relationship&.upcase %>
+
+<% if @applicant.spouseInfo.present? -%>
+Is a divorce or annulment pending?: <%= yesno(@applicant.spouseInfo.divorcePending) %>
+
+Have you remarried since the death of the veteran?: <%= yesno(@applicant.spouseInfo.remarried) %>
+
+Remarried date: <%= to_date(@applicant.spouseInfo.remarriageDate) %>
+
+<% end -%>
+                         SERVICE MEMBER INFORMATION
+                         --------------------------
+
+Name:   <%= full_name(@applicant.veteranFullName) %>
+
+SSN:   <%= @applicant.veteranSocialSecurityNumber %>
+
+VA File Number: <%= value_or_na(@applicant.vaFileNumber) %>
+
+Branch of Service:   <%= @applicant.serviceBranch %>
+
+Veteran's date of birth: <%= @applicant.veteranDateOfBirth %>
+
+Date of death or MIA/POW: <%= value_or_na(@applicant.veteranDateOfDeath) %>
+
+Is qualifying individual on active duty: <%= yesno(@applicant.currentlyActiveDuty) %>
+
+Outstanding felony or warrant: <%= yesno(@applicant.outstandingFelony) %>
 
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
@@ -76,9 +94,9 @@ Previously applied for VA benefits? <%= yesno(previously_applied_for_benefits?) 
 Previously claimed benefits:
 <%= previous_benefits %>
 
-Name of individual who previously claimed: <%= full_name(@applicant.previousBenefits&.veteranFullName) %>
+Name of individual on whose account previously claimed: <%= full_name(@applicant.previousBenefits&.veteranFullName) %>
 
-SSN of individual who previously previously claimed: <%= @applicant.previousBenefits&.veteranSocialSecurityNumber %>
+SSN of individual on whose account previously claimed:  <%= @applicant.previousBenefits&.veteranSocialSecurityNumber %>
 
 
                   ACTIVE DUTY SERVICE INFORMATION
@@ -100,7 +118,7 @@ Applicant's date of disposition: <%= @applicant.highSchool&.highSchoolOrGedCompl
       ---------------------------
 Name and Location of School:
     <%= @applicant.highSchool&.name %>
-    <%= @applicant.highSchool&.city %>, <%= @applicant.highSchool&.state %>
+    <%= [@applicant.highSchool&.city, @applicant.highSchool&.state].compact.join(', ') %>
 Date of Training:     From: <%= to_date(@applicant.highSchool&.dateRange&.from) %> To: <%= to_date(@applicant.highSchool&.dateRange&.to) %>
 Hours: <%= @applicant.highSchool&.hours %> (<%= @applicant.highSchool&.hoursType %>)
 Degree/Diploma/Certificate: <%= @applicant.highSchool&.degreeReceived %>
@@ -120,29 +138,6 @@ Since High School
 <%= parse_with_template_path('civilian_benefits_assistance') %>
 
 Source of educational assistance for government employee: <%= @applicant.civilianBenefitsSource %>
-
-                         SERVICE MEMBER INFORMATION
-                         --------------------------
-
-Name:   <%= full_name(@applicant.veteranFullName) %>
-
-SSN:   <%= @applicant.veteranSocialSecurityNumber %>
-
-VA File Number: <%= @applicant.vaFileNumber %>
-
-Branch of Service:   <%= @applicant.serviceBranch %>
-
-Veteran's date of birth: <%= @applicant.veteranDateOfBirth %>
-
-Date of death or MIA/POW: <%= @applicant.veteranDateOfDeath %>
-
-Is qualifying individual on active duty: <%= yesno(@applicant.currentlyActiveDuty) %>
-
-Outstanding felony or warrant: <%= yesno(@applicant.outstandingFelony) %>
-
-Remarks: <%= @applicant.remarks %>
-
-Receive pamphlet: <%= yesno(@applicant.eduBenefitsPamphlet) %>
 
 <%= parse_with_template_path('signatures') %>
 
