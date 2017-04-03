@@ -17,11 +17,11 @@ sidekiq_admin_panel: false
 
 # Settings for Education Benefits
 edu:
-  show_form: true
   sftp:
     host: ~
     pass: ~
     user: ~
+    port: ~
 
 # Settings for EVSS
 evss:

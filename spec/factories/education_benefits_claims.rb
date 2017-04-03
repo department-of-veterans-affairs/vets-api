@@ -123,6 +123,7 @@ FactoryGirl.define do
     factory :education_benefits_claim_1995 do
       form({
         veteranSocialSecurityNumber: '111223333',
+        benefit: 'transferOfEntitlement',
         privacyAgreementAccepted: true
       }.to_json)
       form_type('1995')
@@ -135,6 +136,7 @@ FactoryGirl.define do
     factory :education_benefits_claim_1990e do
       form({
         benefit: 'chapter33',
+        relativeSocialSecurityNumber: '111223333',
         privacyAgreementAccepted: true
       }.to_json)
       form_type('1990e')
@@ -146,6 +148,13 @@ FactoryGirl.define do
         privacyAgreementAccepted: true
       }.to_json)
       form_type('5490')
+    end
+
+    factory :education_benefits_claim_1990n do
+      form({
+        privacyAgreementAccepted: true
+      }.to_json)
+      form_type('1990n')
     end
   end
 end

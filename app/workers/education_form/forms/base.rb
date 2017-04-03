@@ -7,11 +7,18 @@ module EducationForm::Forms
     require 'erb'
 
     TEMPLATE_PATH = Rails.root.join('app', 'workers', 'education_form', 'templates')
+    # These are the classes we can generate spool files for
+    FORM_CLASSES = {
+      '1990' => VA1990,
+      '1995' => VA1995,
+      '1990e' => VA1990e,
+      '5490' => VA5490
+    }.freeze
 
     attr_accessor :form, :record, :text
 
     def self.build(app)
-      klass = app.is_1990? ? VA1990 : VA1995
+      klass = FORM_CLASSES.fetch(app.form_type)
       klass.new(app)
     end
 
@@ -124,7 +131,7 @@ module EducationForm::Forms
       [
         address.street,
         address.street2,
-        "#{address.city}, #{address.state}, #{address.postalCode}",
+        [address.city, address.state, address.postalCode].compact.join(', '),
         address.country
       ].compact.join(seperator).upcase
     end

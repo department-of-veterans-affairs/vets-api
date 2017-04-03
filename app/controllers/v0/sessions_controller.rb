@@ -5,6 +5,9 @@ module V0
   class SessionsController < ApplicationController
     skip_before_action :authenticate, only: [:new, :saml_callback, :saml_logout_callback]
 
+    STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'
+    STATSD_LOGIN_TOTAL_KEY  = 'api.auth.login_callback.total'
+
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
       render json: { authenticate_via_get: saml_auth_request.create(saml_settings, saml_options) }
@@ -42,6 +45,8 @@ module V0
         handle_login_error
         redirect_to Settings.saml.relay + '?auth=fail'
       end
+    ensure
+      StatsD.increment(STATSD_LOGIN_TOTAL_KEY)
     end
 
     private
@@ -58,6 +63,7 @@ module V0
 
     def handle_login_error
       fail_handler = SAML::AuthFailHandler.new(@saml_response, @current_user, @session)
+      StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ["error:#{fail_handler.error}"])
       if fail_handler.known_error?
         log_message_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
       else

@@ -4,6 +4,7 @@ require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
 require 'support/api_schema_matcher'
 require 'support/spool_helpers'
+require 'support/have_deep_attributes_matcher'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
@@ -71,6 +72,17 @@ RSpec.configure do |config|
     # a real object. This is generally recommended, and will default to
     # `true` in RSpec 4.
     mocks.verify_partial_doubles = true
+  end
+
+  config.before(:suite) do
+    # Some specs stub out `YAML.load_file`, which I18n uses to load the
+    # translation files. Because rspec runs things in random order, it's
+    # possible that the YAML.load_file that's stubbed out for a spec
+    # could actually be called by I18n if translations are required before
+    # the functionality being tested. Once loaded, the translations stay
+    # loaded, so we may as well take the hit and load them right away.
+    # Verified working on --seed 11101, commit e378e8
+    I18n.locale_available?(:en)
   end
 
   config.before(:each) do |example|

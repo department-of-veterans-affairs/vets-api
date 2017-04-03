@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 require 'memoist'
+require 'sentry_logging'
+require 'saml/health_status'
 
 module SAML
   # This class is responsible for putting together a complete ruby-saml
@@ -7,21 +9,38 @@ module SAML
   # which must be fetched once and only once via IDP metadata.
   class SettingsService
     class << self
+      include SentryLogging
       extend Memoist
+
+      attr_reader :fetch_attempted
 
       METADATA_RETRIES = 3
       OPEN_TIMEOUT = 2
       TIMEOUT = 15
 
       def saml_settings
+        if HealthStatus.healthy?
+          merged_saml_settings
+        else
+          log_message_to_sentry(HealthStatus.error_message, :error) unless fetch_attempted.nil?
+          refresh_saml_settings
+        end
+      end
+
+      def merged_saml_settings
         OneLogin::RubySaml::IdpMetadataParser.new.parse(metadata, settings: settings)
       rescue => e
-        Rails.logger.error "SAML::SettingService failed to parse SAML metadata: #{e.message}"
+        log_message_to_sentry("SAML::SettingService failed to parse SAML metadata: #{e.message}", :error)
         raise e
       end
-      memoize :saml_settings
+      memoize :merged_saml_settings
 
       private
+
+      def refresh_saml_settings
+        # passing true reloads cache. See: https://github.com/matthewrudy/memoist#usage
+        merged_saml_settings(true)
+      end
 
       def connection
         Faraday.new(Settings.saml.metadata_url) do |conn|
@@ -33,6 +52,7 @@ module SAML
       memoize :connection
 
       def metadata
+        @fetch_attempted = true
         attempt ||= 0
         response = connection.get
         raise SAML::InternalServerError, response.status if (400..504).cover? response.status.to_i
@@ -40,10 +60,12 @@ module SAML
       rescue StandardError => e
         attempt += 1
         msg = "Failed to load SAML metadata: #{e.message}: try #{attempt} of #{METADATA_RETRIES}"
-        attempt >= METADATA_RETRIES ? Rails.logger.error(msg) : Rails.logger.warn(msg)
         if attempt < METADATA_RETRIES
+          log_message_to_sentry(msg, :warn)
           sleep attempt * 0.25
           retry
+        else
+          log_message_to_sentry(msg, :error)
         end
       end
 

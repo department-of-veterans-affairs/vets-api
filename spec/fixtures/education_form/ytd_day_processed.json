@@ -5,42 +5,74 @@
       "chapter30": 0,
       "chapter1606": 0,
       "chapter32": 0,
-      "chapter35": 0
+      "chapter35": 0,
+      "transfer_of_entitlement": 0,
+      "chapter1607": 0
     },
     "southern": {
       "chapter33": 0,
       "chapter30": 0,
       "chapter1606": 0,
       "chapter32": 0,
-      "chapter35": 0
+      "chapter35": 0,
+      "transfer_of_entitlement": 0,
+      "chapter1607": 0
     },
     "central": {
       "chapter33": 0,
       "chapter30": 0,
       "chapter1606": 0,
       "chapter32": 0,
-      "chapter35": 0
+      "chapter35": 0,
+      "transfer_of_entitlement": 0,
+      "chapter1607": 0
     },
     "western": {
       "chapter33": 0,
       "chapter30": 0,
       "chapter1606": 1,
       "chapter32": 0,
-      "chapter35": 0
+      "chapter35": 0,
+      "transfer_of_entitlement": 0,
+      "chapter1607": 0
     }
   },
   "1995": {
     "eastern": {
-      "all": 0
+      "chapter33": 0,
+      "chapter30": 0,
+      "chapter1606": 0,
+      "chapter32": 0,
+      "chapter35": 0,
+      "transfer_of_entitlement": 0,
+      "chapter1607": 0
     },
     "southern": {
-      "all": 0
+      "chapter33": 0,
+      "chapter30": 0,
+      "chapter1606": 0,
+      "chapter32": 0,
+      "chapter35": 0,
+      "transfer_of_entitlement": 0,
+      "chapter1607": 0
     },
     "central": {
-      "all": 0
+      "chapter33": 0,
+      "chapter30": 0,
+      "chapter1606": 0,
+      "chapter32": 0,
+      "chapter35": 0,
+      "transfer_of_entitlement": 0,
+      "chapter1607": 0
     },
     "western": {
-      "all": 0
+      "chapter33": 0,
+      "chapter30": 0,
+      "chapter1606": 0,
+      "chapter32": 0,
+      "chapter35": 0,
+      "transfer_of_entitlement": 0,
+      "chapter1607": 0
     }
   },
   "1990e": {
@@ -49,28 +81,36 @@
       "chapter30": 0,
       "chapter1606": 0,
       "chapter32": 0,
-      "chapter35": 0
+      "chapter35": 0,
+      "transfer_of_entitlement": 0,
+      "chapter1607": 0
     },
     "southern": {
       "chapter33": 0,
       "chapter30": 0,
       "chapter1606": 0,
       "chapter32": 0,
-      "chapter35": 0
+      "chapter35": 0,
+      "transfer_of_entitlement": 0,
+      "chapter1607": 0
     },
     "central": {
       "chapter33": 0,
       "chapter30": 0,
       "chapter1606": 0,
       "chapter32": 0,
-      "chapter35": 0
+      "chapter35": 0,
+      "transfer_of_entitlement": 0,
+      "chapter1607": 0
     },
     "western": {
       "chapter33": 0,
       "chapter30": 0,
       "chapter1606": 0,
       "chapter32": 0,
-      "chapter35": 0
+      "chapter35": 0,
+      "transfer_of_entitlement": 0,
+      "chapter1607": 0
     }
   },
   "5490": {
@@ -79,28 +119,50 @@
       "chapter30": 0,
       "chapter1606": 0,
       "chapter32": 0,
-      "chapter35": 0
+      "chapter35": 0,
+      "transfer_of_entitlement": 0,
+      "chapter1607": 0
     },
     "southern": {
       "chapter33": 0,
       "chapter30": 0,
       "chapter1606": 0,
       "chapter32": 0,
-      "chapter35": 0
+      "chapter35": 0,
+      "transfer_of_entitlement": 0,
+      "chapter1607": 0
     },
     "central": {
       "chapter33": 0,
       "chapter30": 0,
       "chapter1606": 0,
       "chapter32": 0,
-      "chapter35": 0
+      "chapter35": 0,
+      "transfer_of_entitlement": 0,
+      "chapter1607": 0
     },
     "western": {
       "chapter33": 0,
       "chapter30": 0,
       "chapter1606": 0,
       "chapter32": 0,
-      "chapter35": 0
+      "chapter35": 0,
+      "transfer_of_entitlement": 0,
+      "chapter1607": 0
+    }
+  },
+  "1990n": {
+    "eastern": {
+      "all": 0
+    },
+    "southern": {
+      "all": 0
+    },
+    "central": {
+      "all": 0
+    },
+    "western": {
+      "all": 0
     }
   }
 }

@@ -2,63 +2,62 @@
 require 'rails_helper'
 require 'mvi/mock_service'
 require 'mvi/service'
-require 'mvi/messages/find_candidate_message'
+require 'mvi/messages/find_profile_message'
 
 describe MVI::MockService do
-  it 'loads the yaml file only once' do
-    expect(YAML).to receive(:load_file).once.and_return('some yaml')
-    subject.mocked_responses
-    subject.mocked_responses
+  describe '#mocked_responses' do
+    it 'loads the yaml file only once' do
+      expect(YAML).to receive(:load_file).once.and_return('some yaml')
+      subject.mocked_responses
+      subject.mocked_responses
+    end
   end
 
-  describe '.find_candidate' do
+  describe '.find_profile' do
+    let(:mvi_profile) { build(:mvi_profile) }
+    let(:user) { build(:loa3_user, ssn: mvi_profile.ssn) }
     let(:yaml_hash) do
       {
         'find_candidate' => {
-          '555443333' => {
-            'birth_date' => '19800101',
-            'edipi' => '1234^NI^200DOD^USDOD^A',
-            'family_name' => 'Smith',
-            'gender' => 'M',
-            'given_names' => %w(John William),
-            'icn' => '1000123456V123456^NI^200M^USVHA^P',
-            'mhv_id' => '123456^PI^200MHV^USVHA^A',
-            'ssn' => '555443333',
-            'status' => 'active'
+          mvi_profile.ssn => {
+            'birth_date' => mvi_profile.birth_date,
+            'edipi' => mvi_profile.edipi,
+            'family_name' => mvi_profile.family_name,
+            'gender' => mvi_profile.gender,
+            'given_names' => mvi_profile.given_names,
+            'icn' => mvi_profile.icn,
+            'mhv_id' => mvi_profile.mhv_ids.first,
+            'ssn' => mvi_profile.ssn
           }
         }
       }
     end
 
-    let(:message) { double(MVI::Messages::FindCandidateMessage) }
-
-    it 'returns YAML hash for find_candidate by SSN' do
+    before(:each) do
       allow(subject).to receive(:mocked_responses).and_return(yaml_hash)
-      allow(message).to receive(:ssn).and_return('555443333')
-      response = subject.find_candidate(message)
-      expect(response).to eq(yaml_hash.dig('find_candidate', '555443333'))
-      expect(response[:birth_date]).to eq('19800101')
+    end
+
+    it 'returns a response with a profile that matches the ssn' do
+      response = subject.find_profile(user)
+      expect(response.profile.given_names).to eq(mvi_profile.given_names)
+      expect(response.profile.ssn).to eq(mvi_profile.ssn)
     end
 
     context 'when SSN lookup fails' do
-      let(:ssn) { '111223333' }
-      before(:each) do
-        allow(subject).to receive(:mocked_responses).and_return(yaml_hash)
-        allow(message).to receive(:ssn).and_return(ssn)
-      end
+      let(:user) { build(:loa3_user, ssn: '111223333') }
 
       it 'invokes the real service' do
-        expect(subject).to receive(:find_candidate).once
-        subject.find_candidate(message)
+        expect(subject).to receive(:find_profile).once
+        subject.find_profile(user)
       end
 
       context 'when the real service raises an error' do
         it 'logs and re-raises an error' do
-          allow_any_instance_of(MVI::Service).to receive(:find_candidate).and_raise(Common::Client::Errors::HTTPError)
-          expected_message = "No user found by key #{ssn} in mock_mvi_responses.yml, "\
+          allow_any_instance_of(MVI::Service).to receive(:find_profile).and_raise(Common::Client::Errors::HTTPError)
+          expected_message = "No user found by key #{user.ssn} in mock_mvi_responses.yml, "\
             'the remote service was invoked but received an error: Common::Client::Errors::HTTPError'
           expect(Rails.logger).to receive(:error).with(expected_message)
-          expect { subject.find_candidate(message) }.to raise_error(Common::Client::Errors::HTTPError)
+          expect { subject.find_profile(user) }.to raise_error(Common::Client::Errors::HTTPError)
         end
       end
     end

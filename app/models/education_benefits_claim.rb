@@ -4,11 +4,20 @@ class EducationBenefitsClaim < ActiveRecord::Base
     '1990' => VetsJsonSchema::EDU_BENEFITS,
     '1995' => VetsJsonSchema::CHANGE_OF_PROGRAM,
     '1990e' => VetsJsonSchema::TRANSFER_BENEFITS,
-    '5490' => VetsJsonSchema::DEPENDENTS_BENEFITS
+    '5490' => VetsJsonSchema::DEPENDENTS_BENEFITS,
+    '1990n' => VetsJsonSchema::NCS_BENEFITS
   )
   FORM_TYPES = FORM_SCHEMAS.keys
 
-  APPLICATION_TYPES = %w(chapter33 chapter30 chapter1606 chapter32 chapter35).freeze
+  APPLICATION_TYPES = %w(
+    chapter33
+    chapter30
+    chapter1606
+    chapter32
+    chapter35
+    transfer_of_entitlement
+    chapter1607
+  ).freeze
 
   validates(:form, :form_type, presence: true)
   validates(:form_type, inclusion: FORM_TYPES)
@@ -83,7 +92,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
   end
 
   def confirmation_number
-    "vets_gov_#{self.class.to_s.underscore}_#{id}"
+    "V-EBC-#{id}"
   end
 
   def selected_benefits
@@ -91,8 +100,8 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
     if is_1990?
       benefits = parsed_form.slice(*APPLICATION_TYPES)
-    elsif is_1990e? || is_5490?
-      benefit = parsed_form['benefit']
+    elsif is_1990e? || is_5490? || is_1995?
+      benefit = parsed_form['benefit']&.underscore
       benefits[benefit] = true if benefit.present?
     end
 

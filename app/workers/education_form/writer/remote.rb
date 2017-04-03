@@ -8,7 +8,12 @@ module EducationForm
     def sftp
       @sftp ||= begin
         @logger.info('Connected to SFTP')
-        Net::SFTP.start(Settings.edu.sftp.host, Settings.edu.sftp.user, password: Settings.edu.sftp.pass)
+        Net::SFTP.start(
+          Settings.edu.sftp.host,
+          Settings.edu.sftp.user,
+          password: Settings.edu.sftp.pass,
+          port: Settings.edu.sftp.port
+        )
       end
     end
 
