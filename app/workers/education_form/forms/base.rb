@@ -7,19 +7,20 @@ module EducationForm::Forms
     require 'erb'
 
     TEMPLATE_PATH = Rails.root.join('app', 'workers', 'education_form', 'templates')
-    # These are the classes we can generate spool files for
-    FORM_CLASSES = {
-      '1990' => VA1990,
-      '1995' => VA1995,
-      '1990e' => VA1990e,
-      '5490' => VA5490
-    }.freeze
 
     attr_accessor :form, :record, :text
 
     def self.build(app)
-      klass = FORM_CLASSES.fetch(app.form_type)
+      klass = "EducationForm::Forms::VA#{app.form_type}".constantize
       klass.new(app)
+    end
+
+    def direct_deposit_type(type)
+      case type&.upcase
+      when 'STARTUPDATE' then 'Start or Update'
+      when 'STOP' then 'Stop'
+      when 'NOCHANGE' then 'Do Not Change'
+      end
     end
 
     def ssn_gender_dob(veteran = true)
