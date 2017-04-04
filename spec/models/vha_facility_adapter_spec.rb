@@ -23,45 +23,82 @@ RSpec.describe VHAFacilityAdapter, type: :adapter do
     expect(model.address[:physical][:zip]).to eq('97239')
   end
 
-  it '#it handles mh_phone without extension' do
-    input = FactoryGirl.build(:vha_gis_record)
-    model = described_class.from_gis(input)
-    expect(model.phone[:mental_health_clinic]).to eq('5032735187')
+  context 'with MHClinicPhone attribute' do
+    it '#it handles mh_clinic_phone without extension' do
+      input = FactoryGirl.build(:vha_gis_record)
+      model = described_class.from_gis(input)
+      expect(model.phone[:mental_health_clinic]).to eq('5032735187')
+    end
+
+    it '#it handles mh_clinic_phone with extension' do
+      input = FactoryGirl.build(:vha_gis_record)
+      input['attributes']['Extension'] = 12_345
+      model = described_class.from_gis(input)
+      expect(model.phone[:mental_health_clinic]).to eq('5032735187 x 12345')
+    end
+
+    it '#it handles empty mh_clinic_phone' do
+      input = FactoryGirl.build(:vha_gis_record)
+      input['attributes']['MHClinicPhone'] = ''
+      model = described_class.from_gis(input)
+      expect(model.phone[:mental_health_clinic]).to eq('')
+    end
+
+    it '#it handles nil mh_clinic_phone' do
+      input = FactoryGirl.build(:vha_gis_record)
+      input['attributes']['MHClinicPhone'] = nil
+      model = described_class.from_gis(input)
+      expect(model.phone[:mental_health_clinic]).to eq('')
+    end
+
+    it '#it handles zero extension' do
+      input = FactoryGirl.build(:vha_gis_record)
+      input['attributes']['Extension'] = 0
+      model = described_class.from_gis(input)
+      expect(model.phone[:mental_health_clinic]).to eq('5032735187')
+    end
+
+    it '#it handles nil mh_clinic_phone' do
+      input = FactoryGirl.build(:vha_gis_record)
+      input['attributes']['MHClinicPhone'] = nil
+      model = described_class.from_gis(input)
+      expect(model.phone[:mental_health_clinic]).to eq('')
+    end
   end
 
-  it '#it handles mh_phone with extension' do
-    input = FactoryGirl.build(:vha_gis_record)
-    input['attributes']['Extension'] = 12_345
-    model = described_class.from_gis(input)
-    expect(model.phone[:mental_health_clinic]).to eq('5032735187 x 12345')
-  end
+  context 'with MHPhone attribute' do
+    before(:each) do
+      @input = FactoryGirl.build(:vha_gis_record_v3)
+    end
 
-  it '#it handles empty mh_phone' do
-    input = FactoryGirl.build(:vha_gis_record)
-    input['attributes']['MHClinicPhone'] = ''
-    model = described_class.from_gis(input)
-    expect(model.phone[:mental_health_clinic]).to eq('')
-  end
+    it '#it handles mh_phone without extension' do
+      model = described_class.from_gis(@input)
+      expect(model.phone[:mental_health_clinic]).to eq('5032735187')
+    end
 
-  it '#it handles nil mh_phone' do
-    input = FactoryGirl.build(:vha_gis_record)
-    input['attributes']['MHClinicPhone'] = nil
-    model = described_class.from_gis(input)
-    expect(model.phone[:mental_health_clinic]).to eq('')
-  end
+    it '#it handles mh_phone with extension' do
+      @input['attributes']['Extension'] = 12_345
+      model = described_class.from_gis(@input)
+      expect(model.phone[:mental_health_clinic]).to eq('5032735187 x 12345')
+    end
 
-  it '#it handles zero extension' do
-    input = FactoryGirl.build(:vha_gis_record)
-    input['attributes']['Extension'] = 0
-    model = described_class.from_gis(input)
-    expect(model.phone[:mental_health_clinic]).to eq('5032735187')
-  end
+    it '#it handles empty mh_phone' do
+      @input['attributes']['MHPhone'] = ''
+      model = described_class.from_gis(@input)
+      expect(model.phone[:mental_health_clinic]).to eq('')
+    end
 
-  it '#it handles nil mh_phone' do
-    input = FactoryGirl.build(:vha_gis_record)
-    input['attributes']['MHClinicPhone'] = nil
-    model = described_class.from_gis(input)
-    expect(model.phone[:mental_health_clinic]).to eq('')
+    it '#it handles nil mh_phone' do
+      @input['attributes']['MHPhone'] = nil
+      model = described_class.from_gis(@input)
+      expect(model.phone[:mental_health_clinic]).to eq('')
+    end
+
+    it '#it handles zero extension' do
+      @input['attributes']['Extension'] = 0
+      model = described_class.from_gis(@input)
+      expect(model.phone[:mental_health_clinic]).to eq('5032735187')
+    end
   end
 
   it 'filters unapproved services' do
