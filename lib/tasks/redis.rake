@@ -31,49 +31,45 @@ namespace :redis do
       token = SecureRandom.uuid.delete '-'
       mhv_ids = [args[:mhv_id] || %w(12210827 10894456 13408508 13492196).sample]
 
-      redis.set "vets-api-session:#{token}", {
-        ":uuid": uuid,
-        ":token": token
-      }.to_json
+      session = Session.new(token: token, uuid: uuid)
+      session.save
 
-      redis.set "mvi-data:#{uuid}", {
+      redis.set "users:#{uuid}", {
         ":uuid": uuid,
         ":email": "vets.gov.user+#{rand(200)}@gmail.com",
         ":first_name": 'TEST',
         ":middle_name": 'T',
         ":last_name": 'USER',
-        ":gender": 'M',
-        ":birth_date": {
-          "^t": Time.now.utc
-        },
+        ":gender": 'F',
+        ":birth_date": "1970-01-01",
         ":zip": nil,
         ":ssn": '123456789',
         ":loa": {
           ":current": 3,
           ":highest": 3
         },
-        ":last_signed_in": {
-          "^t": Time.now.utc
-        },
-        ":edipi": '1005079124',
-        ":participant_id": '600062099',
-        ":icn": '1008710255V058302',
-        ":mvi": {
-          "^o": 'ActiveSupport::HashWithIndifferentAccess',
-          "self": {
-            "birth_date": '19840101',
-            "edipi": '1005079124',
-            "family_name": 'USER',
-            "gender": 'M',
-            "given_names": ['TEST'],
-            "icn": '1008710255V058302^NI^200M^USVHA^P',
-            "mhv_ids": mhv_ids,
-            "vba_corp_id": '600062099^PI^200CORP^USVBA^A',
-            "ssn": '123456789',
-            "status": 'OK'
-          }
-        },
+        ":last_signed_in": { "^t": Time.now.utc },
         ":mhv_last_signed_in": nil
+      }.to_json
+
+      redis.set "mvi-profile-response:#{uuid}", {
+        ":uuid": uuid,
+        ":status": "OK",
+        ":profile": {
+          "^o": "MviProfile",
+          "birth_date": "19700101",
+          "edipi": "1005079124",
+          "family_name": "USER",
+          "gender": "F",
+          "given_names": ["TEST", "T"],
+          "icn": "1008710255V058302",
+          "mhv_ids": mhv_ids,
+          "ssn": "123456789",
+          "suffix": nil,
+          "address": nil,
+          "home_phone": nil,
+          "participant_id": "600062099",
+        }
       }.to_json
 
       puts token
