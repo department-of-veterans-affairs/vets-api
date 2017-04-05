@@ -41,7 +41,7 @@ namespace :redis do
         ":middle_name": 'T',
         ":last_name": 'USER',
         ":gender": 'F',
-        ":birth_date": "1970-01-01",
+        ":birth_date": '1970-01-01',
         ":zip": nil,
         ":ssn": '123456789',
         ":loa": {
@@ -54,21 +54,21 @@ namespace :redis do
 
       redis.set "mvi-profile-response:#{uuid}", {
         ":uuid": uuid,
-        ":status": "OK",
+        ":status": 'OK',
         ":profile": {
-          "^o": "MviProfile",
-          "birth_date": "19700101",
-          "edipi": "1005079124",
-          "family_name": "USER",
-          "gender": "F",
-          "given_names": ["TEST", "T"],
-          "icn": "1008710255V058302",
+          "^o": 'MviProfile',
+          "birth_date": '19700101',
+          "edipi": '1005079124',
+          "family_name": 'USER',
+          "gender": 'F',
+          "given_names": %w(TEST T),
+          "icn": '1008710255V058302',
           "mhv_ids": mhv_ids,
-          "ssn": "123456789",
+          "ssn": '123456789',
           "suffix": nil,
           "address": nil,
           "home_phone": nil,
-          "participant_id": "600062099",
+          "participant_id": '600062099'
         }
       }.to_json
 
