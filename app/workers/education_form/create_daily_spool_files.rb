@@ -10,7 +10,7 @@ module EducationForm
   end
 
   class CreateDailySpoolFiles
-    LIVE_FORM_TYPES = %w(1990 1995).freeze
+    LIVE_FORM_TYPES = %w(1990 1995 1990e).freeze
     include Sidekiq::Worker
     include SentryLogging
     sidekiq_options queue: 'default',
