@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module V0
-  class ApidocsController < ActionController::Base
+  class ApidocsController < ApplicationController::Base
     include Swagger::Blocks
 
     swagger_root do
