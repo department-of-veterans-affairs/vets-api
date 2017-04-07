@@ -58,8 +58,8 @@ Address:
 MILWAUKEE, WI, 53130
 USA
 
-Telephone Numbers:     Home:    5551110000
-                       Mobile:  
+Telephone Numbers:     Primary:    5551110000
+                       Secondary:
 
 Email Address:  test@sample.com
 Preferred Method of Contact: email
@@ -83,9 +83,9 @@ Type of Education or Training: Flight Training
 
 Name and Address of School or Training Establishment:
         FakeData University
-111 UNI DRIVE
-BALTIMORE, MD, 21231
-USA
+        111 UNI DRIVE
+        BALTIMORE, MD, 21231
+        USA
 
 Date You Started or Will Start Training: 1999-12-31
 
@@ -139,7 +139,7 @@ Major Field/Course of Study: History
 Before Entering Military Service
         Principal Occupation: Clerk
         Number of Months: 36
-        License or Rating: 
+        License or Rating:
 
         Principal Occupation: Doer
         Number of Months: 18
@@ -180,9 +180,9 @@ Program?    YES
 
             Year 3:          Amount: 299.99
 
-            Year 4:          Amount: 
+            Year 4:          Amount:
 
-            Year 5:          Amount: 
+            Year 5:          Amount:
 
 
 Senior ROTC Scholarship Program. Are you currently participating in a Senior
@@ -227,6 +227,6 @@ Signature of Applicant                                               Date
 Signature/Title/Branch of Armed Forces Education Service Officer     Date
 
 Electronically Received by VA:  2017-01-17
-Confirmation #:  vets_gov_education_benefits_claim_1
+Confirmation #:  V-EBC-1
 
 *END*

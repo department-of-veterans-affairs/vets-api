@@ -16,16 +16,8 @@ JAN 2009
       (Under Provisions of chapters 33 and 35 of Title 38, U.S.C)
       -----------------------------------------------------------
 
-      BENEFIT ELECTION
-      ----------------
-
-Relationship to service member:  SPOUSE
-
-Is a divorce or annulment pending?: YES
-
-Have you remarried since the death of the veteran?: YES
-
-Remarried date: 2016-12-15
+                              BENEFIT ELECTION
+                              ----------------
 
 EDUCATION BENEFIT BEING APPLIED FOR: chapter35
 
@@ -46,8 +38,8 @@ Address:
 MILWAUKEE, WI, 53130
 USA
 
-Telephone Numbers:     Home:    5551110000
-                       Mobile:  5551110001
+Telephone Numbers:     Primary:    5551110000
+                       Secondary:  5551110001
 
 Email Address:  foo@foo.com
 Preferred Method of Contact: email
@@ -63,6 +55,32 @@ Name, Address, & Telephone Number of Contact:
         USA
         Phone: 5550001111
 
+Relationship to service member:  SPOUSE
+
+Is a divorce or annulment pending?: YES
+
+Have you remarried since the death of the veteran?: YES
+
+Remarried date: 2016-12-15
+
+                         SERVICE MEMBER INFORMATION
+                         --------------------------
+
+Name:   Mark Olson
+
+SSN:   111223333
+
+VA File Number: c12345678
+
+Branch of Service:   army
+
+Veteran's date of birth: 1985-01-07
+
+Date of death or MIA/POW: 1985-01-08
+
+Is qualifying individual on active duty: YES
+
+Outstanding felony or warrant: YES
 
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
@@ -71,9 +89,9 @@ Type of Education or Training: College
 
 Name and Address of School or Training Establishment:
         uga
-123 MAIN ST
-MILWAUKEE, WI, 53130
-USA
+        123 MAIN ST
+        MILWAUKEE, WI, 53130
+        USA
 
 Date You Started or Will Start Training: 1985-01-09
 
@@ -106,11 +124,11 @@ VETERANS EDUCATION ASSISTANCE BASED ON SOMEONE ELSE'S SERVICE: TRANSFERRED
 ENTITLEMENT
 VETERANS EDUCATION ASSISTANCE BASED ON YOUR OWN SERVICE SPECIFY BENEFIT(S):
 own service
-OTHER (Specify benefit(s): other
+OTHER; Specify benefit(s): other
 
-Name of individual who previously claimed: Mark Olson
+Name of individual on whose account previously claimed: Mark Olson
 
-SSN of individual who previously previously claimed: 111223333
+SSN of individual on whose account previously claimed:  111223333
 
 
                   ACTIVE DUTY SERVICE INFORMATION
@@ -163,7 +181,7 @@ Major Field/Course of Study: History
 Since High School
         Principal Occupation: Clerk
         Number of Months: 36
-        License or Rating: 
+        License or Rating:
 
         Principal Occupation: Doer
         Number of Months: 18
@@ -185,29 +203,6 @@ such benefits during any part of your training, check Yes.    YES
 
 Source of educational assistance for government employee: dept of edu
 
-                         SERVICE MEMBER INFORMATION
-                         --------------------------
-
-Name:   Mark Olson
-
-SSN:   111223333
-
-VA File Number: c12345678
-
-Branch of Service:   army
-
-Veteran's date of birth: 1985-01-07
-
-Date of death or MIA/POW: 1985-01-08
-
-Is qualifying individual on active duty: YES
-
-Outstanding felony or warrant: YES
-
-Remarks: remarks
-
-Receive pamphlet: YES
-
       Certification and Signature of Applicant
 Signature of Applicant                                               Date
 
@@ -215,6 +210,6 @@ Signature of Applicant                                               Date
 Signature/Title/Branch of Armed Forces Education Service Officer     Date
 
 Electronically Received by VA:  2017-01-17
-Confirmation #:  vets_gov_education_benefits_claim_1
+Confirmation #:  V-EBC-1
 
 *END*

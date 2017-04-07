@@ -7,16 +7,20 @@ module EducationForm::Forms
     require 'erb'
 
     TEMPLATE_PATH = Rails.root.join('app', 'workers', 'education_form', 'templates')
-    FORM_CLASSES = {
-      '1990' => VA1990,
-      '1995' => VA1995
-    }.freeze
 
     attr_accessor :form, :record, :text
 
     def self.build(app)
-      klass = FORM_CLASSES.fetch(app.form_type)
+      klass = "EducationForm::Forms::VA#{app.form_type}".constantize
       klass.new(app)
+    end
+
+    def direct_deposit_type(type)
+      case type&.upcase
+      when 'STARTUPDATE' then 'Start or Update'
+      when 'STOP' then 'Stop'
+      when 'NOCHANGE' then 'Do Not Change'
+      end
     end
 
     def ssn_gender_dob(veteran = true)
@@ -67,6 +71,8 @@ module EducationForm::Forms
       wrapped = word_wrap(parse_with_template_path(@record.form_type), line_width: 78)
       # We can only send ASCII, so make a best-effort at that.
       transliterated = Iconv.iconv('ascii//translit', 'utf-8', wrapped).first
+      # Trim any lines that end in whitespace, but keep the lines themselves
+      transliterated.gsub!(/[ ]+\n/, "\n")
       # The spool file must actually use windows style linebreaks
       transliterated.gsub("\n", EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
     end

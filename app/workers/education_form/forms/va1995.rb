@@ -17,13 +17,5 @@ module EducationForm::Forms
     def form_type(applicant)
       FORM_TYPES[applicant.benefit&.to_sym]
     end
-
-    def direct_deposit_type(type)
-      case type&.upcase
-      when 'STARTUPDATE' then 'Start or Update'
-      when 'STOP' then 'Stop'
-      when 'NOCHANGE' then 'Do Not Change'
-      end
-    end
   end
 end

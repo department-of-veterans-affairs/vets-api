@@ -38,6 +38,20 @@ pipeline {
       }
     }
 
+    // Delay is introduced to de-synchronize the vets-api
+    // and vets-api-worker deployments that are triggered simultaneously
+    // on a merge to this repository. The simultaneous deployments
+    // were leading to a race condition during the db migration step.
+    stage('De-synchronize') {
+      when {
+        expression { return application == 'vets-api-worker' }
+      }
+
+      steps {
+        sleep time: 1, unit: 'MINUTES'
+      }
+    }
+
     stage('Run Ansible deploy') {
       steps {
         dir('ansible') {

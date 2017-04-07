@@ -7,6 +7,8 @@ module SAML
     TOO_LATE_MSG     = 'Current time is on or after NotOnOrAfter condition'
     TOO_EARLY_MSG    = 'Current time is earlier than NotBefore condition'
 
+    KNOWN_ERRORS = %i(clicked_deny auth_too_late auth_too_early).freeze
+
     def initialize(saml_response, user, session)
       @saml_response = saml_response
       @current_user = user
@@ -17,15 +19,17 @@ module SAML
       @context = nil
     end
 
-    def known_error?
-      known_errors = [
-        :clicked_deny?,
-        :auth_too_late?,
-        :auth_too_early?
-      ]
+    def error
+      KNOWN_ERRORS.each do |known_error|
+        return known_error if send("#{known_error}?")
+      end
 
-      known_errors.each do |known_error|
-        break if send(known_error)
+      'unknown'
+    end
+
+    def known_error?
+      KNOWN_ERRORS.each do |known_error|
+        break if send("#{known_error}?")
       end
 
       !@message.nil? && !@level.nil?

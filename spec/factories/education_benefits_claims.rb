@@ -21,7 +21,7 @@ FactoryGirl.define do
         homePhone: '5551110000',
         secondaryContact: {
           fullName: 'Sibling Olson',
-          sameAddressAndPhone: true
+          sameAddress: true
         },
         bankAccount: {
           accountType: 'checking',
@@ -122,7 +122,12 @@ FactoryGirl.define do
 
     factory :education_benefits_claim_1995 do
       form({
+        veteranFullName: {
+          first: 'Mark',
+          last: 'Olson'
+        },
         veteranSocialSecurityNumber: '111223333',
+        benefit: 'transferOfEntitlement',
         privacyAgreementAccepted: true
       }.to_json)
       form_type('1995')
@@ -135,7 +140,11 @@ FactoryGirl.define do
     factory :education_benefits_claim_1990e do
       form({
         benefit: 'chapter33',
-        relativeSocialSecurityNumber: '111223333',
+        relativeFullName: {
+          first: 'Mark',
+          last: 'Olson'
+        },
+        veteranSocialSecurityNumber: '111223333',
         privacyAgreementAccepted: true
       }.to_json)
       form_type('1990e')
@@ -144,9 +153,37 @@ FactoryGirl.define do
     factory :education_benefits_claim_5490 do
       form({
         benefit: 'chapter35',
+        veteranSocialSecurityNumber: '111223333',
+        relativeFullName: {
+          first: 'Mark',
+          last: 'Olson'
+        },
         privacyAgreementAccepted: true
       }.to_json)
       form_type('5490')
+    end
+
+    factory :education_benefits_claim_1990n do
+      form({
+        veteranFullName: {
+          first: 'Mark',
+          last: 'Olson'
+        },
+        privacyAgreementAccepted: true
+      }.to_json)
+      form_type('1990n')
+    end
+
+    factory :education_benefits_claim_5495 do
+      form({
+        relativeFullName: {
+          first: 'Mark',
+          last: 'Olson'
+        },
+        benefit: 'chapter35',
+        privacyAgreementAccepted: true
+      }.to_json)
+      form_type('5495')
     end
   end
 end
