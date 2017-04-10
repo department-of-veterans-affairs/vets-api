@@ -1,11 +1,15 @@
 # frozen_string_literal: true
 class EducationBenefitsClaim < ActiveRecord::Base
   FORM_SCHEMAS = IceNine.deep_freeze(
-    '1990' => VetsJsonSchema::EDU_BENEFITS,
-    '1995' => VetsJsonSchema::CHANGE_OF_PROGRAM,
-    '1990e' => VetsJsonSchema::TRANSFER_BENEFITS,
-    '5490' => VetsJsonSchema::DEPENDENTS_BENEFITS,
-    '1990n' => VetsJsonSchema::NCS_BENEFITS
+    lambda do
+      return_val = {}
+
+      %w(1990 1995 1990e 5490 5495 1990n).each do |form_type|
+        return_val[form_type] = VetsJsonSchema::SCHEMAS["22-#{form_type.upcase}"]
+      end
+
+      return_val
+    end.call
   )
   FORM_TYPES = FORM_SCHEMAS.keys
 
@@ -98,9 +102,11 @@ class EducationBenefitsClaim < ActiveRecord::Base
   def selected_benefits
     benefits = {}
 
-    if is_1990?
+    case form_type
+    when '1990'
       benefits = parsed_form.slice(*APPLICATION_TYPES)
-    elsif is_1990e? || is_5490? || is_1995?
+    when '1990n'
+    else
       benefit = parsed_form['benefit']&.underscore
       benefits[benefit] = true if benefit.present?
     end

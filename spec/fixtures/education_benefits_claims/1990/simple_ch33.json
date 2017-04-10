@@ -34,7 +34,8 @@
   },
   "secondaryContact": {
     "fullName": "Sibling Olson",
-    "sameAddressAndPhone": true
+    "sameAddress": true,
+    "phone": "5551110001"
   },
   "toursOfDuty": [{
     "dateRange": {
