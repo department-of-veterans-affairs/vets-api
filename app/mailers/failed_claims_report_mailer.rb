@@ -4,7 +4,7 @@ class FailedClaimsReportMailer < ApplicationMailer
     mark@adhocteam.us
   )
 
-  def send(failed_uploads)
+  def build(failed_uploads)
     opt = {}
     if FeatureFlipper.staging_email?
       opt[:to] = 'lihan@adhocteam.us'

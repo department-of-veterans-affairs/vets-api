@@ -16,7 +16,7 @@ module EVSS
         end
       end
 
-      failed_uploads
+      FailedClaimsReportMailer.build(failed_uploads).deliver_now
     end
   end
 end
