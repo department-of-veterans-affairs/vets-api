@@ -11,7 +11,7 @@ module MHVAC
 
     # TODO: the above attrs will be camelcased by middleware
     def params
-      { }
+      {}
     end
   end
 end

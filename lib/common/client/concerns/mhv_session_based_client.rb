@@ -5,7 +5,7 @@ module Common
       extend ActiveSupport::Concern
 
       def initialize(session:)
-        @session = self.class.client_session.find_or_build(session)
+        @session = self.class.client_session.find_or_build(session) unless session.nil?
       end
 
       attr_reader :session
@@ -35,8 +35,12 @@ module Common
 
       private
 
+      def nonauth_headers
+        config.base_request_headers.merge('appToken' => config.app_token)
+      end
+
       def auth_headers
-        config.base_request_headers.merge('appToken' => config.app_token, 'mhvCorrelationId' => session.user_id.to_s)
+        nonauth_headers.merge('mhvCorrelationId' => session.user_id.to_s)
       end
 
       def token_headers

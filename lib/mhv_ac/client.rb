@@ -15,59 +15,61 @@ module MHVAC
     client_session Rx::ClientSession
 
     # Create an MHV account
-    def post_register
-      form = MHVAC::RegistrationForm.new(self, params)
+    def post_register(params)
+      form = MHVAC::RegistrationForm.new(params)
       raise Common::Exceptions::ValidationErrors, form unless form.valid?
-      perform(:post, 'account/register', form.params, auth_headers).body
+      perform(:post, 'account/register', form.params, nonauth_headers).body
     end
 
     # Upgrade an MHV account
     def post_upgrade(params)
       form = MHVAC::UpgradeForm.new(self, params)
       raise Common::Exceptions::ValidationErrors, form unless form.valid?
-      perform(:post, 'account/upgrade', form.params, auth_headers).body
+      perform(:post, 'account/upgrade', form.params, token_headers).body
     end
 
     # These two lists (state and country) should be cached for any given day.
     # Get a list of available states (used for registration)
     def get_states
-      perform(:get, 'enum/states', nil, auth_headers)
+      perform(:get, 'enum/states', nil, nonauth_headers).body
     end
 
     # Get a list of available countries (used for registraion)
     def get_countries
-      perform(:get, 'enum/countries', nil, auth_headers)
+      perform(:get, 'enum/countries', nil, nonauth_headers).body
     end
 
     # Account Management (These all require token headers from user session)
-    # Current Email Account that receives notifications
+    # Current Email Account that receives preferences
     def get_notification_email_address
-      perform(:get, 'notification/email', nil, token_headers)
+      perform(:get, 'preferences/email', nil, token_headers).body
     end
 
-    # Change Email Account that receives notifications
+    # Change Email Account that receives preferences
     def post_notification_email_address(params)
-      perform(:post, 'notification/email', params, token_headers)
+      perform(:post, 'preferences/email', params, token_headers)
     end
 
-    # Current Rx notification setting
-    def get_rx_notification_flag
-      perform(:get, 'notification/rx', nil, token_headers)
+    # Current Rx preference setting
+    def get_rx_preference_flag
+      perform(:get, 'preferences/rx', nil, token_headers).body
     end
 
-    # Change Rx notification setting
-    def post_rx_notification_flag(flag)
-      perform(:post, 'notification/rx', flag: flag, token_headers)
+    # Change Rx preference setting
+    def post_rx_preference_flag(flag)
+      params = { flag: flag }
+      perform(:post, 'preferences/rx', params, token_headers)
     end
 
-    # Current Appointments notification setting
-    def get_appt_notification_flag
-      perform(:get, 'notification/appt', nil, token_headers)
+    # Current Appointments preference setting
+    def get_appt_preference_flag
+      perform(:get, 'preferences/appt', nil, token_headers).body
     end
 
-    # Change Appointsments notification setting
-    def post_appt_notification_flag(flag)
-      perform(:post, 'notification/appt', flag: flag, token_headers)
+    # Change Appointsments preference setting
+    def post_appt_preference_flag(flag)
+      params = { flag: flag }
+      perform(:post, 'preferences/appt', params, token_headers)
     end
   end
 end
