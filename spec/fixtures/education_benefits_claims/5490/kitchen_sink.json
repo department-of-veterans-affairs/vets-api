@@ -27,7 +27,8 @@
       "first": "Mark",
       "last": "Olson"
     },
-    "veteranSocialSecurityNumber": "111223333"
+    "veteranSocialSecurityNumber": "111223333",
+    "vaFileNumber": "c12345679"
   },
   "highSchool": {
     "name": "PS1",
