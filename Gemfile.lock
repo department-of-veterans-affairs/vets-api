@@ -406,6 +406,7 @@ DEPENDENCIES
   active_model_serializers
   attr_encrypted
   awrence
+  aws-sdk
   brakeman
   breakers
   bundler-audit
