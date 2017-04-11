@@ -19,6 +19,7 @@ class YearToDateReportMailer < ApplicationMailer
       ian@adhocteam.us
       dan.hoicowitz.va@gmail.com
       mark@adhocteam.us
+      joshua.quagliaroli@va.gov
     )
   }.freeze
 
