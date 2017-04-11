@@ -1,0 +1,22 @@
+class FailedClaimsReportMailer < ApplicationMailer
+  RECIPIENTS = %w(
+    lihan@adhocteam.us
+    mark@adhocteam.us
+  )
+
+  def send(failed_uploads)
+    opt = {}
+    if FeatureFlipper.staging_email?
+      opt[:to] = 'lihan@adhocteam.us'
+    else
+      opt[:to] = RECIPIENTS.clone
+    end
+
+    mail(
+      opt.merge(
+        subject: "EVSS claims failed to upload",
+        body: failed_uploads.join('<br>')
+      )
+    )
+  end
+end
