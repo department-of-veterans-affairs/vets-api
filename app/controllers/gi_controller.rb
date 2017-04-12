@@ -9,4 +9,8 @@ class GIController < ApplicationController
   def client
     @client ||= ::GI::Client.new
   end
+
+  def scrubbed_params
+    params.except(:action, :controller, :format)
+  end
 end
