@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'rails_helper'
 
 RSpec.describe EVSS::FailedClaimsReport, type: :job do
@@ -8,7 +9,7 @@ RSpec.describe EVSS::FailedClaimsReport, type: :job do
       objects = [double, double]
 
       objects.each_with_index do |object, i|
-        last_modified = (i == 0 ? 5 : 45).days.ago
+        last_modified = (i.zero? ? 5 : 45).days.ago
         allow(object).to receive(:last_modified).and_return(last_modified)
         allow(object).to receive(:key).and_return("object#{i}")
       end
