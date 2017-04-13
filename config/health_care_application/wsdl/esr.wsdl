@@ -1,0 +1,1392 @@
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:sch="http://jaxws.webservices.esr.med.va.gov/schemas" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://jaxws.webservices.esr.med.va.gov/schemas" targetNamespace="http://jaxws.webservices.esr.med.va.gov/schemas">
+  <wsdl:types>
+    <xs:schema xmlns="http://jaxws.webservices.esr.med.va.gov/schemas" xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas" xmlns:xs="http://www.w3.org/2001/XMLSchema" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="http://jaxws.webservices.esr.med.va.gov/schemas">
+      <xs:element name="getEESummaryRequest" type="getEESummaryRequest"/>
+      <xs:element name="getEESummaryHistoryRequest" type="getEESummaryHistoryRequest"/>
+      <xs:element name="getEESummaryResponse" type="getEESummaryResponse"/>
+      <xs:element name="getEESummaryHistoryResponse" type="getEESummaryHistoryResponse"/>
+      <xs:element name="getEligibilityDeterminationRequest" type="getEligibilityDeterminationRequest"/>
+      <xs:element name="getEligibilityDeterminationResponse" type="getEligibilityDeterminationResponse"/>
+      <xs:element name="getPersonNotificationRequest" type="getPersonNotificationRequest"/>
+      <xs:element name="getPersonNotificationResponse" type="getPersonNotificationResponse"/>
+      <xs:element name="getDeliveryPreferenceRequest" type="getDeliveryPreferenceRequest"/>
+      <xs:element name="getDeliveryPreferenceResponse" type="getDeliveryPreferenceResponse"/>
+      <xs:element name="updateDeliveryPreferenceRequest" type="updateDeliveryPreferenceRequest"/>
+      <xs:element name="updateDeliveryPreferenceResponse" type="updateDeliveryPreferenceResponse"/>
+      <xs:element name="retrieveIVMCandidatesRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="1" minOccurs="1" name="lastPolledDateTimeStamp" type="xs:dateTime"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getIVMLetterStatusesRequest" type="getIVMLetterStatusesRequest"/>
+      <xs:element name="retrieveIVMCandidatesResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="1" minOccurs="0" name="candidates" type="eeSummary:ivmCandidateCollection"/>
+            <xs:element maxOccurs="1" minOccurs="1" name="numberOfCandidates" type="xs:int"/>
+            <xs:element maxOccurs="1" minOccurs="1" name="eesVersion " type="xs:string"/>
+            <xs:element maxOccurs="1" minOccurs="1" name="invocationDate " type="xs:date"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="getIVMLetterStatusesResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="1" minOccurs="0" name="ivmLetterCandidates" type="eeSummary:ivmLetterCandidateCollection"/>
+            <xs:element maxOccurs="1" minOccurs="1" name="eesVersion " type="xs:string"/>
+            <xs:element maxOccurs="1" minOccurs="1" name="invocationDate " type="xs:date"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="updateIVMRecordStatusRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="1" minOccurs="1" name="transactionId" type="xs:string"/>
+            <xs:element maxOccurs="1" minOccurs="0" name="errorText" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="updateIVMRecordStatusResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="1" minOccurs="1" name="acknowledgement" type="xs:string"></xs:element>
+            <xs:element maxOccurs="1" minOccurs="1" name="status" type="xs:string"></xs:element>
+            <xs:element maxOccurs="1" minOccurs="1" name="invocationDate" type="xs:date"></xs:element>
+            <xs:element maxOccurs="1" minOccurs="1" name="eesVersion" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:complexType name="getEESummaryRequest">
+        <xs:all>
+          <xs:element maxOccurs="1" minOccurs="1" name="key" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="keyType" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="1" name="requestName" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="incomeYear" type="xs:int"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="getEESummaryHistoryRequest">
+        <xs:all>
+          <xs:element maxOccurs="1" minOccurs="1" name="key" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="keyType" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="1" name="requestName" type="xs:string"/>
+          <xs:element minOccurs="1" name="categories" type="categoryCollection"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="categoryCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="2" minOccurs="1" name="category" type="categoryInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="categoryInfo">
+        <xs:all>
+          <xs:element minOccurs="1" name="categoryName" type="xs:string"/>
+          <xs:element minOccurs="1" name="dateOfService" type="xs:dateTime"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="getEligibilityDeterminationRequest">
+        <xs:all>
+          <xs:element maxOccurs="1" minOccurs="0" name="vpid" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="firstName" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="lastName" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="ssn" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="dob" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="gender" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="getPersonNotificationRequest">
+        <xs:all>
+          <xs:element minOccurs="1" name="notificationType" type="NotificationType"/>
+          <xs:element minOccurs="0" name="primaryviewNotification" type="primaryviewNotificationInfo"/>
+          <xs:element minOccurs="0" name="linkNotification" type="linkNotificationInfo"/>
+          <xs:element minOccurs="0" name="moveNotification" type="moveNotificationInfo"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="getDeliveryPreferenceRequest">
+        <xs:all>
+          <xs:element maxOccurs="1" minOccurs="1" name="key" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="keyType" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="updateDeliveryPreferenceRequest">
+        <xs:all>
+          <xs:element maxOccurs="1" minOccurs="1" name="key" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="keyType" type="xs:string"/>
+          <xs:element minOccurs="1" name="deliveryPreferenceInfo" type="deliveryPreferenceInfo"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="getEESummaryResponse">
+        <xs:all>
+          <xs:element minOccurs="0" name="summary" type="eeSummary:eeSummary"/>
+          <xs:element minOccurs="0" name="eesVersion" type="xs:string"/>
+          <xs:element minOccurs="0" name="invocationDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="noDataMessage" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="getEESummaryHistoryResponse">
+        <xs:all>
+          <xs:element minOccurs="0" name="summary" type="eeSummary:eeSummary"/>
+          <xs:element minOccurs="0" name="eesVersion" type="xs:string"/>
+          <xs:element minOccurs="0" name="invocationDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="noDataMessage" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="getEligibilityDeterminationResponse">
+        <xs:all>
+          <xs:element minOccurs="0" name="edstatus" type="eeSummary:eds"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="vpid" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="firstName" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="lastName" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="ssn" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="dob" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="gender" type="xs:string"/>
+          <xs:element minOccurs="0" name="invocationDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="eesVersion" type="xs:string"/>
+          <xs:element minOccurs="0" name="noDataMessage" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="eds">
+        <xs:all>
+          <xs:element minOccurs="0" name="eligibilityStatusInfo" type="eligibilityStatusInfo"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="getPersonNotificationResponse">
+        <xs:all>
+          <xs:element maxOccurs="1" minOccurs="1" name="acknowledgement" type="xs:string"/>
+          <xs:element minOccurs="0" name="invocationDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="eesVersion" type="xs:string"/>
+          <xs:element minOccurs="0" name="noDataMessage" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="getDeliveryPreferenceResponse">
+        <xs:all>
+          <xs:element minOccurs="0" name="deliveryPreference" type="eeSummary:deliveryPreferences"/>
+          <xs:element minOccurs="0" name="invocationDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="eesVersion" type="xs:string"/>
+          <xs:element minOccurs="0" name="status" type="xs:string"/>
+          <xs:element minOccurs="0" name="message" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="updateDeliveryPreferenceResponse">
+        <xs:all>
+          <xs:element maxOccurs="1" minOccurs="1" name="acknowledgement" type="xs:string"/>
+          <xs:element minOccurs="0" name="status" type="xs:string"/>
+          <xs:element minOccurs="0" name="invocationDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="eesVersion" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="eeSummary">
+        <xs:all>
+          <xs:element minOccurs="0" name="associations" type="associationCollection"/>
+          <xs:element minOccurs="0" name="deathRecond" type="deathRecondInfo"/>
+          <xs:element minOccurs="0" name="demographics" type="demographicInfo"/>
+          <xs:element minOccurs="0" name="eligibilityVerificationInfo" type="eligibilityVerificationInfo"/>
+          <xs:element minOccurs="0" name="employmentInfo" type="employmentInfo"/>
+          <xs:element minOccurs="0" name="enrollmentDeterminationInfo" type="enrollmentDeterminationInfo"/>
+          <xs:element minOccurs="0" name="feeBasisList" type="feeBasisCollection"/>
+          <xs:element minOccurs="0" name="financialsInfo" type="financialsInfo"/>
+          <xs:element minOccurs="0" name="incompetenceRulingInfo" type="incompetenceRulingInfo"/>
+          <xs:element minOccurs="0" name="insuranceList" type="insuranceCollection"/>
+          <xs:element minOccurs="0" name="militaryServiceInfo" type="militaryServiceInfo"/>
+          <xs:element minOccurs="0" name="prisonerOfWarInfo" type="prisonerOfWarInfo"/>
+          <xs:element minOccurs="0" name="purpleHeart" type="purpleHeartInfo"/>
+          <xs:element minOccurs="0" name="relations" type="relationCollection"/>
+          <xs:element minOccurs="0" name="sensitivityInfo" type="sensitivityInfo"/>
+          <xs:element minOccurs="0" name="spinalCordInjuryInfo" type="spinalCordInjuryInfo"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="personInfo" type="personInfo"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="consentInfo" type="consentInfo"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="eligibilityStatusInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="eligibilityStatus" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="deliveryPreferences">
+        <xs:all>
+          <xs:element minOccurs="0" name="deliveryPreferenceInfo" type="deliveryPreferenceInfo"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="associationCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="association" nillable="true" type="associationInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="associationInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="address" type="baseAddressInfo"/>
+          <xs:element minOccurs="0" name="alternatePhone" type="xs:string"/>
+          <xs:element minOccurs="0" name="contactType" type="xs:string"/>
+          <xs:element minOccurs="0" name="familyName" type="xs:string"/>
+          <xs:element minOccurs="0" name="givenName" type="xs:string"/>
+          <xs:element minOccurs="0" name="lastUpdateDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="middleName" type="xs:string"/>
+          <xs:element minOccurs="0" name="organizationName" type="xs:string"/>
+          <xs:element minOccurs="0" name="prefix" type="xs:string"/>
+          <xs:element minOccurs="0" name="primaryPhone" type="xs:string"/>
+          <xs:element minOccurs="0" name="relationship" type="xs:string"/>
+          <xs:element minOccurs="0" name="suffix" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="baseAddressInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="city" type="xs:string"/>
+          <xs:element minOccurs="0" name="country" type="xs:string"/>
+          <xs:element minOccurs="0" name="county" type="xs:string"/>
+          <xs:element minOccurs="0" name="line1" type="xs:string"/>
+          <xs:element minOccurs="0" name="line2" type="xs:string"/>
+          <xs:element minOccurs="0" name="line3" type="xs:string"/>
+          <xs:element minOccurs="0" name="postalCode" type="xs:string"/>
+          <xs:element minOccurs="0" name="provinceCode" type="xs:string"/>
+          <xs:element minOccurs="0" name="state" type="xs:string"/>
+          <xs:element minOccurs="0" name="zipCode" type="xs:string"/>
+          <xs:element minOccurs="0" name="zipPlus4" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="deathRecondInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="dataSource" type="xs:string"/>
+          <xs:element minOccurs="0" name="deathDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="deathLastModified" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="deathReportDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="facilityReceived" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="demographicInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="appointmentRequestDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="appointmentRequestResponse" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="claimFolderLocation" type="xs:string"/>
+          <xs:element minOccurs="0" name="claimFolderNumber" type="xs:string"/>
+          <xs:element minOccurs="0" name="contactInfo" type="contactInfo"/>
+          <xs:element minOccurs="0" name="ethnicity" type="xs:string"/>
+          <xs:element minOccurs="0" name="maritalStatus" type="xs:string"/>
+          <xs:element minOccurs="0" name="preferredFacility" type="xs:string"/>
+          <xs:element minOccurs="0" name="assignmentDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="unassignmentDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="races" type="raceCollection"/>
+          <xs:element minOccurs="0" name="religion" type="xs:string"/>
+          <xs:element minOccurs="0" name="preferredFacilities" type="preferredFacilityCollection"/>
+          <xs:element minOccurs="0" name="acaIndicator" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="preferredLanguage" type="xs:string"/>
+          <xs:element minOccurs="0" name="preferredLanguageEntryDate" type="xs:dateTime"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="contactInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="addresses" type="addressCollection"/>
+          <xs:element minOccurs="0" name="emails" type="emailCollection"/>
+          <xs:element minOccurs="0" name="phones" type="phoneCollection"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="deliveryPreferenceInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="deliveryPreference" type="xs:string"/>
+          <xs:element minOccurs="0" name="emailAddress" type="xs:string"/>
+          <xs:element minOccurs="0" name="emailType" type="EmailType"/>
+          <xs:element minOccurs="0" name="editableFlag" type="xs:boolean"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="addressCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="address" nillable="true" type="addressInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="addressInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="city" type="xs:string"/>
+          <xs:element minOccurs="0" name="country" type="xs:string"/>
+          <xs:element minOccurs="0" name="county" type="xs:string"/>
+          <xs:element minOccurs="0" name="line1" type="xs:string"/>
+          <xs:element minOccurs="0" name="line2" type="xs:string"/>
+          <xs:element minOccurs="0" name="line3" type="xs:string"/>
+          <xs:element minOccurs="0" name="postalCode" type="xs:string"/>
+          <xs:element minOccurs="0" name="provinceCode" type="xs:string"/>
+          <xs:element minOccurs="0" name="state" type="xs:string"/>
+          <xs:element minOccurs="0" name="zipCode" type="xs:string"/>
+          <xs:element minOccurs="0" name="zipcode" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>We are adding a duplicate zipcode attribute because the database string has a typo in it and is not populating the zipCode attribute correctly. See Clear Quest ESR 3.12_CodeCR12297_GMT - Address Zip Code missing from payload. The plan is to remove this duplicate zipcode attribute after the database string is corrected.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element minOccurs="0" name="zipPlus4" type="xs:string"/>
+          <xs:element minOccurs="0" name="addressChangeDateTime" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="addressChangeEffectiveDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="addressChangeSite" type="xs:string"/>
+          <xs:element minOccurs="0" name="addressChangeSource" type="xs:string"/>
+          <xs:element minOccurs="0" name="addressTypeCode" type="xs:string"/>
+          <xs:element minOccurs="0" name="badAddressReason" type="xs:string"/>
+          <xs:element minOccurs="0" name="confidentialAddressCategories" type="confidentialAddressCategoryCollection"/>
+          <xs:element minOccurs="0" name="endDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="phoneNumber" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="contactMethodType" type="xs:string"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="contactMethodReportDate" type="xs:date"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="confidentialAddressCategoryCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="confidentialAddressCategoryType" nillable="true" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="emailCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="email" nillable="true" type="emailInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="emailInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="address" type="xs:string"/>
+          <xs:element minOccurs="0" name="changeDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="siteOfChange" type="xs:string"/>
+          <xs:element minOccurs="0" name="sourceOfChange" type="xs:string"/>
+          <xs:element minOccurs="0" name="type" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="phoneCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="phone" nillable="true" type="phoneInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="phoneInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="phoneNumber" type="xs:string"/>
+          <xs:element minOccurs="0" name="type" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="phoneNumberReportDate" type="xs:date"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="raceCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="race" nillable="true" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="eligibilityVerificationInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="eligibilityStatus" type="xs:string"/>
+          <xs:element minOccurs="0" name="eligibilityStatusDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="verificationMethod" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="employmentInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="employerAddress" type="addressInfo"/>
+          <xs:element minOccurs="0" name="employerName" type="xs:string"/>
+          <xs:element minOccurs="0" name="employerPhone" type="xs:string"/>
+          <xs:element minOccurs="0" name="employmentStatus" type="xs:string"/>
+          <xs:element minOccurs="0" name="occupation" type="xs:string"/>
+          <xs:element minOccurs="0" name="retirementDate" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="enrollmentDeterminationInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="applicationDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="calculationSource" type="xs:string"/>
+          <xs:element minOccurs="0" name="cancelDeclineInfo" type="cancelDeclineInfo"/>
+          <xs:element minOccurs="0" name="catastrophicDisabilityInfo" type="catastrophicDisabilityInfo"/>
+          <xs:element minOccurs="0" name="effectiveDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="eligibleForMedicaid" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="medicaidLastModifiedDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="endDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="enrollmentDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="enrollmentStatus" type="xs:string"/>
+          <xs:element minOccurs="0" name="facilityReceived" type="xs:string"/>
+          <xs:element minOccurs="0" name="enrollmentCategoryName" type="xs:string"/>
+          <xs:element minOccurs="0" name="ineligibilityFactor" type="ineligibilityFactorInfo"/>
+          <xs:element minOccurs="0" name="militarySexualTraumaInfo" type="militarySexualTraumaInfo"/>
+          <xs:element minOccurs="0" name="monetaryBenefitAwardInfo" type="monetaryBenefitAwardInfo"/>
+          <xs:element minOccurs="0" name="noseThroatRadiumInfo" type="noseThroatRadiumInfo"/>
+          <xs:element minOccurs="0" name="otherEligibilities" type="eligibilityCollection"/>
+          <xs:element minOccurs="0" name="primaryEligibility" type="eligibilityInfo"/>
+          <xs:element minOccurs="0" name="priorityGroup" type="xs:string"/>
+          <xs:element minOccurs="0" name="prioritySubGroup" type="xs:string"/>
+          <xs:element minOccurs="0" name="secondaryEligibilities" type="eligibilityCollection"/>
+          <xs:element minOccurs="0" name="serviceConnectionAward" type="serviceConnectionAwardInfo"/>
+          <xs:element minOccurs="0" name="specialFactors" type="specialFactorsInfo"/>
+          <xs:element minOccurs="0" name="userEnrolleeSite" type="xs:string"/>
+          <xs:element minOccurs="0" name="userEnrolleeValidThrough" type="xs:int"/>
+          <xs:element minOccurs="0" name="veteran" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="recordCreatedDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="recordModifiedDate" type="xs:dateTime"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="cancelDeclineInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="cancelDeclineIndicator" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="reason" type="xs:string"/>
+          <xs:element minOccurs="0" name="remarks" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="catastrophicDisabilityInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="catastrophicallyDisabled" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="cdConditions" type="cdConditionCollection"/>
+          <xs:element minOccurs="0" name="cdProcedures" type="cdProcedureCollection"/>
+          <xs:element minOccurs="0" name="decisionDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="determinationFacility" type="xs:string"/>
+          <xs:element minOccurs="0" name="determinationMethod" type="xs:string"/>
+          <xs:element minOccurs="0" name="determinedBy" type="xs:string"/>
+          <xs:element minOccurs="0" name="diagnoses" type="cdDiagnosisCollection"/>
+          <xs:element minOccurs="0" name="facilityInitiatedCDReviewDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="reviewDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="veteranRequestedCDReviewDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="veteranWasNotifiedCDDate" type="xs:dateTime"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="cdConditionCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="cdCondition" nillable="true" type="cdConditionInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="cdConditionInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="condition" type="xs:string"/>
+          <xs:element minOccurs="0" name="permanentIndicator" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="score" type="xs:int"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="cdProcedureCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="cdProcedure" nillable="true" type="cdProcedureInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="cdProcedureInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="affectedExtremity" type="xs:string"/>
+          <xs:element minOccurs="0" name="procedure" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="cdDiagnosisCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="diagnosis" nillable="true" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ineligibilityFactorInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="facilityReceived" type="xs:string"/>
+          <xs:element minOccurs="0" name="ineligibleDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="reason" type="xs:string"/>
+          <xs:element minOccurs="0" name="varoDecision" type="xs:string"/>
+          <xs:element minOccurs="0" name="recordCreatedDate" type="xs:dateTime"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="militarySexualTraumaInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="determinationFacility" type="xs:string"/>
+          <xs:element minOccurs="0" name="status" type="xs:string"/>
+          <xs:element minOccurs="0" name="statusChangeDate" type="xs:dateTime"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="monetaryBenefitAwardInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="checkAmount" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="monetaryBenefits" type="monetaryBenefitCollection"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="monetaryBenefitCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="monetaryBenefit" nillable="true" type="monetaryBenefitInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="monetaryBenefitInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="monetaryBenefitIndicator" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="type" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="monetaryBenefitReportDate" type="xs:date"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="noseThroatRadiumInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="determinationFacility" type="xs:string"/>
+          <xs:element minOccurs="0" name="diagnosedWithCancer" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="diagnosisVerifiedDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="fromAviatorServiceBefore1955" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="fromSubmarinerServiceBefore1965" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="receivingTreatment" type="xs:string"/>
+          <xs:element minOccurs="0" name="verificationDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="verificationFacility" type="xs:string"/>
+          <xs:element minOccurs="0" name="verificationMethod" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="eligibilityCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="eligibility" nillable="true" type="eligibilityInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="eligibilityInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="indicator" type="xs:string"/>
+          <xs:element minOccurs="0" name="type" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="eligibilityReportDate" type="xs:date"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="serviceConnectionAwardInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="awardDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="combinedServiceConnectedPercentageEffectiveDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="permanentAndTotal" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="permanentAndTotalEffectiveDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="ratedDisabilities" type="ratedDisabilityCollection"/>
+          <xs:element minOccurs="0" name="serviceConnectedIndicator" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="serviceConnectedPercentage" type="xs:int"/>
+          <xs:element minOccurs="0" name="unemployable" type="xs:boolean"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="scReportDate " type="xs:date"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="ratedDisabilityCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="ratedDisability" nillable="true" type="ratedDisabilityInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ratedDisabilityInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="diagnosticExtremity" type="xs:string"/>
+          <xs:element minOccurs="0" name="disability" type="xs:string"/>
+          <xs:element minOccurs="0" name="disabilityCode" type="xs:string"/>
+          <xs:element minOccurs="0" name="originalEffectiveRatingDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="percentage" type="xs:int"/>
+          <xs:element minOccurs="0" name="ratingDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="serviceConnected" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="recordModifiedDate" type="xs:dateTime"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="specialFactorsInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="agentOrangeInd" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="agentOrangeLocation" type="xs:string"/>
+          <xs:element minOccurs="0" name="envContaminantsInd" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="campLejeuneInd" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="radiationExposureInd" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="radiationExposureMethod" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="feeBasisCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="feeBasis" nillable="true" type="feeBasisInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="feeBasisInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="authorizationFromDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="authorizationToDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="program" type="xs:string"/>
+          <xs:element minOccurs="0" name="reportDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="reportSite" type="xs:string"/>
+          <xs:element minOccurs="0" name="treatmentType" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="financialsInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="beneficiaryTravels" type="beneficiaryTravelCollection"/>
+          <xs:element minOccurs="0" name="financialStatement" type="financialStatementInfo"/>
+          <xs:element minOccurs="0" name="incomeTest" type="incomeTestInfo"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="nonPrimaryFinancialsInfo" type="eeSummary:nonPrimaryFinancialStatementCollection"/>
+          <xs:element minOccurs="0" name="reportSite" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="beneficiaryTravelCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="beneficiaryTravel" nillable="true" type="beneficiaryTravelInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="beneficiaryTravelInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="amountCertified" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="dateCertified" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="eligible" type="xs:boolean"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="financialStatementInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="assets" type="assetCollection"/>
+          <xs:element minOccurs="0" name="debits" type="debitInfo"/>
+          <xs:element minOccurs="0" name="expenses" type="expenseCollection"/>
+          <xs:element minOccurs="0" name="incomeYear" type="xs:int"/>
+          <xs:element minOccurs="0" name="incomes" type="incomeCollection"/>
+          <xs:element minOccurs="0" name="contributionToSpouse" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="dependentFinancialsList" type="dependentFinancialsCollection"/>
+          <xs:element minOccurs="0" name="marriedLastCalendarYear" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="numberOfDependentChildren" type="xs:int"/>
+          <xs:element minOccurs="0" name="spouseFinancialsList" type="spouseFinancialsCollection"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="inpatientDays" type="xs:int"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="outpatientDays" type="xs:int"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="lastVisitDate" type="xs:date"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="vamcReportDate" type="xs:date"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType abstract="true" name="baseFinancialInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="assets" type="assetCollection"/>
+          <xs:element minOccurs="0" name="debits" type="debitInfo"/>
+          <xs:element minOccurs="0" name="expenses" type="expenseCollection"/>
+          <xs:element minOccurs="0" name="incomeYear" type="xs:int"/>
+          <xs:element minOccurs="0" name="incomes" type="incomeCollection"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="dependentFinancialsCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="dependentFinancials" nillable="true" type="dependentFinancialsInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="dependentFinancialsInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="assets" type="assetCollection"/>
+          <xs:element minOccurs="0" name="debits" type="debitInfo"/>
+          <xs:element minOccurs="0" name="expenses" type="expenseCollection"/>
+          <xs:element minOccurs="0" name="incomeYear" type="xs:int"/>
+          <xs:element minOccurs="0" name="incomes" type="incomeCollection"/>
+          <xs:element minOccurs="0" name="livedWithPatient" type="xs:boolean"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="inpatientDays" type="xs:int"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="outpatientDays" type="xs:int"/>
+          <xs:element minOccurs="0" name="validDependent" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="amountContributedToSupport" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="attendedSchool" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="contributedToSupport" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="dependentInfo" type="dependentInfo"/>
+          <xs:element minOccurs="0" name="hasIncome" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="incapableOfSelfSupport" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="incomeAvailableToPatient" type="xs:boolean"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="dependentInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="dob" type="xs:string"/>
+          <xs:element minOccurs="0" name="endDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="familyName" type="xs:string"/>
+          <xs:element minOccurs="0" name="gender" type="xs:string"/>
+          <xs:element minOccurs="0" name="givenName" type="xs:string"/>
+          <xs:element minOccurs="0" name="middleName" type="xs:string"/>
+          <xs:element minOccurs="0" name="relationship" type="xs:string"/>
+          <xs:element minOccurs="0" name="ssns" type="ssnCollection"/>
+          <xs:element minOccurs="0" name="startDate" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="prefix" type="xs:string"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="suffix" type="xs:string"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="incapableOfSelfSupport" type="xs:boolean"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="relationInfo">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="dob" type="xs:string"/>
+          <xs:element minOccurs="0" name="endDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="familyName" type="xs:string"/>
+          <xs:element minOccurs="0" name="gender" type="xs:string"/>
+          <xs:element minOccurs="0" name="givenName" type="xs:string"/>
+          <xs:element minOccurs="0" name="middleName" type="xs:string"/>
+          <xs:element minOccurs="0" name="relationship" type="xs:string"/>
+          <xs:element minOccurs="0" name="ssns" type="ssnCollection"/>
+          <xs:element minOccurs="0" name="startDate" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ssnCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="ssn" nillable="true" type="ssnInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ssnInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="pseudoSSNReason" type="xs:string"/>
+          <xs:element minOccurs="0" name="sourceOfChange" type="xs:string"/>
+          <xs:element minOccurs="0" name="ssaMessage" type="xs:string"/>
+          <xs:element minOccurs="0" name="ssaReceivedDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="ssaSentDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="ssaVerificationDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="ssaVerificationStatus" type="xs:string"/>
+          <xs:element minOccurs="0" name="ssnText" type="xs:string"/>
+          <xs:element minOccurs="0" name="type" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="assetCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="asset" nillable="true" type="assetInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="assetInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="amount" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="assetType" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="assetReportDate" type="xs:date"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="debitInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="amount" type="xs:decimal"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="expenseCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="expense" nillable="true" type="expenseInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="expenseInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="amount" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="expenseType" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="expenseReportDate" type="xs:date"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="incomeCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="income" nillable="true" type="incomeInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="incomeInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="amount" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="type" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="incomeReportDate" type="xs:date"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="spouseFinancialsCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="spouseFinancials" nillable="true" type="spouseFinancialsInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="spouseFinancialsInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="assets" type="assetCollection"/>
+          <xs:element minOccurs="0" name="debits" type="debitInfo"/>
+          <xs:element minOccurs="0" name="expenses" type="expenseCollection"/>
+          <xs:element minOccurs="0" name="incomeYear" type="xs:int"/>
+          <xs:element minOccurs="0" name="incomes" type="incomeCollection"/>
+          <xs:element minOccurs="0" name="livedWithPatient" type="xs:boolean"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="inpatientDays" type="xs:int"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="outpatientDays" type="xs:int"></xs:element>
+          <xs:element minOccurs="0" name="validDependent" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="spouse" type="spouseInfo"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="contributionToSpouseAmt" type="xs:decimal"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="contributedToSpouseInd" type="xs:boolean"></xs:element>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="spouseInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="dob" type="xs:string"/>
+          <xs:element minOccurs="0" name="endDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="familyName" type="xs:string"/>
+          <xs:element minOccurs="0" name="gender" type="xs:string"/>
+          <xs:element minOccurs="0" name="givenName" type="xs:string"/>
+          <xs:element minOccurs="0" name="middleName" type="xs:string"/>
+          <xs:element minOccurs="0" name="relationship" type="xs:string"/>
+          <xs:element minOccurs="0" name="ssns" type="ssnCollection"/>
+          <xs:element minOccurs="0" name="startDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="address" type="addressInfo"/>
+          <xs:element minOccurs="0" name="employment" type="employmentInfo"/>
+          <xs:element minOccurs="0" name="maidenName" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="prefix" type="xs:string"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="suffix" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="incomeTestInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="adjudicationDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="agreesToPayDeductible" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="cadAdjusted" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="childIncomeExclusionThreshold" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="comments" type="xs:string"/>
+          <xs:element minOccurs="0" name="dateMTNoLongerRequired" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="deductibleExpenses" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="discloseFinancialInformation" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="effectiveDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="futureTest" type="xs:boolean"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="gmtAddressInfo" type="eeSummary:addressInfo"></xs:element>
+          <xs:element minOccurs="0" name="gmtThresholdAmount" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="hardShipReason" type="xs:string"/>
+          <xs:element minOccurs="0" name="hardshipInfo" type="hardshipInfo"/>
+          <xs:element minOccurs="0" name="incomeTestType" type="xs:string"/>
+          <xs:element minOccurs="0" name="incomeTestsource" type="xs:string"/>
+          <xs:element minOccurs="0" name="incomeVerificationStatus" type="xs:string"/>
+          <xs:element minOccurs="0" name="incomeVerificationStatusDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="incomeYear" type="xs:int"/>
+          <xs:element minOccurs="0" name="ivmTestCompletionDate" type="xs:dateTime"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="ivmConversionDate" type="xs:dateTime"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="incomeTestReportDate" type="xs:date"></xs:element>
+          <xs:element minOccurs="0" name="netIncome" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="netWorth" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="networthThreshold" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="pensionThreshold" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="previousYearThresholdApplies" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="primaryIncomeTest" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="reasonMTNoLongerRequired" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="refusedToSign" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="sendForAdjudication" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="siteConductingTest" type="xs:string"/>
+          <xs:element minOccurs="0" name="statuses" type="incomeTestStatusCollection"/>
+          <xs:element minOccurs="0" name="thresholdA" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="totalIncome" type="xs:decimal"/>
+          <xs:element minOccurs="0" name="totalNumberOfDependents" type="xs:int"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="priorityGroup8Relaxation" type="xs:boolean"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="ivmCaseStatus" type="xs:string"></xs:element>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="hardshipInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="effectiveDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="hardshipGranted" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="reason" type="xs:string"/>
+          <xs:element minOccurs="0" name="reviewDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="siteGrantingHardship" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="incomeTestStatusCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="status" nillable="true" type="incomeTestStatusInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="incomeTestStatusInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="completedDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="determinedStatus" type="xs:string"/>
+          <xs:element minOccurs="0" name="incomeTestType" type="xs:string"/>
+          <xs:element minOccurs="0" name="lastEditedDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="status" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="incompetenceRulingInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="civilRulingDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="incompetent" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="vaRulingDate" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="insuranceCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="insurance" nillable="true" type="insuranceInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="insuranceInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="companyName" type="xs:string"/>
+          <xs:element minOccurs="0" name="enrolledInPartA" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="enrolledInPartB" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="groupName" type="xs:string"/>
+          <xs:element minOccurs="0" name="groupNumber" type="xs:string"/>
+          <xs:element minOccurs="0" name="insAddress" type="addressInfo"/>
+          <xs:element minOccurs="0" name="insurancePhones" type="phoneCollection"/>
+          <xs:element minOccurs="0" name="insuranceSiteUploadStatus" type="xs:string"/>
+          <xs:element minOccurs="0" name="insuredRelationship" type="xs:string"/>
+          <xs:element minOccurs="0" name="insuranceMappingTypeName" type="xs:string"/>
+          <xs:element minOccurs="0" name="lastEditedDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="partAEffectiveDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="partBEffectiveDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="planType" type="xs:string"/>
+          <xs:element minOccurs="0" name="policyEffectiveDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="policyExpirationDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="policyHolderName" type="xs:string"/>
+          <xs:element minOccurs="0" name="policyNumber" type="xs:string"/>
+          <xs:element minOccurs="0" name="preadmitCertification" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="reasonInsuranceNotUploaded" type="xs:string"/>
+          <xs:element minOccurs="0" name="subscriber" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="militaryServiceInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="combatEpisodes" type="combatEpisodeCollection"/>
+          <xs:element minOccurs="0" name="combatVeteranEligibilityEndDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="disabilityRetirementIndicator" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="dischargeDueToDisability" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="militaryServiceSiteRecords" type="militaryServiceSiteRecordCollection"/>
+          <xs:element minOccurs="0" name="shadIndicator" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="medalofHonorIndicator" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="eligibleForClassIIDental" type="xs:boolean"/>
+          <xs:element minOccurs="0" name="classIIDentalApplicationDueBefore" type="xs:dateTime"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="combatEpisodeCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="combatEpisode" nillable="true" type="combatEpisodeInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="combatEpisodeInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="combatPayType" type="xs:string"/>
+          <xs:element minOccurs="0" name="conflictLocation" type="xs:string"/>
+          <xs:element minOccurs="0" name="endDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="OEFOIFSource" type="xs:string"/>
+          <xs:element minOccurs="0" name="OEFOIFStationNumber" type="xs:string"/>
+          <xs:element minOccurs="0" name="startDate" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="militaryServiceSiteRecordCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="militaryServiceSiteRecord" nillable="true" type="militaryServiceSiteRecordInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="militaryServiceSiteRecordInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="conflictExperiences" type="conflictExperienceCollection"/>
+          <xs:element minOccurs="0" name="militaryServiceEpisodes" type="militaryServiceEpisodeCollection"/>
+          <xs:element minOccurs="0" name="servicePeriod" type="xs:string"/>
+          <xs:element minOccurs="0" name="site" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="conflictExperienceCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="conflictExperience" nillable="true" type="conflictExperienceInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="conflictExperienceInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="conflictLocation" type="xs:string"/>
+          <xs:element minOccurs="0" name="endDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="startDate" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="militaryServiceEpisodeCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="militaryServiceEpisode" nillable="true" type="militaryServiceEpisodeInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="militaryServiceEpisodeInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="endDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="serviceBranch" type="xs:string"/>
+          <xs:element minOccurs="0" name="serviceNumber" type="xs:string"/>
+          <xs:element minOccurs="0" name="startDate" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="dischargeType" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="prisonerOfWarInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="episodes" type="powEpisodeCollection"/>
+          <xs:element minOccurs="0" name="powIndicator" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="powEpisodeCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="episode" nillable="true" type="powEpisodeInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="powEpisodeInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="captureDate" type="xs:string"/>
+          <xs:element minOccurs="0" name="dataSource" type="xs:string"/>
+          <xs:element minOccurs="0" name="documentType" type="xs:string"/>
+          <xs:element minOccurs="0" name="releaseDate" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="purpleHeartInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="status" type="xs:string"/>
+          <xs:element minOccurs="0" name="indicator" type="xs:boolean"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="relationCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="relation" nillable="true" type="relationInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="sensitivityInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="sensitivityChangeDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="sensitivityChangeSite" type="xs:string"/>
+          <xs:element minOccurs="0" name="sensitivityChangeSource" type="xs:string"/>
+          <xs:element minOccurs="0" name="sensityFlag" type="xs:boolean"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="spinalCordInjuryInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="determinationFacility" type="xs:string"/>
+          <xs:element minOccurs="0" name="spinalCordInjuryType" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="preferredFacilityCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="preferredFacilityInfo" nillable="true" type="preferredFacilityInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="preferredFacilityInfo">
+        <xs:all>
+          <xs:element minOccurs="0" name="preferredFacility" type="xs:string"/>
+          <xs:element minOccurs="0" name="assignmentDate" type="xs:dateTime"/>
+          <xs:element minOccurs="0" name="unassignmentDate" type="xs:dateTime"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="primaryviewNotificationInfo">
+        <xs:all>
+          <xs:element maxOccurs="1" minOccurs="1" name="VPID" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="linkNotificationInfo">
+        <xs:all>
+          <xs:element maxOccurs="1" minOccurs="1" name="depricatedVPID" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="1" name="survivingVPID" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="moveNotificationInfo">
+        <xs:all>
+          <xs:element maxOccurs="1" minOccurs="1" name="DFN" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="1" name="stationNumber" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="1" name="fromVPID" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="1" name="toVPID" type="xs:string"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:simpleType name="NotificationType">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="PrimaryViewUpdate"/>
+          <xs:enumeration value="Link"/>
+          <xs:enumeration value="Move"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:simpleType name="EmailType">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="PRIVATE"/>
+          <xs:enumeration value="BUSINESS"/>
+        </xs:restriction>
+      </xs:simpleType>
+      <xs:complexType name="personInfo">
+        <xs:sequence>
+          <xs:element maxOccurs="1" minOccurs="0" name="firstName" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="middleName" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="lastName" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="prefix" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="suffix" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="ssnText" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="gender" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="dob" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="ssaVerificationStatus" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="ssaVerificationDate" type="xs:date"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="vamcData" type="vamcDataCollection"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="names" type="nameCollection"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="mothersMaidenName" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="placeOfBirthCity" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="placeOfBirthState" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="vamcDataCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="vamcInfo" nillable="true" type="eeSummary:vamcInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="vamcInfo">
+        <xs:all>
+          <xs:element maxOccurs="1" minOccurs="0" name="dfnNumber" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="facilityNumber" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="lastVisitDate" type="xs:date"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="vamcReportDate" type="xs:date"/>
+        </xs:all>
+      </xs:complexType>
+      <xs:complexType name="consentInfo">
+        <xs:sequence>
+          <xs:element maxOccurs="1" minOccurs="0" name="consentAuthCode" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="consentImagingSite" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="consentImageIndexNumber" type="xs:string"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="consentReportDate" type="xs:date"/>
+          <xs:element maxOccurs="1" minOccurs="0" name="consentLastUpdateDate" type="xs:date"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ivmCandidateCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="1" name="candidate" type="eeSummary:ivmCandidateInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ivmCandidateInfo">
+        <xs:sequence>
+          <xs:element maxOccurs="1" minOccurs="1" name="vpid" type="xs:string"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="1" name="transactionId" type="xs:string"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="1" name="incomeYear" type="xs:int"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ivmLetterCandidateCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="1" name="ivmLetterCandidate" type="eeSummary:ivmLetterCandidateInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ivmLetterCandidateInfo">
+        <xs:sequence>
+          <xs:element maxOccurs="1" minOccurs="0" name="vpid" type="xs:string"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="ivmCaseNumber" type="xs:string"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="ivmLetterCode" type="xs:string"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="ivmLetterMailedDate" type="xs:date"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="ivmLetterStatuses" type="eeSummary:ivmLetterStatusCollection"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ivmLetterStatusCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="1" name="ivmLetterStatus" type="eeSummary:ivmLetterStatusInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="ivmLetterStatusInfo">
+        <xs:sequence>
+          <xs:element maxOccurs="1" minOccurs="0" name="ivmLetterCommStatus" type="xs:string"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="ivmLetterCommId" type="xs:string"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="recordModifiedDate" type="xs:date"></xs:element>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="nameCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="1" name="name" type="eeSummary:nameInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="nameInfo">
+        <xs:sequence>
+          <xs:element maxOccurs="1" minOccurs="1" name="otherName" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="nonPrimaryFinancialStatementCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="1" name="nonPrimaryFinancialStatement" type="eeSummary:nonPrimaryFinancialStatementInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="nonPrimaryFinancialStatementInfo">
+        <xs:sequence>
+          <xs:element maxOccurs="1" minOccurs="0" name="incomeYear" type="xs:int"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="facilityVisitedCode" type="xs:string"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="inpatientDays" type="xs:int"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="outpatientDays" type="xs:int"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="lastVisitDate" type="xs:date"></xs:element>
+          <xs:element maxOccurs="1" minOccurs="0" name="vamcReportDate" type="xs:date"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="sendIVMUpdatesRequest">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="1" minOccurs="1" name="vpid" type="xs:string"></xs:element>
+            <xs:element maxOccurs="1" minOccurs="1" name="incomeYear" type="xs:int"></xs:element>
+            <xs:element maxOccurs="1" minOccurs="0" name="btFinancialInd" type="xs:boolean"/>
+            <xs:element maxOccurs="1" minOccurs="1" name="sendIVMInfo">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element maxOccurs="1" minOccurs="0" name="spouse" type="eeSummary:spouseInfo"></xs:element>
+                  <xs:element maxOccurs="1" minOccurs="0" name="dependents" type="eeSummary:dependentCollection"></xs:element>
+                  <xs:element maxOccurs="1" minOccurs="0" name="incomeTest" type="eeSummary:incomeTestInfo"></xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element maxOccurs="1" minOccurs="1" name="ivmLetterInfo">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element maxOccurs="1" minOccurs="0" name="ivmCaseNumber" type="xs:string"></xs:element>
+                  <xs:element maxOccurs="1" minOccurs="0" name="ivmLetterCode" type="xs:string"></xs:element>
+                  <xs:element maxOccurs="1" minOccurs="0" name="ivmConversionDate" type="xs:date"></xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+            <xs:element maxOccurs="1" minOccurs="1" name="ivmActionCode">
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:enumeration value="R"/>
+                  <xs:enumeration value="C"/>
+                  <xs:enumeration value="N"/>
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:complexType name="getIVMLetterStatusesRequest"></xs:complexType>
+      <xs:complexType name="dependentCollection">
+        <xs:sequence>
+          <xs:element maxOccurs="unbounded" minOccurs="0" name="dependent" type="eeSummary:dependentInfo"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="sendIVMUpdatesResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element maxOccurs="1" minOccurs="1" name="acknowledgement" type="xs:string"></xs:element>
+            <xs:element maxOccurs="1" minOccurs="1" name="status" type="xs:string"></xs:element>
+            <xs:element maxOccurs="1" minOccurs="1" name="invocationDate" type="xs:date"></xs:element>
+            <xs:element maxOccurs="1" minOccurs="1" name="eesVersion" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="getDeliveryPreferenceResponse">
+    <wsdl:part element="tns:getDeliveryPreferenceResponse" name="getDeliveryPreferenceResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateDeliveryPreferenceRequest">
+    <wsdl:part element="tns:updateDeliveryPreferenceRequest" name="updateDeliveryPreferenceRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="sendIVMUpdatesResponse">
+    <wsdl:part element="tns:sendIVMUpdatesResponse" name="sendIVMUpdatesResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getEligibilityDeterminationRequest">
+    <wsdl:part element="tns:getEligibilityDeterminationRequest" name="getEligibilityDeterminationRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getEESummaryRequest">
+    <wsdl:part element="tns:getEESummaryRequest" name="getEESummaryRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getPersonNotificationResponse">
+    <wsdl:part element="tns:getPersonNotificationResponse" name="getPersonNotificationResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateIVMRecordStatusResponse">
+    <wsdl:part element="tns:updateIVMRecordStatusResponse" name="updateIVMRecordStatusResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateIVMRecordStatusRequest">
+    <wsdl:part element="tns:updateIVMRecordStatusRequest" name="updateIVMRecordStatusRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getPersonNotificationRequest">
+    <wsdl:part element="tns:getPersonNotificationRequest" name="getPersonNotificationRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getDeliveryPreferenceRequest">
+    <wsdl:part element="tns:getDeliveryPreferenceRequest" name="getDeliveryPreferenceRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="updateDeliveryPreferenceResponse">
+    <wsdl:part element="tns:updateDeliveryPreferenceResponse" name="updateDeliveryPreferenceResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="sendIVMUpdatesRequest">
+    <wsdl:part element="tns:sendIVMUpdatesRequest" name="sendIVMUpdatesRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getIVMLetterStatusesRequest">
+    <wsdl:part element="tns:getIVMLetterStatusesRequest" name="getIVMLetterStatusesRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getEESummaryHistoryResponse">
+    <wsdl:part element="tns:getEESummaryHistoryResponse" name="getEESummaryHistoryResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getEESummaryResponse">
+    <wsdl:part element="tns:getEESummaryResponse" name="getEESummaryResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getEESummaryHistoryRequest">
+    <wsdl:part element="tns:getEESummaryHistoryRequest" name="getEESummaryHistoryRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getEligibilityDeterminationResponse">
+    <wsdl:part element="tns:getEligibilityDeterminationResponse" name="getEligibilityDeterminationResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="retrieveIVMCandidatesResponse">
+    <wsdl:part element="tns:retrieveIVMCandidatesResponse" name="retrieveIVMCandidatesResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="retrieveIVMCandidatesRequest">
+    <wsdl:part element="tns:retrieveIVMCandidatesRequest" name="retrieveIVMCandidatesRequest"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getIVMLetterStatusesResponse">
+    <wsdl:part element="tns:getIVMLetterStatusesResponse" name="getIVMLetterStatusesResponse"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="eeSummaryPort">
+    <wsdl:operation name="getDeliveryPreference">
+      <wsdl:input message="tns:getDeliveryPreferenceRequest" name="getDeliveryPreferenceRequest"></wsdl:input>
+      <wsdl:output message="tns:getDeliveryPreferenceResponse" name="getDeliveryPreferenceResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateDeliveryPreference">
+      <wsdl:input message="tns:updateDeliveryPreferenceRequest" name="updateDeliveryPreferenceRequest"></wsdl:input>
+      <wsdl:output message="tns:updateDeliveryPreferenceResponse" name="updateDeliveryPreferenceResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="sendIVMUpdates">
+      <wsdl:input message="tns:sendIVMUpdatesRequest" name="sendIVMUpdatesRequest"></wsdl:input>
+      <wsdl:output message="tns:sendIVMUpdatesResponse" name="sendIVMUpdatesResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getEligibilityDetermination">
+      <wsdl:input message="tns:getEligibilityDeterminationRequest" name="getEligibilityDeterminationRequest"></wsdl:input>
+      <wsdl:output message="tns:getEligibilityDeterminationResponse" name="getEligibilityDeterminationResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getEESummary">
+      <wsdl:input message="tns:getEESummaryRequest" name="getEESummaryRequest"></wsdl:input>
+      <wsdl:output message="tns:getEESummaryResponse" name="getEESummaryResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getPersonNotification">
+      <wsdl:input message="tns:getPersonNotificationRequest" name="getPersonNotificationRequest"></wsdl:input>
+      <wsdl:output message="tns:getPersonNotificationResponse" name="getPersonNotificationResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateIVMRecordStatus">
+      <wsdl:input message="tns:updateIVMRecordStatusRequest" name="updateIVMRecordStatusRequest"></wsdl:input>
+      <wsdl:output message="tns:updateIVMRecordStatusResponse" name="updateIVMRecordStatusResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getIVMLetterStatuses">
+      <wsdl:input message="tns:getIVMLetterStatusesRequest" name="getIVMLetterStatusesRequest"></wsdl:input>
+      <wsdl:output message="tns:getIVMLetterStatusesResponse" name="getIVMLetterStatusesResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getEESummaryHistory">
+      <wsdl:input message="tns:getEESummaryHistoryRequest" name="getEESummaryHistoryRequest"></wsdl:input>
+      <wsdl:output message="tns:getEESummaryHistoryResponse" name="getEESummaryHistoryResponse"></wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="retrieveIVMCandidates">
+      <wsdl:input message="tns:retrieveIVMCandidatesRequest" name="retrieveIVMCandidatesRequest"></wsdl:input>
+      <wsdl:output message="tns:retrieveIVMCandidatesResponse" name="retrieveIVMCandidatesResponse"></wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="eeSummaryPortSoap11" type="tns:eeSummaryPort">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="getDeliveryPreference">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="getDeliveryPreferenceRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getDeliveryPreferenceResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateDeliveryPreference">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="updateDeliveryPreferenceRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="updateDeliveryPreferenceResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="sendIVMUpdates">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="sendIVMUpdatesRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="sendIVMUpdatesResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getEligibilityDetermination">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="getEligibilityDeterminationRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getEligibilityDeterminationResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getEESummary">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="getEESummaryRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getEESummaryResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getPersonNotification">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="getPersonNotificationRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getPersonNotificationResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="updateIVMRecordStatus">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="updateIVMRecordStatusRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="updateIVMRecordStatusResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getIVMLetterStatuses">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="getIVMLetterStatusesRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getIVMLetterStatusesResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="getEESummaryHistory">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="getEESummaryHistoryRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getEESummaryHistoryResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="retrieveIVMCandidates">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="retrieveIVMCandidatesRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="retrieveIVMCandidatesResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="eeSummaryPortService">
+    <wsdl:port binding="tns:eeSummaryPortSoap11" name="eeSummaryPortSoap11">
+      <soap:address location="https://vaww.esrstage1a.aac.va.gov:8443/esr-ws/spring-ws/getEESummary/"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

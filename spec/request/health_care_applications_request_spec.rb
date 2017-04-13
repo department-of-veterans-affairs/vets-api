@@ -22,7 +22,7 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
     let(:es_stub) { double(health_check: { up: true }) }
 
     it 'should call ES' do
-      VCR.use_cassette('hca/health_check', match_requests_on: [:body]) do
+      VCR.use_cassette('hca/voa/health_check', match_requests_on: [:body]) do
         subject
         expect(JSON.parse(response.body)).to eq(body)
       end
@@ -86,7 +86,7 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
         end
 
         it 'should render success', run_at: '2017-01-31' do
-          VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
+          VCR.use_cassette('hca/voa/submit_anon', match_requests_on: [:body]) do
             subject
             expect(JSON.parse(response.body)).to eq(body)
           end
@@ -109,7 +109,7 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
         end
 
         it 'should render success', run_at: '2017-01-31' do
-          VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+          VCR.use_cassette('hca/voa/submit_auth', match_requests_on: [:body]) do
             subject
             expect(JSON.parse(response.body)).to eq(body)
           end
@@ -120,7 +120,7 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
         let(:error) { Common::Client::Errors::HTTPError.new('error message') }
 
         before do
-          allow_any_instance_of(HCA::Service).to receive(:post) do
+          allow_any_instance_of(HCA::VOA::Service).to receive(:submit_form) do
             raise error
           end
           Settings.sentry.dsn = 'asdf'

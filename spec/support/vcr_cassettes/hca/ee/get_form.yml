@@ -1,0 +1,55 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: '<HCA-EE_URL>'
+    body:
+      encoding: UTF-8
+      string: <?xml version="1.0" encoding="UTF-8"?><env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://jaxws.webservices.esr.med.va.gov/schemas"
+        xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><wsse:Security
+        xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"><wsse:UsernameToken
+        wsu:Id="UsernameToken-1" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"><wsse:Username>hca-ee-user</wsse:Username><wsse:Password
+        Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">hca-ee-pass</wsse:Password></wsse:UsernameToken></wsse:Security></env:Header><env:Body><tns:getEESummaryRequest><requestName>VOARequest</requestName><key>1010934578V276731</key></tns:getEESummaryRequest></env:Body></env:Envelope>
+    headers:
+      Accept:
+      - text/xml;charset=UTF-8
+      Content-Type:
+      - text/xml;charset=UTF-8
+      User-Agent:
+      - Vets.gov Agent
+      Date:
+      - Tue, 25 Apr 2017 15:59:22 GMT
+      Content-Length:
+      - '913'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 25 Apr 2017 15:59:39 GMT
+      Server:
+      - Apache/2.2.3 (Red Hat) DAV/2 mod_auth_pgsql/2.0.3 PHP/5.1.6 mod_python/3.2.8
+        Python/2.4.3 mod_ssl/2.2.3 OpenSSL/0.9.8e-fips-rhel5 SVN/1.6.11 mod_perl/2.0.4
+        Perl/v5.8.8
+      Content-Length:
+      - '6610'
+      Accept:
+      - text/xml, text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2
+      Soapaction:
+      - '""'
+      X-Powered-By:
+      - Servlet/2.5 JSP/2.1
+      Connection:
+      - close
+      Content-Type:
+      - text/xml; charset=utf-8
+    body:
+      encoding: UTF-8
+      string: '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"><SOAP-ENV:Header/><SOAP-ENV:Body><getEESummaryResponse xmlns="http://jaxws.webservices.esr.med.va.gov/schemas"><eesVersion>4.6.0.01001</eesVersion><summary><employmentInfo><employmentStatus>Employed Full-Time</employmentStatus></employmentInfo><eligibilityVerificationInfo><eligibilityStatus>VERIFIED</eligibilityStatus><eligibilityStatusDate>20140909</eligibilityStatusDate><verificationMethod>VBA</verificationMethod></eligibilityVerificationInfo><sensitivityInfo><sensityFlag>false</sensityFlag></sensitivityInfo><enrollmentDeterminationInfo><eligibleForMedicaid>false</eligibleForMedicaid><userEnrolleeSite>664 - SAN DIEGO HCS</userEnrolleeSite><effectiveDate>2014-09-09T00:00:00.000-05:00</effectiveDate><recordCreatedDate>2005-01-01T12:43:07.000-06:00</recordCreatedDate><monetaryBenefitAwardInfo><monetaryBenefits><monetaryBenefit><monetaryBenefitIndicator>false</monetaryBenefitIndicator><type>VA Pension</type><monetaryBenefitReportDate>2005-01-01T12:43:07.000-06:00</monetaryBenefitReportDate></monetaryBenefit><monetaryBenefit><monetaryBenefitIndicator>true</monetaryBenefitIndicator><type>Disability Compensation</type><monetaryBenefitReportDate>2014-09-09T05:04:05.000-05:00</monetaryBenefitReportDate></monetaryBenefit><monetaryBenefit><type>Housebound</type><monetaryBenefitReportDate>2014-09-09T05:04:05.000-05:00</monetaryBenefitReportDate></monetaryBenefit><monetaryBenefit><monetaryBenefitIndicator>false</monetaryBenefitIndicator><type>Aid And Attendance</type><monetaryBenefitReportDate>2014-09-09T05:04:05.000-05:00</monetaryBenefitReportDate></monetaryBenefit></monetaryBenefits><checkAmount>999</checkAmount></monetaryBenefitAwardInfo><enrollmentDate>2003-12-04T00:00:00.000-06:00</enrollmentDate><priorityGroup>Group 3</priorityGroup><applicationDate>2003-12-02T00:00:00.000-06:00</applicationDate><primaryEligibility><indicator>P</indicator><eligibilityReportDate>2014-09-09T05:04:05.000-05:00</eligibilityReportDate><type>SC LESS THAN 50%</type></primaryEligibility><ineligibilityFactor><recordCreatedDate>2014-09-09T05:04:05.000-05:00</recordCreatedDate></ineligibilityFactor><enrollmentCategoryName>Enrolled</enrollmentCategoryName><calculationSource>HEC</calculationSource><specialFactors><envContaminantsInd>false</envContaminantsInd><radiationExposureInd>false</radiationExposureInd><agentOrangeInd>false</agentOrangeInd></specialFactors><veteran>true</veteran><enrollmentStatus>Verified</enrollmentStatus><userEnrolleeValidThrough>2004</userEnrolleeValidThrough><recordModifiedDate>2014-09-09T05:04:05.000-05:00</recordModifiedDate><medicaidLastModifiedDate>2005-01-01T12:43:07.000-06:00</medicaidLastModifiedDate><noseThroatRadiumInfo><receivingTreatment>No</receivingTreatment><verificationDate>2003-12-02T13:38:12.000-06:00</verificationDate><verificationFacility>664 - SAN DIEGO HCS</verificationFacility></noseThroatRadiumInfo><serviceConnectionAward><serviceConnectedPercentage>10</serviceConnectedPercentage><permanentAndTotal>false</permanentAndTotal><combinedServiceConnectedPercentageEffectiveDate>20130801000000</combinedServiceConnectedPercentageEffectiveDate><unemployable>false</unemployable><serviceConnectedIndicator>true</serviceConnectedIndicator><ratedDisabilities><ratedDisability><percentage>10</percentage><recordModifiedDate>2014-09-09T05:04:05.000-05:00</recordModifiedDate><disabilityCode>6260</disabilityCode><originalEffectiveRatingDate>20130801</originalEffectiveRatingDate><ratingDate>20130801</ratingDate><disability>Tinnitus</disability></ratedDisability></ratedDisabilities><scReportDate>2014-09-09T05:04:05.000-05:00</scReportDate></serviceConnectionAward></enrollmentDeterminationInfo><associations><association><middleName>MNAME</middleName><familyName>LNAME</familyName><givenName>FNAME</givenName><contactType>Primary Next of Kin</contactType><relationship>WIFE</relationship><primaryPhone>(555)555-0001</primaryPhone><address><zipCode>90210</zipCode><state>CA</state><city>CITYN</city><line2>Apt 3</line2><line1>111 MAIN ST</line1></address></association></associations><incompetenceRulingInfo><incompetent>false</incompetent></incompetenceRulingInfo><militaryServiceInfo><militaryServiceSiteRecords><militaryServiceSiteRecord><servicePeriod>PERSIAN GULF WAR</servicePeriod><site>664 - SAN DIEGO HCS</site></militaryServiceSiteRecord></militaryServiceSiteRecords><combatVeteranEligibilityEndDate>2008-05-30T00:00:00.000-05:00</combatVeteranEligibilityEndDate><combatEpisodes><combatEpisode><startDate>20030101</startDate><OEFOIFStationNumber>742</OEFOIFStationNumber><combatPayType>Combat Zone Tax Exclusion</combatPayType><endDate>20050101</endDate><OEFOIFSource>VIS</OEFOIFSource><conflictLocation>Unknown OEF/OIF</conflictLocation></combatEpisode></combatEpisodes></militaryServiceInfo><demographics><contactInfo><phones><phone><phoneNumberReportDate>2008-06-16T22:37:38.000-05:00</phoneNumberReportDate><phoneNumber>(555)555-0002</phoneNumber><type>Home</type></phone></phones><addresses><address><addressTypeCode>Permanent</addressTypeCode><contactMethodType>08</contactMethodType><addressChangeDateTime>2017-03-21T17:37:44.000-05:00</addressChangeDateTime><addressChangeSource>Veterans Affairs Medical Center</addressChangeSource><contactMethodReportDate>2017-03-21T17:37:44.000-05:00</contactMethodReportDate><addressChangeSite>664 - SAN DIEGO HCS</addressChangeSite><zipCode>90210</zipCode><state>CA</state><country>USA</country><zipPlus4>4735</zipPlus4><city>CITYN</city><county>SAN DIEGO</county><line2>APT 3</line2><line1>111 Main St</line1></address><address><addressTypeCode>Residential</addressTypeCode><addressChangeDateTime>2017-03-21T19:20:13.000-05:00</addressChangeDateTime><addressChangeSource>Veterans Affairs Medical Center</addressChangeSource><addressChangeSite>664 - SAN DIEGO HCS</addressChangeSite><zipCode>40404</zipCode><state>CO</state><country>USA</country><zipPlus4>4735</zipPlus4><city>ANOTHER CITY</city><county>COUNTY NAME</county><line1>222 MADEUP AVE</line1></address></addresses></contactInfo><preferredFacilities><preferredFacilityInfo><preferredFacility>664 - SAN DIEGO HCS</preferredFacility><assignmentDate>2003-12-03T04:32:07.000-06:00</assignmentDate></preferredFacilityInfo></preferredFacilities><assignmentDate>2003-12-03T04:32:07.000-06:00</assignmentDate><claimFolderNumber>112334567</claimFolderNumber><preferredFacility>664 - SAN DIEGO HCS</preferredFacility></demographics></summary><invocationDate>2017-04-25T10:59:39</invocationDate></getEESummaryResponse></SOAP-ENV:Body></SOAP-ENV:Envelope>'
+    http_version:
+  recorded_at: Tue, 25 Apr 2017 15:59:22 GMT
+recorded_with: VCR 3.0.3

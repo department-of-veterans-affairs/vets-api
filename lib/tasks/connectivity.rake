@@ -82,7 +82,7 @@ namespace :connectivity do
 
   desc 'Check HCA'
   task hca: :environment do
-    check 'HCA', Settings.hca.endpoint do
+    check 'HCA', Settings.hca.voa.endpoint do
       HCA::Service.new.health_check
     end
   end

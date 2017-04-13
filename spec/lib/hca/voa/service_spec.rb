@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'hca/service'
+require 'hca/voa/service'
 
-describe HCA::Service do
+describe HCA::VOA::Service do
   let(:cert) { instance_double('OpenSSL::X509::Certificate') }
   let(:key) { instance_double('OpenSSL::PKey::RSA') }
   let(:store) { instance_double('OpenSSL::X509::Store') }
@@ -48,19 +48,16 @@ describe HCA::Service do
   describe '#health_check' do
     context 'with a valid request' do
       it 'returns the id and a timestamp' do
-        VCR.use_cassette('hca/health_check', match_requests_on: [:body]) do
+        VCR.use_cassette('hca/voa/health_check', match_requests_on: [:body, :uri]) do
           response = subject.health_check
           expect(response).to eq(
-            formSubmissionId: ::HCA::Configuration::HEALTH_CHECK_ID,
+            formSubmissionId: Settings.hca.voa.healthcheck_id,
             timestamp: '2016-12-12T08:06:08.423-06:00'
           )
         end
       end
-    end
-
-    context 'with a valid request' do
-      it 'raises an exception' do
-        VCR.use_cassette('hca/health_check_downtime', match_requests_on: [:body]) do
+      it 'raises an exception when the service is down' do
+        VCR.use_cassette('hca/voa/health_check_downtime', match_requests_on: [:body]) do
           expect { subject.health_check }.to raise_error(Common::Client::Errors::HTTPError)
         end
       end
@@ -69,17 +66,16 @@ describe HCA::Service do
 
   describe '.options' do
     before(:each) do
-      allow(HCA::Configuration.instance).to receive(:ssl_cert) { cert }
-      allow(HCA::Configuration.instance).to receive(:ssl_key) { key }
+      allow(HCA::VOA::Configuration.instance).to receive(:ssl_cert) { cert }
+      allow(HCA::VOA::Configuration.instance).to receive(:ssl_key) { key }
       stub_const('HCA::Configuration::CERT_STORE', store)
-      stub_const('HCA::Configuration::ENDPOINT', nil)
     end
 
     context 'when there are no SSL options' do
       it 'should only return the wsdl' do
-        allow(HCA::Configuration.instance).to receive(:ssl_cert) { nil }
-        allow(HCA::Configuration.instance).to receive(:ssl_key) { nil }
-        expect(HCA::Configuration.instance.ssl_options).to eq(
+        allow(HCA::VOA::Configuration.instance).to receive(:ssl_cert) { nil }
+        allow(HCA::VOA::Configuration.instance).to receive(:ssl_key) { nil }
+        expect(HCA::VOA::Configuration.instance.ssl_options).to eq(
           verify: true,
           cert_store: store
         )
@@ -87,7 +83,7 @@ describe HCA::Service do
     end
     context 'when there are SSL options' do
       it 'should return the wsdl, cert and key paths' do
-        expect(HCA::Configuration.instance.ssl_options).to eq(
+        expect(HCA::VOA::Configuration.instance.ssl_options).to eq(
           verify: true,
           cert_store: store,
           client_cert: cert,

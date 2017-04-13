@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-module HCA
+module HCA::VOA
   module Validations
     module_function
 

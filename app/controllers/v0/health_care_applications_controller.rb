@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'hca/service'
+require 'hca/voa/service'
 
 module V0
   class HealthCareApplicationsController < ApplicationController
@@ -13,7 +13,7 @@ module V0
       validate!(form)
 
       result = begin
-        HCA::Service.new(current_user).submit_form(form)
+        HCA::VOA::Service.new(current_user).submit_form(form)
       rescue Common::Client::Errors::ClientError => e
         log_exception_to_sentry(e)
 
@@ -26,7 +26,7 @@ module V0
     end
 
     def healthcheck
-      render(json: HCA::Service.new.health_check)
+      render(json: HCA::VOA::Service.new.health_check)
     end
 
     private

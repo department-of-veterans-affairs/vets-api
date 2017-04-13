@@ -23,6 +23,8 @@ PreCommit:
   # Check for internal VA addresses in new commits
   InternalAddresses:
     enabled: true
+    exclude:
+      - config/health_care_application/wsdl/*.wsdl
 
   # Re-run rubocop before allowing a commit to cut down on 'lint fix' commits
   RuboCop:
