@@ -10,8 +10,7 @@ module V0
       form = JSON.parse(params[:form])
       validation_errors = JSON::Validator.fully_validate(
         VetsJsonSchema::SCHEMAS['10-10EZ'],
-        form,
-        validate_schema: true
+        form, validate_schema: true
       )
 
       if validation_errors.present?
@@ -30,7 +29,7 @@ module V0
           detail: e.message
         )
       end
-
+      Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
       render(json: result)
     end
 
