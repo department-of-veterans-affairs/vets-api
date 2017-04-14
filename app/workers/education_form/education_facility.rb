@@ -64,15 +64,13 @@ module EducationForm
       FACILITY_IDS[region]
     end
 
-    # rubocop:disable Metrics/CyclomaticComplexity
     def self.region_for(model)
       record = model.open_struct_form
-      country = record.school&.address&.country || record.veteranAddress&.country
+      address = routing_address(record)
       # special case Philippines
-      return :western if country == 'PHL'
+      return :western if address&.country == 'PHL'
 
-      area = record.school&.address&.state || record.veteranAddress&.state
-
+      area = address&.state
       case area
       when *EASTERN
         :eastern
@@ -91,6 +89,16 @@ module EducationForm
       address = ["#{region.to_s.capitalize} Region", 'VA Regional Office']
       address += ADDRESSES[region]
       address.join("\n")
+    end
+
+    # Claims are sent to different RPOs based first on the location of the school
+    # that the claim is relating to (either `school` or `newSchool` in our submissions)
+    # or to the applicant's address (either as a relative or the veteran themselves)
+    def self.routing_address(record)
+      record.school&.address ||
+        record.newSchool&.address ||
+        record.relativeAddress ||
+        record.veteranAddress
     end
   end
 end

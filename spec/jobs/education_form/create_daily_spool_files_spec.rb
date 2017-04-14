@@ -105,13 +105,13 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         # clear out old test files
         FileUtils.rm_rf(Dir.glob(spool_files))
         # ensure our test data is spread across 3 regions..
-        expect(EducationBenefitsClaim.unprocessed.pluck(:regional_processing_office).uniq.count).to be(3)
+        expect(EducationBenefitsClaim.unprocessed.pluck(:regional_processing_office).uniq.count).to eq(3)
       end
 
       it 'it processes the valid messages' do
         expect(subject).to receive(:log_exception_to_sentry).once
         expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(3).to(1)
-        expect(Dir[spool_files].count).to be(2)
+        expect(Dir[spool_files].count).to eq(2)
       end
     end
 
