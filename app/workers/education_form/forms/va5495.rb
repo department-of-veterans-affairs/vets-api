@@ -2,7 +2,7 @@
 module EducationForm::Forms
   class VA5495 < Base
     def school
-      @applicant.newSchool
+      @applicant.educationProgram
     end
 
     def applicant_name

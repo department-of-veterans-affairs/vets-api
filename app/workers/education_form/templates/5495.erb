@@ -33,18 +33,19 @@ Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
 
 Benefit You Are Receiving: <%= @applicant.benefit&.titleize %>
 
-Type of Education or Training: <%= @applicant.educationType&.titleize %>
+Type of Education or Training: <%= @applicant.educationProgram&.educationType&.titleize %>
 
 Education or Career Goal: <%= @applicant.educationObjective %>
 
 What is the name of the program you are requesting to pursue?: <%= @applicant.programName %>
 
 New School or Training Establishment:
-<%= school_name_and_addr(@applicant.newSchool) %>
+<%= school_name_and_addr(@applicant.educationProgram) %>
 
 Current/Prior School or Training Establishment:
 <%= school_name_and_addr(@applicant.oldSchool) %>
 
+Date You Stopped Training: <%= @applicant.trainingEndDate %>
 Reason for Change: <%= @applicant.reasonForChange %>
 
 
