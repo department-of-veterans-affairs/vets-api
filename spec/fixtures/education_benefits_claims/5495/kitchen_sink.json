@@ -69,9 +69,9 @@
     "serviceBranch": "Army Reserve",
     "serviceStatus": "ACTIVE DUTY"
   }],
-  "educationType": "college",
-  "newSchool": {
+  "educationProgram": {
     "name": "school name",
+    "educationType": "college",
     "address": {
       "city": "Baltimore",
       "country": "USA",
