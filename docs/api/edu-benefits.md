@@ -2,7 +2,7 @@
 * Purpose: Submit an education benefits claim
 * HTTP Method: POST
 * Path: /v0/education_benefits_claims/:form_type
-* Valid form_types: `1990 1995 1990e 5490`
+* Valid `form_type` options: `1990 1995 1990e 5490`
 * Header for converting from/to camelcase: `X-Key-Inflection: camel`
 * Parameters:
 ```javascript
