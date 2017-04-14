@@ -91,5 +91,6 @@
     }
   },
   "bankAccountChange": "startUpdate",
+  "trainingEndDate": "2013-06-14",
   "privacyAgreementAccepted": true
 }
