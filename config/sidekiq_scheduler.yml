@@ -24,3 +24,8 @@ DeleteOldClaims:
   cron: "0 2 * * * America/New_York"
   class: EVSS::DeleteOldClaims
   description: "Clear out EVSS disability claims that have not been updated in 24 hours"
+
+FailedClaimsReport:
+  cron: "30 3 * * MON America/New_York"
+  class: EVSS::FailedClaimsReport
+  description: "Notify developers about EVSS claims which could not be uploaded"
