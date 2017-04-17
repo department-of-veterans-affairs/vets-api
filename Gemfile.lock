@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 7ef76dfb7e334a23db5b663a8c0dff15747748f6
+  revision: 3d7c8e8b47443dfd2b494a3a4151aa2afaa63118
   branch: master
   specs:
-    vets_json_schema (2.1.1)
+    vets_json_schema (2.5.2)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -415,6 +415,7 @@ DEPENDENCIES
   apivore
   attr_encrypted
   awrence
+  aws-sdk
   brakeman
   breakers
   bundler-audit
