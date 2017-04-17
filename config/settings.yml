@@ -77,6 +77,18 @@ mvi:
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
 
+# Settings for eMIS
+emis:
+  veteran_status_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/VeteranStatusService
+  payment_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/PaymentService
+  mis_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/MilitaryInformationService
+  client_cert_path: /fake/client/cert/path
+  client_key_path: /fake/client/key/path
+  soap_namespaces:
+    xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v1
+    xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v1
+    xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v1
+
 # Settings for Redis
 # TODO(knkski): Move all redis settings here?
 redis:
