@@ -85,6 +85,8 @@ Rails.application.routes.draw do
 
       resources :calculator_constants, only: :index, defaults: { format: :json }
     end
+
+    resources :apidocs, only: [:index]
   end
 
   root 'v0/example#index', module: 'v0'
