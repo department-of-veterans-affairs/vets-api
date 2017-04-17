@@ -66,7 +66,7 @@ module EducationForm
 
     def self.region_for(model)
       record = model.open_struct_form
-      address = routing_address(record)
+      address = routing_address(record, form_type: model.form_type)
       # special case Philippines
       return :western if address&.country == 'PHL'
 
@@ -82,6 +82,24 @@ module EducationForm
         DEFAULT
       end
     end
+
+    # Claims are sent to different RPOs based first on the location of the school
+    # that the claim is relating to (either `school` or `newSchool` in our submissions)
+    # or to the applicant's address (either as a relative or the veteran themselves)
+    # rubocop:disable Metrics/CyclomaticComplexity
+    def self.routing_address(record, form_type:)
+      case form_type.upcase
+      when '1990'
+        record.school&.address || record.veteranAddress
+      when '1990N'
+        record.educationProgram&.address || record.veteranAddress
+      when '1990E', '5490'
+        record.educationProgram&.address || record.relativeAddress
+      when '1995', '5495'
+        record.newSchool&.address || record.relativeAddress
+      end
+    end
+
     # rubocop:enable Metrics/CyclomaticComplexity
 
     def self.regional_office_for(model)
@@ -89,16 +107,6 @@ module EducationForm
       address = ["#{region.to_s.capitalize} Region", 'VA Regional Office']
       address += ADDRESSES[region]
       address.join("\n")
-    end
-
-    # Claims are sent to different RPOs based first on the location of the school
-    # that the claim is relating to (either `school` or `newSchool` in our submissions)
-    # or to the applicant's address (either as a relative or the veteran themselves)
-    def self.routing_address(record)
-      record.school&.address ||
-        record.newSchool&.address ||
-        record.relativeAddress ||
-        record.veteranAddress
     end
   end
 end
