@@ -8,10 +8,10 @@
   "newSchool": {
     "name": "school name",
     "address": {
-      "city": "Baltimore",
+      "city": "Milwaukee",
       "country": "USA",
-      "postalCode": "21231",
-      "state": "MD",
+      "postalCode": "53135",
+      "state": "WI",
       "street": "111 Uni Drive"
     }
   },

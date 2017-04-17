@@ -5,7 +5,7 @@ desc 'shortcut to run all linting tools, at the same time.'
 task :lint do
   require 'rainbow'
 
-  opts = ENV['CI'] ? '' : '--auto-correct'
+  opts = ENV['CI'] ? '' : '--display-cop-names --auto-correct'
   puts 'running rubocop...'
   rubocop_result = ShellCommand.run("rubocop #{opts} --color")
 
