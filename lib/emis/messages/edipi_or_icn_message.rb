@@ -35,7 +35,7 @@ module EMIS
       end
 
       def build_header
-        element('env:Header').tap do |header|
+        element('soap:Header').tap do |header|
           header << element('v1:inputHeaderInfo').tap do |hi|
             hi << element('v1:userId', text!: 'vets.gov')
             hi << element('v1:sourceSystemName', text!: 'vets.gov')
@@ -45,16 +45,18 @@ module EMIS
       end
 
       def build_body
+        request = element('v11:eMISveteranStatusRequest')
         edipi_or_icn = element('v12:edipiORicn')
         edipi_or_icn << element('v13:edipiORicnValue', text!: @edipi || @icn)
         edipi_or_icn << element('v13:inputType', text!: (@edipi && 'EDIPI') || (@icn && 'ICN'))
-        element('env:Body').tap do |body|
-          body << edipi_or_icn
+        request << edipi_or_icn
+        element('soap:Body').tap do |body|
+          body << request
         end
       end
 
       def build_envelope
-        element('env:Envelope', Settings.emis.soap_namespaces)
+        element('soap:Envelope', Settings.emis.soap_namespaces)
       end
     end
   end
