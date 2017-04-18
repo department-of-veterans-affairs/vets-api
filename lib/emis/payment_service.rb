@@ -7,13 +7,13 @@ module EMIS
   class PaymentService < Service
     configuration EMIS::PaymentConfiguration
 
-    def get_veteran_status(edipi: nil, icn: nil)
-      make_request(
-        edipi: edipi,
-        icn: icn,
-        operation: 'getVeteranStatus',
-        response_type: EMIS::Responses::GetVeteranStatusResponse
+    create_endpoints(
+      %i(
+        get_combat_pay
+        get_reserve_drill_days
+        get_retirement
+        get_separation_pay
       )
-    end
+    )
   end
 end

@@ -13,7 +13,6 @@ describe EMIS::VeteranStatusService do
         VCR.use_cassette('emis/get_veteran_status/valid') do
           response = subject.get_veteran_status(edipi: edipi)
           expect(response).to be_ok
-          # expect(response.profile).to have_deep_attributes(veteran_status)
         end
       end
 

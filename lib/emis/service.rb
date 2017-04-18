@@ -2,14 +2,26 @@
 require 'common/client/base'
 require 'emis/configuration'
 require 'emis/messages/edipi_or_icn_message'
-require 'emis/responses/error_response'
-require 'emis/responses/get_veteran_status_response'
+require 'emis/responses'
 require 'common/client/middleware/request/soap_headers'
 require 'common/client/middleware/response/soap_parser'
 require 'emis/errors/errors'
 
 module EMIS
   class Service < Common::Client::Base
+    def self.create_endpoints(endpoints)
+      endpoints.each do |endpoint|
+        define_method(endpoint) do |edipi: nil, icn: nil|
+          make_request(
+            edipi: edipi,
+            icn: icn,
+            operation: endpoint.to_s.camelize(:lower),
+            response_type: "EMIS::Responses::#{endpoint.to_s.camelize}Response".constantize
+          )
+        end
+      end
+    end
+
     protected
 
     def make_request(edipi: nil, icn: nil, operation:, response_type:)

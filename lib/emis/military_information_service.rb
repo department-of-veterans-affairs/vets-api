@@ -7,13 +7,17 @@ module EMIS
   class MilitaryInformationService < Service
     configuration EMIS::MilitaryInformationConfiguration
 
-    def get_veteran_status(edipi: nil, icn: nil)
-      make_request(
-        edipi: edipi,
-        icn: icn,
-        operation: 'getVeteranStatus',
-        response_type: EMIS::Responses::GetVeteranStatusResponse
+    create_endpoints(
+      %i(
+        get_deployment
+        get_disabilities
+        get_guard_reserve_service_periods
+        get_military_service_eligibility_info
+        get_military_occupation
+        get_military_service_episodes
+        get_retirement
+        get_unit_information
       )
-    end
+    )
   end
 end
