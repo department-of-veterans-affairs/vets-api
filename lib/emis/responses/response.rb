@@ -12,6 +12,10 @@ module EMIS
         locate_one('essResponseCode').nodes.first == 'Success'
       end
 
+      def error?
+        locate_one('essResponseCode').nodes.first == 'ERROR'
+      end
+
       def locate(tag_without_namespace, el = @root)
         find_all_elements_by_tag_name(tag_without_namespace, el)
       end
@@ -28,12 +32,13 @@ module EMIS
       # of a specific type, since Ox also doesn't support real XPath and therefore doesn't
       # allow wildcards on parts of the tag. So this finds all of the elements and caches
       # them by tag so that later we can pull those tags out by a regex that ignores the
-      # namespaces.
+      # namespaces. For extra fun, the casing is sometimes different for the tags, so we must
+      # do a case-insensitive regex.
       #
       def find_all_elements_by_tag_name(tag_without_namespace, el)
         [].tap do |result|
           if el.respond_to?(:value)
-            result << el if el.value =~ /^NS\d+:#{tag_without_namespace}$/
+            result << el if el.value =~ /^NS\d+:#{tag_without_namespace}$/i
           end
 
           if el.respond_to?(:nodes)

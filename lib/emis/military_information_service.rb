@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 require 'emis/service'
-require 'emis/veteran_status_configuration'
+require 'emis/military_information_configuration'
 require 'emis/errors/errors'
 
 module EMIS
-  class VeteranStatusService < Service
-    configuration EMIS::VeteranStatusConfiguration
+  class MilitaryInformationService < Service
+    configuration EMIS::MilitaryInformationConfiguration
 
     def get_veteran_status(edipi: nil, icn: nil)
       make_request(

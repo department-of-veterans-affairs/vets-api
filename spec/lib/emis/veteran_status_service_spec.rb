@@ -11,7 +11,7 @@ describe EMIS::VeteranStatusService do
     context 'with a valid request' do
       it 'calls the get_veteran_status endpoint with a proper emis message' do
         VCR.use_cassette('emis/get_veteran_status/valid') do
-          response = subject.get_veteran_status(edipi)
+          response = subject.get_veteran_status(edipi: edipi)
           expect(response).to be_ok
           # expect(response.profile).to have_deep_attributes(veteran_status)
         end
@@ -19,7 +19,7 @@ describe EMIS::VeteranStatusService do
 
       it 'gives me the right values back' do
         VCR.use_cassette('emis/get_veteran_status/valid') do
-          response = subject.get_veteran_status(edipi)
+          response = subject.get_veteran_status(edipi: edipi)
           expect(response.title_38_status_code).to eq('V4')
           expect(response).to be_post_911_deployment
           expect(response).to be_pre_911_deployment
@@ -31,7 +31,8 @@ describe EMIS::VeteranStatusService do
     context 'with a bad edipi' do
       it 'gives me a bad response' do
         VCR.use_cassette('emis/get_veteran_status/bad_edipi') do
-          response = subject.get_veteran_status(bad_edipi)
+          response = subject.get_veteran_status(edipi: bad_edipi)
+          expect(response).not_to be_ok
         end
       end
     end

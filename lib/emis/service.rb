@@ -12,9 +12,25 @@ module EMIS
   class Service < Common::Client::Base
     protected
 
-    def create_edipi_message(edipi)
-      # raise Common::Exceptions::ValidationErrors, user unless user.valid?(:loa3_user)
-      EMIS::Messages::EdipiOrIcnMessage.new(edipi: edipi).to_xml
+    def make_request(edipi: nil, icn: nil, operation:, response_type:)
+      message = create_edipi_or_icn_message(edipi: edipi, icn: icn)
+      raw_response = perform(
+        :post,
+        '',
+        message,
+        soapaction: "http://viers.va.gov/cdi/eMIS/#{operation}/v1"
+      )
+      response_type.new(raw_response)
+    rescue Faraday::ConnectionFailed => e
+      Rails.logger.error "eMIS connection failed: #{e.message}"
+      EMIS::Responses::ErrorResponse.new(e)
+    rescue Common::Client::Errors::ClientError => e
+      Rails.logger.error "eMIS error: #{e.message}"
+      EMIS::Responses::ErrorResponse.new(e)
+    end
+
+    def create_edipi_or_icn_message(edipi:, icn:)
+      EMIS::Messages::EdipiOrIcnMessage.new(edipi: edipi, icn: icn).to_xml
     end
   end
 end
