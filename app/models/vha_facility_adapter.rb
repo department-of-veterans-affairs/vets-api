@@ -135,8 +135,10 @@ class VHAFacilityAdapter
   ).freeze
 
   def self.mh_clinic_phone(attrs)
-    return '' if (attrs['MHClinicPhone']).blank?
-    result = attrs['MHClinicPhone'].to_s
+    val = attrs['MHClinicPhone']
+    val = attrs['MHPhone'] if val.blank?
+    return '' if val.blank?
+    result = val.to_s
     result << ' x ' + attrs['Extension'].to_s unless
       (attrs['Extension']).blank? || (attrs['Extension']).zero?
     result

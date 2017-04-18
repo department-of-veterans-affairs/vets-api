@@ -1,11 +1,27 @@
 # frozen_string_literal: true
 class EducationBenefitsClaim < ActiveRecord::Base
   FORM_SCHEMAS = IceNine.deep_freeze(
-    '1990' => VetsJsonSchema::EDU_BENEFITS,
-    '1995' => VetsJsonSchema::CHANGE_OF_PROGRAM
+    lambda do
+      return_val = {}
+
+      %w(1990 1995 1990e 5490 5495 1990n).each do |form_type|
+        return_val[form_type] = VetsJsonSchema::SCHEMAS["22-#{form_type.upcase}"]
+      end
+
+      return_val
+    end.call
   )
-  FORM_TYPES = %w(1990 1995).freeze
-  APPLICATION_TYPES = %w(chapter33 chapter30 chapter1606 chapter32).freeze
+  FORM_TYPES = FORM_SCHEMAS.keys
+
+  APPLICATION_TYPES = %w(
+    chapter33
+    chapter30
+    chapter1606
+    chapter32
+    chapter35
+    transfer_of_entitlement
+    chapter1607
+  ).freeze
 
   validates(:form, :form_type, presence: true)
   validates(:form_type, inclusion: FORM_TYPES)
@@ -80,16 +96,29 @@ class EducationBenefitsClaim < ActiveRecord::Base
   end
 
   def confirmation_number
-    "vets_gov_#{self.class.to_s.underscore}_#{id}"
+    "V-EBC-#{id}"
+  end
+
+  def selected_benefits
+    benefits = {}
+
+    case form_type
+    when '1990'
+      benefits = parsed_form.slice(*APPLICATION_TYPES)
+    when '1990n'
+    else
+      benefit = parsed_form['benefit']&.underscore
+      benefits[benefit] = true if benefit.present?
+    end
+
+    benefits
   end
 
   private
 
   def create_education_benefits_submission
     if submitted_at.present? && submitted_at_was.nil? && education_benefits_submission.blank?
-      opt = {}
-
-      opt = parsed_form.slice(*APPLICATION_TYPES) if is_1990?
+      opt = selected_benefits
 
       EducationBenefitsSubmission.create!(
         opt.merge(

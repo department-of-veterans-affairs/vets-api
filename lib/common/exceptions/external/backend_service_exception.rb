@@ -1,10 +1,12 @@
 # frozen_string_literal: true
+require 'sentry_logging'
 module Common
   module Exceptions
     # This will return a generic error, to customize
     # you must define the minor code in the locales file and call this class from
     # raise_error middleware.
     class BackendServiceException < BaseError
+      include SentryLogging
       attr_reader :response_values, :original_status, :original_body
 
       def initialize(key = nil, response_values = {}, original_status = nil, original_body = nil)
@@ -84,8 +86,7 @@ module Common
               status: <http status code you want rendered (400 or 422)>
               source: ~
           MESSAGE
-          Rails.logger.warn message
-          Raven.capture_message(message, level: :warning) if Settings.sentry.dsn.present?
+          log_message_to_sentry(message, :warn)
         end
       end
 
@@ -93,8 +94,7 @@ module Common
       def warn_about_va900!
         if code == 'VA900'
           message = "Unmapped VA900 (Backend Response: { status: #{original_status}, message: #{original_body}) }"
-          Rails.logger.warn message
-          Raven.capture_message(message, level: :warning) if Settings.sentry.dsn.present?
+          log_message_to_sentry(message, :warn)
         end
       end
 

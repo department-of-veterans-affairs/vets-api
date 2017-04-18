@@ -58,9 +58,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   context '#format_application' do
     it 'logs an error if the record is invalid' do
       expect(application_1606).to receive(:open_struct_form).once.and_return(OpenStruct.new)
-      expect { subject.format_application(application_1606) }.to raise_error(EducationForm::FormattingError) do |error|
-        expect(error.cause.message).to match(/NilClass/)
-      end
+      expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::FormattingError))
+      subject.format_application(application_1606)
     end
 
     context 'with a 1990 form' do
@@ -95,7 +94,28 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
 
   context '#perform' do
-    context 'with no records' do
+    context 'with a mix of valid and invalid record', run_at: '2016-09-16 03:00:00 EDT' do
+      let(:spool_files) { Rails.root.join('tmp/spool_files/*') }
+      before do
+        expect(Rails.env).to receive('development?').once { true }
+        application_1606.form = {}.to_json
+        application_1606.save! # Make this claim super malformed
+        FactoryGirl.create(:education_benefits_claim_western_region)
+        FactoryGirl.create(:education_benefits_claim_1995_full_form)
+        # clear out old test files
+        FileUtils.rm_rf(Dir.glob(spool_files))
+        # ensure our test data is spread across 3 regions..
+        expect(EducationBenefitsClaim.unprocessed.pluck(:regional_processing_office).uniq.count).to eq(3)
+      end
+
+      it 'it processes the valid messages' do
+        expect(subject).to receive(:log_exception_to_sentry).once
+        expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(3).to(1)
+        expect(Dir[spool_files].count).to eq(2)
+      end
+    end
+
+    context 'with no records', run_at: '2016-09-16 03:00:00 EDT' do
       before do
         EducationBenefitsClaim.delete_all
       end
@@ -109,17 +129,37 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context '#group_submissions_by_region' do
     it 'takes a list of records into chunked forms' do
+      base_form = {
+        veteranFullName: {
+          first: 'Mark',
+          last: 'Olson'
+        },
+        privacyAgreementAccepted: true
+      }
       base_address = { street: 'A', city: 'B', country: 'USA' }
-      # rubocop:disable LineLength
-      eastern = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, school: { address: base_address.merge(state: 'MD') } }.to_json)
-      southern = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, school: { address: base_address.merge(state: 'GA') } }.to_json)
-      central = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, veteranAddress: base_address.merge(state: 'WI') }.to_json)
-      eastern_default = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true }.to_json)
-      western = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, veteranAddress: base_address.merge(state: 'OK') }.to_json)
-      western_phl = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, veteranAddress: base_address.merge(state: 'XX', country: 'PHL') }.to_json)
-      # rubocop:enable LineLength
+      submissions = []
 
-      output = subject.group_submissions_by_region([eastern, central, southern, eastern_default, western, western_phl])
+      [
+        { state: 'MD' },
+        { state: 'GA' },
+        { state: 'WI' },
+        { state: 'OK' },
+        { state: 'XX', country: 'PHL' }
+      ].each do |address_data|
+        submissions << EducationBenefitsClaim.create(
+          form: base_form.merge(
+            school: {
+              address: base_address.merge(address_data)
+            }
+          ).to_json
+        )
+      end
+
+      submissions << EducationBenefitsClaim.create(
+        form: base_form.to_json
+      )
+
+      output = subject.group_submissions_by_region(submissions)
       expect(output[:eastern].length).to be(2)
       expect(output[:western].length).to be(3)
       expect(output[:central].length).to be(1)
@@ -128,7 +168,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context 'write_files', run_at: '2016-09-16 03:00:00 EDT' do
     let(:filename) { '307_09162016_vetsgov.spl' }
-    let!(:second_record) { FactoryGirl.create(:education_benefits_claim) }
+    let!(:second_record) { FactoryGirl.create(:education_benefits_claim_1995) }
 
     context 'in the development env' do
       let(:file_path) { "tmp/spool_files/#{filename}" }
@@ -169,12 +209,11 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         end
         expect(sftp_session_mock).to receive(:close)
         expect { subject.perform }.to trigger_statsd_gauge(
-          'worker.education_benefits_claim.transmissions',
-          value: 2,
-          tags: [
-            'rpo:307',
-            'form:22-1990'
-          ]
+          'worker.education_benefits_claim.transmissions.307.22-1990',
+          value: 1
+        ).and trigger_statsd_gauge(
+          'worker.education_benefits_claim.transmissions.307.22-1995',
+          value: 1
         )
 
         expect(EducationBenefitsClaim.unprocessed).to be_empty

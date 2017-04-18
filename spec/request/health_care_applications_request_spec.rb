@@ -82,11 +82,10 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
 
       context 'while authenticated', skip_mvi: true do
         let(:current_user) { build(:mhv_user) }
+
         before do
-          allow(Mvi).to receive(:find).and_return(
-            Mvi.new(uuid: 'abc123',
-                    response: { icn: '1000123456V123456^NI^200M^USVHA^P' })
-          )
+          profile = build(:mvi_profile, icn: '1000123456V123456')
+          stub_mvi(profile)
           use_authenticated_current_user(current_user: current_user)
         end
 
@@ -111,10 +110,14 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
           allow_any_instance_of(HCA::Service).to receive(:post) do
             raise error
           end
+          Settings.sentry.dsn = 'asdf'
+        end
+        after do
+          Settings.sentry.dsn = nil
         end
 
         it 'should render error message' do
-          expect(Raven).to receive(:capture_exception).with(error).once
+          expect(Raven).to receive(:capture_exception).with(error).twice
 
           subject
 

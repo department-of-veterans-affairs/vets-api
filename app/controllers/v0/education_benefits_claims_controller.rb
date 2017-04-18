@@ -4,22 +4,20 @@ module V0
     skip_before_action(:authenticate)
 
     def create
-      education_benefits_claim = EducationBenefitsClaim.new(education_benefits_claim_params)
+      claim = EducationBenefitsClaim.new(education_benefits_claim_params)
 
-      unless education_benefits_claim.save
-        validation_error = education_benefits_claim.errors.full_messages.join(', ')
+      unless claim.save
+        validation_error = claim.errors.full_messages.join(', ')
 
-        Raven.capture_message(validation_error, tags: { validation: 'education_benefits_claim' })
-
-        logger.error(validation_error)
+        log_message_to_sentry(validation_error, :error, {}, validation: 'education_benefits_claim')
 
         StatsD.increment("#{stats_key}.failure")
-        raise Common::Exceptions::ValidationErrors, education_benefits_claim
+        raise Common::Exceptions::ValidationErrors, claim
       end
 
       StatsD.increment("#{stats_key}.success")
-
-      render(json: education_benefits_claim)
+      Rails.logger.info "ClaimID=#{claim.id} RPO=#{claim.region} Form=#{claim.form_type}"
+      render(json: claim)
     end
 
     private

@@ -24,6 +24,18 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
     end
   end
 
+  describe '#benefit_type' do
+    let(:education_benefits_claim) { build(:education_benefits_claim_1990e) }
+
+    subject do
+      described_class.new(education_benefits_claim)
+    end
+
+    it 'should return the benefit type shorthand' do
+      expect(subject.benefit_type(education_benefits_claim.open_struct_form)).to eq('CH33')
+    end
+  end
+
   context '#full_name' do
     let(:name) { OpenStruct.new(first: 'Mark', last: 'Olson') }
     subject { renderer.full_name(name) }
@@ -58,6 +70,27 @@ RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefi
     context 'with no street2' do
       it 'should format the address correctly' do
         expect(subject).to eq("123 MAIN ST\nMILWAUKEE, WI, 53130\nUSA")
+      end
+    end
+
+    context 'with no state' do
+      before do
+        address.state = nil
+      end
+
+      it 'should format the address correctly' do
+        expect(subject).to eq("123 MAIN ST\nMILWAUKEE, 53130\nUSA")
+      end
+
+      context 'with no city and zip' do
+        before do
+          address.city = nil
+          address.postalCode = nil
+        end
+
+        it 'should format the address correctly' do
+          expect(subject).to eq("123 MAIN ST\n\nUSA")
+        end
       end
     end
 

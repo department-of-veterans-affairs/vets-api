@@ -34,22 +34,22 @@ RSpec.describe 'in progress forms', type: :request do
         get v0_in_progress_form_url('healthcare_application'), nil, auth_header
         expect(response.body).to eq({
           'veteranFullName' => {
-            'first' => 'Abraham',
-            'middle' => nil,
-            'last' => 'Lincoln',
-            'suffix' => nil
+            'first' => user.first_name&.capitalize,
+            'middle' => user.middle_name&.capitalize,
+            'last' => user.last_name&.capitalize,
+            'suffix' => user.va_profile.suffix
           },
-          'gender' => 'M',
-          'veteranDateOfBirth' => '1809-02-12',
+          'gender' => user.gender,
+          'veteranDateOfBirth' => user.birth_date,
           'veteranAddress' => {
-            'street' => '140 Rock Creek Church Road NW',
+            'street' => user.va_profile.address.street,
             'street_2' => nil,
-            'city' => 'Washington',
-            'state' => 'DC',
-            'country' => 'USA',
-            'postal_code' => '20011'
+            'city' => user.va_profile.address.city,
+            'state' => user.va_profile.address.state,
+            'country' => user.va_profile.address.country,
+            'postal_code' => user.va_profile.address.postal_code
           },
-          'homePhone' => '2028290436'
+          'homePhone' => user.va_profile.home_phone
         }.to_json)
       end
     end

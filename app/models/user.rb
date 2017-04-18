@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'common/models/base'
 require 'common/models/redis_store'
-require 'mvi/messages/find_candidate_message'
+require 'mvi/messages/find_profile_message'
 require 'mvi/service'
 require 'evss/common_service'
 require 'evss/auth_headers'
@@ -89,11 +89,18 @@ class User < Common::RedisStore
   delegate :icn, to: :mvi
   delegate :mhv_correlation_id, to: :mvi
   delegate :participant_id, to: :mvi
-  delegate :va_profile, to: :mvi
+
+  def va_profile
+    mvi.profile
+  end
+
+  def va_profile_status
+    mvi.status
+  end
 
   private
 
   def mvi
-    @mvi ||= Mvi.from_user(self)
+    @mvi ||= Mvi.new(self)
   end
 end
