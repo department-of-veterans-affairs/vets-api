@@ -5,7 +5,7 @@ RSpec.describe NCAFacilityAdapter, type: :adapter do
   subject { nil }
 
   context 'with v1-style NCA record' do
-    before(:each) do 
+    before(:each) do
       @model = described_class.from_gis(FactoryGirl.build(:nca_gis_record_v1))
     end
 
@@ -49,7 +49,7 @@ RSpec.describe NCAFacilityAdapter, type: :adapter do
   end
 
   context 'with v2-style NCA record' do
-    before(:each) do 
+    before(:each) do
       @model = described_class.from_gis(FactoryGirl.build(:nca_gis_record_v2))
     end
 
