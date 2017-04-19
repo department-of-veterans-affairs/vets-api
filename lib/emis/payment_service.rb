@@ -11,9 +11,15 @@ module EMIS
       %i(
         get_combat_pay
         get_reserve_drill_days
-        get_retirement
+        get_retirement_pay
         get_separation_pay
       )
     )
+
+    protected
+
+    def custom_namespaces
+      Settings.emis.payment.soap_namespaces
+    end
   end
 end

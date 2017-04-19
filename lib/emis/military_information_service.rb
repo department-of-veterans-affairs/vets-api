@@ -8,16 +8,22 @@ module EMIS
     configuration EMIS::MilitaryInformationConfiguration
 
     create_endpoints(
-      %i(
-        get_deployment
-        get_disabilities
-        get_guard_reserve_service_periods
-        get_military_service_eligibility_info
-        get_military_occupation
-        get_military_service_episodes
-        get_retirement
-        get_unit_information
-      )
+      [
+        :get_deployment,
+        :get_disabilities,
+        :get_guard_reserve_service_periods,
+        [:get_military_service_eligibility_info, 'militaryServiceEligibilityRequest'],
+        :get_military_occupation,
+        [:get_military_service_episodes, 'serviceEpisodeRequest'],
+        :get_retirement,
+        :get_unit_information
+      ]
     )
+
+    protected
+
+    def custom_namespaces
+      Settings.emis.military_information.soap_namespaces
+    end
   end
 end

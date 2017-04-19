@@ -11,12 +11,22 @@ module EMIS
   class Service < Common::Client::Base
     def self.create_endpoints(endpoints)
       endpoints.each do |endpoint|
-        define_method(endpoint) do |edipi: nil, icn: nil|
+        operation = nil
+        request_name = nil
+        if endpoint.is_a?(Array)
+          request_name = endpoint[1]
+          operation = endpoint[0].to_s
+        else
+          operation = endpoint.to_s
+          request_name = "#{endpoint.to_s.camelize(:lower).sub(/^get/, '').camelize(:lower)}Request"
+        end
+        define_method(operation) do |edipi: nil, icn: nil|
           make_request(
             edipi: edipi,
             icn: icn,
-            operation: endpoint.to_s.camelize(:lower),
-            response_type: "EMIS::Responses::#{endpoint.to_s.camelize}Response".constantize
+            request_name: request_name,
+            operation: operation,
+            response_type: "EMIS::Responses::#{operation.camelize}Response".constantize
           )
         end
       end
@@ -24,13 +34,17 @@ module EMIS
 
     protected
 
-    def make_request(edipi: nil, icn: nil, operation:, response_type:)
-      message = create_edipi_or_icn_message(edipi: edipi, icn: icn)
+    def make_request(edipi: nil, icn: nil, response_type:, operation:, request_name:)
+      message = create_edipi_or_icn_message(
+        edipi: edipi,
+        icn: icn,
+        request_name: request_name
+      )
       raw_response = perform(
         :post,
         '',
         message,
-        soapaction: "http://viers.va.gov/cdi/eMIS/#{operation}/v1"
+        soapaction: "http://viers.va.gov/cdi/eMIS/#{operation.camelize(:lower)}/v1"
       )
       response_type.new(raw_response)
     rescue Faraday::ConnectionFailed => e
@@ -41,8 +55,13 @@ module EMIS
       EMIS::Responses::ErrorResponse.new(e)
     end
 
-    def create_edipi_or_icn_message(edipi:, icn:)
-      EMIS::Messages::EdipiOrIcnMessage.new(edipi: edipi, icn: icn).to_xml
+    def create_edipi_or_icn_message(edipi:, icn:, request_name:)
+      EMIS::Messages::EdipiOrIcnMessage.new(
+        edipi: edipi,
+        icn: icn,
+        request_name: request_name,
+        custom_namespaces: custom_namespaces
+      ).to_xml
     end
   end
 end

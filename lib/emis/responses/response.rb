@@ -9,11 +9,15 @@ module EMIS
       end
 
       def ok?
-        locate_one('essResponseCode').nodes.first == 'Success'
+        locate_one('essResponseCode')&.nodes&.first == 'Success'
       end
 
       def error?
-        locate_one('essResponseCode').nodes.first == 'ERROR'
+        locate_one('essResponseCode')&.nodes&.first == 'ERROR'
+      end
+
+      def empty?
+        locate_one('essResponseCode')&.nodes&.first == nil
       end
 
       def locate(tag_without_namespace, el = @root)

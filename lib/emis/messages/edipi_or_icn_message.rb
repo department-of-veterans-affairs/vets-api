@@ -7,12 +7,14 @@ module EMIS
       attr_reader :edipi
       attr_reader :icn
 
-      def initialize(edipi: nil, icn: nil)
+      def initialize(edipi: nil, icn: nil, request_name:, custom_namespaces: {})
         if (edipi.present? && icn.present?) || (edipi.nil? && icn.nil?)
           raise ArgumentError, 'must include either an EDIPI or ICN, but not both'
         end
         @edipi = edipi
         @icn = icn
+        @request_name = request_name
+        @custom_namespaces = custom_namespaces
       end
 
       def to_xml
@@ -45,7 +47,7 @@ module EMIS
       end
 
       def build_body
-        request = element('v11:eMISveteranStatusRequest')
+        request = element("v11:eMIS#{@request_name}")
         edipi_or_icn = element('v12:edipiORicn')
         edipi_or_icn << element('v13:edipiORicnValue', text!: @edipi || @icn)
         edipi_or_icn << element('v13:inputType', text!: (@edipi && 'EDIPI') || (@icn && 'ICN'))
@@ -56,7 +58,8 @@ module EMIS
       end
 
       def build_envelope
-        element('soap:Envelope', Settings.emis.soap_namespaces)
+        namespaces = Settings.emis.soap_namespaces.to_hash.merge(@custom_namespaces)
+        element('soap:Envelope', namespaces)
       end
     end
   end
