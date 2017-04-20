@@ -19,9 +19,9 @@ module BB
 
     # doctype must be one of: txt or pdf
     def get_download_report(doctype, headers, yielder)
-      # TODO For testing purposes, use one of the following static files:
-      #uri = URI("#{Settings.mhv.rx.host}/vetsgov/1mb.file")
-      #uri = URI("#{Settings.mhv.rx.host}/vetsgov/90mb.file")
+      # TODO: For testing purposes, use one of the following static files:
+      # uri = URI("#{Settings.mhv.rx.host}/vetsgov/1mb.file")
+      # uri = URI("#{Settings.mhv.rx.host}/vetsgov/90mb.file")
       uri = URI.join(base_path, "bluebutton/bbreport/#{doctype}")
       request = Net::HTTP::Get.new(uri)
       @api_client.token_headers.each do |k, v|

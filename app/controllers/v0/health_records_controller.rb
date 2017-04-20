@@ -38,7 +38,7 @@ module V0
       first = true
       chunk_stream.each do |c|
         if first
-          response_headers.each { |k,v| response[k] = v }
+          response_headers.each { |k, v| response[k] = v }
           first = false
         end
         response.stream.write c
