@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 7ef76dfb7e334a23db5b663a8c0dff15747748f6
+  revision: 3d7c8e8b47443dfd2b494a3a4151aa2afaa63118
   branch: master
   specs:
-    vets_json_schema (2.1.1)
+    vets_json_schema (2.5.2)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -56,6 +56,13 @@ GEM
     akami (1.3.1)
       gyoku (>= 0.4.0)
       nokogiri
+    apivore (1.6.2)
+      actionpack (>= 4, < 6)
+      hashie (~> 3.3)
+      json-schema (~> 2.5)
+      rspec (~> 3)
+      rspec-expectations (~> 3.1)
+      rspec-mocks (~> 3.1)
     arel (6.0.4)
     ast (2.3.0)
     attr_encrypted (3.0.3)
@@ -369,6 +376,7 @@ GEM
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
     statsd-instrument (2.1.2)
+    swagger-blocks (2.0.0)
     thor (0.19.4)
     thread_safe (0.3.6)
     tilt (2.0.2)
@@ -404,8 +412,10 @@ PLATFORMS
 
 DEPENDENCIES
   active_model_serializers
+  apivore
   attr_encrypted
   awrence
+  aws-sdk
   brakeman
   breakers
   bundler-audit
@@ -464,6 +474,7 @@ DEPENDENCIES
   spring
   spring-commands-rspec
   statsd-instrument
+  swagger-blocks
   timecop
   typhoeus
   tzinfo-data
@@ -475,4 +486,4 @@ DEPENDENCIES
   will_paginate
 
 BUNDLED WITH
-   1.14.5
+   1.14.6

@@ -44,6 +44,7 @@ gem 'statsd-instrument'
 gem 'memoist'
 gem 'date_validator'
 gem 'nokogiri', '~> 1.7.1'
+gem 'swagger-blocks'
 
 # Amazon Linux's system `json` gem causes conflicts, but
 # `multi_json` will prefer `oj` if installed, so include it here.
@@ -53,6 +54,7 @@ gem 'holidays'
 gem 'iconv'
 gem 'ice_nine'
 gem 'pdf-reader'
+gem 'aws-sdk'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -82,6 +84,7 @@ group :development, :test do
 end
 
 group :test do
+  gem 'apivore'
   gem 'faker'
   gem 'faker-medical'
   gem 'simplecov', require: false
