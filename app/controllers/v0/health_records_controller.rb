@@ -35,11 +35,9 @@ module V0
       chunk_stream = Enumerator.new do |stream|
         streaming_client.get_download_report(doc_type, response_headers, stream)
       end
-      first = true
-      chunk_stream.each do |c|
-        if first
+      chunk_stream.each.with_index do |c, index|
+        if index == 0
           response_headers.each { |k, v| response[k] = v }
-          first = false
         end
         response.stream.write c
       end
