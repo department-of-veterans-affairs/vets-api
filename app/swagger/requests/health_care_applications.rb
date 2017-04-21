@@ -20,7 +20,10 @@ module Swagger
             key :in, :body
             key :description, 'Health care application form data'
             key :required, true
-            key :type, :string
+
+            schema do
+              key :type, :string
+            end
           end
 
           response 200 do

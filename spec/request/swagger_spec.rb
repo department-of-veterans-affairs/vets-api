@@ -68,6 +68,9 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       expect(subject).to validate(:put, '/v0/in_progress_forms/{id}', 401, 'id' => 'healthcare_application')
     end
 
+    it 'supports adding an education benefits form' do
+    end
+
     it 'supports getting the user data' do
       expect(subject).to validate(:get, '/v0/user', 200, auth_options)
       expect(subject).to validate(:get, '/v0/user', 401)

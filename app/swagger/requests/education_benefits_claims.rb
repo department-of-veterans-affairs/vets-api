@@ -28,7 +28,7 @@ module Swagger
             key :name, :form_type
             key :in, :path
             key :description, 'Form code. Allowed values: 1990 1995 1990e 5490'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
