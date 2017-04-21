@@ -8,6 +8,12 @@ module EMIS
         @root = raw_response.body
       end
 
+      def items
+        locate(item_tag_name).map do |el|
+          build_item(el)
+        end
+      end
+
       def ok?
         locate_one('essResponseCode')&.nodes&.first == 'Success'
       end
@@ -17,14 +23,42 @@ module EMIS
       end
 
       def empty?
-        locate_one('essResponseCode')&.nodes&.first == nil
+        locate_one('essResponseCode')&.nodes&.first.nil?
       end
 
       def locate(tag_without_namespace, el = @root)
-        find_all_elements_by_tag_name(tag_without_namespace, el)
+        find_all_elements_by_tag_name(tag_without_namespace, el, skip_el: true)
       end
 
       protected
+
+      def build_item(el, schema: item_schema)
+        result_hash = {}.tap do |result|
+          schema.each do |tag, data|
+            field_name = data[:rename] || tag.snakecase
+            if data[:schema]
+              tags = locate(tag, el)
+              result[field_name] = tags.map { |t| build_item(t, schema: data[:schema]) }
+            else
+              build_item_value(el, tag, data, field_name, result)
+            end
+          end
+        end
+
+        OpenStruct.new(result_hash)
+      end
+
+      def build_item_value(el, tag, data, field_name, result)
+        value = locate_one(tag, el)
+        if value
+          value = value.nodes[0]
+          unless value.is_a?(Ox::Element)
+            value = Date.parse(value) if data[:date]
+            value = value.to_f if data[:float]
+            result[field_name] = value
+          end
+        end
+      end
 
       def locate_one(tag_without_namespace, el = @root)
         locate(tag_without_namespace, el).first
@@ -39,15 +73,15 @@ module EMIS
       # namespaces. For extra fun, the casing is sometimes different for the tags, so we must
       # do a case-insensitive regex.
       #
-      def find_all_elements_by_tag_name(tag_without_namespace, el)
+      def find_all_elements_by_tag_name(tag_without_namespace, el, skip_el: false)
         [].tap do |result|
-          if el.respond_to?(:value)
+          if !skip_el && el.respond_to?(:value)
             result << el if el.value =~ /^NS\d+:#{tag_without_namespace}$/i
           end
 
           if el.respond_to?(:nodes)
             el.nodes.each do |node|
-              result.concat(find_all_elements_by_tag_name(tag_without_namespace, node))
+              result.concat(find_all_elements_by_tag_name(tag_without_namespace, node, skip_el: false))
             end
           end
         end

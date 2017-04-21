@@ -40,7 +40,7 @@ describe EMIS::Responses::GetCombatPayResponse do
       end
 
       it 'has the proper zone country code' do
-        expect(response.items.first.zone_country_code).to eq('AE')
+        expect(response.items.first.combat_zone_country_code).to eq('AE')
       end
     end
   end

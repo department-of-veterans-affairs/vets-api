@@ -14,11 +14,11 @@ describe EMIS::Responses::GetDisabilitiesResponse do
   describe 'getting data' do
     context 'with a successful response' do
       it 'gives the disability percent' do
-        expect(response.disability_percent).to eq(30.0)
+        expect(response.items.first.disability_percent).to eq(30.0)
       end
 
       it 'gives the pay amount' do
-        expect(response.pay_amount).to eq(728.0)
+        expect(response.items.first.pay_amount).to eq(728.0)
       end
     end
   end

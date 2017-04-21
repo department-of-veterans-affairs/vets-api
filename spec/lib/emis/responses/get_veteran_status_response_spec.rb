@@ -14,19 +14,19 @@ describe EMIS::Responses::GetVeteranStatusResponse do
   describe 'getting data' do
     context 'with a successful response' do
       it 'gives the title38 status code' do
-        expect(response.title_38_status_code).to eq('V4')
+        expect(response.items.first.title38_status_code).to eq('V4')
       end
 
       it 'indicates post 911 deployment' do
-        expect(response.post_911_deployment?).to eq(true)
+        expect(response.items.first.post911_deployment_indicator).to eq('Y')
       end
 
       it 'indicates post 911 combat' do
-        expect(response.post_911_combat?).to eq(false)
+        expect(response.items.first.post911_combat_indicator).to eq('N')
       end
 
       it 'indicates pre 911 deployment' do
-        expect(response.pre_911_deployment?).to eq(true)
+        expect(response.items.first.pre911_deployment_indicator).to eq('Y')
       end
     end
   end

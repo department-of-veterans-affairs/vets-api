@@ -47,12 +47,14 @@ module EMIS
         soapaction: "http://viers.va.gov/cdi/eMIS/#{operation.camelize(:lower)}/v1"
       )
       response_type.new(raw_response)
+      # :nocov:
     rescue Faraday::ConnectionFailed => e
       Rails.logger.error "eMIS connection failed: #{e.message}"
       EMIS::Responses::ErrorResponse.new(e)
     rescue Common::Client::Errors::ClientError => e
       Rails.logger.error "eMIS error: #{e.message}"
       EMIS::Responses::ErrorResponse.new(e)
+      # :nocov:
     end
 
     def create_edipi_or_icn_message(edipi:, icn:, request_name:)

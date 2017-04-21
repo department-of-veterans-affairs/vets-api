@@ -9,8 +9,10 @@ module EMIS
       Settings.emis.military_information_url
     end
 
+    # :nocov:
     def service_name
       'EmisMilitaryInformation'
     end
+    # :nocov:
   end
 end

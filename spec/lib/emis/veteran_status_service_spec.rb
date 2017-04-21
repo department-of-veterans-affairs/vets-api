@@ -19,10 +19,10 @@ describe EMIS::VeteranStatusService do
       it 'gives me the right values back' do
         VCR.use_cassette('emis/get_veteran_status/valid') do
           response = subject.get_veteran_status(edipi: edipi)
-          expect(response.title_38_status_code).to eq('V4')
-          expect(response).to be_post_911_deployment
-          expect(response).to be_pre_911_deployment
-          expect(response).not_to be_post_911_combat
+          expect(response.items.first.title38_status_code).to eq('V4')
+          expect(response.items.first.post911_deployment_indicator).to eq('Y')
+          expect(response.items.first.post911_combat_indicator).to eq('N')
+          expect(response.items.first.pre911_deployment_indicator).to eq('Y')
         end
       end
     end

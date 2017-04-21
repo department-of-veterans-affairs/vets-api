@@ -4,12 +4,15 @@ require 'emis/responses/response'
 module EMIS
   module Responses
     class GetDisabilitiesResponse < EMIS::Responses::Response
-      def disability_percent
-        locate_one('disabilityPercent').nodes.first.to_f
+      def item_tag_name
+        'disabilities'
       end
 
-      def pay_amount
-        locate_one('payAmount').nodes.first.to_f
+      def item_schema
+        {
+          'disabilityPercent' => { float: true },
+          'payAmount' => { float: true }
+        }
       end
     end
   end

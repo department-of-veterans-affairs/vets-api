@@ -9,8 +9,10 @@ module EMIS
       Settings.emis.veteran_status_url
     end
 
+    # :nocov:
     def service_name
       'EmisVeteranStatus'
     end
+    # :nocov:
   end
 end

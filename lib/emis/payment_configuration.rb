@@ -9,8 +9,10 @@ module EMIS
       Settings.emis.payment_url
     end
 
+    # :nocov:
     def service_name
       'EmisPayment'
     end
+    # :nocov:
   end
 end
