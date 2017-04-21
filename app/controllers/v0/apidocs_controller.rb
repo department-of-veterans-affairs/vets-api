@@ -47,6 +47,7 @@ module V0
       Swagger::Requests::InProgressForms,
       Swagger::Requests::Sessions,
       Swagger::Requests::User,
+      Swagger::Requests::EducationBenefitsClaims,
       Swagger::Responses::AuthenticationError,
       Swagger::Schemas::Errors,
       self
