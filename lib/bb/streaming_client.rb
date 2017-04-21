@@ -26,7 +26,7 @@ module BB
       # uri = URI("#{Settings.mhv.rx.host}/vetsgov/90mb.file")
       uri = URI.join(base_path, "bluebutton/bbreport/#{doctype}")
       request = Typhoeus::Request.new(uri.to_s, headers: @api_client.token_headers,
-                                                timeout: 10, connecttimeout: 10)
+                                                connecttimeout: 10)
       request.on_headers do |response|
         raise Common::Client::Errors::ClientError, 'Health record request timed out' if response.timed_out?
         raise Common::Client::Errors::ClientError, "Health record request failed: #{response.code}" if
@@ -39,7 +39,8 @@ module BB
       end
 
       request.on_complete do |response|
-        raise Common::Client::Errors::StreamingError, 'Health record streaming failed' unless response.success?
+        raise Common::Client::Errors::StreamingError, "Health record stream failed: #{response.return_message}" unless
+          response.success?
       end
 
       request.run
