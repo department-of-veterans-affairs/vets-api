@@ -40,6 +40,12 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
     end
 
     context 'with invalid params' do
+      before do
+        Settings.sentry.dsn = 'asdf'
+      end
+      after do
+        Settings.sentry.dsn = nil
+      end
       let(:params) do
         {
           form: test_veteran.except('privacyAgreementAccepted').to_json
@@ -55,6 +61,13 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
             "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
           )
         ).to eq(true)
+      end
+
+      it 'should log the validation errors' do
+        expect(Raven).to receive(:tags_context).once.with(validation: 'health_care_application')
+        expect(Raven).to receive(:capture_message).with(/privacyAgreementAccepted/, level: :error)
+
+        subject
       end
     end
 

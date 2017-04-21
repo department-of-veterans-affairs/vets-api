@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-# frozen_string_literal: true
 class NCAFacilityAdapter
   NCA_URL = +Settings.locators.nca
   NCA_ID_FIELD = 'CEMETERY_I'
@@ -19,15 +18,15 @@ class NCAFacilityAdapter
 
   def self.from_gis(record)
     attrs = record['attributes']
-    m = from_gis_attrs(TOP_KEYMAP, attrs)
+    m = make_section(V1_TOP_KEYMAP, V2_TOP_KEYMAP, attrs)
     m[:facility_type] = FACILITY_TYPE
     m[:lat] = record['geometry']['y']
     m[:long] = record['geometry']['x']
     m[:address] = {}
-    m[:address][:physical] = from_gis_attrs(ADDR_KEYMAP, attrs)
-    m[:address][:mailing] = from_gis_attrs(MAIL_ADDR_KEYMAP, attrs)
-    m[:phone] = from_gis_attrs(PHONE_KEYMAP, attrs)
-    m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
+    m[:address][:physical] = make_section(V1_ADDR_KEYMAP, V2_ADDR_KEYMAP, attrs)
+    m[:address][:mailing] = make_section(V1_MAIL_ADDR_KEYMAP, V2_MAIL_ADDR_KEYMAP, attrs)
+    m[:phone] = make_section(V1_PHONE_KEYMAP, V2_PHONE_KEYMAP, attrs)
+    m[:hours] = make_section(V1_HOURS_KEYMAP, V2_HOURS_KEYMAP, attrs)
     m[:services] = {}
     m[:feedback] = {}
     m[:access] = {}
@@ -38,28 +37,62 @@ class NCAFacilityAdapter
     []
   end
 
-  TOP_KEYMAP = {
+  def self.make_section(old_map, new_map, attrs)
+    section = from_gis_attrs(old_map, attrs)
+    section.merge!(from_gis_attrs(new_map, attrs)) do |_, v1, v2|
+      v2.nil? ? v1 : v2
+    end
+    section
+  end
+
+  V1_TOP_KEYMAP = {
     unique_id: 'CEMETERY_I', name: 'FULL_NAME', classification: 'CEM_TYPE',
     website: 'Website_URL'
   }.freeze
 
-  ADDR_KEYMAP = {
+  V1_ADDR_KEYMAP = {
     'address_1' => 'CEMETERY_A', 'address_2' => 'CEMETERY_1', 'address_3' => '',
     'city' => 'CEMETERY_C', 'state' => 'CEMETERY_S', 'zip' => 'CEMETERY_Z'
   }.freeze
 
-  MAIL_ADDR_KEYMAP = {
+  V1_MAIL_ADDR_KEYMAP = {
     'address_1' => 'MAIL_ADDRE', 'address_2' => 'MAIL_ADD_1', 'address_3' => '',
     'city' => 'MAIL_CITY', 'state' => 'MAIL_STATE', 'zip' => 'MAIL_ZIP'
   }.freeze
 
-  PHONE_KEYMAP = {
+  V1_PHONE_KEYMAP = {
     'main' => 'PHONE', 'fax' => 'FAX'
   }.freeze
 
-  HOURS_KEYMAP = %w(
+  V1_HOURS_KEYMAP = %w(
     Monday Tuesday Wednesday Thursday Friday Saturday Sunday
   ).each_with_object({}) { |d, h| h[d] = d }
+
+  V2_TOP_KEYMAP = {
+    unique_id: 'SITE_ID', name: 'FULL_NAME', classification: 'SITE_TYPE',
+    website: 'Website_URL'
+  }.freeze
+
+  V2_ADDR_KEYMAP = {
+    'address_1' => 'SITE_ADDRESS1', 'address_2' => 'SITE_ADDRESS2', 'address_3' => '',
+    'city' => 'SITE_CITY', 'state' => 'SITE_STATE', 'zip' => 'SITE_ZIP'
+  }.freeze
+
+  V2_MAIL_ADDR_KEYMAP = {
+    'address_1' => 'MAIL_ADDRESS1', 'address_2' => 'MAIL_ADDRESS2', 'address_3' => '',
+    'city' => 'MAIL_CITY', 'state' => 'MAIL_STATE', 'zip' => 'MAIL_ZIP'
+  }.freeze
+
+  V2_PHONE_KEYMAP = {
+    'main' => 'PHONE', 'fax' => 'FAX'
+  }.freeze
+
+  V2_HOURS_KEYMAP = {
+    'Monday' => 'VISITATION_HOURS_WEEKDAY', 'Tuesday' => 'VISITATION_HOURS_WEEKDAY',
+    'Wednesday' => 'VISITATION_HOURS_WEEKDAY', 'Thursday' => 'VISITATION_HOURS_WEEKDAY',
+    'Friday' => 'VISITATION_HOURS_WEEKDAY', 'Saturday' => 'VISITATION_HOURS_WEEKEND',
+    'Sunday' => 'VISITATION_HOURS_WEEKEND'
+  }.freeze
 
   # Build a sub-section of the VAFacility model from a flat GIS attribute list,
   # according to the provided key mapping dict. Strip whitespace from string values.

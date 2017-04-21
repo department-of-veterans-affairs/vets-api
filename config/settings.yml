@@ -43,14 +43,16 @@ gids:
   url: https://dev.vets.gov/gids
 
 # Settings for Healthcare Application
+# This CA chain is nonsense but allows local development to work with pre-prod environment.
 hca:
   endpoint: https://test-foo.vets.gov
   cert_path: /fake/client/cert/path
   key_path: /fake/client/key/path
   ca:
-    - 'Veterans Affairs Device CA B2.pem'
-    - 'Betrusted Production SSP CA A1.pem'
-    - 'Federal Common Policy CA.pem'
+    - 'VA Internal Root CA.pem'
+    - 'VA Internal Subordinate CA 1.pem'
+    - 'VA-Internal-S2-ICA1-v1.pem'
+    - 'VA-Internal-S2-RCA1-v1.pem'
 
 # Settings for the facility locator
 locators:
