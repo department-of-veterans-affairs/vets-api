@@ -34,13 +34,18 @@ module V0
       header_callback = lambda do |headers|
         headers.each { |k, v| response[k] = v if REPORT_HEADERS.include? k }
       end
-      chunk_stream = Enumerator.new do |stream|
-        streaming_client.get_download_report(doc_type, header_callback, stream)
+      begin
+        chunk_stream = Enumerator.new do |stream|
+          streaming_client.get_download_report(doc_type, header_callback, stream)
+        end
+        chunk_stream.each do |c|
+          response.stream.write c
+        end
+        response.stream.close
+      rescue Common::Client::Errors::StreamingError
+        response.stream.close
+        raise
       end
-      chunk_stream.each do |c|
-        response.stream.write c
-      end
-      response.stream.close
     end
   end
 end

@@ -39,7 +39,7 @@ module BB
       end
 
       request.on_complete do |response|
-        raise Common::Client::Errors::ClientError, 'Health record request failed' unless response.success?
+        raise Common::Client::Errors::StreamingError, 'Health record streaming failed' unless response.success?
       end
 
       request.run
