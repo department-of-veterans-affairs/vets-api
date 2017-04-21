@@ -94,7 +94,6 @@ group :test do
   gem 'vcr'
   gem 'awrence'
   gem 'climate_control'
-  gem 'shrine-memory'
 end
 
 group :development do

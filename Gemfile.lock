@@ -337,9 +337,6 @@ GEM
     shellany (0.0.1)
     shrine (2.6.1)
       down (>= 2.3.6)
-    shrine-memory (0.2.2)
-      down
-      shrine (~> 2.0)
     sidekiq (4.2.9)
       concurrent-ruby (~> 1.0)
       connection_pool (~> 2.2, >= 2.2.0)
@@ -466,7 +463,6 @@ DEPENDENCIES
   sdoc (~> 0.4.0)
   sentry-raven
   shrine
-  shrine-memory
   sidekiq
   sidekiq-instrument
   sidekiq-scheduler (~> 2.0)
