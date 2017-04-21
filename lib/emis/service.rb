@@ -5,7 +5,6 @@ require 'emis/messages/edipi_or_icn_message'
 require 'emis/responses'
 require 'common/client/middleware/request/soap_headers'
 require 'common/client/middleware/response/soap_parser'
-require 'emis/errors/errors'
 
 module EMIS
   class Service < Common::Client::Base

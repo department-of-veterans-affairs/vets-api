@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 require 'emis/service'
 require 'emis/veteran_status_configuration'
-require 'emis/errors/errors'
 
 module EMIS
   class VeteranStatusService < Service

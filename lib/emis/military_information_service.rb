@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 require 'emis/service'
 require 'emis/military_information_configuration'
-require 'emis/errors/errors'
 
 module EMIS
   class MilitaryInformationService < Service
