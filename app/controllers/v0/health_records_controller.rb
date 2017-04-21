@@ -28,17 +28,22 @@ module V0
       render nothing: true, status: :accepted
     end
 
+    # TODO implement lambda header_callback that writes header responses,
+    # pass to get_download_report instead of dict reference
     def show
       # doc_type will default to 'pdf' if any value, including nil is provided.
       doc_type = params[:doc_type] == 'txt' ? 'txt' : 'pdf'
+      header_callback = lambda do |headers|
+        headers.each do |k, v|
+          puts "#{k}: #{v}"
+          response[k] = v if REPORT_HEADERS.include? k
+        end
+      end
       response_headers = Hash[REPORT_HEADERS.map { |h| [h, ''] }]
       chunk_stream = Enumerator.new do |stream|
-        streaming_client.get_download_report(doc_type, response_headers, stream)
+        streaming_client.get_download_report(doc_type, header_callback, stream)
       end
       chunk_stream.each.with_index do |c, index|
-        if index == 0
-          response_headers.each { |k, v| response[k] = v }
-        end
         response.stream.write c
       end
       response.stream.close

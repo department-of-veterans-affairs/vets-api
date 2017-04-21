@@ -3,6 +3,7 @@ require 'common/client/concerns/mhv_session_based_client'
 require 'bb/generate_report_request_form'
 require 'bb/configuration'
 require 'rx/client_session'
+require 'typhoeus'
 
 module BB
   # Core class responsible for api interface operations
@@ -18,25 +19,27 @@ module BB
     end
 
     # doctype must be one of: txt or pdf
-    def get_download_report(doctype, headers, yielder)
+    def get_download_report(doctype, header_callback, yielder)
       # TODO: For testing purposes, use one of the following static files:
       # uri = URI("#{Settings.mhv.rx.host}/vetsgov/1mb.file")
       # uri = URI("#{Settings.mhv.rx.host}/vetsgov/90mb.file")
       uri = URI.join(base_path, "bluebutton/bbreport/#{doctype}")
-      request = Net::HTTP::Get.new(uri)
-      @api_client.token_headers.each do |k, v|
-        request[k] = v
+      request = Typhoeus::Request.new(uri.to_s, headers: @api_client.token_headers)
+      request.on_headers do |response|
+        raise Common::Client::Errors::ClientError 'Health record request timed out' if response.timed_out?
+        raise Common::Client::Errors::ClientError "Health record request failed: #{response.code.to_s}" if response.code != 200 
+        header_callback.call(response.headers)
       end
-      Net::HTTP.start(uri.host, uri.port, use_ssl: (uri.scheme == 'https')) do |http|
-        http.request request do |response|
-          headers.keys.each do |k|
-            headers[k] = response[k]
-          end
-          response.read_body do |chunk|
-            yielder << chunk
-          end
-        end
+
+      request.on_body do |chunk|
+        yielder << chunk
       end
+
+      request.on_complete do |response|
+        raise Common::Client::Errors::ClientError 'Health record request failed' unless response.success?
+      end
+
+      request.run
     end
   end
 end
