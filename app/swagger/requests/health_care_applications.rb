@@ -15,6 +15,8 @@ module Swagger
             'hca'
           ]
 
+          parameter :optional_authorization
+
           parameter do
             key :name, :form
             key :in, :body

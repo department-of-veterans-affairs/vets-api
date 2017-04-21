@@ -69,6 +69,11 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     it 'supports adding an education benefits form' do
+      expect(subject).to validate(
+        :post,
+        '/v0/education_benefits_claims/{form_type}',
+        200
+      )
     end
 
     it 'supports getting the user data' do

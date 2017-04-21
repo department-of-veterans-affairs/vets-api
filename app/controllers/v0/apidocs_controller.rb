@@ -33,12 +33,14 @@ module V0
       key :consumes, ['application/json']
       key :produces, ['application/json']
 
-      parameter :authorization do
-        key :name, 'Authorization'
-        key :in, :header
-        key :description, 'The authorization method and token value'
-        key :required, true
-        key :type, :string
+      [true, false].each do |required|
+        parameter :"#{required ? '' : 'optional_'}authorization" do
+          key :name, 'Authorization'
+          key :in, :header
+          key :description, 'The authorization method and token value'
+          key :required, required
+          key :type, :string
+        end
       end
     end
 
