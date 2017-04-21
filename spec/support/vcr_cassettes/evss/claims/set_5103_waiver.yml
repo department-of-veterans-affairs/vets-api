@@ -5,7 +5,7 @@ http_interactions:
     uri: <EVSS_BASE_URL>/wss-claims-services-web-3.0/rest/vbaClaimStatusService/set5103Waiver
     body:
       encoding: UTF-8
-      string: '{"claimId":189625,"systemName":"vets.gov"}'
+      string: '{"claimId":189625,"systemName":"EBN"}'
     headers:
       User-Agent:
       - Faraday v0.9.2

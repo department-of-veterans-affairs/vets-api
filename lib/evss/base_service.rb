@@ -3,7 +3,9 @@ require 'evss/error_middleware'
 
 module EVSS
   class BaseService
-    SYSTEM_NAME = 'vets.gov'
+    # System name changed per request of EVSS
+    # TODO: Change back to 'vets.gov' once they can accept it
+    SYSTEM_NAME = 'EBN'
     DEFAULT_TIMEOUT = 15 # in seconds
 
     def initialize(headers)
