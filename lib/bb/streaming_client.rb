@@ -24,18 +24,24 @@ module BB
       # uri = URI("#{Settings.mhv.rx.host}/vetsgov/90mb.file")
       uri = URI.join(base_path, "bluebutton/bbreport/#{doctype}")
       request = Net::HTTP::Get.new(uri)
-      @api_client.token_headers.each do |k, v|
-        request[k] = v
-      end
-      Net::HTTP.start(uri.host, uri.port, use_ssl: (uri.scheme == 'https')) do |http|
-        http.request request do |response|
-          headers.keys.each do |k|
-            headers[k] = response[k]
-          end
-          response.read_body do |chunk|
-            yielder << chunk
+      @api_client.token_headers.each { |k, v| request[k] = v }
+      begin
+        Net::HTTP.start(uri.host, uri.port, use_ssl: (uri.scheme == 'https')) do |http|
+          http.request request do |response|
+            if response.is_a?(Net::HTTPClientError) or response.is_a?(Net::HTTPServerError)
+              raise Common::Client::Errors::ClientError, "Health record request failed: #{response.code}"
+            end
+            headers.keys.each do |k|
+              headers[k] = response[k]
+            end
+            response.read_body do |chunk|
+              yielder << chunk
+            end
           end
         end
+      rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
+             Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
+        raise Common::Client::Errors::ClientError, "Health record request failed: #{e.message}"
       end
     end
   end
