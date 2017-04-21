@@ -55,6 +55,8 @@ gem 'iconv'
 gem 'ice_nine'
 gem 'pdf-reader'
 gem 'aws-sdk'
+gem 'shrine'
+gem 'clam_scan'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -94,6 +96,7 @@ group :test do
   gem 'vcr'
   gem 'awrence'
   gem 'climate_control'
+  gem 'shrine-memory'
 end
 
 group :development do
