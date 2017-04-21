@@ -101,6 +101,16 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         )
       end
 
+      it 'supports getting the hca health check' do
+        VCR.use_cassette('hca/health_check', match_requests_on: [:body]) do
+          expect(subject).to validate(
+            :get,
+            '/v0/health_care_applications/healthcheck',
+            200
+          )
+        end
+      end
+
       it 'supports submitting a health care application', run_at: '2017-01-31' do
         VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
           expect(subject).to validate(
