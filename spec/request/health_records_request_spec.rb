@@ -92,4 +92,12 @@ RSpec.describe 'health records', type: :request do
     expect(response.headers['Content-Type']).to eq('text/plain')
     expect(response.body).to be_a(String)
   end
+
+  it 'handles an error response for a report request' do
+    VCR.use_cassette('bb_client/report_error_response') do
+      get '/v0/health_records', doc_type: 'txt'
+    end
+
+    expect(response).to have_http_status(503)
+  end
 end
