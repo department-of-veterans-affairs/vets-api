@@ -25,10 +25,12 @@ module BB
       # uri = URI("#{Settings.mhv.rx.host}/vetsgov/1mb.file")
       # uri = URI("#{Settings.mhv.rx.host}/vetsgov/90mb.file")
       uri = URI.join(base_path, "bluebutton/bbreport/#{doctype}")
-      request = Typhoeus::Request.new(uri.to_s, headers: @api_client.token_headers)
+      request = Typhoeus::Request.new(uri.to_s, headers: @api_client.token_headers,
+                                                timeout: 10, connecttimeout: 10)
       request.on_headers do |response|
         raise Common::Client::Errors::ClientError, 'Health record request timed out' if response.timed_out?
-        raise Common::Client::Errors::ClientError, "Health record request failed: #{response.code.to_s} #{response.return_message}" if response.code != 200 
+        raise Common::Client::Errors::ClientError, "Health record request failed: #{response.code}" if
+          response.code != 200
         header_callback.call(response.headers)
       end
 

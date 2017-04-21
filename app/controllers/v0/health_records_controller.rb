@@ -28,8 +28,6 @@ module V0
       render nothing: true, status: :accepted
     end
 
-    # TODO implement lambda header_callback that writes header responses,
-    # pass to get_download_report instead of dict reference
     def show
       # doc_type will default to 'pdf' if any value, including nil is provided.
       doc_type = params[:doc_type] == 'txt' ? 'txt' : 'pdf'
