@@ -133,7 +133,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         )
 
         allow_any_instance_of(HCA::Service).to receive(:post) do
-          raise Common::Client::Errors::HTTPError.new('error message')
+          raise Common::Client::Errors::HTTPError, 'error message'
         end
 
         expect(subject).to validate(
