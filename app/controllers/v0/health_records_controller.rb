@@ -32,16 +32,17 @@ module V0
       # doc_type will default to 'pdf' if any value, including nil is provided.
       doc_type = params[:doc_type] == 'txt' ? 'txt' : 'pdf'
       response_headers = Hash[REPORT_HEADERS.map { |h| [h, ''] }]
-      chunk_stream = Enumerator.new do |stream|
-        streaming_client.get_download_report(doc_type, response_headers, stream)
-      end
-      chunk_stream.each.with_index do |c, index|
-        if index == 0
-          response_headers.each { |k, v| response[k] = v }
+      begin
+        chunk_stream = Enumerator.new do |stream|
+          streaming_client.get_download_report(doc_type, response_headers, stream)
         end
-        response.stream.write c
+        chunk_stream.each.with_index do |c, index|
+          response_headers.each { |k, v| response[k] = v } if index.zero?
+          response.stream.write c
+        end
+      ensure
+        response.stream.close if response.committed?
       end
-      response.stream.close
     end
   end
 end

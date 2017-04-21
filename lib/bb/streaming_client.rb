@@ -26,14 +26,12 @@ module BB
       request = Net::HTTP::Get.new(uri)
       @api_client.token_headers.each { |k, v| request[k] = v }
       begin
-        Net::HTTP.start(uri.host, uri.port, use_ssl: (uri.scheme == 'https')) do |http|
+        Net::HTTP.start(uri.host, uri.port, read_timeout: 20, use_ssl: (uri.scheme == 'https')) do |http|
           http.request request do |response|
-            if response.is_a?(Net::HTTPClientError) or response.is_a?(Net::HTTPServerError)
+            if response.is_a?(Net::HTTPClientError) || response.is_a?(Net::HTTPServerError)
               raise Common::Client::Errors::ClientError, "Health record request failed: #{response.code}"
             end
-            headers.keys.each do |k|
-              headers[k] = response[k]
-            end
+            headers.keys.each { |k| headers[k] = response[k] }
             response.read_body do |chunk|
               yielder << chunk
             end
