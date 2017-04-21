@@ -94,16 +94,44 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       )
     end
 
-    it 'supports submitting a health care application', run_at: '2017-01-31' do
-      VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
+    context 'HCA tests' do
+      let(:test_veteran) do
+        File.read(
+          Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
+        )
+      end
+
+      it 'supports submitting a health care application', run_at: '2017-01-31' do
+        VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
+          expect(subject).to validate(
+            :post,
+            '/v0/health_care_applications',
+            200,
+            '_data' => {
+              'form' => test_veteran
+            }
+          )
+        end
+
         expect(subject).to validate(
           :post,
           '/v0/health_care_applications',
-          200,
+          422,
           '_data' => {
-            'form' => File.read(
-              Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
-            )
+            'form' => {}.to_json
+          }
+        )
+
+        allow_any_instance_of(HCA::Service).to receive(:post) do
+          raise Common::Client::Errors::HTTPError.new('error message')
+        end
+
+        expect(subject).to validate(
+          :post,
+          '/v0/health_care_applications',
+          400,
+          '_data' => {
+            'form' => test_veteran
           }
         )
       end
