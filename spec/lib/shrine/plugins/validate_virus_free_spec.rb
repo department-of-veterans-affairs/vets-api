@@ -10,6 +10,10 @@ describe Shrine::Plugins::ValidateVirusFree do
         def get
           'stuff'
         end
+
+        def errors
+          @errors ||= []
+        end
       end
     end
 
@@ -20,12 +24,25 @@ describe Shrine::Plugins::ValidateVirusFree do
         .and_return(instance_double('Shrine::UploadedFile', to_io: instance_double('File', path: 'foo/bar.jpg')))
     end
 
-    it 'adds an error if clam scan returns not safe' do
-      allow(ClamScan::Client).to receive(:scan)
-        .and_return(instance_double('ClamScan::Response', safe?: false))
+    context 'with the default error message' do
+      it 'adds an error if clam scan returns not safe' do
+        allow(ClamScan::Client).to receive(:scan)
+          .and_return(instance_double('ClamScan::Response', safe?: false))
 
-      expect(instance).to receive(:add_error).once
-      instance.validate_virus_free
+        expect(instance).to receive(:error_message).once.with(nil)
+        instance.validate_virus_free
+      end
+    end
+
+    context 'with a custom error message' do
+      let(:message) { 'oh noes!' }
+      it 'adds an error with a custom error message if clam scan returns not safe' do
+        allow(ClamScan::Client).to receive(:scan)
+          .and_return(instance_double('ClamScan::Response', safe?: false))
+
+        expect(instance).to receive(:error_message).once.with(message)
+        instance.validate_virus_free message: message
+      end
     end
 
     it 'does not add an error if clam scan returns safe' do
