@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'common/client/concerns/mhv_session_based_client'
+require 'common/client/errors'
 require 'bb/generate_report_request_form'
 require 'bb/configuration'
 require 'rx/client_session'
@@ -26,8 +27,8 @@ module BB
       uri = URI.join(base_path, "bluebutton/bbreport/#{doctype}")
       request = Typhoeus::Request.new(uri.to_s, headers: @api_client.token_headers)
       request.on_headers do |response|
-        raise Common::Client::Errors::ClientError 'Health record request timed out' if response.timed_out?
-        raise Common::Client::Errors::ClientError "Health record request failed: #{response.code.to_s}" if response.code != 200 
+        raise Common::Client::Errors::ClientError, 'Health record request timed out' if response.timed_out?
+        raise Common::Client::Errors::ClientError, "Health record request failed: #{response.code.to_s} #{response.return_message}" if response.code != 200 
         header_callback.call(response.headers)
       end
 
@@ -36,7 +37,7 @@ module BB
       end
 
       request.on_complete do |response|
-        raise Common::Client::Errors::ClientError 'Health record request failed' unless response.success?
+        raise Common::Client::Errors::ClientError, 'Health record request failed' unless response.success?
       end
 
       request.run
