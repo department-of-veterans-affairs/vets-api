@@ -5,7 +5,7 @@ class Shrine
       module AttacherMethods
         def validate_virus_free(message: nil)
           cached_path = "#{Rails.root}/#{get.to_io.path}"
-          ClamScan::Client.scan(location: cached_path).safe? or add_error(message) && false
+          ClamScan::Client.scan(location: cached_path).safe? || add_error(message) && false
         end
 
         private
