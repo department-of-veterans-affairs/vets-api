@@ -72,7 +72,25 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       expect(subject).to validate(
         :post,
         '/v0/education_benefits_claims/{form_type}',
-        200
+        200,
+        'form_type' => '1990',
+        '_data' => {
+          'education_benefits_claim' => {
+            'form' => build(:education_benefits_claim).form
+          }
+        }
+      )
+
+      expect(subject).to validate(
+        :post,
+        '/v0/education_benefits_claims/{form_type}',
+        422,
+        'form_type' => '1990',
+        '_data' => {
+          'education_benefits_claim' => {
+            'form' => {}.to_json
+          }
+        }
       )
     end
 
