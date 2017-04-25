@@ -234,6 +234,7 @@ GEM
     ox (2.4.9)
     parser (2.3.1.2)
       ast (~> 2.2)
+    pdf-core (0.7.0)
     pdf-reader (2.0.0)
       Ascii85 (~> 1.0.0)
       afm (~> 0.2.1)
@@ -242,6 +243,9 @@ GEM
       ttfunk
     pg (0.19.0)
     powerpack (0.1.1)
+    prawn (2.2.2)
+      pdf-core (~> 0.7.0)
+      ttfunk (~> 1.5)
     pry (0.10.3)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -452,6 +456,7 @@ DEPENDENCIES
   ox
   pdf-reader
   pg
+  prawn
   pry-nav
   puma (~> 2.16.0)
   rack-cors
