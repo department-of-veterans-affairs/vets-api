@@ -80,6 +80,18 @@ fi
 
 brew services start postgresql
 
+if command_exists clamscan ; then
+  echo "${GREEN} * ClamAV already installed.${RESET}"
+else
+  echo "${RED} * Installing ClamAV. ${RESET}"
+  brew install clamav
+  touch ~/.homebrew/etc/clamav/clamd.sock
+  echo "LocalSocket ~/.homebrew/etc/clamav/clamd.sock" > ~/.homebrew/etc/clamav/clamd.conf
+  echo "DatabaseMirror database.clamav.net" > ~/.homebrew/etc/clamav/freshclam.conf
+fi
+
+freshclam -v
+
 # Install ruby / vet-api deps
 
 bundle install -j4
