@@ -15,6 +15,7 @@ To start, fetch this code:
 
 `git clone https://github.com/department-of-veterans-affairs/vets-api.git`
 
+
 #### Automated (OSX)
 
 If you are developing on OSX, you can run the automated setup script. From
@@ -23,35 +24,35 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd .
 #### Alternative (OSX)
 
 1. Install Ruby 2.3.
-  - It is suggested that you use a Ruby version manager such as
+   - It is suggested that you use a Ruby version manager such as
     [rbenv](https://github.com/rbenv/rbenv#installation) and
     [install Ruby 2.3](https://github.com/rbenv/rbenv#installing-ruby-versions).
-  - *NOTE*: rbenv will also provide additional installation instructions in the
+   - *NOTE*: rbenv will also provide additional installation instructions in the
     console output. Make sure to follow those too.
 1. Install Bundler to manage dependencies
-  - `gem install bundler`
+   - `gem install bundler`
 1. Install Postgres and enable on startup
-  - `brew install postgres`
-  - `brew services start postgres`
+   - `brew install postgres`
+   - `brew services start postgres`
 1. Install Redis
-  - `brew install redis`
-  - Follow post-install instructions to enable Redis on startup. Otherwise,
+   - `brew install redis`
+   - Follow post-install instructions to enable Redis on startup. Otherwise,
     launch it manually with `brew services start redis`.
 1. Install gem dependencies: `cd vets-api; bundle install`
 1. Install overcommit `overcommit --install --sign`
-1. Setup localhost certificates / keys
-  - Create a hidden folder in your home directory:  `mkdir ~/.certs`
-  - Copy the [certificate][certificate] to `~/.certs/vetsgov-localhost.crt`
-  - Copy the [key][key] to `~/.certs/vetsgov-localhost.key`
-  - *NOTE*: If you don't have access to these keys, running the following
-    commands will provide basic functionality, such as for running unit tests:
-  - `touch ~/.certs/vetsgov-localhost.crt`
-  - `touch ~/.certs/vetsgov-localhost.key`
+1. Setup localhost certificates / keys:
+   - Create a hidden folder in your home directory:  `mkdir ~/.certs`
+   - Copy the [certificate][certificate] to `~/.certs/vetsgov-localhost.crt`
+   - Copy the [key][key] to `~/.certs/vetsgov-localhost.key`
+   - *NOTE*: If you don't have access to these keys, running the following
+     commands will provide basic functionality, such as for running unit tests:
+   - `touch ~/.certs/vetsgov-localhost.crt`
+   - `touch ~/.certs/vetsgov-localhost.key`
 1. Create dev database: `bundle exec rake db:setup`
 
 
-[certificate]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Identity%20Discovery%202016/certificates/vetsgov-localhost.crt
-[key]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Identity%20Discovery%202016/certificates/vetsgov-localhost.key
+[certificate]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Files_From_IDme/development-certificates/vetsgov-localhost.crt
+[key]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Files_From_IDme/development-certificates/vetsgov-localhost.key
 
 ### Configuration
 
