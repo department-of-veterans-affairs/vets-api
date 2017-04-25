@@ -5,6 +5,7 @@ command_exists () {
 }
 RED=`tput setaf 1`
 GREEN=`tput setaf 2`
+YELLOW=`tput setaf 3`
 RESET=`tput sgr0`
 
 # Check for homebrew
@@ -80,6 +81,29 @@ fi
 
 brew services start postgresql
 
+# Make vetsgov-localhost.crt and .key
+
+CERT_INSTALL_REQUIRED=false
+if [ ! -d ~/.certs ]; then
+  mkdir ~/.certs
+fi
+
+if [ -f ~/.certs/vetsgov-localhost.crt ]; then
+  echo "${GREEN} * vetsgov-localhost.crt installed.${RESET}"
+else
+  echo "${RED} * Installing vetsgov-localhost.crt.${RESET}"
+  touch ~/.certs/vetsgov-localhost.crt
+  CERT_INSTALL_REQUIRED=true
+fi
+
+if [ -f ~/.certs/vetsgov-localhost.key ]; then
+  echo "${GREEN} * vetsgov-localhost.key installed.${RESET}"
+else
+  echo "${RED} * Installing vetsgov-localhost.key.${RESET}"
+  touch ~/.certs/vetsgov-localhost.key
+  CERT_INSTALL_REQUIRED=true
+fi
+
 # Install ruby / vet-api deps
 
 bundle install -j4
@@ -89,8 +113,17 @@ bundle exec overcommit --install --sign
 rake db:create db:setup db:seed
 
 cp config/mvi_schema/mock_mvi_responses.yml.example config/mvi_schema/mock_mvi_responses.yml
-cp config/application.yml.example config/application.yml
 
 # Run a test to make sure things are working after setup
 
 rake
+
+# Warn the user that the certs installed are blank and have limited functionality
+
+if [ "$CERT_INSTALL_REQUIRED" = true ]; then
+  echo "${YELLOW}Notice: Blank certificate files were installed for limited functionality. If you have access, go to:"
+  echo
+  echo "  https://github.com/department-of-veterans-affairs/vets.gov-team/tree/master/Products/Identity/Files_From_IDme/development-certificates"
+  echo
+  echo "and copy the .crt and .key files to ~/.certs/${RESET}"
+fi
