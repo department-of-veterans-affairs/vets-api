@@ -15,14 +15,6 @@ To start, fetch this code:
 
 `git clone https://github.com/department-of-veterans-affairs/vets-api.git`
 
-Setup localhost certificates / keys:
- - Create a hidden folder in your home directory:  `mkdir ~/.certs`
- - Copy the [certificate][certificate] to `~/.certs/vetsgov-localhost.crt`
- - Copy the [key][key] to `~/.certs/vetsgov-localhost.key`
- - *NOTE*: If you don't have access to these keys, running the following
-   commands will provide basic functionality, such as for running unit tests:
- - `touch ~/.certs/vetsgov-localhost.crt`
- - `touch ~/.certs/vetsgov-localhost.key`
 
 #### Automated (OSX)
 
@@ -48,6 +40,14 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd .
     launch it manually with `brew services start redis`.
 1. Install gem dependencies: `cd vets-api; bundle install`
 1. Install overcommit `overcommit --install --sign`
+1. Setup localhost certificates / keys:
+   - Create a hidden folder in your home directory:  `mkdir ~/.certs`
+   - Copy the [certificate][certificate] to `~/.certs/vetsgov-localhost.crt`
+   - Copy the [key][key] to `~/.certs/vetsgov-localhost.key`
+   - *NOTE*: If you don't have access to these keys, running the following
+     commands will provide basic functionality, such as for running unit tests:
+   - `touch ~/.certs/vetsgov-localhost.crt`
+   - `touch ~/.certs/vetsgov-localhost.key`
 1. Create dev database: `bundle exec rake db:setup`
 
 
