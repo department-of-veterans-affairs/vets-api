@@ -125,5 +125,5 @@ if [ "$CERT_INSTALL_REQUIRED" = true ]; then
   echo
   echo "  https://github.com/department-of-veterans-affairs/vets.gov-team/tree/master/Products/Identity/Files_From_IDme/development-certificates"
   echo
-  echo "and install the .crt and .key files in ~/.certs/${RESET}"
+  echo "and copy the .crt and .key files to ~/.certs/${RESET}"
 fi
