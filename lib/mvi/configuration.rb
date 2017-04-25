@@ -15,7 +15,6 @@ module MVI
     end
     # :nocov:
 
-    URL = Settings.mvi.url
     OPEN_TIMEOUT = Settings.mvi.open_timeout&.to_i || default_mvi_open_timeout
     TIMEOUT = Settings.mvi.timeout&.to_i || default_mvi_timeout
 
