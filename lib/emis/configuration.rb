@@ -3,6 +3,7 @@ require 'common/client/configuration/soap'
 
 module EMIS
   class Configuration < Common::Client::Configuration::SOAP
+    # :nocov:
     def self.ssl_cert_path
       Settings.emis.client_cert_path
     end
@@ -10,6 +11,7 @@ module EMIS
     def self.ssl_key_path
       Settings.emis.client_key_path
     end
+    # :nocov:
 
     def ssl_options
       if ssl_cert && ssl_key
