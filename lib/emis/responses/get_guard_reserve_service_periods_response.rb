@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'emis/models/guard_reserve_service_period'
 require 'emis/responses/response'
 
 module EMIS
@@ -11,8 +12,8 @@ module EMIS
       def item_schema
         {
           'guardReserveSegmentIdentifier' => { rename: 'segment_identifier' },
-          'guardReservePeriodStartDate' => { rename: 'begin_date', date: true },
-          'guardReservePeriodEndDate' => { rename: 'end_date', date: true },
+          'guardReservePeriodStartDate' => { rename: 'begin_date' },
+          'guardReservePeriodEndDate' => { rename: 'end_date' },
           'guardReservePeriodTerminationReason' => { rename: 'termination_reason' },
           'guardReservePeriodCharacterOfServiceCode' => { rename: 'character_of_service_code' },
           'narrativeReasonForSeparationCode' => {},
@@ -21,6 +22,10 @@ module EMIS
           'post911GIBilLossCategoryCode' => { rename: 'post_911_gibill_loss_category_code' },
           'trainingIndicatorCode' => {}
         }
+      end
+
+      def model_class
+        EMIS::Models::GuardReserveServicePeriod
       end
     end
   end

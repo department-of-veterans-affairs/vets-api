@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'emis/models/military_service_episode'
 require 'emis/responses/response'
 
 module EMIS
@@ -11,12 +12,12 @@ module EMIS
       # rubocop:disable Metrics/MethodLength
       def item_schema
         {
-          'serviceEpisodeStartDate' => { date: true, rename: 'begin_date' },
-          'serviceEpisodeEndDate' => { date: true, rename: 'end_date' },
+          'serviceEpisodeStartDate' => { rename: 'begin_date' },
+          'serviceEpisodeEndDate' => { rename: 'end_date' },
           'serviceEpisodeTerminationReason' => { rename: 'termination_reason' },
           'branchOfServiceCode' => {},
           'retirementTypeCode' => {},
-          'personnelProjectedEndDate' => { date: true },
+          'personnelProjectedEndDate' => {},
           'personnelProjectedEndDateCertaintyCode' => {},
           'dischargeCharacterOfServiceCode' => {},
           'honorableDischargeForVaPurposeCode' => {},
@@ -25,18 +26,22 @@ module EMIS
           'post911GIBillLossCategoryCode' => {},
           'mgadLossCategoryCode' => {},
           'activeDutyServiceAgreementQuantity' => {},
-          'initialEntryTrainingEndDate' => { date: true },
-          'uniformServiceInitialEntryDate' => { date: true },
+          'initialEntryTrainingEndDate' => {},
+          'uniformServiceInitialEntryDate' => {},
           'militaryAccessionSourceCode' => {},
           'personnelBeginDateSource' => {},
           'personnelTerminationDateSourceCode' => {},
-          'activeFederalMilitaryServiceBaseDate' => { date: true },
+          'activeFederalMilitaryServiceBaseDate' => {},
           'mgsrServiceAgreementDurationYearQuantityCode' => {},
           'dodBeneficiaryTypeCode' => {},
           'reserveUnderAge60Code' => {}
         }
       end
       # rubocop:enable Metrics/MethodLength
+
+      def model_class
+        EMIS::Models::MilitaryServiceEpisode
+      end
     end
   end
 end

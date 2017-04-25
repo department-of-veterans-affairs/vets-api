@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'emis/models/reserve_drill_days'
 require 'emis/responses/response'
 
 module EMIS
@@ -13,8 +14,12 @@ module EMIS
           'reserveDrillSegmentIdentifier' => { rename: 'segment_identifier' },
           'reserveActiveDutyMonthlyCurrentPaidDays' => {},
           'reserveDrillMonthlyCurrentPaidDays' => {},
-          'reserveDrillCurrentMonthlyPaidDate' => { date: true }
+          'reserveDrillCurrentMonthlyPaidDate' => {}
         }
+      end
+
+      def model_class
+        EMIS::Models::ReserveDrillDays
       end
     end
   end

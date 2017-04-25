@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'ostruct'
 
 module EMIS
   module Responses
@@ -32,31 +31,25 @@ module EMIS
 
       protected
 
-      def build_item(el, schema: item_schema)
-        result_hash = {}.tap do |result|
+      def build_item(el, schema: item_schema, model_class: self.model_class)
+        model_class.new.tap do |model|
           schema.each do |tag, data|
             field_name = data[:rename] || tag.snakecase
             if data[:schema]
               tags = locate(tag, el)
-              result[field_name] = tags.map { |t| build_item(t, schema: data[:schema]) }
+              model[field_name] = tags.map { |t| build_item(t, schema: data[:schema], model_class: data[:model_class]) }
             else
-              build_item_value(el, tag, data, field_name, result)
+              build_item_value(el, tag, field_name, model)
             end
           end
         end
-
-        OpenStruct.new(result_hash)
       end
 
-      def build_item_value(el, tag, data, field_name, result)
+      def build_item_value(el, tag, field_name, model)
         value = locate_one(tag, el)
         if value
           value = value.nodes[0]
-          unless value.is_a?(Ox::Element)
-            value = Date.parse(value) if data[:date]
-            value = value.to_f if data[:float]
-            result[field_name] = value
-          end
+          model[field_name] = value unless value.is_a?(Ox::Element)
         end
       end
 

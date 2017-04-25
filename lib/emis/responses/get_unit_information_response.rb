@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'emis/models/unit_information'
 require 'emis/responses/response'
 
 module EMIS
@@ -13,8 +14,12 @@ module EMIS
           'unitSegmentIdentifier' => { rename: 'segment_identifier' },
           'unitIdentificationCode' => { rename: 'identification_code' },
           'unitUicTypeCode' => { rename: 'uic_type_code' },
-          'unitAssignedDate' => { rename: 'assigned_date', date: true }
+          'unitAssignedDate' => { rename: 'assigned_date' }
         }
+      end
+
+      def model_class
+        EMIS::Models::UnitInformation
       end
     end
   end

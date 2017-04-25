@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'emis/models/disability'
 require 'emis/responses/response'
 
 module EMIS
@@ -10,9 +11,13 @@ module EMIS
 
       def item_schema
         {
-          'disabilityPercent' => { float: true },
-          'payAmount' => { float: true }
+          'disabilityPercent' => {},
+          'payAmount' => {}
         }
+      end
+
+      def model_class
+        EMIS::Models::Disability
       end
     end
   end

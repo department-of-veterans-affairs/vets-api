@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'emis/models/military_service_eligibility_info'
 require 'emis/responses/response'
 
 module EMIS
@@ -12,6 +13,8 @@ module EMIS
       def item_schema
         {
           'veteranStatus' => {
+            rename: 'veteran_status',
+            model_class: EMIS::Models::VeteranStatus,
             schema: {
               'title38StatusCode' => {},
               'post911DeploymentIndicator' => {},
@@ -20,27 +23,31 @@ module EMIS
             }
           },
           'dentalIndicator' => {
+            model_class: EMIS::Models::DentalIndicator,
             schema: {
-              'dentalIndicatorSeperationDate' => { rename: 'separation_date', date: true },
+              'dentalIndicatorSeperationDate' => { rename: 'separation_date' },
               'dentalIndicator' => {}
             }
           },
           'militaryServiceEpisodes' => {
+            model_class: EMIS::Models::EligibilityMilitaryServiceEpisode,
             schema: {
-              'serviceEpisodeStartDate' => { rename: 'begin_date', date: true },
-              'serviceEpisodeEndDate' => { rename: 'end_date', date: true },
+              'serviceEpisodeStartDate' => { rename: 'begin_date' },
+              'serviceEpisodeEndDate' => { rename: 'end_date' },
               'branchOfServiceCode' => {},
               'dischargeCharacterOfServiceCode' => {},
               'honorableDischargeForVaPurposeCode' => {},
               'narrativeReasonForSeparationCode' => {},
               'deployments' => {
+                model_class: EMIS::Models::EligibilityDeployment,
                 schema: {
                   'deploymentSegmentIdentifier' => { rename: 'segment_identifier' },
-                  'deploymentStartDate' => { rename: 'begin_date', date: true },
-                  'deploymentEndDate' => { rename: 'end_date', date: true },
+                  'deploymentStartDate' => { rename: 'begin_date' },
+                  'deploymentEndDate' => { rename: 'end_date' },
                   'deploymentProjectCode' => { rename: 'project_code' },
                   'DeploymentLocation' => {
                     rename: 'locations',
+                    model_class: EMIS::Models::EligibilityDeploymentLocation,
                     schema: {
                       'deploymentLocationSegmentIdentifier' => { rename: 'segment_identifier' },
                       'deploymentCountryCode' => { rename: 'country_code' },
@@ -50,10 +57,11 @@ module EMIS
                 }
               },
               'combatPay' => {
+                model_class: EMIS::Models::CombatPay,
                 schema: {
                   'combatPaySegmentIdentifier' => { rename: 'segment_identifier' },
-                  'combatPayBeginDate' => { rename: 'begin_date', date: true },
-                  'combatPayEndDate' => { rename: 'end_date', date: true },
+                  'combatPayBeginDate' => { rename: 'begin_date' },
+                  'combatPayEndDate' => { rename: 'end_date' },
                   'combatPayTypeCode' => { rename: 'type_code' },
                   'combatZoneCountryCode' => {}
                 }
@@ -63,6 +71,10 @@ module EMIS
         }
       end
       # rubocop:enable Metrics/MethodLength
+
+      def model_class
+        EMIS::Models::MilitaryServiceEligibilityInfo
+      end
     end
   end
 end

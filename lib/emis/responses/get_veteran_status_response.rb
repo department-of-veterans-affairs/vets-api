@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'emis/models/veteran_status'
 require 'emis/responses/response'
 
 module EMIS
@@ -15,6 +16,10 @@ module EMIS
           'post911CombatIndicator' => {},
           'pre911DeploymentIndicator' => {}
         }
+      end
+
+      def model_class
+        EMIS::Models::VeteranStatus
       end
     end
   end

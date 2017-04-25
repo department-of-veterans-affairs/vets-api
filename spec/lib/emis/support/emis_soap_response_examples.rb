@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-RSpec.shared_examples 'emis_soap_multi_item_response' do |example_response_file, response_class|
+RSpec.shared_examples 'emis_soap_response' do |example_response_file, response_class|
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:body) { Ox.parse(File.read(example_response_file)) }
   let(:response) { response_class.new(faraday_response) }
@@ -36,13 +36,20 @@ RSpec.shared_examples 'emis_soap_multi_item_response' do |example_response_file,
           verify_item(local_item, local_item_tag, schema[field_name][:schema])
         end
       else
-        value = node.nodes.first
-        value = Date.parse(value) if schema[field_name][:date]
-        value = value.to_f if schema[field_name][:float]
         field_name = schema[field_name][:rename] || field_name.snakecase
+        field_value = item.send(field_name)
+        value = cast_value(node, field_value)
         message = "Expected #{field_name} to equal #{value}, got #{item.send(field_name)}"
         expect(item.send(field_name)).to(eq(value), message)
       end
+    end
+
+    def cast_value(node, field_value)
+      value = node.nodes.first
+      value = value.to_i if field_value.is_a?(Integer)
+      value = value.to_f if field_value.is_a?(Float)
+      value = Date.parse(value) if field_value.is_a?(Date)
+      value
     end
 
     it 'has all the right fields in the response' do

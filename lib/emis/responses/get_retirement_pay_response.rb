@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'emis/models/retirement_pay'
 require 'emis/responses/response'
 
 module EMIS
@@ -11,24 +12,28 @@ module EMIS
       def item_schema
         {
           'retirementPaySegmentIdentifier' => { rename: 'segment_identifier' },
-          'retirementPaymentMonthlyGrossAmount' => { rename: 'monthly_gross_amount', float: true },
-          'retirementPayBeginDate' => { rename: 'begin_date', date: true },
-          'retirementPayEndDate' => { rename: 'end_date', date: true },
+          'retirementPaymentMonthlyGrossAmount' => { rename: 'monthly_gross_amount' },
+          'retirementPayBeginDate' => { rename: 'begin_date' },
+          'retirementPayEndDate' => { rename: 'end_date' },
           'retirementPayTerminationReason' => { rename: 'termination_reason' },
           'retirementPayStopPaymentReason' => { rename: 'stop_payment_reason' },
           'dodDisabilityPercentageCode' => {},
           'retirementPaymentStatus' => { rename: 'payment_status' },
-          'chapter61ServiceGrossPayAmount' => { float: true },
-          'chapter61EffectiveDate' => { date: true },
+          'chapter61ServiceGrossPayAmount' => {},
+          'chapter61EffectiveDate' => {},
           'retirementDateDifferencCode' => {},
-          'survivorBenefitPlanPremiumMonthlyCostAmount' => { float: true },
-          'directRemitterSurvivorBenefitPlanAmount' => { float: true },
-          'directRemitterSurvivorBenefitPlanEffectiveDate' => { date: true },
-          'projectedSurvivorBenefitPlanAnnuityAmount' => { float: true },
+          'survivorBenefitPlanPremiumMonthlyCostAmount' => {},
+          'directRemitterSurvivorBenefitPlanAmount' => {},
+          'directRemitterSurvivorBenefitPlanEffectiveDate' => {},
+          'projectedSurvivorBenefitPlanAnnuityAmount' => {},
           'survivorBenefitPlanBeneficiaryTypeCode' => {},
-          'originalRetirementPayDate' => { date: true },
+          'originalRetirementPayDate' => {},
           'functionalAccountNumberCode' => {}
         }
+      end
+
+      def model_class
+        EMIS::Models::RetirementPay
       end
     end
   end

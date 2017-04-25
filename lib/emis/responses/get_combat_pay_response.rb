@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'emis/models/combat_pay'
 require 'emis/responses/response'
 
 module EMIS
@@ -11,11 +12,15 @@ module EMIS
       def item_schema
         {
           'combatPaySegmentIdentifier' => { rename: 'segment_identifier' },
-          'combatPayBeginDate' => { date: true, rename: 'begin_date' },
-          'combatPayEndDate' => { date: true, rename: 'end_date' },
+          'combatPayBeginDate' => { rename: 'begin_date' },
+          'combatPayEndDate' => { rename: 'end_date' },
           'combatPayTypeCode' => { rename: 'type_code' },
           'combatZoneCountryCode' => {}
         }
+      end
+
+      def model_class
+        EMIS::Models::CombatPay
       end
     end
   end

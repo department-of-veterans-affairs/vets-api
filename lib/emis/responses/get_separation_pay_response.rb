@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'emis/models/separation_pay'
 require 'emis/responses/response'
 
 module EMIS
@@ -14,13 +15,17 @@ module EMIS
           'separationPayType' => { rename: 'type' },
           'separationPaymentGrossAmount' => { rename: 'gross_amount' },
           'separationPaymentNetAmount' => { rename: 'net_amount' },
-          'separationPaymentBeginDate' => { rename: 'begin_date', date: true },
-          'separationPaymentEndDate' => { rename: 'end_date', date: true },
+          'separationPaymentBeginDate' => { rename: 'begin_date' },
+          'separationPaymentEndDate' => { rename: 'end_date' },
           'separationPaymentTerminationReason' => { rename: 'termination_reason' },
           'disabilitySeverancePayCombatCode' => {},
           'federalIncomeTaxAmount' => {},
           'separationPayStatusCode' => { rename: 'status_code' }
         }
+      end
+
+      def model_class
+        EMIS::Models::SeparationPay
       end
     end
   end

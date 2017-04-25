@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'emis/models/military_occupation'
 require 'emis/responses/response'
 
 module EMIS
@@ -14,8 +15,12 @@ module EMIS
           'dodOccupationType' => {},
           'occupationType' => {},
           'serviceSpecificOccupationType' => {},
-          'serviceOccupationDate' => { date: true }
+          'serviceOccupationDate' => {}
         }
+      end
+
+      def model_class
+        EMIS::Models::MilitaryOccupation
       end
     end
   end
