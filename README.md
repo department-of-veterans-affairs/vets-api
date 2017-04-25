@@ -38,6 +38,13 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd .
    - `brew install redis`
    - Follow post-install instructions to enable Redis on startup. Otherwise,
     launch it manually with `brew services start redis`.
+1. Install ClamAV
+  - `brew install clamav`
+  - `cd` into the directory listed by the post-install instructions (and replace '${post_install_dir}' with it below), then:
+    - `touch clamd.sock`
+    - `echo "LocalSocket ${post_install_dir}" > clamd.conf` 
+    - `echo "DatabaseMirror database.clamav.net" > freshclam.conf`
+    - `freshclam -v`
 1. Install gem dependencies: `cd vets-api; bundle install`
 1. Install overcommit `overcommit --install --sign`
 1. Setup localhost certificates / keys:
