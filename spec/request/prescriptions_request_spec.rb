@@ -82,6 +82,7 @@ RSpec.describe 'prescriptions', type: :request do
         get '/v0/prescriptions/13650541/trackings'
       end
 
+      binding.pry
       expect(response).to be_success
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('trackings')

@@ -26,4 +26,5 @@ class TrackingSerializer < ActiveModel::Serializer
   attribute :ndc_number
   attribute :shipped_date
   attribute :delivery_service
+  attribute :other_prescriptions
 end

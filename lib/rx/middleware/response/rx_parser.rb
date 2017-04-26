@@ -50,7 +50,8 @@ module Rx
           return nil unless @parsed_json.keys.include?(:tracking_info)
           infos, base = @parsed_json.partition { |k, _| k == :tracking_info }
           Hash[infos][:tracking_info].map do |tracking_info|
-            Hash[base].merge(tracking_info.except(:other_prescription_list_included))
+            tracking_info[:other_prescriptions] = tracking_info.delete(:other_prescription_list_included)
+            Hash[base].merge(tracking_info)
           end
         end
       end
