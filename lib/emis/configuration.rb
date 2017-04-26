@@ -1,38 +1,17 @@
 # frozen_string_literal: true
 require 'common/client/configuration/soap'
 
-module MVI
+module EMIS
   class Configuration < Common::Client::Configuration::SOAP
     # :nocov:
-    def self.default_mvi_open_timeout
-      Rails.logger.warn 'Settings.mvi.open_timeout not set, using default'
-      2
-    end
-
-    def self.default_mvi_timeout
-      Rails.logger.warn 'Settings.mvi.timeout not set, using default'
-      10
-    end
-    # :nocov:
-
-    OPEN_TIMEOUT = Settings.mvi.open_timeout&.to_i || default_mvi_open_timeout
-    TIMEOUT = Settings.mvi.timeout&.to_i || default_mvi_timeout
-
     def self.ssl_cert_path
-      Settings.mvi.client_cert_path
+      Settings.emis.client_cert_path
     end
 
     def self.ssl_key_path
-      Settings.mvi.client_key_path
+      Settings.emis.client_key_path
     end
-
-    def base_path
-      Settings.mvi.url
-    end
-
-    def service_name
-      'MVI'
-    end
+    # :nocov:
 
     def ssl_options
       if ssl_cert && ssl_key
