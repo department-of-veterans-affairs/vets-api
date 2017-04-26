@@ -68,6 +68,85 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       expect(subject).to validate(:put, '/v0/in_progress_forms/{id}', 401, 'id' => 'healthcare_application')
     end
 
+    it 'supports adding an education benefits form' do
+      expect(subject).to validate(
+        :post,
+        '/v0/education_benefits_claims/{form_type}',
+        200,
+        'form_type' => '1990',
+        '_data' => {
+          'education_benefits_claim' => {
+            'form' => build(:education_benefits_claim).form
+          }
+        }
+      )
+
+      expect(subject).to validate(
+        :post,
+        '/v0/education_benefits_claims/{form_type}',
+        422,
+        'form_type' => '1990',
+        '_data' => {
+          'education_benefits_claim' => {
+            'form' => {}.to_json
+          }
+        }
+      )
+    end
+
+    context 'HCA tests' do
+      let(:test_veteran) do
+        File.read(
+          Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
+        )
+      end
+
+      it 'supports getting the hca health check' do
+        VCR.use_cassette('hca/health_check', match_requests_on: [:body]) do
+          expect(subject).to validate(
+            :get,
+            '/v0/health_care_applications/healthcheck',
+            200
+          )
+        end
+      end
+
+      it 'supports submitting a health care application', run_at: '2017-01-31' do
+        VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
+          expect(subject).to validate(
+            :post,
+            '/v0/health_care_applications',
+            200,
+            '_data' => {
+              'form' => test_veteran
+            }
+          )
+        end
+
+        expect(subject).to validate(
+          :post,
+          '/v0/health_care_applications',
+          422,
+          '_data' => {
+            'form' => {}.to_json
+          }
+        )
+
+        allow_any_instance_of(HCA::Service).to receive(:post) do
+          raise Common::Client::Errors::HTTPError, 'error message'
+        end
+
+        expect(subject).to validate(
+          :post,
+          '/v0/health_care_applications',
+          400,
+          '_data' => {
+            'form' => test_veteran
+          }
+        )
+      end
+    end
+
     it 'supports getting the user data' do
       expect(subject).to validate(:get, '/v0/user', 200, auth_options)
       expect(subject).to validate(:get, '/v0/user', 401)
