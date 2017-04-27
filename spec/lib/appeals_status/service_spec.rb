@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'appeal_status/service'
-require 'appeal_status/responses/get_appeals_response'
+require 'appeals_status/service'
+require 'appeals_status/responses/get_appeals_response'
 
 describe AppealStatus::Service do
   let(:user) do
@@ -23,7 +23,7 @@ describe AppealStatus::Service do
       end
 
       it 'has the appeals in the response' do
-        expect(appeals_service.get_appeals(user).appeals.appeals.count).to eq(2)
+        expect(appeals_service.get_appeals(user).appeals.appeals.count).to eq(3)
       end
 
       it 'returns 200 as the status' do

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
-require 'appeal_status/models/appeals'
-require 'appeal_status/responses/get_appeals_response'
+require 'appeals_status/models/appeals'
+require 'appeals_status/responses/get_appeals_response'
 
 module AppealStatus
   class Service
@@ -13,7 +13,7 @@ module AppealStatus
     protected
 
     def mocked_get_appeals_responses
-      @mocked_get_appeals_responses ||= YAML.load_file('config/appeal_status/mock_get_appeals_responses.yml')
+      @mocked_get_appeals_responses ||= YAML.load_file('config/appeals_status/mock_get_appeals_responses.yml')
     end
 
     def try_mocks(responses_method, user, response_class)
