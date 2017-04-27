@@ -5,7 +5,7 @@ RSpec.describe EVSS::FailedClaimsReport, type: :job do
   describe '#extract_info' do
     test_method(
       described_class.new,
-      'extract_info',
+      'get_evss_metadata',
       [
         [
           'evss_claim_documents/e97131834b5d4099a571201805b4149b/565656/foo.pdf',

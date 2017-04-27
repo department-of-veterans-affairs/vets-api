@@ -3,16 +3,16 @@ module EVSS
   class FailedClaimsReport
     include Sidekiq::Worker
 
-    # def get_document_hash(filename)
-    #   @dead_set ||= Sidekiq::DeadSet.new
-    #   @dead_set.find do |job|
-    #     args = job.args
+    def get_document_hash(evss_metadata)
+      # @dead_set ||= Sidekiq::DeadSet.new
+      # @dead_set.find do |job|
+      #   args = job.args
 
-    #     if args[1]
-    #   end
-    # end
+      #   if args[1]
+      # end
+    end
 
-    def extract_info(file_path)
+    def get_evss_metadata(file_path)
       file_path_split = file_path.split('/')
       has_tracked_item_id = file_path_split.size == 4 && file_path_split[2] != 'null'
 
