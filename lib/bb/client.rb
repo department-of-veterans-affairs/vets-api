@@ -9,6 +9,7 @@ module BB
   # Core class responsible for api interface operations
   class Client < Common::Client::Base
     include Common::Client::MHVSessionBasedClient
+    include Common::Client::StreamingClient
 
     configuration BB::Configuration
     client_session Rx::ClientSession
@@ -36,8 +37,12 @@ module BB
     end
 
     # doctype must be one of: txt or pdf
-    def get_download_report(doctype)
-      perform(:get, "bluebutton/bbreport/#{doctype}", nil, token_headers)
+    def get_download_report(doctype, header_callback, yielder)
+      # TODO: For testing purposes, use one of the following static URIs:
+      # uri = URI("#{Settings.mhv.rx.host}/vetsgov/1mb.file")
+      # uri = URI("#{Settings.mhv.rx.host}/vetsgov/90mb.file")
+      uri = URI.join(base_path, "bluebutton/bbreport/#{doctype}")
+      streaming_get(uri, token_headers, header_callback, yielder)
     end
   end
 end
