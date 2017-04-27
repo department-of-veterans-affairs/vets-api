@@ -9,19 +9,19 @@ RSpec.describe FailedClaimsReportMailer, type: [:mailer] do
           {
             file_path: 'dir1/file1<b>.txt',
             document_hash: {
-              "evss_claim_id" => 123,
-              "tracked_item_id" => 1234,
-              "document_type" => "L029",
-              "file_name" => "file1<b>.txt"
+              'evss_claim_id' => 123,
+              'tracked_item_id' => 1234,
+              'document_type' => 'L029',
+              'file_name' => 'file1<b>.txt'
             }
           },
           {
             file_path: 'dir1/file2.txt',
             document_hash: {
-              "evss_claim_id" => 123,
-              "tracked_item_id" => 1234,
-              "document_type" => "L029",
-              "file_name" => "file2.txt"
+              'evss_claim_id' => 123,
+              'tracked_item_id' => 1234,
+              'document_type' => 'L029',
+              'file_name' => 'file2.txt'
             }
           }
         ]
@@ -29,7 +29,7 @@ RSpec.describe FailedClaimsReportMailer, type: [:mailer] do
     end
 
     it 'should send the right email' do
-      expect(subject.body.encoded).to eq("<table>\r\n  <tr>\r\n    <th>File path</th>\r\n    <th>Meta data</th>\r\n  </tr>\r\n  \r\n    <tr>\r\n      <td>\r\n        dir1/file1&lt;b&gt;.txt\r\n      </td>\r\n      <td>\r\n        {&quot;evss_claim_id&quot;:123,&quot;tracked_item_id&quot;:1234,&quot;document_type&quot;:&quot;L029&quot;,&quot;file_name&quot;:&quot;file1&lt;b&gt;.txt&quot;}\r\n      </td>\r\n    </tr>\r\n  \r\n    <tr>\r\n      <td>\r\n        dir1/file2.txt\r\n      </td>\r\n      <td>\r\n        {&quot;evss_claim_id&quot;:123,&quot;tracked_item_id&quot;:1234,&quot;document_type&quot;:&quot;L029&quot;,&quot;file_name&quot;:&quot;file2.txt&quot;}\r\n      </td>\r\n    </tr>\r\n  \r\n</table>\r\n")
+      expect(subject.body.raw_source).to eq(File.read('spec/fixtures/evss_claim/failed_claims_report.html'))
       expect(subject.subject).to eq('EVSS claims failed to upload')
     end
 

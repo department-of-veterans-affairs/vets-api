@@ -10,25 +10,25 @@ RSpec.describe EVSS::FailedClaimsReport, type: :job do
         [
           'evss_claim_documents/e97131834b5d4099a571201805b4149b/565656/foo.pdf',
           {
-            :user_uuid=>"e97131834b5d4099a571201805b4149b",
-            :tracked_item_id=>565656,
-            :file_name=>"foo.pdf"
+            user_uuid: 'e97131834b5d4099a571201805b4149b',
+            tracked_item_id: 565_656,
+            file_name: 'foo.pdf'
           }
         ],
         [
           'evss_claim_documents/e97131834b5d4099a571201805b4149b/foo.pdf',
           {
-            :user_uuid=>"e97131834b5d4099a571201805b4149b",
-            :tracked_item_id=>nil,
-            :file_name=>"foo.pdf"
+            user_uuid: 'e97131834b5d4099a571201805b4149b',
+            tracked_item_id: nil,
+            file_name: 'foo.pdf'
           }
         ],
         [
           'evss_claim_documents/e97131834b5d4099a571201805b4149b/null/foo.pdf',
           {
-            :user_uuid=>"e97131834b5d4099a571201805b4149b",
-            :tracked_item_id=>nil,
-            :file_name=>"foo.pdf"
+            user_uuid: 'e97131834b5d4099a571201805b4149b',
+            tracked_item_id: nil,
+            file_name: 'foo.pdf'
           }
         ]
       ]
@@ -39,10 +39,10 @@ RSpec.describe EVSS::FailedClaimsReport, type: :job do
     let(:user_uuid) { 'e97131834b5d4099a571201805b4149b' }
     let(:document_hash) do
       {
-        "evss_claim_id" => 123,
-        "tracked_item_id" => 1234,
-        "document_type" => "L029",
-        "file_name" => "foo.pdf"
+        'evss_claim_id' => 123,
+        'tracked_item_id' => 1234,
+        'document_type' => 'L029',
+        'file_name' => 'foo.pdf'
       }
     end
 
@@ -60,21 +60,25 @@ RSpec.describe EVSS::FailedClaimsReport, type: :job do
 
     context 'with valid metadata' do
       it 'should get the document hash from sidekiq' do
-        expect(subject.get_document_hash(
-          user_uuid: user_uuid,
-          tracked_item_id: 1234,
-          file_name: 'foo.pdf'
-        )).to eq(document_hash)
+        expect(
+          subject.get_document_hash(
+            user_uuid: user_uuid,
+            tracked_item_id: 1234,
+            file_name: 'foo.pdf'
+          )
+        ).to eq(document_hash)
       end
     end
 
     context 'with no match' do
       it 'should return nil' do
-        expect(subject.get_document_hash(
-          user_uuid: user_uuid,
-          tracked_item_id: 123,
-          file_name: 'foo.pdf'
-        )).to eq(nil)
+        expect(
+          subject.get_document_hash(
+            user_uuid: user_uuid,
+            tracked_item_id: 123,
+            file_name: 'foo.pdf'
+          )
+        ).to eq(nil)
       end
     end
   end

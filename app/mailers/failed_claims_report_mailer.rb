@@ -15,7 +15,7 @@ class FailedClaimsReportMailer < ApplicationMailer
       end
 
     @failed_uploads = failed_uploads
-    template = File.read("app/mailers/views/failed_claims_report.erb")
+    template = File.read('app/mailers/views/failed_claims_report.erb')
 
     mail(
       opt.merge(
