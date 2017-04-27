@@ -11,6 +11,7 @@ class Tracking < Common::Base
   attribute :shipped_date, Common::UTCTime, sortable: { order: 'DESC', default: true }
   attribute :delivery_service, String
   attribute :tracking_number, String
+  attribute :other_prescriptions, Array[Hash]
 
   def <=>(other)
     -(shipped_date <=> other.shipped_date)

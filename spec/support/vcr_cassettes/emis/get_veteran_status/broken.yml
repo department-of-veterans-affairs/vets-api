@@ -1,0 +1,95 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/VeteranStatusService
+    body:
+      encoding: ASCII-8BIT
+      string: |2
+
+        <soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:v1="http://viers.va.gov/cdi/CDI/commonService/v1" xmlns:v12="http://viers.va.gov/cdi/eMIS/RequestResponse/v1" xmlns:v13="http://viers.va.gov/cdi/eMIS/commonService/v1">
+          <soap:Header>
+            <v1:inputHeaderInfo>
+              <v1:userId>vets.gov</v1:userId>
+              <v1:sourceSystemName>vets.gov</v1:sourceSystemName>
+              <v1:transactionId>76801d7f-c5ed-4103-be99-bdf997fcf2a5</v1:transactionId>
+            </v1:inputHeaderInfo>
+          </soap:Header>
+          <soap:Body>
+            <v11:eMISfooRequest>
+              <v12:edipiORicn>
+                <v13:edipiORicnValue>1607472595</v13:edipiORicnValue>
+                <v13:inputType>EDIPI</v13:inputType>
+              </v12:edipiORicn>
+            </v11:eMISfooRequest>
+          </soap:Body>
+        </soap:Envelope>
+    headers:
+      Accept:
+      - text/xml;charset=UTF-8
+      Content-Type:
+      - text/xml;charset=UTF-8
+      User-Agent:
+      - Vets.gov Agent
+      Soapaction:
+      - http://viers.va.gov/cdi/eMIS/getVeteranStatus/v1
+      Date:
+      - Wed, 26 Apr 2017 19:38:10 GMT
+      Content-Length:
+      - '854'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 500
+      message: Internal Server Error
+    headers:
+      Date:
+      - Wed, 26 Apr 2017 19:38:10 GMT
+      Server:
+      - Apache/2.4.6 (Red Hat Enterprise Linux)
+      Set-Cookie:
+      - BlueStripe.PVN=8fa3d3bc000004c0; path=/
+      Content-Length:
+      - '2941'
+      Cache-Control:
+      - max-age=0, no-store
+      Connection:
+      - close
+      Content-Type:
+      - application/soap+xml;charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: "<?xml version=\"1.0\" encoding=\"UTF-8\"?><soapenv:Envelope xmlns:soapenv=\"http://www.w3.org/2003/05/soap-envelope\"><soapenv:Body><soapenv:Fault><soapenv:Code><soapenv:Value>soapenv:Receiver</soapenv:Value></soapenv:Code><soapenv:Reason><soapenv:Text
+        xml:lang=\"en-US\">Exception during SOAP processing</soapenv:Text></soapenv:Reason><soapenv:Detail><Exception>org.apache.axis2.AxisFault:
+        Exception during SOAP processing\n\tat com.ibm.broker.axis2.Axis2Invoker.processInboundRequest(Unknown
+        Source)\n\tat com.ibm.broker.axis2.Axis2Invoker.invokeAxis2(Unknown Source)\n\tat
+        com.ibm.broker.axis2.TomcatNodeRegistrationUtil.invokeAxis2(Unknown Source)\n\tat
+        com.ibm.broker.axis2.TomcatNodeRegistrationUtil.invokeAxis2(Unknown Source)\nCaused
+        by: org.apache.axiom.om.OMException: javax.xml.stream.XMLStreamException:
+        The namespace prefix \"v11\" was not declared.\n\tat org.apache.axiom.om.impl.builder.StAXOMBuilder.lookahead(StAXOMBuilder.java:702)\n\tat
+        org.apache.axiom.soap.impl.llom.SOAPBodyImpl.hasLookahead(SOAPBodyImpl.java:191)\n\tat
+        org.apache.axiom.soap.impl.llom.SOAPBodyImpl.getFirstElementLocalName(SOAPBodyImpl.java:217)\n\tat
+        org.apache.axiom.soap.impl.llom.SOAPBodyImpl.hasFault(SOAPBodyImpl.java:99)\n\t...
+        4 more\nCaused by: javax.xml.stream.XMLStreamException: The namespace prefix
+        \"v11\" was not declared.\n\tat com.ibm.xml.xlxp2.api.stax.msg.StAXMessageProvider.throwWrappedXMLStreamException(StAXMessageProvider.java:76)\n\tat
+        com.ibm.xml.xlxp2.api.stax.XMLStreamReaderImpl.produceFatalErrorEvent(XMLStreamReaderImpl.java:2008)\n\tat
+        com.ibm.xml.xlxp2.api.jaxb.JAXBXMLStreamReader.produceFatalErrorEvent(JAXBXMLStreamReader.java:356)\n\tat
+        com.ibm.xml.xlxp2.scan.DocumentScanner.reportFatalError(DocumentScanner.java:4871)\n\tat
+        com.ibm.xml.xlxp2.scan.DocumentScanner.reportFatalError(DocumentScanner.java:1212)\n\tat
+        com.ibm.xml.xlxp2.scan.DocumentScanner.undeclaredPrefix(DocumentScanner.java:4591)\n\tat
+        com.ibm.xml.xlxp2.scan.DocumentScanner.resolveNamespaceURIs(DocumentScanner.java:4583)\n\tat
+        com.ibm.xml.xlxp2.scan.DocumentScanner.finishElement(DocumentScanner.java:4273)\n\tat
+        com.ibm.xml.xlxp2.scan.DocumentScanner.scanStartElement(DocumentScanner.java:2255)\n\tat
+        com.ibm.xml.xlxp2.scan.DocumentScanner.scanContent(DocumentScanner.java:1841)\n\tat
+        com.ibm.xml.xlxp2.runtime.VMContext.scanContent(VMContext.java:502)\n\tat
+        com.ibm.xml.xlxp2.scan.DocumentScanner.nextEvent(DocumentScanner.java:1283)\n\tat
+        com.ibm.xml.xlxp2.api.stax.XMLStreamReaderImpl.next(XMLStreamReaderImpl.java:581)\n\tat
+        com.ibm.xml.xlxp2.api.stax.XMLInputFactoryImpl$XMLStreamReaderProxyImpl.next(XMLInputFactoryImpl.java:183)\n\tat
+        com.ibm.xml.xlxp2.api.wssec.WSSXMLInputFactory$WSSStreamReaderProxy.next(WSSXMLInputFactory.java:55)\n\tat
+        org.apache.axiom.om.impl.builder.StAXOMBuilder.parserNext(StAXOMBuilder.java:672)\n\tat
+        org.apache.axiom.om.impl.builder.StAXOMBuilder.lookahead(StAXOMBuilder.java:688)\n\t...
+        7 more\n</Exception></soapenv:Detail></soapenv:Fault></soapenv:Body></soapenv:Envelope>"
+    http_version: 
+  recorded_at: Wed, 26 Apr 2017 19:38:10 GMT
+recorded_with: VCR 3.0.3
