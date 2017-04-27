@@ -8,6 +8,7 @@ module Common
       class ClientError < Error; end
       class NotAuthenticated < ClientError; end
       class Serialization < ClientError; end
+      class StreamingError < ClientError; end
       class HTTPError < ClientError
         attr_accessor :code
 
