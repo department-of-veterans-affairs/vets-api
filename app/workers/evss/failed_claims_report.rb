@@ -13,7 +13,10 @@ module EVSS
 
         if args[1] == evss_metadata[:user_uuid] &&
            this_document_hash['file_name'] == evss_metadata[:file_name] &&
-           (evss_metadata[:tracked_item_id].nil? || (evss_metadata[:tracked_item_id] == this_document_hash['tracked_item_id']))
+           (
+             evss_metadata[:tracked_item_id].nil? ||
+             evss_metadata[:tracked_item_id] == this_document_hash['tracked_item_id']
+           )
 
           document_hash = this_document_hash
           break
