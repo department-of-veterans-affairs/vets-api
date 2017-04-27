@@ -38,11 +38,11 @@ module BB
     end
 
     # Get a health record report. Because of potentially large payload size
-    # the content must be streamed. 
+    # the content must be streamed.
     # doctype - one of: "txt" or "pdf"
     # header_callback - should be a callable that will accept an enumerator of
     #   response headers as key/value pairs
-    # yielder - a target to which a stream of response body chunks can be 
+    # yielder - a target to which a stream of response body chunks can be
     #   yielded (see for example Enumerator.new)
     def get_download_report(doctype, header_callback, yielder)
       # TODO: For testing purposes, use one of the following static URIs:
