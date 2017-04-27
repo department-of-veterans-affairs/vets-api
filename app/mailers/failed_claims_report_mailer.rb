@@ -14,12 +14,13 @@ class FailedClaimsReportMailer < ApplicationMailer
         RECIPIENTS.clone
       end
 
+    @failed_uploads = failed_uploads
+    template = File.read("app/mailers/views/failed_claims_report.erb")
+
     mail(
       opt.merge(
         subject: 'EVSS claims failed to upload',
-        body: failed_uploads.map do |failed_upload|
-          ERB::Util.html_escape(failed_upload)
-        end.join('<br>')
+        body: ERB.new(template).result(binding)
       )
     )
   end
