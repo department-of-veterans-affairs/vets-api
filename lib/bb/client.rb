@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'common/client/base'
 require 'common/client/concerns/mhv_session_based_client'
+require 'common/client/concerns/streaming_client'
 require 'bb/generate_report_request_form'
 require 'bb/configuration'
 require 'rx/client_session'
@@ -41,7 +42,7 @@ module BB
       # TODO: For testing purposes, use one of the following static URIs:
       # uri = URI("#{Settings.mhv.rx.host}/vetsgov/1mb.file")
       # uri = URI("#{Settings.mhv.rx.host}/vetsgov/90mb.file")
-      uri = URI.join(base_path, "bluebutton/bbreport/#{doctype}")
+      uri = URI.join(config.base_path, "bluebutton/bbreport/#{doctype}")
       streaming_get(uri, token_headers, header_callback, yielder)
     end
   end
