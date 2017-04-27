@@ -32,18 +32,13 @@ module V0
       # doc_type will default to 'pdf' if any value, including nil is provided.
       doc_type = params[:doc_type] == 'txt' ? 'txt' : 'pdf'
       header_callback = lambda do |headers|
-        headers.each do |k, v|
-          puts "#{k}: #{v}"
-          response[k] = v.first if REPORT_HEADERS.include? k
-        end
+        headers.each { |k, v| response[k] = v if REPORT_HEADERS.include? k }
       end
       begin
         chunk_stream = Enumerator.new do |stream|
           client.get_download_report(doc_type, header_callback, stream)
         end
-        chunk_stream.each do |c|
-          response.stream.write c
-        end
+        chunk_stream.each { |c| response.stream.write c }
       ensure
         response.stream.close if response.committed?
       end
