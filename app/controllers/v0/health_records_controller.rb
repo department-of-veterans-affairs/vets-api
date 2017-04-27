@@ -32,7 +32,7 @@ module V0
       # doc_type will default to 'pdf' if any value, including nil is provided.
       doc_type = params[:doc_type] == 'txt' ? 'txt' : 'pdf'
       header_callback = lambda do |headers|
-        headers.each do |k,v|
+        headers.each do |k, v|
           puts "#{k}: #{v}"
           response[k] = v.first if REPORT_HEADERS.include? k
         end

@@ -6,7 +6,7 @@ module Common
 
       def streaming_get(uri, headers, header_callback, yielder)
         request = Net::HTTP::Get.new(uri)
-        headers.each { |k,v| request[k] = v }
+        headers.each { |k, v| request[k] = v }
         begin
           Net::HTTP.start(uri.host, uri.port, read_timeout: 20, use_ssl: (uri.scheme == 'https')) do |http|
             http.request request do |response|
