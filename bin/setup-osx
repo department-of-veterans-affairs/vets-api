@@ -81,6 +81,15 @@ fi
 
 brew services start postgresql
 
+if command_exists convert ; then
+  echo "${GREEN} * Imagemagick already installed.${RESET}"
+else
+  echo "${RED} * Installing Imagemagick. ${RESET}"
+  brew install imagemagick
+fi
+
+brew services start postgresql
+
 # Make vetsgov-localhost.crt and .key
 
 CERT_INSTALL_REQUIRED=false
