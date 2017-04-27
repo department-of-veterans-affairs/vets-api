@@ -56,15 +56,27 @@ describe 'bb client' do
 
   # returns a PDF, it's binary but not a multipart
   it 'gets a pdf version of a report', :vcr do
-    client_response = client.get_download_report('pdf')
-    expect(client_response.response_headers['content-type'])
-      .to eq('application/pdf')
+    response_headers = {}
+    header_cb = lambda do |headers|
+      headers.each { |k, v| response_headers[k] = v }
+    end
+    response_stream = Enumerator.new do |stream|
+      client.get_download_report('pdf', header_cb, stream)
+    end
+    response_stream.each { |_| }
+    expect(response_headers['Content-Type']).to eq('application/pdf')
   end
 
   # this is just text in the response body
   it 'gets a text version of a report', :vcr do
-    client_response = client.get_download_report('txt')
-    expect(client_response.response_headers['content-type'])
-      .to eq('text/plain')
+    response_headers = {}
+    header_cb = lambda do |headers|
+      headers.each { |k, v| response_headers[k] = v }
+    end
+    response_stream = Enumerator.new do |stream|
+      client.get_download_report('txt', header_cb, stream)
+    end
+    response_stream.each { |_| }
+    expect(response_headers['Content-Type']).to eq('text/plain')
   end
 end
