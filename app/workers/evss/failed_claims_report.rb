@@ -3,6 +3,26 @@ module EVSS
   class FailedClaimsReport
     include Sidekiq::Worker
 
+    # def get_document_hash(filename)
+    #   @dead_set ||= Sidekiq::DeadSet.new
+    #   @dead_set.find do |job|
+    #     args = job.args
+
+    #     if args[1]
+    #   end
+    # end
+
+    def extract_info(file_path)
+      file_path_split = file_path.split('/')
+      has_tracked_item_id = file_path_split.size == 4 && file_path_split[2] != 'null'
+
+      {
+        user_uuid: file_path_split[1],
+        tracked_item_id: has_tracked_item_id ? file_path_split[2].to_i : nil,
+        file_name: file_path_split.last
+      }
+    end
+
     def perform
       s3 = Aws::S3::Resource.new(region: Settings.evss.s3.region)
       failed_uploads = []

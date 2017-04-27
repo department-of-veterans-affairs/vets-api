@@ -2,6 +2,39 @@
 require 'rails_helper'
 
 RSpec.describe EVSS::FailedClaimsReport, type: :job do
+  describe '#extract_info' do
+    test_method(
+      described_class.new,
+      'extract_info',
+      [
+        [
+          'evss_claim_documents/e97131834b5d4099a571201805b4149b/565656/foo.pdf',
+          {
+            :user_uuid=>"e97131834b5d4099a571201805b4149b",
+            :tracked_item_id=>565656,
+            :file_name=>"foo.pdf"
+          }
+        ],
+        [
+          'evss_claim_documents/e97131834b5d4099a571201805b4149b/foo.pdf',
+          {
+            :user_uuid=>"e97131834b5d4099a571201805b4149b",
+            :tracked_item_id=>nil,
+            :file_name=>"foo.pdf"
+          }
+        ],
+        [
+          'evss_claim_documents/e97131834b5d4099a571201805b4149b/null/foo.pdf',
+          {
+            :user_uuid=>"e97131834b5d4099a571201805b4149b",
+            :tracked_item_id=>nil,
+            :file_name=>"foo.pdf"
+          }
+        ]
+      ]
+    )
+  end
+
   describe '#perform' do
     it 'should lookup claims on s3 and send the email' do
       s3 = double
