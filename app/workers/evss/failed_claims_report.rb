@@ -4,12 +4,23 @@ module EVSS
     include Sidekiq::Worker
 
     def get_document_hash(evss_metadata)
-      # @dead_set ||= Sidekiq::DeadSet.new
-      # @dead_set.find do |job|
-      #   args = job.args
+      @dead_set ||= Sidekiq::DeadSet.new
+      document_hash = nil
 
-      #   if args[1]
-      # end
+      @dead_set.each do |job|
+        args = job.args
+        this_document_hash = args[2]
+
+        if args[1] == evss_metadata[:user_uuid] &&
+           this_document_hash['file_name'] == evss_metadata[:file_name] &&
+           (evss_metadata[:tracked_item_id].nil? || (evss_metadata[:tracked_item_id] == this_document_hash['tracked_item_id']))
+
+          document_hash = this_document_hash
+          break
+        end
+      end
+
+      document_hash
     end
 
     def get_evss_metadata(file_path)

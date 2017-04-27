@@ -35,6 +35,50 @@ RSpec.describe EVSS::FailedClaimsReport, type: :job do
     )
   end
 
+  describe '#get_document_hash' do
+    let(:user_uuid) { 'e97131834b5d4099a571201805b4149b' }
+    let(:document_hash) do
+      {
+        "evss_claim_id" => 123,
+        "tracked_item_id" => 1234,
+        "document_type" => "L029",
+        "file_name" => "foo.pdf"
+      }
+    end
+
+    before do
+      job = double
+      args = [
+        {},
+        user_uuid,
+        document_hash
+      ]
+      allow(job).to receive(:args).and_return(args)
+
+      expect(Sidekiq::DeadSet).to receive(:new).once.and_return([job])
+    end
+
+    context 'with valid metadata' do
+      it 'should get the document hash from sidekiq' do
+        expect(subject.get_document_hash(
+          user_uuid: user_uuid,
+          tracked_item_id: 1234,
+          file_name: 'foo.pdf'
+        )).to eq(document_hash)
+      end
+    end
+
+    context 'with no match' do
+      it 'should return nil' do
+        expect(subject.get_document_hash(
+          user_uuid: user_uuid,
+          tracked_item_id: 123,
+          file_name: 'foo.pdf'
+        )).to eq(nil)
+      end
+    end
+  end
+
   describe '#perform' do
     it 'should lookup claims on s3 and send the email' do
       s3 = double
