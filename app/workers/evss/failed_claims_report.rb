@@ -47,6 +47,13 @@ module EVSS
         end
       end
 
+      failed_uploads.map do |file_path|
+        {
+          file_path: file_path,
+          document_hash: get_document_hash(get_evss_metadata(file_path))
+        }
+      end
+
       FailedClaimsReportMailer.build(failed_uploads).deliver_now
     end
   end
