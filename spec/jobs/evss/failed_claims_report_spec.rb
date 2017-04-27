@@ -96,9 +96,16 @@ RSpec.describe EVSS::FailedClaimsReport, type: :job do
       ).and_return(s3)
       allow(s3).to receive(:bucket).twice.and_return(bucket)
       allow(bucket).to receive(:objects).and_return(objects)
+      allow_any_instance_of(described_class).to receive(:get_evss_metadata).with('object1').and_return({})
+      allow_any_instance_of(described_class).to receive(:get_document_hash).with({}).and_return(nil)
 
       expect(FailedClaimsReportMailer).to receive(:build).once.with(
-        %w(object1 object1)
+        [
+          {
+            file_path: 'object1',
+            document_hash: nil
+          }
+        ] * 2
       ).and_return(double.tap do |mailer|
         expect(mailer).to receive(:deliver_now).once
       end)
