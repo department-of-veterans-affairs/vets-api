@@ -14,7 +14,7 @@ module DocumentUploads
 
     def generate_stamp(stamp_path, string, x, y)
       Prawn::Document.generate stamp_path do |pdf|
-        pdf.draw_text Time.now.utc.strftime("#{string} %FT%T%:z"), :at => [x, y], :size => 10
+        pdf.draw_text Time.now.utc.strftime("#{string} %FT%T%:z"), at: [x, y], size: 10
       end
     rescue StandardError => e
       Rails.logger.error "Failed to generate datestamp file: #{e.message}"
