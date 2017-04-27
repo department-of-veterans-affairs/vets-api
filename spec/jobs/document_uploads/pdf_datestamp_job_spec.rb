@@ -3,7 +3,6 @@ require 'rails_helper'
 
 RSpec.describe DocumentUploads::PdfDatestampJob do
   describe '#perform' do
-
     before(:all) do
       @file_path = Rails.root.join('spec/fixtures/files/stamp_pdf_1_page.pdf')
       Prawn::Document.new.render_file @file_path
@@ -27,9 +26,9 @@ RSpec.describe DocumentUploads::PdfDatestampJob do
           allow(Prawn::Document).to receive(:generate).and_raise(error_message)
           expect(Rails.logger).to receive(:error).once.with("Failed to generate datestamp file: #{error_message}")
           expect(subject).not_to receive(:stamp)
-          expect {
+          expect do
             subject.perform(@file_path, 'Received via vets.gov at', 0, 0)
-          }.to raise_error(StandardError, error_message)
+          end.to raise_error(StandardError, error_message)
         end
       end
 
@@ -38,15 +37,15 @@ RSpec.describe DocumentUploads::PdfDatestampJob do
           allow(CombinePDF).to receive(:load).and_raise(error_message)
           expect(Rails.logger).to receive(:error).once.with("Failed to datestamp PDF file: #{error_message}")
           expect(File).to receive(:delete).once
-          expect {
+          expect do
             subject.perform(@file_path, 'Received via vets.gov at', 0, 0)
-          }.to raise_error(StandardError, error_message)
+          end.to raise_error(StandardError, error_message)
         end
       end
     end
 
     after(:all) do
-      File.delete(@file_path) if File.exists? @file_path
+      File.delete(@file_path) if File.exist? @file_path
     end
   end
 end
