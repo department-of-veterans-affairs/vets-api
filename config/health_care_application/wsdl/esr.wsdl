@@ -1384,9 +1384,4 @@
       </wsdl:output>
     </wsdl:operation>
   </wsdl:binding>
-  <wsdl:service name="eeSummaryPortService">
-    <wsdl:port binding="tns:eeSummaryPortSoap11" name="eeSummaryPortSoap11">
-      <soap:address location="https://vaww.esrstage1a.aac.va.gov:8443/esr-ws/spring-ws/getEESummary/"/>
-    </wsdl:port>
-  </wsdl:service>
 </wsdl:definitions>

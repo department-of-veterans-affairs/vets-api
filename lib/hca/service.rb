@@ -17,6 +17,7 @@ module HCA
       # Savon *seems* like it should be setting these things correctly
       # from what the docs say. Our WSDL file is weird, maybe?
       Savon.client(wsdl: config.class::WSDL,
+                   endpoint: config.base_path,
                    env_namespace: :soap,
                    element_form_default: :qualified,
                    namespaces: {

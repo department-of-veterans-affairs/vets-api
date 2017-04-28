@@ -66,9 +66,4 @@
             </fault>
         </operation>
     </binding>
-    <service name="voaService">
-        <port name="VoaFormServiceEndpointPort" binding="tns:VoaFormServiceEndpointPortBinding">
-            <soap:address location="http://vaausesrapp803.aac.va.gov:7401/voa/voaSvc"/>
-        </port>
-    </service>
 </definitions>

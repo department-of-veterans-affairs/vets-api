@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'hca/configuration'
 
-module HCA::EE
+module HCA::ESR
   class Configuration < Common::Client::Configuration::SOAP
     include HCA::Configuration
     WSDL = Rails.root.join('config', 'health_care_application', 'wsdl', 'esr.wsdl')
@@ -15,7 +15,7 @@ module HCA::EE
     end
 
     def service_name
-      'HCA-EE'
+      'HCA-ESR'
     end
   end
 
