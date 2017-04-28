@@ -14,7 +14,7 @@ module MHVAC
     end
 
     def base_path
-      "#{ENV['MHV_HOST']}/mhv-api/patient/v1/"
+      "#{Settings.mhv.rx.host}/mhv-api/patient/v1/"
     end
 
     def service_name

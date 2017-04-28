@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://essapi-sysb.myhealth.va.gov/mhv-api/patient/v1/preferences/appt
+    uri: <MHV_HOST>/mhv-api/patient/v1/preferences/appt
     body:
       encoding: UTF-8
       string: '{"flag":true}'
@@ -37,7 +37,7 @@ http_interactions:
   recorded_at: Mon, 20 Mar 2017 18:01:54 GMT
 - request:
     method: get
-    uri: https://essapi-sysb.myhealth.va.gov/mhv-api/patient/v1/preferences/appt
+    uri: <MHV_HOST>/mhv-api/patient/v1/preferences/appt
     body:
       encoding: US-ASCII
       string: ''
@@ -72,7 +72,7 @@ http_interactions:
   recorded_at: Mon, 20 Mar 2017 18:01:55 GMT
 - request:
     method: post
-    uri: https://essapi-sysb.myhealth.va.gov/mhv-api/patient/v1/preferences/appt
+    uri: <MHV_HOST>/mhv-api/patient/v1/preferences/appt
     body:
       encoding: UTF-8
       string: '{"flag":false}'
@@ -107,7 +107,7 @@ http_interactions:
   recorded_at: Mon, 20 Mar 2017 18:01:56 GMT
 - request:
     method: get
-    uri: https://essapi-sysb.myhealth.va.gov/mhv-api/patient/v1/preferences/appt
+    uri: <MHV_HOST>/mhv-api/patient/v1/preferences/appt
     body:
       encoding: US-ASCII
       string: ''

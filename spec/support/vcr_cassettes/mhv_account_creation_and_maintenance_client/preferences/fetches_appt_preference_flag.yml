@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://essapi-sysb.myhealth.va.gov/mhv-api/patient/v1/preferences/appt
+    uri: <MHV_HOST>/mhv-api/patient/v1/preferences/appt
     body:
       encoding: US-ASCII
       string: ''

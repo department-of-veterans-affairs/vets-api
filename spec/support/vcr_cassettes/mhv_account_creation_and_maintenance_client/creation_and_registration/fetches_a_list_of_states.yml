@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://essapi-sysb.myhealth.va.gov/mhv-api/patient/v1/enum/states
+    uri: <MHV_HOST>/mhv-api/patient/v1/enum/states
     body:
       encoding: US-ASCII
       string: ''

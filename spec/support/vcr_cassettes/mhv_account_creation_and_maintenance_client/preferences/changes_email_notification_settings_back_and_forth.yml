@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://essapi-sysb.myhealth.va.gov/mhv-api/patient/v1/preferences/email
+    uri: <MHV_HOST>/mhv-api/patient/v1/preferences/email
     body:
       encoding: UTF-8
       string: '{"emailAddress":"kamyar.karshenas@va.gov"}'
@@ -37,7 +37,7 @@ http_interactions:
   recorded_at: Mon, 20 Mar 2017 17:58:47 GMT
 - request:
     method: get
-    uri: https://essapi-sysb.myhealth.va.gov/mhv-api/patient/v1/preferences/email
+    uri: <MHV_HOST>/mhv-api/patient/v1/preferences/email
     body:
       encoding: US-ASCII
       string: ''
@@ -72,7 +72,7 @@ http_interactions:
   recorded_at: Mon, 20 Mar 2017 17:58:48 GMT
 - request:
     method: post
-    uri: https://essapi-sysb.myhealth.va.gov/mhv-api/patient/v1/preferences/email
+    uri: <MHV_HOST>/mhv-api/patient/v1/preferences/email
     body:
       encoding: UTF-8
       string: '{"emailAddress":"Praneeth.Gaganapally@va.gov"}'
@@ -107,7 +107,7 @@ http_interactions:
   recorded_at: Mon, 20 Mar 2017 17:58:48 GMT
 - request:
     method: get
-    uri: https://essapi-sysb.myhealth.va.gov/mhv-api/patient/v1/preferences/email
+    uri: <MHV_HOST>/mhv-api/patient/v1/preferences/email
     body:
       encoding: US-ASCII
       string: ''

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://essapi-sysb.myhealth.va.gov/mhv-api/patient/v1/enum/countries
+    uri: <MHV_HOST>/mhv-api/patient/v1/enum/countries
     body:
       encoding: US-ASCII
       string: ''
@@ -137,6 +137,6 @@ http_interactions:
         cyBhbmQgRnV0dW5hIElzbGFuZHMiLCJXU00iOiJTYW1vYSIsIllFTSI6Illl
         bWVuIiwiWkFGIjoiU291dGggQWZyaWNhIiwiWk1CIjoiWmFtYmlhIiwiWldF
         IjoiWmltYmFid2UifQ==
-    http_version: 
+    http_version:
   recorded_at: Mon, 20 Mar 2017 18:03:17 GMT
 recorded_with: VCR 3.0.3
