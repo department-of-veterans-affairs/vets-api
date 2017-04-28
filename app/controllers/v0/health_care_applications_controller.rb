@@ -7,17 +7,10 @@ module V0
     skip_before_action(:authenticate)
 
     def create
-      form = JSON.parse(params[:form])
-      validation_errors = JSON::Validator.fully_validate(
-        VetsJsonSchema::SCHEMAS['10-10EZ'],
-        form, validate_schema: true
-      )
-
-      if validation_errors.present?
-        raise Common::Exceptions::SchemaValidationErrors, validation_errors
-      end
-
       authenticate_token
+
+      form = JSON.parse(params[:form])
+      validate!(form)
 
       result = begin
         HCA::Service.new(current_user).submit_form(form)
@@ -25,8 +18,7 @@ module V0
         log_exception_to_sentry(e)
 
         raise Common::Exceptions::BackendServiceException.new(
-          nil,
-          detail: e.message
+          nil, detail: e.message
         )
       end
       Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
@@ -35,6 +27,20 @@ module V0
 
     def healthcheck
       render(json: HCA::Service.new.health_check)
+    end
+
+    private
+
+    def validate!(form)
+      validation_errors = JSON::Validator.fully_validate(
+        VetsJsonSchema::SCHEMAS['10-10EZ'],
+        form, validate_schema: true
+      )
+
+      if validation_errors.present?
+        log_message_to_sentry(validation_errors.join(','), :error, {}, validation: 'health_care_application')
+        raise Common::Exceptions::SchemaValidationErrors, validation_errors
+      end
     end
   end
 end
