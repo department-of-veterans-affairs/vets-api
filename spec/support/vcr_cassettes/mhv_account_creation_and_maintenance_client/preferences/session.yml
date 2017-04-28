@@ -1,0 +1,42 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: <MHV_HOST>/mhv-api/patient/v1/session
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apptoken:
+      - 3Olp2DAjWDaI8B4vV4cHzHRJTYZO+XfMWEiVSGzFDYg
+      Mhvcorrelationid:
+      - '12210827'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - Apache-Coyote/1.1
+      Expires:
+      - Mon, 20 Mar 2017 18:05:36 GMT
+      Token:
+      - 102OTc4NjU0MjE=0p9Dh7Xk3oNW1O2dKqh25m+46fpR3+VCLzU8+lJDUYU=
+      Content-Length:
+      - '0'
+      Date:
+      - Mon, 20 Mar 2017 17:55:36 GMT
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Mon, 20 Mar 2017 17:55:36 GMT
+recorded_with: VCR 3.0.3
