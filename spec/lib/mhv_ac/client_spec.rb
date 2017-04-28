@@ -3,10 +3,11 @@ require 'rails_helper'
 require 'mhv_ac/client'
 
 describe 'mhv account creation and maintenance client' do
-  context 'non session interactions' do
+  context 'creation and registration' do
     let(:client) { MHVAC::Client.new(session: nil) }
     # If building this for a different user, you will need to fetch an ICN to do so you will need to pass the following:
-    # bundle exec rake mvi:find first_name="Hector" middle_name="J" last_name="Allen" birth_date="1932-02-05" gender="M" ssn="796126859"
+    # bundle exec rake mvi:find first_name="Hector" middle_name="J" last_name="Allen" _
+    #                           birth_date="1932-02-05" gender="M" ssn="796126859"
 
     it 'fetches a list of states', :vcr do
       client_response = client.get_states
@@ -44,17 +45,17 @@ describe 'mhv account creation and maintenance client' do
     # "MVI Unknown Issue Occurred", "Error:MVI Response has error : Error Code: AE;"
     # Perhaps the ICN above is not valid.
     xit 'creates an account', :vcr do
-      client_response = client.post_register(user_params)
+      client.post_register(user_params)
     end
 
     xit 'upgrades an account', :vcr do
-      client_response = client.upgrade
+      client.upgrade
     end
   end
 
-  context 'account management' do
+  context 'preferences' do
     before(:all) do
-      VCR.use_cassette 'mhv_account_creation_and_maintenance_client/account_management/session', record: :new_episodes do
+      VCR.use_cassette 'mhv_account_creation_and_maintenance_client/preferences/session', record: :new_episodes do
         @client ||= begin
           client = MHVAC::Client.new(session: { user_id: '12210827' })
           client.authenticate
