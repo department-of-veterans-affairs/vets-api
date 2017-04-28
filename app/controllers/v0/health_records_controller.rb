@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 module V0
   class HealthRecordsController < BBController
+    include ActionController::Live
+
+    REPORT_HEADERS = %w(Content-Type Content-Disposition).freeze
+
     def refresh
       resource = client.get_extract_status
 
@@ -27,11 +31,18 @@ module V0
     def show
       # doc_type will default to 'pdf' if any value, including nil is provided.
       doc_type = params[:doc_type] == 'txt' ? 'txt' : 'pdf'
-      resource = client.get_download_report(doc_type)
-
-      send_data resource.body,
-                type: resource.response_headers['content-type'],
-                disposition: resource.response_headers['content-disposition']
+      response_headers = Hash[REPORT_HEADERS.map { |h| [h, ''] }]
+      begin
+        chunk_stream = Enumerator.new do |stream|
+          streaming_client.get_download_report(doc_type, response_headers, stream)
+        end
+        chunk_stream.each.with_index do |c, index|
+          response_headers.each { |k, v| response[k] = v } if index.zero?
+          response.stream.write c
+        end
+      ensure
+        response.stream.close if response.committed?
+      end
     end
   end
 end
