@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'common/client/base'
 require 'common/client/concerns/mhv_session_based_client'
+require 'common/client/concerns/streaming_client'
 require 'bb/generate_report_request_form'
 require 'bb/configuration'
 require 'rx/client_session'
@@ -9,6 +10,7 @@ module BB
   # Core class responsible for api interface operations
   class Client < Common::Client::Base
     include Common::Client::MHVSessionBasedClient
+    include Common::Client::StreamingClient
 
     configuration BB::Configuration
     client_session Rx::ClientSession
@@ -35,9 +37,19 @@ module BB
       perform(:post, 'bluebutton/generate', form.params, token_headers).body
     end
 
-    # doctype must be one of: txt or pdf
-    def get_download_report(doctype)
-      perform(:get, "bluebutton/bbreport/#{doctype}", nil, token_headers)
+    # Get a health record report. Because of potentially large payload size
+    # the content must be streamed.
+    # doctype - one of: "txt" or "pdf"
+    # header_callback - should be a callable that will accept an enumerator of
+    #   response headers as key/value pairs
+    # yielder - a target to which a stream of response body chunks can be
+    #   yielded (see for example Enumerator.new)
+    def get_download_report(doctype, header_callback, yielder)
+      # TODO: For testing purposes, use one of the following static URIs:
+      # uri = URI("#{Settings.mhv.rx.host}/vetsgov/1mb.file")
+      # uri = URI("#{Settings.mhv.rx.host}/vetsgov/90mb.file")
+      uri = URI.join(config.base_path, "bluebutton/bbreport/#{doctype}")
+      streaming_get(uri, token_headers, header_callback, yielder)
     end
   end
 end
