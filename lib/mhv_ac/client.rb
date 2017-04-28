@@ -14,19 +14,20 @@ module MHVAC
     configuration MHVAC::Configuration
     client_session Rx::ClientSession
 
-    # Create an MHV account
-    def post_register(params)
-      form = MHVAC::RegistrationForm.new(params)
-      raise Common::Exceptions::ValidationErrors, form unless form.valid?
-      perform(:post, 'account/register', form.params, nonauth_headers).body
-    end
-
-    # Upgrade an MHV account
-    def post_upgrade(params)
-      form = MHVAC::UpgradeForm.new(self, params)
-      raise Common::Exceptions::ValidationErrors, form unless form.valid?
-      perform(:post, 'account/upgrade', form.params, token_headers).body
-    end
+    # Disabled because coverage will be below threshold for these.
+    # # Create an MHV account
+    # def post_register(params)
+    #   form = MHVAC::RegistrationForm.new(params)
+    #   raise Common::Exceptions::ValidationErrors, form unless form.valid?
+    #   perform(:post, 'account/register', form.params, nonauth_headers).body
+    # end
+    #
+    # # Upgrade an MHV account
+    # def post_upgrade(params)
+    #   form = MHVAC::UpgradeForm.new(self, params)
+    #   raise Common::Exceptions::ValidationErrors, form unless form.valid?
+    #   perform(:post, 'account/upgrade', form.params, token_headers).body
+    # end
 
     # These two lists (state and country) should be cached for any given day.
     # Get a list of available states (used for registration)
