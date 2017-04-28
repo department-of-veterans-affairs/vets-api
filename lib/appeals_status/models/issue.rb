@@ -1,7 +1,9 @@
 # frozen_string_literal: true
-module AppealStatus
+require 'common/models/base'
+
+module AppealsStatus
   module Models
-    class Issue
+    class Issue < Common::Base
       include Virtus.model
 
       attribute :program_area, String

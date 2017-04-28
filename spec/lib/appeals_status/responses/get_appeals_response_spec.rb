@@ -2,5 +2,5 @@
 require 'rails_helper'
 require 'appeals_status/responses/get_appeals_response'
 
-describe AppealStatus::Responses::GetAppealsResponse do
+describe AppealsStatus::Responses::GetAppealsResponse do
 end

@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 require 'appeals_status/models/appeal'
+require 'common/models/base'
 
-module AppealStatus
+module AppealsStatus
   module Models
-    class Appeals
+    class Appeals < Common::Base
       include Virtus.model
-      attribute :appeals, Array[AppealStatus::Models::Appeal]
+      attribute :appeals, Array[AppealsStatus::Models::Appeal]
     end
   end
 end

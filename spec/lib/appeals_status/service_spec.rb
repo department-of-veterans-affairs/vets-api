@@ -3,7 +3,7 @@ require 'rails_helper'
 require 'appeals_status/service'
 require 'appeals_status/responses/get_appeals_response'
 
-describe AppealStatus::Service do
+describe AppealsStatus::Service do
   let(:user) do
     user_hash = {
       first_name: Faker::Name.first_name,
@@ -14,12 +14,12 @@ describe AppealStatus::Service do
     }
     build(:loa3_user, user_hash)
   end
-  let(:appeals_service) { AppealStatus::Service.new }
+  let(:appeals_service) { AppealsStatus::Service.new }
 
   describe 'get_appeals' do
     context 'with a working mock for the user' do
       it 'returns the response' do
-        expect(appeals_service.get_appeals(user)).to be_an_instance_of(AppealStatus::Responses::GetAppealsResponse)
+        expect(appeals_service.get_appeals(user)).to be_an_instance_of(AppealsStatus::Responses::GetAppealsResponse)
       end
 
       it 'has the appeals in the response' do

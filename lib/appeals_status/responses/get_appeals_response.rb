@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-module AppealStatus
+module AppealsStatus
   module Responses
     class GetAppealsResponse
       attr_accessor :status

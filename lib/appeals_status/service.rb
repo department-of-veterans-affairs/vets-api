@@ -2,10 +2,10 @@
 require 'appeals_status/models/appeals'
 require 'appeals_status/responses/get_appeals_response'
 
-module AppealStatus
+module AppealsStatus
   class Service
     def get_appeals(user)
-      response = try_mocks(:mocked_get_appeals_responses, user, AppealStatus::Responses::GetAppealsResponse)
+      response = try_mocks(:mocked_get_appeals_responses, user, AppealsStatus::Responses::GetAppealsResponse)
       # response ||= make_the_actual_request
       response
     end
@@ -16,12 +16,12 @@ module AppealStatus
       @mocked_get_appeals_responses ||= YAML.load_file('config/appeals_status/mock_get_appeals_responses.yml')
     end
 
-    def try_mocks(responses_method, user, response_class)
+    def try_mocks(mock_responses_method, user, response_class)
       if should_mock?
-        responses = send(responses_method)
+        responses = send(mock_responses_method)
         response = responses.dig('users', user.ssn)
         if response
-          appeals = AppealStatus::Models::Appeals.new(response)
+          appeals = AppealsStatus::Models::Appeals.new(response)
           return response_class.new(
             status: 200,
             appeals: appeals

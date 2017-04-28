@@ -1,7 +1,9 @@
 # frozen_string_literal: true
-module AppealStatus
+require 'common/models/base'
+
+module AppealsStatus
   module Models
-    class Hearing
+    class Hearing < Common::Base
       include Virtus.model
 
       attribute :requested, Boolean
