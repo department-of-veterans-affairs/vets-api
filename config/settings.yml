@@ -43,14 +43,16 @@ gids:
   url: https://dev.vets.gov/gids
 
 # Settings for Healthcare Application
+# This CA chain is nonsense but allows local development to work with pre-prod environment.
 hca:
   endpoint: https://test-foo.vets.gov
   cert_path: /fake/client/cert/path
   key_path: /fake/client/key/path
   ca:
-    - 'Veterans Affairs Device CA B2.pem'
-    - 'Betrusted Production SSP CA A1.pem'
-    - 'Federal Common Policy CA.pem'
+    - 'VA Internal Root CA.pem'
+    - 'VA Internal Subordinate CA 1.pem'
+    - 'VA-Internal-S2-ICA1-v1.pem'
+    - 'VA-Internal-S2-RCA1-v1.pem'
 
 # Settings for the facility locator
 locators:
@@ -76,6 +78,31 @@ mvi:
   processing_code: T
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
+
+# Settings for eMIS
+emis:
+  veteran_status_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/VeteranStatusService
+  payment_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/PaymentService
+  military_information_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/MilitaryInformationService
+  client_cert_path: /Users/vhaisbhollaj/code/soaphitter/vetsgov-emis-dev-cert.cer
+  client_key_path: /Users/vhaisbhollaj/code/soaphitter/vetsgov-emis-private-key.cer
+  soap_namespaces:
+    xmlns:xsd: http://www.w3.org/2001/XMLSchema
+    xmlns:xsi: http://www.w3.org/2001/XMLSchema-instance
+    xmlns:soap: http://www.w3.org/2003/05/soap-envelope
+    xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v1
+    xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v1
+    xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v1
+  military_information:
+    soap_namespaces:
+      xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v1
+  payment:
+    soap_namespaces:
+      xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v1
+  veteran_status:
+    soap_namespaces:
+      xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1
+
 
 # Settings for Redis
 # TODO(knkski): Move all redis settings here?
