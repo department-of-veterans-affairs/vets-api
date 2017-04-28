@@ -1,0 +1,73 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/MilitaryInformationService
+    body:
+      encoding: ASCII-8BIT
+      string: |2
+
+        <soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:v1="http://viers.va.gov/cdi/CDI/commonService/v1" xmlns:v12="http://viers.va.gov/cdi/eMIS/RequestResponse/v1" xmlns:v13="http://viers.va.gov/cdi/eMIS/commonService/v1" xmlns:v11="http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v1">
+          <soap:Header>
+            <v1:inputHeaderInfo>
+              <v1:userId>vets.gov</v1:userId>
+              <v1:sourceSystemName>vets.gov</v1:sourceSystemName>
+              <v1:transactionId>dbd4b45d-8ed9-4686-9daa-3f7275736c23</v1:transactionId>
+            </v1:inputHeaderInfo>
+          </soap:Header>
+          <soap:Body>
+            <v11:eMISdisabilitiesRequest>
+              <v12:edipiORicn>
+                <v13:edipiORicnValue>6001010001</v13:edipiORicnValue>
+                <v13:inputType>EDIPI</v13:inputType>
+              </v12:edipiORicn>
+            </v11:eMISdisabilitiesRequest>
+          </soap:Body>
+        </soap:Envelope>
+    headers:
+      Accept:
+      - text/xml;charset=UTF-8
+      Content-Type:
+      - text/xml;charset=UTF-8
+      User-Agent:
+      - Vets.gov Agent
+      Soapaction:
+      - http://viers.va.gov/cdi/eMIS/getDisabilities/v1
+      Date:
+      - Wed, 19 Apr 2017 19:17:26 GMT
+      Content-Length:
+      - '945'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 19 Apr 2017 19:17:21 GMT
+      Server:
+      - Apache/2.4.6 (Red Hat Enterprise Linux)
+      Set-Cookie:
+      - BlueStripe.PVN=8f79b49f00000017; path=/
+      Content-Length:
+      - '1170'
+      Cache-Control:
+      - max-age=0, no-store
+      Connection:
+      - close
+      Content-Type:
+      - application/soap+xml;charset=utf-8
+    body:
+      encoding: UTF-8
+      string: <?xml version="1.0" encoding="utf-8"?><NS1:Envelope xmlns:NS1="http://www.w3.org/2003/05/soap-envelope"><NS1:Header><NS2:essResponseCode
+        xmlns:NS2="http://va.gov/ess/message/v1">Success</NS2:essResponseCode><NS3:inputHeaderInfo
+        xmlns:NS3="http://viers.va.gov/cdi/CDI/commonService/v1"><NS3:userId>vets.gov</NS3:userId><NS3:sourceSystemName>vets.gov</NS3:sourceSystemName><NS3:transactionId>dbd4b45d-8ed9-4686-9daa-3f7275736c23</NS3:transactionId></NS3:inputHeaderInfo></NS1:Header><NS1:Body><NS4:eMISdisabilitiesResponse
+        xmlns:NS4="http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v1"><NS5:disabilities
+        xmlns:NS5="http://viers.va.gov/cdi/eMIS/RequestResponse/v1"><NS6:edipi xmlns:NS6="http://viers.va.gov/cdi/eMIS/commonService/v1">6001010001</NS6:edipi><NS7:disabilityPercent
+        xmlns:NS7="http://viers.va.gov/cdi/eMIS/commonService/v1">30</NS7:disabilityPercent><NS8:permanentTemporaryIndicator
+        xmlns:NS8="http://viers.va.gov/cdi/eMIS/commonService/v1">TEMP</NS8:permanentTemporaryIndicator><NS9:payAmount
+        xmlns:NS9="http://viers.va.gov/cdi/eMIS/commonService/v1">728.00</NS9:payAmount></NS5:disabilities></NS4:eMISdisabilitiesResponse></NS1:Body></NS1:Envelope>
+    http_version: 
+  recorded_at: Wed, 19 Apr 2017 19:17:26 GMT
+recorded_with: VCR 3.0.3
