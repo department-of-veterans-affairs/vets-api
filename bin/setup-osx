@@ -88,8 +88,6 @@ else
   brew install imagemagick
 fi
 
-brew services start postgresql
-
 # Make vetsgov-localhost.crt and .key
 
 CERT_INSTALL_REQUIRED=false
