@@ -5,7 +5,7 @@ this token, one must perform authentication through ID.me. This authentication
 flow requires that the ID.me certificates are properly configured within
 `vets-api`.
 
-The [README](../README.md) contains instructions for installing a certificate
+The [README](../../README.md) contains instructions for installing a certificate
 that will work for local development. If your setup differs from this, customize
 the `config/settings.local.yml` file with suitable configuration. For example,
 
