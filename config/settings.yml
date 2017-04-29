@@ -1,0 +1,141 @@
+hostname: www.example.com
+
+# For CORS requests; separate multiple origins with a comma
+web_origin: http://localhost:3000,http://localhost:3001
+
+db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb48ebb708021e4c76c3807d37f6b4e389d5aa45ea171f2f5074222784c1ee2bb8272390d1b9517a7a6987c22733ef00b2
+
+database_url: postgres:///vets-api
+
+relative_url_root: /
+
+secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d0bef5c7fdab73cd05685d8fe1dd589287d78b38e4de7116fbe14461e414072677
+
+review_instance_slug: ~
+
+sidekiq_admin_panel: false
+
+# Settings for Education Benefits
+edu:
+  sftp:
+    host: ~
+    pass: ~
+    user: ~
+    port: ~
+
+# Settings for EVSS
+evss:
+  url: https://test.vets.gov
+  cert_path: ~
+  key_path: ~
+  root_cert_path: ~
+  versions:
+    claims: 3.0
+    common: 11.0
+    documents: 3.0
+  s3:
+    uploads_enabled: false
+    bucket: evss_s3_bucket
+    region: evss_s3_region
+
+# Settings for GI Bill Data Service
+gids:
+  url: https://dev.vets.gov/gids
+
+# Settings for Healthcare Application
+# This CA chain is nonsense but allows local development to work with pre-prod environment.
+hca:
+  endpoint: https://test-foo.vets.gov
+  cert_path: /fake/client/cert/path
+  key_path: /fake/client/key/path
+  ca:
+    - 'VA Internal Root CA.pem'
+    - 'VA Internal Subordinate CA 1.pem'
+    - 'VA-Internal-S2-ICA1-v1.pem'
+    - 'VA-Internal-S2-RCA1-v1.pem'
+
+# Settings for the facility locator
+locators:
+  vha: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_Facilities/FeatureServer/0
+  nca: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/NCA_Facilities/FeatureServer/0
+  vba: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VBA_Facilities/FeatureServer/0
+
+# Settings for MyHealthEVet
+mhv:
+  rx:
+    host: https://mhv-api.example.com
+    app_token: fake-app-token
+  sm:
+    host: https://mhv-api.example.com
+    app_token: fake-app-token
+
+# Settings for Master Veteran Index
+mvi:
+  url: http://see.project.readme.for.instructions.org/
+  open_timeout: 2
+  timeout: 10
+  mock: true
+  processing_code: T
+  client_cert_path: /fake/client/cert/path
+  client_key_path: /fake/client/key/path
+
+# Settings for eMIS
+emis:
+  veteran_status_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/VeteranStatusService
+  payment_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/PaymentService
+  military_information_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/MilitaryInformationService
+  client_cert_path: /Users/vhaisbhollaj/code/soaphitter/vetsgov-emis-dev-cert.cer
+  client_key_path: /Users/vhaisbhollaj/code/soaphitter/vetsgov-emis-private-key.cer
+  soap_namespaces:
+    xmlns:xsd: http://www.w3.org/2001/XMLSchema
+    xmlns:xsi: http://www.w3.org/2001/XMLSchema-instance
+    xmlns:soap: http://www.w3.org/2003/05/soap-envelope
+    xmlns:v1: http://viers.va.gov/cdi/CDI/commonService/v1
+    xmlns:v12: http://viers.va.gov/cdi/eMIS/RequestResponse/v1
+    xmlns:v13: http://viers.va.gov/cdi/eMIS/commonService/v1
+  military_information:
+    soap_namespaces:
+      xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v1
+  payment:
+    soap_namespaces:
+      xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/Payment/v1
+  veteran_status:
+    soap_namespaces:
+      xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1
+
+
+# Settings for Redis
+# TODO(knkski): Move all redis settings here?
+redis:
+  host: localhost
+  port: 6379
+
+# Settings for Education Benefits report uploading
+reports:
+  server: stage-tms.govdelivery.com
+  token: ~
+  aws:
+    access_key_id: ~
+    bucket: ~
+    region: ~
+    secret_access_key: ~
+
+# Settings for SAML authentication
+saml:
+  cert_path: ~/.certs/vetsgov-localhost.crt
+  key_path: ~/.certs/vetsgov-localhost.key
+  # Loaded in `config/initializers/saml.rb`, based on `*_path` settings above
+  # certificate: ~
+  # key: ~
+  issuer: saml-rp.vetsgov.localhost
+  callback_url: http://localhost:3000/auth/saml/callback
+  metadata_url: https://api.idmelabs.com/saml/metadata/provider
+  relay: http://localhost:3001/auth/login/callback
+  logout_relay: http://localhost:3001/logout
+
+sentry:
+  dsn: ~
+
+statsd:
+  host: ~
+  port: ~

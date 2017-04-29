@@ -3,9 +3,11 @@ require 'feature_flipper'
 require 'common/exceptions'
 require 'common/client/errors'
 require 'saml/settings_service'
+require 'sentry_logging'
 
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
+  include SentryLogging
 
   SKIP_SENTRY_EXCEPTION_TYPES = [
     Common::Exceptions::Unauthorized,
@@ -36,7 +38,13 @@ class ApplicationController < ActionController::API
   private
 
   rescue_from 'Exception' do |exception|
-    log_error(exception)
+    # report the original 'cause' of the exception when present
+    if SKIP_SENTRY_EXCEPTION_TYPES.include?(exception.class) == false
+      log_exception_to_sentry(exception)
+    else
+      Rails.logger.error "#{exception.message}."
+      Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
+    end
 
     va_exception =
       case exception
@@ -57,15 +65,6 @@ class ApplicationController < ActionController::API
       headers['WWW-Authenticate'] = 'Token realm="Application"'
     end
     render json: { errors: va_exception.errors }, status: va_exception.status_code
-  end
-
-  def log_error(exception)
-    unless SKIP_SENTRY_EXCEPTION_TYPES.include?(exception.class)
-      # report the original 'cause' of the exception when present
-      Raven.capture_exception(exception.cause.presence || exception) if ENV['SENTRY_DSN'].present?
-    end
-    Rails.logger.error "#{exception.message}."
-    Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
   end
 
   def set_raven_uuid_tag
@@ -91,7 +90,13 @@ class ApplicationController < ActionController::API
         ::Digest::SHA256.hexdigest(@session.token)
       )
       @current_user = User.find(@session.uuid)
+      extend_session
     end
+  end
+
+  def extend_session
+    @session.expire(Session.redis_namespace_ttl)
+    @current_user&.expire(User.redis_namespace_ttl)
   end
 
   attr_reader :current_user

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170126184940) do
+ActiveRecord::Schema.define(version: 20170329210115) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,6 +41,9 @@ ActiveRecord::Schema.define(version: 20170126184940) do
     t.string   "status",                      default: "submitted", null: false
     t.integer  "education_benefits_claim_id"
     t.string   "form_type",                   default: "1990",      null: false
+    t.boolean  "chapter35",                   default: false,       null: false
+    t.boolean  "transfer_of_entitlement",     default: false,       null: false
+    t.boolean  "chapter1607",                 default: false,       null: false
   end
 
   add_index "education_benefits_submissions", ["education_benefits_claim_id"], name: "index_education_benefits_claim_id", unique: true, using: :btree

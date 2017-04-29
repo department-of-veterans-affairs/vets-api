@@ -1,11 +1,18 @@
 ## MHV Prescriptions and MHV Secure Messaging Setup
-Prescription refill and secure-messaging require a working MHV (MyHealthEVet) config.  You will need to specify the following environment variables:
-```
-MHV_HOST
-MHV_APP_TOKEN
-MHV_SM_HOST
-MHV_SM_APP_TOKEN
+
+Prescription refill and secure-messaging require a working MHV (MyHealthEVet)
+config.  You will need to copy the following configuration into
+`config/settings.local.yml` with the appropriate values filled in.
+
+```yaml
+mhv:
+  rx:
+    host: ...
+    app_token: ...
+  sm:
+    host: ...
+    app_token: ...
 ```
 
-For an example, see `application.yml.example` - these are just mock endpoints.
-For actual backend testing you will need to reference the appropriate private repository.
+The `config/settings.yml` file contains example mock endpoints. For actual
+backend testing, you will need to reference the appropriate private repository.

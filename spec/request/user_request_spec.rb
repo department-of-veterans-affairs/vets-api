@@ -28,17 +28,16 @@ RSpec.describe 'Fetching user data', type: :request do
           BackendServices::HCA,
           BackendServices::EDUCATION_BENEFITS,
           BackendServices::EVSS_CLAIMS,
-          # TODO: (CMJ, AJM) Remove DISABILITY_BENEFITS after updating front-end
-          BackendServices::DISABILITY_BENEFITS,
           BackendServices::USER_PROFILE,
           BackendServices::RX,
-          BackendServices::MESSAGING
+          BackendServices::MESSAGING,
+          BackendServices::HEALTH_RECORDS
         ].sort
       )
     end
   end
 
-  context 'when an LOA 1 user is logged in' do
+  context 'when an LOA 1 user is logged in', :skip_mvi do
     let(:loa1_user) { build :loa1_user }
 
     before do

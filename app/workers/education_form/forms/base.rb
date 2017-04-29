@@ -11,8 +11,50 @@ module EducationForm::Forms
     attr_accessor :form, :record, :text
 
     def self.build(app)
-      klass = app.is_1990? ? VA1990 : VA1995
+      klass = "EducationForm::Forms::VA#{app.form_type}".constantize
       klass.new(app)
+    end
+
+    def direct_deposit_type(type)
+      case type&.upcase
+      when 'STARTUPDATE' then 'Start or Update'
+      when 'STOP' then 'Stop'
+      when 'NOCHANGE' then 'Do Not Change'
+      end
+    end
+
+    def ssn_gender_dob(veteran = true)
+      prefix = veteran ? 'veteran' : 'relative'
+      ssn = @applicant.public_send("#{prefix}SocialSecurityNumber")
+      gender = @applicant.gender
+      dob = @applicant.public_send("#{prefix}DateOfBirth")
+
+      "SSN: #{ssn}         Sex: #{gender}             Date of Birth: #{dob}"
+    end
+
+    def benefit_type(application)
+      application.benefit&.gsub('chapter', 'CH')
+    end
+
+    def disclosure_for(type)
+      return if type.blank?
+      "#{parse_with_template_path("1990-disclosure/_#{type}")}\n"
+    end
+
+    def header_form_type
+      @record.form_type
+    end
+
+    def school
+      @applicant.school
+    end
+
+    def applicant_name
+      @applicant.veteranFullName
+    end
+
+    def applicant_ssn
+      @applicant.veteranSocialSecurityNumber
     end
 
     def initialize(app)
@@ -29,6 +71,8 @@ module EducationForm::Forms
       wrapped = word_wrap(parse_with_template_path(@record.form_type), line_width: 78)
       # We can only send ASCII, so make a best-effort at that.
       transliterated = Iconv.iconv('ascii//translit', 'utf-8', wrapped).first
+      # Trim any lines that end in whitespace, but keep the lines themselves
+      transliterated.gsub!(/[ ]+\n/, "\n")
       # The spool file must actually use windows style linebreaks
       transliterated.gsub("\n", EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
     end
@@ -61,6 +105,10 @@ module EducationForm::Forms
       bool ? 'YES' : 'NO'
     end
 
+    def value_or_na(value)
+      value.nil? ? 'N/A' : value
+    end
+
     # is this needed? will it the data come in the correct format? better to have the helper..
     def to_date(date)
       date ? date : (' ' * 10) # '00/00/0000'.length
@@ -68,7 +116,7 @@ module EducationForm::Forms
 
     def full_name(name)
       return '' if name.nil?
-      [name.first, name.middle, name.last].compact.join(' ')
+      [name.first, name.middle, name.last, name&.suffix].compact.join(' ')
     end
 
     def school_name_and_addr(school)
@@ -86,9 +134,21 @@ module EducationForm::Forms
       [
         address.street,
         address.street2,
-        "#{address.city}, #{address.state}, #{address.postalCode}",
+        [address.city, address.state, address.postalCode].compact.join(', '),
         address.country
       ].compact.join(seperator).upcase
+    end
+
+    def employment_history(job_history, post_military: nil)
+      wrapped_list = Array(job_history)
+      wrapped_list = wrapped_list.select { |job| job.postMilitaryJob == post_military } unless post_military.nil?
+      # we need at least one record to be in the form.
+      wrapped_list << OpenStruct.new if wrapped_list.empty?
+      wrapped_list.map do |job|
+        "        Principal Occupation: #{job.name}
+        Number of Months: #{job.months}
+        License or Rating: #{job.licenseOrRating}"
+      end.join("\n\n")
     end
   end
 end

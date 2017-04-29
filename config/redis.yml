@@ -1,7 +1,7 @@
 development: &defaults
   redis:
-    host: <%= ENV["REDIS_HOST"] %>
-    port: <%= ENV["REDIS_PORT"] %>
+    host: <%= Settings.redis.host %>
+    port: <%= Settings.redis.port %>
   session_store:
     namespace: vets-api-session
     each_ttl: 3600
@@ -14,12 +14,12 @@ development: &defaults
   user_store:
     namespace: users
     each_ttl: 3600
-  mvi_store:
-    namespace: mvi-service
+  mvi_profile_response:
+    namespace: mvi-profile-response
     each_ttl: 86400
   saml_store:
     namespace: single-logout-request
-    each_ttl: 3600
+    each_ttl: 43200
 
 test:
   <<: *defaults

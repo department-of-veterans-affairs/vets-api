@@ -2,7 +2,7 @@
 require 'rails_helper'
 require 'hca/service'
 
-describe HCA::Service, skip_mvi: true do
+describe HCA::Service do
   let(:cert) { instance_double('OpenSSL::X509::Certificate') }
   let(:key) { instance_double('OpenSSL::PKey::RSA') }
   let(:store) { instance_double('OpenSSL::X509::Store') }
@@ -21,22 +21,25 @@ describe HCA::Service, skip_mvi: true do
     </S:Envelope>
      )))
   end
+  let(:current_user) { FactoryGirl.build(:loa3_user) }
 
   describe '#submit_form' do
     context 'conformance tests', run_at: '2016-12-12' do
       root = Rails.root.join('spec', 'fixtures', 'hca', 'conformance')
       Dir[File.join(root, '*.json')].map { |f| File.basename(f, '.json') }.each do |form|
         it "properly formats #{form} for transmission" do
+          allow_any_instance_of(Mvi).to receive(:icn).and_return('1000123456V123456')
+          service = form =~ /authenticated/ ? described_class.new(current_user) : described_class.new
           json = JSON.load(root.join("#{form}.json"))
-          expect(json).to match_vets_schema('healthcare_application')
+          expect(json).to match_vets_schema('10-10EZ')
           xml = File.read(root.join("#{form}.xml"))
-          expect(subject).to receive(:post_submission) do |arg|
+          expect(service).to receive(:post_submission) do |arg|
             submission = arg.body
             pretty_printed = Ox.dump(Ox.parse(submission).locate('soap:Envelope/soap:Body/ns1:submitFormRequest').first)
-            expect(xml).to eq(pretty_printed[1..-1])
+            expect(pretty_printed[1..-1]).to eq(xml)
           end.and_return(response)
 
-          subject.submit_form(json)
+          service.submit_form(json)
         end
       end
     end
@@ -66,16 +69,16 @@ describe HCA::Service, skip_mvi: true do
 
   describe '.options' do
     before(:each) do
-      stub_const('HCA::Configuration::SSL_CERT', cert)
-      stub_const('HCA::Configuration::SSL_KEY', key)
+      allow(HCA::Configuration.instance).to receive(:ssl_cert) { cert }
+      allow(HCA::Configuration.instance).to receive(:ssl_key) { key }
       stub_const('HCA::Configuration::CERT_STORE', store)
       stub_const('HCA::Configuration::ENDPOINT', nil)
     end
 
     context 'when there are no SSL options' do
       it 'should only return the wsdl' do
-        stub_const('HCA::Configuration::SSL_CERT', nil)
-        stub_const('HCA::Configuration::SSL_KEY', nil)
+        allow(HCA::Configuration.instance).to receive(:ssl_cert) { nil }
+        allow(HCA::Configuration.instance).to receive(:ssl_key) { nil }
         expect(HCA::Configuration.instance.ssl_options).to eq(
           verify: true,
           cert_store: store

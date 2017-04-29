@@ -3,7 +3,8 @@ require 'evss/base_service'
 
 module EVSS
   class CommonService < BaseService
-    BASE_URL = "#{ENV['EVSS_BASE_URL']}/wss-common-services-web-11.0/rest/"
+    API_VERSION = Settings.evss.versions.common
+    BASE_URL = "#{Settings.evss.url}/wss-common-services-web-#{API_VERSION}/rest/"
 
     def find_rating_info(participant_id)
       post 'ratingInfoService/11.0/findRatingInfoPID',

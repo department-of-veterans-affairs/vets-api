@@ -40,6 +40,12 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
     end
 
     context 'with invalid params' do
+      before do
+        Settings.sentry.dsn = 'asdf'
+      end
+      after do
+        Settings.sentry.dsn = nil
+      end
       let(:params) do
         {
           form: test_veteran.except('privacyAgreementAccepted').to_json
@@ -56,6 +62,13 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
           )
         ).to eq(true)
       end
+
+      it 'should log the validation errors' do
+        expect(Raven).to receive(:tags_context).once.with(validation: 'health_care_application')
+        expect(Raven).to receive(:capture_message).with(/privacyAgreementAccepted/, level: :error)
+
+        subject
+      end
     end
 
     context 'with valid params' do
@@ -64,16 +77,42 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
           form: test_veteran.to_json
         }
       end
-      let(:body) do
-        { 'formSubmissionId' => 40_124_668_140,
-          'timestamp' => '2016-05-25T04:59:39.345-05:00',
-          'success' => true }
+
+      context 'anonymously' do
+        let(:body) do
+          { 'formSubmissionId' => 40_124_668_140,
+            'timestamp' => '2016-05-25T04:59:39.345-05:00',
+            'success' => true }
+        end
+
+        it 'should render success', run_at: '2017-01-31' do
+          VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
+            subject
+            expect(JSON.parse(response.body)).to eq(body)
+          end
+        end
       end
 
-      it 'should render success', run_at: '2017-01-31' do
-        VCR.use_cassette('hca/submit', match_requests_on: [:body]) do
-          subject
-          expect(JSON.parse(response.body)).to eq(body)
+      context 'while authenticated', skip_mvi: true do
+        let(:current_user) { build(:mhv_user) }
+
+        before do
+          profile = build(:mvi_profile, icn: '1000123456V123456')
+          stub_mvi(profile)
+          use_authenticated_current_user(current_user: current_user)
+        end
+
+        let(:body) do
+          { 'formSubmissionId' => 40_125_311_094,
+            'timestamp' => '2017-02-08T13:50:32.020-06:00',
+            'success' => true }
+        end
+
+        it 'should render success', run_at: '2017-01-31' do
+          VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+            subject
+            expect(JSON.parse(response.body)).to eq(body)
+          end
         end
       end
 
@@ -84,10 +123,14 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
           allow_any_instance_of(HCA::Service).to receive(:post) do
             raise error
           end
+          Settings.sentry.dsn = 'asdf'
+        end
+        after do
+          Settings.sentry.dsn = nil
         end
 
         it 'should render error message' do
-          expect(Raven).to receive(:capture_exception).with(error).once
+          expect(Raven).to receive(:capture_exception).with(error).twice
 
           subject
 

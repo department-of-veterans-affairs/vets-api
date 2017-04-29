@@ -1,7 +1,12 @@
 # frozen_string_literal: true
+require 'saml/auth_fail_handler'
+
 module V0
   class SessionsController < ApplicationController
     skip_before_action :authenticate, only: [:new, :saml_callback, :saml_logout_callback]
+
+    STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'
+    STATSD_LOGIN_TOTAL_KEY  = 'api.auth.login_callback.total'
 
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
@@ -32,14 +37,16 @@ module V0
 
       if @saml_response.is_valid? && persist_session_and_user
         async_create_evss_account(@current_user)
-        redirect_to SAML_CONFIG['relay'] + '?token=' + @session.token
+        redirect_to Settings.saml.relay + '?token=' + @session.token
 
         obscure_token = Session.obscure_token(@session.token)
         Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
       else
-        login_error
-        redirect_to SAML_CONFIG['relay'] + '?auth=fail'
+        handle_login_error
+        redirect_to Settings.saml.relay + '?auth=fail'
       end
+    ensure
+      StatsD.increment(STATSD_LOGIN_TOTAL_KEY)
     end
 
     private
@@ -54,14 +61,14 @@ module V0
       @session.save && @current_user.save
     end
 
-    def login_error
-      message = <<-MESSAGE.strip_heredoc
-        SAML Login attempt failed! Reasons...
-          saml:    'valid?=#{@saml_response.is_valid?} errors=#{@saml_response.errors}'
-          user:    'valid?=#{@current_user&.valid?} errors=#{@current_user&.errors&.full_messages}'
-          session: 'valid?=#{@session&.valid?} errors=#{@session&.errors&.full_messages}'
-      MESSAGE
-      log_errors(message)
+    def handle_login_error
+      fail_handler = SAML::AuthFailHandler.new(@saml_response, @current_user, @session)
+      StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ["error:#{fail_handler.error}"])
+      if fail_handler.known_error?
+        log_message_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
+      else
+        log_message_to_sentry(fail_handler.generic_error_message, :error)
+      end
     end
 
     def async_create_evss_account(user)
@@ -80,13 +87,13 @@ module V0
 
       if errors.size.positive?
         extra_context = { in_response_to: logout_response&.in_response_to }
-        log_errors("SAML Logout failed!\n  " + errors.join("\n  "), extra_context)
-        redirect_to SAML_CONFIG['logout_relay'] + '?success=false'
+        log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
+        redirect_to Settings.saml.logout_relay + '?success=false'
       else
         logout_request.destroy
         session.destroy
         user.destroy
-        redirect_to SAML_CONFIG['logout_relay'] + '?success=true'
+        redirect_to Settings.saml.logout_relay + '?success=true'
         # even if mhv logout raises exception, still consider logout successful from browser POV
         MHVLoggingService.logout(user)
       end
@@ -102,16 +109,8 @@ module V0
       errors
     end
 
-    def log_errors(message, context = {})
-      logger.error message
-      if ENV['SENTRY_DSN'].present?
-        Raven.extra_context(context) unless !context.is_a?(Hash) || context.empty?
-        Raven.capture_message(message)
-      end
-    end
-
     def saml_options
-      ENV['REVIEW_INSTANCE_SLUG'].blank? ? {} : { RelayState: ENV['REVIEW_INSTANCE_SLUG'] }
+      Settings.review_instance_slug.blank? ? {} : { RelayState: Settings.review_instance_slug }
     end
   end
 end

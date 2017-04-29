@@ -1,0 +1,71 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://dev.vets.gov/gids/v0/institutions/20603613
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - openresty
+      Date:
+      - Fri, 17 Feb 2017 20:28:49 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      Etag:
+      - W/"3605720fd94e1728223fb99ec97424ef"
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Request-Id:
+      - 54931c64-0cd5-40f8-930c-100b3c72fd66
+      X-Runtime:
+      - '0.010628'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Content-Security-Policy-Report-Only:
+      - default-src 'self'; script-src 'self' https://dap.digitalgov.gov https://www.google-analytics.com
+        http://www.google-analytics.com https://search.usa.gov http://search.usa.gov
+        https://*.uservoice.com https://www.googletagmanager.com 'unsafe-inline';
+        style-src 'self' https://fonts.googleapis.com https://search.usa.gov http://search.usa.gov
+        'unsafe-inline'; img-src 'self' https://www.google-analytics.com https://api.mapbox.com
+        https://d15vqlr7iz6e8x.cloudfront.net; font-src 'self' https://fonts.gstatic.com;
+        connect-src 'self' http://localhost:4000 https://*.vets.gov; media-src 'none';
+        object-src 'none'; child-src https://www.googletagmanager.com https://*.uservoice.com;
+        form-action 'self' https://search.vets.gov; block-all-mixed-content; reflected-xss
+        filter; base-uri http://*.vets.gov; manifest-src 'none'; frame-ancestors 'none';
+        referrer origin;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"1043","type":"institutions","attributes":{"name":"AMEREN
+        ILLINOIS-URBANA","facility_code":"20603613","type":"ojt","city":"urbana","state":"IL","zip":"61802","country":"usa","bah":1044.0,"cross":null,"flight":false,"correspondence":false,"ope":null,"ope6":null,"highest_degree":null,"locale_type":null,"student_count":0,"undergrad_enrollment":null,"yr":false,"student_veteran":false,"student_veteran_link":null,"poe":false,"eight_keys":false,"dodmou":false,"sec_702":null,"vet_success_name":null,"vet_success_email":null,"credit_for_mil_training":null,"vet_poc":null,"student_vet_grp_ipeds":null,"soc_member":null,"retention_rate_veteran_ba":null,"retention_all_students_ba":null,"retention_rate_veteran_otb":null,"retention_all_students_otb":null,"persistance_rate_veteran_ba":null,"persistance_rate_veteran_otb":null,"graduation_rate_veteran":null,"graduation_rate_all_students":null,"transfer_out_rate_veteran":null,"transfer_out_rate_all_students":null,"salary_all_students":null,"repayment_rate_all_students":null,"avg_stu_loan_debt":null,"calendar":null,"tuition_in_state":null,"tuition_out_of_state":null,"books":null,"online_all":null,"p911_tuition_fees":0.0,"p911_recipients":0,"p911_yellow_ribbon":0.0,"p911_yr_recipients":0,"accredited":false,"accreditation_type":null,"accreditation_status":null,"caution_flag":false,"caution_flag_reason":null,"complaints":{"facility_code":0,"financial_by_fac_code":0,"quality_by_fac_code":0,"refund_by_fac_code":0,"marketing_by_fac_code":0,"accreditation_by_fac_code":0,"degree_requirements_by_fac_code":0,"student_loans_by_fac_code":0,"grades_by_fac_code":0,"credit_transfer_by_fac_code":0,"credit_job_by_fac_code":0,"job_by_fac_code":0,"transcript_by_fac_code":0,"other_by_fac_code":0,"main_campus_roll_up":0,"financial_by_ope_id_do_not_sum":0,"quality_by_ope_id_do_not_sum":0,"refund_by_ope_id_do_not_sum":0,"marketing_by_ope_id_do_not_sum":0,"accreditation_by_ope_id_do_not_sum":0,"degree_requirements_by_ope_id_do_not_sum":0,"student_loans_by_ope_id_do_not_sum":0,"grades_by_ope_id_do_not_sum":0,"credit_transfer_by_ope_id_do_not_sum":0,"jobs_by_ope_id_do_not_sum":0,"transcript_by_ope_id_do_not_sum":0,"other_by_ope_id_do_not_sum":0},"created_at":"2017-02-16T22:55:37.039Z","updated_at":"2017-02-16T22:55:37.039Z"},"links":{"self":"https://dev-api.vets.gov/gids/v0/institutions/20603613"}},"meta":{"version":1}}'
+    http_version: 
+  recorded_at: Fri, 17 Feb 2017 20:28:49 GMT
+recorded_with: VCR 3.0.3

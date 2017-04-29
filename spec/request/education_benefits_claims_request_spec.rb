@@ -32,13 +32,24 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
         expect { subject }.to change { EducationBenefitsClaim.count }.by(1)
         expect(EducationBenefitsClaim.last.form_type).to eq(form_type)
       end
+
+      it 'should increment statsd' do
+        expect { subject }.to trigger_statsd_increment('api.education_benefits_claim.221995.success')
+      end
     end
 
     context 'with valid params' do
       let(:params) do
         {
           educationBenefitsClaim: {
-            form: { privacyAgreementAccepted: true, preferredContactMethod: 'mail' }.to_json
+            form: {
+              privacyAgreementAccepted: true,
+              veteranFullName: {
+                "first": 'Mark',
+                "last": 'Olson'
+              },
+              preferredContactMethod: 'mail'
+            }.to_json
           }
         }
       end
@@ -67,6 +78,8 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
           educationBenefitsClaim: { form: nil }
         }
       end
+      before { Settings.sentry.dsn = 'asdf' }
+      after { Settings.sentry.dsn = nil }
 
       it 'should render json of the errors' do
         subject
@@ -84,9 +97,8 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
         allow(Rails.logger).to receive(:error)
         expect(Rails.logger).to receive(:error).with(validation_error).once
 
-        expect(Raven).to receive(:capture_message)
-          .once
-          .with(validation_error, tags: { validation: 'education_benefits_claim' })
+        expect(Raven).to receive(:tags_context).once.with(validation: 'education_benefits_claim')
+        expect(Raven).to receive(:capture_message).once.with(validation_error, level: :error)
 
         subject
       end

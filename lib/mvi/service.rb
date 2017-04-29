@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'common/client/base'
 require 'mvi/configuration'
-require 'mvi/responses/find_candidate'
+require 'mvi/responses/find_profile_response'
 require 'common/client/middleware/request/soap_headers'
 require 'common/client/middleware/response/soap_parser'
 require 'mvi/errors/errors'
@@ -11,39 +11,46 @@ module MVI
   # to three MVI endpoints:
   # * PRPA_IN201301UV02 (TODO(AJD): Add Person)
   # * PRPA_IN201302UV02 (TODO(AJD): Update Person)
-  # * PRPA_IN201305UV02 (aliased as .find_candidate)
-  #
-  # = Usage
-  # Calls endpoints as class methods, if successful it will return a ruby hash of the SOAP XML response.
-  #
-  # Example:
-  #  birth_date = '1980-1-1'
-  #  message = MVI::Messages::FindCandidateMessage.new(['John', 'William'], 'Smith', birth_date, '555-44-3333').to_xml
-  #  response = MVI::Service.new.find_candidate(message)
-  #
+  # * PRPA_IN201305UV02 (aliased as .find_profile)
   class Service < Common::Client::Base
+    # The MVI Service SOAP operations vets.gov has access to
     OPERATIONS = {
       add_person: 'PRPA_IN201301UV02',
       update_person: 'PRPA_IN201302UV02',
-      find_candidate: 'PRPA_IN201305UV02'
+      find_profile: 'PRPA_IN201305UV02'
     }.freeze
 
+    # @return [MVI::Configuration] the configuration for this service
     configuration MVI::Configuration
 
-    def find_candidate(message)
-      raw_response = perform(:post, '', message.to_xml, soapaction: OPERATIONS[:find_candidate])
-      response = MVI::Responses::FindCandidate.new(raw_response)
-      raise MVI::Errors::RecordNotFound, 'MVI multiple matches found' if response.multiple_match?
-      raise MVI::Errors::InvalidRequestError if response.invalid?
-      raise MVI::Errors::RequestFailureError if response.failure?
-      raise MVI::Errors::RecordNotFound, 'MVI subject missing from response body' unless response.body
-      response.body
+    # Given a user queries MVI and returns their VA profile.
+    #
+    # @param user [User] the user to query MVI for
+    # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
+    def find_profile(user)
+      raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
+      MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
     rescue Faraday::ConnectionFailed => e
-      Rails.logger.error "MVI find_candidate connection failed: #{e.message}"
-      raise MVI::Errors::ServiceError, 'MVI connection failed'
+      Rails.logger.error "MVI find_profile connection failed: #{e.message}"
+      MVI::Responses::FindProfileResponse.with_server_error
     rescue Common::Client::Errors::ClientError => e
-      Rails.logger.error "MVI find_candidate error: #{e.message}"
-      raise MVI::Errors::ServiceError
+      Rails.logger.error "MVI find_profile error: #{e.message}"
+      MVI::Responses::FindProfileResponse.with_server_error
+    end
+
+    private
+
+    def create_profile_message(user)
+      raise Common::Exceptions::ValidationErrors, user unless user.valid?(:loa3_user)
+      given_names = [user.first_name]
+      given_names.push user.middle_name unless user.middle_name.nil?
+      MVI::Messages::FindProfileMessage.new(
+        given_names,
+        user.last_name,
+        user.birth_date,
+        user.ssn,
+        user.gender
+      ).to_xml
     end
   end
 end

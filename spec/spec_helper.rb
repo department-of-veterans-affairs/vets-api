@@ -3,24 +3,25 @@ require 'fakeredis/rspec'
 require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
 require 'support/api_schema_matcher'
+require 'support/spool_helpers'
+require 'support/have_deep_attributes_matcher'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
   require 'simplecov'
 
-  if ARGV.grep(/spec\.rb/).empty?
-    SimpleCov.start do
-      track_files '{app,lib}/**/*.rb'
-      add_filter 'config/initializers/sidekiq.rb'
-      add_filter 'config/initializers/statsd.rb'
-      add_filter 'config/initializers/mvi_settings.rb'
-      add_filter 'lib/tasks/support/shell_command.rb'
-      add_filter 'lib/config_helper.rb'
-      add_filter 'lib/feature_flipper.rb'
-      add_filter 'spec/support/authenticated_session_helper'
-      add_filter 'config/initializers/figaro.rb'
-      SimpleCov.minimum_coverage_by_file 90
-    end
+  SimpleCov.start do
+    track_files '{app,lib}/**/*.rb'
+    add_filter 'config/initializers/sidekiq.rb'
+    add_filter 'config/initializers/statsd.rb'
+    add_filter 'config/initializers/mvi_settings.rb'
+    add_filter 'config/initializers/config.rb'
+    add_filter 'lib/tasks/support/shell_command.rb'
+    add_filter 'lib/config_helper.rb'
+    add_filter 'lib/feature_flipper.rb'
+    add_filter 'spec/support/authenticated_session_helper'
+    add_filter 'spec/support/attr_encrypted_matcher'
+    SimpleCov.minimum_coverage_by_file 90
   end
 end
 
@@ -73,11 +74,23 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
 
+  config.before(:suite) do
+    # Some specs stub out `YAML.load_file`, which I18n uses to load the
+    # translation files. Because rspec runs things in random order, it's
+    # possible that the YAML.load_file that's stubbed out for a spec
+    # could actually be called by I18n if translations are required before
+    # the functionality being tested. Once loaded, the translations stay
+    # loaded, so we may as well take the hit and load them right away.
+    # Verified working on --seed 11101, commit e378e8
+    I18n.locale_available?(:en)
+  end
+
   config.before(:each) do |example|
     stub_mvi unless example.metadata[:skip_mvi]
   end
 
   config.include SpecBuilders
+  config.include SpoolHelpers
 
   config.around(:each) do |example|
     if example.metadata[:run_at]

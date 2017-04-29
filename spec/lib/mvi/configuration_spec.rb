@@ -6,13 +6,13 @@ describe MVI::Configuration do
   describe '.ssl_options' do
     context 'when there are no SSL options' do
       before do
-        stub_const('MVI::Configuration::SSL_CERT', nil)
-        stub_const('MVI::Configuration::SSL_KEY', nil)
+        allow(MVI::Configuration.instance).to receive(:ssl_cert) { nil }
+        allow(MVI::Configuration.instance).to receive(:ssl_key) { nil }
       end
 
       it 'should return nil' do
-        stub_const('MVI::Configuration::SSL_CERT', nil)
-        stub_const('MVI::Configuration::SSL_KEY', nil)
+        allow(MVI::Configuration.instance).to receive(:ssl_cert) { nil }
+        allow(MVI::Configuration.instance).to receive(:ssl_key) { nil }
         expect(MVI::Configuration.instance.ssl_options).to be_nil
       end
     end
@@ -21,8 +21,8 @@ describe MVI::Configuration do
       let(:key) { instance_double('OpenSSL::PKey::RSA') }
 
       before do
-        stub_const('MVI::Configuration::SSL_CERT', cert)
-        stub_const('MVI::Configuration::SSL_KEY', key)
+        allow(MVI::Configuration.instance).to receive(:ssl_cert) { cert }
+        allow(MVI::Configuration.instance).to receive(:ssl_key) { key }
       end
 
       it 'should return the wsdl, cert and key paths' do
@@ -33,21 +33,20 @@ describe MVI::Configuration do
       end
     end
   end
+
+  # TODO(knkski): These tests probably aren't doing anything useful.
   describe '.default_mvi_open_timeout' do
-    context 'when MVI_OPEN_TIMEOUT is not set' do
-      it 'should use the defaul' do
-        ClimateControl.modify MVI_OPEN_TIMEOUT: nil do
-          expect(MVI::Configuration::OPEN_TIMEOUT).to eq(2)
-        end
+    context 'when Settings.mvi.open_timeout is not set' do
+      it 'should use the default' do
+        expect(MVI::Configuration::OPEN_TIMEOUT).to eq(2)
       end
     end
   end
+
   describe '.default_mvi_timeout' do
-    context 'when MVI_TIMEOUT is not set' do
+    context 'when Settings.mvi.timeout is not set' do
       it 'should use the default' do
-        ClimateControl.modify MVI_TIMEOUT: nil do
-          expect(MVI::Configuration::TIMEOUT).to eq(10)
-        end
+        expect(MVI::Configuration::TIMEOUT).to eq(10)
       end
     end
   end

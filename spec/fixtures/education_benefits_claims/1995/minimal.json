@@ -5,9 +5,11 @@
 		"last": "Fake"
 	},
 	"vaFileNumber": "12345678",
-	"benefit": "transferOfEntitlement",
 	"newSchool": {},
 	"oldSchool": {},
+	"toursOfDuty": [{
+		"serviceBranch": "Army"
+	}],
 	"preferredContactMethod": "mail",
 	"veteranAddress": {
 		"street": "123 Central St",
@@ -17,5 +19,4 @@
 		"postalCode": "21231"
 	},
 	"email": "test@sample.com",
-	"bankAccount": {}
-}
+	"bankAccount": {}}

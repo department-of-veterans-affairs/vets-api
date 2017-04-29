@@ -32,15 +32,19 @@ module VetsAPI
 
     config.api_only = true
 
+    config.relative_url_root = Settings.relative_url_root
+
     # This prevents rails from escaping html like & in links when working with JSON
     config.active_support.escape_html_entities_in_json = false
 
     config.watchable_dirs['lib'] = [:rb]
 
+    config.autoload_paths << Rails.root.join('app')
+
     # CORS configuration; see also cors_preflight route
     config.middleware.insert_before 0, 'Rack::Cors', logger: (-> { Rails.logger }) do
       allow do
-        origins { |source, _env| ENV['WEB_ORIGIN'].split(',').include?(source) }
+        origins { |source, _env| Settings.web_origin.split(',').include?(source) }
         resource '*', headers: :any,
                       methods: :any,
                       credentials: true

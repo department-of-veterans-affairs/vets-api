@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'rx/client'
+require 'lib/sentry_logging_spec_helper'
 
 RSpec.describe ApplicationController, type: :controller do
+  it_behaves_like 'a sentry logger'
   controller do
     skip_before_action :authenticate
 
@@ -87,7 +89,7 @@ RSpec.describe ApplicationController, type: :controller do
       allow_any_instance_of(Rx::Client)
         .to receive(:connection).and_raise(Faraday::ConnectionFailed, 'some message')
       expect(Raven).to receive(:capture_exception).once
-      ClimateControl.modify SENTRY_DSN: 'T' do
+      with_settings(Settings.sentry, dsn: 'T') do
         get :client_connection_failed
       end
       expect(JSON.parse(response.body)['errors'].first['title'])

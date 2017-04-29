@@ -87,5 +87,16 @@ RSpec.describe 'prescriptions', type: :request do
       expect(response).to match_response_schema('trackings')
       expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
     end
+
+    it 'responds to GET #show of nested tracking resource with a shipment having no other prescriptions' do
+      VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_tracking_with_empty_other_prescriptions') do
+        get '/v0/prescriptions/13650541/trackings'
+      end
+
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      expect(response).to match_response_schema('trackings')
+      expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
+    end
   end
 end

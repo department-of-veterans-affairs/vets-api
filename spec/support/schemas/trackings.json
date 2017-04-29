@@ -34,7 +34,24 @@
               "rx_info_phone_number": { "type": "string" },
               "ndc_number": { "type": "string" },
               "shipped_date": { "type": "string", "format": "date" },
-              "delivery_service": { "type": "string" }
+              "delivery_service": { "type": "string" },
+              "other_prescriptions": {
+                "type": "array",
+                "attributes": {
+                  "required": [
+                    "prescription_name",
+                    "prescription_number",
+                    "ndc_number",
+                    "station_number"
+                  ],
+                  "properties": {
+                    "prescription_name": { "type": "string" },
+                    "prescription_number": { "type": "string" },
+                    "ndc_number": { "type": "string" },
+                    "station_number": { "type": "string" }
+                  }
+                }
+              }
             }
           },
           "links": {
