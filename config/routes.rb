@@ -50,6 +50,8 @@ Rails.application.routes.draw do
       get :eligible_data_classes, to: 'health_records#eligible_data_classes', on: :collection
     end
 
+    resources :appeals, only: [:index]
+
     scope :messaging do
       scope :health do
         resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'

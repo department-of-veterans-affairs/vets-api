@@ -1,0 +1,48 @@
+users:
+  "796126859":
+    appeals:
+    - id: "7387389"
+      active: true
+      decision_url: /api/v1/appeals/7387389/statement_of_case
+      status_message: WAITING_FOR_FORM9
+      issues:
+      - program_area: compensation
+        type: PTSD
+        rating_requested: "60"
+        decision:
+      - program_area: cemetery
+        type:
+        rating_requested:
+        decision: remanded
+      soc_released_on: 05/09/2016
+      soc_url: /api/v1/appeals/7387389/statement_of_case
+      hearing:
+        requested: true
+        scheduled: true
+        date: 03/12/2018
+    - id: "4389792"
+      active: true
+      status_message: DEVELOPING_APPEAL
+      issues:
+      - program_area: pension
+        type:
+        rating_requested: "60"
+        decision:
+      soc_released_on: 05/09/2014
+      hearing:
+        requested: false
+        scheduled: null
+        date: null
+    - id: "4353453"
+      active: false
+      status_message: WITHDRAWN
+      issues:
+      - program_area: compensation
+        type: HEARING_LOSS
+        rating_requested: "60"
+        decision:
+      soc_released_on:
+      hearing:
+        requested: false
+        scheduled: null
+        date:

@@ -1,0 +1,70 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type" : "object",
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "attributes"],
+        "properties": {
+          "id": { "type": "string"},
+          "type": { "enum": ["appeals_status_models_appeals"] },
+          "attributes": {
+            "type": "object",
+            "required": [
+              "active",
+              "decision_url",
+              "status_message",
+              "soc_released_on",
+              "soc_url",
+              "issues",
+              "hearing"
+            ],
+            "properties": {
+              "active": { "type": "boolean" },
+              "decision_url": { "type": ["string", null] },
+              "status_message": { "type": "string" },
+              "soc_released_on": { "type": ["string", null] },
+              "soc_url": { "type": ["string", null] },
+              "issues": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "program_area",
+                    "type",
+                    "rating_requested",
+                    "decision"
+                  ],
+                  "properties": {
+                    "program_area": { "type": "string" },
+                    "type": { "type": ["string", null] },
+                    "rating_requested": { "type": ["string", null] },
+                    "decision": { "type": ["string", null] }
+                  }
+                }
+              },
+              "hearing": {
+                "type": "object",
+                "required": [
+                  "requested",
+                  "scheduled",
+                  "date"
+                ],
+                "properties": {
+                  "requested": { "type": "boolean" },
+                  "scheduled": { "type": ["boolean", null] },
+                  "date": { "type": ["string", null] }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
