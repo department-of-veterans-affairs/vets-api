@@ -77,7 +77,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
-      expect(json['data'].length).to eq(5)
+      expect(json['data'].length).to eq(6)
     end
   end
 
