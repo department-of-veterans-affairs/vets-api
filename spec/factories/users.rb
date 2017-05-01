@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'ostruct'
+
 FactoryGirl.define do
   factory :user, class: 'User' do
     uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
@@ -32,6 +34,30 @@ FactoryGirl.define do
           current: LOA::THREE,
           highest: LOA::THREE
         }
+      end
+    end
+  end
+
+  factory :evss_user, class: 'User' do
+    uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ee'
+    email 'johnnie.weaver@vets.gov'
+    first_name 'Johnnie'
+    last_name 'Weaver'
+    gender 'M'
+    birth_date Time.new(1809, 2, 12).utc
+    last_signed_in Time.current.utc
+    ssn '796123607'
+
+    loa do
+      {
+        current: LOA::TWO,
+        highest: LOA::THREE
+      }
+    end
+
+    after(:build) do |user|
+      allow(user).to receive(:mvi) do
+        double('MVI', participant_id: '600043180', edipi: '1005169255')
       end
     end
   end

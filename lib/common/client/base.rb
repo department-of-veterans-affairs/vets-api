@@ -36,20 +36,20 @@ module Common
         raise Common::Client::Errors::ClientError, e.message
       end
 
-      def get(path, params, headers = base_headers)
-        request(:get, path, params, headers)
+      def get(path, params = nil, headers = nil)
+        request(:get, path, params || {}, headers || {})
       end
 
-      def post(path, params, headers = base_headers)
-        request(:post, path, params, headers)
+      def post(path, params = nil, headers = nil)
+        request(:post, path, params || {}, headers || {})
       end
 
-      def put(path, params, headers = base_headers)
-        request(:put, path, params, headers)
+      def put(path, params = nil, headers = nil)
+        request(:put, path, params || {}, headers || {})
       end
 
-      def delete(path, params, headers = base_headers)
-        request(:delete, path, params, headers)
+      def delete(path, params = nil, headers = nil)
+        request(:delete, path, params || {}, headers || {})
       end
 
       def raise_not_authenticated
