@@ -103,6 +103,9 @@ emis:
     soap_namespaces:
       xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1
 
+# Settings for appeals status
+appeals_status:
+  mock: true
 
 # Settings for Redis
 # TODO(knkski): Move all redis settings here?
