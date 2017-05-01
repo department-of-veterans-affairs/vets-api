@@ -225,6 +225,8 @@ GEM
     notiffany (0.0.8)
       nenv (~> 0.1)
       shellany (~> 0.0)
+    octokit (4.7.0)
+      sawyer (~> 0.8.0, >= 0.5.3)
     oj (2.18.2)
     olive_branch (1.2.2)
       rails (>= 4.0)
@@ -333,6 +335,9 @@ GEM
       nokogiri (>= 1.4.0)
       nori (~> 2.4)
       wasabi (~> 3.4)
+    sawyer (0.8.1)
+      addressable (>= 2.3.5, < 2.6)
+      faraday (~> 0.8, < 1.0)
     script_utils (0.0.4)
     sdoc (0.4.1)
       json (~> 1.7, >= 1.7.7)
@@ -446,6 +451,7 @@ DEPENDENCIES
   memoist
   net-sftp
   nokogiri (~> 1.7.1)
+  octokit
   oj
   olive_branch
   overcommit
