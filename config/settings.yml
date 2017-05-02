@@ -63,11 +63,11 @@ locators:
 # Settings for MyHealthEVet
 mhv:
   rx:
-    host: https://mhv-api.example.com
-    app_token: fake-app-token
+    host: https://essapi-sysb.myhealth.va.gov
+    app_token: 3Olp2DAjWDaI8B4vV4cHzHRJTYZO+XfMWEiVSGzFDYg
   sm:
-    host: https://mhv-api.example.com
-    app_token: fake-app-token
+    host: https://essapi-sysb.myhealth.va.gov
+    app_token: sjvlB75caM-O37hRpkDxV
 
 # Settings for Master Veteran Index
 mvi:

@@ -1,26 +1,36 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'rx/client'
-require 'support/rx_client_helpers'
 
 describe 'rx client' do
-  include Rx::ClientHelpers
-
-  describe 'prescriptions' do
-    let(:post_refill_error) { File.read('spec/support/fixtures/post_refill_error.json') }
-
-    before(:all) do
-      VCR.use_cassette 'rx_client/session', record: :new_episodes do
-        @client ||= begin
-          client = Rx::Client.new(session: { user_id: '12210827' })
-          client.authenticate
-          client
-        end
+  before(:all) do
+    VCR.use_cassette 'rx_client/session', record: :new_episodes do
+      @client ||= begin
+        client = Rx::Client.new(session: { user_id: '12210827' })
+        client.authenticate
+        client
       end
     end
+  end
 
-    let(:client) { @client }
+  let(:client) { @client }
 
+  describe 'preferences' do
+    it 'gets rx preferences', :vcr do
+      client_response = client.get_preferences
+      expect(client_response[:data]).to eq(email_address: 'Praneeth.Gaganapally@va.gov', rx_flag: true)
+    end
+
+    it 'sets rx preferences', :vcr do
+      client_response = client.post_preferences(email_address: 'kamyar.karshenas@va.gov', rx_flag: false)
+      expect(client_response[:data]).to eq(email_address: 'kamyar.karshenas@va.gov', rx_flag: false)
+      # Change it back to what it was to make this test idempotent
+      client_response = client.post_preferences(email_address: 'Praneeth.Gaganapally@va.gov', rx_flag: true)
+      expect(client_response[:data]).to eq(email_address: 'Praneeth.Gaganapally@va.gov', rx_flag: true)
+    end
+  end
+
+  describe 'prescriptions' do
     it 'gets a list of active prescriptions', :vcr do
       client_response = client.get_active_rxs
       expect(client_response).to be_a(Common::Collection)
