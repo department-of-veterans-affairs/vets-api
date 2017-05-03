@@ -4,8 +4,8 @@ class FeedbackService
   ACCESS_TOKEN = Settings.github.access_token
   FEEDBACK_REPO = Settings.github.feedback_repo
 
-  def submit_feedback(title, category, message, email)
-    message = "Feedback from #{email}:\n> #{message}"
+  def submit_feedback(title, message, category, email, url)
+    message = "Feedback submitted from #{email} via #{url}:\n> #{message}"
     labels = %w(UserVoice)
     labels << category
     client.create_issue(FEEDBACK_REPO, title, message, options = {labels: labels})
