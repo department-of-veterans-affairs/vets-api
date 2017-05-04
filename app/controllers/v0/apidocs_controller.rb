@@ -51,6 +51,7 @@ module V0
       Swagger::Requests::User,
       Swagger::Requests::EducationBenefitsClaims,
       Swagger::Requests::HealthCareApplications,
+      Swagger::Requests::Messages,
       Swagger::Responses::AuthenticationError,
       Swagger::Schemas::Errors,
       self

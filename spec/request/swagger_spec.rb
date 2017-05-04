@@ -3,6 +3,9 @@ require 'rails_helper'
 
 require 'saml/settings_service'
 
+require 'sm/client'
+require 'support/sm_client_helpers'
+
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
     it 'has valid json' do
@@ -14,6 +17,9 @@ RSpec.describe 'API doc validations', type: :request do
 end
 
 RSpec.describe 'the API documentation', type: :apivore, order: :defined do
+  include SM::ClientHelpers
+  include AuthenticatedSessionHelper
+
   subject { Apivore::SwaggerChecker.instance_for('/v0/apidocs.json') }
 
   let(:rubysaml_settings) { build(:rubysaml_settings) }
@@ -144,6 +150,23 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             'form' => test_veteran
           }
         )
+      end
+    end
+
+    describe 'messaging tests' do
+      before(:each) do
+        allow(SM::Client).to receive(:new).and_return(authenticated_client)
+        use_authenticated_current_user(current_user: mhv_user)
+      end
+
+      describe 'triage teams' do
+        context 'successful calls' do
+          it 'supports getting a list of all prescriptions' do
+            VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
+              expect(subject).to validate(:get, '/v0/messaging/health/recipients', 200)
+            end
+          end
+        end
       end
     end
 
