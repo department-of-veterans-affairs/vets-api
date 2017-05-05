@@ -168,6 +168,25 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           end
         end
       end
+
+      describe 'folders' do
+        context 'successful calls' do
+          it 'supports getting a list of all folders' do
+            VCR.use_cassette('sm_client/folders/gets_a_collection_of_folders') do
+              expect(subject).to validate(:get, '/v0/messaging/health/folders', 200)
+            end
+          end
+
+          it 'supports getting a list of all messages in a folder' do
+            VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
+              expect(subject).to validate(
+                :get,
+                '/v0/messaging/health/folders/{folder_id}/messages', 200, 'folder_id' => '0'
+              )
+            end
+          end
+        end
+      end
     end
 
     it 'supports getting the user data' do

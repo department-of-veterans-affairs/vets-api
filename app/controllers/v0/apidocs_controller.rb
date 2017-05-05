@@ -42,6 +42,18 @@ module V0
           key :type, :string
         end
       end
+
+      parameter :optional_page_number, name: :page, in: :query, required: false, type: :integer,
+                                       description: 'Page of results, greater than 0 (default: 1)'
+
+      parameter :optional_page_length, name: :per_page, in: :query, required: false, type: :integer,
+                                       description: 'number of results, between 1 and 99 (default: 10)'
+
+      parameter :optional_sort, name: :sort, in: :query, required: false, type: :string,
+                                description: "Comma separated sort field(s), prepend with '-' for descending"
+
+      parameter :optional_filter, name: :filter, in: :query, required: false, type: :string,
+                                  description: 'Filter on refill_status: [[refill_status][logical operator]=status]'
     end
 
     # A list of all classes that have swagger_* declarations.
@@ -51,8 +63,14 @@ module V0
       Swagger::Requests::User,
       Swagger::Requests::EducationBenefitsClaims,
       Swagger::Requests::HealthCareApplications,
-      Swagger::Requests::Messages,
+      Swagger::Requests::Messages::TriageTeams,
+      Swagger::Requests::Messages::Folders,
       Swagger::Responses::AuthenticationError,
+      Swagger::Schemas::Health::TriageTeams,
+      Swagger::Schemas::Health::Folders,
+      Swagger::Schemas::Health::Messages,
+      Swagger::Schemas::Health::Meta,
+      Swagger::Schemas::Health::Links,
       Swagger::Schemas::Errors,
       self
     ].freeze
