@@ -96,10 +96,6 @@ module Swagger
           end
         end
 
-        swagger_schema :Attachment do
-          key :type, :file
-        end
-
         swagger_schema :MessageAttributes do
           key :type, :object
           key :required, [:message_id, :category, :subject, :body, :attachment, :sent_date, :sender_id,
