@@ -40,6 +40,22 @@ module Swagger
             end
           end
         end
+
+        swagger_path '/v0/messaging/health/messages/categories' do
+          operation :get do
+            key :description, 'Gets a list of message categories'
+            key :operationId, 'messagesCategoriesIndex'
+            key :tags, %w(messages)
+
+            response 200 do
+              key :description, 'message categories response'
+
+              schema do
+                key :'$ref', :Categories
+              end
+            end
+          end
+        end
       end
     end
   end

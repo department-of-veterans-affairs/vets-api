@@ -76,6 +76,26 @@ module Swagger
           end
         end
 
+        swagger_schema :Categories do
+          key :required, [:data]
+
+          property :data, type: :object do
+            key :required, [:id, :type, :attributes]
+
+            property :id, type: :string
+            property :type, type: :string, enum: [:categories]
+            property :attributes, type: :object do
+              key :required, [:message_category_type]
+
+              property :message_category_type, type: :array, minItems: 1, uniqueItems: true do
+                items do
+                  key :type, :string
+                end
+              end
+            end
+          end
+        end
+
         swagger_schema :MessageAttributes do
           key :type, :object
           key :required, [:message_id, :category, :subject, :body, :attachment, :sent_date, :sender_id,
