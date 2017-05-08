@@ -14,7 +14,11 @@ module SM
           @meta_attributes = split_meta_fields!
           @errors = @parsed_json.delete(:errors) || {}
 
-          data = parsed_triage || parsed_folders || normalize_message(parsed_messages) || parsed_categories
+          data =  preferences     ||
+                  parsed_triage   ||
+                  parsed_folders  ||
+                  normalize_message(parsed_messages) ||
+                  parsed_categories
 
           @parsed_json = {
             data: data,
@@ -26,6 +30,10 @@ module SM
         end
 
         private
+
+        def preferences
+          [:notify_me, :'0'].any? { |k| @parsed_json.key?(k) } ? @parsed_json : nil
+        end
 
         def parsed_folders
           @parsed_json.key?(:system_folder) ? @parsed_json : @parsed_json[:folder]

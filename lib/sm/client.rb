@@ -15,6 +15,23 @@ module SM
     MHV_MAXIMUM_PER_PAGE = 250
     CONTENT_DISPOSITION = 'attachment; filename='
 
+    # Preferences
+    # Fetches the list of available constant values for email frequency
+    def get_preferences_frequency_list
+      perform(:get, 'preferences/notification/list', nil, token_headers).body
+    end
+
+    # Fetches the current email settings, including address and frequency
+    def get_preferences
+      perform(:get, 'preferences/notification', nil, token_headers).body
+    end
+
+    # Sets the email address and frequency for getting emails.
+    def post_preferences(params)
+      perform(:post, 'preferences/notification', params, token_headers)
+      get_preferences
+    end
+
     # Folders
 
     def get_folders

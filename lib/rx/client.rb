@@ -3,6 +3,7 @@ require 'common/client/base'
 require 'common/client/concerns/mhv_session_based_client'
 require 'rx/configuration'
 require 'rx/client_session'
+require 'active_support/core_ext/hash/slice'
 
 module Rx
   # Core class responsible for api interface operations
@@ -41,6 +42,52 @@ module Rx
 
     def post_refill_rx(id)
       perform(:post, "prescription/rxrefill/#{id}", nil, token_headers)
+    end
+
+    # TODO: Might need error handeling around this.
+    def get_preferences
+      response = {}
+      config.parallel_connection.in_parallel do
+        response.merge!(get_notification_email_address)
+        response.merge!(rx_flag: get_rx_preference_flag[:flag])
+      end
+      { data: response, errors: {}, metadata: {} }
+    end
+
+    # TODO: Might need error handling around this
+    def post_preferences(params)
+      config.parallel_connection.in_parallel do
+        post_notification_email_address(params.slice(:email_address))
+        post_rx_preference_flag(params.slice(:rx_flag))
+      end
+      get_preferences
+    end
+
+    private
+
+    # NOTE: After June 17, MHV will roll out an improvement that collapses these
+    # into a single endpoint so that you do not need to make multiple distinct
+    # requests. They will keep these around for some time and eventually deprecate.
+
+    # Current Email Account that receives notifications
+    def get_notification_email_address
+      config.parallel_connection.get('preferences/email', nil, token_headers).body
+    end
+
+    # Current Rx preference setting
+    def get_rx_preference_flag
+      config.parallel_connection.get('preferences/rx', nil, token_headers).body
+    end
+
+    # Change Email Account that receives notifications
+    def post_notification_email_address(params)
+      config.parallel_connection.post('preferences/email', params, token_headers)
+    end
+
+    # Change Rx preference setting
+    def post_rx_preference_flag(params)
+      params = { flag: params[:rx_flag] }
+      config.parallel_connection.post('preferences/rx', params, token_headers)
     end
   end
 end
