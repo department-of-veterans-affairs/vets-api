@@ -17,6 +17,18 @@ ActiveRecord::Schema.define(version: 20170329210115) do
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
 
+  create_table "disability_claims", force: :cascade do |t|
+    t.integer  "evss_id",                            null: false
+    t.json     "data",                               null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
+    t.string   "user_uuid",                          null: false
+    t.json     "list_data",          default: {},    null: false
+    t.boolean  "requested_decision", default: false, null: false
+  end
+
+  add_index "disability_claims", ["user_uuid"], name: "index_disability_claims_on_user_uuid", using: :btree
+
   create_table "education_benefits_claims", force: :cascade do |t|
     t.datetime "submitted_at"
     t.datetime "processed_at"

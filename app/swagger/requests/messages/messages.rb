@@ -71,7 +71,7 @@ module Swagger
               key :description, 'message categories response'
 
               schema do
-                key :'$ref', :Attachment
+                key :type, :file
               end
             end
           end
