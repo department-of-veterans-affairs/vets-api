@@ -10,7 +10,7 @@ module Swagger
 
           property :data, type: :array, minItems: 1, uniqueItems: true do
             items do
-              key :'$ref', :Folder
+              key :'$ref', :FolderBase
             end
           end
 
@@ -19,19 +19,25 @@ module Swagger
         end
 
         swagger_schema :Folder do
+          key :required, [:data]
+
+          property :data, type: :object, '$ref': :FolderBase
+        end
+
+        swagger_schema :FolderBase do
           key :required, [:id, :type, :attributes, :links]
 
           property :id, type: :string
           property :type, type: :string, enum: [:folders]
 
           property :attributes, type: :object do
-            key :'$ref', :FolderBase
+            key :'$ref', :FolderAttributes
           end
 
           property :links, '$ref': :LinksSelf
         end
 
-        swagger_schema :FolderBase do
+        swagger_schema :FolderAttributes do
           key :required, [:folder_id, :name, :count, :unread_count, :system_folder]
 
           property :folder_id, type: :integer

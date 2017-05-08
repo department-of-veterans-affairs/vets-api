@@ -23,6 +23,37 @@ module Swagger
           property :links, '$ref': :LinksAll
         end
 
+        swagger_schema :Message do
+          key :required, [:id, :type, :attributes, :relationships, :links]
+
+          property :id, type: :string
+          property :type, type: :string, enum: [:messages]
+          property :attributes, '$ref': :MessageAttributes
+          property :links, '$ref': :LinksSelf
+
+          property :relationships do
+            property :meta, '$ref': :Relationships
+          end
+        end
+
+        swagger_schema :Relationships do
+          key :type, :object
+          key :required, [:attachments]
+
+          property :attachments, type: :object do
+            key :required, [:data]
+
+            property :data, type: :array, minItems: 0, uniqueItems: true do
+              items do
+                key :required, [:id, :type]
+
+                property :id, type: :string
+                property :type, type: :string, enum: [:attachments]
+              end
+            end
+          end
+        end
+
         swagger_schema :MessageAttributes do
           key :type, :object
           key :required, [:message_id, :category, :subject, :body, :attachment, :sent_date, :sender_id,
