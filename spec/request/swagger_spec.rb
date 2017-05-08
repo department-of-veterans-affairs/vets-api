@@ -185,6 +185,25 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
               )
             end
           end
+
+          it 'supports getting information about a specific folder' do
+            VCR.use_cassette('sm_client/folders/gets_a_single_folder') do
+              expect(subject).to validate(:get, '/v0/messaging/health/folders/{id}', 200, 'id' => '0')
+            end
+          end
+
+          it 'supports creating a new folder' do
+            VCR.use_cassette('sm_client/folders/creates_a_folder_and_deletes_a_folder') do
+              expect(subject).to validate(:post, '/v0/messaging/health/folders',
+                                          201, '_data' => { 'folder' => { 'name' => 'test folder 66745' } })
+            end
+          end
+
+          it 'supports deleting a folder' do
+            VCR.use_cassette('sm_client/folders/creates_a_folder_and_deletes_a_folder') do
+              expect(subject).to validate(:delete, '/v0/messaging/health/folders/{id}', 204, 'id' => '674886')
+            end
+          end
         end
       end
     end

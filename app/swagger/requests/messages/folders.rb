@@ -43,6 +43,61 @@ module Swagger
             end
           end
         end
+
+        swagger_path '/v0/messaging/health/folders/{id}' do
+          operation :get do
+            key :description, 'Get information about a specific folder'
+            key :operationId, 'foldersShow'
+            key :tags, %w(folders)
+
+            parameter name: :id, in: :path, required: true, type: :integer, description: 'id of the folder'
+
+            response 200 do
+              key :description, 'folder messages response'
+
+              schema do
+                key :'$ref', :Folder
+              end
+            end
+          end
+        end
+
+        swagger_path '/v0/messaging/health/folders' do
+          operation :post do
+            key :description, 'Create a new folder'
+            key :operationId, 'foldersCreate'
+            key :tags, %w(folders)
+
+            parameter name: :folder, in: :body, required: true, description: 'new folder name' do
+              schema do
+                key :type, :object
+                property :name, type: :string
+              end
+            end
+
+            response 201 do
+              key :description, 'create folder response'
+
+              schema do
+                key :'$ref', :Folder
+              end
+            end
+          end
+        end
+
+        swagger_path '/v0/messaging/health/folders/{id}' do
+          operation :delete do
+            key :description, 'Deletes a specific folder'
+            key :operationId, 'foldersDelete'
+            key :tags, %w(folders)
+
+            parameter name: :id, in: :path, required: true, type: :integer, description: 'id of the folder'
+
+            response 204 do
+              key :description, 'delete folder response'
+            end
+          end
+        end
       end
     end
   end
