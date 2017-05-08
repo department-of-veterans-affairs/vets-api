@@ -99,4 +99,37 @@ RSpec.describe 'prescriptions', type: :request do
       expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
     end
   end
+
+  context 'preferences' do
+    it 'responds to GET #show of preferences' do
+      VCR.use_cassette('rx_client/preferences/gets_rx_preferences') do
+        get '/v0/prescriptions/preferences'
+      end
+
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      attrs = JSON.parse(response.body)['data']['attributes']
+      expect(attrs['email_address']).to eq('Praneeth.Gaganapally@va.gov')
+      expect(attrs['rx_flag']).to be true
+    end
+
+    it 'responds to PUT #update of preferences' do
+      VCR.use_cassette('rx_client/preferences/sets_rx_preferences', record: :none) do
+        params = { email_address: 'kamyar.karshenas@va.gov',
+                   rx_flag: false }
+        put '/v0/prescriptions/preferences', params
+      end
+
+      expect(response).to have_http_status(202)
+    end
+
+    it 'requires all parameters for update' do
+      VCR.use_cassette('rx_client/preferences/sets_rx_preferences', record: :none) do
+        params = { email_address: 'kamyar.karshenas@va.gov' }
+        put '/v0/prescriptions/preferences', params
+      end
+
+      expect(response).to have_http_status(:bad_request)
+    end
+  end
 end
