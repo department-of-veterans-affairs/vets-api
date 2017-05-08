@@ -23,7 +23,10 @@ module SM
 
     # Fetches the current email settings, including address and frequency
     def get_preferences
-      perform(:get, 'preferences/notification', nil, token_headers).body
+      json = perform(:get, 'preferences/notification', nil, token_headers).body
+      frequency = MessagingPreference::FREQUENCY_GET_MAP[json[:data][:notify_me]]
+      MessagingPreference.new({email_address: json[:data][:email_address], 
+                              frequency: frequency})
     end
 
     # Sets the email address and frequency for getting emails.

@@ -43,6 +43,9 @@ Rails.application.routes.draw do
       get :active, to: 'prescriptions#index', on: :collection, defaults: { refill_status: 'active' }
       patch :refill, to: 'prescriptions#refill', on: :member
       resources :trackings, only: :index, controller: :trackings
+      collection do
+        resource :preferences, only: [:show, :update], controller: 'prescription_preferences'
+      end
     end
 
     resource :health_records, only: [:create, :show], defaults: { format: :json } do
@@ -72,6 +75,8 @@ Rails.application.routes.draw do
           post ':reply_id/replydraft', on: :collection, action: :create_reply_draft, as: :create_reply
           put ':reply_id/replydraft/:draft_id', on: :collection, action: :update_reply_draft, as: :update_reply
         end
+
+        resource :preferences, only: [:show, :update], controller: 'messaging_preferences'
       end
     end
 
