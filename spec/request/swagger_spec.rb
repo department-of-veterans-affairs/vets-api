@@ -226,6 +226,13 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
               expect(subject).to validate(:get, '/v0/messaging/health/messages/categories', 200)
             end
           end
+
+          it 'supports getting message attachments' do
+            VCR.use_cassette('sm_client/messages/nested_resources/gets_a_file_attachment') do
+              expect(subject).to validate(:get, '/v0/messaging/health/messages/{message_id}/attachments/{id}',
+                                          200, 'message_id' => '629999', 'id' => '629993')
+            end
+          end
         end
       end
     end

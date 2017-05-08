@@ -56,6 +56,26 @@ module Swagger
             end
           end
         end
+
+        swagger_path '/v0/messaging/health/messages/{message_id}/attachments/{id}' do
+          operation :get do
+            key :description, 'Gets a message attachment'
+            key :operationId, 'messagesAttachmentShow'
+            key :produces, ['application/octet-stream', 'application/pdf', 'image/png', 'image/gif', 'image/jpeg']
+            key :tags, %w(messages)
+
+            parameter name: :message_id, in: :path, required: true, type: :integer, description: 'a message id'
+            parameter name: :id, in: :path, required: true, type: :integer, description: 'an attachmwnt id'
+
+            response 200 do
+              key :description, 'message categories response'
+
+              schema do
+                key :'$ref', :Attachment
+              end
+            end
+          end
+        end
       end
     end
   end
