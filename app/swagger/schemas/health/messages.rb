@@ -23,16 +23,38 @@ module Swagger
           property :links, '$ref': :LinksAll
         end
 
+        swagger_schema :MessagesThread do
+          key :required, [:data]
+
+          property :data, type: :array, minItems: 1, uniqueItems: true do
+            items do
+              key :required, [:id, :type, :attributes, :links]
+
+              property :id, type: :string
+              property :type, type: :string, enum: [:messages]
+              property :attributes, '$ref': :MessageAttributes
+              property :links, '$ref': :LinksSelf
+            end
+          end
+
+          property :meta, '$ref': :MetaSortPagination
+          property :links, '$ref': :LinksAll
+        end
+
         swagger_schema :Message do
-          key :required, [:id, :type, :attributes, :relationships, :links]
+          key :required, [:data]
 
-          property :id, type: :string
-          property :type, type: :string, enum: [:messages]
-          property :attributes, '$ref': :MessageAttributes
-          property :links, '$ref': :LinksSelf
+          property :data, type: :object do
+            key :required, [:id, :type, :attributes, :relationships, :links]
 
-          property :relationships do
-            property :meta, '$ref': :Relationships
+            property :id, type: :string
+            property :type, type: :string, enum: [:messages, :message_drafts]
+            property :attributes, '$ref': :MessageAttributes
+            property :links, '$ref': :LinksSelf
+
+            property :relationships do
+              property :meta, '$ref': :Relationships
+            end
           end
         end
 
