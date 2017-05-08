@@ -206,6 +206,22 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           end
         end
       end
+
+      describe 'messages' do
+        context 'successful calls' do
+          it 'supports getting a message' do
+            VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
+              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}', 200, 'id' => '573059')
+            end
+          end
+
+          it 'supports getting a list of all messages in a thread' do
+            VCR.use_cassette('sm_client/messages/gets_a_message_thread') do
+              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}/thread', 200, 'id' => '573059')
+            end
+          end
+        end
+      end
     end
 
     it 'supports getting the user data' do
