@@ -7,6 +7,9 @@ module V0
              serializer: MessagingPreferenceSerializer
     end
 
+    # Set secure messaging email notification preferences.
+    # @param email_address - the target email address
+    # @param frequency - one of 'none', 'each_message', or 'daily'
     def update
       client.post_preferences(sanitize_params)
       render nothing: true, status: :accepted
