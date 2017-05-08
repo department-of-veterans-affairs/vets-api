@@ -220,6 +220,12 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
               expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}/thread', 200, 'id' => '573059')
             end
           end
+
+          it 'supports getting a list of message categories' do
+            VCR.use_cassette('sm_client/messages/gets_message_categories') do
+              expect(subject).to validate(:get, '/v0/messaging/health/messages/categories', 200)
+            end
+          end
         end
       end
     end
