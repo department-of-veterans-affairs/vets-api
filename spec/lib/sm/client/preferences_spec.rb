@@ -18,7 +18,8 @@ describe 'sm client' do
   context 'preferences' do
     it 'fetches email settings for notifications', :vcr do
       client_response = client.get_preferences
-      expect(client_response[:data]).to eq(email_address: 'muazzam.khan@va.gov', notify_me: 'Once daily')
+      expect(client_response.email_address).to eq('muazzam.khan@va.gov')
+      expect(client_response.frequency).to eq('daily')
     end
 
     it 'fetches list of email frequency constants', :vcr do
@@ -28,10 +29,13 @@ describe 'sm client' do
 
     it 'sets the email notification settings', :vcr do
       client_response = client.post_preferences(email_address: 'kamyar.karshenas@va.gov', notify_me: 0)
-      expect(client_response[:data]).to eq(email_address: 'kamyar.karshenas@va.gov', notify_me: 'None')
+      expect(client_response.email_address).to eq('kamyar.karshenas@va.gov')
+      expect(client_response.frequency).to eq('none')
+
       # Change it back to original to make test idempotent
       client_response = client.post_preferences(email_address: 'muazzam.khan@va.gov', notify_me: 2)
-      expect(client_response[:data]).to eq(email_address: 'muazzam.khan@va.gov', notify_me: 'Once daily')
+      expect(client_response.email_address).to eq('muazzam.khan@va.gov')
+      expect(client_response.frequency).to eq('daily')
     end
   end
 end
