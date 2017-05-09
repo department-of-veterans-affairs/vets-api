@@ -240,6 +240,19 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
                                           204, 'id' => '573052', '_query_string' => 'folder_id=0')
             end
           end
+
+          it 'supports replying to a message with no attachments' do
+            VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
+              expect(subject).to validate(
+                :post, '/v0/messaging/health/messages/{id}/reply', 201,
+                'id' => '674838',
+                '_data' => { 'message' => {
+                  'subject' => 'CI Run', 'category' => 'OTHER', 'recipientId' => '613586',
+                  'body' => 'Continuous Integration'
+                } }
+              )
+            end
+          end
         end
       end
     end

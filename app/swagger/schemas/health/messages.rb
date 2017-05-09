@@ -113,6 +113,17 @@ module Swagger
           property :recipient_name, type: :string
           property :read_receipt, type: [:null, :string]
         end
+
+        swagger_schema :MessageInput do
+          key :type, :object
+          key :required, [:subject, :category, :recipient_id, :body]
+
+          property :draft_id, type: :integer
+          property :subject, type: :string
+          property :category, type: :string
+          property :recipient_id, type: :integer
+          property :body, type: :string
+        end
       end
     end
   end
