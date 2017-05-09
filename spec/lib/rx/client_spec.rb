@@ -18,15 +18,18 @@ describe 'rx client' do
   describe 'preferences' do
     it 'gets rx preferences', :vcr do
       client_response = client.get_preferences
-      expect(client_response[:data]).to eq(email_address: 'Praneeth.Gaganapally@va.gov', rx_flag: true)
+      expect(client_response.email_address).to eq('Praneeth.Gaganapally@va.gov')
+      expect(client_response.rx_flag).to eq(true)
     end
 
     it 'sets rx preferences', :vcr do
       client_response = client.post_preferences(email_address: 'kamyar.karshenas@va.gov', rx_flag: false)
-      expect(client_response[:data]).to eq(email_address: 'kamyar.karshenas@va.gov', rx_flag: false)
+      expect(client_response.email_address).to eq('kamyar.karshenas@va.gov')
+      expect(client_response.rx_flag).to eq(false)
       # Change it back to what it was to make this test idempotent
       client_response = client.post_preferences(email_address: 'Praneeth.Gaganapally@va.gov', rx_flag: true)
-      expect(client_response[:data]).to eq(email_address: 'Praneeth.Gaganapally@va.gov', rx_flag: true)
+      expect(client_response.email_address).to eq('Praneeth.Gaganapally@va.gov')
+      expect(client_response.rx_flag).to eq(true)
     end
   end
 
