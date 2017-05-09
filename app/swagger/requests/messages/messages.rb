@@ -68,8 +68,7 @@ module Swagger
             parameter name: :id, in: :path, required: true, type: :integer, description: 'an attachmwnt id'
 
             response 200 do
-              key :description, 'message categories response'
-
+              key :description, 'message attachments response'
               schema do
                 key :type, :file
               end
