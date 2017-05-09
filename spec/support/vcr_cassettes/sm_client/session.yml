@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/session"
+    uri: "<MHV_HOST>/mhv-sm-api/patient/v1/session"
     body:
       encoding: US-ASCII
       string: ''
@@ -27,17 +27,17 @@ http_interactions:
       Server:
       - Apache-Coyote/1.1
       Expires:
-      - Tue, 31 Jan 2017 22:20:38 GMT
+      - Tue, 02 May 2017 08:10:24 GMT
       Token: "<SESSION_TOKEN>"
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
       Content-Length:
       - '0'
       Date:
-      - Tue, 31 Jan 2017 21:20:38 GMT
+      - Tue, 02 May 2017 07:10:23 GMT
     body:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Tue, 31 Jan 2017 21:20:38 GMT
+  recorded_at: Tue, 02 May 2017 07:10:24 GMT
 recorded_with: VCR 3.0.3
