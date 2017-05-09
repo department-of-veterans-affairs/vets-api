@@ -78,7 +78,7 @@ module Swagger
 
         swagger_path '/v0/messaging/health/messages/{id}/move' do
           operation :patch do
-            key :description, 'moves a message to a new prescription'
+            key :description, 'moves a message to a new folder'
             key :operationId, 'moveMessages'
             key :tags, %w(messages)
 
@@ -87,6 +87,29 @@ module Swagger
 
             response 204 do
               key :description, 'message move response'
+            end
+          end
+        end
+
+        swagger_path '/v0/messaging/health/messages/{id}/reply' do
+          operation :post do
+            key :description, 'creates a message reply'
+            key :operationId, 'replyMessages'
+            key :tags, %w(messages)
+
+            parameter name: :id, in: :path, required: true, type: :integer, description: 'id of the message'
+            parameter name: :message, in: :body, required: true, description: 'body of message reply' do
+              schema do
+                key :'$ref', :MessageInput
+              end
+            end
+
+            response 201 do
+              key :description, 'message reply no attachments response'
+
+              schema do
+                key :'$ref', :Message
+              end
             end
           end
         end
