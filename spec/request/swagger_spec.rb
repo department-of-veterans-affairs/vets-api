@@ -233,6 +233,13 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
                                           200, 'message_id' => '629999', 'id' => '629993')
             end
           end
+
+          it 'supports moving a message to another folder' do
+            VCR.use_cassette('sm_client/messages/moves_a_message_with_id') do
+              expect(subject).to validate(:patch, '/v0/messaging/health/messages/{id}/move',
+                                          204, 'id' => '573052', '_query_string' => 'folder_id=0')
+            end
+          end
         end
       end
     end

@@ -75,6 +75,21 @@ module Swagger
             end
           end
         end
+
+        swagger_path '/v0/messaging/health/messages/{id}/move' do
+          operation :patch do
+            key :description, 'moves a message to a new prescription'
+            key :operationId, 'moveMessages'
+            key :tags, %w(messages)
+
+            parameter name: :id, in: :path, required: true, type: :integer, description: 'id of the message'
+            parameter name: :folder_id, in: :query, required: true, type: :integer, description: 'destination folder id'
+
+            response 204 do
+              key :description, 'message move response'
+            end
+          end
+        end
       end
     end
   end
