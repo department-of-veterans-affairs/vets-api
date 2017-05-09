@@ -44,14 +44,14 @@ module Rx
       perform(:post, "prescription/rxrefill/#{id}", nil, token_headers)
     end
 
-    # TODO: Might need error handeling around this.
+    # TODO: Might need error handling around this.
     def get_preferences
       response = {}
       config.parallel_connection.in_parallel do
         response.merge!(get_notification_email_address)
         response.merge!(rx_flag: get_rx_preference_flag[:flag])
       end
-      { data: response, errors: {}, metadata: {} }
+      PrescriptionPreference.new(response)
     end
 
     # TODO: Might need error handling around this
