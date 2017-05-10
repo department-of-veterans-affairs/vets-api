@@ -40,6 +40,8 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd .
     launch it manually with `brew services start redis`.
 1. Install Imagemagick
    - `brew install imagemagick`
+1. Install Unoconv
+   - `brew install unoconv`
 1. Install gem dependencies: `cd vets-api; bundle install`
 1. Install overcommit `overcommit --install --sign`
 1. Setup localhost certificates / keys:

@@ -88,6 +88,13 @@ else
   brew install imagemagick
 fi
 
+if command_exists unoconv ; then
+  echo "${GREEN} * Unoconv already installed.${RESET}"
+else
+  echo "${RED} * Installing unoconv. ${RESET}"
+  brew install unoconv
+fi
+
 # Make vetsgov-localhost.crt and .key
 
 CERT_INSTALL_REQUIRED=false
