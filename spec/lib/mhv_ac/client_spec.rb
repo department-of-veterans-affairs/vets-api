@@ -39,7 +39,7 @@ describe 'mhv account creation' do
 
   let(:upgrade_params) do
     {
-      user_id: "14221465",
+      user_id: '14221465',
       form_signed_date_time: 'Tue, 09 May 2017 00:00:00 GMT',
       terms_version: 'v3.4'
     }

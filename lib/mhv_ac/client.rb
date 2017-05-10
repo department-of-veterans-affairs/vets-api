@@ -9,7 +9,7 @@ module MHVAC
   class Client < Common::Client::Base
     configuration MHVAC::Configuration
 
-    #Disabled because coverage will be below threshold for these.
+    # Disabled because coverage will be below threshold for these.
     # Create an MHV account
     def post_register(params)
       form = MHVAC::RegistrationForm.new(params)
