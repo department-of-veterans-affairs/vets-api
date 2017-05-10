@@ -3,7 +3,6 @@ require 'common/models/form'
 
 module MHVAC
   class RegistrationForm < Common::Form
-    # TODO: Probably need to get some clarity on what some of these are
     attribute :icn, String
     attribute :is_patient, Boolean, default: true
     attribute :is_patient_advocate, Boolean, default: false

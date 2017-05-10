@@ -9,7 +9,6 @@ module MHVAC
     attribute :form_upgrade_online_date, String
     attribute :terms_version, String
 
-    # TODO: the above attrs will be camelcased by middleware
     def params
       Hash[attribute_set.map do |attribute|
         value = send(attribute.name)

@@ -14,7 +14,7 @@ module MHVAC
     end
 
     def base_path
-      "#{Settings.mhv.sm.host}/mhv-api/patient/v1/"
+      "#{Settings.mhv.rx.host}/mhv-api/patient/v1/"
     end
 
     def service_name
@@ -28,8 +28,8 @@ module MHVAC
         conn.request :json
 
         # Uncomment this if you want curl command equivalent or response output to log
-        conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
-        conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
+        # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
+        # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
         conn.response :snakecase
         conn.response :raise_error, error_prefix: service_name

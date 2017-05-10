@@ -46,10 +46,12 @@ describe 'mhv account creation' do
   end
 
   it 'creates an account', :vcr do
-    client.post_register(user_params)
+    client_response = client.post_register(user_params)
+    expect(client_response).to be_a(Hash)
   end
 
   it 'upgrades an account', :vcr do
-    client.post_upgrade(upgrade_params)
+    client_response = client.post_upgrade(upgrade_params)
+    expect(client_response).to be_a(Hash)
   end
 end
