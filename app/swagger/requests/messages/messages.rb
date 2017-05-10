@@ -103,6 +103,11 @@ module Swagger
                 key :'$ref', :MessageInput
               end
             end
+            parameter name: :uploads, in: :body, required: false, description: 'attachments' do
+              schema do
+                key :'$ref', :AttachmentsInput
+              end
+            end
 
             response 201 do
               key :description, 'message reply no attachments response'

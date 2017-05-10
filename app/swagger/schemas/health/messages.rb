@@ -34,6 +34,7 @@ module Swagger
         swagger_schema :Message do
           key :required, [:data]
           property :data, type: :object, '$ref': :DataAttributesWithRelationships
+          property :included, '$ref': :Included
         end
 
         swagger_schema :Included do
@@ -142,6 +143,10 @@ module Swagger
           property :category, type: :string
           property :recipient_id, type: :integer
           property :body, type: :string
+        end
+
+        swagger_schema :AttachmentsInput do
+          key :type, :array
         end
       end
     end
