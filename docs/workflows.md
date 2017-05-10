@@ -8,14 +8,14 @@ Upload Workflows are built around 3 concepts:
 
 These concepts are bound together by the `FileUpload` class, which is where we define which uploader and workflow to use for a given file.
 
-```
+```ruby
 class Test::Upload < FileUpload
-  uploader Test::Uploader
-  workflow Test::Workflow
+  self.uploader = Test::Uploader
+  self.workflow = Test::Workflow
 end
 ```
 
-When instantiated, an instance of `Test::Upload` will be able take a file and any relevant extra metadata and run through the upload and storage process defined in `Test::Uploader`, and then begin the asynchronous `Test::Workflow`. For instance, if we use the following instance, both `user_uuid` and `tracked_item_id` will be available to Shrine and the `Tasks` in the `Workflow`.
+When instantiated, an instance of `Test::Upload` will be able take a file and any relevant extra metadata and run through the upload and storage process defined in `Test::Uploader`, and then begin the asynchronous `Test::Workflow`. For example, if we use the following instance, both `user_uuid` and `tracked_item_id` will be available to Shrine and the `Tasks` in the `Workflow`.
 
 ```ruby
 uploader = Test::Upload.new(user_uuid: SecureRandom.hex, tracked_item_id: rand(100))

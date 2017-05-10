@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 class FileUpload
+  class_attribute :uploader
+  class_attribute :workflow
   attr_accessor :options
-  class << self
-    def uploader(uploader = nil)
-      @uploader ||= uploader
-    end
-
-    def workflow(workflow = nil)
-      @workflow ||= workflow
-    end
-  end
 
   def initialize(**args)
     raise 'Need a uploader!' unless uploader && uploader < Shrine
