@@ -11,43 +11,6 @@ RSpec.describe EducationForm::Forms::VA5490 do
       allow_any_instance_of(described_class).to receive(:format)
     end
 
-    describe '#hours_and_type' do
-      context 'with hours' do
-        before do
-          education_benefits_claim.form = JSON.parse(education_benefits_claim.form).merge(
-            highSchool: {
-              hours: 4
-            }
-          ).to_json
-        end
-
-        it 'should output the hours' do
-          expect(subject.hours_and_type).to eq('4')
-        end
-      end
-
-      context 'with hours and hours_type' do
-        before do
-          education_benefits_claim.form = JSON.parse(education_benefits_claim.form).merge(
-            highSchool: {
-              hours: 4,
-              hoursType: 'semester'
-            }
-          ).to_json
-        end
-
-        it 'should output hours and hours_type' do
-          expect(subject.hours_and_type).to eq('4 (semester)')
-        end
-      end
-
-      context 'without hours' do
-        it 'should return blank string' do
-          expect(subject.hours_and_type).to eq('')
-        end
-      end
-    end
-
     describe 'previous benefits' do
       context 'without previous benefits' do
         before do
