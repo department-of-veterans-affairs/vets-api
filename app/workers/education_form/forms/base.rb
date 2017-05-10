@@ -139,6 +139,15 @@ module EducationForm::Forms
       ].compact.join(seperator).upcase
     end
 
+    def hours_and_type(training)
+      return_val = training&.hours&.to_s
+      return '' if return_val.blank?
+      hours_type = training&.hoursType
+      return_val += " (#{hours_type})" if hours_type.present?
+
+      return_val
+    end
+
     def employment_history(job_history, post_military: nil)
       wrapped_list = Array(job_history)
       wrapped_list = wrapped_list.select { |job| job.postMilitaryJob == post_military } unless post_military.nil?
