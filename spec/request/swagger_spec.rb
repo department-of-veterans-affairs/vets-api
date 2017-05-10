@@ -209,6 +209,15 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
       describe 'messages' do
         context 'successful calls' do
+          let(:uploads) do
+            [
+              Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file1.jpg', 'image/jpg'),
+              Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file2.jpg', 'image/jpg'),
+              Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file3.jpg', 'image/jpg'),
+              Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file4.jpg', 'image/jpg')
+            ]
+          end
+
           it 'supports getting a list of all messages in a thread' do
             VCR.use_cassette('sm_client/messages/gets_a_message_thread') do
               expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}/thread', 200, 'id' => '573059')
@@ -250,6 +259,22 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
                   'subject' => 'CI Run', 'category' => 'OTHER', 'recipientId' => '613586',
                   'body' => 'Continuous Integration'
                 } }
+              )
+            end
+          end
+
+          it 'supports replying to a message with attachments' do
+            VCR.use_cassette('sm_client/messages/creates/a_reply_with_4_attachments') do
+              expect(subject).to validate(
+                :post, '/v0/messaging/health/messages/{id}/reply', 201,
+                'id' => '674838',
+                '_data' => {
+                  'message' => {
+                    'subject' => 'CI Run', 'category' => 'OTHER', 'recipientId' => '613586',
+                    'body' => 'Continuous Integration'
+                  },
+                  'uploads' => uploads
+                }
               )
             end
           end
