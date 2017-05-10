@@ -10,12 +10,7 @@ module Swagger
 
           property :data, type: :array, minItems: 1, uniqueItems: true do
             items do
-              key :required, [:id, :type, :attributes, :links]
-
-              property :id, type: :string
-              property :type, type: :string, enum: [:messages]
-              property :attributes, '$ref': :MessageAttributes
-              property :links, '$ref': :LinksSelf
+              key :'$ref', :DataAttributes
             end
           end
 
@@ -28,12 +23,7 @@ module Swagger
 
           property :data, type: :array, minItems: 1, uniqueItems: true do
             items do
-              key :required, [:id, :type, :attributes, :links]
-
-              property :id, type: :string
-              property :type, type: :string, enum: [:messages]
-              property :attributes, '$ref': :MessageAttributes
-              property :links, '$ref': :LinksSelf
+              key :'$ref', :DataAttributes
             end
           end
 
@@ -43,19 +33,66 @@ module Swagger
 
         swagger_schema :Message do
           key :required, [:data]
+          property :data, type: :object, '$ref': :DataAttributesWithRelationships
+        end
 
-          property :data, type: :object do
-            key :required, [:id, :type, :attributes, :relationships, :links]
+        swagger_schema :Included do
+          key :required, [:included]
 
-            property :id, type: :string
-            property :type, type: :string, enum: [:messages, :message_drafts]
-            property :attributes, '$ref': :MessageAttributes
-            property :links, '$ref': :LinksSelf
+          property :included, type: :array, minItems: 0, uniqueItems: true do
+            items do
+              key :required, [:id, :type, :attributes, :links]
 
-            property :relationships do
-              property :meta, '$ref': :Relationships
+              property :id, type: :string
+              property :type, type: :string, enum: [:attachments]
+              property :attributes, type: :object do
+                key :required, [:message_id, :name]
+
+                property :message_id, type: :integer
+                property :name, type: :string
+              end
+              property :links, '$ref': :LinksDownload
             end
           end
+        end
+
+        swagger_schema :DataAttributes do
+          key :type, :object
+          key :required, [:id, :type, :attributes, :links]
+
+          property :id, type: :string
+          property :type, type: :string, enum: [:messages]
+          property :attributes, '$ref': :MessageAttributes
+          property :links, '$ref': :LinksSelf
+        end
+
+        swagger_schema :DataAttributesWithRelationships do
+          key :type, :object
+          key :required, [:id, :type, :attributes, :relationships, :links]
+
+          property :id, type: :string
+          property :type, type: :string, enum: [:messages]
+          property :attributes, '$ref': :MessageAttributes
+          property :relationships, '$ref': :Relationships
+          property :links, '$ref': :LinksSelf
+        end
+
+        swagger_schema :MessageAttributes do
+          key :type, :object
+          key :required, [:message_id, :category, :subject, :body, :attachment, :sent_date, :sender_id,
+                          :sender_name, :recipient_id, :recipient_name, :read_receipt]
+
+          property :message_id, type: :integer
+          property :category, type: :string
+          property :subject, type: :string
+          property :body, type: [:null, :string]
+          property :attachment, type: :boolean
+          property :sent_date, type: :string
+          property :sender_id, type: :integer
+          property :sender_name, type: :string
+          property :recipient_id, type: :integer
+          property :recipient_name, type: :string
+          property :read_receipt, type: [:null, :string]
         end
 
         swagger_schema :Relationships do
@@ -94,24 +131,6 @@ module Swagger
               end
             end
           end
-        end
-
-        swagger_schema :MessageAttributes do
-          key :type, :object
-          key :required, [:message_id, :category, :subject, :body, :attachment, :sent_date, :sender_id,
-                          :sender_name, :recipient_id, :recipient_name, :read_receipt]
-
-          property :message_id, type: :integer
-          property :category, type: :string
-          property :subject, type: :string
-          property :body, type: [:null, :string]
-          property :attachment, type: :boolean
-          property :sent_date, type: :string
-          property :sender_id, type: :integer
-          property :sender_name, type: :string
-          property :recipient_id, type: :integer
-          property :recipient_name, type: :string
-          property :read_receipt, type: [:null, :string]
         end
 
         swagger_schema :MessageInput do

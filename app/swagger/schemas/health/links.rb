@@ -23,6 +23,13 @@ module Swagger
 
           property :self, type: :string
         end
+
+        swagger_schema :LinksDownload do
+          key :type, :object
+          key :required, [:download]
+
+          property :download, type: :string
+        end
       end
     end
   end
