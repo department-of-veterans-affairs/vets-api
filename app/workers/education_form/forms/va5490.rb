@@ -25,9 +25,9 @@ module EducationForm::Forms
     end
 
     def hours_and_type
-      return_val = @applicant.highSchool&.hours&.to_s
+      return_val = @form.highSchool&.hours&.to_s
       return '' if return_val.blank?
-      hours_type = @applicant.highSchool&.hoursType
+      hours_type = @form.highSchool&.hoursType
       return_val += " (#{hours_type})" if hours_type.present?
 
       return_val
