@@ -28,7 +28,7 @@ RSpec.describe FileUpload do
     end
 
     it 'raises and error when no workflow is provided' do
-      klass.uploader Class.new(Shrine)
+      klass.uploader = Class.new(Shrine)
       expect { klass.new }.to raise_exception(/workflow/)
     end
   end
@@ -37,8 +37,8 @@ RSpec.describe FileUpload do
     let(:good_file) { File.open(Rails.root.join('README.md')) }
     let(:bad_file) { File.open(Rails.root.join('.ruby-version')) }
     before do
-      klass.uploader SpecUploaderClass
-      klass.workflow SpecUploaderWorkflow
+      klass.uploader = SpecUploaderClass
+      klass.workflow = SpecUploaderWorkflow
       Sidekiq::Testing.inline!
     end
 
