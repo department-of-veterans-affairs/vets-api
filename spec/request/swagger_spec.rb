@@ -154,6 +154,15 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     describe 'messaging tests' do
+      let(:uploads) do
+        [
+          Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file1.jpg', 'image/jpg'),
+          Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file2.jpg', 'image/jpg'),
+          Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file3.jpg', 'image/jpg'),
+          Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file4.jpg', 'image/jpg')
+        ]
+      end
+
       before(:each) do
         allow(SM::Client).to receive(:new).and_return(authenticated_client)
         use_authenticated_current_user(current_user: mhv_user)
@@ -209,15 +218,6 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
       describe 'messages' do
         context 'successful calls' do
-          let(:uploads) do
-            [
-              Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file1.jpg', 'image/jpg'),
-              Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file2.jpg', 'image/jpg'),
-              Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file3.jpg', 'image/jpg'),
-              Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file4.jpg', 'image/jpg')
-            ]
-          end
-
           it 'supports getting a list of all messages in a thread' do
             VCR.use_cassette('sm_client/messages/gets_a_message_thread') do
               expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}/thread', 200, 'id' => '573059')
@@ -310,6 +310,35 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           it 'supports deleting a message' do
             VCR.use_cassette('sm_client/messages/deletes_the_message_with_id') do
               expect(subject).to validate(:delete, '/v0/messaging/health/messages/{id}', 204, 'id' => '573052')
+            end
+          end
+        end
+      end
+
+      describe 'message drafts' do
+        context 'successful calls' do
+          it 'supports creating a message draft' do
+            VCR.use_cassette('sm_client/message_drafts/creates_a_draft') do
+              expect(subject).to validate(
+                :post, '/v0/messaging/health/message_drafts', 201,
+                '_data' => { 'message_draft' => {
+                  'subject' => 'Subject 1', 'category' => 'OTHER', 'recipient_id' => '613586',
+                  'body' => 'Body 1'
+                } }
+              )
+            end
+          end
+
+          it 'supports creating a message draft reply' do
+            VCR.use_cassette('sm_client/message_drafts/creates_a_draft_reply') do
+              expect(subject).to validate(
+                :post, '/v0/messaging/health/message_drafts/{reply_id}/replydraft', 201,
+                'reply_id' => '674874',
+                '_data' => { 'message_draft' => {
+                  'subject' => 'Subject 1', 'category' => 'OTHER', 'recipient_id' => '613586',
+                  'body' => 'Body 1'
+                } }
+              )
             end
           end
         end
