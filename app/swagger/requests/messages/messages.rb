@@ -44,7 +44,7 @@ module Swagger
         swagger_path '/v0/messaging/health/messages' do
           operation :post do
             key :description, 'creates a message'
-            key :operationId, 'createMessages'
+            key :operationId, 'messagesCreate'
             key :tags, %w(messages)
 
             parameter name: :message, in: :body, required: true, description: 'body of message' do
@@ -106,7 +106,7 @@ module Swagger
         swagger_path '/v0/messaging/health/messages/{id}/move' do
           operation :patch do
             key :description, 'moves a message to a new folder'
-            key :operationId, 'moveMessages'
+            key :operationId, 'messagesMove'
             key :tags, %w(messages)
 
             parameter name: :id, in: :path, required: true, type: :integer, description: 'id of the message'
@@ -121,7 +121,7 @@ module Swagger
         swagger_path '/v0/messaging/health/messages/{id}/reply' do
           operation :post do
             key :description, 'creates a message reply'
-            key :operationId, 'replyMessages'
+            key :operationId, 'messagesReply'
             key :tags, %w(messages)
 
             parameter name: :id, in: :path, required: true, type: :integer, description: 'id of the message'
@@ -142,6 +142,20 @@ module Swagger
               schema do
                 key :'$ref', :Message
               end
+            end
+          end
+        end
+
+        swagger_path '/v0/messaging/health/messages/{id}' do
+          operation :delete do
+            key :description, 'Deletes a specific message'
+            key :operationId, 'messagesDelete'
+            key :tags, %w(messages)
+
+            parameter name: :id, in: :path, required: true, type: :integer, description: 'id of the message'
+
+            response 204 do
+              key :description, 'delete message response'
             end
           end
         end
