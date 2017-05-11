@@ -26,8 +26,6 @@ Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
 
 <%= parse_with_template_path('bank_account') %>
 
-<%= parse_with_template_path('secondary_contact') %>
-
 
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
@@ -66,16 +64,6 @@ Name:   <%= full_name(@applicant.veteranFullName) %>
 SSN:   <%= @applicant.veteranSocialSecurityNumber %>
 
 VA File Number: <%= @applicant.vaFileNumber %>
-
-Branch of Service:   <%= @applicant.serviceBranch %>
-
-Veteran's date of birth: <%= @applicant.veteranDateOfBirth %>
-
-Date of death or MIA/POW: <%= @applicant.veteranDateOfDeath %>
-
-Is qualifying individual on active duty: <%= yesno(@applicant.currentlyActiveDuty) %>
-
-Relationship to service member:  <%= @applicant.relationship&.upcase %>
 
 Outstanding felony or warrant: <%= yesno(@applicant.outstandingFelony) %>
 
