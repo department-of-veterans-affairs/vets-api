@@ -66,6 +66,7 @@ module V0
       Swagger::Requests::Messages::TriageTeams,
       Swagger::Requests::Messages::Folders,
       Swagger::Requests::Messages::Messages,
+      Swagger::Requests::Messages::MessageDrafts,
       Swagger::Responses::AuthenticationError,
       Swagger::Schemas::Health::TriageTeams,
       Swagger::Schemas::Health::Folders,

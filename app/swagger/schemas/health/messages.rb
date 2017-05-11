@@ -62,7 +62,7 @@ module Swagger
           key :required, [:id, :type, :attributes, :links]
 
           property :id, type: :string
-          property :type, type: :string, enum: [:messages]
+          property :type, type: :string, enum: [:messages, :message_drafts]
           property :attributes, '$ref': :MessageAttributes
           property :links, '$ref': :LinksSelf
         end
@@ -72,7 +72,7 @@ module Swagger
           key :required, [:id, :type, :attributes, :relationships, :links]
 
           property :id, type: :string
-          property :type, type: :string, enum: [:messages]
+          property :type, type: :string, enum: [:messages, :message_drafts]
           property :attributes, '$ref': :MessageAttributes
           property :relationships, '$ref': :Relationships
           property :links, '$ref': :LinksSelf
@@ -88,7 +88,7 @@ module Swagger
           property :subject, type: :string
           property :body, type: [:null, :string]
           property :attachment, type: :boolean
-          property :sent_date, type: :string
+          property :sent_date, type: [:null, :string]
           property :sender_id, type: :integer
           property :sender_name, type: :string
           property :recipient_id, type: :integer
