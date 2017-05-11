@@ -329,14 +329,43 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             end
           end
 
+          [:put, :patch].each do |op|
+            it "supports updating a message draft with #{op}" do
+              VCR.use_cassette('sm_client/message_drafts/updates_a_draft') do
+                expect(subject).to validate(
+                  op, '/v0/messaging/health/message_drafts/{id}', 204,
+                  'id' => '674942',
+                  '_data' => { 'message_draft' => {
+                    'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
+                    'body' => 'Updated Body'
+                  } }
+                )
+              end
+            end
+          end
+
           it 'supports creating a message draft reply' do
             VCR.use_cassette('sm_client/message_drafts/creates_a_draft_reply') do
               expect(subject).to validate(
                 :post, '/v0/messaging/health/message_drafts/{reply_id}/replydraft', 201,
                 'reply_id' => '674874',
                 '_data' => { 'message_draft' => {
-                  'subject' => 'Subject 1', 'category' => 'OTHER', 'recipient_id' => '613586',
+                  'subject' => 'Updated Subject', 'category' => 'OTHER', 'recipient_id' => '613586',
                   'body' => 'Body 1'
+                } }
+              )
+            end
+          end
+
+          it 'supports updating a message draft reply' do
+            VCR.use_cassette('sm_client/message_drafts/updates_a_draft_reply') do
+              expect(subject).to validate(
+                :put, '/v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}', 204,
+                'reply_id' => '674874',
+                'draft_id' => '674944',
+                '_data' => { 'message_draft' => {
+                  'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
+                  'body' => 'Updated Body'
                 } }
               )
             end

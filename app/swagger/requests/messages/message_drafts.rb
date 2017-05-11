@@ -27,6 +27,27 @@ module Swagger
           end
         end
 
+        [:put, :patch].each do |op|
+          swagger_path '/v0/messaging/health/message_drafts/{id}' do
+            operation op do
+              key :description, 'update a message draft'
+              key :operationId, 'messageDraftsUpdate'
+              key :tags, %w(messages)
+
+              parameter name: :id, in: :path, type: :integer, required: true, description: 'message draft id'
+              parameter name: :message_draft, in: :body, required: true, description: 'body of reply draft message' do
+                schema do
+                  key :'$ref', :MessageInput
+                end
+              end
+
+              response 204 do
+                key :description, 'update draft message response'
+              end
+            end
+          end
+        end
+
         swagger_path '/v0/messaging/health/message_drafts/{reply_id}/replydraft' do
           operation :post do
             key :description, 'creates a reply message draft'
@@ -46,6 +67,26 @@ module Swagger
               schema do
                 key :'$ref', :Message
               end
+            end
+          end
+        end
+
+        swagger_path '/v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}' do
+          operation :put do
+            key :description, 'updates a reply message draft'
+            key :operationId, 'messageDraftsReplyUpdate'
+            key :tags, %w(messages)
+
+            parameter name: :reply_id, in: :path, type: :integer, required: true, description: 'message replied to id'
+            parameter name: :draft_id, in: :path, type: :integer, required: true, description: 'message draft updated'
+            parameter name: :message_draft, in: :body, required: true, description: 'body of reply draft message' do
+              schema do
+                key :'$ref', :MessageInput
+              end
+            end
+
+            response 204 do
+              key :description, 'update draft message response'
             end
           end
         end
