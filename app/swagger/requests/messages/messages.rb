@@ -41,6 +41,33 @@ module Swagger
           end
         end
 
+        swagger_path '/v0/messaging/health/messages' do
+          operation :post do
+            key :description, 'creates a message'
+            key :operationId, 'createMessages'
+            key :tags, %w(messages)
+
+            parameter name: :message, in: :body, required: true, description: 'body of message' do
+              schema do
+                key :'$ref', :MessageInput
+              end
+            end
+            parameter name: :uploads, in: :body, required: false, description: 'attachments' do
+              schema do
+                key :'$ref', :AttachmentsInput
+              end
+            end
+
+            response 200 do
+              key :description, 'message attachments response'
+
+              schema do
+                key :'$ref', :Message
+              end
+            end
+          end
+        end
+
         swagger_path '/v0/messaging/health/messages/categories' do
           operation :get do
             key :description, 'Gets a list of message categories'
@@ -48,7 +75,7 @@ module Swagger
             key :tags, %w(messages)
 
             response 200 do
-              key :description, 'message categories response'
+              key :description, 'create message categories response'
 
               schema do
                 key :'$ref', :Categories
@@ -110,7 +137,7 @@ module Swagger
             end
 
             response 201 do
-              key :description, 'message reply no attachments response'
+              key :description, 'create message reply attachments response'
 
               schema do
                 key :'$ref', :Message
