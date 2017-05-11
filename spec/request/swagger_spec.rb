@@ -306,6 +306,12 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
               )
             end
           end
+
+          it 'supports deleting a message' do
+            VCR.use_cassette('sm_client/messages/deletes_the_message_with_id') do
+              expect(subject).to validate(:delete, '/v0/messaging/health/messages/{id}', 204, 'id' => '573052')
+            end
+          end
         end
       end
     end
