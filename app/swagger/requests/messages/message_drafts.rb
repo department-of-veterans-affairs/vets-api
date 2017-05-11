@@ -18,7 +18,7 @@ module Swagger
             end
 
             response 201 do
-              key :description, 'create reply message response'
+              key :description, 'create draft message response'
 
               schema do
                 key :'$ref', :Message
@@ -41,7 +41,7 @@ module Swagger
             end
 
             response 201 do
-              key :description, 'create reply message response'
+              key :description, 'create reply message draft response'
 
               schema do
                 key :'$ref', :Message
