@@ -16,4 +16,8 @@ class PrescriptionPreference < Common::Base
     raise Common::Exceptions::ValidationErrors, self unless valid?
     { email_address: email_address, rx_flag: rx_flag }
   end
+
+  def id
+    Digest::SHA256.hexdigest(instance_variable_get(:@original_attributes).to_json)
+  end
 end

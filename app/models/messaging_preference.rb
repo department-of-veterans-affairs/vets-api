@@ -27,4 +27,8 @@ class MessagingPreference < Common::Base
     raise Common::Exceptions::ValidationErrors, self unless valid?
     { email_address: email_address, notify_me: FREQUENCY_UPDATE_MAP.fetch(frequency) }
   end
+
+  def id
+    Digest::SHA256.hexdigest(instance_variable_get(:@original_attributes).to_json)
+  end
 end
