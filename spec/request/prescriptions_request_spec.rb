@@ -121,8 +121,10 @@ RSpec.describe 'prescriptions', type: :request do
       end
 
       expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body)['data']['id']).to eq('59623c5f11b874409315b05a254a7ace5f6a1b12a21334f7b3ceebe1f1854948')
-      expect(JSON.parse(response.body)['data']['attributes']).to eq({'email_address'=>'kamyar.karshenas@va.gov', 'rx_flag'=>false})
+      expect(JSON.parse(response.body)['data']['id'])
+        .to eq('59623c5f11b874409315b05a254a7ace5f6a1b12a21334f7b3ceebe1f1854948')
+      expect(JSON.parse(response.body)['data']['attributes'])
+        .to eq('email_address' => 'kamyar.karshenas@va.gov', 'rx_flag' => false)
     end
 
     it 'requires all parameters for update' do

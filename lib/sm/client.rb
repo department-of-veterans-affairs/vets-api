@@ -36,7 +36,7 @@ module SM
       get_preferences
     # In case MHV wants to enforce additional validations on email address
     rescue Common::Exceptions::BackendServiceException => e
-      if e.detail == "Invalid Email Address"
+      if e.detail == 'Invalid Email Address'
         raise Common::Exceptions::InvalidFieldValue.new('email_address', params[:email_address])
       else
         raise e

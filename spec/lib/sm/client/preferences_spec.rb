@@ -39,7 +39,7 @@ describe 'sm client' do
     end
 
     it 'does not change anything if email address is invalid', :vcr do
-      expect{ client.post_preferences(email_address: 'invalid', frequency: 'none') }
+      expect { client.post_preferences(email_address: 'invalid', frequency: 'none') }
         .to raise_error(Common::Exceptions::ValidationErrors)
     end
   end
