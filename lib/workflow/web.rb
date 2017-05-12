@@ -4,7 +4,7 @@ module Workflow
     def self.add_to_sidekiq
       Sidekiq::Web.register(self)
       Sidekiq::Web.tabs['workflows'] = 'workflows'
-      Sidekiq::Web.locales << File.expand_path('lib/workflow/locales')
+      Sidekiq::Web.locales << ::File.expand_path('lib/workflow/locales')
     end
 
     def self.registered(app)
@@ -13,7 +13,7 @@ module Workflow
           job.queue == Runner::QUEUE
         end
 
-        erb(File.read('app/views/sidekiq/workflows.erb'))
+        erb(::File.read('app/views/sidekiq/workflows.erb'))
       end
     end
   end
