@@ -129,7 +129,7 @@ RSpec.describe 'prescriptions', type: :request do
         put '/v0/prescriptions/preferences', params
       end
 
-      expect(response).to have_http_status(:bad_request)
+      expect(response).to have_http_status(:unprocessable_entity)
     end
   end
 end

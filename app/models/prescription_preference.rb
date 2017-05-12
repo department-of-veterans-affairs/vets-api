@@ -8,7 +8,12 @@ class PrescriptionPreference < Common::Base
   attribute :rx_flag, Boolean
 
   # Always validate that rx_flag is provided
-  validates :rx_flag, presence: true, inclusion: { in: [true, false] }
+  validates :rx_flag, inclusion: { in: [true, false] }
   # Always require valid email address
   validates :email_address, presence: true, format: { with: /.+@.+\..+/i }
+
+  def mhv_params
+    raise Common::Exceptions::ValidationErrors, self unless valid?
+    { email_address: email_address, rx_flag: rx_flag }
+  end
 end

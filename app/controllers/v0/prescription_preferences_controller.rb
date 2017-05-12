@@ -8,16 +8,8 @@ module V0
     end
 
     def update
-      require_params
       client.post_preferences(params)
       render nothing: true, status: :accepted
-    end
-
-    private
-
-    def require_params
-      params.require(:email_address)
-      params.require(:rx_flag)
     end
   end
 end
