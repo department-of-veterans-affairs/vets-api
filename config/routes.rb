@@ -1,5 +1,14 @@
 # frozen_string_literal: true
 require 'feature_flipper'
+
+module WorkflowSidekiq
+  def self.registered(app)
+    app.get '/workflows' do
+      erb File.read('app/views/sidekiq/workflow.erb')
+    end
+  end
+end
+
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
 
@@ -101,6 +110,10 @@ Rails.application.routes.draw do
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
     require 'sidekiq-scheduler/web'
+
+    Sidekiq::Web.register(WorkflowSidekiq)
+    Sidekiq::Web.tabs['workflows'] = 'workflows'
+
     mount Sidekiq::Web, at: '/sidekiq'
   end
 
