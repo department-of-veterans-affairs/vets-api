@@ -8,8 +8,9 @@ module V0
     end
 
     def update
-      client.post_preferences(params)
-      render nothing: true, status: :accepted
+      resource = client.post_preferences(params)
+      render json: resource,
+             serializer: PrescriptionPreferenceSerializer
     end
   end
 end

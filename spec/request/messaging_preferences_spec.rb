@@ -32,7 +32,9 @@ RSpec.describe 'messaging_preferences', type: :request do
       put '/v0/messaging/health/preferences', params
     end
 
-    expect(response).to have_http_status(202)
+    expect(response).to have_http_status(200)
+    expect(JSON.parse(response.body)['data']['id']).to eq('17126b0821ad0472ae11944e9861f82d6bdd17801433e200e6a760148a4866c3')
+    expect(JSON.parse(response.body)['data']['attributes']).to eq({'email_address'=>'kamyar.karshenas@va.gov', 'frequency'=>'none'})
   end
 
   it 'requires all parameters for update' do
