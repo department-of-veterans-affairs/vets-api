@@ -103,9 +103,7 @@ Rails.application.routes.draw do
     require 'sidekiq/web'
     require 'sidekiq-scheduler/web'
 
-    Sidekiq::Web.register(Workflow::Web)
-    Sidekiq::Web.tabs['workflows'] = 'workflows'
-    Sidekiq::Web.locales << File.expand_path('lib/workflow/locales')
+    Workflow::Web.add_to_sidekiq
 
     mount Sidekiq::Web, at: '/sidekiq'
   end
