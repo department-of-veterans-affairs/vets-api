@@ -4,7 +4,7 @@ require 'feature_flipper'
 module WorkflowSidekiq
   def self.registered(app)
     app.get '/workflows' do
-      erb File.read('app/views/sidekiq/workflow.erb')
+      erb File.read('app/views/sidekiq/workflows.erb')
     end
   end
 end
