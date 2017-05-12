@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'rails_helper'
 require 'sidekiq/web'
 
@@ -7,7 +8,7 @@ describe Workflow::Web do
   include Rack::Test::Methods
 
   before do
-    Sidekiq.redis {|c| c.flushdb }
+    Sidekiq.redis(&:flushdb)
   end
 
   def app
