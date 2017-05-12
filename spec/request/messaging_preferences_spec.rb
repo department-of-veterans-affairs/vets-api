@@ -41,7 +41,7 @@ RSpec.describe 'messaging_preferences', type: :request do
       put '/v0/messaging/health/preferences', params
     end
 
-    expect(response).to have_http_status(:bad_request)
+    expect(response).to have_http_status(:unprocessable_entity)
   end
 
   it 'rejects unknown frequency parameters' do
@@ -51,6 +51,6 @@ RSpec.describe 'messaging_preferences', type: :request do
       put '/v0/messaging/health/preferences', params
     end
 
-    expect(response).to have_http_status(:bad_request)
+    expect(response).to have_http_status(:unprocessable_entity)
   end
 end
