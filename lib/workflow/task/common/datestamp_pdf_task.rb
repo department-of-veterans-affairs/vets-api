@@ -3,7 +3,7 @@ module Workflow::Task::Common
   class DatestampPdfTask < Workflow::Task::ShrineFile::Base
     def run(settings)
       in_path = @file.download.path
-      FileUtils::mkdir_p Rails.root.join('tmp', 'pdfs')
+      FileUtils.mkdir_p Rails.root.join('tmp', 'pdfs')
       stamp_path = Rails.root.join('tmp', 'pdfs', "#{SecureRandom.uuid}.pdf")
       generate_stamp(stamp_path, settings[:text], settings[:x], settings[:y])
       out_path = stamp(in_path, stamp_path)
