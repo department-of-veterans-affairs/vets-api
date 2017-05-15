@@ -57,7 +57,6 @@ module Rx
     # Dont do this one in parallel since you want it to behave like a single atomic operation
     def post_preferences(params)
       mhv_params = PrescriptionPreference.new(params).mhv_params
-      binding.pry
       post_notification_email_address(mhv_params.slice(:email_address))
       post_rx_preference_flag(mhv_params.slice(:rx_flag))
       get_preferences

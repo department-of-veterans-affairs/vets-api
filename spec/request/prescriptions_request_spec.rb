@@ -137,7 +137,7 @@ RSpec.describe 'prescriptions', type: :request do
     end
 
     it 'returns a custom exception mapped from i18n when email length is too long' do
-      VCR.use_cassette('rx_client/preferences/raises_a_backend_service_exception_when_email_includes_spaces', record: :none) do
+      VCR.use_cassette('rx_client/preferences/raises_a_backend_service_exception_when_email_includes_spaces') do
         params = { email_address: 'kamyar karshenas@va.gov',
                    rx_flag: false }
         put '/v0/prescriptions/preferences', params

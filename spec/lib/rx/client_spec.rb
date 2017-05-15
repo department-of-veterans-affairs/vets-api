@@ -33,7 +33,7 @@ describe 'rx client' do
     end
 
     it 'raises a backend service exception when email includes spaces', :vcr do
-      expect {client.post_preferences(email_address: 'kamyar karshenas@va.gov', rx_flag: false)}
+      expect { client.post_preferences(email_address: 'kamyar karshenas@va.gov', rx_flag: false) }
         .to raise_error(Common::Exceptions::BackendServiceException)
     end
   end
