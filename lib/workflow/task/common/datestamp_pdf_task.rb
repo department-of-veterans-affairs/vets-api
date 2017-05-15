@@ -3,6 +3,7 @@ module Workflow::Task::Common
   class DatestampPdfTask < Workflow::Task::ShrineFile::Base
     def run(settings)
       in_path = @file.download.path
+      FileUtils::mkdir_p Rails.root.join('tmp', 'pdfs')
       stamp_path = Rails.root.join('tmp', 'pdfs', "#{SecureRandom.uuid}.pdf")
       generate_stamp(stamp_path, settings[:text], settings[:x], settings[:y])
       out_path = stamp(in_path, stamp_path)
@@ -33,7 +34,7 @@ module Workflow::Task::Common
       Rails.logger.error "Failed to datestamp PDF file: #{e.message}"
       raise
     ensure
-      File.delete(stamp_path) if File.exist? stamp_path
+      File.delete(stamp_path) if File.exist?(stamp_path)
     end
   end
 end
