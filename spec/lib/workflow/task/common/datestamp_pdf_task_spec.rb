@@ -57,6 +57,8 @@ RSpec.describe Workflow::Task::Common::DatestampPdfTask do
 
     after(:all) do
       File.delete(@file_path) if File.exist? @file_path
+      pdfs_dir = Rails.root.join('tmp', 'pdfs')
+      FileUtils.remove_dir(pdfs_dir) if File.exist?(pdfs_dir)
     end
   end
 end
