@@ -71,6 +71,13 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 Sidekiq::Logging.logger = nil
 
+require 'shrine/storage/memory'
+
+Shrine.storages = {
+  cache: Shrine::Storage::Memory.new,
+  store: Shrine::Storage::Memory.new
+}
+
 CarrierWave.root = "#{Rails.root}/spec/support/uploads/"
 
 RSpec.configure do |config|
