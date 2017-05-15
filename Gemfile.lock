@@ -106,6 +106,8 @@ GEM
     coderay (1.1.1)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
+    combine_pdf (0.2.36)
+      ruby-rc4 (>= 0.1.5)
     concurrent-ruby (1.0.5)
     config (1.4.0)
       activesupport (>= 3.0)
@@ -235,6 +237,7 @@ GEM
     ox (2.4.9)
     parser (2.3.1.2)
       ast (~> 2.2)
+    pdf-core (0.7.0)
     pdf-reader (2.0.0)
       Ascii85 (~> 1.0.0)
       afm (~> 0.2.1)
@@ -243,6 +246,9 @@ GEM
       ttfunk
     pg (0.19.0)
     powerpack (0.1.1)
+    prawn (2.2.2)
+      pdf-core (~> 0.7.0)
+      ttfunk (~> 1.5)
     pry (0.10.3)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -429,6 +435,7 @@ DEPENDENCIES
   carrierwave (~> 0.11)
   carrierwave-aws
   climate_control
+  combine_pdf
   config
   date_validator
   factory_girl_rails
@@ -458,6 +465,7 @@ DEPENDENCIES
   ox
   pdf-reader
   pg
+  prawn
   pry-nav
   puma (~> 2.16.0)
   rack-cors
