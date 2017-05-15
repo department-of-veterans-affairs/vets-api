@@ -44,7 +44,7 @@ module Rx
       perform(:post, "prescription/rxrefill/#{id}", nil, token_headers)
     end
 
-    # TODO: Might need error handling around this.
+    # TODO: Might need better error handling around this.
     def get_preferences
       response = {}
       config.parallel_connection.in_parallel do
@@ -54,13 +54,19 @@ module Rx
       PrescriptionPreference.new(response)
     end
 
-    # TODO: Might need error handling around this
+    # Dont do this one in parallel since you want it to behave like a single atomic operation
     def post_preferences(params)
-      config.parallel_connection.in_parallel do
-        post_notification_email_address(params.slice(:email_address))
-        post_rx_preference_flag(params.slice(:rx_flag))
-      end
+      mhv_params = PrescriptionPreference.new(params).mhv_params
+      post_notification_email_address(mhv_params.slice(:email_address))
+      post_rx_preference_flag(mhv_params.slice(:rx_flag))
       get_preferences
+      # In case MHV wants to enforce additional validations on email address
+    rescue Common::Exceptions::BackendServiceException => e
+      if e.detail == 'Invalid Email Address'
+        raise Common::Exceptions::InvalidFieldValue.new('email_address', params[:email_address])
+      else
+        raise e
+      end
     end
 
     private
