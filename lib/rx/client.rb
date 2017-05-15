@@ -3,6 +3,7 @@ require 'common/client/base'
 require 'common/client/concerns/mhv_session_based_client'
 require 'rx/configuration'
 require 'rx/client_session'
+require 'active_support/core_ext/hash/slice'
 
 module Rx
   # Core class responsible for api interface operations
@@ -41,6 +42,58 @@ module Rx
 
     def post_refill_rx(id)
       perform(:post, "prescription/rxrefill/#{id}", nil, token_headers)
+    end
+
+    # TODO: Might need better error handling around this.
+    def get_preferences
+      response = {}
+      config.parallel_connection.in_parallel do
+        response.merge!(get_notification_email_address)
+        response.merge!(rx_flag: get_rx_preference_flag[:flag])
+      end
+      PrescriptionPreference.new(response)
+    end
+
+    # Dont do this one in parallel since you want it to behave like a single atomic operation
+    def post_preferences(params)
+      mhv_params = PrescriptionPreference.new(params).mhv_params
+      post_notification_email_address(mhv_params.slice(:email_address))
+      post_rx_preference_flag(mhv_params.slice(:rx_flag))
+      get_preferences
+      # In case MHV wants to enforce additional validations on email address
+    rescue Common::Exceptions::BackendServiceException => e
+      if e.detail == 'Invalid Email Address'
+        raise Common::Exceptions::InvalidFieldValue.new('email_address', params[:email_address])
+      else
+        raise e
+      end
+    end
+
+    private
+
+    # NOTE: After June 17, MHV will roll out an improvement that collapses these
+    # into a single endpoint so that you do not need to make multiple distinct
+    # requests. They will keep these around for some time and eventually deprecate.
+
+    # Current Email Account that receives notifications
+    def get_notification_email_address
+      config.parallel_connection.get('preferences/email', nil, token_headers).body
+    end
+
+    # Current Rx preference setting
+    def get_rx_preference_flag
+      config.parallel_connection.get('preferences/rx', nil, token_headers).body
+    end
+
+    # Change Email Account that receives notifications
+    def post_notification_email_address(params)
+      config.parallel_connection.post('preferences/email', params, token_headers)
+    end
+
+    # Change Rx preference setting
+    def post_rx_preference_flag(params)
+      params = { flag: params[:rx_flag] }
+      config.parallel_connection.post('preferences/rx', params, token_headers)
     end
   end
 end

@@ -18,18 +18,26 @@ http_interactions:
     headers:
       Content-Type:
       - text/plain; charset=utf-8
+      Content-Length:
+      - '314'
+      Connection:
+      - keep-alive
       Server:
       - Microsoft-IIS/8.5
       X-Arcgis-Instance:
-      - MTSDS_Web_IN_1
+      - MTSDS_Web_IN_10
       X-Powered-By:
       - ASP.NET
       Access-Control-Allow-Origin:
       - "*"
       Date:
-      - Fri, 02 Dec 2016 00:24:47 GMT
-      Content-Length:
-      - '314'
+      - Fri, 21 Apr 2017 22:48:48 GMT
+      X-Cache:
+      - Miss from cloudfront
+      Via:
+      - 1.1 23200c8e198c63e37634260fcea1e52c.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - 8RvBT1jEo3s3chLjyYGDQCWJcSpA4RuWoOJAp3JVQ4I4c9ttfHw-rQ==
     body:
       encoding: UTF-8
       string: '{"error":{"code":400,"message":"Cannot perform query. Invalid query
@@ -38,5 +46,5 @@ http_interactions:
         at least three distinct points.","Unable to perform query. Please check your
         parameters."]}}'
     http_version: 
-  recorded_at: Fri, 02 Dec 2016 00:24:41 GMT
+  recorded_at: Fri, 21 Apr 2017 22:48:48 GMT
 recorded_with: VCR 3.0.3

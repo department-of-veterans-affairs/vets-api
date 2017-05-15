@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/session"
+    uri: "<MHV_HOST>/mhv-api/patient/v1/bluebutton/bbreport/txt"
     body:
       encoding: US-ASCII
       string: ''
@@ -13,31 +13,27 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Apptoken:
-      - "<MHV_SM_APP_TOKEN>"
-      Mhvcorrelationid:
-      - '10616687'
+      Token: "<SESSION_TOKEN>"
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 200
-      message: OK
+      code: 400
+      message: Bad Request
     headers:
       Server:
       - Apache-Coyote/1.1
-      Expires:
-      - Tue, 31 Jan 2017 22:30:45 GMT
-      Token: "<SESSION_TOKEN>"
-      X-Powered-By:
-      - Servlet/2.5 JSP/2.1
-      Content-Length:
-      - '0'
+      Cache-Control:
+      - no-cache
+      Content-Type:
+      - text/plain
+      Transfer-Encoding:
+      - chunked
       Date:
-      - Tue, 31 Jan 2017 21:30:45 GMT
+      - Tue, 31 Jan 2017 00:01:49 GMT
     body:
       encoding: UTF-8
-      string: ''
+      string: '{"errorCode":99,"developerMessage":"Index: 0, Size: 0","message":"Unknown application error occurred"}'
     http_version: 
-  recorded_at: Tue, 31 Jan 2017 21:30:45 GMT
+  recorded_at: Tue, 31 Jan 2017 00:01:49 GMT
 recorded_with: VCR 3.0.3

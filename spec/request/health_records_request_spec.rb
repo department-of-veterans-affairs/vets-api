@@ -3,7 +3,7 @@ require 'rails_helper'
 require 'bb/generate_report_request_form'
 require 'bb/client'
 
-RSpec.describe 'prescriptions', type: :request do
+RSpec.describe 'health records', type: :request do
   TOKEN = 'GkuX2OZ4dCE=48xrH6ObGXZ45ZAg70LBahi7CjswZe8SZGKMUVFIU88='
 
   def authenticated_client
@@ -77,7 +77,6 @@ RSpec.describe 'prescriptions', type: :request do
     expect(response).to be_success
     expect(response.headers['Content-Disposition'])
       .to eq('inline; filename=mhv_GPTESTKFIVE_20161229_0057.pdf')
-    expect(response.headers['Content-Transfer-Encoding']).to eq('binary')
     expect(response.headers['Content-Type']).to eq('application/pdf')
     expect(response.body).to be_a(String)
   end
@@ -90,8 +89,15 @@ RSpec.describe 'prescriptions', type: :request do
     expect(response).to be_success
     expect(response.headers['Content-Disposition'])
       .to eq('inline; filename=mhv_GPTESTKFIVE_20170130_1901.txt')
-    expect(response.headers['Content-Transfer-Encoding']).to eq('binary')
     expect(response.headers['Content-Type']).to eq('text/plain')
     expect(response.body).to be_a(String)
+  end
+
+  it 'handles an error response for a report request' do
+    VCR.use_cassette('bb_client/report_error_response') do
+      get '/v0/health_records', doc_type: 'txt'
+    end
+
+    expect(response).to have_http_status(503)
   end
 end
