@@ -23,15 +23,5 @@ module V0
 
       render nothing: true, status: :accepted
     end
-
-    def show
-      # doc_type will default to 'pdf' if any value, including nil is provided.
-      doc_type = params[:doc_type] == 'txt' ? 'txt' : 'pdf'
-      resource = client.get_download_report(doc_type)
-
-      send_data resource.body,
-                type: resource.response_headers['content-type'],
-                disposition: resource.response_headers['content-disposition']
-    end
   end
 end
