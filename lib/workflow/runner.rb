@@ -4,7 +4,7 @@ module Workflow
     QUEUE = 'tasker'
     attr_accessor :internal_options, :options, :current_step, :current_task
     include Sidekiq::Worker
-    sidekiq_options queue: QUEUE
+    sidekiq_options queue: QUEUE, backtrace: true
 
     def perform(task_index, data)
       data.deep_symbolize_keys!

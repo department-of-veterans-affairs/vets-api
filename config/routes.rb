@@ -102,6 +102,9 @@ Rails.application.routes.draw do
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
     require 'sidekiq-scheduler/web'
+
+    Workflow::Web.add_to_sidekiq
+
     mount Sidekiq::Web, at: '/sidekiq'
   end
 
