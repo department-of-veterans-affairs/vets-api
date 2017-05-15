@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/folder/1000/message/page/1/pageSize/250"
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/573059/read"
     body:
       encoding: US-ASCII
       string: ''
@@ -28,12 +28,12 @@ http_interactions:
       Content-Type:
       - application/json
       Content-Length:
-      - '68'
+      - '107'
       Date:
-      - Tue, 31 Jan 2017 21:17:02 GMT
+      - Tue, 31 Jan 2017 21:30:45 GMT
     body:
       encoding: UTF-8
-      string: '{"errorCode":115,"developerMessage":"","message":"Entity Not Found"}'
+      string: '{"errorCode":904,"developerMessage":"Severity[Error]:message.not.found;","message":"Message Service Error"}'
     http_version:
-  recorded_at: Tue, 31 Jan 2017 21:17:02 GMT
+  recorded_at: Tue, 31 Jan 2017 21:30:45 GMT
 recorded_with: VCR 3.0.3

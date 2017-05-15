@@ -229,14 +229,14 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           end
 
           # TODO: resolve 500 error that should be 400 error
-          # it 'supports folder messages index error in a folder' do
-          #   VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages_id_error') do
-          #     expect(subject).to validate(
-          #       :get,
-          #       '/v0/messaging/health/folders/{folder_id}/messages', 400, 'folder_id' => '1000'
-          #     )
-          #   end
-          # end
+          it 'supports folder messages index error in a folder' do
+            VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages_id_error') do
+              expect(subject).to validate(
+                :get,
+                '/v0/messaging/health/folders/{folder_id}/messages', 400, 'folder_id' => '1000'
+              )
+            end
+          end
         end
       end
 
