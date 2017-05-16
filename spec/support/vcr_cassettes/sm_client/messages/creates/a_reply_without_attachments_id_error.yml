@@ -1,11 +1,12 @@
 ---
 http_interactions:
 - request:
-    method: get
-    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/999999/read"
+    method: post
+    uri: "<MHV_SM_HOST>/mhv-sm-api/patient/v1/message/999999/reply"
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: '{"subject":"CI Run","category":"OTHER","recipientId":613586,"body":"Continuous
+        Integration"}'
     headers:
       Accept:
       - application/json
@@ -35,5 +36,5 @@ http_interactions:
       encoding: UTF-8
       string: '{"errorCode":904,"developerMessage":"Severity[Error]:message.not.found;","message":"Message Service Error"}'
     http_version:
-  recorded_at: Tue, 31 Jan 2017 21:30:45 GMT
+  recorded_at: Tue, 31 Jan 2017 21:30:51 GMT
 recorded_with: VCR 3.0.3
