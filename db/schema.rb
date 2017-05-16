@@ -11,11 +11,23 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170329210115) do
+ActiveRecord::Schema.define(version: 20170512162050) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
+
+  create_table "disability_claims", force: :cascade do |t|
+    t.integer  "evss_id",                            null: false
+    t.json     "data",                               null: false
+    t.datetime "created_at",                         null: false
+    t.datetime "updated_at",                         null: false
+    t.string   "user_uuid",                          null: false
+    t.json     "list_data",          default: {},    null: false
+    t.boolean  "requested_decision", default: false, null: false
+  end
+
+  add_index "disability_claims", ["user_uuid"], name: "index_disability_claims_on_user_uuid", using: :btree
 
   create_table "education_benefits_claims", force: :cascade do |t|
     t.datetime "submitted_at"
@@ -72,5 +84,22 @@ ActiveRecord::Schema.define(version: 20170329210115) do
 
   add_index "in_progress_forms", ["form_id"], name: "index_in_progress_forms_on_form_id", using: :btree
   add_index "in_progress_forms", ["user_uuid"], name: "index_in_progress_forms_on_user_uuid", using: :btree
+
+  create_table "terms_and_conditions", force: :cascade do |t|
+    t.string   "name"
+    t.string   "title"
+    t.text     "text"
+    t.string   "version"
+    t.boolean  "latest",     default: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "terms_and_conditions_acceptances", force: :cascade do |t|
+    t.string   "user_uuid"
+    t.integer  "terms_and_conditions_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
 end
