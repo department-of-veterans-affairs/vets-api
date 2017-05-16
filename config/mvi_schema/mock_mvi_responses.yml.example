@@ -729,7 +729,7 @@ find_candidate:
     mhv_ids: ['13492196']
     vba_corp_id: ~
     ssn: '666717635'
-  "666271152":
+  "666271151":
     birth_date: '19960710'
     edipi: ~
     family_name: 'GPKTESTNINE'
@@ -738,7 +738,7 @@ find_candidate:
     icn: ~
     mhv_ids: ['10894456']
     vba_corp_id: ~
-    ssn: '666271152'
+    ssn: '666271151'
   "666360333":
     birth_date: '19960710'
     edipi: ~

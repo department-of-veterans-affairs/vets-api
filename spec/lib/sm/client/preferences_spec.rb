@@ -28,14 +28,24 @@ describe 'sm client' do
     end
 
     it 'sets the email notification settings', :vcr do
-      client_response = client.post_preferences(email_address: 'kamyar.karshenas@va.gov', notify_me: 0)
+      client_response = client.post_preferences(email_address: 'kamyar.karshenas@va.gov', frequency: 'none')
       expect(client_response.email_address).to eq('kamyar.karshenas@va.gov')
       expect(client_response.frequency).to eq('none')
 
       # Change it back to original to make test idempotent
-      client_response = client.post_preferences(email_address: 'muazzam.khan@va.gov', notify_me: 2)
+      client_response = client.post_preferences(email_address: 'muazzam.khan@va.gov', frequency: 'daily')
       expect(client_response.email_address).to eq('muazzam.khan@va.gov')
       expect(client_response.frequency).to eq('daily')
+    end
+
+    it 'does not change anything if email address is invalid', :vcr do
+      expect { client.post_preferences(email_address: 'invalid', frequency: 'none') }
+        .to raise_error(Common::Exceptions::ValidationErrors)
+    end
+
+    it 'raises a backend service exception when email includes spaces', :vcr do
+      expect { client.post_preferences(email_address: 'kamyar karshenas@va.gov', frequency: 'none') }
+        .to raise_error(Common::Exceptions::BackendServiceException)
     end
   end
 end
