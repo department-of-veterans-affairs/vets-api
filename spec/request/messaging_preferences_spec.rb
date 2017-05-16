@@ -58,7 +58,7 @@ RSpec.describe 'messaging_preferences', type: :request do
     expect(response).to have_http_status(:unprocessable_entity)
   end
 
-  it 'returns a custom exception mapped from i18n when email length is too long' do
+  it 'returns a custom exception mapped from i18n when email contains spaces' do
     VCR.use_cassette('sm_client/preferences/raises_a_backend_service_exception_when_email_includes_spaces') do
       params = { email_address: 'kamyar karshenas@va.gov',
                  frequency: 'daily' }
