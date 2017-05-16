@@ -14,7 +14,7 @@ en:
         source: ~
         meta: ~
 # INTERNAL EXCEPTIONS
-      validation_errors:
+      validation_errors: &validation_errors
         <<: *defaults
         title: Validation error
         code: 100
@@ -122,3 +122,11 @@ en:
         code: 'RX139'
         detail: 'Prescription is not refillable'
         status: 400
+      RX157:
+        <<: *validation_errors
+        code: 'RX157'
+        detail: 'Email address is invalid'
+      SM152:
+        <<: *validation_errors
+        code: 'SM152'
+        detail: 'Email address is invalid'
