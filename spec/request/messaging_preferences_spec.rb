@@ -57,4 +57,15 @@ RSpec.describe 'messaging_preferences', type: :request do
 
     expect(response).to have_http_status(:unprocessable_entity)
   end
+
+  it 'returns a custom exception mapped from i18n when email contains spaces' do
+    VCR.use_cassette('sm_client/preferences/raises_a_backend_service_exception_when_email_includes_spaces') do
+      params = { email_address: 'kamyar karshenas@va.gov',
+                 frequency: 'daily' }
+      put '/v0/messaging/health/preferences', params
+    end
+
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(JSON.parse(response.body)['errors'].first['code']).to eq('SM152')
+  end
 end
