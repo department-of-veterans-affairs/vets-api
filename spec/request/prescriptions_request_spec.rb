@@ -120,7 +120,11 @@ RSpec.describe 'prescriptions', type: :request do
         put '/v0/prescriptions/preferences', params
       end
 
-      expect(response).to have_http_status(202)
+      expect(response).to have_http_status(200)
+      expect(JSON.parse(response.body)['data']['id'])
+        .to eq('59623c5f11b874409315b05a254a7ace5f6a1b12a21334f7b3ceebe1f1854948')
+      expect(JSON.parse(response.body)['data']['attributes'])
+        .to eq('email_address' => 'kamyar.karshenas@va.gov', 'rx_flag' => false)
     end
 
     it 'requires all parameters for update' do
@@ -129,7 +133,18 @@ RSpec.describe 'prescriptions', type: :request do
         put '/v0/prescriptions/preferences', params
       end
 
-      expect(response).to have_http_status(:bad_request)
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it 'returns a custom exception mapped from i18n when email contains spaces' do
+      VCR.use_cassette('rx_client/preferences/raises_a_backend_service_exception_when_email_includes_spaces') do
+        params = { email_address: 'kamyar karshenas@va.gov',
+                   rx_flag: false }
+        put '/v0/prescriptions/preferences', params
+      end
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body)['errors'].first['code']).to eq('RX157')
     end
   end
 end
