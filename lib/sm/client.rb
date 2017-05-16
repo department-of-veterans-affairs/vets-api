@@ -31,8 +31,11 @@ module SM
 
     # Sets the email address and frequency for getting emails.
     def post_preferences(params)
-      perform(:post, 'preferences/notification', params, token_headers)
+      mhv_params = MessagingPreference.new(params).mhv_params
+      perform(:post, 'preferences/notification', mhv_params, token_headers)
       get_preferences
+      # NOTE: email_address might return an MHV error for any validations we have not handled, these will result
+      # in a mapped SM152 code in exceptions.en.yml
     end
 
     # Folders

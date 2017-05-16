@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'attr_encrypted'
 class EducationBenefitsClaim < ActiveRecord::Base
   FORM_SCHEMAS = IceNine.deep_freeze(
     lambda do

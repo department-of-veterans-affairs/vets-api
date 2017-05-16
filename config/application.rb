@@ -40,6 +40,7 @@ module VetsAPI
     config.watchable_dirs['lib'] = [:rb]
 
     config.autoload_paths << Rails.root.join('app')
+    config.autoload_paths << Rails.root.join('lib')
 
     # CORS configuration; see also cors_preflight route
     config.middleware.insert_before 0, 'Rack::Cors', logger: (-> { Rails.logger }) do
