@@ -8,11 +8,13 @@ class CreateTermsAndConditions < ActiveRecord::Migration
       t.boolean :latest, default: false
       t.timestamps
     end
+    add_index :terms_and_conditions, [:name, :latest]
 
-    create_table :terms_and_conditions_acceptances do |t|
+    create_table :terms_and_conditions_acceptances, id: false do |t|
       t.string :user_uuid
       t.references :terms_and_conditions
       t.timestamps
     end
+    add_index :terms_and_conditions_acceptances, [:user_uuid]
   end
 end

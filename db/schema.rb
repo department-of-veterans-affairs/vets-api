@@ -95,11 +95,15 @@ ActiveRecord::Schema.define(version: 20170512162050) do
     t.datetime "updated_at"
   end
 
-  create_table "terms_and_conditions_acceptances", force: :cascade do |t|
+  add_index "terms_and_conditions", ["name", "latest"], name: "index_terms_and_conditions_on_name_and_latest", using: :btree
+
+  create_table "terms_and_conditions_acceptances", id: false, force: :cascade do |t|
     t.string   "user_uuid"
     t.integer  "terms_and_conditions_id"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "terms_and_conditions_acceptances", ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid", using: :btree
 
 end
