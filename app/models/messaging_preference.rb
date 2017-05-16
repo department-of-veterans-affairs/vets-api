@@ -21,7 +21,7 @@ class MessagingPreference < Common::Base
   # Always require frequency to be included in array
   validates :frequency, presence: true, inclusion: { in: FREQUENCY_UPDATE_MAP.keys }
   # Always require valid email address
-  validates :email_address, presence: true, format: { with: /.+@.+\..+/i }
+  validates :email_address, presence: true, format: { with: /.+@.+\..+/i }, length: { maximum: 255, minimum: 6 }
 
   def mhv_params
     raise Common::Exceptions::ValidationErrors, self unless valid?
