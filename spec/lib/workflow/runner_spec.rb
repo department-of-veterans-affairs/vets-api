@@ -38,6 +38,10 @@ describe Workflow::Runner do
       expect { Workflow::Runner.perform_one }.to trigger_statsd_increment('api.workflow.test_task_a.success')
     end
 
+    it 'benchmarks the method and sends to statsd' do
+      expect { Workflow::Runner.perform_one }.to trigger_statsd_measure('api.workflow.test_task_a.timing', value: be_between(0, 1))
+    end
+
     context 'when run_task raises error' do
       before do
         allow_any_instance_of(Workflow::Runner).to receive(:run_task).and_raise('error')
