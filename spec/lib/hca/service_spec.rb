@@ -69,16 +69,16 @@ describe HCA::Service do
 
   describe '.options' do
     before(:each) do
-      stub_const('HCA::Configuration::SSL_CERT', cert)
-      stub_const('HCA::Configuration::SSL_KEY', key)
+      allow(HCA::Configuration.instance).to receive(:ssl_cert) { cert }
+      allow(HCA::Configuration.instance).to receive(:ssl_key) { key }
       stub_const('HCA::Configuration::CERT_STORE', store)
       stub_const('HCA::Configuration::ENDPOINT', nil)
     end
 
     context 'when there are no SSL options' do
       it 'should only return the wsdl' do
-        stub_const('HCA::Configuration::SSL_CERT', nil)
-        stub_const('HCA::Configuration::SSL_KEY', nil)
+        allow(HCA::Configuration.instance).to receive(:ssl_cert) { nil }
+        allow(HCA::Configuration.instance).to receive(:ssl_key) { nil }
         expect(HCA::Configuration.instance.ssl_options).to eq(
           verify: true,
           cert_store: store

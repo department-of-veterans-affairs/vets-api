@@ -6,13 +6,13 @@ describe MVI::Configuration do
   describe '.ssl_options' do
     context 'when there are no SSL options' do
       before do
-        stub_const('MVI::Configuration::SSL_CERT', nil)
-        stub_const('MVI::Configuration::SSL_KEY', nil)
+        allow(MVI::Configuration.instance).to receive(:ssl_cert) { nil }
+        allow(MVI::Configuration.instance).to receive(:ssl_key) { nil }
       end
 
       it 'should return nil' do
-        stub_const('MVI::Configuration::SSL_CERT', nil)
-        stub_const('MVI::Configuration::SSL_KEY', nil)
+        allow(MVI::Configuration.instance).to receive(:ssl_cert) { nil }
+        allow(MVI::Configuration.instance).to receive(:ssl_key) { nil }
         expect(MVI::Configuration.instance.ssl_options).to be_nil
       end
     end
@@ -21,8 +21,8 @@ describe MVI::Configuration do
       let(:key) { instance_double('OpenSSL::PKey::RSA') }
 
       before do
-        stub_const('MVI::Configuration::SSL_CERT', cert)
-        stub_const('MVI::Configuration::SSL_KEY', key)
+        allow(MVI::Configuration.instance).to receive(:ssl_cert) { cert }
+        allow(MVI::Configuration.instance).to receive(:ssl_key) { key }
       end
 
       it 'should return the wsdl, cert and key paths' do

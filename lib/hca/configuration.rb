@@ -21,24 +21,12 @@ module HCA
                    cert_store(Settings.hca.ca)
                  end
 
-    SSL_CERT = begin
-      OpenSSL::X509::Certificate.new(File.read(Settings.hca.cert_path))
-    rescue => e
-      # :nocov:
-      Rails.logger.warn "Could not load ES SSL cert: #{e.message}"
-      raise e if Rails.env.production?
-      nil
-      # :nocov:
+    def self.ssl_cert_path
+      Settings.hca.cert_path
     end
 
-    SSL_KEY = begin
-      OpenSSL::PKey::RSA.new(File.read(Settings.hca.key_path))
-    rescue => e
-      # :nocov:
-      Rails.logger.warn "Could not load ES SSL key: #{e.message}"
-      raise e if Rails.env.production?
-      nil
-      # :nocov:
+    def self.ssl_key_path
+      Settings.hca.key_path
     end
 
     def base_path
@@ -56,9 +44,9 @@ module HCA
       if HCA::Configuration::CERT_STORE
         ssl[:cert_store] = HCA::Configuration::CERT_STORE
       end
-      if HCA::Configuration::SSL_CERT && HCA::Configuration::SSL_KEY
-        ssl[:client_cert] = HCA::Configuration::SSL_CERT
-        ssl[:client_key] = HCA::Configuration::SSL_KEY
+      if ssl_cert && ssl_key
+        ssl[:client_cert] = ssl_cert
+        ssl[:client_key] = ssl_key
       end
       ssl
     end

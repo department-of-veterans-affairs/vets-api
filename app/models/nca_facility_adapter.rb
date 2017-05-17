@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 class NCAFacilityAdapter
   NCA_URL = +Settings.locators.nca
-  NCA_ID_FIELD = 'CEMETERY_I'
+  NCA_ID_FIELD = 'SITE_ID'
   FACILITY_TYPE = 'va_cemetery'
 
   def initialize

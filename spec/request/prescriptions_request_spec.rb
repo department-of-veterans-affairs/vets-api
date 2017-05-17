@@ -87,5 +87,64 @@ RSpec.describe 'prescriptions', type: :request do
       expect(response).to match_response_schema('trackings')
       expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
     end
+
+    it 'responds to GET #show of nested tracking resource with a shipment having no other prescriptions' do
+      VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_tracking_with_empty_other_prescriptions') do
+        get '/v0/prescriptions/13650541/trackings'
+      end
+
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      expect(response).to match_response_schema('trackings')
+      expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
+    end
+  end
+
+  context 'preferences' do
+    it 'responds to GET #show of preferences' do
+      VCR.use_cassette('rx_client/preferences/gets_rx_preferences') do
+        get '/v0/prescriptions/preferences'
+      end
+
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      attrs = JSON.parse(response.body)['data']['attributes']
+      expect(attrs['email_address']).to eq('Praneeth.Gaganapally@va.gov')
+      expect(attrs['rx_flag']).to be true
+    end
+
+    it 'responds to PUT #update of preferences' do
+      VCR.use_cassette('rx_client/preferences/sets_rx_preferences', record: :none) do
+        params = { email_address: 'kamyar.karshenas@va.gov',
+                   rx_flag: false }
+        put '/v0/prescriptions/preferences', params
+      end
+
+      expect(response).to have_http_status(200)
+      expect(JSON.parse(response.body)['data']['id'])
+        .to eq('59623c5f11b874409315b05a254a7ace5f6a1b12a21334f7b3ceebe1f1854948')
+      expect(JSON.parse(response.body)['data']['attributes'])
+        .to eq('email_address' => 'kamyar.karshenas@va.gov', 'rx_flag' => false)
+    end
+
+    it 'requires all parameters for update' do
+      VCR.use_cassette('rx_client/preferences/sets_rx_preferences', record: :none) do
+        params = { email_address: 'kamyar.karshenas@va.gov' }
+        put '/v0/prescriptions/preferences', params
+      end
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it 'returns a custom exception mapped from i18n when email contains spaces' do
+      VCR.use_cassette('rx_client/preferences/raises_a_backend_service_exception_when_email_includes_spaces') do
+        params = { email_address: 'kamyar karshenas@va.gov',
+                   rx_flag: false }
+        put '/v0/prescriptions/preferences', params
+      end
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body)['errors'].first['code']).to eq('RX157')
+    end
   end
 end

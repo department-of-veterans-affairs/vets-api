@@ -15,28 +15,15 @@ module MVI
     end
     # :nocov:
 
-    URL = Settings.mvi.url
     OPEN_TIMEOUT = Settings.mvi.open_timeout&.to_i || default_mvi_open_timeout
     TIMEOUT = Settings.mvi.timeout&.to_i || default_mvi_timeout
 
-    SSL_CERT = begin
-      OpenSSL::X509::Certificate.new(File.read(Settings.mvi.client_cert_path))
-    rescue => e
-      # :nocov:
-      Rails.logger.warn "Could not load MVI SSL cert: #{e.message}"
-      raise e if Rails.env.production?
-      nil
-      # :nocov:
+    def self.ssl_cert_path
+      Settings.mvi.client_cert_path
     end
 
-    SSL_KEY = begin
-      OpenSSL::PKey::RSA.new(File.read(Settings.mvi.client_key_path))
-    rescue => e
-      # :nocov:
-      Rails.logger.warn "Could not load MVI SSL key: #{e.message}"
-      raise e if Rails.env.production?
-      nil
-      # :nocov:
+    def self.ssl_key_path
+      Settings.mvi.client_key_path
     end
 
     def base_path
@@ -48,10 +35,10 @@ module MVI
     end
 
     def ssl_options
-      if MVI::Configuration::SSL_CERT && MVI::Configuration::SSL_KEY
+      if ssl_cert && ssl_key
         {
-          client_cert: MVI::Configuration::SSL_CERT,
-          client_key: MVI::Configuration::SSL_KEY
+          client_cert: ssl_cert,
+          client_key: ssl_key
         }
       end
     end
