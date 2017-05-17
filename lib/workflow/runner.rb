@@ -32,10 +32,10 @@ module Workflow
     private
 
     def run_task_with_stats
-      statsd_prefix = "#{STATS_KEY}#{current_task[:mod]}."
+      statsd_prefix = "#{STATS_KEY}#{current_task[:mod].underscore}."
 
       begin
-        StatsD.time("#{statsd_prefix}timing") { run_task }
+        StatsD.measure("#{statsd_prefix}timing") { run_task }
         StatsD.increment("#{statsd_prefix}success")
       rescue => e
         StatsD.increment("#{statsd_prefix}failure")

@@ -34,6 +34,22 @@ describe Workflow::Runner do
       expect($TaskCount).to eq(1)
     end
 
+    it 'increments statsd success' do
+      expect { Workflow::Runner.perform_one }.to trigger_statsd_increment('api.workflow.test_task_a.success')
+    end
+
+    context 'when run_task raises error' do
+      before do
+        allow_any_instance_of(Workflow::Runner).to receive(:run_task).and_raise('error')
+      end
+
+      it 'increments statds failure' do
+        expect do
+          Workflow::Runner.perform_one rescue nil
+        end.to trigger_statsd_increment('api.workflow.test_task_a.failure')
+      end
+    end
+
     it 'queues the following task if there are more' do
       expect(Workflow::Runner).to receive(:perform_async).with(1, anything)
       Workflow::Runner.perform_one
