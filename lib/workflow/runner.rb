@@ -2,6 +2,7 @@
 module Workflow
   class Runner
     QUEUE = 'tasker'
+    STATS_KEY = 'api.workflow.'
     attr_accessor :internal_options, :options, :current_step, :current_task
     include Sidekiq::Worker
     sidekiq_options queue: QUEUE
@@ -13,7 +14,7 @@ module Workflow
       @internal_options = data[:internal] || {}
       @current_task = chain[task_index]
       Sidekiq::Logging.with_context("trace=#{@internal_options[:trace]}") do
-        run_task
+        run_task_with_stats
         Runner.perform_async(next_step, metadata) if next_step
       end
     end
@@ -29,6 +30,18 @@ module Workflow
     end
 
     private
+
+    def run_task_with_stats
+      statsd_prefix = "#{STATS_KEY}#{current_task[:mod]}."
+
+      begin
+        StatsD.time("#{statsd_prefix}timing") { run_task }
+        StatsD.increment("#{statsd_prefix}success")
+      rescue => e
+        StatsD.increment("#{statsd_prefix}failure")
+        raise e
+      end
+    end
 
     def chain
       @internal_options[:chain]
