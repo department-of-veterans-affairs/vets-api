@@ -151,6 +151,104 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       expect(subject).to validate(:get, '/v0/user', 200, auth_options)
       expect(subject).to validate(:get, '/v0/user', 401)
     end
+
+    context 'terms and conditions routes' do
+      context 'with some terms and acceptances' do
+        let!(:terms) { create(:terms_and_conditions, latest: true) }
+        let!(:terms2) { create(:terms_and_conditions, latest: true) }
+        let!(:terms_acc) do
+          create(:terms_and_conditions_acceptance, user_uuid: mhv_user.uuid, terms_and_conditions: terms)
+        end
+
+        it 'validates the routes' do
+          expect(subject).to validate(
+            :get,
+            '/v0/terms_and_conditions',
+            200,
+            auth_options
+          )
+          expect(subject).to validate(
+            :get,
+            '/v0/terms_and_conditions/{name}/versions/latest',
+            200,
+            auth_options.merge('name' => terms.name)
+          )
+          expect(subject).to validate(
+            :get,
+            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
+            200,
+            auth_options.merge('name' => terms.name)
+          )
+          expect(subject).to validate(
+            :post,
+            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
+            422,
+            auth_options.merge('name' => terms.name)
+          )
+          expect(subject).to validate(
+            :post,
+            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
+            200,
+            auth_options.merge('name' => terms2.name)
+          )
+        end
+
+        it 'validates auth errors' do
+          expect(subject).to validate(
+            :get,
+            '/v0/terms_and_conditions',
+            401
+          )
+          expect(subject).to validate(
+            :get,
+            '/v0/terms_and_conditions/{name}/versions/latest',
+            401,
+            'name' => terms.name
+          )
+          expect(subject).to validate(
+            :get,
+            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
+            401,
+            'name' => terms.name
+          )
+          expect(subject).to validate(
+            :post,
+            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
+            401,
+            'name' => terms.name
+          )
+        end
+      end
+
+      context 'with no terms and acceptances' do
+        it 'validates the routes' do
+          expect(subject).to validate(
+            :get,
+            '/v0/terms_and_conditions',
+            200,
+            auth_options
+          )
+          expect(subject).to validate(
+            :get,
+            '/v0/terms_and_conditions/{name}/versions/latest',
+            404,
+            auth_options.merge('name' => 'blat')
+          )
+          expect(subject).to validate(
+            :get,
+            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
+            404,
+            auth_options.merge('name' => 'blat')
+          )
+          expect(subject).to validate(
+            :post,
+            '/v0/terms_and_conditions/{name}/versions/latest/user_data',
+            404,
+            auth_options.merge('name' => 'blat')
+          )
+        end
+      end
+    end
   end
 
   context 'and' do
