@@ -38,10 +38,10 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
 
   desc 'Build mock MVI yaml database for users in given CSV'
   task :mock_database, [:csvfile, :outfile] => [:environment] do |_, args|
-    fail "No input CSV provided" unless args[:csvfile]
+    raise 'No input CSV provided' unless args[:csvfile]
     outfile = args[:outfile] || 'mock_mvi_responses.yml.generated'
     mock = {}
-    csv = CSV.open(args[:csvfile], options = { headers: true })
+    csv = CSV.open(args[:csvfile], options: { headers: true })
     csv.each_with_index do |row, i|
       begin
         bd = DateTime.iso8601(row['birth_date']).strftime('%Y-%m-%d')
@@ -66,8 +66,8 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
       end
     end
     File.open(outfile, 'w') do |file|
-      file.write("# Generated at #{DateTime.now.to_s}\n")
-      file.write(YAML.dump({ 'find_candidate' => mock }))
+      file.write("# Generated at #{DateTime.now.utc}\n")
+      file.write(YAML.dump('find_candidate' => mock))
     end
   end
 end
