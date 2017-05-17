@@ -7,6 +7,8 @@ class TermsAndConditions < ActiveRecord::Base
 
   validates :name, presence: true
   validates :title, presence: true
-  validates :text, presence: true
+  validates :terms_content, presence: true
+  validates :yes_content, presence: true
+  validates :no_content, presence: true
   validates :version, presence: true
 end

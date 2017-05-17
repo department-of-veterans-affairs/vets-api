@@ -76,9 +76,13 @@ ActiveRecord::Schema.define(version: 20170512162050) do
   create_table "terms_and_conditions", force: :cascade do |t|
     t.string   "name"
     t.string   "title"
-    t.text     "text"
+    t.text     "terms_content"
+    t.text     "header_content"
+    t.string   "yes_content"
+    t.string   "no_content"
+    t.string   "footer_content"
     t.string   "version"
-    t.boolean  "latest",     default: false
+    t.boolean  "latest",         default: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end

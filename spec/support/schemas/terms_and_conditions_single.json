@@ -15,14 +15,25 @@
             "name",
             "version",
             "created_at",
-            "updated_at"],
+            "updated_at",
+            "header_content",
+            "terms_content",
+            "yes_content",
+            "no_content",
+            "footer_content",
+            "title"
+          ],
           "properties": {
             "name": { "type": "string" },
             "version": { "type": "string" },
             "created_at": { "type": "string", "format": "date" },
             "updated_at": { "type": "string", "format": "date" },
-            "text": { "type": ["string", null] },
-            "title": { "type": ["string", null] }
+            "header_content": { "type": "string" },
+            "terms_content": { "type": "string" },
+            "yes_content": { "type": "string" },
+            "no_content": { "type": "string" },
+            "footer_content": { "type": "string" },
+            "title": { "type": "string" }
           }
         }
       }

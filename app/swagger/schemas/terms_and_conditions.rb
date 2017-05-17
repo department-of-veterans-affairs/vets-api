@@ -29,7 +29,11 @@ module Swagger
         property :attributes, type: :object do
           property :name, type: :string
           property :title, type: :string
-          property :text, type: :string
+          property :header_content, type: :string
+          property :terms_content, type: :string
+          property :yes_content, type: :string
+          property :no_content, type: :string
+          property :footer_content, type: :string
           property :version, type: :string
           property :created_at, type: :string, format: :date
           property :updated_at, type: :string, format: :date
