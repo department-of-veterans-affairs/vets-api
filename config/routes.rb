@@ -95,6 +95,11 @@ Rails.application.routes.draw do
     end
 
     resources :apidocs, only: [:index]
+
+    get 'terms_and_conditions', to: 'terms_and_conditions#index'
+    get 'terms_and_conditions/:name/versions/latest', to: 'terms_and_conditions#latest'
+    get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
+    post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
   end
 
   root 'v0/example#index', module: 'v0'
