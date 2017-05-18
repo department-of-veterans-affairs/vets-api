@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 require 'backend_services'
+require 'common/client/concerns/service_status'
 
 class UserSerializer < ActiveModel::Serializer
-  attributes :services, :profile, :va_profile
+  include Common::Client::ServiceStatus
+
+  attributes :services, :profile, :va_profile, :veteran_status
 
   def id
     nil
@@ -24,13 +27,30 @@ class UserSerializer < ActiveModel::Serializer
 
   def va_profile
     status = object.va_profile_status
-    return { status: status } unless status == 'OK'
+    return { status: status } unless status == RESPONSE_STATUS[:ok]
     {
       status: status,
       birth_date: object.va_profile.birth_date,
       family_name: object.va_profile.family_name,
       gender: object.va_profile.gender,
       given_names: object.va_profile.given_names
+    }
+  end
+
+  def veteran_status
+    {
+      status: RESPONSE_STATUS[:ok],
+      is_veteran: object.veteran?
+    }
+  rescue VeteranStatus::RecordNotFound
+    {
+      status: RESPONSE_STATUS[:not_found],
+      is_veteran: nil
+    }
+  rescue StandardError
+    {
+      status: RESPONSE_STATUS[:server_error],
+      is_veteran: nil
     }
   end
 

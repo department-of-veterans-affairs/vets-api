@@ -7,6 +7,7 @@ RSpec.describe UserSerializer, type: :serializer do
   let(:attributes) { data['attributes'] }
   let(:profile) { attributes['profile'] }
   let(:va_profile) { attributes['va_profile'] }
+  let(:veteran_status) { attributes['veteran_status'] }
 
   subject { serialize(user, serializer_class: described_class) }
 
@@ -16,7 +17,7 @@ RSpec.describe UserSerializer, type: :serializer do
     expect(va_profile['ssn']).to be_nil
   end
 
-  context 'inside "profile"' do
+  describe '#profile' do
     # --- positive tests ---
     it 'should include email' do
       expect(profile['email']).to eq(user.email)
@@ -55,7 +56,7 @@ RSpec.describe UserSerializer, type: :serializer do
     end
   end
 
-  context 'inside "va_profile"' do
+  describe '#va_profile' do
     context 'when user.mvi is not nil' do
       it 'should include birth_date' do
         expect(va_profile['birth_date']).to eq(user.va_profile[:birth_date])
@@ -98,6 +99,46 @@ RSpec.describe UserSerializer, type: :serializer do
         expect(va_profile).to eq(
           'status' => 'NOT_FOUND'
         )
+      end
+    end
+  end
+
+  describe '#veteran_status' do
+    context 'when a veteran status is succesfully returned' do
+      it 'should include is_veteran' do
+        expect(veteran_status['is_veteran']).to eq(user.veteran?)
+      end
+
+      it 'should include status' do
+        expect(veteran_status['status']).to eq('OK')
+      end
+    end
+
+    context 'when a veteran status is not found' do
+      before(:each) do
+        allow_any_instance_of(VeteranStatus).to receive(:veteran?).and_raise(VeteranStatus::RecordNotFound)
+      end
+
+      it 'should include is_veteran' do
+        expect(veteran_status['is_veteran']).to be_nil
+      end
+
+      it 'should include status' do
+        expect(veteran_status['status']).to eq('NOT_FOUND')
+      end
+    end
+
+    context 'when a veteran status call returns an error' do
+      before(:each) do
+        allow_any_instance_of(VeteranStatus).to receive(:veteran?).and_raise(Common::Client::Errors::ClientError)
+      end
+
+      it 'should include is_veteran' do
+        expect(veteran_status['is_veteran']).to be_nil
+      end
+
+      it 'should include status' do
+        expect(veteran_status['status']).to eq('SERVER_ERROR')
       end
     end
   end

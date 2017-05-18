@@ -1,26 +1,20 @@
 # frozen_string_literal: true
 require_relative 'profile_parser'
 require 'common/models/redis_store'
+require 'common/client/concerns/service_status'
 
 module MVI
   module Responses
     # Cacheable response from MVI's find profile endpoint (prpa_in201306_uv02).
     class FindProfileResponse
       include Virtus.model(nullify_blank: true)
+      include Common::Client::ServiceStatus
 
       # @return [String] The status of the response
       attribute :status, String
 
       # @return [MviProfile] The parsed MVI profile
       attribute :profile, MviProfile
-
-      # MVI response status options
-      RESPONSE_STATUS = {
-        ok: 'OK',
-        not_found: 'NOT_FOUND',
-        server_error: 'SERVER_ERROR',
-        not_authorized: 'NOT_AUTHORIZED'
-      }.freeze
 
       # Builds a response with a server error status and a nil profile
       #

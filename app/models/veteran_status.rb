@@ -39,7 +39,10 @@ class VeteranStatus < Common::RedisStore
 
   def response_from_redis_or_service
     do_cached_with(key: @user.uuid) do
-      veteran_status_service.get_veteran_status(edipi: '1234567')
+      raise ArgumentError, 'could not make veteran status call, user has no edipi or icn' unless @user.edipi || @user.icn
+      options = {}
+      @user.edipi ? options[:edipi] = @user.edipi : options[:icn] = @user.icn
+      veteran_status_service.get_veteran_status(options)
     end
   end
 
