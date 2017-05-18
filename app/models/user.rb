@@ -89,6 +89,7 @@ class User < Common::RedisStore
   delegate :icn, to: :mvi
   delegate :mhv_correlation_id, to: :mvi
   delegate :participant_id, to: :mvi
+  delegate :veteran?, to: :veteran_status
 
   def va_profile
     mvi.profile
@@ -102,5 +103,9 @@ class User < Common::RedisStore
 
   def mvi
     @mvi ||= Mvi.for_user(self)
+  end
+
+  def veteran_status
+    @veteran_status ||= VeteranStatus.for_user(self)
   end
 end

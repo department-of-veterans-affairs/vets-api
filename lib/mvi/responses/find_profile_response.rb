@@ -7,9 +7,6 @@ module MVI
     # Cacheable response from MVI's find profile endpoint (prpa_in201306_uv02).
     class FindProfileResponse
       include Virtus.model(nullify_blank: true)
-      # redis_store REDIS_CONFIG['mvi_profile_response']['namespace']
-      # redis_ttl REDIS_CONFIG['mvi_profile_response']['each_ttl']
-      # redis_key :uuid
 
       # @return [String] The status of the response
       attribute :status, String

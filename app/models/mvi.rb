@@ -2,7 +2,7 @@
 require 'mvi/service_factory'
 require 'mvi/responses/find_profile_response'
 require 'common/models/redis_store'
-require 'common/models/cache_aside'
+require 'common/models/concerns/cache_aside'
 
 # Facade for MVI. User model delegates MVI correlation id and VA profile (golden record) methods to this class.
 # When a profile is requested from one of the delegates it is returned from either a cached response in Redis
@@ -16,7 +16,7 @@ class Mvi < Common::RedisStore
   attr_accessor :user
 
   # @return [MVI::Responses::FindProfileResponse] the response returned from MVI
-  attr_accessor :mvi_response
+  attr_accessor :response
 
   # Creates a new Mvi instance for a user.
   #
@@ -33,7 +33,7 @@ class Mvi < Common::RedisStore
   # @return [String] the status of the last MVI response
   def status
     return MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:not_authorized] unless @user.loa3?
-    mvi_response.status
+    response.status
   end
 
   # A DOD EDIPI (Electronic Data Interchange Personal Identifier) MVI correlation ID
@@ -76,13 +76,13 @@ class Mvi < Common::RedisStore
   # @return [MviProfile] patient 'golden record' data from MVI
   def profile
     return nil unless @user.loa3?
-    mvi_response&.profile
+    response&.profile
   end
 
   private
 
-  def mvi_response
-    @mvi_response ||= response_from_redis_or_service
+  def response
+    @response ||= response_from_redis_or_service
   end
 
   def response_from_redis_or_service
