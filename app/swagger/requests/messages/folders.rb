@@ -41,6 +41,15 @@ module Swagger
                 key :'$ref', :Messages
               end
             end
+
+            # TODO: resolve 500 error that should be 400 error
+            response 400 do
+              key :description, 'folder show messages response error'
+
+              schema do
+                key :'$ref', :Errors
+              end
+            end
           end
         end
 
@@ -53,10 +62,18 @@ module Swagger
             parameter name: :id, in: :path, required: true, type: :integer, description: 'id of the folder'
 
             response 200 do
-              key :description, 'folder messages response'
+              key :description, 'folder show response'
 
               schema do
                 key :'$ref', :Folder
+              end
+            end
+
+            response 400 do
+              key :description, 'folder show response error'
+
+              schema do
+                key :'$ref', :Errors
               end
             end
           end
@@ -95,6 +112,14 @@ module Swagger
 
             response 204 do
               key :description, 'delete folder response'
+            end
+
+            response 400 do
+              key :description, 'folder delete response error'
+
+              schema do
+                key :'$ref', :Errors
+              end
             end
           end
         end

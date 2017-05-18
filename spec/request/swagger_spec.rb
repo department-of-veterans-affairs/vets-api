@@ -214,6 +214,29 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             end
           end
         end
+
+        context 'unsuccessful calls' do
+          it 'supports folder error messages' do
+            VCR.use_cassette('sm_client/folders/gets_a_single_folder_id_error') do
+              expect(subject).to validate(:get, '/v0/messaging/health/folders/{id}', 400, 'id' => '1000')
+            end
+          end
+
+          it 'supports folder error messages' do
+            VCR.use_cassette('sm_client/folders/deletes_a_folder_id_error') do
+              expect(subject).to validate(:delete, '/v0/messaging/health/folders/{id}', 400, 'id' => '1000')
+            end
+          end
+
+          it 'supports folder messages index error in a folder' do
+            VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages_id_error') do
+              expect(subject).to validate(
+                :get,
+                '/v0/messaging/health/folders/{folder_id}/messages', 400, 'folder_id' => '1000'
+              )
+            end
+          end
+        end
       end
 
       describe 'messages' do
@@ -310,6 +333,72 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           it 'supports deleting a message' do
             VCR.use_cassette('sm_client/messages/deletes_the_message_with_id') do
               expect(subject).to validate(:delete, '/v0/messaging/health/messages/{id}', 204, 'id' => '573052')
+            end
+          end
+        end
+
+        context 'unsuccessful calls' do
+          it 'supports errors for list of all messages in a thread with invalid id' do
+            VCR.use_cassette('sm_client/messages/gets_a_message_thread_id_error') do
+              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}/thread', 400, 'id' => '999999')
+            end
+          end
+
+          it 'supports error message with invalid id' do
+            VCR.use_cassette('sm_client/messages/gets_a_message_with_id_error') do
+              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}', 400, 'id' => '999999')
+            end
+          end
+
+          it 'supports errors getting message attachments with invalid message id' do
+            VCR.use_cassette('sm_client/messages/nested_resources/gets_a_file_attachment_message_id_error') do
+              expect(subject).to validate(:get, '/v0/messaging/health/messages/{message_id}/attachments/{id}',
+                                          400, 'message_id' => '999999', 'id' => '629993')
+            end
+          end
+
+          it 'supports errors getting message attachments with invalid attachment id' do
+            VCR.use_cassette('sm_client/messages/nested_resources/gets_a_file_attachment_attachment_id_error') do
+              expect(subject).to validate(:get, '/v0/messaging/health/messages/{message_id}/attachments/{id}',
+                                          400, 'message_id' => '629999', 'id' => '999999')
+            end
+          end
+
+          it 'supports errors moving a message to another folder' do
+            VCR.use_cassette('sm_client/messages/moves_a_message_with_id_error') do
+              expect(subject).to validate(:patch, '/v0/messaging/health/messages/{id}/move',
+                                          400, 'id' => '999999', '_query_string' => 'folder_id=0')
+            end
+          end
+
+          it 'supports errors creating a message with no attachments' do
+            VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments_recipient_id_error') do
+              expect(subject).to validate(
+                :post, '/v0/messaging/health/messages', 400,
+                '_data' => { 'message' => {
+                  'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '1',
+                  'body' => 'Continuous Integration'
+                } }
+              )
+            end
+          end
+
+          it 'supports errors replying to a message with no attachments' do
+            VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments_id_error') do
+              expect(subject).to validate(
+                :post, '/v0/messaging/health/messages/{id}/reply', 400,
+                'id' => '999999',
+                '_data' => { 'message' => {
+                  'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
+                  'body' => 'Continuous Integration'
+                } }
+              )
+            end
+          end
+
+          it 'supports errors deleting a message' do
+            VCR.use_cassette('sm_client/messages/deletes_the_message_with_id_error') do
+              expect(subject).to validate(:delete, '/v0/messaging/health/messages/{id}', 400, 'id' => '999999')
             end
           end
         end

@@ -20,6 +20,14 @@ module Swagger
                 key :'$ref', :MessagesThread
               end
             end
+
+            response 400 do
+              key :description, 'message show error response'
+
+              schema do
+                key :'$ref', :Errors
+              end
+            end
           end
         end
 
@@ -36,6 +44,14 @@ module Swagger
 
               schema do
                 key :'$ref', :Message
+              end
+            end
+
+            response 400 do
+              key :description, 'message show error response'
+
+              schema do
+                key :'$ref', :Errors
               end
             end
           end
@@ -63,6 +79,13 @@ module Swagger
 
               schema do
                 key :'$ref', :Message
+              end
+            end
+
+            response 400 do
+              key :description, 'message creation error response'
+              schema do
+                key :'$ref', :Errors
               end
             end
           end
@@ -100,6 +123,13 @@ module Swagger
                 key :type, :file
               end
             end
+
+            response 400 do
+              key :description, 'message attachments error response'
+              schema do
+                key :'$ref', :Errors
+              end
+            end
           end
         end
 
@@ -114,6 +144,13 @@ module Swagger
 
             response 204 do
               key :description, 'message move response'
+            end
+
+            response 400 do
+              key :description, 'move message error response'
+              schema do
+                key :'$ref', :Errors
+              end
             end
           end
         end
@@ -143,6 +180,13 @@ module Swagger
                 key :'$ref', :Message
               end
             end
+
+            response 400 do
+              key :description, 'message reply error response'
+              schema do
+                key :'$ref', :Errors
+              end
+            end
           end
         end
 
@@ -156,6 +200,13 @@ module Swagger
 
             response 204 do
               key :description, 'delete message response'
+            end
+
+            response 400 do
+              key :description, 'message delete error response'
+              schema do
+                key :'$ref', :Errors
+              end
             end
           end
         end
