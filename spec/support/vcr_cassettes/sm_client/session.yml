@@ -27,17 +27,17 @@ http_interactions:
       Server:
       - Apache-Coyote/1.1
       Expires:
-      - Tue, 02 May 2017 08:10:24 GMT
+      - Fri, 12 May 2017 17:15:21 GMT
       Token: "<SESSION_TOKEN>"
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
       Content-Length:
       - '0'
       Date:
-      - Tue, 02 May 2017 07:10:23 GMT
+      - Fri, 12 May 2017 16:15:20 GMT
     body:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Tue, 02 May 2017 07:10:24 GMT
+  recorded_at: Fri, 12 May 2017 16:15:22 GMT
 recorded_with: VCR 3.0.3
