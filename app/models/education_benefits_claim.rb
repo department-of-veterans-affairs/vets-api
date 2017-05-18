@@ -16,12 +16,12 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   APPLICATION_TYPES = %w(
     chapter33
-    chapter30
+    chapter1607
     chapter1606
     chapter32
     chapter35
     transfer_of_entitlement
-    chapter1607
+    chapter30
   ).freeze
 
   validates(:form, :form_type, presence: true)
