@@ -141,5 +141,18 @@ RSpec.describe UserSerializer, type: :serializer do
         expect(veteran_status['status']).to eq('SERVER_ERROR')
       end
     end
+
+    context 'with a LOA1 user' do
+      let(:user) { build :loa1_user }
+      let(:serialized_user) { serialize(user, serializer_class: described_class) }
+      let(:expected) { JSON.parse(serialized_user) }
+
+      it 'returns va_profile as null' do
+        allow_any_instance_of(VeteranStatus).to receive(:veteran?).and_raise(VeteranStatus::NotAuthorized)
+        expect(expected['data']['attributes']['veteran_status']).to eq(
+          'status' => 'NOT_AUTHORIZED'
+        )
+      end
+    end
   end
 end

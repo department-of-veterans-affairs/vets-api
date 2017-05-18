@@ -42,16 +42,12 @@ class UserSerializer < ActiveModel::Serializer
       status: RESPONSE_STATUS[:ok],
       is_veteran: object.veteran?
     }
+  rescue VeteranStatus::NotAuthorized
+    { status: RESPONSE_STATUS[:not_authorized] }
   rescue VeteranStatus::RecordNotFound
-    {
-      status: RESPONSE_STATUS[:not_found],
-      is_veteran: nil
-    }
+    { status: RESPONSE_STATUS[:not_found] }
   rescue StandardError
-    {
-      status: RESPONSE_STATUS[:server_error],
-      is_veteran: nil
-    }
+    { status: RESPONSE_STATUS[:server_error] }
   end
 
   def services
