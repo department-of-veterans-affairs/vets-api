@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'mvi_profile'
+
 module MVI
   class MockService
     def mocked_responses

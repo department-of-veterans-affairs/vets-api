@@ -27,6 +27,10 @@ module V0
         key :name, 'in_progress_forms'
         key :description, 'In-progress form operations'
       end
+      tag do
+        key :name, 'terms_and_conditions'
+        key :description, 'Terms and conditions form operations'
+      end
 
       key :host, 'vets.gov'
       key :basePath, '/'
@@ -60,6 +64,7 @@ module V0
     SWAGGERED_CLASSES = [
       Swagger::Requests::InProgressForms,
       Swagger::Requests::Sessions,
+      Swagger::Requests::TermsAndConditions,
       Swagger::Requests::User,
       Swagger::Requests::EducationBenefitsClaims,
       Swagger::Requests::HealthCareApplications,
@@ -74,6 +79,7 @@ module V0
       Swagger::Schemas::Health::Meta,
       Swagger::Schemas::Health::Links,
       Swagger::Schemas::Errors,
+      Swagger::Schemas::TermsAndConditions,
       self
     ].freeze
 
