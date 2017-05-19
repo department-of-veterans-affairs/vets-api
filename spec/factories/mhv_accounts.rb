@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :mhv_account do
     user_uuid { SecureRandom.uuid }
-    account_state 'unknown'
+    account_state 'needs terms acceptance'
     registered_at nil
     upgraded_at nil
 
