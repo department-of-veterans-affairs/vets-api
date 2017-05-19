@@ -18,7 +18,7 @@ module MHVAC
     end
 
     def service_name
-      'MHVAC'
+      'MHVAcctCreation'
     end
 
     def connection
