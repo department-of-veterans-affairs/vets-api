@@ -42,7 +42,6 @@ module Swagger
               end
             end
 
-            # TODO: resolve 500 error that should be 400 error
             response 400 do
               key :description, 'folder show messages response error'
 
