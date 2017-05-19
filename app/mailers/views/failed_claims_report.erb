@@ -1,0 +1,16 @@
+<table>
+  <tr>
+    <th>File path</th>
+    <th>Meta data</th>
+  </tr>
+  <% @failed_uploads.each do |failed_upload| %>
+    <tr>
+      <td>
+        <%=  ERB::Util.html_escape(failed_upload[:file_path]) %>
+      </td>
+      <td>
+        <%=  ERB::Util.html_escape(failed_upload[:document_hash].to_json) %>
+      </td>
+    </tr>
+  <% end %>
+</table>

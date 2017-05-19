@@ -48,9 +48,10 @@ Rails.application.routes.draw do
       end
     end
 
-    resource :health_records, only: [:create, :show], defaults: { format: :json } do
+    resource :health_records, only: [:create], defaults: { format: :json } do
       get :refresh, to: 'health_records#refresh', on: :collection
       get :eligible_data_classes, to: 'health_records#eligible_data_classes', on: :collection
+      get :show, controller: 'health_record_contents', on: :collection
     end
 
     resources :appeals, only: [:index]
@@ -94,6 +95,11 @@ Rails.application.routes.draw do
     end
 
     resources :apidocs, only: [:index]
+
+    get 'terms_and_conditions', to: 'terms_and_conditions#index'
+    get 'terms_and_conditions/:name/versions/latest', to: 'terms_and_conditions#latest'
+    get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
+    post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
   end
 
   root 'v0/example#index', module: 'v0'
