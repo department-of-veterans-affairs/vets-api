@@ -9,6 +9,7 @@ module SpecBuilders
       describe "##{method}" do
         test_data.each do |test_datum|
           args = Array.wrap(test_datum[0])
+          args = [nil] if args == []
           return_val = test_datum[1]
 
           context "with an input of #{args.join(',')}" do

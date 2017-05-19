@@ -196,6 +196,10 @@ describe HCA::EnrollmentSystem do
       [
         '12345-123',
         { 'zipCode' => '12345', 'zipPlus4' => nil }
+      ],
+      [
+        nil,
+        {}
       ]
     ]
   )
