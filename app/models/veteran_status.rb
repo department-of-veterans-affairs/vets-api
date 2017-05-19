@@ -29,8 +29,8 @@ class VeteranStatus < Common::RedisStore
 
   def any_veteran_indicator?(item)
     item.post911_deployment_indicator == 'Y' ||
-    item.post911_combat_indicator == 'Y' ||
-    item.pre911_deployment_indicator == 'Y'
+      item.post911_combat_indicator == 'Y' ||
+      item.pre911_deployment_indicator == 'Y'
   end
 
   def emis_response
@@ -39,7 +39,9 @@ class VeteranStatus < Common::RedisStore
 
   def response_from_redis_or_service
     do_cached_with(key: @user.uuid) do
-      raise ArgumentError, 'could not make veteran status call, user has no edipi or icn' unless @user.edipi || @user.icn
+      unless @user.edipi || @user.icn
+        raise ArgumentError, 'could not make veteran status call, user has no edipi or icn'
+      end
       options = {}
       @user.edipi ? options[:edipi] = @user.edipi : options[:icn] = @user.icn
       veteran_status_service.get_veteran_status(options)

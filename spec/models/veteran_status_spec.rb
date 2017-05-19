@@ -2,7 +2,7 @@
 require 'rails_helper'
 require 'common/exceptions'
 
-describe VeteranStatus do
+describe VeteranStatus, skip_veteran_status: true do
   let(:user) { build :loa3_user }
   subject { VeteranStatus.for_user(user) }
 
