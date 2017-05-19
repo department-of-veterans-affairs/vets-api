@@ -1,39 +1,67 @@
 class MhvAccount < ActiveRecord::Base
   include AASM
 
-  has_many :terms_and_conditions_acceptances, foreign_key: :user_uuid, primary_key: :user_uuid
-  has_many :premium_account_terms, -> { where(terms_and_conditions: { latest: true, name: 'mhv_account_terms' }) },
-                                   through: :terms_and_conditions_acceptances,
-                                   source: :terms_and_conditions,
-                                   foreign_key: :user_uuid,
-                                   primary_key: :user_uuid
-
   # Everything except ineligible accounts should be able to transition to :needs_terms_acceptance
-  STATES_REQUIRING_TERMS_ACCEPTANCE = %i(unknown existing_account registered upgraded register_failed upgrade_failed).freeze
-  before_initialize :initialize_state
+  ALL_STATES = %i(unknown needs_terms_acceptance ineligible registered upgraded register_failed upgrade_failed)
+  after_initialize :setup
 
   aasm(:account_state) do
-    state :needs_terms_acceptance, initial: true
-    state :unknown, :ineligible, :registered, :upgraded, :register_failed, :upgrade_failed
+    state :unknown, initial: true
+    state :needs_terms_acceptance, :ineligible, :registered, :upgraded, :register_failed, :upgrade_failed
 
-    event :initialize_state do
-      transitions from: [:unknown, :existing_account], to: :ineligible, unless: :mhv_account_eligible?
-      transitions from: :unknown, to: :existing_account, if: :prexisting_account?
-      transitions from: STATES_REQUIRING_TERMS_ACCEPTANCE, to: :needs_terms_acceptance, unless: :terms_and_conditions_accepted?
+    event :check_eligibility do
+      transitions from: ALL_STATES, to: :ineligible, unless: :mhv_account_eligible?
+      transitions from: ALL_STATES, to: :upgraded, if: :previously_upgraded?
+      transitions from: ALL_STATES, to: :registered, if: :previously_registered?
+      transitions from: ALL_STATES, to: :unknown
     end
 
-    event :register do
+    event :check_terms_acceptance do
+      transitions from: ALL_STATES, to: :needs_terms_acceptance, unless: :terms_and_conditions_accepted?
+    end
+
+    event :registered do
       transitions from: [:unknown, :register_failed], to: :registered
     end
 
-    event :upgrade do
-      transitions from: [:registered, :existing_account, :upgrade_failed], to: :upgraded
+    event :upgraded do
+      transitions from: [:unknown, :registered, :upgrade_failed], to: :upgraded
     end
   end
 
   def create_and_upgrade!
-    create_mhv_account!
+    create_mhv_account! unless preexisting_account?
     upgrade_mhv_account!
+  end
+
+  def terms_and_conditions_accepted?
+    TermsAndConditionsAcceptance.joins(:terms_and_conditions)
+                                .where(terms_and_conditions: { latest: true, name: 'mhv_account_terms' })
+                                .where(user_uuid: user.uuid).exists?
+  end
+
+  private
+
+  def user
+    @user ||= User.find(user_uuid)
+  end
+
+  def va_patient?
+    # TODO: This needs to be changed to check if ICN is within a certain range.
+    user&.icn.present?
+  end
+
+  def mhv_account_eligible?
+    va_patient?
+  end
+
+  def preexisting_account?
+     user&.mhv_correlation_id.present?
+  end
+
+  def veteran?
+    # TODO: this field is derived from eMIS and might have pending ATO considerations for us to use it.
+    true
   end
 
   def create_mhv_account!
@@ -64,31 +92,17 @@ class MhvAccount < ActiveRecord::Base
     end
   end
 
-  def terms_and_conditions_accepted?
-    premium_account_terms.any?
+  def previously_upgraded?
+    mhv_account_eligible? && upgraded_at?
   end
 
-  private
-
-  def user
-    @user ||= User.find(user_uuid)
+  def previously_registered?
+    mhv_account_eligible? && registered_at?
   end
 
-  def va_patient?
-    # TODO: This needs to be changed to check if ICN is within a certain range.
-    user&.icn.present?
-  end
-
-  def mhv_account_eligible?
-    va_patient?
-  end
-
-  def prexisting_account?
-     user.mhv_correlation_id.present?
-  end
-
-  def veteran?
-    # TODO: this field is derived from eMIS and might have pending ATO considerations for us to use it.
-    true
+  def setup
+    raise StandardError, 'You must use find_or_initialize_by(user_uuid: #)' if user_uuid.nil?
+    check_eligibility
+    check_terms_acceptance if may_check_terms_acceptance? && !ineligible?
   end
 end
