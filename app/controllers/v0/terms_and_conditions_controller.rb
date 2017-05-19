@@ -24,8 +24,10 @@ module V0
     end
 
     def latest_user_data
-      resource = TermsAndConditionsAcceptance.for_user(current_user).for_terms(params[:name]).for_latest
-      raise Common::Exceptions::RecordNotFound, params[:name] unless resource.present?
+      terms = TermsAndConditions.where(name: params[:name]).latest
+      raise Common::Exceptions::RecordNotFound, params[:name] unless terms.present?
+      resource = terms.acceptances.for_user(current_user).first
+      raise Common::Exceptions::RecordNotFound, current_user.uuid unless resource.present?
       render(
         json: resource,
         serializer: TermsAndConditionsAcceptanceSerializer
