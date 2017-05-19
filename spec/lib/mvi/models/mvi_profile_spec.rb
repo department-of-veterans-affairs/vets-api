@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-describe MviProfile do
+describe MVI::Models::MviProfile do
   describe '#mhv_correlation_id' do
     context 'with multiple ids' do
       subject { build(:mvi_profile) }
