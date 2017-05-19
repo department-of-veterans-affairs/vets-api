@@ -16,7 +16,7 @@ class Mvi < Common::RedisStore
   attr_accessor :user
 
   # @return [MVI::Responses::FindProfileResponse] the response returned from MVI
-  attr_accessor :response
+  attr_accessor :mvi_response
 
   # Creates a new Mvi instance for a user.
   #
@@ -33,7 +33,7 @@ class Mvi < Common::RedisStore
   # @return [String] the status of the last MVI response
   def status
     return MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:not_authorized] unless @user.loa3?
-    response.status
+    mvi_response.status
   end
 
   # A DOD EDIPI (Electronic Data Interchange Personal Identifier) MVI correlation ID
@@ -76,13 +76,13 @@ class Mvi < Common::RedisStore
   # @return [MviProfile] patient 'golden record' data from MVI
   def profile
     return nil unless @user.loa3?
-    response&.profile
+    mvi_response&.profile
   end
 
   private
 
-  def response
-    @response ||= response_from_redis_or_service
+  def mvi_response
+    @mvi_response ||= response_from_redis_or_service
   end
 
   def response_from_redis_or_service
