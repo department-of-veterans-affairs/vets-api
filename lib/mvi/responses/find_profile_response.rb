@@ -14,7 +14,7 @@ module MVI
       attribute :status, String
 
       # @return [MviProfile] The parsed MVI profile
-      attribute :profile, MviProfile
+      attribute :profile, ::MviProfile
 
       # Builds a response with a server error status and a nil profile
       #
