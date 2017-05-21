@@ -14,7 +14,8 @@ module MHVAC
 
     validates :user_id, :terms_version, :form_signed_date_time, presence: true
 
-    def params
+    def mhv_params
+      raise Common::Exceptions::ValidationErrors, self unless valid?
       Hash[attribute_set.map do |attribute|
         value = send(attribute.name)
         [attribute.name, value] unless value.nil?

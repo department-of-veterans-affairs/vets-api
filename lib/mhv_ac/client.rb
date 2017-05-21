@@ -13,15 +13,13 @@ module MHVAC
     # Create an MHV account
     def post_register(params)
       form = MHVAC::RegistrationForm.new(params)
-      raise Common::Exceptions::ValidationErrors, form unless form.valid?
-      perform(:post, 'account/register', form.params, nonauth_headers).body
+      perform(:post, 'account/register', form.mhv_params, nonauth_headers).body
     end
 
     # Upgrade an MHV account
     def post_upgrade(params)
       form = MHVAC::UpgradeForm.new(params)
-      raise Common::Exceptions::ValidationErrors, form unless form.valid?
-      perform(:post, 'account/upgrade', form.params, nonauth_headers).body
+      perform(:post, 'account/upgrade', form.mhv_params, nonauth_headers).body
     end
 
     # These two lists (state and country) should be cached for any given day.
