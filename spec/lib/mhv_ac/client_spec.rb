@@ -18,6 +18,10 @@ describe 'mhv account creation' do
     expect(client_response).to be_a(Hash)
   end
 
+
+  let(:time) { Time.parse('Tue, 09 May 2017 00:00:00 GMT') }
+  let(:test_time_coercion) { [time, time.httpdate].sample }
+
   let(:user_params) do
     {
       icn: '1012667122V019349',
@@ -33,14 +37,14 @@ describe 'mhv account creation' do
       zip: '77040',
       sign_in_partners: 'VETS.GOV',
       email: 'vets.gov.user+0@gmail.com',
-      terms_accepted_date: 'Tue, 09 May 2017 00:00:00 GMT'
+      terms_accepted_date: test_time_coercion
     }
   end
 
   let(:upgrade_params) do
     {
       user_id: '14221465',
-      form_signed_date_time: 'Tue, 09 May 2017 00:00:00 GMT',
+      form_signed_date_time: test_time_coercion,
       terms_version: 'v3.4'
     }
   end

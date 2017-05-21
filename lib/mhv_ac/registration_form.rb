@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'common/models/form'
+require 'common/models/attribute_types/httpdate'
 
 module MHVAC
   class RegistrationForm < Common::Form
@@ -28,7 +29,7 @@ module MHVAC
     attribute :work_phone, String
     attribute :sign_in_partners, String, default: 'VETS.GOV'
     attribute :terms_version, String, default: 'v3.2'
-    attribute :terms_accepted_date, String
+    attribute :terms_accepted_date, Common::HTTPDate
 
     def params
       Hash[attribute_set.map do |attribute|
