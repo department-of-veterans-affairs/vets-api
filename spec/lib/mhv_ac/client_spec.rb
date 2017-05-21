@@ -18,8 +18,7 @@ describe 'mhv account creation' do
     expect(client_response).to be_a(Hash)
   end
 
-
-  let(:time) { Time.parse('Tue, 09 May 2017 00:00:00 GMT') }
+  let(:time) { Time.parse('Tue, 09 May 2017 00:00:00 GMT').utc }
   let(:test_time_coercion) { [time, time.httpdate].sample }
 
   let(:user_params) do
