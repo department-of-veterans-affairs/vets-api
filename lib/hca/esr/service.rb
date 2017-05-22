@@ -16,7 +16,10 @@ module HCA::ESR
     private
 
     def client
-      Savon.client(endpoint: config.base_path, wsdl: HCA::ESR::Configuration::WSDL, element_form_default: :unqualified, wsse_auth: config.wsse)
+      Savon.client(endpoint: config.base_path,
+                   wsdl: HCA::ESR::Configuration::WSDL,
+                   element_form_default: :unqualified,
+                   wsse_auth: config.wsse)
     end
   end
 end
