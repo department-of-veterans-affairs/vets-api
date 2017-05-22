@@ -124,7 +124,8 @@ RSpec.configure do |config|
 
   config.include StatsD::Instrument::Matchers
 
-  config.before(:each) do
+  config.before(:each) do |example|
+    stub_mvi unless example.metadata[:skip_mvi]
     Sidekiq::Worker.clear_all
   end
 
