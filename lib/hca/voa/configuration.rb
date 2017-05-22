@@ -8,7 +8,7 @@ module HCA::VOA
     WSDL = Rails.root.join('config', 'health_care_application', 'wsdl', 'voa.wsdl')
 
     def base_path
-      Settings.hca.voa.endpoint || Settings.hca.endpoint
+      Settings.hca.voa&.endpoint || Settings.hca.endpoint
     end
 
     def service_name

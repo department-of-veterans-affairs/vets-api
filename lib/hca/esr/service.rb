@@ -9,7 +9,7 @@ module HCA::ESR
 
     def get_form(icn: Settings.hca.ee.healthcheck_id)
       submission = client.build_request(:get_ee_summary, message:
-        { requestName: 'VOARequest', key: icn }) # ,
+        { requestName: 'VOARequest', key: icn })
       post_submission(submission)
     end
 

@@ -29,7 +29,7 @@ module HCA
     end
 
     def base_path
-      Settings.hca.voa.endpoint || Settings.hca.endpoint
+      Settings.hca.voa&.endpoint || Settings.hca.endpoint
     end
 
     def service_name
