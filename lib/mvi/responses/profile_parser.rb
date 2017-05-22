@@ -74,7 +74,7 @@ module MVI
       def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
         correlation_ids = map_correlation_ids(patient.locate('id'))
-        MviProfile.new(
+        MVI::Models::MviProfile.new(
           given_names: name[:given],
           family_name: name[:family],
           suffix: name[:suffix],
@@ -124,7 +124,7 @@ module MVI
         return nil unless el
         address_hash = el.nodes.map { |n| { n.value.snakecase.to_sym => n.nodes.first } }.reduce({}, :merge)
         address_hash[:street] = address_hash.delete :street_address_line
-        MviProfileAddress.new(address_hash)
+        MVI::Models::MviProfileAddress.new(address_hash)
       end
 
       def parse_phone(patient)
