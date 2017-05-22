@@ -1,14 +1,14 @@
 module PdfFill
   class HashConverter
-    def initialize(pdftk_keys, form_data)
-      @pdftk_keys = pdftk_keys
-      @form_data = form_data
+    ITERATOR = '%iterator%'
+
+    def initialize
       @pdftk_form = {}
     end
 
     def transform_data(
-      form_data: @form_data,
-      pdftk_keys: @pdftk_keys,
+      form_data: form_data,
+      pdftk_keys: pdftk_keys,
       i: nil
     )
       case form_data
