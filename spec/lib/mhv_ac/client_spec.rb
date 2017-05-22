@@ -24,6 +24,8 @@ describe 'mhv account creation' do
   let(:user_params) do
     {
       icn: '1012667122V019349',
+      is_veteran: true,
+      is_patient: true,
       first_name: 'Hector',
       last_name: 'Allen',
       ssn: '796126859',
