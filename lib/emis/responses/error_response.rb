@@ -9,6 +9,10 @@ module EMIS
       def initialize(error)
         @error = error
       end
+
+      def error?
+        true
+      end
     end
   end
 end
