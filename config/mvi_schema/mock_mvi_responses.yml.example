@@ -1,3 +1,4 @@
+# Generated at 2017-05-19T23:33:38+00:00
 ---
 find_candidate:
   '796126859':
@@ -25,7 +26,7 @@ find_candidate:
     :gender: M
     :birth_date: '19330405'
     :ssn: '796121200'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: DPO
       state: MI
       postal_code: '22312'
@@ -45,7 +46,7 @@ find_candidate:
     :gender: F
     :birth_date: '19591201'
     :ssn: '796127781'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: YEREVAN
       state: 
       postal_code: 
@@ -65,7 +66,7 @@ find_candidate:
     :gender: M
     :birth_date: '19800220'
     :ssn: '796143510'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: LORTON
       state: VA
       postal_code: '22079'
@@ -86,7 +87,7 @@ find_candidate:
     :gender: M
     :birth_date: '19620615'
     :ssn: '796292881'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: 
@@ -106,7 +107,7 @@ find_candidate:
     :gender: M
     :birth_date: '19490902'
     :ssn: '796241819'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: ANYTOWN
       state: AK
       postal_code: '12345'
@@ -127,7 +128,7 @@ find_candidate:
     :gender: M
     :birth_date: '19550817'
     :ssn: '796288429'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FAIRFAX
       state: VA
       postal_code: '22033'
@@ -147,7 +148,7 @@ find_candidate:
     :gender: M
     :birth_date: '19210804'
     :ssn: '796131210'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: MUMBAI
       state: 
       postal_code: 
@@ -167,7 +168,7 @@ find_candidate:
     :gender: M
     :birth_date: '19640705'
     :ssn: '796169727'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: HERNDON
       state: VA
       postal_code: '20171'
@@ -187,7 +188,7 @@ find_candidate:
     :gender: M
     :birth_date: '19751126'
     :ssn: '796186272'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: '31314'
@@ -207,7 +208,7 @@ find_candidate:
     :gender: M
     :birth_date: '19470925'
     :ssn: '796148937'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: RICHMOND
       state: VA
       postal_code: '23233'
@@ -227,7 +228,7 @@ find_candidate:
     :gender: M
     :birth_date: '19350615'
     :ssn: '796127023'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: DALLAS
       state: TX
       postal_code: '75243'
@@ -247,7 +248,7 @@ find_candidate:
     :gender: M
     :birth_date: '19871115'
     :ssn: '796121909'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: CHESAPEAKE
       state: VA
       postal_code: 23322-5326
@@ -267,7 +268,7 @@ find_candidate:
     :gender: M
     :birth_date: '19331027'
     :ssn: '796121086'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: ALEXANDRIA
       state: VA
       postal_code: '22309'
@@ -302,7 +303,7 @@ find_candidate:
     :gender: M
     :birth_date: '19821016'
     :ssn: '796121207'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: HOLLYWOOD
       state: CA
       postal_code: '90028'
@@ -352,7 +353,7 @@ find_candidate:
     :gender: F
     :birth_date: '19360907'
     :ssn: '796131753'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: CHESAPEAKE
       state: VA
       postal_code: '23320'
@@ -432,7 +433,7 @@ find_candidate:
     :gender: M
     :birth_date: '19650302'
     :ssn: '796122400'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FAIRFAX
       state: VA
       postal_code: '22033'
@@ -452,7 +453,7 @@ find_candidate:
     :gender: F
     :birth_date: '19670619'
     :ssn: '796130115'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: AUSTIN
       state: TX
       postal_code: '78741'
@@ -472,7 +473,7 @@ find_candidate:
     :gender: F
     :birth_date: '19381105'
     :ssn: '796126696'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: 
@@ -492,7 +493,7 @@ find_candidate:
     :gender: M
     :birth_date: '19241219'
     :ssn: '796126777'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: 
@@ -512,7 +513,7 @@ find_candidate:
     :gender: F
     :birth_date: '19380216'
     :ssn: '796126778'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: SAN ANTONIO
       state: TX
       postal_code: '78259'
@@ -532,7 +533,7 @@ find_candidate:
     :gender: M
     :birth_date: '19860506'
     :ssn: '796043735'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: VIENNA
       state: VA
       postal_code: '22182'
@@ -552,7 +553,7 @@ find_candidate:
     :gender: F
     :birth_date: '19450213'
     :ssn: '796376250'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: HARDINSBURG
       state: KY
       postal_code: '40143'
@@ -572,7 +573,7 @@ find_candidate:
     :gender: M
     :birth_date: '19760609'
     :ssn: '796330625'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: 
@@ -592,7 +593,7 @@ find_candidate:
     :gender: M
     :birth_date: '19600203'
     :ssn: '796296387'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: AUSTIN
       state: TX
       postal_code: '78704'
@@ -612,7 +613,7 @@ find_candidate:
     :gender: M
     :birth_date: '19720727'
     :ssn: '796141462'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: WICHITA
       state: KS
       postal_code: '67218'
@@ -648,7 +649,7 @@ find_candidate:
     :gender: M
     :birth_date: '19691105'
     :ssn: '796149080'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: JACKSONVILLE
       state: FL
       postal_code: '32207'
@@ -668,7 +669,7 @@ find_candidate:
     :gender: F
     :birth_date: '19840518'
     :ssn: '796140261'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: TERRELL HILLS
       state: TX
       postal_code: 78209-6015
@@ -688,7 +689,7 @@ find_candidate:
     :gender: M
     :birth_date: '19830221'
     :ssn: '796122369'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: LEESBURG
       state: VA
       postal_code: '20176'
@@ -708,7 +709,7 @@ find_candidate:
     :gender: M
     :birth_date: '19690623'
     :ssn: '796246997'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: MANILA
       state: 
       postal_code: 
@@ -728,7 +729,7 @@ find_candidate:
     :gender: M
     :birth_date: '19291216'
     :ssn: '796131287'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: ASHBURN
       state: VA
       postal_code: '20148'
@@ -763,7 +764,7 @@ find_candidate:
     :gender: F
     :birth_date: '19930719'
     :ssn: '796330166'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: HERNDON
       state: VA
       postal_code: '20171'
@@ -798,7 +799,7 @@ find_candidate:
     :gender: M
     :birth_date: '19410504'
     :ssn: '796127354'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: SAN ANTONIO
       state: TX
       postal_code: '78259'
@@ -818,7 +819,7 @@ find_candidate:
     :gender: M
     :birth_date: '19330804'
     :ssn: '796127094'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: 09021
@@ -838,7 +839,7 @@ find_candidate:
     :gender: M
     :birth_date: '19660926'
     :ssn: '796140438'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: HERNDON
       state: VA
       postal_code: '20171'
@@ -858,7 +859,7 @@ find_candidate:
     :gender: M
     :birth_date: '19460328'
     :ssn: '796127777'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: SAN ANTONIO
       state: TX
       postal_code: '78259'
@@ -877,7 +878,7 @@ find_candidate:
     :gender: M
     :birth_date: '19541215'
     :ssn: '796378881'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: PLANO
       state: TX
       postal_code: '75024'
@@ -897,7 +898,7 @@ find_candidate:
     :gender: M
     :birth_date: '19250409'
     :ssn: '796126751'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: 
@@ -917,7 +918,7 @@ find_candidate:
     :gender: F
     :birth_date: '19710420'
     :ssn: '796126752'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: 
@@ -936,7 +937,7 @@ find_candidate:
     :gender: M
     :birth_date: '19230730'
     :ssn: '796164129'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: SAN ANTONIO
       state: TX
       postal_code: '78259'
@@ -956,7 +957,7 @@ find_candidate:
     :gender: M
     :birth_date: '19810911'
     :ssn: '796143067'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: 
@@ -975,7 +976,7 @@ find_candidate:
     :gender: F
     :birth_date: '19551227'
     :ssn: '796184459'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FORT GORDON
       state: GA
       postal_code: '30905'
@@ -1011,7 +1012,7 @@ find_candidate:
     :gender: M
     :birth_date: '19410905'
     :ssn: '796164213'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: SAN ANTONIO
       state: TX
       postal_code: '78259'
@@ -1031,7 +1032,7 @@ find_candidate:
     :gender: F
     :birth_date: '19390705'
     :ssn: '796131730'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: HERNDON
       state: VA
       postal_code: '20171'
@@ -1051,7 +1052,7 @@ find_candidate:
     :gender: M
     :birth_date: '19370925'
     :ssn: '796131729'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: MARIETTA
       state: GA
       postal_code: '30062'
@@ -1086,7 +1087,7 @@ find_candidate:
     :gender: M
     :birth_date: '19611228'
     :ssn: '796156570'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FAIRFAX
       state: VA
       postal_code: '22031'
@@ -1121,7 +1122,7 @@ find_candidate:
     :gender: F
     :birth_date: '19520516'
     :ssn: '796122928'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FAIRFAX
       state: VA
       postal_code: '22031'
@@ -1171,7 +1172,7 @@ find_candidate:
     :gender: M
     :birth_date: '19511118'
     :ssn: '796378321'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: HARNED
       state: KY
       postal_code: '40144'
@@ -1191,7 +1192,7 @@ find_candidate:
     :gender: F
     :birth_date: '19580407'
     :ssn: '796136784'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: PENSACOLA
       state: FL
       postal_code: 32507-7960
@@ -1211,7 +1212,7 @@ find_candidate:
     :gender: F
     :birth_date: '19490506'
     :ssn: '796127677'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: WARNER SPRINGS
       state: CA
       postal_code: 92086-9300
@@ -1231,7 +1232,7 @@ find_candidate:
     :gender: F
     :birth_date: '19481009'
     :ssn: '796122307'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: ROLLINSFORD
       state: NH
       postal_code: 03869-5815
@@ -1251,7 +1252,7 @@ find_candidate:
     :gender: M
     :birth_date: '19490304'
     :ssn: '796122306'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: Washington
       state: DC
       postal_code: '20010'
@@ -1271,7 +1272,7 @@ find_candidate:
     :gender: M
     :birth_date: '19870327'
     :ssn: '796147571'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: PENSACOLA
       state: FL
       postal_code: '32514'
@@ -1291,7 +1292,7 @@ find_candidate:
     :gender: M
     :birth_date: '19441126'
     :ssn: '796127519'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: ALEXANDRIA
       state: 
       postal_code: 
@@ -1326,7 +1327,7 @@ find_candidate:
     :gender: F
     :birth_date: '19480827'
     :ssn: '796122059'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: '10000'
@@ -1346,7 +1347,7 @@ find_candidate:
     :gender: M
     :birth_date: '19481016'
     :ssn: '796122064'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: MANCHESTER
       state: NH
       postal_code: '03104'
@@ -1366,7 +1367,7 @@ find_candidate:
     :gender: M
     :birth_date: '19510710'
     :ssn: '796122633'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: CLEVELAND
       state: OH
       postal_code: '44102'
@@ -1386,7 +1387,7 @@ find_candidate:
     :gender: F
     :birth_date: '19920126'
     :ssn: '796295982'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: COLORADO SPRINGS
       state: CO
       postal_code: 80919-1315
@@ -1406,7 +1407,7 @@ find_candidate:
     :gender: M
     :birth_date: '19640525'
     :ssn: '796264319'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: Richmond
       state: VA
       postal_code: '23233'
@@ -1427,7 +1428,7 @@ find_candidate:
     :gender: M
     :birth_date: '19500423'
     :ssn: '796122667'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FAIRFAX
       state: VA
       postal_code: '22031'
@@ -1447,7 +1448,7 @@ find_candidate:
     :gender: M
     :birth_date: '19530215'
     :ssn: '796153447'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: 
@@ -1467,7 +1468,7 @@ find_candidate:
     :gender: F
     :birth_date: '19530628'
     :ssn: '796122671'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FAIRFAX
       state: DC
       postal_code: '31431'
@@ -1487,7 +1488,7 @@ find_candidate:
     :gender: M
     :birth_date: '19581118'
     :ssn: '796220951'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: CUMMING
       state: GA
       postal_code: '30028'
@@ -1507,7 +1508,7 @@ find_candidate:
     :gender: M
     :birth_date: '19481030'
     :ssn: '796378782'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FAIRFAX
       state: VA
       postal_code: '22032'
@@ -1527,7 +1528,7 @@ find_candidate:
     :gender: M
     :birth_date: '19480221'
     :ssn: '796127725'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: TAMPA
       state: FL
       postal_code: '33618'
@@ -1547,7 +1548,7 @@ find_candidate:
     :gender: M
     :birth_date: '19551120'
     :ssn: '796136639'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FAIRFAX
       state: VA
       postal_code: '22033'
@@ -1567,7 +1568,7 @@ find_candidate:
     :gender: F
     :birth_date: '19590201'
     :ssn: '796124704'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: PENSACOLA
       state: FL
       postal_code: '32514'
@@ -1587,7 +1588,7 @@ find_candidate:
     :gender: F
     :birth_date: '19500205'
     :ssn: '796122556'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: TAMPA
       state: FL
       postal_code: '33616'
@@ -1652,7 +1653,7 @@ find_candidate:
     :gender: M
     :birth_date: '19540912'
     :ssn: '796150063'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: DALLAS
       state: TX
       postal_code: 09084
@@ -1672,7 +1673,7 @@ find_candidate:
     :gender: M
     :birth_date: '19720108'
     :ssn: '796228919'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: LONG BEACH
       state: CA
       postal_code: 90807-5025
@@ -1707,7 +1708,7 @@ find_candidate:
     :gender: M
     :birth_date: '19690611'
     :ssn: '796321635'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: AUBREY
       state: TX
       postal_code: 76227-3502
@@ -1726,7 +1727,7 @@ find_candidate:
     :gender: F
     :birth_date: '19530329'
     :ssn: '796136776'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: NATICK
       state: MA
       postal_code: '01760'
@@ -1761,7 +1762,7 @@ find_candidate:
     :gender: M
     :birth_date: '19500114'
     :ssn: '796122472'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: 09157
@@ -1781,7 +1782,7 @@ find_candidate:
     :gender: M
     :birth_date: '19710912'
     :ssn: '796140489'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FLORENCE
       state: 
       postal_code: 
@@ -1816,7 +1817,7 @@ find_candidate:
     :gender: M
     :birth_date: '19370322'
     :ssn: '796127109'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: ALEXANDRIA
       state: VA
       postal_code: '12312'
@@ -1851,7 +1852,7 @@ find_candidate:
     :gender: M
     :birth_date: '19640304'
     :ssn: '796218467'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: SILVER SPRING
       state: MD
       postal_code: '20902'
@@ -1870,7 +1871,7 @@ find_candidate:
     :gender: M
     :birth_date: '19511125'
     :ssn: '796023006'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: Makati
       state: 
       postal_code: 
@@ -1890,7 +1891,7 @@ find_candidate:
     :gender: M
     :birth_date: '19550926'
     :ssn: '796002073'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: ELKRIDGE
       state: MD
       postal_code: 21075-5410
@@ -1910,7 +1911,7 @@ find_candidate:
     :gender: M
     :birth_date: '19711208'
     :ssn: '796231077'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: HERNDON
       state: VA
       postal_code: '20171'
@@ -1930,7 +1931,7 @@ find_candidate:
     :gender: M
     :birth_date: '19870531'
     :ssn: '796054487'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FAIRFAX
       state: VA
       postal_code: '22031'
@@ -1980,7 +1981,7 @@ find_candidate:
     :gender: F
     :birth_date: '19820802'
     :ssn: '796070441'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FAIRFAX
       state: VA
       postal_code: '22033'
@@ -2045,7 +2046,7 @@ find_candidate:
     :gender: M
     :birth_date: '19340407'
     :ssn: '796126978'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: Tampa
       state: FL
       postal_code: '33616'
@@ -2065,7 +2066,7 @@ find_candidate:
     :gender: M
     :birth_date: '19660404'
     :ssn: '796100762'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: MESA
       state: AZ
       postal_code: 85215-1627
@@ -2085,7 +2086,7 @@ find_candidate:
     :gender: M
     :birth_date: '19760116'
     :ssn: '796229088'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: NEW BERN
       state: NC
       postal_code: 28560-9458
@@ -2104,7 +2105,7 @@ find_candidate:
     :gender: F
     :birth_date: '19480219'
     :ssn: '796364561'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: SAN ANTONIO
       state: TX
       postal_code: '78259'
@@ -2139,7 +2140,7 @@ find_candidate:
     :gender: F
     :birth_date: '19640414'
     :ssn: '796109651'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: CLEARWATER
       state: FL
       postal_code: '33765'
@@ -2204,7 +2205,7 @@ find_candidate:
     :gender: M
     :birth_date: '19641215'
     :ssn: '796075896'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: 
@@ -2239,7 +2240,7 @@ find_candidate:
     :gender: F
     :birth_date: '19631214'
     :ssn: '796027583'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FAIRFAX
       state: VA
       postal_code: '22033'
@@ -2259,7 +2260,7 @@ find_candidate:
     :gender: M
     :birth_date: '19701105'
     :ssn: '796081854'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: TELI
       state: 
       postal_code: 
@@ -2279,7 +2280,7 @@ find_candidate:
     :gender: M
     :birth_date: '19590225'
     :ssn: '796013145'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: '28910'
@@ -2312,7 +2313,7 @@ find_candidate:
     :gender: M
     :birth_date: '19860228'
     :ssn: '796019724'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: NEW ORLEANS
       state: LA
       postal_code: '70130'
@@ -2332,7 +2333,7 @@ find_candidate:
     :gender: M
     :birth_date: '19480719'
     :ssn: '796029838'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: ORLANDO
       state: FL
       postal_code: '32987'
@@ -2352,7 +2353,7 @@ find_candidate:
     :gender: M
     :birth_date: '19471208'
     :ssn: '796059443'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: '12345'
@@ -2401,7 +2402,7 @@ find_candidate:
     :gender: F
     :birth_date: '19591210'
     :ssn: '796014042'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: '96306'
@@ -2421,7 +2422,7 @@ find_candidate:
     :gender: F
     :birth_date: '19911123'
     :ssn: '796089399'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: RESTON
       state: VA
       postal_code: '20189'
@@ -2441,7 +2442,7 @@ find_candidate:
     :gender: M
     :birth_date: '19781029'
     :ssn: '796049607'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: CROSS LANES
       state: WV
       postal_code: 25313-1340
@@ -2491,7 +2492,7 @@ find_candidate:
     :gender: F
     :birth_date: '19630629'
     :ssn: '796030711'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FAIRBURN
       state: GA
       postal_code: 30213-3317
@@ -2511,7 +2512,7 @@ find_candidate:
     :gender: F
     :birth_date: '19830629'
     :ssn: '796064374'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: AKRON
       state: CO
       postal_code: 80720-1219
@@ -2531,7 +2532,7 @@ find_candidate:
     :gender: F
     :birth_date: '19510206'
     :ssn: '796164120'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: 
@@ -2564,7 +2565,7 @@ find_candidate:
     :gender: F
     :birth_date: '19611222'
     :ssn: '796128750'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: BALTIMORE
       state: MD
       postal_code: '21211'
@@ -2613,7 +2614,7 @@ find_candidate:
     :gender: F
     :birth_date: '19910106'
     :ssn: '796045393'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: LEESBURG
       state: UT
       postal_code: '84404'
@@ -2633,7 +2634,7 @@ find_candidate:
     :gender: M
     :birth_date: '19701103'
     :ssn: '796030111'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: 
@@ -2653,7 +2654,7 @@ find_candidate:
     :gender: F
     :birth_date: '19920611'
     :ssn: '796075523'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: SYDNEY
       state: 
       postal_code: 
@@ -2673,7 +2674,7 @@ find_candidate:
     :gender: F
     :birth_date: '20010312'
     :ssn: '796041595'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: HONOLULU
       state: HI
       postal_code: 96818-3404
@@ -2707,7 +2708,7 @@ find_candidate:
     :gender: M
     :birth_date: '19920916'
     :ssn: '796107177'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FAIRFAX
       state: VA
       postal_code: '22031'
@@ -2727,7 +2728,7 @@ find_candidate:
     :gender: M
     :birth_date: '19871217'
     :ssn: '796007904'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: GREEN BAY
       state: WI
       postal_code: 54304-2741
@@ -2753,26 +2754,6 @@ find_candidate:
     :mhv_ids: []
     :edipi: '1099738673'
     :participant_id: 
-  '796083573':
-    :given_names:
-    - Dale
-    - P
-    :family_name: Soto
-    :suffix: Jr
-    :gender: M
-    :birth_date: '19320408'
-    :ssn: '796083573'
-    :address: !ruby/object:MviProfileAddress
-      city: HYDERABAD
-      state: 
-      postal_code: 
-      country: IND
-      street: 1243 ADAMS DR
-    :home_phone: 
-    :icn: 1012833451V763238
-    :mhv_ids: []
-    :edipi: '1010397690'
-    :participant_id: '600076495'
   '796053469':
     :given_names:
     - Ross
@@ -2797,12 +2778,12 @@ find_candidate:
     :gender: M
     :birth_date: '19460715'
     :ssn: '796038168'
-    :address: !ruby/object:MviProfileAddress
-      city: FAIRFAX
-      state: VA
-      postal_code: '22031'
+    :address: !ruby/object:MVI::Models::MviProfileAddress
+      city: Charleston
+      state: SC
+      postal_code: '29401'
       country: USA
-      street: 321 RALPH ROAD
+      street: 123 Main Street
     :home_phone: 
     :icn: 1012833438V267437
     :mhv_ids: []
@@ -2833,7 +2814,7 @@ find_candidate:
     :gender: M
     :birth_date: '19390820'
     :ssn: '796127242'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: 
@@ -2852,7 +2833,7 @@ find_candidate:
     :gender: M
     :birth_date: '19461215'
     :ssn: '796049726'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: VALDOSTA
       state: GA
       postal_code: 31605-7938
@@ -2872,7 +2853,7 @@ find_candidate:
     :gender: M
     :birth_date: '19671030'
     :ssn: '796068291'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FAIRFAX
       state: VA
       postal_code: '22031'
@@ -2922,7 +2903,7 @@ find_candidate:
     :gender: M
     :birth_date: '19381007'
     :ssn: '796127187'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: 
@@ -2972,7 +2953,7 @@ find_candidate:
     :gender: M
     :birth_date: '19490906'
     :ssn: '796122330'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: 
@@ -2992,7 +2973,7 @@ find_candidate:
     :gender: M
     :birth_date: '19680427'
     :ssn: '796199052'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: JACKSONVILLE
       state: FL
       postal_code: 32259-5465
@@ -3012,7 +2993,7 @@ find_candidate:
     :gender: F
     :birth_date: '19661105'
     :ssn: '796090317'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: 
       state: 
       postal_code: 
@@ -3032,7 +3013,7 @@ find_candidate:
     :gender: M
     :birth_date: '19680105'
     :ssn: '796246757'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: DHAKA
       state: 
       postal_code: 
@@ -3052,7 +3033,7 @@ find_candidate:
     :gender: M
     :birth_date: '19610902'
     :ssn: '796079018'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: HARNED
       state: KY
       postal_code: '80044'
@@ -3072,7 +3053,7 @@ find_candidate:
     :gender: M
     :birth_date: '19560710'
     :ssn: '796123607'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: WASHINGTON
       state: DC
       postal_code: '20142'
@@ -3092,7 +3073,7 @@ find_candidate:
     :gender: F
     :birth_date: '19910706'
     :ssn: '796123609'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: BELMONT
       state: ME
       postal_code: 04952-3207
@@ -3111,7 +3092,7 @@ find_candidate:
     :gender: M
     :birth_date: '19501004'
     :ssn: '796104437'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: PASADENA
       state: MD
       postal_code: '21122'
@@ -3131,7 +3112,7 @@ find_candidate:
     :gender: M
     :birth_date: '19500913'
     :ssn: '796128064'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: SEASIDE
       state: MT
       postal_code: '95102'
@@ -3151,7 +3132,7 @@ find_candidate:
     :gender: M
     :birth_date: '19290104'
     :ssn: '796161553'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FAIRFAX
       state: VA
       postal_code: '22033'
@@ -3201,7 +3182,7 @@ find_candidate:
     :gender: M
     :birth_date: '19700707'
     :ssn: '796151611'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: AUSTIN
       state: TX
       postal_code: '78727'
@@ -3221,7 +3202,7 @@ find_candidate:
     :gender: M
     :birth_date: '19591101'
     :ssn: '796017172'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: NASHVILLE
       state: TN
       postal_code: '33333'
@@ -3240,7 +3221,7 @@ find_candidate:
     :gender: M
     :birth_date: '19530824'
     :ssn: '796007416'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: ALUM CREEK
       state: WV
       postal_code: 25003-9120
@@ -3260,7 +3241,7 @@ find_candidate:
     :gender: F
     :birth_date: '19790713'
     :ssn: '796090608'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: CHANTILLY
       state: VA
       postal_code: '20151'
@@ -3280,7 +3261,7 @@ find_candidate:
     :gender: F
     :birth_date: '19590513'
     :ssn: '796023436'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: HARDINSBURG
       state: KY
       postal_code: '40143'
@@ -3300,7 +3281,7 @@ find_candidate:
     :gender: M
     :birth_date: '19650416'
     :ssn: '796081697'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: CENTREVILLE
       state: VA
       postal_code: '20121'
@@ -3320,7 +3301,7 @@ find_candidate:
     :gender: M
     :birth_date: '19730807'
     :ssn: '796105732'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: HATTIESBURG
       state: MS
       postal_code: '39401'
@@ -3340,7 +3321,7 @@ find_candidate:
     :gender: M
     :birth_date: '19690729'
     :ssn: '796113361'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FAIRFAX
       state: VA
       postal_code: 
@@ -3360,7 +3341,7 @@ find_candidate:
     :gender: M
     :birth_date: '19310818'
     :ssn: '796131482'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: HARPER
       state: MD
       postal_code: '22011'
@@ -3380,7 +3361,7 @@ find_candidate:
     :gender: M
     :birth_date: '19540108'
     :ssn: '796123102'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: ALEXANDRIA
       state: VA
       postal_code: '22311'
@@ -3400,7 +3381,7 @@ find_candidate:
     :gender: F
     :birth_date: '19560725'
     :ssn: '796123104'
-    :address: !ruby/object:MviProfileAddress
+    :address: !ruby/object:MVI::Models::MviProfileAddress
       city: ALEXANDRIA
       state: VA
       postal_code: '22302'

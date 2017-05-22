@@ -4,7 +4,7 @@ require 'common/exceptions'
 
 describe Mvi, skip_mvi: true do
   let(:user) { build(:loa3_user) }
-  let(:mvi) { Mvi.new(user) }
+  let(:mvi) { Mvi.for_user(user) }
   let(:mvi_profile) { build(:mvi_profile) }
   let(:profile_response) do
     MVI::Responses::FindProfileResponse.new(
@@ -26,7 +26,7 @@ describe Mvi, skip_mvi: true do
     context 'when the cache is empty' do
       it 'should cache and return the response' do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
-        expect(profile_response.redis_namespace).to receive(:set).once
+        expect(mvi.redis_namespace).to receive(:set).once
         expect_any_instance_of(MVI::Service).to receive(:find_profile).once
         expect(mvi.status).to eq('OK')
       end
@@ -34,7 +34,7 @@ describe Mvi, skip_mvi: true do
 
     context 'when there is cached data' do
       it 'returns the cached data' do
-        profile_response.cache_for_user(user)
+        mvi.cache(user.uuid, profile_response)
         expect_any_instance_of(MVI::Service).to_not receive(:find_profile)
         expect(mvi.profile).to have_deep_attributes(mvi_profile)
       end
