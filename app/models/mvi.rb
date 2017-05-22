@@ -1,11 +1,17 @@
 # frozen_string_literal: true
 require 'mvi/service_factory'
 require 'mvi/responses/find_profile_response'
+require 'common/models/redis_store'
+require 'common/models/concerns/cache_aside'
 
 # Facade for MVI. User model delegates MVI correlation id and VA profile (golden record) methods to this class.
 # When a profile is requested from one of the delegates it is returned from either a cached response in Redis
 # or from the MVI SOAP service.
-class Mvi
+class Mvi < Common::RedisStore
+  include Common::CacheAside
+
+  redis_config_key :mvi_profile_response
+
   # @return [User] the user to query MVI for.
   attr_accessor :user
 
@@ -16,8 +22,10 @@ class Mvi
   #
   # @param user [User] the user to query MVI for
   # @return [Mvi] an instance of this class
-  def initialize(user)
-    @user = user
+  def self.for_user(user)
+    mvi = Mvi.new
+    mvi.user = user
+    mvi
   end
 
   # The status of the last MVI response or not authorized for for users < LOA 3
@@ -65,7 +73,7 @@ class Mvi
 
   # The profile returned from the MVI service. Either returned from cached response in Redis or the MVI service.
   #
-  # @return [MviProfile] patient 'golden record' data from MVI
+  # @return [MVI::Models::MviProfile] patient 'golden record' data from MVI
   def profile
     return nil unless @user.loa3?
     mvi_response&.profile
@@ -78,13 +86,9 @@ class Mvi
   end
 
   def response_from_redis_or_service
-    MVI::Responses::FindProfileResponse.find(@user.uuid) || query_and_cache_response
-  end
-
-  def query_and_cache_response
-    response = mvi_service.find_profile(@user)
-    response.cache_for_user(@user) if response.ok?
-    response
+    do_cached_with(key: @user.uuid) do
+      mvi_service.find_profile(@user)
+    end
   end
 
   def mvi_service
