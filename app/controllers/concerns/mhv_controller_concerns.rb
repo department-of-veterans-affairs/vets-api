@@ -8,6 +8,10 @@ module MHVControllerConcerns
   end
 
   def authorize
+    # TODO: somwhere in here we would instead want to use MHVAccount to create, upgrade, or return error saying access denied.
+    # alternately, maybe this would be tied in to the user .can_access_mhv method.
+    # Also this needs to be environment specific, such that it does what we currently do for staging and production,
+    # but the new stuff for dev and local maybe (based on feature toggle.)
     current_user&.can_access_mhv? || raise_access_denied
   end
 

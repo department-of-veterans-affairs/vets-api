@@ -35,12 +35,45 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def terms_and_conditions_accepted?
-    TermsAndConditionsAcceptance.joins(:terms_and_conditions)
-                                .where(terms_and_conditions: { latest: true, name: 'mhv_account_terms' })
-                                .where(user_uuid: user.uuid).exists?
+    terms_and_conditions_accepted.present?
   end
 
   private
+  
+  def terms_and_conditions_accepted
+    @terms_and_conditions_accepted ||=
+      TermsAndConditionsAcceptance.joins(:terms_and_conditions)
+                                  .includes(:terms_and_conditions)
+                                  .where(terms_and_conditions: { latest: true, name: 'mhv_account_terms' })
+                                  .where(user_uuid: user.uuid).first
+  end
+
+  def params_for_registration
+    {
+      icn: user.icn,
+      is_patient: va_patient?,
+      is_veteran: veteran?,
+      address1: user.address.street,
+      city: user.address.city,
+      state: user.address.state,
+      zip: user.address.zip,
+      country: user.address.country,
+      province: user.address&.province,
+      email: user.email,
+      home_phone: user.home_phone,
+      sign_in_partners: 'VETS.GOV',
+      terms_version: terms_and_conditions_accepted.terms_and_conditions.version,
+      terms_accepted_date: terms_and_conditions_accepted.created_at
+    }
+  end
+
+  def params_for_upgrade
+    {
+      user_id: user.mhv_correlation_id,
+      form_signed_date_time: terms_and_conditions_accepted.created_at,
+      terms_version: terms_and_conditions_accepted.terms_and_conditions.version
+    }
+  end
 
   def user
     @user ||= User.find(user_uuid)
