@@ -1,8 +1,9 @@
+# frozen_string_literal: true
 class MhvAccount < ActiveRecord::Base
   include AASM
 
   # Everything except ineligible accounts should be able to transition to :needs_terms_acceptance
-  ALL_STATES = %i(unknown needs_terms_acceptance ineligible registered upgraded register_failed upgrade_failed)
+  ALL_STATES = %i(unknown needs_terms_acceptance ineligible registered upgraded register_failed upgrade_failed).freeze
   after_initialize :setup
 
   aasm(:account_state) do
@@ -39,13 +40,13 @@ class MhvAccount < ActiveRecord::Base
   end
 
   private
-  
+
   def terms_and_conditions_accepted
     @terms_and_conditions_accepted ||=
       TermsAndConditionsAcceptance.joins(:terms_and_conditions)
                                   .includes(:terms_and_conditions)
                                   .where(terms_and_conditions: { latest: true, name: 'mhv_account_terms' })
-                                  .where(user_uuid: user.uuid).first
+                                  .where(user_uuid: user.uuid).limit(1).first
   end
 
   def params_for_registration
@@ -89,7 +90,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def preexisting_account?
-     user&.mhv_correlation_id.present?
+    user&.mhv_correlation_id.present?
   end
 
   def veteran?
@@ -106,8 +107,6 @@ class MhvAccount < ActiveRecord::Base
       # else
       # account_state = 'register_failed'
       # save
-    else
-      # raise some error with current status
     end
   end
 
@@ -120,8 +119,6 @@ class MhvAccount < ActiveRecord::Base
       # else
       # account_state = 'upgrade_failed'
       # save
-    else
-      # raise some error with current status
     end
   end
 

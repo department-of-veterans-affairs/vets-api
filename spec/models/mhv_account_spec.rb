@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'rails_helper'
 
 RSpec.describe MhvAccount, type: :model do
@@ -11,30 +12,32 @@ RSpec.describe MhvAccount, type: :model do
 
     context 'check_eligibility' do
       context 'with terms accepted' do
-        let(:terms) { create(:terms_and_conditions, latest: true, name: 'mhv_account_terms' ) }
+        let(:terms) { create(:terms_and_conditions, latest: true, name: 'mhv_account_terms') }
         before(:each) { create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid) }
+
+        let(:base_attributes) { { user_uuid: user.uuid, account_state: 'needs_terms_acceptance' } }
 
         it 'is ineligible if not a va patient' do
           allow_any_instance_of(User).to receive(:icn).and_return(nil)
-          subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
+          subject = described_class.new(base_attributes)
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('ineligible')
         end
 
         it 'is able to transition back to upgraded' do
-          subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance', upgraded_at: Time.current)
+          subject = described_class.new(base_attributes.merge(upgraded_at: Time.current))
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('upgraded')
         end
 
         it 'is able to transition back to registered' do
-          subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance', registered_at: Time.current)
+          subject = described_class.new(base_attributes.merge(registered_at: Time.current))
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('registered')
         end
 
         it 'it falls back to unknown' do
-          subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
+          subject = described_class.new(base_attributes)
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('unknown')
         end
