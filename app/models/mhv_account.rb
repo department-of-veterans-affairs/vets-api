@@ -18,7 +18,7 @@ class MhvAccount < ActiveRecord::Base
     end
 
     event :check_terms_acceptance do
-      transitions from: ALL_STATES, to: :needs_terms_acceptance, unless: :terms_and_conditions_accepted?
+      transitions from: ALL_STATES - [:ineligible], to: :needs_terms_acceptance, unless: :terms_and_conditions_accepted?
     end
 
     event :registered do
@@ -133,6 +133,6 @@ class MhvAccount < ActiveRecord::Base
   def setup
     raise StandardError, 'You must use find_or_initialize_by(user_uuid: #)' if user_uuid.nil?
     check_eligibility
-    check_terms_acceptance if may_check_terms_acceptance? && !ineligible?
+    check_terms_acceptance if may_check_terms_acceptance?
   end
 end
