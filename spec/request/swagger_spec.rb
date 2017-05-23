@@ -24,12 +24,13 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
   let(:rubysaml_settings) { build(:rubysaml_settings) }
   let(:token) { 'lemmein' }
+  let(:mhv_account) { instance_double(MhvAccount, ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
   let(:mhv_user) { build :mhv_user }
 
   before do
     Session.create(uuid: mhv_user.uuid, token: token)
     User.create(mhv_user)
-
+    allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
   end
 
