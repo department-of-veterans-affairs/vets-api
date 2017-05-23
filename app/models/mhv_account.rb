@@ -75,7 +75,7 @@ class MhvAccount < ActiveRecord::Base
 
   def params_for_upgrade
     {
-      user_id: user.mhv_correlation_id || @new_mhv_correlation_id,
+      user_id: user.mhv_correlation_id,
       form_signed_date_time: terms_and_conditions_accepted.created_at,
       terms_version: terms_and_conditions_accepted.terms_and_conditions.version
     }
@@ -103,8 +103,8 @@ class MhvAccount < ActiveRecord::Base
     if may_register?
       client_response = mhv_ac_client.post_register(params_for_registration)
       if client_response[:api_completion_status] == 'Successful'
-        @new_mhv_correlation_id = client_response[:correlation_id]
-        # TODO: figure out how to bust and refresh the MVI cache
+        user.va_profile.mhv_ids = [client_response[:correlation_id].to_s]
+        user.instance_variable_get(:@mvi).save
         self.registered_at = Time.current
         register!
       end

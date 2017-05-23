@@ -121,6 +121,7 @@ RSpec.describe MhvAccount, type: :model do
       expect(subject.terms_and_conditions_accepted?).to be_truthy
       expect(subject.preexisting_account?).to be_falsey
       expect(subject.persisted?).to be_falsey
+      expect(user.mhv_correlation_id).to be_nil
       VCR.use_cassette('mhv_account_creation/creates_an_account') do
         VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
           subject.create_and_upgrade!
@@ -128,6 +129,7 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.account_state).to eq('upgraded')
           expect(subject.registered_at).to be_a(Time)
           expect(subject.upgraded_at).to be_a(Time)
+          expect(User.find(user.uuid).mhv_correlation_id).to eq('14221465')
         end
       end
     end
