@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module PdfFill
   class HashConverter
     ITERATOR = '%iterator%'
@@ -6,15 +7,20 @@ module PdfFill
       @pdftk_form = {}
     end
 
-    def transform_data(
-      form_data: form_data,
-      pdftk_keys: pdftk_keys,
-      i: nil
-    )
+    def set_value(k, v)
+      @pdftk_form[k] =
+        if [true, false].include?(v)
+          v ? 1 : 0
+        else
+          v.to_s
+        end
+    end
+
+    def transform_data(form_data:, pdftk_keys:, i: nil)
       case form_data
       when Array
-        form_data.each_with_index do |v, i|
-          transform_data(form_data: v, pdftk_keys: pdftk_keys, i: i + 1)
+        form_data.each_with_index do |v, idx|
+          transform_data(form_data: v, pdftk_keys: pdftk_keys, i: idx + 1)
         end
       when Hash
         form_data.each do |k, v|
@@ -26,12 +32,7 @@ module PdfFill
         end
       else
         pdftk_keys = pdftk_keys.gsub(ITERATOR, i.to_s) unless i.nil?
-
-        @pdftk_form[pdftk_keys] = if [true, false].include?(form_data)
-          form_data ? 1 : 0
-        else
-          form_data.to_s
-        end
+        set_value(pdftk_keys, form_data)
       end
 
       @pdftk_form

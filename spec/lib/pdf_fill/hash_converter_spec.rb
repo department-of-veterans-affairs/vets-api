@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'spec_helper'
 require 'pdf_fill/hash_converter'
 
@@ -17,16 +18,16 @@ describe PdfFill::HashConverter do
             nestedHash: {
               dutyType: 'title 32'
             }
-          },
+          }
         ],
         veteranFullName: 'bob bob',
         nestedHash: {
           nestedHash: {
             married: true
-          },
+          }
         },
         bankAccount: {
-          accountNumber: 34343434,
+          accountNumber: 34_343_434,
           checking: true
         }
       }
@@ -42,7 +43,7 @@ describe PdfFill::HashConverter do
         nestedHash: {
           nestedHash: {
             married: 'form1[0].#subform[1].CheckBoxYes6B[0]'
-          },
+          }
         },
         toursOfDuty: {
           discharge: "form1[0].#subform[1].EnterCharacterD#{PdfFill::HashConverter::ITERATOR}[0]",
@@ -54,10 +55,20 @@ describe PdfFill::HashConverter do
     end
 
     it 'should convert the hash correctly' do
-      binding.pry; fail
-      described_class.new.transform_data(
-        form_data: form_data,
-        pdftk_keys: pdftk_keys
+      expect(
+        described_class.new.transform_data(
+          form_data: form_data,
+          pdftk_keys: pdftk_keys
+        )
+      ).to eq(
+        'form1[0].#subform[1].EnterCharacterD1[0]' => 'honorable',
+        'form1[0].#subform[1].EnterTypeOfDutyE1[0]' => 'title 10',
+        'form1[0].#subform[1].EnterCharacterD2[0]' => 'medical',
+        'form1[0].#subform[1].EnterTypeOfDutyE2[0]' => 'title 32',
+        'form1[0].#subform[0].EnterNameOfApplicantFirstMiddleLast[0]' => 'bob bob',
+        'form1[0].#subform[1].CheckBoxYes6B[0]' => 1,
+        'form1[0].#subform[0].EnterACCOUNTNUMBER[0]' => '34343434',
+        'form1[0].#subform[0].CheckBoxChecking[0]' => 1
       )
     end
   end
