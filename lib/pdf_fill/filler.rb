@@ -15,15 +15,18 @@ module PdfFill
       form_mod = FORM_CLASSES[code]
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
+      file_path = "#{folder}/#{code}_#{Time.now}.pdf"
 
       PDF_FORMS.fill_form(
         "lib/pdf_fill/forms/pdfs/#{code}.pdf",
-        "#{folder}/#{code}-#{Time.now}.pdf",
+        file_path,
         HashConverter.new.transform_data(
           form_data: data,
           pdftk_keys: FORM_CLASSES[code]::KEY
         )
       )
+
+      file_path
     end
   end
 end
