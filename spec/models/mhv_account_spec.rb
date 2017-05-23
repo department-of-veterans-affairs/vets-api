@@ -2,14 +2,51 @@
 require 'rails_helper'
 
 RSpec.describe MhvAccount, type: :model do
+  let(:mvi_profile) do
+    build(:mvi_profile,
+          icn: '1012667122V019349',
+          given_names: %w(Hector),
+          family_name: 'Allen',
+          suffix: nil,
+          gender: 'M',
+          birth_date: '1932-02-05',
+          ssn: '796126859',
+          mhv_ids: mhv_ids,
+          home_phone: nil,
+          address: mvi_profile_address)
+  end
+
+  let(:mvi_profile_address) do
+    build(:mvi_profile_address,
+          street: '20140624',
+          city: 'Houston',
+          state: 'TX',
+          country: 'USA',
+          postal_code: '77040')
+  end
+
+  let(:user) do
+    create(:loa3_user,
+           ssn: mvi_profile.ssn,
+           first_name: mvi_profile.given_names.first,
+           last_name: mvi_profile.family_name,
+           gender: mvi_profile.gender,
+           birth_date: mvi_profile.birth_date,
+           email: 'vets.gov.user+0@gmail.com')
+  end
+
+  let(:mhv_ids) { [] }
+
+  before(:each) do
+    stub_mvi(mvi_profile)
+  end
+
   it 'must have a user_uuid when initialized' do
     expect { described_class.new }
       .to raise_error(StandardError, 'You must use find_or_initialize_by(user_uuid: #)')
   end
 
   describe 'event' do
-    let(:user) { create(:loa3_user) }
-
     context 'check_eligibility' do
       context 'with terms accepted' do
         let(:terms) { create(:terms_and_conditions, latest: true, name: 'mhv_account_terms') }
@@ -69,6 +106,67 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.account_state).to eq('needs_terms_acceptance')
         end
       end
+    end
+  end
+
+  describe 'account creation and upgrade' do
+    before(:each) do
+      terms = create(:terms_and_conditions, latest: true, name: 'mhv_account_terms')
+      create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid)
+    end
+
+    subject { described_class.new(user_uuid: user.uuid) }
+
+    it 'will create and upgrade an account' do
+      expect(subject.terms_and_conditions_accepted?).to be_truthy
+      expect(subject.preexisting_account?).to be_falsey
+      expect(subject.persisted?).to be_falsey
+      VCR.use_cassette('mhv_account_creation/creates_an_account') do
+        VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
+          subject.create_and_upgrade!
+          expect(subject.persisted?).to be_truthy
+          expect(subject.account_state).to eq('upgraded')
+          expect(subject.registered_at).to be_a(Time)
+          expect(subject.upgraded_at).to be_a(Time)
+        end
+      end
+    end
+
+    context 'existing account that has not been upgraded' do
+      let(:mhv_ids) { ['14221465'] }
+
+      it 'will only upgrade an account if no mhv_correlation_id exists' do
+        expect(subject.terms_and_conditions_accepted?).to be_truthy
+        expect(subject.preexisting_account?).to be_truthy
+        expect(subject.persisted?).to be_falsey
+        VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
+          subject.create_and_upgrade!
+          expect(subject.persisted?).to be_truthy
+          expect(subject.account_state).to eq('upgraded')
+          expect(subject.registered_at).to be_nil
+          expect(subject.upgraded_at).to be_a(Time)
+        end
+      end
+    end
+
+    context 'existing account that has already been upgraded' do
+      let(:mhv_ids) { ['14221465'] }
+
+      it 'will only upgrade an account if no mhv_correlation_id exists' do
+        expect(subject.terms_and_conditions_accepted?).to be_truthy
+        expect(subject.preexisting_account?).to be_truthy
+        expect(subject.persisted?).to be_falsey
+        VCR.use_cassette('mhv_account_creation/should_not_upgrade_an_account_if_one_already_exists') do
+          subject.create_and_upgrade!
+          expect(subject.persisted?).to be_truthy
+          expect(subject.account_state).to eq('upgraded')
+          expect(subject.registered_at).to be_nil
+          expect(subject.upgraded_at).to be_nil
+        end
+      end
+    end
+
+    it 'is not clear what should happen if a user has more than one mhv_correlation_id' do
     end
   end
 end

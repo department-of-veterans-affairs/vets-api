@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'mhv_ac/client'
 class MhvAccount < ActiveRecord::Base
   include AASM
 
@@ -21,11 +22,11 @@ class MhvAccount < ActiveRecord::Base
       transitions from: ALL_STATES - [:ineligible], to: :needs_terms_acceptance, unless: :terms_and_conditions_accepted?
     end
 
-    event :registered do
+    event :register do
       transitions from: [:unknown, :register_failed], to: :registered
     end
 
-    event :upgraded do
+    event :upgrade do
       transitions from: [:unknown, :registered, :upgrade_failed], to: :upgraded
     end
   end
@@ -37,6 +38,10 @@ class MhvAccount < ActiveRecord::Base
 
   def terms_and_conditions_accepted?
     terms_and_conditions_accepted.present?
+  end
+
+  def preexisting_account?
+    user&.mhv_correlation_id.present?
   end
 
   private
@@ -54,14 +59,14 @@ class MhvAccount < ActiveRecord::Base
       icn: user.icn,
       is_patient: va_patient?,
       is_veteran: veteran?,
-      address1: user.address.street,
-      city: user.address.city,
-      state: user.address.state,
-      zip: user.address.zip,
-      country: user.address.country,
-      province: user.address&.province,
+      address1: user.va_profile.address.street,
+      city: user.va_profile.address.city,
+      state: user.va_profile.address.state,
+      zip: user.va_profile.address.postal_code,
+      country: user.va_profile.address.country,
+      province: nil, # TODO: We need to determine if this is something that could actually happen (non USA)
       email: user.email,
-      home_phone: user.home_phone,
+      home_phone: user.va_profile.home_phone,
       sign_in_partners: 'VETS.GOV',
       terms_version: terms_and_conditions_accepted.terms_and_conditions.version,
       terms_accepted_date: terms_and_conditions_accepted.created_at
@@ -70,7 +75,7 @@ class MhvAccount < ActiveRecord::Base
 
   def params_for_upgrade
     {
-      user_id: user.mhv_correlation_id,
+      user_id: user.mhv_correlation_id || @new_mhv_correlation_id,
       form_signed_date_time: terms_and_conditions_accepted.created_at,
       terms_version: terms_and_conditions_accepted.terms_and_conditions.version
     }
@@ -80,17 +85,13 @@ class MhvAccount < ActiveRecord::Base
     @user ||= User.find(user_uuid)
   end
 
-  def va_patient?
-    # TODO: This needs to be changed to check if ICN is within a certain range.
-    user&.icn.present?
-  end
-
   def mhv_account_eligible?
     va_patient?
   end
 
-  def preexisting_account?
-    user&.mhv_correlation_id.present?
+  def va_patient?
+    # TODO: This needs to be changed to check if ICN is within a certain range.
+    user&.icn.present?
   end
 
   def veteran?
@@ -100,26 +101,37 @@ class MhvAccount < ActiveRecord::Base
 
   def create_mhv_account!
     if may_register?
-      # TODO: invoke client to register the account
-      # if success
-      # registered_at = Time.current
-      # register!
-      # else
-      # account_state = 'register_failed'
-      # save
+      client_response = mhv_ac_client.post_register(params_for_registration)
+      if client_response[:api_completion_status] == 'Successful'
+        @new_mhv_correlation_id = client_response[:correlation_id]
+        # TODO: figure out how to bust and refresh the MVI cache
+        self.registered_at = Time.current
+        register!
+      else # Not entirely sure if this can every be anything other than Successful
+      end
+      # TODO: be prepared to handle or raise various exceptions
     end
   end
 
   def upgrade_mhv_account!
     if may_upgrade?
-      # TODO: invoke client to upgrade the account
-      # if success
-      # upgraded_at = Time.current
-      # upgrade!
-      # else
-      # account_state = 'upgrade_failed'
-      # save
+      client_response = mhv_ac_client.post_upgrade(params_for_upgrade)
+      if client_response[:status] == 'success'
+        self.upgraded_at = Time.current
+        upgrade!
+      else # Not entirely sure if this can ever be anything other than success
+      end
     end
+  rescue Common::Exceptions::BackendServiceException => e
+    if e.original_body['code'] == 155
+      upgrade! #without updating the timestamp since account was not created at vets.gov
+    else
+      raise e
+    end
+  end
+
+  def mhv_ac_client
+    @mhv_ac_client ||= MHVAC::Client.new
   end
 
   def previously_upgraded?
