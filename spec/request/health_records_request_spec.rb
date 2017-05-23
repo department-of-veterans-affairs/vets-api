@@ -12,7 +12,7 @@ RSpec.describe 'health records', type: :request do
                               token: TOKEN })
   end
 
-  let(:mhv_account) { instance_double(MhvAccount, ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
+  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
   let(:current_user) { build(:mhv_user) }
 
   before(:each) do
@@ -22,7 +22,7 @@ RSpec.describe 'health records', type: :request do
   end
 
   context 'forbidden user' do
-    let(:mhv_account) { instance_double(MhvAccount, ineligible?: true, needs_terms_acceptance?: false, upgraded?: true) }
+    let(:mhv_account) { double('mhv_account', ineligible?: true, needs_terms_acceptance?: false, upgraded?: true) }
     let(:current_user) { build(:user) }
 
     it 'raises access denied' do

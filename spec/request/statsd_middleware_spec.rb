@@ -17,7 +17,7 @@ RSpec.describe StatsdMiddleware, type: :request do
       token: Rx::ClientHelpers::TOKEN
     )
   end
-  let(:mhv_account) { instance_double(MhvAccount, ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
+  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
   let(:user) { build(:mhv_user) }
   let(:now) { Time.current }
 

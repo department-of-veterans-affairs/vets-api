@@ -7,7 +7,7 @@ RSpec.describe 'Messages Integration', type: :request do
   include SM::ClientHelpers
 
   let(:current_user) { build(:mhv_user) }
-  let(:mhv_account) { instance_double(MhvAccount, ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
+  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
   let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
   let(:message_id) { 573_059 }
@@ -150,7 +150,7 @@ RSpec.describe 'Messages Integration', type: :request do
   end
 
   context 'with an LOA1 user' do
-    let(:mhv_account) { instance_double(MhvAccount, ineligible?: true, needs_terms_acceptance?: false, upgraded?: true) }
+    let(:mhv_account) { double('mhv_account', ineligible?: true, needs_terms_acceptance?: false, upgraded?: true) }
     let(:current_user) { build(:loa1_user) }
 
     it 'gives me a 401' do

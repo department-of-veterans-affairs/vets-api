@@ -6,7 +6,7 @@ require 'support/sm_client_helpers'
 RSpec.describe 'Messages Integration', type: :request do
   include SM::ClientHelpers
 
-  let(:mhv_account) { instance_double(MhvAccount, ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
+  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
   let(:current_user) { build(:mhv_user) }
   let(:reply_id)               { 674_874 }
   let(:created_draft_id)       { 674_942 }

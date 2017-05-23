@@ -107,7 +107,6 @@ class MhvAccount < ActiveRecord::Base
         # TODO: figure out how to bust and refresh the MVI cache
         self.registered_at = Time.current
         register!
-      else # Not entirely sure if this can every be anything other than Successful
       end
       # TODO: be prepared to handle or raise various exceptions
     end
@@ -119,12 +118,11 @@ class MhvAccount < ActiveRecord::Base
       if client_response[:status] == 'success'
         self.upgraded_at = Time.current
         upgrade!
-      else # Not entirely sure if this can ever be anything other than success
       end
     end
   rescue Common::Exceptions::BackendServiceException => e
     if e.original_body['code'] == 155
-      upgrade! #without updating the timestamp since account was not created at vets.gov
+      upgrade! # without updating the timestamp since account was not created at vets.gov
     else
       raise e
     end
