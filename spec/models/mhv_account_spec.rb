@@ -49,7 +49,7 @@ RSpec.describe MhvAccount, type: :model do
   describe 'event' do
     context 'check_eligibility' do
       context 'with terms accepted' do
-        let(:terms) { create(:terms_and_conditions, latest: true, name: 'mhv_account_terms') }
+        let(:terms) { create(:terms_and_conditions, latest: true, name: described_class::TERMS_AND_CONDITIONS_NAME) }
         before(:each) { create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid) }
 
         let(:base_attributes) { { user_uuid: user.uuid, account_state: 'needs_terms_acceptance' } }
@@ -111,7 +111,7 @@ RSpec.describe MhvAccount, type: :model do
 
   describe 'account creation and upgrade' do
     before(:each) do
-      terms = create(:terms_and_conditions, latest: true, name: 'mhv_account_terms')
+      terms = create(:terms_and_conditions, latest: true, name: described_class::TERMS_AND_CONDITIONS_NAME)
       create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid)
     end
 

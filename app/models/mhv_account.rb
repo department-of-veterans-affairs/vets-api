@@ -3,6 +3,7 @@ require 'mhv_ac/client'
 class MhvAccount < ActiveRecord::Base
   include AASM
 
+  TERMS_AND_CONDITIONS_NAME = 'mhvac'.freeze
   # Everything except ineligible accounts should be able to transition to :needs_terms_acceptance
   ALL_STATES = %i(unknown needs_terms_acceptance ineligible registered upgraded register_failed upgrade_failed).freeze
   after_initialize :setup
@@ -50,7 +51,7 @@ class MhvAccount < ActiveRecord::Base
     @terms_and_conditions_accepted ||=
       TermsAndConditionsAcceptance.joins(:terms_and_conditions)
                                   .includes(:terms_and_conditions)
-                                  .where(terms_and_conditions: { latest: true, name: 'mhv_account_terms' })
+                                  .where(terms_and_conditions: { latest: true, name: TERMS_AND_CONDITIONS_NAME })
                                   .where(user_uuid: user.uuid).limit(1).first
   end
 
