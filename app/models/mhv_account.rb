@@ -3,7 +3,7 @@ require 'mhv_ac/client'
 class MhvAccount < ActiveRecord::Base
   include AASM
 
-  TERMS_AND_CONDITIONS_NAME = 'mhvac'.freeze
+  TERMS_AND_CONDITIONS_NAME = 'mhvac'
   # Everything except ineligible accounts should be able to transition to :needs_terms_acceptance
   ALL_STATES = %i(unknown needs_terms_acceptance ineligible registered upgraded register_failed upgrade_failed).freeze
   after_initialize :setup
