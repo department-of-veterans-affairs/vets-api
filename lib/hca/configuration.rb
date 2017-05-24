@@ -28,14 +28,6 @@ module HCA
       Settings.hca.key_path
     end
 
-    def base_path
-      Settings.hca.voa&.endpoint || Settings.hca.endpoint
-    end
-
-    def service_name
-      'HCA'
-    end
-
     def ssl_options
       ssl = {
         verify: true
