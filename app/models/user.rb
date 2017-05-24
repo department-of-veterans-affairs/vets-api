@@ -60,8 +60,8 @@ class User < Common::RedisStore
     loa1? || loa2? || loa3?
   end
 
-  def can_access_mhv?
-    loa3? && mhv_correlation_id
+  def mhv_account_eligible?
+    loa3? && mhv_account.eligible?
   end
 
   def can_access_evss?
@@ -97,6 +97,10 @@ class User < Common::RedisStore
 
   def va_profile_status
     mvi.status
+  end
+
+  def mhv_account
+    @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid)
   end
 
   private

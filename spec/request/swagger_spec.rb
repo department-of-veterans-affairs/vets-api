@@ -26,7 +26,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
   let(:rubysaml_settings) { build(:rubysaml_settings) }
   let(:token) { 'lemmein' }
-  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
+  let(:mhv_account) { double('mhv_account', ineligible?: false, eligible?: true, needs_terms_acceptance?: false, upgraded?: true) }
   let(:mhv_user) { build :mhv_user }
 
   before do

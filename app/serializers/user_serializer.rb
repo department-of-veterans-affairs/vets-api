@@ -56,9 +56,13 @@ class UserSerializer < ActiveModel::Serializer
       BackendServices::HCA,
       BackendServices::EDUCATION_BENEFITS
     ]
-    service_list += BackendServices::MHV_BASED_SERVICES if object.can_access_mhv?
+    service_list += BackendServices::MHV_BASED_SERVICES if object.mhv_account_eligible?
     service_list << BackendServices::EVSS_CLAIMS if object.can_access_evss?
     service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
     service_list
+  end
+
+  def mhv_account_state
+    object.mhv_account.account_state
   end
 end
