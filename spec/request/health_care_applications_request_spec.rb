@@ -16,7 +16,7 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
       get(healthcheck_v0_health_care_applications_path)
     end
     let(:body) do
-      { 'formSubmissionId' => 377_609_264,
+      { 'formSubmissionId' => Settings.hca.voa.healthcheck_id,
         'timestamp' => '2016-12-12T08:06:08.423-06:00' }
     end
     let(:es_stub) { double(health_check: { up: true }) }

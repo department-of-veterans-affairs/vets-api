@@ -48,7 +48,7 @@ describe HCA::VOA::Service do
   describe '#health_check' do
     context 'with a valid request' do
       it 'returns the id and a timestamp' do
-        VCR.use_cassette('hca/voa/health_check', match_requests_on: [:body, :uri]) do
+        VCR.use_cassette('hca/voa/health_check', match_requests_on: [:body]) do
           response = subject.health_check
           expect(response).to eq(
             formSubmissionId: Settings.hca.voa.healthcheck_id,

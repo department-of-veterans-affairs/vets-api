@@ -14,3 +14,8 @@ reports:
 saml:
   cert_path: spec/support/certificates/ruby-saml.crt
   key_path: spec/support/certificates/ruby-saml.key
+
+hca:
+  voa:
+    healthcheck_id: 123456789
+
