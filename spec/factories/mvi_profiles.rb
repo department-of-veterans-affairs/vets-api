@@ -48,6 +48,7 @@ FactoryGirl.define do
       home_phone '1112223333'
       icn '1000123456V123456'
       mhv_ids ['123456']
+      vha_facility_ids %w(516 553 200HD 200IP 200MHV)
       edipi '1234'
       participant_id '12345678'
 
@@ -60,6 +61,7 @@ FactoryGirl.define do
         home_phone nil
         icn '1008714701V416111'
         mhv_ids nil
+        vha_facility_ids ['200MHS']
         participant_id '9100792239'
         edipi nil
       end
@@ -73,6 +75,7 @@ FactoryGirl.define do
         home_phone '1112223333 p1'
         icn '12345678901234567'
         mhv_ids %w(12345678901 12345678902)
+        vha_facility_ids %w(200MH 200MH)
         edipi '1122334455'
         participant_id '12345678'
       end
