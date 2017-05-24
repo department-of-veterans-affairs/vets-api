@@ -67,12 +67,12 @@ namespace :redis do
           "ssn": '123456789',
           "suffix": nil,
           "address": {
-            "^o":"MVI::Models::MviProfileAddress",
-            "street":"123 Fake Street",
-            "city":"Springfield",
-            "state":"OR",
-            "postal_code":"99999",
-            "country":"USA"
+            "^o": 'MVI::Models::MviProfileAddress',
+            "street": '123 Fake Street',
+            "city": 'Springfield',
+            "state": 'OR',
+            "postal_code": '99999',
+            "country": 'USA'
           },
           "home_phone": nil,
           "participant_id": '600062099'
