@@ -29,8 +29,8 @@ module MHVAC
     attribute :mobile_phone, String
     attribute :pager, String
     attribute :work_phone, String
-    attribute :sign_in_partners, String, default: 'VETS.GOV'
-    attribute :terms_version, String, default: 'v3.2'
+    attribute :sign_in_partners, String
+    attribute :terms_version, String
     attribute :terms_accepted_date, Common::HTTPDate
 
     validates :icn, :is_patient, :is_veteran, :email, presence: true

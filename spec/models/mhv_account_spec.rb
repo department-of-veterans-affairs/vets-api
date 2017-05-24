@@ -117,7 +117,7 @@ RSpec.describe MhvAccount, type: :model do
 
     subject { described_class.new(user_uuid: user.uuid) }
 
-    it 'will create and upgrade an account' do
+    it 'will create and upgrade an account and set the time this was done' do
       expect(subject.terms_and_conditions_accepted?).to be_truthy
       expect(subject.preexisting_account?).to be_falsey
       expect(subject.persisted?).to be_falsey
@@ -137,7 +137,7 @@ RSpec.describe MhvAccount, type: :model do
     context 'existing account that has not been upgraded' do
       let(:mhv_ids) { ['14221465'] }
 
-      it 'will only upgrade an account if no mhv_correlation_id exists' do
+      it 'will only upgrade an account and set the time the account was upgraded' do
         expect(subject.terms_and_conditions_accepted?).to be_truthy
         expect(subject.preexisting_account?).to be_truthy
         expect(subject.persisted?).to be_falsey
@@ -154,7 +154,7 @@ RSpec.describe MhvAccount, type: :model do
     context 'existing account that has already been upgraded' do
       let(:mhv_ids) { ['14221465'] }
 
-      it 'will only upgrade an account if no mhv_correlation_id exists' do
+      it 'will only update the record to reflect that it has been upgraded' do
         expect(subject.terms_and_conditions_accepted?).to be_truthy
         expect(subject.preexisting_account?).to be_truthy
         expect(subject.persisted?).to be_falsey
@@ -166,9 +166,6 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.upgraded_at).to be_nil
         end
       end
-    end
-
-    it 'is not clear what should happen if a user has more than one mhv_correlation_id' do
     end
   end
 end
