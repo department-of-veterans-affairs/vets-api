@@ -87,7 +87,6 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do |example|
-    stub_mvi unless example.metadata[:skip_mvi]
     stub_veteran_status unless example.metadata[:skip_veteran_status]
   end
 
