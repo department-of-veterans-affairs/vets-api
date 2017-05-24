@@ -6,14 +6,17 @@ require 'support/rx_client_helpers'
 RSpec.describe 'prescriptions', type: :request do
   include Rx::ClientHelpers
 
+  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
   let(:current_user) { build(:mhv_user) }
 
   before(:each) do
+    allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
     use_authenticated_current_user(current_user: current_user)
   end
 
   context 'forbidden user' do
+    let(:mhv_account) { double('mhv_account', ineligible?: true, needs_terms_acceptance?: false, upgraded?: true) }
     let(:current_user) { build(:user) }
 
     it 'raises access denied' do
