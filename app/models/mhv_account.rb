@@ -13,7 +13,7 @@ class MhvAccount < ActiveRecord::Base
     state :needs_terms_acceptance, :ineligible, :registered, :upgraded, :register_failed, :upgrade_failed
 
     event :check_eligibility do
-      transitions from: ALL_STATES, to: :ineligible, unless: :mhv_account_eligible?
+      transitions from: ALL_STATES, to: :ineligible, unless: :eligible?
       transitions from: ALL_STATES, to: :upgraded, if: :previously_upgraded?
       transitions from: ALL_STATES, to: :registered, if: :previously_registered?
       transitions from: ALL_STATES, to: :unknown
@@ -38,7 +38,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def eligible?
-    mhv_account_eligible? || !ineligible?
+    va_patient?
   end
 
   def terms_and_conditions_accepted?
@@ -90,10 +90,6 @@ class MhvAccount < ActiveRecord::Base
     @user ||= User.find(user_uuid)
   end
 
-  def mhv_account_eligible?
-    va_patient?
-  end
-
   def va_patient?
     # TODO: This needs to be changed to check if ICN is within a certain range.
     user&.icn.present?
@@ -138,11 +134,11 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def previously_upgraded?
-    mhv_account_eligible? && upgraded_at?
+    eligible? && upgraded_at?
   end
 
   def previously_registered?
-    mhv_account_eligible? && registered_at?
+    eligible? && registered_at?
   end
 
   def setup
