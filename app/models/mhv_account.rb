@@ -38,7 +38,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def eligible?
-    !ineligible?
+    mhv_account_eligible? || !ineligible?
   end
 
   def terms_and_conditions_accepted?
