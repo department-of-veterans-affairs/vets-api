@@ -6,6 +6,9 @@ require 'saml/settings_service'
 require 'sm/client'
 require 'support/sm_client_helpers'
 
+require 'rx/client'
+require 'support/rx_client_helpers'
+
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
     it 'has valid json' do
@@ -17,7 +20,6 @@ RSpec.describe 'API doc validations', type: :request do
 end
 
 RSpec.describe 'the API documentation', type: :apivore, order: :defined do
-  include SM::ClientHelpers
   include AuthenticatedSessionHelper
 
   subject { Apivore::SwaggerChecker.instance_for('/v0/apidocs.json') }
@@ -154,7 +156,74 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    describe 'rx tests' do
+      include Rx::ClientHelpers
+
+      before(:each) do
+        allow(Rx::Client).to receive(:new).and_return(authenticated_client)
+        use_authenticated_current_user(current_user: mhv_user)
+      end
+
+      context 'successful calls' do
+        it 'supports getting a list of all prescriptions' do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
+            expect(subject).to validate(:get, '/v0/prescriptions', 200)
+          end
+        end
+
+        it 'supports getting a list of active prescriptions' do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions') do
+            expect(subject).to validate(:get, '/v0/prescriptions/active', 200)
+          end
+        end
+
+        it 'supports getting details of a particular prescription' do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription') do
+            expect(subject).to validate(:get, '/v0/prescriptions/{id}', 200, 'id' => '13650545')
+          end
+        end
+
+        it 'supports refilling a prescription' do
+          VCR.use_cassette('rx_client/prescriptions/refills_a_prescription') do
+            expect(subject).to validate(:patch, '/v0/prescriptions/{id}/refill', 204, 'id' => '13650545')
+          end
+        end
+
+        it 'supports tracking a prescription' do
+          VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_tracking_for_a_prescription') do
+            expect(subject).to validate(
+              :get, '/v0/prescriptions/{prescription_id}/trackings', 200, 'prescription_id' => '13650541'
+            )
+          end
+        end
+      end
+
+      context 'unsucessful calls' do
+        it 'returns error on showing a prescription with bad id' do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription') do
+            expect(subject).to validate(:get, '/v0/prescriptions/{id}', 404, 'id' => '1')
+          end
+        end
+
+        it 'returns error on refilling a prescription with bad id' do
+          VCR.use_cassette('rx_client/prescriptions/nested_resources/prescription_refill_error') do
+            expect(subject).to validate(:patch, '/v0/prescriptions/{id}/refill', 400, 'id' => '1')
+          end
+        end
+
+        it 'returns an error tracking a prescription with a bad id' do
+          VCR.use_cassette('rx_client/prescriptions/nested_resources/tracking_error_id') do
+            expect(subject).to validate(
+              :get, '/v0/prescriptions/{prescription_id}/trackings', 400, 'prescription_id' => '1'
+            )
+          end
+        end
+      end
+    end
+
     describe 'messaging tests' do
+      include SM::ClientHelpers
+
       let(:uploads) do
         [
           Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file1.jpg', 'image/jpg'),
