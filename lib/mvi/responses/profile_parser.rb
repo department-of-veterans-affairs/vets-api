@@ -142,7 +142,7 @@ module MVI
       end
 
       # MVI correlation id source id relationships:
-      # {source id}^{id type}^{assigning authority}^{assigning facility}^{id status}
+      # {source id}^{id type}^{assigning facility}^{assigning authority}^{id status}
       # NI = national identifier, PI = patient identifier
       def map_correlation_ids(ids)
         ids = ids.map(&:attributes)
@@ -158,12 +158,12 @@ module MVI
       def select_ids(extensions)
         return nil if extensions.empty?
         extensions.map { |e| e[:extension].split('^')&.first }
-      }
+      end
 
       def select_facilities(extensions)
         return nil if extensions.empty?
-        extensions.map { |e| e[:extension].split('^')&.fourth }
-      }
+        extensions.map { |e| e[:extension].split('^')&.third }
+      end
 
       def select_extension(ids, pattern, root)
         ids.select do |id|
