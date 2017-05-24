@@ -30,6 +30,15 @@ module Swagger
 
           property :download, type: :string
         end
+
+        swagger_schema :LinksTracking do
+          key :type, :object
+          key :required, [:self, :prescription, :tracking_url]
+
+          property :self, type: :string
+          property :prescription, type: :string
+          property :tracking_url, type: :string
+        end
       end
     end
   end

@@ -13,6 +13,26 @@ module Swagger
           property :pagination, '$ref': :Pagination
         end
 
+        swagger_schema :MetaFailedStationList do
+          key :type, :object
+          key :required, [:updated_at, :failed_station_list]
+
+          property :updated_at, type: :string
+          property :failed_station_list, type: :string
+        end
+
+        swagger_schema :MetaFailedStationListSortPagination do
+          key :type, :object
+          key :required, [:updated_at, :failed_station_list, :sort, :pagination]
+
+          property :updated_at, type: :string
+          property :failed_station_list, type: [:null, :string]
+
+          property :pagination, '$ref': :Filter
+          property :pagination, '$ref': :Sort
+          property :pagination, '$ref': :Pagination
+        end
+
         swagger_schema :MetaFilterSortPagination do
           key :type, :object
           key :required, [:filter, :sort, :pagination]
