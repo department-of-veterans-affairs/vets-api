@@ -1,4 +1,4 @@
-# Generated at 2017-05-19T23:33:38+00:00
+# Generated at 2017-05-24T09:12:38+00:00
 ---
 find_candidate:
   '796126859':
@@ -15,6 +15,9 @@ find_candidate:
     :icn: 1012667122V019349
     :mhv_ids:
     - '14221465'
+    :vha_facility_ids:
+    - 200ESR
+    - 200MHS
     :edipi: '1005329660'
     :participant_id: '600043186'
   '796121200':
@@ -35,6 +38,10 @@ find_candidate:
     :home_phone: "(333)444-5555"
     :icn: 1012666182V203559
     :mhv_ids: []
+    :vha_facility_ids:
+    - '987'
+    - 200ESR
+    - '553'
     :edipi: '1005079124'
     :participant_id: '600036159'
   '796127781':
@@ -55,6 +62,8 @@ find_candidate:
     :home_phone: "(222)222-2222"
     :icn: 1012829932V238054
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005400640'
     :participant_id: '600049322'
   '796143510':
@@ -76,6 +85,11 @@ find_candidate:
     :icn: 1012667179V787205
     :mhv_ids:
     - '10713013'
+    :vha_facility_ids:
+    - '556'
+    - '989'
+    - 200MHS
+    - 200ESR
     :edipi: '1006753503'
     :participant_id: '600043216'
   '796292881':
@@ -96,6 +110,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012830899V368969
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1148152574'
     :participant_id: '600045052'
   '796241819':
@@ -117,6 +132,13 @@ find_candidate:
     :icn: 1012643432V477452
     :mhv_ids:
     - '10055461'
+    :vha_facility_ids:
+    - '989'
+    - '987'
+    - 200ESR
+    - '983'
+    - 200MH
+    - '994'
     :edipi: '1068619536'
     :participant_id: '600073177'
   '796288429':
@@ -137,6 +159,10 @@ find_candidate:
     :home_phone: 
     :icn: 1012658910V309140
     :mhv_ids: []
+    :vha_facility_ids:
+    - '983'
+    - 200ESR
+    - '556'
     :edipi: '1140840595'
     :participant_id: '600075237'
   '796131210':
@@ -157,6 +183,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012848404V121721
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005593081'
     :participant_id: '600042451'
   '796169727':
@@ -177,6 +205,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012829228V424035
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1013772602'
     :participant_id: '600045107'
   '796186272':
@@ -197,6 +227,7 @@ find_candidate:
     :home_phone: "(890)988-9080"
     :icn: 1012829959V712543
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1019787741'
     :participant_id: '600043214'
   '796148937':
@@ -217,6 +248,8 @@ find_candidate:
     :home_phone: "(703)999-1919"
     :icn: 1012830245V504544
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1007451748'
     :participant_id: '600036156'
   '796127023':
@@ -237,6 +270,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012829948V217207
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005344073'
     :participant_id: '600033542'
   '796121909':
@@ -257,6 +291,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012849574V585256
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005123832'
     :participant_id: '600076281'
   '796121086':
@@ -277,6 +313,11 @@ find_candidate:
     :home_phone: 
     :icn: 1012666183V089914
     :mhv_ids: []
+    :vha_facility_ids:
+    - '553'
+    - '988'
+    - 200ESR
+    - 200IP
     :edipi: '1005072030'
     :participant_id: '600036161'
   '796265005':
@@ -292,6 +333,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012832013V553700
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1101185458'
     :participant_id: '600061050'
   '796121207':
@@ -312,6 +354,8 @@ find_candidate:
     :home_phone: "(776)858-5465"
     :icn: 1012830712V627751
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005079361'
     :participant_id: '600073191'
   '796122092':
@@ -327,6 +371,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012844902V910074
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005127471'
     :participant_id: '600082995'
   '796263749':
@@ -342,6 +388,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012853277V552077
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1098697515'
     :participant_id: '600095701'
   '796131753':
@@ -362,6 +409,7 @@ find_candidate:
     :home_phone: "(884)747-4747"
     :icn: 1012833459V456494
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005649761'
     :participant_id: '600049539'
   '796127544':
@@ -377,6 +425,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012832612V245638
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005391306'
     :participant_id: '600043192'
   '796127196':
@@ -392,6 +442,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012830699V134174
     :mhv_ids: []
+    :vha_facility_ids:
+    - '556'
     :edipi: '1005358147'
     :participant_id: '600033523'
   '796127160':
@@ -407,6 +459,9 @@ find_candidate:
     :home_phone: 
     :icn: 1012662125V786396
     :mhv_ids: []
+    :vha_facility_ids:
+    - '984'
+    - '983'
     :edipi: '1005354478'
     :participant_id: '600036503'
   '796143570':
@@ -422,6 +477,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012845238V805135
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: 
     :participant_id: '600043217'
   '796122400':
@@ -442,6 +499,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012830822V023092
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005136624'
     :participant_id: '600073573'
   '796130115':
@@ -462,6 +521,8 @@ find_candidate:
     :home_phone: "(313)345-6789"
     :icn: 1012667145V762142
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005490754'
     :participant_id: '600043201'
   '796126696':
@@ -482,6 +543,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845629V054840
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005305469'
     :participant_id: '600049701'
   '796126777':
@@ -502,6 +564,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012829890V001762
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005320840'
     :participant_id: '600043185'
   '796126778':
@@ -522,6 +585,9 @@ find_candidate:
     :home_phone: 
     :icn: 1012833046V189377
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
+    - '987'
     :edipi: '1005320859'
     :participant_id: '600049702'
   '796043735':
@@ -542,6 +608,7 @@ find_candidate:
     :home_phone: "(571)294-9259"
     :icn: 1012832025V743496
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1007697216'
     :participant_id: '600061742'
   '796376250':
@@ -562,6 +629,7 @@ find_candidate:
     :home_phone: "(999)888-7777"
     :icn: 1012833171V826199
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1290165454'
     :participant_id: '600050724'
   '796330625':
@@ -582,6 +650,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012845630V900607
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1243413229'
     :participant_id: '600049703'
   '796296387':
@@ -602,6 +672,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012832042V458998
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1154477825'
     :participant_id: '600036500'
   '796141462':
@@ -622,6 +693,9 @@ find_candidate:
     :home_phone: 
     :icn: 1012830022V956566
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
+    - '987'
     :edipi: '1006535352'
     :participant_id: '600049363'
   '796184750':
@@ -638,6 +712,17 @@ find_candidate:
     :icn: 1012643310V921518
     :mhv_ids:
     - '10055239'
+    :vha_facility_ids:
+    - '989'
+    - 200MHS
+    - '987'
+    - 200ESR
+    - 200ESR
+    - 200ESR
+    - 200ESR
+    - '983'
+    - 742V1
+    - 200IP
     :edipi: '1019061961'
     :participant_id: '600075670'
   '796149080':
@@ -658,6 +743,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012829910V765228
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1007481507'
     :participant_id: 
   '796140261':
@@ -678,6 +765,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012830237V154192
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1006448425'
     :participant_id: 
   '796122369':
@@ -698,6 +786,8 @@ find_candidate:
     :home_phone: "(703)970-9809"
     :icn: 1012845631V882122
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005135644'
     :participant_id: '600084741'
   '796246997':
@@ -718,6 +808,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012829446V964657
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1075505376'
     :participant_id: '600048303'
   '796131287':
@@ -738,6 +830,7 @@ find_candidate:
     :home_phone: "(730)555-1212"
     :icn: 1012830905V768518
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005604067'
     :participant_id: '600033698'
   '796330165':
@@ -753,6 +846,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012856544V681033
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1242991962'
     :participant_id: '600162144'
   '796330166':
@@ -773,6 +867,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012855585V634865
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1242991970'
     :participant_id: '600120984'
   '796330163':
@@ -788,6 +883,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845632V596441
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1242991946'
     :participant_id: '600054223'
   '796127354':
@@ -808,6 +904,9 @@ find_candidate:
     :home_phone: 
     :icn: 1012829895V736226
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
+    - '987'
     :edipi: '1005375246'
     :participant_id: '600043188'
   '796127094':
@@ -828,6 +927,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012832357V534929
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005350731'
     :participant_id: '600036566'
   '796140438':
@@ -848,6 +948,7 @@ find_candidate:
     :home_phone: "(601)943-8765"
     :icn: 1012829934V117978
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1006467969'
     :participant_id: '600043285'
   '796127777':
@@ -868,6 +969,9 @@ find_candidate:
     :home_phone: 
     :icn: 1012829925V716587
     :mhv_ids: []
+    :vha_facility_ids:
+    - '987'
+    - 200ESR
     :edipi: '1005400607'
     :participant_id: '600043197'
   '796378881':
@@ -887,6 +991,9 @@ find_candidate:
     :home_phone: 
     :icn: 1012666073V986297
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
+    - '984'
     :edipi: '1293307390'
     :participant_id: '600045026'
   '796126751':
@@ -907,6 +1014,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012829767V002519
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005318412'
     :participant_id: '600043184'
   '796126752':
@@ -927,6 +1036,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012845633V224390
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005318420'
     :participant_id: '600049704'
   '796164129':
@@ -946,6 +1057,9 @@ find_candidate:
     :home_phone: 
     :icn: 1012829891V187651
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
+    - '987'
     :edipi: '1011246598'
     :participant_id: '600048565'
   '796143067':
@@ -966,6 +1080,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012830632V301660
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1006699487'
     :participant_id: '600043215'
   '796184459':
@@ -986,6 +1102,11 @@ find_candidate:
     :icn: 1012661611V839382
     :mhv_ids:
     - '9981373'
+    :vha_facility_ids:
+    - 200ESR
+    - '988'
+    - '987'
+    - 200MHS
     :edipi: '1018983300'
     :participant_id: '600084028'
   '796136798':
@@ -1001,6 +1122,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845502V635089
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1006059089'
     :participant_id: '600043221'
   '796164213':
@@ -1021,6 +1143,9 @@ find_candidate:
     :home_phone: 
     :icn: 1012832249V897380
     :mhv_ids: []
+    :vha_facility_ids:
+    - '987'
+    - 200ESR
     :edipi: '1011297621'
     :participant_id: '600048568'
   '796131730':
@@ -1041,6 +1166,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012849765V900974
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005648030'
     :participant_id: '600049705'
   '796131729':
@@ -1061,6 +1187,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845028V591200
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005648021'
     :participant_id: '600043202'
   '796136998':
@@ -1076,6 +1203,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012829610V986182
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1006081858'
     :participant_id: '600043223'
   '796156570':
@@ -1096,6 +1224,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845754V409036
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1009114439'
     :participant_id: '600048563'
   '796377148':
@@ -1111,6 +1240,9 @@ find_candidate:
     :home_phone: 
     :icn: 1012826664V603033
     :mhv_ids: []
+    :vha_facility_ids:
+    - '987'
+    - 200ESR
     :edipi: '1291355648'
     :participant_id: '600053062'
   '796122928':
@@ -1131,6 +1263,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012667136V162744
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005151313'
     :participant_id: '600049706'
   '796123209':
@@ -1146,6 +1280,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845634V053289
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005158970'
     :participant_id: '600049707'
   '796131275':
@@ -1161,6 +1296,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012845636V368566
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005603427'
     :participant_id: '600043004'
   '796378321':
@@ -1181,6 +1318,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012666072V702345
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1292690947'
     :participant_id: '600045022'
   '796136784':
@@ -1201,6 +1340,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012846668V389995
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1006057060'
     :participant_id: '600036155'
   '796127677':
@@ -1221,6 +1362,15 @@ find_candidate:
     :home_phone: "(555)500-7620"
     :icn: 1012861229V078999
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200IP
+    - '556'
+    - '987'
+    - 200ESR
+    - 200ESR
+    - 200ESR
+    - 200ESR
+    - 200ESR
     :edipi: '1005396162'
     :participant_id: '600049324'
   '796122307':
@@ -1241,6 +1391,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845637V411958
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005133358'
     :participant_id: '600049708'
   '796122306':
@@ -1261,6 +1412,7 @@ find_candidate:
     :home_phone: "(315)123-6969"
     :icn: 1012830872V584140
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005133340'
     :participant_id: '600043167'
   '796147571':
@@ -1281,6 +1433,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012848398V967004
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1007149766'
     :participant_id: '600043218'
   '796127519':
@@ -1301,6 +1454,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012845234V469924
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005389158'
     :participant_id: '600036162'
   '796127587':
@@ -1316,6 +1471,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012830305V427401
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005392639'
     :participant_id: '600043193'
   '796122059':
@@ -1336,6 +1492,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845074V891241
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005127102'
     :participant_id: '600049709'
   '796122064':
@@ -1356,6 +1513,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012666047V544942
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005127153'
     :participant_id: '600054224'
   '796122633':
@@ -1376,6 +1535,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012829621V733243
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005142446'
     :participant_id: '600043171'
   '796295982':
@@ -1396,6 +1556,7 @@ find_candidate:
     :home_phone: 5555211646 p1
     :icn: 1012858168V909512
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1154069239'
     :participant_id: '600121561'
   '796264319':
@@ -1417,6 +1578,8 @@ find_candidate:
     :icn: 1012855094V917428
     :mhv_ids:
     - '13877897'
+    :vha_facility_ids:
+    - 200MHS
     :edipi: '1099973303'
     :participant_id: '600120860'
   '796122667':
@@ -1437,6 +1600,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845191V379613
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005143469'
     :participant_id: '600043172'
   '796153447':
@@ -1457,6 +1621,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012829620V654328
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1008389167'
     :participant_id: '600037780'
   '796122671':
@@ -1477,6 +1642,7 @@ find_candidate:
     :home_phone: "(571)423-4234"
     :icn: 1012829903V113159
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005143507'
     :participant_id: '600049320'
   '796220951':
@@ -1497,6 +1663,9 @@ find_candidate:
     :home_phone: 
     :icn: 1012826601V741386
     :mhv_ids: []
+    :vha_facility_ids:
+    - '987'
+    - 200ESR
     :edipi: '1045938782'
     :participant_id: '600036163'
   '796378782':
@@ -1517,6 +1686,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012667169V030190
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1293194617'
     :participant_id: '600045025'
   '796127725':
@@ -1537,6 +1708,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845443V584332
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005399382'
     :participant_id: '600043196'
   '796136639':
@@ -1557,6 +1729,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012883999V203355
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1006048320'
     :participant_id: '600043084'
   '796124704':
@@ -1577,6 +1750,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012830303V188617
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: 
     :participant_id: '600043181'
   '796122556':
@@ -1597,6 +1771,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012830459V834803
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005140125'
     :participant_id: '600043170'
   '796147494':
@@ -1612,6 +1787,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012858706V701334
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1007143229'
     :participant_id: '600051513'
   '796122118':
@@ -1627,6 +1803,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012831442V629541
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005128370'
     :participant_id: '600074917'
   '796073633':
@@ -1642,6 +1820,10 @@ find_candidate:
     :icn: 1012585545V771188
     :mhv_ids:
     - '2120951'
+    :vha_facility_ids:
+    - '556'
+    - 200MHS
+    - '989'
     :edipi: '1021199571'
     :participant_id: '600070497'
   '796150063':
@@ -1662,6 +1844,8 @@ find_candidate:
     :home_phone: "(778)798-7897"
     :icn: 1012845641V794751
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1007701663'
     :participant_id: '600036165'
   '796228919':
@@ -1682,6 +1866,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845642V923610
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1054992498'
     :participant_id: '600085565'
   '796127850':
@@ -1697,6 +1882,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012829980V308759
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005403614'
     :participant_id: '600049327'
   '796321635':
@@ -1717,6 +1903,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845643V859179
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1235601725'
     :participant_id: '600045042'
   '796136776':
@@ -1736,6 +1923,10 @@ find_candidate:
     :home_phone: "(508)429-1476"
     :icn: 1012669080V683202
     :mhv_ids: []
+    :vha_facility_ids:
+    - '988'
+    - 200ESR
+    - '987'
     :edipi: '1006056896'
     :participant_id: 
   '796127674':
@@ -1751,6 +1942,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012849931V685672
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005396138'
     :participant_id: '600043195'
   '796122472':
@@ -1771,6 +1963,8 @@ find_candidate:
     :home_phone: "(512)999-9999"
     :icn: 1012830991V985099
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005138104'
     :participant_id: '600043169'
   '796140489':
@@ -1791,6 +1985,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012831840V291348
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1006471460'
     :participant_id: '600043286'
   '796136308':
@@ -1806,6 +2001,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012667180V621772
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1006027250'
     :participant_id: '600050480'
   '796127109':
@@ -1826,6 +2023,9 @@ find_candidate:
     :home_phone: 
     :icn: 1012826604V590555
     :mhv_ids: []
+    :vha_facility_ids:
+    - '987'
+    - 200ESR
     :edipi: '1005351126'
     :participant_id: '600052041'
   '796127199':
@@ -1841,6 +2041,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012845550V809717
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005358309'
     :participant_id: '600043085'
   '796218467':
@@ -1861,6 +2063,7 @@ find_candidate:
     :home_phone: "(703)333-5544"
     :icn: 1012831012V063489
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1043719340'
     :participant_id: '600056914'
   '796023006':
@@ -1880,6 +2083,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845647V175093
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1322564410'
     :participant_id: '600061752'
   '796002073':
@@ -1900,6 +2104,7 @@ find_candidate:
     :home_phone: 5555037055 p1
     :icn: 1012845651V633013
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1015899596'
     :participant_id: 
   '796231077':
@@ -1920,6 +2125,8 @@ find_candidate:
     :home_phone: "(908)765-4321"
     :icn: 1012832723V827263
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1056154562'
     :participant_id: '600087101'
   '796054487':
@@ -1940,6 +2147,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012844916V261483
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1281129321'
     :participant_id: '600079909'
   '796064608':
@@ -1955,6 +2163,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012830142V503884
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1098454590'
     :participant_id: '600071747'
   '796079042':
@@ -1970,6 +2180,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012845655V547741
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1105618367'
     :participant_id: '600061753'
   '796070441':
@@ -1990,6 +2202,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012845656V205690
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1098228051'
     :participant_id: '600061754'
   '796122926':
@@ -2005,6 +2219,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012830031V654442
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005151291'
     :participant_id: '600043174'
   '796023401':
@@ -2020,6 +2235,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012845657V080189
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1104193028'
     :participant_id: '600061755'
   '796155569':
@@ -2035,6 +2252,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012847531V456102
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1008897626'
     :participant_id: '600096788'
   '796126978':
@@ -2055,6 +2273,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845658V192434
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005340833'
     :participant_id: '600036166'
   '796100762':
@@ -2075,6 +2294,7 @@ find_candidate:
     :home_phone: 5555106274 p1
     :icn: 1012845659V326366
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1043749915'
     :participant_id: '13355368'
   '796229088':
@@ -2095,6 +2315,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845660V369114
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1055102747'
     :participant_id: '600085573'
   '796364561':
@@ -2114,6 +2335,9 @@ find_candidate:
     :home_phone: 
     :icn: 1012851022V753951
     :mhv_ids: []
+    :vha_facility_ids:
+    - '987'
+    - 200ESR
     :edipi: 
     :participant_id: '600087330'
   '796018229':
@@ -2129,6 +2353,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012897042V607227
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: 
     :participant_id: '600065659'
   '796109651':
@@ -2149,6 +2374,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845662V671308
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1286844860'
     :participant_id: '600059483'
   '796090612':
@@ -2164,6 +2390,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012832350V178688
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1100131087'
     :participant_id: '600036153'
   '796127084':
@@ -2179,6 +2406,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012845079V316758
     :mhv_ids: []
+    :vha_facility_ids:
+    - '987'
     :edipi: '1005349326'
     :participant_id: '600036167'
   '796090606':
@@ -2194,6 +2423,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845612V245987
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1099910964'
     :participant_id: '600082086'
   '796075896':
@@ -2214,6 +2444,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845665V880597
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1100399578'
     :participant_id: '600085548'
   '796092261':
@@ -2229,6 +2460,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845626V880077
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1103539613'
     :participant_id: '600082088'
   '796027583':
@@ -2249,6 +2481,7 @@ find_candidate:
     :home_phone: "(605)691-1682"
     :icn: 1012845667V226831
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1077019436'
     :participant_id: '600024040'
   '796081854':
@@ -2269,6 +2502,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845628V226921
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1162281484'
     :participant_id: '600024673'
   '796013145':
@@ -2289,6 +2523,7 @@ find_candidate:
     :home_phone: "(703)474-7474"
     :icn: 1012830453V141481
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1016205423'
     :participant_id: '600022162'
   '796263558':
@@ -2304,6 +2539,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012829859V179084
     :mhv_ids: []
+    :vha_facility_ids:
+    - '556'
     :edipi: '1098420416'
     :participant_id: '600071398'
   '796019724':
@@ -2322,6 +2559,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845672V157064
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1275511443'
     :participant_id: '600085946'
   '796029838':
@@ -2342,6 +2580,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845673V335556
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1241196522'
     :participant_id: '600079908'
   '796059443':
@@ -2362,6 +2601,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012830862V430931
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1044938010'
     :participant_id: '600036140'
   '796014601':
@@ -2376,6 +2616,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845674V460918
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1262412640'
     :participant_id: '600024677'
   '796015298':
@@ -2391,6 +2632,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845678V803142
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1100135562'
     :participant_id: '600082095'
   '796014042':
@@ -2411,6 +2653,7 @@ find_candidate:
     :home_phone: 234-4444
     :icn: 1012845681V255940
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1024245418'
     :participant_id: '600059872'
   '796089399':
@@ -2431,6 +2674,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845682V030899
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1024245400'
     :participant_id: '600083915'
   '796049607':
@@ -2451,6 +2695,7 @@ find_candidate:
     :home_phone: 5555161025 p1
     :icn: 1012845683V162784
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1098541078'
     :participant_id: '600084263'
   '796059628':
@@ -2466,6 +2711,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845684V316636
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1024245388'
     :participant_id: '600084264'
   '796013160':
@@ -2481,6 +2727,10 @@ find_candidate:
     :home_phone: 
     :icn: 1012830334V156386
     :mhv_ids: []
+    :vha_facility_ids:
+    - '556'
+    - '668'
+    - '983'
     :edipi: '1021267380'
     :participant_id: '600036152'
   '796030711':
@@ -2501,6 +2751,7 @@ find_candidate:
     :home_phone: 5555049457 p1
     :icn: 1012845697V367266
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1023804898'
     :participant_id: '600082959'
   '796064374':
@@ -2521,6 +2772,7 @@ find_candidate:
     :home_phone: 5555286609 p1
     :icn: 1012845686V643453
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1257581078'
     :participant_id: '600084619'
   '796164120':
@@ -2541,6 +2793,8 @@ find_candidate:
     :home_phone: "(301)301-3013"
     :icn: 1012829325V632209
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1011239230'
     :participant_id: '600052702'
   '796128746':
@@ -2554,6 +2808,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012989581V442151
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005431693'
     :participant_id: '600052704'
   '796128750':
@@ -2574,6 +2829,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012832046V870152
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005431731'
     :participant_id: '600052951'
   '796128748':
@@ -2589,6 +2845,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012826667V821812
     :mhv_ids: []
+    :vha_facility_ids:
+    - '987'
     :edipi: '1005431715'
     :participant_id: '600052739'
   '796053371':
@@ -2603,6 +2861,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012833364V370552
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1322284760'
     :participant_id: '600076499'
   '796045393':
@@ -2623,6 +2882,7 @@ find_candidate:
     :home_phone: "(702)888-9999"
     :icn: 1012833352V121780
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1023812521'
     :participant_id: '600071397'
   '796030111':
@@ -2643,6 +2903,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012833405V013211
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1023812513'
     :participant_id: '600076492'
   '796075523':
@@ -2663,6 +2925,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012833436V858693
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1023812530'
     :participant_id: '600076493'
   '796041595':
@@ -2683,6 +2946,7 @@ find_candidate:
     :home_phone: 5555268899 p1
     :icn: 1012845689V891002
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1246381727'
     :participant_id: '600086161'
   '796170170':
@@ -2697,6 +2961,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012845059V795233
     :mhv_ids: []
+    :vha_facility_ids:
+    - '987'
     :edipi: '1014019258'
     :participant_id: 
   '796107177':
@@ -2717,6 +2983,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012833450V634386
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1284181740'
     :participant_id: '600076494'
   '796007904':
@@ -2737,6 +3004,7 @@ find_candidate:
     :home_phone: 5555162513 p1
     :icn: 1012845693V593641
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1100470060'
     :participant_id: 
   '796043139':
@@ -2752,6 +3020,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012829801V599113
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1099738673'
     :participant_id: 
   '796053469':
@@ -2767,6 +3036,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012833452V919063
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1126435696'
     :participant_id: '600076497'
   '796038168':
@@ -2787,8 +3057,30 @@ find_candidate:
     :home_phone: 
     :icn: 1012833438V267437
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1323360622'
     :participant_id: '600076490'
+  '796083573':
+    :given_names:
+    - Dale
+    - P
+    :family_name: Soto
+    :suffix: Jr
+    :gender: M
+    :birth_date: '19320408'
+    :ssn: '796083573'
+    :address: !ruby/object:MVI::Models::MviProfileAddress
+      city: HYDERABAD
+      state: 
+      postal_code: 
+      country: IND
+      street: 1243 ADAMS DR
+    :home_phone: 
+    :icn: 1012833451V763238
+    :mhv_ids: []
+    :vha_facility_ids: []
+    :edipi: '1010397690'
+    :participant_id: '600076495'
   '796153369':
     :given_names:
     - Dwayne
@@ -2803,6 +3095,19 @@ find_candidate:
     :icn: 1012643250V489886
     :mhv_ids:
     - '9981379'
+    :vha_facility_ids:
+    - '989'
+    - 200MHS
+    - 200ESR
+    - 200ESR
+    - '556'
+    - 200ESR
+    - 200ESR
+    - 200ESR
+    - 200ESR
+    - 200ESR
+    - 200ESR
+    - '983'
     :edipi: '1008372388'
     :participant_id: '600085524'
   '796127242':
@@ -2823,6 +3128,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012666881V023688
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005361920'
     :participant_id: '600036513'
   '796049726':
@@ -2842,6 +3148,7 @@ find_candidate:
     :home_phone: 5555322060 p1
     :icn: 1012845698V415058
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1281871885'
     :participant_id: '600059873'
   '796068291':
@@ -2862,6 +3169,9 @@ find_candidate:
     :home_phone: 
     :icn: 1012592999V810903
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
+    - '556'
     :edipi: '1100692356'
     :participant_id: '600068740'
   '796098273':
@@ -2877,6 +3187,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845699V670513
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1100710214'
     :participant_id: '600082980'
   '796098268':
@@ -2892,6 +3203,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845700V116007
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1100647822'
     :participant_id: '600041480'
   '796127187':
@@ -2912,6 +3224,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012847418V490298
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005357647'
     :participant_id: '600036507'
   '796140369':
@@ -2927,6 +3240,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845702V443941
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1006460697'
     :participant_id: '600043284'
   '796122376':
@@ -2942,6 +3256,7 @@ find_candidate:
     :home_phone: 5555004134 p1
     :icn: 1012845154V366661
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005135822'
     :participant_id: '600083048'
   '796122330':
@@ -2962,6 +3277,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012830861V355582
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005133978'
     :participant_id: '600043168'
   '796199052':
@@ -2982,6 +3298,7 @@ find_candidate:
     :home_phone: "(555)505-4576"
     :icn: 1012860802V829625
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1026554256'
     :participant_id: '600122780'
   '796090317':
@@ -3002,6 +3319,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012860875V895695
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1026554302'
     :participant_id: '600139562'
   '796246757':
@@ -3022,6 +3340,7 @@ find_candidate:
     :home_phone: "(812)343-4346"
     :icn: 1012845703V609890
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1075306616'
     :participant_id: '600048309'
   '796079018':
@@ -3042,6 +3361,11 @@ find_candidate:
     :home_phone: 
     :icn: 1012658430V604777
     :mhv_ids: []
+    :vha_facility_ids:
+    - '983'
+    - '984'
+    - '556'
+    - 200ESR
     :edipi: '1105051936'
     :participant_id: '600097643'
   '796123607':
@@ -3062,6 +3386,9 @@ find_candidate:
     :home_phone: 
     :icn: 1012740600V714187
     :mhv_ids: []
+    :vha_facility_ids:
+    - '989'
+    - 200ESR
     :edipi: '1005169255'
     :participant_id: '600043180'
   '796123609':
@@ -3082,6 +3409,7 @@ find_candidate:
     :home_phone: 5555005089 p1
     :icn: 1012845704V788789
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005169271'
     :participant_id: '600048558'
   '796104437':
@@ -3101,6 +3429,14 @@ find_candidate:
     :home_phone: "(202)333-3339"
     :icn: 1012592956V095840
     :mhv_ids: []
+    :vha_facility_ids:
+    - '984'
+    - '992'
+    - '987'
+    - '983'
+    - 200ESR
+    - '556'
+    - '668'
     :edipi: '1013590059'
     :participant_id: '13367440'
   '796128064':
@@ -3121,6 +3457,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845705V991634
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005409299'
     :participant_id: '600043200'
   '796161553':
@@ -3141,6 +3478,7 @@ find_candidate:
     :home_phone: "(876)876-8767"
     :icn: 1012847272V603772
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1010388747'
     :participant_id: '600111363'
   '796080135':
@@ -3156,6 +3494,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012593002V974767
     :mhv_ids: []
+    :vha_facility_ids:
+    - '556'
     :edipi: '1233511680'
     :participant_id: '13385427'
   '796052521':
@@ -3171,6 +3511,12 @@ find_candidate:
     :home_phone: 
     :icn: 1012592973V765426
     :mhv_ids: []
+    :vha_facility_ids:
+    - '984'
+    - 200ESR
+    - '983'
+    - '556'
+    - '668'
     :edipi: '1290493214'
     :participant_id: '13374437'
   '796151611':
@@ -3191,6 +3537,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845384V854587
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1008081642'
     :participant_id: '600043220'
   '796017172':
@@ -3211,6 +3558,14 @@ find_candidate:
     :home_phone: 
     :icn: 1012592963V937803
     :mhv_ids: []
+    :vha_facility_ids:
+    - '983'
+    - '984'
+    - 200ESR
+    - '987'
+    - '988'
+    - '668'
+    - '556'
     :edipi: '1015912550'
     :participant_id: '13397029'
   '796007416':
@@ -3230,6 +3585,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012832750V262955
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1242992250'
     :participant_id: 
   '796090608':
@@ -3250,6 +3606,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012845709V062275
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1099974555'
     :participant_id: '600082934'
   '796023436':
@@ -3270,6 +3628,7 @@ find_candidate:
     :home_phone: "(310)998-8734"
     :icn: 1012844756V389712
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1105848176'
     :participant_id: '600081338'
   '796081697':
@@ -3290,6 +3649,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012845711V863651
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1013844689'
     :participant_id: '600065530'
   '796105732':
@@ -3310,6 +3671,7 @@ find_candidate:
     :home_phone: "(212)222-3333"
     :icn: 1012845712V519110
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1099983856'
     :participant_id: '600082459'
   '796113361':
@@ -3330,6 +3692,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012845109V755759
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1100989510'
     :participant_id: '600082227'
   '796131482':
@@ -3350,6 +3713,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012844755V103857
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1005628810'
     :participant_id: '600036496'
   '796123102':
@@ -3370,6 +3734,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012830556V118669
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005156080'
     :participant_id: '600043177'
   '796123104':
@@ -3390,6 +3756,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012830873V293499
     :mhv_ids: []
+    :vha_facility_ids:
+    - 200ESR
     :edipi: '1005156129'
     :participant_id: '600048556'
   '796192795':
@@ -3404,6 +3772,7 @@ find_candidate:
     :home_phone: 
     :icn: 1012851504V621829
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1023820672'
     :participant_id: '600129723'
   '666717635':
@@ -3419,6 +3788,9 @@ find_candidate:
     :icn: 1012872729V336966
     :mhv_ids:
     - '13492196'
+    :vha_facility_ids:
+    - 200MHS
+    - '979'
     :edipi: '1320002050'
     :participant_id: '600151836'
   '666271152':
@@ -3434,6 +3806,10 @@ find_candidate:
     :icn: 1012827134V054550
     :mhv_ids:
     - '10894456'
+    :vha_facility_ids:
+    - 200MHS
+    - '979'
+    - '989'
     :edipi: '1320002060'
     :participant_id: 
   '666360333':
@@ -3449,6 +3825,10 @@ find_candidate:
     :icn: 1012870264V741864
     :mhv_ids:
     - '13408508'
+    :vha_facility_ids:
+    - '979'
+    - 200MHS
+    - '989'
     :edipi: '1320002070'
     :participant_id: 
   '666512797':
@@ -3464,6 +3844,9 @@ find_candidate:
     :icn: 1012852978V019884
     :mhv_ids:
     - '12210827'
+    :vha_facility_ids:
+    - '989'
+    - 200MHS
     :edipi: '1320002080'
     :participant_id: '600152407'
   '796184647':
@@ -3479,5 +3862,6 @@ find_candidate:
     :home_phone: 
     :icn: 1012830985V402307
     :mhv_ids: []
+    :vha_facility_ids: []
     :edipi: '1019031833'
     :participant_id: '600048569'

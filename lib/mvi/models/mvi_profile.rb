@@ -26,6 +26,7 @@ module MVI
       attribute :home_phone, String
       attribute :icn, String
       attribute :mhv_ids, Array[String]
+      attribute :vha_facility_ids, Array[String]
       attribute :edipi, String
       attribute :participant_id, String
 
