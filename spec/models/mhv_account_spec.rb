@@ -59,24 +59,32 @@ RSpec.describe MhvAccount, type: :model do
           subject = described_class.new(base_attributes)
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('ineligible')
+          expect(subject.eligible?).to be_falsey
+          expect(subject.terms_and_conditions_accepted?).to be_truthy
         end
 
         it 'is able to transition back to upgraded' do
           subject = described_class.new(base_attributes.merge(upgraded_at: Time.current))
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('upgraded')
+          expect(subject.eligible?).to be_truthy
+          expect(subject.terms_and_conditions_accepted?).to be_truthy
         end
 
         it 'is able to transition back to registered' do
           subject = described_class.new(base_attributes.merge(registered_at: Time.current))
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('registered')
+          expect(subject.eligible?).to be_truthy
+          expect(subject.terms_and_conditions_accepted?).to be_truthy
         end
 
         it 'it falls back to unknown' do
           subject = described_class.new(base_attributes)
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('unknown')
+          expect(subject.eligible?).to be_truthy
+          expect(subject.terms_and_conditions_accepted?).to be_truthy
         end
       end
 
@@ -86,24 +94,32 @@ RSpec.describe MhvAccount, type: :model do
           subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('ineligible')
+          expect(subject.eligible?).to be_falsey
+          expect(subject.terms_and_conditions_accepted?).to be_falsey
         end
 
         it 'transitions to needs_terms_acceptance' do
           subject = described_class.new(user_uuid: user.uuid, account_state: 'upgraded', upgraded_at: Time.current)
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('needs_terms_acceptance')
+          expect(subject.eligible?).to be_truthy
+          expect(subject.terms_and_conditions_accepted?).to be_falsey
         end
 
         it 'is able to transition back to registered' do
           subject = described_class.new(user_uuid: user.uuid, account_state: 'registered', registered_at: Time.current)
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('needs_terms_acceptance')
+          expect(subject.eligible?).to be_truthy
+          expect(subject.terms_and_conditions_accepted?).to be_falsey
         end
 
         it 'it falls back to unknown' do
           subject = described_class.new(user_uuid: user.uuid, account_state: 'unknown')
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('needs_terms_acceptance')
+          expect(subject.eligible?).to be_truthy
+          expect(subject.terms_and_conditions_accepted?).to be_falsey
         end
       end
     end
@@ -130,6 +146,8 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.registered_at).to be_a(Time)
           expect(subject.upgraded_at).to be_a(Time)
           expect(User.find(user.uuid).mhv_correlation_id).to eq('14221465')
+          expect(subject.eligible?).to be_truthy
+          expect(subject.terms_and_conditions_accepted?).to be_truthy
         end
       end
     end
@@ -147,6 +165,8 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.account_state).to eq('upgraded')
           expect(subject.registered_at).to be_nil
           expect(subject.upgraded_at).to be_a(Time)
+          expect(subject.eligible?).to be_truthy
+          expect(subject.terms_and_conditions_accepted?).to be_truthy
         end
       end
     end
@@ -164,6 +184,8 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.account_state).to eq('upgraded')
           expect(subject.registered_at).to be_nil
           expect(subject.upgraded_at).to be_nil
+          expect(subject.eligible?).to be_truthy
+          expect(subject.terms_and_conditions_accepted?).to be_truthy
         end
       end
     end

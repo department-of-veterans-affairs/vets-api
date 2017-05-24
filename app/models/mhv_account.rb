@@ -37,6 +37,10 @@ class MhvAccount < ActiveRecord::Base
     upgrade_mhv_account!
   end
 
+  def eligible?
+    !ineligible?
+  end
+
   def terms_and_conditions_accepted?
     terms_and_conditions_accepted.present?
   end
