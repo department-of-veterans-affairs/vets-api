@@ -11,11 +11,11 @@ module SchemaMatchers
   end
 
   matcher :match_schema do |schema_name|
-    match {|json| valid_against_schema?(json, schema_name)}
+    match { |json| valid_against_schema?(json, schema_name) }
   end
 
   matcher :match_response_schema do |schema_name|
-    match {|response| valid_against_schema?(response.body, schema_name)}
+    match { |response| valid_against_schema?(response.body, schema_name) }
   end
 
   matcher :match_vets_schema do |schema|

@@ -11,7 +11,6 @@ RSpec.describe LetterSerializer, type: :serializer do
   subject { serialize(letter, serializer_class: described_class) }
 
   it 'should include name' do
-    puts subject
     expect(attributes['name']).to eq(letter.name)
   end
 
@@ -21,13 +20,5 @@ RSpec.describe LetterSerializer, type: :serializer do
 
   it 'should match the letter schema' do
     expect(subject).to match_schema('letter')
-  end
-
-  it 'does a collection' do
-    letter1 = Letter.new('one', 'BENEFITSUMMARY')
-    letter2 = Letter.new('two', 'BENEFITSUMMARYDEPENDENT')
-    a = [letter1, letter2]
-    s = ActiveModel::Serializer::CollectionSerializer.new(a, each_serializer: LetterSerializer)
-    puts s
   end
 end
