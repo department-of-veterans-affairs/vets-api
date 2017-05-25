@@ -9,7 +9,7 @@ describe PdfFill::Filler do
         'vaFileNumber' => "c12345678"
       })
 
-      File.delete(file_path)
+      # File.delete(file_path)
     end
   end
 end
