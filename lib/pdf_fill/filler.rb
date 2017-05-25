@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'pdf_fill/forms/va21527'
+require 'pdf_fill/forms/va21p527ez'
 require 'pdf_fill/hash_converter'
 
 module PdfFill
@@ -8,7 +8,7 @@ module PdfFill
 
     PDF_FORMS = PdfForms.new('pdftk')
     FORM_CLASSES = {
-      '21-527' => PdfFill::Forms::VA21527
+      '21P-527EZ' => PdfFill::Forms::VA21P527EZ
     }
 
     def fill_form(code, data)

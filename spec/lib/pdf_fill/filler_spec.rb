@@ -5,7 +5,7 @@ require 'pdf_fill/filler'
 describe PdfFill::Filler do
   describe '#fill_form' do
     it 'should fill the form correctly' do
-      file_path = described_class.fill_form('21-527', {
+      file_path = described_class.fill_form('21P-527EZ', {
         'vaFileNumber' => "c12345678"
       })
 
