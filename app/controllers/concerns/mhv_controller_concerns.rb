@@ -17,12 +17,12 @@ module MHVControllerConcerns
   end
 
   def raise_requires_terms_acceptance
-    raise Common::Exceptions::Forbidden, detail: 'You have not accepted the terms of service.'
+    raise Common::Exceptions::Forbidden, detail: 'You have not accepted the terms of service'
   end
 
   def raise_something_went_wrong
     # TODO: any additional data could probably be provided in source.
-    raise Common::Exceptions::Forbidden, detail: 'Something went wrong. Please contact support.'
+    raise Common::Exceptions::Forbidden, detail: 'Something went wrong. Please contact support'
   end
 
   def authenticate_client

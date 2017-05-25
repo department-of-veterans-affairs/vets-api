@@ -28,6 +28,19 @@ RSpec.describe 'prescriptions', type: :request do
     end
   end
 
+  context 'terms of service not accepted' do
+    let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: true, upgraded?: false) }
+    let(:current_user) { build(:user) }
+
+    it 'raises access denied' do
+      get '/v0/prescriptions/13651310'
+
+      expect(response).to have_http_status(:forbidden)
+      expect(JSON.parse(response.body)['errors'].first['detail'])
+        .to eq('You have not accepted the terms of service')
+    end
+  end
+
   it 'responds to GET #show' do
     VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription') do
       get '/v0/prescriptions/13651310'
