@@ -56,7 +56,7 @@ namespace :redis do
         ":uuid": uuid,
         ":status": 'OK',
         ":profile": {
-          "^o": 'MviProfile',
+          "^o": 'MVI::Models::MviProfile',
           "birth_date": '19700101',
           "edipi": '1005079124',
           "family_name": 'USER',
@@ -66,7 +66,14 @@ namespace :redis do
           "mhv_ids": mhv_ids,
           "ssn": '123456789',
           "suffix": nil,
-          "address": nil,
+          "address": {
+            "^o": 'MVI::Models::MviProfileAddress',
+            "street": '123 Fake Street',
+            "city": 'Springfield',
+            "state": 'OR',
+            "postal_code": '99999',
+            "country": 'USA'
+          },
           "home_phone": nil,
           "participant_id": '600062099'
         }
