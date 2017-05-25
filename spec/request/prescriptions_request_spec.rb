@@ -5,6 +5,7 @@ require 'support/rx_client_helpers'
 
 RSpec.describe 'prescriptions', type: :request do
   include Rx::ClientHelpers
+  include SchemaMatchers
 
   let(:current_user) { build(:mhv_user) }
 

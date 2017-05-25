@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "properties": {
+    "attributes": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "letter_type": {
+          "enum": [
+            "benefits_summary",
+            "benefits_summary_dependent",
+            "benefits_verification",
+            "civil_service",
+            "commissary",
+            "proof_of_service",
+            "service_verification",
+            "medicare_part_d",
+            "minimum_essential_coverage"
+          ]
+        }
+      },
+      "type": "object"
+    },
+    "id": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    }
+  },
+  "type": "object"
+}
