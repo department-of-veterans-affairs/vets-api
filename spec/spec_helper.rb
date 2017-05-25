@@ -86,10 +86,6 @@ RSpec.configure do |config|
     I18n.locale_available?(:en)
   end
 
-  config.before(:each) do |example|
-    stub_veteran_status unless example.metadata[:skip_veteran_status]
-  end
-
   config.include SpecBuilders
   config.include SpoolHelpers
 
