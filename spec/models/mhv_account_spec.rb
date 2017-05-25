@@ -179,19 +179,19 @@ RSpec.describe MhvAccount, type: :model do
 
     context 'with single facility' do
       it 'is eligible with facility in range' do
-        stub_const('MhvAccount::PATIENT_FACILITY_RANGES', [[358, 758]])
+        stub_const('MhvAccount::PATIENT_FACILITY_RANGE', [358, 758])
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
         expect(subject.account_state).not_to eq('ineligible')
       end
       it 'is eligible with facility at edge of range' do
-        stub_const('MhvAccount::PATIENT_FACILITY_RANGES', [[450, 758]])
+        stub_const('MhvAccount::PATIENT_FACILITY_RANGE', [450, 758])
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
         expect(subject.account_state).not_to eq('ineligible')
       end
       it 'is ineligible with facility out of range' do
-        stub_const('MhvAccount::PATIENT_FACILITY_RANGES', [[600, 758]])
+        stub_const('MhvAccount::PATIENT_FACILITY_RANGE', [600, 758])
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
         expect(subject.account_state).to eq('ineligible')
@@ -201,13 +201,13 @@ RSpec.describe MhvAccount, type: :model do
     context 'with multiple facilities' do
       let(:vha_facility_ids) { %w(200MH 488) }
       it 'is eligible with at least one facility in range' do
-        stub_const('MhvAccount::PATIENT_FACILITY_RANGES', [[358, 758]])
+        stub_const('MhvAccount::PATIENT_FACILITY_RANGE', [358, 758])
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
         expect(subject.account_state).not_to eq('ineligible')
       end
       it 'is ineligible with all facilities out of range' do
-        stub_const('MhvAccount::PATIENT_FACILITY_RANGES', [[600, 758]])
+        stub_const('MhvAccount::PATIENT_FACILITY_RANGE', [600, 758])
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
         expect(subject.account_state).to eq('ineligible')
@@ -217,29 +217,13 @@ RSpec.describe MhvAccount, type: :model do
     context 'with alphanumeric facility' do
       let(:vha_facility_ids) { ['566GE'] }
       it 'is eligible with facility in range' do
-        stub_const('MhvAccount::PATIENT_FACILITY_RANGES', [[358, 758]])
+        stub_const('MhvAccount::PATIENT_FACILITY_RANGE', [358, 758])
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
         expect(subject.account_state).not_to eq('ineligible')
       end
       it 'is ineligible with facility out of range' do
-        stub_const('MhvAccount::PATIENT_FACILITY_RANGES', [[600, 758]])
-        subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
-        subject.send(:setup) # This gets called when object is first loaded
-        expect(subject.account_state).to eq('ineligible')
-      end
-    end
-
-    context 'with multiple ranges' do
-      let(:vha_facility_ids) { ['905'] }
-      it 'is eligible with facility in any range' do
-        stub_const('MhvAccount::PATIENT_FACILITY_RANGES', [[358, 758], [900, 910]])
-        subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
-        subject.send(:setup) # This gets called when object is first loaded
-        expect(subject.account_state).not_to eq('ineligible')
-      end
-      it 'is ineligible with facility not in any range' do
-        stub_const('MhvAccount::PATIENT_FACILITY_RANGES', [[600, 758], [910, 920]])
+        stub_const('MhvAccount::PATIENT_FACILITY_RANGE', [600, 758])
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
         expect(subject.account_state).to eq('ineligible')

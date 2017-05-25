@@ -62,8 +62,6 @@ locators:
 
 # Settings for MyHealthEVet
 mhv:
-  treating_facility_ids:
-    - [ 358, 758 ]
   rx:
     host: https://mhv-api.example.com
     app_token: fake-app-token

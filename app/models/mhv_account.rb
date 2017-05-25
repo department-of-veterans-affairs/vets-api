@@ -6,7 +6,8 @@ class MhvAccount < ActiveRecord::Base
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
   # Everything except ineligible accounts should be able to transition to :needs_terms_acceptance
   ALL_STATES = %i(unknown needs_terms_acceptance ineligible registered upgraded register_failed upgrade_failed).freeze
-  PATIENT_FACILITY_RANGES = Settings.mhv.treating_facility_ids
+  # Range of VHA facility IDs at which people receive treatment
+  PATIENT_FACILITY_RANGE = [358, 758].freeze
   after_initialize :setup
 
   aasm(:account_state) do
@@ -92,13 +93,11 @@ class MhvAccount < ActiveRecord::Base
   end
 
   # User's profile contains a list of VHA facility-specific identifiers.
-  # Facilities in the (configurable) ranges are treating facilities, indicating
+  # Facilities in the defined range are treating facilities, indicating
   # that the user is a VA patient.
   def va_patient?
     facilities = user&.va_profile&.vha_facility_ids
-    PATIENT_FACILITY_RANGES.any? do |range|
-      facilities.to_a.any? { |f| f.to_i.between?(*range) }
-    end
+    facilities.to_a.any? { |f| f.to_i.between?(*PATIENT_FACILITY_RANGE) }
   end
 
   def veteran?
