@@ -14,7 +14,7 @@
         "$ref": "letter_base.json"
       }
     },
-    "mete": {
+    "meta": {
       "properties": {
         "address": {
           "properties": {
