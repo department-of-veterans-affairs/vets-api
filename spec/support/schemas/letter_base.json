@@ -4,9 +4,11 @@
     "attributes": {
       "properties": {
         "name": {
+          "description": "Display name for the letter",
           "type": "string"
         },
         "letter_type": {
+          "description": "Letter type used to pass as an argument to the letter download endpoint",
           "enum": [
             "benefits_summary",
             "benefits_summary_dependent",
