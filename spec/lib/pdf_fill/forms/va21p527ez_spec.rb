@@ -48,15 +48,15 @@ describe PdfFill::Forms::VA21P527EZ do
       [
         '123',
         {
-          'has_file_number' => true,
-          'no_file_number' => false
+          'hasFileNumber' => true,
+          'noFileNumber' => false
         }
       ],
       [
         [nil],
         {
-          'has_file_number' => false,
-          'no_file_number' => true
+          'hasFileNumber' => false,
+          'noFileNumber' => true
         }
       ]
     ]
@@ -107,8 +107,8 @@ describe PdfFill::Forms::VA21P527EZ do
         'gender' => 'M',
         'genderMale' => true,
         'genderFemale' => false,
-        'has_file_number' => true,
-        'no_file_number' => false
+        'hasFileNumber' => true,
+        'noFileNumber' => false
       )
     end
   end

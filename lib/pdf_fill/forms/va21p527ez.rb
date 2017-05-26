@@ -8,6 +8,8 @@ module PdfFill
         'vaFileNumber' => 'F[0].Page_5[0].VAfilenumber[0]',
         'genderMale' => 'F[0].Page_5[0].Male[0]',
         'genderFemale' => 'F[0].Page_5[0].Female[0]',
+        'hasFileNumber' => 'F[0].Page_5[0].YesFiled[0]',
+        'noFileNumber' => 'F[0].Page_5[0].NoFiled[0]',
         'veteranFullName' => 'F[0].Page_5[0].Veteransname[0]'
       }.freeze
 
@@ -15,8 +17,8 @@ module PdfFill
         has_file_number = va_file_number.present?
 
         {
-          'has_file_number' => has_file_number,
-          'no_file_number' => !has_file_number
+          'hasFileNumber' => has_file_number,
+          'noFileNumber' => !has_file_number
         }
       end
 
