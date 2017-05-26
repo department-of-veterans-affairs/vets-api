@@ -4,28 +4,7 @@ require 'pdf_fill/forms/va21p527ez'
 
 describe PdfFill::Forms::VA21P527EZ do
   let(:form_data) do
-    {
-      'veteranFullName' => {
-        'first' => 'john',
-        'middle' => 'middle',
-        'last' => 'smith',
-        'suffix' => 'Sr.'
-      },
-      'nightPhone' => '0123456789',
-      'dayPhone' => '1123456789',
-      'vaFileNumber' => 'c12345678',
-      'vaHospitalTreatments' => [
-        {
-          'name' => 'hospital1',
-          'location' => 'nyc'
-        },
-        {
-          'name' => 'hospital2',
-          'location' => 'dc'
-        }
-      ],
-      'gender' => 'M'
-    }
+    JSON.parse(File.read('spec/fixtures/pdf_fill/21P-527EZ.json'))
   end
 
   test_method(
@@ -189,7 +168,6 @@ describe PdfFill::Forms::VA21P527EZ do
          "nightPhone"=>"3456789",
          "dayPhone"=>"3456789",
          "vaFileNumber"=>"c12345678",
-         "vaHospitalTreatments"=>[{"name"=>"hospital1", "location"=>"nyc"}, {"name"=>"hospital2", "location"=>"dc"}],
          "gender"=>"M",
          "genderMale"=>true,
          "genderFemale"=>false,
