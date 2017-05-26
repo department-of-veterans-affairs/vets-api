@@ -5,26 +5,7 @@ require 'pdf_fill/filler'
 describe PdfFill::Filler do
   describe '#fill_form' do
     let(:form_data) do
-      {
-        'vaFileNumber' => 'c12345678',
-        'gender' => 'M',
-        'nightPhone' => '5551110000',
-        'dayPhone' => '1551110000',
-        'vaHospitalTreatments' => [
-          {
-            'name' => 'hospital1',
-            'location' => 'nyc'
-          },
-          {
-            'name' => 'hospital2',
-            'location' => 'dc'
-          }
-        ],
-        'veteranFullName' => {
-          'first' => 'Mark',
-          'last' => 'Olson'
-        }
-      }
+      get_fixture('pdf_fill/21P-527EZ')
     end
 
     it 'should fill the form correctly' do
