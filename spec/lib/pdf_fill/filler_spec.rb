@@ -7,6 +7,7 @@ describe PdfFill::Filler do
     let(:form_data) do
       {
         'vaFileNumber' => "c12345678",
+        'gender' => 'M',
         "veteranFullName" => {
           "first" => "Mark",
           "last" => "Olson"

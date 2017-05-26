@@ -5,6 +5,8 @@ module PdfFill
 
       KEY = {
         'vaFileNumber' => 'F[0].Page_5[0].VAfilenumber[0]',
+        'genderMale' => 'F[0].Page_5[0].Male[0]',
+        'genderFemale' => 'F[0].Page_5[0].Female[0]',
         'veteranFullName' => 'F[0].Page_5[0].Veteransname[0]'
       }
 
