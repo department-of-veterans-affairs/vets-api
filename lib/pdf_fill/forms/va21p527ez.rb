@@ -10,6 +10,15 @@ module PdfFill
         'veteranFullName' => 'F[0].Page_5[0].Veteransname[0]'
       }
 
+      def expand_va_file_number(va_file_number)
+        has_file_number = va_file_number.present?
+
+        {
+          has_file_number => has_file_number,
+          no_file_number => !has_file_number
+        }
+      end
+
       def expand_gender(gender)
         return {} if gender.blank?
 
@@ -36,6 +45,8 @@ module PdfFill
         form_data_merged['veteranFullName'] = combine_full_name(form_data_merged['veteranFullName'])
 
         form_data_merged.merge!(expand_gender(form_data_merged['gender']))
+
+        form_data_merged.merge!(expand_va_file_number(form_data_merged['vaFileNumber']))
 
         form_data_merged
       end
