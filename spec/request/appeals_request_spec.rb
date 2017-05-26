@@ -2,6 +2,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Appeals Status', type: :request do
+  include SchemaMatchers
+
   let(:user) { FactoryGirl.create(:loa3_user, ssn: '796126859') }
   let(:session) { Session.create(uuid: user.uuid) }
 
