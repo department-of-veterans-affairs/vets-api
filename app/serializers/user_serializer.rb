@@ -5,7 +5,7 @@ require 'common/client/concerns/service_status'
 class UserSerializer < ActiveModel::Serializer
   include Common::Client::ServiceStatus
 
-  attributes :services, :profile, :va_profile, :veteran_status
+  attributes :services, :profile, :va_profile, :veteran_status, :mhv_account_state
 
   def id
     nil
@@ -60,9 +60,5 @@ class UserSerializer < ActiveModel::Serializer
     service_list << BackendServices::EVSS_CLAIMS if object.can_access_evss?
     service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
     service_list
-  end
-
-  def mhv_account_state
-    object.mhv_account.account_state
   end
 end
