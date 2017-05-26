@@ -45,9 +45,10 @@ module PdfFill
         combined = []
 
         va_hospital_treatments.each do |va_hospital_treatment|
-          combined << va_hospital_treatment['name']
-          combined << va_hospital_treatment['']
+          combined << combine_hash(va_hospital_treatment, %w(name location), ', ')
         end
+
+        combined
       end
 
       def combine_hash(hash, keys, separator = ' ')

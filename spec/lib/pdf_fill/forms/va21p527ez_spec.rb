@@ -20,6 +20,29 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     described_class,
+    'combine_va_hospital',
+    [
+      [
+        [[
+          {
+            'name' => 'hospital1',
+            'location' => 'nyc'
+          },
+          {
+            'name' => 'hospital2',
+            'location' => 'dc'
+          }
+        ]],
+        [
+          'hospital1, nyc',
+          'hospital2, dc'
+        ]
+      ]
+    ]
+  )
+
+  test_method(
+    described_class,
     'split_phone',
     [
       [
