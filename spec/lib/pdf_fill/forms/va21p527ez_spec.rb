@@ -203,7 +203,8 @@ describe PdfFill::Forms::VA21P527EZ do
          "noFileNumber"=>false,
          "nightPhoneAreaCode"=>"012",
          "dayPhoneAreaCode"=>"112",
-         "vaHospitalTreatmentNames"=>["hospital1, nyc", "hospital2, dc"]}
+         "vaHospitalTreatmentNames"=>["hospital1, nyc", "hospital2, dc"],
+         "vaHospitalTreatmentDates"=>["2016-12-15", nil, nil, "2016-12-01", "2016-12-02", "2016-12-03"]}
       )
     end
   end

@@ -11,10 +11,12 @@
   "vaHospitalTreatments": [
     {
       "name": "hospital1",
+      "dates": ["2016-12-15"],
       "location": "nyc"
     },
     {
       "name": "hospital2",
+      "dates": ["2016-12-01", "2016-12-02", "2016-12-03"],
       "location": "dc"
     }
   ],
