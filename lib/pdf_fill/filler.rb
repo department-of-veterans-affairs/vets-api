@@ -9,13 +9,13 @@ module PdfFill
     PDF_FORMS = PdfForms.new('pdftk')
     FORM_CLASSES = {
       '21P-527EZ' => PdfFill::Forms::VA21P527EZ
-    }
+    }.freeze
 
     def fill_form(code, form_data)
       form_mod = FORM_CLASSES[code]
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
-      file_path = "#{folder}/#{code}_#{Time.now}.pdf"
+      file_path = "#{folder}/#{code}_#{Time.zone.now}.pdf"
 
       PDF_FORMS.fill_form(
         "lib/pdf_fill/forms/pdfs/#{code}.pdf",

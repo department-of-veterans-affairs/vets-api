@@ -6,11 +6,11 @@ describe PdfFill::Filler do
   describe '#fill_form' do
     let(:form_data) do
       {
-        'vaFileNumber' => "c12345678",
+        'vaFileNumber' => 'c12345678',
         'gender' => 'M',
-        "veteranFullName" => {
-          "first" => "Mark",
-          "last" => "Olson"
+        'veteranFullName' => {
+          'first' => 'Mark',
+          'last' => 'Olson'
         }
       }
     end

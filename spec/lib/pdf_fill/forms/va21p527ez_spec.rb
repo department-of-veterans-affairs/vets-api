@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'spec_helper'
 require 'pdf_fill/forms/va21p527ez'
 
@@ -10,7 +11,7 @@ describe PdfFill::Forms::VA21P527EZ do
         'last' => 'smith',
         'suffix' => 'Sr.'
       },
-      'vaFileNumber' => "c12345678",
+      'vaFileNumber' => 'c12345678',
       'gender' => 'M'
     }
   end
@@ -60,7 +61,7 @@ describe PdfFill::Forms::VA21P527EZ do
       end
 
       it 'should combine a full name' do
-        expect(subject).to eq("john smith")
+        expect(subject).to eq('john smith')
       end
     end
 
@@ -73,20 +74,20 @@ describe PdfFill::Forms::VA21P527EZ do
     end
 
     it 'should combine a full name' do
-      expect(subject).to eq("john middle smith Sr.")
+      expect(subject).to eq('john middle smith Sr.')
     end
   end
 
   describe '#merge_fields' do
     it 'should merge the right fields' do
       expect(described_class.merge_fields(form_data)).to eq(
-        {"veteranFullName"=>"john middle smith Sr.",
- "vaFileNumber"=>"c12345678",
- "gender"=>"M",
- "genderMale"=>true,
- "genderFemale"=>false,
- "has_file_number"=>true,
- "no_file_number"=>false}
+        'veteranFullName' => 'john middle smith Sr.',
+        'vaFileNumber' => 'c12345678',
+        'gender' => 'M',
+        'genderMale' => true,
+        'genderFemale' => false,
+        'has_file_number' => true,
+        'no_file_number' => false
       )
     end
   end

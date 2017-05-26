@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module PdfFill
   module Forms
     module VA21P527EZ
@@ -8,7 +9,7 @@ module PdfFill
         'genderMale' => 'F[0].Page_5[0].Male[0]',
         'genderFemale' => 'F[0].Page_5[0].Female[0]',
         'veteranFullName' => 'F[0].Page_5[0].Veteransname[0]'
-      }
+      }.freeze
 
       def expand_va_file_number(va_file_number)
         has_file_number = va_file_number.present?
