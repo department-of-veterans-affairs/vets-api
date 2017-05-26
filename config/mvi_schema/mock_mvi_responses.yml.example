@@ -3791,6 +3791,7 @@ find_candidate:
     :vha_facility_ids:
     - 200MHS
     - '979'
+    - '648'
     :edipi: '1320002050'
     :participant_id: '600151836'
   '666271152':
@@ -3810,6 +3811,7 @@ find_candidate:
     - 200MHS
     - '979'
     - '989'
+    - '648'
     :edipi: '1320002060'
     :participant_id: 
   '666360333':
@@ -3829,6 +3831,7 @@ find_candidate:
     - '979'
     - 200MHS
     - '989'
+    - '648'
     :edipi: '1320002070'
     :participant_id: 
   '666512797':
@@ -3847,6 +3850,7 @@ find_candidate:
     :vha_facility_ids:
     - '989'
     - 200MHS
+    - '648'
     :edipi: '1320002080'
     :participant_id: '600152407'
   '796184647':
