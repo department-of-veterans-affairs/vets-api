@@ -11,6 +11,9 @@ module PdfFill
         'hasFileNumber' => 'F[0].Page_5[0].YesFiled[0]',
         'noFileNumber' => 'F[0].Page_5[0].NoFiled[0]',
         'nightPhone' => 'F[0].Page_5[0].Eveningphonenumber[0]',
+        'nightPhoneAreaCode' => 'F[0].Page_5[0].Eveningareacode[0]',
+        'dayPhone' => 'F[0].Page_5[0].Daytimephonenumber[0]',
+        'dayPhoneAreaCode' => 'F[0].Page_5[0].Daytimeareacode[0]',
         'veteranFullName' => 'F[0].Page_5[0].Veteransname[0]'
       }.freeze
 
