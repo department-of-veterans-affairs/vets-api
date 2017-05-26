@@ -10,6 +10,16 @@ describe PdfFill::Filler do
         'gender' => 'M',
         'nightPhone' => '5551110000',
         'dayPhone' => '1551110000',
+        'vaHospitalTreatments' => [
+          {
+            'name' => 'hospital1',
+            'location' => 'nyc'
+          },
+          {
+            'name' => 'hospital2',
+            'location' => 'dc'
+          }
+        ],
         'veteranFullName' => {
           'first' => 'Mark',
           'last' => 'Olson'

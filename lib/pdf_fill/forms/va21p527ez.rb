@@ -14,6 +14,7 @@ module PdfFill
         'nightPhoneAreaCode' => 'F[0].Page_5[0].Eveningareacode[0]',
         'dayPhone' => 'F[0].Page_5[0].Daytimephonenumber[0]',
         'dayPhoneAreaCode' => 'F[0].Page_5[0].Daytimeareacode[0]',
+        'vaHospitalTreatmentNames' => "F[0].Page_5[0].Nameandlocationofvamedicalcenter[#{PdfFill::HashConverter::ITERATOR}]",
         'veteranFullName' => 'F[0].Page_5[0].Veteransname[0]'
       }.freeze
 
@@ -83,6 +84,7 @@ module PdfFill
         end
 
         form_data_merged['vaHospitalTreatmentNames'] = combine_va_hospital(form_data_merged['vaHospitalTreatments'])
+        form_data_merged.delete('vaHospitalTreatments')
 
         form_data_merged
       end

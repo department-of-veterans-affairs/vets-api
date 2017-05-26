@@ -20,7 +20,7 @@ module PdfFill
       case form_data
       when Array
         form_data.each_with_index do |v, idx|
-          transform_data(form_data: v, pdftk_keys: pdftk_keys, i: idx + 1)
+          transform_data(form_data: v, pdftk_keys: pdftk_keys, i: idx)
         end
       when Hash
         form_data.each do |k, v|
