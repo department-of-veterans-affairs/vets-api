@@ -5,9 +5,8 @@ module SchemaMatchers
   extend RSpec::Matchers::DSL
 
   def valid_against_schema?(json, schema_name)
-    schema_directory = "#{Dir.pwd}/spec/support/schemas"
-    schema_path = "#{schema_directory}/#{schema_name}.json"
-    JSON::Validator.validate!(schema_path, json, strict: true)
+    schema_path = Rails.root.join('spec', 'support', 'schemas', "#{schema_name}.json")
+    JSON::Validator.validate!(schema_path.to_s, json, strict: true)
   end
 
   matcher :match_schema do |schema_name|

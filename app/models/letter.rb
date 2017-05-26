@@ -17,7 +17,8 @@ class Letter < Common::Base
   attribute :name, String
   attribute :letter_type, String
 
-  def initialize(init_attributes = {})
+  def initialize(init_attributes)
+    raise ArgumentError, 'name and letter_type are required' if init_attributes.values.any?(&:nil?)
     raise ArgumentError, 'invalid letter type' unless LETTER_TYPES.value? init_attributes[:letter_type]
     init_attributes[:letter_type] = LETTER_TYPES.key(init_attributes[:letter_type])
     super(init_attributes)
