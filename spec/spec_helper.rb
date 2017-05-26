@@ -2,7 +2,7 @@
 require 'fakeredis/rspec'
 require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
-require 'support/api_schema_matcher'
+require 'support/schema_matchers'
 require 'support/spool_helpers'
 require 'support/have_deep_attributes_matcher'
 require 'support/veteran_status/stub_veteran_status'
