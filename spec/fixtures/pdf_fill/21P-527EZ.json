@@ -1,0 +1,22 @@
+{
+  "veteranFullName": {
+    "first": "john",
+    "middle": "middle",
+    "last": "smith",
+    "suffix": "Sr."
+  },
+  "nightPhone": "0123456789",
+  "dayPhone": "1123456789",
+  "vaFileNumber": "c12345678",
+  "vaHospitalTreatments": [
+    {
+      "name": "hospital1",
+      "location": "nyc"
+    },
+    {
+      "name": "hospital2",
+      "location": "dc"
+    }
+  ],
+  "gender": "M"
+}
