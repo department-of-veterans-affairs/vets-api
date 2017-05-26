@@ -4,10 +4,12 @@ module Common
     module Middleware
       module Response
         class MhvXmlHtmlErrors < Faraday::Response::Middleware
+          include SentryLogging
+
           ERROR_LIST = %w(service_outage generic_xml generic).freeze
 
           def on_complete(env)
-            return if ok_or_json?(env)
+            return unless error_and_xml_or_html?(env)
 
             @doc = html?(env) ? Nokogiri::HTML(env.body) : Nokogiri::XML(env.body)
 
@@ -22,24 +24,34 @@ module Common
 
           attr_reader :doc
 
-          def ok_or_json?(env)
-            [1, 2, 3].include?(env.status / 100) || env.response_headers['content-type'] =~ /\bjson/
+          def error_and_xml_or_html?(env)
+            [4, 5].include?(env.status / 100) &&
+              (env.response_headers['content-type'] =~ /\bxml/ || env.response_headers['content-type'] =~ /\bhtml/)
           end
 
           def html?(env)
             env.response_headers['content-type'] =~ /html/i
           end
 
+          def verify?(nodes, values = {})
+            nodes.none?(&:blank?) && values.all? { |v1, v2| v1.casecmp(v2.to_s) }
+          end
+
           def service_outage
             fault = doc.xpath('//errormsg:Fault', 'errormsg' => 'http://schemas.xmlsoap.org/soap/envelope/')
-            fault_code = fault.at_css('faultcode')
             fault_actor = fault.at_css('faultactor')
             detail = fault.xpath('detail')
-
             policy_result = detail.xpath('//l7:policyResult', 'l7' => 'http://www.layer7tech.com/ws/policy/fault')
+
+            fault_code = fault.at_css('faultcode').try(:inner_text)
+            fault_string = fault.at_css('faultString').try(:inner_text)
             status = policy_result.present? ? policy_result.attribute('status').inner_text : ''
 
-            return false if [fault, policy_result, fault_code, fault_actor, detail, status].any?(&:blank?)
+            return false unless verify?(
+              [fault, fault_actor, detail, policy_result],
+              'assertion falsified' => status, 'soapenv:server' => fault_code, 'policy falsified' => fault_string
+            )
+
             {
               'message' => 'MHV Service Outage',
               'developerMessage' => fault_actor.inner_text
@@ -52,7 +64,7 @@ module Common
             error_code = error.at_css('errorCode')
             developer_message = error.at_css('developerMessage') # optional
 
-            return false if [error, message, error_code].any?(&:blank?)
+            return false unless verify?([error, message, error_code])
             {
               'errorCode' => error_code.inner_text,
               'message' => message.inner_text,
@@ -68,9 +80,10 @@ module Common
               developer_message = doc.root.to_html
             end
 
+            log_message_to_sentry(developer_message, :error)
+
             {
-              'message' => message.blank? ? 'NON-Json error response received' : message,
-              'developerMessage' => developer_message
+              'message' => message.blank? ? 'Received an error response that could not be processed' : message
             }
           end
         end

@@ -92,33 +92,38 @@ describe 'Response Middleware' do
 
   context 'html errors' do
     it 'can handle html errors using a title' do
+      message = 'BackendServiceException: {:status=>400, :detail=>"Some Title", :code=>"VA900", :source=>nil}'
+
+      expect(Rails.logger).to receive(:error)
       expect { faraday_client.get('mhv-html-error') }.to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)
-        expect(error.message)
-          .to match(/status=>400/i)
-          .and(match(/some title/i))
-          .and(match(Regexp.new(/some error message/i)))
+        expect(error.message).to eq(message)
       end
     end
 
     it 'can handle html errors without a title' do
+      generic_message = 'BackendServiceException: {:status=>400, '\
+        ':detail=>"Received an error response that could not be processed", '\
+        ':code=>"VA900", :source=>nil}'
+
+      expect(Rails.logger).to receive(:error)
       expect { faraday_client.get('mhv-html-error-no-title') }.to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)
-        expect(error.message)
-          .to match(/status=>400/i)
-          .and(match(/non-json error response received/i))
-          .and(match(Regexp.new(/some error message/i)))
+        expect(error.message).to eq(generic_message)
       end
     end
   end
 
   context 'xml errors' do
     it 'can handle generic xml errors' do
+      generic_message = 'BackendServiceException: {:status=>400, '\
+        ':detail=>"Received an error response that could not be processed", '\
+        ':code=>"VA900", :source=>nil}'
+
+      expect(Rails.logger).to receive(:error)
       expect { faraday_client.get('mhv-generic-xml') }.to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)
-        expect(error.message)
-          .to match(/status=>400/i)
-          .and(match(/some message/i))
+        expect(error.message).to eq(generic_message)
       end
     end
 
