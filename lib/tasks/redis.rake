@@ -83,31 +83,41 @@ namespace :redis do
     end
   end
 
-  desc 'Flush RedisStore: Session'
-  task flush_session_store: :environment do
+  desc 'Audit User Attributes'
+  task audit: :environment do
     count = 0
     mhv_users = 0
     vha_patients = 0
     addressees = 0
-    namespace = MVI::Responses::FindProfileResponse.new.redis_namespace.namespace
+    namespace = "mvi-profile-response"
     redis = Redis.current
     redis.scan_each(match: "#{namespace}:*") do |key|
-      resp = Oj.load(redis.get(key))
-      count += 1
-      mhv_users +=1 unless resp.profile.mhv_correlation_ids.blank?
-      vha_patients +=1 if patient?(resp.profile.vha_facility_ids)
-      addressees += 1 if addressee?(resp.profile.address)
+      begin
+        resp = Oj.load(redis.get(key))[:response]
+        count += 1
+        mhv_users +=1 unless resp.profile.mhv_ids.blank?
+        vha_patients +=1 if patient?(resp.profile.vha_facility_ids)
+        addressees += 1 if addressee?(resp.profile.address)
+      rescue
+        puts "Couldn't parse #{key}"
+      end
     end
+
+    puts "Total cached users: #{count}"
+    puts "Users with MHV correlation ID: #{mhv_users}"
+    puts "Users who are VA patients: #{mhv_users}"
+    puts "Users with baseline address fields: #{addressees}"
   end
 
 end
 
 def patient?(vha_ids)
-  return vha_ids.to_a.any? { |id| id.between?(358,758) }
+  return vha_ids.to_a.any? { |id| id.to_i.between?(358,758) }
 end
 
 def addressee?(addr)
   return false if addr.blank?
   return false if addr.country.blank?
   return false if addr.state.blank?
+  true
 end
