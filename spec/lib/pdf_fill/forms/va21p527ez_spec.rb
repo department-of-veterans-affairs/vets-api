@@ -9,9 +9,35 @@ describe PdfFill::Forms::VA21P527EZ do
         'middle' => 'middle',
         'last' => 'smith',
         'suffix' => 'Sr.'
-      }
+      },
+      'gender' => 'M'
     }
   end
+
+  test_method(
+    described_class,
+    'expand_gender',
+    [
+      [
+        'M',
+        {
+          'genderMale' => true,
+          'genderFemale' => false
+        }
+      ],
+      [
+        'F',
+        {
+          'genderMale' => false,
+          'genderFemale' => true
+        }
+      ],
+      [
+        [nil],
+        {}
+      ]
+    ]
+  )
 
   it 'form data should match json schema' do
     expect(form_data.to_json).to match_vets_schema('21P-527EZ')
@@ -53,7 +79,7 @@ describe PdfFill::Forms::VA21P527EZ do
   describe '#merge_fields' do
     it 'should merge the right fields' do
       expect(described_class.merge_fields(form_data)).to eq(
-        {"veteranFullName"=>"john middle smith Sr."}
+        {"veteranFullName"=>"john middle smith Sr.", "gender"=>"M", "genderMale"=>true, "genderFemale"=>false}
       )
     end
   end
