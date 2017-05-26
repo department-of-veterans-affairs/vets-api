@@ -58,6 +58,10 @@ module PdfFill
           form_data_merged.merge!(public_send("expand_#{attr.underscore}", form_data_merged[attr]))
         end
 
+        phone_arr = split_phone(form_data_merged['nightPhone'])
+        form_data_merged['nightPhoneAreaCode'] = phone_arr[0]
+        form_data_merged['nightPhone'] = phone_arr[1]
+
         form_data_merged
       end
     end
