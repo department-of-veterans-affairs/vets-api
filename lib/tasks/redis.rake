@@ -88,6 +88,8 @@ namespace :redis do
     count = 0
     mhv_users = 0
     vha_patients = 0
+    mhv_non_patient = 0
+    patient_non_mhv = 0
     addressees = 0
     namespace = 'mvi-profile-response'
     redis = Redis.current
@@ -95,8 +97,12 @@ namespace :redis do
       begin
         resp = Oj.load(redis.get(key))[:response]
         count += 1
-        mhv_users += 1 unless resp.profile.mhv_ids.blank?
-        vha_patients += 1 if patient?(resp.profile.vha_facility_ids)
+        mhvu = !resp.profile.mhv_ids.blank?
+        patient = patient?(resp.profile.vha_facility_ids)
+        mhv_users += 1 if mhvu
+        vha_patients += 1 if patient
+        mhv_non_patient += 1 if mhvu && !patient
+        patient_non_mhv += 1 if patient && !mhvu
         addressees += 1 if addressee?(resp.profile.address)
       rescue
         puts "Couldn't parse #{key}"
@@ -106,6 +112,8 @@ namespace :redis do
     puts "Total cached users: #{count}"
     puts "Users with MHV correlation ID: #{mhv_users}"
     puts "Users who are VA patients: #{mhv_users}"
+    puts "VA patients with no MHV ID: #{patient_non_mhv}"
+    puts "MHV ID holders who are not patients: #{mhv_non_patient}"
     puts "Users with baseline address fields: #{addressees}"
   end
 end
