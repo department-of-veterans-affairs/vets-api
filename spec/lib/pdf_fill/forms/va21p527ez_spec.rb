@@ -27,7 +27,7 @@ describe PdfFill::Forms::VA21P527EZ do
       ],
       [
         [nil],
-        nil
+        [nil, nil]
       ]
     ]
   )

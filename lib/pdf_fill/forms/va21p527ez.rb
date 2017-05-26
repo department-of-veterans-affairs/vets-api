@@ -24,7 +24,7 @@ module PdfFill
       end
 
       def split_phone(phone)
-        return if phone.blank?
+        return [nil, nil] if phone.blank?
 
         [phone[0..2], phone[3..-1]]
       end
