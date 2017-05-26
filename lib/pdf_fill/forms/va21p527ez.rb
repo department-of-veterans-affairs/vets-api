@@ -10,6 +10,7 @@ module PdfFill
         'genderFemale' => 'F[0].Page_5[0].Female[0]',
         'hasFileNumber' => 'F[0].Page_5[0].YesFiled[0]',
         'noFileNumber' => 'F[0].Page_5[0].NoFiled[0]',
+        'nightPhone' => 'F[0].Page_5[0].Eveningphonenumber[0]',
         'veteranFullName' => 'F[0].Page_5[0].Veteransname[0]'
       }.freeze
 
