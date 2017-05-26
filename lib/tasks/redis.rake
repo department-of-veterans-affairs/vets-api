@@ -89,14 +89,14 @@ namespace :redis do
     mhv_users = 0
     vha_patients = 0
     addressees = 0
-    namespace = "mvi-profile-response"
+    namespace = 'mvi-profile-response'
     redis = Redis.current
     redis.scan_each(match: "#{namespace}:*") do |key|
       begin
         resp = Oj.load(redis.get(key))[:response]
         count += 1
-        mhv_users +=1 unless resp.profile.mhv_ids.blank?
-        vha_patients +=1 if patient?(resp.profile.vha_facility_ids)
+        mhv_users += 1 unless resp.profile.mhv_ids.blank?
+        vha_patients += 1 if patient?(resp.profile.vha_facility_ids)
         addressees += 1 if addressee?(resp.profile.address)
       rescue
         puts "Couldn't parse #{key}"
@@ -108,11 +108,10 @@ namespace :redis do
     puts "Users who are VA patients: #{mhv_users}"
     puts "Users with baseline address fields: #{addressees}"
   end
-
 end
 
 def patient?(vha_ids)
-  return vha_ids.to_a.any? { |id| id.to_i.between?(358,758) }
+  vha_ids.to_a.any? { |id| id.to_i.between?(358, 758) }
 end
 
 def addressee?(addr)
