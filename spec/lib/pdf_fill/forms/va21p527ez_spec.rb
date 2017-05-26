@@ -9,7 +9,7 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     described_class,
-    'combine_va_hospital',
+    'combine_va_hospital_names',
     [
       [
         [[

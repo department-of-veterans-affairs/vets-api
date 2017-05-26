@@ -42,7 +42,7 @@ module PdfFill
         }
       end
 
-      def combine_va_hospital(va_hospital_treatments)
+      def combine_va_hospital_names(va_hospital_treatments)
         combined = []
 
         va_hospital_treatments.each do |va_hospital_treatment|
@@ -83,7 +83,7 @@ module PdfFill
           form_data_merged[attr] = phone_arr[1]
         end
 
-        form_data_merged['vaHospitalTreatmentNames'] = combine_va_hospital(form_data_merged['vaHospitalTreatments'])
+        form_data_merged['vaHospitalTreatmentNames'] = combine_va_hospital_names(form_data_merged['vaHospitalTreatments'])
         form_data_merged.delete('vaHospitalTreatments')
 
         form_data_merged
