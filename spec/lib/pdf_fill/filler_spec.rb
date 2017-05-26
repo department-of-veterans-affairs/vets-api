@@ -8,7 +8,7 @@ describe PdfFill::Filler do
       {
         'vaFileNumber' => 'c12345678',
         'gender' => 'M',
-        'nightPhone' => "5551110000",
+        'nightPhone' => '5551110000',
         'veteranFullName' => {
           'first' => 'Mark',
           'last' => 'Olson'

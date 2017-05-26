@@ -23,7 +23,7 @@ describe PdfFill::Forms::VA21P527EZ do
     [
       [
         '0123456789',
-        ['012', '3456789']
+        %w(012 3456789)
       ],
       [
         [nil],
@@ -118,15 +118,15 @@ describe PdfFill::Forms::VA21P527EZ do
   describe '#merge_fields' do
     it 'should merge the right fields' do
       expect(described_class.merge_fields(form_data)).to eq(
-        {"veteranFullName"=>"john middle smith Sr.",
- "nightPhone"=>"3456789",
- "vaFileNumber"=>"c12345678",
- "gender"=>"M",
- "genderMale"=>true,
- "genderFemale"=>false,
- "hasFileNumber"=>true,
- "noFileNumber"=>false,
- "nightPhoneAreaCode"=>"012"}
+        'veteranFullName' => 'john middle smith Sr.',
+        'nightPhone' => '3456789',
+        'vaFileNumber' => 'c12345678',
+        'gender' => 'M',
+        'genderMale' => true,
+        'genderFemale' => false,
+        'hasFileNumber' => true,
+        'noFileNumber' => false,
+        'nightPhoneAreaCode' => '012'
       )
     end
   end
