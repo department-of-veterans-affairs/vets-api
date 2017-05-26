@@ -12,6 +12,7 @@ describe PdfFill::Forms::VA21P527EZ do
         'suffix' => 'Sr.'
       },
       'nightPhone' => '0123456789',
+      'dayPhone' => '1123456789',
       'vaFileNumber' => 'c12345678',
       'gender' => 'M'
     }
@@ -126,6 +127,8 @@ describe PdfFill::Forms::VA21P527EZ do
         'genderFemale' => false,
         'hasFileNumber' => true,
         'noFileNumber' => false,
+        "dayPhone" => "3456789",
+        "dayPhoneAreaCode" => "112",
         'nightPhoneAreaCode' => '012'
       )
     end
