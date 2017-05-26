@@ -5,6 +5,7 @@ require 'pdf_fill/hash_converter'
 module PdfFill
   module Filler
     module_function
+    # TODO handle array and string overflows
 
     PDF_FORMS = PdfForms.new('pdftk')
     FORM_CLASSES = {

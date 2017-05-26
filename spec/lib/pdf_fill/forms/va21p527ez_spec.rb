@@ -9,6 +9,34 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     described_class,
+    'combine_va_hospital_dates',
+    [
+      [
+        [[
+          {}
+        ]],
+        [
+          nil, nil, nil
+        ]
+      ],
+      [
+        [[
+          {
+            'dates' => ['2017']
+          },
+          {
+            'dates' => ['2001', '2002', '2003']
+          }
+        ]],
+        [
+          '2017', nil, nil, '2001', '2002', '2003'
+        ]
+      ],
+    ]
+  )
+
+  test_method(
+    described_class,
     'combine_va_hospital_names',
     [
       [

@@ -52,6 +52,23 @@ module PdfFill
         combined
       end
 
+      def combine_va_hospital_dates(va_hospital_treatments)
+        combined = []
+
+        va_hospital_treatments.each do |va_hospital_treatment|
+          original_dates = va_hospital_treatment['dates']
+          dates = Array.new(3, nil)
+
+          dates.each_with_index do |date, i|
+            dates[i] = original_dates[i]
+          end if original_dates.present?
+
+          combined += dates
+        end
+
+        combined
+      end
+
       def combine_hash(hash, keys, separator = ' ')
         return if hash.blank?
 
