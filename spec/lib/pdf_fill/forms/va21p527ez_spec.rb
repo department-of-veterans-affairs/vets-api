@@ -14,6 +14,16 @@ describe PdfFill::Forms::VA21P527EZ do
       'nightPhone' => '0123456789',
       'dayPhone' => '1123456789',
       'vaFileNumber' => 'c12345678',
+      'vaHospitalTreatments' => [
+        {
+          'name' => 'hospital1',
+          'location' => 'nyc'
+        },
+        {
+          'name' => 'hospital2',
+          'location' => 'dc'
+        }
+      ],
       'gender' => 'M'
     }
   end
@@ -175,17 +185,19 @@ describe PdfFill::Forms::VA21P527EZ do
   describe '#merge_fields' do
     it 'should merge the right fields' do
       expect(described_class.merge_fields(form_data)).to eq(
-        'veteranFullName' => 'john middle smith Sr.',
-        'nightPhone' => '3456789',
-        'vaFileNumber' => 'c12345678',
-        'gender' => 'M',
-        'genderMale' => true,
-        'genderFemale' => false,
-        'hasFileNumber' => true,
-        'noFileNumber' => false,
-        "dayPhone" => "3456789",
-        "dayPhoneAreaCode" => "112",
-        'nightPhoneAreaCode' => '012'
+        {"veteranFullName"=>"john middle smith Sr.",
+         "nightPhone"=>"3456789",
+         "dayPhone"=>"3456789",
+         "vaFileNumber"=>"c12345678",
+         "vaHospitalTreatments"=>[{"name"=>"hospital1", "location"=>"nyc"}, {"name"=>"hospital2", "location"=>"dc"}],
+         "gender"=>"M",
+         "genderMale"=>true,
+         "genderFemale"=>false,
+         "hasFileNumber"=>true,
+         "noFileNumber"=>false,
+         "nightPhoneAreaCode"=>"012",
+         "dayPhoneAreaCode"=>"112",
+         "vaHospitalTreatmentNames"=>["hospital1, nyc", "hospital2, dc"]}
       )
     end
   end

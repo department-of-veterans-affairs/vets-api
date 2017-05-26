@@ -82,6 +82,8 @@ module PdfFill
           form_data_merged[attr] = phone_arr[1]
         end
 
+        form_data_merged['vaHospitalTreatmentNames'] = combine_va_hospital(form_data_merged['vaHospitalTreatments'])
+
         form_data_merged
       end
     end
