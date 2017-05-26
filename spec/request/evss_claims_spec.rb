@@ -4,6 +4,8 @@ require 'rails_helper'
 require 'evss/request_decision'
 
 RSpec.describe 'EVSS Claims management', type: :request do
+  include SchemaMatchers
+
   let(:user) { FactoryGirl.create(:loa3_user) }
   let(:session) { Session.create(uuid: user.uuid) }
 

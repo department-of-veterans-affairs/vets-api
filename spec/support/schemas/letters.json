@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": [
+    "data",
+    "meta"
+  ],
+  "properties": {
+    "data": {
+      "description": "Array of letters available for the user to download",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "letter_base.json"
+      }
+    },
+    "meta": {
+      "properties": {
+        "address": {
+          "description": "User's address in EVSS that will be included in the letter",
+          "properties": {
+            "street": {
+              "type": "string"
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "country": {
+              "type": "string"
+            },
+            "postalCode": {
+              "type": "string"
+            }
+          },
+          "type": "object",
+          "required": [
+            "street",
+            "city",
+            "state",
+            "country",
+            "postalCode"
+          ]
+        },
+        "status": {
+          "description": "EVSS API may return an error message in a 200 response, vets-api catches all errors other than not found as server error",
+          "enum": [
+            "OK",
+            "NOT_FOUND",
+            "SERVER_ERROR"
+          ]
+        }
+      },
+      "type": "object"
+    }
+  }
+}
