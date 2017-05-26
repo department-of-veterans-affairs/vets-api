@@ -2,6 +2,8 @@
 require 'rails_helper'
 
 RSpec.describe 'institutions', type: :request do
+  include SchemaMatchers
+
   it 'responds to GET #search' do
     VCR.use_cassette('gi_client/gets_search_results') do
       get '/v0/gi/institutions/search?name=illinois'
