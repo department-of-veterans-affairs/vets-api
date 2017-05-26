@@ -41,15 +41,29 @@ module PdfFill
         }
       end
 
-      def combine_full_name(full_name)
-        return if full_name.blank?
-        combined_name = []
+      def combine_va_hospital(va_hospital_treatments)
+        combined = []
 
-        %w(first middle last suffix).each do |key|
-          combined_name << full_name[key]
+        va_hospital_treatments.each do |va_hospital_treatment|
+          combined << va_hospital_treatment['name']
+          combined << va_hospital_treatment['']
+        end
+      end
+
+      def combine_hash(hash, keys, separator = ' ')
+        return if hash.blank?
+
+        combined = []
+
+        keys.each do |key|
+          combined << hash[key]
         end
 
-        combined_name.compact.join(' ')
+        combined.compact.join(separator)
+      end
+
+      def combine_full_name(full_name)
+        combine_hash(full_name, %w(first middle last suffix))
       end
 
       def merge_fields(form_data)

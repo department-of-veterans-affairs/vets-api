@@ -35,6 +35,39 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     described_class,
+    'combine_hash',
+    [
+      [
+        [nil, []],
+        nil
+      ],
+      [
+        [
+          { 'a' => '1', 'b' => '2' },
+          %w(a b)
+        ],
+        '1 2'
+      ],
+      [
+        [
+          { 'a' => '1', 'c' => '2' },
+          %w(a b c)
+        ],
+        '1 2'
+      ],
+      [
+        [
+          { 'a' => '1', 'b' => '2' },
+          %w(a b),
+          ','
+        ],
+        '1,2'
+      ]
+    ]
+  )
+
+  test_method(
+    described_class,
     'expand_gender',
     [
       [
