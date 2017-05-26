@@ -23,6 +23,10 @@ describe PdfFill::Forms::VA21P527EZ do
       [
         '0123456789',
         ['012', '3456789']
+      ],
+      [
+        [nil],
+        nil
       ]
     ]
   )
