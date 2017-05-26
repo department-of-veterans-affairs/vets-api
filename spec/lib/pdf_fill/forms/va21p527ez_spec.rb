@@ -4,7 +4,7 @@ require 'pdf_fill/forms/va21p527ez'
 
 describe PdfFill::Forms::VA21P527EZ do
   let(:form_data) do
-    JSON.parse(File.read('spec/fixtures/pdf_fill/21P-527EZ.json'))
+    get_fixture('pdf_fill/21P-527EZ')
   end
 
   test_method(

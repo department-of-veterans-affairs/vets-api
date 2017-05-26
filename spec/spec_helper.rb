@@ -4,6 +4,7 @@ require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
 require 'support/api_schema_matcher'
 require 'support/spool_helpers'
+require 'support/fixture_helpers'
 require 'support/have_deep_attributes_matcher'
 require 'support/veteran_status/stub_veteran_status'
 
@@ -92,6 +93,7 @@ RSpec.configure do |config|
 
   config.include SpecBuilders
   config.include SpoolHelpers
+  config.include FixtureHelpers
 
   config.around(:each) do |example|
     if example.metadata[:run_at]
