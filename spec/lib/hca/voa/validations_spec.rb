@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 require 'spec_helper'
-require 'hca/validations'
+require 'hca/voa/validations'
 
-describe HCA::Validations do
+describe HCA::VOA::Validations do
   test_method(
     described_class,
     'date_of_birth',

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'hca/enrollment_system'
+require 'hca/voa/enrollment_system'
 
-describe HCA::EnrollmentSystem do
+describe HCA::VOA::EnrollmentSystem do
   TEST_ADDRESS = {
     'street' => '123 NW 8th St',
     'street2' =>  '',

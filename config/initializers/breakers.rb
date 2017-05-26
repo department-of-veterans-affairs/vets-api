@@ -3,7 +3,8 @@ require 'breakers/statsd_plugin'
 require 'rx/configuration'
 require 'sm/configuration'
 require 'mvi/configuration'
-require 'hca/configuration'
+require 'hca/voa/configuration'
+require 'hca/esr/configuration'
 
 require 'evss/claims_service'
 require 'evss/common_service'
@@ -18,7 +19,8 @@ services = [
   Rx::Configuration.instance.breakers_service,
   SM::Configuration.instance.breakers_service,
   MVI::Configuration.instance.breakers_service,
-  HCA::Configuration.instance.breakers_service,
+  HCA::VOA::Configuration.instance.breakers_service,
+  HCA::ESR::Configuration.instance.breakers_service,
   EVSS::ClaimsService.breakers_service,
   EVSS::CommonService.breakers_service,
   EVSS::DocumentsService.breakers_service

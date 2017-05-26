@@ -1,7 +1,7 @@
-require 'hca/validations'
+require 'hca/voa/validations'
 
 # frozen_string_literal: true
-module HCA
+module HCA::VOA
   # rubocop:disable ModuleLength
   module EnrollmentSystem
     module_function
