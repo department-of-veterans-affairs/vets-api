@@ -3,10 +3,12 @@ module PdfFill
     module VA21P527EZ
       module_function
       KEY = {
-        'vaFileNumber' => 'F[0].Page_5[0].VAfilenumber[0]'
+        'vaFileNumber' => 'F[0].Page_5[0].VAfilenumber[0]',
+        'veteranFullName' => 'F[0].Page_5[0].Veteransname[0]'
       }
 
       def combine_full_name(full_name)
+        return if full_name.blank?
         combined_name = []
 
         %w(first middle last suffix).each do |key|

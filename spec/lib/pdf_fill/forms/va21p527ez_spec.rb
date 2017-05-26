@@ -33,6 +33,14 @@ describe PdfFill::Forms::VA21P527EZ do
       end
     end
 
+    context 'with nil full name' do
+      let(:full_name) { nil }
+
+      it 'should return nil' do
+        expect(subject).to eq(nil)
+      end
+    end
+
     it 'should combine a full name' do
       expect(subject).to eq("john middle smith Sr.")
     end

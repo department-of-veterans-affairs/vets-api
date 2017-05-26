@@ -6,7 +6,11 @@ describe PdfFill::Filler do
   describe '#fill_form' do
     it 'should fill the form correctly' do
       file_path = described_class.fill_form('21P-527EZ', {
-        'vaFileNumber' => "c12345678"
+        'vaFileNumber' => "c12345678",
+        "veteranFullName" => {
+          "first" => "Mark",
+          "last" => "Olson"
+        }
       })
 
       # File.delete(file_path)

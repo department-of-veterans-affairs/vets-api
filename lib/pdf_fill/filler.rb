@@ -11,7 +11,7 @@ module PdfFill
       '21P-527EZ' => PdfFill::Forms::VA21P527EZ
     }
 
-    def fill_form(code, data)
+    def fill_form(code, form_data)
       form_mod = FORM_CLASSES[code]
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
@@ -21,8 +21,8 @@ module PdfFill
         "lib/pdf_fill/forms/pdfs/#{code}.pdf",
         file_path,
         HashConverter.new.transform_data(
-          form_data: data,
-          pdftk_keys: FORM_CLASSES[code]::KEY
+          form_data: form_mod.merge_fields(form_data),
+          pdftk_keys: form_mod::KEY
         )
       )
 
