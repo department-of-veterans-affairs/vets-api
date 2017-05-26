@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: c0a28ec7e456fa772db7e6d9bdc7cd548e4a6333
-  branch: va-hospital-change
+  revision: 78318294f9761f78854005f06b5e983bec40a1f5
+  branch: master
   specs:
-    vets_json_schema (2.9.1)
+    vets_json_schema (2.9.2)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
