@@ -23,6 +23,12 @@ module PdfFill
         }
       end
 
+      def split_phone(phone)
+        return if phone.blank?
+
+        [phone[0..2], phone[3..-1]]
+      end
+
       def expand_gender(gender)
         return {} if gender.blank?
 

@@ -18,6 +18,17 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     described_class,
+    'split_phone',
+    [
+      [
+        '0123456789',
+        ['012', '3456789']
+      ]
+    ]
+  )
+
+  test_method(
+    described_class,
     'expand_gender',
     [
       [
