@@ -41,6 +41,27 @@ describe PdfFill::Forms::VA21P527EZ do
     ]
   )
 
+  test_method(
+    described_class,
+    'expand_va_file_number',
+    [
+      [
+        '123',
+        {
+          'has_file_number' => true,
+          'no_file_number' => false
+        }
+      ],
+      [
+        [nil],
+        {
+          'has_file_number' => false,
+          'no_file_number' => true
+        }
+      ]
+    ]
+  )
+
   it 'form data should match json schema' do
     expect(form_data.to_json).to match_vets_schema('21P-527EZ')
   end
