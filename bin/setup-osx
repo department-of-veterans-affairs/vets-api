@@ -81,6 +81,13 @@ fi
 
 brew services start postgresql
 
+if command_exists vips ; then
+  echo "${GREEN} * VIPS already installed.${RESET}"
+else
+  echo "${RED} * Installing VIPS. ${RESET}"
+  brew install vips
+fi
+
 # Make vetsgov-localhost.crt and .key
 
 CERT_INSTALL_REQUIRED=false
