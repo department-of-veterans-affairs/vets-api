@@ -16,7 +16,7 @@ describe PdfFill::Forms::VA21P527EZ do
           0, 1, 2, 3, 4, 5
         ]],
         [
-          3, 2, 4, 0, 1, 5
+          3, 4, 1, 0, 2, 5
         ]
       ],
       [
@@ -24,7 +24,7 @@ describe PdfFill::Forms::VA21P527EZ do
           0, 1, nil, 3, 4, 5
         ]],
         [
-          3, nil, 4, 0, 1, 5
+          3, 4, 1, 0, nil, 5
         ]
       ]
     ]
@@ -227,7 +227,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "nightPhoneAreaCode"=>"012",
          "dayPhoneAreaCode"=>"112",
          "vaHospitalTreatmentNames"=>["hospital1, nyc", "hospital2, dc"],
-         "vaHospitalTreatmentDates"=>["2016-12-01", nil, "2016-12-02", "2016-12-15", nil, "2016-12-03"]}
+         "vaHospitalTreatmentDates"=>["2016-12-01", "2016-12-02", "2016-01-02", "2016-01-01", nil, "2016-12-03"]}
       )
     end
   end
