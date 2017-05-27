@@ -11,7 +11,7 @@
   "vaHospitalTreatments": [
     {
       "name": "hospital1",
-      "dates": ["2016-12-15"],
+      "dates": ["2016-01-01", "2016-01-02"],
       "location": "nyc"
     },
     {

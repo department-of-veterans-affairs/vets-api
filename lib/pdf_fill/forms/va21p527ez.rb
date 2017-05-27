@@ -59,7 +59,7 @@ module PdfFill
         rearranged = Array.new(6, nil)
 
         [3, 2, 4, 0, 1, 5].each_with_index do |rearranged_i, i|
-          rearranged[i] = combined_dates[rearranged_i]
+          rearranged[rearranged_i] = combined_dates[i]
         end
 
         rearranged
@@ -115,7 +115,9 @@ module PdfFill
 
         form_data_merged['vaHospitalTreatments'].tap do |va_hospital_treatments|
           form_data_merged['vaHospitalTreatmentNames'] = combine_va_hospital_names(va_hospital_treatments)
-          form_data_merged['vaHospitalTreatmentDates'] = combine_va_hospital_dates(va_hospital_treatments)
+          form_data_merged['vaHospitalTreatmentDates'] = rearrange_hospital_dates(
+            combine_va_hospital_dates(va_hospital_treatments)
+          )
         end
         form_data_merged.delete('vaHospitalTreatments')
 
