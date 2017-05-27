@@ -4,6 +4,7 @@ module PdfFill
     module VA21P527EZ
       module_function
 
+      ITERATOR = PdfFill::HashConverter::ITERATOR
       KEY = {
         'vaFileNumber' => 'F[0].Page_5[0].VAfilenumber[0]',
         'genderMale' => 'F[0].Page_5[0].Male[0]',
@@ -14,7 +15,8 @@ module PdfFill
         'nightPhoneAreaCode' => 'F[0].Page_5[0].Eveningareacode[0]',
         'dayPhone' => 'F[0].Page_5[0].Daytimephonenumber[0]',
         'dayPhoneAreaCode' => 'F[0].Page_5[0].Daytimeareacode[0]',
-        'vaHospitalTreatmentNames' => "F[0].Page_5[0].Nameandlocationofvamedicalcenter[#{PdfFill::HashConverter::ITERATOR}]",
+        'vaHospitalTreatmentNames' => "F[0].Page_5[0].Nameandlocationofvamedicalcenter[#{ITERATOR}]",
+        'vaHospitalTreatmentDates' => "F[0].Page_5[0].DateofTreatment[#{ITERATOR}]",
         'veteranFullName' => 'F[0].Page_5[0].Veteransname[0]'
       }.freeze
 
@@ -50,6 +52,17 @@ module PdfFill
         end
 
         combined
+      end
+
+      def rearrange_hospital_dates(combined_dates)
+        # order of boxes in the pdf: 3, 2, 4, 0, 1, 5
+        rearranged = Array.new(6, nil)
+
+        [3, 2, 4, 0, 1, 5].each_with_index do |rearranged_i, i|
+          rearranged[i] = combined_dates[rearranged_i]
+        end
+
+        rearranged
       end
 
       def combine_va_hospital_dates(va_hospital_treatments)

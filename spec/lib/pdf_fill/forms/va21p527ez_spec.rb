@@ -9,6 +9,29 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     described_class,
+    'rearrange_hospital_dates',
+    [
+      [
+        [[
+          0, 1, 2, 3, 4, 5
+        ]],
+        [
+          3, 2, 4, 0, 1, 5
+        ]
+      ],
+      [
+        [[
+          0, 1, nil, 3, 4, 5
+        ]],
+        [
+          3, nil, 4, 0, 1, 5
+        ]
+      ]
+    ]
+  )
+
+  test_method(
+    described_class,
     'combine_va_hospital_dates',
     [
       [
