@@ -2,7 +2,7 @@
 module Workflow
   class Runner
     QUEUE = 'tasker'
-    STATS_KEY = 'api.workflow.'
+    STATS_KEY = 'api.workflow'
     attr_accessor :internal_options, :options, :current_step, :current_task
     include Sidekiq::Worker
     sidekiq_options queue: QUEUE
@@ -32,13 +32,13 @@ module Workflow
     private
 
     def run_task_with_stats
-      statsd_prefix = "#{STATS_KEY}#{current_task[:mod].underscore}."
+      statsd_prefix = "#{STATS_KEY}.#{current_task[:mod].underscore}"
 
       begin
-        StatsD.measure("#{statsd_prefix}timing") { run_task }
-        StatsD.increment("#{statsd_prefix}success")
+        StatsD.measure("#{statsd_prefix}.timing") { run_task }
+        StatsD.increment("#{statsd_prefix}.success")
       rescue => e
-        StatsD.increment("#{statsd_prefix}failure")
+        StatsD.increment("#{statsd_prefix}.failure")
         raise e
       end
     end
