@@ -10,23 +10,19 @@ module MHVControllerConcerns
   protected
 
   def authorize
-    raise_access_denied if mhv_account.ineligible?
-    raise_requires_terms_acceptance if mhv_account.needs_terms_acceptance?
-    mhv_account.create_and_upgrade! unless mhv_account.upgraded?
-    raise_something_went_wrong unless mhv_account.upgraded?
-  end
-
-  def mhv_account
-    @account ||= MhvAccount.find_or_initialize_by(user_uuid: current_user.uuid)
+    raise_access_denied if current_user.mhv_account.ineligible?
+    raise_requires_terms_acceptance if current_user.mhv_account.needs_terms_acceptance?
+    current_user.mhv_account.create_and_upgrade! unless current_user.mhv_account.upgraded?
+    raise_something_went_wrong unless current_user.mhv_account.upgraded?
   end
 
   def raise_requires_terms_acceptance
-    raise Common::Exceptions::Forbidden, detail: 'You have not accepted the terms of service.'
+    raise Common::Exceptions::Forbidden, detail: 'You have not accepted the terms of service'
   end
 
   def raise_something_went_wrong
     # TODO: any additional data could probably be provided in source.
-    raise Common::Exceptions::Forbidden, detail: 'Something went wrong. Please contact support.'
+    raise Common::Exceptions::Forbidden, detail: 'Something went wrong. Please contact support'
   end
 
   def authenticate_client
