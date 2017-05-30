@@ -75,5 +75,10 @@ describe 'rx client' do
         expect(client_response.members.first.prescription_id).to eq(13_650_541)
       end
     end
+
+    it 'handles failed stations', :vcr do
+      expect(Rails.logger).to receive(:warn).with(/failed station/).with(/Station-000/)
+      client.get_history_rxs
+    end
   end
 end

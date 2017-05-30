@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'mvi/models/mvi_profile'
+
 module MVI
   class MockService
     def mocked_responses
@@ -8,7 +10,7 @@ module MVI
     def find_profile(user)
       response = mocked_responses.dig('find_candidate', user.ssn)
       if response
-        profile = MviProfile.new(response)
+        profile = MVI::Models::MviProfile.new(response)
         MVI::Responses::FindProfileResponse.new(
           status: MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
           profile: profile
