@@ -2,8 +2,11 @@
 require 'common/models/base'
 
 class EducationEnrollmentStatus < Common::Base
+  # EVSS provides these but we already have from User model
+  # TODO - validate they match?
   # attribute :first_name, String
   # attribute :last_name, String
+
   attribute :va_file_number, String
   attribute :regional_processing_office, String
 
@@ -17,13 +20,4 @@ class EducationEnrollmentStatus < Common::Base
   attribute :remaining_entitlement_days, Integer
 
   attribute :facilities, Array[Object]
-
-  # validates :va_file_number,             presence: true
-  # validates :regional_processing_office, presence: true
-  # validates :eligibility_date,           presence: true
-  # validates :delimiting_date,            presence: true
-  # validates :percentage_benefit,         presence: true
-  # validates :original_entitlement_days,  presence: true
-  # validates :used_entitlement_days,      presence: true
-  # validates :remaining_entitlement_days, presence: true
 end
