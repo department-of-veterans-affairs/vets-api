@@ -43,6 +43,7 @@ RSpec.describe FailedClaimsReportMailer, type: [:mailer] do
           %w(
             lihan@adhocteam.us
             mark@adhocteam.us
+            joshua.quagliaroli@va.gov
           )
         )
       end
