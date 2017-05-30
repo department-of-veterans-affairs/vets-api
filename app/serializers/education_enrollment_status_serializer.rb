@@ -12,8 +12,7 @@ class EducationEnrollmentStatusSerializer < ActiveModel::Serializer
   attribute :used_entitlement_days
   attribute :remaining_entitlement_days
 
-  has_many :facilities, serializer: FacilitySerializer
-  #has_many :attachments, each_serializer: AttachmentSerializer
+  attribute :facilities
 
   def id
     nil

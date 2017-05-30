@@ -34,10 +34,12 @@ RSpec.describe EducationEnrollmentStatusSerializer, type: :serializer do
     expect(attributes['remaining_entitlement_days']).to eq(ees.remaining_entitlement_days)
   end
   it 'should include facilities' do
-    expect(attributes['facilities']).to eq(ees.facilities)
+    expected = ees.facilities.map { |facility| facility.with_indifferent_access }
+    expect(attributes['facilities']).to eq(expected)
   end
 
-  # it 'should match the letter schema' do
-  #   expect(subject).to match_schema('letter')
+  # TODO - define schema
+  # it 'should match the education_enrollment_status schema' do
+  #   expect(subject).to match_schema('education_enrollment_status')
   # end
 end

@@ -2,7 +2,6 @@
 require 'common/models/base'
 
 class EducationEnrollmentStatus < Common::Base
-  include ActiveModel::SerializerSupport
   # attribute :first_name, String
   # attribute :last_name, String
   attribute :va_file_number, String
@@ -17,8 +16,7 @@ class EducationEnrollmentStatus < Common::Base
   attribute :used_entitlement_days, Integer
   attribute :remaining_entitlement_days, Integer
 
-  # attribute :facilities, Array[Facility]
-
+  attribute :facilities, Array[Object]
 
   # validates :va_file_number,             presence: true
   # validates :regional_processing_office, presence: true

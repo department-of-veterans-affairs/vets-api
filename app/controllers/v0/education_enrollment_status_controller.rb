@@ -1,7 +1,6 @@
 # frozen_string_literal: true
-
 module V0
-  class EducationEnrollmentStatus < ApplicationController
+  class EducationEnrollmentStatusController < ApplicationController
     # GET /edcuation_enrollment_status
     def show
       # TODO - attach to serializer
