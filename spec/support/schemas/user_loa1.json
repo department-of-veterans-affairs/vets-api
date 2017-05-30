@@ -11,8 +11,9 @@
         "type": { "type": "string"},
         "attributes": {
           "type": "object",
-          "required": ["services", "profile"],
+          "required": ["services", "profile", "mhv_account_state"],
           "properties": {
+            "mhv_account_state": { "type": [null]},
             "services": { "type": [ "array", null ] },
             "profile": {
               "type": "object",
