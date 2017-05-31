@@ -8,4 +8,18 @@ RSpec.describe InProgressForm, type: :model do
       expect(subject).to encrypt_attr(:form_data)
     end
   end
+
+  describe '#serialize_form_data' do
+    let(:form_data) do
+      { a: 1 }
+    end
+
+    it 'serializes form_data as json' do
+      in_progress_form = build(:in_progress_form)
+      in_progress_form.form_data = form_data
+      in_progress_form.save!
+
+      expect(in_progress_form.form_data).to eq(form_data.to_json)
+    end
+  end
 end
