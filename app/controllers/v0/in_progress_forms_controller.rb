@@ -9,7 +9,7 @@ module V0
     end
 
     def update
-      form = InProgressForm.first_or_initialize(form_id: params[:id], user_uuid: @current_user.uuid)
+      form = InProgressForm.where(form_id: params[:id], user_uuid: @current_user.uuid).first_or_initialize
       result = form.update(form_data: params[:form_data])
       raise Common::Exceptions::InternalServerError unless result
       head :ok
