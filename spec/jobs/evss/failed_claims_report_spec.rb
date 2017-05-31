@@ -88,9 +88,10 @@ RSpec.describe EVSS::FailedClaimsReport, type: :job do
       s3 = double
       bucket = double
       objects = [double, double]
+      old_last_modified = 45.days.ago
 
       objects.each_with_index do |object, i|
-        last_modified = (i.zero? ? 5 : 45).days.ago
+        last_modified = i.zero? ? 5.days.ago : old_last_modified
         allow(object).to receive(:last_modified).and_return(last_modified)
         allow(object).to receive(:key).and_return("object#{i}")
       end
@@ -107,6 +108,7 @@ RSpec.describe EVSS::FailedClaimsReport, type: :job do
         [
           {
             file_path: 'object1',
+            last_modified: old_last_modified,
             document_hash: nil
           }
         ] * 2
