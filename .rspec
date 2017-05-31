@@ -3,5 +3,5 @@
 --format progress
 <% if ENV['CI'] %>
 --format RspecJunitFormatter
---out rspec.xml
+--out log/rspec.xml
 <% end %>
