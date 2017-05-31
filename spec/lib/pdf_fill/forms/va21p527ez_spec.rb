@@ -9,6 +9,34 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     described_class,
+    'get_disability_names',
+    [
+      [
+        [nil],
+        nil
+      ],
+      [
+        [[
+          { 'name' => 'name1' },
+          { 'name' => 'name2' }
+        ]],
+        [
+          'name2', 'name1'
+        ]
+      ],
+      [
+        [[
+          { 'name' => 'name1' }
+        ]],
+        [
+          nil, 'name1'
+        ]
+      ]
+    ]
+  )
+
+  test_method(
+    described_class,
     'rearrange_hospital_dates',
     [
       [
