@@ -247,6 +247,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "nightPhone"=>"3456789",
          "dayPhone"=>"3456789",
          "vaFileNumber"=>"c12345678",
+         "disabilities"=>[{"disabilityStartDate"=>"2016-12-01"}],
          "gender"=>"M",
          "genderMale"=>true,
          "genderFemale"=>false,
@@ -255,7 +256,8 @@ describe PdfFill::Forms::VA21P527EZ do
          "nightPhoneAreaCode"=>"012",
          "dayPhoneAreaCode"=>"112",
          "vaHospitalTreatmentNames"=>["hospital1, nyc", "hospital2, dc"],
-         "vaHospitalTreatmentDates"=>["2016-12-01", "2016-12-02", "2016-01-02", "2016-01-01", nil, "2016-12-03"]}
+         "vaHospitalTreatmentDates"=>["2016-12-01", "2016-12-02", "2016-01-02", "2016-01-01", nil, "2016-12-03"],
+         "disabilityNames"=>[nil, "disability 1"]}
       )
     end
   end
