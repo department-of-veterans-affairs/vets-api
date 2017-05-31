@@ -8,7 +8,7 @@ RSpec.describe FailedClaimsReportMailer, type: [:mailer] do
         [
           {
             file_path: 'dir1/file1<b>.txt',
-            last_modified: Time.new(2016),
+            last_modified: Time.new(2016).utc,
             document_hash: {
               'evss_claim_id' => 123,
               'tracked_item_id' => 1234,
@@ -18,7 +18,7 @@ RSpec.describe FailedClaimsReportMailer, type: [:mailer] do
           },
           {
             file_path: 'dir1/file2.txt',
-            last_modified: Time.new(2017),
+            last_modified: Time.new(2017).utc,
             document_hash: {
               'evss_claim_id' => 123,
               'tracked_item_id' => 1234,
@@ -28,7 +28,7 @@ RSpec.describe FailedClaimsReportMailer, type: [:mailer] do
           },
           {
             file_path: 'dir1/file3.txt',
-            last_modified: Time.new(2015),
+            last_modified: Time.new(2015).utc,
             document_hash: nil
           }
         ]
