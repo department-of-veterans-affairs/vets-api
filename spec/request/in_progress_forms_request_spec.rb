@@ -38,7 +38,7 @@ RSpec.describe 'in progress forms', type: :request do
         end
 
         before do
-          auth_header.merge!('HTTP_X_KEY_INFLECTION' => 'camel')
+          auth_header['HTTP_X_KEY_INFLECTION'] = 'camel'
           in_progress_form.update(form_data: form_data)
         end
 
