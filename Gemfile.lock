@@ -323,6 +323,7 @@ GEM
       rainbow (>= 1.99.1, < 3.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (~> 1.0, >= 1.0.1)
+    rubocop-junit-formatter (0.1.3)
     ruby-progressbar (1.8.1)
     ruby-rc4 (0.1.5)
     ruby-saml (1.3.1)
@@ -472,6 +473,7 @@ DEPENDENCIES
   rspec-rails (~> 3.5)
   rspec_junit_formatter
   rubocop (~> 0.42.0)
+  rubocop-junit-formatter
   ruby-saml (~> 1.3.0)
   savon
   sdoc (~> 0.4.0)
