@@ -97,6 +97,8 @@ module HCA
     end
 
     def format_zipcode(zipcode)
+      return {} if zipcode.blank?
+
       numeric_zip = zipcode.gsub(/\D/, '')
       zip_plus_4 = numeric_zip[5..8]
       zip_plus_4 = nil if !zip_plus_4.nil? && zip_plus_4.size != 4

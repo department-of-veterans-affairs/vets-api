@@ -198,6 +198,10 @@ describe HCA::EnrollmentSystem do
       [
         '12345-123',
         { 'zipCode' => '12345', 'zipPlus4' => nil }
+      ],
+      [
+        nil,
+        {}
       ]
     ]
   )
@@ -212,6 +216,21 @@ describe HCA::EnrollmentSystem do
         'zipCode' => '20101',
         'zipPlus4' => '0101'
       )
+    end
+
+    context 'with no zipcode' do
+      before do
+        test_address['zipcode'] = nil
+      end
+
+      it 'should format the address correctly' do
+        expect(described_class.format_address(test_address)).to eq(
+          'city' => 'Dulles',
+          'country' => 'USA',
+          'line1' => '123 NW 8th St',
+          'state' => 'VA'
+        )
+      end
     end
 
     context 'with a non american address' do
