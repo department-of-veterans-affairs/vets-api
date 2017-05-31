@@ -20,5 +20,11 @@
       "location": "dc"
     }
   ],
+  "disabilities": [
+    {
+      "name": "disability 1",
+      "disabilityStartDate": "2016-12-01"
+    }
+  ],
   "gender": "M"
 }

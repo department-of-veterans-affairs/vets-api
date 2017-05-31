@@ -16,6 +16,10 @@ module PdfFill
         'dayPhone' => 'F[0].Page_5[0].Daytimephonenumber[0]',
         'dayPhoneAreaCode' => 'F[0].Page_5[0].Daytimeareacode[0]',
         'vaHospitalTreatmentNames' => "F[0].Page_5[0].Nameandlocationofvamedicalcenter[#{ITERATOR}]",
+        'disabilityNames' => "F[0].Page_5[0].Disability[#{ITERATOR}]",
+        'disabilities' => {
+          'disabilityStartDate' => "F[0].Page_5[0].DateDisabilityBegan[#{ITERATOR}]"
+        },
         'vaHospitalTreatmentDates' => "F[0].Page_5[0].DateofTreatment[#{ITERATOR}]",
         'veteranFullName' => 'F[0].Page_5[0].Veteransname[0]'
       }.freeze
@@ -52,6 +56,21 @@ module PdfFill
         end
 
         combined
+      end
+
+      def get_disability_names(disabilities)
+        return if disabilities.blank?
+
+        disability_names = Array.new(2, nil)
+
+        disability_names[0] = disabilities[1].try(:[], 'name')
+        disability_names[1] = disabilities[0]['name']
+
+        disabilities.map! do |disability|
+          disability.except('name')
+        end
+
+        disability_names
       end
 
       def rearrange_hospital_dates(combined_dates)
@@ -120,6 +139,8 @@ module PdfFill
           )
         end
         form_data_merged.delete('vaHospitalTreatments')
+
+        form_data_merged['disabilityNames'] = get_disability_names(form_data_merged['disabilities'])
 
         form_data_merged
       end
