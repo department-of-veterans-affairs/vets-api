@@ -3,7 +3,7 @@ module V0
   class EducationEnrollmentStatusController < ApplicationController
     # GET /edcuation_enrollment_status
     def show
-      # TODO - attach to serializer
+      # TODO: - attach to serializer
       head :ok
     end
   end
