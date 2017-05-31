@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 class InProgressForm < ActiveRecord::Base
   attr_encrypted :form_data, key: Settings.db_encryption_key
+  validates(:form_data, presence: true)
   before_save :serialize_form_data
 
   def self.form_for_user(form_id, user)
