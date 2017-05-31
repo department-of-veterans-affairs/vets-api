@@ -4,7 +4,7 @@ module V0
     # GET /edcuation_enrollment_status
     def show
       # TODO - attach to serializer
-      render json: {}
+      head :ok
     end
   end
 end
