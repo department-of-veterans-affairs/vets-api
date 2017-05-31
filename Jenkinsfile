@@ -39,6 +39,7 @@ pipeline {
         always {
             archive "coverage/**"
             publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
+            junit 'rspec.xml'
             deleteDir() /* clean up our workspace */
         }
   }
