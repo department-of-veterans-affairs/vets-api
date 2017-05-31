@@ -111,7 +111,7 @@ namespace :redis do
 
     puts "Total cached users: #{count}"
     puts "Users with MHV correlation ID: #{mhv_users}"
-    puts "Users who are VA patients: #{mhv_users}"
+    puts "Users who are VA patients: #{vha_patients}"
     puts "VA patients with no MHV ID: #{patient_non_mhv}"
     puts "MHV ID holders who are not patients: #{mhv_non_patient}"
     puts "Users with baseline address fields: #{addressees}"
