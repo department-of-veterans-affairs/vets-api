@@ -29,6 +29,7 @@
   "altEmail": "alt@foo.com",
   "nightPhone": "0123456789",
   "dayPhone": "1123456789",
+  "mobilePhone": "2123456789",
   "vaFileNumber": "c12345678",
   "vaHospitalTreatments": [
     {

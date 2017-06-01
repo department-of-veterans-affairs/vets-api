@@ -12,6 +12,8 @@ module PdfFill
         'hasFileNumber' => 'F[0].Page_5[0].YesFiled[0]',
         'noFileNumber' => 'F[0].Page_5[0].NoFiled[0]',
         'nightPhone' => 'F[0].Page_5[0].Eveningphonenumber[0]',
+        'mobilePhone' => 'F[0].Page_5[0].Cellphonenumber[0]',
+        'mobilePhoneAreaCode' => 'F[0].Page_5[0].Cellphoneareacode[0]',
         'nightPhoneAreaCode' => 'F[0].Page_5[0].Eveningareacode[0]',
         'dayPhone' => 'F[0].Page_5[0].Daytimephonenumber[0]',
         'previousNames' => 'F[0].Page_5[0].Listothernames[0]',
@@ -155,7 +157,7 @@ module PdfFill
           form_data_merged.merge!(public_send("expand_#{attr.underscore}", form_data_merged[attr]))
         end
 
-        %w(nightPhone dayPhone).each do |attr|
+        %w(nightPhone dayPhone mobilePhone).each do |attr|
           phone_arr = split_phone(form_data_merged[attr])
           form_data_merged["#{attr}AreaCode"] = phone_arr[0]
           form_data_merged[attr] = phone_arr[1]
