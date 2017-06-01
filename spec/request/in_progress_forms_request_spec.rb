@@ -97,7 +97,7 @@ RSpec.describe 'in progress forms', type: :request do
           put v0_in_progress_form_url(new_form.form_id), {
             form_data: new_form.form_data,
             metadata: new_form.metadata
-          }.to_json, auth_header.merge("CONTENT_TYPE" => "application/json")
+          }.to_json, auth_header.merge('CONTENT_TYPE' => 'application/json')
         end.to change { InProgressForm.count }.by(1)
 
         expect(response).to have_http_status(:ok)
