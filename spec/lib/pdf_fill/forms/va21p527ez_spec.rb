@@ -286,6 +286,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "dayPhone"=>"3456789",
          "veteranAddressLine1" => "street, street2",
          "email" => "foo@foo.com",
+         "serviceBranch" => "army",
          "placeOfSeparation" => "city, state",
          "vaFileNumber"=>"c12345678",
          "cityState" => "Baltimore, MD, 21231, USA",
