@@ -5,6 +5,7 @@
     "last": "smith",
     "suffix": "Sr."
   },
+  "placeOfSeparation": "city, state",
   "veteranAddress": {
     "city": "Baltimore",
     "country": "USA",

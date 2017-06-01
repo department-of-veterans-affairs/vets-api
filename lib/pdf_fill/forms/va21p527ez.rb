@@ -21,6 +21,7 @@ module PdfFill
         'altEmail' => 'F[0].Page_5[0].Alternateemailaddress[0]',
         'cityState' => 'F[0].Page_5[0].Citystatezipcodecountry[0]',
         'disabilityNames' => "F[0].Page_5[0].Disability[#{ITERATOR}]",
+        'placeOfSeparation' => 'F[0].Page_5[0].Placeofseparation[0]',
         'disabilities' => {
           'disabilityStartDate' => "F[0].Page_5[0].DateDisabilityBegan[#{ITERATOR}]"
         },
