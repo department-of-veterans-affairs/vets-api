@@ -5,6 +5,12 @@
     "last": "smith",
     "suffix": "Sr."
   },
+  "veteranAddress": {
+    "city": "Baltimore",
+    "country": "USA",
+    "postalCode": "21231",
+    "state": "MD"
+  },
   "email": "foo@foo.com",
   "altEmail": "alt@foo.com",
   "nightPhone": "0123456789",

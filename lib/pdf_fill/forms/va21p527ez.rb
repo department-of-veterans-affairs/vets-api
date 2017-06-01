@@ -18,6 +18,7 @@ module PdfFill
         'vaHospitalTreatmentNames' => "F[0].Page_5[0].Nameandlocationofvamedicalcenter[#{ITERATOR}]",
         'email' => 'F[0].Page_5[0].Preferredemailaddress[0]',
         'altEmail' => 'F[0].Page_5[0].Alternateemailaddress[0]',
+        'cityState' => 'F[0].Page_5[0].Citystatezipcodecountry[0]',
         'disabilityNames' => "F[0].Page_5[0].Disability[#{ITERATOR}]",
         'disabilities' => {
           'disabilityStartDate' => "F[0].Page_5[0].DateDisabilityBegan[#{ITERATOR}]"
@@ -38,7 +39,9 @@ module PdfFill
       def combine_city_state(address)
         return if address.blank?
 
-        combine_hash(address, %w(city state postalCode country), ', ')
+        city_state_fields = %w(city state postalCode country)
+
+        combine_hash(address, city_state_fields, ', ')
       end
 
       def split_phone(phone)
@@ -149,6 +152,9 @@ module PdfFill
         form_data_merged.delete('vaHospitalTreatments')
 
         form_data_merged['disabilityNames'] = get_disability_names(form_data_merged['disabilities'])
+
+        form_data_merged['cityState'] = combine_city_state(form_data_merged['veteranAddress'])
+        form_data_merged.delete('veteranAddress')
 
         form_data_merged
       end
