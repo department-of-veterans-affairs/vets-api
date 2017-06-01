@@ -35,6 +35,12 @@ module PdfFill
         }
       end
 
+      def combine_city_state(address)
+        return if address.blank?
+
+        combine_hash(address, %w(city state postalCode country), ', ')
+      end
+
       def split_phone(phone)
         return [nil, nil] if phone.blank?
 

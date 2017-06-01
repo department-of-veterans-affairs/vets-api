@@ -126,6 +126,26 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     described_class,
+    'combine_city_state',
+    [
+      [
+        [nil],
+        nil
+      ],
+      [
+        {
+          'city' => 'foo',
+          'state' => 'GA',
+          'postalCode' => '12345',
+          'country' => 'USA'
+        },
+        'foo, GA, 12345, USA'
+      ]
+    ]
+  )
+
+  test_method(
+    described_class,
     'combine_hash',
     [
       [
