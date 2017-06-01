@@ -22,10 +22,30 @@ RSpec.describe 'in progress forms', type: :request do
     let!(:in_progress_form) { FactoryGirl.create(:in_progress_form, user_uuid: user.uuid) }
 
     context 'when a form is found' do
-      it 'returns the form as JSON' do
+      subject do
         get v0_in_progress_form_url(in_progress_form.form_id), nil, auth_header
+      end
+
+      it 'returns the form as JSON' do
+        subject
         expect(response).to have_http_status(:ok)
         expect(response.body).to eq(in_progress_form.form_data)
+      end
+
+      context 'with the x key inflection header set' do
+        let(:form_data) do
+          { foo_bar: 1 }
+        end
+
+        before do
+          auth_header['HTTP_X_KEY_INFLECTION'] = 'camel'
+          in_progress_form.update(form_data: form_data)
+        end
+
+        it 'converts the json keys' do
+          subject
+          expect(response.body).to eq(form_data.to_camelback_keys.to_json)
+        end
       end
     end
 
