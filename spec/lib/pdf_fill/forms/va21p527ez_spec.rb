@@ -310,6 +310,8 @@ describe PdfFill::Forms::VA21P527EZ do
          "previousNames" => "name1 last1, name2 last2",
          "placeOfSeparation" => "city, state",
          "vaFileNumber"=>"c12345678",
+         "mobilePhone" => "3456789",
+         "mobilePhoneAreaCode" => "212",
          "cityState" => "Baltimore, MD, 21231, USA",
          "disabilities"=>[{"disabilityStartDate"=>"2016-12-01"}],
          "gender"=>"M",
