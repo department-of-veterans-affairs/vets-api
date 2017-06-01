@@ -19,7 +19,6 @@ describe 'mhv account creation' do
   end
 
   let(:time) { Time.parse('Tue, 09 May 2017 00:00:00 GMT').utc }
-  let(:test_time_coercion) { [time, time.httpdate].sample }
 
   let(:user_params) do
     {
@@ -38,14 +37,14 @@ describe 'mhv account creation' do
       zip: '77040',
       sign_in_partners: 'VETS.GOV',
       email: 'vets.gov.user+0@gmail.com',
-      terms_accepted_date: test_time_coercion
+      terms_accepted_date: time
     }
   end
 
   let(:upgrade_params) do
     {
       user_id: '14221465',
-      form_signed_date_time: test_time_coercion,
+      form_signed_date_time: time.httpdate,
       terms_version: 'v3.4'
     }
   end
