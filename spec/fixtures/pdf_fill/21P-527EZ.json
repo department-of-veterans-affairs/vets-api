@@ -5,6 +5,16 @@
     "last": "smith",
     "suffix": "Sr."
   },
+  "previousNames": [
+    {
+      "first": "name1",
+      "last": "last1"
+    },
+    {
+      "first": "name2",
+      "last": "last2"
+    }
+  ],
   "placeOfSeparation": "city, state",
   "veteranAddress": {
     "city": "Baltimore",
