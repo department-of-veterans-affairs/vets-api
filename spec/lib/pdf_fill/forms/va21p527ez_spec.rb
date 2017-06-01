@@ -253,6 +253,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "genderFemale"=>false,
          "hasFileNumber"=>true,
          "noFileNumber"=>false,
+         "altEmail" => "alt@foo.com",
          "nightPhoneAreaCode"=>"012",
          "dayPhoneAreaCode"=>"112",
          "vaHospitalTreatmentNames"=>["hospital1, nyc", "hospital2, dc"],
