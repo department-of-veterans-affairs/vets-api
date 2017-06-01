@@ -88,6 +88,26 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     described_class,
+    'combine_previous_names',
+    [
+      [
+        [[
+          {
+            'first' => 'first1',
+            'last' => 'last'
+          },
+          {
+            'first' => 'first2',
+            'last' => 'last'
+          }
+        ]],
+        'first1 last, first2 last'
+      ]
+    ]
+  )
+
+  test_method(
+    described_class,
     'combine_va_hospital_names',
     [
       [

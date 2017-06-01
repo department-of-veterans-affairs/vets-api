@@ -133,6 +133,14 @@ module PdfFill
         combined.compact.join(separator)
       end
 
+      def combine_previous_names(previous_names)
+        return if previous_names.blank?
+
+        previous_names.map do |previous_name|
+          combine_full_name(previous_name)
+        end.join(', ')
+      end
+
       def combine_full_name(full_name)
         combine_hash(full_name, %w(first middle last suffix))
       end
