@@ -16,6 +16,7 @@ module PdfFill
         'dayPhone' => 'F[0].Page_5[0].Daytimephonenumber[0]',
         'dayPhoneAreaCode' => 'F[0].Page_5[0].Daytimeareacode[0]',
         'vaHospitalTreatmentNames' => "F[0].Page_5[0].Nameandlocationofvamedicalcenter[#{ITERATOR}]",
+        'altEmail' => 'F[0].Page_5[0].Alternateemailaddress[0]',
         'disabilityNames' => "F[0].Page_5[0].Disability[#{ITERATOR}]",
         'disabilities' => {
           'disabilityStartDate' => "F[0].Page_5[0].DateDisabilityBegan[#{ITERATOR}]"
