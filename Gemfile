@@ -102,6 +102,8 @@ group :test do
   gem 'climate_control'
   gem 'shrine-memory'
   gem 'pdf-inspector'
+  gem 'rspec_junit_formatter'
+  gem 'rubocop-junit-formatter'
 end
 
 group :development do

@@ -51,7 +51,7 @@ module Common
       # was provided by the backend service, because the backend service response
       # might not always be relevant
       def status
-        i18n_data[:source].presence || 400
+        i18n_data[:status].presence || 400
       end
 
       # OPTIONAL - This is the detail or message that is rendered in JSON response

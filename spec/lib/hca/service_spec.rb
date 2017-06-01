@@ -3,6 +3,8 @@ require 'rails_helper'
 require 'hca/service'
 
 describe HCA::Service do
+  include SchemaMatchers
+
   let(:cert) { instance_double('OpenSSL::X509::Certificate') }
   let(:key) { instance_double('OpenSSL::PKey::RSA') }
   let(:store) { instance_double('OpenSSL::X509::Store') }

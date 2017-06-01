@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170329210115) do
+ActiveRecord::Schema.define(version: 20170519153047) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -72,5 +72,30 @@ ActiveRecord::Schema.define(version: 20170329210115) do
 
   add_index "in_progress_forms", ["form_id"], name: "index_in_progress_forms_on_form_id", using: :btree
   add_index "in_progress_forms", ["user_uuid"], name: "index_in_progress_forms_on_user_uuid", using: :btree
+
+  create_table "terms_and_conditions", force: :cascade do |t|
+    t.string   "name"
+    t.string   "title"
+    t.text     "terms_content"
+    t.text     "header_content"
+    t.string   "yes_content"
+    t.string   "no_content"
+    t.string   "footer_content"
+    t.string   "version"
+    t.boolean  "latest",         default: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "terms_and_conditions", ["name", "latest"], name: "index_terms_and_conditions_on_name_and_latest", using: :btree
+
+  create_table "terms_and_conditions_acceptances", id: false, force: :cascade do |t|
+    t.string   "user_uuid"
+    t.integer  "terms_and_conditions_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "terms_and_conditions_acceptances", ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid", using: :btree
 
 end
