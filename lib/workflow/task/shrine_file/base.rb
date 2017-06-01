@@ -6,9 +6,8 @@ module Workflow::Task::ShrineFile
     attr_accessor :file, :attacher
     def initialize(args = {}, internal: {})
       super
-      internal[:history] = []
-      file_json = JSON.parse(internal[:file])
-      file_handle = attacher.uploaded_file(file_json)
+      internal[:history] ||= []
+      file_handle = json_to_file_handle(internal[:file])
       attacher.set(file_handle)
       @file = attacher.get
       add_version(attacher.read, tag: 'initial version') if history.empty?
@@ -17,13 +16,11 @@ module Workflow::Task::ShrineFile
     def update_file(io: nil, **rest)
       attacher.assign(io) # TODO: what to do if validations fail at this step?
       add_version(@attacher.read, **rest)
-      @file = attacher.get
     end
 
     def history
       internal[:history].map do |record|
-        parsed = JSON.parse(record[:file])
-        @attacher.uploaded_file(parsed)
+        json_to_file_handle(record[:file])
       end
     end
 
@@ -32,13 +29,18 @@ module Workflow::Task::ShrineFile
       @attacher ||= file_class.new(InternalAttachment.new(**data), :file)
     end
 
+    def json_to_file_handle(json)
+      file_json = JSON.parse(json)
+      attacher.uploaded_file(file_json)
+    end
+
     private
 
     def add_version(file, **rest)
       internal[:file] = file
-      record = { file: file }.merge(rest.merge(task: self.class.to_s)).merge(user_args: data)
-      logger.info "Adding #{file} to history"
+      record = { file: file }.merge(rest.merge(task: self.class.to_s, added: Time.current.to_s)).merge(user_args: data)
       internal[:history] << record
+      @file = attacher.get
     end
   end
 end

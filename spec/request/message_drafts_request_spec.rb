@@ -5,6 +5,7 @@ require 'support/sm_client_helpers'
 
 RSpec.describe 'Messages Integration', type: :request do
   include SM::ClientHelpers
+  include SchemaMatchers
 
   let(:current_user) { build(:mhv_user) }
   let(:reply_id)               { 674_874 }

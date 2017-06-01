@@ -34,13 +34,8 @@ module SM
       mhv_params = MessagingPreference.new(params).mhv_params
       perform(:post, 'preferences/notification', mhv_params, token_headers)
       get_preferences
-    # In case MHV wants to enforce additional validations on email address
-    rescue Common::Exceptions::BackendServiceException => e
-      if e.detail == 'Invalid Email Address'
-        raise Common::Exceptions::InvalidFieldValue.new('email_address', params[:email_address])
-      else
-        raise e
-      end
+      # NOTE: email_address might return an MHV error for any validations we have not handled, these will result
+      # in a mapped SM152 code in exceptions.en.yml
     end
 
     # Folders

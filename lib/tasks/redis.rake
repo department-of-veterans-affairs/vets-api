@@ -56,7 +56,7 @@ namespace :redis do
         ":uuid": uuid,
         ":status": 'OK',
         ":profile": {
-          "^o": 'MviProfile',
+          "^o": 'MVI::Models::MviProfile',
           "birth_date": '19700101',
           "edipi": '1005079124',
           "family_name": 'USER',
@@ -66,7 +66,14 @@ namespace :redis do
           "mhv_ids": mhv_ids,
           "ssn": '123456789',
           "suffix": nil,
-          "address": nil,
+          "address": {
+            "^o": 'MVI::Models::MviProfileAddress',
+            "street": '123 Fake Street',
+            "city": 'Springfield',
+            "state": 'OR',
+            "postal_code": '99999',
+            "country": 'USA'
+          },
           "home_phone": nil,
           "participant_id": '600062099'
         }
@@ -75,4 +82,49 @@ namespace :redis do
       puts token
     end
   end
+
+  desc 'Audit User Attributes'
+  task audit: :environment do
+    count = 0
+    mhv_users = 0
+    vha_patients = 0
+    mhv_non_patient = 0
+    patient_non_mhv = 0
+    addressees = 0
+    namespace = 'mvi-profile-response'
+    redis = Redis.current
+    redis.scan_each(match: "#{namespace}:*") do |key|
+      begin
+        resp = Oj.load(redis.get(key))[:response]
+        count += 1
+        mhvu = !resp.profile.mhv_ids.blank?
+        patient = patient?(resp.profile.vha_facility_ids)
+        mhv_users += 1 if mhvu
+        vha_patients += 1 if patient
+        mhv_non_patient += 1 if mhvu && !patient
+        patient_non_mhv += 1 if patient && !mhvu
+        addressees += 1 if addressee?(resp.profile.address)
+      rescue
+        puts "Couldn't parse #{key}"
+      end
+    end
+
+    puts "Total cached users: #{count}"
+    puts "Users with MHV correlation ID: #{mhv_users}"
+    puts "Users who are VA patients: #{vha_patients}"
+    puts "VA patients with no MHV ID: #{patient_non_mhv}"
+    puts "MHV ID holders who are not patients: #{mhv_non_patient}"
+    puts "Users with baseline address fields: #{addressees}"
+  end
+end
+
+def patient?(vha_ids)
+  vha_ids.to_a.any? { |id| id.to_i.between?(358, 758) }
+end
+
+def addressee?(addr)
+  return false if addr.blank?
+  return false if addr.country.blank?
+  return false if addr.state.blank?
+  true
 end
