@@ -5,6 +5,7 @@
     "last": "smith",
     "suffix": "Sr."
   },
+  "email": "foo@foo.com",
   "altEmail": "alt@foo.com",
   "nightPhone": "0123456789",
   "dayPhone": "1123456789",

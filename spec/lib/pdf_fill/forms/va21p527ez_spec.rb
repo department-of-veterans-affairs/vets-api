@@ -246,6 +246,7 @@ describe PdfFill::Forms::VA21P527EZ do
         {"veteranFullName"=>"john middle smith Sr.",
          "nightPhone"=>"3456789",
          "dayPhone"=>"3456789",
+         "email" => "foo@foo.com",
          "vaFileNumber"=>"c12345678",
          "disabilities"=>[{"disabilityStartDate"=>"2016-12-01"}],
          "gender"=>"M",
