@@ -14,6 +14,7 @@
     "street2": "street2",
     "state": "MD"
   },
+  "serviceBranch": "army",
   "email": "foo@foo.com",
   "altEmail": "alt@foo.com",
   "nightPhone": "0123456789",
