@@ -36,6 +36,12 @@ module PdfFill
         }
       end
 
+      def combine_address(address)
+        return if address.blank?
+
+        combine_hash(address, %w(street street2), ', ')
+      end
+
       def combine_city_state(address)
         return if address.blank?
 

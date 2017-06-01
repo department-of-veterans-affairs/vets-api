@@ -126,6 +126,24 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     described_class,
+    'combine_address',
+    [
+      [
+        [nil],
+        nil
+      ],
+      [
+        {
+          'street' => 'street',
+          'street2' => 'street2'
+        },
+        'street, street2'
+      ]
+    ]
+  )
+
+  test_method(
+    described_class,
     'combine_city_state',
     [
       [
@@ -268,6 +286,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "dayPhone"=>"3456789",
          "email" => "foo@foo.com",
          "vaFileNumber"=>"c12345678",
+         "cityState" => "Baltimore, MD, 21231, USA",
          "disabilities"=>[{"disabilityStartDate"=>"2016-12-01"}],
          "gender"=>"M",
          "genderMale"=>true,
