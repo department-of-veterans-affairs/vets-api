@@ -47,7 +47,10 @@ RSpec.describe 'in progress forms', type: :request do
 
         it 'converts the json keys' do
           subject
-          expect(response.body).to eq(form_data.to_camelback_keys.to_json)
+          expect(response.body).to eq({
+            form_data: form_data,
+            metadata: in_progress_form.metadata
+          }.to_camelback_keys.to_json)
         end
       end
     end
