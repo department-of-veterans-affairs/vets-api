@@ -16,6 +16,7 @@ module PdfFill
         'dayPhone' => 'F[0].Page_5[0].Daytimephonenumber[0]',
         'dayPhoneAreaCode' => 'F[0].Page_5[0].Daytimeareacode[0]',
         'vaHospitalTreatmentNames' => "F[0].Page_5[0].Nameandlocationofvamedicalcenter[#{ITERATOR}]",
+        'veteranAddressLine1' => 'F[0].Page_5[0].Currentaddress[0]',
         'email' => 'F[0].Page_5[0].Preferredemailaddress[0]',
         'altEmail' => 'F[0].Page_5[0].Alternateemailaddress[0]',
         'cityState' => 'F[0].Page_5[0].Citystatezipcodecountry[0]',
@@ -160,6 +161,7 @@ module PdfFill
         form_data_merged['disabilityNames'] = get_disability_names(form_data_merged['disabilities'])
 
         form_data_merged['cityState'] = combine_city_state(form_data_merged['veteranAddress'])
+        form_data_merged['veteranAddressLine1'] = combine_address(form_data_merged['veteranAddress'])
         form_data_merged.delete('veteranAddress')
 
         form_data_merged

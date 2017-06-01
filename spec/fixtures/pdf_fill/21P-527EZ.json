@@ -9,6 +9,8 @@
     "city": "Baltimore",
     "country": "USA",
     "postalCode": "21231",
+    "street": "street",
+    "street2": "street2",
     "state": "MD"
   },
   "email": "foo@foo.com",
