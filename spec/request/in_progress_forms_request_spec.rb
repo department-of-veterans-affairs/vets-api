@@ -29,7 +29,10 @@ RSpec.describe 'in progress forms', type: :request do
       it 'returns the form as JSON' do
         subject
         expect(response).to have_http_status(:ok)
-        expect(response.body).to eq(in_progress_form.form_data)
+        expect(response.body).to eq({
+          'form_data' => JSON.parse(in_progress_form.form_data),
+          'metadata' => in_progress_form.metadata
+        }.to_json)
       end
 
       context 'with the x key inflection header set' do

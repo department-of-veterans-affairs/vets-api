@@ -4,7 +4,7 @@ module V0
     def show
       form_id = params[:id]
       form = InProgressForm.form_for_user(form_id, @current_user)
-      result = form ? form.form_data : FormProfile.new.prefill_form(form_id, @current_user)
+      result = form ? form.data_and_metadata : FormProfile.new.prefill_form(form_id, @current_user)
       render json: result
     end
 
