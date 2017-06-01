@@ -99,6 +99,8 @@ group :test do
   gem 'awrence'
   gem 'climate_control'
   gem "shrine-memory"
+  gem 'rspec_junit_formatter'
+  gem 'rubocop-junit-formatter'
 end
 
 group :development do
