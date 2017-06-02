@@ -131,6 +131,20 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     described_class,
+    'expand_has_previous_names',
+    [
+      [
+        [1],
+        {
+          'hasPreviousNames' => true,
+          'noPreviousNames' => false
+        }
+      ]
+    ]
+  )
+
+  test_method(
+    described_class,
     'split_phone',
     [
       [

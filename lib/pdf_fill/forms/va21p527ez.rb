@@ -40,6 +40,10 @@ module PdfFill
         expand_checkbox(va_file_number.present?, 'FileNumber')
       end
 
+      def expand_has_previous_names(previous_names)
+        expand_checkbox(previous_names.present?, 'PreviousNames')
+      end
+
       def expand_checkbox(value, key)
         {
           "has#{key}" => value,
