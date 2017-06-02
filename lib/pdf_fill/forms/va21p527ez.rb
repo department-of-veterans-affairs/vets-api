@@ -173,7 +173,7 @@ module PdfFill
       def merge_fields
         @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
 
-        %w(gender vaFileNumber).each do |attr|
+        %w(gender vaFileNumber previousNames severancePay).each do |attr|
           @form_data.merge!(public_send("expand_#{attr.underscore}", @form_data[attr]))
         end
 
@@ -198,9 +198,6 @@ module PdfFill
         @form_data.delete('veteranAddress')
 
         @form_data['previousNames'] = combine_previous_names(@form_data['previousNames'])
-        @form_data.merge!(expand_previous_names(@form_data['previousNames']))
-
-        @form_data.merge!(expand_severance_pay(@form_data['severancePay']))
 
         @form_data
       end
