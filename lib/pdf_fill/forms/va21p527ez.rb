@@ -17,6 +17,8 @@ module PdfFill
           'amount' => 'F[0].Page_5[0].Listamount[0]',
           'type' => 'F[0].Page_5[0].Listtype[0]'
         },
+        "hasNationalGuardActivation" => 'F[0].Page_5[0].YesAD[0]',
+        "noNationalGuardActivation" => 'F[0].Page_5[0].NoAD[0]',
         'nightPhone' => 'F[0].Page_5[0].Eveningphonenumber[0]',
         'mobilePhone' => 'F[0].Page_5[0].Cellphonenumber[0]',
         'mobilePhoneAreaCode' => 'F[0].Page_5[0].Cellphoneareacode[0]',
