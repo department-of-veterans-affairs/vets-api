@@ -15,6 +15,10 @@
       "last": "last2"
     }
   ],
+  "severancePay": {
+    "amount": 1,
+    "type": "retirement"
+  },
   "placeOfSeparation": "city, state",
   "veteranAddress": {
     "city": "Baltimore",
