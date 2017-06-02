@@ -13,7 +13,7 @@ module PdfFill
     }.freeze
 
     def fill_form(code, form_data)
-      form_mod = FORM_CLASSES[code]
+      form_class = FORM_CLASSES[code]
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
       # TODO add the id of the form to filename and remove timestamp
@@ -23,8 +23,8 @@ module PdfFill
         "lib/pdf_fill/forms/pdfs/#{code}.pdf",
         file_path,
         HashConverter.new.transform_data(
-          form_data: form_mod.merge_fields(form_data),
-          pdftk_keys: form_mod::KEY
+          form_data: form_class.new(form_data).merge_fields,
+          pdftk_keys: form_class::KEY
         )
       )
 
