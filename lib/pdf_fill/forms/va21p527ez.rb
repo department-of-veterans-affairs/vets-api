@@ -13,6 +13,8 @@ module PdfFill
         'noFileNumber' => 'F[0].Page_5[0].NoFiled[0]',
         'hasPreviousNames' => 'F[0].Page_5[0].YesName[0]',
         'noPreviousNames' => 'F[0].Page_5[0].NameNo[0]',
+        'hasSeverancePay' => 'F[0].Page_5[0].YesSep[0]',
+        'noSeverancePay' => 'F[0].Page_5[0].NoSep[0]',
         'nightPhone' => 'F[0].Page_5[0].Eveningphonenumber[0]',
         'mobilePhone' => 'F[0].Page_5[0].Cellphonenumber[0]',
         'mobilePhoneAreaCode' => 'F[0].Page_5[0].Cellphoneareacode[0]',
