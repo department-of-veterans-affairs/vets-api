@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 module PdfFill
   module Forms
-    module VA21P527EZ
-      module_function
-
+    class VA21P527EZ
       ITERATOR = PdfFill::HashConverter::ITERATOR
       KEY = {
         'vaFileNumber' => 'F[0].Page_5[0].VAfilenumber[0]',
@@ -40,6 +38,10 @@ module PdfFill
         'vaHospitalTreatmentDates' => "F[0].Page_5[0].DateofTreatment[#{ITERATOR}]",
         'veteranFullName' => 'F[0].Page_5[0].Veteransname[0]'
       }.freeze
+
+      def initialize(form_data)
+        @form_data = form_data.deep_dup
+      end
 
       def expand_va_file_number(va_file_number)
         expand_checkbox(va_file_number.present?, 'FileNumber')
@@ -168,41 +170,39 @@ module PdfFill
         combine_hash(full_name, %w(first middle last suffix))
       end
 
-      def merge_fields(form_data)
-        form_data_merged = form_data.deep_dup
-
-        form_data_merged['veteranFullName'] = combine_full_name(form_data_merged['veteranFullName'])
+      def merge_fields
+        @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
 
         %w(gender vaFileNumber).each do |attr|
-          form_data_merged.merge!(public_send("expand_#{attr.underscore}", form_data_merged[attr]))
+          @form_data.merge!(public_send("expand_#{attr.underscore}", @form_data[attr]))
         end
 
         %w(nightPhone dayPhone mobilePhone).each do |attr|
-          phone_arr = split_phone(form_data_merged[attr])
-          form_data_merged["#{attr}AreaCode"] = phone_arr[0]
-          form_data_merged[attr] = phone_arr[1]
+          phone_arr = split_phone(@form_data[attr])
+          @form_data["#{attr}AreaCode"] = phone_arr[0]
+          @form_data[attr] = phone_arr[1]
         end
 
-        form_data_merged['vaHospitalTreatments'].tap do |va_hospital_treatments|
-          form_data_merged['vaHospitalTreatmentNames'] = combine_va_hospital_names(va_hospital_treatments)
-          form_data_merged['vaHospitalTreatmentDates'] = rearrange_hospital_dates(
+        @form_data['vaHospitalTreatments'].tap do |va_hospital_treatments|
+          @form_data['vaHospitalTreatmentNames'] = combine_va_hospital_names(va_hospital_treatments)
+          @form_data['vaHospitalTreatmentDates'] = rearrange_hospital_dates(
             combine_va_hospital_dates(va_hospital_treatments)
           )
         end
-        form_data_merged.delete('vaHospitalTreatments')
+        @form_data.delete('vaHospitalTreatments')
 
-        form_data_merged['disabilityNames'] = get_disability_names(form_data_merged['disabilities'])
+        @form_data['disabilityNames'] = get_disability_names(@form_data['disabilities'])
 
-        form_data_merged['cityState'] = combine_city_state(form_data_merged['veteranAddress'])
-        form_data_merged['veteranAddressLine1'] = combine_address(form_data_merged['veteranAddress'])
-        form_data_merged.delete('veteranAddress')
+        @form_data['cityState'] = combine_city_state(@form_data['veteranAddress'])
+        @form_data['veteranAddressLine1'] = combine_address(@form_data['veteranAddress'])
+        @form_data.delete('veteranAddress')
 
-        form_data_merged['previousNames'] = combine_previous_names(form_data_merged['previousNames'])
-        form_data_merged.merge!(expand_has_previous_names(form_data_merged['previousNames']))
+        @form_data['previousNames'] = combine_previous_names(@form_data['previousNames'])
+        @form_data.merge!(expand_has_previous_names(@form_data['previousNames']))
 
-        form_data_merged.merge!(expand_severance_pay(form_data_merged['severancePay']))
+        @form_data.merge!(expand_severance_pay(@form_data['severancePay']))
 
-        form_data_merged
+        @form_data
       end
     end
   end

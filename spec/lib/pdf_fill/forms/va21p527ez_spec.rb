@@ -2,13 +2,17 @@
 require 'spec_helper'
 require 'pdf_fill/forms/va21p527ez'
 
+def basic_class
+  PdfFill::Forms::VA21P527EZ.new({})
+end
+
 describe PdfFill::Forms::VA21P527EZ do
   let(:form_data) do
     get_fixture('pdf_fill/21P-527EZ')
   end
 
   test_method(
-    described_class,
+    basic_class,
     'get_disability_names',
     [
       [
@@ -36,7 +40,7 @@ describe PdfFill::Forms::VA21P527EZ do
   )
 
   test_method(
-    described_class,
+    basic_class,
     'rearrange_hospital_dates',
     [
       [
@@ -59,7 +63,7 @@ describe PdfFill::Forms::VA21P527EZ do
   )
 
   test_method(
-    described_class,
+    basic_class,
     'combine_va_hospital_dates',
     [
       [
@@ -87,7 +91,7 @@ describe PdfFill::Forms::VA21P527EZ do
   )
 
   test_method(
-    described_class,
+    basic_class,
     'combine_previous_names',
     [
       [
@@ -107,7 +111,7 @@ describe PdfFill::Forms::VA21P527EZ do
   )
 
   test_method(
-    described_class,
+    basic_class,
     'combine_va_hospital_names',
     [
       [
@@ -130,7 +134,7 @@ describe PdfFill::Forms::VA21P527EZ do
   )
 
   test_method(
-    described_class,
+    basic_class,
     'expand_severance_pay',
     [
       [
@@ -158,7 +162,7 @@ describe PdfFill::Forms::VA21P527EZ do
   )
 
   test_method(
-    described_class,
+    basic_class,
     'expand_has_previous_names',
     [
       [
@@ -172,7 +176,7 @@ describe PdfFill::Forms::VA21P527EZ do
   )
 
   test_method(
-    described_class,
+    basic_class,
     'split_phone',
     [
       [
@@ -187,7 +191,7 @@ describe PdfFill::Forms::VA21P527EZ do
   )
 
   test_method(
-    described_class,
+    basic_class,
     'combine_address',
     [
       [
@@ -205,7 +209,7 @@ describe PdfFill::Forms::VA21P527EZ do
   )
 
   test_method(
-    described_class,
+    basic_class,
     'combine_city_state',
     [
       [
@@ -225,7 +229,7 @@ describe PdfFill::Forms::VA21P527EZ do
   )
 
   test_method(
-    described_class,
+    basic_class,
     'combine_hash',
     [
       [
@@ -258,7 +262,7 @@ describe PdfFill::Forms::VA21P527EZ do
   )
 
   test_method(
-    described_class,
+    basic_class,
     'expand_gender',
     [
       [
@@ -283,7 +287,7 @@ describe PdfFill::Forms::VA21P527EZ do
   )
 
   test_method(
-    described_class,
+    basic_class,
     'expand_checkbox',
     [
       [
@@ -304,7 +308,7 @@ describe PdfFill::Forms::VA21P527EZ do
   )
 
   test_method(
-    described_class,
+    basic_class,
     'expand_va_file_number',
     [
       [
@@ -334,7 +338,7 @@ describe PdfFill::Forms::VA21P527EZ do
     end
 
     subject do
-      described_class.combine_full_name(full_name)
+      basic_class.combine_full_name(full_name)
     end
 
     context 'with missing fields' do
@@ -363,7 +367,7 @@ describe PdfFill::Forms::VA21P527EZ do
 
   describe '#merge_fields' do
     it 'should merge the right fields' do
-      expect(described_class.merge_fields(form_data)).to eq(
+      expect(described_class.new(form_data).merge_fields).to eq(
         {"veteranFullName"=>"john middle smith Sr.",
          "nightPhone"=>"3456789",
          "dayPhone"=>"3456789",
