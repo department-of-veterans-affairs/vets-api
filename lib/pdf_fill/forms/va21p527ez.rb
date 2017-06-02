@@ -187,6 +187,7 @@ module PdfFill
         form_data_merged.delete('veteranAddress')
 
         form_data_merged['previousNames'] = combine_previous_names(form_data_merged['previousNames'])
+        form_data_merged.merge!(expand_has_previous_names(form_data_merged['previousNames']))
 
         form_data_merged
       end
