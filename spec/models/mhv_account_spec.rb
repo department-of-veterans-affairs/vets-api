@@ -160,6 +160,17 @@ RSpec.describe MhvAccount, type: :model do
       end
     end
 
+    it 'will increment statsd create and upgrade counters on attempt and success' do
+      VCR.use_cassette('mhv_account_creation/creates_an_account') do
+        VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
+          expect { subject.create_and_upgrade! }.to trigger_statsd_increment('mhv.account.creation.total')
+            .and trigger_statsd_increment('mhv.account.creation.success')
+            .and trigger_statsd_increment('mhv.account.upgrade.total')
+            .and trigger_statsd_increment('mhv.account.upgrade.success')
+        end
+      end
+    end
+
     context 'existing account that has not been upgraded' do
       let(:mhv_ids) { ['14221465'] }
 
@@ -175,6 +186,13 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.upgraded_at).to be_a(Time)
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
+        end
+      end
+
+      it 'will increment statsd upgrade counters on attempt and success' do
+        VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
+          expect { subject.create_and_upgrade! }.to trigger_statsd_increment('mhv.account.upgrade.total')
+            .and trigger_statsd_increment('mhv.account.upgrade.success')
         end
       end
     end
