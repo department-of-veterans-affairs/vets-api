@@ -57,6 +57,12 @@ module PdfFill
         expand_checkbox(amount > 0, 'SeverancePay')
       end
 
+      def expand_national_guard_activation(national_guard_activation)
+        key = 'nationalGuardActivation'
+        @form_data.delete(key)
+        expand_checkbox(national_guard_activation, key.slice(0,1).capitalize + key.slice(1..-1))
+      end
+
       def expand_checkbox(value, key)
         {
           "has#{key}" => value,
@@ -173,7 +179,13 @@ module PdfFill
       def merge_fields
         @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
 
-        %w(gender vaFileNumber previousNames severancePay).each do |attr|
+        %w(
+          gender
+          vaFileNumber
+          previousNames
+          severancePay
+          nationalGuardActivation
+        ).each do |attr|
           @form_data.merge!(public_send("expand_#{attr.underscore}", @form_data[attr]))
         end
 

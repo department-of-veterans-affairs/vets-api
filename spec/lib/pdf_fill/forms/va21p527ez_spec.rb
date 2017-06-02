@@ -163,6 +163,20 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     basic_class,
+    'expand_national_guard_activation',
+    [
+      [
+        true,
+        {
+          'hasNationalGuardActivation' => true,
+          'noNationalGuardActivation' => false
+        }
+      ]
+    ]
+  )
+
+  test_method(
+    basic_class,
     'expand_previous_names',
     [
       [
@@ -374,6 +388,8 @@ describe PdfFill::Forms::VA21P527EZ do
          "veteranAddressLine1" => "street, street2",
          "email" => "foo@foo.com",
          "serviceBranch" => "army",
+         "hasNationalGuardActivation" => true,
+         "noNationalGuardActivation" => false,
          "previousNames" => "name1 last1, name2 last2",
          "placeOfSeparation" => "city, state",
          "vaFileNumber"=>"c12345678",
