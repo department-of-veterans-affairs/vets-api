@@ -3,6 +3,9 @@ require 'mhv_ac/client'
 class MhvAccount < ActiveRecord::Base
   include AASM
 
+  STATSD_ACCOUNT_CREATION_KEY = 'mhv.account.creation'
+  STATSD_ACCOUNT_UPGRADE_KEY = 'mhv.account.upgrade'
+
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
   # Everything except ineligible accounts should be able to transition to :needs_terms_acceptance
   ALL_STATES = %i(unknown needs_terms_acceptance ineligible registered upgraded register_failed upgrade_failed).freeze
@@ -107,8 +110,12 @@ class MhvAccount < ActiveRecord::Base
 
   def create_mhv_account!
     if may_register?
+      StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.total")
+
       client_response = mhv_ac_client.post_register(params_for_registration)
       if client_response[:api_completion_status] == 'Successful'
+        StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.success")
+
         user.va_profile.mhv_ids = [client_response[:correlation_id].to_s]
         user.instance_variable_get(:@mvi).save
         self.registered_at = Time.current
@@ -120,8 +127,12 @@ class MhvAccount < ActiveRecord::Base
 
   def upgrade_mhv_account!
     if may_upgrade?
+      StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.total")
+
       client_response = mhv_ac_client.post_upgrade(params_for_upgrade)
       if client_response[:status] == 'success'
+        StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.success")
+
         self.upgraded_at = Time.current
         upgrade!
       end
