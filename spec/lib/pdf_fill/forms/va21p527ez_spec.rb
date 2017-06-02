@@ -163,7 +163,7 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     basic_class,
-    'expand_has_previous_names',
+    'expand_previous_names',
     [
       [
         [1],

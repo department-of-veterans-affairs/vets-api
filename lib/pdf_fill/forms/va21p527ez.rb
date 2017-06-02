@@ -47,7 +47,7 @@ module PdfFill
         expand_checkbox(va_file_number.present?, 'FileNumber')
       end
 
-      def expand_has_previous_names(previous_names)
+      def expand_previous_names(previous_names)
         expand_checkbox(previous_names.present?, 'PreviousNames')
       end
 
@@ -198,7 +198,7 @@ module PdfFill
         @form_data.delete('veteranAddress')
 
         @form_data['previousNames'] = combine_previous_names(@form_data['previousNames'])
-        @form_data.merge!(expand_has_previous_names(@form_data['previousNames']))
+        @form_data.merge!(expand_previous_names(@form_data['previousNames']))
 
         @form_data.merge!(expand_severance_pay(@form_data['severancePay']))
 
