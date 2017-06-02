@@ -80,6 +80,8 @@ mvi:
   client_key_path: /fake/client/key/path
 
 # Settings for eMIS
+# The certs used here can be obtained from the DevOps team. A different set is required for
+# each environment when connecting to the service.
 emis:
   veteran_status_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/VeteranStatusService
   payment_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/PaymentService
