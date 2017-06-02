@@ -8,6 +8,13 @@ class InProgressForm < ActiveRecord::Base
     InProgressForm.find_by(form_id: form_id, user_uuid: user.uuid)
   end
 
+  def data_and_metadata
+    {
+      form_data: JSON.parse(form_data),
+      metadata: metadata
+    }
+  end
+
   private
 
   def serialize_form_data
