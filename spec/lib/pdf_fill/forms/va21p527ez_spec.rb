@@ -376,6 +376,8 @@ describe PdfFill::Forms::VA21P527EZ do
          "mobilePhone" => "3456789",
          "hasPreviousNames" => true,
          "noPreviousNames" => false,
+         "hasSeverancePay" => false,
+         "noSeverancePay" => true,
          "mobilePhoneAreaCode" => "212",
          "cityState" => "Baltimore, MD, 21231, USA",
          "disabilities"=>[{"disabilityStartDate"=>"2016-12-01"}],

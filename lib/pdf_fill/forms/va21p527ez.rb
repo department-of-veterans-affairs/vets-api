@@ -196,6 +196,8 @@ module PdfFill
         form_data_merged['previousNames'] = combine_previous_names(form_data_merged['previousNames'])
         form_data_merged.merge!(expand_has_previous_names(form_data_merged['previousNames']))
 
+        form_data_merged.merge!(expand_severance_pay(form_data_merged['severancePay']))
+
         form_data_merged
       end
     end
