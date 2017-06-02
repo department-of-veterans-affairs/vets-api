@@ -45,6 +45,12 @@ module PdfFill
         expand_checkbox(previous_names.present?, 'PreviousNames')
       end
 
+      def expand_severance_pay(severance_pay)
+        amount = severance_pay.try(:[], 'amount') || 0
+
+        expand_checkbox(amount > 0, 'SeverancePay')
+      end
+
       def expand_checkbox(value, key)
         {
           "has#{key}" => value,

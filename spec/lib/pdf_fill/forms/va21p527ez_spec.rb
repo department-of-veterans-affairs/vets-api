@@ -131,6 +131,34 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     described_class,
+    'expand_severance_pay',
+    [
+      [
+        [nil],
+        {
+          'hasSeverancePay' => false,
+          'noSeverancePay' => true
+        }
+      ],
+      [
+        { 'amount' => 1 },
+        {
+          'hasSeverancePay' => true,
+          'noSeverancePay' => false
+        }
+      ],
+      [
+        { 'amount' => 0 },
+        {
+          'hasSeverancePay' => false,
+          'noSeverancePay' => true
+        }
+      ]
+    ]
+  )
+
+  test_method(
+    described_class,
     'expand_has_previous_names',
     [
       [
