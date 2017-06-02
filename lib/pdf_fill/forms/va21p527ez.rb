@@ -36,11 +36,13 @@ module PdfFill
       }.freeze
 
       def expand_va_file_number(va_file_number)
-        has_file_number = va_file_number.present?
+        expand_checkbox(va_file_number.present?, 'FileNumber')
+      end
 
+      def expand_checkbox(value, key)
         {
-          'hasFileNumber' => has_file_number,
-          'noFileNumber' => !has_file_number
+          "has#{key}" => value,
+          "no#{key}" => !value
         }
       end
 

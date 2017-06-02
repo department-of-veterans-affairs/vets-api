@@ -242,6 +242,27 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     described_class,
+    'expand_checkbox',
+    [
+      [
+        [true, 'Foo'],
+        {
+          'hasFoo' => true,
+          'noFoo' => false
+        }
+      ],
+      [
+        [false, 'Foo'],
+        {
+          'hasFoo' => false,
+          'noFoo' => true
+        }
+      ]
+    ]
+  )
+
+  test_method(
+    described_class,
     'expand_va_file_number',
     [
       [
