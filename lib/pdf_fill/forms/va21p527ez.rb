@@ -45,6 +45,10 @@ module PdfFill
         @form_data = form_data.deep_dup
       end
 
+      def expand_combat_since_911(combat_since_911)
+        expand_checkbox(combat_since_911, 'CombatSince911')
+      end
+
       def expand_va_file_number(va_file_number)
         expand_checkbox(va_file_number.present?, 'FileNumber')
       end
@@ -59,10 +63,12 @@ module PdfFill
         expand_checkbox(amount > 0, 'SeverancePay')
       end
 
-      def expand_national_guard_activation(national_guard_activation)
-        key = 'nationalGuardActivation'
-        @form_data.delete(key)
-        expand_checkbox(national_guard_activation, key.slice(0,1).capitalize + key.slice(1..-1))
+      def expand_chk_and_del_key(hash, key, newKey = nil)
+        newKey = key.slice(0,1).capitalize + key.slice(1..-1) if newKey.nil?
+        val = hash[key]
+        hash.delete(key)
+
+        expand_checkbox(val, newKey)
       end
 
       def expand_checkbox(value, key)
@@ -186,9 +192,14 @@ module PdfFill
           vaFileNumber
           previousNames
           severancePay
-          nationalGuardActivation
         ).each do |attr|
           @form_data.merge!(public_send("expand_#{attr.underscore}", @form_data[attr]))
+        end
+
+        %w(
+          nationalGuardActivation
+        ).each do |attr|
+          @form_data.merge!(public_send("expand_chk_and_del_key", @form_data, attr))
         end
 
         %w(nightPhone dayPhone mobilePhone).each do |attr|

@@ -163,20 +163,6 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     basic_class,
-    'expand_national_guard_activation',
-    [
-      [
-        true,
-        {
-          'hasNationalGuardActivation' => true,
-          'noNationalGuardActivation' => false
-        }
-      ]
-    ]
-  )
-
-  test_method(
-    basic_class,
     'expand_previous_names',
     [
       [
