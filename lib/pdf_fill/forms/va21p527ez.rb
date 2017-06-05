@@ -210,6 +210,7 @@ module PdfFill
         %w(nightPhone dayPhone mobilePhone).each do |attr|
           replace_phone(@form_data, attr)
         end
+        # TODO national guard phone
 
         @form_data['vaHospitalTreatments'].tap do |va_hospital_treatments|
           @form_data['vaHospitalTreatmentNames'] = combine_va_hospital_names(va_hospital_treatments)
