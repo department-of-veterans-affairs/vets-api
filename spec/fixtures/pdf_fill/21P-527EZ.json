@@ -16,6 +16,7 @@
       "last": "last2"
     }
   ],
+  "combatSince911": true,
   "severancePay": {
     "amount": 1,
     "type": "retirement"

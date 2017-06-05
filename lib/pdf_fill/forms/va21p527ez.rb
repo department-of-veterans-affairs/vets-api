@@ -11,6 +11,8 @@ module PdfFill
         'noFileNumber' => 'F[0].Page_5[0].NoFiled[0]',
         'hasPreviousNames' => 'F[0].Page_5[0].YesName[0]',
         'noPreviousNames' => 'F[0].Page_5[0].NameNo[0]',
+        'hasCombatSince911' => 'F[0].Page_5[0].YesCZ[0]',
+        'noCombatSince911' => 'F[0].Page_5[0].NoCZ[0]',
         'hasSeverancePay' => 'F[0].Page_5[0].YesSep[0]',
         'noSeverancePay' => 'F[0].Page_5[0].NoSep[0]',
         'severancePay' => {
@@ -43,10 +45,6 @@ module PdfFill
 
       def initialize(form_data)
         @form_data = form_data.deep_dup
-      end
-
-      def expand_combat_since_911(combat_since_911)
-        expand_checkbox(combat_since_911, 'CombatSince911')
       end
 
       def expand_va_file_number(va_file_number)
@@ -198,6 +196,7 @@ module PdfFill
 
         %w(
           nationalGuardActivation
+          combatSince911
         ).each do |attr|
           @form_data.merge!(public_send("expand_chk_and_del_key", @form_data, attr))
         end
