@@ -281,7 +281,7 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     basic_class,
-    'combine_natl_guard_name',
+    'combine_name_addr',
     [
       [
         {

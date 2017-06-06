@@ -135,9 +135,9 @@ module PdfFill
         combined
       end
 
-      def combine_natl_guard_name(national_guard)
-        national_guard['address'] = combine_full_address(national_guard['address'])
-        combine_hash_and_del_keys(national_guard, %w(name address), 'nameAndAddr', ', ')
+      def combine_name_addr(hash)
+        hash['address'] = combine_full_address(hash['address'])
+        combine_hash_and_del_keys(hash, %w(name address), 'nameAndAddr', ', ')
       end
 
       def get_disability_names(disabilities)
@@ -280,7 +280,7 @@ module PdfFill
 
         @form_data['previousNames'] = combine_previous_names(@form_data['previousNames'])
 
-        combine_natl_guard_name(@form_data['nationalGuard'])
+        combine_name_addr(@form_data['nationalGuard'])
 
         @form_data['jobs'] = rearrange_jobs(@form_data['jobs'])
 
