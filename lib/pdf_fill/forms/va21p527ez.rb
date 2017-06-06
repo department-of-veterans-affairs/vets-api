@@ -19,6 +19,9 @@ module PdfFill
           'amount' => 'F[0].Page_5[0].Listamount[0]',
           'type' => 'F[0].Page_5[0].Listtype[0]'
         },
+        'jobs' => {
+          'daysMissed' => "F[0].Page_5[0].Dayslostduetodisability[#{ITERATOR}]"
+        },
         'nationalGuard' => {
           'nameAndAddr' => 'F[0].Page_5[0].Nameandaddressofunit[0]',
           'phone' => 'F[0].Page_5[0].Unittelephonenumber[0]',

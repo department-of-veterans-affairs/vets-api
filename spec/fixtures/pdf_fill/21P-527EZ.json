@@ -5,6 +5,14 @@
     "last": "smith",
     "suffix": "Sr."
   },
+  "jobs": [
+    {
+      "daysMissed": "1"
+    },
+    {
+      "daysMissed": "2"
+    }
+  ],
   "nationalGuard": {
     "name": "foo",
     "address": {
