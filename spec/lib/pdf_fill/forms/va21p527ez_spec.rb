@@ -288,6 +288,25 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     basic_class,
+    'replace_phone',
+    [
+      [
+        [{}, 'foo'],
+        nil
+      ],
+      [
+        [nil, 'foo'],
+        nil
+      ],
+      [
+        [{ 'foo' => '5551110000' }, 'foo'],
+        {"foo"=>"1110000", "fooAreaCode"=>"555"}
+      ]
+    ]
+  )
+
+  test_method(
+    basic_class,
     'expand_checkbox',
     [
       [

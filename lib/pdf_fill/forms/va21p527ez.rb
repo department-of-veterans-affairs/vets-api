@@ -159,9 +159,12 @@ module PdfFill
       end
 
       def replace_phone(hash, key)
+        return if hash.try(:[], key).blank?
         phone_arr = split_phone(hash[key])
         hash["#{key}AreaCode"] = phone_arr[0]
         hash[key] = phone_arr[1]
+
+        hash
       end
 
       def combine_hash(hash, keys, separator = ' ')
@@ -210,7 +213,7 @@ module PdfFill
         %w(nightPhone dayPhone mobilePhone).each do |attr|
           replace_phone(@form_data, attr)
         end
-        # TODO national guard phone
+        replace_phone(@form_data['nationalGuard'], 'phone')
 
         @form_data['vaHospitalTreatments'].tap do |va_hospital_treatments|
           @form_data['vaHospitalTreatmentNames'] = combine_va_hospital_names(va_hospital_treatments)
