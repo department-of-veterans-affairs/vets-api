@@ -20,6 +20,7 @@ describe PdfFill::HashConverter do
             }
           }
         ],
+        date: '2017-06-06',
         veteranFullName: 'bob bob',
         nestedHash: {
           nestedHash: {
@@ -35,6 +36,7 @@ describe PdfFill::HashConverter do
 
     let(:pdftk_keys) do
       {
+        date: 'form.date',
         veteranFullName: 'form1[0].#subform[0].EnterNameOfApplicantFirstMiddleLast[0]',
         bankAccount: {
           accountNumber: 'form1[0].#subform[0].EnterACCOUNTNUMBER[0]',
@@ -56,19 +58,20 @@ describe PdfFill::HashConverter do
 
     it 'should convert the hash correctly' do
       expect(
-        described_class.new.transform_data(
+        described_class.new('%m/%d/%Y').transform_data(
           form_data: form_data,
           pdftk_keys: pdftk_keys
         )
       ).to eq(
-        'form1[0].#subform[1].EnterCharacterD1[0]' => 'honorable',
-        'form1[0].#subform[1].EnterTypeOfDutyE1[0]' => 'title 10',
-        'form1[0].#subform[1].EnterCharacterD2[0]' => 'medical',
-        'form1[0].#subform[1].EnterTypeOfDutyE2[0]' => 'title 32',
-        'form1[0].#subform[0].EnterNameOfApplicantFirstMiddleLast[0]' => 'bob bob',
-        'form1[0].#subform[1].CheckBoxYes6B[0]' => 1,
-        'form1[0].#subform[0].EnterACCOUNTNUMBER[0]' => '34343434',
-        'form1[0].#subform[0].CheckBoxChecking[0]' => 1
+        {"form1[0].#subform[1].EnterCharacterD0[0]"=>"honorable",
+         "form1[0].#subform[1].EnterTypeOfDutyE0[0]"=>"title 10",
+         "form1[0].#subform[1].EnterCharacterD1[0]"=>"medical",
+         "form1[0].#subform[1].EnterTypeOfDutyE1[0]"=>"title 32",
+         "form.date"=>"06/06/2017",
+         "form1[0].#subform[0].EnterNameOfApplicantFirstMiddleLast[0]"=>"bob bob",
+         "form1[0].#subform[1].CheckBoxYes6B[0]"=>1,
+         "form1[0].#subform[0].EnterACCOUNTNUMBER[0]"=>"34343434",
+         "form1[0].#subform[0].CheckBoxChecking[0]"=>1}
       )
     end
   end
