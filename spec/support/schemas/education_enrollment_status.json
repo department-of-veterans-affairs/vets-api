@@ -1,0 +1,34 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": "object",
+      "required": ["id", "type", "attributes"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string"},
+        "attributes": {
+          "type": "object",
+          "required": [
+            "date_of_birth",
+            "first_name",
+            "last_name",
+            "regional_processing_office",
+            "va_file_number",
+            "enrollment_list"
+          ],
+          "properties": {
+            "date_of_birth": { "type": "string" },
+            "first_name": { "type": "string" },
+            "last_name": { "type": "string" },
+            "regional_processing_office": { "type": "string" },
+            "va_file_number": { "type": "string" },
+            "enrollment_list": { "type": "array" }
+          }
+        }
+      }
+    }
+  }
+}
