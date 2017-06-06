@@ -110,8 +110,6 @@ class MhvAccount < ActiveRecord::Base
 
   def create_mhv_account!
     if may_register?
-      StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.total")
-
       client_response = mhv_ac_client.post_register(params_for_registration)
       if client_response[:api_completion_status] == 'Successful'
         StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.success")
@@ -123,12 +121,14 @@ class MhvAccount < ActiveRecord::Base
       end
       # TODO: be prepared to handle or raise various exceptions
     end
+  ensure
+    StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.total") if may_register? || registered?
   end
 
   def upgrade_mhv_account!
-    if may_upgrade?
-      StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.total")
+    initially_premium = !may_upgrade?
 
+    unless initially_premium
       client_response = mhv_ac_client.post_upgrade(params_for_upgrade)
       if client_response[:status] == 'success'
         StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.success")
@@ -139,10 +139,14 @@ class MhvAccount < ActiveRecord::Base
     end
   rescue Common::Exceptions::BackendServiceException => e
     if e.original_body['code'] == 155
+      initially_premium = true
       upgrade! # without updating the timestamp since account was not created at vets.gov
     else
+      StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.failure")
       raise e
     end
+  ensure
+    StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.total") unless initially_premium
   end
 
   def mhv_ac_client

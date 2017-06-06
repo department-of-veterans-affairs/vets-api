@@ -195,6 +195,12 @@ RSpec.describe MhvAccount, type: :model do
             .and trigger_statsd_increment('mhv.account.upgrade.success')
         end
       end
+
+      it 'will not increment statsd creation counters' do
+        VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
+          expect { subject.create_and_upgrade! }.to_not trigger_statsd_increment('mhv.account.creation.total')
+        end
+      end
     end
 
     context 'existing account that has already been upgraded' do
@@ -212,6 +218,18 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.upgraded_at).to be_nil
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
+        end
+      end
+
+      it 'will not increment statsd creation counters' do
+        VCR.use_cassette('mhv_account_creation/should_not_upgrade_an_account_if_one_already_exists') do
+          expect { subject.create_and_upgrade! }.to_not trigger_statsd_increment('mhv.account.creation.total')
+        end
+      end
+
+      it 'will not increment statsd upgrade counters' do
+        VCR.use_cassette('mhv_account_creation/should_not_upgrade_an_account_if_one_already_exists') do
+          expect { subject.create_and_upgrade! }.to_not trigger_statsd_increment('mhv.account.upgrade.total')
         end
       end
     end
