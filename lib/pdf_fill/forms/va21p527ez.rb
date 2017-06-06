@@ -86,6 +86,17 @@ module PdfFill
         combine_hash(address, %w(street street2), ', ')
       end
 
+      def combine_full_address(address)
+        combine_hash(address, %w(
+          street
+          street2
+          city
+          state
+          postalCode
+          country
+        ), ', ')
+      end
+
       def combine_city_state(address)
         return if address.blank?
 
@@ -120,8 +131,8 @@ module PdfFill
       end
 
       def combine_natl_guard_name(national_guard)
-        national_guard['address'] = combine_address(national_guard['address'])
-        national_guard['nameAndAddr'] = combine_hash(national_guard, %w(address name), ', ')
+        national_guard['address'] = combine_full_address(national_guard['address'])
+        combine_hash_and_del_keys(national_guard, %w(name address), 'nameAndAddr', ', ')
       end
 
       def get_disability_names(disabilities)
