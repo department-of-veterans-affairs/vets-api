@@ -31,6 +31,7 @@ module PdfFill
         'nationalGuard' => {
           'nameAndAddr' => 'F[0].Page_5[0].Nameandaddressofunit[0]',
           'phone' => 'F[0].Page_5[0].Unittelephonenumber[0]',
+          'date' => 'F[0].Page_5[0].DateofActivation[0]',
           'phoneAreaCode' => 'F[0].Page_5[0].Unittelephoneareacode[0]'
         },
         "hasNationalGuardActivation" => 'F[0].Page_5[0].YesAD[0]',
