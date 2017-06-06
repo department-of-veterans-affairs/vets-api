@@ -405,6 +405,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "noSeverancePay" => false,
          "hasCombatSince911" => true,
          "noCombatSince911" => false,
+         "nationalGuard" => {"phone"=>"3456789", "phoneAreaCode"=>"212"},
          "severancePay" => {"amount"=>1, "type"=>"retirement"},
          "mobilePhoneAreaCode" => "212",
          "cityState" => "Baltimore, MD, 21231, USA",
