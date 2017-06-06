@@ -5,6 +5,10 @@
     "last": "smith",
     "suffix": "Sr."
   },
+  "activeServiceDateRange": {
+    "from": "2012-06-26",
+    "to": "2013-04-10"
+  },
   "veteranDateOfBirth": "1985-03-07",
   "veteranSocialSecurityNumber": "111223333",
   "jobs": [

@@ -48,6 +48,8 @@ module PdfFill
         'email' => 'F[0].Page_5[0].Preferredemailaddress[0]',
         'altEmail' => 'F[0].Page_5[0].Alternateemailaddress[0]',
         'cityState' => 'F[0].Page_5[0].Citystatezipcodecountry[0]',
+        'activeServiceDateRangeStart' => 'F[0].Page_5[0].DateEnteredActiveService[0]',
+        'activeServiceDateRangeEnd' => 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]',
         'disabilityNames' => "F[0].Page_5[0].Disability[#{ITERATOR}]",
         'placeOfSeparation' => 'F[0].Page_5[0].Placeofseparation[0]',
         'disabilities' => {
@@ -313,6 +315,8 @@ module PdfFill
         combine_name_addr(@form_data['nationalGuard'])
 
         @form_data['jobs'] = rearrange_jobs(@form_data['jobs'])
+
+        expand_date_range(@form_data, 'activeServiceDateRange')
 
         @form_data
       end
