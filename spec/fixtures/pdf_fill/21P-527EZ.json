@@ -6,6 +6,14 @@
     "suffix": "Sr."
   },
   "nationalGuard": {
+    "name": "foo",
+    "address": {
+      "city": "Baltimore",
+      "country": "USA",
+      "postalCode": "21231",
+      "state": "MD",
+      "street": "111 Uni Drive"
+    },
     "phone": "2123456789"
   },
   "nationalGuardActivation": true,

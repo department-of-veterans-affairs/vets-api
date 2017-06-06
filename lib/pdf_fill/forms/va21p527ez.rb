@@ -20,6 +20,7 @@ module PdfFill
           'type' => 'F[0].Page_5[0].Listtype[0]'
         },
         'nationalGuard' => {
+          'nameAndAddr' => 'F[0].Page_5[0].Nameandaddressofunit[0]',
           'phone' => 'F[0].Page_5[0].Unittelephonenumber[0]',
           'phoneAreaCode' => 'F[0].Page_5[0].Unittelephoneareacode[0]'
         },
@@ -261,6 +262,8 @@ module PdfFill
         @form_data.delete('veteranAddress')
 
         @form_data['previousNames'] = combine_previous_names(@form_data['previousNames'])
+
+        combine_natl_guard_name(@form_data['nationalGuard'])
 
         @form_data
       end
