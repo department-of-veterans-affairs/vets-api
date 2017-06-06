@@ -64,6 +64,11 @@ module PdfFill
         expand_checkbox(va_file_number.present?, 'FileNumber')
       end
 
+      def convert_date(date)
+        return if date.blank?
+        Date.parse(date).strftime('%m/%d/%Y')
+      end
+
       def expand_previous_names(previous_names)
         expand_checkbox(previous_names.present?, 'PreviousNames')
       end
