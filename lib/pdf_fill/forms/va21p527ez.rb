@@ -119,6 +119,11 @@ module PdfFill
         combined
       end
 
+      def combine_natl_guard_name(national_guard)
+        national_guard['address'] = combine_address(national_guard['address'])
+        national_guard['nameAndAddr'] = combine_hash(national_guard, %w(address name), ', ')
+      end
+
       def get_disability_names(disabilities)
         return if disabilities.blank?
 
@@ -167,6 +172,17 @@ module PdfFill
         phone_arr = split_phone(hash[key])
         hash["#{key}AreaCode"] = phone_arr[0]
         hash[key] = phone_arr[1]
+
+        hash
+      end
+
+      def combine_hash_and_del_keys(hash, keys, new_key, separator = ' ')
+        return if hash.blank?
+        hash[new_key] = combine_hash(hash, keys, separator)
+
+        keys.each do |key|
+          hash.delete(key)
+        end
 
         hash
       end
