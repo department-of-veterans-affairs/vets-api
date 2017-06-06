@@ -20,6 +20,7 @@ module PdfFill
           'type' => 'F[0].Page_5[0].Listtype[0]'
         },
         'jobs' => {
+          'nameAndAddr' => "F[0].Page_5[0].Nameandaddressofemployer[#{ITERATOR}]",
           'jobTitle' => "F[0].Page_5[0].Jobtitle[#{ITERATOR}]",
           'daysMissed' => "F[0].Page_5[0].Dayslostduetodisability[#{ITERATOR}]"
         },
@@ -163,6 +164,12 @@ module PdfFill
 
         2.times do |i|
           new_jobs[i]['daysMissed'] = jobs[i].try(:[], 'daysMissed')
+
+          alternate_i = i == 0 ? 1 : 0
+
+          new_jobs[i]['address'] = combine_full_address(jobs[alternate_i].try(:[], 'address'))
+          new_jobs[i]['employer'] = jobs[alternate_i].try(:[], 'employer')
+          combine_hash_and_del_keys(new_jobs[i], %w(employer address), 'nameAndAddr', ', ')
         end
 
         new_jobs

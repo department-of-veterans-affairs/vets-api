@@ -7,10 +7,26 @@
   },
   "jobs": [
     {
+      "employer": "job1",
+      "address": {
+        "city": "city1",
+        "country": "USA",
+        "postalCode": "21231",
+        "state": "MD",
+        "street": "str1"
+      },
       "jobTitle": "worker1",
       "daysMissed": "1"
     },
     {
+      "employer": "job2",
+      "address": {
+        "city": "city2",
+        "country": "USA",
+        "postalCode": "21231",
+        "state": "MD",
+        "street": "str2"
+      },
       "jobTitle": "worker2",
       "daysMissed": "2"
     }
