@@ -263,6 +263,24 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     basic_class,
+    'combine_full_address',
+    [
+      [
+        {
+          "city" => "Baltimore",
+          "country" => "USA",
+          "postalCode" => "21231",
+          "street" => "street",
+          "street2" => "street2",
+          "state" => "MD"
+        },
+        "street, street2, Baltimore, MD, 21231, USA"
+      ]
+    ]
+  )
+
+  test_method(
+    basic_class,
     'combine_natl_guard_name',
     [
       [
