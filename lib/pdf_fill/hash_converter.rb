@@ -3,8 +3,9 @@ module PdfFill
   class HashConverter
     ITERATOR = '%iterator%'
 
-    def initialize
+    def initialize(date_strftime)
       @pdftk_form = {}
+      @date_strftime = date_strftime
     end
 
     def set_value(k, v)
@@ -12,7 +13,16 @@ module PdfFill
         if [true, false].include?(v)
           v ? 1 : 0
         else
-          v.to_s
+          v = v.to_s
+
+          date_split = v.split('-')
+          date_args = Array.new(3) { |i| date_split[i].to_i }
+
+          if Date.valid_date?(*date_args)
+            Date.new(*date_args).strftime(@date_strftime)
+          else
+            v
+          end
         end
     end
 

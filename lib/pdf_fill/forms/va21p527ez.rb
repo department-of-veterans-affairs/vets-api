@@ -3,6 +3,7 @@ module PdfFill
   module Forms
     class VA21P527EZ
       ITERATOR = PdfFill::HashConverter::ITERATOR
+      DATE_STRFTIME = '%m/%d/%Y'
       KEY = {
         'vaFileNumber' => 'F[0].Page_5[0].VAfilenumber[0]',
         'genderMale' => 'F[0].Page_5[0].Male[0]',

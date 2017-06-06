@@ -22,7 +22,7 @@ module PdfFill
       PDF_FORMS.fill_form(
         "lib/pdf_fill/forms/pdfs/#{code}.pdf",
         file_path,
-        HashConverter.new.transform_data(
+        HashConverter.new(form_class::DATE_STRFTIME).transform_data(
           form_data: form_class.new(form_data).merge_fields,
           pdftk_keys: form_class::KEY
         )
