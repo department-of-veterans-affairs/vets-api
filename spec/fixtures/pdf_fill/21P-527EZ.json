@@ -15,6 +15,7 @@
         "state": "MD",
         "street": "str1"
       },
+      "annualEarnings": 10,
       "jobTitle": "worker1",
       "daysMissed": "1"
     },
@@ -27,6 +28,7 @@
         "state": "MD",
         "street": "str2"
       },
+      "annualEarnings": 20,
       "jobTitle": "worker2",
       "daysMissed": "2"
     }
