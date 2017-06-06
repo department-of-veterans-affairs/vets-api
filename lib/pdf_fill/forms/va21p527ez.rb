@@ -15,6 +15,7 @@ module PdfFill
         'noCombatSince911' => 'F[0].Page_5[0].NoCZ[0]',
         'hasSeverancePay' => 'F[0].Page_5[0].YesSep[0]',
         'noSeverancePay' => 'F[0].Page_5[0].NoSep[0]',
+        'veteranSocialSecurityNumber' => 'F[0].Page_5[0].SSN[0]',
         'severancePay' => {
           'amount' => 'F[0].Page_5[0].Listamount[0]',
           'type' => 'F[0].Page_5[0].Listtype[0]'
