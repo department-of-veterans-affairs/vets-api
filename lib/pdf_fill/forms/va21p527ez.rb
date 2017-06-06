@@ -20,6 +20,7 @@ module PdfFill
           'type' => 'F[0].Page_5[0].Listtype[0]'
         },
         'jobs' => {
+          'jobTitle' => "F[0].Page_5[0].Jobtitle[#{ITERATOR}]",
           'daysMissed' => "F[0].Page_5[0].Dayslostduetodisability[#{ITERATOR}]"
         },
         'nationalGuard' => {
@@ -154,6 +155,19 @@ module PdfFill
         disability_names
       end
 
+      def rearrange_jobs(jobs)
+        return if jobs.blank?
+        new_jobs = [{}, {}]
+        new_jobs[0]['jobTitle'] = jobs[1].try(:[], 'jobTitle')
+        new_jobs[1]['jobTitle'] = jobs[0].try(:[], 'jobTitle')
+
+        2.times do |i|
+          new_jobs[i]['daysMissed'] = jobs[i].try(:[], 'daysMissed')
+        end
+
+        new_jobs
+      end
+
       def rearrange_hospital_dates(combined_dates)
         # order of boxes in the pdf: 3, 2, 4, 0, 1, 5
         rearranged = Array.new(6, nil)
@@ -267,6 +281,8 @@ module PdfFill
         @form_data['previousNames'] = combine_previous_names(@form_data['previousNames'])
 
         combine_natl_guard_name(@form_data['nationalGuard'])
+
+        @form_data['jobs'] = rearrange_jobs(@form_data['jobs'])
 
         @form_data
       end

@@ -7,9 +7,11 @@
   },
   "jobs": [
     {
+      "jobTitle": "worker1",
       "daysMissed": "1"
     },
     {
+      "jobTitle": "worker2",
       "daysMissed": "2"
     }
   ],
