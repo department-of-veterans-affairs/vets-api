@@ -13,6 +13,21 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     basic_class,
+    'convert_date',
+    [
+      [
+        [nil],
+        nil
+      ],
+      [
+        '1985-03-07',
+        '03/07/1985'
+      ]
+    ]
+  )
+
+  test_method(
+    basic_class,
     'get_disability_names',
     [
       [
@@ -469,6 +484,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "gender"=>"M",
          "genderMale"=>true,
          "genderFemale"=>false,
+         "veteranDateOfBirth" => "1985-03-07",
          "hasFileNumber"=>true,
          "noFileNumber"=>false,
          "altEmail" => "alt@foo.com",
