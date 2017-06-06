@@ -459,7 +459,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "noSeverancePay" => false,
          "hasCombatSince911" => true,
          "noCombatSince911" => false,
-         "nationalGuard" => {"phone"=>"3456789", "phoneAreaCode"=>"212"},
+         "nationalGuard" => {"phone"=>"3456789", "phoneAreaCode"=>"212", "nameAndAddr"=>"foo, 111 Uni Drive, Baltimore, MD, 21231, USA"},
          "severancePay" => {"amount"=>1, "type"=>"retirement"},
          "mobilePhoneAreaCode" => "212",
          "cityState" => "Baltimore, MD, 21231, USA",
