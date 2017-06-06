@@ -13,6 +13,33 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     basic_class,
+    'expand_date_range',
+    [
+      [
+        [nil, 'foo'],
+        nil
+      ],
+      [
+        [{}, 'foo'],
+        nil
+      ],
+      [
+        [
+          {
+            'foo' => {
+              'from' => '2001',
+              'to' => '2002'
+            }
+          },
+          'foo'
+        ],
+        {"fooStart"=>"2001", "fooEnd"=>"2002"}
+      ]
+    ]
+  )
+
+  test_method(
+    basic_class,
     'convert_date',
     [
       [
