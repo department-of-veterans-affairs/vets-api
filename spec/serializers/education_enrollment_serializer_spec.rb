@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe EducationEnrollmentStatusSerializer, type: :serializer do
-  let(:ees) { build :education_enrollment_status }
+RSpec.describe EducationEnrollmentSerializer, type: :serializer do
+  let(:ees) { build :education_enrollment }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
@@ -38,7 +38,7 @@ RSpec.describe EducationEnrollmentStatusSerializer, type: :serializer do
   end
 
   # TODO: - define schema
-  # it 'should match the education_enrollment_status schema' do
-  #   expect(subject).to match_schema('education_enrollment_status')
+  # it 'should match the education_enrollment schema' do
+  #   expect(subject).to match_schema('education_enrollment')
   # end
 end

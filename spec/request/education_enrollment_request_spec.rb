@@ -14,10 +14,10 @@ RSpec.describe 'Fetching Post 911 Edu Enrollment Status', type: :request do
       User.create(mhv_user)
 
       auth_header = { 'Authorization' => "Token token=#{token}" }
-      get v0_education_enrollment_status_url, nil, auth_header
+      get v0_education_enrollment_url, nil, auth_header
     end
 
-    it 'GET /v0/education_enrollment_status returns proper json' do
+    it 'GET /v0/education_enrollment returns proper json' do
       assert_response :success
       expect(response).to match_response_schema('education_enrollment_status')
     end

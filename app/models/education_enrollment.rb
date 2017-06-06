@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'common/models/base'
 
-class EducationEnrollmentStatus < Common::Base
+class EducationEnrollment < Common::Base
   # EVSS provides these but we already have from User model
   # TODO - validate they match?
   # attribute :first_name, String

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 FactoryGirl.define do
-  factory :education_enrollment_status, class: 'EducationEnrollmentStatus' do
+  factory :education_enrollment, class: 'EducationEnrollment' do
     va_file_number '1234-56-7890'
     regional_processing_office 'Central Office, Washington DC'
     eligibility_date '2015-02-02'

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class EducationEnrollmentStatusSerializer < ActiveModel::Serializer
+class EducationEnrollmentSerializer < ActiveModel::Serializer
   attribute :va_file_number
   attribute :regional_processing_office
 
