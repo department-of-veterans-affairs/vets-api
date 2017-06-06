@@ -456,7 +456,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "hasPreviousNames" => true,
          "noPreviousNames" => false,
          "hasSeverancePay" => true,
-         "jobs" => [{"daysMissed"=>"1"}, {"daysMissed"=>"2"}],
+         "jobs" => [{"jobTitle"=>"worker2", "daysMissed"=>"1"}, {"jobTitle"=>"worker1", "daysMissed"=>"2"}],
          "noSeverancePay" => false,
          "hasCombatSince911" => true,
          "noCombatSince911" => false,
