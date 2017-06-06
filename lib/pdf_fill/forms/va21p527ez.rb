@@ -159,13 +159,13 @@ module PdfFill
       def rearrange_jobs(jobs)
         return if jobs.blank?
         new_jobs = [{}, {}]
-        new_jobs[0]['jobTitle'] = jobs[1].try(:[], 'jobTitle')
-        new_jobs[1]['jobTitle'] = jobs[0].try(:[], 'jobTitle')
 
         2.times do |i|
           new_jobs[i]['daysMissed'] = jobs[i].try(:[], 'daysMissed')
 
           alternate_i = i == 0 ? 1 : 0
+
+          new_jobs[i]['jobTitle'] = jobs[alternate_i].try(:[], 'jobTitle')
 
           new_jobs[i]['address'] = combine_full_address(jobs[alternate_i].try(:[], 'address'))
           new_jobs[i]['employer'] = jobs[alternate_i].try(:[], 'employer')
