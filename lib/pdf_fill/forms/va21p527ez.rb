@@ -22,6 +22,8 @@ module PdfFill
           'amount' => 'F[0].Page_5[0].Listamount[0]',
           'type' => 'F[0].Page_5[0].Listtype[0]'
         },
+        'powDateRangeStart' => 'F[0].Page_5[0].Date[1]',
+        'powDateRangeEnd' => 'F[0].Page_5[0].Date[2]',
         'jobs' => {
           'annualEarnings' => "F[0].Page_5[0].Totalannualearnings[#{ITERATOR}]",
           'nameAndAddr' => "F[0].Page_5[0].Nameandaddressofemployer[#{ITERATOR}]",
@@ -317,7 +319,9 @@ module PdfFill
 
         @form_data['jobs'] = rearrange_jobs(@form_data['jobs'])
 
-        expand_date_range(@form_data, 'activeServiceDateRange')
+        %w(activeServiceDateRange powDateRange).each do |attr|
+          expand_date_range(@form_data, attr)
+        end
 
         @form_data
       end
