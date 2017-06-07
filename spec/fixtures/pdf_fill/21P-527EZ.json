@@ -22,6 +22,7 @@
       },
       "biological": true,
       "stepchild": true,
+      "disabled": true,
       "adopted": true,
       "previouslyMarried": true
     },
@@ -30,6 +31,7 @@
         "first": "Mark2",
         "last": "Olson"
       },
+      "disabled": true,
       "biological": true,
       "stepchild": true,
       "adopted": true,
@@ -40,6 +42,7 @@
         "first": "Mark3",
         "last": "Olson"
       },
+      "disabled": true,
       "biological": true,
       "stepchild": true,
       "adopted": true,
