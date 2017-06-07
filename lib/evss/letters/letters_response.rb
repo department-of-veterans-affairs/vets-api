@@ -19,14 +19,14 @@ module EVSS
       end
 
       def ok?
-        self.status == 200
+        status == 200
       end
 
       def as_json
         {
-          data: self.letters,
+          data: letters,
           meta: {
-            address: self.address,
+            address: address,
             status: ok? ? RESPONSE_STATUS[:ok] : RESPONSE_STATUS[:server_error]
           }
         }.as_json

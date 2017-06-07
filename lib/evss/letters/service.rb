@@ -2,7 +2,7 @@
 module EVSS
   module Letters
     class Service
-      #TODO(AJD): only mock letter service for now...
+      # TODO(AJD): only mock letter service for now...
     end
   end
 end
