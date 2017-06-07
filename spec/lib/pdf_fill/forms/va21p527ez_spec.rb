@@ -55,6 +55,17 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     basic_class,
+    'rearrange_jobs',
+    [
+      [
+        [nil],
+        nil
+      ]
+    ]
+  )
+
+  test_method(
+    basic_class,
     'get_disability_names',
     [
       [
@@ -516,6 +527,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "cityState" => "Baltimore, MD, 21231, USA",
          "disabilities"=>[{"disabilityStartDate"=>"2016-12-01"}],
          "gender"=>"M",
+         "children" => [{"childFullName"=>"Mark1 Olson"}, {"childFullName"=>"Mark2 Olson"}, {"childFullName"=>"Mark3 Olson"}],
          "genderMale"=>true,
          "genderFemale"=>false,
          "veteranDateOfBirth" => "1985-03-07",
