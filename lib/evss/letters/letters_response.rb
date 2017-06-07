@@ -8,7 +8,7 @@ module EVSS
       include Virtus.model(nullify_blank: true)
       include Common::Client::ServiceStatus
 
-      attribute :status, String
+      attribute :status, Integer
       attribute :letters, Array[EVSS::Letters::Letter]
       attribute :address, EVSS::Letters::Address
 
