@@ -505,6 +505,8 @@ describe PdfFill::Forms::VA21P527EZ do
          "noSeverancePay" => false,
          "hasCombatSince911" => true,
          "noCombatSince911" => false,
+         "hasPowDateRange" => true,
+         "noPowDateRange" => false,
          "activeServiceDateRangeEnd" => "2013-04-10",
          "activeServiceDateRangeStart" => "2012-06-26",
          "nationalGuard" => {"date"=>"2013-04-11", "phone"=>"3456789", "phoneAreaCode"=>"212", "nameAndAddr"=>"foo, 111 Uni Drive, Baltimore, MD, 21231, USA"},
