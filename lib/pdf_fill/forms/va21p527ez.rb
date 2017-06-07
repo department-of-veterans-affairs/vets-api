@@ -195,6 +195,7 @@ module PdfFill
       end
 
       def rearrange_jobs(jobs)
+        # TODO spec
         return if jobs.blank?
         new_jobs = [{}, {}]
 
@@ -286,6 +287,7 @@ module PdfFill
       end
 
       def expand_children(hash, key)
+        # TODO spec
         children = hash[key]
         return if children.blank?
 
