@@ -20,6 +20,7 @@
         "first": "Mark1",
         "last": "Olson"
       },
+      "stepchild": true,
       "adopted": true,
       "previouslyMarried": true
     },
@@ -28,6 +29,7 @@
         "first": "Mark2",
         "last": "Olson"
       },
+      "stepchild": true,
       "adopted": true,
       "previouslyMarried": true
     },
@@ -36,6 +38,7 @@
         "first": "Mark3",
         "last": "Olson"
       },
+      "stepchild": true,
       "adopted": true,
       "previouslyMarried": true
     }
