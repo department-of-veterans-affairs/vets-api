@@ -87,5 +87,5 @@ class UserSerializer < ActiveModel::Serializer
     service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
     service_list
   end
-  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 end
