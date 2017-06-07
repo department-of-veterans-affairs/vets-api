@@ -4,11 +4,10 @@ require 'rails_helper'
 RSpec.describe EVSS::Letters::Letter, type: :model do
   describe '#initialize' do
     context 'with valid args' do
-      let(:args) { { 'letter_name' => 'Benefits Summary Letter', 'letter_type' => 'benefit_summary' } }
-      let(:letter) { EVSS::Letters::Letter.new(args) }
+      let(:letter) { build(:letter) }
       it 'builds a letter' do
-        expect(letter.name).to eq(args['letter_name'])
-        expect(letter.letter_type).to eq(args['letter_type'])
+        expect(letter.name).to eq('Benefits Summary Letter')
+        expect(letter.letter_type).to eq('benefit_summary')
       end
     end
 

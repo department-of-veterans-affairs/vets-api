@@ -6,7 +6,7 @@ FactoryGirl.define do
     name 'Benefits Summary Letter'
     letter_type 'benefit_summary'
     initialize_with do
-      args = { letter_name: name, letter_type: letter_type }
+      args = { 'letter_name' => name, 'letter_type' => letter_type }
       new(args)
     end
   end
