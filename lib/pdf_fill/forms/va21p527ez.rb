@@ -34,6 +34,9 @@ module PdfFill
           'dateRangeEnd' => "F[0].Page_5[0].DateJobEnded[#{ITERATOR}]",
           'daysMissed' => "F[0].Page_5[0].Dayslostduetodisability[#{ITERATOR}]"
         },
+        'marriages' => {
+          'reasonForSeparation' => "marriages.reasonForSeparation[#{ITERATOR}]"
+        },
         'nationalGuard' => {
           'nameAndAddr' => 'F[0].Page_5[0].Nameandaddressofunit[0]',
           'phone' => 'F[0].Page_5[0].Unittelephonenumber[0]',
