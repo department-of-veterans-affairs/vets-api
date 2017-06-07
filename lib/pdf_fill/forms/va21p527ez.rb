@@ -40,6 +40,9 @@ module PdfFill
           'date' => 'F[0].Page_5[0].DateofActivation[0]',
           'phoneAreaCode' => 'F[0].Page_5[0].Unittelephoneareacode[0]'
         },
+        'children' => {
+          'childFullName' => "children.name[#{ITERATOR}]"
+        },
         "hasNationalGuardActivation" => 'F[0].Page_5[0].YesAD[0]',
         "noNationalGuardActivation" => 'F[0].Page_5[0].NoAD[0]',
         'nightPhone' => 'F[0].Page_5[0].Eveningphonenumber[0]',
@@ -341,6 +344,10 @@ module PdfFill
           jobs.each do |job|
             expand_date_range(job, 'dateRange')
           end
+        end
+
+        @form_data['children'].each do |child|
+          child['childFullName'] = combine_full_name(child['childFullName'])
         end
 
         @form_data

@@ -14,6 +14,26 @@
     "from": "2012-06-26",
     "to": "2013-04-10"
   },
+  "children": [
+    {
+      "childFullName": {
+        "first": "Mark1",
+        "last": "Olson"
+      }
+    },
+    {
+      "childFullName": {
+        "first": "Mark2",
+        "last": "Olson"
+      }
+    },
+    {
+      "childFullName": {
+        "first": "Mark3",
+        "last": "Olson"
+      }
+    }
+  ],
   "veteranDateOfBirth": "1985-03-07",
   "veteranSocialSecurityNumber": "111223333",
   "jobs": [
