@@ -9,6 +9,7 @@ describe PdfFill::HashConverter do
         toursOfDuty: [
           {
             discharge: 'honorable',
+            foo: nil,
             nestedHash: {
               dutyType: 'title 10'
             }

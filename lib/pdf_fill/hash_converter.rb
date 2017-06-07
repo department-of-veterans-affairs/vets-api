@@ -34,6 +34,8 @@ module PdfFill
         end
       when Hash
         form_data.each do |k, v|
+          next if v.blank?
+
           transform_data(
             form_data: v,
             pdftk_keys: pdftk_keys[k],
