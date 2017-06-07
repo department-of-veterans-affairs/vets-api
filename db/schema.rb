@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170519153047) do
+ActiveRecord::Schema.define(version: 20170607043549) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -60,6 +60,14 @@ ActiveRecord::Schema.define(version: 20170519153047) do
   end
 
   add_index "evss_claims", ["user_uuid"], name: "index_evss_claims_on_user_uuid", using: :btree
+
+  create_table "health_beta_registrations", force: :cascade do |t|
+    t.uuid     "user_uuid",  null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "health_beta_registrations", ["user_uuid"], name: "index_health_beta_registrations_on_user_uuid", using: :btree
 
   create_table "in_progress_forms", force: :cascade do |t|
     t.uuid     "user_uuid",              null: false

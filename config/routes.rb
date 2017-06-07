@@ -100,6 +100,9 @@ Rails.application.routes.draw do
     get 'terms_and_conditions/:name/versions/latest', to: 'terms_and_conditions#latest'
     get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
+
+    resource :health_beta_registrations, only: [:show, :create]
+
   end
 
   root 'v0/example#index', module: 'v0'
