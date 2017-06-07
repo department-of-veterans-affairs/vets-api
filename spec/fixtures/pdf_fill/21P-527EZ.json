@@ -17,6 +17,10 @@
   "veteranSocialSecurityNumber": "111223333",
   "jobs": [
     {
+      "dateRange": {
+        "from": "2012-04-01",
+        "to": "2013-05-01"
+      },
       "employer": "job1",
       "address": {
         "city": "city1",
@@ -30,6 +34,10 @@
       "daysMissed": "1"
     },
     {
+      "dateRange": {
+        "from": "2012-04-02",
+        "to": "2013-05-02"
+      },
       "employer": "job2",
       "address": {
         "city": "city2",

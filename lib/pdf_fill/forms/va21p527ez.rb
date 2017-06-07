@@ -28,6 +28,8 @@ module PdfFill
           'annualEarnings' => "F[0].Page_5[0].Totalannualearnings[#{ITERATOR}]",
           'nameAndAddr' => "F[0].Page_5[0].Nameandaddressofemployer[#{ITERATOR}]",
           'jobTitle' => "F[0].Page_5[0].Jobtitle[#{ITERATOR}]",
+          'dateRangeStart' => "F[0].Page_5[0].DateJobBegan[#{ITERATOR}]",
+          'dateRangeEnd' => "F[0].Page_5[0].DateJobEnded[#{ITERATOR}]",
           'daysMissed' => "F[0].Page_5[0].Dayslostduetodisability[#{ITERATOR}]"
         },
         'nationalGuard' => {
@@ -187,7 +189,9 @@ module PdfFill
         new_jobs = [{}, {}]
 
         2.times do |i|
-          new_jobs[i]['daysMissed'] = jobs[i].try(:[], 'daysMissed')
+          %w(daysMissed dateRange).each do |attr|
+            new_jobs[i][attr] = jobs[i].try(:[], attr)
+          end
 
           alternate_i = i == 0 ? 1 : 0
 
@@ -321,6 +325,14 @@ module PdfFill
 
         %w(activeServiceDateRange powDateRange).each do |attr|
           expand_date_range(@form_data, attr)
+        end
+
+        @form_data['jobs'].tap do |jobs|
+          next if jobs.blank?
+
+          jobs.each do |job|
+            expand_date_range(job, 'dateRange')
+          end
         end
 
         @form_data
