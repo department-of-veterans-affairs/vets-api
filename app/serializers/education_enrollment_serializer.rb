@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 class EducationEnrollmentSerializer < ActiveModel::Serializer
+  attribute :first_name
+  attribute :last_name
+  attribute :name_suffix
+  attribute :date_of_birth
+
   attribute :va_file_number
   attribute :regional_processing_office
 
@@ -8,11 +13,11 @@ class EducationEnrollmentSerializer < ActiveModel::Serializer
 
   attribute :percentage_benefit
 
-  attribute :original_entitlement_days
-  attribute :used_entitlement_days
-  attribute :remaining_entitlement_days
+  attribute :original_entitlement
+  attribute :used_entitlement
+  attribute :remaining_entitlement
 
-  attribute :facilities
+  attribute :enrollment_list
 
   def id
     nil

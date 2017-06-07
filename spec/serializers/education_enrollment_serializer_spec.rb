@@ -2,6 +2,8 @@
 require 'rails_helper'
 
 RSpec.describe EducationEnrollmentSerializer, type: :serializer do
+  include SchemaMatchers
+
   let(:ees) { build :education_enrollment }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
@@ -23,22 +25,17 @@ RSpec.describe EducationEnrollmentSerializer, type: :serializer do
   it 'should include percentage_benefit' do
     expect(attributes['percentage_benefit']).to eq(ees.percentage_benefit)
   end
-  it 'should include original_entitlement_days' do
-    expect(attributes['original_entitlement_days']).to eq(ees.original_entitlement_days)
+  it 'should include original_entitlement' do
+    expect(attributes['original_entitlement']).to eq(ees.original_entitlement)
   end
-  it 'should include used_entitlement_days' do
-    expect(attributes['used_entitlement_days']).to eq(ees.used_entitlement_days)
+  it 'should include used_entitlement' do
+    expect(attributes['used_entitlement']).to eq(ees.used_entitlement)
   end
-  it 'should include remaining_entitlement_days' do
-    expect(attributes['remaining_entitlement_days']).to eq(ees.remaining_entitlement_days)
+  it 'should include remaining_entitlement' do
+    expect(attributes['remaining_entitlement']).to eq(ees.remaining_entitlement)
   end
-  it 'should include facilities' do
-    expected = ees.facilities.map(&:with_indifferent_access)
-    expect(attributes['facilities']).to eq(expected)
+  it 'should include enrollment_list' do
+    expected = ees.enrollment_list.map(&:with_indifferent_access)
+    expect(attributes['enrollment_list']).to eq(expected)
   end
-
-  # TODO: - define schema
-  # it 'should match the education_enrollment schema' do
-  #   expect(subject).to match_schema('education_enrollment')
-  # end
 end

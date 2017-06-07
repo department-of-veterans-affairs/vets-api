@@ -5,6 +5,7 @@ RSpec.describe 'Fetching Post 911 Edu Enrollment Status', type: :request do
   include SchemaMatchers
 
   let(:token) { 'abracadabra-open-sesame' }
+  let(:edu_enrollment) { build :education_enrollment }
 
   context 'when an LOA 3 user is logged in' do
     let(:mhv_user) { build :mhv_user }
@@ -19,7 +20,7 @@ RSpec.describe 'Fetching Post 911 Edu Enrollment Status', type: :request do
 
     it 'GET /v0/education_enrollment returns proper json' do
       assert_response :success
-      expect(response).to match_response_schema('education_enrollment_status')
+      expect(response).to match_response_schema('education_enrollment', strict: false)
     end
   end
 end
