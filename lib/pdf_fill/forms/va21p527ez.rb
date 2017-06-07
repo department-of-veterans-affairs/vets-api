@@ -285,6 +285,22 @@ module PdfFill
         end.join(', ')
       end
 
+      def expand_children(hash, key)
+        children = hash[key]
+        return if children.blank?
+
+        cohabiting_children = []
+        3.times do
+          cohabiting_children << {}
+        end
+
+        cohabiting_children.each_with_index do |cohabiting_child, i|
+          cohabiting_child['childFullName'] = combine_full_name(children[i].try(:[], 'childFullName'))
+        end
+
+        hash[key] = cohabiting_children
+      end
+
       def combine_full_name(full_name)
         combine_hash(full_name, %w(first middle last suffix))
       end
@@ -346,9 +362,7 @@ module PdfFill
           end
         end
 
-        @form_data['children'].each do |child|
-          child['childFullName'] = combine_full_name(child['childFullName'])
-        end
+        expand_children(@form_data, 'children')
 
         @form_data
       end
