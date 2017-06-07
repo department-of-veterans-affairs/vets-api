@@ -553,7 +553,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "cityState" => "Baltimore, MD, 21231, USA",
          "disabilities"=>[{"disabilityStartDate"=>"2016-12-01"}],
          "gender"=>"M",
-         "children" => [{"childFullName"=>"Mark1 Olson", "adopted"=>true, "previouslyMarried"=>true}, {"childFullName"=>"Mark2 Olson", "adopted"=>true, "previouslyMarried"=>true}, {"childFullName"=>"Mark3 Olson", "adopted"=>true, "previouslyMarried"=>true}],
+         "children" => [{"childFullName"=>"Mark1 Olson", "stepchild"=>true, "adopted"=>true, "previouslyMarried"=>true}, {"childFullName"=>"Mark2 Olson", "stepchild"=>true, "adopted"=>true, "previouslyMarried"=>true}, {"childFullName"=>"Mark3 Olson", "stepchild"=>true, "adopted"=>true, "previouslyMarried"=>true}],
          "genderMale"=>true,
          "genderFemale"=>false,
          "veteranDateOfBirth" => "1985-03-07",
