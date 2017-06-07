@@ -9,8 +9,8 @@ module V0
     end
 
     def create
-      HealthBetaRegistration.create(user_uuid: current_user.uuid)
-      render nothing: true, status: :accepted
+      HealthBetaRegistration.find_or_create_by(user_uuid: current_user.uuid)
+      render json: { 'user': current_user.email, 'status': 'OK' }
     end
   end
 end
