@@ -59,6 +59,7 @@ module PdfFill
         'activeServiceDateRangeEnd' => 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]',
         'disabilityNames' => "F[0].Page_5[0].Disability[#{ITERATOR}]",
         'placeOfSeparation' => 'F[0].Page_5[0].Placeofseparation[0]',
+        'reasonForNotLivingWithSpouse' => 'F[0].Page_6[0].Reasonfornotlivingwithspouse[0]',
         'disabilities' => {
           'disabilityStartDate' => "F[0].Page_5[0].DateDisabilityBegan[#{ITERATOR}]"
         },
