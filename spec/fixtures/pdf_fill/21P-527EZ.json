@@ -20,6 +20,7 @@
         "first": "Mark1",
         "last": "Olson"
       },
+      "adopted": true,
       "previouslyMarried": true
     },
     {
@@ -27,13 +28,15 @@
         "first": "Mark2",
         "last": "Olson"
       },
-      "previouslyMarried": false
+      "adopted": true,
+      "previouslyMarried": true
     },
     {
       "childFullName": {
         "first": "Mark3",
         "last": "Olson"
       },
+      "adopted": true,
       "previouslyMarried": true
     }
   ],

@@ -42,6 +42,7 @@ module PdfFill
         },
         'children' => {
           'childFullName' => "children.name[#{ITERATOR}]",
+          'adopted' => "children.adopted[#{ITERATOR}]",
           'previouslyMarried' => "children.previouslyMarried[#{ITERATOR}]"
         },
         "hasNationalGuardActivation" => 'F[0].Page_5[0].YesAD[0]',
