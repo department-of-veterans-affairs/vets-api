@@ -10,6 +10,8 @@ module PdfFill
         'genderFemale' => 'F[0].Page_5[0].Female[0]',
         'hasFileNumber' => 'F[0].Page_5[0].YesFiled[0]',
         'noFileNumber' => 'F[0].Page_5[0].NoFiled[0]',
+        'hasPowDateRange' => 'F[0].Page_5[0].YesPOW[0]',
+        'noPowDateRange' => 'F[0].Page_5[0].NoPOW[0]',
         'hasPreviousNames' => 'F[0].Page_5[0].YesName[0]',
         'noPreviousNames' => 'F[0].Page_5[0].NameNo[0]',
         'hasCombatSince911' => 'F[0].Page_5[0].YesCZ[0]',
@@ -78,6 +80,10 @@ module PdfFill
         hash.delete(key)
 
         hash
+      end
+
+      def expand_pow_date_range(pow_date_range)
+        expand_checkbox(pow_date_range.present?, 'PowDateRange')
       end
 
       def expand_va_file_number(va_file_number)
@@ -287,6 +293,7 @@ module PdfFill
           vaFileNumber
           previousNames
           severancePay
+          powDateRange
         ).each do |attr|
           @form_data.merge!(public_send("expand_#{attr.underscore}", @form_data[attr]))
         end
