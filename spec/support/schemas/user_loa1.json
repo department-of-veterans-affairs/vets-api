@@ -14,6 +14,7 @@
           "required": ["services", "profile", "mhv_account_state"],
           "properties": {
             "mhv_account_state": { "type": [null]},
+            "health_terms_current": { "type": "boolean" },
             "services": { "type": [ "array", null ] },
             "profile": {
               "type": "object",

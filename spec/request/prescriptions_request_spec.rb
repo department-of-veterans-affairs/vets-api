@@ -32,6 +32,10 @@ RSpec.describe 'prescriptions', type: :request do
     let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: true, upgraded?: false) }
     let(:current_user) { build(:user) }
 
+    before(:each) do
+      allow_any_instance_of(HealthBeta).to receive(:beta_enabled?).and_return(true)
+    end
+
     it 'raises access denied' do
       get '/v0/prescriptions/13651310'
 
