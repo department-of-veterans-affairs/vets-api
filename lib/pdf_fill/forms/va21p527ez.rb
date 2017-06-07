@@ -290,13 +290,16 @@ module PdfFill
         children = hash[key]
         return if children.blank?
 
-        cohabiting_children = []
-        3.times do
-          cohabiting_children << {}
+        cohabiting_children = children.find_all do |child|
+          !child['childNotInHousehold']
         end
 
-        cohabiting_children.each_with_index do |cohabiting_child, i|
-          cohabiting_child['childFullName'] = combine_full_name(children[i].try(:[], 'childFullName'))
+        3.times do |i|
+          cohabiting_children[i] ||= {}
+          child = cohabiting_children[i]
+
+          child.delete('childNotInHousehold')
+          child['childFullName'] = combine_full_name(child['childFullName'])
         end
 
         hash[key] = cohabiting_children
