@@ -41,6 +41,7 @@ module PdfFill
           'phoneAreaCode' => 'F[0].Page_5[0].Unittelephoneareacode[0]'
         },
         'children' => {
+          'married' => "children.married[#{ITERATOR}]",
           'disabled' => "children.disabled[#{ITERATOR}]",
           'biological' => "children.biological[#{ITERATOR}]",
           'childFullName' => "children.name[#{ITERATOR}]",
