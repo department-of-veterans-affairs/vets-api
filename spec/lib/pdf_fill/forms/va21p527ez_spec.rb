@@ -501,7 +501,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "noPreviousNames" => false,
          "hasSeverancePay" => true,
          "veteranSocialSecurityNumber" => "111223333",
-         "jobs" => [{"daysMissed"=>"1", "jobTitle"=>"worker2", "annualEarnings"=>20, "nameAndAddr"=>"job2, str2, city2, MD, 21231, USA"}, {"daysMissed"=>"2", "jobTitle"=>"worker1", "annualEarnings"=>10, "nameAndAddr"=>"job1, str1, city1, MD, 21231, USA"}],
+         "jobs" => [{"daysMissed"=>"1", "jobTitle"=>"worker2", "annualEarnings"=>20, "nameAndAddr"=>"job2, str2, city2, MD, 21231, USA", "dateRangeStart"=>"2012-04-01", "dateRangeEnd"=>"2013-05-01"}, {"daysMissed"=>"2", "jobTitle"=>"worker1", "annualEarnings"=>10, "nameAndAddr"=>"job1, str1, city1, MD, 21231, USA", "dateRangeStart"=>"2012-04-02", "dateRangeEnd"=>"2013-05-02"}],
          "noSeverancePay" => false,
          "hasCombatSince911" => true,
          "noCombatSince911" => false,
