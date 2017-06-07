@@ -60,6 +60,32 @@ describe PdfFill::Forms::VA21P527EZ do
       [
         [nil],
         nil
+      ],
+      [
+        [[
+          {"dateRange"=>{"from"=>"2012-04-01", "to"=>"2013-05-01"},
+          "employer"=>"job1",
+          "address"=>{"city"=>"city1", "country"=>"USA", "postalCode"=>"21231", "state"=>"MD", "street"=>"str1"},
+          "annualEarnings"=>10,
+          "jobTitle"=>"worker1",
+          "daysMissed"=>"1"},
+         {"dateRange"=>{"from"=>"2012-04-02", "to"=>"2013-05-02"},
+          "employer"=>"job2",
+          "address"=>{"city"=>"city2", "country"=>"USA", "postalCode"=>"21231", "state"=>"MD", "street"=>"str2"},
+          "annualEarnings"=>20,
+          "jobTitle"=>"worker2",
+          "daysMissed"=>"2"}
+        ]],
+          [{"daysMissed"=>"1",
+         "dateRange"=>{"from"=>"2012-04-01", "to"=>"2013-05-01"},
+         "jobTitle"=>"worker2",
+         "annualEarnings"=>20,
+         "nameAndAddr"=>"job2, str2, city2, MD, 21231, USA"},
+        {"daysMissed"=>"2",
+         "dateRange"=>{"from"=>"2012-04-02", "to"=>"2013-05-02"},
+         "jobTitle"=>"worker1",
+         "annualEarnings"=>10,
+         "nameAndAddr"=>"job1, str1, city1, MD, 21231, USA"}]
       ]
     ]
   )
