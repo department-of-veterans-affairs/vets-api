@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 module V0
   class HealthBetaRegistrationsController < ApplicationController
-
     def show
       reg = HealthBetaRegistration.find_by(user_uuid: current_user.uuid)
       raise Common::Exceptions::RecordNotFound, current_user.uuid if reg.nil?

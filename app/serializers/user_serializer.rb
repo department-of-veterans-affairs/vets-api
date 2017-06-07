@@ -57,7 +57,7 @@ class UserSerializer < ActiveModel::Serializer
       !object.mhv_account.needs_terms_acceptance?
     else
       # Don't prompt terms for non-beta users
-      true 
+      true
     end
   end
 
@@ -67,7 +67,7 @@ class UserSerializer < ActiveModel::Serializer
       BackendServices::HCA,
       BackendServices::EDUCATION_BENEFITS
     ]
-    if beta_enabled?(object.uuid) 
+    if beta_enabled?(object.uuid)
       service_list += BackendServices::MHV_BASED_SERVICES if object.mhv_account_eligible?
     else
       # Allow access for existing MHV accounts for non-beta users

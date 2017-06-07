@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 require 'feature_flipper'
+
+# rubocop:disable Metrics/BlockLength
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
 
@@ -102,7 +104,6 @@ Rails.application.routes.draw do
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
 
     resource :health_beta_registrations, only: [:show, :create]
-
   end
 
   root 'v0/example#index', module: 'v0'
@@ -116,3 +117,4 @@ Rails.application.routes.draw do
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i(get post put patch delete)
 end
+# rubocop:enable Metrics/BlockLength
