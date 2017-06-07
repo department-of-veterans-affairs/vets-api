@@ -505,6 +505,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "noSeverancePay" => false,
          "hasCombatSince911" => true,
          "noCombatSince911" => false,
+         "reasonForNotLivingWithSpouse" => "illness",
          "hasPowDateRange" => true,
          "noPowDateRange" => false,
          "activeServiceDateRangeEnd" => "2013-04-10",
