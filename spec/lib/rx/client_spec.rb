@@ -31,6 +31,11 @@ describe 'rx client' do
       expect(client_response.email_address).to eq('Praneeth.Gaganapally@va.gov')
       expect(client_response.rx_flag).to eq(true)
     end
+
+    it 'raises a backend service exception when email includes spaces', :vcr do
+      expect { client.post_preferences(email_address: 'kamyar karshenas@va.gov', rx_flag: false) }
+        .to raise_error(Common::Exceptions::BackendServiceException)
+    end
   end
 
   describe 'prescriptions' do
@@ -69,6 +74,11 @@ describe 'rx client' do
         expect(client_response).to be_a(Common::Collection)
         expect(client_response.members.first.prescription_id).to eq(13_650_541)
       end
+    end
+
+    it 'handles failed stations', :vcr do
+      expect(Rails.logger).to receive(:warn).with(/failed station/).with(/Station-000/)
+      client.get_history_rxs
     end
   end
 end

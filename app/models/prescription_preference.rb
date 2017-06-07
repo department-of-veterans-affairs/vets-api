@@ -10,7 +10,7 @@ class PrescriptionPreference < Common::Base
   # Always validate that rx_flag is provided
   validates :rx_flag, inclusion: { in: [true, false] }
   # Always require valid email address
-  validates :email_address, presence: true, format: { with: /.+@.+\..+/i }
+  validates :email_address, presence: true, format: { with: /.+@.+\..+/i }, length: { maximum: 255, minimum: 6 }
 
   def mhv_params
     raise Common::Exceptions::ValidationErrors, self unless valid?

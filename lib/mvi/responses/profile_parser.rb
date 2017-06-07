@@ -74,7 +74,7 @@ module MVI
       def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
         correlation_ids = map_correlation_ids(patient.locate('id'))
-        MviProfile.new(
+        MVI::Models::MviProfile.new(
           given_names: name[:given],
           family_name: name[:family],
           suffix: name[:suffix],
@@ -86,7 +86,8 @@ module MVI
           icn: correlation_ids[:icn],
           mhv_ids: correlation_ids[:mhv_ids],
           edipi: correlation_ids[:edipi],
-          participant_id: correlation_ids[:vba_corp_id]
+          participant_id: correlation_ids[:vba_corp_id],
+          vha_facility_ids: correlation_ids[:vha_facility_ids]
         )
       end
 
@@ -124,7 +125,7 @@ module MVI
         return nil unless el
         address_hash = el.nodes.map { |n| { n.value.snakecase.to_sym => n.nodes.first } }.reduce({}, :merge)
         address_hash[:street] = address_hash.delete :street_address_line
-        MviProfileAddress.new(address_hash)
+        MVI::Models::MviProfileAddress.new(address_hash)
       end
 
       def parse_phone(patient)
@@ -141,24 +142,33 @@ module MVI
       end
 
       # MVI correlation id source id relationships:
-      # {source id}^{id type}^{assigning authority}^{assigning facility}^{id status}
+      # {source id}^{id type}^{assigning facility}^{assigning authority}^{id status}
       # NI = national identifier, PI = patient identifier
       def map_correlation_ids(ids)
         ids = ids.map(&:attributes)
         {
-          icn: select_extension(ids, /^\w+\^NI\^\w+\^\w+\^\w+$/, CORRELATION_ROOT_ID)&.first,
-          mhv_ids: select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/, CORRELATION_ROOT_ID),
-          edipi: select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^\w+$/, EDIPI_ROOT_ID)&.first,
-          vba_corp_id: select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^\w+$/, CORRELATION_ROOT_ID)&.first
+          icn: select_ids(select_extension(ids, /^\w+\^NI\^\w+\^\w+\^\w+$/, CORRELATION_ROOT_ID))&.first,
+          mhv_ids: select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/, CORRELATION_ROOT_ID)),
+          edipi: select_ids(select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^\w+$/, EDIPI_ROOT_ID))&.first,
+          vba_corp_id: select_ids(select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^\w+$/, CORRELATION_ROOT_ID))&.first,
+          vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, CORRELATION_ROOT_ID))
         }
       end
 
-      def select_extension(ids, pattern, root)
-        extensions = ids.select do |id|
-          id[:extension] =~ pattern && id[:root] == root
-        end
+      def select_ids(extensions)
         return nil if extensions.empty?
         extensions.map { |e| e[:extension].split('^')&.first }
+      end
+
+      def select_facilities(extensions)
+        return nil if extensions.empty?
+        extensions.map { |e| e[:extension].split('^')&.third }
+      end
+
+      def select_extension(ids, pattern, root)
+        ids.select do |id|
+          id[:extension] =~ pattern && id[:root] == root
+        end
       end
 
       def locate_element(el, path)
