@@ -24,3 +24,5 @@ en:
     pdf:
       locked: PDF must not be encrypted or locked. Please re-save it without a password
       invalid: PDF is not able to be opened. Try re-saving or re-uploading it.
+    text:
+      not_ascii: Cannot read file encoding. Text files must be ASCII encoded.
