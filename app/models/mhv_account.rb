@@ -35,7 +35,7 @@ class MhvAccount < ActiveRecord::Base
     event :upgrade do
       transitions from: [:unknown, :registered, :upgrade_failed], to: :upgraded
     end
-    # TODO: Add upgrade_fail, register_fail events, invoke from rescue of 
+    # TODO: Add upgrade_fail, register_fail events, invoke from rescue of
     # upgrade/register
   end
 

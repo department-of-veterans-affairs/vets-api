@@ -61,6 +61,7 @@ class UserSerializer < ActiveModel::Serializer
     end
   end
 
+  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def services
     service_list = [
       BackendServices::FACILITIES,
@@ -69,12 +70,13 @@ class UserSerializer < ActiveModel::Serializer
     ]
     if beta_enabled?(object.uuid)
       service_list += BackendServices::MHV_BASED_SERVICES if object.mhv_account_eligible?
-    else
+    elsif object.loa3? && object.mhv_correlation_id.present?
       # Allow access for existing MHV accounts for non-beta users
-      service_list += BackendServices::MHV_BASED_SERVICES if object.loa3? && object.mhv_correlation_id.present?
+      service_list += BackendServices::MHV_BASED_SERVICES
     end
     service_list << BackendServices::EVSS_CLAIMS if object.can_access_evss?
     service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
     service_list
   end
+  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 end
