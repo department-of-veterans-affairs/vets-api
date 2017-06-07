@@ -19,19 +19,22 @@
       "childFullName": {
         "first": "Mark1",
         "last": "Olson"
-      }
+      },
+      "previouslyMarried": true
     },
     {
       "childFullName": {
         "first": "Mark2",
         "last": "Olson"
-      }
+      },
+      "previouslyMarried": false
     },
     {
       "childFullName": {
         "first": "Mark3",
         "last": "Olson"
-      }
+      },
+      "previouslyMarried": true
     }
   ],
   "veteranDateOfBirth": "1985-03-07",

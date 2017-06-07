@@ -41,7 +41,8 @@ module PdfFill
           'phoneAreaCode' => 'F[0].Page_5[0].Unittelephoneareacode[0]'
         },
         'children' => {
-          'childFullName' => "children.name[#{ITERATOR}]"
+          'childFullName' => "children.name[#{ITERATOR}]",
+          'previouslyMarried' => "children.previouslyMarried[#{ITERATOR}]"
         },
         "hasNationalGuardActivation" => 'F[0].Page_5[0].YesAD[0]',
         "noNationalGuardActivation" => 'F[0].Page_5[0].NoAD[0]',
