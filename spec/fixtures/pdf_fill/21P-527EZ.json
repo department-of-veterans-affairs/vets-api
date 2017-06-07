@@ -20,6 +20,7 @@
         "first": "Mark1",
         "last": "Olson"
       },
+      "attendingCollege": true,
       "married": true,
       "biological": true,
       "stepchild": true,
@@ -32,6 +33,7 @@
         "first": "Mark2",
         "last": "Olson"
       },
+      "attendingCollege": true,
       "married": true,
       "disabled": true,
       "biological": true,
@@ -44,6 +46,7 @@
         "first": "Mark3",
         "last": "Olson"
       },
+      "attendingCollege": true,
       "married": true,
       "disabled": true,
       "biological": true,
