@@ -3,6 +3,10 @@ FactoryGirl.define do
   factory :in_progress_form do
     user_uuid '5090027a-b9f2-44c4-acd7-45f2640d5e83'
     form_id 'edu_benefits'
+    metadata(
+      version: 1,
+      return_url: 'foo.com'
+    )
     form_data do
       {
         chapter1606: true,

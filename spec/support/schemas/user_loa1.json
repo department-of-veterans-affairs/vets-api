@@ -66,6 +66,25 @@
                   }
                 }
               ]
+            },
+            "veteran_status": {
+              "type": ["object", "null"],
+              "required": [
+                "status"
+              ],
+              "oneOf": [
+                {
+                  "properties": {
+                    "status": { "type": [ "string" ]  }
+                  }
+                },
+                {
+                  "properties": {
+                    "is_veteran": { "type": "boolean" },
+                    "status": { "type": "string"  }
+                  }
+                }
+              ]
             }
           }
         }

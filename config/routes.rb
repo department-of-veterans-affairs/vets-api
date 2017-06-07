@@ -43,12 +43,18 @@ Rails.application.routes.draw do
       get :active, to: 'prescriptions#index', on: :collection, defaults: { refill_status: 'active' }
       patch :refill, to: 'prescriptions#refill', on: :member
       resources :trackings, only: :index, controller: :trackings
+      collection do
+        resource :preferences, only: [:show, :update], controller: 'prescription_preferences'
+      end
     end
 
-    resource :health_records, only: [:create, :show], defaults: { format: :json } do
+    resource :health_records, only: [:create], defaults: { format: :json } do
       get :refresh, to: 'health_records#refresh', on: :collection
       get :eligible_data_classes, to: 'health_records#eligible_data_classes', on: :collection
+      get :show, controller: 'health_record_contents', on: :collection
     end
+
+    resources :appeals, only: [:index]
 
     scope :messaging do
       scope :health do
@@ -70,6 +76,8 @@ Rails.application.routes.draw do
           post ':reply_id/replydraft', on: :collection, action: :create_reply_draft, as: :create_reply
           put ':reply_id/replydraft/:draft_id', on: :collection, action: :update_reply_draft, as: :update_reply
         end
+
+        resource :preferences, only: [:show, :update], controller: 'messaging_preferences'
       end
     end
 
@@ -87,6 +95,11 @@ Rails.application.routes.draw do
     end
 
     resources :apidocs, only: [:index]
+
+    get 'terms_and_conditions', to: 'terms_and_conditions#index'
+    get 'terms_and_conditions/:name/versions/latest', to: 'terms_and_conditions#latest'
+    get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
+    post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
   end
 
   root 'v0/example#index', module: 'v0'

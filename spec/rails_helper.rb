@@ -71,6 +71,13 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 Sidekiq::Logging.logger = nil
 
+require 'shrine/storage/memory'
+
+Shrine.storages = {
+  cache: Shrine::Storage::Memory.new,
+  store: Shrine::Storage::Memory.new
+}
+
 CarrierWave.root = "#{Rails.root}/spec/support/uploads/"
 
 RSpec.configure do |config|
@@ -117,7 +124,9 @@ RSpec.configure do |config|
 
   config.include StatsD::Instrument::Matchers
 
-  config.before(:each) do
+  config.before(:each) do |example|
+    stub_mvi unless example.metadata[:skip_mvi]
+    stub_veteran_status unless example.metadata[:skip_veteran_status]
     Sidekiq::Worker.clear_all
   end
 
