@@ -486,6 +486,8 @@ describe PdfFill::Forms::VA21P527EZ do
         {"veteranFullName"=>"john middle smith Sr.",
          "nightPhone"=>"3456789",
          "dayPhone"=>"3456789",
+         "powDateRangeEnd" => "2013-05-10",
+         "powDateRangeStart" => "2012-04-10",
          "veteranAddressLine1" => "street, street2",
          "email" => "foo@foo.com",
          "serviceBranch" => "army",
