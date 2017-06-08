@@ -4,8 +4,7 @@ require 'mvi/models/mvi_profile'
 
 module EVSS
   module Letters
-    class LettersResponse
-      include Virtus.model(nullify_blank: true)
+    class LettersResponse < Common::Base
       include Common::Client::ServiceStatus
 
       attribute :status, Integer
@@ -22,14 +21,11 @@ module EVSS
         status == 200
       end
 
-      def as_json
+      def metadata
         {
-          data: letters,
-          meta: {
-            address: address,
-            status: ok? ? RESPONSE_STATUS[:ok] : RESPONSE_STATUS[:server_error]
-          }
-        }.as_json
+          address: address,
+          status: ok? ? RESPONSE_STATUS[:ok] : RESPONSE_STATUS[:server_error]
+        }
       end
     end
   end

@@ -1,5 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
+  "required": [
+    "letter_type",
+    "name"
+  ],
   "properties": {
     "name": {
       "description": "Display name for the letter",

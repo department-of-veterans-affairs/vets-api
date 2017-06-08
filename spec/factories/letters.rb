@@ -11,3 +11,17 @@ FactoryGirl.define do
     end
   end
 end
+
+FactoryGirl.define do
+  factory :letter_address, class: 'EVSS::Letters::Address' do
+    full_name 'Homer Simpson'
+    address_line1 '742 Evergreen Terrace'
+    address_line2 nil
+    address_line3 nil
+    city 'Springfield'
+    state 'OR'
+    country 'USA'
+    foreign_code nil
+    zip_code '97475'
+  end
+end
