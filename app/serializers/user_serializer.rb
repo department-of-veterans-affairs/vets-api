@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 require 'backend_services'
 require 'common/client/concerns/service_status'
+require 'health_beta'
 
 class UserSerializer < ActiveModel::Serializer
   include Common::Client::ServiceStatus
+  include HealthBeta
 
-  attributes :services, :profile, :va_profile, :veteran_status, :mhv_account_state
+  attributes :services, :profile, :va_profile, :veteran_status, :mhv_account_state, :health_terms_current
 
   def id
     nil
@@ -50,13 +52,28 @@ class UserSerializer < ActiveModel::Serializer
     { status: RESPONSE_STATUS[:server_error] }
   end
 
+  def health_terms_current
+    if beta_enabled?(object.uuid)
+      !object.mhv_account.needs_terms_acceptance?
+    else
+      # Don't prompt terms for non-beta users
+      true
+    end
+  end
+
+  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def services
     service_list = [
       BackendServices::FACILITIES,
       BackendServices::HCA,
       BackendServices::EDUCATION_BENEFITS
     ]
-    service_list += BackendServices::MHV_BASED_SERVICES if object.mhv_account_eligible?
+    if beta_enabled?(object.uuid)
+      service_list += BackendServices::MHV_BASED_SERVICES if object.mhv_account_eligible?
+    elsif object.loa3? && object.mhv_correlation_id.present?
+      # Allow access for existing MHV accounts for non-beta users
+      service_list += BackendServices::MHV_BASED_SERVICES
+    end
     service_list << BackendServices::EVSS_CLAIMS if object.can_access_evss?
     service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
     service_list

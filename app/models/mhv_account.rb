@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 require 'mhv_ac/client'
+require 'health_beta'
+
 class MhvAccount < ActiveRecord::Base
   include AASM
+  include HealthBeta
 
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
   # Everything except ineligible accounts should be able to transition to :needs_terms_acceptance
@@ -32,6 +35,8 @@ class MhvAccount < ActiveRecord::Base
     event :upgrade do
       transitions from: [:unknown, :registered, :upgrade_failed], to: :upgraded
     end
+    # TODO: Add upgrade_fail, register_fail events, invoke from rescue of
+    # upgrade/register
   end
 
   def create_and_upgrade!
@@ -148,7 +153,9 @@ class MhvAccount < ActiveRecord::Base
 
   def setup
     raise StandardError, 'You must use find_or_initialize_by(user_uuid: #)' if user_uuid.nil?
-    check_eligibility
-    check_terms_acceptance if may_check_terms_acceptance?
+    if beta_enabled?(user_uuid)
+      check_eligibility
+      check_terms_acceptance if may_check_terms_acceptance?
+    end
   end
 end

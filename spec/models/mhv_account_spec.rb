@@ -41,6 +41,7 @@ RSpec.describe MhvAccount, type: :model do
 
   before(:each) do
     stub_mvi(mvi_profile)
+    allow_any_instance_of(HealthBeta).to receive(:beta_enabled?).and_return(true)
   end
 
   it 'must have a user_uuid when initialized' do
