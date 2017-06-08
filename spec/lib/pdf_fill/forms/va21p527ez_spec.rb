@@ -556,6 +556,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "cityState" => "Baltimore, MD, 21231, USA",
          "disabilities"=>[{"disabilityStartDate"=>"2016-12-01"}],
          "gender"=>"M",
+         "marriageCount" => 2,
          "marriages" => [{"spouseFullName"=>"Mark1 Olson", "dateOfMarriage"=>"1985-03-01", "locationOfMarriage"=>"marriagelocation1", "locationOfSeparation"=>"location1", "marriageType"=>"type1", "reasonForSeparation"=>"divorce1"}, {"spouseFullName"=>"Mark2 Olson", "dateOfMarriage"=>"1985-03-02", "locationOfMarriage"=>"marriagelocation2", "locationOfSeparation"=>"location2", "marriageType"=>"type2", "reasonForSeparation"=>"divorce2"}],
          "children" => [{"childFullName"=>"Mark1 Olson", "attendingCollege"=>true, "married"=>true, "biological"=>true, "stepchild"=>true, "disabled"=>true, "adopted"=>true, "previouslyMarried"=>true}, {"childFullName"=>"Mark2 Olson", "attendingCollege"=>true, "married"=>true, "disabled"=>true, "biological"=>true, "stepchild"=>true, "adopted"=>true, "previouslyMarried"=>true}, {"childFullName"=>"Mark3 Olson", "attendingCollege"=>true, "married"=>true, "disabled"=>true, "biological"=>true, "stepchild"=>true, "adopted"=>true, "previouslyMarried"=>true}],
          "genderMale"=>true,
