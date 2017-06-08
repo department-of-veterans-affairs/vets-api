@@ -37,6 +37,7 @@ module PdfFill
           'daysMissed' => "F[0].Page_5[0].Dayslostduetodisability[#{ITERATOR}]"
         },
         'marriages' => {
+          'locationOfMarriage' => "marriages.locationOfMarriage[#{ITERATOR}]",
           'locationOfSeparation' => "marriages.locationOfSeparation[#{ITERATOR}]",
           'spouseFullName' => "marriages.spouseFullName[#{ITERATOR}]",
           'marriageType' => "marriages.marriageType[#{ITERATOR}]",

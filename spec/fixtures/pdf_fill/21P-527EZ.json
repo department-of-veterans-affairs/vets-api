@@ -66,6 +66,7 @@
         "first": "Mark1",
         "last": "Olson"
       },
+      "locationOfMarriage": "marriagelocation1",
       "locationOfSeparation": "location1",
       "marriageType": "type1",
       "reasonForSeparation": "divorce1"
@@ -75,6 +76,7 @@
         "first": "Mark2",
         "last": "Olson"
       },
+      "locationOfMarriage": "marriagelocation2",
       "locationOfSeparation": "location2",
       "marriageType": "type2",
       "reasonForSeparation": "divorce2"
