@@ -4,7 +4,7 @@ require 'rails_helper'
 RSpec.describe Post911GIBillStatusSerializer, type: :serializer do
   include SchemaMatchers
 
-  let(:post911gibs) { build :post_911_gi_bill_status }
+  let(:post911gibs) { build :post911_gi_bill_status }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
