@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 require 'common/client/concerns/service_status'
-require 'mvi/models/mvi_profile'
+require 'common/models/base'
 
 module EVSS
   module Letters
