@@ -66,6 +66,7 @@
         "first": "Mark1",
         "last": "Olson"
       },
+      "dateOfMarriage": "1985-03-01",
       "locationOfMarriage": "marriagelocation1",
       "locationOfSeparation": "location1",
       "marriageType": "type1",
@@ -76,6 +77,7 @@
         "first": "Mark2",
         "last": "Olson"
       },
+      "dateOfMarriage": "1985-03-02",
       "locationOfMarriage": "marriagelocation2",
       "locationOfSeparation": "location2",
       "marriageType": "type2",
