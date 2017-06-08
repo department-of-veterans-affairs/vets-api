@@ -52,6 +52,7 @@ module PdfFill
           'phoneAreaCode' => 'F[0].Page_5[0].Unittelephoneareacode[0]'
         },
         'children' => {
+          'childPlaceOfBirth' => "children.childPlaceOfBirth[#{ITERATOR}]",
           'attendingCollege' => "children.attendingCollege[#{ITERATOR}]",
           'married' => "children.married[#{ITERATOR}]",
           'disabled' => "children.disabled[#{ITERATOR}]",

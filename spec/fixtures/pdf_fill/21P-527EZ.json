@@ -21,6 +21,7 @@
         "first": "Mark1",
         "last": "Olson"
       },
+      "childPlaceOfBirth": "place1",
       "attendingCollege": true,
       "married": true,
       "biological": true,
@@ -34,6 +35,7 @@
         "first": "Mark2",
         "last": "Olson"
       },
+      "childPlaceOfBirth": "place2",
       "attendingCollege": true,
       "married": true,
       "disabled": true,
@@ -47,6 +49,7 @@
         "first": "Mark3",
         "last": "Olson"
       },
+      "childPlaceOfBirth": "place3",
       "attendingCollege": true,
       "married": true,
       "disabled": true,
