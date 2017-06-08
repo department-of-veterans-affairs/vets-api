@@ -23,7 +23,6 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/feature_flipper.rb'
     add_filter 'spec/support/authenticated_session_helper'
     add_filter 'spec/support/attr_encrypted_matcher'
-    add_filter 'vendor'
     SimpleCov.minimum_coverage_by_file 90
   end
 end
