@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class EducationEnrollmentSerializer < ActiveModel::Serializer
+class Post911GIBillStatusSerializer < ActiveModel::Serializer
   attribute :first_name
   attribute :last_name
   attribute :name_suffix

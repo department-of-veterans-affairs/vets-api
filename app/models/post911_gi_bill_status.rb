@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'common/models/base'
 
-class EducationEnrollment < Common::Base
+class Post911GIBillStatus < Common::Base
   attribute :first_name, String
   attribute :last_name, String
   attribute :name_suffix, String

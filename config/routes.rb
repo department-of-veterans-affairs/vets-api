@@ -16,7 +16,7 @@ Rails.application.routes.draw do
     end
 
     resource :user, only: [:show]
-    resource :education_enrollment, only: [:show]
+    resource :post911_gi_bill_status, only: [:show]
 
     resource :education_benefits_claims, only: [:create] do
       collection do
