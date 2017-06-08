@@ -29,8 +29,10 @@ config/application.yml
 .ruby-gemset
 .rbenv-gemsets
 
-# Ignore mock mvi responses
+# Ignore mock responses
 /config/mvi_schema/mock_mvi_responses.yml
+/config/evss/mock_letters_response.yml
+
 .idea/
 
 # And byebug's history file
