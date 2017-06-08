@@ -16,6 +16,7 @@ module PdfFill
         'noPreviousNames' => 'F[0].Page_5[0].NameNo[0]',
         'hasCombatSince911' => 'F[0].Page_5[0].YesCZ[0]',
         'noCombatSince911' => 'F[0].Page_5[0].NoCZ[0]',
+        'otherMarriage' => 'F[0].Page_6[0].Explainothertypesofmarriage[0]',
         'hasSeverancePay' => 'F[0].Page_5[0].YesSep[0]',
         'noSeverancePay' => 'F[0].Page_5[0].NoSep[0]',
         'veteranDateOfBirth' => 'F[0].Page_5[0].Date[0]',
