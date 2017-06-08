@@ -9,6 +9,7 @@ Rails.application.routes.draw do
 
   namespace :v0, defaults: { format: 'json' } do
     resources :in_progress_forms, only: [:show, :update]
+    resource :ui_upload, only: [:create]
 
     resource :sessions, only: [:new, :destroy] do
       post :saml_callback, to: 'sessions#saml_callback'

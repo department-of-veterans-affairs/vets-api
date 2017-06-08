@@ -17,7 +17,8 @@ class FileUpload
     raise ArgumentError, @attacher.errors.join(',') unless @attacher.errors.blank?
     # Pass in the Shrine-serialized uploaded file to the workflow
     w = workflow.new(@attacher, @options)
-    w.start!(trace: trace)
+    job_id = w.start!(trace: trace)
+    {job_id: job_id, file: @attacher.get}
   end
 
   private
