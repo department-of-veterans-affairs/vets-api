@@ -4,14 +4,16 @@ module V0
     def show
       response = service.get_gi_bill_status
       render json: response.post911_gi_bill_status,
-        serializer: Post911GIBillStatusSerializer,
-        meta: response.metadata
+             serializer: Post911GIBillStatusSerializer,
+             meta: response.metadata
     end
 
     private
 
     def service
-      EVSS::GiBillStatus::ServiceFactory.get_service(user: @current_user, mock_service: Settings.evss.mock_gi_bill_status)
+      EVSS::GiBillStatus::ServiceFactory.get_service(
+        user: @current_user, mock_service: Settings.evss.mock_gi_bill_status
+      )
     end
   end
 end

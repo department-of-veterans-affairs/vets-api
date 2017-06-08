@@ -8,7 +8,11 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
   let(:session) { Session.create(uuid: user.uuid) }
 
   context 'with a mocked letters response' do
-    let(:mock_response) { YAML.load_file(Rails.root.join('config', 'evss', 'mock_gi_bill_status_response.yml.example')) }
+    let(:mock_response) do
+      YAML.load_file(
+        Rails.root.join('config', 'evss', 'mock_gi_bill_status_response.yml.example')
+      )
+    end
 
     before do
       Settings.evss.mock_gi_bill_status = true
