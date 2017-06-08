@@ -551,7 +551,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "activeServiceDateRangeEnd" => "2013-04-10",
          "activeServiceDateRangeStart" => "2012-06-26",
          "nationalGuard" => {"date"=>"2013-04-11", "phone"=>"3456789", "phoneAreaCode"=>"212", "nameAndAddr"=>"foo, 111 Uni Drive, Baltimore, MD, 21231, USA"},
-         "severancePay" => {"amount"=>1, "type"=>"retirement"},
+         "severancePay" => {"amount"=>1, "type"=>"Longevity"},
          "mobilePhoneAreaCode" => "212",
          "cityState" => "Baltimore, MD, 21231, USA",
          "disabilities"=>[{"disabilityStartDate"=>"2016-12-01"}],

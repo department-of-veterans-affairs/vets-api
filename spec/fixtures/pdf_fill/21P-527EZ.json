@@ -158,7 +158,7 @@
   "combatSince911": true,
   "severancePay": {
     "amount": 1,
-    "type": "retirement"
+    "type": "Longevity"
   },
   "placeOfSeparation": "city, state",
   "veteranAddress": {
