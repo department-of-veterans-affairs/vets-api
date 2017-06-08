@@ -39,12 +39,22 @@ module PdfFill
           'dateRangeEnd' => "F[0].Page_5[0].DateJobEnded[#{ITERATOR}]",
           'daysMissed' => "F[0].Page_5[0].Dayslostduetodisability[#{ITERATOR}]"
         },
+        'spouseMarriages' => {
+          'dateOfMarriage' => "spouseMarriages.dateOfMarriage[#{ITERATOR}]",
+          'locationOfMarriage' => "spouseMarriages.locationOfMarriage[#{ITERATOR}]",
+          'locationOfSeparation' => "spouseMarriages.locationOfSeparation[#{ITERATOR}]",
+          'spouseFullName' => "spouseMarriages.spouseFullName[#{ITERATOR}]",
+          'marriageType' => "spouseMarriages.marriageType[#{ITERATOR}]",
+          'dateOfSeparation' => "spouseMarriages.dateOfSeparation[#{ITERATOR}]",
+          'reasonForSeparation' => "spouseMarriages.reasonForSeparation[#{ITERATOR}]"
+        },
         'marriages' => {
           'dateOfMarriage' => "marriages.dateOfMarriage[#{ITERATOR}]",
           'locationOfMarriage' => "marriages.locationOfMarriage[#{ITERATOR}]",
           'locationOfSeparation' => "marriages.locationOfSeparation[#{ITERATOR}]",
           'spouseFullName' => "marriages.spouseFullName[#{ITERATOR}]",
           'marriageType' => "marriages.marriageType[#{ITERATOR}]",
+          'dateOfSeparation' => "marriages.dateOfSeparation[#{ITERATOR}]",
           'reasonForSeparation' => "marriages.reasonForSeparation[#{ITERATOR}]"
         },
         'nationalGuard' => {
@@ -390,11 +400,13 @@ module PdfFill
 
         expand_children(@form_data, 'children')
 
-        @form_data['marriages'].tap do |marriages|
-          next if marriages.blank?
+        %w(marriages spouseMarriages).each do |marriageType|
+          @form_data[marriageType].tap do |marriages|
+            next if marriages.blank?
 
-          marriages.each do |marriage|
-            marriage['spouseFullName'] = combine_full_name(marriage['spouseFullName'])
+            marriages.each do |marriage|
+              marriage['spouseFullName'] = combine_full_name(marriage['spouseFullName'])
+            end
           end
         end
 
