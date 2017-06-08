@@ -18,6 +18,7 @@ find_candidate:
     :vha_facility_ids:
     - 200ESR
     - 200MHS
+    - '648'
     :edipi: '1005329660'
     :participant_id: '600043186'
   '796121200':
