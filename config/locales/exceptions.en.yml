@@ -72,6 +72,10 @@ en:
         title: Validation error
         code: 109
         status: 422
+      upload_errors:
+        <<: *validation_errors
+        code: 110
+        detail: "The file wasn't able to be processed"
       unauthorized:
         <<: *defaults
         title: Not authorized

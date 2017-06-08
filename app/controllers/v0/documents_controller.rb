@@ -13,8 +13,13 @@ module V0
         document_type: params[:document_type]
       )
       raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
-      jid = claim_service.upload_document(document_data)
-      render_job_id(jid)
+      if FeatureFlipper.evss_upload_workflow?
+        upload = claim_service.upload_document(document_data)
+        render_upload(upload)
+      else
+        jid = claim_service.upload_document(document_data)
+        render_job_id(jid)
+      end
     end
   end
 end

@@ -14,3 +14,6 @@ reports:
 saml:
   cert_path: spec/support/certificates/ruby-saml.crt
   key_path: spec/support/certificates/ruby-saml.key
+
+evss:
+  workflow_uploader_enabled: true

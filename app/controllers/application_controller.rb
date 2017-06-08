@@ -128,4 +128,13 @@ class ApplicationController < ActionController::API
   def render_job_id(jid)
     render json: { job_id: jid }, status: 202
   end
+
+  def render_upload(upload)
+    render json: {
+      job_id: upload[:job_id],
+      confirmation_code: upload[:job_id],
+      size: upload[:file].size,
+      name: upload[:file].original_filename
+    }, status: 202
+  end
 end
