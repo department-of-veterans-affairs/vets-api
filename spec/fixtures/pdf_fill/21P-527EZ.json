@@ -57,10 +57,18 @@
   ],
   "marriages": [
     {
+      "spouseFullName": {
+        "first": "Mark1",
+        "last": "Olson"
+      },
       "marriageType": "type1",
       "reasonForSeparation": "divorce1"
     },
     {
+      "spouseFullName": {
+        "first": "Mark2",
+        "last": "Olson"
+      },
       "marriageType": "type2",
       "reasonForSeparation": "divorce2"
     }

@@ -35,6 +35,7 @@ module PdfFill
           'daysMissed' => "F[0].Page_5[0].Dayslostduetodisability[#{ITERATOR}]"
         },
         'marriages' => {
+          'spouseFullName' => "marriages.spouseFullName[#{ITERATOR}]",
           'marriageType' => "marriages.marriageType[#{ITERATOR}]",
           'reasonForSeparation' => "marriages.reasonForSeparation[#{ITERATOR}]"
         },
@@ -378,6 +379,14 @@ module PdfFill
         end
 
         expand_children(@form_data, 'children')
+
+        @form_data['marriages'].tap do |marriages|
+          next if marriages.blank?
+
+          marriages.each do |marriage|
+            marriage['spouseFullName'] = combine_full_name(marriage['spouseFullName'])
+          end
+        end
 
         @form_data
       end
