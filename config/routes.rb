@@ -100,6 +100,8 @@ Rails.application.routes.draw do
     get 'terms_and_conditions/:name/versions/latest', to: 'terms_and_conditions#latest'
     get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
+
+    resource :health_beta_registrations, only: [:show, :create]
   end
 
   root 'v0/example#index', module: 'v0'
@@ -113,3 +115,4 @@ Rails.application.routes.draw do
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i(get post put patch delete)
 end
+# rubocop:enable Metrics/BlockLength
