@@ -51,6 +51,7 @@ module PdfFill
           'date' => 'F[0].Page_5[0].DateofActivation[0]',
           'phoneAreaCode' => 'F[0].Page_5[0].Unittelephoneareacode[0]'
         },
+        'spouseAddress' => 'F[0].Page_6[0].Spouseaddress[0]',
         'children' => {
           'childPlaceOfBirth' => "children.childPlaceOfBirth[#{ITERATOR}]",
           'attendingCollege' => "children.attendingCollege[#{ITERATOR}]",
@@ -397,6 +398,8 @@ module PdfFill
 
         @form_data['spouseMarriageCount'] = @form_data['spouseMarriages']&.length
         @form_data['marriageCount'] = @form_data['marriages']&.length
+
+        @form_data['spouseAddress'] = combine_full_address(@form_data['spouseAddress'])
 
         @form_data
       end

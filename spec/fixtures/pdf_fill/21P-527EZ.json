@@ -89,6 +89,13 @@
   ],
   "veteranDateOfBirth": "1985-03-07",
   "veteranSocialSecurityNumber": "111223333",
+  "spouseAddress": {
+    "city": "city1",
+    "country": "USA",
+    "postalCode": "21231",
+    "state": "MD",
+    "street": "str1"
+  },
   "jobs": [
     {
       "dateRange": {
