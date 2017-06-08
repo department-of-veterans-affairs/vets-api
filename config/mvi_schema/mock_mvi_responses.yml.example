@@ -502,6 +502,7 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - 200ESR
+    - '648'
     :edipi: '1005136624'
     :participant_id: '600073573'
   '796130115':
@@ -524,6 +525,7 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - 200ESR
+    - '648'
     :edipi: '1005490754'
     :participant_id: '600043201'
   '796126696':
@@ -544,7 +546,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012845629V054840
     :mhv_ids: []
-    :vha_facility_ids: []
+    :vha_facility_ids:
+    - '648'
     :edipi: '1005305469'
     :participant_id: '600049701'
   '796126777':
@@ -565,7 +568,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012829890V001762
     :mhv_ids: []
-    :vha_facility_ids: []
+    :vha_facility_ids:
+    - '648'
     :edipi: '1005320840'
     :participant_id: '600043185'
   '796126778':
@@ -589,6 +593,7 @@ find_candidate:
     :vha_facility_ids:
     - 200ESR
     - '987'
+    - '648'
     :edipi: '1005320859'
     :participant_id: '600049702'
   '796043735':
@@ -609,7 +614,8 @@ find_candidate:
     :home_phone: "(571)294-9259"
     :icn: 1012832025V743496
     :mhv_ids: []
-    :vha_facility_ids: []
+    :vha_facility_ids:
+    - '648'
     :edipi: '1007697216'
     :participant_id: '600061742'
   '796376250':
@@ -630,7 +636,8 @@ find_candidate:
     :home_phone: "(999)888-7777"
     :icn: 1012833171V826199
     :mhv_ids: []
-    :vha_facility_ids: []
+    :vha_facility_ids:
+    - '648'
     :edipi: '1290165454'
     :participant_id: '600050724'
   '796330625':
@@ -653,6 +660,7 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - 200ESR
+    - '648'
     :edipi: '1243413229'
     :participant_id: '600049703'
   '796296387':
@@ -673,7 +681,8 @@ find_candidate:
     :home_phone: 
     :icn: 1012832042V458998
     :mhv_ids: []
-    :vha_facility_ids: []
+    :vha_facility_ids:
+    - '648'
     :edipi: '1154477825'
     :participant_id: '600036500'
   '796141462':
@@ -697,6 +706,7 @@ find_candidate:
     :vha_facility_ids:
     - 200ESR
     - '987'
+    - '648'
     :edipi: '1006535352'
     :participant_id: '600049363'
   '796184750':
