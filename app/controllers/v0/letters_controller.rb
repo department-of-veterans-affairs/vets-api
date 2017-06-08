@@ -2,8 +2,10 @@
 module V0
   class LettersController < ApplicationController
     def index
-      response = EVSS::Letters::Letter.find_by_user(@current_user)
-      render json: response.as_json
+      response = service.get_letters
+      render json: response,
+        serializer: LettersSerializer,
+        meta: response.metadata
     end
 
     # :nocov:
@@ -11,5 +13,11 @@ module V0
       head :ok
     end
     # :nocov:
+
+    private
+
+    def service
+      EVSS::Letters::ServiceFactory.get_service(user: @current_user, mock_service: Settings.evss.mock_letters)
+    end
   end
 end
