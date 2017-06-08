@@ -24,6 +24,7 @@ module PdfFill
           'amount' => 'F[0].Page_5[0].Listamount[0]',
           'type' => 'F[0].Page_5[0].Listtype[0]'
         },
+        'spouseMarriageCount' => 'F[0].Page_6[0].Howmanytimesspousemarried[0]',
         'powDateRangeStart' => 'F[0].Page_5[0].Date[1]',
         'powDateRangeEnd' => 'F[0].Page_5[0].Date[2]',
         'jobs' => {
@@ -387,6 +388,8 @@ module PdfFill
             marriage['spouseFullName'] = combine_full_name(marriage['spouseFullName'])
           end
         end
+
+        @form_data['spouseMarriageCount'] = @form_data['spouseMarriages']&.length
 
         @form_data
       end

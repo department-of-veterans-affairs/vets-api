@@ -55,6 +55,10 @@
       "previouslyMarried": true
     }
   ],
+  "spouseMarriages": [
+    {},
+    {}
+  ],
   "marriages": [
     {
       "spouseFullName": {
