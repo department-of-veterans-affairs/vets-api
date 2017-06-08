@@ -25,6 +25,7 @@ module PdfFill
           'amount' => 'F[0].Page_5[0].Listamount[0]',
           'type' => 'F[0].Page_5[0].Listtype[0]'
         },
+        'marriageCount' => 'F[0].Page_6[0].Howmanytimesmarried[0]',
         'spouseMarriageCount' => 'F[0].Page_6[0].Howmanytimesspousemarried[0]',
         'powDateRangeStart' => 'F[0].Page_5[0].Date[1]',
         'powDateRangeEnd' => 'F[0].Page_5[0].Date[2]',
@@ -394,6 +395,7 @@ module PdfFill
         end
 
         @form_data['spouseMarriageCount'] = @form_data['spouseMarriages']&.length
+        @form_data['marriageCount'] = @form_data['marriages']&.length
 
         @form_data
       end
