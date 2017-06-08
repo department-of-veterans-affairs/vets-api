@@ -6,9 +6,9 @@ module EVSS
     class Service < EVSS::BaseService
       BASE_URL = "#{Settings.evss.url}/wss-education-services-web/rest/education/chapter33/v1"
 
-      def get_stuff
+      def get_gi_bill_status
         raw_response = get ''
-        puts raw_response.inspect
+        EVSS::GiBillStatus::GiBillStatusResponse.new(raw_response)
       end
     end
   end
