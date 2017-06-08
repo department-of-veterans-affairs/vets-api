@@ -4,8 +4,8 @@ module V0
     def index
       response = service.get_letters
       render json: response,
-        serializer: LettersSerializer,
-        meta: response.metadata
+             serializer: LettersSerializer,
+             meta: response.metadata
     end
 
     # :nocov:

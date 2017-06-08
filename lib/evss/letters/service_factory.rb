@@ -7,8 +7,9 @@ module EVSS
   module Letters
     class ServiceFactory
       def self.get_service(user: nil, mock_service: false)
+        return EVSS::Letters::MockService.new if mock_service == true || mock_service == 'true'
         headers = EVSS::AuthHeaders.new(user).to_h
-        mock_service == true || mock_service == 'true' ? EVSS::Letters::MockService.new : EVSS::Letters::Service.new(headers)
+        EVSS::Letters::Service.new(headers)
       end
     end
   end
