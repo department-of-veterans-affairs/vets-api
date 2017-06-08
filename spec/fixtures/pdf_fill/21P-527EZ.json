@@ -57,9 +57,11 @@
   ],
   "marriages": [
     {
+      "marriageType": "type1",
       "reasonForSeparation": "divorce1"
     },
     {
+      "marriageType": "type2",
       "reasonForSeparation": "divorce2"
     }
   ],
