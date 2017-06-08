@@ -19,7 +19,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
       request.headers['Authorization'] = "Token token=#{session.token}"
       get :show
       expect(response).to have_http_status(:ok)
-      expect(response).to match_response_schema('post911_gi_bill_status')
+      expect(response).to match_response_schema('post911_gi_bill_status', strict: false)
     end
   end
 end

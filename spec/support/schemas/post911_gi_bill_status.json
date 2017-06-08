@@ -15,7 +15,7 @@
           "properties": {
             "first_name": { "type": "string" },
             "last_name": { "type": "string" },
-            "name_suffix": { "type": "string" },
+            "name_suffix": { "type": ["string"] },
             "date_of_birth": { "type": "string" },
             "va_file_number": { "type": "string" },
             "regional_processing_office": { "type": "string" },
