@@ -8,6 +8,7 @@ require 'hca/configuration'
 require 'evss/claims_service'
 require 'evss/common_service'
 require 'evss/documents_service'
+require 'evss/letters/service'
 
 # Read the redis config, create a connection and a namespace for breakers
 redis_config = Rails.application.config_for(:redis).freeze
@@ -21,7 +22,8 @@ services = [
   HCA::Configuration.instance.breakers_service,
   EVSS::ClaimsService.breakers_service,
   EVSS::CommonService.breakers_service,
-  EVSS::DocumentsService.breakers_service
+  EVSS::DocumentsService.breakers_service,
+  EVSS::Letters::Service.breakers_service
 ]
 
 plugin = Breakers::StatsdPlugin.new
