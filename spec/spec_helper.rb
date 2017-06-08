@@ -4,6 +4,7 @@ require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
 require 'support/schema_matchers'
 require 'support/spool_helpers'
+require 'support/spec_temp_files'
 require 'support/have_deep_attributes_matcher'
 require 'support/veteran_status/stub_veteran_status'
 
