@@ -19,13 +19,25 @@
   "children": [
     {
       "childNotInHousehold": true,
+      "personWhoLivesWithChild": {
+        "first": "person1",
+        "last": "Olson"
+      },
       "monthlyPayment": 1
     },
     {
+      "personWhoLivesWithChild": {
+        "first": "person2",
+        "last": "Olson"
+      },
       "childNotInHousehold": true,
       "monthlyPayment": 2
     },
     {
+      "personWhoLivesWithChild": {
+        "first": "person3",
+        "last": "Olson"
+      },
       "childNotInHousehold": true,
       "monthlyPayment": 3
     },
