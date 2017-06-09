@@ -14,6 +14,7 @@ module PdfFill
         'noPowDateRange' => 'F[0].Page_5[0].NoPOW[0]',
         'maritalStatusNeverMarried' => 'F[0].Page_6[0].CheckboxMaritalNeverMarried[0]',
         'maritalStatusWidowed' => 'F[0].Page_6[0].CheckboxMaritalWidowed[0]',
+        'maritalStatusDivorced' => 'F[0].Page_6[0].CheckboxMaritalDivorced[0]',
         'hasPreviousNames' => 'F[0].Page_5[0].YesName[0]',
         'noPreviousNames' => 'F[0].Page_5[0].NameNo[0]',
         'hasCombatSince911' => 'F[0].Page_5[0].YesCZ[0]',
