@@ -17,7 +17,7 @@ class Post911GIBillStatusSerializer < ActiveModel::Serializer
   attribute :used_entitlement
   attribute :remaining_entitlement
 
-  attribute :enrollment_list
+  attribute :enrollments
 
   def id
     nil

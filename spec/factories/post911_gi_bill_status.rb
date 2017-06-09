@@ -14,11 +14,11 @@ FactoryGirl.define do
     used_entitlement 75
     remaining_entitlement 25
     # TODO: enrollments and amendments should be their own factories
-    enrollment_list [{
+    enrollments [{
       begin_date: '2015-03-03',
       end_date: '2016-03-03',
       facility_name: 'Harrisburg Area Community College',
-      amendment_list: [{ type: 'some amendment type' }]
+      amendments: [{ type: 'some amendment type' }]
     }]
   end
 end
