@@ -24,7 +24,7 @@ describe AppealsStatus::Service do
       end
 
       it 'has the appeals in the response' do
-        expect(appeals_service.get_appeals(user).appeals.appeals.count).to eq(3)
+        expect(appeals_service.get_appeals(user).appeals.data.count).to eq(1)
       end
 
       it 'returns 200 as the status' do
@@ -56,7 +56,7 @@ describe AppealsStatus::Service do
 
       it 'contains the appeals' do
         VCR.use_cassette('appeals_status/valid_appeals') do
-          expect(appeals_service.get_appeals(user).appeals.appeals.count).to eq(2)
+          expect(appeals_service.get_appeals(user).appeals.data.count).to eq(1)
         end
       end
     end

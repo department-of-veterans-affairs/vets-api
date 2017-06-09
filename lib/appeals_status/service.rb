@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'appeals_status/models/appeals'
+require 'appeals_status/models/appeal'
 require 'appeals_status/responses/get_appeals_response'
 
 module AppealsStatus
@@ -22,7 +22,7 @@ module AppealsStatus
       raw_response = perform(:get, '', {}, request_headers(user))
       AppealsStatus::Responses::GetAppealsResponse.new(
         status: raw_response.status,
-        appeals: AppealsStatus::Models::Appeals.new(raw_response.body)
+        appeals: Common::Collection.new(AppealsStatus::Models::Appeal, data: raw_response.body[:data])
       )
     end
 
@@ -31,7 +31,10 @@ module AppealsStatus
         responses = send(mock_responses_method)
         response = responses.dig('users', user.ssn)
         if response
-          appeals = AppealsStatus::Models::Appeals.new(response.deep_symbolize_keys)
+          appeals = Common::Collection.new(
+            AppealsStatus::Models::Appeal,
+            data: response.deep_symbolize_keys[:data]
+          )
           return response_class.new(
             status: 200,
             appeals: appeals
