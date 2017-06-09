@@ -29,3 +29,8 @@ FailedClaimsReport:
   cron: "30 3 * * MON America/New_York"
   class: EVSS::FailedClaimsReport
   description: "Notify developers about EVSS claims which could not be uploaded"
+
+FacilityAccessBulkUpdate:
+  cron: "30 3 * * * America/New_York"
+  class: Facilities::AccessDataDownload
+  description: "Download and cache facility access-to-care metric data"
