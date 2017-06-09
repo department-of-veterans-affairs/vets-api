@@ -108,6 +108,8 @@ emis:
 # Settings for appeals status
 appeals_status:
   mock: true
+  app_token: PUBLICDEMO123
+  host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
 
 # Settings for Redis
 # TODO(knkski): Move all redis settings here?
