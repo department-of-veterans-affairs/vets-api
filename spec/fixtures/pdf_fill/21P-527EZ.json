@@ -79,6 +79,7 @@
       "monthlyPayment": 3
     },
     {
+      "childDateOfBirth": "2012-06-01",
       "childFullName": {
         "first": "Mark1",
         "last": "Olson"
@@ -93,6 +94,7 @@
       "previouslyMarried": true
     },
     {
+      "childDateOfBirth": "2012-06-02",
       "childFullName": {
         "first": "Mark2",
         "last": "Olson"
@@ -107,6 +109,7 @@
       "previouslyMarried": true
     },
     {
+      "childDateOfBirth": "2012-06-03",
       "childFullName": {
         "first": "Mark3",
         "last": "Olson"
