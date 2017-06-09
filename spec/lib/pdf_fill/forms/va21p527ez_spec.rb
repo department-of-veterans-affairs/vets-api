@@ -18,6 +18,21 @@ describe PdfFill::Forms::VA21P527EZ do
       [
         [{}, :a],
         nil
+      ],
+      [
+        [
+          {
+            a: [{
+              "spouseFullName" => {
+                "first" => "spouse1",
+                "last" => "Olson"
+              },
+              "otherExplanation" => "other"
+            }]
+          },
+          :a
+        ],
+        {:a=>[{"spouseFullName"=>"spouse1 Olson", "otherExplanation"=>"other"}], "aExplanations"=>"other"}
       ]
     ]
   )
