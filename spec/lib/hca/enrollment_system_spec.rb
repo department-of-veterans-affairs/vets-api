@@ -3,6 +3,8 @@ require 'rails_helper'
 require 'hca/enrollment_system'
 
 describe HCA::EnrollmentSystem do
+  include SchemaMatchers
+
   TEST_ADDRESS = {
     'street' => '123 NW 8th St',
     'street2' =>  '',

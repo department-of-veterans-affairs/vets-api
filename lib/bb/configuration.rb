@@ -5,6 +5,7 @@ require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/raise_error'
 require 'common/client/middleware/response/mhv_errors'
 require 'common/client/middleware/response/snakecase'
+require 'common/client/middleware/response/mhv_xml_html_errors'
 require 'bb/middleware/response/bb_parser'
 
 module BB
@@ -36,6 +37,7 @@ module BB
         conn.response :snakecase
         conn.response :raise_error, error_prefix: service_name
         conn.response :mhv_errors
+        conn.response :mhv_xml_html_errors
         conn.response :json_parser
 
         conn.adapter Faraday.default_adapter

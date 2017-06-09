@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": [ "begin_date"],
+  "additionalProperties": false,
+  "properties": {
+    "begin_date": {
+      "type": "string"
+    },
+    "end_date": {
+      "type": "string"
+    },
+    "facility_code": {
+      "type": "string"
+    },
+    "facility_name": {
+      "type": "string"
+    },
+    "participant_id": {
+      "type": "string"
+    },
+    "training_type": {
+      "type": "string"
+    },
+    "term_id": {
+      "type": "string"
+    },
+    "hour_type": {
+      "type": "string"
+    },
+    "full_time_hours": {
+      "type": "integer"
+    },
+    "full_time_credit_hour_under_grad": {
+      "type": "integer"
+    },
+    "vacation_day_count": {
+      "type": "integer"
+    },
+    "residence_hours": {
+      "type": "number"
+    },
+    "distance_hours": {
+      "type": "number"
+    },
+    "yellow_ribbon_amount": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string"
+    },
+    "amendment_list": {
+      "type": "array",
+      "items": {
+        "$ref": "amendment.json"
+      }
+    }
+  }
+}

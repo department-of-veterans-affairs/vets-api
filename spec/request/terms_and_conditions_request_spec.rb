@@ -2,6 +2,8 @@
 require 'rails_helper'
 
 RSpec.describe 'terms_and_conditions', type: :request do
+  include SchemaMatchers
+
   let(:current_user) { create(:user) }
   let!(:terms1) { create(:terms_and_conditions, latest: true) }
   let!(:terms2) { create(:terms_and_conditions, latest: false) }

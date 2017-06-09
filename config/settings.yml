@@ -37,6 +37,8 @@ evss:
     uploads_enabled: false
     bucket: evss_s3_bucket
     region: evss_s3_region
+  mock_letters: true
+  mock_gi_bill_status: false
 
 # Settings for GI Bill Data Service
 gids:
@@ -80,12 +82,14 @@ mvi:
   client_key_path: /fake/client/key/path
 
 # Settings for eMIS
+# The certs used here can be obtained from the DevOps team. A different set is required for
+# each environment when connecting to the service.
 emis:
   veteran_status_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/VeteranStatusService
   payment_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/PaymentService
   military_information_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/MilitaryInformationService
-  client_cert_path: /Users/vhaisbhollaj/code/soaphitter/vetsgov-emis-dev-cert.cer
-  client_key_path: /Users/vhaisbhollaj/code/soaphitter/vetsgov-emis-private-key.cer
+  client_cert_path: /fake/client/cert/path
+  client_key_path: /fake/client/key/path
   soap_namespaces:
     xmlns:xsd: http://www.w3.org/2001/XMLSchema
     xmlns:xsi: http://www.w3.org/2001/XMLSchema-instance

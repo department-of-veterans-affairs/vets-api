@@ -45,16 +45,16 @@ module EVSS
       %w(evss disability).each do |type|
         s3.bucket(Settings.evss.s3.bucket).objects(prefix: "#{type}_claim_documents").each do |object|
           if object.last_modified < sidekiq_retry_timeout
-            failed_uploads << object.key
+            failed_uploads << {
+              file_path: object.key,
+              last_modified: object.last_modified
+            }
           end
         end
       end
 
-      failed_uploads.map! do |file_path|
-        {
-          file_path: file_path,
-          document_hash: get_document_hash(get_evss_metadata(file_path))
-        }
+      failed_uploads.each do |failed_upload|
+        failed_upload[:document_hash] = get_document_hash(get_evss_metadata(failed_upload[:file_path]))
       end
 
       FailedClaimsReportMailer.build(failed_uploads).deliver_now
