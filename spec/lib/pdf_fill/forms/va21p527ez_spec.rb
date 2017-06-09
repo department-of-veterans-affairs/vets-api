@@ -708,6 +708,8 @@ describe PdfFill::Forms::VA21P527EZ do
          "activeServiceDateRangeStart"=>"2012-06-26",
          "activeServiceDateRangeEnd"=>"2013-04-10",
          "powDateRangeStart"=>"2012-04-10",
+         "hasLiveWithSpouse" => true,
+         "noLiveWithSpouse" => false,
          "powDateRangeEnd"=>"2013-05-10",
          "hasSpouseIsVeteran" => true,
          "outsideChildren"=>
