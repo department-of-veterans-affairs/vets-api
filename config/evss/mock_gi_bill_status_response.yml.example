@@ -53,7 +53,7 @@
       end_date: '2017-09-06T17:01:03.925Z'
       facility_code: '12123434'
       facility_name: 'CENTRAL CITY UNIVERSITY'
-      participant_d: '11180666'
+      participant_id: '11180666'
       status: Approved
       training_type: 'UnderGrad'
       full_time_hours: 20
