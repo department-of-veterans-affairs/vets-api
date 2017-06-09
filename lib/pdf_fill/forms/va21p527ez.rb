@@ -17,8 +17,8 @@ module PdfFill
         'noPreviousNames' => 'F[0].Page_5[0].NameNo[0]',
         'hasCombatSince911' => 'F[0].Page_5[0].YesCZ[0]',
         'noCombatSince911' => 'F[0].Page_5[0].NoCZ[0]',
-        'spouseOtherMarriage' => 'F[0].Page_6[0].Explainothertypeofmarriage[0]',
-        'otherMarriage' => 'F[0].Page_6[0].Explainothertypesofmarriage[0]',
+        'spouseMarriagesExplanations' => 'F[0].Page_6[0].Explainothertypeofmarriage[0]',
+        'marriagesExplanations' => 'F[0].Page_6[0].Explainothertypesofmarriage[0]',
         'hasSeverancePay' => 'F[0].Page_5[0].YesSep[0]',
         'noSeverancePay' => 'F[0].Page_5[0].NoSep[0]',
         'veteranDateOfBirth' => 'F[0].Page_5[0].Date[0]',
@@ -379,6 +379,21 @@ module PdfFill
         combine_hash(full_name, %w(first middle last suffix))
       end
 
+      def expand_marriages(hash, key)
+        marriages = hash[key]
+        return if marriages.blank?
+        otherExplanations = []
+
+        marriages.each do |marriage|
+          marriage['spouseFullName'] = combine_full_name(marriage['spouseFullName'])
+          otherExplanations << marriage['otherExplanation'] if marriage['otherExplanation'].present?
+        end
+
+        hash["#{key}Explanations"] = otherExplanations.join(', ')
+
+        hash
+      end
+
       def merge_fields
         @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
 
@@ -439,13 +454,7 @@ module PdfFill
         expand_children(@form_data, 'children')
 
         %w(marriages spouseMarriages).each do |marriageType|
-          @form_data[marriageType].tap do |marriages|
-            next if marriages.blank?
-
-            marriages.each do |marriage|
-              marriage['spouseFullName'] = combine_full_name(marriage['spouseFullName'])
-            end
-          end
+          expand_marriages(@form_data, marriageType)
         end
 
         @form_data['spouseMarriageCount'] = @form_data['spouseMarriages']&.length

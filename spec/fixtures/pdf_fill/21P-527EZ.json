@@ -10,8 +10,6 @@
     "to": "2013-05-10"
   },
   "maritalStatus": "Never Married",
-  "otherMarriage": "other marriage",
-  "spouseOtherMarriage": "spouse other marriage",
   "reasonForNotLivingWithSpouse": "illness",
   "activeServiceDateRange": {
     "from": "2012-06-26",
@@ -124,6 +122,7 @@
         "first": "spouse1",
         "last": "Olson"
       },
+      "otherExplanation": "spouse other",
       "dateOfMarriage": "1985-03-01",
       "locationOfMarriage": "marriagelocation1",
       "locationOfSeparation": "location1",
@@ -150,6 +149,7 @@
         "first": "Mark1",
         "last": "Olson"
       },
+      "otherExplanation": "other",
       "dateOfMarriage": "1985-03-01",
       "dateOfSeparation": "1985-04-01",
       "locationOfMarriage": "marriagelocation1",
