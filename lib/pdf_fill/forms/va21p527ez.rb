@@ -13,6 +13,7 @@ module PdfFill
         'noFileNumber' => 'F[0].Page_5[0].NoFiled[0]',
         'hasPowDateRange' => 'F[0].Page_5[0].YesPOW[0]',
         'noPowDateRange' => 'F[0].Page_5[0].NoPOW[0]',
+        'monthlySpousePayment' => 'F[0].Page_6[0].MonthlySupport[0]',
         'spouseDateOfBirth' => 'F[0].Page_6[0].Date[8]',
         'noLiveWithSpouse' => 'F[0].Page_6[0].CheckboxSpouseNo[0]',
         'hasLiveWithSpouse' => 'F[0].Page_6[0].CheckboxSpouseYes[0]',

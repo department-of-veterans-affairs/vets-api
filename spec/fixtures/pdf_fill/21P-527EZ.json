@@ -15,6 +15,7 @@
   "reasonForNotLivingWithSpouse": "illness",
   "spouseDateOfBirth": "2012-06-26",
   "spouseSocialSecurityNumber": "111223334",
+  "monthlySpousePayment": 1,
   "activeServiceDateRange": {
     "from": "2012-06-26",
     "to": "2013-04-10"
