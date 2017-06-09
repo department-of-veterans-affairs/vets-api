@@ -9,6 +9,7 @@ Rails.application.routes.draw do
 
   namespace :v0, defaults: { format: 'json' } do
     resources :in_progress_forms, only: [:show, :update]
+    resources :letters, only: [:index, :show]
 
     resource :sessions, only: [:new, :destroy] do
       post :saml_callback, to: 'sessions#saml_callback'
@@ -16,6 +17,7 @@ Rails.application.routes.draw do
     end
 
     resource :user, only: [:show]
+    resource :post911_gi_bill_status, only: [:show]
 
     resource :education_benefits_claims, only: [:create] do
       collection do

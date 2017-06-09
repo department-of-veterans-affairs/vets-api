@@ -2,8 +2,9 @@
 require 'fakeredis/rspec'
 require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
-require 'support/api_schema_matcher'
+require 'support/schema_matchers'
 require 'support/spool_helpers'
+require 'support/spec_temp_files'
 require 'support/have_deep_attributes_matcher'
 require 'support/veteran_status/stub_veteran_status'
 
@@ -86,10 +87,6 @@ RSpec.configure do |config|
     # loaded, so we may as well take the hit and load them right away.
     # Verified working on --seed 11101, commit e378e8
     I18n.locale_available?(:en)
-  end
-
-  config.before(:each) do |example|
-    stub_veteran_status unless example.metadata[:skip_veteran_status]
   end
 
   config.include SpecBuilders

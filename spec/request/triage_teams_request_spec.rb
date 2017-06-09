@@ -5,6 +5,7 @@ require 'support/sm_client_helpers'
 
 RSpec.describe 'Triage Teams Integration', type: :request do
   include SM::ClientHelpers
+  include SchemaMatchers
 
   let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
   let(:current_user) { build(:mhv_user) }

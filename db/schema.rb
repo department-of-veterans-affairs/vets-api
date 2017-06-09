@@ -76,6 +76,7 @@ ActiveRecord::Schema.define(version: 20170607043549) do
     t.string   "encrypted_form_data_iv", null: false
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
+    t.json     "metadata"
   end
 
   add_index "in_progress_forms", ["form_id"], name: "index_in_progress_forms_on_form_id", using: :btree
