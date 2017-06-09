@@ -43,7 +43,7 @@
       training_type: 'UnderGrad'
       vacation_day_count: 0
     - beginDate: '2013-04-01T04:00:00.000+0000'
-      end_cate: '2013-05-01T04:00:00.000+0000'
+      end_date: '2013-05-01T04:00:00.000+0000'
       facility_code: '25047343'
       facility_name: 'COSMETOLOGY CAREER INSTITUTE'
       full_time_hours: 22
