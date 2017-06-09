@@ -9,6 +9,7 @@
     "from": "2012-04-10",
     "to": "2013-05-10"
   },
+  "spouseIsVeteran": true,
   "maritalStatus": "Married",
   "reasonForNotLivingWithSpouse": "illness",
   "activeServiceDateRange": {

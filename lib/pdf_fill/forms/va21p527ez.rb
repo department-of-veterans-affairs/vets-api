@@ -12,6 +12,8 @@ module PdfFill
         'noFileNumber' => 'F[0].Page_5[0].NoFiled[0]',
         'hasPowDateRange' => 'F[0].Page_5[0].YesPOW[0]',
         'noPowDateRange' => 'F[0].Page_5[0].NoPOW[0]',
+        'noSpouseIsVeteran' => 'F[0].Page_6[0].CheckboxVetNo[0]',
+        'hasSpouseIsVeteran' => 'F[0].Page_6[0].CheckboxVetYes[0]',
         'maritalStatusNeverMarried' => 'F[0].Page_6[0].CheckboxMaritalNeverMarried[0]',
         'maritalStatusWidowed' => 'F[0].Page_6[0].CheckboxMaritalWidowed[0]',
         'maritalStatusDivorced' => 'F[0].Page_6[0].CheckboxMaritalDivorced[0]',
@@ -413,6 +415,7 @@ module PdfFill
         %w(
           nationalGuardActivation
           combatSince911
+          spouseIsVeteran
         ).each do |attr|
           @form_data.merge!(public_send("expand_chk_and_del_key", @form_data, attr))
         end
