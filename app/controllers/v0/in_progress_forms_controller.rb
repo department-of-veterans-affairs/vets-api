@@ -11,7 +11,7 @@ module V0
       if form
         render json: form.data_and_metadata
       elsif FeatureFlipper.enable_prefill?(@current_user)
-        render json: FormProfile.new.prefill_form(form_id, @current_user)
+        render json: FormProfile.for(form_id).prefill(@current_user)
       else
         head 404
       end
