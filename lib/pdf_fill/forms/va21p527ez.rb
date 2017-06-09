@@ -65,6 +65,7 @@ module PdfFill
         },
         'spouseAddress' => 'F[0].Page_6[0].Spouseaddress[0]',
         'outsideChildren' => {
+          'childAddress' => "outsideChildren.childAddress[#{ITERATOR}]",
           'childFullName' => "outsideChildren.childFullName[#{ITERATOR}]",
           'monthlyPayment' => "outsideChildren.monthlyPayment[#{ITERATOR}]",
           'personWhoLivesWithChild' => "outsideChildren.personWhoLivesWithChild[#{ITERATOR}]"
@@ -344,6 +345,8 @@ module PdfFill
             %w(childFullName personWhoLivesWithChild).each do |attr|
               child[attr] = combine_full_name(child[attr])
             end
+
+            child['childAddress'] = combine_full_address(child['childAddress'])
           end
         end
 

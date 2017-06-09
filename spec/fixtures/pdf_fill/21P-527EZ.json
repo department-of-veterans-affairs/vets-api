@@ -18,6 +18,13 @@
   },
   "children": [
     {
+      "childAddress": {
+        "city": "city1",
+        "country": "USA",
+        "postalCode": "21231",
+        "state": "MD",
+        "street": "str1"
+      },
       "childFullName": {
         "first": "outside1",
         "last": "Olson"
@@ -30,6 +37,13 @@
       "monthlyPayment": 1
     },
     {
+      "childAddress": {
+        "city": "city1",
+        "country": "USA",
+        "postalCode": "21231",
+        "state": "MD",
+        "street": "str2"
+      },
       "childFullName": {
         "first": "outside2",
         "last": "Olson"
@@ -42,6 +56,13 @@
       "monthlyPayment": 2
     },
     {
+      "childAddress": {
+        "city": "city1",
+        "country": "USA",
+        "postalCode": "21231",
+        "state": "MD",
+        "street": "str3"
+      },
       "childFullName": {
         "first": "outside3",
         "last": "Olson"
