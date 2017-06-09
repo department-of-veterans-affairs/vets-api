@@ -22,7 +22,7 @@ describe EVSS::Letters::MockService do
       end
       it 'raises an IOError' do
         expect { subject.get_letters }.to raise_error(
-          IOError, 'letters mock data not found in path: /Users/vhaisfdawsoa/Documents/va/vets-api/config/evss/foo.yml'
+          IOError, "letters mock data not found in path: #{root.join('config', 'evss', 'foo.yml')}"
         )
       end
     end
