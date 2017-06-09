@@ -578,7 +578,7 @@ describe PdfFill::Forms::VA21P527EZ do
     it 'should merge the right fields' do
       expect(described_class.new(form_data).merge_fields).to eq(
         {"veteranFullName"=>"john middle smith Sr.",
-         "maritalStatus"=>"Never Married",
+         "maritalStatus"=>"Married",
          "reasonForNotLivingWithSpouse"=>"illness",
          "children"=>
           [{"childFullName"=>"Mark1 Olson",
@@ -695,7 +695,9 @@ describe PdfFill::Forms::VA21P527EZ do
          "hasCombatSince911"=>true,
          "noCombatSince911"=>false,
          "nightPhoneAreaCode"=>"012",
+         "maritalStatusMarried" => true,
          "dayPhoneAreaCode"=>"112",
+         "noSpouseIsVeteran" => false,
          "mobilePhoneAreaCode"=>"212",
          "vaHospitalTreatmentNames"=>["hospital1, nyc", "hospital2, dc"],
          "vaHospitalTreatmentDates"=>
@@ -707,6 +709,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "activeServiceDateRangeEnd"=>"2013-04-10",
          "powDateRangeStart"=>"2012-04-10",
          "powDateRangeEnd"=>"2013-05-10",
+         "hasSpouseIsVeteran" => true,
          "outsideChildren"=>
           [{"childAddress"=>"str1, city1, MD, 21231, USA",
             "childFullName"=>"outside1 Olson",
@@ -727,7 +730,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "spouseMarriagesExplanations"=>"spouse other",
          "spouseMarriageCount"=>2,
          "marriageCount"=>2,
-         "maritalStatusNeverMarried"=>true}
+        }
       )
     end
   end
