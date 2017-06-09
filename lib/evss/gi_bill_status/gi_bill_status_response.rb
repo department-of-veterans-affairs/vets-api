@@ -3,17 +3,15 @@ require 'common/client/concerns/service_status'
 require 'common/models/base'
 
 module EVSS
-  module Letters
-    class LettersResponse < Common::Base
+  module GiBillStatus
+    class GiBillStatusResponse < Common::Base
       include Common::Client::ServiceStatus
 
       attribute :status, Integer
-      attribute :letters, Array[EVSS::Letters::Letter]
-      attribute :address, EVSS::Letters::Address
+      attribute :post911_gi_bill_status, Post911GIBillStatus
 
       def initialize(raw_response)
-        self.letters = raw_response.body['letters']
-        self.address = raw_response.body['letter_destination']
+        self.post911_gi_bill_status = raw_response.body['chapter33_education_info']
         self.status = raw_response.status
       end
 
@@ -23,7 +21,6 @@ module EVSS
 
       def metadata
         {
-          address: address,
           status: ok? ? RESPONSE_STATUS[:ok] : RESPONSE_STATUS[:server_error]
         }
       end
