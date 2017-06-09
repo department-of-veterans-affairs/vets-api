@@ -18,6 +18,18 @@
   },
   "children": [
     {
+      "childNotInHousehold": true,
+      "monthlyPayment": 1
+    },
+    {
+      "childNotInHousehold": true,
+      "monthlyPayment": 2
+    },
+    {
+      "childNotInHousehold": true,
+      "monthlyPayment": 3
+    },
+    {
       "childFullName": {
         "first": "Mark1",
         "last": "Olson"

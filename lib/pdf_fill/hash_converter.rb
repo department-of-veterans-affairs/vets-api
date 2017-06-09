@@ -27,6 +27,8 @@ module PdfFill
     end
 
     def transform_data(form_data:, pdftk_keys:, i: nil)
+      return if form_data.nil? || pdftk_keys.nil?
+
       case form_data
       when Array
         form_data.each_with_index do |v, idx|
@@ -34,7 +36,6 @@ module PdfFill
         end
       when Hash
         form_data.each do |k, v|
-          next if v.blank?
 
           transform_data(
             form_data: v,

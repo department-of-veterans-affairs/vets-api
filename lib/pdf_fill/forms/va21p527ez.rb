@@ -64,6 +64,9 @@ module PdfFill
           'phoneAreaCode' => 'F[0].Page_5[0].Unittelephoneareacode[0]'
         },
         'spouseAddress' => 'F[0].Page_6[0].Spouseaddress[0]',
+        'outsideChildren' => {
+          'monthlyPayment' => "outsideChildren.monthlyPayment[#{ITERATOR}]"
+        },
         'children' => {
           'childPlaceOfBirth' => "children.childPlaceOfBirth[#{ITERATOR}]",
           'attendingCollege' => "children.attendingCollege[#{ITERATOR}]",
@@ -322,19 +325,26 @@ module PdfFill
         children = hash[key]
         return if children.blank?
 
-        cohabiting_children = children.find_all do |child|
-          !child['childNotInHousehold']
+        children_split = {
+          outside: [],
+          cohabiting: []
+        }
+
+        children.each do |child|
+          children_split[child['childNotInHousehold'] ? :outside : :cohabiting] << child
         end
 
         3.times do |i|
-          cohabiting_children[i] ||= {}
-          child = cohabiting_children[i]
+          children_split.each do |k, v|
+            v[i] ||= {}
+            child = v[i]
 
-          child.delete('childNotInHousehold')
-          child['childFullName'] = combine_full_name(child['childFullName'])
+            child['childFullName'] = combine_full_name(child['childFullName'])
+          end
         end
 
-        hash[key] = cohabiting_children
+        hash[key] = children_split[:cohabiting]
+        hash['outsideChildren'] = children_split[:outside]
       end
 
       def combine_full_name(full_name)
