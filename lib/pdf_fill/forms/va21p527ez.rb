@@ -65,6 +65,7 @@ module PdfFill
         },
         'spouseAddress' => 'F[0].Page_6[0].Spouseaddress[0]',
         'outsideChildren' => {
+          'childFullName' => "outsideChildren.childFullName[#{ITERATOR}]",
           'monthlyPayment' => "outsideChildren.monthlyPayment[#{ITERATOR}]",
           'personWhoLivesWithChild' => "outsideChildren.personWhoLivesWithChild[#{ITERATOR}]"
         },

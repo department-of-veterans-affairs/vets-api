@@ -18,6 +18,10 @@
   },
   "children": [
     {
+      "childFullName": {
+        "first": "outside1",
+        "last": "Olson"
+      },
       "childNotInHousehold": true,
       "personWhoLivesWithChild": {
         "first": "person1",
@@ -26,6 +30,10 @@
       "monthlyPayment": 1
     },
     {
+      "childFullName": {
+        "first": "outside2",
+        "last": "Olson"
+      },
       "personWhoLivesWithChild": {
         "first": "person2",
         "last": "Olson"
@@ -34,6 +42,10 @@
       "monthlyPayment": 2
     },
     {
+      "childFullName": {
+        "first": "outside3",
+        "last": "Olson"
+      },
       "personWhoLivesWithChild": {
         "first": "person3",
         "last": "Olson"
