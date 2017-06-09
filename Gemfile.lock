@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: bb1d1db1bd9977937224bdc5a5a8949c58d0fbee
-  branch: spouse-other-marriage
+  revision: b8e75446ba6f66d45b8bc72290caca4b7e9ff9e0
+  branch: master
   specs:
     vets_json_schema (3.0.1)
       multi_json (~> 1.0)
