@@ -84,6 +84,7 @@
         "first": "Mark1",
         "last": "Olson"
       },
+      "childSocialSecurityNumber": "111223331",
       "childPlaceOfBirth": "place1",
       "attendingCollege": true,
       "married": true,
@@ -99,6 +100,7 @@
         "first": "Mark2",
         "last": "Olson"
       },
+      "childSocialSecurityNumber": "111223332",
       "childPlaceOfBirth": "place2",
       "attendingCollege": true,
       "married": true,
@@ -114,6 +116,7 @@
         "first": "Mark3",
         "last": "Olson"
       },
+      "childSocialSecurityNumber": "111223333",
       "childPlaceOfBirth": "place3",
       "attendingCollege": true,
       "married": true,

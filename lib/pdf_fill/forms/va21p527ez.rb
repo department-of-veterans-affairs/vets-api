@@ -82,6 +82,7 @@ module PdfFill
           'personWhoLivesWithChild' => "outsideChildren.personWhoLivesWithChild[#{ITERATOR}]"
         },
         'children' => {
+          'childSocialSecurityNumber' => "children.childSocialSecurityNumber[#{ITERATOR}]",
           'childDateOfBirth' => "children.childDateOfBirth[#{ITERATOR}]",
           'childPlaceOfBirth' => "children.childPlaceOfBirth[#{ITERATOR}]",
           'attendingCollege' => "children.attendingCollege[#{ITERATOR}]",
