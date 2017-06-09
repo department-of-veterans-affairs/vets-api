@@ -25,7 +25,7 @@
             "original_entitlement": { "type": "integer" },
             "used_entitlement": { "type": "integer" },
             "remaining_entitlement": { "type": "integer" },
-            "enrollment_list": {
+            "enrollments": {
               "type": "array",
               "items": {
                 "$ref": "enrollment.json"
