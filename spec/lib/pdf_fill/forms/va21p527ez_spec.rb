@@ -711,6 +711,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "hasLiveWithSpouse" => true,
          "noLiveWithSpouse" => false,
          "powDateRangeEnd"=>"2013-05-10",
+         "spouseDateOfBirth" => "2012-06-26",
          "hasSpouseIsVeteran" => true,
          "outsideChildren"=>
           [{"childAddress"=>"str1, city1, MD, 21231, USA",
