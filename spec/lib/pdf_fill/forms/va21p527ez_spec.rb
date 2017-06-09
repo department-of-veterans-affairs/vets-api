@@ -549,7 +549,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "spouseMarriageCount" => 2,
          "spouseMarriages" => [{}, {}],
          "activeServiceDateRangeEnd" => "2013-04-10",
-         "outsideChildren" => [{"childNotInHousehold"=>true, "personWhoLivesWithChild"=>"person1 Olson", "monthlyPayment"=>1, "childFullName"=>nil}, {"personWhoLivesWithChild"=>"person2 Olson", "childNotInHousehold"=>true, "monthlyPayment"=>2, "childFullName"=>nil}, {"personWhoLivesWithChild"=>"person3 Olson", "childNotInHousehold"=>true, "monthlyPayment"=>3, "childFullName"=>nil}],
+         "outsideChildren" => [{"childFullName"=>"outside1 Olson", "childNotInHousehold"=>true, "personWhoLivesWithChild"=>"person1 Olson", "monthlyPayment"=>1}, {"childFullName"=>"outside2 Olson", "personWhoLivesWithChild"=>"person2 Olson", "childNotInHousehold"=>true, "monthlyPayment"=>2}, {"childFullName"=>"outside3 Olson", "personWhoLivesWithChild"=>"person3 Olson", "childNotInHousehold"=>true, "monthlyPayment"=>3}],
          "activeServiceDateRangeStart" => "2012-06-26",
          "nationalGuard" => {"date"=>"2013-04-11", "phone"=>"3456789", "phoneAreaCode"=>"212", "nameAndAddr"=>"foo, 111 Uni Drive, Baltimore, MD, 21231, USA"},
          "severancePay" => {"amount"=>1, "type"=>"Longevity"},
