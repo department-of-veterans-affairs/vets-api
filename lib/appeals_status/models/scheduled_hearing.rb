@@ -3,13 +3,10 @@ require 'common/models/base'
 
 module AppealsStatus
   module Models
-    class Issue < Common::Base
+    class ScheduledHearing < Common::Base
       include Virtus.model
-
-      attribute :program_area, String
+      attribute :id, String
       attribute :type, String
-      attribute :rating_requested, String
-      attribute :decision, String
     end
   end
 end

@@ -3,11 +3,9 @@ require 'common/models/base'
 
 module AppealsStatus
   module Models
-    class Hearing < Common::Base
+    class Event < Common::Base
       include Virtus.model
-
-      attribute :requested, Boolean
-      attribute :scheduled, Boolean
+      attribute :type, String
       attribute :date, Date
     end
   end

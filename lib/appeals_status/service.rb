@@ -31,7 +31,7 @@ module AppealsStatus
         responses = send(mock_responses_method)
         response = responses.dig('users', user.ssn)
         if response
-          appeals = AppealsStatus::Models::Appeals.new(response)
+          appeals = AppealsStatus::Models::Appeals.new(response.deep_symbolize_keys)
           return response_class.new(
             status: 200,
             appeals: appeals
