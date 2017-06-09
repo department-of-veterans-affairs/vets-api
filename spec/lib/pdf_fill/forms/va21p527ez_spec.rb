@@ -13,6 +13,37 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     basic_class,
+    'expand_marital_status',
+    [
+      [
+        [{}, :a],
+        nil
+      ],
+      [
+        [{ a: 'Married' }, :a],
+        {:a=>"Married", "maritalStatusMarried"=>true}
+      ],
+      [
+        [{ a: 'Never Married' }, :a],
+        {:a=>'Never Married', "maritalStatusNeverMarried"=>true}
+      ],
+      [
+        [{ a: 'Separated' }, :a],
+        {:a=>'Separated', "maritalStatusSeparated"=>true}
+      ],
+      [
+        [{ a: 'Widowed' }, :a],
+        {:a=>'Widowed', "maritalStatusWidowed"=>true}
+      ],
+      [
+        [{ a: 'Divorced' }, :a],
+        {:a=>'Divorced', "maritalStatusDivorced"=>true}
+      ]
+    ]
+  )
+
+  test_method(
+    basic_class,
     'expand_date_range',
     [
       [

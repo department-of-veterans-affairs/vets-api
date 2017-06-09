@@ -323,6 +323,26 @@ module PdfFill
         end.join(', ')
       end
 
+      def expand_marital_status(hash, key)
+        marital_status = hash[key]
+        return if marital_status.blank?
+
+        [
+          'Married',
+          'Never Married',
+          'Separated',
+          'Widowed',
+          'Divorced'
+        ].each do |status|
+          if marital_status == status
+            hash["maritalStatus#{status.gsub(' ', '_').camelize}"] = true
+            break
+          end
+        end
+
+        hash
+      end
+
       def expand_children(hash, key)
         # TODO spec
         children = hash[key]
