@@ -13,6 +13,7 @@
   "liveWithSpouse": true,
   "maritalStatus": "Married",
   "reasonForNotLivingWithSpouse": "illness",
+  "spouseDateOfBirth": "2012-06-26",
   "activeServiceDateRange": {
     "from": "2012-06-26",
     "to": "2013-04-10"
