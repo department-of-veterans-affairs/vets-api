@@ -182,7 +182,8 @@
     }
   ],
   "expectedIncome": {
-    "salary": 1
+    "salary": 1,
+    "interest": 3
   },
   "spouseExpectedIncome": {
     "salary": 2

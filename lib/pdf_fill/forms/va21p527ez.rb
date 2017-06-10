@@ -413,6 +413,7 @@ module PdfFill
       def expand_expected_incomes
         # expectedIncomes.additionalSourceName[3]
         salaries = []
+        interest = []
         expected_incomes = []
         6.times do
           expected_incomes << {}
@@ -424,9 +425,16 @@ module PdfFill
           ]
           next if expected_income.blank?
 
+          recipient = person.capitalize
+
           salaries << {
-            'recipient' => person.capitalize,
+            'recipient' => recipient,
             'amount' => expected_income['salary']
+          }
+
+          interest << {
+            'recipient' => recipient,
+            'amount' => expected_income['interest']
           }
         end
 
@@ -434,14 +442,22 @@ module PdfFill
           expected_income = child['expected_income']
           next if expected_income.blank?
 
+          recipient = child['childFullName']
+
           salaries << {
-            'recipient' => child['childFullName'],
+            'recipient' => recipient,
             'amount' => expected_income['salary']
+          }
+
+          interest << {
+            'recipient' => recipient,
+            'amount' => expected_income['interest']
           }
         end
 
         expected_incomes[0] = salaries[0]
         expected_incomes[1] = salaries[1]
+        expected_incomes[2] = interest[0]
 
         @form_data['expectedIncomes'] = expected_incomes
       end
