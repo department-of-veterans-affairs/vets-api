@@ -97,21 +97,6 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     basic_class,
-    'convert_date',
-    [
-      [
-        [nil],
-        nil
-      ],
-      [
-        '1985-03-07',
-        '03/07/1985'
-      ]
-    ]
-  )
-
-  test_method(
-    basic_class,
     'rearrange_jobs',
     [
       [
