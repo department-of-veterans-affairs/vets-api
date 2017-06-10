@@ -92,6 +92,16 @@
       "stepchild": true,
       "disabled": true,
       "adopted": true,
+      "expectedIncome": {
+        "salary": 1,
+        "additionalSources": [
+          {
+            "name": "name3",
+            "amount": 6
+          }
+        ],
+        "interest": 3
+      },
       "previouslyMarried": true
     },
     {
@@ -183,10 +193,22 @@
   ],
   "expectedIncome": {
     "salary": 1,
+    "additionalSources": [
+      {
+        "name": "name1",
+        "amount": 4
+      }
+    ],
     "interest": 3
   },
   "spouseExpectedIncome": {
-    "salary": 2
+    "salary": 2,
+    "additionalSources": [
+      {
+        "name": "name2",
+        "amount": 5
+      }
+    ]
   },
   "veteranDateOfBirth": "1985-03-07",
   "veteranSocialSecurityNumber": "111223333",

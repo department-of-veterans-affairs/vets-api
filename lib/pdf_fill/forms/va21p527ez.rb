@@ -25,6 +25,7 @@ module PdfFill
         'maritalStatusMarried' => 'F[0].Page_6[0].CheckboxMaritalMarried[0]',
         'expectedIncomes' => {
           'amount' => "expectedIncomes.amount[#{ITERATOR}]",
+          'additionalSourceName' => "expectedIncomes.additionalSourceName[#{ITERATOR}]",
           'recipient' => "expectedIncomes.recipient[#{ITERATOR}]",
         },
         'hasPreviousNames' => 'F[0].Page_5[0].YesName[0]',
@@ -447,13 +448,19 @@ module PdfFill
           expand_expected_income(person.capitalize, expected_income, income_types)
         end
 
-        @form_data['children']&.each do |child|
-          expand_expected_income(child['childFullName'], child['expected_income'], income_types)
+        all_children = @form_data['children'] || []
+        all_children += @form_data['outsideChildren'] || []
+
+        all_children.each do |child|
+          expand_expected_income(child['childFullName'], child['expectedIncome'], income_types)
         end
 
         expected_incomes[0] = income_types['salary'][0]
         expected_incomes[1] = income_types['salary'][1]
         expected_incomes[2] = income_types['interest'][0]
+        (3..5).each_with_index do |i, j|
+          expected_incomes[i] = income_types['additionalSources'][j]
+        end
 
         @form_data['expectedIncomes'] = expected_incomes
       end
