@@ -181,6 +181,12 @@
       "reasonForSeparation": "divorce2"
     }
   ],
+  "expectedIncome": {
+    "salary": 1
+  },
+  "spouseExpectedIncome": {
+    "salary": 2
+  },
   "veteranDateOfBirth": "1985-03-07",
   "veteranSocialSecurityNumber": "111223333",
   "spouseAddress": {

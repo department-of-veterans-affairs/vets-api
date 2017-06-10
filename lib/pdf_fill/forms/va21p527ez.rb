@@ -23,6 +23,10 @@ module PdfFill
         'maritalStatusWidowed' => 'F[0].Page_6[0].CheckboxMaritalWidowed[0]',
         'maritalStatusDivorced' => 'F[0].Page_6[0].CheckboxMaritalDivorced[0]',
         'maritalStatusMarried' => 'F[0].Page_6[0].CheckboxMaritalMarried[0]',
+        'expectedIncomes' => {
+          'amount' => "expectedIncomes.amount[#{ITERATOR}]",
+          'recipient' => "expectedIncomes.recipient[#{ITERATOR}]",
+        },
         'hasPreviousNames' => 'F[0].Page_5[0].YesName[0]',
         'noPreviousNames' => 'F[0].Page_5[0].NameNo[0]',
         'hasCombatSince911' => 'F[0].Page_5[0].YesCZ[0]',
@@ -406,6 +410,42 @@ module PdfFill
         hash
       end
 
+      def expand_expected_incomes
+        # expectedIncomes.additionalSourceName[3]
+        salaries = []
+        expected_incomes = []
+        6.times do
+          expected_incomes << {}
+        end
+
+        %w(myself spouse).each_with_index do |person, i|
+          expected_income = @form_data[
+            person == 'myself' ? 'expectedIncome' : 'spouseExpectedIncome'
+          ]
+          next if expected_income.blank?
+
+          salaries << {
+            'recipient' => person.capitalize,
+            'amount' => expected_income['salary']
+          }
+        end
+
+        @form_data['children']&.each do |child|
+          expected_income = child['expected_income']
+          next if expected_income.blank?
+
+          salaries << {
+            'recipient' => child['childFullName'],
+            'amount' => expected_income['salary']
+          }
+        end
+
+        expected_incomes[0] = salaries[0]
+        expected_incomes[1] = salaries[1]
+
+        @form_data['expectedIncomes'] = expected_incomes
+      end
+
       def merge_fields
         @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
 
@@ -477,6 +517,8 @@ module PdfFill
         @form_data['spouseAddress'] = combine_full_address(@form_data['spouseAddress'])
 
         expand_marital_status(@form_data, 'maritalStatus')
+
+        expand_expected_incomes
 
         @form_data
       end
