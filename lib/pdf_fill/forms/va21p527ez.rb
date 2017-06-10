@@ -419,12 +419,20 @@ module PdfFill
             'amount' => expected_income[income_type]
           }
         end
+
+        expected_income['additionalSources']&.each do |additional_source|
+          income_types['additionalSources'] << {
+            'recipient' => recipient,
+            'amount' => additional_source['amount'],
+            'additionalSourceName' => additional_source['name']
+          }
+        end
       end
 
       def expand_expected_incomes
-        # expectedIncomes.additionalSourceName[3]
         income_types = {
           'salary' => [],
+          'additionalSources' => [],
           'interest' => []
         }
         expected_incomes = []
