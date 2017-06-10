@@ -410,10 +410,23 @@ module PdfFill
         hash
       end
 
+      def expand_expected_income(recipient, expected_income, income_types)
+        return if expected_income.blank?
+
+        %w(salary interest).each do |income_type|
+          income_types[income_type] << {
+            'recipient' => recipient,
+            'amount' => expected_income[income_type]
+          }
+        end
+      end
+
       def expand_expected_incomes
         # expectedIncomes.additionalSourceName[3]
-        salaries = []
-        interest = []
+        income_types = {
+          'salary' => [],
+          'interest' => []
+        }
         expected_incomes = []
         6.times do
           expected_incomes << {}
@@ -423,41 +436,16 @@ module PdfFill
           expected_income = @form_data[
             person == 'myself' ? 'expectedIncome' : 'spouseExpectedIncome'
           ]
-          next if expected_income.blank?
-
-          recipient = person.capitalize
-
-          salaries << {
-            'recipient' => recipient,
-            'amount' => expected_income['salary']
-          }
-
-          interest << {
-            'recipient' => recipient,
-            'amount' => expected_income['interest']
-          }
+          expand_expected_income(person.capitalize, expected_income, income_types)
         end
 
         @form_data['children']&.each do |child|
-          expected_income = child['expected_income']
-          next if expected_income.blank?
-
-          recipient = child['childFullName']
-
-          salaries << {
-            'recipient' => recipient,
-            'amount' => expected_income['salary']
-          }
-
-          interest << {
-            'recipient' => recipient,
-            'amount' => expected_income['interest']
-          }
+          expand_expected_income(child['childFullName'], child['expected_income'], income_types)
         end
 
-        expected_incomes[0] = salaries[0]
-        expected_incomes[1] = salaries[1]
-        expected_incomes[2] = interest[0]
+        expected_incomes[0] = income_types['salary'][0]
+        expected_incomes[1] = income_types['salary'][1]
+        expected_incomes[2] = income_types['interest'][0]
 
         @form_data['expectedIncomes'] = expected_incomes
       end
