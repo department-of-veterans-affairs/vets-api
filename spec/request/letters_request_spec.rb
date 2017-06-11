@@ -26,4 +26,24 @@ RSpec.describe 'letters', type: :request do
     end
     # TODO(AJD): not found and server error response handling
   end
+
+  describe 'GET /v0/letters/:id' do
+    context 'with a valid evss response' do
+      it 'should download a PDF' do
+        VCR.use_cassette('evss/letters/download') do
+          get '/v0/letters/commissary', nil, auth_header
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+
+    context 'with a 404 evss response' do
+      it 'should download a PDF' do
+        VCR.use_cassette('evss/letters/download_404') do
+          get '/v0/letters/comissary', nil, auth_header
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+  end
 end

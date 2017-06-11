@@ -1,3 +1,5 @@
+require 'common/exceptions/internal/record_not_found'
+
 # frozen_string_literal: true
 module V0
   class LettersController < ApplicationController
@@ -8,11 +10,16 @@ module V0
              meta: response.metadata
     end
 
-    # :nocov:
     def show
-      head :ok
+      unless EVSS::Letters::Letter::LETTER_TYPES.include? params[:id]
+        raise Common::Exceptions::RecordNotFound, params[:id]
+      end
+      response = service.download_letter_by_type(params[:id])
+      send_data response,
+                filename: "#{params[:id]}.pdf",
+                type: 'application/pdf',
+                disposition: 'attachment'
     end
-    # :nocov:
 
     private
 
