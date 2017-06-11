@@ -1,5 +1,5 @@
 users:
-  "796126859":
+  "111224444":
     data:
     - id: 123C
       type: appeals
@@ -24,3 +24,36 @@ users:
       relationships:
         scheduled_hearings:
           data: []
+  "111223333":
+    data:
+    - id: 123C
+      type: appeals
+      attributes:
+        type: original
+        active: true
+        requested_hearing_type: "judgement"
+        prior_decision_date: "2017-05-05"
+        events:
+        - type: ssoc
+          date: "2017-05-28"
+        - type: bva_final_decision
+          date: "2017-05-31"
+        - type: nod
+          date: "2017-06-04"
+        - type: form9
+          date: "2017-06-04"
+        - type: ssoc
+          date: "2017-06-04"
+        - type: soc
+          date: "2017-06-06"
+      relationships:
+        scheduled_hearings:
+          data:
+          - id: 53
+            type: hearings
+    included:
+    - id: 53
+      type: hearings
+      attributes:
+        type: travel_board
+        date: "2018-03-12"
