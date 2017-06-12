@@ -102,6 +102,7 @@ GEM
       activesupport
     childprocess (0.5.9)
       ffi (~> 1.0, >= 1.0.11)
+    clam_scan (0.0.2)
     climate_control (0.1.0)
     coderay (1.1.1)
     coercible (1.0.0)
@@ -440,6 +441,7 @@ DEPENDENCIES
   byebug
   carrierwave (~> 0.11)
   carrierwave-aws
+  clam_scan
   climate_control
   combine_pdf
   config

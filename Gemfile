@@ -59,6 +59,7 @@ gem 'iconv'
 gem 'ice_nine'
 gem 'pdf-reader'
 gem 'aws-sdk'
+gem 'clam_scan'
 gem 'prawn'
 gem 'combine_pdf'
 
