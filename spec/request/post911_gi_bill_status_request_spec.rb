@@ -4,17 +4,17 @@ require 'rails_helper'
 RSpec.describe 'Fetching Post 911 GI Bill Status', type: :request do
   include SchemaMatchers
 
-  let(:token) { 'abracadabra-open-sesame' }
+  let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
   let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
+  let(:user) { build(:loa3_user) }
 
-  context 'when an LOA 3 user is logged in' do
-    let(:mhv_user) { build :mhv_user }
+  before do
+    Session.create(uuid: user.uuid, token: token)
+    User.create(user)
+    Settings.evss.mock_gi_bill_status = false
+  end
 
-    before do
-      Session.create(uuid: mhv_user.uuid, token: token)
-      User.create(mhv_user)
-    end
-
+  context 'with a valid evss response' do
     it 'GET /v0/post911_gi_bill_status returns proper json' do
       VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
         get v0_post911_gi_bill_status_url, nil, auth_header
