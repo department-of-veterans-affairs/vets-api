@@ -34,8 +34,8 @@ RSpec.describe Post911GIBillStatusSerializer, type: :serializer do
   it 'should include remaining_entitlement' do
     expect(attributes['remaining_entitlement']).to eq(post911gibs.remaining_entitlement)
   end
-  it 'should include enrollment_list' do
-    expected = post911gibs.enrollment_list.map(&:with_indifferent_access)
-    expect(attributes['enrollment_list']).to eq(expected)
+  it 'should include enrollments' do
+    expected = post911gibs.enrollments.map(&:with_indifferent_access)
+    expect(attributes['enrollments']).to eq(expected)
   end
 end
