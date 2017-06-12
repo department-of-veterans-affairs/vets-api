@@ -16,7 +16,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
 
     before do
       Settings.evss.mock_gi_bill_status = true
-      allow_any_instance_of(EVSS::Letters::MockService).to receive(:mocked_response).and_return(mock_response)
+      allow_any_instance_of(EVSS::GiBillStatus::MockService).to receive(:mocked_response).and_return(mock_response)
     end
 
     it 'should have a response that matches the schema' do
