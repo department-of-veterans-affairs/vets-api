@@ -13,6 +13,19 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     basic_class,
+    'expand_expected_income',
+    [
+      [
+        [
+          nil, nil, nil
+        ],
+        nil
+      ]
+    ]
+  )
+
+  test_method(
+    basic_class,
     'expand_marriages',
     [
       [
@@ -565,7 +578,10 @@ describe PdfFill::Forms::VA21P527EZ do
         {"veteranFullName"=>"john middle smith Sr.",
          "maritalStatus"=>"Married",
          "reasonForNotLivingWithSpouse"=>"illness",
-         "children" => [{"childDateOfBirth"=>"2012-06-01", "childFullName"=>"Mark1 Olson", "childSocialSecurityNumber"=>"111223331", "childPlaceOfBirth"=>"place1", "attendingCollege"=>true, "married"=>true, "biological"=>true, "stepchild"=>true, "disabled"=>true, "adopted"=>true, "previouslyMarried"=>true, "personWhoLivesWithChild"=>nil, "childAddress"=>nil}, {"childDateOfBirth"=>"2012-06-02", "childFullName"=>"Mark2 Olson", "childSocialSecurityNumber"=>"111223332", "childPlaceOfBirth"=>"place2", "attendingCollege"=>true, "married"=>true, "disabled"=>true, "biological"=>true, "stepchild"=>true, "adopted"=>true, "previouslyMarried"=>true, "personWhoLivesWithChild"=>nil, "childAddress"=>nil}, {"childDateOfBirth"=>"2012-06-03", "childFullName"=>"Mark3 Olson", "childSocialSecurityNumber"=>"111223333", "childPlaceOfBirth"=>"place3", "attendingCollege"=>true, "married"=>true, "disabled"=>true, "biological"=>true, "stepchild"=>true, "adopted"=>true, "previouslyMarried"=>true, "personWhoLivesWithChild"=>nil, "childAddress"=>nil}],
+         "children" => [{"childDateOfBirth"=>"2012-06-01", "childFullName"=>"Mark1 Olson", "childSocialSecurityNumber"=>"111223331", "childPlaceOfBirth"=>"place1", "attendingCollege"=>true, "married"=>true, "biological"=>true, "stepchild"=>true, "disabled"=>true, "adopted"=>true, "expectedIncome"=>{"salary"=>1, "additionalSources"=>[{"name"=>"name3", "amount"=>6}], "interest"=>3}, "previouslyMarried"=>true, "personWhoLivesWithChild"=>nil, "childAddress"=>nil}, {"childDateOfBirth"=>"2012-06-02", "childFullName"=>"Mark2 Olson", "childSocialSecurityNumber"=>"111223332", "childPlaceOfBirth"=>"place2", "attendingCollege"=>true, "married"=>true, "disabled"=>true, "biological"=>true, "stepchild"=>true, "adopted"=>true, "previouslyMarried"=>true, "personWhoLivesWithChild"=>nil, "childAddress"=>nil}, {"childDateOfBirth"=>"2012-06-03", "childFullName"=>"Mark3 Olson", "childSocialSecurityNumber"=>"111223333", "childPlaceOfBirth"=>"place3", "attendingCollege"=>true, "married"=>true, "disabled"=>true, "biological"=>true, "stepchild"=>true, "adopted"=>true, "previouslyMarried"=>true, "personWhoLivesWithChild"=>nil, "childAddress"=>nil}],
+         "expectedIncome" => {"salary"=>1, "additionalSources"=>[{"name"=>"name1", "amount"=>4}], "interest"=>3},
+         "expectedIncomes" => [{"recipient"=>"Myself", "amount"=>1}, {"recipient"=>"Spouse", "amount"=>2}, {"recipient"=>"Myself", "amount"=>3}, {"recipient"=>"Myself", "amount"=>4, "additionalSourceName"=>"name1"}, {"recipient"=>"Spouse", "amount"=>5, "additionalSourceName"=>"name2"}, {"recipient"=>"Mark1 Olson", "amount"=>6, "additionalSourceName"=>"name3"}],
+         "spouseExpectedIncome" => {"salary"=>2, "additionalSources"=>[{"name"=>"name2", "amount"=>5}]},
          "spouseMarriages"=>
           [{"spouseFullName"=>"spouse1 Olson",
             "otherExplanation"=>"spouse other",
