@@ -12,7 +12,7 @@ module V0
 
     def show
       unless EVSS::Letters::Letter::LETTER_TYPES.include? params[:id]
-        raise Common::Exceptions::RecordNotFound, params[:id]
+        raise Common::Exceptions::ParameterMissing, 'letter_type', "#{params[:id]} is not a valid letter type"
       end
       response = service.download_letter_by_type(params[:id])
       send_data response,

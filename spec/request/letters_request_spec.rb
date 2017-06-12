@@ -41,7 +41,7 @@ RSpec.describe 'letters', type: :request do
       it 'should download a PDF' do
         VCR.use_cassette('evss/letters/download_404') do
           get '/v0/letters/comissary', nil, auth_header
-          expect(response).to have_http_status(:not_found)
+          expect(response).to have_http_status(:bad_request)
         end
       end
     end
