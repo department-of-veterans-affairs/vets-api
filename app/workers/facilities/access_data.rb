@@ -2,54 +2,24 @@
 require 'facilities/bulk_json_client'
 require 'common/exceptions'
 require 'facility_access'
+require 'sentry_logging'
 
 module Facilities
+  class AccessDataError < StandardError
+  end
+
   class AccessDataDownload
     include Sidekiq::Worker
+    include SentryLogging
 
     SAT_KEY_MAP = {
       'Primary Care (Routine)' => 'primary_care_routine',
       'Primary Care (Urgent)' => 'primary_care_urgent',
       'Specialty Care (Routine)' => 'specialty_care_routine',
-      'Specialty Care (Urgent)' => 'specialty_care_urgent',
-    }
+      'Specialty Care (Urgent)' => 'specialty_care_urgent'
+    }.freeze
 
-    def parse_satisfaction_data(records)
-      facilities = Hash.new { |h,k| h[k] = {'metrics' => {}} }
-      records.each do |rec|
-        id = rec['facilityID']
-        facility = facilities[id]
-        category = SAT_KEY_MAP[rec['ApptTypeName']]
-        facility['metrics'][category] = rec['SHEPScore']
-        facility['source_date'] = rec['sliceEndDate']
-      end
-      facilities
-    end
-
-    def update_satisfaction_cache(facilities)
-      facilities.each do |k,v|
-        attrs = {station_number: k,
-                 metrics: v['metrics'],
-                 source_updated: v['source_date'],
-                 local_updated: Time.now.utc.iso8601}
-        obj = FacilitySatisfaction.find(k)
-        if obj 
-          obj.update(attrs)
-        else
-          FacilitySatisfaction.create(attrs)
-        end
-      end
-    end
-
-    def update_satisfaction_data(client)
-      begin
-        records = client.download
-        facilities = parse_satisfaction_data(records)
-        update_satisfaction_cache(facilities)
-      rescue Common::Exceptions::BackendServiceException => e
-        # TODO handle
-      end
-    end
+    SAT_REQUIRED_KEYS = %w(facilityID ApptTypeName SHEPScore sliceEndDate).freeze
 
     WT_KEY_MAP = {
       'PRIMARY CARE' => 'primary_care',
@@ -61,49 +31,87 @@ module Facilities
       'OPHTHALMOLOGY' => 'opthalmology',
       'OPTOMETRY' => 'optometry',
       'UROLOGY CLINIC' => 'urology_clinic'
-    }
+    }.freeze
+
+    WT_REQUIRED_KEYS = %w(facilityID ApptTypeName newWaitTime estWaitTime sliceEndDate).freeze
+
+    def update_cache(model, facilities)
+      facilities.each do |k, v|
+        attrs = { station_number: k,
+                  metrics: v['metrics'],
+                  source_updated: v['source_date'],
+                  local_updated: Time.now.utc.iso8601 }
+        obj = model.find(k)
+        if obj
+          obj.update(attrs)
+        else
+          model.create(attrs)
+        end
+      end
+    end
+
+    def invalidate_removed(model, facility_keys)
+      invalidate = model.keys - facility_keys
+      invalidate.each { |x| model.delete(x) }
+    end
+
+    def require_keys(record, required_keys)
+      diff = required_keys - record.keys
+      raise AccessDataError, "Missing expected keys: #{diff}" unless diff.blank?
+    end
+
+    def parse_satisfaction_data(records)
+      facilities = Hash.new { |h, k| h[k] = { 'metrics' => {} } }
+      records.each do |rec|
+        require_keys(rec, SAT_REQUIRED_KEYS)
+        id = rec['facilityID']
+        facility = facilities[id]
+        category = SAT_KEY_MAP[rec['ApptTypeName']]
+        facility['metrics'][category] = rec['SHEPScore']
+        facility['source_date'] = rec['sliceEndDate']
+      end
+      facilities
+    end
+
+    def update_satisfaction_data(client)
+      records = client.download
+      facilities = parse_satisfaction_data(records)
+      update_cache(FacilitySatisfaction, facilities)
+      invalidate_removed(FacilitySatisfaction, facilities.keys)
+    rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError => e
+      log_exception_to_sentry(e)
+    rescue Facilities::AccessDataError => e
+      log_exception_to_sentry(e)
+    end
 
     def filter(val)
       val >= 9999 ? nil : val
     end
- 
+
     def parse_wait_time_data(records)
-      facilities = Hash.new { |h,k| h[k] = {'metrics' => {}} }
+      facilities = Hash.new { |h, k| h[k] = { 'metrics' => {} } }
       records.each do |rec|
+        require_keys(rec, WT_REQUIRED_KEYS)
         id = rec['facilityID']
         facility = facilities[id]
         category = WT_KEY_MAP[rec['ApptTypeName']]
-        metric = {'new' => filter(rec['newWaitTime']), 
-                  'established' => filter(rec['estWaitTime'])}
+        metric = { 'new' => filter(rec['newWaitTime']),
+                   'established' => filter(rec['estWaitTime']) }
         facility['metrics'][category] = metric
         facility['source_date'] = rec['sliceEndDate']
       end
       facilities
     end
 
-    def update_wait_time_cache(facilities)
-      facilities.each do |k,v|
-        attrs = {station_number: k,
-                 metrics: v['metrics'],
-                 source_updated: v['source_date'],
-                 local_updated: Time.now.utc.iso8601}
-        obj = FacilityWaitTime.find(k)
-        if obj 
-          obj.update(attrs)
-        else
-          FacilityWaitTime.create(attrs)
-        end
-      end
-    end
-
     def update_wait_time_data(client)
-      begin
-        records = client.download
-        facilities = parse_wait_time_data(records)
-        update_wait_time_cache(facilities)
-      rescue Common::Exceptions::BackendServiceException => e
-        # TODO handle
-      end
+      records = client.download
+      facilities = parse_wait_time_data(records)
+      update_cache(FacilityWaitTime, facilities)
+      invalidate_removed(FacilityWaitTime, facilities.keys)
+    rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError => e
+      log_exception_to_sentry(e)
+    rescue Facilities::AccessDataException => e
+      log_exception_to_sentry(e)
     end
 
     def perform
