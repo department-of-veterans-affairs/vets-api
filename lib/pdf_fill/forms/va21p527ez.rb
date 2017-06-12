@@ -357,7 +357,6 @@ module PdfFill
       end
 
       def expand_children(hash, key)
-        # TODO spec
         children = hash[key]
         return if children.blank?
 
