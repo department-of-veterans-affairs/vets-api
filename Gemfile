@@ -47,7 +47,7 @@ gem 'govdelivery-tms', require: 'govdelivery/tms/mail/delivery_method'
 gem 'statsd-instrument'
 gem 'memoist'
 gem 'date_validator'
-gem 'nokogiri', '~> 1.7.1'
+gem 'nokogiri'
 gem 'swagger-blocks'
 
 # Amazon Linux's system `json` gem causes conflicts, but
