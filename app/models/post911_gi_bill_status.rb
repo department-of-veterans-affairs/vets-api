@@ -19,5 +19,5 @@ class Post911GIBillStatus < Common::Base
   attribute :used_entitlement, Integer
   attribute :remaining_entitlement, Integer
 
-  attribute :enrollment_list, Array[Object]
+  attribute :enrollments, Array[Object]
 end

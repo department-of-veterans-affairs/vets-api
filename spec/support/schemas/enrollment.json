@@ -49,7 +49,7 @@
     "status": {
       "type": "string"
     },
-    "amendment_list": {
+    "amendments": {
       "type": "array",
       "items": {
         "$ref": "amendment.json"

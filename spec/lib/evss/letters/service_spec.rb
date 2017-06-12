@@ -21,5 +21,14 @@ describe EVSS::Letters::Service do
         end
       end
     end
+
+    describe '#download_letter' do
+      it 'downloads a pdf' do
+        VCR.use_cassette('evss/letters/download') do
+          response = subject.download_letter_by_type(EVSS::Letters::Letter::LETTER_TYPES.first)
+          expect(response).to include('%PDF-1.4')
+        end
+      end
+    end
   end
 end
