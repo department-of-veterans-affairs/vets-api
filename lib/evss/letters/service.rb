@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'evss/base_service'
+require 'common/exceptions/internal/record_not_found'
 
 module EVSS
   module Letters
@@ -11,12 +12,24 @@ module EVSS
         EVSS::Letters::LettersResponse.new(raw_response)
       end
 
-      def get_letter_for_user_by_type(type)
-        get type
+      def download_letter_by_type(type)
+        response = download_conn.get type
+        raise Common::Exceptions::RecordNotFound, params[:id] if response.status.to_i == 404
+        response.body
       end
 
       def self.breakers_service
         BaseService.create_breakers_service(name: 'EVSS/Letters', url: BASE_URL)
+      end
+
+      private
+
+      def download_conn
+        @download_conn ||= Faraday.new(base_url, headers: @headers, ssl: ssl_options) do |faraday|
+          faraday.options.timeout = timeout
+          faraday.use      :breakers
+          faraday.adapter  :httpclient
+        end
       end
     end
   end
