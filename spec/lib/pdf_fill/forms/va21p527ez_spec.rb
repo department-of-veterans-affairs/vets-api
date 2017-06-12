@@ -20,6 +20,35 @@ describe PdfFill::Forms::VA21P527EZ do
           nil, nil, nil
         ],
         nil
+      ],
+      [
+        [
+          'person',
+          {
+            'salary' => 1,
+            'interest' => 2,
+            'additionalSources' => [
+              {
+                'amount' => 3,
+                'name' => 'name1'
+              },
+              {
+                'amount' => 4,
+                'name' => 'name2'
+              }
+            ]
+          },
+          {
+            'salary' => [],
+            'additionalSources' => [],
+            'interest' => []
+          }
+        ],
+        {"salary"=>[{"recipient"=>"person", "amount"=>1}],
+         "additionalSources"=>
+          [{"recipient"=>"person", "amount"=>3, "additionalSourceName"=>"name1"},
+           {"recipient"=>"person", "amount"=>4, "additionalSourceName"=>"name2"}],
+         "interest"=>[{"recipient"=>"person", "amount"=>2}]}
       ]
     ]
   )

@@ -423,6 +423,8 @@ module PdfFill
             'additionalSourceName' => additional_source['name']
           }
         end
+
+        income_types
       end
 
       def expand_expected_incomes
