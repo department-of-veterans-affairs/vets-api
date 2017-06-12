@@ -37,6 +37,8 @@ evss:
     uploads_enabled: false
     bucket: evss_s3_bucket
     region: evss_s3_region
+  mock_letters: true
+  mock_gi_bill_status: false
 
 # Settings for GI Bill Data Service
 gids:
