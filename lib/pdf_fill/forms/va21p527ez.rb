@@ -410,9 +410,12 @@ module PdfFill
         return if expected_income.blank?
 
         %w(salary interest).each do |income_type|
+          amount = expected_income[income_type]
+          next if amount == 0 || amount.nil?
+
           income_types[income_type] << {
             'recipient' => recipient,
-            'amount' => expected_income[income_type]
+            'amount' => amount
           }
         end
 

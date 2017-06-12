@@ -11,6 +11,18 @@ describe PdfFill::Forms::VA21P527EZ do
     get_fixture('pdf_fill/21P-527EZ')
   end
 
+  describe '#expand_expected_incomes' do
+    it 'should create an expectedIncomes array' do
+      expect(described_class.new(
+        'expectedIncome' => {
+          'salary' => 1
+        }
+      ).expand_expected_incomes).to eq(
+        [{"recipient"=>"Myself", "amount"=>1}, nil, nil, nil, nil, nil]
+      )
+    end
+  end
+
   test_method(
     basic_class,
     'expand_expected_income',
