@@ -45,7 +45,7 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
       expect(sat_client_stub).to receive(:download).and_return(satisfaction_data)
       expect(sat_client_stub).to receive(:download).and_return(satisfaction_update)
       allow(wait_client_stub).to receive(:download).and_return(wait_time_data)
-    
+
       described_class.new.perform
       expect(FacilitySatisfaction.find('438GD')).to_not be_nil
 
