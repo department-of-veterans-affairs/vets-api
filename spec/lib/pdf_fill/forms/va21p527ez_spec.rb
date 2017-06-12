@@ -536,6 +536,64 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     basic_class,
+    'expand_children',
+    [
+      [
+        [{}, nil],
+        nil
+      ],
+      [
+        [
+          {
+            children: [
+              {
+                "childFullName" => {
+                  "first" => "outside1",
+                  "last" => "Olson"
+                },
+                "childAddress" => {
+                  "city" => "city1",
+                  "country" => "USA",
+                  "postalCode" => "21231",
+                  "state" => "MD",
+                  "street" => "str1"
+                },
+                'childNotInHousehold' => true,
+              },
+              {
+                "childFullName" => {
+                  "first" => "outside1",
+                  "last" => "Olson"
+                },
+                "childAddress" => {
+                  "city" => "city1",
+                  "country" => "USA",
+                  "postalCode" => "21231",
+                  "state" => "MD",
+                  "street" => "str1"
+                },
+              }
+            ]
+          },
+          :children
+        ],
+        {:children=>
+          [{"childFullName"=>"outside1 Olson", "childAddress"=>"str1, city1, MD, 21231, USA", "personWhoLivesWithChild"=>nil},
+           {"childFullName"=>nil, "personWhoLivesWithChild"=>nil, "childAddress"=>nil},
+           {"childFullName"=>nil, "personWhoLivesWithChild"=>nil, "childAddress"=>nil}],
+         "outsideChildren"=>
+          [{"childFullName"=>"outside1 Olson",
+            "childAddress"=>"str1, city1, MD, 21231, USA",
+            "childNotInHousehold"=>true,
+            "personWhoLivesWithChild"=>nil},
+           {"childFullName"=>nil, "personWhoLivesWithChild"=>nil, "childAddress"=>nil},
+           {"childFullName"=>nil, "personWhoLivesWithChild"=>nil, "childAddress"=>nil}]}
+      ]
+    ]
+  )
+
+  test_method(
+    basic_class,
     'expand_checkbox',
     [
       [

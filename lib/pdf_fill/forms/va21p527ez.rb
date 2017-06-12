@@ -385,6 +385,8 @@ module PdfFill
 
         hash[key] = children_split[:cohabiting]
         hash['outsideChildren'] = children_split[:outside]
+
+        hash
       end
 
       def combine_full_name(full_name)
