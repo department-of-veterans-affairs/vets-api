@@ -110,7 +110,7 @@ module Facilities
       invalidate_removed(FacilityWaitTime, facilities.keys)
     rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
-    rescue Facilities::AccessDataException => e
+    rescue Facilities::AccessDataError => e
       log_exception_to_sentry(e)
     end
 
