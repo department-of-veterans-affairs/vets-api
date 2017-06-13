@@ -407,11 +407,13 @@ module PdfFill
         hash
       end
 
-      def expand_expected_income(recipient, expected_income, income_types)
-        return if expected_income.blank?
+      def expand_financial_acct(recipient, financial_acct, income_types)
+        return if financial_acct.blank?
 
-        %w(salary interest).each do |income_type|
-          amount = expected_income[income_type]
+        income_types.each do |income_type, financial_accts|
+          next if income_type == 'additionalSources'
+
+          amount = financial_acct[income_type]
           next if amount == 0 || amount.nil?
 
           income_types[income_type] << {
@@ -420,7 +422,7 @@ module PdfFill
           }
         end
 
-        expected_income['additionalSources']&.each do |additional_source|
+        financial_acct['additionalSources']&.each do |additional_source|
           income_types['additionalSources'] << {
             'recipient' => recipient,
             'amount' => additional_source['amount'],
@@ -429,6 +431,29 @@ module PdfFill
         end
 
         income_types
+      end
+
+      def expand_net_worths
+        income_types = {
+          'bank' => [],
+          'interestBank' => [],
+          'ira' => [],
+          'stocks' => [],
+          'realProperty' => [],
+          'otherProperty' => [],
+          'additionalSources' => []
+        }
+
+        net_worths = []
+        8.times do
+          net_worths << {}
+        end
+
+        %w(myself spouse).each_with_index do |person, i|
+          expected_income = @form_data[
+            person == 'myself' ? 'netWorth' : 'spouseNetWorth'
+          ]
+        end
       end
 
       def expand_expected_incomes
@@ -446,14 +471,14 @@ module PdfFill
           expected_income = @form_data[
             person == 'myself' ? 'expectedIncome' : 'spouseExpectedIncome'
           ]
-          expand_expected_income(person.capitalize, expected_income, income_types)
+          expand_financial_acct(person.capitalize, expected_income, income_types)
         end
 
         all_children = @form_data['children'] || []
         all_children += @form_data['outsideChildren'] || []
 
         all_children.each do |child|
-          expand_expected_income(child['childFullName'], child['expectedIncome'], income_types)
+          expand_financial_acct(child['childFullName'], child['expectedIncome'], income_types)
         end
 
         expected_incomes[0] = income_types['salary'][0]
