@@ -38,6 +38,14 @@
         "first": "person1",
         "last": "Olson"
       },
+      "netWorth": {
+        "additionalSources": [
+          {
+            "name": "name1",
+            "amount": 8
+          }
+        ]
+      },
       "monthlyPayment": 1
     },
     {
@@ -191,6 +199,17 @@
       "reasonForSeparation": "divorce2"
     }
   ],
+  "netWorth": {
+    "bank": 1,
+    "interestBank": 2,
+    "ira": 3,
+    "otherProperty": 6
+  },
+  "spouseNetWorth": {
+    "stocks": 4,
+    "realProperty": 5,
+    "otherProperty": 7
+  },
   "expectedIncome": {
     "salary": 1,
     "additionalSources": [

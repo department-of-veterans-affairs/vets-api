@@ -23,6 +23,11 @@ module PdfFill
         'maritalStatusWidowed' => 'F[0].Page_6[0].CheckboxMaritalWidowed[0]',
         'maritalStatusDivorced' => 'F[0].Page_6[0].CheckboxMaritalDivorced[0]',
         'maritalStatusMarried' => 'F[0].Page_6[0].CheckboxMaritalMarried[0]',
+        'netWorths' => {
+          'amount' => "netWorths.amount[#{ITERATOR}]",
+          'additionalSourceName' => "netWorths.additionalSourceName[#{ITERATOR}]",
+          'recipient' => "netWorths.recipient[#{ITERATOR}]",
+        },
         'expectedIncomes' => {
           'amount' => "expectedIncomes.amount[#{ITERATOR}]",
           'additionalSourceName' => "expectedIncomes.additionalSourceName[#{ITERATOR}]",
@@ -572,6 +577,7 @@ module PdfFill
         expand_marital_status(@form_data, 'maritalStatus')
 
         expand_expected_incomes
+        expand_net_worths
 
         @form_data
       end
