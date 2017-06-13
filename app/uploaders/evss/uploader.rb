@@ -9,7 +9,6 @@ class EVSS::Uploader < Shrine
 
   Attacher.validate do
     validate_max_size 25.megabytes
-    # validate_min_size 1.kilobyte
     validate_mime_type_inclusion %w(
       image/jpeg image/png image/bmp image/tif image/tiff
       application/pdf
