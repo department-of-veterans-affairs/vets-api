@@ -161,7 +161,7 @@ module PdfFill
       end
 
       def expand_chk_and_del_key(hash, key, newKey = nil)
-        newKey = key.slice(0,1).capitalize + key.slice(1..-1) if newKey.nil?
+        newKey = StringHelpers.capitalize_only(key) if newKey.nil?
         val = hash[key]
         hash.delete(key)
 
@@ -407,30 +407,31 @@ module PdfFill
         hash
       end
 
-      def expand_financial_acct(recipient, financial_acct, income_types)
+      def expand_financial_acct(recipient, financial_acct, financial_accts)
+        # TODO require 0 for amount if there are none
         return if financial_acct.blank?
 
-        income_types.each do |income_type, financial_accts|
+        financial_accts.each do |income_type, financial_accts_for_type|
           next if income_type == 'additionalSources'
 
           amount = financial_acct[income_type]
           next if amount == 0 || amount.nil?
 
-          income_types[income_type] << {
+          financial_accts_for_type << {
             'recipient' => recipient,
             'amount' => amount
           }
         end
 
         financial_acct['additionalSources']&.each do |additional_source|
-          income_types['additionalSources'] << {
+          financial_accts['additionalSources'] << {
             'recipient' => recipient,
             'amount' => additional_source['amount'],
             'additionalSourceName' => additional_source['name']
           }
         end
 
-        income_types
+        financial_accts
       end
 
       def expand_financial_accts(definition)
@@ -441,7 +442,7 @@ module PdfFill
 
         %w(myself spouse).each_with_index do |person, i|
           expected_income = @form_data[
-            person == 'myself' ? definition : "spouse#{definition}"
+            person == 'myself' ? definition : "spouse#{StringHelpers.capitalize_only(definition)}"
           ]
           expand_financial_acct(person.capitalize, expected_income, financial_accts)
         end
@@ -450,8 +451,10 @@ module PdfFill
         all_children += @form_data['outsideChildren'] || []
 
         all_children.each do |child|
-          expand_financial_acct(child['childFullName'], child['expectedIncome'], financial_accts)
+          expand_financial_acct(child['childFullName'], child[definition], financial_accts)
         end
+
+        financial_accts
       end
 
       def expand_expected_incomes
@@ -462,11 +465,11 @@ module PdfFill
           expected_incomes << {}
         end
 
-        expected_incomes[0] = income_types['salary'][0]
-        expected_incomes[1] = income_types['salary'][1]
-        expected_incomes[2] = income_types['interest'][0]
+        expected_incomes[0] = financial_accts['salary'][0]
+        expected_incomes[1] = financial_accts['salary'][1]
+        expected_incomes[2] = financial_accts['interest'][0]
         (3..5).each_with_index do |i, j|
-          expected_incomes[i] = income_types['additionalSources'][j]
+          expected_incomes[i] = financial_accts['additionalSources'][j]
         end
 
         @form_data['expectedIncomes'] = expected_incomes
