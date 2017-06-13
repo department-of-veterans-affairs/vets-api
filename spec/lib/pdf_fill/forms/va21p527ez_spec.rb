@@ -23,6 +23,18 @@ describe PdfFill::Forms::VA21P527EZ do
     end
   end
 
+  describe '#expand_net_worths' do
+    it 'should create an netWorths array' do
+      expect(described_class.new(
+        'netWorth' => {
+          'bank' => 1
+        }
+      ).expand_net_worths).to eq(
+        [{"recipient"=>"Myself", "amount"=>1}, nil, nil, nil, nil, nil, nil, nil]
+      )
+    end
+  end
+
   test_method(
     basic_class,
     'expand_financial_acct',
