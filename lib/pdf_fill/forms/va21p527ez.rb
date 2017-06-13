@@ -433,52 +433,33 @@ module PdfFill
         income_types
       end
 
-      def expand_net_worths
-        income_types = {
-          'bank' => [],
-          'interestBank' => [],
-          'ira' => [],
-          'stocks' => [],
-          'realProperty' => [],
-          'otherProperty' => [],
-          'additionalSources' => []
-        }
-
-        net_worths = []
-        8.times do
-          net_worths << {}
+      def expand_financial_accts(definition)
+        financial_accts = {}
+        VetsJsonSchema::SCHEMAS['21P-527EZ']['definitions'][definition]['properties'].keys.each do |acct_type|
+          financial_accts[acct_type] = []
         end
 
         %w(myself spouse).each_with_index do |person, i|
           expected_income = @form_data[
-            person == 'myself' ? 'netWorth' : 'spouseNetWorth'
+            person == 'myself' ? definition : "spouse#{definition}"
           ]
-        end
-      end
-
-      def expand_expected_incomes
-        income_types = {
-          'salary' => [],
-          'additionalSources' => [],
-          'interest' => []
-        }
-        expected_incomes = []
-        6.times do
-          expected_incomes << {}
-        end
-
-        %w(myself spouse).each_with_index do |person, i|
-          expected_income = @form_data[
-            person == 'myself' ? 'expectedIncome' : 'spouseExpectedIncome'
-          ]
-          expand_financial_acct(person.capitalize, expected_income, income_types)
+          expand_financial_acct(person.capitalize, expected_income, financial_accts)
         end
 
         all_children = @form_data['children'] || []
         all_children += @form_data['outsideChildren'] || []
 
         all_children.each do |child|
-          expand_financial_acct(child['childFullName'], child['expectedIncome'], income_types)
+          expand_financial_acct(child['childFullName'], child['expectedIncome'], financial_accts)
+        end
+      end
+
+      def expand_expected_incomes
+        financial_accts = expand_financial_accts('expectedIncome')
+
+        expected_incomes = []
+        6.times do
+          expected_incomes << {}
         end
 
         expected_incomes[0] = income_types['salary'][0]
