@@ -99,6 +99,10 @@ class User < Common::RedisStore
     mvi.status
   end
 
+  def in_progress_forms
+    InProgressForm.where(user_uuid: uuid)
+  end
+
   private
 
   def mvi
