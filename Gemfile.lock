@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 916ef2b374ed52aa6053a461045ed4acab5e5a88
+  revision: 4e588a6435507389ef7e433afc82fe6803bce7ef
   branch: master
   specs:
-    vets_json_schema (2.6.1)
+    vets_json_schema (2.7.1)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -102,6 +102,7 @@ GEM
       activesupport
     childprocess (0.5.9)
       ffi (~> 1.0, >= 1.0.11)
+    clam_scan (0.0.2)
     climate_control (0.1.0)
     coderay (1.1.1)
     coercible (1.0.0)
@@ -440,6 +441,7 @@ DEPENDENCIES
   byebug
   carrierwave (~> 0.11)
   carrierwave-aws
+  clam_scan
   climate_control
   combine_pdf
   config
