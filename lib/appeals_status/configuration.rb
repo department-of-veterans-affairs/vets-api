@@ -4,8 +4,6 @@ require 'common/client/middleware/request/camelcase'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/raise_error'
 require 'common/client/middleware/response/snakecase'
-require 'typhoeus'
-require 'typhoeus/adapters/faraday'
 
 module AppealsStatus
   # Configuration class used to setup the environment used by client
