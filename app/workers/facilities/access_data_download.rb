@@ -53,6 +53,7 @@ module Facilities
     def invalidate_removed(model, facility_keys)
       invalidate = model.keys - facility_keys
       invalidate.each { |x| model.delete(x) }
+      logger.info "Removed #{invalidate.size} obsolete entries from cache"
     end
 
     def require_keys(record, required_keys)
@@ -77,6 +78,7 @@ module Facilities
       records = client.download
       facilities = parse_satisfaction_data(records)
       update_cache(FacilitySatisfaction, facilities)
+      logger.info "Updated facility satisfaction cache for #{facilities.size} facilities"
       invalidate_removed(FacilitySatisfaction, facilities.keys)
     rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
@@ -107,6 +109,7 @@ module Facilities
       records = client.download
       facilities = parse_wait_time_data(records)
       update_cache(FacilityWaitTime, facilities)
+      logger.info "Updated facility wait time cache for #{facilities.size} facilities"
       invalidate_removed(FacilityWaitTime, facilities.keys)
     rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
