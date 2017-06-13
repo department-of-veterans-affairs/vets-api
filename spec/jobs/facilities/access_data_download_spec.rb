@@ -57,6 +57,9 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
       before do
         Settings.sentry.dsn = 'asdf'
       end
+      after do
+        Settings.sentry.dsn = nil
+      end
 
       it 'bails on backend error' do
         expect(sat_client_stub).to receive(:download).and_raise(Common::Exceptions::BackendServiceException)
