@@ -42,7 +42,7 @@
       participant_id: '11170323'
       training_type: 'UnderGrad'
       vacation_day_count: 0
-    - beginDate: '2013-04-01T04:00:00.000+0000'
+    - begin_date: '2013-04-01T04:00:00.000+0000'
       end_date: '2013-05-01T04:00:00.000+0000'
       facility_code: '25047343'
       facility_name: 'COSMETOLOGY CAREER INSTITUTE'
@@ -57,16 +57,22 @@
       status: Approved
       training_type: 'UnderGrad'
       full_time_hours: 20
-      residence_hours: 10
-      distance_hours: 10
+      on_campus_hours: 10
+      online_hours: 10
       yellow_ribbon_amount: 0
       vacation_day_count: 0
       amendments:
-      - residence_hours: 12
-        distance_hours: 8
+      - on_campus_hours: 12
+        online_hours: 8
         yellow_ribbon_amount: 2
-        type: 'whatshouldthisbe'
+        type: 'Add'
         status: Approved
-        changeEffectiveDate: '2017-06-06T17:01:03.926Z'
+        change_effective_date: '2017-06-06T17:01:03.926Z'
+      - on_campus_hours: 8
+        online_hours: 6
+        yellow_ribbon_amount: 2
+        type: 'Drop'
+        status: Approved
+        change_effective_date: '2017-06-10T7:10:22.555Z'
   
 :status: 200
