@@ -86,9 +86,13 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
         described_class.new.perform
       end
     end
+
     context 'handles wait time errors' do
       before do
         Settings.sentry.dsn = 'asdf'
+      end
+      after do
+        Settings.sentry.dsn = nil
       end
 
       it 'bails on backend error' do
