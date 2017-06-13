@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170512162050) do
+ActiveRecord::Schema.define(version: 20170601175300) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -68,6 +68,7 @@ ActiveRecord::Schema.define(version: 20170512162050) do
     t.string   "encrypted_form_data_iv", null: false
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
+    t.json     "metadata"
   end
 
   add_index "in_progress_forms", ["form_id"], name: "index_in_progress_forms_on_form_id", using: :btree

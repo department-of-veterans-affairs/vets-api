@@ -37,6 +37,9 @@ pipeline {
   }
   post {
         always {
+            archive "coverage/**"
+            publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
+            junit 'log/*.xml'
             deleteDir() /* clean up our workspace */
         }
   }

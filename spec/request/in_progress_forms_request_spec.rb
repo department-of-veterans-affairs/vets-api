@@ -22,10 +22,36 @@ RSpec.describe 'in progress forms', type: :request do
     let!(:in_progress_form) { FactoryGirl.create(:in_progress_form, user_uuid: user.uuid) }
 
     context 'when a form is found' do
-      it 'returns the form as JSON' do
+      subject do
         get v0_in_progress_form_url(in_progress_form.form_id), nil, auth_header
+      end
+
+      it 'returns the form as JSON' do
+        subject
         expect(response).to have_http_status(:ok)
-        expect(response.body).to eq(in_progress_form.form_data)
+        expect(response.body).to eq({
+          'form_data' => JSON.parse(in_progress_form.form_data),
+          'metadata' => in_progress_form.metadata
+        }.to_json)
+      end
+
+      context 'with the x key inflection header set' do
+        let(:form_data) do
+          { foo_bar: 1 }
+        end
+
+        before do
+          auth_header['HTTP_X_KEY_INFLECTION'] = 'camel'
+          in_progress_form.update(form_data: form_data)
+        end
+
+        it 'converts the json keys' do
+          subject
+          expect(response.body).to eq({
+            form_data: form_data,
+            metadata: in_progress_form.metadata
+          }.to_camelback_keys.to_json)
+        end
       end
     end
 
@@ -67,9 +93,18 @@ RSpec.describe 'in progress forms', type: :request do
       let(:new_form) { FactoryGirl.build(:in_progress_form, user_uuid: user.uuid) }
 
       it 'inserts the form' do
-        expect_any_instance_of(InProgressForm).to receive(:update).with(form_data: new_form.form_data).and_return(true)
-        put v0_in_progress_form_url(new_form.form_id), { form_data: new_form.form_data }, auth_header
+        expect do
+          put v0_in_progress_form_url(new_form.form_id), {
+            form_data: new_form.form_data,
+            metadata: new_form.metadata
+          }.to_json, auth_header.merge('CONTENT_TYPE' => 'application/json')
+        end.to change { InProgressForm.count }.by(1)
+
         expect(response).to have_http_status(:ok)
+
+        in_progress_form = InProgressForm.last
+        expect(in_progress_form.form_data).to eq(new_form.form_data)
+        expect(in_progress_form.metadata).to eq(new_form.metadata)
       end
 
       context 'when an error occurs' do
@@ -83,14 +118,15 @@ RSpec.describe 'in progress forms', type: :request do
     end
 
     context 'with an existing form' do
+      let!(:other_existing_form) { create(:in_progress_form, form_id: 'jksdfjk') }
       let(:existing_form) { FactoryGirl.create(:in_progress_form, user_uuid: user.uuid) }
       let(:update_form) { FactoryGirl.create(:in_progress_update_form, user_uuid: user.uuid) }
 
-      it 'updates the form' do
-        expect_any_instance_of(InProgressForm).to receive(:update)
-          .with(form_data: update_form.form_data).and_return(true)
+      it 'updates the right form' do
         put v0_in_progress_form_url(existing_form.form_id), { form_data: update_form.form_data }, auth_header
         expect(response).to have_http_status(:ok)
+
+        expect(existing_form.reload.form_data).to eq(update_form.form_data)
       end
     end
   end
