@@ -1,26 +1,45 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "type": "object",
-  "required": [
-    "data",
-    "meta"
-  ],
+  "definitions": {},
   "properties": {
     "data": {
-      "description": "Array of letters available for the user to download",
-      "type": "array",
-      "minItems": 1,
-      "uniqueItems": true,
-      "items": {
-        "$ref": "letter_base.json"
-      }
+      "properties": {
+        "attributes": {
+          "properties": {
+            "letters": {
+              "description": "Array of letters available for the user to download",
+              "items": {
+                "$ref": "letter_base.json"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
     },
     "meta": {
       "properties": {
         "address": {
           "description": "User's address in EVSS that will be included in the letter",
           "properties": {
-            "street": {
+            "full_name": {
+              "type": "string"
+            },
+            "address_line1": {
+              "type": "string"
+            },
+            "address_line2": {
+              "type": "string"
+            },
+            "address_line3": {
               "type": "string"
             },
             "city": {
@@ -32,17 +51,24 @@
             "country": {
               "type": "string"
             },
-            "postalCode": {
+            "foreign_code": {
+              "type": "string"
+            },
+            "zip_code": {
               "type": "string"
             }
           },
           "type": "object",
           "required": [
-            "street",
+            "full_name",
+            "address_line1",
+            "address_line2",
+            "address_line3",
             "city",
             "state",
             "country",
-            "postalCode"
+            "foreign_code",
+            "zip_code"
           ]
         },
         "status": {
@@ -56,5 +82,6 @@
       },
       "type": "object"
     }
-  }
+  },
+  "type": "object"
 }

@@ -11,9 +11,10 @@
         "type": { "type": "string"},
         "attributes": {
           "type": "object",
-          "required": ["services", "profile"],
+          "required": ["services", "profile", "in_progress_forms"],
           "properties": {
             "services": { "type": [ "array", null ] },
+            "in_progress_forms": { "type": [ "array", null ] },
             "profile": {
               "type": "object",
               "required": [
