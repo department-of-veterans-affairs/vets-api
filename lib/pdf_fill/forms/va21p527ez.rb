@@ -457,6 +457,30 @@ module PdfFill
         financial_accts
       end
 
+      def expand_net_worths
+        financial_accts = expand_financial_accts('netWorth')
+
+        net_worths = []
+        8.times do
+          net_worths << {}
+        end
+
+        %w(
+          bank
+          interestBank
+          ira
+          stocks
+          realProperty
+          otherProperty
+        ).each_with_index do |acct_type, i|
+          net_worths[i] = financial_accts[acct_type][0]
+        end
+        net_worths[6] = financial_accts['otherProperty'][1]
+        net_worths[7] = financial_accts['additionalSources'][0]
+
+        @form_data['netWorths'] = net_worths
+      end
+
       def expand_expected_incomes
         financial_accts = expand_financial_accts('expectedIncome')
 
