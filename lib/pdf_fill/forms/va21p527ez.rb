@@ -452,7 +452,7 @@ module PdfFill
           next if income_type == 'additionalSources'
 
           amount = financial_acct[income_type]
-          next if amount.zero? || amount.nil?
+          next if amount == 0 || amount.nil?
 
           financial_accts_for_type << {
             'recipient' => recipient,
