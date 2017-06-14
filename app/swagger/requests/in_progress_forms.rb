@@ -4,6 +4,27 @@ module Swagger
     class InProgressForms
       include Swagger::Blocks
 
+      swagger_path '/v0/in_progress_forms' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Get Saved Form Summaries'
+          key :operationId, 'listInProgressForms'
+          key :tags, [
+            'in_progress_forms'
+          ]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'get saved form summaries'
+            schema do
+              key :'$ref', :SavedFormSummaries
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/in_progress_forms/{id}' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
@@ -66,6 +87,9 @@ module Swagger
             key :description, 'update form response'
           end
         end
+      end
+
+      swagger_schema :SavedFormSummaries do
       end
 
       swagger_schema :FormOutputData do
