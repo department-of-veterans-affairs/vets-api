@@ -7,6 +7,8 @@ def basic_class
 end
 
 describe PdfFill::Forms::VA21P527EZ do
+  include SchemaMatchers
+
   let(:form_data) do
     get_fixture('pdf_fill/21P-527EZ/kitchen_sink')
   end

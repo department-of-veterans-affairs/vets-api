@@ -3,6 +3,8 @@ require 'spec_helper'
 require 'pdf_fill/filler'
 
 describe PdfFill::Filler do
+  include SchemaMatchers
+
   describe '#fill_form' do
     %w(simple kitchen_sink).each do |type|
       context "with #{type} test data" do
