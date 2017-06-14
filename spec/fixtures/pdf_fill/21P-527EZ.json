@@ -38,6 +38,18 @@
         "first": "person1",
         "last": "Olson"
       },
+      "monthlyIncome": {
+        "additionalSources": [
+          {
+            "name": "name2",
+            "amount": 9
+          },
+          {
+            "name": "name3",
+            "amount": 10
+          }
+        ]
+      },
       "netWorth": {
         "additionalSources": [
           {
@@ -199,6 +211,21 @@
       "reasonForSeparation": "divorce2"
     }
   ],
+  "monthlyIncome": {
+    "socialSecurity": 1,
+    "civilService": 3,
+    "blackLung": 5,
+    "ssi": 7
+  },
+  "spouseMonthlyIncome": {
+    "socialSecurity": 2,
+    "railroad": 4,
+    "serviceRetirement": 6,
+    "additionalSources": [{
+      "name": "name1",
+      "amount": 8
+    }]
+  },
   "netWorth": {
     "bank": 1,
     "interestBank": 2,

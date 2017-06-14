@@ -23,6 +23,11 @@ module PdfFill
         'maritalStatusWidowed' => 'F[0].Page_6[0].CheckboxMaritalWidowed[0]',
         'maritalStatusDivorced' => 'F[0].Page_6[0].CheckboxMaritalDivorced[0]',
         'maritalStatusMarried' => 'F[0].Page_6[0].CheckboxMaritalMarried[0]',
+        'monthlyIncomes' => {
+          'amount' => "monthlyIncomes.amount[#{ITERATOR}]",
+          'additionalSourceName' => "monthlyIncomes.additionalSourceName[#{ITERATOR}]",
+          'recipient' => "monthlyIncomes.recipient[#{ITERATOR}]",
+        },
         'netWorths' => {
           'amount' => "netWorths.amount[#{ITERATOR}]",
           'additionalSourceName' => "netWorths.additionalSourceName[#{ITERATOR}]",
@@ -462,6 +467,35 @@ module PdfFill
         financial_accts
       end
 
+      def expand_monthly_incomes
+        financial_accts = expand_financial_accts('monthlyIncome')
+
+        monthly_incomes = []
+        10.times do
+          monthly_incomes << {}
+        end
+
+        monthly_incomes[0] = financial_accts['socialSecurity'][0]
+        monthly_incomes[1] = financial_accts['socialSecurity'][1]
+
+        %w(
+          civilService
+          railroad
+          blackLung
+          serviceRetirement
+          ssi
+        ).each_with_index do |acct_type, i|
+          i = i + 2
+          monthly_incomes[i] = financial_accts[acct_type][0]
+        end
+
+        (7..9).each_with_index do |i, j|
+          monthly_incomes[i] = financial_accts['additionalSources'][j]
+        end
+
+        @form_data['monthlyIncomes'] = monthly_incomes
+      end
+
       def expand_net_worths
         financial_accts = expand_financial_accts('netWorth')
 
@@ -578,6 +612,7 @@ module PdfFill
 
         expand_expected_incomes
         expand_net_worths
+        expand_monthly_incomes
 
         @form_data
       end
