@@ -1,4 +1,7 @@
 # frozen_string_literal: true
+require 'date'
+require 'facility_access'
+
 class VHAFacilityAdapter
   VHA_URL = +Settings.locators.vha
   VHA_ID_FIELD = 'StationNumber'
@@ -36,8 +39,8 @@ class VHAFacilityAdapter
     m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
     m[:services] = { last_updated: services_date(attrs),
                      health: services_from_gis(attrs) }
-    m[:feedback] = feedback_data(attrs)
-    m[:access] = { health: from_gis_attrs(ACCESS_KEYMAP, attrs) }
+    m[:feedback] = { health: satisfaction_data(m[:unique_id]) }
+    m[:access] = { health: wait_time_data(m[:unique_id]) }
     VAFacility.new(m)
   end
 
@@ -65,36 +68,6 @@ class VHAFacilityAdapter
   HOURS_KEYMAP = %w(
     Monday Tuesday Wednesday Thursday Friday Saturday Sunday
   ).each_with_object({}) { |d, h| h[d] = d }
-
-  FEEDBACK_KEYMAP = {
-    'effective_date_range' => 'ScoreDateRange',
-    'primary_care_routine' => 'Primary_Care_Routine_Score',
-    'primary_care_urgent' => 'Primary_Care_Urgent_Score',
-    'specialty_care_routine' => 'Specialty_Care_Routine_Score',
-    'specialty_care_urgent' => 'Specialty_Care_Urgent_Score'
-  }.freeze
-
-  # Secondary set of key mappings to seamlessly transition between
-  # GIS schema update. Once schema has settled on this, the above keymap
-  # will be obsolete.
-  FEEDBACK_KEYMAP_ALT = {
-    'effective_date_range' => 'SHEP_ScoreDateRange',
-    'primary_care_routine' => 'SHEP_Primary_Care_Routine',
-    'primary_care_urgent' => 'SHEP_Primary_Care_Urgent',
-    'specialty_care_routine' => 'SHEP_Specialty_Care_Routine',
-    'specialty_care_urgent' => 'SHEP_Specialty_Care_Urgent'
-  }.freeze
-
-  ACCESS_KEYMAP = {
-    'primary_care_wait_days' => 'ACCESS_Primary_Care_Score',
-    'primary_care_wait_sample_size' => 'ACCESS_Primary_Care_Sample',
-    'specialty_care_wait_days' => 'ACCESS_Specialty_Care_Score',
-    'specialty_care_wait_sample_size' => 'ACCESS_Specialty_Care_Sample',
-    'mental_health_wait_days' => 'ACCESS_Mental_Health_Score',
-    'mental_health_wait_sample_size' => 'ACCESS_Mental_Health_Sample',
-    'urgent_consult_percentage' => 'ACCESS_Stat_Consult_Score',
-    'urgent_consult_sample_size' => 'ACCESS_Stat_Consult_Sample'
-  }.freeze
 
   SERVICE_HIERARCHY = {
     'Audiology' => [],
@@ -144,12 +117,28 @@ class VHAFacilityAdapter
     result
   end
 
-  def self.feedback_data(attrs)
-    section = from_gis_attrs(FEEDBACK_KEYMAP, attrs)
-    section.merge!(from_gis_attrs(FEEDBACK_KEYMAP_ALT, attrs)) do |_k, v1, v2|
-      v2.nil? ? v1 : v2
+  def self.to_date(dtstring)
+    Date.iso8601(dtstring).iso8601
+  end
+
+  def self.satisfaction_data(id)
+    result = {}
+    datum = FacilitySatisfaction.find(id.upcase)
+    if datum.present?
+      datum.metrics.each { |k, v| result[k.to_s] = v.present? ? v.round(2) : nil }
+      result['effective_date'] = to_date(datum.source_updated)
     end
-    { health: section }
+    result
+  end
+
+  def self.wait_time_data(id)
+    result = {}
+    datum = FacilityWaitTime.find(id.upcase)
+    if datum.present?
+      datum.metrics.each { |k, v| result[k.to_s] = v }
+      result['effective_date'] = to_date(datum.source_updated)
+    end
+    result
   end
 
   def self.services_date(attrs)

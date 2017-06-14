@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 916ef2b374ed52aa6053a461045ed4acab5e5a88
+  revision: 4e588a6435507389ef7e433afc82fe6803bce7ef
   branch: master
   specs:
-    vets_json_schema (2.6.1)
+    vets_json_schema (2.7.1)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -102,6 +102,7 @@ GEM
       activesupport
     childprocess (0.5.9)
       ffi (~> 1.0, >= 1.0.11)
+    clam_scan (0.0.2)
     climate_control (0.1.0)
     coderay (1.1.1)
     coercible (1.0.0)
@@ -214,7 +215,7 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2016.0521)
     mimemagic (0.3.2)
-    mini_portile2 (2.1.0)
+    mini_portile2 (2.2.0)
     minitest (5.10.1)
     multi_json (1.12.1)
     multipart-post (2.0.0)
@@ -222,8 +223,8 @@ GEM
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
-    nokogiri (1.7.1)
-      mini_portile2 (~> 2.1.0)
+    nokogiri (1.8.0)
+      mini_portile2 (~> 2.2.0)
     nori (2.6.0)
     notiffany (0.0.8)
       nenv (~> 0.1)
@@ -440,6 +441,7 @@ DEPENDENCIES
   byebug
   carrierwave (~> 0.11)
   carrierwave-aws
+  clam_scan
   climate_control
   combine_pdf
   config
@@ -464,7 +466,7 @@ DEPENDENCIES
   json-schema
   memoist
   net-sftp
-  nokogiri (~> 1.7.1)
+  nokogiri
   oj
   olive_branch
   overcommit

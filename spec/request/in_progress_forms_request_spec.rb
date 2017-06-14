@@ -18,7 +18,22 @@ RSpec.describe 'in progress forms', type: :request do
     )
   end
 
-  describe 'GET' do
+  describe '#index' do
+    let!(:in_progress_form_edu) { FactoryGirl.create(:in_progress_form, form_id: 'edu-1990', user_uuid: user.uuid) }
+    let!(:in_progress_form_hca) { FactoryGirl.create(:in_progress_form, form_id: 'hca', user_uuid: user.uuid) }
+    subject do
+      get v0_in_progress_forms_url, nil, auth_header
+    end
+
+    it 'returns details about saved forms' do
+      subject
+      items = JSON.parse(response.body)['data']
+      expect(items.size).to eq(2)
+      expect(items.dig(0, 'attributes', 'form_id')).to be_a(String)
+    end
+  end
+
+  describe '#show' do
     let!(:in_progress_form) { FactoryGirl.create(:in_progress_form, user_uuid: user.uuid) }
 
     context 'when a form is found' do
@@ -88,7 +103,7 @@ RSpec.describe 'in progress forms', type: :request do
     end
   end
 
-  describe 'PUT' do
+  describe '#update' do
     context 'with a new form' do
       let(:new_form) { FactoryGirl.build(:in_progress_form, user_uuid: user.uuid) }
 
