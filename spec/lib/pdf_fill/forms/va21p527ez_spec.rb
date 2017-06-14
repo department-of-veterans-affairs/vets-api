@@ -288,6 +288,10 @@ describe PdfFill::Forms::VA21P527EZ do
     'rearrange_hospital_dates',
     [
       [
+        [nil],
+        nil
+      ],
+      [
         [[
           0, 1, 2, 3, 4, 5
         ]],

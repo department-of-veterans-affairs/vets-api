@@ -298,6 +298,7 @@ module PdfFill
       end
 
       def rearrange_hospital_dates(combined_dates)
+        return if combined_dates.blank?
         # order of boxes in the pdf: 3, 2, 4, 0, 1, 5
         rearranged = Array.new(6, nil)
 
