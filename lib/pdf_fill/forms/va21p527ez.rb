@@ -504,9 +504,7 @@ module PdfFill
         financial_accts = expand_financial_accts('monthlyIncome')
 
         monthly_incomes = []
-        10.times do
-          monthly_incomes << {}
-        end
+        10.times { monthly_incomes << {} }
 
         monthly_incomes[0] = financial_accts['socialSecurity'][0]
         monthly_incomes[1] = financial_accts['socialSecurity'][1]
