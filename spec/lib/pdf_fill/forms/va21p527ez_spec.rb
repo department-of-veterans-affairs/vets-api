@@ -8,7 +8,7 @@ end
 
 describe PdfFill::Forms::VA21P527EZ do
   let(:form_data) do
-    get_fixture('pdf_fill/21P-527EZ')
+    get_fixture('pdf_fill/21P-527EZ_kitchen_sink')
   end
 
   describe '#expand_expected_incomes' do
@@ -358,6 +358,10 @@ describe PdfFill::Forms::VA21P527EZ do
     basic_class,
     'combine_va_hospital_names',
     [
+      [
+        [nil],
+        nil
+      ],
       [
         [[
           {
@@ -744,10 +748,7 @@ describe PdfFill::Forms::VA21P527EZ do
     it 'should merge the right fields' do
       expect(described_class.new(form_data).merge_fields).to eq(
         {"veteranFullName"=>"john middle smith Sr.",
-         "bankAccount"=>
-          {"accountNumber"=>"88888888888",
-           "accountType"=>"checking",
-           "routingNumber"=>"123456789"},
+         "bankAccount" => {"accountNumber"=>"88888888888", "accountType"=>"checking", "bankName"=>"foo bank", "routingNumber"=>"123456789"},
          "maritalStatus"=>"Married",
          "reasonForNotLivingWithSpouse"=>"illness",
          "spouseDateOfBirth"=>"2012-06-26",

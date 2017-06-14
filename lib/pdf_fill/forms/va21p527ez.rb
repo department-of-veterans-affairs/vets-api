@@ -243,6 +243,8 @@ module PdfFill
       end
 
       def combine_va_hospital_names(va_hospital_treatments)
+        return if va_hospital_treatments.blank?
+
         combined = []
 
         va_hospital_treatments.each do |va_hospital_treatment|
