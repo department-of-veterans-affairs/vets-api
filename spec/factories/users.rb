@@ -9,7 +9,7 @@ FactoryGirl.define do
     birth_date '1809-02-12'
     zip '17325'
     last_signed_in Time.now.utc
-    ssn '272111863'
+    ssn '796111863'
     loa do
       {
         current: LOA::TWO,
@@ -46,7 +46,7 @@ FactoryGirl.define do
     zip { Faker::Address.postcode }
     last_signed_in { Faker::Time.between(2.years.ago, 1.week.ago, :all) }
     birth_date { Faker::Time.between(40.years.ago, 10.years.ago, :all) }
-    ssn '272111864'
+    ssn '796111864'
     loa do
       {
         current: LOA::THREE,
