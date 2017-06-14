@@ -855,6 +855,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "disabilities"=>[{"disabilityStartDate"=>"2016-12-01"}],
          "gender"=>"M",
          "genderMale"=>true,
+         "checkingAccountNumber" => "88888888888",
          "genderFemale"=>false,
          "hasFileNumber"=>true,
          "noFileNumber"=>false,
