@@ -5,7 +5,8 @@ require 'pdf_fill/hash_converter'
 module PdfFill
   module Filler
     module_function
-    # TODO handle array and string overflows
+
+    # TODO: handle array and string overflows
 
     PDF_FORMS = PdfForms.new('pdftk')
     FORM_CLASSES = {
@@ -16,7 +17,7 @@ module PdfFill
       form_class = FORM_CLASSES[code]
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
-      # TODO add the id of the form to filename and remove timestamp
+      # TODO: add the id of the form to filename and remove timestamp
       file_path = "#{folder}/#{code}_#{Time.zone.now}.pdf"
 
       PDF_FORMS.fill_form(

@@ -36,7 +36,7 @@ module PdfFill
         'monthlyIncomes' => {
           'amount' => "monthlyIncomes.amount[#{ITERATOR}]",
           'additionalSourceName' => "monthlyIncomes.additionalSourceName[#{ITERATOR}]",
-          'recipient' => "monthlyIncomes.recipient[#{ITERATOR}]",
+          'recipient' => "monthlyIncomes.recipient[#{ITERATOR}]"
         },
         'otherExpenses' => {
           'amount' => "otherExpenses.amount[#{ITERATOR}]",
@@ -48,12 +48,12 @@ module PdfFill
         'netWorths' => {
           'amount' => "netWorths.amount[#{ITERATOR}]",
           'additionalSourceName' => "netWorths.additionalSourceName[#{ITERATOR}]",
-          'recipient' => "netWorths.recipient[#{ITERATOR}]",
+          'recipient' => "netWorths.recipient[#{ITERATOR}]"
         },
         'expectedIncomes' => {
           'amount' => "expectedIncomes.amount[#{ITERATOR}]",
           'additionalSourceName' => "expectedIncomes.additionalSourceName[#{ITERATOR}]",
-          'recipient' => "expectedIncomes.recipient[#{ITERATOR}]",
+          'recipient' => "expectedIncomes.recipient[#{ITERATOR}]"
         },
         'hasPreviousNames' => 'F[0].Page_5[0].YesName[0]',
         'noPreviousNames' => 'F[0].Page_5[0].NameNo[0]',
@@ -126,8 +126,8 @@ module PdfFill
           'stepchild' => "children.stepchild[#{ITERATOR}]",
           'previouslyMarried' => "children.previouslyMarried[#{ITERATOR}]"
         },
-        "hasNationalGuardActivation" => 'F[0].Page_5[0].YesAD[0]',
-        "noNationalGuardActivation" => 'F[0].Page_5[0].NoAD[0]',
+        'hasNationalGuardActivation' => 'F[0].Page_5[0].YesAD[0]',
+        'noNationalGuardActivation' => 'F[0].Page_5[0].NoAD[0]',
         'nightPhone' => 'F[0].Page_5[0].Eveningphonenumber[0]',
         'mobilePhone' => 'F[0].Page_5[0].Cellphonenumber[0]',
         'mobilePhoneAreaCode' => 'F[0].Page_5[0].Cellphoneareacode[0]',
@@ -184,7 +184,7 @@ module PdfFill
       def expand_severance_pay(severance_pay)
         amount = severance_pay.try(:[], 'amount') || 0
 
-        expand_checkbox(amount > 0, 'SeverancePay')
+        expand_checkbox(amount.positive?, 'SeverancePay')
       end
 
       def expand_chk_and_del_key(hash, key, newKey = nil)
@@ -209,14 +209,18 @@ module PdfFill
       end
 
       def combine_full_address(address)
-        combine_hash(address, %w(
-          street
-          street2
-          city
-          state
-          postalCode
-          country
-        ), ', ')
+        combine_hash(
+          address,
+          %w(
+            street
+            street2
+            city
+            state
+            postalCode
+            country
+          ),
+          ', '
+        )
       end
 
       def combine_city_state(address)
@@ -285,7 +289,7 @@ module PdfFill
             new_jobs[i][attr] = jobs[i].try(:[], attr)
           end
 
-          alternate_i = i == 0 ? 1 : 0
+          alternate_i = i.zero? ? 1 : 0
 
           %w(jobTitle annualEarnings).each do |attr|
             new_jobs[i][attr] = jobs[alternate_i].try(:[], attr)
@@ -319,7 +323,7 @@ module PdfFill
           original_dates = va_hospital_treatment['dates']
           dates = Array.new(3, nil)
 
-          dates.each_with_index do |date, i|
+          3.times do |i|
             dates[i] = original_dates[i]
           end if original_dates.present?
 
@@ -381,7 +385,7 @@ module PdfFill
           'Divorced'
         ].each do |status|
           if marital_status == status
-            hash["maritalStatus#{status.gsub(' ', '_').camelize}"] = true
+            hash["maritalStatus#{status.tr(' ', '_').camelize}"] = true
             break
           end
         end
@@ -403,7 +407,7 @@ module PdfFill
         end
 
         3.times do |i|
-          children_split.each do |k, v|
+          children_split.each do |_k, v|
             v[i] ||= {}
             child = v[i]
 
@@ -441,14 +445,14 @@ module PdfFill
       end
 
       def expand_financial_acct(recipient, financial_acct, financial_accts)
-        # TODO require 0 for amount if there are none
+        # TODO: require 0 for amount if there are none
         return if financial_acct.blank?
 
         financial_accts.each do |income_type, financial_accts_for_type|
           next if income_type == 'additionalSources'
 
           amount = financial_acct[income_type]
-          next if amount == 0 || amount.nil?
+          next if amount.zero? || amount.nil?
 
           financial_accts_for_type << {
             'recipient' => recipient,
@@ -473,7 +477,7 @@ module PdfFill
           financial_accts[acct_type] = []
         end
 
-        %w(myself spouse).each_with_index do |person, i|
+        %w(myself spouse).each do |person|
           expected_income = @form_data[
             person == 'myself' ? definition : "spouse#{StringHelpers.capitalize_only(definition)}"
           ]
@@ -508,7 +512,7 @@ module PdfFill
           serviceRetirement
           ssi
         ).each_with_index do |acct_type, i|
-          i = i + 2
+          i += 2
           monthly_incomes[i] = financial_accts[acct_type][0]
         end
 
@@ -595,7 +599,7 @@ module PdfFill
           spouseIsVeteran
           liveWithSpouse
         ).each do |attr|
-          @form_data.merge!(public_send("expand_chk_and_del_key", @form_data, attr))
+          @form_data.merge!(public_send('expand_chk_and_del_key', @form_data, attr))
         end
 
         %w(nightPhone dayPhone mobilePhone).each do |attr|

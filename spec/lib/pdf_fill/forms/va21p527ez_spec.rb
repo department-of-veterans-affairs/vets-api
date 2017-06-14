@@ -18,7 +18,7 @@ describe PdfFill::Forms::VA21P527EZ do
           'salary' => 1
         }
       ).expand_expected_incomes).to eq(
-        [{"recipient"=>"Myself", "amount"=>1}, nil, nil, nil, nil, nil]
+        [{ 'recipient' => 'Myself', 'amount' => 1 }, nil, nil, nil, nil, nil]
       )
     end
   end
@@ -30,7 +30,7 @@ describe PdfFill::Forms::VA21P527EZ do
           'socialSecurity' => 1
         }
       ).expand_monthly_incomes).to eq(
-        [{"recipient"=>"Myself", "amount"=>1}, nil, nil, nil, nil, nil, nil, nil, nil, nil]
+        [{ 'recipient' => 'Myself', 'amount' => 1 }, nil, nil, nil, nil, nil, nil, nil, nil, nil]
       )
     end
   end
@@ -42,7 +42,7 @@ describe PdfFill::Forms::VA21P527EZ do
           'bank' => 1
         }
       ).expand_net_worths).to eq(
-        [{"recipient"=>"Myself", "amount"=>1}, nil, nil, nil, nil, nil, nil, nil]
+        [{ 'recipient' => 'Myself', 'amount' => 1 }, nil, nil, nil, nil, nil, nil, nil]
       )
     end
   end
@@ -50,8 +50,8 @@ describe PdfFill::Forms::VA21P527EZ do
   describe '#expand_bank_acct' do
     let(:bank_account) do
       {
-        "accountNumber" => "88888888888",
-        "routingNumber" => "123456789"
+        'accountNumber' => '88888888888',
+        'routingNumber' => '123456789'
       }
     end
 
@@ -74,7 +74,7 @@ describe PdfFill::Forms::VA21P527EZ do
 
       it 'should return savings account values' do
         expect(subject).to eq(
-          {"hasChecking"=>false, "hasSavings"=>true, "savingsAccountNumber"=>"88888888888"}
+          'hasChecking' => false, 'hasSavings' => true, 'savingsAccountNumber' => '88888888888'
         )
       end
     end
@@ -86,7 +86,7 @@ describe PdfFill::Forms::VA21P527EZ do
 
       it 'should return checking account values' do
         expect(subject).to eq(
-          {"hasChecking"=>true, "hasSavings"=>false, "checkingAccountNumber"=>"88888888888"}
+          'hasChecking' => true, 'hasSavings' => false, 'checkingAccountNumber' => '88888888888'
         )
       end
     end
@@ -125,11 +125,11 @@ describe PdfFill::Forms::VA21P527EZ do
             'interest' => []
           }
         ],
-        {"salary"=>[{"recipient"=>"person", "amount"=>1}],
-         "additionalSources"=>
-          [{"recipient"=>"person", "amount"=>3, "additionalSourceName"=>"name1"},
-           {"recipient"=>"person", "amount"=>4, "additionalSourceName"=>"name2"}],
-         "interest"=>[{"recipient"=>"person", "amount"=>2}]}
+        { 'salary' => [{ 'recipient' => 'person', 'amount' => 1 }],
+          'additionalSources' =>
+          [{ 'recipient' => 'person', 'amount' => 3, 'additionalSourceName' => 'name1' },
+           { 'recipient' => 'person', 'amount' => 4, 'additionalSourceName' => 'name2' }],
+          'interest' => [{ 'recipient' => 'person', 'amount' => 2 }] }
       ]
     ]
   )
@@ -146,16 +146,16 @@ describe PdfFill::Forms::VA21P527EZ do
         [
           {
             a: [{
-              "spouseFullName" => {
-                "first" => "spouse1",
-                "last" => "Olson"
+              'spouseFullName' => {
+                'first' => 'spouse1',
+                'last' => 'Olson'
               },
-              "otherExplanation" => "other"
+              'otherExplanation' => 'other'
             }]
           },
           :a
         ],
-        {:a=>[{"spouseFullName"=>"spouse1 Olson", "otherExplanation"=>"other"}], "aExplanations"=>"other"}
+        { :a => [{ 'spouseFullName' => 'spouse1 Olson', 'otherExplanation' => 'other' }], 'aExplanations' => 'other' }
       ]
     ]
   )
@@ -170,23 +170,23 @@ describe PdfFill::Forms::VA21P527EZ do
       ],
       [
         [{ a: 'Married' }, :a],
-        {:a=>"Married", "maritalStatusMarried"=>true}
+        { :a => 'Married', 'maritalStatusMarried' => true }
       ],
       [
         [{ a: 'Never Married' }, :a],
-        {:a=>'Never Married', "maritalStatusNeverMarried"=>true}
+        { :a => 'Never Married', 'maritalStatusNeverMarried' => true }
       ],
       [
         [{ a: 'Separated' }, :a],
-        {:a=>'Separated', "maritalStatusSeparated"=>true}
+        { :a => 'Separated', 'maritalStatusSeparated' => true }
       ],
       [
         [{ a: 'Widowed' }, :a],
-        {:a=>'Widowed', "maritalStatusWidowed"=>true}
+        { :a => 'Widowed', 'maritalStatusWidowed' => true }
       ],
       [
         [{ a: 'Divorced' }, :a],
-        {:a=>'Divorced', "maritalStatusDivorced"=>true}
+        { :a => 'Divorced', 'maritalStatusDivorced' => true }
       ]
     ]
   )
@@ -213,7 +213,7 @@ describe PdfFill::Forms::VA21P527EZ do
           },
           'foo'
         ],
-        {"fooStart"=>"2001", "fooEnd"=>"2002"}
+        { 'fooStart' => '2001', 'fooEnd' => '2002' }
       ]
     ]
   )
@@ -228,29 +228,29 @@ describe PdfFill::Forms::VA21P527EZ do
       ],
       [
         [[
-          {"dateRange"=>{"from"=>"2012-04-01", "to"=>"2013-05-01"},
-          "employer"=>"job1",
-          "address"=>{"city"=>"city1", "country"=>"USA", "postalCode"=>"21231", "state"=>"MD", "street"=>"str1"},
-          "annualEarnings"=>10,
-          "jobTitle"=>"worker1",
-          "daysMissed"=>"1"},
-         {"dateRange"=>{"from"=>"2012-04-02", "to"=>"2013-05-02"},
-          "employer"=>"job2",
-          "address"=>{"city"=>"city2", "country"=>"USA", "postalCode"=>"21231", "state"=>"MD", "street"=>"str2"},
-          "annualEarnings"=>20,
-          "jobTitle"=>"worker2",
-          "daysMissed"=>"2"}
+          { 'dateRange' => { 'from' => '2012-04-01', 'to' => '2013-05-01' },
+            'employer' => 'job1',
+            'address' => { 'city' => 'city1', 'country' => 'USA', 'postalCode' => '21231', 'state' => 'MD', 'street' => 'str1' },
+            'annualEarnings' => 10,
+            'jobTitle' => 'worker1',
+            'daysMissed' => '1' },
+          { 'dateRange' => { 'from' => '2012-04-02', 'to' => '2013-05-02' },
+            'employer' => 'job2',
+            'address' => { 'city' => 'city2', 'country' => 'USA', 'postalCode' => '21231', 'state' => 'MD', 'street' => 'str2' },
+            'annualEarnings' => 20,
+            'jobTitle' => 'worker2',
+            'daysMissed' => '2' }
         ]],
-          [{"daysMissed"=>"1",
-         "dateRange"=>{"from"=>"2012-04-01", "to"=>"2013-05-01"},
-         "jobTitle"=>"worker2",
-         "annualEarnings"=>20,
-         "nameAndAddr"=>"job2, str2, city2, MD, 21231, USA"},
-        {"daysMissed"=>"2",
-         "dateRange"=>{"from"=>"2012-04-02", "to"=>"2013-05-02"},
-         "jobTitle"=>"worker1",
-         "annualEarnings"=>10,
-         "nameAndAddr"=>"job1, str1, city1, MD, 21231, USA"}]
+        [{ 'daysMissed' => '1',
+           'dateRange' => { 'from' => '2012-04-01', 'to' => '2013-05-01' },
+           'jobTitle' => 'worker2',
+           'annualEarnings' => 20,
+           'nameAndAddr' => 'job2, str2, city2, MD, 21231, USA' },
+         { 'daysMissed' => '2',
+           'dateRange' => { 'from' => '2012-04-02', 'to' => '2013-05-02' },
+           'jobTitle' => 'worker1',
+           'annualEarnings' => 10,
+           'nameAndAddr' => 'job1, str1, city1, MD, 21231, USA' }]
       ]
     ]
   )
@@ -268,9 +268,9 @@ describe PdfFill::Forms::VA21P527EZ do
           { 'name' => 'name1' },
           { 'name' => 'name2' }
         ]],
-        [
-          'name2', 'name1'
-        ]
+        %w(
+          name2 name1
+        )
       ],
       [
         [[
@@ -332,13 +332,13 @@ describe PdfFill::Forms::VA21P527EZ do
             'dates' => ['2017']
           },
           {
-            'dates' => ['2001', '2002', '2003']
+            'dates' => %w(2001 2002 2003)
           }
         ]],
         [
           '2017', nil, nil, '2001', '2002', '2003'
         ]
-      ],
+      ]
     ]
   )
 
@@ -523,14 +523,14 @@ describe PdfFill::Forms::VA21P527EZ do
     [
       [
         {
-          "city" => "Baltimore",
-          "country" => "USA",
-          "postalCode" => "21231",
-          "street" => "street",
-          "street2" => "street2",
-          "state" => "MD"
+          'city' => 'Baltimore',
+          'country' => 'USA',
+          'postalCode' => '21231',
+          'street' => 'street',
+          'street2' => 'street2',
+          'state' => 'MD'
         },
-        "street, street2, Baltimore, MD, 21231, USA"
+        'street, street2, Baltimore, MD, 21231, USA'
       ]
     ]
   )
@@ -547,15 +547,15 @@ describe PdfFill::Forms::VA21P527EZ do
         {
           'name' => 'name',
           'address' => {
-            "city" => "Baltimore",
-            "country" => "USA",
-            "postalCode" => "21231",
-            "street" => "street",
-            "street2" => "street2",
-            "state" => "MD"
+            'city' => 'Baltimore',
+            'country' => 'USA',
+            'postalCode' => '21231',
+            'street' => 'street',
+            'street2' => 'street2',
+            'state' => 'MD'
           }
         },
-        {"nameAndAddr"=>"name, street, street2, Baltimore, MD, 21231, USA"}
+        { 'nameAndAddr' => 'name, street, street2, Baltimore, MD, 21231, USA' }
       ]
     ]
   )
@@ -614,7 +614,7 @@ describe PdfFill::Forms::VA21P527EZ do
       ],
       [
         [{ 'foo' => '5551110000' }, 'foo'],
-        {"foo"=>"1110000", "fooAreaCode"=>"555"}
+        { 'foo' => '1110000', 'fooAreaCode' => '555' }
       ]
     ]
   )
@@ -632,47 +632,47 @@ describe PdfFill::Forms::VA21P527EZ do
           {
             children: [
               {
-                "childFullName" => {
-                  "first" => "outside1",
-                  "last" => "Olson"
+                'childFullName' => {
+                  'first' => 'outside1',
+                  'last' => 'Olson'
                 },
-                "childAddress" => {
-                  "city" => "city1",
-                  "country" => "USA",
-                  "postalCode" => "21231",
-                  "state" => "MD",
-                  "street" => "str1"
+                'childAddress' => {
+                  'city' => 'city1',
+                  'country' => 'USA',
+                  'postalCode' => '21231',
+                  'state' => 'MD',
+                  'street' => 'str1'
                 },
-                'childNotInHousehold' => true,
+                'childNotInHousehold' => true
               },
               {
-                "childFullName" => {
-                  "first" => "outside1",
-                  "last" => "Olson"
+                'childFullName' => {
+                  'first' => 'outside1',
+                  'last' => 'Olson'
                 },
-                "childAddress" => {
-                  "city" => "city1",
-                  "country" => "USA",
-                  "postalCode" => "21231",
-                  "state" => "MD",
-                  "street" => "str1"
-                },
+                'childAddress' => {
+                  'city' => 'city1',
+                  'country' => 'USA',
+                  'postalCode' => '21231',
+                  'state' => 'MD',
+                  'street' => 'str1'
+                }
               }
             ]
           },
           :children
         ],
-        {:children=>
-          [{"childFullName"=>"outside1 Olson", "childAddress"=>"str1, city1, MD, 21231, USA", "personWhoLivesWithChild"=>nil},
-           {"childFullName"=>nil, "personWhoLivesWithChild"=>nil, "childAddress"=>nil},
-           {"childFullName"=>nil, "personWhoLivesWithChild"=>nil, "childAddress"=>nil}],
-         "outsideChildren"=>
-          [{"childFullName"=>"outside1 Olson",
-            "childAddress"=>"str1, city1, MD, 21231, USA",
-            "childNotInHousehold"=>true,
-            "personWhoLivesWithChild"=>nil},
-           {"childFullName"=>nil, "personWhoLivesWithChild"=>nil, "childAddress"=>nil},
-           {"childFullName"=>nil, "personWhoLivesWithChild"=>nil, "childAddress"=>nil}]}
+        { :children =>
+          [{ 'childFullName' => 'outside1 Olson', 'childAddress' => 'str1, city1, MD, 21231, USA', 'personWhoLivesWithChild' => nil },
+           { 'childFullName' => nil, 'personWhoLivesWithChild' => nil, 'childAddress' => nil },
+           { 'childFullName' => nil, 'personWhoLivesWithChild' => nil, 'childAddress' => nil }],
+          'outsideChildren' =>
+          [{ 'childFullName' => 'outside1 Olson',
+             'childAddress' => 'str1, city1, MD, 21231, USA',
+             'childNotInHousehold' => true,
+             'personWhoLivesWithChild' => nil },
+           { 'childFullName' => nil, 'personWhoLivesWithChild' => nil, 'childAddress' => nil },
+           { 'childFullName' => nil, 'personWhoLivesWithChild' => nil, 'childAddress' => nil }] }
       ]
     ]
   )

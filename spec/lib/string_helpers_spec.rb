@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'spec_helper'
 require 'string_helpers'
 
@@ -6,14 +7,14 @@ describe StringHelpers do
     described_class,
     'capitalize_only',
     [
-      [
-        'fooBar',
-        'FooBar'
-      ],
-      [
-        'FooBar',
-        'FooBar'
-      ]
+      %w(
+        fooBar
+        FooBar
+      ),
+      %w(
+        FooBar
+        FooBar
+      )
     ]
   )
 end

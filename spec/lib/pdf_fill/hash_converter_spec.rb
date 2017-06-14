@@ -64,15 +64,15 @@ describe PdfFill::HashConverter do
           pdftk_keys: pdftk_keys
         )
       ).to eq(
-        {"form1[0].#subform[1].EnterCharacterD0[0]"=>"honorable",
-         "form1[0].#subform[1].EnterTypeOfDutyE0[0]"=>"title 10",
-         "form1[0].#subform[1].EnterCharacterD1[0]"=>"medical",
-         "form1[0].#subform[1].EnterTypeOfDutyE1[0]"=>"title 32",
-         "form.date"=>"06/06/2017",
-         "form1[0].#subform[0].EnterNameOfApplicantFirstMiddleLast[0]"=>"bob bob",
-         "form1[0].#subform[1].CheckBoxYes6B[0]"=>1,
-         "form1[0].#subform[0].EnterACCOUNTNUMBER[0]"=>"34343434",
-         "form1[0].#subform[0].CheckBoxChecking[0]"=>1}
+        'form1[0].#subform[1].EnterCharacterD0[0]' => 'honorable',
+        'form1[0].#subform[1].EnterTypeOfDutyE0[0]' => 'title 10',
+        'form1[0].#subform[1].EnterCharacterD1[0]' => 'medical',
+        'form1[0].#subform[1].EnterTypeOfDutyE1[0]' => 'title 32',
+        'form.date' => '06/06/2017',
+        'form1[0].#subform[0].EnterNameOfApplicantFirstMiddleLast[0]' => 'bob bob',
+        'form1[0].#subform[1].CheckBoxYes6B[0]' => 1,
+        'form1[0].#subform[0].EnterACCOUNTNUMBER[0]' => '34343434',
+        'form1[0].#subform[0].CheckBoxChecking[0]' => 1
       )
     end
   end
