@@ -28,6 +28,13 @@ module PdfFill
           'additionalSourceName' => "monthlyIncomes.additionalSourceName[#{ITERATOR}]",
           'recipient' => "monthlyIncomes.recipient[#{ITERATOR}]",
         },
+        'otherExpenses' => {
+          'amount' => "otherExpenses.amount[#{ITERATOR}]",
+          'purpose' => "otherExpenses.purpose[#{ITERATOR}]",
+          'paidTo' => "otherExpenses.paidTo[#{ITERATOR}]",
+          'relationship' => "otherExpenses.relationship[#{ITERATOR}]",
+          'date' => "otherExpenses.date[#{ITERATOR}]"
+        },
         'netWorths' => {
           'amount' => "netWorths.amount[#{ITERATOR}]",
           'additionalSourceName' => "netWorths.additionalSourceName[#{ITERATOR}]",
