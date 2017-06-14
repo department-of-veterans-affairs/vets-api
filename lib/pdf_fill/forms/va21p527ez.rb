@@ -187,12 +187,12 @@ module PdfFill
         expand_checkbox(amount.positive?, 'SeverancePay')
       end
 
-      def expand_chk_and_del_key(hash, key, newKey = nil)
-        newKey = StringHelpers.capitalize_only(key) if newKey.nil?
+      def expand_chk_and_del_key(hash, key, new_key = nil)
+        new_key = StringHelpers.capitalize_only(key) if new_key.nil?
         val = hash[key]
         hash.delete(key)
 
-        expand_checkbox(val, newKey)
+        expand_checkbox(val, new_key)
       end
 
       def expand_checkbox(value, key)
