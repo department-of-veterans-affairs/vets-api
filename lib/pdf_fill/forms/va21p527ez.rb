@@ -477,6 +477,19 @@ module PdfFill
         financial_accts
       end
 
+      def zero_financial_accts(financial_accts)
+        financial_accts.each do |acct_type, accts|
+          if accts.size.zero? && acct_type != 'additionalSources'
+            accts << {
+              'recipient' => 'Myself',
+              'amount' => 0
+            }
+          end
+        end
+
+        financial_accts
+      end
+
       def expand_financial_accts(definition)
         financial_accts = {}
         VetsJsonSchema::SCHEMAS['21P-527EZ']['definitions'][definition]['properties'].keys.each do |acct_type|
@@ -497,16 +510,7 @@ module PdfFill
           expand_financial_acct(child['childFullName'], child[definition], financial_accts)
         end
 
-        financial_accts.each do |acct_type, accts|
-          if accts.size.zero? && acct_type != 'additionalSources'
-            accts << {
-              'recipient' => 'Myself',
-              'amount' => 0
-            }
-          end
-        end
-
-        financial_accts
+        zero_financial_accts(financial_accts)
       end
 
       def expand_monthly_incomes
