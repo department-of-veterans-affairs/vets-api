@@ -9,6 +9,11 @@
     "from": "2012-04-10",
     "to": "2013-05-10"
   },
+  "bankAccount": {
+    "accountNumber": "88888888888",
+    "accountType": "checking",
+    "routingNumber": "123456789"
+  },
   "spouseIsVeteran": true,
   "liveWithSpouse": true,
   "maritalStatus": "Married",
