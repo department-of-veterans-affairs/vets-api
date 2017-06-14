@@ -197,8 +197,8 @@ module PdfFill
 
       def expand_checkbox(value, key)
         {
-          "has#{key}" => value,
-          "no#{key}" => !value
+          "has#{key}" => value == true,
+          "no#{key}" => value == false
         }
       end
 
