@@ -553,9 +553,13 @@ module PdfFill
       def expand_bank_acct(bank_account)
         return if bank_account.blank?
 
-        bank_account['accountType'].tap do |account_type|
-          @form_data['hasChecking'] = account_type == 'checking'
-          @form_data['hasSavings'] = account_type == 'savings'
+        account_type = bank_account['accountType']
+        @form_data['hasChecking'] = account_type == 'checking'
+        @form_data['hasSavings'] = account_type == 'savings'
+
+        account_number = bank_account['accountNumber']
+        if account_type.present?
+          @form_data["#{account_type}AccountNumber"] = account_number
         end
       end
 
