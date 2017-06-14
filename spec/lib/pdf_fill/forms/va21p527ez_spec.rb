@@ -23,6 +23,18 @@ describe PdfFill::Forms::VA21P527EZ do
     end
   end
 
+  describe '#expand_monthly_incomes' do
+    it 'should create monthlyIncomes array' do
+      expect(described_class.new(
+        'monthlyIncome' => {
+          'socialSecurity' => 1
+        }
+      ).expand_monthly_incomes).to eq(
+        [{"recipient"=>"Myself", "amount"=>1}, nil, nil, nil, nil, nil, nil, nil, nil, nil]
+      )
+    end
+  end
+
   describe '#expand_net_worths' do
     it 'should create an netWorths array' do
       expect(described_class.new(
