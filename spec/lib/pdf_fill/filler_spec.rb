@@ -13,7 +13,11 @@ describe PdfFill::Filler do
       expect(form_data.to_json).to match_vets_schema(form_code)
       file_path = described_class.fill_form(form_code, form_data)
 
-      # File.delete(file_path)
+      expect(
+        FileUtils.compare_file(file_path, 'spec/fixtures/pdf_fill/21P-527EZ_kitchen_sink.pdf')
+      ).to eq(true)
+
+      File.delete(file_path)
     end
   end
 end
