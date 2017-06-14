@@ -13,6 +13,7 @@
   "bankAccount": {
     "accountNumber": "88888888888",
     "accountType": "checking",
+    "bankName": "foo bank",
     "routingNumber": "123456789"
   },
   "noRapidProcessing": true,
