@@ -452,7 +452,6 @@ module PdfFill
       end
 
       def expand_financial_acct(recipient, financial_acct, financial_accts)
-        # TODO: require 0 for amount if there are none
         return if financial_acct.blank?
 
         financial_accts.each do |income_type, financial_accts_for_type|
@@ -496,6 +495,15 @@ module PdfFill
 
         all_children.each do |child|
           expand_financial_acct(child['childFullName'], child[definition], financial_accts)
+        end
+
+        financial_accts.each do |acct_type, accts|
+          if accts.size == 0 && acct_type != 'additionalSources'
+            accts << {
+              'recipient' => 'Myself',
+              'amount' => 0
+            }
+          end
         end
 
         financial_accts
