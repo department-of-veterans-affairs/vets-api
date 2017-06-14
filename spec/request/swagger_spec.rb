@@ -47,6 +47,11 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       expect(subject).to validate(:delete, '/v0/sessions', 401)
     end
 
+    it 'supports listing in-progress forms' do
+      expect(subject).to validate(:get, '/v0/in_progress_forms', 200, auth_options)
+      expect(subject).to validate(:get, '/v0/in_progress_forms', 401)
+    end
+
     it 'supports getting an in-progress form' do
       expect(subject).to validate(
         :get,
