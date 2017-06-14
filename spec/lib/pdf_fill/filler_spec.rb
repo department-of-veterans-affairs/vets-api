@@ -7,7 +7,7 @@ describe PdfFill::Filler do
     %w(simple kitchen_sink).each do |type|
       context "with #{type} test data" do
         let(:form_data) do
-          get_fixture("pdf_fill/21P-527EZ_#{type}")
+          get_fixture("pdf_fill/21P-527EZ/#{type}")
         end
 
         it 'should fill the form correctly' do
@@ -16,7 +16,7 @@ describe PdfFill::Filler do
           file_path = described_class.fill_form(form_code, form_data)
 
           expect(
-            FileUtils.compare_file(file_path, "spec/fixtures/pdf_fill/21P-527EZ_#{type}.pdf")
+            FileUtils.compare_file(file_path, "spec/fixtures/pdf_fill/21P-527EZ/#{type}.pdf")
           ).to eq(true)
 
           File.delete(file_path)

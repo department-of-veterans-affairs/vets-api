@@ -8,7 +8,7 @@ end
 
 describe PdfFill::Forms::VA21P527EZ do
   let(:form_data) do
-    get_fixture('pdf_fill/21P-527EZ_kitchen_sink')
+    get_fixture('pdf_fill/21P-527EZ/kitchen_sink')
   end
 
   describe '#expand_expected_incomes' do
