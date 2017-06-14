@@ -45,6 +45,6 @@ evss:
 to new files without the `.example` extension:
 ```
 cp config/evss/mock_letters_response.yml.example config/evss/mock_letters_response.yml
-cp config/evss/mock_gi_bill_status_response.yml.example mock_gi_bill_status_response.yml
+cp config/evss/mock_gi_bill_status_response.yml.example config/evss/mock_gi_bill_status_response.yml
 ```
 - Restart the vets-api service `bundle exec rails s`, the related evss endpoints will now use the mock data from the files above.
