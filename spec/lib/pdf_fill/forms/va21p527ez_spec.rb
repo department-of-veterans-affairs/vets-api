@@ -885,6 +885,7 @@ describe PdfFill::Forms::VA21P527EZ do
          "spouseMarriageCount"=>2,
          "marriageCount"=>2,
          "maritalStatusMarried"=>true,
+         "otherExpenses" => [{"amount"=>1, "purpose"=>"purpose1", "paidTo"=>"paidTo1", "relationship"=>"relationship1", "date"=>"2012-04-01"}, {"amount"=>2, "purpose"=>"purpose2", "paidTo"=>"paidTo2", "relationship"=>"relationship2", "date"=>"2012-04-02"}, {"amount"=>3, "purpose"=>"purpose3", "paidTo"=>"paidTo3", "relationship"=>"relationship3", "date"=>"2012-04-03"}, {"amount"=>4, "purpose"=>"purpose4", "paidTo"=>"paidTo4", "relationship"=>"relationship4", "date"=>"2012-04-04"}],
          "expectedIncomes"=>
           [{"recipient"=>"Myself", "amount"=>1},
            {"recipient"=>"Spouse", "amount"=>2},
