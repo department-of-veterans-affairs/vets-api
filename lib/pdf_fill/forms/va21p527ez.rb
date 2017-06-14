@@ -27,6 +27,9 @@ module PdfFill
         'hasSavings' => 'F[0].Page_8[0].Account[0]',
         'checkingAccountNumber' => 'F[0].Page_8[0].CheckingAccountNumber[0]',
         'savingsAccountNumber' => 'F[0].Page_8[0].SavingsAccountNumber[0]',
+        'bankAccount' => {
+          'routingNumber' => 'F[0].Page_8[0].Routingortransitnumber[0]'
+        },
         'hasNoBankAccount' => 'F[0].Page_8[0].Account[1]',
         'monthlyIncomes' => {
           'amount' => "monthlyIncomes.amount[#{ITERATOR}]",
