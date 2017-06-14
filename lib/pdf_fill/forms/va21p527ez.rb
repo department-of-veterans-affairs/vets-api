@@ -645,8 +645,8 @@ module PdfFill
 
         expand_children(@form_data, 'children')
 
-        %w(marriages spouseMarriages).each do |marriageType|
-          expand_marriages(@form_data, marriageType)
+        %w(marriages spouseMarriages).each do |marriage_type|
+          expand_marriages(@form_data, marriage_type)
         end
 
         @form_data['spouseMarriageCount'] = @form_data['spouseMarriages']&.length
