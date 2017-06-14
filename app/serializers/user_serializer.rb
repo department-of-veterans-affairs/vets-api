@@ -51,7 +51,7 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def in_progress_forms
-    object.in_progress_forms.pluck(:form_id)
+    object.in_progress_forms.map(&:form_id)
   end
 
   def services
