@@ -23,6 +23,8 @@ module PdfFill
         'maritalStatusWidowed' => 'F[0].Page_6[0].CheckboxMaritalWidowed[0]',
         'maritalStatusDivorced' => 'F[0].Page_6[0].CheckboxMaritalDivorced[0]',
         'maritalStatusMarried' => 'F[0].Page_6[0].CheckboxMaritalMarried[0]',
+        'hasChecking' => 'F[0].Page_8[0].Account[2]',
+        'noChecking' => 'F[0].Page_8[0].Account[0]',
         'monthlyIncomes' => {
           'amount' => "monthlyIncomes.amount[#{ITERATOR}]",
           'additionalSourceName' => "monthlyIncomes.additionalSourceName[#{ITERATOR}]",
@@ -620,6 +622,10 @@ module PdfFill
         expand_expected_incomes
         expand_net_worths
         expand_monthly_incomes
+
+        @form_data.merge!(
+          expand_checkbox(@form_data['bankAccount'].try(:[], 'accountType') == 'checking', 'Checking')
+        )
 
         @form_data
       end
