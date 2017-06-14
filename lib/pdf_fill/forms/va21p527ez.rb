@@ -550,6 +550,15 @@ module PdfFill
         @form_data['expectedIncomes'] = expected_incomes
       end
 
+      def expand_bank_acct(bank_account)
+        return if bank_account.blank?
+
+        bank_account['accountType'].tap do |account_type|
+          @form_data['hasChecking'] = account_type == 'checking'
+          @form_data['hasSavings'] = account_type == 'savings'
+        end
+      end
+
       def merge_fields
         @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
 
@@ -627,10 +636,7 @@ module PdfFill
         expand_net_worths
         expand_monthly_incomes
 
-        @form_data['bankAccount'].try(:[], 'accountType').tap do |account_type|
-          @form_data['hasChecking'] = account_type == 'checking'
-          @form_data['hasSavings'] = account_type == 'savings'
-        end
+        expand_bank_acct(@form_data['bankAccount'])
 
         @form_data
       end
