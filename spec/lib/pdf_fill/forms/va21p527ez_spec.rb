@@ -540,6 +540,10 @@ describe PdfFill::Forms::VA21P527EZ do
     'combine_name_addr',
     [
       [
+        [nil],
+        nil
+      ],
+      [
         {
           'name' => 'name',
           'address' => {

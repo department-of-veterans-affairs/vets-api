@@ -255,6 +255,8 @@ module PdfFill
       end
 
       def combine_name_addr(hash)
+        return if hash.blank?
+
         hash['address'] = combine_full_address(hash['address'])
         combine_hash_and_del_keys(hash, %w(name address), 'nameAndAddr', ', ')
       end
