@@ -30,7 +30,7 @@ backend testing, you will need to reference the appropriate private repository.
 To develop locally against EVSS' CI environment you must connect through the 'EVSS Open' VPN.
 Contact your product/project manager for access.
 
-## EVSS Mock Service
+## EVSS Letters/GIBS Mock Service
 
 If you don't have VPN access, or would like to override the responses from EVSS for testing, you can enable the mock services for the GI Bill Status and 
 Letters endpoints.
