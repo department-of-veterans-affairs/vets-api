@@ -699,11 +699,36 @@ describe PdfFill::Forms::VA21P527EZ do
     it 'should merge the right fields' do
       expect(described_class.new(form_data).merge_fields).to eq(
         {"veteranFullName"=>"john middle smith Sr.",
+         "bankAccount"=>
+          {"accountNumber"=>"88888888888",
+           "accountType"=>"checking",
+           "routingNumber"=>"123456789"},
          "maritalStatus"=>"Married",
          "reasonForNotLivingWithSpouse"=>"illness",
          "spouseDateOfBirth"=>"2012-06-26",
          "spouseSocialSecurityNumber"=>"111223334",
          "monthlySpousePayment"=>1,
+         "otherExpenses"=>
+          [{"amount"=>1,
+            "purpose"=>"purpose1",
+            "paidTo"=>"paidTo1",
+            "relationship"=>"relationship1",
+            "date"=>"2012-04-01"},
+           {"amount"=>2,
+            "purpose"=>"purpose2",
+            "paidTo"=>"paidTo2",
+            "relationship"=>"relationship2",
+            "date"=>"2012-04-02"},
+           {"amount"=>3,
+            "purpose"=>"purpose3",
+            "paidTo"=>"paidTo3",
+            "relationship"=>"relationship3",
+            "date"=>"2012-04-03"},
+           {"amount"=>4,
+            "purpose"=>"purpose4",
+            "paidTo"=>"paidTo4",
+            "relationship"=>"relationship4",
+            "date"=>"2012-04-04"}],
          "children"=>
           [{"childDateOfBirth"=>"2012-06-01",
             "childFullName"=>"Mark1 Olson",
@@ -847,6 +872,8 @@ describe PdfFill::Forms::VA21P527EZ do
          "noSpouseIsVeteran"=>false,
          "hasLiveWithSpouse"=>true,
          "noLiveWithSpouse"=>false,
+         "hasNoBankAccount"=>false,
+         "noNoBankAccount"=>true,
          "nightPhoneAreaCode"=>"012",
          "dayPhoneAreaCode"=>"112",
          "mobilePhoneAreaCode"=>"212",
@@ -885,7 +912,6 @@ describe PdfFill::Forms::VA21P527EZ do
          "spouseMarriageCount"=>2,
          "marriageCount"=>2,
          "maritalStatusMarried"=>true,
-         "otherExpenses" => [{"amount"=>1, "purpose"=>"purpose1", "paidTo"=>"paidTo1", "relationship"=>"relationship1", "date"=>"2012-04-01"}, {"amount"=>2, "purpose"=>"purpose2", "paidTo"=>"paidTo2", "relationship"=>"relationship2", "date"=>"2012-04-02"}, {"amount"=>3, "purpose"=>"purpose3", "paidTo"=>"paidTo3", "relationship"=>"relationship3", "date"=>"2012-04-03"}, {"amount"=>4, "purpose"=>"purpose4", "paidTo"=>"paidTo4", "relationship"=>"relationship4", "date"=>"2012-04-04"}],
          "expectedIncomes"=>
           [{"recipient"=>"Myself", "amount"=>1},
            {"recipient"=>"Spouse", "amount"=>2},
@@ -918,7 +944,9 @@ describe PdfFill::Forms::VA21P527EZ do
             "additionalSourceName"=>"name2"},
            {"recipient"=>"outside1 Olson",
             "amount"=>10,
-            "additionalSourceName"=>"name3"}]}
+            "additionalSourceName"=>"name3"}],
+         "hasChecking"=>true,
+         "hasSavings"=>false}
       )
     end
   end
