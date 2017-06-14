@@ -11,7 +11,7 @@
   },
   "bankAccount": {
     "accountNumber": "88888888888",
-    "accountType": "checking",
+    "accountType": "savings",
     "routingNumber": "123456789"
   },
   "spouseIsVeteran": true,
