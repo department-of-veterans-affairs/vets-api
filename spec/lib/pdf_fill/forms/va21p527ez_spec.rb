@@ -49,6 +49,17 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     basic_class,
+    'expand_bank_acct',
+    [
+      [
+        [nil],
+        nil
+      ]
+    ]
+  )
+
+  test_method(
+    basic_class,
     'expand_financial_acct',
     [
       [
@@ -873,8 +884,8 @@ describe PdfFill::Forms::VA21P527EZ do
          "noSpouseIsVeteran"=>false,
          "hasLiveWithSpouse"=>true,
          "noLiveWithSpouse"=>false,
-         "hasNoBankAccount"=>false,
-         "noNoBankAccount"=>true,
+         "noRapidProcessing" => true,
+         "noBankAccount"=>true,
          "nightPhoneAreaCode"=>"012",
          "dayPhoneAreaCode"=>"112",
          "mobilePhoneAreaCode"=>"212",

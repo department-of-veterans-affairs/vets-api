@@ -556,7 +556,6 @@ module PdfFill
 
       def expand_bank_acct(bank_account)
         return if bank_account.blank?
-        # TODO spec
 
         account_type = bank_account['accountType']
         @form_data['hasChecking'] = account_type == 'checking'
@@ -566,6 +565,8 @@ module PdfFill
         if account_type.present?
           @form_data["#{account_type}AccountNumber"] = account_number
         end
+
+        @form_data
       end
 
       def merge_fields
