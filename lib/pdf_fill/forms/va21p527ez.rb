@@ -26,6 +26,7 @@ module PdfFill
         'hasChecking' => 'F[0].Page_8[0].Account[2]',
         'hasSavings' => 'F[0].Page_8[0].Account[0]',
         'checkingAccountNumber' => 'F[0].Page_8[0].CheckingAccountNumber[0]',
+        'noRapidProcessing' => 'F[0].Page_8[0].CheckBox1[0]',
         'savingsAccountNumber' => 'F[0].Page_8[0].SavingsAccountNumber[0]',
         'bankAccount' => {
           'routingNumber' => 'F[0].Page_8[0].Routingortransitnumber[0]'

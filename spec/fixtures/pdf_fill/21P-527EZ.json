@@ -15,6 +15,7 @@
     "accountType": "checking",
     "routingNumber": "123456789"
   },
+  "noRapidProcessing": true,
   "spouseIsVeteran": true,
   "liveWithSpouse": true,
   "maritalStatus": "Married",
