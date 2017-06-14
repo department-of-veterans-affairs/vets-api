@@ -498,7 +498,7 @@ module PdfFill
         end
 
         financial_accts.each do |acct_type, accts|
-          if accts.size == 0 && acct_type != 'additionalSources'
+          if accts.size.zero? && acct_type != 'additionalSources'
             accts << {
               'recipient' => 'Myself',
               'amount' => 0

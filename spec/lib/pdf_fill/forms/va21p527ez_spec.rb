@@ -18,9 +18,9 @@ describe PdfFill::Forms::VA21P527EZ do
           'salary' => 1
         }
       ).expand_expected_incomes).to eq(
-        [{"recipient"=>"Myself", "amount"=>1},
+        [{ 'recipient' => 'Myself', 'amount' => 1 },
          nil,
-         {"recipient"=>"Myself", "amount"=>0},
+         { 'recipient' => 'Myself', 'amount' => 0 },
          nil,
          nil,
          nil]
@@ -35,13 +35,13 @@ describe PdfFill::Forms::VA21P527EZ do
           'socialSecurity' => 1
         }
       ).expand_monthly_incomes).to eq(
-        [{"recipient"=>"Myself", "amount"=>1},
+        [{ 'recipient' => 'Myself', 'amount' => 1 },
          nil,
-         {"recipient"=>"Myself", "amount"=>0},
-         {"recipient"=>"Myself", "amount"=>0},
-         {"recipient"=>"Myself", "amount"=>0},
-         {"recipient"=>"Myself", "amount"=>0},
-         {"recipient"=>"Myself", "amount"=>0},
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         { 'recipient' => 'Myself', 'amount' => 0 },
          nil,
          nil,
          nil]
@@ -56,12 +56,12 @@ describe PdfFill::Forms::VA21P527EZ do
           'bank' => 1
         }
       ).expand_net_worths).to eq(
-        [{"recipient"=>"Myself", "amount"=>1},
-         {"recipient"=>"Myself", "amount"=>0},
-         {"recipient"=>"Myself", "amount"=>0},
-         {"recipient"=>"Myself", "amount"=>0},
-         {"recipient"=>"Myself", "amount"=>0},
-         {"recipient"=>"Myself", "amount"=>0},
+        [{ 'recipient' => 'Myself', 'amount' => 1 },
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         { 'recipient' => 'Myself', 'amount' => 0 },
          nil,
          nil]
       )
