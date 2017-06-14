@@ -230,13 +230,21 @@ describe PdfFill::Forms::VA21P527EZ do
         [[
           { 'dateRange' => { 'from' => '2012-04-01', 'to' => '2013-05-01' },
             'employer' => 'job1',
-            'address' => { 'city' => 'city1', 'country' => 'USA', 'postalCode' => '21231', 'state' => 'MD', 'street' => 'str1' },
+            'address' => { 'city' => 'city1',
+                           'country' => 'USA',
+                           'postalCode' => '21231',
+                           'state' => 'MD',
+                           'street' => 'str1' },
             'annualEarnings' => 10,
             'jobTitle' => 'worker1',
             'daysMissed' => '1' },
           { 'dateRange' => { 'from' => '2012-04-02', 'to' => '2013-05-02' },
             'employer' => 'job2',
-            'address' => { 'city' => 'city2', 'country' => 'USA', 'postalCode' => '21231', 'state' => 'MD', 'street' => 'str2' },
+            'address' => { 'city' => 'city2',
+                           'country' => 'USA',
+                           'postalCode' => '21231',
+                           'state' => 'MD',
+                           'street' => 'str2' },
             'annualEarnings' => 20,
             'jobTitle' => 'worker2',
             'daysMissed' => '2' }
@@ -663,16 +671,22 @@ describe PdfFill::Forms::VA21P527EZ do
           :children
         ],
         { :children =>
-          [{ 'childFullName' => 'outside1 Olson', 'childAddress' => 'str1, city1, MD, 21231, USA', 'personWhoLivesWithChild' => nil },
+          [{ 'childFullName' => 'outside1 Olson',
+             'childAddress' => 'str1, city1, MD, 21231, USA',
+             'personWhoLivesWithChild' => nil },
            { 'childFullName' => nil, 'personWhoLivesWithChild' => nil, 'childAddress' => nil },
-           { 'childFullName' => nil, 'personWhoLivesWithChild' => nil, 'childAddress' => nil }],
+           { 'childFullName' => nil,
+             'personWhoLivesWithChild' => nil,
+             'childAddress' => nil }],
           'outsideChildren' =>
           [{ 'childFullName' => 'outside1 Olson',
              'childAddress' => 'str1, city1, MD, 21231, USA',
              'childNotInHousehold' => true,
              'personWhoLivesWithChild' => nil },
            { 'childFullName' => nil, 'personWhoLivesWithChild' => nil, 'childAddress' => nil },
-           { 'childFullName' => nil, 'personWhoLivesWithChild' => nil, 'childAddress' => nil }] }
+           { 'childFullName' => nil,
+             'personWhoLivesWithChild' => nil,
+             'childAddress' => nil }] }
       ]
     ]
   )
