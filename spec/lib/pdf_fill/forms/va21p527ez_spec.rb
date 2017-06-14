@@ -47,16 +47,50 @@ describe PdfFill::Forms::VA21P527EZ do
     end
   end
 
-  test_method(
-    basic_class,
-    'expand_bank_acct',
-    [
-      [
-        [nil],
-        nil
-      ]
-    ]
-  )
+  describe '#expand_bank_acct' do
+    let(:bank_account) do
+      {
+        "accountNumber" => "88888888888",
+        "routingNumber" => "123456789"
+      }
+    end
+
+    subject do
+      basic_class.expand_bank_acct(bank_account)
+    end
+
+    context 'when bank account is blank' do
+      let(:bank_account) { nil }
+
+      it 'should return nil' do
+        expect(subject).to eq(nil)
+      end
+    end
+
+    context 'with savings account' do
+      before do
+        bank_account['accountType'] = 'savings'
+      end
+
+      it 'should return savings account values' do
+        expect(subject).to eq(
+          {"hasChecking"=>false, "hasSavings"=>true, "savingsAccountNumber"=>"88888888888"}
+        )
+      end
+    end
+
+    context 'with checking account' do
+      before do
+        bank_account['accountType'] = 'checking'
+      end
+
+      it 'should return checking account values' do
+        expect(subject).to eq(
+          {"hasChecking"=>true, "hasSavings"=>false, "checkingAccountNumber"=>"88888888888"}
+        )
+      end
+    end
+  end
 
   test_method(
     basic_class,
