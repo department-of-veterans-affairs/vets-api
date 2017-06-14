@@ -556,6 +556,7 @@ module PdfFill
 
       def expand_bank_acct(bank_account)
         return if bank_account.blank?
+        # TODO spec
 
         account_type = bank_account['accountType']
         @form_data['hasChecking'] = account_type == 'checking'
