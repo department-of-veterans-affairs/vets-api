@@ -31,7 +31,7 @@ module PdfFill
         'bankAccount' => {
           'routingNumber' => 'F[0].Page_8[0].Routingortransitnumber[0]'
         },
-        'hasNoBankAccount' => 'F[0].Page_8[0].Account[1]',
+        'noBankAccount' => 'F[0].Page_8[0].Account[1]',
         'monthlyIncomes' => {
           'amount' => "monthlyIncomes.amount[#{ITERATOR}]",
           'additionalSourceName' => "monthlyIncomes.additionalSourceName[#{ITERATOR}]",
@@ -585,7 +585,6 @@ module PdfFill
           combatSince911
           spouseIsVeteran
           liveWithSpouse
-          noBankAccount
         ).each do |attr|
           @form_data.merge!(public_send("expand_chk_and_del_key", @form_data, attr))
         end

@@ -5,7 +5,7 @@
     "last": "smith",
     "suffix": "Sr."
   },
-  "noBankAccount": false,
+  "noBankAccount": true,
   "powDateRange": {
     "from": "2012-04-10",
     "to": "2013-05-10"
