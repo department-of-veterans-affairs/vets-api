@@ -438,14 +438,14 @@ module PdfFill
       def expand_marriages(hash, key)
         marriages = hash[key]
         return if marriages.blank?
-        otherExplanations = []
+        other_explanations = []
 
         marriages.each do |marriage|
           marriage['spouseFullName'] = combine_full_name(marriage['spouseFullName'])
-          otherExplanations << marriage['otherExplanation'] if marriage['otherExplanation'].present?
+          other_explanations << marriage['otherExplanation'] if marriage['otherExplanation'].present?
         end
 
-        hash["#{key}Explanations"] = otherExplanations.join(', ')
+        hash["#{key}Explanations"] = other_explanations.join(', ')
 
         hash
       end
