@@ -25,6 +25,7 @@ module PdfFill
         'maritalStatusMarried' => 'F[0].Page_6[0].CheckboxMaritalMarried[0]',
         'hasChecking' => 'F[0].Page_8[0].Account[2]',
         'hasSavings' => 'F[0].Page_8[0].Account[0]',
+        'hasNoBankAccount' => 'F[0].Page_8[0].Account[1]',
         'monthlyIncomes' => {
           'amount' => "monthlyIncomes.amount[#{ITERATOR}]",
           'additionalSourceName' => "monthlyIncomes.additionalSourceName[#{ITERATOR}]",
@@ -565,6 +566,7 @@ module PdfFill
           combatSince911
           spouseIsVeteran
           liveWithSpouse
+          noBankAccount
         ).each do |attr|
           @form_data.merge!(public_send("expand_chk_and_del_key", @form_data, attr))
         end
