@@ -393,10 +393,7 @@ module PdfFill
         hash
       end
 
-      def expand_children(hash, key)
-        children = hash[key]
-        return if children.blank?
-
+      def split_children(children)
         children_split = {
           outside: [],
           cohabiting: []
@@ -405,6 +402,15 @@ module PdfFill
         children.each do |child|
           children_split[child['childNotInHousehold'] ? :outside : :cohabiting] << child
         end
+
+        children_split
+      end
+
+      def expand_children(hash, key)
+        children = hash[key]
+        return if children.blank?
+
+        children_split = split_children(children)
 
         3.times do |i|
           children_split.each do |_k, v|
