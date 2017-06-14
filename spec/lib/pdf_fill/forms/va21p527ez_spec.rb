@@ -311,6 +311,10 @@ describe PdfFill::Forms::VA21P527EZ do
     'combine_va_hospital_dates',
     [
       [
+        [nil],
+        nil
+      ],
+      [
         [[
           {}
         ]],
