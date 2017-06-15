@@ -597,7 +597,39 @@ module PdfFill
         @form_data
       end
 
-      def cont_merge_fields
+      def replace_phone_fields
+        %w(nightPhone dayPhone mobilePhone).each do |attr|
+          replace_phone(@form_data, attr)
+        end
+        replace_phone(@form_data['nationalGuard'], 'phone')
+      end
+
+      # rubocop:disable Metrics/AbcSize
+      # rubocop:disable Metrics/MethodLength
+      def merge_fields
+        @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
+
+        %w(
+          gender
+          vaFileNumber
+          previousNames
+          severancePay
+          powDateRange
+        ).each do |attr|
+          @form_data.merge!(public_send("expand_#{attr.underscore}", @form_data[attr]))
+        end
+
+        %w(
+          nationalGuardActivation
+          combatSince911
+          spouseIsVeteran
+          liveWithSpouse
+        ).each do |attr|
+          @form_data.merge!(public_send('expand_chk_and_del_key', @form_data, attr))
+        end
+
+        replace_phone_fields
+
         @form_data['vaHospitalTreatments'].tap do |va_hospital_treatments|
           @form_data['vaHospitalTreatmentNames'] = combine_va_hospital_names(va_hospital_treatments)
           @form_data['vaHospitalTreatmentDates'] = rearrange_hospital_dates(
@@ -622,10 +654,6 @@ module PdfFill
           expand_date_range(@form_data, attr)
         end
 
-        cont_merge_fields2
-      end
-
-      def cont_merge_fields2
         @form_data['jobs'].tap do |jobs|
           next if jobs.blank?
 
@@ -655,40 +683,8 @@ module PdfFill
 
         @form_data
       end
-
-      def replace_phone_fields
-        %w(nightPhone dayPhone mobilePhone).each do |attr|
-          replace_phone(@form_data, attr)
-        end
-        replace_phone(@form_data['nationalGuard'], 'phone')
-      end
-
-      def merge_fields
-        @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
-
-        %w(
-          gender
-          vaFileNumber
-          previousNames
-          severancePay
-          powDateRange
-        ).each do |attr|
-          @form_data.merge!(public_send("expand_#{attr.underscore}", @form_data[attr]))
-        end
-
-        %w(
-          nationalGuardActivation
-          combatSince911
-          spouseIsVeteran
-          liveWithSpouse
-        ).each do |attr|
-          @form_data.merge!(public_send('expand_chk_and_del_key', @form_data, attr))
-        end
-
-        replace_phone_fields
-
-        cont_merge_fields
-      end
+      # rubocop:enable Metrics/MethodLength
+      # rubocop:enable Metrics/AbcSize
     end
   end
 end
