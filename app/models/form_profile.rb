@@ -94,7 +94,7 @@ class FormProfile
         first: user.first_name&.capitalize,
         middle: user.middle_name&.capitalize,
         last: user.last_name&.capitalize,
-        suffix: user.va_profile.suffix
+        suffix: user.va_profile&.suffix
       },
       date_of_birth: user.birth_date,
       gender: user.gender,
@@ -103,6 +103,7 @@ class FormProfile
   end
 
   def initialize_contact_information(user)
+    return nil if user.va_profile.nil?
     address = {
       street: user.va_profile.address.street,
       street2: nil,
@@ -135,21 +136,14 @@ class FormProfile
     if value.is_a?(Hash)
       clean_hash!(value)
     elsif value.is_a?(Array)
-      result = value.map do |item|
-        clean!(item)
-      end
-      result.delete_if(&:blank?)
-    elsif value.in?([true, false]) || value.is_a?(Numeric)
-      value.to_s
+      value.map(&:clean!).delete_if(&:blank?)
     else
       value
     end
   end
 
   def clean_hash!(hash)
-    hash.each do |k, v|
-      hash[k] = clean!(v)
-    end
+    hash.each { |k, v| hash[k] = clean!(v) }
     hash.delete_if { |_k, v| v.blank? }
   end
 end
