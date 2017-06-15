@@ -49,6 +49,7 @@
               "type": "boolean"
             },
             "military_service": {
+              "type": "array",
               "items": {
                 "properties": {
                   "branch": {
@@ -65,8 +66,7 @@
                   }
                 },
                 "type": "object"
-              },
-              "type": "array"
+              }
             }
           },
           "required": [
