@@ -14,6 +14,7 @@
     "remarriageDate": "2016-12-15"
   },
   "benefit": "chapter35",
+  "currentSameAsPrevious": true,
   "previousBenefits": {
     "disability": true,
     "dic": true,
@@ -93,12 +94,6 @@
     },
     "phone": "5550001111"
   },
-  "veteranFullName": {
-    "first": "Mark",
-    "last": "Olson"
-  },
-  "veteranSocialSecurityNumber": "111223333",
-  "vaFileNumber": "c12345678",
   "veteranDateOfBirth": "1985-01-07",
   "veteranDateOfDeath": "1985-01-08",
   "educationStartDate": "1985-01-09",

@@ -5,7 +5,7 @@ require 'common/client/concerns/service_status'
 class UserSerializer < ActiveModel::Serializer
   include Common::Client::ServiceStatus
 
-  attributes :services, :profile, :va_profile, :veteran_status
+  attributes :in_progress_forms, :services, :profile, :va_profile, :veteran_status
 
   def id
     nil
@@ -48,6 +48,10 @@ class UserSerializer < ActiveModel::Serializer
     { status: RESPONSE_STATUS[:not_found] }
   rescue StandardError
     { status: RESPONSE_STATUS[:server_error] }
+  end
+
+  def in_progress_forms
+    object.in_progress_forms.map(&:form_id)
   end
 
   def services

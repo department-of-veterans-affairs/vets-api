@@ -5,9 +5,8 @@ module AppealsStatus
   module Models
     class Hearing < Common::Base
       include Virtus.model
-
-      attribute :requested, Boolean
-      attribute :scheduled, Boolean
+      attribute :id, Integer
+      attribute :type, String
       attribute :date, Date
     end
   end
