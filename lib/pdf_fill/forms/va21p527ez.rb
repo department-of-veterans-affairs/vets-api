@@ -142,7 +142,11 @@ module PdfFill
         'dayPhoneAreaCode' => { key: 'F[0].Page_5[0].Daytimeareacode[0]' },
         'vaHospitalTreatmentNames' => { key: 'F[0].Page_5[0].Nameandlocationofvamedicalcenter[%iterator%]' },
         'serviceBranch' => { key: 'F[0].Page_5[0].Branchofservice[0]' },
-        'veteranAddressLine1' => { key: 'F[0].Page_5[0].Currentaddress[0]' },
+        'veteranAddressLine1' => {
+          key: 'F[0].Page_5[0].Currentaddress[0]',
+          limit: 53,
+          question: '7A. Street address'
+        },
         'email' => { key: 'F[0].Page_5[0].Preferredemailaddress[0]' },
         'altEmail' => { key: 'F[0].Page_5[0].Alternateemailaddress[0]' },
         'cityState' => { key: 'F[0].Page_5[0].Citystatezipcodecountry[0]' },

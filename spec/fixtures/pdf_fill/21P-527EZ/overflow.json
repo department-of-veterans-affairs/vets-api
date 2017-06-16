@@ -372,8 +372,8 @@
     "city": "Baltimore",
     "country": "USA",
     "postalCode": "21231",
-    "street": "street",
-    "street2": "street2",
+    "street": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "street2": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "state": "MD"
   },
   "serviceBranch": "army",
