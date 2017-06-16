@@ -153,7 +153,10 @@ module PdfFill
           'disabilityStartDate' => { key: 'F[0].Page_5[0].DateDisabilityBegan[%iterator%]' }
         },
         'vaHospitalTreatmentDates' => { key: 'F[0].Page_5[0].DateofTreatment[%iterator%]' },
-        'veteranFullName' => { key: 'F[0].Page_5[0].Veteransname[0]' }
+        'veteranFullName' => {
+          limit: 30,
+          key: 'F[0].Page_5[0].Veteransname[0]'
+        }
       }.freeze
 
       def initialize(form_data)
