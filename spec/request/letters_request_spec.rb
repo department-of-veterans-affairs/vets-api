@@ -25,8 +25,8 @@ RSpec.describe 'letters', type: :request do
       end
     end
 
-    # TODO(AJD): this use case happens 500 status but unauthorized message
-    # check with evss that they shouldn't be returning 403
+    # TODO(AJD): this use case happens, 500 status but unauthorized message
+    # check with evss that they shouldn't be returning 403 instead
     context 'with an 500 unauthorized response' do
       it 'should return a not authorized response' do
         VCR.use_cassette('evss/letters/unauthorized') do
