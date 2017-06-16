@@ -6,7 +6,7 @@ RSpec.describe 'Cemeteries Integration', type: :request do
 
   it 'responds to GET #index' do
     VCR.use_cassette('burials/states/gets_a_list_of_states') do
-      get '/v0/burials/cemeteries/'
+      get '/v0/burials/burial_states/'
     end
 
     expect(response).to be_success
