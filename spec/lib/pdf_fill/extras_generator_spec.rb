@@ -10,7 +10,8 @@ describe PdfFill::ExtrasGenerator do
   describe '#add_text' do
     it 'should add text to the variable' do
       subject.add_text('foo')
-      expect(subject.instance_variable_get(:@text)).to eq("foo\n")
+      subject.add_text('bar')
+      expect(subject.instance_variable_get(:@text)).to eq("Additional Information\n\nfoo\nbar\n")
     end
   end
 
