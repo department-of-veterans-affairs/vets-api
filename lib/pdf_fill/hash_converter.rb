@@ -5,6 +5,8 @@ module PdfFill
   class HashConverter
     ITERATOR = '%iterator%'
 
+    attr_reader :extras_generator
+
     def initialize(date_strftime)
       @pdftk_form = {}
       @date_strftime = date_strftime
@@ -28,8 +30,15 @@ module PdfFill
       end
     end
 
-    def set_value(k, v)
-      @pdftk_form[k] = convert_value(v)
+    def set_value(k, v, key_data)
+      new_value = convert_value(v)
+
+      if key_data[:limit].present? && new_value.size > key_data[:limit]
+        @extras_generator.add_text("#{key_data[:question]}. #{new_value}")
+        new_value = "See add'l info page"
+      end
+
+      @pdftk_form[k] = new_value
     end
 
     def transform_data(form_data:, pdftk_keys:, i: nil)
@@ -51,7 +60,7 @@ module PdfFill
       else
         key = pdftk_keys[:key]
         key = key.gsub(ITERATOR, i.to_s) unless i.nil?
-        set_value(key, form_data)
+        set_value(key, form_data, pdftk_keys)
       end
 
       @pdftk_form
