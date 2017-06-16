@@ -33,6 +33,13 @@ module Preneeds
       Common::Collection.new(::PreneedsAttachmentType, data: json[:attachment_types])
     end
 
+    def get_branches_of_service
+      soap = savon_client.build_request(:get_branches_of_service, message: {})
+      json = perform(:post, '', soap.body).body
+
+      Common::Collection.new(::BranchesOfService, data: json[:branches_of_service])
+    end
+
     private
 
     def savon_client
