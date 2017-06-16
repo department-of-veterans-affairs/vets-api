@@ -3,6 +3,8 @@
 module PdfFill
   module Forms
     class VA21P527EZ
+      # TODO convert or remove xx dates
+
       ITERATOR = PdfFill::HashConverter::ITERATOR
       DATE_STRFTIME = '%m/%d/%Y'
       KEY = {
