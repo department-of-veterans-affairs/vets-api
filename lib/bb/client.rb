@@ -11,6 +11,7 @@ module BB
   class Client < Common::Client::Base
     include Common::Client::MHVSessionBasedClient
     include Common::Client::StreamingClient
+    include SentryLogging
 
     configuration BB::Configuration
     client_session Rx::ClientSession
@@ -19,6 +20,7 @@ module BB
     # to process, but its the only way to refresh a user's data
     def get_extract_status
       json = perform(:get, 'bluebutton/extractstatus', nil, token_headers).body
+      log_refresh_errors(json[:data]) if refresh_final?(json[:data])
       Common::Collection.new(ExtractStatus, json)
     end
 
@@ -50,6 +52,20 @@ module BB
       # uri = URI("#{Settings.mhv.rx.host}/vetsgov/90mb.file")
       uri = URI.join(config.base_path, "bluebutton/bbreport/#{doctype}")
       streaming_get(uri, token_headers, header_callback, yielder)
+    end
+
+    private
+
+    def refresh_final?(attrs)
+      attrs.all? { |e| e[:status].present? }
+    end
+
+    def log_refresh_errors(attrs)
+      failed = attrs.select { |e| e[:status] == 'ERROR' }.map { |e| e[:extract_type] }
+      if failed.present?
+        log_message_to_sentry('Final health record refresh contained one or more error statuses', :warn,
+                              refresh_failures: failed.sort)
+      end
     end
   end
 end
