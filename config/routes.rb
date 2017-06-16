@@ -9,7 +9,11 @@ Rails.application.routes.draw do
 
   namespace :v0, defaults: { format: 'json' } do
     resources :in_progress_forms, only: [:index, :show, :update]
-    resources :letters, only: [:index, :show]
+    resources :letters, only: [:index, :show] do
+      collection do
+        get 'beneficiary', to: 'letters#beneficiary'
+      end
+    end
 
     resource :sessions, only: [:new, :destroy] do
       post :saml_callback, to: 'sessions#saml_callback'
