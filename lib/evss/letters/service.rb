@@ -7,9 +7,15 @@ module EVSS
     class Service < EVSS::BaseService
       BASE_URL = "#{Settings.evss.url}/wss-lettergenerator-services-web/rest/letters/v1"
 
+      def initialize(headers)
+        super(headers)
+      end
+
       def get_letters
         raw_response = get ''
-        EVSS::Letters::LettersResponse.new(raw_response)
+        EVSS::Letters::LettersResponse.new(raw_response.status, raw_response)
+      rescue Faraday::ParsingError
+        EVSS::Letters::LettersResponse.new(400)
       end
 
       def get_letter_beneficiary

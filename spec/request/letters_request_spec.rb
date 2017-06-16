@@ -24,7 +24,16 @@ RSpec.describe 'letters', type: :request do
         end
       end
     end
-    # TODO(AJD): not found and server error response handling
+    context 'with an unauthorized response' do
+      it 'should return a not found response' do
+        # user.va_profile.edipi = nil
+        VCR.use_cassette('evss/letters/unauthorized') do
+          get '/v0/letters', nil, auth_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('letters')
+        end
+      end
+    end
   end
 
   describe 'GET /v0/letters/:id' do
