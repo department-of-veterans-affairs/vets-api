@@ -147,7 +147,11 @@ module PdfFill
           limit: 53,
           question: '7A. Street address'
         },
-        'email' => { key: 'F[0].Page_5[0].Preferredemailaddress[0]' },
+        'email' => {
+          key: 'F[0].Page_5[0].Preferredemailaddress[0]',
+          limit: 43,
+          question: '8A. PREFERRED E-MAIL ADDRESS'
+        },
         'altEmail' => { key: 'F[0].Page_5[0].Alternateemailaddress[0]' },
         'cityState' => {
           key: 'F[0].Page_5[0].Citystatezipcodecountry[0]',
@@ -165,7 +169,7 @@ module PdfFill
         'vaHospitalTreatmentDates' => { key: 'F[0].Page_5[0].DateofTreatment[%iterator%]' },
         'veteranFullName' => {
           limit: 30,
-          question: '1',
+          question: "1. VETERAN'S NAME",
           key: 'F[0].Page_5[0].Veteransname[0]'
         }
       }.freeze

@@ -34,7 +34,7 @@ module PdfFill
       new_value = convert_value(v)
 
       if key_data[:limit].present? && new_value.size > key_data[:limit]
-        @extras_generator.add_text("#{key_data[:question]}. #{new_value}")
+        @extras_generator.add_text("#{key_data[:question]}: #{new_value}")
         new_value = "See add'l info page"
       end
 
