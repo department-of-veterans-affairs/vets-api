@@ -46,4 +46,16 @@ RSpec.describe 'letters', type: :request do
       end
     end
   end
+
+  describe 'GET /v0/letters/beneficiary' do
+    context 'with a valid evss response' do
+      it 'should match the letter beneficiary schema' do
+        VCR.use_cassette('evss/letters/beneficiary') do
+          get '/v0/letters/beneficiary', nil, auth_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('letter_beneficiary')
+        end
+      end
+    end
+  end
 end
