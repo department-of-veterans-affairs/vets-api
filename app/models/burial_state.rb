@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'common/models/base'
 
-# Cemetery model
+# BurialState model
 class BurialState < Common::Base
   include ActiveModel::Validations
 

@@ -19,6 +19,13 @@ module Burials
       Common::Collection.new(::BurialState, data: json[:states])
     end
 
+    def get_discharge_types
+      soap = savon_client.build_request(:get_discharge_types, message: {})
+      json = perform(:post, '', soap.body).body
+
+      Common::Collection.new(::DischargeType, data: json[:discharge_types])
+    end
+
     private
 
     def savon_client

@@ -12,7 +12,7 @@ module Burials
           returns = dump['Envelope']['Body'][endpoint_resource]['return']
 
           env.response_headers['content-type'] = env.response_headers['content-type'].gsub('xml', 'json')
-          env.body = { endpoint_resource&.gsub(/Response|get|receive/, '')&.downcase => returns }
+          env.body = { endpoint_resource&.gsub(/Response|get|receive/, '')&.underscore&.downcase => returns }
         end
       end
     end
