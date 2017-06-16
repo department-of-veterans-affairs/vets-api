@@ -642,7 +642,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
   end
 
   context 'and' do
-    xit 'tests all documented routes' do
+    it 'tests all documented routes' do
       expect(subject).to validate_all_paths
     end
   end
