@@ -12,6 +12,13 @@ module Burials
       Common::Collection.new(::Cemetery, data: json[:cemeteries])
     end
 
+    def get_states
+      soap = savon_client.build_request(:get_states, message: {})
+      json = perform(:post, '', soap.body).body
+
+      Common::Collection.new(::BurialState, data: json[:states])
+    end
+
     private
 
     def savon_client

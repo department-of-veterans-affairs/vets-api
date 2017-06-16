@@ -98,7 +98,7 @@ Rails.application.routes.draw do
 
     scope :burials do
       resources :cemeteries, only: :index, defaults: { format: :json }
-      resources :states, only: :index, defaults: { format: :json }
+      resources :burial_states, only: :index, defaults: { format: :json }
       resources :discharge_types, only: :index, defaults: { format: :json }
       resources :military_ranks, only: :index, defaults: { format: :json }
       resources :branch_of_services, only: :index, defaults: { format: :json }

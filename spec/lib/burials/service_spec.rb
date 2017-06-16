@@ -5,7 +5,7 @@ require 'burials/service'
 describe Burials::Service do
   let(:subject) { described_class.new }
 
-  describe 'cemeteries' do
+  describe 'get_cemeteries' do
     it 'gets a collection of cemeteries' do
       cemeteries = VCR.use_cassette('burials/cemeteries/gets_a_list_of_cemeteries') do
         subject.get_cemeteries
@@ -13,6 +13,17 @@ describe Burials::Service do
 
       expect(cemeteries).to be_a(Common::Collection)
       expect(cemeteries.type).to eq(Cemetery)
+    end
+  end
+
+  describe 'get_states' do
+    it 'gets a collection of states' do
+      states = VCR.use_cassette('burials/states/gets_a_list_of_states') do
+        subject.get_states
+      end
+
+      expect(states).to be_a(Common::Collection)
+      expect(states.type).to eq(BurialState)
     end
   end
 end
