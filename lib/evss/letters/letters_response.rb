@@ -23,10 +23,6 @@ module EVSS
         status == 200
       end
 
-      def bad_request?
-        status == 400
-      end
-
       def metadata
         {
           address: address,
@@ -35,10 +31,12 @@ module EVSS
       end
 
       def response_status
-        case
-        when ok?
+        case status
+        when 200
           RESPONSE_STATUS[:ok]
-        when bad_request?
+        when 403
+          RESPONSE_STATUS[:not_authorized]
+        when 404
           RESPONSE_STATUS[:not_found]
         else
           RESPONSE_STATUS[:server_error]

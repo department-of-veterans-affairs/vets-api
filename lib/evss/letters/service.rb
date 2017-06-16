@@ -15,7 +15,9 @@ module EVSS
         raw_response = get ''
         EVSS::Letters::LettersResponse.new(raw_response.status, raw_response)
       rescue Faraday::ParsingError
-        EVSS::Letters::LettersResponse.new(400)
+        EVSS::Letters::LettersResponse.new(403)
+      rescue => e
+        EVSS::Letters::LettersResponse.new(e.response[:status])
       end
 
       def get_letter_beneficiary
