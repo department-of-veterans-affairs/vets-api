@@ -96,6 +96,15 @@ Rails.application.routes.draw do
       resources :calculator_constants, only: :index, defaults: { format: :json }
     end
 
+    scope :burials do
+      resources :cemeteries, only: :index, defaults: { format: :json }
+      resources :states, only: :index, defaults: { format: :json }
+      resources :discharge_types, only: :index, defaults: { format: :json }
+      resources :military_ranks, only: :index, defaults: { format: :json }
+      resources :branch_of_services, only: :index, defaults: { format: :json }
+      resources :applications, only: :create, defaults: { format: :json }
+    end
+
     resources :apidocs, only: [:index]
 
     get 'terms_and_conditions', to: 'terms_and_conditions#index'
