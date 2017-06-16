@@ -9,10 +9,13 @@ module PdfFill
     end
 
     def generate
-      file_path = "tmp/pdfs/extras_#{Time.zone.now}.pdf"
+      folder = 'tmp/pdfs'
+      FileUtils.mkdir_p(folder)
+      file_path = "#{folder}/extras_#{Time.zone.now}.pdf"
+      the_text = @text
 
       Prawn::Document.generate(file_path) do
-        text(@text)
+        text(the_text)
       end
 
       file_path

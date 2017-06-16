@@ -13,4 +13,17 @@ describe PdfFill::ExtrasGenerator do
       expect(subject.instance_variable_get(:@text)).to eq("foo\n")
     end
   end
+
+  describe '#generate' do
+    it 'should generate the pdf' do
+      subject.add_text('foo')
+      file_path = subject.generate
+
+      expect(
+        FileUtils.compare_file(file_path, "spec/fixtures/pdf_fill/extras.pdf")
+      ).to eq(true)
+
+      File.delete(file_path)
+    end
+  end
 end
