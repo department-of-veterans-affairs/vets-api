@@ -4,7 +4,7 @@ require 'common/client/configuration/soap'
 module EMIS
   class VeteranStatusConfiguration < Configuration
     def base_path
-      Settings.emis.veteran_status_url
+      "#{Settings.emis.host}#{Settings.emis.veteran_status_url}"
     end
 
     # :nocov:

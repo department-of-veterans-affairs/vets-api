@@ -4,7 +4,7 @@ require 'common/client/configuration/soap'
 module EMIS
   class PaymentConfiguration < Configuration
     def base_path
-      Settings.emis.payment_url
+      "#{Settings.emis.host}#{Settings.emis.payment_url}"
     end
 
     # :nocov:
