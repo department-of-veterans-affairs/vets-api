@@ -152,7 +152,11 @@ module PdfFill
           limit: 43,
           question: '8A. PREFERRED E-MAIL ADDRESS'
         },
-        'altEmail' => { key: 'F[0].Page_5[0].Alternateemailaddress[0]' },
+        'altEmail' => {
+          key: 'F[0].Page_5[0].Alternateemailaddress[0]',
+          limit: 43,
+          question: '8B. ALTERNATE E-MAIL ADDRESS'
+        },
         'cityState' => {
           key: 'F[0].Page_5[0].Citystatezipcodecountry[0]',
           limit: 53,
