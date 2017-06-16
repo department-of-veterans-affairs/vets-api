@@ -13,6 +13,22 @@ module PdfFill
       '21P-527EZ' => PdfFill::Forms::VA21P527EZ
     }.freeze
 
+    def combine_extras(old_file_path, extras_generator)
+      if extras_generator.has_text
+        file_path = "tmp/pdfs/form_#{Time.zone.now}_final.pdf"
+        extras_path = extras_generator.generate
+
+        PDF_FORMS.cat(old_file_path, extras_path, file_path)
+
+        File.delete(extras_path)
+        File.delete(old_file_path)
+
+        file_path
+      else
+        old_file_path
+      end
+    end
+
     def fill_form(code, form_data)
       form_class = FORM_CLASSES[code]
       folder = 'tmp/pdfs'
@@ -31,18 +47,7 @@ module PdfFill
         new_hash
       )
 
-      if hash_converter.extras_generator.has_text
-        old_file_path = file_path
-        file_path = "#{folder}/#{code}_#{Time.zone.now}_final.pdf"
-        extras_path = hash_converter.extras_generator.generate
-
-        PDF_FORMS.cat(old_file_path, extras_path, file_path)
-
-        File.delete(extras_path)
-        File.delete(old_file_path)
-      end
-
-      file_path
+      combine_extras(file_path, hash_converter.extras_generator)
     end
   end
 end
