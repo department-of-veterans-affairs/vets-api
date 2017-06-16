@@ -7,22 +7,36 @@ describe PdfFill::Filler do
 
   describe '#combine_extras' do
     let(:extras_generator) { double }
+
+    subject do
+      described_class.combine_extras('file_path', extras_generator)
+    end
+
+    context 'when extras_generator doesnt have text' do
+      it 'should return the old_file_path' do
+        expect(extras_generator).to receive(:has_text).once.and_return(false)
+
+        expect(subject).to eq('file_path')
+      end
+    end
+
     context 'when extras_generator has text' do
       before do
         expect(extras_generator).to receive(:has_text).once.and_return(true)
       end
 
       it 'should generate extras and combine the files', run_at: '2016-12-31 00:00:00 EDT' do
+        file_path = 'tmp/pdfs/form_2016-12-31 04:00:00 UTC_final.pdf'
         expect(extras_generator).to receive(:generate).once.and_return('extras.pdf')
         expect(described_class::PDF_FORMS).to receive(:cat).once.with(
           'file_path',
           'extras.pdf',
-          'tmp/pdfs/form_2016-12-31 04:00:00 UTC_final.pdf'
+          file_path
         )
         expect(File).to receive(:delete).once.with('extras.pdf')
         expect(File).to receive(:delete).once.with('file_path')
 
-        described_class.combine_extras('file_path', extras_generator)
+        expect(subject).to eq(file_path)
       end
     end
   end
