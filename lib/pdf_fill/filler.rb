@@ -19,15 +19,28 @@ module PdfFill
       FileUtils.mkdir_p(folder)
       # TODO: add the id of the form to filename and remove timestamp
       file_path = "#{folder}/#{code}_#{Time.zone.now}.pdf"
+      hash_converter = HashConverter.new(form_class::DATE_STRFTIME)
+      new_hash = hash_converter.transform_data(
+        form_data: form_class.new(form_data).merge_fields,
+        pdftk_keys: form_class::KEY
+      )
 
       PDF_FORMS.fill_form(
         "lib/pdf_fill/forms/pdfs/#{code}.pdf",
         file_path,
-        HashConverter.new(form_class::DATE_STRFTIME).transform_data(
-          form_data: form_class.new(form_data).merge_fields,
-          pdftk_keys: form_class::KEY
-        )
+        new_hash
       )
+
+      if hash_converter.extras_generator.has_text
+        old_file_path = file_path
+        file_path = "#{folder}/#{code}_#{Time.zone.now}_final.pdf"
+        extras_path = hash_converter.extras_generator.generate
+
+        PDF_FORMS.cat(old_file_path, extras_path, file_path)
+
+        File.delete(extras_path)
+        File.delete(old_file_path)
+      end
 
       file_path
     end

@@ -5,7 +5,15 @@ module PdfFill
     end
 
     def add_text(text)
+      unless has_text
+        @text += "Additional Information\n\n"
+      end
+
       @text += "#{text}\n"
+    end
+
+    def has_text
+      @text != ''
     end
 
     def generate

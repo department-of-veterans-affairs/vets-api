@@ -1,0 +1,406 @@
+{
+  "veteranFullName": {
+    "first": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "middle": "middle",
+    "last": "smith",
+    "suffix": "Sr."
+  },
+  "noBankAccount": true,
+  "powDateRange": {
+    "from": "2012-04-10",
+    "to": "2013-05-10"
+  },
+  "bankAccount": {
+    "accountNumber": "88888888888",
+    "accountType": "checking",
+    "bankName": "foo bank",
+    "routingNumber": "123456789"
+  },
+  "noRapidProcessing": true,
+  "spouseIsVeteran": true,
+  "liveWithSpouse": true,
+  "maritalStatus": "Married",
+  "reasonForNotLivingWithSpouse": "illness",
+  "spouseDateOfBirth": "2012-06-26",
+  "spouseSocialSecurityNumber": "111223334",
+  "monthlySpousePayment": 1,
+  "activeServiceDateRange": {
+    "from": "2012-06-26",
+    "to": "2013-04-10"
+  },
+  "otherExpenses": [
+    {
+      "amount": 1,
+      "purpose": "purpose1",
+      "paidTo": "paidTo1",
+      "relationship": "relationship1",
+      "date": "2012-04-01"
+    },
+    {
+      "amount": 2,
+      "purpose": "purpose2",
+      "paidTo": "paidTo2",
+      "relationship": "relationship2",
+      "date": "2012-04-02"
+    },
+    {
+      "amount": 3,
+      "purpose": "purpose3",
+      "paidTo": "paidTo3",
+      "relationship": "relationship3",
+      "date": "2012-04-03"
+    },
+    {
+      "amount": 4,
+      "purpose": "purpose4",
+      "paidTo": "paidTo4",
+      "relationship": "relationship4",
+      "date": "2012-04-04"
+    }
+  ],
+  "children": [
+    {
+      "childAddress": {
+        "city": "city1",
+        "country": "USA",
+        "postalCode": "21231",
+        "state": "MD",
+        "street": "str1"
+      },
+      "childFullName": {
+        "first": "outside1",
+        "last": "Olson"
+      },
+      "childNotInHousehold": true,
+      "personWhoLivesWithChild": {
+        "first": "person1",
+        "last": "Olson"
+      },
+      "monthlyIncome": {
+        "additionalSources": [
+          {
+            "name": "name2",
+            "amount": 9
+          },
+          {
+            "name": "name3",
+            "amount": 10
+          }
+        ]
+      },
+      "netWorth": {
+        "additionalSources": [
+          {
+            "name": "name1",
+            "amount": 8
+          }
+        ]
+      },
+      "monthlyPayment": 1
+    },
+    {
+      "childAddress": {
+        "city": "city1",
+        "country": "USA",
+        "postalCode": "21231",
+        "state": "MD",
+        "street": "str2"
+      },
+      "childFullName": {
+        "first": "outside2",
+        "last": "Olson"
+      },
+      "personWhoLivesWithChild": {
+        "first": "person2",
+        "last": "Olson"
+      },
+      "childNotInHousehold": true,
+      "monthlyPayment": 2
+    },
+    {
+      "childAddress": {
+        "city": "city1",
+        "country": "USA",
+        "postalCode": "21231",
+        "state": "MD",
+        "street": "str3"
+      },
+      "childFullName": {
+        "first": "outside3",
+        "last": "Olson"
+      },
+      "personWhoLivesWithChild": {
+        "first": "person3",
+        "last": "Olson"
+      },
+      "childNotInHousehold": true,
+      "monthlyPayment": 3
+    },
+    {
+      "childDateOfBirth": "2012-06-01",
+      "childFullName": {
+        "first": "Mark1",
+        "last": "Olson"
+      },
+      "childSocialSecurityNumber": "111223331",
+      "childPlaceOfBirth": "place1",
+      "attendingCollege": true,
+      "married": true,
+      "biological": true,
+      "stepchild": true,
+      "disabled": true,
+      "adopted": true,
+      "expectedIncome": {
+        "salary": 1,
+        "additionalSources": [
+          {
+            "name": "name3",
+            "amount": 6
+          }
+        ],
+        "interest": 3
+      },
+      "previouslyMarried": true
+    },
+    {
+      "childDateOfBirth": "2012-06-02",
+      "childFullName": {
+        "first": "Mark2",
+        "last": "Olson"
+      },
+      "childSocialSecurityNumber": "111223332",
+      "childPlaceOfBirth": "place2",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "biological": true,
+      "stepchild": true,
+      "adopted": true,
+      "previouslyMarried": true
+    },
+    {
+      "childDateOfBirth": "2012-06-03",
+      "childFullName": {
+        "first": "Mark3",
+        "last": "Olson"
+      },
+      "childSocialSecurityNumber": "111223333",
+      "childPlaceOfBirth": "place3",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "biological": true,
+      "stepchild": true,
+      "adopted": true,
+      "previouslyMarried": true
+    }
+  ],
+  "spouseMarriages": [
+    {
+      "spouseFullName": {
+        "first": "spouse1",
+        "last": "Olson"
+      },
+      "otherExplanation": "spouse other",
+      "dateOfMarriage": "1985-03-01",
+      "locationOfMarriage": "marriagelocation1",
+      "locationOfSeparation": "location1",
+      "marriageType": "type1",
+      "dateOfSeparation": "1985-04-01",
+      "reasonForSeparation": "divorce1"
+    },
+    {
+      "spouseFullName": {
+        "first": "spouse2",
+        "last": "Olson"
+      },
+      "dateOfMarriage": "1985-03-02",
+      "dateOfSeparation": "1985-04-02",
+      "locationOfMarriage": "marriagelocation2",
+      "locationOfSeparation": "location2",
+      "marriageType": "type2",
+      "reasonForSeparation": "divorce2"
+    }
+  ],
+  "marriages": [
+    {
+      "spouseFullName": {
+        "first": "Mark1",
+        "last": "Olson"
+      },
+      "otherExplanation": "other",
+      "dateOfMarriage": "1985-03-01",
+      "dateOfSeparation": "1985-04-01",
+      "locationOfMarriage": "marriagelocation1",
+      "locationOfSeparation": "location1",
+      "marriageType": "type1",
+      "reasonForSeparation": "divorce1"
+    },
+    {
+      "spouseFullName": {
+        "first": "Mark2",
+        "last": "Olson"
+      },
+      "dateOfMarriage": "1985-03-02",
+      "dateOfSeparation": "1985-04-02",
+      "locationOfMarriage": "marriagelocation2",
+      "locationOfSeparation": "location2",
+      "marriageType": "type2",
+      "reasonForSeparation": "divorce2"
+    }
+  ],
+  "monthlyIncome": {
+    "socialSecurity": 1,
+    "civilService": 3,
+    "blackLung": 5,
+    "ssi": 7
+  },
+  "spouseMonthlyIncome": {
+    "socialSecurity": 2,
+    "railroad": 4,
+    "serviceRetirement": 6,
+    "additionalSources": [{
+      "name": "name1",
+      "amount": 8
+    }]
+  },
+  "netWorth": {
+    "bank": 1,
+    "interestBank": 2,
+    "ira": 3,
+    "otherProperty": 6
+  },
+  "spouseNetWorth": {
+    "stocks": 4,
+    "realProperty": 5,
+    "otherProperty": 7
+  },
+  "expectedIncome": {
+    "salary": 1,
+    "additionalSources": [
+      {
+        "name": "name1",
+        "amount": 4
+      }
+    ],
+    "interest": 3
+  },
+  "spouseExpectedIncome": {
+    "salary": 2,
+    "additionalSources": [
+      {
+        "name": "name2",
+        "amount": 5
+      }
+    ]
+  },
+  "veteranDateOfBirth": "1985-03-07",
+  "veteranSocialSecurityNumber": "111223333",
+  "spouseAddress": {
+    "city": "city1",
+    "country": "USA",
+    "postalCode": "21231",
+    "state": "MD",
+    "street": "str1"
+  },
+  "jobs": [
+    {
+      "dateRange": {
+        "from": "2012-04-01",
+        "to": "2013-05-01"
+      },
+      "employer": "job1",
+      "address": {
+        "city": "city1",
+        "country": "USA",
+        "postalCode": "21231",
+        "state": "MD",
+        "street": "str1"
+      },
+      "annualEarnings": 10,
+      "jobTitle": "worker1",
+      "daysMissed": "1"
+    },
+    {
+      "dateRange": {
+        "from": "2012-04-02",
+        "to": "2013-05-02"
+      },
+      "employer": "job2",
+      "address": {
+        "city": "city2",
+        "country": "USA",
+        "postalCode": "21231",
+        "state": "MD",
+        "street": "str2"
+      },
+      "annualEarnings": 20,
+      "jobTitle": "worker2",
+      "daysMissed": "2"
+    }
+  ],
+  "nationalGuard": {
+    "date": "2013-04-11",
+    "name": "foo",
+    "address": {
+      "city": "Baltimore",
+      "country": "USA",
+      "postalCode": "21231",
+      "state": "MD",
+      "street": "111 Uni Drive"
+    },
+    "phone": "2123456789"
+  },
+  "nationalGuardActivation": true,
+  "previousNames": [
+    {
+      "first": "name1",
+      "last": "last1"
+    },
+    {
+      "first": "name2",
+      "last": "last2"
+    }
+  ],
+  "combatSince911": true,
+  "severancePay": {
+    "amount": 1,
+    "type": "Longevity"
+  },
+  "placeOfSeparation": "city, state",
+  "veteranAddress": {
+    "city": "Baltimore",
+    "country": "USA",
+    "postalCode": "21231",
+    "street": "street",
+    "street2": "street2",
+    "state": "MD"
+  },
+  "serviceBranch": "army",
+  "email": "foo@foo.com",
+  "altEmail": "alt@foo.com",
+  "nightPhone": "0123456789",
+  "dayPhone": "1123456789",
+  "mobilePhone": "2123456789",
+  "spouseVaFileNumber": "c22345678",
+  "vaFileNumber": "c12345678",
+  "vaHospitalTreatments": [
+    {
+      "name": "hospital1",
+      "dates": ["2016-01-01", "2016-01-02"],
+      "location": "nyc"
+    },
+    {
+      "name": "hospital2",
+      "dates": ["2016-12-01", "2016-12-02", "2016-12-03"],
+      "location": "dc"
+    }
+  ],
+  "disabilities": [
+    {
+      "name": "disability 1",
+      "disabilityStartDate": "2016-12-01"
+    }
+  ],
+  "gender": "M"
+}
