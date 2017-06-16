@@ -756,10 +756,6 @@ describe PdfFill::Forms::VA21P527EZ do
     ]
   )
 
-  it 'form data should match json schema' do
-    expect(form_data.to_json).to match_vets_schema('21P-527EZ')
-  end
-
   describe '#combine_full_name' do
     let(:full_name) do
       form_data['veteranFullName']
