@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module V0
-  class BurialStatesController < BurialsController
+  class PreneedsStatesController < PreneedsController
     # We call authenticate_token because auth is optional on this endpoint.
     skip_before_action(:authenticate)
 
@@ -9,7 +9,7 @@ module V0
       resource = client.get_states
       render json: resource.data,
              serializer: CollectionSerializer,
-             each_serializer: BurialStateSerializer
+             each_serializer: PreneedsStateSerializer
     end
   end
 end

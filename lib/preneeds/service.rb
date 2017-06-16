@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 require 'common/client/base'
 
-module Burials
+module Preneeds
   class Service < Common::Client::Base
-    configuration Burials::Configuration
+    configuration Preneeds::Configuration
 
     def get_cemeteries
       soap = savon_client.build_request(:get_cemeteries, message: {})
@@ -16,7 +16,7 @@ module Burials
       soap = savon_client.build_request(:get_states, message: {})
       json = perform(:post, '', soap.body).body
 
-      Common::Collection.new(::BurialState, data: json[:states])
+      Common::Collection.new(::PreneedsState, data: json[:states])
     end
 
     def get_discharge_types
@@ -26,10 +26,17 @@ module Burials
       Common::Collection.new(::DischargeType, data: json[:discharge_types])
     end
 
+    def get_attachment_types
+      soap = savon_client.build_request(:get_attachment_types, message: {})
+      json = perform(:post, '', soap.body).body
+
+      Common::Collection.new(::PreneedsAttachmentType, data: json[:attachment_types])
+    end
+
     private
 
     def savon_client
-      @savon ||= Savon.client(wsdl: Settings.burials.preneeds_wsdl)
+      @savon ||= Savon.client(wsdl: Settings.preneeds.preneeds_wsdl)
     end
   end
 end

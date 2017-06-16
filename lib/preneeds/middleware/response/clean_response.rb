@@ -1,10 +1,10 @@
 # frozen_string_literal: true
-module Burials
+module Preneeds
   module Middleware
     module Response
       class CleanResponse < Faraday::Response::Middleware
         def on_complete(env)
-          return unless env.url.to_s == Settings.burials.endpoint && env.success?
+          return unless env.url.to_s == Settings.preneeds.endpoint && env.success?
 
           relevant_xml = env.body&.scan(%r{<S:Envelope[^<>]*>.*</S:Envelope[^<>]*>}i)&.first
           env.body = relevant_xml if relevant_xml.present?
@@ -14,4 +14,4 @@ module Burials
   end
 end
 
-Faraday::Response.register_middleware clean_response: Burials::Middleware::Response::CleanResponse
+Faraday::Response.register_middleware clean_response: Preneeds::Middleware::Response::CleanResponse

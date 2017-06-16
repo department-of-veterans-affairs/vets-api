@@ -1,8 +1,8 @@
 # frozen_string_literal: true
-class BurialStateSerializer < ActiveModel::Serializer
+class PreneedsStateSerializer < ActiveModel::Serializer
   attribute :id
 
-  attribute(:burial_state_id) { object.id }
+  attribute(:preneeds_state_id) { object.id }
   attribute :code
   attribute :first_five_zip
   attribute :last_five_zip

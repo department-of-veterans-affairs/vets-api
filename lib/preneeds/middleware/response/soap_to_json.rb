@@ -1,10 +1,10 @@
 # frozen_string_literal: true
-module Burials
+module Preneeds
   module Middleware
     module Response
       class SoapToJson < Faraday::Response::Middleware
         def on_complete(env)
-          return unless env.url.to_s == Settings.burials.endpoint
+          return unless env.url.to_s == Settings.preneeds.endpoint
 
           dump = Hash.from_xml Ox.dump(env.body)
 
@@ -19,4 +19,4 @@ module Burials
   end
 end
 
-Faraday::Response.register_middleware soap_to_json: Burials::Middleware::Response::SoapToJson
+Faraday::Response.register_middleware soap_to_json: Preneeds::Middleware::Response::SoapToJson

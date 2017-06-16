@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe BurialState do
+RSpec.describe PreneedsState do
   context 'with valid attributes' do
     subject { described_class.new(params) }
 

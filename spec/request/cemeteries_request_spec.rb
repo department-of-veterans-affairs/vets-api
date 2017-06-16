@@ -5,8 +5,8 @@ RSpec.describe 'Cemeteries Integration', type: :request do
   include SchemaMatchers
 
   it 'responds to GET #index' do
-    VCR.use_cassette('burials/cemeteries/gets_a_list_of_cemeteries') do
-      get '/v0/burials/cemeteries/'
+    VCR.use_cassette('preneeds/cemeteries/gets_a_list_of_cemeteries') do
+      get '/v0/preneeds/cemeteries/'
     end
 
     expect(response).to be_success

@@ -5,8 +5,8 @@ RSpec.describe 'Discharge Types Integration', type: :request do
   include SchemaMatchers
 
   it 'responds to GET #index' do
-    VCR.use_cassette('burials/discharge_types/gets_a_list_of_discharge_types') do
-      get '/v0/burials/discharge_types/'
+    VCR.use_cassette('preneeds/discharge_types/gets_a_list_of_discharge_types') do
+      get '/v0/preneeds/discharge_types/'
     end
 
     expect(response).to be_success

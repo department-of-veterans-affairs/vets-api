@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 require 'common/models/base'
 
-# BurialState model
-class BurialState < Common::Base
+# PreneedsState model
+class PreneedsState < Common::Base
   include ActiveModel::Validations
 
   validates :code, :first_five_zip, :last_five_zip, :lower_indicator, :name, presence: true

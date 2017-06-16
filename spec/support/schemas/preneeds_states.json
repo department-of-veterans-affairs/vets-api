@@ -11,11 +11,11 @@
         "required": ["id", "type", "attributes"],
         "properties": {
           "id": { "type": "string" },
-          "type": { "enum": ["burial_states"] },
+          "type": { "enum": ["preneeds_states"] },
           "attributes": {
             "type": "object",
             "required": [
-              "burial_state_id",
+              "preneeds_state_id",
               "code",
               "first_five_zip",
               "last_five_zip",
@@ -23,7 +23,7 @@
               "name"
             ],
             "properties": {
-              "burial_state_id": { "type": "string" },
+              "preneeds_state_id": { "type": "string" },
               "code": { "type": "string" },
               "first_five_zip": { "type": "string" },
               "last_five_zip": { "type": "string" },
