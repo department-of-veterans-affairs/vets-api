@@ -5,6 +5,28 @@ require 'pdf_fill/filler'
 describe PdfFill::Filler do
   include SchemaMatchers
 
+  describe '#combine_extras' do
+    let(:extras_generator) { double }
+    context 'when extras_generator has text' do
+      before do
+        expect(extras_generator).to receive(:has_text).once.and_return(true)
+      end
+
+      it 'should generate extras and combine the files', run_at: '2016-12-31 00:00:00 EDT' do
+        expect(extras_generator).to receive(:generate).once.and_return('extras.pdf')
+        expect(described_class::PDF_FORMS).to receive(:cat).once.with(
+          'file_path',
+          'extras.pdf',
+          'tmp/pdfs/form_2016-12-31 04:00:00 UTC_final.pdf'
+        )
+        expect(File).to receive(:delete).once.with('extras.pdf')
+        expect(File).to receive(:delete).once.with('file_path')
+
+        described_class.combine_extras('file_path', extras_generator)
+      end
+    end
+  end
+
   describe '#fill_form' do
     %w(simple kitchen_sink overflow).each do |type|
       context "with #{type} test data" do
