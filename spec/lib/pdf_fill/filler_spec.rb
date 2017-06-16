@@ -14,7 +14,6 @@ describe PdfFill::Filler do
 
         it 'should fill the form correctly' do
           form_code = '21P-527EZ'
-          # TODO remove the other match_vets_schema
           expect(form_data.to_json).to match_vets_schema(form_code)
 
           if type == 'overflow'
