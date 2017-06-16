@@ -43,8 +43,9 @@ module PdfFill
           )
         end
       else
-        pdftk_keys = pdftk_keys.gsub(ITERATOR, i.to_s) unless i.nil?
-        set_value(pdftk_keys, form_data)
+        key = pdftk_keys[:key]
+        key = key.gsub(ITERATOR, i.to_s) unless i.nil?
+        set_value(key, form_data)
       end
 
       @pdftk_form
