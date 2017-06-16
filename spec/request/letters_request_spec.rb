@@ -24,13 +24,44 @@ RSpec.describe 'letters', type: :request do
         end
       end
     end
-    context 'with an unauthorized response' do
-      it 'should return a not found response' do
-        # user.va_profile.edipi = nil
+
+    # TODO(AJD): this use case happens 500 status but unauthorized message
+    # check with evss that they shouldn't be returning 403
+    context 'with an 500 unauthorized response' do
+      it 'should return a not authorized response' do
         VCR.use_cassette('evss/letters/unauthorized') do
           get '/v0/letters', nil, auth_header
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('letters')
+          expect(Oj.load(response.body).dig('meta', 'status')).to eq(
+            Common::Client::ServiceStatus::RESPONSE_STATUS[:not_authorized]
+          )
+        end
+      end
+    end
+
+    context 'with a 403 response' do
+      it 'should return a not authorized response' do
+        VCR.use_cassette('evss/letters/letters_403') do
+          get '/v0/letters', nil, auth_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('letters')
+          expect(Oj.load(response.body).dig('meta', 'status')).to eq(
+            Common::Client::ServiceStatus::RESPONSE_STATUS[:not_authorized]
+          )
+        end
+      end
+    end
+
+    context 'with a 500 response' do
+      it 'should return a not found response' do
+        VCR.use_cassette('evss/letters/letters_500') do
+          get '/v0/letters', nil, auth_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('letters')
+          expect(Oj.load(response.body).dig('meta', 'status')).to eq(
+            Common::Client::ServiceStatus::RESPONSE_STATUS[:server_error]
+          )
         end
       end
     end
