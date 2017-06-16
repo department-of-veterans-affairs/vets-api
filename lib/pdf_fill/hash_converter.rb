@@ -1,3 +1,5 @@
+require 'pdf_fill/extras_generator'
+
 # frozen_string_literal: true
 module PdfFill
   class HashConverter
@@ -6,24 +8,28 @@ module PdfFill
     def initialize(date_strftime)
       @pdftk_form = {}
       @date_strftime = date_strftime
+      @extras_generator = ExtrasGenerator.new
+    end
+
+    def convert_value(v)
+      if [true, false].include?(v)
+        v ? 1 : 0
+      else
+        v = v.to_s
+
+        date_split = v.split('-')
+        date_args = Array.new(3) { |i| date_split[i].to_i }
+
+        if Date.valid_date?(*date_args)
+          Date.new(*date_args).strftime(@date_strftime)
+        else
+          v
+        end
+      end
     end
 
     def set_value(k, v)
-      @pdftk_form[k] =
-        if [true, false].include?(v)
-          v ? 1 : 0
-        else
-          v = v.to_s
-
-          date_split = v.split('-')
-          date_args = Array.new(3) { |i| date_split[i].to_i }
-
-          if Date.valid_date?(*date_args)
-            Date.new(*date_args).strftime(@date_strftime)
-          else
-            v
-          end
-        end
+      @pdftk_form[k] = convert_value(v)
     end
 
     def transform_data(form_data:, pdftk_keys:, i: nil)
