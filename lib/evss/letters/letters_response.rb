@@ -11,21 +11,38 @@ module EVSS
       attribute :letters, Array[EVSS::Letters::Letter]
       attribute :address, EVSS::Letters::Address
 
-      def initialize(raw_response)
-        self.letters = raw_response.body['letters']
-        self.address = raw_response.body['letter_destination']
-        self.status = raw_response.status
+      def initialize(status, response = nil)
+        self.status = status
+        if response
+          self.letters = response.body['letters']
+          self.address = response.body['letter_destination']
+        end
       end
 
       def ok?
         status == 200
       end
 
+      def bad_request?
+        status == 400
+      end
+
       def metadata
         {
           address: address,
-          status: ok? ? RESPONSE_STATUS[:ok] : RESPONSE_STATUS[:server_error]
+          status: response_status
         }
+      end
+
+      def response_status
+        case
+        when ok?
+          RESPONSE_STATUS[:ok]
+        when bad_request?
+          RESPONSE_STATUS[:not_found]
+        else
+          RESPONSE_STATUS[:server_error]
+        end
       end
     end
   end
