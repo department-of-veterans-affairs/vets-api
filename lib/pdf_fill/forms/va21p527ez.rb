@@ -149,7 +149,11 @@ module PdfFill
         },
         'email' => { key: 'F[0].Page_5[0].Preferredemailaddress[0]' },
         'altEmail' => { key: 'F[0].Page_5[0].Alternateemailaddress[0]' },
-        'cityState' => { key: 'F[0].Page_5[0].Citystatezipcodecountry[0]' },
+        'cityState' => {
+          key: 'F[0].Page_5[0].Citystatezipcodecountry[0]',
+          limit: 53,
+          question: '7A. City, State, Zip, Country'
+        },
         'activeServiceDateRangeStart' => { key: 'F[0].Page_5[0].DateEnteredActiveService[0]' },
         'activeServiceDateRangeEnd' => { key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]' },
         'disabilityNames' => { key: 'F[0].Page_5[0].Disability[%iterator%]' },
