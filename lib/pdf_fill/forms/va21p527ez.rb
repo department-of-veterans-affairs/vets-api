@@ -165,7 +165,7 @@ module PdfFill
         'activeServiceDateRangeStart' => { key: 'F[0].Page_5[0].DateEnteredActiveService[0]' },
         'activeServiceDateRangeEnd' => { key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]' },
         'disabilityNames' => {
-          key: 'F[0].Page_5[0].Disability[%iterator%]'
+          key: 'F[0].Page_5[0].Disability[%iterator%]',
           limit: 44,
           question: '9A.  DISABILITY(IES)'
         },
