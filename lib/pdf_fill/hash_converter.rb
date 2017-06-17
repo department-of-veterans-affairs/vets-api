@@ -30,11 +30,17 @@ module PdfFill
       end
     end
 
-    def set_value(k, v, key_data)
+    def set_value(k, v, key_data, i)
       new_value = convert_value(v)
 
       if key_data[:limit].present? && new_value.size > key_data[:limit]
-        @extras_generator.add_text("#{key_data[:question]}: #{new_value}")
+        text_prefix = key_data[:question]
+
+        if i.present?
+          text_prefix += " Line #{i}"
+        end
+
+        @extras_generator.add_text("#{text_prefix}: #{new_value}")
         new_value = "See add'l info page"
       end
 
@@ -60,7 +66,7 @@ module PdfFill
       else
         key = pdftk_keys[:key]
         key = key.gsub(ITERATOR, i.to_s) unless i.nil?
-        set_value(key, form_data, pdftk_keys)
+        set_value(key, form_data, pdftk_keys, i)
       end
 
       @pdftk_form
