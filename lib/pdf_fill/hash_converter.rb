@@ -37,7 +37,7 @@ module PdfFill
         text_prefix = key_data[:question]
 
         if i.present?
-          text_prefix += " Line #{i}"
+          text_prefix += " Line #{i + 1}"
         end
 
         @extras_generator.add_text("#{text_prefix}: #{new_value}")

@@ -164,15 +164,15 @@ module PdfFill
         },
         'activeServiceDateRangeStart' => { key: 'F[0].Page_5[0].DateEnteredActiveService[0]' },
         'activeServiceDateRangeEnd' => { key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]' },
-        'disabilityNames' => {
-          key: 'F[0].Page_5[0].Disability[%iterator%]',
-          limit: 44,
-          question: '9A. DISABILITY(IES)'
-        },
         'placeOfSeparation' => { key: 'F[0].Page_5[0].Placeofseparation[0]' },
         'reasonForNotLivingWithSpouse' => { key: 'F[0].Page_6[0].Reasonfornotlivingwithspouse[0]' },
         'disabilities' => {
-          'disabilityStartDate' => { key: 'F[0].Page_5[0].DateDisabilityBegan[%iterator%]' }
+          'name' => {
+            key: "disabilities.name[#{ITERATOR}]",
+            limit: 44,
+            question: '9A. DISABILITY(IES)'
+          },
+          'disabilityStartDate' => { key: "disabilities.disabilityStartDate[#{ITERATOR}]" }
         },
         'vaHospitalTreatmentDates' => { key: 'F[0].Page_5[0].DateofTreatment[%iterator%]' },
         'veteranFullName' => {
@@ -292,21 +292,6 @@ module PdfFill
 
         hash['address'] = combine_full_address(hash['address'])
         combine_hash_and_del_keys(hash, %w(name address), 'nameAndAddr', ', ')
-      end
-
-      def get_disability_names(disabilities)
-        return if disabilities.blank?
-
-        disability_names = Array.new(2, nil)
-
-        disability_names[0] = disabilities[1].try(:[], 'name')
-        disability_names[1] = disabilities[0]['name']
-
-        disabilities.map! do |disability|
-          disability.except('name')
-        end
-
-        disability_names
       end
 
       def rearrange_jobs(jobs)
@@ -665,8 +650,6 @@ module PdfFill
           )
         end
         @form_data.delete('vaHospitalTreatments')
-
-        @form_data['disabilityNames'] = get_disability_names(@form_data['disabilities'])
 
         @form_data['cityState'] = combine_city_state(@form_data['veteranAddress'])
         @form_data['veteranAddressLine1'] = combine_address(@form_data['veteranAddress'])
