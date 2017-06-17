@@ -164,7 +164,11 @@ module PdfFill
         },
         'activeServiceDateRangeStart' => { key: 'F[0].Page_5[0].DateEnteredActiveService[0]' },
         'activeServiceDateRangeEnd' => { key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]' },
-        'disabilityNames' => { key: 'F[0].Page_5[0].Disability[%iterator%]' },
+        'disabilityNames' => {
+          key: 'F[0].Page_5[0].Disability[%iterator%]'
+          limit: 44,
+          question: '9A.  DISABILITY(IES)'
+        },
         'placeOfSeparation' => { key: 'F[0].Page_5[0].Placeofseparation[0]' },
         'reasonForNotLivingWithSpouse' => { key: 'F[0].Page_6[0].Reasonfornotlivingwithspouse[0]' },
         'disabilities' => {
