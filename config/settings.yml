@@ -23,6 +23,10 @@ edu:
     user: ~
     port: ~
 
+pension_burial:
+  sftp:
+    relative_path: '../VETSGOV_PENSION'
+
 # Settings for EVSS
 evss:
   url: https://test.vets.gov
