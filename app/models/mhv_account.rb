@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 require 'mhv_ac/client'
-require 'health_beta'
+require 'beta_switch'
 
 class MhvAccount < ActiveRecord::Base
   include AASM
-  include HealthBeta
+  include BetaSwitch
 
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
   # Everything except ineligible accounts should be able to transition to :needs_terms_acceptance
@@ -153,7 +153,7 @@ class MhvAccount < ActiveRecord::Base
 
   def setup
     raise StandardError, 'You must use find_or_initialize_by(user_uuid: #)' if user_uuid.nil?
-    if beta_enabled?(user_uuid)
+    if beta_enabled?(user_uuid, 'health_account')
       check_eligibility
       check_terms_acceptance if may_check_terms_acceptance?
     end

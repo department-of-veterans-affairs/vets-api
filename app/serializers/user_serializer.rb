@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 require 'backend_services'
 require 'common/client/concerns/service_status'
-require 'health_beta'
+require 'beta_switch'
 
 class UserSerializer < ActiveModel::Serializer
   include Common::Client::ServiceStatus
-  include HealthBeta
+  include BetaSwitch
 
   attributes :services, :profile, :va_profile, :veteran_status, :mhv_account_state, :health_terms_current,
              :in_progress_forms, :prefills_available
@@ -54,7 +54,7 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def health_terms_current
-    if beta_enabled?(object.uuid)
+    if beta_enabled?(object.uuid, 'health_account')
       !object.mhv_account.needs_terms_acceptance?
     else
       # Don't prompt terms for non-beta users
@@ -77,7 +77,7 @@ class UserSerializer < ActiveModel::Serializer
       BackendServices::HCA,
       BackendServices::EDUCATION_BENEFITS
     ]
-    if beta_enabled?(object.uuid)
+    if beta_enabled?(object.uuid, 'health_account')
       service_list += BackendServices::MHV_BASED_SERVICES if object.mhv_account_eligible?
     elsif object.loa3? && object.mhv_correlation_id.present?
       # Allow access for existing MHV accounts for non-beta users
