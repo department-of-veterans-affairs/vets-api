@@ -3865,15 +3865,15 @@ find_candidate:
     :vha_facility_ids: []
     :edipi: '1019031833'
     :participant_id: '600048569'
-  '796104437':
+  '796066621':
     :given_names:
-    - Mark
+    - Gary
     - Z
-    :family_name: Webb
+    :family_name: Todd
     :suffix:
     :gender: M
-    :birth_date: '19501004'
-    :ssn: '796104437'
+    :birth_date: '19551112'
+    :ssn: '796066621'
     :address:
     :home_phone:
     :icn: 1012830985V402307
@@ -3881,15 +3881,31 @@ find_candidate:
     :vha_facility_ids: []
     :edipi: '1019031833'
     :participant_id: '600048569'
-  '796056674':
+  '301010301':
     :given_names:
-    - Dianne
-    - B
-    :family_name: Scott
+    - Jean
+    - Z
+    :family_name: Picard
     :suffix:
-    :gender: F
-    :birth_date: '19690406'
-    :ssn: '796056674'
+    :gender: M
+    :birth_date: '19771001'
+    :ssn: '301010301'
+    :address:
+    :home_phone:
+    :icn: 1012830985V402307
+    :mhv_ids: []
+    :vha_facility_ids: []
+    :edipi: '1019031833'
+    :participant_id: '600048569'
+  '301010301':
+    :given_names:
+    - Jean
+    - Z
+    :family_name: Vanapalli
+    :suffix:
+    :gender: M
+    :birth_date: '19551112'
+    :ssn: '301010301'
     :address:
     :home_phone:
     :icn: 1012830985V402307
