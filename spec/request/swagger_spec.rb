@@ -53,6 +53,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     it 'supports getting an in-progress form' do
+      FactoryGirl.create(:in_progress_form, user_uuid: mhv_user.uuid)
       expect(subject).to validate(
         :get,
         '/v0/in_progress_forms/{id}',
@@ -79,6 +80,17 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         auth_options.merge('id' => 'hca')
       )
       expect(subject).to validate(:put, '/v0/in_progress_forms/{id}', 401, 'id' => 'hca')
+    end
+
+    it 'supports deleting an in-progress form' do
+      form = FactoryGirl.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      expect(subject).to validate(
+        :delete,
+        '/v0/in_progress_forms/{id}',
+        200,
+        auth_options.merge('id' => form.form_id)
+      )
+      expect(subject).to validate(:delete, '/v0/in_progress_forms/{id}', 401, 'id' => form.form_id)
     end
 
     it 'supports adding an education benefits form' do
@@ -545,7 +557,9 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     context 'terms and conditions routes' do
       context 'with some terms and acceptances' do
         let!(:terms) { create(:terms_and_conditions, latest: true) }
-        let!(:terms2) { create(:terms_and_conditions, latest: true) }
+        # The Faker in the factory will _sometimes_ return the same name. make sure it's different
+        # so that the association in terms_acc works as expected with these tests.
+        let!(:terms2) { create(:terms_and_conditions, latest: true, name: "#{terms.name}-again") }
         let!(:terms_acc) do
           create(:terms_and_conditions_acceptance, user_uuid: mhv_user.uuid, terms_and_conditions: terms)
         end
@@ -642,7 +656,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
   end
 
   context 'and' do
-    xit 'tests all documented routes' do
+    it 'tests all documented routes' do
       expect(subject).to validate_all_paths
     end
   end
