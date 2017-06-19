@@ -17,6 +17,15 @@ ActiveRecord::Schema.define(version: 20170607043549) do
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
 
+  create_table "beta_registrations", force: :cascade do |t|
+    t.uuid     "user_uuid",  null: false
+    t.string   "feature",    null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "beta_registrations", ["user_uuid", "feature"], name: "index_beta_registrations_on_user_uuid_and_feature", unique: true, using: :btree
+
   create_table "education_benefits_claims", force: :cascade do |t|
     t.datetime "submitted_at"
     t.datetime "processed_at"
@@ -60,14 +69,6 @@ ActiveRecord::Schema.define(version: 20170607043549) do
   end
 
   add_index "evss_claims", ["user_uuid"], name: "index_evss_claims_on_user_uuid", using: :btree
-
-  create_table "health_beta_registrations", force: :cascade do |t|
-    t.uuid     "user_uuid",  null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  add_index "health_beta_registrations", ["user_uuid"], name: "index_health_beta_registrations_on_user_uuid", using: :btree
 
   create_table "in_progress_forms", force: :cascade do |t|
     t.uuid     "user_uuid",              null: false
