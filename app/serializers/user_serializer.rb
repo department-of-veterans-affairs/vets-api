@@ -5,7 +5,7 @@ require 'common/client/concerns/service_status'
 class UserSerializer < ActiveModel::Serializer
   include Common::Client::ServiceStatus
 
-  attributes :in_progress_forms, :services, :profile, :va_profile, :veteran_status
+  attributes :in_progress_forms, :services, :profile, :va_profile, :veteran_status, :prefills_available
 
   def id
     nil
@@ -52,6 +52,10 @@ class UserSerializer < ActiveModel::Serializer
 
   def in_progress_forms
     object.in_progress_forms.map(&:form_id)
+  end
+
+  def prefills_available
+    FormProfile::MAPPINGS
   end
 
   def services
