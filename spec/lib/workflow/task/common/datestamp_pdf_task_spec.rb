@@ -16,7 +16,7 @@ RSpec.describe Workflow::Task::Common::DatestampPdfTask do
     end
 
     let(:instance) do
-      described_class.new({ text: 'Received via vets.gov at', x: 10, y: 10 }, internal: { file: attacher.read })
+      described_class.new({ append_to_stamp: 'Confirmation=VETS-XX-1234' }, internal: { file: attacher.read })
     end
 
     context 'with a succesful pdf stamp' do
@@ -24,7 +24,8 @@ RSpec.describe Workflow::Task::Common::DatestampPdfTask do
         Timecop.travel(Time.zone.local(1999, 12, 31, 23, 59, 59)) do
           instance.run(text: 'Received via vets.gov at', x: 10, y: 10)
           text_analysis = PDF::Inspector::Text.analyze(instance.file.read)
-          expect(text_analysis.strings.first).to eq('Received via vets.gov at 1999-12-31T23:59:59+00:00')
+          stamp = 'Received via vets.gov at 1999-12-31T23:59:59+00:00. Confirmation=VETS-XX-1234'
+          expect(text_analysis.strings.first).to eq(stamp)
         end
       end
     end
