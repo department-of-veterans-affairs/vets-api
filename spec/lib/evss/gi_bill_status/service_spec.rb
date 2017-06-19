@@ -13,6 +13,7 @@ describe EVSS::GiBillStatus::Service do
         it 'returns a valid response object' do
           VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
             response = subject.get_gi_bill_status
+            puts response.ok?
             expect(response).to be_ok
           end
         end
