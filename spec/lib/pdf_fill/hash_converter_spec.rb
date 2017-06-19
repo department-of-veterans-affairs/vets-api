@@ -11,15 +11,20 @@ describe PdfFill::HashConverter do
     def verify_extras_text(text)
       the_text = hash_converter.instance_variable_get(:@extras_generator).instance_variable_get(:@text)
 
-      expect(the_text).to eq(
-        "Additional Information\n\n#{text}\n"
-      )
+      expected_text = text.blank? ? '' : "Additional Information\n\n#{text}\n"
+
+      expect(the_text).to eq(expected_text)
     end
 
     def verify_hash(hash)
       expect(hash_converter.instance_variable_get(:@pdftk_form)).to eq(
         hash
       )
+    end
+
+    def verify_text_and_hash(text, hash)
+      verify_hash(hash)
+      verify_extras_text(text)
     end
 
     def call_set_value(*args)
@@ -37,8 +42,7 @@ describe PdfFill::HashConverter do
           nil
         )
 
-        verify_extras_text('1: bar')
-        verify_hash(foo: "See add'l info page")
+        verify_text_and_hash('1: bar', foo: "See add'l info page")
       end
     end
 
@@ -51,7 +55,7 @@ describe PdfFill::HashConverter do
           nil
         )
 
-        verify_hash(foo: 'bar')
+        verify_text_and_hash('', foo: 'bar')
       end
     end
   end
