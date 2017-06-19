@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class FormProfile::HealthCare < FormProfile
+class FormProfile::VA1010ez < FormProfile
   def prefill(user)
     super
   end

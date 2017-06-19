@@ -15,6 +15,7 @@
           "properties": {
             "services": { "type": [ "array", null ] },
             "in_progress_forms": { "type": [ "array", null ] },
+            "prefills_available": { "type": [ "array", null ] },
             "profile": {
               "type": "object",
               "required": [
