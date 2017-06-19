@@ -22,11 +22,14 @@ describe PdfFill::HashConverter do
       )
     end
 
+    def call_set_value(*args)
+      final_args = [:foo, 'bar'] + args
+      hash_converter.set_value(*final_args)
+    end
+
     context "with a value that's over limit" do
       it 'should add text to the extras page' do
-        hash_converter.set_value(
-          :foo,
-          'bar',
+        call_set_value(
           {
             limit: 2,
             question: 1
@@ -36,6 +39,19 @@ describe PdfFill::HashConverter do
 
         verify_extras_text('1: bar')
         verify_hash(foo: "See add'l info page")
+      end
+    end
+
+    context 'with a value thats under limit' do
+      it 'should set the hash to the value' do
+        call_set_value(
+          {
+            limit: 3
+          },
+          nil
+        )
+
+        verify_hash(foo: 'bar')
       end
     end
   end
