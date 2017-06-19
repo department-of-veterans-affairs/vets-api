@@ -32,13 +32,7 @@ RSpec.describe FormProfile, type: :model do
   describe '#prefill_form' do
     context 'with a healthcare application form' do
       it 'returns the va profile mapped to the healthcare form' do
-        expect(Oj.load(described_class.new('hca').prefill(user).to_json)['form_data']).to eq(expected)
-      end
-    end
-
-    context 'with an education benefits form' do
-      xit 'returns va profile mapped to the education benefits form' do
-        expect(Oj.load(described_class.new('edu_benefits').prefill(user).to_json)['form_data']).to eq(expected)
+        expect(Oj.load(described_class.new('1010ez').prefill(user).to_json)['form_data']).to eq(expected)
       end
     end
 
@@ -51,8 +45,8 @@ RSpec.describe FormProfile, type: :model do
 
   describe '.mappings_for_form' do
     context 'with multiple form profile instances' do
-      let(:instance1) { FormProfile.new('hca') }
-      let(:instance2) { FormProfile.new('hca') }
+      let(:instance1) { FormProfile.new('1010ez') }
+      let(:instance2) { FormProfile.new('1010ez') }
 
       it 'loads the yaml file only once' do
         expect(YAML).to receive(:load_file).once.and_return(
