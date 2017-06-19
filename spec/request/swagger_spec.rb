@@ -545,7 +545,9 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     context 'terms and conditions routes' do
       context 'with some terms and acceptances' do
         let!(:terms) { create(:terms_and_conditions, latest: true) }
-        let!(:terms2) { create(:terms_and_conditions, latest: true) }
+        # The Faker in the factory will _sometimes_ return the same name. make sure it's different
+        # so that the association in terms_acc works as expected with these tests.
+        let!(:terms2) { create(:terms_and_conditions, latest: true, name: "#{terms.name}-again") }
         let!(:terms_acc) do
           create(:terms_and_conditions_acceptance, user_uuid: mhv_user.uuid, terms_and_conditions: terms)
         end
