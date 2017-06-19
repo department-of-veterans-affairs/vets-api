@@ -47,6 +47,14 @@ module PdfFill
       @pdftk_form[k] = new_value
     end
 
+    def check_for_overflow(arr, pdftk_keys)
+      # TODO finish
+      arr.each do |item|
+        item.each do |k, v|
+        end
+      end
+    end
+
     def transform_data(form_data:, pdftk_keys:, i: nil)
       return if form_data.nil? || pdftk_keys.nil?
 

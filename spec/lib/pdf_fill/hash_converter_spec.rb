@@ -3,6 +3,43 @@ require 'spec_helper'
 require 'pdf_fill/hash_converter'
 
 describe PdfFill::HashConverter do
+  let(:hash_converter) do
+    described_class.new('%m/%d/%Y')
+  end
+
+  describe '#set_value' do
+    def verify_extras_text(text)
+      the_text = hash_converter.instance_variable_get(:@extras_generator).instance_variable_get(:@text)
+
+      expect(the_text).to eq(
+        "Additional Information\n\n#{text}\n"
+      )
+    end
+
+    def verify_hash(hash)
+      expect(hash_converter.instance_variable_get(:@pdftk_form)).to eq(
+        hash
+      )
+    end
+
+    context "with a value that's over limit" do
+      it 'should add text to the extras page' do
+        hash_converter.set_value(
+          :foo,
+          'bar',
+          {
+            limit: 2,
+            question: 1
+          },
+          nil
+        )
+
+        verify_extras_text('1: bar')
+        verify_hash(foo: "See add'l info page")
+      end
+    end
+  end
+
   describe '#transform_data' do
     let(:form_data) do
       {
