@@ -21,7 +21,7 @@ module V0
       form = InProgressForm.where(form_id: params[:id], user_uuid: @current_user.uuid).first_or_initialize
       result = form.update(form_data: params[:form_data], metadata: params[:metadata])
       raise Common::Exceptions::InternalServerError unless result
-      head :ok
+      render json: form
     end
   end
 end

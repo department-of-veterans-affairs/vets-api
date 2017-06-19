@@ -25,6 +25,11 @@ DeleteOldClaims:
   class: EVSS::DeleteOldClaims
   description: "Clear out EVSS disability claims that have not been updated in 24 hours"
 
+InProgressFormCleaner:
+  cron: "0 2 * * * America/New_York"
+  class: InProgressFormCleaner
+  description: "Clear out saved forms that have not been updated in a while"
+
 FailedClaimsReport:
   cron: "30 3 * * MON America/New_York"
   class: EVSS::FailedClaimsReport
