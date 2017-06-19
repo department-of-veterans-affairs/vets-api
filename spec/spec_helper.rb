@@ -23,8 +23,6 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/feature_flipper.rb'
     add_filter 'spec/support/authenticated_session_helper'
     add_filter 'spec/support/attr_encrypted_matcher'
-    add_filter 'app/models/health_beta_registration.rb'
-    add_filter 'app/controllers/v0/health_beta_registrations_controller.rb'
     add_filter 'vendor'
     SimpleCov.minimum_coverage_by_file 90
   end
