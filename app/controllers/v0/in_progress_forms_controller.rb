@@ -23,5 +23,11 @@ module V0
       raise Common::Exceptions::InternalServerError unless result
       head :ok
     end
+
+    def destroy
+      form = InProgressForm.form_for_user(params[:id], @current_user)
+      form.destroy
+      render json: form
+    end
   end
 end
