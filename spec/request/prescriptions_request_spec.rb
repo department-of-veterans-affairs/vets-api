@@ -34,7 +34,7 @@ RSpec.describe 'prescriptions', type: :request do
     let(:current_user) { build(:user) }
 
     before(:each) do
-      allow_any_instance_of(HealthBeta).to receive(:beta_enabled?).and_return(true)
+      allow_any_instance_of(BetaSwitch).to receive(:beta_enabled?).and_return(true)
     end
 
     it 'raises access denied' do
@@ -51,7 +51,7 @@ RSpec.describe 'prescriptions', type: :request do
     let(:current_user) { build(:user) }
 
     before(:each) do
-      allow_any_instance_of(HealthBeta).to receive(:beta_enabled?).and_return(true)
+      allow_any_instance_of(BetaSwitch).to receive(:beta_enabled?).and_return(true)
       allow_any_instance_of(MhvAccount).to receive(:create_and_upgrade!)
     end
 
