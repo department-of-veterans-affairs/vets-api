@@ -3865,3 +3865,71 @@ find_candidate:
     :vha_facility_ids: []
     :edipi: '1019031833'
     :participant_id: '600048569'
+  '796164121':
+    :given_names:
+    - Vicki
+    -
+    :family_name: Schmidt
+    :suffix:
+    :gender: F
+    :birth_date: 19231224
+    :ssn: 796164121
+    :address:
+    :home_phone:
+    :icn: 45542461134121204
+    :mhv_ids:
+    - 96651708
+    :vha_facility_ids: []
+    :edipi: 8827662219
+    :participant_id: 32417402
+  '796086306':
+    :given_names:
+    - Kathy
+    -
+    :family_name: Rogers
+    :suffix:
+    :gender: F
+    :birth_date: 19860726
+    :ssn: 796086306
+    :address:
+    :home_phone:
+    :icn: 60193550167970153
+    :mhv_ids:
+    - 19947224
+    :vha_facility_ids: []
+    :edipi: 7011062709
+    :participant_id: 483061501
+  '796330157':
+    :given_names:
+    - Arthur
+    - Lee
+    :family_name: Thomas
+    :suffix:
+    :gender: M
+    :birth_date: 19570222
+    :ssn: 796330157
+    :address:
+    :home_phone:
+    :icn: 55507491301261273
+    :mhv_ids:
+    - 31472933
+    :vha_facility_ids: []
+    :edipi: 21836475
+    :participant_id: 741716939
+  '796056674':
+    :given_names:
+    - Dianne
+    - B
+    :family_name: Scott
+    :suffix:
+    :gender: M
+    :birth_date: 19690406
+    :ssn: 796056674
+    :address:
+    :home_phone:
+    :icn: 33991311612229264
+    :mhv_ids:
+    - 81899561
+    :vha_facility_ids: []
+    :edipi: 5343578988
+    :participant_id: 204225751

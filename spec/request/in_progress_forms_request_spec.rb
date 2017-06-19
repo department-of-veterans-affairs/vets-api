@@ -145,4 +145,21 @@ RSpec.describe 'in progress forms', type: :request do
       end
     end
   end
+
+  describe '#destroy' do
+    let!(:in_progress_form) { FactoryGirl.create(:in_progress_form, user_uuid: user.uuid) }
+
+    context 'when a form is found' do
+      subject do
+        delete v0_in_progress_form_url(in_progress_form.form_id), nil, auth_header
+      end
+
+      it 'returns the deleted form id' do
+        expect { subject }.to change {
+          InProgressForm.count
+        }.from(1).to(0)
+        expect(response).to have_http_status(:ok)
+      end
+    end
+  end
 end
