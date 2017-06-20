@@ -21,6 +21,13 @@ module V0
                 disposition: 'attachment'
     end
 
+    def beneficiary
+      response = service.get_letter_beneficiary
+      render json: response,
+             serializer: LetterBeneficiarySerializer,
+             meta: response.metadata
+    end
+
     private
 
     def service

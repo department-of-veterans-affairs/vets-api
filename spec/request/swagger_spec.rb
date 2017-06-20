@@ -54,14 +54,20 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       expect(subject).to validate(:delete, '/v0/sessions', 401)
     end
 
+    it 'supports listing in-progress forms' do
+      expect(subject).to validate(:get, '/v0/in_progress_forms', 200, auth_options)
+      expect(subject).to validate(:get, '/v0/in_progress_forms', 401)
+    end
+
     it 'supports getting an in-progress form' do
+      FactoryGirl.create(:in_progress_form, user_uuid: mhv_user.uuid)
       expect(subject).to validate(
         :get,
         '/v0/in_progress_forms/{id}',
         200,
-        auth_options.merge('id' => 'healthcare_application')
+        auth_options.merge('id' => '1010ez')
       )
-      expect(subject).to validate(:get, '/v0/in_progress_forms/{id}', 401, 'id' => 'healthcare_application')
+      expect(subject).to validate(:get, '/v0/in_progress_forms/{id}', 401, 'id' => '1010ez')
     end
 
     it 'supports updating an in-progress form' do
@@ -70,7 +76,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         '/v0/in_progress_forms/{id}',
         200,
         auth_options.merge(
-          'id' => 'healthcare_application',
+          'id' => '1010ez',
           '_data' => { 'form_data' => { wat: 'foo' } }
         )
       )
@@ -78,9 +84,20 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         :put,
         '/v0/in_progress_forms/{id}',
         500,
-        auth_options.merge('id' => 'healthcare_application')
+        auth_options.merge('id' => '1010ez')
       )
-      expect(subject).to validate(:put, '/v0/in_progress_forms/{id}', 401, 'id' => 'healthcare_application')
+      expect(subject).to validate(:put, '/v0/in_progress_forms/{id}', 401, 'id' => '1010ez')
+    end
+
+    it 'supports deleting an in-progress form' do
+      form = FactoryGirl.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      expect(subject).to validate(
+        :delete,
+        '/v0/in_progress_forms/{id}',
+        200,
+        auth_options.merge('id' => form.form_id)
+      )
+      expect(subject).to validate(:delete, '/v0/in_progress_forms/{id}', 401, 'id' => form.form_id)
     end
 
     it 'supports adding an education benefits form' do
@@ -547,7 +564,9 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     context 'terms and conditions routes' do
       context 'with some terms and acceptances' do
         let!(:terms) { create(:terms_and_conditions, latest: true) }
-        let!(:terms2) { create(:terms_and_conditions, latest: true) }
+        # The Faker in the factory will _sometimes_ return the same name. make sure it's different
+        # so that the association in terms_acc works as expected with these tests.
+        let!(:terms2) { create(:terms_and_conditions, latest: true, name: "#{terms.name}-again") }
         let!(:terms_acc) do
           create(:terms_and_conditions_acceptance, user_uuid: mhv_user.uuid, terms_and_conditions: terms)
         end

@@ -8,10 +8,9 @@ module V0
     def index
       resource = AppealsStatus::Service.new.get_appeals(current_user)
       render(
-        json: resource.appeals.appeals,
+        json: resource.appeals,
         serializer: CollectionSerializer,
-        each_serializer: AppealSerializer,
-        # meta: resource.metadata
+        each_serializer: AppealSerializer
       )
     end
   end

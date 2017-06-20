@@ -7,7 +7,8 @@ class UserSerializer < ActiveModel::Serializer
   include Common::Client::ServiceStatus
   include HealthBeta
 
-  attributes :services, :profile, :va_profile, :veteran_status, :mhv_account_state, :health_terms_current
+  attributes :services, :profile, :va_profile, :veteran_status, :mhv_account_state, :health_terms_current,
+             :in_progress_forms, :prefills_available
 
   def id
     nil
@@ -61,6 +62,14 @@ class UserSerializer < ActiveModel::Serializer
     end
   end
 
+  def in_progress_forms
+    object.in_progress_forms.map(&:form_id)
+  end
+
+  def prefills_available
+    FormProfile::MAPPINGS
+  end
+
   # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   def services
     service_list = [
@@ -78,4 +87,5 @@ class UserSerializer < ActiveModel::Serializer
     service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
     service_list
   end
+  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 end
