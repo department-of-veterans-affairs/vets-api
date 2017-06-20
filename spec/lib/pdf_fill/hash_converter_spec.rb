@@ -44,6 +44,20 @@ describe PdfFill::HashConverter do
 
         verify_text_and_hash('1: bar', foo: "See add'l info page")
       end
+
+      context 'with an index' do
+        it 'should add text with line number' do
+          call_set_value(
+            {
+              limit: 2,
+              question: '1'
+            },
+            0
+          )
+
+          verify_text_and_hash('1 Line 1: bar', foo: "See add'l info page")
+        end
+      end
     end
 
     context 'with a value thats under limit' do
