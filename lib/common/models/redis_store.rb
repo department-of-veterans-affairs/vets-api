@@ -67,6 +67,14 @@ module Common
       instance
     end
 
+    def self.keys
+      redis_namespace.keys
+    end
+
+    def self.delete(redis_key = nil)
+      redis_namespace.del(redis_key)
+    end
+
     def save
       return false unless valid?
       redis_namespace.set(attributes[redis_namespace_key], Oj.dump(attributes))

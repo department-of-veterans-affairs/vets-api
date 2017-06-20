@@ -23,6 +23,12 @@ development: &defaults
   saml_store:
     namespace: single-logout-request
     each_ttl: 43200
+  facility_access_satisfaction:
+    namespace: facility-access-satisfaction
+    each_ttl: 2592000
+  facility_access_wait_time:
+    namespace: facility-access-wait-time
+    each_ttl: 2592000
 
 test:
   <<: *defaults
