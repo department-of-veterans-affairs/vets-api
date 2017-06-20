@@ -156,7 +156,11 @@ module PdfFill
         'mobilePhoneAreaCode' => { key: 'F[0].Page_5[0].Cellphoneareacode[0]' },
         'nightPhoneAreaCode' => { key: 'F[0].Page_5[0].Eveningareacode[0]' },
         'dayPhone' => { key: 'F[0].Page_5[0].Daytimephonenumber[0]' },
-        'previousNames' => { key: 'F[0].Page_5[0].Listothernames[0]' },
+        'previousNames' => {
+          key: 'F[0].Page_5[0].Listothernames[0]',
+          limit: 105,
+          question: '11B. PLEASE LIST THE OTHER NAME(S) YOU SERVED UNDER'
+        },
         'dayPhoneAreaCode' => { key: 'F[0].Page_5[0].Daytimeareacode[0]' },
         'serviceBranch' => { key: 'F[0].Page_5[0].Branchofservice[0]' },
         'veteranAddressLine1' => {
