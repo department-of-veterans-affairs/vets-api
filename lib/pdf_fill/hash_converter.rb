@@ -74,16 +74,21 @@ module PdfFill
       when Array
         has_overflow = check_for_overflow(form_data, pdftk_keys)
 
-        form_data.each_with_index do |v, idx|
-          if has_overflow
-            # TODO put this text in constant
-            # TODO fill first value with addl info
-            v.each do |key, val|
-              v[key] = "See add'l info page"
-            end
-          end
+        if has_overflow
+          hash = form_data[0]
+          first_key = hash.keys[0]
 
-          transform_data(form_data: v, pdftk_keys: pdftk_keys, i: idx)
+          # TODO make text constant
+          # TODO put entire array in addl info page
+          transform_data(
+            form_data: { first_key => "See add'l info page" },
+            pdftk_keys: pdftk_keys,
+            i: 0
+          )
+        else
+          form_data.each_with_index do |v, idx|
+            transform_data(form_data: v, pdftk_keys: pdftk_keys, i: idx)
+          end
         end
       when Hash
         form_data.each do |k, v|

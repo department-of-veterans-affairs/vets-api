@@ -53,7 +53,6 @@ describe PdfFill::Filler do
           expect(form_data.to_json).to match_vets_schema(form_code)
 
           if type == 'overflow'
-            next
             # when pdftk combines files there are random diffs so we can't compare the pdfs like normal
             the_extras_generator = nil
 
