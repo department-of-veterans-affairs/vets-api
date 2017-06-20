@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'workflow/task/common/convert_to_pdf'
 
 describe Workflow::Task::Common::ConvertToPdf do
-  let(:file) { File.open(Rails.root.join('spec', 'support', 'fixtures', 'va.gif')) }
   let(:attacher) do
     a = Shrine::Attacher.new(InternalAttachment.new, :file)
     a.assign(file)
@@ -13,11 +12,24 @@ describe Workflow::Task::Common::ConvertToPdf do
   let(:instance) { described_class.new(internal: { file: attacher.read }) }
 
   describe '#run' do
-    it 'converts an image to pdf format' do
-      expect(instance.file.metadata['mime_type']).to eq('image/gif')
-      instance.run
-      expect(instance.file.metadata['mime_type']).to eq('application/pdf')
+    context 'with an image' do
+      let(:file) { File.open(Rails.root.join('spec', 'support', 'fixtures', 'va.gif')) }
+
+      it 'converts an image to pdf format' do
+        expect(instance.file.metadata['mime_type']).to eq('image/gif')
+        instance.run
+        expect(instance.file.metadata['mime_type']).to eq('application/pdf')
+      end
     end
-    after { instance.attacher.store.storage.clear! }
+
+    context 'when an image is not what it seems' do
+      let(:file) { File.open(Rails.root.join('spec', 'support', 'fixtures', 'imagetragick.jpg')) }
+
+      it 'raise an IOError' do
+        expect { instance.run }.to raise_error IOError, 'PDF conversion failed, unsupported file type: text/plain'
+      end
+    end
+
+    after(:each) { instance.attacher.store.storage.clear! }
   end
 end
