@@ -112,6 +112,7 @@ module PdfFill
           'phoneAreaCode' => { key: 'F[0].Page_5[0].Unittelephoneareacode[0]' }
         },
         'vaHospitalTreatments' => {
+          limit: 2,
           'vaHospitalTreatmentsDates0' => {
             key: "vaHospitalTreatments.dates[0][#{ITERATOR}]"
           },
@@ -184,6 +185,7 @@ module PdfFill
         'placeOfSeparation' => { key: 'F[0].Page_5[0].Placeofseparation[0]' },
         'reasonForNotLivingWithSpouse' => { key: 'F[0].Page_6[0].Reasonfornotlivingwithspouse[0]' },
         'disabilities' => {
+          limit: 2,
           'name' => {
             key: "disabilities.name[#{ITERATOR}]",
             limit: 44,
