@@ -124,6 +124,7 @@ module PdfFill
         end
       else
         key = pdftk_keys[:key]
+        return if key.blank?
         key = key.gsub(ITERATOR, i.to_s) unless i.nil?
         set_value(key, form_data, pdftk_keys, i)
       end

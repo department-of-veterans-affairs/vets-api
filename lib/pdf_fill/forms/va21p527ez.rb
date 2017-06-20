@@ -118,6 +118,9 @@ module PdfFill
           'vaHospitalTreatmentsDates1' => {
             key: "vaHospitalTreatments.dates[1][#{ITERATOR}]"
           },
+          'dates' => {
+            limit: 3
+          },
           'nameAndLocation' => {
             key: "vaHospitalTreatments.nameAndLocation[#{ITERATOR}]"
           }
