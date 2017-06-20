@@ -1,10 +1,11 @@
 class AddHealthAccountBeta < ActiveRecord::Migration
   def change
-    create_table :health_beta_registrations do |t|
-      t.uuid :user_uuid, unique: true, null: false
+    create_table :beta_registrations do |t|
+      t.string :user_uuid, null: false
+      t.string :feature, null: false
       t.timestamps null: false
     end
 
-    add_index :health_beta_registrations, [:user_uuid]
+    add_index :beta_registrations, [:user_uuid, :feature], unique: true
   end
 end
