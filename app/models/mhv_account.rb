@@ -153,6 +153,7 @@ class MhvAccount < ActiveRecord::Base
 
   def setup
     raise StandardError, 'You must use find_or_initialize_by(user_uuid: #)' if user_uuid.nil?
+    return if user.nil? # without this, there is a strange flow that can happen during login / logout because of how user.rb invokes
     if beta_enabled?(user_uuid)
       check_eligibility
       check_terms_acceptance if may_check_terms_acceptance?
