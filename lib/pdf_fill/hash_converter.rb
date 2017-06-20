@@ -4,6 +4,7 @@ require 'pdf_fill/extras_generator'
 module PdfFill
   class HashConverter
     ITERATOR = '%iterator%'
+    EXTRAS_TEXT = "See add'l info page"
 
     attr_reader :extras_generator
 
@@ -68,7 +69,7 @@ module PdfFill
       if has_overflow(key_data, new_value)
         add_to_extras(key_data, new_value, i)
 
-        new_value = "See add'l info page"
+        new_value = EXTRAS_TEXT
       end
 
       @pdftk_form[k] = new_value
@@ -100,10 +101,9 @@ module PdfFill
           hash = form_data[0]
           first_key = hash.keys[0]
 
-          # TODO make text constant
           # TODO handle exceptions like question 10
           transform_data(
-            form_data: { first_key => "See add'l info page" },
+            form_data: { first_key => EXTRAS_TEXT },
             pdftk_keys: pdftk_keys,
             i: 0
           )
