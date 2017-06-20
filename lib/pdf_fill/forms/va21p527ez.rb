@@ -111,13 +111,13 @@ module PdfFill
           'date' => { key: 'F[0].Page_5[0].DateofActivation[0]' },
           'phoneAreaCode' => { key: 'F[0].Page_5[0].Unittelephoneareacode[0]' }
         },
-        'vaHospitalTreatmentsDates0' => {
-          key: "vaHospitalTreatments.dates[0][#{ITERATOR}]"
-        },
-        'vaHospitalTreatmentsDates1' => {
-          key: "vaHospitalTreatments.dates[1][#{ITERATOR}]"
-        },
         'vaHospitalTreatments' => {
+          'vaHospitalTreatmentsDates0' => {
+            key: "vaHospitalTreatments.dates[0][#{ITERATOR}]"
+          },
+          'vaHospitalTreatmentsDates1' => {
+            key: "vaHospitalTreatments.dates[1][#{ITERATOR}]"
+          },
           'nameAndLocation' => {
             key: "vaHospitalTreatments.nameAndLocation[#{ITERATOR}]"
           }
@@ -331,7 +331,7 @@ module PdfFill
 
         va_hospital_treatments.each_with_index do |va_hospital_treatment, i|
           original_dates = va_hospital_treatment['dates']
-          @form_data["vaHospitalTreatmentsDates#{i}"] = original_dates
+          va_hospital_treatments[0]["vaHospitalTreatmentsDates#{i}"] = original_dates
         end
       end
 
