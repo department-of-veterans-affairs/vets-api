@@ -1,31 +1,23 @@
 # frozen_string_literal: true
 require 'common/client/concerns/service_status'
-require 'common/models/base'
+require 'evss/response'
 
 module EVSS
   module Letters
-    class LettersResponse < Common::Base
-      include Common::Client::ServiceStatus
-
-      attribute :status, Integer
+    class LettersResponse < EVSS::Response
       attribute :letters, Array[EVSS::Letters::Letter]
       attribute :address, EVSS::Letters::Address
 
-      def initialize(raw_response)
-        self.letters = raw_response.body['letters']
-        self.address = raw_response.body['letter_destination']
-        self.status = raw_response.status
-      end
-
-      def ok?
-        status == 200
+      def initialize(status, response = nil)
+        super(status, response)
+        if response
+          self.letters = response.body['letters']
+          self.address = response.body['letter_destination']
+        end
       end
 
       def metadata
-        {
-          address: address,
-          status: ok? ? RESPONSE_STATUS[:ok] : RESPONSE_STATUS[:server_error]
-        }
+        super().merge(address: address)
       end
     end
   end
