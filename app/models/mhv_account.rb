@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 require 'mhv_ac/client'
+require 'sentry_logging'
 require 'beta_switch'
 
 class MhvAccount < ActiveRecord::Base
   include AASM
+  include SentryLogging
   include BetaSwitch
 
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
@@ -35,8 +37,14 @@ class MhvAccount < ActiveRecord::Base
     event :upgrade do
       transitions from: [:unknown, :registered, :upgrade_failed], to: :upgraded
     end
-    # TODO: Add upgrade_fail, register_fail events, invoke from rescue of
-    # upgrade/register
+
+    event :fail_register do
+      transitions from: [:unknown], to: :register_failed
+    end
+
+    event :fail_upgrade do
+      transitions from: [:unknown, :registered], to: :upgrade_failed
+    end
   end
 
   def create_and_upgrade!
@@ -94,7 +102,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def user
-    @user ||= User.find(user_uuid)
+    @user ||= User.find(user_uuid.tr('-',''))
   end
 
   # User's profile contains a list of VHA facility-specific identifiers.
@@ -119,8 +127,12 @@ class MhvAccount < ActiveRecord::Base
         self.registered_at = Time.current
         register!
       end
-      # TODO: be prepared to handle or raise various exceptions
     end
+  # TODO: handle/log exceptions more carefully
+  rescue => e
+    fail_register!
+    log_exception_to_sentry(e)
+    raise e
   end
 
   def upgrade_mhv_account!
@@ -131,12 +143,19 @@ class MhvAccount < ActiveRecord::Base
         upgrade!
       end
     end
+  # TODO: handle/log exceptions more carefully
   rescue Common::Exceptions::BackendServiceException => e
     if e.original_body['code'] == 155
       upgrade! # without updating the timestamp since account was not created at vets.gov
     else
+      fail_upgrade!
+      log_exception_to_sentry(e)
       raise e
     end
+  rescue => e
+    fail_upgrade!
+    log_exception_to_sentry(e)
+    raise e
   end
 
   def mhv_ac_client
