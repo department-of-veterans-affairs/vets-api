@@ -101,7 +101,7 @@ module PdfFill
           first_key = hash.keys[0]
 
           # TODO make text constant
-          # TODO put entire array in addl info page
+          # TODO handle exceptions like question 10
           transform_data(
             form_data: { first_key => "See add'l info page" },
             pdftk_keys: pdftk_keys,
