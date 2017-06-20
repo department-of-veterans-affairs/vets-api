@@ -109,6 +109,10 @@ class User < Common::RedisStore
     @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid)
   end
 
+  def in_progress_forms
+    InProgressForm.where(user_uuid: uuid)
+  end
+
   private
 
   def mvi

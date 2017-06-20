@@ -374,6 +374,52 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
   end
 
+  describe '#copy_from_previous_benefits' do
+    let(:form) do
+      {
+        previousBenefits: {
+          veteranFullName: 'joe',
+          vaFileNumber: '123',
+          veteranSocialSecurityNumber: '321'
+        }
+      }
+    end
+
+    subject do
+      attributes[:form] = form.to_json
+      education_benefits_claim = described_class.new(attributes)
+      allow(education_benefits_claim).to receive(:transform_form)
+
+      education_benefits_claim.open_struct_form
+      education_benefits_claim.copy_from_previous_benefits
+      education_benefits_claim.open_struct_form
+    end
+
+    context 'when currentSameAsPrevious is false' do
+      before do
+        form[:currentSameAsPrevious] = false
+      end
+
+      it 'shouldnt copy fields from previous benefits' do
+        %w(veteranFullName vaFileNumber veteranSocialSecurityNumber).each do |attr|
+          expect(subject.public_send(attr)).to eq(nil)
+        end
+      end
+    end
+
+    context 'when currentSameAsPrevious is true' do
+      before do
+        form[:currentSameAsPrevious] = true
+      end
+
+      it 'should copy fields from previous benefits' do
+        expect(subject.veteranFullName).to eq('joe')
+        expect(subject.vaFileNumber).to eq('123')
+        expect(subject.veteranSocialSecurityNumber).to eq('321')
+      end
+    end
+  end
+
   describe 'reprocess_at' do
     it 'raises an error if an invalid region is entered' do
       expect { subject.reprocess_at('nowhere') }.to raise_error(/Invalid region/)

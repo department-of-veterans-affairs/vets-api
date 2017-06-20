@@ -37,6 +37,16 @@ RSpec.describe 'VA GIS Integration', type: :request do
     end
   end
 
+  it 'responds to GET #show for VC prefix' do
+    VCR.use_cassette('facilities/va/vc_0543V') do
+      get '/v0/facilities/va/vc_0543V'
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data']['id']).to eq('vc_0543V')
+    end
+  end
+
   it 'responds to GET #show without prefix' do
     VCR.use_cassette('facilities/va/nonexistent_noprefix') do
       get '/v0/facilities/va/684A4'
@@ -57,7 +67,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
-      expect(json['data'].length).to eq(9)
+      expect(json['data'].length).to eq(10)
     end
   end
 

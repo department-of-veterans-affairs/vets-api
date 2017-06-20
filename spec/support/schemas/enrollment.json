@@ -37,10 +37,10 @@
     "vacation_day_count": {
       "type": "integer"
     },
-    "residence_hours": {
+    "on_campus_hours": {
       "type": "number"
     },
-    "distance_hours": {
+    "online_hours": {
       "type": "number"
     },
     "yellow_ribbon_amount": {
