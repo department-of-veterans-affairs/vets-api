@@ -11,13 +11,14 @@ RSpec.describe 'Beta Registration Endpoint', type: :request do
     User.create(user)
   end
 
+  # rubocop:disable Rails/HttpPositionalArguments
   it 'returns 404 for unregistered user' do
-    get '/v0/beta_registration/health_account', headers: auth_header
+    get '/v0/beta_registration/health_account', nil, auth_header
     expect(response).to have_http_status(:not_found)
   end
 
   it 'accepts register request' do
-    post '/v0/beta_registration/health_account', headers: auth_header
+    post '/v0/beta_registration/health_account', nil, auth_header
     expect(response).to be_success
     expect(response.body).to be_a(String)
     json = JSON.parse(response.body)
@@ -25,8 +26,8 @@ RSpec.describe 'Beta Registration Endpoint', type: :request do
   end
 
   it 'accepts register request' do
-    post '/v0/beta_registration/health_account', headers: auth_header
-    get '/v0/beta_registration/health_account', headers: auth_header
+    post '/v0/beta_registration/health_account', nil, auth_header
+    get '/v0/beta_registration/health_account', nil, auth_header
     expect(response).to be_success
     json = JSON.parse(response.body)
     expect(json['user']).to eq(user.email)
