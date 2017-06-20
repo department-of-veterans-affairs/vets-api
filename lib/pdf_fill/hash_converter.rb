@@ -40,7 +40,7 @@ module PdfFill
           text_prefix += " Line #{i + 1}"
         end
 
-        @extras_generator.add_text("#{text_prefix}: #{new_value}")
+        @extras_generator.add_text(text_prefix, new_value)
         new_value = "See add'l info page"
       end
 
