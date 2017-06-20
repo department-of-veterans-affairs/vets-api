@@ -30,10 +30,16 @@ module PdfFill
       end
     end
 
+    def has_overflow(key_data, value)
+      limit = key_data[:limit]
+
+      limit.present? && value.size > limit
+    end
+
     def set_value(k, v, key_data, i)
       new_value = convert_value(v)
 
-      if key_data[:limit].present? && new_value.size > key_data[:limit]
+      if has_overflow(key_data, new_value)
         text_prefix = key_data[:question]
 
         if i.present?
