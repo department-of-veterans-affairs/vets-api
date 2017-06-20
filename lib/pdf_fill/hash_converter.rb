@@ -55,7 +55,7 @@ module PdfFill
 
     def check_for_overflow(arr, pdftk_keys)
       arr.each do |item|
-        next if item.blank?
+        next if item.blank? || !item.is_a?(Hash)
 
         item.each do |k, v|
           if has_overflow(pdftk_keys[k], v)

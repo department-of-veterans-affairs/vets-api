@@ -111,6 +111,17 @@ module PdfFill
           'date' => { key: 'F[0].Page_5[0].DateofActivation[0]' },
           'phoneAreaCode' => { key: 'F[0].Page_5[0].Unittelephoneareacode[0]' }
         },
+        'vaHospitalTreatmentsDates0' => {
+          key: "vaHospitalTreatments.dates[0][#{ITERATOR}]"
+        },
+        'vaHospitalTreatmentsDates1' => {
+          key: "vaHospitalTreatments.dates[1][#{ITERATOR}]"
+        },
+        'vaHospitalTreatments' => {
+          'nameAndLocation' => {
+            key: "vaHospitalTreatments.nameAndLocation[#{ITERATOR}]"
+          }
+        },
         'spouseAddress' => { key: 'F[0].Page_6[0].Spouseaddress[0]' },
         'outsideChildren' => {
           'childAddress' => { key: 'outsideChildren.childAddress[%iterator%]' },
@@ -278,13 +289,9 @@ module PdfFill
       def combine_va_hospital_names(va_hospital_treatments)
         return if va_hospital_treatments.blank?
 
-        combined = []
-
         va_hospital_treatments.each do |va_hospital_treatment|
-          combined << combine_hash(va_hospital_treatment, %w(name location), ', ')
+          va_hospital_treatment['nameAndLocation'] = combine_hash(va_hospital_treatment, %w(name location), ', ')
         end
-
-        combined
       end
 
       def combine_name_addr(hash)
@@ -317,34 +324,13 @@ module PdfFill
         new_jobs
       end
 
-      def rearrange_hospital_dates(combined_dates)
-        return if combined_dates.blank?
-        # order of boxes in the pdf: 3, 2, 4, 0, 1, 5
-        rearranged = Array.new(6, nil)
-
-        [3, 2, 4, 0, 1, 5].each_with_index do |rearranged_i, i|
-          rearranged[rearranged_i] = combined_dates[i]
-        end
-
-        rearranged
-      end
-
       def combine_va_hospital_dates(va_hospital_treatments)
         return if va_hospital_treatments.blank?
-        combined = []
 
-        va_hospital_treatments.each do |va_hospital_treatment|
+        va_hospital_treatments.each_with_index do |va_hospital_treatment, i|
           original_dates = va_hospital_treatment['dates']
-          dates = Array.new(3, nil)
-
-          3.times do |i|
-            dates[i] = original_dates[i]
-          end if original_dates.present?
-
-          combined += dates
+          @form_data["vaHospitalTreatmentsDates#{i}"] = original_dates
         end
-
-        combined
       end
 
       def replace_phone(hash, key)
@@ -644,12 +630,9 @@ module PdfFill
         replace_phone_fields
 
         @form_data['vaHospitalTreatments'].tap do |va_hospital_treatments|
-          @form_data['vaHospitalTreatmentNames'] = combine_va_hospital_names(va_hospital_treatments)
-          @form_data['vaHospitalTreatmentDates'] = rearrange_hospital_dates(
-            combine_va_hospital_dates(va_hospital_treatments)
-          )
+          combine_va_hospital_names(va_hospital_treatments)
+          combine_va_hospital_dates(va_hospital_treatments)
         end
-        @form_data.delete('vaHospitalTreatments')
 
         @form_data['cityState'] = combine_city_state(@form_data['veteranAddress'])
         @form_data['veteranAddressLine1'] = combine_address(@form_data['veteranAddress'])
