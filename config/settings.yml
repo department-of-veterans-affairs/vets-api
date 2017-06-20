@@ -88,9 +88,10 @@ mvi:
 # The certs used here can be obtained from the DevOps team. A different set is required for
 # each environment when connecting to the service.
 emis:
-  veteran_status_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/VeteranStatusService
-  payment_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/PaymentService
-  military_information_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/MilitaryInformationService
+  host: https://vaausvrsapp81.aac.va.gov
+  veteran_status_url: /VIERSService/eMIS/v1/VeteranStatusService
+  payment_url: /VIERSService/eMIS/v1/PaymentService
+  military_information_url: /VIERSService/eMIS/v1/MilitaryInformationService
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
   soap_namespaces:

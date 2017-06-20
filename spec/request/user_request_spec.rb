@@ -37,6 +37,14 @@ RSpec.describe 'Fetching user data', type: :request do
         ].sort
       )
     end
+
+    it 'gives me the list of available prefill forms' do
+      expect(JSON.parse(response.body)['data']['attributes']['prefills_available'].sort).to eq(
+        [
+          '1010ez'
+        ].sort
+      )
+    end
   end
 
   context 'when an LOA 1 user is logged in', :skip_mvi do

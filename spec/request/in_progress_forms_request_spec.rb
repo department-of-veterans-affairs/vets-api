@@ -9,7 +9,7 @@ RSpec.describe 'in progress forms', type: :request do
   before do
     Session.create(uuid: user.uuid, token: token)
     User.create(user)
-    allow(FormProfile).to receive(:load_form_mapping).with('hca').and_return(
+    allow(FormProfile).to receive(:load_form_mapping).with('1010ez').and_return(
       'veteran_full_name' => %w(identity_information full_name),
       'gender' => %w(identity_information gender),
       'veteran_date_of_birth' => %w(identity_information date_of_birth),
@@ -20,8 +20,8 @@ RSpec.describe 'in progress forms', type: :request do
   end
 
   describe '#index' do
-    let!(:in_progress_form_edu) { FactoryGirl.create(:in_progress_form, form_id: 'edu-1990', user_uuid: user.uuid) }
-    let!(:in_progress_form_hca) { FactoryGirl.create(:in_progress_form, form_id: 'hca', user_uuid: user.uuid) }
+    let!(:in_progress_form_edu) { FactoryGirl.create(:in_progress_form, form_id: '22-1990', user_uuid: user.uuid) }
+    let!(:in_progress_form_hca) { FactoryGirl.create(:in_progress_form, form_id: '1010ez', user_uuid: user.uuid) }
     subject do
       get v0_in_progress_forms_url, nil, auth_header
     end
@@ -73,7 +73,7 @@ RSpec.describe 'in progress forms', type: :request do
 
     context 'when a form is not found' do
       it 'returns pre-fill data' do
-        get v0_in_progress_form_url('hca'), nil, auth_header
+        get v0_in_progress_form_url('1010ez'), nil, auth_header
         expect(JSON.parse(response.body)['form_data']).to eq(
           'veteranFullName' => {
             'first' => user.first_name&.capitalize,
