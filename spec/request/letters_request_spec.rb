@@ -97,5 +97,31 @@ RSpec.describe 'letters', type: :request do
         end
       end
     end
+
+    context 'with a 403 response' do
+      it 'should return a not authorized response' do
+        VCR.use_cassette('evss/letters/beneficiary_403') do
+          get '/v0/letters/beneficiary', nil, auth_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('letter_beneficiary')
+          expect(Oj.load(response.body).dig('meta', 'status')).to eq(
+            Common::Client::ServiceStatus::RESPONSE_STATUS[:not_authorized]
+          )
+        end
+      end
+    end
+
+    context 'with a 500 response' do
+      it 'should return a not found response' do
+        VCR.use_cassette('evss/letters/beneficiary_500') do
+          get '/v0/letters/beneficiary', nil, auth_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('letter_beneficiary')
+          expect(Oj.load(response.body).dig('meta', 'status')).to eq(
+            Common::Client::ServiceStatus::RESPONSE_STATUS[:server_error]
+          )
+        end
+      end
+    end
   end
 end

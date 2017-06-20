@@ -18,13 +18,15 @@ module EVSS
         EVSS::Letters::LettersResponse.new(403)
       rescue Faraday::ClientError => e
         EVSS::Letters::LettersResponse.new(e.response[:status])
-      rescue
-        EVSS::GiBillStatus::GiBillStatusResponse.new(500)
       end
 
       def get_letter_beneficiary
         raw_response = get 'letterBeneficiary'
-        EVSS::Letters::BeneficiaryResponse.new(raw_response)
+        EVSS::Letters::BeneficiaryResponse.new(raw_response.status, raw_response)
+      rescue Faraday::ParsingError
+        EVSS::Letters::BeneficiaryResponse.new(403)
+      rescue Faraday::ClientError => e
+        EVSS::Letters::BeneficiaryResponse.new(e.response[:status])
       end
 
       def download_letter_by_type(type)

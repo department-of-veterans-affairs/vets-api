@@ -5,13 +5,11 @@ require 'evss/response'
 module EVSS
   module Letters
     class LettersResponse < EVSS::Response
-      include Common::Client::ServiceStatus
-
       attribute :letters, Array[EVSS::Letters::Letter]
       attribute :address, EVSS::Letters::Address
 
       def initialize(status, response = nil)
-        super(status)
+        super(status, response)
         if response
           self.letters = response.body['letters']
           self.address = response.body['letter_destination']
