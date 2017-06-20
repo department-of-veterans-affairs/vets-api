@@ -121,7 +121,7 @@ module PdfFill
           },
           'nameAndLocation' => {
             question: '10A. NAME AND LOCATION OF VA MEDICAL CENTER',
-            # TODO limit for this field
+            limit: 46,
             key: "vaHospitalTreatments.nameAndLocation[#{ITERATOR}]"
           },
           'dates' => {
@@ -158,7 +158,6 @@ module PdfFill
         'dayPhone' => { key: 'F[0].Page_5[0].Daytimephonenumber[0]' },
         'previousNames' => { key: 'F[0].Page_5[0].Listothernames[0]' },
         'dayPhoneAreaCode' => { key: 'F[0].Page_5[0].Daytimeareacode[0]' },
-        'vaHospitalTreatmentNames' => { key: 'F[0].Page_5[0].Nameandlocationofvamedicalcenter[%iterator%]' },
         'serviceBranch' => { key: 'F[0].Page_5[0].Branchofservice[0]' },
         'veteranAddressLine1' => {
           key: 'F[0].Page_5[0].Currentaddress[0]',
