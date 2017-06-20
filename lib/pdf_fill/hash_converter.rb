@@ -23,6 +23,12 @@ module PdfFill
     end
 
     def convert_val_as_string(v)
+      if v.is_a?(Array)
+        return v.map do |item|
+          convert_val_as_string(item)
+        end.join(', ')
+      end
+
       v = v.to_s
 
       date_split = v.split('-')
