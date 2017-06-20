@@ -107,9 +107,14 @@ module PdfFill
 
         if has_overflow
           hash = form_data[0]
-          first_key = hash.keys[0]
+          first_key = nil
+          hash.each do |k, v|
+            if pdftk_keys[k].try(:[], :key).present?
+              first_key = k
+              break
+            end
+          end
 
-          # TODO handle exceptions like question 10
           transform_data(
             form_data: { first_key => EXTRAS_TEXT },
             pdftk_keys: pdftk_keys,
