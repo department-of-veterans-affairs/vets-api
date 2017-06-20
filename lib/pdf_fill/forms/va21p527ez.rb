@@ -188,7 +188,6 @@ module PdfFill
             question: '9B. DATE DISABILITY(IES) BEGAN'
           }
         },
-        'vaHospitalTreatmentDates' => { key: 'F[0].Page_5[0].DateofTreatment[%iterator%]' },
         'veteranFullName' => {
           limit: 30,
           question: "1. VETERAN'S NAME",
