@@ -4,7 +4,7 @@ require 'workflow/task/shrine_file/base'
 module Workflow::Task::Common
   class ConvertToPdf < Workflow::Task::ShrineFile::Base
     def run
-      unless @file.content_type =~ /image\//
+      unless @file.content_type =~ %r{image\/}
         raise IOError, "PDF conversion failed, unsupported file type: #{@file.content_type}"
       end
 

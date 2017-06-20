@@ -81,11 +81,11 @@ fi
 
 brew services start postgresql
 
-if command_exists vips ; then
-  echo "${GREEN} * VIPS already installed.${RESET}"
+if command_exists convert ; then
+  echo "${GREEN} * Imagemagick already installed.${RESET}"
 else
-  echo "${RED} * Installing VIPS. ${RESET}"
-  brew install vips
+  echo "${RED} * Installing Imagemagick. ${RESET}"
+  brew install imagemagick
 fi
 
 # Make vetsgov-localhost.crt and .key
