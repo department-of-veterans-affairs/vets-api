@@ -394,6 +394,11 @@
       "name": "hospital2",
       "dates": ["2016-12-01", "2016-12-02", "2016-12-03", "2016-12-04"],
       "location": "dc"
+    },
+    {
+      "name": "hospital3",
+      "dates": ["2016-12-01"],
+      "location": "dc"
     }
   ],
   "disabilities": [
