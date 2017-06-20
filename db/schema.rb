@@ -18,7 +18,7 @@ ActiveRecord::Schema.define(version: 20170607043549) do
   enable_extension "uuid-ossp"
 
   create_table "beta_registrations", force: :cascade do |t|
-    t.uuid     "user_uuid",  null: false
+    t.string   "user_uuid",  null: false
     t.string   "feature",    null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -84,7 +84,7 @@ ActiveRecord::Schema.define(version: 20170607043549) do
   add_index "in_progress_forms", ["user_uuid"], name: "index_in_progress_forms_on_user_uuid", using: :btree
 
   create_table "mhv_accounts", force: :cascade do |t|
-    t.uuid     "user_uuid",     null: false
+    t.string   "user_uuid",     null: false
     t.string   "account_state", null: false
     t.datetime "registered_at"
     t.datetime "upgraded_at"

@@ -132,6 +132,30 @@ RSpec.describe MhvAccount, type: :model do
         end
       end
     end
+
+    context 'user with un-dashed uuid' do
+      let(:nodashuser) do
+        create(:loa3_user,
+          uuid: 'abcdef12345678',
+          ssn: mvi_profile.ssn,
+          first_name: mvi_profile.given_names.first,
+          last_name: mvi_profile.family_name,
+          gender: mvi_profile.gender,
+          birth_date: mvi_profile.birth_date,
+          email: 'vets.gov.user+0@gmail.com')
+      end
+      let(:terms) { create(:terms_and_conditions, latest: true, name: described_class::TERMS_AND_CONDITIONS_NAME) }
+      before(:each) { create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: nodashuser.uuid) }
+      let(:base_attributes) { { user_uuid: nodashuser.uuid, account_state: 'needs_terms_acceptance' } }
+      let(:vha_facility_ids) { %w(200MH 488) }
+
+      it 'is eligible with at least one facility in range' do
+        stub_const('MhvAccount::PATIENT_FACILITY_RANGE', [358, 758])
+        subject = described_class.new(base_attributes)
+        subject.send(:setup) # This gets called when object is first loaded
+        expect(subject.eligible?).to be_truthy
+      end
+    end
   end
 
   describe 'account creation and upgrade' do
