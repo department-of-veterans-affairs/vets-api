@@ -15,8 +15,10 @@ module Workflow::Task::Common
     private
 
     def generate_stamp(stamp_path, text, x, y)
+      text = Time.now.utc.strftime("#{text} %FT%T%:z")
+      text += ('. ' + data[:append_to_stamp]) if data[:append_to_stamp]
       Prawn::Document.generate stamp_path do |pdf|
-        pdf.draw_text Time.now.utc.strftime("#{text} %FT%T%:z"), at: [x, y], size: 10
+        pdf.draw_text text, at: [x, y], size: 10
       end
     rescue StandardError => e
       Rails.logger.error "Failed to generate datestamp file: #{e.message}"
