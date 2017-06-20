@@ -10,8 +10,6 @@ RSpec.describe 'Beta Registration Endpoint', type: :request do
     Session.create(uuid: user.uuid, token: token)
     User.create(user)
   end
-
-  # rubocop:disable Rails/HttpPositionalArguments
   it 'returns 404 for unregistered user' do
     get '/v0/beta_registration/health_account', nil, auth_header
     expect(response).to have_http_status(:not_found)
