@@ -7,17 +7,10 @@ describe PdfFill::ExtrasGenerator do
     described_class.new
   end
 
-  describe '#add_text' do
-    it 'should add text to the variable' do
-      subject.add_text('foo')
-      subject.add_text('bar')
-      expect(subject.instance_variable_get(:@text)).to eq("Additional Information\n\nfoo\nbar\n")
-    end
-  end
-
   describe '#generate' do
     it 'should generate the pdf' do
       subject.add_text('foo', 'bar')
+      subject.add_text('foo1', 'bar1')
       file_path = subject.generate
 
       expect(
