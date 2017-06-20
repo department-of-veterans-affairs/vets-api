@@ -8,23 +8,19 @@ describe PdfFill::HashConverter do
   end
 
   describe '#set_value' do
-    def verify_extras_text(text)
-      the_text = hash_converter.instance_variable_get(:@extras_generator).instance_variable_get(:@text)
+    def verify_extras_text(prefix, text)
+      extras_generator = hash_converter.instance_variable_get(:@extras_generator)
 
-      expected_text = text.blank? ? '' : "Additional Information\n\n#{text}\n"
-
-      expect(the_text).to eq(expected_text)
+      expect(extras_generator).to receive(:add_text).with(
+        prefix,
+        text
+      ).once
     end
 
     def verify_hash(hash)
       expect(hash_converter.instance_variable_get(:@pdftk_form)).to eq(
         hash
       )
-    end
-
-    def verify_text_and_hash(text, hash)
-      verify_hash(hash)
-      verify_extras_text(text)
     end
 
     def call_set_value(*args)
@@ -34,19 +30,23 @@ describe PdfFill::HashConverter do
 
     context "with a value that's over limit" do
       it 'should add text to the extras page' do
+        verify_extras_text('1', 'bar')
+
         call_set_value(
           {
             limit: 2,
-            question: 1
+            question: '1'
           },
           nil
         )
 
-        verify_text_and_hash('1: bar', foo: "See add'l info page")
+        verify_hash(foo: "See add'l info page")
       end
 
       context 'with an index' do
         it 'should add text with line number' do
+          verify_extras_text('1 Line 1', 'bar')
+
           call_set_value(
             {
               limit: 2,
@@ -55,7 +55,7 @@ describe PdfFill::HashConverter do
             0
           )
 
-          verify_text_and_hash('1 Line 1: bar', foo: "See add'l info page")
+          verify_hash(foo: "See add'l info page")
         end
       end
     end
@@ -69,7 +69,7 @@ describe PdfFill::HashConverter do
           nil
         )
 
-        verify_text_and_hash('', foo: 'bar')
+        verify_hash(foo: 'bar')
       end
     end
   end
