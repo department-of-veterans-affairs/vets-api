@@ -40,6 +40,16 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd .
     launch it manually with `brew services start redis`.
 1. Install ImageMagick
    - `brew install imagemagick`
+1. Install ClamAV
+  - `brew install clamav`
+  - Take note of the the post-install instructions `To finish installation & run clamav
+  you will need to edit the example conf files at ${conf_files_dir}` (_${conf_files_dir}_ 
+  will differ based on your homebrew location) then:
+    - `cd ${conf_files_dir}`
+    - `touch clamd.sock`
+    - `echo "LocalSocket ${conf_files_dir}" > clamd.conf` 
+    - `echo "DatabaseMirror database.clamav.net" > freshclam.conf`
+    - `freshclam -v`
 1. Install gem dependencies: `cd vets-api; bundle install`
 1. Install overcommit `overcommit --install --sign`
 1. Setup localhost certificates / keys:

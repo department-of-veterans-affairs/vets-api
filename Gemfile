@@ -60,6 +60,9 @@ gem 'ice_nine'
 gem 'pdf-reader'
 gem 'aws-sdk'
 gem 'mini_magick'
+gem 'clam_scan'
+gem 'prawn'
+gem 'combine_pdf'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -99,7 +102,10 @@ group :test do
   gem 'vcr'
   gem 'awrence'
   gem 'climate_control'
-  gem "shrine-memory"
+  gem 'shrine-memory'
+  gem 'pdf-inspector'
+  gem 'rspec_junit_formatter'
+  gem 'rubocop-junit-formatter'
 end
 
 group :development do
