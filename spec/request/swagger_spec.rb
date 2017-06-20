@@ -53,13 +53,14 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     it 'supports getting an in-progress form' do
+      FactoryGirl.create(:in_progress_form, user_uuid: mhv_user.uuid)
       expect(subject).to validate(
         :get,
         '/v0/in_progress_forms/{id}',
         200,
-        auth_options.merge('id' => 'hca')
+        auth_options.merge('id' => '1010ez')
       )
-      expect(subject).to validate(:get, '/v0/in_progress_forms/{id}', 401, 'id' => 'hca')
+      expect(subject).to validate(:get, '/v0/in_progress_forms/{id}', 401, 'id' => '1010ez')
     end
 
     it 'supports updating an in-progress form' do
@@ -68,7 +69,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         '/v0/in_progress_forms/{id}',
         200,
         auth_options.merge(
-          'id' => 'hca',
+          'id' => '1010ez',
           '_data' => { 'form_data' => { wat: 'foo' } }
         )
       )
@@ -76,9 +77,20 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         :put,
         '/v0/in_progress_forms/{id}',
         500,
-        auth_options.merge('id' => 'hca')
+        auth_options.merge('id' => '1010ez')
       )
-      expect(subject).to validate(:put, '/v0/in_progress_forms/{id}', 401, 'id' => 'hca')
+      expect(subject).to validate(:put, '/v0/in_progress_forms/{id}', 401, 'id' => '1010ez')
+    end
+
+    it 'supports deleting an in-progress form' do
+      form = FactoryGirl.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      expect(subject).to validate(
+        :delete,
+        '/v0/in_progress_forms/{id}',
+        200,
+        auth_options.merge('id' => form.form_id)
+      )
+      expect(subject).to validate(:delete, '/v0/in_progress_forms/{id}', 401, 'id' => form.form_id)
     end
 
     it 'supports adding an education benefits form' do
