@@ -222,6 +222,27 @@ RSpec.describe MhvAccount, type: :model do
         end
       end
     end
+
+    context 'mhv error responses' do
+      let(:mhv_ids) { ['14221465'] }
+
+      it 'will raise an error on failed upgrade attempt' do
+        expect(subject.terms_and_conditions_accepted?).to be_truthy
+        expect(subject.preexisting_account?).to be_truthy
+        expect(subject.persisted?).to be_falsey
+        VCR.use_cassette('mhv_account_creation/should_not_create_an_account_if_one_already_exists') do
+          VCR.use_cassette('mhv_account_creation/account_upgrade_unknown_error', record: :none) do
+            expect { (subject.create_and_upgrade!) }.to raise_error(Common::Exceptions::BackendServiceException)
+            expect(subject.persisted?).to be_truthy
+            expect(subject.account_state).to eq('upgrade_failed')
+            expect(subject.registered_at).to be_nil
+            expect(subject.upgraded_at).to be_nil
+            expect(subject.eligible?).to be_truthy
+            expect(subject.terms_and_conditions_accepted?).to be_truthy
+          end
+        end
+      end
+    end
   end
 
   describe 'va_patient eligibility' do
