@@ -119,9 +119,12 @@ module PdfFill
             key: "vaHospitalTreatments.dates[1][#{ITERATOR}]"
           },
           'dates' => {
+            question: '10B. DATE(S) OF TREATMENT',
             limit: 3
           },
           'nameAndLocation' => {
+            question: '10A. NAME AND LOCATION OF VA MEDICAL CENTER',
+            # TODO limit for this field
             key: "vaHospitalTreatments.nameAndLocation[#{ITERATOR}]"
           }
         },

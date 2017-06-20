@@ -42,7 +42,8 @@ module PdfFill
     end
 
     def add_to_extras(key_data, v, i)
-      text_prefix = key_data[:question]
+      text_prefix = key_data.try(:[], :question)
+      return if text_prefix.blank?
 
       if i.present?
         text_prefix += " Line #{i + 1}"
@@ -58,6 +59,7 @@ module PdfFill
             add_to_extras(pdftk_keys[key], convert_val_as_string(val), i)
           end
         else
+          # TODO handle arrays
           add_to_extras(pdftk_keys, convert_val_as_string(v), i)
         end
       end
