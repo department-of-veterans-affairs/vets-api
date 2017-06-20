@@ -20,7 +20,6 @@ describe PdfFill::ExtrasGenerator do
       subject.add_text('foo', 'bar')
       file_path = subject.generate
 
-      binding.pry; fail
       expect(
         FileUtils.compare_file(file_path, "spec/fixtures/pdf_fill/extras.pdf")
       ).to eq(true)
