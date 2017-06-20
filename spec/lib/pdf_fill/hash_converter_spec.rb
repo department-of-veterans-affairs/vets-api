@@ -108,21 +108,21 @@ describe PdfFill::HashConverter do
 
     let(:pdftk_keys) do
       {
-        date: 'form.date',
-        veteranFullName: 'form1[0].#subform[0].EnterNameOfApplicantFirstMiddleLast[0]',
+        date: { key: 'form.date'},
+        veteranFullName: { key: 'form1[0].#subform[0].EnterNameOfApplicantFirstMiddleLast[0]'},
         bankAccount: {
-          accountNumber: 'form1[0].#subform[0].EnterACCOUNTNUMBER[0]',
-          checking: 'form1[0].#subform[0].CheckBoxChecking[0]'
+          accountNumber: {key:'form1[0].#subform[0].EnterACCOUNTNUMBER[0]'},
+          checking: {key:'form1[0].#subform[0].CheckBoxChecking[0]'}
         },
         nestedHash: {
           nestedHash: {
-            married: 'form1[0].#subform[1].CheckBoxYes6B[0]'
+            married: {key:'form1[0].#subform[1].CheckBoxYes6B[0]'}
           }
         },
         toursOfDuty: {
-          discharge: "form1[0].#subform[1].EnterCharacterD#{PdfFill::HashConverter::ITERATOR}[0]",
+          discharge: {key:"form1[0].#subform[1].EnterCharacterD#{PdfFill::HashConverter::ITERATOR}[0]"},
           nestedHash: {
-            dutyType: "form1[0].#subform[1].EnterTypeOfDutyE#{PdfFill::HashConverter::ITERATOR}[0]"
+            dutyType: {key:"form1[0].#subform[1].EnterTypeOfDutyE#{PdfFill::HashConverter::ITERATOR}[0]"}
           }
         }
       }
