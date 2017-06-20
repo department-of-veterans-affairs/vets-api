@@ -36,17 +36,22 @@ module PdfFill
       limit.present? && value.size > limit
     end
 
+    def add_to_extras(key_data, v, i)
+      text_prefix = key_data[:question]
+
+      if i.present?
+        text_prefix += " Line #{i + 1}"
+      end
+
+      @extras_generator.add_text(text_prefix, v)
+    end
+
     def set_value(k, v, key_data, i)
       new_value = convert_value(v)
 
       if has_overflow(key_data, new_value)
-        text_prefix = key_data[:question]
+        add_to_extras(key_data, new_value, i)
 
-        if i.present?
-          text_prefix += " Line #{i + 1}"
-        end
-
-        @extras_generator.add_text(text_prefix, new_value)
         new_value = "See add'l info page"
       end
 
@@ -54,6 +59,7 @@ module PdfFill
     end
 
     def check_for_overflow(arr, pdftk_keys)
+      # TODO check if array is over array limit
       arr.each do |item|
         next if item.blank? || !item.is_a?(Hash)
 
