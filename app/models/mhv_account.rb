@@ -102,7 +102,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def user
-    @user ||= User.find(user_uuid.tr('-',''))
+    @user ||= User.find(user_uuid)
   end
 
   # User's profile contains a list of VHA facility-specific identifiers.

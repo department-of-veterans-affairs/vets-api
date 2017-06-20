@@ -1,7 +1,7 @@
 class CreateMhvAccounts < ActiveRecord::Migration
   def change
     create_table :mhv_accounts do |t|
-      t.uuid :user_uuid, unique: true, null: false
+      t.string :user_uuid, unique: true, null: false
       t.string :account_state, null: false
       t.datetime :registered_at, null: true
       t.datetime :upgraded_at, null: true

@@ -15,7 +15,7 @@ module MHVControllerConcerns
 
   def authorize
     if beta_enabled?(current_user.uuid, 'health_account')
-     authorize_beta
+      authorize_beta
     else
       (current_user&.loa3? && current_user&.mhv_correlation_id.present?) || raise_access_denied
     end
