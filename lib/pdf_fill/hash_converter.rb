@@ -37,6 +37,7 @@ module PdfFill
     end
 
     def add_to_extras(key_data, v, i)
+      # TODO convert date
       text_prefix = key_data[:question]
 
       if i.present?
@@ -44,6 +45,18 @@ module PdfFill
       end
 
       @extras_generator.add_text(text_prefix, v)
+    end
+
+    def add_array_to_extras(arr, pdftk_keys)
+      arr.each_with_index do |v, i|
+        if v.is_a?(Hash)
+          v.each do |key, val|
+            add_to_extras(pdftk_keys[key], val, i)
+          end
+        else
+          add_to_extras(pdftk_keys, v, i)
+        end
+      end
     end
 
     def set_value(k, v, key_data, i)
@@ -91,6 +104,8 @@ module PdfFill
             pdftk_keys: pdftk_keys,
             i: 0
           )
+
+          add_array_to_extras(form_data, pdftk_keys)
         else
           form_data.each_with_index do |v, idx|
             transform_data(form_data: v, pdftk_keys: pdftk_keys, i: idx)

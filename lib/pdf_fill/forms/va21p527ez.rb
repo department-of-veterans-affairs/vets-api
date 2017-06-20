@@ -183,7 +183,10 @@ module PdfFill
             limit: 44,
             question: '9A. DISABILITY(IES)'
           },
-          'disabilityStartDate' => { key: "disabilities.disabilityStartDate[#{ITERATOR}]" }
+          'disabilityStartDate' => {
+            key: "disabilities.disabilityStartDate[#{ITERATOR}]",
+            question: '9B. DATE DISABILITY(IES) BEGAN'
+          }
         },
         'vaHospitalTreatmentDates' => { key: 'F[0].Page_5[0].DateofTreatment[%iterator%]' },
         'veteranFullName' => {
