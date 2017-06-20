@@ -17,6 +17,15 @@ ActiveRecord::Schema.define(version: 20170607043549) do
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
 
+  create_table "beta_registrations", force: :cascade do |t|
+    t.string   "user_uuid",  null: false
+    t.string   "feature",    null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "beta_registrations", ["user_uuid", "feature"], name: "index_beta_registrations_on_user_uuid_and_feature", unique: true, using: :btree
+
   create_table "education_benefits_claims", force: :cascade do |t|
     t.datetime "submitted_at"
     t.datetime "processed_at"
@@ -61,14 +70,6 @@ ActiveRecord::Schema.define(version: 20170607043549) do
 
   add_index "evss_claims", ["user_uuid"], name: "index_evss_claims_on_user_uuid", using: :btree
 
-  create_table "health_beta_registrations", force: :cascade do |t|
-    t.uuid     "user_uuid",  null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
-  add_index "health_beta_registrations", ["user_uuid"], name: "index_health_beta_registrations_on_user_uuid", using: :btree
-
   create_table "in_progress_forms", force: :cascade do |t|
     t.uuid     "user_uuid",              null: false
     t.string   "form_id",                null: false
@@ -83,7 +84,7 @@ ActiveRecord::Schema.define(version: 20170607043549) do
   add_index "in_progress_forms", ["user_uuid"], name: "index_in_progress_forms_on_user_uuid", using: :btree
 
   create_table "mhv_accounts", force: :cascade do |t|
-    t.uuid     "user_uuid",     null: false
+    t.string   "user_uuid",     null: false
     t.string   "account_state", null: false
     t.datetime "registered_at"
     t.datetime "upgraded_at"

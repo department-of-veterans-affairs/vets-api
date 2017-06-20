@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'health_beta'
+require 'beta_switch'
 
 module MHVControllerConcerns
   extend ActiveSupport::Concern
-  include HealthBeta
+  include BetaSwitch
 
   included do
     before_action :authorize
@@ -14,7 +14,7 @@ module MHVControllerConcerns
   protected
 
   def authorize
-    if beta_enabled?(current_user.uuid)
+    if beta_enabled?(current_user.uuid, 'health_account')
       authorize_beta
     else
       (current_user&.loa3? && current_user&.mhv_correlation_id.present?) || raise_access_denied
