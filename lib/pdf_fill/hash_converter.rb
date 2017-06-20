@@ -31,7 +31,7 @@ module PdfFill
     end
 
     def has_overflow(key_data, value)
-      limit = key_data[:limit]
+      limit = key_data.try(:[], :limit)
 
       limit.present? && value.size > limit
     end
@@ -54,11 +54,17 @@ module PdfFill
     end
 
     def check_for_overflow(arr, pdftk_keys)
-      # TODO finish
       arr.each do |item|
+        next if item.blank?
+
         item.each do |k, v|
+          if has_overflow(pdftk_keys[k], v)
+            return true
+          end
         end
       end
+
+      false
     end
 
     def transform_data(form_data:, pdftk_keys:, i: nil)
@@ -66,7 +72,16 @@ module PdfFill
 
       case form_data
       when Array
+        has_overflow = check_for_overflow(form_data, pdftk_keys)
+
         form_data.each_with_index do |v, idx|
+          if has_overflow
+            # TODO put this text in constant
+            v.each do |key, val|
+              v[key] = "See add'l info page"
+            end
+          end
+
           transform_data(form_data: v, pdftk_keys: pdftk_keys, i: idx)
         end
       when Hash
