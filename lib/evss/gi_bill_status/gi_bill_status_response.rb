@@ -5,10 +5,11 @@ require 'evss/response'
 module EVSS
   module GiBillStatus
     class GiBillStatusResponse < EVSS::Response
-      attribute :body, EVSS::GiBillStatus::Post911GIBillStatus
+      include Post911GIBillStatus
 
-      def parse_body(body)
-        self.body = body['chapter33_education_info']
+      def initialize(status, response = nil)
+        attributes = response.body['chapter33_education_info']
+        super(status, attributes)
       end
     end
   end

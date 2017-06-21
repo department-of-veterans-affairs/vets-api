@@ -7,21 +7,10 @@ module EVSS
     include Common::Client::ServiceStatus
 
     attribute :status, Integer
-    attribute :body, Object
 
-    def initialize(response)
-      case response
-      when Faraday::Response
-        self.status = response.status
-        parse_body(response.body)
-      else
-        self.status = response[:status]
-        parse_body(response[:body]) if response[:body]
-      end
-    end
-
-    def parse_body(body)
-      self.body = body
+    def initialize(status, attributes = nil)
+      super(attributes) if attributes
+      self.status = status
     end
 
     def ok?

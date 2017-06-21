@@ -14,7 +14,8 @@ describe EVSS::GiBillStatus::Service do
           VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
             response = subject.get_gi_bill_status
             expect(response).to be_ok
-            expect(response.body).to have_deep_attributes(
+            expect(response).to have_deep_attributes(
+              'status' => 200,
               'first_name' => 'Dianne',
               'last_name' => 'Scott',
               'name_suffix' => nil,

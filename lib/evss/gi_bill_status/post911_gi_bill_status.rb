@@ -1,9 +1,9 @@
 # frozen_string_literal: true
-require 'common/models/base'
-
 module EVSS
   module GiBillStatus
-    class Post911GIBillStatus < Common::Base
+    module Post911GIBillStatus
+      include Virtus.module
+
       attribute :first_name, String
       attribute :last_name, String
       attribute :name_suffix, String
