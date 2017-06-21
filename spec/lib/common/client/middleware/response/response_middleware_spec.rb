@@ -125,13 +125,13 @@ describe 'Response Middleware' do
       ':code=>"VA900", :source=>"Check Logs for: Could not parse XML/HTML"}'
       allow_any_instance_of(Common::Client::Middleware::Response::MhvXmlHtmlErrors)
         .to receive(:log_message_to_sentry)
-              .with(mhv_broken_xml, :error)
-              .and_raise(ArgumentError, 'malformed format string - %"')
+        .with(mhv_broken_xml, :error)
+        .and_raise(ArgumentError, 'malformed format string - %"')
 
       allow_any_instance_of(Common::Client::Middleware::Response::MhvXmlHtmlErrors)
         .to receive(:log_message_to_sentry)
-              .with('Could not parse XML/HTML', :warning, { original_status: 400, original_body: mhv_broken_xml })
-              .and_return('')
+        .with('Could not parse XML/HTML', :warning, original_status: 400, original_body: mhv_broken_xml)
+        .and_return('')
 
       expect(Rails.logger).to receive(:error).twice
       expect { faraday_client.get('mhv-broken-xml') }.to raise_error do |error|
