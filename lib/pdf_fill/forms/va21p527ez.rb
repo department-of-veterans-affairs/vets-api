@@ -263,7 +263,7 @@ module PdfFill
               key: "#{sub_key}.marriageType[#{ITERATOR}]"
             },
             'dateOfSeparation' => {
-              question: "#{question_num}C. DATE MARRIAGE TERMINATED",
+              question: "#{question_num}E. DATE MARRIAGE TERMINATED",
               key: "#{sub_key}.dateOfSeparation[#{ITERATOR}]"
             },
             'reasonForSeparation' => {
