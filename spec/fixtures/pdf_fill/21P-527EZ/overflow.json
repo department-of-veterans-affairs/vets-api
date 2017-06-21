@@ -380,7 +380,7 @@
   ],
   "combatSince911": true,
   "severancePay": {
-    "amount": 1,
+    "amount": 9999999999999999999,
     "type": "Longevity"
   },
   "placeOfSeparation": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
