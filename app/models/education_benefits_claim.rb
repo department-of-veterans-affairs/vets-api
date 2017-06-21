@@ -63,9 +63,24 @@ class EducationBenefitsClaim < ActiveRecord::Base
     @application ||= JSON.parse(form, object_class: OpenStruct)
     @application.confirmation_number = confirmation_number
 
-    generate_benefits_to_apply_to if is_1990?
+    transform_form
 
     @application
+  end
+
+  def transform_form
+    generate_benefits_to_apply_to if is_1990?
+    copy_from_previous_benefits if is_5490?
+  end
+
+  def copy_from_previous_benefits
+    if @application.currentSameAsPrevious
+      previous_benefits = @application.previousBenefits
+
+      %w(veteranFullName vaFileNumber veteranSocialSecurityNumber).each do |attr|
+        @application.public_send("#{attr}=", previous_benefits.public_send(attr))
+      end
+    end
   end
 
   def generate_benefits_to_apply_to
