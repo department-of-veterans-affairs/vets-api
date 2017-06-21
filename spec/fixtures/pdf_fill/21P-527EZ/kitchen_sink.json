@@ -58,8 +58,9 @@
       "date": "2012-04-04"
     }
   ],
-  "children": [
+  "dependents": [
     {
+      "dependentRelationship": "child",
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -67,7 +68,7 @@
         "state": "MD",
         "street": "str1"
       },
-      "childFullName": {
+      "fullName": {
         "first": "outside1",
         "last": "Olson"
       },
@@ -99,6 +100,7 @@
       "monthlyPayment": 1
     },
     {
+      "dependentRelationship": "child",
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -118,6 +120,7 @@
       "monthlyPayment": 2
     },
     {
+      "dependentRelationship": "child",
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -137,6 +140,7 @@
       "monthlyPayment": 3
     },
     {
+      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-01",
       "childFullName": {
         "first": "Mark1",
@@ -163,6 +167,7 @@
       "previouslyMarried": true
     },
     {
+      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-02",
       "childFullName": {
         "first": "Mark2",
@@ -179,6 +184,7 @@
       "previouslyMarried": true
     },
     {
+      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-03",
       "childFullName": {
         "first": "Mark3",
