@@ -66,7 +66,11 @@ module PdfFill
           'hasCombatSince911' => { key: 'F[0].Page_5[0].YesCZ[0]' },
           'noCombatSince911' => { key: 'F[0].Page_5[0].NoCZ[0]' },
           'spouseMarriagesExplanations' => { key: 'F[0].Page_6[0].Explainothertypeofmarriage[0]' },
-          'marriagesExplanations' => { key: 'F[0].Page_6[0].Explainothertypesofmarriage[0]' },
+          'marriagesExplanations' => {
+            limit: 90,
+            question: '19F. IF YOU INDICATED "OTHER" AS TYPE OF MARRIAGE IN ITEM 19C, PLEASE EXPLAIN:',
+            key: 'F[0].Page_6[0].Explainothertypesofmarriage[0]'
+          },
           'hasSeverancePay' => { key: 'F[0].Page_5[0].YesSep[0]' },
           'noSeverancePay' => { key: 'F[0].Page_5[0].NoSep[0]' },
           'veteranDateOfBirth' => { key: 'F[0].Page_5[0].Date[0]' },
