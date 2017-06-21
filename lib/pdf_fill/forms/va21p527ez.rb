@@ -153,7 +153,11 @@ module PdfFill
               limit: 3
             }
           },
-          'spouseAddress' => { key: 'F[0].Page_6[0].Spouseaddress[0]' },
+          'spouseAddress' => {
+            limit: 47,
+            question: "22F. WHAT IS YOUR SPOUSE'S ADDRESS?",
+            key: 'F[0].Page_6[0].Spouseaddress[0]'
+          },
           'outsideChildren' => {
             'childAddress' => { key: 'outsideChildren.childAddress[%iterator%]' },
             'childFullName' => { key: 'outsideChildren.childFullName[%iterator%]' },
