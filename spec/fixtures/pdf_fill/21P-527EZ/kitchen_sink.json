@@ -107,7 +107,7 @@
         "state": "MD",
         "street": "str2"
       },
-      "childFullName": {
+      "fullName": {
         "first": "outside2",
         "last": "Olson"
       },
@@ -126,7 +126,7 @@
         "state": "MD",
         "street": "str3"
       },
-      "childFullName": {
+      "fullName": {
         "first": "outside3",
         "last": "Olson"
       },
@@ -140,7 +140,7 @@
       "childInHousehold": true,
       "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-01",
-      "childFullName": {
+      "fullName": {
         "first": "Mark1",
         "last": "Olson"
       },
@@ -168,7 +168,7 @@
       "childInHousehold": true,
       "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-02",
-      "childFullName": {
+      "fullName": {
         "first": "Mark2",
         "last": "Olson"
       },
@@ -186,7 +186,7 @@
       "childInHousehold": true,
       "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-03",
-      "childFullName": {
+      "fullName": {
         "first": "Mark3",
         "last": "Olson"
       },

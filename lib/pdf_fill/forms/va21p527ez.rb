@@ -164,7 +164,7 @@ module PdfFill
           },
           'outsideChildren' => {
             'childAddress' => { key: 'outsideChildren.childAddress[%iterator%]' },
-            'childFullName' => { key: 'outsideChildren.childFullName[%iterator%]' },
+            'fullName' => { key: 'outsideChildren.childFullName[%iterator%]' },
             'monthlyPayment' => { key: 'outsideChildren.monthlyPayment[%iterator%]' },
             'personWhoLivesWithChild' => { key: 'outsideChildren.personWhoLivesWithChild[%iterator%]' }
           },
@@ -176,7 +176,7 @@ module PdfFill
             'married' => { key: 'children.married[%iterator%]' },
             'disabled' => { key: 'children.disabled[%iterator%]' },
             'biological' => { key: 'children.biological[%iterator%]' },
-            'childFullName' => {
+            'fullName' => {
               key: 'children.name[%iterator%]',
               limit: 34,
               question: "23A. NAME OF DEPENDENT CHILD"
@@ -495,14 +495,16 @@ module PdfFill
         }
 
         children.each do |child|
-          children_split[child['childNotInHousehold'] ? :outside : :cohabiting] << child
+          children_split[child['childInHousehold'] ? :cohabiting : :outside] << child
         end
 
         children_split
       end
 
       def expand_children(hash, key)
-        children = hash[key]
+        children = hash[key]&.find_all do |dependent|
+          dependent['dependentRelationship'] == 'child'
+        end
         return if children.blank?
 
         children_split = split_children(children)
@@ -512,7 +514,7 @@ module PdfFill
             v[i] ||= {}
             child = v[i]
 
-            %w(childFullName personWhoLivesWithChild).each do |attr|
+            %w(fullName personWhoLivesWithChild).each do |attr|
               child[attr] = combine_full_name(child[attr])
             end
 
@@ -520,7 +522,7 @@ module PdfFill
           end
         end
 
-        hash[key] = children_split[:cohabiting]
+        hash['children'] = children_split[:cohabiting]
         hash['outsideChildren'] = children_split[:outside]
 
         hash
@@ -601,7 +603,7 @@ module PdfFill
         all_children += @form_data['outsideChildren'] || []
 
         all_children.each do |child|
-          expand_financial_acct(child['childFullName'], child[definition], financial_accts)
+          expand_financial_acct(child['fullName'], child[definition], financial_accts)
         end
 
         zero_financial_accts(financial_accts)
@@ -742,8 +744,9 @@ module PdfFill
         %w(activeServiceDateRange powDateRange).each do |attr|
           expand_date_range(@form_data, attr)
         end
+        # TODO financials for parent dependents
 
-        expand_children(@form_data, 'children')
+        expand_children(@form_data, 'dependents')
 
         %w(marriages spouseMarriages).each do |marriage_type|
           expand_marriages(@form_data, marriage_type)
