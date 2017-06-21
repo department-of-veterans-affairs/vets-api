@@ -106,7 +106,11 @@ module PdfFill
           'reasonForSeparation' => { key: 'marriages.reasonForSeparation[%iterator%]' }
         },
         'nationalGuard' => {
-          'nameAndAddr' => { key: 'F[0].Page_5[0].Nameandaddressofunit[0]' },
+          'nameAndAddr' => {
+            key: 'F[0].Page_5[0].Nameandaddressofunit[0]',
+            limit: 59,
+            question: '14A. WHAT IS THE NAME AND ADDRESS OF YOUR RESERVE/NATIONAL GUARD UNIT?'
+          },
           'phone' => { key: 'F[0].Page_5[0].Unittelephonenumber[0]' },
           'date' => { key: 'F[0].Page_5[0].DateofActivation[0]' },
           'phoneAreaCode' => { key: 'F[0].Page_5[0].Unittelephoneareacode[0]' }
@@ -158,6 +162,7 @@ module PdfFill
         'dayPhone' => { key: 'F[0].Page_5[0].Daytimephonenumber[0]' },
         'previousNames' => {
           key: 'F[0].Page_5[0].Listothernames[0]',
+          # TODO use one line limit
           limit: 105,
           question: '11B. PLEASE LIST THE OTHER NAME(S) YOU SERVED UNDER'
         },
