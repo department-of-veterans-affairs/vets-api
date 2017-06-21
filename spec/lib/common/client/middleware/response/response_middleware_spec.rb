@@ -14,6 +14,7 @@ describe 'Response Middleware' do
   let(:mhv_html_error) { '<html><head><title>Some Title</title></head><body>Some Error Message</body></html>' }
   let(:mhv_html_error_no_title) { '<html><body>Some Error Message</body></html>' }
   let(:mhv_generic_xml) { '<some-node><message>Some Message</message></some-node>' }
+  let(:mhv_broken_xml) { '<some-node></some-node>' }
 
   let(:mhv_generic_xml_error_code) do
     '<Error><developerMessage></developerMessage><errorCode>103</errorCode><message>Error</message></Error>)'
@@ -48,6 +49,7 @@ describe 'Response Middleware' do
         stub.get('ok') { [200, { 'Content-Type' => 'application/json' }, message_json] }
         stub.get('not-found') { [404, { 'Content-Type' => 'application/json' }, four_o_four] }
         stub.get('refill-fail') { [400, { 'Content-Type' => 'application/json' }, i18n_type_error] }
+        stub.get('mhv-broken-xml') { [400, { 'Content-Type' => 'application/xml' }, mhv_broken_xml] }
         stub.get('mhv-html-error') { [400, { 'Content-Type' => 'application/html' }, mhv_html_error] }
         stub.get('mhv-html-error-no-title') { [400, { 'Content-Type' => 'application/html' }, mhv_html_error_no_title] }
         stub.get('mhv-generic-xml') { [400, { 'Content-Type' => 'application/xml' }, mhv_generic_xml] }
@@ -90,6 +92,12 @@ describe 'Response Middleware' do
       end
   end
 
+  let(:generic_response) do
+    'BackendServiceException: {:status=>400, '\
+    ':detail=>"Received an error response that could not be processed", '\
+    ':code=>"VA900", :source=>nil}'
+  end
+
   context 'html errors' do
     it 'can handle html errors using a title' do
       message = 'BackendServiceException: {:status=>400, :detail=>"Some Title", :code=>"VA900", :source=>nil}'
@@ -102,28 +110,41 @@ describe 'Response Middleware' do
     end
 
     it 'can handle html errors without a title' do
-      generic_message = 'BackendServiceException: {:status=>400, '\
-        ':detail=>"Received an error response that could not be processed", '\
-        ':code=>"VA900", :source=>nil}'
-
       expect(Rails.logger).to receive(:error)
       expect { faraday_client.get('mhv-html-error-no-title') }.to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)
-        expect(error.message).to eq(generic_message)
+        expect(error.message).to eq(generic_response)
       end
     end
   end
 
   context 'xml errors' do
-    it 'can handle generic xml errors' do
-      generic_message = 'BackendServiceException: {:status=>400, '\
-        ':detail=>"Received an error response that could not be processed", '\
-        ':code=>"VA900", :source=>nil}'
+    it 'can handle broken xml' do
+      rescued_response = 'BackendServiceException: {:status=>400, '\
+      ':detail=>"Received an error response that could not be processed", '\
+      ':code=>"VA900", :source=>"Check Logs for: Could not parse XML/HTML"}'
+      allow_any_instance_of(Common::Client::Middleware::Response::MhvXmlHtmlErrors)
+        .to receive(:log_message_to_sentry)
+              .with(mhv_broken_xml, :error)
+              .and_raise(ArgumentError, 'malformed format string - %"')
 
+      allow_any_instance_of(Common::Client::Middleware::Response::MhvXmlHtmlErrors)
+        .to receive(:log_message_to_sentry)
+              .with('Could not parse XML/HTML', :warning, { original_status: 400, original_body: mhv_broken_xml })
+              .and_return('')
+
+      expect(Rails.logger).to receive(:error).twice
+      expect { faraday_client.get('mhv-broken-xml') }.to raise_error do |error|
+        expect(error).to be_a(Common::Exceptions::BackendServiceException)
+        expect(error.message).to eq(rescued_response)
+      end
+    end
+
+    it 'can handle generic xml errors' do
       expect(Rails.logger).to receive(:error)
       expect { faraday_client.get('mhv-generic-xml') }.to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)
-        expect(error.message).to eq(generic_message)
+        expect(error.message).to eq(generic_response)
       end
     end
 

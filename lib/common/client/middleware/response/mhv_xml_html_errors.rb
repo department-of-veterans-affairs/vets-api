@@ -14,10 +14,23 @@ module Common
             @doc = html?(env) ? Nokogiri::HTML(env.body) : Nokogiri::XML(env.body)
 
             jsoned_error = ERROR_LIST.each_with_object('') { |error, je| break je if (je = send(error)) }
-            jsoned_error['errorCode'] = env.status if jsoned_error['errorCode'].blank?
+            # NOTE: errorCode should not be set to env.status because that could inadvertedly map to a known error
+            jsoned_error['errorCode'] = 'MHV-UNKNOWN-ERROR' if jsoned_error['errorCode'].blank?
 
             env.body = jsoned_error
             env.response_headers['content-type'] = 'application/json'
+          rescue ArgumentError => exception
+            log_exception_to_sentry(exception)
+            extra_context = { original_status: env.status, original_body: env.body }
+            log_message_to_sentry('Could not parse XML/HTML', :warning, extra_context)
+            env.body = {
+              'errorCode' => 'MHV-UNKNOWN-ERROR',
+              'message' => 'Received an error response that could not be processed',
+              'developerMessage' => 'Check Logs for: Could not parse XML/HTML'
+            }
+            env.response_headers['content-type'] = 'application/json'
+          ensure
+            env
           end
 
           private
