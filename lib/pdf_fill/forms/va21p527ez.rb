@@ -87,7 +87,11 @@ module PdfFill
           first_key: 'nameAndAddr',
           # TODO finish limits
           limit: 2,
-          'annualEarnings' => { key: "jobs.annualEarnings[#{ITERATOR}]" },
+          'annualEarnings' => {
+            limit: 10,
+            question: '17F. WHAT WERE YOUR TOTAL ANNUAL EARNINGS?',
+            key: "jobs.annualEarnings[#{ITERATOR}]"
+          },
           'nameAndAddr' => {
             key: "jobs.nameAndAddr[#{ITERATOR}]",
             limit: 27,
