@@ -10,7 +10,7 @@ module EVSS
 
       def get_gi_bill_status
         raw_response = Struct::RawGiBillResponse.new(mocked_response[:body], mocked_response[:status])
-        EVSS::GiBillStatus::GiBillStatusResponse.new(raw_response)
+        EVSS::GiBillStatus::GiBillStatusResponse.new(mocked_response[:status], raw_response)
       end
     end
   end
