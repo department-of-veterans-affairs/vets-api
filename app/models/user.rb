@@ -93,9 +93,14 @@ class User < Common::RedisStore
 
   delegate :edipi, to: :mvi
   delegate :icn, to: :mvi
-  delegate :mhv_correlation_id, to: :mvi
+  # delegate :mhv_correlation_id, to: :mvi
   delegate :participant_id, to: :mvi
   delegate :veteran?, to: :veteran_status
+
+  # TODO: change this back to the delegate from mvi after testing is complete
+  def mhv_correlation_id
+    mvi.mhv_correlation_id || mhv_account&.mhv_correlation_id
+  end
 
   def va_profile
     mvi.profile
