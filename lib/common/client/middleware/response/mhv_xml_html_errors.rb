@@ -24,7 +24,7 @@ module Common
               status: status,
               detail: 'Received an error response that could not be processed',
               code:   'VA900',
-              source: 'MHV provided unparaseable error response, check logs for original request body.'
+              source: 'MHV provided unparsable error response, check logs for original request body.'
             }
           end
         end

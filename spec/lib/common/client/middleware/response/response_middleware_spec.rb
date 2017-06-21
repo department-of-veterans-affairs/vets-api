@@ -78,11 +78,10 @@ describe 'Response Middleware' do
       end
   end
 
-
   context 'unparsable errors' do
     let(:detail) { '"Received an error response that could not be processed"' }
-    let(:code) {'"VA900"'}
-    let(:source) { '"MHV provided unparaseable error response, check logs for original request body."' }
+    let(:code) { '"VA900"' }
+    let(:source) { '"MHV provided unparsable error response, check logs for original request body."' }
     let(:xml_or_html_response) do
       "BackendServiceException: {:status=>400, :detail=>#{detail}, :code=>#{code}, :source=>#{source}}"
     end
