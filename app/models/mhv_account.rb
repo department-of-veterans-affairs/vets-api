@@ -8,6 +8,10 @@ class MhvAccount < ActiveRecord::Base
   include SentryLogging
   include BetaSwitch
 
+  STATSD_ACCOUNT_EXISTED_KEY = 'mhv.account.existed'
+  STATSD_ACCOUNT_CREATION_KEY = 'mhv.account.creation'
+  STATSD_ACCOUNT_UPGRADE_KEY = 'mhv.account.upgrade'
+
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
   # Everything except ineligible accounts should be able to transition to :needs_terms_acceptance
   ALL_STATES = %i(unknown needs_terms_acceptance ineligible registered upgraded register_failed upgrade_failed).freeze
@@ -122,6 +126,7 @@ class MhvAccount < ActiveRecord::Base
     if may_register?
       client_response = mhv_ac_client.post_register(params_for_registration)
       if client_response[:api_completion_status] == 'Successful'
+        StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.success")
         user.va_profile.mhv_ids = [client_response[:correlation_id].to_s]
         user.instance_variable_get(:@mvi).save
         self.registered_at = Time.current
@@ -130,6 +135,7 @@ class MhvAccount < ActiveRecord::Base
     end
   # TODO: handle/log exceptions more carefully
   rescue => e
+    StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.failure")
     fail_register!
     log_exception_to_sentry(e)
     raise e
@@ -139,23 +145,22 @@ class MhvAccount < ActiveRecord::Base
     if may_upgrade?
       client_response = mhv_ac_client.post_upgrade(params_for_upgrade)
       if client_response[:status] == 'success'
+        StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.success")
         self.upgraded_at = Time.current
         upgrade!
       end
     end
   # TODO: handle/log exceptions more carefully
-  rescue Common::Exceptions::BackendServiceException => e
-    if e.original_body['code'] == 155
+  rescue => e
+    if e.is_a?(Common::Exceptions::BackendServiceException) && e.original_body['code'] == 155
+      StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
       upgrade! # without updating the timestamp since account was not created at vets.gov
     else
+      StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.failure")
       fail_upgrade!
       log_exception_to_sentry(e)
       raise e
     end
-  rescue => e
-    fail_upgrade!
-    log_exception_to_sentry(e)
-    raise e
   end
 
   def mhv_ac_client
