@@ -11,7 +11,7 @@ describe 'Response Middleware' do
   let(:message_json) { attributes_for(:message).to_json }
   let(:four_o_four) { { "errorCode": 400, "message": 'Record Not Found', "developerMessage": 'blah' }.to_json }
   let(:i18n_type_error) { { "errorCode": 139, "message": 'server response', "developerMessage": 'blah' }.to_json }
-  let(:mhv_generic_html) { '<html><head><title>Some Title</title></head><body>Some Error Message</body></html>' }
+  let(:mhv_generic_html) { '<html><body width=100%>Some Error Message</body></html>' }
   let(:mhv_generic_xml) do
     %(
       <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
@@ -79,7 +79,7 @@ describe 'Response Middleware' do
   end
 
 
-  context 'unparseable errors' do
+  context 'unparsable errors' do
     let(:detail) { '"Received an error response that could not be processed"' }
     let(:code) {'"VA900"'}
     let(:source) { '"MHV provided unparaseable error response, check logs for original request body."' }

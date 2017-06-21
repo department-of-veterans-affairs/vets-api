@@ -13,7 +13,7 @@ module Common
             @status = env.status.to_i
 
             extra_context = { original_status: @status, original_body: env.body.delete('%') }
-            log_message_to_sentry('Could not parse XML/HTML', :warn, extra_context)
+            log_message_to_sentry('Could not parse XML/HTML response from MHV', :warn, extra_context)
             raise Common::Exceptions::BackendServiceException.new('VA900', response_values, @status, env.body)
           end
 
