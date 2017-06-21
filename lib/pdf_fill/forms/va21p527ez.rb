@@ -85,7 +85,11 @@ module PdfFill
         'powDateRangeEnd' => { key: 'F[0].Page_5[0].Date[2]' },
         'jobs' => {
           'annualEarnings' => { key: 'F[0].Page_5[0].Totalannualearnings[%iterator%]' },
-          'nameAndAddr' => { key: 'F[0].Page_5[0].Nameandaddressofemployer[%iterator%]' },
+          'nameAndAddr' => {
+            key: 'F[0].Page_5[0].Nameandaddressofemployer[%iterator%]',
+            limit: 27,
+            question: '17A. WHAT WAS THE NAME AND ADDRESS OF YOUR EMPLOYER?'
+          },
           'jobTitle' => { key: 'F[0].Page_5[0].Jobtitle[%iterator%]' },
           'dateRangeStart' => { key: 'F[0].Page_5[0].DateJobBegan[%iterator%]' },
           'dateRangeEnd' => { key: 'F[0].Page_5[0].DateJobEnded[%iterator%]' },
