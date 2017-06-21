@@ -257,7 +257,11 @@ module PdfFill
               question: "#{question_num}B. TO WHOM MARRIED",
               key: "#{sub_key}.spouseFullName[#{ITERATOR}]"
             },
-            'marriageType' => { key: "#{sub_key}.marriageType[#{ITERATOR}]" },
+            'marriageType' => {
+              limit: 27,
+              question: "#{question_num}C. TYPE OF MARRIAGE",
+              key: "#{sub_key}.marriageType[#{ITERATOR}]"
+            },
             'dateOfSeparation' => { key: "#{sub_key}.dateOfSeparation[#{ITERATOR}]" },
             'reasonForSeparation' => { key: "#{sub_key}.reasonForSeparation[#{ITERATOR}]" }
           }
