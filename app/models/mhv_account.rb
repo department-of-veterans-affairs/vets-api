@@ -153,7 +153,7 @@ class MhvAccount < ActiveRecord::Base
   # TODO: handle/log exceptions more carefully
   rescue => e
     if e.is_a?(Common::Exceptions::BackendServiceException) && e.original_body['code'] == 155
-      StatsD.increment("#{STATSD_ACCOUNT_EXISTED_KEY}")
+      StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
       upgrade! # without updating the timestamp since account was not created at vets.gov
     else
       StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.failure")
