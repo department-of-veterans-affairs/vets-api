@@ -93,7 +93,11 @@ module PdfFill
             limit: 27,
             question: '17A. WHAT WAS THE NAME AND ADDRESS OF YOUR EMPLOYER?'
           },
-          'jobTitle' => { key: "jobs.jobTitle[#{ITERATOR}]" },
+          'jobTitle' => {
+            key: "jobs.jobTitle[#{ITERATOR}]",
+            question: '17B. WHAT WAS YOUR JOB TITLE?',
+            limit: 25
+          },
           'dateRangeStart' => { key: "jobs.dateRangeStart[#{ITERATOR}]" },
           'dateRangeEnd' => { key: "jobs.dateRangeEnd[#{ITERATOR}]" },
           'daysMissed' => { key: "jobs.daysMissed[#{ITERATOR}]" }
