@@ -126,6 +126,54 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       )
     end
 
+    it 'supports adding a pension' do
+      expect(subject).to validate(
+        :post,
+        '/v0/pension_claims',
+        200,
+        '_data' => {
+          'pension_claim' => {
+            'form' => build(:pension_claim).form
+          }
+        }
+      )
+
+      expect(subject).to validate(
+        :post,
+        '/v0/pension_claims',
+        422,
+        '_data' => {
+          'pension_claim' => {
+            'invalid-form' => { invalid: true }.to_json
+          }
+        }
+      )
+    end
+
+    it 'supports adding a burial claim' do
+      expect(subject).to validate(
+        :post,
+        '/v0/burial_claims',
+        200,
+        '_data' => {
+          'burial_claim' => {
+            'form' => build(:burial_claim).form
+          }
+        }
+      )
+
+      expect(subject).to validate(
+        :post,
+        '/v0/burial_claims',
+        422,
+        '_data' => {
+          'burial_claim' => {
+            'invalid-form' => { invalid: true }.to_json
+          }
+        }
+      )
+    end
+
     context 'HCA tests' do
       let(:test_veteran) do
         File.read(
