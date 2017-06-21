@@ -162,8 +162,7 @@ module PdfFill
         'dayPhone' => { key: 'F[0].Page_5[0].Daytimephonenumber[0]' },
         'previousNames' => {
           key: 'F[0].Page_5[0].Listothernames[0]',
-          # TODO use one line limit
-          limit: 105,
+          limit: 53,
           question: '11B. PLEASE LIST THE OTHER NAME(S) YOU SERVED UNDER'
         },
         'dayPhoneAreaCode' => { key: 'F[0].Page_5[0].Daytimeareacode[0]' },
