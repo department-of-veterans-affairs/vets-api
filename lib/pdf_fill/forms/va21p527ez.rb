@@ -84,16 +84,16 @@ module PdfFill
         'powDateRangeStart' => { key: 'F[0].Page_5[0].Date[1]' },
         'powDateRangeEnd' => { key: 'F[0].Page_5[0].Date[2]' },
         'jobs' => {
-          'annualEarnings' => { key: 'F[0].Page_5[0].Totalannualearnings[%iterator%]' },
+          'annualEarnings' => { key: "jobs.annualEarnings[#{ITERATOR}]" },
           'nameAndAddr' => {
-            key: 'F[0].Page_5[0].Nameandaddressofemployer[%iterator%]',
+            key: "jobs.nameAndAddr[#{ITERATOR}]",
             limit: 27,
             question: '17A. WHAT WAS THE NAME AND ADDRESS OF YOUR EMPLOYER?'
           },
-          'jobTitle' => { key: 'F[0].Page_5[0].Jobtitle[%iterator%]' },
-          'dateRangeStart' => { key: 'F[0].Page_5[0].DateJobBegan[%iterator%]' },
-          'dateRangeEnd' => { key: 'F[0].Page_5[0].DateJobEnded[%iterator%]' },
-          'daysMissed' => { key: 'F[0].Page_5[0].Dayslostduetodisability[%iterator%]' }
+          'jobTitle' => { key: "jobs.jobTitle[#{ITERATOR}]" },
+          'dateRangeStart' => { key: "jobs.dateRangeStart[#{ITERATOR}]" },
+          'dateRangeEnd' => { key: "jobs.dateRangeEnd[#{ITERATOR}]" },
+          'daysMissed' => { key: "jobs.daysMissed[#{ITERATOR}]" }
         },
         'spouseMarriages' => {
           'dateOfMarriage' => { key: 'spouseMarriages.dateOfMarriage[%iterator%]' },
@@ -334,27 +334,14 @@ module PdfFill
         combine_hash_and_del_keys(hash, %w(name address), 'nameAndAddr', ', ')
       end
 
-      def rearrange_jobs(jobs)
+      def expand_jobs(jobs)
         return if jobs.blank?
-        new_jobs = [{}, {}]
 
-        2.times do |i|
-          %w(daysMissed dateRange).each do |attr|
-            new_jobs[i][attr] = jobs[i].try(:[], attr)
-          end
-
-          alternate_i = i.zero? ? 1 : 0
-
-          %w(jobTitle annualEarnings).each do |attr|
-            new_jobs[i][attr] = jobs[alternate_i].try(:[], attr)
-          end
-
-          new_jobs[i]['address'] = combine_full_address(jobs[alternate_i].try(:[], 'address'))
-          new_jobs[i]['employer'] = jobs[alternate_i].try(:[], 'employer')
-          combine_hash_and_del_keys(new_jobs[i], %w(employer address), 'nameAndAddr', ', ')
+        jobs.each do |job|
+          job['address'] = combine_full_address(job['address'])
+          expand_date_range(job, 'dateRange')
+          combine_hash_and_del_keys(job, %w(employer address), 'nameAndAddr', ', ')
         end
-
-        new_jobs
       end
 
       def combine_va_hospital_dates(va_hospital_treatments)
@@ -675,18 +662,10 @@ module PdfFill
 
         combine_name_addr(@form_data['nationalGuard'])
 
-        @form_data['jobs'] = rearrange_jobs(@form_data['jobs'])
+        expand_jobs(@form_data['jobs'])
 
         %w(activeServiceDateRange powDateRange).each do |attr|
           expand_date_range(@form_data, attr)
-        end
-
-        @form_data['jobs'].tap do |jobs|
-          next if jobs.blank?
-
-          jobs.each do |job|
-            expand_date_range(job, 'dateRange')
-          end
         end
 
         expand_children(@form_data, 'children')
