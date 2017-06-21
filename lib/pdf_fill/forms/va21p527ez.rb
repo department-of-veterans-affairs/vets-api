@@ -599,11 +599,10 @@ module PdfFill
           expand_financial_acct(person.capitalize, expected_income, financial_accts)
         end
 
-        all_children = @form_data['children'] || []
-        all_children += @form_data['outsideChildren'] || []
+        dependents = @form_data['dependents'] || []
 
-        all_children.each do |child|
-          expand_financial_acct(child['fullName'], child[definition], financial_accts)
+        dependents.each do |dependent|
+          expand_financial_acct(dependent['fullName'], dependent[definition], financial_accts)
         end
 
         zero_financial_accts(financial_accts)
