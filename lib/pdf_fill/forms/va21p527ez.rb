@@ -84,8 +84,8 @@ module PdfFill
         'powDateRangeStart' => { key: 'F[0].Page_5[0].Date[1]' },
         'powDateRangeEnd' => { key: 'F[0].Page_5[0].Date[2]' },
         'jobs' => {
+          first_key: 'nameAndAddr',
           # TODO finish limits
-          # TODO specify which key to fill out for overflow
           limit: 2,
           'annualEarnings' => { key: "jobs.annualEarnings[#{ITERATOR}]" },
           'nameAndAddr' => {
@@ -128,6 +128,7 @@ module PdfFill
         },
         'vaHospitalTreatments' => {
           limit: 2,
+          first_key: 'nameAndLocation',
           'vaHospitalTreatmentsDates0' => {
             key: "vaHospitalTreatments.dates[0][#{ITERATOR}]"
           },
@@ -212,6 +213,7 @@ module PdfFill
         'reasonForNotLivingWithSpouse' => { key: 'F[0].Page_6[0].Reasonfornotlivingwithspouse[0]' },
         'disabilities' => {
           limit: 2,
+          first_key: 'name',
           'name' => {
             key: "disabilities.name[#{ITERATOR}]",
             limit: 44,
