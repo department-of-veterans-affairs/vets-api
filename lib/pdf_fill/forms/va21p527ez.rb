@@ -247,7 +247,11 @@ module PdfFill
               question: "#{question_num}A. PLACE OF MARRIAGE",
               key: "#{sub_key}.locationOfMarriage[#{ITERATOR}]"
             },
-            'locationOfSeparation' => { key: "#{sub_key}.locationOfSeparation[#{ITERATOR}]" },
+            'locationOfSeparation' => {
+              limit: 13,
+              question: "#{question_num}E. PLACE MARRIAGE TERMINATED",
+              key: "#{sub_key}.locationOfSeparation[#{ITERATOR}]"
+            },
             'spouseFullName' => { key: "#{sub_key}.spouseFullName[#{ITERATOR}]" },
             'marriageType' => { key: "#{sub_key}.marriageType[#{ITERATOR}]" },
             'dateOfSeparation' => { key: "#{sub_key}.dateOfSeparation[#{ITERATOR}]" },
