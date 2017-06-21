@@ -383,7 +383,7 @@
     "amount": 1,
     "type": "Longevity"
   },
-  "placeOfSeparation": "city, state",
+  "placeOfSeparation": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "veteranAddress": {
     "city": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "country": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
