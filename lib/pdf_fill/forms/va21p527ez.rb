@@ -176,7 +176,11 @@ module PdfFill
             'married' => { key: 'children.married[%iterator%]' },
             'disabled' => { key: 'children.disabled[%iterator%]' },
             'biological' => { key: 'children.biological[%iterator%]' },
-            'childFullName' => { key: 'children.name[%iterator%]' },
+            'childFullName' => {
+              key: 'children.name[%iterator%]',
+              limit: 34,
+              question: "23A. NAME OF DEPENDENT CHILD"
+            },
             'adopted' => { key: 'children.adopted[%iterator%]' },
             'stepchild' => { key: 'children.stepchild[%iterator%]' },
             'previouslyMarried' => { key: 'children.previouslyMarried[%iterator%]' }
