@@ -85,7 +85,6 @@ module PdfFill
         'powDateRangeEnd' => { key: 'F[0].Page_5[0].Date[2]' },
         'jobs' => {
           first_key: 'nameAndAddr',
-          # TODO finish limits
           limit: 2,
           'annualEarnings' => {
             limit: 10,
@@ -102,8 +101,14 @@ module PdfFill
             question: '17B. WHAT WAS YOUR JOB TITLE?',
             limit: 25
           },
-          'dateRangeStart' => { key: "jobs.dateRangeStart[#{ITERATOR}]" },
-          'dateRangeEnd' => { key: "jobs.dateRangeEnd[#{ITERATOR}]" },
+          'dateRangeStart' => {
+            key: "jobs.dateRangeStart[#{ITERATOR}]",
+            question: '17C. WHEN DID YOUR JOB BEGIN?'
+          },
+          'dateRangeEnd' => {
+            key: "jobs.dateRangeEnd[#{ITERATOR}]",
+            question: '17D. WHEN DID YOUR JOB END?'
+          },
           'daysMissed' => {
             limit: 9,
             question: '17E. HOW MANY DAYS WERE LOST DUE TO DISABILITY?',
