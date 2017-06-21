@@ -5,7 +5,8 @@ module EVSS
     class MockService
       def mocked_response
         path = Rails.root.join('config', 'evss', 'mock_letters_response.yml')
-        @response ||= YAML.load_file(path) if File.exist? path
+        raise IOError, "letters mock data not found in path: #{path}" unless File.exist? path
+        @response ||= YAML.load_file(path)
       end
 
       def get_letters
