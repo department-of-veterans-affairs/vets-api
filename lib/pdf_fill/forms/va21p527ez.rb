@@ -222,7 +222,11 @@ module PdfFill
             limit: 41,
             question: '12E. PLACE OF LAST OR ANTICIPATED SEPARATION'
           },
-          'reasonForNotLivingWithSpouse' => { key: 'F[0].Page_6[0].Reasonfornotlivingwithspouse[0]' },
+          'reasonForNotLivingWithSpouse' => {
+            limit: 47,
+            question: '22G. TELL US THE REASON WHY YOU ARE NOT LIVING WITH YOUR SPOUSE',
+            key: 'F[0].Page_6[0].Reasonfornotlivingwithspouse[0]'
+          },
           'disabilities' => {
             limit: 2,
             first_key: 'name',
