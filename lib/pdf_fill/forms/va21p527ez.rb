@@ -189,7 +189,11 @@ module PdfFill
         },
         'activeServiceDateRangeStart' => { key: 'F[0].Page_5[0].DateEnteredActiveService[0]' },
         'activeServiceDateRangeEnd' => { key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]' },
-        'placeOfSeparation' => { key: 'F[0].Page_5[0].Placeofseparation[0]' },
+        'placeOfSeparation' => {
+          key: 'F[0].Page_5[0].Placeofseparation[0]',
+          limit: 41,
+          question: '12E. PLACE OF LAST OR ANTICIPATED SEPARATION'
+        },
         'reasonForNotLivingWithSpouse' => { key: 'F[0].Page_6[0].Reasonfornotlivingwithspouse[0]' },
         'disabilities' => {
           limit: 2,
