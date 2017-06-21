@@ -17,7 +17,11 @@ module PdfFill
           'noFileNumber' => { key: 'F[0].Page_5[0].NoFiled[0]' },
           'hasPowDateRange' => { key: 'F[0].Page_5[0].YesPOW[0]' },
           'noPowDateRange' => { key: 'F[0].Page_5[0].NoPOW[0]' },
-          'monthlySpousePayment' => { key: 'F[0].Page_6[0].MonthlySupport[0]' },
+          'monthlySpousePayment' => {
+            key: 'F[0].Page_6[0].MonthlySupport[0]',
+            limit: 11,
+            question: "22H. HOW MUCH DO YOU CONTRIBUTE MONTHLY TO YOUR SPOUSE'S SUPPORT?"
+          },
           'spouseDateOfBirth' => { key: 'F[0].Page_6[0].Date[8]' },
           'noLiveWithSpouse' => { key: 'F[0].Page_6[0].CheckboxSpouseNo[0]' },
           'hasLiveWithSpouse' => { key: 'F[0].Page_6[0].CheckboxSpouseYes[0]' },
