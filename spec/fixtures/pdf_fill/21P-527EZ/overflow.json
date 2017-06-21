@@ -247,6 +247,18 @@
       "locationOfSeparation": "location2",
       "marriageType": "type2",
       "reasonForSeparation": "divorce2"
+    },
+    {
+      "spouseFullName": {
+        "first": "Mark2",
+        "last": "Olson"
+      },
+      "dateOfMarriage": "1985-03-02",
+      "dateOfSeparation": "1985-04-02",
+      "locationOfMarriage": "marriagelocation2",
+      "locationOfSeparation": "location2",
+      "marriageType": "type2",
+      "reasonForSeparation": "divorce2"
     }
   ],
   "monthlyIncome": {

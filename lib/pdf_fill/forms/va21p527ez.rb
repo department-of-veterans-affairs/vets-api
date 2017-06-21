@@ -235,6 +235,8 @@ module PdfFill
           sub_key = "#{prefix}arriages"
 
           key[sub_key] = {
+            limit: 2,
+            first_key: 'locationOfMarriage',
             'dateOfMarriage' => { key: "#{sub_key}.dateOfMarriage[#{ITERATOR}]" },
             'locationOfMarriage' => { key: "#{sub_key}.locationOfMarriage[#{ITERATOR}]" },
             'locationOfSeparation' => { key: "#{sub_key}.locationOfSeparation[#{ITERATOR}]" },
