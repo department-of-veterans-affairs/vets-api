@@ -72,7 +72,6 @@
         "first": "outside1",
         "last": "Olson"
       },
-      "childNotInHousehold": true,
       "personWhoLivesWithChild": {
         "first": "person1",
         "last": "Olson"
@@ -116,7 +115,6 @@
         "first": "person2",
         "last": "Olson"
       },
-      "childNotInHousehold": true,
       "monthlyPayment": 2
     },
     {
@@ -136,10 +134,10 @@
         "first": "person3",
         "last": "Olson"
       },
-      "childNotInHousehold": true,
       "monthlyPayment": 3
     },
     {
+      "childInHousehold": true,
       "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-01",
       "childFullName": {
@@ -167,6 +165,7 @@
       "previouslyMarried": true
     },
     {
+      "childInHousehold": true,
       "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-02",
       "childFullName": {
@@ -184,6 +183,7 @@
       "previouslyMarried": true
     },
     {
+      "childInHousehold": true,
       "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-03",
       "childFullName": {
