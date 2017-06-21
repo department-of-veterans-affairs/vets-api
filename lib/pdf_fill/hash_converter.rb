@@ -42,6 +42,10 @@ module PdfFill
     end
 
     def has_overflow(key_data, value)
+      if value.is_a?(Numeric)
+        value = value.to_s
+      end
+
       limit = key_data.try(:[], :limit)
 
       limit.present? && value.size > limit
