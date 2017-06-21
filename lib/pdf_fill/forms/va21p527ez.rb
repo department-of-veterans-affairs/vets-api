@@ -162,7 +162,11 @@ module PdfFill
           question: '11B. PLEASE LIST THE OTHER NAME(S) YOU SERVED UNDER'
         },
         'dayPhoneAreaCode' => { key: 'F[0].Page_5[0].Daytimeareacode[0]' },
-        'serviceBranch' => { key: 'F[0].Page_5[0].Branchofservice[0]' },
+        'serviceBranch' => {
+          key: 'F[0].Page_5[0].Branchofservice[0]',
+          limit: 25,
+          question: '12B. BRANCH OF SERVICE'
+        },
         'veteranAddressLine1' => {
           key: 'F[0].Page_5[0].Currentaddress[0]',
           limit: 53,
