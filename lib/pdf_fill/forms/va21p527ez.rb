@@ -233,11 +233,15 @@ module PdfFill
 
         %w(m spouseM).each do |prefix|
           sub_key = "#{prefix}arriages"
+          question_num = prefix == 'm' ? '19' : '21'
 
           key[sub_key] = {
             limit: 2,
             first_key: 'locationOfMarriage',
-            'dateOfMarriage' => { key: "#{sub_key}.dateOfMarriage[#{ITERATOR}]" },
+            'dateOfMarriage' => {
+              question: "#{question_num}A. Date of Marriage",
+              key: "#{sub_key}.dateOfMarriage[#{ITERATOR}]"
+            },
             'locationOfMarriage' => { key: "#{sub_key}.locationOfMarriage[#{ITERATOR}]" },
             'locationOfSeparation' => { key: "#{sub_key}.locationOfSeparation[#{ITERATOR}]" },
             'spouseFullName' => { key: "#{sub_key}.spouseFullName[#{ITERATOR}]" },
