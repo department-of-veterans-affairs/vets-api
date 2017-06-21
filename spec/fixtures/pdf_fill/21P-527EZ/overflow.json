@@ -309,9 +309,9 @@
         "from": "2012-04-01",
         "to": "2013-05-01"
       },
-      "employer": "job1",
+      "employer": "1",
       "address": {
-        "city": "city1",
+        "city": "1",
         "country": "USA",
         "postalCode": "21231",
         "state": "MD",
@@ -326,9 +326,26 @@
         "from": "2012-04-02",
         "to": "2013-05-02"
       },
-      "employer": "job2",
+      "employer": "2",
       "address": {
-        "city": "city2",
+        "city": "2",
+        "country": "USA",
+        "postalCode": "21231",
+        "state": "MD",
+        "street": "str2"
+      },
+      "annualEarnings": 20,
+      "jobTitle": "worker2",
+      "daysMissed": "2"
+    },
+    {
+      "dateRange": {
+        "from": "2012-04-02",
+        "to": "2013-05-02"
+      },
+      "employer": "3",
+      "address": {
+        "city": "2",
         "country": "USA",
         "postalCode": "21231",
         "state": "MD",

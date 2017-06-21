@@ -84,6 +84,7 @@ module PdfFill
         'powDateRangeStart' => { key: 'F[0].Page_5[0].Date[1]' },
         'powDateRangeEnd' => { key: 'F[0].Page_5[0].Date[2]' },
         'jobs' => {
+          limit: 2,
           'annualEarnings' => { key: "jobs.annualEarnings[#{ITERATOR}]" },
           'nameAndAddr' => {
             key: "jobs.nameAndAddr[#{ITERATOR}]",
