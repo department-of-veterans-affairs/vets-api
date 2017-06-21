@@ -11,9 +11,10 @@ module Swagger
 
           key :description, 'Submit a health care application'
           key :operationId, 'addHealthCareApplication'
-          key :tags, [
-            'hca'
-          ]
+          key :tags, %w(
+            hca
+            forms
+          )
 
           parameter :optional_authorization
 
