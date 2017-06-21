@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 FactoryGirl.define do
-  factory :post911_gi_bill_status, class: 'Post911GIBillStatus' do
+  factory :post911_gi_bill_status, class: 'EVSS::GiBillStatus::Post911GIBillStatus' do
     first_name 'Thomas'
     last_name 'Anderson'
     name_suffix ''

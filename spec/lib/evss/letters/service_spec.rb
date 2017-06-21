@@ -28,7 +28,7 @@ describe EVSS::Letters::Service do
           response = subject.get_letter_beneficiary
           expect(response).to be_ok
           expect(response).to be_a(EVSS::Letters::BeneficiaryResponse)
-          expect(response.military_service.count).to eq(2)
+          expect(response.body.military_service.count).to eq(2)
         end
       end
     end

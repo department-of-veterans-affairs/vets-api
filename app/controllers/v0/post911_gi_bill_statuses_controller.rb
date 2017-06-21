@@ -3,9 +3,13 @@ module V0
   class Post911GIBillStatusesController < ApplicationController
     def show
       response = service.get_gi_bill_status
-      render json: response,
-             serializer: Post911GIBillStatusSerializer,
-             meta: response.metadata
+      if response.ok?
+        render json: response.body,
+               serializer: Post911GIBillStatusSerializer,
+               meta: response.metadata
+      else
+        render json: { data: nil, meta: response.metadata }
+      end
     end
 
     private
