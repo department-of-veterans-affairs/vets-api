@@ -1,0 +1,50 @@
+---
+find_candidate:
+  '796066621':
+    given_names:
+    - Gary
+    - Z
+    family_name: Todd
+    suffix:
+    gender: M
+    birth_date: '19551112'
+    ssn: '796066621'
+    address:
+    home_phone:
+    icn: '33991311612229264'
+    mhv_ids: []
+    vha_facility_ids: []
+    edipi: '5343578988'
+    participant_id: '204225751'
+  '301010301':
+    given_names:
+    - Jean
+    - Z
+    family_name: Picard
+    suffix:
+    gender: M
+    birth_date: '19771001'
+    ssn: '301010301'
+    address:
+    home_phone:
+    icn: '33991311612229264'
+    mhv_ids: []
+    vha_facility_ids: []
+    edipi: '5343578988'
+    participant_id: '204225751'
+  '796066620':
+    given_names:
+    - Srikanth
+    - Z
+    family_name: Vanapalli
+    suffix:
+    gender: M
+    birth_date: '19551112'
+    ssn: '796066620'
+    address:
+    home_phone:
+    icn: '33991311612229264'
+    mhv_ids: []
+    vha_facility_ids: []
+    edipi: '5343578988'
+    participant_id: '204225751'
