@@ -10,9 +10,10 @@ module Swagger
 
           key :description, 'Submit an education benefits claim'
           key :operationId, 'addEducationBenefitsClaim'
-          key :tags, [
-            'education_benefits'
-          ]
+          key :tags, %w(
+            education_benefits
+            forms
+          )
 
           parameter do
             key :name, :education_benefits_claim
