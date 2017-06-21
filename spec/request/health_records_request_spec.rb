@@ -4,6 +4,8 @@ require 'bb/generate_report_request_form'
 require 'bb/client'
 
 RSpec.describe 'health records', type: :request do
+  include SchemaMatchers
+
   TOKEN = 'GkuX2OZ4dCE=48xrH6ObGXZ45ZAg70LBahi7CjswZe8SZGKMUVFIU88='
 
   def authenticated_client

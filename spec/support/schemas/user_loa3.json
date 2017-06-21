@@ -11,9 +11,12 @@
         "type": { "type": "string"},
         "attributes": {
           "type": "object",
-          "required": ["services", "profile", "mhv_account_state"],
+          "required": ["services", "profile", "mhv_account_state", "in_progress_forms"],
           "properties": {
             "mhv_account_state": { "type": ["string"]},
+            "health_terms_current": { "type": "boolean" },
+            "in_progress_forms": { "type": [ "array", null ] },
+            "prefills_available": { "type": [ "array", null ] },
             "services": { "type": [ "array", null ] },
             "profile": {
               "type": "object",

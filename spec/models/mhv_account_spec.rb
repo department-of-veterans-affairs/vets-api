@@ -41,6 +41,7 @@ RSpec.describe MhvAccount, type: :model do
 
   before(:each) do
     stub_mvi(mvi_profile)
+    allow_any_instance_of(BetaSwitch).to receive(:beta_enabled?).and_return(true)
   end
 
   it 'must have a user_uuid when initialized' do
@@ -129,6 +130,34 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_falsey
         end
+      end
+    end
+
+    context 'user with un-dashed uuid' do
+      let(:nodashuser) do
+        create(:loa3_user,
+               uuid: 'abcdef12345678',
+               ssn: mvi_profile.ssn,
+               first_name: mvi_profile.given_names.first,
+               last_name: mvi_profile.family_name,
+               gender: mvi_profile.gender,
+               birth_date: mvi_profile.birth_date,
+               email: 'vets.gov.user+0@gmail.com')
+      end
+      let(:terms) { create(:terms_and_conditions, latest: true, name: described_class::TERMS_AND_CONDITIONS_NAME) }
+      before(:each) do
+        create(:terms_and_conditions_acceptance,
+               terms_and_conditions: terms,
+               user_uuid: nodashuser.uuid)
+      end
+      let(:base_attributes) { { user_uuid: nodashuser.uuid, account_state: 'needs_terms_acceptance' } }
+      let(:vha_facility_ids) { %w(200MH 488) }
+
+      it 'is eligible with at least one facility in range' do
+        stub_const('MhvAccount::PATIENT_FACILITY_RANGE', [358, 758])
+        subject = described_class.new(base_attributes)
+        subject.send(:setup) # This gets called when object is first loaded
+        expect(subject.eligible?).to be_truthy
       end
     end
   end
@@ -230,6 +259,27 @@ RSpec.describe MhvAccount, type: :model do
       it 'will not increment statsd upgrade counters' do
         VCR.use_cassette('mhv_account_creation/should_not_upgrade_an_account_if_one_already_exists') do
           expect { subject.create_and_upgrade! }.to_not trigger_statsd_increment('mhv.account.upgrade.total')
+        end
+      end
+    end
+
+    context 'mhv error responses' do
+      let(:mhv_ids) { ['14221465'] }
+
+      it 'will raise an error on failed upgrade attempt' do
+        expect(subject.terms_and_conditions_accepted?).to be_truthy
+        expect(subject.preexisting_account?).to be_truthy
+        expect(subject.persisted?).to be_falsey
+        VCR.use_cassette('mhv_account_creation/should_not_create_an_account_if_one_already_exists') do
+          VCR.use_cassette('mhv_account_creation/account_upgrade_unknown_error', record: :none) do
+            expect { subject.create_and_upgrade! }.to raise_error(Common::Exceptions::BackendServiceException)
+            expect(subject.persisted?).to be_truthy
+            expect(subject.account_state).to eq('upgrade_failed')
+            expect(subject.registered_at).to be_nil
+            expect(subject.upgraded_at).to be_nil
+            expect(subject.eligible?).to be_truthy
+            expect(subject.terms_and_conditions_accepted?).to be_truthy
+          end
         end
       end
     end

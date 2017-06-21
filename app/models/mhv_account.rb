@@ -1,8 +1,14 @@
 # frozen_string_literal: true
 require 'mhv_ac/client'
+require 'sentry_logging'
+require 'beta_switch'
+
 class MhvAccount < ActiveRecord::Base
   include AASM
+  include SentryLogging
+  include BetaSwitch
 
+  STATSD_ACCOUNT_EXISTED_KEY = 'mhv.account.existed'
   STATSD_ACCOUNT_CREATION_KEY = 'mhv.account.creation'
   STATSD_ACCOUNT_UPGRADE_KEY = 'mhv.account.upgrade'
 
@@ -34,6 +40,14 @@ class MhvAccount < ActiveRecord::Base
 
     event :upgrade do
       transitions from: [:unknown, :registered, :upgrade_failed], to: :upgraded
+    end
+
+    event :fail_register do
+      transitions from: [:unknown], to: :register_failed
+    end
+
+    event :fail_upgrade do
+      transitions from: [:unknown, :registered], to: :upgrade_failed
     end
   end
 
@@ -113,40 +127,40 @@ class MhvAccount < ActiveRecord::Base
       client_response = mhv_ac_client.post_register(params_for_registration)
       if client_response[:api_completion_status] == 'Successful'
         StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.success")
-
         user.va_profile.mhv_ids = [client_response[:correlation_id].to_s]
         user.instance_variable_get(:@mvi).save
         self.registered_at = Time.current
         register!
       end
-      # TODO: be prepared to handle or raise various exceptions
     end
-  ensure
-    StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.total") if may_register? || registered?
+  # TODO: handle/log exceptions more carefully
+  rescue => e
+    StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.failure")
+    fail_register!
+    log_exception_to_sentry(e)
+    raise e
   end
 
   def upgrade_mhv_account!
-    initially_premium = !may_upgrade?
-
-    unless initially_premium
+    if may_upgrade?
       client_response = mhv_ac_client.post_upgrade(params_for_upgrade)
       if client_response[:status] == 'success'
         StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.success")
-
         self.upgraded_at = Time.current
         upgrade!
       end
     end
-  rescue Common::Exceptions::BackendServiceException => e
-    if e.original_body['code'] == 155
-      initially_premium = true
+  # TODO: handle/log exceptions more carefully
+  rescue => e
+    if e.is_a?(Common::Exceptions::BackendServiceException) && e.original_body['code'] == 155
+      StatsD.increment("#{STATSD_ACCOUNT_EXISTED_KEY}")
       upgrade! # without updating the timestamp since account was not created at vets.gov
     else
       StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.failure")
+      fail_upgrade!
+      log_exception_to_sentry(e)
       raise e
     end
-  ensure
-    StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.total") unless initially_premium
   end
 
   def mhv_ac_client
@@ -163,7 +177,9 @@ class MhvAccount < ActiveRecord::Base
 
   def setup
     raise StandardError, 'You must use find_or_initialize_by(user_uuid: #)' if user_uuid.nil?
-    check_eligibility
-    check_terms_acceptance if may_check_terms_acceptance?
+    if beta_enabled?(user_uuid, 'health_account')
+      check_eligibility
+      check_terms_acceptance if may_check_terms_acceptance?
+    end
   end
 end

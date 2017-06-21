@@ -2,7 +2,9 @@
 require 'rails_helper'
 
 RSpec.describe 'Appeals Status', type: :request do
-  let(:user) { FactoryGirl.create(:loa3_user, ssn: '796126859') }
+  include SchemaMatchers
+
+  let(:user) { FactoryGirl.create(:loa3_user, ssn: '111223333') }
   let(:session) { Session.create(uuid: user.uuid) }
 
   context 'for a user with data in the mocks' do

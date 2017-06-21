@@ -11,11 +11,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170519153047) do
+ActiveRecord::Schema.define(version: 20170607043549) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
+
+  create_table "beta_registrations", force: :cascade do |t|
+    t.string   "user_uuid",  null: false
+    t.string   "feature",    null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "beta_registrations", ["user_uuid", "feature"], name: "index_beta_registrations_on_user_uuid_and_feature", unique: true, using: :btree
 
   create_table "education_benefits_claims", force: :cascade do |t|
     t.datetime "submitted_at"
@@ -68,13 +77,14 @@ ActiveRecord::Schema.define(version: 20170519153047) do
     t.string   "encrypted_form_data_iv", null: false
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
+    t.json     "metadata"
   end
 
   add_index "in_progress_forms", ["form_id"], name: "index_in_progress_forms_on_form_id", using: :btree
   add_index "in_progress_forms", ["user_uuid"], name: "index_in_progress_forms_on_user_uuid", using: :btree
 
   create_table "mhv_accounts", force: :cascade do |t|
-    t.uuid     "user_uuid",     null: false
+    t.string   "user_uuid",     null: false
     t.string   "account_state", null: false
     t.datetime "registered_at"
     t.datetime "upgraded_at"

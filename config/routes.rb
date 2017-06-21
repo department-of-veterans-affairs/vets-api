@@ -8,7 +8,12 @@ Rails.application.routes.draw do
   post '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
 
   namespace :v0, defaults: { format: 'json' } do
-    resources :in_progress_forms, only: [:show, :update]
+    resources :in_progress_forms, only: [:index, :show, :update, :destroy]
+    resources :letters, only: [:index, :show] do
+      collection do
+        get 'beneficiary', to: 'letters#beneficiary'
+      end
+    end
 
     resource :sessions, only: [:new, :destroy] do
       post :saml_callback, to: 'sessions#saml_callback'
@@ -16,6 +21,7 @@ Rails.application.routes.draw do
     end
 
     resource :user, only: [:show]
+    resource :post911_gi_bill_status, only: [:show]
 
     resource :education_benefits_claims, only: [:create] do
       collection do
@@ -100,6 +106,9 @@ Rails.application.routes.draw do
     get 'terms_and_conditions/:name/versions/latest', to: 'terms_and_conditions#latest'
     get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
+
+    resource :beta_registrations, path: '/beta_registration/health_account', only: [:show, :create],
+                                  defaults: { feature: 'health_account' }
   end
 
   root 'v0/example#index', module: 'v0'
@@ -113,3 +122,4 @@ Rails.application.routes.draw do
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i(get post put patch delete)
 end
+# rubocop:enable Metrics/BlockLength
