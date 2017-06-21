@@ -13,24 +13,24 @@ module EVSS
 
       def get_letters
         raw_response = get ''
-        EVSS::Letters::LettersResponse.new(raw_response)
+        EVSS::Letters::LettersResponse.new(raw_response.status, raw_response)
       rescue Faraday::ParsingError => e
         log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL })
-        EVSS::Letters::LettersResponse.new(status: 403)
+        EVSS::Letters::LettersResponse.new(403)
       rescue Faraday::ClientError => e
-        log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL })
-        EVSS::Letters::LettersResponse.new(e.response)
+        log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL, body: e.response[:body] })
+        EVSS::Letters::LettersResponse.new(e.response[:status])
       end
 
       def get_letter_beneficiary
         raw_response = get 'letterBeneficiary'
-        EVSS::Letters::BeneficiaryResponse.new(raw_response)
+        EVSS::Letters::BeneficiaryResponse.new(raw_response.status, raw_response)
       rescue Faraday::ParsingError => e
         log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL })
-        EVSS::Letters::BeneficiaryResponse.new(status: 403)
+        EVSS::Letters::BeneficiaryResponse.new(403)
       rescue Faraday::ClientError => e
-        log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL })
-        EVSS::Letters::BeneficiaryResponse.new(e.response)
+        log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL, body: e.response[:body] })
+        EVSS::Letters::BeneficiaryResponse.new(e.response[:status])
       end
 
       def download_letter_by_type(type)

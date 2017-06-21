@@ -28,7 +28,7 @@ module V0
     def beneficiary
       response = service.get_letter_beneficiary
       if response.ok?
-        render json: response.body,
+        render json: response,
                serializer: LetterBeneficiarySerializer,
                meta: response.metadata
       else

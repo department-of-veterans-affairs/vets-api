@@ -9,10 +9,8 @@ module EVSS
       end
 
       def get_letters
-        EVSS::Letters::LettersResponse.new(
-          body: mocked_response[:body],
-          status: mocked_response[:status]
-        )
+        raw_response = Struct::RawLetterResponse.new(mocked_response[:body], mocked_response[:status])
+        EVSS::Letters::LettersResponse.new(mocked_response[:status], raw_response)
       end
     end
   end

@@ -4,7 +4,7 @@ module V0
     def show
       response = service.get_gi_bill_status
       if response.ok?
-        render json: response.body,
+        render json: response,
                serializer: Post911GIBillStatusSerializer,
                meta: response.metadata
       else

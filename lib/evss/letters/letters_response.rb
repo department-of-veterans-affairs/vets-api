@@ -8,9 +8,14 @@ module EVSS
       attribute :letters, Array[EVSS::Letters::Letter]
       attribute :address, EVSS::Letters::Address
 
-      def parse_body(body)
-        self.letters = body['letters']
-        self.address = body['letter_destination']
+      def initialize(status, response = nil)
+        if response
+          attributes = {
+            letters: response.body['letters'],
+            address: response.body['letter_destination']
+          }
+        end
+        super(status, attributes)
       end
 
       def metadata
