@@ -177,7 +177,11 @@ RSpec.describe MhvAccount, type: :model do
       expect(user.mhv_correlation_id).to be_nil
       VCR.use_cassette('mhv_account_creation/creates_an_account') do
         VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
-          subject.create_and_upgrade!
+          expect { subject.create_and_upgrade! }.to trigger_statsd_increment('mhv.account.creation.success')
+            .and trigger_statsd_increment('mhv.account.upgrade.success')
+            .and not_trigger_statsd_increment('mhv.account.existed')
+            .and not_trigger_statsd_increment('mhv.account.creation.failure')
+            .and not_trigger_statsd_increment('mhv.account.upgrade.failure')
           expect(subject.persisted?).to be_truthy
           expect(subject.account_state).to eq('upgraded')
           expect(subject.registered_at).to be_a(Time)
@@ -185,17 +189,6 @@ RSpec.describe MhvAccount, type: :model do
           expect(User.find(user.uuid).mhv_correlation_id).to eq('14221465')
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
-        end
-      end
-    end
-
-    it 'will increment statsd create and upgrade counters on attempt and success' do
-      VCR.use_cassette('mhv_account_creation/creates_an_account') do
-        VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
-          expect { subject.create_and_upgrade! }.to trigger_statsd_increment('mhv.account.creation.total')
-            .and trigger_statsd_increment('mhv.account.creation.success')
-            .and trigger_statsd_increment('mhv.account.upgrade.total')
-            .and trigger_statsd_increment('mhv.account.upgrade.success')
         end
       end
     end
@@ -208,26 +201,18 @@ RSpec.describe MhvAccount, type: :model do
         expect(subject.preexisting_account?).to be_truthy
         expect(subject.persisted?).to be_falsey
         VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
-          subject.create_and_upgrade!
+          expect { subject.create_and_upgrade! }.to trigger_statsd_increment('mhv.account.upgrade.success')
+            .and not_trigger_statsd_increment('mhv.account.creation.success')
+            .and not_trigger_statsd_increment('mhv.account.creation.failure')
+            .and not_trigger_statsd_increment('mhv.account.upgrade.failure')
+            .and not_trigger_statsd_increment('mhv.account.existed')
           expect(subject.persisted?).to be_truthy
           expect(subject.account_state).to eq('upgraded')
           expect(subject.registered_at).to be_nil
           expect(subject.upgraded_at).to be_a(Time)
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
-        end
-      end
 
-      it 'will increment statsd upgrade counters on attempt and success' do
-        VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
-          expect { subject.create_and_upgrade! }.to trigger_statsd_increment('mhv.account.upgrade.total')
-            .and trigger_statsd_increment('mhv.account.upgrade.success')
-        end
-      end
-
-      it 'will not increment statsd creation counters' do
-        VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
-          expect { subject.create_and_upgrade! }.to_not trigger_statsd_increment('mhv.account.creation.total')
         end
       end
     end
@@ -240,25 +225,17 @@ RSpec.describe MhvAccount, type: :model do
         expect(subject.preexisting_account?).to be_truthy
         expect(subject.persisted?).to be_falsey
         VCR.use_cassette('mhv_account_creation/should_not_upgrade_an_account_if_one_already_exists') do
-          subject.create_and_upgrade!
+          expect { subject.create_and_upgrade! }.to trigger_statsd_increment('mhv.account.existed')
+            .and not_trigger_statsd_increment('mhv.account.creation.success')
+            .and not_trigger_statsd_increment('mhv.account.upgrade.success')
+            .and not_trigger_statsd_increment('mhv.account.creation.failure')
+            .and not_trigger_statsd_increment('mhv.account.upgrade.failure')
           expect(subject.persisted?).to be_truthy
           expect(subject.account_state).to eq('upgraded')
           expect(subject.registered_at).to be_nil
           expect(subject.upgraded_at).to be_nil
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
-        end
-      end
-
-      it 'will not increment statsd creation counters' do
-        VCR.use_cassette('mhv_account_creation/should_not_upgrade_an_account_if_one_already_exists') do
-          expect { subject.create_and_upgrade! }.to_not trigger_statsd_increment('mhv.account.creation.total')
-        end
-      end
-
-      it 'will not increment statsd upgrade counters' do
-        VCR.use_cassette('mhv_account_creation/should_not_upgrade_an_account_if_one_already_exists') do
-          expect { subject.create_and_upgrade! }.to_not trigger_statsd_increment('mhv.account.upgrade.total')
         end
       end
     end
@@ -273,6 +250,11 @@ RSpec.describe MhvAccount, type: :model do
         VCR.use_cassette('mhv_account_creation/should_not_create_an_account_if_one_already_exists') do
           VCR.use_cassette('mhv_account_creation/account_upgrade_unknown_error', record: :none) do
             expect { subject.create_and_upgrade! }.to raise_error(Common::Exceptions::BackendServiceException)
+              .and not_trigger_statsd_increment('mhv.account.existed')
+              .and not_trigger_statsd_increment('mhv.account.creation.success')
+              .and not_trigger_statsd_increment('mhv.account.upgrade.success')
+              .and not_trigger_statsd_increment('mhv.account.creation.failure')
+              .and trigger_statsd_increment('mhv.account.upgrade.failure')
             expect(subject.persisted?).to be_truthy
             expect(subject.account_state).to eq('upgrade_failed')
             expect(subject.registered_at).to be_nil
