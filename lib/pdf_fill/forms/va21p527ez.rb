@@ -266,7 +266,11 @@ module PdfFill
               question: "#{question_num}C. DATE MARRIAGE TERMINATED",
               key: "#{sub_key}.dateOfSeparation[#{ITERATOR}]"
             },
-            'reasonForSeparation' => { key: "#{sub_key}.reasonForSeparation[#{ITERATOR}]" }
+            'reasonForSeparation' => {
+              limit: 33,
+              question: "#{question_num}D. HOW MARRIAGE TERMINATED",
+              key: "#{sub_key}.reasonForSeparation[#{ITERATOR}]"
+            }
           }
         end
 
