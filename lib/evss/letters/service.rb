@@ -33,11 +33,6 @@ module EVSS
         EVSS::Letters::BeneficiaryResponse.new(e.response[:status])
       end
 
-      def get_letter_beneficiary
-        raw_response = get 'letterBeneficiary'
-        EVSS::Letters::BeneficiaryResponse.new(raw_response)
-      end
-
       def download_letter_by_type(type)
         response = download_conn.get type
         raise Common::Exceptions::RecordNotFound, params[:id] if response.status.to_i == 404
