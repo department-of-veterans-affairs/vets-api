@@ -18,7 +18,7 @@ module EVSS
         log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL })
         EVSS::Letters::LettersResponse.new(403)
       rescue Faraday::ClientError => e
-        log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL })
+        log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL, body: e.response[:body] })
         EVSS::Letters::LettersResponse.new(e.response[:status])
       end
 
@@ -29,7 +29,7 @@ module EVSS
         log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL })
         EVSS::Letters::BeneficiaryResponse.new(403)
       rescue Faraday::ClientError => e
-        log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL })
+        log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL, body: e.response[:body] })
         EVSS::Letters::BeneficiaryResponse.new(e.response[:status])
       end
 

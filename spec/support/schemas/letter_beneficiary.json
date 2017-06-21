@@ -85,7 +85,7 @@
       "required": [
         "attributes"
       ],
-      "type": "object"
+      "type": ["object", "null"]
     },
     "meta": {
       "properties": {
