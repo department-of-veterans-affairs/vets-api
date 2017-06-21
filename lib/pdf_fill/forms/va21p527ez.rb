@@ -104,7 +104,11 @@ module PdfFill
           },
           'dateRangeStart' => { key: "jobs.dateRangeStart[#{ITERATOR}]" },
           'dateRangeEnd' => { key: "jobs.dateRangeEnd[#{ITERATOR}]" },
-          'daysMissed' => { key: "jobs.daysMissed[#{ITERATOR}]" }
+          'daysMissed' => {
+            limit: 9,
+            question: '17E. HOW MANY DAYS WERE LOST DUE TO DISABILITY?',
+            key: "jobs.daysMissed[#{ITERATOR}]"
+          }
         },
         'spouseMarriages' => {
           'dateOfMarriage' => { key: 'spouseMarriages.dateOfMarriage[%iterator%]' },
