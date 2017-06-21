@@ -67,6 +67,8 @@ module V0
       Swagger::Requests::TermsAndConditions,
       Swagger::Requests::User,
       Swagger::Requests::EducationBenefitsClaims,
+      Swagger::Requests::PensionClaims,
+      Swagger::Requests::BurialClaims,
       Swagger::Requests::HealthCareApplications,
       Swagger::Requests::Prescriptions::Prescriptions,
       Swagger::Requests::Prescriptions::Trackings,
@@ -75,6 +77,7 @@ module V0
       Swagger::Requests::Messages::Messages,
       Swagger::Requests::Messages::MessageDrafts,
       Swagger::Responses::AuthenticationError,
+      Swagger::Responses::SavedForm,
       Swagger::Schemas::Health::Prescriptions,
       Swagger::Schemas::Health::Trackings,
       Swagger::Schemas::Health::TriageTeams,
@@ -83,6 +86,7 @@ module V0
       Swagger::Schemas::Health::Meta,
       Swagger::Schemas::Health::Links,
       Swagger::Schemas::Errors,
+      Swagger::Schemas::SavedForm,
       Swagger::Schemas::TermsAndConditions,
       self
     ].freeze
