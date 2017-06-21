@@ -122,7 +122,9 @@ class MhvAccount < ActiveRecord::Base
     if may_register?
       client_response = mhv_ac_client.post_register(params_for_registration)
       if client_response[:api_completion_status] == 'Successful'
-        user.va_profile.mhv_ids = [client_response[:correlation_id].to_s]
+        # TODO: Temporarily persist MHVCorrelationID on MHVAccount for convenience and debugging.
+        self.mhv_correlation_id = client_response[:correlation_id].to_s
+        user.va_profile.mhv_ids = [mhv_correlation_id]
         user.instance_variable_get(:@mvi).save
         self.registered_at = Time.current
         register!
