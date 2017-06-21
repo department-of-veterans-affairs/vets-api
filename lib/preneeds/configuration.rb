@@ -5,6 +5,7 @@ require 'common/client/middleware/response/soap_parser'
 require 'common/client/middleware/response/snakecase'
 require 'preneeds/middleware/response/clean_response'
 require 'preneeds/middleware/response/soap_to_json'
+require 'preneeds/middleware/response/preneeds_parser'
 
 module Preneeds
   class Configuration < Common::Client::Configuration::SOAP
@@ -17,10 +18,10 @@ module Preneeds
         conn.options.open_timeout = Settings.preneeds.open_timeout
         conn.options.timeout = Settings.preneeds.timeout
 
+        conn.response :preneeds_parser
         conn.response :snakecase
         conn.response :soap_to_json
         conn.response :soap_parser
-        conn.response :mhv_xml_html_errors
         conn.response :clean_response
 
         conn.use :breakers

@@ -8,7 +8,7 @@ class DischargeType < Common::Base
   validates :description, :id, presence: true
 
   attribute :id, Integer
-  attribute :description, String, sortable: { order: 'ASC' }, filterable: %w(eq not_eq)
+  attribute :description, String
 
   # Default sort should be by name ascending
   def <=>(other)

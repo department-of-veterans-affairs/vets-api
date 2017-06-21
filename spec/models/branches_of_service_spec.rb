@@ -5,31 +5,8 @@ RSpec.describe BranchesOfService do
   context 'with valid attributes' do
     subject { described_class.new(params) }
 
-    let(:params) do
-      {
-        begin_date: '1926-07-02T00:00:00-04:00',
-        code: 'AC',
-        end_date: '1941-06-20T00:00:00-04:00',
-        flat_full_descr: 'US ARMY AIR CORPS',
-        full_descr: 'US ARMY AIR CORPS',
-        short_descr: 'USAAC',
-        state_required: 'N',
-        upright_full_descr: 'US ARMY AIR CORPS'
-      }
-    end
-
-    let(:other) do
-      described_class.new(
-        begin_date: '1926-07-02T00:00:00-04:00',
-        code: 'ZC',
-        end_date: '1941-06-20T00:00:00-04:00',
-        flat_full_descr: 'ZUS ARMY AIR CORPS',
-        full_descr: 'ZUS ARMY AIR CORPS',
-        short_descr: 'ZUSAAC',
-        state_required: 'N',
-        upright_full_descr: 'ZUS ARMY AIR CORPS'
-      )
-    end
+    let(:params) { attributes_for :branches_of_service }
+    let(:other) { build :branches_of_service }
 
     it 'populates attributes' do
       name_map = described_class.attribute_set.map(&:name)

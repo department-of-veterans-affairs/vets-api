@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe CemeterySerializer, type: :serializer do
-  let(:cemetery) { Cemetery.new(name: 'MY CEMETERY', num: '111', cemetery_type: 'N') }
+  let(:cemetery) { build :cemetery }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 

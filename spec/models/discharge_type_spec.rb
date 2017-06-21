@@ -5,8 +5,8 @@ RSpec.describe DischargeType do
   context 'with valid attributes' do
     subject { described_class.new(params) }
 
-    let(:params) { { id: 1, description: 'ruh roh' } }
-    let(:other) { described_class.new(id: 1, description: 'uh oh') }
+    let(:params) { attributes_for :discharge_type }
+    let(:other) { build :discharge_type }
 
     it 'populates attributes' do
       name_map = described_class.attribute_set.map(&:name)

@@ -12,11 +12,11 @@ class BranchesOfService < Common::Base
   validates :code, :begin_date, :end_date, :flat_full_descr,
             :full_descr, :short_descr, :state_required, :upright_full_descr, presence: true
 
-  attribute :code, String, sortable: { order: 'ASC' }, filterable: %w(eq not_eq)
-  attribute :flat_full_descr, String, sortable: { order: 'ASC' }, filterable: %w(eq not_eq)
-  attribute :full_descr, String, sortable: { order: 'ASC' }, filterable: %w(eq not_eq)
-  attribute :short_descr, String, sortable: { order: 'ASC' }, filterable: %w(eq not_eq)
-  attribute :upright_full_descr, String, sortable: { order: 'ASC' }, filterable: %w(eq not_eq)
+  attribute :code, String
+  attribute :flat_full_descr, String
+  attribute :full_descr, String
+  attribute :short_descr, String
+  attribute :upright_full_descr, String
 
   attribute :begin_date, String
   attribute :end_date, String

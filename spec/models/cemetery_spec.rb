@@ -5,8 +5,8 @@ RSpec.describe Cemetery do
   context 'with valid attributes' do
     subject { described_class.new(params) }
 
-    let(:params) { { name: 'MY CEMETERY', num: '111', cemetery_type: 'N' } }
-    let(:other) { described_class.new(name: 'YOUR CEMETERY', num: '222', cemetery_type: 'N') }
+    let(:params) { attributes_for :cemetery }
+    let(:other) { described_class.new(attributes_for(:cemetery)) }
 
     it 'populates attributes' do
       expect(described_class.attribute_set.map(&:name)).to contain_exactly(:name, :num, :cemetery_type)

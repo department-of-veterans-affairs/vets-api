@@ -5,13 +5,8 @@ RSpec.describe PreneedsState do
   context 'with valid attributes' do
     subject { described_class.new(params) }
 
-    let(:params) do
-      { code: 'AA', first_five_zip: '11111', last_five_zip: '22222', lower_indicator: 'Y', name: 'AA' }
-    end
-
-    let(:other) do
-      described_class.new(code: 'BB', first_five_zip: '33333', last_five_zip: '44444', lower_indicator: 'Y', name: 'BB')
-    end
+    let(:params) { attributes_for :preneeds_state }
+    let(:other) { described_class.new(attributes_for(:preneeds_state)) }
 
     it 'populates attributes' do
       name_map = described_class.attribute_set.map(&:name)

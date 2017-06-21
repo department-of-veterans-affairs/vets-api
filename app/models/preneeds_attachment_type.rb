@@ -8,7 +8,7 @@ class PreneedsAttachmentType < Common::Base
   validates :description, :attachment_type_id, presence: true
 
   attribute :attachment_type_id, Integer
-  attribute :description, String, sortable: { order: 'ASC' }, filterable: %w(eq not_eq)
+  attribute :description, String
 
   def id
     attachment_type_id

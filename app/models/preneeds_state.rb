@@ -7,8 +7,8 @@ class PreneedsState < Common::Base
 
   validates :code, :first_five_zip, :last_five_zip, :lower_indicator, :name, presence: true
 
-  attribute :code, String, sortable: { order: 'ASC' }, filterable: %w(eq not_eq)
-  attribute :name, String, sortable: { order: 'ASC' }, filterable: %w(eq not_eq)
+  attribute :code, String
+  attribute :name, String
   attribute :first_five_zip, String
   attribute :last_five_zip, String
   attribute :lower_indicator, String

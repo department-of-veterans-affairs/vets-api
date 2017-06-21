@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe PreneedsAttachmentTypeSerializer, type: :serializer do
-  let(:attachment_type) { PreneedsAttachmentType.new(description: 'Ooops a doodle', attachment_type_id: 1) }
+  let(:attachment_type) { build :preneeds_attachment_type }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 

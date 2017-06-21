@@ -2,10 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe PreneedsStateSerializer, type: :serializer do
-  let(:preneeds_state) do
-    PreneedsState.new(code: 'AA', first_five_zip: '11111', last_five_zip: '22222', lower_indicator: 'Y', name: 'AAAA')
-  end
-
+  let(:preneeds_state) { build :preneeds_state }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 

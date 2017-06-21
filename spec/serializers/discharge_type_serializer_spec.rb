@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe DischargeTypeSerializer, type: :serializer do
-  let(:discharge_type) { DischargeType.new(description: 'Ooops a doodle', id: 1) }
+  let(:discharge_type) { build :discharge_type }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 

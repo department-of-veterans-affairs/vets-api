@@ -2,19 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe BranchesOfServiceSerializer, type: :serializer do
-  let(:branch) do
-    BranchesOfService.new(
-      begin_date: '1926-07-02T00:00:00-04:00',
-      code: 'AC',
-      end_date: '1941-06-20T00:00:00-04:00',
-      flat_full_descr: 'US ARMY AIR CORPS',
-      full_descr: 'US ARMY AIR CORPS',
-      short_descr: 'USAAC',
-      state_required: 'N',
-      upright_full_descr: 'US ARMY AIR CORPS'
-    )
-  end
-
+  let(:branch) { build :branches_of_service }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
