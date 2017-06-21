@@ -212,7 +212,6 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.upgraded_at).to be_a(Time)
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
-
         end
       end
     end
