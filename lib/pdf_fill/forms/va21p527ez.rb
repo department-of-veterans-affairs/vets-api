@@ -72,7 +72,11 @@ module PdfFill
         'spouseVaFileNumber' => { key: 'F[0].Page_6[0].SpouseVAfilenumber[0]' },
         'veteranSocialSecurityNumber' => { key: 'F[0].Page_5[0].SSN[0]' },
         'severancePay' => {
-          'amount' => { key: 'F[0].Page_5[0].Listamount[0]' },
+          'amount' => {
+            key: 'F[0].Page_5[0].Listamount[0]',
+            limit: 17,
+            question: '16B. LIST AMOUNT (If known)'
+          },
           'type' => { key: 'F[0].Page_5[0].Listtype[0]' }
         },
         'marriageCount' => { key: 'F[0].Page_6[0].Howmanytimesmarried[0]' },
