@@ -7,246 +7,246 @@ module PdfFill
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
       DATE_STRFTIME = '%m/%d/%Y'
-      KEY = {
-        'vaFileNumber' => { key: 'F[0].Page_5[0].VAfilenumber[0]' },
-        'spouseSocialSecurityNumber' => { key: 'F[0].Page_6[0].SSN[0]' },
-        'genderMale' => { key: 'F[0].Page_5[0].Male[0]' },
-        'genderFemale' => { key: 'F[0].Page_5[0].Female[0]' },
-        'hasFileNumber' => { key: 'F[0].Page_5[0].YesFiled[0]' },
-        'noFileNumber' => { key: 'F[0].Page_5[0].NoFiled[0]' },
-        'hasPowDateRange' => { key: 'F[0].Page_5[0].YesPOW[0]' },
-        'noPowDateRange' => { key: 'F[0].Page_5[0].NoPOW[0]' },
-        'monthlySpousePayment' => { key: 'F[0].Page_6[0].MonthlySupport[0]' },
-        'spouseDateOfBirth' => { key: 'F[0].Page_6[0].Date[8]' },
-        'noLiveWithSpouse' => { key: 'F[0].Page_6[0].CheckboxSpouseNo[0]' },
-        'hasLiveWithSpouse' => { key: 'F[0].Page_6[0].CheckboxSpouseYes[0]' },
-        'noSpouseIsVeteran' => { key: 'F[0].Page_6[0].CheckboxVetNo[0]' },
-        'hasSpouseIsVeteran' => { key: 'F[0].Page_6[0].CheckboxVetYes[0]' },
-        'maritalStatusNeverMarried' => {
-          key: 'F[0].Page_6[0].CheckboxMaritalNeverMarried[0]'
-        },
-        'maritalStatusWidowed' => { key: 'F[0].Page_6[0].CheckboxMaritalWidowed[0]' },
-        'maritalStatusDivorced' => { key: 'F[0].Page_6[0].CheckboxMaritalDivorced[0]' },
-        'maritalStatusMarried' => { key: 'F[0].Page_6[0].CheckboxMaritalMarried[0]' },
-        'hasChecking' => { key: 'F[0].Page_8[0].Account[2]' },
-        'hasSavings' => { key: 'F[0].Page_8[0].Account[0]' },
-        'checkingAccountNumber' => { key: 'F[0].Page_8[0].CheckingAccountNumber[0]' },
-        'noRapidProcessing' => { key: 'F[0].Page_8[0].CheckBox1[0]' },
-        'savingsAccountNumber' => { key: 'F[0].Page_8[0].SavingsAccountNumber[0]' },
-        'bankAccount' => {
-          'bankName' => { key: 'F[0].Page_8[0].Nameofbank[0]' },
-          'routingNumber' => { key: 'F[0].Page_8[0].Routingortransitnumber[0]' }
-        },
-        'noBankAccount' => { key: 'F[0].Page_8[0].Account[1]' },
-        'monthlyIncomes' => {
-          'amount' => { key: 'monthlyIncomes.amount[%iterator%]' },
-          'additionalSourceName' => { key: 'monthlyIncomes.additionalSourceName[%iterator%]' },
-          'recipient' => { key: 'monthlyIncomes.recipient[%iterator%]' }
-        },
-        'otherExpenses' => {
-          'amount' => { key: 'otherExpenses.amount[%iterator%]' },
-          'purpose' => { key: 'otherExpenses.purpose[%iterator%]' },
-          'paidTo' => { key: 'otherExpenses.paidTo[%iterator%]' },
-          'relationship' => { key: 'otherExpenses.relationship[%iterator%]' },
-          'date' => { key: 'otherExpenses.date[%iterator%]' }
-        },
-        'netWorths' => {
-          'amount' => { key: 'netWorths.amount[%iterator%]' },
-          'additionalSourceName' => { key: 'netWorths.additionalSourceName[%iterator%]' },
-          'recipient' => { key: 'netWorths.recipient[%iterator%]' }
-        },
-        'expectedIncomes' => {
-          'amount' => { key: 'expectedIncomes.amount[%iterator%]' },
-          'additionalSourceName' => { key: 'expectedIncomes.additionalSourceName[%iterator%]' },
-          'recipient' => { key: 'expectedIncomes.recipient[%iterator%]' }
-        },
-        'hasPreviousNames' => { key: 'F[0].Page_5[0].YesName[0]' },
-        'noPreviousNames' => { key: 'F[0].Page_5[0].NameNo[0]' },
-        'hasCombatSince911' => { key: 'F[0].Page_5[0].YesCZ[0]' },
-        'noCombatSince911' => { key: 'F[0].Page_5[0].NoCZ[0]' },
-        'spouseMarriagesExplanations' => { key: 'F[0].Page_6[0].Explainothertypeofmarriage[0]' },
-        'marriagesExplanations' => { key: 'F[0].Page_6[0].Explainothertypesofmarriage[0]' },
-        'hasSeverancePay' => { key: 'F[0].Page_5[0].YesSep[0]' },
-        'noSeverancePay' => { key: 'F[0].Page_5[0].NoSep[0]' },
-        'veteranDateOfBirth' => { key: 'F[0].Page_5[0].Date[0]' },
-        'spouseVaFileNumber' => { key: 'F[0].Page_6[0].SpouseVAfilenumber[0]' },
-        'veteranSocialSecurityNumber' => { key: 'F[0].Page_5[0].SSN[0]' },
-        'severancePay' => {
-          'amount' => {
-            key: 'F[0].Page_5[0].Listamount[0]',
-            limit: 17,
-            question: '16B. LIST AMOUNT (If known)'
+      KEY = lambda do
+        key = {
+          'vaFileNumber' => { key: 'F[0].Page_5[0].VAfilenumber[0]' },
+          'spouseSocialSecurityNumber' => { key: 'F[0].Page_6[0].SSN[0]' },
+          'genderMale' => { key: 'F[0].Page_5[0].Male[0]' },
+          'genderFemale' => { key: 'F[0].Page_5[0].Female[0]' },
+          'hasFileNumber' => { key: 'F[0].Page_5[0].YesFiled[0]' },
+          'noFileNumber' => { key: 'F[0].Page_5[0].NoFiled[0]' },
+          'hasPowDateRange' => { key: 'F[0].Page_5[0].YesPOW[0]' },
+          'noPowDateRange' => { key: 'F[0].Page_5[0].NoPOW[0]' },
+          'monthlySpousePayment' => { key: 'F[0].Page_6[0].MonthlySupport[0]' },
+          'spouseDateOfBirth' => { key: 'F[0].Page_6[0].Date[8]' },
+          'noLiveWithSpouse' => { key: 'F[0].Page_6[0].CheckboxSpouseNo[0]' },
+          'hasLiveWithSpouse' => { key: 'F[0].Page_6[0].CheckboxSpouseYes[0]' },
+          'noSpouseIsVeteran' => { key: 'F[0].Page_6[0].CheckboxVetNo[0]' },
+          'hasSpouseIsVeteran' => { key: 'F[0].Page_6[0].CheckboxVetYes[0]' },
+          'maritalStatusNeverMarried' => {
+            key: 'F[0].Page_6[0].CheckboxMaritalNeverMarried[0]'
           },
-          'type' => { key: 'F[0].Page_5[0].Listtype[0]' }
-        },
-        'marriageCount' => { key: 'F[0].Page_6[0].Howmanytimesmarried[0]' },
-        'spouseMarriageCount' => { key: 'F[0].Page_6[0].Howmanytimesspousemarried[0]' },
-        'powDateRangeStart' => { key: 'F[0].Page_5[0].Date[1]' },
-        'powDateRangeEnd' => { key: 'F[0].Page_5[0].Date[2]' },
-        'jobs' => {
-          first_key: 'nameAndAddr',
-          limit: 2,
-          'annualEarnings' => {
-            limit: 10,
-            question: '17F. WHAT WERE YOUR TOTAL ANNUAL EARNINGS?',
-            key: "jobs.annualEarnings[#{ITERATOR}]"
+          'maritalStatusWidowed' => { key: 'F[0].Page_6[0].CheckboxMaritalWidowed[0]' },
+          'maritalStatusDivorced' => { key: 'F[0].Page_6[0].CheckboxMaritalDivorced[0]' },
+          'maritalStatusMarried' => { key: 'F[0].Page_6[0].CheckboxMaritalMarried[0]' },
+          'hasChecking' => { key: 'F[0].Page_8[0].Account[2]' },
+          'hasSavings' => { key: 'F[0].Page_8[0].Account[0]' },
+          'checkingAccountNumber' => { key: 'F[0].Page_8[0].CheckingAccountNumber[0]' },
+          'noRapidProcessing' => { key: 'F[0].Page_8[0].CheckBox1[0]' },
+          'savingsAccountNumber' => { key: 'F[0].Page_8[0].SavingsAccountNumber[0]' },
+          'bankAccount' => {
+            'bankName' => { key: 'F[0].Page_8[0].Nameofbank[0]' },
+            'routingNumber' => { key: 'F[0].Page_8[0].Routingortransitnumber[0]' }
           },
-          'nameAndAddr' => {
-            key: "jobs.nameAndAddr[#{ITERATOR}]",
-            limit: 27,
-            question: '17A. WHAT WAS THE NAME AND ADDRESS OF YOUR EMPLOYER?'
+          'noBankAccount' => { key: 'F[0].Page_8[0].Account[1]' },
+          'monthlyIncomes' => {
+            'amount' => { key: 'monthlyIncomes.amount[%iterator%]' },
+            'additionalSourceName' => { key: 'monthlyIncomes.additionalSourceName[%iterator%]' },
+            'recipient' => { key: 'monthlyIncomes.recipient[%iterator%]' }
           },
-          'jobTitle' => {
-            key: "jobs.jobTitle[#{ITERATOR}]",
-            question: '17B. WHAT WAS YOUR JOB TITLE?',
-            limit: 25
+          'otherExpenses' => {
+            'amount' => { key: 'otherExpenses.amount[%iterator%]' },
+            'purpose' => { key: 'otherExpenses.purpose[%iterator%]' },
+            'paidTo' => { key: 'otherExpenses.paidTo[%iterator%]' },
+            'relationship' => { key: 'otherExpenses.relationship[%iterator%]' },
+            'date' => { key: 'otherExpenses.date[%iterator%]' }
           },
-          'dateRangeStart' => {
-            key: "jobs.dateRangeStart[#{ITERATOR}]",
-            question: '17C. WHEN DID YOUR JOB BEGIN?'
+          'netWorths' => {
+            'amount' => { key: 'netWorths.amount[%iterator%]' },
+            'additionalSourceName' => { key: 'netWorths.additionalSourceName[%iterator%]' },
+            'recipient' => { key: 'netWorths.recipient[%iterator%]' }
           },
-          'dateRangeEnd' => {
-            key: "jobs.dateRangeEnd[#{ITERATOR}]",
-            question: '17D. WHEN DID YOUR JOB END?'
+          'expectedIncomes' => {
+            'amount' => { key: 'expectedIncomes.amount[%iterator%]' },
+            'additionalSourceName' => { key: 'expectedIncomes.additionalSourceName[%iterator%]' },
+            'recipient' => { key: 'expectedIncomes.recipient[%iterator%]' }
           },
-          'daysMissed' => {
-            limit: 9,
-            question: '17E. HOW MANY DAYS WERE LOST DUE TO DISABILITY?',
-            key: "jobs.daysMissed[#{ITERATOR}]"
+          'hasPreviousNames' => { key: 'F[0].Page_5[0].YesName[0]' },
+          'noPreviousNames' => { key: 'F[0].Page_5[0].NameNo[0]' },
+          'hasCombatSince911' => { key: 'F[0].Page_5[0].YesCZ[0]' },
+          'noCombatSince911' => { key: 'F[0].Page_5[0].NoCZ[0]' },
+          'spouseMarriagesExplanations' => { key: 'F[0].Page_6[0].Explainothertypeofmarriage[0]' },
+          'marriagesExplanations' => { key: 'F[0].Page_6[0].Explainothertypesofmarriage[0]' },
+          'hasSeverancePay' => { key: 'F[0].Page_5[0].YesSep[0]' },
+          'noSeverancePay' => { key: 'F[0].Page_5[0].NoSep[0]' },
+          'veteranDateOfBirth' => { key: 'F[0].Page_5[0].Date[0]' },
+          'spouseVaFileNumber' => { key: 'F[0].Page_6[0].SpouseVAfilenumber[0]' },
+          'veteranSocialSecurityNumber' => { key: 'F[0].Page_5[0].SSN[0]' },
+          'severancePay' => {
+            'amount' => {
+              key: 'F[0].Page_5[0].Listamount[0]',
+              limit: 17,
+              question: '16B. LIST AMOUNT (If known)'
+            },
+            'type' => { key: 'F[0].Page_5[0].Listtype[0]' }
+          },
+          'marriageCount' => { key: 'F[0].Page_6[0].Howmanytimesmarried[0]' },
+          'spouseMarriageCount' => { key: 'F[0].Page_6[0].Howmanytimesspousemarried[0]' },
+          'powDateRangeStart' => { key: 'F[0].Page_5[0].Date[1]' },
+          'powDateRangeEnd' => { key: 'F[0].Page_5[0].Date[2]' },
+          'jobs' => {
+            first_key: 'nameAndAddr',
+            limit: 2,
+            'annualEarnings' => {
+              limit: 10,
+              question: '17F. WHAT WERE YOUR TOTAL ANNUAL EARNINGS?',
+              key: "jobs.annualEarnings[#{ITERATOR}]"
+            },
+            'nameAndAddr' => {
+              key: "jobs.nameAndAddr[#{ITERATOR}]",
+              limit: 27,
+              question: '17A. WHAT WAS THE NAME AND ADDRESS OF YOUR EMPLOYER?'
+            },
+            'jobTitle' => {
+              key: "jobs.jobTitle[#{ITERATOR}]",
+              question: '17B. WHAT WAS YOUR JOB TITLE?',
+              limit: 25
+            },
+            'dateRangeStart' => {
+              key: "jobs.dateRangeStart[#{ITERATOR}]",
+              question: '17C. WHEN DID YOUR JOB BEGIN?'
+            },
+            'dateRangeEnd' => {
+              key: "jobs.dateRangeEnd[#{ITERATOR}]",
+              question: '17D. WHEN DID YOUR JOB END?'
+            },
+            'daysMissed' => {
+              limit: 9,
+              question: '17E. HOW MANY DAYS WERE LOST DUE TO DISABILITY?',
+              key: "jobs.daysMissed[#{ITERATOR}]"
+            }
+          },
+          'nationalGuard' => {
+            'nameAndAddr' => {
+              key: 'F[0].Page_5[0].Nameandaddressofunit[0]',
+              limit: 59,
+              question: '14A. WHAT IS THE NAME AND ADDRESS OF YOUR RESERVE/NATIONAL GUARD UNIT?'
+            },
+            'phone' => { key: 'F[0].Page_5[0].Unittelephonenumber[0]' },
+            'date' => { key: 'F[0].Page_5[0].DateofActivation[0]' },
+            'phoneAreaCode' => { key: 'F[0].Page_5[0].Unittelephoneareacode[0]' }
+          },
+          'vaHospitalTreatments' => {
+            limit: 2,
+            first_key: 'nameAndLocation',
+            'vaHospitalTreatmentsDates0' => {
+              key: "vaHospitalTreatments.dates[0][#{ITERATOR}]"
+            },
+            'vaHospitalTreatmentsDates1' => {
+              key: "vaHospitalTreatments.dates[1][#{ITERATOR}]"
+            },
+            'nameAndLocation' => {
+              question: '10A. NAME AND LOCATION OF VA MEDICAL CENTER',
+              limit: 46,
+              key: "vaHospitalTreatments.nameAndLocation[#{ITERATOR}]"
+            },
+            'dates' => {
+              question: '10B. DATE(S) OF TREATMENT',
+              limit: 3
+            }
+          },
+          'spouseAddress' => { key: 'F[0].Page_6[0].Spouseaddress[0]' },
+          'outsideChildren' => {
+            'childAddress' => { key: 'outsideChildren.childAddress[%iterator%]' },
+            'childFullName' => { key: 'outsideChildren.childFullName[%iterator%]' },
+            'monthlyPayment' => { key: 'outsideChildren.monthlyPayment[%iterator%]' },
+            'personWhoLivesWithChild' => { key: 'outsideChildren.personWhoLivesWithChild[%iterator%]' }
+          },
+          'children' => {
+            'childSocialSecurityNumber' => { key: 'children.childSocialSecurityNumber[%iterator%]' },
+            'childDateOfBirth' => { key: 'children.childDateOfBirth[%iterator%]' },
+            'childPlaceOfBirth' => { key: 'children.childPlaceOfBirth[%iterator%]' },
+            'attendingCollege' => { key: 'children.attendingCollege[%iterator%]' },
+            'married' => { key: 'children.married[%iterator%]' },
+            'disabled' => { key: 'children.disabled[%iterator%]' },
+            'biological' => { key: 'children.biological[%iterator%]' },
+            'childFullName' => { key: 'children.name[%iterator%]' },
+            'adopted' => { key: 'children.adopted[%iterator%]' },
+            'stepchild' => { key: 'children.stepchild[%iterator%]' },
+            'previouslyMarried' => { key: 'children.previouslyMarried[%iterator%]' }
+          },
+          'hasNationalGuardActivation' => { key: 'F[0].Page_5[0].YesAD[0]' },
+          'noNationalGuardActivation' => { key: 'F[0].Page_5[0].NoAD[0]' },
+          'nightPhone' => { key: 'F[0].Page_5[0].Eveningphonenumber[0]' },
+          'mobilePhone' => { key: 'F[0].Page_5[0].Cellphonenumber[0]' },
+          'mobilePhoneAreaCode' => { key: 'F[0].Page_5[0].Cellphoneareacode[0]' },
+          'nightPhoneAreaCode' => { key: 'F[0].Page_5[0].Eveningareacode[0]' },
+          'dayPhone' => { key: 'F[0].Page_5[0].Daytimephonenumber[0]' },
+          'previousNames' => {
+            key: 'F[0].Page_5[0].Listothernames[0]',
+            limit: 53,
+            question: '11B. PLEASE LIST THE OTHER NAME(S) YOU SERVED UNDER'
+          },
+          'dayPhoneAreaCode' => { key: 'F[0].Page_5[0].Daytimeareacode[0]' },
+          'serviceBranch' => {
+            key: 'F[0].Page_5[0].Branchofservice[0]',
+            limit: 25,
+            question: '12B. BRANCH OF SERVICE'
+          },
+          'veteranAddressLine1' => {
+            key: 'F[0].Page_5[0].Currentaddress[0]',
+            limit: 53,
+            question: '7A. Street address'
+          },
+          'email' => {
+            key: 'F[0].Page_5[0].Preferredemailaddress[0]',
+            limit: 43,
+            question: '8A. PREFERRED E-MAIL ADDRESS'
+          },
+          'altEmail' => {
+            key: 'F[0].Page_5[0].Alternateemailaddress[0]',
+            limit: 43,
+            question: '8B. ALTERNATE E-MAIL ADDRESS'
+          },
+          'cityState' => {
+            key: 'F[0].Page_5[0].Citystatezipcodecountry[0]',
+            limit: 53,
+            question: '7A. City, State, Zip, Country'
+          },
+          'activeServiceDateRangeStart' => { key: 'F[0].Page_5[0].DateEnteredActiveService[0]' },
+          'activeServiceDateRangeEnd' => { key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]' },
+          'placeOfSeparation' => {
+            key: 'F[0].Page_5[0].Placeofseparation[0]',
+            limit: 41,
+            question: '12E. PLACE OF LAST OR ANTICIPATED SEPARATION'
+          },
+          'reasonForNotLivingWithSpouse' => { key: 'F[0].Page_6[0].Reasonfornotlivingwithspouse[0]' },
+          'disabilities' => {
+            limit: 2,
+            first_key: 'name',
+            'name' => {
+              key: "disabilities.name[#{ITERATOR}]",
+              limit: 44,
+              question: '9A. DISABILITY(IES)'
+            },
+            'disabilityStartDate' => {
+              key: "disabilities.disabilityStartDate[#{ITERATOR}]",
+              question: '9B. DATE DISABILITY(IES) BEGAN'
+            }
+          },
+          'veteranFullName' => {
+            limit: 30,
+            question: "1. VETERAN'S NAME",
+            key: 'F[0].Page_5[0].Veteransname[0]'
           }
-        },
-        'spouseMarriages' => {
-          'dateOfMarriage' => { key: 'spouseMarriages.dateOfMarriage[%iterator%]' },
-          'locationOfMarriage' => { key: 'spouseMarriages.locationOfMarriage[%iterator%]' },
-          'locationOfSeparation' => { key: 'spouseMarriages.locationOfSeparation[%iterator%]' },
-          'spouseFullName' => { key: 'spouseMarriages.spouseFullName[%iterator%]' },
-          'marriageType' => { key: 'spouseMarriages.marriageType[%iterator%]' },
-          'dateOfSeparation' => { key: 'spouseMarriages.dateOfSeparation[%iterator%]' },
-          'reasonForSeparation' => { key: 'spouseMarriages.reasonForSeparation[%iterator%]' }
-        },
-        'marriages' => {
-          'dateOfMarriage' => { key: 'marriages.dateOfMarriage[%iterator%]' },
-          'locationOfMarriage' => { key: 'marriages.locationOfMarriage[%iterator%]' },
-          'locationOfSeparation' => { key: 'marriages.locationOfSeparation[%iterator%]' },
-          'spouseFullName' => { key: 'marriages.spouseFullName[%iterator%]' },
-          'marriageType' => { key: 'marriages.marriageType[%iterator%]' },
-          'dateOfSeparation' => { key: 'marriages.dateOfSeparation[%iterator%]' },
-          'reasonForSeparation' => { key: 'marriages.reasonForSeparation[%iterator%]' }
-        },
-        'nationalGuard' => {
-          'nameAndAddr' => {
-            key: 'F[0].Page_5[0].Nameandaddressofunit[0]',
-            limit: 59,
-            question: '14A. WHAT IS THE NAME AND ADDRESS OF YOUR RESERVE/NATIONAL GUARD UNIT?'
-          },
-          'phone' => { key: 'F[0].Page_5[0].Unittelephonenumber[0]' },
-          'date' => { key: 'F[0].Page_5[0].DateofActivation[0]' },
-          'phoneAreaCode' => { key: 'F[0].Page_5[0].Unittelephoneareacode[0]' }
-        },
-        'vaHospitalTreatments' => {
-          limit: 2,
-          first_key: 'nameAndLocation',
-          'vaHospitalTreatmentsDates0' => {
-            key: "vaHospitalTreatments.dates[0][#{ITERATOR}]"
-          },
-          'vaHospitalTreatmentsDates1' => {
-            key: "vaHospitalTreatments.dates[1][#{ITERATOR}]"
-          },
-          'nameAndLocation' => {
-            question: '10A. NAME AND LOCATION OF VA MEDICAL CENTER',
-            limit: 46,
-            key: "vaHospitalTreatments.nameAndLocation[#{ITERATOR}]"
-          },
-          'dates' => {
-            question: '10B. DATE(S) OF TREATMENT',
-            limit: 3
-          }
-        },
-        'spouseAddress' => { key: 'F[0].Page_6[0].Spouseaddress[0]' },
-        'outsideChildren' => {
-          'childAddress' => { key: 'outsideChildren.childAddress[%iterator%]' },
-          'childFullName' => { key: 'outsideChildren.childFullName[%iterator%]' },
-          'monthlyPayment' => { key: 'outsideChildren.monthlyPayment[%iterator%]' },
-          'personWhoLivesWithChild' => { key: 'outsideChildren.personWhoLivesWithChild[%iterator%]' }
-        },
-        'children' => {
-          'childSocialSecurityNumber' => { key: 'children.childSocialSecurityNumber[%iterator%]' },
-          'childDateOfBirth' => { key: 'children.childDateOfBirth[%iterator%]' },
-          'childPlaceOfBirth' => { key: 'children.childPlaceOfBirth[%iterator%]' },
-          'attendingCollege' => { key: 'children.attendingCollege[%iterator%]' },
-          'married' => { key: 'children.married[%iterator%]' },
-          'disabled' => { key: 'children.disabled[%iterator%]' },
-          'biological' => { key: 'children.biological[%iterator%]' },
-          'childFullName' => { key: 'children.name[%iterator%]' },
-          'adopted' => { key: 'children.adopted[%iterator%]' },
-          'stepchild' => { key: 'children.stepchild[%iterator%]' },
-          'previouslyMarried' => { key: 'children.previouslyMarried[%iterator%]' }
-        },
-        'hasNationalGuardActivation' => { key: 'F[0].Page_5[0].YesAD[0]' },
-        'noNationalGuardActivation' => { key: 'F[0].Page_5[0].NoAD[0]' },
-        'nightPhone' => { key: 'F[0].Page_5[0].Eveningphonenumber[0]' },
-        'mobilePhone' => { key: 'F[0].Page_5[0].Cellphonenumber[0]' },
-        'mobilePhoneAreaCode' => { key: 'F[0].Page_5[0].Cellphoneareacode[0]' },
-        'nightPhoneAreaCode' => { key: 'F[0].Page_5[0].Eveningareacode[0]' },
-        'dayPhone' => { key: 'F[0].Page_5[0].Daytimephonenumber[0]' },
-        'previousNames' => {
-          key: 'F[0].Page_5[0].Listothernames[0]',
-          limit: 53,
-          question: '11B. PLEASE LIST THE OTHER NAME(S) YOU SERVED UNDER'
-        },
-        'dayPhoneAreaCode' => { key: 'F[0].Page_5[0].Daytimeareacode[0]' },
-        'serviceBranch' => {
-          key: 'F[0].Page_5[0].Branchofservice[0]',
-          limit: 25,
-          question: '12B. BRANCH OF SERVICE'
-        },
-        'veteranAddressLine1' => {
-          key: 'F[0].Page_5[0].Currentaddress[0]',
-          limit: 53,
-          question: '7A. Street address'
-        },
-        'email' => {
-          key: 'F[0].Page_5[0].Preferredemailaddress[0]',
-          limit: 43,
-          question: '8A. PREFERRED E-MAIL ADDRESS'
-        },
-        'altEmail' => {
-          key: 'F[0].Page_5[0].Alternateemailaddress[0]',
-          limit: 43,
-          question: '8B. ALTERNATE E-MAIL ADDRESS'
-        },
-        'cityState' => {
-          key: 'F[0].Page_5[0].Citystatezipcodecountry[0]',
-          limit: 53,
-          question: '7A. City, State, Zip, Country'
-        },
-        'activeServiceDateRangeStart' => { key: 'F[0].Page_5[0].DateEnteredActiveService[0]' },
-        'activeServiceDateRangeEnd' => { key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]' },
-        'placeOfSeparation' => {
-          key: 'F[0].Page_5[0].Placeofseparation[0]',
-          limit: 41,
-          question: '12E. PLACE OF LAST OR ANTICIPATED SEPARATION'
-        },
-        'reasonForNotLivingWithSpouse' => { key: 'F[0].Page_6[0].Reasonfornotlivingwithspouse[0]' },
-        'disabilities' => {
-          limit: 2,
-          first_key: 'name',
-          'name' => {
-            key: "disabilities.name[#{ITERATOR}]",
-            limit: 44,
-            question: '9A. DISABILITY(IES)'
-          },
-          'disabilityStartDate' => {
-            key: "disabilities.disabilityStartDate[#{ITERATOR}]",
-            question: '9B. DATE DISABILITY(IES) BEGAN'
-          }
-        },
-        'veteranFullName' => {
-          limit: 30,
-          question: "1. VETERAN'S NAME",
-          key: 'F[0].Page_5[0].Veteransname[0]'
         }
-      }.freeze
+
+        %w(m spouseM).each do |prefix|
+          sub_key = "#{prefix}arriages"
+
+          key[sub_key] = {
+            'dateOfMarriage' => { key: "#{sub_key}.dateOfMarriage[#{ITERATOR}]" },
+            'locationOfMarriage' => { key: "#{sub_key}.locationOfMarriage[#{ITERATOR}]" },
+            'locationOfSeparation' => { key: "#{sub_key}.locationOfSeparation[#{ITERATOR}]" },
+            'spouseFullName' => { key: "#{sub_key}.spouseFullName[#{ITERATOR}]" },
+            'marriageType' => { key: "#{sub_key}.marriageType[#{ITERATOR}]" },
+            'dateOfSeparation' => { key: "#{sub_key}.dateOfSeparation[#{ITERATOR}]" },
+            'reasonForSeparation' => { key: "#{sub_key}.reasonForSeparation[#{ITERATOR}]" }
+          }
+        end
+
+        key
+      end.().freeze
 
       def initialize(form_data)
         @form_data = form_data.deep_dup
