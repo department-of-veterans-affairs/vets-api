@@ -4032,6 +4032,7 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
   '666741478':
@@ -4048,6 +4049,7 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
   '666451254':
@@ -4064,6 +4066,7 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
   '666986547':
@@ -4080,6 +4083,7 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
   '666216523':
@@ -4096,6 +4100,7 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
   '666951239':
@@ -4112,6 +4117,7 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
   '666986541':
@@ -4130,6 +4136,7 @@ find_candidate:
     :vha_facility_ids:
     - '989'
     - 200MHS
+    - '648'
     :edipi: 
     :participant_id: 
   '666977412':
@@ -4148,6 +4155,7 @@ find_candidate:
     :vha_facility_ids:
     - 200MHS
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
   '666337777':
@@ -4166,6 +4174,7 @@ find_candidate:
     :vha_facility_ids:
     - '989'
     - 200MHS
+    - '648'
     :edipi: 
     :participant_id: 
   '666451921':
@@ -4184,6 +4193,7 @@ find_candidate:
     :vha_facility_ids:
     - '989'
     - 200MHS
+    - '648'
     :edipi: 
     :participant_id: 
   '666202525':
@@ -4202,6 +4212,7 @@ find_candidate:
     :vha_facility_ids:
     - '989'
     - 200MHS
+    - '648'
     :edipi: 
     :participant_id: 
   '666087411':
@@ -4220,6 +4231,7 @@ find_candidate:
     :vha_facility_ids:
     - '989'
     - 200MHS
+    - '648'
     :edipi: 
     :participant_id: 
   '666873096':
@@ -4236,6 +4248,7 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
   '666410941':
@@ -4252,6 +4265,7 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
   '666994501':
@@ -4268,5 +4282,6 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
