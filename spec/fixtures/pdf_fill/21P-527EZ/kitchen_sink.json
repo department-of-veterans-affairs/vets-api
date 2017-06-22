@@ -137,6 +137,23 @@
       "monthlyPayment": 3
     },
     {
+      "dependentRelationship": "parent",
+      "fullName": {
+        "first": "parent",
+        "last": "Olson"
+      },
+      "expectedIncome": {
+        "salary": 1,
+        "additionalSources": [
+          {
+            "name": "name3",
+            "amount": 6
+          }
+        ],
+        "interest": 3
+      }
+    },
+    {
       "childInHousehold": true,
       "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-01",
@@ -152,16 +169,6 @@
       "stepchild": true,
       "disabled": true,
       "adopted": true,
-      "expectedIncome": {
-        "salary": 1,
-        "additionalSources": [
-          {
-            "name": "name3",
-            "amount": 6
-          }
-        ],
-        "interest": 3
-      },
       "previouslyMarried": true
     },
     {
