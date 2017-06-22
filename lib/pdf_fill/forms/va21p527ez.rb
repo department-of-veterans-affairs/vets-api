@@ -171,21 +171,53 @@ module PdfFill
           'children' => {
             limit: 3,
             first_key: 'fullName',
-            'childSocialSecurityNumber' => { key: 'children.childSocialSecurityNumber[%iterator%]' },
-            'childDateOfBirth' => { key: 'children.childDateOfBirth[%iterator%]' },
-            'childPlaceOfBirth' => { key: 'children.childPlaceOfBirth[%iterator%]' },
-            'attendingCollege' => { key: 'children.attendingCollege[%iterator%]' },
-            'married' => { key: 'children.married[%iterator%]' },
-            'disabled' => { key: 'children.disabled[%iterator%]' },
-            'biological' => { key: 'children.biological[%iterator%]' },
+            'childSocialSecurityNumber' => {
+              question: '23C. SOCIAL SECURITY NUMBER',
+              key: 'children.childSocialSecurityNumber[%iterator%]'
+            },
+            'childDateOfBirth' => {
+              question: '23B. DATE OF BIRTH',
+              key: 'children.childDateOfBirth[%iterator%]'
+            },
+            'childPlaceOfBirth' => {
+              limit: 12,
+              question: '23B. PLACE OF BIRTH',
+              key: 'children.childPlaceOfBirth[%iterator%]'
+            },
+            'attendingCollege' => {
+              question: '23G. 18-23 YEARS OLD (in school)',
+              key: 'children.attendingCollege[%iterator%]'
+            },
+            'married' => {
+              question: '23I. CHILD MARRIED',
+              key: 'children.married[%iterator%]'
+            },
+            'disabled' => {
+              question: '23H. SERIOUSLY DISABLED',
+              key: 'children.disabled[%iterator%]'
+            },
+            # TODO use childrelationship here
+            'biological' => {
+              question: '23D. BIOLOGICAL',
+              key: 'children.biological[%iterator%]'
+            },
             'fullName' => {
               key: 'children.name[%iterator%]',
               limit: 34,
               question: "23A. NAME OF DEPENDENT CHILD"
             },
-            'adopted' => { key: 'children.adopted[%iterator%]' },
-            'stepchild' => { key: 'children.stepchild[%iterator%]' },
-            'previouslyMarried' => { key: 'children.previouslyMarried[%iterator%]' }
+            'adopted' => {
+              question: '23E. ADOPTED',
+              key: 'children.adopted[%iterator%]'
+            },
+            'stepchild' => {
+              question: '23F. STEPCHILD',
+              key: 'children.stepchild[%iterator%]'
+            },
+            'previouslyMarried' => {
+              question: '23J. CHILD PREVIOUSLY MARRIED',
+              key: 'children.previouslyMarried[%iterator%]'
+            }
           },
           'hasNationalGuardActivation' => { key: 'F[0].Page_5[0].YesAD[0]' },
           'noNationalGuardActivation' => { key: 'F[0].Page_5[0].NoAD[0]' },
