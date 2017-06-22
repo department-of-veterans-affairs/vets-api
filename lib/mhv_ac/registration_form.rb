@@ -33,9 +33,11 @@ module MHVAC
     attribute :terms_version, String
     attribute :terms_accepted_date, Common::HTTPDate
 
-    validates :icn, :is_patient, :is_veteran, :email, presence: true
-    validates :address1, :city, :state, :zip, :country, presence: true
-    validates :sign_in_partners, :terms_version, :terms_accepted_date, presence: true
+    # NOTE: commenting out these validations because it's not entirely clear they're required
+    # instead for now we're going to rely on MHV kicking back its error based on these.
+    # validates :icn, :is_patient, :is_veteran, :email, presence: true
+    # validates :address1, :city, :state, :zip, :country, presence: true
+    # validates :sign_in_partners, :terms_version, :terms_accepted_date, presence: true
 
     def mhv_params
       raise Common::Exceptions::ValidationErrors, self unless valid?
