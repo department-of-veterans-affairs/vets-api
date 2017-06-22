@@ -128,7 +128,7 @@ class MhvAccount < ActiveRecord::Base
       if client_response[:api_completion_status] == 'Successful'
         StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.success")
         user.va_profile.mhv_ids = [client_response[:correlation_id].to_s]
-        user.instance_variable_get(:@mvi).save
+        user.recache
         self.registered_at = Time.current
         register!
       end
