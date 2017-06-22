@@ -18,6 +18,7 @@ RSpec.describe 'Fetching Post 911 GI Bill Status', type: :request do
     it 'GET /v0/post911_gi_bill_status returns proper json' do
       VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
         get v0_post911_gi_bill_status_url, nil, auth_header
+        expect(response).to match_response_schema('post911_gi_bill_status')
         assert_response :success
       end
     end
