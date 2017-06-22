@@ -11,7 +11,7 @@
               "items": {
                 "$ref": "letter_base.json"
               },
-              "type": ["array", "null"]
+              "type": "array"
             }
           },
           "type": "object"
@@ -23,7 +23,7 @@
           "type": "string"
         }
       },
-      "type": "object"
+      "type": ["object", "null"]
     },
     "meta": {
       "properties": {
