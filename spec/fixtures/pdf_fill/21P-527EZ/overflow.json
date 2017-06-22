@@ -58,8 +58,9 @@
       "date": "2012-04-04"
     }
   ],
-  "children": [
+  "dependents": [
     {
+      "dependentRelationship": "child",
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -67,11 +68,10 @@
         "state": "MD",
         "street": "str1"
       },
-      "childFullName": {
+      "fullName": {
         "first": "outside1",
         "last": "Olson"
       },
-      "childNotInHousehold": true,
       "personWhoLivesWithChild": {
         "first": "person1",
         "last": "Olson"
@@ -99,6 +99,7 @@
       "monthlyPayment": 1
     },
     {
+      "dependentRelationship": "child",
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -106,7 +107,7 @@
         "state": "MD",
         "street": "str2"
       },
-      "childFullName": {
+      "fullName": {
         "first": "outside2",
         "last": "Olson"
       },
@@ -114,10 +115,10 @@
         "first": "person2",
         "last": "Olson"
       },
-      "childNotInHousehold": true,
       "monthlyPayment": 2
     },
     {
+      "dependentRelationship": "child",
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -125,7 +126,7 @@
         "state": "MD",
         "street": "str3"
       },
-      "childFullName": {
+      "fullName": {
         "first": "outside3",
         "last": "Olson"
       },
@@ -133,12 +134,30 @@
         "first": "person3",
         "last": "Olson"
       },
-      "childNotInHousehold": true,
       "monthlyPayment": 3
     },
     {
+      "dependentRelationship": "parent",
+      "fullName": {
+        "first": "parent",
+        "last": "Olson"
+      },
+      "expectedIncome": {
+        "salary": 1,
+        "additionalSources": [
+          {
+            "name": "name3",
+            "amount": 6
+          }
+        ],
+        "interest": 3
+      }
+    },
+    {
+      "childInHousehold": true,
+      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-01",
-      "childFullName": {
+      "fullName": {
         "first": "Mark1",
         "last": "Olson"
       },
@@ -150,21 +169,13 @@
       "stepchild": true,
       "disabled": true,
       "adopted": true,
-      "expectedIncome": {
-        "salary": 1,
-        "additionalSources": [
-          {
-            "name": "name3",
-            "amount": 6
-          }
-        ],
-        "interest": 3
-      },
       "previouslyMarried": true
     },
     {
+      "childInHousehold": true,
+      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-02",
-      "childFullName": {
+      "fullName": {
         "first": "Mark2",
         "last": "Olson"
       },
@@ -179,8 +190,10 @@
       "previouslyMarried": true
     },
     {
+      "childInHousehold": true,
+      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-03",
-      "childFullName": {
+      "fullName": {
         "first": "Mark3",
         "last": "Olson"
       },
