@@ -30,5 +30,9 @@ module EMIS
         conn.adapter Faraday.default_adapter
       end
     end
+
+    def allow_missing_certs?
+      true
+    end
   end
 end
