@@ -79,11 +79,11 @@ class Mvi < Common::RedisStore
     mvi_response&.profile
   end
 
-  private
-
   def mvi_response
     @mvi_response ||= response_from_redis_or_service
   end
+
+  private
 
   def response_from_redis_or_service
     do_cached_with(key: @user.uuid) do
