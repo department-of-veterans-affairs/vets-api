@@ -39,10 +39,14 @@ module EVSS
         EVSS::Letters::BeneficiaryResponse.new(e.response[:status])
       end
 
-      def download_letter_by_type(type)
+      def download_by_type(type)
         response = download_conn.get type
         raise Common::Exceptions::RecordNotFound, params[:id] if response.status.to_i == 404
         response.body
+      end
+
+      def download_by_type_with_options(type, options)
+
       end
 
       def self.breakers_service
