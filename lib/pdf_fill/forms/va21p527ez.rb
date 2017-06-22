@@ -198,7 +198,6 @@ module PdfFill
               question: '23H. SERIOUSLY DISABLED',
               key: 'children.disabled[%iterator%]'
             },
-            # TODO use childrelationship here
             'biological' => {
               question: '23D. BIOLOGICAL',
               key: 'children.biological[%iterator%]'
