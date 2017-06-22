@@ -165,10 +165,26 @@ module PdfFill
           'outsideChildren' => {
             limit: 3,
             first_key: 'fullName',
-            'childAddress' => { key: 'outsideChildren.childAddress[%iterator%]' },
-            'fullName' => { key: 'outsideChildren.childFullName[%iterator%]' },
-            'monthlyPayment' => { key: 'outsideChildren.monthlyPayment[%iterator%]' },
-            'personWhoLivesWithChild' => { key: 'outsideChildren.personWhoLivesWithChild[%iterator%]' }
+            'childAddress' => {
+              limit: 52,
+              question: "24B. CHILD'S COMPLETE ADDRESS",
+              key: 'outsideChildren.childAddress[%iterator%]'
+            },
+            'fullName' => {
+              limit: 48,
+              question: '24A. NAME OF DEPENDENT CHILD',
+              key: 'outsideChildren.childFullName[%iterator%]'
+            },
+            'monthlyPayment' => {
+              limit: 13,
+              question: "24D. MONTHLY AMOUNT YOU CONTRIBUTE TO THE CHILD'S SUPPORT",
+              key: 'outsideChildren.monthlyPayment[%iterator%]'
+            },
+            'personWhoLivesWithChild' => {
+              limit: 40,
+              question: '24C. NAME OF PERSON THE CHILD LIVES WITH',
+              key: 'outsideChildren.personWhoLivesWithChild[%iterator%]'
+            }
           },
           'children' => {
             limit: 3,
