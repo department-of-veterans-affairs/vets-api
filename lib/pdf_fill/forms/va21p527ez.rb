@@ -163,6 +163,8 @@ module PdfFill
             key: 'F[0].Page_6[0].Spouseaddress[0]'
           },
           'outsideChildren' => {
+            limit: 3,
+            first_key: 'fullName',
             'childAddress' => { key: 'outsideChildren.childAddress[%iterator%]' },
             'fullName' => { key: 'outsideChildren.childFullName[%iterator%]' },
             'monthlyPayment' => { key: 'outsideChildren.monthlyPayment[%iterator%]' },
