@@ -174,6 +174,24 @@
     {
       "childInHousehold": true,
       "dependentRelationship": "child",
+      "childDateOfBirth": "2012-06-01",
+      "fullName": {
+        "first": "Mark1",
+        "last": "Olson"
+      },
+      "childSocialSecurityNumber": "111223331",
+      "childPlaceOfBirth": "place1",
+      "attendingCollege": true,
+      "married": true,
+      "biological": true,
+      "stepchild": true,
+      "disabled": true,
+      "adopted": true,
+      "previouslyMarried": true
+    },
+    {
+      "childInHousehold": true,
+      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-02",
       "fullName": {
         "first": "Mark2",
