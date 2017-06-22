@@ -9,11 +9,13 @@ module EVSS
       attribute :address, EVSS::Letters::Address
 
       def initialize(status, response = nil)
-        super(status, response)
         if response
-          self.letters = response.body['letters']
-          self.address = response.body['letter_destination']
+          attributes = {
+            letters: response.body['letters'],
+            address: response.body['letter_destination']
+          }
         end
+        super(status, attributes)
       end
 
       def metadata

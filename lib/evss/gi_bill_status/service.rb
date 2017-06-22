@@ -13,7 +13,7 @@ module EVSS
         log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL })
         EVSS::GiBillStatus::GiBillStatusResponse.new(403)
       rescue Faraday::ClientError => e
-        log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL })
+        log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL, body: e.response[:body] })
         EVSS::GiBillStatus::GiBillStatusResponse.new(e.response[:status])
       end
     end
