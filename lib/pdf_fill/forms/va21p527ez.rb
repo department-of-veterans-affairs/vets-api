@@ -501,8 +501,15 @@ module PdfFill
         children_split
       end
 
+      def expand_dependents
+        @form_data['dependents']&.each do |dependent|
+          dependent['fullName'] = combine_full_name(dependent['fullName'])
+        end
+
+        expand_children(@form_data, 'dependents')
+      end
+
       def expand_children(hash, key)
-        # TODO combine full name for all dependents
         children = hash[key]&.find_all do |dependent|
           dependent['dependentRelationship'] == 'child'
         end
@@ -515,9 +522,7 @@ module PdfFill
             v[i] ||= {}
             child = v[i]
 
-            %w(fullName personWhoLivesWithChild).each do |attr|
-              child[attr] = combine_full_name(child[attr])
-            end
+            child['personWhoLivesWithChild'] = combine_full_name(child['personWhoLivesWithChild'])
 
             child['childAddress'] = combine_full_address(child['childAddress'])
           end
@@ -746,7 +751,7 @@ module PdfFill
         end
         # TODO financials for parent dependents
 
-        expand_children(@form_data, 'dependents')
+        expand_dependents
 
         %w(marriages spouseMarriages).each do |marriage_type|
           expand_marriages(@form_data, marriage_type)
