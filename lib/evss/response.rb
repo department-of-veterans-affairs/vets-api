@@ -8,9 +8,9 @@ module EVSS
 
     attribute :status, Integer
 
-    def initialize(status, response = nil)
+    def initialize(status, attributes = nil)
+      super(attributes) if attributes
       self.status = status
-      super(response.body) if response
     end
 
     def ok?
