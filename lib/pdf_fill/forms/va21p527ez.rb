@@ -551,12 +551,19 @@ module PdfFill
 
         children_split = split_children(children)
 
+        # TODO do this for all children
         3.times do |i|
           children_split.each do |_k, v|
             v[i] ||= {}
             child = v[i]
 
             child['personWhoLivesWithChild'] = combine_full_name(child['personWhoLivesWithChild'])
+
+            child['childRelationship'].tap do |child_rel|
+              next if child_rel.blank?
+
+              child[child_rel] = true
+            end
 
             child['childAddress'] = combine_full_address(child['childAddress'])
           end
