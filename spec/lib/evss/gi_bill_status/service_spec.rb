@@ -62,6 +62,21 @@ describe EVSS::GiBillStatus::Service do
           end
         end
       end
+
+      context 'with an http timeout' do
+        before do
+          allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
+        end
+
+        it 'should log an error' do
+          expect(Rails.logger).to receive(:error).with(/Timeout/)
+          subject.get_gi_bill_status
+        end
+
+        it 'should not raise an exception' do
+          expect { subject.get_gi_bill_status }.to_not raise_error
+        end
+      end
     end
   end
 end
