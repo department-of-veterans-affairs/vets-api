@@ -749,7 +749,6 @@ module PdfFill
         %w(activeServiceDateRange powDateRange).each do |attr|
           expand_date_range(@form_data, attr)
         end
-        # TODO financials for parent dependents
 
         expand_dependents
 
