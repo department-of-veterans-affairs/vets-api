@@ -338,6 +338,7 @@
     "otherProperty": 6
   },
   "spouseNetWorth": {
+    "bank": 9,
     "stocks": 4,
     "realProperty": 5,
     "otherProperty": 7
