@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+# Usage example:
+# $> bundle exec rails r script/evss_connection_tester.rb 796066621 true
 def to_boolean(str)
   str == 'true'
 end
 
-raise "Must provide a SSN!" unless ARGV[0]
+raise 'Must provide a SSN!' unless ARGV[0]
 ssn = ARGV[0]
 
 Settings.mvi.mock = to_boolean(ARGV[1]) if ARGV[1]
@@ -14,7 +17,7 @@ user = User.new(
   last_name: 'Webb',
   birth_date: '1950-10-04',
   gender: 'M',
-  ssn: "#{ssn}",
+  ssn: ssn.to_s,
   email: 'vets.gov.user+206@gmail.com',
   loa: {
     current: LOA::THREE,
@@ -24,10 +27,10 @@ user = User.new(
 user.last_signed_in = Time.now.utc
 begin
   user.va_profile
-rescue Common::Exceptions::ValidationErrors => e
-  puts "User not found in MVI!"
+rescue Common::Exceptions::ValidationErrors
+  puts 'User not found in MVI!'
 end
-puts "User not found in  real MVI!" if user.va_profile.nil? && Settings.mvi.mock == false
+puts 'User not found in  real MVI!' if user.va_profile.nil? && Settings.mvi.mock == false
 user.va_profile.edipi = '1005329660'
 headers = EVSS::AuthHeaders.new(user).to_h
 service = EVSS::GiBillStatus::Service.new(headers)
@@ -42,5 +45,5 @@ returned_user = {
 }
 
 puts "Response code: #{response.status}"
-puts "Non-200 response code! Check rails log for details" if response.status != 200
+puts 'Non-200 response code! Check rails log for details' if response.status != 200
 puts "Returned User : #{returned_user}"
