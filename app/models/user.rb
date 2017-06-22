@@ -113,6 +113,12 @@ class User < Common::RedisStore
     InProgressForm.where(user_uuid: uuid)
   end
 
+  # Re-caches the MVI response. Use in response to any local changes that
+  # have been made.
+  def recache
+    mvi.cache(uuid, mvi.mvi_response)
+  end
+
   private
 
   def mvi
