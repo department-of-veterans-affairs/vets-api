@@ -169,6 +169,8 @@ module PdfFill
             'personWhoLivesWithChild' => { key: 'outsideChildren.personWhoLivesWithChild[%iterator%]' }
           },
           'children' => {
+            limit: 3,
+            first_key: 'fullName',
             'childSocialSecurityNumber' => { key: 'children.childSocialSecurityNumber[%iterator%]' },
             'childDateOfBirth' => { key: 'children.childDateOfBirth[%iterator%]' },
             'childPlaceOfBirth' => { key: 'children.childPlaceOfBirth[%iterator%]' },
