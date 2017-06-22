@@ -137,6 +137,25 @@
       "monthlyPayment": 3
     },
     {
+      "dependentRelationship": "child",
+      "childAddress": {
+        "city": "city1",
+        "country": "USA",
+        "postalCode": "21231",
+        "state": "MD",
+        "street": "str4"
+      },
+      "fullName": {
+        "first": "outside4",
+        "last": "Olson"
+      },
+      "personWhoLivesWithChild": {
+        "first": "person4",
+        "last": "Olson"
+      },
+      "monthlyPayment": 4
+    },
+    {
       "dependentRelationship": "parent",
       "fullName": {
         "first": "parent",
