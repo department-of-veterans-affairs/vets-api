@@ -17,7 +17,12 @@ module EVSS
       attribute :original_entitlement, Integer
       attribute :used_entitlement, Integer
       attribute :remaining_entitlement, Integer
-      attribute :enrollments, Array[Object]
+      attribute :enrollments, Array[Enrollment]
+
+      def initialize(status, response = nil)
+        attributes = response.nil? ? {} : response.body['chapter33_education_info']
+        super(status, attributes)
+      end
     end
   end
 end
