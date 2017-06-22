@@ -549,25 +549,19 @@ module PdfFill
         end
         return if children.blank?
 
-        children_split = split_children(children)
+        children.each do |child|
+          child['personWhoLivesWithChild'] = combine_full_name(child['personWhoLivesWithChild'])
 
-        # TODO do this for all children
-        3.times do |i|
-          children_split.each do |_k, v|
-            v[i] ||= {}
-            child = v[i]
+          child['childRelationship'].tap do |child_rel|
+            next if child_rel.blank?
 
-            child['personWhoLivesWithChild'] = combine_full_name(child['personWhoLivesWithChild'])
-
-            child['childRelationship'].tap do |child_rel|
-              next if child_rel.blank?
-
-              child[child_rel] = true
-            end
-
-            child['childAddress'] = combine_full_address(child['childAddress'])
+            child[child_rel] = true
           end
+
+          child['childAddress'] = combine_full_address(child['childAddress'])
         end
+
+        children_split = split_children(children)
 
         hash['children'] = children_split[:cohabiting]
         hash['outsideChildren'] = children_split[:outside]
