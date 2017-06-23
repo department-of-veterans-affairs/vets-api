@@ -14,7 +14,7 @@ describe PdfFill::Filler do
 
     context 'when extras_generator doesnt have text' do
       it 'should return the old_file_path' do
-        expect(extras_generator).to receive(:has_text).once.and_return(false)
+        expect(extras_generator).to receive(:text?).once.and_return(false)
 
         expect(subject).to eq('file_path')
       end
@@ -22,7 +22,7 @@ describe PdfFill::Filler do
 
     context 'when extras_generator has text' do
       before do
-        expect(extras_generator).to receive(:has_text).once.and_return(true)
+        expect(extras_generator).to receive(:text?).once.and_return(true)
       end
 
       it 'should generate extras and combine the files', run_at: '2016-12-31 00:00:00 EDT' do

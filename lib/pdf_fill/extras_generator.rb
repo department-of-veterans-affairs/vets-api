@@ -8,7 +8,7 @@ module PdfFill
     end
 
     def add_text(prefix, text)
-      unless has_text
+      unless text?
         @generate_blocks << lambda do |pdf|
           pdf.text('Additional Information', size: 16, style: :bold)
         end
@@ -22,7 +22,7 @@ module PdfFill
       end
     end
 
-    def has_text
+    def text?
       @generate_blocks.size.positive?
     end
 

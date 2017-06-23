@@ -6,15 +6,13 @@ module PdfFill
   module Filler
     module_function
 
-    # TODO: handle array and string overflows
-
     PDF_FORMS = PdfForms.new('pdftk')
     FORM_CLASSES = {
       '21P-527EZ' => PdfFill::Forms::VA21P527EZ
     }.freeze
 
     def combine_extras(old_file_path, extras_generator)
-      if extras_generator.has_text
+      if extras_generator.text?
         file_path = "tmp/pdfs/form_#{Time.zone.now}_final.pdf"
         extras_path = extras_generator.generate
 
