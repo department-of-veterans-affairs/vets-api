@@ -41,7 +41,7 @@ module PdfFill
       end
     end
 
-    def has_overflow(key_data, value)
+    def overflow?(key_data, value)
       value = value.to_s if value.is_a?(Numeric)
 
       limit = key_data.try(:[], :limit)
@@ -73,7 +73,7 @@ module PdfFill
     def set_value(k, v, key_data, i)
       new_value = convert_value(v)
 
-      if has_overflow(key_data, new_value)
+      if overflow?(key_data, new_value)
         add_to_extras(key_data, new_value, i)
 
         new_value = EXTRAS_TEXT
@@ -92,7 +92,7 @@ module PdfFill
         next if item.blank? || !item.is_a?(Hash)
 
         item.each do |k, v|
-          return true if has_overflow(pdftk_keys[k], v)
+          return true if overflow?(pdftk_keys[k], v)
         end
       end
 
