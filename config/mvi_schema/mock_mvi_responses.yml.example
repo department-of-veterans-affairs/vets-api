@@ -4026,7 +4026,12 @@ find_candidate:
     :gender: M
     :birth_date: '19690212'
     :ssn: '666859632'
-    :address: 
+    :address: !ruby/object:MVI::Models::MviProfileAddress
+      city: RICHMOND
+      state: VA
+      postal_code: '23233'
+      country: USA
+      street: 123 FAKE STREET
     :home_phone: 
     :icn: 1012996209V794155
     :mhv_ids: []
@@ -4043,7 +4048,12 @@ find_candidate:
     :gender: M
     :birth_date: '19620312'
     :ssn: '666741478'
-    :address: 
+    :address: !ruby/object:MVI::Models::MviProfileAddress
+      city: RICHMOND
+      state: VA
+      postal_code: '23233'
+      country: USA
+      street: 123 FAKE STREET
     :home_phone: 
     :icn: 1012996210V640082
     :mhv_ids: []
@@ -4060,7 +4070,12 @@ find_candidate:
     :gender: F
     :birth_date: '19820425'
     :ssn: '666451254'
-    :address: 
+    :address: !ruby/object:MVI::Models::MviProfileAddress
+      city: RICHMOND
+      state: VA
+      postal_code: '23233'
+      country: USA
+      street: 123 FAKE STREET
     :home_phone: 
     :icn: 1012996213V894859
     :mhv_ids: []
@@ -4077,7 +4092,12 @@ find_candidate:
     :gender: F
     :birth_date: '19600928'
     :ssn: '666986547'
-    :address: 
+    :address: !ruby/object:MVI::Models::MviProfileAddress
+      city: RICHMOND
+      state: VA
+      postal_code: '23233'
+      country: USA
+      street: 123 FAKE STREET
     :home_phone: 
     :icn: 1012996215V259676
     :mhv_ids: []
@@ -4094,7 +4114,12 @@ find_candidate:
     :gender: F
     :birth_date: '19740701'
     :ssn: '666216523'
-    :address: 
+    :address: !ruby/object:MVI::Models::MviProfileAddress
+      city: RICHMOND
+      state: VA
+      postal_code: '23233'
+      country: USA
+      street: 123 FAKE STREET
     :home_phone: 
     :icn: 1012996216V038108
     :mhv_ids: []
@@ -4111,7 +4136,12 @@ find_candidate:
     :gender: M
     :birth_date: '19600526'
     :ssn: '666951239'
-    :address: 
+    :address: !ruby/object:MVI::Models::MviProfileAddress
+      city: RICHMOND
+      state: VA
+      postal_code: '23233'
+      country: USA
+      street: 123 FAKE STREET
     :home_phone: 
     :icn: 1012996217V161423
     :mhv_ids: []
