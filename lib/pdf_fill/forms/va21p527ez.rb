@@ -60,27 +60,12 @@ module PdfFill
             'routingNumber' => { key: 'F[0].Page_8[0].Routingortransitnumber[0]' }
           },
           'noBankAccount' => { key: 'F[0].Page_8[0].Account[1]' },
-          'monthlyIncomes' => {
-            'amount' => { key: 'monthlyIncomes.amount[%iterator%]' },
-            'additionalSourceName' => { key: 'monthlyIncomes.additionalSourceName[%iterator%]' },
-            'recipient' => { key: 'monthlyIncomes.recipient[%iterator%]' }
-          },
           'otherExpenses' => {
             'amount' => { key: 'otherExpenses.amount[%iterator%]' },
             'purpose' => { key: 'otherExpenses.purpose[%iterator%]' },
             'paidTo' => { key: 'otherExpenses.paidTo[%iterator%]' },
             'relationship' => { key: 'otherExpenses.relationship[%iterator%]' },
             'date' => { key: 'otherExpenses.date[%iterator%]' }
-          },
-          'netWorths' => {
-            'amount' => { key: 'netWorths.amount[%iterator%]' },
-            'additionalSourceName' => { key: 'netWorths.additionalSourceName[%iterator%]' },
-            'recipient' => { key: 'netWorths.recipient[%iterator%]' }
-          },
-          'expectedIncomes' => {
-            'amount' => { key: 'expectedIncomes.amount[%iterator%]' },
-            'additionalSourceName' => { key: 'expectedIncomes.additionalSourceName[%iterator%]' },
-            'recipient' => { key: 'expectedIncomes.recipient[%iterator%]' }
           },
           'hasPreviousNames' => { key: 'F[0].Page_5[0].YesName[0]' },
           'noPreviousNames' => { key: 'F[0].Page_5[0].NameNo[0]' },
@@ -322,6 +307,14 @@ module PdfFill
             key: 'F[0].Page_5[0].Veteransname[0]'
           }
         }
+
+        %w(netWorths monthlyIncomes expectedIncomes).each do |acct_type|
+          key[acct_type] = {
+            'amount' => { key: "#{acct_type}.amount[#{ITERATOR}]" },
+            'additionalSourceName' => { key: "#{acct_type}.additionalSourceName[#{ITERATOR}]" },
+            'recipient' => { key: "#{acct_type}.recipient[#{ITERATOR}]" }
+          }
+        end
 
         %w(m spouseM).each do |prefix|
           sub_key = "#{prefix}arriages"
