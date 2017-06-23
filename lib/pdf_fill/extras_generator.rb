@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 module PdfFill
   class ExtrasGenerator
-    DEFAULT_FONT = 'Helvetica'
-
     def initialize
       @generate_blocks = []
     end
