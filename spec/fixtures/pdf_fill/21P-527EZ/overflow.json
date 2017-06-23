@@ -324,6 +324,7 @@
   },
   "spouseMonthlyIncome": {
     "socialSecurity": 2,
+    "civilService": 11,
     "railroad": 4,
     "serviceRetirement": 6,
     "additionalSources": [{

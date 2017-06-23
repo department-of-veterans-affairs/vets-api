@@ -758,7 +758,6 @@ module PdfFill
         net_worths[6] = financial_accts['otherProperty'][1]
         net_worths[7] = financial_accts['additionalSources'][0]
 
-        # TODO put in source
         overflow_financial_accts(net_worths, financial_accts)
 
         @form_data['netWorths'] = net_worths
