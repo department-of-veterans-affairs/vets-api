@@ -493,18 +493,6 @@
   "mobilePhone": "2123456789",
   "spouseVaFileNumber": "c22345678",
   "vaFileNumber": "c12345678",
-  "vaHospitalTreatments": [
-    {
-      "name": "hospital1",
-      "dates": ["2016-01-01", "2016-01-02"],
-      "location": "nyc"
-    },
-    {
-      "name": "hospital2",
-      "dates": ["2016-12-01", "2016-12-02", "2016-12-03", "2016-12-04"],
-      "location": "dc"
-    }
-  ],
   "disabilities": [
     {
       "name": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
