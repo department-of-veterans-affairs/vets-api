@@ -13,7 +13,6 @@ module PdfFill
         'ira' => "IRA'S, KEOGH PLANS, ETC.",
         'stocks' => 'STOCKS, BONDS, MUTUAL FUNDS, ETC.',
         'realProperty' => 'REAL PROPERTY',
-        'otherProperty' => 'ALL OTHER PROPERTY',
         'socialSecurity' => 'SOCIAL SECURITY',
         'civilService' => 'U.S. CIVIL SERVICE',
         'railroad' => 'U.S. RAILROAD RETIREMENT',
@@ -753,11 +752,9 @@ module PdfFill
           ira
           stocks
           realProperty
-          otherProperty
         ).each_with_index do |acct_type, i|
           net_worths[i] = financial_accts[acct_type][0]
         end
-        net_worths[6] = financial_accts['otherProperty'][1]
         net_worths[7] = financial_accts['additionalSources'][0]
 
         overflow_financial_accts(net_worths, financial_accts)

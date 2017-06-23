@@ -275,13 +275,11 @@
   "netWorth": {
     "bank": 1,
     "interestBank": 2,
-    "ira": 3,
-    "otherProperty": 6
+    "ira": 3
   },
   "spouseNetWorth": {
     "stocks": 4,
-    "realProperty": 5,
-    "otherProperty": 7
+    "realProperty": 5
   },
   "expectedIncome": {
     "salary": 1,
