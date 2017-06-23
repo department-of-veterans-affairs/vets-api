@@ -7,12 +7,14 @@ module Preneeds
           return unless env.url.to_s == Settings.preneeds.endpoint
 
           dump = Hash.from_xml Ox.dump(env.body)
-
           endpoint_resource = dump['Envelope']['Body'].keys[0]
-          returns = dump['Envelope']['Body'][endpoint_resource]['return']
 
-          env.response_headers['content-type'] = env.response_headers['content-type'].gsub('xml', 'json')
-          env.body = { endpoint_resource&.gsub(/Response|get|receive/, '')&.underscore&.downcase => returns }
+          unless %w(receivePreneedsApplication addAttachment).include?(endpoint_resource)
+            returns = dump['Envelope']['Body'][endpoint_resource]['return']
+
+            env.response_headers['content-type'] = env.response_headers['content-type'].gsub('xml', 'json')
+            env.body = { endpoint_resource&.gsub(/Response|get/, '')&.underscore&.downcase => returns }
+          end
         end
       end
     end

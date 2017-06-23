@@ -18,6 +18,8 @@ module Preneeds
         conn.options.open_timeout = Settings.preneeds.open_timeout
         conn.options.timeout = Settings.preneeds.timeout
 
+        conn.request :soap_headers
+
         conn.response :preneeds_parser
         conn.response :snakecase
         conn.response :soap_to_json

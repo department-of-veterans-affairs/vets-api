@@ -125,6 +125,7 @@ preneeds:
   endpoint: http://qitcalpha03.cem.va.gov:8000/eoas_SOA/PreNeedApplicationPort
   preneeds_wsdl: 'config/preneeds/wsdl/preneeds.wsdl'
   preneeds_xsd: 'config/preneeds/xsd/preneeds.xsd'
+  schemas: 'lib/preneeds/schemas/'
 
 # Settings for Redis
 # TODO(knkski): Move all redis settings here?

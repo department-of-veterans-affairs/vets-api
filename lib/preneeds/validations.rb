@@ -1,43 +1,26 @@
 # frozen_string_literal: true
 module Preneeds
   module Validations
-    RANKS_VALIDATE = [
-      { param: 'branch_of_service', required: true, reg: /\w{2}/ },
-      { param: 'start_date', required: true, reg: /\d{4}-(0[1-9]|1[012])-([012][0-9]|3[01])/ },
-      { param: 'end_date', required: true, reg: /\d{4}-(0[1-9]|1[012])-([012][0-9]|3[01])/ }
-    ].freeze
-
-    def self.get_military_rank_for_branch_of_service(params)
-      missing_fields = []
-      invalid_fields = {}
-
-      RANKS_VALIDATE.each do |info|
-        name = info[:param]
-        value = params[name]
-
-        missing_fields << name if info[:required] && value.blank?
-        invalid_fields[name] = value if info[:reg].present? && (value =~ info[:reg]).nil?
-      end
-
-      missing_fields_check(missing_fields)
-      invalid_fields_check(invalid_fields)
+    def self.military_rank_for_branch_of_service(params)
+      validate(params, 'military_rank_request.json')
     end
 
-    def self.missing_fields_check(missing_fields)
-      return if missing_fields.blank?
+    def self.validate(params, schema_name)
+      schema = Settings.preneeds.schemas + schema_name
+      errors = JSON::Validator.fully_validate(schema, params)
 
-      msg = "#{missing_fields.join(',')}: required and must be included in request"
-
-      raise Common::Exceptions::ParameterMissing.new(missing_fields.join(', '), detail: msg)
+      errors_in_request?(errors)
     end
 
-    def self.invalid_fields_check(invalid_fields)
-      return if invalid_fields.blank?
+    def self.errors_in_request?(errors)
+      return false if errors.blank?
 
-      names = invalid_fields.keys
-      values = invalid_fields.values
+      missing = errors&.map { |e| e.scan(%r{'#/\w*' did not contain a required property of '(\w+)' }) }&.flatten
+      invalid = errors&.map { |e| e.scan(%r{'#/\w+/(\w+)'}) }&.flatten
 
-      raise Common::Exceptions::InvalidFieldValue.new(names.join(', '), values.join(', '))
+      raise Common::Exceptions::ParameterMissing.new(missing.join(', '), detail: errors.join(', ')) if missing.present?
+      raise Common::Exceptions::InvalidFieldValue.new(invalid.join(', '), detail: errors.join(', ')) if invalid.present?
+      raise Common::Exceptions::InternalServerError, errors.join(', ')
     end
   end
 end

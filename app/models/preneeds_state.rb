@@ -3,10 +3,6 @@ require 'common/models/base'
 
 # PreneedsState model
 class PreneedsState < Common::Base
-  include ActiveModel::Validations
-
-  validates :code, :first_five_zip, :last_five_zip, :lower_indicator, :name, presence: true
-
   attribute :code, String
   attribute :name, String
   attribute :first_five_zip, String

@@ -3,10 +3,6 @@ require 'common/models/base'
 
 # DischargeType model
 class PreneedsAttachmentType < Common::Base
-  include ActiveModel::Validations
-
-  validates :description, :attachment_type_id, presence: true
-
   attribute :attachment_type_id, Integer
   attribute :description, String
 
