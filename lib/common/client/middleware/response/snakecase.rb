@@ -25,6 +25,7 @@ module Common
           end
 
           private
+
           def has_deserialized_body?(body)
             body.is_a?(Array) || body.is_a?(Hash)
           end
