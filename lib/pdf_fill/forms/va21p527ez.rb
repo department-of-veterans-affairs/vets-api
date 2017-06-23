@@ -64,7 +64,11 @@ module PdfFill
             key: 'F[0].Page_8[0].SavingsAccountNumber[0]'
           },
           'bankAccount' => {
-            'bankName' => { key: 'F[0].Page_8[0].Nameofbank[0]' },
+            'bankName' => {
+              limit: 44,
+              question: '30. NAME OF FINANCIAL INSTITUTION',
+              key: 'F[0].Page_8[0].Nameofbank[0]'
+            },
             'routingNumber' => { key: 'F[0].Page_8[0].Routingortransitnumber[0]' }
           },
           'noBankAccount' => { key: 'F[0].Page_8[0].Account[1]' },
