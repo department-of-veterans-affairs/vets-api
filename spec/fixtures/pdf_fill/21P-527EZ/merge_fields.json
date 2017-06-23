@@ -1,4 +1,5 @@
 {
+  "privacyAgreementAccepted": true,
   "veteranFullName": "john middle smith Sr.",
   "noBankAccount": true,
   "bankAccount": {
@@ -13,34 +14,43 @@
   "spouseDateOfBirth": "2012-06-26",
   "spouseSocialSecurityNumber": "111223334",
   "monthlySpousePayment": 1,
+  "spouseOtherExpenses": [
+    {
+      "amount": 2,
+      "purpose": "purpose2",
+      "paidTo": "paidTo2",
+      "date": "2012-04-02",
+      "relationship": "Spouse"
+    }
+  ],
   "otherExpenses": [
     {
       "amount": 1,
       "purpose": "purpose1",
       "paidTo": "paidTo1",
-      "relationship": "relationship1",
-      "date": "2012-04-01"
+      "date": "2012-04-01",
+      "relationship": "Myself"
     },
     {
       "amount": 2,
       "purpose": "purpose2",
       "paidTo": "paidTo2",
-      "relationship": "relationship2",
-      "date": "2012-04-02"
-    },
-    {
-      "amount": 3,
-      "purpose": "purpose3",
-      "paidTo": "paidTo3",
-      "relationship": "relationship3",
-      "date": "2012-04-03"
+      "date": "2012-04-02",
+      "relationship": "Spouse"
     },
     {
       "amount": 4,
       "purpose": "purpose4",
       "paidTo": "paidTo4",
-      "relationship": "relationship4",
-      "date": "2012-04-04"
+      "date": "2012-04-04",
+      "relationship": "outside1 Olson"
+    },
+    {
+      "amount": 3,
+      "purpose": "purpose3",
+      "paidTo": "paidTo3",
+      "date": "2012-04-03",
+      "relationship": "parent Olson"
     }
   ],
   "dependents": [
@@ -61,6 +71,15 @@
           }
         ]
       },
+      "otherExpenses": [
+        {
+          "amount": 4,
+          "purpose": "purpose4",
+          "paidTo": "paidTo4",
+          "date": "2012-04-04",
+          "relationship": "outside1 Olson"
+        }
+      ],
       "netWorth": {
         "additionalSources": [
           {
@@ -88,6 +107,15 @@
     {
       "dependentRelationship": "parent",
       "fullName": "parent Olson",
+      "otherExpenses": [
+        {
+          "amount": 3,
+          "purpose": "purpose3",
+          "paidTo": "paidTo3",
+          "date": "2012-04-03",
+          "relationship": "parent Olson"
+        }
+      ],
       "expectedIncome": {
         "additionalSources": [
           {
@@ -208,13 +236,11 @@
   "netWorth": {
     "bank": 1,
     "interestBank": 2,
-    "ira": 3,
-    "otherProperty": 6
+    "ira": 3
   },
   "spouseNetWorth": {
     "stocks": 4,
-    "realProperty": 5,
-    "otherProperty": 7
+    "realProperty": 5
   },
   "expectedIncome": {
     "salary": 1,
@@ -378,6 +404,15 @@
           }
         ]
       },
+      "otherExpenses": [
+        {
+          "amount": 4,
+          "purpose": "purpose4",
+          "paidTo": "paidTo4",
+          "date": "2012-04-04",
+          "relationship": "outside1 Olson"
+        }
+      ],
       "netWorth": {
         "additionalSources": [
           {
@@ -467,14 +502,8 @@
       "amount": 5
     },
     {
-      "recipient": "Myself",
-      "source": "ALL OTHER PROPERTY",
-      "amount": 6
     },
     {
-      "recipient": "Spouse",
-      "source": "ALL OTHER PROPERTY",
-      "amount": 7
     },
     {
       "recipient": "outside1 Olson",

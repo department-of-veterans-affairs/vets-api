@@ -64,16 +64,14 @@ describe PdfFill::Forms::VA21P527EZ do
           'bank' => 1
         }
       ).expand_net_worths).to eq(
-        [{ 'recipient' => 'Myself',
-           'source' => 'CASH/NON-INTEREST BEARING BANK ACCOUNTS',
-           'amount' => 1 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         nil,
-         nil]
+        [{"recipient"=>"Myself", "source"=>"CASH/NON-INTEREST BEARING BANK ACCOUNTS", "amount"=>1},
+ {"recipient"=>"Myself", "amount"=>0},
+ {"recipient"=>"Myself", "amount"=>0},
+ {"recipient"=>"Myself", "amount"=>0},
+ {"recipient"=>"Myself", "amount"=>0},
+ {},
+ {},
+ nil]
       )
     end
   end
