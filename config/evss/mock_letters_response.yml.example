@@ -109,3 +109,8 @@
         entered_date: '1973-01-01T05:00:00.000+0000'
         released_date: '1977-10-01T04:00:00.000+0000'
     :status: 200
+:download_letter_by_type:
+  '796111863':
+    'commissary': config/evss/letter.pdf
+  '796104437':
+    'commissary': config/evss/letter.pdf
