@@ -25,6 +25,11 @@ module EVSS
         EVSS::Letters::BeneficiaryResponse.new(raw_response.status, raw_response)
       end
 
+      def download_letter_by_type(type)
+        path = Rails.root.join(mocked_response[:download_letter_by_type][ssn][type])
+        File.open(path, 'rb') { |io| io.read }
+      end
+
       private
 
       def ssn
