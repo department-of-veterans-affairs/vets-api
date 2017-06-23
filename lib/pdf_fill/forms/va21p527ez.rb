@@ -58,7 +58,11 @@ module PdfFill
             key: 'F[0].Page_8[0].CheckingAccountNumber[0]'
           },
           'noRapidProcessing' => { key: 'F[0].Page_8[0].CheckBox1[0]' },
-          'savingsAccountNumber' => { key: 'F[0].Page_8[0].SavingsAccountNumber[0]' },
+          'savingsAccountNumber' => {
+            limit: 11,
+            question: '29. Savings Account Number',
+            key: 'F[0].Page_8[0].SavingsAccountNumber[0]'
+          },
           'bankAccount' => {
             'bankName' => { key: 'F[0].Page_8[0].Nameofbank[0]' },
             'routingNumber' => { key: 'F[0].Page_8[0].Routingortransitnumber[0]' }
