@@ -633,6 +633,7 @@ module PdfFill
 
           financial_accts_for_type << {
             'recipient' => recipient,
+            'source' => INCOME_TYPES_KEY[income_type],
             'amount' => amount
           }
         end
