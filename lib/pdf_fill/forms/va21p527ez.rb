@@ -52,7 +52,11 @@ module PdfFill
           'maritalStatusMarried' => { key: 'F[0].Page_6[0].CheckboxMaritalMarried[0]' },
           'hasChecking' => { key: 'F[0].Page_8[0].Account[2]' },
           'hasSavings' => { key: 'F[0].Page_8[0].Account[0]' },
-          'checkingAccountNumber' => { key: 'F[0].Page_8[0].CheckingAccountNumber[0]' },
+          'checkingAccountNumber' => {
+            limit: 11,
+            question: '29. Checking Account Number',
+            key: 'F[0].Page_8[0].CheckingAccountNumber[0]'
+          },
           'noRapidProcessing' => { key: 'F[0].Page_8[0].CheckBox1[0]' },
           'savingsAccountNumber' => { key: 'F[0].Page_8[0].SavingsAccountNumber[0]' },
           'bankAccount' => {
