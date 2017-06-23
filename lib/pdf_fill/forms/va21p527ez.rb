@@ -816,7 +816,7 @@ module PdfFill
               other_expense['relationship'] = dependent['fullName']
             end
 
-            other_expenses << dependent_other_expense
+            other_expenses += dependent_other_expenses
           end
         end
 
