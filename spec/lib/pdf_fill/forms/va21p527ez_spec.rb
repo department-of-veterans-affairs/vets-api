@@ -323,8 +323,16 @@ describe PdfFill::Forms::VA21P527EZ do
             'dates' => %w(2001 2002 2003)
           }
         ]],
-        [{ 'dates' => ['2017'], 'vaHospitalTreatmentsDates0' => ['2017'], 'vaHospitalTreatmentsDates1' => %w(2001 2002 2003) },
-         { 'dates' => %w(2001 2002 2003) }]
+        [
+          {
+            'dates' => ['2017'],
+            'vaHospitalTreatmentsDates0' => ['2017'],
+            'vaHospitalTreatmentsDates1' => %w(2001 2002 2003)
+          },
+          {
+            'dates' => %w(2001 2002 2003)
+          }
+        ]
       ]
     ]
   )
