@@ -26,7 +26,7 @@ def to_boolean(str)
   str == 'true'
 end
 
-def fake_user
+def fake_user(ssn)
   user = OpenStruct.new(
     loa: { current: 3 },
     first_name: 'Mark',
@@ -34,11 +34,11 @@ def fake_user
     last_signed_in: Time.now.utc,
     edipi: '1005329660',
     participant_id: '204225751',
-    ssn: argv_opts.ssn.to_s
+    ssn: ssn
   )
 end
 
-def user_from_mvi
+def user_from_mvi(ssn)
   Settings.mvi.mock = to_boolean(argv_opts.mock_mvi) if argv_opts.mock_mvi
   user = User.new(
     uuid: SecureRandom.uuid,
@@ -47,7 +47,7 @@ def user_from_mvi
     last_name: 'Webb',
     birth_date: '1950-10-04',
     gender: 'M',
-    ssn: argv_opts.ssn.to_s,
+    ssn: ssn,
     email: 'vets.gov.user+206@gmail.com',
     loa: {
       current: LOA::THREE,
@@ -69,10 +69,10 @@ end
 user = nil
 if argv_opts.skip_mvi
   puts "Skipping MVI lookup..."
-  user = fake_user
+  user = fake_user(argv_opts.ssn.to_s)
 else
   puts "Begining MVI lookup... mock=#{argv_opts.mock_mvi}"
-  user = user_from_mvi
+  user = user_from_mvi(argv_opts.ssn.to_s)
 end
 
 headers = EVSS::AuthHeaders.new(user).to_h
