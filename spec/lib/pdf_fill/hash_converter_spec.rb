@@ -24,7 +24,7 @@ describe PdfFill::HashConverter do
     end
 
     def call_set_value(*args)
-      final_args = [:foo, 'bar'] + args
+      final_args = ['bar'] + args
       hash_converter.set_value(*final_args)
     end
 
@@ -34,6 +34,7 @@ describe PdfFill::HashConverter do
 
         call_set_value(
           {
+            key: :foo,
             limit: 2,
             question: '1'
           },
@@ -50,12 +51,13 @@ describe PdfFill::HashConverter do
           call_set_value(
             {
               limit: 2,
+              key: 'foo',
               question: '1'
             },
             0
           )
 
-          verify_hash(foo: "See add'l info page")
+          verify_hash('foo' => "See add'l info page")
         end
       end
     end
@@ -64,6 +66,7 @@ describe PdfFill::HashConverter do
       it 'should set the hash to the value' do
         call_set_value(
           {
+            key: :foo,
             limit: 3
           },
           nil
