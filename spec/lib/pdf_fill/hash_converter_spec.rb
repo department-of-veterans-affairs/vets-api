@@ -123,6 +123,7 @@ describe PdfFill::HashConverter do
           }
         },
         toursOfDuty: {
+          limit: 10,
           discharge: { key: "form1[0].#subform[1].EnterCharacterD#{PdfFill::HashConverter::ITERATOR}[0]" },
           nestedHash: {
             dutyType: { key: "form1[0].#subform[1].EnterTypeOfDutyE#{PdfFill::HashConverter::ITERATOR}[0]" }
