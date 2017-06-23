@@ -302,43 +302,6 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     basic_class,
-    'combine_va_hospital_dates',
-    [
-      [
-        [nil],
-        nil
-      ],
-      [
-        [[
-          {}
-        ]],
-        [{ 'vaHospitalTreatmentsDates0' => nil }]
-      ],
-      [
-        [[
-          {
-            'dates' => ['2017']
-          },
-          {
-            'dates' => %w(2001 2002 2003)
-          }
-        ]],
-        [
-          {
-            'dates' => ['2017'],
-            'vaHospitalTreatmentsDates0' => ['2017'],
-            'vaHospitalTreatmentsDates1' => %w(2001 2002 2003)
-          },
-          {
-            'dates' => %w(2001 2002 2003)
-          }
-        ]
-      ]
-    ]
-  )
-
-  test_method(
-    basic_class,
     'combine_previous_names',
     [
       [
@@ -353,32 +316,6 @@ describe PdfFill::Forms::VA21P527EZ do
           }
         ]],
         'first1 last, first2 last'
-      ]
-    ]
-  )
-
-  test_method(
-    basic_class,
-    'combine_va_hospital_names',
-    [
-      [
-        [nil],
-        nil
-      ],
-      [
-        [[
-          {
-            'name' => 'hospital1',
-            'location' => 'nyc'
-          },
-          {
-            'name' => 'hospital2',
-            'location' => 'dc'
-          }
-        ]],
-        [{ 'name' => 'hospital1', 'location' => 'nyc', 'nameAndLocation' => 'hospital1, nyc' },
-         { 'name' => 'hospital2', 'location' => 'dc', 'nameAndLocation' => 'hospital2, dc' }]
-
       ]
     ]
   )

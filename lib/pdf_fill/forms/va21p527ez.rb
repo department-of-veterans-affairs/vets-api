@@ -495,14 +495,6 @@ module PdfFill
         }
       end
 
-      def combine_va_hospital_names(va_hospital_treatments)
-        return if va_hospital_treatments.blank?
-
-        va_hospital_treatments.each do |va_hospital_treatment|
-          va_hospital_treatment['nameAndLocation'] = combine_hash(va_hospital_treatment, %w(name location), ', ')
-        end
-      end
-
       def combine_name_addr(hash)
         return if hash.blank?
 
@@ -517,15 +509,6 @@ module PdfFill
           job['address'] = combine_full_address(job['address'])
           expand_date_range(job, 'dateRange')
           combine_hash_and_del_keys(job, %w(employer address), 'nameAndAddr', ', ')
-        end
-      end
-
-      def combine_va_hospital_dates(va_hospital_treatments)
-        return if va_hospital_treatments.blank?
-
-        va_hospital_treatments.each_with_index do |va_hospital_treatment, i|
-          original_dates = va_hospital_treatment['dates']
-          va_hospital_treatments[0]["vaHospitalTreatmentsDates#{i}"] = original_dates
         end
       end
 
