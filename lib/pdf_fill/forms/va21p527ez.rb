@@ -7,6 +7,15 @@ module PdfFill
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
       DATE_STRFTIME = '%m/%d/%Y'
+      INCOME_TYPES_KEY = {
+        'bank' => 'CASH/NON-INTEREST BEARING BANK ACCOUNTS',
+        'interestBank' => 'INTEREST-BEARING BANK ACCOUNTS',
+        'ira' => "IRA'S, KEOGH PLANS, ETC.",
+        'stocks' => 'STOCKS, BONDS, MUTUAL FUNDS, ETC.',
+        'realProperty' => 'REAL PROPERTY',
+        'otherProperty' => 'ALL OTHER PROPERTY',
+      }
+
       KEY = lambda do
         key = {
           'vaFileNumber' => { key: 'F[0].Page_5[0].VAfilenumber[0]' },
