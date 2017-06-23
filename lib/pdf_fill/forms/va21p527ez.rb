@@ -327,7 +327,7 @@ module PdfFill
             },
             'recipient' => {
               limit: 34,
-              question: "#{question_num}. Amount",
+              question: "#{question_num}. Recipient",
               key: "#{acct_type}.recipient[#{ITERATOR}]"
             }
           }
