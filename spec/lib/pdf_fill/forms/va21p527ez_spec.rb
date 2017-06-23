@@ -20,12 +20,7 @@ describe PdfFill::Forms::VA21P527EZ do
           'salary' => 1
         }
       ).expand_expected_incomes).to eq(
-        [{ 'recipient' => 'Myself', 'amount' => 1 },
-         nil,
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         nil,
-         nil,
-         nil]
+        [{"recipient"=>"Myself", "source"=>"GROSS WAGES AND SALARY", "amount"=>1}, nil, {"recipient"=>"Myself", "amount"=>0}, nil, nil, nil]
       )
     end
   end
@@ -37,7 +32,7 @@ describe PdfFill::Forms::VA21P527EZ do
           'socialSecurity' => 1
         }
       ).expand_monthly_incomes).to eq(
-        [{ 'recipient' => 'Myself', 'amount' => 1 },
+        [{"recipient"=>"Myself", "source"=>"SOCIAL SECURITY", "amount"=>1},
          nil,
          { 'recipient' => 'Myself', 'amount' => 0 },
          { 'recipient' => 'Myself', 'amount' => 0 },
@@ -58,14 +53,16 @@ describe PdfFill::Forms::VA21P527EZ do
           'bank' => 1
         }
       ).expand_net_worths).to eq(
-        [{ 'recipient' => 'Myself', 'amount' => 1 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         nil,
-         nil]
+        [{"recipient"=>"Myself",
+  "source"=>"CASH/NON-INTEREST BEARING BANK ACCOUNTS",
+  "amount"=>1},
+ {"recipient"=>"Myself", "amount"=>0},
+ {"recipient"=>"Myself", "amount"=>0},
+ {"recipient"=>"Myself", "amount"=>0},
+ {"recipient"=>"Myself", "amount"=>0},
+ {"recipient"=>"Myself", "amount"=>0},
+ nil,
+ nil]
       )
     end
   end
@@ -148,11 +145,15 @@ describe PdfFill::Forms::VA21P527EZ do
             'interest' => []
           }
         ],
-        { 'salary' => [{ 'recipient' => 'person', 'amount' => 1 }],
-          'additionalSources' =>
-          [{ 'recipient' => 'person', 'amount' => 3, 'additionalSourceName' => 'name1' },
-           { 'recipient' => 'person', 'amount' => 4, 'additionalSourceName' => 'name2' }],
-          'interest' => [{ 'recipient' => 'person', 'amount' => 2 }] }
+        {"salary"=>
+  [{"recipient"=>"person", "source"=>"GROSS WAGES AND SALARY", "amount"=>1}],
+ "additionalSources"=>
+  [{"recipient"=>"person", "amount"=>3, "additionalSourceName"=>"name1"},
+   {"recipient"=>"person", "amount"=>4, "additionalSourceName"=>"name2"}],
+ "interest"=>
+  [{"recipient"=>"person",
+    "source"=>"TOTAL DIVIDENDS AND INTEREST",
+    "amount"=>2}]}
       ]
     ]
   )
@@ -243,7 +244,7 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     basic_class,
-    'rearrange_jobs',
+    'expand_jobs',
     [
       [
         [nil],
@@ -272,71 +273,18 @@ describe PdfFill::Forms::VA21P527EZ do
             'jobTitle' => 'worker2',
             'daysMissed' => '2' }
         ]],
-        [{ 'daysMissed' => '1',
-           'dateRange' => { 'from' => '2012-04-01', 'to' => '2013-05-01' },
-           'jobTitle' => 'worker2',
-           'annualEarnings' => 20,
-           'nameAndAddr' => 'job2, str2, city2, MD, 21231, USA' },
-         { 'daysMissed' => '2',
-           'dateRange' => { 'from' => '2012-04-02', 'to' => '2013-05-02' },
-           'jobTitle' => 'worker1',
-           'annualEarnings' => 10,
-           'nameAndAddr' => 'job1, str1, city1, MD, 21231, USA' }]
-      ]
-    ]
-  )
-
-  test_method(
-    basic_class,
-    'get_disability_names',
-    [
-      [
-        [nil],
-        nil
-      ],
-      [
-        [[
-          { 'name' => 'name1' },
-          { 'name' => 'name2' }
-        ]],
-        %w(
-          name2 name1
-        )
-      ],
-      [
-        [[
-          { 'name' => 'name1' }
-        ]],
-        [
-          nil, 'name1'
-        ]
-      ]
-    ]
-  )
-
-  test_method(
-    basic_class,
-    'rearrange_hospital_dates',
-    [
-      [
-        [nil],
-        nil
-      ],
-      [
-        [[
-          0, 1, 2, 3, 4, 5
-        ]],
-        [
-          3, 4, 1, 0, 2, 5
-        ]
-      ],
-      [
-        [[
-          0, 1, nil, 3, 4, 5
-        ]],
-        [
-          3, 4, 1, 0, nil, 5
-        ]
+        [{"annualEarnings"=>10,
+  "jobTitle"=>"worker1",
+  "daysMissed"=>"1",
+  "dateRangeStart"=>"2012-04-01",
+  "dateRangeEnd"=>"2013-05-01",
+  "nameAndAddr"=>"job1, str1, city1, MD, 21231, USA"},
+ {"annualEarnings"=>20,
+  "jobTitle"=>"worker2",
+  "daysMissed"=>"2",
+  "dateRangeStart"=>"2012-04-02",
+  "dateRangeEnd"=>"2013-05-02",
+  "nameAndAddr"=>"job2, str2, city2, MD, 21231, USA"}]
       ]
     ]
   )
@@ -353,9 +301,7 @@ describe PdfFill::Forms::VA21P527EZ do
         [[
           {}
         ]],
-        [
-          nil, nil, nil
-        ]
+        [{"vaHospitalTreatmentsDates0"=>nil}]
       ],
       [
         [[
@@ -366,9 +312,8 @@ describe PdfFill::Forms::VA21P527EZ do
             'dates' => %w(2001 2002 2003)
           }
         ]],
-        [
-          '2017', nil, nil, '2001', '2002', '2003'
-        ]
+        [{"dates"=>["2017"], "vaHospitalTreatmentsDates0"=>["2017"], "vaHospitalTreatmentsDates1"=>["2001", "2002", "2003"]},
+ {"dates"=>["2001", "2002", "2003"]}]
       ]
     ]
   )
@@ -412,10 +357,7 @@ describe PdfFill::Forms::VA21P527EZ do
             'location' => 'dc'
           }
         ]],
-        [
-          'hospital1, nyc',
-          'hospital2, dc'
-        ]
+        [{"name"=>"hospital1", "location"=>"nyc", "nameAndLocation"=>"hospital1, nyc"}, {"name"=>"hospital2", "location"=>"dc", "nameAndLocation"=>"hospital2, dc"}]
       ]
     ]
   )
@@ -663,6 +605,7 @@ describe PdfFill::Forms::VA21P527EZ do
           {
             children: [
               {
+                'dependentRelationship' => 'child',
                 'childFullName' => {
                   'first' => 'outside1',
                   'last' => 'Olson'
@@ -677,6 +620,7 @@ describe PdfFill::Forms::VA21P527EZ do
                 'childNotInHousehold' => true
               },
               {
+                'dependentRelationship' => 'child',
                 'childFullName' => {
                   'first' => 'outside1',
                   'last' => 'Olson'
@@ -693,23 +637,27 @@ describe PdfFill::Forms::VA21P527EZ do
           },
           :children
         ],
-        { :children =>
-          [{ 'childFullName' => 'outside1 Olson',
-             'childAddress' => 'str1, city1, MD, 21231, USA',
-             'personWhoLivesWithChild' => nil },
-           { 'childFullName' => nil, 'personWhoLivesWithChild' => nil, 'childAddress' => nil },
-           { 'childFullName' => nil,
-             'personWhoLivesWithChild' => nil,
-             'childAddress' => nil }],
-          'outsideChildren' =>
-          [{ 'childFullName' => 'outside1 Olson',
-             'childAddress' => 'str1, city1, MD, 21231, USA',
-             'childNotInHousehold' => true,
-             'personWhoLivesWithChild' => nil },
-           { 'childFullName' => nil, 'personWhoLivesWithChild' => nil, 'childAddress' => nil },
-           { 'childFullName' => nil,
-             'personWhoLivesWithChild' => nil,
-             'childAddress' => nil }] }
+        {:children=>
+  [{"dependentRelationship"=>"child",
+    "childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
+    "childAddress"=>"str1, city1, MD, 21231, USA",
+    "childNotInHousehold"=>true,
+    "personWhoLivesWithChild"=>nil},
+   {"dependentRelationship"=>"child",
+    "childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
+    "childAddress"=>"str1, city1, MD, 21231, USA",
+    "personWhoLivesWithChild"=>nil}],
+ "children"=>[],
+ "outsideChildren"=>
+  [{"dependentRelationship"=>"child",
+    "childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
+    "childAddress"=>"str1, city1, MD, 21231, USA",
+    "childNotInHousehold"=>true,
+    "personWhoLivesWithChild"=>nil},
+   {"dependentRelationship"=>"child",
+    "childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
+    "childAddress"=>"str1, city1, MD, 21231, USA",
+    "personWhoLivesWithChild"=>nil}]}
       ]
     ]
   )
