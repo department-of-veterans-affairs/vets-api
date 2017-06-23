@@ -1,37 +1,75 @@
 # frozen_string_literal: true
 # Usage example:
 # $> bundle exec rails r script/evss_connection_tester.rb 796066621 true
+argv_opts = OpenStruct.new
+OptionParser.new do |opt|
+  opt.banner = "Usage: bundle exec rails r script/evss_connection_tester [options]"
+  opt.on('-s', '--ssn SSN', 'Social Security Number') { |o| argv_opts.ssn = o }
+  opt.on('--skip-mvi-lookup', 'Skip MVI Lookup') { |o| argv_opts.skip_mvi = o }
+  opt.on('--mock-mvi MOCK_MVI', 'Use the mock MVI') { |o| argv_opts.mock_mvi = o }
+  # Rails runner consumes any -h or --help arguments, so I use --hh
+  opt.on('--hh', "Prints Help for EVSS test script") do
+    puts opt
+    exit
+  end
+end.parse!
+
+raise 'Must provide a SSN! (use --ssn=)' unless argv_opts.ssn
+raise 'Must specify mock MVI (use --mock-mvi=true|false)' unless argv_opts.mock_mvi || argv_opts.skip_mvi
+
 def to_boolean(str)
   str == 'true'
 end
 
-raise 'Must provide a SSN!' unless ARGV[0]
-ssn = ARGV[0]
-
-Settings.mvi.mock = to_boolean(ARGV[1]) if ARGV[1]
-
-user = User.new(
-  uuid: SecureRandom.uuid,
-  first_name: 'Mark',
-  middle_name: '',
-  last_name: 'Webb',
-  birth_date: '1950-10-04',
-  gender: 'M',
-  ssn: ssn.to_s,
-  email: 'vets.gov.user+206@gmail.com',
-  loa: {
-    current: LOA::THREE,
-    highest: LOA::THREE
-  }
-)
-user.last_signed_in = Time.now.utc
-begin
-  user.va_profile
-rescue Common::Exceptions::ValidationErrors
-  puts 'User not found in MVI!'
+def fake_user
+  user = OpenStruct.new(
+    loa: { current: 3 },
+    first_name: 'Mark',
+    last_name: 'Webb',
+    last_signed_in: Time.now.utc,
+    edipi: '1005329660',
+    participant_id: '204225751',
+    ssn: argv_opts.ssn.to_s
+  )
 end
-puts 'User not found in  real MVI!' if user.va_profile.nil? && Settings.mvi.mock == false
-user.va_profile.edipi = '1005329660'
+
+def user_from_mvi
+  Settings.mvi.mock = to_boolean(argv_opts.mock_mvi) if argv_opts.mock_mvi
+  user = User.new(
+    uuid: SecureRandom.uuid,
+    first_name: 'Mark',
+    middle_name: '',
+    last_name: 'Webb',
+    birth_date: '1950-10-04',
+    gender: 'M',
+    ssn: argv_opts.ssn.to_s,
+    email: 'vets.gov.user+206@gmail.com',
+    loa: {
+      current: LOA::THREE,
+      highest: LOA::THREE
+    }
+  )
+  user.last_signed_in = Time.now.utc
+  begin
+    user.va_profile
+  rescue Common::Exceptions::ValidationErrors
+    puts 'User not found in MVI!'
+  end
+
+  raise 'User not found in MVI!' if user.va_profile.nil?
+  user.va_profile.edipi = '1005329660'
+end
+
+
+user = nil
+if argv_opts.skip_mvi
+  puts "Skipping MVI lookup..."
+  user = fake_user
+else
+  puts "Begining MVI lookup... mock=#{argv_opts.mock_mvi}"
+  user = user_from_mvi
+end
+
 headers = EVSS::AuthHeaders.new(user).to_h
 service = EVSS::GiBillStatus::Service.new(headers)
 
