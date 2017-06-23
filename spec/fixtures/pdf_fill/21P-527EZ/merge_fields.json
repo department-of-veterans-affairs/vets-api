@@ -276,36 +276,6 @@
   "mobilePhone": "3456789",
   "spouseVaFileNumber": "c22345678",
   "vaFileNumber": "c12345678",
-  "vaHospitalTreatments": [
-    {
-      "name": "hospital1",
-      "dates": [
-        "2016-01-01",
-        "2016-01-02"
-      ],
-      "location": "nyc",
-      "nameAndLocation": "hospital1, nyc",
-      "vaHospitalTreatmentsDates0": [
-        "2016-01-01",
-        "2016-01-02"
-      ],
-      "vaHospitalTreatmentsDates1": [
-        "2016-12-01",
-        "2016-12-02",
-        "2016-12-03"
-      ]
-    },
-    {
-      "name": "hospital2",
-      "dates": [
-        "2016-12-01",
-        "2016-12-02",
-        "2016-12-03"
-      ],
-      "location": "dc",
-      "nameAndLocation": "hospital2, dc"
-    }
-  ],
   "disabilities": [
     {
       "name": "disability 1",

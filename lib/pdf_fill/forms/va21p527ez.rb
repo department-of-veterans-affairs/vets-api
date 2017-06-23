@@ -173,25 +173,6 @@ module PdfFill
             'date' => { key: 'F[0].Page_5[0].DateofActivation[0]' },
             'phoneAreaCode' => { key: 'F[0].Page_5[0].Unittelephoneareacode[0]' }
           },
-          'vaHospitalTreatments' => {
-            limit: 2,
-            first_key: 'nameAndLocation',
-            'vaHospitalTreatmentsDates0' => {
-              key: "vaHospitalTreatments.dates[0][#{ITERATOR}]"
-            },
-            'vaHospitalTreatmentsDates1' => {
-              key: "vaHospitalTreatments.dates[1][#{ITERATOR}]"
-            },
-            'nameAndLocation' => {
-              question: '10A. NAME AND LOCATION OF VA MEDICAL CENTER',
-              limit: 46,
-              key: "vaHospitalTreatments.nameAndLocation[#{ITERATOR}]"
-            },
-            'dates' => {
-              question: '10B. DATE(S) OF TREATMENT',
-              limit: 3
-            }
-          },
           'spouseAddress' => {
             limit: 47,
             question: "22F. WHAT IS YOUR SPOUSE'S ADDRESS?",
@@ -868,11 +849,6 @@ module PdfFill
         end
 
         replace_phone_fields
-
-        @form_data['vaHospitalTreatments'].tap do |va_hospital_treatments|
-          combine_va_hospital_names(va_hospital_treatments)
-          combine_va_hospital_dates(va_hospital_treatments)
-        end
 
         @form_data['cityState'] = combine_city_state(@form_data['veteranAddress'])
         @form_data['veteranAddressLine1'] = combine_address(@form_data['veteranAddress'])
