@@ -376,7 +376,9 @@ describe PdfFill::Forms::VA21P527EZ do
             'location' => 'dc'
           }
         ]],
-        [{ 'name' => 'hospital1', 'location' => 'nyc', 'nameAndLocation' => 'hospital1, nyc' }, { 'name' => 'hospital2', 'location' => 'dc', 'nameAndLocation' => 'hospital2, dc' }]
+        [{ 'name' => 'hospital1', 'location' => 'nyc', 'nameAndLocation' => 'hospital1, nyc' },
+         { 'name' => 'hospital2', 'location' => 'dc', 'nameAndLocation' => 'hospital2, dc' }]
+
       ]
     ]
   )
