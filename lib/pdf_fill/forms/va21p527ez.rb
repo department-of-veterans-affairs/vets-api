@@ -321,6 +321,7 @@ module PdfFill
               question: "#{question_num}. Source"
             },
             'additionalSourceName' => {
+              limit: 14,
               question: "#{question_num}. Source",
               key: "#{acct_type}.additionalSourceName[#{ITERATOR}]"
             },
