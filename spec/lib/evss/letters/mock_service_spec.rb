@@ -33,7 +33,7 @@ describe EVSS::Letters::MockService do
     describe 'download_letter_by_type' do
       before do
         allow(Rails.root).to receive(:join)
-          .with('config', 'evss', 'letter.pdf')
+          .with('config/evss/letter.pdf')
           .and_return(root.join('config', 'evss', 'letter.pdf.example'))
       end
       it 'returns a hash of the hard coded response' do

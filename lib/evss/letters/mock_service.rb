@@ -27,6 +27,7 @@ module EVSS
 
       def download_letter_by_type(type)
         path = Rails.root.join(mocked_response[:download_letter_by_type][ssn][type])
+        puts path
         File.open(path, 'rb', &:read)
       end
 
