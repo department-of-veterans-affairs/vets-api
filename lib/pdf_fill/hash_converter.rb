@@ -87,8 +87,7 @@ module PdfFill
     end
 
     def check_for_overflow(arr, pdftk_keys)
-      # TODO: remove limit.present when all limits filled in
-      if pdftk_keys[:limit].present? && arr.size > pdftk_keys[:limit]
+      if arr.size > pdftk_keys[:limit]
         return true
       end
 
