@@ -10,20 +10,24 @@ module Common
           end
 
           def on_complete(env)
-            return unless env.response_headers['content-type'] =~ /\bjson/
+            # return false unless env.response_headers['content-type'] =~ /\b(xml|json)/
+            return unless has_deserialized_body?(env.body)
             env.body = parse(env.body)
           end
 
-          def parse(parsed_json)
-            case parsed_json
+          def parse(parsed_object)
+            case parsed_object
             when Array
-              parsed_json.map { |hash| transform(hash) }
+              parsed_object.map { |hash| transform(hash) }
             when Hash
-              transform(parsed_json)
+              transform(parsed_object)
             end
           end
 
           private
+          def has_deserialized_body?(body)
+            body.is_a?(Array) || body.is_a?(Hash)
+          end
 
           def transform(hash)
             if @symbolize
