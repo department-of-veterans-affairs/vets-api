@@ -70,7 +70,11 @@ module PdfFill
       end
     end
 
-    def set_value(k, v, key_data, i)
+    def set_value(v, key_data, i)
+      k = key_data[:key]
+      return if k.blank?
+      k = k.gsub(ITERATOR, i.to_s) unless i.nil?
+
       new_value = convert_value(v)
 
       if overflow?(key_data, new_value)
@@ -134,10 +138,7 @@ module PdfFill
           )
         end
       else
-        key = pdftk_keys[:key]
-        return if key.blank?
-        key = key.gsub(ITERATOR, i.to_s) unless i.nil?
-        set_value(key, form_data, pdftk_keys, i)
+        set_value(form_data, pdftk_keys, i)
       end
 
       @pdftk_form
