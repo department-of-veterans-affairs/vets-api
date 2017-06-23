@@ -727,6 +727,8 @@ module PdfFill
           monthly_incomes[i] = financial_accts['additionalSources'][j]
         end
 
+        overflow_financial_accts(monthly_incomes, financial_accts)
+
         @form_data['monthlyIncomes'] = monthly_incomes
       end
 
@@ -777,6 +779,8 @@ module PdfFill
         (3..5).each_with_index do |i, j|
           expected_incomes[i] = financial_accts['additionalSources'][j]
         end
+
+        overflow_financial_accts(expected_incomes, financial_accts)
 
         @form_data['expectedIncomes'] = expected_incomes
       end
