@@ -23,7 +23,7 @@ module Workflow
     def self.perform_async(next_step, metadata)
       Sidekiq::Client.push(
         'class'   => self,
-        'wrapped' => next_step,
+        'wrapped' => metadata[:internal][:chain][next_step][:mod],
         'queue'   => QUEUE,
         'args'    => [next_step, metadata]
       )

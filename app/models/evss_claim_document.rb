@@ -72,6 +72,7 @@ class EVSSClaimDocument < Common::Base
   end
 
   def unencrypted_pdf?
+    return if FeatureFlipper.evss_upload_workflow?
     return unless file_name =~ /\.pdf$/i
     xref = PDF::Reader::XRef.new file_obj.tempfile
     errors.add(:base, 'PDF must not be encrypted') if xref.trailer[:Encrypt].present?
@@ -81,6 +82,7 @@ class EVSSClaimDocument < Common::Base
   end
 
   def normalize_text
+    return if FeatureFlipper.evss_upload_workflow?
     return unless file_name =~ /\.txt$/i
     text = file_obj.read
     text = text.encode(EVSS_TEXT_ENCODING)

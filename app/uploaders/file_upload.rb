@@ -2,7 +2,7 @@
 class FileUpload
   class_attribute :uploader
   class_attribute :workflow
-  attr_accessor :options
+  attr_accessor :options, :errors
 
   def initialize(**args)
     raise 'Need a uploader!' unless uploader && uploader < Shrine
@@ -14,13 +14,22 @@ class FileUpload
   def start!(file, trace: nil)
     # run the shrine upload process.
     @attacher.assign(file)
-    raise ArgumentError, @attacher.errors.join(',') unless @attacher.errors.blank?
+    fail! unless @attacher.errors.blank?
     # Pass in the Shrine-serialized uploaded file to the workflow
     w = workflow.new(@attacher, @options)
-    w.start!(trace: trace)
+    job_id = w.start!(trace: trace)
+    { job_id: job_id, file: @attacher.get }
   end
 
   private
+
+  def fail!
+    error = Struct.new(:key, :message)
+    @errors = @attacher.errors.map do |e|
+      error.new(:file, e)
+    end
+    raise Common::Exceptions::UploadErrors, self
+  end
 
   def uploader
     self.class.uploader

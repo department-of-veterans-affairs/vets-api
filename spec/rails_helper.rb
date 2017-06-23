@@ -128,6 +128,7 @@ RSpec.configure do |config|
     stub_mvi unless example.metadata[:skip_mvi]
     stub_veteran_status unless example.metadata[:skip_veteran_status]
     Sidekiq::Worker.clear_all
+    Shrine.storages.values.map(&:clear!)
   end
 
   # clean up carrierwave uploads

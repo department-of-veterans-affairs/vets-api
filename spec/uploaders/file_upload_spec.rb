@@ -4,8 +4,8 @@ require 'rails_helper'
 class SpecUploaderClass < Shrine
   plugin :validation_helpers
   Attacher.validate do
-    # validate_min_size 1024
     validate_min_size 1.kilobytes
+    validate_extension_inclusion %w(md)
   end
 end
 
@@ -48,8 +48,14 @@ RSpec.describe FileUpload do
 
     it 'returns validation errors' do
       expect_any_instance_of(SpecUploaderTask).not_to receive(:run)
-      expect { klass.new.start!(bad_file) }
-        .to raise_exception(/too small/)
+      instance = klass.new
+      expect { instance.start!(bad_file) }.to raise_error do |e|
+        expect(e).to be_a(Common::Exceptions::UploadErrors)
+        expect(e.errors.count).to eq(2)
+        error_messages = e.errors.map(&:title)
+        expect(error_messages).to include(/too small/)
+        expect(error_messages).to include(/allowed format/)
+      end
     end
 
     it 'runs the workflow when the upload is valid' do

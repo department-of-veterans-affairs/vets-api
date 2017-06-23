@@ -8,6 +8,10 @@ module FeatureFlipper
     Settings.reports.server.include?('stage')
   end
 
+  def self.evss_upload_workflow?
+    Rails.env.development? || Settings.evss.workflow_uploader_enabled
+  end
+
   def self.enable_prefill?(user)
     # just in case.
     return false unless user&.ssn

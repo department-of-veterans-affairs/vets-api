@@ -3,10 +3,6 @@ require 'rails_helper'
 require 'evss/document_upload'
 
 RSpec.describe 'Documents management', type: :request do
-  before do
-    allow(FeatureFlipper).to receive(:evss_upload_workflow?).and_return(false)
-  end
-
   let(:file) do
     fixture_file_upload(
       "#{::Rails.root}/spec/fixtures/files/doctors-note.pdf",
@@ -26,9 +22,9 @@ RSpec.describe 'Documents management', type: :request do
     params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }
     expect do
       post '/v0/evss_claims/189625/documents', params, 'Authorization' => "Token token=#{session.token}"
-    end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
+    end.to change(Workflow::Runner.jobs, :size).by(1)
     expect(response.status).to eq(202)
-    expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
+    expect(JSON.parse(response.body)['job_id']).to eq(Workflow::Runner.jobs.first['jid'])
   end
 
   it 'should reject files with invalid document_types' do
@@ -41,9 +37,9 @@ RSpec.describe 'Documents management', type: :request do
   it 'should normalize requests with a null tracked_item_id' do
     params = { file: file, tracked_item_id: 'null', document_type: document_type }
     post '/v0/evss_claims/189625/documents', params, 'Authorization' => "Token token=#{session.token}"
-    args = EVSS::DocumentUpload.jobs.first['args'][2]
+    args = Workflow::Runner.jobs.first['args'][1]['options']['document']
     expect(response.status).to eq(202)
-    expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
+    expect(JSON.parse(response.body)['job_id']).to eq(Workflow::Runner.jobs.first['jid'])
     expect(args.key?('tracked_item_id')).to eq(true)
     expect(args['tracked_item_id']).to be_nil
   end
@@ -60,7 +56,7 @@ RSpec.describe 'Documents management', type: :request do
       params = { file: locked_file, tracked_item_id: tracked_item_id, document_type: document_type }
       post '/v0/evss_claims/189625/documents', params, 'Authorization' => "Token token=#{session.token}"
       expect(response.status).to eq(422)
-      expect(JSON.parse(response.body)['errors'].first['title']).to eq('PDF must not be encrypted')
+      expect(JSON.parse(response.body)['errors'].first['title']).to eq(I18n.t('uploads.pdf.locked'))
     end
   end
 
@@ -72,11 +68,13 @@ RSpec.describe 'Documents management', type: :request do
       fixture_file_upload(f.path, 'application/pdf')
     end
 
-    it 'should reject a file that is not really a PDF' do
+    it 'should accept a file that is not really a PDF' do
       params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
       post '/v0/evss_claims/189625/documents', params, 'Authorization' => "Token token=#{session.token}"
-      expect(response.status).to eq(422)
-      expect(JSON.parse(response.body)['errors'].first['title']).to eq('PDF is malformed')
+      expect(response.status).to eq(202)
+      args = Workflow::Runner.jobs.first['args'][1]['internal']['file']
+      mime_type = JSON.parse(args)['metadata']['mime_type']
+      expect(mime_type).to eq('text/plain')
     end
   end
 
@@ -110,7 +108,7 @@ RSpec.describe 'Documents management', type: :request do
       params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
       post '/v0/evss_claims/189625/documents', params, 'Authorization' => "Token token=#{session.token}"
       expect(response.status).to eq(202)
-      expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
+      expect(JSON.parse(response.body)['job_id']).to eq(Workflow::Runner.jobs.first['jid'])
     end
   end
 

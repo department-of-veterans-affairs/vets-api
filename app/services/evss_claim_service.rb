@@ -42,11 +42,21 @@ class EVSSClaimService
 
   # upload file to s3 and enqueue job to upload to EVSS
   def upload_document(evss_claim_document)
-    uploader = EVSSClaimDocumentUploader.new(@user.uuid, evss_claim_document.tracked_item_id)
-    uploader.store!(evss_claim_document.file_obj)
-    # the uploader sanitizes the filename before storing, so set our doc to match
-    evss_claim_document.file_name = uploader.filename
-    EVSS::DocumentUpload.perform_async(auth_headers, @user.uuid, evss_claim_document.to_serializable_hash)
+    if FeatureFlipper.evss_upload_workflow?
+      params = {
+        user_uuid: @user.uuid,
+        auth_headers: auth_headers,
+        document: evss_claim_document.to_serializable_hash
+      }
+      uploader = Evss::Document.new(params)
+      uploader.start!(evss_claim_document.file_obj)
+    else
+      uploader = EVSSClaimDocumentUploader.new(@user.uuid, evss_claim_document.tracked_item_id)
+      uploader.store!(evss_claim_document.file_obj)
+      # the uploader sanitizes the filename before storing, so set our doc to match
+      evss_claim_document.file_name = uploader.filename
+      EVSS::DocumentUpload.perform_async(auth_headers, @user.uuid, evss_claim_document.to_serializable_hash)
+    end
   end
 
   def rating_info
