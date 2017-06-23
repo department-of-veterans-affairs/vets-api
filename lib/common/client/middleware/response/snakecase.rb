@@ -11,7 +11,7 @@ module Common
 
           def on_complete(env)
             # return false unless env.response_headers['content-type'] =~ /\b(xml|json)/
-            return unless has_deserialized_body?(env.body)
+            return unless deserialized_body?(env.body)
             env.body = parse(env.body)
           end
 
@@ -26,7 +26,7 @@ module Common
 
           private
 
-          def has_deserialized_body?(body)
+          def deserialized_body?(body)
             body.is_a?(Array) || body.is_a?(Hash)
           end
 
