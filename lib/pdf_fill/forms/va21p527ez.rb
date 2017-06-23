@@ -829,8 +829,6 @@ module PdfFill
         end
         replace_phone(@form_data['nationalGuard'], 'phone')
       end
-
-      # rubocop:disable Metrics/AbcSize
       # rubocop:disable Metrics/MethodLength
       def merge_fields
         @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
