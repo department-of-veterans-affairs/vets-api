@@ -56,6 +56,13 @@
       "paidTo": "paidTo4",
       "relationship": "relationship4",
       "date": "2012-04-04"
+    },
+    {
+      "amount": 5,
+      "purpose": "purpose4",
+      "paidTo": "paidTo4",
+      "relationship": "relationship4",
+      "date": "2012-04-04"
     }
   ],
   "dependents": [

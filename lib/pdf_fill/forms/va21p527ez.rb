@@ -61,6 +61,8 @@ module PdfFill
           },
           'noBankAccount' => { key: 'F[0].Page_8[0].Account[1]' },
           'otherExpenses' => {
+            limit: 4,
+            first_key: 'purpose',
             'amount' => { key: 'otherExpenses.amount[%iterator%]' },
             'purpose' => { key: 'otherExpenses.purpose[%iterator%]' },
             'paidTo' => { key: 'otherExpenses.paidTo[%iterator%]' },
