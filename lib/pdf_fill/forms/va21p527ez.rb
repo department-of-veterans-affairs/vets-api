@@ -14,6 +14,14 @@ module PdfFill
         'stocks' => 'STOCKS, BONDS, MUTUAL FUNDS, ETC.',
         'realProperty' => 'REAL PROPERTY',
         'otherProperty' => 'ALL OTHER PROPERTY',
+        'socialSecurity' => 'SOCIAL SECURITY',
+        'civilService' => 'U.S. CIVIL SERVICE',
+        'railroad' => 'U.S. RAILROAD RETIREMENT',
+        'blackLung' => 'BLACK LUNG BENEFITS',
+        'serviceRetirement' => 'SERVICE RETIREMENT',
+        'ssi' => 'SUPPLEMENTAL SECURITY INCOME (SSI)/PUBLIC ASSISTANCE',
+        'salary' => 'GROSS WAGES AND SALARY',
+        'interest' => 'TOTAL DIVIDENDS AND INTEREST'
       }
 
       KEY = lambda do
