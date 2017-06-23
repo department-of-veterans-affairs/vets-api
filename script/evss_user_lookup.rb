@@ -1,9 +1,14 @@
 # frozen_string_literal: true
-# Usage example:
-# $> bundle exec rails r script/evss_connection_tester.rb 796066621 true
+# Example usages:
+#   Use Real MVI Lookup
+#   $> bundle exec rails r script/evss_user_lookup.rb --ssn=796066621 --mock-mvi=false
+#   Use Mock MVI Lookup
+#   $> bundle exec rails r script/evss_user_lookup.rb --ssn=796066621 --mock-mvi=true
+#   Skip MVI Lookup
+#   $> bundle exec rails r script/evss_user_lookup.rb --ssn=796066621 --skip-mvi-lookup
 argv_opts = OpenStruct.new
 OptionParser.new do |opt|
-  opt.banner = "Usage: bundle exec rails r script/evss_connection_tester [options]"
+  opt.banner = "Usage: bundle exec rails r script/evss_user_lookup [options]"
   opt.on('-s', '--ssn SSN', 'Social Security Number') { |o| argv_opts.ssn = o }
   opt.on('--skip-mvi-lookup', 'Skip MVI Lookup') { |o| argv_opts.skip_mvi = o }
   opt.on('--mock-mvi MOCK_MVI', 'Use the mock MVI') { |o| argv_opts.mock_mvi = o }
