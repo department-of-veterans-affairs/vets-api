@@ -800,6 +800,32 @@ module PdfFill
         @form_data
       end
 
+      def combine_other_expenses
+        other_expenses = @form_data['otherExpenses'] || []
+        other_expenses.each do |other_expense|
+          other_expense['relationship'] = 'Myself'
+        end
+
+        spouse_other_expenses = @form_data['spouseOtherExpenses']
+        spouse_other_expenses&.each do |other_expense|
+          other_expense['relationship'] = 'Spouse'
+        end
+        other_expenses += spouse_other_expenses if spouse_other_expenses.present?
+
+        @form_data['dependents']&.each do |dependent|
+          dependent_other_expenses = dependent['otherExpenses']
+          if dependent_other_expenses.present?
+            dependent_other_expenses.each do |other_expense|
+              other_expense['relationship'] = dependent['fullName']
+            end
+
+            other_expenses << dependent_other_expense
+          end
+        end
+
+        @form_data['otherExpenses'] = other_expenses
+      end
+
       def replace_phone_fields
         %w(nightPhone dayPhone mobilePhone).each do |attr|
           replace_phone(@form_data, attr)
@@ -863,6 +889,7 @@ module PdfFill
         expand_expected_incomes
         expand_net_worths
         expand_monthly_incomes
+        combine_other_expenses
 
         expand_bank_acct(@form_data['bankAccount'])
 

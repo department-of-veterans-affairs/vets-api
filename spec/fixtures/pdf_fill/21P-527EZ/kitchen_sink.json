@@ -29,34 +29,20 @@
     "from": "2012-06-26",
     "to": "2013-04-10"
   },
+  "spouseOtherExpenses": [
+    {
+      "amount": 2,
+      "purpose": "purpose2",
+      "paidTo": "paidTo2",
+      "date": "2012-04-02"
+    }
+  ],
   "otherExpenses": [
     {
       "amount": 1,
       "purpose": "purpose1",
       "paidTo": "paidTo1",
-      "relationship": "relationship1",
       "date": "2012-04-01"
-    },
-    {
-      "amount": 2,
-      "purpose": "purpose2",
-      "paidTo": "paidTo2",
-      "relationship": "relationship2",
-      "date": "2012-04-02"
-    },
-    {
-      "amount": 3,
-      "purpose": "purpose3",
-      "paidTo": "paidTo3",
-      "relationship": "relationship3",
-      "date": "2012-04-03"
-    },
-    {
-      "amount": 4,
-      "purpose": "purpose4",
-      "paidTo": "paidTo4",
-      "relationship": "relationship4",
-      "date": "2012-04-04"
     }
   ],
   "dependents": [
@@ -89,6 +75,14 @@
           }
         ]
       },
+      "otherExpenses": [
+        {
+          "amount": 4,
+          "purpose": "purpose4",
+          "paidTo": "paidTo4",
+          "date": "2012-04-04"
+        }
+      ],
       "netWorth": {
         "additionalSources": [
           {
@@ -143,6 +137,14 @@
         "first": "parent",
         "last": "Olson"
       },
+      "otherExpenses": [
+        {
+          "amount": 3,
+          "purpose": "purpose3",
+          "paidTo": "paidTo3",
+          "date": "2012-04-03"
+        }
+      ],
       "expectedIncome": {
         "additionalSources": [
           {
