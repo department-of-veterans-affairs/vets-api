@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module PdfFill
   class ExtrasGenerator
     DEFAULT_FONT = 'Helvetica'
@@ -17,12 +18,12 @@ module PdfFill
         pdf.move_down(10)
         pdf.text("#{prefix}:", style: :bold)
 
-        pdf.text("#{text}", style: :normal)
+        pdf.text(text.to_s, style: :normal)
       end
     end
 
     def has_text
-      @generate_blocks.size > 0
+      @generate_blocks.size.positive?
     end
 
     def generate
@@ -33,7 +34,7 @@ module PdfFill
 
       Prawn::Document.generate(file_path) do |pdf|
         generate_blocks.each do |block|
-          block.(pdf)
+          block.call(pdf)
         end
       end
 

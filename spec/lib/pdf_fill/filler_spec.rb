@@ -67,7 +67,7 @@ describe PdfFill::Filler do
           if type == 'overflow'
             extras_path = the_extras_generator.generate
             expect(
-              FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/21P-527EZ/overflow_extras.pdf")
+              FileUtils.compare_file(extras_path, 'spec/fixtures/pdf_fill/21P-527EZ/overflow_extras.pdf')
             ).to eq(true)
 
             File.delete(extras_path)

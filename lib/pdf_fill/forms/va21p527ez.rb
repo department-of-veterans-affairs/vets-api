@@ -3,7 +3,7 @@
 module PdfFill
   module Forms
     class VA21P527EZ
-      # TODO convert or remove xx dates
+      # TODO: convert or remove xx dates
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
       DATE_STRFTIME = '%m/%d/%Y'
@@ -22,7 +22,7 @@ module PdfFill
         'ssi' => 'SUPPLEMENTAL SECURITY INCOME (SSI)/PUBLIC ASSISTANCE',
         'salary' => 'GROSS WAGES AND SALARY',
         'interest' => 'TOTAL DIVIDENDS AND INTEREST'
-      }
+      }.freeze
 
       KEY = lambda do
         key = {
@@ -256,7 +256,7 @@ module PdfFill
             'fullName' => {
               key: 'children.name[%iterator%]',
               limit: 34,
-              question: "23A. NAME OF DEPENDENT CHILD"
+              question: '23A. NAME OF DEPENDENT CHILD'
             },
             'adopted' => {
               question: '23E. ADOPTED',
@@ -419,7 +419,7 @@ module PdfFill
         end
 
         key
-      end.().freeze
+      end.call.freeze
 
       def initialize(form_data)
         @form_data = form_data.deep_dup
@@ -765,9 +765,12 @@ module PdfFill
         @form_data['monthlyIncomes'] = monthly_incomes
       end
 
-      def overflow_financial_accts(financial_accts, all_financial_accts)        all_financial_accts.each do |_, arr|
+      def overflow_financial_accts(financial_accts, all_financial_accts)
+        all_financial_accts.each do |_, arr|
           arr.each do |financial_acct|
-            financial_accts << financial_acct unless financial_accts.include?(financial_acct)
+            unless financial_accts.include?(financial_acct)
+              financial_accts << financial_acct
+            end
           end
         end
       end

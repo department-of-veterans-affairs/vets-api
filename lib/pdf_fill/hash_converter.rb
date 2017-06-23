@@ -42,9 +42,7 @@ module PdfFill
     end
 
     def has_overflow(key_data, value)
-      if value.is_a?(Numeric)
-        value = value.to_s
-      end
+      value = value.to_s if value.is_a?(Numeric)
 
       limit = key_data.try(:[], :limit)
 
@@ -55,9 +53,7 @@ module PdfFill
       text_prefix = key_data.try(:[], :question)
       return if text_prefix.blank?
 
-      if i.present?
-        text_prefix += " Line #{i + 1}"
-      end
+      text_prefix += " Line #{i + 1}" if i.present?
 
       @extras_generator.add_text(text_prefix, v)
     end
@@ -87,7 +83,7 @@ module PdfFill
     end
 
     def check_for_overflow(arr, pdftk_keys)
-      # TODO remove limit.present when all limits filled in
+      # TODO: remove limit.present when all limits filled in
       if pdftk_keys[:limit].present? && arr.size > pdftk_keys[:limit]
         return true
       end
@@ -96,9 +92,7 @@ module PdfFill
         next if item.blank? || !item.is_a?(Hash)
 
         item.each do |k, v|
-          if has_overflow(pdftk_keys[k], v)
-            return true
-          end
+          return true if has_overflow(pdftk_keys[k], v)
         end
       end
 

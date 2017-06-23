@@ -14,7 +14,7 @@ describe PdfFill::ExtrasGenerator do
       file_path = subject.generate
 
       expect(
-        FileUtils.compare_file(file_path, "spec/fixtures/pdf_fill/extras.pdf")
+        FileUtils.compare_file(file_path, 'spec/fixtures/pdf_fill/extras.pdf')
       ).to eq(true)
 
       File.delete(file_path)
