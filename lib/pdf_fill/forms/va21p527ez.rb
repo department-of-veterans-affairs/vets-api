@@ -308,10 +308,18 @@ module PdfFill
           }
         }
 
-        %w(netWorths monthlyIncomes expectedIncomes).each do |acct_type|
+        %w(netWorths monthlyIncomes expectedIncomes).each_with_index do |acct_type, i|
+          question_num = 25 + i
           key[acct_type] = {
+            first_key: 'recipient',
             'amount' => { key: "#{acct_type}.amount[#{ITERATOR}]" },
-            'additionalSourceName' => { key: "#{acct_type}.additionalSourceName[#{ITERATOR}]" },
+            'source' => {
+              question: "#{question_num}. Source"
+            },
+            'additionalSourceName' => {
+              question: "#{question_num}. Source",
+              key: "#{acct_type}.additionalSourceName[#{ITERATOR}]"
+            },
             'recipient' => { key: "#{acct_type}.recipient[#{ITERATOR}]" }
           }
 
