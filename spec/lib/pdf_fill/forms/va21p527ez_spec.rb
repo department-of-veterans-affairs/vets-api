@@ -20,7 +20,18 @@ describe PdfFill::Forms::VA21P527EZ do
           'salary' => 1
         }
       ).expand_expected_incomes).to eq(
-        [{ 'recipient' => 'Myself', 'source' => 'GROSS WAGES AND SALARY', 'amount' => 1 }, nil, { 'recipient' => 'Myself', 'amount' => 0 }, nil, nil, nil]
+        [
+          {
+            'recipient' => 'Myself',
+            'source' => 'GROSS WAGES AND SALARY',
+            'amount' => 1
+          },
+          nil,
+          { 'recipient' => 'Myself', 'amount' => 0 },
+          nil,
+          nil,
+          nil
+        ]
       )
     end
   end
