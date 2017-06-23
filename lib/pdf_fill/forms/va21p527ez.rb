@@ -63,11 +63,30 @@ module PdfFill
           'otherExpenses' => {
             limit: 4,
             first_key: 'purpose',
-            'amount' => { key: 'otherExpenses.amount[%iterator%]' },
-            'purpose' => { key: 'otherExpenses.purpose[%iterator%]' },
-            'paidTo' => { key: 'otherExpenses.paidTo[%iterator%]' },
-            'relationship' => { key: 'otherExpenses.relationship[%iterator%]' },
-            'date' => { key: 'otherExpenses.date[%iterator%]' }
+            'amount' => {
+              limit: 10,
+              question: '28. AMOUNT PAID BY YOU',
+              key: 'otherExpenses.amount[%iterator%]'
+            },
+            'purpose' => {
+              limit: 58,
+              question: '28. PURPOSE',
+              key: 'otherExpenses.purpose[%iterator%]'
+            },
+            'paidTo' => {
+              question: '28. PAID TO',
+              limit: 29,
+              key: 'otherExpenses.paidTo[%iterator%]'
+            },
+            'relationship' => {
+              limit: 33,
+              question: '28. RELATIONSHIP OF PERSON FOR WHOM EXPENSES PAID',
+              key: 'otherExpenses.relationship[%iterator%]'
+            },
+            'date' => {
+              question: '28. DATE PAID',
+              key: 'otherExpenses.date[%iterator%]'
+            }
           },
           'hasPreviousNames' => { key: 'F[0].Page_5[0].YesName[0]' },
           'noPreviousNames' => { key: 'F[0].Page_5[0].NameNo[0]' },
