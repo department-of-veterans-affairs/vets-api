@@ -143,14 +143,12 @@
         "last": "Olson"
       },
       "expectedIncome": {
-        "salary": 1,
         "additionalSources": [
           {
             "name": "name3",
             "amount": 6
           }
-        ],
-        "interest": 3
+        ]
       }
     },
     {
