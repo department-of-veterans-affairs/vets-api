@@ -325,7 +325,11 @@ module PdfFill
               question: "#{question_num}. Source",
               key: "#{acct_type}.additionalSourceName[#{ITERATOR}]"
             },
-            'recipient' => { key: "#{acct_type}.recipient[#{ITERATOR}]" }
+            'recipient' => {
+              limit: 34,
+              question: "#{question_num}. Amount",
+              key: "#{acct_type}.recipient[#{ITERATOR}]"
+            }
           }
 
           key[acct_type][:limit] =
