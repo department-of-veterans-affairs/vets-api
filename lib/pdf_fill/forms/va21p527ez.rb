@@ -314,6 +314,15 @@ module PdfFill
             'additionalSourceName' => { key: "#{acct_type}.additionalSourceName[#{ITERATOR}]" },
             'recipient' => { key: "#{acct_type}.recipient[#{ITERATOR}]" }
           }
+
+          key[acct_type][:limit] =
+            if acct_type == 'netWorths'
+              8
+            elsif acct_type == 'monthlyIncomes'
+              10
+            else
+              6
+            end
         end
 
         %w(m spouseM).each do |prefix|
