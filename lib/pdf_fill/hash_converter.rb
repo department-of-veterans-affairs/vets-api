@@ -99,28 +99,32 @@ module PdfFill
       false
     end
 
+    def transform_array(form_data, pdftk_keys)
+      has_overflow = check_for_overflow(form_data, pdftk_keys)
+
+      if has_overflow
+        first_key = pdftk_keys[:first_key]
+
+        transform_data(
+          form_data: { first_key => EXTRAS_TEXT },
+          pdftk_keys: pdftk_keys,
+          i: 0
+        )
+
+        add_array_to_extras(form_data, pdftk_keys)
+      else
+        form_data.each_with_index do |v, idx|
+          transform_data(form_data: v, pdftk_keys: pdftk_keys, i: idx)
+        end
+      end
+    end
+
     def transform_data(form_data:, pdftk_keys:, i: nil)
       return if form_data.nil? || pdftk_keys.nil?
 
       case form_data
       when Array
-        has_overflow = check_for_overflow(form_data, pdftk_keys)
-
-        if has_overflow
-          first_key = pdftk_keys[:first_key]
-
-          transform_data(
-            form_data: { first_key => EXTRAS_TEXT },
-            pdftk_keys: pdftk_keys,
-            i: 0
-          )
-
-          add_array_to_extras(form_data, pdftk_keys)
-        else
-          form_data.each_with_index do |v, idx|
-            transform_data(form_data: v, pdftk_keys: pdftk_keys, i: idx)
-          end
-        end
+        transform_array(form_data, pdftk_keys)
       when Hash
         form_data.each do |k, v|
           transform_data(
