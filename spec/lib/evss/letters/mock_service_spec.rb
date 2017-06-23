@@ -36,7 +36,7 @@ describe EVSS::Letters::MockService do
           .with('config/evss/letter.pdf')
           .and_return(root.join('config', 'evss', 'letter.pdf.example'))
       end
-      it 'returns a hash of the hard coded response' do
+      it 'returns the pdf described in the yaml file' do
         response = subject.download_letter_by_type('commissary')
         expect(response).to include('%PDF-1.4')
       end
