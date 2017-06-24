@@ -2,6 +2,8 @@
 require 'preneeds/service'
 
 class PreneedsController < ApplicationController
+  skip_before_action(:authenticate)
+
   protected
 
   def client

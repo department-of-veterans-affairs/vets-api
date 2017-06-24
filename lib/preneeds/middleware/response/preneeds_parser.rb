@@ -10,7 +10,7 @@ module Preneeds
         ].freeze
 
         def on_complete(env)
-          return unless env.response_headers['content-type'] =~ /\bjson/
+          return unless env.response_headers['content-type'] =~ /\bjson|\bxml/
           env[:body] = parse(env.body) unless env.body.blank?
         end
 

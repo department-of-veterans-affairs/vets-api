@@ -5,7 +5,6 @@ module Preneeds
       class SoapToJson < Faraday::Response::Middleware
         def on_complete(env)
           return unless env.url.to_s == Settings.preneeds.endpoint
-
           dump = Hash.from_xml Ox.dump(env.body)
           endpoint_resource = dump['Envelope']['Body'].keys[0]
 

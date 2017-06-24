@@ -12,7 +12,7 @@ describe Preneeds::Service do
       end
 
       expect(cemeteries).to be_a(Common::Collection)
-      expect(cemeteries.type).to eq(Cemetery)
+      expect(cemeteries.type).to eq(Preneeds::Cemetery)
     end
   end
 
@@ -23,7 +23,7 @@ describe Preneeds::Service do
       end
 
       expect(states).to be_a(Common::Collection)
-      expect(states.type).to eq(PreneedsState)
+      expect(states.type).to eq(Preneeds::State)
     end
   end
 
@@ -34,7 +34,7 @@ describe Preneeds::Service do
       end
 
       expect(discharge_types).to be_a(Common::Collection)
-      expect(discharge_types.type).to eq(DischargeType)
+      expect(discharge_types.type).to eq(Preneeds::DischargeType)
     end
   end
 
@@ -45,7 +45,7 @@ describe Preneeds::Service do
       end
 
       expect(attachment_types).to be_a(Common::Collection)
-      expect(attachment_types.type).to eq(PreneedsAttachmentType)
+      expect(attachment_types.type).to eq(Preneeds::AttachmentType)
     end
   end
 
@@ -56,7 +56,22 @@ describe Preneeds::Service do
       end
 
       expect(branches).to be_a(Common::Collection)
-      expect(branches.type).to eq(BranchesOfService)
+      expect(branches.type).to eq(Preneeds::BranchesOfService)
+    end
+  end
+
+  describe 'get_military_rank_for_branch_of_service' do
+    let(:params) do
+      { branch_of_service: 'AC', start_date: '1926-07-02', end_date: '1926-07-02' }
+    end
+
+    it 'gets a collection of service branches' do
+      ranks = VCR.use_cassette('preneeds/military_ranks/gets_a_list_of_military_ranks') do
+        subject.get_military_rank_for_branch_of_service params
+      end
+
+      expect(ranks).to be_a(Common::Collection)
+      expect(ranks.type).to eq(Preneeds::MilitaryRank)
     end
   end
 end

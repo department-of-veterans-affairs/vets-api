@@ -7,7 +7,7 @@ module Preneeds
           return unless env.url.to_s == Settings.preneeds.endpoint
 
           relevant_xml = env.body&.scan(%r{<S:Envelope[^<>]*>.*</S:Envelope[^<>]*>}i)&.first
-          env.body = relevant_xml if relevant_xml.present?
+          env.body = '<?xml version="1.0" encoding="UTF-8"?>' + relevant_xml if relevant_xml.present?
         end
       end
     end

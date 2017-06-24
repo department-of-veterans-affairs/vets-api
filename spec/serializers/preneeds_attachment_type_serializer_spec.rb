@@ -13,7 +13,7 @@ RSpec.describe PreneedsAttachmentTypeSerializer, type: :serializer do
   end
 
   it 'should include the preneeds_attachment_type_id' do
-    expect(attributes['preneeds_attachment_type_id']).to eq(attachment_type.id)
+    expect(attributes['attachment_type_id']).to eq(attachment_type.id)
   end
 
   it 'should include the description' do

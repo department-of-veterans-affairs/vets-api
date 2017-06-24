@@ -16,11 +16,10 @@ module Preneeds
       return false if errors.blank?
 
       missing = errors&.map { |e| e.scan(%r{'#/\w*' did not contain a required property of '(\w+)' }) }&.flatten
-      invalid = errors&.map { |e| e.scan(%r{'#/\w+/(\w+)'}) }&.flatten
+      invalid = errors&.map { |e| e.scan(%r{'#/(\w+')}) }&.flatten
 
       raise Common::Exceptions::ParameterMissing.new(missing.join(', '), detail: errors.join(', ')) if missing.present?
       raise Common::Exceptions::InvalidFieldValue.new(invalid.join(', '), detail: errors.join(', ')) if invalid.present?
-      raise Common::Exceptions::InternalServerError, errors.join(', ')
     end
   end
 end

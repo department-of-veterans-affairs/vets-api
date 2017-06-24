@@ -100,10 +100,10 @@ Rails.application.routes.draw do
       resources :calculator_constants, only: :index, defaults: { format: :json }
     end
 
-    scope :preneeds do
+    namespace :preneeds do
       resources :cemeteries, only: :index, defaults: { format: :json }
-      resources :preneeds_states, only: :index, defaults: { format: :json }
-      resources :preneeds_attachment_types, only: :index, defaults: { format: :json }
+      resources :states, only: :index, defaults: { format: :json }
+      resources :attachment_types, only: :index, defaults: { format: :json }
       resources :discharge_types, only: :index, defaults: { format: :json }
       resources :military_ranks, only: :index, defaults: { format: :json }
       resources :branches_of_service, only: :index, defaults: { format: :json }
