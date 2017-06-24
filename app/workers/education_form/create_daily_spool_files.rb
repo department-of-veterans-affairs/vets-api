@@ -34,7 +34,7 @@ module EducationForm
       regional_data = group_submissions_by_region(records)
       formatted_records = format_records(regional_data)
       # Create a remote file for each region, and write the records into them
-      writer = EducationForm::Writer::Factory.get_writer.new(logger: logger)
+      writer = SFTPWriter::Factory.get_writer(Settings.edu.sftp).new(Settings.edu.sftp, logger: logger)
       write_files(writer, structured_data: formatted_records)
 
       true
