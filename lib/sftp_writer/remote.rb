@@ -25,10 +25,10 @@ class SFTPWriter::Remote
   end
 
   def write_path
-    @config.relative_path || ''
+    @config.relative_path || nil
   end
 
   def write(contents, filename)
-    sftp.upload!(StringIO.new(contents), File.join(write_path, filename))
+    sftp.upload!(StringIO.new(contents), File.join([write_path, filename].compact))
   end
 end
