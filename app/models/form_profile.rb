@@ -37,6 +37,7 @@ class FormContactInformation
 end
 
 class FormProfile
+  MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
   attr_accessor :form_id
   include Virtus.model
 
@@ -44,9 +45,9 @@ class FormProfile
   attribute :contact_information, FormContactInformation
 
   def self.for(form)
-    case form
-    when 'hca'
-      FormProfile::HealthCare
+    case form.downcase
+    when '1010ez'
+      FormProfile::VA1010ez
     else
       self
     end.new(form)

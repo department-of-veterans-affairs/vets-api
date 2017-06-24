@@ -14,7 +14,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Thu, 08 Jun 2017 23:57:31 GMT
+      - Tue, 20 Jun 2017 22:43:39 GMT
       Va-Eauth-Csid:
       - DSLogon
       Va-Eauth-Authenticationmethod:
@@ -28,29 +28,29 @@ http_interactions:
       Va-Eauth-Lastname:
       - lincoln
       Va-Eauth-Issueinstant:
-      - '2017-06-08T23:57:30Z'
+      - '2017-06-20T22:43:38Z'
       Va-Eauth-Dodedipnid:
-      - '2053976063'
+      - '5608891234'
       Va-Eauth-Pid:
-      - '4867585294'
+      - '5759385073'
       Va-Eauth-Pnid:
-      - '272111863'
+      - '796111863'
       Va-Eauth-Authorization:
-      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"272111863","edi":"2053976063","firstName":"abraham","lastName":"lincoln"}}'
+      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796111863","edi":"5608891234","firstName":"abraham","lastName":"lincoln"}}'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Thu, 08 Jun 2017 23:57:29 GMT
+      - Tue, 20 Jun 2017 22:43:11 GMT
       Server:
       - Apache/2.4.6 (CentOS) OpenSSL/1.0.1e-fips
       Content-Type:
       - application/json
       Set-Cookie:
       - WLS_12.1_App1_Cluster_ROUTEID=.02; path=/
-      - WSS-LETTERGENERATION-SERVICES_JSESSIONID=-vuKJDrQql3dGbbrGFac-vRhkentpAjDHcNoXqoxsts7wl02A_kg!-149355496;
+      - WSS-LETTERGENERATION-SERVICES_JSESSIONID=DdHHrIebb3w2AQYEkWRWCzBunE1XtabFHaRjKBwFPn9pKQaDcVj0!154328568;
         path=/; HttpOnly
       Via:
       - 1.1 csraciapp6.evss.srarad.com
@@ -59,29 +59,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |-
-        {
-          "chapter33EducationInfo" : {
-            "dateOfBirth" : "1955-11-12T06:00:00.000+0000",
-            "enrollments" : [ {
-              "beginDate" : "2012-11-01T04:00:00.000+0000",
-              "distanceHours" : 0.0,
-              "endDate" : "2012-12-01T05:00:00.000+0000",
-              "facilityCode" : "11902614",
-              "facilityName" : "PURDUE UNIVERSITY",
-              "fullTimeHours" : 12,
-              "participantId" : "11170323",
-              "residenceHours" : 12.0,
-              "status" : "Approved",
-              "trainingType" : "UnderGrad",
-              "vacationDayCount" : 0,
-              "yellowRibbonAmount" : 0.0
-            } ],
-            "firstName" : "Srikanth",
-            "lastName" : "Vanapalli",
-            "regionalProcessingOffice" : "Central Office Washington, DC",
-            "vaFileNumber" : "123456789"
-          }
-        }
+        {"chapter33_education_info":{"date_of_birth":"1969-04-06T05:00:00.000+0000","enrollments":[{"begin_date":"2009-09-01T04:00:00.000+0000","end_date":"2009-12-01T05:00:00.000+0000","facility_code":"14925438","facility_name":"HARRISBURG AREA COMMUNITY COLLEGE","full_time_hours":12,"on_campus_hours":12.0,"online_hours":0.0,"participant_id":"11162086","status":"Approved","training_type":"UNDER_GRAD","vacation_day_count":0,"yellow_ribbon_amount":1400.0}],"first_name":"Dianne","last_name":"Scott","regional_processing_office":"Central Office Washington, DC","va_file_number":"796056674"}}
     http_version: 
-  recorded_at: Thu, 08 Jun 2017 23:57:31 GMT
+  recorded_at: Tue, 20 Jun 2017 22:43:39 GMT
 recorded_with: VCR 3.0.3

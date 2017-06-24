@@ -20,6 +20,20 @@ describe EVSS::Letters::Service do
           end
         end
       end
+      context 'with an http timeout' do
+        before do
+          allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
+        end
+
+        it 'should log an error' do
+          expect(Rails.logger).to receive(:error).with(/Timeout/)
+          subject.get_letters
+        end
+
+        it 'should not raise an exception' do
+          expect { subject.get_letters }.to_not raise_error
+        end
+      end
     end
 
     describe '#get_letter_beneficiary' do
@@ -29,6 +43,20 @@ describe EVSS::Letters::Service do
           expect(response).to be_ok
           expect(response).to be_a(EVSS::Letters::BeneficiaryResponse)
           expect(response.military_service.count).to eq(2)
+        end
+      end
+      context 'with an http timeout' do
+        before do
+          allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
+        end
+
+        it 'should log an error' do
+          expect(Rails.logger).to receive(:error).with(/Timeout/)
+          subject.get_letter_beneficiary
+        end
+
+        it 'should not raise an exception' do
+          expect { subject.get_letter_beneficiary }.to_not raise_error
         end
       end
     end
