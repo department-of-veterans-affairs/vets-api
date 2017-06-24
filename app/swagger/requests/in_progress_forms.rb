@@ -10,9 +10,10 @@ module Swagger
 
           key :description, 'Get Saved Form Summaries'
           key :operationId, 'listInProgressForms'
-          key :tags, [
-            'in_progress_forms'
-          ]
+          key :tags, %w(
+            in_progress_forms
+            forms
+          )
 
           parameter :authorization
 
@@ -26,6 +27,31 @@ module Swagger
       end
 
       swagger_path '/v0/in_progress_forms/{id}' do
+        operation :delete do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Delete form data'
+          key :operationId, 'deleteInProgressForm'
+          key :tags, [
+            'in_progress_forms'
+          ]
+          parameter :authorization
+          parameter do
+            key :name, :id
+            key :in, :path
+            key :description, 'ID of the form'
+            key :required, true
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, 'delete form response'
+            schema do
+              key :'$ref', :References
+            end
+          end
+        end
+
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
@@ -86,6 +112,13 @@ module Swagger
           response 200 do
             key :description, 'update form response'
           end
+        end
+      end
+
+      swagger_schema :References do
+        property :data, type: :object do
+          property :id, type: :string
+          property :type, type: :string
         end
       end
 

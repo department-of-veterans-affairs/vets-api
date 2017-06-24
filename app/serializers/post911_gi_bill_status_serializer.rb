@@ -4,19 +4,14 @@ class Post911GIBillStatusSerializer < ActiveModel::Serializer
   attribute :last_name
   attribute :name_suffix
   attribute :date_of_birth
-
   attribute :va_file_number
   attribute :regional_processing_office
-
   attribute :eligibility_date
   attribute :delimiting_date
-
   attribute :percentage_benefit
-
   attribute :original_entitlement
   attribute :used_entitlement
   attribute :remaining_entitlement
-
   attribute :enrollments
 
   def id

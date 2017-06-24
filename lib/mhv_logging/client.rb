@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'common/client/base'
 require 'common/client/concerns/mhv_session_based_client'
+require 'common/client/middleware/response/mhv_xml_html_errors'
 require 'rx/configuration'
 require 'rx/client_session'
 
@@ -41,6 +42,7 @@ module MHVLogging
           conn.response :snakecase
           conn.response :raise_error, error_prefix: 'MHV'
           conn.response :mhv_errors
+          conn.response :mhv_xml_html_errors
           conn.response :json_parser
           conn.adapter Faraday.default_adapter
         end
