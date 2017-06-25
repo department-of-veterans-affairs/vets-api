@@ -108,21 +108,24 @@ RSpec.describe VHAFacilityAdapter, type: :adapter do
     expect(model.services[:health].length).to eq(2)
   end
 
-  it 'populates access to care date range field' do
+  it 'populates satisfaction date field' do
+    FactoryGirl.build(:access_satisfaction).save
     input = FactoryGirl.build(:vha_gis_record)
     model = described_class.from_gis(input)
-    expect(model.feedback[:health]['effective_date_range']).to eq('Jun 2016 - Nov 2016')
+    expect(model.feedback[:health]['effective_date']).to eq('2017-03-24')
   end
 
-  it 'populates feedback data from old GIS schema' do
+  it 'populates satisfaction data' do
+    FactoryGirl.build(:access_satisfaction).save
     input = FactoryGirl.build(:vha_gis_record)
     model = described_class.from_gis(input)
-    expect(model.feedback[:health]['primary_care_urgent']).to eq(0.66)
+    expect(model.feedback[:health]['primary_care_urgent']).to eq(0.72)
   end
 
-  it 'populates feedback data from new GIS schema' do
-    input = FactoryGirl.build(:vha_gis_record_new)
+  it 'populates wait time data' do
+    FactoryGirl.build(:access_wait_time).save
+    input = FactoryGirl.build(:vha_gis_record)
     model = described_class.from_gis(input)
-    expect(model.feedback[:health]['primary_care_urgent']).to eq(0.66)
+    expect(model.access[:health]['primary_care']).to eq('new' => 35.0, 'established' => 9.0)
   end
 end

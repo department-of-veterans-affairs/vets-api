@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 require 'evss/error_middleware'
+require 'sentry_logging'
 
 module EVSS
   class BaseService
+    include SentryLogging
+
     SYSTEM_NAME = 'vets.gov'
     DEFAULT_TIMEOUT = 15 # in seconds
 
@@ -58,6 +61,7 @@ module EVSS
     end
 
     def ssl_options
+      return { verify: false } if !cert? && Rails.env.development?
       {
         version: :TLSv1_2,
         verify: true,

@@ -17,6 +17,7 @@ RSpec.describe V0::UsersController, type: :controller do
     before(:each) do
       Session.create(uuid: loa1_user.uuid, token: token)
       User.create(loa1_user)
+      FactoryGirl.create(:in_progress_form, user_uuid: loa1_user.uuid, form_id: 'edu-1990')
     end
 
     it 'returns a JSON user profile' do
@@ -25,7 +26,6 @@ RSpec.describe V0::UsersController, type: :controller do
       assert_response :success
 
       json = JSON.parse(response.body)
-
       expect(json['data']['attributes']['profile']['email']).to eq(loa1_user.email)
     end
   end

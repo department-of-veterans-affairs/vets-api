@@ -23,6 +23,10 @@ edu:
     user: ~
     port: ~
 
+pension_burial:
+  sftp:
+    relative_path: '../VETSGOV_PENSION'
+
 # Settings for EVSS
 evss:
   url: https://test.vets.gov
@@ -37,6 +41,8 @@ evss:
     uploads_enabled: false
     bucket: evss_s3_bucket
     region: evss_s3_region
+  mock_letters: true
+  mock_gi_bill_status: false
 
 # Settings for GI Bill Data Service
 gids:
@@ -59,6 +65,9 @@ locators:
   vha: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_Facilities/FeatureServer/0
   nca: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/NCA_Facilities/FeatureServer/0
   vba: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VBA_Facilities/FeatureServer/0
+  vc: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_VetCenters/FeatureServer/0
+  vha_access_satisfaction: http://www.accesstoshep.va.gov/
+  vha_access_waittime: http://www.accesstopwt.va.gov/
 
 # Settings for MyHealthEVet
 mhv:
@@ -83,9 +92,10 @@ mvi:
 # The certs used here can be obtained from the DevOps team. A different set is required for
 # each environment when connecting to the service.
 emis:
-  veteran_status_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/VeteranStatusService
-  payment_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/PaymentService
-  military_information_url: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/MilitaryInformationService
+  host: https://vaausvrsapp81.aac.va.gov
+  veteran_status_url: /VIERSService/eMIS/v1/VeteranStatusService
+  payment_url: /VIERSService/eMIS/v1/PaymentService
+  military_information_url: /VIERSService/eMIS/v1/MilitaryInformationService
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
   soap_namespaces:
@@ -105,9 +115,14 @@ emis:
     soap_namespaces:
       xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1
 
-# Settings for appeals status
+# Settings for appeals status. This uses mocking by default but would hit the
+# actual service as described here if that is turned off. The app token listed
+# here is public for the appeals team's demo service, so there is no security
+# concern with having it here.
 appeals_status:
   mock: true
+  app_token: PUBLICDEMO123
+  host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
 
 # Settings for Redis
 # TODO(knkski): Move all redis settings here?

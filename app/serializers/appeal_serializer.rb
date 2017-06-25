@@ -2,10 +2,9 @@
 class AppealSerializer < ActiveModel::Serializer
   attribute :id
   attribute :active
-  attribute :decision_url
-  attribute :status_message
-  attribute :issues
-  attribute :soc_released_on
-  attribute :soc_url
-  attribute :hearing
+  attribute :type
+  attribute :prior_decision_date
+  attribute :requested_hearing_type
+  attribute :events
+  attribute :hearings
 end
