@@ -10,6 +10,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   let(:line_break) { EducationForm::WINDOWS_NOTEPAD_LINEBREAK }
 
   context 'scheduling' do
+    before do
+      allow(Rails.env).to receive('development?').and_return(true)
+    end
     context 'job only runs on business days', run_at: '2016-12-31 00:00:00 EDT' do
       let(:scheduler) { Rufus::Scheduler.new }
       let(:possible_runs) do
@@ -204,7 +207,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(Net::SFTP).to receive(:start).once.and_return(sftp_mock)
         expect(sftp_mock).to receive(:open?).once.and_return(true)
         expect(sftp_mock).to receive(:upload!) do |contents, path|
-          expect(path).to eq filename
+          expect(path).to eq File.join(Settings.edu.sftp.relative_path, filename)
           expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
         end
         expect(sftp_session_mock).to receive(:close)
