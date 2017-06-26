@@ -39,7 +39,7 @@ module EVSS
         raise e
       end
 
-      def download_letter_by_type(type)
+      def download_by_type(type, _options = nil)
         path = Rails.root.join(mocked_response[:download_letter_by_type][type])
         File.open(path, 'rb', &:read)
       rescue NoMethodError => e
