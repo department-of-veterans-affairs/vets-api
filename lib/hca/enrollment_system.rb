@@ -271,10 +271,10 @@ module HCA
         'incomes' => resource_to_income_collection(child),
         'expenses' => resource_to_expense_collection(child),
         'dependentInfo' => child_to_dependent_info(child),
-        'livedWithPatient' => child['childCohabitedLastYear'],
-        'incapableOfSelfSupport' => child['childDisabledBefore18'],
-        'attendedSchool' => child['childAttendedSchoolLastYear'],
-        'contributedToSupport' => child['childReceivedSupportLastYear']
+        'livedWithPatient' => child['childCohabitedLastYear'].present?,
+        'incapableOfSelfSupport' => child['childDisabledBefore18'].present?,
+        'attendedSchool' => child['childAttendedSchoolLastYear'].present?,
+        'contributedToSupport' => child['childReceivedSupportLastYear'].present?
       }
     end
 
@@ -303,15 +303,12 @@ module HCA
         'otherIncome' => veteran['spouseOtherIncome']
       )
 
-      cohabited_last_year = veteran['cohabitedLastYear']
-      cohabited_last_year = false if cohabited_last_year.blank?
-
       {
         'spouseFinancials' => {
           'incomes' => spouse_income,
           'spouse' => veteran_to_spouse_info(veteran),
-          'contributedToSpousalSupport' => veteran['provideSupportLastYear'],
-          'livedWithPatient' => cohabited_last_year
+          'contributedToSpousalSupport' => veteran['provideSupportLastYear'].present?,
+          'livedWithPatient' => veteran['cohabitedLastYear'].present?
         }
       }
     end
@@ -400,7 +397,7 @@ module HCA
 
     def veteran_to_military_service_info(veteran)
       {
-        'dischargeDueToDisability' => veteran['disabledInLineOfDuty'],
+        'dischargeDueToDisability' => veteran['disabledInLineOfDuty'].present?,
         'militaryServiceSiteRecords' => {
           'militaryServiceSiteRecord' => {
             'militaryServiceEpisodes' => {
@@ -440,18 +437,18 @@ module HCA
 
     def veteran_to_enrollment_determination_info(veteran)
       {
-        'eligibleForMedicaid' => veteran['isMedicaidEligible'],
+        'eligibleForMedicaid' => veteran['isMedicaidEligible'].present?,
         'noseThroatRadiumInfo' => {
-          'receivingTreatment' => veteran['radiumTreatments']
+          'receivingTreatment' => veteran['radiumTreatments'].present?
         },
         'serviceConnectionAward' => {
-          'serviceConnectedIndicator' => veteran['isVaServiceConnected']
+          'serviceConnectedIndicator' => veteran['isVaServiceConnected'].present?
         },
         'specialFactors' => {
-          'agentOrangeInd' => veteran['vietnamService'],
-          'envContaminantsInd' => veteran['swAsiaCombat'],
-          'campLejeuneInd' => veteran['campLejeune'],
-          'radiationExposureInd' => veteran['exposedToRadiation']
+          'agentOrangeInd' => veteran['vietnamService'].present?,
+          'envContaminantsInd' => veteran['swAsiaCombat'].present?,
+          'campLejeuneInd' => veteran['campLejeune'].present?,
+          'radiationExposureInd' => veteran['exposedToRadiation'].present?
         }
       }
     end
@@ -521,7 +518,7 @@ module HCA
       address['addressTypeCode'] = 'P'
 
       {
-        'appointmentRequestResponse' => veteran['wantsInitialVaContact'],
+        'appointmentRequestResponse' => veteran['wantsInitialVaContact'].present?,
         'contactInfo' => {
           'addresses' => {
             'address' => address
@@ -533,7 +530,7 @@ module HCA
         'maritalStatus' => marital_status_to_sds_code(veteran['maritalStatus']),
         'preferredFacility' => veteran['vaMedicalFacility'],
         'races' => veteran_to_races(veteran),
-        'acaIndicator' => veteran['isEssentialAcaCoverage']
+        'acaIndicator' => veteran['isEssentialAcaCoverage'].present?
       }
     end
 
@@ -546,10 +543,10 @@ module HCA
         'insuranceList' => veteran_to_insurance_collection(veteran),
         'militaryServiceInfo' => veteran_to_military_service_info(veteran),
         'prisonerOfWarInfo' => {
-          'powIndicator' => veteran['isFormerPow']
+          'powIndicator' => veteran['isFormerPow'].present?
         },
         'purpleHeart' => {
-          'indicator' => veteran['purpleHeartRecipient']
+          'indicator' => veteran['purpleHeartRecipient'].present?
         },
         'personInfo' => veteran_to_person_info(veteran)
       }

@@ -23,7 +23,7 @@
           "type": "string"
         }
       },
-      "type": "object"
+      "type": ["object", "null"]
     },
     "meta": {
       "properties": {
@@ -58,7 +58,7 @@
               "type": "string"
             }
           },
-          "type": "object",
+          "type": ["object", "null"],
           "required": [
             "full_name",
             "address_line1",
@@ -75,6 +75,7 @@
           "description": "EVSS API may return an error message in a 200 response, vets-api catches all errors other than not found as server error",
           "enum": [
             "OK",
+            "NOT_AUTHORIZED",
             "NOT_FOUND",
             "SERVER_ERROR"
           ]
