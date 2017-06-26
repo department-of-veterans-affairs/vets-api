@@ -4168,6 +4168,7 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi:
     :participant_id:
   '666253615':
@@ -4184,6 +4185,7 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi:
     :participant_id:
   '666324561':
@@ -4200,6 +4202,7 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi:
     :participant_id:
   '666986541':
