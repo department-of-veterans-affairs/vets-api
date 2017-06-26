@@ -36,4 +36,4 @@ shrine:
     type: s3
     bucket: bucketname
     path: remote-testing
-
+    region: us-gov-west-1
