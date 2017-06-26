@@ -16,8 +16,10 @@ module Common
           OpenSSL::X509::Certificate.new(File.read(self.class.ssl_cert_path))
         rescue => e
           # :nocov:
-          Rails.logger.warn "Could not load #{service_name} SSL cert: #{e.message}"
-          raise e if Rails.env.production?
+          unless allow_missing_certs?
+            Rails.logger.warn "Could not load #{service_name} SSL cert: #{e.message}"
+            raise e if Rails.env.production?
+          end
           nil
           # :nocov:
         end
@@ -30,6 +32,10 @@ module Common
           raise e if Rails.env.production?
           nil
           # :nocov:
+        end
+
+        def allow_missing_certs?
+          false
         end
       end
     end

@@ -31,25 +31,25 @@
                   "type": "integer"
                 }
               },
-              "type": "object"
+              "type": ["object", "null"]
             },
             "has_adapted_housing": {
-              "type": "boolean"
+              "type": ["boolean", "null"]
             },
             "has_chapter35_eligibility": {
-              "type": "boolean"
+              "type": ["boolean", "null"]
             },
             "has_death_result_of_disability": {
-              "type": "boolean"
+              "type": ["boolean", "null"]
             },
             "has_individual_unemployability_granted": {
-              "type": "boolean"
+              "type": ["boolean", "null"]
             },
             "has_special_monthly_compensation": {
-              "type": "boolean"
+              "type": ["boolean", "null"]
             },
             "military_service": {
-              "type": "array",
+              "type": ["array", "null"],
               "items": {
                 "properties": {
                   "branch": {
@@ -65,7 +65,7 @@
                     "type": "string"
                   }
                 },
-                "type": "object"
+                "type": ["object", "null"]
               }
             }
           },
@@ -85,7 +85,7 @@
       "required": [
         "attributes"
       ],
-      "type": "object"
+      "type": ["object", "null"]
     },
     "meta": {
       "properties": {
