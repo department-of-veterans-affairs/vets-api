@@ -58,7 +58,6 @@ describe EVSS::Letters::MockService do
     end
 
     describe 'download_letter_by_type' do
-
       before do
         allow(Rails.root).to receive(:join)
           .with('config/evss/letter.pdf')
