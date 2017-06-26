@@ -2,9 +2,7 @@
 require 'common/client/configuration/soap'
 require 'common/client/middleware/request/soap_headers'
 require 'common/client/middleware/response/soap_parser'
-require 'common/client/middleware/response/snakecase'
 require 'preneeds/middleware/response/clean_response'
-require 'preneeds/middleware/response/soap_to_json'
 require 'preneeds/middleware/response/preneeds_parser'
 
 module Preneeds
@@ -21,8 +19,6 @@ module Preneeds
         conn.request :soap_headers
 
         conn.response :preneeds_parser
-        conn.response :snakecase
-        # conn.response :soap_to_json
         conn.response :soap_parser
         conn.response :clean_response
 
