@@ -4034,7 +4034,8 @@ find_candidate:
       street: 123 FAKE STREET
     :home_phone: 
     :icn: 1012996209V794155
-    :mhv_ids: []
+    :mhv_ids:
+    - '14442988'
     :vha_facility_ids:
     - '989'
     - '648'
@@ -4056,7 +4057,8 @@ find_candidate:
       street: 123 FAKE STREET
     :home_phone: 
     :icn: 1012996210V640082
-    :mhv_ids: []
+    :mhv_ids:
+    - '14442925'
     :vha_facility_ids:
     - '989'
     - '648'
@@ -4078,7 +4080,8 @@ find_candidate:
       street: 123 FAKE STREET
     :home_phone: 
     :icn: 1012996213V894859
-    :mhv_ids: []
+    :mhv_ids:
+    - '14442833'
     :vha_facility_ids:
     - '989'
     - '648'
@@ -4122,7 +4125,8 @@ find_candidate:
       street: 123 FAKE STREET
     :home_phone: 
     :icn: 1012996216V038108
-    :mhv_ids: []
+    :mhv_ids:
+    - '14442951'
     :vha_facility_ids:
     - '989'
     - '648'
@@ -4150,6 +4154,54 @@ find_candidate:
     - '648'
     :edipi: 
     :participant_id: 
+  '666127189':
+    :given_names:
+    - Charles
+    :family_name: Mhvpatseven
+    :suffix:
+    :gender: M
+    :birth_date: '19510809'
+    :ssn: '666127189'
+    :address:
+    :home_phone:
+    :icn: 1012999273V269731
+    :mhv_ids: []
+    :vha_facility_ids:
+    - '989'
+    :edipi:
+    :participant_id:
+  '666253615':
+    :given_names:
+    - Poppy
+    :family_name: Mhvpateight
+    :suffix:
+    :gender: F
+    :birth_date: '19700421'
+    :ssn: '666253615'
+    :address:
+    :home_phone:
+    :icn: 1012999274V018660
+    :mhv_ids: []
+    :vha_facility_ids:
+    - '989'
+    :edipi:
+    :participant_id:
+  '666324561':
+    :given_names:
+    - Warren
+    :family_name: Mhvpatnine
+    :suffix:
+    :gender: M
+    :birth_date: '19620625'
+    :ssn: '666324561'
+    :address:
+    :home_phone:
+    :icn: 1012999275V171159
+    :mhv_ids: []
+    :vha_facility_ids:
+    - '989'
+    :edipi:
+    :participant_id:
   '666986541':
     :given_names:
     - Cloris
