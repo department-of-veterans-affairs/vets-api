@@ -4,6 +4,7 @@ class BackendServices
   HCA = 'hca'
   EDUCATION_BENEFITS = 'edu-benefits'
   EVSS_CLAIMS = 'evss-claims'
+  APPEALS_STATUS = 'appeals-status'
   USER_PROFILE = 'user-profile'
 
   # MHV services
