@@ -76,7 +76,7 @@
       "street": "111 Uni Drive"
     },
     "educationalObjective": "...",
-    "name": "FakeData University",
+    "name": "\nFakeData University\n",
     "startDate": "2016-08-29"
   },
   "secondaryContact": {
@@ -140,8 +140,8 @@
   },
   "veteranDateOfBirth": "1985-03-07",
   "veteranFullName": {
-    "first": "Mark",
-    "last": "Olson"
+    "first": "\nMark\n",
+    "last": "\nOlson\n"
   },
   "veteranSocialSecurityNumber": "111223333",
   "privacyAgreementAccepted": true
