@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://qitcdev03.cem.va.gov:8000/eoas_SOA/PreNeedApplicationPort
+    uri: "<PRENEEDS_URL>"
     body:
       encoding: UTF-8
       string: <?xml version="1.0" encoding="UTF-8"?><env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -37,6 +37,6 @@ http_interactions:
         RELATED</description></return><return><attachmentTypeId>3</attachmentTypeId><description>DEPENDENT
         RELATED</description></return><return><attachmentTypeId>4</attachmentTypeId><description>VA
         PRENEED FORM</description></return><return><attachmentTypeId>5</attachmentTypeId><description>LETTER</description></return><return><attachmentTypeId>6</attachmentTypeId><description>OTHER</description></return></ns2:getAttachmentTypesResponse></S:Body></S:Envelope>\r\n--uuid:c97280ca-cea9-475b-a505-720598c95d7b--"
-    http_version: 
+    http_version:
   recorded_at: Fri, 16 Jun 2017 04:55:45 GMT
 recorded_with: VCR 3.0.3

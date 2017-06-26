@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://qitcdev03.cem.va.gov:8000/eoas_SOA/PreNeedApplicationPort
+    uri: "<PRENEEDS_URL>"
     body:
       encoding: UTF-8
       string: <?xml version="1.0" encoding="UTF-8"?><env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -37,6 +37,6 @@ http_interactions:
         Level Separation/Uncharacterized</description><id>3</id></return><return><description>Other
         Than Honorable</description><id>4</id></return><return><description>Bad Conduct
         Discharge</description><id>5</id></return><return><description>Dishonorable</description><id>6</id></return><return><description>Other</description><id>7</id></return></ns2:getDischargeTypesResponse></S:Body></S:Envelope>\r\n--uuid:83220d10-3e7b-4bee-91a9-fbf5bff60872--"
-    http_version: 
+    http_version:
   recorded_at: Fri, 16 Jun 2017 03:38:17 GMT
 recorded_with: VCR 3.0.3

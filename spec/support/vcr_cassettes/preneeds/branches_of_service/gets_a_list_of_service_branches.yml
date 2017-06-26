@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: http://qitcdev03.cem.va.gov:8000/eoas_SOA/PreNeedApplicationPort
+    uri: "<PRENEEDS_URL>"
     body:
       encoding: UTF-8
       string: <?xml version="1.0" encoding="UTF-8"?><env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema"
@@ -236,6 +236,6 @@ http_interactions:
         COAST GUARD RESERVE</flatFullDescr><fullDescr>US COAST GUARD RESERVE</fullDescr><shortDescr>USCG
         RESERVE</shortDescr><stateRequired>N</stateRequired><uprightFullDescr>US COAST
         GUARD RESERVE</uprightFullDescr></return></ns2:getBranchesOfServiceResponse></S:Body></S:Envelope>\r\n--uuid:efaa128b-adeb-40ba-b150-f5a0bcc12a50--"
-    http_version: 
+    http_version:
   recorded_at: Fri, 16 Jun 2017 05:58:31 GMT
 recorded_with: VCR 3.0.3

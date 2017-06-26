@@ -8,7 +8,7 @@ require 'preneeds/middleware/response/preneeds_parser'
 module Preneeds
   class Configuration < Common::Client::Configuration::SOAP
     def base_path
-      Settings.preneeds.endpoint
+      Settings.preneeds.url
     end
 
     def connection
