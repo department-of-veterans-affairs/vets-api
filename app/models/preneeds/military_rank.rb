@@ -8,12 +8,12 @@ module Preneeds
 
     attribute :military_rank_detail, MilitaryRankDetail
 
-    attribute :activated_one_date, String
-    attribute :activated_two_date, String
-    attribute :activated_three_date, String
-    attribute :deactivated_one_date, String
-    attribute :deactivated_two_date, String
-    attribute :deactivated_three_date, String
+    attribute :activated_one_date, Common::UTCTime
+    attribute :activated_two_date, Common::UTCTime
+    attribute :activated_three_date, Common::UTCTime
+    attribute :deactivated_one_date, Common::UTCTime
+    attribute :deactivated_two_date, Common::UTCTime
+    attribute :deactivated_three_date, Common::UTCTime
 
     def id
       branch_of_service_cd + ':' + rank_code

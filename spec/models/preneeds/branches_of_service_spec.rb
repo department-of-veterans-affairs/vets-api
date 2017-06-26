@@ -15,9 +15,9 @@ RSpec.describe Preneeds::BranchesOfService do
         :begin_date, :code, :end_date, :flat_full_descr, :full_descr, :short_descr, :state_required, :upright_full_descr
       )
 
-      expect(subject.begin_date).to eq(Time.parse(params[:begin_date]).utc.strftime('%Y-%m-%d'))
+      expect(subject.begin_date).to eq(Time.parse(params[:begin_date]).utc)
       expect(subject.code).to eq(params[:code])
-      expect(subject.end_date).to eq(Time.parse(params[:end_date]).utc.strftime('%Y-%m-%d'))
+      expect(subject.end_date).to eq(Time.parse(params[:end_date]).utc)
       expect(subject.flat_full_descr).to eq(params[:flat_full_descr])
       expect(subject.full_descr).to eq(params[:full_descr])
       expect(subject.short_descr).to eq(params[:short_descr])

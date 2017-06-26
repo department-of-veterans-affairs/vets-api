@@ -17,7 +17,7 @@ RSpec.describe BranchesOfServiceSerializer, type: :serializer do
   end
 
   it 'should include the begin_date' do
-    expect(attributes['begin_date']).to eq(branch.begin_date)
+    expect(Time.parse(attributes['begin_date']).utc).to eq(branch.begin_date)
   end
 
   it 'should include the code' do
@@ -25,7 +25,7 @@ RSpec.describe BranchesOfServiceSerializer, type: :serializer do
   end
 
   it 'should include the end_date' do
-    expect(attributes['end_date']).to eq(branch.end_date)
+    expect(Time.parse(attributes['end_date']).utc).to eq(branch.end_date)
   end
 
   it 'should include the flat_full_descr' do

@@ -15,27 +15,27 @@ RSpec.describe MilitaryRankSerializer, type: :serializer do
   end
 
   it 'should include activated_one_date as attribute' do
-    expect(attributes['activated_one_date']).to eq(military_rank.activated_one_date)
+    expect(Time.parse(attributes['activated_one_date']).utc).to eq(military_rank.activated_one_date)
   end
 
   it 'should include activated_two_date as attribute' do
-    expect(attributes['activated_two_date']).to eq(military_rank.activated_two_date)
+    expect(Time.parse(attributes['activated_two_date']).utc).to eq(military_rank.activated_two_date)
   end
 
   it 'should include activated_three_date as attribute' do
-    expect(attributes['activated_three_date']).to eq(military_rank.activated_three_date)
+    expect(Time.parse(attributes['activated_three_date']).utc).to eq(military_rank.activated_three_date)
   end
 
   it 'should include deactivated_one_date as attribute' do
-    expect(attributes['deactivated_one_date']).to eq(military_rank.deactivated_one_date)
+    expect(Time.parse(attributes['deactivated_one_date']).utc).to eq(military_rank.deactivated_one_date)
   end
 
   it 'should include deactivated_two_date as attribute' do
-    expect(attributes['deactivated_two_date']).to eq(military_rank.deactivated_two_date)
+    expect(Time.parse(attributes['deactivated_two_date']).utc).to eq(military_rank.deactivated_two_date)
   end
 
   it 'should include deactivated_three_date as attribute' do
-    expect(attributes['deactivated_three_date']).to eq(military_rank.deactivated_three_date)
+    expect(Time.parse(attributes['deactivated_three_date']).utc).to eq(military_rank.deactivated_three_date)
   end
 
   it 'should include officer_ind as attribute' do

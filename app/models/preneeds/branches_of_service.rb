@@ -10,20 +10,12 @@ module Preneeds
     attribute :short_descr, String
     attribute :upright_full_descr, String
 
-    attribute :begin_date, String
-    attribute :end_date, String
+    attribute :begin_date, Common::UTCTime
+    attribute :end_date, Common::UTCTime
     attribute :state_required, String
 
     def id
       code
-    end
-
-    def begin_date=(value)
-      super(Time.parse(value).utc.strftime('%Y-%m-%d')) if value.is_a?(String)
-    end
-
-    def end_date=(value)
-      super(Time.parse(value).utc.strftime('%Y-%m-%d')) if value.is_a?(String)
     end
 
     # Default sort should be by full_descr ascending
