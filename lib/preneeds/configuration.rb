@@ -22,7 +22,7 @@ module Preneeds
 
         conn.response :preneeds_parser
         conn.response :snakecase
-        conn.response :soap_to_json
+        # conn.response :soap_to_json
         conn.response :soap_parser
         conn.response :clean_response
 

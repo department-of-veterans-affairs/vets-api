@@ -127,9 +127,8 @@ appeals_status:
 # Settings for (preneeds) burials.
 # TODO: enpoint needs to be set up for https and production api when available
 preneeds:
-  endpoint: http://qitcalpha03.cem.va.gov:8000/eoas_SOA/PreNeedApplicationPort
+  endpoint: http://some.fake.site.com
   preneeds_wsdl: 'config/preneeds/wsdl/preneeds.wsdl'
-  preneeds_xsd: 'config/preneeds/xsd/preneeds.xsd'
   schemas: 'lib/preneeds/schemas/'
 
 # Settings for Redis

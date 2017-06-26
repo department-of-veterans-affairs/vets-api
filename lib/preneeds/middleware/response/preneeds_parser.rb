@@ -4,56 +4,36 @@ module Preneeds
     module Response
       # class responsible for customizing parsing
       class PreneedsParser < Faraday::Response::Middleware
-        PARSE_LIST = [
-          :parsed_cemetery_list, :parsed_states_list, :attachment_types_list, :discharge_types_list,
-          :attachment_types_list, :branches_of_service_list, :military_rank_for_branch_of_service_list
-        ].freeze
-
         def on_complete(env)
-          return unless env.response_headers['content-type'] =~ /\bjson|\bxml/
+          return unless env.response_headers['content-type'] =~ /\bxml/
           env[:body] = parse(env.body) unless env.body.blank?
         end
 
         def parse(body)
-          @parsed_json = body
+          hash = Hash.from_xml(Ox.dump(body))&.deep_transform_keys(&:underscore)
+          hash = extract_soap_body(hash)
 
-          data = PARSE_LIST.each do |meth|
-            results = send(meth)
-            break results if results.present?
+          key = hash&.keys&.first
+          if key.present?
+            hash = hash[key]['return']
+            hash = map_military_rank_id_to_details(hash) if key == 'get_military_rank_for_branch_of_service_response'
           end
 
-          @parsed_json = { data: data }
+          { data: hash }
         end
 
-        def parsed_cemetery_list
-          @parsed_json.keys.include?(:cemeteries) ? @parsed_json[:cemeteries] : nil
+        def extract_soap_body(hash)
+          hash = hash['envelope'] if hash.keys.include?('envelope')
+          hash = hash['body'] if hash.keys.include?('body')
+
+          hash
         end
 
-        def parsed_states_list
-          @parsed_json.keys.include?(:states) ? @parsed_json[:states] : nil
-        end
-
-        def discharge_types_list
-          @parsed_json.keys.include?(:discharge_types) ? @parsed_json[:discharge_types] : nil
-        end
-
-        def attachment_types_list
-          @parsed_json.keys.include?(:attachment_types) ? @parsed_json[:attachment_types] : nil
-        end
-
-        def branches_of_service_list
-          @parsed_json.keys.include?(:branches_of_service) ? @parsed_json[:branches_of_service] : nil
-        end
-
-        def military_rank_for_branch_of_service_list
-          return nil unless @parsed_json.keys.include?(:military_rank_for_branch_of_service) &&
-                            @parsed_json[:military_rank_for_branch_of_service].present?
-
-          @parsed_json[:military_rank_for_branch_of_service].each do |r|
-            r[:military_rank_detail] = r.delete(:id)
+        def map_military_rank_id_to_details(hash)
+          hash.map do |rank|
+            rank['military_rank_detail'] = rank.delete('id')
+            rank
           end
-
-          @parsed_json[:military_rank_for_branch_of_service]
         end
       end
     end
