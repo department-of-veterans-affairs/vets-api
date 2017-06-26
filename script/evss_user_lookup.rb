@@ -39,7 +39,6 @@ def fake_user(ssn)
 end
 
 def user_from_mvi(ssn)
-  Settings.mvi.mock = to_boolean(argv_opts.mock_mvi) if argv_opts.mock_mvi
   user = User.new(
     uuid: SecureRandom.uuid,
     first_name: 'Mark',
@@ -65,6 +64,7 @@ def user_from_mvi(ssn)
   user.va_profile.edipi = '1005329660'
 end
 
+Settings.mvi.mock = to_boolean(argv_opts.mock_mvi) if argv_opts.mock_mvi
 
 user = nil
 if argv_opts.skip_mvi
