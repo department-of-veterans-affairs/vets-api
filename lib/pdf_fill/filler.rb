@@ -13,7 +13,7 @@ module PdfFill
 
     def combine_extras(old_file_path, extras_generator)
       if extras_generator.text?
-        file_path = "tmp/pdfs/form_#{Time.zone.now}_final.pdf"
+        file_path = "#{old_file_path.gsub('.pdf', '')}_final.pdf"
         extras_path = extras_generator.generate
 
         PDF_FORMS.cat(old_file_path, extras_path, file_path)
@@ -27,12 +27,13 @@ module PdfFill
       end
     end
 
-    def fill_form(code, form_data)
+    def fill_form(saved_claim)
+      code = saved_claim.form_id
+      form_data = saved_claim.parsed_form
       form_class = FORM_CLASSES[code]
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
-      # TODO: add the id of the form to filename and remove timestamp
-      file_path = "#{folder}/#{code}_#{Time.zone.now}.pdf"
+      file_path = "#{folder}/#{code}_#{saved_claim.id}.pdf"
       hash_converter = HashConverter.new(form_class::DATE_STRFTIME)
       new_hash = hash_converter.transform_data(
         form_data: form_class.new(form_data).merge_fields,

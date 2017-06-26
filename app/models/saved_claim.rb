@@ -31,7 +31,7 @@ class SavedClaim < ActiveRecord::Base
   end
 
   def parsed_form
-    JSON.parse(form)
+    @parsed_form ||= JSON.parse(form)
   end
 
   def submitted_at
@@ -49,6 +49,10 @@ class SavedClaim < ActiveRecord::Base
   def form_matches_schema
     return unless form_is_string
     errors[:form].concat(JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM], parsed_form))
+  end
+
+  def to_pdf
+    File.open(PdfFill::Filler.fill_form(self))
   end
 
   private
