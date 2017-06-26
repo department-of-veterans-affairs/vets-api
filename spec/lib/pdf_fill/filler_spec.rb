@@ -26,7 +26,7 @@ describe PdfFill::Filler do
         expect(extras_generator).to receive(:text?).once.and_return(true)
       end
 
-      it 'should generate extras and combine the files', run_at: '2016-12-31 00:00:00 EDT' do
+      it 'should generate extras and combine the files' do
         file_path = 'tmp/pdfs/file_path_final.pdf'
         expect(extras_generator).to receive(:generate).once.and_return('extras.pdf')
         expect(described_class::PDF_FORMS).to receive(:cat).once.with(
