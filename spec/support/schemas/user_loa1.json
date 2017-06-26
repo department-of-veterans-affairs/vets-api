@@ -13,9 +13,18 @@
           "type": "object",
           "required": ["services", "profile", "in_progress_forms"],
           "properties": {
-            "services": { "type": [ "array", null ] },
-            "in_progress_forms": { "type": [ "array", null ] },
+            "in_progress_forms": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "form_id": { "type": "string" },
+                  "last_updated": { "type": "integer" }
+                }
+              }
+            },
             "prefills_available": { "type": [ "array", null ] },
+            "services": { "type": [ "array", null ] },
             "profile": {
               "type": "object",
               "required": [

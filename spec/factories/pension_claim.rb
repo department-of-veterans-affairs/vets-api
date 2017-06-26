@@ -3,6 +3,7 @@ FactoryGirl.define do
   factory :pension_claim, class: SavedClaim::Pension do
     form do
       {
+        privacyAgreementAccepted: true,
         veteranFullName: {
           first: 'Test',
           last: 'User'
