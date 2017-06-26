@@ -3,10 +3,6 @@ require 'common/models/base'
 
 module Preneeds
   class MilitaryRank < Common::Base
-    include ActiveModel::Validations
-
-    validates :branch_of_service_cd, :military_rank_detail, presence: true
-
     attribute :branch_of_service_cd, String
     attribute :officer_ind, String
 

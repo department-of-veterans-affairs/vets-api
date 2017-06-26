@@ -34,13 +34,7 @@ module Preneeds
     end
 
     def get_military_rank_for_branch_of_service(params)
-      message = {
-        branchOfService: params['branch_of_service'],
-        startDate: params['start_date'],
-        endDate: params['end_date']
-      }
-
-      soap = savon_client.build_request(:get_military_rank_for_branch_of_service, message: message)
+      soap = savon_client.build_request(:get_military_rank_for_branch_of_service, message: params)
       json = perform(:post, '', soap.body).body
 
       Common::Collection.new(MilitaryRank, json)
