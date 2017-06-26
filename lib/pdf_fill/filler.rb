@@ -33,8 +33,7 @@ module PdfFill
       form_class = FORM_CLASSES[code]
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
-      # TODO: add the id of the form to filename and remove timestamp
-      file_path = "#{folder}/#{code}_#{Time.zone.now}.pdf"
+      file_path = "#{folder}/#{code}_#{saved_claim.id}.pdf"
       hash_converter = HashConverter.new(form_class::DATE_STRFTIME)
       new_hash = hash_converter.transform_data(
         form_data: form_class.new(form_data).merge_fields,
