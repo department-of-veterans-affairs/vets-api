@@ -21,27 +21,33 @@ describe Shrine::Plugins::ValidateVirusFree do
 
     before(:each) do
       allow_any_instance_of(klass).to receive(:get)
-        .and_return(instance_double('Shrine::UploadedFile', to_io: instance_double('File', path: 'foo/bar.jpg')))
+        .and_return(instance_double('Shrine::UploadedFile', download: instance_double('File', path: 'foo/bar.jpg')))
     end
 
-    context 'with the default error message' do
-      it 'adds an error if clam scan returns not safe' do
-        allow(ClamScan::Client).to receive(:scan)
-          .and_return(instance_double('ClamScan::Response', safe?: false))
-
-        expect(instance).to receive(:error_message).once.with(nil)
-        instance.validate_virus_free
+    context 'with errors' do
+      before do
+        allow(ClamScan.configuration).to receive(:client_location).and_return('found')
       end
-    end
 
-    context 'with a custom error message' do
-      let(:message) { 'oh noes!' }
-      it 'adds an error with a custom error message if clam scan returns not safe' do
-        allow(ClamScan::Client).to receive(:scan)
-          .and_return(instance_double('ClamScan::Response', safe?: false))
+      context 'with the default error message' do
+        it 'adds an error if clam scan returns not safe' do
+          allow(ClamScan::Client).to receive(:scan)
+            .and_return(instance_double('ClamScan::Response', safe?: false))
 
-        expect(instance).to receive(:error_message).once.with(message)
-        instance.validate_virus_free message: message
+          expect(instance).to receive(:error_message).once.with(nil)
+          instance.validate_virus_free
+        end
+      end
+
+      context 'with a custom error message' do
+        let(:message) { 'oh noes!' }
+        it 'adds an error with a custom error message if clam scan returns not safe' do
+          allow(ClamScan::Client).to receive(:scan)
+            .and_return(instance_double('ClamScan::Response', safe?: false))
+
+          expect(instance).to receive(:error_message).once.with(message)
+          instance.validate_virus_free message: message
+        end
       end
     end
 

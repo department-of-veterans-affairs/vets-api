@@ -1,15 +1,20 @@
 # frozen_string_literal: true
-module Workflow::Task::Common
+require 'fileutils'
+module Workflow::Task::Shared
   class DatestampPdfTask < Workflow::Task::ShrineFile::Base
     def run(settings)
+      FileUtils.mkdir_p(Rails.root.join('tmp', 'pdfs'))
       in_path = @file.download.path
-      FileUtils.mkdir_p Rails.root.join('tmp', 'pdfs')
       stamp_path = Rails.root.join('tmp', 'pdfs', "#{SecureRandom.uuid}.pdf")
       generate_stamp(stamp_path, settings[:text], settings[:x], settings[:y])
       out_path = stamp(in_path, stamp_path)
       update_file(io: File.open(out_path))
     ensure
-      File.delete(out_path) if !out_path.nil? && File.exist?(out_path)
+      File.delete(stamp_path) if stamp_path && File.exist?(stamp_path)
+      if out_path && File.exist?(out_path)
+        File.delete(out_path)
+        FileUtils.rmdir(File.dirname(out_path))
+      end
     end
 
     private
@@ -26,17 +31,19 @@ module Workflow::Task::Common
     end
 
     def stamp(file_path, stamp_path)
-      out_path = Rails.root.join('tmp', 'pdfs', "#{SecureRandom.uuid}.pdf")
+      out_dir = Rails.root.join('tmp', 'pdfs', SecureRandom.uuid)
+      FileUtils.mkdir_p(out_dir)
+      out_path = File.join(out_dir, @file.original_filename)
       stamp = CombinePDF.load(stamp_path).pages[0]
       original = CombinePDF.load(file_path)
       original.pages.each { |page| page << stamp }
       original.save out_path
       out_path
     rescue => e
+      File.delete(out_path) if out_path && File.exist?(out_path)
+      FileUtils.rmdir(out_dir) if out_dir && Dir.exist?(out_dir)
       Rails.logger.error "Failed to datestamp PDF file: #{e.message}"
       raise
-    ensure
-      File.delete(stamp_path) if File.exist?(stamp_path)
     end
   end
 end
