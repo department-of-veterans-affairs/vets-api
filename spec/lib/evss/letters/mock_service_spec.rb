@@ -67,7 +67,7 @@ describe EVSS::Letters::MockService do
         let(:user) { build(:loa3_user) }
 
         it 'returns the pdf described in the yaml file' do
-          response = subject.download_letter_by_type('commissary')
+          response = subject.download_by_type('commissary')
           expect(response).to include('%PDF-1.4')
         end
       end
@@ -78,7 +78,7 @@ describe EVSS::Letters::MockService do
           expect(Rails.logger).to receive(:error).once.with(
             "User with ssn: #{user.ssn} does not have key :download_letter_by_type in config/mock_letters_response.yml"
           )
-          expect { subject.download_letter_by_type('commissary') }.to raise_error NoMethodError
+          expect { subject.download_by_type('commissary') }.to raise_error NoMethodError
         end
       end
     end
