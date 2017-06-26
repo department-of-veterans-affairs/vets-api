@@ -51,6 +51,10 @@ class SavedClaim < ActiveRecord::Base
     errors[:form].concat(JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM], parsed_form))
   end
 
+  def to_pdf
+    File.open(PdfFill::Filler.fill_form(self))
+  end
+
   private
 
   def attachment_keys
