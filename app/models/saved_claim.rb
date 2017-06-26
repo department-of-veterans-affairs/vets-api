@@ -31,7 +31,7 @@ class SavedClaim < ActiveRecord::Base
   end
 
   def parsed_form
-    JSON.parse(form)
+    @parsed_form ||= JSON.parse(form)
   end
 
   def submitted_at

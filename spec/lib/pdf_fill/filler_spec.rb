@@ -17,7 +17,7 @@ describe PdfFill::Filler do
       it 'should return the old_file_path' do
         expect(extras_generator).to receive(:text?).once.and_return(false)
 
-        expect(subject).to eq('file_path')
+        expect(subject).to eq(old_file_path)
       end
     end
 
@@ -50,8 +50,7 @@ describe PdfFill::Filler do
         end
 
         it 'should fill the form correctly' do
-          form_code = '21P-527EZ'
-          expect(form_data.to_json).to match_vets_schema(form_code)
+          saved_claim = create(:pension_claim, form: form_data.to_json)
 
           if type == 'overflow'
             # when pdftk combines files there are random diffs so we can't compare the pdfs like normal
@@ -63,7 +62,7 @@ describe PdfFill::Filler do
             end
           end
 
-          file_path = described_class.fill_form(form_code, form_data)
+          file_path = described_class.fill_form(saved_claim)
 
           if type == 'overflow'
             extras_path = the_extras_generator.generate

@@ -27,7 +27,9 @@ module PdfFill
       end
     end
 
-    def fill_form(code, form_data)
+    def fill_form(saved_claim)
+      code = saved_claim.form_id
+      form_data = saved_claim.parsed_form
       form_class = FORM_CLASSES[code]
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
