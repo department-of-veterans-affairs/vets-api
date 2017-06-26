@@ -35,6 +35,7 @@ module Swagger
                 key :type, :string
               end
             end
+            property :in_progress_forms
             property :profile, type: :object do
               property :email, type: :string
               property :first_name, type: :string

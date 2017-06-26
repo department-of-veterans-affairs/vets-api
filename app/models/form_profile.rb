@@ -26,6 +26,7 @@ class FormIdentityInformation
   attribute :full_name, FormFullName
   attribute :date_of_birth, Date
   attribute :gender, String
+  attribute :ssn
 end
 
 class FormContactInformation
@@ -36,10 +37,29 @@ class FormContactInformation
 end
 
 class FormProfile
+  MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
+  attr_accessor :form_id
   include Virtus.model
 
   attribute :identity_information, FormIdentityInformation
   attribute :contact_information, FormContactInformation
+
+  def self.for(form)
+    case form.downcase
+    when '1010ez'
+      FormProfile::VA1010ez
+    else
+      self
+    end.new(form)
+  end
+
+  def initialize(form)
+    @form_id = form
+  end
+
+  def metadata
+    {}
+  end
 
   def self.mappings_for_form(form_id)
     @mappings ||= {}
@@ -59,11 +79,12 @@ class FormProfile
   # * MVI
   # * TODO(AJD): MIS (military history)
   #
-  def prefill_form(form_id, user)
+  def prefill(user)
     @identity_information = initialize_identity_information(user)
     @contact_information = initialize_contact_information(user)
     mappings = self.class.mappings_for_form(form_id)
-    generate_prefill(mappings)
+    form_data = generate_prefill(mappings)
+    { form_data: form_data, metadata: metadata }
   end
 
   private
@@ -74,37 +95,56 @@ class FormProfile
         first: user.first_name&.capitalize,
         middle: user.middle_name&.capitalize,
         last: user.last_name&.capitalize,
-        suffix: user.va_profile.suffix
+        suffix: user.va_profile&.suffix
       },
       date_of_birth: user.birth_date,
-      gender: user.gender
+      gender: user.gender,
+      ssn: user.ssn
     )
   end
 
   def initialize_contact_information(user)
+    return nil if user.va_profile.nil?
+    address = {
+      street: user.va_profile.address.street,
+      street2: nil,
+      city: user.va_profile.address.city,
+      state: user.va_profile.address.state,
+      postal_code: user.va_profile.address.postal_code,
+      country: user.va_profile.address.country
+    } if user.va_profile.address
     FormContactInformation.new(
-      address: {
-        street: user.va_profile.address.street,
-        street2: nil,
-        city: user.va_profile.address.city,
-        state: user.va_profile.address.state,
-        postal_code: user.va_profile.address.postal_code,
-        country: user.va_profile.address.country
-      },
+      address: address,
       home_phone: user.va_profile.home_phone
     )
   end
 
   def generate_prefill(mappings)
-    mappings.map do |k, v|
+    result = mappings.map do |k, v|
       method_chain = v.map(&:to_sym)
       { k.camelize(:lower) => call_methods(method_chain) }
     end.reduce({}, :merge)
+    clean!(result)
   end
 
   def call_methods(methods)
-    methods.inject(self) { |a, e| a.send e }
+    methods.inject(self) { |a, e| a.send e }.as_json
   rescue NoMethodError
     nil
+  end
+
+  def clean!(value)
+    if value.is_a?(Hash)
+      clean_hash!(value)
+    elsif value.is_a?(Array)
+      value.map(&:clean!).delete_if(&:blank?)
+    else
+      value
+    end
+  end
+
+  def clean_hash!(hash)
+    hash.each { |k, v| hash[k] = clean!(v) }
+    hash.delete_if { |_k, v| v.blank? }
   end
 end

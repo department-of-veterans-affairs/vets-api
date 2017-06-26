@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "required": [ "begin_date"],
+  "required": ["begin_date"],
   "additionalProperties": false,
   "properties": {
     "begin_date": {
@@ -23,31 +23,31 @@
       "type": "string"
     },
     "term_id": {
-      "type": "string"
+      "type": ["string", "null"]
     },
     "hour_type": {
-      "type": "string"
+      "type": ["string", "null"]
     },
     "full_time_hours": {
       "type": "integer"
     },
     "full_time_credit_hour_under_grad": {
-      "type": "integer"
+      "type": ["integer", "null"]
     },
     "vacation_day_count": {
-      "type": "integer"
+      "type": ["integer", "null"]
     },
     "on_campus_hours": {
-      "type": "number"
+      "type": ["number", "null"]
     },
     "online_hours": {
-      "type": "number"
+      "type": ["number", "null"]
     },
     "yellow_ribbon_amount": {
-      "type": "number"
+      "type": ["number", "null"]
     },
     "status": {
-      "type": "string"
+      "type": ["string", "null"]
     },
     "amendments": {
       "type": "array",

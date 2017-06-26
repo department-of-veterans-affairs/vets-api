@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 class InProgressForm < ActiveRecord::Base
+  EXPIRES_AFTER = 60.days
   attr_encrypted :form_data, key: Settings.db_encryption_key
   validates(:form_data, presence: true)
   before_save :serialize_form_data
@@ -13,6 +14,15 @@ class InProgressForm < ActiveRecord::Base
       form_data: JSON.parse(form_data),
       metadata: metadata
     }
+  end
+
+  def metadata
+    data = super || {}
+    expires = updated_at || Time.current
+    data.merge(
+      'expires_at' => (expires + EXPIRES_AFTER).to_i,
+      'last_updated' => updated_at.to_i
+    )
   end
 
   private

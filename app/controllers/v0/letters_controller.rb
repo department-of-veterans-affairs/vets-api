@@ -5,9 +5,13 @@ module V0
   class LettersController < ApplicationController
     def index
       response = service.get_letters
-      render json: response,
-             serializer: LettersSerializer,
-             meta: response.metadata
+      if response.ok?
+        render json: response,
+               serializer: LettersSerializer,
+               meta: response.metadata
+      else
+        render json: { data: nil, meta: response.metadata }
+      end
     end
 
     def show
@@ -19,6 +23,17 @@ module V0
                 filename: "#{params[:id]}.pdf",
                 type: 'application/pdf',
                 disposition: 'attachment'
+    end
+
+    def beneficiary
+      response = service.get_letter_beneficiary
+      if response.ok?
+        render json: response,
+               serializer: LetterBeneficiarySerializer,
+               meta: response.metadata
+      else
+        render json: { data: nil, meta: response.metadata }
+      end
     end
 
     private
