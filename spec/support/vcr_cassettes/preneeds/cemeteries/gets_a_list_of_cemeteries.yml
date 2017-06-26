@@ -328,6 +328,6 @@ http_interactions:
         VETERANS HOME CEMETERY</name><num>007</num></return><return><cemeteryType>S</cemeteryType><name>YUROK
         VETERANS CEMETERY</name><num>405</num></return><return><cemeteryType>N</cemeteryType><name>ZACHARY
         TAYLOR NATIONAL CEMETERY</name><num>883</num></return></ns2:getCemeteriesResponse></S:Body></S:Envelope>\r\n--uuid:54edac29-1291-4ce9-8a35-d1761dd3a674--"
-    http_version: 
+    http_version:
   recorded_at: Mon, 26 Jun 2017 19:54:13 GMT
 recorded_with: VCR 3.0.3

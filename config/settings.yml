@@ -127,7 +127,7 @@ appeals_status:
 # Settings for (preneeds) burials.
 # TODO: enpoint needs to be set up for https and production api when available
 preneeds:
-  url: http://some.fake_site.com/somethingsomething
+  url: http://some.fakesite.com/somethingsomething
   preneeds_wsdl: 'config/preneeds/wsdl/preneeds.wsdl'
 
 # Settings for Redis
