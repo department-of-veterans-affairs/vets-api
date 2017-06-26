@@ -19,7 +19,10 @@ class InProgressForm < ActiveRecord::Base
   def metadata
     data = super || {}
     expires = updated_at || Time.current
-    data.merge('expires_at' => (expires + EXPIRES_AFTER).to_i)
+    data.merge(
+      'expires_at' => (expires + EXPIRES_AFTER).to_i,
+      'last_updated' => updated_at.to_i
+    )
   end
 
   private
