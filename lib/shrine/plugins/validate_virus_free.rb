@@ -4,6 +4,10 @@ class Shrine
     module ValidateVirusFree
       module AttacherMethods
         def validate_virus_free(message: nil)
+          if ClamScan.configuration.client_location.blank?
+            Shrine.logger.error('NO VIRUS SCANNING ENABLED')
+            return
+          end
           cached_path = get.download.path
           result = ClamScan::Client.scan(location: cached_path)
           # TODO: Log a the full result to sentry
