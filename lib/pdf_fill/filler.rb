@@ -13,7 +13,7 @@ module PdfFill
 
     def combine_extras(old_file_path, extras_generator)
       if extras_generator.text?
-        file_path = "tmp/pdfs/form_#{Time.zone.now}_final.pdf"
+        file_path = "#{old_file_path.gsub('.pdf', '')}_final.pdf"
         extras_path = extras_generator.generate
 
         PDF_FORMS.cat(old_file_path, extras_path, file_path)
