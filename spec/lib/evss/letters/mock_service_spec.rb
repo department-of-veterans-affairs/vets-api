@@ -13,7 +13,7 @@ describe EVSS::Letters::MockService do
       allow(Rails.root).to receive(:join).and_call_original
       allow(Rails.root).to receive(:join)
         .with('config', 'evss', 'mock_letters_response.yml')
-        .and_return(root.join('config', 'evss', 'mock_letters_response.yml.example'))
+        .and_return(root.join('spec', 'support', 'evss', 'mock_letters_response.yml'))
     end
 
     describe 'get_letters' do
