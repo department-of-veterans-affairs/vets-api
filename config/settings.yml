@@ -126,10 +126,9 @@ appeals_status:
 
 # Settings for (preneeds) burials.
 # TODO: enpoint needs to be set up for https and production api when available
-preneeds:
-  endpoint: http://some.fake.site.com
-  preneeds_wsdl: 'config/preneeds/wsdl/preneeds.wsdl'
-  schemas: 'lib/preneeds/schemas/'
+# preneeds:
+#   endpoint: http://some.fake.site.com
+#   preneeds_wsdl: 'config/preneeds/wsdl/preneeds.wsdl'
 
 # Settings for Redis
 # TODO(knkski): Move all redis settings here?
