@@ -111,6 +111,8 @@ Rails.application.routes.draw do
 
     resource :beta_registrations, path: '/beta_registration/health_account', only: [:show, :create],
                                   defaults: { feature: 'health_account' }
+    resource :beta_registrations, path: '/beta_registration/appeals_status', only: [:show, :create],
+                                  defaults: { feature: 'appeals_status' }
   end
 
   root 'v0/example#index', module: 'v0'
