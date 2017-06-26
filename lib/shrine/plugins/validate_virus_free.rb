@@ -4,8 +4,10 @@ class Shrine
     module ValidateVirusFree
       module AttacherMethods
         def validate_virus_free(message: nil)
-          cached_path = "#{Rails.root}/#{get.to_io.path}"
-          ClamScan::Client.scan(location: cached_path).safe? || add_error(message) && false
+          cached_path = get.download.path
+          result = ClamScan::Client.scan(location: cached_path)
+          # TODO: Log a the full result to sentry
+          result.safe? || add_error(message) && false
         end
 
         private

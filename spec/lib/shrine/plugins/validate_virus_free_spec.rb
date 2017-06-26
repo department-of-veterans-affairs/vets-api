@@ -21,7 +21,7 @@ describe Shrine::Plugins::ValidateVirusFree do
 
     before(:each) do
       allow_any_instance_of(klass).to receive(:get)
-        .and_return(instance_double('Shrine::UploadedFile', to_io: instance_double('File', path: 'foo/bar.jpg')))
+        .and_return(instance_double('Shrine::UploadedFile', download: instance_double('File', path: 'foo/bar.jpg')))
     end
 
     context 'with the default error message' do

@@ -159,3 +159,8 @@ sentry:
 statsd:
   host: ~
   port: ~
+
+shrine:
+  claims:
+    type: local
+    path: claims

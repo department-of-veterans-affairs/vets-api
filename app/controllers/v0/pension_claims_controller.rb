@@ -13,7 +13,7 @@ module V0
         StatsD.increment("#{stats_key}.failure")
         raise Common::Exceptions::ValidationErrors, claim
       end
-
+      claim.process_attachments!
       StatsD.increment("#{stats_key}.success")
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{SavedClaim::Pension::FORM}"
       render(json: claim)
