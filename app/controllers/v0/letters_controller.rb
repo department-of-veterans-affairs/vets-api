@@ -14,11 +14,11 @@ module V0
       end
     end
 
-    def show
+    def download
       unless EVSS::Letters::Letter::LETTER_TYPES.include? params[:id]
         raise Common::Exceptions::ParameterMissing, 'letter_type', "#{params[:id]} is not a valid letter type"
       end
-      response = service.download_by_type(params[:id])
+      response = service.download_by_type(params[:id], request.body.string)
       send_data response,
                 filename: "#{params[:id]}.pdf",
                 type: 'application/pdf',
