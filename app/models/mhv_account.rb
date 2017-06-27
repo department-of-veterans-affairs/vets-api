@@ -17,6 +17,14 @@ class MhvAccount < ActiveRecord::Base
   ALL_STATES = %i(unknown needs_terms_acceptance ineligible registered upgraded register_failed upgrade_failed).freeze
   # Range of VHA facility IDs at which people receive treatment
   PATIENT_FACILITY_RANGE = [358, 758].freeze
+  ADDRESS_ATTRS = %w(street city state postal_code country).freeze
+  UNKNOWN_ADDRESS = {
+    address1: 'Unknown Address',
+    city: 'Washington',
+    state: 'DC',
+    zip: '20571',
+    country: 'USA'
+  }.freeze
   after_initialize :setup
 
   aasm(:account_state) do
@@ -78,23 +86,32 @@ class MhvAccount < ActiveRecord::Base
                                   .where(user_uuid: user.uuid).limit(1).first
   end
 
+  def address_params
+    if user.va_profile&.address.present? &&
+       ADDRESS_ATTRS.all? { |attr| user.va_profile.address[attr].present? }
+      return {
+        address1: user.va_profile.address.street,
+        city: user.va_profile.address.city,
+        state: user.va_profile.address.state,
+        zip: user.va_profile.address.postal_code,
+        country: user.va_profile.address.country
+      }
+    end
+    UNKNOWN_ADDRESS
+  end
+
   def params_for_registration
     {
       icn: user.icn,
       is_patient: va_patient?,
       is_veteran: veteran?,
-      address1: user.va_profile&.address&.street,
-      city: user.va_profile&.address&.city,
-      state: user.va_profile&.address&.state,
-      zip: user.va_profile&.address&.postal_code,
-      country: user.va_profile&.address&.country,
       province: nil, # TODO: We need to determine if this is something that could actually happen (non USA)
       email: user.email,
       home_phone: user.va_profile&.home_phone,
       sign_in_partners: 'VETS.GOV',
       terms_version: terms_and_conditions_accepted.terms_and_conditions.version,
       terms_accepted_date: terms_and_conditions_accepted.created_at
-    }
+    }.merge!(address_params)
   end
 
   def params_for_upgrade
