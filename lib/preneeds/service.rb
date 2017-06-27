@@ -50,7 +50,7 @@ module Preneeds
     private
 
     def savon_client
-      @savon ||= Savon.client(wsdl: Settings.preneeds.preneeds_wsdl)
+      @savon ||= Savon.client(wsdl: Settings.preneeds.wsdl)
     end
   end
 end
