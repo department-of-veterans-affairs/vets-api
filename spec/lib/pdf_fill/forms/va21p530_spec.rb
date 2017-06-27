@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'spec_helper'
+require 'rails_helper'
 require 'pdf_fill/forms/va21p530'
 
 describe PdfFill::Forms::VA21P530 do
