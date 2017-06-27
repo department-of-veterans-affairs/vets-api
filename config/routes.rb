@@ -12,9 +12,10 @@ Rails.application.routes.draw do
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
 
-    resources :letters, only: [:index, :show] do
+    resources :letters, only: [:index] do
       collection do
         get 'beneficiary', to: 'letters#beneficiary'
+        post ':id', to: 'letters#download'
       end
     end
 
