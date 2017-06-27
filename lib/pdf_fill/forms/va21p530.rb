@@ -11,6 +11,17 @@ module PdfFill
         }
       }
 
+      def extract_middle_i
+        full_name = @form_data['veteranFullName']
+        return if full_name.blank?
+
+        middle_name = full_name['middle']
+        return if middle_name.blank?
+        full_name['middleInitial'] = middle_name[0]
+
+        @form_data['veteranFullName']
+      end
+
       def merge_fields
         @form_data
       end
