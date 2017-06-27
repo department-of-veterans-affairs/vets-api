@@ -13,7 +13,9 @@ module SpecBuilders
 
           context "with an input of #{args.join(',')}" do
             it "should return #{return_val}" do
-              expect(klass.send(method, *args)).to eq(return_val)
+              actual = klass.send(method, *args)
+
+              expect(actual).to eq(return_val)
             end
           end
         end
