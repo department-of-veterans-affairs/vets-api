@@ -12,9 +12,10 @@ Rails.application.routes.draw do
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
 
-    resources :letters, only: [:index, :show] do
+    resources :letters, only: [:index] do
       collection do
         get 'beneficiary', to: 'letters#beneficiary'
+        post ':id', to: 'letters#download'
       end
     end
 
@@ -103,6 +104,16 @@ Rails.application.routes.draw do
       end
 
       resources :calculator_constants, only: :index, defaults: { format: :json }
+    end
+
+    namespace :preneeds do
+      resources :cemeteries, only: :index, defaults: { format: :json }
+      resources :states, only: :index, defaults: { format: :json }
+      resources :attachment_types, only: :index, defaults: { format: :json }
+      resources :discharge_types, only: :index, defaults: { format: :json }
+      resources :military_ranks, only: :index, defaults: { format: :json }
+      resources :branches_of_service, only: :index, defaults: { format: :json }
+      resources :applications, only: :create, defaults: { format: :json }
     end
 
     resources :apidocs, only: [:index]

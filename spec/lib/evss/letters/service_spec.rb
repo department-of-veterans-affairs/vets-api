@@ -61,11 +61,40 @@ describe EVSS::Letters::Service do
       end
     end
 
-    describe '#download_letter' do
-      it 'downloads a pdf' do
-        VCR.use_cassette('evss/letters/download') do
-          response = subject.download_letter_by_type(EVSS::Letters::Letter::LETTER_TYPES.first)
-          expect(response).to include('%PDF-1.4')
+    describe '#download_by_type' do
+      context 'without options' do
+        it 'downloads a pdf' do
+          VCR.use_cassette('evss/letters/download') do
+            response = subject.download_by_type(EVSS::Letters::Letter::LETTER_TYPES.first)
+            expect(response).to include('%PDF-1.4')
+          end
+        end
+      end
+
+      context 'with options' do
+        let(:options) do
+          '{
+             "militaryService": false,
+             "serviceConnectedDisabilities": false,
+             "serviceConnectedEvaluation": false,
+             "nonServiceConnectedPension": false,
+             "monthlyAward": false,
+             "unemployable": false,
+             "specialMonthlyCompensation": false,
+             "adaptedHousing": false,
+             "chapter35Eligibility": false,
+             "deathResultOfDisability": false,
+             "survivorsAward": false
+           }'
+        end
+        it 'downloads a pdf' do
+          VCR.use_cassette('evss/letters/download_options') do
+            response = subject.download_by_type(
+              EVSS::Letters::Letter::LETTER_TYPES.first,
+              options
+            )
+            expect(response).to include('%PDF-1.4')
+          end
         end
       end
     end

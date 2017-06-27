@@ -9,7 +9,7 @@ RSpec.describe 'in progress forms', type: :request do
   before do
     Session.create(uuid: user.uuid, token: token)
     User.create(user)
-    allow(FormProfile).to receive(:load_form_mapping).with('1010ez').and_return(
+    allow(FormProfile).to receive(:load_form_mapping).with('FAKEFORM').and_return(
       'veteran_full_name' => %w(identity_information full_name),
       'gender' => %w(identity_information gender),
       'veteran_date_of_birth' => %w(identity_information date_of_birth),
@@ -73,7 +73,7 @@ RSpec.describe 'in progress forms', type: :request do
 
     context 'when a form is not found' do
       it 'returns pre-fill data' do
-        get v0_in_progress_form_url('1010ez'), nil, auth_header
+        get v0_in_progress_form_url('FAKEFORM'), nil, auth_header
         expect(JSON.parse(response.body)['form_data']).to eq(
           'veteranFullName' => {
             'first' => user.first_name&.capitalize,
