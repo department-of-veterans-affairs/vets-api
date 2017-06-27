@@ -43,41 +43,44 @@ describe PdfFill::Filler do
   end
 
   describe '#fill_form' do
-    %w(simple kitchen_sink overflow).each do |type|
-      context "with #{type} test data" do
-        let(:form_data) do
-          get_fixture("pdf_fill/21P-527EZ/#{type}")
-        end
-
-        it 'should fill the form correctly' do
-          saved_claim = create(:pension_claim, form: form_data.to_json)
-
-          if type == 'overflow'
-            # when pdftk combines files there are random diffs so we can't compare the pdfs like normal
-            the_extras_generator = nil
-
-            expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
-              the_extras_generator = extras_generator
-              old_file_path
-            end
+    %w(21P-527EZ 21P-530).each do |form_id|
+      %w(simple kitchen_sink overflow).each do |type|
+        context "with #{type} test data" do
+          let(:form_data) do
+            get_fixture("pdf_fill/#{form_id}/#{type}")
           end
 
-          file_path = described_class.fill_form(saved_claim)
+          it 'should fill the form correctly' do
+            fact_name = form_id == '21P-527EZ' ? :pension_claim : :burial_claim
+            saved_claim = create(fact_name, form: form_data.to_json)
 
-          if type == 'overflow'
-            extras_path = the_extras_generator.generate
+            if type == 'overflow'
+              # when pdftk combines files there are random diffs so we can't compare the pdfs like normal
+              the_extras_generator = nil
+
+              expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
+                the_extras_generator = extras_generator
+                old_file_path
+              end
+            end
+
+            file_path = described_class.fill_form(saved_claim)
+
+            if type == 'overflow'
+              extras_path = the_extras_generator.generate
+              expect(
+                FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
+              ).to eq(true)
+
+              File.delete(extras_path)
+            end
+
             expect(
-              FileUtils.compare_file(extras_path, 'spec/fixtures/pdf_fill/21P-527EZ/overflow_extras.pdf')
+              FileUtils.compare_file(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
             ).to eq(true)
 
-            File.delete(extras_path)
+            File.delete(file_path)
           end
-
-          expect(
-            FileUtils.compare_file(file_path, "spec/fixtures/pdf_fill/21P-527EZ/#{type}.pdf")
-          ).to eq(true)
-
-          File.delete(file_path)
         end
       end
     end

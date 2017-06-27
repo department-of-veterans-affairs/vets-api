@@ -2,9 +2,8 @@
 # rubocop:disable Metrics/ClassLength
 module PdfFill
   module Forms
-    class VA21P527EZ
+    class VA21P527EZ < FormBase
       ITERATOR = PdfFill::HashConverter::ITERATOR
-      DATE_STRFTIME = '%m/%d/%Y'
       INCOME_TYPES_KEY = {
         'bank' => 'CASH/NON-INTEREST BEARING BANK ACCOUNTS',
         'interestBank' => 'INTEREST-BEARING BANK ACCOUNTS',
@@ -398,10 +397,6 @@ module PdfFill
 
         key
       end.call.freeze
-
-      def initialize(form_data)
-        @form_data = form_data.deep_dup
-      end
 
       def expand_date_range(hash, key)
         return if hash.blank?
