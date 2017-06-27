@@ -22,8 +22,4 @@ class SavedClaim::Burial < SavedClaim
     #   ensure
     #     File.delete(claim_t)
   end
-
-  def attachment_keys
-    self.class::ATTACHMENT_KEYS
-  end
 end

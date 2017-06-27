@@ -1,3 +1,6 @@
+binaries:
+  clamdscan: ~
+
 hostname: www.example.com
 
 # For CORS requests; separate multiple origins with a comma

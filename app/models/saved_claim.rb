@@ -54,6 +54,6 @@ class SavedClaim < ActiveRecord::Base
   private
 
   def attachment_keys
-    []
+    defined?(self.class::ATTACHMENT_KEYS) ? self.class::ATTACHMENT_KEYS : []
   end
 end
