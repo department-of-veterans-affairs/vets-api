@@ -14,14 +14,15 @@ class ClaimDocumentation::Uploader < VetsShrine
   end
 
   def generate_location(io, context)
-    fname = case io
-    when File
-      File.basename(io.path)
-    when ActionDispatch::Http::UploadedFile
-      io.original_filename
-    when Shrine::UploadedFile
-      JSON.parse(context[:record].file_data)['metadata']['filename']
-    end
+    fname =
+      case io
+      when File
+        File.basename(io.path)
+      when ActionDispatch::Http::UploadedFile
+        io.original_filename
+      when Shrine::UploadedFile
+        JSON.parse(context[:record].file_data)['metadata']['filename']
+      end
     step = begin
              context[:record].current_task
            rescue
