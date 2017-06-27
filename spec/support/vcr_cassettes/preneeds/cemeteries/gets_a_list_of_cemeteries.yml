@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<PRENEEDS_URL>"
+    uri: "<PRENEEDS_HOST>/eoas_SOA/PreNeedApplicationPort"
     body:
       encoding: UTF-8
       string: <?xml version="1.0" encoding="UTF-8"?><env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema"
