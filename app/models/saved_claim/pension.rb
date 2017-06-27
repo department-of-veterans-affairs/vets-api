@@ -12,8 +12,4 @@ class SavedClaim::Pension < SavedClaim
   def to_pdf
     # Tempfile.new('not-really-implimented', '.pdf')
   end
-
-  def attachment_keys
-    self.class::ATTACHMENT_KEYS
-  end
 end
