@@ -21,6 +21,18 @@ describe PdfFill::Forms::VA21P530 do
         expect(subject).to eq(nil)
       end
     end
+
+    context 'with a ssn' do
+      let(:form_data) do
+        {
+          'veteranSocialSecurityNumber' => '111223333'
+        }
+      end
+
+      it 'should split the ssn' do
+        expect(subject).to eq({"first"=>"111", "second"=>"22", "third"=>"3333"})
+      end
+    end
   end
 
   describe '#extract_middle_i' do
