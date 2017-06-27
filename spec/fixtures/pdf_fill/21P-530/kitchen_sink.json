@@ -2,6 +2,12 @@
   "privacyAgreementAccepted": true,
   "vaFileNumber": "c12345678",
   "veteranSocialSecurityNumber": "111223333",
+  "claimantFullName": {
+    "first": "claimant",
+    "middle": "middle",
+    "last": "smith",
+    "suffix": "Sr."
+  },
   "veteranFullName": {
     "first": "john",
     "middle": "middle",

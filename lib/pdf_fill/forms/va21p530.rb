@@ -21,6 +21,21 @@ module PdfFill
         'vaFileNumber' => {
           key: 'form1[0].#subform[36].VAFileNumber[0]'
         },
+        'claimantFullName' => {
+          'first' => {
+            key: 'form1[0].#subform[36].ClaimantsFirstName[0]',
+            limit: 12,
+            question: "4. CLAIMANT'S FIRST NAME"
+          },
+          'middleInitial' => {
+            key: 'form1[0].#subform[36].ClaimantsMiddleInitial1[0]'
+          },
+          'last' => {
+            key: 'form1[0].#subform[36].ClaimantsLastName[0]',
+            limit: 18,
+            question: "4. CLAIMANT'S LAST NAME"
+          }
+        },
         'veteranSocialSecurityNumber' => {
           'first' => {
             key: 'form1[0].#subform[36].VeteransSocialSecurityNumber_FirstThreeNumbers[0]'
