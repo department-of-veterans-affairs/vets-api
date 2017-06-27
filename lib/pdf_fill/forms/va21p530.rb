@@ -45,19 +45,19 @@ module PdfFill
         }
       end
 
-      def extract_middle_i
-        full_name = @form_data['veteranFullName']
+      def extract_middle_i(hash, key)
+        full_name = hash[key]
         return if full_name.blank?
 
         middle_name = full_name['middle']
         return if middle_name.blank?
         full_name['middleInitial'] = middle_name[0]
 
-        @form_data['veteranFullName']
+        hash[key]
       end
 
       def merge_fields
-        extract_middle_i
+        extract_middle_i(@form_data, 'veteranFullName')
         split_ssn
 
         @form_data

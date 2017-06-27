@@ -36,9 +36,13 @@ describe PdfFill::Forms::VA21P530 do
   end
 
   describe '#extract_middle_i' do
+    subject do
+      described_class.new(form_data).extract_middle_i(form_data, 'veteranFullName')
+    end
+
     context 'with no veteran full name' do
       it 'should return nil' do
-        expect(subject.extract_middle_i).to eq(nil)
+        expect(subject).to eq(nil)
       end
     end
 
@@ -50,7 +54,7 @@ describe PdfFill::Forms::VA21P530 do
       end
 
       it 'should return nil' do
-        expect(subject.extract_middle_i).to eq(nil)
+        expect(subject).to eq(nil)
       end
     end
 
@@ -64,7 +68,7 @@ describe PdfFill::Forms::VA21P530 do
       end
 
       it 'should extract middle initial' do
-        expect(subject.extract_middle_i).to eq({
+        expect(subject).to eq({
           'middle' => 'middle',
           'middleInitial' => 'm'
         })
