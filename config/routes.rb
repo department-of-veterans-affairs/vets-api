@@ -9,9 +9,10 @@ Rails.application.routes.draw do
 
   namespace :v0, defaults: { format: 'json' } do
     resources :in_progress_forms, only: [:index, :show, :update, :destroy]
-    resources :letters, only: [:index, :show] do
+    resources :letters, only: [:index] do
       collection do
         get 'beneficiary', to: 'letters#beneficiary'
+        post ':id', to: 'letters#download'
       end
     end
 

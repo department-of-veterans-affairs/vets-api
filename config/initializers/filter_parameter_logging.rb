@@ -6,6 +6,8 @@ WHITELIST = %w(
   controller
   action
   id
+  from_date
+  to_date
 ).freeze
 Rails.application.config.filter_parameters = [lambda do |k, v|
   if v.is_a?(String)
