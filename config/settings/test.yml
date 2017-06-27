@@ -14,3 +14,13 @@ reports:
 saml:
   cert_path: spec/support/certificates/ruby-saml.crt
   key_path: spec/support/certificates/ruby-saml.key
+
+
+edu:
+  sftp:
+    relative_path: 'spool_files'
+
+
+pension_burial:
+  sftp:
+    relative_path: 'VETSGOV_PENSION'

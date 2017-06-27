@@ -29,6 +29,9 @@
                 },
                 "service_connected_percentage": {
                   "type": "integer"
+                },
+                "award_effective_date": {
+                  "type": "string"
                 }
               },
               "type": ["object", "null"]
