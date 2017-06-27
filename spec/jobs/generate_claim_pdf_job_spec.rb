@@ -10,6 +10,8 @@ RSpec.describe GenerateClaimPDFJob do
       FileUtils.cp spec_file, tmpfile
     end
     it 'creates an attachment for the claim' do
+      allow(ClamScan::Client).to receive(:scan)
+        .and_return(instance_double('ClamScan::Response', safe?: true))
       allow(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
       expect(claim).to receive(:to_pdf).and_return(tmpfile.open)
       expect { subject.perform(claim.id) }.to change {
