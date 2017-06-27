@@ -4,7 +4,7 @@ require 'support/attr_encrypted_matcher'
 
 RSpec.describe FormProfile, type: :model do
   let(:user) { build(:loa3_user) }
-  let(:expected) do
+  let(:v1010ez_expected) do
     {
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
@@ -12,6 +12,7 @@ RSpec.describe FormProfile, type: :model do
         'suffix' => user.va_profile[:suffix]
       },
       'veteranDateOfBirth' => user.birth_date,
+      'email' => user.email,
       'veteranAddress' => {
         'street' => user.va_profile[:address][:street],
         'city' => user.va_profile[:address][:city],
@@ -25,6 +26,46 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v21p527_expected) do
+    {
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'veteranAddress' => {
+        'street' => user.va_profile[:address][:street],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code]
+      },
+      'gender' => user.gender,
+      'dayPhone' => user.va_profile[:home_phone],
+      'veteranSocialSecurityNumber' => user.ssn,
+      'veteranDateOfBirth' => user.birth_date
+    }
+  end
+
+  let(:v21p530_expected) do
+    {
+      'claimantFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'claimantAddress' => {
+        'street' => user.va_profile[:address][:street],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code]
+      },
+      'claimantPhone' => user.va_profile[:home_phone],
+      'claimantEmail' => user.email
+    }
+  end
+
   before(:each) do
     described_class.instance_variable_set(:@mappings, nil)
   end
@@ -32,7 +73,19 @@ RSpec.describe FormProfile, type: :model do
   describe '#prefill_form' do
     context 'with a healthcare application form' do
       it 'returns the va profile mapped to the healthcare form' do
-        expect(Oj.load(described_class.new('1010ez').prefill(user).to_json)['form_data']).to eq(expected)
+        expect(Oj.load(described_class.for('1010ez').prefill(user).to_json)['form_data']).to eq(v1010ez_expected)
+      end
+    end
+
+    context 'with a burial application form' do
+      it 'returns the va profile mapped to the burial form' do
+        expect(Oj.load(described_class.for('21P-530').prefill(user).to_json)['form_data']).to eq(v21p530_expected)
+      end
+    end
+
+    context 'with a pension application form' do
+      it 'returns the va profile mapped to the pension form' do
+        expect(Oj.load(described_class.for('21P-527EZ').prefill(user).to_json)['form_data']).to eq(v21p527_expected)
       end
     end
 
