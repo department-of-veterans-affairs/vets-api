@@ -18,6 +18,9 @@ module PdfFill
             question: "1. DECEASED VETERAN'S LAST NAME"
           }
         },
+        'vaFileNumber' => {
+          key: 'form1[0].#subform[36].VAFileNumber[0]'
+        },
         'veteranSocialSecurityNumber' => {
           'first' => {
             key: 'form1[0].#subform[36].VeteransSocialSecurityNumber_FirstThreeNumbers[0]'
