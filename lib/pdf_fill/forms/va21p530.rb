@@ -72,7 +72,10 @@ module PdfFill
       end
 
       def merge_fields
-        extract_middle_i(@form_data, 'veteranFullName')
+        %w(veteranFullName claimantFullName).each do |attr|
+          extract_middle_i(@form_data, attr)
+        end
+
         split_ssn
 
         @form_data
