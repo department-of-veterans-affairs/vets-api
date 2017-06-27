@@ -17,6 +17,17 @@ module PdfFill
             limit: 18,
             question: "1. DECEASED VETERAN'S LAST NAME"
           }
+        },
+        'veteranSocialSecurityNumber' => {
+          'first' => {
+            key: 'form1[0].#subform[36].VeteransSocialSecurityNumber_FirstThreeNumbers[0]'
+          },
+          'second' => {
+            key: 'form1[0].#subform[36].VeteransSocialSecurityNumber_SecondTwoNumbers[0]'
+          },
+          'third' => {
+            key: 'form1[0].#subform[36].VeteransSocialSecurityNumber_LastFourNumbers[0]'
+          }
         }
       }
 
@@ -44,6 +55,7 @@ module PdfFill
 
       def merge_fields
         extract_middle_i
+        split_ssn
 
         @form_data
       end
