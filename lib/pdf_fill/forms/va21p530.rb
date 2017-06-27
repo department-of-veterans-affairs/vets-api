@@ -7,6 +7,9 @@ module PdfFill
             key: 'form1[0].#subform[36].VeteransFirstName[0]',
             limit: 12,
             question: "1. DECEASED VETERAN'S FIRST NAME"
+          },
+          'middleInitial' => {
+            key: 'form1[0].#subform[36].VeteransMiddleInitial1[0]'
           }
         }
       }
@@ -23,6 +26,8 @@ module PdfFill
       end
 
       def merge_fields
+        extract_middle_i
+
         @form_data
       end
     end
