@@ -5,154 +5,399 @@ module PdfFill
     class VA21P527EZ
       ITERATOR = PdfFill::HashConverter::ITERATOR
       DATE_STRFTIME = '%m/%d/%Y'
-      KEY = {
-        'vaFileNumber' => 'F[0].Page_5[0].VAfilenumber[0]',
-        'spouseSocialSecurityNumber' => 'F[0].Page_6[0].SSN[0]',
-        'genderMale' => 'F[0].Page_5[0].Male[0]',
-        'genderFemale' => 'F[0].Page_5[0].Female[0]',
-        'hasFileNumber' => 'F[0].Page_5[0].YesFiled[0]',
-        'noFileNumber' => 'F[0].Page_5[0].NoFiled[0]',
-        'hasPowDateRange' => 'F[0].Page_5[0].YesPOW[0]',
-        'noPowDateRange' => 'F[0].Page_5[0].NoPOW[0]',
-        'monthlySpousePayment' => 'F[0].Page_6[0].MonthlySupport[0]',
-        'spouseDateOfBirth' => 'F[0].Page_6[0].Date[8]',
-        'noLiveWithSpouse' => 'F[0].Page_6[0].CheckboxSpouseNo[0]',
-        'hasLiveWithSpouse' => 'F[0].Page_6[0].CheckboxSpouseYes[0]',
-        'noSpouseIsVeteran' => 'F[0].Page_6[0].CheckboxVetNo[0]',
-        'hasSpouseIsVeteran' => 'F[0].Page_6[0].CheckboxVetYes[0]',
-        'maritalStatusNeverMarried' => 'F[0].Page_6[0].CheckboxMaritalNeverMarried[0]',
-        'maritalStatusWidowed' => 'F[0].Page_6[0].CheckboxMaritalWidowed[0]',
-        'maritalStatusDivorced' => 'F[0].Page_6[0].CheckboxMaritalDivorced[0]',
-        'maritalStatusMarried' => 'F[0].Page_6[0].CheckboxMaritalMarried[0]',
-        'hasChecking' => 'F[0].Page_8[0].Account[2]',
-        'hasSavings' => 'F[0].Page_8[0].Account[0]',
-        'checkingAccountNumber' => 'F[0].Page_8[0].CheckingAccountNumber[0]',
-        'noRapidProcessing' => 'F[0].Page_8[0].CheckBox1[0]',
-        'savingsAccountNumber' => 'F[0].Page_8[0].SavingsAccountNumber[0]',
-        'bankAccount' => {
-          'bankName' => 'F[0].Page_8[0].Nameofbank[0]',
-          'routingNumber' => 'F[0].Page_8[0].Routingortransitnumber[0]'
-        },
-        'noBankAccount' => 'F[0].Page_8[0].Account[1]',
-        'monthlyIncomes' => {
-          'amount' => "monthlyIncomes.amount[#{ITERATOR}]",
-          'additionalSourceName' => "monthlyIncomes.additionalSourceName[#{ITERATOR}]",
-          'recipient' => "monthlyIncomes.recipient[#{ITERATOR}]"
-        },
-        'otherExpenses' => {
-          'amount' => "otherExpenses.amount[#{ITERATOR}]",
-          'purpose' => "otherExpenses.purpose[#{ITERATOR}]",
-          'paidTo' => "otherExpenses.paidTo[#{ITERATOR}]",
-          'relationship' => "otherExpenses.relationship[#{ITERATOR}]",
-          'date' => "otherExpenses.date[#{ITERATOR}]"
-        },
-        'netWorths' => {
-          'amount' => "netWorths.amount[#{ITERATOR}]",
-          'additionalSourceName' => "netWorths.additionalSourceName[#{ITERATOR}]",
-          'recipient' => "netWorths.recipient[#{ITERATOR}]"
-        },
-        'expectedIncomes' => {
-          'amount' => "expectedIncomes.amount[#{ITERATOR}]",
-          'additionalSourceName' => "expectedIncomes.additionalSourceName[#{ITERATOR}]",
-          'recipient' => "expectedIncomes.recipient[#{ITERATOR}]"
-        },
-        'hasPreviousNames' => 'F[0].Page_5[0].YesName[0]',
-        'noPreviousNames' => 'F[0].Page_5[0].NameNo[0]',
-        'hasCombatSince911' => 'F[0].Page_5[0].YesCZ[0]',
-        'noCombatSince911' => 'F[0].Page_5[0].NoCZ[0]',
-        'spouseMarriagesExplanations' => 'F[0].Page_6[0].Explainothertypeofmarriage[0]',
-        'marriagesExplanations' => 'F[0].Page_6[0].Explainothertypesofmarriage[0]',
-        'hasSeverancePay' => 'F[0].Page_5[0].YesSep[0]',
-        'noSeverancePay' => 'F[0].Page_5[0].NoSep[0]',
-        'veteranDateOfBirth' => 'F[0].Page_5[0].Date[0]',
-        'spouseVaFileNumber' => 'F[0].Page_6[0].SpouseVAfilenumber[0]',
-        'veteranSocialSecurityNumber' => 'F[0].Page_5[0].SSN[0]',
-        'severancePay' => {
-          'amount' => 'F[0].Page_5[0].Listamount[0]',
-          'type' => 'F[0].Page_5[0].Listtype[0]'
-        },
-        'marriageCount' => 'F[0].Page_6[0].Howmanytimesmarried[0]',
-        'spouseMarriageCount' => 'F[0].Page_6[0].Howmanytimesspousemarried[0]',
-        'powDateRangeStart' => 'F[0].Page_5[0].Date[1]',
-        'powDateRangeEnd' => 'F[0].Page_5[0].Date[2]',
-        'jobs' => {
-          'annualEarnings' => "F[0].Page_5[0].Totalannualearnings[#{ITERATOR}]",
-          'nameAndAddr' => "F[0].Page_5[0].Nameandaddressofemployer[#{ITERATOR}]",
-          'jobTitle' => "F[0].Page_5[0].Jobtitle[#{ITERATOR}]",
-          'dateRangeStart' => "F[0].Page_5[0].DateJobBegan[#{ITERATOR}]",
-          'dateRangeEnd' => "F[0].Page_5[0].DateJobEnded[#{ITERATOR}]",
-          'daysMissed' => "F[0].Page_5[0].Dayslostduetodisability[#{ITERATOR}]"
-        },
-        'spouseMarriages' => {
-          'dateOfMarriage' => "spouseMarriages.dateOfMarriage[#{ITERATOR}]",
-          'locationOfMarriage' => "spouseMarriages.locationOfMarriage[#{ITERATOR}]",
-          'locationOfSeparation' => "spouseMarriages.locationOfSeparation[#{ITERATOR}]",
-          'spouseFullName' => "spouseMarriages.spouseFullName[#{ITERATOR}]",
-          'marriageType' => "spouseMarriages.marriageType[#{ITERATOR}]",
-          'dateOfSeparation' => "spouseMarriages.dateOfSeparation[#{ITERATOR}]",
-          'reasonForSeparation' => "spouseMarriages.reasonForSeparation[#{ITERATOR}]"
-        },
-        'marriages' => {
-          'dateOfMarriage' => "marriages.dateOfMarriage[#{ITERATOR}]",
-          'locationOfMarriage' => "marriages.locationOfMarriage[#{ITERATOR}]",
-          'locationOfSeparation' => "marriages.locationOfSeparation[#{ITERATOR}]",
-          'spouseFullName' => "marriages.spouseFullName[#{ITERATOR}]",
-          'marriageType' => "marriages.marriageType[#{ITERATOR}]",
-          'dateOfSeparation' => "marriages.dateOfSeparation[#{ITERATOR}]",
-          'reasonForSeparation' => "marriages.reasonForSeparation[#{ITERATOR}]"
-        },
-        'nationalGuard' => {
-          'nameAndAddr' => 'F[0].Page_5[0].Nameandaddressofunit[0]',
-          'phone' => 'F[0].Page_5[0].Unittelephonenumber[0]',
-          'date' => 'F[0].Page_5[0].DateofActivation[0]',
-          'phoneAreaCode' => 'F[0].Page_5[0].Unittelephoneareacode[0]'
-        },
-        'spouseAddress' => 'F[0].Page_6[0].Spouseaddress[0]',
-        'outsideChildren' => {
-          'childAddress' => "outsideChildren.childAddress[#{ITERATOR}]",
-          'childFullName' => "outsideChildren.childFullName[#{ITERATOR}]",
-          'monthlyPayment' => "outsideChildren.monthlyPayment[#{ITERATOR}]",
-          'personWhoLivesWithChild' => "outsideChildren.personWhoLivesWithChild[#{ITERATOR}]"
-        },
-        'children' => {
-          'childSocialSecurityNumber' => "children.childSocialSecurityNumber[#{ITERATOR}]",
-          'childDateOfBirth' => "children.childDateOfBirth[#{ITERATOR}]",
-          'childPlaceOfBirth' => "children.childPlaceOfBirth[#{ITERATOR}]",
-          'attendingCollege' => "children.attendingCollege[#{ITERATOR}]",
-          'married' => "children.married[#{ITERATOR}]",
-          'disabled' => "children.disabled[#{ITERATOR}]",
-          'biological' => "children.biological[#{ITERATOR}]",
-          'childFullName' => "children.name[#{ITERATOR}]",
-          'adopted' => "children.adopted[#{ITERATOR}]",
-          'stepchild' => "children.stepchild[#{ITERATOR}]",
-          'previouslyMarried' => "children.previouslyMarried[#{ITERATOR}]"
-        },
-        'hasNationalGuardActivation' => 'F[0].Page_5[0].YesAD[0]',
-        'noNationalGuardActivation' => 'F[0].Page_5[0].NoAD[0]',
-        'nightPhone' => 'F[0].Page_5[0].Eveningphonenumber[0]',
-        'mobilePhone' => 'F[0].Page_5[0].Cellphonenumber[0]',
-        'mobilePhoneAreaCode' => 'F[0].Page_5[0].Cellphoneareacode[0]',
-        'nightPhoneAreaCode' => 'F[0].Page_5[0].Eveningareacode[0]',
-        'dayPhone' => 'F[0].Page_5[0].Daytimephonenumber[0]',
-        'previousNames' => 'F[0].Page_5[0].Listothernames[0]',
-        'dayPhoneAreaCode' => 'F[0].Page_5[0].Daytimeareacode[0]',
-        'vaHospitalTreatmentNames' => "F[0].Page_5[0].Nameandlocationofvamedicalcenter[#{ITERATOR}]",
-        'serviceBranch' => 'F[0].Page_5[0].Branchofservice[0]',
-        'veteranAddressLine1' => 'F[0].Page_5[0].Currentaddress[0]',
-        'email' => 'F[0].Page_5[0].Preferredemailaddress[0]',
-        'altEmail' => 'F[0].Page_5[0].Alternateemailaddress[0]',
-        'cityState' => 'F[0].Page_5[0].Citystatezipcodecountry[0]',
-        'activeServiceDateRangeStart' => 'F[0].Page_5[0].DateEnteredActiveService[0]',
-        'activeServiceDateRangeEnd' => 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]',
-        'disabilityNames' => "F[0].Page_5[0].Disability[#{ITERATOR}]",
-        'placeOfSeparation' => 'F[0].Page_5[0].Placeofseparation[0]',
-        'reasonForNotLivingWithSpouse' => 'F[0].Page_6[0].Reasonfornotlivingwithspouse[0]',
-        'disabilities' => {
-          'disabilityStartDate' => "F[0].Page_5[0].DateDisabilityBegan[#{ITERATOR}]"
-        },
-        'vaHospitalTreatmentDates' => "F[0].Page_5[0].DateofTreatment[#{ITERATOR}]",
-        'veteranFullName' => 'F[0].Page_5[0].Veteransname[0]'
+      INCOME_TYPES_KEY = {
+        'bank' => 'CASH/NON-INTEREST BEARING BANK ACCOUNTS',
+        'interestBank' => 'INTEREST-BEARING BANK ACCOUNTS',
+        'ira' => "IRA'S, KEOGH PLANS, ETC.",
+        'stocks' => 'STOCKS, BONDS, MUTUAL FUNDS, ETC.',
+        'realProperty' => 'REAL PROPERTY',
+        'socialSecurity' => 'SOCIAL SECURITY',
+        'civilService' => 'U.S. CIVIL SERVICE',
+        'railroad' => 'U.S. RAILROAD RETIREMENT',
+        'blackLung' => 'BLACK LUNG BENEFITS',
+        'serviceRetirement' => 'SERVICE RETIREMENT',
+        'ssi' => 'SUPPLEMENTAL SECURITY INCOME (SSI)/PUBLIC ASSISTANCE',
+        'salary' => 'GROSS WAGES AND SALARY',
+        'interest' => 'TOTAL DIVIDENDS AND INTEREST'
       }.freeze
+
+      KEY = lambda do
+        key = {
+          'vaFileNumber' => { key: 'F[0].Page_5[0].VAfilenumber[0]' },
+          'spouseSocialSecurityNumber' => { key: 'F[0].Page_6[0].SSN[0]' },
+          'genderMale' => { key: 'F[0].Page_5[0].Male[0]' },
+          'genderFemale' => { key: 'F[0].Page_5[0].Female[0]' },
+          'hasFileNumber' => { key: 'F[0].Page_5[0].YesFiled[0]' },
+          'noFileNumber' => { key: 'F[0].Page_5[0].NoFiled[0]' },
+          'hasPowDateRange' => { key: 'F[0].Page_5[0].YesPOW[0]' },
+          'noPowDateRange' => { key: 'F[0].Page_5[0].NoPOW[0]' },
+          'monthlySpousePayment' => {
+            key: 'F[0].Page_6[0].MonthlySupport[0]',
+            limit: 11,
+            question: "22H. HOW MUCH DO YOU CONTRIBUTE MONTHLY TO YOUR SPOUSE'S SUPPORT?"
+          },
+          'spouseDateOfBirth' => { key: 'F[0].Page_6[0].Date[8]' },
+          'noLiveWithSpouse' => { key: 'F[0].Page_6[0].CheckboxSpouseNo[0]' },
+          'hasLiveWithSpouse' => { key: 'F[0].Page_6[0].CheckboxSpouseYes[0]' },
+          'noSpouseIsVeteran' => { key: 'F[0].Page_6[0].CheckboxVetNo[0]' },
+          'hasSpouseIsVeteran' => { key: 'F[0].Page_6[0].CheckboxVetYes[0]' },
+          'maritalStatusNeverMarried' => {
+            key: 'F[0].Page_6[0].CheckboxMaritalNeverMarried[0]'
+          },
+          'maritalStatusWidowed' => { key: 'F[0].Page_6[0].CheckboxMaritalWidowed[0]' },
+          'maritalStatusDivorced' => { key: 'F[0].Page_6[0].CheckboxMaritalDivorced[0]' },
+          'maritalStatusMarried' => { key: 'F[0].Page_6[0].CheckboxMaritalMarried[0]' },
+          'hasChecking' => { key: 'F[0].Page_8[0].Account[2]' },
+          'hasSavings' => { key: 'F[0].Page_8[0].Account[0]' },
+          'checkingAccountNumber' => {
+            limit: 11,
+            question: '29. Checking Account Number',
+            key: 'F[0].Page_8[0].CheckingAccountNumber[0]'
+          },
+          'noRapidProcessing' => { key: 'F[0].Page_8[0].CheckBox1[0]' },
+          'savingsAccountNumber' => {
+            limit: 11,
+            question: '29. Savings Account Number',
+            key: 'F[0].Page_8[0].SavingsAccountNumber[0]'
+          },
+          'bankAccount' => {
+            'bankName' => {
+              limit: 44,
+              question: '30. NAME OF FINANCIAL INSTITUTION',
+              key: 'F[0].Page_8[0].Nameofbank[0]'
+            },
+            'routingNumber' => { key: 'F[0].Page_8[0].Routingortransitnumber[0]' }
+          },
+          'noBankAccount' => { key: 'F[0].Page_8[0].Account[1]' },
+          'otherExpenses' => {
+            limit: 4,
+            first_key: 'purpose',
+            'amount' => {
+              limit: 10,
+              question: '28. AMOUNT PAID BY YOU',
+              key: 'otherExpenses.amount[%iterator%]'
+            },
+            'purpose' => {
+              limit: 58,
+              question: '28. PURPOSE',
+              key: 'otherExpenses.purpose[%iterator%]'
+            },
+            'paidTo' => {
+              question: '28. PAID TO',
+              limit: 29,
+              key: 'otherExpenses.paidTo[%iterator%]'
+            },
+            'relationship' => {
+              limit: 33,
+              question: '28. RELATIONSHIP OF PERSON FOR WHOM EXPENSES PAID',
+              key: 'otherExpenses.relationship[%iterator%]'
+            },
+            'date' => {
+              question: '28. DATE PAID',
+              key: 'otherExpenses.date[%iterator%]'
+            }
+          },
+          'hasPreviousNames' => { key: 'F[0].Page_5[0].YesName[0]' },
+          'noPreviousNames' => { key: 'F[0].Page_5[0].NameNo[0]' },
+          'hasCombatSince911' => { key: 'F[0].Page_5[0].YesCZ[0]' },
+          'noCombatSince911' => { key: 'F[0].Page_5[0].NoCZ[0]' },
+          'spouseMarriagesExplanations' => {
+            limit: 90,
+            question: '21F. IF YOU INDICATED "OTHER" AS TYPE OF MARRIAGE IN ITEM 21C, PLEASE EXPLAIN:',
+            key: 'F[0].Page_6[0].Explainothertypeofmarriage[0]'
+          },
+          'marriagesExplanations' => {
+            limit: 90,
+            question: '19F. IF YOU INDICATED "OTHER" AS TYPE OF MARRIAGE IN ITEM 19C, PLEASE EXPLAIN:',
+            key: 'F[0].Page_6[0].Explainothertypesofmarriage[0]'
+          },
+          'hasSeverancePay' => { key: 'F[0].Page_5[0].YesSep[0]' },
+          'noSeverancePay' => { key: 'F[0].Page_5[0].NoSep[0]' },
+          'veteranDateOfBirth' => { key: 'F[0].Page_5[0].Date[0]' },
+          'spouseVaFileNumber' => { key: 'F[0].Page_6[0].SpouseVAfilenumber[0]' },
+          'veteranSocialSecurityNumber' => { key: 'F[0].Page_5[0].SSN[0]' },
+          'severancePay' => {
+            'amount' => {
+              key: 'F[0].Page_5[0].Listamount[0]',
+              limit: 17,
+              question: '16B. LIST AMOUNT (If known)'
+            },
+            'type' => { key: 'F[0].Page_5[0].Listtype[0]' }
+          },
+          'marriageCount' => { key: 'F[0].Page_6[0].Howmanytimesmarried[0]' },
+          'spouseMarriageCount' => { key: 'F[0].Page_6[0].Howmanytimesspousemarried[0]' },
+          'powDateRangeStart' => { key: 'F[0].Page_5[0].Date[1]' },
+          'powDateRangeEnd' => { key: 'F[0].Page_5[0].Date[2]' },
+          'jobs' => {
+            first_key: 'nameAndAddr',
+            limit: 2,
+            'annualEarnings' => {
+              limit: 10,
+              question: '17F. WHAT WERE YOUR TOTAL ANNUAL EARNINGS?',
+              key: "jobs.annualEarnings[#{ITERATOR}]"
+            },
+            'nameAndAddr' => {
+              key: "jobs.nameAndAddr[#{ITERATOR}]",
+              limit: 27,
+              question: '17A. WHAT WAS THE NAME AND ADDRESS OF YOUR EMPLOYER?'
+            },
+            'jobTitle' => {
+              key: "jobs.jobTitle[#{ITERATOR}]",
+              question: '17B. WHAT WAS YOUR JOB TITLE?',
+              limit: 25
+            },
+            'dateRangeStart' => {
+              key: "jobs.dateRangeStart[#{ITERATOR}]",
+              question: '17C. WHEN DID YOUR JOB BEGIN?'
+            },
+            'dateRangeEnd' => {
+              key: "jobs.dateRangeEnd[#{ITERATOR}]",
+              question: '17D. WHEN DID YOUR JOB END?'
+            },
+            'daysMissed' => {
+              limit: 9,
+              question: '17E. HOW MANY DAYS WERE LOST DUE TO DISABILITY?',
+              key: "jobs.daysMissed[#{ITERATOR}]"
+            }
+          },
+          'nationalGuard' => {
+            'nameAndAddr' => {
+              key: 'F[0].Page_5[0].Nameandaddressofunit[0]',
+              limit: 59,
+              question: '14A. WHAT IS THE NAME AND ADDRESS OF YOUR RESERVE/NATIONAL GUARD UNIT?'
+            },
+            'phone' => { key: 'F[0].Page_5[0].Unittelephonenumber[0]' },
+            'date' => { key: 'F[0].Page_5[0].DateofActivation[0]' },
+            'phoneAreaCode' => { key: 'F[0].Page_5[0].Unittelephoneareacode[0]' }
+          },
+          'spouseAddress' => {
+            limit: 47,
+            question: "22F. WHAT IS YOUR SPOUSE'S ADDRESS?",
+            key: 'F[0].Page_6[0].Spouseaddress[0]'
+          },
+          'outsideChildren' => {
+            limit: 3,
+            first_key: 'fullName',
+            'childAddress' => {
+              limit: 52,
+              question: "24B. CHILD'S COMPLETE ADDRESS",
+              key: 'outsideChildren.childAddress[%iterator%]'
+            },
+            'fullName' => {
+              limit: 48,
+              question: '24A. NAME OF DEPENDENT CHILD',
+              key: 'outsideChildren.childFullName[%iterator%]'
+            },
+            'monthlyPayment' => {
+              limit: 13,
+              question: "24D. MONTHLY AMOUNT YOU CONTRIBUTE TO THE CHILD'S SUPPORT",
+              key: 'outsideChildren.monthlyPayment[%iterator%]'
+            },
+            'personWhoLivesWithChild' => {
+              limit: 40,
+              question: '24C. NAME OF PERSON THE CHILD LIVES WITH',
+              key: 'outsideChildren.personWhoLivesWithChild[%iterator%]'
+            }
+          },
+          'children' => {
+            limit: 3,
+            first_key: 'fullName',
+            'childSocialSecurityNumber' => {
+              question: '23C. SOCIAL SECURITY NUMBER',
+              key: 'children.childSocialSecurityNumber[%iterator%]'
+            },
+            'childDateOfBirth' => {
+              question: '23B. DATE OF BIRTH',
+              key: 'children.childDateOfBirth[%iterator%]'
+            },
+            'childPlaceOfBirth' => {
+              limit: 12,
+              question: '23B. PLACE OF BIRTH',
+              key: 'children.childPlaceOfBirth[%iterator%]'
+            },
+            'attendingCollege' => {
+              question: '23G. 18-23 YEARS OLD (in school)',
+              key: 'children.attendingCollege[%iterator%]'
+            },
+            'married' => {
+              question: '23I. CHILD MARRIED',
+              key: 'children.married[%iterator%]'
+            },
+            'disabled' => {
+              question: '23H. SERIOUSLY DISABLED',
+              key: 'children.disabled[%iterator%]'
+            },
+            'biological' => {
+              question: '23D. BIOLOGICAL',
+              key: 'children.biological[%iterator%]'
+            },
+            'fullName' => {
+              key: 'children.name[%iterator%]',
+              limit: 34,
+              question: '23A. NAME OF DEPENDENT CHILD'
+            },
+            'adopted' => {
+              question: '23E. ADOPTED',
+              key: 'children.adopted[%iterator%]'
+            },
+            'stepchild' => {
+              question: '23F. STEPCHILD',
+              key: 'children.stepchild[%iterator%]'
+            },
+            'previouslyMarried' => {
+              question: '23J. CHILD PREVIOUSLY MARRIED',
+              key: 'children.previouslyMarried[%iterator%]'
+            }
+          },
+          'hasNationalGuardActivation' => { key: 'F[0].Page_5[0].YesAD[0]' },
+          'noNationalGuardActivation' => { key: 'F[0].Page_5[0].NoAD[0]' },
+          'nightPhone' => { key: 'F[0].Page_5[0].Eveningphonenumber[0]' },
+          'mobilePhone' => { key: 'F[0].Page_5[0].Cellphonenumber[0]' },
+          'mobilePhoneAreaCode' => { key: 'F[0].Page_5[0].Cellphoneareacode[0]' },
+          'nightPhoneAreaCode' => { key: 'F[0].Page_5[0].Eveningareacode[0]' },
+          'dayPhone' => { key: 'F[0].Page_5[0].Daytimephonenumber[0]' },
+          'previousNames' => {
+            key: 'F[0].Page_5[0].Listothernames[0]',
+            limit: 53,
+            question: '11B. PLEASE LIST THE OTHER NAME(S) YOU SERVED UNDER'
+          },
+          'dayPhoneAreaCode' => { key: 'F[0].Page_5[0].Daytimeareacode[0]' },
+          'serviceBranch' => {
+            key: 'F[0].Page_5[0].Branchofservice[0]',
+            limit: 25,
+            question: '12B. BRANCH OF SERVICE'
+          },
+          'veteranAddressLine1' => {
+            key: 'F[0].Page_5[0].Currentaddress[0]',
+            limit: 53,
+            question: '7A. Street address'
+          },
+          'email' => {
+            key: 'F[0].Page_5[0].Preferredemailaddress[0]',
+            limit: 43,
+            question: '8A. PREFERRED E-MAIL ADDRESS'
+          },
+          'altEmail' => {
+            key: 'F[0].Page_5[0].Alternateemailaddress[0]',
+            limit: 43,
+            question: '8B. ALTERNATE E-MAIL ADDRESS'
+          },
+          'cityState' => {
+            key: 'F[0].Page_5[0].Citystatezipcodecountry[0]',
+            limit: 53,
+            question: '7A. City, State, Zip, Country'
+          },
+          'activeServiceDateRangeStart' => { key: 'F[0].Page_5[0].DateEnteredActiveService[0]' },
+          'activeServiceDateRangeEnd' => { key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]' },
+          'placeOfSeparation' => {
+            key: 'F[0].Page_5[0].Placeofseparation[0]',
+            limit: 41,
+            question: '12E. PLACE OF LAST OR ANTICIPATED SEPARATION'
+          },
+          'reasonForNotLivingWithSpouse' => {
+            limit: 47,
+            question: '22G. TELL US THE REASON WHY YOU ARE NOT LIVING WITH YOUR SPOUSE',
+            key: 'F[0].Page_6[0].Reasonfornotlivingwithspouse[0]'
+          },
+          'disabilities' => {
+            limit: 2,
+            first_key: 'name',
+            'name' => {
+              key: "disabilities.name[#{ITERATOR}]",
+              limit: 44,
+              question: '9A. DISABILITY(IES)'
+            },
+            'disabilityStartDate' => {
+              key: "disabilities.disabilityStartDate[#{ITERATOR}]",
+              question: '9B. DATE DISABILITY(IES) BEGAN'
+            }
+          },
+          'veteranFullName' => {
+            limit: 30,
+            question: "1. VETERAN'S NAME",
+            key: 'F[0].Page_5[0].Veteransname[0]'
+          }
+        }
+
+        %w(netWorths monthlyIncomes expectedIncomes).each_with_index do |acct_type, i|
+          question_num = 25 + i
+          key[acct_type] = {
+            first_key: 'recipient',
+            'amount' => {
+              limit: 12,
+              question: "#{question_num}. Amount",
+              key: "#{acct_type}.amount[#{ITERATOR}]"
+            },
+            'source' => {
+              question: "#{question_num}. Source"
+            },
+            'additionalSourceName' => {
+              limit: 14,
+              question: "#{question_num}. Source",
+              key: "#{acct_type}.additionalSourceName[#{ITERATOR}]"
+            },
+            'recipient' => {
+              limit: 34,
+              question: "#{question_num}. Recipient",
+              key: "#{acct_type}.recipient[#{ITERATOR}]"
+            }
+          }
+
+          key[acct_type][:limit] =
+            if acct_type == 'netWorths'
+              8
+            elsif acct_type == 'monthlyIncomes'
+              10
+            else
+              6
+            end
+        end
+
+        %w(m spouseM).each do |prefix|
+          sub_key = "#{prefix}arriages"
+          question_num = prefix == 'm' ? '19' : '21'
+
+          key[sub_key] = {
+            limit: 2,
+            first_key: 'locationOfMarriage',
+            'dateOfMarriage' => {
+              question: "#{question_num}A. Date of Marriage",
+              key: "#{sub_key}.dateOfMarriage[#{ITERATOR}]"
+            },
+            'locationOfMarriage' => {
+              limit: 22,
+              question: "#{question_num}A. PLACE OF MARRIAGE",
+              key: "#{sub_key}.locationOfMarriage[#{ITERATOR}]"
+            },
+            'locationOfSeparation' => {
+              limit: 13,
+              question: "#{question_num}E. PLACE MARRIAGE TERMINATED",
+              key: "#{sub_key}.locationOfSeparation[#{ITERATOR}]"
+            },
+            'spouseFullName' => {
+              limit: 27,
+              question: "#{question_num}B. TO WHOM MARRIED",
+              key: "#{sub_key}.spouseFullName[#{ITERATOR}]"
+            },
+            'marriageType' => {
+              limit: 27,
+              question: "#{question_num}C. TYPE OF MARRIAGE",
+              key: "#{sub_key}.marriageType[#{ITERATOR}]"
+            },
+            'dateOfSeparation' => {
+              question: "#{question_num}E. DATE MARRIAGE TERMINATED",
+              key: "#{sub_key}.dateOfSeparation[#{ITERATOR}]"
+            },
+            'reasonForSeparation' => {
+              limit: 33,
+              question: "#{question_num}D. HOW MARRIAGE TERMINATED",
+              key: "#{sub_key}.reasonForSeparation[#{ITERATOR}]"
+            }
+          }
+        end
+
+        key
+      end.call.freeze
 
       def initialize(form_data)
         @form_data = form_data.deep_dup
@@ -247,18 +492,6 @@ module PdfFill
         }
       end
 
-      def combine_va_hospital_names(va_hospital_treatments)
-        return if va_hospital_treatments.blank?
-
-        combined = []
-
-        va_hospital_treatments.each do |va_hospital_treatment|
-          combined << combine_hash(va_hospital_treatment, %w(name location), ', ')
-        end
-
-        combined
-      end
-
       def combine_name_addr(hash)
         return if hash.blank?
 
@@ -266,72 +499,14 @@ module PdfFill
         combine_hash_and_del_keys(hash, %w(name address), 'nameAndAddr', ', ')
       end
 
-      def get_disability_names(disabilities)
-        return if disabilities.blank?
-
-        disability_names = Array.new(2, nil)
-
-        disability_names[0] = disabilities[1].try(:[], 'name')
-        disability_names[1] = disabilities[0]['name']
-
-        disabilities.map! do |disability|
-          disability.except('name')
-        end
-
-        disability_names
-      end
-
-      def rearrange_jobs(jobs)
+      def expand_jobs(jobs)
         return if jobs.blank?
-        new_jobs = [{}, {}]
 
-        2.times do |i|
-          %w(daysMissed dateRange).each do |attr|
-            new_jobs[i][attr] = jobs[i].try(:[], attr)
-          end
-
-          alternate_i = i.zero? ? 1 : 0
-
-          %w(jobTitle annualEarnings).each do |attr|
-            new_jobs[i][attr] = jobs[alternate_i].try(:[], attr)
-          end
-
-          new_jobs[i]['address'] = combine_full_address(jobs[alternate_i].try(:[], 'address'))
-          new_jobs[i]['employer'] = jobs[alternate_i].try(:[], 'employer')
-          combine_hash_and_del_keys(new_jobs[i], %w(employer address), 'nameAndAddr', ', ')
+        jobs.each do |job|
+          job['address'] = combine_full_address(job['address'])
+          expand_date_range(job, 'dateRange')
+          combine_hash_and_del_keys(job, %w(employer address), 'nameAndAddr', ', ')
         end
-
-        new_jobs
-      end
-
-      def rearrange_hospital_dates(combined_dates)
-        return if combined_dates.blank?
-        # order of boxes in the pdf: 3, 2, 4, 0, 1, 5
-        rearranged = Array.new(6, nil)
-
-        [3, 2, 4, 0, 1, 5].each_with_index do |rearranged_i, i|
-          rearranged[rearranged_i] = combined_dates[i]
-        end
-
-        rearranged
-      end
-
-      def combine_va_hospital_dates(va_hospital_treatments)
-        return if va_hospital_treatments.blank?
-        combined = []
-
-        va_hospital_treatments.each do |va_hospital_treatment|
-          original_dates = va_hospital_treatment['dates']
-          dates = Array.new(3, nil)
-
-          3.times do |i|
-            dates[i] = original_dates[i]
-          end if original_dates.present?
-
-          combined += dates
-        end
-
-        combined
       end
 
       def replace_phone(hash, key)
@@ -401,32 +576,41 @@ module PdfFill
         }
 
         children.each do |child|
-          children_split[child['childNotInHousehold'] ? :outside : :cohabiting] << child
+          children_split[child['childInHousehold'] ? :cohabiting : :outside] << child
         end
 
         children_split
       end
 
+      def expand_dependents
+        @form_data['dependents']&.each do |dependent|
+          dependent['fullName'] = combine_full_name(dependent['fullName'])
+        end
+
+        expand_children(@form_data, 'dependents')
+      end
+
       def expand_children(hash, key)
-        children = hash[key]
+        children = hash[key]&.find_all do |dependent|
+          dependent['dependentRelationship'] == 'child'
+        end
         return if children.blank?
+
+        children.each do |child|
+          child['personWhoLivesWithChild'] = combine_full_name(child['personWhoLivesWithChild'])
+
+          child['childRelationship'].tap do |child_rel|
+            next if child_rel.blank?
+
+            child[child_rel] = true
+          end
+
+          child['childAddress'] = combine_full_address(child['childAddress'])
+        end
 
         children_split = split_children(children)
 
-        3.times do |i|
-          children_split.each do |_k, v|
-            v[i] ||= {}
-            child = v[i]
-
-            %w(childFullName personWhoLivesWithChild).each do |attr|
-              child[attr] = combine_full_name(child[attr])
-            end
-
-            child['childAddress'] = combine_full_address(child['childAddress'])
-          end
-        end
-
-        hash[key] = children_split[:cohabiting]
+        hash['children'] = children_split[:cohabiting]
         hash['outsideChildren'] = children_split[:outside]
 
         hash
@@ -462,6 +646,7 @@ module PdfFill
 
           financial_accts_for_type << {
             'recipient' => recipient,
+            'source' => INCOME_TYPES_KEY[income_type],
             'amount' => amount
           }
         end
@@ -503,11 +688,10 @@ module PdfFill
           expand_financial_acct(person.capitalize, expected_income, financial_accts)
         end
 
-        all_children = @form_data['children'] || []
-        all_children += @form_data['outsideChildren'] || []
+        dependents = @form_data['dependents'] || []
 
-        all_children.each do |child|
-          expand_financial_acct(child['childFullName'], child[definition], financial_accts)
+        dependents.each do |dependent|
+          expand_financial_acct(dependent['fullName'], dependent[definition], financial_accts)
         end
 
         zero_financial_accts(financial_accts)
@@ -537,7 +721,19 @@ module PdfFill
           monthly_incomes[i] = financial_accts['additionalSources'][j]
         end
 
+        overflow_financial_accts(monthly_incomes, financial_accts)
+
         @form_data['monthlyIncomes'] = monthly_incomes
+      end
+
+      def overflow_financial_accts(financial_accts, all_financial_accts)
+        all_financial_accts.each do |_, arr|
+          arr.each do |financial_acct|
+            unless financial_accts.include?(financial_acct)
+              financial_accts << financial_acct
+            end
+          end
+        end
       end
 
       def expand_net_worths
@@ -554,12 +750,12 @@ module PdfFill
           ira
           stocks
           realProperty
-          otherProperty
         ).each_with_index do |acct_type, i|
           net_worths[i] = financial_accts[acct_type][0]
         end
-        net_worths[6] = financial_accts['otherProperty'][1]
         net_worths[7] = financial_accts['additionalSources'][0]
+
+        overflow_financial_accts(net_worths, financial_accts)
 
         @form_data['netWorths'] = net_worths
       end
@@ -579,6 +775,8 @@ module PdfFill
           expected_incomes[i] = financial_accts['additionalSources'][j]
         end
 
+        overflow_financial_accts(expected_incomes, financial_accts)
+
         @form_data['expectedIncomes'] = expected_incomes
       end
 
@@ -597,6 +795,32 @@ module PdfFill
         @form_data
       end
 
+      def combine_other_expenses
+        other_expenses = @form_data['otherExpenses'] || []
+        other_expenses.each do |other_expense|
+          other_expense['relationship'] = 'Myself'
+        end
+
+        spouse_other_expenses = @form_data['spouseOtherExpenses']
+        spouse_other_expenses&.each do |other_expense|
+          other_expense['relationship'] = 'Spouse'
+        end
+        other_expenses += spouse_other_expenses if spouse_other_expenses.present?
+
+        @form_data['dependents']&.each do |dependent|
+          dependent_other_expenses = dependent['otherExpenses']
+          if dependent_other_expenses.present?
+            dependent_other_expenses.each do |other_expense|
+              other_expense['relationship'] = dependent['fullName']
+            end
+
+            other_expenses += dependent_other_expenses
+          end
+        end
+
+        @form_data['otherExpenses'] = other_expenses
+      end
+
       def replace_phone_fields
         %w(nightPhone dayPhone mobilePhone).each do |attr|
           replace_phone(@form_data, attr)
@@ -604,7 +828,6 @@ module PdfFill
         replace_phone(@form_data['nationalGuard'], 'phone')
       end
 
-      # rubocop:disable Metrics/AbcSize
       # rubocop:disable Metrics/MethodLength
       def merge_fields
         @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
@@ -630,16 +853,6 @@ module PdfFill
 
         replace_phone_fields
 
-        @form_data['vaHospitalTreatments'].tap do |va_hospital_treatments|
-          @form_data['vaHospitalTreatmentNames'] = combine_va_hospital_names(va_hospital_treatments)
-          @form_data['vaHospitalTreatmentDates'] = rearrange_hospital_dates(
-            combine_va_hospital_dates(va_hospital_treatments)
-          )
-        end
-        @form_data.delete('vaHospitalTreatments')
-
-        @form_data['disabilityNames'] = get_disability_names(@form_data['disabilities'])
-
         @form_data['cityState'] = combine_city_state(@form_data['veteranAddress'])
         @form_data['veteranAddressLine1'] = combine_address(@form_data['veteranAddress'])
         @form_data.delete('veteranAddress')
@@ -648,21 +861,13 @@ module PdfFill
 
         combine_name_addr(@form_data['nationalGuard'])
 
-        @form_data['jobs'] = rearrange_jobs(@form_data['jobs'])
+        expand_jobs(@form_data['jobs'])
 
         %w(activeServiceDateRange powDateRange).each do |attr|
           expand_date_range(@form_data, attr)
         end
 
-        @form_data['jobs'].tap do |jobs|
-          next if jobs.blank?
-
-          jobs.each do |job|
-            expand_date_range(job, 'dateRange')
-          end
-        end
-
-        expand_children(@form_data, 'children')
+        expand_dependents
 
         %w(marriages spouseMarriages).each do |marriage_type|
           expand_marriages(@form_data, marriage_type)
@@ -678,6 +883,7 @@ module PdfFill
         expand_expected_incomes
         expand_net_worths
         expand_monthly_incomes
+        combine_other_expenses
 
         expand_bank_acct(@form_data['bankAccount'])
 

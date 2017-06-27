@@ -1,4 +1,5 @@
 {
+  "privacyAgreementAccepted": true,
   "veteranFullName": "john middle smith Sr.",
   "noBankAccount": true,
   "bankAccount": {
@@ -13,90 +14,163 @@
   "spouseDateOfBirth": "2012-06-26",
   "spouseSocialSecurityNumber": "111223334",
   "monthlySpousePayment": 1,
+  "spouseOtherExpenses": [
+    {
+      "amount": 2,
+      "purpose": "purpose2",
+      "paidTo": "paidTo2",
+      "date": "2012-04-02",
+      "relationship": "Spouse"
+    }
+  ],
   "otherExpenses": [
     {
       "amount": 1,
       "purpose": "purpose1",
       "paidTo": "paidTo1",
-      "relationship": "relationship1",
-      "date": "2012-04-01"
+      "date": "2012-04-01",
+      "relationship": "Myself"
     },
     {
       "amount": 2,
       "purpose": "purpose2",
       "paidTo": "paidTo2",
-      "relationship": "relationship2",
-      "date": "2012-04-02"
-    },
-    {
-      "amount": 3,
-      "purpose": "purpose3",
-      "paidTo": "paidTo3",
-      "relationship": "relationship3",
-      "date": "2012-04-03"
+      "date": "2012-04-02",
+      "relationship": "Spouse"
     },
     {
       "amount": 4,
       "purpose": "purpose4",
       "paidTo": "paidTo4",
-      "relationship": "relationship4",
-      "date": "2012-04-04"
+      "date": "2012-04-04",
+      "relationship": "outside1 Olson"
+    },
+    {
+      "amount": 3,
+      "purpose": "purpose3",
+      "paidTo": "paidTo3",
+      "date": "2012-04-03",
+      "relationship": "parent Olson"
     }
   ],
-  "children": [
+  "dependents": [
     {
-      "childDateOfBirth": "2012-06-01",
-      "childFullName": "Mark1 Olson",
-      "childSocialSecurityNumber": "111223331",
-      "childPlaceOfBirth": "place1",
-      "attendingCollege": true,
-      "married": true,
-      "biological": true,
-      "stepchild": true,
-      "disabled": true,
-      "adopted": true,
+      "dependentRelationship": "child",
+      "childAddress": "str1, city1, MD, 21231, USA",
+      "fullName": "outside1 Olson",
+      "personWhoLivesWithChild": "person1 Olson",
+      "monthlyIncome": {
+        "additionalSources": [
+          {
+            "name": "name2",
+            "amount": 9
+          },
+          {
+            "name": "name3",
+            "amount": 10
+          }
+        ]
+      },
+      "otherExpenses": [
+        {
+          "amount": 4,
+          "purpose": "purpose4",
+          "paidTo": "paidTo4",
+          "date": "2012-04-04",
+          "relationship": "outside1 Olson"
+        }
+      ],
+      "netWorth": {
+        "additionalSources": [
+          {
+            "name": "name1",
+            "amount": 8
+          }
+        ]
+      },
+      "monthlyPayment": 1
+    },
+    {
+      "dependentRelationship": "child",
+      "childAddress": "str2, city1, MD, 21231, USA",
+      "fullName": "outside2 Olson",
+      "personWhoLivesWithChild": "person2 Olson",
+      "monthlyPayment": 2
+    },
+    {
+      "dependentRelationship": "child",
+      "childAddress": "str3, city1, MD, 21231, USA",
+      "fullName": "outside3 Olson",
+      "personWhoLivesWithChild": "person3 Olson",
+      "monthlyPayment": 3
+    },
+    {
+      "dependentRelationship": "parent",
+      "fullName": "parent Olson",
+      "otherExpenses": [
+        {
+          "amount": 3,
+          "purpose": "purpose3",
+          "paidTo": "paidTo3",
+          "date": "2012-04-03",
+          "relationship": "parent Olson"
+        }
+      ],
       "expectedIncome": {
-        "salary": 1,
         "additionalSources": [
           {
             "name": "name3",
             "amount": 6
           }
-        ],
-        "interest": 3
-      },
+        ]
+      }
+    },
+    {
+      "childInHousehold": true,
+      "dependentRelationship": "child",
+      "childDateOfBirth": "2012-06-01",
+      "fullName": "Mark1 Olson",
+      "childSocialSecurityNumber": "111223331",
+      "childPlaceOfBirth": "place1",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "childRelationship": "stepchild",
       "previouslyMarried": true,
       "personWhoLivesWithChild": null,
+      "stepchild": true,
       "childAddress": null
     },
     {
+      "childInHousehold": true,
+      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-02",
-      "childFullName": "Mark2 Olson",
+      "fullName": "Mark2 Olson",
       "childSocialSecurityNumber": "111223332",
       "childPlaceOfBirth": "place2",
       "attendingCollege": true,
       "married": true,
       "disabled": true,
-      "biological": true,
-      "stepchild": true,
-      "adopted": true,
+      "childRelationship": "biological",
       "previouslyMarried": true,
       "personWhoLivesWithChild": null,
+      "biological": true,
       "childAddress": null
     },
     {
+      "childInHousehold": true,
+      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-03",
-      "childFullName": "Mark3 Olson",
+      "fullName": "Mark3 Olson",
       "childSocialSecurityNumber": "111223333",
       "childPlaceOfBirth": "place3",
       "attendingCollege": true,
       "married": true,
       "disabled": true,
-      "biological": true,
-      "stepchild": true,
-      "adopted": true,
+      "childRelationship": "adopted",
       "previouslyMarried": true,
       "personWhoLivesWithChild": null,
+      "adopted": true,
       "childAddress": null
     }
   ],
@@ -162,13 +236,11 @@
   "netWorth": {
     "bank": 1,
     "interestBank": 2,
-    "ira": 3,
-    "otherProperty": 6
+    "ira": 3
   },
   "spouseNetWorth": {
     "stocks": 4,
-    "realProperty": 5,
-    "otherProperty": 7
+    "realProperty": 5
   },
   "expectedIncome": {
     "salary": 1,
@@ -194,20 +266,20 @@
   "spouseAddress": "str1, city1, MD, 21231, USA",
   "jobs": [
     {
+      "annualEarnings": 10,
+      "jobTitle": "worker1",
       "daysMissed": "1",
-      "jobTitle": "worker2",
-      "annualEarnings": 20,
-      "nameAndAddr": "job2, str2, city2, MD, 21231, USA",
       "dateRangeStart": "2012-04-01",
-      "dateRangeEnd": "2013-05-01"
+      "dateRangeEnd": "2013-05-01",
+      "nameAndAddr": "1, str1, 1, MD, 21231, USA"
     },
     {
+      "annualEarnings": 20,
+      "jobTitle": "worker2",
       "daysMissed": "2",
-      "jobTitle": "worker1",
-      "annualEarnings": 10,
-      "nameAndAddr": "job1, str1, city1, MD, 21231, USA",
       "dateRangeStart": "2012-04-02",
-      "dateRangeEnd": "2013-05-02"
+      "dateRangeEnd": "2013-05-02",
+      "nameAndAddr": "2, str2, 2, MD, 21231, USA"
     }
   ],
   "nationalGuard": {
@@ -232,6 +304,7 @@
   "vaFileNumber": "c12345678",
   "disabilities": [
     {
+      "name": "disability 1",
       "disabilityStartDate": "2016-12-01"
     }
   ],
@@ -257,33 +330,67 @@
   "nightPhoneAreaCode": "012",
   "dayPhoneAreaCode": "112",
   "mobilePhoneAreaCode": "212",
-  "vaHospitalTreatmentNames": [
-    "hospital1, nyc",
-    "hospital2, dc"
-  ],
-  "vaHospitalTreatmentDates": [
-    "2016-12-01",
-    "2016-12-02",
-    "2016-01-02",
-    "2016-01-01",
-    null,
-    "2016-12-03"
-  ],
-  "disabilityNames": [
-    null,
-    "disability 1"
-  ],
   "cityState": "Baltimore, MD, 21231, USA",
   "veteranAddressLine1": "street, street2",
   "activeServiceDateRangeStart": "2012-06-26",
   "activeServiceDateRangeEnd": "2013-04-10",
   "powDateRangeStart": "2012-04-10",
   "powDateRangeEnd": "2013-05-10",
+  "children": [
+    {
+      "childInHousehold": true,
+      "dependentRelationship": "child",
+      "childDateOfBirth": "2012-06-01",
+      "fullName": "Mark1 Olson",
+      "childSocialSecurityNumber": "111223331",
+      "childPlaceOfBirth": "place1",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "childRelationship": "stepchild",
+      "previouslyMarried": true,
+      "personWhoLivesWithChild": null,
+      "stepchild": true,
+      "childAddress": null
+    },
+    {
+      "childInHousehold": true,
+      "dependentRelationship": "child",
+      "childDateOfBirth": "2012-06-02",
+      "fullName": "Mark2 Olson",
+      "childSocialSecurityNumber": "111223332",
+      "childPlaceOfBirth": "place2",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "childRelationship": "biological",
+      "previouslyMarried": true,
+      "personWhoLivesWithChild": null,
+      "biological": true,
+      "childAddress": null
+    },
+    {
+      "childInHousehold": true,
+      "dependentRelationship": "child",
+      "childDateOfBirth": "2012-06-03",
+      "fullName": "Mark3 Olson",
+      "childSocialSecurityNumber": "111223333",
+      "childPlaceOfBirth": "place3",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "childRelationship": "adopted",
+      "previouslyMarried": true,
+      "personWhoLivesWithChild": null,
+      "adopted": true,
+      "childAddress": null
+    }
+  ],
   "outsideChildren": [
     {
+      "dependentRelationship": "child",
       "childAddress": "str1, city1, MD, 21231, USA",
-      "childFullName": "outside1 Olson",
-      "childNotInHousehold": true,
+      "fullName": "outside1 Olson",
       "personWhoLivesWithChild": "person1 Olson",
       "monthlyIncome": {
         "additionalSources": [
@@ -297,6 +404,15 @@
           }
         ]
       },
+      "otherExpenses": [
+        {
+          "amount": 4,
+          "purpose": "purpose4",
+          "paidTo": "paidTo4",
+          "date": "2012-04-04",
+          "relationship": "outside1 Olson"
+        }
+      ],
       "netWorth": {
         "additionalSources": [
           {
@@ -308,17 +424,17 @@
       "monthlyPayment": 1
     },
     {
+      "dependentRelationship": "child",
       "childAddress": "str2, city1, MD, 21231, USA",
-      "childFullName": "outside2 Olson",
+      "fullName": "outside2 Olson",
       "personWhoLivesWithChild": "person2 Olson",
-      "childNotInHousehold": true,
       "monthlyPayment": 2
     },
     {
+      "dependentRelationship": "child",
       "childAddress": "str3, city1, MD, 21231, USA",
-      "childFullName": "outside3 Olson",
+      "fullName": "outside3 Olson",
       "personWhoLivesWithChild": "person3 Olson",
-      "childNotInHousehold": true,
       "monthlyPayment": 3
     }
   ],
@@ -330,14 +446,17 @@
   "expectedIncomes": [
     {
       "recipient": "Myself",
+      "source": "GROSS WAGES AND SALARY",
       "amount": 1
     },
     {
       "recipient": "Spouse",
+      "source": "GROSS WAGES AND SALARY",
       "amount": 2
     },
     {
       "recipient": "Myself",
+      "source": "TOTAL DIVIDENDS AND INTEREST",
       "amount": 3
     },
     {
@@ -351,7 +470,7 @@
       "additionalSourceName": "name2"
     },
     {
-      "recipient": "Mark1 Olson",
+      "recipient": "parent Olson",
       "amount": 6,
       "additionalSourceName": "name3"
     }
@@ -359,31 +478,32 @@
   "netWorths": [
     {
       "recipient": "Myself",
+      "source": "CASH/NON-INTEREST BEARING BANK ACCOUNTS",
       "amount": 1
     },
     {
       "recipient": "Myself",
+      "source": "INTEREST-BEARING BANK ACCOUNTS",
       "amount": 2
     },
     {
       "recipient": "Myself",
+      "source": "IRA'S, KEOGH PLANS, ETC.",
       "amount": 3
     },
     {
       "recipient": "Spouse",
+      "source": "STOCKS, BONDS, MUTUAL FUNDS, ETC.",
       "amount": 4
     },
     {
       "recipient": "Spouse",
+      "source": "REAL PROPERTY",
       "amount": 5
     },
     {
-      "recipient": "Myself",
-      "amount": 6
     },
     {
-      "recipient": "Spouse",
-      "amount": 7
     },
     {
       "recipient": "outside1 Olson",
@@ -394,30 +514,37 @@
   "monthlyIncomes": [
     {
       "recipient": "Myself",
+      "source": "SOCIAL SECURITY",
       "amount": 1
     },
     {
       "recipient": "Spouse",
+      "source": "SOCIAL SECURITY",
       "amount": 2
     },
     {
       "recipient": "Myself",
+      "source": "U.S. CIVIL SERVICE",
       "amount": 3
     },
     {
       "recipient": "Spouse",
+      "source": "U.S. RAILROAD RETIREMENT",
       "amount": 4
     },
     {
       "recipient": "Myself",
+      "source": "BLACK LUNG BENEFITS",
       "amount": 5
     },
     {
       "recipient": "Spouse",
+      "source": "SERVICE RETIREMENT",
       "amount": 6
     },
     {
       "recipient": "Myself",
+      "source": "SUPPLEMENTAL SECURITY INCOME (SSI)/PUBLIC ASSISTANCE",
       "amount": 7
     },
     {
