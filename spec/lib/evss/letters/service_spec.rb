@@ -10,7 +10,7 @@ describe EVSS::Letters::Service do
 
     describe '#get_letters' do
       context 'with a valid evss response' do
-        it 'returns creates a letter response object' do
+        it 'returns a letters response object' do
           VCR.use_cassette('evss/letters/letters') do
             response = subject.get_letters
             expect(response).to be_ok
@@ -20,13 +20,81 @@ describe EVSS::Letters::Service do
           end
         end
       end
+      context 'with an http timeout' do
+        before do
+          allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
+        end
+
+        it 'should log an error' do
+          expect(Rails.logger).to receive(:error).with(/Timeout/)
+          subject.get_letters
+        end
+
+        it 'should not raise an exception' do
+          expect { subject.get_letters }.to_not raise_error
+        end
+      end
     end
 
-    describe '#download_letter' do
-      it 'downloads a pdf' do
-        VCR.use_cassette('evss/letters/download') do
-          response = subject.download_letter_by_type(EVSS::Letters::Letter::LETTER_TYPES.first)
-          expect(response).to include('%PDF-1.4')
+    describe '#get_letter_beneficiary' do
+      it 'returns a letter beneficiary response object' do
+        VCR.use_cassette('evss/letters/beneficiary') do
+          response = subject.get_letter_beneficiary
+          expect(response).to be_ok
+          expect(response).to be_a(EVSS::Letters::BeneficiaryResponse)
+          expect(response.military_service.count).to eq(2)
+        end
+      end
+      context 'with an http timeout' do
+        before do
+          allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
+        end
+
+        it 'should log an error' do
+          expect(Rails.logger).to receive(:error).with(/Timeout/)
+          subject.get_letter_beneficiary
+        end
+
+        it 'should not raise an exception' do
+          expect { subject.get_letter_beneficiary }.to_not raise_error
+        end
+      end
+    end
+
+    describe '#download_by_type' do
+      context 'without options' do
+        it 'downloads a pdf' do
+          VCR.use_cassette('evss/letters/download') do
+            response = subject.download_by_type(EVSS::Letters::Letter::LETTER_TYPES.first)
+            expect(response).to include('%PDF-1.4')
+          end
+        end
+      end
+
+      context 'with options' do
+        let(:options) do
+          '{
+             "militaryService": false,
+             "serviceConnectedDisabilities": false,
+             "serviceConnectedEvaluation": false,
+             "nonServiceConnectedPension": false,
+             "monthlyAward": false,
+             "unemployable": false,
+             "specialMonthlyCompensation": false,
+             "adaptedHousing": false,
+             "chapter35Eligibility": false,
+             "deathResultOfDisability": false,
+             "survivorsAward": false
+           }'
+        end
+        it 'downloads a pdf' do
+          VCR.use_cassette('evss/letters/download_options') do
+            response = subject.download_by_type(
+              EVSS::Letters::Letter::LETTER_TYPES.first,
+              options
+            )
+            expect(response).to include('%PDF-1.4')
+          end
         end
       end
     end

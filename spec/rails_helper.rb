@@ -57,6 +57,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { Settings.mhv.sm.app_token }
   c.filter_sensitive_data('<MHV_SM_HOST>') { Settings.mhv.sm.host }
   c.filter_sensitive_data('<MVI_URL>') { Settings.mvi.url }
+  c.filter_sensitive_data('<PRENEEDS_HOST>') { Settings.preneeds.host }
   c.before_record do |i|
     %i(response request).each do |env|
       next unless i.send(env).headers.keys.include?('Token')

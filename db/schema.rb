@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170601175300) do
+ActiveRecord::Schema.define(version: 20170621122611) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -73,6 +73,15 @@ ActiveRecord::Schema.define(version: 20170601175300) do
 
   add_index "in_progress_forms", ["form_id"], name: "index_in_progress_forms_on_form_id", using: :btree
   add_index "in_progress_forms", ["user_uuid"], name: "index_in_progress_forms_on_user_uuid", using: :btree
+
+  create_table "saved_claims", force: :cascade do |t|
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "encrypted_form",    null: false
+    t.string   "encrypted_form_iv", null: false
+    t.string   "form_type"
+    t.uuid     "guid",              null: false
+  end
 
   create_table "terms_and_conditions", force: :cascade do |t|
     t.string   "name"

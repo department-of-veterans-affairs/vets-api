@@ -11,7 +11,7 @@ module V0
       if form
         render json: form.data_and_metadata
       elsif FeatureFlipper.enable_prefill?(@current_user)
-        render json: FormProfile.new.prefill_form(form_id, @current_user)
+        render json: FormProfile.for(form_id).prefill(@current_user)
       else
         head 404
       end
@@ -21,7 +21,13 @@ module V0
       form = InProgressForm.where(form_id: params[:id], user_uuid: @current_user.uuid).first_or_initialize
       result = form.update(form_data: params[:form_data], metadata: params[:metadata])
       raise Common::Exceptions::InternalServerError unless result
-      head :ok
+      render json: form
+    end
+
+    def destroy
+      form = InProgressForm.form_for_user(params[:id], @current_user)
+      form.destroy
+      render json: form
     end
   end
 end

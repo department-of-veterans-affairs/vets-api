@@ -5,10 +5,10 @@ RSpec.describe 'terms_and_conditions', type: :request do
   include SchemaMatchers
 
   let(:current_user) { create(:user) }
-  let!(:terms1) { create(:terms_and_conditions, latest: true) }
-  let!(:terms2) { create(:terms_and_conditions, latest: false) }
+  let!(:terms1) { create(:terms_and_conditions, latest: true, name: 'one') }
+  let!(:terms2) { create(:terms_and_conditions, latest: false, name: 'two') }
   let!(:terms21) { create(:terms_and_conditions, name: terms2.name, latest: true) }
-  let!(:terms3) { create(:terms_and_conditions, latest: true) }
+  let!(:terms3) { create(:terms_and_conditions, latest: true, name: 'three') }
 
   before(:each) do
     use_authenticated_current_user(current_user: current_user)

@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 require 'evss/error_middleware'
+require 'sentry_logging'
 
 module EVSS
   class BaseService
+    include SentryLogging
+
     SYSTEM_NAME = 'vets.gov'
     DEFAULT_TIMEOUT = 15 # in seconds
 

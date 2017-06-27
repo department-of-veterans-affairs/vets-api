@@ -8,8 +8,13 @@ Rails.application.routes.draw do
   post '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
 
   namespace :v0, defaults: { format: 'json' } do
-    resources :in_progress_forms, only: [:index, :show, :update]
-    resources :letters, only: [:index, :show]
+    resources :in_progress_forms, only: [:index, :show, :update, :destroy]
+    resources :letters, only: [:index] do
+      collection do
+        get 'beneficiary', to: 'letters#beneficiary'
+        post ':id', to: 'letters#download'
+      end
+    end
 
     resource :sessions, only: [:new, :destroy] do
       post :saml_callback, to: 'sessions#saml_callback'
@@ -30,6 +35,8 @@ Rails.application.routes.draw do
         get(:healthcheck)
       end
     end
+    resource :pension_claims, only: [:create]
+    resource :burial_claims, only: [:create]
 
     resource :disability_rating, only: [:show]
 
@@ -94,6 +101,16 @@ Rails.application.routes.draw do
       end
 
       resources :calculator_constants, only: :index, defaults: { format: :json }
+    end
+
+    namespace :preneeds do
+      resources :cemeteries, only: :index, defaults: { format: :json }
+      resources :states, only: :index, defaults: { format: :json }
+      resources :attachment_types, only: :index, defaults: { format: :json }
+      resources :discharge_types, only: :index, defaults: { format: :json }
+      resources :military_ranks, only: :index, defaults: { format: :json }
+      resources :branches_of_service, only: :index, defaults: { format: :json }
+      resources :applications, only: :create, defaults: { format: :json }
     end
 
     resources :apidocs, only: [:index]
