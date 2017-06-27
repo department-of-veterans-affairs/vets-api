@@ -48,6 +48,8 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd .
     - `echo "LocalSocket ${conf_files_dir}" > clamd.conf` 
     - `echo "DatabaseMirror database.clamav.net" > freshclam.conf`
     - `freshclam -v`
+1. Install pdftk
+  - `brew install https://gist.githubusercontent.com/lihanli/03ec8f17a6a1ff52e3a149be4cf7f2ae/raw/d18eff01396bbc25a928f756ff21edcc3521fc5e/pdftk.rb`
 1. Install gem dependencies: `cd vets-api; bundle install`
 1. Install overcommit `overcommit --install --sign`
 1. Setup localhost certificates / keys:
