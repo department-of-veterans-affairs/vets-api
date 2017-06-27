@@ -14,9 +14,6 @@ module Preneeds
     def connection
       path = Preneeds::Configuration.url
       @faraday ||= Faraday.new(path, headers: base_request_headers, request: request_options) do |conn|
-        conn.options.open_timeout = Settings.preneeds.open_timeout
-        conn.options.timeout = Settings.preneeds.timeout
-
         conn.request :soap_headers
 
         conn.response :preneeds_parser
