@@ -34,6 +34,7 @@ class FormContactInformation
 
   attribute :address, FormAddress
   attribute :home_phone, String
+  attribute :email, String
 end
 
 class FormProfile
@@ -45,9 +46,14 @@ class FormProfile
   attribute :contact_information, FormContactInformation
 
   def self.for(form)
-    case form.downcase
-    when '1010ez'
-      FormProfile::VA1010ez
+    form = form.upcase
+    case form
+    when '1010EZ'
+      ::FormProfile::VA1010ez
+    when '21P-530'
+      ::FormProfile::VA21p530
+    when '21P-527EZ'
+      ::FormProfile::VA21p527ez
     else
       self
     end.new(form)
@@ -112,10 +118,11 @@ class FormProfile
       state: user.va_profile.address.state,
       postal_code: user.va_profile.address.postal_code,
       country: user.va_profile.address.country
-    } if user.va_profile.address
+    } if user.va_profile&.address
     FormContactInformation.new(
       address: address,
-      home_phone: user.va_profile.home_phone
+      email: user&.email,
+      home_phone: user&.va_profile&.home_phone
     )
   end
 
