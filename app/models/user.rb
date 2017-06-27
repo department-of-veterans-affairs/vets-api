@@ -74,6 +74,10 @@ class User < Common::RedisStore
     edipi.present? && ssn.present? && participant_id.present?
   end
 
+  def can_access_appeals?
+    loa3? && ssn.present?
+  end
+
   def self.from_merged_attrs(existing_user, new_user)
     # we want to always use the more recent attrs so long as they exist
     attrs = new_user.attributes.map do |key, val|

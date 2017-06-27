@@ -85,7 +85,8 @@ class UserSerializer < ActiveModel::Serializer
     end
     service_list << BackendServices::EVSS_CLAIMS if object.can_access_evss?
     service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
-    service_list << BackendServices::APPEALS_STATUS if beta_enabled?(object.uuid, 'appeals_status')
+    service_list << BackendServices::APPEALS_STATUS if beta_enabled?(object.uuid, 'appeals_status') &&
+                                                       object.can_access_appeals?
     service_list
   end
 end
