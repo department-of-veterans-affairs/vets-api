@@ -42,6 +42,24 @@ describe PdfFill::Filler do
   end
 
   describe '#fill_form' do
+    def simplify_fields(fields)
+      fields.map do |field|
+        {
+          name: field.name,
+          value: field.value
+        }
+      end
+    end
+
+    def compare_pdfs(pdf1, pdf2)
+      fields = []
+      [pdf1, pdf2].each do |pdf|
+        fields << simplify_fields(described_class::PDF_FORMS.get_fields(pdf))
+      end
+
+      fields[0] == fields[1]
+    end
+
     %w(simple kitchen_sink overflow).each do |type|
       context "with #{type} test data" do
         let(:form_data) do
@@ -74,7 +92,7 @@ describe PdfFill::Filler do
           end
 
           expect(
-            FileUtils.compare_file(file_path, "spec/fixtures/pdf_fill/21P-527EZ/#{type}.pdf")
+            compare_pdfs(file_path, "spec/fixtures/pdf_fill/21P-527EZ/#{type}.pdf")
           ).to eq(true)
 
           File.delete(file_path)
