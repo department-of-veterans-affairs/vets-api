@@ -57,7 +57,7 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def prefills_available
-    FormProfile::MAPPINGS
+    FeatureFlipper.enable_prefill?(object) ? FormProfile::MAPPINGS : []
   end
 
   def services

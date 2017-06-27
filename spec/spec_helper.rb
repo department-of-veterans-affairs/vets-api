@@ -12,7 +12,7 @@ require 'support/veteran_status/stub_veteran_status'
 unless ENV['NOCOVERAGE']
   require 'simplecov'
 
-  SimpleCov.start do
+  SimpleCov.start 'rails' do
     track_files '{app,lib}/**/*.rb'
     add_filter 'config/initializers/sidekiq.rb'
     add_filter 'config/initializers/statsd.rb'
@@ -25,6 +25,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'spec/support/attr_encrypted_matcher'
     add_filter 'vendor'
     SimpleCov.minimum_coverage_by_file 90
+    SimpleCov.refuse_coverage_drop
   end
 end
 
