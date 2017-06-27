@@ -29,6 +29,7 @@ module EVSS
         raw_response = get 'letterBeneficiary'
         EVSS::Letters::BeneficiaryResponse.new(raw_response.status, raw_response)
       rescue Faraday::ParsingError => e
+        puts e.message
         log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL })
         EVSS::Letters::BeneficiaryResponse.new(403)
       rescue Faraday::TimeoutError
