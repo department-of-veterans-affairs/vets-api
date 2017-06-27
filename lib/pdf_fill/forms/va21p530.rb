@@ -11,6 +11,11 @@ module PdfFill
           'middleInitial' => {
             key: 'form1[0].#subform[36].VeteransMiddleInitial1[0]'
           }
+          'last' => {
+            key: 'form1[0].#subform[36].VeteransLastName[0]',
+            limit: 18,
+            question: "1. DECEASED VETERAN'S LAST NAME"
+          }
         }
       }
 
