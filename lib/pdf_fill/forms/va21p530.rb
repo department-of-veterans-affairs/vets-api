@@ -19,6 +19,17 @@ module PdfFill
         }
       }
 
+      def split_ssn
+        ssn = @form_data['veteranSocialSecurityNumber']
+        return if ssn.blank?
+
+        @form_data['veteranSocialSecurityNumber'] = {
+          'first' => ssn[0..2],
+          'second' => ssn[3..4],
+          'third' => ssn[5..8]
+        }
+      end
+
       def extract_middle_i
         full_name = @form_data['veteranFullName']
         return if full_name.blank?

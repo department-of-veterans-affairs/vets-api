@@ -11,12 +11,20 @@ describe PdfFill::Forms::VA21P530 do
     described_class.new(form_data)
   end
 
+  describe '#split_ssn' do
+    subject do
+      described_class.new(form_data).split_ssn
+    end
+
+    context 'with no ssn' do
+      it 'should return nil' do
+        expect(subject).to eq(nil)
+      end
+    end
+  end
+
   describe '#extract_middle_i' do
     context 'with no veteran full name' do
-      let(:form_data) do
-        {}
-      end
-
       it 'should return nil' do
         expect(subject.extract_middle_i).to eq(nil)
       end
