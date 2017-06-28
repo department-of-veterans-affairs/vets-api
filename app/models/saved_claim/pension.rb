@@ -9,7 +9,7 @@ class SavedClaim::Pension < SavedClaim
     PensionBurial::ProcessingOffice.address_for(open_struct_form.veteranAddress.postalCode)
   end
 
-  def to_pdf
-    # Tempfile.new('not-really-implimented', '.pdf')
+  def attachment_keys
+    self.class::ATTACHMENT_KEYS
   end
 end
