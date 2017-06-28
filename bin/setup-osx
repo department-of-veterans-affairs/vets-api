@@ -81,6 +81,13 @@ fi
 
 brew services start postgresql
 
+if command_exists convert ; then
+  echo "${GREEN} * Imagemagick already installed.${RESET}"
+else
+  echo "${RED} * Installing Imagemagick. ${RESET}"
+  brew install imagemagick
+fi
+
 if command_exists clamscan ; then
   echo "${GREEN} * ClamAV already installed.${RESET}"
 else

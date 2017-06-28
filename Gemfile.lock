@@ -216,6 +216,7 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2016.0521)
     mimemagic (0.3.2)
+    mini_magick (4.7.0)
     mini_portile2 (2.2.0)
     minitest (5.10.1)
     multi_json (1.12.1)
@@ -470,6 +471,7 @@ DEPENDENCIES
   iconv
   json-schema
   memoist
+  mini_magick
   net-sftp
   nokogiri
   oj
