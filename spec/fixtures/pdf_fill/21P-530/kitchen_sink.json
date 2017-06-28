@@ -3,6 +3,7 @@
   "vaFileNumber": "c12345678",
   "veteranSocialSecurityNumber": "111223333",
   "claimantPhone": "2123456789",
+  "claimantEmail": "foo@foo.com",
   "claimantFullName": {
     "first": "claimant",
     "middle": "middle",
