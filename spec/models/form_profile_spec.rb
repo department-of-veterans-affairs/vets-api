@@ -21,7 +21,7 @@ RSpec.describe FormProfile, type: :model do
         'postal_code' => user.va_profile[:address][:postal_code]
       },
       'gender' => user.gender,
-      'homePhone' => user.va_profile[:home_phone],
+      'homePhone' => user.va_profile[:home_phone].gsub(/[^\d]/, ''),
       'veteranSocialSecurityNumber' => user.ssn
     }
   end
@@ -41,7 +41,7 @@ RSpec.describe FormProfile, type: :model do
         'postal_code' => user.va_profile[:address][:postal_code]
       },
       'gender' => user.gender,
-      'dayPhone' => user.va_profile[:home_phone],
+      'dayPhone' => user.va_profile[:home_phone].gsub(/[^\d]/, ''),
       'veteranSocialSecurityNumber' => user.ssn,
       'veteranDateOfBirth' => user.birth_date
     }
@@ -61,7 +61,7 @@ RSpec.describe FormProfile, type: :model do
         'country' => user.va_profile[:address][:country],
         'postal_code' => user.va_profile[:address][:postal_code]
       },
-      'claimantPhone' => user.va_profile[:home_phone],
+      'claimantPhone' => user.va_profile[:home_phone].gsub(/[^\d]/, ''),
       'claimantEmail' => user.email
     }
   end

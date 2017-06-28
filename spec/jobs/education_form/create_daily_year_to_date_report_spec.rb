@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 def get_education_form_fixture(filename)
-  JSON.parse(File.read("spec/fixtures/education_form/#{filename}.json"))
+  get_fixture("education_form/#{filename}")
 end
 
 RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
