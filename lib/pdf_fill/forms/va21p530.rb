@@ -36,6 +36,33 @@ module PdfFill
             question: "4. CLAIMANT'S LAST NAME"
           }
         },
+        'claimantAddress' => {
+          'street' => {
+            key: 'form1[0].#subform[36].CurrentMailingAddress_NumberAndStreet[0]',
+            limit: 30,
+            question: '5. CURRENT MAILING ADDRESS (No. & Street)'
+          },
+          'aptNum' => {
+            key: 'form1[0].#subform[36].CurrentMailingAddress_ApartmentOrUnitNumber[0]'
+          },
+          'city' => {
+            key: 'form1[0].#subform[36].CurrentMailingAddress_City[0]',
+            limit: 18,
+            question: '5. CURRENT MAILING ADDRESS (city)'
+          },
+          'state' => {
+            key: 'form1[0].#subform[36].CurrentMailingAddress_StateOrProvince[0]'
+          },
+          'country' => {
+            key: 'form1[0].#subform[36].CurrentMailingAddress_Country[0]'
+          },
+          'postalCode1' => {
+            key: 'form1[0].#subform[36].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]'
+          },
+          'postalCode2' => {
+            key: 'form1[0].#subform[36].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]'
+          }
+        },
         'veteranSocialSecurityNumber' => {
           'first' => {
             key: 'form1[0].#subform[36].VeteransSocialSecurityNumber_FirstThreeNumbers[0]'
