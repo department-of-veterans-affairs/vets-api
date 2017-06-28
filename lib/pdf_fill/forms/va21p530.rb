@@ -72,7 +72,7 @@ module PdfFill
           'checkbox' => {
             'spouse' => {
               key: 'form1[0].#subform[36].CheckBox1[0]'
-            }
+            },
             'child' => {
               key: 'form1[0].#subform[36].CheckBox2[0]'
             },
@@ -88,7 +88,7 @@ module PdfFill
           },
           'other' => {
             limit: 58,
-            question: "8. RELATIONSHIP OF CLAIMANT TO DECEASED VETERAN"
+            question: "8. RELATIONSHIP OF CLAIMANT TO DECEASED VETERAN",
             key: 'form1[0].#subform[36].OTHER_SPECIFY[0]'
           }
         },
@@ -149,6 +149,15 @@ module PdfFill
         hash[key]
       end
 
+      def expand_relationship(hash, key)
+        relationship = hash[key]
+        return if relationship.blank?
+
+        relationship['checkbox'] = {
+          relationship['type'] => true
+        }
+      end
+
       def merge_fields
         %w(veteranFullName claimantFullName).each do |attr|
           extract_middle_i(@form_data, attr)
@@ -157,6 +166,8 @@ module PdfFill
         split_ssn
 
         split_phone(@form_data, 'claimantPhone')
+
+        expand_relationship(@form_data, 'relationship')
 
         @form_data
       end
