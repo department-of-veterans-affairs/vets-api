@@ -27,7 +27,6 @@ gem 'olive_branch'
 gem 'ox'
 gem 'savon'
 gem 'gyoku'
-gem 'prawn'
 
 # background processing and workflow
 gem 'sidekiq'
