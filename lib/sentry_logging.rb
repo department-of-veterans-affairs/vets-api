@@ -10,8 +10,12 @@ module SentryLogging
     end
   end
 
-  def log_exception_to_sentry(exception)
-    Raven.capture_exception(exception.cause.presence || exception) if Settings.sentry.dsn.present?
+  def log_exception_to_sentry(exception, extra_context = {}, tags_context = {})
+    if Settings.sentry.dsn.present?
+      Raven.extra_context(extra_context) if non_nil_hash?(extra_context)
+      Raven.tags_context(tags_context) if non_nil_hash?(tags_context)
+      Raven.capture_exception(exception.cause.presence || exception)
+    end
     Rails.logger.error "#{exception.message}."
     Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
   end
