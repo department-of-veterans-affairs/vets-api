@@ -90,7 +90,7 @@ RSpec.describe 'in progress forms', type: :request do
             'country' => user.va_profile.address.country,
             'postal_code' => user.va_profile.address.postal_code
           },
-          'homePhone' => user.va_profile.home_phone
+          'homePhone' => user.va_profile.home_phone.gsub(/[^\d]/, '')
         )
       end
     end
