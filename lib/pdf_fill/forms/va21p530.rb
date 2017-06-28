@@ -63,6 +63,17 @@ module PdfFill
             key: 'form1[0].#subform[36].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]'
           }
         },
+        'claimantPhone' => {
+          'first' => {
+            key: 'form1[0].#subform[36].PreferredTelephoneNumber_AreaCode[0]'
+          },
+          'second' => {
+            key: 'form1[0].#subform[36].PreferredTelephoneNumber_FirstThreeNumbers[0]'
+          },
+          'third' => {
+            key: 'form1[0].#subform[36].PreferredTelephoneNumber_LastFourNumbers[0]'
+          }
+        },
         'veteranSocialSecurityNumber' => {
           'first' => {
             key: 'form1[0].#subform[36].VeteransSocialSecurityNumber_FirstThreeNumbers[0]'
@@ -115,6 +126,8 @@ module PdfFill
         end
 
         split_ssn
+
+        split_phone(@form_data, 'claimantPhone')
 
         @form_data
       end
