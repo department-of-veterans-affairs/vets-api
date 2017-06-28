@@ -9,7 +9,7 @@ class ClaimDocumentation::Uploader < VetsShrine
     validate_virus_free
     validate_max_size 20.megabytes
     validate_min_size 1.kilobytes
-    validate_mime_type_inclusion %w(application/pdf) # until conversion is in
+    validate_mime_type_inclusion %w(image/jpg image/jpeg image/png application/pdf)
     validate_unlocked_pdf
   end
 
