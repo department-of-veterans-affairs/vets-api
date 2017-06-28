@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 513e22f43218cd9db084f45c0a8e194e3d6f7aec
-  branch: master
+  revision: 99c4857817152b54dfd7e85c6a3220ee9b095cf6
+  branch: burials-addr-change
   specs:
-    vets_json_schema (3.0.18)
+    vets_json_schema (3.0.19)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
