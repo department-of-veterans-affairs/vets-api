@@ -48,7 +48,7 @@ module PdfFill
           'city' => {
             key: 'form1[0].#subform[36].CurrentMailingAddress_City[0]',
             limit: 18,
-            question: '5. CURRENT MAILING ADDRESS (city)'
+            question: '5. CURRENT MAILING ADDRESS (City)'
           },
           'state' => {
             key: 'form1[0].#subform[36].CurrentMailingAddress_StateOrProvince[0]'
