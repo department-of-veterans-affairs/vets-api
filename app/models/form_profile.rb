@@ -106,7 +106,7 @@ class FormProfile
       },
       date_of_birth: user.birth_date,
       gender: user.gender,
-      ssn: user.ssn
+      ssn: user.ssn&.gsub(/[^\d]/, '')
     )
   end
 
@@ -123,7 +123,7 @@ class FormProfile
     FormContactInformation.new(
       address: address,
       email: user&.email,
-      home_phone: user&.va_profile&.home_phone
+      home_phone: user&.va_profile&.home_phone&.gsub(/[^\d]/, '')
     )
   end
 
