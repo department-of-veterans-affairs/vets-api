@@ -29,6 +29,7 @@ module EVSS
 
       # EVSS partner is aware of user but has no info about them
       def contains_no_user_info?
+        return false if @response.nil? || !@response&.body.key?('chapter33_education_info')
         @response&.body['chapter33_education_info'] == {}
       end
 
