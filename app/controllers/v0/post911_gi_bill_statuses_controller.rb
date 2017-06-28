@@ -12,7 +12,7 @@ module V0
         log_message_to_sentry(
           'Unexpected response from EVSS GiBillStatus Service',
           :warn,
-          { evss_status: response.status }
+          evss_status: response.status
         )
         render json: { data: nil, meta: response.metadata }
       else

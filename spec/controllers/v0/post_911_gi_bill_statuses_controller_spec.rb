@@ -51,7 +51,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
       end
       it 'logs a warning' do
         expect(Rails.logger).to receive(:warn).with(/Unexpected response from EVSS GiBillStatus/)
-         VCR.use_cassette('evss/gi_bill_status/vet_with_no_info') do
+        VCR.use_cassette('evss/gi_bill_status/vet_with_no_info') do
           request.headers['Authorization'] = "Token token=#{session.token}"
           get :show
         end
