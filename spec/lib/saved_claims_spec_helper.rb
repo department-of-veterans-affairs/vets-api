@@ -32,6 +32,7 @@ shared_examples_for 'saved_claim' do
         bad_form = instance.parsed_form.deep_dup
         bad_form.delete('privacyAgreementAccepted')
         instance.form = bad_form.to_json
+        instance.remove_instance_variable(:@parsed_form)
         expect(instance.valid?).to be(false)
         expect(instance.errors.full_messages.size).to eq(1)
         expect(instance.errors.full_messages).to include(/privacyAgreementAccepted/)
