@@ -37,7 +37,7 @@ module MHVControllerConcerns
   end
 
   def raise_something_went_wrong
-    # TODO: any additional data could probably be provided in source.
+    # TODO: Change this to something other than a BackendServiceException
     raise Common::Exceptions::BackendServiceException, 'MHVAC1'
   end
 
