@@ -1,6 +1,6 @@
 ---
 # Mark Webb
-'796066621':
+'796104437':
   :get_letters:
     :body:
       letter_destination:
@@ -35,18 +35,18 @@
   :get_letter_beneficiary:
     :body:
       benefit_information:
+        award_effective_date: '1965-01-01T05:00:00.000+0000'
+        has_adapted_housing: false
+        has_chapter35_eligibility: true
+        has_death_result_of_disability: false
+        has_individual_unemployability_granted: false
         has_non_service_connected_pension: false
         has_service_connected_disabilities: true
+        has_special_monthly_compensation: false
         has_survivors_indemnity_compensation_award: false
         has_survivors_pension_award: false
         monthly_award_amount: 123.0
         service_connected_percentage: 2
-        award_effective_date: '1965-01-01T05:00:00.000+0000'
-      has_adapted_housing: false
-      has_chapter35_eligibility: true
-      has_death_result_of_disability: false
-      has_individual_unemployability_granted: false
-      has_special_monthly_compensation: false
       military_service:
       - branch: ARMY
         character_of_service: HONORABLE
@@ -97,18 +97,18 @@
   :get_letter_beneficiary:
     :body:
       benefit_information:
+        award_effective_date: '1965-01-01T05:00:00.000+0000'
+        has_adapted_housing: false
+        has_chapter35_eligibility: true
+        has_death_result_of_disability: false
+        has_individual_unemployability_granted: false
         has_non_service_connected_pension: false
         has_service_connected_disabilities: true
+        has_special_monthly_compensation: false
         has_survivors_indemnity_compensation_award: false
         has_survivors_pension_award: false
         monthly_award_amount: 123.0
         service_connected_percentage: 2
-        award_effective_date: '1965-01-01T05:00:00.000+0000'
-      has_adapted_housing: false
-      has_chapter35_eligibility: true
-      has_death_result_of_disability: false
-      has_individual_unemployability_granted: false
-      has_special_monthly_compensation: false
       military_service:
       - branch: ARMY
         character_of_service: HONORABLE
@@ -159,18 +159,18 @@
   :get_letter_beneficiary:
     :body:
       benefit_information:
+        award_effective_date: '1965-01-01T05:00:00.000+0000'
+        has_adapted_housing: false
+        has_chapter35_eligibility: true
+        has_death_result_of_disability: false
+        has_individual_unemployability_granted: false
         has_non_service_connected_pension: false
         has_service_connected_disabilities: true
+        has_special_monthly_compensation: false
         has_survivors_indemnity_compensation_award: false
         has_survivors_pension_award: false
         monthly_award_amount: 123.0
         service_connected_percentage: 2
-        award_effective_date: '1965-01-01T05:00:00.000+0000'
-      has_adapted_housing: false
-      has_chapter35_eligibility: true
-      has_death_result_of_disability: false
-      has_individual_unemployability_granted: false
-      has_special_monthly_compensation: false
       military_service:
       - branch: ARMY
         character_of_service: HONORABLE
@@ -221,17 +221,18 @@
   :get_letter_beneficiary:
     :body:
       benefit_information:
+        award_effective_date: '1965-01-01T05:00:00.000+0000'
+        has_adapted_housing: false
+        has_chapter35_eligibility: true
+        has_death_result_of_disability: false
+        has_individual_unemployability_granted: false
         has_non_service_connected_pension: false
         has_service_connected_disabilities: true
+        has_special_monthly_compensation: false
         has_survivors_indemnity_compensation_award: false
         has_survivors_pension_award: false
         monthly_award_amount: 123.0
         service_connected_percentage: 2
-      has_adapted_housing: false
-      has_chapter35_eligibility: true
-      has_death_result_of_disability: false
-      has_individual_unemployability_granted: false
-      has_special_monthly_compensation: false
       military_service:
       - branch: ARMY
         character_of_service: HONORABLE
@@ -282,18 +283,18 @@
   :get_letter_beneficiary:
     :body:
       benefit_information:
+        award_effective_date: '1965-01-01T05:00:00.000+0000'
+        has_adapted_housing: false
+        has_chapter35_eligibility: true
+        has_death_result_of_disability: false
+        has_individual_unemployability_granted: false
         has_non_service_connected_pension: false
         has_service_connected_disabilities: true
+        has_special_monthly_compensation: false
         has_survivors_indemnity_compensation_award: false
         has_survivors_pension_award: false
         monthly_award_amount: 123.0
         service_connected_percentage: 2
-        award_effective_date: '1965-01-01T05:00:00.000+0000'
-      has_adapted_housing: false
-      has_chapter35_eligibility: true
-      has_death_result_of_disability: false
-      has_individual_unemployability_granted: false
-      has_special_monthly_compensation: false
       military_service:
       - branch: ARMY
         character_of_service: HONORABLE
@@ -344,17 +345,18 @@
   :get_letter_beneficiary:
     :body:
       benefit_information:
+        award_effective_date: '1965-01-01T05:00:00.000+0000'        
+        has_adapted_housing: false
+        has_chapter35_eligibility: true
+        has_death_result_of_disability: false
+        has_individual_unemployability_granted: false
         has_non_service_connected_pension: false
         has_service_connected_disabilities: true
+        has_special_monthly_compensation: false
         has_survivors_indemnity_compensation_award: false
         has_survivors_pension_award: false
         monthly_award_amount: 123.0
         service_connected_percentage: 2
-      has_adapted_housing: false
-      has_chapter35_eligibility: true
-      has_death_result_of_disability: false
-      has_individual_unemployability_granted: false
-      has_special_monthly_compensation: false
       military_service:
       - branch: ARMY
         character_of_service: HONORABLE
@@ -405,18 +407,18 @@
   :get_letter_beneficiary:
     :body:
       benefit_information:
+        award_effective_date: '1965-01-01T05:00:00.000+0000'
+        has_adapted_housing: false
+        has_chapter35_eligibility: true
+        has_death_result_of_disability: false
+        has_individual_unemployability_granted: false
         has_non_service_connected_pension: false
         has_service_connected_disabilities: true
+        has_special_monthly_compensation: false
         has_survivors_indemnity_compensation_award: false
         has_survivors_pension_award: false
         monthly_award_amount: 123.0
         service_connected_percentage: 2
-        award_effective_date: '1965-01-01T05:00:00.000+0000'
-      has_adapted_housing: false
-      has_chapter35_eligibility: true
-      has_death_result_of_disability: false
-      has_individual_unemployability_granted: false
-      has_special_monthly_compensation: false
       military_service:
       - branch: ARMY
         character_of_service: HONORABLE
@@ -467,18 +469,18 @@
   :get_letter_beneficiary:
     :body:
       benefit_information:
+        award_effective_date: '1965-01-01T05:00:00.000+0000'
+        has_adapted_housing: false
+        has_chapter35_eligibility: true
+        has_death_result_of_disability: false
+        has_individual_unemployability_granted: false
         has_non_service_connected_pension: false
         has_service_connected_disabilities: true
+        has_special_monthly_compensation: false
         has_survivors_indemnity_compensation_award: false
         has_survivors_pension_award: false
         monthly_award_amount: 123.0
         service_connected_percentage: 2
-        award_effective_date: '1965-01-01T05:00:00.000+0000'
-      has_adapted_housing: false
-      has_chapter35_eligibility: true
-      has_death_result_of_disability: false
-      has_individual_unemployability_granted: false
-      has_special_monthly_compensation: false
       military_service:
       - branch: ARMY
         character_of_service: HONORABLE
@@ -529,18 +531,18 @@
   :get_letter_beneficiary:
     :body:
       benefit_information:
+        award_effective_date: '1965-01-01T05:00:00.000+0000'
+        has_adapted_housing: false
+        has_chapter35_eligibility: true
+        has_death_result_of_disability: false
+        has_individual_unemployability_granted: false
         has_non_service_connected_pension: false
         has_service_connected_disabilities: true
+        has_special_monthly_compensation: false
         has_survivors_indemnity_compensation_award: false
         has_survivors_pension_award: false
         monthly_award_amount: 123.0
         service_connected_percentage: 2
-        award_effective_date: '1965-01-01T05:00:00.000+0000'
-      has_adapted_housing: false
-      has_chapter35_eligibility: true
-      has_death_result_of_disability: false
-      has_individual_unemployability_granted: false
-      has_special_monthly_compensation: false
       military_service:
       - branch: ARMY
         character_of_service: HONORABLE
@@ -591,18 +593,18 @@
   :get_letter_beneficiary:
     :body:
       benefit_information:
+        award_effective_date: '1965-01-01T05:00:00.000+0000'
+        has_adapted_housing: false
+        has_chapter35_eligibility: true
+        has_death_result_of_disability: false
+        has_individual_unemployability_granted: false
         has_non_service_connected_pension: false
         has_service_connected_disabilities: true
+        has_special_monthly_compensation: false
         has_survivors_indemnity_compensation_award: false
         has_survivors_pension_award: false
         monthly_award_amount: 123.0
         service_connected_percentage: 2
-        award_effective_date: '1965-01-01T05:00:00.000+0000'
-      has_adapted_housing: false
-      has_chapter35_eligibility: true
-      has_death_result_of_disability: false
-      has_individual_unemployability_granted: false
-      has_special_monthly_compensation: false
       military_service:
       - branch: ARMY
         character_of_service: HONORABLE
