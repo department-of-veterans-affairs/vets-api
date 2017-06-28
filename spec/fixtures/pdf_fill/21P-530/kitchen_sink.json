@@ -2,6 +2,7 @@
   "privacyAgreementAccepted": true,
   "vaFileNumber": "c12345678",
   "veteranSocialSecurityNumber": "111223333",
+  "claimantPhone": "2123456789",
   "claimantFullName": {
     "first": "claimant",
     "middle": "middle",
