@@ -21,6 +21,11 @@ module PdfFill
         'vaFileNumber' => {
           key: 'form1[0].#subform[36].VAFileNumber[0]'
         },
+        'claimantEmail' => {
+          key: 'form1[0].#subform[36].PreferredE_MailAddress[0]',
+          limit: 31,
+          question: '7. PREFERRED E-MAIL ADDRESS'
+        },
         'claimantFullName' => {
           'first' => {
             key: 'form1[0].#subform[36].ClaimantsFirstName[0]',
