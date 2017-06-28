@@ -60,7 +60,7 @@ RSpec.describe 'prescriptions', type: :request do
 
       expect(response).to have_http_status(:forbidden)
       expect(JSON.parse(response.body)['errors'].first['detail'])
-        .to eq('Something went wrong. Please contact support')
+        .to eq('Failed to create or upgrade health tools account access')
     end
   end
 
