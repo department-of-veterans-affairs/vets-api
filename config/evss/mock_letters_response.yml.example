@@ -61,7 +61,7 @@ default:
   :download_letter_by_type:
     'commissary': config/evss/letter.pdf
 
-# Mark Webb
+# Gary Todd
 '796066621':
   :get_letters:
     :body:
@@ -72,7 +72,7 @@ default:
         city: RESTON
         country: US
         foreign_code: '865'
-        full_name: MARK WEBB
+        full_name: Gary Todd
         state: VA
         zip_code: '12345'
       letters:
