@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'workflow/task/shrine_file/base'
+
 require 'fileutils'
 module Workflow::Task::Shared
   class DatestampPdfTask < Workflow::Task::ShrineFile::Base
