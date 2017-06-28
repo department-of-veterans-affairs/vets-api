@@ -9,9 +9,6 @@ module FeatureFlipper
   end
 
   def self.enable_prefill?(user)
-    return false unless user&.ssn
-    # Many of our test users have SSNs that begin with the unused 796
-    # prefix, so gating on that should limit it to 'our' users.
-    user.ssn.to_s.starts_with?('796')
+    (user&.ssn).present?
   end
 end
