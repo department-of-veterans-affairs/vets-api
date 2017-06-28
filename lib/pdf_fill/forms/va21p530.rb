@@ -87,6 +87,17 @@ module PdfFill
         }
       end
 
+      def split_phone(hash, key)
+        phone = hash[key]
+        return if phone.blank?
+
+        hash[key] = {
+          'first' => phone[0..2],
+          'second' => phone[3..5],
+          'third' => phone[6..9]
+        }
+      end
+
       def extract_middle_i(hash, key)
         full_name = hash[key]
         return if full_name.blank?

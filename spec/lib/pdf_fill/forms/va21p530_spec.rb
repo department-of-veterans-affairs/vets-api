@@ -2,6 +2,11 @@
 require 'rails_helper'
 require 'pdf_fill/forms/va21p530'
 
+
+def basic_class
+  PdfFill::Forms::VA21P530.new({})
+end
+
 describe PdfFill::Forms::VA21P530 do
   let(:form_data) do
     {}
@@ -10,6 +15,24 @@ describe PdfFill::Forms::VA21P530 do
   subject do
     described_class.new(form_data)
   end
+
+  test_method(
+    basic_class,
+    'split_phone',
+    [
+      [
+        [{}, nil],
+        nil
+      ],
+      [
+        [
+          { phone: '1112223333' },
+          :phone
+        ],
+        {"first"=>"111", "second"=>"222", "third"=>"3333"}
+      ]
+    ]
+  )
 
   describe '#split_ssn' do
     subject do
