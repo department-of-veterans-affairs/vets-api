@@ -3,9 +3,7 @@ require 'rails_helper'
 
 RSpec.describe Preneeds::NameInput do
   subject { described_class.new(params) }
-  let(:params) do
-    { last_name: 'Gilmore', first_name: 'Happy' }
-  end
+  let(:params) { attributes_for :name_input }
 
   context 'with valid attributes' do
     it { expect(subject).to be_valid }

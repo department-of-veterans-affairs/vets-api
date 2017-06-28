@@ -4,36 +4,7 @@ require 'rails_helper'
 RSpec.describe Preneeds::VeteranInput do
   subject { described_class.new(params) }
 
-  let(:address_params) do
-    { address1: 'my street', city: 'my city', state: 'NY', country_code: 'US', postal_zip: '10000' }
-  end
-
-  let(:name_params) do
-    { last_name: 'Gilmore', first_name: 'Happy' }
-  end
-
-  let(:service_record_params) do
-    [{ branch_of_service_code: 'AF', discharge_type: '1' }]
-  end
-
-  let(:params) do
-    {
-      address: address_params,
-      current_name: name_params,
-      date_of_birth: '2001-01-31',
-      date_of_death: '2001-01-31',
-      gender: 'Male',
-      is_deceased: 'unsure',
-      marital_status: 'Married',
-      military_service_number: '123456789',
-      place_of_birth: 'Good Ole NY',
-      service_name: name_params,
-      service_records: service_record_params,
-      ssn: '123-45-6789',
-      va_claim_number: '123456789',
-      military_status: 'A'
-    }
-  end
+  let(:params) { attributes_for :veteran_input }
 
   context 'with valid attributes' do
     it { expect(subject).to be_valid }

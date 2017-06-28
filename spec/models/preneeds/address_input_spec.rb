@@ -3,9 +3,7 @@ require 'rails_helper'
 
 RSpec.describe Preneeds::AddressInput do
   subject { described_class.new(params) }
-  let(:params) do
-    { address1: 'my street', city: 'my city', state: 'NY', country_code: 'US', postal_zip: '10000' }
-  end
+  let(:params) { attributes_for :address_input }
 
   context 'with valid attributes' do
     it { expect(subject).to be_valid }
@@ -28,7 +26,7 @@ RSpec.describe Preneeds::AddressInput do
     end
 
     it 'requires a country' do
-      params.delete(:state)
+      params.delete(:country_code)
       expect(subject).to_not be_valid
     end
 

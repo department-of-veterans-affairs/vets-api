@@ -4,24 +4,7 @@ require 'rails_helper'
 RSpec.describe Preneeds::ClaimantInput do
   subject { described_class.new(params) }
 
-  let(:address_params) do
-    { address1: 'my street', city: 'my city', state: 'NY', country_code: 'US', postal_zip: '10000' }
-  end
-
-  let(:name_params) do
-    { last_name: 'Gilmore', first_name: 'Happy' }
-  end
-
-  let(:params) do
-    {
-      address: address_params,
-      date_of_birth: '2001-01-31',
-      desired_cemetery: 123,
-      name: name_params,
-      relationship_to_vet: '1',
-      ssn: '123-45-6789'
-    }
-  end
+  let(:params) { attributes_for :claimant_input }
 
   context 'with valid attributes' do
     it { expect(subject).to be_valid }

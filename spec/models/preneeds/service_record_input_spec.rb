@@ -3,9 +3,7 @@ require 'rails_helper'
 
 RSpec.describe Preneeds::ServiceRecordInput do
   subject { described_class.new(params) }
-  let(:params) do
-    { branch_of_service_code: 'AF', discharge_type: '1' }
-  end
+  let(:params) { attributes_for :service_record_input }
 
   context 'with valid attributes' do
     it { expect(subject).to be_valid }

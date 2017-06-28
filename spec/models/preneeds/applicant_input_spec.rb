@@ -3,25 +3,7 @@ require 'rails_helper'
 
 RSpec.describe Preneeds::ApplicantInput do
   subject { described_class.new(params) }
-
-  let(:address_params) do
-    { address1: 'my street', city: 'my city', state: 'NY', country_code: 'US', postal_zip: '10000' }
-  end
-
-  let(:name_params) do
-    { last_name: 'Gilmore', first_name: 'Happy' }
-  end
-
-  let(:params) do
-    {
-      applicant_email: 'happy.gilmore@hotmail.com',
-      applicant_phone_number: '555-555-5555 - 234',
-      applicant_relationship_to_claimant: 'self',
-      completing_reason: "I don't know",
-      mailing_address: address_params,
-      name: name_params
-    }
-  end
+  let(:params) { attributes_for :applicant_input }
 
   context 'with valid attributes' do
     it { expect(subject).to be_valid }
