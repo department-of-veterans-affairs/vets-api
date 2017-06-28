@@ -10,5 +10,9 @@ module Preneeds
 
     attribute :cemetery_number, String
     attribute :name, NameInput
+
+    def message
+      { cemetery_number: cemetery_number, name: name.message }
+    end
   end
 end

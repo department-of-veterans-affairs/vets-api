@@ -10,13 +10,13 @@ RSpec.describe Preneeds::ServiceRecordInput do
   end
 
   context 'with invalid attributes' do
-    it 'requires a branch_of_service_code' do
-      params.delete(:branch_of_service_code)
+    it 'requires a branch_of_service' do
+      params.delete(:branch_of_service)
       expect(subject).to_not be_valid
     end
 
-    it 'requires a 2 character branch_of_service_code' do
-      params[:branch_of_service_code] = 'A'
+    it 'requires a 2 character branch_of_service' do
+      params[:branch_of_service] = 'A'
       expect(subject).to_not be_valid
     end
 
@@ -25,7 +25,7 @@ RSpec.describe Preneeds::ServiceRecordInput do
       expect(subject).to_not be_valid
     end
 
-    it 'requires a branch_of_service_code between 1 and 7' do
+    it 'requires a discharge_type between 1 and 7' do
       params[:discharge_type] = '100'
       expect(subject).to_not be_valid
     end

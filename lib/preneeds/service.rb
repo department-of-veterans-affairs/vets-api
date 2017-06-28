@@ -47,6 +47,13 @@ module Preneeds
       Common::Collection.new(State, json)
     end
 
+    def receive_pre_need_application(params)
+      soap = savon_client.build_request(:receive_pre_need_application, message: params)
+      json = perform(:post, '', soap.body).body
+
+      ApplicationInput.new(json)
+    end
+
     private
 
     def savon_client

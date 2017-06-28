@@ -30,5 +30,19 @@ module Preneeds
     attribute :ssn, String
     attribute :va_claim_number, String
     attribute :military_status, String
+
+    def message
+      hash = {
+        address: address&.message, current_name: current_name.message, date_of_birth: date_of_birth,
+        date_of_death: date_of_death, gender: gender, is_deceased: is_deceased,
+        marital_status: marital_status, military_service_number: military_service_number,
+        place_of_birth: place_of_birth, service_name: service_name.message,
+        service_records: service_records.map(&:message), ssn: ssn, va_claim_number: va_claim_number,
+        military_status: military_status
+      }
+
+      [:date_of_birth, :date_of_death, :place_of_birth].each { |key| hash.delete(key) if hash[key].blank? }
+      hash
+    end
   end
 end

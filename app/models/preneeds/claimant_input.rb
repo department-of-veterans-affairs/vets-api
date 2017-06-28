@@ -23,5 +23,16 @@ module Preneeds
     attribute :phone_number, String
     attribute :relationship_to_vet, String
     attribute :ssn, String
+
+    def message
+      hash = {
+        address: address.message, date_of_birth: date_of_birth, desired_cemetery: desired_cemetery,
+        email: email, name: name.message, phone_number: phone_number,
+        relationship_to_vet: relationship_to_vet, ssn: ssn
+      }
+
+      [:email, :phone_number].each { |key| hash.delete(key) if hash[key].nil? }
+      hash
+    end
   end
 end

@@ -33,8 +33,9 @@ module Preneeds
       ZM ZW
     ).freeze
 
-    # Removed length validations on address becuase of bad xsd validation
+    # Length validations on address becuase of bad xsd validation
     validates :address1, presence: true
+    validates :address1, :address2, :address3, length: { maximum: 35 }
     validates :city, length: { maximum: 30 }, presence: true
     validates :country_code, inclusion: { in: COUNTRY_CODES }, presence: true
     validates :postal_zip, length: { is: 5 }, presence: true
@@ -44,8 +45,18 @@ module Preneeds
     attribute :address2, String
     attribute :address3, String
     attribute :city, String
-    attribute :state, String
     attribute :country_code, String
     attribute :postal_zip, String
+    attribute :state, String
+
+    def message
+      hash = {
+        address1: address1, address2: address2, address3: address3, city: city,
+        country_code: country_code, postal_zip: postal_zip, state: state
+      }
+
+      [:address2, :address3].each { |key| hash.delete(key) if hash[key].nil? }
+      hash
+    end
   end
 end

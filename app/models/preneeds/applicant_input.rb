@@ -5,10 +5,10 @@ module Preneeds
   class ApplicantInput < Common::Base
     include ActiveModel::Validations
 
-    # TODO: check phone format, its required but allows for no digits, bad xsd
+    # TODO: email < 20 bad xsd
     validates :applicant_email, format: { with: /\A[a-zA-Z0-9_.+-]+@[a-zA-Z0-9_+-]+\.[a-zA-Z]+\z/ }
     validates :applicant_phone_number, format: { with: /\A[0-9+\s-]{0,20}\z/ }, presence: true
-    validates :applicant_relationship_to_claimant, inclusion: { in: ['self', 'Authorized Agent/Rep'] }
+    validates :applicant_relationship_to_claimant, inclusion: { in: ['Self', 'Authorized Agent/Rep'] }
     validates :completing_reason, length: { maximum: 256 }, presence: true
     validates :mailing_address, :name, presence: true
 
@@ -18,5 +18,14 @@ module Preneeds
     attribute :completing_reason, String
     attribute :mailing_address, AddressInput
     attribute :name, NameInput
+
+    def message
+      {
+        applicant_email: applicant_email, applicant_phone_number: applicant_phone_number,
+        applicant_relationship_to_claimant: applicant_relationship_to_claimant,
+        completing_reason: completing_reason, mailing_address: mailing_address.message,
+        name: name.message
+      }
+    end
   end
 end
