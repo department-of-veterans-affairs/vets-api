@@ -68,6 +68,30 @@ module PdfFill
             key: 'form1[0].#subform[36].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]'
           }
         },
+        'relationship' => {
+          'checkbox' => {
+            'spouse' => {
+              key: 'form1[0].#subform[36].CheckBox1[0]'
+            }
+            'child' => {
+              key: 'form1[0].#subform[36].CheckBox2[0]'
+            },
+            'executor' => {
+              key: 'form1[0].#subform[36].CheckBox4[0]'
+            },
+            'other' => {
+              key: 'form1[0].#subform[36].CheckBox5[0]'
+            },
+            'parent' => {
+              key: 'form1[0].#subform[36].CheckBox3[0]'
+            }
+          },
+          'other' => {
+            limit: 58,
+            question: "8. RELATIONSHIP OF CLAIMANT TO DECEASED VETERAN"
+            key: 'form1[0].#subform[36].OTHER_SPECIFY[0]'
+          }
+        },
         'claimantPhone' => {
           'first' => {
             key: 'form1[0].#subform[36].PreferredTelephoneNumber_AreaCode[0]'
