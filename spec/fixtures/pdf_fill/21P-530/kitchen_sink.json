@@ -8,6 +8,15 @@
     "last": "smith",
     "suffix": "Sr."
   },
+  "claimantAddress": {
+    "street": "foo",
+    "aptNum": "10A",
+    "city": "city",
+    "state": "VA",
+    "country": "US",
+    "postalCode1": "12345",
+    "postalCode2": "1234"
+  },
   "veteranFullName": {
     "first": "john",
     "middle": "middle",
