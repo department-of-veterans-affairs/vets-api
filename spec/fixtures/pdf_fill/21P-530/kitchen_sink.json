@@ -10,6 +10,10 @@
     "last": "smith",
     "suffix": "Sr."
   },
+  "relationship": {
+    "type": "other",
+    "other": "other"
+  },
   "claimantAddress": {
     "street": "foo",
     "aptNum": "10A",

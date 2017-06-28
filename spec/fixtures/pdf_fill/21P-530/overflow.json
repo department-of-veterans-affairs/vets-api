@@ -9,6 +9,10 @@
     "last": "cXXXXXXXXXXXXXXXXXXXX",
     "suffix": "Sr."
   },
+  "relationship": {
+    "type": "other",
+    "other": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  },
   "claimantAddress": {
     "street": "cXXXXXXXXXXXXXXXXXXXXcXXXXXXXXXXXXXXXXXXXX",
     "aptNum": "10A",
