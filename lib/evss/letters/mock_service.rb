@@ -11,9 +11,14 @@ module EVSS
       def mocked_response
         path = Rails.root.join('config', 'evss', 'mock_letters_response.yml')
         response = YAML.load_file(path) if File.exist? path
-        response[ssn]
+        user = response[ssn]
+        if user.nil?
+          Rails.logger.warn("No user found with ssn: #{ssn} in config/mock_letters_response.yml, trying default...")
+          user = response['default']
+        end
+        user
       rescue NoMethodError => e
-        Rails.logger.error("No user found with ssn: #{ssn} in config/mock_letters_response.yml")
+        Rails.logger.error("No user with ssn: #{ssn} and no default in config/mock_letters_response.yml")
         raise e
       end
 
