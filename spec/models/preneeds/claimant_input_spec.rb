@@ -58,12 +58,12 @@ RSpec.describe Preneeds::ClaimantInput do
       expect(subject).to_not be_valid
     end
 
-    it 'requires a properly formatted email' do
+    it 'requires a email to have a valid format' do
       params[:email] = '123456789'
       expect(subject).to_not be_valid
     end
 
-    it 'requires a properly formatted phone_number' do
+    it 'requires a phone_number to have a valid format' do
       params[:phone_number] = '123(345)2121'
       expect(subject).to_not be_valid
     end
@@ -83,7 +83,7 @@ RSpec.describe Preneeds::ClaimantInput do
       expect(subject).to_not be_valid
     end
 
-    it 'requires an applicant_relationship_to_claimant to have a valid value' do
+    it 'requires an ssn to have a valid format' do
       params[:ssn] = '123456789'
       expect(subject).to_not be_valid
     end

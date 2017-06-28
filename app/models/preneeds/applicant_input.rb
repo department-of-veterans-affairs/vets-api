@@ -5,9 +5,9 @@ module Preneeds
   class ApplicantInput < Common::Base
     include ActiveModel::Validations
 
-    # Some branches have no end_date, but api requires it just the same
-    validates :applicant_email, presence: true, format: /\A[a-zA-Z0-9_.+-]+@[a-zA-Z0-9_+-]+\.[a-zA-Z]+\z/
-    validates :applicant_phone_number, presence: true, format: /\A[0-9+\s-]{0,20}\z/
+    # TODO: check phone format, its required but allows for no digits, bad xsd
+    validates :applicant_email, format: { with: /\A[a-zA-Z0-9_.+-]+@[a-zA-Z0-9_+-]+\.[a-zA-Z]+\z/ }
+    validates :applicant_phone_number, format: { with: /\A[0-9+\s-]{0,20}\z/ }, presence: true
     validates :applicant_relationship_to_claimant, inclusion: { in: ['self', 'Authorized Agent/Rep'] }
     validates :completing_reason, length: { maximum: 256 }, presence: true
     validates :mailing_address, :name, presence: true

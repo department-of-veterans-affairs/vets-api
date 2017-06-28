@@ -33,8 +33,8 @@ RSpec.describe Preneeds::ApplicantInput do
       expect(subject).to_not be_valid
     end
 
-    it 'requires a properly formatted email' do
-      params[:applicant_email] = '123456789'
+    it 'requires applicant_email to have a valid format' do
+      params[:applicant_email] = 'x@123456789'
       expect(subject).to_not be_valid
     end
 
@@ -43,7 +43,7 @@ RSpec.describe Preneeds::ApplicantInput do
       expect(subject).to_not be_valid
     end
 
-    it 'requires a properly formatted applicant_phone_number' do
+    it 'requires applicant_phone_number to have a valid format' do
       params[:applicant_phone_number] = '123(345)2121'
       expect(subject).to_not be_valid
     end
