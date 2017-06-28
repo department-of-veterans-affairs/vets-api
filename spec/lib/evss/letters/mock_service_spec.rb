@@ -34,6 +34,14 @@ describe EVSS::Letters::MockService do
           expect { subject.get_letters }.to raise_error NoMethodError
         end
       end
+      context 'when the user is missing' do
+        let(:user) { build(:loa3_user, ssn: '123456780') }
+
+        it 'loads the default' do
+          response = subject.get_letters
+          expect(response.letters.count).to eq(8)
+        end
+      end
     end
 
     describe 'get_letter_beneficiary' do
