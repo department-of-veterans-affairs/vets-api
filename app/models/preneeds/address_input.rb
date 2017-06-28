@@ -33,10 +33,9 @@ module Preneeds
       ZM ZW
     ).freeze
 
-    # Some branches have no end_date, but api requires it just the same
-    validates :address1, length: { minimum: 1, maximum: 35 }, presence: true
-    validates :address2, :address3, length: { minimum: 1, maximum: 35 }
-    validates :city, length: { minimum: 1, maximum: 30 }, presence: true
+    # Removed length validations on address becuase of bad xsd validation
+    validates :address1, presence: true
+    validates :city, length: { maximum: 30 }, presence: true
     validates :country_code, inclusion: { in: COUNTRY_CODES }, presence: true
     validates :postal_zip, length: { is: 5 }, presence: true
     validates :state, length: { minimum: 2, maximum: 3 }, presence: true
@@ -45,6 +44,7 @@ module Preneeds
     attribute :address2, String
     attribute :address3, String
     attribute :city, String
+    attribute :state, String
     attribute :country_code, String
     attribute :postal_zip, String
   end
