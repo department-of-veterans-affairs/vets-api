@@ -41,7 +41,9 @@ RSpec.describe 'Fetching user data', type: :request do
     it 'gives me the list of available prefill forms' do
       expect(JSON.parse(response.body)['data']['attributes']['prefills_available'].sort).to eq(
         [
-          '1010ez'
+          '1010ez',
+          '21P-527EZ',
+          '21P-530'
         ].sort
       )
     end
