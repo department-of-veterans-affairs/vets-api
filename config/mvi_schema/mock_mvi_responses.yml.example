@@ -4385,3 +4385,18 @@ find_candidate:
     - '648'
     :edipi: 
     :participant_id: 
+  '500500237':
+    :given_names:
+    - Burnice
+    :family_name: Upton
+    :suffix:
+    :gender: F
+    :birth_date: '19710728'
+    :ssn: '500500237'
+    :address:
+    :home_phone:
+    :icn:
+    :mhv_ids: []
+    :vha_facility_ids: []
+    :edipi:
+    :participant_id:
