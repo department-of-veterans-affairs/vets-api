@@ -100,6 +100,9 @@ module PdfFill
         'veteranDateOfBirth' => {
           key: 'form1[0].#subform[36].DATE_OF_BIRTH[0]'
         },
+        'deathDate' => {
+          key: 'form1[0].#subform[36].DATE_OF_DEATH[0]'
+        },
         'claimantPhone' => {
           'first' => {
             key: 'form1[0].#subform[36].PreferredTelephoneNumber_AreaCode[0]'
