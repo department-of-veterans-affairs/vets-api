@@ -12,7 +12,7 @@ describe PdfFill::Forms::VA21P530 do
     {}
   end
 
-  subject do
+  let(:new_form_class) do
     described_class.new(form_data)
   end
 
@@ -56,9 +56,21 @@ describe PdfFill::Forms::VA21P530 do
     ]
   )
 
+  describe '#expand_place_of_death' do
+    subject do
+      new_form_class.expand_place_of_death
+    end
+
+    context 'with no location of death' do
+      it 'should return nil' do
+        expect(subject).to eq(nil)
+      end
+    end
+  end
+
   describe '#split_ssn' do
     subject do
-      described_class.new(form_data).split_ssn
+      new_form_class.split_ssn
     end
 
     context 'with no ssn' do
