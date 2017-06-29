@@ -7,9 +7,11 @@ RSpec.describe 'Triage Teams Integration', type: :request do
   include SM::ClientHelpers
   include SchemaMatchers
 
+  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
   let(:current_user) { build(:mhv_user) }
 
   it 'responds to GET #index' do
+    allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
     allow(SM::Client).to receive(:new).and_return(authenticated_client)
     use_authenticated_current_user(current_user: current_user)
 

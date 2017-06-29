@@ -37,7 +37,8 @@ describe 'mhv account creation' do
       zip: '77040',
       sign_in_partners: 'VETS.GOV',
       email: 'vets.gov.user+0@gmail.com',
-      terms_accepted_date: time
+      terms_accepted_date: time,
+      terms_version: 'v3.2'
     }
   end
 
