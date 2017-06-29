@@ -26,6 +26,11 @@ module PdfFill
             question: "1. DECEASED VETERAN'S LAST NAME"
           }
         },
+        'previousNames' => {
+          key: 'form1[0].#subform[36].OTHER_NAME[0]',
+          question: "12. IF VETERAN SERVED UNDER NAME OTHER THAN THAT SHOWN IN ITEM 1, GIVE FULL NAME AND SERVICE RENDERED UNDER THAT NAME",
+          limit: 180
+        },
         'burialDate' => {
           key: 'form1[0].#subform[36].DATE_OF_BURIAL[0]',
         },
