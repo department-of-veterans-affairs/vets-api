@@ -512,14 +512,6 @@ module PdfFill
         hash
       end
 
-      def combine_previous_names(previous_names)
-        return if previous_names.blank?
-
-        previous_names.map do |previous_name|
-          combine_full_name(previous_name)
-        end.join(', ')
-      end
-
       def expand_marital_status(hash, key)
         marital_status = hash[key]
         return if marital_status.blank?

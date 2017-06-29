@@ -9,6 +9,14 @@ module PdfFill
         @form_data = form_data.deep_dup
       end
 
+      def combine_previous_names(previous_names)
+        return if previous_names.blank?
+
+        previous_names.map do |previous_name|
+          combine_full_name(previous_name)
+        end.join(', ')
+      end
+
       def combine_hash(hash, keys, separator = ' ')
         return if hash.blank?
 
