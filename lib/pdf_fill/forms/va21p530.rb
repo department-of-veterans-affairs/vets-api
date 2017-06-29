@@ -24,6 +24,9 @@ module PdfFill
             question: "1. DECEASED VETERAN'S LAST NAME"
           }
         },
+        'burialDate' => {
+          key: 'form1[0].#subform[36].DATE_OF_BURIAL[0]',
+        },
         'vaFileNumber' => {
           key: 'form1[0].#subform[36].VAFileNumber[0]'
         },
