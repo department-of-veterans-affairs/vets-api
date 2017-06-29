@@ -21,6 +21,11 @@ module PdfFill
         'vaFileNumber' => {
           key: 'form1[0].#subform[36].VAFileNumber[0]'
         },
+        'placeOfDeath' => {
+          key: 'form1[0].#subform[36].PLACE_OF_DEATH[0]',
+          limit: 52,
+          question: '10B. PLACE OF DEATH'
+        },
         'claimantEmail' => {
           key: 'form1[0].#subform[36].PreferredE_MailAddress[0]',
           limit: 31,
