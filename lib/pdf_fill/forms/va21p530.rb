@@ -24,6 +24,11 @@ module PdfFill
             }
           }
         },
+        'burialCost' => {
+          key: 'form1[0].#subform[37].COST_OF_BURIAL[1]',
+          limit: 12,
+          question: "13A. If VA Medical Center Death is checked, provide actual burial cost"
+        },
         'veteranFullName' => {
           'first' => {
             key: 'form1[0].#subform[36].VeteransFirstName[0]',
