@@ -184,6 +184,11 @@ module PdfFill
       end
 
       def expand_tours_of_duty(tours_of_duty)
+        return if tours_of_duty.blank?
+
+        tours_of_duty.each do |tour_of_duty|
+          expand_date_range(tour_of_duty, 'dateRange')
+        end
       end
 
       def expand_place_of_death
@@ -212,6 +217,8 @@ module PdfFill
         expand_relationship(@form_data, 'relationship')
 
         expand_place_of_death
+
+        expand_tours_of_duty(@form_data['toursOfDuty'])
 
         @form_data
       end
