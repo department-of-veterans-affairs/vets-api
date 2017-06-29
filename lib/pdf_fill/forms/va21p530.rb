@@ -2,6 +2,8 @@ module PdfFill
   module Forms
     # TODO bring back workflow require statements
     class VA21P530 < FormBase
+      ITERATOR = PdfFill::HashConverter::ITERATOR
+
       PLACE_OF_DEATH_KEY = {
         'vaMedicalCenter' => 'VA MEDICAL CENTER',
         'stateVeteransHome' => 'STATE VETERANS HOME',
@@ -104,6 +106,38 @@ module PdfFill
             limit: 58,
             question: "8. RELATIONSHIP OF CLAIMANT TO DECEASED VETERAN",
             key: 'form1[0].#subform[36].OTHER_SPECIFY[0]'
+          }
+        },
+        'toursOfDuty' => {
+          limit: 3,
+          first_key: 'rank',
+          'dateRangeStart' => {
+            key: "toursOfDuty.dateRangeStart[#{ITERATOR}]",
+            question: "11A. ENTERED SERVICE (date)"
+          },
+          'placeOfEntry' => {
+            key: "toursOfDuty.placeOfEntry[#{ITERATOR}]",
+            limit: 14,
+            question: "11A. ENTERED SERVICE (place)"
+          },
+          'serviceNumber' => {
+            key: "toursOfDuty.serviceNumber[#{ITERATOR}]",
+            limit: 12,
+            question: '11B. SERVICE NUMBER'
+          },
+          'dateRangeEnd' => {
+            key: "toursOfDuty.dateRangeEnd[#{ITERATOR}]",
+            question: "11C. SEPARATED FROM SERVICE (date)"
+          },
+          'placeOfSeparation' => {
+            key: "toursOfDuty.placeOfSeparation[#{ITERATOR}]",
+            question: "11C. SEPARATED FROM SERVICE (place)",
+            limit: 15
+          },
+          'rank' => {
+            key: "toursOfDuty.rank[#{ITERATOR}]",
+            question: "11D. GRADE, RANK OR RATING, ORGANIZATION AND BRANCH OF SERVICE",
+            limit: 31
           }
         },
         "placeOfBirth" => {

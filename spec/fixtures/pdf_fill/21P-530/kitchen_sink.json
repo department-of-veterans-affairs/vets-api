@@ -19,9 +19,9 @@
       },
       "serviceBranch": "army1",
       "rank": "rank1",
-      "serviceNumber": "service number 1",
+      "serviceNumber": "sn1",
       "placeOfEntry": "placeOfEntry1",
-      "placeOfSeparation": "placeOfSeparation1"
+      "placeOfSeparation": "place1"
     },
     {
       "dateRange": {
@@ -30,9 +30,9 @@
       },
       "serviceBranch": "army2",
       "rank": "rank2",
-      "serviceNumber": "service number 2",
+      "serviceNumber": "sn2",
       "placeOfEntry": "placeOfEntry2",
-      "placeOfSeparation": "placeOfSeparation2"
+      "placeOfSeparation": "place2"
     },
     {
       "dateRange": {
@@ -41,9 +41,9 @@
       },
       "serviceBranch": "army3",
       "rank": "rank3",
-      "serviceNumber": "service number 3",
+      "serviceNumber": "sn3",
       "placeOfEntry": "placeOfEntry3",
-      "placeOfSeparation": "placeOfSeparation3"
+      "placeOfSeparation": "place3"
     }
   ],
   "placeOfBirth": "earth",
