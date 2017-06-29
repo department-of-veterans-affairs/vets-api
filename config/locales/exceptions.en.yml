@@ -130,3 +130,8 @@ en:
         <<: *validation_errors
         code: 'SM152'
         detail: 'Email address is invalid'
+      MHVAC1:
+        <<: *external_defaults
+        code: 'MHV001'
+        detail: 'Failed to create or upgrade health tools account access'
+        status: 403

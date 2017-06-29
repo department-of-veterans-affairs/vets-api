@@ -14,7 +14,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Wed, 14 Jun 2017 21:48:53 GMT
+      - Wed, 28 Jun 2017 21:32:06 GMT
       Va-Eauth-Csid:
       - DSLogon
       Va-Eauth-Authenticationmethod:
@@ -28,7 +28,7 @@ http_interactions:
       Va-Eauth-Lastname:
       - lincoln
       Va-Eauth-Issueinstant:
-      - '2017-06-14T21:48:52Z'
+      - '2017-06-28T21:32:06Z'
       Va-Eauth-Dodedipnid:
       - '6138391549'
       Va-Eauth-Pid:
@@ -43,14 +43,14 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 14 Jun 2017 21:48:49 GMT
+      - Wed, 28 Jun 2017 21:32:06 GMT
       Server:
       - Apache/2.4.6 (CentOS) OpenSSL/1.0.1e-fips
       Content-Type:
       - application/json
       Set-Cookie:
-      - WLS_12.1_App1_Cluster_ROUTEID=.01; path=/
-      - WSS-LETTERGENERATION-SERVICES_JSESSIONID=Hs-olJiWg8WA5Z_fD2HtMzg7inHBAWR0suPhCVvs8E-tnbC16wkb!-1082478778;
+      - WLS_12.1_App1_Cluster_ROUTEID=.02; path=/
+      - WSS-LETTERGENERATION-SERVICES_JSESSIONID=ws7wnlH5vVBhWlY7Q_I4u92H2hHHgxyQnWJPptVRx2ifm0THUr0C!778538296;
         path=/; HttpOnly
       Via:
       - 1.1 csraciapp6.evss.srarad.com
@@ -61,31 +61,31 @@ http_interactions:
       string: |-
         {
           "benefitInformation" : {
+            "awardEffectiveDate" : "2013-06-06T04:00:00.000+0000",
+            "hasAdaptedHousing" : false,
+            "hasChapter35Eligibility" : true,
+            "hasDeathResultOfDisability" : false,
+            "hasIndividualUnemployabilityGranted" : false,
             "hasNonServiceConnectedPension" : false,
             "hasServiceConnectedDisabilities" : true,
+            "hasSpecialMonthlyCompensation" : false,
             "hasSurvivorsIndemnityCompensationAward" : false,
             "hasSurvivorsPensionAward" : false,
             "monthlyAwardAmount" : 123.0,
-            "serviceConnectedPercentage" : 2,
-            "awardEffectiveDate" : "1977-10-01T04:00:00.000+0000"
+            "serviceConnectedPercentage" : 2
           },
-          "hasAdaptedHousing" : false,
-          "hasChapter35Eligibility" : true,
-          "hasDeathResultOfDisability" : false,
-          "hasIndividualUnemployabilityGranted" : false,
-          "hasSpecialMonthlyCompensation" : false,
           "militaryService" : [ {
-            "branch" : "ARMY",
+            "branch" : "Army",
             "characterOfService" : "HONORABLE",
             "enteredDate" : "1965-01-01T05:00:00.000+0000",
             "releasedDate" : "1972-10-01T04:00:00.000+0000"
           }, {
-            "branch" : "ARMY",
+            "branch" : "Army",
             "characterOfService" : "UNCHARACTERIZED_ENTRY_LEVEL",
             "enteredDate" : "1973-01-01T05:00:00.000+0000",
             "releasedDate" : "1977-10-01T04:00:00.000+0000"
           } ]
         }
     http_version: 
-  recorded_at: Wed, 14 Jun 2017 21:48:53 GMT
+  recorded_at: Wed, 28 Jun 2017 21:32:06 GMT
 recorded_with: VCR 3.0.3

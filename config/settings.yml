@@ -71,6 +71,7 @@ locators:
 
 # Settings for MyHealthEVet
 mhv:
+  facility_range: [358,758]
   rx:
     host: https://mhv-api.example.com
     app_token: fake-app-token
