@@ -313,6 +313,8 @@ module PdfFill
 
         expand_burial_allowance
 
+        expand_checkbox(@form_data['locationOfDeath'], 'location')
+
         @form_data
       end
     end
