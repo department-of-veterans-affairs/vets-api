@@ -167,6 +167,17 @@ module PdfFill
             key: 'form1[0].#subform[36].PreferredTelephoneNumber_LastFourNumbers[0]'
           }
         },
+        'veteranSocialSecurityNumber2' => {
+          'first' => {
+            key: 'form1[0].#subform[37].VeteransSocialSecurityNumber_FirstThreeNumbers[1]'
+          },
+          'second' => {
+            key: 'form1[0].#subform[37].VeteransSocialSecurityNumber_SecondTwoNumbers[1]'
+          },
+          'third' => {
+            key: 'form1[0].#subform[37].VeteransSocialSecurityNumber_LastFourNumbers[1]'
+          }
+        },
         'veteranSocialSecurityNumber' => {
           'first' => {
             key: 'form1[0].#subform[36].VeteransSocialSecurityNumber_FirstThreeNumbers[0]'
@@ -183,12 +194,15 @@ module PdfFill
       def split_ssn
         ssn = @form_data['veteranSocialSecurityNumber']
         return if ssn.blank?
-
-        @form_data['veteranSocialSecurityNumber'] = {
+        split_ssn = {
           'first' => ssn[0..2],
           'second' => ssn[3..4],
           'third' => ssn[5..8]
         }
+
+        ['', '2'].each do |suffix|
+          @form_data["veteranSocialSecurityNumber#{suffix}"] = split_ssn
+        end
       end
 
       def split_phone(hash, key)
