@@ -24,6 +24,11 @@ module PdfFill
             }
           }
         },
+        'placeOfRemains' => {
+          key: 'form1[0].#subform[37].PLACE_OF_DEATH[1]',
+          limit: 80,
+          question: "16. PLACE OF BURIAL OR LOCATION OF DECEASED VETERAN'S REMAINS"
+        },
         'hasBenefitsUnclaimedRemains' => {
           key: 'form1[0].#subform[37].YES4[4]'
         },

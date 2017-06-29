@@ -21,6 +21,7 @@
       "last": "last2"
     }
   ],
+  "placeOfRemains": "placeOfRemains",
   "benefitsUnclaimedRemains": false,
   "incurredExpenses": false,
   "burialAllowance": false,
