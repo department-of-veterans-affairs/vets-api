@@ -9,6 +9,10 @@
     "last": "cXXXXXXXXXXXXXXXXXXXX",
     "suffix": "Sr."
   },
+  "locationOfDeath": {
+    "location": "other",
+    "other": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  },
   "deathDate": "2012-06-27",
   "placeOfBirth": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "veteranDateOfBirth": "2012-06-26",
