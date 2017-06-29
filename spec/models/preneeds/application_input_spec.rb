@@ -27,8 +27,24 @@ RSpec.describe Preneeds::ApplicationInput do
       expect(subject).to_not be_valid
     end
 
+    it 'requires a valid applicant' do
+      params[:applicant][:name][:last_name] = nil
+      expect(subject).to_not be_valid
+    end
+
     it 'requires a claimant' do
       params.delete(:claimant)
+      expect(subject).to_not be_valid
+    end
+
+    it 'requires a valid claimant' do
+      params[:claimant][:name][:last_name] = nil
+      expect(subject).to_not be_valid
+    end
+
+    it 'requires a valid currently_buried_persons' do
+      params[:currently_buried_persons] = [attributes_for(:currently_buried_input)]
+      params[:currently_buried_persons].first[:name][:last_name] = nil
       expect(subject).to_not be_valid
     end
 
@@ -44,6 +60,16 @@ RSpec.describe Preneeds::ApplicationInput do
 
     it 'has_currently_buried should have a valid format' do
       params[:has_currently_buried] = '8'
+      expect(subject).to_not be_valid
+    end
+
+    it 'requires a veteran' do
+      params.delete(:veteran)
+      expect(subject).to_not be_valid
+    end
+
+    it 'requires a valid veteran' do
+      params[:veteran][:current_name][:last_name] = nil
       expect(subject).to_not be_valid
     end
   end

@@ -10,8 +10,13 @@ RSpec.describe Preneeds::CurrentlyBuriedInput do
   end
 
   context 'with invalid attributes' do
-    it 'requires a last name' do
+    it 'requires a name' do
       params.delete(:name)
+      expect(subject).to_not be_valid
+    end
+
+    it 'requires a valid name' do
+      params[:name][:last_name] = nil
       expect(subject).to_not be_valid
     end
 

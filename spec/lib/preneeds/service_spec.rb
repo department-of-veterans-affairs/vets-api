@@ -74,4 +74,18 @@ describe Preneeds::Service do
       expect(ranks.type).to eq(Preneeds::MilitaryRank)
     end
   end
+
+  describe 'receive_pre_need_application' do
+    let(:params) do
+      { pre_need_request: build(:application_input).message }
+    end
+
+    it 'creates a new preneeds application' do
+      application = VCR.use_cassette('preneeds/pre_need_applications/creates_a_pre_need_application') do
+        subject.receive_pre_need_application params
+      end
+
+      expect(application).to be_a(Preneeds::ReceiveApplication)
+    end
+  end
 end

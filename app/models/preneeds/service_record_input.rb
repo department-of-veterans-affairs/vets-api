@@ -6,7 +6,7 @@ module Preneeds
   class ServiceRecordInput < Common::Base
     include ActiveModel::Validations
 
-    validates :branch_of_service, length: { is: 2 }
+    validates :branch_of_service, length: { is: 2 }, presence: true
     validates :discharge_type, inclusion: { in: %w(1 2 3 4 5 6 7) }
     validates :entered_on_duty_date, :release_from_duty_date,
               format: { with: /\A\d{4}-\d{2}-\d{2}\z/, allow_blank: true }

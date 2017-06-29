@@ -6,6 +6,11 @@ module Preneeds
   class VeteranInput < Common::Base
     include ActiveModel::Validations
 
+    validate :validate_address, if: -> (v) { v.address.present? }
+    validate :validate_current_name, if: -> (v) { v.current_name.present? }
+    validate :validate_service_name, if: -> (v) { v.service_name.present? }
+    validate :validate_service_records, if: -> (v) { v.service_records.present? }
+
     validates :current_name, :service_name, :service_records, presence: true
     validates :date_of_birth, :date_of_death, format: { with: /\A\d{4}-\d{2}-\d{2}\z/, allow_blank: true }
     validates :gender, inclusion: { in: %w(Male Female) }
@@ -43,6 +48,28 @@ module Preneeds
 
       [:date_of_birth, :date_of_death, :place_of_birth].each { |key| hash.delete(key) if hash[key].blank? }
       hash
+    end
+
+    private
+
+    def validate_current_name
+      errors.add(:current_name, current_name.errors.full_messages.join(', ')) unless current_name.valid?
+    end
+
+    def validate_address
+      errors.add(:address, address.errors.full_messages.join(', ')) unless address.valid?
+    end
+
+    def validate_service_name
+      errors.add(:service_name, service_name.errors.full_messages.join(', ')) unless service_name.valid?
+    end
+
+    def validate_service_records
+      service_records_errors = service_records.each_with_object([]) do |service_record, o|
+        o << service_record.errors.full_messages.join(', ') unless service_record.valid?
+      end
+
+      errors.add(:service_records, service_records_errors.join(', ')) if service_records_errors.present?
     end
   end
 end

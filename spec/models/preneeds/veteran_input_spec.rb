@@ -11,8 +11,18 @@ RSpec.describe Preneeds::VeteranInput do
   end
 
   context 'with invalid attributes' do
+    it 'requires a valid address' do
+      params[:address][:address1] = nil
+      expect(subject).to_not be_valid
+    end
+
     it 'requires a current_name' do
       params.delete(:current_name)
+      expect(subject).to_not be_valid
+    end
+
+    it 'requires a valid current_name' do
+      params[:current_name][:last_name] = nil
       expect(subject).to_not be_valid
     end
 
@@ -71,8 +81,18 @@ RSpec.describe Preneeds::VeteranInput do
       expect(subject).to_not be_valid
     end
 
+    it 'requires a valid service_name' do
+      params[:service_name][:last_name] = nil
+      expect(subject).to_not be_valid
+    end
+
     it 'requires service_records' do
       params[:service_records] = []
+      expect(subject).to_not be_valid
+    end
+
+    it 'requires valid service_records' do
+      params[:service_records].first[:branch_of_service] = nil
       expect(subject).to_not be_valid
     end
 

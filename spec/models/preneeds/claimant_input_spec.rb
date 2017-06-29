@@ -16,6 +16,11 @@ RSpec.describe Preneeds::ClaimantInput do
       expect(subject).to_not be_valid
     end
 
+    it 'requires a valid address' do
+      params[:address][:address1] = nil
+      expect(subject).to_not be_valid
+    end
+
     it 'requires a date_of_birth' do
       params[:desired_cemetery] = 1_000
       expect(subject).to_not be_valid
@@ -38,6 +43,11 @@ RSpec.describe Preneeds::ClaimantInput do
 
     it 'requires a name' do
       params.delete(:name)
+      expect(subject).to_not be_valid
+    end
+
+    it 'requires a valid name' do
+      params[:name][:last_name] = nil
       expect(subject).to_not be_valid
     end
 

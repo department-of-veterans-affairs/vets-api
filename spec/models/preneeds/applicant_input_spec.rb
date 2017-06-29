@@ -55,8 +55,18 @@ RSpec.describe Preneeds::ApplicantInput do
       expect(subject).to_not be_valid
     end
 
+    it 'requires a valid mailing_address' do
+      params[:mailing_address][:address1] = nil
+      expect(subject).to_not be_valid
+    end
+
     it 'requires a name' do
-      params.delete(:mailing_address)
+      params.delete(:name)
+      expect(subject).to_not be_valid
+    end
+
+    it 'requires a valid name' do
+      params[:name][:last_name] = nil
       expect(subject).to_not be_valid
     end
   end

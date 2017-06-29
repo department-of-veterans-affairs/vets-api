@@ -6,6 +6,9 @@ module Preneeds
   class ClaimantInput < Common::Base
     include ActiveModel::Validations
 
+    validate :validate_name, if: -> (v) { v.name.present? }
+    validate :validate_address, if: -> (v) { v.address.present? }
+
     # Removed length validation on email for now: bad xsd validation
     validates :date_of_birth, format: { with: /\A\d{4}-\d{2}-\d{2}\z/ }
     validates :desired_cemetery, numericality: { only: :integer, greater_than: 0, less_than: 1000 }
@@ -33,6 +36,16 @@ module Preneeds
 
       [:email, :phone_number].each { |key| hash.delete(key) if hash[key].nil? }
       hash
+    end
+
+    private
+
+    def validate_name
+      errors.add(:name, name.errors.full_messages.join(', ')) unless name.valid?
+    end
+
+    def validate_address
+      errors.add(:address, address.errors.full_messages.join(', ')) unless address.valid?
     end
   end
 end
