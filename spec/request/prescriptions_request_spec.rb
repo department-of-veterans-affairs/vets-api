@@ -7,14 +7,17 @@ RSpec.describe 'prescriptions', type: :request do
   include Rx::ClientHelpers
   include SchemaMatchers
 
+  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
   let(:current_user) { build(:mhv_user) }
 
   before(:each) do
+    allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
     use_authenticated_current_user(current_user: current_user)
   end
 
   context 'forbidden user' do
+    let(:mhv_account) { double('mhv_account', ineligible?: true, needs_terms_acceptance?: false, upgraded?: true) }
     let(:current_user) { build(:user) }
 
     it 'raises access denied' do
@@ -23,6 +26,41 @@ RSpec.describe 'prescriptions', type: :request do
       expect(response).to have_http_status(:forbidden)
       expect(JSON.parse(response.body)['errors'].first['detail'])
         .to eq('You do not have access to prescriptions')
+    end
+  end
+
+  context 'terms of service not accepted' do
+    let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: true, upgraded?: false) }
+    let(:current_user) { build(:user) }
+
+    before(:each) do
+      allow_any_instance_of(BetaSwitch).to receive(:beta_enabled?).and_return(true)
+    end
+
+    it 'raises access denied' do
+      get '/v0/prescriptions/13651310'
+
+      expect(response).to have_http_status(:forbidden)
+      expect(JSON.parse(response.body)['errors'].first['detail'])
+        .to eq('You have not accepted the terms of service')
+    end
+  end
+
+  context 'mhv account not upgraded' do
+    let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: false) }
+    let(:current_user) { build(:user) }
+
+    before(:each) do
+      allow_any_instance_of(BetaSwitch).to receive(:beta_enabled?).and_return(true)
+      allow_any_instance_of(MhvAccount).to receive(:create_and_upgrade!)
+    end
+
+    it 'raises forbidden' do
+      get '/v0/prescriptions/13651310'
+
+      expect(response).to have_http_status(:forbidden)
+      expect(JSON.parse(response.body)['errors'].first['detail'])
+        .to eq('Failed to create or upgrade health tools account access')
     end
   end
 

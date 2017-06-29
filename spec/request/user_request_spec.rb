@@ -12,6 +12,8 @@ RSpec.describe 'Fetching user data', type: :request do
 
     before do
       Session.create(uuid: mhv_user.uuid, token: token)
+      mhv_account = double('MhvAccount', account_state: 'upgraded')
+      allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
       User.create(mhv_user)
 
       auth_header = { 'Authorization' => "Token token=#{token}" }
@@ -41,7 +43,9 @@ RSpec.describe 'Fetching user data', type: :request do
     it 'gives me the list of available prefill forms' do
       expect(JSON.parse(response.body)['data']['attributes']['prefills_available'].sort).to eq(
         [
-          '1010ez'
+          '1010ez',
+          '21P-527EZ',
+          '21P-530'
         ].sort
       )
     end

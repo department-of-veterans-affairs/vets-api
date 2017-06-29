@@ -4,15 +4,17 @@ require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
 require 'support/schema_matchers'
 require 'support/spool_helpers'
+require 'support/fixture_helpers'
 require 'support/spec_temp_files'
 require 'support/have_deep_attributes_matcher'
+require 'support/negated_matchers'
 require 'support/veteran_status/stub_veteran_status'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
   require 'simplecov'
 
-  SimpleCov.start do
+  SimpleCov.start 'rails' do
     track_files '{app,lib}/**/*.rb'
     add_filter 'config/initializers/sidekiq.rb'
     add_filter 'config/initializers/statsd.rb'
@@ -25,6 +27,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'spec/support/attr_encrypted_matcher'
     add_filter 'vendor'
     SimpleCov.minimum_coverage_by_file 90
+    SimpleCov.refuse_coverage_drop
   end
 end
 
@@ -93,6 +96,7 @@ RSpec.configure do |config|
 
   config.include SpecBuilders
   config.include SpoolHelpers
+  config.include FixtureHelpers
 
   config.around(:each) do |example|
     if example.metadata[:run_at]
