@@ -15,8 +15,7 @@ class MhvAccount < ActiveRecord::Base
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
   # Everything except ineligible accounts should be able to transition to :needs_terms_acceptance
   ALL_STATES = %i(unknown needs_terms_acceptance ineligible registered upgraded register_failed upgrade_failed).freeze
-  # Range of VHA facility IDs at which people receive treatment
-  PATIENT_FACILITY_RANGE = [358, 758].freeze
+
   ADDRESS_ATTRS = %w(street city state postal_code country).freeze
   UNKNOWN_ADDRESS = {
     address1: 'Unknown Address',
@@ -131,7 +130,7 @@ class MhvAccount < ActiveRecord::Base
   # that the user is a VA patient.
   def va_patient?
     facilities = user&.va_profile&.vha_facility_ids
-    facilities.to_a.any? { |f| f.to_i.between?(*PATIENT_FACILITY_RANGE) }
+    facilities.to_a.any? { |f| f.to_i.between?(*Settings.mhv.facility_range) }
   end
 
   def veteran?

@@ -154,7 +154,6 @@ RSpec.describe MhvAccount, type: :model do
       let(:vha_facility_ids) { %w(200MH 488) }
 
       it 'is eligible with at least one facility in range' do
-        stub_const('MhvAccount::PATIENT_FACILITY_RANGE', [358, 758])
         subject = described_class.new(base_attributes)
         subject.send(:setup) # This gets called when object is first loaded
         expect(subject.eligible?).to be_truthy
@@ -286,56 +285,78 @@ RSpec.describe MhvAccount, type: :model do
       end
     end
 
-    context 'with single facility' do
+    context 'with standard range' do
+      before do
+        Settings.mhv.facility_range = [358, 758]
+      end
+      after do
+        Settings.mhv.facility_range = [358, 758]
+      end
       it 'is eligible with facility in range' do
-        stub_const('MhvAccount::PATIENT_FACILITY_RANGE', [358, 758])
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
         expect(subject.account_state).not_to eq('ineligible')
       end
-      it 'is eligible with facility at edge of range' do
-        stub_const('MhvAccount::PATIENT_FACILITY_RANGE', [450, 758])
-        subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
-        subject.send(:setup) # This gets called when object is first loaded
-        expect(subject.account_state).not_to eq('ineligible')
+      context 'with multiple facilities' do
+        let(:vha_facility_ids) { %w(200MH 488) }
+        it 'is eligible with at least one facility in range' do
+          subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
+          subject.send(:setup) # This gets called when object is first loaded
+          expect(subject.account_state).not_to eq('ineligible')
+        end
       end
-      it 'is ineligible with facility out of range' do
-        stub_const('MhvAccount::PATIENT_FACILITY_RANGE', [600, 758])
-        subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
-        subject.send(:setup) # This gets called when object is first loaded
-        expect(subject.account_state).to eq('ineligible')
+      context 'with alphanumeric facility' do
+        let(:vha_facility_ids) { ['566GE'] }
+        it 'is eligible with facility in range' do
+          subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
+          subject.send(:setup) # This gets called when object is first loaded
+          expect(subject.account_state).not_to eq('ineligible')
+        end
       end
     end
 
-    context 'with multiple facilities' do
-      let(:vha_facility_ids) { %w(200MH 488) }
-      it 'is eligible with at least one facility in range' do
-        stub_const('MhvAccount::PATIENT_FACILITY_RANGE', [358, 758])
+    context 'with user facility on edge of range' do
+      before do
+        Settings.mhv.facility_range = [450, 758]
+      end
+      after do
+        Settings.mhv.facility_range = [358, 758]
+      end
+      it 'is eligible with facility at edge ef range' do
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
         expect(subject.account_state).not_to eq('ineligible')
-      end
-      it 'is ineligible with all facilities out of range' do
-        stub_const('MhvAccount::PATIENT_FACILITY_RANGE', [600, 758])
-        subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
-        subject.send(:setup) # This gets called when object is first loaded
-        expect(subject.account_state).to eq('ineligible')
       end
     end
 
-    context 'with alphanumeric facility' do
-      let(:vha_facility_ids) { ['566GE'] }
-      it 'is eligible with facility in range' do
-        stub_const('MhvAccount::PATIENT_FACILITY_RANGE', [358, 758])
-        subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
-        subject.send(:setup) # This gets called when object is first loaded
-        expect(subject.account_state).not_to eq('ineligible')
+    context 'with even more abbreviated range' do
+      before do
+        Settings.mhv.facility_range = [600, 758]
+      end
+      after do
+        Settings.mhv.facility_range = [358, 758]
       end
       it 'is ineligible with facility out of range' do
-        stub_const('MhvAccount::PATIENT_FACILITY_RANGE', [600, 758])
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
         expect(subject.account_state).to eq('ineligible')
+      end
+
+      context 'with multiple facilities' do
+        let(:vha_facility_ids) { %w(200MH 488) }
+        it 'is ineligible with all facilities out of range' do
+          subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
+          subject.send(:setup) # This gets called when object is first loaded
+          expect(subject.account_state).to eq('ineligible')
+        end
+      end
+      context 'with alphanumeric facility' do
+        let(:vha_facility_ids) { ['566GE'] }
+        it 'is ineligible with facility out of range' do
+          subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
+          subject.send(:setup) # This gets called when object is first loaded
+          expect(subject.account_state).to eq('ineligible')
+        end
       end
     end
   end
