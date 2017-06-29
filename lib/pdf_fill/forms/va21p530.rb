@@ -24,6 +24,12 @@ module PdfFill
             }
           }
         },
+        'hasBenefitsUnclaimedRemains' => {
+          key: 'form1[0].#subform[37].YES4[4]'
+        },
+        'noBenefitsUnclaimedRemains' => {
+          key: 'form1[0].#subform[37].NO4[4]'
+        },
         'hasIncurredExpenses' => {
           key: 'form1[0].#subform[37].YES4[3]'
         },
