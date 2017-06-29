@@ -18,6 +18,28 @@ describe PdfFill::Forms::VA21P530 do
 
   test_method(
     basic_class,
+    'expand_relationship',
+    [
+      [
+        [{}, nil],
+        nil
+      ],
+      [
+        [
+          {
+            rel: {
+              'type' => 'foo'
+            }
+          },
+          :rel
+        ],
+        {"foo"=>true}
+      ]
+    ]
+  )
+
+  test_method(
+    basic_class,
     'split_phone',
     [
       [
