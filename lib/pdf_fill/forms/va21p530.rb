@@ -24,6 +24,27 @@ module PdfFill
             }
           }
         },
+        'locationOfDeath' => {
+          'checkbox' => {
+            'vaMedicalCenter' => {
+              key: 'form1[0].#subform[37].CheckBox1[1]'
+            },
+            'stateVeteransHome' => {
+              key: 'form1[0].#subform[37].CheckBox2[1]'
+            },
+            'nursingHome' => {
+              key: 'form1[0].#subform[37].CheckBox3[1]'
+            },
+            'other' => {
+              key: 'form1[0].#subform[37].CheckBox4[1]'
+            }
+          },
+          'other' => {
+            key: 'form1[0].#subform[37].OTHER_SPECIFY[1]',
+            question: "13B. WHERE DID THE VETERAN'S DEATH OCCUR?",
+            limit: 50
+          }
+        },
         'burialCost' => {
           key: 'form1[0].#subform[37].COST_OF_BURIAL[1]',
           limit: 12,
