@@ -183,6 +183,9 @@ module PdfFill
         }
       end
 
+      def expand_tours_of_duty(tours_of_duty)
+      end
+
       def expand_place_of_death
         location_of_death = @form_data['locationOfDeath']
         return if location_of_death.blank?
