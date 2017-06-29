@@ -92,6 +92,9 @@ module PdfFill
             key: 'form1[0].#subform[36].OTHER_SPECIFY[0]'
           }
         },
+        'veteranDateOfBirth' => {
+          key: 'form1[0].#subform[36].DATE_OF_BIRTH[0]'
+        },
         'claimantPhone' => {
           'first' => {
             key: 'form1[0].#subform[36].PreferredTelephoneNumber_AreaCode[0]'
