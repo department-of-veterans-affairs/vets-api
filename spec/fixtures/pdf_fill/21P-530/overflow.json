@@ -59,6 +59,7 @@
       "placeOfSeparation": "place3"
     }
   ],
+  "benefitsUnclaimedRemains": false,
   "burialAllowance": false,
   "incurredExpenses": false,
   "burialCost": 9999999999999999999,
