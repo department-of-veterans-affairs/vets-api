@@ -80,6 +80,21 @@ describe PdfFill::Forms::VA21P530 do
         expect(subject).to eq('VA MEDICAL CENTER')
       end
     end
+
+    context 'with a custom location of death' do
+      let(:form_data) do
+        {
+          "locationOfDeath" => {
+            "location" => "other",
+            "other" => 'foo'
+          }
+        }
+      end
+
+      it 'should return the translated location' do
+        expect(subject).to eq('foo')
+      end
+    end
   end
 
   describe '#split_ssn' do
