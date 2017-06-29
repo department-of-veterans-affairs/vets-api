@@ -222,6 +222,7 @@ module PdfFill
 
         tours_of_duty.each do |tour_of_duty|
           expand_date_range(tour_of_duty, 'dateRange')
+          tour_of_duty['rank'] = combine_hash(tour_of_duty, %w(serviceBranch rank), ', ')
         end
       end
 

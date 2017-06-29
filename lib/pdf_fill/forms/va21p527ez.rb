@@ -512,18 +512,6 @@ module PdfFill
         hash
       end
 
-      def combine_hash(hash, keys, separator = ' ')
-        return if hash.blank?
-
-        combined = []
-
-        keys.each do |key|
-          combined << hash[key]
-        end
-
-        combined.compact.join(separator)
-      end
-
       def combine_previous_names(previous_names)
         return if previous_names.blank?
 

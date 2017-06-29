@@ -13,6 +13,52 @@
     "location": "other",
     "other": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
   },
+  "toursOfDuty": [
+    {
+      "dateRange": {
+        "from": "2012-06-01",
+        "to": "2013-07-01"
+      },
+      "serviceBranch": "army1",
+      "rank": "rank1",
+      "serviceNumber": "sn1",
+      "placeOfEntry": "placeOfEntry1",
+      "placeOfSeparation": "place1"
+    },
+    {
+      "dateRange": {
+        "from": "2012-06-02",
+        "to": "2013-07-02"
+      },
+      "serviceBranch": "army2",
+      "rank": "rank2",
+      "serviceNumber": "sn2",
+      "placeOfEntry": "placeOfEntry2",
+      "placeOfSeparation": "place2"
+    },
+    {
+      "dateRange": {
+        "from": "2012-06-03",
+        "to": "2013-07-03"
+      },
+      "serviceBranch": "army3",
+      "rank": "rank3",
+      "serviceNumber": "sn3",
+      "placeOfEntry": "placeOfEntry3",
+      "placeOfSeparation": "place3"
+    },
+    {
+      "dateRange": {
+        "from": "2012-06-03",
+        "to": "2013-07-03"
+      },
+      "serviceBranch": "army4",
+      "rank": "rank3",
+      "serviceNumber": "sn3",
+      "placeOfEntry": "placeOfEntry3",
+      "placeOfSeparation": "place3"
+    }
+  ],
   "deathDate": "2012-06-27",
   "burialDate": "2012-06-28",
   "placeOfBirth": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
