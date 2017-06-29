@@ -21,6 +21,7 @@
       "last": "last2"
     }
   ],
+  "incurredExpenses": false,
   "burialAllowance": false,
   "burialCost": 1,
   "burialAllowanceRequested": "nonService",

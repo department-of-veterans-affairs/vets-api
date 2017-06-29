@@ -353,6 +353,7 @@ module PdfFill
         expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
 
         expand_checkbox_in_place(@form_data, 'burialAllowance')
+        expand_checkbox_in_place(@form_data, 'incurredExpenses')
 
         @form_data
       end
