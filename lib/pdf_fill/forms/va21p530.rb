@@ -24,6 +24,12 @@ module PdfFill
             }
           }
         },
+        'hasIncurredExpenses' => {
+          key: 'form1[0].#subform[37].YES4[3]'
+        },
+        'noIncurredExpenses' => {
+          key: 'form1[0].#subform[37].NO4[3]'
+        },
         'hasBurialAllowance' => {
           key: 'form1[0].#subform[37].YES2[0]'
         },
