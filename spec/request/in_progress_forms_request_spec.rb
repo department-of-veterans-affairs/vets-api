@@ -9,7 +9,7 @@ RSpec.describe 'in progress forms', type: :request do
   before do
     Session.create(uuid: user.uuid, token: token)
     User.create(user)
-    allow(FormProfile).to receive(:load_form_mapping).with('1010ez').and_return(
+    allow(FormProfile).to receive(:load_form_mapping).with('FAKEFORM').and_return(
       'veteran_full_name' => %w(identity_information full_name),
       'gender' => %w(identity_information gender),
       'veteran_date_of_birth' => %w(identity_information date_of_birth),
@@ -73,7 +73,7 @@ RSpec.describe 'in progress forms', type: :request do
 
     context 'when a form is not found' do
       it 'returns pre-fill data' do
-        get v0_in_progress_form_url('1010ez'), nil, auth_header
+        get v0_in_progress_form_url('FAKEFORM'), nil, auth_header
         expect(JSON.parse(response.body)['form_data']).to eq(
           'veteranFullName' => {
             'first' => user.first_name&.capitalize,
@@ -90,7 +90,7 @@ RSpec.describe 'in progress forms', type: :request do
             'country' => user.va_profile.address.country,
             'postal_code' => user.va_profile.address.postal_code
           },
-          'homePhone' => user.va_profile.home_phone
+          'homePhone' => user.va_profile.home_phone.gsub(/[^\d]/, '')
         )
       end
     end
@@ -107,7 +107,7 @@ RSpec.describe 'in progress forms', type: :request do
     context 'with a new form' do
       let(:new_form) { FactoryGirl.build(:in_progress_form, user_uuid: user.uuid) }
 
-      it 'inserts the form' do
+      it 'inserts the form', run_at: '2017-01-01' do
         expect do
           put v0_in_progress_form_url(new_form.form_id), {
             form_data: new_form.form_data,
@@ -119,7 +119,12 @@ RSpec.describe 'in progress forms', type: :request do
 
         in_progress_form = InProgressForm.last
         expect(in_progress_form.form_data).to eq(new_form.form_data)
-        expect(in_progress_form.metadata).to eq(new_form.metadata)
+        expect(in_progress_form.metadata).to eq(
+          'version' => 1,
+          'return_url' => 'foo.com',
+          'expires_at' => 1_488_412_800,
+          'last_updated' => 1_483_228_800
+        )
       end
 
       context 'when an error occurs' do

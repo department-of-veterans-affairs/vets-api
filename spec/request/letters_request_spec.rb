@@ -67,11 +67,35 @@ RSpec.describe 'letters', type: :request do
     end
   end
 
-  describe 'GET /v0/letters/:id' do
-    context 'with a valid evss response' do
+  describe 'POST /v0/letters/:id' do
+    context 'with no options' do
       it 'should download a PDF' do
         VCR.use_cassette('evss/letters/download') do
-          get '/v0/letters/commissary', nil, auth_header
+          post '/v0/letters/commissary', nil, auth_header
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+
+    context 'with options' do
+      let(:options) do
+        {
+          'militaryService' => false,
+          'serviceConnectedDisabilities' => false,
+          'serviceConnectedEvaluation' => false,
+          'nonServiceConnectedPension' => false,
+          'monthlyAward' => false,
+          'unemployable' => false,
+          'specialMonthlyCompensation' => false,
+          'adaptedHousing' => false,
+          'chapter35Eligibility' => false,
+          'deathResultOfDisability' => false,
+          'survivorsAward' => false
+        }
+      end
+      it 'should download a PDF' do
+        VCR.use_cassette('evss/letters/download_options') do
+          post '/v0/letters/commissary', options, auth_header
           expect(response).to have_http_status(:ok)
         end
       end
@@ -80,7 +104,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a 404 evss response' do
       it 'should download a PDF' do
         VCR.use_cassette('evss/letters/download_404') do
-          get '/v0/letters/comissary', nil, auth_header
+          post '/v0/letters/comissary', nil, auth_header
           expect(response).to have_http_status(:bad_request)
         end
       end
