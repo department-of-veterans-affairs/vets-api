@@ -21,6 +21,7 @@
       "last": "last2"
     }
   ],
+  "burialAllowance": false,
   "burialCost": 1,
   "burialAllowanceRequested": "nonService",
   "toursOfDuty": [

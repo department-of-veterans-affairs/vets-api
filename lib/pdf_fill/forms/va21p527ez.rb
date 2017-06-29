@@ -424,13 +424,6 @@ module PdfFill
         expand_checkbox(val, new_key)
       end
 
-      def expand_checkbox(value, key)
-        {
-          "has#{key}" => value == true,
-          "no#{key}" => value == false
-        }
-      end
-
       def combine_address(address)
         return if address.blank?
 

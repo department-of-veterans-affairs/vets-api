@@ -21,6 +21,13 @@ module PdfFill
         combine_hash(full_name, %w(first middle last suffix))
       end
 
+      def expand_checkbox(value, key)
+        {
+          "has#{key}" => value == true,
+          "no#{key}" => value == false
+        }
+      end
+
       def combine_hash(hash, keys, separator = ' ')
         return if hash.blank?
 

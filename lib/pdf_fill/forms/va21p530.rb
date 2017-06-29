@@ -24,6 +24,12 @@ module PdfFill
             }
           }
         },
+        'hasBurialAllowance' => {
+          key: 'form1[0].#subform[37].YES2[0]'
+        },
+        'noBurialAllowance' => {
+          key: 'form1[0].#subform[37].NO2[0]'
+        },
         'locationOfDeath' => {
           'checkbox' => {
             'vaMedicalCenter' => {
@@ -268,7 +274,7 @@ module PdfFill
         hash[key]
       end
 
-      def expand_checkbox(hash, key)
+      def expand_checkbox_as_hash(hash, key)
         value = hash.try(:[], key)
         return if value.blank?
 
@@ -277,8 +283,12 @@ module PdfFill
         }
       end
 
+      def expand_checkbox_in_place(hash, key)
+        hash.merge!(expand_checkbox(hash[key], StringHelpers.capitalize_only(key)))
+      end
+
       def expand_relationship(hash, key)
-        expand_checkbox(hash[key], 'type')
+        expand_checkbox_as_hash(hash[key], 'type')
       end
 
       def expand_tours_of_duty(tours_of_duty)
@@ -312,7 +322,7 @@ module PdfFill
           'value' => burial_allowance
         }
 
-        expand_checkbox(@form_data['burialAllowanceRequested'], 'value')
+        expand_checkbox_as_hash(@form_data['burialAllowanceRequested'], 'value')
       end
 
       def merge_fields
@@ -334,7 +344,9 @@ module PdfFill
 
         expand_burial_allowance
 
-        expand_checkbox(@form_data['locationOfDeath'], 'location')
+        expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
+
+        expand_checkbox_in_place(@form_data, 'burialAllowance')
 
         @form_data
       end
