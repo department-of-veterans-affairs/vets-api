@@ -11,6 +11,19 @@ module PdfFill
       }
 
       KEY = {
+        'burialAllowanceRequested' => {
+          'checkbox' => {
+            'nonService' => {
+              key: 'form1[0].#subform[37].Non-Service-ConnectedDeath[0]'
+            },
+            'service' => {
+              key: 'form1[0].#subform[37].Service-ConnectedDeath[0]'
+            },
+            'vaMC' => {
+              key: 'form1[0].#subform[37].UnclaimedRemains[0]'
+            }
+          }
+        },
         'veteranFullName' => {
           'first' => {
             key: 'form1[0].#subform[36].VeteransFirstName[0]',
@@ -265,6 +278,17 @@ module PdfFill
           end
       end
 
+      def expand_burial_allowance
+        burial_allowance = @form_data['burialAllowanceRequested']
+        return if burial_allowance.blank?
+
+        @form_data['burialAllowanceRequested'] = {
+          'value' => burial_allowance
+        }
+
+        expand_checkbox(@form_data['burialAllowanceRequested'], 'value')
+      end
+
       def merge_fields
         %w(veteranFullName claimantFullName).each do |attr|
           extract_middle_i(@form_data, attr)
@@ -281,6 +305,8 @@ module PdfFill
         expand_tours_of_duty(@form_data['toursOfDuty'])
 
         @form_data['previousNames'] = combine_previous_names(@form_data['previousNames'])
+
+        expand_burial_allowance
 
         @form_data
       end
