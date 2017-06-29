@@ -16,6 +16,10 @@ describe PdfFill::Forms::VA21P530 do
     described_class.new(form_data)
   end
 
+  def class_form_data
+    new_form_class.instance_variable_get(:@form_data)
+  end
+
   test_method(
     basic_class,
     'expand_relationship',
@@ -124,6 +128,34 @@ describe PdfFill::Forms::VA21P530 do
 
       it 'should return the translated location' do
         expect(subject).to eq('foo')
+      end
+    end
+  end
+
+  describe '#expand_burial_allowance' do
+    subject do
+      new_form_class.expand_burial_allowance
+    end
+
+    context 'with no burial allowance' do
+      it 'should return nil' do
+        expect(subject).to eq(nil)
+      end
+    end
+
+    context 'with a burial allowance' do
+      let(:form_data) do
+        {
+          'burialAllowanceRequested' => 'foo'
+        }
+      end
+
+      it 'should expand the checkbox' do
+        subject
+
+        expect(class_form_data).to eq(
+          {"burialAllowanceRequested"=>{"value"=>"foo", "checkbox"=>{"foo"=>true}}}
+        )
       end
     end
   end
