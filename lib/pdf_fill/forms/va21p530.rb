@@ -229,13 +229,17 @@ module PdfFill
         hash[key]
       end
 
-      def expand_relationship(hash, key)
-        relationship = hash[key]
-        return if relationship.blank?
+      def expand_checkbox(hash, key)
+        value = hash.try(:[], key)
+        return if value.blank?
 
-        relationship['checkbox'] = {
-          relationship['type'] => true
+        hash['checkbox'] = {
+          value => true
         }
+      end
+
+      def expand_relationship(hash, key)
+        expand_checkbox(hash[key], 'type')
       end
 
       def expand_tours_of_duty(tours_of_duty)
