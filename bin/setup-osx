@@ -81,6 +81,13 @@ fi
 
 brew services start postgresql
 
+if command_exists convert ; then
+  echo "${GREEN} * Imagemagick already installed.${RESET}"
+else
+  echo "${RED} * Installing Imagemagick. ${RESET}"
+  brew install imagemagick
+fi
+
 if command_exists clamscan ; then
   echo "${GREEN} * ClamAV already installed.${RESET}"
 else
@@ -92,6 +99,13 @@ else
 fi
 
 freshclam -v
+
+if command_exists pdftk ; then
+  echo "${GREEN} * pdftk already installed.${RESET}"
+else
+  echo "${RED} * Installing pdftk. ${RESET}"
+  brew install https://gist.githubusercontent.com/lihanli/03ec8f17a6a1ff52e3a149be4cf7f2ae/raw/d18eff01396bbc25a928f756ff21edcc3521fc5e/pdftk.rb
+fi
 
 # Make vetsgov-localhost.crt and .key
 

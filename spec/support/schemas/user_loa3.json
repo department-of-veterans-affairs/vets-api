@@ -13,9 +13,19 @@
           "type": "object",
           "required": ["services", "profile", "mhv_account_state", "in_progress_forms"],
           "properties": {
-            "mhv_account_state": { "type": ["string"]},
+            "mhv_account_state": { "type": ["string", null]},
             "health_terms_current": { "type": "boolean" },
-            "in_progress_forms": { "type": [ "array", null ] },
+            "in_progress_forms": {
+              "type": [ "array", null ],
+              "items": {
+                "type": "object",
+                "properties": {
+                  "form_id": { "type": "string" },
+                  "last_updated": { "type": "integer" }
+                },
+                "required": []
+              }
+            },
             "prefills_available": { "type": [ "array", null ] },
             "services": { "type": [ "array", null ] },
             "profile": {

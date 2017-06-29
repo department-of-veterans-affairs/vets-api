@@ -10,6 +10,7 @@ module EVSS
       attribute :has_survivors_pension_award, Boolean
       attribute :monthly_award_amount, Float
       attribute :service_connected_percentage, Integer
+      attribute :award_effective_date, DateTime
     end
   end
 end
