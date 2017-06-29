@@ -34,7 +34,7 @@ module EVSS
       end
 
       # EVSS partner has never heard of user
-      # response takes form:
+      # response takes the form:
       # body=
       #   {"messages"=>
       #     [{"key"=>"education.chapter33claimant.partner.service.null",
