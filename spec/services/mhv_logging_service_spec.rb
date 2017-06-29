@@ -20,7 +20,11 @@ RSpec.describe MHVLoggingService do
                                       token: '<SESSION_TOKEN>' })
   end
 
-  before(:each) { allow(MHVLogging::Client).to receive(:new).and_return(authenticated_client) }
+  before(:each) do
+    mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
+    allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+    allow(MHVLogging::Client).to receive(:new).and_return(authenticated_client)
+  end
 
   context 'with current_user not having logged in to MHV' do
     let(:mhv_user) { create(:mhv_user, :mhv_not_logged_in) }

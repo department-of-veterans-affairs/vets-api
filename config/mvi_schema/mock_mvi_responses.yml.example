@@ -6,7 +6,7 @@ find_candidate:
     - Hector
     - J
     :family_name: Allen
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19320205'
     :ssn: '796126859'
@@ -25,6 +25,7 @@ find_candidate:
     :vha_facility_ids:
     - 200ESR
     - 200MHS
+    - '648'
     - 200MHS
     - 200MHS
     :edipi: '1005329660'
@@ -34,7 +35,7 @@ find_candidate:
     - Greg
     - A
     :family_name: Anderson
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19330405'
     :ssn: '796121200'
@@ -60,14 +61,14 @@ find_candidate:
     - Andrea
     - L
     :family_name: Mitchell
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19591201'
     :ssn: '796127781'
     :address: !ruby/object:MVI::Models::MviProfileAddress
       city: YEREVAN
-      state: 
-      postal_code: 
+      state:
+      postal_code:
       country: ARM
       street: 22 NOR ARESH
     :home_phone: "(222)222-2222"
@@ -82,7 +83,7 @@ find_candidate:
     - Frank
     - Lee
     :family_name: Arnold
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19800220'
     :ssn: '796143510'
@@ -92,7 +93,7 @@ find_candidate:
       postal_code: '22079'
       country: USA
       street: 8131 DOVE COTTAGE CT
-    :home_phone: 
+    :home_phone:
     :icn: 1012667179V787205
     :mhv_ids: []
     :vha_facility_ids:
@@ -106,17 +107,17 @@ find_candidate:
     - Christian
     - Darnell
     :family_name: Turner
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19620615'
     :ssn: '796292881'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
-      postal_code: 
+      city:
+      state:
+      postal_code:
       country: USA
-      street: 
-    :home_phone: 
+      street:
+    :home_phone:
     :icn: 1012830899V368969
     :mhv_ids: []
     :vha_facility_ids: []
@@ -127,7 +128,7 @@ find_candidate:
     - James
     - M
     :family_name: Beck
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19490902'
     :ssn: '796241819'
@@ -155,7 +156,7 @@ find_candidate:
     - Ray
     - Gerald
     :family_name: Bell
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19550817'
     :ssn: '796288429'
@@ -165,7 +166,7 @@ find_candidate:
       postal_code: '22033'
       country: USA
       street: INT LINE 23
-    :home_phone: 
+    :home_phone:
     :icn: 1012658910V309140
     :mhv_ids: []
     :vha_facility_ids:
@@ -179,17 +180,17 @@ find_candidate:
     - Ben
     - E
     :family_name: Weaver
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19210804'
     :ssn: '796131210'
     :address: !ruby/object:MVI::Models::MviProfileAddress
       city: MUMBAI
-      state: 
-      postal_code: 
+      state:
+      postal_code:
       country: IND
       street: '52333'
-    :home_phone: 
+    :home_phone:
     :icn: 1012848404V121721
     :mhv_ids: []
     :vha_facility_ids:
@@ -211,7 +212,7 @@ find_candidate:
       postal_code: '20171'
       country: USA
       street: ADD LINE 3 E BISHOP
-    :home_phone: 
+    :home_phone:
     :icn: 1012829228V424035
     :mhv_ids: []
     :vha_facility_ids:
@@ -223,13 +224,13 @@ find_candidate:
     - Jaime
     - Lee
     :family_name: Brooks
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19751126'
     :ssn: '796186272'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
+      city:
+      state:
       postal_code: '31314'
       country: USA
       street: 123 ABCDEFGHIJKLMNOP
@@ -244,7 +245,7 @@ find_candidate:
     - Jerry
     - M
     :family_name: Brooks
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19470925'
     :ssn: '796148937'
@@ -266,7 +267,7 @@ find_candidate:
     - Allan
     - 'Null'
     :family_name: Butler
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19350615'
     :ssn: '796127023'
@@ -276,7 +277,7 @@ find_candidate:
       postal_code: '75243'
       country: USA
       street: 34343 BURNETT DRIVE
-    :home_phone: 
+    :home_phone:
     :icn: 1012829948V217207
     :mhv_ids: []
     :vha_facility_ids: []
@@ -287,7 +288,7 @@ find_candidate:
     - Jim
     - Edward
     :family_name: Byrd-ster
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19871115'
     :ssn: '796121909'
@@ -297,7 +298,7 @@ find_candidate:
       postal_code: 23322-5326
       country: USA
       street: 110 WILLIAMSBURG DR APT C2
-    :home_phone: 
+    :home_phone:
     :icn: 1012849574V585256
     :mhv_ids: []
     :vha_facility_ids:
@@ -309,7 +310,7 @@ find_candidate:
     - Eddie
     - Joseph
     :family_name: Caldwell
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19331027'
     :ssn: '796121086'
@@ -319,7 +320,7 @@ find_candidate:
       postal_code: '22309'
       country: USA
       street: WOW1
-    :home_phone: 
+    :home_phone:
     :icn: 1012666183V089914
     :mhv_ids: []
     :vha_facility_ids:
@@ -334,12 +335,12 @@ find_candidate:
     - Maurice
     - J
     :family_name: Murphy
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19730526'
     :ssn: '796265005'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012832013V553700
     :mhv_ids: []
     :vha_facility_ids: []
@@ -350,7 +351,7 @@ find_candidate:
     - Chad
     - Thomas
     :family_name: Carr
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19821016'
     :ssn: '796121207'
@@ -372,12 +373,12 @@ find_candidate:
     - Ke-lly
     - D
     :family_name: Car-roll
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19821030'
     :ssn: '796122092'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012844902V910074
     :mhv_ids: []
     :vha_facility_ids:
@@ -389,12 +390,12 @@ find_candidate:
     - Chad
     - E
     :family_name: Barrett
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19750512'
     :ssn: '796263749'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012853277V552077
     :mhv_ids: []
     :vha_facility_ids: []
@@ -405,7 +406,7 @@ find_candidate:
     - Helen
     - D
     :family_name: C-ole
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19360907'
     :ssn: '796131753'
@@ -426,7 +427,7 @@ find_candidate:
     - Travis
     - P
     :family_name: Curtis
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19460106'
     :ssn: '796127544'
@@ -448,12 +449,12 @@ find_candidate:
     - William
     - C
     :family_name: Daniels
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19370307'
     :ssn: '796127196'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012830699V134174
     :mhv_ids: []
     :vha_facility_ids:
@@ -465,12 +466,12 @@ find_candidate:
     - Kent
     - L
     :family_name: Warren
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19360714'
     :ssn: '796127160'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012662125V786396
     :mhv_ids: []
     :vha_facility_ids:
@@ -483,24 +484,24 @@ find_candidate:
     - Walter
     - Tyler
     :family_name: Davis
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19870130'
     :ssn: '796143333'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012845238V805135
     :mhv_ids: []
     :vha_facility_ids:
     - 200ESR
-    :edipi: 
+    :edipi:
     :participant_id: '600043217'
   '796122400':
     :given_names:
     - Anne
     - 'Null'
     :family_name: Kurt
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19650302'
     :ssn: '796122400'
@@ -510,11 +511,12 @@ find_candidate:
       postal_code: '22033'
       country: USA
       street: 123 TEST STREET
-    :home_phone: 
+    :home_phone:
     :icn: 1012830822V023092
     :mhv_ids: []
     :vha_facility_ids:
     - 200ESR
+    - '648'
     :edipi: '1005136624'
     :participant_id: '600073573'
   '796130115':
@@ -522,7 +524,7 @@ find_candidate:
     - Tamara
     - 'Null'
     :family_name: Ellis
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19670619'
     :ssn: '796130115'
@@ -537,6 +539,7 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - 200ESR
+    - '648'
     :edipi: '1005490754'
     :participant_id: '600043201'
   '796126696':
@@ -544,20 +547,21 @@ find_candidate:
     - Marcia
     - 'Null'
     :family_name: Fleming
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19381105'
     :ssn: '796126696'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
-      postal_code: 
+      city:
+      state:
+      postal_code:
       country: USA
-      street: 
-    :home_phone: 
+      street:
+    :home_phone:
     :icn: 1012845629V054840
     :mhv_ids: []
-    :vha_facility_ids: []
+    :vha_facility_ids:
+    - '648'
     :edipi: '1005305469'
     :participant_id: '600049701'
   '796126777':
@@ -565,20 +569,21 @@ find_candidate:
     - Calvin
     - 'Null'
     :family_name: Fletcher
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19241219'
     :ssn: '796126777'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
-      postal_code: 
+      city:
+      state:
+      postal_code:
       country: USA
-      street: 
-    :home_phone: 
+      street:
+    :home_phone:
     :icn: 1012829890V001762
     :mhv_ids: []
-    :vha_facility_ids: []
+    :vha_facility_ids:
+    - '648'
     :edipi: '1005320840'
     :participant_id: '600043185'
   '796126778':
@@ -586,7 +591,7 @@ find_candidate:
     - Martha
     - 'Null'
     :family_name: Fletcher
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19380216'
     :ssn: '796126778'
@@ -596,12 +601,13 @@ find_candidate:
       postal_code: '78259'
       country: USA
       street: 123 MAIN ST
-    :home_phone: 
+    :home_phone:
     :icn: 1012833046V189377
     :mhv_ids: []
     :vha_facility_ids:
     - 200ESR
     - '987'
+    - '648'
     :edipi: '1005320859'
     :participant_id: '600049702'
   '796043735':
@@ -609,7 +615,7 @@ find_candidate:
     - Wesley
     - Watson
     :family_name: Ford
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19860506'
     :ssn: '796043735'
@@ -622,7 +628,8 @@ find_candidate:
     :home_phone: "(571)294-9259"
     :icn: 1012832025V743496
     :mhv_ids: []
-    :vha_facility_ids: []
+    :vha_facility_ids:
+    - '648'
     :edipi: '1007697216'
     :participant_id: '600061742'
   '796376250':
@@ -630,7 +637,7 @@ find_candidate:
     - Marion
     - 'Null'
     :family_name: Foster
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19450213'
     :ssn: '796376250'
@@ -643,7 +650,8 @@ find_candidate:
     :home_phone: "(999)888-7777"
     :icn: 1012833171V826199
     :mhv_ids: []
-    :vha_facility_ids: []
+    :vha_facility_ids:
+    - '648'
     :edipi: '1290165454'
     :participant_id: '600050724'
   '796330625':
@@ -651,21 +659,22 @@ find_candidate:
     - Pauline
     - 'Null'
     :family_name: Foster
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19760609'
     :ssn: '796330625'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
-      postal_code: 
+      city:
+      state:
+      postal_code:
       country: USA
-      street: 
-    :home_phone: 
+      street:
+    :home_phone:
     :icn: 1012845630V900607
     :mhv_ids: []
     :vha_facility_ids:
     - 200ESR
+    - '648'
     :edipi: '1243413229'
     :participant_id: '600049703'
   '796296387':
@@ -673,7 +682,7 @@ find_candidate:
     - Anthony
     - Joey
     :family_name: Williams
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19600203'
     :ssn: '796296387'
@@ -683,10 +692,11 @@ find_candidate:
       postal_code: '78704'
       country: USA
       street: '787'
-    :home_phone: 
+    :home_phone:
     :icn: 1012832042V458998
     :mhv_ids: []
-    :vha_facility_ids: []
+    :vha_facility_ids:
+    - '648'
     :edipi: '1154477825'
     :participant_id: '600036500'
   '796141462':
@@ -704,12 +714,13 @@ find_candidate:
       postal_code: '67218'
       country: USA
       street: '101'
-    :home_phone: 
+    :home_phone:
     :icn: 1012830022V956566
     :mhv_ids: []
     :vha_facility_ids:
     - 200ESR
     - '987'
+    - '648'
     :edipi: '1006535352'
     :participant_id: '600049363'
   '796184750':
@@ -717,12 +728,12 @@ find_candidate:
     - Melvin
     - V
     :family_name: Freeman
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19711119'
     :ssn: '796184750'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012643310V921518
     :mhv_ids:
     - '10055239'
@@ -744,7 +755,7 @@ find_candidate:
     - Russell
     - 'Null'
     :family_name: Freeman
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19691105'
     :ssn: '796149080'
@@ -754,19 +765,19 @@ find_candidate:
       postal_code: '32207'
       country: USA
       street: 100 BEACH BLVD
-    :home_phone: 
+    :home_phone:
     :icn: 1012829910V765228
     :mhv_ids: []
     :vha_facility_ids:
     - 200ESR
     :edipi: '1007481507'
-    :participant_id: 
+    :participant_id:
   '796140261':
     :given_names:
     - Olga
     - Lee
     :family_name: Fuller
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19840518'
     :ssn: '796140261'
@@ -776,18 +787,18 @@ find_candidate:
       postal_code: 78209-6015
       country: USA
       street: 1142 GARRATY RD
-    :home_phone: 
+    :home_phone:
     :icn: 1012830237V154192
     :mhv_ids: []
     :vha_facility_ids: []
     :edipi: '1006448425'
-    :participant_id: 
+    :participant_id:
   '796122369':
     :given_names:
     - Herbert
     - 'Null'
     :family_name: Gardner
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19830221'
     :ssn: '796122369'
@@ -815,11 +826,11 @@ find_candidate:
     :ssn: '796246997'
     :address: !ruby/object:MVI::Models::MviProfileAddress
       city: MANILA
-      state: 
-      postal_code: 
+      state:
+      postal_code:
       country: PHL
       street: 1201 ROXAS BOULEVARD
-    :home_phone: 
+    :home_phone:
     :icn: 1012829446V964657
     :mhv_ids: []
     :vha_facility_ids:
@@ -852,12 +863,12 @@ find_candidate:
     - Beverly
     - D
     :family_name: George
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19541028'
     :ssn: '796330165'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012856544V681033
     :mhv_ids: []
     :vha_facility_ids: []
@@ -868,7 +879,7 @@ find_candidate:
     - Denise
     - M
     :family_name: George
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19930719'
     :ssn: '796330166'
@@ -878,7 +889,7 @@ find_candidate:
       postal_code: '20171'
       country: USA
       street: 1875 WILL RD
-    :home_phone: 
+    :home_phone:
     :icn: 1012855585V634865
     :mhv_ids: []
     :vha_facility_ids: []
@@ -889,12 +900,12 @@ find_candidate:
     - Jesse
     - 'Null'
     :family_name: George
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19500313'
     :ssn: '796330163'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012845632V596441
     :mhv_ids: []
     :vha_facility_ids: []
@@ -905,7 +916,7 @@ find_candidate:
     - Gerald
     - K
     :family_name: Schmidt
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19410504'
     :ssn: '796127354'
@@ -915,7 +926,7 @@ find_candidate:
       postal_code: '78259'
       country: USA
       street: 758 H AVE
-    :home_phone: 
+    :home_phone:
     :icn: 1012829895V736226
     :mhv_ids: []
     :vha_facility_ids:
@@ -928,17 +939,17 @@ find_candidate:
     - Sidney
     - 'Null'
     :family_name: Gibson
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19330804'
     :ssn: '796127094'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
+      city:
+      state:
       postal_code: 09021
       country: USA
       street: PSC 3 BOX 4120
-    :home_phone: 
+    :home_phone:
     :icn: 1012832357V534929
     :mhv_ids: []
     :vha_facility_ids: []
@@ -949,7 +960,7 @@ find_candidate:
     - Gilbert
     - L
     :family_name: Green
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19660926'
     :ssn: '796140438'
@@ -970,7 +981,7 @@ find_candidate:
     - Glen
     - F
     :family_name: Mitchell
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19460328'
     :ssn: '796127777'
@@ -980,7 +991,7 @@ find_candidate:
       postal_code: '78259'
       country: USA
       street: 457 H STREET
-    :home_phone: 
+    :home_phone:
     :icn: 1012829925V716587
     :mhv_ids: []
     :vha_facility_ids:
@@ -992,7 +1003,7 @@ find_candidate:
     :given_names:
     - Jesse
     :family_name: Gray
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19541215'
     :ssn: '796378881'
@@ -1002,7 +1013,7 @@ find_candidate:
       postal_code: '75024'
       country: USA
       street: 100 MAIN STREET
-    :home_phone: 
+    :home_phone:
     :icn: 1012666073V986297
     :mhv_ids: []
     :vha_facility_ids:
@@ -1015,17 +1026,17 @@ find_candidate:
     - Marcus
     - 'Null'
     :family_name: Gregory
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19250409'
     :ssn: '796126751'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
-      postal_code: 
+      city:
+      state:
+      postal_code:
       country: USA
-      street: 
-    :home_phone: 
+      street:
+    :home_phone:
     :icn: 1012829767V002519
     :mhv_ids: []
     :vha_facility_ids:
@@ -1037,17 +1048,17 @@ find_candidate:
     - Shirley
     - 'Null'
     :family_name: Gregory
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19710420'
     :ssn: '796126752'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
-      postal_code: 
+      city:
+      state:
+      postal_code:
       country: USA
-      street: 
-    :home_phone: 
+      street:
+    :home_phone:
     :icn: 1012845633V224390
     :mhv_ids: []
     :vha_facility_ids:
@@ -1058,7 +1069,7 @@ find_candidate:
     :given_names:
     - Gregory
     :family_name: Wheeler
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19230730'
     :ssn: '796164129'
@@ -1068,7 +1079,7 @@ find_candidate:
       postal_code: '78259'
       country: USA
       street: 457 T STREET
-    :home_phone: 
+    :home_phone:
     :icn: 1012829891V187651
     :mhv_ids: []
     :vha_facility_ids:
@@ -1102,7 +1113,7 @@ find_candidate:
     :given_names:
     - June
     :family_name: Harris
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19551227'
     :ssn: '796184459'
@@ -1128,12 +1139,12 @@ find_candidate:
     - Tim
     - Stephen
     :family_name: Harris
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19870427'
     :ssn: '796136798'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012845502V635089
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1144,7 +1155,7 @@ find_candidate:
     - Harry
     - Y
     :family_name: Burke
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19410905'
     :ssn: '796164213'
@@ -1154,7 +1165,7 @@ find_candidate:
       postal_code: '78259'
       country: USA
       street: 754 Y AVE
-    :home_phone: 
+    :home_phone:
     :icn: 1012832249V897380
     :mhv_ids: []
     :vha_facility_ids:
@@ -1167,7 +1178,7 @@ find_candidate:
     - Bonnie
     - 'Null'
     :family_name: Hayes
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19390705'
     :ssn: '796131730'
@@ -1177,7 +1188,7 @@ find_candidate:
       postal_code: '20171'
       country: USA
       street: 4276 WILL
-    :home_phone: 
+    :home_phone:
     :icn: 1012849765V900974
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1188,7 +1199,7 @@ find_candidate:
     - Jeffery
     - 'Null'
     :family_name: Hayes
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19370925'
     :ssn: '796131729'
@@ -1198,7 +1209,7 @@ find_candidate:
       postal_code: '30062'
       country: USA
       street: 2575 VALENCIA DR NE
-    :home_phone: 
+    :home_phone:
     :icn: 1012845028V591200
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1209,12 +1220,12 @@ find_candidate:
     - Julio
     - George
     :family_name: Hendersons
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19780222'
     :ssn: '796136998'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012829610V986182
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1225,7 +1236,7 @@ find_candidate:
     - Herbert
     - F
     :family_name: George
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19611228'
     :ssn: '796156570'
@@ -1235,7 +1246,7 @@ find_candidate:
       postal_code: '22031'
       country: USA
       street: 321 NORTH SOUTH ST
-    :home_phone: 
+    :home_phone:
     :icn: 1012845754V409036
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1246,12 +1257,12 @@ find_candidate:
     - Everett
     - Avery
     :family_name: Horton
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19820423'
     :ssn: '796377148'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012826664V603033
     :mhv_ids: []
     :vha_facility_ids:
@@ -1264,7 +1275,7 @@ find_candidate:
     - Tanya
     - 'Null'
     :family_name: Horton
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19520516'
     :ssn: '796122928'
@@ -1274,7 +1285,7 @@ find_candidate:
       postal_code: '22031'
       country: USA
       street: SUITE 204
-    :home_phone: 
+    :home_phone:
     :icn: 1012667136V162744
     :mhv_ids: []
     :vha_facility_ids:
@@ -1286,12 +1297,12 @@ find_candidate:
     - Karl
     - 'Null'
     :family_name: Howard
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19610129'
     :ssn: '796123209'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012845634V053289
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1302,12 +1313,12 @@ find_candidate:
     - Mathew
     - 'Null'
     :family_name: Howell
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19270118'
     :ssn: '796121275'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012845636V368566
     :mhv_ids: []
     :vha_facility_ids:
@@ -1319,7 +1330,7 @@ find_candidate:
     - Julio
     - 'Null'
     :family_name: Jonesin
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19511118'
     :ssn: '796378321'
@@ -1329,7 +1340,7 @@ find_candidate:
       postal_code: '40144'
       country: USA
       street: 111 SPRING ST
-    :home_phone: 
+    :home_phone:
     :icn: 1012666072V702345
     :mhv_ids: []
     :vha_facility_ids:
@@ -1341,7 +1352,7 @@ find_candidate:
     - Rita
     - Ann
     :family_name: Jackson
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19580407'
     :ssn: '796136784'
@@ -1351,7 +1362,7 @@ find_candidate:
       postal_code: 32507-7960
       country: USA
       street: 1106 HALYARD PL
-    :home_phone: 
+    :home_phone:
     :icn: 1012846668V389995
     :mhv_ids: []
     :vha_facility_ids:
@@ -1363,7 +1374,7 @@ find_candidate:
     - Janet
     - Lynne
     :family_name: Moore
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19490506'
     :ssn: '796127677'
@@ -1392,7 +1403,7 @@ find_candidate:
     - Kimberly
     - 'Null'
     :family_name: Jenkins
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19481009'
     :ssn: '796122307'
@@ -1402,7 +1413,7 @@ find_candidate:
       postal_code: 03869-5815
       country: USA
       street: 111 WOODS RUN
-    :home_phone: 
+    :home_phone:
     :icn: 1012845637V411958
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1413,7 +1424,7 @@ find_candidate:
     - Mitchell
     - G
     :family_name: Jenkins
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19490304'
     :ssn: '796122306'
@@ -1434,7 +1445,7 @@ find_candidate:
     - Carl
     - Roger
     :family_name: Jensen
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19870327'
     :ssn: '796147571'
@@ -1444,7 +1455,7 @@ find_candidate:
       postal_code: '32514'
       country: USA
       street: 7689 HENDRIX AVE
-    :home_phone: 
+    :home_phone:
     :icn: 1012848398V967004
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1455,17 +1466,17 @@ find_candidate:
     - Manuel
     - 'Null'
     :family_name: Jensen
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19441126'
     :ssn: '796127519'
     :address: !ruby/object:MVI::Models::MviProfileAddress
       city: ALEXANDRIA
-      state: 
-      postal_code: 
+      state:
+      postal_code:
       country: BRB
       street: 4846 KENMORE AVE
-    :home_phone: 
+    :home_phone:
     :icn: 1012845234V469924
     :mhv_ids: []
     :vha_facility_ids:
@@ -1477,12 +1488,12 @@ find_candidate:
     - Jesus
     - A
     :family_name: Barrett
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19470629'
     :ssn: '796127587'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012830305V427401
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1493,17 +1504,17 @@ find_candidate:
     - Margie
     - 'Null'
     :family_name: Johnson
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19480827'
     :ssn: '796122059'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
+      city:
+      state:
       postal_code: '10000'
       country: USA
       street: IN DESSERT
-    :home_phone: 
+    :home_phone:
     :icn: 1012845074V891241
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1514,7 +1525,7 @@ find_candidate:
     - Oscar
     - F
     :family_name: Jones
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19481016'
     :ssn: '796122064'
@@ -1524,7 +1535,7 @@ find_candidate:
       postal_code: '03104'
       country: USA
       street: 2064 ELM ST
-    :home_phone: 
+    :home_phone:
     :icn: 1012666047V544942
     :mhv_ids: []
     :vha_facility_ids:
@@ -1536,7 +1547,7 @@ find_candidate:
     - Christopher
     - 'Null'
     :family_name: Lane
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19510710'
     :ssn: '796122633'
@@ -1546,7 +1557,7 @@ find_candidate:
       postal_code: '44102'
       country: USA
       street: 212 WEST LN
-    :home_phone: 
+    :home_phone:
     :icn: 1012829621V733243
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1557,7 +1568,7 @@ find_candidate:
     - Jean
     - Christine
     :family_name: Lane
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19920126'
     :ssn: '796295982'
@@ -1578,7 +1589,7 @@ find_candidate:
     - Wesley
     - Terrone
     :family_name: Lane
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19640525'
     :ssn: '796264319'
@@ -1588,7 +1599,7 @@ find_candidate:
       postal_code: '23233'
       country: USA
       street: 6819 Ayala Avenue
-    :home_phone: 
+    :home_phone:
     :icn: 1012855094V917428
     :mhv_ids:
     - '13877897'
@@ -1601,7 +1612,7 @@ find_candidate:
     - Brian
     - 'Null'
     :family_name: Lawrence
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19500423'
     :ssn: '796122667'
@@ -1611,7 +1622,7 @@ find_candidate:
       postal_code: '22031'
       country: USA
       street: 45 CHAIN BRIDGE RD
-    :home_phone: 
+    :home_phone:
     :icn: 1012845191V379613
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1622,17 +1633,17 @@ find_candidate:
     - Daryl
     - 'Null'
     :family_name: Lawrence
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19530215'
     :ssn: '796153447'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
-      postal_code: 
+      city:
+      state:
+      postal_code:
       country: USA
-      street: 
-    :home_phone: 
+      street:
+    :home_phone:
     :icn: 1012829620V654328
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1643,7 +1654,7 @@ find_candidate:
     - Joanne
     - 'Null'
     :family_name: Lawrence
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19530628'
     :ssn: '796122671'
@@ -1664,7 +1675,7 @@ find_candidate:
     - Russell
     - S
     :family_name: Lawson
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19581118'
     :ssn: '796220951'
@@ -1674,7 +1685,7 @@ find_candidate:
       postal_code: '30028'
       country: USA
       street: 8765 WESTBROOK LANE
-    :home_phone: 
+    :home_phone:
     :icn: 1012826601V741386
     :mhv_ids:
     - '14385056'
@@ -1689,7 +1700,7 @@ find_candidate:
     - Ralph
     - 'Null'
     :family_name: Lee
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19481030'
     :ssn: '796378782'
@@ -1699,7 +1710,7 @@ find_candidate:
       postal_code: '22032'
       country: USA
       street: HRB 82136
-    :home_phone: 
+    :home_phone:
     :icn: 1012667169V030190
     :mhv_ids: []
     :vha_facility_ids:
@@ -1711,7 +1722,7 @@ find_candidate:
     - Wesley
     - 'Null'
     :family_name: Lee
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19480221'
     :ssn: '796127725'
@@ -1721,7 +1732,7 @@ find_candidate:
       postal_code: '33618'
       country: USA
       street: 49 FEATHERSTONE ST
-    :home_phone: 
+    :home_phone:
     :icn: 1012845443V584332
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1732,7 +1743,7 @@ find_candidate:
     - Jon
     - J
     :family_name: Lowe
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19551120'
     :ssn: '796136639'
@@ -1742,7 +1753,7 @@ find_candidate:
       postal_code: '22033'
       country: USA
       street: 4350 FAIR LAKES CT
-    :home_phone: 
+    :home_phone:
     :icn: 1012883999V203355
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1753,7 +1764,7 @@ find_candidate:
     - Rene
     - M
     :family_name: Lowe
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19590201'
     :ssn: '796124704'
@@ -1763,18 +1774,18 @@ find_candidate:
       postal_code: '32514'
       country: USA
       street: 7689 HENDRIX AVE
-    :home_phone: 
+    :home_phone:
     :icn: 1012830303V188617
     :mhv_ids: []
     :vha_facility_ids: []
-    :edipi: 
+    :edipi:
     :participant_id: '600043181'
   '796122556':
     :given_names:
     - Marion
     - J
     :family_name: Dunn
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19500205'
     :ssn: '796122556'
@@ -1784,7 +1795,7 @@ find_candidate:
       postal_code: '33616'
       country: USA
       street: 2031 DALE MABRY
-    :home_phone: 
+    :home_phone:
     :icn: 1012830459V834803
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1795,12 +1806,12 @@ find_candidate:
     - Floyd
     - E
     :family_name: Marshall
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19651005'
     :ssn: '796147494'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012858706V701334
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1811,12 +1822,12 @@ find_candidate:
     - Rene
     - 'Null'
     :family_name: Martinez
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19800312'
     :ssn: '796122118'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012831442V629541
     :mhv_ids: []
     :vha_facility_ids:
@@ -1827,11 +1838,11 @@ find_candidate:
     :given_names:
     - Melissa
     :family_name: Vargas
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19870711'
     :ssn: '796073633'
-    :address: 
+    :address:
     :home_phone: "(412)362-7568"
     :icn: 1012585545V771188
     :mhv_ids:
@@ -1847,7 +1858,7 @@ find_candidate:
     - Randall
     - 'Null'
     :family_name: Meyer
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19540912'
     :ssn: '796150063'
@@ -1869,7 +1880,7 @@ find_candidate:
     - Norman
     - 'Null'
     :family_name: Mills
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19720108'
     :ssn: '796228919'
@@ -1879,7 +1890,7 @@ find_candidate:
       postal_code: 90807-5025
       country: USA
       street: 3170 ELM AVE
-    :home_phone: 
+    :home_phone:
     :icn: 1012845642V923610
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1890,12 +1901,12 @@ find_candidate:
     - Miriam
     - J
     :family_name: Richardson
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19740611'
     :ssn: '796127850'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012829980V308759
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1906,7 +1917,7 @@ find_candidate:
     - Terrence
     - Faustino
     :family_name: Montgomery
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19690611'
     :ssn: '796321635'
@@ -1916,7 +1927,7 @@ find_candidate:
       postal_code: 76227-3502
       country: USA
       street: 1123 BLUE JAY DR
-    :home_phone: 
+    :home_phone:
     :icn: 1012845643V859179
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1926,7 +1937,7 @@ find_candidate:
     :given_names:
     - Gladys
     :family_name: Moore
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19530329'
     :ssn: '796136776'
@@ -1944,18 +1955,18 @@ find_candidate:
     - 200ESR
     - '987'
     :edipi: '1006056896'
-    :participant_id: 
+    :participant_id:
   '796127674':
     :given_names:
     - Jon
     - 'Null'
     :family_name: Moore
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19470329'
     :ssn: '796127674'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012849931V685672
     :mhv_ids: []
     :vha_facility_ids: []
@@ -1966,13 +1977,13 @@ find_candidate:
     - Alfredo
     - 'Null'
     :family_name: Morales
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19500114'
     :ssn: '796122472'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
+      city:
+      state:
       postal_code: 09157
       country: USA
       street: 100 MAIN ST
@@ -1988,17 +1999,17 @@ find_candidate:
     - Adrian
     - 'Null'
     :family_name: Andre
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19710912'
     :ssn: '796140489'
     :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FLORENCE
-      state: 
-      postal_code: 
+      state:
+      postal_code:
       country: ITA
       street: APT 102
-    :home_phone: 
+    :home_phone:
     :icn: 1012831840V291348
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2009,12 +2020,12 @@ find_candidate:
     - Harry
     - 'Null'
     :family_name: Olson
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19690620'
     :ssn: '796136308'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012667180V621772
     :mhv_ids: []
     :vha_facility_ids:
@@ -2026,7 +2037,7 @@ find_candidate:
     - Morris
     - E
     :family_name: Ortiz
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19370322'
     :ssn: '796127109'
@@ -2036,7 +2047,7 @@ find_candidate:
       postal_code: '12312'
       country: USA
       street: APT 3011
-    :home_phone: 
+    :home_phone:
     :icn: 1012826604V590555
     :mhv_ids: []
     :vha_facility_ids:
@@ -2049,12 +2060,12 @@ find_candidate:
     - David
     - R
     :family_name: Palmer
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19390611'
     :ssn: '796127199'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012845550V809717
     :mhv_ids: []
     :vha_facility_ids:
@@ -2066,7 +2077,7 @@ find_candidate:
     - Christian
     - Fitzgerald
     :family_name: Patterson
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19640304'
     :ssn: '796218467'
@@ -2086,17 +2097,17 @@ find_candidate:
     :given_names:
     - Bob
     :family_name: Payne
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19511125'
     :ssn: '796023006'
     :address: !ruby/object:MVI::Models::MviProfileAddress
       city: Makati
-      state: 
-      postal_code: 
+      state:
+      postal_code:
       country: PHL
       street: RCBC Plaza
-    :home_phone: 
+    :home_phone:
     :icn: 1012845647V175093
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2107,7 +2118,7 @@ find_candidate:
     - Greg
     - J
     :family_name: Pena
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19550926'
     :ssn: '796002073'
@@ -2122,7 +2133,7 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids: []
     :edipi: '1015899596'
-    :participant_id: 
+    :participant_id:
   '796231077':
     :given_names:
     - Glen
@@ -2160,7 +2171,7 @@ find_candidate:
       postal_code: '22031'
       country: USA
       street: 324 BAILEY LANE
-    :home_phone: 
+    :home_phone:
     :icn: 1012844916V261483
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2171,7 +2182,7 @@ find_candidate:
     - Kay
     - Danae
     :family_name: Perkins
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19820504'
     :ssn: '796064608'
@@ -2193,12 +2204,12 @@ find_candidate:
     - Sean
     - Dennis
     :family_name: Perry
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19690926'
     :ssn: '796079042'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012845655V547741
     :mhv_ids: []
     :vha_facility_ids:
@@ -2210,7 +2221,7 @@ find_candidate:
     - Jeanette
     - Mishawngwendol
     :family_name: Peters
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19820802'
     :ssn: '796070441'
@@ -2220,7 +2231,7 @@ find_candidate:
       postal_code: '22033'
       country: USA
       street: LINE3
-    :home_phone: 
+    :home_phone:
     :icn: 1012845656V205690
     :mhv_ids: []
     :vha_facility_ids:
@@ -2232,12 +2243,12 @@ find_candidate:
     - Philip
     - A
     :family_name: Horton
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19510224'
     :ssn: '796122926'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012830031V654442
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2248,12 +2259,12 @@ find_candidate:
     - Bruce
     - Allen
     :family_name: Phillips
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19910812'
     :ssn: '796023401'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012845657V080189
     :mhv_ids: []
     :vha_facility_ids:
@@ -2265,12 +2276,12 @@ find_candidate:
     - Bradley
     - Thomas
     :family_name: Pierce
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19471226'
     :ssn: '796155569'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012847531V456102
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2281,7 +2292,7 @@ find_candidate:
     - Jessie
     - F
     :family_name: Price
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19340407'
     :ssn: '796126978'
@@ -2291,7 +2302,7 @@ find_candidate:
       postal_code: '33616'
       country: USA
       street: 132 N South St
-    :home_phone: 
+    :home_phone:
     :icn: 1012845658V192434
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2302,7 +2313,7 @@ find_candidate:
     - Adrian
     - J
     :family_name: Ray
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19660404'
     :ssn: '796100762'
@@ -2323,7 +2334,7 @@ find_candidate:
     - Derrick
     - L
     :family_name: Rei'd
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19760116'
     :ssn: '796229088'
@@ -2333,7 +2344,7 @@ find_candidate:
       postal_code: 28560-9458
       country: USA
       street: 110 PINE CIR
-    :home_phone: 
+    :home_phone:
     :icn: 1012845660V369114
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2343,7 +2354,7 @@ find_candidate:
     :given_names:
     - Jenny
     :family_name: Reid
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19480219'
     :ssn: '796364561'
@@ -2353,36 +2364,36 @@ find_candidate:
       postal_code: '78259'
       country: USA
       street: 47 G ST
-    :home_phone: 
+    :home_phone:
     :icn: 1012851022V753951
     :mhv_ids: []
     :vha_facility_ids:
     - '987'
     - 200ESR
-    :edipi: 
+    :edipi:
     :participant_id: '600087330'
   '796018229':
     :given_names:
     - Martin
     - R
     :family_name: Reid
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19770704'
     :ssn: '101259786'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012897042V607227
     :mhv_ids: []
     :vha_facility_ids: []
-    :edipi: 
+    :edipi:
     :participant_id: '600065659'
   '796109651':
     :given_names:
     - Mattie
     - May
     :family_name: Reid
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19640414'
     :ssn: '796109651'
@@ -2392,7 +2403,7 @@ find_candidate:
       postal_code: '33765'
       country: USA
       street: UNIT 2B
-    :home_phone: 
+    :home_phone:
     :icn: 1012845662V671308
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2403,12 +2414,12 @@ find_candidate:
     - Samantha
     - Carrie
     :family_name: Reid
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19821121'
     :ssn: '796090612'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012832350V178688
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2423,8 +2434,8 @@ find_candidate:
     :gender: M
     :birth_date: '19370617'
     :ssn: '796127085'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012845079V316758
     :mhv_ids: []
     :vha_facility_ids:
@@ -2436,12 +2447,12 @@ find_candidate:
     - Vivian
     - Jesusita
     :family_name: Richardson
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19641231'
     :ssn: '796090606'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012845612V245987
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2452,17 +2463,17 @@ find_candidate:
     - Andre
     - Alois
     :family_name: Richardson
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19641215'
     :ssn: '796075896'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
-      postal_code: 
+      city:
+      state:
+      postal_code:
       country: USA
-      street: 
-    :home_phone: 
+      street:
+    :home_phone:
     :icn: 1012845665V880597
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2473,12 +2484,12 @@ find_candidate:
     - Kent
     - David
     :family_name: Richardson
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19820125'
     :ssn: '796092261'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012845626V880077
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2489,7 +2500,7 @@ find_candidate:
     - Annette
     - K
     :family_name: Riley
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19631214'
     :ssn: '796027583'
@@ -2510,17 +2521,17 @@ find_candidate:
     - Aaron
     - Charles
     :family_name: Riley
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19701105'
     :ssn: '796081854'
     :address: !ruby/object:MVI::Models::MviProfileAddress
       city: TELI
-      state: 
-      postal_code: 
+      state:
+      postal_code:
       country: BLR
       street: 23423 BDTTE
-    :home_phone: 
+    :home_phone:
     :icn: 1012845628V226921
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2552,12 +2563,12 @@ find_candidate:
     - Roberto
     - Alan
     :family_name: Carpenter
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19690124'
     :ssn: '796263558'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012829859V179084
     :mhv_ids: []
     :vha_facility_ids:
@@ -2579,7 +2590,7 @@ find_candidate:
       postal_code: '70130'
       country: USA
       street: 555 CANAL STREET
-    :home_phone: 
+    :home_phone:
     :icn: 1012845672V157064
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2590,7 +2601,7 @@ find_candidate:
     - Vernon
     - W
     :family_name: Roberts
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19480719'
     :ssn: '796029838'
@@ -2600,7 +2611,7 @@ find_candidate:
       postal_code: '32987'
       country: USA
       street: APT 2H
-    :home_phone: 
+    :home_phone:
     :icn: 1012845673V335556
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2611,17 +2622,17 @@ find_candidate:
     - Clinton
     - L
     :family_name: Robertson
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19471208'
     :ssn: '796059443'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
+      city:
+      state:
       postal_code: '12345'
       country: USA
       street: ADDRESS 3 M
-    :home_phone: 
+    :home_phone:
     :icn: 1012830862V430931
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2631,12 +2642,12 @@ find_candidate:
     :given_names:
     - Adrian
     :family_name: Rodriguez
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19470322'
     :ssn: '796014601'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012845674V460918
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2647,12 +2658,12 @@ find_candidate:
     - Dean
     - Allen
     :family_name: Ruiz
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19690701'
     :ssn: '796015298'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012845678V803142
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2663,13 +2674,13 @@ find_candidate:
     - Brandy
     - J
     :family_name: Ryan
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19591210'
     :ssn: '796014042'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
+      city:
+      state:
       postal_code: '96306'
       country: USA
       street: PSC 477 BOX 32
@@ -2684,7 +2695,7 @@ find_candidate:
     - Carole
     - N
     :family_name: Ryan
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19911123'
     :ssn: '796089399'
@@ -2694,7 +2705,7 @@ find_candidate:
       postal_code: '20189'
       country: USA
       street: 33 RESTON PLAZA
-    :home_phone: 
+    :home_phone:
     :icn: 1012845682V030899
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2726,12 +2737,12 @@ find_candidate:
     - Sergio
     - H h
     :family_name: Ryan
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19581228'
     :ssn: '796059628'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012845684V316636
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2746,8 +2757,8 @@ find_candidate:
     :gender: M
     :birth_date: '19331228'
     :ssn: '796013160'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012830334V156386
     :mhv_ids: []
     :vha_facility_ids:
@@ -2761,7 +2772,7 @@ find_candidate:
     - Ruth
     - Vereen
     :family_name: Spencer
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19630629'
     :ssn: '796030711'
@@ -2782,7 +2793,7 @@ find_candidate:
     - Edith
     - Jill
     :family_name: Sanders
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19830629'
     :ssn: '796064374'
@@ -2803,16 +2814,16 @@ find_candidate:
     - Jeanne
     - E
     :family_name: Schmidt
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19510206'
     :ssn: '796164120'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
-      postal_code: 
+      city:
+      state:
+      postal_code:
       country: USA
-      street: 
+      street:
     :home_phone: "(301)301-3013"
     :icn: 1012829325V632209
     :mhv_ids: []
@@ -2829,8 +2840,8 @@ find_candidate:
     :gender: M
     :birth_date: '19590704'
     :ssn: '796128746'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012989581V442151
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2841,7 +2852,7 @@ find_candidate:
     - Penny
     - M
     :family_name: Scott
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19611222'
     :ssn: '796128750'
@@ -2851,7 +2862,7 @@ find_candidate:
       postal_code: '21211'
       country: USA
       street: 2002 CLIPPER PARK RD STE 108
-    :home_phone: 
+    :home_phone:
     :icn: 1012832046V870152
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2862,12 +2873,12 @@ find_candidate:
     - Ray
     - A
     :family_name: Scott
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19780419'
     :ssn: '796128748'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012826667V821812
     :mhv_ids: []
     :vha_facility_ids:
@@ -2878,12 +2889,12 @@ find_candidate:
     :given_names:
     - Kurt
     :family_name: Shawl
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19471012'
     :ssn: '796053371'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012833364V370552
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2894,7 +2905,7 @@ find_candidate:
     - Anne
     - R
     :family_name: Shelton
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19910106'
     :ssn: '796045393'
@@ -2915,17 +2926,17 @@ find_candidate:
     - Freddie
     - Daniel
     :family_name: Shelton
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19701103'
     :ssn: '796030111'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
-      postal_code: 
+      city:
+      state:
+      postal_code:
       country: USA
-      street: 
-    :home_phone: 
+      street:
+    :home_phone:
     :icn: 1012833405V013211
     :mhv_ids: []
     :vha_facility_ids:
@@ -2937,17 +2948,17 @@ find_candidate:
     - Jacqueline
     - K
     :family_name: Shelton
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19920611'
     :ssn: '796075523'
     :address: !ruby/object:MVI::Models::MviProfileAddress
       city: SYDNEY
-      state: 
-      postal_code: 
+      state:
+      postal_code:
       country: USA
       street: UNIT.A
-    :home_phone: 
+    :home_phone:
     :icn: 1012833436V858693
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2958,7 +2969,7 @@ find_candidate:
     - Lois
     - A
     :family_name: Shelton
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '20010312'
     :ssn: '796041595'
@@ -2978,24 +2989,24 @@ find_candidate:
     :given_names:
     - Greg
     :family_name: Simmons
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19721014'
     :ssn: '796170170'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012845059V795233
     :mhv_ids: []
     :vha_facility_ids:
     - '987'
     :edipi: '1014019258'
-    :participant_id: 
+    :participant_id:
   '796107177':
     :given_names:
     - Tom
     - J
     :family_name: Simmons
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19920916'
     :ssn: '796107177'
@@ -3005,7 +3016,7 @@ find_candidate:
       postal_code: '22031'
       country: USA
       street: 456 FUNCTION JUNCTIO
-    :home_phone: 
+    :home_phone:
     :icn: 1012833450V634386
     :mhv_ids: []
     :vha_facility_ids: []
@@ -3016,7 +3027,7 @@ find_candidate:
     - Alfred
     - James
     :family_name: Sims
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19871217'
     :ssn: '796007904'
@@ -3031,34 +3042,34 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids: []
     :edipi: '1100470060'
-    :participant_id: 
+    :participant_id:
   '796043139':
     :given_names:
     - Marshall
     - John
     :family_name: Snyder
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19650727'
     :ssn: '796043139'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012829801V599113
     :mhv_ids: []
     :vha_facility_ids: []
     :edipi: '1099738673'
-    :participant_id: 
+    :participant_id:
   '796053469':
     :given_names:
     - Ross
     - E
     :family_name: Sotos
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19730827'
     :ssn: '796053469'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012833452V919063
     :mhv_ids: []
     :vha_facility_ids: []
@@ -3069,7 +3080,7 @@ find_candidate:
     - Timothy
     - Hoo
     :family_name: Soto
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19460715'
     :ssn: '796038168'
@@ -3079,7 +3090,7 @@ find_candidate:
       postal_code: '29401'
       country: USA
       street: 123 Main Street
-    :home_phone: 
+    :home_phone:
     :icn: 1012833438V267437
     :mhv_ids: []
     :vha_facility_ids: []
@@ -3090,12 +3101,12 @@ find_candidate:
     - Dwayne
     - E
     :family_name: Spencer
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19580224'
     :ssn: '796153369'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012643250V489886
     :mhv_ids:
     - '9981379'
@@ -3119,17 +3130,17 @@ find_candidate:
     - Luke
     - J
     :family_name: Stephens
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19390820'
     :ssn: '796127242'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
-      postal_code: 
+      city:
+      state:
+      postal_code:
       country: BEL
       street: INTERNATIANL ADD
-    :home_phone: 
+    :home_phone:
     :icn: 1012666881V023688
     :mhv_ids: []
     :vha_facility_ids: []
@@ -3139,7 +3150,7 @@ find_candidate:
     :given_names:
     - Herman
     :family_name: Stevens
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19461215'
     :ssn: '796049726'
@@ -3160,7 +3171,7 @@ find_candidate:
     - Derrick
     - A
     :family_name: Stewart
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19671030'
     :ssn: '796068291'
@@ -3170,7 +3181,7 @@ find_candidate:
       postal_code: '22031'
       country: USA
       street: 123 JUMP STREET
-    :home_phone: 
+    :home_phone:
     :icn: 1012592999V810903
     :mhv_ids: []
     :vha_facility_ids:
@@ -3183,12 +3194,12 @@ find_candidate:
     - Jerome
     - Allen
     :family_name: Stewart
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19790701'
     :ssn: '796098273'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012845699V670513
     :mhv_ids: []
     :vha_facility_ids: []
@@ -3199,12 +3210,12 @@ find_candidate:
     - Victor
     - Reed
     :family_name: Stewart
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19820902'
     :ssn: '796098268'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012845700V116007
     :mhv_ids: []
     :vha_facility_ids: []
@@ -3215,17 +3226,17 @@ find_candidate:
     - John
     - S
     :family_name: Robertson
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19381007'
     :ssn: '796127187'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
-      postal_code: 
+      city:
+      state:
+      postal_code:
       country: USA
-      street: 
-    :home_phone: 
+      street:
+    :home_phone:
     :icn: 1012847418V490298
     :mhv_ids: []
     :vha_facility_ids: []
@@ -3236,12 +3247,12 @@ find_candidate:
     - Vernon
     - D
     :family_name: Wagner
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19650715'
     :ssn: '796140369'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012845702V443941
     :mhv_ids: []
     :vha_facility_ids: []
@@ -3252,11 +3263,11 @@ find_candidate:
     - Tyrone
     - N
     :family_name: Wallace
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19741003'
     :ssn: '796122376'
-    :address: 
+    :address:
     :home_phone: 5555004134 p1
     :icn: 1012845154V366661
     :mhv_ids: []
@@ -3268,17 +3279,17 @@ find_candidate:
     - Cory
     - Joseph
     :family_name: Washington
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19490906'
     :ssn: '796122330'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
-      postal_code: 
+      city:
+      state:
+      postal_code:
       country: USA
-      street: 
-    :home_phone: 
+      street:
+    :home_phone:
     :icn: 1012830861V355582
     :mhv_ids: []
     :vha_facility_ids: []
@@ -3289,7 +3300,7 @@ find_candidate:
     - Darryl
     - A
     :family_name: Washington
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19680427'
     :ssn: '796199052'
@@ -3310,17 +3321,17 @@ find_candidate:
     - Rhonda
     - A
     :family_name: Washington
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19661105'
     :ssn: '796090317'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
-      postal_code: 
+      city:
+      state:
+      postal_code:
       country: USA
-      street: 
-    :home_phone: 
+      street:
+    :home_phone:
     :icn: 1012860875V895695
     :mhv_ids: []
     :vha_facility_ids: []
@@ -3331,14 +3342,14 @@ find_candidate:
     - Jeff
     - Terrell
     :family_name: Watson
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19680105'
     :ssn: '796246757'
     :address: !ruby/object:MVI::Models::MviProfileAddress
       city: DHAKA
-      state: 
-      postal_code: 
+      state:
+      postal_code:
       country: BGD
       street: 787 DHAKA AVE
     :home_phone: "(812)343-4346"
@@ -3352,7 +3363,7 @@ find_candidate:
     - Russell
     - Bill
     :family_name: Watson
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19610902'
     :ssn: '796079018'
@@ -3362,7 +3373,7 @@ find_candidate:
       postal_code: '80044'
       country: USA
       street: 224 DUKE ST4
-    :home_phone: 
+    :home_phone:
     :icn: 1012658430V604777
     :mhv_ids: []
     :vha_facility_ids:
@@ -3377,7 +3388,7 @@ find_candidate:
     - Johnnie
     - Leonard
     :family_name: Weaver
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19560710'
     :ssn: '796123607'
@@ -3387,7 +3398,7 @@ find_candidate:
       postal_code: '20142'
       country: USA
       street: ROOM 403
-    :home_phone: 
+    :home_phone:
     :icn: 1012740600V714187
     :mhv_ids:
     - '14384899'
@@ -3402,7 +3413,7 @@ find_candidate:
     - Yvonne
     - L
     :family_name: Weaver
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19910706'
     :ssn: '796123609'
@@ -3450,7 +3461,7 @@ find_candidate:
     - Wallace
     - R
     :family_name: Webb
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19500913'
     :ssn: '796128064'
@@ -3460,7 +3471,7 @@ find_candidate:
       postal_code: '95102'
       country: USA
       street: 983 SHORE ST
-    :home_phone: 
+    :home_phone:
     :icn: 1012845705V991634
     :mhv_ids: []
     :vha_facility_ids: []
@@ -3471,7 +3482,7 @@ find_candidate:
     - Claude
     - R
     :family_name: Wells
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19290104'
     :ssn: '796161553'
@@ -3492,12 +3503,12 @@ find_candidate:
     - Philip
     - Daniel
     :family_name: West
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19800606'
     :ssn: '796080135'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012593002V974767
     :mhv_ids: []
     :vha_facility_ids:
@@ -3509,12 +3520,12 @@ find_candidate:
     - Marc
     - Wade
     :family_name: West
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19871102'
     :ssn: '796052521'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012592973V765426
     :mhv_ids: []
     :vha_facility_ids:
@@ -3530,7 +3541,7 @@ find_candidate:
     - Danny
     - Derrick
     :family_name: Wheeler
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19700707'
     :ssn: '796151611'
@@ -3540,7 +3551,7 @@ find_candidate:
       postal_code: '78727'
       country: USA
       street: 905 BROADWAY AVE
-    :home_phone: 
+    :home_phone:
     :icn: 1012845384V854587
     :mhv_ids: []
     :vha_facility_ids: []
@@ -3561,7 +3572,7 @@ find_candidate:
       postal_code: '33333'
       country: USA
       street: MIL ADDY LINE 2
-    :home_phone: 
+    :home_phone:
     :icn: 1012592963V937803
     :mhv_ids: []
     :vha_facility_ids:
@@ -3578,7 +3589,7 @@ find_candidate:
     :given_names:
     - Ryan
     :family_name: White
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19530824'
     :ssn: '796007416'
@@ -3588,18 +3599,18 @@ find_candidate:
       postal_code: 25003-9120
       country: USA
       street: 4202 COAL RIVER RD
-    :home_phone: 
+    :home_phone:
     :icn: 1012832750V262955
     :mhv_ids: []
     :vha_facility_ids: []
     :edipi: '1242992250'
-    :participant_id: 
+    :participant_id:
   '796090608':
     :given_names:
     - Roberta
     - M
     :family_name: Williamson
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19790713'
     :ssn: '796090608'
@@ -3609,7 +3620,7 @@ find_candidate:
       postal_code: '20151'
       country: USA
       street: 1234 FAIRFAX VA
-    :home_phone: 
+    :home_phone:
     :icn: 1012845709V062275
     :mhv_ids: []
     :vha_facility_ids:
@@ -3621,7 +3632,7 @@ find_candidate:
     - Sarah
     - Jean
     :family_name: Williamson
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19590513'
     :ssn: '796023436'
@@ -3642,7 +3653,7 @@ find_candidate:
     - Nicholas
     - Edward
     :family_name: Willis
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19650416'
     :ssn: '796081697'
@@ -3652,7 +3663,7 @@ find_candidate:
       postal_code: '20121'
       country: USA
       street: 212 PENN STREET
-    :home_phone: 
+    :home_phone:
     :icn: 1012845711V863651
     :mhv_ids: []
     :vha_facility_ids:
@@ -3664,7 +3675,7 @@ find_candidate:
     - Thomas
     - Paul
     :family_name: Willis
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19730807'
     :ssn: '796105732'
@@ -3685,17 +3696,17 @@ find_candidate:
     - Clifford
     - Gerard
     :family_name: Wilson
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19690729'
     :ssn: '796113361'
     :address: !ruby/object:MVI::Models::MviProfileAddress
       city: FAIRFAX
       state: VA
-      postal_code: 
+      postal_code:
       country: USA
       street: 43000 FAIRLAKES
-    :home_phone: 
+    :home_phone:
     :icn: 1012845109V755759
     :mhv_ids: []
     :vha_facility_ids: []
@@ -3706,7 +3717,7 @@ find_candidate:
     - Jeffrey
     - N
     :family_name: Wilson
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19310818'
     :ssn: '796131482'
@@ -3716,7 +3727,7 @@ find_candidate:
       postal_code: '22011'
       country: USA
       street: 1025 BRYCE DR
-    :home_phone: 
+    :home_phone:
     :icn: 1012844755V103857
     :mhv_ids: []
     :vha_facility_ids: []
@@ -3727,7 +3738,7 @@ find_candidate:
     - Mario
     - E
     :family_name: Wright
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19540108'
     :ssn: '796123102'
@@ -3737,7 +3748,7 @@ find_candidate:
       postal_code: '22311'
       country: USA
       street: 5021 SEMINARY RD
-    :home_phone: 
+    :home_phone:
     :icn: 1012830556V118669
     :mhv_ids: []
     :vha_facility_ids:
@@ -3749,7 +3760,7 @@ find_candidate:
     - Nancy
     - Joanna-joan
     :family_name: Wright
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19560725'
     :ssn: '796123104'
@@ -3759,7 +3770,7 @@ find_candidate:
       postal_code: '22302'
       country: USA
       street: 3001 PARK CENTER DR
-    :home_phone: 
+    :home_phone:
     :icn: 1012830873V293499
     :mhv_ids: []
     :vha_facility_ids:
@@ -3774,8 +3785,8 @@ find_candidate:
     :gender: M
     :birth_date: '19650713'
     :ssn: '796192795'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012851504V621829
     :mhv_ids: []
     :vha_facility_ids: []
@@ -3785,30 +3796,31 @@ find_candidate:
     :given_names:
     - Alana
     :family_name: Gprsresysfive
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19800602'
     :ssn: '666717635'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012872729V336966
     :mhv_ids:
     - '13492196'
     :vha_facility_ids:
     - 200MHS
     - '979'
+    - '648'
     :edipi: '1320002050'
     :participant_id: '600151836'
   '666271152':
     :given_names:
     - Jerry
     :family_name: Gpktestnine
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19690407'
     :ssn: '666271152'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012827134V054550
     :mhv_ids:
     - '10894456'
@@ -3816,18 +3828,19 @@ find_candidate:
     - 200MHS
     - '979'
     - '989'
+    - '648'
     :edipi: '1320002060'
-    :participant_id: 
+    :participant_id:
   '666360333':
     :given_names:
     - Jhun
     :family_name: Gpksysninetest
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19790605'
     :ssn: '666360333'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012870264V741864
     :mhv_ids:
     - '13408508'
@@ -3835,24 +3848,26 @@ find_candidate:
     - '979'
     - 200MHS
     - '989'
+    - '648'
     :edipi: '1320002070'
-    :participant_id: 
+    :participant_id:
   '666512797':
     :given_names:
     - Sean
     :family_name: Gptestkfive
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19720321'
     :ssn: '666512797'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012852978V019884
     :mhv_ids:
     - '12210827'
     :vha_facility_ids:
     - '989'
     - 200MHS
+    - '648'
     :edipi: '1320002080'
     :participant_id: '600152407'
   '796184647':
@@ -3860,12 +3875,12 @@ find_candidate:
     - Loretta
     - E
     :family_name: Brooks
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19640605'
     :ssn: '796184647'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012830985V402307
     :mhv_ids: []
     :vha_facility_ids: []
@@ -4011,12 +4026,19 @@ find_candidate:
     :gender: M
     :birth_date: '19690212'
     :ssn: '666859632'
-    :address: 
+    :address: !ruby/object:MVI::Models::MviProfileAddress
+      city: RICHMOND
+      state: VA
+      postal_code: '23233'
+      country: USA
+      street: 123 FAKE STREET
     :home_phone: 
     :icn: 1012996209V794155
-    :mhv_ids: []
+    :mhv_ids:
+    - '14442988'
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
   '666741478':
@@ -4027,12 +4049,19 @@ find_candidate:
     :gender: M
     :birth_date: '19620312'
     :ssn: '666741478'
-    :address: 
+    :address: !ruby/object:MVI::Models::MviProfileAddress
+      city: RICHMOND
+      state: VA
+      postal_code: '23233'
+      country: USA
+      street: 123 FAKE STREET
     :home_phone: 
     :icn: 1012996210V640082
-    :mhv_ids: []
+    :mhv_ids:
+    - '14442925'
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
   '666451254':
@@ -4043,12 +4072,19 @@ find_candidate:
     :gender: F
     :birth_date: '19820425'
     :ssn: '666451254'
-    :address: 
+    :address: !ruby/object:MVI::Models::MviProfileAddress
+      city: RICHMOND
+      state: VA
+      postal_code: '23233'
+      country: USA
+      street: 123 FAKE STREET
     :home_phone: 
     :icn: 1012996213V894859
-    :mhv_ids: []
+    :mhv_ids:
+    - '14442833'
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
   '666986547':
@@ -4059,12 +4095,18 @@ find_candidate:
     :gender: F
     :birth_date: '19600928'
     :ssn: '666986547'
-    :address: 
+    :address: !ruby/object:MVI::Models::MviProfileAddress
+      city: RICHMOND
+      state: VA
+      postal_code: '23233'
+      country: USA
+      street: 123 FAKE STREET
     :home_phone: 
     :icn: 1012996215V259676
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
   '666216523':
@@ -4075,12 +4117,19 @@ find_candidate:
     :gender: F
     :birth_date: '19740701'
     :ssn: '666216523'
-    :address: 
+    :address: !ruby/object:MVI::Models::MviProfileAddress
+      city: RICHMOND
+      state: VA
+      postal_code: '23233'
+      country: USA
+      street: 123 FAKE STREET
     :home_phone: 
     :icn: 1012996216V038108
-    :mhv_ids: []
+    :mhv_ids:
+    - '14442951'
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
   '666951239':
@@ -4091,14 +4140,86 @@ find_candidate:
     :gender: M
     :birth_date: '19600526'
     :ssn: '666951239'
-    :address: 
+    :address: !ruby/object:MVI::Models::MviProfileAddress
+      city: RICHMOND
+      state: VA
+      postal_code: '23233'
+      country: USA
+      street: 123 FAKE STREET
     :home_phone: 
     :icn: 1012996217V161423
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
+  '666127189':
+    :given_names:
+    - Charles
+    :family_name: Mhvpatseven
+    :suffix:
+    :gender: M
+    :birth_date: '19510809'
+    :ssn: '666127189'
+    :address: !ruby/object:MVI::Models::MviProfileAddress
+      city: RICHMOND
+      state: VA
+      postal_code: '23233'
+      country: USA
+      street: 123 FAKE STREET
+    :home_phone:
+    :icn: 1012999273V269731
+    :mhv_ids: []
+    :vha_facility_ids:
+    - '989'
+    - '648'
+    :edipi:
+    :participant_id:
+  '666253615':
+    :given_names:
+    - Poppy
+    :family_name: Mhvpateight
+    :suffix:
+    :gender: F
+    :birth_date: '19700421'
+    :ssn: '666253615'
+    :address: !ruby/object:MVI::Models::MviProfileAddress
+      city: RICHMOND
+      state: VA
+      postal_code: '23233'
+      country: USA
+      street: 123 FAKE STREET
+    :home_phone:
+    :icn: 1012999274V018660
+    :mhv_ids: []
+    :vha_facility_ids:
+    - '989'
+    - '648'
+    :edipi:
+    :participant_id:
+  '666324561':
+    :given_names:
+    - Warren
+    :family_name: Mhvpatnine
+    :suffix:
+    :gender: M
+    :birth_date: '19620625'
+    :ssn: '666324561'
+    :address: !ruby/object:MVI::Models::MviProfileAddress
+      city: RICHMOND
+      state: VA
+      postal_code: '23233'
+      country: USA
+      street: 123 FAKE STREET
+    :home_phone:
+    :icn: 1012999275V171159
+    :mhv_ids: []
+    :vha_facility_ids:
+    - '989'
+    - '648'
+    :edipi:
+    :participant_id:
   '666986541':
     :given_names:
     - Cloris
@@ -4115,6 +4236,7 @@ find_candidate:
     :vha_facility_ids:
     - '989'
     - 200MHS
+    - '648'
     :edipi: 
     :participant_id: 
   '666977412':
@@ -4133,6 +4255,7 @@ find_candidate:
     :vha_facility_ids:
     - 200MHS
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
   '666337777':
@@ -4151,6 +4274,7 @@ find_candidate:
     :vha_facility_ids:
     - '989'
     - 200MHS
+    - '648'
     :edipi: 
     :participant_id: 
   '666451921':
@@ -4169,6 +4293,7 @@ find_candidate:
     :vha_facility_ids:
     - '989'
     - 200MHS
+    - '648'
     :edipi: 
     :participant_id: 
   '666202525':
@@ -4187,6 +4312,7 @@ find_candidate:
     :vha_facility_ids:
     - '989'
     - 200MHS
+    - '648'
     :edipi: 
     :participant_id: 
   '666087411':
@@ -4205,6 +4331,7 @@ find_candidate:
     :vha_facility_ids:
     - '989'
     - 200MHS
+    - '648'
     :edipi: 
     :participant_id: 
   '666873096':
@@ -4221,6 +4348,7 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
   '666410941':
@@ -4237,6 +4365,7 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
   '666994501':
@@ -4253,5 +4382,6 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
+    - '648'
     :edipi: 
     :participant_id: 
