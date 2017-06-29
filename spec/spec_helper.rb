@@ -7,6 +7,7 @@ require 'support/spool_helpers'
 require 'support/fixture_helpers'
 require 'support/spec_temp_files'
 require 'support/have_deep_attributes_matcher'
+require 'support/negated_matchers'
 require 'support/veteran_status/stub_veteran_status'
 
 # By default run SimpleCov, but allow an environment variable to disable.

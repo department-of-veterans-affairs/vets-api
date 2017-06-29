@@ -32,24 +32,24 @@
                 },
                 "award_effective_date": {
                   "type": "string"
+                },
+                "has_adapted_housing": {
+                  "type": ["boolean", "null"]
+                },
+                "has_chapter35_eligibility": {
+                  "type": ["boolean", "null"]
+                },
+                "has_death_result_of_disability": {
+                  "type": ["boolean", "null"]
+                },
+                "has_individual_unemployability_granted": {
+                  "type": ["boolean", "null"]
+                },
+                "has_special_monthly_compensation": {
+                  "type": ["boolean", "null"]
                 }
               },
               "type": ["object", "null"]
-            },
-            "has_adapted_housing": {
-              "type": ["boolean", "null"]
-            },
-            "has_chapter35_eligibility": {
-              "type": ["boolean", "null"]
-            },
-            "has_death_result_of_disability": {
-              "type": ["boolean", "null"]
-            },
-            "has_individual_unemployability_granted": {
-              "type": ["boolean", "null"]
-            },
-            "has_special_monthly_compensation": {
-              "type": ["boolean", "null"]
             },
             "military_service": {
               "type": ["array", "null"],
