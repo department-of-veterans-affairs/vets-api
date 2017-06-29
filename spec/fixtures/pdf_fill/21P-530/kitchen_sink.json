@@ -11,6 +11,41 @@
     "location": "vaMedicalCenter",
     "other": "other"
   },
+  "toursOfDuty": [
+    {
+      "dateRange": {
+        "from": "2012-06-01",
+        "to": "2013-07-01"
+      },
+      "serviceBranch": "army1",
+      "rank": "rank1",
+      "serviceNumber": "service number 1",
+      "placeOfEntry": "placeOfEntry1",
+      "placeOfSeparation": "placeOfSeparation1"
+    },
+    {
+      "dateRange": {
+        "from": "2012-06-02",
+        "to": "2013-07-02"
+      },
+      "serviceBranch": "army2",
+      "rank": "rank2",
+      "serviceNumber": "service number 2",
+      "placeOfEntry": "placeOfEntry2",
+      "placeOfSeparation": "placeOfSeparation2"
+    },
+    {
+      "dateRange": {
+        "from": "2012-06-03",
+        "to": "2013-07-03"
+      },
+      "serviceBranch": "army3",
+      "rank": "rank3",
+      "serviceNumber": "service number 3",
+      "placeOfEntry": "placeOfEntry3",
+      "placeOfSeparation": "placeOfSeparation3"
+    }
+  ],
   "placeOfBirth": "earth",
   "claimantFullName": {
     "first": "claimant",
