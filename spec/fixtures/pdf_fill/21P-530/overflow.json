@@ -59,6 +59,7 @@
       "placeOfSeparation": "place3"
     }
   ],
+  "burialAllowance": false,
   "burialCost": 9999999999999999999,
   "burialAllowanceRequested": "nonService",
   "previousNames": [
