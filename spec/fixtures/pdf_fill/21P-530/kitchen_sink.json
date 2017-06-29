@@ -5,6 +5,7 @@
   "claimantPhone": "2123456789",
   "claimantEmail": "foo@foo.com",
   "veteranDateOfBirth": "2012-06-26",
+  "deathDate": "2012-06-27",
   "placeOfBirth": "earth",
   "claimantFullName": {
     "first": "claimant",
