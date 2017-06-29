@@ -203,6 +203,8 @@ module PdfFill
         ['', '2'].each do |suffix|
           @form_data["veteranSocialSecurityNumber#{suffix}"] = split_ssn
         end
+
+        split_ssn
       end
 
       def split_phone(hash, key)
