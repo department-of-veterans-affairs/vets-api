@@ -50,6 +50,15 @@ module Preneeds
       hash
     end
 
+    def self.permitted_params
+      [
+        :date_of_birth, :date_of_death, :gender, :is_deceased, :marital_status,
+        :military_service_number, :place_of_birth, :ssn, :va_claim_number, :military_status,
+        address: AddressInput.permitted_params, current_name: NameInput.permitted_params,
+        service_name: NameInput.permitted_params, service_records: [ServiceRecordInput.permitted_params]
+      ]
+    end
+
     private
 
     def validate_current_name

@@ -58,5 +58,9 @@ module Preneeds
       [:address2, :address3].each { |key| hash.delete(key) if hash[key].nil? }
       hash
     end
+
+    def self.permitted_params
+      attribute_set.map { |a| a.name.to_sym }
+    end
   end
 end

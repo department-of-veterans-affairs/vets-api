@@ -31,6 +31,13 @@ module Preneeds
       }
     end
 
+    def self.permitted_params
+      [
+        :applicant_email, :applicant_phone_number, :applicant_relationship_to_claimant, :completing_reason,
+        mailing_address: AddressInput.permitted_params, name: NameInput.permitted_params
+      ]
+    end
+
     private
 
     def validate_name

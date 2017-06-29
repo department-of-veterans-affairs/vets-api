@@ -31,5 +31,12 @@ module Preneeds
       end
       hash
     end
+
+    def self.permitted_params
+      [
+        :branch_of_service, :discharge_type, :entered_on_duty_date,
+        :highest_rank, :national_guard_state, :release_from_duty_date
+      ]
+    end
   end
 end

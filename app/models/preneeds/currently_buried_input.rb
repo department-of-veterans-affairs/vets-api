@@ -17,6 +17,10 @@ module Preneeds
       { cemetery_number: cemetery_number, name: name.message }
     end
 
+    def self.permitted_params
+      [:cemetery_number, name: NameInput.permitted_params]
+    end
+
     private
 
     def validate_name

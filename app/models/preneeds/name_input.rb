@@ -24,5 +24,9 @@ module Preneeds
       [:maiden_name, :middle_name, :suffix].each { |key| hash.delete(key) if hash[key].nil? }
       hash
     end
+
+    def self.permitted_params
+      attribute_set.map { |a| a.name.to_sym }
+    end
   end
 end

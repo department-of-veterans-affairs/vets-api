@@ -38,6 +38,13 @@ module Preneeds
       hash
     end
 
+    def self.permitted_params
+      [
+        :date_of_birth, :desired_cemetery, :email, :completing_reason, :phone_number, :relationship_to_vet, :ssn,
+        address: AddressInput.permitted_params, name: NameInput.permitted_params
+      ]
+    end
+
     private
 
     def validate_name
