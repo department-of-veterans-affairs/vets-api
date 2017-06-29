@@ -9,9 +9,10 @@ Rails.application.routes.draw do
 
   namespace :v0, defaults: { format: 'json' } do
     resources :in_progress_forms, only: [:index, :show, :update, :destroy]
-    resources :letters, only: [:index, :show] do
+    resources :letters, only: [:index] do
       collection do
         get 'beneficiary', to: 'letters#beneficiary'
+        post ':id', to: 'letters#download'
       end
     end
 
@@ -100,6 +101,16 @@ Rails.application.routes.draw do
       end
 
       resources :calculator_constants, only: :index, defaults: { format: :json }
+    end
+
+    namespace :preneeds do
+      resources :cemeteries, only: :index, defaults: { format: :json }
+      resources :states, only: :index, defaults: { format: :json }
+      resources :attachment_types, only: :index, defaults: { format: :json }
+      resources :discharge_types, only: :index, defaults: { format: :json }
+      resources :military_ranks, only: :index, defaults: { format: :json }
+      resources :branches_of_service, only: :index, defaults: { format: :json }
+      resources :applications, only: :create, defaults: { format: :json }
     end
 
     resources :apidocs, only: [:index]
