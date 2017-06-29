@@ -92,7 +92,7 @@ module PdfFill
             key: 'form1[0].#subform[36].OTHER_SPECIFY[0]'
           }
         },
-        "placeOfBirth": {
+        "placeOfBirth" => {
           key: 'form1[0].#subform[36].PLACE_OF_BIRTH[0]',
           limit: 71,
           question: "9B. PLACE OF BIRTH"
