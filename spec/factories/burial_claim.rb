@@ -3,6 +3,7 @@ FactoryGirl.define do
   factory :burial_claim, class: SavedClaim::Burial do
     form do
       {
+        privacyAgreementAccepted: true,
         veteranFullName: {
           first: 'Test',
           last: 'User'
