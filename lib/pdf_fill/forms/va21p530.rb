@@ -2,6 +2,12 @@ module PdfFill
   module Forms
     # TODO bring back workflow require statements
     class VA21P530 < FormBase
+      PLACE_OF_DEATH_KEY = {
+        'vaMedicalCenter' => 'VA MEDICAL CENTER',
+        'stateVeteransHome' => 'STATE VETERANS HOME',
+        'nursingHome' => 'NURSING HOME UNDER VA CONTRACT'
+      }
+
       KEY = {
         'veteranFullName' => {
           'first' => {
@@ -174,6 +180,20 @@ module PdfFill
         }
       end
 
+      def expand_place_of_death
+        location_of_death = @form_data['locationOfDeath']
+        return if location_of_death.blank?
+
+        location = location_of_death['location']
+
+        @form_data['placeOfDeath'] =
+          if location == 'other'
+            location_of_death['other']
+          else
+            PLACE_OF_DEATH_KEY[location]
+          end
+      end
+
       def merge_fields
         %w(veteranFullName claimantFullName).each do |attr|
           extract_middle_i(@form_data, attr)
@@ -184,6 +204,8 @@ module PdfFill
         split_phone(@form_data, 'claimantPhone')
 
         expand_relationship(@form_data, 'relationship')
+
+        expand_place_of_death
 
         @form_data
       end
