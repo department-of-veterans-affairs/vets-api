@@ -40,6 +40,37 @@ describe PdfFill::Forms::VA21P530 do
 
   test_method(
     basic_class,
+    'expand_tours_of_duty',
+    [
+      [
+        [nil],
+        nil
+      ],
+      [
+        [[{
+          "dateRange" => {
+            "from" => "2012-06-01",
+            "to" => "2013-07-01"
+          },
+          "serviceBranch" => "army1",
+          "rank" => "rank1",
+          "serviceNumber" => "sn1",
+          "placeOfEntry" => "placeOfEntry1",
+          "placeOfSeparation" => "place1"
+        }]],
+        [{"serviceBranch"=>"army1",
+          "rank"=>"army1, rank1",
+          "serviceNumber"=>"sn1",
+          "placeOfEntry"=>"placeOfEntry1",
+          "placeOfSeparation"=>"place1",
+          "dateRangeStart"=>"2012-06-01",
+          "dateRangeEnd"=>"2013-07-01"}]
+      ]
+    ]
+  )
+
+  test_method(
+    basic_class,
     'split_phone',
     [
       [
