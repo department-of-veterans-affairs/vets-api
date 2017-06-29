@@ -260,6 +260,8 @@ module PdfFill
 
         expand_tours_of_duty(@form_data['toursOfDuty'])
 
+        @form_data['previousNames'] = combine_previous_names(@form_data['previousNames'])
+
         @form_data
       end
     end

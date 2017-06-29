@@ -579,10 +579,6 @@ module PdfFill
         hash
       end
 
-      def combine_full_name(full_name)
-        combine_hash(full_name, %w(first middle last suffix))
-      end
-
       def expand_marriages(hash, key)
         marriages = hash[key]
         return if marriages.blank?

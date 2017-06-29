@@ -11,6 +11,16 @@
     "location": "vaMedicalCenter",
     "other": "other"
   },
+  "previousNames": [
+    {
+      "first": "name1",
+      "last": "last1"
+    },
+    {
+      "first": "name2",
+      "last": "last2"
+    }
+  ],
   "toursOfDuty": [
     {
       "dateRange": {

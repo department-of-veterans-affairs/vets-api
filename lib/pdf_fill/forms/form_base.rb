@@ -17,6 +17,10 @@ module PdfFill
         end.join(', ')
       end
 
+      def combine_full_name(full_name)
+        combine_hash(full_name, %w(first middle last suffix))
+      end
+
       def combine_hash(hash, keys, separator = ' ')
         return if hash.blank?
 
