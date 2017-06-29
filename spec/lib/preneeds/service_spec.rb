@@ -74,4 +74,22 @@ describe Preneeds::Service do
       expect(ranks.type).to eq(Preneeds::MilitaryRank)
     end
   end
+
+  describe 'add_attachments' do
+    let(:file) do
+      Rack::Test::UploadedFile.new('spec/support/fixtures/test.pdf', 'application/pdf')
+    end
+
+    it 'adds a single attachment to existing application' do
+      response = VCR.use_cassette('preneeds/add_attachments/adds_an_attachment_to_existing_application') do
+        subject.add_attachment(file)
+      end
+
+      binding.pry
+
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      expect(response).to match_response_schema('preneeds/attachment_types')
+    end
+  end
 end

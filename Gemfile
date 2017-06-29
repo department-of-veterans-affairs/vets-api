@@ -120,4 +120,3 @@ group :development do
   gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
   gem 'guard-rubocop'
 end
-
