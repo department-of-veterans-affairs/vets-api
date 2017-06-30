@@ -29,6 +29,12 @@ module PdfFill
           limit: 80,
           question: "16. PLACE OF BURIAL OR LOCATION OF DECEASED VETERAN'S REMAINS"
         },
+        'hasFederalCemetery' => {
+          key: 'form1[0].#subform[37].YES4[0]'
+        },
+        'noFederalCemetery' => {
+          key: 'form1[0].#subform[37].NO4[0]'
+        },
         'hasBenefitsUnclaimedRemains' => {
           key: 'form1[0].#subform[37].YES4[4]'
         },
