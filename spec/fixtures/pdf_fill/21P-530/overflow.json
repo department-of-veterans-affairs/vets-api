@@ -66,6 +66,7 @@
   "stateCemetery": false,
   "federalCemetery": false,
   "burialAllowanceRequested": "nonService",
+  "govtContributions": false,
   "placeOfRemains": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "previousNames": [
     {
