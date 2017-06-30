@@ -63,7 +63,6 @@
   ],
   "dependents": [
     {
-      "dependentRelationship": "child",
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -113,7 +112,6 @@
       "monthlyPayment": 1
     },
     {
-      "dependentRelationship": "child",
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -132,7 +130,6 @@
       "monthlyPayment": 2
     },
     {
-      "dependentRelationship": "child",
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -151,7 +148,6 @@
       "monthlyPayment": 3
     },
     {
-      "dependentRelationship": "child",
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -170,7 +166,6 @@
       "monthlyPayment": 4
     },
     {
-      "dependentRelationship": "parent",
       "fullName": {
         "first": "parent",
         "last": "Olson"
@@ -188,7 +183,6 @@
     },
     {
       "childInHousehold": true,
-      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-01",
       "fullName": {
         "first": "Mark1",
@@ -204,7 +198,6 @@
     },
     {
       "childInHousehold": true,
-      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-01",
       "fullName": {
         "first": "Mark1",
@@ -220,7 +213,6 @@
     },
     {
       "childInHousehold": true,
-      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-02",
       "fullName": {
         "first": "Mark2",
@@ -236,7 +228,6 @@
     },
     {
       "childInHousehold": true,
-      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-03",
       "fullName": {
         "first": "Mark3",
