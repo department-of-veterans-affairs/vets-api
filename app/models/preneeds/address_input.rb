@@ -28,8 +28,8 @@ module Preneeds
     validates :address1, :address2, :address3, length: { maximum: 35 }
     validates :city, length: { maximum: 30 }, presence: true
     validates :country_code, inclusion: { in: COUNTRY_CODES }, presence: true
-    validates :postal_zip, length: { is: 5 }, presence: true
-    validates :state, length: { minimum: 2, maximum: 3 }, presence: true
+    validates :postal_zip, length: { is: 5 }
+    validates :state, length: { minimum: 2, maximum: 3 }
 
     # Hash attributes must correspond to xsd ordering or API call will fail
     def message

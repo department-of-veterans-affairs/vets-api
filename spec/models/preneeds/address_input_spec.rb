@@ -20,38 +20,30 @@ RSpec.describe Preneeds::AddressInput do
       expect(subject).to_not be_valid
     end
 
-    it 'requires a state' do
-      params.delete(:state)
-      expect(subject).to_not be_valid
-    end
-
     it 'requires a country' do
       params.delete(:country_code)
       expect(subject).to_not be_valid
     end
 
-    it 'requires a postal_zip' do
-      params.delete(:postal_zip)
+    it 'state must be 2 or 3 characters' do
+      params[:state] = 'a' * 4
       expect(subject).to_not be_valid
     end
 
-    # TODO: bad xsd validation
-    # it 'address1 must be less than 36 characters' do
-    #   params[:address1] = 'a' * 36
-    #   expect(subject).to_not be_valid
-    # end
+    it 'address1 must be less than 36 characters' do
+      params[:address1] = 'a' * 36
+      expect(subject).to_not be_valid
+    end
 
-    # TODO: bad xsd validation
-    # it 'address2 must be less than 36 characters' do
-    #   params[:address2] = 'a' * 36
-    #   expect(subject).to_not be_valid
-    # end
+    it 'address2 must be less than 36 characters' do
+      params[:address2] = 'a' * 36
+      expect(subject).to_not be_valid
+    end
 
-    # TODO: bad xsd validation
-    # it 'address3 must be less than 36 characters' do
-    #   params[:address3] = 'a' * 36
-    #   expect(subject).to_not be_valid
-    # end
+    it 'address3 must be less than 36 characters' do
+      params[:address3] = 'a' * 36
+      expect(subject).to_not be_valid
+    end
 
     it 'city must be less than 31 characters' do
       params[:city] = 'a' * 31
@@ -69,7 +61,7 @@ RSpec.describe Preneeds::AddressInput do
     end
 
     it 'postal_zip must be exactly 5 characters' do
-      params[:postal_zip] = '111111'
+      params[:postal_zip] = '1' * 6
       expect(subject).to_not be_valid
     end
   end
