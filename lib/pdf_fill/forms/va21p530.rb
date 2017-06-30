@@ -11,6 +11,7 @@ module PdfFill
         'nursingHome' => 'NURSING HOME UNDER VA CONTRACT'
       }.freeze
 
+      # rubocop:disable Metrics/LineLength
       KEY = {
         'burialAllowanceRequested' => {
           'checkbox' => {
@@ -292,6 +293,7 @@ module PdfFill
           }
         }
       }.freeze
+      # rubocop:enable Metrics/LineLength
 
       def split_ssn
         ssn = @form_data['veteranSocialSecurityNumber']
@@ -382,6 +384,7 @@ module PdfFill
         expand_checkbox_as_hash(@form_data['burialAllowanceRequested'], 'value')
       end
 
+      # rubocop:disable Metrics/MethodLength
       def merge_fields
         %w(veteranFullName claimantFullName).each do |attr|
           extract_middle_i(@form_data, attr)
@@ -417,6 +420,7 @@ module PdfFill
 
         @form_data
       end
+      # rubocop:enable Metrics/MethodLength
     end
   end
 end
