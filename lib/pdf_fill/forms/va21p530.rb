@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 module PdfFill
   module Forms
-    # TODO: bring back workflow require statements
     class VA21P530 < FormBase
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
