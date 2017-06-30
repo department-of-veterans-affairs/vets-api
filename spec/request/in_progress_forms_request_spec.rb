@@ -38,6 +38,15 @@ RSpec.describe 'in progress forms', type: :request do
       end
     end
 
+    context 'when the user is not a test account' do
+      let(:user) { build(:loa3_user, ssn: '000-01-0002') }
+      it 'returns a 401' do
+        subject
+        expect(response).to have_http_status(:unauthorized)
+        expect(JSON.parse(response.body)['errors'].first['detail']).to match(/do not have access to save/)
+      end
+    end
+
     it 'returns details about saved forms' do
       subject
       items = JSON.parse(response.body)['data']
