@@ -6,11 +6,9 @@ module Preneeds
   class ServiceRecordInput < Common::Base
     include ActiveModel::Validations
 
-    validates :branch_of_service, length: { is: 2 }, presence: true
-    validates :discharge_type, inclusion: { in: %w(1 2 3 4 5 6 7) }
-    validates :entered_on_duty_date, :release_from_duty_date,
-              format: { with: /\A\d{4}-\d{2}-\d{2}\z/, allow_blank: true }
-    validates :national_guard_state, length: { maximum: 3 }
+    # 1: Honorable, 2: General, 3: Entry Level Separation/Uncharacterized
+    # 4: Other Than Honorable, 5: Bad Conduct Discharge, 6: Dishonorable, 7: Other
+    DISCHARGE_TYPES = %w(1 2 3 4 5 6 7).freeze
 
     attribute :branch_of_service, String
     attribute :discharge_type, String
@@ -18,6 +16,12 @@ module Preneeds
     attribute :highest_rank, String
     attribute :national_guard_state, String
     attribute :release_from_duty_date, XmlDate
+
+    validates :branch_of_service, length: { is: 2 }, presence: true
+    validates :discharge_type, inclusion: { in: DISCHARGE_TYPES }
+    validates :entered_on_duty_date, :release_from_duty_date,
+              format: { with: /\A\d{4}-\d{2}-\d{2}\z/, allow_blank: true }
+    validates :national_guard_state, length: { maximum: 3 }
 
     def message
       hash = {

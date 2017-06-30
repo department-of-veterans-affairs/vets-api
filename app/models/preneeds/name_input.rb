@@ -5,16 +5,18 @@ module Preneeds
   class NameInput < Common::Base
     include ActiveModel::Validations
 
-    # Removed length validation on names: bad xsd validation
-    validates :last_name, :first_name, presence: true
-    validates :suffix, length: { maximum: 3 }
-
     attribute :first_name, String
     attribute :last_name, String
     attribute :maiden_name, String
     attribute :middle_name, String
     attribute :suffix, String
 
+    # TODO: request that name length validations be set larger
+    validates :last_name, :first_name, presence: true
+    validates :last_name, :first_name, :middle_name, :maiden_name, length: { maximum: 15 }
+    validates :suffix, length: { maximum: 3 }
+
+    # Hash attributes must correspond to xsd ordering or API call will fail
     def message
       hash = {
         first_name: first_name, last_name: last_name, maiden_name: maiden_name,
