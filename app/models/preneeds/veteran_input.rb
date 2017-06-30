@@ -6,6 +6,18 @@ module Preneeds
   class VeteranInput < Common::Base
     include ActiveModel::Validations
 
+    # ACTIVE_DUTY("A", "ACTIVE DUTY"), RETIRED("R", "RETIRED"),
+    # RESERVE_NATIONAL_GUARD("S", "RESERVE/NATIONAL GUARD"),
+    # VETERAN("V", "VETERAN"), OTHER_UNKNOWN("X", "OTHER/UNKNOWN"),
+    # OTHER("X", "OTHER"), RETIRED_ACTIVE_DUTY("E", "RETIRED ACTIVE DUTY"),
+    # DIED_ON_ACTIVE_DUTY("D", "DIED ON ACTIVE DUTY"),
+    # RETIRED_RESERVE_NATIONAL_GUARD("O", "RETIRED RESERVE OR NATIONAL GUARD"),
+    # DEATH_INACTIVE_DUTY("I", "DEATH RELATED TO INACTIVE DUTY TRAINING");
+    MILITARY_STATUSES = %w(A R S V X E D O I).freeze
+    DECEASED_STATUSES = %w(yes no unsure).freeze
+    GENDERS = %w(Male Female).freeze
+    MARITAL_STATUSES = %w(Single Separated Married Divorced Widowed).freeze
+
     attribute :date_of_birth, XmlDate
     attribute :date_of_death, XmlDate
     attribute :gender, String
@@ -23,13 +35,13 @@ module Preneeds
     attribute :service_records, Array[Preneeds::ServiceRecordInput]
 
     validates :date_of_birth, :date_of_death, format: { with: /\A\d{4}-\d{2}-\d{2}\z/, allow_blank: true }
-    validates :gender, inclusion: { in: %w(Male Female) }
-    validates :is_deceased, inclusion: { in: %w(yes no unsure) }
-    validates :marital_status, inclusion: { in: %w(Single Separated Married Divorced Widowed) }
+    validates :gender, inclusion: { in: GENDERS }
+    validates :is_deceased, inclusion: { in: DECEASED_STATUSES }
+    validates :marital_status, inclusion: { in: MARITAL_STATUSES }
     validates :military_service_number, :va_claim_number, length: { maximum: 9 }
     validates :place_of_birth, length: { maximum: 100 }
     validates :ssn, format: /\A\d{3}-\d{2}-\d{4}\z/
-    validates :military_status, inclusion: { in: %w(A R S V X E D O I) }
+    validates :military_status, inclusion: { in: MILITARY_STATUSES }
 
     validates :current_name, :service_name, :service_records, presence: true, preneeds_embedded_object: true
     validates :address, preneeds_embedded_object: true
