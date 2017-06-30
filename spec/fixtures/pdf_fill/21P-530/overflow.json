@@ -63,6 +63,8 @@
   "burialAllowance": false,
   "incurredExpenses": false,
   "burialCost": 9999999999999999999,
+  "stateCemetery": false,
+  "federalCemetery": false,
   "burialAllowanceRequested": "nonService",
   "placeOfRemains": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "previousNames": [
