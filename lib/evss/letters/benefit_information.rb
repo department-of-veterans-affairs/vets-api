@@ -11,6 +11,12 @@ module EVSS
       attribute :monthly_award_amount, Float
       attribute :service_connected_percentage, Integer
       attribute :award_effective_date, DateTime
+
+      attribute :has_adapted_housing, Boolean
+      attribute :has_chapter35_eligibility, Boolean
+      attribute :has_death_result_of_disability, Boolean
+      attribute :has_individual_unemployability_granted, Boolean
+      attribute :has_special_monthly_compensation, Boolean
     end
   end
 end

@@ -1,14 +1,24 @@
 # frozen_string_literal: true
 module V0
   class Post911GIBillStatusesController < ApplicationController
+    include SentryLogging
+
     def show
       response = service.get_gi_bill_status
-      if response.ok?
+      if response.user_not_found?
+        # returns a standardized 404
+        raise Common::Exceptions::RecordNotFound, @current_user.email
+      elsif response.contains_no_user_info? || !response.ok?
+        log_message_to_sentry(
+          'Unexpected response from EVSS GiBillStatus Service',
+          :warn,
+          evss_status: response.status
+        )
+        render json: { data: nil, meta: response.metadata }
+      else
         render json: response,
                serializer: Post911GIBillStatusSerializer,
                meta: response.metadata
-      else
-        render json: { data: nil, meta: response.metadata }
       end
     end
 
