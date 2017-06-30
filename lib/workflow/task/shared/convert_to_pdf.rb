@@ -10,17 +10,19 @@ module Workflow::Task::Shared
         raise IOError, "PDF conversion failed, unsupported file type: #{@file.content_type}"
       end
 
-      Tempfile.create(%w(temp .pdf)) do |pdf|
-        MiniMagick::Tool::Convert.new do |convert|
-          convert << @file.download.path
-          convert << '-gravity' << 'North'
-          convert << '-units' << 'pixelsperinch'
-          convert << '-density' << '72'
-          convert << '-page' << 'letter'
-          convert << pdf.path
-        end
-        update_file(io: pdf)
+      out_dir = FileUtils.mkdir_p(Rails.root.join('tmp', 'pdfs', SecureRandom.uuid))
+      out_file = File.join(out_dir, @file.original_filename + '.pdf')
+
+      MiniMagick::Tool::Convert.new do |convert|
+        convert << '-units' << 'pixelsperinch'
+        convert << '-density' << '72'
+        convert << '-page' << 'letter'
+        convert << @file.download.path
+        convert << out_file
       end
+      update_file(io: File.open(out_file))
+    ensure
+      FileUtils.rmdir(out_dir) if defined?(out_dir) && out_dir.present?
     end
   end
 end

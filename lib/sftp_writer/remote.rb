@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'fileutils'
+
 class SFTPWriter::Remote
   def initialize(config, logger:)
     @config = config
@@ -7,7 +9,7 @@ class SFTPWriter::Remote
 
   def sftp
     @sftp ||= begin
-      @logger.info('Connected to SFTP')
+      @logger.info('Connecting to SFTP')
       Net::SFTP.start(
         @config.host,
         @config.user,
@@ -29,6 +31,22 @@ class SFTPWriter::Remote
   end
 
   def write(contents, filename)
-    sftp.upload!(StringIO.new(contents), File.join([write_path, filename].compact))
+    path = File.join([write_path,filename].compact)
+    mkdir_safe(path)
+    sftp.upload!(StringIO.new(contents), path)
+  end
+
+  private
+  def mkdir_safe(path)
+    path = Pathname.new(path)
+    dir = path.dirname
+    dirs = Array(dir.descend.to_a[2..-1])
+    dirs.each do |f|
+      begin
+        sftp.mkdir!(f)
+      rescue Net::SFTP::StatusException
+        raise if $!.code != Net::SFTP::Constants::StatusCodes::FX_FILE_ALREADY_EXISTS
+      end
+    end
   end
 end
