@@ -591,23 +591,23 @@ describe PdfFill::Forms::VA21P527EZ do
           },
           :children
         ],
-        {:children=>
-  [{"childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
-    "childAddress"=>"str1, city1, MD, 21232, USA",
-    "childNotInHousehold"=>true,
-    "personWhoLivesWithChild"=>nil},
-   {"childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
-    "childAddress"=>"str1, city1, MD, 21233, USA",
-    "personWhoLivesWithChild"=>nil}],
- "children"=>[],
- "outsideChildren"=>
-  [{"childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
-    "childAddress"=>"str1, city1, MD, 21232, USA",
-    "childNotInHousehold"=>true,
-    "personWhoLivesWithChild"=>nil},
-   {"childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
-    "childAddress"=>"str1, city1, MD, 21233, USA",
-    "personWhoLivesWithChild"=>nil}]}
+        { :children =>
+  [{ 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
+     'childAddress' => 'str1, city1, MD, 21232, USA',
+     'childNotInHousehold' => true,
+     'personWhoLivesWithChild' => nil },
+   { 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
+     'childAddress' => 'str1, city1, MD, 21233, USA',
+     'personWhoLivesWithChild' => nil }],
+          'children' => [],
+          'outsideChildren' =>
+  [{ 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
+     'childAddress' => 'str1, city1, MD, 21232, USA',
+     'childNotInHousehold' => true,
+     'personWhoLivesWithChild' => nil },
+   { 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
+     'childAddress' => 'str1, city1, MD, 21233, USA',
+     'personWhoLivesWithChild' => nil }] }
 
       ]
     ]

@@ -1,6 +1,7 @@
+# frozen_string_literal: true
 module PdfFill
   module Forms
-    # TODO bring back workflow require statements
+    # TODO: bring back workflow require statements
     class VA21P530 < FormBase
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
@@ -8,7 +9,7 @@ module PdfFill
         'vaMedicalCenter' => 'VA MEDICAL CENTER',
         'stateVeteransHome' => 'STATE VETERANS HOME',
         'nursingHome' => 'NURSING HOME UNDER VA CONTRACT'
-      }
+      }.freeze
 
       KEY = {
         'burialAllowanceRequested' => {
@@ -31,7 +32,7 @@ module PdfFill
         },
         'amountGovtContribution' => {
           key: 'form1[0].#subform[37].AMOUNT[0]',
-          question: "18B. AMOUNT OF GOVERNMENT OR EMPLOYER CONTRIBUTION",
+          question: '18B. AMOUNT OF GOVERNMENT OR EMPLOYER CONTRIBUTION',
           limit: 10
         },
         'placeOfRemains' => {
@@ -110,7 +111,7 @@ module PdfFill
         'burialCost' => {
           key: 'form1[0].#subform[37].COST_OF_BURIAL[1]',
           limit: 12,
-          question: "13A. If VA Medical Center Death is checked, provide actual burial cost"
+          question: '13A. If VA Medical Center Death is checked, provide actual burial cost'
         },
         'veteranFullName' => {
           'first' => {
@@ -129,11 +130,11 @@ module PdfFill
         },
         'previousNames' => {
           key: 'form1[0].#subform[36].OTHER_NAME[0]',
-          question: "12. IF VETERAN SERVED UNDER NAME OTHER THAN THAT SHOWN IN ITEM 1, GIVE FULL NAME AND SERVICE RENDERED UNDER THAT NAME",
+          question: '12. IF VETERAN SERVED UNDER NAME OTHER THAN THAT SHOWN IN ITEM 1, GIVE FULL NAME AND SERVICE RENDERED UNDER THAT NAME',
           limit: 180
         },
         'burialDate' => {
-          key: 'form1[0].#subform[36].DATE_OF_BURIAL[0]',
+          key: 'form1[0].#subform[36].DATE_OF_BURIAL[0]'
         },
         'vaFileNumber' => {
           key: 'form1[0].#subform[36].VAFileNumber[0]'
@@ -210,7 +211,7 @@ module PdfFill
           },
           'other' => {
             limit: 58,
-            question: "8. RELATIONSHIP OF CLAIMANT TO DECEASED VETERAN",
+            question: '8. RELATIONSHIP OF CLAIMANT TO DECEASED VETERAN',
             key: 'form1[0].#subform[36].OTHER_SPECIFY[0]'
           }
         },
@@ -219,12 +220,12 @@ module PdfFill
           first_key: 'rank',
           'dateRangeStart' => {
             key: "toursOfDuty.dateRangeStart[#{ITERATOR}]",
-            question: "11A. ENTERED SERVICE (date)"
+            question: '11A. ENTERED SERVICE (date)'
           },
           'placeOfEntry' => {
             key: "toursOfDuty.placeOfEntry[#{ITERATOR}]",
             limit: 14,
-            question: "11A. ENTERED SERVICE (place)"
+            question: '11A. ENTERED SERVICE (place)'
           },
           'serviceNumber' => {
             key: "toursOfDuty.serviceNumber[#{ITERATOR}]",
@@ -233,23 +234,23 @@ module PdfFill
           },
           'dateRangeEnd' => {
             key: "toursOfDuty.dateRangeEnd[#{ITERATOR}]",
-            question: "11C. SEPARATED FROM SERVICE (date)"
+            question: '11C. SEPARATED FROM SERVICE (date)'
           },
           'placeOfSeparation' => {
             key: "toursOfDuty.placeOfSeparation[#{ITERATOR}]",
-            question: "11C. SEPARATED FROM SERVICE (place)",
+            question: '11C. SEPARATED FROM SERVICE (place)',
             limit: 15
           },
           'rank' => {
             key: "toursOfDuty.rank[#{ITERATOR}]",
-            question: "11D. GRADE, RANK OR RATING, ORGANIZATION AND BRANCH OF SERVICE",
+            question: '11D. GRADE, RANK OR RATING, ORGANIZATION AND BRANCH OF SERVICE',
             limit: 31
           }
         },
-        "placeOfBirth" => {
+        'placeOfBirth' => {
           key: 'form1[0].#subform[36].PLACE_OF_BIRTH[0]',
           limit: 71,
-          question: "9B. PLACE OF BIRTH"
+          question: '9B. PLACE OF BIRTH'
         },
         'veteranDateOfBirth' => {
           key: 'form1[0].#subform[36].DATE_OF_BIRTH[0]'
@@ -290,7 +291,7 @@ module PdfFill
             key: 'form1[0].#subform[36].VeteransSocialSecurityNumber_LastFourNumbers[0]'
           }
         }
-      }
+      }.freeze
 
       def split_ssn
         ssn = @form_data['veteranSocialSecurityNumber']

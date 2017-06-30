@@ -2,7 +2,6 @@
 require 'rails_helper'
 require 'pdf_fill/forms/va21p530'
 
-
 def basic_class
   PdfFill::Forms::VA21P530.new({})
 end
@@ -37,7 +36,7 @@ describe PdfFill::Forms::VA21P530 do
           },
           :rel
         ],
-        {"foo"=>true}
+        { 'foo' => true }
       ]
     ]
   )
@@ -52,23 +51,23 @@ describe PdfFill::Forms::VA21P530 do
       ],
       [
         [[{
-          "dateRange" => {
-            "from" => "2012-06-01",
-            "to" => "2013-07-01"
+          'dateRange' => {
+            'from' => '2012-06-01',
+            'to' => '2013-07-01'
           },
-          "serviceBranch" => "army1",
-          "rank" => "rank1",
-          "serviceNumber" => "sn1",
-          "placeOfEntry" => "placeOfEntry1",
-          "placeOfSeparation" => "place1"
+          'serviceBranch' => 'army1',
+          'rank' => 'rank1',
+          'serviceNumber' => 'sn1',
+          'placeOfEntry' => 'placeOfEntry1',
+          'placeOfSeparation' => 'place1'
         }]],
-        [{"serviceBranch"=>"army1",
-          "rank"=>"army1, rank1",
-          "serviceNumber"=>"sn1",
-          "placeOfEntry"=>"placeOfEntry1",
-          "placeOfSeparation"=>"place1",
-          "dateRangeStart"=>"2012-06-01",
-          "dateRangeEnd"=>"2013-07-01"}]
+        [{ 'serviceBranch' => 'army1',
+           'rank' => 'army1, rank1',
+           'serviceNumber' => 'sn1',
+           'placeOfEntry' => 'placeOfEntry1',
+           'placeOfSeparation' => 'place1',
+           'dateRangeStart' => '2012-06-01',
+           'dateRangeEnd' => '2013-07-01' }]
       ]
     ]
   )
@@ -86,7 +85,7 @@ describe PdfFill::Forms::VA21P530 do
           { phone: '1112223333' },
           :phone
         ],
-        {"first"=>"111", "second"=>"222", "third"=>"3333"}
+        { 'first' => '111', 'second' => '222', 'third' => '3333' }
       ]
     ]
   )
@@ -105,8 +104,8 @@ describe PdfFill::Forms::VA21P530 do
     context 'with a regular location of death' do
       let(:form_data) do
         {
-          "locationOfDeath" => {
-            "location" => "vaMedicalCenter"
+          'locationOfDeath' => {
+            'location' => 'vaMedicalCenter'
           }
         }
       end
@@ -119,9 +118,9 @@ describe PdfFill::Forms::VA21P530 do
     context 'with a custom location of death' do
       let(:form_data) do
         {
-          "locationOfDeath" => {
-            "location" => "other",
-            "other" => 'foo'
+          'locationOfDeath' => {
+            'location' => 'other',
+            'other' => 'foo'
           }
         }
       end
@@ -154,7 +153,7 @@ describe PdfFill::Forms::VA21P530 do
         subject
 
         expect(class_form_data).to eq(
-          {"burialAllowanceRequested"=>{"value"=>"foo", "checkbox"=>{"foo"=>true}}}
+          'burialAllowanceRequested' => { 'value' => 'foo', 'checkbox' => { 'foo' => true } }
         )
       end
     end
@@ -179,7 +178,7 @@ describe PdfFill::Forms::VA21P530 do
       end
 
       it 'should split the ssn' do
-        expect(subject).to eq({"first"=>"111", "second"=>"22", "third"=>"3333"})
+        expect(subject).to eq('first' => '111', 'second' => '22', 'third' => '3333')
       end
     end
   end
@@ -217,10 +216,8 @@ describe PdfFill::Forms::VA21P530 do
       end
 
       it 'should extract middle initial' do
-        expect(subject).to eq({
-          'middle' => 'middle',
-          'middleInitial' => 'm'
-        })
+        expect(subject).to eq('middle' => 'middle',
+                              'middleInitial' => 'm')
       end
     end
   end
