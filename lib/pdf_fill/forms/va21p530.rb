@@ -63,10 +63,16 @@ module PdfFill
         'noBenefitsUnclaimedRemains' => {
           key: 'form1[0].#subform[37].NO4[4]'
         },
-        'hasIncurredExpenses' => {
+        'hasPlotAllowance' => {
+          key: 'form1[0].#subform[37].YES4[1]'
+        },
+        'noPlotAllowance' => {
+          key: 'form1[0].#subform[37].NO4[1]'
+        },
+        'hasBurialAllowance' => {
           key: 'form1[0].#subform[37].YES4[3]'
         },
-        'noIncurredExpenses' => {
+        'noBurialAllowance' => {
           key: 'form1[0].#subform[37].NO4[3]'
         },
         'hasPreviouslyReceivedAllowance' => {
@@ -394,7 +400,7 @@ module PdfFill
         %w(
           previouslyReceivedAllowance
           burialAllowance
-          incurredExpenses
+          plotAllowance
           benefitsUnclaimedRemains
           federalCemetery
           stateCemetery

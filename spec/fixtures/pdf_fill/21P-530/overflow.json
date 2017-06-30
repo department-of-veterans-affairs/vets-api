@@ -63,6 +63,7 @@
   "previouslyReceivedAllowance": false,
   "incurredExpenses": false,
   "burialCost": 9999999999999999999,
+  "plotAllowance": false,
   "amountGovtContribution": 9999999999999999999,
   "amountIncurred": 9999999999999999999,
   "stateCemetery": false,
