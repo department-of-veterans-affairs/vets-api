@@ -50,6 +50,7 @@ gem 'memoist'
 gem 'date_validator'
 gem 'nokogiri'
 gem 'swagger-blocks'
+gem 'aasm'
 
 # Amazon Linux's system `json` gem causes conflicts, but
 # `multi_json` will prefer `oj` if installed, so include it here.
@@ -123,4 +124,3 @@ group :development do
   gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
   gem 'guard-rubocop'
 end
-

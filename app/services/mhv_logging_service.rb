@@ -2,7 +2,7 @@
 require 'mhv_logging/client'
 class MHVLoggingService
   def self.login(current_user)
-    if current_user.can_access_mhv? && !current_user.mhv_last_signed_in
+    if current_user.mhv_account.upgraded? && !current_user.mhv_last_signed_in
       MHV::AuditLoginJob.perform_async(current_user.uuid)
       true
     else
@@ -11,7 +11,7 @@ class MHVLoggingService
   end
 
   def self.logout(current_user)
-    if current_user.can_access_mhv? && current_user.mhv_last_signed_in
+    if current_user.mhv_account.upgraded? && current_user.mhv_last_signed_in
       MHV::AuditLogoutJob.perform_async(current_user.uuid, current_user.mhv_correlation_id)
       true
     else
