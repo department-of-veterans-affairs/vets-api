@@ -334,13 +334,17 @@
     "socialSecurity": 1,
     "civilService": 3,
     "blackLung": 5,
+    "railroad": 0,
+    "serviceRetirement": 0,
     "ssi": 7
   },
   "spouseMonthlyIncome": {
     "socialSecurity": 2,
     "civilService": 11,
     "railroad": 4,
+    "blackLung": 0,
     "serviceRetirement": 6,
+    "ssi": 0,
     "additionalSources": [{
       "name": "name1",
       "amount": 8
@@ -348,15 +352,17 @@
   },
   "netWorth": {
     "bank": 1,
+    "stocks": 4,
     "interestBank": 2,
     "ira": 3,
-    "otherProperty": 6
+    "realProperty": 0
   },
   "spouseNetWorth": {
     "bank": 9,
+    "interestBank": 0,
+    "ira": 0,
     "stocks": 4,
-    "realProperty": 5,
-    "otherProperty": 7
+    "realProperty": 5
   },
   "expectedIncome": {
     "salary": 1,
@@ -370,6 +376,7 @@
   },
   "spouseExpectedIncome": {
     "salary": 2,
+    "interest": 0,
     "additionalSources": [
       {
         "name": "name2",
