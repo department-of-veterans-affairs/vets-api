@@ -16,13 +16,13 @@ module V0
 
     def klass
       case form_id
-      when '21-527EZ', '21P-530'
+      when '21P-527EZ', '21P-530'
         PersistentAttachment::PensionBurial
       end
     end
 
     def form_id
-      (params[:form_id] || '21p-530').upcase # TODO: Remove default once frontend sends it.
+      params[:form_id].upcase
     end
   end
 end
