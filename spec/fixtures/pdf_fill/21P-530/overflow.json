@@ -64,6 +64,7 @@
   "incurredExpenses": false,
   "burialCost": 9999999999999999999,
   "burialAllowanceRequested": "nonService",
+  "placeOfRemains": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "previousNames": [
     {
       "first": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
