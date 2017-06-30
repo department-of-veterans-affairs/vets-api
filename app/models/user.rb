@@ -8,6 +8,8 @@ require 'evss/auth_headers'
 require 'saml/user_attributes'
 
 class User < Common::RedisStore
+  UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
+
   redis_store REDIS_CONFIG['user_store']['namespace']
   redis_ttl REDIS_CONFIG['user_store']['each_ttl']
   redis_key :uuid
@@ -76,6 +78,14 @@ class User < Common::RedisStore
 
   def can_access_appeals?
     loa3? && ssn.present?
+  end
+
+  def can_save_partial_forms?
+    loa3? && ssn.present? && ssn.starts_with?(UNALLOCATED_SSN_PREFIX)
+  end
+
+  def can_access_prefill_data?
+    loa3? && ssn.present? && ssn.starts_with?(UNALLOCATED_SSN_PREFIX)
   end
 
   def self.from_merged_attrs(existing_user, new_user)

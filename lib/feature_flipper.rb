@@ -7,8 +7,4 @@ module FeatureFlipper
   def self.staging_email?
     Settings.reports.server.include?('stage')
   end
-
-  def self.enable_prefill?(user)
-    (user&.ssn).present?
-  end
 end
