@@ -2,7 +2,6 @@ binaries:
   # you can specify a full path in settings.local.yml if necessary
   pdftk: pdftk
   clamdscan: /usr/bin/clamdscan
-  pdftk: pdftk
 
 hostname: www.example.com
 
