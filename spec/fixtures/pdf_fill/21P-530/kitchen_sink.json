@@ -21,6 +21,7 @@
       "last": "last2"
     }
   ],
+  "stateCemetery": false,
   "federalCemetery": false,
   "placeOfRemains": "placeOfRemains",
   "benefitsUnclaimedRemains": false,

@@ -29,6 +29,12 @@ module PdfFill
           limit: 80,
           question: "16. PLACE OF BURIAL OR LOCATION OF DECEASED VETERAN'S REMAINS"
         },
+        'hasStateCemetery' => {
+          key: 'form1[0].#subform[37].YES4[2]'
+        },
+        'noStateCemetery' => {
+          key: 'form1[0].#subform[37].NO4[2]'
+        },
         'hasFederalCemetery' => {
           key: 'form1[0].#subform[37].YES4[0]'
         },
@@ -374,6 +380,7 @@ module PdfFill
           incurredExpenses
           benefitsUnclaimedRemains
           federalCemetery
+          stateCemetery
         ).each do |attr|
           expand_checkbox_in_place(@form_data, attr)
         end
