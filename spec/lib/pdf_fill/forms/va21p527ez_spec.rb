@@ -561,7 +561,6 @@ describe PdfFill::Forms::VA21P527EZ do
           {
             children: [
               {
-                'dependentRelationship' => 'child',
                 'childFullName' => {
                   'first' => 'outside1',
                   'last' => 'Olson'
@@ -576,7 +575,6 @@ describe PdfFill::Forms::VA21P527EZ do
                 'childNotInHousehold' => true
               },
               {
-                'dependentRelationship' => 'child',
                 'childFullName' => {
                   'first' => 'outside1',
                   'last' => 'Olson'
@@ -593,35 +591,24 @@ describe PdfFill::Forms::VA21P527EZ do
           },
           :children
         ],
-        { :children =>
-  [{ 'dependentRelationship' => 'child',
-     'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21232, USA',
-     'childNotInHousehold' => true,
-     'personWhoLivesWithChild' => nil },
-   { 'dependentRelationship' => 'child',
-     'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21233, USA',
-     'personWhoLivesWithChild' => nil }],
-          'children' =>
-  [{ 'dependentRelationship' => 'child',
-     'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21232, USA',
-     'childNotInHousehold' => true, 'personWhoLivesWithChild' => nil },
-   { 'dependentRelationship' => 'child',
-     'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21233, USA',
-     'personWhoLivesWithChild' => nil }],
-          'outsideChildren' =>
-  [{ 'dependentRelationship' => 'child',
-     'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21232, USA',
-     'childNotInHousehold' => true,
-     'personWhoLivesWithChild' => nil },
-   { 'dependentRelationship' => 'child',
-     'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21233, USA',
-     'personWhoLivesWithChild' => nil }] }
+        {:children=>
+  [{"childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
+    "childAddress"=>"str1, city1, MD, 21232, USA",
+    "childNotInHousehold"=>true,
+    "personWhoLivesWithChild"=>nil},
+   {"childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
+    "childAddress"=>"str1, city1, MD, 21233, USA",
+    "personWhoLivesWithChild"=>nil}],
+ "children"=>[],
+ "outsideChildren"=>
+  [{"childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
+    "childAddress"=>"str1, city1, MD, 21232, USA",
+    "childNotInHousehold"=>true,
+    "personWhoLivesWithChild"=>nil},
+   {"childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
+    "childAddress"=>"str1, city1, MD, 21233, USA",
+    "personWhoLivesWithChild"=>nil}]}
+
       ]
     ]
   )
