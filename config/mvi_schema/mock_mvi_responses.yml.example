@@ -138,7 +138,7 @@ find_candidate:
       postal_code: '35763'
       country: USA
       street: 110 KIRKWOOD DR SE
-    :home_phone: 
+    :home_phone:
     :icn: 1012643432V477452
     :mhv_ids:
     - '10055461'
@@ -251,8 +251,8 @@ find_candidate:
     :ssn: '796148937'
     :address: !ruby/object:MVI::Models::MviProfileAddress
       city: PARIS
-      state: 
-      postal_code: 
+      state:
+      postal_code:
       country: USA
       street: 12 INTER DR.
     :home_phone: "(703)999-1919"
@@ -437,7 +437,7 @@ find_candidate:
       postal_code: '22032'
       country: USA
       street: 1407 N FAIRFAX AVE
-    :home_phone: 
+    :home_phone:
     :icn: 1012832612V245638
     :mhv_ids: []
     :vha_facility_ids:
@@ -2144,8 +2144,8 @@ find_candidate:
     :birth_date: '19711208'
     :ssn: '796231077'
     :address: !ruby/object:MVI::Models::MviProfileAddress
-      city: 
-      state: 
+      city:
+      state:
       postal_code: '22180'
       country: USA
       street: SUITE 300
@@ -2323,7 +2323,7 @@ find_candidate:
       postal_code: 85215-1627
       country: USA
       street: 2710 N RICARDO
-    :home_phone: 
+    :home_phone:
     :icn: 1012845659V326366
     :mhv_ids: []
     :vha_facility_ids: []
@@ -2580,7 +2580,7 @@ find_candidate:
     - Theodore
     - Matthew
     :family_name: Roberts
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19860228'
     :ssn: '796019724'
@@ -2836,7 +2836,7 @@ find_candidate:
     - Jim
     - W
     :family_name: Scott
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19590704'
     :ssn: '796128746'
@@ -3891,7 +3891,7 @@ find_candidate:
     - Vicki
     - A
     :family_name: Schmidt
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19231224'
     :ssn: '796164121'
@@ -3901,7 +3901,7 @@ find_candidate:
       postal_code: '29401'
       country: USA
       street: Shrek''s Swamp
-    :home_phone: 
+    :home_phone:
     :icn: 1012667151V535875
     :mhv_ids: []
     :vha_facility_ids: []
@@ -3912,7 +3912,7 @@ find_candidate:
     - Kathy
     - Marie
     :family_name: Rogers
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19860726'
     :ssn: '796086306'
@@ -3933,8 +3933,8 @@ find_candidate:
     - Arthur
     - L
     :family_name: Thomas
-    :suffix: 
-    :gender: 
+    :suffix:
+    :gender:
     :birth_date: '19570222'
     :ssn: '796330157'
     :address: !ruby/object:MVI::Models::MviProfileAddress
@@ -3948,18 +3948,18 @@ find_candidate:
     :mhv_ids: []
     :vha_facility_ids: []
     :edipi: '1242991873'
-    :participant_id: 
+    :participant_id:
   '796056674':
     :given_names:
     - Dianne
     - B
     :family_name: Scott
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19690406'
     :ssn: '796056674'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012592966V272192
     :mhv_ids: []
     :vha_facility_ids:
@@ -4022,7 +4022,7 @@ find_candidate:
     :given_names:
     - Jimmy
     :family_name: Mhvpatone
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19690212'
     :ssn: '666859632'
@@ -4032,20 +4032,20 @@ find_candidate:
       postal_code: '23233'
       country: USA
       street: 123 FAKE STREET
-    :home_phone: 
+    :home_phone:
     :icn: 1012996209V794155
     :mhv_ids:
     - '14442988'
     :vha_facility_ids:
     - '989'
     - '648'
-    :edipi: 
-    :participant_id: 
+    :edipi:
+    :participant_id:
   '666741478':
     :given_names:
     - Burt
     :family_name: Mhvpattwo
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19620312'
     :ssn: '666741478'
@@ -4055,20 +4055,20 @@ find_candidate:
       postal_code: '23233'
       country: USA
       street: 123 FAKE STREET
-    :home_phone: 
+    :home_phone:
     :icn: 1012996210V640082
     :mhv_ids:
     - '14442925'
     :vha_facility_ids:
     - '989'
     - '648'
-    :edipi: 
-    :participant_id: 
+    :edipi:
+    :participant_id:
   '666451254':
     :given_names:
     - Sabrina
     :family_name: Mhvpatthree
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19820425'
     :ssn: '666451254'
@@ -4078,20 +4078,20 @@ find_candidate:
       postal_code: '23233'
       country: USA
       street: 123 FAKE STREET
-    :home_phone: 
+    :home_phone:
     :icn: 1012996213V894859
     :mhv_ids:
     - '14442833'
     :vha_facility_ids:
     - '989'
     - '648'
-    :edipi: 
-    :participant_id: 
+    :edipi:
+    :participant_id:
   '666986547':
     :given_names:
     - Virginia
     :family_name: Mhvpatfour
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19600928'
     :ssn: '666986547'
@@ -4101,19 +4101,19 @@ find_candidate:
       postal_code: '23233'
       country: USA
       street: 123 FAKE STREET
-    :home_phone: 
+    :home_phone:
     :icn: 1012996215V259676
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
     - '648'
-    :edipi: 
-    :participant_id: 
+    :edipi:
+    :participant_id:
   '666216523':
     :given_names:
     - Hope
     :family_name: Mhvpatfive
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19740701'
     :ssn: '666216523'
@@ -4123,20 +4123,20 @@ find_candidate:
       postal_code: '23233'
       country: USA
       street: 123 FAKE STREET
-    :home_phone: 
+    :home_phone:
     :icn: 1012996216V038108
     :mhv_ids:
     - '14442951'
     :vha_facility_ids:
     - '989'
     - '648'
-    :edipi: 
-    :participant_id: 
+    :edipi:
+    :participant_id:
   '666951239':
     :given_names:
     - Barney
     :family_name: Mhvpatsix
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19600526'
     :ssn: '666951239'
@@ -4146,14 +4146,14 @@ find_candidate:
       postal_code: '23233'
       country: USA
       street: 123 FAKE STREET
-    :home_phone: 
+    :home_phone:
     :icn: 1012996217V161423
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
     - '648'
-    :edipi: 
-    :participant_id: 
+    :edipi:
+    :participant_id:
   '666127189':
     :given_names:
     - Charles
@@ -4224,12 +4224,12 @@ find_candidate:
     :given_names:
     - Cloris
     :family_name: Mhvpatten
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19490315'
     :ssn: '666986541'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012996222V703195
     :mhv_ids:
     - '14391252'
@@ -4237,18 +4237,18 @@ find_candidate:
     - '989'
     - 200MHS
     - '648'
-    :edipi: 
-    :participant_id: 
+    :edipi:
+    :participant_id:
   '666977412':
     :given_names:
     - Morgan
     :family_name: Mhvpattwenty
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19600511'
     :ssn: '666977412'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012996345V469794
     :mhv_ids:
     - '14391340'
@@ -4256,18 +4256,18 @@ find_candidate:
     - 200MHS
     - '989'
     - '648'
-    :edipi: 
-    :participant_id: 
+    :edipi:
+    :participant_id:
   '666337777':
     :given_names:
     - Douglass
     :family_name: Mhvpattwelve
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19660516'
     :ssn: '666337777'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012996226V257050
     :mhv_ids:
     - '14391187'
@@ -4275,18 +4275,18 @@ find_candidate:
     - '989'
     - 200MHS
     - '648'
-    :edipi: 
-    :participant_id: 
+    :edipi:
+    :participant_id:
   '666451921':
     :given_names:
     - Mary
     :family_name: Mhvpatthirteen
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19910325'
     :ssn: '666451921'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012996234V981295
     :mhv_ids:
     - '14391216'
@@ -4294,18 +4294,18 @@ find_candidate:
     - '989'
     - 200MHS
     - '648'
-    :edipi: 
-    :participant_id: 
+    :edipi:
+    :participant_id:
   '666202525':
     :given_names:
     - Robert
     :family_name: Mhvpatfourteen
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19680816'
     :ssn: '666202525'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012996236V525532
     :mhv_ids:
     - '14391236'
@@ -4313,18 +4313,18 @@ find_candidate:
     - '989'
     - 200MHS
     - '648'
-    :edipi: 
-    :participant_id: 
+    :edipi:
+    :participant_id:
   '666087411':
     :given_names:
     - Sarah
     :family_name: Mhvpatfifteen
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19620208'
     :ssn: '666087411'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012996237V250961
     :mhv_ids:
     - '14391271'
@@ -4332,60 +4332,60 @@ find_candidate:
     - '989'
     - 200MHS
     - '648'
-    :edipi: 
-    :participant_id: 
+    :edipi:
+    :participant_id:
   '666873096':
     :given_names:
     - Testone
     :family_name: Vetsez
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19450923'
     :ssn: '666873096'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012996225V521261
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
     - '648'
-    :edipi: 
-    :participant_id: 
+    :edipi:
+    :participant_id:
   '666410941':
     :given_names:
     - Testtwo
     :family_name: Vetsez
-    :suffix: 
+    :suffix:
     :gender: M
     :birth_date: '19500312'
     :ssn: '666410941'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012996227V035519
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
     - '648'
-    :edipi: 
-    :participant_id: 
+    :edipi:
+    :participant_id:
   '666994501':
     :given_names:
     - Testthree
     :family_name: Vetsez
-    :suffix: 
+    :suffix:
     :gender: F
     :birth_date: '19551123'
     :ssn: '666994501'
-    :address: 
-    :home_phone: 
+    :address:
+    :home_phone:
     :icn: 1012996228V160974
     :mhv_ids: []
     :vha_facility_ids:
     - '989'
     - '648'
-    :edipi: 
-    :participant_id: 
-  '500500237':
+    :edipi:
+    :participant_id:
+  '500500237': # Used by dev to test appeals-status (not in stage1a)
     :given_names:
     - Burnice
     :family_name: Upton
@@ -4395,7 +4395,7 @@ find_candidate:
     :ssn: '500500237'
     :address:
     :home_phone:
-    :icn:
+    :icn: '33991311612229264'
     :mhv_ids: []
     :vha_facility_ids: []
     :edipi:
