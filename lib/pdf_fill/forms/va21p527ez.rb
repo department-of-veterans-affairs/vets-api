@@ -550,9 +550,7 @@ module PdfFill
       end
 
       def expand_children(hash, key)
-        children = hash[key]&.find_all do |dependent|
-          dependent['dependentRelationship'] == 'child'
-        end
+        children = hash[key]
         return if children.blank?
 
         children.each do |child|
@@ -569,7 +567,7 @@ module PdfFill
 
         children_split = split_children(children)
 
-        hash['children'] = children
+        hash['children'] = children_split[:cohabiting]
         hash['outsideChildren'] = children_split[:outside]
 
         hash

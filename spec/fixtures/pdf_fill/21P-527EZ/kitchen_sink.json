@@ -137,13 +137,6 @@
         "first": "person3",
         "last": "Olson"
       },
-      "monthlyPayment": 3
-    },
-    {
-      "fullName": {
-        "first": "parent",
-        "last": "Olson"
-      },
       "otherExpenses": [
         {
           "amount": 3,
@@ -161,7 +154,8 @@
             "amount": 6
           }
         ]
-      }
+      },
+      "monthlyPayment": 3
     },
     {
       "childInHousehold": true,
