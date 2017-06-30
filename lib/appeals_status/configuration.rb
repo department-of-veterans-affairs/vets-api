@@ -24,6 +24,11 @@ module AppealsStatus
       Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: { verify: false }) do |conn|
         conn.use :breakers
         conn.request :json
+
+        # Uncomment this if you want curl command equivalent or response output to log
+        # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
+        # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
+
         conn.response :snakecase
         conn.response :raise_error, error_prefix: service_name
         conn.response :json_parser
