@@ -19,6 +19,14 @@ RSpec.describe 'in progress forms', type: :request do
     )
   end
 
+  context 'with a "bad" uuid' do
+    let(:user) { build(:loa3_user, uuid: 'cats-and-dogs') }
+    it 'logs and errow with sentry' do
+      expect(Rails.logger).to receive(:error).with(/cats-and-dogs/)
+      get v0_in_progress_forms_url, nil, auth_header
+    end
+  end
+
   describe '#index' do
     let!(:in_progress_form_edu) { FactoryGirl.create(:in_progress_form, form_id: '22-1990', user_uuid: user.uuid) }
     let!(:in_progress_form_hca) { FactoryGirl.create(:in_progress_form, form_id: '1010ez', user_uuid: user.uuid) }
