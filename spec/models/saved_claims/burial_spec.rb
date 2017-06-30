@@ -8,8 +8,7 @@ RSpec.describe SavedClaim::Burial do
 
   it_should_behave_like 'saved_claim'
 
-  it 'can generate a pdf' do
+  xit 'can generate a pdf' do
     instance.to_pdf
-    expect(true).to be(true)
   end
 end

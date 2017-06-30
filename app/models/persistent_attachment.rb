@@ -9,7 +9,6 @@ class PersistentAttachment < ActiveRecord::Base
   end
 
   def process
-    raise 'No Associated Claim!' unless saved_claim
     args = as_json.reject { |k, _v| k.to_s == 'file_data' }.deep_symbolize_keys
     args[:code] = saved_claim.confirmation_number
     args[:append_to_stamp] = saved_claim.confirmation_number

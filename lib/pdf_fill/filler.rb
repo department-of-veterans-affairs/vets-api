@@ -7,7 +7,7 @@ module PdfFill
   module Filler
     module_function
 
-    PDF_FORMS = PdfForms.new('pdftk')
+    PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
     FORM_CLASSES = {
       '21P-527EZ' => PdfFill::Forms::VA21P527EZ,
       '21P-530' => PdfFill::Forms::VA21P530

@@ -74,6 +74,8 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
       context ' logout_response is success' do
         before do
+          mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
+          allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(succesful_logout_response)
         end
         it 'redirects to success and destroy the session' do

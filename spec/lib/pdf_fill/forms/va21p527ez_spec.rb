@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'spec_helper'
+require 'rails_helper'
 require 'pdf_fill/forms/va21p527ez'
 
 def basic_class
@@ -569,7 +569,7 @@ describe PdfFill::Forms::VA21P527EZ do
                 'childAddress' => {
                   'city' => 'city1',
                   'country' => 'USA',
-                  'postalCode' => '21231',
+                  'postalCode' => '21232',
                   'state' => 'MD',
                   'street' => 'str1'
                 },
@@ -584,7 +584,7 @@ describe PdfFill::Forms::VA21P527EZ do
                 'childAddress' => {
                   'city' => 'city1',
                   'country' => 'USA',
-                  'postalCode' => '21231',
+                  'postalCode' => '21233',
                   'state' => 'MD',
                   'street' => 'str1'
                 }
@@ -596,23 +596,31 @@ describe PdfFill::Forms::VA21P527EZ do
         { :children =>
   [{ 'dependentRelationship' => 'child',
      'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21231, USA',
+     'childAddress' => 'str1, city1, MD, 21232, USA',
      'childNotInHousehold' => true,
      'personWhoLivesWithChild' => nil },
    { 'dependentRelationship' => 'child',
      'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21231, USA',
+     'childAddress' => 'str1, city1, MD, 21233, USA',
      'personWhoLivesWithChild' => nil }],
-          'children' => [],
+          'children' =>
+  [{ 'dependentRelationship' => 'child',
+     'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
+     'childAddress' => 'str1, city1, MD, 21232, USA',
+     'childNotInHousehold' => true, 'personWhoLivesWithChild' => nil },
+   { 'dependentRelationship' => 'child',
+     'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
+     'childAddress' => 'str1, city1, MD, 21233, USA',
+     'personWhoLivesWithChild' => nil }],
           'outsideChildren' =>
   [{ 'dependentRelationship' => 'child',
      'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21231, USA',
+     'childAddress' => 'str1, city1, MD, 21232, USA',
      'childNotInHousehold' => true,
      'personWhoLivesWithChild' => nil },
    { 'dependentRelationship' => 'child',
      'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21231, USA',
+     'childAddress' => 'str1, city1, MD, 21233, USA',
      'personWhoLivesWithChild' => nil }] }
       ]
     ]

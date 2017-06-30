@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 # rubocop:disable Metrics/ClassLength
+
+require 'pdf_fill/hash_converter'
+
 module PdfFill
   module Forms
     class VA21P527EZ < FormBase
@@ -566,7 +569,7 @@ module PdfFill
 
         children_split = split_children(children)
 
-        hash['children'] = children_split[:cohabiting]
+        hash['children'] = children
         hash['outsideChildren'] = children_split[:outside]
 
         hash

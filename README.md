@@ -38,6 +38,8 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd .
    - `brew install redis`
    - Follow post-install instructions to enable Redis on startup. Otherwise,
     launch it manually with `brew services start redis`.
+1. Install ImageMagick
+   - `brew install imagemagick`
 1. Install ClamAV
   - `brew install clamav`
   - Take note of the the post-install instructions `To finish installation & run clamav

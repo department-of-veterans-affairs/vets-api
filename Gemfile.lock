@@ -11,6 +11,8 @@ GEM
   remote: https://rubygems.org/
   specs:
     Ascii85 (1.0.2)
+    aasm (4.12.0)
+      concurrent-ruby (~> 1.0)
     actionmailer (4.2.7.1)
       actionpack (= 4.2.7.1)
       actionview (= 4.2.7.1)
@@ -216,6 +218,7 @@ GEM
       mime-types-data (~> 3.2015)
     mime-types-data (3.2016.0521)
     mimemagic (0.3.2)
+    mini_magick (4.7.0)
     mini_portile2 (2.2.0)
     minitest (5.10.2)
     multi_json (1.12.1)
@@ -435,6 +438,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  aasm
   active_model_serializers
   apivore
   attr_encrypted
@@ -470,6 +474,7 @@ DEPENDENCIES
   iconv
   json-schema
   memoist
+  mini_magick
   net-sftp
   nokogiri
   oj

@@ -8,7 +8,9 @@ RSpec.describe 'Claim Document Attachment', type: :request do
     )
   end
   it 'should upload a file' do
-    params = { file: file, form_type: '21-527EZ' }
+    allow(ClamScan::Client).to receive(:scan)
+      .and_return(instance_double('ClamScan::Response', safe?: true))
+    params = { file: file, form_id: '21P-527EZ' }
     expect do
       post '/v0/claim_documents', params
     end.to change(PersistentAttachment, :count).by(1)

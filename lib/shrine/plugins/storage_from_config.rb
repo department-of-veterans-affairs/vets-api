@@ -18,17 +18,19 @@ class Shrine
 
         def storage_from_config(name)
           config = opts[:storage_settings]
-          @storage_from_config ||=
+          @storage_from_config ||= {}
+          @storage_from_config[name.to_sym] ||=
             case config.type
             when 'memory'
               Shrine::Storage::Memory.new
             when 'local'
               Shrine::Storage::FileSystem.new('tmp', prefix: File.join('uploads', config.path.to_s, name.to_s))
             when 's3'
-              sanitized_config = config.to_h.delete_if { |k, _| k == :type || k == :path }
+              sanitized_config = config.to_h.delete_if { |k, _| k == :type || k == :path || k == :upload_options }
               Shrine::Storage::S3.new(
                 bucket: config.bucket,
                 prefix: File.join(config.path.to_s, name.to_s),
+                upload_options: config[:upload_options],
                 **sanitized_config
               )
             end
