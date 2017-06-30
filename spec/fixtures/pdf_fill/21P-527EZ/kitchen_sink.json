@@ -90,6 +90,11 @@
         }
       ],
       "netWorth": {
+        "bank": 0,
+        "interestBank": 0,
+        "ira": 0,
+        "stocks": 0,
+        "realProperty": 0,
         "additionalSources": [
           {
             "name": "name1",
@@ -152,6 +157,8 @@
         }
       ],
       "expectedIncome": {
+        "salary": 0,
+        "interest": 0,
         "additionalSources": [
           {
             "name": "name3",
@@ -266,12 +273,17 @@
   "monthlyIncome": {
     "socialSecurity": 1,
     "civilService": 3,
+    "railroad": 0,
+    "serviceRetirement": 0,
     "blackLung": 5,
     "ssi": 7
   },
   "spouseMonthlyIncome": {
     "socialSecurity": 2,
+    "civilService": 0,
     "railroad": 4,
+    "blackLung": 0,
+    "ssi": 0,
     "serviceRetirement": 6,
     "additionalSources": [{
       "name": "name1",
@@ -281,14 +293,20 @@
   "netWorth": {
     "bank": 1,
     "interestBank": 2,
+    "stocks": 0,
+    "realProperty": 0,
     "ira": 3
   },
   "spouseNetWorth": {
+    "bank": 0,
+    "interestBank": 0,
+    "ira": 0,
     "stocks": 4,
     "realProperty": 5
   },
   "expectedIncome": {
     "salary": 1,
+    "interest": 0,
     "additionalSources": [
       {
         "name": "name1",
@@ -299,6 +317,7 @@
   },
   "spouseExpectedIncome": {
     "salary": 2,
+    "interest": 0,
     "additionalSources": [
       {
         "name": "name2",
