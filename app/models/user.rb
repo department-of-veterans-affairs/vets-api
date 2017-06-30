@@ -78,6 +78,14 @@ class User < Common::RedisStore
     loa3? && ssn.present?
   end
 
+  def can_save_partial_forms?
+    loa3?
+  end
+
+  def can_access_prefill_data?
+    loa3?
+  end
+
   def self.from_merged_attrs(existing_user, new_user)
     # we want to always use the more recent attrs so long as they exist
     attrs = new_user.attributes.map do |key, val|

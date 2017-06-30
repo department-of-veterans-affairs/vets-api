@@ -154,7 +154,7 @@ RSpec.describe 'Messages Integration', type: :request do
     let(:mhv_account) { double('mhv_account', ineligible?: true, needs_terms_acceptance?: false, upgraded?: true) }
     let(:current_user) { build(:loa1_user) }
 
-    it 'gives me a 401' do
+    it 'gives me a 403' do
       get "/v0/messaging/health/messages/#{message_id}"
 
       expect(response).not_to be_success
