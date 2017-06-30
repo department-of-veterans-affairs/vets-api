@@ -21,6 +21,7 @@
       "last": "last2"
     }
   ],
+  "amountGovtContribution": 1,
   "govtContributions": false,
   "stateCemetery": false,
   "federalCemetery": false,

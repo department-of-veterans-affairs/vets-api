@@ -24,6 +24,11 @@ module PdfFill
             }
           }
         },
+        'amountGovtContribution' => {
+          key: 'form1[0].#subform[37].AMOUNT[0]',
+          question: "18B. AMOUNT OF GOVERNMENT OR EMPLOYER CONTRIBUTION",
+          limit: 10
+        },
         'placeOfRemains' => {
           key: 'form1[0].#subform[37].PLACE_OF_DEATH[1]',
           limit: 80,
