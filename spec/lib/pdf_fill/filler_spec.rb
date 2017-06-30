@@ -1,7 +1,6 @@
 require 'rails_helper'
 # frozen_string_literal: true
 require 'pdf_fill/filler'
-# TODO: remove parents
 
 describe PdfFill::Filler do
   include SchemaMatchers
