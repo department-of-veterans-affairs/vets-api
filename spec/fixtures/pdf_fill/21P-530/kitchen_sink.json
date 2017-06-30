@@ -23,6 +23,7 @@
   ],
   "amountGovtContribution": 1,
   "amountIncurred": 2,
+  "officialPosition": "officialPosition",
   "govtContributions": false,
   "stateCemetery": false,
   "federalCemetery": false,

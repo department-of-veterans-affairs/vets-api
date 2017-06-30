@@ -69,6 +69,9 @@ module PdfFill
         'noPlotAllowance' => {
           key: 'form1[0].#subform[37].NO4[1]'
         },
+        'officialPosition' => {
+          key: 'officialPosition'
+        },
         'hasBurialAllowance' => {
           key: 'form1[0].#subform[37].YES4[3]'
         },
