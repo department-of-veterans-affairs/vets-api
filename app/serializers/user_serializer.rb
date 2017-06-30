@@ -69,7 +69,7 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def prefills_available
-    FeatureFlipper.enable_prefill?(object) ? FormProfile::MAPPINGS : []
+    object.can_access_prefill_data? ? FormProfile::MAPPINGS : []
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
@@ -89,6 +89,9 @@ class UserSerializer < ActiveModel::Serializer
     service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
     service_list << BackendServices::APPEALS_STATUS if beta_enabled?(object.uuid, 'appeals_status') &&
                                                        object.can_access_appeals?
+
+    service_list << BackendServices::SAVE_IN_PROGRESS if object.can_save_partial_forms?
+    service_list << BackendServices::FORM_PREFILL if object.can_access_prefill_data?
     service_list
   end
 end

@@ -35,7 +35,9 @@ RSpec.describe 'Fetching user data', type: :request do
           BackendServices::USER_PROFILE,
           BackendServices::RX,
           BackendServices::MESSAGING,
-          BackendServices::HEALTH_RECORDS
+          BackendServices::HEALTH_RECORDS,
+          BackendServices::FORM_PREFILL,
+          BackendServices::SAVE_IN_PROGRESS
         ].sort
       )
     end
