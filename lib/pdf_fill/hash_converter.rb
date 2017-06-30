@@ -50,6 +50,7 @@ module PdfFill
     end
 
     def add_to_extras(key_data, v, i)
+      return if v.blank?
       text_prefix = key_data.try(:[], :question)
       return if text_prefix.blank?
 
