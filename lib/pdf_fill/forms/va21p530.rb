@@ -373,6 +373,7 @@ module PdfFill
           burialAllowance
           incurredExpenses
           benefitsUnclaimedRemains
+          federalCemetery
         ).each do |attr|
           expand_checkbox_in_place(@form_data, attr)
         end
