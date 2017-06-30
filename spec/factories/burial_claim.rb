@@ -12,9 +12,9 @@ FactoryGirl.define do
         deathDate: '1989-12-13',
         veteranSocialSecurityNumber: '111223333',
         claimantAddress: {
-          country: 'USA',
+          country: 'US',
           state: 'CA',
-          postalCode: '90210',
+          postalCode1: '90210',
           street: '123 Main St',
           city: 'Anytown'
         }
