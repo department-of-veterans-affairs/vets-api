@@ -24,6 +24,11 @@ module PdfFill
             }
           }
         },
+        'amountIncurred' => {
+          key: 'form1[0].#subform[37].COST_OF_BURIAL[0]',
+          question: "19. EXPENSES INCURED FOR THE TRANSPORTATION OF THE VETERAN'S REMAINS FROM THE PLACE OF DEATH TO THE FINAL RESTING PLACE",
+          limit: 12
+        },
         'amountGovtContribution' => {
           key: 'form1[0].#subform[37].AMOUNT[0]',
           question: "18B. AMOUNT OF GOVERNMENT OR EMPLOYER CONTRIBUTION",

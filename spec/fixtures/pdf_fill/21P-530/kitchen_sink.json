@@ -22,6 +22,7 @@
     }
   ],
   "amountGovtContribution": 1,
+  "amountIncurred": 2,
   "govtContributions": false,
   "stateCemetery": false,
   "federalCemetery": false,
