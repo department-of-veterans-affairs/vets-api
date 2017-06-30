@@ -8,7 +8,4 @@ class SavedClaim::Burial < SavedClaim
   def regional_office
     PensionBurial::ProcessingOffice.address_for(open_struct_form.claimantAddress.postalCode)
   end
-
-  def to_pdf
-  end
 end
