@@ -80,6 +80,12 @@
         "last": "Olson"
       },
       "monthlyIncome": {
+        "socialSecurity": 0,
+        "civilService": 0,
+        "railroad": 0,
+        "blackLung": 0,
+        "serviceRetirement": 0,
+        "ssi": 0,
         "additionalSources": [
           {
             "name": "name2",
@@ -92,6 +98,11 @@
         ]
       },
       "netWorth": {
+        "bank": 0,
+        "interestBank": 0,
+        "ira": 0,
+        "stocks": 0,
+        "realProperty": 0,
         "additionalSources": [
           {
             "name": "name1",
