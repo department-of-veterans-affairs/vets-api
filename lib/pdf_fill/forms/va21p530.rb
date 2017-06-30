@@ -69,10 +69,10 @@ module PdfFill
         'noIncurredExpenses' => {
           key: 'form1[0].#subform[37].NO4[3]'
         },
-        'hasBurialAllowance' => {
+        'hasPreviouslyReceivedAllowance' => {
           key: 'form1[0].#subform[37].YES2[0]'
         },
-        'noBurialAllowance' => {
+        'noPreviouslyReceivedAllowance' => {
           key: 'form1[0].#subform[37].NO2[0]'
         },
         'locationOfDeath' => {
@@ -392,6 +392,7 @@ module PdfFill
         expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
 
         %w(
+          previouslyReceivedAllowance
           burialAllowance
           incurredExpenses
           benefitsUnclaimedRemains

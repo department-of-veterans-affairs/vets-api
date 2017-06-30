@@ -60,7 +60,7 @@
     }
   ],
   "benefitsUnclaimedRemains": false,
-  "burialAllowance": false,
+  "previouslyReceivedAllowance": false,
   "incurredExpenses": false,
   "burialCost": 9999999999999999999,
   "amountGovtContribution": 9999999999999999999,

@@ -29,7 +29,7 @@
   "placeOfRemains": "placeOfRemains",
   "benefitsUnclaimedRemains": false,
   "incurredExpenses": false,
-  "burialAllowance": false,
+  "previouslyReceivedAllowance": false,
   "burialCost": 1,
   "burialAllowanceRequested": "nonService",
   "toursOfDuty": [
