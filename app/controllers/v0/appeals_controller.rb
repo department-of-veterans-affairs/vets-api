@@ -18,7 +18,7 @@ module V0
     # This should be only LOA3 users, but SSN is available to LOA1, so additional check here
     def raise_access_denied_if_user_not_loa3
       return if current_user.loa3?
-      raise Common::Exceptions::Forbidden, detail: 'You do not have access to prescriptions'
+      raise Common::Exceptions::Forbidden, detail: 'You do not have access to appeals'
     end
   end
 end
