@@ -19,7 +19,8 @@ class Shrine
         def storage_from_config(name)
           config = opts[:storage_settings]
           @storage_from_config ||= {}
-          @storage_from_config[name.to_sym] ||= case config.type
+          @storage_from_config[name.to_sym] ||=
+            case config.type
             when 'memory'
               Shrine::Storage::Memory.new
             when 'local'
