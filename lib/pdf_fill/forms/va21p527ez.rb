@@ -272,9 +272,14 @@ module PdfFill
               limit: 25,
               question: '12B. BRANCH OF SERVICE'
             },
-            # TODO question for every item
-            'activeServiceDateRangeStart' => { key: 'F[0].Page_5[0].DateEnteredActiveService[0]' },
-            'activeServiceDateRangeEnd' => { key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]' }
+            'activeServiceDateRangeStart' => {
+              question: '12A. I ENTERED ACTIVE SERVICE ON',
+              key: 'F[0].Page_5[0].DateEnteredActiveService[0]'
+            },
+            'activeServiceDateRangeEnd' => {
+              question: '12C. RELEASE DATE OR ANTICIPATED DATE OF RELEASE FROM ACTIVE SERVICE',
+              key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]'
+            }
           },
           'veteranAddressLine1' => {
             key: 'F[0].Page_5[0].Currentaddress[0]',

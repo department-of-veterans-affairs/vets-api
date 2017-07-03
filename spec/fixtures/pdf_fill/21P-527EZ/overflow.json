@@ -17,6 +17,15 @@
     "bankName": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "routingNumber": "123456789"
   },
+  "servicePeriods": [
+    {
+      "activeServiceDateRange": {
+        "from": "2012-06-26",
+        "to": "2013-04-10"
+      },
+      "serviceBranch": "army"
+    }
+  ],
   "noRapidProcessing": true,
   "spouseIsVeteran": true,
   "liveWithSpouse": true,
@@ -25,10 +34,6 @@
   "spouseDateOfBirth": "2012-06-26",
   "spouseSocialSecurityNumber": "111223334",
   "monthlySpousePayment": 9999999999999999999,
-  "activeServiceDateRange": {
-    "from": "2012-06-26",
-    "to": "2013-04-10"
-  },
   "otherExpenses": [
     {
       "amount": 1,
@@ -490,7 +495,6 @@
     "street2": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "state": "MD"
   },
-  "serviceBranch": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "email": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX@XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.com",
   "altEmail": "altXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.com",
   "nightPhone": "0123456789",
