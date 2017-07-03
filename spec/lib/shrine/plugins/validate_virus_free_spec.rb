@@ -29,13 +29,28 @@ describe Shrine::Plugins::ValidateVirusFree do
         allow(ClamScan.configuration).to receive(:client_location).and_return('found')
       end
 
+      context 'while in development' do
+        it 'logs an error message if clamd is not running' do
+          expect(Rails.env).to receive(:development?).and_return(true)
+          expect(Shrine.logger).to receive(:error).with(/PLEASE START CLAMD/)
+          allow(ClamScan::Client).to receive(:scan)
+            .and_return(instance_double('ClamScan::Response',
+                                        safe?: false,
+                                        body: 'ERROR: Could not lookup : nodename nor servname provided, or not known'))
+
+          result = instance.validate_virus_free
+          expect(result).to be(true)
+        end
+      end
+
       context 'with the default error message' do
         it 'adds an error if clam scan returns not safe' do
           allow(ClamScan::Client).to receive(:scan)
-            .and_return(instance_double('ClamScan::Response', safe?: false))
+            .and_return(instance_double('ClamScan::Response', safe?: false, body: nil))
 
-          expect(instance).to receive(:error_message).once.with(nil)
-          instance.validate_virus_free
+          result = instance.validate_virus_free
+          expect(result).to be(false)
+          expect(instance.errors).to eq(['virus or malware detected'])
         end
       end
 
@@ -45,8 +60,9 @@ describe Shrine::Plugins::ValidateVirusFree do
           allow(ClamScan::Client).to receive(:scan)
             .and_return(instance_double('ClamScan::Response', safe?: false))
 
-          expect(instance).to receive(:error_message).once.with(message)
-          instance.validate_virus_free message: message
+          result = instance.validate_virus_free(message: message)
+          expect(result).to be(false)
+          expect(instance.errors).to eq(['oh noes!'])
         end
       end
     end
@@ -55,8 +71,9 @@ describe Shrine::Plugins::ValidateVirusFree do
       allow(ClamScan::Client).to receive(:scan)
         .and_return(instance_double('ClamScan::Response', safe?: true))
 
-      expect(instance).not_to receive(:add_error)
-      instance.validate_virus_free
+      expect(instance).not_to receive(:add_error_msg)
+      result = instance.validate_virus_free
+      expect(result).to be(true)
     end
   end
 end
