@@ -38,7 +38,11 @@ module EVSS
     end
 
     def perform
-      s3 = Aws::S3::Resource.new(region: Settings.evss.s3.region)
+      s3 = Aws::S3::Resource.new(
+        access_key_id: Settings.evss.s3.aws_access_key_id,
+        secret_access_key: Settings.evss.s3.aws_secret_access_key,
+        region: Settings.evss.s3.region
+      )
       failed_uploads = []
       sidekiq_retry_timeout = 21.days.ago
 
