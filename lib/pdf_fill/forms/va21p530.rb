@@ -165,30 +165,26 @@ module PdfFill
           }
         },
         'claimantAddress' => {
+          always_overflow: true,
+          first_key: 'street',
           'street' => {
             key: 'form1[0].#subform[36].CurrentMailingAddress_NumberAndStreet[0]',
-            limit: 30,
-            question: '5. CURRENT MAILING ADDRESS (No. & Street)'
+            question: '5. CURRENT MAILING ADDRESS (Address line 1)'
           },
-          'aptNum' => {
-            key: 'form1[0].#subform[36].CurrentMailingAddress_ApartmentOrUnitNumber[0]'
+          'street2' => {
+            question: '5. CURRENT MAILING ADDRESS (Address line 2)'
           },
           'city' => {
-            key: 'form1[0].#subform[36].CurrentMailingAddress_City[0]',
-            limit: 18,
             question: '5. CURRENT MAILING ADDRESS (City)'
           },
           'state' => {
-            key: 'form1[0].#subform[36].CurrentMailingAddress_StateOrProvince[0]'
+            question: '5. CURRENT MAILING ADDRESS (State)'
           },
           'country' => {
-            key: 'form1[0].#subform[36].CurrentMailingAddress_Country[0]'
+            question: '5. CURRENT MAILING ADDRESS (Country)'
           },
-          'postalCode1' => {
-            key: 'form1[0].#subform[36].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]'
-          },
-          'postalCode2' => {
-            key: 'form1[0].#subform[36].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]'
+          'postalCode' => {
+            question: '5. CURRENT MAILING ADDRESS (Postal Code)'
           }
         },
         'relationship' => {
@@ -404,6 +400,8 @@ module PdfFill
         expand_burial_allowance
 
         expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
+
+        @form_data['claimantAddress'] = [@form_data['claimantAddress']] if @form_data['claimantAddress'].present?
 
         %w(
           previouslyReceivedAllowance

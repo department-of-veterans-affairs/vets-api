@@ -61,6 +61,8 @@ module PdfFill
 
     def add_array_to_extras(arr, pdftk_keys)
       arr.each_with_index do |v, i|
+        i = nil if pdftk_keys[:always_overflow]
+
         if v.is_a?(Hash)
           v.each do |key, val|
             add_to_extras(pdftk_keys[key], convert_val_as_string(val), i)
@@ -88,6 +90,7 @@ module PdfFill
     end
 
     def check_for_overflow(arr, pdftk_keys)
+      return true if pdftk_keys[:always_overflow]
       return true if arr.size > pdftk_keys[:limit]
 
       arr.each do |item|
