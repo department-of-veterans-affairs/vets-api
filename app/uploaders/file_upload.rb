@@ -11,7 +11,7 @@ class FileUpload
     @attacher ||= uploader::Attacher.new(InternalAttachment.new(args), :file)
   end
 
-  def start!(file, trace: nil)
+  def start!(file, trace: Thread.current['request_id'])
     # run the shrine upload process.
     if file.is_a? Shrine::UploadedFile
       @attacher.set(file)

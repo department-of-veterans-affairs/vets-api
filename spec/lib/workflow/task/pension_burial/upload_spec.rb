@@ -5,6 +5,7 @@ require 'workflow/task/pension_burial/upload'
 
 RSpec.describe Workflow::Task::PensionBurial::Upload, run_at: '2017-01-10' do
   describe '#run' do
+    let(:id) { 12 }
     let(:guid) { '123' }
     let(:form_id) { '99-9999EZ' }
     let(:claim_code) { 'V-TESTTEST' }
@@ -22,6 +23,7 @@ RSpec.describe Workflow::Task::PensionBurial::Upload, run_at: '2017-01-10' do
 
     let(:instance) do
       described_class.new({
+                            id: id,
                             guid: guid,
                             form_id: form_id,
                             code: claim_code,
@@ -34,6 +36,7 @@ RSpec.describe Workflow::Task::PensionBurial::Upload, run_at: '2017-01-10' do
     end
 
     it 'passes the file off to SFTPWriter' do
+      expect(PersistentAttachment).to receive(:find).with(id).and_return(double(update: true))
       write_path = File.join(path, '123-doctors-note.pdf')
       expect_any_instance_of(SFTPWriter::Local).to receive(:write)
         .with(File.read(@file_path), write_path)
