@@ -85,15 +85,16 @@
       "other": true
     }
   },
-  "claimantAddress": {
-    "street": "foo",
-    "aptNum": "10A",
-    "city": "city",
-    "state": "VA",
-    "country": "US",
-    "postalCode1": "12345",
-    "postalCode2": "1234"
-  },
+  "claimantAddress": [
+    {
+      "city": "Baltimore",
+      "country": "USA",
+      "postalCode": "21231",
+      "street": "street",
+      "street2": "street2",
+      "state": "MD"
+    }
+  ],
   "veteranFullName": {
     "first": "john",
     "middle": "middle",
