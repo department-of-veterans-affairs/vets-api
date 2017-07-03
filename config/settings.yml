@@ -39,6 +39,8 @@ evss:
     documents: 3.0
   s3:
     uploads_enabled: false
+    aws_access_key_id: EVSS_S3_AWS_ACCESS_KEY_ID_XYZ
+    aws_secret_access_key: EVSS_S3_AWS_SECRET_ACCESS_KEY_XYZ
     bucket: evss_s3_bucket
     region: evss_s3_region
   mock_letters: true
