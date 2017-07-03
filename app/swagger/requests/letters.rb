@@ -82,7 +82,6 @@ module Swagger
       end
 
       swagger_schema :Letter do
-
       end
     end
   end

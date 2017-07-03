@@ -43,7 +43,7 @@ module Swagger
             property :last_name, type: :string, example: 'Lincoln'
             property :name_suffix, type: :string, example: 'Jr'
             property :date_of_birth, type: :string, example: '1955-11-12T06:00:00.000+0000'
-            property :va_file_number, type: :string, example:'123456789'
+            property :va_file_number, type: :string, example: '123456789'
             property :regional_processing_office, type: :string, example: 'Central Office Washington, DC'
             property :eligibility_date, type: :string, example: '2004-10-01T04:00:00.000+0000'
             property :delimiting_date, type: :string, example: '2015-10-01T04:00:00.000+0000'
