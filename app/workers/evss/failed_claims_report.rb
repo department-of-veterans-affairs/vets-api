@@ -3,6 +3,12 @@ module EVSS
   class FailedClaimsReport
     include Sidekiq::Worker
 
+    S3_CLAIMS_RESOURCE_OPTIONS = {
+      access_key_id: Settings.evss.s3.aws_access_key_id,
+      secret_access_key: Settings.evss.s3.aws_secret_access_key,
+      region: Settings.evss.s3.region
+    }.freeze
+
     def get_document_hash(evss_metadata)
       @dead_set ||= Sidekiq::DeadSet.new
       document_hash = nil
@@ -38,11 +44,7 @@ module EVSS
     end
 
     def perform
-      s3 = Aws::S3::Resource.new(
-        access_key_id: Settings.evss.s3.aws_access_key_id,
-        secret_access_key: Settings.evss.s3.aws_secret_access_key,
-        region: Settings.evss.s3.region
-      )
+      s3 = Aws::S3::Resource.new(S3_CLAIMS_RESOURCE_OPTIONS)
       failed_uploads = []
       sidekiq_retry_timeout = 21.days.ago
 
