@@ -25,10 +25,6 @@
   "spouseDateOfBirth": "2012-06-26",
   "spouseSocialSecurityNumber": "111223334",
   "monthlySpousePayment": 1,
-  "activeServiceDateRange": {
-    "from": "2012-06-26",
-    "to": "2013-04-10"
-  },
   "spouseOtherExpenses": [
     {
       "amount": 2,
@@ -394,7 +390,15 @@
     "street2": "street2",
     "state": "MD"
   },
-  "serviceBranch": "army",
+  "servicePeriods": [
+    {
+      "activeServiceDateRange": {
+        "from": "2012-06-26",
+        "to": "2013-04-10"
+      },
+      "serviceBranch": "army",
+    }
+  ],
   "email": "foo@foo.com",
   "altEmail": "alt@foo.com",
   "nightPhone": "0123456789",

@@ -264,10 +264,16 @@ module PdfFill
             question: '11B. PLEASE LIST THE OTHER NAME(S) YOU SERVED UNDER'
           },
           'dayPhoneAreaCode' => { key: 'F[0].Page_5[0].Daytimeareacode[0]' },
-          'serviceBranch' => {
-            key: 'F[0].Page_5[0].Branchofservice[0]',
-            limit: 25,
-            question: '12B. BRANCH OF SERVICE'
+          "servicePeriods" => {
+            limit: 1,
+            first_key: 'serviceBranch',
+            'serviceBranch' => {
+              key: 'F[0].Page_5[0].Branchofservice[0]',
+              limit: 25,
+              question: '12B. BRANCH OF SERVICE'
+            },
+            'activeServiceDateRangeStart' => { key: 'F[0].Page_5[0].DateEnteredActiveService[0]' },
+            'activeServiceDateRangeEnd' => { key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]' }
           },
           'veteranAddressLine1' => {
             key: 'F[0].Page_5[0].Currentaddress[0]',
@@ -289,8 +295,6 @@ module PdfFill
             limit: 53,
             question: '7A. City, State, Zip, Country'
           },
-          'activeServiceDateRangeStart' => { key: 'F[0].Page_5[0].DateEnteredActiveService[0]' },
-          'activeServiceDateRangeEnd' => { key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]' },
           'placeOfSeparation' => {
             key: 'F[0].Page_5[0].Placeofseparation[0]',
             limit: 41,
