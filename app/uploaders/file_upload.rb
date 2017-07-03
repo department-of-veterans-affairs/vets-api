@@ -13,11 +13,7 @@ class FileUpload
 
   def start!(file, trace: Thread.current['request_id'])
     # run the shrine upload process.
-    if file.is_a? Shrine::UploadedFile
-      @attacher.set(file)
-    else
-      @attacher.assign(file)
-    end
+    @attacher.assign(file)
     raise ArgumentError, @attacher.errors.join(',') unless @attacher.errors.blank?
     # Pass in the Shrine-serialized uploaded file to the workflow
     w = workflow.new(@attacher, @options)

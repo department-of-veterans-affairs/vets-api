@@ -36,6 +36,12 @@ class SFTPWriter::Remote
 
   private
 
+  # The Net::SFTP library handles making recursive paths really poorly:
+  # You can either upload and sync an entire directory, in which case it
+  # will make any missing foldes... and also raise errors if any folders
+  # in the path already exist.
+  # Or you can upload files into a single root directory
+  # Or you can do something like this.
   def mkdir_safe(path)
     dir = Pathname.new(path).dirname
     # phew boy this is brittle.

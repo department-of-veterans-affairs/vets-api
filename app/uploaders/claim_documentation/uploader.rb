@@ -14,6 +14,9 @@ class ClaimDocumentation::Uploader < VetsShrine
   end
 
   def generate_location(io, context)
+    # Because there are multiple entry paths for io objects
+    # to get into Shrine, we need to handle each of them in
+    # order to extract a base filename
     fname =
       case io
       when File
@@ -21,7 +24,7 @@ class ClaimDocumentation::Uploader < VetsShrine
       when ActionDispatch::Http::UploadedFile
         io.original_filename
       when Shrine::UploadedFile
-        JSON.parse(context[:record].file_data)['metadata']['filename']
+        context[:metadata]['filename']
       end
     step = begin
              context[:record].current_task
@@ -31,6 +34,3 @@ class ClaimDocumentation::Uploader < VetsShrine
     File.join(context[:record].form_id, context[:record].guid, [step, fname].join('-'))
   end
 end
-
-# f = File.open(Rails.root.join('kitchen_sink.pdf'))
-# UITest::Document.new.start!(f)
