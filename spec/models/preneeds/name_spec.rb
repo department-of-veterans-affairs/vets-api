@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe Preneeds::NameInput do
+RSpec.describe Preneeds::Name do
   subject { described_class.new(params) }
-  let(:params) { attributes_for :name_input }
+  let(:params) { attributes_for :name }
 
   context 'with valid attributes' do
     it { expect(subject).to be_valid }

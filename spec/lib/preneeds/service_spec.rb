@@ -77,7 +77,7 @@ describe Preneeds::Service do
 
   describe 'receive_pre_need_application' do
     let(:params) do
-      { pre_need_request: build(:application_input).message }
+      { pre_need_request: build(:application_form).message }
     end
 
     it 'creates a new preneeds application' do

@@ -2,11 +2,11 @@
 require 'common/models/base'
 
 module Preneeds
-  class CurrentlyBuriedInput < Common::Base
+  class CurrentlyBuried < Common::Base
     include ActiveModel::Validations
 
     attribute :cemetery_number, String
-    attribute :name, Preneeds::NameInput
+    attribute :name, Preneeds::Name
 
     validates :cemetery_number, format: { with: /\A\d{3}\z/, allow_blank: true }
     validates :name, presence: true, preneeds_embedded_object: true
@@ -16,7 +16,7 @@ module Preneeds
     end
 
     def self.permitted_params
-      [:cemetery_number, name: Preneeds::NameInput.permitted_params]
+      [:cemetery_number, name: Preneeds::Name.permitted_params]
     end
   end
 end

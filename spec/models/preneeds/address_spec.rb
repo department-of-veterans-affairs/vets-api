@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe Preneeds::AddressInput do
+RSpec.describe Preneeds::Address do
   subject { described_class.new(params) }
-  let(:params) { attributes_for :address_input }
+  let(:params) { attributes_for :address }
 
   context 'with valid attributes' do
     it { expect(subject).to be_valid }

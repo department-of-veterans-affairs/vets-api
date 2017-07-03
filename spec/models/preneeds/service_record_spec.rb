@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe Preneeds::ServiceRecordInput do
+RSpec.describe Preneeds::ServiceRecord do
   subject { described_class.new(params) }
-  let(:params) { attributes_for :service_record_input }
+  let(:params) { attributes_for :service_record }
 
   context 'with valid attributes' do
     it { expect(subject).to be_valid }

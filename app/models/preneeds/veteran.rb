@@ -3,7 +3,7 @@ require 'preneeds/models/attribute_types/xml_date'
 require 'common/models/base'
 
 module Preneeds
-  class VeteranInput < Common::Base
+  class Veteran < Common::Base
     include ActiveModel::Validations
 
     # ACTIVE_DUTY("A", "ACTIVE DUTY"), RETIRED("R", "RETIRED"),
@@ -29,10 +29,10 @@ module Preneeds
     attribute :va_claim_number, String
     attribute :military_status, String
 
-    attribute :address, Preneeds::AddressInput
-    attribute :current_name, Preneeds::NameInput
-    attribute :service_name, Preneeds::NameInput
-    attribute :service_records, Array[Preneeds::ServiceRecordInput]
+    attribute :address, Preneeds::Address
+    attribute :current_name, Preneeds::Name
+    attribute :service_name, Preneeds::Name
+    attribute :service_records, Array[Preneeds::ServiceRecord]
 
     validates :date_of_birth, :date_of_death, format: { with: /\A\d{4}-\d{2}-\d{2}\z/, allow_blank: true }
     validates :gender, inclusion: { in: GENDERS }
@@ -64,9 +64,9 @@ module Preneeds
       [
         :date_of_birth, :date_of_death, :gender, :is_deceased, :marital_status,
         :military_service_number, :place_of_birth, :ssn, :va_claim_number, :military_status,
-        address: Preneeds::AddressInput.permitted_params, current_name: Preneeds::NameInput.permitted_params,
-        service_name: Preneeds::NameInput.permitted_params,
-        service_records: [Preneeds::ServiceRecordInput.permitted_params]
+        address: Preneeds::Address.permitted_params, current_name: Preneeds::Name.permitted_params,
+        service_name: Preneeds::Name.permitted_params,
+        service_records: [Preneeds::ServiceRecord.permitted_params]
       ]
     end
   end

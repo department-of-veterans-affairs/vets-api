@@ -110,7 +110,7 @@ Rails.application.routes.draw do
       resources :discharge_types, only: :index, defaults: { format: :json }
       resources :military_ranks, only: :index, defaults: { format: :json }
       resources :branches_of_service, only: :index, defaults: { format: :json }
-      resources :pre_need_applications, only: :create, defaults: { format: :json }
+      resources :application_forms, only: [:new, :create], defaults: { format: :json }
     end
 
     resources :apidocs, only: [:index]

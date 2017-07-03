@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe PreneedsEmbeddedObjectValidator do
-  let(:subject) { build :application_input }
+  let(:subject) { build :application_form }
 
   it 'validates any preneeds object embedded in another preneeds object' do
     expect(subject).to be_valid

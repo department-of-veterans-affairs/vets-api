@@ -2,7 +2,7 @@
 require 'common/models/base'
 
 module Preneeds
-  class AddressInput < Common::Base
+  class Address < Common::Base
     include ActiveModel::Validations
 
     COUNTRY_CODES = %w(

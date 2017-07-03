@@ -3,7 +3,7 @@ require 'preneeds/models/attribute_types/xml_date'
 require 'common/models/base'
 
 module Preneeds
-  class ServiceRecordInput < Common::Base
+  class ServiceRecord < Common::Base
     include ActiveModel::Validations
 
     # 1: Honorable, 2: General, 3: Entry Level Separation/Uncharacterized

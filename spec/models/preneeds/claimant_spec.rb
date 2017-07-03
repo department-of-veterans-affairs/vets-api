@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe Preneeds::ClaimantInput do
+RSpec.describe Preneeds::Claimant do
   subject { described_class.new(params) }
 
-  let(:params) { attributes_for :claimant_input }
+  let(:params) { attributes_for :claimant }
 
   context 'with valid attributes' do
     it { expect(subject).to be_valid }

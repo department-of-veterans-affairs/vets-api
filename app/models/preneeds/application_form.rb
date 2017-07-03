@@ -2,7 +2,7 @@
 require 'common/models/base'
 
 module Preneeds
-  class ApplicationInput < Common::Base
+  class ApplicationForm < Common::Base
     include ActiveModel::Validations
 
     # 1; Yes, 2: No, 3: Don't know
@@ -16,10 +16,10 @@ module Preneeds
     attribute :sent_time, Common::UTCTime, default: :current_time
     attribute :tracking_number, String, default: :generate_tracking_number
 
-    attribute :applicant, Preneeds::ApplicantInput
-    attribute :claimant, Preneeds::ClaimantInput
-    attribute :currently_buried_persons, Array[Preneeds::CurrentlyBuriedInput]
-    attribute :veteran, Preneeds::VeteranInput
+    attribute :applicant, Preneeds::Applicant
+    attribute :claimant, Preneeds::Claimant
+    attribute :currently_buried_persons, Array[Preneeds::CurrentlyBuried]
+    attribute :veteran, Preneeds::Veteran
 
     # TODO: currently_buried_persons is an Array of max length 1, should be increased
     validates :sent_time, presence: true

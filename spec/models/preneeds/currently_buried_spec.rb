@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe Preneeds::CurrentlyBuriedInput do
+RSpec.describe Preneeds::CurrentlyBuried do
   subject { described_class.new(params) }
-  let(:params) { attributes_for :currently_buried_input }
+  let(:params) { attributes_for :currently_buried }
 
   context 'with valid attributes' do
     it { expect(subject).to be_valid }

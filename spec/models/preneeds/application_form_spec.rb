@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe Preneeds::ApplicationInput do
+RSpec.describe Preneeds::ApplicationForm do
   subject { described_class.new(params) }
-  let(:params) { attributes_for :application_input }
+  let(:params) { attributes_for :application_form }
 
   context 'with valid attributes' do
     it { expect(subject).to be_valid }
@@ -43,7 +43,7 @@ RSpec.describe Preneeds::ApplicationInput do
     end
 
     it 'requires a valid currently_buried_persons' do
-      params[:currently_buried_persons] = [attributes_for(:currently_buried_input)]
+      params[:currently_buried_persons] = [attributes_for(:currently_buried)]
       params[:currently_buried_persons].first[:name][:last_name] = nil
       expect(subject).to_not be_valid
     end

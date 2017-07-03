@@ -2,7 +2,7 @@
 require 'common/models/base'
 
 module Preneeds
-  class NameInput < Common::Base
+  class Name < Common::Base
     include ActiveModel::Validations
 
     attribute :first_name, String

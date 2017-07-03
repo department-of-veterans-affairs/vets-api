@@ -2,7 +2,7 @@
 require 'common/models/base'
 
 module Preneeds
-  class ApplicantInput < Common::Base
+  class Applicant < Common::Base
     include ActiveModel::Validations
 
     attribute :applicant_email, String
@@ -10,8 +10,8 @@ module Preneeds
     attribute :applicant_relationship_to_claimant, String
     attribute :completing_reason, String
 
-    attribute :mailing_address, Preneeds::AddressInput
-    attribute :name, Preneeds::NameInput
+    attribute :mailing_address, Preneeds::Address
+    attribute :name, Preneeds::Name
 
     validates :applicant_email, format: { with: /\A[a-zA-Z0-9_.+-]+@[a-zA-Z0-9_+-]+\.[a-zA-Z]+\z/ }
     validates :applicant_phone_number, format: { with: /\A[0-9+\s-]{0,20}\z/ }, presence: true
@@ -33,7 +33,7 @@ module Preneeds
     def self.permitted_params
       [
         :applicant_email, :applicant_phone_number, :applicant_relationship_to_claimant, :completing_reason,
-        mailing_address: Preneeds::AddressInput.permitted_params, name: Preneeds::NameInput.permitted_params
+        mailing_address: Preneeds::Address.permitted_params, name: Preneeds::Name.permitted_params
       ]
     end
   end

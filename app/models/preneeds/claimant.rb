@@ -3,7 +3,7 @@ require 'preneeds/models/attribute_types/xml_date'
 require 'common/models/base'
 
 module Preneeds
-  class ClaimantInput < Common::Base
+  class Claimant < Common::Base
     include ActiveModel::Validations
 
     attribute :date_of_birth, XmlDate
@@ -13,8 +13,8 @@ module Preneeds
     attribute :relationship_to_vet, String
     attribute :ssn, String
 
-    attribute :name, Preneeds::NameInput
-    attribute :address, Preneeds::AddressInput
+    attribute :name, Preneeds::Name
+    attribute :address, Preneeds::Address
 
     # Removed length validation on email for now: bad xsd validation
     validates :date_of_birth, format: { with: /\A\d{4}-\d{2}-\d{2}\z/ }
@@ -40,7 +40,7 @@ module Preneeds
     def self.permitted_params
       [
         :date_of_birth, :desired_cemetery, :email, :completing_reason, :phone_number, :relationship_to_vet, :ssn,
-        address: Preneeds::AddressInput.permitted_params, name: Preneeds::NameInput.permitted_params
+        address: Preneeds::Address.permitted_params, name: Preneeds::Name.permitted_params
       ]
     end
   end

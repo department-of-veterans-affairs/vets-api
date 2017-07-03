@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe Preneeds::VeteranInput do
+RSpec.describe Preneeds::Veteran do
   subject { described_class.new(params) }
 
-  let(:params) { attributes_for :veteran_input }
+  let(:params) { attributes_for :veteran }
 
   context 'with valid attributes' do
     it { expect(subject).to be_valid }
