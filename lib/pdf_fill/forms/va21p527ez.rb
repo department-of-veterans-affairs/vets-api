@@ -272,6 +272,7 @@ module PdfFill
               limit: 25,
               question: '12B. BRANCH OF SERVICE'
             },
+            # TODO question for every item
             'activeServiceDateRangeStart' => { key: 'F[0].Page_5[0].DateEnteredActiveService[0]' },
             'activeServiceDateRangeEnd' => { key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]' }
           },
@@ -785,6 +786,15 @@ module PdfFill
         replace_phone(@form_data['nationalGuard'], 'phone')
       end
 
+      def expand_service_periods
+        service_periods = @form_data['servicePeriods']
+        return if service_periods.blank?
+
+        service_periods.each do |service_period|
+          expand_date_range(service_period, 'activeServiceDateRange')
+        end
+      end
+
       # rubocop:disable Metrics/MethodLength
       def merge_fields
         @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
@@ -820,10 +830,9 @@ module PdfFill
 
         expand_jobs(@form_data['jobs'])
 
-        %w(activeServiceDateRange powDateRange).each do |attr|
-          expand_date_range(@form_data, attr)
-        end
+        expand_date_range(@form_data, 'powDateRange')
 
+        expand_service_periods
         expand_dependents
 
         %w(marriages spouseMarriages).each do |marriage_type|
