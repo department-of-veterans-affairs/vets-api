@@ -264,7 +264,7 @@ module PdfFill
             question: '11B. PLEASE LIST THE OTHER NAME(S) YOU SERVED UNDER'
           },
           'dayPhoneAreaCode' => { key: 'F[0].Page_5[0].Daytimeareacode[0]' },
-          "servicePeriods" => {
+          'servicePeriods' => {
             limit: 1,
             first_key: 'serviceBranch',
             'serviceBranch' => {
