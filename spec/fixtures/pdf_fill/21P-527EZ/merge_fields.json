@@ -308,7 +308,13 @@
     "type": "Longevity"
   },
   "placeOfSeparation": "city, state",
-  "serviceBranch": "army",
+  "servicePeriods": [
+    {
+      "serviceBranch": "army",
+      "activeServiceDateRangeStart": "2012-06-26",
+      "activeServiceDateRangeEnd": "2013-04-10"
+    }
+  ],
   "email": "foo@foo.com",
   "altEmail": "alt@foo.com",
   "nightPhone": "3456789",
@@ -346,8 +352,6 @@
   "mobilePhoneAreaCode": "212",
   "cityState": "Baltimore, MD, 21231, USA",
   "veteranAddressLine1": "street, street2",
-  "activeServiceDateRangeStart": "2012-06-26",
-  "activeServiceDateRangeEnd": "2013-04-10",
   "powDateRangeStart": "2012-04-10",
   "powDateRangeEnd": "2013-05-10",
   "children": [
