@@ -1,9 +1,12 @@
 # frozen_string_literal: true
+require 'attr_encrypted'
 class PersistentAttachment < ActiveRecord::Base
+  attr_encrypted(:file_data, key: Settings.db_encryption_key)
   belongs_to :saved_claim
   delegate :original_filename, :size, to: :file
 
   after_initialize :generate_guid, unless: :guid
+
   def generate_guid
     self.guid = SecureRandom.uuid
   end
