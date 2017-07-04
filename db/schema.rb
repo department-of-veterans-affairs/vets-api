@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170703133702) do
+ActiveRecord::Schema.define(version: 20170703225400) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -96,13 +96,14 @@ ActiveRecord::Schema.define(version: 20170703133702) do
 
   create_table "persistent_attachments", force: :cascade do |t|
     t.uuid     "guid"
-    t.text     "file_data"
     t.string   "type"
     t.string   "form_id"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
     t.integer  "saved_claim_id"
     t.datetime "completed_at"
+    t.string   "encrypted_file_data"
+    t.string   "encrypted_file_data_iv"
   end
 
   create_table "saved_claims", force: :cascade do |t|
