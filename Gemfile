@@ -27,6 +27,7 @@ gem 'olive_branch'
 gem 'ox'
 gem 'savon'
 gem 'gyoku'
+gem 'prawn'
 
 # background processing and workflow
 gem 'sidekiq'
@@ -49,6 +50,7 @@ gem 'memoist'
 gem 'date_validator'
 gem 'nokogiri'
 gem 'swagger-blocks'
+gem 'aasm'
 
 # Amazon Linux's system `json` gem causes conflicts, but
 # `multi_json` will prefer `oj` if installed, so include it here.
@@ -59,6 +61,8 @@ gem 'iconv'
 gem 'ice_nine'
 gem 'pdf-reader'
 gem 'aws-sdk'
+gem 'mini_magick'
+gem 'pdf-forms'
 gem 'clam_scan'
 gem 'prawn'
 gem 'combine_pdf'
