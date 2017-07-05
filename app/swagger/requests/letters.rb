@@ -23,7 +23,7 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/letters/:id' do
+      swagger_path '/v0/letters/{id}' do
         operation :post do
           key :description, 'Download Letter'
           key :operationId, 'getLetter'
