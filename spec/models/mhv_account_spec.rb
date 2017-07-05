@@ -42,6 +42,11 @@ RSpec.describe MhvAccount, type: :model do
   before(:each) do
     stub_mvi(mvi_profile)
     allow_any_instance_of(BetaSwitch).to receive(:beta_enabled?).and_return(true)
+    Settings.mhv.facility_range = [358, 758]
+  end
+
+  after(:each) do
+    Settings.mhv.facility_range = [358, 758]
   end
 
   it 'must have a user_uuid when initialized' do
@@ -286,12 +291,6 @@ RSpec.describe MhvAccount, type: :model do
     end
 
     context 'with standard range' do
-      before do
-        Settings.mhv.facility_range = [358, 758]
-      end
-      after do
-        Settings.mhv.facility_range = [358, 758]
-      end
       it 'is eligible with facility in range' do
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
@@ -319,9 +318,6 @@ RSpec.describe MhvAccount, type: :model do
       before do
         Settings.mhv.facility_range = [450, 758]
       end
-      after do
-        Settings.mhv.facility_range = [358, 758]
-      end
       it 'is eligible with facility at edge ef range' do
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
@@ -332,9 +328,6 @@ RSpec.describe MhvAccount, type: :model do
     context 'with even more abbreviated range' do
       before do
         Settings.mhv.facility_range = [600, 758]
-      end
-      after do
-        Settings.mhv.facility_range = [358, 758]
       end
       it 'is ineligible with facility out of range' do
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
