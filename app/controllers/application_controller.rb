@@ -40,7 +40,8 @@ class ApplicationController < ActionController::API
   rescue_from 'Exception' do |exception|
     # report the original 'cause' of the exception when present
     if SKIP_SENTRY_EXCEPTION_TYPES.include?(exception.class) == false
-      log_exception_to_sentry(exception)
+      extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
+      log_exception_to_sentry(exception, extra)
     else
       Rails.logger.error "#{exception.message}."
       Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
