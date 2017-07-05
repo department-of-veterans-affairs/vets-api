@@ -31,8 +31,18 @@ module PdfFill
       generate_blocks = @generate_blocks
 
       Prawn::Document.generate(file_path) do |pdf|
-        generate_blocks.each do |block|
-          block.call(pdf)
+        pdf.repeat(:all) do
+          pdf.bounding_box([pdf.bounds.left, pdf.bounds.top], width: pdf.bounds.width) do
+            pdf.text("Vets.gov Submission", :align => :right)
+          end
+        end
+
+        box_height = 25
+
+        pdf.bounding_box([pdf.bounds.left, pdf.bounds.top - box_height], :width  => pdf.bounds.width, :height => pdf.bounds.height - box_height) do
+          generate_blocks.each do |block|
+            block.call(pdf)
+          end
         end
       end
 
