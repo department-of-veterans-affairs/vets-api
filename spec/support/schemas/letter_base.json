@@ -19,7 +19,8 @@
         "service_verification",
         "civil_service",
         "benefit_summary",
-        "benefit_verification"
+        "benefit_verification",
+        "certificate_of_eligibility"
       ]
     }
   },
