@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe Preneeds::MilitaryRankRequest do
+RSpec.describe Preneeds::MilitaryRankInput do
   context 'with valid attributes' do
     subject { described_class.new(params) }
     let(:params) do
