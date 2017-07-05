@@ -590,6 +590,7 @@ module PdfFill
 
         marriages.each do |marriage|
           marriage['spouseFullName'] = combine_full_name(marriage['spouseFullName'])
+          marriage['reasonForSeparation'] ||= 'Marriage has not been terminated'
           other_explanations << marriage['otherExplanation'] if marriage['otherExplanation'].present?
         end
 
