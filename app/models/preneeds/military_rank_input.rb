@@ -3,7 +3,7 @@ require 'preneeds/models/attribute_types/xml_date'
 require 'common/models/base'
 
 module Preneeds
-  class MilitaryRankRequest < Common::Base
+  class MilitaryRankInput < Common::Base
     include ActiveModel::Validations
 
     # Some branches have no end_date, but api requires it just the same
