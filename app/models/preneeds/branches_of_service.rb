@@ -3,7 +3,6 @@ require 'common/models/base'
 
 module Preneeds
   class BranchesOfService < Common::Base
-    # Cemetery numbers are 3-digits, implying < 1000 in total - we want all of them for populating application forms
     attribute :code, String
     attribute :flat_full_descr, String
     attribute :full_descr, String
