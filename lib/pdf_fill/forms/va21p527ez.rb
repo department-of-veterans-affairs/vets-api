@@ -577,7 +577,7 @@ module PdfFill
 
         children_split = split_children(children)
 
-        hash['children'] = children_split[:cohabiting]
+        hash['children'] = children
         hash['outsideChildren'] = children_split[:outside]
 
         hash
