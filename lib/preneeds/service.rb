@@ -54,6 +54,7 @@ module Preneeds
       json = perform(:post, '', soap.body).body
 
       json = json[:data].merge('tracking_number' => tracking_number)
+
       ReceiveApplication.new(json)
     end
 
