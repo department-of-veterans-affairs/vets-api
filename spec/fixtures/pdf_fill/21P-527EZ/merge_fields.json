@@ -8,6 +8,8 @@
     "bankName": "foo bank",
     "routingNumber": "123456789"
   },
+  "hasVisitedVAMC": true,
+  "vaHospitalTreatments": "Look up VAMC treatment history",
   "noRapidProcessing": true,
   "maritalStatus": "Married",
   "reasonForNotLivingWithSpouse": "illness",
