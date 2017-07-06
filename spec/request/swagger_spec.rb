@@ -604,6 +604,16 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    it 'supports getting EVSS Gi Bill Status' do
+      expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 401)
+      VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
+        expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 200, auth_options)
+      end
+      VCR.use_cassette('evss/gi_bill_status/vet_not_found') do
+        expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 404, auth_options)
+      end
+    end
+
     it 'supports getting the user data' do
       expect(subject).to validate(:get, '/v0/user', 200, auth_options)
       expect(subject).to validate(:get, '/v0/user', 401)
