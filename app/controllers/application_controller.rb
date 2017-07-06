@@ -18,7 +18,7 @@ class ApplicationController < ActionController::API
 
   before_action :authenticate
   before_action :set_app_info_headers
-  before_action :set_raven_uuid_tag
+  before_action :set_uuid_tags
   skip_before_action :authenticate, only: [:cors_preflight, :routing_error]
 
   def cors_preflight
@@ -68,7 +68,8 @@ class ApplicationController < ActionController::API
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
 
-  def set_raven_uuid_tag
+  def set_uuid_tags
+    Thread.current['request_id'] = request.uuid
     Raven.extra_context(request_uuid: request.uuid)
   end
 

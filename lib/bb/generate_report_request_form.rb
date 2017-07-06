@@ -3,6 +3,8 @@ require 'common/models/form'
 
 module BB
   class GenerateReportRequestForm < Common::Form
+    include SentryLogging
+
     ELIGIBLE_DATA_CLASSES = %w( seiactivityjournal seiallergies seidemographics
                                 familyhealthhistory seifoodjournal healthcareproviders healthinsurance
                                 seiimmunizations labsandtests medicalevents medications militaryhealthhistory
@@ -43,6 +45,9 @@ module BB
     def data_classes_belongs_to_eligible_data_classes
       ineligible_data_classes = data_classes - eligible_data_classes
       if ineligible_data_classes.any?
+        log_message_to_sentry('Health record ineligible classes', :info,
+                              extra_context: { data_classes: data_classes,
+                                               eligible_data_classes: eligible_data_classes })
         errors.add(:base, "Invalid data classes: #{ineligible_data_classes.join(', ')}")
       end
     end
