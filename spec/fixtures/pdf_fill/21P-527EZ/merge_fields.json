@@ -50,16 +50,21 @@
       "purpose": "purpose3",
       "paidTo": "paidTo3",
       "date": "2012-04-03",
-      "relationship": "parent Olson"
+      "relationship": "outside3 Olson"
     }
   ],
   "dependents": [
     {
-      "dependentRelationship": "child",
       "childAddress": "str1, city1, MD, 21231, USA",
       "fullName": "outside1 Olson",
       "personWhoLivesWithChild": "person1 Olson",
       "monthlyIncome": {
+        "socialSecurity": 0,
+        "civilService": 0,
+        "railroad": 0,
+        "blackLung": 0,
+        "serviceRetirement": 0,
+        "ssi": 0,
         "additionalSources": [
           {
             "name": "name2",
@@ -81,6 +86,11 @@
         }
       ],
       "netWorth": {
+        "bank": 0,
+        "interestBank": 0,
+        "ira": 0,
+        "stocks": 0,
+        "realProperty": 0,
         "additionalSources": [
           {
             "name": "name1",
@@ -91,43 +101,38 @@
       "monthlyPayment": 1
     },
     {
-      "dependentRelationship": "child",
       "childAddress": "str2, city1, MD, 21231, USA",
       "fullName": "outside2 Olson",
       "personWhoLivesWithChild": "person2 Olson",
       "monthlyPayment": 2
     },
     {
-      "dependentRelationship": "child",
       "childAddress": "str3, city1, MD, 21231, USA",
       "fullName": "outside3 Olson",
       "personWhoLivesWithChild": "person3 Olson",
-      "monthlyPayment": 3
-    },
-    {
-      "dependentRelationship": "parent",
-      "fullName": "parent Olson",
       "otherExpenses": [
         {
           "amount": 3,
           "purpose": "purpose3",
           "paidTo": "paidTo3",
           "date": "2012-04-03",
-          "relationship": "parent Olson"
+          "relationship": "outside3 Olson"
         }
       ],
       "expectedIncome": {
+        "salary": 0,
+        "interest": 0,
         "additionalSources": [
           {
             "name": "name3",
             "amount": 6
           }
         ]
-      }
+      },
+      "monthlyPayment": 3
     },
     {
       "childInHousehold": true,
-      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-01",
       "fullName": "Mark1 Olson",
       "childSocialSecurityNumber": "111223331",
@@ -143,7 +148,6 @@
     },
     {
       "childInHousehold": true,
-      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-02",
       "fullName": "Mark2 Olson",
       "childSocialSecurityNumber": "111223332",
@@ -159,7 +163,6 @@
     },
     {
       "childInHousehold": true,
-      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-03",
       "fullName": "Mark3 Olson",
       "childSocialSecurityNumber": "111223333",
@@ -219,12 +222,17 @@
   "monthlyIncome": {
     "socialSecurity": 1,
     "civilService": 3,
+    "railroad": 0,
+    "serviceRetirement": 0,
     "blackLung": 5,
     "ssi": 7
   },
   "spouseMonthlyIncome": {
     "socialSecurity": 2,
+    "civilService": 0,
     "railroad": 4,
+    "blackLung": 0,
+    "ssi": 0,
     "serviceRetirement": 6,
     "additionalSources": [
       {
@@ -236,24 +244,30 @@
   "netWorth": {
     "bank": 1,
     "interestBank": 2,
+    "stocks": 0,
+    "realProperty": 0,
     "ira": 3
   },
   "spouseNetWorth": {
+    "bank": 0,
+    "interestBank": 0,
+    "ira": 0,
     "stocks": 4,
     "realProperty": 5
   },
   "expectedIncome": {
     "salary": 1,
+    "interest": 3,
     "additionalSources": [
       {
         "name": "name1",
         "amount": 4
       }
-    ],
-    "interest": 3
+    ]
   },
   "spouseExpectedIncome": {
     "salary": 2,
+    "interest": 0,
     "additionalSources": [
       {
         "name": "name2",
@@ -294,7 +308,13 @@
     "type": "Longevity"
   },
   "placeOfSeparation": "city, state",
-  "serviceBranch": "army",
+  "servicePeriods": [
+    {
+      "serviceBranch": "army",
+      "activeServiceDateRangeStart": "2012-06-26",
+      "activeServiceDateRangeEnd": "2013-04-10"
+    }
+  ],
   "email": "foo@foo.com",
   "altEmail": "alt@foo.com",
   "nightPhone": "3456789",
@@ -332,14 +352,11 @@
   "mobilePhoneAreaCode": "212",
   "cityState": "Baltimore, MD, 21231, USA",
   "veteranAddressLine1": "street, street2",
-  "activeServiceDateRangeStart": "2012-06-26",
-  "activeServiceDateRangeEnd": "2013-04-10",
   "powDateRangeStart": "2012-04-10",
   "powDateRangeEnd": "2013-05-10",
   "children": [
     {
       "childInHousehold": true,
-      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-01",
       "fullName": "Mark1 Olson",
       "childSocialSecurityNumber": "111223331",
@@ -355,7 +372,6 @@
     },
     {
       "childInHousehold": true,
-      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-02",
       "fullName": "Mark2 Olson",
       "childSocialSecurityNumber": "111223332",
@@ -371,7 +387,6 @@
     },
     {
       "childInHousehold": true,
-      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-03",
       "fullName": "Mark3 Olson",
       "childSocialSecurityNumber": "111223333",
@@ -388,11 +403,16 @@
   ],
   "outsideChildren": [
     {
-      "dependentRelationship": "child",
       "childAddress": "str1, city1, MD, 21231, USA",
       "fullName": "outside1 Olson",
       "personWhoLivesWithChild": "person1 Olson",
       "monthlyIncome": {
+        "socialSecurity": 0,
+        "civilService": 0,
+        "railroad": 0,
+        "blackLung": 0,
+        "serviceRetirement": 0,
+        "ssi": 0,
         "additionalSources": [
           {
             "name": "name2",
@@ -414,6 +434,11 @@
         }
       ],
       "netWorth": {
+        "bank": 0,
+        "interestBank": 0,
+        "ira": 0,
+        "stocks": 0,
+        "realProperty": 0,
         "additionalSources": [
           {
             "name": "name1",
@@ -424,17 +449,34 @@
       "monthlyPayment": 1
     },
     {
-      "dependentRelationship": "child",
       "childAddress": "str2, city1, MD, 21231, USA",
       "fullName": "outside2 Olson",
       "personWhoLivesWithChild": "person2 Olson",
       "monthlyPayment": 2
     },
     {
-      "dependentRelationship": "child",
       "childAddress": "str3, city1, MD, 21231, USA",
       "fullName": "outside3 Olson",
       "personWhoLivesWithChild": "person3 Olson",
+      "otherExpenses": [
+        {
+          "amount": 3,
+          "purpose": "purpose3",
+          "paidTo": "paidTo3",
+          "date": "2012-04-03",
+          "relationship": "outside3 Olson"
+        }
+      ],
+      "expectedIncome": {
+        "salary": 0,
+        "interest": 0,
+        "additionalSources": [
+          {
+            "name": "name3",
+            "amount": 6
+          }
+        ]
+      },
       "monthlyPayment": 3
     }
   ],
@@ -470,7 +512,7 @@
       "additionalSourceName": "name2"
     },
     {
-      "recipient": "parent Olson",
+      "recipient": "outside3 Olson",
       "amount": 6,
       "additionalSourceName": "name3"
     }

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-require 'workflow/task/common/move_to_lts'
+require 'workflow/task/shared/move_to_lts'
 
-describe Workflow::Task::Common::MoveToLTS do
+describe Workflow::Task::Shared::MoveToLTS do
   let(:file_one) { File.open(Rails.root.join('.ruby-version')) }
   let(:file_two) { File.open(Rails.root.join('Procfile')) }
   let(:attacher) do
