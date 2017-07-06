@@ -24,7 +24,7 @@ describe Shrine::Plugins::ValidateUnlockedPdf do
     let(:instance) { klass.new }
 
     let(:attachment) do
-      instance_double('Shrine::UploadedFile', to_io: File.open(file))
+      instance_double('Shrine::UploadedFile', download: File.open(file), mime_type: 'application/pdf')
     end
 
     before do
