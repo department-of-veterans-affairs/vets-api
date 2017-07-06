@@ -35,7 +35,7 @@ RSpec.describe Workflow::Task::Shared::DatestampPdfTask do
       context 'with no additional text' do
         it 'should add just the text' do
           text = 'Vets.gov Submission'
-          instance.run(text: text, x: 460, y: 725, text_only: true)
+          instance.run(text: text, x: 449, y: 730, text_only: true)
           assert_pdf_stamp(text)
         end
       end
