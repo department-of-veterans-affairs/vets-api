@@ -96,6 +96,12 @@ module Swagger
         property :type, type: :string
         property :change_effective_date, type: [:string, :null]
       end
+
+      swagger_schema :Meta do
+        key :description, 'The response from the EVSS service to vets-api'
+        key :required, [:status]
+        property :status, type: :string, enum: %w(OK NOT_FOUND SERVER_ERROR NOT_AUTHORIZED)
+      end
     end
   end
 end
