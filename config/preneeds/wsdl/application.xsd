@@ -1,0 +1,1096 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Published by JAX-WS RI at http://jax-ws.dev.java.net. RI's version is
+	Oracle JAX-WS 2.1.5. -->
+<xs:schema xmlns:tns="http://service.soa.eoas.cem.va.gov/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0"
+	targetNamespace="http://service.soa.eoas.cem.va.gov/">
+	<xs:element name="getMilitaryRankForBranchOfService" type="tns:getMilitaryRankForBranchOfService" />
+	<xs:element name="getMilitaryRankForBranchOfServiceResponse"
+		type="tns:getMilitaryRankForBranchOfServiceResponse" />
+	<xs:element name="addAttachment" type="tns:addAttachment" />
+	<xs:element name="addAttachmentResponse" type="tns:addAttachmentResponse" />
+	<xs:element name="getAttachmentTypes" type="tns:getAttachmentTypes" />
+	<xs:element name="getAttachmentTypesResponse" type="tns:getAttachmentTypesResponse" />
+	<xs:element name="getCemeteries" type="tns:getCemeteries" />
+	<xs:element name="getCemeteriesResponse" type="tns:getCemeteriesResponse" />
+	<xs:element name="getDischargeTypes" type="tns:getDischargeTypes" />
+	<xs:element name="getDischargeTypesResponse" type="tns:getDischargeTypesResponse" />
+	<xs:element name="getStates" type="tns:getStates" />
+	<xs:element name="getStatesResponse" type="tns:getStatesResponse" />
+	<xs:element name="receivePreNeedApplication" type="tns:receivePreNeedApplication" />
+	<xs:element name="getBranchesOfService" type="tns:getBranchesOfService" />
+	<xs:element name="getBranchesOfServiceResponse" type="tns:getBranchesOfServiceResponse" />
+	<xs:element name="receivePreNeedApplicationResponse" type="tns:receivePreNeedApplicationResponse" />
+
+
+	<xs:complexType name="getMilitaryRankForBranchOfService">
+		<xs:sequence>
+			<!-- corresponds to branch of service code, need to retrieve from getBranchesOfService -->
+			<xs:element name="branchOfService" type="tns:branchOfServiceCode" />
+			<xs:element name="startDate" type="xs:date" />
+			<xs:element name="endDate" type="xs:date" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="getMilitaryRankForBranchOfServiceResponse">
+		<xs:sequence>
+			<xs:element name="return" type="tns:militaryRank"
+				minOccurs="0" maxOccurs="1000" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="getBranchesOfService">
+		<xs:sequence />
+	</xs:complexType>
+
+	<xs:complexType name="getBranchesOfServiceResponse">
+		<xs:sequence>
+			<xs:element name="return" type="tns:branchOfService"
+				minOccurs="0" maxOccurs="1000" />
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:complexType name="branchOfService">
+		<xs:sequence>
+			<xs:element name="beginDate" type="xs:dateTime" minOccurs="0" />
+			<xs:element name="code" type="xs:string" minOccurs="0" />
+			<xs:element name="endDate" type="xs:dateTime" minOccurs="0" />
+			<xs:element name="flatFullDescr" type="xs:string"
+				minOccurs="0" />
+			<xs:element name="fullDescr" type="xs:string" minOccurs="0" />
+			<xs:element name="shortDescr" type="xs:string" minOccurs="0" />
+			<xs:element name="stateRequired" type="xs:string"
+				minOccurs="0" />
+			<xs:element name="uprightFullDescr" type="xs:string"
+				minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="militaryRank">
+		<xs:sequence>
+			<xs:element name="activatedOneDate" type="xs:dateTime"
+				minOccurs="0" />
+			<xs:element name="activatedThreeDate" type="xs:dateTime"
+				minOccurs="0" />
+			<xs:element name="activatedTwoDate" type="xs:dateTime"
+				minOccurs="0" />
+			<xs:element name="branchOfServiceCd" type="xs:string"
+				minOccurs="0" />
+			<xs:element name="deactivatedOneDate" type="xs:dateTime"
+				minOccurs="0" />
+			<xs:element name="deactivatedThreeDate" type="xs:dateTime"
+				minOccurs="0" />
+			<xs:element name="deactivatedTwoDate" type="xs:dateTime"
+				minOccurs="0" />
+			<xs:element name="id" type="tns:militaryRankPK" minOccurs="0" />
+			<xs:element name="officerInd" type="xs:string" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="militaryRankPK">
+		<xs:sequence>
+			<xs:element name="branchOfServiceCode" type="tns:branchOfServiceCode" />
+			<xs:element name="rankCode" type="xs:string" minOccurs="0" />
+			<xs:element name="rankDescr" type="xs:string" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="getStates">
+		<xs:sequence />
+	</xs:complexType>
+	<xs:complexType name="getStatesResponse">
+		<xs:sequence>
+			<xs:element name="return" type="tns:state" minOccurs="0"
+				maxOccurs="1000" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="state">
+		<xs:sequence>
+			<xs:element name="code" type="xs:string" minOccurs="0" />
+			<xs:element name="firstFiveZip" type="xs:string"
+				minOccurs="0" />
+			<xs:element name="lastFiveZip" type="xs:string" minOccurs="0" />
+			<xs:element name="lowerIndicator" type="xs:string"
+				minOccurs="0" />
+			<xs:element name="name" type="xs:string" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getCemeteries">
+		<xs:sequence />
+	</xs:complexType>
+	<xs:complexType name="getCemeteriesResponse">
+		<xs:sequence>
+			<xs:element name="return" type="tns:cemetery" minOccurs="0"
+				maxOccurs="1000" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="cemetery">
+		<xs:sequence>
+			<xs:element name="cemeteryType" type="xs:string"
+				minOccurs="0" />
+			<xs:element name="name" type="xs:string" minOccurs="0" />
+			<xs:element name="num" type="xs:string" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="getDischargeTypes">
+		<xs:sequence />
+	</xs:complexType>
+	<xs:complexType name="getDischargeTypesResponse">
+		<xs:sequence>
+			<xs:element name="return" type="tns:dischargeType"
+				minOccurs="0" maxOccurs="1000" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="dischargeType">
+		<xs:sequence>
+			<xs:element name="description" type="xs:string" minOccurs="0" />
+			<xs:element name="id" type="xs:int" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="getAttachmentTypes">
+		<xs:sequence />
+	</xs:complexType>
+	<xs:complexType name="getAttachmentTypesResponse">
+		<xs:sequence>
+			<xs:element name="return" type="tns:attachmentType"
+				minOccurs="0" maxOccurs="1000" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="attachmentType">
+		<xs:sequence>
+			<xs:element name="attachmentTypeId" type="xs:long" />
+			<xs:element name="description" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="50"></xs:maxLength>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="receivePreNeedApplication">
+		<xs:sequence>
+			<xs:element name="preNeedRequest" type="tns:preNeedApplication"
+				minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="preNeedApplication">
+		<xs:sequence>
+			<xs:element name="applicant" type="tns:applicant" />
+			<xs:element name="applicationStatus" type="xs:string"
+				minOccurs="0" />
+			<xs:element name="attachments" type="tns:preNeedAttachment"
+				nillable="true" minOccurs="0" maxOccurs="1000" />
+			<xs:element name="claimant" type="tns:claimant" />
+			<xs:element name="currentlyBuriedPersons" type="tns:currentlyBuried"
+				maxOccurs="1" />
+			<xs:element name="hasAttachments" type="xs:boolean" />
+			<xs:element name="hasCurrentlyBuried">
+				<!-- 1=Yes, 2=No, 3=Don't know -->
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="1" />
+						<xs:enumeration value="2" />
+						<xs:enumeration value="3" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="sendingApplication">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="vets.gov" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="sendingCode" type="xs:string" minOccurs="0" />
+			<xs:element name="sentTime" type="xs:dateTime" />
+			<xs:element name="trackingNumber">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="20" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="veteran" type="tns:veteran" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="applicant">
+		<xs:sequence>
+			<xs:element name="applicantEmail">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:pattern value="[a-zA-Z0-9_.+-]+@[a-zA-Z0-9_+-]+\.[a-zA-Z]+" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="applicantPhoneNumber">
+			<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:pattern value="[0-9+\s-]{0,20}" />
+					</xs:restriction>
+					</xs:simpleType>
+			</xs:element>
+			<xs:element name="applicantRelationshipToClaimant">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="Self" />
+						<xs:enumeration value="Authorized Agent/Rep" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="completingReason">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="256" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="mailingAddress" type="tns:address" />
+			<xs:element name="name" type="tns:name" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="address">
+		<xs:sequence>
+			<xs:element name="address1">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="35" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="address2" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="35" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="address3" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="35" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="city">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="30" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="countryCode">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<!-- Afghanistan -->
+						<xs:enumeration value="AF" />
+						<!-- Aland Islands -->
+						<xs:enumeration value="AX" />
+						<!-- Albania -->
+						<xs:enumeration value="AL" />
+						<!-- Algeria -->
+						<xs:enumeration value="DZ" />
+						<!-- American Samoa -->
+						<xs:enumeration value="AS" />
+						<!-- Andorra -->
+						<xs:enumeration value="AD" />
+						<!-- Angola -->
+						<xs:enumeration value="AO" />
+						<!-- Anguilla -->
+						<xs:enumeration value="AI" />
+						<!-- Antarctica -->
+						<xs:enumeration value="AQ" />
+						<!-- Antigua and Barbuda -->
+						<xs:enumeration value="AG" />
+						<!-- Argentina -->
+						<xs:enumeration value="AR" />
+						<!-- Armenia -->
+						<xs:enumeration value="AM" />
+						<!-- Aruba -->
+						<xs:enumeration value="AW" />
+						<!-- Australia -->
+						<xs:enumeration value="AU" />
+						<!-- Austria -->
+						<xs:enumeration value="AT" />
+						<!-- Azerbaijan -->
+						<xs:enumeration value="AZ" />
+						<!-- Bahamas -->
+						<xs:enumeration value="BS" />
+						<!-- Bahrain -->
+						<xs:enumeration value="BH" />
+						<!-- Bangladesh -->
+						<xs:enumeration value="BD" />
+						<!-- Barbados -->
+						<xs:enumeration value="BB" />
+						<!-- Belarus -->
+						<xs:enumeration value="BY" />
+						<!-- Belgium -->
+						<xs:enumeration value="BE" />
+						<!-- Belize -->
+						<xs:enumeration value="BZ" />
+						<!-- Benin -->
+						<xs:enumeration value="BJ" />
+						<!-- Bermuda -->
+						<xs:enumeration value="BM" />
+						<!-- Bhutan -->
+						<xs:enumeration value="BT" />
+						<!-- "Bolivia Plurinational State of" -->
+						<xs:enumeration value="BO" />
+						<!-- "Bonaire Sint Eustatius and Saba" -->
+						<xs:enumeration value="BQ" />
+						<!-- Bosnia and Herzegovina -->
+						<xs:enumeration value="BA" />
+						<!-- Botswana -->
+						<xs:enumeration value="BW" />
+						<!-- Bouvet Island -->
+						<xs:enumeration value="BV" />
+						<!-- Brazil -->
+						<xs:enumeration value="BR" />
+						<!-- British Indian Ocean Territory -->
+						<xs:enumeration value="IO" />
+						<!-- Brunei Darussalam -->
+						<xs:enumeration value="BN" />
+						<!-- Bulgaria -->
+						<xs:enumeration value="BG" />
+						<!-- Burkina Faso -->
+						<xs:enumeration value="BF" />
+						<!-- Burundi -->
+						<xs:enumeration value="BI" />
+						<!-- Cambodia -->
+						<xs:enumeration value="KH" />
+						<!-- Cameroon -->
+						<xs:enumeration value="CM" />
+						<!-- Canada -->
+						<xs:enumeration value="CA" />
+						<!-- Cape Verde -->
+						<xs:enumeration value="CV" />
+						<!-- Cayman Islands -->
+						<xs:enumeration value="KY" />
+						<!-- Central African Republic -->
+						<xs:enumeration value="CF" />
+						<!-- Chad -->
+						<xs:enumeration value="TD" />
+						<!-- Chile -->
+						<xs:enumeration value="CL" />
+						<!-- China -->
+						<xs:enumeration value="CN" />
+						<!-- Christmas Island -->
+						<xs:enumeration value="CX" />
+						<!-- Cocos (Keeling) Islands -->
+						<xs:enumeration value="CC" />
+						<!-- Colombia -->
+						<xs:enumeration value="CO" />
+						<!-- Comoros -->
+						<xs:enumeration value="KM" />
+						<!-- Congo -->
+						<xs:enumeration value="CG" />
+						<!-- "Congo the Democratic Republic of the" -->
+						<xs:enumeration value="CD" />
+						<!-- Cook Islands -->
+						<xs:enumeration value="CK" />
+						<!-- Costa Rica -->
+						<xs:enumeration value="CR" />
+						<!-- Côte d'Ivoire -->
+						<xs:enumeration value="CI" />
+						<!-- Croatia -->
+						<xs:enumeration value="HR" />
+						<!-- Cuba -->
+						<xs:enumeration value="CU" />
+						<!-- Curaçao -->
+						<xs:enumeration value="CW" />
+						<!-- Cyprus -->
+						<xs:enumeration value="CY" />
+						<!-- Czech Republic -->
+						<xs:enumeration value="CZ" />
+						<!-- Denmark -->
+						<xs:enumeration value="DK" />
+						<!-- Djibouti -->
+						<xs:enumeration value="DJ" />
+						<!-- Dominica -->
+						<xs:enumeration value="DM" />
+						<!-- Dominican Republic -->
+						<xs:enumeration value="DO" />
+						<!-- Ecuador -->
+						<xs:enumeration value="EC" />
+						<!-- Egypt -->
+						<xs:enumeration value="EG" />
+						<!-- El Salvador -->
+						<xs:enumeration value="SV" />
+						<!-- Equatorial Guinea -->
+						<xs:enumeration value="GQ" />
+						<!-- Eritrea -->
+						<xs:enumeration value="ER" />
+						<!-- Estonia -->
+						<xs:enumeration value="EE" />
+						<!-- Ethiopia -->
+						<xs:enumeration value="ET" />
+						<!-- Falkland Islands (Malvinas) -->
+						<xs:enumeration value="FK" />
+						<!-- Faroe Islands -->
+						<xs:enumeration value="FO" />
+						<!-- Fiji -->
+						<xs:enumeration value="FJ" />
+						<!-- Finland -->
+						<xs:enumeration value="FI" />
+						<!-- France -->
+						<xs:enumeration value="FR" />
+						<!-- French Guiana -->
+						<xs:enumeration value="GF" />
+						<!-- French Polynesia -->
+						<xs:enumeration value="PF" />
+						<!-- French Southern Territories -->
+						<xs:enumeration value="TF" />
+						<!-- Gabon -->
+						<xs:enumeration value="GA" />
+						<!-- Gambia -->
+						<xs:enumeration value="GM" />
+						<!-- Georgia -->
+						<xs:enumeration value="GE" />
+						<!-- Germany -->
+						<xs:enumeration value="DE" />
+						<!-- Ghana -->
+						<xs:enumeration value="GH" />
+						<!-- Gibraltar -->
+						<xs:enumeration value="GI" />
+						<!-- Greece -->
+						<xs:enumeration value="GR" />
+						<!-- Greenland -->
+						<xs:enumeration value="GL" />
+						<!-- Grenada -->
+						<xs:enumeration value="GD" />
+						<!-- Guadeloupe -->
+						<xs:enumeration value="GP" />
+						<!-- Guam -->
+						<xs:enumeration value="GU" />
+						<!-- Guatemala -->
+						<xs:enumeration value="GT" />
+						<!-- Guernsey -->
+						<xs:enumeration value="GG" />
+						<!-- Guinea -->
+						<xs:enumeration value="GN" />
+						<!-- Guinea-Bissau -->
+						<xs:enumeration value="GW" />
+						<!-- Guyana -->
+						<xs:enumeration value="GY" />
+						<!-- Haiti -->
+						<xs:enumeration value="HT" />
+						<!-- Heard Island and McDonald Islands -->
+						<xs:enumeration value="HM" />
+						<!-- Holy See (Vatican City State) -->
+						<xs:enumeration value="VA" />
+						<!-- Honduras -->
+						<xs:enumeration value="HN" />
+						<!-- Hong Kong -->
+						<xs:enumeration value="HK" />
+						<!-- Hungary -->
+						<xs:enumeration value="HU" />
+						<!-- Iceland -->
+						<xs:enumeration value="IS" />
+						<!-- India -->
+						<xs:enumeration value="IN" />
+						<!-- Indonesia -->
+						<xs:enumeration value="ID" />
+						<!-- "Iran Islamic Republic of" -->
+						<xs:enumeration value="IR" />
+						<!-- Iraq -->
+						<xs:enumeration value="IQ" />
+						<!-- Ireland -->
+						<xs:enumeration value="IE" />
+						<!-- Isle of Man -->
+						<xs:enumeration value="IM" />
+						<!-- Israel -->
+						<xs:enumeration value="IL" />
+						<!-- Italy -->
+						<xs:enumeration value="IT" />
+						<!-- Jamaica -->
+						<xs:enumeration value="JM" />
+						<!-- Japan -->
+						<xs:enumeration value="JP" />
+						<!-- Jersey -->
+						<xs:enumeration value="JE" />
+						<!-- Jordan -->
+						<xs:enumeration value="JO" />
+						<!-- Kazakhstan -->
+						<xs:enumeration value="KZ" />
+						<!-- Kenya -->
+						<xs:enumeration value="KE" />
+						<!-- Kiribati -->
+						<xs:enumeration value="KI" />
+						<!-- "Korea Democratic People's Republic of" -->
+						<xs:enumeration value="KP" />
+						<!-- "Korea Republic of" -->
+						<xs:enumeration value="KR" />
+						<!-- Kuwait -->
+						<xs:enumeration value="KW" />
+						<!-- Kyrgyzstan -->
+						<xs:enumeration value="KG" />
+						<!-- Lao People's Democratic Republic -->
+						<xs:enumeration value="LA" />
+						<!-- Latvia -->
+						<xs:enumeration value="LV" />
+						<!-- Lebanon -->
+						<xs:enumeration value="LB" />
+						<!-- Lesotho -->
+						<xs:enumeration value="LS" />
+						<!-- Liberia -->
+						<xs:enumeration value="LR" />
+						<!-- Libya -->
+						<xs:enumeration value="LY" />
+						<!-- Liechtenstein -->
+						<xs:enumeration value="LI" />
+						<!-- Lithuania -->
+						<xs:enumeration value="LT" />
+						<!-- Luxembourg -->
+						<xs:enumeration value="LU" />
+						<!-- Macao -->
+						<xs:enumeration value="MO" />
+						<!-- "Macedonia the Former Yugoslav Republic of" -->
+						<xs:enumeration value="MK" />
+						<!-- Madagascar -->
+						<xs:enumeration value="MG" />
+						<!-- Malawi -->
+						<xs:enumeration value="MW" />
+						<!-- Malaysia -->
+						<xs:enumeration value="MY" />
+						<!-- Maldives -->
+						<xs:enumeration value="MV" />
+						<!-- Mali -->
+						<xs:enumeration value="ML" />
+						<!-- Malta -->
+						<xs:enumeration value="MT" />
+						<!-- Marshall Islands -->
+						<xs:enumeration value="MH" />
+						<!-- Martinique -->
+						<xs:enumeration value="MQ" />
+						<!-- Mauritania -->
+						<xs:enumeration value="MR" />
+						<!-- Mauritius -->
+						<xs:enumeration value="MU" />
+						<!-- Mayotte -->
+						<xs:enumeration value="YT" />
+						<!-- Mexico -->
+						<xs:enumeration value="MX" />
+						<!-- "Micronesia Federated States of" -->
+						<xs:enumeration value="FM" />
+						<!-- "Moldova Republic of" -->
+						<xs:enumeration value="MD" />
+						<!-- Monaco -->
+						<xs:enumeration value="MC" />
+						<!-- Mongolia -->
+						<xs:enumeration value="MN" />
+						<!-- Montenegro -->
+						<xs:enumeration value="ME" />
+						<!-- Montserrat -->
+						<xs:enumeration value="MS" />
+						<!-- Morocco -->
+						<xs:enumeration value="MA" />
+						<!-- Mozambique -->
+						<xs:enumeration value="MZ" />
+						<!-- Myanmar -->
+						<xs:enumeration value="MM" />
+						<!-- Namibia -->
+						<xs:enumeration value="NA" />
+						<!-- Nauru -->
+						<xs:enumeration value="NR" />
+						<!-- Nepal -->
+						<xs:enumeration value="NP" />
+						<!-- Netherlands -->
+						<xs:enumeration value="NL" />
+						<!-- New Caledonia -->
+						<xs:enumeration value="NC" />
+						<!-- New Zealand -->
+						<xs:enumeration value="NZ" />
+						<!-- Nicaragua -->
+						<xs:enumeration value="NI" />
+						<!-- Niger -->
+						<xs:enumeration value="NE" />
+						<!-- Nigeria -->
+						<xs:enumeration value="NG" />
+						<!-- Niue -->
+						<xs:enumeration value="NU" />
+						<!-- Norfolk Island -->
+						<xs:enumeration value="NF" />
+						<!-- Northern Mariana Islands -->
+						<xs:enumeration value="MP" />
+						<!-- Norway -->
+						<xs:enumeration value="NO" />
+						<!-- Oman -->
+						<xs:enumeration value="OM" />
+						<!-- Pakistan -->
+						<xs:enumeration value="PK" />
+						<!-- Palau -->
+						<xs:enumeration value="PW" />
+						<!-- "Palestine State of" -->
+						<xs:enumeration value="PS" />
+						<!-- Panama -->
+						<xs:enumeration value="PA" />
+						<!-- Papua New Guinea -->
+						<xs:enumeration value="PG" />
+						<!-- Paraguay -->
+						<xs:enumeration value="PY" />
+						<!-- Peru -->
+						<xs:enumeration value="PE" />
+						<!-- Philippines -->
+						<xs:enumeration value="PH" />
+						<!-- Pitcairn -->
+						<xs:enumeration value="PN" />
+						<!-- Poland -->
+						<xs:enumeration value="PL" />
+						<!-- Portugal -->
+						<xs:enumeration value="PT" />
+						<!-- Puerto Rico -->
+						<xs:enumeration value="PR" />
+						<!-- Qatar -->
+						<xs:enumeration value="QA" />
+						<!-- Réunion -->
+						<xs:enumeration value="RE" />
+						<!-- Romania -->
+						<xs:enumeration value="RO" />
+						<!-- Russian Federation -->
+						<xs:enumeration value="RU" />
+						<!-- Rwanda -->
+						<xs:enumeration value="RW" />
+						<!-- Saint Barthélemy -->
+						<xs:enumeration value="BL" />
+						<!-- "Saint Helena Ascension and Tristan da Cunha" -->
+						<xs:enumeration value="SH" />
+						<!-- Saint Kitts and Nevis -->
+						<xs:enumeration value="KN" />
+						<!-- Saint Lucia -->
+						<xs:enumeration value="LC" />
+						<!-- Saint Martin (French part) -->
+						<xs:enumeration value="MF" />
+						<!-- Saint Pierre and Miquelon -->
+						<xs:enumeration value="PM" />
+						<!-- Saint Vincent and the Grenadines -->
+						<xs:enumeration value="VC" />
+						<!-- Samoa -->
+						<xs:enumeration value="WS" />
+						<!-- San Marino -->
+						<xs:enumeration value="SM" />
+						<!-- Sao Tome and Principe -->
+						<xs:enumeration value="ST" />
+						<!-- Saudi Arabia -->
+						<xs:enumeration value="SA" />
+						<!-- Senegal -->
+						<xs:enumeration value="SN" />
+						<!-- Serbia -->
+						<xs:enumeration value="RS" />
+						<!-- Seychelles -->
+						<xs:enumeration value="SC" />
+						<!-- Sierra Leone -->
+						<xs:enumeration value="SL" />
+						<!-- Singapore -->
+						<xs:enumeration value="SG" />
+						<!-- Sint Maarten (Dutch part) -->
+						<xs:enumeration value="SX" />
+						<!-- Slovakia -->
+						<xs:enumeration value="SK" />
+						<!-- Slovenia -->
+						<xs:enumeration value="SI" />
+						<!-- Solomon Islands -->
+						<xs:enumeration value="SB" />
+						<!-- Somalia -->
+						<xs:enumeration value="SO" />
+						<!-- South Africa -->
+						<xs:enumeration value="ZA" />
+						<!-- South Georgia and the South Sandwich Islands -->
+						<xs:enumeration value="GS" />
+						<!-- South Sudan -->
+						<xs:enumeration value="SS" />
+						<!-- Spain -->
+						<xs:enumeration value="ES" />
+						<!-- Sri Lanka -->
+						<xs:enumeration value="LK" />
+						<!-- Sudan -->
+						<xs:enumeration value="SD" />
+						<!-- Suriname -->
+						<xs:enumeration value="SR" />
+						<!-- Svalbard and Jan Mayen -->
+						<xs:enumeration value="SJ" />
+						<!-- Swaziland -->
+						<xs:enumeration value="SZ" />
+						<!-- Sweden -->
+						<xs:enumeration value="SE" />
+						<!-- Switzerland -->
+						<xs:enumeration value="CH" />
+						<!-- Syrian Arab Republic -->
+						<xs:enumeration value="SY" />
+						<!-- "Taiwan Province of China" -->
+						<xs:enumeration value="TW" />
+						<!-- Tajikistan -->
+						<xs:enumeration value="TJ" />
+						<!-- "Tanzania United Republic of" -->
+						<xs:enumeration value="TZ" />
+						<!-- Thailand -->
+						<xs:enumeration value="TH" />
+						<!-- Timor-Leste -->
+						<xs:enumeration value="TL" />
+						<!-- Togo -->
+						<xs:enumeration value="TG" />
+						<!-- Tokelau -->
+						<xs:enumeration value="TK" />
+						<!-- Tonga -->
+						<xs:enumeration value="TO" />
+						<!-- Trinidad and Tobago -->
+						<xs:enumeration value="TT" />
+						<!-- Tunisia -->
+						<xs:enumeration value="TN" />
+						<!-- Turkey -->
+						<xs:enumeration value="TR" />
+						<!-- Turkmenistan -->
+						<xs:enumeration value="TM" />
+						<!-- Turks and Caicos Islands -->
+						<xs:enumeration value="TC" />
+						<!-- Tuvalu -->
+						<xs:enumeration value="TV" />
+						<!-- Uganda -->
+						<xs:enumeration value="UG" />
+						<!-- Ukraine -->
+						<xs:enumeration value="UA" />
+						<!-- United Arab Emirates -->
+						<xs:enumeration value="AE" />
+						<!-- United Kingdom -->
+						<xs:enumeration value="GB" />
+						<!-- United States -->
+						<xs:enumeration value="US" />
+						<!-- United States Minor Outlying Islands -->
+						<xs:enumeration value="UM" />
+						<!-- Uruguay -->
+						<xs:enumeration value="UY" />
+						<!-- Uzbekistan -->
+						<xs:enumeration value="UZ" />
+						<!-- Vanuatu -->
+						<xs:enumeration value="VU" />
+						<!-- "Venezuela Bolivarian Republic of" -->
+						<xs:enumeration value="VE" />
+						<!-- Viet Nam -->
+						<xs:enumeration value="VN" />
+						<!-- "Virgin Islands British" -->
+						<xs:enumeration value="VG" />
+						<!-- "Virgin Islands U.S." -->
+						<xs:enumeration value="VI" />
+						<!-- Wallis and Futuna -->
+						<xs:enumeration value="WF" />
+						<!-- Western Sahara -->
+						<xs:enumeration value="EH" />
+						<!-- Yemen -->
+						<xs:enumeration value="YE" />
+						<!-- Zambia -->
+						<xs:enumeration value="ZM" />
+						<!-- Zimbabwe -->
+						<xs:enumeration value="ZW" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="postalZip">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="5" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="state">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="3" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="name">
+		<xs:sequence>
+			<xs:element name="firstName">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="15" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="lastName">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="15" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="maidenName" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="15" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="middleName" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="15" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="suffix" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="3" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="preNeedAttachment">
+		<xs:sequence>
+			<xs:element name="attachmentType" type="tns:attachmentType" />
+			<xs:element name="dataHandler" type="xs:base64Binary" />
+			<xs:element name="description" type="xs:string" />
+			<xs:element name="sendingName" >
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:pattern value="[a-zA-Z0-9_+-]+\.pdf" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="sendingSource">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="vets.gov" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="claimant">
+		<xs:sequence>
+			<xs:element name="address" type="tns:address" minOccurs="1" />
+			<xs:element name="dateOfBirth" type="xs:date" />
+			<xs:element name="desiredCemetery" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:integer">
+						<xs:pattern value="\d{3}" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="email" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:pattern value="[a-zA-Z0-9_.+-]+@[a-zA-Z0-9_+-]+\.[a-zA-Z]+" />
+						<xs:maxLength value="20"></xs:maxLength>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="name" type="tns:name" />
+			<xs:element name="phoneNumber" minOccurs="0">
+			<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:pattern value="[0-9+\s-]{0,20}" />
+					</xs:restriction>
+					</xs:simpleType>
+			</xs:element>
+			<xs:element name="relationshipToVet">
+				<!-- 1 = Veteran/Self, 2 = Spouse/Surviving Spouse, 3 = Unmarried Adult
+					Child -->
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="1" />
+						<xs:enumeration value="2" />
+						<xs:enumeration value="3" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="ssn">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:pattern value="\d{3}-\d{2}-\d{4}" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="currentlyBuried">
+		<xs:sequence>
+			<xs:element name="cemeteryNumber" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:integer">
+						<xs:pattern value="\d{3}" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="name" type="tns:name" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="veteran">
+		<xs:sequence>
+			<xs:element name="address" type="tns:address" minOccurs="0" />
+			<xs:element name="currentName" type="tns:name" />
+			<xs:element name="dateOfBirth" type="xs:date" minOccurs="0" />
+			<xs:element name="dateOfDeath" type="xs:date" minOccurs="0" />
+			<xs:element name="gender">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="Male" />
+						<xs:enumeration value="Female" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="isDeceased">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="yes" />
+						<xs:enumeration value="no" />
+						<xs:enumeration value="unsure" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="maritalStatus">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="Single" />
+						<xs:enumeration value="Separated" />
+						<xs:enumeration value="Married" />
+						<xs:enumeration value="Divorced" />
+						<xs:enumeration value="Widowed" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="militaryServiceNumber" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="9" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="placeOfBirth" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="100" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="serviceName" type="tns:name" />
+			<xs:element name="serviceRecords" type="tns:militaryService"
+				maxOccurs="1000" />
+			<xs:element name="ssn">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:pattern value="\d{3}-\d{2}-\d{4}" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="vaClaimNumber" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="9" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="militaryStatus" minOccurs="1">
+			<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<!--
+							ACTIVE_DUTY("A", "ACTIVE DUTY"),
+						    RETIRED("R", "RETIRED"),
+						    RESERVE_NATIONAL_GUARD("S", "RESERVE/NATIONAL GUARD"),
+						    VETERAN("V", "VETERAN"),
+						    OTHER_UNKNOWN("X", "OTHER/UNKNOWN"),
+						    OTHER("X", "OTHER"),
+						    RETIRED_ACTIVE_DUTY("E", "RETIRED ACTIVE DUTY"),
+						    DIED_ON_ACTIVE_DUTY("D", "DIED ON ACTIVE DUTY"),
+						    RETIRED_RESERVE_NATIONAL_GUARD("O", "RETIRED RESERVE OR NATIONAL GUARD"),
+						    DEATH_INACTIVE_DUTY("I", "DEATH RELATED TO INACTIVE DUTY TRAINING");
+						 -->
+						<xs:enumeration value="A" />
+						<xs:enumeration value="R" />
+						<xs:enumeration value="S" />
+						<xs:enumeration value="V" />
+						<xs:enumeration value="X" />
+						<xs:enumeration value="E" />
+						<xs:enumeration value="D" />
+						<xs:enumeration value="O" />
+						<xs:enumeration value="I" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="militaryService">
+		<xs:sequence>
+			<xs:element name="branchOfService" type="tns:branchOfServiceCode" />
+			<xs:element name="dischargeType" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<!--
+							1 - Honorable
+							2 - General
+							3 - Entry Level Separation/Uncharacterized
+							4 - Other Than Honorable
+							5 - Bad Conduct Discharge
+							6 - Dishonorable
+							7 - Other
+						 -->
+						<xs:enumeration value="1" />
+						<xs:enumeration value="2" />
+						<xs:enumeration value="3" />
+						<xs:enumeration value="4" />
+						<xs:enumeration value="5" />
+						<xs:enumeration value="6" />
+						<xs:enumeration value="7" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="enteredOnDutyDate" type="xs:date"
+				minOccurs="0" />
+			<xs:element name="highestRank" type="xs:string" minOccurs="0" />
+			<xs:element name="nationalGuardState" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="3" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="releaseFromDutyDate" type="xs:date"
+				minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="receivePreNeedApplicationResponse">
+		<xs:sequence>
+			<xs:element name="return" type="tns:preNeedResponse"
+				minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="preNeedResponse">
+		<xs:sequence>
+			<xs:element name="applicationUUID" type="xs:string"
+				minOccurs="0" />
+			<xs:element name="returnCode" type="xs:string" minOccurs="1" />
+			<xs:element name="returnDescription" type="xs:string"
+				minOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="addAttachment">
+		<xs:sequence>
+			<xs:element name="trackingNumber">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:maxLength value="20" />
+				</xs:restriction>
+			</xs:simpleType>
+			</xs:element>
+
+			<xs:element name="preNeedAttachment" type="tns:preNeedAttachment"
+				minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="addAttachmentResponse">
+		<xs:sequence>
+			<xs:element name="return" type="tns:preNeedResponse"
+				minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	<xs:simpleType name="branchOfServiceCode">
+		<xs:restriction base="xs:string">
+			<xs:length value="2"></xs:length>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>
