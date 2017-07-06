@@ -4,7 +4,8 @@ class Shrine
     module ValidateUnlockedPdf
       module AttacherMethods
         def validate_unlocked_pdf
-          cached_path = get.to_io
+          return unless get.mime_type == Mime[:pdf].to_s
+          cached_path = get.download
           xref = PDF::Reader::XRef.new cached_path
           add_error(I18n.t('uploads.pdf.locked')) if xref.trailer[:Encrypt].present?
         rescue PDF::Reader::MalformedPDFError

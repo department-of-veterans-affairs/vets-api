@@ -18,7 +18,7 @@ class ApplicationController < ActionController::API
 
   before_action :authenticate
   before_action :set_app_info_headers
-  before_action :set_raven_uuid_tag
+  before_action :set_uuid_tags
   skip_before_action :authenticate, only: [:cors_preflight, :routing_error]
 
   def cors_preflight
@@ -40,7 +40,8 @@ class ApplicationController < ActionController::API
   rescue_from 'Exception' do |exception|
     # report the original 'cause' of the exception when present
     if SKIP_SENTRY_EXCEPTION_TYPES.include?(exception.class) == false
-      log_exception_to_sentry(exception)
+      extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
+      log_exception_to_sentry(exception, extra)
     else
       Rails.logger.error "#{exception.message}."
       Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
@@ -67,7 +68,8 @@ class ApplicationController < ActionController::API
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
 
-  def set_raven_uuid_tag
+  def set_uuid_tags
+    Thread.current['request_id'] = request.uuid
     Raven.extra_context(request_uuid: request.uuid)
   end
 
