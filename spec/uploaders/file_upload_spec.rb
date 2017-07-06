@@ -53,7 +53,8 @@ RSpec.describe FileUpload do
     end
 
     it 'runs the workflow when the upload is valid' do
-      expect(Sidekiq.logger).to receive(:fatal).with(/with options {:run=>"this"} and data {:foo=>"bar"}/)
+      expect(Sidekiq.logger).to receive(:fatal).with(/with options {:run=>"this"} and data \
+{:foo=>"bar", :current_task=>"SpecUploaderTask"}/)
       klass.new(foo: :bar).start!(good_file)
     end
   end

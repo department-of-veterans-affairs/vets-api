@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170621122611) do
+ActiveRecord::Schema.define(version: 20170703225400) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -94,13 +94,26 @@ ActiveRecord::Schema.define(version: 20170621122611) do
 
   add_index "mhv_accounts", ["user_uuid"], name: "index_mhv_accounts_on_user_uuid", using: :btree
 
+  create_table "persistent_attachments", force: :cascade do |t|
+    t.uuid     "guid"
+    t.string   "type"
+    t.string   "form_id"
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+    t.integer  "saved_claim_id"
+    t.datetime "completed_at"
+    t.string   "encrypted_file_data"
+    t.string   "encrypted_file_data_iv"
+  end
+
   create_table "saved_claims", force: :cascade do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "encrypted_form",    null: false
     t.string   "encrypted_form_iv", null: false
-    t.string   "form_type"
+    t.string   "form_id"
     t.uuid     "guid",              null: false
+    t.string   "type"
   end
 
   create_table "terms_and_conditions", force: :cascade do |t|
