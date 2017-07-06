@@ -24,3 +24,16 @@ edu:
 pension_burial:
   sftp:
     relative_path: 'VETSGOV_PENSION'
+
+shrine:
+  claims:
+    type: memory
+    path: moot
+  local:
+    type: local
+    path: testing-local
+  remotes3:
+    type: s3
+    bucket: bucketname
+    path: remote-testing
+    region: us-gov-west-1
