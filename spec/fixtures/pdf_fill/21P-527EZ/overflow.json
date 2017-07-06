@@ -17,22 +17,6 @@
     "bankName": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "routingNumber": "123456789"
   },
-  "servicePeriods": [
-    {
-      "activeServiceDateRange": {
-        "from": "2012-06-26",
-        "to": "2013-04-10"
-      },
-      "serviceBranch": "army"
-    },
-    {
-      "activeServiceDateRange": {
-        "from": "2012-06-26",
-        "to": "2013-04-10"
-      },
-      "serviceBranch": "army2"
-    }
-  ],
   "noRapidProcessing": true,
   "spouseIsVeteran": true,
   "liveWithSpouse": true,
@@ -41,6 +25,10 @@
   "spouseDateOfBirth": "2012-06-26",
   "spouseSocialSecurityNumber": "111223334",
   "monthlySpousePayment": 9999999999999999999,
+  "activeServiceDateRange": {
+    "from": "2012-06-26",
+    "to": "2013-04-10"
+  },
   "otherExpenses": [
     {
       "amount": 1,
@@ -75,6 +63,7 @@
   ],
   "dependents": [
     {
+      "dependentRelationship": "child",
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -91,12 +80,6 @@
         "last": "Olson"
       },
       "monthlyIncome": {
-        "socialSecurity": 0,
-        "civilService": 0,
-        "railroad": 0,
-        "blackLung": 0,
-        "serviceRetirement": 0,
-        "ssi": 0,
         "additionalSources": [
           {
             "name": "name2",
@@ -109,11 +92,6 @@
         ]
       },
       "netWorth": {
-        "bank": 0,
-        "interestBank": 0,
-        "ira": 0,
-        "stocks": 0,
-        "realProperty": 0,
         "additionalSources": [
           {
             "name": "name1",
@@ -124,6 +102,7 @@
       "monthlyPayment": 1
     },
     {
+      "dependentRelationship": "child",
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -142,6 +121,7 @@
       "monthlyPayment": 2
     },
     {
+      "dependentRelationship": "child",
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -160,6 +140,7 @@
       "monthlyPayment": 3
     },
     {
+      "dependentRelationship": "child",
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -178,6 +159,7 @@
       "monthlyPayment": 4
     },
     {
+      "dependentRelationship": "parent",
       "fullName": {
         "first": "parent",
         "last": "Olson"
@@ -195,6 +177,7 @@
     },
     {
       "childInHousehold": true,
+      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-01",
       "fullName": {
         "first": "Mark1",
@@ -210,6 +193,7 @@
     },
     {
       "childInHousehold": true,
+      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-01",
       "fullName": {
         "first": "Mark1",
@@ -225,6 +209,7 @@
     },
     {
       "childInHousehold": true,
+      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-02",
       "fullName": {
         "first": "Mark2",
@@ -240,6 +225,7 @@
     },
     {
       "childInHousehold": true,
+      "dependentRelationship": "child",
       "childDateOfBirth": "2012-06-03",
       "fullName": {
         "first": "Mark3",
@@ -337,17 +323,13 @@
     "socialSecurity": 1,
     "civilService": 3,
     "blackLung": 5,
-    "railroad": 0,
-    "serviceRetirement": 0,
     "ssi": 7
   },
   "spouseMonthlyIncome": {
     "socialSecurity": 2,
     "civilService": 11,
     "railroad": 4,
-    "blackLung": 0,
     "serviceRetirement": 6,
-    "ssi": 0,
     "additionalSources": [{
       "name": "name1",
       "amount": 8
@@ -355,17 +337,15 @@
   },
   "netWorth": {
     "bank": 1,
-    "stocks": 4,
     "interestBank": 2,
     "ira": 3,
-    "realProperty": 0
+    "otherProperty": 6
   },
   "spouseNetWorth": {
     "bank": 9,
-    "interestBank": 0,
-    "ira": 0,
     "stocks": 4,
-    "realProperty": 5
+    "realProperty": 5,
+    "otherProperty": 7
   },
   "expectedIncome": {
     "salary": 1,
@@ -379,7 +359,6 @@
   },
   "spouseExpectedIncome": {
     "salary": 2,
-    "interest": 0,
     "additionalSources": [
       {
         "name": "name2",
@@ -502,6 +481,7 @@
     "street2": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "state": "MD"
   },
+  "serviceBranch": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "email": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX@XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.com",
   "altEmail": "altXXXXXXXXXXXXXXXXXXXXXXXXXXXXX@XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.com",
   "nightPhone": "0123456789",

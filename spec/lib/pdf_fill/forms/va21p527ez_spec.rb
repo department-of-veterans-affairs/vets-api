@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'rails_helper'
+require 'spec_helper'
 require 'pdf_fill/forms/va21p527ez'
 
 def basic_class
@@ -85,7 +85,7 @@ describe PdfFill::Forms::VA21P527EZ do
     end
 
     subject do
-      described_class.new({}).expand_bank_acct(bank_account)
+      basic_class.expand_bank_acct(bank_account)
     end
 
     context 'when bank account is blank' do
@@ -561,6 +561,7 @@ describe PdfFill::Forms::VA21P527EZ do
           {
             children: [
               {
+                'dependentRelationship' => 'child',
                 'childFullName' => {
                   'first' => 'outside1',
                   'last' => 'Olson'
@@ -568,13 +569,14 @@ describe PdfFill::Forms::VA21P527EZ do
                 'childAddress' => {
                   'city' => 'city1',
                   'country' => 'USA',
-                  'postalCode' => '21232',
+                  'postalCode' => '21231',
                   'state' => 'MD',
                   'street' => 'str1'
                 },
                 'childNotInHousehold' => true
               },
               {
+                'dependentRelationship' => 'child',
                 'childFullName' => {
                   'first' => 'outside1',
                   'last' => 'Olson'
@@ -582,7 +584,7 @@ describe PdfFill::Forms::VA21P527EZ do
                 'childAddress' => {
                   'city' => 'city1',
                   'country' => 'USA',
-                  'postalCode' => '21233',
+                  'postalCode' => '21231',
                   'state' => 'MD',
                   'street' => 'str1'
                 }
@@ -592,23 +594,26 @@ describe PdfFill::Forms::VA21P527EZ do
           :children
         ],
         { :children =>
-  [{ 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21232, USA',
+  [{ 'dependentRelationship' => 'child',
+     'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
+     'childAddress' => 'str1, city1, MD, 21231, USA',
      'childNotInHousehold' => true,
      'personWhoLivesWithChild' => nil },
-   { 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21233, USA',
+   { 'dependentRelationship' => 'child',
+     'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
+     'childAddress' => 'str1, city1, MD, 21231, USA',
      'personWhoLivesWithChild' => nil }],
           'children' => [],
           'outsideChildren' =>
-  [{ 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21232, USA',
+  [{ 'dependentRelationship' => 'child',
+     'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
+     'childAddress' => 'str1, city1, MD, 21231, USA',
      'childNotInHousehold' => true,
      'personWhoLivesWithChild' => nil },
-   { 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21233, USA',
+   { 'dependentRelationship' => 'child',
+     'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
+     'childAddress' => 'str1, city1, MD, 21231, USA',
      'personWhoLivesWithChild' => nil }] }
-
       ]
     ]
   )
@@ -661,7 +666,7 @@ describe PdfFill::Forms::VA21P527EZ do
     end
 
     subject do
-      described_class.new({}).combine_full_name(full_name)
+      basic_class.combine_full_name(full_name)
     end
 
     context 'with missing fields' do

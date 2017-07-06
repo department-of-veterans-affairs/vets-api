@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-require 'workflow/task/shared/convert_to_pdf'
+require 'workflow/task/common/convert_to_pdf'
 
-describe Workflow::Task::Shared::ConvertToPdf do
+describe Workflow::Task::Common::ConvertToPdf do
   let(:attacher) do
     a = Shrine::Attacher.new(InternalAttachment.new, :file)
     a.assign(file)

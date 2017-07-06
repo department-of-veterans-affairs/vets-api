@@ -43,7 +43,7 @@ describe Workflow::Runner do
         Workflow::Runner.perform_one
       end.to trigger_statsd_measure(
         'api.workflow.test_task_a.timing',
-        value: be_between(0, 10)
+        value: be_between(0, 1)
       )
     end
 

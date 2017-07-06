@@ -7,7 +7,6 @@ require 'support/spool_helpers'
 require 'support/fixture_helpers'
 require 'support/spec_temp_files'
 require 'support/have_deep_attributes_matcher'
-require 'support/impl_matchers'
 require 'support/negated_matchers'
 require 'support/veteran_status/stub_veteran_status'
 
@@ -20,12 +19,12 @@ unless ENV['NOCOVERAGE']
     add_filter 'config/initializers/sidekiq.rb'
     add_filter 'config/initializers/statsd.rb'
     add_filter 'config/initializers/mvi_settings.rb'
-    add_filter 'config/initializers/clamscan.rb'
     add_filter 'config/initializers/config.rb'
     add_filter 'lib/tasks/support/shell_command.rb'
     add_filter 'lib/config_helper.rb'
     add_filter 'lib/feature_flipper.rb'
-    add_filter 'spec'
+    add_filter 'spec/support/authenticated_session_helper'
+    add_filter 'spec/support/attr_encrypted_matcher'
     add_filter 'vendor'
     SimpleCov.minimum_coverage_by_file 90
     SimpleCov.refuse_coverage_drop

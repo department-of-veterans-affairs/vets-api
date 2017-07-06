@@ -7,10 +7,10 @@ require 'workflow/task/shrine_file/base'
 # persistent long term storage than it's `cache`, where the file(s)
 # resided before.
 
-module Workflow::Task::Shared
+module Workflow::Task::Common
   class MoveToLTS < Workflow::Task::ShrineFile::Base
     def run(options = {})
-      if options&.key?(:all)
+      if options.key?(:all)
         history.map do |record|
           promote(record)
         end

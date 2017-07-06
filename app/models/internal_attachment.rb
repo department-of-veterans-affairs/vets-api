@@ -13,11 +13,11 @@ class InternalAttachment
     args.each { |k, v| instance_variable_set("@#{k}", v) }
   end
 
-  def method_missing(method_name, *arguments, &block)
+  def method_missing(method_name)
     instance_variable_get "@#{method_name}" || super
   end
 
-  def respond_to_missing?(method_name, include_private = false)
+  def respond_to_missing?(method_name, _)
     instance_variable_defined?("@#{method_name}") || super
   end
 end

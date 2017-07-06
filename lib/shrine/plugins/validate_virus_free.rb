@@ -4,22 +4,18 @@ class Shrine
     module ValidateVirusFree
       module AttacherMethods
         def validate_virus_free(message: nil)
-          cached_path = get.download.path
-          result = ClamScan::Client.scan(location: cached_path)
-          # TODO: Log a the full result to sentry
-          result.safe? || add_error_msg(message || result.body)
+          cached_path = "#{Rails.root}/#{get.to_io.path}"
+          ClamScan::Client.scan(location: cached_path).safe? || add_error(message) && false
         end
 
         private
 
-        def add_error_msg(message)
-          if Rails.env.development? && message.match(/nodename nor servname provided/)
-            Shrine.logger.error('VIRUS SCANNING IS OFF. PLEASE START CLAMD')
-            true
-          else
-            errors << (message || 'virus or malware detected')
-            false
-          end
+        def add_error(*args)
+          errors << error_message(*args)
+        end
+
+        def error_message(message)
+          message || 'virus or malware detected'
         end
       end
     end

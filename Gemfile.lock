@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 8fbfee24b1126e6d8a2cb07c4d37ec9f21a1fdb4
+  revision: 513e22f43218cd9db084f45c0a8e194e3d6f7aec
   branch: master
   specs:
-    vets_json_schema (3.0.24)
+    vets_json_schema (3.0.18)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -191,7 +191,7 @@ GEM
     httpi (2.4.2)
       rack
       socksify
-    i18n (0.8.4)
+    i18n (0.8.1)
     ice_nine (0.11.2)
     iconv (1.0.4)
     iniparse (1.4.2)
@@ -220,7 +220,7 @@ GEM
     mimemagic (0.3.2)
     mini_magick (4.7.0)
     mini_portile2 (2.2.0)
-    minitest (5.10.2)
+    minitest (5.10.1)
     multi_json (1.12.1)
     multipart-post (2.0.0)
     nenv (0.3.0)
@@ -391,7 +391,7 @@ GEM
     simplecov-html (0.10.0)
     slop (3.6.0)
     socksify (1.7.0)
-    spring (2.0.2)
+    spring (2.0.1)
       activesupport (>= 4.2)
     spring-commands-rspec (1.0.4)
       spring (>= 0.9.1)
@@ -411,7 +411,7 @@ GEM
     ttfunk (1.5.0)
     typhoeus (1.1.2)
       ethon (>= 0.9.0)
-    tzinfo (1.2.3)
+    tzinfo (1.2.2)
       thread_safe (~> 0.1)
     unicode-display_width (1.1.1)
     vcr (3.0.3)

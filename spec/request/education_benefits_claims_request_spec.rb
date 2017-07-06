@@ -61,6 +61,7 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
 
       it 'should render json of the new model' do
         subject
+
         expect(response.body).to eq(
           JSON.parse(serialize(EducationBenefitsClaim.last)).to_camelback_keys.to_json
         )

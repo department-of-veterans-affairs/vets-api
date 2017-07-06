@@ -10,13 +10,13 @@ class SFTPWriter::Local
   end
 
   def write_path
-    Rails.root.join('tmp', @config.relative_path.to_s)
+    dir = Rails.root.join('tmp', @config.relative_path.to_s)
+    FileUtils.mkdir_p(dir)
+    dir
   end
 
   def write(contents, filename)
-    path = File.join(write_path, filename)
-    FileUtils.mkdir_p(File.dirname(path))
-    File.open(path, 'wb') do |f|
+    File.open(File.join(write_path, filename), 'w') do |f|
       f.write(contents)
     end
   end

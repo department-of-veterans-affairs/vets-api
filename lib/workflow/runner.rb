@@ -23,7 +23,7 @@ module Workflow
     def self.perform_async(next_step, metadata)
       Sidekiq::Client.push(
         'class'   => self,
-        'wrapped' => metadata[:internal][:chain][next_step][:mod],
+        'wrapped' => next_step,
         'queue'   => QUEUE,
         'args'    => [next_step, metadata]
       )
@@ -60,7 +60,7 @@ module Workflow
       # Build the task class with the user and bookkeeping arguments
       task = current_task[:mod].constantize.new(@options, internal: @internal_options)
       runner = task.method(:run)
-      if runner.arity.abs == 1
+      if runner.arity == 1
         runner.call(current_task[:args])
       else
         unless current_task[:args].empty?

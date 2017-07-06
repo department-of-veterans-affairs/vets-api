@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 # rubocop:disable Metrics/ClassLength
-
-require 'pdf_fill/hash_converter'
-
 module PdfFill
   module Forms
-    class VA21P527EZ < FormBase
+    class VA21P527EZ
       ITERATOR = PdfFill::HashConverter::ITERATOR
+      DATE_STRFTIME = '%m/%d/%Y'
       INCOME_TYPES_KEY = {
         'bank' => 'CASH/NON-INTEREST BEARING BANK ACCOUNTS',
         'interestBank' => 'INTEREST-BEARING BANK ACCOUNTS',
@@ -264,22 +262,10 @@ module PdfFill
             question: '11B. PLEASE LIST THE OTHER NAME(S) YOU SERVED UNDER'
           },
           'dayPhoneAreaCode' => { key: 'F[0].Page_5[0].Daytimeareacode[0]' },
-          'servicePeriods' => {
-            limit: 1,
-            first_key: 'serviceBranch',
-            'serviceBranch' => {
-              key: 'F[0].Page_5[0].Branchofservice[0]',
-              limit: 25,
-              question: '12B. BRANCH OF SERVICE'
-            },
-            'activeServiceDateRangeStart' => {
-              question: '12A. I ENTERED ACTIVE SERVICE ON',
-              key: 'F[0].Page_5[0].DateEnteredActiveService[0]'
-            },
-            'activeServiceDateRangeEnd' => {
-              question: '12C. RELEASE DATE OR ANTICIPATED DATE OF RELEASE FROM ACTIVE SERVICE',
-              key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]'
-            }
+          'serviceBranch' => {
+            key: 'F[0].Page_5[0].Branchofservice[0]',
+            limit: 25,
+            question: '12B. BRANCH OF SERVICE'
           },
           'veteranAddressLine1' => {
             key: 'F[0].Page_5[0].Currentaddress[0]',
@@ -301,6 +287,8 @@ module PdfFill
             limit: 53,
             question: '7A. City, State, Zip, Country'
           },
+          'activeServiceDateRangeStart' => { key: 'F[0].Page_5[0].DateEnteredActiveService[0]' },
+          'activeServiceDateRangeEnd' => { key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]' },
           'placeOfSeparation' => {
             key: 'F[0].Page_5[0].Placeofseparation[0]',
             limit: 41,
@@ -411,6 +399,22 @@ module PdfFill
         key
       end.call.freeze
 
+      def initialize(form_data)
+        @form_data = form_data.deep_dup
+      end
+
+      def expand_date_range(hash, key)
+        return if hash.blank?
+        date_range = hash[key]
+        return if date_range.blank?
+
+        hash["#{key}Start"] = date_range['from']
+        hash["#{key}End"] = date_range['to']
+        hash.delete(key)
+
+        hash
+      end
+
       def expand_pow_date_range(pow_date_range)
         expand_checkbox(pow_date_range.present?, 'PowDateRange')
       end
@@ -435,6 +439,13 @@ module PdfFill
         hash.delete(key)
 
         expand_checkbox(val, new_key)
+      end
+
+      def expand_checkbox(value, key)
+        {
+          "has#{key}" => value == true,
+          "no#{key}" => value == false
+        }
       end
 
       def combine_address(address)
@@ -518,6 +529,26 @@ module PdfFill
         hash
       end
 
+      def combine_hash(hash, keys, separator = ' ')
+        return if hash.blank?
+
+        combined = []
+
+        keys.each do |key|
+          combined << hash[key]
+        end
+
+        combined.compact.join(separator)
+      end
+
+      def combine_previous_names(previous_names)
+        return if previous_names.blank?
+
+        previous_names.map do |previous_name|
+          combine_full_name(previous_name)
+        end.join(', ')
+      end
+
       def expand_marital_status(hash, key)
         marital_status = hash[key]
         return if marital_status.blank?
@@ -560,7 +591,9 @@ module PdfFill
       end
 
       def expand_children(hash, key)
-        children = hash[key]
+        children = hash[key]&.find_all do |dependent|
+          dependent['dependentRelationship'] == 'child'
+        end
         return if children.blank?
 
         children.each do |child|
@@ -581,6 +614,10 @@ module PdfFill
         hash['outsideChildren'] = children_split[:outside]
 
         hash
+      end
+
+      def combine_full_name(full_name)
+        combine_hash(full_name, %w(first middle last suffix))
       end
 
       def expand_marriages(hash, key)
@@ -791,15 +828,6 @@ module PdfFill
         replace_phone(@form_data['nationalGuard'], 'phone')
       end
 
-      def expand_service_periods
-        service_periods = @form_data['servicePeriods']
-        return if service_periods.blank?
-
-        service_periods.each do |service_period|
-          expand_date_range(service_period, 'activeServiceDateRange')
-        end
-      end
-
       # rubocop:disable Metrics/MethodLength
       def merge_fields
         @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
@@ -835,9 +863,10 @@ module PdfFill
 
         expand_jobs(@form_data['jobs'])
 
-        expand_date_range(@form_data, 'powDateRange')
+        %w(activeServiceDateRange powDateRange).each do |attr|
+          expand_date_range(@form_data, attr)
+        end
 
-        expand_service_periods
         expand_dependents
 
         %w(marriages spouseMarriages).each do |marriage_type|
