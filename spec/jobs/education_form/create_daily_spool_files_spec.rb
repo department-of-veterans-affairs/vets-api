@@ -206,6 +206,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
         expect(Net::SFTP).to receive(:start).once.and_return(sftp_mock)
         expect(sftp_mock).to receive(:open?).once.and_return(true)
+        expect(sftp_mock).to receive(:mkdir!).with('spool_files').once.and_return(true)
         expect(sftp_mock).to receive(:upload!) do |contents, path|
           expect(path).to eq File.join(Settings.edu.sftp.relative_path, filename)
           expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')

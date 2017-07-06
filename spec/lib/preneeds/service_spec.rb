@@ -75,6 +75,7 @@ describe Preneeds::Service do
     end
   end
 
+<<<<<<< HEAD
   describe 'add_attachments' do
     let(:file) do
       Rack::Test::UploadedFile.new('spec/support/fixtures/test.pdf', 'application/pdf')
@@ -101,6 +102,20 @@ describe Preneeds::Service do
       attachment = subject.add_attachment(file, '12345')
 
       expect(attachment[:tracking_number]).to be_nil
+    end
+  end
+
+  describe 'receive_pre_need_application' do
+    let(:params) do
+      { pre_need_request: build(:application_form).message }
+    end
+
+    it 'creates a new preneeds application' do
+      application = VCR.use_cassette('preneeds/pre_need_applications/creates_a_pre_need_application') do
+        subject.receive_pre_need_application params
+      end
+
+      expect(application).to be_a(Preneeds::ReceiveApplication)
     end
   end
 end

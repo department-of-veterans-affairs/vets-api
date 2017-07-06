@@ -6,9 +6,24 @@ class SavedClaim < ActiveRecord::Base
   validate(:form_must_be_string)
   attr_encrypted(:form, key: Settings.db_encryption_key)
 
-  before_create do
-    self.guid = SecureRandom.uuid
-    self.form_type = self.class::FORM.upcase
+  has_many :persistent_attachments
+
+  after_initialize do
+    self.guid ||= SecureRandom.uuid
+    self.form_id = self.class::FORM.upcase
+  end
+
+  def process_attachments!
+    GenerateClaimPDFJob.perform_async(id) if respond_to?(:to_pdf)
+    refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
+    files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
+    files.update_all(saved_claim_id: id)
+    files.reload.each.map(&:process)
+    true
+  end
+
+  def confirmation_number
+    "V-#{self.class::CONFIRMATION}-#{guid[0..6]}#{id}".upcase
   end
 
   def open_struct_form
@@ -33,7 +48,16 @@ class SavedClaim < ActiveRecord::Base
 
   def form_matches_schema
     return unless form_is_string
-
     errors[:form].concat(JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM], parsed_form))
+  end
+
+  def to_pdf
+    File.open(PdfFill::Filler.fill_form(self))
+  end
+
+  private
+
+  def attachment_keys
+    []
   end
 end

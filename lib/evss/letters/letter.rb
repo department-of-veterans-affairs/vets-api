@@ -13,6 +13,7 @@ module EVSS
         civil_service
         benefit_summary
         benefit_verification
+        certificate_of_eligibility
       ).freeze
 
       attribute :name, String
