@@ -17,7 +17,7 @@ endobj
 >>
 endobj
 4 0 obj
-<< /Length 335
+<< /Length 324
 >>
 stream
 q
@@ -56,7 +56,6 @@ BT
 [<62617231>] TJ
 ET
 
-/Stamp1 Do
 Q
 
 endstream
@@ -71,43 +70,18 @@ endobj
 /ArtBox [0 0 612.0 792.0]
 /Contents 4 0 R
 /Resources << /ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
-/Font << /F2.0 8 0 R
+/Font << /F2.0 6 0 R
 /F1.0 7 0 R
->>
-/XObject << /Stamp1 6 0 R
 >>
 >>
 >>
 endobj
 6 0 obj
-<< /Type /XObject
-/Subtype /Form
-/BBox [0 0 612.0 792.0]
-/Resources << /Font << /F1.0 7 0 R
+<< /Type /Font
+/Subtype /Type1
+/BaseFont /Helvetica-Bold
+/Encoding /WinAnsiEncoding
 >>
->>
-/Length 186
->>
-stream
-q
-/DeviceRGB cs
-0.0 0.0 0.0 scn
-/DeviceRGB CS
-0.0 0.0 0.0 SCN
-1 w
-0 J
-0 j
-[] 0 d
-
-BT
-465.276 747.384 Td
-/F1.0 12 Tf
-[<56> 80 <657473> 15 <2e676f> 15 <76205375626d697373696f6e>] TJ
-ET
-
-Q
-
-endstream
 endobj
 7 0 obj
 << /Type /Font
@@ -116,29 +90,21 @@ endobj
 /Encoding /WinAnsiEncoding
 >>
 endobj
-8 0 obj
-<< /Type /Font
-/Subtype /Type1
-/BaseFont /Helvetica-Bold
-/Encoding /WinAnsiEncoding
->>
-endobj
 xref
-0 9
+0 8
 0000000000 65535 f 
 0000000015 00000 n 
 0000000109 00000 n 
 0000000158 00000 n 
 0000000215 00000 n 
-0000000601 00000 n 
-0000000928 00000 n 
-0000001260 00000 n 
-0000001357 00000 n 
+0000000590 00000 n 
+0000000888 00000 n 
+0000000990 00000 n 
 trailer
-<< /Size 9
+<< /Size 8
 /Root 2 0 R
 /Info 1 0 R
 >>
 startxref
-1459
+1087
 %%EOF
