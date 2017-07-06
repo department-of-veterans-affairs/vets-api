@@ -1,7 +1,7 @@
 # Display the Swagger Doc
 - The doc is served from the endpoint: `GET` `v0/apidocs`
 
-# Run the Swagger Doc Container
+# Run the Swagger UI Container
 ## Option 1: Run it Locally
 1. Add `null` to `web_origin` in your `settings.local.yml`:
 ```
