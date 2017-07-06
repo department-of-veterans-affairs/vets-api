@@ -126,6 +126,9 @@ module PdfFill
             },
             'type' => { key: 'F[0].Page_5[0].Listtype[0]' }
           },
+          'vaHospitalTreatments' => {
+            key: 'vaHospitalTreatments.nameAndLocation[0]'
+          },
           'marriageCount' => { key: 'F[0].Page_6[0].Howmanytimesmarried[0]' },
           'spouseMarriageCount' => { key: 'F[0].Page_6[0].Howmanytimesspousemarried[0]' },
           'powDateRangeStart' => { key: 'F[0].Page_5[0].Date[1]' },
@@ -801,6 +804,12 @@ module PdfFill
         end
       end
 
+      def expand_vamc
+        if @form_data['hasVisitedVAMC']
+          @form_data['vaHospitalTreatments'] = 'Look up VAMC treatment history'
+        end
+      end
+
       # rubocop:disable Metrics/MethodLength
       def merge_fields
         @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
@@ -856,6 +865,7 @@ module PdfFill
         expand_net_worths
         expand_monthly_incomes
         combine_other_expenses
+        expand_vamc
 
         expand_bank_acct(@form_data['bankAccount'])
 
