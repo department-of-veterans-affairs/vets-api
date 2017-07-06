@@ -27,7 +27,7 @@ module PdfFill
     def generate
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
-      file_path = "#{folder}/extras_#{Time.zone.now}.pdf"
+      file_path = "#{folder}/extras_#{SecureRandom.uuid}.pdf"
       generate_blocks = @generate_blocks
 
       Prawn::Document.generate(file_path) do |pdf|
