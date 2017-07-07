@@ -75,7 +75,6 @@ describe Preneeds::Service do
     end
   end
 
-<<<<<<< HEAD
   describe 'add_attachments' do
     let(:file) do
       Rack::Test::UploadedFile.new('spec/support/fixtures/test.pdf', 'application/pdf')
