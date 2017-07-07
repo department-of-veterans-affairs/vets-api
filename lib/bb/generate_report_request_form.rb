@@ -38,7 +38,7 @@ module BB
 
     # TODO: change this back to data_classes when hack can be properly removed.
     # TODO: also rollback spec changes made as part of this PR:
-    # TODO: tag PR here
+    # TODO: https://github.com/department-of-veterans-affairs/vets-api/pull/1164
     def params
       { from_date: from_date.try(:httpdate), to_date: to_date.try(:httpdate), data_classes: overridden_data_classes }
     end
