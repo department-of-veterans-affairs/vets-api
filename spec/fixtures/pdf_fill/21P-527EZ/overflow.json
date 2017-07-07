@@ -7,6 +7,7 @@
     "suffix": "Sr."
   },
   "noBankAccount": true,
+  "hasVisitedVAMC": true,
   "powDateRange": {
     "from": "2012-04-10",
     "to": "2013-05-10"
