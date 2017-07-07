@@ -371,7 +371,8 @@ module PdfFill
             },
             'otherExplanations' => {
               limit: 90,
-              question: "#{question_num}F. IF YOU INDICATED \"OTHER\" AS TYPE OF MARRIAGE IN ITEM #{question_num}C, PLEASE EXPLAIN:",
+              skip_index: true,
+              question: "#{question_num}F. IF YOU INDICATED \"OTHER\" AS TYPE OF MARRIAGE IN ITEM #{question_num}C, PLEASE EXPLAIN",
               key: "F[0].Page_6[0].Explainothertype#{prefix == 'm' ? 's' : ''}ofmarriage[0]"
             },
             'locationOfMarriage' => {
