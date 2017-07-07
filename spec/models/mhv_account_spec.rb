@@ -420,4 +420,48 @@ RSpec.describe MhvAccount, type: :model do
       end
     end
   end
+
+  describe 'user veteran status' do
+    let(:terms) { create(:terms_and_conditions, latest: true, name: described_class::TERMS_AND_CONDITIONS_NAME) }
+    before(:each) { create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid) }
+    let(:base_attributes) { { user_uuid: user.uuid } }
+
+    let(:ac_client) { instance_double('MHVAC::Client') }
+
+    it 'sets is_veteran true if user is veteran' do
+      allow(SM::Client).to receive(:new).and_return(ac_client)
+      allow_any_instance_of(User).to receive(:veteran?).and_return(true)
+      subject = described_class.new(base_attributes)
+      allow(subject).to receive(:mhv_ac_client) { ac_client }
+      expect(ac_client).to receive(:post_register).with(hash_including(
+                                                          is_veteran: true
+      )).and_return(api_completion_status: 'Successful', correlation_id: 123_456)
+      expect(ac_client).to receive(:post_upgrade).and_return(status: 'success')
+      subject.create_and_upgrade!
+    end
+
+    it 'sets is_veteran false if user is not veteran' do
+      allow(SM::Client).to receive(:new).and_return(ac_client)
+      allow_any_instance_of(User).to receive(:veteran?).and_return(false)
+      subject = described_class.new(base_attributes)
+      allow(subject).to receive(:mhv_ac_client) { ac_client }
+      expect(ac_client).to receive(:post_register).with(hash_including(
+                                                          is_veteran: false
+      )).and_return(api_completion_status: 'Successful', correlation_id: 123_456)
+      expect(ac_client).to receive(:post_upgrade).and_return(status: 'success')
+      subject.create_and_upgrade!
+    end
+
+    it 'sets is_veteran false if veteran status is unknown' do
+      allow(SM::Client).to receive(:new).and_return(ac_client)
+      allow_any_instance_of(User).to receive(:veteran?).and_raise(StandardError)
+      subject = described_class.new(base_attributes)
+      allow(subject).to receive(:mhv_ac_client) { ac_client }
+      expect(ac_client).to receive(:post_register).with(hash_including(
+                                                          is_veteran: false
+      )).and_return(api_completion_status: 'Successful', correlation_id: 123_456)
+      expect(ac_client).to receive(:post_upgrade).and_return(status: 'success')
+      subject.create_and_upgrade!
+    end
+  end
 end
