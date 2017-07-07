@@ -78,8 +78,10 @@
   },
   "relationship": {
     "type": "other",
+    "isEntity": true,
     "other": "other"
   },
+  "firmName": "firmName",
   "claimantAddress": {
     "city": "Baltimore",
     "country": "USA",
