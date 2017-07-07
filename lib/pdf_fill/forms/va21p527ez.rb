@@ -103,16 +103,6 @@ module PdfFill
           'noPreviousNames' => { key: 'F[0].Page_5[0].NameNo[0]' },
           'hasCombatSince911' => { key: 'F[0].Page_5[0].YesCZ[0]' },
           'noCombatSince911' => { key: 'F[0].Page_5[0].NoCZ[0]' },
-          'spouseMarriagesExplanations' => {
-            limit: 90,
-            question: '21F. IF YOU INDICATED "OTHER" AS TYPE OF MARRIAGE IN ITEM 21C, PLEASE EXPLAIN:',
-            key: 'F[0].Page_6[0].Explainothertypeofmarriage[0]'
-          },
-          'marriagesExplanations' => {
-            limit: 90,
-            question: '19F. IF YOU INDICATED "OTHER" AS TYPE OF MARRIAGE IN ITEM 19C, PLEASE EXPLAIN:',
-            key: 'F[0].Page_6[0].Explainothertypesofmarriage[0]'
-          },
           'hasSeverancePay' => { key: 'F[0].Page_5[0].YesSep[0]' },
           'noSeverancePay' => { key: 'F[0].Page_5[0].NoSep[0]' },
           'veteranDateOfBirth' => { key: 'F[0].Page_5[0].Date[0]' },
@@ -379,6 +369,11 @@ module PdfFill
               question: "#{question_num}A. Date of Marriage",
               key: "#{sub_key}.dateOfMarriage[#{ITERATOR}]"
             },
+            'otherExplanations' => {
+              limit: 90,
+              question: "#{question_num}F. IF YOU INDICATED \"OTHER\" AS TYPE OF MARRIAGE IN ITEM #{question_num}C, PLEASE EXPLAIN:",
+              key: "F[0].Page_6[0].Explainothertype#{prefix == 'm' ? 's' : ''}ofmarriage[0]"
+            },
             'locationOfMarriage' => {
               limit: 22,
               question: "#{question_num}A. PLACE OF MARRIAGE",
@@ -597,7 +592,7 @@ module PdfFill
           other_explanations << marriage['otherExplanation'] if marriage['otherExplanation'].present?
         end
 
-        hash["#{key}Explanations"] = other_explanations.join(', ')
+        marriages[0]['otherExplanations'] = other_explanations.join(', ')
 
         hash
       end
