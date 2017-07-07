@@ -446,21 +446,6 @@ module PdfFill
         combine_hash(address, %w(street street2), ', ')
       end
 
-      def combine_full_address(address)
-        combine_hash(
-          address,
-          %w(
-            street
-            street2
-            city
-            state
-            postalCode
-            country
-          ),
-          ', '
-        )
-      end
-
       def combine_city_state(address)
         return if address.blank?
 

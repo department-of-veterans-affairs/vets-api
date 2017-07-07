@@ -368,6 +368,13 @@ module PdfFill
           end
       end
 
+      def expand_firm
+        if @form_data['isEntity']
+          @form_data['firmName']
+          @form_data['claimantAddress']
+        end
+      end
+
       def expand_burial_allowance
         burial_allowance = @form_data['burialAllowanceRequested']
         return if burial_allowance.blank?
