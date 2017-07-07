@@ -8,7 +8,7 @@ module Workflow::Task::Shared
       FileUtils.mkdir_p(Rails.root.join('tmp', 'pdfs'))
       in_path = @file.download.path
       stamp_path = Rails.root.join('tmp', 'pdfs', "#{SecureRandom.uuid}.pdf")
-      generate_stamp(stamp_path, settings[:text], settings[:x], settings[:y])
+      generate_stamp(stamp_path, settings[:text], settings[:x], settings[:y], settings[:text_only])
       out_path = stamp(in_path, stamp_path)
       update_file(io: File.open(out_path))
     ensure
@@ -21,9 +21,12 @@ module Workflow::Task::Shared
 
     private
 
-    def generate_stamp(stamp_path, text, x, y)
-      text = Time.now.utc.strftime("#{text} %FT%T%:z")
-      text += ('. ' + data[:append_to_stamp]) if data[:append_to_stamp]
+    def generate_stamp(stamp_path, text, x, y, text_only)
+      unless text_only
+        text = Time.now.utc.strftime("#{text} %FT%T%:z")
+        text += ('. ' + data[:append_to_stamp]) if data[:append_to_stamp]
+      end
+
       Prawn::Document.generate stamp_path do |pdf|
         pdf.draw_text text, at: [x, y], size: 10
       end
