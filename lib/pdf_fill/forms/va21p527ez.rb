@@ -23,6 +23,7 @@ module PdfFill
         'interest' => 'TOTAL DIVIDENDS AND INTEREST'
       }.freeze
 
+      # rubocop:disable Metrics/LineLength
       KEY = lambda do
         key = {
           'vaFileNumber' => { key: 'F[0].Page_5[0].VAfilenumber[0]' },
@@ -409,6 +410,7 @@ module PdfFill
 
         key
       end.call.freeze
+      # rubocop:enable Metrics/LineLength
 
       def expand_pow_date_range(pow_date_range)
         expand_checkbox(pow_date_range.present?, 'PowDateRange')

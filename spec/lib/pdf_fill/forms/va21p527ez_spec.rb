@@ -188,11 +188,10 @@ describe PdfFill::Forms::VA21P527EZ do
           },
           :a
         ],
-        {:a=>
-  [{"spouseFullName"=>"spouse1 Olson",
-    "otherExplanation"=>"other",
-    "reasonForSeparation"=>"Marriage has not been terminated",
-    "otherExplanations"=>"other"}]}
+        { a:   [{ 'spouseFullName' => 'spouse1 Olson',
+                  'otherExplanation' => 'other',
+                  'reasonForSeparation' => 'Marriage has not been terminated',
+                  'otherExplanations' => 'other' }] }
       ]
     ]
   )
