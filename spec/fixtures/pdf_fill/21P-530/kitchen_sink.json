@@ -78,9 +78,9 @@
   },
   "relationship": {
     "type": "other",
+    "isEntity": true,
     "other": "other"
   },
-  "isEntity": true,
   "firmName": "firmName",
   "claimantAddress": {
     "city": "Baltimore",
