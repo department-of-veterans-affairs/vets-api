@@ -30,6 +30,8 @@ default:
         letter_type: benefit_summary
       - letter_name: Benefit Verification Letter
         letter_type: benefit_verification
+      - letter_name: Certificate of Eligibility Letter
+        letter_type: certificate_of_eligibility
     :status: 200
 
   :get_letter_beneficiary:
