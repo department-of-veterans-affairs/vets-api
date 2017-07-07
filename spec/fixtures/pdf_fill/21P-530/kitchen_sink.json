@@ -80,6 +80,8 @@
     "type": "other",
     "other": "other"
   },
+  "isEntity": true,
+  "firmName": "firmName",
   "claimantAddress": {
     "city": "Baltimore",
     "country": "USA",
