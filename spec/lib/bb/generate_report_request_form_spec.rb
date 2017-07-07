@@ -67,6 +67,7 @@ describe BB::GenerateReportRequestForm do
     end
 
     # TODO: fix as part of hack
+    # TODO: https://github.com/department-of-veterans-affairs/vets-api/pull/1164
     it 'responds to params' do
       expect(subject.params)
         .to eq(from_date: time_before.httpdate, to_date: time_after.httpdate, data_classes: []) # invalid_data_classes)
