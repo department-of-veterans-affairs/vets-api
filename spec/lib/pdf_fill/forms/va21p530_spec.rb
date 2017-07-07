@@ -33,13 +33,13 @@ describe PdfFill::Forms::VA21P530 do
           'relationship' => {
             'isEntity' => true
           },
-          "claimantAddress" => {
-            "city" => "Baltimore",
-            "country" => "USA",
-            "postalCode" => "21231",
-            "street" => "street",
-            "street2" => "street2",
-            "state" => "MD"
+          'claimantAddress' => {
+            'city' => 'Baltimore',
+            'country' => 'USA',
+            'postalCode' => '21231',
+            'street' => 'street',
+            'street2' => 'street2',
+            'state' => 'MD'
           },
           'firmName' => 'firmName'
         }
