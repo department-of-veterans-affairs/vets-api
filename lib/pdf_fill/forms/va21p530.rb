@@ -370,8 +370,8 @@ module PdfFill
 
       def expand_firm
         if @form_data['isEntity']
-          @form_data['firmName']
-          @form_data['claimantAddress']
+          address = combine_full_address(@form_data['claimantAddress']) || ''
+          @form_data['firmNameAndAddr'] = (@form_data['firmName'] || '') + address
         end
       end
 
