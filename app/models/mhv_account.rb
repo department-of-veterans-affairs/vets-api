@@ -134,8 +134,9 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def veteran?
-    # TODO: this field is derived from eMIS and might have pending ATO considerations for us to use it.
-    true
+    user.veteran?
+  rescue
+    false
   end
 
   def create_mhv_account!
