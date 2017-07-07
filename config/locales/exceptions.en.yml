@@ -135,3 +135,63 @@ en:
         code: 'MHV001'
         detail: 'Failed to create or upgrade health tools account access'
         status: 403
+      SM901: # 'Authentication Service Error' (connection pool issue)
+        <<: *external_defaults
+        code: 'SM901'
+        detail: 'Service is termporarily unavailable'
+        status: 503
+      SM105: # What casues this? Perhaps then we can come up with more customized detail below
+        <<: *external_defaults
+        code: 'SM105'
+        detail: 'User was not found'
+        status: 422
+      SM129:
+        <<: *external_defaults
+        code: 'SM129'
+        detail: 'Unable to reply because you are no longer associated with this Triage Team'
+        status: 422
+      SM135: # 'User is not eligible because they have not accepted terms and conditions or opted-in'
+        <<: *external_defaults
+        code: 'SM135'
+        detail: 'You have not accepted the MHV T&C to use secure messaging'
+        status: 401
+      RX135: # 'The User has not accepted the Rx Agreement. Please login to MHV to accept it'
+        <<: *external_defaults
+        code: 'RX135'
+        detail: 'You have not accepted the MHV T&C to use prescriptions'
+        status: 401
+      SM112: # 'User is not owner of entity requested' (usually attachments)
+        <<: *external_defaults
+        code: 'SM112'
+        detail: 'You do not have access to the requested resource'
+        status: 401
+      SM116: # 'The Folder must be empty before delete'
+        <<: *external_defaults
+        code: 'SM116'
+        detail: 'Folder must be empty before you can delete it'
+        status: 422
+      SM904: # 'Message Service Error'
+        <<: *external_defaults
+        code: 'SM904'
+        detail: 'Something went wrong. Please try again later.'
+        status: 400
+      SM99: # 'Unknown application error occurred'
+        <<: *external_defaults
+        code: 'SM99'
+        detail: 'Something went wrong. Please try again later.'
+        status: 400
+      SM130:
+        <<: *external_defaults
+        code: 'SM130'
+        detail: 'Unable to reply because the source message is expired'
+        status: 422
+      SM151: # 'User is blocked from the Facility' What causes this??
+        <<: *external_defaults
+        code: 'SM151'
+        detail: 'User is blocked from the Facility'
+        status: 422
+      MHVAcctCreation155: # Account is already Upgraded
+        <<: *external_defaults
+        code: 'MHVAcctCreation155'
+        detail: 'Account is already upgraded'
+        status: 422
