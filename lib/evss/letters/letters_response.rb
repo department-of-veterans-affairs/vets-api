@@ -19,8 +19,8 @@ module EVSS
       end
 
       def metadata
-        meta = super()
-        meta.merge!(address: address) if ok?
+        meta = super
+        meta[:address] = address if ok?
         meta
       end
     end
