@@ -14,9 +14,10 @@ module Preneeds
     attribute :deactivated_one_date, Common::UTCTime
     attribute :deactivated_two_date, Common::UTCTime
     attribute :deactivated_three_date, Common::UTCTime
+    attribute :military_rank_detail, Preneeds::MilitaryRankDetail
 
     def id
-      branch_of_service_cd + ':' + military_rank_detail[:rank_code]
+      "#{branch_of_service_cd}:#{military_rank_detail[:rank_code]}"
     end
 
     def <=>(other)

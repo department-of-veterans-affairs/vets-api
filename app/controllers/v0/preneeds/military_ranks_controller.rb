@@ -9,7 +9,7 @@ module V0
         resource = client.get_military_rank_for_branch_of_service(rank_params.to_h)
         render json: resource.data,
                serializer: CollectionSerializer,
-               each_serializer: MilitaryRankSerializer
+               each_serializer: ::Preneeds::MilitaryRankSerializer
       end
     end
   end

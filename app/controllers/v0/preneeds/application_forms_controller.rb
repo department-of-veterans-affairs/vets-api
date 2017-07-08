@@ -2,6 +2,8 @@
 module V0
   module Preneeds
     class ApplicationFormsController < PreneedsController
+      REDIS_EACH_TTL = REDIS_CONFIG['preneeds_store']['each_ttl']
+
       def new
       end
 

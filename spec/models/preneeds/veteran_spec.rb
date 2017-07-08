@@ -111,9 +111,16 @@ RSpec.describe Preneeds::Veteran do
       expect(subject).to_not be_valid
     end
 
-    it 'requires a military_status' do
-      params.delete(:military_status)
-      expect(subject).to_not be_valid
+    context 'with invalid military_status' do
+      it 'requires a military_status' do
+        params.delete(:military_status)
+        expect(subject).to_not be_valid
+      end
+
+      it 'requires each status to be valid' do
+        params[:military_status] = %w(A ZZZ)
+        expect(subject).to_not be_valid
+      end
     end
 
     it 'requires military_status to have a valid format' do

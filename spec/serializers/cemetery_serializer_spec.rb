@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe CemeterySerializer, type: :serializer do
+RSpec.describe ::Preneeds::CemeterySerializer, type: :serializer do
   let(:cemetery) { build :cemetery }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }

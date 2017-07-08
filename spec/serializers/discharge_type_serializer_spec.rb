@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe DischargeTypeSerializer, type: :serializer do
+RSpec.describe ::Preneeds::DischargeTypeSerializer, type: :serializer do
   let(:discharge_type) { build :discharge_type }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }

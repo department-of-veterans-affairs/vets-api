@@ -3,6 +3,7 @@ require 'rails_helper'
 
 RSpec.describe 'Preneeds Attachment Types Integration', type: :request do
   include SchemaMatchers
+  before(:each) { Redis.current.flushall }
 
   it 'responds to GET #index' do
     VCR.use_cassette('preneeds/attachment_types/gets_a_list_of_attachment_types') do

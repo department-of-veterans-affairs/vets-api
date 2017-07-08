@@ -3,6 +3,7 @@ require 'rails_helper'
 
 RSpec.describe 'Preneeds States Integration', type: :request do
   include SchemaMatchers
+  before(:each) { Redis.current.flushall }
 
   it 'responds to GET #index' do
     VCR.use_cassette('preneeds/states/gets_a_list_of_states') do

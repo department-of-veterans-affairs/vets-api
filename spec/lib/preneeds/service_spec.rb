@@ -4,6 +4,7 @@ require 'preneeds/service'
 
 describe Preneeds::Service do
   let(:subject) { described_class.new }
+  before(:each) { Redis.current.flushall }
 
   describe 'get_cemeteries' do
     it 'gets a collection of cemeteries' do

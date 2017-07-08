@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe MilitaryRankDetailSerializer, type: :serializer do
+RSpec.describe ::Preneeds::MilitaryRankDetailSerializer, type: :serializer do
   let(:military_rank_detail) { build :military_rank_detail }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }

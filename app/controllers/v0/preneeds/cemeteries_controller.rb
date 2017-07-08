@@ -7,7 +7,7 @@ module V0
         resource = client.get_cemeteries
         render json: resource.data,
                serializer: CollectionSerializer,
-               each_serializer: CemeterySerializer
+               each_serializer: ::Preneeds::CemeterySerializer
       end
     end
   end
