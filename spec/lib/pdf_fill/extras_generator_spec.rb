@@ -9,8 +9,12 @@ describe PdfFill::ExtrasGenerator do
 
   describe '#generate' do
     it 'should generate the pdf' do
-      subject.add_text('foo', 'bar')
-      subject.add_text('foo1', 'bar1')
+      subject.add_text('bar',
+        question_num: 1,
+        question_suffix: 'A',
+        question_text: 'foo',
+        i: 1
+      )
       file_path = subject.generate
 
       expect(

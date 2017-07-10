@@ -5,20 +5,23 @@ module PdfFill
       @generate_blocks = []
     end
 
-    def add_text(metadata, value)
+    def add_text(value, metadata)
       unless text?
-        @generate_blocks << lambda do |pdf|
-          pdf.text('Additional Information', size: 16, style: :bold)
-        end
+        @generate_blocks << {
+          metadata: {},
+          block: lambda do |pdf|
+            pdf.text('Additional Information', size: 16, style: :bold)
+          end
+        }
       end
 
       @generate_blocks << {
         metadata: metadata,
         block: lambda do |pdf|
           pdf.move_down(10)
-          prefix = metadata[:question_num]
+          prefix = metadata[:question_num].to_s
           prefix += metadata[:question_suffix] if metadata[:question_suffix].present?
-          prefix = "#{prefix}. #{question_text}"
+          prefix = "#{prefix}. #{metadata[:question_text].humanize}"
           i = metadata[:i]
           prefix += " Line #{i + 1}" if i.present?
 
@@ -46,7 +49,7 @@ module PdfFill
           height: pdf.bounds.height - box_height
         ) do
           generate_blocks.each do |block|
-            block.call(pdf)
+            block[:block].call(pdf)
           end
         end
       end
