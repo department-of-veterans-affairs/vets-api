@@ -34,7 +34,12 @@ class MhvAccount < ActiveRecord::Base
       transitions from: ALL_STATES, to: :ineligible, unless: :eligible?
       transitions from: ALL_STATES, to: :upgraded, if: :previously_upgraded?
       transitions from: ALL_STATES, to: :registered, if: :previously_registered?
-      transitions from: ALL_STATES, to: :unknown
+      transitions from: ALL_STATES, to: :registered, if: :preexisting_account?
+      transitions from: [:register_failed], to: :register_failed
+      transitions from: [:upgrade_failed], to: :upgrade_failed
+      transitions from: [:registered], to: :registered
+      transitions from: [:upgraded], to: :upgraded
+      transitions from: [:unknown, :needs_terms_acceptance, :ineligible], to: :unknown
     end
 
     event :check_terms_acceptance do
