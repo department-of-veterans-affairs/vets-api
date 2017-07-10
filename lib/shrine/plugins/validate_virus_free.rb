@@ -5,6 +5,8 @@ class Shrine
       module AttacherMethods
         def validate_virus_free(message: nil)
           cached_path = get.download.path
+          # `clamd` runs within service group, needs group read
+          File.chmod(0o640, cached_path)
           result = ClamScan::Client.scan(location: cached_path)
           # TODO: Log a the full result to sentry
           result.safe? || add_error_msg(message || result.body)
