@@ -110,16 +110,16 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.account_state).to eq('upgraded')
         end
 
-        it 'a priori register_failed account stays upgraded' do
+        it 'a priori register_failed account changes to unknown' do
           subject = described_class.new(base_attributes.merge(upgraded_at: nil, account_state: :register_failed))
           subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).to eq('register_failed')
+          expect(subject.account_state).to eq('unknown')
         end
 
-        it 'a priori upgrade_failed account stays upgraded' do
+        it 'a priori upgrade_failed account changes to unknown' do
           subject = described_class.new(base_attributes.merge(upgraded_at: nil, account_state: :upgrade_failed))
           subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).to eq('upgrade_failed')
+          expect(subject.account_state).to eq('unknown')
         end
       end
 
