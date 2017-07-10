@@ -22,7 +22,17 @@ module Swagger
 
         property :meta, type: :object do
           property :address, type: :object do
-            key :required, [:full_name, :address_line1, :address_line2, :address_line3, :city, :state, :country, :foreign_code, :zip_code]
+            key :required, [
+              :full_name,
+              :address_line1,
+              :address_line2,
+              :address_line3,
+              :city,
+              :state,
+              :country,
+              :foreign_code,
+              :zip_code
+            ]
             property :full_name, type: :string, example: 'Abraham Lincoln'
             property :address_line1, type: :string, example: '140 Rock Creek Church Rd NW'
             property :address_line2, type: :string, example: nil
@@ -41,17 +51,16 @@ module Swagger
         key :required, [:name, :letter_type]
         property :name, type: :string, example: 'Proof of Service Letter'
         property :letter_type, type: :string, enum: %w(
-            commissary
-            proof_of_service
-            medicare_partd
-            minimum_essential_coverage
-            service_verification
-            civil_service
-            benefit_summary
-            benefit_verification
-            certificate_of_eligibility
-          ),
-          example: 'proof_of_service'
+          commissary
+          proof_of_service
+          medicare_partd
+          minimum_essential_coverage
+          service_verification
+          civil_service
+          benefit_summary
+          benefit_verification
+          certificate_of_eligibility
+        ), example: 'proof_of_service'
       end
     end
   end

@@ -631,16 +631,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       it 'supports posting EVSS Letters' do
-        expect(subject).to validate(:post, '/v0/letters/{id}', 401, {'id' => 'commissary'})
+        expect(subject).to validate(:post, '/v0/letters/{id}', 401, 'id' => 'commissary')
         subject.remove_tested_end_point_response('/v0/letters/{id}', :post, 200)
-        # VCR.use_cassette('evss/letters/download_options') do
-        #   expect(subject).to validate(
-        #     :post,
-        #     '/v0/letters/{id}',
-        #     200,
-        #     auth_options.merge!('id' => 'commissary')
-        #   )
-        # end
       end
     end
 

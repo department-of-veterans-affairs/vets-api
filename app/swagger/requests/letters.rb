@@ -29,7 +29,7 @@ module Swagger
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, 'Returns military service history, and a list of benefit options for use with POST /v0/letters'
+          key :description, 'Returns service history, and a list of benefit options for use with POST /v0/letters'
           key :operationId, 'getLettersBeneficiary'
           key :tags, %w(
             evss
