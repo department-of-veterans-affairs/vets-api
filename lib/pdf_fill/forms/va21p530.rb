@@ -77,7 +77,9 @@ module PdfFill
         'officialPosition' => {
           key: 'officialPosition',
           limit: 48,
-          question: '20B. OFFICIAL POSITION OF PERSON SIGNING ON BEHALF OF FIRM, CORPORATION OR STATE AGENCY'
+          question_num: 20,
+          question_suffix: 'B',
+          question_text: 'OFFICIAL POSITION OF PERSON SIGNING ON BEHALF OF FIRM, CORPORATION OR STATE AGENCY'
         },
         'hasBurialAllowance' => {
           key: 'form1[0].#subform[37].YES4[3]'
