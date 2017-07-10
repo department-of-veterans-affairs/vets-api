@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 namespace :swagger do
-  desc 'Given a json schema file generates a swagger block'
+  desc 'Given a json schema file generates a swagger block: `bundle exec rake swagger:generate_block[letters.json]`'
   task :generate_block, [:json_schema_file] => [:environment] do |_, args|
     raise IOError, 'No json-schema file provided' unless args[:json_schema_file]
     schema_path = Rails.root.join('spec', 'support', 'schemas', args[:json_schema_file])
