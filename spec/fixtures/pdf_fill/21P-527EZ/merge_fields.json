@@ -2,14 +2,13 @@
   "privacyAgreementAccepted": true,
   "veteranFullName": "john middle smith Sr.",
   "noBankAccount": true,
+  "hasVisitedVAMC": true,
   "bankAccount": {
     "accountNumber": "88888888888",
     "accountType": "checking",
     "bankName": "foo bank",
     "routingNumber": "123456789"
   },
-  "hasVisitedVAMC": true,
-  "vaHospitalTreatments": "Look up VAMC treatment history",
   "noRapidProcessing": true,
   "maritalStatus": "Married",
   "reasonForNotLivingWithSpouse": "illness",
@@ -170,7 +169,8 @@
       "locationOfSeparation": "location1",
       "marriageType": "type1",
       "dateOfSeparation": "1985-04-01",
-      "reasonForSeparation": "divorce1"
+      "reasonForSeparation": "divorce1",
+      "otherExplanations": "spouse other"
     },
     {
       "spouseFullName": "spouse2 Olson",
@@ -191,7 +191,8 @@
       "locationOfMarriage": "marriagelocation1",
       "locationOfSeparation": "location1",
       "marriageType": "type1",
-      "reasonForSeparation": "divorce1"
+      "reasonForSeparation": "divorce1",
+      "otherExplanations": "other"
     },
     {
       "spouseFullName": "Mark2 Olson",
@@ -550,8 +551,6 @@
       "adopted": true
     }
   ],
-  "marriagesExplanations": "other",
-  "spouseMarriagesExplanations": "spouse other",
   "spouseMarriageCount": 2,
   "marriageCount": 2,
   "maritalStatusMarried": true,
@@ -675,6 +674,7 @@
       "additionalSourceName": "name3"
     }
   ],
+  "vaHospitalTreatments": "Look up VAMC treatment history",
   "hasChecking": true,
   "hasSavings": false,
   "checkingAccountNumber": "88888888888"

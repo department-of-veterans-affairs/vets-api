@@ -23,6 +23,7 @@ module PdfFill
         'interest' => 'TOTAL DIVIDENDS AND INTEREST'
       }.freeze
 
+      # rubocop:disable Metrics/LineLength
       KEY = lambda do
         key = {
           'vaFileNumber' => { key: 'F[0].Page_5[0].VAfilenumber[0]' },
@@ -103,16 +104,6 @@ module PdfFill
           'noPreviousNames' => { key: 'F[0].Page_5[0].NameNo[0]' },
           'hasCombatSince911' => { key: 'F[0].Page_5[0].YesCZ[0]' },
           'noCombatSince911' => { key: 'F[0].Page_5[0].NoCZ[0]' },
-          'spouseMarriagesExplanations' => {
-            limit: 90,
-            question: '21F. IF YOU INDICATED "OTHER" AS TYPE OF MARRIAGE IN ITEM 21C, PLEASE EXPLAIN:',
-            key: 'F[0].Page_6[0].Explainothertypeofmarriage[0]'
-          },
-          'marriagesExplanations' => {
-            limit: 90,
-            question: '19F. IF YOU INDICATED "OTHER" AS TYPE OF MARRIAGE IN ITEM 19C, PLEASE EXPLAIN:',
-            key: 'F[0].Page_6[0].Explainothertypesofmarriage[0]'
-          },
           'hasSeverancePay' => { key: 'F[0].Page_5[0].YesSep[0]' },
           'noSeverancePay' => { key: 'F[0].Page_5[0].NoSep[0]' },
           'veteranDateOfBirth' => { key: 'F[0].Page_5[0].Date[0]' },
@@ -379,6 +370,12 @@ module PdfFill
               question: "#{question_num}A. Date of Marriage",
               key: "#{sub_key}.dateOfMarriage[#{ITERATOR}]"
             },
+            'otherExplanations' => {
+              limit: 90,
+              skip_index: true,
+              question: "#{question_num}F. IF YOU INDICATED \"OTHER\" AS TYPE OF MARRIAGE IN ITEM #{question_num}C, PLEASE EXPLAIN",
+              key: "F[0].Page_6[0].Explainothertype#{prefix == 'm' ? 's' : ''}ofmarriage[0]"
+            },
             'locationOfMarriage' => {
               limit: 22,
               question: "#{question_num}A. PLACE OF MARRIAGE",
@@ -413,6 +410,7 @@ module PdfFill
 
         key
       end.call.freeze
+      # rubocop:enable Metrics/LineLength
 
       def expand_pow_date_range(pow_date_range)
         expand_checkbox(pow_date_range.present?, 'PowDateRange')
@@ -444,21 +442,6 @@ module PdfFill
         return if address.blank?
 
         combine_hash(address, %w(street street2), ', ')
-      end
-
-      def combine_full_address(address)
-        combine_hash(
-          address,
-          %w(
-            street
-            street2
-            city
-            state
-            postalCode
-            country
-          ),
-          ', '
-        )
       end
 
       def combine_city_state(address)
@@ -597,7 +580,7 @@ module PdfFill
           other_explanations << marriage['otherExplanation'] if marriage['otherExplanation'].present?
         end
 
-        hash["#{key}Explanations"] = other_explanations.join(', ')
+        marriages[0]['otherExplanations'] = other_explanations.join(', ')
 
         hash
       end
