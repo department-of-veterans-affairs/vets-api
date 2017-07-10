@@ -22,12 +22,6 @@ module Swagger
               key :'$ref', :Letters
             end
           end
-          response 404 do
-            key :description, 'User or letters not found in EVSS'
-            schema do
-              key :'$ref', :Errors
-            end
-          end
         end
       end
 
@@ -35,7 +29,7 @@ module Swagger
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, 'Returns a list of benefit options for use with POST /v0/letters'
+          key :description, 'Returns military service history, and a list of benefit options for use with POST /v0/letters'
           key :operationId, 'getLettersBeneficiary'
           key :tags, %w(
             evss
@@ -49,12 +43,6 @@ module Swagger
               key :'$ref', :LetterBeneficiary
             end
           end
-          response 404 do
-            key :description, 'User not found in EVSS'
-            schema do
-              key :'$ref', :Errors
-            end
-          end
         end
       end
 
@@ -62,7 +50,7 @@ module Swagger
         operation :post do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, 'Returns a letter as a PDF'
+          key :description, 'Returns a letter as a PDF blob'
           key :operationId, 'postLetter'
           key :tags, %w(
             evss
@@ -92,12 +80,6 @@ module Swagger
 
           response 200 do
             key :description, 'Response is OK'
-          end
-          response 404 do
-            key :description, 'User not found in EVSS'
-            schema do
-              key :'$ref', :Errors
-            end
           end
         end
       end
