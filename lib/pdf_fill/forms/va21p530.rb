@@ -231,7 +231,8 @@ module PdfFill
           },
           'other' => {
             limit: 58,
-            question: '8. RELATIONSHIP OF CLAIMANT TO DECEASED VETERAN',
+            question_num: 8,
+            question_text: 'RELATIONSHIP OF CLAIMANT TO DECEASED VETERAN',
             key: 'form1[0].#subform[36].OTHER_SPECIFY[0]'
           }
         },
