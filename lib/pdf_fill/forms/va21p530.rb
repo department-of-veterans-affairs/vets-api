@@ -241,30 +241,42 @@ module PdfFill
           first_key: 'rank',
           'dateRangeStart' => {
             key: "toursOfDuty.dateRangeStart[#{ITERATOR}]",
-            question: '11A. ENTERED SERVICE (date)'
+            question_num: 11,
+            question_suffix: 'A',
+            question_text: 'ENTERED SERVICE (date)'
           },
           'placeOfEntry' => {
             key: "toursOfDuty.placeOfEntry[#{ITERATOR}]",
             limit: 14,
-            question: '11A. ENTERED SERVICE (place)'
+            question_num: 11,
+            question_suffix: 'A',
+            question_text: 'ENTERED SERVICE (place)'
           },
           'serviceNumber' => {
             key: "toursOfDuty.serviceNumber[#{ITERATOR}]",
             limit: 12,
-            question: '11B. SERVICE NUMBER'
+            question_num: 11,
+            question_suffix: 'B',
+            question_text: 'SERVICE NUMBER'
           },
           'dateRangeEnd' => {
             key: "toursOfDuty.dateRangeEnd[#{ITERATOR}]",
-            question: '11C. SEPARATED FROM SERVICE (date)'
+            question_num: 11,
+            question_suffix: 'C',
+            question_text: 'SEPARATED FROM SERVICE (date)'
           },
           'placeOfSeparation' => {
             key: "toursOfDuty.placeOfSeparation[#{ITERATOR}]",
-            question: '11C. SEPARATED FROM SERVICE (place)',
+            question_num: 11,
+            question_suffix: 'C',
+            question_text: 'SEPARATED FROM SERVICE (place)',
             limit: 15
           },
           'rank' => {
             key: "toursOfDuty.rank[#{ITERATOR}]",
-            question: '11D. GRADE, RANK OR RATING, ORGANIZATION AND BRANCH OF SERVICE',
+            question_num: 11,
+            question_suffix: 'D',
+            question_text: 'GRADE, RANK OR RATING, ORGANIZATION AND BRANCH OF SERVICE',
             limit: 31
           }
         },
