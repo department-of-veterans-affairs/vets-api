@@ -162,7 +162,8 @@ module PdfFill
         'claimantEmail' => {
           key: 'form1[0].#subform[36].PreferredE_MailAddress[0]',
           limit: 31,
-          question: '7. PREFERRED E-MAIL ADDRESS'
+          question_num: 7,
+          question_text: 'PREFERRED E-MAIL ADDRESS'
         },
         'claimantFullName' => {
           'first' => {
