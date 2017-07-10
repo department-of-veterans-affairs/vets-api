@@ -41,8 +41,8 @@ module PdfFill
 
         [
           metadata[:question_num] || -1,
-          metadata[:question_suffix] || -1,
-          metadata[:i] || -1
+          metadata[:i] || -1,
+          metadata[:question_suffix] || -1
         ]
       end
     end
