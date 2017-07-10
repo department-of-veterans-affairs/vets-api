@@ -615,6 +615,33 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 404, auth_options)
         end
       end
+
+      it 'supports getting EVSS Letters' do
+        expect(subject).to validate(:get, '/v0/letters', 401)
+        VCR.use_cassette('evss/letters/letters') do
+          expect(subject).to validate(:get, '/v0/letters', 200, auth_options)
+        end
+      end
+
+      it 'supports getting EVSS Letters Beneficiary' do
+        expect(subject).to validate(:get, '/v0/letters/beneficiary', 401)
+        VCR.use_cassette('evss/letters/beneficiary') do
+          expect(subject).to validate(:get, '/v0/letters/beneficiary', 200, auth_options)
+        end
+      end
+
+      it 'supports posting EVSS Letters' do
+        expect(subject).to validate(:post, '/v0/letters/{id}', 401, {'id' => 'commissary'})
+        subject.remove_tested_end_point_response('/v0/letters/{id}', :post, 200)
+        # VCR.use_cassette('evss/letters/download_options') do
+        #   expect(subject).to validate(
+        #     :post,
+        #     '/v0/letters/{id}',
+        #     200,
+        #     auth_options.merge!('id' => 'commissary')
+        #   )
+        # end
+      end
     end
 
     it 'supports getting the user data' do
@@ -725,6 +752,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
   context 'and' do
     it 'tests all documented routes' do
+      subject.untested_mappings.delete('/v0/letters/{id}') # exclude this route as it returns a binary
       expect(subject).to validate_all_paths
     end
   end

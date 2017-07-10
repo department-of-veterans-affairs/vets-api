@@ -46,7 +46,7 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/letters' do
+      swagger_path '/v0/letters/{id}' do
         operation :post do
           extend Swagger::Responses::AuthenticationError
 
@@ -58,8 +58,9 @@ module Swagger
 
           parameter :authorization
           parameter do
+            key :name, :body
             key :in, :body
-            key :description, 'Health care application form data'
+            key :description, 'Options to include in generated PDF'
             key :required, false
 
             schema do
