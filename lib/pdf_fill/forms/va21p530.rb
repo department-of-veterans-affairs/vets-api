@@ -110,7 +110,9 @@ module PdfFill
           },
           'other' => {
             key: 'form1[0].#subform[37].OTHER_SPECIFY[1]',
-            question: "13B. WHERE DID THE VETERAN'S DEATH OCCUR?",
+            question_num: 13,
+            question_suffix: 'B',
+            question_text: "WHERE DID THE VETERAN'S DEATH OCCUR?",
             limit: 50
           }
         },
