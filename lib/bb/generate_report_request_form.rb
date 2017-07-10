@@ -21,11 +21,12 @@ module BB
     attr_reader :client
 
     validates :from_date, :to_date, date: true
-    # leaving this validation out for now, will test and see if it is required or if
+    # TODO: leaving this validation out for now, will test and see if it is required or if
     # MHV error is preferable.
     # validates :from_date, date: { before: :to_date, message: 'must be before to date' }
     validates :data_classes, presence: true
-    # TODO: temporary hack to make eligible data classes work
+    # TODO: eventually this should be reenabled,
+    # TODO: See: https://github.com/department-of-veterans-affairs/vets.gov-team/issues/3777
     # validate  :data_classes_belongs_to_eligible_data_classes
     def overridden_data_classes
       eligible_data_classes & data_classes
@@ -37,8 +38,7 @@ module BB
     end
 
     # TODO: change this back to data_classes when hack can be properly removed.
-    # TODO: also rollback spec changes made as part of this PR:
-    # TODO: https://github.com/department-of-veterans-affairs/vets-api/pull/1164
+    # TODO: See: https://github.com/department-of-veterans-affairs/vets.gov-team/issues/3777
     def params
       { from_date: from_date.try(:httpdate), to_date: to_date.try(:httpdate), data_classes: overridden_data_classes }
     end
