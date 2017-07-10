@@ -18,6 +18,21 @@ module PdfFill
         end.join(', ')
       end
 
+      def combine_full_address(address)
+        combine_hash(
+          address,
+          %w(
+            street
+            street2
+            city
+            state
+            postalCode
+            country
+          ),
+          ', '
+        )
+      end
+
       def combine_full_name(full_name)
         combine_hash(full_name, %w(first middle last suffix))
       end

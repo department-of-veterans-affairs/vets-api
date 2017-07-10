@@ -100,8 +100,10 @@
   "veteranDateOfBirth": "2012-06-26",
   "relationship": {
     "type": "other",
+    "isEntity": true,
     "other": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
   },
+  "firmName": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
   "claimantAddress": {
     "street": "cXXXXXXXXXXXXXXXXXXXXcXXXXXXXXXXXXXXXXXXXX",
     "aptNum": "10A",
