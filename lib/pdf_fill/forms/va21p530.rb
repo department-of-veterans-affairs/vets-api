@@ -318,7 +318,8 @@ module PdfFill
         'firmNameAndAddr' => {
           key: 'form1[0].#subform[37].FULL_NAME[0]',
           limit: 90,
-          question: '21. FULL NAME AND ADDRESS OF THE FIRM, CORPORATION, OR STATE AGENCY FILING AS CLAIMANT'
+          question_num: 21,
+          question_text: 'FULL NAME AND ADDRESS OF THE FIRM, CORPORATION, OR STATE AGENCY FILING AS CLAIMANT'
         },
         'veteranSocialSecurityNumber' => {
           'first' => {
