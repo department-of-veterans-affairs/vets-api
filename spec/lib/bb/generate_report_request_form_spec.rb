@@ -78,6 +78,12 @@ describe BB::GenerateReportRequestForm do
       expect(subject.errors.full_messages)
         .to be_empty # eq(['Invalid data classes: blah, blahblah'])
     end
+
+    # TODO: remove this temporary behavior
+    # TODO: See: https://github.com/department-of-veterans-affairs/vets.gov-team/issues/3777
+    it 'intersects out invalid classes' do
+      expect(subject.overridden_data_classes).to be_empty
+    end
   end
 
   context 'with valid attributes' do
