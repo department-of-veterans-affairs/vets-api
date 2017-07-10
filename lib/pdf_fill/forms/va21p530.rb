@@ -155,7 +155,9 @@ module PdfFill
         'placeOfDeath' => {
           key: 'form1[0].#subform[36].PLACE_OF_DEATH[0]',
           limit: 52,
-          question: '10B. PLACE OF DEATH'
+          question_num: 10,
+          question_suffix: 'B',
+          question_text: 'PLACE OF DEATH'
         },
         'claimantEmail' => {
           key: 'form1[0].#subform[36].PreferredE_MailAddress[0]',
