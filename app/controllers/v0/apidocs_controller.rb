@@ -90,6 +90,8 @@ module V0
       Swagger::Schemas::Errors,
       Swagger::Schemas::SavedForm,
       Swagger::Schemas::TermsAndConditions,
+      Swagger::Schemas::Letters,
+      Swagger::Schemas::LetterBeneficiary,
       self
     ].freeze
 
