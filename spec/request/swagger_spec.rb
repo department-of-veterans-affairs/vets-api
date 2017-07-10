@@ -632,7 +632,6 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
       it 'supports posting EVSS Letters' do
         expect(subject).to validate(:post, '/v0/letters/{id}', 401, 'id' => 'commissary')
-        subject.remove_tested_end_point_response('/v0/letters/{id}', :post, 200)
       end
     end
 
