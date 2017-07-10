@@ -187,22 +187,28 @@ module PdfFill
           first_key: 'street',
           'street' => {
             key: 'form1[0].#subform[36].CurrentMailingAddress_NumberAndStreet[0]',
-            question: '5. CURRENT MAILING ADDRESS (Address line 1)'
+            question_num: 5,
+            question_text: 'CURRENT MAILING ADDRESS (Address line 1)'
           },
           'street2' => {
-            question: '5. CURRENT MAILING ADDRESS (Address line 2)'
+            question_num: 5,
+            question_text: 'CURRENT MAILING ADDRESS (Address line 2)'
           },
           'city' => {
-            question: '5. CURRENT MAILING ADDRESS (City)'
+            question_num: 5,
+            question_text: 'CURRENT MAILING ADDRESS (City)'
           },
           'state' => {
-            question: '5. CURRENT MAILING ADDRESS (State)'
+            question_num: 5,
+            question_text: 'CURRENT MAILING ADDRESS (State)'
           },
           'country' => {
-            question: '5. CURRENT MAILING ADDRESS (Country)'
+            question_num: 5,
+            question_text: 'CURRENT MAILING ADDRESS (Country)'
           },
           'postalCode' => {
-            question: '5. CURRENT MAILING ADDRESS (Postal Code)'
+            question_num: 5,
+            question_text: 'CURRENT MAILING ADDRESS (Postal Code)'
           }
         },
         'relationship' => {
