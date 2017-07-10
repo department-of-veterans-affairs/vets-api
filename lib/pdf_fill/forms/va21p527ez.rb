@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 # rubocop:disable Metrics/ClassLength
+
+require 'pdf_fill/hash_converter'
+
 module PdfFill
   module Forms
-    class VA21P527EZ
+    class VA21P527EZ < FormBase
       ITERATOR = PdfFill::HashConverter::ITERATOR
-      DATE_STRFTIME = '%m/%d/%Y'
       INCOME_TYPES_KEY = {
         'bank' => 'CASH/NON-INTEREST BEARING BANK ACCOUNTS',
         'interestBank' => 'INTEREST-BEARING BANK ACCOUNTS',
@@ -21,6 +23,7 @@ module PdfFill
         'interest' => 'TOTAL DIVIDENDS AND INTEREST'
       }.freeze
 
+      # rubocop:disable Metrics/LineLength
       KEY = lambda do
         key = {
           'vaFileNumber' => { key: 'F[0].Page_5[0].VAfilenumber[0]' },
@@ -101,16 +104,6 @@ module PdfFill
           'noPreviousNames' => { key: 'F[0].Page_5[0].NameNo[0]' },
           'hasCombatSince911' => { key: 'F[0].Page_5[0].YesCZ[0]' },
           'noCombatSince911' => { key: 'F[0].Page_5[0].NoCZ[0]' },
-          'spouseMarriagesExplanations' => {
-            limit: 90,
-            question: '21F. IF YOU INDICATED "OTHER" AS TYPE OF MARRIAGE IN ITEM 21C, PLEASE EXPLAIN:',
-            key: 'F[0].Page_6[0].Explainothertypeofmarriage[0]'
-          },
-          'marriagesExplanations' => {
-            limit: 90,
-            question: '19F. IF YOU INDICATED "OTHER" AS TYPE OF MARRIAGE IN ITEM 19C, PLEASE EXPLAIN:',
-            key: 'F[0].Page_6[0].Explainothertypesofmarriage[0]'
-          },
           'hasSeverancePay' => { key: 'F[0].Page_5[0].YesSep[0]' },
           'noSeverancePay' => { key: 'F[0].Page_5[0].NoSep[0]' },
           'veteranDateOfBirth' => { key: 'F[0].Page_5[0].Date[0]' },
@@ -123,6 +116,9 @@ module PdfFill
               question: '16B. LIST AMOUNT (If known)'
             },
             'type' => { key: 'F[0].Page_5[0].Listtype[0]' }
+          },
+          'vaHospitalTreatments' => {
+            key: 'vaHospitalTreatments.nameAndLocation[0]'
           },
           'marriageCount' => { key: 'F[0].Page_6[0].Howmanytimesmarried[0]' },
           'spouseMarriageCount' => { key: 'F[0].Page_6[0].Howmanytimesspousemarried[0]' },
@@ -262,10 +258,22 @@ module PdfFill
             question: '11B. PLEASE LIST THE OTHER NAME(S) YOU SERVED UNDER'
           },
           'dayPhoneAreaCode' => { key: 'F[0].Page_5[0].Daytimeareacode[0]' },
-          'serviceBranch' => {
-            key: 'F[0].Page_5[0].Branchofservice[0]',
-            limit: 25,
-            question: '12B. BRANCH OF SERVICE'
+          'servicePeriods' => {
+            limit: 1,
+            first_key: 'serviceBranch',
+            'serviceBranch' => {
+              key: 'F[0].Page_5[0].Branchofservice[0]',
+              limit: 25,
+              question: '12B. BRANCH OF SERVICE'
+            },
+            'activeServiceDateRangeStart' => {
+              question: '12A. I ENTERED ACTIVE SERVICE ON',
+              key: 'F[0].Page_5[0].DateEnteredActiveService[0]'
+            },
+            'activeServiceDateRangeEnd' => {
+              question: '12C. RELEASE DATE OR ANTICIPATED DATE OF RELEASE FROM ACTIVE SERVICE',
+              key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]'
+            }
           },
           'veteranAddressLine1' => {
             key: 'F[0].Page_5[0].Currentaddress[0]',
@@ -287,8 +295,6 @@ module PdfFill
             limit: 53,
             question: '7A. City, State, Zip, Country'
           },
-          'activeServiceDateRangeStart' => { key: 'F[0].Page_5[0].DateEnteredActiveService[0]' },
-          'activeServiceDateRangeEnd' => { key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]' },
           'placeOfSeparation' => {
             key: 'F[0].Page_5[0].Placeofseparation[0]',
             limit: 41,
@@ -364,6 +370,12 @@ module PdfFill
               question: "#{question_num}A. Date of Marriage",
               key: "#{sub_key}.dateOfMarriage[#{ITERATOR}]"
             },
+            'otherExplanations' => {
+              limit: 90,
+              skip_index: true,
+              question: "#{question_num}F. IF YOU INDICATED \"OTHER\" AS TYPE OF MARRIAGE IN ITEM #{question_num}C, PLEASE EXPLAIN",
+              key: "F[0].Page_6[0].Explainothertype#{prefix == 'm' ? 's' : ''}ofmarriage[0]"
+            },
             'locationOfMarriage' => {
               limit: 22,
               question: "#{question_num}A. PLACE OF MARRIAGE",
@@ -398,22 +410,7 @@ module PdfFill
 
         key
       end.call.freeze
-
-      def initialize(form_data)
-        @form_data = form_data.deep_dup
-      end
-
-      def expand_date_range(hash, key)
-        return if hash.blank?
-        date_range = hash[key]
-        return if date_range.blank?
-
-        hash["#{key}Start"] = date_range['from']
-        hash["#{key}End"] = date_range['to']
-        hash.delete(key)
-
-        hash
-      end
+      # rubocop:enable Metrics/LineLength
 
       def expand_pow_date_range(pow_date_range)
         expand_checkbox(pow_date_range.present?, 'PowDateRange')
@@ -441,32 +438,10 @@ module PdfFill
         expand_checkbox(val, new_key)
       end
 
-      def expand_checkbox(value, key)
-        {
-          "has#{key}" => value == true,
-          "no#{key}" => value == false
-        }
-      end
-
       def combine_address(address)
         return if address.blank?
 
         combine_hash(address, %w(street street2), ', ')
-      end
-
-      def combine_full_address(address)
-        combine_hash(
-          address,
-          %w(
-            street
-            street2
-            city
-            state
-            postalCode
-            country
-          ),
-          ', '
-        )
       end
 
       def combine_city_state(address)
@@ -529,26 +504,6 @@ module PdfFill
         hash
       end
 
-      def combine_hash(hash, keys, separator = ' ')
-        return if hash.blank?
-
-        combined = []
-
-        keys.each do |key|
-          combined << hash[key]
-        end
-
-        combined.compact.join(separator)
-      end
-
-      def combine_previous_names(previous_names)
-        return if previous_names.blank?
-
-        previous_names.map do |previous_name|
-          combine_full_name(previous_name)
-        end.join(', ')
-      end
-
       def expand_marital_status(hash, key)
         marital_status = hash[key]
         return if marital_status.blank?
@@ -591,9 +546,7 @@ module PdfFill
       end
 
       def expand_children(hash, key)
-        children = hash[key]&.find_all do |dependent|
-          dependent['dependentRelationship'] == 'child'
-        end
+        children = hash[key]
         return if children.blank?
 
         children.each do |child|
@@ -610,14 +563,10 @@ module PdfFill
 
         children_split = split_children(children)
 
-        hash['children'] = children_split[:cohabiting]
+        hash['children'] = children
         hash['outsideChildren'] = children_split[:outside]
 
         hash
-      end
-
-      def combine_full_name(full_name)
-        combine_hash(full_name, %w(first middle last suffix))
       end
 
       def expand_marriages(hash, key)
@@ -627,10 +576,11 @@ module PdfFill
 
         marriages.each do |marriage|
           marriage['spouseFullName'] = combine_full_name(marriage['spouseFullName'])
+          marriage['reasonForSeparation'] ||= 'Marriage has not been terminated'
           other_explanations << marriage['otherExplanation'] if marriage['otherExplanation'].present?
         end
 
-        hash["#{key}Explanations"] = other_explanations.join(', ')
+        marriages[0]['otherExplanations'] = other_explanations.join(', ')
 
         hash
       end
@@ -828,6 +778,21 @@ module PdfFill
         replace_phone(@form_data['nationalGuard'], 'phone')
       end
 
+      def expand_service_periods
+        service_periods = @form_data['servicePeriods']
+        return if service_periods.blank?
+
+        service_periods.each do |service_period|
+          expand_date_range(service_period, 'activeServiceDateRange')
+        end
+      end
+
+      def expand_vamc
+        if @form_data['hasVisitedVAMC']
+          @form_data['vaHospitalTreatments'] = 'Look up VAMC treatment history'
+        end
+      end
+
       # rubocop:disable Metrics/MethodLength
       def merge_fields
         @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
@@ -863,10 +828,9 @@ module PdfFill
 
         expand_jobs(@form_data['jobs'])
 
-        %w(activeServiceDateRange powDateRange).each do |attr|
-          expand_date_range(@form_data, attr)
-        end
+        expand_date_range(@form_data, 'powDateRange')
 
+        expand_service_periods
         expand_dependents
 
         %w(marriages spouseMarriages).each do |marriage_type|
@@ -884,6 +848,7 @@ module PdfFill
         expand_net_worths
         expand_monthly_incomes
         combine_other_expenses
+        expand_vamc
 
         expand_bank_acct(@form_data['bankAccount'])
 

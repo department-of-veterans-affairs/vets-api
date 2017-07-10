@@ -26,6 +26,7 @@ module Workflow::Task::ShrineFile
 
     def attacher
       file_class = internal[:attacher_class]&.constantize || Shrine::Attacher
+      data[:current_task] = self.class.to_s.split('::').last
       @attacher ||= file_class.new(InternalAttachment.new(**data), :file)
     end
 
