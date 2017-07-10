@@ -8,6 +8,8 @@
     "bankName": "foo bank",
     "routingNumber": "123456789"
   },
+  "hasVisitedVAMC": true,
+  "vaHospitalTreatments": "Look up VAMC treatment history",
   "noRapidProcessing": true,
   "maritalStatus": "Married",
   "reasonForNotLivingWithSpouse": "illness",
@@ -55,6 +57,14 @@
   ],
   "dependents": [
     {
+      "childDateOfBirth": "2012-06-01",
+      "childSocialSecurityNumber": "111223331",
+      "childPlaceOfBirth": "place1",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "childRelationship": "stepchild",
+      "previouslyMarried": true,
       "childAddress": "str1, city1, MD, 21231, USA",
       "fullName": "outside1 Olson",
       "personWhoLivesWithChild": "person1 Olson",
@@ -98,17 +108,35 @@
           }
         ]
       },
-      "monthlyPayment": 1
+      "monthlyPayment": 1,
+      "stepchild": true
     },
     {
+      "childDateOfBirth": "2012-06-02",
+      "childSocialSecurityNumber": "111223332",
+      "childPlaceOfBirth": "place2",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "childRelationship": "biological",
+      "previouslyMarried": true,
       "childAddress": "str2, city1, MD, 21231, USA",
       "fullName": "outside2 Olson",
       "personWhoLivesWithChild": "person2 Olson",
-      "monthlyPayment": 2
+      "monthlyPayment": 2,
+      "biological": true
     },
     {
       "childAddress": "str3, city1, MD, 21231, USA",
       "fullName": "outside3 Olson",
+      "childDateOfBirth": "2012-06-03",
+      "childSocialSecurityNumber": "111223333",
+      "childPlaceOfBirth": "place3",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "childRelationship": "adopted",
+      "previouslyMarried": true,
       "personWhoLivesWithChild": "person3 Olson",
       "otherExpenses": [
         {
@@ -129,52 +157,8 @@
           }
         ]
       },
-      "monthlyPayment": 3
-    },
-    {
-      "childInHousehold": true,
-      "childDateOfBirth": "2012-06-01",
-      "fullName": "Mark1 Olson",
-      "childSocialSecurityNumber": "111223331",
-      "childPlaceOfBirth": "place1",
-      "attendingCollege": true,
-      "married": true,
-      "disabled": true,
-      "childRelationship": "stepchild",
-      "previouslyMarried": true,
-      "personWhoLivesWithChild": null,
-      "stepchild": true,
-      "childAddress": null
-    },
-    {
-      "childInHousehold": true,
-      "childDateOfBirth": "2012-06-02",
-      "fullName": "Mark2 Olson",
-      "childSocialSecurityNumber": "111223332",
-      "childPlaceOfBirth": "place2",
-      "attendingCollege": true,
-      "married": true,
-      "disabled": true,
-      "childRelationship": "biological",
-      "previouslyMarried": true,
-      "personWhoLivesWithChild": null,
-      "biological": true,
-      "childAddress": null
-    },
-    {
-      "childInHousehold": true,
-      "childDateOfBirth": "2012-06-03",
-      "fullName": "Mark3 Olson",
-      "childSocialSecurityNumber": "111223333",
-      "childPlaceOfBirth": "place3",
-      "attendingCollege": true,
-      "married": true,
-      "disabled": true,
-      "childRelationship": "adopted",
-      "previouslyMarried": true,
-      "personWhoLivesWithChild": null,
-      "adopted": true,
-      "childAddress": null
+      "monthlyPayment": 3,
+      "adopted": true
     }
   ],
   "spouseMarriages": [
@@ -356,9 +340,7 @@
   "powDateRangeEnd": "2013-05-10",
   "children": [
     {
-      "childInHousehold": true,
       "childDateOfBirth": "2012-06-01",
-      "fullName": "Mark1 Olson",
       "childSocialSecurityNumber": "111223331",
       "childPlaceOfBirth": "place1",
       "attendingCollege": true,
@@ -366,43 +348,6 @@
       "disabled": true,
       "childRelationship": "stepchild",
       "previouslyMarried": true,
-      "personWhoLivesWithChild": null,
-      "stepchild": true,
-      "childAddress": null
-    },
-    {
-      "childInHousehold": true,
-      "childDateOfBirth": "2012-06-02",
-      "fullName": "Mark2 Olson",
-      "childSocialSecurityNumber": "111223332",
-      "childPlaceOfBirth": "place2",
-      "attendingCollege": true,
-      "married": true,
-      "disabled": true,
-      "childRelationship": "biological",
-      "previouslyMarried": true,
-      "personWhoLivesWithChild": null,
-      "biological": true,
-      "childAddress": null
-    },
-    {
-      "childInHousehold": true,
-      "childDateOfBirth": "2012-06-03",
-      "fullName": "Mark3 Olson",
-      "childSocialSecurityNumber": "111223333",
-      "childPlaceOfBirth": "place3",
-      "attendingCollege": true,
-      "married": true,
-      "disabled": true,
-      "childRelationship": "adopted",
-      "previouslyMarried": true,
-      "personWhoLivesWithChild": null,
-      "adopted": true,
-      "childAddress": null
-    }
-  ],
-  "outsideChildren": [
-    {
       "childAddress": "str1, city1, MD, 21231, USA",
       "fullName": "outside1 Olson",
       "personWhoLivesWithChild": "person1 Olson",
@@ -446,17 +391,35 @@
           }
         ]
       },
-      "monthlyPayment": 1
+      "monthlyPayment": 1,
+      "stepchild": true
     },
     {
+      "childDateOfBirth": "2012-06-02",
+      "childSocialSecurityNumber": "111223332",
+      "childPlaceOfBirth": "place2",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "childRelationship": "biological",
+      "previouslyMarried": true,
       "childAddress": "str2, city1, MD, 21231, USA",
       "fullName": "outside2 Olson",
       "personWhoLivesWithChild": "person2 Olson",
-      "monthlyPayment": 2
+      "monthlyPayment": 2,
+      "biological": true
     },
     {
       "childAddress": "str3, city1, MD, 21231, USA",
       "fullName": "outside3 Olson",
+      "childDateOfBirth": "2012-06-03",
+      "childSocialSecurityNumber": "111223333",
+      "childPlaceOfBirth": "place3",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "childRelationship": "adopted",
+      "previouslyMarried": true,
       "personWhoLivesWithChild": "person3 Olson",
       "otherExpenses": [
         {
@@ -477,7 +440,114 @@
           }
         ]
       },
-      "monthlyPayment": 3
+      "monthlyPayment": 3,
+      "adopted": true
+    }
+  ],
+  "outsideChildren": [
+    {
+      "childDateOfBirth": "2012-06-01",
+      "childSocialSecurityNumber": "111223331",
+      "childPlaceOfBirth": "place1",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "childRelationship": "stepchild",
+      "previouslyMarried": true,
+      "childAddress": "str1, city1, MD, 21231, USA",
+      "fullName": "outside1 Olson",
+      "personWhoLivesWithChild": "person1 Olson",
+      "monthlyIncome": {
+        "socialSecurity": 0,
+        "civilService": 0,
+        "railroad": 0,
+        "blackLung": 0,
+        "serviceRetirement": 0,
+        "ssi": 0,
+        "additionalSources": [
+          {
+            "name": "name2",
+            "amount": 9
+          },
+          {
+            "name": "name3",
+            "amount": 10
+          }
+        ]
+      },
+      "otherExpenses": [
+        {
+          "amount": 4,
+          "purpose": "purpose4",
+          "paidTo": "paidTo4",
+          "date": "2012-04-04",
+          "relationship": "outside1 Olson"
+        }
+      ],
+      "netWorth": {
+        "bank": 0,
+        "interestBank": 0,
+        "ira": 0,
+        "stocks": 0,
+        "realProperty": 0,
+        "additionalSources": [
+          {
+            "name": "name1",
+            "amount": 8
+          }
+        ]
+      },
+      "monthlyPayment": 1,
+      "stepchild": true
+    },
+    {
+      "childDateOfBirth": "2012-06-02",
+      "childSocialSecurityNumber": "111223332",
+      "childPlaceOfBirth": "place2",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "childRelationship": "biological",
+      "previouslyMarried": true,
+      "childAddress": "str2, city1, MD, 21231, USA",
+      "fullName": "outside2 Olson",
+      "personWhoLivesWithChild": "person2 Olson",
+      "monthlyPayment": 2,
+      "biological": true
+    },
+    {
+      "childAddress": "str3, city1, MD, 21231, USA",
+      "fullName": "outside3 Olson",
+      "childDateOfBirth": "2012-06-03",
+      "childSocialSecurityNumber": "111223333",
+      "childPlaceOfBirth": "place3",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "childRelationship": "adopted",
+      "previouslyMarried": true,
+      "personWhoLivesWithChild": "person3 Olson",
+      "otherExpenses": [
+        {
+          "amount": 3,
+          "purpose": "purpose3",
+          "paidTo": "paidTo3",
+          "date": "2012-04-03",
+          "relationship": "outside3 Olson"
+        }
+      ],
+      "expectedIncome": {
+        "salary": 0,
+        "interest": 0,
+        "additionalSources": [
+          {
+            "name": "name3",
+            "amount": 6
+          }
+        ]
+      },
+      "monthlyPayment": 3,
+      "adopted": true
     }
   ],
   "marriagesExplanations": "other",
