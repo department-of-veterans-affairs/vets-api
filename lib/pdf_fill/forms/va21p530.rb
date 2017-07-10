@@ -142,7 +142,8 @@ module PdfFill
         },
         'previousNames' => {
           key: 'form1[0].#subform[36].OTHER_NAME[0]',
-          question: '12. IF VETERAN SERVED UNDER NAME OTHER THAN THAT SHOWN IN ITEM 1, GIVE FULL NAME AND SERVICE RENDERED UNDER THAT NAME',
+          question_num: 12,
+          question_text: 'IF VETERAN SERVED UNDER NAME OTHER THAN THAT SHOWN IN ITEM 1, GIVE FULL NAME AND SERVICE RENDERED UNDER THAT NAME',
           limit: 180
         },
         'burialDate' => {
