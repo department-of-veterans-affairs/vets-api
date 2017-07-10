@@ -127,7 +127,8 @@ module PdfFill
           'first' => {
             key: 'form1[0].#subform[36].VeteransFirstName[0]',
             limit: 12,
-            question: "1. DECEASED VETERAN'S FIRST NAME"
+            question_num: 1,
+            question_text: "DECEASED VETERAN'S FIRST NAME"
           },
           'middleInitial' => {
             key: 'form1[0].#subform[36].VeteransMiddleInitial1[0]'
@@ -135,7 +136,8 @@ module PdfFill
           'last' => {
             key: 'form1[0].#subform[36].VeteransLastName[0]',
             limit: 18,
-            question: "1. DECEASED VETERAN'S LAST NAME"
+            question_num: 1,
+            question_text: "DECEASED VETERAN'S LAST NAME"
           }
         },
         'previousNames' => {
