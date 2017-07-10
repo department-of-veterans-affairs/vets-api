@@ -35,11 +35,23 @@ module PdfFill
       @generate_blocks.size.positive?
     end
 
+    def sort_generate_blocks
+      @generate_blocks.sort_by do |generate_block|
+        metadata = generate_block[:metadata]
+
+        [
+          metadata[:question_num] || -1,
+          metadata[:question_suffix] || -1,
+          metadata[:i] || -1
+        ]
+      end
+    end
+
     def generate
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/extras_#{SecureRandom.uuid}.pdf"
-      generate_blocks = @generate_blocks
+      generate_blocks = sort_generate_blocks
 
       Prawn::Document.generate(file_path) do |pdf|
         box_height = 25
