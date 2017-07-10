@@ -34,11 +34,7 @@ class MhvAccount < ActiveRecord::Base
       transitions from: ALL_STATES, to: :ineligible, unless: :eligible?
       transitions from: ALL_STATES, to: :upgraded, if: :previously_upgraded?
       transitions from: ALL_STATES, to: :registered, if: :previously_registered?
-      transitions from: [:register_failed], to: :register_failed
-      transitions from: [:upgrade_failed], to: :upgrade_failed
-      transitions from: [:registered], to: :registered
-      transitions from: [:upgraded], to: :upgraded
-      transitions from: [:unknown, :needs_terms_acceptance, :ineligible], to: :unknown
+      transitions from: ALL_STATES, to: :unknown
     end
 
     event :check_terms_acceptance do
@@ -201,7 +197,7 @@ class MhvAccount < ActiveRecord::Base
   def setup
     raise StandardError, 'You must use find_or_initialize_by(user_uuid: #)' if user_uuid.nil?
     if beta_enabled?(user_uuid, 'health_account')
-      check_eligibility
+      check_eligibility unless registered? || upgraded?
       check_terms_acceptance if may_check_terms_acceptance?
     end
   end
