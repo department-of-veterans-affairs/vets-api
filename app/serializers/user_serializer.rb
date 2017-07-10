@@ -54,12 +54,7 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def health_terms_current
-    if beta_enabled?(object.uuid, 'health_account')
-      !object.mhv_account.needs_terms_acceptance?
-    else
-      # Don't prompt terms for non-beta users
-      true
-    end
+    !object.mhv_account.needs_terms_acceptance?
   end
 
   def in_progress_forms
@@ -79,12 +74,7 @@ class UserSerializer < ActiveModel::Serializer
       BackendServices::HCA,
       BackendServices::EDUCATION_BENEFITS
     ]
-    if beta_enabled?(object.uuid, 'health_account')
-      service_list += BackendServices::MHV_BASED_SERVICES if object.mhv_account_eligible?
-    elsif object.loa3? && object.mhv_correlation_id.present?
-      # Allow access for existing MHV accounts for non-beta users
-      service_list += BackendServices::MHV_BASED_SERVICES
-    end
+    service_list += BackendServices::MHV_BASED_SERVICES if object.loa3? && object.mhv_account_eligible?
     service_list << BackendServices::EVSS_CLAIMS if object.can_access_evss?
     service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
     service_list << BackendServices::APPEALS_STATUS if beta_enabled?(object.uuid, 'appeals_status') &&
