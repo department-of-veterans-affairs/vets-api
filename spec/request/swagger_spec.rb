@@ -606,6 +606,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
     context 'without EVSS mock' do
       before { Settings.evss.mock_gi_bill_status = false }
+      before { Settings.evss.mock_letters = false }
+
       it 'supports getting EVSS Gi Bill Status' do
         expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 401)
         VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
