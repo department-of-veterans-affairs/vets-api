@@ -19,7 +19,7 @@ module EVSS
         EVSS::Letters::LettersResponse.new(403)
       rescue Faraday::TimeoutError
         log_message_to_sentry('Timeout while connecting to Letters service', :error, extra_context: { url: BASE_URL })
-        EVSS::GiBillStatus::GiBillStatusResponse.new(403)
+        EVSS::Letters::LettersResponse.new(403)
       rescue Faraday::ClientError => e
         log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL, body: e.response[:body] })
         EVSS::Letters::LettersResponse.new(e.response[:status])
@@ -33,7 +33,7 @@ module EVSS
         EVSS::Letters::BeneficiaryResponse.new(403)
       rescue Faraday::TimeoutError
         log_message_to_sentry('Timeout while connecting to Letters service', :error, extra_context: { url: BASE_URL })
-        EVSS::GiBillStatus::GiBillStatusResponse.new(403)
+        EVSS::Letters::BeneficiaryResponse.new(403)
       rescue Faraday::ClientError => e
         log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL, body: e.response[:body] })
         EVSS::Letters::BeneficiaryResponse.new(e.response[:status])

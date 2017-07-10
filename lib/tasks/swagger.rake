@@ -7,6 +7,7 @@ namespace :swagger do
     raise IOError, "No json-schema file at #{schema_path}" unless File.exist? schema_path
     json = JSON.load(schema_path)
     puts "\n-----START BLOCK-----\n\n"
+    render_required(json) if json.key?('required')
     render_properties json
     puts "\n-----END BLOCK-----\n"
   end
@@ -14,42 +15,67 @@ end
 
 def render_properties(json, indent = 0)
   return unless json.respond_to?(:key?) && json.key?('properties')
-  node = json['properties']
-  node.each do |key, value|
-    type, enum, items = value['type'], value['enum'], value['items']
-    prop = "#{render_indent(indent)}property :#{key}"
-    prop += ", type: #{render_type(type, enum)}" unless items
-    prop += if value.key?('properties') || items
-              ' do'
-            else
-              ', example: #TODO: add example'
-            end
-    puts prop
-    render_required(value, indent) if value['required']
+  json['properties'].each do |key, value|
+    render_property(key, value, indent)
+    render_required(value, indent + 1)
     render_properties(value, indent + 1) if value.key?('properties')
-    render_items(items, indent) if items
-    puts "#{render_indent(indent)}end" if value.key?('properties') || items
+    render_items(value, indent + 1) if value.key?('items')
+    puts "#{render_indent(indent)}end" if requires_end?(value)
   end
 end
 
-def render_items(items, indent)
-  puts "#{render_indent(indent + 1)}key :type, :array"
-  puts "#{render_indent(indent + 1)}items do"
-  puts "#{render_indent(indent + 1)}  key :'$ref', #TODO: add ref"
-  puts "#{render_indent(indent + 1)}end"
+def render_property(key, value, indent)
+  type = value['type']
+  enum = value['enum']
+  items = value['items']
+  prop = "#{render_indent(indent)}property :#{key}"
+  prop += ", type: #{render_type(type, enum)}" unless items
+  prop += if requires_end?(value)
+            ' do'
+          else
+            ", example: 'TODO'"
+          end
+  puts prop
 end
 
-def render_required(value, indent)
-  puts "#{render_indent(indent + 1)}key :required, #{value['required'].map(&:to_sym)}"
+def requires_end?(value)
+  value.key?('properties') || value.key?('items')
+end
+
+def render_items(value, indent = 0)
+  items = value['items']
+  if items.key? '$ref'
+    render_ref(indent)
+  else
+    render_item(indent, items)
+  end
+end
+
+def render_ref(indent)
+  puts "#{render_indent(indent)}items do"
+  puts "#{render_indent(indent)}key :type, :array"
+  puts "#{render_indent(indent)}  key :'$ref', 'TODO'"
+  puts "#{render_indent(indent)}end"
+end
+
+def render_item(indent, items)
+  puts "#{render_indent(indent)}items do"
+  render_properties(items, indent + 1)
+  puts "#{render_indent(indent)}end"
+end
+
+def render_required(value, indent = 0)
+  puts "#{render_indent(indent)}key :required, #{value['required'].map(&:to_sym)}" if value['required']
 end
 
 def render_type(type, enum)
   type = [*type].map(&:to_sym)
+  type = [:object] if type == [:object, :null] # [object, null] is valid json-schema but swagger throws error
   return type if type.count > 1
   if enum
-    "string, enum: #{enum}"
+    ":string, enum: %w(#{enum.map { |x| x }.join(' ')})"
   else
-    type.first
+    ":#{type.first}"
   end
 end
 
