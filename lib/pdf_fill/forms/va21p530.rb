@@ -119,7 +119,9 @@ module PdfFill
         'burialCost' => {
           key: 'form1[0].#subform[37].COST_OF_BURIAL[1]',
           limit: 12,
-          question: '13A. If VA Medical Center Death is checked, provide actual burial cost'
+          question_num: 13,
+          question_suffix: 'A',
+          question_text: 'If VA Medical Center Death is checked, provide actual burial cost'
         },
         'veteranFullName' => {
           'first' => {
