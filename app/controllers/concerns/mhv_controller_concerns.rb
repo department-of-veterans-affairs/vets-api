@@ -11,7 +11,7 @@ module MHVControllerConcerns
   protected
 
   def authorize
-    raise_access_denied unless current_user&.loa3? && !current_user.mhv_account.ineligible?
+    raise_access_denied if !current_user&.loa3? || current_user.mhv_account.ineligible?
     raise_requires_terms_acceptance if current_user.mhv_account.needs_terms_acceptance?
     begin
       current_user.mhv_account.create_and_upgrade! unless current_user.mhv_account.upgraded?
