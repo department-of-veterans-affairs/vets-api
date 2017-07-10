@@ -41,7 +41,8 @@ module PdfFill
         'placeOfRemains' => {
           key: 'form1[0].#subform[37].PLACE_OF_DEATH[1]',
           limit: 80,
-          question: "16. PLACE OF BURIAL OR LOCATION OF DECEASED VETERAN'S REMAINS"
+          question_num: 16,
+          question_text: "PLACE OF BURIAL OR LOCATION OF DECEASED VETERAN'S REMAINS"
         },
         'hasGovtContributions' => {
           key: 'form1[0].#subform[37].YES5[0]'
