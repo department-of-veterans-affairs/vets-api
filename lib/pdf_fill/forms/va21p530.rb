@@ -283,7 +283,9 @@ module PdfFill
         'placeOfBirth' => {
           key: 'form1[0].#subform[36].PLACE_OF_BIRTH[0]',
           limit: 71,
-          question: '9B. PLACE OF BIRTH'
+          question_num: 9,
+          question_suffix: 'B',
+          question_text: 'PLACE OF BIRTH'
         },
         'veteranDateOfBirth' => {
           key: 'form1[0].#subform[36].DATE_OF_BIRTH[0]'
