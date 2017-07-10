@@ -54,7 +54,7 @@ module PdfFill
       text_prefix = key_data.try(:[], :question)
       return if text_prefix.blank?
 
-      text_prefix += " Line #{i + 1}" if i.present?
+      text_prefix += " Line #{i + 1}" if i.present? && !key_data[:skip_index]
 
       @extras_generator.add_text(text_prefix, v)
     end
