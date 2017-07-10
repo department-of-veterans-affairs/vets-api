@@ -169,7 +169,8 @@ module PdfFill
           'first' => {
             key: 'form1[0].#subform[36].ClaimantsFirstName[0]',
             limit: 12,
-            question: "4. CLAIMANT'S FIRST NAME"
+            question_num: 4,
+            question_text: "CLAIMANT'S FIRST NAME"
           },
           'middleInitial' => {
             key: 'form1[0].#subform[36].ClaimantsMiddleInitial1[0]'
@@ -177,7 +178,8 @@ module PdfFill
           'last' => {
             key: 'form1[0].#subform[36].ClaimantsLastName[0]',
             limit: 18,
-            question: "4. CLAIMANT'S LAST NAME"
+            question_num: 4,
+            question_text: "CLAIMANT'S LAST NAME"
           }
         },
         'claimantAddress' => {
