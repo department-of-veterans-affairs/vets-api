@@ -276,6 +276,11 @@ module PdfFill
             key: 'form1[0].#subform[37].VeteransSocialSecurityNumber_LastFourNumbers[1]'
           }
         },
+        'firmNameAndAddr' => {
+          key: 'form1[0].#subform[37].FULL_NAME[0]',
+          limit: 90,
+          question: '21. FULL NAME AND ADDRESS OF THE FIRM, CORPORATION, OR STATE AGENCY FILING AS CLAIMANT'
+        },
         'veteranSocialSecurityNumber' => {
           'first' => {
             key: 'form1[0].#subform[36].VeteransSocialSecurityNumber_FirstThreeNumbers[0]'
@@ -368,6 +373,13 @@ module PdfFill
           end
       end
 
+      def expand_firm
+        if @form_data['relationship'].try(:[], 'isEntity')
+          address = combine_full_address(@form_data['claimantAddress']) || ''
+          @form_data['firmNameAndAddr'] = [@form_data['firmName'], address].compact.join(', ')
+        end
+      end
+
       def expand_burial_allowance
         burial_allowance = @form_data['burialAllowanceRequested']
         return if burial_allowance.blank?
@@ -398,6 +410,8 @@ module PdfFill
         @form_data['previousNames'] = combine_previous_names(@form_data['previousNames'])
 
         expand_burial_allowance
+
+        expand_firm
 
         expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
 
