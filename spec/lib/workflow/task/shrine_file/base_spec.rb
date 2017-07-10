@@ -27,7 +27,7 @@ describe Workflow::Task::ShrineFile::Base do
   context '#initialize' do
     it 'calls the workflow::task initializer' do
       instance = described_class.new({ x: true, y: [1, 2, 3] }, internal: internal)
-      expect(instance.data).to eq(x: true, y: [1, 2, 3])
+      expect(instance.data).to eq(x: true, y: [1, 2, 3], current_task: 'Base')
     end
 
     it 'sets a file handle accessor' do

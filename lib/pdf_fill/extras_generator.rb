@@ -27,12 +27,19 @@ module PdfFill
     def generate
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
-      file_path = "#{folder}/extras_#{Time.zone.now}.pdf"
+      file_path = "#{folder}/extras_#{SecureRandom.uuid}.pdf"
       generate_blocks = @generate_blocks
 
       Prawn::Document.generate(file_path) do |pdf|
-        generate_blocks.each do |block|
-          block.call(pdf)
+        box_height = 25
+        pdf.bounding_box(
+          [pdf.bounds.left, pdf.bounds.top - box_height],
+          width: pdf.bounds.width,
+          height: pdf.bounds.height - box_height
+        ) do
+          generate_blocks.each do |block|
+            block.call(pdf)
+          end
         end
       end
 
