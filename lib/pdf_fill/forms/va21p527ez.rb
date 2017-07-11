@@ -313,7 +313,9 @@ module PdfFill
           'previousNames' => {
             key: 'F[0].Page_5[0].Listothernames[0]',
             limit: 53,
-            question: '11B. PLEASE LIST THE OTHER NAME(S) YOU SERVED UNDER'
+            question_num: 11,
+            question_suffix: 'B',
+            question_text: 'PLEASE LIST THE OTHER NAME(S) YOU SERVED UNDER'
           },
           'dayPhoneAreaCode' => { key: 'F[0].Page_5[0].Daytimeareacode[0]' },
           'servicePeriods' => {
