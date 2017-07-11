@@ -344,31 +344,43 @@ module PdfFill
           'veteranAddressLine1' => {
             key: 'F[0].Page_5[0].Currentaddress[0]',
             limit: 53,
-            question: '7A. Street address'
+            question_num: 7,
+            question_suffix: 'A',
+            question_text: 'Street address'
           },
           'email' => {
             key: 'F[0].Page_5[0].Preferredemailaddress[0]',
             limit: 43,
-            question: '8A. PREFERRED E-MAIL ADDRESS'
+            question_num: 8,
+            question_suffix: 'A',
+            question_text: 'PREFERRED E-MAIL ADDRESS'
           },
           'altEmail' => {
             key: 'F[0].Page_5[0].Alternateemailaddress[0]',
             limit: 43,
-            question: '8B. ALTERNATE E-MAIL ADDRESS'
+            question_num: 8,
+            question_suffix: 'B',
+            question_text: 'ALTERNATE E-MAIL ADDRESS'
           },
           'cityState' => {
             key: 'F[0].Page_5[0].Citystatezipcodecountry[0]',
             limit: 53,
-            question: '7A. City, State, Zip, Country'
+            question_num: 7,
+            question_suffix: 'A',
+            question_text: 'City, State, Zip, Country'
           },
           'placeOfSeparation' => {
             key: 'F[0].Page_5[0].Placeofseparation[0]',
             limit: 41,
-            question: '12E. PLACE OF LAST OR ANTICIPATED SEPARATION'
+            question_num: 12,
+            question_suffix: 'E',
+            question_text: 'PLACE OF LAST OR ANTICIPATED SEPARATION'
           },
           'reasonForNotLivingWithSpouse' => {
             limit: 47,
-            question: '22G. TELL US THE REASON WHY YOU ARE NOT LIVING WITH YOUR SPOUSE',
+            question_num: 22,
+            question_suffix: 'G',
+            question_text: 'TELL US THE REASON WHY YOU ARE NOT LIVING WITH YOUR SPOUSE',
             key: 'F[0].Page_6[0].Reasonfornotlivingwithspouse[0]'
           },
           'disabilities' => {
@@ -377,16 +389,21 @@ module PdfFill
             'name' => {
               key: "disabilities.name[#{ITERATOR}]",
               limit: 44,
-              question: '9A. DISABILITY(IES)'
+              question: 9,
+              question_suffix: 'A',
+              question_text: 'DISABILITY(IES)'
             },
             'disabilityStartDate' => {
               key: "disabilities.disabilityStartDate[#{ITERATOR}]",
-              question: '9B. DATE DISABILITY(IES) BEGAN'
+              question_num: 9,
+              question_suffix: 'B',
+              question_text: 'DATE DISABILITY(IES) BEGAN'
             }
           },
           'veteranFullName' => {
             limit: 30,
-            question: "1. VETERAN'S NAME",
+            question_num: 1,
+            question_text: "VETERAN'S NAME",
             key: 'F[0].Page_5[0].Veteransname[0]'
           }
         }
