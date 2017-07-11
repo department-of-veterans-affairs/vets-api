@@ -324,14 +324,20 @@ module PdfFill
             'serviceBranch' => {
               key: 'F[0].Page_5[0].Branchofservice[0]',
               limit: 25,
-              question: '12B. BRANCH OF SERVICE'
+              question: 12,
+              question_suffix: 'B',
+              question_text: 'BRANCH OF SERVICE'
             },
             'activeServiceDateRangeStart' => {
-              question: '12A. I ENTERED ACTIVE SERVICE ON',
+              question_num: 12,
+              question_suffix: 'A',
+              question_text: 'I ENTERED ACTIVE SERVICE ON',
               key: 'F[0].Page_5[0].DateEnteredActiveService[0]'
             },
             'activeServiceDateRangeEnd' => {
-              question: '12C. RELEASE DATE OR ANTICIPATED DATE OF RELEASE FROM ACTIVE SERVICE',
+              question_num: 12,
+              question_suffix: 'C',
+              question_text: 'RELEASE DATE OR ANTICIPATED DATE OF RELEASE FROM ACTIVE SERVICE',
               key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]'
             }
           },
