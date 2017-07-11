@@ -56,7 +56,8 @@ module PdfFill
           'hasSavings' => { key: 'F[0].Page_8[0].Account[0]' },
           'checkingAccountNumber' => {
             limit: 11,
-            question: '29. Checking Account Number',
+            question_num: 29,
+            question_text: 'Checking Account Number',
             key: 'F[0].Page_8[0].CheckingAccountNumber[0]'
           },
           'noRapidProcessing' => { key: 'F[0].Page_8[0].CheckBox1[0]' },
