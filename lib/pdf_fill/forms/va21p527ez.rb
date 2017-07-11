@@ -70,7 +70,8 @@ module PdfFill
           'bankAccount' => {
             'bankName' => {
               limit: 44,
-              question: '30. NAME OF FINANCIAL INSTITUTION',
+              question_num: 30,
+              question_text: 'NAME OF FINANCIAL INSTITUTION',
               key: 'F[0].Page_8[0].Nameofbank[0]'
             },
             'routingNumber' => { key: 'F[0].Page_8[0].Routingortransitnumber[0]' }
