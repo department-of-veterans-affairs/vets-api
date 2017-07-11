@@ -414,23 +414,26 @@ module PdfFill
             first_key: 'recipient',
             'amount' => {
               limit: 12,
-              question: "#{question_num}. Amount",
+              question_text: 'Amount',
               key: "#{acct_type}.amount[#{ITERATOR}]"
             },
             'source' => {
-              question: "#{question_num}. Source"
+              question_text: 'Source',
             },
             'additionalSourceName' => {
               limit: 14,
-              question: "#{question_num}. Source",
+              question_text: 'Source'
               key: "#{acct_type}.additionalSourceName[#{ITERATOR}]"
             },
             'recipient' => {
               limit: 34,
-              question: "#{question_num}. Recipient",
+              question_text: 'Recipient',
               key: "#{acct_type}.recipient[#{ITERATOR}]"
             }
           }
+          key[acct_type].each do |_, v|
+            v[:question_num] = question_num
+          end
 
           key[acct_type][:limit] =
             if acct_type == 'netWorths'
