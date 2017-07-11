@@ -14,6 +14,7 @@ en:
         source: ~
         meta: ~
 # INTERNAL EXCEPTIONS
+
       validation_errors: &validation_errors
         <<: *defaults
         title: Validation error

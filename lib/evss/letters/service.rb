@@ -22,6 +22,7 @@ module EVSS
         EVSS::GiBillStatus::GiBillStatusResponse.new(403)
       rescue Faraday::ClientError => e
         log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL, body: e.response[:body] })
+        handle_evss_error(e) if e.response.dig('body', 'messages', 'key')
         EVSS::Letters::LettersResponse.new(e.response[:status])
       end
 
@@ -66,6 +67,10 @@ module EVSS
           faraday.use :breakers
           faraday.adapter :httpclient
         end
+      end
+
+      def handle_evss_error(e)
+        
       end
     end
   end
