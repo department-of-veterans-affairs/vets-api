@@ -1,3 +1,8 @@
+binaries:
+  # you can specify a full path in settings.local.yml if necessary
+  pdftk: pdftk
+  clamdscan: /usr/bin/clamdscan
+
 hostname: www.example.com
 
 # For CORS requests; separate multiple origins with a comma
@@ -39,6 +44,8 @@ evss:
     documents: 3.0
   s3:
     uploads_enabled: false
+    aws_access_key_id: EVSS_S3_AWS_ACCESS_KEY_ID_XYZ
+    aws_secret_access_key: EVSS_S3_AWS_SECRET_ACCESS_KEY_XYZ
     bucket: evss_s3_bucket
     region: evss_s3_region
   mock_letters: true
@@ -166,3 +173,8 @@ sentry:
 statsd:
   host: ~
   port: ~
+
+shrine:
+  claims:
+    type: local
+    path: claims

@@ -18,6 +18,8 @@ module EVSS
       attribute :percentage_benefit, Integer
       attribute :original_entitlement, Integer
       attribute :used_entitlement, Integer
+      attribute :veteran_is_eligible, Boolean
+      attribute :active_duty, Boolean
       attribute :remaining_entitlement, Integer
       attribute :enrollments, Array[Enrollment]
 
