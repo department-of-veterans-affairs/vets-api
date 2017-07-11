@@ -27,7 +27,6 @@ module Preneeds
 
     def get_military_rank_for_branch_of_service(params)
       key = "military_ranks_#{params.values.join('_')}".underscore.to_sym
-
       json = hit_cache(key, :get_military_rank_for_branch_of_service, params)
       Common::Collection.new(MilitaryRank, data: json['data'])
     end

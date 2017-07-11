@@ -17,6 +17,11 @@ RSpec.describe PreneedsArrayInclusionValidator do
     expect(subject).to be_valid
   end
 
+  it 'invalidates model whose array is empty' do
+    subject.letters = []
+    expect(subject).not_to be_valid
+  end
+
   it 'invalidates a model whose array elements are not included in a list' do
     subject.letters << 'd'
     expect(subject).not_to be_valid

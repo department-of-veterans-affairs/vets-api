@@ -14,18 +14,7 @@
           "type": { "enum": ["preneeds_cemeteries"] },
           "attributes": {
             "type": "object",
-            "required": [
-              "cemetery_id",
-              "name",
-              "cemetery_type",
-              "num"
-            ],
-            "properties": {
-              "cemetery_id": { "type": "string" },
-              "name": { "type": "string" },
-              "cemetery_type": { "type": "string" },
-              "num": { "type": "string" }
-            }
+            "$ref": "cemetery.json"
           }
         }
       }

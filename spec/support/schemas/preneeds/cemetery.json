@@ -1,0 +1,16 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type" : "object",
+  "required": [
+    "cemetery_id",
+    "name",
+    "cemetery_type",
+    "num"
+  ],
+  "properties": {
+    "cemetery_id": { "type": "string" },
+    "name": { "type": "string" },
+    "cemetery_type": { "type": "string" },
+    "num": { "type": "string" }
+  }
+}

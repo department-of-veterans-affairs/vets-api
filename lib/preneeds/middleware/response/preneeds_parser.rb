@@ -30,6 +30,8 @@ module Preneeds
         end
 
         def map_military_rank_id_to_details(hash)
+          return {} if hash.blank?
+
           hash.map do |rank|
             rank['military_rank_detail'] = rank.delete('id')
             rank

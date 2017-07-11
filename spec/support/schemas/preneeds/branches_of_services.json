@@ -11,9 +11,10 @@
         "required": ["id", "type", "attributes"],
         "properties": {
           "id": { "type": "string" },
-          "type": { "enum": ["preneeds_attachment_types"] },
+          "type": { "enum": ["preneeds_branches_of_services"] },
           "attributes": {
-            "$ref": "attachment_type.json"
+            "type": "object",
+            "$ref": "branches_of_service.json"
           }
         }
       }

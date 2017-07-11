@@ -1,0 +1,12 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type" : "object",
+  "required": [
+    "discharge_type_id",
+    "description"
+  ],
+  "properties": {
+    "discharge_type_id": { "type": "integer" },
+    "description": { "type": "string" }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type" : "object",
+  "required": ["attachment_type_id", "description"],
+  "properties": {
+    "attachment_type_id": { "type": "integer" },
+    "description": { "type": "string" }
+  }
+}

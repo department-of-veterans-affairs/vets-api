@@ -12,6 +12,6 @@ RSpec.describe 'Branches of Service Integration', type: :request do
 
     expect(response).to be_success
     expect(response.body).to be_a(String)
-    expect(response).to match_response_schema('preneeds/branches_of_service')
+    expect(response).to match_response_schema('preneeds/branches_of_services')
   end
 end

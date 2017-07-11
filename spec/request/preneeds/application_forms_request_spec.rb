@@ -19,5 +19,15 @@ RSpec.describe 'Preneeds Application Form Integration', type: :request do
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('preneeds/receive_applications')
     end
+
+    it 'responds to GET #new' do
+      VCR.use_cassette('preneeds/application_forms/new_pre_need_application_form') do
+        get '/v0/preneeds/application_forms/new'
+      end
+
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      expect(response).to match_response_schema('preneeds/form_fills')
+    end
   end
 end
