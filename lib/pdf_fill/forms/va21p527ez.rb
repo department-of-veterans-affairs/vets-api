@@ -63,7 +63,8 @@ module PdfFill
           'noRapidProcessing' => { key: 'F[0].Page_8[0].CheckBox1[0]' },
           'savingsAccountNumber' => {
             limit: 11,
-            question: '29. Savings Account Number',
+            question_num: 29,
+            question_text: 'Savings Account Number',
             key: 'F[0].Page_8[0].SavingsAccountNumber[0]'
           },
           'bankAccount' => {
