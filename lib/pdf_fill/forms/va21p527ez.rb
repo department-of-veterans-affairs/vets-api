@@ -235,49 +235,71 @@ module PdfFill
             limit: 3,
             first_key: 'fullName',
             'childSocialSecurityNumber' => {
-              question: '23C. SOCIAL SECURITY NUMBER',
+              question_num: 23,
+              question_suffix: 'C',
+              question_text: 'SOCIAL SECURITY NUMBER',
               key: 'children.childSocialSecurityNumber[%iterator%]'
             },
             'childDateOfBirth' => {
-              question: '23B. DATE OF BIRTH',
+              question_num: 23,
+              question_suffix: 'B',
+              question_text: 'DATE OF BIRTH',
               key: 'children.childDateOfBirth[%iterator%]'
             },
             'childPlaceOfBirth' => {
               limit: 12,
-              question: '23B. PLACE OF BIRTH',
+              question_num: 23,
+              question_suffix: 'B',
+              question_text: 'PLACE OF BIRTH',
               key: 'children.childPlaceOfBirth[%iterator%]'
             },
             'attendingCollege' => {
-              question: '23G. 18-23 YEARS OLD (in school)',
+              question_num: 23,
+              question_suffix: 'G',
+              question_text: '18-23 YEARS OLD (in school)',
               key: 'children.attendingCollege[%iterator%]'
             },
             'married' => {
-              question: '23I. CHILD MARRIED',
+              question_num: 23,
+              question_suffix: 'I',
+              question_text: 'CHILD MARRIED',
               key: 'children.married[%iterator%]'
             },
             'disabled' => {
-              question: '23H. SERIOUSLY DISABLED',
+              question_num: 23,
+              question_suffix: 'H',
+              question_text: 'SERIOUSLY DISABLED',
               key: 'children.disabled[%iterator%]'
             },
             'biological' => {
-              question: '23D. BIOLOGICAL',
+              question_num: 23,
+              question_suffix: 'D',
+              question_text: 'BIOLOGICAL',
               key: 'children.biological[%iterator%]'
             },
             'fullName' => {
               key: 'children.name[%iterator%]',
               limit: 34,
-              question: '23A. NAME OF DEPENDENT CHILD'
+              question_num: 23,
+              question_suffix: 'A',
+              question_text: 'NAME OF DEPENDENT CHILD'
             },
             'adopted' => {
-              question: '23E. ADOPTED',
+              question_num: 23,
+              question_suffix: 'E',
+              question_text: 'ADOPTED',
               key: 'children.adopted[%iterator%]'
             },
             'stepchild' => {
-              question: '23F. STEPCHILD',
+              question_num: 23,
+              question_suffix: 'F',
+              question_text: 'STEPCHILD',
               key: 'children.stepchild[%iterator%]'
             },
             'previouslyMarried' => {
-              question: '23J. CHILD PREVIOUSLY MARRIED',
+              question_num: 23,
+              question_suffix: 'J',
+              question_text: 'CHILD PREVIOUSLY MARRIED',
               key: 'children.previouslyMarried[%iterator%]'
             }
           },
