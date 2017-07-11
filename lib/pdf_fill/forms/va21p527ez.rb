@@ -422,7 +422,7 @@ module PdfFill
             },
             'additionalSourceName' => {
               limit: 14,
-              question_text: 'Source'
+              question_text: 'Source',
               key: "#{acct_type}.additionalSourceName[#{ITERATOR}]"
             },
             'recipient' => {
@@ -432,7 +432,7 @@ module PdfFill
             }
           }
           key[acct_type].each do |_, v|
-            v[:question_num] = question_num
+            v[:question_num] = question_num if v.is_a?(Hash)
           end
 
           key[acct_type][:limit] =
@@ -447,51 +447,63 @@ module PdfFill
 
         %w(m spouseM).each do |prefix|
           sub_key = "#{prefix}arriages"
-          question_num = prefix == 'm' ? '19' : '21'
+          question_num = prefix == 'm' ? 19 : 21
 
           key[sub_key] = {
             limit: 2,
             first_key: 'locationOfMarriage',
             'dateOfMarriage' => {
-              question: "#{question_num}A. Date of Marriage",
+              question_suffix: 'A',
+              question_text: 'Date of Marriage',
               key: "#{sub_key}.dateOfMarriage[#{ITERATOR}]"
             },
             'otherExplanations' => {
               limit: 90,
               skip_index: true,
-              question: "#{question_num}F. IF YOU INDICATED \"OTHER\" AS TYPE OF MARRIAGE IN ITEM #{question_num}C, PLEASE EXPLAIN",
+              question_suffix: 'F',
+              question_text: "IF YOU INDICATED \"OTHER\" AS TYPE OF MARRIAGE IN ITEM #{question_num}C, PLEASE EXPLAIN",
               key: "F[0].Page_6[0].Explainothertype#{prefix == 'm' ? 's' : ''}ofmarriage[0]"
             },
             'locationOfMarriage' => {
               limit: 22,
-              question: "#{question_num}A. PLACE OF MARRIAGE",
+              question_text: 'PLACE OF MARRIAGE',
+              question_suffix: 'A',
               key: "#{sub_key}.locationOfMarriage[#{ITERATOR}]"
             },
             'locationOfSeparation' => {
               limit: 13,
-              question: "#{question_num}E. PLACE MARRIAGE TERMINATED",
+              question_text: 'PLACE MARRIAGE TERMINATED',
+              question_suffix: 'E',
               key: "#{sub_key}.locationOfSeparation[#{ITERATOR}]"
             },
             'spouseFullName' => {
               limit: 27,
-              question: "#{question_num}B. TO WHOM MARRIED",
+              question_text: 'TO WHOM MARRIED',
+              question_suffix: 'B',
               key: "#{sub_key}.spouseFullName[#{ITERATOR}]"
             },
             'marriageType' => {
               limit: 27,
-              question: "#{question_num}C. TYPE OF MARRIAGE",
+              question_text: 'TYPE OF MARRIAGE',
+              question_suffix: 'C',
               key: "#{sub_key}.marriageType[#{ITERATOR}]"
             },
             'dateOfSeparation' => {
-              question: "#{question_num}E. DATE MARRIAGE TERMINATED",
+              question_text: 'DATE MARRIAGE TERMINATED',
+              question_suffix: 'E',
               key: "#{sub_key}.dateOfSeparation[#{ITERATOR}]"
             },
             'reasonForSeparation' => {
               limit: 33,
-              question: "#{question_num}D. HOW MARRIAGE TERMINATED",
+              question_text: 'HOW MARRIAGE TERMINATED',
+              question_suffix: 'D',
               key: "#{sub_key}.reasonForSeparation[#{ITERATOR}]"
             }
           }
+
+          key[sub_key].each do |_, v|
+            v[:question_num] = question_num if v.is_a?(Hash)
+          end
         end
 
         key
