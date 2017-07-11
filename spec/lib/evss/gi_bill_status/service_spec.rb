@@ -24,6 +24,8 @@ describe EVSS::GiBillStatus::Service do
               'regional_processing_office' => 'Central Office Washington, DC',
               'eligibility_date' => nil,
               'delimiting_date' => nil,
+              'veteran_is_eligible' => nil,
+              'active_duty' => nil,
               'percentage_benefit' => nil,
               'original_entitlement' => nil,
               'used_entitlement' => nil,
