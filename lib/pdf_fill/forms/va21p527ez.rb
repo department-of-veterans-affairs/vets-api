@@ -82,26 +82,31 @@ module PdfFill
             first_key: 'purpose',
             'amount' => {
               limit: 10,
-              question: '28. AMOUNT PAID BY YOU',
+              question_num: 28,
+              question_text: 'AMOUNT PAID BY YOU',
               key: 'otherExpenses.amount[%iterator%]'
             },
             'purpose' => {
               limit: 58,
-              question: '28. PURPOSE',
+              question_num: 28,
+              question_text: 'PURPOSE',
               key: 'otherExpenses.purpose[%iterator%]'
             },
             'paidTo' => {
-              question: '28. PAID TO',
+              question_num: 28,
+              question_text: 'PAID TO',
               limit: 29,
               key: 'otherExpenses.paidTo[%iterator%]'
             },
             'relationship' => {
               limit: 33,
-              question: '28. RELATIONSHIP OF PERSON FOR WHOM EXPENSES PAID',
+              question_num: 28,
+              question_text: 'RELATIONSHIP OF PERSON FOR WHOM EXPENSES PAID',
               key: 'otherExpenses.relationship[%iterator%]'
             },
             'date' => {
-              question: '28. DATE PAID',
+              question_num: 28,
+              question_text: 'DATE PAID',
               key: 'otherExpenses.date[%iterator%]'
             }
           },
