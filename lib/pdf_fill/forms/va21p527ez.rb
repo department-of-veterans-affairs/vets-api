@@ -141,30 +141,42 @@ module PdfFill
             limit: 2,
             'annualEarnings' => {
               limit: 10,
-              question: '17F. WHAT WERE YOUR TOTAL ANNUAL EARNINGS?',
+              question_num: 17,
+              question_suffix: 'F',
+              question_text: 'WHAT WERE YOUR TOTAL ANNUAL EARNINGS?',
               key: "jobs.annualEarnings[#{ITERATOR}]"
             },
             'nameAndAddr' => {
               key: "jobs.nameAndAddr[#{ITERATOR}]",
               limit: 27,
-              question: '17A. WHAT WAS THE NAME AND ADDRESS OF YOUR EMPLOYER?'
+              question_num: 17,
+              question_suffix: 'A',
+              question_text: 'WHAT WAS THE NAME AND ADDRESS OF YOUR EMPLOYER?'
             },
             'jobTitle' => {
               key: "jobs.jobTitle[#{ITERATOR}]",
-              question: '17B. WHAT WAS YOUR JOB TITLE?',
+              question_num: 17,
+              question_suffix: 'B',
+              question_text: 'WHAT WAS YOUR JOB TITLE?',
               limit: 25
             },
             'dateRangeStart' => {
               key: "jobs.dateRangeStart[#{ITERATOR}]",
-              question: '17C. WHEN DID YOUR JOB BEGIN?'
+              question_num: '17',
+              question_suffix: 'C',
+              question_text: 'WHEN DID YOUR JOB BEGIN?'
             },
             'dateRangeEnd' => {
               key: "jobs.dateRangeEnd[#{ITERATOR}]",
-              question: '17D. WHEN DID YOUR JOB END?'
+              question_num: 17,
+              question_suffix: 'D',
+              question_text: 'WHEN DID YOUR JOB END?'
             },
             'daysMissed' => {
               limit: 9,
-              question: '17E. HOW MANY DAYS WERE LOST DUE TO DISABILITY?',
+              question_num: 17,
+              question_suffix: 'E',
+              question_text: 'HOW MANY DAYS WERE LOST DUE TO DISABILITY?',
               key: "jobs.daysMissed[#{ITERATOR}]"
             }
           },
