@@ -162,7 +162,7 @@ module PdfFill
             },
             'dateRangeStart' => {
               key: "jobs.dateRangeStart[#{ITERATOR}]",
-              question_num: '17',
+              question_num: 17,
               question_suffix: 'C',
               question_text: 'WHEN DID YOUR JOB BEGIN?'
             },
