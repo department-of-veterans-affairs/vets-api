@@ -24,6 +24,8 @@
             "percentage_benefit": { "type": ["integer", "null"] },
             "original_entitlement": { "type": ["integer", "null"] },
             "used_entitlement": { "type": ["integer", "null"] },
+            "veteran_is_eligible": { "type": ["boolean", "null"] },
+            "active_duty": { "type": ["boolean", "null"] },
             "remaining_entitlement": { "type": ["integer", "null"] },
             "enrollments": {
               "type": ["array", "null"],

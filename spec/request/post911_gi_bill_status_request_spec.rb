@@ -52,7 +52,7 @@ RSpec.describe 'Fetching Post 911 GI Bill Status', type: :request do
     end
   end
 
-  context 'with a 500 response' do
+  context 'with a 500 evss response' do
     it 'should return a not found response' do
       VCR.use_cassette('evss/gi_bill_status/gi_bill_status_500') do
         get v0_post911_gi_bill_status_url, nil, auth_header
