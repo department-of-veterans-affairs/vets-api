@@ -194,7 +194,9 @@ module PdfFill
           },
           'spouseAddress' => {
             limit: 47,
-            question: "22F. WHAT IS YOUR SPOUSE'S ADDRESS?",
+            question_num: 22,
+            question_suffix: 'F',
+            question_text: "WHAT IS YOUR SPOUSE'S ADDRESS?",
             key: 'F[0].Page_6[0].Spouseaddress[0]'
           },
           'outsideChildren' => {
@@ -202,22 +204,30 @@ module PdfFill
             first_key: 'fullName',
             'childAddress' => {
               limit: 52,
-              question: "24B. CHILD'S COMPLETE ADDRESS",
+              question_num: 24,
+              question_suffix: 'B',
+              question_text: "CHILD'S COMPLETE ADDRESS",
               key: 'outsideChildren.childAddress[%iterator%]'
             },
             'fullName' => {
               limit: 48,
-              question: '24A. NAME OF DEPENDENT CHILD',
+              question_num: 24,
+              question_suffix: 'A',
+              question_text: 'NAME OF DEPENDENT CHILD',
               key: 'outsideChildren.childFullName[%iterator%]'
             },
             'monthlyPayment' => {
               limit: 13,
-              question: "24D. MONTHLY AMOUNT YOU CONTRIBUTE TO THE CHILD'S SUPPORT",
+              question_num: 24,
+              question_suffix: 'D',
+              question_text: "MONTHLY AMOUNT YOU CONTRIBUTE TO THE CHILD'S SUPPORT",
               key: 'outsideChildren.monthlyPayment[%iterator%]'
             },
             'personWhoLivesWithChild' => {
               limit: 40,
-              question: '24C. NAME OF PERSON THE CHILD LIVES WITH',
+              question_num: 24,
+              question_suffix: 'C',
+              question_text: 'NAME OF PERSON THE CHILD LIVES WITH',
               key: 'outsideChildren.personWhoLivesWithChild[%iterator%]'
             }
           },
