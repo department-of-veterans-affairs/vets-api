@@ -23,14 +23,6 @@ describe PdfFill::ExtrasGenerator do
         },
         {
           question_num: 3,
-          question_suffix: 'A'
-        },
-        {
-          question_num: 3,
-          question_suffix: 'B',
-        },
-        {
-          question_num: 3,
           question_suffix: 'A',
           i: 0
         },
@@ -38,6 +30,14 @@ describe PdfFill::ExtrasGenerator do
           question_num: 3,
           question_suffix: 'A',
           i: 1
+        },
+        {
+          question_num: 3,
+          question_suffix: 'A'
+        },
+        {
+          question_num: 3,
+          question_suffix: 'B',
         }
       ]
 
