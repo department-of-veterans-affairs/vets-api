@@ -324,7 +324,7 @@ module PdfFill
             'serviceBranch' => {
               key: 'F[0].Page_5[0].Branchofservice[0]',
               limit: 25,
-              question: 12,
+              question_num: 12,
               question_suffix: 'B',
               question_text: 'BRANCH OF SERVICE'
             },
