@@ -52,6 +52,7 @@ module PdfFill
     def add_to_extras(key_data, v, i)
       return if v.blank?
       return if key_data.try(:[], :question_text).blank?
+      i = nil if key_data[:skip_index]
 
       @extras_generator.add_text(v,
         key_data.slice(:question_num, :question_suffix, :question_text).merge(
