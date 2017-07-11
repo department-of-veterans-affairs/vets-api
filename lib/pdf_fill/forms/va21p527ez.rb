@@ -37,7 +37,9 @@ module PdfFill
           'monthlySpousePayment' => {
             key: 'F[0].Page_6[0].MonthlySupport[0]',
             limit: 11,
-            question: "22H. HOW MUCH DO YOU CONTRIBUTE MONTHLY TO YOUR SPOUSE'S SUPPORT?"
+            question_num: 22,
+            question_suffix: 'H',
+            question_text: "HOW MUCH DO YOU CONTRIBUTE MONTHLY TO YOUR SPOUSE'S SUPPORT?"
           },
           'spouseDateOfBirth' => { key: 'F[0].Page_6[0].Date[8]' },
           'noLiveWithSpouse' => { key: 'F[0].Page_6[0].CheckboxSpouseNo[0]' },
