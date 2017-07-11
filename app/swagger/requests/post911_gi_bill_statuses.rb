@@ -51,6 +51,8 @@ module Swagger
             property :delimiting_date, type: [:string, :null], example: '2015-10-01T04:00:00.000+0000'
             property :percentage_benefit, type: [:integer, :null], example: 100
             property :original_entitlement, type: [:integer, :null], example: nil
+            property :veteran_is_eligible, type: [:boolean, :null], example: false
+            property :active_duty, type: [:boolean, :null], example: false
             property :used_entitlement, type: [:integer, :null], example: 10
             property :remaining_entitlement, type: [:integer, :null], example: 12
             property :enrollments do
