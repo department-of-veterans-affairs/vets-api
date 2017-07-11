@@ -184,7 +184,9 @@ module PdfFill
             'nameAndAddr' => {
               key: 'F[0].Page_5[0].Nameandaddressofunit[0]',
               limit: 59,
-              question: '14A. WHAT IS THE NAME AND ADDRESS OF YOUR RESERVE/NATIONAL GUARD UNIT?'
+              question_num: 14,
+              question_suffix: 'A',
+              question_text: 'WHAT IS THE NAME AND ADDRESS OF YOUR RESERVE/NATIONAL GUARD UNIT?'
             },
             'phone' => { key: 'F[0].Page_5[0].Unittelephonenumber[0]' },
             'date' => { key: 'F[0].Page_5[0].DateofActivation[0]' },
