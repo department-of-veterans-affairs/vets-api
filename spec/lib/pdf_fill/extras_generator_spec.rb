@@ -37,7 +37,7 @@ describe PdfFill::ExtrasGenerator do
         },
         {
           question_num: 3,
-          question_suffix: 'B',
+          question_suffix: 'B'
         }
       ]
 
@@ -55,7 +55,8 @@ describe PdfFill::ExtrasGenerator do
 
   describe '#generate' do
     it 'should generate the pdf' do
-      subject.add_text('bar',
+      subject.add_text(
+        'bar',
         question_num: 1,
         question_suffix: 'A',
         question_text: 'foo',

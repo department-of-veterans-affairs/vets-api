@@ -54,7 +54,8 @@ module PdfFill
       return if key_data.try(:[], :question_text).blank?
       i = nil if key_data[:skip_index]
 
-      @extras_generator.add_text(v,
+      @extras_generator.add_text(
+        v,
         key_data.slice(:question_num, :question_suffix, :question_text).merge(
           i: i
         )

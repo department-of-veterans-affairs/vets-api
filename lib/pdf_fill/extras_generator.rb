@@ -5,6 +5,20 @@ module PdfFill
       @generate_blocks = []
     end
 
+    def create_block(value, metadata)
+      lambda do |pdf|
+        pdf.move_down(10)
+        prefix = metadata[:question_num].to_s
+        prefix += metadata[:question_suffix] if metadata[:question_suffix].present?
+        prefix = "#{prefix}. #{metadata[:question_text].humanize}"
+        i = metadata[:i]
+        prefix += " Line #{i + 1}" if i.present?
+
+        pdf.text("#{prefix}:", style: :bold)
+        pdf.text(value.to_s, style: :normal)
+      end
+    end
+
     def add_text(value, metadata)
       unless text?
         @generate_blocks << {
@@ -17,17 +31,7 @@ module PdfFill
 
       @generate_blocks << {
         metadata: metadata,
-        block: lambda do |pdf|
-          pdf.move_down(10)
-          prefix = metadata[:question_num].to_s
-          prefix += metadata[:question_suffix] if metadata[:question_suffix].present?
-          prefix = "#{prefix}. #{metadata[:question_text].humanize}"
-          i = metadata[:i]
-          prefix += " Line #{i + 1}" if i.present?
-
-          pdf.text("#{prefix}:", style: :bold)
-          pdf.text(value.to_s, style: :normal)
-        end
+        block: create_block(value, metadata)
       }
     end
 
@@ -41,7 +45,7 @@ module PdfFill
 
         [
           metadata[:question_num] || -1,
-          metadata[:i] || 99999,
+          metadata[:i] || 99_999,
           metadata[:question_suffix] || -1
         ]
       end

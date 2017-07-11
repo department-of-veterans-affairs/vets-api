@@ -22,8 +22,6 @@ module PdfFill
         'salary' => 'GROSS WAGES AND SALARY',
         'interest' => 'TOTAL DIVIDENDS AND INTEREST'
       }.freeze
-
-      # rubocop:disable Metrics/LineLength
       KEY = lambda do
         key = {
           'vaFileNumber' => { key: 'F[0].Page_5[0].VAfilenumber[0]' },
@@ -418,7 +416,7 @@ module PdfFill
               key: "#{acct_type}.amount[#{ITERATOR}]"
             },
             'source' => {
-              question_text: 'Source',
+              question_text: 'Source'
             },
             'additionalSourceName' => {
               limit: 14,
