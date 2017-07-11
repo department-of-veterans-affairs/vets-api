@@ -389,7 +389,7 @@ module PdfFill
             'name' => {
               key: "disabilities.name[#{ITERATOR}]",
               limit: 44,
-              question: 9,
+              question_num: 9,
               question_suffix: 'A',
               question_text: 'DISABILITY(IES)'
             },
