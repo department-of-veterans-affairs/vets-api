@@ -66,15 +66,23 @@ describe BB::GenerateReportRequestForm do
       { from_date: time_before.iso8601, to_date: time_after.iso8601, data_classes: invalid_data_classes }
     end
 
+    # TODO: See: https://github.com/department-of-veterans-affairs/vets.gov-team/issues/3777
     it 'responds to params' do
       expect(subject.params)
-        .to eq(from_date: time_before.httpdate, to_date: time_after.httpdate, data_classes: invalid_data_classes)
+        .to eq(from_date: time_before.httpdate, to_date: time_after.httpdate, data_classes: []) # invalid_data_classes)
     end
 
-    it 'returns valid true' do
-      expect(subject.valid?).to be_falsey
+    # TODO: See: https://github.com/department-of-veterans-affairs/vets.gov-team/issues/3777
+    it 'returns valid false' do
+      expect(subject.valid?).to be_truthy # be_falsey
       expect(subject.errors.full_messages)
-        .to eq(['Invalid data classes: blah, blahblah'])
+        .to be_empty # eq(['Invalid data classes: blah, blahblah'])
+    end
+
+    # TODO: remove this temporary behavior
+    # TODO: See: https://github.com/department-of-veterans-affairs/vets.gov-team/issues/3777
+    it 'intersects out invalid classes' do
+      expect(subject.overridden_data_classes).to be_empty
     end
   end
 
