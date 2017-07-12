@@ -53,6 +53,7 @@ module PdfFill
       return if v.blank?
       return if key_data.try(:[], :question_text).blank?
       i = nil if key_data[:skip_index]
+      v = "$#{v}" if key_data[:dollar]
 
       @extras_generator.add_text(
         v,

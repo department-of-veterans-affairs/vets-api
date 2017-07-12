@@ -123,6 +123,7 @@ module PdfFill
               limit: 17,
               question_num: 16,
               question_suffix: 'B',
+              dollar: true,
               question_text: 'LIST AMOUNT (If known)'
             },
             'type' => { key: 'F[0].Page_5[0].Listtype[0]' }
