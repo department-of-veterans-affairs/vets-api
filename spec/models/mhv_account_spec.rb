@@ -41,7 +41,6 @@ RSpec.describe MhvAccount, type: :model do
 
   before(:each) do
     stub_mvi(mvi_profile)
-    allow_any_instance_of(BetaSwitch).to receive(:beta_enabled?).and_return(true)
     Settings.mhv.facility_range = [358, 758]
   end
 
