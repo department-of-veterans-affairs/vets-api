@@ -18,6 +18,15 @@ module PdfFill
         end.join(', ')
       end
 
+      def combine_full_address_extras(address)
+        [
+          address['street'],
+          address['street2'],
+          [address['city'], address['state'], address['postalCode']].compact.join(', '),
+          address['country']
+        ].compact.join("\n")
+      end
+
       def combine_full_address(address)
         combine_hash(
           address,

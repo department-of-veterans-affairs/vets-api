@@ -27,6 +27,8 @@ module PdfFill
         return v.map do |item|
           convert_val_as_string(item)
         end.join(', ')
+      elsif v.is_a?(PdfFill::FormValue)
+        return v
       end
 
       v = v.to_s
@@ -54,6 +56,7 @@ module PdfFill
       return if key_data.try(:[], :question_text).blank?
       i = nil if key_data[:skip_index]
       v = "$#{v}" if key_data[:dollar]
+      v = v.extras_value if v.is_a?(PdfFill::FormValue)
 
       @extras_generator.add_text(
         v,
