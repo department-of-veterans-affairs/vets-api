@@ -5,34 +5,68 @@ module PdfFill
       @generate_blocks = []
     end
 
-    def add_text(prefix, text)
-      unless text?
-        @generate_blocks << lambda do |pdf|
-          pdf.text('Additional Information', size: 16, style: :bold)
-        end
-      end
-
-      @generate_blocks << lambda do |pdf|
+    def create_block(value, metadata)
+      lambda do |pdf|
         pdf.move_down(10)
-        pdf.text("#{prefix}:", style: :bold)
+        prefix = metadata[:question_num].to_s
+        prefix += metadata[:question_suffix] if metadata[:question_suffix].present?
+        prefix = "#{prefix}. #{metadata[:question_text].humanize}"
+        i = metadata[:i]
+        prefix += " Line #{i + 1}" if i.present?
 
-        pdf.text(text.to_s, style: :normal)
+        pdf.text("#{prefix}:", style: :bold)
+        pdf.text(value.to_s, style: :normal)
       end
+    end
+
+    def add_text(value, metadata)
+      unless text?
+        @generate_blocks << {
+          metadata: {},
+          block: lambda do |pdf|
+            pdf.text('Additional Information', size: 16, style: :bold)
+          end
+        }
+      end
+
+      @generate_blocks << {
+        metadata: metadata,
+        block: create_block(value, metadata)
+      }
     end
 
     def text?
       @generate_blocks.size.positive?
     end
 
+    def sort_generate_blocks
+      @generate_blocks.sort_by do |generate_block|
+        metadata = generate_block[:metadata]
+
+        [
+          metadata[:question_num] || -1,
+          metadata[:i] || 99_999,
+          metadata[:question_suffix] || -1
+        ]
+      end
+    end
+
     def generate
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
-      file_path = "#{folder}/extras_#{Time.zone.now}.pdf"
-      generate_blocks = @generate_blocks
+      file_path = "#{folder}/extras_#{SecureRandom.uuid}.pdf"
+      generate_blocks = sort_generate_blocks
 
       Prawn::Document.generate(file_path) do |pdf|
-        generate_blocks.each do |block|
-          block.call(pdf)
+        box_height = 25
+        pdf.bounding_box(
+          [pdf.bounds.left, pdf.bounds.top - box_height],
+          width: pdf.bounds.width,
+          height: pdf.bounds.height - box_height
+        ) do
+          generate_blocks.each do |block|
+            block[:block].call(pdf)
+          end
         end
       end
 
