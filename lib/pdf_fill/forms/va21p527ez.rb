@@ -693,7 +693,6 @@ module PdfFill
           financial_accts_for_type << {
             'recipient' => recipient,
             'sourceAndAmount' => "#{source.humanize}: $#{amount}",
-            'source' => source,
             'amount' => amount
           }
         end

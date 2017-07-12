@@ -20,18 +20,12 @@ describe PdfFill::Forms::VA21P527EZ do
           'salary' => 1
         }
       ).expand_expected_incomes).to eq(
-        [
-          {
-            'recipient' => 'Myself',
-            'source' => 'GROSS WAGES AND SALARY',
-            'amount' => 1
-          },
-          nil,
-          { 'recipient' => 'Myself', 'amount' => 0 },
-          nil,
-          nil,
-          nil
-        ]
+        [{"recipient"=>"Myself", "sourceAndAmount"=>"Gross wages and salary: $1", "amount"=>1},
+ nil,
+ {"recipient"=>"Myself", "amount"=>0},
+ nil,
+ nil,
+ nil]
       )
     end
   end
@@ -43,16 +37,16 @@ describe PdfFill::Forms::VA21P527EZ do
           'socialSecurity' => 1
         }
       ).expand_monthly_incomes).to eq(
-        [{ 'recipient' => 'Myself', 'source' => 'SOCIAL SECURITY', 'amount' => 1 },
-         nil,
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         nil,
-         nil,
-         nil]
+        [{"recipient"=>"Myself", "sourceAndAmount"=>"Social security: $1", "amount"=>1},
+ nil,
+ {"recipient"=>"Myself", "amount"=>0},
+ {"recipient"=>"Myself", "amount"=>0},
+ {"recipient"=>"Myself", "amount"=>0},
+ {"recipient"=>"Myself", "amount"=>0},
+ {"recipient"=>"Myself", "amount"=>0},
+ nil,
+ nil,
+ nil]
       )
     end
   end
@@ -64,14 +58,14 @@ describe PdfFill::Forms::VA21P527EZ do
           'bank' => 1
         }
       ).expand_net_worths).to eq(
-        [{ 'recipient' => 'Myself', 'source' => 'CASH/NON-INTEREST BEARING BANK ACCOUNTS', 'amount' => 1 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         {},
-         {},
-         nil]
+        [{"recipient"=>"Myself", "sourceAndAmount"=>"Cash/non-interest bearing bank accounts: $1", "amount"=>1},
+ {"recipient"=>"Myself", "amount"=>0},
+ {"recipient"=>"Myself", "amount"=>0},
+ {"recipient"=>"Myself", "amount"=>0},
+ {"recipient"=>"Myself", "amount"=>0},
+ {},
+ {},
+ nil]
       )
     end
   end
@@ -154,15 +148,11 @@ describe PdfFill::Forms::VA21P527EZ do
             'interest' => []
           }
         ],
-        { 'salary' =>
-  [{ 'recipient' => 'person', 'source' => 'GROSS WAGES AND SALARY', 'amount' => 1 }],
-          'additionalSources' =>
-  [{ 'recipient' => 'person', 'amount' => 3, 'additionalSourceName' => 'name1' },
-   { 'recipient' => 'person', 'amount' => 4, 'additionalSourceName' => 'name2' }],
-          'interest' =>
-  [{ 'recipient' => 'person',
-     'source' => 'TOTAL DIVIDENDS AND INTEREST',
-     'amount' => 2 }] }
+        {"salary"=>[{"recipient"=>"person", "sourceAndAmount"=>"Gross wages and salary: $1", "amount"=>1}],
+ "additionalSources"=>
+  [{"recipient"=>"person", "amount"=>3, "sourceAndAmount"=>"Name1: $3", "additionalSourceName"=>"name1"},
+   {"recipient"=>"person", "amount"=>4, "sourceAndAmount"=>"Name2: $4", "additionalSourceName"=>"name2"}],
+ "interest"=>[{"recipient"=>"person", "sourceAndAmount"=>"Total dividends and interest: $2", "amount"=>2}]}
       ]
     ]
   )

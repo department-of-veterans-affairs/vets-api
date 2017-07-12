@@ -557,59 +557,62 @@
   "expectedIncomes": [
     {
       "recipient": "Myself",
-      "source": "GROSS WAGES AND SALARY",
+      "sourceAndAmount": "Gross wages and salary: $1",
       "amount": 1
     },
     {
       "recipient": "Spouse",
-      "source": "GROSS WAGES AND SALARY",
+      "sourceAndAmount": "Gross wages and salary: $2",
       "amount": 2
     },
     {
       "recipient": "Myself",
-      "source": "TOTAL DIVIDENDS AND INTEREST",
+      "sourceAndAmount": "Total dividends and interest: $3",
       "amount": 3
     },
     {
       "recipient": "Myself",
       "amount": 4,
+      "sourceAndAmount": "Name1: $4",
       "additionalSourceName": "name1"
     },
     {
       "recipient": "Spouse",
       "amount": 5,
+      "sourceAndAmount": "Name2: $5",
       "additionalSourceName": "name2"
     },
     {
       "recipient": "outside3 Olson",
       "amount": 6,
+      "sourceAndAmount": "Name3: $6",
       "additionalSourceName": "name3"
     }
   ],
   "netWorths": [
     {
       "recipient": "Myself",
-      "source": "CASH/NON-INTEREST BEARING BANK ACCOUNTS",
+      "sourceAndAmount": "Cash/non-interest bearing bank accounts: $1",
       "amount": 1
     },
     {
       "recipient": "Myself",
-      "source": "INTEREST-BEARING BANK ACCOUNTS",
+      "sourceAndAmount": "Interest-bearing bank accounts: $2",
       "amount": 2
     },
     {
       "recipient": "Myself",
-      "source": "IRA'S, KEOGH PLANS, ETC.",
+      "sourceAndAmount": "Ira's, keogh plans, etc.: $3",
       "amount": 3
     },
     {
       "recipient": "Spouse",
-      "source": "STOCKS, BONDS, MUTUAL FUNDS, ETC.",
+      "sourceAndAmount": "Stocks, bonds, mutual funds, etc.: $4",
       "amount": 4
     },
     {
       "recipient": "Spouse",
-      "source": "REAL PROPERTY",
+      "sourceAndAmount": "Real property: $5",
       "amount": 5
     },
     {
@@ -619,58 +622,62 @@
     {
       "recipient": "outside1 Olson",
       "amount": 8,
+      "sourceAndAmount": "Name1: $8",
       "additionalSourceName": "name1"
     }
   ],
   "monthlyIncomes": [
     {
       "recipient": "Myself",
-      "source": "SOCIAL SECURITY",
+      "sourceAndAmount": "Social security: $1",
       "amount": 1
     },
     {
       "recipient": "Spouse",
-      "source": "SOCIAL SECURITY",
+      "sourceAndAmount": "Social security: $2",
       "amount": 2
     },
     {
       "recipient": "Myself",
-      "source": "U.S. CIVIL SERVICE",
+      "sourceAndAmount": "U.s. civil service: $3",
       "amount": 3
     },
     {
       "recipient": "Spouse",
-      "source": "U.S. RAILROAD RETIREMENT",
+      "sourceAndAmount": "U.s. railroad retirement: $4",
       "amount": 4
     },
     {
       "recipient": "Myself",
-      "source": "BLACK LUNG BENEFITS",
+      "sourceAndAmount": "Black lung benefits: $5",
       "amount": 5
     },
     {
       "recipient": "Spouse",
-      "source": "SERVICE RETIREMENT",
+      "sourceAndAmount": "Service retirement: $6",
       "amount": 6
     },
     {
       "recipient": "Myself",
-      "source": "SUPPLEMENTAL SECURITY INCOME (SSI)/PUBLIC ASSISTANCE",
+      "sourceAndAmount": "Supplemental security income (ssi)/public assistance: $7",
       "amount": 7
     },
     {
       "recipient": "Spouse",
       "amount": 8,
+      "sourceAndAmount": "Name1: $8",
       "additionalSourceName": "name1"
     },
     {
       "recipient": "outside1 Olson",
       "amount": 9,
+      "sourceAndAmount": "Name2: $9",
       "additionalSourceName": "name2"
     },
     {
       "recipient": "outside1 Olson",
       "amount": 10,
+      "sourceAndAmount": "Name3: $10",
       "additionalSourceName": "name3"
     }
   ],
