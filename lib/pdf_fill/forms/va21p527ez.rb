@@ -570,10 +570,7 @@ module PdfFill
         return if jobs.blank?
 
         jobs.each do |job|
-          extras_address = combine_name_addr_extras(job, 'employer')
-          job['address'] = combine_full_address(job['address'])
-          address = combine_hash(job,  %w(employer address), ', ')
-          job['nameAndAddr'] = PdfFill::FormValue.new(address, extras_address)
+          combine_name_addr(job, name_key: 'employer')
 
           expand_date_range(job, 'dateRange')
         end
