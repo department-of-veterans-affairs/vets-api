@@ -908,6 +908,13 @@ module PdfFill
         end
       end
 
+      def expand_spouse_addr
+        extras_address = combine_full_address_extras(@form_data['spouseAddress'])
+        address = combine_full_address(@form_data['spouseAddress'])
+
+        @form_data['spouseAddress'] = PdfFill::FormValue.new(address, extras_address)
+      end
+
       # rubocop:disable Metrics/MethodLength
       def merge_fields
         @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
@@ -955,7 +962,7 @@ module PdfFill
         @form_data['spouseMarriageCount'] = @form_data['spouseMarriages']&.length
         @form_data['marriageCount'] = @form_data['marriages']&.length
 
-        @form_data['spouseAddress'] = combine_full_address(@form_data['spouseAddress'])
+        expand_spouse_addr
 
         expand_marital_status(@form_data, 'maritalStatus')
 
