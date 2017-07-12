@@ -70,6 +70,7 @@ module V0
       Swagger::Requests::PensionClaims,
       Swagger::Requests::BurialClaims,
       Swagger::Requests::HealthCareApplications,
+      Swagger::Requests::Post911GiBillStatuses,
       Swagger::Requests::Prescriptions::Prescriptions,
       Swagger::Requests::Prescriptions::Trackings,
       Swagger::Requests::Messages::TriageTeams,

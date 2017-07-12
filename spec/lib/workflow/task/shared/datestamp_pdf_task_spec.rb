@@ -20,12 +20,23 @@ RSpec.describe Workflow::Task::Shared::DatestampPdfTask do
     end
 
     context 'with a succesful pdf stamp' do
+      def assert_pdf_stamp(stamp)
+        text_analysis = PDF::Inspector::Text.analyze(instance.file.read)
+        expect(text_analysis.strings.first).to eq(stamp)
+      end
+
       it 'should add text with a datestamp at the given location' do
         Timecop.travel(Time.zone.local(1999, 12, 31, 23, 59, 59)) do
           instance.run(text: 'Received via vets.gov at', x: 10, y: 10)
-          text_analysis = PDF::Inspector::Text.analyze(instance.file.read)
-          stamp = 'Received via vets.gov at 1999-12-31T23:59:59+00:00. Confirmation=VETS-XX-1234'
-          expect(text_analysis.strings.first).to eq(stamp)
+          assert_pdf_stamp('Received via vets.gov at 1999-12-31T23:59:59+00:00. Confirmation=VETS-XX-1234')
+        end
+      end
+
+      context 'with no additional text' do
+        it 'should add just the text' do
+          text = 'Vets.gov Submission'
+          instance.run(text: text, x: 449, y: 730, text_only: true)
+          assert_pdf_stamp(text)
         end
       end
     end
