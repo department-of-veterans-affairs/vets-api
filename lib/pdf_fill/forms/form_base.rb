@@ -10,6 +10,20 @@ module PdfFill
         @form_data = form_data.deep_dup
       end
 
+      def combine_name_addr_extras(hash, name_key, address_key)
+        [hash[name_key], combine_full_address_extras(hash[address_key])].compact.join("\n")
+      end
+
+      def combine_name_addr(hash, address_key: 'address', name_key: 'name', combined_key: 'nameAndAddr')
+        return if hash.try(:[], address_key).blank?
+        extras_address = combine_name_addr_extras(hash, name_key, address_key)
+
+        hash[address_key] = combine_full_address(hash[address_key])
+        address = combine_hash(hash, [name_key, address_key], ', ')
+
+        hash[combined_key] = PdfFill::FormValue.new(address, extras_address)
+      end
+
       def combine_previous_names(previous_names)
         return if previous_names.blank?
 
@@ -19,6 +33,8 @@ module PdfFill
       end
 
       def combine_full_address_extras(address)
+        return if address.blank?
+
         [
           address['street'],
           address['street2'],

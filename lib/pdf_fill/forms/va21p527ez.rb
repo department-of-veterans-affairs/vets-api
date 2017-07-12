@@ -566,20 +566,6 @@ module PdfFill
         }
       end
 
-      def combine_name_addr_extras(hash, name_key)
-        [hash[name_key], combine_full_address_extras(hash['address'])].compact.join("\n")
-      end
-
-      def combine_name_addr(hash)
-        return if hash.blank?
-        extras_address = combine_name_addr_extras(hash, 'name')
-
-        hash['address'] = combine_full_address(hash['address'])
-        address = combine_hash(hash, %w(name address), ', ')
-
-        hash['nameAndAddr'] = PdfFill::FormValue.new(address, extras_address)
-      end
-
       def expand_jobs(jobs)
         return if jobs.blank?
 
