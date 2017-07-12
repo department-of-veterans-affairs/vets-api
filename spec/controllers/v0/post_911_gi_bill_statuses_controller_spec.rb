@@ -37,11 +37,18 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['meta']['status']).to eq('SERVER_ERROR')
       end
+    end
 
-      it 'should log an error' do
-        expect(Rails.logger).to receive(:error).with(/Unexpected response from EVSS GiBillStatus/)
+    context 'when EVSS response is 403' do
+      before do
+        allow_any_instance_of(EVSS::GiBillStatus::GiBillStatusResponse).to receive(:status).and_return(403)
+      end
+
+      it 'should respond with 200 & NOT_AUTHORIZED meta' do
         request.headers['Authorization'] = "Token token=#{session.token}"
         get :show
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['meta']['status']).to eq('NOT_AUTHORIZED')
       end
     end
   end

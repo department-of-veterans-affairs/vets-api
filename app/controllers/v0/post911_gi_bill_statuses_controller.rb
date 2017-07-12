@@ -6,11 +6,6 @@ module V0
     def show
       response = service.get_gi_bill_status
       if !response.ok?
-        log_message_to_sentry(
-          'Unexpected response from EVSS GiBillStatus Service',
-          :error,
-          evss_status: response.status, evss_body: response.body
-        )
         render json: { data: nil, meta: response.metadata }
       elsif response.empty?
         # returns a standardized 404
