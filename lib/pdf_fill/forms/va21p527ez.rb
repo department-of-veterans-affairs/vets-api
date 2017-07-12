@@ -22,8 +22,6 @@ module PdfFill
         'salary' => 'GROSS WAGES AND SALARY',
         'interest' => 'TOTAL DIVIDENDS AND INTEREST'
       }.freeze
-
-      # rubocop:disable Metrics/LineLength
       KEY = lambda do
         key = {
           'vaFileNumber' => { key: 'F[0].Page_5[0].VAfilenumber[0]' },
@@ -37,7 +35,9 @@ module PdfFill
           'monthlySpousePayment' => {
             key: 'F[0].Page_6[0].MonthlySupport[0]',
             limit: 11,
-            question: "22H. HOW MUCH DO YOU CONTRIBUTE MONTHLY TO YOUR SPOUSE'S SUPPORT?"
+            question_num: 22,
+            question_suffix: 'H',
+            question_text: "HOW MUCH DO YOU CONTRIBUTE MONTHLY TO YOUR SPOUSE'S SUPPORT?"
           },
           'spouseDateOfBirth' => { key: 'F[0].Page_6[0].Date[8]' },
           'noLiveWithSpouse' => { key: 'F[0].Page_6[0].CheckboxSpouseNo[0]' },
@@ -54,19 +54,22 @@ module PdfFill
           'hasSavings' => { key: 'F[0].Page_8[0].Account[0]' },
           'checkingAccountNumber' => {
             limit: 11,
-            question: '29. Checking Account Number',
+            question_num: 29,
+            question_text: 'Checking Account Number',
             key: 'F[0].Page_8[0].CheckingAccountNumber[0]'
           },
           'noRapidProcessing' => { key: 'F[0].Page_8[0].CheckBox1[0]' },
           'savingsAccountNumber' => {
             limit: 11,
-            question: '29. Savings Account Number',
+            question_num: 29,
+            question_text: 'Savings Account Number',
             key: 'F[0].Page_8[0].SavingsAccountNumber[0]'
           },
           'bankAccount' => {
             'bankName' => {
               limit: 44,
-              question: '30. NAME OF FINANCIAL INSTITUTION',
+              question_num: 30,
+              question_text: 'NAME OF FINANCIAL INSTITUTION',
               key: 'F[0].Page_8[0].Nameofbank[0]'
             },
             'routingNumber' => { key: 'F[0].Page_8[0].Routingortransitnumber[0]' }
@@ -77,26 +80,31 @@ module PdfFill
             first_key: 'purpose',
             'amount' => {
               limit: 10,
-              question: '28. AMOUNT PAID BY YOU',
+              question_num: 28,
+              question_text: 'AMOUNT PAID BY YOU',
               key: 'otherExpenses.amount[%iterator%]'
             },
             'purpose' => {
               limit: 58,
-              question: '28. PURPOSE',
+              question_num: 28,
+              question_text: 'PURPOSE',
               key: 'otherExpenses.purpose[%iterator%]'
             },
             'paidTo' => {
-              question: '28. PAID TO',
+              question_num: 28,
+              question_text: 'PAID TO',
               limit: 29,
               key: 'otherExpenses.paidTo[%iterator%]'
             },
             'relationship' => {
               limit: 33,
-              question: '28. RELATIONSHIP OF PERSON FOR WHOM EXPENSES PAID',
+              question_num: 28,
+              question_text: 'RELATIONSHIP OF PERSON FOR WHOM EXPENSES PAID',
               key: 'otherExpenses.relationship[%iterator%]'
             },
             'date' => {
-              question: '28. DATE PAID',
+              question_num: 28,
+              question_text: 'DATE PAID',
               key: 'otherExpenses.date[%iterator%]'
             }
           },
@@ -113,7 +121,9 @@ module PdfFill
             'amount' => {
               key: 'F[0].Page_5[0].Listamount[0]',
               limit: 17,
-              question: '16B. LIST AMOUNT (If known)'
+              question_num: 16,
+              question_suffix: 'B',
+              question_text: 'LIST AMOUNT (If known)'
             },
             'type' => { key: 'F[0].Page_5[0].Listtype[0]' }
           },
@@ -129,30 +139,42 @@ module PdfFill
             limit: 2,
             'annualEarnings' => {
               limit: 10,
-              question: '17F. WHAT WERE YOUR TOTAL ANNUAL EARNINGS?',
+              question_num: 17,
+              question_suffix: 'F',
+              question_text: 'WHAT WERE YOUR TOTAL ANNUAL EARNINGS?',
               key: "jobs.annualEarnings[#{ITERATOR}]"
             },
             'nameAndAddr' => {
               key: "jobs.nameAndAddr[#{ITERATOR}]",
               limit: 27,
-              question: '17A. WHAT WAS THE NAME AND ADDRESS OF YOUR EMPLOYER?'
+              question_num: 17,
+              question_suffix: 'A',
+              question_text: 'WHAT WAS THE NAME AND ADDRESS OF YOUR EMPLOYER?'
             },
             'jobTitle' => {
               key: "jobs.jobTitle[#{ITERATOR}]",
-              question: '17B. WHAT WAS YOUR JOB TITLE?',
+              question_num: 17,
+              question_suffix: 'B',
+              question_text: 'WHAT WAS YOUR JOB TITLE?',
               limit: 25
             },
             'dateRangeStart' => {
               key: "jobs.dateRangeStart[#{ITERATOR}]",
-              question: '17C. WHEN DID YOUR JOB BEGIN?'
+              question_num: 17,
+              question_suffix: 'C',
+              question_text: 'WHEN DID YOUR JOB BEGIN?'
             },
             'dateRangeEnd' => {
               key: "jobs.dateRangeEnd[#{ITERATOR}]",
-              question: '17D. WHEN DID YOUR JOB END?'
+              question_num: 17,
+              question_suffix: 'D',
+              question_text: 'WHEN DID YOUR JOB END?'
             },
             'daysMissed' => {
               limit: 9,
-              question: '17E. HOW MANY DAYS WERE LOST DUE TO DISABILITY?',
+              question_num: 17,
+              question_suffix: 'E',
+              question_text: 'HOW MANY DAYS WERE LOST DUE TO DISABILITY?',
               key: "jobs.daysMissed[#{ITERATOR}]"
             }
           },
@@ -160,7 +182,9 @@ module PdfFill
             'nameAndAddr' => {
               key: 'F[0].Page_5[0].Nameandaddressofunit[0]',
               limit: 59,
-              question: '14A. WHAT IS THE NAME AND ADDRESS OF YOUR RESERVE/NATIONAL GUARD UNIT?'
+              question_num: 14,
+              question_suffix: 'A',
+              question_text: 'WHAT IS THE NAME AND ADDRESS OF YOUR RESERVE/NATIONAL GUARD UNIT?'
             },
             'phone' => { key: 'F[0].Page_5[0].Unittelephonenumber[0]' },
             'date' => { key: 'F[0].Page_5[0].DateofActivation[0]' },
@@ -168,7 +192,9 @@ module PdfFill
           },
           'spouseAddress' => {
             limit: 47,
-            question: "22F. WHAT IS YOUR SPOUSE'S ADDRESS?",
+            question_num: 22,
+            question_suffix: 'F',
+            question_text: "WHAT IS YOUR SPOUSE'S ADDRESS?",
             key: 'F[0].Page_6[0].Spouseaddress[0]'
           },
           'outsideChildren' => {
@@ -176,22 +202,30 @@ module PdfFill
             first_key: 'fullName',
             'childAddress' => {
               limit: 52,
-              question: "24B. CHILD'S COMPLETE ADDRESS",
+              question_num: 24,
+              question_suffix: 'B',
+              question_text: "CHILD'S COMPLETE ADDRESS",
               key: 'outsideChildren.childAddress[%iterator%]'
             },
             'fullName' => {
               limit: 48,
-              question: '24A. NAME OF DEPENDENT CHILD',
+              question_num: 24,
+              question_suffix: 'A',
+              question_text: 'NAME OF DEPENDENT CHILD',
               key: 'outsideChildren.childFullName[%iterator%]'
             },
             'monthlyPayment' => {
               limit: 13,
-              question: "24D. MONTHLY AMOUNT YOU CONTRIBUTE TO THE CHILD'S SUPPORT",
+              question_num: 24,
+              question_suffix: 'D',
+              question_text: "MONTHLY AMOUNT YOU CONTRIBUTE TO THE CHILD'S SUPPORT",
               key: 'outsideChildren.monthlyPayment[%iterator%]'
             },
             'personWhoLivesWithChild' => {
               limit: 40,
-              question: '24C. NAME OF PERSON THE CHILD LIVES WITH',
+              question_num: 24,
+              question_suffix: 'C',
+              question_text: 'NAME OF PERSON THE CHILD LIVES WITH',
               key: 'outsideChildren.personWhoLivesWithChild[%iterator%]'
             }
           },
@@ -199,49 +233,71 @@ module PdfFill
             limit: 3,
             first_key: 'fullName',
             'childSocialSecurityNumber' => {
-              question: '23C. SOCIAL SECURITY NUMBER',
+              question_num: 23,
+              question_suffix: 'C',
+              question_text: 'SOCIAL SECURITY NUMBER',
               key: 'children.childSocialSecurityNumber[%iterator%]'
             },
             'childDateOfBirth' => {
-              question: '23B. DATE OF BIRTH',
+              question_num: 23,
+              question_suffix: 'B',
+              question_text: 'DATE OF BIRTH',
               key: 'children.childDateOfBirth[%iterator%]'
             },
             'childPlaceOfBirth' => {
               limit: 12,
-              question: '23B. PLACE OF BIRTH',
+              question_num: 23,
+              question_suffix: 'B',
+              question_text: 'PLACE OF BIRTH',
               key: 'children.childPlaceOfBirth[%iterator%]'
             },
             'attendingCollege' => {
-              question: '23G. 18-23 YEARS OLD (in school)',
+              question_num: 23,
+              question_suffix: 'G',
+              question_text: '18-23 YEARS OLD (in school)',
               key: 'children.attendingCollege[%iterator%]'
             },
             'married' => {
-              question: '23I. CHILD MARRIED',
+              question_num: 23,
+              question_suffix: 'I',
+              question_text: 'CHILD MARRIED',
               key: 'children.married[%iterator%]'
             },
             'disabled' => {
-              question: '23H. SERIOUSLY DISABLED',
+              question_num: 23,
+              question_suffix: 'H',
+              question_text: 'SERIOUSLY DISABLED',
               key: 'children.disabled[%iterator%]'
             },
             'biological' => {
-              question: '23D. BIOLOGICAL',
+              question_num: 23,
+              question_suffix: 'D',
+              question_text: 'BIOLOGICAL',
               key: 'children.biological[%iterator%]'
             },
             'fullName' => {
               key: 'children.name[%iterator%]',
               limit: 34,
-              question: '23A. NAME OF DEPENDENT CHILD'
+              question_num: 23,
+              question_suffix: 'A',
+              question_text: 'NAME OF DEPENDENT CHILD'
             },
             'adopted' => {
-              question: '23E. ADOPTED',
+              question_num: 23,
+              question_suffix: 'E',
+              question_text: 'ADOPTED',
               key: 'children.adopted[%iterator%]'
             },
             'stepchild' => {
-              question: '23F. STEPCHILD',
+              question_num: 23,
+              question_suffix: 'F',
+              question_text: 'STEPCHILD',
               key: 'children.stepchild[%iterator%]'
             },
             'previouslyMarried' => {
-              question: '23J. CHILD PREVIOUSLY MARRIED',
+              question_num: 23,
+              question_suffix: 'J',
+              question_text: 'CHILD PREVIOUSLY MARRIED',
               key: 'children.previouslyMarried[%iterator%]'
             }
           },
@@ -255,7 +311,9 @@ module PdfFill
           'previousNames' => {
             key: 'F[0].Page_5[0].Listothernames[0]',
             limit: 53,
-            question: '11B. PLEASE LIST THE OTHER NAME(S) YOU SERVED UNDER'
+            question_num: 11,
+            question_suffix: 'B',
+            question_text: 'PLEASE LIST THE OTHER NAME(S) YOU SERVED UNDER'
           },
           'dayPhoneAreaCode' => { key: 'F[0].Page_5[0].Daytimeareacode[0]' },
           'servicePeriods' => {
@@ -264,45 +322,63 @@ module PdfFill
             'serviceBranch' => {
               key: 'F[0].Page_5[0].Branchofservice[0]',
               limit: 25,
-              question: '12B. BRANCH OF SERVICE'
+              question_num: 12,
+              question_suffix: 'B',
+              question_text: 'BRANCH OF SERVICE'
             },
             'activeServiceDateRangeStart' => {
-              question: '12A. I ENTERED ACTIVE SERVICE ON',
+              question_num: 12,
+              question_suffix: 'A',
+              question_text: 'I ENTERED ACTIVE SERVICE ON',
               key: 'F[0].Page_5[0].DateEnteredActiveService[0]'
             },
             'activeServiceDateRangeEnd' => {
-              question: '12C. RELEASE DATE OR ANTICIPATED DATE OF RELEASE FROM ACTIVE SERVICE',
+              question_num: 12,
+              question_suffix: 'C',
+              question_text: 'RELEASE DATE OR ANTICIPATED DATE OF RELEASE FROM ACTIVE SERVICE',
               key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]'
             }
           },
           'veteranAddressLine1' => {
             key: 'F[0].Page_5[0].Currentaddress[0]',
             limit: 53,
-            question: '7A. Street address'
+            question_num: 7,
+            question_suffix: 'A',
+            question_text: 'Street address'
           },
           'email' => {
             key: 'F[0].Page_5[0].Preferredemailaddress[0]',
             limit: 43,
-            question: '8A. PREFERRED E-MAIL ADDRESS'
+            question_num: 8,
+            question_suffix: 'A',
+            question_text: 'PREFERRED E-MAIL ADDRESS'
           },
           'altEmail' => {
             key: 'F[0].Page_5[0].Alternateemailaddress[0]',
             limit: 43,
-            question: '8B. ALTERNATE E-MAIL ADDRESS'
+            question_num: 8,
+            question_suffix: 'B',
+            question_text: 'ALTERNATE E-MAIL ADDRESS'
           },
           'cityState' => {
             key: 'F[0].Page_5[0].Citystatezipcodecountry[0]',
             limit: 53,
-            question: '7A. City, State, Zip, Country'
+            question_num: 7,
+            question_suffix: 'A',
+            question_text: 'City, State, Zip, Country'
           },
           'placeOfSeparation' => {
             key: 'F[0].Page_5[0].Placeofseparation[0]',
             limit: 41,
-            question: '12E. PLACE OF LAST OR ANTICIPATED SEPARATION'
+            question_num: 12,
+            question_suffix: 'E',
+            question_text: 'PLACE OF LAST OR ANTICIPATED SEPARATION'
           },
           'reasonForNotLivingWithSpouse' => {
             limit: 47,
-            question: '22G. TELL US THE REASON WHY YOU ARE NOT LIVING WITH YOUR SPOUSE',
+            question_num: 22,
+            question_suffix: 'G',
+            question_text: 'TELL US THE REASON WHY YOU ARE NOT LIVING WITH YOUR SPOUSE',
             key: 'F[0].Page_6[0].Reasonfornotlivingwithspouse[0]'
           },
           'disabilities' => {
@@ -311,16 +387,21 @@ module PdfFill
             'name' => {
               key: "disabilities.name[#{ITERATOR}]",
               limit: 44,
-              question: '9A. DISABILITY(IES)'
+              question_num: 9,
+              question_suffix: 'A',
+              question_text: 'DISABILITY(IES)'
             },
             'disabilityStartDate' => {
               key: "disabilities.disabilityStartDate[#{ITERATOR}]",
-              question: '9B. DATE DISABILITY(IES) BEGAN'
+              question_num: 9,
+              question_suffix: 'B',
+              question_text: 'DATE DISABILITY(IES) BEGAN'
             }
           },
           'veteranFullName' => {
             limit: 30,
-            question: "1. VETERAN'S NAME",
+            question_num: 1,
+            question_text: "VETERAN'S NAME",
             key: 'F[0].Page_5[0].Veteransname[0]'
           }
         }
@@ -331,23 +412,26 @@ module PdfFill
             first_key: 'recipient',
             'amount' => {
               limit: 12,
-              question: "#{question_num}. Amount",
+              question_text: 'Amount',
               key: "#{acct_type}.amount[#{ITERATOR}]"
             },
             'source' => {
-              question: "#{question_num}. Source"
+              question_text: 'Source'
             },
             'additionalSourceName' => {
               limit: 14,
-              question: "#{question_num}. Source",
+              question_text: 'Source',
               key: "#{acct_type}.additionalSourceName[#{ITERATOR}]"
             },
             'recipient' => {
               limit: 34,
-              question: "#{question_num}. Recipient",
+              question_text: 'Recipient',
               key: "#{acct_type}.recipient[#{ITERATOR}]"
             }
           }
+          key[acct_type].each do |_, v|
+            v[:question_num] = question_num if v.is_a?(Hash)
+          end
 
           key[acct_type][:limit] =
             if acct_type == 'netWorths'
@@ -361,51 +445,63 @@ module PdfFill
 
         %w(m spouseM).each do |prefix|
           sub_key = "#{prefix}arriages"
-          question_num = prefix == 'm' ? '19' : '21'
+          question_num = prefix == 'm' ? 19 : 21
 
           key[sub_key] = {
             limit: 2,
             first_key: 'locationOfMarriage',
             'dateOfMarriage' => {
-              question: "#{question_num}A. Date of Marriage",
+              question_suffix: 'A',
+              question_text: 'Date of Marriage',
               key: "#{sub_key}.dateOfMarriage[#{ITERATOR}]"
             },
             'otherExplanations' => {
               limit: 90,
               skip_index: true,
-              question: "#{question_num}F. IF YOU INDICATED \"OTHER\" AS TYPE OF MARRIAGE IN ITEM #{question_num}C, PLEASE EXPLAIN",
+              question_suffix: 'F',
+              question_text: "IF YOU INDICATED \"OTHER\" AS TYPE OF MARRIAGE IN ITEM #{question_num}C, PLEASE EXPLAIN",
               key: "F[0].Page_6[0].Explainothertype#{prefix == 'm' ? 's' : ''}ofmarriage[0]"
             },
             'locationOfMarriage' => {
               limit: 22,
-              question: "#{question_num}A. PLACE OF MARRIAGE",
+              question_text: 'PLACE OF MARRIAGE',
+              question_suffix: 'A',
               key: "#{sub_key}.locationOfMarriage[#{ITERATOR}]"
             },
             'locationOfSeparation' => {
               limit: 13,
-              question: "#{question_num}E. PLACE MARRIAGE TERMINATED",
+              question_text: 'PLACE MARRIAGE TERMINATED',
+              question_suffix: 'E',
               key: "#{sub_key}.locationOfSeparation[#{ITERATOR}]"
             },
             'spouseFullName' => {
               limit: 27,
-              question: "#{question_num}B. TO WHOM MARRIED",
+              question_text: 'TO WHOM MARRIED',
+              question_suffix: 'B',
               key: "#{sub_key}.spouseFullName[#{ITERATOR}]"
             },
             'marriageType' => {
               limit: 27,
-              question: "#{question_num}C. TYPE OF MARRIAGE",
+              question_text: 'TYPE OF MARRIAGE',
+              question_suffix: 'C',
               key: "#{sub_key}.marriageType[#{ITERATOR}]"
             },
             'dateOfSeparation' => {
-              question: "#{question_num}E. DATE MARRIAGE TERMINATED",
+              question_text: 'DATE MARRIAGE TERMINATED',
+              question_suffix: 'E',
               key: "#{sub_key}.dateOfSeparation[#{ITERATOR}]"
             },
             'reasonForSeparation' => {
               limit: 33,
-              question: "#{question_num}D. HOW MARRIAGE TERMINATED",
+              question_text: 'HOW MARRIAGE TERMINATED',
+              question_suffix: 'D',
               key: "#{sub_key}.reasonForSeparation[#{ITERATOR}]"
             }
           }
+
+          key[sub_key].each do |_, v|
+            v[:question_num] = question_num if v.is_a?(Hash)
+          end
         end
 
         key
