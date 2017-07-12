@@ -37,6 +37,7 @@ module PdfFill
             limit: 11,
             question_num: 22,
             question_suffix: 'H',
+            dollar: true,
             question_text: "HOW MUCH DO YOU CONTRIBUTE MONTHLY TO YOUR SPOUSE'S SUPPORT?"
           },
           'spouseDateOfBirth' => { key: 'F[0].Page_6[0].Date[8]' },
@@ -82,6 +83,7 @@ module PdfFill
               limit: 10,
               question_num: 28,
               question_text: 'AMOUNT PAID BY YOU',
+              dollar: true,
               key: 'otherExpenses.amount[%iterator%]'
             },
             'purpose' => {
@@ -142,6 +144,7 @@ module PdfFill
               limit: 10,
               question_num: 17,
               question_suffix: 'F',
+              dollar: true,
               question_text: 'WHAT WERE YOUR TOTAL ANNUAL EARNINGS?',
               key: "jobs.annualEarnings[#{ITERATOR}]"
             },
@@ -219,6 +222,7 @@ module PdfFill
               limit: 13,
               question_num: 24,
               question_suffix: 'D',
+              dollar: true,
               question_text: "MONTHLY AMOUNT YOU CONTRIBUTE TO THE CHILD'S SUPPORT",
               key: 'outsideChildren.monthlyPayment[%iterator%]'
             },
