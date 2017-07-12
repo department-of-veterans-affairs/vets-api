@@ -80,7 +80,7 @@ class MhvAccount < ActiveRecord::Base
       TermsAndConditionsAcceptance.joins(:terms_and_conditions)
                                   .includes(:terms_and_conditions)
                                   .where(terms_and_conditions: { latest: true, name: TERMS_AND_CONDITIONS_NAME })
-                                  .where(user_uuid: user.uuid).limit(1).first
+                                  .where(user_uuid: user_uuid).limit(1).first
   end
 
   def address_params
