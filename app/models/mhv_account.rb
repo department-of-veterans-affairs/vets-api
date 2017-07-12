@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 require 'mhv_ac/client'
 require 'sentry_logging'
-require 'beta_switch'
 
 class MhvAccount < ActiveRecord::Base
   include AASM
   include SentryLogging
-  include BetaSwitch
 
   STATSD_ACCOUNT_EXISTED_KEY = 'mhv.account.existed'
   STATSD_ACCOUNT_CREATION_KEY = 'mhv.account.creation'
@@ -196,9 +194,7 @@ class MhvAccount < ActiveRecord::Base
 
   def setup
     raise StandardError, 'You must use find_or_initialize_by(user_uuid: #)' if user_uuid.nil?
-    if beta_enabled?(user_uuid, 'health_account')
-      check_eligibility unless registered? || upgraded?
-      check_terms_acceptance if may_check_terms_acceptance?
-    end
+    check_eligibility unless registered? || upgraded?
+    check_terms_acceptance if may_check_terms_acceptance?
   end
 end
