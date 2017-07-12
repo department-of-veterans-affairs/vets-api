@@ -51,12 +51,15 @@ module PdfFill
 
     def add_to_extras(key_data, v, i)
       return if v.blank?
-      text_prefix = key_data.try(:[], :question)
-      return if text_prefix.blank?
+      return if key_data.try(:[], :question_text).blank?
+      i = nil if key_data[:skip_index]
 
-      text_prefix += " Line #{i + 1}" if i.present? && !key_data[:skip_index]
-
-      @extras_generator.add_text(text_prefix, v)
+      @extras_generator.add_text(
+        v,
+        key_data.slice(:question_num, :question_suffix, :question_text).merge(
+          i: i
+        )
+      )
     end
 
     def add_array_to_extras(arr, pdftk_keys)
