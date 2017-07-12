@@ -53,12 +53,26 @@ RSpec.describe 'letters', type: :request do
       end
     end
 
-    context 'with a 500 response' do
+    context 'with a generic 500 response' do
       it 'should return a not found response' do
         VCR.use_cassette('evss/letters/letters_500') do
           get '/v0/letters', nil, auth_header
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('letters')
+          expect(Oj.load(response.body).dig('meta', 'status')).to eq(
+            Common::Client::ServiceStatus::RESPONSE_STATUS[:server_error]
+          )
+        end
+      end
+    end
+
+    context 'with a letter generator service error' do
+      it 'should return a not found response' do
+        VCR.use_cassette('evss/letters/letters_letter_generator_service_error') do
+          get '/v0/letters', nil, auth_header
+          puts response.body
+          expect(response).to have_http_status(:service_unavailable)
+          expect(response).to match_response_schema('errors')
           expect(Oj.load(response.body).dig('meta', 'status')).to eq(
             Common::Client::ServiceStatus::RESPONSE_STATUS[:server_error]
           )
