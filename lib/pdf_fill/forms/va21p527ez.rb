@@ -412,16 +412,14 @@ module PdfFill
             first_key: 'recipient',
             'amount' => {
               limit: 12,
-              question_text: 'Amount',
               key: "#{acct_type}.amount[#{ITERATOR}]"
-            },
-            'source' => {
-              question_text: 'Source'
             },
             'additionalSourceName' => {
               limit: 14,
-              question_text: 'Source',
               key: "#{acct_type}.additionalSourceName[#{ITERATOR}]"
+            },
+            'sourceAndAmount' => {
+              question_text: 'Source and Amount'
             },
             'recipient' => {
               limit: 34,
@@ -690,18 +688,25 @@ module PdfFill
           amount = financial_acct[income_type]
           next if amount.nil? || amount.zero?
 
+          source = INCOME_TYPES_KEY[income_type]
+
           financial_accts_for_type << {
             'recipient' => recipient,
-            'source' => INCOME_TYPES_KEY[income_type],
+            'sourceAndAmount' => "#{source.humanize}: $#{amount}",
+            'source' => source,
             'amount' => amount
           }
         end
 
         financial_acct['additionalSources']&.each do |additional_source|
+          source = additional_source['name']
+          amount = additional_source['amount']
+
           financial_accts['additionalSources'] << {
             'recipient' => recipient,
-            'amount' => additional_source['amount'],
-            'additionalSourceName' => additional_source['name']
+            'amount' => amount,
+            'sourceAndAmount' => "#{source.humanize}: $#{amount}",
+            'additionalSourceName' => source
           }
         end
 
