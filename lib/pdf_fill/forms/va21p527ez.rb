@@ -891,15 +891,6 @@ module PdfFill
         end
       end
 
-      def combine_both_addr(hash, key)
-        original_addr = hash[key]
-        return if original_addr.blank?
-        extras_address = combine_full_address_extras(original_addr)
-        address = combine_full_address(original_addr)
-
-        hash[key] = PdfFill::FormValue.new(address, extras_address)
-      end
-
       def expand_spouse_addr
         combine_both_addr(@form_data, 'spouseAddress')
       end

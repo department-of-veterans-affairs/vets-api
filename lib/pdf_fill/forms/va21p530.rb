@@ -420,6 +420,17 @@ module PdfFill
         expand_checkbox_as_hash(@form_data['burialAllowanceRequested'], 'value')
       end
 
+      def expand_claimant_addr
+        return if @form_data['claimantAddress'].blank?
+
+        combine_both_addr(@form_data, 'claimantAddress')
+        @form_data['claimantAddress'] = [
+          {
+            'fullAddress' => @form_data['claimantAddress']
+          }
+        ]
+      end
+
       # rubocop:disable Metrics/MethodLength
       def merge_fields
         %w(veteranFullName claimantFullName).each do |attr|
@@ -444,7 +455,7 @@ module PdfFill
 
         expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
 
-        @form_data['claimantAddress'] = [@form_data['claimantAddress']] if @form_data['claimantAddress'].present?
+        expand_claimant_addr
 
         %w(
           previouslyReceivedAllowance

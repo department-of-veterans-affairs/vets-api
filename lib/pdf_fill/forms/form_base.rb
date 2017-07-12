@@ -18,10 +18,20 @@ module PdfFill
         return if hash.try(:[], address_key).blank?
         extras_address = combine_name_addr_extras(hash, name_key, address_key)
 
-        hash[address_key] = combine_full_address(hash[address_key])
-        address = combine_hash(hash, [name_key, address_key], ', ')
+        hash['combinedAddr'] = combine_full_address(hash[address_key])
+        address = combine_hash(hash, [name_key, 'combinedAddr'], ', ')
+        hash.delete('combinedAddr')
 
         hash[combined_key] = PdfFill::FormValue.new(address, extras_address)
+      end
+
+      def combine_both_addr(hash, key)
+        original_addr = hash[key]
+        return if original_addr.blank?
+        extras_address = combine_full_address_extras(original_addr)
+        address = combine_full_address(original_addr)
+
+        hash[key] = PdfFill::FormValue.new(address, extras_address)
       end
 
       def combine_previous_names(previous_names)
