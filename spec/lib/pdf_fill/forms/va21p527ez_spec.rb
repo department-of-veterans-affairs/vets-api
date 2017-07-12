@@ -541,76 +541,65 @@ describe PdfFill::Forms::VA21P527EZ do
     ]
   )
 
-  test_method(
-    basic_class,
-    'expand_children',
-    [
-      [
-        [{}, nil],
-        nil
-      ],
-      [
-        [
-          {
-            children: [
-              {
-                'childFullName' => {
-                  'first' => 'outside1',
-                  'last' => 'Olson'
+  describe '#expand_children' do
+    it 'should format children correctly' do
+      expect(
+        JSON.parse(
+          basic_class.expand_children(
+            {
+              children: [
+                {
+                  'childFullName' => {
+                    'first' => 'outside1',
+                    'last' => 'Olson'
+                  },
+                  'childAddress' => {
+                    'city' => 'city1',
+                    'country' => 'USA',
+                    'postalCode' => '21232',
+                    'state' => 'MD',
+                    'street' => 'str1'
+                  },
+                  'childNotInHousehold' => true
                 },
-                'childAddress' => {
-                  'city' => 'city1',
-                  'country' => 'USA',
-                  'postalCode' => '21232',
-                  'state' => 'MD',
-                  'street' => 'str1'
-                },
-                'childNotInHousehold' => true
-              },
-              {
-                'childFullName' => {
-                  'first' => 'outside1',
-                  'last' => 'Olson'
-                },
-                'childAddress' => {
-                  'city' => 'city1',
-                  'country' => 'USA',
-                  'postalCode' => '21233',
-                  'state' => 'MD',
-                  'street' => 'str1'
+                {
+                  'childFullName' => {
+                    'first' => 'outside1',
+                    'last' => 'Olson'
+                  },
+                  'childAddress' => {
+                    'city' => 'city1',
+                    'country' => 'USA',
+                    'postalCode' => '21233',
+                    'state' => 'MD',
+                    'street' => 'str1'
+                  }
                 }
-              }
-            ]
-          },
-          :children
-        ],
-        { :children =>
-  [{ 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21232, USA',
-     'childNotInHousehold' => true,
-     'personWhoLivesWithChild' => nil },
-   { 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21233, USA',
-     'personWhoLivesWithChild' => nil }],
-          'children' =>
-  [{ 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21232, USA',
-     'childNotInHousehold' => true,
-     'personWhoLivesWithChild' => nil },
-   { 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21233, USA',
-     'personWhoLivesWithChild' => nil }],
-          'outsideChildren' =>
-  [{ 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21232, USA',
-     'childNotInHousehold' => true,
-     'personWhoLivesWithChild' => nil },
-   { 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21233, USA',
-     'personWhoLivesWithChild' => nil }] }
-      ]
-    ]
-  )
+              ]
+            },
+            :children
+          ).to_json
+        )
+      ).to eq(
+        {"children"=>
+    [{"childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
+      "childAddress"=>{"value"=>"str1, city1, MD, 21232, USA", "extras_value"=>"str1\ncity1, MD, 21232\nUSA"},
+      "childNotInHousehold"=>true,
+      "personWhoLivesWithChild"=>nil},
+     {"childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
+      "childAddress"=>{"value"=>"str1, city1, MD, 21233, USA", "extras_value"=>"str1\ncity1, MD, 21233\nUSA"},
+      "personWhoLivesWithChild"=>nil}],
+   "outsideChildren"=>
+    [{"childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
+      "childAddress"=>{"value"=>"str1, city1, MD, 21232, USA", "extras_value"=>"str1\ncity1, MD, 21232\nUSA"},
+      "childNotInHousehold"=>true,
+      "personWhoLivesWithChild"=>nil},
+     {"childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
+      "childAddress"=>{"value"=>"str1, city1, MD, 21233, USA", "extras_value"=>"str1\ncity1, MD, 21233\nUSA"},
+      "personWhoLivesWithChild"=>nil}]}
+      )
+    end
+  end
 
   test_method(
     basic_class,

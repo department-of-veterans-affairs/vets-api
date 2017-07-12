@@ -15,6 +15,10 @@ module SpecBuilders
             it "should return #{return_val}" do
               actual = klass.send(method, *args)
 
+              if actual != return_val
+                binding.pry; fail
+              end
+
               expect(actual).to eq(return_val)
             end
           end
