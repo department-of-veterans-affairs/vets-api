@@ -12,6 +12,8 @@ class Post911GIBillStatusSerializer < ActiveModel::Serializer
   attribute :original_entitlement
   attribute :used_entitlement
   attribute :remaining_entitlement
+  attribute :active_duty
+  attribute :veteran_is_eligible
   attribute :enrollments
 
   def id
