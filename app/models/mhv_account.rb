@@ -197,7 +197,7 @@ class MhvAccount < ActiveRecord::Base
   def setup
     raise StandardError, 'You must use find_or_initialize_by(user_uuid: #)' if user_uuid.nil?
     if beta_enabled?(user_uuid, 'health_account')
-      check_eligibility
+      check_eligibility unless registered? || upgraded?
       check_terms_acceptance if may_check_terms_acceptance?
     end
   end

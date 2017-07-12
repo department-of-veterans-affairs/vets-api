@@ -4,7 +4,7 @@
     first_name: Srikanth
     last_name: Vanapalli
     name_suffix: II
-    date_of_birth: '1995-11-12T06:00:00.000+0000'    
+    date_of_birth: '1995-11-12T06:00:00.000+0000'
     regional_processing_office: Central Office Washington, DC
     va_file_number: '12345678'
     eligibility_date: '2016-12-01T05:00:00.000+0000'
@@ -13,6 +13,8 @@
     used_entitlement: '75'
     remaining_entitlement: '25'
     percentage_benefit: '25'
+    veteran_is_eligible: false
+    active_duty: false
     enrollments:
     - begin_date: '2012-11-01T04:00:00.000+0000'
       end_date: '2012-12-01T05:00:00.000+0000'
@@ -74,5 +76,5 @@
         type: 'Drop'
         status: Approved
         change_effective_date: '2017-06-10T17:01:03.926Z'
-  
+
 :status: 200

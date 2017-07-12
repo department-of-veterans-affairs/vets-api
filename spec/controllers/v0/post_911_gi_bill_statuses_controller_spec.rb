@@ -30,6 +30,8 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
   context 'without mock responses' do
     before { Settings.evss.mock_gi_bill_status = false }
     describe 'when EVSS has no knowledge of user' do
+      let(:user) { FactoryGirl.create(:loa3_user, ssn: '796066619') }
+      let(:session) { Session.create(uuid: user.uuid) }
       it 'responds with 404' do
         # generated IN EVSS CI with user ssn=796066619
         VCR.use_cassette('evss/gi_bill_status/vet_not_found') do
@@ -40,6 +42,8 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
       end
     end
     describe 'when EVSS has no info of user' do
+      let(:user) { FactoryGirl.create(:loa3_user, ssn: '796066622') }
+      let(:session) { Session.create(uuid: user.uuid) }
       it 'renders nil data' do
         VCR.use_cassette('evss/gi_bill_status/vet_with_no_info') do
           request.headers['Authorization'] = "Token token=#{session.token}"
