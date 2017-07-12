@@ -105,6 +105,12 @@ en:
         detail: "An outage has been reported on the %{service} since %{since}"
         code: 503
         status: 503
+      gateway_timeout:
+        <<: *defaults
+        title: Gateway timeout
+        detail: "Did not receive a timely response from an upstream server"
+        code: 504
+        status: 504
 # EXTERNAL EXCEPTIONS
     # This is a Generic Error corresponding to backend services
       backend_service_exception: &external_defaults
@@ -153,7 +159,7 @@ en:
       unprocessable_entity:
         <<: *defaults
         title: Unprocessable Entity
-        detail: 'Uprocessable letter destination property'
+        detail: 'One or more unprocessable letter destination properties'
         code: 112
         status: 422
       external_service_unavailable:

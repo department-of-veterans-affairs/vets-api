@@ -23,7 +23,7 @@ module EVSS
       def errors
         Array(
           Common::Exceptions::SerializableError.new(
-            i18n_data.merge(source: 'EVSS::Letters::Service')
+            i18n_data.merge(source: 'EVSS::Letters::Service', meta: { messages: @messages })
           )
         )
       end
@@ -31,9 +31,10 @@ module EVSS
       private
 
       def error_key
+        # in case of multiple errors highest priority code is the one set for the http response
         key = ERROR_MAP.select { |k, _v| messages_has_key?(k) }
         return key.values.first unless key.empty?
-        ERROR_KEYS[:default]
+        ERROR_MAP[:default]
       end
 
       def messages_has_key?(key)
