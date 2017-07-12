@@ -667,7 +667,7 @@ module PdfFill
             child[child_rel] = true
           end
 
-          child['childAddress'] = combine_full_address(child['childAddress'])
+          combine_both_addr(child, 'childAddress')
         end
 
         children_split = split_children(children)
@@ -908,11 +908,17 @@ module PdfFill
         end
       end
 
-      def expand_spouse_addr
-        extras_address = combine_full_address_extras(@form_data['spouseAddress'])
-        address = combine_full_address(@form_data['spouseAddress'])
+      def combine_both_addr(hash, key)
+        original_addr = hash[key]
+        return if original_addr.blank?
+        extras_address = combine_full_address_extras(original_addr)
+        address = combine_full_address(original_addr)
 
-        @form_data['spouseAddress'] = PdfFill::FormValue.new(address, extras_address)
+        hash[key] = PdfFill::FormValue.new(address, extras_address)
+      end
+
+      def expand_spouse_addr
+        combine_both_addr(@form_data, 'spouseAddress')
       end
 
       # rubocop:disable Metrics/MethodLength
