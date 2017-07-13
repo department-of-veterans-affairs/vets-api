@@ -47,7 +47,13 @@ describe PdfFill::Forms::VA21P530 do
 
       it 'should combine the firm name and addr' do
         new_form_class.expand_firm
-        expect(class_form_data['firmNameAndAddr']).to eq('firmName, street, street2, Baltimore, MD, 21231, USA')
+
+        expect(
+          JSON.parse(class_form_data['firmNameAndAddr'].to_json)
+        ).to eq(
+          {"value"=>"firmName, street, street2, Baltimore, MD, 21231, USA",
+ "extras_value"=>"firmName\nstreet\nstreet2\nBaltimore, MD, 21231\nUSA"}
+        )
       end
     end
   end
