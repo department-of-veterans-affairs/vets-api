@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'spec_helper'
+require 'rails_helper'
 require 'pdf_fill/hash_converter'
 
 describe PdfFill::HashConverter do
@@ -8,12 +8,12 @@ describe PdfFill::HashConverter do
   end
 
   describe '#set_value' do
-    def verify_extras_text(prefix, text)
+    def verify_extras_text(text, metadata)
       extras_generator = hash_converter.instance_variable_get(:@extras_generator)
 
       expect(extras_generator).to receive(:add_text).with(
-        prefix,
-        text
+        text,
+        metadata
       ).once
     end
 
@@ -30,13 +30,14 @@ describe PdfFill::HashConverter do
 
     context "with a value that's over limit" do
       it 'should add text to the extras page' do
-        verify_extras_text('1', 'bar')
+        verify_extras_text('bar', question_num: 1, question_text: 'foo', i: nil)
 
         call_set_value(
           {
             key: :foo,
             limit: 2,
-            question: '1'
+            question_num: 1,
+            question_text: 'foo'
           },
           nil
         )
@@ -46,13 +47,14 @@ describe PdfFill::HashConverter do
 
       context 'with an index' do
         it 'should add text with line number' do
-          verify_extras_text('1 Line 1', 'bar')
+          verify_extras_text('bar', question_num: 1, question_text: 'foo', i: 0)
 
           call_set_value(
             {
               limit: 2,
               key: 'foo',
-              question: '1'
+              question_num: 1,
+              question_text: 'foo'
             },
             0
           )
