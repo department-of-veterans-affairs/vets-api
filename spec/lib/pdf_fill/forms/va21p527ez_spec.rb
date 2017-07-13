@@ -248,7 +248,7 @@ describe PdfFill::Forms::VA21P527EZ do
     it 'should expand the jobs data' do
       expect(
         JSON.parse(
-          basic_class.expand_jobs(
+          described_class.new({}).expand_jobs(
             [
               { 'dateRange' => { 'from' => '2012-04-01', 'to' => '2013-05-01' },
                 'employer' => 'job1',
@@ -548,7 +548,7 @@ describe PdfFill::Forms::VA21P527EZ do
     it 'should format children correctly' do
       expect(
         JSON.parse(
-          basic_class.expand_children(
+          described_class.new({}).expand_children(
             {
               children: [
                 {
