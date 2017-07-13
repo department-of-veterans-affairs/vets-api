@@ -148,11 +148,24 @@ describe PdfFill::Forms::VA21P527EZ do
             'interest' => []
           }
         ],
-        { 'salary' => [{ 'recipient' => 'person', 'sourceAndAmount' => 'Gross wages and salary: $1', 'amount' => 1 }],
-          'additionalSources' =>
-  [{ 'recipient' => 'person', 'amount' => 3, 'sourceAndAmount' => 'Name1: $3', 'additionalSourceName' => 'name1' },
-   { 'recipient' => 'person', 'amount' => 4, 'sourceAndAmount' => 'Name2: $4', 'additionalSourceName' => 'name2' }],
-          'interest' => [{ 'recipient' => 'person', 'sourceAndAmount' => 'Total dividends and interest: $2', 'amount' => 2 }] }
+        {
+          'salary' => [{ 'recipient' => 'person', 'sourceAndAmount' => 'Gross wages and salary: $1', 'amount' => 1 }],
+          'additionalSources' => [
+            {
+              'recipient' => 'person',
+              'amount' => 3,
+              'sourceAndAmount' => 'Name1: $3',
+              'additionalSourceName' => 'name1'
+            },
+            {
+              'recipient' => 'person',
+              'amount' => 4, 'sourceAndAmount' => 'Name2: $4', 'additionalSourceName' => 'name2'
+            }
+          ],
+          'interest' => [
+            { 'recipient' => 'person', 'sourceAndAmount' => 'Total dividends and interest: $2', 'amount' => 2 }
+          ]
+        }
       ]
     ]
   )
@@ -275,19 +288,27 @@ describe PdfFill::Forms::VA21P527EZ do
         )
       ).to eq(
         [{ 'employer' => 'job1',
-           'address' => { 'city' => 'city1', 'country' => 'USA', 'postalCode' => '21231', 'state' => 'MD', 'street' => 'str1' },
+           'address' => {
+             'city' => 'city1', 'country' => 'USA', 'postalCode' => '21231', 'state' => 'MD', 'street' => 'str1'
+           },
            'annualEarnings' => 10,
            'jobTitle' => 'worker1',
            'daysMissed' => '1',
-           'nameAndAddr' => { 'value' => 'job1, str1, city1, MD, 21231, USA', 'extras_value' => "job1\nstr1\ncity1, MD, 21231\nUSA" },
+           'nameAndAddr' => {
+             'value' => 'job1, str1, city1, MD, 21231, USA', 'extras_value' => "job1\nstr1\ncity1, MD, 21231\nUSA"
+           },
            'dateRangeStart' => '2012-04-01',
            'dateRangeEnd' => '2013-05-01' },
          { 'employer' => 'job2',
-           'address' => { 'city' => 'city2', 'country' => 'USA', 'postalCode' => '21231', 'state' => 'MD', 'street' => 'str2' },
+           'address' => {
+             'city' => 'city2', 'country' => 'USA', 'postalCode' => '21231', 'state' => 'MD', 'street' => 'str2'
+           },
            'annualEarnings' => 20,
            'jobTitle' => 'worker2',
            'daysMissed' => '2',
-           'nameAndAddr' => { 'value' => 'job2, str2, city2, MD, 21231, USA', 'extras_value' => "job2\nstr2\ncity2, MD, 21231\nUSA" },
+           'nameAndAddr' => {
+             'value' => 'job2, str2, city2, MD, 21231, USA', 'extras_value' => "job2\nstr2\ncity2, MD, 21231\nUSA"
+           },
            'dateRangeStart' => '2012-04-02',
            'dateRangeEnd' => '2013-05-02' }]
       )
