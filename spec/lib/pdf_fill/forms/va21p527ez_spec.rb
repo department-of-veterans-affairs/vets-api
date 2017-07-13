@@ -681,8 +681,8 @@ describe PdfFill::Forms::VA21P527EZ do
 
   describe '#merge_fields' do
     it 'should merge the right fields' do
-      expect(described_class.new(form_data).merge_fields).to eq(
-        get_fixture('pdf_fill/21P-527EZ/merge_fields')
+      expect(described_class.new(form_data).merge_fields.to_json).to eq(
+        get_fixture('pdf_fill/21P-527EZ/merge_fields').to_json
       )
     end
   end

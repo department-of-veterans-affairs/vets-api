@@ -64,7 +64,10 @@
       "disabled": true,
       "childRelationship": "stepchild",
       "previouslyMarried": true,
-      "childAddress": "str1, city1, MD, 21231, USA",
+      "childAddress": {
+        "value": "str1, city1, MD, 21231, USA",
+        "extras_value": "str1\ncity1, MD, 21231\nUSA"
+      },
       "fullName": "outside1 Olson",
       "personWhoLivesWithChild": "person1 Olson",
       "monthlyIncome": {
@@ -119,14 +122,20 @@
       "disabled": true,
       "childRelationship": "biological",
       "previouslyMarried": true,
-      "childAddress": "str2, city1, MD, 21231, USA",
+      "childAddress": {
+        "value": "str2, city1, MD, 21231, USA",
+        "extras_value": "str2\ncity1, MD, 21231\nUSA"
+      },
       "fullName": "outside2 Olson",
       "personWhoLivesWithChild": "person2 Olson",
       "monthlyPayment": 2,
       "biological": true
     },
     {
-      "childAddress": "str3, city1, MD, 21231, USA",
+      "childAddress": {
+        "value": "str3, city1, MD, 21231, USA",
+        "extras_value": "str3\ncity1, MD, 21231\nUSA"
+      },
       "fullName": "outside3 Olson",
       "childDateOfBirth": "2012-06-03",
       "childSocialSecurityNumber": "111223333",
@@ -262,30 +271,66 @@
   },
   "veteranDateOfBirth": "1985-03-07",
   "veteranSocialSecurityNumber": "111223333",
-  "spouseAddress": "str1, city1, MD, 21231, USA",
+  "spouseAddress": {
+    "value": "str1, city1, MD, 21231, USA",
+    "extras_value": "str1\ncity1, MD, 21231\nUSA"
+  },
   "jobs": [
     {
+      "employer": "1",
+      "address": {
+        "city": "1",
+        "country": "USA",
+        "postalCode": "21231",
+        "state": "MD",
+        "street": "str1"
+      },
       "annualEarnings": 10,
       "jobTitle": "worker1",
       "daysMissed": "1",
+      "nameAndAddr": {
+        "value": "1, str1, 1, MD, 21231, USA",
+        "extras_value": "1\nstr1\n1, MD, 21231\nUSA"
+      },
       "dateRangeStart": "2012-04-01",
-      "dateRangeEnd": "2013-05-01",
-      "nameAndAddr": "1, str1, 1, MD, 21231, USA"
+      "dateRangeEnd": "2013-05-01"
     },
     {
+      "employer": "2",
+      "address": {
+        "city": "2",
+        "country": "USA",
+        "postalCode": "21231",
+        "state": "MD",
+        "street": "str2"
+      },
       "annualEarnings": 20,
       "jobTitle": "worker2",
       "daysMissed": "2",
+      "nameAndAddr": {
+        "value": "2, str2, 2, MD, 21231, USA",
+        "extras_value": "2\nstr2\n2, MD, 21231\nUSA"
+      },
       "dateRangeStart": "2012-04-02",
-      "dateRangeEnd": "2013-05-02",
-      "nameAndAddr": "2, str2, 2, MD, 21231, USA"
+      "dateRangeEnd": "2013-05-02"
     }
   ],
   "nationalGuard": {
     "date": "2013-04-11",
+    "name": "foo",
+    "address": {
+      "city": "Baltimore",
+      "country": "USA",
+      "postalCode": "21231",
+      "state": "MD",
+      "street": "111 Uni Drive"
+    },
     "phone": "3456789",
     "phoneAreaCode": "212",
-    "nameAndAddr": "foo, 111 Uni Drive, Baltimore, MD, 21231, USA"
+    "nameAndAddr": {
+      "value": "foo, 111 Uni Drive, Baltimore, MD, 21231, USA",
+      "extras_value": "foo\n111 Uni Drive\nBaltimore, MD, 21231\nUSA"
+    }
   },
   "previousNames": "name1 last1, name2 last2",
   "severancePay": {
@@ -349,7 +394,10 @@
       "disabled": true,
       "childRelationship": "stepchild",
       "previouslyMarried": true,
-      "childAddress": "str1, city1, MD, 21231, USA",
+      "childAddress": {
+        "value": "str1, city1, MD, 21231, USA",
+        "extras_value": "str1\ncity1, MD, 21231\nUSA"
+      },
       "fullName": "outside1 Olson",
       "personWhoLivesWithChild": "person1 Olson",
       "monthlyIncome": {
@@ -404,14 +452,20 @@
       "disabled": true,
       "childRelationship": "biological",
       "previouslyMarried": true,
-      "childAddress": "str2, city1, MD, 21231, USA",
+      "childAddress": {
+        "value": "str2, city1, MD, 21231, USA",
+        "extras_value": "str2\ncity1, MD, 21231\nUSA"
+      },
       "fullName": "outside2 Olson",
       "personWhoLivesWithChild": "person2 Olson",
       "monthlyPayment": 2,
       "biological": true
     },
     {
-      "childAddress": "str3, city1, MD, 21231, USA",
+      "childAddress": {
+        "value": "str3, city1, MD, 21231, USA",
+        "extras_value": "str3\ncity1, MD, 21231\nUSA"
+      },
       "fullName": "outside3 Olson",
       "childDateOfBirth": "2012-06-03",
       "childSocialSecurityNumber": "111223333",
@@ -455,7 +509,10 @@
       "disabled": true,
       "childRelationship": "stepchild",
       "previouslyMarried": true,
-      "childAddress": "str1, city1, MD, 21231, USA",
+      "childAddress": {
+        "value": "str1, city1, MD, 21231, USA",
+        "extras_value": "str1\ncity1, MD, 21231\nUSA"
+      },
       "fullName": "outside1 Olson",
       "personWhoLivesWithChild": "person1 Olson",
       "monthlyIncome": {
@@ -510,14 +567,20 @@
       "disabled": true,
       "childRelationship": "biological",
       "previouslyMarried": true,
-      "childAddress": "str2, city1, MD, 21231, USA",
+      "childAddress": {
+        "value": "str2, city1, MD, 21231, USA",
+        "extras_value": "str2\ncity1, MD, 21231\nUSA"
+      },
       "fullName": "outside2 Olson",
       "personWhoLivesWithChild": "person2 Olson",
       "monthlyPayment": 2,
       "biological": true
     },
     {
-      "childAddress": "str3, city1, MD, 21231, USA",
+      "childAddress": {
+        "value": "str3, city1, MD, 21231, USA",
+        "extras_value": "str3\ncity1, MD, 21231\nUSA"
+      },
       "fullName": "outside3 Olson",
       "childDateOfBirth": "2012-06-03",
       "childSocialSecurityNumber": "111223333",
