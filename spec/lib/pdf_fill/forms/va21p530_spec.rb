@@ -51,8 +51,8 @@ describe PdfFill::Forms::VA21P530 do
         expect(
           JSON.parse(class_form_data['firmNameAndAddr'].to_json)
         ).to eq(
-          {"value"=>"firmName, street, street2, Baltimore, MD, 21231, USA",
- "extras_value"=>"firmName\nstreet\nstreet2\nBaltimore, MD, 21231\nUSA"}
+          'value' => 'firmName, street, street2, Baltimore, MD, 21231, USA',
+          'extras_value' => "firmName\nstreet\nstreet2\nBaltimore, MD, 21231\nUSA"
         )
       end
     end

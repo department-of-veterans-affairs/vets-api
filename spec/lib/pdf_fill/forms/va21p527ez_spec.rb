@@ -20,12 +20,12 @@ describe PdfFill::Forms::VA21P527EZ do
           'salary' => 1
         }
       ).expand_expected_incomes).to eq(
-        [{"recipient"=>"Myself", "sourceAndAmount"=>"Gross wages and salary: $1", "amount"=>1},
- nil,
- {"recipient"=>"Myself", "amount"=>0},
- nil,
- nil,
- nil]
+        [{ 'recipient' => 'Myself', 'sourceAndAmount' => 'Gross wages and salary: $1', 'amount' => 1 },
+         nil,
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         nil,
+         nil,
+         nil]
       )
     end
   end
@@ -37,16 +37,16 @@ describe PdfFill::Forms::VA21P527EZ do
           'socialSecurity' => 1
         }
       ).expand_monthly_incomes).to eq(
-        [{"recipient"=>"Myself", "sourceAndAmount"=>"Social security: $1", "amount"=>1},
- nil,
- {"recipient"=>"Myself", "amount"=>0},
- {"recipient"=>"Myself", "amount"=>0},
- {"recipient"=>"Myself", "amount"=>0},
- {"recipient"=>"Myself", "amount"=>0},
- {"recipient"=>"Myself", "amount"=>0},
- nil,
- nil,
- nil]
+        [{ 'recipient' => 'Myself', 'sourceAndAmount' => 'Social security: $1', 'amount' => 1 },
+         nil,
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         nil,
+         nil,
+         nil]
       )
     end
   end
@@ -58,14 +58,14 @@ describe PdfFill::Forms::VA21P527EZ do
           'bank' => 1
         }
       ).expand_net_worths).to eq(
-        [{"recipient"=>"Myself", "sourceAndAmount"=>"Cash/non-interest bearing bank accounts: $1", "amount"=>1},
- {"recipient"=>"Myself", "amount"=>0},
- {"recipient"=>"Myself", "amount"=>0},
- {"recipient"=>"Myself", "amount"=>0},
- {"recipient"=>"Myself", "amount"=>0},
- {},
- {},
- nil]
+        [{ 'recipient' => 'Myself', 'sourceAndAmount' => 'Cash/non-interest bearing bank accounts: $1', 'amount' => 1 },
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         {},
+         {},
+         nil]
       )
     end
   end
@@ -148,11 +148,11 @@ describe PdfFill::Forms::VA21P527EZ do
             'interest' => []
           }
         ],
-        {"salary"=>[{"recipient"=>"person", "sourceAndAmount"=>"Gross wages and salary: $1", "amount"=>1}],
- "additionalSources"=>
-  [{"recipient"=>"person", "amount"=>3, "sourceAndAmount"=>"Name1: $3", "additionalSourceName"=>"name1"},
-   {"recipient"=>"person", "amount"=>4, "sourceAndAmount"=>"Name2: $4", "additionalSourceName"=>"name2"}],
- "interest"=>[{"recipient"=>"person", "sourceAndAmount"=>"Total dividends and interest: $2", "amount"=>2}]}
+        { 'salary' => [{ 'recipient' => 'person', 'sourceAndAmount' => 'Gross wages and salary: $1', 'amount' => 1 }],
+          'additionalSources' =>
+  [{ 'recipient' => 'person', 'amount' => 3, 'sourceAndAmount' => 'Name1: $3', 'additionalSourceName' => 'name1' },
+   { 'recipient' => 'person', 'amount' => 4, 'sourceAndAmount' => 'Name2: $4', 'additionalSourceName' => 'name2' }],
+          'interest' => [{ 'recipient' => 'person', 'sourceAndAmount' => 'Total dividends and interest: $2', 'amount' => 2 }] }
       ]
     ]
   )
@@ -274,22 +274,22 @@ describe PdfFill::Forms::VA21P527EZ do
           ).to_json
         )
       ).to eq(
-        [{"employer"=>"job1",
-    "address"=>{"city"=>"city1", "country"=>"USA", "postalCode"=>"21231", "state"=>"MD", "street"=>"str1"},
-    "annualEarnings"=>10,
-    "jobTitle"=>"worker1",
-    "daysMissed"=>"1",
-    "nameAndAddr"=>{"value"=>"job1, str1, city1, MD, 21231, USA", "extras_value"=>"job1\nstr1\ncity1, MD, 21231\nUSA"},
-    "dateRangeStart"=>"2012-04-01",
-    "dateRangeEnd"=>"2013-05-01"},
-   {"employer"=>"job2",
-    "address"=>{"city"=>"city2", "country"=>"USA", "postalCode"=>"21231", "state"=>"MD", "street"=>"str2"},
-    "annualEarnings"=>20,
-    "jobTitle"=>"worker2",
-    "daysMissed"=>"2",
-    "nameAndAddr"=>{"value"=>"job2, str2, city2, MD, 21231, USA", "extras_value"=>"job2\nstr2\ncity2, MD, 21231\nUSA"},
-    "dateRangeStart"=>"2012-04-02",
-    "dateRangeEnd"=>"2013-05-02"}]
+        [{ 'employer' => 'job1',
+           'address' => { 'city' => 'city1', 'country' => 'USA', 'postalCode' => '21231', 'state' => 'MD', 'street' => 'str1' },
+           'annualEarnings' => 10,
+           'jobTitle' => 'worker1',
+           'daysMissed' => '1',
+           'nameAndAddr' => { 'value' => 'job1, str1, city1, MD, 21231, USA', 'extras_value' => "job1\nstr1\ncity1, MD, 21231\nUSA" },
+           'dateRangeStart' => '2012-04-01',
+           'dateRangeEnd' => '2013-05-01' },
+         { 'employer' => 'job2',
+           'address' => { 'city' => 'city2', 'country' => 'USA', 'postalCode' => '21231', 'state' => 'MD', 'street' => 'str2' },
+           'annualEarnings' => 20,
+           'jobTitle' => 'worker2',
+           'daysMissed' => '2',
+           'nameAndAddr' => { 'value' => 'job2, str2, city2, MD, 21231, USA', 'extras_value' => "job2\nstr2\ncity2, MD, 21231\nUSA" },
+           'dateRangeStart' => '2012-04-02',
+           'dateRangeEnd' => '2013-05-02' }]
       )
     end
   end
@@ -465,22 +465,20 @@ describe PdfFill::Forms::VA21P527EZ do
       expect(
         JSON.parse(
           basic_class.combine_name_addr(
-            {
-              'name' => 'name',
-              'address' => {
-                'city' => 'Baltimore',
-                'country' => 'USA',
-                'postalCode' => '21231',
-                'street' => 'street',
-                'street2' => 'street2',
-                'state' => 'MD'
-              }
+            'name' => 'name',
+            'address' => {
+              'city' => 'Baltimore',
+              'country' => 'USA',
+              'postalCode' => '21231',
+              'street' => 'street',
+              'street2' => 'street2',
+              'state' => 'MD'
             }
           ).to_json
         )
       ).to eq(
-        {"value"=>"name, street, street2, Baltimore, MD, 21231, USA",
- "extras_value"=>"name\nstreet\nstreet2\nBaltimore, MD, 21231\nUSA"}
+        'value' => 'name, street, street2, Baltimore, MD, 21231, USA',
+        'extras_value' => "name\nstreet\nstreet2\nBaltimore, MD, 21231\nUSA"
       )
     end
   end
@@ -584,22 +582,22 @@ describe PdfFill::Forms::VA21P527EZ do
           ).to_json
         )
       ).to eq(
-        {"children"=>
-    [{"childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
-      "childAddress"=>{"value"=>"str1, city1, MD, 21232, USA", "extras_value"=>"str1\ncity1, MD, 21232\nUSA"},
-      "childNotInHousehold"=>true,
-      "personWhoLivesWithChild"=>nil},
-     {"childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
-      "childAddress"=>{"value"=>"str1, city1, MD, 21233, USA", "extras_value"=>"str1\ncity1, MD, 21233\nUSA"},
-      "personWhoLivesWithChild"=>nil}],
-   "outsideChildren"=>
-    [{"childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
-      "childAddress"=>{"value"=>"str1, city1, MD, 21232, USA", "extras_value"=>"str1\ncity1, MD, 21232\nUSA"},
-      "childNotInHousehold"=>true,
-      "personWhoLivesWithChild"=>nil},
-     {"childFullName"=>{"first"=>"outside1", "last"=>"Olson"},
-      "childAddress"=>{"value"=>"str1, city1, MD, 21233, USA", "extras_value"=>"str1\ncity1, MD, 21233\nUSA"},
-      "personWhoLivesWithChild"=>nil}]}
+        'children' =>
+    [{ 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
+       'childAddress' => { 'value' => 'str1, city1, MD, 21232, USA', 'extras_value' => "str1\ncity1, MD, 21232\nUSA" },
+       'childNotInHousehold' => true,
+       'personWhoLivesWithChild' => nil },
+     { 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
+       'childAddress' => { 'value' => 'str1, city1, MD, 21233, USA', 'extras_value' => "str1\ncity1, MD, 21233\nUSA" },
+       'personWhoLivesWithChild' => nil }],
+        'outsideChildren' =>
+    [{ 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
+       'childAddress' => { 'value' => 'str1, city1, MD, 21232, USA', 'extras_value' => "str1\ncity1, MD, 21232\nUSA" },
+       'childNotInHousehold' => true,
+       'personWhoLivesWithChild' => nil },
+     { 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
+       'childAddress' => { 'value' => 'str1, city1, MD, 21233, USA', 'extras_value' => "str1\ncity1, MD, 21233\nUSA" },
+       'personWhoLivesWithChild' => nil }]
       )
     end
   end
