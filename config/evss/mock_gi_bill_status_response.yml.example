@@ -9,9 +9,15 @@
     va_file_number: '12345678'
     eligibility_date: '2016-12-01T05:00:00.000+0000'
     delimiting_date: '2017-12-07T05:00:00.000+0000'
-    original_entitlement: '100'
-    used_entitlement: '75'
-    remaining_entitlement: '25'
+    original_entitlement:
+      days: 20
+      months: 10
+    used_entitlement:
+      days: 20
+      months: 2
+    remaining_entitlement:
+      days: 20
+      months: 2
     percentage_benefit: '25'
     veteran_is_eligible: false
     active_duty: false
