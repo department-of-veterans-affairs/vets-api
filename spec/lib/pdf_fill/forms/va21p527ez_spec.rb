@@ -460,30 +460,30 @@ describe PdfFill::Forms::VA21P527EZ do
     ]
   )
 
-  test_method(
-    basic_class,
-    'combine_name_addr',
-    [
-      [
-        [nil],
-        nil
-      ],
-      [
-        {
-          'name' => 'name',
-          'address' => {
-            'city' => 'Baltimore',
-            'country' => 'USA',
-            'postalCode' => '21231',
-            'street' => 'street',
-            'street2' => 'street2',
-            'state' => 'MD'
-          }
-        },
-        { 'nameAndAddr' => 'name, street, street2, Baltimore, MD, 21231, USA' }
-      ]
-    ]
-  )
+  describe '#combine_name_addr' do
+    it 'should combine name addr in both formats' do
+      expect(
+        JSON.parse(
+          basic_class.combine_name_addr(
+            {
+              'name' => 'name',
+              'address' => {
+                'city' => 'Baltimore',
+                'country' => 'USA',
+                'postalCode' => '21231',
+                'street' => 'street',
+                'street2' => 'street2',
+                'state' => 'MD'
+              }
+            }
+          ).to_json
+        )
+      ).to eq(
+        {"value"=>"name, street, street2, Baltimore, MD, 21231, USA",
+ "extras_value"=>"name\nstreet\nstreet2\nBaltimore, MD, 21231\nUSA"}
+      )
+    end
+  end
 
   test_method(
     basic_class,
