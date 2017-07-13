@@ -131,7 +131,9 @@ module PdfFill
             'type' => { key: 'F[0].Page_5[0].Listtype[0]' }
           },
           'vamcTreatmentCenters' => {
-            location: {
+            limit: 2,
+            first_key: 'location',
+            'location' => {
               limit: 46,
               question_num: 10,
               question_suffix: 'A',

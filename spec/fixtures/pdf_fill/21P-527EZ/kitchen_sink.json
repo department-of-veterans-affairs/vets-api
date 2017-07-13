@@ -9,7 +9,9 @@
   "noBankAccount": true,
   "vamcTreatmentCenters": [
     {
-      "location": "location1",
+      "location": "location1"
+    },
+    {
       "location": "location2"
     }
   ],
