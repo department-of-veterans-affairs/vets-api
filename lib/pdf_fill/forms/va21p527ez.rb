@@ -677,6 +677,20 @@ module PdfFill
         hash
       end
 
+      def expand_additional_sources(recipient, additional_sources, financial_accts)
+        additional_sources&.each do |additional_source|
+          source = additional_source['name']
+          amount = additional_source['amount']
+
+          financial_accts['additionalSources'] << {
+            'recipient' => recipient,
+            'amount' => amount,
+            'sourceAndAmount' => "#{source.humanize}: $#{amount}",
+            'additionalSourceName' => source
+          }
+        end
+      end
+
       def expand_financial_acct(recipient, financial_acct, financial_accts)
         return if financial_acct.blank?
 
@@ -695,17 +709,7 @@ module PdfFill
           }
         end
 
-        financial_acct['additionalSources']&.each do |additional_source|
-          source = additional_source['name']
-          amount = additional_source['amount']
-
-          financial_accts['additionalSources'] << {
-            'recipient' => recipient,
-            'amount' => amount,
-            'sourceAndAmount' => "#{source.humanize}: $#{amount}",
-            'additionalSourceName' => source
-          }
-        end
+        expand_additional_sources(recipient, financial_acct['additionalSources'], financial_accts)
 
         financial_accts
       end
