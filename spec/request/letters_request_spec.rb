@@ -135,6 +135,9 @@ RSpec.describe 'letters', type: :request do
   end
 
   describe 'error handling' do
+    # EVSS is working on getting users that throw these errors in their CI env
+    # until then these VCR cassettes have had their status and bodies
+    # manually created and should not be refreshed
     context 'with a letter generator service error' do
       it 'should return a not found response' do
         VCR.use_cassette('evss/letters/letters_letter_generator_service_error') do

@@ -60,11 +60,11 @@ module EVSS
         )
         raise Common::Exceptions::GatewayTimeout
       rescue Faraday::ClientError => e
-        raise Common::Exceptions::Forbidden if e.response[:status] == 403
+        raise Common::Exceptions::Forbidden if e&.response[:status] == 403
         log_message_to_sentry(
-          e.message, :error, extra_context: { url: BASE_URL, body: e.response[:body] }
+          e&.message, :error, extra_context: { url: BASE_URL, body: e&.response[:body] }
         )
-        raise EVSS::Letters::ServiceException, e.response[:body]
+        raise EVSS::Letters::ServiceException, e&.response[:body]
       end
 
       def download_conn
