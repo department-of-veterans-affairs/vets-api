@@ -244,52 +244,55 @@ describe PdfFill::Forms::VA21P527EZ do
     ]
   )
 
-  test_method(
-    basic_class,
-    'expand_jobs',
-    [
-      [
-        [nil],
-        nil
-      ],
-      [
-        [[
-          { 'dateRange' => { 'from' => '2012-04-01', 'to' => '2013-05-01' },
-            'employer' => 'job1',
-            'address' => { 'city' => 'city1',
-                           'country' => 'USA',
-                           'postalCode' => '21231',
-                           'state' => 'MD',
-                           'street' => 'str1' },
-            'annualEarnings' => 10,
-            'jobTitle' => 'worker1',
-            'daysMissed' => '1' },
-          { 'dateRange' => { 'from' => '2012-04-02', 'to' => '2013-05-02' },
-            'employer' => 'job2',
-            'address' => { 'city' => 'city2',
-                           'country' => 'USA',
-                           'postalCode' => '21231',
-                           'state' => 'MD',
-                           'street' => 'str2' },
-            'annualEarnings' => 20,
-            'jobTitle' => 'worker2',
-            'daysMissed' => '2' }
-        ]],
-        [{ 'annualEarnings' => 10,
-           'jobTitle' => 'worker1',
-           'daysMissed' => '1',
-           'dateRangeStart' => '2012-04-01',
-           'dateRangeEnd' => '2013-05-01',
-           'nameAndAddr' => 'job1, str1, city1, MD, 21231, USA' },
-         { 'annualEarnings' => 20,
-           'jobTitle' => 'worker2',
-           'daysMissed' => '2',
-           'dateRangeStart' => '2012-04-02',
-           'dateRangeEnd' => '2013-05-02',
-           'nameAndAddr' => 'job2, str2, city2, MD, 21231, USA' }]
-      ]
-    ]
-  )
+  describe '#expand_jobs' do
+    it 'should expand the jobs data' do
+      expect(
+        JSON.parse(
+          basic_class.expand_jobs(
+            [
+              { 'dateRange' => { 'from' => '2012-04-01', 'to' => '2013-05-01' },
+                'employer' => 'job1',
+                'address' => { 'city' => 'city1',
+                               'country' => 'USA',
+                               'postalCode' => '21231',
+                               'state' => 'MD',
+                               'street' => 'str1' },
+                'annualEarnings' => 10,
+                'jobTitle' => 'worker1',
+                'daysMissed' => '1' },
+              { 'dateRange' => { 'from' => '2012-04-02', 'to' => '2013-05-02' },
+                'employer' => 'job2',
+                'address' => { 'city' => 'city2',
+                               'country' => 'USA',
+                               'postalCode' => '21231',
+                               'state' => 'MD',
+                               'street' => 'str2' },
+                'annualEarnings' => 20,
+                'jobTitle' => 'worker2',
+                'daysMissed' => '2' }
+            ]
+          ).to_json
+        )
+      ).to eq(
+        [{"employer"=>"job1",
+    "address"=>{"city"=>"city1", "country"=>"USA", "postalCode"=>"21231", "state"=>"MD", "street"=>"str1"},
+    "annualEarnings"=>10,
+    "jobTitle"=>"worker1",
+    "daysMissed"=>"1",
+    "nameAndAddr"=>{"value"=>"job1, str1, city1, MD, 21231, USA", "extras_value"=>"job1\nstr1\ncity1, MD, 21231\nUSA"},
+    "dateRangeStart"=>"2012-04-01",
+    "dateRangeEnd"=>"2013-05-01"},
+   {"employer"=>"job2",
+    "address"=>{"city"=>"city2", "country"=>"USA", "postalCode"=>"21231", "state"=>"MD", "street"=>"str2"},
+    "annualEarnings"=>20,
+    "jobTitle"=>"worker2",
+    "daysMissed"=>"2",
+    "nameAndAddr"=>{"value"=>"job2, str2, city2, MD, 21231, USA", "extras_value"=>"job2\nstr2\ncity2, MD, 21231\nUSA"},
+    "dateRangeStart"=>"2012-04-02",
+    "dateRangeEnd"=>"2013-05-02"}]
+      )
+    end
+  end
 
   test_method(
     basic_class,
