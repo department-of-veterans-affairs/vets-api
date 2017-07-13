@@ -16,11 +16,11 @@ module EVSS
       attribute :eligibility_date, String
       attribute :delimiting_date, String
       attribute :percentage_benefit, Integer
-      attribute :original_entitlement, Integer
-      attribute :used_entitlement, Integer
+      attribute :original_entitlement, Entitlement
+      attribute :used_entitlement, Entitlement
+      attribute :remaining_entitlement, Entitlement
       attribute :veteran_is_eligible, Boolean
       attribute :active_duty, Boolean
-      attribute :remaining_entitlement, Integer
       attribute :enrollments, Array[Enrollment]
 
       def initialize(status, response = nil)
