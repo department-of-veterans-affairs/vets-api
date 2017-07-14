@@ -28,6 +28,23 @@ describe PdfFill::HashConverter do
       hash_converter.set_value(*final_args)
     end
 
+    context 'with a dollar value' do
+      it 'should add text to the extras page' do
+        verify_extras_text('$bar', question_num: 1, question_text: 'foo', i: nil)
+
+        call_set_value(
+          {
+            key: :foo,
+            dollar: true,
+            limit: 2,
+            question_num: 1,
+            question_text: 'foo'
+          },
+          nil
+        )
+      end
+    end
+
     context "with a value that's over limit" do
       it 'should add text to the extras page' do
         verify_extras_text('bar', question_num: 1, question_text: 'foo', i: nil)
