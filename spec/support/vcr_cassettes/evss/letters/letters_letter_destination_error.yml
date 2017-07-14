@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<EVSS_BASE_URL>/wss-education-services-web/rest/education/chapter33/v1"
+    uri: "<EVSS_BASE_URL>/wss-lettergenerator-services-web/rest/letters/v1"
     body:
       encoding: UTF-8
       string: ''
@@ -14,7 +14,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Wed, 12 Jul 2017 18:13:06 GMT
+      - Wed, 07 Jun 2017 23:26:33 GMT
       Va-Eauth-Csid:
       - DSLogon
       Va-Eauth-Authenticationmethod:
@@ -28,29 +28,29 @@ http_interactions:
       Va-Eauth-Lastname:
       - lincoln
       Va-Eauth-Issueinstant:
-      - '2017-07-12T18:13:04Z'
+      - '2017-06-07T23:26:32Z'
       Va-Eauth-Dodedipnid:
-      - '8156884442'
+      - '9294277224'
       Va-Eauth-Pid:
-      - '9901503759'
+      - '9624259154'
       Va-Eauth-Pnid:
-      - '796066622'
+      - '272111863'
       Va-Eauth-Authorization:
-      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796066622","edi":"8156884442","firstName":"abraham","lastName":"lincoln"}}'
+      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"272111863","edi":"9294277224","firstName":"abraham","lastName":"lincoln"}}'
   response:
     status:
-      code: 200
+      code: 500
       message: OK
     headers:
       Date:
-      - Wed, 12 Jul 2017 18:13:06 GMT
+      - Wed, 07 Jun 2017 23:26:34 GMT
       Server:
       - Apache/2.4.6 (CentOS) OpenSSL/1.0.1e-fips
       Content-Type:
       - application/json
       Set-Cookie:
-      - WLS_12.1_App1_Cluster_ROUTEID=.02; path=/
-      - WSS-LETTERGENERATION-SERVICES_JSESSIONID=ox84ASlkB1qwmnN827UAHFRMm5wuQpEgfu-vTNvYmBL_6HpSx6aD!-1673937566;
+      - WLS_12.1_App1_Cluster_ROUTEID=.01; path=/
+      - WSS-LETTERGENERATION-SERVICES_JSESSIONID=ElGE4ZCAHEgV9sh_vzBiao0YKz3kjCwBueiB-kkmRy-pByPjBon2!1080345149;
         path=/; HttpOnly
       Via:
       - 1.1 csraciapp6.evss.srarad.com
@@ -60,7 +60,19 @@ http_interactions:
       encoding: UTF-8
       string: |-
         {
+          "messages": [
+            {
+              "key": "letterDestination.city.invalid",
+              "severity": "FATAL",
+              "text": "City is invalid"
+            },
+            {
+              "key": "letterDestination.zipcode.invalid",
+              "severity": "FATAL",
+              "text": "Zipcode is invalid"
+            }
+          ]
         }
     http_version: 
-  recorded_at: Wed, 12 Jul 2017 18:13:06 GMT
+  recorded_at: Wed, 07 Jun 2017 23:26:33 GMT
 recorded_with: VCR 3.0.3

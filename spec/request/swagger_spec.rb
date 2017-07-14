@@ -611,6 +611,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       it 'supports getting EVSS Gi Bill Status' do
         expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 401)
         VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
+          # TODO: this cassette was hacked to return all 3 entitlements since
+          # I cannot make swagger doc allow an attr to be :object or :null
           expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 200, auth_options)
         end
         VCR.use_cassette('evss/gi_bill_status/vet_not_found') do

@@ -16,38 +16,38 @@ describe EVSS::GiBillStatus::Service do
             expect(response).to be_ok
             expect(response).to have_deep_attributes(
               'status' => 200,
-              'first_name' => 'Dianne',
-              'last_name' => 'Scott',
+              'first_name' => 'Srikanth',
+              'last_name' => 'Vanapalli',
               'name_suffix' => nil,
-              'date_of_birth' => '1969-04-06T05:00:00.000+0000',
-              'va_file_number' => '796056674',
+              'date_of_birth' => '1955-11-12T06:00:00.000+0000',
+              'va_file_number' => '123456789',
               'regional_processing_office' => 'Central Office Washington, DC',
-              'eligibility_date' => nil,
-              'delimiting_date' => nil,
-              'percentage_benefit' => nil,
-              'original_entitlement' => nil,
-              'used_entitlement' => nil,
-              'remaining_entitlement' => nil,
-              'enrollments' => [
-                {
-                  'begin_date' => '2009-09-01T04:00:00.000+00:00',
-                  'end_date' => '2009-12-01T05:00:00.000+00:00',
-                  'facility_code' => '14925438',
-                  'facility_name' => 'HARRISBURG AREA COMMUNITY COLLEGE',
-                  'participant_id' => '11162086',
-                  'training_type' => 'UNDER_GRAD',
-                  'term_id' => nil,
-                  'hour_type' => nil,
-                  'full_time_hours' => 12,
-                  'full_time_credit_hour_under_grad' => nil,
-                  'vacation_day_count' => 0,
-                  'on_campus_hours' => 12.0,
-                  'online_hours' => 0.0,
-                  'yellow_ribbon_amount' => 1400.0,
-                  'status' => 'Approved',
-                  'amendments' => []
-                }
-              ]
+              'eligibility_date' => '2004-10-01T04:00:00.000+0000',
+              'delimiting_date' => '2015-10-01T04:00:00.000+0000',
+              'percentage_benefit' => 100,
+              'original_entitlement' => { 'months' => 0, 'days' => 12 },
+              'used_entitlement' => { 'months' => 0, 'days' => 10 },
+              'remaining_entitlement' => { 'months' => 0, 'days' => 12 },
+              'veteran_is_eligible' => true,
+              'active_duty' => false,
+              'enrollments' => [{
+                'begin_date' => '2012-11-01T04:00:00.000+00:00',
+                'end_date' => '2012-12-01T05:00:00.000+00:00',
+                'facility_code' => '11902614',
+                'facility_name' => 'Purdue University',
+                'participant_id' => '11170323',
+                'training_type' => 'UNDER_GRAD',
+                'term_id' => nil,
+                'hour_type' => nil,
+                'full_time_hours' => 12,
+                'full_time_credit_hour_under_grad' => nil,
+                'vacation_day_count' => 0,
+                'on_campus_hours' => 12.0,
+                'online_hours' => 0.0,
+                'yellow_ribbon_amount' => 0.0,
+                'status' => 'Approved',
+                'amendments' => []
+              }]
             )
           end
         end
