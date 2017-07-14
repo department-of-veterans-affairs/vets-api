@@ -1,54 +1,43 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "definitions": {},
-  "id": "http://example.com/example.json",
   "properties": {
     "data": {
       "properties": {
         "attributes": {
-          "oneOf": [
-            {
-              "properties": {
-                // [militaryService, monthlyAwardAmount, awardEffectiveDate, hasChapter35Eligibility, hasServiceConnectedDisabilities,
-                // hasNonServiceConnectedPension,
-                // hasIndividualUnemployabilityGranted, hasSpecialMonthlyCompensation, hasAdaptedHousing]
-                "benefit_information": {
-
-                },
-                "military_service": {
-                  "type": [
-                    "array",
-                    "null"
-                  ],
-                  "items": {
-                    "properties": {
-                      "branch": {
-                        "type": "string"
-                      },
-                      "character_of_service": {
-                        "type": "string"
-                      },
-                      "entered_date": {
-                        "type": "string"
-                      },
-                      "released_date": {
-                        "type": "string"
-                      }
-                    },
-                    "type": [
-                      "object",
-                      "null"
-                    ]
+          "properties": {
+            "benefit_information": {
+              "oneOf": [
+                { "$ref": "letter_beneficiary_benefit_information_dependent.json" },
+                { "$ref": "letter_beneficiary_benefit_information_veteran.json" }
+              ]
+            },
+            "military_service": {
+              "type": ["array", "null"],
+              "items": {
+                "properties": {
+                  "branch": {
+                    "type": "string"
+                  },
+                  "character_of_service": {
+                    "type": "string"
+                  },
+                  "entered_date": {
+                    "type": "string"
+                  },
+                  "released_date": {
+                    "type": "string"
                   }
-                }
-              },
-              "required": [
-                "benefit_information",
-                "military_service"
-              ],
-              "type": "object"
+                },
+                "type": ["object", "null"]
+              }
             }
-          ]
+          },
+          "required": [
+            "benefit_information",
+            "military_service"
+          ],
+          "type": "object"
         },
         "id": {
           "type": "string"
@@ -60,10 +49,7 @@
       "required": [
         "attributes"
       ],
-      "type": [
-        "object",
-        "null"
-      ]
+      "type": ["object", "null"]
     },
     "meta": {
       "properties": {
