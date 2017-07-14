@@ -13,7 +13,6 @@ class SFTPWriter::Remote
         password: @config.pass,
         port: @config.port
       )
-    @logger.info('Connecting to SFTP')
     @sftp
   end
 
@@ -30,6 +29,7 @@ class SFTPWriter::Remote
 
   def write(contents, filename)
     path = File.join([write_path, filename].compact)
+    @logger.info("Writing #{path}")
     mkdir_safe(path)
     sftp.upload!(StringIO.new(contents), path)
   end

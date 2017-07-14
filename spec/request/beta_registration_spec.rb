@@ -6,6 +6,8 @@ RSpec.describe 'Beta Registration Endpoint', type: :request do
   let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
   let(:user) { build(:loa3_user) }
 
+  let(:dummy_class) { Class.new { extend BetaSwitch } }
+
   before do
     Session.create(uuid: user.uuid, token: token)
     User.create(user)
@@ -29,5 +31,10 @@ RSpec.describe 'Beta Registration Endpoint', type: :request do
     expect(response).to be_success
     json = JSON.parse(response.body)
     expect(json['user']).to eq(user.email)
+  end
+
+  it 'is reflected in beta_switch' do
+    post '/v0/beta_registration/health_account', nil, auth_header
+    expect(dummy_class.beta_enabled?(user.uuid, 'health_account')).to be_truthy
   end
 end
