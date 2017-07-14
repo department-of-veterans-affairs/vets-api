@@ -29,6 +29,7 @@ module PdfFill
         'amountIncurred' => {
           key: 'form1[0].#subform[37].COST_OF_BURIAL[0]',
           question_num: 19,
+          dollar: true,
           question_text: "EXPENSES INCURED FOR THE TRANSPORTATION OF THE VETERAN'S REMAINS FROM THE PLACE OF DEATH TO THE FINAL RESTING PLACE",
           limit: 12
         },
@@ -36,6 +37,7 @@ module PdfFill
           key: 'form1[0].#subform[37].AMOUNT[0]',
           question_num: 18,
           question_suffix: 'B',
+          dollar: true,
           question_text: 'AMOUNT OF GOVERNMENT OR EMPLOYER CONTRIBUTION',
           limit: 10
         },
@@ -186,30 +188,12 @@ module PdfFill
         'claimantAddress' => {
           always_overflow: true,
           first_key: 'street',
+          'fullAddress' => {
+            question_num: 5,
+            question_text: 'CURRENT MAILING ADDRESS'
+          },
           'street' => {
-            key: 'form1[0].#subform[36].CurrentMailingAddress_NumberAndStreet[0]',
-            question_num: 5,
-            question_text: 'CURRENT MAILING ADDRESS (Address line 1)'
-          },
-          'street2' => {
-            question_num: 5,
-            question_text: 'CURRENT MAILING ADDRESS (Address line 2)'
-          },
-          'city' => {
-            question_num: 5,
-            question_text: 'CURRENT MAILING ADDRESS (City)'
-          },
-          'state' => {
-            question_num: 5,
-            question_text: 'CURRENT MAILING ADDRESS (State)'
-          },
-          'country' => {
-            question_num: 5,
-            question_text: 'CURRENT MAILING ADDRESS (Country)'
-          },
-          'postalCode' => {
-            question_num: 5,
-            question_text: 'CURRENT MAILING ADDRESS (Postal Code)'
+            key: 'form1[0].#subform[36].CurrentMailingAddress_NumberAndStreet[0]'
           }
         },
         'relationship' => {
@@ -416,8 +400,12 @@ module PdfFill
 
       def expand_firm
         if @form_data['relationship'].try(:[], 'isEntity')
-          address = combine_full_address(@form_data['claimantAddress']) || ''
-          @form_data['firmNameAndAddr'] = [@form_data['firmName'], address].compact.join(', ')
+          combine_name_addr(
+            @form_data,
+            name_key: 'firmName',
+            address_key: 'claimantAddress',
+            combined_key: 'firmNameAndAddr'
+          )
         end
       end
 
@@ -430,6 +418,17 @@ module PdfFill
         }
 
         expand_checkbox_as_hash(@form_data['burialAllowanceRequested'], 'value')
+      end
+
+      def expand_claimant_addr
+        return if @form_data['claimantAddress'].blank?
+
+        combine_both_addr(@form_data, 'claimantAddress')
+        @form_data['claimantAddress'] = [
+          {
+            'fullAddress' => @form_data['claimantAddress']
+          }
+        ]
       end
 
       # rubocop:disable Metrics/MethodLength
@@ -456,7 +455,7 @@ module PdfFill
 
         expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
 
-        @form_data['claimantAddress'] = [@form_data['claimantAddress']] if @form_data['claimantAddress'].present?
+        expand_claimant_addr
 
         %w(
           previouslyReceivedAllowance
