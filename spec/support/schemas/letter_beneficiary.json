@@ -8,12 +8,16 @@
           "properties": {
             "benefit_information": {
               "oneOf": [
-                { "$ref": "letter_beneficiary_benefit_information_dependent.json" },
-                { "$ref": "letter_beneficiary_benefit_information_veteran.json" }
+                {
+                  "$ref": "letter_beneficiary_benefit_information_dependent.json"
+                },
+                {
+                  "$ref": "letter_beneficiary_benefit_information_veteran.json"
+                }
               ]
             },
             "military_service": {
-              "type": ["array", "null"],
+              "type": "array",
               "items": {
                 "properties": {
                   "branch": {
@@ -29,40 +33,37 @@
                     "type": "string"
                   }
                 },
-                "type": ["object", "null"]
+                "type": "object"
               }
             }
           },
-          "required": [
-            "benefit_information",
-            "military_service"
-          ],
-          "type": "object"
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
         },
-        "id": {
-          "type": "string"
-        },
-        "type": {
-          "type": "string"
-        }
+        "required": [
+          "attributes"
+        ],
+        "type": [
+          "object"
+        ]
       },
-      "required": [
-        "attributes"
-      ],
-      "type": ["object", "null"]
+      "meta": {
+        "properties": {
+          "status": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
     },
-    "meta": {
-      "properties": {
-        "status": {
-          "type": "string"
-        }
-      },
-      "type": "object"
-    }
-  },
-  "required": [
-    "meta",
-    "data"
-  ],
-  "type": "object"
+    "required": [
+      "meta",
+      "data"
+    ],
+    "type": "object"
+  }
 }

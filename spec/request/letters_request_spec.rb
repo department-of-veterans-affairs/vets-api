@@ -118,6 +118,18 @@ RSpec.describe 'letters', type: :request do
       it 'should not include those properties' do
         VCR.use_cassette('evss/letters/beneficiary_dependent') do
           get '/v0/letters/beneficiary', nil, auth_header
+          puts response.body
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('letter_beneficiary')
+        end
+      end
+    end
+
+    context 'without survivors pension award and survivors indemity compensation' do
+      it 'should not include those properties' do
+        VCR.use_cassette('evss/letters/beneficiary_optional_props') do
+          get '/v0/letters/beneficiary', nil, auth_header
+          puts response.body
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('letter_beneficiary')
         end
