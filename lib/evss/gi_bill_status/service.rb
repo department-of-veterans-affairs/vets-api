@@ -23,6 +23,10 @@ module EVSS
         log_exception_to_sentry(e, extra_context)
         EVSS::GiBillStatus::GiBillStatusResponse.new(e.response[:status])
       end
+
+      def self.breakers_service
+        BaseService.create_breakers_service(name: 'EVSS/GiBillStatus', url: BASE_URL)
+      end
     end
   end
 end
