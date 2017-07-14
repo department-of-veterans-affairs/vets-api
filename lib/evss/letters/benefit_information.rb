@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 require 'common/models/base'
+require 'common/models/concerns/compact_serialized'
 
 module EVSS
   module Letters
     class BenefitInformation < Common::Base
+      include Common::CompactSerialized
+
       attribute :has_non_service_connected_pension, Boolean
       attribute :has_service_connected_disabilities, Boolean
       attribute :has_survivors_indemnity_compensation_award, Boolean
