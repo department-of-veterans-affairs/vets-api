@@ -7,15 +7,9 @@ class Shrine
           return unless get.mime_type == Mime[:pdf].to_s
           cached_path = get.download
           xref = PDF::Reader::XRef.new cached_path
-          add_error(I18n.t('uploads.pdf.locked')) if xref.trailer[:Encrypt].present?
+          errors << I18n.t('uploads.pdf.locked') if xref.trailer[:Encrypt].present?
         rescue PDF::Reader::MalformedPDFError
-          add_error(I18n.t('uploads.pdf.invalid'))
-        end
-
-        private
-
-        def add_error(msg)
-          errors << msg
+          errors << I18n.t('uploads.pdf.invalid')
         end
       end
     end

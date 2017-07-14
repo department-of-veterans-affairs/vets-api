@@ -7,8 +7,4 @@ RSpec.describe SavedClaim::Burial do
   let(:instance) { FactoryGirl.build(:burial_claim) }
 
   it_should_behave_like 'saved_claim'
-
-  xit 'can generate a pdf' do
-    instance.to_pdf
-  end
 end
