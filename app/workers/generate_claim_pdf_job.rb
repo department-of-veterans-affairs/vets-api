@@ -2,7 +2,7 @@
 class GenerateClaimPDFJob
   include Sidekiq::Worker
 
-  sidekiq_options retry: false, queue: 'tasker'
+  sidekiq_options queue: 'tasker'
 
   def perform(saved_claim_id)
     claim = SavedClaim.find(saved_claim_id)
@@ -12,7 +12,7 @@ class GenerateClaimPDFJob
       # the file depends on form_id being set, which is why it's set here rather than in the initializer
       pf.file = file
     end
-    db_file.save
+    db_file.save!
     db_file.reload.process
   ensure
     File.delete(file) if file
