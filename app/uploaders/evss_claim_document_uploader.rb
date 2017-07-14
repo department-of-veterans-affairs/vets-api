@@ -35,6 +35,8 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   def set_storage_options!
     if Settings.evss.s3.uploads_enabled
       self.aws_credentials = {
+        aws_access_key_id: Settings.evss.s3.aws_access_key_id,
+        aws_secret_access_key: Settings.evss.s3.aws_secret_access_key,
         region: Settings.evss.s3.region
       }
       self.aws_acl = 'private'
