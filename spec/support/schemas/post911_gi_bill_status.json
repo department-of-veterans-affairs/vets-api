@@ -22,11 +22,26 @@
             "eligibility_date": { "type": ["string", "null"] },
             "delimiting_date": { "type": ["string", "null"] },
             "percentage_benefit": { "type": ["integer", "null"] },
-            "original_entitlement": { "type": ["integer", "null"] },
-            "used_entitlement": { "type": ["integer", "null"] },
+            "original_entitlement": {
+              "oneOf": [
+                { "type": "null" },
+                { "$ref": "entitlement.json" }
+              ]
+            },
+            "used_entitlement": {
+              "oneOf": [
+                { "type": "null" },
+                { "$ref": "entitlement.json" }
+              ]
+            },
+            "remaining_entitlement": {
+              "oneOf": [
+                  { "type": "null" },
+                  { "$ref": "entitlement.json" }
+              ]
+            },
             "veteran_is_eligible": { "type": ["boolean", "null"] },
             "active_duty": { "type": ["boolean", "null"] },
-            "remaining_entitlement": { "type": ["integer", "null"] },
             "enrollments": {
               "type": ["array", "null"],
               "items": {
