@@ -15,8 +15,8 @@ module Swagger
               property :has_service_connected_disabilities, type: :boolean, example: true
               property :has_survivors_indemnity_compensation_award, type: :boolean, example: true
               property :has_survivors_pension_award, type: :boolean, example: true
-              property :monthly_award_amount, type: :number, example: true
-              property :service_connected_percentage, type: :integer, example: true
+              property :monthly_award_amount, type: :float, example: 123.5
+              property :service_connected_percentage, type: :integer, example: 2
               property :award_effective_date, type: :string, example: true
               property :has_adapted_housing, type: [:boolean, :null], example: true
               property :has_chapter35_eligibility, type: [:boolean, :null], example: true
