@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 require 'backend_services'
 require 'common/client/concerns/service_status'
-require 'beta_switch'
 
 class UserSerializer < ActiveModel::Serializer
   include Common::Client::ServiceStatus
-  include BetaSwitch
 
   attributes :services, :profile, :va_profile, :veteran_status, :mhv_account_state, :health_terms_current,
              :in_progress_forms, :prefills_available
@@ -54,12 +52,7 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def health_terms_current
-    if beta_enabled?(object.uuid, 'health_account')
-      !object.mhv_account.needs_terms_acceptance?
-    else
-      # Don't prompt terms for non-beta users
-      true
-    end
+    !object.mhv_account.needs_terms_acceptance?
   end
 
   def in_progress_forms
@@ -79,17 +72,10 @@ class UserSerializer < ActiveModel::Serializer
       BackendServices::HCA,
       BackendServices::EDUCATION_BENEFITS
     ]
-    if beta_enabled?(object.uuid, 'health_account')
-      service_list += BackendServices::MHV_BASED_SERVICES if object.mhv_account_eligible?
-    elsif object.loa3? && object.mhv_correlation_id.present?
-      # Allow access for existing MHV accounts for non-beta users
-      service_list += BackendServices::MHV_BASED_SERVICES
-    end
+    service_list += BackendServices::MHV_BASED_SERVICES if object.loa3? && object.mhv_account_eligible?
     service_list << BackendServices::EVSS_CLAIMS if object.can_access_evss?
     service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
-    service_list << BackendServices::APPEALS_STATUS if beta_enabled?(object.uuid, 'appeals_status') &&
-                                                       object.can_access_appeals?
-
+    service_list << BackendServices::APPEALS_STATUS if object.can_access_appeals?
     service_list << BackendServices::SAVE_IN_PROGRESS if object.can_save_partial_forms?
     service_list << BackendServices::FORM_PREFILL if object.can_access_prefill_data?
     service_list

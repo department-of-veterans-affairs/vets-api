@@ -50,11 +50,17 @@ module Swagger
             property :eligibility_date, type: [:string, :null], example: '2004-10-01T04:00:00.000+0000'
             property :delimiting_date, type: [:string, :null], example: '2015-10-01T04:00:00.000+0000'
             property :percentage_benefit, type: [:integer, :null], example: 100
-            property :original_entitlement, type: [:integer, :null], example: nil
             property :veteran_is_eligible, type: [:boolean, :null], example: false
             property :active_duty, type: [:boolean, :null], example: false
-            property :used_entitlement, type: [:integer, :null], example: 10
-            property :remaining_entitlement, type: [:integer, :null], example: 12
+            property :original_entitlement, type: :object do
+              key :'$ref', :Entitlement
+            end
+            property :used_entitlement, type: :object do
+              key :'$ref', :Entitlement
+            end
+            property :remaining_entitlement, type: :object do
+              key :'$ref', :Entitlement
+            end
             property :enrollments do
               key :type, :array
               items do
@@ -97,6 +103,12 @@ module Swagger
         property :yellow_ribbon_amount, type: [:number, :null]
         property :type, type: :string
         property :change_effective_date, type: [:string, :null]
+      end
+
+      swagger_schema :Entitlement do
+        key :required, [:days, :months]
+        property :days, type: :integer
+        property :months, type: :integer
       end
 
       swagger_schema :Meta do

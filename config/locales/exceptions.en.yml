@@ -105,6 +105,12 @@ en:
         detail: "An outage has been reported on the %{service} since %{since}"
         code: 503
         status: 503
+      gateway_timeout:
+        <<: *defaults
+        title: Gateway timeout
+        detail: "Did not receive a timely response from an upstream server"
+        code: 504
+        status: 504
 # EXTERNAL EXCEPTIONS
     # This is a Generic Error corresponding to backend services
       backend_service_exception: &external_defaults
@@ -135,3 +141,30 @@ en:
         code: 'MHV001'
         detail: 'Failed to create or upgrade health tools account access'
         status: 403
+
+  evss:
+    letters:
+      unable_to_determine_eligibilty:
+        <<: *defaults
+        title: Forbidden
+        detail: 'Can not determine eligibility for potential letters'
+        code: 110
+        status: 403
+      not_eligible:
+        <<: *defaults
+        title: Forbidden
+        detail: 'Not eligible to receive letter'
+        code: 111
+        status: 403
+      unprocessable_entity:
+        <<: *defaults
+        title: Unprocessable Entity
+        detail: 'One or more unprocessable letter destination properties'
+        code: 112
+        status: 422
+      external_service_unavailable:
+        <<: *defaults
+        title: External service unavailable
+        detail: 'EVSS received an error calling external service'
+        code: 113
+        status: 503

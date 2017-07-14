@@ -31,11 +31,7 @@ RSpec.describe 'prescriptions', type: :request do
 
   context 'terms of service not accepted' do
     let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: true, upgraded?: false) }
-    let(:current_user) { build(:user) }
-
-    before(:each) do
-      allow_any_instance_of(BetaSwitch).to receive(:beta_enabled?).and_return(true)
-    end
+    let(:current_user) { build(:loa3_user) }
 
     it 'raises access denied' do
       get '/v0/prescriptions/13651310'
@@ -48,16 +44,14 @@ RSpec.describe 'prescriptions', type: :request do
 
   context 'mhv account not upgraded' do
     let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: false) }
-    let(:current_user) { build(:user) }
+    let(:current_user) { build(:loa3_user) }
 
     before(:each) do
-      allow_any_instance_of(BetaSwitch).to receive(:beta_enabled?).and_return(true)
       allow_any_instance_of(MhvAccount).to receive(:create_and_upgrade!)
     end
 
     it 'raises forbidden' do
       get '/v0/prescriptions/13651310'
-
       expect(response).to have_http_status(:forbidden)
       expect(JSON.parse(response.body)['errors'].first['detail'])
         .to eq('Failed to create or upgrade health tools account access')
