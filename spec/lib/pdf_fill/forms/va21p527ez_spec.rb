@@ -20,18 +20,12 @@ describe PdfFill::Forms::VA21P527EZ do
           'salary' => 1
         }
       ).expand_expected_incomes).to eq(
-        [
-          {
-            'recipient' => 'Myself',
-            'source' => 'GROSS WAGES AND SALARY',
-            'amount' => 1
-          },
-          nil,
-          { 'recipient' => 'Myself', 'amount' => 0 },
-          nil,
-          nil,
-          nil
-        ]
+        [{ 'recipient' => 'Myself', 'sourceAndAmount' => 'Gross wages and salary: $1', 'amount' => 1 },
+         nil,
+         { 'recipient' => 'Myself', 'amount' => 0 },
+         nil,
+         nil,
+         nil]
       )
     end
   end
@@ -43,7 +37,7 @@ describe PdfFill::Forms::VA21P527EZ do
           'socialSecurity' => 1
         }
       ).expand_monthly_incomes).to eq(
-        [{ 'recipient' => 'Myself', 'source' => 'SOCIAL SECURITY', 'amount' => 1 },
+        [{ 'recipient' => 'Myself', 'sourceAndAmount' => 'Social security: $1', 'amount' => 1 },
          nil,
          { 'recipient' => 'Myself', 'amount' => 0 },
          { 'recipient' => 'Myself', 'amount' => 0 },
@@ -64,7 +58,7 @@ describe PdfFill::Forms::VA21P527EZ do
           'bank' => 1
         }
       ).expand_net_worths).to eq(
-        [{ 'recipient' => 'Myself', 'source' => 'CASH/NON-INTEREST BEARING BANK ACCOUNTS', 'amount' => 1 },
+        [{ 'recipient' => 'Myself', 'sourceAndAmount' => 'Cash/non-interest bearing bank accounts: $1', 'amount' => 1 },
          { 'recipient' => 'Myself', 'amount' => 0 },
          { 'recipient' => 'Myself', 'amount' => 0 },
          { 'recipient' => 'Myself', 'amount' => 0 },
@@ -154,15 +148,24 @@ describe PdfFill::Forms::VA21P527EZ do
             'interest' => []
           }
         ],
-        { 'salary' =>
-  [{ 'recipient' => 'person', 'source' => 'GROSS WAGES AND SALARY', 'amount' => 1 }],
-          'additionalSources' =>
-  [{ 'recipient' => 'person', 'amount' => 3, 'additionalSourceName' => 'name1' },
-   { 'recipient' => 'person', 'amount' => 4, 'additionalSourceName' => 'name2' }],
-          'interest' =>
-  [{ 'recipient' => 'person',
-     'source' => 'TOTAL DIVIDENDS AND INTEREST',
-     'amount' => 2 }] }
+        {
+          'salary' => [{ 'recipient' => 'person', 'sourceAndAmount' => 'Gross wages and salary: $1', 'amount' => 1 }],
+          'additionalSources' => [
+            {
+              'recipient' => 'person',
+              'amount' => 3,
+              'sourceAndAmount' => 'Name1: $3',
+              'additionalSourceName' => 'name1'
+            },
+            {
+              'recipient' => 'person',
+              'amount' => 4, 'sourceAndAmount' => 'Name2: $4', 'additionalSourceName' => 'name2'
+            }
+          ],
+          'interest' => [
+            { 'recipient' => 'person', 'sourceAndAmount' => 'Total dividends and interest: $2', 'amount' => 2 }
+          ]
+        }
       ]
     ]
   )
@@ -254,52 +257,63 @@ describe PdfFill::Forms::VA21P527EZ do
     ]
   )
 
-  test_method(
-    basic_class,
-    'expand_jobs',
-    [
-      [
-        [nil],
-        nil
-      ],
-      [
-        [[
-          { 'dateRange' => { 'from' => '2012-04-01', 'to' => '2013-05-01' },
-            'employer' => 'job1',
-            'address' => { 'city' => 'city1',
-                           'country' => 'USA',
-                           'postalCode' => '21231',
-                           'state' => 'MD',
-                           'street' => 'str1' },
-            'annualEarnings' => 10,
-            'jobTitle' => 'worker1',
-            'daysMissed' => '1' },
-          { 'dateRange' => { 'from' => '2012-04-02', 'to' => '2013-05-02' },
-            'employer' => 'job2',
-            'address' => { 'city' => 'city2',
-                           'country' => 'USA',
-                           'postalCode' => '21231',
-                           'state' => 'MD',
-                           'street' => 'str2' },
-            'annualEarnings' => 20,
-            'jobTitle' => 'worker2',
-            'daysMissed' => '2' }
-        ]],
-        [{ 'annualEarnings' => 10,
+  describe '#expand_jobs' do
+    it 'should expand the jobs data' do
+      expect(
+        JSON.parse(
+          described_class.new({}).expand_jobs(
+            [
+              { 'dateRange' => { 'from' => '2012-04-01', 'to' => '2013-05-01' },
+                'employer' => 'job1',
+                'address' => { 'city' => 'city1',
+                               'country' => 'USA',
+                               'postalCode' => '21231',
+                               'state' => 'MD',
+                               'street' => 'str1' },
+                'annualEarnings' => 10,
+                'jobTitle' => 'worker1',
+                'daysMissed' => '1' },
+              { 'dateRange' => { 'from' => '2012-04-02', 'to' => '2013-05-02' },
+                'employer' => 'job2',
+                'address' => { 'city' => 'city2',
+                               'country' => 'USA',
+                               'postalCode' => '21231',
+                               'state' => 'MD',
+                               'street' => 'str2' },
+                'annualEarnings' => 20,
+                'jobTitle' => 'worker2',
+                'daysMissed' => '2' }
+            ]
+          ).to_json
+        )
+      ).to eq(
+        [{ 'employer' => 'job1',
+           'address' => {
+             'city' => 'city1', 'country' => 'USA', 'postalCode' => '21231', 'state' => 'MD', 'street' => 'str1'
+           },
+           'annualEarnings' => 10,
            'jobTitle' => 'worker1',
            'daysMissed' => '1',
+           'nameAndAddr' => {
+             'value' => 'job1, str1, city1, MD, 21231, USA', 'extras_value' => "job1\nstr1\ncity1, MD, 21231\nUSA"
+           },
            'dateRangeStart' => '2012-04-01',
-           'dateRangeEnd' => '2013-05-01',
-           'nameAndAddr' => 'job1, str1, city1, MD, 21231, USA' },
-         { 'annualEarnings' => 20,
+           'dateRangeEnd' => '2013-05-01' },
+         { 'employer' => 'job2',
+           'address' => {
+             'city' => 'city2', 'country' => 'USA', 'postalCode' => '21231', 'state' => 'MD', 'street' => 'str2'
+           },
+           'annualEarnings' => 20,
            'jobTitle' => 'worker2',
            'daysMissed' => '2',
+           'nameAndAddr' => {
+             'value' => 'job2, str2, city2, MD, 21231, USA', 'extras_value' => "job2\nstr2\ncity2, MD, 21231\nUSA"
+           },
            'dateRangeStart' => '2012-04-02',
-           'dateRangeEnd' => '2013-05-02',
-           'nameAndAddr' => 'job2, str2, city2, MD, 21231, USA' }]
-      ]
-    ]
-  )
+           'dateRangeEnd' => '2013-05-02' }]
+      )
+    end
+  end
 
   test_method(
     basic_class,
@@ -467,30 +481,28 @@ describe PdfFill::Forms::VA21P527EZ do
     ]
   )
 
-  test_method(
-    basic_class,
-    'combine_name_addr',
-    [
-      [
-        [nil],
-        nil
-      ],
-      [
-        {
-          'name' => 'name',
-          'address' => {
-            'city' => 'Baltimore',
-            'country' => 'USA',
-            'postalCode' => '21231',
-            'street' => 'street',
-            'street2' => 'street2',
-            'state' => 'MD'
-          }
-        },
-        { 'nameAndAddr' => 'name, street, street2, Baltimore, MD, 21231, USA' }
-      ]
-    ]
-  )
+  describe '#combine_name_addr' do
+    it 'should combine name addr in both formats' do
+      expect(
+        JSON.parse(
+          basic_class.combine_name_addr(
+            'name' => 'name',
+            'address' => {
+              'city' => 'Baltimore',
+              'country' => 'USA',
+              'postalCode' => '21231',
+              'street' => 'street',
+              'street2' => 'street2',
+              'state' => 'MD'
+            }
+          ).to_json
+        )
+      ).to eq(
+        'value' => 'name, street, street2, Baltimore, MD, 21231, USA',
+        'extras_value' => "name\nstreet\nstreet2\nBaltimore, MD, 21231\nUSA"
+      )
+    end
+  end
 
   test_method(
     basic_class,
@@ -551,76 +563,65 @@ describe PdfFill::Forms::VA21P527EZ do
     ]
   )
 
-  test_method(
-    basic_class,
-    'expand_children',
-    [
-      [
-        [{}, nil],
-        nil
-      ],
-      [
-        [
-          {
-            children: [
-              {
-                'childFullName' => {
-                  'first' => 'outside1',
-                  'last' => 'Olson'
+  describe '#expand_children' do
+    it 'should format children correctly' do
+      expect(
+        JSON.parse(
+          described_class.new({}).expand_children(
+            {
+              children: [
+                {
+                  'childFullName' => {
+                    'first' => 'outside1',
+                    'last' => 'Olson'
+                  },
+                  'childAddress' => {
+                    'city' => 'city1',
+                    'country' => 'USA',
+                    'postalCode' => '21232',
+                    'state' => 'MD',
+                    'street' => 'str1'
+                  },
+                  'childNotInHousehold' => true
                 },
-                'childAddress' => {
-                  'city' => 'city1',
-                  'country' => 'USA',
-                  'postalCode' => '21232',
-                  'state' => 'MD',
-                  'street' => 'str1'
-                },
-                'childNotInHousehold' => true
-              },
-              {
-                'childFullName' => {
-                  'first' => 'outside1',
-                  'last' => 'Olson'
-                },
-                'childAddress' => {
-                  'city' => 'city1',
-                  'country' => 'USA',
-                  'postalCode' => '21233',
-                  'state' => 'MD',
-                  'street' => 'str1'
+                {
+                  'childFullName' => {
+                    'first' => 'outside1',
+                    'last' => 'Olson'
+                  },
+                  'childAddress' => {
+                    'city' => 'city1',
+                    'country' => 'USA',
+                    'postalCode' => '21233',
+                    'state' => 'MD',
+                    'street' => 'str1'
+                  }
                 }
-              }
-            ]
-          },
-          :children
-        ],
-        { :children =>
-  [{ 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21232, USA',
-     'childNotInHousehold' => true,
-     'personWhoLivesWithChild' => nil },
-   { 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21233, USA',
-     'personWhoLivesWithChild' => nil }],
-          'children' =>
-  [{ 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21232, USA',
-     'childNotInHousehold' => true,
-     'personWhoLivesWithChild' => nil },
-   { 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21233, USA',
-     'personWhoLivesWithChild' => nil }],
-          'outsideChildren' =>
-  [{ 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21232, USA',
-     'childNotInHousehold' => true,
-     'personWhoLivesWithChild' => nil },
-   { 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
-     'childAddress' => 'str1, city1, MD, 21233, USA',
-     'personWhoLivesWithChild' => nil }] }
-      ]
-    ]
-  )
+              ]
+            },
+            :children
+          ).to_json
+        )
+      ).to eq(
+        'children' =>
+    [{ 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
+       'childAddress' => { 'value' => 'str1, city1, MD, 21232, USA', 'extras_value' => "str1\ncity1, MD, 21232\nUSA" },
+       'childNotInHousehold' => true,
+       'personWhoLivesWithChild' => nil },
+     { 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
+       'childAddress' => { 'value' => 'str1, city1, MD, 21233, USA', 'extras_value' => "str1\ncity1, MD, 21233\nUSA" },
+       'personWhoLivesWithChild' => nil }],
+        'outsideChildren' =>
+    [{ 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
+       'childAddress' => { 'value' => 'str1, city1, MD, 21232, USA', 'extras_value' => "str1\ncity1, MD, 21232\nUSA" },
+       'childNotInHousehold' => true,
+       'personWhoLivesWithChild' => nil },
+     { 'childFullName' => { 'first' => 'outside1', 'last' => 'Olson' },
+       'childAddress' => { 'value' => 'str1, city1, MD, 21233, USA', 'extras_value' => "str1\ncity1, MD, 21233\nUSA" },
+       'personWhoLivesWithChild' => nil }]
+      )
+    end
+  end
 
   test_method(
     basic_class,
@@ -699,8 +700,8 @@ describe PdfFill::Forms::VA21P527EZ do
 
   describe '#merge_fields' do
     it 'should merge the right fields' do
-      expect(described_class.new(form_data).merge_fields).to eq(
-        get_fixture('pdf_fill/21P-527EZ/merge_fields')
+      expect(described_class.new(form_data).merge_fields.to_json).to eq(
+        get_fixture('pdf_fill/21P-527EZ/merge_fields').to_json
       )
     end
   end

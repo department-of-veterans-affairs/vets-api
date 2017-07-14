@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 class SavedClaim::Burial < SavedClaim
   FORM = '21P-530'
-  CONFIRMATION = 'PEN'
+  CONFIRMATION = 'BUR'
   PERSISTENT_CLASS = PersistentAttachment::PensionBurial
 
   def regional_office
