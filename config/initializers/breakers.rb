@@ -23,7 +23,8 @@ services = [
   EVSS::ClaimsService.breakers_service,
   EVSS::CommonService.breakers_service,
   EVSS::DocumentsService.breakers_service,
-  EVSS::Letters::Service.breakers_service
+  EVSS::Letters::Service.breakers_service,
+  EVSS::GiBillStatus::Service.breakers_service
 ]
 
 plugin = Breakers::StatsdPlugin.new
