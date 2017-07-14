@@ -37,6 +37,7 @@ module PdfFill
             limit: 11,
             question_num: 22,
             question_suffix: 'H',
+            dollar: true,
             question_text: "HOW MUCH DO YOU CONTRIBUTE MONTHLY TO YOUR SPOUSE'S SUPPORT?"
           },
           'spouseDateOfBirth' => { key: 'F[0].Page_6[0].Date[8]' },
@@ -82,6 +83,7 @@ module PdfFill
               limit: 10,
               question_num: 28,
               question_text: 'AMOUNT PAID BY YOU',
+              dollar: true,
               key: 'otherExpenses.amount[%iterator%]'
             },
             'purpose' => {
@@ -123,6 +125,7 @@ module PdfFill
               limit: 17,
               question_num: 16,
               question_suffix: 'B',
+              dollar: true,
               question_text: 'LIST AMOUNT (If known)'
             },
             'type' => { key: 'F[0].Page_5[0].Listtype[0]' }
@@ -141,6 +144,7 @@ module PdfFill
               limit: 10,
               question_num: 17,
               question_suffix: 'F',
+              dollar: true,
               question_text: 'WHAT WERE YOUR TOTAL ANNUAL EARNINGS?',
               key: "jobs.annualEarnings[#{ITERATOR}]"
             },
@@ -218,6 +222,7 @@ module PdfFill
               limit: 13,
               question_num: 24,
               question_suffix: 'D',
+              dollar: true,
               question_text: "MONTHLY AMOUNT YOU CONTRIBUTE TO THE CHILD'S SUPPORT",
               key: 'outsideChildren.monthlyPayment[%iterator%]'
             },
@@ -412,16 +417,14 @@ module PdfFill
             first_key: 'recipient',
             'amount' => {
               limit: 12,
-              question_text: 'Amount',
               key: "#{acct_type}.amount[#{ITERATOR}]"
-            },
-            'source' => {
-              question_text: 'Source'
             },
             'additionalSourceName' => {
               limit: 14,
-              question_text: 'Source',
               key: "#{acct_type}.additionalSourceName[#{ITERATOR}]"
+            },
+            'sourceAndAmount' => {
+              question_text: 'Source and Amount'
             },
             'recipient' => {
               limit: 34,
@@ -563,20 +566,13 @@ module PdfFill
         }
       end
 
-      def combine_name_addr(hash)
-        return if hash.blank?
-
-        hash['address'] = combine_full_address(hash['address'])
-        combine_hash_and_del_keys(hash, %w(name address), 'nameAndAddr', ', ')
-      end
-
       def expand_jobs(jobs)
         return if jobs.blank?
 
         jobs.each do |job|
-          job['address'] = combine_full_address(job['address'])
+          combine_name_addr(job, name_key: 'employer')
+
           expand_date_range(job, 'dateRange')
-          combine_hash_and_del_keys(job, %w(employer address), 'nameAndAddr', ', ')
         end
       end
 
@@ -654,7 +650,7 @@ module PdfFill
             child[child_rel] = true
           end
 
-          child['childAddress'] = combine_full_address(child['childAddress'])
+          combine_both_addr(child, 'childAddress')
         end
 
         children_split = split_children(children)
@@ -681,6 +677,20 @@ module PdfFill
         hash
       end
 
+      def expand_additional_sources(recipient, additional_sources, financial_accts)
+        additional_sources&.each do |additional_source|
+          source = additional_source['name']
+          amount = additional_source['amount']
+
+          financial_accts['additionalSources'] << {
+            'recipient' => recipient,
+            'amount' => amount,
+            'sourceAndAmount' => "#{source.humanize}: $#{amount}",
+            'additionalSourceName' => source
+          }
+        end
+      end
+
       def expand_financial_acct(recipient, financial_acct, financial_accts)
         return if financial_acct.blank?
 
@@ -690,20 +700,16 @@ module PdfFill
           amount = financial_acct[income_type]
           next if amount.nil? || amount.zero?
 
+          source = INCOME_TYPES_KEY[income_type]
+
           financial_accts_for_type << {
             'recipient' => recipient,
-            'source' => INCOME_TYPES_KEY[income_type],
+            'sourceAndAmount' => "#{source.humanize}: $#{amount}",
             'amount' => amount
           }
         end
 
-        financial_acct['additionalSources']&.each do |additional_source|
-          financial_accts['additionalSources'] << {
-            'recipient' => recipient,
-            'amount' => additional_source['amount'],
-            'additionalSourceName' => additional_source['name']
-          }
-        end
+        expand_additional_sources(recipient, financial_acct['additionalSources'], financial_accts)
 
         financial_accts
       end
@@ -889,6 +895,10 @@ module PdfFill
         end
       end
 
+      def expand_spouse_addr
+        combine_both_addr(@form_data, 'spouseAddress')
+      end
+
       # rubocop:disable Metrics/MethodLength
       def merge_fields
         @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
@@ -936,7 +946,7 @@ module PdfFill
         @form_data['spouseMarriageCount'] = @form_data['spouseMarriages']&.length
         @form_data['marriageCount'] = @form_data['marriages']&.length
 
-        @form_data['spouseAddress'] = combine_full_address(@form_data['spouseAddress'])
+        expand_spouse_addr
 
         expand_marital_status(@form_data, 'maritalStatus')
 
