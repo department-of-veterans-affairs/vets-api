@@ -2,7 +2,14 @@
   "privacyAgreementAccepted": true,
   "veteranFullName": "john middle smith Sr.",
   "noBankAccount": true,
-  "hasVisitedVAMC": true,
+  "vamcTreatmentCenters": [
+    {
+      "location": "location1"
+    },
+    {
+      "location": "location2"
+    }
+  ],
   "bankAccount": {
     "accountNumber": "88888888888",
     "accountType": "checking",
@@ -744,7 +751,6 @@
       "additionalSourceName": "name3"
     }
   ],
-  "vaHospitalTreatments": "Look up VAMC treatment history",
   "hasChecking": true,
   "hasSavings": false,
   "checkingAccountNumber": "88888888888"

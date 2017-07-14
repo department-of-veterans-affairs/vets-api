@@ -22,6 +22,7 @@ module PdfFill
         'salary' => 'GROSS WAGES AND SALARY',
         'interest' => 'TOTAL DIVIDENDS AND INTEREST'
       }.freeze
+      # rubocop:disable Metrics/LineLength
       KEY = lambda do
         key = {
           'vaFileNumber' => { key: 'F[0].Page_5[0].VAfilenumber[0]' },
@@ -130,8 +131,16 @@ module PdfFill
             },
             'type' => { key: 'F[0].Page_5[0].Listtype[0]' }
           },
-          'vaHospitalTreatments' => {
-            key: 'vaHospitalTreatments.nameAndLocation[0]'
+          'vamcTreatmentCenters' => {
+            limit: 2,
+            first_key: 'location',
+            'location' => {
+              limit: 46,
+              question_num: 10,
+              question_suffix: 'A',
+              question_text: 'LIST ANY VA MEDICAL CENTERS WHERE YOU RECEIVED TREATMENT FOR YOUR CLAIMED DISABILITY(IES)',
+              key: "vaHospitalTreatments.nameAndLocation[#{ITERATOR}]"
+            }
           },
           'marriageCount' => { key: 'F[0].Page_6[0].Howmanytimesmarried[0]' },
           'spouseMarriageCount' => { key: 'F[0].Page_6[0].Howmanytimesspousemarried[0]' },

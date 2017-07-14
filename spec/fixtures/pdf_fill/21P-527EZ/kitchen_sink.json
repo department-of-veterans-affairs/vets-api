@@ -7,7 +7,14 @@
     "suffix": "Sr."
   },
   "noBankAccount": true,
-  "hasVisitedVAMC": true,
+  "vamcTreatmentCenters": [
+    {
+      "location": "location1"
+    },
+    {
+      "location": "location2"
+    }
+  ],
   "powDateRange": {
     "from": "2012-04-10",
     "to": "2013-05-10"
