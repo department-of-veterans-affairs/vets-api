@@ -34,6 +34,7 @@ gem 'sidekiq-unique-jobs'
 gem 'sidekiq-scheduler', '~> 2.0'
 gem 'sidekiq-instrument'
 gem 'shrine'
+gem 'fastimage'
 
 gem 'carrierwave-aws'
 gem 'carrierwave', '~> 0.11'
