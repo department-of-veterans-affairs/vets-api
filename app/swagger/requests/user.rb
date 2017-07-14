@@ -60,7 +60,7 @@ module Swagger
                 end
               end
             end
-            property :veteran_status, type: :object
+            property :veteran_status, type: :object do
               key :required, [:status]
               property :is_veteran, type: :boolean, example: true
               property :status, type: :string, enum: %w(OK NOT_AUTHORIZED NOT_FOUND SERVER_ERROR), example: 'OK'
