@@ -5,16 +5,11 @@ module V0
 
     def show
       response = service.get_gi_bill_status
-      if response.user_not_found?
+      if !response.ok?
+        render json: { data: nil, meta: response.metadata }
+      elsif response.empty?
         # returns a standardized 404
         raise Common::Exceptions::RecordNotFound, @current_user.email
-      elsif response.contains_no_user_info? || !response.ok?
-        log_message_to_sentry(
-          'Unexpected response from EVSS GiBillStatus Service',
-          :warn,
-          evss_status: response.status
-        )
-        render json: { data: nil, meta: response.metadata }
       else
         render json: response,
                serializer: Post911GIBillStatusSerializer,
