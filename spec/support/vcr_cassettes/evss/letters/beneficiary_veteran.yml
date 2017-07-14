@@ -14,7 +14,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Wed, 28 Jun 2017 21:32:06 GMT
+      - Fri, 14 Jul 2017 20:35:37 GMT
       Va-Eauth-Csid:
       - DSLogon
       Va-Eauth-Authenticationmethod:
@@ -28,29 +28,29 @@ http_interactions:
       Va-Eauth-Lastname:
       - lincoln
       Va-Eauth-Issueinstant:
-      - '2017-06-28T21:32:06Z'
+      - '2017-07-14T20:35:36Z'
       Va-Eauth-Dodedipnid:
-      - '6138391549'
+      - '7675348362'
       Va-Eauth-Pid:
-      - '2549502129'
+      - '4432983588'
       Va-Eauth-Pnid:
       - '796111863'
       Va-Eauth-Authorization:
-      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796111863","edi":"6138391549","firstName":"abraham","lastName":"lincoln"}}'
+      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796111863","edi":"7675348362","firstName":"abraham","lastName":"lincoln"}}'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 28 Jun 2017 21:32:06 GMT
+      - Fri, 14 Jul 2017 20:33:46 GMT
       Server:
       - Apache/2.4.6 (CentOS) OpenSSL/1.0.1e-fips
       Content-Type:
       - application/json
       Set-Cookie:
-      - WLS_12.1_App1_Cluster_ROUTEID=.02; path=/
-      - WSS-LETTERGENERATION-SERVICES_JSESSIONID=ws7wnlH5vVBhWlY7Q_I4u92H2hHHgxyQnWJPptVRx2ifm0THUr0C!778538296;
+      - WLS_12.1_App1_Cluster_2_ROUTEID=.01; path=/
+      - WSS-LETTERGENERATION-SERVICES_JSESSIONID=1IhCzqqLTWy10GFOqtIO_DQ36oXWTN0AZ4N9wzvBH6gJx8x6qx0u!-89491903;
         path=/; HttpOnly
       Via:
       - 1.1 csraciapp6.evss.srarad.com
@@ -85,5 +85,5 @@ http_interactions:
           } ]
         }
     http_version: 
-  recorded_at: Wed, 28 Jun 2017 21:32:06 GMT
+  recorded_at: Fri, 14 Jul 2017 20:35:38 GMT
 recorded_with: VCR 3.0.3

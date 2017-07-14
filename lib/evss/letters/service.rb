@@ -22,7 +22,6 @@ module EVSS
       def get_letter_beneficiary
         with_exception_handling do
           raw_response = get 'letterBeneficiary'
-          # puts raw_response.body
           EVSS::Letters::BeneficiaryResponse.new(raw_response.status, raw_response)
         end
       end
