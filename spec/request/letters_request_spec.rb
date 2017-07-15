@@ -103,7 +103,7 @@ RSpec.describe 'letters', type: :request do
   end
 
   describe 'GET /v0/letters/beneficiary' do
-    context 'with a valid evss response' do
+    context 'with a valid veteran response' do
       it 'should match the letter beneficiary schema' do
         VCR.use_cassette('evss/letters/beneficiary_veteran') do
           get '/v0/letters/beneficiary', nil, auth_header
@@ -113,19 +113,9 @@ RSpec.describe 'letters', type: :request do
       end
     end
 
-    context 'without survivors pension award and survivors indemity compensation' do
+    context 'with a valid dependent response' do
       it 'should not include those properties' do
         VCR.use_cassette('evss/letters/beneficiary_dependent') do
-          get '/v0/letters/beneficiary', nil, auth_header
-          expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('letter_beneficiary')
-        end
-      end
-    end
-
-    context 'without survivors pension award and survivors indemity compensation' do
-      it 'should not include those properties' do
-        VCR.use_cassette('evss/letters/beneficiary_optional_props') do
           get '/v0/letters/beneficiary', nil, auth_header
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('letter_beneficiary')
