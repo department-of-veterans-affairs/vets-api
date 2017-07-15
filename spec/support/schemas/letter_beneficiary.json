@@ -17,7 +17,6 @@
               ]
             },
             "military_service": {
-              "type": "array",
               "items": {
                 "properties": {
                   "branch": {
@@ -33,37 +32,49 @@
                     "type": "string"
                   }
                 },
+                "required": [
+                  "entered_date",
+                  "released_date",
+                  "branch",
+                  "character_of_service"
+                ],
                 "type": "object"
-              }
+              },
+              "type": "array"
             }
           },
-          "id": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          }
+          "required": [
+            "benefit_information",
+            "military_service"
+          ],
+          "type": "object"
         },
-        "required": [
-          "attributes"
-        ],
-        "type": [
-          "object"
-        ]
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
       },
-      "meta": {
-        "properties": {
-          "status": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      }
+      "required": [
+        "attributes",
+        "type",
+        "id"
+      ],
+      "type": "object"
     },
-    "required": [
-      "meta",
-      "data"
-    ],
-    "type": "object"
-  }
+    "meta": {
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "required": [
+    "meta",
+    "data"
+  ],
+  "type": "object"
 }
