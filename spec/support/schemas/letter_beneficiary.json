@@ -8,12 +8,15 @@
           "properties": {
             "benefit_information": {
               "oneOf": [
-                { "$ref": "letter_beneficiary_benefit_information_dependent.json" },
-                { "$ref": "letter_beneficiary_benefit_information_veteran.json" }
+                {
+                  "$ref": "letter_beneficiary_benefit_information_dependent.json"
+                },
+                {
+                  "$ref": "letter_beneficiary_benefit_information_veteran.json"
+                }
               ]
             },
             "military_service": {
-              "type": ["array", "null"],
               "items": {
                 "properties": {
                   "branch": {
@@ -29,8 +32,15 @@
                     "type": "string"
                   }
                 },
-                "type": ["object", "null"]
-              }
+                "required": [
+                  "entered_date",
+                  "released_date",
+                  "branch",
+                  "character_of_service"
+                ],
+                "type": "object"
+              },
+              "type": "array"
             }
           },
           "required": [
@@ -47,20 +57,16 @@
         }
       },
       "required": [
-        "attributes"
+        "attributes",
+        "type",
+        "id"
       ],
-      "type": ["object", "null"]
+      "type": "object"
     },
     "meta": {
       "properties": {
         "status": {
-          "description": "EVSS API may return an error message in a 200 response, vets-api catches all errors other than not found as server error",
-          "enum": [
-            "OK",
-            "NOT_AUTHORIZED",
-            "NOT_FOUND",
-            "SERVER_ERROR"
-          ]
+          "type": "string"
         }
       },
       "type": "object"
