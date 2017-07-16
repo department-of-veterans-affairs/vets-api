@@ -60,7 +60,7 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
       end
 
       it 'should clear the saved form' do
-        expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with("22-1990").once
+        expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('22-1990').once
         subject
       end
 
