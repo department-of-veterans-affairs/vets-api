@@ -27,14 +27,15 @@ RSpec.describe ApplicationController, type: :controller do
   end
 
   describe '#clear_saved_form' do
+    let(:user) { create(:user) }
+
+    subject do
+      controller.clear_saved_form(form_id)
+    end
+
     context 'with a saved form' do
-      let(:user) { create(:user) }
       let!(:in_progress_form) { create(:in_progress_form, user_uuid: user.uuid) }
       let(:form_id) { in_progress_form.form_id }
-
-      subject do
-        controller.clear_saved_form(form_id)
-      end
 
       context 'without a current user' do
         it "shouldn't delete the form" do
@@ -52,6 +53,18 @@ RSpec.describe ApplicationController, type: :controller do
           subject
           expect(model_exists?(in_progress_form)).to be(false)
         end
+      end
+    end
+
+    context 'without a saved form' do
+      let(:form_id) { 'foo' }
+
+      before do
+        controller.instance_variable_set(:@current_user, user)
+      end
+
+      it 'should do nothing' do
+        subject
       end
     end
   end
