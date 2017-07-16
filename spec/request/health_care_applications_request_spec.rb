@@ -108,8 +108,9 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
             'success' => true }
         end
 
-        it 'should render success', run_at: '2017-01-31' do
+        it 'should render success and delete the saved form', run_at: '2017-01-31' do
           VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
+            expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with("10-10EZ").once
             subject
             expect(JSON.parse(response.body)).to eq(body)
           end
