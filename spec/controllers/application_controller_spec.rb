@@ -26,6 +26,36 @@ RSpec.describe ApplicationController, type: :controller do
     end
   end
 
+  describe '#clear_saved_form' do
+    context 'with a saved form' do
+      let(:user) { create(:user) }
+      let!(:in_progress_form) { create(:in_progress_form, user_uuid: user.uuid) }
+      let(:form_id) { in_progress_form.form_id }
+
+      subject do
+        controller.clear_saved_form(form_id)
+      end
+
+      context 'without a current user' do
+        it "shouldn't delete the form" do
+          subject
+          expect(model_exists?(in_progress_form)).to be(true)
+        end
+      end
+
+      context 'with a current user' do
+        before do
+          controller.instance_variable_set(:@current_user, user)
+        end
+
+        it 'should delete the form' do
+          subject
+          expect(model_exists?(in_progress_form)).to be(false)
+        end
+      end
+    end
+  end
+
   context 'RecordNotFound' do
     subject { JSON.parse(response.body)['errors'].first }
     before(:each) { routes.draw { get 'record_not_found' => 'anonymous#record_not_found' } }
