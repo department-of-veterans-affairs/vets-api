@@ -22,9 +22,6 @@
     "has_individual_unemployability_granted": {
       "type": "boolean"
     },
-    "has_death_result_of_disability": {
-      "type": "boolean"
-    },
     "has_special_monthly_compensation": {
       "type": "boolean"
     },

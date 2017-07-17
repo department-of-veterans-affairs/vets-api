@@ -65,6 +65,7 @@ http_interactions:
             "hasChapter35Eligibility" : true,
             "hasSurvivorsPensionAward" : true,
             "hasSurvivorsIndemnityCompensationAward" : false,
+            "hasDeathResultOfDisability" : false,
             "monthlyAwardAmount" : 123.0,
             "serviceConnectedPercentage" : 2
           },
