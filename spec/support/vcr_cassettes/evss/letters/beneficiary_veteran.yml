@@ -64,7 +64,6 @@ http_interactions:
             "awardEffectiveDate" : "2013-06-06T04:00:00.000+0000",
             "hasAdaptedHousing" : false,
             "hasChapter35Eligibility" : true,
-            "hasDeathResultOfDisability" : false,
             "hasIndividualUnemployabilityGranted" : false,
             "hasNonServiceConnectedPension" : false,
             "hasServiceConnectedDisabilities" : true,
