@@ -16,6 +16,7 @@ redis = Redis.new(redis_config['redis'])
 redis_namespace = Redis::Namespace.new('breakers', redis: redis)
 
 services = [
+  AppealsStatus::Configuration.instance.breakers_service,
   Rx::Configuration.instance.breakers_service,
   SM::Configuration.instance.breakers_service,
   MVI::Configuration.instance.breakers_service,
