@@ -16,15 +16,22 @@ redis = Redis.new(redis_config['redis'])
 redis_namespace = Redis::Namespace.new('breakers', redis: redis)
 
 services = [
-  Rx::Configuration.instance.breakers_service,
-  SM::Configuration.instance.breakers_service,
-  MVI::Configuration.instance.breakers_service,
-  HCA::Configuration.instance.breakers_service,
+  AppealsStatus::Configuration.instance.breakers_service,
+  BB::Configuration.instance.breakers_service,
+  EMIS::Configuration.instance.breakers_service,
   EVSS::ClaimsService.breakers_service,
   EVSS::CommonService.breakers_service,
   EVSS::DocumentsService.breakers_service,
   EVSS::Letters::Service.breakers_service,
-  EVSS::GiBillStatus::Service.breakers_service
+  EVSS::GiBillStatus::Service.breakers_service,
+  Facilities::BulkJSONConfiguration.instance.breakers_service,
+  GI::Configuration.instance.breakers_service,
+  HCA::Configuration.instance.breakers_service,
+  MHVAC::Configuration.instance.breakers_service,
+  MVI::Configuration.instance.breakers_service,
+  Preneeds::Configuration.instance.breakers_service,
+  Rx::Configuration.instance.breakers_service,
+  SM::Configuration.instance.breakers_service
 ]
 
 plugin = Breakers::StatsdPlugin.new
