@@ -78,7 +78,7 @@ module MVI
       def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
         correlation_ids = map_correlation_ids(patient.locate('id'))
-        log_inactive_mhv_ids(correlation_ids[:mhv_ids].to_a, 
+        log_inactive_mhv_ids(correlation_ids[:mhv_ids].to_a,
                              correlation_ids[:active_mhv_ids].to_a)
         MVI::Models::MviProfile.new(
           given_names: name[:given],
