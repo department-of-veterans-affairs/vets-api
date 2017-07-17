@@ -594,17 +594,6 @@ module PdfFill
         hash
       end
 
-      def combine_hash_and_del_keys(hash, keys, new_key, separator = ' ')
-        return if hash.blank?
-        hash[new_key] = combine_hash(hash, keys, separator)
-
-        keys.each do |key|
-          hash.delete(key)
-        end
-
-        hash
-      end
-
       def expand_marital_status(hash, key)
         marital_status = hash[key]
         return if marital_status.blank?
