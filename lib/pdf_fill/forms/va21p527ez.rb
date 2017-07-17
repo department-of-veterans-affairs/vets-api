@@ -887,12 +887,6 @@ module PdfFill
         end
       end
 
-      def expand_vamc
-        if @form_data['hasVisitedVAMC']
-          @form_data['vaHospitalTreatments'] = 'Look up VAMC treatment history'
-        end
-      end
-
       def expand_spouse_addr
         combine_both_addr(@form_data, 'spouseAddress')
       end
@@ -952,7 +946,6 @@ module PdfFill
         expand_net_worths
         expand_monthly_incomes
         combine_other_expenses
-        expand_vamc
 
         expand_bank_acct(@form_data['bankAccount'])
 
