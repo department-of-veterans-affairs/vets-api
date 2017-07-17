@@ -108,7 +108,7 @@ module MVI
         end
         if active_mhv_ids.size > 1
           log_message_to_setnry('Multiple active MHV correlation IDs present', :info,
-                                extra_context: { ids: mhv_ids })
+                                extra_context: { ids: active_mhv_ids })
         end
       end
 
