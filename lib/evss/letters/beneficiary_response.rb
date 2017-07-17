@@ -12,11 +12,11 @@ module EVSS
         super(status, attributes)
       end
 
-      def benefit_information=(value)
-        if value.has_key? 'has_service_connected_disabilities'
-          super EVSS::Letters::BenefitInformationVeteran.new(value)
+      def benefit_information=(attrs)
+        if attrs.key? 'has_service_connected_disabilities'
+          super EVSS::Letters::BenefitInformationVeteran.new(attrs)
         else
-          super EVSS::Letters::BenefitInformationDependent.new(value)
+          super EVSS::Letters::BenefitInformationDependent.new(attrs)
         end
       end
     end
