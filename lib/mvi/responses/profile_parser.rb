@@ -97,7 +97,7 @@ module MVI
         )
       end
 
-      def log_inactive_correlation_ids(mhv_ids, active_mhv_ids)
+      def log_inactive_mhv_ids(mhv_ids, active_mhv_ids)
         if (mhv_ids - active_mhv_ids).present?
           log_message_to_sentry('Inactive MHV correlation IDs present', :info,
                                 extra_context: { ids: mhv_ids })
