@@ -22,11 +22,11 @@ module Common
         }.freeze
 
         def base_path
-          raise NotImplementedError, 'Subclass of Configuration must implement base_path'
+          raise NotImplementedError, "Subclass #{self.class.name} of Configuration must implement base_path"
         end
 
         def service_name
-          raise NotImplementedError, 'Subclass of Configuration must implement service_name'
+          raise NotImplementedError, "Subclass #{self.class.name} of Configuration must implement service_name"
         end
 
         def request_options
