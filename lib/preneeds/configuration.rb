@@ -11,6 +11,14 @@ module Preneeds
       "#{Settings.preneeds.host}/eoas_SOA/PreNeedApplicationPort"
     end
 
+    def base_path
+      self.class.url
+    end
+
+    def service_name
+      'Preneeds'
+    end
+
     def connection
       path = Preneeds::Configuration.url
       @faraday ||= Faraday.new(path, headers: base_request_headers, request: request_options) do |conn|
