@@ -11,6 +11,9 @@ RUN source /opt/rh/rh-ruby23/enable && gem install bundler
 
 # Vets.gov API source
 RUN mkdir -p /src/vets-api
-ADD . /src/vets-api
 WORKDIR /src/vets-api
+
+ADD Gemfile /src/vets-api/Gemfile
+ADD Gemfile.lock /src/vets-api/Gemfile.lock
+
 RUN source /opt/rh/rh-ruby23/enable && bundle install

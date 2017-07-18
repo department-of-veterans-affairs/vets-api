@@ -129,6 +129,9 @@ browser and start interacting with the API.
 
 ## Development Setup ( Docker )
 
+Copy the certificate files from the ~/.certs directory of your local system to
+`./config/certs`.
+
 To run the api via docker from the root of the project run the following commands
 
 ```
