@@ -29,7 +29,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
   validate(:form_matches_schema)
   validate(:form_must_be_string)
 
-  belongs_to(:saved_claim, inverse_of: :education_benefits_claim)
+  belongs_to(:saved_claim, class_name: 'SavedClaim::EducationBenefits', inverse_of: :education_benefits_claim)
 
   has_one(:education_benefits_submission, inverse_of: :education_benefits_claim)
 
@@ -135,17 +135,18 @@ class EducationBenefitsClaim < ActiveRecord::Base
   private
 
   def create_education_benefits_submission
-    if submitted_at.present? && submitted_at_was.nil? && education_benefits_submission.blank?
-      opt = selected_benefits
+    # TODO rewrite this
+    # if submitted_at.present? && submitted_at_was.nil? && education_benefits_submission.blank?
+    #   opt = selected_benefits
 
-      EducationBenefitsSubmission.create!(
-        opt.merge(
-          region: region,
-          form_type: form_type,
-          education_benefits_claim: self
-        )
-      )
-    end
+    #   EducationBenefitsSubmission.create!(
+    #     opt.merge(
+    #       region: region,
+    #       form_type: form_type,
+    #       education_benefits_claim: self
+    #     )
+    #   )
+    # end
   end
 
   def update_education_benefits_submission_status

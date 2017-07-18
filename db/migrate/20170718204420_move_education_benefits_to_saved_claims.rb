@@ -1,6 +1,7 @@
 class MoveEducationBenefitsToSavedClaims < ActiveRecord::Migration
   def change
     remove_column(:education_benefits_claims, :submitted_at)
+    add_reference(:education_benefits_claims, :saved_claim, index: true)
 
     EducationBenefitsClaim.find_each do |education_benefits_claim|
       education_benefits_claim.build_saved_claim(
