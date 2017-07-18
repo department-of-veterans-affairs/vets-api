@@ -5,13 +5,17 @@ require 'support/sm_client_helpers'
 
 RSpec.describe 'Messages Integration', type: :request do
   include SM::ClientHelpers
+  include SchemaMatchers
 
   let(:current_user) { build(:mhv_user) }
+  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
   let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
   let(:message_id) { 573_059 }
 
   before(:each) do
+    allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+    allow(mhv_account).to receive(:eligible?).and_return(true)
     allow(SM::Client).to receive(:new).and_return(authenticated_client)
     use_authenticated_current_user(current_user: current_user)
   end
@@ -67,7 +71,7 @@ RSpec.describe 'Messages Integration', type: :request do
     end
 
     context 'reply' do
-      let(:reply_message_id) { 655_570 }
+      let(:reply_message_id) { 674_838 }
 
       it 'without attachments' do
         VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
@@ -148,9 +152,10 @@ RSpec.describe 'Messages Integration', type: :request do
   end
 
   context 'with an LOA1 user' do
+    let(:mhv_account) { double('mhv_account', ineligible?: true, needs_terms_acceptance?: false, upgraded?: true) }
     let(:current_user) { build(:loa1_user) }
 
-    it 'gives me a 401' do
+    it 'gives me a 403' do
       get "/v0/messaging/health/messages/#{message_id}"
 
       expect(response).not_to be_success

@@ -34,6 +34,21 @@ describe 'bb client' do
     expect(client_response.members.first).to be_a(ExtractStatus)
   end
 
+  context 'with sentry enabled' do
+    before { Settings.sentry.dsn = 'asdf' }
+    after { Settings.sentry.dsn = nil }
+
+    it 'logs failed extract statuses', :vcr do
+      VCR.use_cassette('bb_client/gets_a_list_of_extract_statuses') do
+        msg = 'Final health record refresh contained one or more error statuses'
+        expect(Raven).to receive(:extra_context).with(refresh_failures: %w(Appointments ImagingStudy))
+        expect(Raven).to receive(:capture_message).with(msg, level: :warn)
+
+        client.get_extract_status
+      end
+    end
+  end
+
   # These are the list of eligible data classes that can be used to generate a report
   it 'gets a list of eligible data classes', :vcr do
     client_response = client.get_eligible_data_classes
@@ -56,15 +71,27 @@ describe 'bb client' do
 
   # returns a PDF, it's binary but not a multipart
   it 'gets a pdf version of a report', :vcr do
-    client_response = client.get_download_report('pdf')
-    expect(client_response.response_headers['content-type'])
-      .to eq('application/pdf')
+    response_headers = {}
+    header_cb = lambda do |headers|
+      headers.each { |k, v| response_headers[k] = v }
+    end
+    response_stream = Enumerator.new do |stream|
+      client.get_download_report('pdf', header_cb, stream)
+    end
+    response_stream.each { |_| }
+    expect(response_headers['Content-Type']).to eq('application/pdf')
   end
 
   # this is just text in the response body
   it 'gets a text version of a report', :vcr do
-    client_response = client.get_download_report('txt')
-    expect(client_response.response_headers['content-type'])
-      .to eq('text/plain; charset=UTF-8')
+    response_headers = {}
+    header_cb = lambda do |headers|
+      headers.each { |k, v| response_headers[k] = v }
+    end
+    response_stream = Enumerator.new do |stream|
+      client.get_download_report('txt', header_cb, stream)
+    end
+    response_stream.each { |_| }
+    expect(response_headers['Content-Type']).to eq('text/plain')
   end
 end

@@ -23,13 +23,5 @@ module V0
 
       render nothing: true, status: :accepted
     end
-
-    def show
-      resource = client.get_download_report('pdf')
-
-      send_data resource.body,
-                type: resource.response_headers['content-type'],
-                disposition: resource.response_headers['content-disposition']
-    end
   end
 end

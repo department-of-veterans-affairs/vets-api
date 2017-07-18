@@ -4,20 +4,24 @@ require 'facilities/multi_client'
 
 class VAFacility < ActiveModelSerializers::Model
   attr_accessor :unique_id, :name, :facility_type, :classification, :website,
-                :lat, :long, :address, :phone, :hours, :services, :feedback
+                :lat, :long, :address, :phone, :hours, :services, :feedback,
+                :access
 
   HEALTH = 'health'
   CEMETERY = 'cemetery'
   BENEFITS = 'benefits'
+  VET_CENTER = 'vet_center'
   VHA = 'vha'
   VBA = 'vba'
   NCA = 'nca'
+  VC = 'vc'
 
-  TYPES = [HEALTH, CEMETERY, BENEFITS].freeze
+  TYPES = [HEALTH, CEMETERY, BENEFITS, VET_CENTER].freeze
   ID_PREFIXES = {
     VHA => HEALTH,
     NCA => CEMETERY,
-    VBA => BENEFITS
+    VBA => BENEFITS,
+    VC => VET_CENTER
   }.freeze
 
   def self.query(bbox:, type:, services:)
@@ -71,7 +75,8 @@ class VAFacility < ActiveModelSerializers::Model
     {
       HEALTH => VHAFacilityAdapter.new,
       CEMETERY => NCAFacilityAdapter.new,
-      BENEFITS => VBAFacilityAdapter.new
+      BENEFITS => VBAFacilityAdapter.new,
+      VET_CENTER => VCFacilityAdapter.new
     }
   end
 

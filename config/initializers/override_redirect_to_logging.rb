@@ -15,11 +15,10 @@ def unsubscribe(log_subscriber, event_component)
 end
 
 # Add our custom log subscriber for redirect_to
-SAML_CONFIG = Rails.application.config_for(:saml).freeze
 class FilteredLogSubscriber < ActiveSupport::LogSubscriber
   def redirect_to(event)
-    if event.payload[:location].include?(SAML_CONFIG['relay'] + '?token=')
-      info { "Redirected to #{SAML_CONFIG['relay']} with token" }
+    if event.payload[:location].include?(Settings.saml.relay + '?token=')
+      info { "Redirected to #{Settings.saml.relay} with token" }
     else
       info { "Redirected to #{event.payload[:location]}" }
     end

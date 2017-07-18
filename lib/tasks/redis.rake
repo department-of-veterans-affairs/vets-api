@@ -31,52 +31,100 @@ namespace :redis do
       token = SecureRandom.uuid.delete '-'
       mhv_ids = [args[:mhv_id] || %w(12210827 10894456 13408508 13492196).sample]
 
-      redis.set "vets-api-session:#{token}", {
-        ":uuid": uuid,
-        ":token": token
-      }.to_json
+      session = Session.new(token: token, uuid: uuid)
+      session.save
 
-      redis.set "mvi-data:#{uuid}", {
+      redis.set "users:#{uuid}", {
         ":uuid": uuid,
         ":email": "vets.gov.user+#{rand(200)}@gmail.com",
         ":first_name": 'TEST',
         ":middle_name": 'T',
         ":last_name": 'USER',
-        ":gender": 'M',
-        ":birth_date": {
-          "^t": Time.now.utc
-        },
+        ":gender": 'F',
+        ":birth_date": '1970-01-01',
         ":zip": nil,
         ":ssn": '123456789',
         ":loa": {
           ":current": 3,
           ":highest": 3
         },
-        ":last_signed_in": {
-          "^t": Time.now.utc
-        },
-        ":edipi": '1005079124',
-        ":participant_id": '600062099',
-        ":icn": '1008710255V058302',
-        ":mvi": {
-          "^o": 'ActiveSupport::HashWithIndifferentAccess',
-          "self": {
-            "birth_date": '19840101',
-            "edipi": '1005079124',
-            "family_name": 'USER',
-            "gender": 'M',
-            "given_names": ['TEST'],
-            "icn": '1008710255V058302^NI^200M^USVHA^P',
-            "mhv_ids": mhv_ids,
-            "vba_corp_id": '600062099^PI^200CORP^USVBA^A',
-            "ssn": '123456789',
-            "status": 'OK'
-          }
-        },
+        ":last_signed_in": { "^t": Time.now.utc },
         ":mhv_last_signed_in": nil
+      }.to_json
+
+      redis.set "mvi-profile-response:#{uuid}", {
+        ":uuid": uuid,
+        ":status": 'OK',
+        ":profile": {
+          "^o": 'MVI::Models::MviProfile',
+          "birth_date": '19700101',
+          "edipi": '1005079124',
+          "family_name": 'USER',
+          "gender": 'F',
+          "given_names": %w(TEST T),
+          "icn": '1008710255V058302',
+          "mhv_ids": mhv_ids,
+          "ssn": '123456789',
+          "suffix": nil,
+          "address": {
+            "^o": 'MVI::Models::MviProfileAddress',
+            "street": '123 Fake Street',
+            "city": 'Springfield',
+            "state": 'OR',
+            "postal_code": '99999',
+            "country": 'USA'
+          },
+          "home_phone": nil,
+          "participant_id": '600062099'
+        }
       }.to_json
 
       puts token
     end
   end
+
+  desc 'Audit User Attributes'
+  task audit: :environment do
+    count = 0
+    mhv_users = 0
+    vha_patients = 0
+    mhv_non_patient = 0
+    patient_non_mhv = 0
+    addressees = 0
+    namespace = 'mvi-profile-response'
+    redis = Redis.current
+    redis.scan_each(match: "#{namespace}:*") do |key|
+      begin
+        resp = Oj.load(redis.get(key))[:response]
+        count += 1
+        mhvu = !resp.profile.mhv_ids.blank?
+        patient = patient?(resp.profile.vha_facility_ids)
+        mhv_users += 1 if mhvu
+        vha_patients += 1 if patient
+        mhv_non_patient += 1 if mhvu && !patient
+        patient_non_mhv += 1 if patient && !mhvu
+        addressees += 1 if addressee?(resp.profile.address)
+      rescue
+        puts "Couldn't parse #{key}"
+      end
+    end
+
+    puts "Total cached users: #{count}"
+    puts "Users with MHV correlation ID: #{mhv_users}"
+    puts "Users who are VA patients: #{vha_patients}"
+    puts "VA patients with no MHV ID: #{patient_non_mhv}"
+    puts "MHV ID holders who are not patients: #{mhv_non_patient}"
+    puts "Users with baseline address fields: #{addressees}"
+  end
+end
+
+def patient?(vha_ids)
+  vha_ids.to_a.any? { |id| id.to_i.between?(358, 758) }
+end
+
+def addressee?(addr)
+  return false if addr.blank?
+  return false if addr.country.blank?
+  return false if addr.state.blank?
+  true
 end

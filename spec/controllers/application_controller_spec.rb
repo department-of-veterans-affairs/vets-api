@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 require 'rails_helper'
 require 'rx/client'
+require 'lib/sentry_logging_spec_helper'
 
 RSpec.describe ApplicationController, type: :controller do
+  it_behaves_like 'a sentry logger'
   controller do
     skip_before_action :authenticate
 
@@ -21,6 +23,49 @@ RSpec.describe ApplicationController, type: :controller do
     def client_connection_failed
       client = Rx::Client.new(session: { user_id: 123 })
       client.get_session
+    end
+  end
+
+  describe '#clear_saved_form' do
+    let(:user) { create(:user) }
+
+    subject do
+      controller.clear_saved_form(form_id)
+    end
+
+    context 'with a saved form' do
+      let!(:in_progress_form) { create(:in_progress_form, user_uuid: user.uuid) }
+      let(:form_id) { in_progress_form.form_id }
+
+      context 'without a current user' do
+        it "shouldn't delete the form" do
+          subject
+          expect(model_exists?(in_progress_form)).to be(true)
+        end
+      end
+
+      context 'with a current user' do
+        before do
+          controller.instance_variable_set(:@current_user, user)
+        end
+
+        it 'should delete the form' do
+          subject
+          expect(model_exists?(in_progress_form)).to be(false)
+        end
+      end
+    end
+
+    context 'without a saved form' do
+      let(:form_id) { 'foo' }
+
+      before do
+        controller.instance_variable_set(:@current_user, user)
+      end
+
+      it 'should do nothing' do
+        subject
+      end
     end
   end
 
@@ -87,7 +132,7 @@ RSpec.describe ApplicationController, type: :controller do
       allow_any_instance_of(Rx::Client)
         .to receive(:connection).and_raise(Faraday::ConnectionFailed, 'some message')
       expect(Raven).to receive(:capture_exception).once
-      ClimateControl.modify SENTRY_DSN: 'T' do
+      with_settings(Settings.sentry, dsn: 'T') do
         get :client_connection_failed
       end
       expect(JSON.parse(response.body)['errors'].first['title'])

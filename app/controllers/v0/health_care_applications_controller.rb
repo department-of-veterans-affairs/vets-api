@@ -3,42 +3,48 @@ require 'hca/service'
 
 module V0
   class HealthCareApplicationsController < ApplicationController
+    FORM_ID = '10-10EZ'
+    # We call authenticate_token because auth is optional on this endpoint.
     skip_before_action(:authenticate)
 
     def create
+      authenticate_token
+
       form = JSON.parse(params[:form])
-      validation_errors = JSON::Validator.fully_validate(
-        VetsJsonSchema::HEALTHCARE_APPLICATION,
-        form,
-        validate_schema: true
-      )
+      validate!(form)
 
-      if validation_errors.present?
-        raise Common::Exceptions::SchemaValidationErrors, validation_errors
-      end
-
-      begin
-        service.submit_form(form)
+      result = begin
+        HCA::Service.new(current_user).submit_form(form)
       rescue Common::Client::Errors::ClientError => e
-        Raven.capture_exception(e)
+        log_exception_to_sentry(e)
 
         raise Common::Exceptions::BackendServiceException.new(
-          nil,
-          detail: e.message
+          nil, detail: e.message
         )
       end
 
-      render(json: { success: true })
+      clear_saved_form(FORM_ID)
+
+      Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
+      render(json: result)
     end
 
     def healthcheck
-      render(json: service.health_check)
+      render(json: HCA::Service.new.health_check)
     end
 
     private
 
-    def service
-      HCA::Service.new
+    def validate!(form)
+      validation_errors = JSON::Validator.fully_validate(
+        VetsJsonSchema::SCHEMAS[FORM_ID],
+        form, validate_schema: true
+      )
+
+      if validation_errors.present?
+        log_message_to_sentry(validation_errors.join(','), :error, {}, validation: 'health_care_application')
+        raise Common::Exceptions::SchemaValidationErrors, validation_errors
+      end
     end
   end
 end

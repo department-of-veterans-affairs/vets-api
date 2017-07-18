@@ -2,23 +2,33 @@
 require 'fakeredis/rspec'
 require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
-require 'support/api_schema_matcher'
+require 'support/schema_matchers'
+require 'support/spool_helpers'
+require 'support/fixture_helpers'
+require 'support/spec_temp_files'
+require 'support/have_deep_attributes_matcher'
+require 'support/impl_matchers'
+require 'support/negated_matchers'
+require 'support/veteran_status/stub_veteran_status'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
   require 'simplecov'
 
-  SimpleCov.start do
+  SimpleCov.start 'rails' do
     track_files '{app,lib}/**/*.rb'
     add_filter 'config/initializers/sidekiq.rb'
     add_filter 'config/initializers/statsd.rb'
     add_filter 'config/initializers/mvi_settings.rb'
+    add_filter 'config/initializers/clamscan.rb'
+    add_filter 'config/initializers/config.rb'
     add_filter 'lib/tasks/support/shell_command.rb'
     add_filter 'lib/config_helper.rb'
     add_filter 'lib/feature_flipper.rb'
-    add_filter 'spec/support/authenticated_session_helper'
-    add_filter 'config/initializers/figaro.rb'
+    add_filter 'spec'
+    add_filter 'vendor'
     SimpleCov.minimum_coverage_by_file 90
+    SimpleCov.refuse_coverage_drop
   end
 end
 
@@ -44,9 +54,12 @@ RSpec.configure do |config|
   # fix for test rspec test randomization when using spring
   # https://github.com/rails/spring/issues/113#issuecomment-135896880
   config.seed = srand % 0xFFFF unless ARGV.any? { |arg| arg =~ /seed/ }
+  config.order = :random
+  Kernel.srand config.seed
 
   config.filter_run focus: true
   config.run_all_when_everything_filtered = true
+  config.example_status_persistence_file_path = 'tmp/specs.txt'
 
   # rspec-expectations config goes here. You can use an alternate
   # assertion/expectation library such as wrong or the stdlib/minitest
@@ -71,11 +84,20 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
 
-  config.before(:each) do |example|
-    stub_mvi unless example.metadata[:skip_mvi]
+  config.before(:suite) do
+    # Some specs stub out `YAML.load_file`, which I18n uses to load the
+    # translation files. Because rspec runs things in random order, it's
+    # possible that the YAML.load_file that's stubbed out for a spec
+    # could actually be called by I18n if translations are required before
+    # the functionality being tested. Once loaded, the translations stay
+    # loaded, so we may as well take the hit and load them right away.
+    # Verified working on --seed 11101, commit e378e8
+    I18n.locale_available?(:en)
   end
 
   config.include SpecBuilders
+  config.include SpoolHelpers
+  config.include FixtureHelpers
 
   config.around(:each) do |example|
     if example.metadata[:run_at]
@@ -86,52 +108,4 @@ RSpec.configure do |config|
       example.run
     end
   end
-
-  # The settings below are suggested to provide a good initial experience
-  # with RSpec, but feel free to customize to your heart's content.
-  #   # These two settings work together to allow you to limit a spec run
-  #   # to individual examples or groups you care about by tagging them with
-  #   # `:focus` metadata. When nothing is tagged with `:focus`, all examples
-  #   # get run.
-  #   config.filter_run :focus
-  #   config.run_all_when_everything_filtered = true
-  #
-  #   # Allows RSpec to persist some state between runs in order to support
-  #   # the `--only-failures` and `--next-failure` CLI options. We recommend
-  #   # you configure your source control system to ignore this file.
-  #   config.example_status_persistence_file_path = "spec/examples.txt"
-  #
-  #   # Limits the available syntax to the non-monkey patched syntax that is
-  #   # recommended. For more details, see:
-  #   #   - http://rspec.info/blog/2012/06/rspecs-new-expectation-syntax/
-  #   #   - http://www.teaisaweso.me/blog/2013/05/27/rspecs-new-message-expectation-syntax/
-  #   #   - http://rspec.info/blog/2014/05/notable-changes-in-rspec-3/#zero-monkey-patching-mode
-  #   config.disable_monkey_patching!
-  #
-  #   # Many RSpec users commonly either run the entire suite or an individual
-  #   # file, and it's useful to allow more verbose output when running an
-  #   # individual spec file.
-  #   if config.files_to_run.one?
-  #     # Use the documentation formatter for detailed output,
-  #     # unless a formatter has already been configured
-  #     # (e.g. via a command-line flag).
-  #     config.default_formatter = 'doc'
-  #   end
-  #
-  #   # Print the 10 slowest examples and example groups at the
-  #   # end of the spec run, to help surface which specs are running
-  #   # particularly slow.
-  #   config.profile_examples = 10
-  #
-  #   # Run specs in random order to surface order dependencies. If you find an
-  #   # order dependency and want to debug it, you can fix the order by providing
-  #   # the seed, which is printed after each run.
-  #   #     --seed 1234
-  #   config.order = :random
-  #
-  #   # Seed global randomization in this process using the `--seed` CLI option.
-  #   # Setting this allows you to use `--seed` to deterministically reproduce
-  #   # test failures related to randomization by passing the same `--seed` value
-  #   # as the one that triggered the failure.
-  #   Kernel.srand config.seed
 end

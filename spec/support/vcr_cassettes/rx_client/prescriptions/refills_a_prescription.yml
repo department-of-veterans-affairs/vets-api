@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_HOST>/mhv-api/patient/v1/prescription/rxrefill/13568747"
+    uri: "<MHV_HOST>/mhv-api/patient/v1/prescription/rxrefill/13650545"
     body:
       encoding: UTF-8
       string: "{}"
@@ -21,19 +21,17 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Date:
-      - Wed, 02 Nov 2016 05:15:00 GMT
       Server:
-      - Apache/2.2.15 (Red Hat)
-      Connection:
-      - close
-      Transfer-Encoding:
-      - chunked
+      - Apache-Coyote/1.1
       Content-Type:
       - application/json
+      Content-Length:
+      - '21'
+      Date:
+      - Thu, 02 Feb 2017 17:53:25 GMT
     body:
       encoding: UTF-8
       string: '{"status":"success" }'
     http_version: 
-  recorded_at: Wed, 02 Nov 2016 05:15:01 GMT
+  recorded_at: Thu, 02 Feb 2017 17:53:25 GMT
 recorded_with: VCR 3.0.3

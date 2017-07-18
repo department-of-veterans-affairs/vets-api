@@ -18,7 +18,7 @@ FactoryGirl.define do
     sent_date 'Thu, 11 Jul 2013 20:25:54 GMT'
     sender_id 1
     sender_name 'Sender 1'
-    recipient_id 585_986
+    recipient_id 613_586
     recipient_name 'Recipient 1'
     read_receipt 'READ'
   end

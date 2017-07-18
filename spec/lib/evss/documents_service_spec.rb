@@ -9,7 +9,7 @@ describe EVSS::DocumentsService do
     EVSS::AuthHeaders.new(current_user).to_h
   end
   let(:document_data) do
-    DisabilityClaimDocument.new(
+    EVSSClaimDocument.new(
       evss_claim_id: 189_625,
       file_name: 'doctors-note.pdf',
       tracked_item_id: 33,

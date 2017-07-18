@@ -22,8 +22,7 @@ default: &default
   pool: 5
 
 development:
-  <<: *default
-  database: vets_api_development
+  url: <%= Settings.database_url %>
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -56,8 +55,7 @@ development:
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
-  <<: *default
-  database: vets_api_test
+  url: <%= Settings.database_url %>
 
 # As with config/secrets.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
@@ -79,5 +77,4 @@ test:
 #     url: <%= ENV['DATABASE_URL'] %>
 #
 production:
-  <<: *default
-  database: vets_api_production
+  url: <%= Settings.database_url %>

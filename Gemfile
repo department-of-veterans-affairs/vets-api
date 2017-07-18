@@ -13,23 +13,29 @@ gem 'virtus'
 #emphasize this is an api only app
 gem 'rails-api'
 gem 'figaro'
+gem 'config'
 gem 'pg'
 gem 'json-schema'
-gem 'active_model_serializers', '~> 0.10.0'
+gem 'active_model_serializers'
 gem 'will_paginate'
-gem 'sentry-raven'            # Sentry integration. SENTRY_DSN provided in ENV
+gem 'sentry-raven'            # Sentry integration.
 gem 'faraday'
 gem 'faraday_middleware'
 gem 'httpclient'
 gem 'attr_encrypted'
 gem 'olive_branch'
-gem 'ox', '~> 2.4'
+gem 'ox'
 gem 'savon'
 gem 'gyoku'
+
+# background processing and workflow
 gem 'sidekiq'
 gem 'sidekiq-unique-jobs'
 gem 'sidekiq-scheduler', '~> 2.0'
 gem 'sidekiq-instrument'
+gem 'shrine'
+gem 'fastimage'
+
 gem 'carrierwave-aws'
 gem 'carrierwave', '~> 0.11'
 gem 'typhoeus'
@@ -42,6 +48,9 @@ gem 'govdelivery-tms', require: 'govdelivery/tms/mail/delivery_method'
 gem 'statsd-instrument'
 gem 'memoist'
 gem 'date_validator'
+gem 'nokogiri'
+gem 'swagger-blocks'
+gem 'aasm'
 
 # Amazon Linux's system `json` gem causes conflicts, but
 # `multi_json` will prefer `oj` if installed, so include it here.
@@ -49,6 +58,14 @@ gem 'oj'
 
 gem 'holidays'
 gem 'iconv'
+gem 'ice_nine'
+gem 'pdf-reader'
+gem 'aws-sdk'
+gem 'mini_magick'
+gem 'pdf-forms'
+gem 'clam_scan'
+gem 'prawn'
+gem 'combine_pdf'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -71,21 +88,27 @@ group :development, :test do
   gem 'factory_girl_rails'
 
   gem 'foreman'
-
+  gem 'overcommit'
   # This middleware logs your HTTP requests as CURL compatible commands so you can share the calls with downstream
   # assists in debugging
   gem 'faraday_curl'
 end
 
 group :test do
+  gem 'apivore'
   gem 'faker'
-  gem 'simplecov', '~> 0.11', require: false
+  gem 'faker-medical'
+  gem 'simplecov', require: false
   gem 'webmock'
   gem 'fakeredis'
   gem 'timecop'
   gem 'vcr'
   gem 'awrence'
-  gem 'climate_control', '0.0.3'
+  gem 'climate_control'
+  gem 'shrine-memory'
+  gem 'pdf-inspector'
+  gem 'rspec_junit_formatter'
+  gem 'rubocop-junit-formatter'
 end
 
 group :development do

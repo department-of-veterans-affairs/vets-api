@@ -5,15 +5,18 @@ require 'support/sm_client_helpers'
 
 RSpec.describe 'Messages Integration', type: :request do
   include SM::ClientHelpers
+  include SchemaMatchers
 
+  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
   let(:current_user) { build(:mhv_user) }
-  let(:reply_id)               { 631_270 }
-  let(:created_draft_id)       { 655_626 }
-  let(:created_draft_reply_id) { 655_628 }
+  let(:reply_id)               { 674_874 }
+  let(:created_draft_id)       { 674_942 }
+  let(:created_draft_reply_id) { 674_944 }
   let(:draft) { attributes_for(:message, body: 'Body 1', subject: 'Subject 1') }
   let(:params) { draft.slice(:category, :subject, :body, :recipient_id) }
 
   before(:each) do
+    allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
     allow(SM::Client).to receive(:new).and_return(authenticated_client)
     use_authenticated_current_user(current_user: current_user)
   end

@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 require 'common/models/base'
 require 'common/models/redis_store'
-require 'mvi/messages/find_candidate_message'
+require 'mvi/messages/find_profile_message'
 require 'mvi/service'
 require 'evss/common_service'
 require 'evss/auth_headers'
 require 'saml/user_attributes'
 
 class User < Common::RedisStore
+  UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
+
   redis_store REDIS_CONFIG['user_store']['namespace']
   redis_ttl REDIS_CONFIG['user_store']['each_ttl']
   redis_key :uuid
@@ -60,12 +62,30 @@ class User < Common::RedisStore
     loa1? || loa2? || loa3?
   end
 
-  def can_access_mhv?
-    loa3? && mhv_correlation_id
+  # Must be LOA3 and a va patient
+  def mhv_account_eligible?
+    (MhvAccount::ALL_STATES - [:ineligible]).map(&:to_s).include?(mhv_account_state)
+  end
+
+  def mhv_account_state
+    return nil unless loa3?
+    mhv_account.account_state
   end
 
   def can_access_evss?
     edipi.present? && ssn.present? && participant_id.present?
+  end
+
+  def can_access_appeals?
+    loa3? && ssn.present?
+  end
+
+  def can_save_partial_forms?
+    loa3? && ssn.present? && ssn.starts_with?(UNALLOCATED_SSN_PREFIX)
+  end
+
+  def can_access_prefill_data?
+    loa3? && ssn.present? && ssn.starts_with?(UNALLOCATED_SSN_PREFIX)
   end
 
   def self.from_merged_attrs(existing_user, new_user)
@@ -89,11 +109,37 @@ class User < Common::RedisStore
   delegate :icn, to: :mvi
   delegate :mhv_correlation_id, to: :mvi
   delegate :participant_id, to: :mvi
-  delegate :va_profile, to: :mvi
+  delegate :veteran?, to: :veteran_status
+
+  def va_profile
+    mvi.profile
+  end
+
+  def va_profile_status
+    mvi.status
+  end
+
+  def mhv_account
+    @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid)
+  end
+
+  def in_progress_forms
+    InProgressForm.where(user_uuid: uuid)
+  end
+
+  # Re-caches the MVI response. Use in response to any local changes that
+  # have been made.
+  def recache
+    mvi.cache(uuid, mvi.mvi_response)
+  end
 
   private
 
   def mvi
-    @mvi ||= Mvi.from_user(self)
+    @mvi ||= Mvi.for_user(self)
+  end
+
+  def veteran_status
+    @veteran_status ||= VeteranStatus.for_user(self)
   end
 end

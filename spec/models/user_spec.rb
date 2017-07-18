@@ -198,8 +198,10 @@ RSpec.describe User, type: :model do
       end
       context 'when there are mhv ids' do
         let(:loa3_user) { FactoryGirl.build(:loa3_user) }
+        let(:mvi_profile) { FactoryGirl.build(:mvi_profile) }
         it 'has a mhv correlation id' do
-          expect(loa3_user.mhv_correlation_id).to eq('123456')
+          stub_mvi(mvi_profile)
+          expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.mhv_ids.first)
         end
       end
     end

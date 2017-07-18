@@ -4,7 +4,14 @@ require 'rails_helper'
 RSpec.describe EducationBenefitsClaim, type: :model do
   let(:attributes) do
     {
-      form: { chapter30: true, privacyAgreementAccepted: true }.to_json
+      form: {
+        chapter30: true,
+        veteranFullName: {
+          first: 'Mark',
+          last: 'Olson'
+        },
+        privacyAgreementAccepted: true
+      }.to_json
     }
   end
   subject { described_class.new(attributes) }
@@ -26,41 +33,141 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end
     end
 
+    it 'should validate inclusion of form_type' do
+      %w(1990 1995 1990e 5490 1990n 5495).each do |form_type|
+        subject.form_type = form_type
+        expect_attr_valid(subject, :form_type)
+      end
+
+      subject.form_type = 'foo'
+      expect_attr_invalid(subject, :form_type, 'is not included in the list')
+    end
+
     describe '#form_matches_schema' do
-      context 'verifies that privacyAgreementAccepted is true' do
-        [[true, true], [false, false], [nil, false]].each do |value, answer|
-          it "when the value is #{value}" do
-            attributes[:form] = {
-              privacyAgreementAccepted: value
-            }.to_json
-            assert_equal answer, subject.valid?
-          end
-        end
-      end
-
-      it 'should be valid on a valid form' do
-        expect_attr_valid(subject, :form)
-      end
-
-      context 'with an invalid form' do
-        before do
-          attributes[:form] = {
-            chapter30: 0,
-            privacyAgreementAccepted: true
-          }.to_json
-        end
-
+      def self.expect_json_schema_error(text)
         it 'should have a json schema error' do
           subject.valid?
           form_errors = subject.errors[:form]
 
           expect(form_errors.size).to eq(1)
-          expect(
-            form_errors[0].include?(
-              "The property '#/chapter30' of type Fixnum did not match the following type: boolean"
-            )
-          ).to eq(true)
+          expect(form_errors[0].include?(text)).to eq(true)
         end
+      end
+
+      def self.expect_form_valid
+        it 'should be valid' do
+          expect_attr_valid(subject, :form)
+        end
+      end
+
+      context '1990 form' do
+        context 'verifies that privacyAgreementAccepted is true' do
+          [[true, true], [false, false], [nil, false]].each do |value, answer|
+            it "when the value is #{value}" do
+              attributes[:form] = {
+                veteranFullName: {
+                  first: 'Mark',
+                  last: 'Olson'
+                },
+                privacyAgreementAccepted: value
+              }.to_json
+              assert_equal answer, subject.valid?
+            end
+          end
+        end
+
+        it 'should be valid on a valid form' do
+          expect_attr_valid(subject, :form)
+        end
+
+        context 'with an invalid form' do
+          before do
+            attributes[:form] = {
+              chapter30: 0,
+              veteranFullName: {
+                first: 'Mark',
+                last: 'Olson'
+              },
+              privacyAgreementAccepted: true
+            }.to_json
+          end
+
+          expect_json_schema_error(
+            "The property '#/chapter30' of type Fixnum did not match the following type: boolean"
+          )
+        end
+      end
+
+      %w(1990e 5490 1990n 1995 5495).each do |form_type|
+        context "#{form_type} form" do
+          before do
+            subject.form_type = form_type
+            subject.form = form
+          end
+
+          let(:valid_form) do
+            build("education_benefits_claim_#{form_type}").form
+          end
+
+          context 'with a valid form' do
+            let(:form) { valid_form }
+
+            expect_form_valid
+          end
+
+          context 'with an invalid form' do
+            let(:form) do
+              form = JSON.parse(valid_form)
+              form.except('privacyAgreementAccepted').to_json
+            end
+
+            expect_json_schema_error(
+              "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
+            )
+          end
+        end
+      end
+
+      context '1990e form' do
+        before do
+          subject.form_type = '1990e'
+          subject.form = form
+        end
+
+        context 'with a valid form' do
+          let(:form) do
+            build(:education_benefits_claim_1990e).form
+          end
+
+          expect_form_valid
+        end
+
+        context 'with an invalid form' do
+          let(:form) do
+            form = JSON.parse(build(:education_benefits_claim_1990e).form)
+            form.except('privacyAgreementAccepted').to_json
+          end
+
+          expect_json_schema_error(
+            "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
+          )
+        end
+      end
+    end
+  end
+
+  %w(1990 1995 1990e 5490 5495 1990n).each do |form_type|
+    method = "is_#{form_type}?"
+
+    describe "##{method}" do
+      it "should return false when it's not the right type" do
+        subject.form_type = 'foo'
+        expect(subject.public_send(method)).to eq(false)
+      end
+
+      it "should return true when it's the right type" do
+        subject.form_type = form_type
+        expect(subject.public_send(method)).to eq(true)
       end
     end
   end
@@ -112,7 +219,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     it 'should let you look up a claim from the confirmation number' do
       subject.save!
       expect(
-        described_class.find(subject.confirmation_number.gsub('vets_gov_education_benefits_claim_', '').to_i)
+        described_class.find(subject.confirmation_number.gsub('V-EBC-', '').to_i)
       ).to eq(subject)
     end
   end
@@ -144,25 +251,172 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   describe '#create_education_benefits_submission' do
     subject { create(:education_benefits_claim_western_region) }
 
+    let(:submission_attributes) do
+      {
+        'region' => 'eastern',
+        'chapter33' => false,
+        'chapter30' => false,
+        'chapter1606' => false,
+        'chapter32' => false,
+        'chapter35' => false,
+        'status' => 'submitted',
+        'transfer_of_entitlement' => false,
+        'chapter1607' => false,
+        'education_benefits_claim_id' => subject.id
+      }
+    end
+
+    def associated_submission
+      subject.education_benefits_submission.attributes.except('id', 'created_at', 'updated_at')
+    end
+
     it 'should create an education benefits submission after submission' do
       expect do
         subject
       end.to change { EducationBenefitsSubmission.count }.by(1)
 
-      expect(EducationBenefitsSubmission.last.attributes.except('id', 'created_at', 'updated_at')).to eq(
-        'region' => 'western',
-        'chapter33' => false,
-        'chapter30' => false,
-        'chapter1606' => true,
-        'chapter32' => false,
-        'status' => 'submitted',
-        'education_benefits_claim_id' => subject.id
+      expect(associated_submission).to eq(
+        submission_attributes.merge(
+          'region' => 'western',
+          'chapter1606' => true,
+          'form_type' => '1990'
+        )
       )
+    end
+
+    context 'with a form type of 1995' do
+      subject do
+        create(:education_benefits_claim_1995)
+      end
+
+      it 'should create a submission' do
+        subject
+
+        expect(associated_submission).to eq(
+          submission_attributes.merge(
+            'form_type' => '1995',
+            'transfer_of_entitlement' => true
+          )
+        )
+      end
+    end
+
+    context 'with a form type of 1990e' do
+      subject do
+        create(:education_benefits_claim_1990e)
+      end
+
+      it 'should create a submission' do
+        subject
+
+        expect(associated_submission).to eq(
+          submission_attributes.merge(
+            'chapter33' => true,
+            'form_type' => '1990e'
+          )
+        )
+      end
+    end
+
+    context 'with a form type of 5490' do
+      subject do
+        create(:education_benefits_claim_5490)
+      end
+
+      it 'should create a submission' do
+        subject
+
+        expect(associated_submission).to eq(
+          submission_attributes.merge(
+            'chapter35' => true,
+            'form_type' => '5490'
+          )
+        )
+      end
+    end
+
+    context 'with a form type of 1990n' do
+      subject do
+        create(:education_benefits_claim_1990n)
+      end
+
+      it 'should create a submission' do
+        subject
+
+        expect(associated_submission).to eq(
+          submission_attributes.merge(
+            'form_type' => '1990n'
+          )
+        )
+      end
+    end
+
+    context 'with a form type of 5495' do
+      subject do
+        create(:education_benefits_claim_5495)
+      end
+
+      it 'should create a submission' do
+        subject
+
+        expect(associated_submission).to eq(
+          submission_attributes.merge(
+            'form_type' => '5495',
+            'chapter35' => true
+          )
+        )
+      end
     end
 
     it "shouldn't create a submission after save if it was already submitted" do
       subject.update_attributes!(processed_at: Time.zone.now)
       expect(EducationBenefitsSubmission.count).to eq(1)
+    end
+  end
+
+  describe '#copy_from_previous_benefits' do
+    let(:form) do
+      {
+        previousBenefits: {
+          veteranFullName: 'joe',
+          vaFileNumber: '123',
+          veteranSocialSecurityNumber: '321'
+        }
+      }
+    end
+
+    subject do
+      attributes[:form] = form.to_json
+      education_benefits_claim = described_class.new(attributes)
+      allow(education_benefits_claim).to receive(:transform_form)
+
+      education_benefits_claim.open_struct_form
+      education_benefits_claim.copy_from_previous_benefits
+      education_benefits_claim.open_struct_form
+    end
+
+    context 'when currentSameAsPrevious is false' do
+      before do
+        form[:currentSameAsPrevious] = false
+      end
+
+      it 'shouldnt copy fields from previous benefits' do
+        %w(veteranFullName vaFileNumber veteranSocialSecurityNumber).each do |attr|
+          expect(subject.public_send(attr)).to eq(nil)
+        end
+      end
+    end
+
+    context 'when currentSameAsPrevious is true' do
+      before do
+        form[:currentSameAsPrevious] = true
+      end
+
+      it 'should copy fields from previous benefits' do
+        expect(subject.veteranFullName).to eq('joe')
+        expect(subject.vaFileNumber).to eq('123')
+        expect(subject.veteranSocialSecurityNumber).to eq('321')
+      end
     end
   end
 

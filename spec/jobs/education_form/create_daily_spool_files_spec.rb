@@ -10,6 +10,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   let(:line_break) { EducationForm::WINDOWS_NOTEPAD_LINEBREAK }
 
   context 'scheduling' do
+    before do
+      allow(Rails.env).to receive('development?').and_return(true)
+    end
     context 'job only runs on business days', run_at: '2016-12-31 00:00:00 EDT' do
       let(:scheduler) { Rufus::Scheduler.new }
       let(:possible_runs) do
@@ -42,7 +45,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
 
     it 'should log a message on holidays', run_at: '2017-01-02 03:00:00 EDT' do
-      expect(subject).not_to receive(:create_files)
+      expect(subject).not_to receive(:write_files)
       expect(subject.logger).to receive(:info).with("Skipping on a Holiday: New Year's Day")
       expect(subject.perform).to be false
     end
@@ -50,7 +53,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     it 'should not skip informal holidays', run_at: '2017-04-01 03:00:00 EDT' do
       # Sanity check that this *is* an informal holiday we're testing
       expect(Holidays.on(Time.zone.today, :us, :informal).first[:name]).to eq("April Fool's Day")
-      expect(subject).to receive(:create_files)
+      expect(subject).to receive(:write_files)
       expect(subject.perform).to be true
     end
   end
@@ -58,15 +61,26 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   context '#format_application' do
     it 'logs an error if the record is invalid' do
       expect(application_1606).to receive(:open_struct_form).once.and_return(OpenStruct.new)
-      expect { subject.format_application(application_1606) }.to raise_error(EducationForm::FormattingError) do |error|
-        expect(error.cause.message).to match(/NilClass/)
+      expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::FormattingError))
+      subject.format_application(application_1606)
+    end
+
+    context 'with a 1990 form' do
+      it 'tracks and returns a form object' do
+        expect(subject).to receive(:track_form_type).with('22-1990', 999)
+        result = subject.format_application(application_1606, rpo: 999)
+        expect(result).to be_a(EducationForm::Forms::VA1990)
       end
     end
 
-    it 'tracks and returns a form object' do
-      expect(subject).to receive(:track_form_type).with('22-1990', 999)
-      result = subject.format_application(application_1606, rpo: 999)
-      expect(result).to be_a(EducationForm::Forms::VA1990)
+    context 'with a 1995 form' do
+      let(:application_1606) { create(:education_benefits_claim_1995_full_form) }
+
+      it 'tracks the 1995 form' do
+        expect(subject).to receive(:track_form_type).with('22-1995', 999)
+        result = subject.format_application(application_1606, rpo: 999)
+        expect(result).to be_a(EducationForm::Forms::VA1995)
+      end
     end
 
     context 'result tests' do
@@ -83,12 +97,33 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
 
   context '#perform' do
-    context 'with no records' do
+    context 'with a mix of valid and invalid record', run_at: '2016-09-16 03:00:00 EDT' do
+      let(:spool_files) { Rails.root.join('tmp/spool_files/*') }
+      before do
+        expect(Rails.env).to receive('development?').once { true }
+        application_1606.form = {}.to_json
+        application_1606.save! # Make this claim super malformed
+        FactoryGirl.create(:education_benefits_claim_western_region)
+        FactoryGirl.create(:education_benefits_claim_1995_full_form)
+        # clear out old test files
+        FileUtils.rm_rf(Dir.glob(spool_files))
+        # ensure our test data is spread across 3 regions..
+        expect(EducationBenefitsClaim.unprocessed.pluck(:regional_processing_office).uniq.count).to eq(3)
+      end
+
+      it 'it processes the valid messages' do
+        expect(subject).to receive(:log_exception_to_sentry).once
+        expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(3).to(1)
+        expect(Dir[spool_files].count).to eq(2)
+      end
+    end
+
+    context 'with no records', run_at: '2016-09-16 03:00:00 EDT' do
       before do
         EducationBenefitsClaim.delete_all
       end
-      it 'prints a statement and exits' do
-        expect(subject).not_to receive(:create_files)
+      it 'prints a statement and exits', run_at: '2017-02-21 00:00:00 EDT' do
+        expect(subject).not_to receive(:write_files)
         expect(subject.logger).to receive(:info).with('No records to process.')
         expect(subject.perform).to be(true)
       end
@@ -97,26 +132,46 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context '#group_submissions_by_region' do
     it 'takes a list of records into chunked forms' do
+      base_form = {
+        veteranFullName: {
+          first: 'Mark',
+          last: 'Olson'
+        },
+        privacyAgreementAccepted: true
+      }
       base_address = { street: 'A', city: 'B', country: 'USA' }
-      # rubocop:disable LineLength
-      eastern = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, school: { address: base_address.merge(state: 'MD') } }.to_json)
-      southern = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, school: { address: base_address.merge(state: 'GA') } }.to_json)
-      central = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, veteranAddress: base_address.merge(state: 'WI') }.to_json)
-      eastern_default = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true }.to_json)
-      western = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, veteranAddress: base_address.merge(state: 'OK') }.to_json)
-      western_phl = EducationBenefitsClaim.create(form: { privacyAgreementAccepted: true, veteranAddress: base_address.merge(state: 'XX', country: 'PHL') }.to_json)
-      # rubocop:enable LineLength
+      submissions = []
 
-      output = subject.group_submissions_by_region([eastern, central, southern, eastern_default, western, western_phl])
+      [
+        { state: 'MD' },
+        { state: 'GA' },
+        { state: 'WI' },
+        { state: 'OK' },
+        { state: 'XX', country: 'PHL' }
+      ].each do |address_data|
+        submissions << EducationBenefitsClaim.create(
+          form: base_form.merge(
+            school: {
+              address: base_address.merge(address_data)
+            }
+          ).to_json
+        )
+      end
+
+      submissions << EducationBenefitsClaim.create(
+        form: base_form.to_json
+      )
+
+      output = subject.group_submissions_by_region(submissions)
       expect(output[:eastern].length).to be(2)
       expect(output[:western].length).to be(3)
       expect(output[:central].length).to be(1)
     end
   end
 
-  context 'create_files', run_at: '2016-09-16 03:00:00 EDT' do
+  context 'write_files', run_at: '2016-09-16 03:00:00 EDT' do
     let(:filename) { '307_09162016_vetsgov.spl' }
-    let!(:second_record) { FactoryGirl.create(:education_benefits_claim) }
+    let!(:second_record) { FactoryGirl.create(:education_benefits_claim_1995) }
 
     context 'in the development env' do
       let(:file_path) { "tmp/spool_files/#{filename}" }
@@ -144,24 +199,25 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
     it 'writes files out over sftp' do
       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
-      ClimateControl.modify EDU_SFTP_HOST: 'localhost', EDU_SFTP_PASS: 'test' do
+
+      with_settings(Settings.edu.sftp, host: 'localhost', pass: 'test') do
         sftp_session_mock = instance_double('Net::SSH::Connection::Session')
         sftp_mock = instance_double('Net::SFTP::Session', session: sftp_session_mock)
 
         expect(Net::SFTP).to receive(:start).once.and_return(sftp_mock)
         expect(sftp_mock).to receive(:open?).once.and_return(true)
+        expect(sftp_mock).to receive(:mkdir!).with('spool_files').once.and_return(true)
         expect(sftp_mock).to receive(:upload!) do |contents, path|
-          expect(path).to eq filename
+          expect(path).to eq File.join(Settings.edu.sftp.relative_path, filename)
           expect(contents.read).to include('EDUCATION BENEFIT BEING APPLIED FOR: Chapter 1606')
         end
         expect(sftp_session_mock).to receive(:close)
         expect { subject.perform }.to trigger_statsd_gauge(
-          'worker.education_benefits_claim.transmissions',
-          value: 2,
-          tags: [
-            'rpo:307',
-            'form:22-1990'
-          ]
+          'worker.education_benefits_claim.transmissions.307.22-1990',
+          value: 1
+        ).and trigger_statsd_gauge(
+          'worker.education_benefits_claim.transmissions.307.22-1995',
+          value: 1
         )
 
         expect(EducationBenefitsClaim.unprocessed).to be_empty

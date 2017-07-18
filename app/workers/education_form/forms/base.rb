@@ -1,3 +1,5 @@
+require './app/workers/education_form/create_daily_spool_files'
+
 # frozen_string_literal: true
 module EducationForm::Forms
   class Base
@@ -9,25 +11,90 @@ module EducationForm::Forms
     attr_accessor :form, :record, :text
 
     def self.build(app)
-      VA1990.new(app)
+      klass = "EducationForm::Forms::VA#{app.form_type}".constantize
+      klass.new(app)
+    end
+
+    def direct_deposit_type(type)
+      case type&.upcase
+      when 'STARTUPDATE' then 'Start or Update'
+      when 'STOP' then 'Stop'
+      when 'NOCHANGE' then 'Do Not Change'
+      end
+    end
+
+    def ssn_gender_dob(veteran = true)
+      prefix = veteran ? 'veteran' : 'relative'
+      ssn = @applicant.public_send("#{prefix}SocialSecurityNumber")
+      gender = @applicant.gender
+      dob = @applicant.public_send("#{prefix}DateOfBirth")
+
+      "SSN: #{ssn}         Sex: #{gender}             Date of Birth: #{dob}"
+    end
+
+    def benefit_type(application)
+      application.benefit&.gsub('chapter', 'CH')
+    end
+
+    def disclosure_for(type)
+      return if type.blank?
+      "#{parse_with_template_path("1990-disclosure/_#{type}")}\n"
+    end
+
+    def header_form_type
+      @record.form_type
+    end
+
+    def school
+      @applicant.school
+    end
+
+    def applicant_name
+      @applicant.veteranFullName
+    end
+
+    def applicant_ssn
+      @applicant.veteranSocialSecurityNumber
     end
 
     def initialize(app)
       @record = app
       @form = app.open_struct_form
+      @text = format unless self.class == Base
     end
 
     # Convert the JSON/OStruct document into the text format that we submit to the backend
     def format
-      template ||= ERB.new(self.class::TEMPLATE, nil, '-')
       @applicant = @form
       # the spool file has a requirement that lines be 80 bytes (not characters), and since they
       # use windows-style newlines, that leaves us with a width of 78
-      wrapped = word_wrap(template.result(binding), line_width: 78)
+      wrapped = word_wrap(parse_with_template_path(@record.form_type), line_width: 78)
       # We can only send ASCII, so make a best-effort at that.
       transliterated = Iconv.iconv('ascii//translit', 'utf-8', wrapped).first
+      # Trim any lines that end in whitespace, but keep the lines themselves
+      transliterated.gsub!(/[ ]+\n/, "\n")
       # The spool file must actually use windows style linebreaks
       transliterated.gsub("\n", EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
+    end
+
+    def parse_with_template(template)
+      # Because our template files end in newlines, we have to
+      # chomp off the final rendered line to get the correct
+      # output. Any intentionally blank lines before the final
+      # one will remain.
+      ERB.new(template, nil, '-').result(binding).chomp
+    end
+
+    def parse_with_template_path(path)
+      parse_with_template(get_template(path))
+    end
+
+    def header
+      parse_with_template_path('header')
+    end
+
+    def get_template(filename)
+      File.read(File.join(TEMPLATE_PATH, "#{filename}.erb"))
     end
 
     ### Common ERB Helpers
@@ -38,6 +105,10 @@ module EducationForm::Forms
       bool ? 'YES' : 'NO'
     end
 
+    def value_or_na(value)
+      value.nil? ? 'N/A' : value
+    end
+
     # is this needed? will it the data come in the correct format? better to have the helper..
     def to_date(date)
       date ? date : (' ' * 10) # '00/00/0000'.length
@@ -45,7 +116,16 @@ module EducationForm::Forms
 
     def full_name(name)
       return '' if name.nil?
-      [name.first, name.middle, name.last].compact.join(' ')
+      [name.first, name.middle, name.last, name&.suffix].compact.join(' ')
+    end
+
+    def school_name_and_addr(school)
+      return '' if school.nil?
+
+      [
+        school.name,
+        full_address(school.address)
+      ].compact.join("\n")
     end
 
     def full_address(address, indent: false)
@@ -54,9 +134,30 @@ module EducationForm::Forms
       [
         address.street,
         address.street2,
-        "#{address.city}, #{address.state}, #{address.postalCode}",
+        [address.city, address.state, address.postalCode].compact.join(', '),
         address.country
       ].compact.join(seperator).upcase
+    end
+
+    def hours_and_type(training)
+      return_val = training&.hours&.to_s
+      return '' if return_val.blank?
+      hours_type = training&.hoursType
+      return_val += " (#{hours_type})" if hours_type.present?
+
+      return_val
+    end
+
+    def employment_history(job_history, post_military: nil)
+      wrapped_list = Array(job_history)
+      wrapped_list = wrapped_list.select { |job| job.postMilitaryJob == post_military } unless post_military.nil?
+      # we need at least one record to be in the form.
+      wrapped_list << OpenStruct.new if wrapped_list.empty?
+      wrapped_list.map do |job|
+        "        Principal Occupation: #{job.name}
+        Number of Months: #{job.months}
+        License or Rating: #{job.licenseOrRating}"
+      end.join("\n\n")
     end
   end
 end

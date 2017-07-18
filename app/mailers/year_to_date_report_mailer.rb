@@ -16,8 +16,10 @@ class YearToDateReportMailer < ApplicationMailer
       Christopher.Sutherland@va.gov
       John.McNeal@va.gov
       Anne.kainic@va.gov
-      leanna@adhocteam.us
+      ian@adhocteam.us
       dan.hoicowitz.va@gmail.com
+      mark@adhocteam.us
+      joshua.quagliaroli@va.gov
     )
   }.freeze
 
@@ -45,14 +47,14 @@ class YearToDateReportMailer < ApplicationMailer
   private
 
   def s3_bucket
-    ENV['REPORTS_AWS_S3_BUCKET']
+    Settings.reports.aws.bucket
   end
 
   def new_s3_resource
     Aws::S3::Resource.new(
-      region: ENV['REPORTS_AWS_S3_REGION'],
-      access_key_id: ENV['REPORTS_AWS_ACCESS_KEY_ID'],
-      secret_access_key: ENV['REPORTS_AWS_SECRET_ACCESS_KEY']
+      region: Settings.reports.aws.region,
+      access_key_id: Settings.reports.aws.access_key_id,
+      secret_access_key: Settings.reports.aws.secret_access_key
     )
   end
 end

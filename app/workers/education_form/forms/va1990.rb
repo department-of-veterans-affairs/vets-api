@@ -1,33 +1,24 @@
 # frozen_string_literal: true
 module EducationForm::Forms
   class VA1990 < Base
-    TEMPLATE = File.read(File.join(TEMPLATE_PATH, '1990.erb'))
-
     ### ERB HELPERS
 
     CH33_TYPES = {
       'chapter1607' => 'CH33_1607', 'chapter1606' => 'CH33_1606', 'chapter30' => 'CH33_30'
     }.freeze
 
-    TYPE = '22-1990'
-
-    def initialize(app)
-      super
-      @text = format
-    end
-
     # If multiple benefit types are selected, we've been told to just include whichever
     # one is 'first' in the header.
-    def form_type(application)
+    def benefit_type(application)
       return 'CH1606' if application.chapter1606
+      return 'CH1607' if application.chapter1607
       return 'CH33' if application.chapter33
       return 'CH30' if application.chapter30
       return 'CH32' if application.chapter32
     end
 
-    def disclosure_for(type)
-      contents = File.read(File.join(TEMPLATE_PATH, '1990-disclosure', "_#{type}.erb"))
-      ERB.new(contents).result(binding)
+    def non_va_assistance
+      @applicant.currentlyActiveDuty&.nonVaAssistance
     end
 
     # Some descriptive text that's included near the top of the 22-1990 form. Because they can make
@@ -51,17 +42,6 @@ module EducationForm::Forms
       Array.new(5) do |idx|
         "            Year #{idx + 1}:          Amount: #{wrapped_list[idx]&.amount}\n"
       end.join("\n")
-    end
-
-    def employment_history(job_history, post_military:)
-      wrapped_list = Array(job_history).select { |job| job.postMilitaryJob == post_military }
-      # we need at least one record to be in the form.
-      wrapped_list << OpenStruct.new if wrapped_list.empty?
-      wrapped_list.map do |job|
-        "        Principal Occupation: #{job.name}
-        Number of Months: #{job.months}
-        License or Rating: #{job.licenseOrRating}"
-      end.join("\n\n")
     end
   end
 end

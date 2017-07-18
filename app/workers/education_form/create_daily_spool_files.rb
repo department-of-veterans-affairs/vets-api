@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'net/sftp'
 require 'iconv'
+require 'sentry_logging'
 
 module EducationForm
   WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
@@ -9,7 +10,9 @@ module EducationForm
   end
 
   class CreateDailySpoolFiles
+    LIVE_FORM_TYPES = %w(1990 1995 1990e 5490 1990n 5495).freeze
     include Sidekiq::Worker
+    include SentryLogging
     sidekiq_options queue: 'default',
                     retry: 5
 
@@ -19,7 +22,7 @@ module EducationForm
     # Be *EXTREMELY* careful running this manually as it may overwrite
     # existing files on the SFTP server if one was already written out
     # for the day.
-    def perform(records: EducationBenefitsClaim.unprocessed)
+    def perform(records: EducationBenefitsClaim.unprocessed.where(form_type: LIVE_FORM_TYPES))
       return false if federal_holiday?
       # Group the formatted records into different regions
       if records.count.zero?
@@ -31,7 +34,9 @@ module EducationForm
       regional_data = group_submissions_by_region(records)
       formatted_records = format_records(regional_data)
       # Create a remote file for each region, and write the records into them
-      create_files(formatted_records)
+      writer = SFTPWriter::Factory.get_writer(Settings.edu.sftp).new(Settings.edu.sftp, logger: logger)
+      write_files(writer, structured_data: formatted_records)
+
       true
     end
 
@@ -44,12 +49,14 @@ module EducationForm
     # than when we're writing the files so we can hold the connection
     # open for a shorter period of time.
     def format_records(grouped_data)
-      grouped_data.each do |region, v|
+      raw_groups = grouped_data.each do |region, v|
         region_id = EducationFacility.facility_for(region: region)
         grouped_data[region] = v.map do |record|
           format_application(record, rpo: region_id)
-        end
+        end.compact
       end
+      # delete any regions that only had malformed claims before returning
+      raw_groups.delete_if { |_, v| v.empty? }
     end
 
     # Write out the combined spool files for each region along with recording
@@ -72,21 +79,15 @@ module EducationForm
       writer.close
     end
 
-    # TODO(molson): Remove this in further refactors. Specs depend on `create_files`
-    # for right now.
-    def create_files(structured_data)
-      writer = EducationForm::Writer::Factory.get_writer.new(logger: logger)
-      write_files(writer, structured_data: structured_data)
-    end
-
     def format_application(data, rpo: 0)
       form = EducationForm::Forms::Base.build(data)
-      # TODO(molson): Once we have a column in the db with the form type, we can move
-      # this tracking code to somewhere more reasonable.
-      track_form_type(form.class::TYPE, rpo)
+      track_form_type("22-#{data.form_type}", rpo)
       form
     rescue
-      raise FormattingError, "Could not format #{data.confirmation_number}"
+      StatsD.increment('worker.education_benefits_claim.failed_formatting')
+      exception = FormattingError.new("Could not format #{data.confirmation_number}")
+      log_exception_to_sentry(exception)
+      nil
     end
 
     private
@@ -113,10 +114,7 @@ module EducationForm
     # per-rpo, rather than the number of records that were *prepared* to be sent.
     def track_submissions(region_id)
       stats[region_id].each do |type, count|
-        StatsD.gauge('worker.education_benefits_claim.transmissions',
-                     count,
-                     tags: { rpo: region_id,
-                             form: type })
+        StatsD.gauge("worker.education_benefits_claim.transmissions.#{region_id}.#{type}", count)
       end
     end
 

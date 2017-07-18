@@ -13,6 +13,7 @@ require 'support/factory_girl'
 require 'support/serializer_spec_helper'
 require 'support/xml_matchers'
 require 'support/validation_helpers'
+require 'support/model_helpers'
 require 'support/saml/authn_request_helper'
 require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
@@ -20,16 +21,44 @@ require 'common/exceptions'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
+# Helper function for testing changes to the global Settings object
+# Pass in the particular settings object that you want to change,
+# along with temporary values that should be set on that object.
+# For example,
+#
+# with_settings(Settings.some_group, {foo: 'temp1', bar: 'temp2'}) do
+#   expect(something).to equal(2)
+# end
+def with_settings(settings, temp_values)
+  old_settings = temp_values.keys.map { |k| [k, settings[k]] }.to_h
+
+  # The `Config` object doesn't support `.merge!`, so manually copy
+  # the updated values.
+  begin
+    temp_values.each do |k, v|
+      settings[k] = v
+    end
+
+    yield
+  ensure
+    old_settings.each do |k, v|
+      settings[k] = v
+    end
+  end
+end
+
 VCR.configure do |c|
   c.cassette_library_dir = 'spec/support/vcr_cassettes'
   c.hook_into :webmock
   c.configure_rspec_metadata!
-  c.filter_sensitive_data('<MHV_SM_HOST>') { ENV['MHV_SM_HOST'] }
-  c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { ENV['MHV_SM_APP_TOKEN'] }
-  c.filter_sensitive_data('<MHV_HOST>') { ENV['MHV_HOST'] }
-  c.filter_sensitive_data('<APP_TOKEN>') { ENV['MHV_APP_TOKEN'] }
-  c.filter_sensitive_data('<MVI_URL>') { ENV['MVI_URL'] }
-  c.filter_sensitive_data('<EVSS_BASE_URL>') { ENV['EVSS_BASE_URL'] }
+  c.filter_sensitive_data('<APP_TOKEN>') { Settings.mhv.rx.app_token }
+  c.filter_sensitive_data('<EVSS_BASE_URL>') { Settings.evss.url }
+  c.filter_sensitive_data('<GIDS_URL>') { Settings.gids.url }
+  c.filter_sensitive_data('<MHV_HOST>') { Settings.mhv.rx.host }
+  c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { Settings.mhv.sm.app_token }
+  c.filter_sensitive_data('<MHV_SM_HOST>') { Settings.mhv.sm.host }
+  c.filter_sensitive_data('<MVI_URL>') { Settings.mvi.url }
+  c.filter_sensitive_data('<PRENEEDS_HOST>') { Settings.preneeds.host }
   c.before_record do |i|
     %i(response request).each do |env|
       next unless i.send(env).headers.keys.include?('Token')
@@ -44,6 +73,13 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 Sidekiq::Logging.logger = nil
 
+require 'shrine/storage/memory'
+
+Shrine.storages = {
+  cache: Shrine::Storage::Memory.new,
+  store: Shrine::Storage::Memory.new
+}
+
 CarrierWave.root = "#{Rails.root}/spec/support/uploads/"
 
 RSpec.configure do |config|
@@ -51,6 +87,7 @@ RSpec.configure do |config|
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
   config.include(ValidationHelpers, type: :model)
+  config.include(ModelHelpers, type: :controller)
   config.include(SAML, type: :controller)
   config.include(AwsHelpers, type: :aws_helpers)
 
@@ -90,7 +127,9 @@ RSpec.configure do |config|
 
   config.include StatsD::Instrument::Matchers
 
-  config.before(:each) do
+  config.before(:each) do |example|
+    stub_mvi unless example.metadata[:skip_mvi]
+    stub_veteran_status unless example.metadata[:skip_veteran_status]
     Sidekiq::Worker.clear_all
   end
 

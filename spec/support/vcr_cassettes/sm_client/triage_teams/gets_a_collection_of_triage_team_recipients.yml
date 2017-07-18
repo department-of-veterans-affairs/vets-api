@@ -9,6 +9,8 @@ http_interactions:
     headers:
       Accept:
       - application/json
+      Content-Type:
+      - application/json
       User-Agent:
       - Vets.gov Agent
       Token: "<SESSION_TOKEN>"
@@ -19,23 +21,20 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Date:
-      - Mon, 24 Oct 2016 07:59:38 GMT
       Server:
-      - Apache/2.2.15 (Red Hat)
+      - Apache-Coyote/1.1
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
-      Connection:
-      - close
-      Transfer-Encoding:
-      - chunked
       Content-Type:
       - application/json
+      Content-Length:
+      - '249'
+      Date:
+      - Tue, 31 Jan 2017 21:20:38 GMT
     body:
       encoding: UTF-8
-      string: '{"triageTeam":[{"name":"Triage group 311070 test 1","relationType":"PATIENT","triageTeamId":585968},{"name":"Triage
-        group 311070 test 2","relationType":"PATIENT","triageTeamId":585986},{"name":"Vets.gov
-        Testing_DAYT29","relationType":"PATIENT","triageTeamId":613586}]}'
-    http_version:
-  recorded_at: Mon, 24 Oct 2016 07:59:38 GMT
+      string: '{"triageTeam":[{"name":"Automation Triage","relationType":"PATIENT","triageTeamId":153463},{"name":"Sustainment
+        Team","relationType":"PATIENT","triageTeamId":333647},{"name":"Vets.gov Testing_DAYT29","relationType":"PATIENT","triageTeamId":613586}]}'
+    http_version: 
+  recorded_at: Tue, 31 Jan 2017 21:20:38 GMT
 recorded_with: VCR 3.0.3

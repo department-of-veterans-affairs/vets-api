@@ -5,11 +5,12 @@ class VAFacilitySerializer < ActiveModel::Serializer
   end
 
   attributes :unique_id, :name, :facility_type, :classification, :website, :lat, :long,
-             :address, :phone, :hours, :services, :feedback
+             :address, :phone, :hours, :services, :feedback, :access
 
   PREFIX_MAP = {
     'va_health_facility' => 'vha',
     'va_benefits_facility' => 'vba',
-    'va_cemetery' => 'nca'
+    'va_cemetery' => 'nca',
+    'vet_center' => 'vc'
   }.freeze
 end

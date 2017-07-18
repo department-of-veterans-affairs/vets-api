@@ -1,7 +1,8 @@
 # Education Benefits Claims API
 * Purpose: Submit an education benefits claim
 * HTTP Method: POST
-* Path: /v0/education_benefits_claims
+* Path: /v0/education_benefits_claims/:form_type
+* Valid `form_type` options: `1990 1995 1990e 5490`
 * Header for converting from/to camelcase: `X-Key-Inflection: camel`
 * Parameters:
 ```javascript
@@ -16,7 +17,7 @@
 ```
 * Example request:
 ```
-POST /v0/education_benefits_claims HTTP/1.1
+POST /v0/education_benefits_claims/1990 HTTP/1.1
 Host: www.vets.gov
 Content-Type: application/json
 X-Key-Inflection: camel
@@ -43,7 +44,7 @@ Content-Type: application/json
       "submittedAt": "2016-09-09T23:48:07.766Z",
       // address of the VA regional office where it will be processed
       "regionalOffice": "Eastern Region\nVA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616",
-      "confirmationNumber": "vets_gov_education_benefits_claim_18"
+      "confirmationNumber": "V-EBC-18"
     }
   }
 }

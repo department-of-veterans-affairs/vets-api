@@ -5,12 +5,15 @@ require 'support/sm_client_helpers'
 
 RSpec.describe 'Folders Integration', type: :request do
   include SM::ClientHelpers
+  include SchemaMatchers
 
+  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
   let(:current_user) { build(:mhv_user) }
   let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
 
   before(:each) do
+    allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
     allow(SM::Client).to receive(:new).and_return(authenticated_client)
     use_authenticated_current_user(current_user: current_user)
   end
@@ -59,7 +62,7 @@ RSpec.describe 'Folders Integration', type: :request do
 
   describe '#destroy' do
     context 'with valid folder id' do
-      let(:id) { 655_395 }
+      let(:id) { 674_886 }
 
       it 'responds to DELETE #destroy' do
         VCR.use_cassette('sm_client/folders/creates_a_folder_and_deletes_a_folder') do

@@ -16,12 +16,23 @@ RSpec.describe 'breakers', type: :request do
       token: Rx::ClientHelpers::TOKEN
     )
   end
+  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
   let(:user) { build(:mhv_user) }
 
   before(:each) do
+    allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
     allow_any_instance_of(ApplicationController).to receive(:authenticate_token).and_return(:true)
     allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
     allow_any_instance_of(Rx::Client).to receive(:get_session).and_return(session)
+  end
+
+  after(:all) do
+    # Breakers doesn't have a global 'reset', so just blow away the connection's db entirely.
+    # Not clearing the breakers would cause subsequent RX calls to fail after the breaker is
+    # triggered in this group.
+
+    # fakeredis/rspec has a `before` callback, but it's for the suite, not each example. Oops.
+    Breakers.client.redis_connection.redis.flushdb
   end
 
   context 'integration test for breakers' do

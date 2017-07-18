@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "meta": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "integer" }
+      }
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string" },
+            "facility_code": { "type": "string" },
+            "type": {
+              "type": "string",
+              "enum": [
+                "ojt", "private", "foreign",
+                "correspondence", "flight",
+                "for profit", "public"
+              ]
+            },
+            "city": { "type": ["null", "string"] },
+            "state": { "type": ["null", "string"] },
+            "zip": { "type": ["null", "string"] },
+            "country": { "type": ["null", "string"] },
+            "flight": { "type": "boolean" },
+            "correspondence": { "type": "boolean" },
+            "bah": { "type": ["null", "number"] },
+            "cross": { "type": ["null", "string"] },
+            "ope": { "type": ["null", "string"] },
+            "ope6": { "type": ["null", "string"] },
+            "highest_degree": { "type": ["null", "integer"] },
+            "locale_type": { "type": ["null", "string"] },
+            "student_count": { "type": ["null", "integer"] },
+            "undergrad_enrollment": { "type": ["null", "integer"] },
+            "yr": { "type": "boolean" },
+            "student_veteran": { "type": "boolean" },
+            "student_veteran_link": { "type": ["null", "string"] },
+            "poe": { "type": "boolean" },
+            "eight_keys": { "type": "boolean" },
+            "dodmou": { "type": "boolean" },
+            "sec_702": { "type": ["null", "boolean"] },
+            "vet_success_name": { "type": ["null", "string"] },
+            "vet_success_email": { "type": ["null", "string"] },
+            "credit_for_mil_training": { "type": ["null", "boolean"] },
+            "vet_poc": { "type": ["null", "boolean"] },
+            "student_vet_grp_ipeds": { "type": ["null", "boolean"] },
+            "soc_member": { "type": ["null", "boolean"] },
+            "retention_rate_veteran_ba": { "type": ["null", "number"] },
+            "retention_all_students_ba": { "type": ["null", "number"] },
+            "retention_rate_veteran_otb": { "type": ["null", "number"] },
+            "retention_all_students_otb": { "type": ["null", "number"] },
+            "persistance_rate_veteran_ba": { "type": ["null", "number"] },
+            "persistance_rate_veteran_otb": { "type": ["null", "number"] },
+            "graduation_rate_veteran": { "type": ["null", "number"] },
+            "graduation_rate_all_students": { "type": ["null", "number"] },
+            "transfer_out_rate_veteran": { "type": ["null", "number"] },
+            "transfer_out_rate_all_students": { "type": ["null", "number"] },
+            "salary_all_students": { "type": ["null", "number"] },
+            "repayment_rate_all_students": { "type": ["null", "number"] },
+            "avg_stu_loan_debt": { "type": ["null", "number"] },
+            "calendar": { "type": ["null", "string"] },
+            "tuition_in_state": { "type": ["null", "number"] },
+            "tuition_out_of_state": { "type": ["null", "number"] },
+            "books": { "type": ["null", "number"] },
+            "online_all": { "type": ["null", "string"] },
+            "p911_tuition_fees": { "type": "number" },
+            "p911_recipients": { "type": "integer" },
+            "p911_yellow_ribbon": { "type": "number" },
+            "p911_yr_recipients": { "type": "integer" },
+            "accredited": { "type": "boolean" },
+            "accreditation_type": { "type": ["null", "string"] },
+            "accreditation_status": { "type": ["null", "string"] },
+            "caution_flag": { "type": "boolean" },
+            "caution_flag_reason": { "type": ["null", "string"] },
+            "complaints": {
+              "type": "object",
+              "properties": {
+                "facility_code": { "type": "integer" },
+                "financial_by_fac_code": { "type": "integer" },
+                "quality_by_fac_code": { "type": "integer" },
+                "refund_by_fac_code": { "type": "integer" },
+                "marketing_by_fac_code": { "type": "integer" },
+                "accreditation_by_fac_code": { "type": "integer" },
+                "degree_requirements_by_fac_code": { "type": "integer" },
+                "student_loans_by_fac_code": { "type": "integer" },
+                "grades_by_fac_code": { "type": "integer" },
+                "credit_transfer_by_fac_code": { "type": "integer" },
+                "credit_job_by_fac_code": { "type": "integer" },
+                "job_by_fac_code": { "type": "integer" },
+                "transcript_by_fac_code": { "type": "integer" },
+                "other_by_fac_code": { "type": "integer" },
+                "main_campus_roll_up": { "type": "integer" },
+                "financial_by_ope_id_do_not_sum": { "type": "integer" },
+                "quality_by_ope_id_do_not_sum": { "type": "integer" },
+                "refund_by_ope_id_do_not_sum": { "type": "integer" },
+                "marketing_by_ope_id_do_not_sum": { "type": "integer" },
+                "accreditation_by_ope_id_do_not_sum": { "type": "integer" },
+                "degree_requirements_by_ope_id_do_not_sum": { "type": "integer" },
+                "student_loans_by_ope_id_do_not_sum": { "type": "integer" },
+                "grades_by_ope_id_do_not_sum": { "type": "integer" },
+                "credit_transfer_by_ope_id_do_not_sum": { "type": "integer" },
+                "jobs_by_ope_id_do_not_sum": { "type": "integer" },
+                "transcript_by_ope_id_do_not_sum": { "type": "integer" },
+                "other_by_ope_id_do_not_sum": { "type": "integer" }
+              }
+            },
+            "created_at": { "type": "string" },
+            "updated_at": { "type": "string" }
+          }
+        },
+        "links": {
+          "type": "object",
+          "properties": {
+            "self": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

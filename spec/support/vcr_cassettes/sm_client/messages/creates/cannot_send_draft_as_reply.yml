@@ -9,6 +9,8 @@ http_interactions:
     headers:
       Accept:
       - application/json
+      Content-Type:
+      - application/json
       User-Agent:
       - Vets.gov Agent
       Token: "<SESSION_TOKEN>"
@@ -19,21 +21,19 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Date:
-      - Thu, 27 Oct 2016 15:27:23 GMT
       Server:
-      - Apache/2.2.15 (Red Hat)
+      - Apache-Coyote/1.1
       X-Powered-By:
       - Servlet/2.5 JSP/2.1
-      Connection:
-      - close
-      Transfer-Encoding:
-      - chunked
       Content-Type:
       - application/json
+      Content-Length:
+      - '14'
+      Date:
+      - Tue, 31 Jan 2017 21:30:51 GMT
     body:
       encoding: UTF-8
       string: '{"message":[]}'
-    http_version:
-  recorded_at: Thu, 27 Oct 2016 15:27:23 GMT
+    http_version: 
+  recorded_at: Tue, 31 Jan 2017 21:30:52 GMT
 recorded_with: VCR 3.0.3

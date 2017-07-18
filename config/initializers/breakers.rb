@@ -1,13 +1,28 @@
 # frozen_string_literal: true
 require 'breakers/statsd_plugin'
+require 'appeals_status/configuration'
+require 'bb/configuration'
+require 'emis/military_information_configuration'
+require 'emis/payment_configuration'
+require 'emis/veteran_status_configuration'
+require 'evss/claims_service'
+require 'evss/common_service'
+require 'evss/documents_service'
+require 'evss/letters/service'
+require 'evss/gi_bill_status/service'
+require 'facilities/bulk_configuration'
+require 'gi/configuration'
+require 'hca/configuration'
+require 'mhv_ac/configuration'
+require 'mvi/configuration'
+require 'preneeds/configuration'
 require 'rx/configuration'
 require 'sm/configuration'
-require 'mvi/configuration'
-require 'hca/configuration'
 
 require 'evss/claims_service'
 require 'evss/common_service'
 require 'evss/documents_service'
+require 'evss/letters/service'
 
 # Read the redis config, create a connection and a namespace for breakers
 redis_config = Rails.application.config_for(:redis).freeze
@@ -15,13 +30,26 @@ redis = Redis.new(redis_config['redis'])
 redis_namespace = Redis::Namespace.new('breakers', redis: redis)
 
 services = [
+  AppealsStatus::Configuration.instance.breakers_service,
   Rx::Configuration.instance.breakers_service,
-  SM::Configuration.instance.breakers_service,
-  MVI::Configuration.instance.breakers_service,
-  HCA::Configuration.instance.breakers_service,
+  AppealsStatus::Configuration.instance.breakers_service,
+  BB::Configuration.instance.breakers_service,
+  EMIS::MilitaryInformationConfiguration.instance.breakers_service,
+  EMIS::PaymentConfiguration.instance.breakers_service,
+  EMIS::VeteranStatusConfiguration.instance.breakers_service,
   EVSS::ClaimsService.breakers_service,
   EVSS::CommonService.breakers_service,
-  EVSS::DocumentsService.breakers_service
+  EVSS::DocumentsService.breakers_service,
+  EVSS::Letters::Service.breakers_service,
+  EVSS::GiBillStatus::Service.breakers_service,
+  Facilities::AccessWaitTimeConfiguration.instance.breakers_service,
+  Facilities::AccessSatisfactionConfiguration.instance.breakers_service,
+  GI::Configuration.instance.breakers_service,
+  HCA::Configuration.instance.breakers_service,
+  MHVAC::Configuration.instance.breakers_service,
+  MVI::Configuration.instance.breakers_service,
+  Preneeds::Configuration.instance.breakers_service,
+  SM::Configuration.instance.breakers_service
 ]
 
 plugin = Breakers::StatsdPlugin.new

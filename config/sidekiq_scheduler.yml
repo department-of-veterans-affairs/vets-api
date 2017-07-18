@@ -24,3 +24,18 @@ DeleteOldClaims:
   cron: "0 2 * * * America/New_York"
   class: EVSS::DeleteOldClaims
   description: "Clear out EVSS disability claims that have not been updated in 24 hours"
+
+InProgressFormCleaner:
+  cron: "0 2 * * * America/New_York"
+  class: InProgressFormCleaner
+  description: "Clear out saved forms that have not been updated in a while"
+
+FailedClaimsReport:
+  cron: "30 3 * * MON America/New_York"
+  class: EVSS::FailedClaimsReport
+  description: "Notify developers about EVSS claims which could not be uploaded"
+
+FacilityAccessBulkUpdate:
+  cron: "30 4 * * * America/New_York"
+  class: Facilities::AccessDataDownload
+  description: "Download and cache facility access-to-care metric data"

@@ -4,8 +4,8 @@ module EVSS
     include Sidekiq::Worker
 
     def perform
-      claims = DisabilityClaim.where("updated_at < '#{1.day.ago}'")
-      logger.info("Deleting #{claims.count} old disability claims")
+      claims = EVSSClaim.where("updated_at < '#{1.day.ago}'")
+      logger.info("Deleting #{claims.count} old EVSS claims")
       claims.delete_all
     end
   end

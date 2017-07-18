@@ -1,0 +1,9 @@
+*INIT*
+<%= applicant_name&.first&.upcase&.strip %>
+<%= applicant_name&.middle&.upcase&.strip %>
+<%= applicant_name&.last&.upcase&.strip %>
+<%= @applicant.veteranSocialSecurityNumber&.gsub(/[^\d]/, '') %>
+<%= applicant_ssn&.gsub(/[^\d]/, '') %>
+V<%= header_form_type %>
+
+<%= school&.name&.upcase&.strip %>

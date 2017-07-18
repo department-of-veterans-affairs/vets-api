@@ -1,6 +1,9 @@
 # frozen_string_literal: true
+require 'date'
+require 'facility_access'
+
 class VHAFacilityAdapter
-  VHA_URL = +ENV['VHA_MAPSERVER_URL']
+  VHA_URL = +Settings.locators.vha
   VHA_ID_FIELD = 'StationNumber'
   FACILITY_TYPE = 'va_health_facility'
 
@@ -34,11 +37,10 @@ class VHAFacilityAdapter
     m[:phone] = from_gis_attrs(PHONE_KEYMAP, attrs)
     m[:phone][:mental_health_clinic] = mh_clinic_phone(attrs)
     m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
-    m[:services] = {}
-    m[:services][:last_updated] = services_date(attrs)
-    m[:services][:health] = services_from_gis(attrs)
-    m[:feedback] = {}
-    m[:feedback][:health] = from_gis_attrs(FEEDBACK_KEYMAP, attrs)
+    m[:services] = { last_updated: services_date(attrs),
+                     health: services_from_gis(attrs) }
+    m[:feedback] = { health: satisfaction_data(m[:unique_id]) }
+    m[:access] = { health: wait_time_data(m[:unique_id]) }
     VAFacility.new(m)
   end
 
@@ -66,13 +68,6 @@ class VHAFacilityAdapter
   HOURS_KEYMAP = %w(
     Monday Tuesday Wednesday Thursday Friday Saturday Sunday
   ).each_with_object({}) { |d, h| h[d] = d }
-
-  FEEDBACK_KEYMAP = {
-    'primary_care_routine' => 'Primary_Care_Routine_Score',
-    'primary_care_urgent' => 'Primary_Care_Urgent_Score',
-    'specialty_care_routine' => 'Specialty_Care_Routine_Score',
-    'specialty_care_urgent' => 'Specialty_Care_Urgent_Score'
-  }.freeze
 
   SERVICE_HIERARCHY = {
     'Audiology' => [],
@@ -113,15 +108,41 @@ class VHAFacilityAdapter
   ).freeze
 
   def self.mh_clinic_phone(attrs)
-    return '' if (attrs['MHClinicPhone']).blank?
-    result = attrs['MHClinicPhone'].to_s
+    val = attrs['MHClinicPhone']
+    val = attrs['MHPhone'] if val.blank?
+    return '' if val.blank?
+    result = val.to_s
     result << ' x ' + attrs['Extension'].to_s unless
       (attrs['Extension']).blank? || (attrs['Extension']).zero?
     result
   end
 
+  def self.to_date(dtstring)
+    Date.iso8601(dtstring).iso8601
+  end
+
+  def self.satisfaction_data(id)
+    result = {}
+    datum = FacilitySatisfaction.find(id.upcase)
+    if datum.present?
+      datum.metrics.each { |k, v| result[k.to_s] = v.present? ? v.round(2) : nil }
+      result['effective_date'] = to_date(datum.source_updated)
+    end
+    result
+  end
+
+  def self.wait_time_data(id)
+    result = {}
+    datum = FacilityWaitTime.find(id.upcase)
+    if datum.present?
+      datum.metrics.each { |k, v| result[k.to_s] = v }
+      result['effective_date'] = to_date(datum.source_updated)
+    end
+    result
+  end
+
   def self.services_date(attrs)
-    Time.at(attrs['OutpatientServicesDataDate'] / 1000).utc.to_date.iso8601 if attrs['OutpatientServicesDataDate']
+    Date.strptime(attrs['FacilityDataDate'], '%m-%d-%Y').iso8601 if attrs['FacilityDataDate']
   end
 
   # Build a sub-section of the VAFacility model from a flat GIS attribute list,
