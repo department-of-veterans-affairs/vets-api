@@ -10,6 +10,7 @@ class SavedClaim < ActiveRecord::Base
 
   after_initialize do
     self.guid ||= SecureRandom.uuid
+    # TODO move this to only burials and pensions
     self.form_id = self.class::FORM.upcase
   end
 
