@@ -3,12 +3,13 @@ require 'rails_helper'
 
 RSpec.describe 'Preneeds Application Form Integration', type: :request do
   include SchemaMatchers
-  before(:each) { Redis.current.flushall }
 
   context 'with valid input' do
     let(:params) do
       { pre_need_request: build(:application_form).message }
     end
+
+    before(:each) { allow_any_instance_of(Preneeds::Service).to receive(:expired?).and_return(true) }
 
     it 'responds to POST #create' do
       VCR.use_cassette('preneeds/application_forms/creates_a_pre_need_application_form') do

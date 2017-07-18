@@ -3,7 +3,8 @@ require 'rails_helper'
 
 RSpec.describe 'Branches of Service Integration', type: :request do
   include SchemaMatchers
-  before(:each) { Redis.current.flushall }
+
+  before(:each) { allow_any_instance_of(Preneeds::Service).to receive(:expired?).and_return(true) }
 
   it 'responds to GET #index' do
     VCR.use_cassette('preneeds/branches_of_service/gets_a_list_of_service_branches') do

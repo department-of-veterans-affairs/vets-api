@@ -4,11 +4,6 @@ module V0
     class ApplicationFormsController < PreneedsController
       def new
         form_fill = ::Preneeds::FormFill.new
-        form_fill.attachment_types = client.get_attachment_types.to_h
-        form_fill.branches_of_services = client.get_branches_of_service.to_h
-        form_fill.cemeteries = client.get_cemeteries.to_h
-        form_fill.discharge_types = client.get_discharge_types.to_h
-        form_fill.states = client.get_states.to_h
 
         # TODO: Getting military ranks for all branches of service is slow, even when cached. Perhaps
         # Rely on the military_ranks controller, which the FE would call when the user selects a branch of service.

@@ -3,7 +3,8 @@ require 'rails_helper'
 
 RSpec.describe 'Military Ranks Integration', type: :request do
   include SchemaMatchers
-  before(:each) { Redis.current.flushall }
+
+  before(:each) { allow_any_instance_of(Preneeds::Service).to receive(:expired?).and_return(true) }
 
   let(:params) do
     { branch_of_service: 'AC', start_date: '1926-07-02', end_date: '1926-07-02' }

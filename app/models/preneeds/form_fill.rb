@@ -1,20 +1,28 @@
 # frozen_string_literal: true
 require 'common/models/base'
+require 'preneeds/service'
 
 module Preneeds
   class FormFill < Common::Base
+    def initialize
+      client = Preneeds::Service.new
+
+      self.attachment_types = client.get_attachment_types.to_h
+      self.branches_of_services = client.get_branches_of_service.to_h
+      self.cemeteries = client.get_cemeteries.to_h
+      self.discharge_types = client.get_discharge_types.to_h
+      self.states = client.get_states.to_h
+    end
+
     attribute :attachment_types, Array[Preneeds::AttachmentType]
     attribute :branches_of_services, Array[Preneeds::BranchesOfService]
     attribute :cemeteries, Array[Preneeds::Cemetery]
     attribute :states, Array[Preneeds::State]
     attribute :discharge_types, Array[Preneeds::DischargeType]
-    # Note: Getting military ranks for all branches of service is slow, even when cached. Perhaps
-    # Rely on the military_ranks controller, which the FE would call when the user selects a branch of service.
-    # attribute :military_ranks, Hash[String => Array[Preneeds::BranchesOfService]]
 
     # There is no natural id.
     def id
-      Time.now.utc.to_i
+      Digest::SHA2.hexdigest to_json
     end
   end
 end
