@@ -22,6 +22,7 @@ module Workflow::Task::Shared
       end
       update_file(io: File.open(out_file))
     ensure
+      File.delete(out_file) if defined?(out_file) && out_file.present?
       FileUtils.rmdir(out_dir) if defined?(out_dir) && out_dir.present?
     end
   end
