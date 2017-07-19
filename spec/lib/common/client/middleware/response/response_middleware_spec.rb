@@ -29,7 +29,7 @@ describe 'Response Middleware' do
     )
   end
 
-  let(:fake_host) { 'http://host.com'}
+  let(:fake_host) { 'http://host.com' }
 
   subject(:faraday_client) do
     Faraday.new do |conn|
