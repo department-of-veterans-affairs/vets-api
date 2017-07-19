@@ -1,0 +1,6 @@
+version: '2.1'
+services:
+  vets-api:
+    environment:
+      "Settings.saml.cert_path": "/src/vets-api/spec/support/certificates/ruby-saml.crt"
+      "Settings.saml.key_path": "/src/vets-api/spec/support/certificates/ruby-saml.key"
