@@ -6,13 +6,13 @@ module Common
         class CaseflowErrors < Faraday::Response::Middleware
           def on_complete(env)
             return if env.success?
-            mappedError = env[:body]['errors']&.first
+            mapped_error = env[:body]['errors']&.first
             return if mappedError.nil?
-            # Caseflow does not generally populate a "code" so we 
-            # fall back to using the status as a code. 
-            env[:body]['code'] = mappedError['code'] || mappedError['status']
-            env[:body]['detail'] = mappedError['title']
-            env[:body]['source'] = mappedError['detail']
+            # Caseflow does not generally populate a "code" so we
+            # fall back to using the status as a code.
+            env[:body]['code'] = mapped_error['code'] || mapped_error['status']
+            env[:body]['detail'] = mapped_error['title']
+            env[:body]['source'] = mapped_error['detail']
           end
         end
       end
