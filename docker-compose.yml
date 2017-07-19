@@ -28,6 +28,8 @@ services:
       POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
+      CI:
+      RAILS_ENV:
     links:
       - postgres
       - redis
