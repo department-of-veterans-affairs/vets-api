@@ -88,6 +88,10 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
     end
 
     describe '#perform' do
+      after do
+        File.delete(filename)
+      end
+
       let(:filename) { "tmp/daily_reports/#{date}.csv" }
       subject do
         create_daily_year_to_date_report = described_class.new
