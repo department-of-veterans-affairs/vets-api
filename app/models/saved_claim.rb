@@ -13,6 +13,11 @@ class SavedClaim < ActiveRecord::Base
     self.form_id = self.class::FORM.upcase
   end
 
+  def self.add_form_and_validation(form_id)
+    const_set('FORM', form_id)
+    validates(:form_id, inclusion: [form_id])
+  end
+
   def process_attachments!
     GenerateClaimPDFJob.perform_async(id) if respond_to?(:to_pdf)
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
