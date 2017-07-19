@@ -25,14 +25,12 @@ RUN yum install -y ImageMagick ImageMagick-devel
 RUN yum install -y clamav clamav-scanner
 
 # Configure vets-api application
-RUN mkdir -p /src/vets-api
+RUN mkdir -p /src/vets-api && chown jenkins:jenkins /src/vets-api
 WORKDIR /src/vets-api
+USER jenkins
 
 ADD Gemfile /src/vets-api/Gemfile
 ADD Gemfile.lock /src/vets-api/Gemfile.lock
-RUN ["/bin/bash", "--login", "-c", "bundle install --path vendor"]
+RUN ["/bin/bash", "--login", "-c", "bundle install"]
 
 ADD . /src/vets-api
-
-RUN chown -R jenkins:jenkins /src/vets-api
-USER jenkins
