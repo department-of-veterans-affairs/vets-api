@@ -9,11 +9,16 @@ pipeline {
       }
     }
 
+    stage('Prepare workspace') {
+      steps {
+        sh 'mkdir coverage'
+      }
+    }
+
     stage('Run tests') {
       steps {
-        sh 'bash --login -c "bundle install --without development -j 4"'
         withEnv(['RAILS_ENV=test', 'CI=true']) {
-          sh 'bash --login -c "bundle exec rake db:create db:schema:load ci"'
+          sh 'docker-compose run vets-api bash --login -c "bundle exec rake db:create db:schema:load ci"'
         }
       }
     }
