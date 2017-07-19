@@ -7,6 +7,14 @@
     "suffix": "Sr."
   },
   "noBankAccount": true,
+  "vamcTreatmentCenters": [
+    {
+      "location": "location1"
+    },
+    {
+      "location": "location2"
+    }
+  ],
   "powDateRange": {
     "from": "2012-04-10",
     "to": "2013-05-10"
@@ -43,6 +51,14 @@
   ],
   "dependents": [
     {
+      "childDateOfBirth": "2012-06-01",
+      "childSocialSecurityNumber": "111223331",
+      "childPlaceOfBirth": "place1",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "childRelationship": "stepchild",
+      "previouslyMarried": true,
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -100,6 +116,14 @@
       "monthlyPayment": 1
     },
     {
+      "childDateOfBirth": "2012-06-02",
+      "childSocialSecurityNumber": "111223332",
+      "childPlaceOfBirth": "place2",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "childRelationship": "biological",
+      "previouslyMarried": true,
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -129,6 +153,14 @@
         "first": "outside3",
         "last": "Olson"
       },
+      "childDateOfBirth": "2012-06-03",
+      "childSocialSecurityNumber": "111223333",
+      "childPlaceOfBirth": "place3",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "childRelationship": "adopted",
+      "previouslyMarried": true,
       "personWhoLivesWithChild": {
         "first": "person3",
         "last": "Olson"
@@ -152,51 +184,6 @@
         ]
       },
       "monthlyPayment": 3
-    },
-    {
-      "childInHousehold": true,
-      "childDateOfBirth": "2012-06-01",
-      "fullName": {
-        "first": "Mark1",
-        "last": "Olson"
-      },
-      "childSocialSecurityNumber": "111223331",
-      "childPlaceOfBirth": "place1",
-      "attendingCollege": true,
-      "married": true,
-      "disabled": true,
-      "childRelationship": "stepchild",
-      "previouslyMarried": true
-    },
-    {
-      "childInHousehold": true,
-      "childDateOfBirth": "2012-06-02",
-      "fullName": {
-        "first": "Mark2",
-        "last": "Olson"
-      },
-      "childSocialSecurityNumber": "111223332",
-      "childPlaceOfBirth": "place2",
-      "attendingCollege": true,
-      "married": true,
-      "disabled": true,
-      "childRelationship": "biological",
-      "previouslyMarried": true
-    },
-    {
-      "childInHousehold": true,
-      "childDateOfBirth": "2012-06-03",
-      "fullName": {
-        "first": "Mark3",
-        "last": "Olson"
-      },
-      "childSocialSecurityNumber": "111223333",
-      "childPlaceOfBirth": "place3",
-      "attendingCollege": true,
-      "married": true,
-      "disabled": true,
-      "childRelationship": "adopted",
-      "previouslyMarried": true
     }
   ],
   "spouseMarriages": [

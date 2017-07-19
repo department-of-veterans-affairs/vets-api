@@ -15,6 +15,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
   before(:each) do
     allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+    allow(mhv_account).to receive(:eligible?).and_return(true)
     allow(SM::Client).to receive(:new).and_return(authenticated_client)
     use_authenticated_current_user(current_user: current_user)
   end

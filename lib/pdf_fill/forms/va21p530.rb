@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# rubocop:disable Metrics/ClassLength
 module PdfFill
   module Forms
     class VA21P530 < FormBase
@@ -27,18 +28,24 @@ module PdfFill
         },
         'amountIncurred' => {
           key: 'form1[0].#subform[37].COST_OF_BURIAL[0]',
-          question: "19. EXPENSES INCURED FOR THE TRANSPORTATION OF THE VETERAN'S REMAINS FROM THE PLACE OF DEATH TO THE FINAL RESTING PLACE",
+          question_num: 19,
+          dollar: true,
+          question_text: "EXPENSES INCURED FOR THE TRANSPORTATION OF THE VETERAN'S REMAINS FROM THE PLACE OF DEATH TO THE FINAL RESTING PLACE",
           limit: 12
         },
         'amountGovtContribution' => {
           key: 'form1[0].#subform[37].AMOUNT[0]',
-          question: '18B. AMOUNT OF GOVERNMENT OR EMPLOYER CONTRIBUTION',
+          question_num: 18,
+          question_suffix: 'B',
+          dollar: true,
+          question_text: 'AMOUNT OF GOVERNMENT OR EMPLOYER CONTRIBUTION',
           limit: 10
         },
         'placeOfRemains' => {
           key: 'form1[0].#subform[37].PLACE_OF_DEATH[1]',
           limit: 80,
-          question: "16. PLACE OF BURIAL OR LOCATION OF DECEASED VETERAN'S REMAINS"
+          question_num: 16,
+          question_text: "PLACE OF BURIAL OR LOCATION OF DECEASED VETERAN'S REMAINS"
         },
         'hasGovtContributions' => {
           key: 'form1[0].#subform[37].YES5[0]'
@@ -73,7 +80,9 @@ module PdfFill
         'officialPosition' => {
           key: 'officialPosition',
           limit: 48,
-          question: '20B. OFFICIAL POSITION OF PERSON SIGNING ON BEHALF OF FIRM, CORPORATION OR STATE AGENCY'
+          question_num: 20,
+          question_suffix: 'B',
+          question_text: 'OFFICIAL POSITION OF PERSON SIGNING ON BEHALF OF FIRM, CORPORATION OR STATE AGENCY'
         },
         'hasBurialAllowance' => {
           key: 'form1[0].#subform[37].YES4[3]'
@@ -104,20 +113,25 @@ module PdfFill
           },
           'other' => {
             key: 'form1[0].#subform[37].OTHER_SPECIFY[1]',
-            question: "13B. WHERE DID THE VETERAN'S DEATH OCCUR?",
+            question_num: 13,
+            question_suffix: 'B',
+            question_text: "WHERE DID THE VETERAN'S DEATH OCCUR?",
             limit: 50
           }
         },
         'burialCost' => {
           key: 'form1[0].#subform[37].COST_OF_BURIAL[1]',
           limit: 12,
-          question: '13A. If VA Medical Center Death is checked, provide actual burial cost'
+          question_num: 13,
+          question_suffix: 'A',
+          question_text: 'If VA Medical Center Death is checked, provide actual burial cost'
         },
         'veteranFullName' => {
           'first' => {
             key: 'form1[0].#subform[36].VeteransFirstName[0]',
             limit: 12,
-            question: "1. DECEASED VETERAN'S FIRST NAME"
+            question_num: 1,
+            question_text: "DECEASED VETERAN'S FIRST NAME"
           },
           'middleInitial' => {
             key: 'form1[0].#subform[36].VeteransMiddleInitial1[0]'
@@ -125,12 +139,14 @@ module PdfFill
           'last' => {
             key: 'form1[0].#subform[36].VeteransLastName[0]',
             limit: 18,
-            question: "1. DECEASED VETERAN'S LAST NAME"
+            question_num: 1,
+            question_text: "DECEASED VETERAN'S LAST NAME"
           }
         },
         'previousNames' => {
           key: 'form1[0].#subform[36].OTHER_NAME[0]',
-          question: '12. IF VETERAN SERVED UNDER NAME OTHER THAN THAT SHOWN IN ITEM 1, GIVE FULL NAME AND SERVICE RENDERED UNDER THAT NAME',
+          question_num: 12,
+          question_text: 'IF VETERAN SERVED UNDER NAME OTHER THAN THAT SHOWN IN ITEM 1, GIVE FULL NAME AND SERVICE RENDERED UNDER THAT NAME',
           limit: 180
         },
         'burialDate' => {
@@ -142,18 +158,22 @@ module PdfFill
         'placeOfDeath' => {
           key: 'form1[0].#subform[36].PLACE_OF_DEATH[0]',
           limit: 52,
-          question: '10B. PLACE OF DEATH'
+          question_num: 10,
+          question_suffix: 'B',
+          question_text: 'PLACE OF DEATH'
         },
         'claimantEmail' => {
           key: 'form1[0].#subform[36].PreferredE_MailAddress[0]',
           limit: 31,
-          question: '7. PREFERRED E-MAIL ADDRESS'
+          question_num: 7,
+          question_text: 'PREFERRED E-MAIL ADDRESS'
         },
         'claimantFullName' => {
           'first' => {
             key: 'form1[0].#subform[36].ClaimantsFirstName[0]',
             limit: 12,
-            question: "4. CLAIMANT'S FIRST NAME"
+            question_num: 4,
+            question_text: "CLAIMANT'S FIRST NAME"
           },
           'middleInitial' => {
             key: 'form1[0].#subform[36].ClaimantsMiddleInitial1[0]'
@@ -161,30 +181,19 @@ module PdfFill
           'last' => {
             key: 'form1[0].#subform[36].ClaimantsLastName[0]',
             limit: 18,
-            question: "4. CLAIMANT'S LAST NAME"
+            question_num: 4,
+            question_text: "CLAIMANT'S LAST NAME"
           }
         },
         'claimantAddress' => {
           always_overflow: true,
           first_key: 'street',
+          'fullAddress' => {
+            question_num: 5,
+            question_text: 'CURRENT MAILING ADDRESS'
+          },
           'street' => {
-            key: 'form1[0].#subform[36].CurrentMailingAddress_NumberAndStreet[0]',
-            question: '5. CURRENT MAILING ADDRESS (Address line 1)'
-          },
-          'street2' => {
-            question: '5. CURRENT MAILING ADDRESS (Address line 2)'
-          },
-          'city' => {
-            question: '5. CURRENT MAILING ADDRESS (City)'
-          },
-          'state' => {
-            question: '5. CURRENT MAILING ADDRESS (State)'
-          },
-          'country' => {
-            question: '5. CURRENT MAILING ADDRESS (Country)'
-          },
-          'postalCode' => {
-            question: '5. CURRENT MAILING ADDRESS (Postal Code)'
+            key: 'form1[0].#subform[36].CurrentMailingAddress_NumberAndStreet[0]'
           }
         },
         'relationship' => {
@@ -207,7 +216,8 @@ module PdfFill
           },
           'other' => {
             limit: 58,
-            question: '8. RELATIONSHIP OF CLAIMANT TO DECEASED VETERAN',
+            question_num: 8,
+            question_text: 'RELATIONSHIP OF CLAIMANT TO DECEASED VETERAN',
             key: 'form1[0].#subform[36].OTHER_SPECIFY[0]'
           }
         },
@@ -216,37 +226,51 @@ module PdfFill
           first_key: 'rank',
           'dateRangeStart' => {
             key: "toursOfDuty.dateRangeStart[#{ITERATOR}]",
-            question: '11A. ENTERED SERVICE (date)'
+            question_num: 11,
+            question_suffix: 'A',
+            question_text: 'ENTERED SERVICE (date)'
           },
           'placeOfEntry' => {
             key: "toursOfDuty.placeOfEntry[#{ITERATOR}]",
             limit: 14,
-            question: '11A. ENTERED SERVICE (place)'
+            question_num: 11,
+            question_suffix: 'A',
+            question_text: 'ENTERED SERVICE (place)'
           },
           'serviceNumber' => {
             key: "toursOfDuty.serviceNumber[#{ITERATOR}]",
             limit: 12,
-            question: '11B. SERVICE NUMBER'
+            question_num: 11,
+            question_suffix: 'B',
+            question_text: 'SERVICE NUMBER'
           },
           'dateRangeEnd' => {
             key: "toursOfDuty.dateRangeEnd[#{ITERATOR}]",
-            question: '11C. SEPARATED FROM SERVICE (date)'
+            question_num: 11,
+            question_suffix: 'C',
+            question_text: 'SEPARATED FROM SERVICE (date)'
           },
           'placeOfSeparation' => {
             key: "toursOfDuty.placeOfSeparation[#{ITERATOR}]",
-            question: '11C. SEPARATED FROM SERVICE (place)',
+            question_num: 11,
+            question_suffix: 'C',
+            question_text: 'SEPARATED FROM SERVICE (place)',
             limit: 15
           },
           'rank' => {
             key: "toursOfDuty.rank[#{ITERATOR}]",
-            question: '11D. GRADE, RANK OR RATING, ORGANIZATION AND BRANCH OF SERVICE',
+            question_num: 11,
+            question_suffix: 'D',
+            question_text: 'GRADE, RANK OR RATING, ORGANIZATION AND BRANCH OF SERVICE',
             limit: 31
           }
         },
         'placeOfBirth' => {
           key: 'form1[0].#subform[36].PLACE_OF_BIRTH[0]',
           limit: 71,
-          question: '9B. PLACE OF BIRTH'
+          question_num: 9,
+          question_suffix: 'B',
+          question_text: 'PLACE OF BIRTH'
         },
         'veteranDateOfBirth' => {
           key: 'form1[0].#subform[36].DATE_OF_BIRTH[0]'
@@ -275,6 +299,12 @@ module PdfFill
           'third' => {
             key: 'form1[0].#subform[37].VeteransSocialSecurityNumber_LastFourNumbers[1]'
           }
+        },
+        'firmNameAndAddr' => {
+          key: 'form1[0].#subform[37].FULL_NAME[0]',
+          limit: 90,
+          question_num: 21,
+          question_text: 'FULL NAME AND ADDRESS OF THE FIRM, CORPORATION, OR STATE AGENCY FILING AS CLAIMANT'
         },
         'veteranSocialSecurityNumber' => {
           'first' => {
@@ -368,6 +398,17 @@ module PdfFill
           end
       end
 
+      def expand_firm
+        if @form_data['relationship'].try(:[], 'isEntity')
+          combine_name_addr(
+            @form_data,
+            name_key: 'firmName',
+            address_key: 'claimantAddress',
+            combined_key: 'firmNameAndAddr'
+          )
+        end
+      end
+
       def expand_burial_allowance
         burial_allowance = @form_data['burialAllowanceRequested']
         return if burial_allowance.blank?
@@ -377,6 +418,17 @@ module PdfFill
         }
 
         expand_checkbox_as_hash(@form_data['burialAllowanceRequested'], 'value')
+      end
+
+      def expand_claimant_addr
+        return if @form_data['claimantAddress'].blank?
+
+        combine_both_addr(@form_data, 'claimantAddress')
+        @form_data['claimantAddress'] = [
+          {
+            'fullAddress' => @form_data['claimantAddress']
+          }
+        ]
       end
 
       # rubocop:disable Metrics/MethodLength
@@ -399,9 +451,11 @@ module PdfFill
 
         expand_burial_allowance
 
+        expand_firm
+
         expand_checkbox_as_hash(@form_data['locationOfDeath'], 'location')
 
-        @form_data['claimantAddress'] = [@form_data['claimantAddress']] if @form_data['claimantAddress'].present?
+        expand_claimant_addr
 
         %w(
           previouslyReceivedAllowance
@@ -421,3 +475,4 @@ module PdfFill
     end
   end
 end
+# rubocop:enable Metrics/ClassLength

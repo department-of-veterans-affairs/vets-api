@@ -22,6 +22,8 @@ describe Shrine::Plugins::ValidateVirusFree do
     before(:each) do
       allow_any_instance_of(klass).to receive(:get)
         .and_return(instance_double('Shrine::UploadedFile', download: instance_double('File', path: 'foo/bar.jpg')))
+
+      allow(File).to receive(:chmod).with(0o640, 'foo/bar.jpg').and_return(1)
     end
 
     context 'with errors' do
@@ -74,6 +76,14 @@ describe Shrine::Plugins::ValidateVirusFree do
       expect(instance).not_to receive(:add_error_msg)
       result = instance.validate_virus_free
       expect(result).to be(true)
+    end
+
+    it 'changes group permissions of the uploaded file' do
+      allow(ClamScan::Client).to receive(:scan)
+        .and_return(instance_double('ClamScan::Response', safe?: true))
+
+      expect(File).to receive(:chmod).with(0o640, 'foo/bar.jpg').and_return(1)
+      instance.validate_virus_free
     end
   end
 end

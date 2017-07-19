@@ -10,7 +10,8 @@ module EVSS
         raw_response = get ''
         EVSS::GiBillStatus::GiBillStatusResponse.new(raw_response.status, raw_response)
       rescue Faraday::ParsingError => e
-        log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL })
+        extra_context = { url: BASE_URL }
+        log_exception_to_sentry(e, extra_context)
         EVSS::GiBillStatus::GiBillStatusResponse.new(403)
       rescue Faraday::TimeoutError
         log_message_to_sentry(
@@ -18,8 +19,13 @@ module EVSS
         )
         EVSS::GiBillStatus::GiBillStatusResponse.new(403)
       rescue Faraday::ClientError => e
-        log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL, body: e.response[:body] })
+        extra_context = { url: BASE_URL, body: e.response[:body] }
+        log_exception_to_sentry(e, extra_context)
         EVSS::GiBillStatus::GiBillStatusResponse.new(e.response[:status])
+      end
+
+      def self.breakers_service
+        BaseService.create_breakers_service(name: 'EVSS/GiBillStatus', url: BASE_URL)
       end
     end
   end

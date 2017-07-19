@@ -19,6 +19,45 @@ describe PdfFill::Forms::VA21P530 do
     new_form_class.instance_variable_get(:@form_data)
   end
 
+  describe '#expand_firm' do
+    context 'isEntity not set' do
+      it 'should do nothing' do
+        new_form_class.expand_firm
+        expect(class_form_data['firmNameAndAddr']).to eq(nil)
+      end
+    end
+
+    context 'isEntity is true' do
+      let(:form_data) do
+        {
+          'relationship' => {
+            'isEntity' => true
+          },
+          'claimantAddress' => {
+            'city' => 'Baltimore',
+            'country' => 'USA',
+            'postalCode' => '21231',
+            'street' => 'street',
+            'street2' => 'street2',
+            'state' => 'MD'
+          },
+          'firmName' => 'firmName'
+        }
+      end
+
+      it 'should combine the firm name and addr' do
+        new_form_class.expand_firm
+
+        expect(
+          JSON.parse(class_form_data['firmNameAndAddr'].to_json)
+        ).to eq(
+          'value' => 'firmName, street, street2, Baltimore, MD, 21231, USA',
+          'extras_value' => "firmName\nstreet\nstreet2\nBaltimore, MD, 21231\nUSA"
+        )
+      end
+    end
+  end
+
   test_method(
     basic_class,
     'expand_relationship',
@@ -224,8 +263,8 @@ describe PdfFill::Forms::VA21P530 do
 
   describe '#merge_fields' do
     it 'should merge the right fields' do
-      expect(described_class.new(get_fixture('pdf_fill/21P-530/kitchen_sink')).merge_fields).to eq(
-        get_fixture('pdf_fill/21P-530/merge_fields')
+      expect(described_class.new(get_fixture('pdf_fill/21P-530/kitchen_sink')).merge_fields.to_json).to eq(
+        get_fixture('pdf_fill/21P-530/merge_fields').to_json
       )
     end
   end

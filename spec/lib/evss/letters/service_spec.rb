@@ -25,13 +25,9 @@ describe EVSS::Letters::Service do
           allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
         end
 
-        it 'should log an error' do
+        it 'should log an error and raise GatewayTimeout' do
           expect(Rails.logger).to receive(:error).with(/Timeout/)
-          subject.get_letters
-        end
-
-        it 'should not raise an exception' do
-          expect { subject.get_letters }.to_not raise_error
+          expect { subject.get_letters }.to raise_error(Common::Exceptions::GatewayTimeout)
         end
       end
     end
@@ -50,13 +46,9 @@ describe EVSS::Letters::Service do
           allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
         end
 
-        it 'should log an error' do
+        it 'should log an error and raise GatewayTimeout' do
           expect(Rails.logger).to receive(:error).with(/Timeout/)
-          subject.get_letter_beneficiary
-        end
-
-        it 'should not raise an exception' do
-          expect { subject.get_letter_beneficiary }.to_not raise_error
+          expect { subject.get_letter_beneficiary }.to raise_error(Common::Exceptions::GatewayTimeout)
         end
       end
     end
