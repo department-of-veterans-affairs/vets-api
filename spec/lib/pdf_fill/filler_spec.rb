@@ -87,10 +87,9 @@ describe PdfFill::Filler do
 
               if type == 'overflow'
                 extras_path = the_extras_generator.generate
-
-                expect(PDF::Reader.new(extras_path).pages.map(&:text).join + "\n").to eq(
-                  File.read("spec/fixtures/pdf_fill/#{form_id}/overflow_extras.txt")
-                )
+                expect(
+                  FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
+                ).to eq(true)
 
                 File.delete(extras_path)
               end
