@@ -141,6 +141,12 @@ en:
         code: 'MHV001'
         detail: 'Failed to create or upgrade health tools account access'
         status: 403
+      APPEALSSTATUS404:
+        <<: *external_defaults
+        title: 'Appeals data not found'
+        code: 'APPEALSSTATUS404'
+        detail: 'Appeals data for a veteran with that SSN was not found'
+        status: 404
 
   evss:
     letters:
