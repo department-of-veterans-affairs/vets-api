@@ -29,26 +29,55 @@ describe 'Response Middleware' do
     )
   end
 
+  let(:fake_host) { 'http://host.com'}
+
   subject(:faraday_client) do
     Faraday.new do |conn|
+      conn.use :breakers
       conn.response :snakecase
       conn.response :raise_error, error_prefix: 'RX'
       conn.response :mhv_errors
-      conn.response :mhv_xml_html_errors
+      conn.response :mhv_xml_html_errors, breakers_service: breakers_service
       conn.response :json_parser
 
       conn.adapter :test do |stub|
-        stub.get('ok') { [200, { 'Content-Type' => 'application/json' }, message_json] }
-        stub.get('not-found') { [404, { 'Content-Type' => 'application/json' }, four_o_four] }
-        stub.get('refill-fail') { [400, { 'Content-Type' => 'application/json' }, i18n_type_error] }
-        stub.get('mhv-generic-html') { [400, { 'Content-Type' => 'application/html' }, mhv_generic_html] }
-        stub.get('mhv-generic-xml') { [400, { 'Content-Type' => 'application/xml' }, mhv_generic_html] }
+        stub.get("#{fake_host}/ok") { [200, { 'Content-Type' => 'application/json' }, message_json] }
+        stub.get("#{fake_host}/not-found") { [404, { 'Content-Type' => 'application/json' }, four_o_four] }
+        stub.get("#{fake_host}/refill-fail") { [400, { 'Content-Type' => 'application/json' }, i18n_type_error] }
+        stub.get("#{fake_host}/mhv-generic-html") { [400, { 'Content-Type' => 'application/html' }, mhv_generic_html] }
+        stub.get("#{fake_host}/mhv-generic-xml") { [400, { 'Content-Type' => 'application/xml' }, mhv_generic_html] }
+        stub.get("#{fake_host}/mhv-html-503") { [503, { 'Content-Type' => 'application/html' }, mhv_generic_html] }
+        stub.get("#{fake_host}/mhv-xml-503") { [503, { 'Content-Type' => 'application/xml' }, mhv_generic_html] }
       end
     end
   end
 
+  let(:breakers_service) do
+    def breakers_service
+      path = URI.parse('http://host.com').path
+      host = URI.parse('http://host.com').host
+      matcher = proc do |request_env|
+        request_env.url.host == host && request_env.url.path =~ /^#{path}/
+      end
+
+      exception_handler = proc do |exception|
+        if exception.is_a?(Common::Exceptions::BackendServiceException)
+          (500..599).cover?(exception.response_values[:status])
+        else
+          false
+        end
+      end
+
+      Breakers::Service.new(
+        name: 'RX',
+        request_matcher: matcher,
+        exception_handler: exception_handler
+      )
+    end
+  end
+
   it 'parses json successfully' do
-    client_response = faraday_client.get('ok')
+    client_response = faraday_client.get("#{fake_host}/ok")
     expect(client_response.body).to be_a(Hash)
     expect(client_response.body.keys).to include(:id, :subject, :category, :body)
     expect(client_response.status).to eq(200)
@@ -56,7 +85,7 @@ describe 'Response Middleware' do
 
   it 'raises client response error' do
     message = 'BackendServiceException: {:status=>404, :detail=>"Record Not Found", :code=>"VA900", :source=>"blah"}'
-    expect { faraday_client.get('not-found') }
+    expect { faraday_client.get("#{fake_host}/not-found") }
       .to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)
         expect(error.message)
@@ -68,7 +97,7 @@ describe 'Response Middleware' do
 
   it 'can override a response error using i18n' do
     message = 'BackendServiceException: {:status=>400, :detail=>"server response", :code=>"RX139", :source=>"blah"}'
-    expect { faraday_client.get('refill-fail') }
+    expect { faraday_client.get("#{fake_host}/refill-fail") }
       .to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)
         expect(error.message)
@@ -85,17 +114,32 @@ describe 'Response Middleware' do
     let(:xml_or_html_response) do
       "BackendServiceException: {:status=>400, :detail=>#{detail}, :code=>#{code}, :source=>#{source}}"
     end
+
     it 'can handle generic html errors' do
-      expect { faraday_client.get('mhv-generic-html') }.to raise_error do |error|
+      expect { faraday_client.get("#{fake_host}/mhv-generic-html") }.to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)
         expect(error.message).to eq(xml_or_html_response)
       end
     end
 
     it 'can handle generic xml errors' do
-      expect { faraday_client.get('mhv-generic-xml') }.to raise_error do |error|
+      expect { faraday_client.get("#{fake_host}/mhv-generic-xml") }.to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)
         expect(error.message).to eq(xml_or_html_response)
+      end
+    end
+
+    it 'can handle generic html errors that are 503' do
+      expect { faraday_client.get("#{fake_host}/mhv-html-503") }.to raise_error do |error|
+        expect(error).to be_a(Breakers::OutageException)
+        expect(error.message).to include('Outage detected on RX beginning at')
+      end
+    end
+
+    it 'can handle generic xml errors that are 503' do
+      expect { faraday_client.get("#{fake_host}/mhv-xml-503") }.to raise_error do |error|
+        expect(error).to be_a(Breakers::OutageException)
+        expect(error.message).to include('Outage detected on RX beginning at')
       end
     end
   end

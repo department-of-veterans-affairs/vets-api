@@ -42,7 +42,6 @@ module MHVLogging
           conn.response :snakecase
           conn.response :raise_error, error_prefix: 'MHV'
           conn.response :mhv_errors
-          conn.response :mhv_xml_html_errors
           conn.response :json_parser
           conn.adapter Faraday.default_adapter
         end
