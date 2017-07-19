@@ -27,7 +27,7 @@ module Workflow::Task::Shared
         text += ('. ' + data[:append_to_stamp]) if data[:append_to_stamp]
       end
 
-      Prawn::Document.generate stamp_path do |pdf|
+      Prawn::Document.generate(stamp_path, margin: [0,0]) do |pdf|
         pdf.draw_text text, at: [x, y], size: 10
       end
     rescue StandardError => e
