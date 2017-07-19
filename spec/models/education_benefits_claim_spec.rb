@@ -33,16 +33,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end
     end
 
-    it 'should validate inclusion of form_type' do
-      %w(1990 1995 1990e 5490 1990n 5495).each do |form_type|
-        subject.form_type = form_type
-        expect_attr_valid(subject, :form_type)
-      end
-
-      subject.form_type = 'foo'
-      expect_attr_invalid(subject, :form_type, 'is not included in the list')
-    end
-
     describe '#form_matches_schema' do
       def self.expect_json_schema_error(text)
         it 'should have a json schema error' do
