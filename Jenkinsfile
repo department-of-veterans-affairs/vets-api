@@ -9,12 +9,6 @@ pipeline {
       }
     }
 
-    stage('Prepare workspace') {
-      steps {
-        sh 'mkdir coverage'
-      }
-    }
-
     stage('Run tests') {
       steps {
         withEnv(['RAILS_ENV=test', 'CI=true']) {
