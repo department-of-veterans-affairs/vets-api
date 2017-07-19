@@ -31,6 +31,6 @@ USER jenkins
 
 ADD Gemfile /src/vets-api/Gemfile
 ADD Gemfile.lock /src/vets-api/Gemfile.lock
-RUN ["/bin/bash", "--login", "-c", "bundle install"]
+RUN ["/bin/bash", "--login", "-c", "bundle install -j4"]
 
 ADD . /src/vets-api
