@@ -12,7 +12,7 @@ pipeline {
     stage('Run tests') {
       steps {
         withEnv(['RAILS_ENV=test', 'CI=true']) {
-          sh 'docker-compose run vets-api bash --login -c "bundle exec rake db:create db:schema:load ci"'
+          sh 'docker-compose -f docker-compose.yml -f docker-compose.test.yml run vets-api bash --login -c "bundle exec rake db:create db:schema:load ci"'
         }
       }
     }
