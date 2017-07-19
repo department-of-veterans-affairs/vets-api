@@ -13,11 +13,17 @@ module EVSS
       end
 
       def benefit_information=(attrs)
-        if attrs.key? 'has_service_connected_disabilities'
+        if veteran_attributes?(attrs)
           super EVSS::Letters::BenefitInformationVeteran.new(attrs)
         else
           super EVSS::Letters::BenefitInformationDependent.new(attrs)
         end
+      end
+
+      private
+
+      def veteran_attributes?(attrs)
+        attrs.key? 'has_service_connected_disabilities'
       end
     end
   end
