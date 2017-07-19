@@ -3,6 +3,7 @@ require 'hca/service'
 
 module V0
   class HealthCareApplicationsController < ApplicationController
+    FORM_ID = '10-10EZ'
     # We call authenticate_token because auth is optional on this endpoint.
     skip_before_action(:authenticate)
 
@@ -21,6 +22,9 @@ module V0
           nil, detail: e.message
         )
       end
+
+      clear_saved_form(FORM_ID)
+
       Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
       render(json: result)
     end
@@ -33,7 +37,7 @@ module V0
 
     def validate!(form)
       validation_errors = JSON::Validator.fully_validate(
-        VetsJsonSchema::SCHEMAS['10-10EZ'],
+        VetsJsonSchema::SCHEMAS[FORM_ID],
         form, validate_schema: true
       )
 

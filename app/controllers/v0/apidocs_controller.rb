@@ -71,6 +71,7 @@ module V0
       Swagger::Requests::BurialClaims,
       Swagger::Requests::HealthCareApplications,
       Swagger::Requests::Post911GiBillStatuses,
+      Swagger::Requests::Letters,
       Swagger::Requests::Prescriptions::Prescriptions,
       Swagger::Requests::Prescriptions::Trackings,
       Swagger::Requests::Messages::TriageTeams,
@@ -89,6 +90,8 @@ module V0
       Swagger::Schemas::Errors,
       Swagger::Schemas::SavedForm,
       Swagger::Schemas::TermsAndConditions,
+      Swagger::Schemas::Letters,
+      Swagger::Schemas::LetterBeneficiary,
       self
     ].freeze
 

@@ -606,14 +606,36 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
     context 'without EVSS mock' do
       before { Settings.evss.mock_gi_bill_status = false }
+      before { Settings.evss.mock_letters = false }
+
       it 'supports getting EVSS Gi Bill Status' do
         expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 401)
         VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
+          # TODO: this cassette was hacked to return all 3 entitlements since
+          # I cannot make swagger doc allow an attr to be :object or :null
           expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 200, auth_options)
         end
         VCR.use_cassette('evss/gi_bill_status/vet_not_found') do
           expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 404, auth_options)
         end
+      end
+
+      it 'supports getting EVSS Letters' do
+        expect(subject).to validate(:get, '/v0/letters', 401)
+        VCR.use_cassette('evss/letters/letters') do
+          expect(subject).to validate(:get, '/v0/letters', 200, auth_options)
+        end
+      end
+
+      it 'supports getting EVSS Letters Beneficiary' do
+        expect(subject).to validate(:get, '/v0/letters/beneficiary', 401)
+        VCR.use_cassette('evss/letters/beneficiary') do
+          expect(subject).to validate(:get, '/v0/letters/beneficiary', 200, auth_options)
+        end
+      end
+
+      it 'supports posting EVSS Letters' do
+        expect(subject).to validate(:post, '/v0/letters/{id}', 401, 'id' => 'commissary')
       end
     end
 
@@ -725,6 +747,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
   context 'and' do
     it 'tests all documented routes' do
+      subject.untested_mappings.delete('/v0/letters/{id}') # exclude this route as it returns a binary
       expect(subject).to validate_all_paths
     end
   end
