@@ -30,7 +30,6 @@ module Common
               breakers_service.begin_forced_outage!
               raise Breakers::OutageException.new(breakers_service.latest_outage, breakers_service)
             else
-              log_message_to_sentry('Could not parse XML/HTML response from MHV', :warn, extra_context)
               raise Common::Exceptions::BackendServiceException.new('VA900', response_values, @status, @body)
             end
           end
