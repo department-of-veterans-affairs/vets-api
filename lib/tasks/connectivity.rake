@@ -34,7 +34,7 @@ end
 
 namespace :connectivity do
   desc 'Check connectivity to all backend services'
-  task all: [:db, :edu, :evss, :gi, :hca, :logs, :mvi, :redis, :rx, :sm, :statsd, :vha]
+  task all: [:db, :edu, :evss, :gi, :hca, :logs, :mvi, :redis, :rx, :sm, :statsd, :vha, :shrine_claim_s3]
 
   desc 'Check DB'
   task db: :environment do
@@ -152,6 +152,25 @@ namespace :connectivity do
   task vha: :environment do
     check 'VHA', Settings.locators.vha do
       VHAFacilityAdapter.new.query([0, 0, 0, 0])
+    end
+  end
+
+  desc "Shrine/Claim S3 Settings"
+  task shrine_claim_s3: :environment do
+    if Settings.shrine.claims.type == 's3'
+      begin
+        client = ClaimDocumentation::Uploader.new(:cache).storage.client
+        bucket = client.get_bucket_location(bucket: Settings.shrine.claims.bucket)
+        if bucket.error
+          puts "Got an error getting Shrine/Claim bucket data: #{bucket.error}"
+        else
+          puts "Shrine/Claim connection ok"
+        end
+      rescue => e
+        puts e.message
+      end
+    else
+      puts "Shrine/Claims not configured for S3 storage"
     end
   end
 end
