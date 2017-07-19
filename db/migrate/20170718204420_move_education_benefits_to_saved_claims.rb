@@ -1,6 +1,5 @@
 class MoveEducationBenefitsToSavedClaims < ActiveRecord::Migration
   def change
-    remove_column(:education_benefits_claims, :submitted_at)
     add_reference(:education_benefits_claims, :saved_claim, index: true)
 
     EducationBenefitsClaim.find_each do |education_benefits_claim|
@@ -12,6 +11,8 @@ class MoveEducationBenefitsToSavedClaims < ActiveRecord::Migration
       education_benefits_claim.save!
     end
 
-    binding.pry; fail
+    %w(submitted_at encrypted_form encrypted_form_iv form_type).each do |attr|
+      remove_column(:education_benefits_claims, attr)
+    end
   end
 end
