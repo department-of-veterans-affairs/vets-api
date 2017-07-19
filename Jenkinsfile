@@ -36,10 +36,10 @@ pipeline {
   }
   post {
         always {
+            sh 'docker-compose -f docker-compose.yml -f docker-compose.test.yml down'
             archive "coverage/**"
             publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
             junit 'log/*.xml'
-            sh 'docker-compose -f docker-compose.yml -f docker-compose.test.yml down'
             deleteDir() /* clean up our workspace */
         }
   }
