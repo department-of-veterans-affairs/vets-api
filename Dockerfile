@@ -1,5 +1,9 @@
 FROM centos:6
 
+# Match the jenkins uid/gid on the host (504)
+RUN groupadd --gid 504 jenkins \
+  && useradd --uid 504 --gid jenkins --shell /bin/bash --create-home jenkins
+
 RUN yum install -y git make gcc-c++ openssl-devel readline-devel zlib-devel sqlite-devel postgresql-devel socat timeout epel-release
 
 # Install Red Hat SCI library for ruby packages
