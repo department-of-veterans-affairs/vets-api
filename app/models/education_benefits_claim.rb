@@ -29,9 +29,10 @@ class EducationBenefitsClaim < ActiveRecord::Base
   has_one(:education_benefits_submission, inverse_of: :education_benefits_claim)
 
   delegate(:confirmation_number, to: :saved_claim)
+  delegate(:parsed_form, to: :saved_claim)
 
   before_save(:set_region)
-  after_save(:create_education_benefits_submission)
+  after_create(:create_education_benefits_submission)
   after_save(:update_education_benefits_submission_status)
 
   # For console access only, right now.
@@ -108,10 +109,6 @@ class EducationBenefitsClaim < ActiveRecord::Base
     EducationForm::EducationFacility.regional_office_for(self)
   end
 
-  def parsed_form
-    @parsed_form ||= JSON.parse(form)
-  end
-
   def selected_benefits
     benefits = {}
 
@@ -130,18 +127,15 @@ class EducationBenefitsClaim < ActiveRecord::Base
   private
 
   def create_education_benefits_submission
-    # TODO rewrite this
-    # if submitted_at.present? && submitted_at_was.nil? && education_benefits_submission.blank?
-    #   opt = selected_benefits
+    opt = selected_benefits
 
-    #   EducationBenefitsSubmission.create!(
-    #     opt.merge(
-    #       region: region,
-    #       form_type: form_type,
-    #       education_benefits_claim: self
-    #     )
-    #   )
-    # end
+    EducationBenefitsSubmission.create!(
+      opt.merge(
+        region: region,
+        form_type: form_type,
+        education_benefits_claim: self
+      )
+    )
   end
 
   def update_education_benefits_submission_status

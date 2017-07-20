@@ -43,8 +43,6 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   end
 
   describe '#update_education_benefits_submission_status' do
-    let(:education_benefits_claim) { create(:education_benefits_claim) }
-
     subject do
       education_benefits_claim.update_attributes!(processed_at: Time.zone.now)
       education_benefits_claim
