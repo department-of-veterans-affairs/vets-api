@@ -7,10 +7,9 @@ module SpoolHelpers
     def test_spool_file(form_type, test_name)
       describe "#{form_type} #{test_name} spool test" do
         let(:file_prefix) { "spec/fixtures/education_benefits_claims/#{form_type}/#{test_name}." }
-
+        let(:form_class) { "SavedClaim::EducationBenefits::VA#{form_type}".constantize }
         let(:education_benefits_claim) do
-          EducationBenefitsClaim.create!(
-            form_type: form_type,
+          form_class.create!(
             form: File.read("#{file_prefix}json")
           )
         end
@@ -20,7 +19,7 @@ module SpoolHelpers
         end
 
         before do
-          allow(education_benefits_claim).to receive(:id).and_return(1)
+          allow_any_instance_of(form_class).to receive(:confirmation_number).and_return('V-EBC-1')
         end
 
         it 'should generate the spool file correctly', run_at: '2017-01-17 03:00:00 -0500' do
