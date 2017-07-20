@@ -28,17 +28,9 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   has_one(:education_benefits_submission, inverse_of: :education_benefits_claim)
 
-  attr_encrypted(:form, key: Settings.db_encryption_key)
-
   before_save(:set_region)
   after_save(:create_education_benefits_submission)
   after_save(:update_education_benefits_submission_status)
-
-  FORM_TYPES.each do |type|
-    define_method("is_#{type}?") do
-      form_type == type
-    end
-  end
 
   # For console access only, right now.
   def reprocess_at(region)
