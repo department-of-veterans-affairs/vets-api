@@ -49,6 +49,10 @@ class EducationBenefitsClaim < ActiveRecord::Base
     end
   end
 
+  def form_type
+    saved_claim.form_id.gsub('22-', '').downcase
+  end
+
   # This converts the form data into an OpenStruct object so that the template
   # rendering can be cleaner. Piping it through the JSON serializer was a quick
   # and easy way to deeply transform the object.
@@ -164,6 +168,8 @@ class EducationBenefitsClaim < ActiveRecord::Base
   end
 
   def set_region
-    self.regional_processing_office ||= region.to_s
+    # TODO fix
+    self.regional_processing_office = 'east'
+    # self.regional_processing_office ||= region.to_s
   end
 end

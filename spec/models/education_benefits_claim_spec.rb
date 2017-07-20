@@ -32,6 +32,13 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
   end
 
+  describe '#form_type' do
+    it 'should return the form type' do
+      saved_claim = create(:va1990)
+      expect(saved_claim.education_benefits_claim.form_type).to eq('1990')
+    end
+  end
+
   describe '#regional_office' do
     it 'should return the regional office' do
       expect(subject.regional_office).to eq("Eastern Region\nVA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616")
