@@ -7,7 +7,7 @@ FactoryGirl.define do
     military_service_number '123456789'
     ssn '123-45-6789'
     va_claim_number '123456789'
-    military_status 'A'
+    military_status ['A']
 
     current_name { attributes_for :name }
     service_name { attributes_for :name }

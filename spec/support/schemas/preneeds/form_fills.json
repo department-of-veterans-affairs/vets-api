@@ -1,0 +1,139 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type" : "object",
+  "required": ["data"],
+  "properties": {
+    "data" : {
+      "type": "object",
+      "items": {
+        "required": ["id", "type", "attributes", "relationships"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "enum": ["preneeds_form_fills"] },
+          "attributes": {
+            "type": "object",
+            "required": ["attachment_types", "branches_of_services", "cemeteries", "states", "discharge_types"],
+            "properties": {
+              "attachment_types": {
+                "type": "array",
+                "minItems": "1",
+                "items": { "$ref": "attachment_type.json" }
+              },
+              "branches_of_services": {
+                "type": "array",
+                "minItems": "1",
+                "items": { "$ref": "branches_of_service.json"}
+              },
+              "cemeteries": {
+                "type": "array",
+                "minItems": "1",
+                "items": { "$ref": "cemetery.json"}
+              },
+              "states": {
+                "type": "array",
+                "minItems": "1",
+                "items": { "$ref": "state.json"}
+              },
+              "discharge_types": {
+                "type": "array",
+                "minItems": "1",
+                "items": { "$ref": "discharge_type.json"}
+              }
+            }
+          },
+          "relationships": {
+            "type": "object",
+            "required": ["attachment_types", "branches_of_services", "cemeteries", "discharge_types", "states"],
+            "properties": {
+              "attachment_types": {
+                "type": "object",
+                "required": ["data"],
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "minItems": "1",
+                    "items": {
+                      "required": ["id", "type"],
+                      "properties":{
+                        "id": { "type": "integer" },
+                        "type": { "type": "string", "enum": ["preneeds_attachment_types"]}
+                      }
+                    }
+                  }
+                }
+              },
+              "branches_of_services": {
+                "type": "object",
+                "required": ["data"],
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "minItems": "1",
+                    "items": {
+                      "required": ["id", "type"],
+                      "properties":{
+                        "id": { "type": "string" },
+                        "type": { "type": "string", "enum": ["preneeds_branches_of_services"]}
+                      }
+                    }
+                  }
+                }
+              },
+              "cemeteries": {
+                "type": "object",
+                "required": ["data"],
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "minItems": "1",
+                    "items": {
+                      "required": ["id", "type"],
+                      "properties":{
+                        "id": { "type": "integer" },
+                        "type": { "type": "string", "enum": ["preneeds_cemeteries"]}
+                      }
+                    }
+                  }
+                }
+              },
+              "discharge_types": {
+                "type": "object",
+                "required": ["data"],
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "minItems": "1",
+                    "items": {
+                      "required": ["id", "type"],
+                      "properties":{
+                        "id": { "type": "integer" },
+                        "type": { "type": "string", "enum": ["preneeds_discharge_types"]}
+                      }
+                    }
+                  }
+                }
+              },
+              "states": {
+                "type": "object",
+                "required": ["data"],
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "minItems": "1",
+                    "items": {
+                      "required": ["id", "type"],
+                      "properties":{
+                        "id": { "type": "string" },
+                        "type": { "type": "string", "enum": ["preneeds_states"]}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

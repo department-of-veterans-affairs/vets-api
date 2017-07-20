@@ -7,7 +7,7 @@ module V0
         resource = client.get_attachment_types
         render json: resource.data,
                serializer: CollectionSerializer,
-               each_serializer: PreneedsAttachmentTypeSerializer
+               each_serializer: ::Preneeds::AttachmentTypeSerializer
       end
     end
   end

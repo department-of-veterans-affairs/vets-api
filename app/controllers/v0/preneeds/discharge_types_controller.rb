@@ -7,7 +7,7 @@ module V0
         resource = client.get_discharge_types
         render json: resource.data,
                serializer: CollectionSerializer,
-               each_serializer: DischargeTypeSerializer
+               each_serializer: ::Preneeds::DischargeTypeSerializer
       end
     end
   end

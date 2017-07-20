@@ -29,6 +29,9 @@ development: &defaults
   facility_access_wait_time:
     namespace: facility-access-wait-time
     each_ttl: 2592000
+  preneeds_store:
+    namespace: preneeds
+    each_ttl: 2592000
 
 test:
   <<: *defaults

@@ -27,7 +27,7 @@ module Preneeds
     attribute :place_of_birth, String
     attribute :ssn, String
     attribute :va_claim_number, String
-    attribute :military_status, String
+    attribute :military_status, Array[String]
 
     attribute :address, Preneeds::Address
     attribute :current_name, Preneeds::Name
@@ -41,10 +41,10 @@ module Preneeds
     validates :military_service_number, :va_claim_number, length: { maximum: 9 }
     validates :place_of_birth, length: { maximum: 100 }
     validates :ssn, format: /\A\d{3}-\d{2}-\d{4}\z/
-    validates :military_status, inclusion: { in: MILITARY_STATUSES }
 
     validates :current_name, :service_name, :service_records, presence: true, preneeds_embedded_object: true
     validates :address, preneeds_embedded_object: true
+    validates :military_status, preneeds_array_inclusion: { includes_list: MILITARY_STATUSES }
 
     def message
       hash = {
@@ -63,7 +63,8 @@ module Preneeds
     def self.permitted_params
       [
         :date_of_birth, :date_of_death, :gender, :is_deceased, :marital_status,
-        :military_service_number, :place_of_birth, :ssn, :va_claim_number, :military_status,
+        :military_service_number, :place_of_birth, :ssn, :va_claim_number,
+        military_status: [],
         address: Preneeds::Address.permitted_params, current_name: Preneeds::Name.permitted_params,
         service_name: Preneeds::Name.permitted_params,
         service_records: [Preneeds::ServiceRecord.permitted_params]

@@ -7,6 +7,9 @@ require 'preneeds/middleware/response/preneeds_parser'
 
 module Preneeds
   class Configuration < Common::Client::Configuration::SOAP
+    REDIS_EACH_TTL = REDIS_CONFIG['preneeds_store']['each_ttl']
+    REDIS_NAMESPACE = REDIS_CONFIG['preneeds_store']['namespace']
+
     def self.url
       "#{Settings.preneeds.host}/eoas_SOA/PreNeedApplicationPort"
     end

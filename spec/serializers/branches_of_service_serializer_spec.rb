@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe BranchesOfServiceSerializer, type: :serializer do
+RSpec.describe ::Preneeds::BranchesOfServiceSerializer, type: :serializer do
   let(:branch) { build :branches_of_service }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }

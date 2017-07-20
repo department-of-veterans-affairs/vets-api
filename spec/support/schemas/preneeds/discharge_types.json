@@ -14,14 +14,7 @@
           "type": { "enum": ["preneeds_discharge_types"] },
           "attributes": {
             "type": "object",
-            "required": [
-              "discharge_type_id",
-              "description"
-            ],
-            "properties": {
-              "discharge_type_id": { "type": "integer" },
-              "description": { "type": "string" }
-            }
+            "$ref": "discharge_type.json"
           }
         }
       }

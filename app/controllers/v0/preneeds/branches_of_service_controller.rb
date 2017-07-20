@@ -8,7 +8,7 @@ module V0
 
         render json: resource.data,
                serializer: CollectionSerializer,
-               each_serializer: BranchesOfServiceSerializer
+               each_serializer: ::Preneeds::BranchesOfServiceSerializer
       end
     end
   end

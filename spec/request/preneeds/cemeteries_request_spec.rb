@@ -4,6 +4,8 @@ require 'rails_helper'
 RSpec.describe 'Cemeteries Integration', type: :request do
   include SchemaMatchers
 
+  before(:each) { allow_any_instance_of(Preneeds::Service).to receive(:expired?).and_return(true) }
+
   it 'responds to GET #index' do
     VCR.use_cassette('preneeds/cemeteries/gets_a_list_of_cemeteries') do
       get '/v0/preneeds/cemeteries/'

@@ -9,7 +9,7 @@
       "uniqueItems": true,
       "items": {
         "type": "object",
-        "required": ["id", "type", "attributes"],
+        "required": ["id", "type", "attributes", "relationships"],
         "properties": {
           "id": { "type": "string" },
           "type": { "enum": ["preneeds_military_ranks"] },
@@ -32,6 +32,26 @@
                   "branch_of_service_code": { "type": "string" },
                   "rank_code": { "type": "string" },
                   "rank_descr": { "type": "string" }
+                }
+              }
+            }
+          },
+          "relationships": {
+            "type": "object",
+            "required": ["military_rank_detail"],
+            "properties": {
+              "military_rank_detail": {
+                "type": "object",
+                "required": ["data"],
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "required": ["id", "type"],
+                    "properties": {
+                      "id": { "type": "string" },
+                      "type": { "enum": ["preneeds_military_rank_details"] }
+                    }
+                  }
                 }
               }
             }

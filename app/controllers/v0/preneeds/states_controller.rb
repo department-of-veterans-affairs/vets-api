@@ -7,7 +7,7 @@ module V0
         resource = client.get_states
         render json: resource.data,
                serializer: CollectionSerializer,
-               each_serializer: PreneedsStateSerializer
+               each_serializer: ::Preneeds::StateSerializer
       end
     end
   end

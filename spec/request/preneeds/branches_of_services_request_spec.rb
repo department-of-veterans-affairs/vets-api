@@ -4,6 +4,8 @@ require 'rails_helper'
 RSpec.describe 'Branches of Service Integration', type: :request do
   include SchemaMatchers
 
+  before(:each) { allow_any_instance_of(Preneeds::Service).to receive(:expired?).and_return(true) }
+
   it 'responds to GET #index' do
     VCR.use_cassette('preneeds/branches_of_service/gets_a_list_of_service_branches') do
       get '/v0/preneeds/branches_of_service/'
@@ -11,6 +13,6 @@ RSpec.describe 'Branches of Service Integration', type: :request do
 
     expect(response).to be_success
     expect(response.body).to be_a(String)
-    expect(response).to match_response_schema('preneeds/branches_of_service')
+    expect(response).to match_response_schema('preneeds/branches_of_services')
   end
 end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe ReceiveApplicationSerializer, type: :serializer do
+RSpec.describe ::Preneeds::ReceiveApplicationSerializer, type: :serializer do
   let(:receive_application) { build :receive_application }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }

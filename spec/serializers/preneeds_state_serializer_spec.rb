@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe PreneedsStateSerializer, type: :serializer do
+RSpec.describe ::Preneeds::StateSerializer, type: :serializer do
   let(:preneeds_state) { build :preneeds_state }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
