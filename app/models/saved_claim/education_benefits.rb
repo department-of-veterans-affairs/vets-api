@@ -8,6 +8,10 @@ class SavedClaim::EducationBenefits < SavedClaim
 
   before_validation(:add_education_benefits_claim)
 
+  def self.form_class(form_type)
+    "SavedClaim::EducationBenefits::VA#{form_type}".constantize
+  end
+
   private
 
   def add_education_benefits_claim

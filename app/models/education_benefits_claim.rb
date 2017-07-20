@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'attr_encrypted'
 class EducationBenefitsClaim < ActiveRecord::Base
+  # TODO dont need this constant
   FORM_SCHEMAS = IceNine.deep_freeze(
     lambda do
       return_val = {}
@@ -143,22 +144,6 @@ class EducationBenefitsClaim < ActiveRecord::Base
       # old claims don't have an education benefits submission associated
       education_benefits_submission&.update_attributes!(status: 'processed')
     end
-  end
-
-  def form_is_string
-    form.is_a?(String)
-  end
-
-  # if the form is a hash olive_branch will convert all the keys to underscore and break our json schema validation
-  def form_must_be_string
-    errors[:form] << 'must be a json string' unless form_is_string
-  end
-
-  def form_matches_schema
-    return unless form_is_string
-    return unless FORM_TYPES.include?(form_type)
-
-    errors[:form].concat(JSON::Validator.fully_validate(FORM_SCHEMAS[form_type], parsed_form))
   end
 
   def set_region
