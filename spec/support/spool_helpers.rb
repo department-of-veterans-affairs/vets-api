@@ -11,7 +11,7 @@ module SpoolHelpers
         let(:education_benefits_claim) do
           form_class.create!(
             form: File.read("#{file_prefix}json")
-          )
+          ).education_benefits_claim
         end
 
         subject do

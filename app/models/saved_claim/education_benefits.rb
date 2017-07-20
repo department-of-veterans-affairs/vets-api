@@ -8,8 +8,6 @@ class SavedClaim::EducationBenefits < SavedClaim
 
   before_validation(:add_education_benefits_claim)
 
-  delegate(:form_type, to: :education_benefits_claim)
-
   private
 
   def add_education_benefits_claim
