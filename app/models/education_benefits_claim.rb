@@ -35,8 +35,6 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   attr_encrypted(:form, key: Settings.db_encryption_key)
 
-  # initially only completed claims are allowed, later we can allow claims that dont have a submitted_at yet
-  before_validation(:set_submitted_at, on: :create)
   before_save(:set_region)
   after_save(:create_education_benefits_submission)
   after_save(:update_education_benefits_submission_status)
@@ -170,10 +168,6 @@ class EducationBenefitsClaim < ActiveRecord::Base
     return unless FORM_TYPES.include?(form_type)
 
     errors[:form].concat(JSON::Validator.fully_validate(FORM_SCHEMAS[form_type], parsed_form))
-  end
-
-  def set_submitted_at
-    self.submitted_at = Time.zone.now
   end
 
   def set_region
