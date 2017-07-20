@@ -2,12 +2,12 @@
 require 'rails_helper'
 require 'support/preneeds_helpers'
 
-RSpec.describe Preneeds::ApplicationForm do
+RSpec.describe Preneeds::BurialForm do
   include Preneeds::Helpers
 
   subject { described_class.new(params) }
 
-  let(:params) { attributes_for :application_form }
+  let(:params) { attributes_for :burial_form }
   let(:trimmed_hash) { json_symbolize(subject).except(:tracking_number, :sending_application, :sent_time) }
 
   it 'populates the model' do

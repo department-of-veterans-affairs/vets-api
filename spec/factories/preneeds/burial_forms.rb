@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 FactoryGirl.define do
-  factory :application_form, class: Preneeds::ApplicationForm do
+  factory :burial_form, class: Preneeds::BurialForm do
     application_status 'somewhere'
     has_attachments false
     has_currently_buried '1'
