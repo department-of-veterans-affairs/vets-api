@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'mhv_ac/account_creation_error'
 
 module MHVControllerConcerns
   extend ActiveSupport::Concern
@@ -26,8 +27,7 @@ module MHVControllerConcerns
   end
 
   def raise_something_went_wrong
-    # TODO: Change this to something other than a BackendServiceException
-    raise Common::Exceptions::BackendServiceException, 'MHVAC1'
+    raise MHVAC::AccountCreationError
   end
 
   def authenticate_client
