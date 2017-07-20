@@ -25,6 +25,12 @@ class ApplicationController < ActionController::API
     head(:ok)
   end
 
+  def clear_saved_form(form_id)
+    if @current_user
+      InProgressForm.form_for_user(form_id, @current_user)&.destroy
+    end
+  end
+
   def routing_error
     raise Common::Exceptions::RoutingError, params[:path]
   end

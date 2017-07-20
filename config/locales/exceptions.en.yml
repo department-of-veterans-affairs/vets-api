@@ -143,6 +143,12 @@ en:
         <<: *validation_errors
         code: 'SM152'
         detail: 'Email address is invalid'
+      APPEALSSTATUS404:
+        <<: *external_defaults
+        title: 'Appeals data not found'
+        code: 'APPEALSSTATUS404'
+        detail: 'Appeals data for a veteran with that SSN was not found'
+        status: 404
 
   evss:
     letters:
@@ -170,3 +176,9 @@ en:
         detail: 'EVSS received an error calling external service'
         code: 113
         status: 503
+    gi_bill_status:
+      <<: *defaults
+      title: External service unavailable
+      detail: 'EVSS received an error calling external service'
+      code: 113
+      status: 503

@@ -70,7 +70,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
       end
     end
     describe 'when EVSS has no info of user' do
-      # special EVSS CI user ssn=796066619
+      # special EVSS CI user ssn=796066622
       let(:user) { FactoryGirl.create(:loa3_user, ssn: '796066622', uuid: 'fghj3456') }
       let(:session) { Session.create(uuid: user.uuid) }
       it 'renders nil data' do
@@ -78,6 +78,19 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
           request.headers['Authorization'] = "Token token=#{session.token}"
           get :show
           expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+
+    describe 'when EVSS partners return invalid data' do
+      # special EVSS CI user ssn=301010304
+      let(:user) { FactoryGirl.create(:loa3_user, ssn: '301010304', uuid: 'aaaa1a') }
+      let(:session) { Session.create(uuid: user.uuid) }
+      it 'responds with a 422' do
+        VCR.use_cassette('evss/gi_bill_status/invalid_partner_data') do
+          request.headers['Authorization'] = "Token token=#{session.token}"
+          get :show
+          expect(response).to have_http_status(:service_unavailable)
         end
       end
     end
