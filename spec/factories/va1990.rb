@@ -99,5 +99,29 @@ FactoryGirl.define do
         privacyAgreementAccepted: true
       }.to_json
     end
+
+    factory :va1990_with_custom_form do
+      transient do
+        custom_form {}
+      end
+
+      after(:build) do |va1990, evaluator|
+        va1990.form = JSON.parse(va1990.form).merge(evaluator.custom_form).to_json
+      end
+
+      factory :va1990_western_region do
+        custom_form(
+          'school' => {
+            'address' => {
+              'country' => 'USA',
+              'state' => 'CA',
+              'postalCode' => '90212',
+              'street' => '111 Uni Drive',
+              'city' => 'Los Angeles'
+            }
+          }
+        )
+      end
+    end
   end
 end

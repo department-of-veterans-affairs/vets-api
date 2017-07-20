@@ -65,7 +65,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   end
 
   describe '#create_education_benefits_submission' do
-    subject { create(:education_benefits_claim_western_region) }
+    subject { create(:va1990_western_region) }
 
     let(:submission_attributes) do
       {
@@ -78,12 +78,12 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         'status' => 'submitted',
         'transfer_of_entitlement' => false,
         'chapter1607' => false,
-        'education_benefits_claim_id' => subject.id
+        'education_benefits_claim_id' => subject.education_benefits_claim.id
       }
     end
 
     def associated_submission
-      subject.education_benefits_submission.attributes.except('id', 'created_at', 'updated_at')
+      subject.education_benefits_claim.education_benefits_submission.attributes.except('id', 'created_at', 'updated_at')
     end
 
     it 'should create an education benefits submission after submission' do
