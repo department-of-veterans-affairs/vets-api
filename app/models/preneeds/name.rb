@@ -2,7 +2,7 @@
 require 'common/models/base'
 
 module Preneeds
-  class Name < Common::Base
+  class Name < Preneeds::Base
     attribute :first_name, String
     attribute :last_name, String
     attribute :maiden_name, String

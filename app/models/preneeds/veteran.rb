@@ -3,7 +3,7 @@ require 'preneeds/models/attribute_types/xml_date'
 require 'common/models/base'
 
 module Preneeds
-  class Veteran < Common::Base
+  class Veteran < Preneeds::Base
     attribute :date_of_birth, XmlDate
     attribute :date_of_death, XmlDate
     attribute :gender, String

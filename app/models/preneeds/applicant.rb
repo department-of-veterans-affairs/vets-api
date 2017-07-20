@@ -2,7 +2,7 @@
 require 'common/models/base'
 
 module Preneeds
-  class Applicant < Common::Base
+  class Applicant < Preneeds::Base
     attribute :applicant_email, String
     attribute :applicant_phone_number, String
     attribute :applicant_relationship_to_claimant, String

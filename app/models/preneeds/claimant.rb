@@ -3,9 +3,7 @@ require 'preneeds/models/attribute_types/xml_date'
 require 'common/models/base'
 
 module Preneeds
-  class Claimant < Common::Base
-    include ActiveModel::Validations
-
+  class Claimant < Preneeds::Base
     attribute :date_of_birth, XmlDate
     attribute :desired_cemetery, String
     attribute :email, String

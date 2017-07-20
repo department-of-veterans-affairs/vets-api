@@ -3,7 +3,7 @@ require 'preneeds/models/attribute_types/xml_date'
 require 'common/models/base'
 
 module Preneeds
-  class ServiceRecord < Common::Base
+  class ServiceRecord < Preneeds::Base
     attribute :branch_of_service, String
     attribute :discharge_type, String
     attribute :entered_on_duty_date, XmlDate
