@@ -202,11 +202,10 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
 
     subject do
-      attributes[:form] = form.to_json
-      education_benefits_claim = described_class.new(attributes)
-      allow(education_benefits_claim).to receive(:transform_form)
+      saved_claim = build(:va1990, form: form.to_json)
+      allow(saved_claim.education_benefits_claim).to receive(:transform_form)
 
-      education_benefits_claim.open_struct_form
+      education_benefits_claim.instance_variable_set(:@application, saved_claim.open_struct_form)
       education_benefits_claim.copy_from_previous_benefits
       education_benefits_claim.open_struct_form
     end
