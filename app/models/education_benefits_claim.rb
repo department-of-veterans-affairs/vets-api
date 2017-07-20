@@ -28,6 +28,8 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   has_one(:education_benefits_submission, inverse_of: :education_benefits_claim)
 
+  delegate(:confirmation_number, to: :saved_claim)
+
   before_save(:set_region)
   after_save(:create_education_benefits_submission)
   after_save(:update_education_benefits_submission_status)
@@ -108,10 +110,6 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   def parsed_form
     @parsed_form ||= JSON.parse(form)
-  end
-
-  def confirmation_number
-    "V-EBC-#{id}"
   end
 
   def selected_benefits
