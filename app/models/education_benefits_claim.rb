@@ -57,12 +57,14 @@ class EducationBenefitsClaim < ActiveRecord::Base
   # rendering can be cleaner. Piping it through the JSON serializer was a quick
   # and easy way to deeply transform the object.
   def open_struct_form
-    @application ||= JSON.parse(form, object_class: OpenStruct)
-    @application.confirmation_number = confirmation_number
+    @application ||= lambda do
+      @application = saved_claim.open_struct_form
+      @application.confirmation_number = confirmation_number
 
-    transform_form
+      transform_form
 
-    @application
+      @application
+    end.()
   end
 
   def transform_form
