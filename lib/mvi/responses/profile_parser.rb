@@ -98,17 +98,18 @@ module MVI
       end
 
       def log_inactive_mhv_ids(mhv_ids, active_mhv_ids)
+        return if mhv_ids.blank?
         if (mhv_ids - active_mhv_ids).present?
           log_message_to_sentry('Inactive MHV correlation IDs present', :info,
-                                extra_context: { ids: mhv_ids })
+                                { ids: mhv_ids })
         end
         unless active_mhv_ids.include?(mhv_ids.first)
           log_message_to_sentry('Returning inactive MHV correlation ID as first identifier', :warn,
-                                extra_context: { ids: mhv_ids })
+                                { ids: mhv_ids })
         end
         if active_mhv_ids.size > 1
           log_message_to_sentry('Multiple active MHV correlation IDs present', :info,
-                                extra_context: { ids: active_mhv_ids })
+                                { ids: active_mhv_ids })
         end
       end
 
