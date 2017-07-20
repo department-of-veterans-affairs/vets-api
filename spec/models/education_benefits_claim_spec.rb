@@ -119,7 +119,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
     context 'with a form type of 1990e' do
       subject do
-        create(:education_benefits_claim_1990e)
+        create(:va1990e)
       end
 
       it 'should create a submission' do
@@ -136,7 +136,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
     context 'with a form type of 5490' do
       subject do
-        create(:education_benefits_claim_5490)
+        create(:va5490)
       end
 
       it 'should create a submission' do
@@ -153,7 +153,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
     context 'with a form type of 1990n' do
       subject do
-        create(:education_benefits_claim_1990n)
+        create(:va1990n)
       end
 
       it 'should create a submission' do
@@ -169,7 +169,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
     context 'with a form type of 5495' do
       subject do
-        create(:education_benefits_claim_5495)
+        create(:va5495)
       end
 
       it 'should create a submission' do
@@ -185,7 +185,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     end
 
     it "shouldn't create a submission after save if it was already submitted" do
-      subject.update_attributes!(processed_at: Time.zone.now)
+      subject.education_benefits_claim.update_attributes!(processed_at: Time.zone.now)
       expect(EducationBenefitsSubmission.count).to eq(1)
     end
   end
