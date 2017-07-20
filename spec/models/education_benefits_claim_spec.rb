@@ -16,6 +16,22 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   end
   subject { described_class.new(attributes) }
 
+  %w(1990 1995 1990e 5490 5495 1990n).each do |form_type|
+    method = "is_#{form_type}?"
+
+    describe "##{method}" do
+      it "should return false when it's not the right type" do
+        subject.form_type = 'foo'
+        expect(subject.public_send(method)).to eq(false)
+      end
+
+      it "should return true when it's the right type" do
+        subject.form_type = form_type
+        expect(subject.public_send(method)).to eq(true)
+      end
+    end
+  end
+
   describe '#regional_office' do
     it 'should return the regional office' do
       expect(subject.regional_office).to eq("Eastern Region\nVA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616")

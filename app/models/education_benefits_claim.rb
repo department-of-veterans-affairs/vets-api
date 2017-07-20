@@ -43,6 +43,12 @@ class EducationBenefitsClaim < ActiveRecord::Base
     save
   end
 
+  FORM_TYPES.each do |type|
+    define_method("is_#{type}?") do
+      form_type == type
+    end
+  end
+
   # This converts the form data into an OpenStruct object so that the template
   # rendering can be cleaner. Piping it through the JSON serializer was a quick
   # and easy way to deeply transform the object.
