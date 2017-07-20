@@ -2,9 +2,7 @@
 require 'common/models/base'
 
 module Preneeds
-  class ApplicationForm < Common::Base
-    include ActiveModel::Validations
-
+  class ApplicationForm < Preneeds::Base
     attribute :application_status, String
     attribute :has_attachments, Boolean
     attribute :has_currently_buried, String

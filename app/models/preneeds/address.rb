@@ -1,8 +1,8 @@
 # frozen_string_literal: true
-require 'common/models/base'
+require 'common/models/form'
 
 module Preneeds
-  class Address < Common::Base
+  class Address < Preneeds::Base
     attribute :address1, String
     attribute :address2, String
     attribute :address3, String

@@ -2,7 +2,7 @@
 require 'common/models/base'
 
 module Preneeds
-  class CurrentlyBuriedPerson < Common::Base
+  class CurrentlyBuriedPerson < Preneeds::Base
     attribute :cemetery_number, String
     attribute :name, Preneeds::Name
 
