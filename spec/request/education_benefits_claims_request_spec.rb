@@ -19,7 +19,7 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
       let(:params) do
         {
           educationBenefitsClaim: {
-            form: build(:education_benefits_claim_1995).form
+            form: build(:va1995).form
           }
         }
       end
