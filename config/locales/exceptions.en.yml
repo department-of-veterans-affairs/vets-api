@@ -174,3 +174,9 @@ en:
         detail: 'EVSS received an error calling external service'
         code: 113
         status: 503
+    gi_bill_status:
+      <<: *defaults
+      title: External service unavailable
+      detail: 'EVSS received an error calling external service'
+      code: 113
+      status: 503
