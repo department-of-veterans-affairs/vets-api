@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 FactoryGirl.define do
-  factory :va1990, class: SavedClaim::EducationBenefits::VA1990 do
-    after(:build) do |saved_claim|
-      saved_claim.education_benefits_claim ||= build(:education_benefits_claim)
-    end
-
+  factory :va1990, class: SavedClaim::EducationBenefits::VA1990, parent: :education_benefits do
     form do
       {
         chapter1606: true,

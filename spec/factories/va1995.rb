@@ -1,5 +1,5 @@
 FactoryGirl.define do
-  factory :va1995, class: SavedClaim::EducationBenefits::VA1995 do
+  factory :va1995, class: SavedClaim::EducationBenefits::VA1995, parent: :education_benefits do
     form({
       veteranFullName: {
         first: 'Mark',
