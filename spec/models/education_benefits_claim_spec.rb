@@ -2,40 +2,29 @@
 require 'rails_helper'
 
 RSpec.describe EducationBenefitsClaim, type: :model do
-  let(:attributes) do
-    {
-      form: {
-        chapter30: true,
-        veteranFullName: {
-          first: 'Mark',
-          last: 'Olson'
-        },
-        privacyAgreementAccepted: true
-      }.to_json
-    }
+  let(:education_benefits_claim) do
+    create(:va1990).education_benefits_claim
   end
-  subject { described_class.new(attributes) }
 
   %w(1990 1995 1990e 5490 5495 1990n).each do |form_type|
     method = "is_#{form_type}?"
 
     describe "##{method}" do
       it "should return false when it's not the right type" do
-        subject.form_type = 'foo'
-        expect(subject.public_send(method)).to eq(false)
+        education_benefits_claim.saved_claim.form_id = 'foo'
+        expect(education_benefits_claim.public_send(method)).to eq(false)
       end
 
       it "should return true when it's the right type" do
-        subject.form_type = form_type
-        expect(subject.public_send(method)).to eq(true)
+        education_benefits_claim.saved_claim.form_id = "22-#{form_type.upcase}"
+        expect(education_benefits_claim.public_send(method)).to eq(true)
       end
     end
   end
 
   describe '#form_type' do
     it 'should return the form type' do
-      saved_claim = create(:va1990)
-      expect(saved_claim.education_benefits_claim.form_type).to eq('1990')
+      expect(education_benefits_claim.form_type).to eq('1990')
     end
   end
 
