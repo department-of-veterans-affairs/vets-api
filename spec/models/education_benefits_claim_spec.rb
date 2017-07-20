@@ -237,15 +237,14 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
   describe 'reprocess_at' do
     it 'raises an error if an invalid region is entered' do
-      expect { subject.reprocess_at('nowhere') }.to raise_error(/Invalid region/)
+      expect { education_benefits_claim.reprocess_at('nowhere') }.to raise_error(/Invalid region/)
     end
 
     it 'sets a record for processing' do
-      subject.save
       expect do
-        subject.reprocess_at('western')
-      end.to change { subject.regional_processing_office }.from('eastern').to('western')
-      expect(subject.processed_at).to be nil
+        education_benefits_claim.reprocess_at('western')
+      end.to change { education_benefits_claim.regional_processing_office }.from('eastern').to('western')
+      expect(education_benefits_claim.processed_at).to be nil
     end
   end
 end

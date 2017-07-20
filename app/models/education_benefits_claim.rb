@@ -162,8 +162,6 @@ class EducationBenefitsClaim < ActiveRecord::Base
   end
 
   def set_region
-    # TODO fix
-    self.regional_processing_office = 'east'
-    # self.regional_processing_office ||= region.to_s
+    self.regional_processing_office ||= region.to_s
   end
 end
