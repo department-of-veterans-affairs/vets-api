@@ -5,7 +5,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   subject { described_class.new }
 
   let!(:application_1606) do
-    FactoryGirl.create(:education_benefits_claim)
+    create(:va1990).education_benefits_claim
   end
   let(:line_break) { EducationForm::WINDOWS_NOTEPAD_LINEBREAK }
 
@@ -149,18 +149,18 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         { state: 'OK' },
         { state: 'XX', country: 'PHL' }
       ].each do |address_data|
-        submissions << EducationBenefitsClaim.create(
+        submissions << SavedClaim::EducationBenefits::VA1990.create(
           form: base_form.merge(
             school: {
               address: base_address.merge(address_data)
             }
           ).to_json
-        )
+        ).education_benefits_claim
       end
 
-      submissions << EducationBenefitsClaim.create(
+      submissions << SavedClaim::EducationBenefits::VA1990.create(
         form: base_form.to_json
-      )
+      ).education_benefits_claim
 
       output = subject.group_submissions_by_region(submissions)
       expect(output[:eastern].length).to be(2)
