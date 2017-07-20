@@ -44,9 +44,12 @@ class SFTPWriter::Remote
   # Or you can do something like this.
   def mkdir_safe(path)
     dir = Pathname.new(path).dirname
-    # phew boy this is brittle.
     dirs = Array(dir.descend.to_a)
-    dirs.pop(2) if dirs[0] == '/'
+    # If we're using an absolute path, we can/should trust that the base folder
+    # already exists. Remove `/` and `/BASE_FOLDER` from the list of things to
+    # create -- they typically won't be our user, and so we'll hit a permission
+    # error.
+    dirs.shift(2) if dirs[0].to_s == '/'
     dirs.each do |f|
       begin
         sftp.mkdir!(f.to_s)
