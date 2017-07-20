@@ -14,7 +14,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Fri, 14 Jul 2017 20:36:42 GMT
+      - Fri, 14 Jul 2017 20:35:37 GMT
       Va-Eauth-Csid:
       - DSLogon
       Va-Eauth-Authenticationmethod:
@@ -28,29 +28,29 @@ http_interactions:
       Va-Eauth-Lastname:
       - lincoln
       Va-Eauth-Issueinstant:
-      - '2017-07-14T20:36:08Z'
+      - '2017-07-14T20:35:36Z'
       Va-Eauth-Dodedipnid:
-      - '1893576565'
+      - '7675348362'
       Va-Eauth-Pid:
-      - '6854385847'
+      - '4432983588'
       Va-Eauth-Pnid:
       - '796111863'
       Va-Eauth-Authorization:
-      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796111863","edi":"1893576565","firstName":"abraham","lastName":"lincoln"}}'
+      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796111863","edi":"7675348362","firstName":"abraham","lastName":"lincoln"}}'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Fri, 14 Jul 2017 20:34:53 GMT
+      - Fri, 14 Jul 2017 20:33:46 GMT
       Server:
       - Apache/2.4.6 (CentOS) OpenSSL/1.0.1e-fips
       Content-Type:
       - application/json
       Set-Cookie:
-      - WLS_12.1_App1_Cluster_2_ROUTEID=.02; path=/
-      - WSS-LETTERGENERATION-SERVICES_JSESSIONID=RaVCz7AvwsIaajXAXXFFRX-z9ZVddpNYQ19Fjiiyc9iJ-FfZFkVX!-26545162;
+      - WLS_12.1_App1_Cluster_2_ROUTEID=.01; path=/
+      - WSS-LETTERGENERATION-SERVICES_JSESSIONID=1IhCzqqLTWy10GFOqtIO_DQ36oXWTN0AZ4N9wzvBH6gJx8x6qx0u!-89491903;
         path=/; HttpOnly
       Via:
       - 1.1 csraciapp6.evss.srarad.com
@@ -64,7 +64,6 @@ http_interactions:
             "awardEffectiveDate" : "2013-06-06T04:00:00.000+0000",
             "hasAdaptedHousing" : false,
             "hasChapter35Eligibility" : true,
-            "hasDeathResultOfDisability" : false,
             "hasIndividualUnemployabilityGranted" : false,
             "hasNonServiceConnectedPension" : false,
             "hasServiceConnectedDisabilities" : true,
@@ -85,5 +84,5 @@ http_interactions:
           } ]
         }
     http_version: 
-  recorded_at: Fri, 14 Jul 2017 20:36:42 GMT
+  recorded_at: Fri, 14 Jul 2017 20:35:38 GMT
 recorded_with: VCR 3.0.3

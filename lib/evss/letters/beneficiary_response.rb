@@ -11,6 +11,20 @@ module EVSS
         attributes = response.body if response
         super(status, attributes)
       end
+
+      def benefit_information=(attrs)
+        if veteran_attributes?(attrs)
+          super EVSS::Letters::BenefitInformationVeteran.new(attrs)
+        else
+          super EVSS::Letters::BenefitInformationDependent.new(attrs)
+        end
+      end
+
+      private
+
+      def veteran_attributes?(attrs)
+        attrs.key? 'has_service_connected_disabilities'
+      end
     end
   end
 end
