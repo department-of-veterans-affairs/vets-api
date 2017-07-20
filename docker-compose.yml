@@ -32,3 +32,5 @@ services:
       - postgres
       - redis
     command: "/src/vets-api/run.sh"
+    stdin_open: true
+    tty: true

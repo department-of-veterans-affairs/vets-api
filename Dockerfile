@@ -34,3 +34,5 @@ ADD Gemfile.lock /src/vets-api/Gemfile.lock
 RUN ["/bin/bash", "--login", "-c", "bundle install -j4"]
 
 ADD . /src/vets-api
+
+RUN echo "source /opt/rh/rh-ruby23/enable" > /home/jenkjgg
