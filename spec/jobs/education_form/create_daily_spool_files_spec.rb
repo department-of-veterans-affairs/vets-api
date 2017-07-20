@@ -171,7 +171,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context 'write_files', run_at: '2016-09-16 03:00:00 EDT' do
     let(:filename) { '307_09162016_vetsgov.spl' }
-    let!(:second_record) { FactoryGirl.create(:education_benefits_claim_1995) }
+    let!(:second_record) { FactoryGirl.create(:va1995) }
 
     context 'in the development env' do
       let(:file_path) { "tmp/spool_files/#{filename}" }
