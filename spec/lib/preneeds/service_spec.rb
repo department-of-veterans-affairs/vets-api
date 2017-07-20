@@ -76,11 +76,9 @@ describe Preneeds::Service do
   end
 
   describe 'receive_pre_need_application' do
-    let(:params) do
-      { pre_need_request: build(:application_form).message }
-    end
+    let(:params) { build(:application_form).message }
 
-    it 'creates a new preneeds application' do
+    it 'creates a preneeds application' do
       application = VCR.use_cassette('preneeds/pre_need_applications/creates_a_pre_need_application') do
         subject.receive_pre_need_application params
       end
