@@ -9,6 +9,10 @@ FactoryGirl.define do
       benefit: 'transferOfEntitlement',
       privacyAgreementAccepted: true
     }.to_json)
+
+    factory :va1995_full_form do
+      form(File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995', 'kitchen_sink.json')))
+    end
   end
 end
 

@@ -101,10 +101,10 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       let(:spool_files) { Rails.root.join('tmp/spool_files/*') }
       before do
         expect(Rails.env).to receive('development?').once { true }
-        application_1606.form = {}.to_json
-        application_1606.save! # Make this claim super malformed
-        FactoryGirl.create(:education_benefits_claim_western_region)
-        FactoryGirl.create(:education_benefits_claim_1995_full_form)
+        application_1606.saved_claim.form = {}.to_json
+        application_1606.saved_claim.save! # Make this claim super malformed
+        FactoryGirl.create(:va1990_western_region)
+        FactoryGirl.create(:va1995_full_form)
         # clear out old test files
         FileUtils.rm_rf(Dir.glob(spool_files))
         # ensure our test data is spread across 3 regions..
