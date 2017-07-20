@@ -24,11 +24,6 @@ class EducationBenefitsClaim < ActiveRecord::Base
     chapter30
   ).freeze
 
-  validates(:form, :form_type, presence: true)
-  validates(:form_type, inclusion: FORM_TYPES)
-  validate(:form_matches_schema)
-  validate(:form_must_be_string)
-
   belongs_to(:saved_claim, class_name: 'SavedClaim::EducationBenefits', inverse_of: :education_benefits_claim)
 
   has_one(:education_benefits_submission, inverse_of: :education_benefits_claim)
