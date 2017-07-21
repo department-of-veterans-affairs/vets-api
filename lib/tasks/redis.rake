@@ -118,50 +118,50 @@ namespace :redis do
       puts "MHV ID holders who are not patients: #{mhv_non_patient}"
       puts "Users with baseline address fields: #{addressees}"
     end
-  end
 
-  desc 'Audit User LOA'
-  task loa: :environment do
-    count = 0
-    loa1 = 0
-    loa3 = 0
+    desc 'Audit User LOA'
+    task loa: :environment do
+      count = 0
+      loa1 = 0
+      loa3 = 0
 
-    namespace = 'users'
-    redis = Redis.current
-    redis.scan_each(match: "#{namespace}:*") do |key|
-      begin
-        u = Oj.load(redis.get(key))
-        count += 1
-        loa = u[:loa][:highest]
-        if loa == 3
-          loa3 += 1
-        elsif loa == 1
-          loa1 += 1
+      namespace = 'users'
+      redis = Redis.current
+      redis.scan_each(match: "#{namespace}:*") do |key|
+        begin
+          u = Oj.load(redis.get(key))
+          count += 1
+          loa = u[:loa][:highest]
+          if loa == 3
+            loa3 += 1
+          elsif loa == 1
+            loa1 += 1
+          end
+        rescue
+          puts "Couldn't parse #{key}"
         end
-      rescue
-        puts "Couldn't parse #{key}"
       end
+
+      puts "Total logged-in users: #{count}"
+      puts "Highest LOA3: #{loa3}"
+      puts "Highest LOA1: #{loa1}"
     end
 
-    puts "Total logged-in users: #{count}"
-    puts "Highest LOA3: #{loa3}"
-    puts "Highest LOA1: #{loa1}"
-  end
+    desc 'Audit Veteran Status'
+    task emis: :environment do
+      count = 0
+      veteran = 0
 
-  desc 'Audit Veteran Status'
-  task emis: :environment do
-    count = 0
-    veteran = 0
-
-    namespace = 'veteran-status-response'
-    redis = Redis.current
-    redis.scan_each(match: "#{namespace}:*") do |key|
-      begin
-        count += 1
-        resp = Oj.load(redis.get(key))[:response]
-        veteran += 1 if any_veteran_indicator?(resp.items.first)
-      rescue
-        puts "Couldn't parse #{key}"
+      namespace = 'veteran-status-response'
+      redis = Redis.current
+      redis.scan_each(match: "#{namespace}:*") do |key|
+        begin
+          count += 1
+          resp = Oj.load(redis.get(key))[:response]
+          veteran += 1 if any_veteran_indicator?(resp.items.first)
+        rescue
+          puts "Couldn't parse #{key}"
+        end
       end
     end
   end
