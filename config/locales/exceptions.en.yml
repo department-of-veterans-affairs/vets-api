@@ -111,6 +111,13 @@ en:
         detail: "Did not receive a timely response from an upstream server"
         code: 504
         status: 504
+      account_creation_error:
+        <<: *defaults
+        title: Operation failed
+        detail: "Failed to create or upgrade health tools account access"
+        code: "MHVAC1"
+        status: 403
+
 # EXTERNAL EXCEPTIONS
     # This is a Generic Error corresponding to backend services
       backend_service_exception: &external_defaults
@@ -207,16 +214,18 @@ en:
         <<: *validation_errors
         code: 'RX157'
         detail: 'Email address is invalid'
-      MHVAC1:
-        <<: *external_defaults
-        code: 'MHV001'
-        detail: 'Failed to create or upgrade health tools account access'
-        status: 403
       MHVAcctCreation155: # Account is already Upgraded
         <<: *external_defaults
         code: 'MHVAcctCreation155'
         detail: 'Account is already upgraded'
         status: 422
+      APPEALSSTATUS404:
+        <<: *external_defaults
+        title: 'Appeals data not found'
+        code: 'APPEALSSTATUS404'
+        detail: 'Appeals data for a veteran with that SSN was not found'
+        status: 404
+
   evss:
     letters:
       unable_to_determine_eligibilty:
@@ -243,3 +252,9 @@ en:
         detail: 'EVSS received an error calling external service'
         code: 113
         status: 503
+    gi_bill_status:
+      <<: *defaults
+      title: External service unavailable
+      detail: 'EVSS received an error calling external service'
+      code: 113
+      status: 503

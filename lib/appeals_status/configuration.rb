@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'common/client/configuration/rest'
 require 'common/client/middleware/request/camelcase'
+require 'common/client/middleware/response/caseflow_errors'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/raise_error'
 require 'common/client/middleware/response/snakecase'
@@ -26,6 +27,7 @@ module AppealsStatus
         conn.request :json
         conn.response :snakecase
         conn.response :raise_error, error_prefix: service_name
+        conn.response :caseflow_errors
         conn.response :json_parser
         conn.adapter Faraday.default_adapter
       end
