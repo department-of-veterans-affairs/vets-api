@@ -2,14 +2,6 @@
 
 This project provides common APIs for applications that live on vets.gov.
 
-## Developer Setup
-As an alternative, you may use [Docker to setup Postgres, Redis, & specific version of Ruby](#development-setup--docker-)
-
-Vets API requires:
-- PostgreSQL
-- Redis
-- Ruby 2.3
-
 ### Base Setup
 
 To start, fetch this code:
