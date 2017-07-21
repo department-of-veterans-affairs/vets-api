@@ -42,7 +42,7 @@ module Swagger
               end
             end
 
-            response 400 do
+            response 404 do
               key :description, 'folder show messages response error'
 
               schema do
@@ -68,7 +68,7 @@ module Swagger
               end
             end
 
-            response 400 do
+            response 404 do
               key :description, 'folder show response error'
 
               schema do
@@ -113,7 +113,7 @@ module Swagger
               key :description, 'delete folder response'
             end
 
-            response 400 do
+            response 404 do
               key :description, 'folder delete response error'
 
               schema do

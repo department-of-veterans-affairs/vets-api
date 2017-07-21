@@ -137,12 +137,17 @@ en:
         <<: *external_defaults
         code: 'SM115'
         title: Record not found
-        detail: 'The attachment requested could not be found'
+        detail: 'Attachment requested could not be found'
         status: 404
       SM116: # 'The Folder must be empty before delete'
         <<: *external_defaults
         code: 'SM116'
         detail: 'Folder must be empty before you can delete it'
+        status: 422
+      SM119: # 'Triage team does not exist' when trying to create new message
+        <<: *external_defaults
+        code: 'SM119'
+        detail: 'Triage team does not exist'
         status: 422
       SM129:
         <<: *external_defaults
@@ -173,11 +178,11 @@ en:
         code: 'SM901'
         detail: 'Service is termporarily unavailable'
         status: 503
-      SM904: # 'Message Service Error'
+      SM904: # 'Message Service Error' - treating as 404, see gets_a_message_thread_id_error
         <<: *external_defaults
         code: 'SM904'
-        detail: 'Something went wrong. Please try again later.'
-        status: 502
+        detail: 'Message requested could not be found'
+        status: 404
       SM99: # 'Unknown application error occurred'
         <<: *external_defaults
         code: 'SM99'
@@ -188,6 +193,11 @@ en:
         code: 'RX135'
         detail: 'You have not accepted the MHV T&C to use prescriptions'
         status: 403
+      RX138: # 'Prescription is not Found'
+        <<: *external_defaults
+        code: 'RX138'
+        detail: 'Prescription requested could not be found'
+        status: 404
       RX139:
         <<: *external_defaults
         code: 'RX139'
