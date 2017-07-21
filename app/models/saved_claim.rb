@@ -8,7 +8,7 @@ require 'attr_encrypted'
 # * `CONFIRMATION` should be a small ident used as part of the confirmation
 #    number to quickly determine the form/product type
 # *  Optionally `PERSISTENT_CLASS`, which is a subclass of `PersistentAttachment`
-#    that can be used when the subclass impliments to_pdf as a way to convert
+#    that can be used when the subclass implements to_pdf as a way to convert
 #    the raw submission into a filled PDF using the PdfFill lib.
 # *  `regional_office()`, which returns an array or string of the location of
 #    the claim processing facility
