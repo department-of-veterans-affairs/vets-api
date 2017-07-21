@@ -2,68 +2,25 @@
 
 This project provides common APIs for applications that live on vets.gov.
 
-## Developer Setup
-
-Vets API requires:
-- PostgreSQL
-- Redis
-- Ruby 2.3
-
 ### Base Setup
 
 To start, fetch this code:
 
 `git clone https://github.com/department-of-veterans-affairs/vets-api.git`
 
-
-#### Automated (OSX)
-
-If you are developing on OSX, you can run the automated setup script. From
-the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd .`
-
-#### Alternative (OSX)
-
-1. Install Ruby 2.3.
-   - It is suggested that you use a Ruby version manager such as
-    [rbenv](https://github.com/rbenv/rbenv#installation) and
-    [install Ruby 2.3](https://github.com/rbenv/rbenv#installing-ruby-versions).
-   - *NOTE*: rbenv will also provide additional installation instructions in the
-    console output. Make sure to follow those too.
-1. Install Bundler to manage dependencies
-   - `gem install bundler`
-1. Install Postgres and enable on startup
-   - `brew install postgres`
-   - `brew services start postgres`
-1. Install Redis
-   - `brew install redis`
-   - Follow post-install instructions to enable Redis on startup. Otherwise,
-    launch it manually with `brew services start redis`.
-1. Install ImageMagick
-   - `brew install imagemagick`
-1. Install ClamAV
-  - `brew install clamav`
-  - Take note of the the post-install instructions `To finish installation & run clamav
-  you will need to edit the example conf files at ${conf_files_dir}` (_${conf_files_dir}_ 
-  will differ based on your homebrew location) then:
-    - `cd ${conf_files_dir}`
-    - `touch clamd.sock`
-    - `echo "LocalSocket ${conf_files_dir}" > clamd.conf` 
-    - `echo "DatabaseMirror database.clamav.net" > freshclam.conf`
-    - `freshclam -v`
-1. Install pdftk
-  - `brew install https://gist.githubusercontent.com/lihanli/03ec8f17a6a1ff52e3a149be4cf7f2ae/raw/d18eff01396bbc25a928f756ff21edcc3521fc5e/pdftk.rb`
-1. Install gem dependencies: `cd vets-api; bundle install`
-1. Install overcommit `overcommit --install --sign`
+1. Install [Docker for Mac](https://docs.docker.com/docker-for-mac/install/). This will configure both `docker` and `docker-compose`.
 1. Setup localhost certificates / keys:
-   - Create a hidden folder in your home directory:  `mkdir ~/.certs`
-   - Copy the [certificate][certificate] to `~/.certs/vetsgov-localhost.crt`
-   - Copy the [key][key] to `~/.certs/vetsgov-localhost.key`
+   - Create a folder in your vets-api directory:  `mkdir config/certs`
+   - Copy the [certificate][certificate] to `config/certs/vetsgov-localhost.crt`
+   - Copy the [key][key] to `config/certs/vetsgov-localhost.key`
    - *NOTE*: If you don't have access to these keys, running the following
-     commands will provide basic functionality, such as for running unit tests:
-   - `touch ~/.certs/vetsgov-localhost.crt`
-   - `touch ~/.certs/vetsgov-localhost.key`
-1. Create dev database: `bundle exec rake db:setup`
+     commands will provide basic functionality:
+   - `touch config/certs/vetsgov-localhost.crt`
+   - `touch config/certs/vetsgov-localhost.key`
+1. Run the vets-api dependencies and application
+    - `docker-compose -f docker-compose.yml -f docker-compose.dev.yml up`
 
+The API will then be available on port 3000 of the docker host.
 
 [certificate]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Files_From_IDme/development-certificates/vetsgov-localhost.crt
 [key]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Files_From_IDme/development-certificates/vetsgov-localhost.key
@@ -106,13 +63,7 @@ From within the cloned repo directory, you can run this command to run
 `vets-api`:
 
 ```
-bundle exec rails server
-```
-
-You can also run `vets-api` with Foreman:
-
-```
-bundle exec foreman start
+make run
 ```
 
 You should then be able to navigate to http://localhost:3000/v0/status in your
@@ -120,11 +71,10 @@ browser and start interacting with the API.
 
 ### Testing Commands
 
-- `bundle exec rake lint` - Run the full suite of linters on the codebase.
-- `bundle exec guard` - Runs the guard test server that reruns your tests after
-  files are saved. Useful for TDD!
-- `bundle exec rake security` - Run the suite of security scanners on the codebase.
-- `bundle exec rake ci` - Run all build steps performed in CI.
+- `make lint` - Run the full suite of linters on the codebase.
+- `make guard` - Run the guard test server that reruns your tests after files are saved. Useful for TDD!
+- `make security` - Run the suite of security scanners on the codebase.
+- `make ci` - Run all build steps performed in CI.
 
 ## Deployment Instructions
 

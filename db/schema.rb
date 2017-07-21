@@ -102,8 +102,8 @@ ActiveRecord::Schema.define(version: 20170703225400) do
     t.datetime "updated_at",             null: false
     t.integer  "saved_claim_id"
     t.datetime "completed_at"
-    t.string   "encrypted_file_data"
-    t.string   "encrypted_file_data_iv"
+    t.string   "encrypted_file_data",    null: false
+    t.string   "encrypted_file_data_iv", null: false
   end
 
   create_table "saved_claims", force: :cascade do |t|
