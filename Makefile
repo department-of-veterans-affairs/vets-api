@@ -41,5 +41,5 @@ test:
 .PHONY: clean
 clean:
 	rm -rf data
-	$(COMPOSE_TEST) run vets-api rm -r coverage log
+	$(COMPOSE_TEST) run vets-api rm -r coverage log tmp
 	$(COMPOSE_TEST) down
