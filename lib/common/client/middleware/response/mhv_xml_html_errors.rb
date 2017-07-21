@@ -8,9 +8,8 @@ module Common
           attr_reader :status, :breakers_service
 
           def initialize(app, options = {})
-            # set the error prefix to something like 'RX' or 'SM'
             @breakers_service = options[:breakers_service]
-            # raise ArgumentError.new('no BreakersService provided') unless @breakers_service.is_a?(Breakers::Service)
+            raise ArgumentError.new('no BreakersService provided') unless @breakers_service.is_a?(Breakers::Service)
             super(app)
           end
 
