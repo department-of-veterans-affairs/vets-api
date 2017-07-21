@@ -1,10 +1,10 @@
 FROM centos:6
 
 # Match the jenkins uid/gid on the host (504)
-RUN groupadd --gid 504 jenkins \
-  && useradd --uid 504 --gid jenkins --shell /bin/bash --create-home jenkins
+RUN groupadd -r vets-api && \
+      useradd -r -g vets-api vets-api
 
-RUN yum install -y git make gcc-c++ openssl-devel readline-devel zlib-devel sqlite-devel postgresql-devel socat timeout epel-release
+RUN yum install -y git make gcc-c++ openssl-devel readline-devel zlib-devel sqlite-devel postgresql-devel socat timeout epel-release nc
 
 # Install Red Hat SCI library for ruby packages
 RUN yum install -y centos-release-scl-rh
@@ -25,9 +25,9 @@ RUN yum install -y ImageMagick ImageMagick-devel
 RUN yum install -y clamav clamav-scanner
 
 # Configure vets-api application
-RUN mkdir -p /src/vets-api && chown jenkins:jenkins /src/vets-api
+RUN mkdir -p /src/vets-api && chown vets-api:vets-api /src/vets-api
+VOLUME /src/vets-api
 WORKDIR /src/vets-api
-USER jenkins
 
 ADD Gemfile /src/vets-api/Gemfile
 ADD Gemfile.lock /src/vets-api/Gemfile.lock

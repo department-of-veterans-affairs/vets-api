@@ -6,6 +6,8 @@ services:
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+    volumes:
+      - "./data:/var/lib/postgresql/data"
   redis:
     image: "redis:3.2"
   vets-api:
@@ -28,6 +30,9 @@ services:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       CI:
       RAILS_ENV:
+    depends_on:
+      - postgres
+      - redis
     links:
       - postgres
       - redis

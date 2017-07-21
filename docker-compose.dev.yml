@@ -1,6 +1,0 @@
-# Compose stack to run vets-api
-version: '2.1'
-services:
-  postgres:
-    volumes:
-      - "./data:/var/lib/postgresql/data"

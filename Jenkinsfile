@@ -12,7 +12,7 @@ pipeline {
     stage('Run tests') {
       steps {
         withEnv(['RAILS_ENV=test', 'CI=true']) {
-          sh 'docker-compose -f docker-compose.yml -f docker-compose.test.yml run -u $(id -u) vets-api bash --login -c "bundle exec rake db:create db:schema:load ci"'
+          sh 'make ci'
         }
       }
     }
@@ -36,7 +36,7 @@ pipeline {
   }
   post {
         always {
-            sh 'docker-compose -f docker-compose.yml -f docker-compose.test.yml down'
+            sh 'make clean'
             archive "coverage/**"
             publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
             junit 'log/*.xml'

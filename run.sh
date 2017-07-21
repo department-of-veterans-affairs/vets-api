@@ -1,8 +1,6 @@
 #!/bin/bash
 source /etc/profile
 
-yum install -y nc
-
 echo "Waiting for database ${POSTGRES_HOST}:${POSTGRES_PORT} to become ready"
 timeout 300 bash -c 'while [[ $(nc -z ${POSTGRES_HOST} ${POSTGRES_PORT}; echo $?) -ne 0 ]]; do echo "waiting" && sleep 1; done' || exit 1
 echo "Database has become ready"
