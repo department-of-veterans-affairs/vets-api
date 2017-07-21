@@ -31,6 +31,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   delegate(:confirmation_number, to: :saved_claim)
   delegate(:parsed_form, to: :saved_claim)
+  delegate(:form, to: :saved_claim)
 
   before_save(:set_region)
   after_create(:create_education_benefits_submission)

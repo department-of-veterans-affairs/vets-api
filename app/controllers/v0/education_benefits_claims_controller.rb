@@ -18,7 +18,7 @@ module V0
       StatsD.increment("#{stats_key}.success")
       Rails.logger.info "ClaimID=#{claim.id} RPO=#{claim.education_benefits_claim.region} Form=#{form_type}"
       clear_saved_form(claim.form_id)
-      render(json: claim)
+      render(json: claim.education_benefits_claim)
     end
 
     private
