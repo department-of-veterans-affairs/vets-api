@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 FactoryGirl.define do
   factory :va5495, class: SavedClaim::EducationBenefits::VA5495, parent: :education_benefits do
     form({
@@ -10,4 +11,3 @@ FactoryGirl.define do
     }.to_json)
   end
 end
-

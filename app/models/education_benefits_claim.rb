@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'attr_encrypted'
 class EducationBenefitsClaim < ActiveRecord::Base
-  # TODO dont need this constant
+  # TODO: dont need this constant
   FORM_SCHEMAS = IceNine.deep_freeze(
     lambda do
       return_val = {}
@@ -69,7 +69,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
       transform_form
 
       @application
-    end.()
+    end.call
   end
 
   def transform_form
