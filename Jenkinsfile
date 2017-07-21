@@ -36,10 +36,10 @@ pipeline {
   }
   post {
         always {
-            sh 'make clean'
             archive "coverage/**"
             publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
             junit 'log/*.xml'
+            sh 'make clean'
             deleteDir() /* clean up our workspace */
         }
   }
