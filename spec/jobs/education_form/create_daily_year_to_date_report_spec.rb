@@ -11,6 +11,10 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
     described_class.new
   end
 
+  before do
+    allow_any_instance_of(EducationBenefitsClaim).to receive(:create_education_benefits_submission)
+  end
+
   context 'with some sample submissions', run_at: '2017-01-04 03:00:00 EDT' do
     before do
       2.times do
