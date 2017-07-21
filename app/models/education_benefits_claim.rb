@@ -1,19 +1,7 @@
 # frozen_string_literal: true
 require 'attr_encrypted'
 class EducationBenefitsClaim < ActiveRecord::Base
-  # TODO: dont need this constant
-  FORM_SCHEMAS = IceNine.deep_freeze(
-    lambda do
-      return_val = {}
-
-      %w(1990 1995 1990e 5490 5495 1990n).each do |form_type|
-        return_val[form_type] = VetsJsonSchema::SCHEMAS["22-#{form_type.upcase}"]
-      end
-
-      return_val
-    end.call
-  )
-  FORM_TYPES = FORM_SCHEMAS.keys
+  FORM_TYPES = %w(1990 1995 1990e 5490 5495 1990n)
 
   APPLICATION_TYPES = %w(
     chapter33
