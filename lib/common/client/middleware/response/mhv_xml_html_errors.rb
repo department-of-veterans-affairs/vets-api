@@ -26,11 +26,14 @@ module Common
             extra_context = { original_status: @status, original_body: body, original_header: header }
             # eventually we won't need to log_message_to_sentry for 503, but lets do it for now
             log_message_to_sentry('Could not parse XML/HTML response from MHV', :warn, extra_context)
-            if status == 503
-              breakers_service.begin_forced_outage!
-              raise Breakers::OutageException.new(breakers_service.latest_outage, breakers_service)
+            if @status == 503
+              # Eventually we might want to trigger an outtage too, but lets wait and find out more
+              # about Retry-After and whether or not it is worth modifying the breakers gem to support
+              # this public interface. NOTE; begin_forced_outage! would need manual intervention to fix.
+              # Breakers::Outage.create(service: breakers_service)
+              raise Breakers::OutageException.new(nil, breakers_service)
             else
-              raise Common::Exceptions::BackendServiceException.new('VA900', response_values, status, body)
+              raise Common::Exceptions::BackendServiceException.new('VA900', response_values, @status, body)
             end
           end
 
