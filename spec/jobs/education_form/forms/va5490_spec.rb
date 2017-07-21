@@ -3,7 +3,7 @@ require 'rails_helper'
 
 RSpec.describe EducationForm::Forms::VA5490 do
   context 'method tests' do
-    let(:education_benefits_claim) { build(:education_benefits_claim_5490) }
+    let(:education_benefits_claim) { build(:va5490).education_benefits_claim }
 
     subject { described_class.new(education_benefits_claim) }
 
@@ -14,7 +14,7 @@ RSpec.describe EducationForm::Forms::VA5490 do
     describe 'previous benefits' do
       context 'without previous benefits' do
         before do
-          education_benefits_claim.form = {
+          education_benefits_claim.saved_claim.form = {
             privacyAgreementAccepted: true,
             previousBenefits: {
               disability: false,
@@ -36,7 +36,7 @@ RSpec.describe EducationForm::Forms::VA5490 do
 
       context 'with previous benefits' do
         before do
-          education_benefits_claim.form = {
+          education_benefits_claim.saved_claim.form = {
             privacyAgreementAccepted: true,
             previousBenefits: {
               disability: true,
