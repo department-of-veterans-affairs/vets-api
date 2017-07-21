@@ -594,17 +594,6 @@ module PdfFill
         hash
       end
 
-      def combine_hash_and_del_keys(hash, keys, new_key, separator = ' ')
-        return if hash.blank?
-        hash[new_key] = combine_hash(hash, keys, separator)
-
-        keys.each do |key|
-          hash.delete(key)
-        end
-
-        hash
-      end
-
       def expand_marital_status(hash, key)
         marital_status = hash[key]
         return if marital_status.blank?
@@ -898,12 +887,6 @@ module PdfFill
         end
       end
 
-      def expand_vamc
-        if @form_data['hasVisitedVAMC']
-          @form_data['vaHospitalTreatments'] = 'Look up VAMC treatment history'
-        end
-      end
-
       def expand_spouse_addr
         combine_both_addr(@form_data, 'spouseAddress')
       end
@@ -963,7 +946,6 @@ module PdfFill
         expand_net_worths
         expand_monthly_incomes
         combine_other_expenses
-        expand_vamc
 
         expand_bank_acct(@form_data['bankAccount'])
 
