@@ -94,7 +94,7 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
       end
 
       it 'should log the validation errors' do
-        education_benefits_claim = EducationBenefitsClaim.new(params[:educationBenefitsClaim])
+        education_benefits_claim = SavedClaim::EducationBenefits::VA1990.new(params[:educationBenefitsClaim])
         education_benefits_claim.valid?
         validation_error = education_benefits_claim.errors.full_messages.join(', ')
 
