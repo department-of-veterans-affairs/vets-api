@@ -28,14 +28,10 @@ services:
       POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
-      CI:
-      RAILS_ENV:
     depends_on:
       - postgres
       - redis
     links:
       - postgres
       - redis
-    command: "/src/vets-api/run.sh"
-    stdin_open: true
-    tty: true
+    command: bash --login -c "foreman start"

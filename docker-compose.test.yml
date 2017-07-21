@@ -12,8 +12,6 @@ services:
     image: "vets-api:${BUILD_TAG:-latest}"
     volumes:
       - ".:/src/vets-api"
-    ports:
-      - 3000:3000
     environment:
       "Settings.database_url": "postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
       "Settings.saml.cert_path": "/src/vets-api/spec/support/certificates/ruby-saml.crt"
@@ -33,6 +31,3 @@ services:
     links:
       - postgres
       - redis
-    command: "/src/vets-api/run.sh"
-    stdin_open: true
-    tty: true
