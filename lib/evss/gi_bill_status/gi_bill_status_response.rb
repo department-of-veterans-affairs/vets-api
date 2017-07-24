@@ -30,7 +30,12 @@ module EVSS
         'education.service.error'
       ].freeze
 
-      ERRORS = %i(evss_error vet_not_found timeout invalid_auth).freeze
+      KNOWN_ERRORS = {
+        :evss_error => 'evss_error',
+        :vet_not_found => 'vet_not_found',
+        :timeout => 'timeout',
+        :invalid_auth => 'invalid_auth'
+      }.freeze
 
       def initialize(status, response = nil, timeout = false, content_type = 'application/json')
         @timeout = timeout
@@ -45,8 +50,8 @@ module EVSS
       end
 
       def error_type
-        ERRORS.each do |error|
-          return error if send("#{error}?")
+        KNOWN_ERRORS.each do |error_key, error_val|
+          return error_val if send("#{error_val}?")
         end
 
         'unknown'

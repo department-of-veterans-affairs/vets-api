@@ -15,8 +15,6 @@ module V0
                serializer: Post911GIBillStatusSerializer,
                meta: response.metadata
       else
-        # EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS
-        puts "BILLZ #{EVSS::GIBillStatus::GiBillStatusResponse::KNOWN_ERRORS}"
         error_type = response.error_type
         StatsD.increment(STATSD_GI_BILL_FAIL_KEY, tags: ["error:#{error_type}"])
         case error_type
