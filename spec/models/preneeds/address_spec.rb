@@ -1,68 +1,25 @@
 # frozen_string_literal: true
 require 'rails_helper'
+require 'support/preneeds_helpers'
 
 RSpec.describe Preneeds::Address do
+  include Preneeds::Helpers
+
   subject { described_class.new(params) }
+
   let(:params) { attributes_for :address }
 
-  context 'with valid attributes' do
-    it { expect(subject).to be_valid }
+  it 'populates the model' do
+    expect(json_symbolize(subject)).to eq(params)
   end
 
-  context 'with invalid attributes' do
-    it 'requires an address' do
-      params.delete(:address1)
-      expect(subject).to_not be_valid
-    end
+  it 'specifies the permitted_params' do
+    expect(described_class.permitted_params).to include(
+      :address1, :address2, :address3, :city, :country_code, :postal_zip, :state
+    )
+  end
 
-    it 'requires a city' do
-      params.delete(:city)
-      expect(subject).to_not be_valid
-    end
-
-    it 'requires a country' do
-      params.delete(:country_code)
-      expect(subject).to_not be_valid
-    end
-
-    it 'state must be 2 or 3 characters' do
-      params[:state] = 'a' * 4
-      expect(subject).to_not be_valid
-    end
-
-    it 'address1 must be less than 36 characters' do
-      params[:address1] = 'a' * 36
-      expect(subject).to_not be_valid
-    end
-
-    it 'address2 must be less than 36 characters' do
-      params[:address2] = 'a' * 36
-      expect(subject).to_not be_valid
-    end
-
-    it 'address3 must be less than 36 characters' do
-      params[:address3] = 'a' * 36
-      expect(subject).to_not be_valid
-    end
-
-    it 'city must be less than 31 characters' do
-      params[:city] = 'a' * 31
-      expect(subject).to_not be_valid
-    end
-
-    it 'state must be less than 4 characters' do
-      params[:state] = 'a' * 4
-      expect(subject).to_not be_valid
-    end
-
-    it 'country_code must be in a predefined list' do
-      params[:country_code] = 'a!'
-      expect(subject).to_not be_valid
-    end
-
-    it 'postal_zip must be exactly 5 characters' do
-      params[:postal_zip] = '1' * 6
-      expect(subject).to_not be_valid
-    end
+  it 'produces a message hash whose keys are ordered' do
+    expect(subject.message.keys).to eq([:address1, :address2, :address3, :city, :countryCode, :postalZip, :state])
   end
 end
