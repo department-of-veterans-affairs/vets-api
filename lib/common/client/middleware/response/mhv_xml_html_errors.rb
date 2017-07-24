@@ -9,7 +9,7 @@ module Common
 
           def initialize(app, options = {})
             @breakers_service = options[:breakers_service]
-            raise ArgumentError.new('no BreakersService provided') unless @breakers_service.is_a?(Breakers::Service)
+            raise ArgumentError, 'no BreakersService provided' unless @breakers_service.is_a?(Breakers::Service)
             super(app)
           end
 
