@@ -23,12 +23,14 @@ module EVSS
       attribute :active_duty, Boolean
       attribute :enrollments, Array[Enrollment]
 
-      KNOWN_ERROR_KEYS = [
+      EVSS_ERROR_KEYS = [
         'education.chapter33claimant.partner.service.down',
         'education.chapter33enrollment.partner.service.down',
         'education.partner.service.invalid',
         'education.service.error'
       ].freeze
+
+      ERRORS = %i(evss_error vet_not_found timeout invalid_auth).freeze
 
       def initialize(status, response = nil, timeout = false, content_type = 'application/json')
         @timeout = timeout
@@ -38,19 +40,27 @@ module EVSS
         super(status, attributes)
       end
 
+      def is_success?
+        contains_education_info?
+      end
+
+      def error_type
+        ERRORS.each do |error|
+          return error if send("#{error}?")
+        end
+
+        'unknown'
+      end
+
+      private
+
+      ### ERROR types ###
       def timeout?
         @timeout
       end
 
       def evss_error?
-        contains_error_messages? && KNOWN_ERROR_KEYS.include?(error_key)
-      end
-
-      def contains_education_info?
-        return false if @response.nil? || text_response?
-        !vet_not_found? &&
-          @response.body.key?('chapter33_education_info') == true &&
-          @response.body['chapter33_education_info'] != {}
+        contains_error_messages? && EVSS_ERROR_KEYS.include?(evss_error_key)
       end
 
       def vet_not_found?
@@ -63,8 +73,14 @@ module EVSS
         return false if @response.nil?
         @response&.body&.to_s&.include?('AUTH_INVALID_IDENTITY') || @response&.status == 403
       end
+      ################
 
-      private
+      def contains_education_info?
+        return false if @response.nil? || text_response?
+        !vet_not_found? &&
+          @response.body.key?('chapter33_education_info') == true &&
+          @response.body['chapter33_education_info'] != {}
+      end
 
       def contains_error_messages?
         return false if @response.nil? || text_response?
@@ -73,7 +89,7 @@ module EVSS
           @response&.body['messages'].length.positive?
       end
 
-      def error_key
+      def evss_error_key
         return nil if @response.nil?
         @response&.body['messages'][0]['key']
       end
