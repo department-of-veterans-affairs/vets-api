@@ -18,7 +18,7 @@ To start, fetch this code:
    - `touch config/certs/vetsgov-localhost.crt`
    - `touch config/certs/vetsgov-localhost.key`
 1. Run the vets-api dependencies and application
-    - `docker-compose -f docker-compose.yml -f docker-compose.dev.yml up`
+    - `make up`
 
 The API will then be available on port 3000 of the docker host.
 
@@ -63,7 +63,7 @@ From within the cloned repo directory, you can run this command to run
 `vets-api`:
 
 ```
-make run
+make up
 ```
 
 You should then be able to navigate to http://localhost:3000/v0/status in your

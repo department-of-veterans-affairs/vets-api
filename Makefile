@@ -26,10 +26,6 @@ guard: db
 lint: db
 	@$(BASH_DEV) "bundle exec rake lint"
 
-.PHONY: run
-run: db
-	@$(COMPOSE_DEV) run vets-api
-
 .PHONY: security
 security: db
 	@$(BASH_DEV) "bundle exec rake security"
@@ -37,6 +33,10 @@ security: db
 .PHONY: test
 test:
 	@$(BASH_TEST) "bundle exec rake test"
+
+.PHONY: up
+up: db
+	@$(COMPOSE_DEV) up
 
 .PHONY: clean
 clean:
