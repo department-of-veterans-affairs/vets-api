@@ -2,6 +2,21 @@
 require 'workflow/task/shrine_file/base'
 
 require 'fileutils'
+
+# With a `@file` that must be a PDF (run the ConvertToPDF task before this if necessary)
+# add a stamp (by default, includes the date) to the PDF at provided coordinates.
+#
+# When added as part of a document upload workflow,
+# > run Workflow::Task::Shared::DatestampPdfTask, text: 'Vets.gov', x: 0, y: 0
+# would add a stamp of "Vets.gov 2017-01-01 00:00:00" in the bottom left
+# > run Workflow::Task::Shared::DatestampPdfTask, text: 'Vets.gov Submission', x: 449, y: 730, text_only: true
+# would add a stamp near the top-right without a datetime of 'Vets.gov Submission'
+#
+# Each file can also have a custom bit of text added after using the `append_to_stamp` option when passed into
+# the file upload args. Using the 'Vets.gov' workflow above:
+# > ThingUploader.new(append_to_stamp: 'something-extra').start!(file)
+# would add a stamp of "Vets.gov 2017-01-01 00:00:00 something-extra" in the bottom left
+
 module Workflow::Task::Shared
   class DatestampPdfTask < Workflow::Task::ShrineFile::Base
     def run(settings)
@@ -27,7 +42,7 @@ module Workflow::Task::Shared
         text += ('. ' + data[:append_to_stamp]) if data[:append_to_stamp]
       end
 
-      Prawn::Document.generate stamp_path do |pdf|
+      Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
         pdf.draw_text text, at: [x, y], size: 10
       end
     rescue StandardError => e

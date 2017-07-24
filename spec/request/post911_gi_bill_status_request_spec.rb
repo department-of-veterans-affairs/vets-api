@@ -27,40 +27,31 @@ RSpec.describe 'Fetching Post 911 GI Bill Status', type: :request do
   # TODO(AJD): this use case happens, 500 status but unauthorized message
   # check with evss that they shouldn't be returning 403 instead
   context 'with an 500 unauthorized response' do
-    it 'should return a not authorized response' do
+    it 'should return a forbidden response' do
       VCR.use_cassette('evss/gi_bill_status/unauthorized') do
         get v0_post911_gi_bill_status_url, nil, auth_header
-        expect(response).to have_http_status(:ok)
-        expect(response).to match_response_schema('post911_gi_bill_status')
-        expect(Oj.load(response.body).dig('meta', 'status')).to eq(
-          Common::Client::ServiceStatus::RESPONSE_STATUS[:not_authorized]
-        )
+        expect(response).to have_http_status(:forbidden)
       end
     end
   end
 
+  # TODO: - is this a real scenario?
   context 'with a 403 response' do
-    it 'should return a not authorized response' do
+    it 'should return a forbidden response' do
       VCR.use_cassette('evss/gi_bill_status/gi_bill_status_403') do
         get v0_post911_gi_bill_status_url, nil, auth_header
-        expect(response).to have_http_status(:ok)
-        expect(response).to match_response_schema('post911_gi_bill_status')
-        expect(Oj.load(response.body).dig('meta', 'status')).to eq(
-          Common::Client::ServiceStatus::RESPONSE_STATUS[:not_authorized]
-        )
+        expect(response).to have_http_status(:forbidden)
       end
     end
   end
 
-  context 'with a 500 evss response' do
-    it 'should return a not found response' do
+  # a 500 and does not contain one of the errors defined in:
+  # https://csraciapp6.evss.srarad.com/wss-education-services-web/swagger-ui/ext-docs/education-error-keys.html
+  context 'with an undefined 500 evss response' do
+    it 'should return internal server error' do
       VCR.use_cassette('evss/gi_bill_status/gi_bill_status_500') do
         get v0_post911_gi_bill_status_url, nil, auth_header
-        expect(response).to have_http_status(:ok)
-        expect(response).to match_response_schema('post911_gi_bill_status')
-        expect(Oj.load(response.body).dig('meta', 'status')).to eq(
-          Common::Client::ServiceStatus::RESPONSE_STATUS[:server_error]
-        )
+        expect(response).to have_http_status(:internal_server_error)
       end
     end
   end

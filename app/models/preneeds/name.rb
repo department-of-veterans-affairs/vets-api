@@ -2,25 +2,18 @@
 require 'common/models/base'
 
 module Preneeds
-  class Name < Common::Base
-    include ActiveModel::Validations
-
+  class Name < Preneeds::Base
     attribute :first_name, String
     attribute :last_name, String
     attribute :maiden_name, String
     attribute :middle_name, String
     attribute :suffix, String
 
-    # TODO: request that name length validations be set larger
-    validates :last_name, :first_name, presence: true
-    validates :last_name, :first_name, :middle_name, :maiden_name, length: { maximum: 15 }
-    validates :suffix, length: { maximum: 3 }
-
     # Hash attributes must correspond to xsd ordering or API call will fail
     def message
       hash = {
-        first_name: first_name, last_name: last_name, maiden_name: maiden_name,
-        middle_name: middle_name, suffix: suffix
+        firstName: first_name, lastName: last_name, maidenName: maiden_name,
+        middleName: middle_name, suffix: suffix
       }
 
       [:maiden_name, :middle_name, :suffix].each { |key| hash.delete(key) if hash[key].nil? }
