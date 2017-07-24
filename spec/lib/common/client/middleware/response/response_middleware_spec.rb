@@ -37,7 +37,7 @@ describe 'Response Middleware' do
       conn.response :snakecase
       conn.response :raise_error, error_prefix: 'RX'
       conn.response :mhv_errors
-      conn.response :mhv_xml_html_errors, breakers_service: breakers_service
+      conn.response :mhv_xml_html_errors, breakers_service: rx_breakers_service
       conn.response :json_parser
 
       conn.adapter :test do |stub|
@@ -52,28 +52,26 @@ describe 'Response Middleware' do
     end
   end
 
-  let(:breakers_service) do
-    def breakers_service
-      path = URI.parse('http://host.com').path
-      host = URI.parse('http://host.com').host
-      matcher = proc do |request_env|
-        request_env.url.host == host && request_env.url.path =~ /^#{path}/
-      end
-
-      exception_handler = proc do |exception|
-        if exception.is_a?(Common::Exceptions::BackendServiceException)
-          (500..599).cover?(exception.response_values[:status])
-        else
-          false
-        end
-      end
-
-      Breakers::Service.new(
-        name: 'RX',
-        request_matcher: matcher,
-        exception_handler: exception_handler
-      )
+  let(:rx_breakers_service) do
+    path = URI.parse('http://host.com').path
+    host = URI.parse('http://host.com').host
+    matcher = proc do |request_env|
+      request_env.url.host == host && request_env.url.path =~ /^#{path}/
     end
+
+    exception_handler = proc do |exception|
+      if exception.is_a?(Common::Exceptions::BackendServiceException)
+        (500..599).cover?(exception.response_values[:status])
+      else
+        false
+      end
+    end
+
+    Breakers::Service.new(
+      name: 'RX',
+      request_matcher: matcher,
+      exception_handler: exception_handler
+    )
   end
 
   it 'parses json successfully' do
