@@ -4,7 +4,6 @@ require 'sentry_logging'
 
 class MhvAccount < ActiveRecord::Base
   include AASM
-  include SentryLogging
 
   STATSD_ACCOUNT_EXISTED_KEY = 'mhv.account.existed'
   STATSD_ACCOUNT_CREATION_KEY = 'mhv.account.creation'
@@ -148,7 +147,6 @@ class MhvAccount < ActiveRecord::Base
         register!
       end
     end
-  # TODO: handle/log exceptions more carefully
   rescue => e
     StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.failure")
     fail_register!
@@ -164,7 +162,6 @@ class MhvAccount < ActiveRecord::Base
         upgrade!
       end
     end
-  # TODO: handle/log exceptions more carefully
   rescue => e
     if e.is_a?(Common::Exceptions::BackendServiceException) && e.original_body['code'] == 155
       StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
