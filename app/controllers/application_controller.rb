@@ -52,7 +52,7 @@ class ApplicationController < ActionController::API
         # Add additional user specific context to the logs
         extra.merge!(more_extra) if current_user.present?
         if exception.generic_error?
-          log_message_to_sentry(exception.va900_exception_message, :warn, i18n_exception_hint: exception.i18n_exception_hint)
+          log_message_to_sentry(exception.va900_message, :warn, i18n_exception_hint: exception.va900_hint)
         end
       end
       log_exception_to_sentry(exception, extra)

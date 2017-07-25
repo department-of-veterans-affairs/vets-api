@@ -80,11 +80,11 @@ module Common
         "common.exceptions.#{code}"
       end
 
-      def va900_exception_message
+      def va900_message
         "Unmapped VA900 (Backend Response: { status: #{original_status}, message: #{original_body}) }"
       end
 
-      def i18n_exception_hint
+      def va900_hint
         <<-MESSAGE.strip_heredoc
           Add the following to exceptions.en.yml
           #{response_values[:code]}:
