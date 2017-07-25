@@ -33,7 +33,7 @@ module Common
 
       alias generic_error? va900?
 
-      def va900_message
+      def va900_warning
         "Unmapped VA900 (Backend Response: { status: #{original_status}, message: #{original_body}) }"
       end
 

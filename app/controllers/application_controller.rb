@@ -48,11 +48,13 @@ class ApplicationController < ActionController::API
     if SKIP_SENTRY_EXCEPTION_TYPES.include?(exception.class) == false
       extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
       if exception.is_a?(Common::Exceptions::BackendServiceException)
-        more_extra = { icn: current_user.try(:icn), mhv_correlation_id: current_user.try(:mhv_correlation_id) }
         # Add additional user specific context to the logs
-        extra.merge!(more_extra) if current_user.present?
+        if current_user.present?
+          extra.merge!(icn: current_user.icn, mhv_correlation_id: current_user.mhv_correlation_id)
+        end
+        # Warn about VA900 needing to be added to exception.en.yml
         if exception.generic_error?
-          log_message_to_sentry(exception.va900_message, :warn, i18n_exception_hint: exception.va900_hint)
+          log_message_to_sentry(exception.va900_warning, :warn, i18n_exception_hint: exception.va900_hint)
         end
       end
       log_exception_to_sentry(exception, extra)
