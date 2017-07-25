@@ -33,6 +33,21 @@ module Common
 
       alias generic_error? va900?
 
+      def va900_message
+        "Unmapped VA900 (Backend Response: { status: #{original_status}, message: #{original_body}) }"
+      end
+
+      def va900_hint
+        <<-MESSAGE.strip_heredoc
+          Add the following to exceptions.en.yml
+          #{response_values[:code]}:
+            code: '#{response_values[:code]}'
+            detail: '#{response_values[:detail]}'
+            status: <http status code you want rendered (400, 422, etc)>
+            source: ~
+        MESSAGE
+      end
+
       private
 
       def render_overides
@@ -78,21 +93,6 @@ module Common
 
       def i18n_key
         "common.exceptions.#{code}"
-      end
-
-      def va900_message
-        "Unmapped VA900 (Backend Response: { status: #{original_status}, message: #{original_body}) }"
-      end
-
-      def va900_hint
-        <<-MESSAGE.strip_heredoc
-          Add the following to exceptions.en.yml
-          #{response_values[:code]}:
-            code: '#{response_values[:code]}'
-            detail: '#{response_values[:detail]}'
-            status: <http status code you want rendered (400, 422, etc)>
-            source: ~
-        MESSAGE
       end
     end
   end
