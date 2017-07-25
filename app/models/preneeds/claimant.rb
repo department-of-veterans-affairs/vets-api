@@ -31,11 +31,5 @@ module Preneeds
         address: Preneeds::Address.permitted_params, name: Preneeds::FullName.permitted_params
       ]
     end
-
-    private
-
-    def eoas_ssn
-      "#{ssn[0..2]}-#{ssn[3..4]}-#{ssn[5..8]}"
-    end
   end
 end

@@ -2,21 +2,23 @@
 module V0
   module Preneeds
     class BurialFormsController < PreneedsController
+      FORM = '40-10007'
+
       def new
       end
 
       def create
-        burial_forms = ::Preneeds::BurialForm.create_forms_array(burial_form_params)
-        validate!(burial_forms)
+        forms = ::Preneeds::BurialForm.create_forms_array(burial_form_params)
+        validate!(forms)
 
-        resource = client.receive_pre_need_application(burial_form.message)
-        render json: resource, serializer: ReceiveApplicationSerializer
+        resources = forms.map { |form| client.receive_pre_need_application(form.as_eoas) }
+        render json: resources, each_serializer: ReceiveApplicationSerializer
       end
 
       private
 
       def burial_form_params
-        params.require(:pre_need_request).map do |p|
+        params.require(:applications).map do |p|
           p.permit(
             :application_status, :has_attachments, :has_currently_buried, :sending_code,
             applicant: ::Preneeds::Applicant.permitted_params,
@@ -27,10 +29,11 @@ module V0
         end
       end
 
-      def validate!(_forms)
-        # TODO: replace this schema once VetsJsonSchema preneeds is merged.
+      def validate!(forms)
+        # TODO: Reinstate vets-json-schema once issue with currently buried is resolved
+        # schema = VetsJsonSchema::SCHEMAS[FORM]
         schema = JSON.parse(File.read(Settings.preneeds.burial_form_schema))
-        validation_errors = form.validate(schema, :pre_need_request)
+        validation_errors = ::Preneeds::BurialForm.validate(schema, forms)
 
         if validation_errors.present?
           log_message_to_sentry(validation_errors.join(','), :error, {}, validation: 'preneeds')

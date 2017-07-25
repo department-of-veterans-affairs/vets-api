@@ -5,12 +5,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
   include SchemaMatchers
 
   let(:params) do
-    {
-      pre_need_request: [
-        JSON.parse(build(:burial_form).to_json, symbolize_names: true),
-        JSON.parse(build(:burial_form).to_json, symbolize_names: true)
-      ]
-    }
+    { applications: [attributes_for(:burial_form)] }
   end
 
   context 'with valid input' do
@@ -27,7 +22,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
 
   context 'with invalid input' do
     it 'returns an with error' do
-      params[:pre_need_request][:veteran].delete(:military_status)
+      params[:applications].first[:veteran].delete(:military_status)
       post '/v0/preneeds/burial_forms', params
 
       error = JSON.parse(response.body)['errors'].first

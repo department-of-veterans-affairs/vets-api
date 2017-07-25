@@ -6,8 +6,8 @@ module Preneeds
     attribute :cemetery_number, String
     attribute :name, Preneeds::FullName
 
-    def message
-      { cemetery_number: cemetery_number, name: name.message }
+    def as_eoas
+      { cemeteryNumber: cemetery_number, name: name.as_eoas }
     end
 
     def self.permitted_params
