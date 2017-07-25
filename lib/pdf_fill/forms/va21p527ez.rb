@@ -40,6 +40,13 @@ module PdfFill
             question_suffix: 'A',
             question_text: "VETERAN'S SIGNATURE"
           },
+          'signatureDate' => {
+            key: 'F[0].Page_8[0].Date[0]',
+            limit: 11,
+            question_num: 33,
+            question_suffix: 'B',
+            question_text: 'DATE SIGNED'
+          },
           'monthlySpousePayment' => {
             key: 'F[0].Page_6[0].MonthlySupport[0]',
             limit: 11,

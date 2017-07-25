@@ -70,6 +70,7 @@ module PdfFill
 
       def expand_signature(full_name)
         @form_data['signature'] = combine_hash(full_name, %w(first last))
+        @form_data['signatureDate'] = Date.today.to_s
       end
 
       def combine_full_name(full_name)
