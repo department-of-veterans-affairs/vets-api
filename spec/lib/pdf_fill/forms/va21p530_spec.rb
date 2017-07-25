@@ -262,7 +262,7 @@ describe PdfFill::Forms::VA21P530 do
   end
 
   describe '#merge_fields' do
-    it 'should merge the right fields' do
+    it 'should merge the right fields', run_at: '2016-12-31 00:00:00 EDT' do
       expect(described_class.new(get_fixture('pdf_fill/21P-530/kitchen_sink')).merge_fields.to_json).to eq(
         get_fixture('pdf_fill/21P-530/merge_fields').to_json
       )
