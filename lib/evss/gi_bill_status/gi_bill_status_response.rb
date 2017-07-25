@@ -31,10 +31,10 @@ module EVSS
       ].freeze
 
       KNOWN_ERRORS = {
-        :evss_error => 'evss_error',
-        :vet_not_found => 'vet_not_found',
-        :timeout => 'timeout',
-        :invalid_auth => 'invalid_auth'
+        evss_error: 'evss_error',
+        vet_not_found: 'vet_not_found',
+        timeout: 'timeout',
+        invalid_auth: 'invalid_auth'
       }.freeze
 
       def initialize(status, response = nil, timeout = false, content_type = 'application/json')
@@ -45,12 +45,12 @@ module EVSS
         super(status, attributes)
       end
 
-      def is_success?
+      def success?
         contains_education_info?
       end
 
       def error_type
-        KNOWN_ERRORS.each do |error_key, error_val|
+        KNOWN_ERRORS.each do |_error_key, error_val|
           return error_val if send("#{error_val}?")
         end
 
