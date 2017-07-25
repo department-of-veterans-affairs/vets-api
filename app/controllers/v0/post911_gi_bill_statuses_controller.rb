@@ -25,12 +25,6 @@ module V0
 
     private
 
-    def service
-      EVSS::GiBillStatus::ServiceFactory.get_service(
-        user: @current_user, mock_service: Settings.evss.mock_gi_bill_status
-      )
-    end
-
     def render_error_json(error_type)
       case error_type
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:evss_error]
@@ -50,6 +44,12 @@ module V0
         log_message_to_sentry('Unexpected EVSS GiBillStatus Response', :error, response.to_h)
         raise Common::Exceptions::InternalServerError
       end
+    end
+
+    def service
+      EVSS::GiBillStatus::ServiceFactory.get_service(
+        user: @current_user, mock_service: Settings.evss.mock_gi_bill_status
+      )
     end
   end
 end
