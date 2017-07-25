@@ -50,7 +50,8 @@ class ApplicationController < ActionController::API
       if exception.is_a?(Common::Exceptions::BackendServiceException)
         # Add additional user specific context to the logs
         if current_user.present?
-          extra.merge!(icn: current_user.icn, mhv_correlation_id: current_user.mhv_correlation_id)
+          extra[:icn] = current_user.icn
+          extra[:mhv_correlation_id] = current_user.mhv_correlation_id
         end
         # Warn about VA900 needing to be added to exception.en.yml
         if exception.generic_error?
