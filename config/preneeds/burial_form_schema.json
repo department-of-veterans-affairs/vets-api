@@ -98,7 +98,8 @@
     "vaFileNumber": { "type": "string", "pattern": "^[cC]{0,1}\\d{8}$" }
   },
   "properties": {
-    "applications": { "type": "array",
+    "applications": {
+      "type": "array",
       "items": {
         "type": "object",
         "required": [
@@ -191,7 +192,7 @@
               "required": ["name"],
               "properties": {
                 "cemeteryNumber": { "type": "string", "pattern": "^\\d{3}$" },
-                "name": { "type": "string" }
+                "name": { "$ref": "#/definitions/fullName" }
               }
             }
           },

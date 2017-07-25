@@ -29,26 +29,24 @@ module Preneeds
     end
 
     # Hash attributes must correspond to xsd ordering or API call will fail
-    def message
+    def as_eoas
       hash = {
-        applicant: applicant.message, applicationStatus: application_status || '',
-        claimant: claimant.message, currentlyBuriedPersons: currently_buried_persons.map(&:message),
+        applicant: applicant&.as_eoas, applicationStatus: application_status || '',
+        claimant: claimant&.as_eoas, currentlyBuriedPersons: currently_buried_persons.map(&:as_eoas),
         hasAttachments: has_attachments, hasCurrentlyBuried: has_currently_buried,
         sendingApplication: sending_application, sendingCode: sending_code || '', sentTime: sent_time.iso8601,
-        trackingNumber: tracking_number, veteran: veteran.message
+        trackingNumber: tracking_number, veteran: veteran&.as_eoas
       }
 
-      [:currently_buried_persons].each do |key|
-        hash.delete(key) if hash[key].nil?
+      [:currentlyBuriedPersons].each do |key|
+        hash.delete(key) if hash[key].blank?
       end
 
       hash
     end
 
-    def validate(schema, root)
-      json = { root => message }
-
-      JSON::Validator.fully_validate(schema, json, validate_schema: true)
+    def self.validate(schema, forms, root = 'applications')
+      JSON::Validator.fully_validate(schema, { root => forms&.as_json }, validate_schema: true)
     end
   end
 end

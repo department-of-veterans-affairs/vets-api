@@ -28,6 +28,10 @@ RSpec.describe Preneeds::Claimant do
       params[:phone_number] = ''
       expect(subject.as_eoas.keys).not_to include(:email, :phoneNumber)
     end
+
+    it 'converts ssn to eoas format' do
+      expect(subject.as_eoas[:ssn]).to match(/\d{3}-\d{2}-\d{4}/)
+    end
   end
 
   describe 'when converting to json' do

@@ -6,10 +6,6 @@ RSpec.describe Preneeds::Veteran do
 
   let(:params) { attributes_for :veteran }
 
-  it 'populates the model' do
-    expect(json_symbolize(subject)).to eq(xml_dates(params))
-  end
-
   it 'specifies the permitted_params' do
     expect(described_class.permitted_params).to include(
       :date_of_birth, :date_of_death, :gender, :is_deceased, :marital_status,
@@ -19,17 +15,38 @@ RSpec.describe Preneeds::Veteran do
     expect(described_class.permitted_params).to include(
       address: Preneeds::Address.permitted_params, current_name: Preneeds::FullName.permitted_params,
       service_name: Preneeds::FullName.permitted_params, service_records: [Preneeds::ServiceRecord.permitted_params],
-      military_status: []
+      military_status: Preneeds::MilitaryStatus.permitted_params
     )
   end
 
-  it 'produces a message hash whose keys are ordered' do
-    expect(subject.message.keys).to eq(
-      [
-        :address, :currentName, :dateOfBirth, :dateOfDeath, :gender,
-        :isDeceased, :maritalStatus, :militaryServiceNumber, :placeOfBirth,
-        :serviceName, :serviceRecords, :ssn, :vaClaimNumber, :militaryStatus
-      ]
-    )
+  describe 'when converting to eoas' do
+    it 'produces a message hash whose keys are ordered' do
+      expect(subject.as_eoas.keys).to eq(
+        [
+          :address, :currentName, :dateOfBirth, :dateOfDeath, :gender,
+          :isDeceased, :maritalStatus, :militaryServiceNumber, :placeOfBirth,
+          :serviceName, :serviceRecords, :ssn, :vaClaimNumber, :militaryStatus
+        ]
+      )
+    end
+
+    it 'removes :dateOfBirth, dateOfDeath and :placeOfBirth if blank' do
+      params[:date_of_birth] = ''
+      params[:date_of_death] = ''
+      params[:place_of_birth] = ''
+
+      expect(subject.as_eoas.keys).not_to include(:dateOfBirth, :dateOfDeath, :placeOfBirth)
+    end
+
+    it 'converts ssn to eoas format' do
+      expect(subject.as_eoas[:ssn]).to match(/\d{3}-\d{2}-\d{4}/)
+    end
+  end
+
+  describe 'when converting to json' do
+    it 'converts its attributes from snakecase to camelcase' do
+      camelcased = params.deep_transform_keys { |key| key.to_s.camelize(:lower) }
+      expect(camelcased).to eq(subject.as_json)
+    end
   end
 end

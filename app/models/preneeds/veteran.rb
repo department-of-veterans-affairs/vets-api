@@ -1,11 +1,10 @@
 # frozen_string_literal: true
-require 'preneeds/models/attribute_types/xml_date'
 require 'common/models/base'
 
 module Preneeds
   class Veteran < Preneeds::Base
-    attribute :date_of_birth, XmlDate
-    attribute :date_of_death, XmlDate
+    attribute :date_of_birth, String
+    attribute :date_of_death, String
     attribute :gender, String
     attribute :is_deceased, String
     attribute :marital_status, String
@@ -20,14 +19,14 @@ module Preneeds
     attribute :service_records, Array[Preneeds::ServiceRecord]
     attribute :military_status, Preneeds::MilitaryStatus
 
-    def message
+    def as_eoas
       hash = {
-        address: address&.message, currentName: current_name.message, dateOfBirth: date_of_birth,
+        address: address&.as_eoas, currentName: current_name.as_eoas, dateOfBirth: date_of_birth,
         dateOfDeath: date_of_death, gender: gender, isDeceased: is_deceased,
         maritalStatus: marital_status, militaryServiceNumber: military_service_number,
-        placeOfBirth: place_of_birth, serviceName: service_name.message,
-        serviceRecords: service_records.map(&:message), ssn: ssn, vaClaimNumber: va_claim_number,
-        militaryStatus: military_status
+        placeOfBirth: place_of_birth, serviceName: service_name.as_eoas,
+        serviceRecords: service_records.map(&:as_eoas), ssn: eoas_ssn, vaClaimNumber: va_claim_number,
+        militaryStatus: military_status&.as_eoas
       }
 
       [:dateOfBirth, :dateOfDeath, :placeOfBirth].each { |key| hash.delete(key) if hash[key].blank? }
@@ -38,8 +37,10 @@ module Preneeds
       [
         :date_of_birth, :date_of_death, :gender, :is_deceased, :marital_status,
         :military_service_number, :place_of_birth, :ssn, :va_claim_number,
-        military_status: [], address: Preneeds::Address.permitted_params,
-        current_name: Preneeds::FullName.permitted_params, service_name: Preneeds::FullName.permitted_params,
+        military_status: Preneeds::MilitaryStatus.permitted_params,
+        address: Preneeds::Address.permitted_params,
+        current_name: Preneeds::FullName.permitted_params,
+        service_name: Preneeds::FullName.permitted_params,
         service_records: [Preneeds::ServiceRecord.permitted_params]
       ]
     end
