@@ -9,7 +9,6 @@ module Common
 
           def initialize(app, options = {})
             @breakers_service = options[:breakers_service]
-            binding.pry
             raise ArgumentError, 'no BreakersService provided' unless @breakers_service.is_a?(Breakers::Service)
             super(app)
           end
