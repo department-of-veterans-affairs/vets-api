@@ -13,12 +13,12 @@ module Preneeds
     attribute :place_of_birth, String
     attribute :ssn, String
     attribute :va_claim_number, String
-    attribute :military_status, Array[String]
 
     attribute :address, Preneeds::Address
-    attribute :current_name, Preneeds::Name
-    attribute :service_name, Preneeds::Name
+    attribute :current_name, Preneeds::FullName
+    attribute :service_name, Preneeds::FullName
     attribute :service_records, Array[Preneeds::ServiceRecord]
+    attribute :military_status, Preneeds::MilitaryStatus
 
     def message
       hash = {
@@ -39,7 +39,7 @@ module Preneeds
         :date_of_birth, :date_of_death, :gender, :is_deceased, :marital_status,
         :military_service_number, :place_of_birth, :ssn, :va_claim_number,
         military_status: [], address: Preneeds::Address.permitted_params,
-        current_name: Preneeds::Name.permitted_params, service_name: Preneeds::Name.permitted_params,
+        current_name: Preneeds::FullName.permitted_params, service_name: Preneeds::FullName.permitted_params,
         service_records: [Preneeds::ServiceRecord.permitted_params]
       ]
     end

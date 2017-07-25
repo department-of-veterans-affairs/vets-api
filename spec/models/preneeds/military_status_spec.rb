@@ -1,25 +1,26 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe Preneeds::Address do
+RSpec.describe Preneeds::MilitaryStatus do
   subject { described_class.new(params) }
 
-  let(:params) { attributes_for :address }
+  let(:params) { attributes_for :military_status }
 
   it 'specifies the permitted_params' do
     expect(described_class.permitted_params).to include(
-      :street, :street2, :city, :country, :postal_code, :state
+      :veteran, :retired_active_duty, :died_on_active_duty, :retired_reserve, :death_inactive_duty, :other
     )
   end
 
   describe 'when converting to eoas' do
-    it 'produces an ordered hash' do
-      expect(subject.as_eoas.keys).to eq([:address1, :address2, :city, :countryCode, :postalZip, :state])
+    it 'produces an array of string values' do
+      expect(subject.as_eoas).to include('V', 'E', 'D', 'O', 'I', 'X')
     end
 
-    it 'removes address2 if blank' do
-      params[:street2] = ''
-      expect(subject.as_eoas.keys).not_to include(:address2)
+    it 'only includes true attributes' do
+      params[:veteran] = nil
+      params[:retired_active_duty] = false
+      expect(subject.as_eoas).not_to include('V', 'E')
     end
   end
 

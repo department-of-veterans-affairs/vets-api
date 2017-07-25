@@ -16,6 +16,10 @@ module Preneeds
     attribute :currently_buried_persons, Array[Preneeds::CurrentlyBuriedPerson]
     attribute :veteran, Preneeds::Veteran
 
+    def self.create_forms_array(params_array)
+      Array.wrap(params_array).map { |params| BurialForm.new(params) }
+    end
+
     def current_time
       Time.now.utc
     end

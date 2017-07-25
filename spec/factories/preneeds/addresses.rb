@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 FactoryGirl.define do
   factory :address, class: Preneeds::Address do
-    sequence(:address1) { |n| "1st address line #{n}" }
-    sequence(:address2) { |n| "2nd address line #{n}" }
-    sequence(:address3) { |n| "3rd address line #{n}" }
+    sequence(:street) { |n| "street #{n}" }
+    sequence(:street2) { |n| "street2 #{n}" }
     city 'NY'
     state 'NY'
-    country_code 'US'
-    postal_zip '10000'
+    country 'US'
+    postal_code '10000'
   end
 end
