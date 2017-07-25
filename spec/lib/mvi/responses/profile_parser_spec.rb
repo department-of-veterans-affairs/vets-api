@@ -120,4 +120,24 @@ describe MVI::Responses::ProfileParser do
       expect(parser.parse).to have_deep_attributes(mvi_profile)
     end
   end
+
+  context 'with inactive MHV ID edge cases' do
+    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_inactive_mhv_ids.xml')) }
+
+    before { Settings.sentry.dsn = 'asdf' }
+    after { Settings.sentry.dsn = nil }
+
+    before(:each) do
+      allow(faraday_response).to receive(:body) { body }
+    end
+
+    it 'logs warning about inactive IDs' do
+      msg1 = 'Inactive MHV correlation IDs present'
+      msg2 = 'Returning inactive MHV correlation ID as first identifier'
+      expect(Raven).to receive(:extra_context).with(ids: %w(12345678901 12345678902)).twice
+      expect(Raven).to receive(:capture_message).with(msg1, level: :info)
+      expect(Raven).to receive(:capture_message).with(msg2, level: :warn)
+      parser.parse
+    end
+  end
 end
