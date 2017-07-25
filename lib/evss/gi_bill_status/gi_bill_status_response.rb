@@ -59,7 +59,6 @@ module EVSS
 
       private
 
-      ### ERROR types ###
       def timeout?
         @timeout
       end
@@ -78,7 +77,6 @@ module EVSS
         return false if @response.nil?
         @response&.body&.to_s&.include?('AUTH_INVALID_IDENTITY') || @response&.status == 403
       end
-      ################
 
       def contains_education_info?
         return false if @response.nil? || text_response?
