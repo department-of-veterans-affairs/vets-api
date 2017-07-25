@@ -33,6 +33,13 @@ module PdfFill
           'noFileNumber' => { key: 'F[0].Page_5[0].NoFiled[0]' },
           'hasPowDateRange' => { key: 'F[0].Page_5[0].YesPOW[0]' },
           'noPowDateRange' => { key: 'F[0].Page_5[0].NoPOW[0]' },
+          'signature' => {
+            key: 'F[0].Page_8[0].Signature[2]',
+            limit: 55,
+            question_num: 33,
+            question_suffix: 'A',
+            question_text: "VETERAN'S SIGNATURE"
+          },
           'monthlySpousePayment' => {
             key: 'F[0].Page_6[0].MonthlySupport[0]',
             limit: 11,
