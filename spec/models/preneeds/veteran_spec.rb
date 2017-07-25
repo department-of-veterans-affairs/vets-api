@@ -1,10 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'support/preneeds_helpers'
 
 RSpec.describe Preneeds::Veteran do
-  include Preneeds::Helpers
-
   subject { described_class.new(params) }
 
   let(:params) { attributes_for :veteran }
@@ -20,8 +17,8 @@ RSpec.describe Preneeds::Veteran do
     )
 
     expect(described_class.permitted_params).to include(
-      address: Preneeds::Address.permitted_params, current_name: Preneeds::Name.permitted_params,
-      service_name: Preneeds::Name.permitted_params, service_records: [Preneeds::ServiceRecord.permitted_params],
+      address: Preneeds::Address.permitted_params, current_name: Preneeds::FullName.permitted_params,
+      service_name: Preneeds::FullName.permitted_params, service_records: [Preneeds::ServiceRecord.permitted_params],
       military_status: []
     )
   end

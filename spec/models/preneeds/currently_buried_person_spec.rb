@@ -15,7 +15,7 @@ RSpec.describe Preneeds::CurrentlyBuriedPerson do
 
   it 'specifies the permitted_params' do
     expect(described_class.permitted_params).to include(:cemetery_number)
-    expect(described_class.permitted_params).to include(name: Preneeds::Name.permitted_params)
+    expect(described_class.permitted_params).to include(name: Preneeds::FullName.permitted_params)
   end
 
   it 'produces a message hash whose keys are ordered' do

@@ -6,8 +6,8 @@ module V0
       end
 
       def create
-        burial_form = ::Preneeds::BurialForm.new(burial_form_params)
-        validate!(burial_form)
+        burial_forms = ::Preneeds::BurialForm.create_forms_array(burial_form_params)
+        validate!(burial_forms)
 
         resource = client.receive_pre_need_application(burial_form.message)
         render json: resource, serializer: ReceiveApplicationSerializer
@@ -16,17 +16,18 @@ module V0
       private
 
       def burial_form_params
-        params.require(:pre_need_request)
-              .permit(
-                :application_status, :has_attachments, :has_currently_buried, :sending_code,
-                applicant: ::Preneeds::Applicant.permitted_params,
-                claimant: ::Preneeds::Claimant.permitted_params,
-                currently_buried_persons: [::Preneeds::CurrentlyBuriedPerson.permitted_params],
-                veteran: ::Preneeds::Veteran.permitted_params
-              )
+        params.require(:pre_need_request).map do |p|
+          p.permit(
+            :application_status, :has_attachments, :has_currently_buried, :sending_code,
+            applicant: ::Preneeds::Applicant.permitted_params,
+            claimant: ::Preneeds::Claimant.permitted_params,
+            currently_buried_persons: [::Preneeds::CurrentlyBuriedPerson.permitted_params],
+            veteran: ::Preneeds::Veteran.permitted_params
+          )
+        end
       end
 
-      def validate!(form)
+      def validate!(_forms)
         # TODO: replace this schema once VetsJsonSchema preneeds is merged.
         schema = JSON.parse(File.read(Settings.preneeds.burial_form_schema))
         validation_errors = form.validate(schema, :pre_need_request)
