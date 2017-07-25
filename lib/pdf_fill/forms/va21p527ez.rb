@@ -900,6 +900,7 @@ module PdfFill
 
       # rubocop:disable Metrics/MethodLength
       def merge_fields
+        expand_signature(@form_data['veteranFullName'])
         @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
 
         %w(
