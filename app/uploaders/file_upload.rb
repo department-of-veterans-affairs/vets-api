@@ -1,4 +1,7 @@
 # frozen_string_literal: true
+
+# See docs/workflow.md for usage.
+
 class FileUpload
   class_attribute :uploader
   class_attribute :workflow
