@@ -47,6 +47,14 @@ class ApplicationController < ActionController::API
     # report the original 'cause' of the exception when present
     if SKIP_SENTRY_EXCEPTION_TYPES.include?(exception.class) == false
       extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
+      if exception.is_a?(Common::Exceptions::BackendServiceException)
+        more_extra = { icn: current_user.try(:icn), mhv_correlation_id: current_user.try(:mhv_correlation_id) }
+        # Add additional user specific context to the logs
+        extra.merge!(more_extra) if current_user.present?
+        if exception.generic_error?
+          log_message_to_sentry(exception.va900_exception_message, :warn, i18n_exception_hint: exception.i18n_exception_hint)
+        end
+      end
       log_exception_to_sentry(exception, extra)
     else
       Rails.logger.error "#{exception.message}."

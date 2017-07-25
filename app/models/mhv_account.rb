@@ -152,8 +152,6 @@ class MhvAccount < ActiveRecord::Base
   rescue => e
     StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.failure")
     fail_register!
-    extra_context = { icn: user.icn }
-    log_exception_to_sentry(e, extra_context)
     raise e
   end
 
@@ -174,8 +172,6 @@ class MhvAccount < ActiveRecord::Base
     else
       StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.failure")
       fail_upgrade!
-      extra_context = { icn: user.icn, mhv_correlation_id: user.mhv_correlation_id }
-      log_exception_to_sentry(e, extra_context)
       raise e
     end
   end

@@ -6,7 +6,6 @@ module Common
     # you must define the minor code in the locales file and call this class from
     # raise_error middleware.
     class BackendServiceException < BaseError
-      include SentryLogging
       attr_reader :response_values, :original_status, :original_body
 
       def initialize(key = nil, response_values = {}, original_status = nil, original_body = nil)
@@ -15,8 +14,6 @@ module Common
         @original_status = original_status
         @original_body = original_body
         validate_arguments!
-        warn_about_error_not_in_locales!
-        warn_about_va900!
       end
 
       # The message will be the actual backend service response from middleware,
@@ -28,6 +25,13 @@ module Common
       def errors
         Array(SerializableError.new(i18n_data.merge(render_overides)))
       end
+
+      # VA900 is characterized as a generic type of exception. See exceptions.en.yml for what JSON will render
+      def va900?
+        code == 'VA900'
+      end
+
+      alias generic_error? va900?
 
       private
 
@@ -72,34 +76,23 @@ module Common
         raise ArgumentError, "status (#{status}) is not in range" unless status.between?(400, 599)
       end
 
-      # This just reports to Sentry that an unmapped backend service exception was
-      # identified it does not actually raise an exception.
-      # NOTE: in the future detail will just fallback to 'Operation failed'
-      def warn_about_error_not_in_locales!
-        return if code == 'VA900'
-        unless i18n_data[:detail].present?
-          message = <<-MESSAGE.strip_heredoc
-            Referencing detail from response values is deprecated. Add the following to exceptions.en.yml
-            #{response_values[:code]}:
-              code: '#{response_values[:code]}'
-              detail: '#{response_values[:detail]}'
-              status: <http status code you want rendered (400 or 422)>
-              source: ~
-          MESSAGE
-          log_message_to_sentry(message, :warn)
-        end
-      end
-
-      # Logging the VA900 errors when they occur (result of backend service providing unparsable errors)
-      def warn_about_va900!
-        if code == 'VA900'
-          message = "Unmapped VA900 (Backend Response: { status: #{original_status}, message: #{original_body}) }"
-          log_message_to_sentry(message, :warn)
-        end
-      end
-
       def i18n_key
         "common.exceptions.#{code}"
+      end
+
+      def va900_exception_message
+        "Unmapped VA900 (Backend Response: { status: #{original_status}, message: #{original_body}) }"
+      end
+
+      def i18n_exception_hint
+        <<-MESSAGE.strip_heredoc
+          Add the following to exceptions.en.yml
+          #{response_values[:code]}:
+            code: '#{response_values[:code]}'
+            detail: '#{response_values[:detail]}'
+            status: <http status code you want rendered (400, 422, etc)>
+            source: ~
+        MESSAGE
       end
     end
   end
