@@ -33,31 +33,31 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
     end
   end
 
-  # context 'with a failed burial form submittal from EOAS' do
-  #   it 'returns with a VA900 error when status is 500' do
-  #     VCR.use_cassette('preneeds/burial_forms/burial_form_with_invalid_applicant_address2') do
-  #       params[:pre_need_request][:applicant][:mailing_address][:address2] = '1' * 21
-  #       post '/v0/preneeds/burial_forms', params
-  #     end
-  #
-  #     error = JSON.parse(response.body)['errors'].first
-  #
-  #     expect(error['status']).to eq('400')
-  #     expect(error['title']).to match(/operation failed/i)
-  #     expect(error['detail']).to match(/Error committing transaction/i)
-  #   end
-  #
-  #   it 'returns with a VA900 error when the status is 200' do
-  #     VCR.use_cassette('preneeds/burial_forms/burial_form_with_duplicate_tracking_number') do
-  #       allow_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return('19')
-  #       post '/v0/preneeds/burial_forms', params
-  #     end
-  #
-  #     error = JSON.parse(response.body)['errors'].first
-  #
-  #     expect(error['status']).to eq('400')
-  #     expect(error['title']).to match(/operation failed/i)
-  #     expect(error['detail']).to match(/Tracking number '19' already exists/i)
-  #   end
-  # end
+  context 'with a failed burial form submittal from EOAS' do
+    it 'returns with a VA900 error when status is 500' do
+      VCR.use_cassette('preneeds/burial_forms/burial_form_with_invalid_applicant_address2') do
+        params[:applications].first[:applicant][:mailing_address][:address2] = '1' * 21
+        post '/v0/preneeds/burial_forms', params
+      end
+
+      # error = JSON.parse(response.body)['errors'].first
+      #
+      # expect(error['status']).to eq('400')
+      # expect(error['title']).to match(/operation failed/i)
+      # expect(error['detail']).to match(/Error committing transaction/i)
+    end
+
+    it 'returns with a VA900 error when the status is 200' do
+      VCR.use_cassette('preneeds/burial_forms/burial_form_with_duplicate_tracking_number') do
+        allow_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return('19')
+        post '/v0/preneeds/burial_forms', params
+      end
+      #
+      # error = JSON.parse(response.body)['errors'].first
+      #
+      # expect(error['status']).to eq('400')
+      # expect(error['title']).to match(/operation failed/i)
+      # expect(error['detail']).to match(/Tracking number '19' already exists/i)
+    end
+  end
 end
