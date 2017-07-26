@@ -5,7 +5,7 @@ module Swagger
       include Swagger::Blocks
 
       swagger_schema :LetterBeneficiary do
-        key :required, [:meta, :data]
+        key :required, [:data]
         property :data, type: :object do
           key :required, [:attributes]
           property :attributes, type: :object do
@@ -35,9 +35,6 @@ module Swagger
           end
           property :id, type: :string, example: nil
           property :type, type: :string, example: 'evss_letters_letter_beneficiary_response'
-        end
-        property :meta, type: :object do
-          property :status, type: :string, enum: %w(OK NOT_AUTHORIZED NOT_FOUND SERVER_ERROR), example: 'OK'
         end
       end
     end
