@@ -1,8 +1,20 @@
 # frozen_string_literal: true
 
+# Abstract base controller for Claims controllers that use the SavedClaim
+# and optionally, PersistentAttachment models. Subclasses must have:
+#
+# * `short_name()`, which returns an identifier that matches the parameter
+#    that the form will be set as in the JSON submission.
+# * `claim_class()` must return a sublass of SavedClaim, which will run
+#    json-schema validations and perform any storage and attachment processing
+
+# Current subclasses are PensionClaim and BurialClaim.
+
 class ClaimsBaseController < ApplicationController
   skip_before_action(:authenticate)
 
+  # Creates and validates an instance of the class, removing any copies of
+  # the form that had been previously saved by the user.
   def create
     claim = claim_class.new(form: filtered_params[:form])
     unless claim.save

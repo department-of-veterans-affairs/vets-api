@@ -506,21 +506,6 @@ describe PdfFill::Forms::VA21P527EZ do
 
   test_method(
     basic_class,
-    'combine_hash_and_del_keys',
-    [
-      [
-        [nil, 1, 2],
-        nil
-      ],
-      [
-        [{ a: '1', b: '2' }, %i(a b), :ab],
-        { ab: '1 2' }
-      ]
-    ]
-  )
-
-  test_method(
-    basic_class,
     'expand_gender',
     [
       [

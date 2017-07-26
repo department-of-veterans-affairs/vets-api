@@ -1,8 +1,12 @@
 # frozen_string_literal: true
+require 'sentry_logging'
+
 module MVI
   module Responses
     # Parses a MVI response and returns a MviProfile
     class ProfileParser
+      include SentryLogging
+
       BODY_XPATH = 'env:Envelope/env:Body/idm:PRPA_IN201306UV02'
       CODE_XPATH = 'acknowledgement/typeCode/@code'
       QUERY_XPATH = 'controlActProcess/queryByParameter'
@@ -74,6 +78,8 @@ module MVI
       def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
         correlation_ids = map_correlation_ids(patient.locate('id'))
+        log_inactive_mhv_ids(correlation_ids[:mhv_ids].to_a,
+                             correlation_ids[:active_mhv_ids].to_a)
         MVI::Models::MviProfile.new(
           given_names: name[:given],
           family_name: name[:family],
@@ -89,6 +95,22 @@ module MVI
           participant_id: correlation_ids[:vba_corp_id],
           vha_facility_ids: correlation_ids[:vha_facility_ids]
         )
+      end
+
+      def log_inactive_mhv_ids(mhv_ids, active_mhv_ids)
+        return if mhv_ids.blank?
+        if (mhv_ids - active_mhv_ids).present?
+          log_message_to_sentry('Inactive MHV correlation IDs present', :info,
+                                ids: mhv_ids)
+        end
+        unless active_mhv_ids.include?(mhv_ids.first)
+          log_message_to_sentry('Returning inactive MHV correlation ID as first identifier', :warn,
+                                ids: mhv_ids)
+        end
+        if active_mhv_ids.size > 1
+          log_message_to_sentry('Multiple active MHV correlation IDs present', :info,
+                                ids: active_mhv_ids)
+        end
       end
 
       def get_patient_name(patient)
@@ -149,6 +171,7 @@ module MVI
         {
           icn: select_ids(select_extension(ids, /^\w+\^NI\^\w+\^\w+\^\w+$/, CORRELATION_ROOT_ID))&.first,
           mhv_ids: select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/, CORRELATION_ROOT_ID)),
+          active_mhv_ids: select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^A$/, CORRELATION_ROOT_ID)),
           edipi: select_ids(select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^\w+$/, EDIPI_ROOT_ID))&.first,
           vba_corp_id: select_ids(select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^\w+$/, CORRELATION_ROOT_ID))&.first,
           vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, CORRELATION_ROOT_ID))

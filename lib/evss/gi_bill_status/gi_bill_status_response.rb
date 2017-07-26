@@ -23,17 +23,82 @@ module EVSS
       attribute :active_duty, Boolean
       attribute :enrollments, Array[Enrollment]
 
-      def initialize(status, response = nil)
+      EVSS_ERROR_KEYS = [
+        'education.chapter33claimant.partner.service.down',
+        'education.chapter33enrollment.partner.service.down',
+        'education.partner.service.invalid',
+        'education.service.error'
+      ].freeze
+
+      KNOWN_ERRORS = {
+        evss_error: 'evss_error',
+        vet_not_found: 'vet_not_found',
+        timeout: 'timeout',
+        invalid_auth: 'invalid_auth'
+      }.freeze
+
+      def initialize(status, response = nil, timeout = false, content_type = 'application/json')
+        @timeout = timeout
         @response = response
-        attributes = response.nil? || empty? ? {} : response.body['chapter33_education_info']
+        @content_type = content_type
+        attributes = contains_education_info? ? response.body['chapter33_education_info'] : {}
         super(status, attributes)
       end
 
-      def empty?
-        @response.body.nil? ||
-          @response.body == {} ||
-          @response.body.key?('chapter33_education_info') == false ||
-          @response.body['chapter33_education_info'] == {}
+      def success?
+        contains_education_info?
+      end
+
+      def error_type
+        KNOWN_ERRORS.each do |_error_key, error_val|
+          return error_val if send("#{error_val}?")
+        end
+
+        'unknown'
+      end
+
+      private
+
+      def timeout?
+        @timeout
+      end
+
+      def evss_error?
+        contains_error_messages? && EVSS_ERROR_KEYS.include?(evss_error_key)
+      end
+
+      def vet_not_found?
+        return false if @response.nil? || text_response?
+        @response&.body == {}
+      end
+
+      def invalid_auth?
+        # this one is a text/html response
+        return false if @response.nil?
+        @response&.body&.to_s&.include?('AUTH_INVALID_IDENTITY') || @response&.status == 403
+      end
+
+      def contains_education_info?
+        return false if @response.nil? || text_response?
+        !vet_not_found? &&
+          @response.body.key?('chapter33_education_info') == true &&
+          @response.body['chapter33_education_info'] != {}
+      end
+
+      def contains_error_messages?
+        return false if @response.nil? || text_response?
+        @response&.body&.key?('messages') &&
+          @response&.body['messages'].is_a?(Array) &&
+          @response&.body['messages'].length.positive?
+      end
+
+      def evss_error_key
+        return nil if @response.nil?
+        @response&.body['messages'][0]['key']
+      end
+
+      def text_response?
+        @content_type.include?('text/html')
       end
     end
   end
