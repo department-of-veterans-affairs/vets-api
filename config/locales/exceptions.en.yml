@@ -169,7 +169,7 @@ en:
       SM135: # 'User is not eligible because they have not accepted terms and conditions or opted-in'
         <<: *external_defaults
         code: 'SM135'
-        detail: 'You have not accepted the MHV T&C to use secure messaging'
+        detail: 'You have not accepted the MHV Terms and Conditions to use secure messaging'
         status: 403
       SM151: # 'User is blocked from the Facility' What causes this??
         <<: *external_defaults
@@ -183,7 +183,7 @@ en:
       SM901: # 'Authentication Service Error' (connection pool issue)
         <<: *external_defaults
         code: 'SM901'
-        detail: 'Service is termporarily unavailable'
+        detail: 'Service is temporarily unavailable'
         status: 503
       SM904: # 'Message Service Error' - treating as 404, see gets_a_message_thread_id_error
         <<: *external_defaults
@@ -198,7 +198,7 @@ en:
       RX135: # 'The User has not accepted the Rx Agreement. Please login to MHV to accept it'
         <<: *external_defaults
         code: 'RX135'
-        detail: 'You have not accepted the MHV T&C to use prescriptions'
+        detail: 'You have not accepted the MHV Terms and Conditions to use prescriptions'
         status: 403
       RX138: # 'Prescription is not Found'
         <<: *external_defaults
