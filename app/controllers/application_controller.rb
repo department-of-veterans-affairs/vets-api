@@ -47,6 +47,17 @@ class ApplicationController < ActionController::API
     # report the original 'cause' of the exception when present
     if SKIP_SENTRY_EXCEPTION_TYPES.include?(exception.class) == false
       extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
+      if exception.is_a?(Common::Exceptions::BackendServiceException)
+        # Add additional user specific context to the logs
+        if current_user.present?
+          extra[:icn] = current_user.icn
+          extra[:mhv_correlation_id] = current_user.mhv_correlation_id
+        end
+        # Warn about VA900 needing to be added to exception.en.yml
+        if exception.generic_error?
+          log_message_to_sentry(exception.va900_warning, :warn, i18n_exception_hint: exception.va900_hint)
+        end
+      end
       log_exception_to_sentry(exception, extra)
     else
       Rails.logger.error "#{exception.message}."
