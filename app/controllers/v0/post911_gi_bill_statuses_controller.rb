@@ -38,7 +38,7 @@ module V0
         raise Common::Exceptions::GatewayTimeout
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:invalid_auth]
         # 403
-        raise Common::Exceptions::Forbidden, detail: 'Missing correlation id'
+        raise Common::Exceptions::EVSSForbidden, detail: 'Missing correlation id'
       else
         # 500
         log_message_to_sentry('Unexpected EVSS GiBillStatus Response', :error, response.to_h)
