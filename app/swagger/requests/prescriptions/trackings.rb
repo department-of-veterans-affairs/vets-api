@@ -21,7 +21,7 @@ module Swagger
               end
             end
 
-            response 400 do
+            response 404 do
               key :description, 'prescription not available'
 
               schema do
