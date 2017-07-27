@@ -4,9 +4,9 @@
   "vaFileNumber": "c12345678",
   "claimantPhone": "2123456789",
   "claimantFullName": {
-    "first": "cXXXXXXXXXXXXXXXXXXXX",
+    "first": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "middle": "middle",
-    "last": "cXXXXXXXXXXXXXXXXXXXX",
+    "last": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
     "suffix": "Sr."
   },
   "locationOfDeath": {

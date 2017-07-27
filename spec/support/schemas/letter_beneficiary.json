@@ -23,7 +23,15 @@
                     "type": "string"
                   },
                   "character_of_service": {
-                    "type": "string"
+                    "enum": [
+                      "HONORABLE",
+                      "OTHER_THAN_HONORABLE",
+                      "UNDER_HONORABLE_CONDITIONS",
+                      "GENERAL",
+                      "UNCHARACTERIZED",
+                      "UNCHARACTERIZED_ENTRY_LEVEL",
+                      "DISHONORABLE"
+                    ]
                   },
                   "entered_date": {
                     "type": "string"
@@ -62,18 +70,9 @@
         "id"
       ],
       "type": "object"
-    },
-    "meta": {
-      "properties": {
-        "status": {
-          "type": "string"
-        }
-      },
-      "type": "object"
     }
   },
   "required": [
-    "meta",
     "data"
   ],
   "type": "object"
