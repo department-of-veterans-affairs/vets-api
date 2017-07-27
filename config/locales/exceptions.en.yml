@@ -106,10 +106,10 @@ en:
         code: 503
         status: 503
       gateway_timeout:
-        <<: *defaults
+        <<: *external_defaults
         title: Gateway timeout
         detail: "Did not receive a timely response from an upstream server"
-        code: 504
+        code: 504 # Consider making this 'VA1004' after determining potential f/e ramifications
         status: 504
       account_creation_error:
         <<: *defaults
@@ -117,19 +117,28 @@ en:
         detail: "Failed to create or upgrade health tools account access"
         code: "MHVAC1"
         status: 403
-
 # EXTERNAL EXCEPTIONS
-    # This is a Generic Error corresponding to backend services
+      # backend_service_exception is the most generic subclass, to be used with its own minor code mapping
       backend_service_exception: &external_defaults
         <<: *defaults
-        title: 'Operation failed' # To be used when no external minor code is mappable
+        title: 'Operation failed'
         code: 'VA900'
         status: 400
-    # All error codes below this line, use the same exception class bad_request
-    # need to be mapped properly using specific codes described below
-    # Below this line just define the minor code as key to be used by client error
-      VA900:
+    # All error codes below this line, use the same exception class backend_service_exception
+    # Below this line just define the minor code as key to be used by backend_service_exception
+      VA900: # To be used when no external minor code is mappable
         <<: *external_defaults
+      VA1000: # To be used when it is a 500, 502 or other FATAL error
+        <<: *external_defaults
+        title: 'Bad gateway'
+        detail: 'The server was acting as a gateway or proxy and received an invalid response from the upstream server.'
+        code: 'VA1002'
+        status: 502
+      VA1003:
+        <<: *external_defaults
+        title: 'Service temporarily unavailable'
+        code: 'VA1003'
+        status: 503
       RX139:
         <<: *external_defaults
         code: 'RX139'

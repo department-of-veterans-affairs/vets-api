@@ -47,7 +47,7 @@ module Common
 
           exception_handler = proc do |exception|
             if exception.is_a?(Common::Exceptions::BackendServiceException)
-              (500..599).cover?(exception.response_values[:status])
+              exception.trigger_breakers?
             else
               false
             end

@@ -8,13 +8,19 @@ module Common
     class BackendServiceException < BaseError
       attr_reader :response_values, :original_status, :original_body
 
-      def initialize(key = nil, response_values = {}, original_status = nil, original_body = nil)
+      def initialize(key = nil, response_values = {}, original_status = nil, original_body = nil, original_header = nil)
         @response_values = response_values
         @key = key || 'VA900'
         @original_status = original_status
         @original_body = original_body
+        @original_header = original_header
         validate_arguments!
+        binding.pry
       end
+
+    def trigger_breakers?
+      (500..599).cover?(status)
+    end
 
       # The message will be the actual backend service response from middleware,
       # not the I18n version.
