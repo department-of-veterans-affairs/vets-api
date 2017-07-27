@@ -21,7 +21,7 @@ module Swagger
               end
             end
 
-            response 400 do
+            response 404 do
               key :description, 'message show error response'
 
               schema do
@@ -47,7 +47,7 @@ module Swagger
               end
             end
 
-            response 400 do
+            response 404 do
               key :description, 'message show error response'
 
               schema do
@@ -82,7 +82,7 @@ module Swagger
               end
             end
 
-            response 400 do
+            response 422 do
               key :description, 'message creation error response'
               schema do
                 key :'$ref', :Errors
@@ -124,7 +124,7 @@ module Swagger
               end
             end
 
-            response 400 do
+            response 404 do
               key :description, 'message attachments error response'
               schema do
                 key :'$ref', :Errors
@@ -146,7 +146,7 @@ module Swagger
               key :description, 'message move response'
             end
 
-            response 400 do
+            response 404 do
               key :description, 'move message error response'
               schema do
                 key :'$ref', :Errors
@@ -181,7 +181,7 @@ module Swagger
               end
             end
 
-            response 400 do
+            response 404 do
               key :description, 'message reply error response'
               schema do
                 key :'$ref', :Errors
@@ -202,7 +202,7 @@ module Swagger
               key :description, 'delete message response'
             end
 
-            response 400 do
+            response 404 do
               key :description, 'message delete error response'
               schema do
                 key :'$ref', :Errors

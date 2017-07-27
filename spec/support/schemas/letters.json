@@ -12,24 +12,7 @@
                 "$ref": "letter_base.json"
               },
               "type": "array"
-            }
-          },
-          "type": "object"
-        },
-        "id": {
-          "type": "string"
-        },
-        "type": {
-          "type": "string"
-        }
-      },
-      "type": ["object", "null"]
-    },
-    "meta": {
-      "type": "object",
-      "oneOf": [
-        {
-          "properties": {
+            },
             "address": {
               "description": "User's address in EVSS that will be included in the letter",
               "properties": {
@@ -73,31 +56,18 @@
                 "foreign_code",
                 "zip_code"
               ]
-            },
-            "status": {
-              "description": "EVSS API may return an error message in a 200 response, vets-api catches all errors other than not found as server error",
-              "enum": [
-                "OK",
-                "NOT_AUTHORIZED",
-                "NOT_FOUND",
-                "SERVER_ERROR"
-              ]
             }
-          }
+          },
+          "type": "object"
         },
-        {
-          "properties": {
-            "status": {
-              "enum": [
-                "OK",
-                "NOT_AUTHORIZED",
-                "NOT_FOUND",
-                "SERVER_ERROR"
-              ]
-            }
-          }
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
         }
-      ]
+      },
+      "type": ["object", "null"]
     }
   },
   "type": "object"

@@ -17,6 +17,14 @@ RSpec.describe UserSerializer, type: :serializer do
     expect(va_profile['ssn']).to be_nil
   end
 
+  describe '#in_progress_forms' do
+    let!(:in_progress_form) { create(:in_progress_form, user_uuid: user.uuid) }
+
+    it 'should include metadata' do
+      expect(attributes['in_progress_forms'][0]['metadata']).to eq(in_progress_form.metadata)
+    end
+  end
+
   describe '#profile' do
     # --- positive tests ---
     it 'should include email' do

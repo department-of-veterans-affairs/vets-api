@@ -17,12 +17,6 @@ module EVSS
         end
         super(status, attributes)
       end
-
-      def metadata
-        meta = super
-        meta[:address] = address if ok?
-        meta
-      end
     end
   end
 end
