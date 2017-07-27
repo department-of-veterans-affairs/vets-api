@@ -26,6 +26,13 @@ module PdfFill
             }
           }
         },
+        'signature' => {
+          key: 'form1[0].#subform[37].CLAIMANT_SIGNATURE[0]',
+          limit: 45,
+          question_num: 20,
+          question_text: 'SIGNATURE OF CLAIMANT',
+          question_suffix: 'A'
+        },
         'amountIncurred' => {
           key: 'form1[0].#subform[37].COST_OF_BURIAL[0]',
           question_num: 19,
@@ -433,6 +440,8 @@ module PdfFill
 
       # rubocop:disable Metrics/MethodLength
       def merge_fields
+        expand_signature(@form_data['claimantFullName'])
+
         %w(veteranFullName claimantFullName).each do |attr|
           extract_middle_i(@form_data, attr)
         end
