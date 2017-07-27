@@ -4,6 +4,8 @@ This project provides common APIs for applications that live on vets.gov.
 
 ### Base Setup
 
+**See the [native setup instructions](docs/setup/native.md) if you can't use docker**
+
 To start, fetch this code:
 
 `git clone https://github.com/department-of-veterans-affairs/vets-api.git`
@@ -63,11 +65,13 @@ From within the cloned repo directory, you can run this command to run
 `vets-api`:
 
 ```
-make run
+make up
 ```
 
 You should then be able to navigate to http://localhost:3000/v0/status in your
-browser and start interacting with the API.
+browser and start interacting with the API. Changes to the source in your local
+directory will be reflected automatically via a docker volume mount, just as
+they would be when running rails directly.
 
 ### Testing Commands
 
