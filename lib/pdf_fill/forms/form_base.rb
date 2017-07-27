@@ -68,6 +68,12 @@ module PdfFill
         )
       end
 
+      def expand_signature(full_name)
+        signature = combine_hash(full_name, %w(first last))
+        @form_data['signature'] = signature
+        @form_data['signatureDate'] = Time.zone.today.to_s if signature.present?
+      end
+
       def combine_full_name(full_name)
         combine_hash(full_name, %w(first middle last suffix))
       end
