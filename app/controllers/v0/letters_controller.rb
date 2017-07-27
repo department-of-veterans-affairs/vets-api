@@ -6,8 +6,7 @@ module V0
     def index
       response = service.get_letters
       render json: response,
-             serializer: LettersSerializer,
-             meta: response.metadata
+             serializer: LettersSerializer
     end
 
     def download
@@ -24,8 +23,7 @@ module V0
     def beneficiary
       response = service.get_letter_beneficiary
       render json: response,
-             serializer: LetterBeneficiarySerializer,
-             meta: response.metadata
+             serializer: LetterBeneficiarySerializer
     end
 
     private
