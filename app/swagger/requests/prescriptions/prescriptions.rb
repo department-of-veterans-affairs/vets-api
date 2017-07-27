@@ -85,6 +85,14 @@ module Swagger
             end
 
             response 400 do
+              key :description, 'prescription not refillable'
+
+              schema do
+                key :'$ref', :Errors
+              end
+            end
+
+            response 404 do
               key :description, 'prescription not available'
 
               schema do
