@@ -7,6 +7,8 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
   let(:user) { FactoryGirl.create(:loa3_user) }
   let(:session) { Session.create(uuid: user.uuid) }
 
+  let(:once) { { times: 1, value: 1 } }
+
   context 'with a mocked gi bill status response' do
     let(:mock_response) do
       YAML.load_file(
@@ -24,6 +26,18 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
       get :show
       expect(response).to have_http_status(:ok)
       expect(response).to match_response_schema('post911_gi_bill_status', strict: false)
+    end
+
+    it 'does not increment the fail counter' do
+      request.headers['Authorization'] = "Token token=#{session.token}"
+      expect { get :show }
+        .not_to trigger_statsd_increment(described_class::STATSD_GI_BILL_FAIL_KEY)
+    end
+
+    it 'increments the total counter' do
+      request.headers['Authorization'] = "Token token=#{session.token}"
+      expect { get :show }
+        .to trigger_statsd_increment(described_class::STATSD_GI_BILL_TOTAL_KEY, **once)
     end
 
     context 'when EVSS response is 500' do
@@ -57,16 +71,24 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
     # must be connected to EVSS openvpn to re-generate VCR
     before { Settings.evss.mock_gi_bill_status = false }
 
-    describe 'when EVSS has no knowledge of user' do
+    vcr_options = { cassette_name: 'evss/gi_bill_status/vet_not_found' }
+    describe 'when EVSS has no knowledge of user', vcr: vcr_options do
       # special EVSS CI user ssn=796066619
       let(:user) { FactoryGirl.create(:loa3_user, ssn: '796066619', uuid: 'ertydfh456') }
       let(:session) { Session.create(uuid: user.uuid) }
+
       it 'responds with 404' do
-        VCR.use_cassette('evss/gi_bill_status/vet_not_found') do
-          request.headers['Authorization'] = "Token token=#{session.token}"
-          get :show
-          expect(response).to have_http_status(:not_found)
-        end
+        request.headers['Authorization'] = "Token token=#{session.token}"
+        get :show
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'increments the statsd total and fail counters' do
+        request.headers['Authorization'] = "Token token=#{session.token}"
+        vet_not_found_tag = ['error:vet_not_found']
+        expect { get :show }
+          .to trigger_statsd_increment(described_class::STATSD_GI_BILL_FAIL_KEY, tags: vet_not_found_tag, **once)
+          .and trigger_statsd_increment(described_class::STATSD_GI_BILL_TOTAL_KEY, **once)
       end
     end
     describe 'when EVSS has no info of user' do
