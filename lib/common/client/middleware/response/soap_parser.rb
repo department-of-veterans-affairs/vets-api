@@ -13,6 +13,7 @@ module Common
               end
               env.body = doc
             else
+              Rails.logger.error(env.body) # TODO: get into Sentry
               raise Common::Client::Errors::HTTPError.new('SOAP HTTP call failed', env.status)
             end
           end

@@ -130,6 +130,81 @@ en:
     # Below this line just define the minor code as key to be used by client error
       VA900:
         <<: *external_defaults
+      SM105: # What casues this? Perhaps then we can come up with more customized detail below
+        <<: *external_defaults
+        code: 'SM105'
+        detail: 'User was not found'
+        status: 422
+      SM112: # 'User is not owner of entity requested' (usually attachments)
+        <<: *external_defaults
+        code: 'SM112'
+        detail: 'You do not have access to the requested resource'
+        status: 403
+      SM115:
+        <<: *external_defaults
+        code: 'SM115'
+        title: Record not found
+        detail: 'Attachment requested could not be found'
+        status: 404
+      SM116: # 'The Folder must be empty before delete'
+        <<: *external_defaults
+        code: 'SM116'
+        detail: 'Folder must be empty before you can delete it'
+        status: 422
+      SM119: # 'Triage team does not exist' when trying to create new message
+        <<: *external_defaults
+        code: 'SM119'
+        detail: 'Triage team does not exist'
+        status: 422
+      SM129:
+        <<: *external_defaults
+        code: 'SM129'
+        detail: 'Unable to reply because you are no longer associated with this Triage Team'
+        status: 422
+      SM130:
+        <<: *external_defaults
+        code: 'SM130'
+        detail: 'Unable to reply because the source message is expired'
+        status: 422
+      SM135: # 'User is not eligible because they have not accepted terms and conditions or opted-in'
+        <<: *external_defaults
+        code: 'SM135'
+        detail: 'You have not accepted the MHV Terms and Conditions to use secure messaging'
+        status: 403
+      SM151: # 'User is blocked from the Facility' What causes this??
+        <<: *external_defaults
+        code: 'SM151'
+        detail: 'User is blocked from the Facility'
+        status: 422
+      SM152:
+        <<: *validation_errors
+        code: 'SM152'
+        detail: 'Email address is invalid'
+      SM901: # 'Authentication Service Error' (connection pool issue)
+        <<: *external_defaults
+        code: 'SM901'
+        detail: 'Service is temporarily unavailable'
+        status: 503
+      SM904: # 'Message Service Error' - treating as 404, see gets_a_message_thread_id_error
+        <<: *external_defaults
+        code: 'SM904'
+        detail: 'Message requested could not be found'
+        status: 404
+      SM99: # 'Unknown application error occurred'
+        <<: *external_defaults
+        code: 'SM99'
+        detail: 'Something went wrong. Please try again later.'
+        status: 502
+      RX135: # 'The User has not accepted the Rx Agreement. Please login to MHV to accept it'
+        <<: *external_defaults
+        code: 'RX135'
+        detail: 'You have not accepted the MHV Terms and Conditions to use prescriptions'
+        status: 403
+      RX138: # 'Prescription is not Found'
+        <<: *external_defaults
+        code: 'RX138'
+        detail: 'Prescription requested could not be found'
+        status: 404
       RX139:
         <<: *external_defaults
         code: 'RX139'
@@ -139,17 +214,17 @@ en:
         <<: *validation_errors
         code: 'RX157'
         detail: 'Email address is invalid'
-      SM152:
-        <<: *validation_errors
-        code: 'SM152'
-        detail: 'Email address is invalid'
+      MHVACCTCREATION155: # Account is already Upgraded
+        <<: *external_defaults
+        code: 'MHVAC155'
+        detail: 'Account is already upgraded'
+        status: 422
       APPEALSSTATUS404:
         <<: *external_defaults
         title: 'Appeals data not found'
         code: 'APPEALSSTATUS404'
         detail: 'Appeals data for a veteran with that SSN was not found'
         status: 404
-
   evss:
     letters:
       unable_to_determine_eligibilty:

@@ -20,7 +20,7 @@ To start, fetch this code:
    - `touch config/certs/vetsgov-localhost.crt`
    - `touch config/certs/vetsgov-localhost.key`
 1. Run the vets-api dependencies and application
-    - `docker-compose -f docker-compose.yml -f docker-compose.dev.yml up`
+    - `make up`
 
 The API will then be available on port 3000 of the docker host.
 

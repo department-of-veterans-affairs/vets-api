@@ -38,7 +38,6 @@ test:
 up: db
 	@$(COMPOSE_DEV) up
 
-
 .PHONY: clean
 clean:
 	rm -rf data
