@@ -48,9 +48,9 @@ module Preneeds
     end
 
     def receive_pre_need_application(params)
-      tracking_number = params[:tracking_number]
+      tracking_number = params[:trackingNumber]
 
-      soap = savon_client.build_request(:receive_pre_need_application, message: params)
+      soap = savon_client.build_request(:receive_pre_need_application, message: { pre_need_request: params })
       json = perform(:post, '', soap.body).body
 
       json = json[:data].merge('tracking_number' => tracking_number)

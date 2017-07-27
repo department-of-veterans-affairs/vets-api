@@ -366,6 +366,8 @@
     }
   ],
   "gender": "M",
+  "signature": "john smith",
+  "signatureDate": "2016-12-31",
   "genderMale": true,
   "genderFemale": false,
   "hasFileNumber": true,

@@ -5,7 +5,7 @@ module Swagger
       include Swagger::Blocks
 
       swagger_schema :LetterBeneficiary do
-        key :required, [:meta, :data]
+        key :required, [:data]
         property :data, type: :object do
           key :required, [:attributes]
           property :attributes, type: :object do
@@ -27,7 +27,16 @@ module Swagger
             property :military_service do
               items do
                 property :branch, type: :string, example: 'ARMY'
-                property :character_of_service, type: :string, example: 'HONORABLE'
+                property :character_of_service, type: :string, enum:
+                  %w(
+                    HONORABLE
+                    OTHER_THAN_HONORABLE
+                    UNDER_HONORABLE_CONDITIONS
+                    GENERAL
+                    UNCHARACTERIZED
+                    UNCHARACTERIZED_ENTRY_LEVEL
+                    DISHONORABLE
+                  ), example: 'HONORABLE'
                 property :entered_date, type: :string, example: '1973-01-01T05:00:00.000+00:00'
                 property :released_date, type: :string, example: '1977-10-01T04:00:00.000+00:00'
               end
@@ -35,9 +44,6 @@ module Swagger
           end
           property :id, type: :string, example: nil
           property :type, type: :string, example: 'evss_letters_letter_beneficiary_response'
-        end
-        property :meta, type: :object do
-          property :status, type: :string, enum: %w(OK NOT_AUTHORIZED NOT_FOUND SERVER_ERROR), example: 'OK'
         end
       end
     end

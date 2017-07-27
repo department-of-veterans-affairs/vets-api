@@ -42,7 +42,7 @@ describe PdfFill::Filler do
     end
   end
 
-  describe '#fill_form' do
+  describe '#fill_form', run_at: '2017-07-25 00:00:00 -0400' do
     def simplify_fields(fields)
       fields.map do |field|
         {
