@@ -40,8 +40,8 @@ module EducationForm
         end
       end
 
-      # return unless FeatureFlipper.send_email?
-      # YearToDateReportMailer.build(filename).deliver_now
+      return unless FeatureFlipper.send_email?
+      SpoolSubmissionsReportMailer.build(filename).deliver_now
     end
   end
 end

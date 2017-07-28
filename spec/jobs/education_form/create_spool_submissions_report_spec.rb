@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe EducationForm::CreateSpoolSubmissionsReport do
+RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers do
   let(:date) { Time.zone.today - 1.day }
   subject do
     described_class.new
   end
 
-  context 'with some sample claims' do
+  context 'with some sample claims', run_at: '2017-07-27 00:00:00 -0400' do
     let!(:education_benefits_claim_1) do
       create(:education_benefits_claim_1990e, processed_at: date)
     end
@@ -38,8 +38,14 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport do
 
         let(:filename) { "tmp/spool_reports/#{date}.csv" }
 
+        def perform
+          stub_reports_s3(filename) do
+            subject.perform
+          end
+        end
+
         it 'should create a csv file' do
-          subject.perform
+          perform
 
           csv_string = CSV.generate do |csv|
             subject.create_csv_array.each do |row|
@@ -48,6 +54,12 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport do
           end
 
           expect(File.read(filename)).to eq(csv_string)
+        end
+
+        it 'should send an email' do
+          expect { perform }.to change {
+            ActionMailer::Base.deliveries.count
+          }.by(1)
         end
       end
     end
