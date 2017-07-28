@@ -8,6 +8,7 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     opt = {
       to: 'lihan@adhocteam.us'
     }
+    # TODO send email to call center
 
     mail(
       opt.merge(
