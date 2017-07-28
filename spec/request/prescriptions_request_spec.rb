@@ -63,7 +63,8 @@ RSpec.describe 'prescriptions', type: :request do
         source: 'whatever',
         body: { detail: 'whatever', code: 'whatever', source: 'whatever' }
       }
-      expect(mhv_account).to receive(:create_and_upgrade!).and_raise(Common::Exceptions::BackendServiceException.new('MHVACCTCREATION155', response_values))
+      expect(mhv_account).to receive(:create_and_upgrade!)
+        .and_raise(Common::Exceptions::BackendServiceException.new('MHVACCTCREATION155', response_values))
 
       get '/v0/prescriptions/13651310'
       expect(response).to have_http_status(:forbidden)
