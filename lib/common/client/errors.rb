@@ -11,8 +11,8 @@ module Common
 
         def initialize(message = nil, status = nil, body = nil)
           super(message)
-          status = status
-          body = body
+          @status = status
+          @body = body
         end
       end
 
