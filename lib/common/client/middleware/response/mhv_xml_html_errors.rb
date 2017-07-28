@@ -16,30 +16,25 @@ module Common
           def on_complete(env)
             return if env.success?
             return unless env.response_headers['content-type'] =~ /\b(xml|html)/
-            @status = env.status.to_i
-            @body = env.body.delete('%') # strip percentages from html because Sentry uses it for interpolation
-            @header = env.response_headers.to_s.delete('%')
+            status = env.status.to_i
+            body = env.body.delete('%') # strip percentages from html because Sentry uses it for interpolation
+            header = env.response_headers.to_s.delete('%')
 
-            if @status == 503
-              # We could customize the detail for this based on the parsed XML and Retry-After in header
-              raise_error('VA1003', detail: 'We could not process your request at this time. Please try again later.')
-            else
-              raise_error('VA1000')
-            end
+            options = error_options(status: status, body: body, header: header)
+            raise Common::Exceptions::BackendServiceException.new(options[:code], options)
           end
 
           private
 
-          def raise_error(type, detail: nil)
-            error_options = {
+          def error_options(status:, body: nil , header: nil)
+            {
               status: status,
               body: body,
               header: header,
-              detail: detail,
-              code:   type,
+              detail: status == 503 ? 'We could not process your request at this time. Please try again later.' : nil,
+              code:   status == 503 ? 'VA1003' : 'VA1000',
               source: 'Contact system administrator for additional details on what this error could mean.'
             }
-            raise Common::Exceptions::BackendServiceException.new(type, error_options)
           end
         end
       end

@@ -19,11 +19,6 @@ module MHVControllerConcerns
     raise Common::Exceptions::Forbidden, detail: 'You have not accepted the terms of service'
   end
 
-  def raise_something_went_wrong(original_error = nil)
-    exception_options = original_error.try(:service_response) || {}
-    raise Common::Exceptions::BackendServiceException.new('MHVACCTCREATION900', exception_options)
-  end
-
   def authenticate_client
     MHVLoggingService.login(current_user)
     client.authenticate if client.session.expired?
@@ -35,6 +30,9 @@ module MHVControllerConcerns
   rescue Common::Exceptions::BackendServiceException => error
     original_error = error
   ensure
-    raise_something_went_wrong(original_error) unless current_user.mhv_account.upgraded?
+    unless current_user.mhv_account.upgraded?
+      exception_options = original_error.try(:service_response) || {}
+      raise Common::Exceptions::BackendServiceException.new('MHVACCTCREATION900', exception_options)
+    end
   end
 end
