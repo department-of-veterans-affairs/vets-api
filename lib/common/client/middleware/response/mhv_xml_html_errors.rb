@@ -26,7 +26,7 @@ module Common
 
           private
 
-          def error_options(status:, body: nil , header: nil)
+          def error_options(status:, body: nil, header: nil)
             {
               status: status,
               body: body,
