@@ -82,62 +82,132 @@ describe 'Response Middleware' do
   end
 
   it 'raises client response error' do
-    message = 'BackendServiceException: {:status=>404, :detail=>"Record Not Found", :code=>"VA900", :source=>"blah"}'
+    message = 'BackendServiceException: VA900 - Record Not Found'
     expect { faraday_client.get("#{fake_host}/not-found") }
       .to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)
-        expect(error.message)
-          .to eq(message)
-        expect(error.errors.first[:detail])
-          .to eq('Record Not Found')
+        expect(error.message).to eq(message)
+        expect(error.errors.first).to have_attributes(
+          title: 'Operation failed',
+          detail: 'Record Not Found',
+          code: 'VA900',
+          href: nil,
+          id: nil,
+          links: [],
+          meta: nil,
+          source: 'blah',
+          status: '400'
+        )
       end
   end
 
   it 'can override a response error using i18n' do
-    message = 'BackendServiceException: {:status=>400, :detail=>"server response", :code=>"RX139", :source=>"blah"}'
+    message = 'BackendServiceException: RX139 - Prescription is not refillable'
     expect { faraday_client.get("#{fake_host}/refill-fail") }
       .to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)
-        expect(error.message)
-          .to eq(message)
-        expect(error.errors.first[:detail])
-          .to eq('Prescription is not refillable')
+        expect(error.message).to eq(message)
+        expect(error.errors.first).to have_attributes(
+          title: 'Operation failed',
+          detail: 'Prescription is not refillable',
+          code: 'RX139',
+          href: nil,
+          id: nil,
+          links: [],
+          meta: nil,
+          source: 'blah',
+          status: '400'
+        )
       end
   end
 
   context 'unparsable errors' do
-    let(:detail) { '"Received an error response that could not be processed"' }
-    let(:code) { '"VA900"' }
-    let(:source) { '"MHV provided unparsable error response, check logs for original request body."' }
     let(:xml_or_html_response) do
-      "BackendServiceException: {:status=>400, :detail=>#{detail}, :code=>#{code}, :source=>#{source}}"
+      "BackendServiceException: #{code} - #{detail}"
     end
 
-    it 'can handle generic html errors' do
-      expect { faraday_client.get("#{fake_host}/mhv-generic-html") }.to raise_error do |error|
-        expect(error).to be_a(Common::Exceptions::BackendServiceException)
-        expect(error.message).to eq(xml_or_html_response)
+    context 'of non 503 variety' do
+      let(:detail) do
+        'The server was acting as a gateway or proxy and received'\
+        ' an invalid response from the upstream server.'
+      end
+      let(:code) { 'VA1000' }
+      it 'can be properly handled when html' do
+        expect { faraday_client.get("#{fake_host}/mhv-generic-html") }.to raise_error do |error|
+          expect(error).to be_a(Common::Exceptions::BackendServiceException)
+          expect(error.message).to eq(xml_or_html_response)
+          expect(error.errors.first).to have_attributes(
+            title: 'Bad gateway',
+            detail: detail,
+            code: code,
+            href: nil,
+            id: nil,
+            links: [],
+            meta: nil,
+            source: 'Contact system administrator for additional details on what this error could mean.',
+            status: '502'
+          )
+        end
+      end
+
+      it 'can be properly handled when xml' do
+        expect { faraday_client.get("#{fake_host}/mhv-generic-xml") }.to raise_error do |error|
+          expect(error).to be_a(Common::Exceptions::BackendServiceException)
+          expect(error.message).to eq(xml_or_html_response)
+          expect(error.errors.first).to have_attributes(
+            title: 'Bad gateway',
+            detail: detail,
+            code: code,
+            href: nil,
+            id: nil,
+            links: [],
+            meta: nil,
+            source: 'Contact system administrator for additional details on what this error could mean.',
+            status: '502'
+          )
+        end
       end
     end
 
-    it 'can handle generic xml errors' do
-      expect { faraday_client.get("#{fake_host}/mhv-generic-xml") }.to raise_error do |error|
-        expect(error).to be_a(Common::Exceptions::BackendServiceException)
-        expect(error.message).to eq(xml_or_html_response)
+    context 'of 503 variety' do
+      let(:detail) do
+        'We could not process your request at this time. Please try again later.'
       end
-    end
-
-    it 'can handle generic html errors that are 503' do
-      expect { faraday_client.get("#{fake_host}/mhv-html-503") }.to raise_error do |error|
-        # expect(error).to be_a(Breakers::OutageException)
-        # expect(error.message).to include('Outage detected on RX beginning at')
+      let(:code) { 'VA1003' }
+      it 'can be properly handled when html' do
+        expect { faraday_client.get("#{fake_host}/mhv-html-503") }.to raise_error do |error|
+          expect(error).to be_a(Common::Exceptions::BackendServiceException)
+          expect(error.message).to eq(xml_or_html_response)
+          expect(error.errors.first).to have_attributes(
+            title: 'Service temporarily unavailable',
+            detail: detail,
+            code: code,
+            href: nil,
+            id: nil,
+            links: [],
+            meta: nil,
+            source: 'Contact system administrator for additional details on what this error could mean.',
+            status: '503'
+          )
+        end
       end
-    end
 
-    it 'can handle generic xml errors that are 503' do
-      expect { faraday_client.get("#{fake_host}/mhv-xml-503") }.to raise_error do |error|
-        # expect(error).to be_a(Breakers::OutageException)
-        # expect(error.message).to include('Outage detected on RX beginning at')
+      it 'can be properly handled when xml' do
+        expect { faraday_client.get("#{fake_host}/mhv-xml-503") }.to raise_error do |error|
+          expect(error).to be_a(Common::Exceptions::BackendServiceException)
+          expect(error.message).to eq(xml_or_html_response)
+          expect(error.errors.first).to have_attributes(
+            title: 'Service temporarily unavailable',
+            detail: detail,
+            code: code,
+            href: nil,
+            id: nil,
+            links: [],
+            meta: nil,
+            source: 'Contact system administrator for additional details on what this error could mean.',
+            status: '503'
+          )
+        end
       end
     end
   end

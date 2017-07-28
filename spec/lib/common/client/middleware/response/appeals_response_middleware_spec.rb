@@ -27,8 +27,7 @@ describe 'Appeals Response Middleware' do
   end
 
   it 'raises client response error' do
-    message = 'BackendServiceException: {:status=>404, :detail=>"Veteran not found", ' \
-              ':code=>"APPEALSSTATUS404", :source=>"A veteran with that SSN was not found in our systems."}'
+    message = 'BackendServiceException: APPEALSSTATUS404 - Appeals data for a veteran with that SSN was not found'
     expect { appeals_client.get('not-found') }
       .to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)

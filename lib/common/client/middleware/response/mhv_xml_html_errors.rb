@@ -21,11 +21,8 @@ module Common
             @header = env.response_headers.to_s.delete('%')
 
             if @status == 503
-              # In the future we might want to try to throttle with Retry-After
-              # Breakers::Outage.create(service: breakers_service)
-              # raise Breakers::OutageException.new(breakers_service.latest_outage, breakers_service)
-              # But for now, lets just raise something that triggers breakers
-              raise_error('VA1003')
+              # We could customize the detail for this based on the parsed XML and Retry-After in header
+              raise_error('VA1003', detail: 'We could not process your request at this time. Please try again later.')
             else
               raise_error('VA1000')
             end
@@ -33,16 +30,16 @@ module Common
 
           private
 
-          def raise_error(type)
-            raise Common::Exceptions::BackendServiceException.new(type, response_values(type), status, body, header)
-          end
-
-          def response_values(type)
-            {
+          def raise_error(type, detail: nil)
+            error_options = {
               status: status,
+              body: body,
+              header: header,
+              detail: detail,
               code:   type,
-              source: 'Contact system administrator for additional details on what this error could mean.'
+              source: 'Contact system administrator for additional details on what this error could mean.',
             }
+            raise Common::Exceptions::BackendServiceException.new(type, error_options)
           end
         end
       end

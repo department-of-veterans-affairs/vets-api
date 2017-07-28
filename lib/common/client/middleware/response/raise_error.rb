@@ -3,8 +3,6 @@ module Common
   module Client
     module Middleware
       module Response
-        class BackendUnhandledException < StandardError; end
-
         class RaiseError < Faraday::Response::Middleware
           attr_reader :error_prefix, :body, :status
 
@@ -25,9 +23,9 @@ module Common
 
           def raise_error!
             if status&.between?(400, 599)
-              raise Common::Exceptions::BackendServiceException.new(service_i18n_key, response_values, @status, @body)
+              raise Common::Exceptions::BackendServiceException.new(service_i18n_key, error_options)
             else
-              raise BackendUnhandledException, "Unhandled Exception - status: #{@status}, body: #{@body}"
+              raise Common::Exceptions::BackendServiceException('VA1000', error_options)
             end
           end
 
@@ -35,12 +33,13 @@ module Common
             "#{error_prefix.upcase}#{body['code']}"
           end
 
-          def response_values
+          def error_options
             {
               status: status,
               detail: body['detail'],
               code:   service_i18n_key,
-              source: body['source']
+              source: body['source'],
+              body: body
             }
           end
         end
