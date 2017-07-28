@@ -5,7 +5,10 @@ require 'evss/auth_headers'
 module EVSS
   class Service < Common::Client::Base
     def headers_for_user(user)
-      EVSS::AuthHeaders.new(user).to_h
+      @headers_by_user ||= Hash.new do |h, key|
+        h[key] = EVSS::AuthHeaders.new(user).to_h
+      end
+      @headers_by_user[user.uuid]
     end
   end
 end
