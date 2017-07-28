@@ -4,15 +4,12 @@ require 'rails_helper'
 describe EVSS::Letters::Service do
   describe '.find_by_user' do
     let(:user) { build(:loa3_user) }
-    let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
-
-    subject { described_class.new(auth_headers) }
 
     describe '#get_letters' do
       context 'with a valid evss response' do
         it 'returns a letters response object' do
           VCR.use_cassette('evss/letters/letters') do
-            response = subject.get_letters
+            response = subject.get_letters(user)
             expect(response).to be_ok
             expect(response).to be_a(EVSS::Letters::LettersResponse)
             expect(response.letters.count).to eq(8)
@@ -27,7 +24,7 @@ describe EVSS::Letters::Service do
 
         it 'should log an error and raise GatewayTimeout' do
           expect(Rails.logger).to receive(:error).with(/Timeout/)
-          expect { subject.get_letters }.to raise_error(Common::Exceptions::GatewayTimeout)
+          expect { subject.get_letters(user) }.to raise_error(Common::Exceptions::GatewayTimeout)
         end
       end
     end
@@ -35,7 +32,7 @@ describe EVSS::Letters::Service do
     describe '#get_letter_beneficiary' do
       it 'returns a letter beneficiary response object' do
         VCR.use_cassette('evss/letters/beneficiary') do
-          response = subject.get_letter_beneficiary
+          response = subject.get_letter_beneficiary(user)
           expect(response).to be_ok
           expect(response).to be_a(EVSS::Letters::BeneficiaryResponse)
           expect(response.military_service.count).to eq(2)
@@ -48,7 +45,7 @@ describe EVSS::Letters::Service do
 
         it 'should log an error and raise GatewayTimeout' do
           expect(Rails.logger).to receive(:error).with(/Timeout/)
-          expect { subject.get_letter_beneficiary }.to raise_error(Common::Exceptions::GatewayTimeout)
+          expect { subject.get_letter_beneficiary(user) }.to raise_error(Common::Exceptions::GatewayTimeout)
         end
       end
     end
@@ -57,7 +54,7 @@ describe EVSS::Letters::Service do
       context 'without options' do
         it 'downloads a pdf' do
           VCR.use_cassette('evss/letters/download') do
-            response = subject.download_by_type(EVSS::Letters::Letter::LETTER_TYPES.first)
+            response = subject.download_by_type(user, EVSS::Letters::Letter::LETTER_TYPES.first)
             expect(response).to include('%PDF-1.4')
           end
         end
@@ -82,6 +79,7 @@ describe EVSS::Letters::Service do
         it 'downloads a pdf' do
           VCR.use_cassette('evss/letters/download_options') do
             response = subject.download_by_type(
+              user,
               EVSS::Letters::Letter::LETTER_TYPES.first,
               options
             )
