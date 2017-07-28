@@ -14,7 +14,9 @@ module EducationForm
       csv_array = []
       csv_array << ['Claimant Name', 'Veteran Name', 'Confirmation #', 'Time Submitted', 'RPO']
 
-      EducationBenefitsClaim.where(processed_at: @date.beginning_of_day..@date.end_of_day).find_each do |education_benefits_claim|
+      EducationBenefitsClaim.where(
+        processed_at: @date.beginning_of_day..@date.end_of_day
+      ).find_each do |education_benefits_claim|
         parsed_form = education_benefits_claim.parsed_form
 
         csv_array << [
