@@ -7,7 +7,7 @@ module Common
           include SentryLogging
           attr_reader :status, :body, :header, :breakers_service
 
-          def initialize(app, options = {})
+          def initialize(app, _options = {})
             # @breakers_service = options[:breakers_service]
             # raise ArgumentError, 'no BreakersService provided' unless @breakers_service.is_a?(Breakers::Service)
             super(app)
@@ -37,7 +37,7 @@ module Common
               header: header,
               detail: detail,
               code:   type,
-              source: 'Contact system administrator for additional details on what this error could mean.',
+              source: 'Contact system administrator for additional details on what this error could mean.'
             }
             raise Common::Exceptions::BackendServiceException.new(type, error_options)
           end

@@ -14,9 +14,9 @@ module Common
         validate_arguments!
       end
 
-    def trigger_breakers?
-      (500..599).cover?(original_status || status)
-    end
+      def trigger_breakers?
+        (500..599).cover?(original_status || status)
+      end
 
       # The message will be the actual backend service response from middleware,
       # not the I18n version.
