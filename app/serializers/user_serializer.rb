@@ -57,7 +57,11 @@ class UserSerializer < ActiveModel::Serializer
 
   def in_progress_forms
     object.in_progress_forms.map do |form|
-      { form: form.form_id, last_updated: form.updated_at.to_i }
+      {
+        form: form.form_id,
+        metadata: form.metadata,
+        last_updated: form.updated_at.to_i
+      }
     end
   end
 
