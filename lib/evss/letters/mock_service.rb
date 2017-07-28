@@ -9,7 +9,9 @@ module EVSS
         response = YAML.load_file(path) if File.exist? path
         user_response = response[user.ssn]
         if user_response.nil?
-          Rails.logger.warn("No user found with ssn: #{user.ssn} in config/mock_letters_response.yml, trying default...")
+          Rails.logger.warn(
+            "No user found with ssn: #{user.ssn} in config/mock_letters_response.yml, trying default..."
+          )
           user_response = response['default']
         end
         user_response
