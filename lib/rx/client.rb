@@ -13,14 +13,16 @@ module Rx
     configuration Rx::Configuration
     client_session Rx::ClientSession
 
+    CACHING_ENABLED = false
+
     def get_active_rxs
-      Common::Collection.fetch(::Prescription, cache_key: "#{session.user_id}-get_active_rxs", ttl: 3600) do
+      Common::Collection.fetch(::Prescription, cache_key: cache_key('getactiverx'), ttl: 3600) do
         perform(:get, 'prescription/getactiverx', nil, token_headers).body
       end
     end
 
     def get_history_rxs
-      Common::Collection.fetch(::Prescription, cache_key: "#{session.user_id}-get_history_rxs", ttl: 3600) do
+      Common::Collection.fetch(::Prescription, cache_key: cache_key('gethistoryrx'), ttl: 3600) do
         perform(:get, 'prescription/gethistoryrx', nil, token_headers).body
       end
     end
@@ -43,7 +45,7 @@ module Rx
     end
 
     def post_refill_rx(id)
-      Common::Collection.bust(["#{session.user_id}-get_active_rxs", "#{session.user_id}-get_history_rxs"]) do
+      Common::Collection.bust([cache_key('getactiverx'), cache_key('gethistoryrx')]) do
         @result = perform(:post, "prescription/rxrefill/#{id}", nil, token_headers)
       end
       @result
@@ -70,6 +72,11 @@ module Rx
     end
 
     private
+
+    def cache_key(action)
+      return nil unless CACHING_ENABLED
+      "#{session.user_id}:#{action}"
+    end
 
     # NOTE: After June 17, MHV will roll out an improvement that collapses these
     # into a single endpoint so that you do not need to make multiple distinct
