@@ -14,8 +14,9 @@ module Rx
     client_session Rx::ClientSession
 
     def get_active_rxs
-      json = perform(:get, 'prescription/getactiverx', nil, token_headers).body
-      Common::Collection.new(::Prescription, json)
+      Common::Collection.fetch(::Prescription, cache_key: "#{session.user_id}-get_active_rxs", ttl: 1000) do
+        perform(:get, 'prescription/getactiverx', nil, token_headers).body
+      end
     end
 
     def get_history_rxs

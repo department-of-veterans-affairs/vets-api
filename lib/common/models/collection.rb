@@ -12,8 +12,8 @@ module Common
     extend Forwardable
     def_delegators :@data, :each, :map
 
-    attr_reader :data, :type, :attributes
-    attr_accessor :errors, :metadata
+    attr_reader :attributes
+    attr_accessor :type, :data, :errors, :metadata
     alias members data
     alias to_h attributes
     alias to_hash attributes
@@ -26,16 +26,50 @@ module Common
       'match' => 'match'
     }.with_indifferent_access.freeze
 
-    def initialize(klass = Array, data: [], metadata: {}, errors: {})
+    def initialize(klass = Array, data: [], metadata: {}, errors: {}, cache_key: nil)
       data = Array.wrap(data) # If data is passed in as nil, wrap it as an empty array
       @type = klass
       @attributes = data
       @metadata = metadata
       @errors = errors
+      @cache_key = cache_key
       (@data = data) && return if defined?(::WillPaginate::Collection) && data.is_a?(WillPaginate::Collection)
       @data = data.collect do |element|
         element.is_a?(Hash) ? klass.new(element) : element
       end
+    end
+
+    def self.redis_namespace
+      @redis_namespace ||= Redis::Namespace.new('Common::Collection', redis: Redis.current)
+    end
+    delegate :redis_namespace, to: 'self.class'
+
+    def self.fetch(klass, cache_key: nil, ttl: 1000, &block)
+      if cache_key
+        serialized_collection = @redis_namespace.get(cache_key)
+        if serialized_collection.nil?
+          collection = new(klass, yield, cache_key: cache_key)
+          @redis_namespace.set(cache_key, collection.serialize)
+          @redis_namespace.expire(cache_key, ttl)
+          return collection
+        else
+          new(klass, serialized_collection, cache_key: cache_key)
+        end
+      else
+        new(klass, yield)
+      end
+    end
+
+    def self.bust(cache_key)
+      redis_namespace.del(cache_key)
+    end
+
+    def cached?
+      cache_key.present?
+    end
+
+    def ttl
+      cache_key.present? ? redis_namespace.ttl(cache_key) : nil
     end
 
     def find_by(filter = {})
@@ -71,6 +105,10 @@ module Common
       per_page = [(per_page.try(:to_i) || type.per_page || 10), max_per_page].min
       collection = paginator(page, per_page)
       Collection.new(type, data: collection, metadata: metadata.merge(pagination_meta(page, per_page)), errors: errors)
+    end
+
+    def serialize
+      { data: data, metadata: metadata, errors: errors }.to_json
     end
 
     private
