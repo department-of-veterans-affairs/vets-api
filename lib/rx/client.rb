@@ -43,12 +43,10 @@ module Rx
     end
 
     def post_refill_rx(id)
-      result = perform(:post, "prescription/rxrefill/#{id}", nil, token_headers)
-      if result.success?
-        busted_keys = ["#{session.user_id}-get_active_rxs", "#{session.user_id}-get_history_rxs"]
-        Common::Collection.bust(busted_keys)
+      Common::Collection.bust(["#{session.user_id}-get_active_rxs", "#{session.user_id}-get_history_rxs"]) do
+        @result = perform(:post, "prescription/rxrefill/#{id}", nil, token_headers)
       end
-      result
+      @result
     end
 
     # TODO: Might need better error handling around this.
