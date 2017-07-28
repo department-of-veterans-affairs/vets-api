@@ -14,14 +14,15 @@ module Rx
     client_session Rx::ClientSession
 
     def get_active_rxs
-      Common::Collection.fetch(::Prescription, cache_key: "#{session.user_id}-get_active_rxs", ttl: 1000) do
+      Common::Collection.fetch(::Prescription, cache_key: "#{session.user_id}-get_active_rxs", ttl: 3600) do
         perform(:get, 'prescription/getactiverx', nil, token_headers).body
       end
     end
 
     def get_history_rxs
-      json = perform(:get, 'prescription/gethistoryrx', nil, token_headers).body
-      Common::Collection.new(::Prescription, json)
+      Common::Collection.fetch(::Prescription, cache_key: "#{session.user_id}-get_history_rxs", ttl: 3600) do
+        perform(:get, 'prescription/gethistoryrx', nil, token_headers).body
+      end
     end
 
     def get_rx(id)
@@ -42,7 +43,12 @@ module Rx
     end
 
     def post_refill_rx(id)
-      perform(:post, "prescription/rxrefill/#{id}", nil, token_headers)
+      result = perform(:post, "prescription/rxrefill/#{id}", nil, token_headers)
+      if result.success?
+        busted_keys = ["#{session.user_id}-get_active_rxs", "#{session.user_id}-get_history_rxs"]
+        Common::Collection.bust(busted_keys)
+      end
+      result
     end
 
     # TODO: Might need better error handling around this.

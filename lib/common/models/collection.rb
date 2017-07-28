@@ -64,8 +64,15 @@ module Common
       end
     end
 
-    def self.bust(cache_key)
-      redis_namespace.del(cache_key)
+    def self.bust(cache_keys)
+      cache_keys = Array.wrap(cache_keys)
+      if block_given?
+        result = yield
+        cache_keys.map { |cache_key| redis_namespace.del(cache_key) } if result.success?
+        result
+      else
+        cache_keys.map { |cache_key| redis_namespace.del(cache_key) }
+      end
     end
 
     def bust
