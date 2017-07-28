@@ -15,7 +15,7 @@ module Common
       end
 
     def trigger_breakers?
-      (500..599).cover?(status)
+      (500..599).cover?(original_status || status)
     end
 
       # The message will be the actual backend service response from middleware,
@@ -60,7 +60,7 @@ module Common
 
       def original_header
         service_response[:header] || service_response[:original_header]
-      end  
+      end
 
       private
 
