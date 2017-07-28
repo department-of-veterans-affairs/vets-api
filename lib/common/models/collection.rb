@@ -42,18 +42,22 @@ module Common
     def self.redis_namespace
       @redis_namespace ||= Redis::Namespace.new('Common::Collection', redis: Redis.current)
     end
-    delegate :redis_namespace, to: 'self.class'
 
-    def self.fetch(klass, cache_key: nil, ttl: 1000, &block)
+    def redis_namespace
+      @redis_namespace ||= self.class.redis_namespace
+    end
+
+    def self.fetch(klass, cache_key: nil, ttl: 1000)
+      raise 'No Block Given' unless block_given?
       if cache_key
-        serialized_collection = @redis_namespace.get(cache_key)
+        serialized_collection = redis_namespace.get(cache_key)
         if serialized_collection.nil?
-          collection = new(klass, yield, cache_key: cache_key)
-          @redis_namespace.set(cache_key, collection.serialize)
-          @redis_namespace.expire(cache_key, ttl)
+          collection = new(klass, yield.merge(cache_key: cache_key))
+          redis_namespace.set(cache_key, collection.serialize)
+          redis_namespace.expire(cache_key, ttl)
           return collection
         else
-          new(klass, serialized_collection, cache_key: cache_key)
+          new(klass, serialized_collection.merge(cache_key: cache_key))
         end
       else
         new(klass, yield)
@@ -65,7 +69,7 @@ module Common
     end
 
     def bust
-      class.bust(@cache_key) if cached?
+      self.class.bust(@cache_key) if cached?
     end
 
     def cached?
