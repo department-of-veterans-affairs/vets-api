@@ -64,6 +64,10 @@ module Common
       redis_namespace.del(cache_key)
     end
 
+    def bust
+      class.bust(@cache_key) if cached?
+    end
+
     def cached?
       cache_key.present?
     end
