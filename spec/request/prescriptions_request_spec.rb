@@ -46,11 +46,25 @@ RSpec.describe 'prescriptions', type: :request do
     let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: false) }
     let(:current_user) { build(:loa3_user) }
 
-    before(:each) do
-      allow_any_instance_of(MhvAccount).to receive(:create_and_upgrade!)
+    it 'raises forbidden if account is not upgraded for unknown reasons' do
+      expect(mhv_account).to receive(:create_and_upgrade!)
+
+      get '/v0/prescriptions/13651310'
+      expect(response).to have_http_status(:forbidden)
+      expect(JSON.parse(response.body)['errors'].first['detail'])
+        .to eq('Failed to create or upgrade health tools account access')
     end
 
-    it 'raises forbidden' do
+    it 'raises forbidden if account is upgraded for known reasons and adds the original error' do
+      response_values = {
+        status: 503,
+        detail: 'whatever',
+        code:   'VA1003',
+        source: 'whatever',
+        body: { detail: 'whatever', code: 'whatever', source: 'whatever' }
+      }
+      expect(mhv_account).to receive(:create_and_upgrade!).and_raise(Common::Exceptions::BackendServiceException.new('MHVACCTCREATION155', response_values))
+
       get '/v0/prescriptions/13651310'
       expect(response).to have_http_status(:forbidden)
       expect(JSON.parse(response.body)['errors'].first['detail'])

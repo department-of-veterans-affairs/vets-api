@@ -111,12 +111,6 @@ en:
         detail: "Did not receive a timely response from an upstream server"
         code: 504 # Consider making this 'VA1004' after determining potential f/e ramifications
         status: 504
-      account_creation_error:
-        <<: *defaults
-        title: Operation failed
-        detail: "Failed to create or upgrade health tools account access"
-        code: "MHVAC1"
-        status: 403
 # EXTERNAL EXCEPTIONS
       # backend_service_exception is the most generic subclass, to be used with its own minor code mapping
       backend_service_exception: &external_defaults
@@ -228,6 +222,12 @@ en:
         code: 'MHVAC155'
         detail: 'Account is already upgraded'
         status: 422
+      MHVACCTCREATION900: # This is raised in mhv_controller_concerns to properly bubble to application_controller
+        <<: *external_defaults
+        title: Operation failed
+        detail: "Failed to create or upgrade health tools account access"
+        code: "MHVAC1"
+        status: 403
       APPEALSSTATUS404:
         <<: *external_defaults
         title: 'Appeals data not found'
