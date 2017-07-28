@@ -25,9 +25,9 @@ RSpec.describe EducationForm::CreateSpoolSubmissionsReport, type: :aws_helpers d
         expect(
           subject.create_csv_array
         ).to eq(
-          [["Claimant Name", "Veteran Name", "Confirmation #", "Time Submitted", "RPO"],
- ["Mark Olson", nil, education_benefits_claim_1.confirmation_number, "2017-07-26 00:00:00 UTC", "eastern"],
- [nil, "Mark Olson", education_benefits_claim_2.confirmation_number, "2017-07-26 00:00:00 UTC", "eastern"]]
+          [['Claimant Name', 'Veteran Name', 'Confirmation #', 'Time Submitted', 'RPO'],
+           ['Mark Olson', nil, education_benefits_claim_1.confirmation_number, '2017-07-26 00:00:00 UTC', 'eastern'],
+           [nil, 'Mark Olson', education_benefits_claim_2.confirmation_number, '2017-07-26 00:00:00 UTC', 'eastern']]
         )
       end
 
