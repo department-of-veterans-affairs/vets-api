@@ -8,14 +8,14 @@ describe EVSS::Letters::ServiceFactory do
     context 'when mock_letters is true' do
       it 'returns a mock service' do
         expect(
-          EVSS::Letters::ServiceFactory.get_service(user: user, mock_service: true)
+          EVSS::Letters::ServiceFactory.get_service(mock_service: true)
         ).to be_a(EVSS::Letters::MockService)
       end
     end
     context 'when mock_letters is false' do
       it 'returns a real service' do
         expect(
-          EVSS::Letters::ServiceFactory.get_service(user: user, mock_service: false)
+          EVSS::Letters::ServiceFactory.get_service(mock_service: false)
         ).to be_a(EVSS::Letters::Service)
       end
     end
