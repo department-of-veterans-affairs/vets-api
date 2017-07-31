@@ -13,16 +13,16 @@ module Rx
     configuration Rx::Configuration
     client_session Rx::ClientSession
 
-    CACHING_ENABLED = false
+    CACHE_TTL = 3600 * 10 # 10 hour cache
 
     def get_active_rxs
-      Common::Collection.fetch(::Prescription, cache_key: cache_key('getactiverx'), ttl: 3600) do
+      Common::Collection.fetch(::Prescription, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL) do
         perform(:get, 'prescription/getactiverx', nil, token_headers).body
       end
     end
 
     def get_history_rxs
-      Common::Collection.fetch(::Prescription, cache_key: cache_key('gethistoryrx'), ttl: 3600) do
+      Common::Collection.fetch(::Prescription, cache_key: cache_key('gethistoryrx'), ttl: CACHE_TTL) do
         perform(:get, 'prescription/gethistoryrx', nil, token_headers).body
       end
     end
@@ -45,10 +45,10 @@ module Rx
     end
 
     def post_refill_rx(id)
-      Common::Collection.bust([cache_key('getactiverx'), cache_key('gethistoryrx')]) do
-        @result = perform(:post, "prescription/rxrefill/#{id}", nil, token_headers)
+      if (result = perform(:post, "prescription/rxrefill/#{id}", nil, token_headers))
+        Common::Collection.bust([cache_key('getactiverx'), cache_key('gethistoryrx')])
       end
-      @result
+      result
     end
 
     # TODO: Might need better error handling around this.
@@ -74,7 +74,7 @@ module Rx
     private
 
     def cache_key(action)
-      return nil unless CACHING_ENABLED
+      return nil unless config.caching_enabled?
       "#{session.user_id}:#{action}"
     end
 

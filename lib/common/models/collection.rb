@@ -53,8 +53,7 @@ module Common
         json = redis_namespace.get(cache_key)
         if json.nil?
           collection = new(klass, yield.merge(cache_key: cache_key))
-          redis_namespace.set(cache_key, collection.serialize)
-          redis_namespace.expire(cache_key, ttl)
+          cache(collection.serialize, cache_key, ttl)
           return collection
         else
           serialized_collection = Oj.load(json)
@@ -65,13 +64,14 @@ module Common
       end
     end
 
+    def self.cache(serialized_data, cache_key, ttl)
+      redis_namespace.set(cache_key, serialized_data)
+      redis_namespace.expire(cache_key, ttl)
+    end
+
     def self.bust(cache_keys)
       cache_keys = Array.wrap(cache_keys)
-      if block_given?
-        cache_keys.map { |cache_key| redis_namespace.del(cache_key) } if yield
-      else
-        cache_keys.map { |cache_key| redis_namespace.del(cache_key) }
-      end
+      cache_keys.map { |cache_key| redis_namespace.del(cache_key) }
     end
 
     def bust
@@ -79,11 +79,11 @@ module Common
     end
 
     def cached?
-      cache_key.present?
+      @cache_key.present?
     end
 
     def ttl
-      cache_key.present? ? redis_namespace.ttl(cache_key) : nil
+      @cache_key.present? ? redis_namespace.ttl(@cache_key) : nil
     end
 
     def find_by(filter = {})
