@@ -11,15 +11,15 @@ module Swagger
           key :tags, %w(facilities)
 
           parameter do
-            key :name, "bbox[]"
+            key :name, 'bbox[]'
             key :in, :query
             key :type, :array
-            key :required, :true
+            key :required, true
             key :collectionFormat, :multi
             key :minItems, 4
             key :maxItems, 4
             items do
-              key :type, :float
+              key :type, :number
             end
           end
           parameter do
@@ -29,7 +29,7 @@ module Swagger
             key :enum, %w(health cemetery benefits vet_center)
           end
           parameter do
-            key :name, "services[]"
+            key :name, 'services[]'
             key :in, :query
             key :type, :array
             key :collectionFormat, :multi
@@ -39,6 +39,7 @@ module Swagger
           end
 
           response 200 do
+            key :description, 'Successful bounding box query'
             schema do
               key :'$ref', :VAFacilities
             end
@@ -56,9 +57,10 @@ module Swagger
             key :name, :id
             key :in, :path
             key :type, :string
-            key :required, :true
+            key :required, true
           end
           response 200 do
+            key :description, 'Successful facility detail lookup'
             schema do
               key :'$ref', :VAFacility
             end

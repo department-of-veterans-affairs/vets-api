@@ -12,7 +12,7 @@ module Swagger
           items do
             key :'$ref', :VAFacilityObject
           end
-        end 
+        end
       end
 
       swagger_schema :VAFacility do
@@ -98,7 +98,7 @@ module Swagger
         key :required, [:monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday]
         key :type, :object
         key :description, 'Hours of operation for facilities'
-       
+
         property :monday, type: :string, example: '9am - 5pm'
         property :tuesday, type: :string, example: '9am - 5pm'
         property :wednesday, type: :string, example: '9am - 5pm'
@@ -125,7 +125,7 @@ module Swagger
           key :'$ref', :HealthServiceCategory
         end
       end
-    
+
       swagger_schema :HealthServiceCategory do
         key :type, :object
 
@@ -149,7 +149,7 @@ module Swagger
         key :type, :object
 
         property :health do
-          key :'$ref', :HealthFacilityFeedback 
+          key :'$ref', :HealthFacilityFeedback
         end
       end
 
@@ -215,4 +215,3 @@ module Swagger
     end
   end
 end
-
