@@ -93,6 +93,8 @@ module V0
       Swagger::Schemas::TermsAndConditions,
       Swagger::Schemas::Letters,
       Swagger::Schemas::LetterBeneficiary,
+      Swagger::Schemas::VAFacilities,
+      Swagger::Schemas::VAFacility,
       self
     ].freeze
 

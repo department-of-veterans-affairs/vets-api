@@ -37,6 +37,12 @@ module Swagger
               key :type, :string
             end
           end
+
+          response 200 do
+            schema do
+              key :'$ref', :VAFacilities
+            end
+          end
         end
       end
 
@@ -52,9 +58,13 @@ module Swagger
             key :type, :string
             key :required, :true
           end
+          response 200 do
+            schema do
+              key :'$ref', :VAFacility
+            end
+          end
         end
       end
-
     end
   end
 end
