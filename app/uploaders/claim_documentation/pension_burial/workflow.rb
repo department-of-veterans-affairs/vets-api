@@ -12,7 +12,7 @@ class ClaimDocumentation::PensionBurial::Workflow < Workflow::File
   run Workflow::Task::Shared::ConvertToPdf
   # The timestamp in this task is UTC, but the business requirement is for CST.
   # Datetime will be added to the append text.
-  run Workflow::Task::Shared::DatestampPdfTask, text: 'Vets.gov', x: 5, y: 5, text_only: true
+  run Workflow::Task::Shared::DatestampPdfTask, text: 'VETS.GOV', x: 5, y: 5
   run(
     Workflow::Task::Shared::DatestampPdfTask,
     text: 'FDC Reviewed - Vets.gov Submission',
