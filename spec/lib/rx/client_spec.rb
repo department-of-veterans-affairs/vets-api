@@ -56,8 +56,10 @@ describe 'RX Client' do
       VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions') do
         if caching_enabled
           expect(Common::Collection).to receive(:cache).once.and_call_original
+          expect(Common::Collection).not_to receive(:bust)
         else
           expect(Common::Collection).not_to receive(:cache)
+          expect(Common::Collection).not_to receive(:bust)
         end
 
         client_response = client.get_active_rxs
