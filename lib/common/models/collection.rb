@@ -50,22 +50,22 @@ module Common
     def self.fetch(klass, cache_key: nil, ttl: 1000)
       raise 'No Block Given' unless block_given?
       if cache_key
-        json = redis_namespace.get(cache_key)
-        if json.nil?
+        json_string = redis_namespace.get(cache_key)
+        if json_string.nil?
           collection = new(klass, yield.merge(cache_key: cache_key))
           cache(collection.serialize, cache_key, ttl)
           return collection
         else
-          serialized_collection = Oj.load(json)
-          new(klass, serialized_collection.merge('cache_key' => cache_key).symbolize_keys)
+          json_hash = Oj.load(json_string)
+          new(klass, json_hash.merge('cache_key' => cache_key).symbolize_keys)
         end
       else
         new(klass, yield)
       end
     end
 
-    def self.cache(serialized_data, cache_key, ttl)
-      redis_namespace.set(cache_key, serialized_data)
+    def self.cache(json_hash, cache_key, ttl)
+      redis_namespace.set(cache_key, json_hash)
       redis_namespace.expire(cache_key, ttl)
     end
 
