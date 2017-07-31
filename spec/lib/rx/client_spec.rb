@@ -58,14 +58,13 @@ describe 'RX Client' do
         expect(client_response).to be_a(Common::Collection)
         expect(client_response.type).to eq(Prescription)
         expect(client_response.cached?).to eq(caching_enabled)
-        
+
         if caching_enabled
           expect(cache_key_for(client_response)).to eq("#{client.session.user_id}:getactiverx")
         else
           expect(cache_key_for(client_response)).to eq(nil)
         end
       end
-
     end
 
     it 'gets a list of all prescriptions' do
