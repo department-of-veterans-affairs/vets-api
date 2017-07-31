@@ -16,25 +16,32 @@ describe 'RX Client' do
   let(:client) { @client }
 
   describe 'preferences' do
-    it 'gets rx preferences', :vcr do
-      client_response = client.get_preferences
-      expect(client_response.email_address).to eq('Praneeth.Gaganapally@va.gov')
-      expect(client_response.rx_flag).to eq(true)
+    it 'gets rx preferences' do
+      VCR.use_cassette('rx_client/preferences/gets_rx_preferences') do
+        client_response = client.get_preferences
+        expect(client_response.email_address).to eq('Praneeth.Gaganapally@va.gov')
+        expect(client_response.rx_flag).to eq(true)
+      end
     end
 
-    it 'sets rx preferences', :vcr do
-      client_response = client.post_preferences(email_address: 'kamyar.karshenas@va.gov', rx_flag: false)
-      expect(client_response.email_address).to eq('kamyar.karshenas@va.gov')
-      expect(client_response.rx_flag).to eq(false)
-      # Change it back to what it was to make this test idempotent
-      client_response = client.post_preferences(email_address: 'Praneeth.Gaganapally@va.gov', rx_flag: true)
-      expect(client_response.email_address).to eq('Praneeth.Gaganapally@va.gov')
-      expect(client_response.rx_flag).to eq(true)
+    it 'sets rx preferences' do
+      VCR.use_cassette('rx_client/preferences/sets_rx_preferences') do
+        client_response = client.post_preferences(email_address: 'kamyar.karshenas@va.gov', rx_flag: false)
+        expect(client_response.email_address).to eq('kamyar.karshenas@va.gov')
+        expect(client_response.rx_flag).to eq(false)
+        # Change it back to what it was to make this test idempotent
+        client_response = client.post_preferences(email_address: 'Praneeth.Gaganapally@va.gov', rx_flag: true)
+        expect(client_response.email_address).to eq('Praneeth.Gaganapally@va.gov')
+        expect(client_response.rx_flag).to eq(true)
+      end
     end
 
-    it 'raises a backend service exception when email includes spaces', :vcr do
-      expect { client.post_preferences(email_address: 'kamyar karshenas@va.gov', rx_flag: false) }
-        .to raise_error(Common::Exceptions::BackendServiceException)
+    it 'raises a backend service exception when email includes spaces' do
+      cassette = 'raises_a_backend_service_exception_when_email_includes_spaces'
+      VCR.use_cassette("rx_client/preferences/#{cassette}") do
+        expect { client.post_preferences(email_address: 'kamyar karshenas@va.gov', rx_flag: false) }
+          .to raise_error(Common::Exceptions::BackendServiceException)
+      end
     end
   end
 
