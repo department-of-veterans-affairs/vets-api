@@ -38,7 +38,7 @@ describe 'RX Client' do
     end
   end
 
-  shared_examples "prescriptions" do |caching_enabled|
+  shared_examples 'prescriptions' do |caching_enabled|
     before(:each) do
       Settings.mhv.rx.collection_caching_enabled = caching_enabled
     end
@@ -84,7 +84,8 @@ describe 'RX Client' do
       end
 
       it 'gets a list of tracking history for a prescription' do
-        VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_a_list_of_tracking_history_for_a_prescription') do
+        cassette = 'gets_a_list_of_tracking_history_for_a_prescription'
+        VCR.use_cassette("rx_client/prescriptions/nested_resources/#{cassette}") do
           client_response = client.get_tracking_history_rx(13_650_541)
           expect(client_response).to be_a(Common::Collection)
           expect(client_response.members.first.prescription_id).to eq(13_650_541)
@@ -101,10 +102,10 @@ describe 'RX Client' do
   end
 
   describe 'Prescriptions with caching disabled' do
-    it_behaves_like "prescriptions", false
+    it_behaves_like 'prescriptions', false
   end
 
-  describe "Prescriptions with caching enabled" do
-    it_behaves_like "prescriptions", true
+  describe 'Prescriptions with caching enabled' do
+    it_behaves_like 'prescriptions', true
   end
 end
