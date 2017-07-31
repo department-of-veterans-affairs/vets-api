@@ -2,7 +2,7 @@
 require 'rails_helper'
 require 'rx/client'
 
-describe 'rx client' do
+describe 'RX Client' do
   before(:all) do
     VCR.use_cassette 'rx_client/session', record: :new_episodes do
       @client ||= begin
@@ -38,47 +38,73 @@ describe 'rx client' do
     end
   end
 
-  describe 'prescriptions' do
-    it 'gets a list of active prescriptions', :vcr do
-      client_response = client.get_active_rxs
-      expect(client_response).to be_a(Common::Collection)
-      expect(client_response.members.first).to be_a(Prescription)
+  shared_examples "prescriptions" do |caching_enabled|
+    before(:each) do
+      Settings.mhv.rx.collection_caching_enabled = caching_enabled
     end
 
-    it 'gets a list of all prescriptions', :vcr do
-      client_response = client.get_history_rxs
-      expect(client_response).to be_a(Common::Collection)
-      expect(client_response.members.first).to be_a(Prescription)
+    it 'gets a list of active prescriptions' do
+      VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions') do
+        client_response = client.get_active_rxs
+        expect(client_response).to be_a(Common::Collection)
+        expect(client_response.members.first).to be_a(Prescription)
+      end
     end
 
-    it 'gets a single prescription', :vcr do
-      expect(client.get_rx(13_650_546)).to be_a(Prescription)
+    it 'gets a list of all prescriptions' do
+      VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
+        client_response = client.get_history_rxs
+        expect(client_response).to be_a(Common::Collection)
+        expect(client_response.members.first).to be_a(Prescription)
+      end
     end
 
-    it 'refills a prescription', :vcr do
-      client_response = client.post_refill_rx(13_650_545)
-      expect(client_response.status).to equal 200
-      # This is what MHV returns, even though we don't care
-      expect(client_response.body).to eq(status: 'success')
+    it 'gets a single prescription' do
+      VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription') do
+        expect(client.get_rx(13_650_546)).to be_a(Prescription)
+      end
+    end
+
+    it 'refills a prescription' do
+      VCR.use_cassette('rx_client/prescriptions/refills_a_prescription') do
+        client_response = client.post_refill_rx(13_650_545)
+        expect(client_response.status).to equal 200
+        # This is what MHV returns, even though we don't care
+        expect(client_response.body).to eq(status: 'success')
+      end
     end
 
     context 'nested resources' do
-      it 'gets tracking for a prescription', :vcr do
-        client_response = client.get_tracking_rx(13_650_541)
-        expect(client_response).to be_a(Tracking)
-        expect(client_response.prescription_id).to eq(13_650_541)
+      it 'gets tracking for a prescription' do
+        VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_tracking_for_a_prescription') do
+          client_response = client.get_tracking_rx(13_650_541)
+          expect(client_response).to be_a(Tracking)
+          expect(client_response.prescription_id).to eq(13_650_541)
+        end
       end
 
-      it 'gets a list of tracking history for a prescription', :vcr do
-        client_response = client.get_tracking_history_rx(13_650_541)
-        expect(client_response).to be_a(Common::Collection)
-        expect(client_response.members.first.prescription_id).to eq(13_650_541)
+      it 'gets a list of tracking history for a prescription' do
+        VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_a_list_of_tracking_history_for_a_prescription') do
+          client_response = client.get_tracking_history_rx(13_650_541)
+          expect(client_response).to be_a(Common::Collection)
+          expect(client_response.members.first.prescription_id).to eq(13_650_541)
+        end
       end
     end
 
-    it 'handles failed stations', :vcr do
-      expect(Rails.logger).to receive(:warn).with(/failed station/).with(/Station-000/)
-      client.get_history_rxs
+    it 'handles failed stations' do
+      VCR.use_cassette('rx_client/prescriptions/handles_failed_stations') do
+        expect(Rails.logger).to receive(:warn).with(/failed station/).with(/Station-000/)
+        client.get_history_rxs
+      end
     end
+  end
+
+  describe 'Prescriptions with caching disabled' do
+    it_behaves_like "prescriptions", false
+  end
+
+  describe "Prescriptions with caching enabled" do
+    it_behaves_like "prescriptions", true
   end
 end
