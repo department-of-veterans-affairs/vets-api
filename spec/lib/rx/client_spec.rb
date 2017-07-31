@@ -54,53 +54,43 @@ describe 'RX Client' do
 
     it 'gets a list of active prescriptions' do
       VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions') do
-        if caching_enabled
-          expect(Common::Collection).to receive(:cache).once.and_call_original
-          expect(Common::Collection).not_to receive(:bust)
-        else
-          expect(Common::Collection).not_to receive(:cache)
-          expect(Common::Collection).not_to receive(:bust)
-        end
-
         client_response = client.get_active_rxs
         expect(client_response).to be_a(Common::Collection)
-        expect(client_response.members.first).to be_a(Prescription)
+        expect(client_response.type).to eq(Prescription)
+        expect(client_response.cached?).to eq(caching_enabled)
+        
+        if caching_enabled
+          expect(cache_key_for(client_response)).to eq("#{client.session.user_id}:getactiverx")
+        else
+          expect(cache_key_for(client_response)).to eq(nil)
+        end
       end
+
     end
 
     it 'gets a list of all prescriptions' do
       VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
-        if caching_enabled
-          expect(Common::Collection).to receive(:cache).once.and_call_original
-          expect(Common::Collection).not_to receive(:bust)
-        else
-          expect(Common::Collection).not_to receive(:cache)
-          expect(Common::Collection).not_to receive(:bust)
-        end
-
         client_response = client.get_history_rxs
         expect(client_response).to be_a(Common::Collection)
         expect(client_response.members.first).to be_a(Prescription)
+        expect(client_response.cached?).to eq(caching_enabled)
+
+        if caching_enabled
+          expect(cache_key_for(client_response)).to eq("#{client.session.user_id}:gethistoryrx")
+        else
+          expect(cache_key_for(client_response)).to eq(nil)
+        end
       end
     end
 
     it 'gets a single prescription' do
       VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription') do
-        if caching_enabled
-          expect(Common::Collection).to receive(:cache).once.and_call_original
-          expect(Common::Collection).not_to receive(:bust)
-        else
-          expect(Common::Collection).not_to receive(:cache)
-          expect(Common::Collection).not_to receive(:bust)
-        end
-
         expect(client.get_rx(13_650_546)).to be_a(Prescription)
       end
     end
 
     it 'refills a prescription' do
       VCR.use_cassette('rx_client/prescriptions/refills_a_prescription') do
-        expect(Common::Collection).not_to receive(:cache)
         if caching_enabled
           expect(Common::Collection).to receive(:bust).with(cache_keys)
         else
@@ -117,14 +107,6 @@ describe 'RX Client' do
     context 'nested resources' do
       it 'gets tracking for a prescription' do
         VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_tracking_for_a_prescription') do
-          if caching_enabled
-            expect(Common::Collection).not_to receive(:cache)
-            expect(Common::Collection).not_to receive(:bust)
-          else
-            expect(Common::Collection).not_to receive(:cache)
-            expect(Common::Collection).not_to receive(:bust)
-          end
-
           client_response = client.get_tracking_rx(13_650_541)
           expect(client_response).to be_a(Tracking)
           expect(client_response.prescription_id).to eq(13_650_541)
@@ -134,31 +116,17 @@ describe 'RX Client' do
       it 'gets a list of tracking history for a prescription' do
         cassette = 'gets_a_list_of_tracking_history_for_a_prescription'
         VCR.use_cassette("rx_client/prescriptions/nested_resources/#{cassette}") do
-          if caching_enabled
-            expect(Common::Collection).not_to receive(:cache)
-            expect(Common::Collection).not_to receive(:bust)
-          else
-            expect(Common::Collection).not_to receive(:cache)
-            expect(Common::Collection).not_to receive(:bust)
-          end
-
           client_response = client.get_tracking_history_rx(13_650_541)
           expect(client_response).to be_a(Common::Collection)
           expect(client_response.members.first.prescription_id).to eq(13_650_541)
+          expect(client_response.cached?).to eq(false)
+          expect(cache_key_for(client_response)).to eq(nil)
         end
       end
     end
 
     it 'handles failed stations' do
       VCR.use_cassette('rx_client/prescriptions/handles_failed_stations') do
-        if caching_enabled
-          expect(Common::Collection).to receive(:cache).once.and_call_original
-          expect(Common::Collection).not_to receive(:bust)
-        else
-          expect(Common::Collection).not_to receive(:cache)
-          expect(Common::Collection).not_to receive(:bust)
-        end
-
         expect(Rails.logger).to receive(:warn).with(/failed station/).with(/Station-000/)
         client.get_history_rxs
       end
@@ -171,5 +139,9 @@ describe 'RX Client' do
 
   describe 'Prescriptions with caching enabled' do
     it_behaves_like 'prescriptions', true
+  end
+
+  def cache_key_for(collection)
+    collection.instance_variable_get(:@cache_key)
   end
 end
