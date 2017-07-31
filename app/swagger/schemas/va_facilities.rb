@@ -33,8 +33,8 @@ module Swagger
           property :unique_id, type: :string, example: '999'
           property :name, type: :string, example: 'Example VAMC'
           property :facility_type, type: :string, example: 'va_health_facility'
-          property :classification, type: :string, example: 'VA Medical Center'
-          property :website, type: :string, example: 'http://www.example.com'
+          property :classification, type: [:string, :null], example: 'VA Medical Center'
+          property :website, type: [:string, :null], example: 'http://www.example.com'
           property :lat, type: :number, format: :float, example: -122.5
           property :long, type: :number, format: :float, example: 45.5
           property :address do
@@ -74,8 +74,8 @@ module Swagger
         key :type, :object
 
         property :address_1, type: :string, example: '123 Fake Street'
-        property :address_2, type: :string, example: 'Suite 001'
-        property :address_3, type: :string
+        property :address_2, type: [:string, :null], example: 'Suite 001'
+        property :address_3, type: [:string, :null]
         property :city, type: :string, example: 'Anytown'
         property :state, type: :string, example: 'NY'
         property :zip, type: :string, example: '00001'
@@ -209,8 +209,8 @@ module Swagger
         key :type, :object
         key :description, 'Health facility wait times for new and established patients'
 
-        property :new, type: :number, format: :float, example: 10.5
-        property :established, type: :number, format: :float, example: 5.1
+        property :new, type: [:number, :null], format: :float, example: 10.5
+        property :established, type: [:number, :null], format: :float, example: 5.1
       end
     end
   end
