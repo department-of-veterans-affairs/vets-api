@@ -20,6 +20,9 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
+  time:
+    formats:
+      pdf_stamp: "%Y-%m-%d %H:%M:%S%Z"
   uploads:
     pdf:
       locked: PDF must not be encrypted or locked. Please re-save it without a password
