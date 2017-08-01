@@ -8,7 +8,7 @@ module Swagger
         swagger_schema :GibctInstitutionsAutocomplete do
           key :required, [:data, :meta, :links]
 
-          property :data, type: :array, minItems: 1, uniqueItems: true do
+          property :data, type: :array, minItems: 0, uniqueItems: true do
             items do
               property :id, type: :integer
               property :value, type: :string
