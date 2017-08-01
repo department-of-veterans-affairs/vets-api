@@ -38,7 +38,7 @@ module Workflow::Task::Shared
 
     def generate_stamp(stamp_path, text, x, y, text_only)
       unless text_only
-        text = Time.now.utc.strftime("#{text} %FT%T%:z")
+        text += ' ' + I18n.l(DateTime.current, format: :pdf_stamp) unless data[:skip_date_on_stamp]
         text += ('. ' + data[:append_to_stamp]) if data[:append_to_stamp]
       end
 

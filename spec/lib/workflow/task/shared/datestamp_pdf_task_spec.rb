@@ -28,12 +28,16 @@ RSpec.describe Workflow::Task::Shared::DatestampPdfTask do
       it 'should add text with a datestamp at the given location' do
         Timecop.travel(Time.zone.local(1999, 12, 31, 23, 59, 59)) do
           instance.run(text: 'Received via vets.gov at', x: 10, y: 10)
-          assert_pdf_stamp('Received via vets.gov at 1999-12-31T23:59:59+00:00. Confirmation=VETS-XX-1234')
+          assert_pdf_stamp('Received via vets.gov at 1999-12-31 23:59:59+00:00. Confirmation=VETS-XX-1234')
         end
       end
 
       context 'with no additional text' do
-        it 'should add just the text' do
+        let(:instance) do
+          described_class.new({}, internal: { file: attacher.read })
+        end
+
+        it 'does not include the datetime' do
           text = 'Vets.gov Submission'
           instance.run(text: text, x: 449, y: 730, text_only: true)
           assert_pdf_stamp(text)
