@@ -7,7 +7,7 @@ module Swagger
 
         swagger_path '/v0/gi/institutions/autocomplete' do
           operation :get do
-            key :description, 'Retrieves all institution names begining with a set of letters'
+            key :description, 'Retrieves institution names begining with a set of letters'
             key :operationId, 'gibctInstitutionsAutocomplete'
             key :tags, %w(institutions autocomplete)
 
