@@ -3,6 +3,7 @@
 This project provides common APIs for applications that live on vets.gov.
 
 ## Developer Setup
+As an alternative, you may use [Docker to setup Postgres, Redis, & specific version of Ruby](#development-setup--docker-)
 
 Vets API requires:
 - PostgreSQL
@@ -125,6 +126,20 @@ browser and start interacting with the API.
   files are saved. Useful for TDD!
 - `bundle exec rake security` - Run the suite of security scanners on the codebase.
 - `bundle exec rake ci` - Run all build steps performed in CI.
+
+## Development Setup ( Docker )
+
+Copy the certificate files from the ~/.certs directory of your local system to
+`./config/certs`.
+
+To run the api via docker from the root of the project run the following commands
+
+```
+docker-compose build
+docker-compse up
+```
+
+The API will then be available on port 3000 of the docker host.
 
 ## Deployment Instructions
 
