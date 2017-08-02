@@ -14,6 +14,7 @@ module Swagger
             property :countries do
               key :type, :array
               items do
+                key :required, [:name]
                 property :name, type: :string, example: 'USA'
               end
             end
