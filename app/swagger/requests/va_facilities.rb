@@ -37,11 +37,16 @@ module Swagger
               key :type, :string
             end
           end
-
           response 200 do
             key :description, 'Successful bounding box query'
             schema do
               key :'$ref', :VAFacilities
+            end
+          end
+          response 400 do
+            key :description, 'Invalid bounding box query'
+            schema do
+              key :'$ref', :Errors
             end
           end
         end
@@ -63,6 +68,12 @@ module Swagger
             key :description, 'Successful facility detail lookup'
             schema do
               key :'$ref', :VAFacility
+            end
+          end
+          response 404 do
+            key :description, 'Non-existent facility lookup'
+            schema do
+              key :'$ref', :Errors
             end
           end
         end
