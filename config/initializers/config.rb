@@ -13,11 +13,11 @@ Config.setup do |config|
 
   # Load environment variables from the `ENV` object and override any settings defined in files.
   #
-  # config.use_env = false
+  config.use_env = true
 
   # Define ENV variable prefix deciding which variables to load into config.
   #
-  # config.env_prefix = 'Settings'
+  config.env_prefix = 'Settings'
 
   # What string to use as level separator for settings loaded from ENV variables. Default value of '.' works well
   # with Heroku, but you might want to change it for example for '__' to easy override settings from command line, where
