@@ -610,6 +610,58 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    describe 'gibct' do
+      describe 'institutions' do
+        describe 'autocomplete' do
+          it 'supports autocomplete of institution names' do
+            VCR.use_cassette('gi_client/gets_a_list_of_autocomplete_suggestions') do
+              expect(subject).to validate(
+                :get, '/v0/gi/institutions/autocomplete', 200, '_query_string' => 'term=university'
+              )
+            end
+          end
+        end
+
+        describe 'search' do
+          it 'supports autocomplete of institution names' do
+            VCR.use_cassette('gi_client/gets_search_results') do
+              expect(subject).to validate(
+                :get, '/v0/gi/institutions/search', 200, '_query_string' => 'name=illinois'
+              )
+            end
+          end
+        end
+
+        describe 'show' do
+          context 'successful calls' do
+            it 'supports showing institution details' do
+              VCR.use_cassette('gi_client/gets_the_institution_details') do
+                expect(subject).to validate(:get, '/v0/gi/institutions/{id}', 200, 'id' => '20603613')
+              end
+            end
+          end
+
+          context 'unsuccessful calls' do
+            it 'returns error on refilling a prescription with bad id' do
+              VCR.use_cassette('gi_client/gets_institution_details_error') do
+                expect(subject).to validate(:get, '/v0/gi/institutions/{id}', 400, 'id' => 'splunge')
+              end
+            end
+          end
+        end
+      end
+
+      describe 'calculator_constants' do
+        it 'supports getting all calculator constants' do
+          VCR.use_cassette('gi_client/gets_the_calculator_constants') do
+            expect(subject).to validate(
+              :get, '/v0/gi/calculator_constants', 200
+            )
+          end
+        end
+      end
+    end
+
     context 'without EVSS mock' do
       before { Settings.evss.mock_gi_bill_status = false }
       before { Settings.evss.mock_letters = false }
