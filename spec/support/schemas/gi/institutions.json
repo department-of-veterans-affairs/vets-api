@@ -4,9 +4,122 @@
   "properties": {
     "meta": {
       "type": "object",
+      "required": ["version", "count", "facets"],
       "properties": {
-        "version": { "type": "integer" },
-        "count": { "type": "integer" }
+        "version": {
+          "type": "object",
+          "required": ["number", "created_at", "preview"],
+          "properties": {
+            "number": { "type": "integer" },
+            "created_at": { "type": "string" },
+            "preview": { "type": "boolean "}
+          }
+        },
+        "count": { "type": "integer" },
+        "facets": {
+          "type": "object",
+          "required": [
+            "category", "type", "state", "country", "student_vet_group",
+            "yellow_ribbon_scholarship", "principles_of_excellence",
+            "eight_keys_to_veteran_success"
+          ],
+          "properties": {
+            "category": {
+              "type": "object",
+              "required": ["school", "employer"],
+              "properties": {
+                "school": { "type": "integer" },
+                "employer": { "type": "integer" }
+              }
+            },
+            "type": {
+              "type": "object",
+              "properties": {
+                "correspondence": { "type": "integer" },
+                "flight": { "type": "integer" },
+                "foreign": { "type": "integer" },
+                "for profit": { "type": "integer" },
+                "ojt": { "type": "integer" },
+                "private": { "type": "integer" },
+                "public": { "type": "integer" }
+              }
+            },
+            "state": {
+              "type": "object",
+              "required": [
+                "ak","al","ar","as","az","ca","co","ct","dc","de","fl","fm","ga","gu","hi","ia",
+                "id","il","in","ks","ky","la","ma","md","me","mh","mi","mn","mo","mp","ms","mt",
+                "nc","nd","ne","nh","nj","nm","nv","ny","oh","ok","or","pa","pr","pw","ri","sc",
+                "sd","tn","tx","ut","va","vi","vt","wa","wi","wv","wy"
+              ],
+              "properties": {
+                "ak": { "type": "integer" }, "al": { "type": "integer" }, "ar": { "type": "integer" },
+                "as": { "type": "integer" }, "az": { "type": "integer" }, "ca": { "type": "integer" },
+                "co": { "type": "integer" }, "ct": { "type": "integer" }, "dc": { "type": "integer" },
+                "de": { "type": "integer" }, "fl": { "type": "integer" }, "fm": { "type": "integer" },
+                "ga": { "type": "integer" }, "gu": { "type": "integer" }, "hi": { "type": "integer" },
+                "ia": { "type": "integer" }, "id": { "type": "integer" }, "il": { "type": "integer" },
+                "in": { "type": "integer" }, "ks": { "type": "integer" }, "ky": { "type": "integer" },
+                "la": { "type": "integer" }, "ma": { "type": "integer" }, "md": { "type": "integer" },
+                "me": { "type": "integer" }, "mh": { "type": "integer" }, "mi": { "type": "integer" },
+                "mn": { "type": "integer" }, "mo": { "type": "integer" }, "mp": { "type": "integer" },
+                "ms": { "type": "integer" }, "mt": { "type": "integer" }, "nc": { "type": "integer" },
+                "nd": { "type": "integer" }, "ne": { "type": "integer" }, "nh": { "type": "integer" },
+                "nj": { "type": "integer" }, "nm": { "type": "integer" }, "nv": { "type": "integer" },
+                "ny": { "type": "integer" }, "oh": { "type": "integer" }, "ok": { "type": "integer" },
+                "or": { "type": "integer" }, "pa": { "type": "integer" }, "pr": { "type": "integer" },
+                "pw": { "type": "integer" }, "ri": { "type": "integer" }, "sc": { "type": "integer" },
+                "sd": { "type": "integer" }, "tn": { "type": "integer" }, "tx": { "type": "integer" },
+                "ut": { "type": "integer" }, "va": { "type": "integer" }, "vi": { "type": "integer" },
+                "vt": { "type": "integer" }, "wa": { "type": "integer" }, "wi": { "type": "integer" },
+                "wv": { "type": "integer" }, "wy": { "type": "integer" }
+              }
+            },
+            "country": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["name", "count"],
+                "properties": {
+                  "name": { "type": "string" },
+                  "count": { "type": "integer" }
+                }
+              }
+            },
+            "student_vet_group": {
+              "type": "object",
+              "required": ["true", "false"],
+              "properties": {
+                "true": { "type": ["null", "integer"] },
+                "false": { "type": ["null", "integer"] }
+              }
+            },
+            "yellow_ribbon_scholarship": {
+              "type": "object",
+              "required": ["true", "false"],
+              "properties": {
+                "true": { "type": ["null", "integer"] },
+                "false": { "type": ["null", "integer"] }
+              }
+            },
+            "principles_of_excellence": {
+              "type": "object",
+              "required": ["true", "false"],
+              "properties": {
+                "true": { "type": ["null", "integer"] },
+                "false": { "type": ["null", "integer"] }
+              }
+            },
+            "eight_keys_to_veteran_success": {
+              "type": "object",
+              "required": ["true", "false"],
+              "properties": {
+                "true": { "type": ["null", "integer"] },
+                "false": { "type": ["null", "integer"] }
+              }
+            }
+          }
+        }
       }
     },
     "data": {
@@ -26,9 +139,9 @@
               "type": {
                 "type": "string",
                 "enum": [
-                  "ojt", "private", "foreign",
-                  "correspondence", "flight",
-                  "for profit", "public"
+                  "OJT", "PRIVATE", "FOREIGN",
+                  "CORRESPONDENCE", "FLIGHT",
+                  "FOR PROFIT", "PUBLIC"
                 ]
               },
               "city": { "type": ["null", "string"] },
@@ -38,7 +151,7 @@
               "highest_degree": { "type": ["null", "integer"] },
               "locale_type": { "type": ["null", "string"] },
               "student_count": { "type": ["null", "integer"] },
-              "caution_flag": { "type": "boolean" },
+              "caution_flag": { "type": ["null", "boolean"] },
               "caution_flag_reason": { "type": ["null", "string"] },
               "created_at": { "type": "string" },
               "updated_at": { "type": "string" },
@@ -46,10 +159,10 @@
               "tuition_in_state": { "type": ["null", "number"] },
               "tuition_out_of_state": { "type": ["null", "number"] },
               "books": { "type": ["null", "number"] },
-              "student_veteran": { "type": "boolean" },
-              "yr": { "type": "boolean" },
-              "poe": { "type": "boolean" },
-              "eight_keys": { "type": "boolean" }
+              "student_veteran": { "type": ["null", "boolean"] },
+              "yr": { "type": ["null", "boolean"] },
+              "poe": { "type": ["null", "boolean"] },
+              "eight_keys": { "type": ["null", "boolean"] }
             }
           },
           "links": {
