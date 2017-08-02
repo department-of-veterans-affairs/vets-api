@@ -116,6 +116,13 @@ Rails.application.routes.draw do
       resources :burial_forms, only: [:new, :create], defaults: { format: :json }
     end
 
+    resource :address, only: [:show, :update] do
+      collection do
+        get 'countries', to: 'address#countries'
+        get 'states', to: 'address#states'
+      end
+    end
+
     resources :apidocs, only: [:index]
 
     get 'terms_and_conditions', to: 'terms_and_conditions#index'

@@ -80,6 +80,7 @@ module V0
       Swagger::Requests::Messages::Folders,
       Swagger::Requests::Messages::Messages,
       Swagger::Requests::Messages::MessageDrafts,
+      Swagger::Requests::Address,
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::SavedForm,
       Swagger::Schemas::Gibct::Institutions,
@@ -96,6 +97,8 @@ module V0
       Swagger::Schemas::TermsAndConditions,
       Swagger::Schemas::Letters,
       Swagger::Schemas::LetterBeneficiary,
+      Swagger::Schemas::Countries,
+      Swagger::Schemas::States,
       self
     ].freeze
 
