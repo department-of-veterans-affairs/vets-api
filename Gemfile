@@ -57,6 +57,8 @@ gem 'aasm'
 # `multi_json` will prefer `oj` if installed, so include it here.
 gem 'oj'
 
+gem 'octokit'
+
 gem 'holidays'
 gem 'iconv'
 gem 'ice_nine'
