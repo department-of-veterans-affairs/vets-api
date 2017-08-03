@@ -5,13 +5,8 @@ module V0
   class LettersController < ApplicationController
     def index
       response = service.get_letters
-      if response.ok?
-        render json: response,
-               serializer: LettersSerializer,
-               meta: response.metadata
-      else
-        render json: { data: nil, meta: response.metadata }
-      end
+      render json: response,
+             serializer: LettersSerializer
     end
 
     def download
@@ -27,13 +22,8 @@ module V0
 
     def beneficiary
       response = service.get_letter_beneficiary
-      if response.ok?
-        render json: response,
-               serializer: LetterBeneficiarySerializer,
-               meta: response.metadata
-      else
-        render json: { data: nil, meta: response.metadata }
-      end
+      render json: response,
+             serializer: LetterBeneficiarySerializer
     end
 
     private

@@ -17,10 +17,6 @@ module EVSS
         end
         super(status, attributes)
       end
-
-      def metadata
-        super().merge(address: address)
-      end
     end
   end
 end

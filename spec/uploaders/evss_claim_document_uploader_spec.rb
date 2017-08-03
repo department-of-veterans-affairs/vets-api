@@ -23,7 +23,9 @@ RSpec.describe EVSSClaimDocumentUploader do
       it 'should set storage to fog' do
         with_settings(Settings.evss.s3, uploads_enabled: true) do
           expect(subject.class.storage).to eq(CarrierWave::Storage::AWS)
-          expect(subject.aws_credentials).to eq(region: 'evss_s3_region')
+          expect(subject.aws_credentials).to eq(access_key_id: 'EVSS_S3_AWS_ACCESS_KEY_ID_XYZ',
+                                                secret_access_key: 'EVSS_S3_AWS_SECRET_ACCESS_KEY_XYZ',
+                                                region: 'evss_s3_region')
           expect(subject.aws_acl).to eq('private')
           expect(subject.aws_bucket).to eq('evss_s3_bucket')
         end

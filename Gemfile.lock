@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 513e22f43218cd9db084f45c0a8e194e3d6f7aec
+  revision: dc403e6bdf153f47a1338cef7c7cf370a313fb6d
   branch: master
   specs:
-    vets_json_schema (3.0.18)
+    vets_json_schema (3.0.26)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -151,6 +151,7 @@ GEM
       faraday (>= 0.9.0)
     faraday_middleware (0.11.0.1)
       faraday (>= 0.7.4, < 1.0)
+    fastimage (2.1.0)
     ffi (1.9.17)
     figaro (1.1.1)
       thor (~> 0.14)
@@ -191,7 +192,7 @@ GEM
     httpi (2.4.2)
       rack
       socksify
-    i18n (0.8.1)
+    i18n (0.8.4)
     ice_nine (0.11.2)
     iconv (1.0.4)
     iniparse (1.4.2)
@@ -220,7 +221,7 @@ GEM
     mimemagic (0.3.2)
     mini_magick (4.7.0)
     mini_portile2 (2.2.0)
-    minitest (5.10.1)
+    minitest (5.10.2)
     multi_json (1.12.1)
     multipart-post (2.0.0)
     nenv (0.3.0)
@@ -309,6 +310,7 @@ GEM
     redis (3.3.3)
     redis-namespace (1.5.3)
       redis (~> 3.0, >= 3.0.4)
+    require_all (1.4.0)
     rspec (3.5.0)
       rspec-core (~> 3.5.0)
       rspec-expectations (~> 3.5.0)
@@ -391,7 +393,7 @@ GEM
     simplecov-html (0.10.0)
     slop (3.6.0)
     socksify (1.7.0)
-    spring (2.0.1)
+    spring (2.0.2)
       activesupport (>= 4.2)
     spring-commands-rspec (1.0.4)
       spring (>= 0.9.1)
@@ -411,7 +413,7 @@ GEM
     ttfunk (1.5.0)
     typhoeus (1.1.2)
       ethon (>= 0.9.0)
-    tzinfo (1.2.2)
+    tzinfo (1.2.3)
       thread_safe (~> 0.1)
     unicode-display_width (1.1.1)
     vcr (3.0.3)
@@ -462,6 +464,7 @@ DEPENDENCIES
   faraday
   faraday_curl
   faraday_middleware
+  fastimage
   figaro
   foreman
   govdelivery-tms
@@ -494,6 +497,7 @@ DEPENDENCIES
   rainbow
   redis
   redis-namespace
+  require_all
   rspec-rails (~> 3.5)
   rspec_junit_formatter
   rubocop (~> 0.42.0)
@@ -524,4 +528,4 @@ DEPENDENCIES
   will_paginate
 
 BUNDLED WITH
-   1.14.6
+   1.15.2

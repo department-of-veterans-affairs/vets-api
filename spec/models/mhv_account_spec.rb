@@ -41,7 +41,11 @@ RSpec.describe MhvAccount, type: :model do
 
   before(:each) do
     stub_mvi(mvi_profile)
-    allow_any_instance_of(BetaSwitch).to receive(:beta_enabled?).and_return(true)
+    Settings.mhv.facility_range = [358, 758]
+  end
+
+  after(:each) do
+    Settings.mhv.facility_range = [358, 758]
   end
 
   it 'must have a user_uuid when initialized' do
@@ -91,6 +95,30 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.account_state).to eq('unknown')
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
+        end
+
+        it 'a priori registered account stays upgraded' do
+          subject = described_class.new(base_attributes.merge(registered_at: nil, account_state: :registered))
+          subject.send(:setup) # This gets called when object is first loaded
+          expect(subject.account_state).to eq('registered')
+        end
+
+        it 'a priori upgraded account stays upgraded' do
+          subject = described_class.new(base_attributes.merge(upgraded_at: nil, account_state: :upgraded))
+          subject.send(:setup) # This gets called when object is first loaded
+          expect(subject.account_state).to eq('upgraded')
+        end
+
+        it 'a priori register_failed account changes to unknown' do
+          subject = described_class.new(base_attributes.merge(upgraded_at: nil, account_state: :register_failed))
+          subject.send(:setup) # This gets called when object is first loaded
+          expect(subject.account_state).to eq('unknown')
+        end
+
+        it 'a priori upgrade_failed account changes to unknown' do
+          subject = described_class.new(base_attributes.merge(upgraded_at: nil, account_state: :upgrade_failed))
+          subject.send(:setup) # This gets called when object is first loaded
+          expect(subject.account_state).to eq('unknown')
         end
       end
 
@@ -192,10 +220,55 @@ RSpec.describe MhvAccount, type: :model do
       end
     end
 
+    it 'will create and upgrade a previously register_failed account' do
+      subject = described_class.new(user_uuid: user.uuid, account_state: :register_failed)
+      expect(subject.terms_and_conditions_accepted?).to be_truthy
+      expect(subject.preexisting_account?).to be_falsey
+      expect(subject.persisted?).to be_falsey
+      expect(user.mhv_correlation_id).to be_nil
+      VCR.use_cassette('mhv_account_creation/creates_an_account') do
+        VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
+          expect { subject.create_and_upgrade! }.to trigger_statsd_increment('mhv.account.creation.success')
+            .and trigger_statsd_increment('mhv.account.upgrade.success')
+            .and not_trigger_statsd_increment('mhv.account.existed')
+            .and not_trigger_statsd_increment('mhv.account.creation.failure')
+            .and not_trigger_statsd_increment('mhv.account.upgrade.failure')
+          expect(subject.persisted?).to be_truthy
+          expect(subject.account_state).to eq('upgraded')
+          expect(subject.registered_at).to be_a(Time)
+          expect(subject.upgraded_at).to be_a(Time)
+          expect(User.find(user.uuid).mhv_correlation_id).to eq('14221465')
+          expect(subject.eligible?).to be_truthy
+          expect(subject.terms_and_conditions_accepted?).to be_truthy
+        end
+      end
+    end
+
     context 'existing account that has not been upgraded' do
       let(:mhv_ids) { ['14221465'] }
+      let(:base_attributes) { { user_uuid: user.uuid, account_state: 'unknown' } }
 
       it 'will only upgrade an account and set the time the account was upgraded' do
+        expect(subject.terms_and_conditions_accepted?).to be_truthy
+        expect(subject.preexisting_account?).to be_truthy
+        expect(subject.persisted?).to be_falsey
+        VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
+          expect { subject.create_and_upgrade! }.to trigger_statsd_increment('mhv.account.upgrade.success')
+            .and not_trigger_statsd_increment('mhv.account.creation.success')
+            .and not_trigger_statsd_increment('mhv.account.creation.failure')
+            .and not_trigger_statsd_increment('mhv.account.upgrade.failure')
+            .and not_trigger_statsd_increment('mhv.account.existed')
+          expect(subject.persisted?).to be_truthy
+          expect(subject.account_state).to eq('upgraded')
+          expect(subject.registered_at).to be_nil
+          expect(subject.upgraded_at).to be_a(Time)
+          expect(subject.eligible?).to be_truthy
+          expect(subject.terms_and_conditions_accepted?).to be_truthy
+        end
+      end
+
+      it 'will upgrade a previously failed_upgrade account' do
+        subject = described_class.new(base_attributes.merge(upgraded_at: nil, account_state: :upgrade_failed))
         expect(subject.terms_and_conditions_accepted?).to be_truthy
         expect(subject.preexisting_account?).to be_truthy
         expect(subject.persisted?).to be_falsey
@@ -286,12 +359,6 @@ RSpec.describe MhvAccount, type: :model do
     end
 
     context 'with standard range' do
-      before do
-        Settings.mhv.facility_range = [358, 758]
-      end
-      after do
-        Settings.mhv.facility_range = [358, 758]
-      end
       it 'is eligible with facility in range' do
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
@@ -319,9 +386,6 @@ RSpec.describe MhvAccount, type: :model do
       before do
         Settings.mhv.facility_range = [450, 758]
       end
-      after do
-        Settings.mhv.facility_range = [358, 758]
-      end
       it 'is eligible with facility at edge ef range' do
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
@@ -332,9 +396,6 @@ RSpec.describe MhvAccount, type: :model do
     context 'with even more abbreviated range' do
       before do
         Settings.mhv.facility_range = [600, 758]
-      end
-      after do
-        Settings.mhv.facility_range = [358, 758]
       end
       it 'is ineligible with facility out of range' do
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
@@ -425,6 +486,50 @@ RSpec.describe MhvAccount, type: :model do
         expect(ac_client).to receive(:post_upgrade).and_return(status: 'success')
         subject.create_and_upgrade!
       end
+    end
+  end
+
+  describe 'user veteran status' do
+    let(:terms) { create(:terms_and_conditions, latest: true, name: described_class::TERMS_AND_CONDITIONS_NAME) }
+    before(:each) { create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid) }
+    let(:base_attributes) { { user_uuid: user.uuid } }
+
+    let(:ac_client) { instance_double('MHVAC::Client') }
+
+    it 'sets is_veteran true if user is veteran' do
+      allow(SM::Client).to receive(:new).and_return(ac_client)
+      allow_any_instance_of(User).to receive(:veteran?).and_return(true)
+      subject = described_class.new(base_attributes)
+      allow(subject).to receive(:mhv_ac_client) { ac_client }
+      expect(ac_client).to receive(:post_register).with(hash_including(
+                                                          is_veteran: true
+      )).and_return(api_completion_status: 'Successful', correlation_id: 123_456)
+      expect(ac_client).to receive(:post_upgrade).and_return(status: 'success')
+      subject.create_and_upgrade!
+    end
+
+    it 'sets is_veteran false if user is not veteran' do
+      allow(SM::Client).to receive(:new).and_return(ac_client)
+      allow_any_instance_of(User).to receive(:veteran?).and_return(false)
+      subject = described_class.new(base_attributes)
+      allow(subject).to receive(:mhv_ac_client) { ac_client }
+      expect(ac_client).to receive(:post_register).with(hash_including(
+                                                          is_veteran: false
+      )).and_return(api_completion_status: 'Successful', correlation_id: 123_456)
+      expect(ac_client).to receive(:post_upgrade).and_return(status: 'success')
+      subject.create_and_upgrade!
+    end
+
+    it 'sets is_veteran false if veteran status is unknown' do
+      allow(SM::Client).to receive(:new).and_return(ac_client)
+      allow_any_instance_of(User).to receive(:veteran?).and_raise(StandardError)
+      subject = described_class.new(base_attributes)
+      allow(subject).to receive(:mhv_ac_client) { ac_client }
+      expect(ac_client).to receive(:post_register).with(hash_including(
+                                                          is_veteran: false
+      )).and_return(api_completion_status: 'Successful', correlation_id: 123_456)
+      expect(ac_client).to receive(:post_upgrade).and_return(status: 'success')
+      subject.create_and_upgrade!
     end
   end
 end

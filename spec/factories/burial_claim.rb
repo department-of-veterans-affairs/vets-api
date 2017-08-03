@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 FactoryGirl.define do
   factory :burial_claim, class: SavedClaim::Burial do
+    user_submitted_at { DateTime.current }
+    form_id '21P-530'
     form do
       {
         privacyAgreementAccepted: true,

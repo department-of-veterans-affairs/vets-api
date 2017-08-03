@@ -59,9 +59,13 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
         expect(EducationBenefitsClaim.last.parsed_form['preferredContactMethod']).to eq('mail')
       end
 
+      it 'should clear the saved form' do
+        expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('22-1990').once
+        subject
+      end
+
       it 'should render json of the new model' do
         subject
-
         expect(response.body).to eq(
           JSON.parse(serialize(EducationBenefitsClaim.last)).to_camelback_keys.to_json
         )

@@ -70,6 +70,10 @@ module V0
       Swagger::Requests::PensionClaims,
       Swagger::Requests::BurialClaims,
       Swagger::Requests::HealthCareApplications,
+      Swagger::Requests::Post911GiBillStatuses,
+      Swagger::Requests::Letters,
+      Swagger::Requests::Gibct::Institutions,
+      Swagger::Requests::Gibct::CalculatorConstants,
       Swagger::Requests::Prescriptions::Prescriptions,
       Swagger::Requests::Prescriptions::Trackings,
       Swagger::Requests::Messages::TriageTeams,
@@ -78,6 +82,8 @@ module V0
       Swagger::Requests::Messages::MessageDrafts,
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::SavedForm,
+      Swagger::Schemas::Gibct::Institutions,
+      Swagger::Schemas::Gibct::CalculatorConstants,
       Swagger::Schemas::Health::Prescriptions,
       Swagger::Schemas::Health::Trackings,
       Swagger::Schemas::Health::TriageTeams,
@@ -88,6 +94,8 @@ module V0
       Swagger::Schemas::Errors,
       Swagger::Schemas::SavedForm,
       Swagger::Schemas::TermsAndConditions,
+      Swagger::Schemas::Letters,
+      Swagger::Schemas::LetterBeneficiary,
       self
     ].freeze
 

@@ -9,6 +9,9 @@ Rails.application.routes.draw do
 
   namespace :v0, defaults: { format: 'json' } do
     resources :in_progress_forms, only: [:index, :show, :update, :destroy]
+    resource :claim_documents, only: [:create]
+    resource :claim_attachments, only: [:create], controller: :claim_documents
+
     resources :letters, only: [:index] do
       collection do
         get 'beneficiary', to: 'letters#beneficiary'
@@ -110,7 +113,7 @@ Rails.application.routes.draw do
       resources :discharge_types, only: :index, defaults: { format: :json }
       resources :military_ranks, only: :index, defaults: { format: :json }
       resources :branches_of_service, only: :index, defaults: { format: :json }
-      resources :applications, only: :create, defaults: { format: :json }
+      resources :burial_forms, only: [:new, :create], defaults: { format: :json }
     end
 
     resources :apidocs, only: [:index]
