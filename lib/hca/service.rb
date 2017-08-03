@@ -6,8 +6,8 @@ module HCA
   class Service < Common::Client::Base
     configuration HCA::Configuration
 
-    def initialize(current_user = nil)
-      @current_user = current_user
+    def initialize(user_uuid = nil)
+      @current_user = User.find(user_uuid) if user_uuid.present?
     end
 
     def submit_form(form)

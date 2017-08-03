@@ -23,7 +23,7 @@ describe HCA::Service do
     </S:Envelope>
      )))
   end
-  let(:current_user) { FactoryGirl.build(:loa3_user) }
+  let(:current_user) { FactoryGirl.create(:loa3_user) }
 
   describe '#submit_form' do
     context 'conformance tests', run_at: '2016-12-12' do
@@ -31,7 +31,7 @@ describe HCA::Service do
       Dir[File.join(root, '*.json')].map { |f| File.basename(f, '.json') }.each do |form|
         it "properly formats #{form} for transmission" do
           allow_any_instance_of(Mvi).to receive(:icn).and_return('1000123456V123456')
-          service = form =~ /authenticated/ ? described_class.new(current_user) : described_class.new
+          service = form =~ /authenticated/ ? described_class.new(current_user.uuid) : described_class.new
           json = JSON.load(root.join("#{form}.json"))
           expect(json).to match_vets_schema('10-10EZ')
           xml = File.read(root.join("#{form}.xml"))
