@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 FactoryGirl.define do
   factory :pension_claim, class: SavedClaim::Pension do
+    user_submitted_at { DateTime.current }
+    form_id '21P-527EZ'
     form do
       {
         privacyAgreementAccepted: true,

@@ -7,6 +7,14 @@
     "suffix": "Sr."
   },
   "noBankAccount": true,
+  "vamcTreatmentCenters": [
+    {
+      "location": "location1"
+    },
+    {
+      "location": "location2"
+    }
+  ],
   "powDateRange": {
     "from": "2012-04-10",
     "to": "2013-05-10"
@@ -25,10 +33,6 @@
   "spouseDateOfBirth": "2012-06-26",
   "spouseSocialSecurityNumber": "111223334",
   "monthlySpousePayment": 1,
-  "activeServiceDateRange": {
-    "from": "2012-06-26",
-    "to": "2013-04-10"
-  },
   "spouseOtherExpenses": [
     {
       "amount": 2,
@@ -47,7 +51,14 @@
   ],
   "dependents": [
     {
-      "dependentRelationship": "child",
+      "childDateOfBirth": "2012-06-01",
+      "childSocialSecurityNumber": "111223331",
+      "childPlaceOfBirth": "place1",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "childRelationship": "stepchild",
+      "previouslyMarried": true,
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -64,6 +75,12 @@
         "last": "Olson"
       },
       "monthlyIncome": {
+        "socialSecurity": 0,
+        "civilService": 0,
+        "railroad": 0,
+        "blackLung": 0,
+        "serviceRetirement": 0,
+        "ssi": 0,
         "additionalSources": [
           {
             "name": "name2",
@@ -84,6 +101,11 @@
         }
       ],
       "netWorth": {
+        "bank": 0,
+        "interestBank": 0,
+        "ira": 0,
+        "stocks": 0,
+        "realProperty": 0,
         "additionalSources": [
           {
             "name": "name1",
@@ -94,7 +116,14 @@
       "monthlyPayment": 1
     },
     {
-      "dependentRelationship": "child",
+      "childDateOfBirth": "2012-06-02",
+      "childSocialSecurityNumber": "111223332",
+      "childPlaceOfBirth": "place2",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "childRelationship": "biological",
+      "previouslyMarried": true,
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -113,7 +142,6 @@
       "monthlyPayment": 2
     },
     {
-      "dependentRelationship": "child",
       "childAddress": {
         "city": "city1",
         "country": "USA",
@@ -125,16 +153,16 @@
         "first": "outside3",
         "last": "Olson"
       },
+      "childDateOfBirth": "2012-06-03",
+      "childSocialSecurityNumber": "111223333",
+      "childPlaceOfBirth": "place3",
+      "attendingCollege": true,
+      "married": true,
+      "disabled": true,
+      "childRelationship": "adopted",
+      "previouslyMarried": true,
       "personWhoLivesWithChild": {
         "first": "person3",
-        "last": "Olson"
-      },
-      "monthlyPayment": 3
-    },
-    {
-      "dependentRelationship": "parent",
-      "fullName": {
-        "first": "parent",
         "last": "Olson"
       },
       "otherExpenses": [
@@ -146,61 +174,16 @@
         }
       ],
       "expectedIncome": {
+        "salary": 0,
+        "interest": 0,
         "additionalSources": [
           {
             "name": "name3",
             "amount": 6
           }
         ]
-      }
-    },
-    {
-      "childInHousehold": true,
-      "dependentRelationship": "child",
-      "childDateOfBirth": "2012-06-01",
-      "fullName": {
-        "first": "Mark1",
-        "last": "Olson"
       },
-      "childSocialSecurityNumber": "111223331",
-      "childPlaceOfBirth": "place1",
-      "attendingCollege": true,
-      "married": true,
-      "disabled": true,
-      "childRelationship": "stepchild",
-      "previouslyMarried": true
-    },
-    {
-      "childInHousehold": true,
-      "dependentRelationship": "child",
-      "childDateOfBirth": "2012-06-02",
-      "fullName": {
-        "first": "Mark2",
-        "last": "Olson"
-      },
-      "childSocialSecurityNumber": "111223332",
-      "childPlaceOfBirth": "place2",
-      "attendingCollege": true,
-      "married": true,
-      "disabled": true,
-      "childRelationship": "biological",
-      "previouslyMarried": true
-    },
-    {
-      "childInHousehold": true,
-      "dependentRelationship": "child",
-      "childDateOfBirth": "2012-06-03",
-      "fullName": {
-        "first": "Mark3",
-        "last": "Olson"
-      },
-      "childSocialSecurityNumber": "111223333",
-      "childPlaceOfBirth": "place3",
-      "attendingCollege": true,
-      "married": true,
-      "disabled": true,
-      "childRelationship": "adopted",
-      "previouslyMarried": true
+      "monthlyPayment": 3
     }
   ],
   "spouseMarriages": [
@@ -260,12 +243,17 @@
   "monthlyIncome": {
     "socialSecurity": 1,
     "civilService": 3,
+    "railroad": 0,
+    "serviceRetirement": 0,
     "blackLung": 5,
     "ssi": 7
   },
   "spouseMonthlyIncome": {
     "socialSecurity": 2,
+    "civilService": 0,
     "railroad": 4,
+    "blackLung": 0,
+    "ssi": 0,
     "serviceRetirement": 6,
     "additionalSources": [{
       "name": "name1",
@@ -275,14 +263,20 @@
   "netWorth": {
     "bank": 1,
     "interestBank": 2,
+    "stocks": 0,
+    "realProperty": 0,
     "ira": 3
   },
   "spouseNetWorth": {
+    "bank": 0,
+    "interestBank": 0,
+    "ira": 0,
     "stocks": 4,
     "realProperty": 5
   },
   "expectedIncome": {
     "salary": 1,
+    "interest": 0,
     "additionalSources": [
       {
         "name": "name1",
@@ -293,6 +287,7 @@
   },
   "spouseExpectedIncome": {
     "salary": 2,
+    "interest": 0,
     "additionalSources": [
       {
         "name": "name2",
@@ -382,7 +377,15 @@
     "street2": "street2",
     "state": "MD"
   },
-  "serviceBranch": "army",
+  "servicePeriods": [
+    {
+      "activeServiceDateRange": {
+        "from": "2012-06-26",
+        "to": "2013-04-10"
+      },
+      "serviceBranch": "army"
+    }
+  ],
   "email": "foo@foo.com",
   "altEmail": "alt@foo.com",
   "nightPhone": "0123456789",

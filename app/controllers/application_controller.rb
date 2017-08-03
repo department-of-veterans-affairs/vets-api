@@ -18,11 +18,17 @@ class ApplicationController < ActionController::API
 
   before_action :authenticate
   before_action :set_app_info_headers
-  before_action :set_raven_uuid_tag
+  before_action :set_uuid_tags
   skip_before_action :authenticate, only: [:cors_preflight, :routing_error]
 
   def cors_preflight
     head(:ok)
+  end
+
+  def clear_saved_form(form_id)
+    if @current_user
+      InProgressForm.form_for_user(form_id, @current_user)&.destroy
+    end
   end
 
   def routing_error
@@ -40,7 +46,19 @@ class ApplicationController < ActionController::API
   rescue_from 'Exception' do |exception|
     # report the original 'cause' of the exception when present
     if SKIP_SENTRY_EXCEPTION_TYPES.include?(exception.class) == false
-      log_exception_to_sentry(exception)
+      extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
+      if exception.is_a?(Common::Exceptions::BackendServiceException)
+        # Add additional user specific context to the logs
+        if current_user.present?
+          extra[:icn] = current_user.icn
+          extra[:mhv_correlation_id] = current_user.mhv_correlation_id
+        end
+        # Warn about VA900 needing to be added to exception.en.yml
+        if exception.generic_error?
+          log_message_to_sentry(exception.va900_warning, :warn, i18n_exception_hint: exception.va900_hint)
+        end
+      end
+      log_exception_to_sentry(exception, extra)
     else
       Rails.logger.error "#{exception.message}."
       Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
@@ -67,7 +85,8 @@ class ApplicationController < ActionController::API
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
 
-  def set_raven_uuid_tag
+  def set_uuid_tags
+    Thread.current['request_id'] = request.uuid
     Raven.extra_context(request_uuid: request.uuid)
   end
 

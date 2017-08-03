@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 require 'mhv_ac/client'
 require 'sentry_logging'
-require 'beta_switch'
 
 class MhvAccount < ActiveRecord::Base
   include AASM
-  include SentryLogging
-  include BetaSwitch
 
   STATSD_ACCOUNT_EXISTED_KEY = 'mhv.account.existed'
   STATSD_ACCOUNT_CREATION_KEY = 'mhv.account.creation'
@@ -82,7 +79,7 @@ class MhvAccount < ActiveRecord::Base
       TermsAndConditionsAcceptance.joins(:terms_and_conditions)
                                   .includes(:terms_and_conditions)
                                   .where(terms_and_conditions: { latest: true, name: TERMS_AND_CONDITIONS_NAME })
-                                  .where(user_uuid: user.uuid).limit(1).first
+                                  .where(user_uuid: user_uuid).limit(1).first
   end
 
   def address_params
@@ -134,8 +131,9 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def veteran?
-    # TODO: this field is derived from eMIS and might have pending ATO considerations for us to use it.
-    true
+    user.veteran?
+  rescue
+    false
   end
 
   def create_mhv_account!
@@ -149,12 +147,9 @@ class MhvAccount < ActiveRecord::Base
         register!
       end
     end
-  # TODO: handle/log exceptions more carefully
   rescue => e
     StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.failure")
     fail_register!
-    extra_context = { icn: user.icn }
-    log_exception_to_sentry(e, extra_context)
     raise e
   end
 
@@ -167,7 +162,6 @@ class MhvAccount < ActiveRecord::Base
         upgrade!
       end
     end
-  # TODO: handle/log exceptions more carefully
   rescue => e
     if e.is_a?(Common::Exceptions::BackendServiceException) && e.original_body['code'] == 155
       StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
@@ -175,8 +169,6 @@ class MhvAccount < ActiveRecord::Base
     else
       StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.failure")
       fail_upgrade!
-      extra_context = { icn: user.icn, mhv_correlation_id: user.mhv_correlation_id }
-      log_exception_to_sentry(e, extra_context)
       raise e
     end
   end
@@ -195,9 +187,7 @@ class MhvAccount < ActiveRecord::Base
 
   def setup
     raise StandardError, 'You must use find_or_initialize_by(user_uuid: #)' if user_uuid.nil?
-    if beta_enabled?(user_uuid, 'health_account')
-      check_eligibility
-      check_terms_acceptance if may_check_terms_acceptance?
-    end
+    check_eligibility unless registered? || upgraded?
+    check_terms_acceptance if may_check_terms_acceptance?
   end
 end

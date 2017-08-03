@@ -27,6 +27,8 @@ module PdfFill
         return v.map do |item|
           convert_val_as_string(item)
         end.join(', ')
+      elsif v.is_a?(PdfFill::FormValue)
+        return v
       end
 
       v = v.to_s
@@ -50,16 +52,24 @@ module PdfFill
     end
 
     def add_to_extras(key_data, v, i)
-      text_prefix = key_data.try(:[], :question)
-      return if text_prefix.blank?
+      return if v.blank?
+      return if key_data.try(:[], :question_text).blank?
+      i = nil if key_data[:skip_index]
+      v = "$#{v}" if key_data[:dollar]
+      v = v.extras_value if v.is_a?(PdfFill::FormValue)
 
-      text_prefix += " Line #{i + 1}" if i.present?
-
-      @extras_generator.add_text(text_prefix, v)
+      @extras_generator.add_text(
+        v,
+        key_data.slice(:question_num, :question_suffix, :question_text).merge(
+          i: i
+        )
+      )
     end
 
     def add_array_to_extras(arr, pdftk_keys)
       arr.each_with_index do |v, i|
+        i = nil if pdftk_keys[:always_overflow]
+
         if v.is_a?(Hash)
           v.each do |key, val|
             add_to_extras(pdftk_keys[key], convert_val_as_string(val), i)
@@ -87,6 +97,7 @@ module PdfFill
     end
 
     def check_for_overflow(arr, pdftk_keys)
+      return true if pdftk_keys[:always_overflow]
       return true if arr.size > pdftk_keys[:limit]
 
       arr.each do |item|

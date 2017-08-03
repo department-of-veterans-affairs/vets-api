@@ -277,7 +277,13 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
 
         it 'returns error on refilling a prescription with bad id' do
-          VCR.use_cassette('rx_client/prescriptions/nested_resources/prescription_refill_error') do
+          VCR.use_cassette('rx_client/prescriptions/prescription_refill_error') do
+            expect(subject).to validate(:patch, '/v0/prescriptions/{id}/refill', 404, 'id' => '1')
+          end
+        end
+
+        it 'returns error on refilling a prescription that is not refillable' do
+          VCR.use_cassette('rx_client/prescriptions/prescription_not_refillable_error') do
             expect(subject).to validate(:patch, '/v0/prescriptions/{id}/refill', 400, 'id' => '1')
           end
         end
@@ -285,14 +291,14 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         it 'returns an error tracking a prescription with a bad id' do
           VCR.use_cassette('rx_client/prescriptions/nested_resources/tracking_error_id') do
             expect(subject).to validate(
-              :get, '/v0/prescriptions/{prescription_id}/trackings', 400, 'prescription_id' => '1'
+              :get, '/v0/prescriptions/{prescription_id}/trackings', 404, 'prescription_id' => '1'
             )
           end
         end
       end
     end
 
-    describe 'messaging tests' do
+    describe 'secure messaging' do
       include SM::ClientHelpers
 
       let(:uploads) do
@@ -359,13 +365,13 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         context 'unsuccessful calls' do
           it 'supports folder error messages' do
             VCR.use_cassette('sm_client/folders/gets_a_single_folder_id_error') do
-              expect(subject).to validate(:get, '/v0/messaging/health/folders/{id}', 400, 'id' => '1000')
+              expect(subject).to validate(:get, '/v0/messaging/health/folders/{id}', 404, 'id' => '1000')
             end
           end
 
           it 'supports folder error messages' do
             VCR.use_cassette('sm_client/folders/deletes_a_folder_id_error') do
-              expect(subject).to validate(:delete, '/v0/messaging/health/folders/{id}', 400, 'id' => '1000')
+              expect(subject).to validate(:delete, '/v0/messaging/health/folders/{id}', 404, 'id' => '1000')
             end
           end
 
@@ -373,7 +379,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages_id_error') do
               expect(subject).to validate(
                 :get,
-                '/v0/messaging/health/folders/{folder_id}/messages', 400, 'folder_id' => '1000'
+                '/v0/messaging/health/folders/{folder_id}/messages', 404, 'folder_id' => '1000'
               )
             end
           end
@@ -481,41 +487,41 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         context 'unsuccessful calls' do
           it 'supports errors for list of all messages in a thread with invalid id' do
             VCR.use_cassette('sm_client/messages/gets_a_message_thread_id_error') do
-              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}/thread', 400, 'id' => '999999')
+              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}/thread', 404, 'id' => '999999')
             end
           end
 
           it 'supports error message with invalid id' do
             VCR.use_cassette('sm_client/messages/gets_a_message_with_id_error') do
-              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}', 400, 'id' => '999999')
+              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}', 404, 'id' => '999999')
             end
           end
 
           it 'supports errors getting message attachments with invalid message id' do
             VCR.use_cassette('sm_client/messages/nested_resources/gets_a_file_attachment_message_id_error') do
               expect(subject).to validate(:get, '/v0/messaging/health/messages/{message_id}/attachments/{id}',
-                                          400, 'message_id' => '999999', 'id' => '629993')
+                                          404, 'message_id' => '999999', 'id' => '629993')
             end
           end
 
           it 'supports errors getting message attachments with invalid attachment id' do
             VCR.use_cassette('sm_client/messages/nested_resources/gets_a_file_attachment_attachment_id_error') do
               expect(subject).to validate(:get, '/v0/messaging/health/messages/{message_id}/attachments/{id}',
-                                          400, 'message_id' => '629999', 'id' => '999999')
+                                          404, 'message_id' => '629999', 'id' => '999999')
             end
           end
 
           it 'supports errors moving a message to another folder' do
             VCR.use_cassette('sm_client/messages/moves_a_message_with_id_error') do
               expect(subject).to validate(:patch, '/v0/messaging/health/messages/{id}/move',
-                                          400, 'id' => '999999', '_query_string' => 'folder_id=0')
+                                          404, 'id' => '999999', '_query_string' => 'folder_id=0')
             end
           end
 
           it 'supports errors creating a message with no attachments' do
             VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments_recipient_id_error') do
               expect(subject).to validate(
-                :post, '/v0/messaging/health/messages', 400,
+                :post, '/v0/messaging/health/messages', 422,
                 '_data' => { 'message' => {
                   'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '1',
                   'body' => 'Continuous Integration'
@@ -527,7 +533,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           it 'supports errors replying to a message with no attachments' do
             VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments_id_error') do
               expect(subject).to validate(
-                :post, '/v0/messaging/health/messages/{id}/reply', 400,
+                :post, '/v0/messaging/health/messages/{id}/reply', 404,
                 'id' => '999999',
                 '_data' => { 'message' => {
                   'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
@@ -539,7 +545,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
           it 'supports errors deleting a message' do
             VCR.use_cassette('sm_client/messages/deletes_the_message_with_id_error') do
-              expect(subject).to validate(:delete, '/v0/messaging/health/messages/{id}', 400, 'id' => '999999')
+              expect(subject).to validate(:delete, '/v0/messaging/health/messages/{id}', 404, 'id' => '999999')
             end
           end
         end
@@ -601,6 +607,93 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             end
           end
         end
+      end
+    end
+
+    describe 'gibct' do
+      describe 'institutions' do
+        describe 'autocomplete' do
+          it 'supports autocomplete of institution names' do
+            VCR.use_cassette('gi_client/gets_a_list_of_autocomplete_suggestions') do
+              expect(subject).to validate(
+                :get, '/v0/gi/institutions/autocomplete', 200, '_query_string' => 'term=university'
+              )
+            end
+          end
+        end
+
+        describe 'search' do
+          it 'supports autocomplete of institution names' do
+            VCR.use_cassette('gi_client/gets_search_results') do
+              expect(subject).to validate(
+                :get, '/v0/gi/institutions/search', 200, '_query_string' => 'name=illinois'
+              )
+            end
+          end
+        end
+
+        describe 'show' do
+          context 'successful calls' do
+            it 'supports showing institution details' do
+              VCR.use_cassette('gi_client/gets_the_institution_details') do
+                expect(subject).to validate(:get, '/v0/gi/institutions/{id}', 200, 'id' => '20603613')
+              end
+            end
+          end
+
+          context 'unsuccessful calls' do
+            it 'returns error on refilling a prescription with bad id' do
+              VCR.use_cassette('gi_client/gets_institution_details_error') do
+                expect(subject).to validate(:get, '/v0/gi/institutions/{id}', 400, 'id' => 'splunge')
+              end
+            end
+          end
+        end
+      end
+
+      describe 'calculator_constants' do
+        it 'supports getting all calculator constants' do
+          VCR.use_cassette('gi_client/gets_the_calculator_constants') do
+            expect(subject).to validate(
+              :get, '/v0/gi/calculator_constants', 200
+            )
+          end
+        end
+      end
+    end
+
+    context 'without EVSS mock' do
+      before { Settings.evss.mock_gi_bill_status = false }
+      before { Settings.evss.mock_letters = false }
+
+      it 'supports getting EVSS Gi Bill Status' do
+        expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 401)
+        VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
+          # TODO: this cassette was hacked to return all 3 entitlements since
+          # I cannot make swagger doc allow an attr to be :object or :null
+          expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 200, auth_options)
+        end
+        VCR.use_cassette('evss/gi_bill_status/vet_not_found') do
+          expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 404, auth_options)
+        end
+      end
+
+      it 'supports getting EVSS Letters' do
+        expect(subject).to validate(:get, '/v0/letters', 401)
+        VCR.use_cassette('evss/letters/letters') do
+          expect(subject).to validate(:get, '/v0/letters', 200, auth_options)
+        end
+      end
+
+      it 'supports getting EVSS Letters Beneficiary' do
+        expect(subject).to validate(:get, '/v0/letters/beneficiary', 401)
+        VCR.use_cassette('evss/letters/beneficiary') do
+          expect(subject).to validate(:get, '/v0/letters/beneficiary', 200, auth_options)
+        end
+      end
+
+      it 'supports posting EVSS Letters' do
+        expect(subject).to validate(:post, '/v0/letters/{id}', 401, 'id' => 'commissary')
       end
     end
 
@@ -712,6 +805,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
   context 'and' do
     it 'tests all documented routes' do
+      subject.untested_mappings.delete('/v0/letters/{id}') # exclude this route as it returns a binary
       expect(subject).to validate_all_paths
     end
   end
