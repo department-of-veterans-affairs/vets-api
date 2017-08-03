@@ -14,7 +14,7 @@ module V0
       validate!(form)
 
       result = begin
-        HCA::Service.new(current_user).submit_form(form)
+        HCA::Service.new(current_user&.uuid).submit_form(form)
       rescue Common::Client::Errors::ClientError => e
         log_exception_to_sentry(e)
 

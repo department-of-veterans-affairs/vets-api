@@ -94,7 +94,7 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
       end
 
       context 'while authenticated', skip_mvi: true do
-        let(:current_user) { build(:mhv_user) }
+        let(:current_user) { create(:mhv_user) }
 
         before do
           profile = build(:mvi_profile, icn: '1000123456V123456')
