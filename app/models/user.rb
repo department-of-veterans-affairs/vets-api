@@ -81,11 +81,11 @@ class User < Common::RedisStore
   end
 
   def can_save_partial_forms?
-    loa3? && ssn.present? && ssn.starts_with?(UNALLOCATED_SSN_PREFIX)
+    true
   end
 
   def can_access_prefill_data?
-    loa3? && ssn.present? && ssn.starts_with?(UNALLOCATED_SSN_PREFIX)
+    true
   end
 
   def self.from_merged_attrs(existing_user, new_user)
