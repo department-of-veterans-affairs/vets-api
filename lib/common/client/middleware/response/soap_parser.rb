@@ -15,7 +15,6 @@ module Common
               end
               env.body = doc
             else
-              Rails.logger.error(env.body)
               log_message_to_sentry(
                 'SOAP HTTP call failed',
                 :error,
