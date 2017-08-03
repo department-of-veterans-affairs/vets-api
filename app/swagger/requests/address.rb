@@ -50,7 +50,7 @@ module Swagger
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, 'Get a list of the PCIU supported states'
+          key :description, 'Returns a users VA CORP mailing address'
           key :operationId, 'getStates'
           key :tags, %w(
             evss
@@ -71,7 +71,7 @@ module Swagger
         operation :post do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, 'Get a list of the PCIU supported states'
+          key :description, 'Updates a users VA CORP mailing address'
           key :operationId, 'getStates'
           key :tags, %w(
             evss
@@ -81,7 +81,7 @@ module Swagger
           parameter do
             key :name, :body
             key :in, :body
-            key :description, 'Options to include in generated PDF'
+            key :description, 'Updated mailing address'
             key :required, false
 
             schema do
