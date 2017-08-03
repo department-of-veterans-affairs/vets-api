@@ -46,7 +46,7 @@ module V0
                                                                 session_uuid: @session.uuid)
       end
     end
-      
+
     def check_access_denied
       return if @current_user.can_save_partial_forms?
       raise Common::Exceptions::Unauthorized, detail: 'You do not have access to save in progress forms'
