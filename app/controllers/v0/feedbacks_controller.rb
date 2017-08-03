@@ -2,14 +2,15 @@
 module V0
   class FeedbacksController < ApplicationController
     include ActionController::ParamsWrapper
-    wrap_parameters format: [:json]
+    wrap_parameters Feedback, format: :json
 
     skip_before_action :authenticate
 
     # POST /v0/feedback
     def create
       byebug
-      puts "Bill wuz here #{create_feedback_params}"
+      feedback = Feedback.new(feedback_params)
+      # TODO : make service call
       render json: {}, status: :created
       # Parse params
       # Make Github API call
