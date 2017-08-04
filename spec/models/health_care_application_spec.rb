@@ -23,7 +23,7 @@ RSpec.describe HealthCareApplication, type: :model do
     it 'should validate presence of form_submission_id and timestamp if success' do
       health_care_application = described_class.new
 
-      %w(form_submission_id timestamp).each do |attr|
+      %w(form_submission_id_string timestamp).each do |attr|
         health_care_application.state = 'success'
         expect_attr_invalid(health_care_application, attr, "can't be blank")
 
