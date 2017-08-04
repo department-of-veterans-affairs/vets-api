@@ -4,6 +4,7 @@ require 'evss/documents_service'
 require 'evss/auth_headers'
 
 class EVSSClaimService
+  include SentryLogging
   EVSS_CLAIM_KEYS = %w(open_claims historical_claims).freeze
 
   def initialize(user)
@@ -76,7 +77,11 @@ class EVSSClaimService
   end
 
   def log_error(exception)
-    Rails.logger.error "#{exception.message}."
-    Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
+    log_message_to_sentry(
+      'EVSS service timeout',
+      :info,
+      message: exception.message,
+      backtrace: exception.backtrace&.join("\n")
+    )
   end
 end
