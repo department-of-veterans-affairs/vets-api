@@ -34,5 +34,20 @@ RSpec.describe HealthCareApplication, type: :model do
   end
 
   describe '#set_result' do
+    let(:result) do
+      {
+        formSubmissionId: 123,
+        timestamp: '2017-08-03 22:02:18 -0400'
+      }
+    end
+
+    it 'should set the right fields and save the application' do
+      health_care_application = build(:health_care_application)
+      health_care_application.set_result!(result)
+
+      expect(health_care_application.id.present?).to eq(true)
+      expect(health_care_application.form_submission_id).to eq(result[:formSubmissionId])
+      expect(health_care_application.timestamp).to eq(result[:timestamp])
+    end
   end
 end
