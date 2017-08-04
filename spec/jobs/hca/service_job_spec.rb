@@ -31,7 +31,8 @@ RSpec.describe HCA::ServiceJob, type: :job do
 
   describe '#perform' do
     before do
-      # this line is needed to make stub in next line work because the found user is not == to another instance of itself
+      # this line is needed to make stub in next line work because the found user
+      # is not == to another instance of itself
       expect(User).to receive(:find).with(user.uuid).once.and_return(user)
       expect(HCA::Service).to receive(:new).with(user).once.and_return(hca_service)
     end
