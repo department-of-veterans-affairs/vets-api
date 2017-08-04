@@ -7,7 +7,6 @@ module Swagger
       swagger_path '/v0/health_care_applications' do
         operation :post do
           extend Swagger::Responses::ValidationError
-          extend Swagger::Responses::BackendServiceError
 
           key :description, 'Submit a health care application'
           key :operationId, 'addHealthCareApplication'
