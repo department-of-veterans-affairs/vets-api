@@ -15,7 +15,7 @@ gem 'rails-api'
 gem 'figaro'
 gem 'config'
 gem 'pg'
-gem 'json-schema'
+gem 'json-schema', '2.7.0' # apivore keeps us at 2.8.0 at max, current version is 3.0.30!! -- 8/3/17
 gem 'active_model_serializers', '0.10.4' # breaking changes in 0.10.5 and 0.10.6 -- 8/3/17
 gem 'will_paginate'
 gem 'sentry-raven'            # Sentry integration.
