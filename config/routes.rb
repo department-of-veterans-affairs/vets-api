@@ -33,7 +33,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resource :health_care_applications, only: [:create, :show] do
+    resources :health_care_applications, only: [:create, :show] do
       collection do
         get(:healthcheck)
       end

@@ -29,6 +29,17 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
     end
   end
 
+  describe 'GET show' do
+    it 'should render json of the application' do
+      health_care_application = create(:health_care_application)
+
+      get(
+        v0_health_care_application_path(id: health_care_application.id)
+      )
+      expect(response.body).to eq(serialize(health_care_application))
+    end
+  end
+
   describe 'POST create' do
     subject do
       post(
