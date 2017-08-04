@@ -37,12 +37,13 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   end
 
   describe '#confirmation_number' do
-    it 'delegate to saved claim' do
+    it 'should let you look up a claim from the confirmation number' do
       expect(
-        education_benefits_claim.confirmation_number
-      ).to eq(education_benefits_claim.saved_claim.confirmation_number)
+        described_class.find(education_benefits_claim.confirmation_number.gsub('V-EBC-', '').to_i)
+      ).to eq(education_benefits_claim)
     end
   end
+
 
   describe '#update_education_benefits_submission_status' do
     subject do

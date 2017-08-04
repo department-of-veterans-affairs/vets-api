@@ -17,7 +17,6 @@ class EducationBenefitsClaim < ActiveRecord::Base
 
   has_one(:education_benefits_submission, inverse_of: :education_benefits_claim)
 
-  delegate(:confirmation_number, to: :saved_claim)
   delegate(:parsed_form, to: :saved_claim)
   delegate(:form, to: :saved_claim)
 
@@ -34,6 +33,10 @@ class EducationBenefitsClaim < ActiveRecord::Base
     self.regional_processing_office = region
     self.processed_at = nil
     save
+  end
+
+  def confirmation_number
+    "V-EBC-#{id}"
   end
 
   FORM_TYPES.each do |type|
