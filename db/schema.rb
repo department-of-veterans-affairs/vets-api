@@ -74,7 +74,7 @@ ActiveRecord::Schema.define(version: 20170804012412) do
     t.datetime "created_at",                             null: false
     t.datetime "updated_at",                             null: false
     t.string   "state",              default: "pending", null: false
-    t.integer  "form_submission_id"
+    t.string   "form_submission_id"
     t.string   "timestamp"
   end
 
