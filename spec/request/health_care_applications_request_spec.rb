@@ -94,7 +94,7 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
       end
 
       context 'while authenticated', skip_mvi: true do
-        let(:current_user) { build(:mhv_user) }
+        let(:current_user) { create(:mhv_user) }
 
         before do
           profile = build(:mvi_profile, icn: '1000123456V123456')
@@ -112,6 +112,7 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
           VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
             expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('10-10EZ').once
             subject
+            HCA::ServiceJob.drain
             expect(JSON.parse(response.body)).to eq(body)
           end
         end
