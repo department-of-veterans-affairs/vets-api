@@ -77,11 +77,6 @@ class EVSSClaimService
   end
 
   def log_error(exception)
-    log_message_to_sentry(
-      'EVSS service timeout',
-      :info,
-      message: exception.message,
-      backtrace: exception.backtrace&.join("\n")
-    )
+    log_exception_to_sentry(exception, {}, backend_service: :evss)
   end
 end
