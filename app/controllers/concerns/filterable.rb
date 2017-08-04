@@ -16,11 +16,7 @@ module Filterable
   private
 
   def filter_params
-    params.permit(:filter)
-  end
-
-  def sort_params
-    params.permit(:sort)
+    params.require(:filter)
   end
 
   def filter_query

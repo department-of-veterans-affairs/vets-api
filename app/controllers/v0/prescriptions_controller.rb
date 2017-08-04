@@ -12,7 +12,7 @@ module V0
     def index
       resource = collection_resource
       resource = params[:filter].present? ? resource.find_by(filter_params) : resource
-      resource = resource.sort(sort_params)
+      resource = resource.sort(params[:sort])
       resource = resource.paginate(pagination_params)
       render json: resource.data,
              serializer: CollectionSerializer,
