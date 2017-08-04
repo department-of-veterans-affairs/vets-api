@@ -187,7 +187,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(contents).to include('APPLICATION FOR VA EDUCATION BENEFITS')
         # Concatenation is done in #write_files, so check for it here in the caller
         expect(contents).to include("*END*#{line_break}*INIT*")
-        expect(contents).to include(second_record.confirmation_number)
+        expect(contents).to include(second_record.education_benefits_claim.confirmation_number)
         expect(contents).to include(application_1606.confirmation_number)
         expect(EducationBenefitsClaim.unprocessed).to be_empty
       end
