@@ -78,6 +78,15 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
         }
       end
 
+      def test_submission
+        HCA::ServiceJob.drain
+
+        health_care_application = HealthCareApplication.find(JSON.parse(response.body)['data']['id'])
+        expect(health_care_application.state).to eq('success')
+        expect(health_care_application.form_submission_id).to eq(body['formSubmissionId'])
+        expect(health_care_application.timestamp).to eq(body['timestamp'])
+      end
+
       context 'anonymously' do
         let(:body) do
           { 'formSubmissionId' => 40_124_668_140,
@@ -88,7 +97,7 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
         it 'should render success', run_at: '2017-01-31' do
           VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
             subject
-            expect(JSON.parse(response.body)).to eq(body)
+            test_submission
           end
         end
       end
@@ -112,12 +121,8 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
           VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
             expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('10-10EZ').once
             subject
-            HCA::ServiceJob.drain
 
-            health_care_application = HealthCareApplication.find(JSON.parse(response.body)['data']['id'])
-            expect(health_care_application.state).to eq('success')
-            expect(health_care_application.form_submission_id).to eq(body['formSubmissionId'])
-            expect(health_care_application.timestamp).to eq(body['timestamp'])
+            test_submission
           end
         end
       end
