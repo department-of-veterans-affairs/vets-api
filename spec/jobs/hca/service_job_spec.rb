@@ -15,6 +15,20 @@ RSpec.describe HCA::ServiceJob, type: :job do
     double
   end
 
+  describe 'when job has failed' do
+    let(:msg) do
+      {
+        'args' => [nil, nil, health_care_application.id]
+      }
+    end
+
+    it 'should set the health_care_application state to failed' do
+      described_class.new.sidekiq_retries_exhausted_block.call(msg)
+
+      expect(health_care_application.reload.state).to eq('failed')
+    end
+  end
+
   describe '#perform' do
     before do
       # this line is needed to make stub in next line work because the found user is not == to another instance of itself

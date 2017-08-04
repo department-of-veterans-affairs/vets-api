@@ -16,15 +16,6 @@ module V0
       health_care_application = HealthCareApplication.create!
 
       HCA::ServiceJob.perform_async(current_user&.uuid, form, health_care_application.id)
-      # result = begin
-      # rescue Common::Client::Errors::ClientError => e
-      #   log_exception_to_sentry(e)
-
-      #   raise Common::Exceptions::BackendServiceException.new(
-      #     nil, detail: e.message
-      #   )
-      # end
-
       clear_saved_form(FORM_ID)
 
       render(json: health_care_application)
