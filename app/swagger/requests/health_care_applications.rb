@@ -55,11 +55,16 @@ module Swagger
       end
 
       swagger_schema :HealthCareApplicationSubmissionResponse do
-        key :required, [:formSubmissionId, :timestamp, :success]
+        key :required, [:data]
 
-        property :formSubmissionId, type: :integer
-        property :timestamp, type: :string
-        property :success, type: :boolean
+        property :data, type: :object do
+          property :id, type: :string
+          property :type, type: :string
+
+          property :attributes, type: :object do
+            property :state, type: :string
+          end
+        end
       end
 
       swagger_schema :HealthCareApplicationHealthcheckResponse do

@@ -192,16 +192,14 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       it 'supports submitting a health care application', run_at: '2017-01-31' do
-        VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
-          expect(subject).to validate(
-            :post,
-            '/v0/health_care_applications',
-            200,
-            '_data' => {
-              'form' => test_veteran
-            }
-          )
-        end
+        expect(subject).to validate(
+          :post,
+          '/v0/health_care_applications',
+          200,
+          '_data' => {
+            'form' => test_veteran
+          }
+        )
 
         expect(subject).to validate(
           :post,
@@ -209,19 +207,6 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           422,
           '_data' => {
             'form' => {}.to_json
-          }
-        )
-
-        allow_any_instance_of(HCA::Service).to receive(:post) do
-          raise Common::Client::Errors::HTTPError, 'error message'
-        end
-
-        expect(subject).to validate(
-          :post,
-          '/v0/health_care_applications',
-          400,
-          '_data' => {
-            'form' => test_veteran
           }
         )
       end
