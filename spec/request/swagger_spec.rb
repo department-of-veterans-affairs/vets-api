@@ -200,7 +200,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
         expect(subject).to validate(
           :get,
-          "/v0/health_care_applications/{id}",
+          '/v0/health_care_applications/{id}',
           200,
           'id' => health_care_application.id
         )
