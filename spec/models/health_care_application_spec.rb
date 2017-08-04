@@ -32,4 +32,7 @@ RSpec.describe HealthCareApplication, type: :model do
       end
     end
   end
+
+  describe '#set_result' do
+  end
 end
