@@ -16,6 +16,6 @@ class HealthCareApplication < ActiveRecord::Base
   end
 
   def form_submission_id
-    form_submission_id_string.to_i
+    form_submission_id_string&.to_i
   end
 end
