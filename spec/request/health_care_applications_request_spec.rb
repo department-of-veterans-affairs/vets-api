@@ -121,33 +121,6 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
           end
         end
       end
-
-      context 'with a SOAP error' do
-        let(:error) { Common::Client::Errors::HTTPError.new('error message') }
-
-        before do
-          allow_any_instance_of(HCA::Service).to receive(:post) do
-            raise error
-          end
-          Settings.sentry.dsn = 'asdf'
-        end
-        after do
-          Settings.sentry.dsn = nil
-        end
-
-        it 'should render error message' do
-          expect(Raven).to receive(:capture_exception).with(error).twice
-
-          subject
-
-          expect(response.code).to eq('400')
-          expect(JSON.parse(response.body)).to eq(
-            'errors' => [
-              { 'title' => 'Operation failed', 'detail' => 'error message', 'code' => 'VA900', 'status' => '400' }
-            ]
-          )
-        end
-      end
     end
   end
 end
