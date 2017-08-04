@@ -9,6 +9,9 @@ require 'support/sm_client_helpers'
 require 'rx/client'
 require 'support/rx_client_helpers'
 
+require 'bb/client'
+require 'support/bb_client_helpers'
+
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
     it 'has valid json' do
@@ -604,6 +607,25 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
                   'body' => 'Updated Body'
                 } }
               )
+            end
+          end
+        end
+      end
+    end
+
+    describe 'bb' do
+      include BB::ClientHelpers
+
+      before(:each) do
+        allow(BB::Client).to receive(:new).and_return(authenticated_client)
+        use_authenticated_current_user(current_user: mhv_user)
+      end
+
+      describe 'health_records' do
+        describe 'refresh' do
+          it 'supports health records refresh' do
+            VCR.use_cassette('bb_client/gets_a_list_of_extract_statuses') do
+              expect(subject).to validate(:get, '/v0/health_records/refresh', 200)
             end
           end
         end
