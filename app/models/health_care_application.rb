@@ -7,6 +7,11 @@ class HealthCareApplication < ActiveRecord::Base
     state == 'success'
   end
 
-  def set_success
+  def set_result!(result)
+    self.state = 'success'
+    self.form_submission_id = result[:formSubmissionId]
+    self.timestamp = result[:timestamp]
+
+    save!
   end
 end
