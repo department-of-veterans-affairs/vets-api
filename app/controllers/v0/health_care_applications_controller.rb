@@ -21,6 +21,10 @@ module V0
       render(json: health_care_application)
     end
 
+    def show
+      render(json: HealthCareApplication.find(params[:id]))
+    end
+
     def healthcheck
       render(json: HCA::Service.new.health_check)
     end
