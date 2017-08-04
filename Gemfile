@@ -32,7 +32,7 @@ gem 'require_all'
 # background processing and workflow
 gem 'sidekiq'
 gem 'sidekiq-unique-jobs'
-gem 'sidekiq-scheduler', '~> 2.0'
+gem 'sidekiq-scheduler', '2.0.19' # Latest version 2.1.7 uses rufus-scheduler a bit differently -- 8/3/17
 gem 'sidekiq-instrument'
 gem 'shrine'
 gem 'fastimage'
