@@ -46,6 +46,7 @@ RSpec.describe HealthCareApplication, type: :model do
       health_care_application.set_result!(result)
 
       expect(health_care_application.id.present?).to eq(true)
+      expect(health_care_application.success?).to eq(true)
       expect(health_care_application.form_submission_id).to eq(result[:formSubmissionId])
       expect(health_care_application.timestamp).to eq(result[:timestamp])
     end
