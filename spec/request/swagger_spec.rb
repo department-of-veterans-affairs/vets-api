@@ -191,7 +191,22 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
       end
 
-      it 'supports submitting a health care application', run_at: '2017-01-31' do
+      it 'supports getting a health care application' do
+        health_care_application = create(
+          :health_care_application,
+          form_submission_id_string: '123',
+          timestamp: Time.zone.now.to_s
+        )
+
+        expect(subject).to validate(
+          :get,
+          "/v0/health_care_applications/{id}",
+          200,
+          'id' => health_care_application.id
+        )
+      end
+
+      it 'supports submitting a health care application' do
         expect(subject).to validate(
           :post,
           '/v0/health_care_applications',
