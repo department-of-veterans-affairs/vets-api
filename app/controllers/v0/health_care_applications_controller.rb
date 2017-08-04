@@ -13,20 +13,21 @@ module V0
       form = JSON.parse(params[:form])
       validate!(form)
 
-      result = begin
-        HCA::Service.new(current_user).submit_form(form)
-      rescue Common::Client::Errors::ClientError => e
-        log_exception_to_sentry(e)
+      health_care_application = HealthCareApplication.create!
 
-        raise Common::Exceptions::BackendServiceException.new(
-          nil, detail: e.message
-        )
-      end
+      HCA::ServiceJob.perform_async(current_user&.uuid, form, health_care_application.id)
+      # result = begin
+      # rescue Common::Client::Errors::ClientError => e
+      #   log_exception_to_sentry(e)
+
+      #   raise Common::Exceptions::BackendServiceException.new(
+      #     nil, detail: e.message
+      #   )
+      # end
 
       clear_saved_form(FORM_ID)
 
-      Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
-      render(json: result)
+      render(json: health_care_application)
     end
 
     def healthcheck
