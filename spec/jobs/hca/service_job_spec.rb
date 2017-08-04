@@ -21,6 +21,7 @@ RSpec.describe HCA::ServiceJob, type: :job do
       expect(User).to receive(:find).with(user.uuid).once.and_return(user)
       expect(HCA::Service).to receive(:new).with(user).once.and_return(hca_service)
       expect(hca_service).to receive(:submit_form).with(form).once.and_return(result)
+      expect(Rails.logger).to receive(:info).with("SubmissionID=#{result[:formSubmissionId]}")
     end
 
     subject do
