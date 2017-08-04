@@ -8,7 +8,6 @@ require 'sentry_logging'
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
   include SentryLogging
-  include ActionController::ParamsWrapper
 
   SKIP_SENTRY_EXCEPTION_TYPES = [
     Common::Exceptions::Unauthorized,
