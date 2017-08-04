@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 class HealthCareApplication < ActiveRecord::Base
-  validates(:state, presence: true)
+  validates(:state, presence: true, inclusion: %w(success error failed pending))
+
+  def success?
+    state == 'success'
+  end
 
   def set_success
   end
