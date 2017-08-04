@@ -6,8 +6,8 @@ module V0
     def index
       resource = client.get_folder_messages(params[:folder_id].to_s)
       raise Common::Exceptions::RecordNotFound, params[:folder_id] unless resource.present?
-      resource = params[:filter].present? ? resource.find_by(params[:filter]) : resource
-      resource = resource.sort(params[:sort])
+      resource = params[:filter].present? ? resource.find_by(filter_params) : resource
+      resource = resource.sort(sort_params)
       resource = resource.paginate(pagination_params)
 
       render json: resource.data,

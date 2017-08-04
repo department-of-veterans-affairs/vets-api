@@ -11,8 +11,8 @@ module V0
     #        (ie: ?sort=facility_name,-prescription_id)
     def index
       resource = collection_resource
-      resource = params[:filter].present? ? resource.find_by(params[:filter]) : resource
-      resource = resource.sort(params[:sort])
+      resource = params[:filter].present? ? resource.find_by(filter_params) : resource
+      resource = resource.sort(sort_params)
       resource = resource.paginate(pagination_params)
       render json: resource.data,
              serializer: CollectionSerializer,
