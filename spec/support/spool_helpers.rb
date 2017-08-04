@@ -19,7 +19,8 @@ module SpoolHelpers
         end
 
         before do
-          allow_any_instance_of(form_class).to receive(:confirmation_number).and_return('V-EBC-1')
+          allow(education_benefits_claim).to receive(:id).and_return(1)
+          education_benefits_claim.instance_variable_set(:@application, nil)
         end
 
         it 'should generate the spool file correctly', run_at: '2017-01-17 03:00:00 -0500' do
