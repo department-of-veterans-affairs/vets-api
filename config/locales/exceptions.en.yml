@@ -232,13 +232,13 @@ en:
         title: Forbidden
         detail: 'Can not determine eligibility for potential letters'
         code: 110
-        status: 403
+        status: 502
       not_eligible:
         <<: *defaults
         title: Forbidden
         detail: 'Not eligible to receive letter'
         code: 111
-        status: 403
+        status: 502
       unprocessable_entity:
         <<: *defaults
         title: Unprocessable Entity
