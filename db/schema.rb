@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170718204420) do
+ActiveRecord::Schema.define(version: 20170802173236) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -100,8 +100,8 @@ ActiveRecord::Schema.define(version: 20170718204420) do
     t.datetime "updated_at",             null: false
     t.integer  "saved_claim_id"
     t.datetime "completed_at"
-    t.string   "encrypted_file_data"
-    t.string   "encrypted_file_data_iv"
+    t.string   "encrypted_file_data",    null: false
+    t.string   "encrypted_file_data_iv", null: false
   end
 
   create_table "saved_claims", force: :cascade do |t|
@@ -112,6 +112,7 @@ ActiveRecord::Schema.define(version: 20170718204420) do
     t.string   "form_id"
     t.uuid     "guid",              null: false
     t.string   "type"
+    t.string   "user_submitted_at"
   end
 
   create_table "terms_and_conditions", force: :cascade do |t|

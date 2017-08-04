@@ -6,12 +6,20 @@ require 'workflow/task/shared/move_to_lts'
 require 'workflow/task/pension_burial/upload'
 
 # Convert uploaded files for Pension/Burial to a format, stamping them twice
-# before transfering them over to the SFTP server.
+# before transferring them over to the SFTP server.
 
 class ClaimDocumentation::PensionBurial::Workflow < Workflow::File
   run Workflow::Task::Shared::ConvertToPdf
-  run Workflow::Task::Shared::DatestampPdfTask, text: 'Vets.gov', x: 0, y: 0
-  run Workflow::Task::Shared::DatestampPdfTask, text: 'Vets.gov Submission', x: 449, y: 730, text_only: true
+  # The timestamp in this task is UTC, but the business requirement is for CST.
+  # Datetime will be added to the append text.
+  run Workflow::Task::Shared::DatestampPdfTask, text: 'VETS.GOV', x: 5, y: 5
+  run(
+    Workflow::Task::Shared::DatestampPdfTask,
+    text: 'FDC Reviewed - Vets.gov Submission',
+    x: 429,
+    y: 770,
+    text_only: true
+  )
   run Workflow::Task::Shared::MoveToLTS, all: true
   # run Workflow::Task::Common::DeleteOriginalUpload
   run Workflow::Task::PensionBurial::Upload

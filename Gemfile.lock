@@ -310,6 +310,7 @@ GEM
     redis (3.3.3)
     redis-namespace (1.5.3)
       redis (~> 3.0, >= 3.0.4)
+    require_all (1.4.0)
     rspec (3.5.0)
       rspec-core (~> 3.5.0)
       rspec-expectations (~> 3.5.0)
@@ -496,6 +497,7 @@ DEPENDENCIES
   rainbow
   redis
   redis-namespace
+  require_all
   rspec-rails (~> 3.5)
   rspec_junit_formatter
   rubocop (~> 0.42.0)
@@ -526,4 +528,4 @@ DEPENDENCIES
   will_paginate
 
 BUNDLED WITH
-   1.14.6
+   1.15.2
