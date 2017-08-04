@@ -20,21 +20,41 @@ RSpec.describe HCA::ServiceJob, type: :job do
       # this line is needed to make stub in next line work because the found user is not == to another instance of itself
       expect(User).to receive(:find).with(user.uuid).once.and_return(user)
       expect(HCA::Service).to receive(:new).with(user).once.and_return(hca_service)
-      expect(hca_service).to receive(:submit_form).with(form).once.and_return(result)
-      expect(Rails.logger).to receive(:info).with("SubmissionID=#{result[:formSubmissionId]}")
     end
 
     subject do
       described_class.new.perform(user.uuid, form, health_care_application.id)
     end
 
-    it 'should call the service and save the results' do
-      subject
-      health_care_application.reload
+    context 'when submission has an error' do
+      let(:error) { Common::Client::Errors::HTTPError }
 
-      expect(health_care_application.success?).to eq(true)
-      expect(health_care_application.form_submission_id).to eq(result[:formSubmissionId])
-      expect(health_care_application.timestamp).to eq(result[:timestamp])
+      before do
+        expect(hca_service).to receive(:submit_form).with(form).once.and_raise(error)
+      end
+
+      it 'should set the health_care_application state to error' do
+        expect { subject }.to raise_error(error)
+        health_care_application.reload
+
+        expect(health_care_application.state).to eq('error')
+      end
+    end
+
+    context 'with a successful submission' do
+      before do
+        expect(hca_service).to receive(:submit_form).with(form).once.and_return(result)
+        expect(Rails.logger).to receive(:info).with("SubmissionID=#{result[:formSubmissionId]}")
+      end
+
+      it 'should call the service and save the results' do
+        subject
+        health_care_application.reload
+
+        expect(health_care_application.success?).to eq(true)
+        expect(health_care_application.form_submission_id).to eq(result[:formSubmissionId])
+        expect(health_care_application.timestamp).to eq(result[:timestamp])
+      end
     end
   end
 end
