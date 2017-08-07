@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170804151637) do
+ActiveRecord::Schema.define(version: 20170807203358) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -114,7 +114,6 @@ ActiveRecord::Schema.define(version: 20170804151637) do
     t.string   "form_id"
     t.uuid     "guid",              null: false
     t.string   "type"
-    t.string   "user_submitted_at"
   end
 
   create_table "terms_and_conditions", force: :cascade do |t|
