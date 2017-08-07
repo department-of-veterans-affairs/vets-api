@@ -15,6 +15,10 @@ module Filterable
 
   private
 
+  def filter_params
+    params.require(:filter)
+  end
+
   def filter_query
     @filter_query ||= begin
       q = URI.parse(request.url).query || ''
