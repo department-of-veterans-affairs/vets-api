@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+# frozen_string_literal: false
 require 'rails_helper'
 require 'gi/client'
 
@@ -12,6 +12,13 @@ describe 'gi client' do
     # expect(client_response[:data].first.keys).to contain_exactly(:id, :type, :attributes)
   end
 
+  it 'handles poorly-encoded autocomplete terms', :vcr do
+    VCR.use_cassette('gi_client/gets_a_list_of_autocomplete_suggestions') do
+      client_response = client.get_autocomplete_suggestions(term: "\255university".force_encoding('UTF-8'))
+      expect(client_response[:data]).to be_an(Array)
+    end
+  end
+
   it 'gets the calculator constants', :vcr do
     client_response = client.get_calculator_constants
     expect(client_response[:data]).to be_an(Array)
@@ -22,6 +29,14 @@ describe 'gi client' do
     client_response = client.get_search_results(name: 'illinois')
     expect(client_response[:data]).to be_an(Array)
     expect(client_response[:data].first.keys).to contain_exactly(:id, :type, :attributes, :links)
+  end
+
+  it 'handles poorly-encoded search terms', :vcr do
+    VCR.use_cassette('gi_client/gets_search_results') do
+      client_response = client.get_search_results(name: "\255illinois".force_encoding('UTF-8'))
+      expect(client_response[:data]).to be_an(Array)
+      expect(client_response[:data].first.keys).to contain_exactly(:id, :type, :attributes, :links)
+    end
   end
 
   it 'gets the institution details', :vcr do

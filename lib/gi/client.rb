@@ -8,6 +8,7 @@ module GI
     configuration GI::Configuration
 
     def get_autocomplete_suggestions(params = {})
+      params[:term].encode!('UTF-8', invalid: :replace, undef: :replace, replace: '')
       perform(:get, 'institutions/autocomplete', params, nil).body
     end
 
@@ -16,6 +17,7 @@ module GI
     end
 
     def get_search_results(params = {})
+      params[:name].encode!('UTF-8', invalid: :replace, undef: :replace, replace: '')
       perform(:get, 'institutions', params, nil).body
     end
 
