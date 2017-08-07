@@ -18,6 +18,9 @@ module Common
     alias to_h attributes
     alias to_hash attributes
 
+    CACHE_NAMESPACE = REDIS_CONFIG['common_collection']['namespace']
+    CACHE_DEFAULT_TTL = REDIS_CONFIG['common_collection']['each_ttl']
+
     OPERATIONS_MAP = {
       'eq' => '==',
       'lteq' => '<=',
@@ -40,14 +43,14 @@ module Common
     end
 
     def self.redis_namespace
-      @redis_namespace ||= Redis::Namespace.new(REDIS_CONFIG['common-collection']['namespace'], redis: Redis.current)
+      @redis_namespace ||= Redis::Namespace.new(CACHE_NAMESPACE, redis: Redis.current)
     end
 
     def redis_namespace
       @redis_namespace ||= self.class.redis_namespace
     end
 
-    def self.fetch(klass, cache_key: nil, ttl: REDIS_CONFIG['common-collection']['each_ttl'])
+    def self.fetch(klass, cache_key: nil, ttl: CACHE_DEFAULT_TTL)
       raise 'No Block Given' unless block_given?
       if cache_key
         json_string = redis_namespace.get(cache_key)

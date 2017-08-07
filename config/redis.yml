@@ -29,7 +29,7 @@ development: &defaults
   facility_access_wait_time:
     namespace: facility-access-wait-time
     each_ttl: 2592000
-  common_collection_cache:
+  common_collection:
     namespace: common-collection
     each_ttl: 3600 # This is only default, can be overridden
 
