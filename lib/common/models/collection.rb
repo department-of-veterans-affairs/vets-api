@@ -40,14 +40,14 @@ module Common
     end
 
     def self.redis_namespace
-      @redis_namespace ||= Redis::Namespace.new('Common::Collection', redis: Redis.current)
+      @redis_namespace ||= Redis::Namespace.new(REDIS_CONFIG['common-collection']['namespace'], redis: Redis.current)
     end
 
     def redis_namespace
       @redis_namespace ||= self.class.redis_namespace
     end
 
-    def self.fetch(klass, cache_key: nil, ttl: 1000)
+    def self.fetch(klass, cache_key: nil, ttl: REDIS_CONFIG['common-collection']['each_ttl'])
       raise 'No Block Given' unless block_given?
       if cache_key
         json_string = redis_namespace.get(cache_key)
