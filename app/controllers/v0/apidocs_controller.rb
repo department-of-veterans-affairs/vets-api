@@ -98,7 +98,6 @@ module V0
       Swagger::Schemas::Letters,
       Swagger::Schemas::LetterBeneficiary,
       Swagger::Schemas::VAFacilities,
-      Swagger::Schemas::VAFacility,
       self
     ].freeze
 
