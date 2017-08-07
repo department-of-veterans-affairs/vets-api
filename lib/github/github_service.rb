@@ -9,13 +9,15 @@ module Github
       GITHUB_REPO = 'thebravery/thebravery_project'
 
       def create_issue(feedback)
-        # feedback comes in as a hash
-        feedback = feedback.symbolize_keys
+        # feedback comes in as a hash, convert to model
+        feedback = Feedback.new(feedback)
+
         begin
           client.create_issue(
             GITHUB_REPO,
-            "Title coming soon... #{rand(1...10000)}",
-            feedback[:description]
+            issue_title(feedback),
+            issue_body(feedback),
+            assignee: 'thebravery' # TODO: update to real user
           )
         rescue => e
           log_exception_to_sentry(e)
@@ -30,6 +32,20 @@ module Github
         Octokit::Client.new(login: 'thebravery', password: 'Passw0rd!')
       end
       memoize :client
+
+      def issue_title(feedback)
+        title = feedback.description[0..40]
+        title += ' - Response Requested' unless feedback.owner_email.blank?
+        title
+      end
+
+      def issue_body(feedback)
+        email = feedback.owner_email.blank? ? 'NOT PROVIDED' : feedback.owner_email
+        body = feedback.description
+        body += "\n\nTarget Page: #{feedback.target_page}"
+        body += "\nEmail of Author: #{email}"
+        body
+      end
     end
   end
 end
