@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+module EVSS
+  module PCIUAddress
+    class AddressMilitary < Address
+      attribute :military_post_office_type_code, String
+      attribute :military_state_code, String
+    end
+  end
+end

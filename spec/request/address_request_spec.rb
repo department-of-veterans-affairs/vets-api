@@ -1,0 +1,51 @@
+# frozen_string_literal: true
+require 'rails_helper'
+
+RSpec.describe 'address', type: :request do
+  include SchemaMatchers
+
+  let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
+  let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
+  let(:user) { build(:loa3_user) }
+
+  before do
+    Session.create(uuid: user.uuid, token: token)
+    User.create(user)
+  end
+
+  describe 'GET /v0/address' do
+    context 'with a 200 response' do
+      it 'should match the address schema' do
+        VCR.use_cassette('evss/pciu_address/address') do
+          get '/v0/address', nil, auth_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('address_response')
+        end
+      end
+    end
+  end
+
+  describe 'GET /v0/address/states' do
+    context 'with a 200 response' do
+      it 'should match the states schema' do
+        VCR.use_cassette('evss/pciu_address/states') do
+          get '/v0/address/states', nil, auth_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('states')
+        end
+      end
+    end
+  end
+
+  describe 'GET /v0/address/countries' do
+    context 'with a 200 response' do
+      it 'should match the countries schema' do
+        VCR.use_cassette('evss/pciu_address/countries') do
+          get '/v0/address/countries', nil, auth_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('countries')
+        end
+      end
+    end
+  end
+end
