@@ -7,15 +7,12 @@ module EVSS
       attribute :address, EVSS::PCIUAddress::Address
       attribute :control_information, EVSS::PCIUAddress::ControlInformation
 
-<<<<<<< a82d49d5c11d13297594a627c76024caf9d045d6
       ADDRESS_TYPES = {
         domestic: 'DOMESTIC',
         international: 'INTERNATIONAL',
         military: 'MILITARY'
       }.freeze
 
-=======
->>>>>>> adding pciu address controller
       def initialize(status, response = nil)
         attributes = {}
         if response
@@ -24,7 +21,6 @@ module EVSS
         end
         super(status, attributes)
       end
-<<<<<<< a82d49d5c11d13297594a627c76024caf9d045d6
 
       def address=(attrs)
         case attrs['type']
@@ -38,8 +34,6 @@ module EVSS
           raise ArgumentError, "Unsupported address type: #{attrs['type']}"
         end
       end
-=======
->>>>>>> adding pciu address controller
     end
   end
 end
