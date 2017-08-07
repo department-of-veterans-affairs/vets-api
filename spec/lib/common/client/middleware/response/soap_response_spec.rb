@@ -44,6 +44,32 @@ describe Common::Client::Middleware::Response::SOAPParser do
     end
   end
 
+  context 'when there is a 500' do
+    before do
+      stub_request(:get, 'http://somewhere.gov').to_return(
+        status: 500,
+        headers: {
+          'Content-Type' => 'text/xml'
+        },
+        body: 'foo'
+      )
+    end
+
+    it 'logs the error to sentry' do
+      expect_any_instance_of(described_class).to receive(:log_message_to_sentry).with(
+        'SOAP HTTP call failed',
+        :error,
+        url: 'http://somewhere.gov',
+        status: 500,
+        body: 'foo'
+      ).once
+
+      expect { connection.get 'http://somewhere.gov' }.to raise_error(
+        Common::Client::Errors::HTTPError, 'SOAP HTTP call failed'
+      )
+    end
+  end
+
   context 'when there is a 200 with a fault response body' do
     before do
       stub_request(:get, 'http://somewhere.gov').to_return(

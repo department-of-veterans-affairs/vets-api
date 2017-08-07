@@ -43,8 +43,16 @@ config/application.yml
 # Ignore .DS_Store
 .DS_Store
 
+# Ignore the docker runtime folders
+tmp/
+data/
+log/*
+
 config/settings.local.yml
 config/settings/*.local.yml
 config/environments/*.local.yml
 
 rspec.xml
+
+# Ignore certificates directory
+config/certs
