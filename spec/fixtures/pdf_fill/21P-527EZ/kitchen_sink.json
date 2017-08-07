@@ -262,7 +262,7 @@
   },
   "netWorth": {
     "bank": 1,
-    "interestBank": 2,
+    "interestBank": 2.2,
     "stocks": 0,
     "realProperty": 0,
     "ira": 3

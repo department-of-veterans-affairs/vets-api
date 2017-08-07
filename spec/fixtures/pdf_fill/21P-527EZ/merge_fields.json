@@ -244,7 +244,7 @@
   },
   "netWorth": {
     "bank": 1,
-    "interestBank": 2,
+    "interestBank": 2.2,
     "stocks": 0,
     "realProperty": 0,
     "ira": 3
@@ -669,8 +669,8 @@
     },
     {
       "recipient": "Myself",
-      "sourceAndAmount": "Interest-bearing bank accounts: $2",
-      "amount": 2
+      "sourceAndAmount": "Interest-bearing bank accounts: $2.2",
+      "amount": 2.2
     },
     {
       "recipient": "Myself",
