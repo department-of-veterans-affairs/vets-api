@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170802173236) do
+ActiveRecord::Schema.define(version: 20170804151637) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -71,7 +71,7 @@ ActiveRecord::Schema.define(version: 20170802173236) do
   add_index "evss_claims", ["user_uuid"], name: "index_evss_claims_on_user_uuid", using: :btree
 
   create_table "in_progress_forms", force: :cascade do |t|
-    t.uuid     "user_uuid",              null: false
+    t.string   "user_uuid",              null: false
     t.string   "form_id",                null: false
     t.string   "encrypted_form_data",    null: false
     t.string   "encrypted_form_data_iv", null: false
