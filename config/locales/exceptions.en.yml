@@ -230,7 +230,7 @@ en:
       unable_to_determine_eligibilty:
         <<: *defaults
         title: Proxy error
-        detail: 'Can not determine eligibility for potential letters from upstream server'
+        detail: 'Can not determine eligibility for potential letters due to upstream server error'
         code: 110
         status: 502
       not_eligible:

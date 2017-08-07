@@ -177,8 +177,8 @@ RSpec.describe 'letters', type: :request do
           expect(JSON.load(response.body)).to have_deep_attributes(
             'errors' => [
               {
-                'title' => 'Forbidden',
-                'detail' => 'Not eligible to receive letter',
+                'title' => 'Proxy error',
+                'detail' => 'Upstream server returned not eligible response',
                 'code' => '111',
                 'source' => 'EVSS::Letters::Service',
                 'status' => '502',
@@ -207,8 +207,8 @@ RSpec.describe 'letters', type: :request do
           expect(JSON.load(response.body)).to have_deep_attributes(
             'errors' => [
               {
-                'title' => 'Forbidden',
-                'detail' => 'Can not determine eligibility for potential letters',
+                'title' => 'Proxy error',
+                'detail' => 'Can not determine eligibility for potential letters due to upstream server error',
                 'code' => '110',
                 'source' => 'EVSS::Letters::Service',
                 'status' => '502',
