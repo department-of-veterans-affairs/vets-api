@@ -32,6 +32,6 @@ class PersistentAttachment < ActiveRecord::Base
   private
 
   def stamp_text
-    I18n.l(saved_claim.submitted_at, stamp_text: :pdf_stamp)
+    I18n.l(saved_claim.created_at, format: :pdf_stamp)
   end
 end
