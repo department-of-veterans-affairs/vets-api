@@ -26,7 +26,8 @@ module Github
 
       def client
         # TODO : use API key instead of login/password
-        client = Octokit::Client.new(:login => 'thebravery', :password => 'Passw0rd!')
+        # this is a fake test account
+        Octokit::Client.new(login: 'thebravery', password: 'Passw0rd!')
       end
       memoize :client
     end
