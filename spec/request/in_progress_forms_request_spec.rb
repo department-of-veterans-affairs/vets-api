@@ -178,7 +178,7 @@ RSpec.describe 'in progress forms', type: :request do
 
       context 'when an error occurs' do
         it 'returns an error response' do
-          allow_any_instance_of(InProgressForm).to receive(:update!).and_raise(ActiveRecord::RecordInvalid)
+          allow_any_instance_of(InProgressForm).to receive(:update!).and_raise(ActiveRecord::ActiveRecordError)
           put v0_in_progress_form_url(new_form.form_id), { form_data: new_form.form_data }, auth_header
           expect(response).to have_http_status(:error)
           expect(Oj.load(response.body)['errors'].first['detail']).to eq('Internal server error')
