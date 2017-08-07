@@ -6,7 +6,7 @@ module Github
     include Sidekiq::Worker
 
     def perform(feedback)
-      Github::GithubService.create_issue(title, feedback.description)
+      Github::GithubService.create_issue(feedback)
     end
   end
 end

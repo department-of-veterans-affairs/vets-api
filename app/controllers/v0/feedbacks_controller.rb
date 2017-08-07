@@ -12,7 +12,7 @@ module V0
       feedback = Feedback.new(feedback_params)
       respond_422(feedback) unless feedback.valid?
 
-      id = Github::CreateIssueJob.perform_async(feedback)
+      id = Github::CreateIssueJob.perform_async(feedback.attributes)
 
       render json: { job_id: id }, status: :accepted
     end
