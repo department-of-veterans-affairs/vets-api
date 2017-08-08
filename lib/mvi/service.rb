@@ -33,7 +33,7 @@ module MVI
     rescue Faraday::ConnectionFailed => e
       Rails.logger.error "MVI find_profile connection failed: #{e.message}"
       MVI::Responses::FindProfileResponse.with_server_error
-    rescue Common::Client::Errors::ClientError => e
+    rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
       Rails.logger.error "MVI find_profile error: #{e.message}"
       MVI::Responses::FindProfileResponse.with_server_error
     end

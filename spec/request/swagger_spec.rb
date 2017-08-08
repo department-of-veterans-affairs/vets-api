@@ -806,6 +806,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
   context 'and' do
     it 'tests all documented routes' do
       subject.untested_mappings.delete('/v0/letters/{id}') # exclude this route as it returns a binary
+      subject.untested_mappings.delete('/v0/address/countries') # documented but not implemented
+      subject.untested_mappings.delete('/v0/address/states') # documented but not implemented
       expect(subject).to validate_all_paths
     end
   end
