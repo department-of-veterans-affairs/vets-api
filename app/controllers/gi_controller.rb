@@ -11,6 +11,8 @@ class GIController < ApplicationController
   end
 
   def scrubbed_params
-    params.except(:action, :controller, :format)
+    params.except(:action, :controller, :format).transform_values do |v|
+      v.encode!('UTF-8', invalid: :replace, undef: :replace, replace: '')
+    end
   end
 end
