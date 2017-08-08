@@ -2,10 +2,13 @@
 require 'faraday'
 require 'common/client/errors'
 require 'common/models/collection'
+require 'sentry_logging'
 
 module Common
   module Client
     class Base
+      include SentryLogging
+
       class << self
         def configuration(configuration = nil)
           @configuration ||= configuration.instance
@@ -32,8 +35,21 @@ module Common
       def request(method, path, params = {}, headers = {})
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
-      rescue Faraday::ClientError, Timeout::Error => e
-        raise Common::Client::Errors::ClientError, e.message
+      rescue Timeout::Error, Faraday::TimeoutError
+        log_message_to_sentry(
+          "Timeout while connecting to #{config.service_name} service", :error, extra_context: { url: config.base_path }
+        )
+        raise Common::Exceptions::GatewayTimeout
+      rescue Faraday::ParsingError => e
+        # Faraday::ParsingError is a Faraday::ClientError but should be handled by implementing service
+        raise e
+      rescue Faraday::ClientError => e
+        client_error = Common::Client::Errors::ClientError.new(
+          e.message,
+          e.response&.dig(:status),
+          e.response&.dig(:body)
+        )
+        raise client_error
       end
 
       def get(path, params, headers = base_headers)
