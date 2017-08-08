@@ -22,7 +22,7 @@
 en:
   time:
     formats:
-      pdf_stamp: "%Y-%m-%d %H:%M:%S%Z"
+      pdf_stamp: "%Y-%m-%d"
   uploads:
     pdf:
       locked: PDF must not be encrypted or locked. Please re-save it without a password
