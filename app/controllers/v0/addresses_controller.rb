@@ -21,7 +21,6 @@ module V0
 
     def states
       response = service.get_states(@current_user)
-      puts response.inspect
       render json: response,
         serializer: StatesSerializer
     end
