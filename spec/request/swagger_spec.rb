@@ -644,7 +644,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           context 'unsuccessful calls' do
             it 'returns error on refilling a prescription with bad id' do
               VCR.use_cassette('gi_client/gets_institution_details_error') do
-                expect(subject).to validate(:get, '/v0/gi/institutions/{id}', 400, 'id' => 'splunge')
+                expect(subject).to validate(:get, '/v0/gi/institutions/{id}', 404, 'id' => 'splunge')
               end
             end
           end
