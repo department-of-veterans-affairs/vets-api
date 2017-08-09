@@ -27,15 +27,17 @@ ActiveRecord::Schema.define(version: 20170807203358) do
   add_index "beta_registrations", ["user_uuid", "feature"], name: "index_beta_registrations_on_user_uuid_and_feature", unique: true, using: :btree
 
   create_table "education_benefits_claims", force: :cascade do |t|
+    t.datetime "submitted_at"
     t.datetime "processed_at"
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
-    t.string   "regional_processing_office", null: false
-    t.integer  "saved_claim_id",             null: false
+    t.datetime "created_at",                                  null: false
+    t.datetime "updated_at",                                  null: false
+    t.string   "encrypted_form",                              null: false
+    t.string   "encrypted_form_iv",                           null: false
+    t.string   "regional_processing_office",                  null: false
+    t.string   "form_type",                  default: "1990", null: false
   end
 
-  add_index "education_benefits_claims", ["created_at"], name: "index_education_benefits_claims_on_created_at", using: :btree
-  add_index "education_benefits_claims", ["saved_claim_id"], name: "index_education_benefits_claims_on_saved_claim_id", using: :btree
+  add_index "education_benefits_claims", ["submitted_at"], name: "index_education_benefits_claims_on_submitted_at", using: :btree
 
   create_table "education_benefits_submissions", force: :cascade do |t|
     t.string   "region",                                            null: false
