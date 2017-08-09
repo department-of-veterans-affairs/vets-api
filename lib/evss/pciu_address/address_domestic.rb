@@ -3,7 +3,7 @@
 module EVSS
   module PCIUAddress
     class AddressDomestic < Address
-      attribute :state, String
+      attribute :state_code, String
     end
   end
 end

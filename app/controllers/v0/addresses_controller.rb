@@ -4,25 +4,25 @@ module V0
     def show
       response = service.get_address(@current_user)
       render json: response,
-        serializer: AddressSerializer
+             serializer: AddressSerializer
     end
 
     def update
-      response = service.update_address(@current_user)
+      response = service.update_address(@current_user, Oj.load(request.body.string))
       render json: response,
-        serializer: AddressSerializer
+             serializer: AddressSerializer
     end
 
     def countries
       response = service.get_countries(@current_user)
       render json: response,
-        serializer: CountriesSerializer
+             serializer: CountriesSerializer
     end
 
     def states
       response = service.get_states(@current_user)
       render json: response,
-        serializer: StatesSerializer
+             serializer: StatesSerializer
     end
 
     private

@@ -23,6 +23,55 @@ RSpec.describe 'address', type: :request do
         end
       end
     end
+
+    context 'with a 500 response' do
+      it 'should match the errors schema' do
+        VCR.use_cassette('evss/pciu_address/address_500') do
+          get '/v0/address', nil, auth_header
+          expect(response).to have_http_status(:bad_gateway)
+          expect(response).to match_response_schema('errors')
+        end
+      end
+    end
+  end
+
+  describe 'PUT /v0/address' do
+    context 'with a 200 response' do
+      let(:update_address) do
+        {
+          'type' => 'DOMESTIC',
+          'addressEffectiveDate' => '2017-08-07T19:43:59.383Z',
+          'addressOne' => '225 5th St',
+          'addressTwo' => '',
+          'addressThree' => '',
+          'city' => 'Springfield',
+          'stateCode' => 'OR',
+          'countryName' => 'USA',
+          'zipCode' => '97477',
+          'zipSuffix' => ''
+        }
+      end
+
+      it 'should match the address schema' do
+        VCR.use_cassette('evss/pciu_address/address_update') do
+          put '/v0/address', update_address.to_json, auth_header.update(
+            'Content-Type' => 'application/json', 'Accept' => 'application/json'
+          )
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('address_response')
+        end
+      end
+    end
+
+    context 'with a 500 response' do
+      it 'should match the errors schema' do
+        VCR.use_cassette('evss/pciu_address/address_500') do
+          get '/v0/address', nil, auth_header
+          expect(response).to have_http_status(:bad_gateway)
+          expect(response).to match_response_schema('errors')
+        end
+      end
+    end
   end
 
   describe 'GET /v0/address/states' do

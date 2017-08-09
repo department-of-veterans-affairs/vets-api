@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {},
+  "properties": {
+    "errors": {
+      "items": {
+        "properties": {
+          "code": {
+            "id": "/properties/errors/items/properties/code",
+            "type": "string"
+          },
+          "detail": {
+            "id": "/properties/errors/items/properties/detail",
+            "type": "string"
+          },
+          "source": {
+            "id": "/properties/errors/items/properties/source",
+            "type": "string"
+          },
+          "status": {
+            "id": "/properties/errors/items/properties/status",
+            "type": "string"
+          },
+          "title": {
+            "id": "/properties/errors/items/properties/title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "source",
+          "code",
+          "detail",
+          "title"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "errors"
+  ],
+  "type": "object"
+}
