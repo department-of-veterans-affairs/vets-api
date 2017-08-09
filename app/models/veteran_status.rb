@@ -20,8 +20,6 @@ class VeteranStatus < Common::RedisStore
 
   def veteran?
     raise VeteranStatus::Unauthorized unless @user.loa3?
-    raise emis_response.error if emis_response.error?
-    raise VeteranStatus::RecordNotFound if !emis_response.error? && emis_response.empty?
     any_veteran_indicator?(emis_response.items.first)
   end
 
@@ -34,7 +32,13 @@ class VeteranStatus < Common::RedisStore
   end
 
   def emis_response
-    @emis_response ||= response_from_redis_or_service
+    @emis_response ||= lambda do
+      response = response_from_redis_or_service
+      raise response.error if response.error?
+      raise VeteranStatus::RecordNotFound if !response.error? && response.empty?
+
+      response
+    end.call
   end
 
   def response_from_redis_or_service
