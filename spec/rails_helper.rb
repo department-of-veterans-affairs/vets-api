@@ -91,6 +91,7 @@ RSpec.configure do |config|
   config.include(ModelHelpers, type: :controller)
   config.include(SAML, type: :controller)
   config.include(AwsHelpers, type: :aws_helpers)
+  config.extend VCR::RSpec::Macros
 
   # Adding support for url_helper
   config.include Rails.application.routes.url_helpers

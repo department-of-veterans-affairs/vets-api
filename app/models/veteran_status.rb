@@ -23,6 +23,10 @@ class VeteranStatus < Common::RedisStore
     any_veteran_indicator?(emis_response.items.first)
   end
 
+  def post911_combat_indicator
+    emis_response.items.first.post911_combat_indicator == 'Y'
+  end
+
   private
 
   def any_veteran_indicator?(item)
