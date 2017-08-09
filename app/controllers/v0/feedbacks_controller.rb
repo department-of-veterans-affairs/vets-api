@@ -10,7 +10,7 @@ module V0
     # POST /v0/feedback
     def create
       feedback = Feedback.new(feedback_params)
-      respond_422(feedback) unless feedback.valid?
+      respond_400(feedback) unless feedback.valid?
 
       id = Github::CreateIssueJob.perform_async(feedback.attributes)
 
@@ -23,7 +23,7 @@ module V0
       params.require(:feedback).permit(:target_page, :owner_email, :description)
     end
 
-    def respond_422(feedback)
+    def respond_400(feedback)
       missing_param = feedback.errors.messages.keys.first.to_s
       raise Common::Exceptions::ParameterMissing, missing_param
     end
