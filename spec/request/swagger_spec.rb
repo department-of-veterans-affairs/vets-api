@@ -108,7 +108,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         'form_type' => '1990',
         '_data' => {
           'education_benefits_claim' => {
-            'form' => build(:va1990).form
+            'form' => build(:education_benefits_claim).form
           }
         }
       )
