@@ -29,10 +29,9 @@ RSpec.describe PersistentAttachment::PensionBurial do
   context 'stamp_text', run_at: '2017-08-01 01:01:00 EDT' do
     it 'offsets a user timestamp by their browser data' do
       instance.saved_claim = FactoryGirl.create(
-        :burial_claim,
-        user_submitted_at: DateTime.current.in_time_zone('Pacific Time (US & Canada)')
+        :burial_claim
       )
-      expect(instance.stamp_text).to eq('VA: 2017-08-01 00:01:00CDT User: 2017-07-31 22:01:00')
+      expect(instance.send(:stamp_text)).to eq('2017-08-01')
     end
   end
 end

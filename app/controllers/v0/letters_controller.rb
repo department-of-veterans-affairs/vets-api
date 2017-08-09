@@ -4,7 +4,7 @@ require 'common/exceptions/internal/record_not_found'
 module V0
   class LettersController < ApplicationController
     def index
-      response = service.get_letters
+      response = service.get_letters(@current_user)
       render json: response,
              serializer: LettersSerializer
     end
@@ -13,7 +13,7 @@ module V0
       unless EVSS::Letters::Letter::LETTER_TYPES.include? params[:id]
         raise Common::Exceptions::ParameterMissing, 'letter_type', "#{params[:id]} is not a valid letter type"
       end
-      response = service.download_by_type(params[:id], request.body.string)
+      response = service.download_by_type(@current_user, params[:id], request.body.string)
       send_data response,
                 filename: "#{params[:id]}.pdf",
                 type: 'application/pdf',
@@ -21,7 +21,7 @@ module V0
     end
 
     def beneficiary
-      response = service.get_letter_beneficiary
+      response = service.get_letter_beneficiary(@current_user)
       render json: response,
              serializer: LetterBeneficiarySerializer
     end
@@ -29,7 +29,7 @@ module V0
     private
 
     def service
-      EVSS::Letters::ServiceFactory.get_service(user: @current_user, mock_service: Settings.evss.mock_letters)
+      @service ||= EVSS::Letters::ServiceFactory.get_service(mock_service: Settings.evss.mock_letters)
     end
   end
 end

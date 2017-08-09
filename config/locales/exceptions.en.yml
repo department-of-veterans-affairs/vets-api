@@ -229,16 +229,16 @@ en:
     letters:
       unable_to_determine_eligibilty:
         <<: *defaults
-        title: Forbidden
-        detail: 'Can not determine eligibility for potential letters'
+        title: Proxy error
+        detail: 'Can not determine eligibility for potential letters due to upstream server error'
         code: 110
-        status: 403
+        status: 502
       not_eligible:
         <<: *defaults
-        title: Forbidden
-        detail: 'Not eligible to receive letter'
+        title: Proxy error
+        detail: 'Upstream server returned not eligible response'
         code: 111
-        status: 403
+        status: 502
       unprocessable_entity:
         <<: *defaults
         title: Unprocessable Entity
