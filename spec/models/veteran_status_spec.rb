@@ -6,27 +6,23 @@ describe VeteranStatus, skip_veteran_status: true do
   let(:user) { build :loa3_user }
   subject { VeteranStatus.for_user(user) }
 
-  context 'with a valid response for a veteran' do
-    use_vcr_cassette('emis/get_veteran_status/valid')
-
-    describe '#veteran?' do
-      it 'returns true' do
-        expect(subject.veteran?).to be_truthy
-      end
-    end
-  end
-
-  context 'with a valid response for a non-veteran' do
-    use_vcr_cassette('emis/get_veteran_status/valid_non_veteran')
-
-    describe '#veteran' do
-      it 'returns false' do
-        expect(subject.veteran?).to be_falsey
-      end
-    end
-  end
-
   describe 'veteran?' do
+    context 'with a valid response for a veteran' do
+      it 'returns true' do
+        VCR.use_cassette('emis/get_veteran_status/valid') do
+          expect(subject.veteran?).to be_truthy
+        end
+      end
+    end
+
+    context 'with a valid response for a non-veteran' do
+      it 'returns false' do
+        VCR.use_cassette('emis/get_veteran_status/valid_non_veteran') do
+          expect(subject.veteran?).to be_falsey
+        end
+      end
+    end
+
     context 'when a record can not be found' do
       it 'raises VeteranStatus::RecordNotFound' do
         VCR.use_cassette('emis/get_veteran_status/missing_edipi') do
