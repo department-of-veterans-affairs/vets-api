@@ -5,6 +5,8 @@ module EVSS
     class AddressMilitary < Address
       attribute :military_post_office_type_code, String
       attribute :military_state_code, String
+      attribute :zip_code, String
+      attribute :zip_suffix, String
     end
   end
 end

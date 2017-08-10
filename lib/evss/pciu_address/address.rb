@@ -11,8 +11,6 @@ module EVSS
       attribute :address_three, String
       attribute :city, String
       attribute :country_name, String
-      attribute :zip_code, String
-      attribute :zip_suffix, String
     end
   end
 end

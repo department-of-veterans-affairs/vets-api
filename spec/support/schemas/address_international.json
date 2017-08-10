@@ -24,12 +24,6 @@
     },
     "foreign_code": {
       "type": "string"
-    },
-    "zip_code": {
-      "type": "string"
-    },
-    "zip_suffix": {
-      "type": "string"
     }
   },
   "type": "object"

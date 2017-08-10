@@ -14,9 +14,29 @@ RSpec.describe 'address', type: :request do
   end
 
   describe 'GET /v0/address' do
-    context 'with a 200 response' do
+    context 'with a military address' do
       it 'should match the address schema' do
         VCR.use_cassette('evss/pciu_address/address') do
+          get '/v0/address', nil, auth_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('address_response')
+        end
+      end
+    end
+
+    context 'with a domestic address' do
+      it 'should match the address schema' do
+        VCR.use_cassette('evss/pciu_address/address_domestic') do
+          get '/v0/address', nil, auth_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('address_response')
+        end
+      end
+    end
+
+    context 'with an international address' do
+      it 'should match the address schema' do
+        VCR.use_cassette('evss/pciu_address/address_international') do
           get '/v0/address', nil, auth_header
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('address_response')

@@ -695,6 +695,52 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       it 'supports posting EVSS Letters' do
         expect(subject).to validate(:post, '/v0/letters/{id}', 401, 'id' => 'commissary')
       end
+
+      it 'supports getting EVSS PCIUAddress states' do
+        expect(subject).to validate(:get, '/v0/address/states', 401)
+        VCR.use_cassette('evss/pciu_address/states') do
+          expect(subject).to validate(:get, '/v0/address/states', 200, auth_options)
+        end
+      end
+
+      it 'supports getting EVSS PCIUAddress countries' do
+        expect(subject).to validate(:get, '/v0/address/countries', 401)
+        VCR.use_cassette('evss/pciu_address/countries') do
+          expect(subject).to validate(:get, '/v0/address/countries', 200, auth_options)
+        end
+      end
+
+      it 'supports getting EVSS PCIUAddress' do
+        expect(subject).to validate(:get, '/v0/address', 401)
+        VCR.use_cassette('evss/pciu_address/address_domestic') do
+          expect(subject).to validate(:get, '/v0/address', 200, auth_options)
+        end
+      end
+
+      it 'supports putting EVSS PCIUAddress' do
+        expect(subject).to validate(:put, '/v0/address', 401)
+        VCR.use_cassette('evss/pciu_address/address_update') do
+          expect(subject).to validate(
+            :put,
+            '/v0/address',
+            200,
+            auth_options.update(
+              '_data' => {
+                'type' => 'DOMESTIC',
+                'addressEffectiveDate' => '2017-08-07T19:43:59.383Z',
+                'addressOne' => '225 5th St',
+                'addressTwo' => '',
+                'addressThree' => '',
+                'city' => 'Springfield',
+                'stateCode' => 'OR',
+                'countryName' => 'USA',
+                'zipCode' => '97477',
+                'zipSuffix' => ''
+              }.to_json
+            )
+          )
+        end
+      end
     end
 
     it 'supports getting the user data' do
@@ -806,8 +852,6 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
   context 'and' do
     it 'tests all documented routes' do
       subject.untested_mappings.delete('/v0/letters/{id}') # exclude this route as it returns a binary
-      subject.untested_mappings.delete('/v0/address/countries') # documented but not implemented
-      subject.untested_mappings.delete('/v0/address/states') # documented but not implemented
       expect(subject).to validate_all_paths
     end
   end

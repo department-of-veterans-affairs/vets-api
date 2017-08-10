@@ -28,9 +28,10 @@ module EVSS
       end
 
       def update_address(user, address)
+        address.delete_if { |_k, v| v.blank? }
         with_exception_handling do
           address_json = {
-            'cnpMailingAddress' => address.compact!
+            'cnpMailingAddress' => address
           }.to_json
           headers = headers_for_user(user).update('Content-Type' => 'application/json')
           raw_response = perform(:post, 'mailingAddress', address_json, headers)
