@@ -15,7 +15,7 @@ module Github
             GITHUB_REPO,
             issue_title(feedback),
             issue_body(feedback),
-            assignee: 'omgitsbillryan' # TODO: assign to someone... not me!
+            assignee: 'va-bot', labels: 'User Feedback'
           )
         rescue => e
           log_exception_to_sentry(e)
