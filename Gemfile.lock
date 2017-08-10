@@ -312,6 +312,8 @@ GEM
     redis (3.3.3)
     redis-namespace (1.5.3)
       redis (~> 3.0, >= 3.0.4)
+    redis_rate_limiter (0.1.0)
+      redis
     require_all (1.4.0)
     rspec (3.5.0)
       rspec-core (~> 3.5.0)
@@ -382,6 +384,10 @@ GEM
     sidekiq-instrument (0.2.1)
       sidekiq (~> 4.0)
       statsd-instrument (~> 2.0, >= 2.0.4)
+    sidekiq-rate-limiter (0.1.1)
+      redis
+      redis_rate_limiter
+      sidekiq (>= 2.0, < 5.0)
     sidekiq-scheduler (2.0.19)
       hashie (~> 3.4)
       redis (~> 3)
@@ -516,6 +522,7 @@ DEPENDENCIES
   shrine-memory
   sidekiq
   sidekiq-instrument
+  sidekiq-rate-limiter
   sidekiq-scheduler (~> 2.0)
   sidekiq-unique-jobs
   simplecov
