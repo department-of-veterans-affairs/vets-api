@@ -8,6 +8,7 @@ module V0
     end
 
     def update
+      # TODO(AJD): raise on missing params, awaiting evss response on req fields
       response = service.update_address(@current_user, Oj.load(request.body.string))
       render json: response,
              serializer: AddressSerializer
