@@ -19,9 +19,7 @@ RSpec.describe 'institutions', type: :request do
       get URI.encode("/v0/gi/institutions/search?name=\255illinois".force_encoding('ISO-8859-1'))
     end
 
-    expect(response).to be_success
-    expect(response.body).to be_a(String)
-    expect(response).to match_response_schema('gi/institutions')
+    expect(response).to have_http_status(:bad_request)
   end
 
   it 'responds to GET #show' do
@@ -48,8 +46,7 @@ RSpec.describe 'institutions', type: :request do
     VCR.use_cassette('gi_client/gets_a_list_of_autocomplete_suggestions') do
       get URI.encode("/v0/gi/institutions/autocomplete?term=\255university".force_encoding('ISO-8859-1'))
     end
-    expect(response).to be_success
-    expect(response.body).to be_a(String)
-    expect(response).to match_response_schema('gi/autocomplete')
+
+    expect(response).to have_http_status(:bad_request)
   end
 end
