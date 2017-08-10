@@ -9,10 +9,10 @@ describe Github::GithubService do
     VCR.use_cassette('github/create_issue') do
       expect_any_instance_of(Octokit::Client).to receive(:create_issue)
         .with(
-          'thebravery/thebravery_project',
+          'department-of-veterans-affairs/vets.gov-team',
           feedback.description[0..40],
           feedback.description + "\n\nTarget Page: /example/page\nEmail of Author: NOT PROVIDED",
-          assignee: 'thebravery'
+          assignee: 'omgitsbillryan'
         )
       described_class.create_issue(feedback)
     end

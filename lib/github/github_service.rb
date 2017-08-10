@@ -5,11 +5,9 @@ module Github
       include SentryLogging
       extend Memoist
 
-      # TODO : use actual repo
-      GITHUB_REPO = 'thebravery/thebravery_project'
+      GITHUB_REPO = 'department-of-veterans-affairs/vets.gov-team'
 
       def create_issue(feedback)
-        # feedback comes in as a hash, convert to model
         feedback = Feedback.new(feedback)
 
         begin
@@ -17,7 +15,7 @@ module Github
             GITHUB_REPO,
             issue_title(feedback),
             issue_body(feedback),
-            assignee: 'thebravery' # TODO: update to real user
+            assignee: 'omgitsbillryan' # TODO: assign to someone... not me!
           )
         rescue => e
           log_exception_to_sentry(e)
@@ -27,9 +25,7 @@ module Github
       private
 
       def client
-        # TODO : use API key instead of login/password
-        # this is a fake test account
-        Octokit::Client.new(login: 'thebravery', password: 'Passw0rd!!')
+        Octokit::Client.new(access_token: Settings.github.api_key)
       end
       memoize :client
 
