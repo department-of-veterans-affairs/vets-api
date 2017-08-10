@@ -9,6 +9,12 @@ class FormFullName
   attribute :suffix, String
 end
 
+class FormMilitaryInformation
+  include Virtus.model
+
+  attribute :post_nov_1998_combat, Boolean
+end
+
 class FormAddress
   include Virtus.model
 
@@ -44,6 +50,7 @@ class FormProfile
 
   attribute :identity_information, FormIdentityInformation
   attribute :contact_information, FormContactInformation
+  attribute :military_information, FormMilitaryInformation
 
   def self.for(form)
     form = form.upcase
@@ -89,12 +96,19 @@ class FormProfile
   def prefill(user)
     @identity_information = initialize_identity_information(user)
     @contact_information = initialize_contact_information(user)
+    @military_information = initialize_military_information(user)
     mappings = self.class.mappings_for_form(form_id)
     form_data = generate_prefill(mappings)
     { form_data: form_data, metadata: metadata }
   end
 
   private
+
+  def initialize_military_information(user)
+    FormMilitaryInformation.new(
+      post_nov_1998_combat: user.veteran_status.post911_combat_indicator?
+    )
+  end
 
   def initialize_identity_information(user)
     FormIdentityInformation.new(

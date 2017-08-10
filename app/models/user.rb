@@ -133,13 +133,13 @@ class User < Common::RedisStore
     mvi.cache(uuid, mvi.mvi_response)
   end
 
+  def veteran_status
+    @veteran_status ||= VeteranStatus.for_user(self)
+  end
+
   private
 
   def mvi
     @mvi ||= Mvi.for_user(self)
-  end
-
-  def veteran_status
-    @veteran_status ||= VeteranStatus.for_user(self)
   end
 end
