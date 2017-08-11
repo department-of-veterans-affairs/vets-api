@@ -2,7 +2,7 @@
 
 module EVSS
   module PCIUAddress
-    class AddressDomestic < Address
+    class DomesticAddress < Address
       attribute :state_code, String
       attribute :zip_code, String
       attribute :zip_suffix, String

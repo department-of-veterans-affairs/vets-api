@@ -26,6 +26,7 @@ RSpec.describe 'address', type: :request do
 
     context 'with a domestic address' do
       it 'should match the address schema' do
+        # domestic and international addresses are manually edited as EVSS CI only includes one military response
         VCR.use_cassette('evss/pciu_address/address_domestic') do
           get '/v0/address', nil, auth_header
           expect(response).to have_http_status(:ok)
@@ -36,6 +37,7 @@ RSpec.describe 'address', type: :request do
 
     context 'with an international address' do
       it 'should match the address schema' do
+        # domestic and international addresses are manually edited as EVSS CI only includes one military response
         VCR.use_cassette('evss/pciu_address/address_international') do
           get '/v0/address', nil, auth_header
           expect(response).to have_http_status(:ok)

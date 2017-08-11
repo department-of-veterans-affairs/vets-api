@@ -25,11 +25,11 @@ module EVSS
       def address=(attrs)
         case attrs['type']
         when ADDRESS_TYPES[:domestic]
-          super EVSS::PCIUAddress::AddressDomestic.new(attrs)
+          super EVSS::PCIUAddress::DomesticAddress.new(attrs)
         when ADDRESS_TYPES[:international]
-          super EVSS::PCIUAddress::AddressInternational.new(attrs)
+          super EVSS::PCIUAddress::InternationalAddress.new(attrs)
         when ADDRESS_TYPES[:military]
-          super EVSS::PCIUAddress::AddressMilitary.new(attrs)
+          super EVSS::PCIUAddress::MilitaryAddress.new(attrs)
         else
           raise ArgumentError, "Unsupported address type: #{attrs['type']}"
         end

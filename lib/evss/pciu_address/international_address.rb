@@ -2,7 +2,7 @@
 
 module EVSS
   module PCIUAddress
-    class AddressInternational < Address
+    class InternationalAddress < Address
       attribute :foreign_code, String
     end
   end

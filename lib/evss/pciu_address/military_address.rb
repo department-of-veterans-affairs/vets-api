@@ -2,7 +2,7 @@
 
 module EVSS
   module PCIUAddress
-    class AddressMilitary < Address
+    class MilitaryAddress < Address
       attribute :military_post_office_type_code, String
       attribute :military_state_code, String
       attribute :zip_code, String

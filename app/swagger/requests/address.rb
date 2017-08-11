@@ -82,7 +82,7 @@ module Swagger
             key :name, :body
             key :in, :body
             key :description, 'Options to include in generated PDF'
-            key :required, false
+            key :required, true
 
             schema do
               property :type, type: :string, enum:
