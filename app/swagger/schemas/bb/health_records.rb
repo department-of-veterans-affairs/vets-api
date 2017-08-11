@@ -19,7 +19,7 @@ module Swagger
                 property :extract_type, type: :string
                 property :last_updated, type: [:null, :string]
                 property :status, type: [:null, :string]
-                property :created_on, type: [:null, :integer]
+                property :created_on, type: [:null, :string]
                 property :station_number, type: :string
               end
             end
