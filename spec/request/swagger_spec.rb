@@ -616,13 +616,15 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     describe 'bb' do
       include BB::ClientHelpers
 
-      before(:each) do
-        allow(BB::Client).to receive(:new).and_return(authenticated_client)
-        use_authenticated_current_user(current_user: mhv_user)
-      end
-
       describe 'health_records' do
         describe 'refresh' do
+          before(:each) do
+            allow_any_instance_of(ApplicationController).to receive(:authenticate_token).and_return(true)
+            allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(mhv_user)
+
+            allow(BB::Client).to receive(:new).and_return(authenticated_client)
+          end
+
           it 'supports health records refresh' do
             VCR.use_cassette('bb_client/gets_a_list_of_extract_statuses') do
               expect(subject).to validate(:get, '/v0/health_records/refresh', 200)
