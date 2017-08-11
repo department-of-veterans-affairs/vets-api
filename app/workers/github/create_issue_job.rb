@@ -7,11 +7,12 @@ module Github
 
     # limit the rate at which Github API calls are made
     # so as not to trigger Github spam protections
-    sidekiq_options rate: {
-      name: 'prevent_feedback_spam',
-      limit: 20,
-      period: 3600, ## An hour
-    }
+    sidekiq_options queue: 'low',
+                    rate: {
+                      name: 'prevent_feedback_spam',
+                      limit: 20,
+                      period: 3600, ## An hour
+                    }
 
     # :nocov:
     def perform(feedback)
