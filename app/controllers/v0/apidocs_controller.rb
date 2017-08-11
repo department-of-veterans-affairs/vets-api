@@ -99,6 +99,7 @@ module V0
       Swagger::Schemas::LetterBeneficiary,
       Swagger::Schemas::Countries,
       Swagger::Schemas::States,
+      Swagger::Schemas::Address,
       self
     ].freeze
 
