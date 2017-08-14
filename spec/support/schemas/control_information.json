@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "properties": {
+    "corp_avail_indicator": {
+      "type": "boolean"
+    },
+    "corp_rec_found_indicator": {
+      "type": "boolean"
+    },
+    "has_no_bdn_payments_indicator": {
+      "type": "boolean"
+    },
+    "incompetent_indicator": {
+      "type": "boolean"
+    },
+    "indentity_indicator": {
+      "type": "boolean"
+    },
+    "index_indicator": {
+      "type": "boolean"
+    },
+    "no_fiduciary_assigned_indicator": {
+      "type": "boolean"
+    },
+    "not_deceased_indicator": {
+      "type": "boolean"
+    }
+  },
+  "type": "object"
+}

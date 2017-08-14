@@ -231,6 +231,12 @@ en:
         code: 'GI404'
         detail: 'Institution with the specified code was not found'
         status: 404
+      EVSS502:
+        <<: *external_defaults
+        title: Bad Gateway
+        code: 'EVSS502'
+        detail: 'Received an an invalid response from the upstream server'
+        status: 502
   evss:
     letters:
       unable_to_determine_eligibilty:
