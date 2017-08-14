@@ -11,6 +11,11 @@ describe EVSS::ClaimsService do
 
   subject { described_class.new(auth_headers) }
 
+  describe '#send_request' do
+    it 'should calculate the average response time in redis' do
+    end
+  end
+
   context 'with headers' do
     let(:evss_id) { 189_625 }
 
