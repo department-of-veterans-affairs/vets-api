@@ -32,7 +32,7 @@ describe EVSS::ClaimsService do
     end
 
     before do
-      time = Time.new(2000)
+      time = Time.utc(2000)
       num_calls = 0
 
       expect(Time).to receive(:current).twice do
@@ -73,7 +73,7 @@ describe EVSS::ClaimsService do
         'Average EVSS request in seconds',
         :info,
         { average: BigDecimal.new(1), count: 1 },
-        { backend_service: :evss }
+        backend_service: :evss
       )
 
       subject
