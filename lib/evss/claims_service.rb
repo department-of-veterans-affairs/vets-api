@@ -34,6 +34,15 @@ module EVSS
 
     private
 
+    def log_benchmark(average, count)
+      log_message_to_sentry(
+        'Average EVSS request in seconds',
+        :info,
+        { average: average, count: count },
+        backend_service: :evss
+      )
+    end
+
     def benchmark_request
       start = Time.current
       return_val = yield
@@ -56,7 +65,7 @@ module EVSS
       redis.set(BENCHMARK_KEY, average)
       redis.set(count_key, count)
 
-      log_message_to_sentry('Average EVSS request in seconds', :info, { average: average, count: count }, backend_service: :evss)
+      log_benchmark(average, count)
 
       return_val
     end
