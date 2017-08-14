@@ -9,7 +9,9 @@ describe EVSS::ClaimsService do
     EVSS::AuthHeaders.new(current_user).to_h
   end
 
-  subject { described_class.new(auth_headers) }
+  let(:claims_service) { described_class.new(auth_headers) }
+
+  subject { claims_service }
 
   describe '#benchmark_request' do
     let(:redis) { Redis.current }
@@ -24,7 +26,7 @@ describe EVSS::ClaimsService do
     end
 
     subject do
-      described_class.new(auth_headers).benchmark_request do
+      claims_service.benchmark_request do
       end
     end
 
@@ -59,6 +61,17 @@ describe EVSS::ClaimsService do
         expect(average).to eq(1)
         expect(count).to eq(1)
       end
+    end
+
+    it 'should log the values to sentry' do
+      expect(claims_service).to receive(:log_message_to_sentry).with(
+        'Average EVSS request in seconds',
+        :info,
+        { average: BigDecimal.new(1), count: 1 },
+        { backend_service: :evss }
+      )
+
+      subject
     end
   end
 

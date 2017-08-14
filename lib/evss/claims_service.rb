@@ -3,6 +3,8 @@ require 'evss/base_service'
 
 module EVSS
   class ClaimsService < BaseService
+    include SentryLogging
+
     API_VERSION = Settings.evss.versions.claims
     BASE_URL = "#{Settings.evss.url}/wss-claims-services-web-#{API_VERSION}/rest"
     BENCHMARK_KEY = 'evss_benchmark'
@@ -16,20 +18,20 @@ module EVSS
       count = redis.get(count_key)&.to_i
       average = redis.get(BENCHMARK_KEY)
 
-      new_average =
-        if count.nil? || average.nil?
-          redis.set(count_key, 1)
-          diff
-        else
-          average = BigDecimal.new(average)
-          total = average * count + diff
-          count += 1
-          redis.set(count_key, count)
-          total / count
-        end
+      if count.nil? || average.nil?
+        count = 1
+        average = diff
+      else
+        average = BigDecimal.new(average)
+        total = average * count + diff
+        count += 1
+        average = total / count
+      end
 
-      redis.set(BENCHMARK_KEY, new_average)
-      # TODO: log to sentry
+      redis.set(BENCHMARK_KEY, average)
+      redis.set(count_key, count)
+
+      log_message_to_sentry('Average EVSS request in seconds', :info, { average: average, count: count }, backend_service: :evss)
     end
 
     def all_claims
