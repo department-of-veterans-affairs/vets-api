@@ -26,7 +26,7 @@ describe EVSS::ClaimsService do
     end
 
     subject do
-      claims_service.benchmark_request do
+      claims_service.send(:benchmark_request) do
         123
       end
     end
