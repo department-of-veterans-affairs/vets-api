@@ -37,18 +37,22 @@ module EVSS
     end
 
     def all_claims
-      get 'vbaClaimStatusService/getClaims'
+      benchmark_request { get 'vbaClaimStatusService/getClaims' }
     end
 
     def find_claim_by_id(claim_id)
-      post 'vbaClaimStatusService/getClaimDetailById', { id: claim_id }.to_json
+      benchmark_request do
+        post 'vbaClaimStatusService/getClaimDetailById', { id: claim_id }.to_json
+      end
     end
 
     def request_decision(claim_id)
-      post 'vbaClaimStatusService/set5103Waiver', {
-        claimId: claim_id,
-        systemName: SYSTEM_NAME
-      }.to_json
+      benchmark_request do
+        post 'vbaClaimStatusService/set5103Waiver', {
+          claimId: claim_id,
+          systemName: SYSTEM_NAME
+        }.to_json
+      end
     end
 
     def self.breakers_service
