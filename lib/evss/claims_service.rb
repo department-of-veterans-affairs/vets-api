@@ -7,7 +7,7 @@ module EVSS
     BASE_URL = "#{Settings.evss.url}/wss-claims-services-web-#{API_VERSION}/rest"
     BENCHMARK_KEY = 'evss_benchmark'
 
-    def send_request
+    def benchmark_request
       start = Time.current
       yield
       diff = Time.current - start
