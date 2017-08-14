@@ -27,6 +27,7 @@ describe EVSS::ClaimsService do
 
     subject do
       claims_service.benchmark_request do
+        123
       end
     end
 
@@ -61,6 +62,10 @@ describe EVSS::ClaimsService do
         expect(average).to eq(1)
         expect(count).to eq(1)
       end
+    end
+
+    it 'should return the blocks return value' do
+      expect(subject).to eq(123)
     end
 
     it 'should log the values to sentry' do
