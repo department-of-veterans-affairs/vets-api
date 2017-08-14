@@ -34,6 +34,7 @@ gem 'sidekiq'
 gem 'sidekiq-unique-jobs'
 gem 'sidekiq-scheduler', '~> 2.0'
 gem 'sidekiq-instrument'
+gem 'sidekiq-rate-limiter'
 gem 'shrine'
 gem 'fastimage'
 
@@ -56,6 +57,8 @@ gem 'aasm'
 # Amazon Linux's system `json` gem causes conflicts, but
 # `multi_json` will prefer `oj` if installed, so include it here.
 gem 'oj'
+
+gem 'octokit'
 
 gem 'holidays'
 gem 'iconv'
