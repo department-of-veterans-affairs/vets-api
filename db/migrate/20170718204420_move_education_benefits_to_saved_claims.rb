@@ -1,17 +1,41 @@
 class MoveEducationBenefitsToSavedClaims < ActiveRecord::Migration
   def change
     add_reference(:education_benefits_claims, :saved_claim, index: true)
+    add_column(:saved_claim, :education_benefits_claim_id, :integer)
 
-    EducationBenefitsClaim.find_each do |education_benefits_claim|
-      form_type = education_benefits_claim.read_attribute(:form_type)
+    insert_sql = <<-sql
+      INSERT INTO saved_claims
+        (encrypted_form, encrypted_form_iv, type, form_id, education_benefits_claim_id)
+      SELECT
+        encrypted_form,
+        encrypted_form_iv,
+        concat('SavedClaim::EducationBenefits::VA', form_type),
+        concat('22-', upper(form_type)),
+        id
+      FROM education_benefits_claims
+      RETURNING id, education_benefits_claim_id
+      WHERE education_benefits_claims.id = 1
+    sql
+    sql = <<-sql
+      WITH inserted AS (#{insert_sql})
+      UPDATE education_benefits_claim
+      SET saved_claim_id = inserted.id
+      FROM inserted
+      WHERE education_benefits_claim.id = inserted.education_benefits_claim_id
+    sql
 
-      education_benefits_claim.saved_claim = SavedClaim::EducationBenefits.form_class(form_type).new(
-        encrypted_form: education_benefits_claim.read_attribute(:encrypted_form),
-        encrypted_form_iv: education_benefits_claim.read_attribute(:encrypted_form_iv)
-      )
+    ActiveRecord::Base.connection.execute(sql)
 
-      education_benefits_claim.save!
-    end
+    # EducationBenefitsClaim.find_each do |education_benefits_claim|
+    #   form_type = education_benefits_claim.read_attribute(:form_type)
+
+    #   education_benefits_claim.saved_claim = SavedClaim::EducationBenefits.form_class(form_type).new(
+    #     encrypted_form: education_benefits_claim.read_attribute(:encrypted_form),
+    #     encrypted_form_iv: education_benefits_claim.read_attribute(:encrypted_form_iv)
+    #   )
+
+    #   education_benefits_claim.save!
+    # end
 
     change_column_null(:education_benefits_claims, :saved_claim_id, false)
 
