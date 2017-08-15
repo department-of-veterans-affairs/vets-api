@@ -16,7 +16,8 @@ class MoveEducationBenefitsToSavedClaims < ActiveRecord::Migration
     change_column_null(:education_benefits_claims, :saved_claim_id, false)
 
     %w(submitted_at encrypted_form encrypted_form_iv form_type).each do |attr|
-      remove_column(:education_benefits_claims, attr)
+      change_column_null(:education_benefits_claims, attr, true)
+      rename_column(:education_benefits_claims, attr, "_#{attr}")
     end
 
     add_index(:education_benefits_claims, :created_at)
