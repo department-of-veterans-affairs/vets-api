@@ -1,30 +1,33 @@
 class MoveEducationBenefitsToSavedClaims < ActiveRecord::Migration
   def change
     add_reference(:education_benefits_claims, :saved_claim, index: true)
-    add_column(:saved_claim, :education_benefits_claim_id, :integer)
+    add_column(:saved_claims, :education_benefits_claim_id, :integer)
 
     insert_sql = <<-sql
       INSERT INTO saved_claims
-        (encrypted_form, encrypted_form_iv, type, form_id, education_benefits_claim_id)
+        (encrypted_form, encrypted_form_iv, type, form_id, education_benefits_claim_id, guid)
       SELECT
         encrypted_form,
         encrypted_form_iv,
         concat('SavedClaim::EducationBenefits::VA', form_type),
         concat('22-', upper(form_type)),
-        id
+        id,
+        #{ActiveRecord::Base::sanitize(SecureRandom.uuid)}
       FROM education_benefits_claims
-      RETURNING id, education_benefits_claim_id
       WHERE education_benefits_claims.id = 1
+      RETURNING id, education_benefits_claim_id
     sql
     sql = <<-sql
       WITH inserted AS (#{insert_sql})
-      UPDATE education_benefits_claim
+      UPDATE education_benefits_claims
       SET saved_claim_id = inserted.id
       FROM inserted
-      WHERE education_benefits_claim.id = inserted.education_benefits_claim_id
+      WHERE education_benefits_claims.id = inserted.education_benefits_claim_id
     sql
 
     ActiveRecord::Base.connection.execute(sql)
+
+    remove_column(:saved_claims, :education_benefits_claim_id)
 
     # EducationBenefitsClaim.find_each do |education_benefits_claim|
     #   form_type = education_benefits_claim.read_attribute(:form_type)
@@ -45,5 +48,7 @@ class MoveEducationBenefitsToSavedClaims < ActiveRecord::Migration
     end
 
     add_index(:education_benefits_claims, :created_at)
+
+    raise
   end
 end
