@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170807203358) do
+ActiveRecord::Schema.define(version: 20170815233455) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -27,20 +27,20 @@ ActiveRecord::Schema.define(version: 20170807203358) do
   add_index "beta_registrations", ["user_uuid", "feature"], name: "index_beta_registrations_on_user_uuid_and_feature", unique: true, using: :btree
 
   create_table "education_benefits_claims", force: :cascade do |t|
-    t.datetime "_submitted_at"
+    t.datetime "submitted_at"
     t.datetime "processed_at"
     t.datetime "created_at",                                  null: false
     t.datetime "updated_at",                                  null: false
-    t.string   "_encrypted_form"
-    t.string   "_encrypted_form_iv"
+    t.string   "encrypted_form"
+    t.string   "encrypted_form_iv"
     t.string   "regional_processing_office",                  null: false
-    t.string   "_form_type",                 default: "1990"
+    t.string   "form_type",                  default: "1990"
     t.integer  "saved_claim_id",                              null: false
   end
 
-  add_index "education_benefits_claims", ["_submitted_at"], name: "index_education_benefits_claims_on__submitted_at", using: :btree
   add_index "education_benefits_claims", ["created_at"], name: "index_education_benefits_claims_on_created_at", using: :btree
   add_index "education_benefits_claims", ["saved_claim_id"], name: "index_education_benefits_claims_on_saved_claim_id", using: :btree
+  add_index "education_benefits_claims", ["submitted_at"], name: "index_education_benefits_claims_on_submitted_at", using: :btree
 
   create_table "education_benefits_submissions", force: :cascade do |t|
     t.string   "region",                                            null: false

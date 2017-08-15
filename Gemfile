@@ -17,6 +17,7 @@ gem 'config'
 gem 'pg'
 gem 'json-schema'
 gem 'active_model_serializers'
+gem 'zero_downtime_migrations'
 gem 'will_paginate'
 gem 'sentry-raven'            # Sentry integration.
 gem 'faraday'
