@@ -14,7 +14,6 @@ class MoveEducationBenefitsToSavedClaims < ActiveRecord::Migration
         id,
         #{ActiveRecord::Base::sanitize(SecureRandom.uuid)}
       FROM education_benefits_claims
-      WHERE education_benefits_claims.id = 1
       RETURNING id, education_benefits_claim_id
     sql
     sql = <<-sql
