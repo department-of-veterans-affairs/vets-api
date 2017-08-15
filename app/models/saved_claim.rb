@@ -32,6 +32,11 @@ class SavedClaim < ActiveRecord::Base
     self.form_id = self.class::FORM.upcase
   end
 
+  def self.add_form_and_validation(form_id)
+    const_set('FORM', form_id)
+    validates(:form_id, inclusion: [form_id])
+  end
+
   # Run after a claim is saved, this processes any files and workflows that are present
   # and sends them to our internal partners for processing.
   def process_attachments!
