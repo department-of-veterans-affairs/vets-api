@@ -72,6 +72,7 @@ module V0
       Swagger::Requests::HealthCareApplications,
       Swagger::Requests::Post911GiBillStatuses,
       Swagger::Requests::Letters,
+      Swagger::Requests::Feedbacks,
       Swagger::Requests::Gibct::Institutions,
       Swagger::Requests::Gibct::CalculatorConstants,
       Swagger::Requests::Prescriptions::Prescriptions,
@@ -99,6 +100,7 @@ module V0
       Swagger::Schemas::LetterBeneficiary,
       Swagger::Schemas::Countries,
       Swagger::Schemas::States,
+      Swagger::Schemas::Address,
       self
     ].freeze
 

@@ -179,3 +179,5 @@ shrine:
   claims:
     type: local
     path: claims
+github:
+  api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
