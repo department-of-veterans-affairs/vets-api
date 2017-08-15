@@ -3,6 +3,7 @@ class MoveEducationBenefitsToSavedClaims < ActiveRecord::Migration
     add_reference(:education_benefits_claims, :saved_claim, index: true)
     add_column(:saved_claims, :education_benefits_claim_id, :integer)
 
+    # form_type is `1990 1995 1990e 5490 5495 1990n` all lowercase
     insert_sql = <<-sql
       INSERT INTO saved_claims
         (encrypted_form, encrypted_form_iv, type, form_id, education_benefits_claim_id, guid)
@@ -47,7 +48,5 @@ class MoveEducationBenefitsToSavedClaims < ActiveRecord::Migration
     end
 
     add_index(:education_benefits_claims, :created_at)
-
-    raise
   end
 end
