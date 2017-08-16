@@ -19,6 +19,8 @@ module MVI
 
       attr_reader :given_names, :family_name, :birth_date, :ssn, :gender, :icn
 
+      # Temporarily disabling this cop to avoid having to refactor at this time.
+      # rubocop:disable ParameterLists
       def initialize(given_names, family_name, birth_date, ssn, gender = nil, icn = nil)
         @given_names = given_names
         @family_name = family_name
@@ -27,6 +29,7 @@ module MVI
         @gender = gender
         @icn = icn
       end
+      # rubocop:enable ParameterLists
 
       def to_xml
         super(EXTENSION, build_body)
