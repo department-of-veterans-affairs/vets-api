@@ -733,7 +733,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           context 'unsuccessful calls' do
             it 'returns error on refilling a prescription with bad id' do
               VCR.use_cassette('gi_client/gets_institution_details_error') do
-                expect(subject).to validate(:get, '/v0/gi/institutions/{id}', 400, 'id' => 'splunge')
+                expect(subject).to validate(:get, '/v0/gi/institutions/{id}', 404, 'id' => 'splunge')
               end
             end
           end
@@ -784,11 +784,77 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       it 'supports posting EVSS Letters' do
         expect(subject).to validate(:post, '/v0/letters/{id}', 401, 'id' => 'commissary')
       end
+
+      it 'supports getting EVSS PCIUAddress states' do
+        expect(subject).to validate(:get, '/v0/address/states', 401)
+        VCR.use_cassette('evss/pciu_address/states') do
+          expect(subject).to validate(:get, '/v0/address/states', 200, auth_options)
+        end
+      end
+
+      it 'supports getting EVSS PCIUAddress countries' do
+        expect(subject).to validate(:get, '/v0/address/countries', 401)
+        VCR.use_cassette('evss/pciu_address/countries') do
+          expect(subject).to validate(:get, '/v0/address/countries', 200, auth_options)
+        end
+      end
+
+      it 'supports getting EVSS PCIUAddress' do
+        expect(subject).to validate(:get, '/v0/address', 401)
+        VCR.use_cassette('evss/pciu_address/address_domestic') do
+          expect(subject).to validate(:get, '/v0/address', 200, auth_options)
+        end
+      end
+
+      it 'supports putting EVSS PCIUAddress' do
+        expect(subject).to validate(:put, '/v0/address', 401)
+        VCR.use_cassette('evss/pciu_address/address_update') do
+          expect(subject).to validate(
+            :put,
+            '/v0/address',
+            200,
+            auth_options.update(
+              '_data' => {
+                'type' => 'DOMESTIC',
+                'addressEffectiveDate' => '2017-08-07T19:43:59.383Z',
+                'addressOne' => '225 5th St',
+                'addressTwo' => '',
+                'addressThree' => '',
+                'city' => 'Springfield',
+                'stateCode' => 'OR',
+                'countryName' => 'USA',
+                'zipCode' => '97477',
+                'zipSuffix' => ''
+              }.to_json
+            )
+          )
+        end
+      end
     end
 
     it 'supports getting the user data' do
       expect(subject).to validate(:get, '/v0/user', 200, auth_options)
       expect(subject).to validate(:get, '/v0/user', 401)
+    end
+
+    context '#feedback' do
+      let(:feedback_params) do
+        {
+          'description' => 'I liked this page',
+          'target_page' => '/some/example/page.html',
+          'owner_email' => 'example@email.com'
+        }
+      end
+      let(:missing_feedback_params) { feedback_params.except('target_page') }
+
+      it 'returns 202 for valid feedback' do
+        expect(subject).to validate(:post, '/v0/feedback', 202,
+                                    '_data' => { 'feedback' => feedback_params })
+      end
+      it 'returns 400 if a param is missing or invalid' do
+        expect(subject).to validate(:post, '/v0/feedback', 400,
+                                    '_data' => { 'feedback' => missing_feedback_params })
+      end
     end
 
     context 'terms and conditions routes' do

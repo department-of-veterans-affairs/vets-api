@@ -26,6 +26,7 @@ Rails.application.routes.draw do
 
     resource :user, only: [:show]
     resource :post911_gi_bill_status, only: [:show]
+    resource :feedback, only: [:create]
 
     resource :education_benefits_claims, only: [:create] do
       collection do
@@ -114,6 +115,13 @@ Rails.application.routes.draw do
       resources :military_ranks, only: :index, defaults: { format: :json }
       resources :branches_of_service, only: :index, defaults: { format: :json }
       resources :burial_forms, only: [:new, :create], defaults: { format: :json }
+    end
+
+    resource :address, only: [:show, :update] do
+      collection do
+        get 'countries', to: 'addresses#countries'
+        get 'states', to: 'addresses#states'
+      end
     end
 
     resources :apidocs, only: [:index]
