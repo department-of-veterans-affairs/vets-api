@@ -20,9 +20,32 @@ describe MVI::Service do
   end
 
   describe '.find_profile with icn' do
-    context 'with a valid request' do
-      xit 'calls the find_profile endpoint with a find candidate message' do
-        VCR.use_cassette('mvi/find_candidate/valid_icn') do
+    context 'valid requests' do
+
+      it 'fetches profile when icn has ^NI^200M^USVHA^P' do
+        allow(user).to receive(:icn).and_return('1008714701V416111^NI^200M^USVHA^P')
+
+        VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
+          response = subject.find_profile(user)
+          expect(response.status).to eq('OK')
+          expect(response.profile).to have_deep_attributes(mvi_profile)
+        end
+      end
+
+      it 'fetches profile when icn has ^NI' do
+        allow(user).to receive(:icn).and_return('1008714701V416111^NI')
+
+        VCR.use_cassette('mvi/find_candidate/valid_icn_ni_only') do
+          response = subject.find_profile(user)
+          expect(response.status).to eq('OK')
+          expect(response.profile).to have_deep_attributes(mvi_profile)
+        end
+      end
+
+      it 'fetches profile when icn has no additional attributes by adding ^NI' do
+        allow(user).to receive(:icn).and_return('1008714701V416111')
+
+        VCR.use_cassette('mvi/find_candidate/valid_icn_without_ni') do
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
           expect(response.profile).to have_deep_attributes(mvi_profile)
