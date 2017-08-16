@@ -4,7 +4,7 @@ require 'rails_helper'
 describe BenchmarkRequest do
   let(:benchmark_request) { described_class.new('evss') }
   let(:redis) { Redis.current }
-  let(:benchmark_key) { "benchmark_evss" }
+  let(:benchmark_key) { 'benchmark_evss' }
 
   def average
     BigDecimal.new(redis.get(benchmark_key))
