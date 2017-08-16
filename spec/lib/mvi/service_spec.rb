@@ -14,11 +14,26 @@ describe MVI::Service do
     }
     build(:loa3_user, user_hash)
   end
+
   let(:mvi_profile) do
     build(:mvi_profile_response, :missing_attrs, :address_austin, given_names: %w(Mitchell G), vha_facility_ids: [])
   end
 
-  describe '.find_profile' do
+  describe '.find_profile with icn' do
+    context 'with a valid request' do
+      xit 'calls the find_profile endpoint with a find candidate message' do
+        VCR.use_cassette('mvi/find_candidate/valid_icn') do
+          response = subject.find_profile(user)
+          expect(response.status).to eq('OK')
+          expect(response.profile).to have_deep_attributes(mvi_profile)
+        end
+      end
+    end
+  end
+
+  describe '.find_profile without icn' do
+    before(:each) { allow(user).to receive(:icn).and_return(nil) }
+
     context 'with a valid request' do
       it 'calls the find_profile endpoint with a find candidate message' do
         VCR.use_cassette('mvi/find_candidate/valid') do
