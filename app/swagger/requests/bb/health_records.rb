@@ -46,6 +46,31 @@ module Swagger
         end
 
         swagger_path '/v0/health_records' do
+          operation :get do
+            key :description, 'Retrieves a BB Report'
+            key :operationId, 'bbHealthRecordsShow'
+            key :tags, %w(bb health-records show)
+
+            parameter name: :doc_type, in: :query, required: false,
+                      type: :string, enum: [:txt, :pdf], description: 'the document type'
+
+            response 200 do
+              key :description, 'health records show response'
+
+              schema do
+                key :type, :file
+              end
+            end
+
+            response 503 do
+              key :description, 'health records backend error response'
+
+              schema do
+                key :'$ref', :Errors
+              end
+            end
+          end
+
           operation :post do
             key :description, 'Generates a new BB Report'
             key :operationId, 'bbHealthRecordsCreate'
