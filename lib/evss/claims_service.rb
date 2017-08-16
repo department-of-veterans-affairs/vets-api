@@ -3,11 +3,8 @@ require 'evss/base_service'
 
 module EVSS
   class ClaimsService < BaseService
-    include SentryLogging
-
     API_VERSION = Settings.evss.versions.claims
     BASE_URL = "#{Settings.evss.url}/wss-claims-services-web-#{API_VERSION}/rest"
-    BENCHMARK_KEY = 'evss_benchmark'
 
     def initialize(*args)
       super
