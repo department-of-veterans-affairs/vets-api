@@ -1,4 +1,6 @@
 class BenchmarkRequest
+  include SentryLogging
+
   def initialize(request_name)
     @request_name = request_name
     @benchmark_key = "benchmark_#{request_name}"
@@ -32,7 +34,7 @@ class BenchmarkRequest
       average = total / count
     end
 
-    @redis.set(BENCHMARK_KEY, average)
+    @redis.set(@benchmark_key, average)
     @redis.set(count_key, count)
 
     log_benchmark(average, count)
