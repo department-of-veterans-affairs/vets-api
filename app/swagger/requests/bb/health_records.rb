@@ -18,6 +18,64 @@ module Swagger
                 key :'$ref', :HealthRecordsRefresh
               end
             end
+
+            response 403 do
+              key :description, 'forbidden user'
+
+              schema do
+                key :'$ref', :Errors
+              end
+            end
+          end
+        end
+
+        swagger_path '/v0/health_records/eligible_data_classes' do
+          operation :get do
+            key :description, 'Retrieves a list of health care record categories'
+            key :operationId, 'bbHealthRecordsEligibleDataClasses'
+            key :tags, %w(bb health-records eligible classes)
+
+            response 200 do
+              key :description, 'heath records eligible data classes list'
+
+              schema do
+                key :'$ref', :HealthRecordsEligibleDataClasses
+              end
+            end
+          end
+        end
+
+        swagger_path '/v0/health_records' do
+          operation :post do
+            key :description, 'Generates a new BB Report'
+            key :operationId, 'bbHealthRecordsCreate'
+            key :tags, %w(bb health-records create)
+
+            parameter name: :nil, in: :body do
+              schema do
+                key :required, [:from_date, :to_date, :data_classes]
+
+                property :from_date, type: :string, description: 'date on which records start'
+                property :to_date, type: :string, description: 'date on which records end'
+                property :data_classes, type: :array, description: 'list of data to be returned' do
+                  items do
+                    key :type, :string
+                  end
+                end
+              end
+            end
+
+            response 202 do
+              key :description, 'health records create response'
+            end
+
+            response 422 do
+              key :description, 'health records missing required parameter response'
+
+              schema do
+                key :'$ref', :Errors
+              end
+            end
           end
         end
       end
