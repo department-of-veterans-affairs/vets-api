@@ -60,7 +60,7 @@ module Swagger
               end
             end
 
-            response 400 do
+            response 404 do
               key :description, 'Operation fails with invalid facility code'
 
               schema do

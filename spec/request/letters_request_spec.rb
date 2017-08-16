@@ -172,8 +172,28 @@ RSpec.describe 'letters', type: :request do
       it 'should return a not found response' do
         VCR.use_cassette('evss/letters/letters_not_eligible_error') do
           get '/v0/letters', nil, auth_header
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('letters_errors')
+          expect(JSON.load(response.body)).to have_deep_attributes(
+            'errors' => [
+              {
+                'title' => 'Proxy error',
+                'detail' => 'Upstream server returned not eligible response',
+                'code' => '111',
+                'source' => 'EVSS::Letters::Service',
+                'status' => '502',
+                'meta' => {
+                  'messages' => [
+                    {
+                      'key' => 'lettergenerator.notEligible',
+                      'severity' => 'FATAL',
+                      'text' => 'Veteran is not eligible to receive the letter'
+                    }
+                  ]
+                }
+              }
+            ]
+          )
         end
       end
     end
@@ -182,8 +202,28 @@ RSpec.describe 'letters', type: :request do
       it 'should return a not found response' do
         VCR.use_cassette('evss/letters/letters_determine_eligibility_error') do
           get '/v0/letters', nil, auth_header
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('letters_errors')
+          expect(JSON.load(response.body)).to have_deep_attributes(
+            'errors' => [
+              {
+                'title' => 'Proxy error',
+                'detail' => 'Can not determine eligibility for potential letters due to upstream server error',
+                'code' => '110',
+                'source' => 'EVSS::Letters::Service',
+                'status' => '502',
+                'meta' => {
+                  'messages' => [
+                    {
+                      'key' => 'letterGeneration.letterEligibilityError',
+                      'severity' => 'FATAL',
+                      'text' => 'Unable to determine eligibility on potential letters'
+                    }
+                  ]
+                }
+              }
+            ]
+          )
         end
       end
     end

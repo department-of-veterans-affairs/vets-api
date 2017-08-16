@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: dc403e6bdf153f47a1338cef7c7cf370a313fb6d
+  revision: 0e5db3eaa46d9a666ce96fe35ee7d6b71ff77b8b
   branch: master
   specs:
-    vets_json_schema (3.0.26)
+    vets_json_schema (3.0.31)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -234,6 +234,8 @@ GEM
     notiffany (0.0.8)
       nenv (~> 0.1)
       shellany (~> 0.0)
+    octokit (4.7.0)
+      sawyer (~> 0.8.0, >= 0.5.3)
     oj (2.18.2)
     olive_branch (1.2.2)
       rails (>= 4.0)
@@ -310,6 +312,8 @@ GEM
     redis (3.3.3)
     redis-namespace (1.5.3)
       redis (~> 3.0, >= 3.0.4)
+    redis_rate_limiter (0.1.0)
+      redis
     require_all (1.4.0)
     rspec (3.5.0)
       rspec-core (~> 3.5.0)
@@ -357,6 +361,9 @@ GEM
       nokogiri (>= 1.4.0)
       nori (~> 2.4)
       wasabi (~> 3.4)
+    sawyer (0.8.1)
+      addressable (>= 2.3.5, < 2.6)
+      faraday (~> 0.8, < 1.0)
     script_utils (0.0.4)
     sdoc (0.4.1)
       json (~> 1.7, >= 1.7.7)
@@ -377,6 +384,10 @@ GEM
     sidekiq-instrument (0.2.1)
       sidekiq (~> 4.0)
       statsd-instrument (~> 2.0, >= 2.0.4)
+    sidekiq-rate-limiter (0.1.1)
+      redis
+      redis_rate_limiter
+      sidekiq (>= 2.0, < 5.0)
     sidekiq-scheduler (2.0.19)
       hashie (~> 3.4)
       redis (~> 3)
@@ -480,6 +491,7 @@ DEPENDENCIES
   mini_magick
   net-sftp
   nokogiri
+  octokit
   oj
   olive_branch
   overcommit
@@ -510,6 +522,7 @@ DEPENDENCIES
   shrine-memory
   sidekiq
   sidekiq-instrument
+  sidekiq-rate-limiter
   sidekiq-scheduler (~> 2.0)
   sidekiq-unique-jobs
   simplecov
