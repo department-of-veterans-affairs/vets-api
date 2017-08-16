@@ -9,6 +9,11 @@ module EVSS
     BASE_URL = "#{Settings.evss.url}/wss-claims-services-web-#{API_VERSION}/rest"
     BENCHMARK_KEY = 'evss_benchmark'
 
+    def initialize(*args)
+      super
+      @benchmark_request = BenchmarkRequest.new('evss')
+    end
+
     def all_claims
       benchmark_request { get 'vbaClaimStatusService/getClaims' }
     end
@@ -34,40 +39,8 @@ module EVSS
 
     private
 
-    def log_benchmark(average, count)
-      log_message_to_sentry(
-        'Average EVSS request in seconds',
-        :info,
-        { average: average, count: count },
-        backend_service: :evss
-      )
-    end
-
-    def benchmark_request
-      start = Time.current
-      return_val = yield
-      diff = Time.current - start
-      redis = Redis.current
-      count_key = "#{BENCHMARK_KEY}.count"
-      count = redis.get(count_key)&.to_i
-      average = redis.get(BENCHMARK_KEY)
-
-      if count.nil? || average.nil?
-        count = 1
-        average = diff
-      else
-        average = BigDecimal.new(average)
-        total = average * count + diff
-        count += 1
-        average = total / count
-      end
-
-      redis.set(BENCHMARK_KEY, average)
-      redis.set(count_key, count)
-
-      log_benchmark(average, count)
-
-      return_val
+    def benchmark_request(&block)
+      @benchmark_request.benchmark(&block)
     end
   end
 end

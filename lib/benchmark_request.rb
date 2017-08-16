@@ -7,15 +7,6 @@ class BenchmarkRequest
     @redis = Redis.current
   end
 
-  def log_benchmark(average, count)
-    log_message_to_sentry(
-      "Average #{@request_name} request in seconds",
-      :info,
-      { average: average, count: count },
-      backend_service: @request_name
-    )
-  end
-
   def benchmark
     start = Time.current
     return_val = yield
@@ -40,5 +31,16 @@ class BenchmarkRequest
     log_benchmark(average, count)
 
     return_val
+  end
+
+  private
+
+  def log_benchmark(average, count)
+    log_message_to_sentry(
+      "Average #{@request_name} request in seconds",
+      :info,
+      { average: average, count: count },
+      backend_service: @request_name
+    )
   end
 end
