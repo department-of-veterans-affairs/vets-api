@@ -14,6 +14,7 @@ gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
 gem 'aasm'
 gem 'attr_encrypted'
 gem 'aws-sdk'
+gem 'betamocks', :path => '/Users/vhaisfdawsoa/Documents/va/betamocks'
 gem 'breakers'
 gem 'carrierwave-aws'
 gem 'clam_scan'

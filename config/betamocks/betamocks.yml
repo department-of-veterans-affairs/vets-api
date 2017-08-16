@@ -1,0 +1,10 @@
+---
+:cache_dir: config/betamocks/cache
+:services:
+- :id: 'EVSS'
+  :base_urls:
+  - csraciapp6.evss.srarad.com/wss-pciu-services-web/rest/pciuServices/v1
+  :endpoints:
+  - '/countries'
+  - '/states'
+  - '/mailingAddress'
