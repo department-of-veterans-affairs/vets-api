@@ -62,15 +62,15 @@ RSpec.describe 'address', type: :request do
       let(:update_address) do
         {
           'type' => 'DOMESTIC',
-          'addressEffectiveDate' => '2017-08-07T19:43:59.383Z',
-          'addressOne' => '225 5th St',
-          'addressTwo' => '',
-          'addressThree' => '',
+          'address_effective_date' => '2017-08-07T19:43:59.383Z',
+          'address_one' => '225 5th St',
+          'address_two' => '',
+          'address_three' => '',
           'city' => 'Springfield',
-          'stateCode' => 'OR',
-          'countryName' => 'USA',
-          'zipCode' => '97477',
-          'zipSuffix' => ''
+          'state_code' => 'OR',
+          'country_name' => 'USA',
+          'zip_code' => '97477',
+          'zip_suffix' => ''
         }
       end
 
@@ -79,6 +79,7 @@ RSpec.describe 'address', type: :request do
           put '/v0/address', update_address.to_json, auth_header.update(
             'Content-Type' => 'application/json', 'Accept' => 'application/json'
           )
+          puts response.body
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('address_response')
         end
