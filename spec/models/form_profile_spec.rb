@@ -20,7 +20,6 @@ RSpec.describe FormProfile, type: :model do
         'country' => user.va_profile[:address][:country],
         'postal_code' => user.va_profile[:address][:postal_code]
       },
-      'postNov111998Combat' => true,
       'gender' => user.gender,
       'homePhone' => user.va_profile[:home_phone].gsub(/[^\d]/, ''),
       'veteranSocialSecurityNumber' => user.ssn
@@ -74,8 +73,6 @@ RSpec.describe FormProfile, type: :model do
   describe '#prefill_form' do
     context 'with a healthcare application form' do
       it 'returns the va profile mapped to the healthcare form' do
-        expect(user.veteran_status).to receive(:post911_combat_indicator?).once.and_return(true)
-
         expect(Oj.load(described_class.for('1010ez').prefill(user).to_json)['form_data']).to eq(v1010ez_expected)
       end
     end

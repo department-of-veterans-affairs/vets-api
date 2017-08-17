@@ -105,9 +105,10 @@ class FormProfile
   private
 
   def initialize_military_information(user)
-    FormMilitaryInformation.new(
-      post_nov_1998_combat: user.veteran_status.post911_combat_indicator?
-    )
+    # TODO use deployments
+    # FormMilitaryInformation.new(
+    #   post_nov_1998_combat: user.veteran_status.post911_combat_indicator?
+    # )
   end
 
   def initialize_identity_information(user)
