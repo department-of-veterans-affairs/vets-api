@@ -95,11 +95,39 @@ describe MVI::Messages::FindProfileMessage do
       end
     end
 
+    context 'with icn' do
+      let(:xml) do
+        MVI::Messages::FindProfileMessage.new(
+          nil, nil, nil, nil, nil, 'a-fake-icn'
+        ).to_xml
+      end
+      let(:idm_path) { 'env:Body/idm:PRPA_IN201305UV02' }
+      let(:parameter_list_path) { "#{idm_path}/controlActProcess/queryByParameter/parameterList" }
+
+      it 'has a USDSVA extension with a uuid' do
+        expect(xml).to match_at_path("#{idm_path}/id/@extension", /200VGOV-\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/)
+      end
+
+      it 'has a sender extension' do
+        expect(xml).to eq_at_path("#{idm_path}/sender/device/id/@extension", '200VGOV')
+      end
+
+      it 'has a receiver extension' do
+        expect(xml).to eq_at_path("#{idm_path}/receiver/device/id/@extension", '200M')
+      end
+
+      it 'has the correct query parameter order' do
+        parsed_xml = Ox.parse(xml)
+        nodes = parsed_xml.locate(parameter_list_path).first.nodes
+        expect(nodes[0].value).to eq('id')
+      end
+    end
+
     context 'missing arguments' do
       it 'should throw an argument error' do
         expect do
           MVI::Messages::FindProfileMessage.new(%w(John William), 'Smith', Time.new(1980, 1, 1).utc)
-        end.to raise_error(ArgumentError, 'wrong number of arguments (given 3, expected 4..5)')
+        end.to raise_error(ArgumentError, 'wrong number of arguments (given 3, expected 4..6)')
       end
     end
   end
