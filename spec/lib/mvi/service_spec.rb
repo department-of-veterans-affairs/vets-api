@@ -52,6 +52,26 @@ describe MVI::Service do
         end
       end
     end
+
+    context 'invalid requests' do
+      it 'responds with a SERVER_ERROR if ICN is invalid' do
+        allow(user).to receive(:icn).and_return('invalid-icn-is-here^NI')
+
+        VCR.use_cassette('mvi/find_candidate/invalid_icn') do
+          expect(subject.find_profile(user))
+            .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+        end
+      end
+
+      it 'responds with a SERVER_ERROR if ICN has no matches' do
+        allow(user).to receive(:icn).and_return('1008714781V416999')
+
+        VCR.use_cassette('mvi/find_candidate/icn_not_found') do
+          expect(subject.find_profile(user))
+            .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+        end
+      end
+    end
   end
 
   describe '.find_profile without icn' do
