@@ -20,12 +20,54 @@ describe MVI::Service do
   end
 
   describe '.find_profile with icn' do
-    context 'with a valid request' do
-      xit 'calls the find_profile endpoint with a find candidate message' do
-        VCR.use_cassette('mvi/find_candidate/valid_icn') do
+    context 'valid requests' do
+      it 'fetches profile when icn has ^NI^200M^USVHA^P' do
+        allow(user).to receive(:icn).and_return('1008714701V416111^NI^200M^USVHA^P')
+
+        VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
           expect(response.profile).to have_deep_attributes(mvi_profile)
+        end
+      end
+
+      it 'fetches profile when icn has ^NI' do
+        allow(user).to receive(:icn).and_return('1008714701V416111^NI')
+
+        VCR.use_cassette('mvi/find_candidate/valid_icn_ni_only') do
+          response = subject.find_profile(user)
+          expect(response.status).to eq('OK')
+          expect(response.profile).to have_deep_attributes(mvi_profile)
+        end
+      end
+
+      it 'fetches profile when icn is just basic icn' do
+        allow(user).to receive(:icn).and_return('1008714701V416111')
+
+        VCR.use_cassette('mvi/find_candidate/valid_icn_without_ni') do
+          response = subject.find_profile(user)
+          expect(response.status).to eq('OK')
+          expect(response.profile).to have_deep_attributes(mvi_profile)
+        end
+      end
+    end
+
+    context 'invalid requests' do
+      it 'responds with a SERVER_ERROR if ICN is invalid' do
+        allow(user).to receive(:icn).and_return('invalid-icn-is-here^NI')
+
+        VCR.use_cassette('mvi/find_candidate/invalid_icn') do
+          expect(subject.find_profile(user))
+            .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+        end
+      end
+
+      it 'responds with a SERVER_ERROR if ICN has no matches' do
+        allow(user).to receive(:icn).and_return('1008714781V416999')
+
+        VCR.use_cassette('mvi/find_candidate/icn_not_found') do
+          expect(subject.find_profile(user))
+            .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
         end
       end
     end
