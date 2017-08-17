@@ -134,7 +134,7 @@ class User < Common::RedisStore
   end
 
   def veteran_status
-    @veteran_status ||= VeteranStatus.for_user(self)
+    @veteran_status ||= EMISRedis::VeteranStatus.for_user(self)
   end
 
   private
