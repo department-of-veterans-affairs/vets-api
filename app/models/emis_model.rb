@@ -44,7 +44,4 @@ class EMISModel < Common::RedisStore
 
   class RecordNotFound < StandardError
   end
-
-  class NotAuthorized < StandardError
-  end
 end

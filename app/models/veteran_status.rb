@@ -10,6 +10,9 @@ class VeteranStatus < EMISModel
     any_veteran_indicator?(emis_response('get_veteran_status').items.first)
   end
 
+  class NotAuthorized < StandardError
+  end
+
   private
 
   def any_veteran_indicator?(item)
