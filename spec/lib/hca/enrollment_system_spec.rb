@@ -931,33 +931,33 @@ describe HCA::EnrollmentSystem do
       [
         {
           'veteranAddress' => {
-            "street" => "123 NW 5th St"
+            'street' => '123 NW 5th St'
           }
         },
         {
           'veteranAddress' => {
-            "street" => "123 NW 5th St"
+            'street' => '123 NW 5th St'
           },
           'spouseAddress' => {
-            "street" => "123 NW 5th St"
+            'street' => '123 NW 5th St'
           }
         }
       ],
       [
         {
           'veteranAddress' => {
-            "street" => "123 NW 5th St"
+            'street' => '123 NW 5th St'
           },
           'spouseAddress' => {
-            "street" => "sdfsdf"
+            'street' => 'sdfsdf'
           }
         },
         {
           'veteranAddress' => {
-            "street" => "123 NW 5th St"
+            'street' => '123 NW 5th St'
           },
           'spouseAddress' => {
-            "street" => "sdfsdf"
+            'street' => 'sdfsdf'
           }
         }
       ]
