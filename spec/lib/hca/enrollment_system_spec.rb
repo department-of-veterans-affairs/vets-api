@@ -926,6 +926,46 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
+    'copy_spouse_address!',
+    [
+      [
+        {
+          'veteranAddress' => {
+            "street" => "123 NW 5th St"
+          }
+        },
+        {
+          'veteranAddress' => {
+            "street" => "123 NW 5th St"
+          },
+          'spouseAddress' => {
+            "street" => "123 NW 5th St"
+          }
+        }
+      ],
+      [
+        {
+          'veteranAddress' => {
+            "street" => "123 NW 5th St"
+          },
+          'spouseAddress' => {
+            "street" => "sdfsdf"
+          }
+        },
+        {
+          'veteranAddress' => {
+            "street" => "123 NW 5th St"
+          },
+          'spouseAddress' => {
+            "street" => "sdfsdf"
+          }
+        }
+      ]
+    ]
+  )
+
+  test_method(
+    described_class,
     'convert_hash_values!',
     [
       [

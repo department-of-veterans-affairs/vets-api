@@ -615,8 +615,15 @@ module HCA
       form
     end
 
+    def copy_spouse_address!(veteran)
+      veteran['spouseAddress'] = veteran['veteranAddress'] if veteran['spouseAddress'].blank?
+      veteran
+    end
+
     def veteran_to_save_submit_form(veteran, current_user)
       return {} if veteran.blank?
+
+      copy_spouse_address!(veteran)
 
       request = build_form_for_user(current_user)
       request['va:form']['va:summary'] = veteran_to_summary(veteran)
