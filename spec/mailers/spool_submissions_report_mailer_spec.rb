@@ -18,5 +18,26 @@ RSpec.describe SpoolSubmissionsReportMailer, type: [:mailer, :aws_helpers] do
       expect(mail.subject).to eq(text)
       expect(mail.to).to eq(['lihan@adhocteam.us'])
     end
+
+    context 'when not sending staging emails' do
+      before do
+        expect(FeatureFlipper).to receive(:staging_email?).once.and_return(false)
+      end
+
+      it 'should email the the right recipients' do
+        subject
+
+        expect(mail.to).to eq(
+          %w(
+            lihan@adhocteam.us
+            dana.kuykendall@va.gov
+            Jennifer.Waltz2@va.gov
+            shay.norton@va.gov
+            Joshua.Quagliaroli@va.gov
+            DONALD.NOBLE2@va.gov
+          )
+        )
+      end
+    end
   end
 end
