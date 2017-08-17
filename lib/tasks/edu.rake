@@ -8,6 +8,7 @@ namespace :edu do
     puts EducationForm::Forms::Base.build(app).text
   end
 
+  # one off script for spool submission report, delete later
   desc 'generate spool submissions report for last 60 days'
   task spool_report: :environment do
     class AllSpoolSubmissionsReportMailer < ApplicationMailer
