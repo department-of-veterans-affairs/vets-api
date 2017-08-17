@@ -17,19 +17,15 @@ module MVI
       include MVI::Messages::MessageBuilder
       EXTENSION = 'PRPA_IN201305UV02'
 
-      attr_reader :given_names, :family_name, :birth_date, :ssn, :gender, :icn
+      attr_reader :given_names, :family_name, :birth_date, :ssn, :gender
 
-      # Temporarily disabling this cop to avoid having to refactor at this time.
-      # rubocop:disable ParameterLists
-      def initialize(given_names, family_name, birth_date, ssn, gender = nil, icn = nil)
+      def initialize(given_names, family_name, birth_date, ssn, gender = nil)
         @given_names = given_names
         @family_name = family_name
         @birth_date = birth_date
         @ssn = ssn
         @gender = gender
-        @icn = icn
       end
-      # rubocop:enable ParameterLists
 
       def to_xml
         super(EXTENSION, build_body)
@@ -51,7 +47,7 @@ module MVI
       def build_control_act_process
         el = element('controlActProcess', classCode: 'CACT', moodCode: 'EVN')
         el << element('code', code: 'PRPA_TE201305UV02', codeSystem: '2.16.840.1.113883.1.6')
-        icn.present? ? el : el << build_data_enterer
+        el << build_data_enterer
       end
 
       def build_data_enterer
@@ -79,18 +75,10 @@ module MVI
 
       def build_parameter_list
         el = element('parameterList')
-        if icn.present?
-          el << build_icn
-        else
-          el << build_gender unless @gender.blank?
-          el << build_living_subject_birth_time
-          el << build_living_subject_id
-          el << build_living_subject_name
-        end
-      end
-
-      def build_icn
-        element('id', root: '2.16.840.1.113883.4.349', extension: @icn)
+        el << build_gender unless @gender.blank?
+        el << build_living_subject_birth_time
+        el << build_living_subject_id
+        el << build_living_subject_name
       end
 
       def build_living_subject_name
