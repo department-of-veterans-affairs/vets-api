@@ -21,7 +21,7 @@ describe MVI::Service do
 
   describe '.find_profile with icn' do
     context 'valid requests' do
-      it 'fetches profile when icn has 1008714701V416111^NI^200M^USVHA^P' do
+      it 'fetches profile when icn has ^NI^200M^USVHA^P' do
         allow(user).to receive(:icn).and_return('1008714701V416111^NI^200M^USVHA^P')
 
         VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
@@ -41,7 +41,7 @@ describe MVI::Service do
         end
       end
 
-      it 'fetches profile when icn has no additional attributes by adding ^NI' do
+      it 'fetches profile when icn is just basic icn' do
         allow(user).to receive(:icn).and_return('1008714701V416111')
 
         VCR.use_cassette('mvi/find_candidate/valid_icn_without_ni') do
