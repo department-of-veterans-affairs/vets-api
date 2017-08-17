@@ -4,7 +4,6 @@ require 'emis/veteran_status_service'
 module EMISRedis
   class VeteranStatus < Model
     CLASS_NAME = 'VeteranStatusService'
-    redis_config_key :veteran_status_response
 
     def veteran?
       raise VeteranStatus::Unauthorized unless @user.loa3?

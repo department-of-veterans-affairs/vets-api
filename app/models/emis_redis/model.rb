@@ -11,6 +11,8 @@ module EMISRedis
     attr_accessor :emis_response
 
     def self.for_user(user)
+      redis_config_key(:emis_response)
+
       emis_model = self.new
       emis_model.user = user
       emis_model
@@ -29,7 +31,7 @@ module EMISRedis
     end
 
     def response_from_redis_or_service(method)
-      do_cached_with(key: "#{@user.uuid}.#{method}") do
+      do_cached_with(key: "#{@user.uuid}.#{class_name}.#{method}") do
         unless @user.edipi || @user.icn
           raise ArgumentError, 'could not make eMIS call, user has no edipi or icn'
         end
@@ -39,8 +41,12 @@ module EMISRedis
       end
     end
 
+    def class_name
+      self.class::CLASS_NAME
+    end
+
     def service
-      @service ||= "EMIS::#{self.class::CLASS_NAME}".constantize.new
+      @service ||= "EMIS::#{class_name}".constantize.new
     end
 
     class RecordNotFound < StandardError
