@@ -49,15 +49,8 @@ module MVI
         user.last_name,
         user.birth_date,
         user.ssn,
-        user.gender,
-        icn_from(user)
+        user.gender
       ).to_xml
-    end
-
-    # Avoid stack overflow error, this needs to be refactored.
-    # ICN could come from SAML Assertion, not just MVI
-    def icn_from(user)
-      user.instance_variable_get(:@mvi)&.icn
     end
   end
 end
