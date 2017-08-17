@@ -49,8 +49,7 @@ module MVI
         user.last_name,
         user.birth_date,
         user.ssn,
-        user.gender,
-        user.icn
+        user.gender
       ).to_xml
     end
   end
