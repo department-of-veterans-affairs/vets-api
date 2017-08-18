@@ -14,9 +14,17 @@ module EMISRedis
     }
 
     def last_branch_of_service
-      return if service_episodes_by_date.blank?
+      return if latest_service_episode.blank?
 
-      SERVICE_BRANCHES[service_episodes_by_date[0].branch_of_service_code] || 'other'
+      SERVICE_BRANCHES[latest_service_episode.branch_of_service_code] || 'other'
+    end
+
+    def last_entry_date
+      latest_service_episode&.begin_date
+    end
+
+    def latest_service_episode
+      service_episodes_by_date.try(:[], 0)
     end
 
     def service_episodes_by_date

@@ -5,6 +5,14 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
   let(:user) { build :loa3_user }
   subject { described_class.for_user(user) }
 
+  describe '#last_entry_date' do
+    it 'should return the begin date from the latest service episode' do
+      VCR.use_cassette('emis/get_military_service_episodes/valid') do
+        expect(subject.last_entry_date.to_s).to eq("2007-04-01")
+      end
+    end
+  end
+
   describe '#last_branch_of_service' do
     context 'with service episodes' do
       it 'should return the last branch of service' do
