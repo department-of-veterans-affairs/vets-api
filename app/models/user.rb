@@ -133,8 +133,15 @@ class User < Common::RedisStore
     mvi.cache(uuid, mvi.mvi_response)
   end
 
-  def veteran_status
-    @veteran_status ||= EMISRedis::VeteranStatus.for_user(self)
+  %w(veteran_status military_information).each do |emis_method|
+    define_method(emis_method) do
+      emis_model = instance_variable_get(:"@#{emis_method}")
+      return emis_model if emis_model.present?
+
+      emis_model = "EMISRedis::#{emis_method.camelize}".constantize.for_user(self)
+      instance_variable_set(:"@#{emis_method}", emis_model)
+      emis_model
+    end
   end
 
   private

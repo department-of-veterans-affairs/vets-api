@@ -13,6 +13,7 @@ class FormMilitaryInformation
   include Virtus.model
 
   attribute :post_nov_1998_combat, Boolean
+  attribute :last_service_branch, String
 end
 
 class FormAddress
@@ -105,6 +106,9 @@ class FormProfile
   private
 
   def initialize_military_information(user)
+    FormMilitaryInformation.new(
+      last_service_branch: user.military_information.last_branch_of_service
+    )
     # TODO use deployments
     # FormMilitaryInformation.new(
     #   post_nov_1998_combat: user.veteran_status.post911_combat_indicator?
