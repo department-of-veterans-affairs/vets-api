@@ -76,7 +76,7 @@ RSpec.describe FormProfile, type: :model do
   end
 
   describe '#prefill_form' do
-    context 'with a healthcare application form' do
+    context 'with a healthcare application form', skip_emis: true do
       it 'returns the va profile mapped to the healthcare form' do
         military_information = user.military_information
         expect(military_information).to receive(:last_branch_of_service).and_return('air force')

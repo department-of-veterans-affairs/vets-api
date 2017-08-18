@@ -109,12 +109,13 @@ class FormProfile
 
   def initialize_military_information(user)
     military_information = user.military_information
-    # TODO rescue here?
-    FormMilitaryInformation.new(
+    military_information_data = {
       last_service_branch: military_information.last_branch_of_service,
       last_entry_date: military_information.last_entry_date,
       last_discharge_date: military_information.last_discharge_date
-    )
+    }
+    # TODO rescue here?
+    FormMilitaryInformation.new(military_information_data)
     # TODO use deployments
     # FormMilitaryInformation.new(
     #   post_nov_1998_combat: user.veteran_status.post911_combat_indicator?
