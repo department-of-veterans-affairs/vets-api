@@ -24,7 +24,7 @@ module EMISRedis
       @emis_response ||= lambda do
         response = response_from_redis_or_service(method)
         raise response.error if response.error?
-        raise VeteranStatus::RecordNotFound if !response.error? && response.empty?
+        raise RecordNotFound if !response.error? && response.empty?
 
         response
       end.call
