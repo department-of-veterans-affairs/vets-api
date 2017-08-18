@@ -5,12 +5,12 @@ module EMISRedis
 
     def last_branch_of_service
       binding.pry; fail
-      emis_response('get_military_service_episodes').items
+      service_episodes_by_date[0]
     end
 
     def service_episodes_by_date
       @service_episodes_by_date ||= lambda do
-        service_episodes = emis_response('get_military_service_episodes')
+        service_episodes = emis_response('get_military_service_episodes').items
         service_episodes.sort_by do |service_episode|
           service_episode.end_date
         end.reverse

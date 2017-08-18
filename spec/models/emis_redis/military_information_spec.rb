@@ -19,11 +19,11 @@ describe EMISRedis::MilitaryInformation do
     let(:episode3) { EMIS::Models::MilitaryServiceEpisode.new(end_date: Time.utc('1999')) }
 
     it 'should return sorted service episodes latest first' do
-      episodes = [
+      episodes = OpenStruct.new(items: [
         episode3,
         episode1,
         episode2
-      ]
+      ])
       expect(subject).to receive(:emis_response).once.with('get_military_service_episodes').and_return(episodes)
 
       expect(subject.service_episodes_by_date).to eq([
