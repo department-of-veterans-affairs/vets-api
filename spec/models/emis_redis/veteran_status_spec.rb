@@ -2,7 +2,7 @@
 require 'rails_helper'
 require 'common/exceptions'
 
-describe EMISRedis::VeteranStatus, skip_veteran_status: true do
+describe EMISRedis::VeteranStatus, skip_emis: true do
   let(:user) { build :loa3_user }
   subject { described_class.for_user(user) }
 
