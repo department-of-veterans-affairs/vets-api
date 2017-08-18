@@ -3,6 +3,8 @@ require 'rails_helper'
 require 'support/attr_encrypted_matcher'
 
 RSpec.describe FormProfile, type: :model do
+  include SchemaMatchers
+
   let(:user) { build(:loa3_user) }
   let(:v1010ez_expected) do
     {
@@ -21,6 +23,7 @@ RSpec.describe FormProfile, type: :model do
         'postal_code' => user.va_profile[:address][:postal_code]
       },
       'lastServiceBranch' => 'air force',
+      'lastEntryDate' => "2007-04-01",
       'gender' => user.gender,
       'homePhone' => user.va_profile[:home_phone].gsub(/[^\d]/, ''),
       'veteranSocialSecurityNumber' => user.ssn
@@ -74,7 +77,9 @@ RSpec.describe FormProfile, type: :model do
   describe '#prefill_form' do
     context 'with a healthcare application form' do
       it 'returns the va profile mapped to the healthcare form' do
-        expect(user.military_information).to receive(:last_branch_of_service).and_return('air force')
+        military_information = user.military_information
+        expect(military_information).to receive(:last_branch_of_service).and_return('air force')
+        expect(military_information).to receive(:last_entry_date).and_return("2007-04-01")
 
         expect(Oj.load(described_class.for('1010ez').prefill(user).to_json)['form_data']).to eq(v1010ez_expected)
       end
