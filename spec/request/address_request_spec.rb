@@ -59,29 +59,29 @@ RSpec.describe 'address', type: :request do
 
   describe 'PUT /v0/address' do
     context 'with a 200 response' do
-      let(:update_address) do
-        {
-          'type' => 'DOMESTIC',
-          'address_effective_date' => '2017-08-07T19:43:59.383Z',
-          'address_one' => '225 5th St',
-          'address_two' => '',
-          'address_three' => '',
-          'city' => 'Springfield',
-          'state_code' => 'OR',
-          'country_name' => 'USA',
-          'zip_code' => '97477',
-          'zip_suffix' => ''
-        }
-      end
+      let(:domestic_address) { build(:pciu_domestic_address) }
 
       it 'should match the address schema' do
         VCR.use_cassette('evss/pciu_address/address_update') do
-          put '/v0/address', update_address.to_json, auth_header.update(
+          put '/v0/address', domestic_address.to_json, auth_header.update(
             'Content-Type' => 'application/json', 'Accept' => 'application/json'
           )
-          puts response.body
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('address_response')
+        end
+      end
+    end
+
+    context 'with a 422 response' do
+      let(:domestic_address) { build(:pciu_domestic_address, address_one: nil, country_name: nil) }
+
+      it 'should match the errors schema' do
+        VCR.use_cassette('evss/pciu_address/address_500') do
+          put '/v0/address', domestic_address.to_json, auth_header.update(
+            'Content-Type' => 'application/json', 'Accept' => 'application/json'
+          )
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response).to match_response_schema('errors')
         end
       end
     end
