@@ -25,6 +25,7 @@ Rails.application.routes.draw do
     end
 
     resource :user, only: [:show]
+    resource :id_card_attributes, only: [:show]
     resource :post911_gi_bill_status, only: [:show]
     resource :feedback, only: [:create]
 
