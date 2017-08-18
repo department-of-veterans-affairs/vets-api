@@ -16,6 +16,7 @@ class FormMilitaryInformation
   attribute :last_service_branch, String
   attribute :last_entry_date, String
   attribute :last_discharge_date, String
+  attribute :discharge_type, String
 end
 
 class FormAddress
@@ -109,12 +110,13 @@ class FormProfile
 
   def initialize_military_information(user)
     military_information = user.military_information
+    # TODO rescue here?
     military_information_data = {
       last_service_branch: military_information.last_branch_of_service,
       last_entry_date: military_information.last_entry_date,
-      last_discharge_date: military_information.last_discharge_date
+      last_discharge_date: military_information.last_discharge_date,
+      discharge_type: military_information.discharge_type
     }
-    # TODO rescue here?
     FormMilitaryInformation.new(military_information_data)
     # TODO use deployments
     # FormMilitaryInformation.new(
