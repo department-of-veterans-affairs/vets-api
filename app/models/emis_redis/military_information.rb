@@ -20,11 +20,15 @@ module EMISRedis
     end
 
     def last_entry_date
-      latest_service_episode&.begin_date
+      latest_service_episode&.begin_date&.to_s
     end
 
     def latest_service_episode
       service_episodes_by_date.try(:[], 0)
+    end
+
+    def last_discharge_date
+      latest_service_episode&.end_date&.to_s
     end
 
     def service_episodes_by_date
