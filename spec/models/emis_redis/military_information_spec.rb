@@ -6,9 +6,34 @@ describe EMISRedis::MilitaryInformation do
   subject { described_class.for_user(user) }
 
   describe '#last_branch_of_service' do
-    it 'should return the last branch of service' do
-      VCR.use_cassette('emis/get_military_service_episodes/valid') do
-        subject.last_branch_of_service
+    context 'with service episodes' do
+      it 'should return the last branch of service' do
+        VCR.use_cassette('emis/get_military_service_episodes/valid') do
+          expect(subject.last_branch_of_service).to eq('air force')
+        end
+      end
+
+      context 'with a code not in the list' do
+        before do
+          allow(subject).to receive(:service_episodes_by_date).and_return([
+            EMIS::Models::MilitaryServiceEpisode.new(branch_of_service_code: 'foo')
+          ])
+        end
+
+        it 'should return other' do
+          expect(subject.last_branch_of_service).to eq('other')
+        end
+      end
+    end
+
+    context 'with no service episodes' do
+      before do
+        allow(subject).to receive(:service_episodes_by_date).and_return([])
+      end
+      it 'should return nil' do
+        VCR.use_cassette('emis/get_military_service_episodes/valid') do
+          expect(subject.last_branch_of_service).to eq(nil)
+        end
       end
     end
   end
@@ -19,11 +44,13 @@ describe EMISRedis::MilitaryInformation do
     let(:episode3) { EMIS::Models::MilitaryServiceEpisode.new(end_date: Time.utc('1999')) }
 
     it 'should return sorted service episodes latest first' do
-      episodes = OpenStruct.new(items: [
-        episode3,
-        episode1,
-        episode2
-      ])
+      episodes = OpenStruct.new(
+        items: [
+          episode3,
+          episode1,
+          episode2
+        ]
+      )
       expect(subject).to receive(:emis_response).once.with('get_military_service_episodes').and_return(episodes)
 
       expect(subject.service_episodes_by_date).to eq([
