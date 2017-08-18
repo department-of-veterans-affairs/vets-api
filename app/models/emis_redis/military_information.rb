@@ -13,10 +13,25 @@ module EMISRedis
       'H' => 'usphs'
     }
 
+    DISCHARGE_TYPES = {
+      'A' => 'honorable',
+      'B' => 'general',
+      'D' => 'bad-conduct',
+      'F' => 'dishonorable',
+      'J' => 'honorable',
+      'K' => 'dishonorable'
+    }
+
     def last_branch_of_service
       return if latest_service_episode.blank?
 
       SERVICE_BRANCHES[latest_service_episode.branch_of_service_code] || 'other'
+    end
+
+    def discharge_type
+      return if latest_service_episode.blank?
+
+      DISCHARGE_TYPES[latest_service_episode&.discharge_character_of_service_code] || 'other'
     end
 
     def last_entry_date

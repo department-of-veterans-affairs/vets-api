@@ -21,6 +21,14 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     end
   end
 
+  describe '#discharge_type' do
+    it 'should return the discharge type from the latest service episode' do
+      VCR.use_cassette('emis/get_military_service_episodes/valid') do
+        expect(subject.discharge_type).to eq('dishonorable')
+      end
+    end
+  end
+
   describe '#last_branch_of_service' do
     context 'with service episodes' do
       it 'should return the last branch of service' do
