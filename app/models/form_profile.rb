@@ -106,6 +106,7 @@ class FormProfile
   private
 
   def initialize_military_information(user)
+    # TODO rescue here?
     FormMilitaryInformation.new(
       last_service_branch: user.military_information.last_branch_of_service
     )
