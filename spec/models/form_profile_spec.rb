@@ -24,6 +24,7 @@ RSpec.describe FormProfile, type: :model do
       },
       'lastServiceBranch' => 'air force',
       'lastEntryDate' => "2007-04-01",
+      'lastDischargeDate' => "2007-04-02",
       'gender' => user.gender,
       'homePhone' => user.va_profile[:home_phone].gsub(/[^\d]/, ''),
       'veteranSocialSecurityNumber' => user.ssn
@@ -80,6 +81,7 @@ RSpec.describe FormProfile, type: :model do
         military_information = user.military_information
         expect(military_information).to receive(:last_branch_of_service).and_return('air force')
         expect(military_information).to receive(:last_entry_date).and_return("2007-04-01")
+        expect(military_information).to receive(:last_discharge_date).and_return("2007-04-02")
 
         expect(Oj.load(described_class.for('1010ez').prefill(user).to_json)['form_data']).to eq(v1010ez_expected)
       end

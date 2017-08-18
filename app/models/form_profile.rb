@@ -15,6 +15,7 @@ class FormMilitaryInformation
   attribute :post_nov_1998_combat, Boolean
   attribute :last_service_branch, String
   attribute :last_entry_date, String
+  attribute :last_discharge_date, String
 end
 
 class FormAddress
@@ -111,7 +112,8 @@ class FormProfile
     # TODO rescue here?
     FormMilitaryInformation.new(
       last_service_branch: military_information.last_branch_of_service,
-      last_entry_date: military_information.last_entry_date
+      last_entry_date: military_information.last_entry_date,
+      last_discharge_date: military_information.last_discharge_date
     )
     # TODO use deployments
     # FormMilitaryInformation.new(
