@@ -9,6 +9,9 @@ require 'support/sm_client_helpers'
 require 'rx/client'
 require 'support/rx_client_helpers'
 
+require 'bb/client'
+require 'support/bb_client_helpers'
+
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
     it 'has valid json' do
@@ -604,6 +607,111 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
                   'body' => 'Updated Body'
                 } }
               )
+            end
+          end
+        end
+      end
+    end
+
+    describe 'bb' do
+      include BB::ClientHelpers
+
+      describe 'health_records' do
+        before(:each) do
+          allow_any_instance_of(ApplicationController).to receive(:authenticate_token).and_return(true)
+          allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(mhv_user)
+
+          allow(BB::Client).to receive(:new).and_return(authenticated_client)
+        end
+
+        describe 'show a report' do
+          context 'successful calls' do
+            it 'supports showing a report' do
+              # Using mucked-up yml because apivore has a problem processing non-json responses
+              VCR.use_cassette('bb_client/gets_a_text_report_for_apivore') do
+                expect(subject).to validate(:get, '/v0/health_records', 200, '_query_string' => 'doc_type=txt')
+              end
+            end
+          end
+
+          context 'unsuccessful calls' do
+            it 'handles a backend error' do
+              VCR.use_cassette('bb_client/report_error_response') do
+                expect(subject).to validate(:get, '/v0/health_records', 503, '_query_string' => 'doc_type=txt')
+              end
+            end
+          end
+        end
+
+        describe 'create a report' do
+          context 'successful calls' do
+            it 'supports creating a report' do
+              VCR.use_cassette('bb_client/generates_a_report') do
+                expect(subject).to validate(
+                  :post, '/v0/health_records', 202,
+                  '_data' => {
+                    'from_date' => 10.years.ago.iso8601.to_json,
+                    'to_date' => Time.now.iso8601.to_json,
+                    'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
+                  }
+                )
+              end
+            end
+          end
+
+          context 'unsuccessful calls' do
+            it 'requires from_date, to_date, and data_classes' do
+              expect(subject).to validate(
+                :post, '/v0/health_records', 422,
+                '_data' => {
+                  'to_date' => Time.now.iso8601.to_json,
+                  'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
+                }
+              )
+
+              expect(subject).to validate(
+                :post, '/v0/health_records', 422,
+                '_data' => {
+                  'from_date' => 10.years.ago.iso8601.to_json,
+                  'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
+                }
+              )
+
+              expect(subject).to validate(
+                :post, '/v0/health_records', 422,
+                '_data' => {
+                  'from_date' => 10.years.ago.iso8601.to_json,
+                  'to_date' => Time.now.iso8601.to_json
+                }
+              )
+            end
+          end
+        end
+
+        describe 'eligible data classes' do
+          it 'supports retrieving eligible data classes' do
+            VCR.use_cassette('bb_client/gets_a_list_of_eligible_data_classes') do
+              expect(subject).to validate(:get, '/v0/health_records/eligible_data_classes', 200)
+            end
+          end
+        end
+
+        describe 'refresh' do
+          context 'successful calls' do
+            it 'supports health records refresh' do
+              VCR.use_cassette('bb_client/gets_a_list_of_extract_statuses') do
+                expect(subject).to validate(:get, '/v0/health_records/refresh', 200)
+              end
+            end
+          end
+
+          context 'unsuccessful calls' do
+            let(:mhv_account) do
+              double('mhv_account', ineligible?: true, needs_terms_acceptance?: false, upgraded?: true)
+            end
+
+            it 'raises forbidden when user is not eligible' do
+              expect(subject).to validate(:get, '/v0/health_records/refresh', 403)
             end
           end
         end
