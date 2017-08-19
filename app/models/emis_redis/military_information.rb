@@ -22,6 +22,7 @@ module EMISRedis
       'K' => 'dishonorable'
     }
 
+    NOV_1998 = Date.new(1998, 11, 11)
     GULF_WAR_RANGE = Date.new(1990, 8, 2)..NOV_1998
 
     SOUTHWEST_ASIA = %w(
@@ -44,8 +45,6 @@ module EMISRedis
       YEM
     )
 
-    NOV_1998 = Date.new(1998, 11, 11)
-
     def last_branch_of_service
       return if latest_service_episode.blank?
 
@@ -67,6 +66,13 @@ module EMISRedis
     end
 
     def sw_asia_combat
+      deployments.each do |deployment|
+        deployment.locations.each do |location|
+          return true if SOUTHWEST_ASIA.include?(location.iso_alpha3_country) && GULF_WAR_RANGE.overlaps?(location.date_range)
+        end
+      end
+
+      false
     end
 
     def last_entry_date

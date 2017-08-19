@@ -21,6 +21,36 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     end
   end
 
+  describe '#sw_asia_combat' do
+    context 'with a deployment in the gulf war' do
+      before do
+        expect(subject).to receive(:deployments).and_return([
+          EMIS::Models::Deployment.new(
+            locations: [
+              EMIS::Models::DeploymentLocation.new(
+                begin_date: Date.new(1991, 1, 1),
+                end_date: Date.new(1991, 1, 2),
+                iso_alpha3_country: 'IRQ'
+              )
+            ]
+          )
+        ])
+      end
+
+      it 'should return true' do
+        expect(subject.sw_asia_combat).to eq(true)
+      end
+    end
+
+    context 'without a deployment in the gulf war' do
+      it 'should return false' do
+        VCR.use_cassette('emis/get_deployment/valid') do
+          expect(subject.sw_asia_combat).to eq(false)
+        end
+      end
+    end
+  end
+
   describe '#post_nov111998_combat' do
     context 'with post nov 1998 combat' do
       it 'should return true' do
