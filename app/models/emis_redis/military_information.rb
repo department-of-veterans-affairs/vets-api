@@ -22,6 +22,8 @@ module EMISRedis
       'K' => 'dishonorable'
     }
 
+    GULF_WAR_RANGE = Date.new(1990, 8, 2)..NOV_1998
+
     SOUTHWEST_ASIA = %w(
       ARM
       AZE
@@ -32,6 +34,14 @@ module EMISRedis
       ISR
       JOR
       KWT
+      LBN
+      OMN
+      QAT
+      SAU
+      SYR
+      TUR
+      ARE
+      YEM
     )
 
     NOV_1998 = Date.new(1998, 11, 11)
