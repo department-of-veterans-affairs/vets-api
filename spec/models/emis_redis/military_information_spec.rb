@@ -21,7 +21,7 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     end
   end
 
-  describe '#sw_asia_combat' do
+  describe '#deployed_to?' do
     context 'with a deployment in the gulf war' do
       before do
         expect(subject).to receive(:deployments).and_return([
@@ -38,14 +38,14 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
       end
 
       it 'should return true' do
-        expect(subject.sw_asia_combat).to eq(true)
+        expect(subject.deployed_to?(['IRQ'], described_class::GULF_WAR_RANGE)).to eq(true)
       end
     end
 
     context 'without a deployment in the gulf war' do
       it 'should return false' do
         VCR.use_cassette('emis/get_deployment/valid') do
-          expect(subject.sw_asia_combat).to eq(false)
+          expect(subject.deployed_to?(described_class::SOUTHWEST_ASIA, described_class::GULF_WAR_RANGE)).to eq(false)
         end
       end
     end
