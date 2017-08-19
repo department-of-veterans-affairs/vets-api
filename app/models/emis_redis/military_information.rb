@@ -22,6 +22,8 @@ module EMISRedis
       'K' => 'dishonorable'
     }
 
+    NOV_1998 = Date.new(1998, 11, 11)
+
     def last_branch_of_service
       return if latest_service_episode.blank?
 
@@ -32,6 +34,14 @@ module EMISRedis
       return if latest_service_episode.blank?
 
       DISCHARGE_TYPES[latest_service_episode&.discharge_character_of_service_code] || 'other'
+    end
+
+    def post_nov111998_combat
+      deployments.each do |deployment|
+        return true if deployment.end_date > NOV_1998
+      end
+
+      false
     end
 
     def last_entry_date
@@ -46,6 +56,10 @@ module EMISRedis
       latest_service_episode&.end_date&.to_s
     end
 
+    def deployments
+      @deployments ||= emis_response('get_deployment')&.items || []
+    end
+
     def service_episodes_by_date
       @service_episodes_by_date ||= lambda do
         service_episodes = emis_response('get_military_service_episodes')&.items || []
@@ -53,11 +67,6 @@ module EMISRedis
           service_episode.end_date
         end.reverse
       end.call
-    end
-
-    def deployments
-
-      emis_response('get_deployment')
     end
   end
 end

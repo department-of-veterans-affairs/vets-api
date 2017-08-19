@@ -21,6 +21,28 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     end
   end
 
+  describe '#post_nov111998_combat' do
+    context 'with post nov 1998 combat' do
+      it 'should return true' do
+        VCR.use_cassette('emis/get_deployment/valid') do
+          expect(subject.post_nov111998_combat).to eq(true)
+        end
+      end
+    end
+
+    context 'with no post nov 1998 combat' do
+      before do
+        expect(subject).to receive(:deployments).and_return([
+          EMIS::Models::Deployment.new(end_date: Date.new(1998))
+        ])
+      end
+
+      it 'should return false' do
+        expect(subject.post_nov111998_combat).to eq(false)
+      end
+    end
+  end
+
   describe '#discharge_type' do
     it 'should return the discharge type from the latest service episode' do
       VCR.use_cassette('emis/get_military_service_episodes/valid') do
