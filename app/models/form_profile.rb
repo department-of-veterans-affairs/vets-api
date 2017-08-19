@@ -17,6 +17,7 @@ class FormMilitaryInformation
   attribute :last_entry_date, String
   attribute :last_discharge_date, String
   attribute :discharge_type, String
+  attribute :post_nov111998_combat, Boolean
 end
 
 class FormAddress
@@ -115,6 +116,7 @@ class FormProfile
       last_service_branch: military_information.last_branch_of_service,
       last_entry_date: military_information.last_entry_date,
       last_discharge_date: military_information.last_discharge_date,
+      post_nov111998_combat: military_information.post_nov111998_combat,
       discharge_type: military_information.discharge_type
     }
     FormMilitaryInformation.new(military_information_data)
