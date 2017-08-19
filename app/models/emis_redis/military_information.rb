@@ -22,6 +22,18 @@ module EMISRedis
       'K' => 'dishonorable'
     }
 
+    SOUTHWEST_ASIA = %w(
+      ARM
+      AZE
+      BHR
+      CYP
+      GEO
+      IRQ
+      ISR
+      JOR
+      KWT
+    )
+
     NOV_1998 = Date.new(1998, 11, 11)
 
     def last_branch_of_service
@@ -42,6 +54,9 @@ module EMISRedis
       end
 
       false
+    end
+
+    def sw_asia_combat
     end
 
     def last_entry_date
