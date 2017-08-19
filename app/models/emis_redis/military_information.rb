@@ -65,14 +65,18 @@ module EMISRedis
       false
     end
 
-    def sw_asia_combat
+    def deployed_to?(countries, date_range)
       deployments.each do |deployment|
         deployment.locations.each do |location|
-          return true if SOUTHWEST_ASIA.include?(location.iso_alpha3_country) && GULF_WAR_RANGE.overlaps?(location.date_range)
+          return true if countries.include?(location.iso_alpha3_country) && date_range.overlaps?(location.date_range)
         end
       end
 
       false
+    end
+
+    def sw_asia_combat
+      deployed_to?(SOUTHWEST_ASIA, GULF_WAR_RANGE)
     end
 
     def last_entry_date
