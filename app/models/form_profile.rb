@@ -21,6 +21,7 @@ class FormMilitaryInformation
   attribute :sw_asia_combat, Boolean
   attribute :compensable_va_service_connected, Boolean
   attribute :is_va_service_connected, Boolean
+  attribute :receives_va_pension, Boolean
 end
 
 class FormAddress
@@ -128,6 +129,10 @@ class FormProfile
     ).each do |attr|
       military_information_data[attr] = military_information.public_send(attr)
     end
+
+    military_information_data.merge!(
+      receives_va_pension: user.payment.receives_va_pension
+    )
 
     FormMilitaryInformation.new(military_information_data)
     # TODO use deployments
