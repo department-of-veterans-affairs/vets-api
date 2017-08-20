@@ -22,6 +22,8 @@ module EMISRedis
       'K' => 'dishonorable'
     }
 
+    LOWER_DISABILITY_RATINGS = [10, 20, 30, 40]
+
     NOV_1998 = Date.new(1998, 11, 11)
     GULF_WAR_RANGE = Date.new(1990, 8, 2)..NOV_1998
 
@@ -99,12 +101,24 @@ module EMISRedis
     end
 
     def deployments
-      @deployments ||= emis_response('get_deployment')&.items || []
+      @deployments ||= items_from_response('get_deployment')
+    end
+
+    def compensable_va_service_connected
+      disabilities.each do |disability|
+        return true if disability.pay_amount > 0 && LOWER_DISABILITY_RATINGS.include?(disability.disability_percent)
+      end
+
+      false
+    end
+
+    def disabilities
+      @disabilities ||= items_from_response('get_disabilities')
     end
 
     def service_episodes_by_date
       @service_episodes_by_date ||= lambda do
-        service_episodes = emis_response('get_military_service_episodes')&.items || []
+        service_episodes = items_from_response('get_military_service_episodes')
         service_episodes.sort_by do |service_episode|
           service_episode.end_date
         end.reverse

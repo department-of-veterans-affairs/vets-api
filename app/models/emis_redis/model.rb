@@ -20,6 +20,10 @@ module EMISRedis
 
     private
 
+    def items_from_response(method)
+      emis_response(method)&.items || []
+    end
+
     def emis_response(method)
       @emis_response ||= lambda do
         response = response_from_redis_or_service(method)

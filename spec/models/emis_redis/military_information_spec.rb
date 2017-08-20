@@ -21,6 +21,16 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     end
   end
 
+  describe '#compensable_va_service_connected' do
+    context 'with a disability with the right percent' do
+      it 'should return true' do
+        VCR.use_cassette('emis/get_disabilities/valid') do
+          expect(subject.compensable_va_service_connected).to eq(true)
+        end
+      end
+    end
+  end
+
   describe '#deployed_to?' do
     context 'with a deployment in the gulf war' do
       before do
