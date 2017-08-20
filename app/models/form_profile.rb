@@ -20,6 +20,7 @@ class FormMilitaryInformation
   attribute :post_nov111998_combat, Boolean
   attribute :sw_asia_combat, Boolean
   attribute :compensable_va_service_connected, Boolean
+  attribute :is_va_service_connected, Boolean
 end
 
 class FormAddress
@@ -119,6 +120,7 @@ class FormProfile
       last_service_branch
       last_entry_date
       last_discharge_date
+      is_va_service_connected
       post_nov111998_combat
       sw_asia_combat
       compensable_va_service_connected
