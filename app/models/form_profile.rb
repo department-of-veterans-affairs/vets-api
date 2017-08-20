@@ -19,6 +19,7 @@ class FormMilitaryInformation
   attribute :discharge_type, String
   attribute :post_nov111998_combat, Boolean
   attribute :sw_asia_combat, Boolean
+  attribute :compensable_va_service_connected, Boolean
 end
 
 class FormAddress
@@ -113,14 +114,19 @@ class FormProfile
   def initialize_military_information(user)
     military_information = user.military_information
     # TODO rescue here?
-    military_information_data = {
-      last_service_branch: military_information.last_branch_of_service,
-      last_entry_date: military_information.last_entry_date,
-      last_discharge_date: military_information.last_discharge_date,
-      post_nov111998_combat: military_information.post_nov111998_combat,
-      sw_asia_combat: military_information.sw_asia_combat,
-      discharge_type: military_information.discharge_type
-    }
+    military_information_data = {}
+    %i(
+      last_service_branch
+      last_entry_date
+      last_discharge_date
+      post_nov111998_combat
+      sw_asia_combat
+      compensable_va_service_connected
+      discharge_type
+    ).each do |attr|
+      military_information_data[attr] = military_information.public_send(attr)
+    end
+
     FormMilitaryInformation.new(military_information_data)
     # TODO use deployments
     # FormMilitaryInformation.new(

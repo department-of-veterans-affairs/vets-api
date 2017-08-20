@@ -30,6 +30,7 @@ RSpec.describe FormProfile, type: :model do
       'postNov111998Combat' => true,
       'gender' => user.gender,
       'homePhone' => user.va_profile[:home_phone].gsub(/[^\d]/, ''),
+      'compensableVaServiceConnected' => true,
       'veteranSocialSecurityNumber' => user.ssn
     }
   end
@@ -82,12 +83,13 @@ RSpec.describe FormProfile, type: :model do
     context 'with a healthcare application form', skip_emis: true do
       it 'returns the va profile mapped to the healthcare form' do
         military_information = user.military_information
-        expect(military_information).to receive(:last_branch_of_service).and_return('air force')
+        expect(military_information).to receive(:last_service_branch).and_return('air force')
         expect(military_information).to receive(:last_entry_date).and_return("2007-04-01")
         expect(military_information).to receive(:last_discharge_date).and_return("2007-04-02")
         expect(military_information).to receive(:discharge_type).and_return('honorable')
         expect(military_information).to receive(:post_nov111998_combat).and_return(true)
         expect(military_information).to receive(:sw_asia_combat).and_return(true)
+        expect(military_information).to receive(:compensable_va_service_connected).and_return(true)
 
         expect(Oj.load(described_class.for('1010ez').prefill(user).to_json)['form_data']).to eq(v1010ez_expected)
       end

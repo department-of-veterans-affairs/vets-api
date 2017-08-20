@@ -91,11 +91,11 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     end
   end
 
-  describe '#last_branch_of_service' do
+  describe '#last_service_branch' do
     context 'with service episodes' do
       it 'should return the last branch of service' do
         VCR.use_cassette('emis/get_military_service_episodes/valid') do
-          expect(subject.last_branch_of_service).to eq('air force')
+          expect(subject.last_service_branch).to eq('air force')
         end
       end
 
@@ -107,7 +107,7 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
         end
 
         it 'should return other' do
-          expect(subject.last_branch_of_service).to eq('other')
+          expect(subject.last_service_branch).to eq('other')
         end
       end
     end
@@ -118,7 +118,7 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
       end
       it 'should return nil' do
         VCR.use_cassette('emis/get_military_service_episodes/valid') do
-          expect(subject.last_branch_of_service).to eq(nil)
+          expect(subject.last_service_branch).to eq(nil)
         end
       end
     end

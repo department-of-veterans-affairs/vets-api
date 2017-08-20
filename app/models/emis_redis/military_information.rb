@@ -50,7 +50,7 @@ module EMISRedis
     VIETNAM = 'VNM'
     VIETNAM_WAR_RANGE = Date.new(1962, 1, 9)..Date.new(1975, 5, 7)
 
-    def last_branch_of_service
+    def last_service_branch
       return if latest_service_episode.blank?
 
       SERVICE_BRANCHES[latest_service_episode.branch_of_service_code] || 'other'
