@@ -61,6 +61,21 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     end
   end
 
+  describe '#is_va_service_connected' do
+    before do
+      expect(subject).to receive(:disabilities).and_return([
+        EMIS::Models::Disability.new(
+          disability_percent: 50,
+          pay_amount: 1
+        )
+      ])
+    end
+
+    it 'should return true if there is a disability with the right percent and amount' do
+      expect(subject.is_va_service_connected).to eq(true)
+    end
+  end
+
   describe '#post_nov111998_combat' do
     context 'with post nov 1998 combat' do
       it 'should return true' do

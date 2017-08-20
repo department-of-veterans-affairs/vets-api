@@ -23,6 +23,7 @@ module EMISRedis
     }
 
     LOWER_DISABILITY_RATINGS = [10, 20, 30, 40]
+    HIGHER_DISABILITY_RATING = 50
 
     NOV_1998 = Date.new(1998, 11, 11)
     GULF_WAR_RANGE = Date.new(1990, 8, 2)..NOV_1998
@@ -107,6 +108,14 @@ module EMISRedis
     def compensable_va_service_connected
       disabilities.each do |disability|
         return true if disability.pay_amount > 0 && LOWER_DISABILITY_RATINGS.include?(disability.disability_percent)
+      end
+
+      false
+    end
+
+    def is_va_service_connected
+      disabilities.each do |disability|
+        return true if disability.pay_amount > 0 && disability.disability_percent >= HIGHER_DISABILITY_RATING
       end
 
       false
