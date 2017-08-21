@@ -31,7 +31,7 @@ module EMISRedis
       sw_asia_combat
       compensable_va_service_connected
       discharge_type
-    )
+    ).freeze
 
     LOWER_DISABILITY_RATINGS = [10, 20, 30, 40].freeze
     HIGHER_DISABILITY_RATING = 50
@@ -118,12 +118,15 @@ module EMISRedis
 
     def compensable_va_service_connected
       disabilities.each do |disability|
-        return true if disability.pay_amount.positive? && LOWER_DISABILITY_RATINGS.include?(disability.disability_percent)
+        return true if disability.pay_amount.positive? &&
+                       LOWER_DISABILITY_RATINGS.include?(disability.disability_percent)
       end
 
       false
     end
 
+    # don't want to change this method name, it matches the attribute in the json schema
+    # rubocop:disable Style/PredicateName
     def is_va_service_connected
       disabilities.each do |disability|
         return true if disability.pay_amount.positive? && disability.disability_percent >= HIGHER_DISABILITY_RATING
@@ -131,6 +134,7 @@ module EMISRedis
 
       false
     end
+    # rubocop:enable Style/PredicateName
 
     def disabilities
       @disabilities ||= items_from_response('get_disabilities')
