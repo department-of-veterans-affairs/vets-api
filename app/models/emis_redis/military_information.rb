@@ -22,6 +22,17 @@ module EMISRedis
       'K' => 'dishonorable'
     }.freeze
 
+    HCA_METHODS = %i(
+      last_service_branch
+      last_entry_date
+      last_discharge_date
+      is_va_service_connected
+      post_nov111998_combat
+      sw_asia_combat
+      compensable_va_service_connected
+      discharge_type
+    )
+
     LOWER_DISABILITY_RATINGS = [10, 20, 30, 40].freeze
     HIGHER_DISABILITY_RATING = 50
 

@@ -120,16 +120,7 @@ class FormProfile
     military_information_data = {}
 
     begin
-      %i(
-        last_service_branch
-        last_entry_date
-        last_discharge_date
-        is_va_service_connected
-        post_nov111998_combat
-        sw_asia_combat
-        compensable_va_service_connected
-        discharge_type
-      ).each do |attr|
+      EMISRedis::MilitaryInformation::HCA_METHODS.each do |attr|
         military_information_data[attr] = military_information.public_send(attr)
       end
 
