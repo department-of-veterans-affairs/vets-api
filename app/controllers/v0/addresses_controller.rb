@@ -8,7 +8,7 @@ module V0
     end
 
     def update
-      address = EVSS::PCIUAddress::Address.build_address(Oj.load(request.body.string))
+      address = EVSS::PCIUAddress::Address.build_address(params)
       raise Common::Exceptions::ValidationErrors, address unless address.valid?
       response = service.update_address(@current_user, address)
       render json: response,
