@@ -1,0 +1,7 @@
+development:
+  hook_into: webmock
+  cassette_library_dir: spec/support/vcr_cassettes/development_cassettes
+  enable_erb: false
+  allow_playback_repeats: false
+  allow_http_connections_when_no_cassette: true
+  enable_vcr_cable: false
