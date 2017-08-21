@@ -3,7 +3,7 @@ FactoryGirl.define do
   factory :mvi_profile_address, class: 'MVI::Models::MviProfileAddress' do
     street { Faker::Address.street_address }
     city { Faker::Address.city }
-    state { Faker::Address.state }
+    state { Faker::Address.state_abbr }
     postal_code { Faker::Address.zip }
     country 'USA'
 
