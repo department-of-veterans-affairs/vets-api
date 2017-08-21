@@ -844,7 +844,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
                 'country_name' => 'USA',
                 'zip_code' => '97477',
                 'zip_suffix' => ''
-              }.to_json
+              }
             )
           )
         end

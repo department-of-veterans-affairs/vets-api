@@ -23,7 +23,7 @@ module EVSS
       attribute :country_name, String
 
       validates :address_one, presence: true
-      validates :type, inclusion: { in: ADDRESS_TYPES }
+      validates :type, inclusion: { in: ADDRESS_TYPES.values }
 
       def self.build_address(attrs)
         case attrs['type']
