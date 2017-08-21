@@ -34,17 +34,19 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
   describe '#deployed_to?' do
     context 'with a deployment in the gulf war' do
       before do
-        expect(subject).to receive(:deployments).and_return([
-          EMIS::Models::Deployment.new(
-            locations: [
-              EMIS::Models::DeploymentLocation.new(
-                begin_date: Date.new(1991, 1, 1),
-                end_date: Date.new(1991, 1, 2),
-                iso_alpha3_country: 'IRQ'
-              )
-            ]
-          )
-        ])
+        expect(subject).to receive(:deployments).and_return(
+          [
+            EMIS::Models::Deployment.new(
+              locations: [
+                EMIS::Models::DeploymentLocation.new(
+                  begin_date: Date.new(1991, 1, 1),
+                  end_date: Date.new(1991, 1, 2),
+                  iso_alpha3_country: 'IRQ'
+                )
+              ]
+            )
+          ]
+        )
       end
 
       it 'should return true' do
@@ -63,12 +65,14 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
 
   describe '#is_va_service_connected' do
     before do
-      expect(subject).to receive(:disabilities).and_return([
-        EMIS::Models::Disability.new(
-          disability_percent: 50,
-          pay_amount: 1
-        )
-      ])
+      expect(subject).to receive(:disabilities).and_return(
+        [
+          EMIS::Models::Disability.new(
+            disability_percent: 50,
+            pay_amount: 1
+          )
+        ]
+      )
     end
 
     it 'should return true if there is a disability with the right percent and amount' do
@@ -87,9 +91,11 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
 
     context 'with no post nov 1998 combat' do
       before do
-        expect(subject).to receive(:deployments).and_return([
-          EMIS::Models::Deployment.new(end_date: Date.new(1998))
-        ])
+        expect(subject).to receive(:deployments).and_return(
+          [
+            EMIS::Models::Deployment.new(end_date: Date.new(1998))
+          ]
+        )
       end
 
       it 'should return false' do
@@ -116,9 +122,11 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
 
       context 'with a code not in the list' do
         before do
-          allow(subject).to receive(:service_episodes_by_date).and_return([
-            EMIS::Models::MilitaryServiceEpisode.new(branch_of_service_code: 'foo')
-          ])
+          allow(subject).to receive(:service_episodes_by_date).and_return(
+            [
+              EMIS::Models::MilitaryServiceEpisode.new(branch_of_service_code: 'foo')
+            ]
+          )
         end
 
         it 'should return other' do
@@ -154,11 +162,13 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
       )
       expect(subject).to receive(:emis_response).once.with('get_military_service_episodes').and_return(episodes)
 
-      expect(subject.service_episodes_by_date).to eq([
-        episode1,
-        episode2,
-        episode3
-      ])
+      expect(subject.service_episodes_by_date).to eq(
+        [
+          episode1,
+          episode2,
+          episode3
+        ]
+      )
     end
   end
 end
