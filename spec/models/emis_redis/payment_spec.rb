@@ -11,5 +11,11 @@ describe EMISRedis::Payment, skip_emis: true do
         expect(subject.receives_va_pension).to eq(true)
       end
     end
+
+    it 'should return false if they dont get retirement pay' do
+      expect(subject).to receive(:items_from_response).with('get_retirement_pay').and_return([])
+
+      expect(subject.receives_va_pension).to eq(false)
+    end
   end
 end
