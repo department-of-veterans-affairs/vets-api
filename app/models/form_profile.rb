@@ -53,6 +53,8 @@ class FormContactInformation
 end
 
 class FormProfile
+  include SentryLogging
+
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
   attr_accessor :form_id
   include Virtus.model
@@ -115,30 +117,31 @@ class FormProfile
 
   def initialize_military_information(user)
     military_information = user.military_information
-    # TODO rescue here?
-    military_information_data = {}
-    %i(
-      last_service_branch
-      last_entry_date
-      last_discharge_date
-      is_va_service_connected
-      post_nov111998_combat
-      sw_asia_combat
-      compensable_va_service_connected
-      discharge_type
-    ).each do |attr|
-      military_information_data[attr] = military_information.public_send(attr)
+
+    begin
+      military_information_data = {}
+      %i(
+        last_service_branch
+        last_entry_date
+        last_discharge_date
+        is_va_service_connected
+        post_nov111998_combat
+        sw_asia_combat
+        compensable_va_service_connected
+        discharge_type
+      ).each do |attr|
+        military_information_data[attr] = military_information.public_send(attr)
+      end
+
+      military_information_data.merge!(
+        receives_va_pension: user.payment.receives_va_pension
+      )
+    rescue => e
+      # fail silently if emis is down
+      log_exception_to_sentry(e, {}, backend_service: :emis)
     end
 
-    military_information_data.merge!(
-      receives_va_pension: user.payment.receives_va_pension
-    )
-
     FormMilitaryInformation.new(military_information_data)
-    # TODO use deployments
-    # FormMilitaryInformation.new(
-    #   post_nov_1998_combat: user.veteran_status.post911_combat_indicator?
-    # )
   end
 
   def initialize_identity_information(user)
