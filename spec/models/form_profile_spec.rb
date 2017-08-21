@@ -82,6 +82,17 @@ RSpec.describe FormProfile, type: :model do
   end
 
   describe '#prefill_form' do
+    context 'when emis is down', skip_emis: true do
+      it 'should log the error to sentry' do
+        error = RuntimeError.new('foo')
+        expect(user.military_information).to receive(:last_service_branch).and_return('air force').and_raise(error)
+
+        form_profile = described_class.for('1010ez')
+        expect(form_profile).to receive(:log_exception_to_sentry).with(error, {}, backend_service: :emis)
+        form_profile.prefill(user)
+      end
+    end
+
     context 'with a healthcare application form', skip_emis: true do
       it 'returns the va profile mapped to the healthcare form' do
         military_information = user.military_information
