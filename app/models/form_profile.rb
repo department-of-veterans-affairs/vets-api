@@ -117,9 +117,9 @@ class FormProfile
 
   def initialize_military_information(user)
     military_information = user.military_information
+    military_information_data = {}
 
     begin
-      military_information_data = {}
       %i(
         last_service_branch
         last_entry_date
