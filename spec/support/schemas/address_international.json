@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "properties": {
+    "address_effective_date": {
+      "type": "string"
+    },
+    "address_one": {
+      "type": "string"
+    },
+    "address_three": {
+      "type": "string"
+    },
+    "address_two": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "country_name": {
+      "type": "string"
+    },
+    "foreign_code": {
+      "type": "string"
+    }
+  },
+  "type": "object"
+}

@@ -77,7 +77,9 @@ RSpec.describe 'Fetching user data', type: :request do
           BackendServices::FACILITIES,
           BackendServices::HCA,
           BackendServices::EDUCATION_BENEFITS,
-          BackendServices::USER_PROFILE
+          BackendServices::USER_PROFILE,
+          BackendServices::SAVE_IN_PROGRESS,
+          BackendServices::FORM_PREFILL
         ].sort
       )
     end
