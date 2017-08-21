@@ -8,7 +8,7 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
   describe '#last_entry_date' do
     it 'should return the begin date from the latest service episode' do
       VCR.use_cassette('emis/get_military_service_episodes/valid') do
-        expect(subject.last_entry_date).to eq("2007-04-01")
+        expect(subject.last_entry_date).to eq('2007-04-01')
       end
     end
   end
@@ -16,7 +16,7 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
   describe '#last_discharge_date' do
     it 'should return the end date from the latest service episode' do
       VCR.use_cassette('emis/get_military_service_episodes/valid') do
-        expect(subject.last_discharge_date).to eq("2016-06-01")
+        expect(subject.last_discharge_date).to eq('2016-06-01')
       end
     end
   end

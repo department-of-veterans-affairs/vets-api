@@ -4,14 +4,14 @@ module EMISRedis
     CLASS_NAME = 'MilitaryInformationService'
 
     SERVICE_BRANCHES = {
-      'F' => "air force",
+      'F' => 'air force',
       'A' => 'army',
       'C' => 'coast guard',
-      'M' => "marine corps",
+      'M' => 'marine corps',
       'N' => 'navy',
       'O' => 'noaa',
       'H' => 'usphs'
-    }
+    }.freeze
 
     DISCHARGE_TYPES = {
       'A' => 'honorable',
@@ -20,9 +20,9 @@ module EMISRedis
       'F' => 'dishonorable',
       'J' => 'honorable',
       'K' => 'dishonorable'
-    }
+    }.freeze
 
-    LOWER_DISABILITY_RATINGS = [10, 20, 30, 40]
+    LOWER_DISABILITY_RATINGS = [10, 20, 30, 40].freeze
     HIGHER_DISABILITY_RATING = 50
 
     NOV_1998 = Date.new(1998, 11, 11)
@@ -46,7 +46,7 @@ module EMISRedis
       TUR
       ARE
       YEM
-    )
+    ).freeze
 
     VIETNAM = 'VNM'
     VIETNAM_WAR_RANGE = Date.new(1962, 1, 9)..Date.new(1975, 5, 7)
@@ -107,7 +107,7 @@ module EMISRedis
 
     def compensable_va_service_connected
       disabilities.each do |disability|
-        return true if disability.pay_amount > 0 && LOWER_DISABILITY_RATINGS.include?(disability.disability_percent)
+        return true if disability.pay_amount.positive? && LOWER_DISABILITY_RATINGS.include?(disability.disability_percent)
       end
 
       false
@@ -115,7 +115,7 @@ module EMISRedis
 
     def is_va_service_connected
       disabilities.each do |disability|
-        return true if disability.pay_amount > 0 && disability.disability_percent >= HIGHER_DISABILITY_RATING
+        return true if disability.pay_amount.positive? && disability.disability_percent >= HIGHER_DISABILITY_RATING
       end
 
       false
@@ -128,11 +128,8 @@ module EMISRedis
     def service_episodes_by_date
       @service_episodes_by_date ||= lambda do
         service_episodes = items_from_response('get_military_service_episodes')
-        service_episodes.sort_by do |service_episode|
-          service_episode.end_date
-        end.reverse
+        service_episodes.sort_by(&:end_date).reverse
       end.call
     end
   end
 end
-

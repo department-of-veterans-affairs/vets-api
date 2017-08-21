@@ -13,7 +13,7 @@ module EMISRedis
     def self.for_user(user)
       redis_config_key(:emis_response)
 
-      emis_model = self.new
+      emis_model = new
       emis_model.user = user
       emis_model
     end
@@ -56,5 +56,4 @@ module EMISRedis
     class RecordNotFound < StandardError
     end
   end
-
 end

@@ -24,8 +24,8 @@ RSpec.describe FormProfile, type: :model do
       },
       'swAsiaCombat' => true,
       'lastServiceBranch' => 'air force',
-      'lastEntryDate' => "2007-04-01",
-      'lastDischargeDate' => "2007-04-02",
+      'lastEntryDate' => '2007-04-01',
+      'lastDischargeDate' => '2007-04-02',
       'dischargeType' => 'honorable',
       'isVaServiceConnected' => true,
       'postNov111998Combat' => true,
@@ -97,8 +97,8 @@ RSpec.describe FormProfile, type: :model do
       it 'returns the va profile mapped to the healthcare form' do
         military_information = user.military_information
         expect(military_information).to receive(:last_service_branch).and_return('air force')
-        expect(military_information).to receive(:last_entry_date).and_return("2007-04-01")
-        expect(military_information).to receive(:last_discharge_date).and_return("2007-04-02")
+        expect(military_information).to receive(:last_entry_date).and_return('2007-04-01')
+        expect(military_information).to receive(:last_discharge_date).and_return('2007-04-02')
         expect(military_information).to receive(:discharge_type).and_return('honorable')
         expect(military_information).to receive(:post_nov111998_combat).and_return(true)
         expect(military_information).to receive(:sw_asia_combat).and_return(true)

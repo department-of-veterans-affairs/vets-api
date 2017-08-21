@@ -5,11 +5,10 @@ module EMISRedis
 
     def receives_va_pension
       items_from_response('get_retirement_pay').each do |retirement_pay|
-        return true if retirement_pay.monthly_gross_amount > 0
+        return true if retirement_pay.monthly_gross_amount.positive?
       end
 
       false
     end
   end
 end
-
