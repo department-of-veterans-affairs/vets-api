@@ -835,16 +835,16 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             auth_options.update(
               '_data' => {
                 'type' => 'DOMESTIC',
-                'addressEffectiveDate' => '2017-08-07T19:43:59.383Z',
-                'addressOne' => '225 5th St',
-                'addressTwo' => '',
-                'addressThree' => '',
+                'address_effective_date' => '2017-08-07T19:43:59.383Z',
+                'address_one' => '225 5th St',
+                'address_two' => '',
+                'address_three' => '',
                 'city' => 'Springfield',
-                'stateCode' => 'OR',
-                'countryName' => 'USA',
-                'zipCode' => '97477',
-                'zipSuffix' => ''
-              }.to_json
+                'state_code' => 'OR',
+                'country_name' => 'USA',
+                'zip_code' => '97477',
+                'zip_suffix' => ''
+              }
             )
           )
         end
