@@ -5,7 +5,8 @@ describe DataMigrations::EducationProgram do
   describe '#migrate' do
     let!(:claim1) { create(:education_benefits_claim) }
     let!(:claim2) do
-      create(:education_benefits_claim_with_custom_form,
+      create(
+        :education_benefits_claim_with_custom_form,
         custom_form: {
           educationProgram: {
             name: 'foo'
@@ -24,7 +25,7 @@ describe DataMigrations::EducationProgram do
       education_program = parsed_form['educationProgram']
       expect(education_program['name']).to eq('FakeData University')
       expect(education_program['address']).to eq(
-        {"country"=>"USA", "state"=>"MD", "postalCode"=>"21231", "street"=>"111 Uni Drive", "city"=>"Baltimore"}
+        'country' => 'USA', 'state' => 'MD', 'postalCode' => '21231', 'street' => '111 Uni Drive', 'city' => 'Baltimore'
       )
       expect(education_program['educationType']).to eq('college')
       expect(parsed_form['school']).to eq(nil)
