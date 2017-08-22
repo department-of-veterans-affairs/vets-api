@@ -11,11 +11,13 @@ namespace :edu do
   desc 'Convert Education benefits claims to use educationProgram'
   task education_program: :environment do
     EducationBenefitsClaim.find_each do |education_benefits_claim|
+      # TODO only 1990s
       parsed_form = education_benefits_claim.parsed_form
-      next if parsed_form['educationProgram'].present?
 
-      parsed_form['educationProgram'] = parsed_form['school'] || {}
-      parsed_form['educationProgram']['educationType'] = parsed_form['educationType']
+      if parsed_form['educationProgram'].blank?
+        parsed_form['educationProgram'] = parsed_form['school'] || {}
+        parsed_form['educationProgram']['educationType'] = parsed_form['educationType']
+      end
 
       parsed_form.delete('school')
       parsed_form.delete('educationType')
