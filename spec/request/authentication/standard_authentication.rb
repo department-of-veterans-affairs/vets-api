@@ -4,15 +4,12 @@ require 'rails_helper'
 # Note these specs MUST be run in order
 RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
   OUTBOUND_CASSETTE = 'integration/saml_loa3_user/outbound'
-  Episode = Struct.new(:method, :uri, :body, :headers, :recorded_at, :response) do
-    def saml_request_id
-      query = Rack::Utils.parse_nested_query(uri.query) || Rack::Utils.parse_nested_query(body['string'])
-      saml_request = query['']
-    end
-  end
+  Episode = Struct.new(:method, :uri, :body, :headers, :recorded_at, :response)
 
   EPISODES = begin
-    file_path = Settings.integration_recorder.base_cassette_dir + '/' + Settings.integration_recorder.inbound_cassette_dir + '.yml'
+    base = "#{Settings.integration_recorder.base_cassette_dir}/"
+    inbound = "#{Settings.integration_recorder.inbound_cassette_dir}.yml"
+    file_path = base + inbound
     YAML.load(File.read(file_path))['http_interactions'].map do |interaction|
       req = interaction['request']
       req['uri'] = URI.parse(req['uri'])
@@ -23,8 +20,9 @@ RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
   end
 
   VCR.use_cassette(OUTBOUND_CASSETTE, record: :none, match_requests_on: %i(headers)) do
-    EPISODES.each_with_index do |episode, index|
-      it "#{(index + 1).ordinalize} responds to #{episode.method} #{episode.uri.path}" do
+    it 'does the tests', :aggregate_failures do
+      EPISODES.each_with_index do |episode, _index|
+        # it "#{(index + 1).ordinalize} responds to #{episode.method} #{episode.uri.path}" do
         # Stubbing the session token to return whats provided in the recorded Authorization Headers
         allow_any_instance_of(Session)
           .to receive(:secure_random_token).and_return('1BNxPrdS1uRxF23dsKsxxyhD73Vg3exZpjox-ekf')
@@ -38,6 +36,7 @@ RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
         make_request(episode)
         expect(response.status).to eq(episode.response['status']['code'])
         expect(response.body).to eq(episode.response['body']['string'])
+        # end
       end
     end
   end
@@ -48,16 +47,12 @@ RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
 
   private
 
-  def create_user_session
-
-  end
-
   def make_request(episode)
     params = if episode.method == 'post'
-      Rack::Utils.parse_nested_query(episode.body['string'])
-    else
-      Rack::Utils.parse_nested_query(episode.uri.query)
-    end
+               Rack::Utils.parse_nested_query(episode.body['string'])
+             else
+               Rack::Utils.parse_nested_query(episode.uri.query)
+             end
     send(episode.method, episode.uri.path, params, episode.headers)
   end
 end
