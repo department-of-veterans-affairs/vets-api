@@ -275,6 +275,8 @@ GEM
       rack
     rack-test (0.6.3)
       rack (>= 1.0)
+    rack-vcr (0.1.5)
+      vcr (>= 2.9)
     rails (4.2.7.1)
       actionmailer (= 4.2.7.1)
       actionpack (= 4.2.7.1)
@@ -404,6 +406,10 @@ GEM
     simplecov-html (0.10.0)
     slop (3.6.0)
     socksify (1.7.0)
+    spring (2.0.2)
+      activesupport (>= 4.2)
+    spring-commands-rspec (1.0.4)
+      spring (>= 0.9.1)
     sprockets (3.7.1)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
@@ -503,6 +509,7 @@ DEPENDENCIES
   pry-nav
   puma (~> 2.16.0)
   rack-cors
+  rack-vcr
   rails (= 4.2.7.1)
   rails-api
   rainbow
@@ -525,6 +532,8 @@ DEPENDENCIES
   sidekiq-scheduler (~> 2.0)
   sidekiq-unique-jobs
   simplecov
+  spring
+  spring-commands-rspec
   statsd-instrument
   swagger-blocks
   timecop

@@ -97,6 +97,7 @@ group :development, :test do
   # assists in debugging
   gem 'faraday_curl'
   gem 'vcr_cable'
+  gem 'rack-vcr'
   gem 'webmock'
 end
 
@@ -121,8 +122,8 @@ group :development do
   gem 'web-console', '~> 2.0', platforms: :ruby
 
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
-  #gem 'spring', platforms: :ruby
-  #gem 'spring-commands-rspec'
+  gem 'spring', platforms: :ruby
+  gem 'spring-commands-rspec'
 
   # Include the IANA Time Zone Database on Windows, where Windows doens't ship with a timezone database.
   # POSIX systems should have this already, so we're not going to bring it in on other platforms
