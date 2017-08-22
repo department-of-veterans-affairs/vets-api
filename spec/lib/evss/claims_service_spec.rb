@@ -9,7 +9,9 @@ describe EVSS::ClaimsService do
     EVSS::AuthHeaders.new(current_user).to_h
   end
 
-  subject { described_class.new(auth_headers) }
+  let(:claims_service) { described_class.new(auth_headers) }
+
+  subject { claims_service }
 
   context 'with headers' do
     let(:evss_id) { 189_625 }
