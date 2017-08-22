@@ -3,7 +3,10 @@ require 'common/models/base'
 
 module EVSS
   module PCIUAddress
-    class ControlInformation < Common::Base
+    class ControlInformation
+      include ActiveModel::Serialization
+      include Virtus.model(nullify_blank: true)
+
       attribute :corp_avail_indicator, Boolean
       attribute :corp_rec_found_indicator, Boolean
       attribute :has_no_bdn_payments_indicator, Boolean
