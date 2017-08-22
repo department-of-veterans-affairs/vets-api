@@ -7,4 +7,21 @@ namespace :edu do
     app = EducationBenefitsClaim.find(id)
     puts EducationForm::Forms::Base.build(app).text
   end
+
+  desc 'Convert Education benefits claims to use educationProgram'
+  task education_program: :environment do
+    EducationBenefitsClaim.find_each do |education_benefits_claim|
+      parsed_form = education_benefits_claim.parsed_form
+      next if parsed_form['educationProgram'].present?
+
+      parsed_form['educationProgram'] = parsed_form['school'] || {}
+      parsed_form['educationProgram']['educationType'] = parsed_form['educationType']
+
+      parsed_form.delete('school')
+      parsed_form.delete('educationType')
+      education_benefits_claim.instance_variable_set(:@parsed_form, nil)
+
+      education_benefits_claim.update_attributes!(form: parsed_form.to_json)
+    end
+  end
 end
