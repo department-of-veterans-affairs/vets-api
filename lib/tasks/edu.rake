@@ -10,8 +10,7 @@ namespace :edu do
 
   desc 'Convert Education benefits claims to use educationProgram'
   task education_program: :environment do
-    EducationBenefitsClaim.find_each do |education_benefits_claim|
-      # TODO only 1990s
+    EducationBenefitsClaim.where(form_type: '1990').find_each do |education_benefits_claim|
       parsed_form = education_benefits_claim.parsed_form
 
       if parsed_form['educationProgram'].blank?
