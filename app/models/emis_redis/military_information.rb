@@ -64,8 +64,7 @@ module EMISRedis
 
     def last_service_branch
       return if latest_service_episode.blank?
-
-      SERVICE_BRANCHES[latest_service_episode.branch_of_service_code] || 'other'
+      latest_service_episode.hca_branch_of_service
     end
 
     def discharge_type

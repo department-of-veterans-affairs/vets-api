@@ -16,6 +16,16 @@ module EMIS
         'O' => 'NOAA'
       }.freeze
 
+      HCA_SERVICE_BRANCHES = {
+        'F' => 'air force',
+        'A' => 'army',
+        'C' => 'coast guard',
+        'M' => 'marine corps',
+        'N' => 'navy',
+        'O' => 'noaa',
+        'H' => 'usphs'
+      }.freeze
+
       attribute :begin_date, Date
       attribute :end_date, Date
       attribute :termination_reason, String
@@ -39,6 +49,10 @@ module EMIS
       attribute :mgsr_service_agreement_duration_year_quantity_code, String
       attribute :dod_beneficiary_type_code, String
       attribute :reserve_under_age60_code, String
+
+      def hca_branch_of_service
+        HCA_SERVICE_BRANCHES[branch_of_service_code] || 'other'
+      end
 
       def branch_of_service
         # TODO spec
