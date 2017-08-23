@@ -6,13 +6,14 @@ module EMIS
       include Virtus.model
 
       SERVICE_BRANCHES = {
-        'F' => 'air force',
-        'A' => 'army',
-        'C' => 'coast guard',
-        'M' => 'marine corps',
-        'N' => 'navy',
-        'O' => 'noaa',
-        'H' => 'usphs'
+        'A' => 'Army',
+        'C' => 'Coast Guard',
+        'D' => 'DoD',
+        'F' => 'Air Force',
+        'H' => 'PUblic Health Service',
+        'M' => 'Marine Corps',
+        'N' => 'Navy',
+        'O' => 'NOAA'
       }.freeze
 
       attribute :begin_date, Date
@@ -40,7 +41,6 @@ module EMIS
       attribute :reserve_under_age60_code, String
 
       def branch_of_service
-        # TODO add all service branches
         SERVICE_BRANCHES[branch_of_service_code]
       end
     end
