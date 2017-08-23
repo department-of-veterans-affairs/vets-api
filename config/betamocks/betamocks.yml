@@ -3,8 +3,10 @@
 :services:
 - :id: 'EVSS'
   :base_urls:
-  - csraciapp6.evss.srarad.com/wss-pciu-services-web/rest/pciuServices/v1
+  - csraciapp6.evss.srarad.com
   :endpoints:
-  - '/countries'
-  - '/states'
-  - '/mailingAddress'
+  - :method: :get
+    :path: "/wss-pciu-services-web/rest/pciuServices/v1/states"
+  :endpoints:
+  - :method: :get
+    :path: "/wss-pciu-services-web/rest/pciuServices/v1/countries"
