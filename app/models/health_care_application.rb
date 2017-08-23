@@ -7,7 +7,7 @@ class HealthCareApplication < ActiveRecord::Base
     state == 'success'
   end
 
-  def set_result!(result)
+  def set_result_on_success!(result)
     self.state = 'success'
     # this is a string because it overflowed the postgres integer limit in one of the tests
     self.form_submission_id_string = result[:formSubmissionId].to_s

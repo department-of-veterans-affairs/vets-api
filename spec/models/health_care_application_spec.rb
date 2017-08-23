@@ -33,7 +33,7 @@ RSpec.describe HealthCareApplication, type: :model do
     end
   end
 
-  describe '#set_result' do
+  describe '#set_result_on_success!' do
     let(:result) do
       {
         formSubmissionId: 123,
@@ -43,7 +43,7 @@ RSpec.describe HealthCareApplication, type: :model do
 
     it 'should set the right fields and save the application' do
       health_care_application = build(:health_care_application)
-      health_care_application.set_result!(result)
+      health_care_application.set_result_on_success!(result)
 
       expect(health_care_application.id.present?).to eq(true)
       expect(health_care_application.success?).to eq(true)

@@ -21,7 +21,7 @@ module HCA
 
       Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
 
-      health_care_application.set_result!(result)
+      health_care_application.set_result_on_success!(result)
     end
   end
 end
