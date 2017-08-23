@@ -28,13 +28,9 @@ describe DataMigrations::EducationProgram do
         'country' => 'USA', 'state' => 'MD', 'postalCode' => '21231', 'street' => '111 Uni Drive', 'city' => 'Baltimore'
       )
       expect(education_program['educationType']).to eq('college')
-      expect(parsed_form['school']).to eq(nil)
-      expect(parsed_form['educationType']).to eq(nil)
 
       parsed_form = claim2.reload.parsed_form
       expect(parsed_form['educationProgram']['name']).to eq('foo')
-      expect(parsed_form['school']).to eq(nil)
-      expect(parsed_form['educationType']).to eq(nil)
     end
   end
 end
