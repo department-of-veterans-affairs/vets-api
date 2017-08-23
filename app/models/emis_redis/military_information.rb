@@ -62,6 +62,14 @@ module EMISRedis
     VIETNAM = 'VNM'
     VIETNAM_WAR_RANGE = Date.new(1962, 1, 9)..Date.new(1975, 5, 7)
 
+    def tours_of_duty
+      military_service_episodes.map do |military_service_episode|
+        {
+          service_branch: military_service_episode.branch_of_service
+        }
+      end
+    end
+
     def last_service_branch
       return if latest_service_episode.blank?
       latest_service_episode.hca_branch_of_service
@@ -139,10 +147,13 @@ module EMISRedis
       @disabilities ||= items_from_response('get_disabilities')
     end
 
+    def military_service_episodes
+      @military_service_episodes ||= items_from_response('get_military_service_episodes')
+    end
+
     def service_episodes_by_date
       @service_episodes_by_date ||= lambda do
-        service_episodes = items_from_response('get_military_service_episodes')
-        service_episodes.sort_by(&:end_date).reverse
+        military_service_episodes.sort_by(&:end_date).reverse
       end.call
     end
   end
