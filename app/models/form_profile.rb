@@ -68,6 +68,8 @@ class FormProfile
     case form
     when '1010EZ'
       ::FormProfile::VA1010ez
+    when '22-1990'
+      ::FormProfile::VA1990
     when '21P-530'
       ::FormProfile::VA21p530
     when '21P-527EZ'
