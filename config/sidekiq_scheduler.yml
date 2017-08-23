@@ -11,6 +11,10 @@ EducationForm::CreateDailyYearToDateReport:
   cron: "0 4 * * * America/New_York"
   description: "Send the daily report to VA stakeholders about Education Benefits submissions"
 
+EducationForm::CreateSpoolSubmissionsReport:
+  cron: "15 4 * * * America/New_York"
+  description: "Send the daily report to the call center about spool file submissions"
+
 DeleteOldApplications:
   cron: "0 0 * * * America/New_York"
   class: EducationForm::DeleteOldApplications
