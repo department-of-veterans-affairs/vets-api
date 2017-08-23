@@ -13,6 +13,16 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     end
   end
 
+  describe '#tours_of_duty' do
+    it 'should get the tours of duty' do
+      VCR.use_cassette('emis/get_military_service_episodes/valid') do
+        expect(subject.tours_of_duty).to eq(
+          [{:service_branch=>"Air Force", :date_range=>{:from=>"2007-04-01", :to=>"2016-06-01"}}]
+        )
+      end
+    end
+  end
+
   describe '#last_discharge_date' do
     it 'should return the end date from the latest service episode' do
       VCR.use_cassette('emis/get_military_service_episodes/valid') do

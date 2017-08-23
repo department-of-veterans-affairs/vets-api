@@ -65,7 +65,11 @@ module EMISRedis
     def tours_of_duty
       military_service_episodes.map do |military_service_episode|
         {
-          service_branch: military_service_episode.branch_of_service
+          service_branch: military_service_episode.branch_of_service,
+          date_range: {
+            from: military_service_episode.begin_date.to_s,
+            to: military_service_episode.end_date.to_s
+          }
         }
       end
     end
