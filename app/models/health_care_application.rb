@@ -8,12 +8,12 @@ class HealthCareApplication < ActiveRecord::Base
   end
 
   def set_result_on_success!(result)
-    self.state = 'success'
-    # this is a string because it overflowed the postgres integer limit in one of the tests
-    self.form_submission_id_string = result[:formSubmissionId].to_s
-    self.timestamp = result[:timestamp]
-
-    save!
+    update_attributes!(
+      state: 'success',
+      # this is a string because it overflowed the postgres integer limit in one of the tests
+      form_submission_id_string: result[:formSubmissionId].to_s,
+      timestamp: result[:timestamp]
+    )
   end
 
   def form_submission_id
