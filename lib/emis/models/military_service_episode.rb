@@ -10,7 +10,7 @@ module EMIS
         'C' => 'Coast Guard',
         'D' => 'DoD',
         'F' => 'Air Force',
-        'H' => 'PUblic Health Service',
+        'H' => 'Public Health Service',
         'M' => 'Marine Corps',
         'N' => 'Navy',
         'O' => 'NOAA'
