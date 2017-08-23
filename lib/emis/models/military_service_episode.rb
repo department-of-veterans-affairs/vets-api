@@ -55,7 +55,6 @@ module EMIS
       end
 
       def branch_of_service
-        # TODO spec
         SERVICE_BRANCHES[branch_of_service_code]
       end
     end
