@@ -72,6 +72,8 @@ module V0
       Swagger::Requests::HealthCareApplications,
       Swagger::Requests::Post911GiBillStatuses,
       Swagger::Requests::Letters,
+      Swagger::Requests::BB::HealthRecords,
+      Swagger::Requests::Feedbacks,
       Swagger::Requests::Gibct::Institutions,
       Swagger::Requests::Gibct::CalculatorConstants,
       Swagger::Requests::Prescriptions::Prescriptions,
@@ -80,8 +82,11 @@ module V0
       Swagger::Requests::Messages::Folders,
       Swagger::Requests::Messages::Messages,
       Swagger::Requests::Messages::MessageDrafts,
+      Swagger::Requests::VAFacilities,
+      Swagger::Requests::Address,
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::SavedForm,
+      Swagger::Schemas::BB::HealthRecords,
       Swagger::Schemas::Gibct::Institutions,
       Swagger::Schemas::Gibct::CalculatorConstants,
       Swagger::Schemas::Health::Prescriptions,
@@ -96,6 +101,10 @@ module V0
       Swagger::Schemas::TermsAndConditions,
       Swagger::Schemas::Letters,
       Swagger::Schemas::LetterBeneficiary,
+      Swagger::Schemas::VAFacilities,
+      Swagger::Schemas::Countries,
+      Swagger::Schemas::States,
+      Swagger::Schemas::Address,
       self
     ].freeze
 

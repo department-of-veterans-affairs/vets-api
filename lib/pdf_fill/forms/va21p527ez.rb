@@ -710,7 +710,7 @@ module PdfFill
           next if income_type == 'additionalSources'
 
           amount = financial_acct[income_type]
-          next if amount.nil? || amount.zero?
+          next if amount.nil?
 
           source = INCOME_TYPES_KEY[income_type]
 
