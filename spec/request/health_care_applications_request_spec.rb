@@ -90,7 +90,7 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
       end
 
       def test_submission
-        HCA::ServiceJob.drain
+        HCA::SubmissionJob.drain
 
         health_care_application = HealthCareApplication.find(JSON.parse(response.body)['data']['id'])
         expect(health_care_application.state).to eq('success')

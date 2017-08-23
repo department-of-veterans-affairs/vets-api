@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe HCA::ServiceJob, type: :job do
+RSpec.describe HCA::SubmissionJob, type: :job do
   let(:user) { create(:user) }
   let(:health_care_application) { create(:health_care_application) }
   let(:form) { { foo: true } }

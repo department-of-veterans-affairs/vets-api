@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module HCA
-  class ServiceJob
+  class SubmissionJob
     include Sidekiq::Worker
 
     sidekiq_retries_exhausted do |msg, _e|

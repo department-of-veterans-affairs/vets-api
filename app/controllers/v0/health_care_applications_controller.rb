@@ -15,7 +15,7 @@ module V0
 
       health_care_application = HealthCareApplication.create!
 
-      HCA::ServiceJob.perform_async(current_user&.uuid, form, health_care_application.id)
+      HCA::SubmissionJob.perform_async(current_user&.uuid, form, health_care_application.id)
       clear_saved_form(FORM_ID)
 
       render(json: health_care_application)
