@@ -41,6 +41,7 @@ module EMIS
       attribute :reserve_under_age60_code, String
 
       def branch_of_service
+        # TODO spec
         SERVICE_BRANCHES[branch_of_service_code]
       end
     end
