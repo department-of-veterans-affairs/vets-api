@@ -22,8 +22,9 @@ module EMISRedis
       'K' => 'dishonorable'
     }.freeze
 
-    HCA_METHODS = %i(
+    PREFILL_METHODS = %i(
       last_service_branch
+      tours_of_duty
       last_entry_date
       last_discharge_date
       is_va_service_connected

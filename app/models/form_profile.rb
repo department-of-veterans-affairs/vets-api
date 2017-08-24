@@ -22,6 +22,7 @@ class FormMilitaryInformation
   attribute :compensable_va_service_connected, Boolean
   attribute :is_va_service_connected, Boolean
   attribute :receives_va_pension, Boolean
+  attribute :tours_of_duty, Array
 end
 
 class FormAddress
@@ -122,7 +123,7 @@ class FormProfile
     military_information_data = {}
 
     begin
-      EMISRedis::MilitaryInformation::HCA_METHODS.each do |attr|
+      EMISRedis::MilitaryInformation::PREFILL_METHODS.each do |attr|
         military_information_data[attr] = military_information.public_send(attr)
       end
 

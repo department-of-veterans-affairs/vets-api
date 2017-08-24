@@ -6,6 +6,11 @@ RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
 
   let(:user) { build(:loa3_user) }
+  let(:v221990_expected) do
+    {
+      'tours_of_duty' => {}
+    }
+  end
   let(:v1010ez_expected) do
     {
       'veteranFullName' => {
@@ -37,7 +42,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  let(:v21p527_expected) do
+  let(:v21_p_527_ez_expected) do
     {
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
@@ -58,7 +63,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  let(:v21p530_expected) do
+  let(:v21_p_530_expected) do
     {
       'claimantFullName' => {
         'first' => user.first_name&.capitalize,
@@ -82,6 +87,10 @@ RSpec.describe FormProfile, type: :model do
   end
 
   describe '#prefill_form' do
+    def expect_prefilled(form_id)
+      expect(Oj.load(described_class.for(form_id).prefill(user).to_json)['form_data']).to eq(public_send("v#{form_id.underscore}_expected"))
+    end
+
     context 'when emis is down', skip_emis: true do
       it 'should log the error to sentry' do
         error = RuntimeError.new('foo')
@@ -90,6 +99,13 @@ RSpec.describe FormProfile, type: :model do
         form_profile = described_class.for('1010ez')
         expect(form_profile).to receive(:log_exception_to_sentry).with(error, {}, backend_service: :emis)
         form_profile.prefill(user)
+      end
+    end
+
+    context 'with a 22-1990 form' do
+      it 'returns prefilled 22-1990' do
+        # military_information = user.military_information
+        # expect(Oj.load(described_class.for('1010ez').prefill(user).to_json)['form_data']).to eq(v1010ez_expected)
       end
     end
 
@@ -104,21 +120,22 @@ RSpec.describe FormProfile, type: :model do
         expect(military_information).to receive(:sw_asia_combat).and_return(true)
         expect(military_information).to receive(:compensable_va_service_connected).and_return(true)
         expect(military_information).to receive(:is_va_service_connected).and_return(true)
+        expect(military_information).to receive(:tours_of_duty).and_return([])
         expect(user.payment).to receive(:receives_va_pension).and_return(true)
 
-        expect(Oj.load(described_class.for('1010ez').prefill(user).to_json)['form_data']).to eq(v1010ez_expected)
+        expect_prefilled('1010ez')
       end
     end
 
     context 'with a burial application form' do
       it 'returns the va profile mapped to the burial form' do
-        expect(Oj.load(described_class.for('21P-530').prefill(user).to_json)['form_data']).to eq(v21p530_expected)
+        expect_prefilled('21P-530')
       end
     end
 
     context 'with a pension application form' do
       it 'returns the va profile mapped to the pension form' do
-        expect(Oj.load(described_class.for('21P-527EZ').prefill(user).to_json)['form_data']).to eq(v21p527_expected)
+        expect_prefilled('21P-527EZ')
       end
     end
 
