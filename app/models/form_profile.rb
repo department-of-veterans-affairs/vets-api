@@ -187,7 +187,7 @@ class FormProfile
     if value.is_a?(Hash)
       clean_hash!(value)
     elsif value.is_a?(Array)
-      value.map(&:clean!).delete_if(&:blank?)
+      value.map { |v| clean!(v) }.delete_if(&:blank?)
     else
       value
     end

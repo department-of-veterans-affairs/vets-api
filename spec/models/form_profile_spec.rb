@@ -6,11 +6,20 @@ RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
 
   let(:user) { build(:loa3_user) }
-  let(:v221990_expected) do
+
+  let(:v22_1990_expected) do
     {
-      'tours_of_duty' => {}
+      "toursOfDuty" => [
+        {
+          "service_branch"=>"Air Force",
+          "date_range"=> {
+            "from"=>"2007-04-01", "to"=>"2016-06-01"
+          }
+        }
+      ]
     }
   end
+
   let(:v1010ez_expected) do
     {
       'veteranFullName' => {
@@ -102,15 +111,8 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
-    context 'with a 22-1990 form' do
-      it 'returns prefilled 22-1990' do
-        # military_information = user.military_information
-        # expect(Oj.load(described_class.for('1010ez').prefill(user).to_json)['form_data']).to eq(v1010ez_expected)
-      end
-    end
-
-    context 'with a healthcare application form', skip_emis: true do
-      it 'returns the va profile mapped to the healthcare form' do
+    context 'with emis data' do
+      before do
         military_information = user.military_information
         expect(military_information).to receive(:last_service_branch).and_return('air force')
         expect(military_information).to receive(:last_entry_date).and_return('2007-04-01')
@@ -120,10 +122,22 @@ RSpec.describe FormProfile, type: :model do
         expect(military_information).to receive(:sw_asia_combat).and_return(true)
         expect(military_information).to receive(:compensable_va_service_connected).and_return(true)
         expect(military_information).to receive(:is_va_service_connected).and_return(true)
-        expect(military_information).to receive(:tours_of_duty).and_return([])
+        expect(military_information).to receive(:tours_of_duty).and_return(
+          [{:service_branch=>"Air Force", :date_range=>{:from=>"2007-04-01", :to=>"2016-06-01"}}]
+        )
         expect(user.payment).to receive(:receives_va_pension).and_return(true)
+      end
 
-        expect_prefilled('1010ez')
+      context 'with a 22-1990 form' do
+        it 'returns prefilled 22-1990' do
+          expect_prefilled('22-1990')
+        end
+      end
+
+      context 'with a healthcare application form', skip_emis: true do
+        it 'returns the va profile mapped to the healthcare form' do
+          expect_prefilled('1010ez')
+        end
       end
     end
 
