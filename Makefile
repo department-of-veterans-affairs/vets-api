@@ -1,7 +1,7 @@
 COMPOSE_DEV		:= docker-compose
 COMPOSE_TEST		:= docker-compose -f docker-compose.test.yml
-BASH_DEV		:= $(COMPOSE_DEV) run vets-api bash --login -c
-BASH_TEST		:= $(COMPOSE_TEST) run vets-api bash --login -c
+BASH_DEV		:= $(COMPOSE_DEV) run --rm vets-api bash --login -c
+BASH_TEST		:= $(COMPOSE_TEST) run --rm vets-api bash --login -c
 
 .PHONY: default
 default: ci
