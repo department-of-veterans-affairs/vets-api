@@ -10,7 +10,7 @@ class EduBenefitsDataMigration < ActiveRecord::Migration
         concat('SavedClaim::EducationBenefits::VA', form_type),
         concat('22-', upper(form_type)),
         id,
-        #{ActiveRecord::Base::sanitize(SecureRandom.uuid)}
+        uuid_generate_v4()
       FROM education_benefits_claims
       RETURNING id, education_benefits_claim_id
     sql
