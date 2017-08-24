@@ -8,8 +8,9 @@ module V0
     end
 
     def update
-      # TODO(AJD): raise on missing params, awaiting evss response on req fields
-      response = service.update_address(@current_user, Oj.load(request.body.string))
+      address = EVSS::PCIUAddress::Address.build_address(params)
+      raise Common::Exceptions::ValidationErrors, address unless address.valid?
+      response = service.update_address(@current_user, address)
       render json: response,
              serializer: AddressSerializer
     end
