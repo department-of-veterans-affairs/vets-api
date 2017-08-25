@@ -23,8 +23,8 @@ module EMISRedis
     }.freeze
 
     PREFILL_METHODS = %i(
-      currently_active_duty
       last_service_branch
+      currently_active_duty
       tours_of_duty
       last_entry_date
       last_discharge_date
