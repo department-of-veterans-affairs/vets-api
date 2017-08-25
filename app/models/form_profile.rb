@@ -23,6 +23,7 @@ class FormMilitaryInformation
   attribute :is_va_service_connected, Boolean
   attribute :receives_va_pension, Boolean
   attribute :tours_of_duty, Array
+  attribute :currently_active_duty, Boolean
 end
 
 class FormAddress

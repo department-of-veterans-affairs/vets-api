@@ -23,6 +23,7 @@ module EMISRedis
     }.freeze
 
     PREFILL_METHODS = %i(
+      currently_active_duty
       last_service_branch
       tours_of_duty
       last_entry_date
@@ -64,7 +65,9 @@ module EMISRedis
     VIETNAM_WAR_RANGE = Date.new(1962, 1, 9)..Date.new(1975, 5, 7)
 
     def currently_active_duty
-      latest_service_episode.end_date.future?
+      {
+        yes: latest_service_episode.end_date.future?
+      }
     end
 
     def tours_of_duty

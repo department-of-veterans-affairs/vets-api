@@ -16,7 +16,9 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
   describe '#currently_active_duty' do
     it 'should return false if service episode end date is in the past' do
       VCR.use_cassette('emis/get_military_service_episodes/valid') do
-        expect(subject.currently_active_duty).to eq(false)
+        expect(subject.currently_active_duty).to eq(
+          yes: false
+        )
       end
     end
   end
