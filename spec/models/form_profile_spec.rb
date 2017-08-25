@@ -99,6 +99,10 @@ RSpec.describe FormProfile, type: :model do
   end
 
   describe '#prefill_form' do
+    def can_prefill_emis(yes)
+      expect(user).to receive(:can_prefill_emis?).and_return(yes)
+    end
+
     def expect_prefilled(form_id)
       expect(Oj.load(described_class.for(form_id).prefill(user).to_json)['form_data']).to eq(
         public_send("v#{form_id.underscore}_expected")
@@ -107,12 +111,21 @@ RSpec.describe FormProfile, type: :model do
 
     context 'when emis is down', skip_emis: true do
       it 'should log the error to sentry' do
+        can_prefill_emis(true)
         error = RuntimeError.new('foo')
         expect(user.military_information).to receive(:last_service_branch).and_return('air force').and_raise(error)
 
         form_profile = described_class.for('1010ez')
         expect(form_profile).to receive(:log_exception_to_sentry).with(error, {}, backend_service: :emis)
         form_profile.prefill(user)
+      end
+    end
+
+    context 'with a user that cant prefill emis' do
+      it 'returns va profile without emis data' do
+        form_data = Oj.load(described_class.for('1010ez').prefill(user).to_json)['form_data']
+        expect(form_data['gender']).to eq('M')
+        expect(form_data['lastServiceBranch']).to eq(nil)
       end
     end
 
@@ -136,13 +149,15 @@ RSpec.describe FormProfile, type: :model do
         expect(user.payment).to receive(:receives_va_pension).and_return(true)
       end
 
-      context 'with a 22-1990 form' do
+      context 'with a user that can prefill emis' do
+        before do
+          can_prefill_emis(true)
+        end
+
         it 'returns prefilled 22-1990' do
           expect_prefilled('22-1990')
         end
-      end
 
-      context 'with a healthcare application form', skip_emis: true do
         it 'returns the va profile mapped to the healthcare form' do
           expect_prefilled('1010ez')
         end
