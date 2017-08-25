@@ -9,7 +9,7 @@ require 'saml/user_attributes'
 
 class User < Common::RedisStore
   UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
-  EMIS_PREFILL_EDIPIS = []
+  EMIS_PREFILL_EDIPIS = [].freeze
 
   redis_store REDIS_CONFIG['user_store']['namespace']
   redis_ttl REDIS_CONFIG['user_store']['each_ttl']
