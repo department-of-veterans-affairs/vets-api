@@ -9,16 +9,16 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v22_1990_expected) do
     {
-      "toursOfDuty" => [
+      'toursOfDuty' => [
         {
-          "service_branch"=>"Air Force",
-          "date_range"=> {
-            "from"=>"2007-04-01", "to"=>"2016-06-01"
+          'service_branch' => 'Air Force',
+          'date_range' => {
+            'from' => '2007-04-01', 'to' => '2016-06-01'
           }
         }
       ],
-      "currentlyActiveDuty" => {
-        "yes" => true
+      'currentlyActiveDuty' => {
+        'yes' => true
       }
     }
   end
@@ -100,7 +100,9 @@ RSpec.describe FormProfile, type: :model do
 
   describe '#prefill_form' do
     def expect_prefilled(form_id)
-      expect(Oj.load(described_class.for(form_id).prefill(user).to_json)['form_data']).to eq(public_send("v#{form_id.underscore}_expected"))
+      expect(Oj.load(described_class.for(form_id).prefill(user).to_json)['form_data']).to eq(
+        public_send("v#{form_id.underscore}_expected")
+      )
     end
 
     context 'when emis is down', skip_emis: true do
@@ -126,7 +128,7 @@ RSpec.describe FormProfile, type: :model do
         expect(military_information).to receive(:compensable_va_service_connected).and_return(true)
         expect(military_information).to receive(:is_va_service_connected).and_return(true)
         expect(military_information).to receive(:tours_of_duty).and_return(
-          [{:service_branch=>"Air Force", :date_range=>{:from=>"2007-04-01", :to=>"2016-06-01"}}]
+          [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
         )
         expect(military_information).to receive(:currently_active_duty).and_return(
           yes: true

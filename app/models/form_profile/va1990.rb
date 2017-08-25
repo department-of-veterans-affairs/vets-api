@@ -8,7 +8,7 @@ class FormProfile::VA1990 < FormProfile
     {
       version: 0,
       prefill: true,
-      # TODO ask what this does
+      # TODO: ask what this does
       returnUrl: '/veteran-information'
     }
   end
