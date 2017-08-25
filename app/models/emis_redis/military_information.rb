@@ -63,6 +63,10 @@ module EMISRedis
     VIETNAM = 'VNM'
     VIETNAM_WAR_RANGE = Date.new(1962, 1, 9)..Date.new(1975, 5, 7)
 
+    def currently_active_duty
+      latest_service_episode.end_date.future?
+    end
+
     def tours_of_duty
       military_service_episodes.map do |military_service_episode|
         {
