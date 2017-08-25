@@ -12,7 +12,7 @@
             "type": "string"
           },
           "source": {
-            "type": "string"
+            "type": ["string", "object"]
           },
           "status": {
             "type": "string"
