@@ -9,6 +9,7 @@ require 'saml/user_attributes'
 
 class User < Common::RedisStore
   UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
+  EMIS_PREFILL_EDIPIS = []
 
   redis_store REDIS_CONFIG['user_store']['namespace']
   redis_ttl REDIS_CONFIG['user_store']['each_ttl']
@@ -86,6 +87,10 @@ class User < Common::RedisStore
 
   def can_access_prefill_data?
     true
+  end
+
+  def can_prefill_emis?
+    EMIS_PREFILL_EDIPIS.include?(edipi)
   end
 
   def self.from_merged_attrs(existing_user, new_user)
