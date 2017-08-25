@@ -16,7 +16,10 @@ RSpec.describe FormProfile, type: :model do
             "from"=>"2007-04-01", "to"=>"2016-06-01"
           }
         }
-      ]
+      ],
+      "currentlyActiveDuty" => {
+        "yes" => true
+      }
     }
   end
 
@@ -124,6 +127,9 @@ RSpec.describe FormProfile, type: :model do
         expect(military_information).to receive(:is_va_service_connected).and_return(true)
         expect(military_information).to receive(:tours_of_duty).and_return(
           [{:service_branch=>"Air Force", :date_range=>{:from=>"2007-04-01", :to=>"2016-06-01"}}]
+        )
+        expect(military_information).to receive(:currently_active_duty).and_return(
+          yes: true
         )
         expect(user.payment).to receive(:receives_va_pension).and_return(true)
       end
