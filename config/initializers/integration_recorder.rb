@@ -1,11 +1,12 @@
+# frozen_string_literal: true
 if Rails.env.development? || Rails.env.test?
-  require "securerandom"
+  require 'securerandom'
 
   module SecureRandom
     def self.insecure_random_bytes(n = nil)
       n = n ? n.to_int : 16
-      Kernel.srand(Time.now.to_i)
-      Array.new(n) { Kernel.rand(256) }.pack("C*")
+      Kernel.srand(Time.zone.now.to_i)
+      Array.new(n) { Kernel.rand(256) }.pack('C*')
     end
 
     def self.enable_insecure
@@ -28,15 +29,15 @@ if Rails.env.development? && Settings.integration_recorder.enabled == true
   VCR.configure do |c|
     c.hook_into 'webmock'
     c.default_cassette_options = {
-       :erb => false,
-       :allow_playback_repeats => false
+      erb: false,
+      allow_playback_repeats: false
     }
     c.cassette_library_dir = Settings.integration_recorder.base_cassette_dir
     c.allow_http_connections_when_no_cassette = false
   end
 
   class InboundCassetteRecorder
-    def initialize(app, options = {})
+    def initialize(app, _options = {})
       @app = app
     end
 
@@ -56,7 +57,7 @@ if Rails.env.development? && Settings.integration_recorder.enabled == true
       if Settings.integration_recorder.replay && transaction.can_replay?
         transaction.replay
       else
-        Timecop.freeze(Time.now.change(usec: 0))
+        Timecop.freeze(Time.zone.now.change(usec: 0))
         status, headers, body = run_outbound_request { @app.call(env) }
         Timecop.return
         res = Rack::Response.new(body, status, headers)
