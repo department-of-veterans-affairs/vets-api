@@ -7,10 +7,8 @@ RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
   Episode = Struct.new(:method, :uri, :body, :headers, :recorded_at, :response)
 
   EPISODES = begin
-    base = "#{Settings.integration_recorder.base_cassette_dir}/"
-    inbound = "#{Settings.integration_recorder.inbound_cassette_dir}.yml"
-    file_path = base + inbound
-    YAML.load(File.read(file_path))['http_interactions'].map do |interaction|
+    inbound_cassette_path = 'spec/support/vcr_cassettes/integration/saml_loa3_user/inbound.yml'
+    YAML.load(File.read(inbound_cassette_path))['http_interactions'].map do |interaction|
       req = interaction['request']
       req['uri'] = URI.parse(req['uri'])
       req['recorded_at'] = Time.zone.parse(interaction['recorded_at'].to_s).to_datetime
@@ -19,30 +17,27 @@ RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
     end
   end
 
-  VCR.use_cassette(OUTBOUND_CASSETTE, record: :none, match_requests_on: %i(headers)) do
-    it 'does the tests', :aggregate_failures do
-      EPISODES.each_with_index do |episode, _index|
-        # it "#{(index + 1).ordinalize} responds to #{episode.method} #{episode.uri.path}" do
-        # Stubbing the session token to return whats provided in the recorded Authorization Headers
-        allow_any_instance_of(Session)
-          .to receive(:secure_random_token).and_return('1BNxPrdS1uRxF23dsKsxxyhD73Vg3exZpjox-ekf')
-        Timecop.freeze(episode.recorded_at)
-        if episode.uri.path == '/v0/sessions/new'
-          e_resp = JSON.parse(episode.response['body']['string'])['authenticate_via_get']
-          expect_any_instance_of(OneLogin::RubySaml::Authrequest)
-            .to receive(:create).once.and_return(e_resp)
-        end
+  around(:each) do |example|
+    SecureRandom.enable_insecure
+    result = example.call
+    SecureRandom.disable_insecure
+    result
+  end
 
-        make_request(episode)
-        expect(response.status).to eq(episode.response['status']['code'])
-        expect(response.body).to eq(episode.response['body']['string'])
-        # end
+  it 'does the tests', :aggregate_failures, skip_mvi: true do
+    EPISODES.each_with_index do |episode, index|
+      Timecop.freeze(episode.recorded_at) do
+        VCR.use_cassette(OUTBOUND_CASSETTE, record: :new_episodes) do
+          make_request(episode)
+        end
       end
+      expect(response.status).to eq(episode.response['status']['code'])
+      expect(response.body).to eq(episode.response['body']['string'])
     end
   end
 
-  it 'has 11 steps' do
-    expect(EPISODES.size).to eq(11)
+  it 'has 8 steps' do
+    expect(EPISODES.size).to eq(7)
   end
 
   private

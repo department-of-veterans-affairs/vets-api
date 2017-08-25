@@ -20,7 +20,6 @@ class ApplicationController < ActionController::API
   before_action :set_app_info_headers
   before_action :set_uuid_tags
   skip_before_action :authenticate, only: [:cors_preflight, :routing_error]
-  around_action :record_vcr_cassette
 
   def cors_preflight
     head(:ok)
@@ -147,16 +146,5 @@ class ApplicationController < ActionController::API
 
   def render_job_id(jid)
     render json: { job_id: jid }, status: 202
-  end
-
-  def record_vcr_cassette
-    if Settings.integration_recorder.enabled == true
-      cassette = Settings.integration_recorder.outbound_cassette_dir
-      VCR.use_cassette(cassette, record: :new_episodes) do
-        yield
-      end
-    else
-      yield
-    end
   end
 end

@@ -99,6 +99,7 @@ group :development, :test do
   gem 'vcr_cable'
   gem 'rack-vcr'
   gem 'webmock'
+  gem 'timecop'
 end
 
 group :test do
@@ -107,7 +108,6 @@ group :test do
   gem 'faker-medical'
   gem 'simplecov', require: false
   gem 'fakeredis'
-  gem 'timecop'
   gem 'vcr'
   gem 'awrence'
   gem 'climate_control'

@@ -1,3 +1,28 @@
+if Rails.env.development? || Rails.env.test?
+  require "securerandom"
+
+  module SecureRandom
+    def self.insecure_random_bytes(n = nil)
+      n = n ? n.to_int : 16
+      Kernel.srand(Time.now.to_i)
+      Array.new(n) { Kernel.rand(256) }.pack("C*")
+    end
+
+    def self.enable_insecure
+      class << self
+        alias_method :original_random_bytes, :random_bytes
+        alias_method :random_bytes, :insecure_random_bytes
+      end
+    end
+
+    def self.disable_insecure
+      class << self
+        alias_method :random_bytes, :original_random_bytes
+      end
+    end
+  end
+end
+
 if Rails.env.development? && Settings.integration_recorder.enabled == true
   ENV['ENABLE_VCR_CABLE'] = 'true'
   VCR.configure do |c|
@@ -17,24 +42,35 @@ if Rails.env.development? && Settings.integration_recorder.enabled == true
 
     def call(env)
       VCR.use_cassette(Settings.integration_recorder.inbound_cassette_dir, record: :new_episodes) do
-        run_request(env)
+        SecureRandom.enable_insecure
+        result = run_inbound_request(env)
+        SecureRandom.disable_insecure
+        result
       end
     end
 
-    def run_request(env)
+    def run_inbound_request(env)
       req = Rack::Request.new(env)
       transaction = Rack::VCR::Transaction.new(req)
 
       if Settings.integration_recorder.replay && transaction.can_replay?
         transaction.replay
       else
-        status, headers, body = @app.call(env)
+        Timecop.freeze(Time.now.change(usec: 0))
+        status, headers, body = run_outbound_request { @app.call(env) }
+        Timecop.return
         res = Rack::Response.new(body, status, headers)
         transaction.capture(res)
         [status, headers, body]
       end
     end
-  end
 
+    def run_outbound_request
+      cassette = Settings.integration_recorder.outbound_cassette_dir
+      VCR.use_cassette(cassette, record: :new_episodes) do
+        yield
+      end
+    end
+  end
   Rails.configuration.middleware.insert(0, InboundCassetteRecorder)
 end
