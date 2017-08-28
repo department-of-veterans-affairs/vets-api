@@ -12,6 +12,10 @@ module EMIS
       attribute :end_date, Date
       attribute :termination_reason_code, String
       attribute :transaction_date, Date
+
+      def date_range
+        begin_date..end_date
+      end
     end
 
     class Deployment
