@@ -22,6 +22,7 @@ module EVSS
         'va_eauth_dodedipnid' => @user.edipi,
         'va_eauth_pid' => @user.participant_id,
         'va_eauth_pnid' => @user.ssn,
+        'va_eauth_birthdate' => iso8601_birth_date,
         'va_eauth_authorization' => eauth_json
       }
     end
@@ -36,9 +37,15 @@ module EVSS
           id: @user.ssn,
           edi: @user.edipi,
           firstName: @user.first_name,
-          lastName: @user.last_name
+          lastName: @user.last_name,
+          birthDate: iso8601_birth_date
         }
       }.to_json
+    end
+
+    def iso8601_birth_date
+      return nil unless @user&.va_profile&.birth_date
+      DateTime.parse(@user.va_profile.birth_date).iso8601
     end
   end
 end
