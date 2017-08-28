@@ -2,9 +2,9 @@
 require 'rails_helper'
 require 'common/exceptions'
 
-describe VeteranStatus, skip_veteran_status: true do
+describe EMISRedis::VeteranStatus, skip_emis: true do
   let(:user) { build :loa3_user }
-  subject { VeteranStatus.for_user(user) }
+  subject { described_class.for_user(user) }
 
   describe 'veteran?' do
     context 'with a valid response for a veteran' do
@@ -28,7 +28,7 @@ describe VeteranStatus, skip_veteran_status: true do
         VCR.use_cassette('emis/get_veteran_status/missing_edipi') do
           expect do
             subject.veteran?
-          end.to raise_error(VeteranStatus::RecordNotFound)
+          end.to raise_error(described_class::RecordNotFound)
         end
       end
     end
