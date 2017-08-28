@@ -45,20 +45,7 @@ describe EVSS::PCIUAddress::Service do
 
   describe '#update_address' do
     context 'with a valid address update' do
-      let(:update_address) do
-        {
-          'type' => 'DOMESTIC',
-          'addressEffectiveDate' => '2017-08-07T19:43:59.383Z',
-          'addressOne' => '225 5th St',
-          'addressTwo' => '',
-          'addressThree' => '',
-          'city' => 'Springfield',
-          'stateCode' => 'OR',
-          'countryName' => 'USA',
-          'zipCode' => '97477',
-          'zipSuffix' => ''
-        }
-      end
+      let(:update_address) { build(:pciu_domestic_address) }
 
       it 'updates and returns a users mailing address' do
         VCR.use_cassette('evss/pciu_address/address_update') do
