@@ -19,7 +19,7 @@ class VeteranStatus < Common::RedisStore
   end
 
   def veteran?
-    raise VeteranStatus::Unauthorized unless @user.loa3?
+    raise VeteranStatus::NotAuthorized unless @user.loa3?
     raise emis_response.error if emis_response.error?
     raise VeteranStatus::RecordNotFound if !emis_response.error? && emis_response.empty?
     any_veteran_indicator?(emis_response.items.first)
