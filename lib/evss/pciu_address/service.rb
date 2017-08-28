@@ -28,8 +28,8 @@ module EVSS
       end
 
       def update_address(user, address)
-        address = address.as_json.delete_if { |_k, v| v.blank? }
         with_exception_handling do
+          address = address.as_json.delete_if { |_k, v| v.blank? }
           address_json = {
             'cnpMailingAddress' => Hash[address.map { |k, v| [k.camelize(:lower), v] }]
           }.to_json
