@@ -9,6 +9,21 @@ class FormFullName
   attribute :suffix, String
 end
 
+class FormMilitaryInformation
+  include Virtus.model
+
+  attribute :post_nov_1998_combat, Boolean
+  attribute :last_service_branch, String
+  attribute :last_entry_date, String
+  attribute :last_discharge_date, String
+  attribute :discharge_type, String
+  attribute :post_nov111998_combat, Boolean
+  attribute :sw_asia_combat, Boolean
+  attribute :compensable_va_service_connected, Boolean
+  attribute :is_va_service_connected, Boolean
+  attribute :receives_va_pension, Boolean
+end
+
 class FormAddress
   include Virtus.model
 
@@ -38,12 +53,15 @@ class FormContactInformation
 end
 
 class FormProfile
+  include SentryLogging
+
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
   attr_accessor :form_id
   include Virtus.model
 
   attribute :identity_information, FormIdentityInformation
   attribute :contact_information, FormContactInformation
+  attribute :military_information, FormMilitaryInformation
 
   def self.for(form)
     form = form.upcase
@@ -89,12 +107,35 @@ class FormProfile
   def prefill(user)
     @identity_information = initialize_identity_information(user)
     @contact_information = initialize_contact_information(user)
+    @military_information = initialize_military_information(user)
     mappings = self.class.mappings_for_form(form_id)
     form_data = generate_prefill(mappings)
     { form_data: form_data, metadata: metadata }
   end
 
   private
+
+  def initialize_military_information(user)
+    return {} unless user.can_prefill_emis?
+
+    military_information = user.military_information
+    military_information_data = {}
+
+    begin
+      EMISRedis::MilitaryInformation::HCA_METHODS.each do |attr|
+        military_information_data[attr] = military_information.public_send(attr)
+      end
+
+      military_information_data.merge!(
+        receives_va_pension: user.payment.receives_va_pension
+      )
+    rescue => e
+      # fail silently if emis is down
+      log_exception_to_sentry(e, {}, backend_service: :emis)
+    end
+
+    FormMilitaryInformation.new(military_information_data)
+  end
 
   def initialize_identity_information(user)
     FormIdentityInformation.new(
