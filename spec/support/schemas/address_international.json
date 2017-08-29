@@ -21,9 +21,6 @@
     },
     "country_name": {
       "type": "string"
-    },
-    "foreign_code": {
-      "type": "string"
     }
   },
   "type": "object"
