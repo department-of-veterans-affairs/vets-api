@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
-# This module SecureRandom is used in a lot of places.
-# by overriding this one method #random_bytes, it effectively make_request
-# randomization of things such as UUID less random.
-# You'll notice that uses Time.current with milleseconds removed as the seed
-# This is because VCR records dates in httpdate format, without milleseconds
-# This allows for specs to be able to play back recorded cassettes and use
-# the same seed value when generating "unique" ids and hashes
+# Only override SecureRandom in development and test environments.
 if Rails.env.development? || Rails.env.test?
+  # This module SecureRandom is used in a lot of places.
+  # by overriding this one method SecureRandom#random_bytes, it effectively makes
+  # randomization of things such as UUID and tokens less random.
+  # You'll notice that it uses Time.current with milleseconds removed as the seed
+  # This is because VCR records dates in httpdate format (without milleseconds).
+  # This allows for specs to play back internal_interactions in recorded cassettes and use
+  # the same seed value when generating "unique" ids and other hashes
   require 'securerandom'
 
   module SecureRandom
@@ -207,7 +208,7 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
   # You can enable insecure_random, which will automatically also enable time freezing in between each request
   relative_cassette_path = VCR.configuration.cassette_library_dir.split(Dir.pwd.to_s)[1].sub('/', '')
   full_feature_path = relative_cassette_path + "/#{ENV['DUALDECK_INTERACTION']}"
-  raise "Interaciton Exists! Please remove #{full_feature_path} or provide different interaction" if File.exist?(full_feature_path)
+  raise "Interaciton Exists! #{full_feature_path} or provide different interaction" if File.exist?(full_feature_path)
   middleware_options = { replay: false, feature: ENV['DUALDECK_INTERACTION'], insecure_random: true }
   Rails.configuration.middleware.insert(0, DualDeck::RackMiddleware, middleware_options)
 end
