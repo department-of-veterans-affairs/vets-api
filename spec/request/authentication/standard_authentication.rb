@@ -53,8 +53,8 @@ RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
 
     def differ
       RSpec::Support::Differ.new(
-          :object_preparer => lambda { |object| RSpec::Matchers::Composable.surface_descriptions_in(object) },
-          :color => RSpec::Matchers.configuration.color?
+        object_preparer: ->(object) { RSpec::Matchers::Composable.surface_descriptions_in(object) },
+        color: RSpec::Matchers.configuration.color?
       )
     end
   end
