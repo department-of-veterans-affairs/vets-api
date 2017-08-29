@@ -3,11 +3,11 @@ require 'rails_helper'
 
 # Note these specs MUST be run in order
 RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
-  OUTBOUND_CASSETTE = 'integration/saml_loa3_user/outbound'
+  OUTBOUND_CASSETTE = 'complex_interaction/external_interactions'
   Episode = Struct.new(:method, :uri, :body, :headers, :recorded_at, :response)
 
   EPISODES = begin
-    inbound_cassette_path = 'spec/support/vcr_cassettes/integration/saml_loa3_user/inbound.yml'
+    inbound_cassette_path = 'spec/support/vcr_cassettes/complex_interaction/internal_interactions.yml'
     YAML.load(File.read(inbound_cassette_path))['http_interactions'].map do |interaction|
       req = interaction['request']
       req['uri'] = URI.parse(req['uri'])
@@ -17,27 +17,18 @@ RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
     end
   end
 
-  around(:each) do |example|
-    SecureRandom.enable_insecure
-    result = example.call
-    SecureRandom.disable_insecure
-    result
-  end
-
-  it 'does the tests', :aggregate_failures, skip_mvi: true do
-    EPISODES.each_with_index do |episode, _index|
+  it 'does the tests', :aggregate_failures, skip_mvi: true, skip_veteran_status: true do
+    EPISODES.each_with_index do |episode, index|
       Timecop.freeze(episode.recorded_at) do
         VCR.use_cassette(OUTBOUND_CASSETTE, record: :new_episodes) do
-          make_request(episode)
+          SecureRandom.with_disabled_randomness do
+            make_request(episode)
+          end
         end
       end
       expect(response.status).to eq(episode.response['status']['code'])
       expect(response.body).to eq(episode.response['body']['string'])
     end
-  end
-
-  it 'has 8 steps' do
-    expect(EPISODES.size).to eq(7)
   end
 
   private

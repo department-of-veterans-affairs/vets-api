@@ -18,6 +18,7 @@ require 'support/model_helpers'
 require 'support/saml/authn_request_helper'
 require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
+require 'support/request_helper'
 require 'common/exceptions'
 
 WebMock.disable_net_connect!(allow_localhost: true)
@@ -125,6 +126,9 @@ RSpec.configure do |config|
 
   # authentication_session_helper
   config.include AuthenticatedSessionHelper, type: :request
+
+  # ability to test options
+  config.include RequestHelper, type: :request
 
   config.include StatsD::Instrument::Matchers
 
