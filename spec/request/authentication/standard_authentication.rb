@@ -17,7 +17,7 @@ RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
     end
   end
 
-  it 'does the tests', :aggregate_failures, skip_mvi: true, skip_veteran_status: true do
+  it 'does the tests', :aggregate_failures, skip_mvi: true, skip_emis: true do
     EPISODES.each_with_index do |episode, _index|
       Timecop.freeze(episode.recorded_at) do
         VCR.use_cassette(OUTBOUND_CASSETTE, record: :new_episodes) do
@@ -27,11 +27,37 @@ RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
         end
       end
       expect(response.status).to eq(episode.response['status']['code'])
-      expect(response.body).to eq(episode.response['body']['string'])
+      expect(response.body).to match_episode_body(episode.response['body']['string'])
     end
   end
 
   private
+
+  RSpec::Matchers.define :match_episode_body do |expected|
+    match do |actual|
+      actual == expected
+    end
+
+    failure_message do |actual|
+      message = "expected that #{actual} would match #{expected}"
+      outputs = [actual, expected].map { |a| pretty(a) }
+      message += "\nDiff:" + differ.diff_as_string(*outputs)
+      message
+    end
+
+    def pretty(output)
+      JSON.pretty_generate(JSON.parse(output))
+    rescue
+      output
+    end
+
+    def differ
+      RSpec::Support::Differ.new(
+          :object_preparer => lambda { |object| RSpec::Matchers::Composable.surface_descriptions_in(object) },
+          :color => RSpec::Matchers.configuration.color?
+      )
+    end
+  end
 
   def make_request(episode)
     params = if episode.method == 'post'
