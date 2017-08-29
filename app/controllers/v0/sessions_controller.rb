@@ -65,7 +65,7 @@ module V0
       fail_handler = SAML::AuthFailHandler.new(@saml_response, @current_user, @session)
       StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ["error:#{fail_handler.error}"])
       if fail_handler.known_error?
-      
+
         log_message_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
       else
         log_message_to_sentry(fail_handler.generic_error_message, :error)

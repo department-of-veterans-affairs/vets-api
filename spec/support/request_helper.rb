@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module RequestHelper
   def options(*args)
     reset! unless integration_session

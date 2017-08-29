@@ -5,15 +5,15 @@ if Rails.env.development? || Rails.env.test?
   module SecureRandom
     def self.insecure_random_bytes(n = nil)
       n = n ? n.to_int : 16
-      Kernel.srand(Time.now.change(usec: 0).to_i)
+      Kernel.srand(Time.current.change(usec: 0).to_i)
       Array.new(n) { Kernel.rand(256) }.pack('C*')
     end
 
     def self.with_disabled_randomness
-      self.enable_insecure
+      enable_insecure
       yield
     ensure
-      self.disable_insecure
+      disable_insecure
     end
 
     def self.enable_insecure
@@ -66,16 +66,14 @@ if Rails.env.development? && Settings.integration_recorder.enabled == true
         @insecure_random = options[:insecure_random] || false
         @time_freeze = options[:time_freeze]
 
-        if @insecure_random
-          @time_freeze = true
-        end
+        @time_freeze = true if @insecure_random
         record_feature_settings unless File.exist?(feature_path)
       end
 
       def record_feature_settings
         directory = File.dirname(feature_path)
         FileUtils.mkdir_p(directory) unless File.exist?(directory)
-        File.binwrite(feature_path, { replay_settings: feature_settings }.to_yaml )
+        File.binwrite(feature_path, { replay_settings: feature_settings }.to_yaml)
       end
 
       def feature_path
@@ -119,9 +117,8 @@ if Rails.env.development? && Settings.integration_recorder.enabled == true
       end
 
       def freeze_time
-        result = nil
-        Timecop.freeze(Time.now)
-        result = yield
+        Timecop.freeze(Time.current)
+        yield
       ensure
         Timecop.return
       end

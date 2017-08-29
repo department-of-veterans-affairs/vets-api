@@ -18,7 +18,7 @@ RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
   end
 
   it 'does the tests', :aggregate_failures, skip_mvi: true, skip_veteran_status: true do
-    EPISODES.each_with_index do |episode, index|
+    EPISODES.each_with_index do |episode, _index|
       Timecop.freeze(episode.recorded_at) do
         VCR.use_cassette(OUTBOUND_CASSETTE, record: :new_episodes) do
           SecureRandom.with_disabled_randomness do
