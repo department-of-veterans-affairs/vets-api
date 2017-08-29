@@ -9,6 +9,7 @@ require 'saml/user_attributes'
 
 class User < Common::RedisStore
   UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
+  EMIS_PREFILL_EDIPIS = [].freeze
 
   redis_store REDIS_CONFIG['user_store']['namespace']
   redis_ttl REDIS_CONFIG['user_store']['each_ttl']
@@ -88,6 +89,10 @@ class User < Common::RedisStore
     true
   end
 
+  def can_prefill_emis?
+    EMIS_PREFILL_EDIPIS.include?(edipi)
+  end
+
   def self.from_merged_attrs(existing_user, new_user)
     # we want to always use the more recent attrs so long as they exist
     attrs = new_user.attributes.map do |key, val|
@@ -133,13 +138,20 @@ class User < Common::RedisStore
     mvi.cache(uuid, mvi.mvi_response)
   end
 
+  %w(veteran_status military_information payment).each do |emis_method|
+    define_method(emis_method) do
+      emis_model = instance_variable_get(:"@#{emis_method}")
+      return emis_model if emis_model.present?
+
+      emis_model = "EMISRedis::#{emis_method.camelize}".constantize.for_user(self)
+      instance_variable_set(:"@#{emis_method}", emis_model)
+      emis_model
+    end
+  end
+
   private
 
   def mvi
     @mvi ||= Mvi.for_user(self)
-  end
-
-  def veteran_status
-    @veteran_status ||= VeteranStatus.for_user(self)
   end
 end

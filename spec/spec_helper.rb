@@ -9,7 +9,7 @@ require 'support/spec_temp_files'
 require 'support/have_deep_attributes_matcher'
 require 'support/impl_matchers'
 require 'support/negated_matchers'
-require 'support/veteran_status/stub_veteran_status'
+require 'support/stub_emis'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']

@@ -23,6 +23,13 @@ module EVSS
       attribute :country_name, String
 
       validates :address_one, presence: true
+      validates_format_of(
+        :address_one,
+        :address_two,
+        :address_three,
+        with: %r([-a-zA-Z0-9 \"#%&'()+,.\/:@]{1,20}),
+        allow_blank: true
+      )
       validates :type, inclusion: { in: ADDRESS_TYPES.values }
 
       def self.build_address(attrs)
