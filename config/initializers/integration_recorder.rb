@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+# This initializer has two parts. The first part overrides SecureRandom and is necessary
+# in both the development and test environments. It does not disable the normal behavior
+# of SecureRandom in any way unless it is invoked. The second part of this initializer
+# introduces a RackMiddleware that helps record all internal interactions,
+# external interactions, and the settings provided to the middleware to faciliate future
+# playback in specs.
+
 # Only override SecureRandom in development and test environments.
 if Rails.env.development? || Rails.env.test?
   # This module SecureRandom is used in a lot of places.
@@ -91,6 +98,7 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
         @insecure_random = options[:insecure_random] || false
         @time_freeze = options[:time_freeze]
 
+        # automatically freezing time when insecure random because it depends on it
         @time_freeze = true if @insecure_random
         record_feature_settings unless File.exist?(feature_path)
       end
@@ -203,7 +211,7 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
   # Enable the RackMiddleware
   # The settings below will ensure that only new interactions are recorded and not replayed back
   # They will record the feature fixtures in:
-  # vcr_cassettes/complex_interaction
+  # vcr_cassettes/<ENV['DUALDECK_INTERACTION']>
   # If you need to record interactions again, make sure to delete any existing interactions first
   # You can enable insecure_random, which will automatically also enable time freezing in between each request
   relative_cassette_path = VCR.configuration.cassette_library_dir.split(Dir.pwd.to_s)[1].sub('/', '')
