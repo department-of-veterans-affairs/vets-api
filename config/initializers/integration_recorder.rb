@@ -1,14 +1,27 @@
 # frozen_string_literal: true
+
+# This module SecureRandom is used in a lot of places.
+# by overriding this one method #random_bytes, it effectively make_request
+# randomization of things such as UUID less random.
+# You'll notice that uses Time.current with milleseconds removed as the seed
+# This is because VCR records dates in httpdate format, without milleseconds
+# This allows for specs to be able to play back recorded cassettes and use
+# the same seed value when generating "unique" ids and hashes
 if Rails.env.development? || Rails.env.test?
   require 'securerandom'
 
   module SecureRandom
+    # First we define our new insecure method
     def self.insecure_random_bytes(n = nil)
       n = n ? n.to_int : 16
       Kernel.srand(Time.current.change(usec: 0).to_i)
       Array.new(n) { Kernel.rand(256) }.pack('C*')
     end
 
+    # This is the correct way to invoke enabling and disabling and
+    # SecureRandom randomness. By passing a block, this method
+    # will yield with insecure random enabled, and disable insecure_random_bytes
+    # regardless of whether or not the yielded block raises an exception or not.
     def self.with_disabled_randomness
       enable_insecure
       yield
@@ -16,6 +29,8 @@ if Rails.env.development? || Rails.env.test?
       disable_insecure
     end
 
+    # Swaps the original random_bytes with the insecure version
+    # preserves the original in a new alias
     def self.enable_insecure
       class << self
         alias_method :original_random_bytes, :random_bytes
@@ -23,6 +38,7 @@ if Rails.env.development? || Rails.env.test?
       end
     end
 
+    # Swaps the insecure random_bytes method back with the original.
     def self.disable_insecure
       class << self
         alias_method :random_bytes, :original_random_bytes
@@ -31,8 +47,14 @@ if Rails.env.development? || Rails.env.test?
   end
 end
 
-if Rails.env.development? && Settings.integration_recorder.enabled == true
+# You must pass in a name for the this middleware to use to record.
+if Rails.env.development? && ENV['DUALDECK_INTERACTION']
+  # Set this environment flag programatically to enable VCR-CABLE gem, which
+  # allows you to use VCR in development environment.
   ENV['ENABLE_VCR_CABLE'] = 'true'
+
+  # Configure VCR to record specs, filtering out similar fashion to how we do in RSpec
+  # NOTE: This could eventually be consolidated in one place.
   VCR.configure do |c|
     c.hook_into :webmock
     c.default_cassette_options = {
@@ -57,6 +79,8 @@ if Rails.env.development? && Settings.integration_recorder.enabled == true
     end
   end
 
+  # This is the Rack Middleware responsible for recording cassettes
+  # It supports freezing current time as well as
   module DualDeck
     class RackMiddleware
       def initialize(app, options = {})
@@ -102,6 +126,7 @@ if Rails.env.development? && Settings.integration_recorder.enabled == true
         "#{@feature}/external_interactions"
       end
 
+      # This middleware will capture internal in
       def call(env)
         if @feature
           ::VCR.use_cassette(feature_settings[:internal_cassette], record: :new_episodes) do
@@ -112,10 +137,16 @@ if Rails.env.development? && Settings.integration_recorder.enabled == true
         end
       end
 
+      # These mini-middlewares are defined below and enabled with options passed in to
+      # DualDeck::RackMiddleware
       def middlewares
         time_freeze_middleware { insecure_middleware { yield } }
       end
 
+      # Its unclear if Timecop's block method ensures that Time is returned so
+      # we implement our own here. This ensures that regardless of an exception
+      # time is unfrozen between interactions. This is necessary to avoid issues
+      # with NotBefore, etc
       def freeze_time
         Timecop.freeze(Time.current)
         yield
@@ -123,6 +154,7 @@ if Rails.env.development? && Settings.integration_recorder.enabled == true
         Timecop.return
       end
 
+      # Only freeze the time if this setting is passed to the middleware
       def time_freeze_middleware
         if @time_freeze
           freeze_time { yield }
@@ -131,6 +163,7 @@ if Rails.env.development? && Settings.integration_recorder.enabled == true
         end
       end
 
+      # Only disable randomness if this setting is passed to the middleware
       def insecure_middleware
         if @insecure_random
           SecureRandom.with_disabled_randomness { yield }
@@ -139,6 +172,8 @@ if Rails.env.development? && Settings.integration_recorder.enabled == true
         end
       end
 
+      # This method captures internal requests those between vets-website and vets-api
+      # It calls capture_external_interactions for capturing external interactions
       def capture_internal_interaction(env)
         req = Rack::Request.new(env)
         transaction = Rack::VCR::Transaction.new(req)
@@ -153,6 +188,7 @@ if Rails.env.development? && Settings.integration_recorder.enabled == true
         end
       end
 
+      # This method will capture all external requests made to hosts such as MVI or EMIS
       def capture_external_interactions
         result = nil
         VCR.use_cassette(feature_settings[:external_cassette], record: :new_episodes) do
@@ -163,6 +199,15 @@ if Rails.env.development? && Settings.integration_recorder.enabled == true
     end
   end
 
-  middleware_options = { replay: false, feature: 'complex_interaction', insecure_random: true }
+  # Enable the RackMiddleware
+  # The settings below will ensure that only new interactions are recorded and not replayed back
+  # They will record the feature fixtures in:
+  # vcr_cassettes/complex_interaction
+  # If you need to record interactions again, make sure to delete any existing interactions first
+  # You can enable insecure_random, which will automatically also enable time freezing in between each request
+  relative_cassette_path = VCR.configuration.cassette_library_dir.split(Dir.pwd.to_s)[1].sub('/', '')
+  full_feature_path = relative_cassette_path + "/#{ENV['DUALDECK_INTERACTION']}"
+  raise "Interaciton Exists! Please remove #{full_feature_path} or provide different interaction" if File.exist?(full_feature_path)
+  middleware_options = { replay: false, feature: ENV['DUALDECK_INTERACTION'], insecure_random: true }
   Rails.configuration.middleware.insert(0, DualDeck::RackMiddleware, middleware_options)
 end
