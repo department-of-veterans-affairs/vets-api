@@ -54,5 +54,36 @@ describe EVSS::PCIUAddress::Service do
         end
       end
     end
+
+    context 'with an address that fails evss format validation' do
+      let(:user) do
+        build(
+          :loa3_user, first_name: 'Brian', last_name: 'Lawrence', birth_date: '19500423', ssn: '796122667'
+        )
+      end
+      let(:update_address) { build(:pciu_invalid_address) }
+
+      it 'updates and returns a users mailing address' do
+        VCR.use_cassette('evss/pciu_address/address_update_invalid_format') do
+          response = subject.update_address(user, update_address)
+          expect(response).to be_ok
+        end
+      end
+    end
+
+    context 'with an address that fails evss presence validation' do
+      let(:user) do
+        build(
+          :loa3_user, first_name: 'Brian', last_name: 'Lawrence', birth_date: '19500423', ssn: '796122667'
+        )
+      end
+      let(:update_address) { build(:pciu_domestic_address, city: nil) }
+
+      it 'updates and returns a users mailing address' do
+        VCR.use_cassette('evss/pciu_address/address_update_invalid_presence') do
+          expect(subject.update_address(user, update_address)).to raise_error()
+        end
+      end
+    end
   end
 end

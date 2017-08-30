@@ -49,6 +49,7 @@ module EVSS
         raise Common::Exceptions::Forbidden, detail: 'Missing correlation id'
       rescue Common::Client::Errors::ClientError => e
         raise Common::Exceptions::Forbidden if e.status == 403
+        contains_invalid_field?(error)
         log_message_to_sentry(
           e.message, :error, extra_context: { url: config.base_path, body: e.body }
         )
@@ -58,6 +59,16 @@ module EVSS
           e.status,
           e.body
         )
+      end
+
+      def contains_invalid_field?(error)
+        return true if error.status == 400 && has_field_message?(error.body)
+          false
+      end
+
+      def has_field_message?(body)
+        messages = Oj.load(error.body).dig('messages')
+        puts messages
       end
     end
   end

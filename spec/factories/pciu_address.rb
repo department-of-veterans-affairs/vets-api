@@ -43,3 +43,13 @@ FactoryGirl.define do
     zip_code '09028'
   end
 end
+
+FactoryGirl.define do
+  factory :pciu_invalid_address, class: 'EVSS::PCIUAddress::DomesticAddress', parent: :pciu_address do
+    type 'DOMESTIC'
+    address_one '140 Rock Creek Church Rd NW'
+    city 'Washington'
+    state_code 'DC'
+    zip_code '20011'
+  end
+end
