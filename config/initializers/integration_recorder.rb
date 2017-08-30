@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-# This initializer has two parts. The first part overrides SecureRandom and is necessary
-# in both the development and test environments. It does not disable the normal behavior
-# of SecureRandom in any way unless it is invoked. The second part of this initializer
-# introduces a RackMiddleware that helps record all internal interactions,
+# This initializer has two parts.
+# Part 1. Overrides SecureRandom and is necessary in both the development and test environments.
+# It does not disable the normal behavior of SecureRandom in any way unless it is invoked.
+# Part 2 of this initializer introduces a Rack Middleware that helps record all internal interactions,
 # external interactions, and the settings provided to the middleware to faciliate future
 # playback in specs.
 
 # Only override SecureRandom in development and test environments.
 if Rails.env.development? || Rails.env.test?
-  # This module SecureRandom is used in a lot of places.
-  # by overriding this one method SecureRandom#random_bytes, it effectively makes
-  # randomization of things such as UUID and tokens less random.
+  # The module SecureRandom is used in a lot of places. By overriding this one method
+  # SecureRandom#random_bytes, it effectively makes randomization of things such as UUID
+  # and tokens less random.
   # You'll notice that it uses Time.current with milleseconds removed as the seed
   # This is because VCR records dates in httpdate format (without milleseconds).
   # This allows for specs to play back internal_interactions in recorded cassettes and use
@@ -135,7 +135,7 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
         "#{@feature}/external_interactions"
       end
 
-      # This middleware will capture internal in
+      # This middleware will capture internal requests and external requests.
       def call(env)
         if @feature
           ::VCR.use_cassette(feature_settings[:internal_cassette], record: :new_episodes) do
@@ -209,7 +209,7 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
   end
 
   # Enable the RackMiddleware
-  # The settings below will ensure that only new interactions are recorded and not replayed back
+  # The settings below will ensure that only new interactions are recorded and not replayed back.
   # They will record the feature fixtures in:
   # vcr_cassettes/<ENV['DUALDECK_INTERACTION']>
   # If you need to record interactions again, make sure to delete any existing interactions first
