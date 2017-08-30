@@ -96,7 +96,6 @@ group :development, :test do
   # This middleware logs your HTTP requests as CURL compatible commands so you can share the calls with downstream
   # assists in debugging
   gem 'faraday_curl'
-  gem 'vcr_cable'
   gem 'rack-vcr'
   gem 'webmock'
   gem 'timecop'

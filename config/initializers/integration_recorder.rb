@@ -57,9 +57,6 @@ end
 
 # You must pass in a name for the this middleware to use to record.
 if Rails.env.development? && ENV['DUALDECK_INTERACTION']
-  # Set this environment flag programatically to enable VCR-CABLE gem, which
-  # allows you to use VCR in development environment.
-  ENV['ENABLE_VCR_CABLE'] = 'true'
 
   # Configure VCR to record specs, filtering out similar fashion to how we do in RSpec
   # NOTE: This could eventually be consolidated in one place.

@@ -430,9 +430,6 @@ GEM
       thread_safe (~> 0.1)
     unicode-display_width (1.1.1)
     vcr (3.0.3)
-    vcr_cable (1.0.0)
-      rails
-      vcr
     virtus (1.0.5)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
@@ -540,7 +537,6 @@ DEPENDENCIES
   typhoeus
   tzinfo-data
   vcr
-  vcr_cable
   vets_json_schema!
   virtus
   web-console (~> 2.0)
@@ -548,4 +544,4 @@ DEPENDENCIES
   will_paginate
 
 BUNDLED WITH
-   1.15.3
+   1.15.4
