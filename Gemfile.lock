@@ -275,6 +275,8 @@ GEM
       rack
     rack-test (0.6.3)
       rack (>= 1.0)
+    rack-vcr (0.1.5)
+      vcr (>= 2.9)
     rails (4.2.7.1)
       actionmailer (= 4.2.7.1)
       actionpack (= 4.2.7.1)
@@ -504,6 +506,7 @@ DEPENDENCIES
   pry-nav
   puma (~> 2.16.0)
   rack-cors
+  rack-vcr
   rails (= 4.2.7.1)
   rails-api
   rainbow
@@ -541,4 +544,4 @@ DEPENDENCIES
   will_paginate
 
 BUNDLED WITH
-   1.15.2
+   1.15.4
