@@ -27,4 +27,16 @@ describe Common::Exceptions::Forbidden do
                status: '403')
     end
   end
+  
+  context 'with optional detail and code attributes' do
+    subject { described_class.new(detail: 'updated detail', code: 'VETS1100') }
+
+    it 'has unique detail' do
+      expect(subject.errors.first.to_hash)
+        .to eq(title: 'Forbidden',
+               detail: 'updated detail',
+               code: 'VETS1100',
+               status: '403')
+    end
+  end
 end

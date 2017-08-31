@@ -12,7 +12,7 @@ module V0
         redirect_to vic_url
       rescue => e
         # TODO tighten this up
-        raise Common::Exceptions::InternalServerError(e)
+        raise Common::Exceptions::Forbidden, detail: 'Could not verify military service attributes'
       end
     end
 
@@ -21,9 +21,14 @@ module V0
     def authorize
       raise Common::Exceptions::Forbidden unless current_user.loa3?
       # TODO possible change to more specific exceptions with actionable codes
-      raise Common::Exceptions::Forbidden unless current_user.edipi.present?
+      raise Common::Exceptions::Forbidden, detail: 'Unable to verify EDIPI'  unless current_user.edipi.present?
       # TODO enable after local testing
-      #raise Common::Exceptions::Forbidden, detail: 'Not eligible for a Veteran ID Card' unless current_user.veteran?
+      begin
+        raise Common::Exceptions::Forbidden, detail: 'Not eligible for a Veteran ID Card' unless current_user.veteran?
+      rescue => e
+        log_exception_to_sentry(e)
+        raise Common::Exceptions::Forbidden, detail: 'Could not verify Veteran status'
+      end
     end
   end
 end
