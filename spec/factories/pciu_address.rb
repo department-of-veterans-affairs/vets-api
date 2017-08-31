@@ -29,7 +29,6 @@ FactoryGirl.define do
     address_one '2 Avenue Gabriel'
     city 'Paris'
     country_name 'FR'
-    foreign_code '75008'
   end
 end
 
