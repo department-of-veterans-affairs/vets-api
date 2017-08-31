@@ -27,7 +27,7 @@ describe Common::Exceptions::Forbidden do
                status: '403')
     end
   end
-  
+
   context 'with optional detail and code attributes' do
     subject { described_class.new(detail: 'updated detail', code: 'VETS1100') }
 

@@ -6,23 +6,21 @@ module V0
     before_action :authorize
 
     def show
-      begin
-        id_attributes = IdCardAttributes.for_user(current_user)
-        vic_url = VIC::Helper.generate_url(id_attributes)
-        redirect_to vic_url
-      rescue => e
-        # TODO tighten this up
-        raise Common::Exceptions::Forbidden, detail: 'Could not verify military service attributes'
-      end
+      id_attributes = IdCardAttributes.for_user(current_user)
+      vic_url = VIC::Helper.generate_url(id_attributes)
+      redirect_to vic_url
+    rescue => e
+      # TODO: tighten this up
+      raise Common::Exceptions::Forbidden, detail: 'Could not verify military service attributes'
     end
 
     private
 
     def authorize
       raise Common::Exceptions::Forbidden unless current_user.loa3?
-      # TODO possible change to more specific exceptions with actionable codes
-      raise Common::Exceptions::Forbidden, detail: 'Unable to verify EDIPI'  unless current_user.edipi.present?
-      # TODO enable after local testing
+      # TODO: possible change to more specific exceptions with actionable codes
+      raise Common::Exceptions::Forbidden, detail: 'Unable to verify EDIPI' unless current_user.edipi.present?
+      # TODO: enable after local testing
       begin
         raise Common::Exceptions::Forbidden, detail: 'Not eligible for a Veteran ID Card' unless current_user.veteran?
       rescue => e
