@@ -21,6 +21,14 @@ module EducationForm::Forms
       @applicant.currentlyActiveDuty&.nonVaAssistance
     end
 
+    def school
+      @applicant.educationProgram || @applicant.school
+    end
+
+    def education_type
+      @applicant.educationProgram&.educationType || @applicant.educationType
+    end
+
     # Some descriptive text that's included near the top of the 22-1990 form. Because they can make
     # multiple selections, we have to add all the selected ones.
     def disclosures(application)
