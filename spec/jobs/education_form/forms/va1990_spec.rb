@@ -7,7 +7,7 @@ RSpec.describe EducationForm::Forms::VA1990, type: :model, form: :education_bene
   subject { described_class.new(application) }
 
   SAMPLE_APPLICATIONS = [
-    :simple_ch33, :kitchen_sink
+    :simple_ch33, :kitchen_sink, :kitchen_sink_edu_prog
   ].freeze
 
   # For each sample application we have, format it and compare it against a 'known good'
