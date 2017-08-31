@@ -13,55 +13,56 @@ module EVSS
         get_letters_fail: 'api.evss.get_letters.fail',
         get_letter_beneficiary_total: 'api.evss.get_letter_beneficiary.total',
         get_letter_beneficiary_fail: 'api.evss.get_letter_beneficiary.fail',
-        download_letter_total: 'api.evss.download_letter.total',
-        download_letter_fail: 'api.evss.download_letter.fail'
+        download_by_type_total: 'api.evss.download_letter.total',
+        download_by_type_fail: 'api.evss.download_letter.fail'
       }.freeze
 
       def get_letters(user)
-        raw_response = perform(:get, '', nil, headers_for_user(user))
-        EVSS::Letters::LettersResponse.new(raw_response.status, raw_response)
-      rescue StandardError => e
-        StatsD.increment(STATSD_KEYS[:get_letters_fail], tags: ["error:#{e.class}"])
-        handle_error(e)
-      ensure
-        StatsD.increment(STATSD_KEYS[:get_letters_total])
+        with_exception_handling do
+          raw_response = perform(:get, '', nil, headers_for_user(user))
+          EVSS::Letters::LettersResponse.new(raw_response.status, raw_response)
+        end
       end
 
       def get_letter_beneficiary(user)
-        raw_response = perform(:get, 'letterBeneficiary', nil, headers_for_user(user))
-        EVSS::Letters::BeneficiaryResponse.new(raw_response.status, raw_response)
-      rescue StandardError => e
-        StatsD.increment(STATSD_KEYS[:get_letter_beneficiary_fail], tags: ["error:#{e.class}"])
-        handle_error(e)
-      ensure
-        StatsD.increment(STATSD_KEYS[:get_letter_beneficiary_total])
+        with_exception_handling do
+          raw_response = perform(:get, 'letterBeneficiary', nil, headers_for_user(user))
+          EVSS::Letters::BeneficiaryResponse.new(raw_response.status, raw_response)
+        end
       end
 
       def download_by_type(user, type, options = nil)
-        headers = headers_for_user(user)
-        if options.blank?
-          response = download_conn.get type do |request|
-            request.headers.update(headers)
+        with_exception_handling do
+          headers = headers_for_user(user)
+          if options.blank?
+            response = download_conn.get type do |request|
+              request.headers.update(headers)
+            end
+          else
+            headers['Content-Type'] = 'application/json'
+            response = download_conn.post do |request|
+              request.url "#{type}/generate"
+              request.headers.update(headers)
+              request.body = options
+            end
           end
-        else
-          headers['Content-Type'] = 'application/json'
-          response = download_conn.post do |request|
-            request.url "#{type}/generate"
-            request.headers.update(headers)
-            request.body = options
-          end
-        end
 
-        raise Common::Exceptions::RecordNotFound, type if response.status.to_i == 404
-        response.body
-      rescue StandardError => e
-        StatsD.increment(STATSD_KEYS[:download_letter_fail], tags: ["error:#{e.class}"])
-        handle_error(e)
-      ensure
-        StatsD.increment(STATSD_KEYS[:download_letter_total])
+          raise Common::Exceptions::RecordNotFound, type if response.status.to_i == 404
+          response.body
+        end
       end
 
       private
+
+      def with_exception_handling
+        caller = caller_locations(1, 1)[0].label
+        yield
+      rescue StandardError => error
+        StatsD.increment(STATSD_KEYS["#{caller}_fail".to_sym], tags: ["error:#{error.class}"])
+        handle_error(error)
+      ensure
+        StatsD.increment(STATSD_KEYS["#{caller}_total".to_sym])
+      end
 
       def handle_error(error)
         case error
