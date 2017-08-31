@@ -86,6 +86,28 @@ RSpec.describe 'address', type: :request do
       end
     end
 
+    context 'with a 400 from an invalid field' do
+      let(:long_address) { '140 Rock Creek Church Rd NW' }
+      let(:domestic_address) { build(:pciu_domestic_address, address_one: long_address) }
+
+      it 'should match the errors schema' do
+        VCR.use_cassette('evss/pciu_address/address_update_invalid_format') do
+          put '/v0/address', domestic_address.to_json, auth_header.update(
+            'Content-Type' => 'application/json', 'Accept' => 'application/json'
+          )
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_response_schema('errors')
+          expect(Oj.load(response.body)['errors'].first).to eq(
+            'code' => 'EVSS400',
+            'detail' => 'Received a bad request response from the upstream server',
+            'source' => 'EVSS::PCIUAddress',
+            'status' => '400',
+            'title' => 'Bad Request'
+          )
+        end
+      end
+    end
+
     context 'with a 500 response' do
       it 'should match the errors schema' do
         VCR.use_cassette('evss/pciu_address/address_500') do

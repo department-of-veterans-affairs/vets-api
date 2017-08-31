@@ -48,15 +48,23 @@ module EVSS
         log_message_to_sentry(e.message, :error, extra_context: { url: config.base_path })
         raise Common::Exceptions::Forbidden, detail: 'Missing correlation id'
       rescue Common::Client::Errors::ClientError => e
-        raise Common::Exceptions::Forbidden if e.status == 403
-        log_message_to_sentry(
-          e.message, :error, extra_context: { url: config.base_path, body: e.body }
-        )
+        log_message_to_sentry(e.message, :error, extra_context: { url: config.base_path, body: e&.body })
+        case e.status
+        when 400
+          raise_backend_exception('EVSS400', e)
+        when 403
+          raise Common::Exceptions::Forbidden
+        else
+          raise_backend_exception('EVSS502', e)
+        end
+      end
+
+      def raise_backend_exception(key, error)
         raise Common::Exceptions::BackendServiceException.new(
-          'EVSS502',
+          key,
           { source: 'EVSS::PCIUAddress' },
-          e.status,
-          e.body
+          error.status,
+          error.body
         )
       end
     end
