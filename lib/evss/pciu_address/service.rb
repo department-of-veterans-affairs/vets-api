@@ -45,8 +45,8 @@ module EVSS
       def with_exception_handling
         yield
       rescue Faraday::ParsingError => e
-        log_message_to_sentry(e.message, :error, extra_context: { url: config.base_path })
-        raise Common::Exceptions::Forbidden, detail: 'Missing correlation id'
+        log_exception_to_sentry(e, extra_context: { url: config.base_path })
+        raise_backend_exception('EVSS502')
       rescue Common::Client::Errors::ClientError => e
         log_message_to_sentry(e.message, :error, extra_context: { url: config.base_path, body: e&.body })
         case e.status
@@ -59,12 +59,12 @@ module EVSS
         end
       end
 
-      def raise_backend_exception(key, error)
+      def raise_backend_exception(key, error = nil)
         raise Common::Exceptions::BackendServiceException.new(
           key,
           { source: 'EVSS::PCIUAddress' },
-          error.status,
-          error.body
+          error&.status,
+          error&.body
         )
       end
     end
