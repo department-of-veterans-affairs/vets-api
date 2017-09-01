@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'common/models/base'
+require_relative 'pciu_address_line_validator'
 
 module EVSS
   module PCIUAddress
@@ -19,17 +20,11 @@ module EVSS
       attribute :address_one, String
       attribute :address_two, String
       attribute :address_three, String
-      attribute :city, String
       attribute :country_name, String
 
-      validates :address_one, presence: true
-      validates_format_of(
-        :address_one,
-        :address_two,
-        :address_three,
-        with: %r([-a-zA-Z0-9 \"#%&'()+,.\/:@]{1,20}),
-        allow_blank: true
-      )
+      validates :address_one, pciu_address_line: true, presence: true
+      validates :address_two, pciu_address_line: true
+      validates :address_three, pciu_address_line: true
       validates :type, inclusion: { in: ADDRESS_TYPES.values }
 
       def self.build_address(attrs)

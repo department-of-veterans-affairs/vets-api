@@ -16,9 +16,6 @@
     "type": {
       "type": "string"
     },
-    "city": {
-      "type": "string"
-    },
     "country_name": {
       "type": "string"
     },
