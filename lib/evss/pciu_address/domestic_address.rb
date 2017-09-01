@@ -11,7 +11,6 @@ module EVSS
 
       validates :city, pciu_address_line: true, presence: true
       validates :state_code, presence: true
-      validates :country_name, presence: true
       validates :zip_code, presence: true
     end
   end

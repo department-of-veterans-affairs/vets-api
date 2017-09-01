@@ -20,8 +20,7 @@ describe EVSS::PCIUAddress::Address do
         address = EVSS::PCIUAddress::Address.build_address(domestic_address.as_json)
         expect(address.valid?).to be_falsey
         expect(address.errors.messages).to eq(
-          address_one: ["can't be blank"],
-          country_name: ["can't be blank"]
+          address_one: ["can't be blank"]
         )
       end
     end

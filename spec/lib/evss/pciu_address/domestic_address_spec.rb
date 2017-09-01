@@ -33,8 +33,8 @@ describe EVSS::PCIUAddress::DomesticAddress do
     expect(build(:pciu_domestic_address, state_code: '')).to_not be_valid
   end
 
-  it 'should require country_name' do
-    expect(build(:pciu_domestic_address, country_name: '')).to_not be_valid
+  it 'should not require country_name' do
+    expect(build(:pciu_domestic_address, country_name: '')).to be_valid
   end
 
   it 'should require zip_code' do
