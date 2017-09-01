@@ -6,7 +6,6 @@ FactoryGirl.define do
     address_one ''
     address_two ''
     address_three ''
-    country_name ''
   end
 end
 
@@ -27,7 +26,7 @@ FactoryGirl.define do
     type 'INTERNATIONAL'
     address_one '2 Avenue Gabriel'
     city 'Paris'
-    country_name 'FR'
+    country_name 'France'
   end
 end
 

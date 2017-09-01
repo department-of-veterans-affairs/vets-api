@@ -5,6 +5,7 @@ module EVSS
     class DomesticAddress < Address
       attribute :city, String
       attribute :state_code, String
+      attribute :country_name, String
       attribute :zip_code, String
       attribute :zip_suffix, String
 

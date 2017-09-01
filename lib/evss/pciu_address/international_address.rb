@@ -4,6 +4,7 @@ module EVSS
   module PCIUAddress
     class InternationalAddress < Address
       attribute :city, String
+      attribute :country_name, String
 
       validates :city, pciu_address_line: true, presence: true
       validates :country_name, presence: true

@@ -12,7 +12,6 @@ module EVSS
       attribute :zip_suffix, String
 
       validates :zip_code, presence: true
-      validates :zip_suffix, presence: true
       validates :military_post_office_type_code, presence: true, inclusion: { in: MILITARY_POST_OFFICE_TYPES }
       validates :military_state_code, presence: true, inclusion: { in: MILITARY_STATE_CODES }
     end

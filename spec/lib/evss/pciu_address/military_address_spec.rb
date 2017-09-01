@@ -14,10 +14,6 @@ describe EVSS::PCIUAddress::MilitaryAddress do
     expect(build(:pciu_military_address, zip_code: '')).to_not be_valid
   end
 
-  it 'should require zip_suffix' do
-    expect(build(:pciu_military_address, zip_suffix: '')).to_not be_valid
-  end
-
   it 'should have a valid military_post_office_type_code' do
     expect(build(:pciu_military_address, military_post_office_type_code: 'APO')).to be_valid
     expect(build(:pciu_military_address, military_post_office_type_code: 'NOO')).to_not be_valid

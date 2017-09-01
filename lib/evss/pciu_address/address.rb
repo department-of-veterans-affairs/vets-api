@@ -20,7 +20,6 @@ module EVSS
       attribute :address_one, String
       attribute :address_two, String
       attribute :address_three, String
-      attribute :country_name, String
 
       validates :address_one, pciu_address_line: true, presence: true
       validates :address_two, pciu_address_line: true
