@@ -14,6 +14,8 @@ module EVSS
         international: 'INTERNATIONAL',
         military: 'MILITARY'
       }.freeze
+      ZIP_CODE_REGEX = %r(\A\d{5}\z)
+      ZIP_SUFFIX_REGEX = %r(\A-?\d{4}\z)
 
       attribute :type, String
       attribute :address_effective_date, DateTime

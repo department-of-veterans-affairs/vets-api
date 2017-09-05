@@ -37,7 +37,14 @@ describe EVSS::PCIUAddress::DomesticAddress do
     expect(build(:pciu_domestic_address, country_name: '')).to be_valid
   end
 
-  it 'should require zip_code' do
+  it 'should require and validate zip_code' do
     expect(build(:pciu_domestic_address, zip_code: '')).to_not be_valid
+    expect(build(:pciu_domestic_address, zip_code: 'abc12')).to_not be_valid
+    expect(build(:pciu_domestic_address, zip_code: '987655')).to_not be_valid
+  end
+
+  it 'should validate zip_suffix if it is present' do
+    expect(build(:pciu_domestic_address, zip_suffix: '1234')).to be_valid
+    expect(build(:pciu_domestic_address, zip_suffix: 'ab12')).to_not be_valid
   end
 end
