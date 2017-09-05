@@ -80,14 +80,23 @@ module EducationForm
     end
 
     def format_application(data, rpo: 0)
-      form = EducationForm::Forms::Base.build(data)
-      track_form_type("22-#{data.form_type}", rpo)
-      form
+      if data.valid?
+        form = EducationForm::Forms::Base.build(data)
+        track_form_type("22-#{data.form_type}", rpo)
+        form
+      else
+        inform_on_error(data)
+        nil
+      end
     rescue
-      StatsD.increment('worker.education_benefits_claim.failed_formatting')
-      exception = FormattingError.new("Could not format #{data.confirmation_number}")
-      log_exception_to_sentry(exception)
+      inform_on_error(data)
       nil
+    end
+
+    def inform_on_error(claim)
+      StatsD.increment('worker.education_benefits_claim.failed_formatting')
+      exception = FormattingError.new("Could not format #{claim.confirmation_number}")
+      log_exception_to_sentry(exception)
     end
 
     private

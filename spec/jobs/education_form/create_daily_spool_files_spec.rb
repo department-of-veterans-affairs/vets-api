@@ -62,6 +62,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     it 'logs an error if the record is invalid' do
       expect(application_1606).to receive(:open_struct_form).once.and_return(OpenStruct.new)
       expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::FormattingError))
+
       subject.format_application(application_1606)
     end
 
@@ -102,7 +103,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       before do
         expect(Rails.env).to receive('development?').once { true }
         application_1606.form = {}.to_json
-        application_1606.save! # Make this claim super malformed
+        application_1606.save!(validate: false) # Make this claim super malformed
+        application_1606.reload
         FactoryGirl.create(:education_benefits_claim_western_region)
         FactoryGirl.create(:education_benefits_claim_1995_full_form)
         # clear out old test files
