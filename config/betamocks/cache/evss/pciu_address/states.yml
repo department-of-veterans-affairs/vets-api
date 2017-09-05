@@ -64,9 +64,11 @@
   - VI
   - PI
 :headers:
-  Date: Wed, 30 Aug 2017 00:24:47 GMT
+  Date: Fri, 01 Sep 2017 23:05:41 GMT
   Server: Apache/2.4.6 (CentOS) OpenSSL/1.0.1e-fips
   Content-Type: application/json
+  Set-Cookie: wss-pciu-services_JSESSIONID=x8Q_sVodixraXs8fb_n3tNdnxMUrjxlWUhlYMw8TdNSgmJ8ZnJ5e!-1425645019;
+    path=/; HttpOnly
   Via: 1.1 csraciapp6.evss.srarad.com
   Transfer-Encoding: chunked
 :status: 200

@@ -215,10 +215,9 @@
   - Zambia
   - Zimbabwe
 :headers:
-  Date: Wed, 30 Aug 2017 00:24:36 GMT
+  Date: Fri, 01 Sep 2017 22:58:13 GMT
   Server: Apache/2.4.6 (CentOS) OpenSSL/1.0.1e-fips
   Content-Type: application/json
-  Set-Cookie: WLS_12.1_App1_Cluster_ROUTEID=.01; path=/
   Via: 1.1 csraciapp6.evss.srarad.com
   Transfer-Encoding: chunked
 :status: 200
