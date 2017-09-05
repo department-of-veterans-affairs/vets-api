@@ -8,7 +8,7 @@ module V0
     def show
       id_attributes = IdCardAttributes.for_user(current_user)
       vic_url = VIC::Helper.generate_url(id_attributes)
-      redirect_to vic_url
+      render json: { 'redirect' => vic_url }
     rescue => e
       # TODO: tighten this up
       raise Common::Exceptions::Forbidden, detail: 'Could not verify military service attributes'
