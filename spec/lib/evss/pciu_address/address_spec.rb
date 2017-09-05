@@ -66,7 +66,7 @@ describe EVSS::PCIUAddress::Address do
         address = EVSS::PCIUAddress::Address.build_address(military_address.as_json)
         expect(address.valid?).to be_falsey
         expect(address.errors.messages).to eq(
-          zip_code: ["can't be blank", "is invalid"],
+          zip_code: ["can't be blank", 'is invalid'],
           military_post_office_type_code: ['is not included in the list'],
           military_state_code: ['is not included in the list']
         )
