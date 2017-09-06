@@ -8,6 +8,7 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
   let(:service_episodes) { [build(:service_episode)] }
 
   before do
+    Settings.vic.signing_key_path = "#{::Rails.root}/spec/support/certificates/vic-signing-key.pem"
     use_authenticated_current_user(current_user: current_user)
   end
 
