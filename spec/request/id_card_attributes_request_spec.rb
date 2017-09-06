@@ -5,7 +5,7 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
   let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
   let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
   let(:current_user) { build(:loa3_user) }
-  let(:service_episodes) { [ build(:service_episode) ] }
+  let(:service_episodes) { [build(:service_episode)] }
 
   before do
     use_authenticated_current_user(current_user: current_user)
@@ -13,7 +13,7 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
 
   def url_param_map(url)
     params = URI.decode_www_form(url.query)
-    params.each_with_object({}) {|a,h| h[a.first] = a.last }
+    params.each_with_object({}) { |a, h| h[a.first] = a.last }
   end
 
   describe '#show /v0/id_card_attributes' do
@@ -24,7 +24,28 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
       url = URI(json['redirect'])
-      expect(url_param_map(url).has_key?('signature')).to be_truthy
+      expect(url_param_map(url).key?('signature')).to be_truthy
+    end
+
+    it 'should return Forbidden if military information not retrievable' do
+      expect_any_instance_of(EMISRedis::MilitaryInformation)
+        .to receive(:service_episodes_by_date).and_raise(StandardError)
+      get '/v0/id_card_attributes', headers: auth_header
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it 'should return Forbidden for non-veteran user' do
+      expect_any_instance_of(EMISRedis::VeteranStatus)
+        .to receive(:veteran?).and_return(false)
+      get '/v0/id_card_attributes', headers: auth_header
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it 'should return Forbidden when veteran status not retrievable' do
+      expect_any_instance_of(EMISRedis::VeteranStatus)
+        .to receive(:veteran?).and_raise(StandardError)
+      get '/v0/id_card_attributes', headers: auth_header
+      expect(response).to have_http_status(:forbidden)
     end
   end
 end

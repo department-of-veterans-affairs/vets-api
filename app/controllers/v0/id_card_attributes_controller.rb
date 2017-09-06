@@ -21,9 +21,11 @@ module V0
     def authorize
       raise Common::Exceptions::Forbidden, code: 'VIC001' unless current_user.loa3?
       # TODO: possible change to more specific exceptions with actionable codes
-      raise Common::Exceptions::Forbidden, detail: 'Unable to verify EDIPI', code: 'VIC002'  unless current_user.edipi.present?
+      raise Common::Exceptions::Forbidden, detail: 'Unable to verify EDIPI', code: 'VIC002' unless
+        current_user.edipi.present?
       begin
-        raise Common::Exceptions::Forbidden, detail: 'Not eligible for a Veteran ID Card', code: 'VIC003'  unless current_user.veteran?
+        raise Common::Exceptions::Forbidden, detail: 'Not eligible for a Veteran ID Card', code: 'VIC003' unless
+          current_user.veteran?
       rescue => e
         log_exception_to_sentry(e)
         raise Common::Exceptions::Forbidden, detail: 'Could not verify Veteran status', code: 'VIC004'
