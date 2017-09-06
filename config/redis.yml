@@ -29,6 +29,9 @@ development: &defaults
   facility_access_wait_time:
     namespace: facility-access-wait-time
     each_ttl: 2592000
+  pciu_address_dependencies:
+    namespace: pciu-address-dependencies
+    each_ttl: 604800
 
 test:
   <<: *defaults

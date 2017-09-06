@@ -14,6 +14,9 @@ module EVSS
       validates :zip_code, presence: true
       validates :military_post_office_type_code, presence: true, inclusion: { in: MILITARY_POST_OFFICE_TYPES }
       validates :military_state_code, presence: true, inclusion: { in: MILITARY_STATE_CODES }
+
+      validates_format_of :zip_code, with: ZIP_CODE_REGEX
+      validates_format_of :zip_suffix, with: ZIP_SUFFIX_REGEX, allow_blank: true
     end
   end
 end
