@@ -48,6 +48,7 @@ module MVI
         conn.request :soap_headers
         conn.response :soap_parser
         conn.use :breakers
+        conn.response :betamocks if Betamocks.configuration.enabled
         conn.adapter Faraday.default_adapter
       end
     end
