@@ -10,7 +10,8 @@ module V0
       vic_url = VIC::Helper.generate_url(id_attributes)
       render json: { 'redirect' => vic_url }
     rescue => e
-      # TODO: tighten this up
+      # TODO: Tighten this up. Only likely application error is branch of service data from eMIS.
+      # Could also get a more general error in signing request.
       raise Common::Exceptions::Forbidden, detail: 'Could not verify military service attributes'
     end
 
@@ -20,7 +21,6 @@ module V0
       raise Common::Exceptions::Forbidden unless current_user.loa3?
       # TODO: possible change to more specific exceptions with actionable codes
       raise Common::Exceptions::Forbidden, detail: 'Unable to verify EDIPI' unless current_user.edipi.present?
-      # TODO: enable after local testing
       begin
         raise Common::Exceptions::Forbidden, detail: 'Not eligible for a Veteran ID Card' unless current_user.veteran?
       rescue => e
