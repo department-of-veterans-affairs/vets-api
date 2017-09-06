@@ -21,18 +21,6 @@ module SAML
       { current: loa_current, highest: loa_highest(attributes) }
     end
 
-    def mhv_user?
-      @authn_context == 'mhv'
-    end
-
-    def dslogon_user?
-      @authn_context == 'dslogon'
-    end
-
-    def idme_user?
-      !mhv_user? && !dslogon_user?
-    end
-
     def to_hash
       Hash[serializable_attributes.map { |k| [k, @decorated.send(k)] }]
     end

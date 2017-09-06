@@ -25,7 +25,7 @@ module SAML
       end
 
       def gender
-        parse_gender(attributes['gender'])
+        attributes['gender']&.chars&.first&.upcase
       end
 
       def ssn
@@ -44,11 +44,6 @@ module SAML
 
       def serializable_attributes
         %i(first_name middle_name last_name zip email gender ssn birth_date uuid)
-      end
-
-      def parse_gender(gender)
-        return nil unless gender
-        gender[0].upcase
       end
     end
   end
