@@ -1,104 +1,109 @@
 source 'https://rubygems.org'
-gem 'rails', '4.2.7.1'
-gem "puma", "~> 2.16.0"
 
-gem 'ruby-saml', '~> 1.3.0'
-gem 'sdoc', '~> 0.4.0', group: :doc # bundle exec rake doc:rails generates the API under doc/api.
-gem 'redis'
-gem 'redis-namespace'
-gem 'virtus'
-gem 'rails-api'
-gem 'figaro'
-gem 'config'
-gem 'pg'
-gem 'json-schema'
+# Anchored versions, do not change
+gem "puma", "~> 2.16.0"
+gem 'rails', '4.2.7.1'
+
+# Gems with special version/repo needs
+gem 'carrierwave', '~> 0.11' # TODO: explanation
+gem 'ruby-saml', '~> 1.3.0' # TODO: explanation
+# bundle exec rake doc:rails generates the API under doc/api.
+gem 'sdoc', '~> 0.4.0', group: :doc # TODO: explanation
+gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
+
+gem 'aasm'
 gem 'active_model_serializers'
-gem 'will_paginate'
-gem 'sentry-raven'
+gem 'attr_encrypted'
+gem 'aws-sdk'
+gem 'breakers'
+gem 'carrierwave-aws'
+gem 'clam_scan'
+gem 'combine_pdf'
+gem 'config'
+gem 'date_validator'
 gem 'faraday'
 gem 'faraday_middleware'
+gem 'fastimage'
+gem 'figaro'
+gem 'govdelivery-tms', require: 'govdelivery/tms/mail/delivery_method'
+gem 'gyoku'
+gem 'holidays'
 gem 'httpclient'
-gem 'attr_encrypted'
+gem 'ice_nine'
+gem 'iconv'
+gem 'json-schema'
+gem 'memoist'
+gem 'mini_magick'
+gem 'net-sftp'
+gem 'nokogiri'
+gem 'octokit'
+gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'olive_branch'
 gem 'ox'
-gem 'savon'
-gem 'gyoku'
+gem 'pdf-forms'
+gem 'pdf-reader'
+gem 'pg'
+gem 'prawn'
+gem 'rack-cors', :require => 'rack/cors'
+gem 'rails-api'
+gem 'redis'
+gem 'redis-namespace'
 gem 'require_all'
+gem 'savon'
+gem 'sentry-raven'
+gem 'shrine'
 gem 'sidekiq'
-gem 'sidekiq-unique-jobs'
-gem 'sidekiq-scheduler', '~> 2.0'
 gem 'sidekiq-instrument'
 gem 'sidekiq-rate-limiter'
-gem 'shrine'
-gem 'fastimage'
-gem 'carrierwave-aws'
-gem 'carrierwave', '~> 0.11'
-gem 'typhoeus'
-gem 'rack-cors', :require => 'rack/cors'
-gem 'net-sftp'
-gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
-gem 'breakers'
-gem 'govdelivery-tms', require: 'govdelivery/tms/mail/delivery_method'
+gem 'sidekiq-unique-jobs'
 gem 'statsd-instrument'
-gem 'memoist'
-gem 'date_validator'
-gem 'nokogiri'
 gem 'swagger-blocks'
-gem 'aasm'
-gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
-gem 'octokit'
-gem 'holidays'
-gem 'iconv'
-gem 'ice_nine'
-gem 'pdf-reader'
-gem 'aws-sdk'
-gem 'mini_magick'
-gem 'pdf-forms'
-gem 'clam_scan'
-gem 'prawn'
-gem 'combine_pdf'
-
-group :development, :test do
-  gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem "rainbow" # Used to colorize output for rake tasks
-  gem 'rubocop', '~> 0.42.0', require: false
-  gem 'brakeman'
-  gem 'bundler-audit'
-  gem 'rspec-rails', '~> 3.5'
-  gem 'guard-rspec', '~> 4.7'
-  gem 'pry-nav'
-  gem 'factory_girl_rails'
-  gem 'foreman'
-  gem 'overcommit'
-  gem 'faraday_curl'
-  gem 'rack-vcr'
-  gem 'webmock'
-  gem 'timecop'
-end
-
-group :test do
-  gem 'apivore'
-  gem 'faker'
-  gem 'faker-medical'
-  gem 'simplecov', require: false
-  gem 'fakeredis'
-  gem 'vcr'
-  gem 'awrence'
-  gem 'climate_control'
-  gem 'shrine-memory'
-  gem 'pdf-inspector'
-  gem 'rspec_junit_formatter'
-  gem 'rubocop-junit-formatter'
-end
+gem 'typhoeus'
+gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
+gem 'virtus'
+gem 'will_paginate'
 
 group :development do
-  # Access an IRB console on exception pages or by using <%= console %> in views
-  gem 'web-console', '~> 2.0', platforms: :ruby
+  gem 'guard-rubocop'
   gem 'spring', platforms: :ruby # Spring speeds up development by keeping your application running in the background
   gem 'spring-commands-rspec'
 
   # Include the IANA Time Zone Database on Windows, where Windows doens't ship with a timezone database.
   # POSIX systems should have this already, so we're not going to bring it in on other platforms
   gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
-  gem 'guard-rubocop'
+  # Access an IRB console on exception pages or by using <%= console %> in views
+  gem 'web-console', '~> 2.0', platforms: :ruby
+end
+
+group :test do
+  gem 'apivore'
+  gem 'awrence'
+  gem 'climate_control'
+  gem 'faker'
+  gem 'faker-medical'
+  gem 'fakeredis'
+  gem 'pdf-inspector'
+  gem 'rspec_junit_formatter'
+  gem 'rubocop-junit-formatter'
+  gem 'shrine-memory'
+  gem 'simplecov', require: false
+  gem 'vcr'
+end
+
+group :development, :test do
+  gem "rainbow" # Used to colorize output for rake tasks
+  gem 'brakeman'
+  gem 'bundler-audit'
+  gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+  gem 'factory_girl_rails'
+  gem 'faraday_curl'
+  gem 'foreman'
+  gem 'guard-rspec', '~> 4.7'
+  gem 'overcommit'
+  gem 'pry-nav'
+  gem 'rack-vcr'
+  gem 'rspec-rails', '~> 3.5'
+  gem 'rubocop', '~> 0.42.0', require: false
+  gem 'timecop'
+  gem 'webmock'
 end
