@@ -5,7 +5,7 @@ require 'mvi/messages/find_profile_message'
 require 'mvi/service'
 require 'evss/common_service'
 require 'evss/auth_headers'
-require 'saml/user_attributes'
+require 'saml/user'
 
 class User < Common::RedisStore
   UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
@@ -107,7 +107,8 @@ class User < Common::RedisStore
   end
 
   def self.from_saml(saml_response)
-    User.new(SAML::UserAttributes.new(saml_response))
+    saml_user = SAML::User.new(saml_response)
+    User.new(saml_user)
   end
 
   delegate :edipi, to: :mvi
