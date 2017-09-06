@@ -6,29 +6,29 @@ require 'openssl'
 
 module VIC
   class Helper
+    class << self
+      def generate_url(id_attributes)
+        params = id_attributes.traits
+        params['timestamp'] = Time.now.utc.iso8601
 
-    def self.generate_url(id_attributes)
-      params = id_attributes.traits
-      params["timestamp"] = Time.now.utc.iso8601
+        canonical_string = Oj.dump(params)
+        params['signature'] = Helper.sign(canonical_string)
 
-      canonical_string = Oj.dump(params)
-      params["signature"] = Helper.sign(canonical_string)
+        base_url = URI(Settings.vic.url)
+        base_url.query = URI.encode_www_form(params)
+        base_url.to_s
+      end
 
-      base_url = URI(Settings.vic.url)
-      base_url.query = URI.encode_www_form(params)
-      base_url.to_s
+      private
+
+      def sign(canonical_string)
+        digest = OpenSSL::Digest::SHA256.new
+        Base64.urlsafe_encode64(Helper.signing_key.sign(digest, canonical_string))
+      end
+
+      def signing_key
+        @key ||= OpenSSL::PKey::RSA.new(File.read(Settings.vic.signing_key_path))
+      end
     end
-
-    private
-
-    def self.sign(canonical_string)
-      digest = OpenSSL::Digest::SHA256.new
-      Base64.urlsafe_encode64(Helper.signing_key.sign(digest,canonical_string))
-    end
-
-    def self.signing_key
-      @key ||= OpenSSL::PKey::RSA.new(File.read(Settings.vic.signing_key_path))
-    end
-
   end
 end
