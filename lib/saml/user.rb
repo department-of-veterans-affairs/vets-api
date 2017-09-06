@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'saml/user_attributes/id_me'
 require 'saml/user_attributes/mhv'
 
@@ -37,13 +38,14 @@ module SAML
     end
 
     private
+
     def serializable_attributes
       @decorated.send(:serializable_attributes) + %i(last_signed_in loa)
     end
 
     def decorator_constant
       "SAML::UserAttributes::#{@authn_context.upcase}".safe_constantize ||
-      SAML::UserAttributes::IdMe
+        SAML::UserAttributes::IdMe
     end
 
     def loa_current

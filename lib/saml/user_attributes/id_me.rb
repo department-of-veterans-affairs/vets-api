@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'saml/user_attributes/base_decorator'
 
 module SAML
