@@ -54,5 +54,17 @@ describe EVSS::PCIUAddress::Service do
         end
       end
     end
+
+    context 'with evss internal server error' do
+      let(:update_address) { build(:pciu_domestic_address) }
+
+      it 'returns a users mailing address' do
+        VCR.use_cassette('evss/pciu_address/update_invalid') do
+          expect { subject.update_address(user, update_address) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
   end
 end
