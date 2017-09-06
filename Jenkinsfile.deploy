@@ -33,6 +33,7 @@ pipeline {
       steps {
         dir('ansible') {
           sh 'virtualenv venv'
+          sh 'venv/bin/pip install --upgrade pip'
           sh 'venv/bin/pip install -r requirements.txt'
         }
       }
