@@ -4,19 +4,27 @@ require 'rails_helper'
 RSpec.describe 'Requesting ID Card Attributes', type: :request do
   let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
   let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
-  let(:user) { build(:loa3_user) }
+  let(:current_user) { build(:loa3_user) }
+  let(:service_episodes) { [ build(:service_episode) ] }
 
   before do
-    Session.create(uuid: user.uuid, token: token)
-    User.create(user)
+    use_authenticated_current_user(current_user: current_user)
+  end
+
+  def url_param_map(url)
+    params = URI.decode_www_form(url.query)
+    params.each_with_object({}) {|a,h| h[a.first] = a.last }
   end
 
   describe '#show /v0/id_card_attributes' do
     it 'should return a signed redirect URL' do
+      expect_any_instance_of(EMISRedis::MilitaryInformation)
+        .to receive(:service_episodes_by_date).and_return(service_episodes)
       get '/v0/id_card_attributes', headers: auth_header
-      expect(response).to have_http_status(:found)
-      expect(response.headers['Location']).to be
-      # TODO: add specs to verify signing with self-signed test cert
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      url = URI(json['redirect'])
+      expect(url_param_map(url).has_key?('signature')).to be_truthy
     end
   end
 end

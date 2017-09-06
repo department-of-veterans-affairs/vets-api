@@ -19,8 +19,6 @@ module VIC
         base_url.to_s
       end
 
-      private
-
       def sign(canonical_string)
         digest = OpenSSL::Digest::SHA256.new
         Base64.urlsafe_encode64(Helper.signing_key.sign(digest, canonical_string))
