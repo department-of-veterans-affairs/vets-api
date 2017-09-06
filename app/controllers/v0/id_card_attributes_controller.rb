@@ -12,6 +12,7 @@ module V0
     rescue => e
       # TODO: Tighten this up. Only likely application error is branch of service data from eMIS.
       # Could also get a more general error in signing request.
+      log_exception_to_sentry(e)
       raise Common::Exceptions::Forbidden, detail: 'Could not verify military service attributes'
     end
 
