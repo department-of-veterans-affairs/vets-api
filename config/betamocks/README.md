@@ -12,12 +12,11 @@ betamocks_cache_path: /config/betamocks/local_cache
 cp config/services_config.yml.example config/services_config.yml
 ```
 
-3. _Skip this step if a friendly neighborhood back-end dev has created a service description for you_...
-Add endpoints to be mocked to the services config file. 
+3. _Skip this step if a friendly neighborhood back-end dev has created a service description for you_. Add endpoints to be mocked to the services config file. 
 Each service description has
 an array of `base_uris` for each environment to be mocked (e.g. local/CI, dev/INT, staging/PINT).
 `endpoints` is an array of hashes with:
-- `method:` a symbol of the http verb :get, :post, :put...
+- `method:` a symbol of the http verb `:get`, `:post`, `:put`...
 - `path:` the path that combined with the base_uri makes a full URI
 - `file_path:` where to save the file (relative to betamocks' cache dir)
 ```yaml
