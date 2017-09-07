@@ -17,7 +17,8 @@
               "type": "string"
             }
           },
-          "type": "object"
+          "type": "object",
+          "required": ["letters", "full_name"]
         },
         "id": {
           "type": "string"
