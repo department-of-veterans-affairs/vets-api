@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: badd13aa3a754917901d131c6783e61794cbc9e7
+  revision: 3e84eeca91f83f421418e086d6149965c48db773
   branch: master
   specs:
-    vets_json_schema (3.1.0)
+    vets_json_schema (3.2.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -222,7 +222,7 @@ GEM
     mini_magick (4.7.0)
     mini_portile2 (2.2.0)
     minitest (5.10.2)
-    multi_json (1.12.1)
+    multi_json (1.12.2)
     multipart-post (2.0.0)
     nenv (0.3.0)
     net-sftp (2.1.2)

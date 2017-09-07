@@ -6,13 +6,11 @@ module EVSS
   module Letters
     class LettersResponse < EVSS::Response
       attribute :letters, Array[EVSS::Letters::Letter]
-      attribute :address, EVSS::Letters::Address
 
       def initialize(status, response = nil)
         if response
           attributes = {
-            letters: response.body['letters'],
-            address: response.body['letter_destination']
+            letters: response.body['letters']
           }
         end
         super(status, attributes)
