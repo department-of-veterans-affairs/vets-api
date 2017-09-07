@@ -13,7 +13,7 @@ describe Workflow::Task::Shared::ConvertToPdf do
 
   describe '#run' do
     context 'with an image' do
-      let(:file) { File.open(Rails.root.join('spec', 'support', 'fixtures', 'va.gif')) }
+      let(:file) { File.open(Rails.root.join('spec', 'fixtures', 'files', 'va.gif')) }
 
       it 'converts an image to pdf format' do
         expect(instance.file.metadata['mime_type']).to eq('image/gif')
@@ -23,7 +23,7 @@ describe Workflow::Task::Shared::ConvertToPdf do
     end
 
     context 'when an image is not what it seems' do
-      let(:file) { File.open(Rails.root.join('spec', 'support', 'fixtures', 'imagetragick.jpg')) }
+      let(:file) { File.open(Rails.root.join('spec', 'fixtures', 'files', 'imagetragick.jpg')) }
 
       it 'raise an IOError' do
         expect { instance.run }.to raise_error IOError, 'PDF conversion failed, unsupported file type: text/plain'
