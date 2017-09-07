@@ -8,15 +8,20 @@ module V0
     STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
+    BENCHMARK_LOGIN = 'login'
+    BENCHMARK_LOGOUT = 'logout'
 
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
+      benchmark_start(BENCHMARK_LOGIN, saml_auth_request.uuid)
       render json: { authenticate_via_get: saml_auth_request.create(saml_settings, saml_options) }
     end
 
     def destroy
       logout_request = OneLogin::RubySaml::Logoutrequest.new
       logger.info "New SP SLO for userid '#{@session.uuid}'"
+
+      benchmark_start(BENCHMARK_LOGOUT, logout_request.uuid)
 
       # cache the request for @session.token lookup when we receive the response
       SingleLogoutRequest.create(uuid: logout_request.uuid, token: @session.token)
@@ -42,9 +47,11 @@ module V0
 
         obscure_token = Session.obscure_token(@session.token)
         Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
+        benchmark_end(BENCHMARK_LOGIN, @saml_response.in_response_to, tags: ['successful'])
       else
         handle_login_error
         redirect_to Settings.saml.relay + '?auth=fail'
+        benchmark_end(BENCHMARK_LOGIN, @saml_response.in_response_to, tags: ['failure'])
       end
     ensure
       StatsD.increment(STATSD_LOGIN_TOTAL_KEY)
@@ -92,6 +99,7 @@ module V0
         extra_context = { in_response_to: logout_response&.in_response_to }
         log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
         redirect_to Settings.saml.logout_relay + '?success=false'
+        benchmark_end(BENCHMARK_LOGOUT, logout_response&.in_response_to, tags: ['failure'])
       else
         logout_request.destroy
         session.destroy
@@ -99,6 +107,7 @@ module V0
         redirect_to Settings.saml.logout_relay + '?success=true'
         # even if mhv logout raises exception, still consider logout successful from browser POV
         MHVLoggingService.logout(user)
+        benchmark_end(BENCHMARK_LOGOUT, logout_response.in_response_to, tags: ['successful'])
       end
     end
 
@@ -114,6 +123,27 @@ module V0
 
     def saml_options
       Settings.review_instance_slug.blank? ? {} : { RelayState: Settings.review_instance_slug }
+    end
+
+    def benchmark_start(type, uuid)
+      benchmark_key = "benchmark_#{type}_#{uuid}"
+      Redis.current.multi do |redis|
+        redis.set(benchmark_key, Time.now.to_f)
+        redis.expire(benchmark_key, 3600)
+      end
+    end
+
+    def benchmark_end(type, uuid, **extra)
+      benchmark_key = "benchmark_#{type}_#{uuid}"
+      start = Redis.current.get(benchmark_key)
+
+      if start.nil?
+        Rails.logger.warn("Could not find benchmark start for #{benchmark_key}")
+        return
+      end
+
+      elapsed = (Time.now.to_f - start.to_f) * 1000
+      StatsD.measure("api.auth.#{type}", elapsed, **extra)
     end
   end
 end
