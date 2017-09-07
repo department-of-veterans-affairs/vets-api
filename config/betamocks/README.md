@@ -36,6 +36,23 @@ an array of `base_uris` for each environment to be mocked (e.g. local/CI, dev/IN
 without hitting the real service. If a cache file does not exist one will be recorded (turn on your VA VPNs),
 all subsequent requests will use the cache (feel free to turn off your VA VPNs).
 
+## Mocking error responses
+To make an endpoint return a non 200 response add an error key to the endpoint hash
+with an optional body. Restart rails after updating the service config:
+```yaml
+- :method: :get
+  :path: "/wss-pciu-services-web/rest/pciuServices/v1/states"
+  :file_path: "evss/pciu_address"
+  :error: 400
+```
+```yaml
+- :method: :get
+  :path: "/wss-pciu-services-web/rest/pciuServices/v1/states"
+  :file_path: "evss/pciu_address"
+  :error: 420
+  :body: '{"key": "letter.generator.error", "message": "the letter generator hamsters have fallen asleep"}'
+```
+
 ## Caching mulitple responses
 To record multiple responses for a URI you can add a wildcard in place of the identifier
 and add a matching locator or in the case of endpoints that use header or body values for identifiers you can write
