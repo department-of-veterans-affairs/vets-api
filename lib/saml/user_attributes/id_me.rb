@@ -51,7 +51,7 @@ module SAML
       end
 
       def loa_current
-        @raw_loa ||= REXML::XPath.first(@saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
+        @raw_loa ||= REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
         LOA::MAPPING[@raw_loa]
       end
 
