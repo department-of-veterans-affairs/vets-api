@@ -1,13 +1,14 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
-  revision: 389f6ba65eb813e7f10e0a320d9bd459504e688b
+  revision: 988545ab47c235717b8fcfe7489a92066fc5a842
   branch: master
   specs:
-    betamocks (0.1.0)
+    betamocks (0.2.0)
       activesupport (>= 4.2, <= 6.0)
       adler32
       faraday (>= 0.7.4, <= 0.12.2)
 
+GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
   revision: 9a710a7dba6195e4e7906d45fe080aeebe1c6ec5
   branch: master
@@ -15,14 +16,6 @@ GIT
     vets_json_schema (3.4.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
-
-PATH
-  remote: /Users/vhaisfdawsoa/Documents/va/betamocks
-  specs:
-    betamocks (0.1.0)
-      activesupport (>= 4.2, <= 6.0)
-      adler32
-      faraday (>= 0.7.4, <= 0.12.2)
 
 GEM
   remote: https://rubygems.org/

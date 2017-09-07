@@ -181,3 +181,6 @@ shrine:
     path: claims
 github:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+
+betamocks_enabled: false
+betamocks_cache_path: /config/betamocks/local_cache
