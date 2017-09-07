@@ -1,42 +1,20 @@
 ---
 :services:
 
-# EVSS
+# EVSS::PCIUAddress::Service
 - :base_uris:
   - csraciapp6.evss.srarad.com
   :endpoints:
-  # PCIUAddress
   - :method: :get
     :path: "/wss-pciu-services-web/rest/pciuServices/v1/states"
-    :file_path: "evss/pciu_address/states"
+    :file_path: "evss/pciu_address"
   - :method: :get
     :path: "/wss-pciu-services-web/rest/pciuServices/v1/countries"
-    :file_path: "evss/pciu_address/countries"
+    :file_path: "evss/pciu_address"
   - :method: :get
     :path: "/wss-pciu-services-web/rest/pciuServices/v1/mailingAddress"
-    :file_path: "evss/pciu_address/address"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-#    :error:
-#      :status: 400
-
-  # Letters
-  - :method: :get
-    :path: "/wss-lettergenerator-services-web/rest/letters/v1"
-    :file_path: "evss/letters/list"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-  - :method: :get
-    :path: "/wss-lettergenerator-services-web/rest/letters/v1/letterBeneficiary"
-    :file_path: "evss/letters/beneficiary"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-  - :method: :get
-    :path: "/wss-lettergenerator-services-web/rest/letters/v1/*"
-    :file_path: "evss/letters/download"
+    :file_path: "evss/pciu_address"
+    :cache_multiple_responses: true
 
 # MVI
 - :base_uris:
@@ -44,7 +22,8 @@
   :endpoints:
   - :method: :post
     :path: "/psim_webservice/IdMWebService"
-    :file_path: "mvi/profile"
-    :cache_multiple_responses:
-      :uid_location: body
-      :uid_locator: 'root="2.16.840.1.113883.4.1" extension="(\d{9})"'
+    :file_path: "mvi/find_profile"
+    :cache_multiple_responses: true
+    :timestamp_regex:
+    - 'creationTime value="(\d{14})"'
+    - 'extension="(200VGOV-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"'

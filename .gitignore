@@ -34,6 +34,7 @@ config/application.yml
 /config/mvi_schema/mock_gi_bill_status_response.yml
 /config/evss/mock_letters_response.yml
 /config/evss/*.pdf
+/config/betamocks/services_config.yml
 
 .idea/
 
