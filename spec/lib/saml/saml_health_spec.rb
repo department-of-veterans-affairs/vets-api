@@ -4,27 +4,37 @@ require 'saml/settings_service'
 require 'saml/health_status'
 
 RSpec.describe SAML::HealthStatus do
+  # let(:vcr_options) { { cassette_name: 'saml/idp_metadata_2' } }
   subject { described_class }
+
   before do
     # stub out the sleep call to increase rspec speed
     allow(SAML::SettingsService).to receive(:sleep)
   end
+
   context 'with a 200 response' do
-    let(:success_response_body) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/metadata_response_body.txt") }
+    # let(:success_response_body) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/metadata_response_body.txt") }
     before do
-      stub_request(:get, Settings.saml.metadata_url).to_return(status: 200, body: success_response_body)
-      SAML::SettingsService.merged_saml_settings(true)
+      # stub_request(:get, Settings.saml.metadata_url).to_return(status: 200, body: success_response_body)
+      VCR.use_cassette('saml/idp_metadata') do
+        SAML::SettingsService.merged_saml_settings(true)
+      end
     end
     it '.healthy? returns true' do
       expect(subject.healthy?).to eq(true)
     end
     it '.error_message is blank' do
-      expect(subject.error_message).to eq('')
+      VCR.use_cassette('saml/idp_metadata') do
+        expect(subject.error_message).to eq('')
+      end
     end
   end
 
   context 'retrieve not yet attempted' do
-    before { allow(subject).to receive(:fetch_attempted?) { false } }
+    before do
+      allow(subject).to receive(:fetch_attempted?) { false }
+    end
+
     it '.healthy? returns false' do
       expect(subject.healthy?).to eq(false)
     end
@@ -35,10 +45,12 @@ RSpec.describe SAML::HealthStatus do
 
   context 'IDP metadata not found' do
     before do
-      stub_request(:get, Settings.saml.metadata_url).to_return(
-        status: 500, body: 'bad news bears'
-      )
-      SAML::SettingsService.merged_saml_settings(true)
+      # stub_request(:get, Settings.saml.metadata_url).to_return(
+      #   status: 500, body: 'bad news bears'
+      # )
+      VCR.use_cassette('saml/idp_metadata_404') do
+        SAML::SettingsService.merged_saml_settings(true)
+      end
     end
     it '.healthy? returns false' do
       expect(subject.healthy?).to eq(false)
