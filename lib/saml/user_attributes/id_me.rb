@@ -40,10 +40,27 @@ module SAML
         attributes['uuid']
       end
 
+      def loa
+        { current: loa_current, highest: loa_highest }
+      end
+
       private
 
       def serializable_attributes
-        %i(first_name middle_name last_name zip email gender ssn birth_date uuid)
+        %i(first_name middle_name last_name zip email gender ssn birth_date uuid loa)
+      end
+
+      def loa_current
+        @raw_loa ||= REXML::XPath.first(@saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
+        LOA::MAPPING[@raw_loa]
+      end
+
+      def loa_highest
+        saml_loa = attributes['level_of_assurance']&.to_i
+        Rails.logger.warn 'LOA.highest is nil!' if saml_loa.nil?
+        loa_highest = saml_loa || loa_current
+        Rails.logger.warn 'LOA.highest is less than LOA.current' if loa_highest < loa_current
+        [loa_current, loa_highest].max
       end
     end
   end

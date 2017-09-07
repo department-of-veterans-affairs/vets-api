@@ -17,10 +17,6 @@ module SAML
       Time.current.utc
     end
 
-    def loa
-      { current: loa_current, highest: loa_highest(attributes) }
-    end
-
     def to_hash
       Hash[serializable_attributes.map { |k| [k, @decorated.send(k)] }]
     end
@@ -28,24 +24,12 @@ module SAML
     private
 
     def serializable_attributes
-      @decorated.send(:serializable_attributes) + %i(last_signed_in loa)
+      @decorated.send(:serializable_attributes) + %i(last_signed_in)
     end
 
     def decorator_constant
       "SAML::UserAttributes::#{@authn_context.upcase}".safe_constantize ||
         SAML::UserAttributes::IdMe
-    end
-
-    def loa_current
-      @raw_loa ||= REXML::XPath.first(@saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
-      LOA::MAPPING[@raw_loa]
-    end
-
-    def loa_highest(attributes)
-      Rails.logger.warn 'LOA.highest is nil!' if (loa = attributes['level_of_assurance']&.to_i).nil?
-      loa_highest = loa || loa_current
-      Rails.logger.warn 'LOA.highest is less than LOA.current' if loa_highest < loa_current
-      [loa_current, loa_highest].max
     end
   end
 end
