@@ -9,12 +9,14 @@ module Swagger
 
         property :data, type: :object do
           property :attributes, type: :object do
+            key :required, [:letters, :full_name]
             property :letters do
               key :type, :array
               items do
                 key :'$ref', :Letter
               end
             end
+            property :full_name, type: :string, example: 'Mark Webb'
           end
           property :id, type: :string, example: nil
           property :type, type: :string, example: 'evss_letters_letters_response'

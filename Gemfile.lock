@@ -237,7 +237,7 @@ GEM
     octokit (4.7.0)
       sawyer (~> 0.8.0, >= 0.5.3)
     oj (2.18.2)
-    olive_branch (1.2.2)
+    olive_branch (2.0.0)
       rails (>= 4.0)
     overcommit (0.37.0)
       childprocess (~> 0.5.8)

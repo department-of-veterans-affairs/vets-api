@@ -12,9 +12,13 @@
                 "$ref": "letter_base.json"
               },
               "type": "array"
+            },
+            "full_name": {
+              "type": "string"
             }
           },
-          "type": "object"
+          "type": "object",
+          "required": ["letters", "full_name"]
         },
         "id": {
           "type": "string"
