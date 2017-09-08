@@ -12,7 +12,25 @@ betamocks_cache_path: /config/betamocks/local_cache
 cp config/services_config.yml.example config/services_config.yml
 ```
 
-3. _Skip this step if a friendly neighborhood back-end dev has created a service description for you_. Add endpoints to be mocked to the services config file. 
+## Mocking a Service
+1. Add the Betamocks middleware to the service to be mocked. It should
+be the first response middleware listed in the connection block.
+```ruby
+def connection
+  @conn ||= Faraday.new(base_path, ssl: ssl_options) do |faraday|
+    faraday.options.timeout = DEFAULT_TIMEOUT
+    faraday.use      :breakers
+    faraday.use      EVSS::ErrorMiddleware
+    faraday.use      Faraday::Response::RaiseError
+    faraday.response :betamocks if Betamocks.configuration.enabled
+    faraday.response :snakecase, symbolize: false
+    faraday.response :json
+    faraday.adapter  :httpclient
+  end
+end
+```
+
+2. Add endpoints to be mocked to the services config file. 
 Each service description has
 an array of `base_uris` for each environment to be mocked (e.g. local/CI, dev/INT, staging/PINT).
 `endpoints` is an array of hashes with:
@@ -31,7 +49,7 @@ an array of `base_uris` for each environment to be mocked (e.g. local/CI, dev/IN
     :file_path: "evss/pciu_address"
 ```
 
-4. Make a request. If a pre-recorded cache file exists then Betamocks will return a response
+3. Make a request. If a pre-recorded cache file exists then Betamocks will return a response
 without hitting the real service. If a cache file does not exist one will be recorded (turn on your VA VPNs),
 all subsequent requests will use the cache (feel free to turn off your VA VPNs).
 
@@ -64,7 +82,7 @@ The below will record `/users?uuid=abc123` and `/users?uuid=efg456` to the same 
 :endpoints:
   - :method: :get
     :path: "/users"
-    :file_path: "users"
+    :file_path: "users/list"
     :cache_multiple_responses:
       :uid_location: query
       :uid_locator: 'uuid'
@@ -77,7 +95,7 @@ request headers to the same directory:
 :endpoints:
   - :method: :get
     :path: "/evss/address"
-    :file_path: "address"
+    :file_path: "evss/address"
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
@@ -89,7 +107,7 @@ The below will record `/users/42/forms` and `/users/101/forms` to the same direc
 :endpoints:
   - :method: :get
     :path: "/users/*/forms"
-    :file_path: "forms"
+    :file_path: "users/form"
     :cache_multiple_responses:
       :uid_location: url
       :uid_locator: '\/users\/(.+)\/forms' # matches anything '(.+)' between /users and /forms
