@@ -42,8 +42,8 @@ RSpec.describe V0::SessionsController, type: :controller do
   before do
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
     allow(OneLogin::RubySaml::Response).to receive(:new).and_return(valid_saml_response)
-    Redis.current.set("benchmark_login_#{uuid}", Time.now.to_f)
-    Redis.current.set("benchmark_logout_#{uuid}", Time.now.to_f)
+    Redis.current.set("benchmark_api.auth.login_#{uuid}", Time.now.to_f)
+    Redis.current.set("benchmark_api.auth.logout_#{uuid}", Time.now.to_f)
   end
 
   context 'when logged in' do
