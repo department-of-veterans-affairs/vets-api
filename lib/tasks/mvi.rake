@@ -37,10 +37,8 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
   end
 
   desc 'Build mock MVI yaml database for users in given CSV'
-  task :mock_database, [:csvfile, :outfile] => [:environment] do |_, args|
+  task :mock_database, [:csvfile] => [:environment] do |_, args|
     raise 'No input CSV provided' unless args[:csvfile]
-    outfile = args[:outfile] || 'mock_mvi_responses.yml.generated'
-    mock = {}
     csv = CSV.open(args[:csvfile], headers: true)
     csv.each_with_index do |row, i|
       begin
@@ -60,14 +58,9 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
           puts "Row #{i} #{row['first_name']} #{row['last_name']}: No MVI profile"
           next
         end
-        mock[row['ssn']] = user.va_profile.attributes
       rescue => e
         puts "Row #{i} #{row['first_name']} #{row['last_name']}: #{e.message}"
       end
-    end
-    File.open(outfile, 'w') do |file|
-      file.write("# Generated at #{DateTime.now.utc}\n")
-      file.write(YAML.dump('find_candidate' => mock))
     end
   end
 end

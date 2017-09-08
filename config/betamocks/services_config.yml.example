@@ -19,3 +19,14 @@
       :uid_locator: 'va_eauth_pnid'
 #    :error:
 #      :status: 400
+
+# MVI
+- :base_uris:
+  - ps-dev.commserv.healthevet.va.gov
+  :endpoints:
+  - :method: :post
+    :path: "/psim_webservice/IdMWebService"
+    :file_path: "mvi/find_profile"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: 'root="2.16.840.1.113883.4.1" extension="(\d{9})"'
