@@ -38,14 +38,12 @@ server, start by running the `vets-api` server on port 3001 with
 3. Enter ID.me credentials
   - Create your ID.me account if you have not already done so, or sign in with
     your username and password. You may also optionally use one of the
-    [test accounts](accounts) if you have access to the vets.gov-team repository.
+    [test accounts](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/MVI%20Integration/reference_documents/mvi_users_s1a.csv) if you have access to the vets.gov-team repository.
   - **Note**: Accounts created on the https://api.id.me/ ID.me site are
     separate from accounts created in the https://api.idmelabs.com sandbox.
 4. The browser should get redirected to the SAML relay URL
   - Defaults to http://localhost:3001/auth/login/callback?token=abcd1234-efgh5678
 5. Copy the token value and attempt the following curl commands:
-
-[accounts]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/MVI%20Integration/reference_documents/mvi_users_s1a.csv
 
 ```
 curl --header "Authorization: Token token=foo" localhost:3001/v0/sessions/current
