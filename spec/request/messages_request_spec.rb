@@ -34,10 +34,10 @@ RSpec.describe 'Messages Integration', type: :request do
     let(:attachment_type) { 'image/jpg' }
     let(:uploads) do
       [
-        Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file1.jpg', attachment_type),
-        Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file2.jpg', attachment_type),
-        Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file3.jpg', attachment_type),
-        Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file4.jpg', attachment_type)
+        Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', attachment_type),
+        Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file2.jpg', attachment_type),
+        Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file3.jpg', attachment_type),
+        Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file4.jpg', attachment_type)
       ]
     end
     let(:message_params) { attributes_for(:message, subject: 'CI Run', body: 'Continuous Integration') }
