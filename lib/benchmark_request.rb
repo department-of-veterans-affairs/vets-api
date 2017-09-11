@@ -40,7 +40,7 @@ class BenchmarkRequest
     log_message_to_sentry(
       "Average #{@request_name} request in seconds",
       :info,
-      { average: average, count: count },
+      { average: average.round(10), count: count },
       backend_service: @request_name
     )
   end
