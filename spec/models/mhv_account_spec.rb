@@ -41,7 +41,7 @@ RSpec.describe MhvAccount, type: :model do
 
   before(:each) do
     stub_mvi(mvi_profile)
-    Settings.mhv.facility_range = [358, 758]
+    Settings.mhv.facility_range = [[358, 718], [720, 758]]
   end
 
   after(:each) do
@@ -380,11 +380,19 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.account_state).not_to eq('ineligible')
         end
       end
+      context 'with excluded facility in middle of range' do
+        let(:vha_facility_ids) { ['719'] }
+        it 'is ineligible' do
+          subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
+          subject.send(:setup) # This gets called when object is first loaded
+          expect(subject.account_state).to eq('ineligible')
+        end
+      end
     end
 
     context 'with user facility on edge of range' do
       before do
-        Settings.mhv.facility_range = [450, 758]
+        Settings.mhv.facility_range = [[450, 758]]
       end
       it 'is eligible with facility at edge ef range' do
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
@@ -395,7 +403,7 @@ RSpec.describe MhvAccount, type: :model do
 
     context 'with even more abbreviated range' do
       before do
-        Settings.mhv.facility_range = [600, 758]
+        Settings.mhv.facility_range = [[600, 758]]
       end
       it 'is ineligible with facility out of range' do
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
