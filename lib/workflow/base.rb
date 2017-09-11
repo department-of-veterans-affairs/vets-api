@@ -1,4 +1,8 @@
 # frozen_string_literal: true
+
+# Ensure Workflow::Runner is deterministically loaded. For details, see:
+#   https://github.com/department-of-veterans-affairs/vets.gov-team/issues/4440
+#   https://github.com/department-of-veterans-affairs/vets-api/pull/1348
 require_dependency 'workflow/runner'
 
 module Workflow
