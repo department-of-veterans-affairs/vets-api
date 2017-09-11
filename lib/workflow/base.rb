@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require_dependency 'workflow/runner'
+
 module Workflow
   class Base
     # For subclasses, store the list of Tasks to run in the order defined
