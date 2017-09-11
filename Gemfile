@@ -9,7 +9,7 @@ gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating t
 gem 'carrierwave', '~> 0.11' # TODO: explanation
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0', group: :doc # TODO: explanation
-gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
+gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation needed
 
 gem 'aasm'
 gem 'attr_encrypted'
