@@ -5,14 +5,13 @@ gem "puma", "~> 2.16.0"
 gem 'rails', '4.2.7.1'
 
 # Gems with special version/repo needs
+gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating to .to_json
 gem 'carrierwave', '~> 0.11' # TODO: explanation
-gem 'ruby-saml', '~> 1.3.0' # TODO: explanation
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0', group: :doc # TODO: explanation
 gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
 
 gem 'aasm'
-gem 'active_model_serializers'
 gem 'attr_encrypted'
 gem 'aws-sdk'
 gem 'breakers'
@@ -49,6 +48,7 @@ gem 'rails-api'
 gem 'redis'
 gem 'redis-namespace'
 gem 'require_all'
+gem 'ruby-saml'
 gem 'savon'
 gem 'sentry-raven'
 gem 'shrine'
