@@ -124,15 +124,18 @@ class ApplicationController < ActionController::API
     raise Common::Exceptions::Unauthorized
   end
 
-  def saml_settings
+  def saml_settings(authn_context = nil)
     if defined?(@saml_settings)
       @saml_settings.name_identifier_value = @session&.uuid
       return @saml_settings
     end
     @saml_settings = SAML::SettingsService.saml_settings
-    # TODO: 'level' should be its own class with proper validation
-    #level = LOA::MAPPING.invert[params[:level]&.to_i]
-    @saml_settings.authn_context = 'dslogon' #level || LOA::MAPPING.invert[1]
+    if authn_context.nil?
+      level = LOA::MAPPING.invert[params[:level]&.to_i]
+      @saml_settings.authn_context = level || LOA::MAPPING.invert[1]
+    else
+      @saml_settings.authn_context = authn_context
+    end
     @saml_settings.name_identifier_value = @session&.uuid
     @saml_settings
   end

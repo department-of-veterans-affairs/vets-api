@@ -23,8 +23,12 @@ module SAML
 
       # NOTE: this is the same thing as mhv_correlation_id it should supercede any mhv
       # mhv correlation id that is returned by MVI
-      def uuid
+      def mhv_correlation_id
         attributes['mhv_uuid']
+      end
+
+      def uuid
+        attributes['uuid']
       end
 
       # NOTE: This attribute is originated by id.me

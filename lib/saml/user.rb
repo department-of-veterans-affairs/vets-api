@@ -10,7 +10,6 @@ module SAML
       @saml_response = saml_response
       @authn_context = saml_response&.settings&.authn_context
       @attributes = saml_response.attributes
-      binding.pry
       @decorated = decorator_constant.new(self)
     end
 

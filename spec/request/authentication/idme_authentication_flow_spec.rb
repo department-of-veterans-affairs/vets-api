@@ -3,7 +3,7 @@ require 'rails_helper'
 
 # Note these specs MUST be run in order
 RSpec.describe 'idme flow', type: :request, order: :defined do
-  BASE_PATH = 'complex_interaction/idme_flow'
+  BASE_PATH = 'complex_interactions/idme_flow'
   OUTBOUND_CASSETTE = "#{BASE_PATH}/external_interactions"
   INBOUND_FULL_PATH = "spec/support/vcr_cassettes/#{BASE_PATH}/internal_interactions.yml"
   Episode = Struct.new(:method, :uri, :body, :headers, :recorded_at, :response)

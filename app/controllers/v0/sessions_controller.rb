@@ -9,8 +9,29 @@ module V0
     STATSD_LOGIN_TOTAL_KEY  = 'api.auth.login_callback.total'
 
     def new
-      saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      render json: { authenticate_via_get: saml_auth_request.create(saml_settings, saml_options) }
+      render json: { authenticate_via_get: fetch_url }
+    end
+
+    # Collection Action: method will eventually replace new
+    def auth_urls
+      render json: {
+        mhv_url: fetch_url('mhv'),
+        dslogon_url: fetch_url('dslogon'),
+        idme_url: fetch_url('http://idmanagement.gov/ns/assurance/loa/1'),
+      }
+    end
+
+    # Member Action: method is to opt in to MFA for those users who opted out
+    def multifactor
+      render json: { multifactor_url: fetch_url('multifactor') }
+    end
+
+    # Member Action: method is to verify LOA3 if existing LOA3, or go through flow if not LOA3 already
+    # NOTE: This is FICAM LOA3 we're talking about here.
+    def identity_proof
+      render json: {
+        identity_proof_url: fetch_url('http://idmanagement.gov/ns/assurance/loa/3')
+      }
     end
 
     def destroy
@@ -111,6 +132,11 @@ module V0
 
     def saml_options
       Settings.review_instance_slug.blank? ? {} : { RelayState: Settings.review_instance_slug }
+    end
+
+    def fetch_url(authn_context = nil)
+      saml_auth_request = OneLogin::RubySaml::Authrequest.new
+      url = saml_auth_request.create(saml_settings(authn_context), saml_options)
     end
   end
 end
