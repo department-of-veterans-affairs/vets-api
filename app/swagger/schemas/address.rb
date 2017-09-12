@@ -31,7 +31,7 @@ module Swagger
               property :corp_avail_indicator, type: :boolean
               property :corp_rec_found_indicator, type: :boolean
               property :has_no_bdn_payments_indicator, type: :boolean
-              property :incompetent_indicator, type: :boolean
+              property :is_competent_indicator, type: :boolean
               property :indentity_indicator, type: :boolean
               property :index_indicator, type: :boolean
               property :no_fiduciary_assigned_indicator, type: :boolean
