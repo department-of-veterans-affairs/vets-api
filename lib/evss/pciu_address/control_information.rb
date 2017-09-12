@@ -7,10 +7,11 @@ module EVSS
       include ActiveModel::Serialization
       include Virtus.model(nullify_blank: true)
 
+      attribute :can_update_address, Boolean
       attribute :corp_avail_indicator, Boolean
       attribute :corp_rec_found_indicator, Boolean
       attribute :has_no_bdn_payments_indicator, Boolean
-      attribute :incompetent_indicator, Boolean
+      attribute :is_competent_indicator, Boolean
       attribute :indentity_indicator, Boolean
       attribute :index_indicator, Boolean
       attribute :no_fiduciary_assigned_indicator, Boolean
