@@ -2,13 +2,13 @@
 require 'rails_helper'
 
 # Note these specs MUST be run in order
-RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
-  OUTBOUND_CASSETTE = 'complex_interaction/external_interactions'
+RSpec.describe 'idme flow', type: :request, order: :defined do
+  BASE_PATH = 'complex_interaction/idme_flow'
+  OUTBOUND_CASSETTE = "#{BASE_PATH}/external_interactions"
+  INBOUND_FULL_PATH = "spec/support/vcr_cassettes/#{BASE_PATH}/internal_interactions.yml"
   Episode = Struct.new(:method, :uri, :body, :headers, :recorded_at, :response)
-
   EPISODES = begin
-    inbound_cassette_path = 'spec/support/vcr_cassettes/complex_interaction/internal_interactions.yml'
-    YAML.load(File.read(inbound_cassette_path))['http_interactions'].map do |interaction|
+    YAML.load(File.read(INBOUND_FULL_PATH))['http_interactions'].map do |interaction|
       req = interaction['request']
       req['uri'] = URI.parse(req['uri'])
       req['recorded_at'] = Time.zone.parse(interaction['recorded_at'].to_s).to_datetime

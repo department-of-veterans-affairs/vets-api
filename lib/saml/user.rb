@@ -10,6 +10,7 @@ module SAML
       @saml_response = saml_response
       @authn_context = saml_response&.settings&.authn_context
       @attributes = saml_response.attributes
+      binding.pry
       @decorated = decorator_constant.new(self)
     end
 
@@ -28,8 +29,12 @@ module SAML
     end
 
     def decorator_constant
-      "SAML::UserAttributes::#{@authn_context.upcase}".safe_constantize ||
+      case authn_context
+      when 'mhv'; then "SAML::UserAttributes::MHV".safe_constantize
+      when 'dslogon'; then 'SAML::UserAttributes::DSLogon'.safe_constantize
+      else
         SAML::UserAttributes::IdMe
+      end
     end
   end
 end

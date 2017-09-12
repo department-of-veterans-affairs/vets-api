@@ -1,0 +1,391 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://localhost:3000/v0/sessions/new?level=3
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Version:
+      - HTTP/1.1
+      Host:
+      - localhost:3000
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/59.0.3071.115 Safari/537.36
+      Origin:
+      - http://localhost:3001
+      Accept:
+      - "*/*"
+      Referer:
+      - http://localhost:3001/
+      Accept-Encoding:
+      - gzip, deflate, br
+      Accept-Language:
+      - en-US,en;q=0.8
+      If-None-Match:
+      - W/"bdbecbb0ea69f616eaca29ad1ba7ba55"
+  response:
+    status:
+      code: 200
+      message: 
+    headers:
+      Access-Control-Allow-Origin:
+      - http://localhost:3001
+      Access-Control-Allow-Methods:
+      - GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS
+      Access-Control-Expose-Headers:
+      - ''
+      Access-Control-Max-Age:
+      - '1728000'
+      Access-Control-Allow-Credentials:
+      - 'true'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Git-SHA:
+      - 6971163f8f5166f5f8690e88a182f434e6162c96
+      Content-Type:
+      - application/json; charset=utf-8
+      ETag:
+      - W/"b25c57c215877af142339c825992bfd4"
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - e01668f3-a379-42df-86a1-1c20cef9a536
+      X-Runtime:
+      - '0.019110'
+      Vary:
+      - Origin
+      Content-Length:
+      - '1060'
+    body:
+      encoding: UTF-8
+      string: '{"authenticate_via_get":"https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=fVLLTuswEP2V7LxK4iRQqNVUqlohVeKlFliwQYMzaS0cO3ic0vv310lb1AWws8bnMXNmJgSNbsWs81uzws8OyUczInReWTO3hroG3RrdTkl8Xt2WbOt9K9JUWwl6a8mLgnOeQuCnvVQayvod5AeLFkFLGeiFDjQKPGhVoqoGNbxTIm1zIK2V2Whcq415MEczFi0XJXtDno1G13URQ3E1ji%2Fyqo6vR5DFmcy5xHoMl8UoQIk6XBryYHzJcp5dxXwcZ%2FkTL8RFIfLLVxa9oKOhlTzhLNo32pDozUvWOSMskCJhoEESXor17O5WBKCAUxbnlPZvTuust9JqNp30aDF056b9O3ZtskNPG7tLviOcpOewyWEj90F2uXi0Wsl%2F0Uxr%2BzV3CB5L5l0X0rmxrgH%2FeyNZkg0VVcX1ABWdoRalqhVWLD3ZHHeO1XABYeEe9z6a26YFp6iPC%2Fcg%2FWmUc9Rch3BWWE8r0nZjzXGMHyGHv1%2Fsvn%2FPr3D6Hw%3D%3D&SigAlg=http%3A%2F%2Fwww.w3.org%2F2000%2F09%2Fxmldsig%23rsa-sha1&Signature=Ho%2FkUuTlk6BMtVI3CO6ecWyCCf1QbkzE0QFDhjuyb%2FxyfGl%2BNkbUWZKQTpYbl2CIROzYdyY16UOvapIW3ZqLJJRiiDydVMcQBae3iMOmIpJf3Nr5HA4bJ%2F4z%2BZza7SDB3aqdsfMJQCnrRbfKFsGRHVEgWfeFt%2BAvY97Znt3XelxlOssrjCnocNPD9ehFCeDz7nt0Beu4hULwSjVUeroR23RkaBW0lS%2Bb0aqn4YHWKHBKe4ljYAjisQS2aSsLiVmnc%2BOl8jSKXc1%2FcShZooZhKgYxJDVV96sUL7hori3m7KtynUfDBtWPMnHwPcpqdXJjGiX%2Bbua%2Fa4zKfsIz6VIxjg%3D%3D"}'
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 03:43:25 GMT
+- request:
+    method: get
+    uri: http://localhost:3000/v0/sessions/new?level=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Version:
+      - HTTP/1.1
+      Host:
+      - localhost:3000
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/59.0.3071.115 Safari/537.36
+      Origin:
+      - http://localhost:3001
+      Accept:
+      - "*/*"
+      Referer:
+      - http://localhost:3001/
+      Accept-Encoding:
+      - gzip, deflate, br
+      Accept-Language:
+      - en-US,en;q=0.8
+      If-None-Match:
+      - W/"ed20d4001adb226de8f383ab221c3ea3"
+  response:
+    status:
+      code: 200
+      message: 
+    headers:
+      Access-Control-Allow-Origin:
+      - http://localhost:3001
+      Access-Control-Allow-Methods:
+      - GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS
+      Access-Control-Expose-Headers:
+      - ''
+      Access-Control-Max-Age:
+      - '1728000'
+      Access-Control-Allow-Credentials:
+      - 'true'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Git-SHA:
+      - 6971163f8f5166f5f8690e88a182f434e6162c96
+      Content-Type:
+      - application/json; charset=utf-8
+      ETag:
+      - W/"130145149d55cc0ad29c179643d2ac11"
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - ae0f7827-c5c9-4c1d-8ab6-9dfb300a4ca2
+      X-Runtime:
+      - '0.027255'
+      Vary:
+      - Origin
+      Content-Length:
+      - '1074'
+    body:
+      encoding: UTF-8
+      string: '{"authenticate_via_get":"https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=fVJLj9owEP4rufmUJ7QsFkFCoEpIu%2B0Ktj30Ug3OBKw6dtYzYdl%2Fv06AFYfSmzX%2BHjPfzIygMa1cdHywG3ztkDhaEKFn7ezSWeoa9Fv0R63w5%2BaxFAfmVqapcQrMwRHLUZZlKQR%2B2kuloWx2oP6KaBW0tIVe6EyjwINWJ7pq0MCOEuWaM2mr7d7gVu%2FtD3sxE9F6VYo%2FgFk9eSgmsfqipvFY5VX8ALuv8bSqd8EZxgqKACXqcG2JwXIpiiyfxNk0zouXbCTHI1lMf4voF3oaWimSTESnxliSvXkpOm%2BlA9IkLTRIkpXcLp4eZQBKuGZxS2n%2Fz2m9Y6ecEfNZj5ZDd37ev2PfJkdk2rtj8hnhLL2Fzc4b%2BR5k16tnZ7R6jxbGuLelR2AsBfsupPPN%2BQb4fiN5kg8VXcX1AJWdpRaVrjVWIr3aXHaO1XABYeGMJ46WrmnBa%2BrjwhMovo5yi1qaEM4G63lFxu2dvYzxT8j5747d5%2B%2FtFc4%2FAA%3D%3D&SigAlg=http%3A%2F%2Fwww.w3.org%2F2000%2F09%2Fxmldsig%23rsa-sha1&Signature=SbCb%2F6IUEXYHi%2BJ0MRYWsTw%2FYX%2FjanzdCsbUrU3JfuW3Sa2qmT58qiAQu%2FioULfDjPr7NI%2FUFXVflMwDGMxGylOPuG6rSJTrte6hQmehCp4s0Csy3y8fBEAUp25%2BSTiVuyWDrBSyo3YSHX46Eryp8YPHjG%2BugRhQgPVMIgjx%2BntV7s5%2F4sWBvtELzIFqeG0YCTt0BKPuPiARK1JDAb%2F3lUHK7x1mB4X4ngMux9ZYMaOi5vDH6X03stJPDwTiqJVFDf5Vz7IGY0oLf6BqXtw3jPgxctXkI7FvZZX4RiomtUd56XYmTFqwc4tkeODuDYNKesHbW7KdiEgOiZ%2BLTYAFIg%3D%3D"}'
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 03:43:29 GMT
+- request:
+    method: post
+    uri: http://localhost:3000/auth/saml/callback
+    body:
+      encoding: ASCII-8BIT
+      string: utf8=%E2%9C%93&authenticity_token=rvCnNQ1UNbJaePBYPlGLTBD0xCJlpyU6PU7XbSOoulaF14hTyFX5XE6dO%2B3LBpmGcn7Fqu8TkIz8IGwzV8jlug%3D%3D&RelayState=&SAMLResponse=PHNhbWxwOlJlc3BvbnNlIHhtbG5zOnNhbWxwPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6cHJvdG9jb2wiIHhtbG5zOnNhbWw9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIElEPSJfNjgzMTMxYWVjNTk1NDNlOGI2M2RkMzcxM2UyZDNhY2MiIFZlcnNpb249IjIuMCIgSXNzdWVJbnN0YW50PSIyMDE3LTA5LTEyVDAzOjQzOjMxWiIgRGVzdGluYXRpb249Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC9hdXRoL3NhbWwvY2FsbGJhY2siIEluUmVzcG9uc2VUbz0iXzM0MmM4NTE0LTdlNTktNDQwMy1hNjU0LWFhODkwNmEzZTUxYyI%2BPHNhbWw6SXNzdWVyPmFwaS5pZG1lbGFicy5jb208L3NhbWw6SXNzdWVyPjxkczpTaWduYXR1cmUgeG1sbnM6ZHM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyMiPjxkczpTaWduZWRJbmZvPjxkczpDYW5vbmljYWxpemF0aW9uTWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS8xMC94bWwtZXhjLWMxNG4jIi8%2BPGRzOlNpZ25hdHVyZU1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMDQveG1sZHNpZy1tb3JlI3JzYS1zaGEyNTYiLz48ZHM6UmVmZXJlbmNlIFVSST0iI182ODMxMzFhZWM1OTU0M2U4YjYzZGQzNzEzZTJkM2FjYyI%2BPGRzOlRyYW5zZm9ybXM%2BPGRzOlRyYW5zZm9ybSBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyNlbnZlbG9wZWQtc2lnbmF0dXJlIi8%2BPGRzOlRyYW5zZm9ybSBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMTAveG1sLWV4Yy1jMTRuIyIvPjwvZHM6VHJhbnNmb3Jtcz48ZHM6RGlnZXN0TWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS8wNC94bWxlbmMjc2hhMjU2Ii8%2BPGRzOkRpZ2VzdFZhbHVlPnRTRTdTc21HdkZMamFzbG1ta2xaVHNtak4zck9Ub3VGY1hUeUs1Vndxd1E9PC9kczpEaWdlc3RWYWx1ZT48L2RzOlJlZmVyZW5jZT48L2RzOlNpZ25lZEluZm8%2BPGRzOlNpZ25hdHVyZVZhbHVlPnFDV0JId0ppbzJUalZodG1TTEpJZGErdkhjY2hWTXlFWXlrMUVYbTJYUW5YbC9SQUxod0FiVXJtbVBEeUdBS05XQ0VXTkNEMDRUSjhTM1ljMGJPSmhET1BvbHYwQVE3L01Fd0Z1UTdua3FEREJMeUJIdHBUb0psY0lQc1J5cXZoVVBzSDFic1JSSmhmNElDYVA0VHRpV0QzT3JsbkFFdlNrL1dEWGphZEFROTMxZUdndENKMWFzU2hJR0dRT1ByV0huZ2JGV3FmdDJTV0dyMmlaNEJCanJ3b2c3OHphMGxPS05OZWx6OXo4d2QzWmpXMzJFOXplS3VkblRUdzF0NTRYamJoR2hqWStmNDdtMG1HU1hzMlcxbThvRlNPRFZEbCtkd05RT2Y5ZkZvMGJUK0JxQWFlMVd1STlXaXM5WkxGQ3lCYlI2TFVvMUxCemJMQmI1NDlmQT09PC9kczpTaWduYXR1cmVWYWx1ZT48ZHM6S2V5SW5mbz48ZHM6WDUwOURhdGE%2BPGRzOlg1MDlDZXJ0aWZpY2F0ZT5NSUlEcURDQ0FwQUNDUURJSms4UVdXVGVtREFOQmdrcWhraUc5dzBCQVFzRkFEQ0JsVEVMTUFrR0ExVUVCaE1DVlZNeEVUQVBCZ05WQkFnVENGWnBjbWRwYm1saE1ROHdEUVlEVlFRSEV3Wk5ZMHhsWVc0eERqQU1CZ05WQkFvVEJVbEVMbTFsTVJRd0VnWURWUVFMRXd0RmJtZHBibVZsY21sdVp6RWFNQmdHQTFVRUF4TVJjMmxuYm1sdVp5NXBaSEF1YVdRdWJXVXhJREFlQmdrcWhraUc5dzBCQ1FFV0VXVnVaMmx1WldWeWFXNW5RR2xrTG0xbE1CNFhEVEUzTURNeE56RTNOVEEwT1ZvWERURTRNRE14TnpFM05UQTBPVm93Z1pVeEN6QUpCZ05WQkFZVEFsVlRNUkV3RHdZRFZRUUlFd2hXYVhKbmFXNXBZVEVQTUEwR0ExVUVCeE1HVFdOTVpXRnVNUTR3REFZRFZRUUtFd1ZKUkM1dFpURVVNQklHQTFVRUN4TUxSVzVuYVc1bFpYSnBibWN4R2pBWUJnTlZCQU1URVhOcFoyNXBibWN1YVdSd0xtbGtMbTFsTVNBd0hnWUpLb1pJaHZjTkFRa0JGaEZsYm1kcGJtVmxjbWx1WjBCcFpDNXRaVENDQVNJd0RRWUpLb1pJaHZjTkFRRUJCUUFEZ2dFUEFEQ0NBUW9DZ2dFQkFMMHl4dW9SeFc3dFhWNjh2OUthNWVBcTJ5NlFJNFRJUFkrL1IxbGo3VVFteTVxVmszNEgrSnJJUmhjVGsyWC94S0ZqT1hPRGg2dkE3SGU1QnFZMElMS0FBMFQra0t0S2FsMWx5T0pFcVBzWm9XclFuR1B4bHc0akdFcHJIcWo3cXlmUEQyYzZTYXVWc2t0K1A4L3U3UmlMdDBOWFU4SUdXMmtTODFMaE9WeFRPTTR2dXVQOVBpNzJpaEVLcG9zK3ZtdWdJL3lWeERQaGt1NGFpcnlaejdKR1FmeHUxNDZTK3hRYll1czkrTzJSN3BZSWF3R2dqWmNGSU1TTmNBOFlHU3A2WjllZUt1YS9scWdCK3Vla1F2cElyc0ZRbHEwekZ1dnlPLzZsaDZPSHB4RnFvaHp2VkpGZGttZWVEenllYWxVRnJCOWIyd09BZ3lCejlQZ2VCSWNDQXdFQUFUQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFZNVYrQ2Jod05zZG84OGsxQlZ1Q2U4c3N4L21jSjJwZmF5UTZBMjcranBOd25TMS8wZFBZOHBMN0F1eU45ZTNpN2dmU2hpS3NiSDRXUzM5YjZVTSs3S1A5L0xtMlN4NjNJdjFIRDdQTE5KYlBVenlLSE9mVFlUZDYySWdhMG1wdVZqamlqNDd1OS9mNGxndmRDdEVGNGE4MWo4S2pKak5zNytQWU5zL21PYnZKTTlqTHM5S0xhTjRsS2hKL3JNTHFlWjBFNlVITzNJL1NNNnQ5YkJHZklqS3h2cjNUcTZiVHJRZlp4dTU3K05qLytoTEVvRzF4WjVudWI2aGRkTW9iYUJCVks1Z29FVGdZUUFTUFlLY3BjTmRqZXJpSFhZUXQzN3p3TTZQSzNDM3RGeVgveG5KZ0hWQkRVcmNIRlIvOXFxaDE0TUFEWEVrditYbTlzQzlqVXc9PTwvZHM6WDUwOUNlcnRpZmljYXRlPjwvZHM6WDUwOURhdGE%2BPC9kczpLZXlJbmZvPjwvZHM6U2lnbmF0dXJlPjxzYW1scDpTdGF0dXM%2BPHNhbWxwOlN0YXR1c0NvZGUgVmFsdWU9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDpzdGF0dXM6U3VjY2VzcyIvPjwvc2FtbHA6U3RhdHVzPjxzYW1sOkVuY3J5cHRlZEFzc2VydGlvbj48eGVuYzpFbmNyeXB0ZWREYXRhIHhtbG5zOnhlbmM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMDQveG1sZW5jIyIgSWQ9Il9jOWMzMjY2OGYwMmQ0MDM3ODVjMWIzMGNjNzdiNDE0MCIgVHlwZT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS8wNC94bWxlbmMjRWxlbWVudCI%2BPHhlbmM6RW5jcnlwdGlvbk1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMDQveG1sZW5jI2FlczI1Ni1jYmMiLz48ZHM6S2V5SW5mbyB4bWxuczpkcz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnIyI%2BPHhlbmM6RW5jcnlwdGVkS2V5IElkPSJfNTFjMjk2Yzg3OGI5NDRlMGIzMGUzMjExMTM0OGVhNjkiIFR5cGU9Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMDQveG1sZW5jI0VsZW1lbnQiPjx4ZW5jOkVuY3J5cHRpb25NZXRob2QgQWxnb3JpdGhtPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGVuYyNyc2Etb2FlcC1tZ2YxcCIvPjx4ZW5jOkNpcGhlckRhdGE%2BPHhlbmM6Q2lwaGVyVmFsdWU%2BRFZ5YlIxSTBycDNhWHNsem1pZHd0cCtaYm9ZQjQzT1ZXWFJBSFVkUEdoZGtNdElUZXN6SDBJNm9uVEhlOVZEN3FBRDd4Yjd6L01wZFhlYlBxLzRWMmR6WXFMbjFLZFJiN0thUlU0M2o0bkcwNUdRTzlXZGlQa0pyMXh0b1lNL1k4M29HWXhRTVo2YzZTTG01Y3JBQTdOYThJamd0TDduckVPMGJadFIxWXBWM3NpcURGUmZhRDZCTERVcFk5RWRRdWxFa2lDUjN0RTdDOHZydlFHdlFOeDF1cVJSYjNTbWxla1ZSUHFGdmZGZ1NRU2hKRFNzSEo4SzNGSVpPRDdNeGhVRnFVTU1qZmp4b3B2OVJ5dkp2bDg4eEFBeXp4NkRBN1VsVURvaTNXVFYwYmhzYmo4MFFCU2hqQVI5aFVGbkpMYWdQNmZod3ZXQURpUERFSU9SWVdnPT08L3hlbmM6Q2lwaGVyVmFsdWU%2BPC94ZW5jOkNpcGhlckRhdGE%2BPC94ZW5jOkVuY3J5cHRlZEtleT48L2RzOktleUluZm8%2BPHhlbmM6Q2lwaGVyRGF0YT48eGVuYzpDaXBoZXJWYWx1ZT56QnpxeVcrSzdxK3RnWnNCREZWc3Aya2lXb0JTQ2p6TnRMYWFzazlGdXJvMi9US2ZFcmZCWmxlMnZvY2NLVzdTQ2Ywb2Z2Q3FKMkdSNUtPcU5yTVNQTHE0a3dJdXgvOG4vUXBsQ1RoajRsQXVnYWRua1IrVjZHdk14S3VQTEk5RWFZZzdqYzJnOWtwMlc1TjEyZnZaZ0U3MStMSXFDamRMcGtKN0dCdzhwNHVFMXkrZmRNZkZSZG5wbG1qb0ZyaWdCQ1NwcnJDOHpJQUJaSGd6MWlmM0VDY2NJemIzOGVmTGt3djVnaDU3RmsxODJJVFJtUkx5SUVhWXdxZ29WdmhKRmlHelZXYkl5STJwcjNtM3RFalR3SUVUTXdxOUxxYitvQyszeFVIbUp0MWhnd1d6WjBUdzlkQXMreFZSd2NkNzNQY2tNNURhSy9BVGFITjhKR0p1c1VnMk1zME55SXpvdmIxTkdNV1NxOVlCTmFuY3FtUmZZRlIyT2xmeTdDdlVSRUYzM0xEbWVSNjBpNzhQcXpHVElabkNSZmwzOWlaellJMjJrSXM1Ykt5WW1UOFZLUFlWTVc1R0g4VzM0RHdibS8rdmtTZ1ZYbXlndzlVMGpvaHpMcFNyOW1oRjRvRHpmVFJ5eHp6TmZrSzUyWGlCVm1EWDRNMXN2NENPVE5WUDZRN3RtSGdkSGhnWWFsRnBPYW9rbXpHeitneTl5UUZqaGdic1RGeGowd2xFSXRhRHdJL29LT3ZKOHRUN3BPSEdOcXorRlN2NHMxcWdIRGwxVGdlcy95NGxKdS94NHpacklYQjBpY2F3YXREZDVtSzFLRU1SRXpxNGx3SmZQS2ZLeVRONzZjVVpUWnIzMnVUNHJ6VFBEQ21GMlJmeHNxQ3gyRkgrNTNYV1lscWcwZDhQUjN1ZFJQR0FwU3JOQlZ1YU14bUY1dEZGWjV2SzhLUEVvOS85aHU0OUM4YXc3dHo1bHpLVEJMcTJLZnEvMG4wN3puajVvYTR1MWFZVDRVV2lESWZpblRRdytDNXBhVlNXN3ZXVW11TDh0bUZNNjViSEdERDdNb2ZGWFIxWXcwQ0ZJSisyVFFxamRlTU9qamtObzA1Zi9sNHczbUMxM3NiU3dMUVI2Zzk3MmRSMnFJNWRzT25kMXA2SnZPRnd4US8wTnNLMDFnRnJ4cDUxZHRDQVN3dWRZY1M0UVcwbE04NEhWRXFrbmlLbjA4RXpkT2FXMXBidnVidjlVdkdVNFVLZENQUzdkR2gzWk5LTm1iVmpFb2RyU2YxTm1Gd1ZielY0VGZ1MzY1dGpwNFF0OGxFNTRZbU1wbnlXNWtsMGtkWTVYZ3JUeEx4RlFFNldQWkhyOUg2VmFDRUlqVVB5amJTN2RFazB2NmlhWDVXQjV6a0daUmRBNE1LaDFINVVTUjVEZ3NCM1IvZjBWWkRiTUM2cGw3NzgwdURLYXVmU252V2JRTUJMR0hwem85Ti9lME5KdVoxQzZyeU5XMUFESVh5T3J0Zm9CY0V5WDlCVVdod3poeTM0bHJBbUVsTE9JSUx6NC9RbitJZ0dVdERMMGRMaDdoNWFIRVpwbzVKU0pTaWprM28zbEtpS0JrcFRhWDliZVFTNVVGU3hDa3ZJU1lYSEZjK2ZhSW4zTUJxdW5TaEp6V2FpNzB6OGtwbS9wZTdBNStxZzFLaUZJQjUzanNnbUJQa3BnRjM4bld0ckxkUk9MWjkzNXJvQjBwT0pSblQrWklaY3B6bGNhQ0dYdXZ0V0JwRjRHZGFJQnBhbWNDdVhMOWFmYjVZRllKNHdkWDhBcEhyU3c5YVYzclB3a3gzeE9JRThWRWtVc1Z4SzE2dnNoMVo1VXhUSWdKdEw1azlrM3BhL1V3NWs0SU9QYVJuZ2RDdDlyaXI0UFlFcmkrS2FkTUdtekVTZHoyZERaWTNRZytka283S2VVa0dmZ2ZCanlLck5BR0E5YjJtUjg0Y0xCb3dqU2s0V3ZpN1Z1TnNkMFlIdUxlZVJnaXRCZW40aHh4SURKc3Jab2dZQUJTZm1hQThNL3pRSzZvYndjbFNSUFVlRDJXTE1ESkZ4Uk1MSDZOWk1OeTJXZFE4T1VHNkNLNUhObDlXSC9yNTFFdERYZ09XNloxN3k5R0h2cEg1bUY1blZ3R3Y0SmdIN3hDN3BqMTVIUGNaRm9PeFlsTitJQWtaMTBNUm80cnN3dk1Ic1ptcjZOTEp6elV6eHpPQUVqVDZCSVRtenF3cmw3TFZ5YVNiRFphamxCNUZjOEg3aHJ0SDZyTENLQTBqSjJoT1d0WUhQNjM5T0hPbVhDYVdtaUlWN3JDcGF3SE9TRUVwVmxMaTVWNnBRWVhFUy9tZDd1V3NwNnV0Vk5haVJ3Y2U5QkFyWHJsZDIvdkZ3bVg5WDR2S1Rua0Fxajl0Unp2QWdrSUl1UVk4NU5DVXNBdDNkc3Z2eHhoS3psK29zcHRmNjdUUXhkRzl1eWNrWFhMRjhrZEdEZlJZMHlDZnF1YVFkTTlLNmtrblA0RTFqa1RHUkNHUlZBN3NVNWdBUlpxNUR1WU1ZanVJTjVnSithdHBRMFErRGFNNUNCdkV0Ykk5NjNWQlBsaFJ5dlFsQmxkVGtNcHRtOG1EaVFJV1FhMVFFcmZGQlpZTUxvbi9BMzlvc3lqNzhicVJabDJWWDk0d2hwei9icXdUVVBFZmZSLzVYcDRuT21jcGNvZ0tsRHRRTVQvUXY4SmJ4K1NkUHVTR25SMm5LTGNVVExnQ0NMR2pMTkVwZGgzMkxnZ2wzTUlubXQ4dXhBVjNGZ3RYL3VqS0xXbXltZmJaeHB3Qmw0NFRBemlMMWVkQlN4c2ZUZjRJek5ldzM1OXEwMjVFVUZjeVhWUmNLeTZiUUwxZHRPYmt1RXJ4ZnJ5b3ByV21kZXhsV0NycHhvMTdnZlpuMHlWdWVxbytpZk1wcWJOWUw5Y1JrWVZaMkZKcFRXLzhia1VyWFZtdUg2Qlc0VEl4cVppM1JRWU81UDlvL2JmUktLbkpVZkVoTERLcTZIUk9pM29XOGVHSER6TXpzWEl1MnZSdE5qVmdsMFlKZXZBVVdQWjIyTmQ3VFZJWUQ4MVpjcEV1R3hyMG9QeXNGa1gvZTZBbG9VY0xXN0xCdTMrU3FZVkRLQWdDRTI5Zmo3UG1zeUpSc3JDbmU5VkVpNDg4MVJUUExvM1hBYzJFZk1LRzlRa2hudmRWNlBTTXh3b2VCQUt5dGJObkg5dUEvb20xcXVlVmJjdStkWGNxK3BRRGc5QzI4bzJGcW1DZG5OVS9pTG5CcWNxQUlRZnNGTHhUWFlJNk02NUNEbVVVd1E4bUpTUkg5ZFdVRFI4YmhBM0cwSDJyR0Vva1JjVjBaSmI5N0FCcmR2TXNIRmc4aGRsTDBCdXl0WEVtMU56b1FRUU43ZzYydW1TdWV6Uno2aU1NbkRCTVZtNEY5dkhKU3YrbTdhNDJVRTcyeEd5eUQveVY0Vk5WV1cwVWdFcVArODhuRldBZHhSZU1rZm1uejJUYzlMbEZaTGpQUlorRjdTQld3N2ZYZ0JZd3ozZ1BJRHREZUh5TVNuZzhDNk40T1lsakNNUk54SGtHd2t3K2tZeWh6VVNSSGtYZExDNFhUekZOUFYvazRxZzU5K3pQbG5hc1loZ2VzOHhjQzFCMnlCdjc5Mk1VVFI5N2lmbzJqTnZvVkROMy8rOTU0L3d2aGxTemx0MGN0ajE0NWVXZWs1SmM0bXVlT3E4TXpxU3ZDSEtwTzZ4T2t2SSszYk45U0l2NUtEVVZtT2Z6Yk1YenI5dXozLzFBOU5iMmtibDZmUGlSQ2hha0pzSERTQWhHZ2hkb1RxSDhGWjA5ZlBQTEtpUTVmL3dGcUw2RFA0cjRMeTNaNTRDTU9WcS9tQjNTTXBNd21sU3lMckpQZjJaM3k5bmtWTDJwTlgxVTd0dUtWSUxqUnFWd0xrT3lQdHlDR25NRFQzU3NJNHZTWS9RZC90ZTVqaGcxUzF4M2hyaHhZcnZTL3VGUmVlVW9velZVVE5pR3RSWGlZdS84L0RBd2JmSThoTEw4ci9WU0FmbTZkQWdsUWt5V2ZocWlZYTFIeDBjeG41alM4SEdIdFVrdyswUFZoKytzQVU3dk9yVWJLdFVtMEhJU0dGYnZ2cE5hRmd2alQ4bnBndUZab2EzUVpWWHB3NS9NaGpTQURPeURBRXFkOUtjSUphVWZzb2ZSSzdXN0xONVNzeXJOL3h1MEh5ajJMQWVQOWI4ZzdtOXQ3U21KaExhSTI0VVZwcjk0ellqWWh2NzJNMmpPNUs5SnlyUTl0aFh3TXBTLzl3ZmU3TVdWNXd2bi9LMlJIeXBNWXErNjJzVXFxZ20ya2F1SHV5b096bk9HMEtRMFJSTmRQcThMM2RrVXRpK1FXNUR3UTBkNVFWWU1OWjVKYkQwZVh6S3dFNTk0cWRpRE5FZXFXWDVDWWRFeXBHQU5UeWx4NVpyMDZoemRacjc5akp0ZmZCRmVGZy9mNFowbXdhWjdaYUxKTFNDUmpEcWdFQk9YWjFUNzluTUpFaUl6RnU1emNLbldYN1pENWxaZ2owSnkrei9oNCtieVVseGsyRVNPSGRIdld0M2FleXNDYWpPamZIbVJFZ0FWdk5VeTB3cm80cEs4b1BFK3ZoNE5qViswVmNka3NTVnBVYWVJaUhRMWFVY1FKMjA0NTM5WEIzRHgxM25tY2JpL013SkdzcVpKTGVFRVR6QUhpQllMcEdUTGVjVHBkMjdQSXBCMk9EK1AzcW1LYUV1Sjg1ZjhJZzFIblFzaitZNkJFRzR4VjJCWkc4LzRyMnNsa1pSa3RnOUkwNWxORDk3cG1Sdnk3MjA1S3d4NS9iait3V1VEMGtIR0Z2ODBYaGN3WUlBN1VYdVc5V0pPSlgvM05MdW1rd3h0eGZxQVVxY01sUU5XTS9YTll6RVE1MHVzV0hNZzE0cWVtR3dsdk5jTk9ITnlBdEZYNk9RNlFWTDRidGl6L0RKNEpqTXlCMXZILzNud1ZxQ3huR1ArRUNCZ0ZDS0xjcUR4SXl2Ui9KeW1md1dWRmdrbHVVNmFIQTdyZEs4WFE5ZW1lUU9XTC9VSjhjNS9FMTl4Z0tOaWgwUG4yRElhdVRRcFAxN3F3RFdSczM3Y0xncXp2enIzVDNwaHk1ZTAzc1E3cDlmMU8xWUpKQlNzNi9QaG0xOFFna3VwWXlUQXg0d1U1Vm5JS3pKQ3c1SWppUWhaVUt2UHFnMkZRalRNMmZUYVJkNk5ueVRNejIwQlB5L0Z3YS9NSWM5aFY1aUg4djJ4MWt1d3dMUnV0cnhkcWRqQThtcStBZXFDU3ErTE9NTTBVSTkxaE1jTHNJT0N6UmlJSDBNb1JRaFRqL1ROVjc3Vk8zS0FJSHJ2Yy9heEtCWDRNZWZOSDEzbWpBbEx3amlJRjJPMnVySEZsNUQ1LzRkQktyVFFIbkRoZ0JoUUdGdm44YmRuUHhVUHUzSzB5TnUvOHJhSDVrVmp0UkxlV2tBWTNVSkhlNWMzN3dLaWhac1h5VVZ1elRmR2dBd3BKWFEyclc4cnB0ZHM2R3MwbThQcGw3VzBmVTNqaTFYVHR4b1VpR2hpVmVkOEdvenhkNmRmaElJb1J0dHpPRzJOZ3AyOXlMK0UxY0JUUTZxTTRSYyswR0VvWG1SVVdaQ24wckZHMWVxKzRZNFZIazBFNEErV2NNOTRadVFiM2FCUW8rczZ6ZTQ3L09IaW5oVUNUa2ZXSGhEazlxOTJTSGYyNHAzSXJQcUp2a2V4Q2hUTWFIdnlPTTJJM1dBWFM2UU1KaklMOW5SNTEzNFRrOTBrRVd6c3VRRkNJYWszclZUcmpVUGVseFpxY0RQblJ3eTRiTG13TmNqTS9jdmVUSkJJSTlBUlNUU3JXR1NRUFNuMFl1RkhoRThTWEg1VEFlT25SNmhYREZ3TnRpM1FpMjJRYmg0WGFseW1LOHdIK0tjOFEwakZCa1RXc1l0bjhMMTlUeTh5a3VxUjJQTlhZK0NkL243a0F6dE4zWGFUTEZDZXZkRllpdy9MTDg0TXRnVlhBbE93NXNTN21HQitjTUNuRVY4WTVxWGRqcVMvc2JYUWg4NTh6b05qVGlvbVpmVy9LbDIreTI5eXVoU2dvbjNyTzhHZzMvMDBqLzBNQk55RmVWRHpYcUdNamYvMEtRbUcwNXpnQ0s3cEN2QUR4OWl0VXU5Yk40U2dQUmsvQmFoZFo3SkJUTkNKTzdVWTAydm1ubHhPbHJWbURrWFRGeTk2R3AxL2xnMmNuQ0ExSmNRZnROd1VJYUg1WlFnOGN0VDArMHI4bmVoZ1BHZnNMMUJHeXNNd3VXaTJwZml4bllUcWNybFV3dWx4QWxCU2NDOHdXRFRkWnVaVVBkVGRkN2EzSE9YcGtxK1A4Y0xQcExoYmN4aXFGMitZQ0FpbTlXNFpoVUVVaUpReGNEMW9kem1UcElZRXJpczd2UXV5ZHRtajM5SXdRU3N1QVFSNmhoZ1hSUnllV3lFbTZra3RZNVdLU3pDYUZtUHMwbjdKZit3YmNHY0dnMzZ2d2RKbzI1b00vOHVqZEtZTnErZmNGT0hSbG5wUDk2UXNPNlc1VEE4eGMrY2RpSzB6TGVValNNUWFwTDgwVXFtZjFnMUZYcXJyL056TDVCSko5d0VDZW1xallMeFZQNklpdTY2VzVQbGYwWlVJRkVOcFlRTVA1VDhPdmpCN29SN3huL2F5eS9nSFVrV0pWR1JVN3BMdjBqMW1NaVlFN1VvMGNSSzEyOWhUZHYvSmtwQTZPQi80SUErU2VBYXYxZXVGSERUSERYdkxhRUEwb092bnZzMVBXSFY3WlNBc1VFTzlWRVF3RzJsUjR6aVl0aThRa0U0aFl5aHhsMDBNTEtqbG5DMkdkeGpGUjN1dXUxUE41ZFBaWWpjV2ptaE5UOE5yZ0h0NnEvM2Z6UG5UQkt0dlUzdHlzQ1ZJeWJud1puU0tWNStZN2tWdkpXVXVUVUFLNFlyNmYrUW04TGtLS2tMRXNqZzNidHY5NDJKS0JnSlBQMy95bFVpU0xnYm9IblpKRlRSY1B6OVlvcE5VeC9DUDBoMW5DRUJhdFVqdGgvVzl1QzBZbVQ0di92WUEvZHZYMzFyOVVKNHBXdngwa1dGL0tTUE9CWDFBRGNsUS80aENRbWZUVlF0WmFUR3JuRS9rT1RvbGVwNm5oL09XcDdseUpQbHN3SEtHdWRTOFRpMlVUMmFtdWxOa0V3WGthVXN0dmYwVFZOaG9TQjdVVFlrbVVOclBaQ3B4SUVOUE44VVNnNHJzK3hrd1dNNlVMWVFoRElCcCsyTXYyUEU0MllLRkVYaEtJWXcraTJzUTQ2VXlxa1ZzRE9PV3B1a3F3b2FWWDhrL0N6SlhZaDlydHEvQ0ErNWs3RTA4V05UNFptdzRkS1hPZ1c4OGFPOU1zeGlnZEN3SksxUVA1aG80T2ZVTGtEaVFqdzVoVjM2MEFGWlhLRCs4SG1XaWZ1WmZoUENVdFIwZkR5Ym1BUkI2UFl3ZHg3Qm5oek9OQmxXeGxsYVl1WnFWclcwWkNnMDRCYWw5RWhsam1rS2psRjd4aStIa3ZDVHhiTGpBMVBzR3I1L1FtSkFoL2ZPNHhPajFWd0Q0KzNmUEZzeDJmYURtNldkWnZBWVlGL21RY1BCM1ZiYjNVREJTMXFoRFU3N3FNUmt3aitSeU5GYlVNNE9Pa2Q3MXhWbzh5ZkE2RGNOR3lzSVVtaGZPaWc3K2lxSzFvQ0xXUXYzNDNSeFZrZ0xIUmtTTkkwZTNqNDlMdFp0Q1VoVG1oMjlZalJ1b2g4b2s1UCtZZUhzVGRRUzhiMlVmT2pDdkc3SWYxNSs0MHhsZXVlZVl6dzMwVm9idHluS3U0c05yL2dORTlwOVowcDVzMGVId2ZHOVJ0aEtRVDliWHZjY0t5aFVnN0ZudkFCcE1McmZhMGZBWGRQRzlqMk1yNW5aUWZoNTFtc2thMWRBSWxodkRlc094U1djdFBCYUl6alZaMEpraXNqZ1F0cXROUEs2aUJiWElscU0xazBSNncwNzZuRlVwRkl0WVdLM0ZzbzFJb0hna1Z0U0xsakljUzloMnZsZGhBM0dJM251WHVDejRVeVdCTFd2VGxHK3RpdjR5Z0dRbmtQWWVzY3FXNE9xS25SV21UQWg1ekIxYlhQVW9Ga0ViR2g5cHpKTGp0bGRFbFV2djdzUENpNFJiS21jVmxXZ0lSL2FDSGU3eExFd296NTdZVmtEYk5OOFBic0lJZHZCMm1YL3psTk9NdEZ5YUpuQ2lCd2NQalNNUUEvUVBiaGZldTVBUklaMjBibnQrUFVIVGFnTGdQTmo2bkxYbzBhZi9nSFRvU09nbDNDQ1IwMXZueUtrQjRtb3J2NlFMdmI1aUtMbnFsNUEwNlM2M0ttMTlGcndNNStpR243eHNJQSt1dnIxQTVyMHJlc3VpYlNyVTJoMlAzTmo5dWJtRHYrWlBpWGxsVllwc2hZNnZ6Y0pDRzNzV1U5V05DUi9LVHNTekF6TEVteHZTMGlmS3lZNFdxVFA4WHdRcThJWXZSeWJHcmNVUS9RWVBIcWFqQWhHSVA1RmVLKzRFRVBjb0gxbWNMd1IyMlZjZ2wvLzhEMkQ2eUNseW41REFaTjgvZ2tNbmIyRGxLalVxbzgrSGJ1TzBEMk5INi80S0xCcWRMTEVDaHNYVWViY2JlSnVjZHRXRWxMTGVUS01tTmN1MzVmVXdIZndtN3ZrdVFNaldGWkY3dDBLR3B2SWxoM01aQ0hjcmZGTVUyZ05SbUdLak1RVmJDNnc2SVhlZ3FRdzgydEZSSFdQWXBmNGY2Y3pnWGRXTUZqZW5XakZ0TjJic2RnY2pBbm4ySVh6RGJrQisvU0ZGQ0hhQ1o2RkQyd0hvR2R0SDlFSVNkWW84RElYRTRRTStlQlczREJYc3Q1b3RFbHpRUDlkeklucUcveVQzeERUbXdXZTZiUFNEak1KNkdEbDBZTmJTV2g1Y1JLc2RKbWRSbjRvTUdtaDJrbGZ5VmZ0QkphRnZ5UG9JZTIwNjVsSDlyYXpGTmZBclorQ0p3WENYYTRJTFVNSGhlR1BZNFJUWXNtaVNVZm5kS3NCRUxiS1pVd1FFNCtBakVaeTVyLzNJYVQ5K1BQYnY0ODdMY29VdFZwbDdEWHE0d1RsYlV0QitXZGJKMU1vOGZxVXovTk45czQrbEkvbnQxQkRlQytmSUdkMW5YVVUzcC9QbjNQdGlMdGp3VmUreG0yMkoxQ3h6bDhxSXNzOU81TjdtdkZtN2lUNWhjK0J3RzdRMUZJRHRTS0VXYzNEenkxYUs3SmpHb05CdWtqaUNKb2p6aS9NOWZOV0ZYWmJhelF0Y0YwbVBPSW1Ha0U3bW5WZTZTM05hZEtxNzdLQzFPQTNzc3ZZSXlzQUpvNzA0S2VnMFV4TDNKejlUeTFQNkk4SE5YWmR4VnExT1RXTFFoL2R2amxUeUlreEx5K1JEdXh3RXVkR29mczNmWmlVTnRPWTUvMlhkOFBubmttajROdDBmTnF5SzAwMmFQL2RJM2RNclVkWlJtMHJ2enVocTlqb2htUW9TZlFaQm9wdnErUEFhNU5BZTJLRVBzRHE4Z2xQMXpGRHF3c2c3Uy9uT2l6TkhycWhNOTdkbDlISVZ4VjBqY1hKcGVTaTVQTk41cW1MM1F3cDlsYWFYQzd6SEZuNC8yK0JzTWVoOXZiN3JiaUdVQUZOT29qRUpubDZVVTZSZEVFUlNtcExmTnFta1dubDRKeEJOUlZ5Rk9TRDl4d0pOVGRJL013TEFxMkhRTzZTa052RnRpV25ob0FNOUUvTWpzSER6eHdzdE1jcjRISXBXTzVFVW15VTIvTU5HcUFQdHgvMDdFSWNqQ2NtMFB1OTVFNXpqZU5QUDZEMG0ranZLeGRtb0dqV1h1YjlEdmU5S0NoZCtva3pUK2QxSUZGM3BVdVo1ZFgyY2tjZzFNYkY2TTJNcDhQR0VkV1FNckQ3SjNsKzlmOXNOc2FZd3FPQklSRXZuTGhvN3pSemt5Q1pCM3ZqSGNlUC83V1IvVDNBL2NHR29TaTMvSUZEa1JkMHNnRmhqRUx4Q2l2QzZMSzFadGM2T2t3L2dZbmtvcFFQTEZhbDhsblB1SVFqS05MVXZWOWZRQmY1SjhDUjRyRm9KakgyVzZhZ3ViNTJhV2tudXdYbUtkdUVPZnZ4Vmw1aEQ1MlJpT0prL3plSi83YVFKVEpJRzBWaWhNVVlwa0FjNlQ3TFNBdDluRDNtbHZUaTFESnhOd042V1lEWXdZdGFJL29jdDlrSFdnWXlCVmlLQzVrYjhXTG80ZnpvVlhSL0M3Q0hZUzJMT1FsY3VkUkNaRTRMZlpjcnFYbmUzaEVrT3BTNnEvWi9DTFpQWUVQTkk0UFpwYm43bmVWd21nemRtcEZmWnE3bDZxSU5KdlBkVDdkdTVnZXJ3Mk4reWFtQkZUWTkwNzFQaXhXTUlZcjNnSlBMVnd0TU9RQU9iYjBscjJZcWMrQkxCSThXcVp5V3FPVGpCUzh6c0RmRzVqUkptbTFjSUFNNTJWV0lBdUpxb0Y0d09ROXlnbXo3SC9reElTMlJRYjBsZUt4bkNhazJYeTdpUjRTRVVRbkxRZ1NaTkR3VXVISTNkU2Q5N3ZUZVdBeWNzMHZidHYwYW9HVUppRWhIYnpOKy9HUCswMWFYZlcxbm9RNEgzb2RaQlQyK0F4enQrLzRQdElydlVLK2tqSlppaHZyVjRxb0MycUVkaVE5MGkrUlovRFNsUllMQXJIQ00rVm9BUHpYYVRycjlWYm95eHdSVnU1S1FrOGRlSmtjdVlPNUowV2Y2L25SN1VDRFFPc1o3WEtvWENxQXlpa3E0Z3hROHprNTYwNW4rUjBQMjhLMzN0T2NPTEFGYkhjMXl1RjdyblVTYkR3TzlPRi9uR3FkUFkzdGU5TXFIZzRDSnV6WW5tQzg0RjlJa3RLS3g0THhNWHNHclBOVSt3YzNuVGdyNXlva0psL3pSdTBuZGZrSTNFaTQ2UXNWRi9TbGx4eFBJUkZUQnRDV0dqcTZmZEJraUZDZ1QzNzBqTUdnL0lIUVJNVTVOODBhWTFPZlhKbCtUVU56U2ZpU3RFK3VXbUVpQUY0emR1KzZqR29Yb3o0d1pUODJSU1Zhdnc1WVVDSkRpM1VZSWFiRFVyUlZXbmk5eDkrL3JIK2hjQUhiYmdBTjc1ZmVwK3lVeHJwTlVRazBFMVJ6Z0dGWi9BN1lxejlLRFlrajJnUDBnRXFmTjhLeFZHNS9oaEh0U3RYOXArNFpZVWMvbVJYemNyQ3RqcnJoT2xmM29uUm9zUlpxNUJXdkhzbGltZFh1RHFkaWJ2SFMrNFZXeWpzQnZrZmhhSTZjai9zYmxnUHRRWmdvRmFkVkFmWHFnMnBsR1h4NlIzUndpekFqWnBNT2FtNlN0WXBmVHlmaTJCZTRSU2E3MkxUUFlqbE1KMkdoZlVLZmxwYTZmbHROOEdHb25RcEFLVE9RQVlWNmxIV1dxWnZ3eno5b1B5RG5MY2c4TFZEMXQ3UWlhc0diOE15SlI0eUtBdXpHMXFYbXlJZjZINFpzVytMUmtqWVBGbzZtUjJOdUt2NVJ4TFZua202SEdDTGpEbEV2Vk1zNXJ5RmluS1FWN3dtdDkzTFZMcUdtOWtMQUFpTzFQcXBKSmVrcURPdm5SS1VqUUt5TkxtV0xDSSsyaVRBNWVFQTZCV045SCtOdVVVT3dDTnUxN1JQbFMxWmFldWFCQlVMMGZDdjdJd1AzdWJMUE1IV0RHajVOR0kyaXdmaTJta1pzbHBRT1JZSXh5K0sydlJNcVM3TVJsTFUvUUpFTWpPbXhPbFkvZkNmOHpncmRBT2tnUXppTks1YVM2YnZFRGNLVnZUUzFrV1FKeEhhZGl2K3NBWTdncUlqWlJ4T2FQUzY2VGRhUUFUOHVMblN0VlhLYnM5N210cDB4ZEs2c2drWlJNd0ZTWEZTd3dVUi9oZyt0amtkUGFkMVRnM201TU5Velo5Z2JOSEVmYUdhcUpHVy9xazQzakdhc09aSVovMlhJUk53UERTRTdTYytjaXBQVjIwNjRoZm4vYmdCNU5EV2VpQkZpOWdPdlZtQ00zQjNiZkZMV2J1TlVBSDRiaFhkTE5KUkhjMkR2d2xpdGYvVEhMMEdoTm8wRm9Ta01wekdrSDdNYjJVNVR6V3NDWitTMkNSejdZZnhPVndBOWtHVmY1NWNvOXdSeXhuamZEK3owSTcwaS9BOEdadnNHSlU1ZHhqaWs5Z1pnQVp3MTNjQkZncytMSjBsaG1xaGgyVHA0VXF6MGNMOS9oMyt5ai9DNDRUa2Mwd2pzR1BkMXhPRm9LV04vbWZrR3BRQ1hQYTBlSWxqS2RZVGw3cFRGL2N0R1pFWjVGMmpBMjhmNEU4ZEw0eUdEZ3Y2MzJlRURTbWpqeTkrMHdaT1lMcmlDbHJqa25JNGhESWJVRVRtbEU5UUc0OXdJWjh1aWRZVWhYN090cHBsUHRIeWFCeWtNRExlTFhFc0xnYWVQTnkvMHNVREFxbVRIVytEaS9vNVJMWFlNYXFrTnZWc0ZRR3VTWlRwWVpaTVZvOHR0NUxxekI4N3lPZzBQbFFPME9kNmJPS2Y3R3BWaXUyS0QyMDBTaWdtcUZGV2VBc3RGYXhVd05STDAwSm5LZUZkQmU2OUlaQVpMTFpyc2ZlTHpibVFxNDZIRE0zRTBaczgxeGlJbGRXZThnaGR6TUVuWUE3Kyt4bFVTWVBEWnBrTXY0Vzlsb21ocHlBclNlUGtqbGIvUXpHMFlpTE5lNWJSdDI5SzJDeURNRHp5eTJrQ0tSMEtlNmZ0NkNYaHlPTDNwUnBWNTJCelF2MkdjTU1RaWVoL1hLbEhPdDdSNEFUUTN6b0tPZWlVbGtaNG5vZ0VPODREQmFpcU02WUVNaTdiNUdoeENXL2krN3BESTRmMW9DZVg3Y0VJS3V2ek95L0xldSswMkhnTEMrU0VXR0dXTGhnUlJPekNwRzlHWExoQ0V0UXJ6cW0xZnA4QVA3VGdBRnBNVFpHRDBwbldpZ1JzSmIzRDdOT0pRR1Y5bkIwUDU0VUZieWFkMWhSbDhpQm1aRWhUK09YcFBaSHZsN2wzVVlzdlZVZnk3bmNOOU1tUTR5b3NtZ3JHblY1cVVwUU5STVMzSjVnelAzR1Q1OGlzb21pU2pLYnhqSWRCOXBVQWFVZ3ptcVI4RW9adjBweFJPK2ZsZ2RudTd2RHdyRDZlY1V5VERPcDM4aHFTSWpjUElGWjFyT0Z4c2NRT1ZqbE9NWEhFVmRVeGR4aXUxS1p6dUdJcGU0aDJTZVVIZjRQaEZ0VmpHOWRvbVJIcS9XTTFWOE1kUkkxU0QxbVBYU2JkQUQrbTFyMzRYSjRsVXJtZWgzQmxUVC93bHd4dVZDaWcrWnZBanVORVgyck5aL01nVllLR2kwdmZuVmZ1WXhkRkFLVkJRbzFBaENQem56MVkrZ1d4RDlDTlQxdUd0cWU4aTNTZEMyL0JtYVp4L3d6emMvRktFN1l2S0Nlb2trWm8xU2pKeGRtOWN0cDlwSTNGS1Q5c3NHQkxocC9wbUwzOVFZMW5ueFhIL2RLeFkvVXhDMXVxZmlycWdleHJWSy9nTXpYdHBXd1ErdjB2MEhEMDBmeXZOL1drbkQ5L2pGSFk0aEF0K2t2Z2I5ZE5lb1pvQXFmRnJUWmh2My83TW5uQVMvaUk2cUFxd2pQaTVQRjhSNktPanBQektxUXQzSnMyMDFlY3JOcFFEN0l6NnJUOVZ0czJBZlExK28rNHUxQmhJR3pHV2dVU0cvTC9mdFFoYkF2b1djelB0YzIwWU9xeVF2WXQ1WWh4NWlnT1B5c0xQL1BHOTdlekZkcmo3ekkzOE5TUmxvL2VUTU1OemI5c05Ia2tNMkhyeVVpSlMrdEwvdjMwS0NmYXNrRjRmY0hXWkoxZ0JiMGNlVm0xSW8vWjVsM2dIdzRFVHE5WW9PbldEL050WHJRWTVrL1NtRElJajRvMm5LYldDZkJPZ29iV1YxK1d0QlptZlpkVCtLOUpReUdPVTlwdnhIN1NSZVIySDFib0tnMXVROWRxMnJRU3Urb01ZaWxBUTdzdFpFSEVJYnhkU2ZLRXk5RXo0RmhITG1Hd0ZZaGJjVkdzNzJVYTc3emVIbW1NVzYzRVZkV2JUZlVVUGR1SDhiQVc3aWhBK0hYZjEzRy8yVEdQc2FwdGs3YXFZVThIS0crWmRRWFc0SUZ1eC9QcHo3MTk2WWVBcTAraWZlMEtaSFc2cXY4Q1RkRHJWK3pUZHdBVzRjRUQyOFFIdjNnc1FqQmsrcnlYNzNzMkJFRFNnRUc4VWFuVTBqR0pkd2dPNHpwZXJDajR0bFB3R3NnbWlyaXhqSTVaUng0ZUw1VzJUcXlqYVVsYmF6M0RxUytwT1ZraTcvRWhLVjk3RktKd05QeFlGaWRyQUErUFp2amlIQ21ZZitiazhraFZscElBZUZ2TS9qUmhQUzZVQUoxeDF1Szl0ZnJER0Ntd1k0YUFyaWplOWJuL29LWTdRU2xjVDBDQzNMT25mSm84SFp2cExsZ05WWlhJbTNyLzFybUowUXlqa1Y2VmwrSHdkTGFuQm1GUytFakd3M2JocWRlK2ZNNW9HZFU2bjB5RDh1ZE9qaXF0d3NkdUV1cythWUd5aVA1NWVWRjBBY1FSUU9PL2pEY0tlZG9OZExyTUJsaitBS3doOEt2czVPMVFZSWY5SzZ5Z0pPSFA1UjFFVEpiNGNBPT08L3hlbmM6Q2lwaGVyVmFsdWU%2BPC94ZW5jOkNpcGhlckRhdGE%2BPC94ZW5jOkVuY3J5cHRlZERhdGE%2BPC9zYW1sOkVuY3J5cHRlZEFzc2VydGlvbj48L3NhbWxwOlJlc3BvbnNlPg%3D%3D&commit=Submit
+    headers:
+      Version:
+      - HTTP/1.1
+      Host:
+      - localhost:3000
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - max-age=0
+      Origin:
+      - 'null'
+      Upgrade-Insecure-Requests:
+      - '1'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/59.0.3071.115 Safari/537.36
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
+      Accept-Encoding:
+      - gzip, deflate, br
+      Accept-Language:
+      - en-US,en;q=0.8
+      Cookie:
+      - __uvt=; _gat_GSA_ENOR0=1; _ga=GA1.1.840741519.1503355917; _gid=GA1.1.1058701692.1505159641;
+        uvts=6Q8i9GhrRscJ9dct
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Content-Length:
+      - '20356'
+  response:
+    status:
+      code: 500
+      message: 
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Git-SHA:
+      - 6971163f8f5166f5f8690e88a182f434e6162c96
+      Content-Type:
+      - application/json; charset=utf-8
+      Cache-Control:
+      - no-cache
+      X-Request-Id:
+      - 2ac5eac4-b06d-4efe-8ba2-14e9fd30c5b7
+      X-Runtime:
+      - '781.063891'
+      Vary:
+      - Origin
+      Content-Length:
+      - '13824'
+    body:
+      encoding: UTF-8
+      string: '{"errors":[{"title":"Internal server error","detail":"Internal server
+        error","code":"500","status":"500","meta":{"exception":"Unable to autoload
+        constant SAML::UserAttributes::DSLOGON, expected /Users/vacokarask/VA/vets-api/lib/saml/user_attributes/dslogon.rb
+        to define it","backtrace":["/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/dependencies.rb:495:in
+        `load_missing_constant''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/dependencies.rb:184:in
+        `const_missing''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/inflector/methods.rb:263:in
+        `const_get''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/inflector/methods.rb:263:in
+        `block in constantize''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/inflector/methods.rb:259:in
+        `each''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/inflector/methods.rb:259:in
+        `inject''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/inflector/methods.rb:259:in
+        `constantize''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/inflector/methods.rb:304:in
+        `safe_constantize''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/core_ext/string/inflections.rb:77:in
+        `safe_constantize''","/Users/vacokarask/VA/vets-api/lib/saml/user.rb:32:in
+        `decorator_constant''","/Users/vacokarask/VA/vets-api/lib/saml/user.rb:14:in
+        `initialize''","/Users/vacokarask/VA/vets-api/app/models/user.rb:110:in `new''","/Users/vacokarask/VA/vets-api/app/models/user.rb:110:in
+        `from_saml''","/Users/vacokarask/VA/vets-api/app/controllers/v0/sessions_controller.rb:56:in
+        `persist_session_and_user''","/Users/vacokarask/VA/vets-api/app/controllers/v0/sessions_controller.rb:39:in
+        `saml_callback''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/abstract_controller/base.rb:198:in
+        `process_action''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_controller/metal/rendering.rb:10:in
+        `process_action''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/abstract_controller/callbacks.rb:20:in
+        `block in process_action''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/callbacks.rb:117:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/callbacks.rb:555:in
+        `block (2 levels) in compile''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/callbacks.rb:505:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/callbacks.rb:92:in
+        `__run_callbacks__''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/callbacks.rb:778:in
+        `_run_process_action_callbacks''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/callbacks.rb:81:in
+        `run_callbacks''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/abstract_controller/callbacks.rb:19:in
+        `process_action''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_controller/metal/rescue.rb:29:in
+        `process_action''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_controller/metal/instrumentation.rb:32:in
+        `block in process_action''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/notifications.rb:164:in
+        `block in instrument''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/notifications/instrumenter.rb:20:in
+        `instrument''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/notifications.rb:164:in
+        `instrument''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_controller/metal/instrumentation.rb:30:in
+        `process_action''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activerecord-4.2.7.1/lib/active_record/railties/controller_runtime.rb:18:in
+        `process_action''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/abstract_controller/base.rb:137:in
+        `process''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionview-4.2.7.1/lib/action_view/rendering.rb:30:in
+        `process''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_controller/metal.rb:196:in
+        `dispatch''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_controller/metal/rack_delegation.rb:13:in
+        `dispatch''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_controller/metal.rb:237:in
+        `block in action''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_dispatch/routing/route_set.rb:74:in
+        `dispatch''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_dispatch/routing/route_set.rb:43:in
+        `serve''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_dispatch/journey/router.rb:43:in
+        `block in serve''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_dispatch/journey/router.rb:30:in
+        `each''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_dispatch/journey/router.rb:30:in
+        `serve''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_dispatch/routing/route_set.rb:817:in
+        `call''","/Users/vacokarask/VA/vets-api/lib/statsd_middleware.rb:12:in `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/olive_branch-2.0.0/lib/olive_branch/middleware.rb:14:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/rack-1.6.5/lib/rack/etag.rb:24:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/rack-1.6.5/lib/rack/conditionalget.rb:38:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/rack-1.6.5/lib/rack/head.rb:13:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_dispatch/middleware/params_parser.rb:27:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activerecord-4.2.7.1/lib/active_record/query_cache.rb:36:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activerecord-4.2.7.1/lib/active_record/connection_adapters/abstract/connection_pool.rb:653:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_dispatch/middleware/callbacks.rb:29:in
+        `block in call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/callbacks.rb:88:in
+        `__run_callbacks__''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/callbacks.rb:778:in
+        `_run_call_callbacks''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/callbacks.rb:81:in
+        `run_callbacks''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_dispatch/middleware/callbacks.rb:27:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_dispatch/middleware/reloader.rb:73:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_dispatch/middleware/remote_ip.rb:78:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_dispatch/middleware/debug_exceptions.rb:17:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/web-console-2.3.0/lib/web_console/middleware.rb:28:in
+        `block in call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/web-console-2.3.0/lib/web_console/middleware.rb:18:in
+        `catch''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/web-console-2.3.0/lib/web_console/middleware.rb:18:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_dispatch/middleware/show_exceptions.rb:30:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/railties-4.2.7.1/lib/rails/rack/logger.rb:38:in
+        `call_app''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/railties-4.2.7.1/lib/rails/rack/logger.rb:20:in
+        `block in call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/tagged_logging.rb:68:in
+        `block in tagged''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/tagged_logging.rb:26:in
+        `tagged''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/tagged_logging.rb:68:in
+        `tagged''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/railties-4.2.7.1/lib/rails/rack/logger.rb:20:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_dispatch/middleware/request_id.rb:21:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/rack-1.6.5/lib/rack/runtime.rb:18:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/activesupport-4.2.7.1/lib/active_support/cache/strategy/local_cache_middleware.rb:28:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/rack-1.6.5/lib/rack/lock.rb:17:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/actionpack-4.2.7.1/lib/action_dispatch/middleware/static.rb:120:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/rack-cors-0.4.1/lib/rack/cors.rb:81:in
+        `call''","/Users/vacokarask/VA/vets-api/lib/http_method_not_allowed.rb:15:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/sentry-raven-2.1.2/lib/raven/integrations/rack.rb:50:in
+        `call''","/Users/vacokarask/VA/vets-api/config/initializers/integration_recorder.rb:194:in
+        `block in capture_internal_interaction''","/Users/vacokarask/VA/vets-api/config/initializers/integration_recorder.rb:205:in
+        `block in capture_external_interactions''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/vcr-3.0.3/lib/vcr/util/variable_args_block_caller.rb:9:in
+        `call_block''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/vcr-3.0.3/lib/vcr.rb:189:in
+        `use_cassette''","/Users/vacokarask/VA/vets-api/config/initializers/integration_recorder.rb:204:in
+        `capture_external_interactions''","/Users/vacokarask/VA/vets-api/config/initializers/integration_recorder.rb:194:in
+        `capture_internal_interaction''","/Users/vacokarask/VA/vets-api/config/initializers/integration_recorder.rb:143:in
+        `block (2 levels) in call''","/Users/vacokarask/VA/vets-api/config/initializers/integration_recorder.rb:153:in
+        `block (2 levels) in middlewares''","/Users/vacokarask/VA/vets-api/config/initializers/integration_recorder.rb:179:in
+        `block in insecure_middleware''","/Users/vacokarask/VA/vets-api/config/initializers/integration_recorder.rb:35:in
+        `with_disabled_randomness''","/Users/vacokarask/VA/vets-api/config/initializers/integration_recorder.rb:179:in
+        `insecure_middleware''","/Users/vacokarask/VA/vets-api/config/initializers/integration_recorder.rb:153:in
+        `block in middlewares''","/Users/vacokarask/VA/vets-api/config/initializers/integration_recorder.rb:170:in
+        `block in time_freeze_middleware''","/Users/vacokarask/VA/vets-api/config/initializers/integration_recorder.rb:162:in
+        `freeze_time''","/Users/vacokarask/VA/vets-api/config/initializers/integration_recorder.rb:170:in
+        `time_freeze_middleware''","/Users/vacokarask/VA/vets-api/config/initializers/integration_recorder.rb:153:in
+        `middlewares''","/Users/vacokarask/VA/vets-api/config/initializers/integration_recorder.rb:143:in
+        `block in call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/vcr-3.0.3/lib/vcr/util/variable_args_block_caller.rb:9:in
+        `call_block''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/vcr-3.0.3/lib/vcr.rb:189:in
+        `use_cassette''","/Users/vacokarask/VA/vets-api/config/initializers/integration_recorder.rb:142:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/railties-4.2.7.1/lib/rails/engine.rb:518:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/railties-4.2.7.1/lib/rails/application.rb:165:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/rack-1.6.5/lib/rack/content_length.rb:15:in
+        `call''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/puma-2.16.0/lib/puma/server.rb:557:in
+        `handle_request''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/puma-2.16.0/lib/puma/server.rb:404:in
+        `process_client''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/puma-2.16.0/lib/puma/server.rb:270:in
+        `block in run''","/Users/vacokarask/.rbenv/versions/2.3.0/lib/ruby/gems/2.3.0/gems/puma-2.16.0/lib/puma/thread_pool.rb:106:in
+        `block in spawn_thread''"]}}]}'
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 03:43:32 GMT
+- request:
+    method: get
+    uri: http://localhost:3000/v0/sessions/new?level=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Version:
+      - HTTP/1.1
+      Host:
+      - localhost:3000
+      Connection:
+      - keep-alive
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/59.0.3071.115 Safari/537.36
+      Origin:
+      - http://localhost:3001
+      Accept:
+      - "*/*"
+      Referer:
+      - http://localhost:3001/
+      Accept-Encoding:
+      - gzip, deflate, br
+      Accept-Language:
+      - en-US,en;q=0.8
+      If-None-Match:
+      - W/"130145149d55cc0ad29c179643d2ac11"
+  response:
+    status:
+      code: 200
+      message: 
+    headers:
+      Access-Control-Allow-Origin:
+      - http://localhost:3001
+      Access-Control-Allow-Methods:
+      - GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS
+      Access-Control-Expose-Headers:
+      - ''
+      Access-Control-Max-Age:
+      - '1728000'
+      Access-Control-Allow-Credentials:
+      - 'true'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Git-SHA:
+      - 6971163f8f5166f5f8690e88a182f434e6162c96
+      Content-Type:
+      - application/json; charset=utf-8
+      ETag:
+      - W/"3d9812e61b05b27e594347bc5a1636b5"
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - 99fcd14b-be02-494a-8eb8-780a27bc89a3
+      X-Runtime:
+      - '0.134286'
+      Vary:
+      - Origin
+      Content-Length:
+      - '1080'
+    body:
+      encoding: UTF-8
+      string: '{"authenticate_via_get":"https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=fVJLj9owEP4rufmU56KSWAQJgSohbR%2BCtodeVhNnAKuOnXomlP77OgFWHLp7s8bfY%2BabWRB0ppergU92h78HJI5WROhZO7t2loYO%2FR79WSv8vnuuxYm5l2lqnAJzcsTyKcuyFAI%2FHaXSUDYNqF8i2gQtbWEUutIo8KDXiW47NNBQolx3Je21PRrc66P9Ym9mItpuavFSVQfV5rMmbjAr4lk1g7jEpoznZQbFvFFlBU8BSjTg1hKD5VoUWT6PsyrOi2%2F5BzmrZF7%2BFNEP9DS1UiSZiC6dsSRH81oM3koHpEla6JAkK7lffXqWASjhnsUjpX%2Bf03vHTjkjlosRLafu%2FHJ8x75Pzsh0dOfkNcJF%2BghbXDfyOchuN1%2Bd0epvtDLG%2FVl7BMZasB9COh%2Bd74DfbiRP8qmi2%2FgwQeVgqUelDxpbkd5tbjvHdrqAsHDGC0dr1%2FXgNY1x4QUU30d5RK1NCGeHh2VLxh2dvY3xX8j17w2719%2FHK1z%2BAw%3D%3D&SigAlg=http%3A%2F%2Fwww.w3.org%2F2000%2F09%2Fxmldsig%23rsa-sha1&Signature=tUKiL5d9McAFnKVgd3y4Sz8GtKL9bry%2F8Brwmb8gRfvk%2B1IkPuTgfjl0YA1MV8YXQaI2nZ%2F64RuGC4Bbe%2FpQXNRFKZjC9cJkT7M3lzyZKRuCrG56s%2FRePXsgKsoeXW2T0bsmgNOEFI%2FZBVQhkYG%2FD4cfLD1lXx55pBbwrQ2yH0YXIg5%2FlJwD3sRCkBq0%2BbIttBvJm98D%2FkGDtbJG8SGzptWQAGe5zo91qif%2FoYcPGZ8yjCGtJAuNGpZbQ9oLiJ9QFI35MlcSeNv%2FFnI%2BqgcZUHhPsKTzoLtodl5MQA0TnKHUUT9OaZoIUTFn1taTPF9v%2FcoQ0GGrHgn1RrYbLSzKpA%3D%3D"}'
+    http_version: 
+  recorded_at: Tue, 12 Sep 2017 16:49:18 GMT
+recorded_with: VCR 3.0.3

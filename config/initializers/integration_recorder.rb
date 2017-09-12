@@ -106,10 +106,6 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
         File.binwrite(feature_path, { replay_settings: feature_settings }.to_yaml)
       end
 
-      def feature_path
-        VCR.configuration.cassette_library_dir + "/#{@feature}/replay_settings.yml"
-      end
-
       def feature_settings
         {
           vcr_cassette_path: relative_cassette_path,
@@ -120,16 +116,24 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
         }
       end
 
+      def base_vcr_path
+        VCR.configuration.cassette_library_dir
+      end
+
+      def feature_path
+        base_vcr_path + "/complex_interactions/#{@feature}/replay_settings.yml"
+      end
+
       def relative_cassette_path
         VCR.configuration.cassette_library_dir.split(Dir.pwd.to_s)[1].sub('/', '')
       end
 
       def internal_cassette
-        "#{@feature}/internal_interactions"
+        "complex_interactions/#{@feature}/internal_interactions"
       end
 
       def external_cassette
-        "#{@feature}/external_interactions"
+        "complex_interactions/#{@feature}/external_interactions"
       end
 
       # This middleware will capture internal requests and external requests.
@@ -211,8 +215,8 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
   # vcr_cassettes/<ENV['DUALDECK_INTERACTION']>
   # If you need to record interactions again, make sure to delete any existing interactions first
   # You can enable insecure_random, which will automatically also enable time freezing in between each request
-  relative_cassette_path = VCR.configuration.cassette_library_dir.split(Dir.pwd.to_s)[1].sub('/', '')
-  full_feature_path = relative_cassette_path + "/#{ENV['DUALDECK_INTERACTION']}"
+  relative_path = VCR.configuration.cassette_library_dir.split(Dir.pwd.to_s)[1].sub('/', '')
+  full_feature_path = relative_path + "/#{ENV['DUALDECK_INTERACTION']}/complex_interactions"
   raise "Interaciton Exists! #{full_feature_path} or provide different interaction" if File.exist?(full_feature_path)
   middleware_options = { replay: false, feature: ENV['DUALDECK_INTERACTION'], insecure_random: true }
   Rails.configuration.middleware.insert(0, DualDeck::RackMiddleware, middleware_options)
