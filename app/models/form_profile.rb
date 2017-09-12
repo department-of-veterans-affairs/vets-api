@@ -125,10 +125,6 @@ class FormProfile
       EMISRedis::MilitaryInformation::HCA_METHODS.each do |attr|
         military_information_data[attr] = military_information.public_send(attr)
       end
-
-      military_information_data.merge!(
-        receives_va_pension: user.payment.receives_va_pension
-      )
     rescue => e
       # fail silently if emis is down
       log_exception_to_sentry(e, {}, backend_service: :emis)
