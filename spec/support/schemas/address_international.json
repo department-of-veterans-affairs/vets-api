@@ -1,5 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
+  "required": ["address_one", "type", "city", "country_name"],
   "properties": {
     "address_effective_date": {
       "type": "string"
@@ -20,9 +21,6 @@
       "type": "string"
     },
     "country_name": {
-      "type": "string"
-    },
-    "foreign_code": {
       "type": "string"
     }
   },

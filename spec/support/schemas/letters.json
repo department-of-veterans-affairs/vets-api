@@ -13,52 +13,12 @@
               },
               "type": "array"
             },
-            "address": {
-              "description": "User's address in EVSS that will be included in the letter",
-              "properties": {
-                "full_name": {
-                  "type": "string"
-                },
-                "address_line1": {
-                  "type": "string"
-                },
-                "address_line2": {
-                  "type": "string"
-                },
-                "address_line3": {
-                  "type": "string"
-                },
-                "city": {
-                  "type": "string"
-                },
-                "state": {
-                  "type": "string"
-                },
-                "country": {
-                  "type": "string"
-                },
-                "foreign_code": {
-                  "type": "string"
-                },
-                "zip_code": {
-                  "type": "string"
-                }
-              },
-              "type": "object",
-              "required": [
-                "full_name",
-                "address_line1",
-                "address_line2",
-                "address_line3",
-                "city",
-                "state",
-                "country",
-                "foreign_code",
-                "zip_code"
-              ]
+            "full_name": {
+              "type": "string"
             }
           },
-          "type": "object"
+          "type": "object",
+          "required": ["letters", "full_name"]
         },
         "id": {
           "type": "string"
