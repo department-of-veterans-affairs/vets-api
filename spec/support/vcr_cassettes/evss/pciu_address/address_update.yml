@@ -76,12 +76,13 @@ http_interactions:
             "zipSuffix" : ""
           },
           "controlInformation" : {
+            "canUpdateAddress" : true,
             "corpAvailIndicator" : true,
             "corpRecFoundIndicator" : true,
             "hasNoBDNPaymentsIndicator" : true,
-            "incompetentIndicator" : false,
             "indentityIndicator" : true,
             "indexIndicator" : true,
+            "isCompetentIndicator" : true,
             "noFiduciaryAssignedIndicator" : true,
             "notDeceasedIndicator" : true
           }
