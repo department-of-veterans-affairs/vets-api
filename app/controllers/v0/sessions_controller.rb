@@ -8,6 +8,7 @@ module V0
     STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_TOTAL_KEY  = 'api.auth.login_callback.total'
 
+    # Collection Action: this method will eventually be replaced by auth_urls
     def new
       render json: { authenticate_via_get: fetch_url }
     end
