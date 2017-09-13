@@ -10,7 +10,8 @@ module V0
 
     # Collection Action: this method will eventually be replaced by auth_urls
     def new
-      render json: { authenticate_via_get: fetch_url }
+      saml_auth_request = OneLogin::RubySaml::Authrequest.new
+      render json: { authenticate_via_get: saml_auth_request.create(saml_settings, saml_options) }
     end
 
     # Collection Action: method will eventually replace new
@@ -57,7 +58,7 @@ module V0
 
     def saml_callback
       @saml_response = OneLogin::RubySaml::Response.new(
-        params[:SAMLResponse], settings: saml_settings
+        params[:SAMLResponse], settings: saml_settings(params[:RelayState])
       )
 
       if @saml_response.is_valid? && persist_session_and_user
@@ -138,9 +139,10 @@ module V0
       Settings.review_instance_slug.blank? ? {} : { RelayState: Settings.review_instance_slug }
     end
 
+    # NOTE: this is going to break review instances. How can we make RelayState dual use?
     def fetch_url(authn_context = nil)
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      saml_auth_request.create(saml_settings(authn_context), saml_options)
+      saml_auth_request.create(saml_settings(authn_context), RelayState: authn_context)
     end
   end
 end
