@@ -13,7 +13,7 @@ describe Benchmark::Timer do
     Benchmark::Timer.start('test', 'foo')
 
     expect(redis.get('benchmark_test_foo')).to_not be_nil
-    expect(redis.ttl('benchmark_test_foo')).to be > 0
+    expect(redis.ttl('benchmark_test_foo').positive?).to be true
   end
 
   context 'timer has started' do
