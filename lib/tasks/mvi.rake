@@ -63,6 +63,30 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
       end
     end
   end
+
+  # attribute :icn, String
+  # attribute :mhv_ids, Array[String]
+  # attribute :vha_facility_ids, Array[String]
+  # attribute :edipi, String
+  # attribute :participant_id, String
+
+  # 796002073
+
+  desc "Given a ssn update a mocked user's correlation ids"
+  task :update_ids, [:ssn, :mhv_ids, :vha_facility_ids, :edipi, :participant_id] => [:environment] do |_, args|
+    ssn = args[:ssn]
+    path = File.join(Betamocks.configuration.cache_dir, 'mvi', 'profile', "#{ssn}.yml")
+    xml = YAML.load(File.read(path)).dig(:body)
+    doc = Nokogiri::XML(xml)
+    puts doc
+    puts "*** --- ***"
+    puts doc.at('patient').inspect
+  end
+end
+
+def locate_element(el, path)
+  return nil unless el
+  el.locate(path)&.first
 end
 
 def valid_user_vars
