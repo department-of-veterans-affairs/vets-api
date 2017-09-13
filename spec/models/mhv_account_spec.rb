@@ -45,7 +45,7 @@ RSpec.describe MhvAccount, type: :model do
 
   around(:each) do |example|
     with_settings(Settings.mhv, facility_range: [[358, 718], [720, 758]]) do
-      example.call
+      example.run
     end
   end
 
