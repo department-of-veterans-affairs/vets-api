@@ -22,6 +22,8 @@ RSpec.describe 'idme flow', type: :request, order: :defined do
       Timecop.freeze(episode.recorded_at) do
         VCR.use_cassette(OUTBOUND_CASSETTE, record: :new_episodes) do
           SecureRandom.with_disabled_randomness do
+            puts 'TESTING SECURE RANDOM FROZEN'
+            puts SecureRandom.hex(10)
             make_request(episode)
           end
         end
