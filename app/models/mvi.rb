@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'mvi/service_factory'
 require 'mvi/responses/find_profile_response'
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
@@ -91,6 +92,6 @@ class Mvi < Common::RedisStore
   end
 
   def mvi_service
-    @service ||= MVI::Service.new
+    @service ||= MVI::ServiceFactory.get_service(mock_service: Settings.mvi.mock)
   end
 end
