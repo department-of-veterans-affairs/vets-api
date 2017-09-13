@@ -182,5 +182,7 @@ shrine:
 github:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
 
-betamocks_enabled: false
-betamocks_cache_path: /config/betamocks/local_cache
+betamocks:
+  enabled: false
+  cache_dir: /path/to/vets.gov-team/Products/Identity/mock_data
+  services_config: config/betamocks/services_config.yml
