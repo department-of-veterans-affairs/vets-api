@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'saml/user_attributes/id_me'
 require 'saml/user_attributes/mhv'
+require 'saml/user_attributes/dslogon'
 
 module SAML
   class User
@@ -29,7 +30,7 @@ module SAML
 
     def decorator_constant
       case authn_context
-      when 'mhv'; then "SAML::UserAttributes::MHV".safe_constantize
+      when 'mhv'; then 'SAML::UserAttributes::MHV'.safe_constantize
       when 'dslogon'; then 'SAML::UserAttributes::DSLogon'.safe_constantize
       else
         SAML::UserAttributes::IdMe

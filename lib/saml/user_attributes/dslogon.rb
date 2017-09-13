@@ -2,11 +2,11 @@
 require 'saml/user_attributes/base_decorator'
 
 # TODO: remove these nocov comments when this is able to be tested.
-#:nocov:
+# :nocov:
 module SAML
   module UserAttributes
     class DSLogon < BaseDecorator
-      PREMIUM_ASSURANCE_LEVELS = %w(2 3)
+      PREMIUM_ASSURANCE_LEVELS = %w(2 3).freeze
 
       def uuid
         attributes['uuid']
@@ -75,9 +75,11 @@ module SAML
       # In short we might find that a user has inconsistencies in MVI with the EDIPI provided.
       # The last part are ID.me specific attributes used by vets.gov
       def serializable_attributes
-        %i(first_name middle_name last_name email gender ssn birth_date)
-        + %i(dslogon_edipi dslogon_status dslogon_deceased)
-        + %i(uuid multifactor loa)
+        %i(
+          first_name middle_name last_name email gender ssn birth_date
+          dslogon_edipi dslogon_status dslogon_deceased
+          uuid multifactor loa
+        )
       end
 
       # if the account has dslogon assurance 2 or 3 then the user has identity proofed
@@ -94,4 +96,4 @@ module SAML
     end
   end
 end
-#:nocov:
+# :nocov:

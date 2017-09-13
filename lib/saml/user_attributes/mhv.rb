@@ -2,7 +2,7 @@
 require 'saml/user_attributes/base_decorator'
 
 # TODO: remove these nocov comments when this is able to be tested.
-#:nocov:
+# :nocov:
 module SAML
   module UserAttributes
     class MHV < BaseDecorator
@@ -74,4 +74,4 @@ module SAML
     end
   end
 end
-#:nocov:
+# :nocov:
