@@ -3,7 +3,7 @@ require 'saml/auth_fail_handler'
 
 module V0
   class SessionsController < ApplicationController
-    skip_before_action :authenticate, only: [:new, :saml_callback, :saml_logout_callback]
+    skip_before_action :authenticate, only: [:new, :auth_urls, :saml_callback, :saml_logout_callback]
 
     STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_TOTAL_KEY  = 'api.auth.login_callback.total'
@@ -13,6 +13,7 @@ module V0
     end
 
     # Collection Action: method will eventually replace new
+    # no auth required
     def auth_urls
       render json: {
         mhv_url: fetch_url('mhv'),
@@ -22,12 +23,14 @@ module V0
     end
 
     # Member Action: method is to opt in to MFA for those users who opted out
+    # auth token required
     def multifactor
       render json: { multifactor_url: fetch_url('multifactor') }
     end
 
     # Member Action: method is to verify LOA3 if existing LOA3, or go through flow if not LOA3 already
     # NOTE: This is FICAM LOA3 we're talking about here.
+    # auth token required
     def identity_proof
       render json: {
         identity_proof_url: fetch_url('http://idmanagement.gov/ns/assurance/loa/3')
