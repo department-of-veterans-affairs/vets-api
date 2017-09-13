@@ -18,7 +18,7 @@ module V0
       render json: {
         mhv_url: fetch_url('mhv'),
         dslogon_url: fetch_url('dslogon'),
-        idme_url: fetch_url('http://idmanagement.gov/ns/assurance/loa/1'),
+        idme_url: fetch_url('http://idmanagement.gov/ns/assurance/loa/1')
       }
     end
 
@@ -139,7 +139,7 @@ module V0
 
     def fetch_url(authn_context = nil)
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      url = saml_auth_request.create(saml_settings(authn_context), saml_options)
+      saml_auth_request.create(saml_settings(authn_context), saml_options)
     end
   end
 end
