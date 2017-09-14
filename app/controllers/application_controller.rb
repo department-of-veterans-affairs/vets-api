@@ -136,7 +136,8 @@ class ApplicationController < ActionController::API
   end
 
   def saml_settings(options = {})
-    base_settings = SAML::SettingsService.saml_settings
+    # Make sure we're not changing the settings globally
+    base_settings = SAML::SettingsService.saml_settings.dup
 
     options.each do |option, value|
       next if value.nil?
