@@ -12,23 +12,26 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:settings_no_context) { build(:settings_no_context) }
   let(:rubysaml_settings) { build(:rubysaml_settings) }
 
-  let(:valid_saml_response) { double('saml_response', is_valid?: true, errors: []) }
-  let(:invalid_saml_response) { double('saml_response', is_valid?: false) }
+  let(:valid_saml_response) { double('saml_response', is_valid?: true, errors: [], authn_context: nil) }
+  let(:invalid_saml_response) { double('saml_response', is_valid?: false, authn_context: nil) }
   let(:saml_response_click_deny) do
     double('saml_response', is_valid?: false,
                             errors: ['ruh roh'],
-                            status_message: 'Subject did not consent to attribute release')
+                            status_message: 'Subject did not consent to attribute release',
+                            authn_context: nil)
   end
   let(:saml_response_too_late) do
     double('saml_response', is_valid?: false, status_message: '',
                             errors: ['Current time is on or after NotOnOrAfter ' \
-                              'condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)'])
+                              'condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)'],
+                              authn_context: nil)
   end
   # "Current time is earlier than NotBefore condition #{(now + allowed_clock_drift)} < #{not_before})"
   let(:saml_response_too_early) do
     double('saml_response', is_valid?: false, status_message: '',
                             errors: ['Current time is earlier than NotBefore ' \
-                              'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'])
+                              'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'],
+                            authn_context: nil)
   end
 
   let(:logout_uuid) { '1234' }

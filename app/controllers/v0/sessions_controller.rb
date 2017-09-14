@@ -20,24 +20,26 @@ module V0
     # no auth required
     def authn_urls
       render json: {
-        mhv: build_url('mhv'),
-        dslogon: build_url('dslogon'),
-        idme: build_url('http://idmanagement.gov/ns/assurance/loa/1')
+        mhv: build_url(authn_context: 'mhv', connect: 'mhv'),
+        dslogon: build_url(authn_context: 'dslogon', connect: 'dslogon'),
+        idme: build_url
       }
     end
 
     # Member Action: method is to opt in to MFA for those users who opted out
     # auth token required
     def multifactor
-      render json: { multifactor_url: build_url('multifactor') }
+      connect = @session&.authn_context
+      render json: { multifactor_url: build_url(authn_context: 'multifactor', connect: connect) }
     end
 
     # Member Action: method is to verify LOA3 if existing LOA3, or go through flow if not LOA3 already
     # NOTE: This is FICAM LOA3 we're talking about here.
     # auth token required
     def identity_proof
+      connect = @session&.authn_context
       render json: {
-        identity_proof_url: build_url('http://idmanagement.gov/ns/assurance/loa/3')
+        identity_proof_url: build_url(authn_context: LOA::MAPPING.invert[3], connect: connect)
       }
     end
 
@@ -63,8 +65,7 @@ module V0
       @saml_response = OneLogin::RubySaml::Response.new(
         params[:SAMLResponse], settings: saml_settings
       )
-
-      if @saml_response.is_valid? && persist_session_and_user
+      if @saml_response.is_valid? && persist_session_and_user(authn_context: @saml_response.authn_context)
         async_create_evss_account(@current_user)
         redirect_to Settings.saml.relay + '?token=' + @session.token
 
@@ -80,10 +81,11 @@ module V0
 
     private
 
-    def persist_session_and_user
+    def persist_session_and_user(authn_context = nil)
       saml_user = User.from_saml(@saml_response)
 
-      @session = Session.new(uuid: saml_user.uuid)
+      # we are using an heuristic on saml_response to set the authn_context
+      @session = Session.new(uuid: saml_user.uuid, authn_context: authn_context )
       @current_user = User.find(@session.uuid)
 
       @current_user = @current_user.nil? ? saml_user : User.from_merged_attrs(@current_user, saml_user)
@@ -143,10 +145,14 @@ module V0
       Settings.review_instance_slug.blank? ? {} : { RelayState: Settings.review_instance_slug }
     end
 
-    def build_url(authn_context = nil)
+    # Builds the urls to trigger varios sign-in, mfa, or verify flows in idme.
+    # nil authn_context and nil connect will always default to idme level 1
+    def build_url(authn_context: LOA::MAPPING.invert[1], connect: nil)
       saml_settings = saml_settings(authn_context: authn_context, name_identifier_value: @session&.uuid)
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      saml_auth_request.create(saml_settings, saml_options)
+      connect_param = "&connect=#{connect}"
+      link = saml_auth_request.create(saml_settings, saml_options)
+      connect.present? ? link + connect_param : link
     end
   end
 end
