@@ -124,17 +124,6 @@ class ApplicationController < ActionController::API
     raise Common::Exceptions::Unauthorized
   end
 
-  def pagination_params
-    {
-      page: params[:page],
-      per_page: params[:per_page]
-    }
-  end
-
-  def render_job_id(jid)
-    render json: { job_id: jid }, status: 202
-  end
-
   def saml_settings(options = {})
     # Make sure we're not changing the settings globally
     base_settings = SAML::SettingsService.saml_settings.dup
@@ -145,5 +134,16 @@ class ApplicationController < ActionController::API
     end
 
     base_settings
+  end
+
+  def pagination_params
+    {
+      page: params[:page],
+      per_page: params[:per_page]
+    }
+  end
+
+  def render_job_id(jid)
+    render json: { job_id: jid }, status: 202
   end
 end
