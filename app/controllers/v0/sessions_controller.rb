@@ -65,7 +65,7 @@ module V0
       @saml_response = OneLogin::RubySaml::Response.new(
         params[:SAMLResponse], settings: saml_settings
       )
-      if @saml_response.is_valid? && persist_session_and_user(authn_context: @saml_response.authn_context)
+      if @saml_response.is_valid? && persist_session_and_user
         async_create_evss_account(@current_user)
         redirect_to Settings.saml.relay + '?token=' + @session.token
 
@@ -82,13 +82,14 @@ module V0
     private
 
     def persist_session_and_user(authn_context = nil)
-      saml_user = User.from_saml(@saml_response)
+      saml_user = SAML::User.new(@saml_response)
+      user = User.new(saml_user)
 
       # we are using an heuristic on saml_response to set the authn_context
-      @session = Session.new(uuid: saml_user.uuid, authn_context: authn_context)
+      @session = Session.new(uuid: user.uuid, authn_context: saml_user.authn_context)
       @current_user = User.find(@session.uuid)
 
-      @current_user = @current_user.nil? ? saml_user : User.from_merged_attrs(@current_user, saml_user)
+      @current_user = @current_user.nil? ? user : User.from_merged_attrs(@current_user, user)
       @session.save && @current_user.save
     end
 
