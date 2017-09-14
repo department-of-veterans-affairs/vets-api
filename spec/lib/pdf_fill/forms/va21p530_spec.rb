@@ -227,23 +227,25 @@ describe PdfFill::Forms::VA21P530 do
       new_form_class.extract_va_file_number(form_data['vaFileNumber'])
     end
 
-    context 'longer than 9 characters containing a c' do
-      let(:form_data) do
-        { 'vaFileNumber' => 'c123456789' }
+    context 'with a leading `c` character' do
+      context 'with 9 digits' do
+        let(:form_data) do
+          { 'vaFileNumber' => 'c123456789' }
+        end
+
+        it 'should strip the leading character' do
+          expect(subject).to eq('123456789')
+        end
       end
 
-      it 'should strip the leading character' do
-        expect(subject).to eq('123456789')
-      end
-    end
+      context 'with less than 9 digits' do
+        let(:form_data) do
+          { 'vaFileNumber' => 'c12345678' }
+        end
 
-    context 'less than 10 characters containing a c' do
-      let(:form_data) do
-        { 'vaFileNumber' => 'c12345678' }
-      end
-
-      it 'should strip the leading character' do
-        expect(subject).to eq('c12345678')
+        it 'should strip the leading character' do
+          expect(subject).to eq('c12345678')
+        end
       end
     end
   end
