@@ -41,7 +41,7 @@ module SAML
       end
 
       def loa
-        { current: loa_current, highest: loa_highest }
+        { current: loa_current, highest: loa_highest, highest_available: loa_highest_available }
       end
 
       private
@@ -61,6 +61,10 @@ module SAML
         loa_highest = saml_loa || loa_current
         Rails.logger.warn 'LOA.highest is less than LOA.current' if loa_highest < loa_current
         [loa_current, loa_highest].max
+      end
+
+      def loa_highest_available
+        3
       end
     end
   end

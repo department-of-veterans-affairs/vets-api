@@ -20,7 +20,7 @@ Rails.application.routes.draw do
     end
 
     resource :sessions, only: [:new, :destroy] do
-      get :auth_urls, on: :collection
+      get :authn_urls, on: :collection
       get :multifactor, on: :member
       get :identity_proof, on: :member
       post :saml_callback, to: 'sessions#saml_callback'

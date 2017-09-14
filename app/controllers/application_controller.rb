@@ -124,22 +124,6 @@ class ApplicationController < ActionController::API
     raise Common::Exceptions::Unauthorized
   end
 
-  def saml_settings(authn_context = nil)
-    if defined?(@saml_settings)
-      @saml_settings.name_identifier_value = @session&.uuid
-      return @saml_settings
-    end
-    @saml_settings = SAML::SettingsService.saml_settings
-    if authn_context.nil?
-      level = LOA::MAPPING.invert[params[:level]&.to_i]
-      @saml_settings.authn_context = level || LOA::MAPPING.invert[1]
-    else
-      @saml_settings.authn_context = authn_context
-    end
-    @saml_settings.name_identifier_value = @session&.uuid
-    @saml_settings
-  end
-
   def pagination_params
     {
       page: params[:page],
@@ -149,5 +133,16 @@ class ApplicationController < ActionController::API
 
   def render_job_id(jid)
     render json: { job_id: jid }, status: 202
+  end
+
+  def saml_settings(options = {})
+    base_settings = SAML::SettingsService.saml_settings
+
+    options.each do |option, value|
+      next if value.nil?
+      base_settings.send("#{option}=", value)
+    end
+
+    base_settings
   end
 end

@@ -164,9 +164,9 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       it 'returns the urls for for all three possible authN requests' do
-        get :auth_urls
+        get :authn_urls
         expect(response).to have_http_status(200)
-        expect(JSON.parse(response.body).keys).to eq %w(mhv_url dslogon_url idme_url)
+        expect(JSON.parse(response.body).keys).to eq %w(mhv dslogon idme)
       end
 
       it 'returns does not allow fetching the identity proof url' do

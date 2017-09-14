@@ -3,7 +3,7 @@ require 'saml/auth_fail_handler'
 
 module V0
   class SessionsController < ApplicationController
-    skip_before_action :authenticate, only: [:new, :auth_urls, :saml_callback, :saml_logout_callback]
+    skip_before_action :authenticate, only: [:new, :authn_urls, :saml_callback, :saml_logout_callback]
 
     STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_TOTAL_KEY  = 'api.auth.login_callback.total'
@@ -11,23 +11,25 @@ module V0
     # Collection Action: this method will eventually be replaced by auth_urls
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
+      authn_context = LOA::MAPPING.invert[params[:level]&.to_i] || LOA::MAPPING.invert[1]
+      saml_settings = saml_settings(authn_context: authn_context)
       render json: { authenticate_via_get: saml_auth_request.create(saml_settings, saml_options) }
     end
 
     # Collection Action: method will eventually replace new
     # no auth required
-    def auth_urls
+    def authn_urls
       render json: {
-        mhv_url: fetch_url('mhv'),
-        dslogon_url: fetch_url('dslogon'),
-        idme_url: fetch_url('http://idmanagement.gov/ns/assurance/loa/1')
+        mhv: build_url('mhv'),
+        dslogon: build_url('dslogon'),
+        idme: build_url('http://idmanagement.gov/ns/assurance/loa/1')
       }
     end
 
     # Member Action: method is to opt in to MFA for those users who opted out
     # auth token required
     def multifactor
-      render json: { multifactor_url: fetch_url('multifactor') }
+      render json: { multifactor_url: build_url('multifactor') }
     end
 
     # Member Action: method is to verify LOA3 if existing LOA3, or go through flow if not LOA3 already
@@ -35,7 +37,7 @@ module V0
     # auth token required
     def identity_proof
       render json: {
-        identity_proof_url: fetch_url('http://idmanagement.gov/ns/assurance/loa/3')
+        identity_proof_url: build_url('http://idmanagement.gov/ns/assurance/loa/3')
       }
     end
 
@@ -43,6 +45,7 @@ module V0
       logout_request = OneLogin::RubySaml::Logoutrequest.new
       logger.info "New SP SLO for userid '#{@session.uuid}'"
 
+      saml_settings = saml_settings(name_identifier_value: @session&.uuid)
       # cache the request for @session.token lookup when we receive the response
       SingleLogoutRequest.create(uuid: logout_request.uuid, token: @session.token)
 
@@ -58,7 +61,7 @@ module V0
 
     def saml_callback
       @saml_response = OneLogin::RubySaml::Response.new(
-        params[:SAMLResponse], settings: saml_settings(params[:RelayState])
+        params[:SAMLResponse], settings: saml_settings
       )
 
       if @saml_response.is_valid? && persist_session_and_user
@@ -104,6 +107,7 @@ module V0
     end
 
     def handle_completed_slo
+      saml_settings = saml_settings(name_identifier_value: @session&.uuid)
       logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings, get_params: params)
       logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
       session         = Session.find(logout_request&.token)
@@ -139,10 +143,10 @@ module V0
       Settings.review_instance_slug.blank? ? {} : { RelayState: Settings.review_instance_slug }
     end
 
-    # NOTE: this is going to break review instances. How can we make RelayState dual use?
-    def fetch_url(authn_context = nil)
+    def build_url(authn_context = nil)
+      saml_settings = saml_settings(authn_context: authn_context, name_identifier_value: @session&.uuid)
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      saml_auth_request.create(saml_settings(authn_context), RelayState: authn_context)
+      saml_auth_request.create(saml_settings, saml_options)
     end
   end
 end
