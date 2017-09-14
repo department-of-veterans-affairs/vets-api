@@ -45,7 +45,7 @@ module SAML
 
       # NOTE: See comments for loa_current and loa_highest below
       def loa
-        { current: loa_current, highest: loa_highest, highest_available: loa_highest_available }
+        { current: loa_current, highest: loa_highest }
       end
 
       private
@@ -57,26 +57,6 @@ module SAML
         %i(mhv_icn email uuid loa multifactor)
       end
 
-      # if the account type is premium then the user has identity proofed with MHV and we trust it
-      def loa_current
-        PREMIUM_LOAS.include?(account_type) ? 2 : idme_loa
-      end
-
-      # if the account type is premium there is no option to FICAM level up the account, so the highest is
-      # the current level of 2. If however the user is Basic or Advanced, they should have the option
-      # to level up their account using ID.me similar to other ID.me login users
-      def loa_highest
-        cannonical_loa = PREMIUM_LOAS.include?(account_type) ? 2 : idme_loa
-        Rails.logger.warn 'LOA.highest is nil!' if idme_loa.nil?
-        loa_highest = cannonical_loa || loa_current
-        Rails.logger.warn 'LOA.highest is less than LOA.current' if loa_highest < loa_current
-        [loa_highest, loa_current].max
-      end
-
-      def loa_highest_available
-        PREMIUM_LOAS.include?(account_type) ? 2 : 3
-      end
-
       # NOTE: this will always be a JSON object, see above
       def mhv_profile
         JSON.parse(attributes['mhv_profile'])
@@ -85,6 +65,26 @@ module SAML
       # NOTE: keeping this the same for sake of consistency, but nil.to_i == 0
       def idme_loa
         attributes['level_of_assurance']&.to_i
+      end
+
+      # if the account type is premium then the user has identity proofed with MHV and we trust it
+      def loa_current
+        PREMIUM_LOAS.include?(account_type) ? 3 : idme_loa
+      end
+
+      # if the account type is premium there is no option to FICAM level up the account, so the highest is
+      # the current level of 2. If however the user is Basic or Advanced, they should have the option
+      # to level up their account using ID.me similar to other ID.me login users
+      def loa_highest
+        cannonical_loa = PREMIUM_LOAS.include?(account_type) ? 3 : idme_loa
+        Rails.logger.warn 'LOA.highest is nil!' if idme_loa.nil?
+        loa_highest = cannonical_loa || loa_current
+        Rails.logger.warn 'LOA.highest is less than LOA.current' if loa_highest < loa_current
+        [loa_highest, loa_current].max
+      end
+
+      def loa_highest_available
+        3
       end
     end
   end

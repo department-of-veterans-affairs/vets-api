@@ -41,7 +41,7 @@ module SAML
       end
 
       def loa
-        { current: loa_current, highest: loa_highest, highest_available: loa_highest_available }
+        { current: loa_current, highest: loa_highest }
       end
 
       private
