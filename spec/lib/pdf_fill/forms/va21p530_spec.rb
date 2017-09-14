@@ -222,6 +222,32 @@ describe PdfFill::Forms::VA21P530 do
     end
   end
 
+  describe '#extract_va_file_number' do
+    subject do
+      new_form_class.extract_va_file_number(form_data['vaFileNumber'])
+    end
+
+    context 'longer than 9 characters containing a c' do
+      let(:form_data) do
+        { 'vaFileNumber' => 'c123456789' }
+      end
+
+      it 'should strip the leading character' do
+        expect(subject).to eq('123456789')
+      end
+    end
+
+    context 'less than 10 characters containing a c' do
+      let(:form_data) do
+        { 'vaFileNumber' => 'c12345678' }
+      end
+
+      it 'should strip the leading character' do
+        expect(subject).to eq('c12345678')
+      end
+    end
+  end
+
   describe '#extract_middle_i' do
     subject do
       described_class.new(form_data).extract_middle_i(form_data, 'veteranFullName')

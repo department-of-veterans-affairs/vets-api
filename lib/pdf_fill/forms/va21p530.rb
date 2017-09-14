@@ -365,6 +365,12 @@ module PdfFill
         hash[key]
       end
 
+      def extract_va_file_number(va_file_number)
+        return va_file_number if va_file_number.blank? || va_file_number.length < 10
+
+        va_file_number.sub(/^[Cc]/, '')
+      end
+
       def expand_checkbox_as_hash(hash, key)
         value = hash.try(:[], key)
         return if value.blank?
@@ -457,6 +463,8 @@ module PdfFill
         expand_tours_of_duty(@form_data['toursOfDuty'])
 
         @form_data['previousNames'] = combine_previous_names(@form_data['previousNames'])
+
+        @form_data['vaFileNumber'] = extract_va_file_number(@form_data['vaFileNumber'])
 
         expand_burial_allowance
 
