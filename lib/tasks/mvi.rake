@@ -77,7 +77,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
     ssn = args[:ssn]
     path = File.join(Betamocks.configuration.cache_dir, 'mvi', 'profile', "#{ssn}.yml")
     xml = YAML.load(File.read(path)).dig(:body)
-    doc = Nokogiri::XML(xml)
+    doc = Ox.load(xml)
     puts doc
     puts "*** --- ***"
     puts doc.at('patient').inspect

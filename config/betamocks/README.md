@@ -3,8 +3,10 @@
 ## Setup
 1. Add and enable the Betamocks settings in your settings.local.yml file:
 ```yaml
-betamocks_enabled: true
-betamocks_cache_path: /config/betamocks/local_cache
+betamocks:
+  enabled: true
+  cache_dir: config/betamocks/cache
+  services_config: config/betamocks/services_config.yml
 ```
 
 2. Copy over the example services config YAML file 

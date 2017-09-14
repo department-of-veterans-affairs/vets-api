@@ -1,0 +1,40 @@
+---
+:method: :get
+:body:
+  letter_destination:
+    address_line1: 2476 MAIN STREET
+    address_line2: 'STE # 12'
+    address_line3: West
+    city: RESTON
+    country: US
+    foreign_code: '865'
+    full_name: Mark A Webb
+    state: VA
+    zip_code: '12345'
+  letters:
+  - letter_name: Commissary Letter
+    letter_type: commissary
+  - letter_name: Proof of Service Letter
+    letter_type: proof_of_service
+  - letter_name: Proof of Creditable Prescription Drug Coverage Letter
+    letter_type: medicare_partd
+  - letter_name: Proof of Minimum Essential Coverage Letter
+    letter_type: minimum_essential_coverage
+  - letter_name: Service Verification Letter
+    letter_type: service_verification
+  - letter_name: Civil Service Preference Letter
+    letter_type: civil_service
+  - letter_name: Benefit Summary Letter
+    letter_type: benefit_summary
+  - letter_name: Benefit Verification Letter
+    letter_type: benefit_verification
+  - letter_name: Certificate of Eligibility
+    letter_type: certificate_of_eligibility
+:headers:
+  Date: Tue, 12 Sep 2017 21:22:27 GMT
+  Server: Apache/2.4.6 (CentOS) OpenSSL/1.0.1e-fips
+  Content-Type: application/json
+  Set-Cookie: WLS_12.1_App1_Cluster_2_ROUTEID=.02; path=/
+  Via: 1.1 csraciapp6.evss.srarad.com
+  Transfer-Encoding: chunked
+:status: 200
