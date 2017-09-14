@@ -12,6 +12,8 @@ RSpec.describe SAML::User do
   context 'LOA highest is lower than LOA current' do
     let(:user) { User.new(described_instance) }
 
+    before(:each) { puts "\n" + saml_settings.inspect }
+
     it 'properly constructs a user' do
       expect(user).to be_valid
     end
