@@ -243,7 +243,7 @@ describe PdfFill::Forms::VA21P530 do
           { 'vaFileNumber' => 'c12345678' }
         end
 
-        it 'should strip the leading character' do
+        it 'should leave the file number unchanged' do
           expect(subject).to eq('c12345678')
         end
       end
