@@ -39,7 +39,8 @@
                 "gender", "zip",
                 "last_signed_in",
                 "loa",
-                "multifactor"
+                "multifactor",
+                "authn_context"
               ],
               "properties": {
                 "email": { "type": "string"},
@@ -58,7 +59,8 @@
                     "highest": { "type": "integer" }
                   }
                 },
-                "multifactor": { "type": "boolean" }
+                "multifactor": { "type": "boolean" },
+                "authn_context": { "type": [ "string", null ] }
               }
             },
             "va_profile": {

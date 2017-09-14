@@ -27,6 +27,7 @@ class User < Common::RedisStore
   attribute :ssn
   attribute :loa
   attribute :multifactor
+  attribute :authn_context
 
   # vaafi attributes
   attribute :last_signed_in, Common::UTCTime

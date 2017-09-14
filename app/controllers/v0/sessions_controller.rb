@@ -81,12 +81,11 @@ module V0
 
     private
 
-    def persist_session_and_user(authn_context = nil)
-      saml_user = SAML::User.new(@saml_response)
-      user = User.new(saml_user)
+    def persist_session_and_user
+      user = User.new(@saml_response)
 
       # we are using an heuristic on saml_response to set the authn_context
-      @session = Session.new(uuid: user.uuid, authn_context: saml_user.authn_context)
+      @session = Session.new(uuid: user.uuid)
       @current_user = User.find(@session.uuid)
 
       @current_user = @current_user.nil? ? user : User.from_merged_attrs(@current_user, user)

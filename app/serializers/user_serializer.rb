@@ -23,7 +23,8 @@ class UserSerializer < ActiveModel::Serializer
       zip: object.zip,
       last_signed_in: object.last_signed_in,
       loa: object.loa,
-      multifactor: (object.multifactor == 'true') # cast to boolean
+      multifactor: (object.multifactor == 'true'), # cast to boolean
+      authn_context: object.authn_context
     }
   end
 

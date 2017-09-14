@@ -30,7 +30,7 @@ module SAML
     private
 
     def serializable_attributes
-      @decorated.send(:serializable_attributes) + %i(last_signed_in)
+      @decorated.send(:serializable_attributes) + %i(authn_context last_signed_in)
     end
 
     def dslogon?
