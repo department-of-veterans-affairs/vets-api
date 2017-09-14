@@ -2,7 +2,7 @@
 require 'saml/user_attributes/base_decorator'
 
 # TODO: remove these nocov comments when this is able to be tested.
-# :nocov:
+
 module SAML
   module UserAttributes
     class DSLogon < BaseDecorator
@@ -82,26 +82,19 @@ module SAML
         )
       end
 
-      # NOTE: keeping this the same for sake of consistency, but nil.to_i == 0
       def idme_loa
         attributes['level_of_assurance']&.to_i
       end
 
-      # if the account has dslogon assurance 2 or 3 then the user has identity proofed
-      # additionally the user might have identity proofed at id.me
+      # if the dslogon_assurance PREMIUM or IDME = 3, otherwise 1
       def loa_current
-        PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : idme_loa
+        PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : (idme_loa || 1)
       end
 
-      # if the account has dslogon assurance 2 or 3 there is no option to FICAM level up the account,
-      # so the highest is the current level of 2. If however the user is Basic or Advanced, they
-      # should have the option to level up their account using ID.me similar to other ID.me login users
+      # This is "highest attained" via idp
+      # if the dslogon_assurance PREMIUM or IDME = 3,
       def loa_highest
-        cannonical_loa = PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : idme_loa
-        Rails.logger.warn 'LOA.highest is nil!' if idme_loa.nil?
-        loa_highest = cannonical_loa || loa_current
-        Rails.logger.warn 'LOA.highest is less than LOA.current' if loa_highest < loa_current
-        [loa_highest, loa_current].max
+        PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : (idme_loa || loa_current)
       end
 
       def loa_highest_available
@@ -110,4 +103,3 @@ module SAML
     end
   end
 end
-# :nocov:
