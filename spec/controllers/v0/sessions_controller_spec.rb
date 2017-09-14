@@ -24,7 +24,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     double('saml_response', is_valid?: false, status_message: '',
                             errors: ['Current time is on or after NotOnOrAfter ' \
                               'condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)'],
-                              authn_context: nil)
+                            authn_context: nil)
   end
   # "Current time is earlier than NotBefore condition #{(now + allowed_clock_drift)} < #{not_before})"
   let(:saml_response_too_early) do

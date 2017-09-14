@@ -85,7 +85,7 @@ module V0
       saml_user = User.from_saml(@saml_response)
 
       # we are using an heuristic on saml_response to set the authn_context
-      @session = Session.new(uuid: saml_user.uuid, authn_context: authn_context )
+      @session = Session.new(uuid: saml_user.uuid, authn_context: authn_context)
       @current_user = User.find(@session.uuid)
 
       @current_user = @current_user.nil? ? saml_user : User.from_merged_attrs(@current_user, saml_user)
