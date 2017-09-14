@@ -6,7 +6,7 @@ require 'saml/user_attributes/base_decorator'
 module SAML
   module UserAttributes
     class MHV < BaseDecorator
-      PREMIUM_LOAS = %w(Premium)
+      PREMIUM_LOAS = %w(Premium).freeze
 
       def mhv_icn
         attributes['mhv_icn']
