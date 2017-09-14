@@ -22,7 +22,8 @@ class UserSerializer < ActiveModel::Serializer
       gender: object.gender,
       zip: object.zip,
       last_signed_in: object.last_signed_in,
-      loa: object.loa
+      loa: object.loa,
+      multifactor: (object.multifactor == 'true') # cast to boolean
     }
   end
 

@@ -37,7 +37,8 @@
                 "birth_date",
                 "gender", "zip",
                 "last_signed_in",
-                "loa"
+                "loa",
+                "multifactor"
               ],
               "properties": {
                 "email": { "type": "string"},
@@ -55,7 +56,8 @@
                     "current": { "type": "integer" },
                     "highest": { "type": "integer" }
                   }
-                }
+                },
+                "multifactor": { "type": "boolean" }
               }
             },
             "va_profile": {
