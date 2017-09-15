@@ -11,8 +11,14 @@ RSpec.describe SAML::User do
 
   context 'LOA highest is lower than LOA current' do
     let(:user) { User.new(described_instance) }
+    let(:cert) { File.read 'spec/support/certificates/ruby-saml.crt' }
+    let(:key) { File.read 'spec/support/certificates/ruby-saml.key' }
 
-    before(:each) { puts "\n" + saml_settings.inspect }
+    around(:each) do |example|
+      with_settings(Settings.saml, cert: cert, key: key) do
+        example.run
+      end
+    end
 
     it 'properly constructs a user' do
       expect(user).to be_valid

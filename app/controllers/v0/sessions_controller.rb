@@ -29,7 +29,7 @@ module V0
     # Member Action: method is to opt in to MFA for those users who opted out
     # auth token required
     def multifactor
-      connect = @session&.authn_context
+      connect = @current_user&.authn_context
       render json: { multifactor_url: build_url(authn_context: 'multifactor', connect: connect) }
     end
 
@@ -37,7 +37,7 @@ module V0
     # NOTE: This is FICAM LOA3 we're talking about here.
     # auth token required
     def identity_proof
-      connect = @session&.authn_context
+      connect = @current_user&.authn_context
       render json: {
         identity_proof_url: build_url(authn_context: LOA::MAPPING.invert[3], connect: connect)
       }
@@ -82,7 +82,7 @@ module V0
 
     private
 
-    def persist_session_and_user      
+    def persist_session_and_user
       user = User.from_saml(@saml_response)
 
       # we are using an heuristic on saml_response to set the authn_context
