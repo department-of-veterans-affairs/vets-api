@@ -1,0 +1,38 @@
+module Sentry
+  module Processor
+    class EmailSanitizer < Raven::Processor
+
+      EMAIL_REGEX = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i
+
+      # largely duplicated code from from the raven-ruby lib as recommended in their doc
+      # https://github.com/getsentry/raven-ruby/blob/master/lib/raven/processor/utf8conversion.rb#L9
+      def process(value)
+        case value
+        when Hash
+          !value.frozen? ? value.merge!(value) { |_, v| process v } : value.merge(value) { |_, v| process v }
+        when Array
+          !value.frozen? ? value.map! { |v| process v } : value.map { |v| process v }
+        when Exception
+          return value unless contains_email?(value.message)
+          clean_exc = value.class.new(sanitized_string(value.message))
+          clean_exc.set_backtrace(value.backtrace)
+          clean_exc
+        when String
+          sanitized_string(value)
+        else
+          value
+        end
+      end
+
+      private
+
+      def sanitized_string(str)
+        str.gsub(EMAIL_REGEX, '[FILTERED EMAIL]')
+      end
+
+      def contains_email?(str)
+        EMAIL_REGEX.match(str)
+      end
+    end
+  end
+end
