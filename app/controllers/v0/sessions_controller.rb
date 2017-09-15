@@ -9,6 +9,7 @@ module V0
     STATSD_LOGIN_TOTAL_KEY  = 'api.auth.login_callback.total'
 
     # Collection Action: this method will eventually be replaced by auth_urls
+    # DEPRECATED: This action is only here for backward compatibility and will be removed.
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
       authn_context = LOA::MAPPING.invert[params[:level]&.to_i] || LOA::MAPPING.invert[1]
@@ -17,6 +18,8 @@ module V0
     end
 
     # Collection Action: method will eventually replace new
+    # Returns the sign-in urls for mhv, dslogon, and ID.me (LOA1 only)
+    # authn_context is the policy, connect represents the ID.me flow
     # no auth required
     def authn_urls
       render json: {
@@ -27,14 +30,18 @@ module V0
     end
 
     # Member Action: method is to opt in to MFA for those users who opted out
+    # authn_context is the policy, connect represents the ID.me flow
     # auth token required
     def multifactor
       connect = @current_user&.authn_context
       render json: { multifactor_url: build_url(authn_context: 'multifactor', connect: connect) }
     end
 
-    # Member Action: method is to verify LOA3 if existing LOA3, or go through flow if not LOA3 already
-    # NOTE: This is FICAM LOA3 we're talking about here.
+    # Member Action: method is to verify LOA3 if existing ID.me LOA3, or
+    #  go through the FICAM identity proofing flow if not an ID.me LOA3 or NON PREMIUM DSLogon or MHV.
+    # NOTE: This is FICAM LOA3 we're talking about here. It is not necessary to verify DSLogon or MHV
+    #  sign-in users who return LOA3 from the auth_url flow (only for leveling up NON PREMIUM).
+    # authn_context is the policy, connect represents the ID.me flow
     # auth token required
     def identity_proof
       connect = @current_user&.authn_context
