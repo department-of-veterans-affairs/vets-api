@@ -39,7 +39,7 @@ up: db
 	@$(COMPOSE_DEV) up
 
 .PHONY: rebuild
-build:
+rebuild:
 	@$(COMPOSE_DEV) build
 
 .PHONY: clean
