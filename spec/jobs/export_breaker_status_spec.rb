@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe BreakerStatus do
+RSpec.describe ExportBreakerStatus do
   describe '#perform' do
     let(:service) do
       Breakers.client.services.first
