@@ -24,6 +24,7 @@ RSpec.describe Sentry::Processor::EmailSanitizer do
 
     results = @processor.process(data)
     expect(results.message).to eq(good_string)
+    expect(results).to be_a(Exception)
   end
 
   it 'works recursively on hashes' do

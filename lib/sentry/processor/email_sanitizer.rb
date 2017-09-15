@@ -14,10 +14,7 @@ module Sentry
         when Array
           !value.frozen? ? value.map! { |v| process v } : value.map { |v| process v }
         when Exception
-          return value unless contains_email?(value.message)
-          clean_exc = value.class.new(sanitized_string(value.message))
-          clean_exc.set_backtrace(value.backtrace)
-          clean_exc
+          sanitized_exception(value)
         when String
           sanitized_string(value)
         else
@@ -29,6 +26,13 @@ module Sentry
 
       def sanitized_string(str)
         str.gsub(EMAIL_REGEX, '[FILTERED EMAIL]')
+      end
+
+      def sanitized_exception(exception)
+        return exception unless contains_email?(exception.message)
+        clean_exc = exception.class.new(sanitized_string(exception.message))
+        clean_exc.set_backtrace(exception.backtrace)
+        clean_exc
       end
 
       def contains_email?(str)
