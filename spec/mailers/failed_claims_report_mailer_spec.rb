@@ -49,7 +49,7 @@ RSpec.describe FailedClaimsReportMailer, type: [:mailer] do
         expect(subject.to).to eq(
           %w(
             lihan@adhocteam.us
-            mark@adhocteam.us
+            ryan.baker@adhocteam.us
             joshua.quagliaroli@va.gov
           )
         )
