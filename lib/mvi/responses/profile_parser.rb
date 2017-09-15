@@ -12,8 +12,6 @@ module MVI
       QUERY_XPATH = 'controlActProcess/queryByParameter'
 
       SSN_ROOT_ID = '2.16.840.1.113883.4.1'
-      CORRELATION_ROOT_ID = '2.16.840.1.113883.4.349'
-      EDIPI_ROOT_ID = '2.16.840.1.113883.3.42.10001.100001.12'
 
       SUBJECT_XPATH = 'controlActProcess/subject'
       PATIENT_XPATH = 'registrationEvent/subject1/patient'
@@ -77,7 +75,7 @@ module MVI
 
       def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
-        correlation_ids = map_correlation_ids(patient.locate('id'))
+        correlation_ids = MVI::Responses::IdParser.new.parse(patient.locate('id'))
         log_inactive_mhv_ids(correlation_ids[:mhv_ids].to_a,
                              correlation_ids[:active_mhv_ids].to_a)
         MVI::Models::MviProfile.new(
@@ -160,37 +158,6 @@ module MVI
         other_ids.each do |oi|
           node = oi.nodes.select { |n| n.attributes[:root] == SSN_ROOT_ID }
           return node.first unless node.empty?
-        end
-      end
-
-      # MVI correlation id source id relationships:
-      # {source id}^{id type}^{assigning facility}^{assigning authority}^{id status}
-      # NI = national identifier, PI = patient identifier
-      def map_correlation_ids(ids)
-        ids = ids.map(&:attributes)
-        {
-          icn: select_ids(select_extension(ids, /^\w+\^NI\^\w+\^\w+\^\w+$/, CORRELATION_ROOT_ID))&.first,
-          mhv_ids: select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/, CORRELATION_ROOT_ID)),
-          active_mhv_ids: select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^A$/, CORRELATION_ROOT_ID)),
-          edipi: select_ids(select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^\w+$/, EDIPI_ROOT_ID))&.first,
-          vba_corp_id: select_ids(select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^\w+$/, CORRELATION_ROOT_ID))&.first,
-          vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, CORRELATION_ROOT_ID))
-        }
-      end
-
-      def select_ids(extensions)
-        return nil if extensions.empty?
-        extensions.map { |e| e[:extension].split('^')&.first }
-      end
-
-      def select_facilities(extensions)
-        return nil if extensions.empty?
-        extensions.map { |e| e[:extension].split('^')&.third }
-      end
-
-      def select_extension(ids, pattern, root)
-        ids.select do |id|
-          id[:extension] =~ pattern && id[:root] == root
         end
       end
 

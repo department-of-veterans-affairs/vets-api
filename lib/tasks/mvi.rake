@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'csv'
+require 'mvi/responses/id_parser'
 
 namespace :mvi do
   desc 'Given user attributes, run a find candidate query'
@@ -64,29 +65,91 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
     end
   end
 
-  # attribute :icn, String
-  # attribute :mhv_ids, Array[String]
-  # attribute :vha_facility_ids, Array[String]
-  # attribute :edipi, String
-  # attribute :participant_id, String
-
-  # 796002073
-
   desc "Given a ssn update a mocked user's correlation ids"
-  task :update_ids, [:ssn, :mhv_ids, :vha_facility_ids, :edipi, :participant_id] => [:environment] do |_, args|
-    ssn = args[:ssn]
-    path = File.join(Betamocks.configuration.cache_dir, 'mvi', 'profile', "#{ssn}.yml")
-    xml = YAML.load(File.read(path)).dig(:body)
-    doc = Ox.load(xml)
-    puts doc
-    puts "*** --- ***"
-    puts doc.at('patient').inspect
+  task :update_ids, [:environment] do
+    ssn = ENV['ssn']
+    icn = ENV['icn']
+    edipi = ENV['edipi']
+    participant_id = ENV['participant_id']
+    mhv_ids = ENV['mhv_ids']&.split(' ')
+    vha_facility_ids = ENV['vha_facility_ids']&.split(' ')
+
+    update_ids(ssn, icn, edipi, participant_id, mhv_ids, vha_facility_ids)
+  end
+
+  desc "Migrate the old mock data to use betamocks"
+  task :migrate_mock_data, [:environment] do |_, args|
+    yaml = YAML.load(
+      File.read(File.join('config', 'mvi_schema', 'mock_mvi_responses.yml'))
+    )
+    template = Liquid::Template.parse(
+      File.read(File.join('config', 'mvi_schema', 'mvi_template.xml'))
+    )
+    yaml['find_candidate'].each do |k, v|
+      cache_file = File.join('config', 'betamocks', 'cache', 'mvi', 'profile', "#{k}.yml")
+      unless File.exist? cache_file
+        puts k
+        profile = MVI::Models::MviProfile.new(v)
+        puts profile.inspect
+        puts profile.to_h.stringify_keys
+        puts template.render!({'profile' => profile.to_h}, { strict_variables: true })
+      end
+    end
   end
 end
 
-def locate_element(el, path)
-  return nil unless el
-  el.locate(path)&.first
+def update_ids(ssn, icn, edipi, participant_id, mhv_ids, vha_facility_ids)
+  path = File.join('config', 'betamocks', 'cache', 'mvi', 'profile', "#{ssn}.yml")
+  yaml = YAML.load(File.read(path))
+  xml = yaml.dig(:body).dup.prepend('<?xml version="1.0" encoding="UTF-8"?>') unless xml =~ /^<\?xml/
+  doc = Ox.load(xml)
+
+  el = doc.locate(
+    'env:Envelope/env:Body/idm:PRPA_IN201306UV02/controlActProcess/subject/registrationEvent/subject1/patient'
+  ).first
+
+  current_ids = MVI::Responses::IdParser.new.parse(el.locate('id'))
+
+  el.nodes.delete_if do |n|
+    [
+      MVI::Responses::IdParser::CORRELATION_ROOT_ID,
+      MVI::Responses::IdParser::EDIPI_ROOT_ID
+    ].include? n.attributes[:root]
+  end
+
+  new_ids = {
+    icn: icn, edipi: edipi, participant_id: participant_id,
+    mhv_ids: mhv_ids, vha_facility_ids: vha_facility_ids
+  }
+  new_ids.reject! { |_, v| v.nil? }
+  current_ids.merge!(new_ids)
+
+  el.nodes << create_element(current_ids[:icn], :correlation, "%s^NI^200M^USVHA^P")
+  el.nodes << create_element(current_ids[:edipi], :edipi, "%s^NI^200DOD^USDOD^A")
+  el.nodes << create_element(current_ids[:participant_id], :correlation, "%s^PI^200CORP^USVBA^A")
+  el.nodes.concat create_multiple_elements(current_ids[:mhv_ids], "%s^PI^200MH^USVHA^A")
+  el.nodes.concat create_multiple_elements(current_ids[:vha_facility_ids], "123456^PI^%s^USVHA^A")
+
+  yaml[:body] = Ox.dump(doc)
+  File.open(path, 'w') { |f| f.write(yaml.to_yaml) }
+end
+
+def create_element(id, type, pattern)
+  el = create_root_id(type)
+  el[:extension] = pattern % id
+  el
+end
+
+def create_multiple_elements(ids, pattern)
+  ids.map { |id| create_element(id, :correlation, pattern) }
+end
+
+def create_root_id(type)
+  el = Ox::Element.new('id')
+  edipi_root = MVI::Responses::IdParser::EDIPI_ROOT_ID
+  correlation_root = MVI::Responses::IdParser::CORRELATION_ROOT_ID
+  el[:root] = (type == :edipi) ? edipi_root : correlation_root
+  el
 end
 
 def valid_user_vars
