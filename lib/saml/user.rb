@@ -43,8 +43,8 @@ module SAML
 
     def decorator_constant
       case authn_context
-      when 'mhv'; then 'SAML::UserAttributes::MHV'.safe_constantize
-      when 'dslogon'; then 'SAML::UserAttributes::DSLogon'.safe_constantize
+      when 'mhv'; then SAML::UserAttributes::MHV
+      when 'dslogon'; then SAML::UserAttributes::DSLogon
       else
         SAML::UserAttributes::IdMe
       end
