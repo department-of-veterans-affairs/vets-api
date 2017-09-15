@@ -6,6 +6,7 @@ RSpec.describe BreakerStatus do
     let(:service) do
       Breakers.client.services.first
     end
+    let(:metric) { "api.external_service.#{service.name}.up" }
 
     before(:each) do
       # Reset breakers before each test
@@ -18,7 +19,7 @@ RSpec.describe BreakerStatus do
 
     context 'no failures on test service' do
       it 'reports up to statsd' do
-        expect { subject.perform }.to trigger_statsd_gauge("api.external_service.#{service.name}.up", value: 1)
+        expect { subject.perform }.to trigger_statsd_gauge(metric, value: 1)
       end
     end
 
@@ -27,11 +28,11 @@ RSpec.describe BreakerStatus do
         now = Time.current
         Timecop.freeze(now - 120)
         service.add_error # create outage
-        expect { subject.perform }.to trigger_statsd_gauge("api.external_service.#{service.name}.up", value: 0)
+        expect { subject.perform }.to trigger_statsd_gauge(metric, value: 0)
 
         Timecop.freeze(now)
         service.latest_outage.end!
-        expect { subject.perform }.to trigger_statsd_gauge("api.external_service.#{service.name}.up", value: 1)
+        expect { subject.perform }.to trigger_statsd_gauge(metric, value: 1)
       end
     end
   end
