@@ -1,12 +1,13 @@
+# frozen_string_literal: true
 require 'rails_helper'
 require 'sentry/processor/email_sanitizer'
 
 RSpec.describe Sentry::Processor::EmailSanitizer do
-  let(:bad_string) { "Email is: joe.schmoe@gmail.com, bad!" }
-  let(:good_string) { "Email is: [FILTERED EMAIL], bad!" }
+  let(:bad_string) { 'Email is: joe.schmoe@gmail.com, bad!' }
+  let(:good_string) { 'Email is: [FILTERED EMAIL], bad!' }
 
   before do
-    @client = double("client")
+    @client = double('client')
     @processor = Sentry::Processor::EmailSanitizer.new(@client)
   end
 
@@ -18,7 +19,7 @@ RSpec.describe Sentry::Processor::EmailSanitizer do
     expect(results['sensitive']).to eq(good_string)
   end
 
-  it "filters emails from exception messages" do
+  it 'filters emails from exception messages' do
     data = Exception.new(bad_string)
 
     results = @processor.process(data)
@@ -42,7 +43,7 @@ RSpec.describe Sentry::Processor::EmailSanitizer do
   end
 
   it 'does not blow up on symbols' do
-    data = { :key => :value }
+    data = { key: :value }
 
     results = @processor.process(data)
     expect(results[:key]).to eq(:value)
@@ -54,7 +55,6 @@ RSpec.describe Sentry::Processor::EmailSanitizer do
     data['nonsensitive'] = nonsensitive_str
 
     results = @processor.process(data)
-    byebug
     expect(results['nonsensitive']).to eq(nonsensitive_str)
   end
 end

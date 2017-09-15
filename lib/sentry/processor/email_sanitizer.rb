@@ -1,7 +1,7 @@
+# frozen_string_literal: true
 module Sentry
   module Processor
     class EmailSanitizer < Raven::Processor
-
       # source: https://stackoverflow.com/a/27194235
       EMAIL_REGEX = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i
 
