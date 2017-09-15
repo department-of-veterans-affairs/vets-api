@@ -77,8 +77,8 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
     update_ids(ssn, icn, edipi, participant_id, mhv_ids, vha_facility_ids)
   end
 
-  desc "Migrate the old mock data to use betamocks"
-  task :migrate_mock_data, [:environment] do |_, args|
+  desc 'Create missing cache files from mock_mvi_responses.yml'
+  task :migrate_cache_files, [:environment] do
     yaml = YAML.load(
       File.read(File.join('config', 'mvi_schema', 'mock_mvi_responses.yml'))
     )
@@ -88,12 +88,21 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
     yaml['find_candidate'].each do |k, v|
       cache_file = File.join('config', 'betamocks', 'cache', 'mvi', 'profile', "#{k}.yml")
       unless File.exist? cache_file
-        puts k
+        puts "user with ssn #{k} not found, generating cache file"
         profile = MVI::Models::MviProfile.new(v)
-        puts profile.inspect
-        puts profile.to_h.stringify_keys
-        puts template.render!({'profile' => profile.to_h}, { strict_variables: true })
+        create_cache_from_profile(cache_file, profile, template)
       end
+    end
+  end
+
+  desc 'Update cache file ids from mock_mvi_responses.yml'
+  task :batch_update_ids, [:environment] do
+    yaml = YAML.load(
+      File.read(File.join('config', 'mvi_schema', 'mock_mvi_responses.yml'))
+    )
+
+    yaml['find_candidate'].each do |k, v|
+      update_ids
     end
   end
 end
@@ -150,6 +159,25 @@ def create_root_id(type)
   correlation_root = MVI::Responses::IdParser::CORRELATION_ROOT_ID
   el[:root] = (type == :edipi) ? edipi_root : correlation_root
   el
+end
+
+def create_cache_from_profile(cache_file, profile, template)
+  xml = template.render!({ 'profile' => profile.as_json.stringify_keys })
+
+  response = {
+    method: :post,
+    body: xml,
+    headers: {
+      connection: 'close',
+      date: Time.now.utc.strftime('%a, %d %b %Y %H:%M:%S %Z'),
+      'content-length' => xml.bytesize,
+      'content-type' => 'text/xml',
+      'set-cookie' => '',
+      'x-powered-by' => 'Servlet/2.5 JSP/2.1'
+    }
+  }
+
+  File.open(cache_file, 'w') { |f| f.write(response.to_yaml) }
 end
 
 def valid_user_vars

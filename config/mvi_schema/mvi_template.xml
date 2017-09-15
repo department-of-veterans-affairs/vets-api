@@ -45,11 +45,9 @@
                 <statusCode code="active" />
                 <patientPerson>
                   <name use="L">
-                    {% for name in profile.given_names %}
-                      <given>{{ name }}</given>
-                    {% endfor %}
+                    {% for name in profile.given_names %}<given>{{ name }}</given>{% endfor %}
                     <family>{{ profile.family_name }}</family>
-                    <prefix>{{ profile.prefix }}</prefix>
+                    <prefix></prefix>
                     <suffix>{{ profile.suffix }}</suffix>
                   </name>
                   <name use="P">
@@ -112,9 +110,7 @@
           <parameterList>
             <livingSubjectName>
               <value use="L">
-                {% for name in profile.given_names %}
-                <given>{{ name }}</given>
-                {% endfor %}
+                {% for name in profile.given_names %}<given>{{ name }}</given>{% endfor %}
                 <family>{{ profile.family_name }}</family>
               </value>
               <semanticsText>LivingSubject.name</semanticsText>
