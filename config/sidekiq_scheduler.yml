@@ -3,7 +3,7 @@
 # at the specified interval.
 
 BreakerStatus:
-  cron: "* * * * *"
+  every: '1m'
   description: "Send breaker status to statsd"
 
 CreateDailySpoolFiles:
