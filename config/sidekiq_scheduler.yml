@@ -2,7 +2,7 @@
 # over all workers. The `every` option will run the job once per worker instance
 # at the specified interval.
 
-BreakerStatus:
+ExportBreakerStatus:
   every: '1m'
   description: "Send breaker status to statsd"
 
