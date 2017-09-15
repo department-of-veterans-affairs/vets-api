@@ -183,6 +183,6 @@ github:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
 
 betamocks:
-  enabled: false
-  cache_dir: /path/to/vets.gov-team/Products/Identity/mock_data
+  enabled: true
+  cache_dir: config/betamocks/cache
   services_config: config/betamocks/services_config.yml

@@ -1,45 +1,151 @@
 ---
 :method: :post
-:body: <env:Envelope xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-         xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><env:Header/><env:Body><idm:PRPA_IN201306UV02
-         xmlns="urn:hl7-org:v3" xmlns:idm="http://vaww.oed.oit.va.gov" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd"><id
-         extension="WSDOC1709071902459590901641757" root="2.16.840.1.113883.4.349"/><creationTime
-         value="20170907190246"/><versionCode code="3.0"/><interactionId extension="PRPA_IN201306UV02"
-         root="2.16.840.1.113883.1.6"/><processingCode code="T"/><processingModeCode code="T"/><acceptAckCode
-         code="NE"/><receiver typeCode="RCV"><device determinerCode="INSTANCE" classCode="DEV"><id
-         extension="200VGOV" root="2.16.840.1.113883.4.349"/></device></receiver><sender
-         typeCode="SND"><device determinerCode="INSTANCE" classCode="DEV"><id extension="200M"
-         root="2.16.840.1.113883.4.349"/></device></sender><acknowledgement><typeCode code="AA"/><targetMessage><id
-         extension="200VGOV-0702bf7c-723b-419a-b5a8-66991029361c" root="1.2.840.114350.1.13.0.1.7.1.1"/></targetMessage><acknowledgementDetail><code
-         codeSystemName="MVI" code="132" displayName="IMT"/><text>Identity Match Threshold</text></acknowledgementDetail><acknowledgementDetail><code
-         codeSystemName="MVI" code="120" displayName="PDT"/><text>Potential Duplicate Threshold</text></acknowledgementDetail></acknowledgement><controlActProcess
-         classCode="CACT" moodCode="EVN"><code codeSystem="2.16.840.1.113883.1.6" code="PRPA_TE201306UV02"/><subject
-         typeCode="SUBJ"><registrationEvent classCode="REG" moodCode="EVN"><id nullFlavor="NA"/><statusCode
-         code="active"/><subject1 typeCode="SBJ"><patient classCode="PAT"><id extension="32318572^PI^200CORP^USVBA^A" root="2.16.840.1.113883.4.349"/><id
-         extension="1077041105^NI^200DOD^USDOD^A" root="2.16.840.1.113883.3.42.10001.100001.12"/><id extension="1008691603V292665^NI^200M^USVHA^P"
-         root="2.16.840.1.113883.4.349"/><id extension="0000027812^PN^200PROV^USDVA^PCE"
-         root="2.16.840.1.113883.4.349"/><id extension="796066619^PI^200BRLS^USVBA^A" root="2.16.840.1.113883.4.349"/><statusCode
-         code="active"/><patientPerson><name use="L"><given>GARY</given><given></given><family>TODD</family></name><administrativeGenderCode
-         code="F"/><birthTime value="19480928"/><addr use="PHYS"><country>USA</country></addr><asOtherIDs
-         classCode="SSN"><id extension="796066619" root="2.16.840.1.113883.4.1"/><scopingOrganization
-         determinerCode="INSTANCE" classCode="ORG"><id root="1.2.840.114350.1.13.99997.2.3412"/></scopingOrganization></asOtherIDs></patientPerson><subjectOf1><queryMatchObservation
-         classCode="COND" moodCode="EVN"><code code="IHE_PDQ"/><value value="169" xsi:type="INT"/></queryMatchObservation></subjectOf1></patient></subject1><custodian
-         typeCode="CST"><assignedEntity classCode="ASSIGNED"><id root="2.16.840.1.113883.4.349"/></assignedEntity></custodian></registrationEvent></subject><queryAck><queryId
-         extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><queryResponseCode code="OK"/><resultCurrentQuantity
-         value="1"/></queryAck><queryByParameter><queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><statusCode
-         code="new"/><modifyCode code="MVI.COMP1"/><initialQuantity value="1"/><parameterList><livingSubjectAdministrativeGender><value
-         code="M"/><semanticsText>Gender</semanticsText></livingSubjectAdministrativeGender><livingSubjectBirthTime><value
-         value="19551112"/><semanticsText>Date of Birth</semanticsText></livingSubjectBirthTime><livingSubjectId><value
-         extension="796066621" root="2.16.840.1.113883.4.1"/><semanticsText>SSN</semanticsText></livingSubjectId><livingSubjectName><value
-         use="L"><given>GARY</given><given></given><family>TODD</family></value><semanticsText>Legal
-         Name</semanticsText></livingSubjectName></parameterList></queryByParameter></controlActProcess></idm:PRPA_IN201306UV02></env:Body></env:Envelope>
+:body: |2
+
+  <env:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <env:Header/>
+    <env:Body>
+      <idm:PRPA_IN201306UV02 xmlns:idm="http://vaww.oed.oit.va.gov" xmlns="urn:hl7-org:v3" ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd">
+        <id extension="WSDOC1609131753362231779394902" root="2.16.840.1.113883.4.349"/>
+        <creationTime value="20160913175336"/>
+        <versionCode code="3.0"/>
+        <interactionId extension="PRPA_IN201306UV02" root="2.16.840.1.113883.1.6"/>
+        <processingCode code="T"/>
+        <processingModeCode code="T"/>
+        <acceptAckCode code="NE"/>
+        <receiver typeCode="RCV">
+          <device determinerCode="INSTANCE" classCode="DEV">
+            <id extension="200VGOV" root="2.16.840.1.113883.4.349"/>
+          </device>
+        </receiver>
+        <sender typeCode="SND">
+          <device determinerCode="INSTANCE" classCode="DEV">
+            <id extension="200M" root="2.16.840.1.113883.4.349"/>
+          </device>
+        </sender>
+        <acknowledgement>
+          <typeCode code="AA"/>
+          <targetMessage>
+            <id extension="MCID-12345" root="1.2.840.114350.1.13.0.1.7.1.1"/>
+          </targetMessage>
+          <acknowledgementDetail>
+            <code codeSystemName="MVI" code="132" displayName="IMT"/>
+            <text>Identity Match Threshold</text>
+          </acknowledgementDetail>
+          <acknowledgementDetail>
+            <code codeSystemName="MVI" code="120" displayName="PDT"/>
+            <text>Potential Duplicate Threshold</text>
+          </acknowledgementDetail>
+        </acknowledgement>
+        <controlActProcess classCode="CACT" moodCode="EVN">
+          <code codeSystem="2.16.840.1.113883.1.6" code="PRPA_TE201306UV02"/>
+          <subject typeCode="SUBJ">
+            <registrationEvent classCode="REG" moodCode="EVN">
+              <id nullFlavor="NA"/>
+              <statusCode code="active"/>
+              <subject1 typeCode="SBJ">
+                <patient classCode="PAT">
+                  <statusCode code="active"/>
+                  <patientPerson>
+                    <name use="L">
+                      <given>Mark</given>
+                      <family>Webb-ster</family>
+                      <prefix/>
+                      <suffix>Jr</suffix>
+                    </name>
+                    <name use="P">
+                      <delimiter>101</delimiter>
+                      <family>Webb-ster</family>
+                    </name>
+                    <name use="C">
+                      <family>Webb-ster</family>
+                    </name>
+                    <telecom value="1112223333" use="HP"/>
+                    <administrativeGenderCode code="M"/>
+                    <birthTime value="19501004"/>
+                    <addr use="PHYS">
+                      <streetAddressLine>8200 DOBY LN</streetAddressLine>
+                      <city>PASADENA</city>
+                      <state>MD</state>
+                      <postalCode>21122</postalCode>
+                      <country>USA</country>
+                    </addr>
+                    <multipleBirthInd value="true"/>
+                    <asOtherIDs classCode="SSN">
+                      <id extension="796104437" root="2.16.840.1.113883.4.1"/>
+                      <scopingOrganization determinerCode="INSTANCE" classCode="ORG">
+                        <id root="1.2.840.114350.1.13.99997.2.3412"/>
+                      </scopingOrganization>
+                    </asOtherIDs>
+                    <birthPlace>
+                      <addr>
+                        <city>JOHNSON CITY</city>
+                        <state>MS</state>
+                        <country>USA</country>
+                      </addr>
+                    </birthPlace>
+                  </patientPerson>
+                  <subjectOf1>
+                    <queryMatchObservation classCode="COND" moodCode="EVN">
+                      <code code="IHE_PDQ"/>
+                      <value value="162" xsi:type="INT"/>
+                    </queryMatchObservation>
+                  </subjectOf1>
+                  <id root="2.16.840.1.113883.4.349" extension="1012592956V095840^NI^200M^USVHA^P"/>
+                  <id root="2.16.840.1.113883.3.42.10001.100001.12" extension="1013590059^NI^200DOD^USDOD^A"/>
+                  <id root="2.16.840.1.113883.4.349" extension="13367440^PI^200CORP^USVBA^A"/>
+                  <id root="2.16.840.1.113883.4.349" extension="123456^PI^984^USVHA^A"/>
+                  <id root="2.16.840.1.113883.4.349" extension="123456^PI^992^USVHA^A"/>
+                  <id root="2.16.840.1.113883.4.349" extension="123456^PI^987^USVHA^A"/>
+                  <id root="2.16.840.1.113883.4.349" extension="123456^PI^983^USVHA^A"/>
+                  <id root="2.16.840.1.113883.4.349" extension="123456^PI^200ESR^USVHA^A"/>
+                  <id root="2.16.840.1.113883.4.349" extension="123456^PI^556^USVHA^A"/>
+                  <id root="2.16.840.1.113883.4.349" extension="123456^PI^668^USVHA^A"/>
+                </patient>
+              </subject1>
+              <custodian typeCode="CST">
+                <assignedEntity classCode="ASSIGNED">
+                  <id root="2.16.840.1.113883.4.349"/>
+                </assignedEntity>
+              </custodian>
+            </registrationEvent>
+          </subject>
+          <queryAck>
+            <queryId extension="18204" root="2.16.840.1.113883.3.933"/>
+            <queryResponseCode code="OK"/>
+            <resultCurrentQuantity value="1"/>
+          </queryAck>
+          <queryByParameter>
+            <queryId extension="18204" root="2.16.840.1.113883.3.933"/>
+            <statusCode code="new"/>
+            <modifyCode code="MVI.COMP1"/>
+            <initialQuantity value="1"/>
+            <parameterList>
+              <livingSubjectName>
+                <value use="L">
+                  <given>Mark</given>
+                  <family>Webb-ster</family>
+                </value>
+                <semanticsText>LivingSubject.name</semanticsText>
+              </livingSubjectName>
+              <livingSubjectBirthTime>
+                <value value="19501004"/>
+                <semanticsText>LivingSubject..birthTime</semanticsText>
+              </livingSubjectBirthTime>
+              <livingSubjectId>
+                <value extension="796104437" root="2.16.840.1.113883.4.1"/>
+                <semanticsText>SSN</semanticsText>
+              </livingSubjectId>
+            </parameterList>
+          </queryByParameter>
+        </controlActProcess>
+      </idm:PRPA_IN201306UV02>
+    </env:Body>
+  </env:Envelope>
 :headers:
-  connection: close
-  date: Fri, 08 Sep 2017 06:09:04 GMT
-  content-length: '3986'
+  :connection: close
+  :date: Fri, 15 Sep 2017 20:55:25 UTC
+  content-length: 6547
   content-type: text/xml
-  set-cookie: JSESSIONID=5VJQZy0Qn9YpJp2cGG8361CnGn0vPZh3V8R2vM1TQ8R1WBm97TL1!544686593;
-    path=/; HttpOnly
+  set-cookie: ''
   x-powered-by: Servlet/2.5 JSP/2.1
-:status: 200

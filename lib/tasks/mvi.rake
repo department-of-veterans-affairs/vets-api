@@ -68,17 +68,27 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
   desc "Given a ssn update a mocked user's correlation ids"
   task :update_ids, [:environment] do
     ssn = ENV['ssn']
+    raise ArgumentError, 'ssn is required, usage: `rake mvi:update_ids ssn=111223333 icn=abc123`' unless ssn
+
     icn = ENV['icn']
     edipi = ENV['edipi']
     participant_id = ENV['participant_id']
     mhv_ids = ENV['mhv_ids']&.split(' ')
     vha_facility_ids = ENV['vha_facility_ids']&.split(' ')
+    if [icn, edipi, participant_id, mhv_ids, vha_facility_ids].all? { |i| i.nil? }
+      raise ArgumentError, 'at least one correlation id is required, e.g. `rake mvi:update_ids ssn=111223333 icn=abc123`'
+    end
 
-    update_ids(ssn, icn, edipi, participant_id, mhv_ids, vha_facility_ids)
+    path = File.join('config', 'betamocks', 'cache', 'mvi', 'profile', "#{ssn}.yml")
+    yaml = YAML.load(File.read(path))
+    xml = yaml.dig(:body).dup.prepend('<?xml version="1.0" encoding="UTF-8"?>') unless xml =~ /^<\?xml/
+
+    yaml[:body] = update_ids(xml, icn, edipi, participant_id, mhv_ids, vha_facility_ids)
+    File.open(path, 'w') { |f| f.write(yaml.to_yaml) }
   end
 
   desc 'Create missing cache files from mock_mvi_responses.yml'
-  task :migrate_cache_files, [:environment] do
+  task :migrate_mock_data, [:environment] do
     yaml = YAML.load(
       File.read(File.join('config', 'mvi_schema', 'mock_mvi_responses.yml'))
     )
@@ -94,23 +104,10 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
       end
     end
   end
-
-  desc 'Update cache file ids from mock_mvi_responses.yml'
-  task :batch_update_ids, [:environment] do
-    yaml = YAML.load(
-      File.read(File.join('config', 'mvi_schema', 'mock_mvi_responses.yml'))
-    )
-
-    yaml['find_candidate'].each do |k, v|
-      update_ids
-    end
-  end
 end
 
-def update_ids(ssn, icn, edipi, participant_id, mhv_ids, vha_facility_ids)
-  path = File.join('config', 'betamocks', 'cache', 'mvi', 'profile', "#{ssn}.yml")
-  yaml = YAML.load(File.read(path))
-  xml = yaml.dig(:body).dup.prepend('<?xml version="1.0" encoding="UTF-8"?>') unless xml =~ /^<\?xml/
+def update_ids(xml, icn, edipi, participant_id, mhv_ids, vha_facility_ids)
+
   doc = Ox.load(xml)
 
   el = doc.locate(
@@ -139,8 +136,7 @@ def update_ids(ssn, icn, edipi, participant_id, mhv_ids, vha_facility_ids)
   el.nodes.concat create_multiple_elements(current_ids[:mhv_ids], "%s^PI^200MH^USVHA^A")
   el.nodes.concat create_multiple_elements(current_ids[:vha_facility_ids], "123456^PI^%s^USVHA^A")
 
-  yaml[:body] = Ox.dump(doc)
-  File.open(path, 'w') { |f| f.write(yaml.to_yaml) }
+  Ox.dump(doc)
 end
 
 def create_element(id, type, pattern)
@@ -163,6 +159,9 @@ end
 
 def create_cache_from_profile(cache_file, profile, template)
   xml = template.render!({ 'profile' => profile.as_json.stringify_keys })
+  xml = update_ids(
+    xml, profile.icn, profile.edipi, profile.participant_id, profile.mhv_ids, profile.vha_facility_ids
+  )
 
   response = {
     method: :post,
