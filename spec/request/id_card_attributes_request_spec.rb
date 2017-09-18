@@ -28,11 +28,11 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
       expect(url_param_map(url).key?('signature')).to be_truthy
     end
 
-    it 'should return Forbidden if military information not retrievable' do
+    it 'should return Bad Gateway if military information not retrievable' do
       expect_any_instance_of(EMISRedis::MilitaryInformation)
         .to receive(:service_episodes_by_date).and_raise(StandardError)
       get '/v0/id_card_attributes', headers: auth_header
-      expect(response).to have_http_status(:forbidden)
+      expect(response).to have_http_status(:bad_gateway)
     end
 
     it 'should return Forbidden for non-veteran user' do

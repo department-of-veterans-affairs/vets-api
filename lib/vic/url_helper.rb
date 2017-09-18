@@ -12,7 +12,7 @@ module VIC
         params['timestamp'] = Time.now.utc.iso8601
 
         canonical_string = Oj.dump(params)
-        params['signature'] = Helper.sign(canonical_string)
+        params['signature'] = URLHelper.sign(canonical_string)
 
         base_url = URI(Settings.vic.url)
         base_url.query = URI.encode_www_form(params)
@@ -21,7 +21,7 @@ module VIC
 
       def sign(canonical_string)
         digest = OpenSSL::Digest::SHA256.new
-        Base64.urlsafe_encode64(Helper.signing_key.sign(digest, canonical_string))
+        Base64.urlsafe_encode64(URLHelper.signing_key.sign(digest, canonical_string))
       end
 
       def signing_key
