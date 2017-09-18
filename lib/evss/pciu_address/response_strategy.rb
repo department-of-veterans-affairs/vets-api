@@ -9,22 +9,8 @@ module EVSS
       include Common::CacheAside
       redis_config_key :pciu_address_dependencies
 
-      def countries(user)
-        do_cached_with(key: :countries) do
-          service.get_countries(user)
-        end
-      end
-
-      def states(user)
-        do_cached_with(key: :states) do
-          service.get_states(user)
-        end
-      end
-
-      private
-
-      def service
-        @service ||= EVSS::PCIUAddress::Service.new
+      def cache_or_service(key)
+        do_cached_with(key: key) { yield }
       end
     end
   end
