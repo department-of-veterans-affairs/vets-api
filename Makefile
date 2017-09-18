@@ -38,6 +38,10 @@ spec:
 up: db
 	@$(COMPOSE_DEV) up
 
+.PHONY: rebuild
+rebuild:
+	@$(COMPOSE_DEV) build
+
 .PHONY: clean
 clean:
 	rm -rf data
