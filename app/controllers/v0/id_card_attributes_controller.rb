@@ -14,7 +14,8 @@ module V0
       # Catch all potential errors looking up military service history
       # Monitor sentry to make sure this is not catching more general errors
       log_exception_to_sentry(e)
-      raise VIC::IDCardAttributeError, status: 502, code: 'VIC011', detail: 'Could not verify military service attributes'
+      raise VIC::IDCardAttributeError, status: 502, code: 'VIC011',
+                                       detail: 'Could not verify military service attributes'
     end
 
     private
@@ -25,12 +26,15 @@ module V0
       raise VIC::IDCardAttributeError, status: 403, code: 'VIC002', detail: 'Unable to verify EDIPI' unless
         current_user.edipi.present?
       begin
-        raise VIC::IDCardAttributeError, status: 403, code: 'VIC003', detail: 'Not eligible for a Veteran ID Card' unless
-          current_user.veteran?
+        unless current_user.veteran?
+          raise VIC::IDCardAttributeError, status: 403, code: 'VIC003',
+                                           detail: 'Not eligible for a Veteran ID Card'
+        end
       rescue => e
         # current_user.veteran? above may raise an error if user was not found or backend service was unavailable
         log_exception_to_sentry(e)
-        raise VIC::IDCardAttributeError, status: 403, code: 'VIC010', detail: 'Could not verify Veteran status'
+        raise VIC::IDCardAttributeError, status: 403, code: 'VIC010',
+                                         detail: 'Could not verify Veteran status'
       end
     end
   end
