@@ -58,4 +58,23 @@ RSpec.describe Sentry::Processor::EmailSanitizer do
     results = @processor.process(data)
     expect(results['nonsensitive']).to eq(nonsensitive_str)
   end
+
+  it 'works on hashes that contain arrays' do
+    data = {
+      this: ['that', 'this', 'and_uh'],
+      that: {
+        this: ['that_and_uh', "Dre, creep to the mic, like a phantom@aol.com"]
+      }
+    }
+
+    filtered_data = {
+      this: ['that', 'this', 'and_uh'],
+      that: {
+        this: ['that_and_uh', "Dre, creep to the mic, like a [FILTERED EMAIL]"]
+      }
+    }
+
+    results = @processor.process(data)
+    expect(results).to eq(filtered_data)
+  end
 end
