@@ -30,7 +30,6 @@ RSpec.describe FormProfile, type: :model do
       'dischargeType' => 'honorable',
       'isVaServiceConnected' => true,
       'postNov111998Combat' => true,
-      'receivesVaPension' => true,
       'gender' => user.gender,
       'homePhone' => user.va_profile[:home_phone].gsub(/[^\d]/, ''),
       'compensableVaServiceConnected' => true,
@@ -124,7 +123,6 @@ RSpec.describe FormProfile, type: :model do
         expect(military_information).to receive(:sw_asia_combat).and_return(true)
         expect(military_information).to receive(:compensable_va_service_connected).and_return(true)
         expect(military_information).to receive(:is_va_service_connected).and_return(true)
-        expect(user.payment).to receive(:receives_va_pension).and_return(true)
       end
 
       context 'with a user that can prefill emis' do

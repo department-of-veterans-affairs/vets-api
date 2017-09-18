@@ -30,13 +30,17 @@ lint: db
 security: db
 	@$(BASH_DEV) "bundle exec rake security"
 
-.PHONY: test
-test:
-	@$(BASH_TEST) "bundle exec rake test"
+.PHONY: spec
+spec:
+	@$(BASH_TEST) "bundle exec rake spec"
 
 .PHONY: up
 up: db
 	@$(COMPOSE_DEV) up
+
+.PHONY: rebuild
+rebuild:
+	@$(COMPOSE_DEV) build
 
 .PHONY: clean
 clean:
