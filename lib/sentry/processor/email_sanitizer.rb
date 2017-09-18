@@ -7,6 +7,7 @@ module Sentry
 
       # largely duplicated code from from the raven-ruby lib as recommended in their doc
       # https://github.com/getsentry/raven-ruby/blob/master/lib/raven/processor/utf8conversion.rb#L9
+      # rubocop:disable Metrics/CyclomaticComplexity
       def process(value)
         case value
         when Hash
@@ -21,6 +22,7 @@ module Sentry
           value
         end
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
 
       private
 
