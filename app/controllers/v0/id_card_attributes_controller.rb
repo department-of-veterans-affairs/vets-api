@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'vic_helper'
+require 'vic/url_helper'
 
 module V0
   class IdCardAttributesController < ApplicationController
@@ -7,7 +7,8 @@ module V0
 
     def show
       id_attributes = IdCardAttributes.for_user(current_user)
-      vic_url = VIC::Helper.generate_url(id_attributes)
+      vic_url = VIC::URLHelper.generate_url(id_attributes)
+      raise Common::Exceptions::Forbidden, detail: 'Could not verify military service attributes', code: 'VIC005'
       render json: { 'redirect' => vic_url }
     rescue => e
       # TODO: Tighten this up. Only likely application error is branch of service data from eMIS.

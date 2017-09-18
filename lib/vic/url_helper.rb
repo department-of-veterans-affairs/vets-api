@@ -5,7 +5,7 @@ require 'oj'
 require 'openssl'
 
 module VIC
-  class Helper
+  class URLHelper
     class << self
       def generate_url(id_attributes)
         params = id_attributes.traits
