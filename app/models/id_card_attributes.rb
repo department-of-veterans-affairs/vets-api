@@ -20,7 +20,8 @@ class IdCardAttributes
       'zip' => @user.va_profile&.address&.postal_code || '',
       'email' => @user.email,
       'phone' => @user.va_profile&.home_phone || '',
-      'branchofservice' => branches_of_service
+      'branchofservice' => branches_of_service || '',
+      'dischargetype' => discharge_types || ''
     }
   end
 
@@ -42,5 +43,12 @@ class IdCardAttributes
       SERVICE_KEYS[ep.branch_of_service_code]
     end
     branches.compact.join(',')
+  end
+
+  def discharge_types
+    discharges = @user.military_information.service_episodes_by_date.map do |ep|
+      ep.discharge_character_of_service_code
+    end
+    discharges.compact.join(',')
   end
 end

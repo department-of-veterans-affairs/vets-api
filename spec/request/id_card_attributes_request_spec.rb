@@ -20,12 +20,19 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
   describe '#show /v0/id_card_attributes' do
     it 'should return a signed redirect URL' do
       expect_any_instance_of(EMISRedis::MilitaryInformation)
-        .to receive(:service_episodes_by_date).and_return(service_episodes)
+        .to receive(:service_episodes_by_date).at_least(:once).and_return(service_episodes)
       get '/v0/id_card_attributes', headers: auth_header
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
       url = URI(json['redirect'])
+      expect(url_param_map(url).key?('edipi')).to be_truthy
+      expect(url_param_map(url).key?('firstname')).to be_truthy
+      expect(url_param_map(url).key?('lastname')).to be_truthy
+      expect(url_param_map(url).key?('branchofservice')).to be_truthy
+      expect(url_param_map(url).key?('dischargetype')).to be_truthy
+      expect(url_param_map(url).key?('timestamp')).to be_truthy
       expect(url_param_map(url).key?('signature')).to be_truthy
+
     end
 
     it 'should return Bad Gateway if military information not retrievable' do

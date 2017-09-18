@@ -5,5 +5,6 @@ FactoryGirl.define do
     begin_date '2001-09-01'
     end_date '203-10-01'
     branch_of_service_code 'F'
+    discharge_character_of_service_code 'A'
   end
 end
