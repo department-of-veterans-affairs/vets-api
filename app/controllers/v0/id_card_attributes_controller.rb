@@ -9,7 +9,6 @@ module V0
     def show
       id_attributes = IdCardAttributes.for_user(current_user)
       vic_url = VIC::URLHelper.generate_url(id_attributes)
-      raise VIC::IDCardAttributeError, status: 502, code: 'VIC011', detail: 'Could not verify military service attributes'
       render json: { 'redirect' => vic_url }
     rescue => e
       # Catch all potential errors looking up military service history
