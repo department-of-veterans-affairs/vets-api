@@ -124,17 +124,16 @@ class ApplicationController < ActionController::API
     raise Common::Exceptions::Unauthorized
   end
 
-  def saml_settings
-    if defined?(@saml_settings)
-      @saml_settings.name_identifier_value = @session&.uuid
-      return @saml_settings
+  def saml_settings(options = {})
+    # Make sure we're not changing the settings globally
+    base_settings = SAML::SettingsService.saml_settings.dup
+
+    options.each do |option, value|
+      next if value.nil?
+      base_settings.send("#{option}=", value)
     end
-    @saml_settings = SAML::SettingsService.saml_settings
-    # TODO: 'level' should be its own class with proper validation
-    level = LOA::MAPPING.invert[params[:level]&.to_i]
-    @saml_settings.authn_context = level || LOA::MAPPING.invert[1]
-    @saml_settings.name_identifier_value = @session&.uuid
-    @saml_settings
+
+    base_settings
   end
 
   def pagination_params
