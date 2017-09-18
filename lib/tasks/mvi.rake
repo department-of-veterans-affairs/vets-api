@@ -173,7 +173,8 @@ def create_cache_from_profile(cache_file, profile, template)
       'content-type' => 'text/xml',
       'set-cookie' => '',
       'x-powered-by' => 'Servlet/2.5 JSP/2.1'
-    }
+    },
+    status: 200
   }
 
   File.open(cache_file, 'w') { |f| f.write(response.to_yaml) }
