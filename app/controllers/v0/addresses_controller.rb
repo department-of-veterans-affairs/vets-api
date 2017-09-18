@@ -16,13 +16,13 @@ module V0
     end
 
     def countries
-      response = strategy.cache_or_service(:countries) { service.get_countries(@current_user) }
+      response = strategy.countries(@current_user)
       render json: response,
              serializer: CountriesSerializer
     end
 
     def states
-      response = strategy.cache_or_service(:states) { service.get_states(@current_user) }
+      response = strategy.states(@current_user)
       render json: response,
              serializer: StatesSerializer
     end
