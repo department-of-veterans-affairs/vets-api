@@ -41,6 +41,14 @@ RSpec.describe EVSSClaimDocumentUploader do
 
       expect(FileUtils.compare_file(subject.converted.file.file, 'spec/fixtures/evss_claim/converted_image.TIF.jpg')).to eq(true)
     end
+
+    it 'shouldnt convert if the file isnt tiff' do
+      File.open('spec/fixtures/evss_claim/converted_image.TIF.jpg') do |f|
+        subject.store!(f)
+      end
+
+      expect(subject.converted.file).to eq(nil)
+    end
   end
 
   describe '#store_dir' do
