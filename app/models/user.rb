@@ -26,8 +26,6 @@ class User < Common::RedisStore
   attribute :zip
   attribute :ssn
   attribute :loa
-  attribute :multifactor
-  attribute :authn_context
 
   # vaafi attributes
   attribute :last_signed_in, Common::UTCTime
@@ -49,10 +47,6 @@ class User < Common::RedisStore
     user.validates :gender, format: /\A(M|F)\z/, allow_blank: true
   end
 
-  # LOA1 no longer just means ID.me LOA1.
-  # It could also be DSLogon or MHV NON PREMIUM users who have not yet done ID.me FICAM LOA3.
-  # See also lib/saml/user_attributes/dslogon.rb
-  # See also lib/saml/user_attributes/mhv
   def loa1?
     loa[:current] == LOA::ONE
   end
@@ -61,12 +55,6 @@ class User < Common::RedisStore
     loa[:current] == LOA::TWO
   end
 
-  # LOA3 no longer just means ID.me FICAM LOA3.
-  # It could also be DSLogon or MHV Premium users.
-  # It could also be DSLogon or MHV NON PREMIUM users who have done ID.me FICAM LOA3.
-  # Additionally, LOA3 does not automatically mean user has opted to have MFA.
-  # See also lib/saml/user_attributes/dslogon.rb
-  # See also lib/saml/user_attributes/mhv
   def loa3?
     loa[:current] == LOA::THREE
   end
