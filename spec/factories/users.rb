@@ -10,6 +10,7 @@ FactoryGirl.define do
     zip '17325'
     last_signed_in Time.now.utc
     ssn '796111863'
+    mhv_icn nil
     loa do
       {
         current: LOA::TWO,
