@@ -33,6 +33,16 @@ RSpec.describe EVSSClaimDocumentUploader do
     end
   end
 
+  describe 'converted version' do
+    it 'should convert tiff files to jpg' do
+      File.open('spec/fixtures/evss_claim/image.TIF') do |f|
+        subject.store!(f)
+      end
+
+      expect(FileUtils.compare_file(subject.converted.file.file, 'spec/fixtures/evss_claim/converted_image.TIF.jpg')).to eq(true)
+    end
+  end
+
   describe '#store_dir' do
     it 'omits the tracked item id if it is nil' do
       subject = described_class.new('1234abc', nil)
