@@ -439,10 +439,14 @@ describe HCA::EnrollmentSystem do
     described_class,
     'child_relationship_to_sds_code',
     [
-      ['Daughter', 4],
+      ['Spouse', 2],
       ['Son', 3],
+      ['Daughter', 4],
       ['Stepson', 5],
       ['Stepdaughter', 6],
+      ['Father', 17],
+      ['Mother', 18],
+      ['Other', 99],
       ['', nil]
     ]
   )

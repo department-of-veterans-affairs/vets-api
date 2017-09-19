@@ -1,6 +1,7 @@
+# frozen_string_literal: true
+
 require 'hca/validations'
 
-# frozen_string_literal: true
 module HCA
   # rubocop:disable ModuleLength
   module EnrollmentSystem
@@ -67,6 +68,17 @@ module HCA
       'Guardian Civil' => 9,
       'Spouse' => 10,
       'Dependent' => 11
+    }.freeze
+
+    DEPENDENT_RELATIONSHIP_CODES = {
+      'Spouse' => 2,
+      'Son' => 3,
+      'Daughter' => 4,
+      'Stepson' => 5,
+      'Stepdaughter' => 6,
+      'Father' => 17,
+      'Mother' => 18,
+      'Other' => 99
     }.freeze
 
     def financial_flag?(veteran)
@@ -243,16 +255,7 @@ module HCA
     end
 
     def child_relationship_to_sds_code(child_relationship)
-      case child_relationship
-      when 'Daughter'
-        4
-      when 'Son'
-        3
-      when 'Stepson'
-        5
-      when 'Stepdaughter'
-        6
-      end
+      DEPENDENT_RELATIONSHIP_CODES[child_relationship]
     end
 
     def child_to_dependent_info(child)
