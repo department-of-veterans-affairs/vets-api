@@ -47,7 +47,7 @@ RSpec.describe EVSSClaimDocumentUploader do
         subject.store!(f)
       end
 
-      expect(subject.converted.file).to eq(nil)
+      expect(subject.converted.present?).to eq(false)
     end
   end
 
