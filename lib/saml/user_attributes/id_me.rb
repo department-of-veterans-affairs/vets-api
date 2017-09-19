@@ -44,10 +44,14 @@ module SAML
         { current: loa_current, highest: loa_highest }
       end
 
+      def multifactor
+        attributes['multifactor']
+      end
+
       private
 
       def serializable_attributes
-        %i(first_name middle_name last_name zip email gender ssn birth_date uuid loa)
+        %i(first_name middle_name last_name zip email gender ssn birth_date uuid loa multifactor)
       end
 
       def loa_current
