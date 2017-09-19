@@ -437,7 +437,7 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
-    'child_relationship_to_sds_code',
+    'dependent_relationship_to_sds_code',
     [
       ['Spouse', 2],
       ['Son', 3],

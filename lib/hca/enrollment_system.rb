@@ -254,14 +254,14 @@ module HCA
       }
     end
 
-    def child_relationship_to_sds_code(child_relationship)
-      DEPENDENT_RELATIONSHIP_CODES[child_relationship]
+    def dependent_relationship_to_sds_code(dependent_relationship)
+      DEPENDENT_RELATIONSHIP_CODES[dependent_relationship]
     end
 
     def child_to_dependent_info(child)
       {
         'dob' => Validations.date_of_birth(child['childDateOfBirth']),
-        'relationship' => child_relationship_to_sds_code(child['childRelation']),
+        'relationship' => dependent_relationship_to_sds_code(child['childRelation']),
         'ssns' => {
           'ssn' => ssn_to_ssntext(child['childSocialSecurityNumber'])
         },
