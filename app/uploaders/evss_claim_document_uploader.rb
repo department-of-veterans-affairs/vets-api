@@ -22,6 +22,14 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     set_storage_options!
   end
 
+  def read_for_upload
+    if converted.present?
+      converted.read
+    else
+      read
+    end
+  end
+
   def store_dir
     store_dir = "evss_claim_documents/#{@user_uuid}"
     store_dir += "/#{@tracked_item_id}" if @tracked_item_id

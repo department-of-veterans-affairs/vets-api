@@ -33,6 +33,36 @@ RSpec.describe EVSSClaimDocumentUploader do
     end
   end
 
+  describe '#read_for_upload' do
+    let(:converted) { double }
+
+    before do
+      allow(subject).to receive(:converted).and_return(converted)
+    end
+
+    context 'with a converted image' do
+      before do
+        expect(converted).to receive(:present?).and_return(true)
+      end
+
+      it 'should read from converted' do
+        expect(converted).to receive(:read)
+        subject.read_for_upload
+      end
+    end
+
+    context 'with no converted image' do
+      before do
+        expect(converted).to receive(:present?).and_return(false)
+      end
+
+      it 'should read from the base file' do
+        expect(subject).to receive(:read)
+        subject.read_for_upload
+      end
+    end
+  end
+
   describe 'converted version' do
     it 'should convert tiff files to jpg' do
       File.open('spec/fixtures/evss_claim/image.TIF') do |f|
