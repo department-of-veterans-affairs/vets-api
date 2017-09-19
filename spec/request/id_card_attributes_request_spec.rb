@@ -32,7 +32,6 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
       expect(url_param_map(url).key?('dischargetype')).to be_truthy
       expect(url_param_map(url).key?('timestamp')).to be_truthy
       expect(url_param_map(url).key?('signature')).to be_truthy
-
     end
 
     it 'should return Bad Gateway if military information not retrievable' do
