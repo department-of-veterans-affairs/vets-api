@@ -174,7 +174,6 @@ describe MVI::Service do
       end
 
       it 'raises an MVI::Errors::RecordNotFound error' do
-
         VCR.use_cassette('mvi/find_candidate/no_subject') do
           expect(subject.find_profile(user)).to have_deep_attributes(MVI::Responses::FindProfileResponse.with_not_found)
         end
