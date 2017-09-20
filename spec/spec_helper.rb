@@ -99,9 +99,13 @@ RSpec.configure do |config|
   config.include SpoolHelpers
   config.include FixtureHelpers
 
-  config.around(:example, :run_at) do |example|
-    Timecop.freeze(Time.zone.parse(example.metadata[:run_at]))
-    example.run
-    Timecop.return
+  config.around(:each) do |example|
+    if example.metadata[:run_at]
+      Timecop.freeze(Time.zone.parse(example.metadata[:run_at])) do
+        example.run
+      end
+    else
+      example.run
+    end
   end
 end
