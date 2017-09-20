@@ -1,7 +1,7 @@
 COMPOSE_DEV		:= docker-compose
 COMPOSE_TEST		:= docker-compose -f docker-compose.test.yml
-BASH_DEV		:= $(COMPOSE_DEV) run vets-api bash --login -c
-BASH_TEST		:= $(COMPOSE_TEST) run vets-api bash --login -c
+BASH_DEV		:= $(COMPOSE_DEV) run --rm vets-api bash --login -c
+BASH_TEST		:= $(COMPOSE_TEST) run --rm vets-api bash --login -c
 
 .PHONY: default
 default: ci
@@ -30,13 +30,17 @@ lint: db
 security: db
 	@$(BASH_DEV) "bundle exec rake security"
 
-.PHONY: test
-test:
-	@$(BASH_TEST) "bundle exec rake test"
+.PHONY: spec
+spec:
+	@$(BASH_TEST) "bundle exec rake spec"
 
 .PHONY: up
 up: db
 	@$(COMPOSE_DEV) up
+
+.PHONY: rebuild
+rebuild:
+	@$(COMPOSE_DEV) build
 
 .PHONY: clean
 clean:

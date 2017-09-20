@@ -1,6 +1,7 @@
+# frozen_string_literal: true
+
 require 'hca/validations'
 
-# frozen_string_literal: true
 module HCA
   # rubocop:disable ModuleLength
   module EnrollmentSystem
@@ -67,6 +68,17 @@ module HCA
       'Guardian Civil' => 9,
       'Spouse' => 10,
       'Dependent' => 11
+    }.freeze
+
+    DEPENDENT_RELATIONSHIP_CODES = {
+      'Spouse' => 2,
+      'Son' => 3,
+      'Daughter' => 4,
+      'Stepson' => 5,
+      'Stepdaughter' => 6,
+      'Father' => 17,
+      'Mother' => 18,
+      'Other' => 99
     }.freeze
 
     def financial_flag?(veteran)
@@ -242,23 +254,14 @@ module HCA
       }
     end
 
-    def child_relationship_to_sds_code(child_relationship)
-      case child_relationship
-      when 'Daughter'
-        4
-      when 'Son'
-        3
-      when 'Stepson'
-        5
-      when 'Stepdaughter'
-        6
-      end
+    def dependent_relationship_to_sds_code(dependent_relationship)
+      DEPENDENT_RELATIONSHIP_CODES[dependent_relationship]
     end
 
     def child_to_dependent_info(child)
       {
         'dob' => Validations.date_of_birth(child['childDateOfBirth']),
-        'relationship' => child_relationship_to_sds_code(child['childRelation']),
+        'relationship' => dependent_relationship_to_sds_code(child['childRelation']),
         'ssns' => {
           'ssn' => ssn_to_ssntext(child['childSocialSecurityNumber'])
         },
@@ -615,8 +618,15 @@ module HCA
       form
     end
 
+    def copy_spouse_address!(veteran)
+      veteran['spouseAddress'] = veteran['veteranAddress'] if veteran['spouseAddress'].blank?
+      veteran
+    end
+
     def veteran_to_save_submit_form(veteran, current_user)
       return {} if veteran.blank?
+
+      copy_spouse_address!(veteran)
 
       request = build_form_for_user(current_user)
       request['va:form']['va:summary'] = veteran_to_summary(veteran)

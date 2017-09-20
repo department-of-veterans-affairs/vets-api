@@ -48,13 +48,11 @@ module EVSS
       def with_exception_handling
         yield
       rescue Faraday::ParsingError => e
-        log_message_to_sentry(e.message, :error, extra_context: { url: config.base_path })
+        log_exception_to_sentry(e, extra_context: { url: config.base_path })
         raise Common::Exceptions::Forbidden, detail: 'Missing correlation id'
       rescue Common::Client::Errors::ClientError => e
         raise Common::Exceptions::Forbidden if e.status == 403
-        log_message_to_sentry(
-          e.message, :error, extra_context: { url: config.base_path, body: e.body }
-        )
+        log_exception_to_sentry(e, extra_context: { url: config.base_path, body: e.body })
         raise EVSS::Letters::ServiceException, e.body
       end
 

@@ -9,34 +9,14 @@ module Swagger
 
         property :data, type: :object do
           property :attributes, type: :object do
+            key :required, [:letters, :full_name]
             property :letters do
               key :type, :array
               items do
                 key :'$ref', :Letter
               end
             end
-            property :address, type: :object do
-              key :required, [
-                :full_name,
-                :address_line1,
-                :address_line2,
-                :address_line3,
-                :city,
-                :state,
-                :country,
-                :foreign_code,
-                :zip_code
-              ]
-              property :full_name, type: :string, example: 'Abraham Lincoln'
-              property :address_line1, type: :string, example: '140 Rock Creek Church Rd NW'
-              property :address_line2, type: :string, example: nil
-              property :address_line3, type: :string, example: nil
-              property :city, type: :string, example: 'Washington'
-              property :state, type: :string, example: 'DC'
-              property :country, type: :string, example: 'USA'
-              property :foreign_code, type: :string, example: nil
-              property :zip_code, type: :string, example: '20011'
-            end
+            property :full_name, type: :string, example: 'Mark Webb'
           end
           property :id, type: :string, example: nil
           property :type, type: :string, example: 'evss_letters_letters_response'

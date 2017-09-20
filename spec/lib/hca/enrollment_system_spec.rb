@@ -437,12 +437,16 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
-    'child_relationship_to_sds_code',
+    'dependent_relationship_to_sds_code',
     [
-      ['Daughter', 4],
+      ['Spouse', 2],
       ['Son', 3],
+      ['Daughter', 4],
       ['Stepson', 5],
       ['Stepdaughter', 6],
+      ['Father', 17],
+      ['Mother', 18],
+      ['Other', 99],
       ['', nil]
     ]
   )
@@ -923,6 +927,46 @@ describe HCA::EnrollmentSystem do
       )
     end
   end
+
+  test_method(
+    described_class,
+    'copy_spouse_address!',
+    [
+      [
+        {
+          'veteranAddress' => {
+            'street' => '123 NW 5th St'
+          }
+        },
+        {
+          'veteranAddress' => {
+            'street' => '123 NW 5th St'
+          },
+          'spouseAddress' => {
+            'street' => '123 NW 5th St'
+          }
+        }
+      ],
+      [
+        {
+          'veteranAddress' => {
+            'street' => '123 NW 5th St'
+          },
+          'spouseAddress' => {
+            'street' => 'sdfsdf'
+          }
+        },
+        {
+          'veteranAddress' => {
+            'street' => '123 NW 5th St'
+          },
+          'spouseAddress' => {
+            'street' => 'sdfsdf'
+          }
+        }
+      ]
+    ]
+  )
 
   test_method(
     described_class,

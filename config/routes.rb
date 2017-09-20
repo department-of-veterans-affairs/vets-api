@@ -26,6 +26,7 @@ Rails.application.routes.draw do
 
     resource :user, only: [:show]
     resource :post911_gi_bill_status, only: [:show]
+    resource :feedback, only: [:create]
 
     resource :education_benefits_claims, only: [:create] do
       collection do
@@ -118,8 +119,8 @@ Rails.application.routes.draw do
 
     resource :address, only: [:show, :update] do
       collection do
-        get 'countries', to: 'address#countries'
-        get 'states', to: 'address#states'
+        get 'countries', to: 'addresses#countries'
+        get 'states', to: 'addresses#states'
       end
     end
 
