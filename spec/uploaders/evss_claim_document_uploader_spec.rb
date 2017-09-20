@@ -70,7 +70,7 @@ RSpec.describe EVSSClaimDocumentUploader do
       end
 
       expect(MimeMagic.by_magic(subject.converted.file.read).type).to eq(
-        "image/jpeg"
+        'image/jpeg'
       )
     end
 
