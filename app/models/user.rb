@@ -26,6 +26,11 @@ class User < Common::RedisStore
   attribute :zip
   attribute :ssn
   attribute :loa
+  # this attribute is set by the User.from_saml method returned only by MHV sign-in users
+  # as part of the sessions#saml_callback user persistence.
+  # it is necessary since "icn" is returned by mvi and hydrated here via delegation.
+  # FIXME: future refactor of making MVI a decorator will allow for cleaning this up a bit.
+  attribute :mhv_icn
 
   # vaafi attributes
   attribute :last_signed_in, Common::UTCTime
