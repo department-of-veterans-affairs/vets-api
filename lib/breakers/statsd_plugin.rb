@@ -3,13 +3,18 @@ module Breakers
   class StatsdPlugin
     def get_tags(request)
       tags = []
-      if request && request.url.path
-        # replace identifiers with 'xxx'
-        # this is a nasty-looking regex that attempts to cover digit identifiers and uuid's with or without dashes
-        r = %r{(\/)(\d+|[a-fA-F0-9]{8}(\-?[a-fA-F0-9]{4}){3}\-?[a-fA-F0-9]{12})(\/|$)}
-        endpoint = request.url.path.gsub(r, '\1xxx\4')
-        tags.append("endpoint:#{endpoint}")
+      if request
+        if request.url && request.url.path
+          # replace identifiers with 'xxx'
+          # this nasty-looking regex attempts to cover digit identifiers and uuid's with or without dashes
+          r = %r{(\/)(\d+|[a-fA-F0-9]{8}(\-?[a-fA-F0-9]{4}){3}\-?[a-fA-F0-9]{12})(\/|$)}
+          endpoint = request.url.path.gsub(r, '\1xxx\4')
+          tags.append("endpoint:#{endpoint}")
+        end
+
+        tags.append("method:#{request.method}") if request.method
       end
+      tags
     end
 
     def on_error(service, request_env, response_env)

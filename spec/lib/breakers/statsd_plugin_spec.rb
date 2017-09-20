@@ -6,7 +6,12 @@ describe Breakers::StatsdPlugin do
   let(:test_host) { 'https://test-host.gov' }
 
   describe 'get_tags' do
-    context 'request is made with no id' do
+    context 'request is sent' do
+      it 'adds method tag when available' do
+        request.method = :get
+        expect(subject.get_tags(request)).to include('method:get')
+      end
+
       it 'returns endpoint tag' do
         request.url = URI(test_host + '/foo')
         expect(subject.get_tags(request)).to include('endpoint:/foo')
