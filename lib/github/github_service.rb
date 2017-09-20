@@ -11,22 +11,11 @@ module Github
         feedback = Feedback.new(feedback)
 
         begin
-          # Create issue with email in body so that the email
-          # notification contains the email
-          issue = client.create_issue(
+          client.create_issue(
             GITHUB_REPO,
             issue_title(feedback),
             issue_body(feedback),
             assignee: 'va-bot', labels: 'User Feedback'
-          )
-
-          # then update issue to remove email from GH issue
-          # for privacy concerns
-          client.update_issue(
-            GITHUB_REPO,
-            issue[:number],
-            issue_title(feedback),
-            issue_body(feedback, exclude_email: true)
           )
         rescue => e
           log_exception_to_sentry(e)
@@ -46,11 +35,11 @@ module Github
         title
       end
 
-      def issue_body(feedback, opts = {})
+      def issue_body(feedback)
         email = feedback.owner_email.blank? ? 'NOT PROVIDED' : feedback.owner_email
         body = feedback.description
         body += "\n\nTarget Page: #{feedback.target_page}"
-        body += "\nEmail of Author: #{email}" unless opts[:exclude_email]
+        body += "\nEmail of Author: #{email}"
         body
       end
     end
