@@ -6,7 +6,7 @@ describe MVI::Messages::FindProfileMessage do
   describe '.to_xml' do
     context 'with first, last, birth_date, and ssn from auth provider' do
       let(:xml) do
-        MVI::Messages::FindProfileMessage.new(
+        described_class.new(
           %w(John William), 'Smith', '1980-1-1', '555-44-3333', 'M'
         ).to_xml
       end
