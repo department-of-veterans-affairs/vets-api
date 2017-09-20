@@ -5,7 +5,8 @@ module Breakers
       tags = []
       if request && request.url.path
         # replace identifiers with 'xxx'
-        endpoint = request.url.path.gsub(%r{(\/)(\d+|[a-fA-F0-9]{8}(\-?[a-fA-F0-9]{4}){3}\-?[a-fA-F0-9]{12})(\/|$)}, '\1xxx\4')
+        r = %r{(\/)(\d+|[a-fA-F0-9]{8}(\-?[a-fA-F0-9]{4}){3}\-?[a-fA-F0-9]{12})(\/|$)}
+        endpoint = request.url.path.gsub(r, '\1xxx\4')
         tags.append("endpoint:#{endpoint}")
       end
     end
