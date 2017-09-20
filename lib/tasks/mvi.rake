@@ -70,21 +70,26 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
     ssn = ENV['ssn']
     raise ArgumentError, 'ssn is required, usage: `rake mvi:update_ids ssn=111223333 icn=abc123`' unless ssn
 
-    icn = ENV['icn']
-    edipi = ENV['edipi']
-    participant_id = ENV['participant_id']
-    mhv_ids = ENV['mhv_ids']&.split(' ')
-    vha_facility_ids = ENV['vha_facility_ids']&.split(' ')
-    if [icn, edipi, participant_id, mhv_ids, vha_facility_ids].all? { |i| i.nil? }
-      raise ArgumentError, 'at least one correlation id is required, e.g. `rake mvi:update_ids ssn=111223333 icn=abc123`'
+    ids = {}
+    ids['icn'] = ENV['icn']
+    ids['edipi'] = ENV['edipi']
+    ids['participant_id'] = ENV['participant_id']
+    ids['mhv_ids'] = ENV['mhv_ids']&.split(' ')
+    ids['vha_facility_ids'] = ENV['vha_facility_ids']&.split(' ')
+    # 5343578988
+    if ids.values.all?(&:nil?)
+      message = 'at least one correlation id is required, e.g. `rake mvi:update_ids ssn=111223333 icn=abc123`'
+      raise ArgumentError, message
     end
 
-    path = File.join('config', 'betamocks', 'cache', 'mvi', 'profile', "#{ssn}.yml")
+    path = File.join(Settings.betamocks.cache_dir, 'mvi', 'profile', "#{ssn}.yml")
     yaml = YAML.load(File.read(path))
     xml = yaml.dig(:body).dup.prepend('<?xml version="1.0" encoding="UTF-8"?>') unless xml =~ /^<\?xml/
 
-    yaml[:body] = update_ids(xml, icn, edipi, participant_id, mhv_ids, vha_facility_ids)
+    yaml[:body] = update_ids(xml, ids)
     File.open(path, 'w') { |f| f.write(yaml.to_yaml) }
+
+    puts 'ids updated!'
   end
 
   desc 'Create missing cache files from mock_mvi_responses.yml'
@@ -96,18 +101,19 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
       File.read(File.join('config', 'mvi_schema', 'mvi_template.xml'))
     )
     yaml['find_candidate'].each do |k, v|
-      cache_file = File.join('config', 'betamocks', 'cache', 'mvi', 'profile', "#{k}.yml")
+      cache_file = File.join(Settings.betamocks.cache_dir, 'mvi', 'profile', "#{k}.yml")
       unless File.exist? cache_file
         puts "user with ssn #{k} not found, generating cache file"
         profile = MVI::Models::MviProfile.new(v)
         create_cache_from_profile(cache_file, profile, template)
       end
     end
+
+    puts 'cache files migrated!'
   end
 end
 
-def update_ids(xml, icn, edipi, participant_id, mhv_ids, vha_facility_ids)
-
+def update_ids(xml, ids)
   doc = Ox.load(xml)
 
   el = doc.locate(
@@ -115,6 +121,7 @@ def update_ids(xml, icn, edipi, participant_id, mhv_ids, vha_facility_ids)
   ).first
 
   current_ids = MVI::Responses::IdParser.new.parse(el.locate('id'))
+  current_ids[:participant_id] = current_ids[:vba_corp_id]
 
   el.nodes.delete_if do |n|
     [
@@ -124,19 +131,25 @@ def update_ids(xml, icn, edipi, participant_id, mhv_ids, vha_facility_ids)
   end
 
   new_ids = {
-    icn: icn, edipi: edipi, participant_id: participant_id,
-    mhv_ids: mhv_ids, vha_facility_ids: vha_facility_ids
+    icn: ids['icn'], edipi: ids['edipi'], participant_id: ids['participant_id'],
+    mhv_ids: ids['mhv_ids'], vha_facility_ids: ids['vha_facility_ids']
   }
+  puts "current ids #{current_ids}"
+  puts "new ids #{new_ids}"
   new_ids.reject! { |_, v| v.nil? }
   current_ids.merge!(new_ids)
+  puts "current ids updated #{new_ids}"
 
-  el.nodes << create_element(current_ids[:icn], :correlation, "%s^NI^200M^USVHA^P")
-  el.nodes << create_element(current_ids[:edipi], :edipi, "%s^NI^200DOD^USDOD^A")
-  el.nodes << create_element(current_ids[:participant_id], :correlation, "%s^PI^200CORP^USVBA^A")
-  el.nodes.concat create_multiple_elements(current_ids[:mhv_ids], "%s^PI^200MH^USVHA^A")
-  el.nodes.concat create_multiple_elements(current_ids[:vha_facility_ids], "123456^PI^%s^USVHA^A")
-
+  updated_ids_element(current_ids, el)
   Ox.dump(doc)
+end
+
+def updated_ids_element(ids, el)
+  el.nodes << create_element(ids[:icn], :correlation, '%s^NI^200M^USVHA^P') if ids[:icn]
+  el.nodes << create_element(ids[:edipi], :edipi, '%s^NI^200DOD^USDOD^A') if ids[:edipi]
+  el.nodes << create_element(ids[:participant_id], :correlation, '%s^PI^200CORP^USVBA^A') if ids[:participant_id]
+  el.nodes.concat create_multiple_elements(ids[:mhv_ids], '%s^PI^200MH^USVHA^A') if ids[:mhv_ids]
+  el.nodes.concat create_multiple_elements(ids[:vha_facility_ids], '123456^PI^%s^USVHA^A') if ids[:vha_facility_ids]
 end
 
 def create_element(id, type, pattern)
@@ -153,15 +166,13 @@ def create_root_id(type)
   el = Ox::Element.new('id')
   edipi_root = MVI::Responses::IdParser::EDIPI_ROOT_ID
   correlation_root = MVI::Responses::IdParser::CORRELATION_ROOT_ID
-  el[:root] = (type == :edipi) ? edipi_root : correlation_root
+  el[:root] = type == :edipi ? edipi_root : correlation_root
   el
 end
 
 def create_cache_from_profile(cache_file, profile, template)
-  xml = template.render!({ 'profile' => profile.as_json.stringify_keys })
-  xml = update_ids(
-    xml, profile.icn, profile.edipi, profile.participant_id, profile.mhv_ids, profile.vha_facility_ids
-  )
+  xml = template.render!('profile' => profile.as_json.stringify_keys)
+  xml = update_ids(xml, profile.as_json)
 
   response = {
     method: :post,
