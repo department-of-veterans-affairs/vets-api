@@ -85,8 +85,11 @@ module V0
 
         obscure_token = Session.obscure_token(@session.token)
         Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
-        Benchmark::Timer.stop(BENCHMARK_LOGIN, @saml_response.in_response_to,
-                              tags: ['successful', "LOA:#{@current_user.loa[:current]}"])
+        Benchmark::Timer.stop(
+          BENCHMARK_LOGIN,
+          @saml_response.in_response_to,
+          tags: ['successful', "LOA:#{@current_user.loa[:current]}", @current_user&.authn_context || 'idme']
+        )
       else
         handle_login_error
         redirect_to Settings.saml.relay + '?auth=fail'
@@ -171,6 +174,7 @@ module V0
     def build_url(authn_context: LOA::MAPPING.invert[1], connect: nil)
       saml_settings = saml_settings(authn_context: authn_context, name_identifier_value: @session&.uuid)
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
+      Benchmark::Timer.start(BENCHMARK_LOGIN, saml_auth_request.uuid)
       connect_param = "&connect=#{connect}"
       link = saml_auth_request.create(saml_settings, saml_options)
       connect.present? ? link + connect_param : link
