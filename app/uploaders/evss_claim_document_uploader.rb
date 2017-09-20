@@ -7,7 +7,7 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
 
   before :store, :validate_file_size
 
-  version :converted, if: :is_tiff? do
+  version :converted, if: :tiff? do
     process(convert: :jpg)
 
     def full_filename(file)
@@ -46,7 +46,7 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
 
   private
 
-  def is_tiff?(file)
+  def tiff?(file)
     file.content_type == 'image/tiff'
   end
 
