@@ -211,6 +211,10 @@ RSpec.describe FormProfile, type: :model do
           expect_prefilled('22-1995')
         end
 
+        it 'returns prefilled 22-5490' do
+          expect_prefilled('22-5490')
+        end
+
         it 'returns the va profile mapped to the healthcare form' do
           expect_prefilled('1010ez')
         end
