@@ -33,6 +33,56 @@ RSpec.describe EVSSClaimDocumentUploader do
     end
   end
 
+  describe '#read_for_upload' do
+    let(:converted) { double }
+
+    before do
+      allow(subject).to receive(:converted).and_return(converted)
+    end
+
+    context 'with a converted image' do
+      before do
+        expect(converted).to receive(:present?).and_return(true)
+      end
+
+      it 'should read from converted' do
+        expect(converted).to receive(:read)
+        subject.read_for_upload
+      end
+    end
+
+    context 'with no converted image' do
+      before do
+        expect(converted).to receive(:present?).and_return(false)
+      end
+
+      it 'should read from the base file' do
+        expect(subject).to receive(:read)
+        subject.read_for_upload
+      end
+    end
+  end
+
+  describe 'converted version' do
+    it 'should convert tiff files to jpg' do
+      File.open('spec/fixtures/evss_claim/image.TIF') do |f|
+        subject.store!(f)
+      end
+
+      expect(MimeMagic.by_magic(subject.converted.file.read).type).to eq(
+        'image/jpeg'
+      )
+    end
+
+    it 'shouldnt convert if the file isnt tiff' do
+      File.open('spec/fixtures/evss_claim/converted_image.TIF.jpg') do |f|
+        subject.store!(f)
+      end
+
+      expect(subject.converted.present?).to eq(false)
+    end
+  end
+
   describe '#store_dir' do
     it 'omits the tracked item id if it is nil' do
       subject = described_class.new('1234abc', nil)
