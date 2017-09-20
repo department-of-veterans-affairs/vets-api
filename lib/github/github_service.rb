@@ -19,6 +19,7 @@ module Github
           )
         rescue => e
           log_exception_to_sentry(e)
+          false
         end
       end
 
@@ -36,11 +37,16 @@ module Github
       end
 
       def issue_body(feedback)
-        email = feedback.owner_email.blank? ? 'NOT PROVIDED' : feedback.owner_email
+        email = feedback.owner_email.blank? ? 'NOT PROVIDED' : obfuscated_email(feedback.owner_email)
         body = feedback.description
         body += "\n\nTarget Page: #{feedback.target_page}"
         body += "\nEmail of Author: #{email}"
         body
+      end
+
+      def obfuscated_email(email)
+        return '' if email.nil?
+        email[0] + '**********'
       end
     end
   end
