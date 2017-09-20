@@ -42,6 +42,14 @@ module MVI
 
     def create_profile_message(user)
       raise Common::Exceptions::ValidationErrors, user unless user.valid?(:loa3_user)
+      user.mhv_icn.present? ? message_icn(user) : message_user_attributes(user)
+    end
+
+    def message_icn(user)
+      MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml
+    end
+
+    def message_user_attributes(user)
       given_names = [user.first_name]
       given_names.push user.middle_name unless user.middle_name.nil?
       MVI::Messages::FindProfileMessage.new(
