@@ -51,6 +51,7 @@ RSpec.describe 'Fetching user data', type: :request do
           '21P-527EZ',
           '22-1990',
           '22-1990N',
+          '22-1995',
           '21P-530'
         ].sort
       )

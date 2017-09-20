@@ -39,6 +39,19 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v22_1995_expected) do
+    {
+      'toursOfDuty' => [
+        {
+          'service_branch' => 'Air Force',
+          'date_range' => {
+            'from' => '2007-04-01', 'to' => '2016-06-01'
+          }
+        }
+      ]
+    }
+  end
+
   let(:v1010ez_expected) do
     {
       'veteranFullName' => {
@@ -176,6 +189,10 @@ RSpec.describe FormProfile, type: :model do
 
         it 'returns prefilled 22-1990N' do
           expect_prefilled('22-1990N')
+        end
+
+        it 'returns prefilled 22-1995' do
+          expect_prefilled('22-1995')
         end
 
         it 'returns the va profile mapped to the healthcare form' do
