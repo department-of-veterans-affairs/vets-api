@@ -52,6 +52,22 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v22_5490_expected) do
+    {
+      'toursOfDuty' => [
+        {
+          'service_branch' => 'Air Force',
+          'date_range' => {
+            'from' => '2007-04-01', 'to' => '2016-06-01'
+          }
+        }
+      ],
+      'currentlyActiveDuty' => {
+        'yes' => true
+      }
+    }
+  end
+
   let(:v1010ez_expected) do
     {
       'veteranFullName' => {
