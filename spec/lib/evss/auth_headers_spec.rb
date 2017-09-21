@@ -29,15 +29,15 @@ describe EVSS::AuthHeaders do
   context 'with an invalid birth date' do
     let(:current_user) { FactoryGirl.build(:loa3_user) }
 
-    it 'results in a nil birth date' do
+    it 'parses to a nil birth date' do
       expect(subject.instance_eval { safe_parse '0' }).to be_nil
     end
   end
 
-  context 'with a user with a valid birth date' do
+  context 'with a valid birth date' do
     let(:current_user) { FactoryGirl.build(:loa3_user) }
 
-    it 'results in a non-nil birth date' do
+    it 'parses to a non-nil birth date' do
       expect(subject.instance_eval { safe_parse '1985-01-01' }).to_not be_nil
     end
   end
