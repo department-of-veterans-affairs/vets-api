@@ -65,7 +65,7 @@ module SAML
       end
 
       def multifactor
-        attributes['multifactor']
+        attributes['dslogon_multifactor']
       end
 
       private

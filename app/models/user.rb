@@ -26,8 +26,11 @@ class User < Common::RedisStore
   attribute :zip
   attribute :ssn
   attribute :loa
-  attribute :multifactor
-  attribute :authn_context
+  # These attributes are fetched by SAML::User in the saml_response payload
+  attribute :multifactor   # used by F/E to decision on whether or not to prompt user to add MFA
+  attribute :authn_context # used by F/E to handle various identity related complexities pending refactor
+  # FIXME: if MVI were decorated on usr vs delegated to @mvi, then this might not have been necessary.
+  attribute :mhv_icn # only needed by B/E not serialized in user_serializer
 
   # vaafi attributes
   attribute :last_signed_in, Common::UTCTime

@@ -40,7 +40,7 @@ module SAML
 
       # NOTE: This attribute is originated by id.me
       def multifactor
-        attributes['multifactor']
+        attributes['mhv_multifactor']
       end
 
       # NOTE: See comments for loa_current and loa_highest below
