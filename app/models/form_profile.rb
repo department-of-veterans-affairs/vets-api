@@ -59,6 +59,18 @@ class FormProfile
   include SentryLogging
 
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
+
+  FORM_ID_TO_CLASS = {
+    '1010EZ'    => ::FormProfile::VA1010ez,
+    '22-1990'   => ::FormProfile::VA1990,
+    '22-1990N'  => ::FormProfile::VA1990n,
+    '22-1995'   => ::FormProfile::VA1995,
+    '22-5490'   => ::FormProfile::VA5490,
+    '22-5495'   => ::FormProfile::VA5495,
+    '21P-530'   => ::FormProfile::VA21p530,
+    '21P-527EZ' => ::FormProfile::VA21p527ez
+  }.freeze
+
   attr_accessor :form_id
   include Virtus.model
 
@@ -68,20 +80,7 @@ class FormProfile
 
   def self.for(form)
     form = form.upcase
-    case form
-    when '1010EZ'
-      ::FormProfile::VA1010ez
-    when '22-1990'
-      ::FormProfile::VA1990
-    when '22-1990N'
-      ::FormProfile::VA1990n
-    when '21P-530'
-      ::FormProfile::VA21p530
-    when '21P-527EZ'
-      ::FormProfile::VA21p527ez
-    else
-      self
-    end.new(form)
+    FORM_ID_TO_CLASS.fetch(form, self).new(form)
   end
 
   def initialize(form)
