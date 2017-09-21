@@ -72,6 +72,8 @@ class FormProfile
       ::FormProfile::VA1010ez
     when '22-1990'
       ::FormProfile::VA1990
+    when '22-1990N'
+      ::FormProfile::VA1990n
     when '21P-530'
       ::FormProfile::VA21p530
     when '21P-527EZ'
