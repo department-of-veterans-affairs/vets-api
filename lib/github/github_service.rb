@@ -8,19 +8,15 @@ module Github
       GITHUB_REPO = 'department-of-veterans-affairs/vets.gov-team'
 
       def create_issue(feedback)
-        feedback = Feedback.new(feedback)
-
-        begin
-          client.create_issue(
-            GITHUB_REPO,
-            issue_title(feedback),
-            issue_body(feedback),
-            assignee: 'va-bot', labels: 'User Feedback'
-          )
-        rescue => e
-          log_exception_to_sentry(e)
-          false
-        end
+        client.create_issue(
+          GITHUB_REPO,
+          issue_title(feedback),
+          issue_body(feedback),
+          assignee: 'va-bot', labels: 'User Feedback'
+        )
+      rescue => e
+        log_exception_to_sentry(e)
+        false
       end
 
       private
