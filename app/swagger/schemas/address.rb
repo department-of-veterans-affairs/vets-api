@@ -27,7 +27,7 @@ module Swagger
               property :zip_suffix, type: :string, example: '1865'
             end
             property :control_information do
-              property :can_update_address, type: :boolean
+              property :can_update, type: :boolean
               property :corp_avail_indicator, type: :boolean
               property :corp_rec_found_indicator, type: :boolean
               property :has_no_bdn_payments_indicator, type: :boolean

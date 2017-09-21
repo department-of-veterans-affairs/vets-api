@@ -7,7 +7,7 @@ module EVSS
       end
 
       def service_name
-        'EVSS::PCIUAdress'
+        'EVSS/PCIUAddress'
       end
     end
   end
