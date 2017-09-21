@@ -88,7 +88,9 @@ module V0
         Benchmark::Timer.stop(
           BENCHMARK_LOGIN,
           @saml_response.in_response_to,
-          tags: ['successful', "LOA:#{@current_user.loa[:current]}", @current_user&.authn_context || 'idme']
+          tags: [
+            'successful', "LOA:#{@current_user.loa[:current]}", @current_user&.authn_context || 'idme'
+          ] + (@current_user.multifactor ? ['multifactor'] : [])
         )
       else
         handle_login_error
