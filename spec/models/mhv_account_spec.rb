@@ -41,11 +41,12 @@ RSpec.describe MhvAccount, type: :model do
 
   before(:each) do
     stub_mvi(mvi_profile)
-    Settings.mhv.facility_range = [[358, 718], [720, 758]]
   end
 
-  after(:each) do
-    Settings.mhv.facility_range = [358, 758]
+  around(:each) do |example|
+    with_settings(Settings.mhv, facility_range: [[358, 718], [720, 758]]) do
+      example.run
+    end
   end
 
   it 'must have a user_uuid when initialized' do
