@@ -183,9 +183,7 @@ class FormProfile
     return '' if home_phone.blank?
     return home_phone if home_phone.size == 10
 
-    if home_phone.size == 11 && home_phone[0] == '1'
-      return home_phone[1..-1]
-    end
+    return home_phone[1..-1] if home_phone.size == 11 && home_phone[0] == '1'
 
     ''
   end
