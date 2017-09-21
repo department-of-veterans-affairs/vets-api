@@ -51,6 +51,7 @@ class FormContactInformation
 
   attribute :address, FormAddress
   attribute :home_phone, String
+  attribute :us_phone, String
   attribute :email, String
 end
 
@@ -167,22 +168,26 @@ class FormProfile
       postal_code: user.va_profile.address.postal_code,
       country: user.va_profile.address.country
     } if user.va_profile&.address
-    # binding.pry; fail
+
+    home_phone = user&.va_profile&.home_phone&.gsub(/[^\d]/, '')
+
     FormContactInformation.new(
       address: address,
       email: user&.email,
-      home_phone: user&.va_profile&.home_phone&.gsub(/[^\d]/, '')
+      us_phone: get_us_phone(home_phone),
+      home_phone: home_phone
     )
   end
 
   def get_us_phone(home_phone)
+    return '' if home_phone.blank?
     return home_phone if home_phone.size == 10
 
     if home_phone.size == 11 && home_phone[0] == '1'
       return home_phone[1..-1]
     end
 
-    nil
+    ''
   end
 
   def generate_prefill(mappings)

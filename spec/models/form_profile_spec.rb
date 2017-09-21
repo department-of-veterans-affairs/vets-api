@@ -129,8 +129,12 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
+    context 'with nil' do
+      test_get_us_phone(nil, '')
+    end
+
     context 'with a intl phone number' do
-      test_get_us_phone('442079460976', nil)
+      test_get_us_phone('442079460976', '')
     end
 
     context 'with a us phone number' do
