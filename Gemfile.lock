@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 6a3b3a07eec17ab06483930c8ffff2e66c0c7288
+  revision: 9a710a7dba6195e4e7906d45fe080aeebe1c6ec5
   branch: master
   specs:
-    vets_json_schema (3.3.0)
+    vets_json_schema (3.4.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -220,7 +220,7 @@ GEM
     mime-types-data (3.2016.0521)
     mimemagic (0.3.2)
     mini_magick (4.7.0)
-    mini_portile2 (2.2.0)
+    mini_portile2 (2.3.0)
     minitest (5.10.2)
     multi_json (1.12.2)
     multipart-post (2.0.0)
@@ -228,8 +228,8 @@ GEM
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
-    nokogiri (1.8.0)
-      mini_portile2 (~> 2.2.0)
+    nokogiri (1.8.1)
+      mini_portile2 (~> 2.3.0)
     nori (2.6.0)
     notiffany (0.0.8)
       nenv (~> 0.1)
