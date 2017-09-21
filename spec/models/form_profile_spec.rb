@@ -7,6 +7,10 @@ RSpec.describe FormProfile, type: :model do
 
   let(:user) { build(:loa3_user) }
 
+  before do
+    user.va_profile.suffix = 'Jr.'
+  end
+
   let(:v22_1990_expected) do
     {
       'toursOfDuty' => [
@@ -114,13 +118,54 @@ RSpec.describe FormProfile, type: :model do
     described_class.instance_variable_set(:@mappings, nil)
   end
 
+  describe '#get_us_phone' do
+    let(:form_profile) do
+      described_class.new('foo')
+    end
+
+    def self.test_get_us_phone(phone, expected)
+      it "should return #{expected}" do
+        expect(form_profile.send(:get_us_phone, phone)).to eq(expected)
+      end
+    end
+
+    context 'with a intl phone number' do
+      test_get_us_phone('442079460976', nil)
+    end
+
+    context 'with a us phone number' do
+      test_get_us_phone('5557940976', '5557940976')
+    end
+
+    context 'with a us phone number' do
+      test_get_us_phone('15557940976', '5557940976')
+    end
+  end
+
   describe '#prefill_form' do
     def can_prefill_emis(yes)
       expect(user).to receive(:can_prefill_emis?).and_return(yes)
     end
 
     def expect_prefilled(form_id)
-      expect(Oj.load(described_class.for(form_id).prefill(user).to_json)['form_data']).to eq(
+      prefilled_data = Oj.load(described_class.for(form_id).prefill(user).to_json)['form_data']
+
+      if form_id == '1010ez'
+        '10-10EZ'
+      else
+        form_id
+      end.tap do |schema_form_id|
+        schema = VetsJsonSchema::SCHEMAS[schema_form_id].except('required')
+
+        errors = JSON::Validator.fully_validate(
+          schema,
+          prefilled_data.deep_transform_keys { |key| key.camelize(:lower) },
+          validate_schema: true
+        )
+        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
+      end
+
+      expect(prefilled_data).to eq(
         public_send("v#{form_id.underscore}_expected")
       )
     end
