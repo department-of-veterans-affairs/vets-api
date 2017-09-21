@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "properties": {
-    "can_update_address": {
+    "can_update": {
       "type": "boolean"
     },
     "corp_avail_indicator": {
@@ -30,7 +30,7 @@
     }
   },
   "required": [
-    "can_update_address"
+    "can_update"
   ],
   "type": "object"
 }
