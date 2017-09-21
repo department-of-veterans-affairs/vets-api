@@ -11,6 +11,17 @@ RSpec.describe FormProfile, type: :model do
     user.va_profile.suffix = 'Jr.'
   end
 
+  let(:form_profile) do
+    described_class.new('foo')
+  end
+
+  let(:us_phone) do
+    form_profile.send(
+      :get_us_phone,
+      user.va_profile[:home_phone].gsub(/[^\d]/, '')
+    )
+  end
+
   let(:v22_1990_expected) do
     {
       'toursOfDuty' => [
@@ -68,7 +79,7 @@ RSpec.describe FormProfile, type: :model do
       'postNov111998Combat' => true,
       'receivesVaPension' => true,
       'gender' => user.gender,
-      'homePhone' => user.va_profile[:home_phone].gsub(/[^\d]/, ''),
+      'homePhone' => us_phone,
       'compensableVaServiceConnected' => true,
       'veteranSocialSecurityNumber' => user.ssn
     }
@@ -89,7 +100,7 @@ RSpec.describe FormProfile, type: :model do
         'postal_code' => user.va_profile[:address][:postal_code]
       },
       'gender' => user.gender,
-      'dayPhone' => user.va_profile[:home_phone].gsub(/[^\d]/, ''),
+      'dayPhone' => us_phone,
       'veteranSocialSecurityNumber' => user.ssn,
       'veteranDateOfBirth' => user.birth_date
     }
@@ -109,7 +120,7 @@ RSpec.describe FormProfile, type: :model do
         'country' => user.va_profile[:address][:country],
         'postal_code' => user.va_profile[:address][:postal_code]
       },
-      'claimantPhone' => user.va_profile[:home_phone].gsub(/[^\d]/, ''),
+      'claimantPhone' => us_phone,
       'claimantEmail' => user.email
     }
   end
@@ -119,10 +130,6 @@ RSpec.describe FormProfile, type: :model do
   end
 
   describe '#get_us_phone' do
-    let(:form_profile) do
-      described_class.new('foo')
-    end
-
     def self.test_get_us_phone(phone, expected)
       it "should return #{expected}" do
         expect(form_profile.send(:get_us_phone, phone)).to eq(expected)
@@ -170,7 +177,7 @@ RSpec.describe FormProfile, type: :model do
       end
 
       expect(prefilled_data).to eq(
-        public_send("v#{form_id.underscore}_expected")
+        form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
       )
     end
 
