@@ -26,11 +26,11 @@ class User < Common::RedisStore
   attribute :zip
   attribute :ssn
   attribute :loa
-  # These attributes are fetched by SAML::User in the saml_response payload
-  attribute :multifactor   # used by F/E to decision on whether or not to prompt user to add MFA
-  attribute :authn_context # used by F/E to handle various identity related complexities pending refactor
-  # FIXME: if MVI were decorated on usr vs delegated to @mvi, then this might not have been necessary.
-  attribute :mhv_icn # only needed by B/E not serialized in user_serializer
+  # this attribute is set by the User.from_saml method returned only by MHV sign-in users
+  # as part of the sessions#saml_callback user persistence.
+  # it is necessary since "icn" is returned by mvi and hydrated here via delegation.
+  # FIXME: future refactor of making MVI a decorator will allow for cleaning this up a bit.
+  attribute :mhv_icn
 
   # vaafi attributes
   attribute :last_signed_in, Common::UTCTime
@@ -52,10 +52,6 @@ class User < Common::RedisStore
     user.validates :gender, format: /\A(M|F)\z/, allow_blank: true
   end
 
-  # LOA1 no longer just means ID.me LOA1.
-  # It could also be DSLogon or MHV NON PREMIUM users who have not yet done ID.me FICAM LOA3.
-  # See also lib/saml/user_attributes/dslogon.rb
-  # See also lib/saml/user_attributes/mhv
   def loa1?
     loa[:current] == LOA::ONE
   end
@@ -64,12 +60,6 @@ class User < Common::RedisStore
     loa[:current] == LOA::TWO
   end
 
-  # LOA3 no longer just means ID.me FICAM LOA3.
-  # It could also be DSLogon or MHV Premium users.
-  # It could also be DSLogon or MHV NON PREMIUM users who have done ID.me FICAM LOA3.
-  # Additionally, LOA3 does not automatically mean user has opted to have MFA.
-  # See also lib/saml/user_attributes/dslogon.rb
-  # See also lib/saml/user_attributes/mhv
   def loa3?
     loa[:current] == LOA::THREE
   end
