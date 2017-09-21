@@ -45,7 +45,13 @@ module EVSS
 
     def iso8601_birth_date
       return nil unless @user&.va_profile&.birth_date
-      DateTime.parse(@user.va_profile.birth_date).iso8601
+      safe_parse(@user.va_profile.birth_date)
+    end
+
+    def safe_parse(date_string)
+      DateTime.parse(date_string).iso8601
+    rescue ArgumentError
+      nil
     end
   end
 end
