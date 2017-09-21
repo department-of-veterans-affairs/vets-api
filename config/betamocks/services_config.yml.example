@@ -2,8 +2,7 @@
 :services:
 
 # EVSS
-- :base_uris:
-  - csraciapp6.evss.srarad.com
+- :base_uri: <%= URI(Settings.evss.url).host %>
   :endpoints:
   # PCIUAddress
   - :method: :get
@@ -19,7 +18,13 @@
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
 #    :error:
-#      :status: 400
+#      :status: 502
+  - :method: :post
+    :path: "/wss-pciu-services-web/rest/pciuServices/v1/mailingAddress"
+    :file_path: "evss/pciu_address/address_update"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
 
   # Letters
   - :method: :get
@@ -34,13 +39,20 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
-  - :method: :get
+  - :method: :post
     :path: "/wss-lettergenerator-services-web/rest/letters/v1/*"
     :file_path: "evss/letters/download"
 
+  # GIBS
+  - :method: :get
+    :path: "/wss-education-services-web/rest/education/chapter33/v1"
+    :file_path: "evss/gibs"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+
 # MVI
-- :base_uris:
-  - ps-dev.commserv.healthevet.va.gov
+- :base_uri: <%= URI(Settings.mvi.url).host %>
   :endpoints:
   - :method: :post
     :path: "/psim_webservice/IdMWebService"

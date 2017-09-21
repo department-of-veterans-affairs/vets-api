@@ -1,11 +1,11 @@
 # Betamocks 
 
 ## Setup
-1. Add and enable the Betamocks settings in your settings.local.yml file:
+1. _If using Docker skip this step_. Add and enable the Betamocks settings in your settings.local.yml file:
 ```yaml
 betamocks:
   enabled: true
-  cache_dir: config/betamocks/cache
+  cache_dir: /path/to/vets-api-mockdata/repo
   services_config: config/betamocks/services_config.yml
 ```
 
@@ -33,8 +33,7 @@ end
 ```
 
 2. Add endpoints to be mocked to the services config file. 
-Each service description has
-an array of `base_uris` for each environment to be mocked (e.g. local/CI, dev/INT, staging/PINT).
+Each service description has a `base_uri` (pulled from Settings)
 `endpoints` is an array of hashes with:
 - `method:` a symbol of the http verb `:get`, `:post`, `:put`...
 - `path:` the path that combined with the base_uri makes a full URI
@@ -43,8 +42,7 @@ an array of `base_uris` for each environment to be mocked (e.g. local/CI, dev/IN
 :services:
 
 # EVSS::PCIUAddress
-- :base_uris:
-  - csraciapp6.evss.srarad.com
+- :base_uri: <%= URI(Settings.evss.url).host %>
   :endpoints:
   - :method: :get
     :path: "/wss-pciu-services-web/rest/pciuServices/v1/states"
