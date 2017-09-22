@@ -21,6 +21,10 @@ module Breakers
       send_metric('failed', service, request_env, response_env)
     end
 
+    def on_skipped_request(service)
+      send_metric('skipped', service, nil, nil)
+    end
+
     def on_success(service, request_env, response_env)
       send_metric('success', service, request_env, response_env)
     end
