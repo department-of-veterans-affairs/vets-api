@@ -7,5 +7,9 @@ FactoryGirl.define do
     trait :email_provided do
       owner_email 'joe.vet@aol.com'
     end
+
+    trait :malicious_email do
+      owner_email '@session.token'
+    end
   end
 end
