@@ -24,7 +24,7 @@ class FeedbackSubmissionMailer < ApplicationMailer
 
   def subject_line
     subject = 'Vets.gov Feedback Received'
-    subject += ' - Response Requested' unless @feedback.owner_email.nil?
+    subject += ' - Response Requested' if @feedback.owner_email.present?
     subject
   end
 end
