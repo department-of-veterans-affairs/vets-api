@@ -7,6 +7,21 @@ RSpec.describe FormProfile, type: :model do
 
   let(:user) { build(:loa3_user) }
 
+  before do
+    user.va_profile.suffix = 'Jr.'
+  end
+
+  let(:form_profile) do
+    described_class.new('foo')
+  end
+
+  let(:us_phone) do
+    form_profile.send(
+      :get_us_phone,
+      user.va_profile[:home_phone].gsub(/[^\d]/, '')
+    )
+  end
+
   let(:v22_1990_expected) do
     {
       'toursOfDuty' => [
@@ -62,9 +77,7 @@ RSpec.describe FormProfile, type: :model do
           }
         }
       ],
-      'currentlyActiveDuty' => {
-        'yes' => true
-      }
+      'currentlyActiveDuty' => true
     }
   end
 
@@ -78,9 +91,7 @@ RSpec.describe FormProfile, type: :model do
           }
         }
       ],
-      'currentlyActiveDuty' => {
-        'yes' => true
-      }
+      'currentlyActiveDuty' => true
     }
   end
 
@@ -109,7 +120,7 @@ RSpec.describe FormProfile, type: :model do
       'postNov111998Combat' => true,
       'receivesVaPension' => true,
       'gender' => user.gender,
-      'homePhone' => user.va_profile[:home_phone].gsub(/[^\d]/, ''),
+      'homePhone' => us_phone,
       'compensableVaServiceConnected' => true,
       'veteranSocialSecurityNumber' => user.ssn
     }
@@ -130,7 +141,7 @@ RSpec.describe FormProfile, type: :model do
         'postal_code' => user.va_profile[:address][:postal_code]
       },
       'gender' => user.gender,
-      'dayPhone' => user.va_profile[:home_phone].gsub(/[^\d]/, ''),
+      'dayPhone' => us_phone,
       'veteranSocialSecurityNumber' => user.ssn,
       'veteranDateOfBirth' => user.birth_date
     }
@@ -150,7 +161,7 @@ RSpec.describe FormProfile, type: :model do
         'country' => user.va_profile[:address][:country],
         'postal_code' => user.va_profile[:address][:postal_code]
       },
-      'claimantPhone' => user.va_profile[:home_phone].gsub(/[^\d]/, ''),
+      'claimantPhone' => us_phone,
       'claimantEmail' => user.email
     }
   end
@@ -159,14 +170,55 @@ RSpec.describe FormProfile, type: :model do
     described_class.instance_variable_set(:@mappings, nil)
   end
 
+  describe '#get_us_phone' do
+    def self.test_get_us_phone(phone, expected)
+      it "should return #{expected}" do
+        expect(form_profile.send(:get_us_phone, phone)).to eq(expected)
+      end
+    end
+
+    context 'with nil' do
+      test_get_us_phone(nil, '')
+    end
+
+    context 'with an intl phone number' do
+      test_get_us_phone('442079460976', '')
+    end
+
+    context 'with a us phone number' do
+      test_get_us_phone('5557940976', '5557940976')
+    end
+
+    context 'with a us phone number' do
+      test_get_us_phone('15557940976', '5557940976')
+    end
+  end
+
   describe '#prefill_form' do
     def can_prefill_emis(yes)
       expect(user).to receive(:can_prefill_emis?).and_return(yes)
     end
 
     def expect_prefilled(form_id)
-      expect(Oj.load(described_class.for(form_id).prefill(user).to_json)['form_data']).to eq(
-        public_send("v#{form_id.underscore}_expected")
+      prefilled_data = Oj.load(described_class.for(form_id).prefill(user).to_json)['form_data']
+
+      if form_id == '1010ez'
+        '10-10EZ'
+      else
+        form_id
+      end.tap do |schema_form_id|
+        schema = VetsJsonSchema::SCHEMAS[schema_form_id].except('required', 'anyOf')
+
+        errors = JSON::Validator.fully_validate(
+          schema,
+          prefilled_data.deep_transform_keys { |key| key.camelize(:lower) },
+          validate_schema: true
+        )
+        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
+      end
+
+      expect(prefilled_data).to eq(
+        form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
       )
     end
 
@@ -174,6 +226,7 @@ RSpec.describe FormProfile, type: :model do
       it 'should log the error to sentry' do
         can_prefill_emis(true)
         error = RuntimeError.new('foo')
+        expect(Rails.env).to receive(:production?).and_return(true)
         expect(user.military_information).to receive(:last_service_branch).and_return('air force').and_raise(error)
 
         form_profile = described_class.for('1010ez')
@@ -204,7 +257,7 @@ RSpec.describe FormProfile, type: :model do
         expect(military_information).to receive(:tours_of_duty).and_return(
           [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
         )
-        expect(military_information).to receive(:currently_active_duty).and_return(
+        allow(military_information).to receive(:currently_active_duty_hash).and_return(
           yes: true
         )
         expect(user.payment).to receive(:receives_va_pension).and_return(true)
