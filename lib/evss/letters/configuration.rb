@@ -7,7 +7,7 @@ module EVSS
       end
 
       def service_name
-        'EVSS::Letters'
+        'EVSS/Letters'
       end
     end
   end

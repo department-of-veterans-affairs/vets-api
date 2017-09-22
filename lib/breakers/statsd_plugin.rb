@@ -6,8 +6,11 @@ module Breakers
       if request
         if request.url && request.url.path
           # replace identifiers with 'xxx'
-          # this nasty-looking regex attempts to cover digit identifiers and uuid's with or without dashes
-          r = %r{(\/)(\d+|[a-fA-F0-9]{8}(\-?[a-fA-F0-9]{4}){3}\-?[a-fA-F0-9]{12})(\/|$)}
+          # this nasty-looking regex attempts to cover:
+          # * (possibly negative) digit identifiers
+          # * uuid's with or without dashes
+          # * institution id's of form 111A2222
+          r = %r{(\/)(\-?\d+|[a-fA-F0-9]{8}(\-?[a-fA-F0-9]{4}){3}\-?[a-fA-F0-9]{12}|\d{3}[A-Z]\d{4})(\/|$)}
           endpoint = request.url.path.gsub(r, '\1xxx\4')
           tags.append("endpoint:#{endpoint}")
         end
@@ -19,6 +22,10 @@ module Breakers
 
     def on_error(service, request_env, response_env)
       send_metric('failed', service, request_env, response_env)
+    end
+
+    def on_skipped_request(service)
+      send_metric('skipped', service, nil, nil)
     end
 
     def on_success(service, request_env, response_env)
