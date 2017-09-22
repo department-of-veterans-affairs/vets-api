@@ -22,8 +22,10 @@ module EMISRedis
       'K' => 'dishonorable'
     }.freeze
 
-    HCA_METHODS = %i(
+    PREFILL_METHODS = %i(
       last_service_branch
+      currently_active_duty
+      tours_of_duty
       last_entry_date
       last_discharge_date
       is_va_service_connected
@@ -62,10 +64,27 @@ module EMISRedis
     VIETNAM = 'VNM'
     VIETNAM_WAR_RANGE = Date.new(1962, 1, 9)..Date.new(1975, 5, 7)
 
+    def currently_active_duty
+      {
+        yes: latest_service_episode.end_date.future?
+      }
+    end
+
+    def tours_of_duty
+      military_service_episodes.map do |military_service_episode|
+        {
+          service_branch: military_service_episode.branch_of_service,
+          date_range: {
+            from: military_service_episode.begin_date.to_s,
+            to: military_service_episode.end_date.to_s
+          }
+        }
+      end
+    end
+
     def last_service_branch
       return if latest_service_episode.blank?
-
-      SERVICE_BRANCHES[latest_service_episode.branch_of_service_code] || 'other'
+      latest_service_episode.hca_branch_of_service
     end
 
     def discharge_type
@@ -140,10 +159,13 @@ module EMISRedis
       @disabilities ||= items_from_response('get_disabilities')
     end
 
+    def military_service_episodes
+      @military_service_episodes ||= items_from_response('get_military_service_episodes')
+    end
+
     def service_episodes_by_date
       @service_episodes_by_date ||= lambda do
-        service_episodes = items_from_response('get_military_service_episodes')
-        service_episodes.sort_by(&:end_date).reverse
+        military_service_episodes.sort_by(&:end_date).reverse
       end.call
     end
   end

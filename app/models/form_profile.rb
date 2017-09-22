@@ -22,6 +22,8 @@ class FormMilitaryInformation
   attribute :compensable_va_service_connected, Boolean
   attribute :is_va_service_connected, Boolean
   attribute :receives_va_pension, Boolean
+  attribute :tours_of_duty, Array
+  attribute :currently_active_duty, Boolean
 end
 
 class FormAddress
@@ -56,6 +58,18 @@ class FormProfile
   include SentryLogging
 
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
+
+  FORM_ID_TO_CLASS = {
+    '1010EZ'    => ::FormProfile::VA1010ez,
+    '22-1990'   => ::FormProfile::VA1990,
+    '22-1990N'  => ::FormProfile::VA1990n,
+    '22-1995'   => ::FormProfile::VA1995,
+    '22-5490'   => ::FormProfile::VA5490,
+    '22-5495'   => ::FormProfile::VA5495,
+    '21P-530'   => ::FormProfile::VA21p530,
+    '21P-527EZ' => ::FormProfile::VA21p527ez
+  }.freeze
+
   attr_accessor :form_id
   include Virtus.model
 
@@ -65,16 +79,7 @@ class FormProfile
 
   def self.for(form)
     form = form.upcase
-    case form
-    when '1010EZ'
-      ::FormProfile::VA1010ez
-    when '21P-530'
-      ::FormProfile::VA21p530
-    when '21P-527EZ'
-      ::FormProfile::VA21p527ez
-    else
-      self
-    end.new(form)
+    FORM_ID_TO_CLASS.fetch(form, self).new(form)
   end
 
   def initialize(form)
@@ -122,9 +127,13 @@ class FormProfile
     military_information_data = {}
 
     begin
-      EMISRedis::MilitaryInformation::HCA_METHODS.each do |attr|
+      EMISRedis::MilitaryInformation::PREFILL_METHODS.each do |attr|
         military_information_data[attr] = military_information.public_send(attr)
       end
+
+      military_information_data.merge!(
+        receives_va_pension: user.payment.receives_va_pension
+      )
     rescue => e
       # fail silently if emis is down
       log_exception_to_sentry(e, {}, backend_service: :emis)
@@ -182,7 +191,7 @@ class FormProfile
     if value.is_a?(Hash)
       clean_hash!(value)
     elsif value.is_a?(Array)
-      value.map(&:clean!).delete_if(&:blank?)
+      value.map { |v| clean!(v) }.delete_if(&:blank?)
     else
       value
     end

@@ -7,6 +7,83 @@ RSpec.describe FormProfile, type: :model do
 
   let(:user) { build(:loa3_user) }
 
+  let(:v22_1990_expected) do
+    {
+      'toursOfDuty' => [
+        {
+          'service_branch' => 'Air Force',
+          'date_range' => {
+            'from' => '2007-04-01', 'to' => '2016-06-01'
+          }
+        }
+      ],
+      'currentlyActiveDuty' => {
+        'yes' => true
+      }
+    }
+  end
+
+  let(:v22_1990_n_expected) do
+    {
+      'toursOfDuty' => [
+        {
+          'service_branch' => 'Air Force',
+          'date_range' => {
+            'from' => '2007-04-01', 'to' => '2016-06-01'
+          }
+        }
+      ],
+      'currentlyActiveDuty' => {
+        'yes' => true
+      }
+    }
+  end
+
+  let(:v22_1995_expected) do
+    {
+      'toursOfDuty' => [
+        {
+          'service_branch' => 'Air Force',
+          'date_range' => {
+            'from' => '2007-04-01', 'to' => '2016-06-01'
+          }
+        }
+      ]
+    }
+  end
+
+  let(:v22_5490_expected) do
+    {
+      'toursOfDuty' => [
+        {
+          'service_branch' => 'Air Force',
+          'date_range' => {
+            'from' => '2007-04-01', 'to' => '2016-06-01'
+          }
+        }
+      ],
+      'currentlyActiveDuty' => {
+        'yes' => true
+      }
+    }
+  end
+
+  let(:v22_5495_expected) do
+    {
+      'toursOfDuty' => [
+        {
+          'service_branch' => 'Air Force',
+          'date_range' => {
+            'from' => '2007-04-01', 'to' => '2016-06-01'
+          }
+        }
+      ],
+      'currentlyActiveDuty' => {
+        'yes' => true
+      }
+    }
+  end
+
   let(:v1010ez_expected) do
     {
       'veteranFullName' => {
@@ -30,6 +107,7 @@ RSpec.describe FormProfile, type: :model do
       'dischargeType' => 'honorable',
       'isVaServiceConnected' => true,
       'postNov111998Combat' => true,
+      'receivesVaPension' => true,
       'gender' => user.gender,
       'homePhone' => user.va_profile[:home_phone].gsub(/[^\d]/, ''),
       'compensableVaServiceConnected' => true,
@@ -123,11 +201,38 @@ RSpec.describe FormProfile, type: :model do
         expect(military_information).to receive(:sw_asia_combat).and_return(true)
         expect(military_information).to receive(:compensable_va_service_connected).and_return(true)
         expect(military_information).to receive(:is_va_service_connected).and_return(true)
+        expect(military_information).to receive(:tours_of_duty).and_return(
+          [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
+        )
+        expect(military_information).to receive(:currently_active_duty).and_return(
+          yes: true
+        )
+        expect(user.payment).to receive(:receives_va_pension).and_return(true)
       end
 
       context 'with a user that can prefill emis' do
         before do
           can_prefill_emis(true)
+        end
+
+        it 'returns prefilled 22-1990' do
+          expect_prefilled('22-1990')
+        end
+
+        it 'returns prefilled 22-1990N' do
+          expect_prefilled('22-1990N')
+        end
+
+        it 'returns prefilled 22-1995' do
+          expect_prefilled('22-1995')
+        end
+
+        it 'returns prefilled 22-5490' do
+          expect_prefilled('22-5490')
+        end
+
+        it 'returns prefilled 22-5495' do
+          expect_prefilled('22-5495')
         end
 
         it 'returns the va profile mapped to the healthcare form' do
