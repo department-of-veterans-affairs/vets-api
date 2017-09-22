@@ -77,9 +77,7 @@ RSpec.describe FormProfile, type: :model do
           }
         }
       ],
-      'currentlyActiveDuty' => {
-        'yes' => true
-      }
+      'currentlyActiveDuty' => true
     }
   end
 
@@ -93,9 +91,7 @@ RSpec.describe FormProfile, type: :model do
           }
         }
       ],
-      'currentlyActiveDuty' => {
-        'yes' => true
-      }
+      'currentlyActiveDuty' => true
     }
   end
 
@@ -230,6 +226,7 @@ RSpec.describe FormProfile, type: :model do
       it 'should log the error to sentry' do
         can_prefill_emis(true)
         error = RuntimeError.new('foo')
+        expect(Rails.env).to receive(:production?).and_return(true)
         expect(user.military_information).to receive(:last_service_branch).and_return('air force').and_raise(error)
 
         form_profile = described_class.for('1010ez')
@@ -260,7 +257,7 @@ RSpec.describe FormProfile, type: :model do
         expect(military_information).to receive(:tours_of_duty).and_return(
           [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
         )
-        expect(military_information).to receive(:currently_active_duty).and_return(
+        allow(military_information).to receive(:currently_active_duty_hash).and_return(
           yes: true
         )
         expect(user.payment).to receive(:receives_va_pension).and_return(true)

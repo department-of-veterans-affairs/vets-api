@@ -1,2 +1,2 @@
 tours_of_duty: [military_information, tours_of_duty]
-currently_active_duty: [military_information, currently_active_duty]
+currently_active_duty: [military_information, currently_active_duty_hash]

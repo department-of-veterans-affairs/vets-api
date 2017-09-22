@@ -24,6 +24,7 @@ class FormMilitaryInformation
   attribute :receives_va_pension, Boolean
   attribute :tours_of_duty, Array
   attribute :currently_active_duty, Boolean
+  attribute :currently_active_duty_hash, Hash
 end
 
 class FormAddress
@@ -136,8 +137,12 @@ class FormProfile
         receives_va_pension: user.payment.receives_va_pension
       )
     rescue => e
-      # fail silently if emis is down
-      log_exception_to_sentry(e, {}, backend_service: :emis)
+      if Rails.env.production?
+        # fail silently if emis is down
+        log_exception_to_sentry(e, {}, backend_service: :emis)
+      else
+        raise e
+      end
     end
 
     FormMilitaryInformation.new(military_information_data)
