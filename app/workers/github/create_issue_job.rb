@@ -16,7 +16,9 @@ module Github
 
     # :nocov:
     def perform(feedback)
-      Github::GithubService.create_issue(feedback)
+      feedback = Feedback.new(feedback)
+      create_response = Github::GithubService.create_issue(feedback)
+      FeedbackSubmissionMailer.build(feedback, create_response&.url).deliver_now
     end
     # :nocov:
   end
