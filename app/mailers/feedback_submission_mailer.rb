@@ -7,6 +7,7 @@ class FeedbackSubmissionMailer < ApplicationMailer
   def build(feedback, github_link)
     @feedback = feedback
     @github_link = github_link
+    template = File.read('app/mailers/views/feedback_report.erb')
 
     mail(
       to: recipients,
