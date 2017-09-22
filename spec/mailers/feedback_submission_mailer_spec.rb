@@ -4,6 +4,7 @@ require 'rails_helper'
 RSpec.describe FeedbackSubmissionMailer, type: [:mailer] do
   let(:feedback) { build :feedback }
   let(:feedback_with_email) { build :feedback, :email_provided }
+  let(:feedback_malicious) { build :feedback, :malicious_email }
   let(:github_url) { 'https://github.com/department-of-veterans-affairs/vets.gov-team/issues/4985' }
 
   subject do
@@ -15,6 +16,15 @@ RSpec.describe FeedbackSubmissionMailer, type: [:mailer] do
       expect(subject.body.raw_source).to include(github_url)
       expect(subject.body.raw_source).to include(feedback.target_page)
       expect(subject.body.raw_source).to include(feedback.description)
+    end
+
+    context 'when malicious input injection is attempted' do
+      subject do
+        described_class.build(feedback_malicious, github_url).deliver_now
+      end
+      it 'should treat malicious input as string literals' do
+        expect(subject.body.raw_source).to include(feedback_malicious.owner_email)
+      end
     end
 
     context 'when email is provided' do
