@@ -25,20 +25,4 @@ describe EVSS::AuthHeaders do
       expect(subject.to_h['va_eauth_assurancelevel']).to eq '1'
     end
   end
-
-  context 'with an invalid birth date' do
-    let(:current_user) { FactoryGirl.build(:loa3_user) }
-
-    it 'parses to a nil birth date' do
-      expect(subject.instance_eval { safe_parse '0' }).to be_nil
-    end
-  end
-
-  context 'with a valid birth date' do
-    let(:current_user) { FactoryGirl.build(:loa3_user) }
-
-    it 'parses to a non-nil birth date' do
-      expect(subject.instance_eval { safe_parse '1985-01-01' }).to_not be_nil
-    end
-  end
 end
