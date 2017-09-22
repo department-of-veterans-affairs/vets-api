@@ -211,7 +211,7 @@ RSpec.describe FormProfile, type: :model do
       else
         form_id
       end.tap do |schema_form_id|
-        schema = VetsJsonSchema::SCHEMAS[schema_form_id].except('required')
+        schema = VetsJsonSchema::SCHEMAS[schema_form_id].except('required', 'anyOf')
 
         errors = JSON::Validator.fully_validate(
           schema,
