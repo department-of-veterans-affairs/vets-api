@@ -62,5 +62,14 @@ RSpec.describe FeedbackSubmissionMailer, type: [:mailer] do
         expect(subject.to).to eq(['feedback@va.gov'])
       end
     end
+
+    context 'when no github link is provided' do
+      subject do
+        described_class.build(feedback_with_email, nil).deliver_now
+      end
+      it 'should display a warning in the email body' do
+        expect(subject.body.raw_source).to include('Warning: No Github link present!')
+      end
+    end
   end
 end

@@ -16,7 +16,7 @@ module Github
         )
       rescue => e
         log_exception_to_sentry(e)
-        false
+        nil
       end
 
       private

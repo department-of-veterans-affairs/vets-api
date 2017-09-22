@@ -35,8 +35,8 @@ describe Github::GithubService do
       expect(described_class).to receive(:log_exception_to_sentry)
       described_class.create_issue(feedback)
     end
-    it 'returns false' do
-      expect(described_class.create_issue(feedback)).to eq(false)
+    it 'returns nil' do
+      expect(described_class.create_issue(feedback)).to eq(nil)
     end
   end
 end
