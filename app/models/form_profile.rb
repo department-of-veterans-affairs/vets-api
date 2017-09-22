@@ -24,6 +24,7 @@ class FormMilitaryInformation
   attribute :receives_va_pension, Boolean
   attribute :tours_of_duty, Array
   attribute :currently_active_duty, Boolean
+  attribute :currently_active_duty_hash, Hash
 end
 
 class FormAddress
@@ -51,6 +52,7 @@ class FormContactInformation
 
   attribute :address, FormAddress
   attribute :home_phone, String
+  attribute :us_phone, String
   attribute :email, String
 end
 
@@ -135,8 +137,12 @@ class FormProfile
         receives_va_pension: user.payment.receives_va_pension
       )
     rescue => e
-      # fail silently if emis is down
-      log_exception_to_sentry(e, {}, backend_service: :emis)
+      if Rails.env.production?
+        # fail silently if emis is down
+        log_exception_to_sentry(e, {}, backend_service: :emis)
+      else
+        raise e
+      end
     end
 
     FormMilitaryInformation.new(military_information_data)
@@ -166,11 +172,24 @@ class FormProfile
       postal_code: user.va_profile.address.postal_code,
       country: user.va_profile.address.country
     } if user.va_profile&.address
+
+    home_phone = user&.va_profile&.home_phone&.gsub(/[^\d]/, '')
+
     FormContactInformation.new(
       address: address,
       email: user&.email,
-      home_phone: user&.va_profile&.home_phone&.gsub(/[^\d]/, '')
+      us_phone: get_us_phone(home_phone),
+      home_phone: home_phone
     )
+  end
+
+  def get_us_phone(home_phone)
+    return '' if home_phone.blank?
+    return home_phone if home_phone.size == 10
+
+    return home_phone[1..-1] if home_phone.size == 11 && home_phone[0] == '1'
+
+    ''
   end
 
   def generate_prefill(mappings)
