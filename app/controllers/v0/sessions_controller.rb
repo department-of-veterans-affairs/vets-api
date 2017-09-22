@@ -33,8 +33,9 @@ module V0
     # authn_context is the policy, connect represents the ID.me flow
     # auth token required
     def multifactor
-      connect = @current_user&.authn_context
-      render json: { multifactor_url: build_url(authn_context: 'multifactor', connect: connect) }
+      policy = @current_user&.authn_context
+      authn_context = policy.present? ? "#{policy}_multifactor" : 'multifactor'
+      render json: { multifactor_url: build_url(authn_context: authn_context, connect: policy) }
     end
 
     # Member Action: method is to verify LOA3 if existing ID.me LOA3, or
