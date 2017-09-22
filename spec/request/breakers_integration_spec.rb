@@ -55,6 +55,10 @@ RSpec.describe 'breakers', type: :request do
         expect(response).to eq(400)
       end
 
+      expect do
+        get '/v0/prescriptions'
+      end.to trigger_statsd_increment('api.external_http_request.Rx.skipped', times: 1, value: 1)
+
       response = get '/v0/prescriptions'
       expect(response).to eq(503)
 
@@ -82,7 +86,8 @@ RSpec.describe 'breakers', type: :request do
     end
 
     it 'measures request times' do
-      stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
+      path = 'mhv-api/patient/v1/prescription/gethistoryrx'
+      stub_varx_request(:get, path, history_rxs, status_code: 200, tags: ['endpoint:/' + path])
       expect { get '/v0/prescriptions' }.to trigger_statsd_measure('api.external_http_request.Rx.time', times: 1)
     end
   end

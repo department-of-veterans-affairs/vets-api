@@ -24,6 +24,7 @@ class FormMilitaryInformation
   attribute :receives_va_pension, Boolean
   attribute :tours_of_duty, Array
   attribute :currently_active_duty, Boolean
+  attribute :currently_active_duty_hash, Hash
 end
 
 class FormAddress
@@ -51,6 +52,7 @@ class FormContactInformation
 
   attribute :address, FormAddress
   attribute :home_phone, String
+  attribute :us_phone, String
   attribute :email, String
 end
 
@@ -58,6 +60,18 @@ class FormProfile
   include SentryLogging
 
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
+
+  FORM_ID_TO_CLASS = {
+    '1010EZ'    => ::FormProfile::VA1010ez,
+    '22-1990'   => ::FormProfile::VA1990,
+    '22-1990N'  => ::FormProfile::VA1990n,
+    '22-1995'   => ::FormProfile::VA1995,
+    '22-5490'   => ::FormProfile::VA5490,
+    '22-5495'   => ::FormProfile::VA5495,
+    '21P-530'   => ::FormProfile::VA21p530,
+    '21P-527EZ' => ::FormProfile::VA21p527ez
+  }.freeze
+
   attr_accessor :form_id
   include Virtus.model
 
@@ -67,20 +81,7 @@ class FormProfile
 
   def self.for(form)
     form = form.upcase
-    case form
-    when '1010EZ'
-      ::FormProfile::VA1010ez
-    when '22-1990'
-      ::FormProfile::VA1990
-    when '22-1990N'
-      ::FormProfile::VA1990n
-    when '21P-530'
-      ::FormProfile::VA21p530
-    when '21P-527EZ'
-      ::FormProfile::VA21p527ez
-    else
-      self
-    end.new(form)
+    FORM_ID_TO_CLASS.fetch(form, self).new(form)
   end
 
   def initialize(form)
@@ -136,8 +137,12 @@ class FormProfile
         receives_va_pension: user.payment.receives_va_pension
       )
     rescue => e
-      # fail silently if emis is down
-      log_exception_to_sentry(e, {}, backend_service: :emis)
+      if Rails.env.production?
+        # fail silently if emis is down
+        log_exception_to_sentry(e, {}, backend_service: :emis)
+      else
+        raise e
+      end
     end
 
     FormMilitaryInformation.new(military_information_data)
@@ -167,11 +172,24 @@ class FormProfile
       postal_code: user.va_profile.address.postal_code,
       country: user.va_profile.address.country
     } if user.va_profile&.address
+
+    home_phone = user&.va_profile&.home_phone&.gsub(/[^\d]/, '')
+
     FormContactInformation.new(
       address: address,
       email: user&.email,
-      home_phone: user&.va_profile&.home_phone&.gsub(/[^\d]/, '')
+      us_phone: get_us_phone(home_phone),
+      home_phone: home_phone
     )
+  end
+
+  def get_us_phone(home_phone)
+    return '' if home_phone.blank?
+    return home_phone if home_phone.size == 10
+
+    return home_phone[1..-1] if home_phone.size == 11 && home_phone[0] == '1'
+
+    ''
   end
 
   def generate_prefill(mappings)
