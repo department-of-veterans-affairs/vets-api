@@ -20,7 +20,7 @@ RSpec.describe SAML::User do
       'uuid' => ['d09ae45773f4409c943ce85f668a527d'],
       'dslogon_uuid' => ['1016980877'],
       'email' => ['vets.gov.user+kent.wells@gmail.com'],
-      'dslogon_multifactor' => ['true'],
+      'multifactor' => ['true'],
       'level_of_assurance' => [3]
     )
   end
