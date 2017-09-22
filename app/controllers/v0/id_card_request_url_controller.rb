@@ -3,7 +3,7 @@ require 'vic/url_helper'
 require 'vic/id_card_attribute_error'
 
 module V0
-  class IdCardAttributesController < ApplicationController
+  class IdCardRequestUrlController < ApplicationController
     before_action :authorize
 
     def show

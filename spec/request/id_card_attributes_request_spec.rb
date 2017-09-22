@@ -17,11 +17,11 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
     params.each_with_object({}) { |a, h| h[a.first] = a.last }
   end
 
-  describe '#show /v0/id_card_attributes' do
+  describe '#show /v0/id_card/request_url' do
     it 'should return a signed redirect URL' do
       expect_any_instance_of(EMISRedis::MilitaryInformation)
         .to receive(:service_episodes_by_date).at_least(:once).and_return(service_episodes)
-      get '/v0/id_card_attributes', headers: auth_header
+      get '/v0/id_card/request_url', headers: auth_header
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
       url = URI(json['redirect'])
@@ -37,21 +37,21 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
     it 'should return Bad Gateway if military information not retrievable' do
       expect_any_instance_of(EMISRedis::MilitaryInformation)
         .to receive(:service_episodes_by_date).and_raise(StandardError)
-      get '/v0/id_card_attributes', headers: auth_header
+      get '/v0/id_card/request_url', headers: auth_header
       expect(response).to have_http_status(:bad_gateway)
     end
 
     it 'should return Forbidden for non-veteran user' do
       expect_any_instance_of(EMISRedis::VeteranStatus)
         .to receive(:veteran?).and_return(false)
-      get '/v0/id_card_attributes', headers: auth_header
+      get '/v0/id_card/request_url', headers: auth_header
       expect(response).to have_http_status(:forbidden)
     end
 
     it 'should return Forbidden when veteran status not retrievable' do
       expect_any_instance_of(EMISRedis::VeteranStatus)
         .to receive(:veteran?).and_raise(StandardError)
-      get '/v0/id_card_attributes', headers: auth_header
+      get '/v0/id_card/request_url', headers: auth_header
       expect(response).to have_http_status(:forbidden)
     end
   end

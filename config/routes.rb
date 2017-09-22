@@ -25,7 +25,6 @@ Rails.application.routes.draw do
     end
 
     resource :user, only: [:show]
-    resource :id_card_attributes, only: [:show]
     resource :post911_gi_bill_status, only: [:show]
     resource :feedback, only: [:create]
 
@@ -106,6 +105,10 @@ Rails.application.routes.draw do
       end
 
       resources :calculator_constants, only: :index, defaults: { format: :json }
+    end
+
+    scope :id_card do
+      resource :request_url, only: [:show], controller: 'id_card_request_url'
     end
 
     namespace :preneeds do
