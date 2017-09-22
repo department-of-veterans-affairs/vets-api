@@ -83,7 +83,7 @@ GEM
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
     brakeman (3.4.1)
-    breakers (0.2.3)
+    breakers (0.2.4)
       faraday (>= 0.7.4, < 0.10)
       multi_json (~> 1.0)
     builder (3.2.3)
