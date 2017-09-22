@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
-  revision: b4256232b34f8504d5dc65ac1a86b924c1fa8b85
+  revision: e61d942b3ed6af121c89bebf35e95e07c2a9d5a8
   branch: master
   specs:
-    betamocks (0.5.0)
+    betamocks (0.5.1)
       activesupport (>= 4.2, <= 6.0)
       adler32
       faraday (>= 0.7.4, <= 0.12.2)
@@ -233,7 +233,7 @@ GEM
     mimemagic (0.3.2)
     mini_magick (4.7.0)
     mini_portile2 (2.3.0)
-    minitest (5.10.2)
+    minitest (5.10.3)
     multi_json (1.12.2)
     multipart-post (2.0.0)
     nenv (0.3.0)

@@ -51,6 +51,7 @@
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
 
+
 # MVI
 - :base_uri: <%= URI(Settings.mvi.url).host %>
   :endpoints:
@@ -60,3 +61,14 @@
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'root="2.16.840.1.113883.4.1" extension="(\d{9})"'
+
+
+# EMIS
+- :base_uri: <%= URI(Settings.emis.host).host %>
+  :endpoints:
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/VeteranStatusService"
+    :file_path: "emis/veteran_status"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v13:edipiORicnValue>(\d+)<\/v13:edipiORicnValue>'
