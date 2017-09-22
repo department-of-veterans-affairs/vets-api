@@ -34,6 +34,12 @@ describe Breakers::StatsdPlugin do
 
         request.url = URI(test_host + '/foo/25d05eee187a433286bfbed70e10b6b7/')
         expect(subject.get_tags(request)).to include('endpoint:/foo/xxx/')
+
+        request.url = URI(test_host + '/foo/111A2222')
+        expect(subject.get_tags(request)).to include('endpoint:/foo/xxx')
+
+        request.url = URI(test_host + '/foo/-1')
+        expect(subject.get_tags(request)).to include('endpoint:/foo/xxx')
       end
     end
   end

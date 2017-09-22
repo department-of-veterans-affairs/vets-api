@@ -55,6 +55,10 @@ RSpec.describe 'breakers', type: :request do
         expect(response).to eq(400)
       end
 
+      expect do
+        get '/v0/prescriptions'
+      end.to trigger_statsd_increment('api.external_http_request.Rx.skipped', times: 1, value: 1)
+
       response = get '/v0/prescriptions'
       expect(response).to eq(503)
 
