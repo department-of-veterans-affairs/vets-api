@@ -45,7 +45,8 @@ module PdfFill
       PDF_FORMS.fill_form(
         "lib/pdf_fill/forms/pdfs/#{code}.pdf",
         file_path,
-        new_hash
+        new_hash,
+        flatten: true
       )
 
       combine_extras(file_path, hash_converter.extras_generator)

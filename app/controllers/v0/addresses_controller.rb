@@ -16,13 +16,13 @@ module V0
     end
 
     def countries
-      response = service.get_countries(@current_user)
+      response = strategy.cache_or_service(:countries) { service.get_countries(@current_user) }
       render json: response,
              serializer: CountriesSerializer
     end
 
     def states
-      response = service.get_states(@current_user)
+      response = strategy.cache_or_service(:states) { service.get_states(@current_user) }
       render json: response,
              serializer: StatesSerializer
     end
@@ -31,6 +31,10 @@ module V0
 
     def service
       @service ||= EVSS::PCIUAddress::Service.new
+    end
+
+    def strategy
+      @strategy ||= EVSS::PCIUAddress::ResponseStrategy.new
     end
   end
 end

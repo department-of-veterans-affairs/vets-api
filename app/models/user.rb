@@ -5,10 +5,11 @@ require 'mvi/messages/find_profile_message'
 require 'mvi/service'
 require 'evss/common_service'
 require 'evss/auth_headers'
-require 'saml/user_attributes'
+require 'saml/user'
 
 class User < Common::RedisStore
   UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
+  EMIS_PREFILL_EDIPIS = [].freeze
 
   redis_store REDIS_CONFIG['user_store']['namespace']
   redis_ttl REDIS_CONFIG['user_store']['each_ttl']
@@ -25,6 +26,11 @@ class User < Common::RedisStore
   attribute :zip
   attribute :ssn
   attribute :loa
+  # this attribute is set by the User.from_saml method returned only by MHV sign-in users
+  # as part of the sessions#saml_callback user persistence.
+  # it is necessary since "icn" is returned by mvi and hydrated here via delegation.
+  # FIXME: future refactor of making MVI a decorator will allow for cleaning this up a bit.
+  attribute :mhv_icn
 
   # vaafi attributes
   attribute :last_signed_in, Common::UTCTime
@@ -88,6 +94,10 @@ class User < Common::RedisStore
     true
   end
 
+  def can_prefill_emis?
+    EMIS_PREFILL_EDIPIS.include?(edipi)
+  end
+
   def self.from_merged_attrs(existing_user, new_user)
     # we want to always use the more recent attrs so long as they exist
     attrs = new_user.attributes.map do |key, val|
@@ -102,7 +112,8 @@ class User < Common::RedisStore
   end
 
   def self.from_saml(saml_response)
-    User.new(SAML::UserAttributes.new(saml_response))
+    saml_user = SAML::User.new(saml_response)
+    User.new(saml_user)
   end
 
   delegate :edipi, to: :mvi
@@ -133,13 +144,20 @@ class User < Common::RedisStore
     mvi.cache(uuid, mvi.mvi_response)
   end
 
+  %w(veteran_status military_information payment).each do |emis_method|
+    define_method(emis_method) do
+      emis_model = instance_variable_get(:"@#{emis_method}")
+      return emis_model if emis_model.present?
+
+      emis_model = "EMISRedis::#{emis_method.camelize}".constantize.for_user(self)
+      instance_variable_set(:"@#{emis_method}", emis_model)
+      emis_model
+    end
+  end
+
   private
 
   def mvi
     @mvi ||= Mvi.for_user(self)
-  end
-
-  def veteran_status
-    @veteran_status ||= VeteranStatus.for_user(self)
   end
 end
