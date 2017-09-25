@@ -17,7 +17,12 @@ module EVSS
       end
 
       def find_claim_by_id(claim_id)
-        post 'vbaClaimStatusService/getClaimDetailById', { id: claim_id }.to_json
+        perform(
+          :post,
+          'vbaClaimStatusService/getClaimDetailById',
+          { id: claim_id }.to_json,
+          headers_for_user(@current_user)
+        )
       end
 
       def request_decision(claim_id)

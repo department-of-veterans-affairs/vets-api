@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'evss/claims_service'
 require 'evss/documents_service'
 require 'evss/auth_headers'
 
@@ -60,7 +59,7 @@ class EVSSClaimService
   private
 
   def client
-    @client ||= EVSS::ClaimsService.new(auth_headers)
+    @client ||= EVSS::Claims::Service.new(@user)
   end
 
   def auth_headers

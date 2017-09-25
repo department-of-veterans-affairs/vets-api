@@ -2,7 +2,6 @@
 require 'rails_helper'
 
 require 'evss/document_upload'
-require 'evss/claims_service'
 require 'evss/auth_headers'
 
 RSpec.describe EVSS::DocumentUpload, type: :job do

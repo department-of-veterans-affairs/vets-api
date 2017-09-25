@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'evss/claims_service'
 require 'evss/auth_headers'
 
 describe EVSS::ErrorMiddleware do

@@ -2,7 +2,6 @@
 require 'rails_helper'
 
 require 'evss/request_decision'
-require 'evss/claims_service'
 require 'evss/auth_headers'
 
 RSpec.describe EVSS::RequestDecision, type: :job do
