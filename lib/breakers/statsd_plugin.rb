@@ -9,8 +9,8 @@ module Breakers
           # this nasty-looking regex attempts to cover:
           # * (possibly negative) digit identifiers
           # * uuid's with or without dashes
-          # * institution id's of form 111A2222
-          r = %r{(\/)(\-?\d+|[a-fA-F0-9]{8}(\-?[a-fA-F0-9]{4}){3}\-?[a-fA-F0-9]{12}|\d{3}[A-Z]\d{4})(\/|$)}
+          # * institution id's of form 111A2222 or 11A22222
+          r = %r{(\/)(\-?\d+|[a-fA-F0-9]{8}(\-?[a-fA-F0-9]{4}){3}\-?[a-fA-F0-9]{12}|[\dA-Z]{8})(\/|$)}
           endpoint = request.url.path.gsub(r, '\1xxx\4')
           tags.append("endpoint:#{endpoint}")
         end
