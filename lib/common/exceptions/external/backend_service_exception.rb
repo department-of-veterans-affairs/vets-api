@@ -6,20 +6,22 @@ module Common
     # you must define the minor code in the locales file and call this class from
     # raise_error middleware.
     class BackendServiceException < BaseError
-      attr_reader :response_values, :original_status, :original_body
+      attr_reader :service_response
 
-      def initialize(key = nil, response_values = {}, original_status = nil, original_body = nil)
-        @response_values = response_values
+      def initialize(key = nil, service_response = {})
         @key = key || 'VA900'
-        @original_status = original_status
-        @original_body = original_body
+        @service_response = service_response
         validate_arguments!
+      end
+
+      def trigger_breakers?
+        (500..599).cover?(original_status || status)
       end
 
       # The message will be the actual backend service response from middleware,
       # not the I18n version.
       def message
-        "BackendServiceException: #{response_values.merge(code: code)}"
+        "BackendServiceException: #{code} - #{detail || service_response[:detail]}"
       end
 
       def errors
@@ -40,12 +42,24 @@ module Common
       def va900_hint
         <<-MESSAGE.strip_heredoc
           Add the following to exceptions.en.yml
-          #{response_values[:code]}:
-            code: '#{response_values[:code]}'
-            detail: '#{response_values[:detail]}'
+          #{service_response[:code]}:
+            code: '#{service_response[:code]}'
+            detail: '#{service_response[:detail]}'
             status: <http status code you want rendered (400, 422, etc)>
             source: ~
         MESSAGE
+      end
+
+      def original_body
+        service_response[:body] || service_response[:original_body]
+      end
+
+      def original_status
+        service_response[:status] || service_response[:original_status]
+      end
+
+      def original_header
+        service_response[:header] || service_response[:original_header]
       end
 
       private
@@ -65,25 +79,20 @@ module Common
       end
 
       # REQUIRED - This is the http status code.
-      # unless you've specified that you want the status code to be something other
-      # then 400 explicitly it will default to 400. IT WILL NOT DEFAULT to whatever
-      # was provided by the backend service, because the backend service response
-      # might not always be relevant
       def status
-        i18n_data[:status].presence || 400
+        i18n_data[:status] || 400
       end
 
       # OPTIONAL - This is the detail or message that is rendered in JSON response
       # Not providing detail will render a detail the same as title, 'Operation failed'
-      # NOTE: in the future, detail will only work via i18n, not the value from response_values
       def detail
-        i18n_data[:detail].presence || response_values[:detail]
+        i18n_data[:detail] || service_response[:detail]
       end
 
       # OPTIONAL - This should usually be a developer message of some sort from the backend service
       # if one is not provided by the backend this can be nil and the key will not be rendered
       def source
-        response_values[:source]
+        service_response[:source]
       end
 
       def validate_arguments!

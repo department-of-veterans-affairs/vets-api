@@ -109,27 +109,30 @@ en:
         <<: *defaults
         title: Gateway timeout
         detail: "Did not receive a timely response from an upstream server"
-        code: 504
+        code: 504 # Consider making this 'VA1004' after determining potential f/e ramifications
         status: 504
-      account_creation_error:
-        <<: *defaults
-        title: Operation failed
-        detail: "Failed to create or upgrade health tools account access"
-        code: "MHVAC1"
-        status: 403
-
 # EXTERNAL EXCEPTIONS
-    # This is a Generic Error corresponding to backend services
+      # backend_service_exception is the most generic subclass, to be used with its own minor code mapping
       backend_service_exception: &external_defaults
         <<: *defaults
-        title: 'Operation failed' # To be used when no external minor code is mappable
+        title: 'Operation failed'
         code: 'VA900'
         status: 400
-    # All error codes below this line, use the same exception class bad_request
-    # need to be mapped properly using specific codes described below
-    # Below this line just define the minor code as key to be used by client error
-      VA900:
+    # All error codes below this line, use the same exception class backend_service_exception
+    # Below this line just define the minor code as key to be used by backend_service_exception
+      VA900: # To be used when no external minor code is mappable
         <<: *external_defaults
+      VA1000: # To be used when it is a 500, 502 or other FATAL error
+        <<: *external_defaults
+        title: 'Bad gateway'
+        detail: 'The server was acting as a gateway or proxy and received an invalid response from the upstream server.'
+        code: 'VA1002'
+        status: 502
+      VA1003:
+        <<: *external_defaults
+        title: 'Service temporarily unavailable'
+        code: 'VA1003'
+        status: 503
       SM105: # What casues this? Perhaps then we can come up with more customized detail below
         <<: *external_defaults
         code: 'SM105'
@@ -219,6 +222,12 @@ en:
         code: 'MHVAC155'
         detail: 'Account is already upgraded'
         status: 422
+      MHVACCTCREATION900: # This is raised in mhv_controller_concerns to properly bubble to application_controller
+        <<: *external_defaults
+        title: Operation failed
+        detail: "Failed to create or upgrade health tools account access"
+        code: "MHVAC1"
+        status: 403
       APPEALSSTATUS404:
         <<: *external_defaults
         title: 'Appeals data not found'
