@@ -19,10 +19,12 @@ betamocks:
 
 3. Copy over the example services config YAML file 
 ```bash
-cp config/services_config.yml.example config/services_config.yml
+cp config/betamocks/services_config.yml.example config/betamocks/services_config.yml
 ```
 
-
+You can now login with one of the [test users](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/MVI%20Integration/reference_documents/mvi_users_s1a.csv) 
+without being connect to the VA VPN. By default all users have been mocked for MVI but 
+only M. Webb (vets.gov.user+228@gmail.com) will work for the other services unless their mock data has been added.
 
 ## Mocking a Service
 1. Add the Betamocks middleware to the service to be mocked. It should
