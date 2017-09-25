@@ -134,11 +134,11 @@ Rails.application.routes.draw do
     get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
 
-    %w(
-      health_account
-      appeals_status
-      emis_prefill
-    ).each do |feature|
+    [
+      'health_account',
+      'appeals_status',
+      FormProfile::EMIS_PREFILL_KEY
+    ].each do |feature|
       resource(
         :beta_registrations,
         path: "/beta_registration/#{feature}",
