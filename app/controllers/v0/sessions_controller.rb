@@ -86,14 +86,11 @@ module V0
 
         obscure_token = Session.obscure_token(@session.token)
         Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
-        Benchmark::Timer.stop(BENCHMARK_LOGIN, @saml_response.in_response_to, tags: [
-          'status:successful', "loa:#{@current_user.loa[:current]}", "context:#{@current_user&.authn_context}",
-          "multifactor:#{@current_user.multifactor}"
-        ])
+        Benchmark::Timer.stop(BENCHMARK_LOGIN, @saml_response.in_response_to, tags: benchmark_tags)
       else
         handle_login_error
         redirect_to Settings.saml.relay + '?auth=fail'
-        Benchmark::Timer.stop(BENCHMARK_LOGIN, @saml_response.in_response_to, tags: ['status:failure'])
+        Benchmark::Timer.stop(BENCHMARK_LOGIN, @saml_response.in_response_to, tags: benchmark_tags(false))
       end
     ensure
       StatsD.increment(STATSD_LOGIN_TOTAL_KEY)
@@ -143,7 +140,7 @@ module V0
         extra_context = { in_response_to: logout_response&.in_response_to }
         log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
         redirect_to Settings.saml.logout_relay + '?success=false'
-        Benchmark::Timer.stop(BENCHMARK_LOGOUT, logout_response&.in_response_to, tags: ['failure'])
+        Benchmark::Timer.stop(BENCHMARK_LOGOUT, logout_response&.in_response_to, tags: ['status:failure'])
       else
         logout_request.destroy
         session.destroy
@@ -151,7 +148,7 @@ module V0
         redirect_to Settings.saml.logout_relay + '?success=true'
         # even if mhv logout raises exception, still consider logout successful from browser POV
         MHVLoggingService.logout(user)
-        Benchmark::Timer.stop(BENCHMARK_LOGOUT, logout_response.in_response_to, tags: ['successful'])
+        Benchmark::Timer.stop(BENCHMARK_LOGOUT, logout_response.in_response_to, tags: ['status:successful'])
       end
     end
 
@@ -178,6 +175,16 @@ module V0
       connect_param = "&connect=#{connect}"
       link = saml_auth_request.create(saml_settings, saml_options)
       connect.present? ? link + connect_param : link
+    end
+
+    def benchmark_tags(success = true)
+      return ['status:failure'] unless success
+      [
+        'status:successful',
+        "loa:#{@current_user.loa[:current]}",
+        "context:#{@current_user&.authn_context}",
+        "multifactor:#{@current_user.multifactor}"
+      ]
     end
   end
 end
