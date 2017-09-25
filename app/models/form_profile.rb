@@ -59,6 +59,8 @@ end
 class FormProfile
   include SentryLogging
 
+  EMIS_PREFILL_KEY = 'emis_prefill'
+
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
   FORM_ID_TO_CLASS = {
