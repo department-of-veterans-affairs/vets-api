@@ -6,7 +6,8 @@ module V0
     skip_before_action :authenticate, only: [:new, :saml_callback, :saml_logout_callback]
 
     STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'
-    STATSD_LOGIN_TOTAL_KEY  = 'api.auth.login_callback.total'
+    STATSD_LOGIN_TOTAL_KEY = 'api.auth.login_callback.total'
+    STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
 
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
@@ -56,6 +57,8 @@ module V0
 
       @session = Session.new(uuid: saml_user.uuid)
       @current_user = User.find(@session.uuid)
+
+      StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @current_user.nil?
 
       @current_user = @current_user.nil? ? saml_user : User.from_merged_attrs(@current_user, saml_user)
       @session.save && @current_user.save
