@@ -1,7 +1,15 @@
 # Betamocks 
 
 ## Setup
-1. _If using Docker skip this step_. Add and enable the Betamocks settings in your settings.local.yml file:
+1. `cd` to parent directory of `vets-api` and clone `vets-api-mockdata`, 
+e.g. if you checked out `vets-api` to `~/Documents` then:
+```bash
+cd ~/Documents
+git clone git@github.com:department-of-veterans-affairs/vets-api-mockdata.git
+```
+
+2. _If using Docker skip to step #3_. Add and enable the Betamocks settings in your settings.local.yml file,
+and change `cache_dir` to path of `vets-api-mockdata`.
 ```yaml
 betamocks:
   enabled: true
@@ -9,10 +17,12 @@ betamocks:
   services_config: config/betamocks/services_config.yml
 ```
 
-2. Copy over the example services config YAML file 
+3. Copy over the example services config YAML file 
 ```bash
 cp config/services_config.yml.example config/services_config.yml
 ```
+
+
 
 ## Mocking a Service
 1. Add the Betamocks middleware to the service to be mocked. It should
@@ -54,8 +64,8 @@ without hitting the real service. If a cache file does not exist one will be rec
 all subsequent requests will use the cache (feel free to turn off your VA VPNs).
 
 ## Mocking error responses
-To make an endpoint return a non 200 response add an error key to the endpoint hash
-with an optional body. Restart rails after updating the service config:
+You can record an error response or edit one manually to return an error status, or you can turn errors on and off
+by adding an error key to the config with an optional body. Restart rails after updating the service config:
 ```yaml
 - :method: :get
   :path: "/wss-pciu-services-web/rest/pciuServices/v1/states"
