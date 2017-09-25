@@ -12,9 +12,22 @@ RSpec.describe 'Beta Registration Endpoint', type: :request do
     Session.create(uuid: user.uuid, token: token)
     User.create(user)
   end
+
+  include BetaSwitch
+
+  def assert_beta_enabled(feature, enabled)
+    expect(beta_enabled?(user.uuid, feature)).to eq(enabled)
+  end
+
   it 'returns 404 for unregistered user' do
     get '/v0/beta_registration/health_account', nil, auth_header
     expect(response).to have_http_status(:not_found)
+  end
+
+  it 'accepts register request for emis_prefill' do
+    assert_beta_enabled('emis_prefill', false)
+    post '/v0/beta_registration/emis_prefill', nil, auth_header
+    assert_beta_enabled('emis_prefill', true)
   end
 
   it 'accepts register request' do
