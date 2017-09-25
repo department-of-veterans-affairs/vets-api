@@ -8,15 +8,20 @@ module V0
     STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
+    TIMER_LOGIN_KEY = 'api.auth.login'
+    TIMER_LOGOUT_KEY = 'api.auth.logout'
 
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
+      Benchmark::Timer.start(TIMER_LOGIN_KEY, saml_auth_request.uuid)
       render json: { authenticate_via_get: saml_auth_request.create(saml_settings, saml_options) }
     end
 
     def destroy
       logout_request = OneLogin::RubySaml::Logoutrequest.new
       logger.info "New SP SLO for userid '#{@session.uuid}'"
+
+      Benchmark::Timer.start(TIMER_LOGOUT_KEY, logout_request.uuid)
 
       # cache the request for @session.token lookup when we receive the response
       SingleLogoutRequest.create(uuid: logout_request.uuid, token: @session.token)
@@ -42,9 +47,11 @@ module V0
 
         obscure_token = Session.obscure_token(@session.token)
         Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
+        Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: ['status:success'])
       else
         handle_login_error
         redirect_to Settings.saml.relay + '?auth=fail'
+        Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: ['status:fail'])
       end
     ensure
       StatsD.increment(STATSD_LOGIN_TOTAL_KEY)
@@ -92,6 +99,7 @@ module V0
         extra_context = { in_response_to: logout_response&.in_response_to }
         log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
         redirect_to Settings.saml.logout_relay + '?success=false'
+        Benchmark::Timer.stop(TIMER_LOGOUT_KEY, logout_response&.in_response_to, tags: ['status:fail'])
       else
         logout_request.destroy
         session.destroy
@@ -99,6 +107,7 @@ module V0
         redirect_to Settings.saml.logout_relay + '?success=true'
         # even if mhv logout raises exception, still consider logout successful from browser POV
         MHVLoggingService.logout(user)
+        Benchmark::Timer.stop(TIMER_LOGOUT_KEY, logout_response.in_response_to, tags: ['status:success'])
       end
     end
 
