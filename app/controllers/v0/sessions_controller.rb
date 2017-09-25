@@ -6,12 +6,16 @@ module V0
     skip_before_action :authenticate, only: [:new, :authn_urls, :saml_callback, :saml_logout_callback]
 
     STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'
-    STATSD_LOGIN_TOTAL_KEY  = 'api.auth.login_callback.total'
+    STATSD_LOGIN_TOTAL_KEY = 'api.auth.login_callback.total'
+    STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
+    BENCHMARK_LOGIN = 'api.auth.login'
+    BENCHMARK_LOGOUT = 'api.auth.logout'
 
     # Collection Action: this method will eventually be replaced by auth_urls
     # DEPRECATED: This action is only here for backward compatibility and will be removed.
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
+      Benchmark::Timer.start(BENCHMARK_LOGIN, saml_auth_request.uuid)
       authn_context = LOA::MAPPING.invert[params[:level]&.to_i] || LOA::MAPPING.invert[1]
       saml_settings = saml_settings(authn_context: authn_context)
       render json: { authenticate_via_get: saml_auth_request.create(saml_settings, saml_options) }
@@ -55,6 +59,8 @@ module V0
       logout_request = OneLogin::RubySaml::Logoutrequest.new
       logger.info "New SP SLO for userid '#{@session.uuid}'"
 
+      Benchmark::Timer.start(BENCHMARK_LOGOUT, logout_request.uuid)
+
       saml_settings = saml_settings(name_identifier_value: @session&.uuid)
       # cache the request for @session.token lookup when we receive the response
       SingleLogoutRequest.create(uuid: logout_request.uuid, token: @session.token)
@@ -80,9 +86,14 @@ module V0
 
         obscure_token = Session.obscure_token(@session.token)
         Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
+        Benchmark::Timer.stop(BENCHMARK_LOGIN, @saml_response.in_response_to, tags: [
+                                'status:successful', "loa:#{@current_user.loa[:current]}", "context:#{@current_user&.authn_context}",
+                                "multifactor:#{@current_user.multifactor}"
+                              ])
       else
         handle_login_error
         redirect_to Settings.saml.relay + '?auth=fail'
+        Benchmark::Timer.stop(BENCHMARK_LOGIN, @saml_response.in_response_to, tags: ['status:failure'])
       end
     ensure
       StatsD.increment(STATSD_LOGIN_TOTAL_KEY)
@@ -96,6 +107,8 @@ module V0
       # we are using an heuristic on saml_response to set the authn_context
       @session = Session.new(uuid: user.uuid)
       @current_user = User.find(@session.uuid)
+
+      StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @current_user.nil?
 
       @current_user = @current_user.nil? ? user : User.from_merged_attrs(@current_user, user)
       @session.save && @current_user.save
@@ -130,6 +143,7 @@ module V0
         extra_context = { in_response_to: logout_response&.in_response_to }
         log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
         redirect_to Settings.saml.logout_relay + '?success=false'
+        Benchmark::Timer.stop(BENCHMARK_LOGOUT, logout_response&.in_response_to, tags: ['failure'])
       else
         logout_request.destroy
         session.destroy
@@ -137,6 +151,7 @@ module V0
         redirect_to Settings.saml.logout_relay + '?success=true'
         # even if mhv logout raises exception, still consider logout successful from browser POV
         MHVLoggingService.logout(user)
+        Benchmark::Timer.stop(BENCHMARK_LOGOUT, logout_response.in_response_to, tags: ['successful'])
       end
     end
 
@@ -159,6 +174,7 @@ module V0
     def build_url(authn_context: LOA::MAPPING.invert[1], connect: nil)
       saml_settings = saml_settings(authn_context: authn_context, name_identifier_value: @session&.uuid)
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
+      Benchmark::Timer.start(BENCHMARK_LOGIN, saml_auth_request.uuid)
       connect_param = "&connect=#{connect}"
       link = saml_auth_request.create(saml_settings, saml_options)
       connect.present? ? link + connect_param : link
