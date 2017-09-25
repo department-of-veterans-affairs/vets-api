@@ -17,8 +17,6 @@ require 'mvi/configuration'
 require 'preneeds/configuration'
 require 'rx/configuration'
 require 'sm/configuration'
-
-require 'evss/claims_service'
 require 'evss/common_service'
 require 'evss/documents_service'
 require 'evss/letters/service'
