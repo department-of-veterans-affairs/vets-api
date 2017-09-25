@@ -5,7 +5,6 @@ require 'bb/configuration'
 require 'emis/military_information_configuration'
 require 'emis/payment_configuration'
 require 'emis/veteran_status_configuration'
-require 'evss/claims_service'
 require 'evss/common_service'
 require 'evss/documents_service'
 require 'evss/letters/service'
@@ -29,6 +28,7 @@ redis_config = Rails.application.config_for(:redis).freeze
 redis = Redis.new(redis_config['redis'])
 redis_namespace = Redis::Namespace.new('breakers', redis: redis)
 
+# TODO evss breakers
 services = [
   AppealsStatus::Configuration.instance.breakers_service,
   Rx::Configuration.instance.breakers_service,
@@ -37,7 +37,6 @@ services = [
   EMIS::MilitaryInformationConfiguration.instance.breakers_service,
   EMIS::PaymentConfiguration.instance.breakers_service,
   EMIS::VeteranStatusConfiguration.instance.breakers_service,
-  EVSS::ClaimsService.breakers_service,
   EVSS::CommonService.breakers_service,
   EVSS::DocumentsService.breakers_service,
   EVSS::Letters::Configuration.instance.breakers_service,
