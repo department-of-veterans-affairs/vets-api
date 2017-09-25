@@ -131,10 +131,18 @@ Rails.application.routes.draw do
     get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
 
-    resource :beta_registrations, path: '/beta_registration/health_account', only: [:show, :create],
-                                  defaults: { feature: 'health_account' }
-    resource :beta_registrations, path: '/beta_registration/appeals_status', only: [:show, :create],
-                                  defaults: { feature: 'appeals_status' }
+    [
+      'health_account',
+      'appeals_status',
+      FormProfile::EMIS_PREFILL_KEY
+    ].each do |feature|
+      resource(
+        :beta_registrations,
+        path: "/beta_registration/#{feature}",
+        only: [:show, :create],
+        defaults: { feature: feature }
+      )
+    end
   end
 
   root 'v0/example#index', module: 'v0'
