@@ -35,8 +35,7 @@ RSpec.describe User, type: :model do
     let(:user) { build(:loa3_user) }
 
     before do
-      stub_const('User::EMIS_PREFILL_EDIPIS', [1])
-      expect(user).to receive(:edipi).and_return(1)
+      expect(user).to receive('beta_enabled?').with(user.uuid, 'emis_prefill').and_return(true)
     end
 
     it 'should return true if the user has the right epipi' do
