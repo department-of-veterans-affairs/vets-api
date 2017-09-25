@@ -86,12 +86,13 @@ module V0
         obscure_token = Session.obscure_token(@session.token)
         Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
         Benchmark::Timer.stop(BENCHMARK_LOGIN, @saml_response.in_response_to, tags: [
-          'successful', "LOA:#{@current_user.loa[:current]}", @current_user&.authn_context || 'idme'
-        ] + (@current_user.multifactor ? ['multifactor'] : []))
+          'status:successful', "loa:#{@current_user.loa[:current]}", "context:#{@current_user&.authn_context}",
+          "multifactor:#{@current_user.multifactor}"
+        ])
       else
         handle_login_error
         redirect_to Settings.saml.relay + '?auth=fail'
-        Benchmark::Timer.stop(BENCHMARK_LOGIN, @saml_response.in_response_to, tags: ['failure'])
+        Benchmark::Timer.stop(BENCHMARK_LOGIN, @saml_response.in_response_to, tags: ['status:failure'])
       end
     ensure
       StatsD.increment(STATSD_LOGIN_TOTAL_KEY)
