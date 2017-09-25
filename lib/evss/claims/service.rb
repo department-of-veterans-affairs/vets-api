@@ -4,7 +4,7 @@ require 'evss/base_service'
 module EVSS
   module Claims
     class Service < EVSS::Service
-      configuration Configuration
+      configuration EVSS::Claims::Configuration
 
       def all_claims(user)
         perform(:get, 'vbaClaimStatusService/getClaims', nil, headers_for_user(user))

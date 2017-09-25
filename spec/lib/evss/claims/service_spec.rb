@@ -7,7 +7,7 @@ describe EVSS::Claims::Service do
     EVSS::AuthHeaders.new(current_user).to_h
   end
 
-  let(:claims_service) { described_class.new(auth_headers) }
+  let(:claims_service) { described_class.new }
 
   subject { claims_service }
 
@@ -16,7 +16,7 @@ describe EVSS::Claims::Service do
 
     it 'should get claims' do
       VCR.use_cassette('evss/claims/claims') do
-        response = subject.all_claims
+        response = subject.all_claims(current_user)
         expect(response).to be_success
       end
     end
