@@ -21,6 +21,8 @@ module V0
     private
 
     def authorize
+      # TODO: Clean up this method, particularly around need to blanket rescue from
+      # VeteranStatus method
       raise Common::Exceptions::Forbidden, detail: 'You do not have access to ID card attributes' unless
         current_user.loa3?
       raise VIC::IDCardAttributeError, status: 403, code: 'VIC002', detail: 'Unable to verify EDIPI' unless
