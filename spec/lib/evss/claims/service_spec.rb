@@ -3,11 +3,7 @@ require 'rails_helper'
 
 describe EVSS::Claims::Service do
   let(:current_user) { FactoryGirl.create(:loa3_user) }
-  let(:auth_headers) do
-    EVSS::AuthHeaders.new(current_user).to_h
-  end
-
-  let(:claims_service) { described_class.new }
+  let(:claims_service) { described_class.new(current_user) }
 
   subject { claims_service }
 
@@ -16,7 +12,7 @@ describe EVSS::Claims::Service do
 
     it 'should get claims' do
       VCR.use_cassette('evss/claims/claims') do
-        response = subject.all_claims(current_user)
+        response = subject.all_claims
         expect(response).to be_success
       end
     end

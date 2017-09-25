@@ -6,8 +6,12 @@ module EVSS
     class Service < EVSS::Service
       configuration EVSS::Claims::Configuration
 
-      def all_claims(user)
-        perform(:get, 'vbaClaimStatusService/getClaims', nil, headers_for_user(user))
+      def initialize(current_user)
+        @current_user = current_user
+      end
+
+      def all_claims
+        perform(:get, 'vbaClaimStatusService/getClaims', nil, headers_for_user(@current_user))
       end
 
       def find_claim_by_id(claim_id)
