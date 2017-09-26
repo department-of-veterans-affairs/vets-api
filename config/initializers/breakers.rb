@@ -17,9 +17,6 @@ require 'mvi/configuration'
 require 'preneeds/configuration'
 require 'rx/configuration'
 require 'sm/configuration'
-require 'evss/common_service'
-require 'evss/documents_service'
-require 'evss/letters/service'
 
 # Read the redis config, create a connection and a namespace for breakers
 redis_config = Rails.application.config_for(:redis).freeze
