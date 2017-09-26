@@ -3,7 +3,7 @@ require 'rails_helper'
 
 RSpec.describe EVSSClaimService do
   let(:user) { FactoryGirl.create(:loa3_user) }
-  let(:client_stub) { instance_double('EVSS::ClaimsService') }
+  let(:client_stub) { instance_double('EVSS::Claims::Service') }
   let(:claim_service) { described_class.new(user) }
   subject { claim_service }
 
