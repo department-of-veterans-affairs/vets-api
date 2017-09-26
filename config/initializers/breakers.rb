@@ -23,7 +23,6 @@ redis_config = Rails.application.config_for(:redis).freeze
 redis = Redis.new(redis_config['redis'])
 redis_namespace = Redis::Namespace.new('breakers', redis: redis)
 
-# TODO evss breakers
 services = [
   AppealsStatus::Configuration.instance.breakers_service,
   Rx::Configuration.instance.breakers_service,
