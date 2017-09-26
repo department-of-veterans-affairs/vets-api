@@ -62,7 +62,7 @@ RSpec.describe EVSSClaimService do
 
   context 'when EVSS client has an outage' do
     before do
-      EVSS::ClaimsService.breakers_service.begin_forced_outage!
+      EVSS::Claims::Configuration.instance.breakers_service.begin_forced_outage!
     end
 
     def self.test_log_error
