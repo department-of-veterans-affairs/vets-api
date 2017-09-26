@@ -16,7 +16,7 @@ module V0
       'multifactor' => 'multifactor',
       'dslogon_multifactor' => 'dslogon_multifactor',
       'mhv_multifactor' => 'mhv_multifactor'
-    }
+    }.freeze
 
     # Collection Action: this method will eventually be replaced by auth_urls
     # DEPRECATED: This action is only here for backward compatibility and will be removed.
