@@ -3,7 +3,7 @@ require 'saml/auth_fail_handler'
 
 module V0
   class SessionsController < ApplicationController
-    skip_before_action :authenticate, only: [:new, :saml_callback, :saml_logout_callback]
+    skip_before_action :authenticate, only: [:new, :authn_urls, :saml_callback, :saml_logout_callback]
 
     STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_TOTAL_KEY = 'api.auth.login_callback.total'
@@ -11,10 +11,50 @@ module V0
     TIMER_LOGIN_KEY = 'api.auth.login'
     TIMER_LOGOUT_KEY = 'api.auth.logout'
 
+    # Collection Action: this method will eventually be replaced by auth_urls
+    # DEPRECATED: This action is only here for backward compatibility and will be removed.
     def new
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
+
       Benchmark::Timer.start(TIMER_LOGIN_KEY, saml_auth_request.uuid)
+
+      authn_context = LOA::MAPPING.invert[params[:level]&.to_i] || LOA::MAPPING.invert[1]
+      saml_settings = saml_settings(authn_context: authn_context)
       render json: { authenticate_via_get: saml_auth_request.create(saml_settings, saml_options) }
+    end
+
+    # Collection Action: method will eventually replace new
+    # Returns the sign-in urls for mhv, dslogon, and ID.me (LOA1 only)
+    # authn_context is the policy, connect represents the ID.me flow
+    # no auth required
+    def authn_urls
+      render json: {
+        mhv: build_url(authn_context: 'mhv', connect: 'mhv'),
+        dslogon: build_url(authn_context: 'dslogon', connect: 'dslogon'),
+        idme: build_url
+      }
+    end
+
+    # Member Action: method is to opt in to MFA for those users who opted out
+    # authn_context is the policy, connect represents the ID.me flow
+    # auth token required
+    def multifactor
+      policy = @current_user&.authn_context
+      authn_context = policy.present? ? "#{policy}_multifactor" : 'multifactor'
+      render json: { multifactor_url: build_url(authn_context: authn_context, connect: policy) }
+    end
+
+    # Member Action: method is to verify LOA3 if existing ID.me LOA3, or
+    #  go through the FICAM identity proofing flow if not an ID.me LOA3 or NON PREMIUM DSLogon or MHV.
+    # NOTE: This is FICAM LOA3 we're talking about here. It is not necessary to verify DSLogon or MHV
+    #  sign-in users who return LOA3 from the auth_url flow (only for leveling up NON PREMIUM).
+    # authn_context is the policy, connect represents the ID.me flow
+    # auth token required
+    def identity_proof
+      connect = @current_user&.authn_context
+      render json: {
+        identity_proof_url: build_url(authn_context: LOA::MAPPING.invert[3], connect: connect)
+      }
     end
 
     def destroy
@@ -23,6 +63,7 @@ module V0
 
       Benchmark::Timer.start(TIMER_LOGOUT_KEY, logout_request.uuid)
 
+      saml_settings = saml_settings(name_identifier_value: @session&.uuid)
       # cache the request for @session.token lookup when we receive the response
       SingleLogoutRequest.create(uuid: logout_request.uuid, token: @session.token)
 
@@ -60,14 +101,15 @@ module V0
     private
 
     def persist_session_and_user
-      saml_user = User.from_saml(@saml_response)
+      user = User.from_saml(@saml_response)
 
-      @session = Session.new(uuid: saml_user.uuid)
+      # we are using an heuristic on saml_response to set the authn_context
+      @session = Session.new(uuid: user.uuid)
       @current_user = User.find(@session.uuid)
 
       StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @current_user.nil?
 
-      @current_user = @current_user.nil? ? saml_user : User.from_merged_attrs(@current_user, saml_user)
+      @current_user = @current_user.nil? ? user : User.from_merged_attrs(@current_user, user)
       @session.save && @current_user.save
     end
 
@@ -88,6 +130,7 @@ module V0
     end
 
     def handle_completed_slo
+      saml_settings = saml_settings(name_identifier_value: @session&.uuid)
       logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings, get_params: params)
       logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
       session         = Session.find(logout_request&.token)
@@ -123,6 +166,16 @@ module V0
 
     def saml_options
       Settings.review_instance_slug.blank? ? {} : { RelayState: Settings.review_instance_slug }
+    end
+
+    # Builds the urls to trigger varios sign-in, mfa, or verify flows in idme.
+    # nil authn_context and nil connect will always default to idme level 1
+    def build_url(authn_context: LOA::MAPPING.invert[1], connect: nil)
+      saml_settings = saml_settings(authn_context: authn_context, name_identifier_value: @session&.uuid)
+      saml_auth_request = OneLogin::RubySaml::Authrequest.new
+      connect_param = "&connect=#{connect}"
+      link = saml_auth_request.create(saml_settings, saml_options)
+      connect.present? ? link + connect_param : link
     end
   end
 end
