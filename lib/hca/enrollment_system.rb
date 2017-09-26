@@ -233,7 +233,7 @@ module HCA
 
       [
         %w(educationExpense 3),
-        %w(childEducationExpenses 16),
+        %w(dependentEducationExpenses 16),
         %w(funeralExpense 19),
         %w(medicalExpense 18)
       ].each do |expense_type|
@@ -258,37 +258,55 @@ module HCA
       DEPENDENT_RELATIONSHIP_CODES[dependent_relationship]
     end
 
-    def child_to_dependent_info(child)
+    def dependent_info(dependent)
       {
-        'dob' => Validations.date_of_birth(child['childDateOfBirth']),
-        'relationship' => dependent_relationship_to_sds_code(child['childRelation']),
+        'dob' => Validations.date_of_birth(dependent['dateOfBirth']),
+        'relationship' => dependent_relationship_to_sds_code(dependent['dependentRelation']),
         'ssns' => {
-          'ssn' => ssn_to_ssntext(child['childSocialSecurityNumber'])
+          'ssn' => ssn_to_ssntext(dependent['socialSecurityNumber'])
         },
-        'startDate' => Validations.date_of_birth(child['childBecameDependent'])
-      }.merge(convert_full_name_alt(child['childFullName']))
+        'startDate' => Validations.date_of_birth(dependent['becameDependent'])
+      }.merge(convert_full_name_alt(dependent['fullName']))
     end
 
-    def child_to_dependent_financials_info(child)
+    def dependent_financials_info(dependent)
       {
-        'incomes' => resource_to_income_collection(child),
-        'expenses' => resource_to_expense_collection(child),
-        'dependentInfo' => child_to_dependent_info(child),
-        'livedWithPatient' => child['childCohabitedLastYear'].present?,
-        'incapableOfSelfSupport' => child['childDisabledBefore18'].present?,
-        'attendedSchool' => child['childAttendedSchoolLastYear'].present?,
-        'contributedToSupport' => child['childReceivedSupportLastYear'].present?
+        'incomes' => resource_to_income_collection(dependent),
+        'expenses' => resource_to_expense_collection(dependent),
+        'dependentInfo' => dependent_info(dependent),
+        'livedWithPatient' => dependent['cohabitatedLastYear'].present?,
+        'incapableOfSelfSupport' => dependent['disabledBefore18'].present?,
+        'attendedSchool' => dependent['attendedSchoolLastYear'].present?,
+        'contributedToSupport' => dependent['receivedSupportLastYear'].present?
+      }
+    end
+
+    def migrate_child_to_dependent(child)
+      {
+        'fullName' => child['childFullName'],
+        'dependentRelation' => child['childRelation'],
+        'socialSecurityNumber' => child['childSocialSecurityNumber'],
+        'becameDependent' => child['childBecameDependent'],
+        'dateOfBirth' => child['childDateOfBirth'],
+        'disabledBefore18' => child['childDisabledBefore18'],
+        'attendedSchoolLastYear' => child['childAttendedSchoolLastYear'],
+        'dependentEducationExpenses' => child['childEducationExpenses'],
+        'cohabitedLastYear' => child['childCohabitedLastYear'],
+        'receivedSupportLastYear' => child['childRecievedSupportLastYear'],
+        'grossIncome' => child['grossIncome'],
+        'netIncome' => child['netIncome'],
+        'otherIncome' => child['otherIncome']
       }
     end
 
     def veteran_to_dependent_financials_collection(veteran)
-      children = veteran['children']
+      dependents = veteran['dependents'] || veteran['children']&.map do |child|
+        migrate_child_to_dependent(child)
+      end
 
-      if children.present?
+      if dependents.present?
         {
-          'dependentFinancials' => children.map do |child|
-            child_to_dependent_financials_info(child)
-          end
+          'dependentFinancials' => dependents.map { |d| dependent_financials_info(d) }
         }
       end
     end
