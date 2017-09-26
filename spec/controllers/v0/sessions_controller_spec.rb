@@ -53,6 +53,21 @@ RSpec.describe V0::SessionsController, type: :controller do
       Session.create(uuid: uuid, token: token)
       User.create(loa1_user.attributes)
     end
+
+    it 'returns a url for leveling up or verifying current level' do
+      request.env['HTTP_AUTHORIZATION'] = auth_header
+      get :identity_proof
+      expect(response).to have_http_status(200)
+      expect(JSON.parse(response.body).keys).to eq %w(identity_proof_url)
+    end
+
+    it 'returns a url for adding multifactor authentication to your account' do
+      request.env['HTTP_AUTHORIZATION'] = auth_header
+      get :multifactor
+      expect(response).to have_http_status(200)
+      expect(JSON.parse(response.body).keys).to eq %w(multifactor_url)
+    end
+
     it 'returns a logout url' do
       request.env['HTTP_AUTHORIZATION'] = auth_header
       delete :destroy
@@ -150,6 +165,23 @@ RSpec.describe V0::SessionsController, type: :controller do
         get :new, level: 1
         expect(SAML::AuthnRequestHelper.new(response).loa1?).to eq(true)
       end
+
+      it 'returns the urls for for all three possible authN requests' do
+        get :authn_urls
+        expect(response).to have_http_status(200)
+        expect(JSON.parse(response.body).keys).to eq %w(mhv dslogon idme)
+      end
+
+      it 'returns does not allow fetching the identity proof url' do
+        get :identity_proof
+        expect(response).to have_http_status(401)
+      end
+
+      it 'does not allow fetching the multifactor url' do
+        get :multifactor
+        expect(response).to have_http_status(401)
+      end
+
       it 'creates the saml authn request with LOA 3 if supplied level=3' do
         get :new, level: 3
         expect(SAML::AuthnRequestHelper.new(response).loa3?).to eq(true)
