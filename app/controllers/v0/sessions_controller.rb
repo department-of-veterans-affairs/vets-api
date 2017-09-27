@@ -131,7 +131,7 @@ module V0
           new_user_from_saml
         # Existing user. Updated attributes as a result of enabling multifactor
         elsif saml_user.changing_multifactor?
-          existing_user.multifactor = saml_user.multifactor
+          existing_user.multifactor = saml_user.decorated.multifactor
           existing_user
         # Existing user. Updated attributes as a result of completing identity proof
         else
