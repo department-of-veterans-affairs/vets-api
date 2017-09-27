@@ -113,7 +113,6 @@ module V0
     private
 
     def saml_user
-      binding.pry
       @saml_user ||= SAML::User.new(@saml_response)
     end
 
