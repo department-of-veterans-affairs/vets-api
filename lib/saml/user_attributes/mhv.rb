@@ -48,8 +48,6 @@ module SAML
         { current: loa_current, highest: loa_highest }
       end
 
-      private
-
       # NOTE: email, uuid, loa are derived values, all others originate from MHV
       # For now we will probably not use available services, mhv profile is unnecessary
       # once we have the base components

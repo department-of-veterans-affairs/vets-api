@@ -4,7 +4,12 @@ require 'saml/user'
 require 'ruby-saml'
 
 RSpec.describe SAML::User do
-  let(:saml_response) { instance_double(OneLogin::RubySaml::Response, attributes: saml_attributes) }
+  let(:saml_response) do
+    instance_double(OneLogin::RubySaml::Response, attributes: saml_attributes,
+                                                  decrypted_document: decrypted_document_partial)
+  end
+  let(:decrypted_document_partial) { REXML::Document.new(dslogon_response) }
+  let(:dslogon_response) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/dslogon_response.xml") }
   let(:saml_attributes) do
     OneLogin::RubySaml::Attributes.new(
       'dslogon_status' => ['SPONSOR'],
