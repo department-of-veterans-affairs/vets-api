@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-require 'evss/base_service'
-
 module EVSS
   module Claims
     class Service < EVSS::Service
@@ -13,27 +11,25 @@ module EVSS
       end
 
       def all_claims
-        perform(:get, 'vbaClaimStatusService/getClaims', nil, headers_for_user(@current_user))
+        perform_with_user_headers(:get, 'vbaClaimStatusService/getClaims', nil)
       end
 
       def find_claim_by_id(claim_id)
-        perform(
+        perform_with_user_headers(
           :post,
           'vbaClaimStatusService/getClaimDetailById',
-          { id: claim_id }.to_json,
-          headers_for_user(@current_user)
+          { id: claim_id }.to_json
         )
       end
 
       def request_decision(claim_id)
-        perform(
+        perform_with_user_headers(
           :post,
           'vbaClaimStatusService/set5103Waiver',
           {
             claimId: claim_id,
             systemName: SYSTEM_NAME
           }.to_json,
-          headers_for_user(@current_user)
         )
       end
     end
