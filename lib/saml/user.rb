@@ -26,9 +26,7 @@ module SAML
     end
 
     def authn_context
-      return 'dslogon' if dslogon?
-      return 'mhv' if mhv?
-      nil
+      REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
     end
 
     private
@@ -61,14 +59,6 @@ module SAML
         warnings << 'LOA Current > LOA Highest' if @decorated.loa_current > @decorated.loa_highest
       end
       warnings
-    end
-
-    def dslogon?
-      attributes.to_h.keys.include?('dslogon_uuid')
-    end
-
-    def mhv?
-      attributes.to_h.keys.include?('mhv_uuid')
     end
 
     def decorator_constant
