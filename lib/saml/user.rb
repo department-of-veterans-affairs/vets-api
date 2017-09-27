@@ -34,6 +34,11 @@ module SAML
       nil
     end
 
+    def changing_multifactor?
+      return false if real_authn_context.nil?
+      real_authn_context.include?('multifactor')
+    end
+
     private
 
     # returns the attributes that are defined below, could be from one of 3 distinct policies, each having different
