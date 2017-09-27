@@ -27,6 +27,7 @@ module SAML
 
     # we serialize user.rb with this value, in the case of everything other than mhv/dslogon,
     # this will only ever be one of 'dslogon, mhv, or nil'
+    # see also: real_authn_context, currently only used by sentry logging to limit scope of changes
     def authn_context
       return 'dslogon' if dslogon?
       return 'mhv' if mhv?
@@ -49,13 +50,12 @@ module SAML
       attributes.to_h.keys.include?('mhv_uuid')
     end
 
-
     # see warnings
     def log_warnings_to_sentry!
       if (warnings = warnings_for_sentry).any?
         warning_context = {
           real_authn_context: real_authn_context,
-          authn_context: authn_context
+          authn_context: authn_context,
           warnings: warnings.join(', '),
           loa: @decorated.try(:loa)
         }
