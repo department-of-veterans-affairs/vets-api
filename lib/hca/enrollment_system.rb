@@ -519,7 +519,6 @@ module HCA
       end
     end
 
-
     def veteran_to_association_collection(veteran)
       associations = []
 
