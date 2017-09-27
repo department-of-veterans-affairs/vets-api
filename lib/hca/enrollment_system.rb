@@ -81,24 +81,6 @@ module HCA
       'Other' => 99
     }.freeze
 
-    def migrate_child_to_dependent(child)
-      {
-        'fullName' => child['childFullName'],
-        'dependentRelation' => child['childRelation'],
-        'socialSecurityNumber' => child['childSocialSecurityNumber'],
-        'becameDependent' => child['childBecameDependent'],
-        'dateOfBirth' => child['childDateOfBirth'],
-        'disabledBefore18' => child['childDisabledBefore18'],
-        'attendedSchoolLastYear' => child['childAttendedSchoolLastYear'],
-        'dependentEducationExpenses' => child['childEducationExpenses'],
-        'cohabitedLastYear' => child['childCohabitedLastYear'],
-        'receivedSupportLastYear' => child['childReceivedSupportLastYear'],
-        'grossIncome' => child['grossIncome'],
-        'netIncome' => child['netIncome'],
-        'otherIncome' => child['otherIncome']
-      }
-    end
-
     def financial_flag?(veteran)
       veteran['understandsFinancialDisclosure'] || veteran['discloseFinancialInformation']
     end
@@ -297,6 +279,26 @@ module HCA
         'attendedSchool' => dependent['attendedSchoolLastYear'].present?,
         'contributedToSupport' => dependent['receivedSupportLastYear'].present?
       }
+    end
+
+    def migrated_dependents(veteran)
+      veteran['dependents'] || veteran.fetch('children', []).map do |child|
+        {
+          'fullName' => child['childFullName'],
+          'dependentRelation' => child['childRelation'],
+          'socialSecurityNumber' => child['childSocialSecurityNumber'],
+          'becameDependent' => child['childBecameDependent'],
+          'dateOfBirth' => child['childDateOfBirth'],
+          'disabledBefore18' => child['childDisabledBefore18'],
+          'attendedSchoolLastYear' => child['childAttendedSchoolLastYear'],
+          'dependentEducationExpenses' => child['childEducationExpenses'],
+          'cohabitedLastYear' => child['childCohabitedLastYear'],
+          'receivedSupportLastYear' => child['childReceivedSupportLastYear'],
+          'grossIncome' => child['grossIncome'],
+          'netIncome' => child['netIncome'],
+          'otherIncome' => child['otherIncome']
+        }
+      end
     end
 
     def veteran_to_dependent_financials_collection(veteran)
@@ -517,11 +519,6 @@ module HCA
       end
     end
 
-    def migrated_dependents(veteran)
-      veteran['dependents'] || veteran.fetch('children', []).map do |child|
-        migrate_child_to_dependent(child)
-      end
-    end
 
     def veteran_to_association_collection(veteran)
       associations = []
