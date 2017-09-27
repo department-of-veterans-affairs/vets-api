@@ -68,8 +68,6 @@ module SAML
         attributes['multifactor']
       end
 
-      private
-
       # The first ones are values needed to query MVI
       # The second ones are additional values that should override MVI (EDIPI or match)
       # In short we might find that a user has inconsistencies in MVI with the EDIPI provided.
