@@ -210,6 +210,8 @@ module V0
     def context_key
       context = REXML::XPath.first(@saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
       STATSD_CONTEXT_MAP[context] || 'unknown'
+    rescue
+      'unknown'
     end
   end
 end
