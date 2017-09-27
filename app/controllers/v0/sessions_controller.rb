@@ -5,11 +5,22 @@ module V0
   class SessionsController < ApplicationController
     skip_before_action :authenticate, only: [:new, :authn_urls, :saml_callback, :saml_logout_callback]
 
+    STATSD_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
     TIMER_LOGIN_KEY = 'api.auth.login'
     TIMER_LOGOUT_KEY = 'api.auth.logout'
+
+    STATSD_CONTEXT_MAP = {
+      LOA::MAPPING.invert[1] => 'idme',
+      'dslogon' => 'dslogon',
+      'mhv' => 'mhv',
+      LOA::MAPPING.invert[3] => 'idproof',
+      'multifactor' => 'multifactor',
+      'dslogon_multifactor' => 'dslogon_multifactor',
+      'mhv_multifactor' => 'mhv_multifactor'
+    }.freeze
 
     # Collection Action: this method will eventually be replaced by auth_urls
     # DEPRECATED: This action is only here for backward compatibility and will be removed.
@@ -89,6 +100,7 @@ module V0
         obscure_token = Session.obscure_token(@session.token)
         Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
         Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: ['status:success'])
+        StatsD.increment(STATSD_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
         handle_login_error
         redirect_to Settings.saml.relay + '?auth=fail'
@@ -115,6 +127,7 @@ module V0
 
     def handle_login_error
       fail_handler = SAML::AuthFailHandler.new(@saml_response, @current_user, @session)
+      StatsD.increment(STATSD_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
       StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ["error:#{fail_handler.error}"])
       if fail_handler.known_error?
         log_message_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
@@ -176,6 +189,11 @@ module V0
       connect_param = "&connect=#{connect}"
       link = saml_auth_request.create(saml_settings, saml_options)
       connect.present? ? link + connect_param : link
+    end
+
+    def context_key
+      context = REXML::XPath.first(@saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
+      STATSD_CONTEXT_MAP[context] || 'unknown'
     end
   end
 end

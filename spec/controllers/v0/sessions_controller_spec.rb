@@ -12,24 +12,36 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:settings_no_context) { build(:settings_no_context) }
   let(:rubysaml_settings) { build(:rubysaml_settings) }
 
-  let(:valid_saml_response) { double('saml_response', is_valid?: true, errors: [], in_response_to: uuid) }
-  let(:invalid_saml_response) { double('saml_response', is_valid?: false, in_response_to: uuid) }
+  let(:response_xml_stub) { REXML::Document.new(File.read('spec/support/saml/saml_response_dslogon.xml')) }
+  let(:valid_saml_response) do
+    double('saml_response', is_valid?: true, errors: [],
+                            in_response_to: uuid,
+                            decrypted_document: response_xml_stub)
+  end
+  let(:invalid_saml_response) do
+    double('saml_response', is_valid?: false,
+                            in_response_to: uuid,
+                            decrypted_document: response_xml_stub)
+  end
   let(:saml_response_click_deny) do
     double('saml_response', is_valid?: false,
                             in_response_to: uuid,
                             errors: ['ruh roh'],
-                            status_message: 'Subject did not consent to attribute release')
+                            status_message: 'Subject did not consent to attribute release',
+                            decrypted_document: response_xml_stub)
   end
   let(:saml_response_too_late) do
     double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
                             errors: ['Current time is on or after NotOnOrAfter ' \
-                              'condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)'])
+                              'condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)'],
+                            decrypted_document: response_xml_stub)
   end
   # "Current time is earlier than NotBefore condition #{(now + allowed_clock_drift)} < #{not_before})"
   let(:saml_response_too_early) do
     double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
                             errors: ['Current time is earlier than NotBefore ' \
-                              'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'])
+                              'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'],
+                            decrypted_document: response_xml_stub)
   end
 
   let(:logout_uuid) { '1234' }
