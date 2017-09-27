@@ -61,7 +61,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   context 'when logged in' do
     before do
-      allow(User).to receive(:from_saml).and_return(loa3_user)
+      allow_any_instance_of(described_class).to receive(:new_user_from_saml).and_return(loa3_user)
       Session.create(uuid: uuid, token: token)
       User.create(loa1_user.attributes)
     end
@@ -119,6 +119,11 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
     end
     describe ' POST saml_callback' do
+      let(:saml_user) { instance_double('SAML::User', changing_multifactor?: false) }
+      before(:each) do
+        allow_any_instance_of(described_class).to receive(:saml_user).and_return(saml_user)
+      end
+
       it 'uplevels an LOA 1 session to LOA 3' do
         expect(User.find(uuid).loa).to eq(highest: LOA::ONE, current: LOA::ONE)
         post :saml_callback
@@ -129,6 +134,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(User.find(uuid)).to_not be_nil
         expect(User.find(uuid).attributes).to eq(User.from_merged_attrs(loa1_user, loa3_user).attributes)
       end
+
       context ' when user clicked DENY' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
         it 'redirects to an auth failure page' do
@@ -161,7 +167,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
       context ' when a required saml attribute is missing' do
-        before { allow(User).to receive(:from_saml).and_return(invalid_user) }
+        before { allow_any_instance_of(described_class).to receive(:new_user_from_saml).and_return(invalid_user) }
         it 'logs a generic error' do
           expect(Rails.logger).to receive(:error).with(/user:    \'valid\?=false errors=\["Uuid can\'t be blank"\]/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
@@ -221,11 +227,11 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
     describe ' POST saml_callback' do
       it 'does not create a job to create an evss user when user has loa1' do
-        allow(User).to receive(:from_saml).and_return(loa1_user)
+        allow_any_instance_of(described_class).to receive(:new_user_from_saml).and_return(loa1_user)
         expect { post :saml_callback }.to_not change(EVSS::CreateUserAccountJob.jobs, :size)
       end
       it 'creates a job to create an evss user when user has loa3 and evss attrs' do
-        allow(User).to receive(:from_saml).and_return(loa3_user)
+        allow_any_instance_of(described_class).to receive(:new_user_from_saml).and_return(loa3_user)
         expect { post :saml_callback }.to change(EVSS::CreateUserAccountJob.jobs, :size).by(1)
       end
     end

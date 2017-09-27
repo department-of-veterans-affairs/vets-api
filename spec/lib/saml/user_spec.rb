@@ -47,8 +47,35 @@ RSpec.describe SAML::User do
     it 'properly constructs a user' do
       expect(user).to be_valid
     end
-    it 'defaults loa.highest o loa.current' do
+
+    it 'defaults loa.highest to loa.current' do
       expect(user.loa[:highest]).to eq(LOA::THREE)
+    end
+  end
+
+  describe 'instance method' do
+    let(:subject) { described_class.new(saml_response) }
+    before do
+      allow(saml_response).to receive(:attributes).and_return({})
+    end
+
+    context 'changing_multifactor?' do
+      MULTIFACTORS = %w(dslogon_multifactor multifactor mhv_multifactor).freeze
+      NON_MULTIFACTORS = (%w(mhv dslogon) + LOA::MAPPING.keys + [nil]).freeze
+
+      MULTIFACTORS.each do |example|
+        it "responds as true when real_authn_context is #{example}" do
+          allow_any_instance_of(SAML::User).to receive(:real_authn_context).and_return(example)
+          expect(subject.changing_multifactor?).to be_truthy
+        end
+      end
+
+      NON_MULTIFACTORS.each do |example|
+        it "responds as false when real_authn_context is #{example}" do
+          allow_any_instance_of(SAML::User).to receive(:real_authn_context).and_return(example)
+          expect(subject.changing_multifactor?).to be_falsey
+        end
+      end
     end
   end
 
