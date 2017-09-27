@@ -39,18 +39,20 @@ module SAML
 
     # see warnings
     def log_warnings_to_sentry!
-      warning_context = {
-        authn_context: authn_context || 'nil ~= idme',
-        warnings: warnings.join(', '),
-        loa: @decorated.try(:loa)
-      }
-      log_message_to_sentry('Issues in SAML Response LOA', :warn, warning_context)
+      if (warnings = warnings_for_sentry).any?
+        warning_context = {
+          authn_context: authn_context || 'nil ~= idme',
+          warnings: warnings.join(', '),
+          loa: @decorated.try(:loa)
+        }
+        log_message_to_sentry('Issues in SAML Response LOA', :warn, warning_context)
+      end
     end
 
     # We want to do some logging of when and how the following issues could arise, since loa is
     # derived based on combination of these values, it could raise an exception at any time, hence
     # why we use try/catch. NOTE: The actual exception, if any, will get raised when to_hash is called.
-    def warnings
+    def warnings_for_sentry
       warnings = []
       warnings << 'attributes[:level_of_assurance] is Nil' if @decorated.try(:idme_loa).blank?
       warnings << 'LOA Current Nil' if @decorated.try(:loa_current).blank?
