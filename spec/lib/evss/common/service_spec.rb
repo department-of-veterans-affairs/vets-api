@@ -1,18 +1,12 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'evss/common_service'
-require 'evss/auth_headers'
 
-describe EVSS::CommonService do
+describe EVSS::Common::Service do
   let(:current_user) { FactoryGirl.build(:loa3_user) }
 
-  let(:auth_headers) do
-    EVSS::AuthHeaders.new(current_user).to_h
-  end
+  subject { described_class.new(current_user) }
 
-  subject { described_class.new(auth_headers) }
-
-  context 'with headers' do
+  context 'with a user' do
     let(:participant_id) { 123_456_789 }
 
     it 'gets a disability rating record' do
