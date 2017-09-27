@@ -39,25 +39,25 @@ describe HCA::EnrollmentSystem do
     "otherIncome": 91.9
   }.deep_stringify_keys
 
-  TEST_DEPENDENT = {
+  TEST_CHILD_DEPENDENT = {
     "fullName": {
-      "first": 'John',
-      "middle": 'Doe',
-      "last": 'Smith',
-      "suffix": 'Sr.'
+      "first": 'FirstChildA',
+      "middle": 'MiddleChildA',
+      "last": 'LastChildA',
+      "suffix": 'Jr.'
     },
-    "dependentRelation": 'Father',
-    "socialSecurityNumber": '111-22-9877',
-    "becameDependent": '1990-04-07',
-    "dateOfBirth": '1932-04-21',
-    "disabledBefore18": false,
-    "attendedSchoolLastYear": false,
-    "dependentEducationExpenses": 0.0,
+    "dependentRelation": 'Stepson',
+    "socialSecurityNumber": '111-22-9876',
+    "becameDependent": '1992-04-07',
+    "dateOfBirth": '1982-05-05',
+    "disabledBefore18": true,
+    "attendedSchoolLastYear": true,
+    "dependentEducationExpenses": 45.2,
     "cohabitedLastYear": true,
     "receivedSupportLastYear": false,
-    "grossIncome": 8992.9,
-    "netIncome": 8791.2,
-    "otherIncome": 891.7
+    "grossIncome": 991.9,
+    "netIncome": 981.2,
+    "otherIncome": 91.9
   }.deep_stringify_keys
 
   TEST_SPOUSE = {
@@ -477,7 +477,7 @@ describe HCA::EnrollmentSystem do
     'dependent_info',
     [
       [
-        TEST_DEPENDENT,
+        TEST_CHILD_DEPENDENT,
         {
           'dob' => '05/05/1982',
           'givenName' => 'FIRSTCHILDA',
@@ -497,7 +497,7 @@ describe HCA::EnrollmentSystem do
     'dependent_financials_info',
     [
       [
-        TEST_CHILD,
+        TEST_CHILD_DEPENDENT,
         CHILD_DEPENDENT_FINANCIALS
       ]
     ]
@@ -509,6 +509,12 @@ describe HCA::EnrollmentSystem do
     [
       [
         { 'children' => [TEST_CHILD] },
+        {
+          'dependentFinancials' => [CHILD_DEPENDENT_FINANCIALS]
+        }
+      ],
+      [
+        { 'dependents' => [TEST_CHILD_DEPENDENT] },
         {
           'dependentFinancials' => [CHILD_DEPENDENT_FINANCIALS]
         }
@@ -778,6 +784,42 @@ describe HCA::EnrollmentSystem do
             'numberOfDependentChildren' => 1
           }
         }
+      ],
+      [
+        {
+          "deductibleMedicalExpenses": 33.3,
+          "deductibleFuneralExpenses": 44.44,
+          "deductibleEducationExpenses": 77.77,
+          "veteranGrossIncome": 123.33,
+          "veteranNetIncome": 90.11,
+          "veteranOtherIncome": 10.1,
+          'dependents' => [TEST_CHILD_DEPENDENT]
+        }.merge(SPOUSE_FINANCIALS).deep_stringify_keys,
+        {
+          'incomeTest' => { 'discloseFinancialInformation' => true },
+          'financialStatement' => {
+            'expenses' => {
+              'expense' => [
+                { 'amount' => 77.77, 'expenseType' => '3' },
+                { 'amount' => 44.44, 'expenseType' => '19' },
+                { 'amount' => 33.3, 'expenseType' => '18' }
+              ]
+            },
+            'incomes' => {
+              'income' => [
+                { 'amount' => 123.33, 'type' => 7 },
+                { 'amount' => 90.11, 'type' => 13 },
+                { 'amount' => 10.1, 'type' => 10 }
+              ]
+            },
+            'spouseFinancialsList' => CONVERTED_SPOUSE_FINANCIALS,
+            'marriedLastCalendarYear' => true,
+            'dependentFinancialsList' => {
+              'dependentFinancials' => [CHILD_DEPENDENT_FINANCIALS]
+            },
+            'numberOfDependentChildren' => 1
+          }
+        }
       ]
     ]
   )
@@ -806,7 +848,7 @@ describe HCA::EnrollmentSystem do
     'dependent_to_association',
     [
       [
-        TEST_DEPENDENT,
+        TEST_CHILD_DEPENDENT,
         CONVERTED_CHILD_ASSOCIATION
       ]
     ]
