@@ -39,6 +39,27 @@ describe HCA::EnrollmentSystem do
     "otherIncome": 91.9
   }.deep_stringify_keys
 
+  TEST_DEPENDENT = {
+    "fullName": {
+      "first": 'John',
+      "middle": 'Doe',
+      "last": 'Smith',
+      "suffix": 'Sr.'
+    },
+    "dependentRelation": 'Father',
+    "socialSecurityNumber": '111-22-9877',
+    "becameDependent": '1990-04-07',
+    "dateOfBirth": '1932-04-21',
+    "disabledBefore18": false,
+    "attendedSchoolLastYear": false,
+    "dependentEducationExpenses": 0.0,
+    "cohabitedLastYear": true,
+    "receivedSupportLastYear": false,
+    "grossIncome": 8992.9,
+    "netIncome": 8791.2,
+    "otherIncome": 891.7
+  }.deep_stringify_keys
+
   TEST_SPOUSE = {
     'spouseAddress' => TEST_ADDRESS,
     'spousePhone' => '1112221234',
@@ -424,7 +445,7 @@ describe HCA::EnrollmentSystem do
     'resource_to_expense_collection',
     [
       [
-        { 'childEducationExpenses' => 1198.11 },
+        { 'dependentEducationExpenses' => 1198.11 },
         {
           'expense' => [{
             'amount' => 1198.11,
@@ -453,10 +474,10 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
-    'child_to_dependent_info',
+    'dependent_info',
     [
       [
-        TEST_CHILD,
+        TEST_DEPENDENT,
         {
           'dob' => '05/05/1982',
           'givenName' => 'FIRSTCHILDA',
@@ -473,7 +494,7 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
-    'child_to_dependent_financials_info',
+    'dependent_financials_info',
     [
       [
         TEST_CHILD,
@@ -782,10 +803,10 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
-    'child_to_association',
+    'dependent_to_association',
     [
       [
-        TEST_CHILD,
+        TEST_DEPENDENT,
         CONVERTED_CHILD_ASSOCIATION
       ]
     ]
