@@ -25,26 +25,48 @@ module SAML
       Hash[serializable_attributes.map { |k| [k, @decorated.send(k)] }]
     end
 
+    # we serialize user.rb with this value, in the case of everything other than mhv/dslogon,
+    # this will only ever be one of 'dslogon, mhv, or nil'
     def authn_context
-      REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
+      return 'dslogon' if dslogon?
+      return 'mhv' if mhv?
+      nil
     end
 
     private
 
+    # returns the attributes that are defined below, could be from one of 3 distinct policies, each having different
+    # saml responses, hence this weird decorating mechanism, needs improved abstraction to be less weird.
     def serializable_attributes
       @decorated.serializable_attributes + %i(authn_context last_signed_in)
     end
+
+    def dslogon?
+      attributes.to_h.keys.include?('dslogon_uuid')
+    end
+
+    def mhv?
+      attributes.to_h.keys.include?('mhv_uuid')
+    end
+
 
     # see warnings
     def log_warnings_to_sentry!
       if (warnings = warnings_for_sentry).any?
         warning_context = {
-          authn_context: authn_context || 'nil ~= idme',
+          real_authn_context: real_authn_context,
+          authn_context: authn_context
           warnings: warnings.join(', '),
           loa: @decorated.try(:loa)
         }
         log_message_to_sentry('Issues in SAML Response LOA', :warn, warning_context)
       end
+    end
+
+    # will be one of [loa1, loa3, multifactor, dslogon, mhv]
+    # this is the real authn-context returned in the response without the use of heuristics
+    def real_authn_context
+      REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
     end
 
     # We want to do some logging of when and how the following issues could arise, since loa is
@@ -61,6 +83,8 @@ module SAML
       warnings
     end
 
+    # should eventually have a special case for multifactor policy and refactor all of this
+    # but session controller refactor is premature and can't handle it right now.
     def decorator_constant
       case authn_context
       when 'mhv'; then SAML::UserAttributes::MHV
