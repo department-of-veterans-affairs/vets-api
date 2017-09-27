@@ -122,11 +122,6 @@ class User < Common::RedisStore
     User.new(attrs)
   end
 
-  def self.from_saml(saml_response)
-    saml_user = SAML::User.new(saml_response)
-    User.new(saml_user)
-  end
-
   delegate :edipi, to: :mvi
   delegate :icn, to: :mvi
   delegate :mhv_correlation_id, to: :mvi
