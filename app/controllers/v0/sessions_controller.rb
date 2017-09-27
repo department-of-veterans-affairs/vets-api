@@ -5,6 +5,7 @@ module V0
   class SessionsController < ApplicationController
     skip_before_action :authenticate, only: [:new, :authn_urls, :saml_callback, :saml_logout_callback]
 
+    STATSD_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
@@ -99,7 +100,7 @@ module V0
         obscure_token = Session.obscure_token(@session.token)
         Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
         Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: ['status:success'])
-        StatsD.increment("api.auth.login_callback.#{context_key}.success")
+        StatsD.increment(STATSD_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
         handle_login_error
         redirect_to Settings.saml.relay + '?auth=fail'
@@ -126,7 +127,7 @@ module V0
 
     def handle_login_error
       fail_handler = SAML::AuthFailHandler.new(@saml_response, @current_user, @session)
-      StatsD.increment("api.auth.login_callback.#{context_key}.failure")
+      StatsD.increment(STATSD_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
       StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ["error:#{fail_handler.error}"])
       if fail_handler.known_error?
         log_message_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
