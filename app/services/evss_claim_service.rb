@@ -60,10 +60,6 @@ class EVSSClaimService
     @client ||= EVSS::Claims::Service.new(@user)
   end
 
-  def auth_headers
-    @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h
-  end
-
   def claims_scope
     EVSSClaim.for_user(@user)
   end
