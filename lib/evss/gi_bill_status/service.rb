@@ -11,7 +11,7 @@ module EVSS
       end
 
       def get_gi_bill_status
-        raw_response = get ''
+        raw_response = perform_with_user_headers(:get, '', nil)
         EVSS::GiBillStatus::GiBillStatusResponse.new(raw_response.status, raw_response)
       rescue Faraday::ParsingError => e
         response = OpenStruct.new(e.response.to_hash)
