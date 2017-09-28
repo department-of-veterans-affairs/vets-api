@@ -51,7 +51,7 @@ module EVSS
         log_message_to_sentry(e.message, :error, extra_context: { url: config.base_path, body: e&.body })
         case e.status
         when 400
-          raise_backend_exception('EVSS400', e)
+          raise_backend_exception('EVSS400', 'PCIUAddress', e)
         when 403
           raise Common::Exceptions::Forbidden
         else
