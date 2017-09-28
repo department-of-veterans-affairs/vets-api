@@ -9,7 +9,9 @@ module DataMigrations
 
         if parsed_form['educationProgram'].blank?
           parsed_form['educationProgram'] = parsed_form['school'] || {}
-          parsed_form['educationProgram']['educationType'] = parsed_form['educationType']
+
+          education_type = parsed_form['educationType']
+          parsed_form['educationProgram']['educationType'] = education_type if education_type.present?
         end
 
         education_benefits_claim.instance_variable_set(:@parsed_form, nil)
