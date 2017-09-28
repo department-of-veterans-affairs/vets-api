@@ -2,7 +2,6 @@
 module EVSS
   module Documents
     class Configuration < EVSS::Configuration
-      # TODO: Make sure default timeout is right
       API_VERSION = Settings.evss.versions.documents
       # this service is only used from an async worker so long timeout is acceptable here
       DEFAULT_TIMEOUT = 180 # seconds
