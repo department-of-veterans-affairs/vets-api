@@ -52,7 +52,7 @@ describe EVSS::GiBillStatus::Service do
         end
       end
 
-      context 'with a Faraday::ClientError' do
+      context 'with a Common::Client::Errors::ClientError' do
         it 'returns a valid response object' do
           VCR.use_cassette('evss/gi_bill_status/gi_bill_status_500') do
             response = subject.get_gi_bill_status

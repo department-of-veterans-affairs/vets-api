@@ -4,7 +4,10 @@ require 'evss/base_service'
 module EVSS
   module GiBillStatus
     class Service < EVSS::Service
+      BASE_URL = EVSS::GiBillStatus::Configuration::BASE_URL
+
       configuration EVSS::GiBillStatus::Configuration
+
 
       def initialize(current_user)
         @current_user = current_user
@@ -24,9 +27,11 @@ module EVSS
           'Timeout while connecting to GiBillStatus service', :error, extra_context: { url: BASE_URL }
         )
         EVSS::GiBillStatus::GiBillStatusResponse.new(999, nil, true)
-      rescue Faraday::ClientError => e
-        # convert <Faraday::ClientError>.response hash to object to conform with a normal response
-        response = OpenStruct.new(e&.response)
+      rescue Common::Client::Errors::ClientError => e
+        response = OpenStruct.new(
+          body: e.body,
+          status: e.status
+        )
 
         extra_context = { url: BASE_URL, response: response }
         log_exception_to_sentry(e, extra_context)
