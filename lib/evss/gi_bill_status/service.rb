@@ -6,6 +6,10 @@ module EVSS
     class Service < EVSS::Service
       configuration EVSS::GiBillStatus::Configuration
 
+      def initialize(current_user)
+        @current_user = current_user
+      end
+
       def get_gi_bill_status
         raw_response = get ''
         EVSS::GiBillStatus::GiBillStatusResponse.new(raw_response.status, raw_response)
