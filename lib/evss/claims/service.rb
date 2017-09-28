@@ -3,6 +3,7 @@ module EVSS
   module Claims
     class Service < EVSS::Service
       SYSTEM_NAME = 'vets.gov'
+      DEFAULT_TIMEOUT = 120
 
       configuration EVSS::Claims::Configuration
 
