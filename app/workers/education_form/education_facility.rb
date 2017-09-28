@@ -87,10 +87,11 @@ module EducationForm
     # that the claim is relating to (either `school` or `newSchool` in our submissions)
     # or to the applicant's address (either as a relative or the veteran themselves)
     # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/PerceivedComplexity
     def self.routing_address(record, form_type:)
       case form_type.upcase
       when '1990'
-        record.school&.address || record.veteranAddress
+        record.educationProgram&.address || record.school&.address || record.veteranAddress
       when '1990N'
         record.educationProgram&.address || record.veteranAddress
       when '1990E', '5490', '5495'
@@ -99,8 +100,6 @@ module EducationForm
         record.newSchool&.address || record.veteranAddress
       end
     end
-
-    # rubocop:enable Metrics/CyclomaticComplexity
 
     def self.regional_office_for(model)
       region = region_for(model)
