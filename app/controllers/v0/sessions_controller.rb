@@ -99,12 +99,12 @@ module V0
 
         obscure_token = Session.obscure_token(@session.token)
         Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
-        Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: benchmark_tags)
+        Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: benchmark_tags('status:success'))
         StatsD.increment(STATSD_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
         handle_login_error
         redirect_to Settings.saml.relay + '?auth=fail'
-        Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: benchmark_tags(false))
+        Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: benchmark_tags('status:failure'))
       end
     ensure
       StatsD.increment(STATSD_LOGIN_TOTAL_KEY)
@@ -215,9 +215,7 @@ module V0
       'unknown'
     end
 
-    def benchmark_tags(success = true)
-      tags = []
-      tags << "status:#{success ? 'success' : 'failure'}"
+    def benchmark_tags(*tags)
       tags << "context:#{context_key}"
       tags << "loa:#{@current_user.loa[:current]}" if @current_user
       tags << "multifactor:#{@current_user.multifactor}" if @current_user
