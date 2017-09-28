@@ -31,7 +31,7 @@ services = [
   EMIS::VeteranStatusConfiguration.instance.breakers_service,
   EVSS::EVSSCommon::Configuration.instance.breakers_service,
   EVSS::Claims::Configuration.instance.breakers_service,
-  EVSS::DocumentsService.breakers_service,
+  EVSS::Documents::Configuration.instance.breakers_service,
   EVSS::Letters::Configuration.instance.breakers_service,
   EVSS::PCIUAddress::Configuration.instance.breakers_service,
   EVSS::GiBillStatus::Service.breakers_service,
