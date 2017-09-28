@@ -8,8 +8,14 @@ module EVSS
       EVSS::AuthHeaders.new(user).to_h
     end
 
-    def perform_with_user_headers(method, path, params)
-      perform(method, path, params, headers_for_user(@current_user))
+    def perform_with_user_headers(method, path, body, headers = {}, &block)
+      perform(
+        method,
+        path,
+        body,
+        headers_for_user(@current_user).merge(headers),
+        &block
+      )
     end
   end
 end

@@ -26,15 +26,18 @@ module Common
         @connection ||= config.connection
       end
 
-      def perform(method, path, params, headers = nil)
+      def perform(method, path, params, headers = nil, &block)
         raise NoMethodError, "#{method} not implemented" unless config.request_types.include?(method)
 
-        send(method, path, params || {}, headers || {})
+        send(method, path, params || {}, headers || {}, &block)
       end
 
-      def request(method, path, params = {}, headers = {})
+      def request(method, path, params = {}, headers = {}, &block)
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
-        connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
+        connection.send(method.to_sym, path, params) do |request|
+          request.headers.update(headers)
+          block.call(request) if block_given?
+        end.env
       rescue Timeout::Error, Faraday::TimeoutError
         log_message_to_sentry(
           "Timeout while connecting to #{config.service_name} service", :error, extra_context: { url: config.base_path }
@@ -52,20 +55,20 @@ module Common
         raise client_error
       end
 
-      def get(path, params, headers = base_headers)
-        request(:get, path, params, headers)
+      def get(path, params, headers = base_headers, &block)
+        request(:get, path, params, headers, &block)
       end
 
-      def post(path, params, headers = base_headers)
-        request(:post, path, params, headers)
+      def post(path, params, headers = base_headers, &block)
+        request(:post, path, params, headers, &block)
       end
 
-      def put(path, params, headers = base_headers)
-        request(:put, path, params, headers)
+      def put(path, params, headers = base_headers, &block)
+        request(:put, path, params, headers, &block)
       end
 
-      def delete(path, params, headers = base_headers)
-        request(:delete, path, params, headers)
+      def delete(path, params, headers = base_headers, &block)
+        request(:delete, path, params, headers, &block)
       end
 
       def raise_not_authenticated

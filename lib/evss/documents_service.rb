@@ -3,6 +3,7 @@ require 'evss/base_service'
 
 module EVSS
   class DocumentsService < BaseService
+    # TODO Make sure default timeout is right
     API_VERSION = Settings.evss.versions.documents
     BASE_URL = "#{Settings.evss.url}/wss-document-services-web-#{API_VERSION}/rest/"
     # this service is only used from an async worker so long timeout is acceptable here
