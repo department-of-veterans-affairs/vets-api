@@ -83,7 +83,7 @@ module EducationForm
       end
     end
 
-    def education_program(record)
+    def self.education_program(record)
       record.educationProgram || record.school
     end
 
