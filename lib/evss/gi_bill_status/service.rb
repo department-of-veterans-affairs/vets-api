@@ -23,9 +23,6 @@ module EVSS
         log_exception_to_sentry(e, extra_context)
         EVSS::GiBillStatus::GiBillStatusResponse.new(response.status, response, false, content_type)
       rescue Common::Exceptions::GatewayTimeout
-        log_message_to_sentry(
-          'Timeout while connecting to GiBillStatus service', :error, extra_context: { url: BASE_URL }
-        )
         EVSS::GiBillStatus::GiBillStatusResponse.new(999, nil, true)
       rescue Common::Client::Errors::ClientError => e
         response = OpenStruct.new(
