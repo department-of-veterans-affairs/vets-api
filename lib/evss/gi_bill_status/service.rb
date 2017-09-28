@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-require 'evss/base_service'
-
 module EVSS
   module GiBillStatus
     class Service < EVSS::Service
