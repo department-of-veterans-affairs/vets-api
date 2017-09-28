@@ -3,7 +3,7 @@ require 'evss/base_service'
 
 module EVSS
   module GiBillStatus
-    class Service < EVSS::BaseService
+    class Service < EVSS::Service
       BASE_URL = "#{Settings.evss.url}/wss-education-services-web/rest/education/chapter33/v1"
 
       def get_gi_bill_status
