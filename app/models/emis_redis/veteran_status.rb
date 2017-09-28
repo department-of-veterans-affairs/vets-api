@@ -7,10 +7,15 @@ module EMISRedis
 
     def veteran?
       raise VeteranStatus::Unauthorized unless @user.loa3?
-      any_veteran_indicator?(emis_response('get_veteran_status').items.first)
+      response = emis_response('get_veteran_status')
+      raise VeteranStatus::RecordNotFound if response.empty?
+      any_veteran_indicator?(response.items.first)
     end
 
     class NotAuthorized < StandardError
+    end
+
+    class RecordNotFound < StandardError
     end
 
     private
