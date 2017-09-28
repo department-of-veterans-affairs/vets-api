@@ -32,11 +32,11 @@ module Common
         send(method, path, params || {}, headers || {}, &block)
       end
 
-      def request(method, path, params = {}, headers = {}, &block)
+      def request(method, path, params = {}, headers = {})
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) do |request|
           request.headers.update(headers)
-          block.call(request) if block_given?
+          yield(request) if block_given?
         end.env
       rescue Timeout::Error, Faraday::TimeoutError
         log_message_to_sentry(

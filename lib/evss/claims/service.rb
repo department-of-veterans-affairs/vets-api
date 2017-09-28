@@ -29,7 +29,7 @@ module EVSS
           {
             claimId: claim_id,
             systemName: SYSTEM_NAME
-          }.to_json,
+          }.to_json
         )
       end
     end

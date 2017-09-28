@@ -6,7 +6,6 @@ module EVSS
 
       configuration EVSS::GiBillStatus::Configuration
 
-
       def initialize(current_user)
         @current_user = current_user
       end

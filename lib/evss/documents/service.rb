@@ -4,7 +4,7 @@ module EVSS
     class Service < EVSS::Service
       configuration EVSS::Documents::Configuration
       SYSTEM_NAME = 'vets.gov'
-      HEADERS = { 'Content-Type' => 'application/octet-stream' }
+      HEADERS = { 'Content-Type' => 'application/octet-stream' }.freeze
 
       def initialize(current_user)
         @current_user = current_user
