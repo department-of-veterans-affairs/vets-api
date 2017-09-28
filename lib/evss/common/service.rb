@@ -17,7 +17,11 @@ module EVSS
       end
 
       def create_user_account
-        post 'persistentPropertiesService/11.0/createUserAccount'
+        perform_with_user_headers(
+          :post,
+          'persistentPropertiesService/11.0/createUserAccount',
+          nil
+        )
       end
     end
   end
