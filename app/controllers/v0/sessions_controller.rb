@@ -131,7 +131,7 @@ module V0
           new_user_from_saml
         # Existing user. Updated attributes as a result of enabling multifactor
         elsif saml_user.changing_multifactor?
-          existing_user.multifactor = saml_user.multifactor
+          existing_user.multifactor = saml_user.decorated.multifactor
           existing_user
         # Existing user. Updated attributes as a result of completing identity proof
         else
@@ -210,6 +210,8 @@ module V0
     def context_key
       context = REXML::XPath.first(@saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
       STATSD_CONTEXT_MAP[context] || 'unknown'
+    rescue
+      'unknown'
     end
   end
 end
