@@ -45,7 +45,7 @@ class EVSSClaimService
     uploader.store!(evss_claim_document.file_obj)
     # the uploader sanitizes the filename before storing, so set our doc to match
     evss_claim_document.file_name = uploader.filename
-    EVSS::DocumentUpload.perform_async(auth_headers, @user.uuid, evss_claim_document.to_serializable_hash)
+    EVSS::DocumentUpload.perform_async(@user.uuid, evss_claim_document.to_serializable_hash)
   end
 
   def rating_info
