@@ -93,10 +93,57 @@ RSpec.describe 'letters', type: :request do
     end
 
     context 'with a 404 evss response' do
-      it 'should download a PDF' do
+      let(:user) do
+        build(:loa3_user, first_name: 'John', last_name: 'SMith', birth_date: '1942-02-12', ssn: '7991112233')
+      end
+      before do
+        user.va_profile.edipi = '1005079999'
+        user.va_profile.participant_id = '600039999'
+      end
+      it 'should raise a 404' do
         VCR.use_cassette('evss/letters/download_404') do
-          post '/v0/letters/comissary', nil, auth_header
-          expect(response).to have_http_status(:bad_request)
+          post '/v0/letters/commissary', nil, auth_header
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+
+    context 'when evss returns lettergenerator.notEligible' do
+      it 'should download a PDF' do
+        VCR.use_cassette('evss/letters/download_not_eligible') do
+          post '/v0/letters/civil_service', nil, auth_header
+          expect(response).to have_http_status(:bad_gateway)
+        end
+      end
+    end
+
+    context 'when evss returns Unexpected Error' do
+      let(:user) do
+        build(:loa3_user, first_name: 'Greg', last_name: 'Anderson', birth_date: '1809-02-12', ssn: '796111863')
+      end
+      let(:options) do
+        {
+          'militaryService' => true,
+          'serviceConnectedDisabilities' => false,
+          'serviceConnectedEvaluation' => true,
+          'nonServiceConnectedPension' => false,
+          'monthlyAward' => true,
+          'unemployable' => false,
+          'specialMonthlyCompensation' => false,
+          'adaptedHousing' => false,
+          'chapter35Eligibility' => false,
+          'deathResultOfDisability' => false,
+          'survivorsAward' => false
+        }
+      end
+      before do
+        user.va_profile.edipi = '1005079124'
+        user.va_profile.participant_id = '600036159'
+      end
+      it 'should return a not found response' do
+        VCR.use_cassette('evss/letters/download_unexpected') do
+          post '/v0/letters/benefit_summary', options, auth_header
+          expect(response).to have_http_status(:bad_gateway)
         end
       end
     end

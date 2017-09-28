@@ -46,7 +46,7 @@ module EVSS
         yield
       rescue Faraday::ParsingError => e
         log_exception_to_sentry(e, extra_context: { url: config.base_path })
-        raise_backend_exception('EVSS502')
+        raise_backend_exception('EVSS502', 'PCIUAddress')
       rescue Common::Client::Errors::ClientError => e
         log_message_to_sentry(e.message, :error, extra_context: { url: config.base_path, body: e&.body })
         case e.status
@@ -55,17 +55,8 @@ module EVSS
         when 403
           raise Common::Exceptions::Forbidden
         else
-          raise_backend_exception('EVSS502', e)
+          raise_backend_exception('EVSS502', 'PCIUAddress', e)
         end
-      end
-
-      def raise_backend_exception(key, error = nil)
-        raise Common::Exceptions::BackendServiceException.new(
-          key,
-          { source: 'EVSS::PCIUAddress' },
-          error&.status,
-          error&.body
-        )
       end
     end
   end
