@@ -101,6 +101,8 @@ module EducationForm
       end
     end
 
+    # rubocop:enable Metrics/CyclomaticComplexity
+
     def self.regional_office_for(model)
       region = region_for(model)
       address = ["#{region.to_s.capitalize} Region", 'VA Regional Office']
