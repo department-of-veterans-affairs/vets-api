@@ -20,6 +20,9 @@ Rails.application.routes.draw do
     end
 
     resource :sessions, only: [:new, :destroy] do
+      get :authn_urls, on: :collection
+      get :multifactor, on: :member
+      get :identity_proof, on: :member
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
     end
@@ -105,6 +108,10 @@ Rails.application.routes.draw do
       end
 
       resources :calculator_constants, only: :index, defaults: { format: :json }
+    end
+
+    scope :id_card do
+      resource :request_url, only: [:show], controller: 'id_card_request_url'
     end
 
     namespace :preneeds do
