@@ -132,6 +132,10 @@ appeals_status:
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
 
+vic:
+  url: https://some.fakesite.com
+  signing_key_path: /fake/signing/key/path
+
 # Settings for (preneeds) burials.
 # TODO: enpoint needs to be set up for https and production api when available
 preneeds:

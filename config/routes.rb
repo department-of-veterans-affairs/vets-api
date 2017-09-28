@@ -110,6 +110,10 @@ Rails.application.routes.draw do
       resources :calculator_constants, only: :index, defaults: { format: :json }
     end
 
+    scope :id_card do
+      resource :request_url, only: [:show], controller: 'id_card_request_url'
+    end
+
     namespace :preneeds do
       resources :cemeteries, only: :index, defaults: { format: :json }
       resources :states, only: :index, defaults: { format: :json }
