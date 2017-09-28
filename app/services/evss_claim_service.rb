@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'evss/documents_service'
 require 'evss/auth_headers'
 
 class EVSSClaimService
