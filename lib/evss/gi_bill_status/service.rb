@@ -22,7 +22,7 @@ module EVSS
         extra_context = { response: response }
         log_exception_to_sentry(e, extra_context)
         EVSS::GiBillStatus::GiBillStatusResponse.new(response.status, response, false, content_type)
-      rescue Faraday::TimeoutError
+      rescue Common::Exceptions::GatewayTimeout
         log_message_to_sentry(
           'Timeout while connecting to GiBillStatus service', :error, extra_context: { url: BASE_URL }
         )
