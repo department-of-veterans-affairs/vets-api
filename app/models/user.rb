@@ -27,7 +27,11 @@ class User < Common::RedisStore
   attribute :zip
   attribute :ssn
   attribute :loa
-  attribute :mhv_icn
+  # These attributes are fetched by SAML::User in the saml_response payload
+  attribute :multifactor   # used by F/E to decision on whether or not to prompt user to add MFA
+  attribute :authn_context # used by F/E to handle various identity related complexities pending refactor
+  # FIXME: if MVI were decorated on usr vs delegated to @mvi, then this might not have been necessary.
+  attribute :mhv_icn # only needed by B/E not serialized in user_serializer
 
   # vaafi attributes
   attribute :last_signed_in, Common::UTCTime
@@ -49,6 +53,10 @@ class User < Common::RedisStore
     user.validates :gender, format: /\A(M|F)\z/, allow_blank: true
   end
 
+  # LOA1 no longer just means ID.me LOA1.
+  # It could also be DSLogon or MHV NON PREMIUM users who have not yet done ID.me FICAM LOA3.
+  # See also lib/saml/user_attributes/dslogon.rb
+  # See also lib/saml/user_attributes/mhv
   def loa1?
     loa[:current] == LOA::ONE
   end
@@ -57,6 +65,12 @@ class User < Common::RedisStore
     loa[:current] == LOA::TWO
   end
 
+  # LOA3 no longer just means ID.me FICAM LOA3.
+  # It could also be DSLogon or MHV Premium users.
+  # It could also be DSLogon or MHV NON PREMIUM users who have done ID.me FICAM LOA3.
+  # Additionally, LOA3 does not automatically mean user has opted to have MFA.
+  # See also lib/saml/user_attributes/dslogon.rb
+  # See also lib/saml/user_attributes/mhv
   def loa3?
     loa[:current] == LOA::THREE
   end
@@ -106,11 +120,6 @@ class User < Common::RedisStore
     attrs[:loa][:highest] = [existing_user[:loa][:highest], new_user[:loa][:highest]].max
 
     User.new(attrs)
-  end
-
-  def self.from_saml(saml_response)
-    saml_user = SAML::User.new(saml_response)
-    User.new(saml_user)
   end
 
   delegate :edipi, to: :mvi
