@@ -4,6 +4,8 @@ require 'evss/auth_headers'
 
 module EVSS
   class Service < Common::Client::Base
+    SYSTEM_NAME = 'vets.gov'
+
     def headers_for_user(user)
       EVSS::AuthHeaders.new(user).to_h
     end
