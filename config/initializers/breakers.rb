@@ -5,7 +5,6 @@ require 'bb/configuration'
 require 'emis/military_information_configuration'
 require 'emis/payment_configuration'
 require 'emis/veteran_status_configuration'
-require 'evss/common_service'
 require 'evss/documents_service'
 require 'evss/letters/service'
 require 'evss/gi_bill_status/service'
@@ -31,7 +30,7 @@ services = [
   EMIS::MilitaryInformationConfiguration.instance.breakers_service,
   EMIS::PaymentConfiguration.instance.breakers_service,
   EMIS::VeteranStatusConfiguration.instance.breakers_service,
-  EVSS::CommonService.breakers_service,
+  EVSS::EVSSCommon::Configuration.instance.breakers_service,
   EVSS::Claims::Configuration.instance.breakers_service,
   EVSS::DocumentsService.breakers_service,
   EVSS::Letters::Configuration.instance.breakers_service,

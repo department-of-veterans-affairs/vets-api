@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 module EVSS
-  module Common
+  module EVSSCommon
     class Service < EVSS::Service
-      configuration EVSS::Common::Configuration
+      configuration EVSS::EVSSCommon::Configuration
 
       def initialize(current_user)
         @current_user = current_user

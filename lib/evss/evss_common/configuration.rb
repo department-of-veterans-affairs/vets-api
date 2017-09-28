@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module EVSS
-  module Common
+  module EVSSCommon
     class Configuration < EVSS::Configuration
       API_VERSION = Settings.evss.versions.common
 

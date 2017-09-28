@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-describe EVSS::Common::Service do
+describe EVSS::EVSSCommon::Service do
   let(:current_user) { FactoryGirl.build(:loa3_user) }
 
   subject { described_class.new(current_user) }
