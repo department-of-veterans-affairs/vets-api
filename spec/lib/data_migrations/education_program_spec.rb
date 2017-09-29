@@ -14,11 +14,19 @@ describe DataMigrations::EducationProgram do
         }
       )
     end
+    let!(:claim3) { create(:education_benefits_claim) }
+
+    before do
+      claim3.parsed_form.delete('educationType')
+      claim3.form = claim3.parsed_form.to_json
+      claim3.instance_variable_set(:@parsed_form, nil)
+      claim3.save!
+    end
 
     it 'should convert the claims' do
       DataMigrations::EducationProgram.migrate
 
-      [claim1, claim2].each do |education_benefits_claim|
+      [claim1, claim2, claim3].each do |education_benefits_claim|
         education_benefits_claim.instance_variable_set(:@parsed_form, nil)
       end
       parsed_form = claim1.reload.parsed_form
@@ -31,6 +39,10 @@ describe DataMigrations::EducationProgram do
 
       parsed_form = claim2.reload.parsed_form
       expect(parsed_form['educationProgram']['name']).to eq('foo')
+
+      parsed_form = claim3.reload.parsed_form
+      expect(parsed_form['educationProgram']['name']).to eq('FakeData University')
+      expect(parsed_form['educationProgram']['educationType']).to eq(nil)
     end
   end
 end
