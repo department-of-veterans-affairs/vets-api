@@ -32,6 +32,7 @@ class User < Common::RedisStore
   attribute :authn_context # used by F/E to handle various identity related complexities pending refactor
   # FIXME: if MVI were decorated on usr vs delegated to @mvi, then this might not have been necessary.
   attribute :mhv_icn # only needed by B/E not serialized in user_serializer
+  attribute :mhv_uuid # this is the cannonical version of MHV Correlation ID, provided by MHV sign-in users
 
   # vaafi attributes
   attribute :last_signed_in, Common::UTCTime
@@ -124,9 +125,12 @@ class User < Common::RedisStore
 
   delegate :edipi, to: :mvi
   delegate :icn, to: :mvi
-  delegate :mhv_correlation_id, to: :mvi
   delegate :participant_id, to: :mvi
   delegate :veteran?, to: :veteran_status
+
+  def mhv_correlation_id
+    mhv_uuid || mvi.mhv_correlation_id
+  end
 
   def va_profile
     mvi.profile
