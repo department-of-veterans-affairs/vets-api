@@ -17,41 +17,43 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
     params.each_with_object({}) { |a, h| h[a.first] = a.last }
   end
 
-  describe '#show /v0/id_card/request_url' do
+  describe '#show /v0/id_card/attributes' do
     it 'should return a signed redirect URL' do
       expect_any_instance_of(EMISRedis::MilitaryInformation)
         .to receive(:service_episodes_by_date).at_least(:once).and_return(service_episodes)
-      get '/v0/id_card/request_url', headers: auth_header
+      get '/v0/id_card/attributes', headers: auth_header
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
-      url = URI(json['redirect'])
-      expect(url_param_map(url).key?('edipi')).to be_truthy
-      expect(url_param_map(url).key?('firstname')).to be_truthy
-      expect(url_param_map(url).key?('lastname')).to be_truthy
-      expect(url_param_map(url).key?('branchofservice')).to be_truthy
-      expect(url_param_map(url).key?('dischargetype')).to be_truthy
-      expect(url_param_map(url).key?('timestamp')).to be_truthy
-      expect(url_param_map(url).key?('signature')).to be_truthy
+      url = json['url']
+      expect(url).to be
+      traits = json['traits'] 
+      expect(traits.key?('edipi')).to be_truthy
+      expect(traits.key?('firstname')).to be_truthy
+      expect(traits.key?('lastname')).to be_truthy
+      expect(traits.key?('branchofservice')).to be_truthy
+      expect(traits.key?('dischargetype')).to be_truthy
+      expect(traits.key?('timestamp')).to be_truthy
+      expect(traits.key?('signature')).to be_truthy
     end
 
     it 'should return Bad Gateway if military information not retrievable' do
       expect_any_instance_of(EMISRedis::MilitaryInformation)
         .to receive(:service_episodes_by_date).and_raise(StandardError)
-      get '/v0/id_card/request_url', headers: auth_header
+      get '/v0/id_card/attributes', headers: auth_header
       expect(response).to have_http_status(:bad_gateway)
     end
 
     it 'should return Forbidden for non-veteran user' do
       expect_any_instance_of(EMISRedis::VeteranStatus)
         .to receive(:veteran?).and_return(false)
-      get '/v0/id_card/request_url', headers: auth_header
+      get '/v0/id_card/attributes', headers: auth_header
       expect(response).to have_http_status(:forbidden)
     end
 
     it 'should return Forbidden when veteran status not retrievable' do
       expect_any_instance_of(EMISRedis::VeteranStatus)
         .to receive(:veteran?).and_raise(StandardError)
-      get '/v0/id_card/request_url', headers: auth_header
+      get '/v0/id_card/attributes', headers: auth_header
       expect(response).to have_http_status(:forbidden)
     end
   end

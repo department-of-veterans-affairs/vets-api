@@ -111,7 +111,7 @@ Rails.application.routes.draw do
     end
 
     scope :id_card do
-      resource :request_url, only: [:show], controller: 'id_card_request_url'
+      resource :attributes, only: [:show], controller: 'id_card_attributes'
     end
 
     namespace :preneeds do
