@@ -109,7 +109,7 @@ RSpec.describe 'letters', type: :request do
     end
 
     context 'when evss returns lettergenerator.notEligible' do
-      it 'should download a PDF' do
+      it 'should raise a 502' do
         VCR.use_cassette('evss/letters/download_not_eligible') do
           post '/v0/letters/civil_service', nil, auth_header
           expect(response).to have_http_status(:bad_gateway)
