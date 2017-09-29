@@ -14,7 +14,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Fri, 04 Aug 2017 21:50:06 GMT
+      - Thu, 21 Sep 2017 16:39:42 GMT
       Va-Eauth-Csid:
       - DSLogon
       Va-Eauth-Authenticationmethod:
@@ -28,29 +28,31 @@ http_interactions:
       Va-Eauth-Lastname:
       - lincoln
       Va-Eauth-Issueinstant:
-      - '2017-08-04T21:50:05Z'
+      - '2017-09-21T16:39:41Z'
       Va-Eauth-Dodedipnid:
-      - '8935029053'
+      - '8056094346'
       Va-Eauth-Pid:
-      - '6544643901'
+      - '7545814675'
       Va-Eauth-Pnid:
       - '796111863'
+      Va-Eauth-Birthdate:
+      - '1953-06-22T00:00:00+00:00'
       Va-Eauth-Authorization:
-      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796111863","edi":"8935029053","firstName":"abraham","lastName":"lincoln"}}'
+      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796111863","edi":"8056094346","firstName":"abraham","lastName":"lincoln","birthDate":"1953-06-22T00:00:00+00:00"}}'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Fri, 04 Aug 2017 21:46:40 GMT
+      - Thu, 21 Sep 2017 16:39:35 GMT
       Server:
       - Apache/2.4.6 (CentOS) OpenSSL/1.0.1e-fips
       Content-Type:
       - application/json
       Set-Cookie:
-      - WLS_12.1_App1_Cluster_ROUTEID=.01; path=/
-      - wss-pciu-services_JSESSIONID=NkivNwnyYRZVFwOh07KKxvf-rh7VTm2VMj1znQMjcFwqCwfyuEzN!811987739;
+      - WLS_12.1_App1_Cluster_ROUTEID=.02; path=/
+      - wss-pciu-services_JSESSIONID=h4ClTyiFDcPufzEhofyb78KLV8YoBH-fcwKZ1ffeutGoWtjelriW!1148555774;
         path=/; HttpOnly
       Via:
       - 1.1 csraciapp6.evss.srarad.com
@@ -74,16 +76,17 @@ http_interactions:
             "zipSuffix" : ""
           },
           "controlInformation" : {
+            "canUpdate" : true,
             "corpAvailIndicator" : true,
             "corpRecFoundIndicator" : true,
             "hasNoBDNPaymentsIndicator" : true,
-            "incompetentIndicator" : false,
             "indentityIndicator" : true,
             "indexIndicator" : true,
+            "isCompetentIndicator" : true,
             "noFiduciaryAssignedIndicator" : true,
             "notDeceasedIndicator" : true
           }
         }
     http_version: 
-  recorded_at: Fri, 04 Aug 2017 21:50:11 GMT
+  recorded_at: Thu, 21 Sep 2017 16:39:49 GMT
 recorded_with: VCR 3.0.3

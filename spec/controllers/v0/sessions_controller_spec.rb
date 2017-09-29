@@ -12,23 +12,36 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:settings_no_context) { build(:settings_no_context) }
   let(:rubysaml_settings) { build(:rubysaml_settings) }
 
-  let(:valid_saml_response) { double('saml_response', is_valid?: true, errors: []) }
-  let(:invalid_saml_response) { double('saml_response', is_valid?: false) }
+  let(:response_xml_stub) { REXML::Document.new(File.read('spec/support/saml/saml_response_dslogon.xml')) }
+  let(:valid_saml_response) do
+    double('saml_response', is_valid?: true, errors: [],
+                            in_response_to: uuid,
+                            decrypted_document: response_xml_stub)
+  end
+  let(:invalid_saml_response) do
+    double('saml_response', is_valid?: false,
+                            in_response_to: uuid,
+                            decrypted_document: response_xml_stub)
+  end
   let(:saml_response_click_deny) do
     double('saml_response', is_valid?: false,
+                            in_response_to: uuid,
                             errors: ['ruh roh'],
-                            status_message: 'Subject did not consent to attribute release')
+                            status_message: 'Subject did not consent to attribute release',
+                            decrypted_document: response_xml_stub)
   end
   let(:saml_response_too_late) do
-    double('saml_response', is_valid?: false, status_message: '',
+    double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
                             errors: ['Current time is on or after NotOnOrAfter ' \
-                              'condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)'])
+                              'condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)'],
+                            decrypted_document: response_xml_stub)
   end
   # "Current time is earlier than NotBefore condition #{(now + allowed_clock_drift)} < #{not_before})"
   let(:saml_response_too_early) do
-    double('saml_response', is_valid?: false, status_message: '',
+    double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
                             errors: ['Current time is earlier than NotBefore ' \
-                              'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'])
+                              'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'],
+                            decrypted_document: response_xml_stub)
   end
 
   let(:logout_uuid) { '1234' }
@@ -42,14 +55,31 @@ RSpec.describe V0::SessionsController, type: :controller do
   before do
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
     allow(OneLogin::RubySaml::Response).to receive(:new).and_return(valid_saml_response)
+    Redis.current.set("benchmark_api.auth.login_#{uuid}", Time.now.to_f)
+    Redis.current.set("benchmark_api.auth.logout_#{uuid}", Time.now.to_f)
   end
 
   context 'when logged in' do
     before do
-      allow(User).to receive(:from_saml).and_return(loa3_user)
+      allow_any_instance_of(described_class).to receive(:new_user_from_saml).and_return(loa3_user)
       Session.create(uuid: uuid, token: token)
       User.create(loa1_user.attributes)
     end
+
+    it 'returns a url for leveling up or verifying current level' do
+      request.env['HTTP_AUTHORIZATION'] = auth_header
+      get :identity_proof
+      expect(response).to have_http_status(200)
+      expect(JSON.parse(response.body).keys).to eq %w(identity_proof_url)
+    end
+
+    it 'returns a url for adding multifactor authentication to your account' do
+      request.env['HTTP_AUTHORIZATION'] = auth_header
+      get :multifactor
+      expect(response).to have_http_status(200)
+      expect(JSON.parse(response.body).keys).to eq %w(multifactor_url)
+    end
+
     it 'returns a logout url' do
       request.env['HTTP_AUTHORIZATION'] = auth_header
       delete :destroy
@@ -89,6 +119,11 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
     end
     describe ' POST saml_callback' do
+      let(:saml_user) { instance_double('SAML::User', changing_multifactor?: false) }
+      before(:each) do
+        allow_any_instance_of(described_class).to receive(:saml_user).and_return(saml_user)
+      end
+
       it 'uplevels an LOA 1 session to LOA 3' do
         expect(User.find(uuid).loa).to eq(highest: LOA::ONE, current: LOA::ONE)
         post :saml_callback
@@ -99,6 +134,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(User.find(uuid)).to_not be_nil
         expect(User.find(uuid).attributes).to eq(User.from_merged_attrs(loa1_user, loa3_user).attributes)
       end
+
       context ' when user clicked DENY' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
         it 'redirects to an auth failure page' do
@@ -131,7 +167,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
       context ' when a required saml attribute is missing' do
-        before { allow(User).to receive(:from_saml).and_return(invalid_user) }
+        before { allow_any_instance_of(described_class).to receive(:new_user_from_saml).and_return(invalid_user) }
         it 'logs a generic error' do
           expect(Rails.logger).to receive(:error).with(/user:    \'valid\?=false errors=\["Uuid can\'t be blank"\]/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
@@ -147,6 +183,23 @@ RSpec.describe V0::SessionsController, type: :controller do
         get :new, level: 1
         expect(SAML::AuthnRequestHelper.new(response).loa1?).to eq(true)
       end
+
+      it 'returns the urls for for all three possible authN requests' do
+        get :authn_urls
+        expect(response).to have_http_status(200)
+        expect(JSON.parse(response.body).keys).to eq %w(mhv dslogon idme)
+      end
+
+      it 'returns does not allow fetching the identity proof url' do
+        get :identity_proof
+        expect(response).to have_http_status(401)
+      end
+
+      it 'does not allow fetching the multifactor url' do
+        get :multifactor
+        expect(response).to have_http_status(401)
+      end
+
       it 'creates the saml authn request with LOA 3 if supplied level=3' do
         get :new, level: 3
         expect(SAML::AuthnRequestHelper.new(response).loa3?).to eq(true)
@@ -174,11 +227,11 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
     describe ' POST saml_callback' do
       it 'does not create a job to create an evss user when user has loa1' do
-        allow(User).to receive(:from_saml).and_return(loa1_user)
+        allow_any_instance_of(described_class).to receive(:new_user_from_saml).and_return(loa1_user)
         expect { post :saml_callback }.to_not change(EVSS::CreateUserAccountJob.jobs, :size)
       end
       it 'creates a job to create an evss user when user has loa3 and evss attrs' do
-        allow(User).to receive(:from_saml).and_return(loa3_user)
+        allow_any_instance_of(described_class).to receive(:new_user_from_saml).and_return(loa3_user)
         expect { post :saml_callback }.to change(EVSS::CreateUserAccountJob.jobs, :size).by(1)
       end
     end

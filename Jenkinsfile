@@ -1,7 +1,8 @@
 pipeline {
   agent {
-    label 'vets-api-linting'
+    label 'vetsgov-general-purpose'
   }
+
   stages {
     stage('Checkout Code') {
       steps {

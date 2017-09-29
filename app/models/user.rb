@@ -5,9 +5,11 @@ require 'mvi/messages/find_profile_message'
 require 'mvi/service'
 require 'evss/common_service'
 require 'evss/auth_headers'
-require 'saml/user_attributes'
+require 'saml/user'
 
 class User < Common::RedisStore
+  include BetaSwitch
+
   UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
 
   redis_store REDIS_CONFIG['user_store']['namespace']
@@ -25,6 +27,11 @@ class User < Common::RedisStore
   attribute :zip
   attribute :ssn
   attribute :loa
+  # These attributes are fetched by SAML::User in the saml_response payload
+  attribute :multifactor   # used by F/E to decision on whether or not to prompt user to add MFA
+  attribute :authn_context # used by F/E to handle various identity related complexities pending refactor
+  # FIXME: if MVI were decorated on usr vs delegated to @mvi, then this might not have been necessary.
+  attribute :mhv_icn # only needed by B/E not serialized in user_serializer
 
   # vaafi attributes
   attribute :last_signed_in, Common::UTCTime
@@ -46,6 +53,10 @@ class User < Common::RedisStore
     user.validates :gender, format: /\A(M|F)\z/, allow_blank: true
   end
 
+  # LOA1 no longer just means ID.me LOA1.
+  # It could also be DSLogon or MHV NON PREMIUM users who have not yet done ID.me FICAM LOA3.
+  # See also lib/saml/user_attributes/dslogon.rb
+  # See also lib/saml/user_attributes/mhv
   def loa1?
     loa[:current] == LOA::ONE
   end
@@ -54,6 +65,12 @@ class User < Common::RedisStore
     loa[:current] == LOA::TWO
   end
 
+  # LOA3 no longer just means ID.me FICAM LOA3.
+  # It could also be DSLogon or MHV Premium users.
+  # It could also be DSLogon or MHV NON PREMIUM users who have done ID.me FICAM LOA3.
+  # Additionally, LOA3 does not automatically mean user has opted to have MFA.
+  # See also lib/saml/user_attributes/dslogon.rb
+  # See also lib/saml/user_attributes/mhv
   def loa3?
     loa[:current] == LOA::THREE
   end
@@ -88,6 +105,10 @@ class User < Common::RedisStore
     true
   end
 
+  def can_prefill_emis?
+    beta_enabled?(uuid, FormProfile::EMIS_PREFILL_KEY)
+  end
+
   def self.from_merged_attrs(existing_user, new_user)
     # we want to always use the more recent attrs so long as they exist
     attrs = new_user.attributes.map do |key, val|
@@ -99,10 +120,6 @@ class User < Common::RedisStore
     attrs[:loa][:highest] = [existing_user[:loa][:highest], new_user[:loa][:highest]].max
 
     User.new(attrs)
-  end
-
-  def self.from_saml(saml_response)
-    User.new(SAML::UserAttributes.new(saml_response))
   end
 
   delegate :edipi, to: :mvi
@@ -133,13 +150,20 @@ class User < Common::RedisStore
     mvi.cache(uuid, mvi.mvi_response)
   end
 
+  %w(veteran_status military_information payment).each do |emis_method|
+    define_method(emis_method) do
+      emis_model = instance_variable_get(:"@#{emis_method}")
+      return emis_model if emis_model.present?
+
+      emis_model = "EMISRedis::#{emis_method.camelize}".constantize.for_user(self)
+      instance_variable_set(:"@#{emis_method}", emis_model)
+      emis_model
+    end
+  end
+
   private
 
   def mvi
     @mvi ||= Mvi.for_user(self)
-  end
-
-  def veteran_status
-    @veteran_status ||= VeteranStatus.for_user(self)
   end
 end
