@@ -26,7 +26,7 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
       json = JSON.parse(response.body)
       url = json['url']
       expect(url).to be
-      traits = json['traits'] 
+      traits = json['traits']
       expect(traits.key?('edipi')).to be_truthy
       expect(traits.key?('firstname')).to be_truthy
       expect(traits.key?('lastname')).to be_truthy
