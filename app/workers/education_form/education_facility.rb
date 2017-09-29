@@ -83,6 +83,10 @@ module EducationForm
       end
     end
 
+    def self.education_program(record)
+      record.educationProgram || record.school
+    end
+
     # Claims are sent to different RPOs based first on the location of the school
     # that the claim is relating to (either `school` or `newSchool` in our submissions)
     # or to the applicant's address (either as a relative or the veteran themselves)
@@ -90,7 +94,7 @@ module EducationForm
     def self.routing_address(record, form_type:)
       case form_type.upcase
       when '1990'
-        record.school&.address || record.veteranAddress
+        education_program(record)&.address || record.veteranAddress
       when '1990N'
         record.educationProgram&.address || record.veteranAddress
       when '1990E', '5490', '5495'
