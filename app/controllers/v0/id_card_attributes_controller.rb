@@ -3,13 +3,13 @@ require 'vic/url_helper'
 require 'vic/id_card_attribute_error'
 
 module V0
-  class IdCardRequestUrlController < ApplicationController
+  class IdCardAttributesController < ApplicationController
     before_action :authorize
 
     def show
       id_attributes = IdCardAttributes.for_user(current_user)
-      vic_url = VIC::URLHelper.generate_url(id_attributes)
-      render json: { 'redirect' => vic_url }
+      signed_attributes = VIC::URLHelper.generate(id_attributes)
+      render json: signed_attributes
     rescue => e
       # Catch all potential errors looking up military service history
       # Monitor sentry to make sure this is not catching more general errors
