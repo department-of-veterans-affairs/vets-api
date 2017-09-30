@@ -10,8 +10,8 @@ require 'action_controller/railtie'
 require 'action_mailer/railtie'
 # require "action_view/railtie"
 # require "sprockets/railtie"
-require_relative '../lib/http_method_not_allowed'
-require_relative '../lib/statsd_middleware'
+require_relative '../app/lib/http_method_not_allowed'
+require_relative '../app/lib/statsd_middleware'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
