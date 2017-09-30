@@ -41,11 +41,6 @@ module VetsAPI
     # This prevents rails from escaping html like & in links when working with JSON
     config.active_support.escape_html_entities_in_json = false
 
-    config.watchable_dirs['lib'] = [:rb]
-
-    config.autoload_paths << Rails.root.join('app')
-    config.autoload_paths << Rails.root.join('lib')
-
     # CORS configuration; see also cors_preflight route
     config.middleware.insert_before 0, 'Rack::Cors', logger: (-> { Rails.logger }) do
       allow do
