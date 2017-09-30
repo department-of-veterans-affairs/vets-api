@@ -8,11 +8,11 @@ module EVSS
         @current_user = current_user
       end
 
-      def find_rating_info(participant_id)
+      def find_rating_info
         perform_with_user_headers(
           :post,
           'ratingInfoService/11.0/findRatingInfoPID',
-          { participantId: participant_id }.to_json
+          { participantId: @current_user.participant_id }.to_json
         )
       end
 

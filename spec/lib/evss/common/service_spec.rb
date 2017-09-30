@@ -10,8 +10,10 @@ describe EVSS::EVSSCommon::Service do
     let(:participant_id) { 123_456_789 }
 
     it 'gets a disability rating record' do
+      allow(current_user).to receive(:participant_id).and_return(participant_id)
+
       VCR.use_cassette('evss/common/rating_record') do
-        response = subject.find_rating_info(participant_id)
+        response = subject.find_rating_info
         expect(response).to be_success
       end
     end

@@ -48,7 +48,7 @@ class EVSSClaimService
 
   def rating_info
     client = EVSS::EVSSCommon::Service.new(@user)
-    body = client.find_rating_info(@user.participant_id).body.fetch('rating_record', {})
+    body = client.find_rating_info.body.fetch('rating_record', {})
     DisabilityRating.new(body['disability_rating_record'])
   end
 
