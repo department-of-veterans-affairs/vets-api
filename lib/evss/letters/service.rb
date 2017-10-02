@@ -34,22 +34,38 @@ module EVSS
       def download_by_type(user, type, options = nil)
         with_exception_handling do
           headers = headers_for_user(user)
-          if options.blank?
-            response = download_conn.get type do |request|
-              request.headers.update(headers)
-            end
-          else
-            headers['Content-Type'] = 'application/json'
-            response = download_conn.post do |request|
-              request.url "#{type}/generate"
-              request.headers.update(headers)
-              request.body = options
-            end
-          end
+          response = make_download_request(headers, options, type)
 
-          raise Common::Exceptions::RecordNotFound, type if response.status.to_i == 404
-          response.body
+          case response.status.to_i
+          when 200
+            response.body
+          when 404
+            raise Common::Exceptions::RecordNotFound, type
+          else
+            log_message_to_sentry(
+              'EVSS letter generation failed', :error, extra_context: {
+                url: config.base_path, body: response.body
+              }
+            )
+            raise_backend_exception('EVSS502', 'Letters')
+          end
         end
+      end
+
+      def make_download_request(headers, options, type)
+        if options.blank?
+          response = download_conn.get type do |request|
+            request.headers.update(headers)
+          end
+        else
+          headers['Content-Type'] = 'application/json'
+          response = download_conn.post do |request|
+            request.url "#{type}/generate"
+            request.headers.update(headers)
+            request.body = options
+          end
+        end
+        response
       end
 
       private
@@ -85,6 +101,7 @@ module EVSS
         @download_conn ||= Faraday.new(config.base_path, ssl: config.ssl_options) do |faraday|
           faraday.options.timeout = 15
           faraday.use :breakers
+          faraday.use EVSS::ErrorMiddleware
           faraday.adapter :httpclient
         end
       end
