@@ -7,16 +7,16 @@ require 'openssl'
 module VIC
   class URLHelper
     class << self
-      def generate_url(id_attributes)
+      def generate(id_attributes)
         params = id_attributes.traits
         params['timestamp'] = Time.now.utc.iso8601
 
         canonical_string = Oj.dump(params)
         params['signature'] = URLHelper.sign(canonical_string)
-
-        base_url = URI(Settings.vic.url)
-        base_url.query = URI.encode_www_form(params)
-        base_url.to_s
+        {
+          'url' => Settings.vic.url,
+          'traits' => params
+        }
       end
 
       def sign(canonical_string)
