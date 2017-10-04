@@ -56,15 +56,18 @@ module SAML
     end
 
     # see warnings
+    # NOTE: The actual exception, if any, should get raised when to_hash is called. Hence "suppress"
     def log_warnings_to_sentry!
-      if (warnings = warnings_for_sentry).any?
-        warning_context = {
-          real_authn_context: real_authn_context,
-          authn_context: authn_context,
-          warnings: warnings.join(', '),
-          loa: @decorated.try(:loa)
-        }
-        log_message_to_sentry("Issues in SAML Response - #{real_authn_context}", :warn, warning_context)
+      suppress(Exception) do
+        if (warnings = warnings_for_sentry).any?
+          warning_context = {
+            real_authn_context: real_authn_context,
+            authn_context: authn_context,
+            warnings: warnings.join(', '),
+            loa: @decorated.loa
+          }
+          log_message_to_sentry("Issues in SAML Response - #{real_authn_context}", :warn, warning_context)
+        end
       end
     end
 
@@ -76,12 +79,12 @@ module SAML
 
     # We want to do some logging of when and how the following issues could arise, since loa is
     # derived based on combination of these values, it could raise an exception at any time, hence
-    # why we use try/catch. NOTE: The actual exception, if any, will get raised when to_hash is called.
+    # why we use try/catch.
     def warnings_for_sentry
       warnings = []
-      warnings << 'attributes[:level_of_assurance] is Nil' if @decorated.try(:idme_loa).blank?
-      warnings << 'LOA Current Nil' if @decorated.try(:loa_current).blank?
-      warnings << 'LOA Highest Nil' if @decorated.try(:loa_highest).blank?
+      warnings << 'attributes[:level_of_assurance] is Nil' if @decorated.idme_loa.blank?
+      warnings << 'LOA Current Nil' if @decorated.loa_current.blank?
+      warnings << 'LOA Highest Nil' if @decorated.loa_highest.blank?
       if warnings.empty? # only check this one if the other ones were non nil
         warnings << 'LOA Current > LOA Highest' if @decorated.loa_current > @decorated.loa_highest
       end
