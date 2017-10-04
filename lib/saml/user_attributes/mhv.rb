@@ -8,6 +8,11 @@ module SAML
     class MHV < BaseDecorator
       PREMIUM_LOAS = %w(Premium).freeze
       MVI_ATTRIBUTES = %i(first_name last_name birth_date ssn gender)
+      BasicLOA3User = Struct.new('BasicUser', :uuid, :mhv_icn) do
+        def loa3?
+          true
+        end
+      end
       NullMvi = Struct.new('NullMvi', *MVI_ATTRIBUTES)
 
       def mhv_icn
@@ -82,14 +87,25 @@ module SAML
       end
 
       # Attributes from MVI
+      def first_name
+        mvi&.profile&.given_names&.first
+      end
 
-      delegate :first_name, to: :mvi
-      delegate :last_name, to: :mvi
-      delegate :birth_date, to: :mvi
-      delegate :ssn, to: :mvi
-      delegate :gender, to: :mvi
+      def last_name
+        mvi&.profile&.family_name
+      end
 
-      private
+      def birth_date
+        mvi&.profile&.birth_date
+      end
+
+      def ssn
+        mvi&.profile&.ssn
+      end
+
+      def gender
+        mvi&.profile&.gender
+      end
 
       # Probably need to rescue from when ICN query returns no result returning NullMVI
       # Logging these various scenarios would provide useful data
@@ -99,14 +115,14 @@ module SAML
             if mhv_icn.present?
               # What if the ICN doesn't return a hit when querying MVI???
               # Null values for any of the loa3_user validations will result in error when persisting.
-              Mvi.from_user(User.new(uuid: uuid, mhv_icn: mhv_icn))
+              Mvi.for_user(BasicLOA3User.new(uuid, mhv_icn))
             else
               # either have to treat this as LOA1 or???
               # Null values for any of the loa3_user validations will result in error when persisting.
-              NullMvi.new(first_name: nil, last_name: nil, birth_date: nil, ssn: nil, gender: nil)
+              NullMvi.new
             end
           else
-            NullMvi.new(first_name: nil, last_name: nil, birth_date: nil, ssn: nil, gender: nil)
+            NullMvi.new
           end
         end
       end

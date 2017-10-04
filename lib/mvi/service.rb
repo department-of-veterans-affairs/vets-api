@@ -41,8 +41,12 @@ module MVI
     private
 
     def create_profile_message(user)
-      raise Common::Exceptions::ValidationErrors, user unless user.valid?(:loa3_user)
-      user.mhv_icn.present? ? message_icn(user) : message_user_attributes(user)
+      if user.mhv_icn.present?
+        message_icn(user)
+      else
+        raise Common::Exceptions::ValidationErrors, user unless user.valid?(:loa3_user)
+        message_user_attributes(user)
+      end
     end
 
     def message_icn(user)
