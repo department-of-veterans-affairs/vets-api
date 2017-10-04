@@ -118,18 +118,7 @@ module V0
 
     # This is used in persist_session_and_user
     def new_user_from_saml
-      @new_user_from_saml ||= begin
-        if saml_user.mhv?
-          if saml_user.icn.present?
-            # fetch name and other attributes from MVI and use in app/models/user.rb
-          else
-            # either raise an error here and log # of times this happens or attempt to load user as loa3
-            #  despite lack of certain important information (name, dob, gender, etc) but dont no ramifications
-          end
-        else
-          User.new(saml_user.to_hash)
-        end
-      end
+      @new_user_from_saml ||= User.new(saml_user.to_hash)
     end
 
     def persist_session_and_user

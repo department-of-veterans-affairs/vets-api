@@ -5,6 +5,15 @@ module SAML
       def initialize(saml_user)
         super(saml_user)
       end
+
+      # Implement try on instances of BasicObject which is what decorator is
+      def try(*a, &b)
+        if a.empty? && block_given?
+          yield self
+        else
+          __send__(*a, &b)
+        end
+      end
     end
   end
 end

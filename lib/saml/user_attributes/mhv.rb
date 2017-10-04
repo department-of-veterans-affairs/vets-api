@@ -7,6 +7,8 @@ module SAML
   module UserAttributes
     class MHV < BaseDecorator
       PREMIUM_LOAS = %w(Premium).freeze
+      MVI_ATTRIBUTES = %i(first_name last_name birth_date ssn gender)
+      NullMvi = Struct.new('NullMvi', *MVI_ATTRIBUTES)
 
       def mhv_icn
         attributes['mhv_icn']
@@ -50,9 +52,9 @@ module SAML
 
       # NOTE: email, uuid, loa are derived values, all others originate from MHV
       # For now we will probably not use available services, mhv profile is unnecessary
-      # once we have the base components
+      # once we have the base components. But we do need to sideload from MVI the attributes if LOA3
       def serializable_attributes
-        %i(mhv_icn email uuid loa multifactor)
+        %i(mhv_icn email uuid loa multifactor) + MVI_ATTRIBUTES
       end
 
       # NOTE: this will always be a JSON object, see above
@@ -77,6 +79,36 @@ module SAML
 
       def loa_highest_available
         3
+      end
+
+      # Attributes from MVI
+
+      delegate :first_name, to: :mvi
+      delegate :last_name, to: :mvi
+      delegate :birth_date, to: :mvi
+      delegate :ssn, to: :mvi
+      delegate :gender, to: :mvi
+
+      private
+
+      # Probably need to rescue from when ICN query returns no result returning NullMVI
+      # Logging these various scenarios would provide useful data
+      def mvi
+        @mvi ||= begin
+          if PREMIUM_LOAS.include?(account_type)
+            if mhv_icn.present?
+              # What if the ICN doesn't return a hit when querying MVI???
+              # Null values for any of the loa3_user validations will result in error when persisting.
+              Mvi.from_user(User.new(uuid: uuid, mhv_icn: mhv_icn))
+            else
+              # either have to treat this as LOA1 or???
+              # Null values for any of the loa3_user validations will result in error when persisting.
+              NullMvi.new(first_name: nil, last_name: nil, birth_date: nil, ssn: nil, gender: nil)
+            end
+          else
+            NullMvi.new(first_name: nil, last_name: nil, birth_date: nil, ssn: nil, gender: nil)
+          end
+        end
       end
     end
   end
