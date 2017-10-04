@@ -7,7 +7,7 @@ module SAML
   module UserAttributes
     class MHV < BaseDecorator
       PREMIUM_LOAS = %w(Premium).freeze
-      MVI_ATTRIBUTES = %i(first_name last_name birth_date ssn gender)
+      MVI_ATTRIBUTES = %i(first_name last_name birth_date ssn gender).freeze
       BasicLOA3User = Struct.new('BasicUser', :uuid, :mhv_icn) do
         def loa3?
           true

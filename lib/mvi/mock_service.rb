@@ -9,10 +9,10 @@ module MVI
 
     def find_profile(user)
       response = if user.mhv_icn.present?
-        mocked_responses['find_candidate'].values.group_by { |h| h[:icn] }.dig(user.mhv_icn)&.first
-      else
-        mocked_responses.dig('find_candidate', user.ssn)
-      end
+                   mocked_responses['find_candidate'].values.group_by { |h| h[:icn] }.dig(user.mhv_icn)&.first
+                 else
+                   mocked_responses.dig('find_candidate', user.ssn)
+                 end
       if response
         profile = MVI::Models::MviProfile.new(response)
         MVI::Responses::FindProfileResponse.new(

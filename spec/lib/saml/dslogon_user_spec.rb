@@ -55,14 +55,12 @@ RSpec.describe SAML::User do
       expect_any_instance_of(described_class).to receive(:log_message_to_sentry).with(
         'Issues in SAML Response - dslogon',
         :warn,
-        {
-          real_authn_context: 'dslogon',
-          authn_context: 'dslogon',
-          warnings: 'attributes[:level_of_assurance] is Nil, LOA Current Nil, LOA Highest Nil',
-          loa: {
-            current: nil,
-            highest: nil
-          }
+        real_authn_context: 'dslogon',
+        authn_context: 'dslogon',
+        warnings: 'attributes[:level_of_assurance] is Nil, LOA Current Nil, LOA Highest Nil',
+        loa: {
+          current: nil,
+          highest: nil
         }
       )
       described_instance
@@ -73,14 +71,12 @@ RSpec.describe SAML::User do
       expect_any_instance_of(described_class).to receive(:log_message_to_sentry).with(
         'Issues in SAML Response - dslogon',
         :warn,
-        {
-          real_authn_context: 'dslogon',
-          authn_context: 'dslogon',
-          warnings: 'LOA Current > LOA Highest',
-          loa: {
-            current: 5,
-            highest: 3
-          }
+        real_authn_context: 'dslogon',
+        authn_context: 'dslogon',
+        warnings: 'LOA Current > LOA Highest',
+        loa: {
+          current: 5,
+          highest: 3
         }
       )
       described_instance
