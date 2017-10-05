@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-require './lib/sm/client_session'
-
 FactoryGirl.define do
   factory :session, class: SM::ClientSession do
     user_id 1234

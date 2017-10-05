@@ -43,7 +43,7 @@ module PdfFill
       )
 
       PDF_FORMS.fill_form(
-        "lib/pdf_fill/forms/pdfs/#{code}.pdf",
+        "app/lib/pdf_fill/forms/pdfs/#{code}.pdf",
         file_path,
         new_hash,
         flatten: true

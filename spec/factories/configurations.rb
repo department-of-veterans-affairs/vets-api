@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-require './lib/sm/configuration'
-
 FactoryGirl.define do
   factory :configuration, class: SM::Configuration do
     host Settings.mhv.sm.host
