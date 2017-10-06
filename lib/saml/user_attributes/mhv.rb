@@ -64,9 +64,11 @@ module SAML
         attributes['level_of_assurance']&.to_i
       end
 
-      # if the account_type PREMIUM or IDME = 3, otherwise 1
+      # if the account_type PREMIUM, otherwise 1
+      # NOTE: idme will always return highest attained, but for iniital non-premium this will always be 1
+      # the leveling up verification step invoked by F/E will correctly capture as LOA3.
       def loa_current
-        PREMIUM_LOAS.include?(account_type) ? 3 : (idme_loa || 1)
+        PREMIUM_LOAS.include?(account_type) ? 3 : 1
       end
 
       # This is "highest attained" via idp
