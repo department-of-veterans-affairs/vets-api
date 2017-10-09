@@ -14,6 +14,16 @@ module EducationForm
       ["22-#{form_type}", '', '']
     end.flatten.freeze
 
+    OCTOBER = 10
+
+    def get_fiscal_year_start(date)
+      if date.month < 10
+        Date.new(date.year - 1, OCTOBER, 1)
+      else
+        Date.new(date.year, OCTOBER, 1)
+      end
+    end
+
     def build_submission_relation(range_type, region, form_type, status)
       range = @ranges[range_type]
       relation = EducationBenefitsSubmission.where(
@@ -27,11 +37,7 @@ module EducationForm
     end
 
     def show_individual_benefits(form_type)
-      if form_type == '1990n'
-        false
-      else
-        true
-      end
+      form_type != '1990n'
     end
 
     def calculate_submissions(range_type: :year, status: :processed)
@@ -69,10 +75,10 @@ module EducationForm
       csv_array = []
       num_form_types = EducationBenefitsClaim::FORM_TYPES.size
 
-      @ranges = {}
-      %i(day year).each do |range_type|
-        @ranges[range_type] = @date.public_send("beginning_of_#{range_type}")..@date.end_of_day
-      end
+      @ranges = {
+        day: @date.beginning_of_day..@date.end_of_day,
+        year: get_fiscal_year_start(@date)..@date.end_of_day
+      }
 
       ranges_header = [@ranges[:year].to_s, '', @ranges[:day].to_s]
       submitted_header = ['', 'Submitted', 'Sent to Spool File']
@@ -204,8 +210,8 @@ module EducationForm
         end
       end
 
-      return unless FeatureFlipper.send_email?
-      YearToDateReportMailer.build(filename).deliver_now
+      # return unless FeatureFlipper.send_email?
+      # YearToDateReportMailer.build(filename).deliver_now
     end
   end
 end
