@@ -49,6 +49,6 @@ rebuild:
 
 .PHONY: clean
 clean:
-	rm -rf data
-	$(COMPOSE_TEST) run vets-api rm -r coverage log tmp
+	rm -r data || true
+	$(COMPOSE_TEST) run vets-api rm -r coverage log tmp || true
 	$(COMPOSE_TEST) down
