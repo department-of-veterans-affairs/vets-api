@@ -10,6 +10,10 @@ describe EVSS::PCIUAddress::DomesticAddress do
     expect(build(:pciu_domestic_address, address_one: '')).to_not be_valid
   end
 
+  it 'should raise an error if address_one contains invalid chars' do
+    expect(build(:pciu_domestic_address, address_one: '123 main ®t.')).to_not be_valid
+  end
+
   it 'should not require address_two or three' do
     expect(build(:pciu_domestic_address, address_two: '')).to be_valid
     expect(build(:pciu_domestic_address, address_three: '')).to be_valid
