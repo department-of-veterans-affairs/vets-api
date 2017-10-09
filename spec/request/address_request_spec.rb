@@ -87,7 +87,7 @@ RSpec.describe 'address', type: :request do
     end
 
     context 'with an address field that is too long' do
-      let(:long_address) { '140 Rock Creek Church Rd NW' }
+      let(:long_address) { '140 Rock Creek Church Rd NW upon the Potomac' }
       let(:domestic_address) { build(:pciu_domestic_address, address_one: long_address) }
 
       it 'should match the errors schema' do
