@@ -29,8 +29,10 @@ module EVSS
 
       def update_address(user, address)
         with_exception_handling do
+          address.address_effective_date = DateTime.now.utc
+          address = address.as_json.delete_if { |_k, v| v.blank? }
           address_json = {
-            'cnpMailingAddress' => Hash[address.as_json.map { |k, v| [k.camelize(:lower), v] }]
+            'cnpMailingAddress' => Hash[address.map { |k, v| [k.camelize(:lower), v] }]
           }.to_json
           headers = headers_for_user(user).update('Content-Type' => 'application/json')
           raw_response = perform(:post, 'mailingAddress', address_json, headers)
@@ -43,19 +45,18 @@ module EVSS
       def with_exception_handling
         yield
       rescue Faraday::ParsingError => e
-        log_message_to_sentry(e.message, :error, extra_context: { url: config.base_path })
-        raise Common::Exceptions::Forbidden, detail: 'Missing correlation id'
+        log_exception_to_sentry(e, extra_context: { url: config.base_path })
+        raise_backend_exception('EVSS502', 'PCIUAddress')
       rescue Common::Client::Errors::ClientError => e
-        raise Common::Exceptions::Forbidden if e.status == 403
-        log_message_to_sentry(
-          e.message, :error, extra_context: { url: config.base_path, body: e.body }
-        )
-        raise Common::Exceptions::BackendServiceException.new(
-          'EVSS502',
-          { source: 'EVSS::PCIUAddress' },
-          e.status,
-          e.body
-        )
+        log_message_to_sentry(e.message, :error, extra_context: { url: config.base_path, body: e&.body })
+        case e.status
+        when 400
+          raise_backend_exception('EVSS400', 'PCIUAddress', e)
+        when 403
+          raise Common::Exceptions::Forbidden
+        else
+          raise_backend_exception('EVSS502', 'PCIUAddress', e)
+        end
       end
     end
   end

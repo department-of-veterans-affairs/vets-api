@@ -86,14 +86,26 @@ module EducationForm
     end
 
     def format_application(data, rpo: 0)
-      form = EducationForm::Forms::Base.build(data)
-      track_form_type("22-#{data.form_type}", rpo)
-      form
+      # This check was added to ensure that the model passes validation before
+      # attempting to build a form from it. This logic should be refactored as
+      # part of a larger effort to clean up the spool file generation if that occurs.
+      if data.valid?
+        form = EducationForm::Forms::Base.build(data)
+        track_form_type("22-#{data.form_type}", rpo)
+        form
+      else
+        inform_on_error(data)
+        nil
+      end
     rescue
-      StatsD.increment('worker.education_benefits_claim.failed_formatting')
-      exception = FormattingError.new("Could not format #{data.confirmation_number}")
-      log_exception_to_sentry(exception)
+      inform_on_error(data)
       nil
+    end
+
+    def inform_on_error(claim)
+      StatsD.increment('worker.education_benefits_claim.failed_formatting')
+      exception = FormattingError.new("Could not format #{claim.confirmation_number}")
+      log_exception_to_sentry(exception)
     end
 
     private

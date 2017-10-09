@@ -6,8 +6,6 @@ FactoryGirl.define do
     address_one ''
     address_two ''
     address_three ''
-    city ''
-    country_name ''
   end
 end
 
@@ -28,8 +26,7 @@ FactoryGirl.define do
     type 'INTERNATIONAL'
     address_one '2 Avenue Gabriel'
     city 'Paris'
-    country_name 'FR'
-    foreign_code '75008'
+    country_name 'France'
   end
 end
 
@@ -41,5 +38,6 @@ FactoryGirl.define do
     military_post_office_type_code 'APO'
     military_state_code 'AE'
     zip_code '09028'
+    zip_suffix '1234'
   end
 end

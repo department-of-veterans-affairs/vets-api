@@ -22,7 +22,9 @@ class UserSerializer < ActiveModel::Serializer
       gender: object.gender,
       zip: object.zip,
       last_signed_in: object.last_signed_in,
-      loa: object.loa
+      loa: object.loa,
+      multifactor: (object.multifactor == 'true'), # cast to boolean
+      authn_context: object.authn_context
     }
   end
 
@@ -43,9 +45,9 @@ class UserSerializer < ActiveModel::Serializer
       status: RESPONSE_STATUS[:ok],
       is_veteran: object.veteran?
     }
-  rescue VeteranStatus::NotAuthorized
+  rescue EMISRedis::VeteranStatus::NotAuthorized
     { status: RESPONSE_STATUS[:not_authorized] }
-  rescue VeteranStatus::RecordNotFound
+  rescue EMISRedis::VeteranStatus::RecordNotFound
     { status: RESPONSE_STATUS[:not_found] }
   rescue StandardError
     { status: RESPONSE_STATUS[:server_error] }

@@ -20,6 +20,12 @@ RSpec.describe EducationForm::EducationFacility do
   describe '#routing_address' do
     let(:form) { OpenStruct.new }
     context '22-1990' do
+      it 'uses educationProgram over school' do
+        form.educationProgram = school(central_address)
+        form.school = school(eastern_address)
+        form.veteranAddress = western_address
+        expect(described_class.routing_address(form, form_type: '1990').state).to eq(central_address.state)
+      end
       it 'uses school over veteranAddress' do
         form.school = school(eastern_address)
         form.veteranAddress = western_address

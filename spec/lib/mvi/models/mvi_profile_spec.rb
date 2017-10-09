@@ -24,5 +24,21 @@ describe MVI::Models::MviProfile do
         expect(subject.mhv_correlation_id).to be_nil
       end
     end
+
+    context 'with an invalid birth date' do
+      subject { build(:mvi_profile, birth_date: '0') }
+
+      it 'returns a nil birth_date' do
+        expect(subject.birth_date).to be_nil
+      end
+    end
+
+    context 'with a valid birth date' do
+      subject { build(:mvi_profile, birth_date: '1985-01-01') }
+
+      it 'returns a non-nil birth_date' do
+        expect(subject.birth_date).not_to be_nil
+      end
+    end
   end
 end

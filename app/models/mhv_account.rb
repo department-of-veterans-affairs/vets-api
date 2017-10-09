@@ -127,7 +127,9 @@ class MhvAccount < ActiveRecord::Base
   # that the user is a VA patient.
   def va_patient?
     facilities = user&.va_profile&.vha_facility_ids
-    facilities.to_a.any? { |f| f.to_i.between?(*Settings.mhv.facility_range) }
+    facilities.to_a.any? do |f|
+      Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) }
+    end
   end
 
   def veteran?

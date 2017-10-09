@@ -5,10 +5,16 @@ require 'evss/auth_headers'
 module EVSS
   class Service < Common::Client::Base
     def headers_for_user(user)
-      @headers_by_user ||= Hash.new do |h, key|
-        h[key] = EVSS::AuthHeaders.new(user).to_h
-      end
-      @headers_by_user[user.uuid]
+      EVSS::AuthHeaders.new(user).to_h
+    end
+
+    def raise_backend_exception(key, source, error = nil)
+      raise Common::Exceptions::BackendServiceException.new(
+        key,
+        { source: "EVSS::#{source}" },
+        error&.status,
+        error&.body
+      )
     end
   end
 end

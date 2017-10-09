@@ -1,15 +1,33 @@
 # frozen_string_literal: true
 
 class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
+  include CarrierWave::MiniMagick
+
   MAX_FILE_SIZE = 25.megabytes
 
   before :store, :validate_file_size
+
+  version :converted, if: :tiff? do
+    process(convert: :jpg)
+
+    def full_filename(file)
+      "converted_#{file}.jpg"
+    end
+  end
 
   def initialize(user_uuid, tracked_item_id)
     super
     @user_uuid = user_uuid
     @tracked_item_id = tracked_item_id
     set_storage_options!
+  end
+
+  def read_for_upload
+    if converted.present?
+      converted.read
+    else
+      read
+    end
   end
 
   def store_dir
@@ -27,6 +45,10 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   end
 
   private
+
+  def tiff?(file)
+    file.content_type == 'image/tiff'
+  end
 
   def validate_file_size(file)
     raise CarrierWave::UploadError, 'File size larger than allowed' if file.size > MAX_FILE_SIZE
