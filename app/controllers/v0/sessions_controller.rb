@@ -15,11 +15,11 @@ module V0
     STATSD_CONTEXT_MAP = {
       LOA::MAPPING.invert[1] => 'idme',
       'dslogon' => 'dslogon',
-      'mhv' => 'mhv',
+      'myhealthevet' => 'mhv',
       LOA::MAPPING.invert[3] => 'idproof',
       'multifactor' => 'multifactor',
       'dslogon_multifactor' => 'dslogon_multifactor',
-      'mhv_multifactor' => 'mhv_multifactor'
+      'myhealthevet_multifactor' => 'mhv_multifactor'
     }.freeze
 
     # Collection Action: this method will eventually be replaced by auth_urls
@@ -40,7 +40,7 @@ module V0
     # no auth required
     def authn_urls
       render json: {
-        mhv: build_url(authn_context: 'mhv', connect: 'mhv'),
+        mhv: build_url(authn_context: 'myhealthevet', connect: 'myhealthevet'),
         dslogon: build_url(authn_context: 'dslogon', connect: 'dslogon'),
         idme: build_url
       }
