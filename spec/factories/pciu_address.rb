@@ -12,7 +12,7 @@ end
 FactoryGirl.define do
   factory :pciu_domestic_address, class: 'EVSS::PCIUAddress::DomesticAddress', parent: :pciu_address do
     type 'DOMESTIC'
-    address_one '225 5th St'
+    address_one '140 Rock Creek Church Rd NW'
     city 'Springfield'
     state_code 'OR'
     country_name 'USA'

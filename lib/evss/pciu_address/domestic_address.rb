@@ -9,7 +9,7 @@ module EVSS
       attribute :zip_code, String
       attribute :zip_suffix, String
 
-      validates :city, pciu_address_line: true, presence: true
+      validates :city, pciu_address_line: true, presence: true, length: { maximum: 30 }
       validates :state_code, presence: true
       validates :zip_code, presence: true
 
