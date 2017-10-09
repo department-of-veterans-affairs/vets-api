@@ -100,27 +100,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
 
   context '#perform' do
-    context 'with a mix of valid and invalid record', run_at: '2016-09-16 03:00:00 EDT' do
-      let(:spool_files) { Rails.root.join('tmp/spool_files/*') }
-      before do
-        expect(Rails.env).to receive('development?').once { true }
-        application_1606.saved_claim.form = {}.to_json
-        application_1606.saved_claim.save!(validate: false) # Make this claim super malformed
-        FactoryGirl.create(:va1990_western_region)
-        FactoryGirl.create(:va1995_full_form)
-        # clear out old test files
-        FileUtils.rm_rf(Dir.glob(spool_files))
-        # ensure our test data is spread across 3 regions..
-        expect(EducationBenefitsClaim.unprocessed.pluck(:regional_processing_office).uniq.count).to eq(3)
-      end
-
-      it 'it processes the valid messages' do
-        expect(subject).to receive(:log_exception_to_sentry).once
-        expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(3).to(1)
-        expect(Dir[spool_files].count).to eq(2)
-      end
-    end
-
     context 'with no records', run_at: '2016-09-16 03:00:00 EDT' do
       before do
         EducationBenefitsClaim.delete_all
