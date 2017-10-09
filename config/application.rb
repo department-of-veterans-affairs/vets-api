@@ -42,6 +42,7 @@ module VetsAPI
     config.active_support.escape_html_entities_in_json = false
 
     config.eager_load_paths << Rails.root.join('lib')
+    config.eager_load_paths << Rails.root.join('app')
 
     # CORS configuration; see also cors_preflight route
     config.middleware.insert_before 0, 'Rack::Cors', logger: (-> { Rails.logger }) do
