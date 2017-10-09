@@ -89,7 +89,7 @@ module EducationForm
       # This check was added to ensure that the model passes validation before
       # attempting to build a form from it. This logic should be refactored as
       # part of a larger effort to clean up the spool file generation if that occurs.
-      if data.valid?
+      if data.saved_claim.valid?
         form = EducationForm::Forms::Base.build(data)
         track_form_type("22-#{data.form_type}", rpo)
         form
