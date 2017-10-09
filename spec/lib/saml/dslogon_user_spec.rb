@@ -35,7 +35,7 @@ RSpec.describe SAML::User do
       let(:described_instance) { described_class.new(saml_response) }
       let(:user) { User.new(described_instance) }
       let(:frozen_time) { Time.current }
-      
+
       it 'does not log warnings to sentry when everything is ok' do
         expect(described_instance).not_to receive(:log_message_to_sentry)
       end
