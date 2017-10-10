@@ -29,6 +29,24 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
     end
   end
 
+  context 'with a report date of 2017-10-01' do
+    subject do
+      described_class.new('2017-10-01'.to_date)
+    end
+
+    describe '#fiscal_year' do
+      it 'should return a fiscal year of 2018' do
+        expect(subject.fiscal_year).to eq(2018)
+      end
+    end
+
+    describe '#beginning_of_fiscal_year' do
+      it 'should return a October 1st, 2017' do
+        expect(subject.beginning_of_fiscal_year).to eq(Date.new(2017, 10))
+      end
+    end
+  end
+
   context 'with some sample submissions', run_at: '2017-01-04 03:00:00 EDT' do
     before do
       2.times do

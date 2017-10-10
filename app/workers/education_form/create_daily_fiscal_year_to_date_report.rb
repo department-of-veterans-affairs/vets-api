@@ -214,7 +214,7 @@ module EducationForm
       csv_array
     end
 
-    def generate
+    def generate_csv
       folder = 'tmp/daily_reports'
       FileUtils.mkdir_p(folder)
       filename = "#{folder}/#{@date}.csv"
@@ -229,7 +229,7 @@ module EducationForm
     end
 
     def perform
-      filename = generate
+      filename = generate_csv
       return unless FeatureFlipper.send_email?
       YearToDateReportMailer.build(filename).deliver_now
     end
