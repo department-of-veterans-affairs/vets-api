@@ -8,11 +8,6 @@ namespace :edu do
     puts EducationForm::Forms::Base.build(app).text
   end
 
-  desc 'Convert Education benefits claims to use educationProgram'
-  task education_program: :environment do
-    DataMigrations::EducationProgram.migrate
-  end
-
   # one off script for spool submission report, delete later
   desc 'generate spool submissions report for last 60 days'
   task spool_report: :environment do
