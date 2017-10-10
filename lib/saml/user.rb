@@ -30,7 +30,7 @@ module SAML
     # see also: real_authn_context, currently only used by sentry logging to limit scope of changes
     def authn_context
       return 'dslogon' if dslogon?
-      return 'mhv' if mhv?
+      return 'myhealthevet' if mhv?
       nil
     end
 
@@ -92,7 +92,7 @@ module SAML
     # but session controller refactor is premature and can't handle it right now.
     def decorator_constant
       case authn_context
-      when 'mhv'; then SAML::UserAttributes::MHV
+      when 'myhealthevet'; then SAML::UserAttributes::MHV
       when 'dslogon'; then SAML::UserAttributes::DSLogon
       else
         SAML::UserAttributes::IdMe

@@ -15,11 +15,11 @@ module V0
     STATSD_CONTEXT_MAP = {
       LOA::MAPPING.invert[1] => 'idme',
       'dslogon' => 'dslogon',
-      'mhv' => 'mhv',
+      'myhealthevet' => 'mhv',
       LOA::MAPPING.invert[3] => 'idproof',
       'multifactor' => 'multifactor',
       'dslogon_multifactor' => 'dslogon_multifactor',
-      'mhv_multifactor' => 'mhv_multifactor'
+      'myhealthevet_multifactor' => 'mhv_multifactor'
     }.freeze
 
     # Collection Action: this method will eventually be replaced by auth_urls
@@ -40,7 +40,7 @@ module V0
     # no auth required
     def authn_urls
       render json: {
-        mhv: build_url(authn_context: 'mhv', connect: 'mhv'),
+        mhv: build_url(authn_context: 'myhealthevet', connect: 'myhealthevet'),
         dslogon: build_url(authn_context: 'dslogon', connect: 'dslogon'),
         idme: build_url
       }
@@ -99,12 +99,12 @@ module V0
 
         obscure_token = Session.obscure_token(@session.token)
         Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
-        Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: ['status:success'])
+        Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: benchmark_tags('status:success'))
         StatsD.increment(STATSD_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
         handle_login_error
         redirect_to Settings.saml.relay + '?auth=fail'
-        Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: ['status:fail'])
+        Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: benchmark_tags('status:failure'))
       end
     ensure
       StatsD.increment(STATSD_LOGIN_TOTAL_KEY)
@@ -202,6 +202,7 @@ module V0
     def build_url(authn_context: LOA::MAPPING.invert[1], connect: nil)
       saml_settings = saml_settings(authn_context: authn_context, name_identifier_value: @session&.uuid)
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
+      Benchmark::Timer.start(TIMER_LOGIN_KEY, saml_auth_request.uuid)
       connect_param = "&connect=#{connect}"
       link = saml_auth_request.create(saml_settings, saml_options)
       connect.present? ? link + connect_param : link
@@ -212,6 +213,13 @@ module V0
       STATSD_CONTEXT_MAP[context] || 'unknown'
     rescue
       'unknown'
+    end
+
+    def benchmark_tags(*tags)
+      tags << "context:#{context_key}"
+      tags << "loa:#{@current_user.loa[:current]}" if @current_user
+      tags << "multifactor:#{@current_user.multifactor}" if @current_user
+      tags
     end
   end
 end
