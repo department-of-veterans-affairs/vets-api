@@ -16,11 +16,26 @@ module EducationForm
 
     OCTOBER = 10
 
-    def get_fiscal_year_start(date)
-      if date.month < 10
-        Date.new(date.year - 1, OCTOBER, 1)
+    # use yesterday as the date for the daily job otherwise we will
+    # miss applications that are submitted after the report is run
+    def initialize(date = yesterday)
+      @date = date
+    end
+
+    def yesterday
+      Time.zone.today - 1.day
+    end
+
+    def beginning_of_fiscal_year
+      # The beginning of the federal fiscal year is October 1st
+      Time.zone.local(fiscal_year - 1, OCTOBER)
+    end
+
+    def fiscal_year
+      if @date.month < OCTOBER
+        @date.year
       else
-        Date.new(date.year, OCTOBER, 1)
+        @date.year + 1
       end
     end
 
@@ -48,7 +63,8 @@ module EducationForm
         form_submissions = {}
 
         EducationFacility::REGIONS.each do |region|
-          next if region == :southern
+          # Atlanta is to be excluded from FYTD reports after the 2017 fiscal year
+          next if fiscal_year > 2017 && region == :southern
 
           region_submissions = {}
 
@@ -77,13 +93,13 @@ module EducationForm
 
       @ranges = {
         day: @date.beginning_of_day..@date.end_of_day,
-        year: get_fiscal_year_start(@date)..@date.end_of_day
+        year: beginning_of_fiscal_year..@date.end_of_day
       }
 
       ranges_header = [@ranges[:year].to_s, '', @ranges[:day].to_s]
       submitted_header = ['', 'Submitted', 'Sent to Spool File']
 
-      csv_array << ["Submitted Vets.gov Applications - Report FYTD #{@date.year} as of #{@date}"]
+      csv_array << ["Submitted Vets.gov Applications - Report FYTD #{fiscal_year} as of #{@date}"]
       csv_array << ['', '', 'DOCUMENT TYPE']
       csv_array << ['RPO', 'BENEFIT TYPE'] + FORM_TYPE_HEADERS
       csv_array << ['', ''] + ranges_header * num_form_types
@@ -167,7 +183,8 @@ module EducationForm
       grand_totals = get_totals_hash_with_form_types
 
       EducationFacility::REGIONS.each do |region|
-        next if region == :southern
+        # Atlanta is to be excluded from FYTD reports after the 2017 fiscal year
+        next if fiscal_year > 2017 && region == :southern
 
         submissions_total = get_totals_hash_with_form_types
 
@@ -198,8 +215,6 @@ module EducationForm
     end
 
     def perform
-      # use yesterday as the date otherwise we will miss applications that are submitted after the report is run
-      @date = Time.zone.today - 1.day
       folder = 'tmp/daily_reports'
       FileUtils.mkdir_p(folder)
       filename = "#{folder}/#{@date}.csv"
@@ -210,8 +225,8 @@ module EducationForm
         end
       end
 
-      # return unless FeatureFlipper.send_email?
-      # YearToDateReportMailer.build(filename).deliver_now
+      return unless FeatureFlipper.send_email?
+      YearToDateReportMailer.build(filename).deliver_now
     end
   end
 end
