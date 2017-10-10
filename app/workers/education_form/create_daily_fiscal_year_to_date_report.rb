@@ -28,7 +28,7 @@ module EducationForm
 
     def beginning_of_fiscal_year
       # The beginning of the federal fiscal year is October 1st
-      Time.zone.local(fiscal_year - 1, OCTOBER)
+      Date.new(fiscal_year - 1, OCTOBER)
     end
 
     def fiscal_year
