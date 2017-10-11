@@ -1,19 +1,21 @@
 # frozen_string_literal: true
 require 'saml/user_attributes/base_decorator'
 
-# TODO: remove these nocov comments when this is able to be tested.
-# :nocov:
 module SAML
   module UserAttributes
     class MHV < BaseDecorator
       PREMIUM_LOAS = %w(Premium).freeze
-      MVI_ATTRIBUTES = %i(first_name last_name birth_date ssn gender).freeze
+      MVI_ATTRIBUTES = %i(given_names family_name birth_date ssn gender).freeze
       BasicLOA3User = Struct.new('BasicUser', :uuid, :mhv_icn) do
         def loa3?
           true
         end
       end
-      NullMvi = Struct.new('NullMvi', *MVI_ATTRIBUTES)
+      NullMvi = Struct.new('NullMvi', *MVI_ATTRIBUTES) do
+        def profile
+          self
+        end
+      end
 
       def mhv_icn
         attributes['mhv_icn']
@@ -59,7 +61,7 @@ module SAML
       # For now we will probably not use available services, mhv profile is unnecessary
       # once we have the base components. But we do need to sideload from MVI the attributes if LOA3
       def serializable_attributes
-        %i(mhv_icn email uuid loa multifactor) + MVI_ATTRIBUTES
+        %i(mhv_icn email uuid loa multifactor) + %i(first_name middle_name last_name birth_date ssn gender)
       end
 
       # NOTE: this will always be a JSON object, see above
@@ -87,6 +89,10 @@ module SAML
       # Attributes from MVI
       def first_name
         mvi&.profile&.given_names&.first
+      end
+
+      def middle_name
+        mvi&.profile&.given_names&.last
       end
 
       def last_name
@@ -127,4 +133,3 @@ module SAML
     end
   end
 end
-# :nocov:
