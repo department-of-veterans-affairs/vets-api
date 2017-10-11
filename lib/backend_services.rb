@@ -6,6 +6,7 @@ class BackendServices
   EVSS_CLAIMS = 'evss-claims'
   APPEALS_STATUS = 'appeals-status'
   USER_PROFILE = 'user-profile'
+  ID_CARD = 'id-card'
 
   # MHV services
   RX = 'rx'
