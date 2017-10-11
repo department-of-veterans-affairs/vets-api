@@ -57,6 +57,7 @@ RSpec.describe SAML::User do
     let(:subject) { described_class.new(saml_response) }
     before do
       allow(saml_response).to receive(:attributes).and_return({})
+      allow(saml_response).to receive(:decrypted_document).and_return(REXML::Document.new(loa3_xml))
     end
 
     context 'changing_multifactor?' do
@@ -77,6 +78,8 @@ RSpec.describe SAML::User do
         end
       end
     end
+
+    context ''
   end
 
   context 'when LOA highest is nil' do
