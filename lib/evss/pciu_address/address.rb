@@ -23,9 +23,9 @@ module EVSS
       attribute :address_two, String
       attribute :address_three, String
 
-      validates :address_one, pciu_address_line: true, presence: true
-      validates :address_two, pciu_address_line: true
-      validates :address_three, pciu_address_line: true
+      validates :address_one, pciu_address_line: true, presence: true, length: { maximum: 35 }
+      validates :address_two, pciu_address_line: true, length: { maximum: 35 }
+      validates :address_three, pciu_address_line: true, length: { maximum: 35 }
       validates :type, inclusion: { in: ADDRESS_TYPES.values }
 
       def self.build_address(attrs)
