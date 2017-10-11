@@ -15,11 +15,11 @@ module V0
     STATSD_CONTEXT_MAP = {
       LOA::MAPPING.invert[1] => 'idme',
       'dslogon' => 'dslogon',
-      'myhealthevet' => 'mhv',
+      'myhealthevet' => 'myhealthevet',
       LOA::MAPPING.invert[3] => 'idproof',
       'multifactor' => 'multifactor',
       'dslogon_multifactor' => 'dslogon_multifactor',
-      'myhealthevet_multifactor' => 'mhv_multifactor'
+      'myhealthevet_multifactor' => 'myhealthevet_multifactor'
     }.freeze
 
     # Collection Action: this method will eventually be replaced by auth_urls
@@ -116,6 +116,7 @@ module V0
       @saml_user ||= SAML::User.new(@saml_response)
     end
 
+    # This is used in persist_session_and_user
     def new_user_from_saml
       @new_user_from_saml ||= User.new(saml_user.to_hash)
     end
