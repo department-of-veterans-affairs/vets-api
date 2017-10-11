@@ -65,7 +65,9 @@ RSpec.describe SAML::User do
       let(:saml_attributes) do
         OneLogin::RubySaml::Attributes.new(
           'mhv_icn' => ['1012853550V207686'],
+          # rubocop:disable LineLength
           'mhv_profile' => ['{"accountType":"Premium","availableServices":{"21":"VA Medications","4":"Secure Messaging","3":"VA Allergies","2":"Rx Refill","12":"Blue Button (all VA data)","1":"Blue Button self entered data.","11":"Blue Button (DoD) Military Service Information"}}'],
+          # rubocop:enable LineLength
           'mhv_uuid' => ['12345748'],
           'email' => ['kam+tristanmhv@adhocteam.us'],
           'multifactor' => ['true'],
