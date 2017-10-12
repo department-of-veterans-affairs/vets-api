@@ -96,10 +96,6 @@ module SAML
       def loa_highest
         PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : (idme_loa || loa_current)
       end
-
-      def loa_highest_available
-        3
-      end
     end
   end
 end
