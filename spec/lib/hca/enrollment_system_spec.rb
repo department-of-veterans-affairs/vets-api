@@ -458,21 +458,6 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
-    'migrated_dependents',
-    [
-      [
-        { 'children' => [TEST_CHILD] },
-        [TEST_CHILD_DEPENDENT]
-      ],
-      [
-        { 'dependents' => [TEST_CHILD_DEPENDENT] },
-        [TEST_CHILD_DEPENDENT]
-      ]
-    ]
-  )
-
-  test_method(
-    described_class,
     'dependent_relationship_to_sds_code',
     [
       ['Spouse', 2],
