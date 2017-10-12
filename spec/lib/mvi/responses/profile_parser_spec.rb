@@ -19,14 +19,14 @@ describe MVI::Responses::ProfileParser do
     end
 
     describe '#parse' do
-      let(:mvi_profile) { build(:mvi_profile_response, :address_austin) }
+      let(:mvi_profile) { build(:mvi_profile_response, :address_austin, birls_id: nil) }
       it 'returns a MviProfile with the parsed attributes' do
         expect(parser.parse).to have_deep_attributes(mvi_profile)
       end
 
       context 'when name parsing fails' do
         let(:mvi_profile) do
-          build(:mvi_profile_response, :address_austin, family_name: nil, given_names: nil, suffix: nil)
+          build(:mvi_profile_response, :address_austin, family_name: nil, given_names: nil, suffix: nil, birls_id: nil)
         end
         it 'should set the names to false' do
           allow(parser).to receive(:get_patient_name).and_return(nil)
@@ -36,7 +36,7 @@ describe MVI::Responses::ProfileParser do
 
       context 'with a missing address' do
         let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response_nil_address.xml')) }
-        let(:mvi_profile) { build(:mvi_profile_response, address: nil) }
+        let(:mvi_profile) { build(:mvi_profile_response, address: nil, birls_id: nil) }
         it 'should set the address to nil' do
           expect(parser.parse).to have_deep_attributes(mvi_profile)
         end
