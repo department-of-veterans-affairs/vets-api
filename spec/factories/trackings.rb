@@ -10,5 +10,9 @@ FactoryGirl.define do
     ndc_number            '12345678910'
     shipped_date          Time.parse('Thu, 12 Oct 2016 00:00:00 EDT').in_time_zone
     delivery_service      'UPS'
+
+    trait :oldest do
+      shipped_date Time.parse('Thu, 12 Oct 2016 00:00:00 EDT').in_time_zone - 1.year
+    end
   end
 end
