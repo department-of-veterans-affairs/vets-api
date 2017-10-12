@@ -7,9 +7,12 @@ module PensionBurial
 
     def connection
       Faraday.new(base_path) do |faraday|
+        faraday.request :multipart
+        faraday.request :url_encoded
+
         faraday.use :breakers
         faraday.response :json
-        conn.adapter Faraday.default_adapter
+        faraday.adapter Faraday.default_adapter
       end
     end
   end
