@@ -1,8 +1,6 @@
 # frozen_string_literal: true
-require 'workflow/task'
-
 module Workflow::Task::ShrineFile
-  class Base < Workflow::Task
+  class Base < Workflow::Task::Base
     attr_accessor :file, :attacher
     def initialize(args = {}, internal: {})
       super
