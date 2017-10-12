@@ -508,18 +508,10 @@ describe HCA::EnrollmentSystem do
     'veteran_to_dependent_financials_collection',
     [
       [
-        { 'children' => [TEST_CHILD] },
-        {
-          'dependentFinancials' => [CHILD_DEPENDENT_FINANCIALS]
-        }
-      ],
-      [
         { 'dependents' => [TEST_CHILD_DEPENDENT] },
-        {
-          'dependentFinancials' => [CHILD_DEPENDENT_FINANCIALS]
-        }
+        { 'dependentFinancials' => [CHILD_DEPENDENT_FINANCIALS] }
       ],
-      [{ 'children' => [] }, nil]
+      [{ 'dependents' => [] }, nil]
     ]
   )
 
@@ -757,42 +749,6 @@ describe HCA::EnrollmentSystem do
           "veteranGrossIncome": 123.33,
           "veteranNetIncome": 90.11,
           "veteranOtherIncome": 10.1,
-          'children' => [TEST_CHILD]
-        }.merge(SPOUSE_FINANCIALS).deep_stringify_keys,
-        {
-          'incomeTest' => { 'discloseFinancialInformation' => true },
-          'financialStatement' => {
-            'expenses' => {
-              'expense' => [
-                { 'amount' => 77.77, 'expenseType' => '3' },
-                { 'amount' => 44.44, 'expenseType' => '19' },
-                { 'amount' => 33.3, 'expenseType' => '18' }
-              ]
-            },
-            'incomes' => {
-              'income' => [
-                { 'amount' => 123.33, 'type' => 7 },
-                { 'amount' => 90.11, 'type' => 13 },
-                { 'amount' => 10.1, 'type' => 10 }
-              ]
-            },
-            'spouseFinancialsList' => CONVERTED_SPOUSE_FINANCIALS,
-            'marriedLastCalendarYear' => true,
-            'dependentFinancialsList' => {
-              'dependentFinancials' => [CHILD_DEPENDENT_FINANCIALS]
-            },
-            'numberOfDependentChildren' => 1
-          }
-        }
-      ],
-      [
-        {
-          "deductibleMedicalExpenses": 33.3,
-          "deductibleFuneralExpenses": 44.44,
-          "deductibleEducationExpenses": 77.77,
-          "veteranGrossIncome": 123.33,
-          "veteranNetIncome": 90.11,
-          "veteranOtherIncome": 10.1,
           'dependents' => [TEST_CHILD_DEPENDENT]
         }.merge(SPOUSE_FINANCIALS).deep_stringify_keys,
         {
@@ -877,7 +833,7 @@ describe HCA::EnrollmentSystem do
     'veteran_to_association_collection',
     [
       [
-        { 'children' => [TEST_CHILD] },
+        { 'dependents' => [TEST_CHILD_DEPENDENT] },
         {
           'association' => [
             CONVERTED_CHILD_ASSOCIATION
@@ -886,7 +842,7 @@ describe HCA::EnrollmentSystem do
       ],
       [
         {
-          'children' => [TEST_CHILD]
+          'dependents' => [TEST_CHILD_DEPENDENT]
         }.merge(TEST_SPOUSE_WITH_DISCLOSURE),
         {
           'association' => [
@@ -896,7 +852,7 @@ describe HCA::EnrollmentSystem do
         }
       ],
       [
-        { 'children' => [] },
+        { 'dependents' => [] },
         nil
       ]
     ]
