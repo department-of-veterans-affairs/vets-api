@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-require 'workflow/task/shrine_file/base'
-
 module Workflow::Task::PensionBurial
   class Upload < Workflow::Task::ShrineFile::Base
     def run(_options = {})
