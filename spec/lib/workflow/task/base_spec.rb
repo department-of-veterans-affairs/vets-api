@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-describe Workflow::Task do
+describe Workflow::Task::Base do
   let(:task) do
-    Workflow::Task.new({ a: true, b: 'otest' }, internal: { c: 'itest' })
+    described_class.new({ a: true, b: 'otest' }, internal: { c: 'itest' })
   end
 
   it 'stores provided options' do
