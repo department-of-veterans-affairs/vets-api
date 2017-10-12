@@ -12,6 +12,10 @@ FactoryGirl.define do
     idp_slo_target_url              'https://api.idmelabs.com/saml/SingleLogoutService'
     idp_sso_target_url              'https://api.idmelabs.com/saml/SingleSignOnService'
     name_identifier_format          'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified'
+
+    trait :rollover_cert do
+      certificate_new Settings.saml.certificate
+    end
   end
 
   factory :settings_no_context, class: 'OneLogin::RubySaml::Settings' do
