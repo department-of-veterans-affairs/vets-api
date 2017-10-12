@@ -65,10 +65,6 @@ module SAML
         loa_highest = idme_loa || loa_current
         [loa_current, loa_highest].max
       end
-
-      def loa_highest_available
-        3
-      end
     end
   end
 end
