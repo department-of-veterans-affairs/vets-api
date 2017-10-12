@@ -41,8 +41,9 @@ module MVI
     private
 
     def create_profile_message(user)
+      return message_icn(user) if user.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
       raise Common::Exceptions::ValidationErrors, user unless user.valid?(:loa3_user)
-      user.mhv_icn.present? ? message_icn(user) : message_user_attributes(user)
+      message_user_attributes(user)
     end
 
     def message_icn(user)
