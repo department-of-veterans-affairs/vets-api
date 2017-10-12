@@ -8,8 +8,8 @@ require 'statsd_middleware'
 RSpec.describe StatsdMiddleware, type: :request do
   include Rx::ClientHelpers
 
-  let(:active_rxs) { File.read('spec/support/fixtures/get_active_rxs.json') }
-  let(:history_rxs) { File.read('spec/support/fixtures/get_history_rxs.json') }
+  let(:active_rxs) { File.read('spec/fixtures/json/get_active_rxs.json') }
+  let(:history_rxs) { File.read('spec/fixtures/json/get_history_rxs.json') }
   let(:session) do
     Rx::ClientSession.new(
       user_id: '123',

@@ -222,6 +222,34 @@ describe PdfFill::Forms::VA21P530 do
     end
   end
 
+  describe '#extract_va_file_number' do
+    subject do
+      new_form_class.extract_va_file_number(form_data['vaFileNumber'])
+    end
+
+    context 'with a leading `c` character' do
+      context 'with 9 digits' do
+        let(:form_data) do
+          { 'vaFileNumber' => 'c123456789' }
+        end
+
+        it 'should strip the leading character' do
+          expect(subject).to eq('123456789')
+        end
+      end
+
+      context 'with less than 9 digits' do
+        let(:form_data) do
+          { 'vaFileNumber' => 'c12345678' }
+        end
+
+        it 'should leave the file number unchanged' do
+          expect(subject).to eq('c12345678')
+        end
+      end
+    end
+  end
+
   describe '#extract_middle_i' do
     subject do
       described_class.new(form_data).extract_middle_i(form_data, 'veteranFullName')
@@ -262,7 +290,7 @@ describe PdfFill::Forms::VA21P530 do
   end
 
   describe '#merge_fields' do
-    it 'should merge the right fields' do
+    it 'should merge the right fields', run_at: '2016-12-31 00:00:00 EDT' do
       expect(described_class.new(get_fixture('pdf_fill/21P-530/kitchen_sink')).merge_fields.to_json).to eq(
         get_fixture('pdf_fill/21P-530/merge_fields').to_json
       )

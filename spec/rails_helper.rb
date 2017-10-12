@@ -18,6 +18,7 @@ require 'support/model_helpers'
 require 'support/saml/authn_request_helper'
 require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
+require 'support/request_helper'
 require 'common/exceptions'
 
 WebMock.disable_net_connect!(allow_localhost: true)
@@ -126,11 +127,14 @@ RSpec.configure do |config|
   # authentication_session_helper
   config.include AuthenticatedSessionHelper, type: :request
 
+  # ability to test options
+  config.include RequestHelper, type: :request
+
   config.include StatsD::Instrument::Matchers
 
   config.before(:each) do |example|
     stub_mvi unless example.metadata[:skip_mvi]
-    stub_veteran_status unless example.metadata[:skip_veteran_status]
+    stub_emis unless example.metadata[:skip_emis]
     Sidekiq::Worker.clear_all
   end
 

@@ -4,6 +4,8 @@ module Common
     module Middleware
       module Response
         class SOAPParser < Faraday::Response::Middleware
+          include SentryLogging
+
           def on_complete(env)
             case env.status
             when 200
@@ -13,6 +15,13 @@ module Common
               end
               env.body = doc
             else
+              log_message_to_sentry(
+                'SOAP HTTP call failed',
+                :error,
+                url: env.url.to_s,
+                status: env.status,
+                body: env.body
+              )
               raise Common::Client::Errors::HTTPError.new('SOAP HTTP call failed', env.status)
             end
           end

@@ -9,7 +9,7 @@ require 'support/spec_temp_files'
 require 'support/have_deep_attributes_matcher'
 require 'support/impl_matchers'
 require 'support/negated_matchers'
-require 'support/veteran_status/stub_veteran_status'
+require 'support/stub_emis'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
@@ -99,13 +99,9 @@ RSpec.configure do |config|
   config.include SpoolHelpers
   config.include FixtureHelpers
 
-  config.around(:each) do |example|
-    if example.metadata[:run_at]
-      Timecop.freeze(Time.zone.parse(example.metadata[:run_at])) do
-        example.run
-      end
-    else
-      example.run
-    end
+  config.around(:example, :run_at) do |example|
+    Timecop.freeze(Time.zone.parse(example.metadata[:run_at]))
+    example.run
+    Timecop.return
   end
 end

@@ -33,7 +33,7 @@ module MVI
     rescue Faraday::ConnectionFailed => e
       Rails.logger.error "MVI find_profile connection failed: #{e.message}"
       MVI::Responses::FindProfileResponse.with_server_error
-    rescue Common::Client::Errors::ClientError => e
+    rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
       Rails.logger.error "MVI find_profile error: #{e.message}"
       MVI::Responses::FindProfileResponse.with_server_error
     end
@@ -42,6 +42,14 @@ module MVI
 
     def create_profile_message(user)
       raise Common::Exceptions::ValidationErrors, user unless user.valid?(:loa3_user)
+      user.mhv_icn.present? ? message_icn(user) : message_user_attributes(user)
+    end
+
+    def message_icn(user)
+      MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml
+    end
+
+    def message_user_attributes(user)
       given_names = [user.first_name]
       given_names.push user.middle_name unless user.middle_name.nil?
       MVI::Messages::FindProfileMessage.new(

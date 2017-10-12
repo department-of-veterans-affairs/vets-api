@@ -2,7 +2,7 @@
 class FailedClaimsReportMailer < ApplicationMailer
   RECIPIENTS = %w(
     lihan@adhocteam.us
-    mark@adhocteam.us
+    ryan.baker@adhocteam.us
     joshua.quagliaroli@va.gov
   ).freeze
 
