@@ -6,22 +6,16 @@ module EVSS
   module Letters
     class LettersResponse < EVSS::Response
       attribute :letters, Array[EVSS::Letters::Letter]
-      attribute :address, EVSS::Letters::Address
+      attribute :full_name, String
 
       def initialize(status, response = nil)
         if response
           attributes = {
             letters: response.body['letters'],
-            address: response.body['letter_destination']
+            full_name: response.body.dig('letter_destination', 'full_name')
           }
         end
         super(status, attributes)
-      end
-
-      def metadata
-        meta = super
-        meta[:address] = address if ok?
-        meta
       end
     end
   end

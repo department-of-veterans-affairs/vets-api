@@ -33,6 +33,20 @@ module PdfFill
           'noFileNumber' => { key: 'F[0].Page_5[0].NoFiled[0]' },
           'hasPowDateRange' => { key: 'F[0].Page_5[0].YesPOW[0]' },
           'noPowDateRange' => { key: 'F[0].Page_5[0].NoPOW[0]' },
+          'signature' => {
+            key: 'F[0].Page_8[0].Signature[2]',
+            limit: 55,
+            question_num: 33,
+            question_suffix: 'A',
+            question_text: "VETERAN'S SIGNATURE"
+          },
+          'signatureDate' => {
+            key: 'F[0].Page_8[0].Date[0]',
+            limit: 11,
+            question_num: 33,
+            question_suffix: 'B',
+            question_text: 'DATE SIGNED'
+          },
           'monthlySpousePayment' => {
             key: 'F[0].Page_6[0].MonthlySupport[0]',
             limit: 11,
@@ -696,7 +710,7 @@ module PdfFill
           next if income_type == 'additionalSources'
 
           amount = financial_acct[income_type]
-          next if amount.nil? || amount.zero?
+          next if amount.nil?
 
           source = INCOME_TYPES_KEY[income_type]
 
@@ -893,6 +907,7 @@ module PdfFill
 
       # rubocop:disable Metrics/MethodLength
       def merge_fields
+        expand_signature(@form_data['veteranFullName'])
         @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
 
         %w(

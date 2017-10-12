@@ -10,6 +10,7 @@ require 'action_controller/railtie'
 require 'action_mailer/railtie'
 # require "action_view/railtie"
 # require "sprockets/railtie"
+require_relative '../lib/http_method_not_allowed'
 require_relative '../lib/statsd_middleware'
 
 # Require the gems listed in Gemfile, including any gems
@@ -55,6 +56,7 @@ module VetsAPI
       end
     end
 
+    config.middleware.insert_before(0, HttpMethodNotAllowed)
     config.middleware.use 'OliveBranch::Middleware'
     config.middleware.use 'StatsdMiddleware'
   end

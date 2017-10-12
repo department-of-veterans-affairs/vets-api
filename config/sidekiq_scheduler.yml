@@ -2,6 +2,10 @@
 # over all workers. The `every` option will run the job once per worker instance
 # at the specified interval.
 
+ExportBreakerStatus:
+  every: '1m'
+  description: "Send breaker status to statsd"
+
 CreateDailySpoolFiles:
   cron: "0 3 * * MON-FRI America/New_York"
   class: EducationForm::CreateDailySpoolFiles
@@ -10,6 +14,10 @@ CreateDailySpoolFiles:
 EducationForm::CreateDailyYearToDateReport:
   cron: "0 4 * * * America/New_York"
   description: "Send the daily report to VA stakeholders about Education Benefits submissions"
+
+EducationForm::CreateSpoolSubmissionsReport:
+  cron: "15 4 * * * America/New_York"
+  description: "Send the daily report to the call center about spool file submissions"
 
 DeleteOldApplications:
   cron: "0 0 * * * America/New_York"

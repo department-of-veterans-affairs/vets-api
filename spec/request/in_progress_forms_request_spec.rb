@@ -20,6 +20,14 @@ RSpec.describe 'in progress forms', type: :request do
     )
   end
 
+  context 'with a "bad" uuid' do
+    let(:user) { build(:loa3_user, uuid: 'cats-and-dogs') }
+    it 'logs and errow with sentry' do
+      expect(Rails.logger).to receive(:error).with(/cats-and-dogs/)
+      get v0_in_progress_forms_url, nil, auth_header
+    end
+  end
+
   describe '#index' do
     let(:user) { loa3_user }
     let!(:in_progress_form_edu) { FactoryGirl.create(:in_progress_form, form_id: '22-1990', user_uuid: user.uuid) }
@@ -31,19 +39,17 @@ RSpec.describe 'in progress forms', type: :request do
 
     context 'when the user is not loa3' do
       let(:user) { loa1_user }
-      it 'returns a 401' do
+      it 'returns a 200' do
         subject
-        expect(response).to have_http_status(:unauthorized)
-        expect(JSON.parse(response.body)['errors'].first['detail']).to match(/do not have access to save/)
+        expect(response).to have_http_status(:ok)
       end
     end
 
     context 'when the user is not a test account' do
       let(:user) { build(:loa3_user, ssn: '000-01-0002') }
-      it 'returns a 401' do
+      it 'returns a 200' do
         subject
-        expect(response).to have_http_status(:unauthorized)
-        expect(JSON.parse(response.body)['errors'].first['detail']).to match(/do not have access to save/)
+        expect(response).to have_http_status(:ok)
       end
     end
 
@@ -61,10 +67,9 @@ RSpec.describe 'in progress forms', type: :request do
 
     context 'when the user is not loa3' do
       let(:user) { loa1_user }
-      it 'returns a 401' do
+      it 'returns a 200' do
         get v0_in_progress_form_url(in_progress_form.form_id), nil, auth_header
-        expect(response).to have_http_status(:unauthorized)
-        expect(JSON.parse(response.body)['errors'].first['detail']).to match(/do not have access to save/)
+        expect(response).to have_http_status(:ok)
       end
     end
 
@@ -137,17 +142,19 @@ RSpec.describe 'in progress forms', type: :request do
   describe '#update' do
     let(:user) { loa3_user }
 
-    context 'when the user is not loa3' do
-      let(:user) { loa1_user }
-      it 'returns a 401' do
-        put v0_in_progress_form_url(0), {}.to_json, auth_header.merge('CONTENT_TYPE' => 'application/json')
-        expect(response).to have_http_status(:unauthorized)
-        expect(JSON.parse(response.body)['errors'].first['detail']).to match(/do not have access to save/)
-      end
-    end
-
     context 'with a new form' do
       let(:new_form) { FactoryGirl.build(:in_progress_form, user_uuid: user.uuid) }
+
+      context 'when the user is not loa3' do
+        let(:user) { loa1_user }
+        it 'returns a 200' do
+          put v0_in_progress_form_url(new_form.form_id), {
+            form_data: new_form.form_data,
+            metadata: new_form.metadata
+          }.to_json, auth_header.merge('CONTENT_TYPE' => 'application/json')
+          expect(response).to have_http_status(:ok)
+        end
+      end
 
       it 'inserts the form', run_at: '2017-01-01' do
         expect do
@@ -171,7 +178,7 @@ RSpec.describe 'in progress forms', type: :request do
 
       context 'when an error occurs' do
         it 'returns an error response' do
-          allow_any_instance_of(InProgressForm).to receive(:update).and_raise(ActiveRecord::ActiveRecordError)
+          allow_any_instance_of(InProgressForm).to receive(:update!).and_raise(ActiveRecord::ActiveRecordError)
           put v0_in_progress_form_url(new_form.form_id), { form_data: new_form.form_data }, auth_header
           expect(response).to have_http_status(:error)
           expect(Oj.load(response.body)['errors'].first['detail']).to eq('Internal server error')
@@ -199,10 +206,9 @@ RSpec.describe 'in progress forms', type: :request do
 
     context 'when the user is not loa3' do
       let(:user) { loa1_user }
-      it 'returns a 401' do
+      it 'returns a 200' do
         delete v0_in_progress_form_url(in_progress_form.form_id), nil, auth_header
-        expect(response).to have_http_status(:unauthorized)
-        expect(JSON.parse(response.body)['errors'].first['detail']).to match(/do not have access to save/)
+        expect(response).to have_http_status(:ok)
       end
     end
 

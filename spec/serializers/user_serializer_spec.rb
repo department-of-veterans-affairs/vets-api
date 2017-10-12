@@ -17,6 +17,14 @@ RSpec.describe UserSerializer, type: :serializer do
     expect(va_profile['ssn']).to be_nil
   end
 
+  describe '#in_progress_forms' do
+    let!(:in_progress_form) { create(:in_progress_form, user_uuid: user.uuid) }
+
+    it 'should include metadata' do
+      expect(attributes['in_progress_forms'][0]['metadata']).to eq(in_progress_form.metadata)
+    end
+  end
+
   describe '#profile' do
     # --- positive tests ---
     it 'should include email' do
@@ -116,7 +124,9 @@ RSpec.describe UserSerializer, type: :serializer do
 
     context 'when a veteran status is not found' do
       before(:each) do
-        allow_any_instance_of(VeteranStatus).to receive(:veteran?).and_raise(VeteranStatus::RecordNotFound)
+        allow_any_instance_of(
+          EMISRedis::VeteranStatus
+        ).to receive(:veteran?).and_raise(EMISRedis::VeteranStatus::RecordNotFound)
       end
 
       it 'should include is_veteran' do
@@ -130,7 +140,9 @@ RSpec.describe UserSerializer, type: :serializer do
 
     context 'when a veteran status call returns an error' do
       before(:each) do
-        allow_any_instance_of(VeteranStatus).to receive(:veteran?).and_raise(Common::Client::Errors::ClientError)
+        allow_any_instance_of(
+          EMISRedis::VeteranStatus
+        ).to receive(:veteran?).and_raise(Common::Client::Errors::ClientError)
       end
 
       it 'should include is_veteran' do
@@ -148,7 +160,9 @@ RSpec.describe UserSerializer, type: :serializer do
       let(:expected) { JSON.parse(serialized_user) }
 
       it 'returns va_profile as null' do
-        allow_any_instance_of(VeteranStatus).to receive(:veteran?).and_raise(VeteranStatus::NotAuthorized)
+        allow_any_instance_of(
+          EMISRedis::VeteranStatus
+        ).to receive(:veteran?).and_raise(EMISRedis::VeteranStatus::NotAuthorized)
         expect(expected['data']['attributes']['veteran_status']).to eq(
           'status' => 'NOT_AUTHORIZED'
         )
