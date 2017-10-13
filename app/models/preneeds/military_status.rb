@@ -21,7 +21,7 @@ module Preneeds
 
     def as_eoas
       # false.present? == false
-      STATUSES.keys.each_with_object([]) { |key, o| o << STATUSES[key] if self[key].present? }
+      STATUSES.keys.each_with_object([]) { |key, o| o << STATUSES[key] if self[key].present? }.first
     end
 
     def self.permitted_params
