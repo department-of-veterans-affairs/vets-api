@@ -14,7 +14,7 @@ RSpec.describe Preneeds::MilitaryStatus do
 
   describe 'when converting to eoas' do
     it 'produces an array of string values' do
-      expect(subject.as_eoas).to include('V', 'E', 'D', 'O', 'I', 'X')
+      expect(subject.as_eoas).to eq('V')
     end
 
     it 'only includes true attributes' do

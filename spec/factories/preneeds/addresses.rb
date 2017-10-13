@@ -5,7 +5,7 @@ FactoryGirl.define do
     sequence(:street2) { |n| "street2 #{n}" }
     city 'NY'
     state 'NY'
-    country 'US'
+    country 'USA'
     postal_code '10000'
   end
 end
