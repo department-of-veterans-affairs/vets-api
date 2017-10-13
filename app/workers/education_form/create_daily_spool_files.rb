@@ -10,7 +10,7 @@ module EducationForm
   end
 
   class CreateDailySpoolFiles
-    LIVE_FORM_TYPES = %w(1990 1995 1990e 5490 1990n 5495).freeze
+    LIVE_FORM_TYPES = %w(1990 1995 1990e 5490 1990n 5495).map { |t| "22-#{t.upcase}" }.freeze
     include Sidekiq::Worker
     include SentryLogging
     sidekiq_options queue: 'default',
@@ -22,7 +22,13 @@ module EducationForm
     # Be *EXTREMELY* careful running this manually as it may overwrite
     # existing files on the SFTP server if one was already written out
     # for the day.
-    def perform(records: EducationBenefitsClaim.unprocessed.where(form_type: LIVE_FORM_TYPES))
+    def perform(
+      records: EducationBenefitsClaim.unprocessed.includes(:saved_claim).where(
+        saved_claims: {
+          form_id: LIVE_FORM_TYPES
+        }
+      )
+    )
       return false if federal_holiday?
       # Group the formatted records into different regions
       if records.count.zero?
@@ -83,7 +89,7 @@ module EducationForm
       # This check was added to ensure that the model passes validation before
       # attempting to build a form from it. This logic should be refactored as
       # part of a larger effort to clean up the spool file generation if that occurs.
-      if data.valid?
+      if data.saved_claim.valid?
         form = EducationForm::Forms::Base.build(data)
         track_form_type("22-#{data.form_type}", rpo)
         form
