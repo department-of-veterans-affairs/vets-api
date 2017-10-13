@@ -11,10 +11,6 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
     described_class.new
   end
 
-  before do
-    allow_any_instance_of(EducationBenefitsClaim).to receive(:create_education_benefits_submission)
-  end
-
   context 'with a report date of 2017-09-30' do
     subject do
       described_class.new('2017-09-30'.to_date)

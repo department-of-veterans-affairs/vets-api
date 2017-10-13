@@ -6,5 +6,5 @@ RSpec.describe SavedClaim::Burial do
   subject { described_class.new }
   let(:instance) { FactoryGirl.build(:burial_claim) }
 
-  it_should_behave_like 'saved_claim_with_confirmation_number'
+  it_should_behave_like 'saved_claim'
 end
