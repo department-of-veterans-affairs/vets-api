@@ -82,7 +82,7 @@ RSpec.describe EducationForm::EducationFacility do
         before do
           new_form = education_benefits_claim.parsed_form
           new_form['school']['address']['state'] = region_data[0]
-          education_benefits_claim.form = new_form.to_json
+          education_benefits_claim.saved_claim.form = new_form.to_json
         end
 
         it 'should return the right address' do
