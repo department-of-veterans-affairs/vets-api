@@ -5,11 +5,10 @@ module PensionBurial
     configuration PensionBurial::Configuration
 
     def upload
-      binding.pry; fail
       request(
         :post,
         '',
-        token: YAML.load_file('config/application.yml')['TOKEN'],
+        token:  Settings.pension_burial.upload.token,
         metadata: {
           filename: 'foo.pdf'
         }.to_json,

@@ -29,6 +29,8 @@ edu:
     port: ~
 
 pension_burial:
+  upload:
+    token: 'token'
   sftp:
     relative_path: '../VETSGOV_PENSION'
 

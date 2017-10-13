@@ -4,11 +4,14 @@ require 'rails_helper'
 RSpec.describe PensionBurial::Service do
   describe '#upload' do
     it 'should upload a file' do
-      VCR.config do |c|
-        c.allow_http_connections_when_no_cassette = true
-      end
+      VCR.use_cassette('pension_burial/upload', match_requests_on: [:body]) do
+        response = described_class.new.upload
+        body = response.body
 
-      described_class.new.upload
+        expect(body['fileSize']).to eq(1226)
+        expect(body['metaSize']).to eq(22)
+        expect(response.status).to eq(200)
+      end
     end
   end
 end

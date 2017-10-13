@@ -1,0 +1,77 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://icmhsgc.csrarad.com/VADocument/upload
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        LS0tLS0tLS0tLS0tLVJ1YnlNdWx0aXBhcnRQb3N0DQpDb250ZW50LURpc3Bv
+        c2l0aW9uOiBmb3JtLWRhdGE7IG5hbWU9InRva2VuIg0KDQp0b2tlbg0KLS0t
+        LS0tLS0tLS0tLVJ1YnlNdWx0aXBhcnRQb3N0DQpDb250ZW50LURpc3Bvc2l0
+        aW9uOiBmb3JtLWRhdGE7IG5hbWU9Im1ldGFkYXRhIg0KDQp7ImZpbGVuYW1l
+        IjoiZm9vLnBkZiJ9DQotLS0tLS0tLS0tLS0tUnVieU11bHRpcGFydFBvc3QN
+        CkNvbnRlbnQtRGlzcG9zaXRpb246IGZvcm0tZGF0YTsgbmFtZT0iZG9jdW1l
+        bnQiOyBmaWxlbmFtZT0iZXh0cmFzLnBkZiINCkNvbnRlbnQtTGVuZ3RoOiAx
+        MjI2DQpDb250ZW50LVR5cGU6IGFwcGxpY2F0aW9uL3BkZg0KQ29udGVudC1U
+        cmFuc2Zlci1FbmNvZGluZzogYmluYXJ5DQoNCiVQREYtMS4zCiX/////CjEg
+        MCBvYmoKPDwgL0NyZWF0b3IgPGZlZmYwMDUwMDA3MjAwNjEwMDc3MDA2ZT4K
+        L1Byb2R1Y2VyIDxmZWZmMDA1MDAwNzIwMDYxMDA3NzAwNmU+Cj4+CmVuZG9i
+        agoyIDAgb2JqCjw8IC9UeXBlIC9DYXRhbG9nCi9QYWdlcyAzIDAgUgo+Pgpl
+        bmRvYmoKMyAwIG9iago8PCAvVHlwZSAvUGFnZXMKL0NvdW50IDEKL0tpZHMg
+        WzUgMCBSXQo+PgplbmRvYmoKNCAwIG9iago8PCAvTGVuZ3RoIDIyOAo+Pgpz
+        dHJlYW0KcQoKQlQKMzYuMCA3MTkuNTEyIFRkCi9GMi4wIDE2IFRmCls8NDE2
+        ND4gMTAgPDY0Njk3NDY5NmY2ZTYxNmMyMDQ5NmU2Nj4gMjAgPDZmNzI2ZDYx
+        NzQ2OTZmNmU+XSBUSgpFVAoKCkJUCjM2LjAgNjkzLjM0NCBUZAovRjIuMCAx
+        MiBUZgpbPDMxNDEyZTIwNDY2ZjZmMjA0YzY5NmU2NTIwMzIzYT5dIFRKCkVU
+        CgoKQlQKMzYuMCA2NzkuMDY0IFRkCi9GMS4wIDEyIFRmCls8NjI2MTcyPl0g
+        VEoKRVQKClEKCmVuZHN0cmVhbQplbmRvYmoKNSAwIG9iago8PCAvVHlwZSAv
+        UGFnZQovUGFyZW50IDMgMCBSCi9NZWRpYUJveCBbMCAwIDYxMi4wIDc5Mi4w
+        XQovQ3JvcEJveCBbMCAwIDYxMi4wIDc5Mi4wXQovQmxlZWRCb3ggWzAgMCA2
+        MTIuMCA3OTIuMF0KL1RyaW1Cb3ggWzAgMCA2MTIuMCA3OTIuMF0KL0FydEJv
+        eCBbMCAwIDYxMi4wIDc5Mi4wXQovQ29udGVudHMgNCAwIFIKL1Jlc291cmNl
+        cyA8PCAvUHJvY1NldCBbL1BERiAvVGV4dCAvSW1hZ2VCIC9JbWFnZUMgL0lt
+        YWdlSV0KL0ZvbnQgPDwgL0YyLjAgNiAwIFIKL0YxLjAgNyAwIFIKPj4KPj4K
+        Pj4KZW5kb2JqCjYgMCBvYmoKPDwgL1R5cGUgL0ZvbnQKL1N1YnR5cGUgL1R5
+        cGUxCi9CYXNlRm9udCAvSGVsdmV0aWNhLUJvbGQKL0VuY29kaW5nIC9XaW5B
+        bnNpRW5jb2RpbmcKPj4KZW5kb2JqCjcgMCBvYmoKPDwgL1R5cGUgL0ZvbnQK
+        L1N1YnR5cGUgL1R5cGUxCi9CYXNlRm9udCAvSGVsdmV0aWNhCi9FbmNvZGlu
+        ZyAvV2luQW5zaUVuY29kaW5nCj4+CmVuZG9iagp4cmVmCjAgOAowMDAwMDAw
+        MDAwIDY1NTM1IGYgCjAwMDAwMDAwMTUgMDAwMDAgbiAKMDAwMDAwMDEwOSAw
+        MDAwMCBuIAowMDAwMDAwMTU4IDAwMDAwIG4gCjAwMDAwMDAyMTUgMDAwMDAg
+        biAKMDAwMDAwMDQ5NCAwMDAwMCBuIAowMDAwMDAwNzkyIDAwMDAwIG4gCjAw
+        MDAwMDA4OTQgMDAwMDAgbiAKdHJhaWxlcgo8PCAvU2l6ZSA4Ci9Sb290IDIg
+        MCBSCi9JbmZvIDEgMCBSCj4+CnN0YXJ0eHJlZgo5OTEKJSVFT0YKDQotLS0t
+        LS0tLS0tLS0tUnVieU11bHRpcGFydFBvc3QtLQ0KDQo=
+    headers:
+      User-Agent:
+      - Faraday v0.9.2
+      Content-Type:
+      - multipart/form-data; boundary=-----------RubyMultipartPost
+      Content-Length:
+      - '1671'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 13 Oct 2017 22:52:24 GMT
+      Server:
+      - Apache-Coyote/1.1
+      Content-Type:
+      - application/json;charset=UTF-8
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"fileSize":1226,"metaSize":22,"md5":"4ZNweAcFIEnXl6LHla8rHQ==","md5hex":"e193707807052049d797a2c795af2b1d"}'
+    http_version: 
+  recorded_at: Fri, 13 Oct 2017 22:52:24 GMT
+recorded_with: VCR 3.0.3
