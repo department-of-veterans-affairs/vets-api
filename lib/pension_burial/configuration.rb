@@ -2,7 +2,7 @@
 module PensionBurial
   class Configuration < Common::Client::Configuration::REST
     def base_path
-      'https://icmhsgc.csrarad.com/VADocument/upload'
+      "https://#{Settings.pension_burial.upload.host}/VADocument/upload"
     end
 
     def connection

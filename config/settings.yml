@@ -30,6 +30,7 @@ edu:
 
 pension_burial:
   upload:
+    host: 'icmhsgc.csrarad.com'
     token: '<PENSIONS_TOKEN>'
 
 # Settings for EVSS
