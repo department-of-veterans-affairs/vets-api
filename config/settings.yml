@@ -30,7 +30,7 @@ edu:
 
 pension_burial:
   upload:
-    token: 'token'
+    token: '<PENSIONS_TOKEN>'
   sftp:
     relative_path: '../VETSGOV_PENSION'
 

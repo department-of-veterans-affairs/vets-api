@@ -7,7 +7,7 @@ module PensionBurial
       request(
         :post,
         '',
-        token:  Settings.pension_burial.upload.token,
+        token: Settings.pension_burial.upload.token,
         metadata: metadata.to_json,
         document: Faraday::UploadIO.new(
           file_io,
