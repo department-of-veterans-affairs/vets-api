@@ -31,10 +31,16 @@ RSpec.describe Workflow::Task::PensionBurial::Upload, run_at: '2017-01-10' do
                           }, internal: { file: attacher.read })
     end
 
-    it 'passes the file off to SFTPWriter' do
+    it 'uploads the file to the pension burial api' do
+      VCR.config do |c|
+        c.allow_http_connections_when_no_cassette = true
+      end
       expect(PersistentAttachment).to receive(:find).with(id).and_return(double(update: true))
       write_path = File.join(path, '123-doctors-note.pdf')
-      instance.run
+
+      VCR.use_cassette('pension_burial/foo', record: :once, match_requests_on: [:body]) do
+        instance.run
+      end
     end
   end
 end

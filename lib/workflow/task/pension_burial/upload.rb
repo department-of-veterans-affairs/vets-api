@@ -6,14 +6,14 @@ module Workflow::Task::PensionBurial
         data.slice(:form_id, :code, :guid).merge(
           original_filename: @file.original_filename
         ),
-        @file.read,
+        @file.to_io,
         @file.mime_type
       )
       PersistentAttachment.find(data[:id]).update(completed_at: Time.current)
     end
 
     def service
-      @service ||= PensionBurial::Service.new
+      @service ||= ::PensionBurial::Service.new
     end
   end
 end
