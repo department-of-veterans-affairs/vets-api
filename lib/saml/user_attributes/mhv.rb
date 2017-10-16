@@ -122,8 +122,6 @@ module SAML
               # What if the ICN doesn't return a hit when querying MVI???
               # Null values for any of the loa3_user validations will result in error when persisting.
               Mvi.for_user(BasicLOA3User.new(uuid, mhv_icn))
-            rescue
-              raise
             else
               # either have to treat this as LOA1 or???
               # Null values for any of the loa3_user validations will result in error when persisting.
