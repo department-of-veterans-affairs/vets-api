@@ -16,6 +16,10 @@ describe EVSS::AuthHeaders do
       # EVSS requires us to pass the HTTP headers as lowercase
       expect(subject.to_h.find { |k, _| k.match(/^[[:upper:]]/) }).to be nil
     end
+
+    it 'includes the users birls id' do
+      expect(subject.to_h['va_eauth_birlsfilenumber']).to eq current_user.birls_id
+    end
   end
 
   context 'with an LoA1 user' do
