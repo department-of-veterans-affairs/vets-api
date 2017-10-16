@@ -129,6 +129,7 @@ class User < Common::RedisStore
     User.new(attrs)
   end
 
+  delegate :birls_id, to: :mvi
   delegate :edipi, to: :mvi
   delegate :icn, to: :mvi
   delegate :participant_id, to: :mvi
