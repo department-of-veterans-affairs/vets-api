@@ -10,6 +10,7 @@ require 'action_controller/railtie'
 require 'action_mailer/railtie'
 # require "action_view/railtie"
 # require "sprockets/railtie"
+require_relative '../lib/http_method_not_allowed'
 require_relative '../lib/statsd_middleware'
 
 # Require the gems listed in Gemfile, including any gems
@@ -40,10 +41,9 @@ module VetsAPI
     # This prevents rails from escaping html like & in links when working with JSON
     config.active_support.escape_html_entities_in_json = false
 
-    config.watchable_dirs['lib'] = [:rb]
-
-    config.autoload_paths << Rails.root.join('app')
-    config.autoload_paths << Rails.root.join('lib')
+    paths_name = Rails.env.development? ? 'autoload' : 'eager_load'
+    config.public_send("#{paths_name}_paths") << Rails.root.join('lib')
+    config.eager_load_paths << Rails.root.join('app')
 
     # CORS configuration; see also cors_preflight route
     config.middleware.insert_before 0, 'Rack::Cors', logger: (-> { Rails.logger }) do
@@ -55,6 +55,7 @@ module VetsAPI
       end
     end
 
+    config.middleware.insert_before(0, HttpMethodNotAllowed)
     config.middleware.use 'OliveBranch::Middleware'
     config.middleware.use 'StatsdMiddleware'
   end

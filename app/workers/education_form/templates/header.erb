@@ -2,7 +2,11 @@
 <%= applicant_name&.first&.upcase&.strip %>
 <%= applicant_name&.middle&.upcase&.strip %>
 <%= applicant_name&.last&.upcase&.strip %>
+<% if header_form_type == 'E1990' -%>
+<%= applicant_ssn&.gsub(/[^\d]/, '') %>
+<% else -%>
 <%= @applicant.veteranSocialSecurityNumber&.gsub(/[^\d]/, '') %>
+<% end -%>
 <%= applicant_ssn&.gsub(/[^\d]/, '') %>
 V<%= header_form_type %>
 

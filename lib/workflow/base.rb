@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Workflow
   class Base
     # For subclasses, store the list of Tasks to run in the order defined

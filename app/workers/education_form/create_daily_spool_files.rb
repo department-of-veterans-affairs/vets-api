@@ -10,7 +10,7 @@ module EducationForm
   end
 
   class CreateDailySpoolFiles
-    LIVE_FORM_TYPES = %w(1990 1995 1990e 5490 1990n 5495).freeze
+    LIVE_FORM_TYPES = %w(1990 1995 1990e 5490 1990n 5495).map { |t| "22-#{t.upcase}" }.freeze
     include Sidekiq::Worker
     include SentryLogging
     sidekiq_options queue: 'default',
@@ -22,7 +22,13 @@ module EducationForm
     # Be *EXTREMELY* careful running this manually as it may overwrite
     # existing files on the SFTP server if one was already written out
     # for the day.
-    def perform(records: EducationBenefitsClaim.unprocessed.where(form_type: LIVE_FORM_TYPES))
+    def perform(
+      records: EducationBenefitsClaim.unprocessed.includes(:saved_claim).where(
+        saved_claims: {
+          form_id: LIVE_FORM_TYPES
+        }
+      )
+    )
       return false if federal_holiday?
       # Group the formatted records into different regions
       if records.count.zero?
@@ -80,14 +86,26 @@ module EducationForm
     end
 
     def format_application(data, rpo: 0)
-      form = EducationForm::Forms::Base.build(data)
-      track_form_type("22-#{data.form_type}", rpo)
-      form
+      # This check was added to ensure that the model passes validation before
+      # attempting to build a form from it. This logic should be refactored as
+      # part of a larger effort to clean up the spool file generation if that occurs.
+      if data.saved_claim.valid?
+        form = EducationForm::Forms::Base.build(data)
+        track_form_type("22-#{data.form_type}", rpo)
+        form
+      else
+        inform_on_error(data)
+        nil
+      end
     rescue
-      StatsD.increment('worker.education_benefits_claim.failed_formatting')
-      exception = FormattingError.new("Could not format #{data.confirmation_number}")
-      log_exception_to_sentry(exception)
+      inform_on_error(data)
       nil
+    end
+
+    def inform_on_error(claim)
+      StatsD.increment('worker.education_benefits_claim.failed_formatting')
+      exception = FormattingError.new("Could not format #{claim.confirmation_number}")
+      log_exception_to_sentry(exception)
     end
 
     private

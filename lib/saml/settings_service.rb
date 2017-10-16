@@ -28,10 +28,14 @@ module SAML
       end
 
       def merged_saml_settings
-        OneLogin::RubySaml::IdpMetadataParser.new.parse(metadata, settings: settings)
-      rescue => e
-        log_message_to_sentry("SAML::SettingService failed to parse SAML metadata: #{e.message}", :error)
-        raise e
+        metadata = get_metadata
+        return nil if metadata.nil?
+        begin
+          OneLogin::RubySaml::IdpMetadataParser.new.parse(metadata, settings: settings)
+        rescue => e
+          log_message_to_sentry("SAML::SettingService failed to parse SAML metadata: #{e.message}", :error)
+          raise e
+        end
       end
       memoize :merged_saml_settings
 
@@ -51,7 +55,7 @@ module SAML
       end
       memoize :connection
 
-      def metadata
+      def get_metadata
         @fetch_attempted = true
         attempt ||= 0
         response = connection.get
@@ -76,6 +80,7 @@ module SAML
         settings.private_key = Settings.saml.key
         settings.issuer = Settings.saml.issuer
         settings.assertion_consumer_service_url = Settings.saml.callback_url
+        settings.certificate_new = Settings.saml.certificate_new
 
         settings.security[:authn_requests_signed] = true
         settings.security[:logout_requests_signed] = true

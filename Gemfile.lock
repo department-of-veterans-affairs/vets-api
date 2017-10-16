@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: dc403e6bdf153f47a1338cef7c7cf370a313fb6d
+  revision: 5a508f6d59a1804acfe63fb809aa21bc236c699d
   branch: master
   specs:
-    vets_json_schema (3.0.26)
+    vets_json_schema (3.6.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -83,7 +83,7 @@ GEM
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
     brakeman (3.4.1)
-    breakers (0.2.3)
+    breakers (0.2.4)
       faraday (>= 0.7.4, < 0.10)
       multi_json (~> 1.0)
     builder (3.2.3)
@@ -220,22 +220,24 @@ GEM
     mime-types-data (3.2016.0521)
     mimemagic (0.3.2)
     mini_magick (4.7.0)
-    mini_portile2 (2.2.0)
+    mini_portile2 (2.3.0)
     minitest (5.10.2)
-    multi_json (1.12.1)
+    multi_json (1.12.2)
     multipart-post (2.0.0)
     nenv (0.3.0)
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
-    nokogiri (1.8.0)
-      mini_portile2 (~> 2.2.0)
+    nokogiri (1.8.1)
+      mini_portile2 (~> 2.3.0)
     nori (2.6.0)
     notiffany (0.0.8)
       nenv (~> 0.1)
       shellany (~> 0.0)
+    octokit (4.7.0)
+      sawyer (~> 0.8.0, >= 0.5.3)
     oj (2.18.2)
-    olive_branch (1.2.2)
+    olive_branch (2.0.0)
       rails (>= 4.0)
     overcommit (0.37.0)
       childprocess (~> 0.5.8)
@@ -273,6 +275,8 @@ GEM
       rack
     rack-test (0.6.3)
       rack (>= 1.0)
+    rack-vcr (0.1.5)
+      vcr (>= 2.9)
     rails (4.2.7.1)
       actionmailer (= 4.2.7.1)
       actionpack (= 4.2.7.1)
@@ -310,6 +314,9 @@ GEM
     redis (3.3.3)
     redis-namespace (1.5.3)
       redis (~> 3.0, >= 3.0.4)
+    redis_rate_limiter (0.1.0)
+      redis
+    require_all (1.4.0)
     rspec (3.5.0)
       rspec-core (~> 3.5.0)
       rspec-expectations (~> 3.5.0)
@@ -343,7 +350,7 @@ GEM
     rubocop-junit-formatter (0.1.3)
     ruby-progressbar (1.8.1)
     ruby-rc4 (0.1.5)
-    ruby-saml (1.3.1)
+    ruby-saml (1.5.0)
       nokogiri (>= 1.5.10)
     rufus-scheduler (3.1.10)
     safe_shell (1.0.3)
@@ -356,6 +363,9 @@ GEM
       nokogiri (>= 1.4.0)
       nori (~> 2.4)
       wasabi (~> 3.4)
+    sawyer (0.8.1)
+      addressable (>= 2.3.5, < 2.6)
+      faraday (~> 0.8, < 1.0)
     script_utils (0.0.4)
     sdoc (0.4.1)
       json (~> 1.7, >= 1.7.7)
@@ -376,6 +386,10 @@ GEM
     sidekiq-instrument (0.2.1)
       sidekiq (~> 4.0)
       statsd-instrument (~> 2.0, >= 2.0.4)
+    sidekiq-rate-limiter (0.1.1)
+      redis
+      redis_rate_limiter
+      sidekiq (>= 2.0, < 5.0)
     sidekiq-scheduler (2.0.19)
       hashie (~> 3.4)
       redis (~> 3)
@@ -440,7 +454,7 @@ PLATFORMS
 
 DEPENDENCIES
   aasm
-  active_model_serializers
+  active_model_serializers (= 0.10.4)
   apivore
   attr_encrypted
   awrence
@@ -479,6 +493,7 @@ DEPENDENCIES
   mini_magick
   net-sftp
   nokogiri
+  octokit
   oj
   olive_branch
   overcommit
@@ -491,16 +506,18 @@ DEPENDENCIES
   pry-nav
   puma (~> 2.16.0)
   rack-cors
+  rack-vcr
   rails (= 4.2.7.1)
   rails-api
   rainbow
   redis
   redis-namespace
+  require_all
   rspec-rails (~> 3.5)
   rspec_junit_formatter
   rubocop (~> 0.42.0)
   rubocop-junit-formatter
-  ruby-saml (~> 1.3.0)
+  ruby-saml
   savon
   sdoc (~> 0.4.0)
   sentry-raven
@@ -508,6 +525,7 @@ DEPENDENCIES
   shrine-memory
   sidekiq
   sidekiq-instrument
+  sidekiq-rate-limiter
   sidekiq-scheduler (~> 2.0)
   sidekiq-unique-jobs
   simplecov
@@ -526,4 +544,4 @@ DEPENDENCIES
   will_paginate
 
 BUNDLED WITH
-   1.15.2
+   1.15.4

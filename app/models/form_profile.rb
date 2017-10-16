@@ -9,6 +9,24 @@ class FormFullName
   attribute :suffix, String
 end
 
+class FormMilitaryInformation
+  include Virtus.model
+
+  attribute :post_nov_1998_combat, Boolean
+  attribute :last_service_branch, String
+  attribute :last_entry_date, String
+  attribute :last_discharge_date, String
+  attribute :discharge_type, String
+  attribute :post_nov111998_combat, Boolean
+  attribute :sw_asia_combat, Boolean
+  attribute :compensable_va_service_connected, Boolean
+  attribute :is_va_service_connected, Boolean
+  attribute :receives_va_pension, Boolean
+  attribute :tours_of_duty, Array
+  attribute :currently_active_duty, Boolean
+  attribute :currently_active_duty_hash, Hash
+end
+
 class FormAddress
   include Virtus.model
 
@@ -34,29 +52,45 @@ class FormContactInformation
 
   attribute :address, FormAddress
   attribute :home_phone, String
+  attribute :us_phone, String
   attribute :email, String
 end
 
 class FormProfile
+  include SentryLogging
+
+  EMIS_PREFILL_KEY = 'emis_prefill'
+
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
+
+  # Forms that will be listed as available for prefill in the user serializer
+  PREFILL_ENABLED_FORMS = [
+    '1010ez',
+    '21P-530',
+    '21P-527EZ'
+  ].freeze
+
+  FORM_ID_TO_CLASS = {
+    '1010EZ'    => ::FormProfile::VA1010ez,
+    '22-1990'   => ::FormProfile::VA1990,
+    '22-1990N'  => ::FormProfile::VA1990n,
+    '22-1995'   => ::FormProfile::VA1995,
+    '22-5490'   => ::FormProfile::VA5490,
+    '22-5495'   => ::FormProfile::VA5495,
+    '21P-530'   => ::FormProfile::VA21p530,
+    '21P-527EZ' => ::FormProfile::VA21p527ez
+  }.freeze
+
   attr_accessor :form_id
   include Virtus.model
 
   attribute :identity_information, FormIdentityInformation
   attribute :contact_information, FormContactInformation
+  attribute :military_information, FormMilitaryInformation
 
   def self.for(form)
     form = form.upcase
-    case form
-    when '1010EZ'
-      ::FormProfile::VA1010ez
-    when '21P-530'
-      ::FormProfile::VA21p530
-    when '21P-527EZ'
-      ::FormProfile::VA21p527ez
-    else
-      self
-    end.new(form)
+    FORM_ID_TO_CLASS.fetch(form, self).new(form)
   end
 
   def initialize(form)
@@ -89,12 +123,39 @@ class FormProfile
   def prefill(user)
     @identity_information = initialize_identity_information(user)
     @contact_information = initialize_contact_information(user)
+    @military_information = initialize_military_information(user)
     mappings = self.class.mappings_for_form(form_id)
     form_data = generate_prefill(mappings)
     { form_data: form_data, metadata: metadata }
   end
 
   private
+
+  def initialize_military_information(user)
+    return {} unless user.can_prefill_emis?
+
+    military_information = user.military_information
+    military_information_data = {}
+
+    begin
+      EMISRedis::MilitaryInformation::PREFILL_METHODS.each do |attr|
+        military_information_data[attr] = military_information.public_send(attr)
+      end
+
+      military_information_data.merge!(
+        receives_va_pension: user.payment.receives_va_pension
+      )
+    rescue => e
+      if Rails.env.production?
+        # fail silently if emis is down
+        log_exception_to_sentry(e, {}, backend_service: :emis)
+      else
+        raise e
+      end
+    end
+
+    FormMilitaryInformation.new(military_information_data)
+  end
 
   def initialize_identity_information(user)
     FormIdentityInformation.new(
@@ -120,11 +181,24 @@ class FormProfile
       postal_code: user.va_profile.address.postal_code,
       country: user.va_profile.address.country
     } if user.va_profile&.address
+
+    home_phone = user&.va_profile&.home_phone&.gsub(/[^\d]/, '')
+
     FormContactInformation.new(
       address: address,
       email: user&.email,
-      home_phone: user&.va_profile&.home_phone&.gsub(/[^\d]/, '')
+      us_phone: get_us_phone(home_phone),
+      home_phone: home_phone
     )
+  end
+
+  def get_us_phone(home_phone)
+    return '' if home_phone.blank?
+    return home_phone if home_phone.size == 10
+
+    return home_phone[1..-1] if home_phone.size == 11 && home_phone[0] == '1'
+
+    ''
   end
 
   def generate_prefill(mappings)
@@ -145,7 +219,7 @@ class FormProfile
     if value.is_a?(Hash)
       clean_hash!(value)
     elsif value.is_a?(Array)
-      value.map(&:clean!).delete_if(&:blank?)
+      value.map { |v| clean!(v) }.delete_if(&:blank?)
     else
       value
     end

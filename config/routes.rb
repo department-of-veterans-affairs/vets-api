@@ -20,12 +20,16 @@ Rails.application.routes.draw do
     end
 
     resource :sessions, only: [:new, :destroy] do
+      get :authn_urls, on: :collection
+      get :multifactor, on: :member
+      get :identity_proof, on: :member
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
     end
 
     resource :user, only: [:show]
     resource :post911_gi_bill_status, only: [:show]
+    resource :feedback, only: [:create]
 
     resource :education_benefits_claims, only: [:create] do
       collection do
@@ -106,6 +110,10 @@ Rails.application.routes.draw do
       resources :calculator_constants, only: :index, defaults: { format: :json }
     end
 
+    scope :id_card do
+      resource :attributes, only: [:show], controller: 'id_card_attributes'
+    end
+
     namespace :preneeds do
       resources :cemeteries, only: :index, defaults: { format: :json }
       resources :states, only: :index, defaults: { format: :json }
@@ -116,6 +124,13 @@ Rails.application.routes.draw do
       resources :burial_forms, only: [:new, :create], defaults: { format: :json }
     end
 
+    resource :address, only: [:show, :update] do
+      collection do
+        get 'countries', to: 'addresses#countries'
+        get 'states', to: 'addresses#states'
+      end
+    end
+
     resources :apidocs, only: [:index]
 
     get 'terms_and_conditions', to: 'terms_and_conditions#index'
@@ -123,10 +138,17 @@ Rails.application.routes.draw do
     get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
 
-    resource :beta_registrations, path: '/beta_registration/health_account', only: [:show, :create],
-                                  defaults: { feature: 'health_account' }
-    resource :beta_registrations, path: '/beta_registration/appeals_status', only: [:show, :create],
-                                  defaults: { feature: 'appeals_status' }
+    [
+      'veteran_id_card',
+      FormProfile::EMIS_PREFILL_KEY
+    ].each do |feature|
+      resource(
+        :beta_registrations,
+        path: "/beta_registration/#{feature}",
+        only: [:show, :create],
+        defaults: { feature: feature }
+      )
+    end
   end
 
   root 'v0/example#index', module: 'v0'

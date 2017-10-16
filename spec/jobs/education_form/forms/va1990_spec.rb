@@ -2,12 +2,12 @@
 require 'rails_helper'
 
 RSpec.describe EducationForm::Forms::VA1990, type: :model, form: :education_benefits do
-  let(:application) { FactoryGirl.create(:education_benefits_claim) }
+  let(:application) { FactoryGirl.create(:va1990).education_benefits_claim }
 
   subject { described_class.new(application) }
 
   SAMPLE_APPLICATIONS = [
-    :simple_ch33, :kitchen_sink
+    :simple_ch33, :kitchen_sink, :kitchen_sink_edu_prog, :kitchen_sink_active_duty
   ].freeze
 
   # For each sample application we have, format it and compare it against a 'known good'

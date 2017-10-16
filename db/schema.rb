@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170731142715) do
+ActiveRecord::Schema.define(version: 20170815233455) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -31,12 +31,15 @@ ActiveRecord::Schema.define(version: 20170731142715) do
     t.datetime "processed_at"
     t.datetime "created_at",                                  null: false
     t.datetime "updated_at",                                  null: false
-    t.string   "encrypted_form",                              null: false
-    t.string   "encrypted_form_iv",                           null: false
+    t.string   "encrypted_form"
+    t.string   "encrypted_form_iv"
     t.string   "regional_processing_office",                  null: false
-    t.string   "form_type",                  default: "1990", null: false
+    t.string   "form_type",                  default: "1990"
+    t.integer  "saved_claim_id",                              null: false
   end
 
+  add_index "education_benefits_claims", ["created_at"], name: "index_education_benefits_claims_on_created_at", using: :btree
+  add_index "education_benefits_claims", ["saved_claim_id"], name: "index_education_benefits_claims_on_saved_claim_id", using: :btree
   add_index "education_benefits_claims", ["submitted_at"], name: "index_education_benefits_claims_on_submitted_at", using: :btree
 
   create_table "education_benefits_submissions", force: :cascade do |t|
@@ -71,7 +74,7 @@ ActiveRecord::Schema.define(version: 20170731142715) do
   add_index "evss_claims", ["user_uuid"], name: "index_evss_claims_on_user_uuid", using: :btree
 
   create_table "in_progress_forms", force: :cascade do |t|
-    t.uuid     "user_uuid",              null: false
+    t.string   "user_uuid",              null: false
     t.string   "form_id",                null: false
     t.string   "encrypted_form_data",    null: false
     t.string   "encrypted_form_data_iv", null: false
@@ -114,7 +117,6 @@ ActiveRecord::Schema.define(version: 20170731142715) do
     t.string   "form_id"
     t.uuid     "guid",              null: false
     t.string   "type"
-    t.string   "user_submitted_at"
   end
 
   create_table "terms_and_conditions", force: :cascade do |t|

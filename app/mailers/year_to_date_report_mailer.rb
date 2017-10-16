@@ -18,16 +18,13 @@ class YearToDateReportMailer < ApplicationMailer
       Anne.kainic@va.gov
       ian@adhocteam.us
       dan.hoicowitz.va@gmail.com
-      mark@adhocteam.us
+      ryan.baker@adhocteam.us
       joshua.quagliaroli@va.gov
     )
   }.freeze
 
   def build(report_file)
-    s3_resource = new_s3_resource
-    obj = s3_resource.bucket(s3_bucket).object("#{SecureRandom.uuid}.csv")
-    obj.upload_file(report_file, content_type: 'text/csv')
-    url = obj.presigned_url(:get, expires_in: 1.week)
+    url = Reports::Uploader.get_s3_link(report_file)
 
     opt = {}
     if FeatureFlipper.staging_email?
@@ -41,20 +38,6 @@ class YearToDateReportMailer < ApplicationMailer
         subject: REPORT_TEXT,
         body: "#{REPORT_TEXT} (link expires in one week)<br>#{url}"
       )
-    )
-  end
-
-  private
-
-  def s3_bucket
-    Settings.reports.aws.bucket
-  end
-
-  def new_s3_resource
-    Aws::S3::Resource.new(
-      region: Settings.reports.aws.region,
-      access_key_id: Settings.reports.aws.access_key_id,
-      secret_access_key: Settings.reports.aws.secret_access_key
     )
   end
 end

@@ -39,6 +39,27 @@ describe HCA::EnrollmentSystem do
     "otherIncome": 91.9
   }.deep_stringify_keys
 
+  TEST_CHILD_DEPENDENT = {
+    "fullName": {
+      "first": 'FirstChildA',
+      "middle": 'MiddleChildA',
+      "last": 'LastChildA',
+      "suffix": 'Jr.'
+    },
+    "dependentRelation": 'Stepson',
+    "socialSecurityNumber": '111-22-9876',
+    "becameDependent": '1992-04-07',
+    "dateOfBirth": '1982-05-05',
+    "disabledBefore18": true,
+    "attendedSchoolLastYear": true,
+    "dependentEducationExpenses": 45.2,
+    "cohabitedLastYear": true,
+    "receivedSupportLastYear": false,
+    "grossIncome": 991.9,
+    "netIncome": 981.2,
+    "otherIncome": 91.9
+  }.deep_stringify_keys
+
   TEST_SPOUSE = {
     'spouseAddress' => TEST_ADDRESS,
     'spousePhone' => '1112221234',
@@ -424,7 +445,7 @@ describe HCA::EnrollmentSystem do
     'resource_to_expense_collection',
     [
       [
-        { 'childEducationExpenses' => 1198.11 },
+        { 'dependentEducationExpenses' => 1198.11 },
         {
           'expense' => [{
             'amount' => 1198.11,
@@ -437,22 +458,26 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
-    'child_relationship_to_sds_code',
+    'dependent_relationship_to_sds_code',
     [
-      ['Daughter', 4],
+      ['Spouse', 2],
       ['Son', 3],
+      ['Daughter', 4],
       ['Stepson', 5],
       ['Stepdaughter', 6],
+      ['Father', 17],
+      ['Mother', 18],
+      ['Other', 99],
       ['', nil]
     ]
   )
 
   test_method(
     described_class,
-    'child_to_dependent_info',
+    'dependent_info',
     [
       [
-        TEST_CHILD,
+        TEST_CHILD_DEPENDENT,
         {
           'dob' => '05/05/1982',
           'givenName' => 'FIRSTCHILDA',
@@ -469,10 +494,10 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
-    'child_to_dependent_financials_info',
+    'dependent_financials_info',
     [
       [
-        TEST_CHILD,
+        TEST_CHILD_DEPENDENT,
         CHILD_DEPENDENT_FINANCIALS
       ]
     ]
@@ -483,12 +508,10 @@ describe HCA::EnrollmentSystem do
     'veteran_to_dependent_financials_collection',
     [
       [
-        { 'children' => [TEST_CHILD] },
-        {
-          'dependentFinancials' => [CHILD_DEPENDENT_FINANCIALS]
-        }
+        { 'dependents' => [TEST_CHILD_DEPENDENT] },
+        { 'dependentFinancials' => [CHILD_DEPENDENT_FINANCIALS] }
       ],
-      [{ 'children' => [] }, nil]
+      [{ 'dependents' => [] }, nil]
     ]
   )
 
@@ -726,7 +749,7 @@ describe HCA::EnrollmentSystem do
           "veteranGrossIncome": 123.33,
           "veteranNetIncome": 90.11,
           "veteranOtherIncome": 10.1,
-          'children' => [TEST_CHILD]
+          'dependents' => [TEST_CHILD_DEPENDENT]
         }.merge(SPOUSE_FINANCIALS).deep_stringify_keys,
         {
           'incomeTest' => { 'discloseFinancialInformation' => true },
@@ -778,10 +801,10 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
-    'child_to_association',
+    'dependent_to_association',
     [
       [
-        TEST_CHILD,
+        TEST_CHILD_DEPENDENT,
         CONVERTED_CHILD_ASSOCIATION
       ]
     ]
@@ -810,7 +833,7 @@ describe HCA::EnrollmentSystem do
     'veteran_to_association_collection',
     [
       [
-        { 'children' => [TEST_CHILD] },
+        { 'dependents' => [TEST_CHILD_DEPENDENT] },
         {
           'association' => [
             CONVERTED_CHILD_ASSOCIATION
@@ -819,7 +842,7 @@ describe HCA::EnrollmentSystem do
       ],
       [
         {
-          'children' => [TEST_CHILD]
+          'dependents' => [TEST_CHILD_DEPENDENT]
         }.merge(TEST_SPOUSE_WITH_DISCLOSURE),
         {
           'association' => [
@@ -829,7 +852,7 @@ describe HCA::EnrollmentSystem do
         }
       ],
       [
-        { 'children' => [] },
+        { 'dependents' => [] },
         nil
       ]
     ]
@@ -923,6 +946,46 @@ describe HCA::EnrollmentSystem do
       )
     end
   end
+
+  test_method(
+    described_class,
+    'copy_spouse_address!',
+    [
+      [
+        {
+          'veteranAddress' => {
+            'street' => '123 NW 5th St'
+          }
+        },
+        {
+          'veteranAddress' => {
+            'street' => '123 NW 5th St'
+          },
+          'spouseAddress' => {
+            'street' => '123 NW 5th St'
+          }
+        }
+      ],
+      [
+        {
+          'veteranAddress' => {
+            'street' => '123 NW 5th St'
+          },
+          'spouseAddress' => {
+            'street' => 'sdfsdf'
+          }
+        },
+        {
+          'veteranAddress' => {
+            'street' => '123 NW 5th St'
+          },
+          'spouseAddress' => {
+            'street' => 'sdfsdf'
+          }
+        }
+      ]
+    ]
+  )
 
   test_method(
     described_class,

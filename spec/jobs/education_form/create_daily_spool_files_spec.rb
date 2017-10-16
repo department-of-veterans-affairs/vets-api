@@ -5,7 +5,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   subject { described_class.new }
 
   let!(:application_1606) do
-    FactoryGirl.create(:education_benefits_claim)
+    create(:va1990).education_benefits_claim
   end
   let(:line_break) { EducationForm::WINDOWS_NOTEPAD_LINEBREAK }
 
@@ -60,9 +60,12 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context '#format_application' do
     it 'logs an error if the record is invalid' do
-      expect(application_1606).to receive(:open_struct_form).once.and_return(OpenStruct.new)
+      application_1606.saved_claim.form = {}.to_json
+      application_1606.saved_claim.save!(validate: false)
+
       expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::FormattingError))
-      subject.format_application(application_1606)
+
+      subject.format_application(EducationBenefitsClaim.find(application_1606.id))
     end
 
     context 'with a 1990 form' do
@@ -74,7 +77,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     end
 
     context 'with a 1995 form' do
-      let(:application_1606) { create(:education_benefits_claim_1995_full_form) }
+      let(:application_1606) { create(:va1995_full_form).education_benefits_claim }
 
       it 'tracks the 1995 form' do
         expect(subject).to receive(:track_form_type).with('22-1995', 999)
@@ -101,10 +104,10 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       let(:spool_files) { Rails.root.join('tmp/spool_files/*') }
       before do
         expect(Rails.env).to receive('development?').once { true }
-        application_1606.form = {}.to_json
-        application_1606.save! # Make this claim super malformed
-        FactoryGirl.create(:education_benefits_claim_western_region)
-        FactoryGirl.create(:education_benefits_claim_1995_full_form)
+        application_1606.saved_claim.form = {}.to_json
+        application_1606.saved_claim.save!(validate: false) # Make this claim super malformed
+        FactoryGirl.create(:va1990_western_region)
+        FactoryGirl.create(:va1995_full_form)
         # clear out old test files
         FileUtils.rm_rf(Dir.glob(spool_files))
         # ensure our test data is spread across 3 regions..
@@ -149,18 +152,18 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         { state: 'OK' },
         { state: 'XX', country: 'PHL' }
       ].each do |address_data|
-        submissions << EducationBenefitsClaim.create(
+        submissions << SavedClaim::EducationBenefits::VA1990.create(
           form: base_form.merge(
             school: {
               address: base_address.merge(address_data)
             }
           ).to_json
-        )
+        ).education_benefits_claim
       end
 
-      submissions << EducationBenefitsClaim.create(
+      submissions << SavedClaim::EducationBenefits::VA1990.create(
         form: base_form.to_json
-      )
+      ).education_benefits_claim
 
       output = subject.group_submissions_by_region(submissions)
       expect(output[:eastern].length).to be(2)
@@ -171,7 +174,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context 'write_files', run_at: '2016-09-16 03:00:00 EDT' do
     let(:filename) { '307_09162016_vetsgov.spl' }
-    let!(:second_record) { FactoryGirl.create(:education_benefits_claim_1995) }
+    let!(:second_record) { FactoryGirl.create(:va1995) }
 
     context 'in the development env' do
       let(:file_path) { "tmp/spool_files/#{filename}" }
@@ -187,7 +190,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(contents).to include('APPLICATION FOR VA EDUCATION BENEFITS')
         # Concatenation is done in #write_files, so check for it here in the caller
         expect(contents).to include("*END*#{line_break}*INIT*")
-        expect(contents).to include(second_record.confirmation_number)
+        expect(contents).to include(second_record.education_benefits_claim.confirmation_number)
         expect(contents).to include(application_1606.confirmation_number)
         expect(EducationBenefitsClaim.unprocessed).to be_empty
       end

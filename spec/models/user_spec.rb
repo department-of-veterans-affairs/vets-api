@@ -31,6 +31,18 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#can_prefill_emis?' do
+    let(:user) { build(:loa3_user) }
+
+    before do
+      expect(user).to receive('beta_enabled?').with(user.uuid, 'emis_prefill').and_return(true)
+    end
+
+    it 'should return true if the user has the right epipi' do
+      expect(user.can_prefill_emis?).to eq(true)
+    end
+  end
+
   describe '.create()' do
     context 'with LOA 1' do
       subject(:loa1_user) { described_class.new(FactoryGirl.build(:user, loa: loa_one)) }

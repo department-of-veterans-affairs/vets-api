@@ -1,4 +1,7 @@
 # frozen_string_literal: true
+
+require 'common/models/attribute_types/date_time_string'
+
 module MVI
   module Models
     # A vets primary address in MVI
@@ -20,7 +23,7 @@ module MVI
       attribute :family_name, String
       attribute :suffix, String
       attribute :gender, String
-      attribute :birth_date, String
+      attribute :birth_date, Common::DateTimeString
       attribute :ssn, String
       attribute :address, MviProfileAddress
       attribute :home_phone, String
@@ -29,6 +32,7 @@ module MVI
       attribute :vha_facility_ids, Array[String]
       attribute :edipi, String
       attribute :participant_id, String
+      attribute :birls_id, String
 
       def mhv_correlation_id
         @mhv_ids&.first
