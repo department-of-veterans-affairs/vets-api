@@ -20,7 +20,7 @@ RSpec.describe 'Beta Registration Endpoint', type: :request do
   end
 
   it 'returns 404 for unregistered user' do
-    get '/v0/beta_registration/health_account', nil, auth_header
+    get '/v0/beta_registration/veteran_id_card', nil, auth_header
     expect(response).to have_http_status(:not_found)
   end
 
@@ -31,7 +31,7 @@ RSpec.describe 'Beta Registration Endpoint', type: :request do
   end
 
   it 'accepts register request' do
-    post '/v0/beta_registration/health_account', nil, auth_header
+    post '/v0/beta_registration/veteran_id_card', nil, auth_header
     expect(response).to be_success
     expect(response.body).to be_a(String)
     json = JSON.parse(response.body)
@@ -39,15 +39,15 @@ RSpec.describe 'Beta Registration Endpoint', type: :request do
   end
 
   it 'accepts register request' do
-    post '/v0/beta_registration/health_account', nil, auth_header
-    get '/v0/beta_registration/health_account', nil, auth_header
+    post '/v0/beta_registration/veteran_id_card', nil, auth_header
+    get '/v0/beta_registration/veteran_id_card', nil, auth_header
     expect(response).to be_success
     json = JSON.parse(response.body)
     expect(json['user']).to eq(user.email)
   end
 
   it 'is reflected in beta_switch' do
-    post '/v0/beta_registration/health_account', nil, auth_header
-    expect(dummy_class.beta_enabled?(user.uuid, 'health_account')).to be_truthy
+    post '/v0/beta_registration/veteran_id_card', nil, auth_header
+    expect(dummy_class.beta_enabled?(user.uuid, 'veteran_id_card')).to be_truthy
   end
 end
