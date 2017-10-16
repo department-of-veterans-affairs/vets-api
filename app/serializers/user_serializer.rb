@@ -68,7 +68,7 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def prefills_available
-    object.can_access_prefill_data? ? FormProfile::MAPPINGS : []
+    object.can_access_prefill_data? ? FormProfile::PREFILL_ENABLED_FORMS : []
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
