@@ -8,13 +8,13 @@ RSpec.describe PensionBurial::Service do
     it 'should upload a file' do
       VCR.use_cassette('pension_burial/upload', match_requests_on: [:body]) do
         response = described_class.new.upload(
-          {:form_id=>"99-9999EZ", :code=>"V-TESTTEST", :guid=>"123", :original_filename=>"doctors-note.pdf"},
+          { form_id: '99-9999EZ', code: 'V-TESTTEST', guid: '123', original_filename: 'doctors-note.pdf' },
           StringIO.new(File.read(file_path)),
           'application/pdf'
         )
         body = response.body
 
-        expect(body['fileSize']).to eq(10548)
+        expect(body['fileSize']).to eq(10_548)
         expect(body['metaSize']).to eq(95)
         expect(response.status).to eq(200)
       end
