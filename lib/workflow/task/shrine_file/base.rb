@@ -39,7 +39,9 @@ module Workflow
 
         def add_version(file, **rest)
           internal[:file] = file
-          record = { file: file }.merge(rest.merge(task: self.class.to_s, added: Time.current.to_s)).merge(user_args: data)
+          record = {
+            file: file
+          }.merge(rest.merge(task: self.class.to_s, added: Time.current.to_s)).merge(user_args: data)
           internal[:history] << record
           @file = attacher.get
         end
