@@ -93,7 +93,8 @@ module MVI
           mhv_ids: correlation_ids[:mhv_ids],
           edipi: correlation_ids[:edipi],
           participant_id: correlation_ids[:vba_corp_id],
-          vha_facility_ids: correlation_ids[:vha_facility_ids]
+          vha_facility_ids: correlation_ids[:vha_facility_ids],
+          birls_id: correlation_ids[:birls_id]
         )
       end
 
@@ -174,7 +175,8 @@ module MVI
           active_mhv_ids: select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^A$/, CORRELATION_ROOT_ID)),
           edipi: select_ids(select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^\w+$/, EDIPI_ROOT_ID))&.first,
           vba_corp_id: select_ids(select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^\w+$/, CORRELATION_ROOT_ID))&.first,
-          vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, CORRELATION_ROOT_ID))
+          vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, CORRELATION_ROOT_ID)),
+          birls_id: select_ids(select_extension(ids, /^\w+\^PI\^200BRLS\^USVBA\^\w+$/, CORRELATION_ROOT_ID))&.first
         }
       end
 
