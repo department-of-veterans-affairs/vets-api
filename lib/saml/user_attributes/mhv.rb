@@ -113,20 +113,6 @@ module SAML
         mvi&.profile&.gender
       end
 
-      #1) ICN -> MVI -> it fails for any number of reasons
-      #2) We don't have an ICN, we dont know anything about you...
-
-      MHV non-premium, identity proof idme.
-      MHV non-premium -> ID.me LOA3
-      MHV non-premium == Premium
-
-      Idme LOA1 -> ID.me LOA3
-      Premium
-      MHV
-
-      DS logon non-premium -> IDme LOA3
-
-
       # Probably need to rescue from when ICN query returns no result returning NullMVI
       # Logging these various scenarios would provide useful data
       def mvi
