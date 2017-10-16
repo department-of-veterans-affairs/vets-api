@@ -31,9 +31,6 @@ edu:
 pension_burial:
   upload:
     token: '<PENSIONS_TOKEN>'
-  # TODO remove
-  sftp:
-    relative_path: '../VETSGOV_PENSION'
 
 # Settings for EVSS
 evss:
