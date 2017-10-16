@@ -33,7 +33,6 @@ RSpec.describe Workflow::Task::PensionBurial::Upload, run_at: '2017-01-10' do
 
     it 'uploads the file to the pension burial api' do
       expect(PersistentAttachment).to receive(:find).with(id).and_return(double(update: true))
-      write_path = File.join(path, '123-doctors-note.pdf')
 
       VCR.use_cassette('pension_burial/upload', match_requests_on: [:body]) do
         instance.run
