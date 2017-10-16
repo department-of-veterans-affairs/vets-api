@@ -32,6 +32,7 @@ module MVI
       attribute :vha_facility_ids, Array[String]
       attribute :edipi, String
       attribute :participant_id, String
+      attribute :birls_id, String
 
       def mhv_correlation_id
         @mhv_ids&.first

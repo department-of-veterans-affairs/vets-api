@@ -57,18 +57,18 @@
 		"zipcode": "",
 		"postalCode": "00000"
 	},
-	"children": [{
-		"childFullName": {
+	"dependents": [{
+		"fullName": {
 			"first": "ChildName",
 			"middle": "MiddleC",
 			"last": "LastC",
 			"suffix": "Jr."
 		},
-		"childRelation": "Son",
-		"childSocialSecurityNumber": "222-44-6666",
-		"childBecameDependent": "2006-11-14",
-		"childDateOfBirth": "2006-11-14",
-		"childEducationExpenses": 1000,
+		"dependentRelation": "Son",
+		"socialSecurityNumber": "222-44-6666",
+		"becameDependent": "2006-11-14",
+		"dateOfBirth": "2006-11-14",
+		"dependentEducationExpenses": 1000,
 		"grossIncome": 8000,
 		"netIncome": 9000,
 		"otherIncome": 10000
