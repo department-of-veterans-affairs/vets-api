@@ -30,6 +30,7 @@ edu:
 
 pension_burial:
   upload:
+    enabled: true
     host: 'icmhsgc.csrarad.com'
     token: '<PENSIONS_TOKEN>'
 
