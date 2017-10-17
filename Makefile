@@ -36,7 +36,7 @@ security: db
 	@$(BASH_DEV) "bundle exec rake security"
 
 .PHONY: spec
-spec:
+spec: db
 	@$(BASH_TEST) "bundle exec rake spec"
 
 .PHONY: up
@@ -45,6 +45,7 @@ up: db
 
 .PHONY: rebuild
 rebuild:
+	@$(COMPOSE_DEV) down
 	@$(COMPOSE_DEV) build
 
 .PHONY: clean

@@ -49,7 +49,7 @@ RSpec.describe SAML::User do
           :warn,
           real_authn_context: 'dslogon',
           authn_context: 'dslogon',
-          warnings: 'attributes[:level_of_assurance] is Nil, LOA Current Nil, LOA Highest Nil',
+          warnings: 'LOA Current Nil, LOA Highest Nil',
           loa: {
             current: nil,
             highest: nil
