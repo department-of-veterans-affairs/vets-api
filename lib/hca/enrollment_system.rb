@@ -281,28 +281,8 @@ module HCA
       }
     end
 
-    def migrated_dependents(veteran)
-      veteran['dependents'] || veteran.fetch('children', []).map do |child|
-        {
-          'fullName' => child['childFullName'],
-          'dependentRelation' => child['childRelation'],
-          'socialSecurityNumber' => child['childSocialSecurityNumber'],
-          'becameDependent' => child['childBecameDependent'],
-          'dateOfBirth' => child['childDateOfBirth'],
-          'disabledBefore18' => child['childDisabledBefore18'],
-          'attendedSchoolLastYear' => child['childAttendedSchoolLastYear'],
-          'dependentEducationExpenses' => child['childEducationExpenses'],
-          'cohabitedLastYear' => child['childCohabitedLastYear'],
-          'receivedSupportLastYear' => child['childReceivedSupportLastYear'],
-          'grossIncome' => child['grossIncome'],
-          'netIncome' => child['netIncome'],
-          'otherIncome' => child['otherIncome']
-        }
-      end
-    end
-
     def veteran_to_dependent_financials_collection(veteran)
-      dependents = migrated_dependents(veteran)
+      dependents = veteran['dependents']
 
       if dependents.present?
         {
@@ -493,7 +473,7 @@ module HCA
           'spouseFinancialsList' => veteran_to_spouse_financials(veteran),
           'marriedLastCalendarYear' => veteran['maritalStatus'] == 'Married',
           'dependentFinancialsList' => veteran_to_dependent_financials_collection(veteran),
-          'numberOfDependentChildren' => veteran['dependents']&.size || veteran['children']&.size
+          'numberOfDependentChildren' => veteran['dependents']&.size
         }
       }
     end
@@ -522,7 +502,7 @@ module HCA
     def veteran_to_association_collection(veteran)
       associations = []
 
-      dependents_list = migrated_dependents(veteran)
+      dependents_list = veteran['dependents']
 
       dependents = dependents_list.map do |dependent|
         dependent_to_association(dependent)
