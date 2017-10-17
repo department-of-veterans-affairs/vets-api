@@ -63,6 +63,13 @@ class FormProfile
 
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
+  # Forms that will be listed as available for prefill in the user serializer
+  PREFILL_ENABLED_FORMS = [
+    '1010ez',
+    '21P-530',
+    '21P-527EZ'
+  ].freeze
+
   FORM_ID_TO_CLASS = {
     '1010EZ'    => ::FormProfile::VA1010ez,
     '22-1990'   => ::FormProfile::VA1990,
