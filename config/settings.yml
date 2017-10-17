@@ -29,6 +29,8 @@ edu:
     port: ~
 
 pension_burial:
+  sftp:
+    relative_path: '../VETSGOV_PENSION'
   upload:
     enabled: true
     host: 'icmhsgc.csrarad.com'
