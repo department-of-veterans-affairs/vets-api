@@ -5,6 +5,10 @@ module PensionBurial
       "https://#{Settings.pension_burial.upload.host}/VADocument/upload"
     end
 
+    def service_name
+      'PensionBurial'
+    end
+
     def connection
       Faraday.new(base_path) do |faraday|
         faraday.request :multipart
