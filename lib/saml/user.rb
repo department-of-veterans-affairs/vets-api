@@ -82,7 +82,6 @@ module SAML
     # why we use try/catch.
     def warnings_for_sentry
       warnings = []
-      warnings << 'attributes[:level_of_assurance] is Nil' if @decorated.idme_loa.blank?
       warnings << 'LOA Current Nil' if @decorated.loa_current.blank?
       warnings << 'LOA Highest Nil' if @decorated.loa_highest.blank?
       if warnings.empty? # only check this one if the other ones were non nil
