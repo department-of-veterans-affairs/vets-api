@@ -11,6 +11,7 @@ module SAML
           true
         end
       end
+
       NullMvi = Struct.new('NullMvi', *MVI_ATTRIBUTES) do
         def profile
           self
@@ -69,6 +70,7 @@ module SAML
         JSON.parse(attributes['mhv_profile'])
       end
 
+      # This value comes from IDme, it will be 3 if FICAM LOA3, null otherwise.
       def idme_loa
         attributes['level_of_assurance']&.to_i
       end

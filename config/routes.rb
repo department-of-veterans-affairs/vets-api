@@ -139,8 +139,7 @@ Rails.application.routes.draw do
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
 
     [
-      'health_account',
-      'appeals_status',
+      'veteran_id_card',
       FormProfile::EMIS_PREFILL_KEY
     ].each do |feature|
       resource(

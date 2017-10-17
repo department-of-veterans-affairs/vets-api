@@ -80,6 +80,7 @@ module SAML
         )
       end
 
+      # This value comes from IDme, it will be 3 if FICAM LOA3, null otherwise.
       def idme_loa
         attributes['level_of_assurance']&.to_i
       end

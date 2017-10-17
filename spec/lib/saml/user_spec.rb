@@ -93,11 +93,13 @@ RSpec.describe SAML::User do
     it 'properly constructs a user' do
       expect(user).to be_valid
     end
+
     it 'defaults loa.highest to loa.current' do
       expect(user.loa[:highest]).to eq(LOA::ONE)
     end
-    it 'logs a warning' do
-      expect(Rails.logger).to receive(:warn).at_least(:once)
+
+    it 'does not log a warning when level_of_assurance is nil' do
+      expect(Rails.logger).not_to receive(:warn)
       user
     end
   end
