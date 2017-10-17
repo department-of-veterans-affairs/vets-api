@@ -12,7 +12,7 @@ module Workflow::Task::PensionBurial
     end
 
     def run(_options = {})
-      if Settings.pension_burial.upload.enabled
+      if Settings.pension_burial&.upload&.enabled
         upload_to_api
       else
         path = File.join(Date.current.to_s, data[:form_id], data[:code])
