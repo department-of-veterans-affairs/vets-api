@@ -38,8 +38,8 @@ module MVI
         @mhv_ids&.first
       end
 
-      def normalized_suffix(suffix)
-        case suffix
+      def normalized_suffix
+        case @suffix
         when /jr\.?/i
           'Jr.'
         when /sr\.?/i
