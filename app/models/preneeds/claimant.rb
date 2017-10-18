@@ -17,7 +17,7 @@ module Preneeds
       hash = {
         address: address&.as_eoas, dateOfBirth: date_of_birth, desiredCemetery: desired_cemetery,
         email: email, name: name&.as_eoas, phoneNumber: phone_number,
-        relationshipToVet: relationship_to_vet, ssn: eoas_ssn
+        relationshipToVet: relationship_to_vet, ssn: ssn
       }
 
       [:email, :phoneNumber].each { |key| hash.delete(key) if hash[key].blank? }

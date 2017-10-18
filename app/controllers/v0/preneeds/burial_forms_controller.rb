@@ -30,9 +30,8 @@ module V0
       end
 
       def validate!(forms)
-        # TODO: Reinstate vets-json-schema once issue with currently buried is resolved
-        # schema = VetsJsonSchema::SCHEMAS[FORM]
-        schema = JSON.parse(File.read(Settings.preneeds.burial_form_schema))
+        # schema = JSON.parse(File.read(Settings.preneeds.burial_form_schema))
+        schema = VetsJsonSchema::SCHEMAS[FORM]
         validation_errors = ::Preneeds::BurialForm.validate(schema, forms)
 
         if validation_errors.present?

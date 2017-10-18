@@ -2,7 +2,7 @@
 FactoryGirl.define do
   factory :service_record, class: Preneeds::ServiceRecord do
     service_branch 'AF' # Air Force
-    discharge_type 'honorable'
+    discharge_type '1'
     highest_rank 'GEN'
     national_guard_state 'N'
 

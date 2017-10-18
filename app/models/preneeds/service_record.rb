@@ -21,7 +21,7 @@ module Preneeds
 
     def as_eoas
       hash = {
-        branchOfService: service_branch, dischargeType: eoas_discharge_type,
+        branchOfService: service_branch, dischargeType: discharge_type,
         enteredOnDutyDate: date_range.try(:[], :from), highestRank: highest_rank,
         nationalGuardState: national_guard_state, releaseFromDutyDate: date_range.try(:[], :to)
       }
@@ -38,12 +38,6 @@ module Preneeds
         :service_branch, :discharge_type, :highest_rank, :national_guard_state,
         date_range: Preneeds::DateRange.permitted_params
       ]
-    end
-
-    private
-
-    def eoas_discharge_type
-      discharge_type.blank? ? nil : DISCHARGE_TYPES[discharge_type]
     end
   end
 end

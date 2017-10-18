@@ -8,13 +8,13 @@ FactoryGirl.define do
     marital_status 'Married'
     military_service_number '123456789'
     place_of_birth 'Brooklyn, NY'
-    ssn '123456789'
+    ssn '123-45-6789'
     va_claim_number 'C23456789'
+    military_status 'A'
 
     current_name { attributes_for :full_name }
     service_name { attributes_for :full_name }
     address { attributes_for :address }
     service_records { [attributes_for(:service_record)] }
-    military_status { attributes_for :military_status }
   end
 end
