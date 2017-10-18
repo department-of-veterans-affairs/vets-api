@@ -161,10 +161,6 @@ module EMISRedis
     end
     # rubocop:enable Style/PredicateName
 
-    def receives_va_pension
-      @user.payment.receives_va_pension
-    end
-
     def va_compensation_type
       high_disability = is_va_service_connected
       low_disability = compensable_va_service_connected
@@ -179,6 +175,10 @@ module EMISRedis
       else
         'none'
       end
+    end
+
+    def receives_va_pension
+      @user.payment.receives_va_pension
     end
 
     def disabilities
