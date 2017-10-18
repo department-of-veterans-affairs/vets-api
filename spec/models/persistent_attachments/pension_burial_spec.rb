@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'rails_helper'
 
-RSpec.describe PersistentAttachment::PensionBurial do
+RSpec.describe PersistentAttachments::PensionBurial do
   let(:file) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
   let(:instance) { described_class.new(form_id: 'T-123') }
 
