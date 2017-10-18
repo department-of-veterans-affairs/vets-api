@@ -34,6 +34,7 @@ module EMISRedis
       sw_asia_combat
       compensable_va_service_connected
       discharge_type
+      va_compensation_type
     ).freeze
 
     LOWER_DISABILITY_RATINGS = [10, 20, 30, 40].freeze
@@ -159,6 +160,20 @@ module EMISRedis
       false
     end
     # rubocop:enable Style/PredicateName
+
+    def va_compensation_type
+      high_disability = is_va_service_connected
+      low_disability = compensable_va_service_connected
+      pension = @user.payment.receives_va_pension
+
+      if high_disability
+        'highDisability'
+      elsif pension
+        'pension'
+      elsif low_disability
+        'lowDisability'
+      end
+    end
 
     def disabilities
       @disabilities ||= items_from_response('get_disabilities')

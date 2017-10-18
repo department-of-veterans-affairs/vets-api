@@ -443,7 +443,7 @@ module HCA
           'receivingTreatment' => veteran['radiumTreatments'].present?
         },
         'serviceConnectionAward' => {
-          'serviceConnectedIndicator' => veteran['isVaServiceConnected'].present?
+          'serviceConnectedIndicator' => veteran['vaCompensationType'] == 'highDisabililty' || veteran['isVaServiceConnected'].present?
         },
         'specialFactors' => {
           'agentOrangeInd' => veteran['vietnamService'].present?,
