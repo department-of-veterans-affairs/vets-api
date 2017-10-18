@@ -59,7 +59,9 @@ gem 'sidekiq-unique-jobs'
 gem 'statsd-instrument'
 gem 'swagger-blocks'
 gem 'typhoeus'
-gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
+# TODO remove reference to preneeds branch after testing...
+gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'preneeds'
+# gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
 gem 'will_paginate'
 

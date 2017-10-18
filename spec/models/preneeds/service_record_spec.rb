@@ -33,22 +33,6 @@ RSpec.describe Preneeds::ServiceRecord do
         :enteredOnDutyDate, :releaseFromDutyDate, :highestRank, :nationalGuardState
       )
     end
-
-    describe 'dischargeType' do
-      it 'converts dischargeType from vets schema to eoas' do
-        expect(subject.as_eoas[:dischargeType]).to eq('1')
-      end
-
-      it 'converts a blank dischargeType to nil' do
-        params[:discharge_type] = nil
-        expect(subject.as_eoas[:dischargeType]).to be_nil
-      end
-
-      it 'converts an unknown dischargeType no nil' do
-        params[:discharge_type] = 'blah'
-        expect(subject.as_eoas[:dischargeType]).to be_nil
-      end
-    end
   end
 
   describe 'when converting to json' do

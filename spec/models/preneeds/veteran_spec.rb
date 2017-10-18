@@ -9,13 +9,12 @@ RSpec.describe Preneeds::Veteran do
   it 'specifies the permitted_params' do
     expect(described_class.permitted_params).to include(
       :date_of_birth, :date_of_death, :gender, :is_deceased, :marital_status,
-      :military_service_number, :place_of_birth, :ssn, :va_claim_number
+      :military_service_number, :place_of_birth, :ssn, :va_claim_number, :military_status
     )
 
     expect(described_class.permitted_params).to include(
       address: Preneeds::Address.permitted_params, current_name: Preneeds::FullName.permitted_params,
-      service_name: Preneeds::FullName.permitted_params, service_records: [Preneeds::ServiceRecord.permitted_params],
-      military_status: Preneeds::MilitaryStatus.permitted_params
+      service_name: Preneeds::FullName.permitted_params, service_records: [Preneeds::ServiceRecord.permitted_params]
     )
   end
 
