@@ -164,7 +164,7 @@ class FormProfile
         first: user.first_name&.capitalize,
         middle: user.middle_name&.capitalize,
         last: user.last_name&.capitalize,
-        suffix: user.va_profile&.suffix
+        suffix: user.va_profile&.normalized_suffix
       },
       date_of_birth: user.birth_date,
       gender: user.gender,
