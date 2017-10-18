@@ -176,6 +176,8 @@ module EMISRedis
         'pension'
       elsif low_disability
         'lowDisability'
+      else
+        'none'
       end
     end
 
