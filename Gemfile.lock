@@ -448,6 +448,8 @@ GEM
       crack (>= 0.3.2)
       hashdiff
     will_paginate (3.1.0)
+    zero_downtime_migrations (0.0.7)
+      activerecord
 
 PLATFORMS
   ruby
@@ -542,6 +544,7 @@ DEPENDENCIES
   web-console (~> 2.0)
   webmock
   will_paginate
+  zero_downtime_migrations
 
 BUNDLED WITH
    1.15.4
