@@ -36,7 +36,7 @@ security: db
 	@$(BASH_DEV) "bundle exec rake security"
 
 .PHONY: spec
-spec:
+spec: db
 	@$(BASH_TEST) "bundle exec rake spec"
 
 .PHONY: up
@@ -45,10 +45,11 @@ up: db
 
 .PHONY: rebuild
 rebuild:
+	@$(COMPOSE_DEV) down
 	@$(COMPOSE_DEV) build
 
 .PHONY: clean
 clean:
-	rm -rf data
-	$(COMPOSE_TEST) run vets-api rm -r coverage log tmp
+	rm -r data || true
+	$(COMPOSE_TEST) run vets-api rm -r coverage log tmp || true
 	$(COMPOSE_TEST) down

@@ -68,8 +68,6 @@ module SAML
         attributes['multifactor']
       end
 
-      private
-
       # The first ones are values needed to query MVI
       # The second ones are additional values that should override MVI (EDIPI or match)
       # In short we might find that a user has inconsistencies in MVI with the EDIPI provided.
@@ -82,23 +80,22 @@ module SAML
         )
       end
 
+      # This value comes from IDme, it will be 3 if FICAM LOA3, null otherwise.
       def idme_loa
         attributes['level_of_assurance']&.to_i
       end
 
-      # if the dslogon_assurance PREMIUM or IDME = 3, otherwise 1
+      # if the dslogon_assurance PREMIUM, otherwise 1
+      # NOTE: idme will always return highest attained, but for iniital non-premium this will always be 1
+      # the leveling up verification step invoked by F/E will correctly capture as LOA3.
       def loa_current
-        PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : (idme_loa || 1)
+        PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : 1
       end
 
       # This is "highest attained" via idp
       # if the dslogon_assurance PREMIUM or IDME = 3,
       def loa_highest
         PREMIUM_LOAS.include?(dslogon_assurance) ? 3 : (idme_loa || loa_current)
-      end
-
-      def loa_highest_available
-        3
       end
     end
   end

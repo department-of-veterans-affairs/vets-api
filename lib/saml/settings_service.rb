@@ -80,6 +80,7 @@ module SAML
         settings.private_key = Settings.saml.key
         settings.issuer = Settings.saml.issuer
         settings.assertion_consumer_service_url = Settings.saml.callback_url
+        settings.certificate_new = Settings.saml.certificate_new
 
         settings.security[:authn_requests_signed] = true
         settings.security[:logout_requests_signed] = true

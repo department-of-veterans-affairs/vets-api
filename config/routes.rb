@@ -110,6 +110,10 @@ Rails.application.routes.draw do
       resources :calculator_constants, only: :index, defaults: { format: :json }
     end
 
+    scope :id_card do
+      resource :attributes, only: [:show], controller: 'id_card_attributes'
+    end
+
     namespace :preneeds do
       resources :cemeteries, only: :index, defaults: { format: :json }
       resources :states, only: :index, defaults: { format: :json }
@@ -135,8 +139,7 @@ Rails.application.routes.draw do
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
 
     [
-      'health_account',
-      'appeals_status',
+      'veteran_id_card',
       FormProfile::EMIS_PREFILL_KEY
     ].each do |feature|
       resource(

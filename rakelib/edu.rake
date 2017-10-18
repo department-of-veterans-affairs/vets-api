@@ -8,9 +8,10 @@ namespace :edu do
     puts EducationForm::Forms::Base.build(app).text
   end
 
-  desc 'Convert Education benefits claims to use educationProgram'
-  task education_program: :environment do
-    DataMigrations::EducationProgram.migrate
+  # one off script for persistent attachment migrations, delete later
+  desc 'migrate persistent attachments'
+  task persistent_attachment: :environment do
+    DataMigrations::PersistentAttachment.run
   end
 
   # one off script for spool submission report, delete later
