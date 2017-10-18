@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: c4a58f9dddcece816d1691b9afc01bd9bee8ff41
+  revision: 5a508f6d59a1804acfe63fb809aa21bc236c699d
   branch: master
   specs:
-    vets_json_schema (3.5.0)
+    vets_json_schema (3.6.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -448,6 +448,8 @@ GEM
       crack (>= 0.3.2)
       hashdiff
     will_paginate (3.1.0)
+    zero_downtime_migrations (0.0.7)
+      activerecord
 
 PLATFORMS
   ruby
@@ -542,6 +544,7 @@ DEPENDENCIES
   web-console (~> 2.0)
   webmock
   will_paginate
+  zero_downtime_migrations
 
 BUNDLED WITH
    1.15.4

@@ -71,6 +71,14 @@ class Mvi < Common::RedisStore
     profile&.participant_id
   end
 
+  # A BIRLS (Beneficiary Identification and Records Locator System) MVI correlation id.
+  #
+  # @return [String] the birls id
+  def birls_id
+    return nil unless @user.loa3?
+    profile&.birls_id
+  end
+
   # The profile returned from the MVI service. Either returned from cached response in Redis or the MVI service.
   #
   # @return [MVI::Models::MviProfile] patient 'golden record' data from MVI

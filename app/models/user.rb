@@ -110,6 +110,12 @@ class User < Common::RedisStore
     beta_enabled?(uuid, FormProfile::EMIS_PREFILL_KEY)
   end
 
+  def can_access_id_card?
+    beta_enabled?(uuid, 'veteran_id_card') && loa3? && edipi.present? && veteran?
+  rescue # Default to false for any veteran_status error
+    false
+  end
+
   def self.from_merged_attrs(existing_user, new_user)
     # we want to always use the more recent attrs so long as they exist
     attrs = new_user.attributes.map do |key, val|
@@ -123,6 +129,7 @@ class User < Common::RedisStore
     User.new(attrs)
   end
 
+  delegate :birls_id, to: :mvi
   delegate :edipi, to: :mvi
   delegate :icn, to: :mvi
   delegate :participant_id, to: :mvi

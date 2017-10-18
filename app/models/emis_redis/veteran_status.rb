@@ -6,7 +6,7 @@ module EMISRedis
     CLASS_NAME = 'VeteranStatusService'
 
     def veteran?
-      raise VeteranStatus::Unauthorized unless @user.loa3?
+      raise VeteranStatus::NotAuthorized unless @user.loa3?
       response = emis_response('get_veteran_status')
       raise VeteranStatus::RecordNotFound if response.empty?
       any_veteran_indicator?(response.items.first)
