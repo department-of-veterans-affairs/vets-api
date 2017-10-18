@@ -162,6 +162,9 @@ module EMISRedis
     # rubocop:enable Style/PredicateName
 
     def va_compensation_type
+      # while supporting fallback support for the old fields,
+      # make a consistent number of calls to the properties to
+      # support specs that will be removed or updated
       high_disability = is_va_service_connected
       low_disability = compensable_va_service_connected
       pension = receives_va_pension
