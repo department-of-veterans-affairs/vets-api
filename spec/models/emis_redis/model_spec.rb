@@ -32,7 +32,7 @@ describe EMISRedis::Model do
 
       before do
         [response, response2].each do |res|
-          expect(res).to receive(:error?).and_return(false)
+          allow(res).to receive(:error?).and_return(false)
         end
       end
 
