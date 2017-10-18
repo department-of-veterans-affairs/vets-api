@@ -114,7 +114,7 @@ RSpec.describe 'in progress forms', type: :request do
           'veteranFullName' => {
             'first' => user.first_name&.capitalize,
             'last' => user.last_name&.capitalize,
-            'suffix' => user.va_profile&.normalized_suffix
+            'suffix' => user.va_profile.suffix
           },
           'gender' => user.gender,
           'veteranDateOfBirth' => user.birth_date,
