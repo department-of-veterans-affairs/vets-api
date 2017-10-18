@@ -28,8 +28,18 @@ describe EMISRedis::Model do
     end
 
     context 'with no response error' do
+      let(:response2) { double }
+
       before do
-        expect(response).to receive(:error?).and_return(false)
+        [response, response2].each do |res|
+          expect(res).to receive(:error?).and_return(false)
+        end
+      end
+
+      it 'should cache by method name' do
+        expect(model).to receive(:response_from_redis_or_service).with(:foo2).and_return(response2)
+        call_emis_response
+        expect(model.send(:emis_response, :foo2)).to eq(response2)
       end
 
       it 'should return response' do
