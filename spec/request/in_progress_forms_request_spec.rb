@@ -212,6 +212,17 @@ RSpec.describe 'in progress forms', type: :request do
       end
     end
 
+    context 'when a form is not found' do
+      subject do
+        delete v0_in_progress_form_url('ksdjfkjdf'), nil, auth_header
+      end
+
+      it 'returns a 404' do
+        subject
+        expect(response.code).to eq('404')
+      end
+    end
+
     context 'when a form is found' do
       subject do
         delete v0_in_progress_form_url(in_progress_form.form_id), nil, auth_header
