@@ -41,4 +41,25 @@ describe MVI::Models::MviProfile do
       end
     end
   end
+
+  describe '#normalized_suffix' do
+    context 'with a non-nil suffix' do
+      cases = {
+        'Jr.' => %w(jr jr. JR JR. Jr Jr. jR jR.),
+        'Sr.' => %w(sr sr. SR SR. Sr Sr. sR sR.),
+        'II' => %w(i I).repeated_permutation(2).map(&:join),
+        'III' => %w(i I).repeated_permutation(3).map(&:join),
+        'IV' => %w(iv IV Iv iV),
+        nil => %w(i mr ms mrs md v)
+      }
+
+      cases.each do |expected_result, inputs|
+        inputs.each do |input|
+          it 'returns a properly formatted suffix' do
+            expect(build(:mvi_profile, suffix: input).normalized_suffix).to eq(expected_result)
+          end
+        end
+      end
+    end
+  end
 end
