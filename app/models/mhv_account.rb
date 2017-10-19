@@ -56,10 +56,9 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def create_and_upgrade!
-    if user && user.loa3? && user.ssn.present? && user.va_profile&.ssn == user.ssn # this last check could probably happen elsewhere
+    if identity_proof_valid? && va_patient?
       create_mhv_account! unless preexisting_account?
       upgrade_mhv_account!
-      # logging of some sort in else clause?
     end
   end
 
@@ -67,6 +66,10 @@ class MhvAccount < ActiveRecord::Base
   # but if you don't have one, we will only create / upgrade if you're a va patient.
   def eligible?
     va_patient? || preexisting_account?
+  end
+
+  def identity_proof_valid?
+    user&.ssn.present? && user.loa3? user.va_profile&.ssn == user.ssn
   end
 
   def terms_and_conditions_accepted?
