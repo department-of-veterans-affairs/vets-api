@@ -79,6 +79,13 @@ RSpec.describe ApplicationController, type: :controller do
         get :record_not_found
         expect(subject.keys).to eq(keys_for_all_env)
       end
+
+      it 'should not log to sentry' do
+        allow(controller).to receive(:log_exception_to_sentry) { raise }
+
+        get :record_not_found
+        expect(response.code).to eq('404')
+      end
     end
 
     context 'with Rails.env.production' do
