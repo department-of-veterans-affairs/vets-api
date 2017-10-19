@@ -13,6 +13,7 @@ class ApplicationController < ActionController::API
     Common::Exceptions::Unauthorized,
     Common::Exceptions::RoutingError,
     Common::Exceptions::Forbidden,
+    Common::Exceptions::RecordNotFound,
     Breakers::OutageException
   ].freeze
 
