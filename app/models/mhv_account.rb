@@ -69,7 +69,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def identity_proof_valid?
-    user&.ssn.present? && user.loa3? user.va_profile&.ssn == user.ssn
+    user&.ssn.present? && user.loa3? && user.va_profile&.ssn == user.ssn
   end
 
   def terms_and_conditions_accepted?
