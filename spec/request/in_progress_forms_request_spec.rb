@@ -110,11 +110,11 @@ RSpec.describe 'in progress forms', type: :request do
     context 'when a form is not found' do
       it 'returns pre-fill data' do
         get v0_in_progress_form_url('FAKEFORM'), nil, auth_header
-        expect(JSON.parse(response.body)['form_data']).to eq(
+
+        expected_data = {
           'veteranFullName' => {
             'first' => user.first_name&.capitalize,
-            'last' => user.last_name&.capitalize,
-            'suffix' => user.va_profile.suffix
+            'last' => user.last_name&.capitalize
           },
           'gender' => user.gender,
           'veteranDateOfBirth' => user.birth_date,
@@ -127,7 +127,13 @@ RSpec.describe 'in progress forms', type: :request do
             'postal_code' => user.va_profile.address.postal_code
           },
           'homePhone' => user.va_profile.home_phone.gsub(/[^\d]/, '')
-        )
+        }
+
+        if user.va_profile&.normalized_suffix.present?
+          expected_data['veteranFullName']['suffix'] = user.va_profile&.normalized_suffix
+        end
+
+        expect(JSON.parse(response.body)['form_data']).to eq(expected_data)
       end
     end
 
@@ -209,6 +215,17 @@ RSpec.describe 'in progress forms', type: :request do
       it 'returns a 200' do
         delete v0_in_progress_form_url(in_progress_form.form_id), nil, auth_header
         expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context 'when a form is not found' do
+      subject do
+        delete v0_in_progress_form_url('ksdjfkjdf'), nil, auth_header
+      end
+
+      it 'returns a 404' do
+        subject
+        expect(response.code).to eq('404')
       end
     end
 

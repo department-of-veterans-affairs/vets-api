@@ -37,6 +37,21 @@ module MVI
       def mhv_correlation_id
         @mhv_ids&.first
       end
+
+      def normalized_suffix
+        case @suffix
+        when /jr\.?/i
+          'Jr.'
+        when /sr\.?/i
+          'Sr.'
+        when /iii/i
+          'III'
+        when /ii/i
+          'II'
+        when /iv/i
+          'IV'
+        end
+      end
     end
   end
 end
