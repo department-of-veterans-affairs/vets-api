@@ -25,6 +25,7 @@ class FormMilitaryInformation
   attribute :tours_of_duty, Array
   attribute :currently_active_duty, Boolean
   attribute :currently_active_duty_hash, Hash
+  attribute :va_compensation_type, String
 end
 
 class FormAddress
