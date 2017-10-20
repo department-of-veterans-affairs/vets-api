@@ -22,7 +22,7 @@ module EducationForm::Forms
     end
 
     def school
-      @applicant.educationProgram || @applicant.school
+      @applicant.educationProgram
     end
 
     def education_type
