@@ -9,47 +9,42 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
 
   let(:once) { { times: 1, value: 1 } }
 
-  context 'with a mocked gi bill status response' do
-    let(:mock_response) do
-      YAML.load_file(
-        Rails.root.join('config', 'evss', 'mock_gi_bill_status_response.yml.example')
-      )
-    end
-
+  context 'disabled mock' do
     before do
-      Settings.evss.mock_gi_bill_status = true
-      allow_any_instance_of(EVSS::GiBillStatus::MockService).to receive(:mocked_response).and_return(mock_response)
+      Settings.evss.mock_gi_bill_status = false
     end
 
-    it 'should have a response that matches the schema' do
-      request.headers['Authorization'] = "Token token=#{session.token}"
-      get :show
-      expect(response).to have_http_status(:ok)
-      expect(response).to match_response_schema('post911_gi_bill_status', strict: false)
-    end
-
-    it 'does not increment the fail counter' do
-      request.headers['Authorization'] = "Token token=#{session.token}"
-      expect { get :show }
-        .not_to trigger_statsd_increment(described_class::STATSD_GI_BILL_FAIL_KEY)
-    end
-
-    it 'increments the total counter' do
-      request.headers['Authorization'] = "Token token=#{session.token}"
-      expect { get :show }
-        .to trigger_statsd_increment(described_class::STATSD_GI_BILL_TOTAL_KEY, **once)
-    end
-
-    context 'when EVSS response is 500' do
-      before do
-        allow_any_instance_of(EVSS::GiBillStatus::GiBillStatusResponse).to receive(:status).and_return(500)
-      end
-
-      it 'should respond with 200 & SERVER_ERROR meta' do
+    gi_bill_200 = { cassette_name: 'evss/gi_bill_status/gi_bill_status' }
+    context 'when EVSS response is 403', vcr: gi_bill_200 do
+      it 'should have a response that matches the schema' do
         request.headers['Authorization'] = "Token token=#{session.token}"
         get :show
         expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['meta']['status']).to eq('SERVER_ERROR')
+        expect(response).to match_response_schema('post911_gi_bill_status', strict: false)
+      end
+
+      it 'does not increment the fail counter' do
+        request.headers['Authorization'] = "Token token=#{session.token}"
+        expect { get :show }
+          .not_to trigger_statsd_increment(described_class::STATSD_GI_BILL_FAIL_KEY)
+      end
+
+      it 'increments the total counter' do
+        request.headers['Authorization'] = "Token token=#{session.token}"
+        expect { get :show }
+          .to trigger_statsd_increment(described_class::STATSD_GI_BILL_TOTAL_KEY, **once)
+      end
+    end
+
+    # this cassette was copied from 'gi_bill_status_500' and manually edited to contain
+    # the 'education.chapter33claimant.partner.service.down' error because the EVSS CI
+    # environment is not capable of returning this error
+    gi_bill_500 = { cassette_name: 'evss/gi_bill_status/gi_bill_status_500_with_err_msg' }
+    context 'when EVSS response is 500 with an error message', vcr: gi_bill_500 do
+      it 'should respond with 503' do
+        request.headers['Authorization'] = "Token token=#{session.token}"
+        get :show
+        expect(response).to have_http_status(:service_unavailable)
       end
     end
 
@@ -71,8 +66,8 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
     # must be connected to EVSS openvpn to re-generate VCR
     before { Settings.evss.mock_gi_bill_status = false }
 
-    vcr_options = { cassette_name: 'evss/gi_bill_status/vet_not_found' }
-    describe 'when EVSS has no knowledge of user', vcr: vcr_options do
+    gi_bill_404 = { cassette_name: 'evss/gi_bill_status/vet_not_found' }
+    describe 'when EVSS has no knowledge of user', vcr: gi_bill_404 do
       # special EVSS CI user ssn=796066619
       let(:user) { FactoryGirl.create(:loa3_user, ssn: '796066619', uuid: 'ertydfh456') }
       let(:session) { Session.create(uuid: user.uuid) }
