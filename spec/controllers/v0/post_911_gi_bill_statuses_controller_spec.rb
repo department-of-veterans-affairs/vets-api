@@ -9,7 +9,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
 
   let(:once) { { times: 1, value: 1 } }
 
-  context 'disabled mock' do
+  context 'without mocked responses' do
     before do
       Settings.evss.mock_gi_bill_status = false
     end
@@ -48,23 +48,14 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
       end
     end
 
-    context 'when EVSS response is 403' do
-      before do
-        allow_any_instance_of(EVSS::GiBillStatus::GiBillStatusResponse).to receive(:status).and_return(403)
-      end
-
-      it 'should respond with 200 & NOT_AUTHORIZED meta' do
+    gi_bill_unauthorized = { cassette_name: 'evss/gi_bill_status/unauthorized' }
+    context 'when EVSS response is http-500 unauthorized', vcr: gi_bill_unauthorized do
+      it 'should respond with 403' do
         request.headers['Authorization'] = "Token token=#{session.token}"
         get :show
-        expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['meta']['status']).to eq('NOT_AUTHORIZED')
+        expect(response).to have_http_status(:forbidden)
       end
     end
-  end
-
-  context 'without mock responses' do
-    # must be connected to EVSS openvpn to re-generate VCR
-    before { Settings.evss.mock_gi_bill_status = false }
 
     gi_bill_404 = { cassette_name: 'evss/gi_bill_status/vet_not_found' }
     describe 'when EVSS has no knowledge of user', vcr: gi_bill_404 do
