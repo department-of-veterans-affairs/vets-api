@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+# rubocop:disable Metrics/CyclomaticComplexity
 module DataMigrations
   module EducationProgramRemoveSchool
     module_function
