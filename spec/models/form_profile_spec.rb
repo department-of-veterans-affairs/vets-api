@@ -35,14 +35,15 @@ RSpec.describe FormProfile, type: :model do
       'currentlyActiveDuty' => {
         'yes' => true
       },
-      'gender' => 'M',
-      'veteranDateOfBirth' => '1809-02-12',
+      'gender' => user.gender,
+      'homePhone' => us_phone,
+      'veteranDateOfBirth' => user.birth_date,
       'veteranFullName' => {
-        'first' => 'Abraham',
-        'last' => 'Lincoln',
-        'suffix' => 'Jr.'
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
       },
-      'veteranSocialSecurityNumber' => '796111863'
+      'veteranSocialSecurityNumber' => user.ssn
     }
   end
 
