@@ -53,6 +53,10 @@ services = [
   SM::Configuration.instance.breakers_service
 ]
 
+if Settings.pension_burial&.upload&.enabled
+  services << PensionBurial::Configuration.instance.breakers_service
+end
+
 plugin = Breakers::StatsdPlugin.new
 
 client = Breakers::Client.new(
