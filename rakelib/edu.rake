@@ -8,6 +8,12 @@ namespace :edu do
     puts EducationForm::Forms::Base.build(app).text
   end
 
+  # one off script for removing school from 1990s
+  desc 'migrate 1990 school field'
+  task remove_school: :environment do
+    DataMigrations::EducationProgramRemoveSchool.run
+  end
+
   # one off script for persistent attachment migrations, delete later
   desc 'migrate persistent attachments'
   task persistent_attachment: :environment do
