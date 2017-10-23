@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'workflow/task/shrine_file/base'
 
 # MoveToLTS is a Workflow Task that uses Shrine to move
 # either the most recently processed copy of an uploaded file,
