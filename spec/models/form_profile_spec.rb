@@ -34,7 +34,15 @@ RSpec.describe FormProfile, type: :model do
       ],
       'currentlyActiveDuty' => {
         'yes' => true
-      }
+      },
+      'gender' => 'M',
+      'veteranDateOfBirth' => '1809-02-12',
+      'veteranFullName' => {
+        'first' => 'Abraham',
+        'last' => 'Lincoln',
+        'suffix' => 'Jr.'
+      },
+      'veteranSocialSecurityNumber' => '796111863'
     }
   end
 
