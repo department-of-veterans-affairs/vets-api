@@ -108,14 +108,6 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v22_1995_expected) do
     {
-      'toursOfDuty' => [
-        {
-          'service_branch' => 'Air Force',
-          'date_range' => {
-            'from' => '2007-04-01', 'to' => '2016-06-01'
-          }
-        }
-      ],
       'veteranAddress' => {
         'street' => user.va_profile[:address][:street],
         'city' => user.va_profile[:address][:city],
