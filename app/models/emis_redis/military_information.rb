@@ -172,8 +172,6 @@ module EMISRedis
         'highDisability'
       elsif low_disability
         'lowDisability'
-      else
-        'none'
       end
     end
 
