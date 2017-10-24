@@ -43,6 +43,7 @@ RSpec.describe EVSSClaimDocumentUploader do
     context 'with a converted image' do
       before do
         expect(converted).to receive(:present?).and_return(true)
+        expect(converted).to receive(:file).and_return(OpenStruct.new(exists?: true))
       end
 
       it 'should read from converted' do
