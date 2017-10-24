@@ -75,6 +75,7 @@ class FormProfile
     '1010EZ'    => ::FormProfile::VA1010ez,
     '22-1990'   => ::FormProfile::VA1990,
     '22-1990N'  => ::FormProfile::VA1990n,
+    '22-1990E'  => ::FormProfile::VA1990e,
     '22-1995'   => ::FormProfile::VA1995,
     '22-5490'   => ::FormProfile::VA5490,
     '22-5495'   => ::FormProfile::VA5495,
