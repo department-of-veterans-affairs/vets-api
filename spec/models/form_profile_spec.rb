@@ -35,15 +35,23 @@ RSpec.describe FormProfile, type: :model do
       'currentlyActiveDuty' => {
         'yes' => true
       },
-      'gender' => user.gender,
-      'homePhone' => us_phone,
-      'veteranDateOfBirth' => user.birth_date,
+      'veteranAddress' => {
+        'street' => user.va_profile[:address][:street],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code]
+      },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.va_profile[:suffix]
       },
-      'veteranSocialSecurityNumber' => user.ssn
+      'gender' => user.gender,
+      'homePhone' => us_phone,
+      'veteranDateOfBirth' => user.birth_date,
+      'veteranSocialSecurityNumber' => user.ssn,
+      'email' => user.email
     }
   end
 
@@ -59,7 +67,24 @@ RSpec.describe FormProfile, type: :model do
       ],
       'currentlyActiveDuty' => {
         'yes' => true
-      }
+      },
+      'veteranAddress' => {
+        'street' => user.va_profile[:address][:street],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code]
+      },
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'gender' => user.gender,
+      'homePhone' => us_phone,
+      'veteranDateOfBirth' => user.birth_date,
+      'veteranSocialSecurityNumber' => user.ssn,
+      'email' => user.email
     }
   end
 
@@ -72,7 +97,22 @@ RSpec.describe FormProfile, type: :model do
             'from' => '2007-04-01', 'to' => '2016-06-01'
           }
         }
-      ]
+      ],
+      'veteranAddress' => {
+        'street' => user.va_profile[:address][:street],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code]
+      },
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'homePhone' => us_phone,
+      'veteranSocialSecurityNumber' => user.ssn,
+      'email' => user.email
     }
   end
 
