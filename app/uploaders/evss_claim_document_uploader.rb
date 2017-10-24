@@ -23,7 +23,7 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   end
 
   def read_for_upload
-    if converted.present?
+    if converted.present? && converted.file.exists?
       converted.read
     else
       read
