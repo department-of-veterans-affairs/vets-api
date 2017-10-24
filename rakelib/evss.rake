@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 desc 'retry failed evss jobs'
-task :evss_retry_jobs do
+task evss_retry_jobs: :environment do
   RELEASE_TIME = Time.zone.parse('2017-09-20T21:59:58.486Z')
   ERROR_CLASS = 'Aws::S3::Errors::NoSuchKey'
 
