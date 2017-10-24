@@ -15,8 +15,8 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
       end
 
       expect(response).to be_success
-      # expect(response.body).to be_a(String)
-      # expect(response).to match_response_schema('preneeds/receive_applications')
+      expect(response.body).to be_a(String)
+      expect(response).to match_response_schema('preneeds/receive_applications')
     end
   end
 
