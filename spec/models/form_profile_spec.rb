@@ -122,7 +122,8 @@ RSpec.describe FormProfile, type: :model do
       'gender' => user.gender,
       'homePhone' => us_phone,
       'compensableVaServiceConnected' => true,
-      'veteranSocialSecurityNumber' => user.ssn
+      'veteranSocialSecurityNumber' => user.ssn,
+      'vaCompensationType' => 'highDisability'
     }
   end
 
@@ -252,15 +253,15 @@ RSpec.describe FormProfile, type: :model do
         expect(military_information).to receive(:discharge_type).and_return('honorable')
         expect(military_information).to receive(:post_nov111998_combat).and_return(true)
         expect(military_information).to receive(:sw_asia_combat).and_return(true)
-        expect(military_information).to receive(:compensable_va_service_connected).and_return(true)
-        expect(military_information).to receive(:is_va_service_connected).and_return(true)
+        expect(military_information).to receive(:compensable_va_service_connected).and_return(true).twice
+        expect(military_information).to receive(:is_va_service_connected).and_return(true).twice
         expect(military_information).to receive(:tours_of_duty).and_return(
           [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
         )
         allow(military_information).to receive(:currently_active_duty_hash).and_return(
           yes: true
         )
-        expect(user.payment).to receive(:receives_va_pension).and_return(true)
+        expect(user.payment).to receive(:receives_va_pension).and_return(true).twice
       end
 
       context 'with a user that can prefill emis' do
