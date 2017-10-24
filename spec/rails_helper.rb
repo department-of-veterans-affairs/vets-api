@@ -53,6 +53,7 @@ VCR.configure do |c|
   c.cassette_library_dir = 'spec/support/vcr_cassettes'
   c.hook_into :webmock
   c.configure_rspec_metadata!
+  c.filter_sensitive_data('<PENSIONS_TOKEN>') { Settings.pension_burial.upload.token }
   c.filter_sensitive_data('<APP_TOKEN>') { Settings.mhv.rx.app_token }
   c.filter_sensitive_data('<EVSS_BASE_URL>') { Settings.evss.url }
   c.filter_sensitive_data('<GIDS_URL>') { Settings.gids.url }

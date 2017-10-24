@@ -22,11 +22,11 @@ module EducationForm::Forms
     end
 
     def school
-      @applicant.educationProgram || @applicant.school
+      @applicant.educationProgram
     end
 
     def education_type
-      @applicant.educationProgram&.educationType || @applicant.educationType
+      @applicant.educationProgram&.educationType
     end
 
     # Some descriptive text that's included near the top of the 22-1990 form. Because they can make
