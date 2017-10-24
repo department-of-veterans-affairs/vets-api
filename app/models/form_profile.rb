@@ -127,7 +127,7 @@ class FormProfile
     @contact_information = initialize_contact_information(user)
     @military_information = initialize_military_information(user)
     mappings = self.class.mappings_for_form(form_id)
-    form_data = generate_prefill(mappings)
+    form_data = generate_prefill(mappings).deep_transform_keys { |k| k.camelize(:lower) }
     { form_data: form_data, metadata: metadata }
   end
 
@@ -204,6 +204,7 @@ class FormProfile
       method_chain = v.map(&:to_sym)
       { k.camelize(:lower) => call_methods(method_chain) }
     end.reduce({}, :merge)
+
     clean!(result)
   end
 

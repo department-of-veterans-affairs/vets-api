@@ -26,8 +26,8 @@ RSpec.describe FormProfile, type: :model do
     {
       'toursOfDuty' => [
         {
-          'service_branch' => 'Air Force',
-          'date_range' => {
+          'serviceBranch' => 'Air Force',
+          'dateRange' => {
             'from' => '2007-04-01', 'to' => '2016-06-01'
           }
         }
@@ -40,7 +40,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postalCode' => user.va_profile[:address][:postal_code]
       },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
@@ -59,8 +59,8 @@ RSpec.describe FormProfile, type: :model do
     {
       'toursOfDuty' => [
         {
-          'service_branch' => 'Air Force',
-          'date_range' => {
+          'serviceBranch' => 'Air Force',
+          'dateRange' => {
             'from' => '2007-04-01', 'to' => '2016-06-01'
           }
         }
@@ -73,7 +73,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postalCode' => user.va_profile[:address][:postal_code]
       },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
@@ -95,7 +95,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postalCode' => user.va_profile[:address][:postal_code]
       },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
@@ -113,7 +113,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postalCode' => user.va_profile[:address][:postal_code]
       },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
@@ -130,8 +130,8 @@ RSpec.describe FormProfile, type: :model do
     {
       'toursOfDuty' => [
         {
-          'service_branch' => 'Air Force',
-          'date_range' => {
+          'serviceBranch' => 'Air Force',
+          'dateRange' => {
             'from' => '2007-04-01', 'to' => '2016-06-01'
           }
         }
@@ -144,8 +144,8 @@ RSpec.describe FormProfile, type: :model do
     {
       'toursOfDuty' => [
         {
-          'service_branch' => 'Air Force',
-          'date_range' => {
+          'serviceBranch' => 'Air Force',
+          'dateRange' => {
             'from' => '2007-04-01', 'to' => '2016-06-01'
           }
         }
@@ -168,7 +168,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postalCode' => user.va_profile[:address][:postal_code]
       },
       'swAsiaCombat' => true,
       'lastServiceBranch' => 'air force',
@@ -197,7 +197,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postalCode' => user.va_profile[:address][:postal_code]
       },
       'gender' => user.gender,
       'dayPhone' => us_phone,
@@ -218,7 +218,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postalCode' => user.va_profile[:address][:postal_code]
       },
       'claimantPhone' => us_phone,
       'claimantEmail' => user.email
