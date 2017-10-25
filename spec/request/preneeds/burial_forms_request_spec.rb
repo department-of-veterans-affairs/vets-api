@@ -40,11 +40,11 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
         post '/v0/preneeds/burial_forms', params
       end
 
-      # error = JSON.parse(response.body)['errors'].first
-      #
-      # expect(error['status']).to eq('400')
-      # expect(error['title']).to match(/operation failed/i)
-      # expect(error['detail']).to match(/Error committing transaction/i)
+      error = JSON.parse(response.body)['errors'].first
+
+      expect(error['status']).to eq('400')
+      expect(error['title']).to match(/operation failed/i)
+      expect(error['detail']).to match(/Error committing transaction/i)
     end
 
     it 'returns with a VA900 error when the status is 200' do
@@ -52,12 +52,12 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
         allow_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return('19')
         post '/v0/preneeds/burial_forms', params
       end
-      #
-      # error = JSON.parse(response.body)['errors'].first
-      #
-      # expect(error['status']).to eq('400')
-      # expect(error['title']).to match(/operation failed/i)
-      # expect(error['detail']).to match(/Tracking number '19' already exists/i)
+
+      error = JSON.parse(response.body)['errors'].first
+
+      expect(error['status']).to eq('400')
+      expect(error['title']).to match(/operation failed/i)
+      expect(error['detail']).to match(/Tracking number '19' already exists/i)
     end
   end
 end
