@@ -260,7 +260,6 @@ RSpec.describe FormProfile, type: :model do
         allow(military_information).to receive(:currently_active_duty_hash).and_return(
           yes: true
         )
-        expect(user.payment).to receive(:receives_va_pension).and_return(true).once
       end
 
       context 'with a user that can prefill emis' do
