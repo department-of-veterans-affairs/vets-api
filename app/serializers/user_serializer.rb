@@ -22,7 +22,9 @@ class UserSerializer < ActiveModel::Serializer
       gender: object.gender,
       zip: object.zip,
       last_signed_in: object.last_signed_in,
-      loa: object.loa
+      loa: object.loa,
+      multifactor: (object.multifactor == 'true'), # cast to boolean
+      authn_context: object.authn_context
     }
   end
 
@@ -45,7 +47,7 @@ class UserSerializer < ActiveModel::Serializer
     }
   rescue EMISRedis::VeteranStatus::NotAuthorized
     { status: RESPONSE_STATUS[:not_authorized] }
-  rescue EMISRedis::Model::RecordNotFound
+  rescue EMISRedis::VeteranStatus::RecordNotFound
     { status: RESPONSE_STATUS[:not_found] }
   rescue StandardError
     { status: RESPONSE_STATUS[:server_error] }
@@ -66,7 +68,7 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def prefills_available
-    object.can_access_prefill_data? ? FormProfile::MAPPINGS : []
+    object.can_access_prefill_data? ? FormProfile::PREFILL_ENABLED_FORMS.dup : []
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
@@ -82,6 +84,7 @@ class UserSerializer < ActiveModel::Serializer
     service_list << BackendServices::APPEALS_STATUS if object.can_access_appeals?
     service_list << BackendServices::SAVE_IN_PROGRESS if object.can_save_partial_forms?
     service_list << BackendServices::FORM_PREFILL if object.can_access_prefill_data?
+    service_list << BackendServices::ID_CARD if object.can_access_id_card?
     service_list
   end
 end

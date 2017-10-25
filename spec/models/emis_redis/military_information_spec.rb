@@ -100,6 +100,30 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     end
   end
 
+  describe '#va_compensation_type' do
+    context 'with a disability of 50% or above' do
+      before do
+        expect(subject).to receive(:is_va_service_connected).and_return(true)
+        expect(subject).to receive(:compensable_va_service_connected).and_return(false)
+      end
+
+      it 'should return "highDisability"' do
+        expect(subject.va_compensation_type).to eq('highDisability')
+      end
+    end
+
+    context 'with a disability less than 50%' do
+      before do
+        expect(subject).to receive(:is_va_service_connected).and_return(false)
+        expect(subject).to receive(:compensable_va_service_connected).and_return(true)
+      end
+
+      it 'should return "lowDisability"' do
+        expect(subject.va_compensation_type).to eq('lowDisability')
+      end
+    end
+  end
+
   describe '#post_nov111998_combat' do
     context 'with post nov 1998 combat' do
       it 'should return true' do

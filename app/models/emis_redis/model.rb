@@ -25,10 +25,11 @@ module EMISRedis
     end
 
     def emis_response(method)
-      @emis_response ||= lambda do
+      @emis_response ||= {}
+
+      @emis_response[method] ||= lambda do
         response = response_from_redis_or_service(method)
         raise response.error if response.error?
-        raise RecordNotFound if !response.error? && response.empty?
 
         response
       end.call
@@ -51,9 +52,6 @@ module EMISRedis
 
     def service
       @service ||= "EMIS::#{class_name}".constantize.new
-    end
-
-    class RecordNotFound < StandardError
     end
   end
 end

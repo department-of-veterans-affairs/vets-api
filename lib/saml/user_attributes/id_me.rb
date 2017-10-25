@@ -40,10 +40,31 @@ module SAML
         attributes['uuid']
       end
 
-      private
+      def loa
+        { current: loa_current, highest: loa_highest }
+      end
+
+      def multifactor
+        attributes['multifactor']
+      end
 
       def serializable_attributes
-        %i(first_name middle_name last_name zip email gender ssn birth_date uuid)
+        %i(first_name middle_name last_name zip email gender ssn birth_date uuid loa multifactor)
+      end
+
+      # This value comes from IDme, it will be 3 if FICAM LOA3, null otherwise.
+      def idme_loa
+        attributes['level_of_assurance']&.to_i
+      end
+
+      def loa_current
+        @raw_loa ||= REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
+        LOA::MAPPING[@raw_loa]
+      end
+
+      def loa_highest
+        loa_highest = idme_loa || loa_current
+        [loa_current, loa_highest].max
       end
     end
   end

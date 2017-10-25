@@ -1,6 +1,4 @@
 # frozen_string_literal: true
-require 'workflow/task/shrine_file/base'
-
 require 'fileutils'
 
 # With a `@file` that must be a PDF (run the ConvertToPDF task before this if necessary)

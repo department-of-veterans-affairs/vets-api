@@ -31,6 +31,10 @@ edu:
 pension_burial:
   sftp:
     relative_path: '../VETSGOV_PENSION'
+  upload:
+    enabled: true
+    host: 'icmhsgc.csrarad.com'
+    token: '<PENSIONS_TOKEN>'
 
 # Settings for EVSS
 evss:
@@ -132,6 +136,10 @@ appeals_status:
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
 
+vic:
+  url: https://some.fakesite.com
+  signing_key_path: /fake/signing/key/path
+
 # Settings for (preneeds) burials.
 # TODO: enpoint needs to be set up for https and production api when available
 preneeds:
@@ -158,6 +166,7 @@ reports:
 # Settings for SAML authentication
 saml:
   cert_path: ~/.certs/vetsgov-localhost.crt
+  cert_new_path: ~/.certs/vetsgov-localhost_new.crt
   key_path: ~/.certs/vetsgov-localhost.key
   # Loaded in `config/initializers/saml.rb`, based on `*_path` settings above
   # certificate: ~

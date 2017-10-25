@@ -25,6 +25,7 @@ class FormMilitaryInformation
   attribute :tours_of_duty, Array
   attribute :currently_active_duty, Boolean
   attribute :currently_active_duty_hash, Hash
+  attribute :va_compensation_type, String
 end
 
 class FormAddress
@@ -59,7 +60,16 @@ end
 class FormProfile
   include SentryLogging
 
+  EMIS_PREFILL_KEY = 'emis_prefill'
+
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
+
+  # Forms that will be listed as available for prefill in the user serializer
+  PREFILL_ENABLED_FORMS = [
+    '1010ez',
+    '21P-530',
+    '21P-527EZ'
+  ].freeze
 
   FORM_ID_TO_CLASS = {
     '1010EZ'    => ::FormProfile::VA1010ez,
@@ -132,10 +142,6 @@ class FormProfile
       EMISRedis::MilitaryInformation::PREFILL_METHODS.each do |attr|
         military_information_data[attr] = military_information.public_send(attr)
       end
-
-      military_information_data.merge!(
-        receives_va_pension: user.payment.receives_va_pension
-      )
     rescue => e
       if Rails.env.production?
         # fail silently if emis is down
@@ -154,7 +160,7 @@ class FormProfile
         first: user.first_name&.capitalize,
         middle: user.middle_name&.capitalize,
         last: user.last_name&.capitalize,
-        suffix: user.va_profile&.suffix
+        suffix: user.va_profile&.normalized_suffix
       },
       date_of_birth: user.birth_date,
       gender: user.gender,

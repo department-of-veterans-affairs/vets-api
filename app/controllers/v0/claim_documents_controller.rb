@@ -17,7 +17,7 @@ module V0
     def klass
       case form_id
       when '21P-527EZ', '21P-530'
-        PersistentAttachment::PensionBurial
+        PersistentAttachments::PensionBurial
       end
     end
 

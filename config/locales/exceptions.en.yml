@@ -117,6 +117,12 @@ en:
         detail: "Failed to create or upgrade health tools account access"
         code: "MHVAC1"
         status: 403
+      id_card_attribute_error:
+        <<: *defaults
+        title: Request failed
+        detail: "Could not complete ID card attribute request"
+        code: "VIC001"
+        status: 500
 
 # EXTERNAL EXCEPTIONS
     # This is a Generic Error corresponding to backend services
