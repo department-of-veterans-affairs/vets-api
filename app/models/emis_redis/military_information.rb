@@ -167,21 +167,12 @@ module EMISRedis
       # support specs that will be removed or updated
       high_disability = is_va_service_connected
       low_disability = compensable_va_service_connected
-      pension = receives_va_pension
 
       if high_disability
         'highDisability'
-      elsif pension
-        'pension'
       elsif low_disability
         'lowDisability'
-      else
-        'none'
       end
-    end
-
-    def receives_va_pension
-      @user.payment.receives_va_pension
     end
 
     def disabilities
