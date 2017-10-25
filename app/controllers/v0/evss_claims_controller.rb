@@ -24,5 +24,11 @@ module V0
       claim.update_attributes(requested_decision: true)
       render_job_id(jid)
     end
+
+    private
+
+    def skip_sentry_exception_types
+      EXCEPTIONS_WITH_RECORD_NOT_FOUND
+    end
   end
 end

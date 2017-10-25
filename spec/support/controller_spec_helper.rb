@@ -13,7 +13,7 @@ shared_examples_for 'skip_sentry_404' do
   it 'should not log 404 to sentry' do
     allow_any_instance_of(ApplicationController).to receive(:log_exception_to_sentry) { raise }
 
-    get('/authenticate')
+    get(controller.present? ? :authenticate : '/authenticate')
     expect(response.code).to eq('404')
   end
 end
