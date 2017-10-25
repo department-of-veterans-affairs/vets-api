@@ -16,4 +16,8 @@ shared_examples_for 'skip_sentry_404' do
     get(controller.present? ? :authenticate : '/authenticate')
     expect(response.code).to eq('404')
   end
+
+  after do
+    Rails.application.reload_routes!
+  end
 end
