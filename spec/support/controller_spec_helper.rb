@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 shared_examples_for 'skip_sentry_404' do
   before do
     allow_any_instance_of(described_class).to receive(:authenticate) do
@@ -6,7 +7,7 @@ shared_examples_for 'skip_sentry_404' do
 
     controller_klass = described_class
     Rails.application.routes.draw do
-      get '/authenticate' => "#{ controller_klass.to_s.underscore.gsub('_controller', '')}#authenticate"
+      get '/authenticate' => "#{controller_klass.to_s.underscore.gsub('_controller', '')}#authenticate"
     end
   end
 
