@@ -227,6 +227,13 @@ RSpec.describe 'in progress forms', type: :request do
         subject
         expect(response.code).to eq('404')
       end
+
+      it 'should not log to sentry' do
+        allow_any_instance_of(ApplicationController).to receive(:log_exception_to_sentry) { raise }
+
+        subject
+        expect(response.code).to eq('404')
+      end
     end
 
     context 'when a form is found' do

@@ -4,6 +4,8 @@ module V0
     before_action :ensure_uuid
     before_action :check_access_denied
 
+    SKIP_SENTRY_EXCEPTION_TYPES = EXCEPTIONS_WITH_RECORD_NOT_FOUND
+
     def index
       render json: InProgressForm.where(user_uuid: @current_user.uuid)
     end

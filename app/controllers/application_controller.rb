@@ -13,9 +13,10 @@ class ApplicationController < ActionController::API
     Common::Exceptions::Unauthorized,
     Common::Exceptions::RoutingError,
     Common::Exceptions::Forbidden,
-    Common::Exceptions::RecordNotFound,
     Breakers::OutageException
   ].freeze
+
+  EXCEPTIONS_WITH_RECORD_NOT_FOUND = SKIP_SENTRY_EXCEPTION_TYPES + [Common::Exceptions::RecordNotFound]
 
   before_action :authenticate
   before_action :set_app_info_headers
@@ -46,7 +47,7 @@ class ApplicationController < ActionController::API
 
   rescue_from 'Exception' do |exception|
     # report the original 'cause' of the exception when present
-    if SKIP_SENTRY_EXCEPTION_TYPES.include?(exception.class) == false
+    if self.class::SKIP_SENTRY_EXCEPTION_TYPES.include?(exception.class) == false
       extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
       if exception.is_a?(Common::Exceptions::BackendServiceException)
         # Add additional user specific context to the logs
