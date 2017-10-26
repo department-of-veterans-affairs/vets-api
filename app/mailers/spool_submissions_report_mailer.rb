@@ -6,7 +6,6 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     dana.kuykendall@va.gov
     Jennifer.Waltz2@va.gov
     shay.norton@va.gov
-    Joshua.Quagliaroli@va.gov
     DONALD.NOBLE2@va.gov
   ).freeze
 
