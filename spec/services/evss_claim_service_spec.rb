@@ -3,7 +3,7 @@ require 'rails_helper'
 
 RSpec.describe EVSSClaimService do
   let(:user) { FactoryGirl.create(:loa3_user) }
-  let(:client_stub) { instance_double('EVSS::ClaimsService') }
+  let(:client_stub) { instance_double('EVSS::Claims::Service') }
   let(:claim_service) { described_class.new(user) }
   subject { claim_service }
 
@@ -62,7 +62,7 @@ RSpec.describe EVSSClaimService do
 
   context 'when EVSS client has an outage' do
     before do
-      EVSS::ClaimsService.breakers_service.begin_forced_outage!
+      EVSS::Claims::Configuration.instance.breakers_service.begin_forced_outage!
     end
 
     def self.test_log_error

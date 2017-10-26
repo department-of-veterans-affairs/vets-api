@@ -34,7 +34,24 @@ RSpec.describe FormProfile, type: :model do
       ],
       'currentlyActiveDuty' => {
         'yes' => true
-      }
+      },
+      'veteranAddress' => {
+        'street' => user.va_profile[:address][:street],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code]
+      },
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'gender' => user.gender,
+      'homePhone' => us_phone,
+      'veteranDateOfBirth' => user.birth_date,
+      'veteranSocialSecurityNumber' => user.ssn,
+      'email' => user.email
     }
   end
 
@@ -50,20 +67,62 @@ RSpec.describe FormProfile, type: :model do
       ],
       'currentlyActiveDuty' => {
         'yes' => true
-      }
+      },
+      'veteranAddress' => {
+        'street' => user.va_profile[:address][:street],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code]
+      },
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'gender' => user.gender,
+      'homePhone' => us_phone,
+      'veteranDateOfBirth' => user.birth_date,
+      'veteranSocialSecurityNumber' => user.ssn,
+      'email' => user.email
+    }
+  end
+
+  let(:v22_1990_e_expected) do
+    {
+      'veteranAddress' => {
+        'street' => user.va_profile[:address][:street],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code]
+      },
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'veteranSocialSecurityNumber' => user.ssn
     }
   end
 
   let(:v22_1995_expected) do
     {
-      'toursOfDuty' => [
-        {
-          'service_branch' => 'Air Force',
-          'date_range' => {
-            'from' => '2007-04-01', 'to' => '2016-06-01'
-          }
-        }
-      ]
+      'veteranAddress' => {
+        'street' => user.va_profile[:address][:street],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code]
+      },
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'homePhone' => us_phone,
+      'veteranSocialSecurityNumber' => user.ssn,
+      'email' => user.email
     }
   end
 
@@ -271,6 +330,10 @@ RSpec.describe FormProfile, type: :model do
 
         it 'returns prefilled 22-1990N' do
           expect_prefilled('22-1990N')
+        end
+
+        it 'returns prefilled 22-1990E' do
+          expect_prefilled('22-1990E')
         end
 
         it 'returns prefilled 22-1995' do
