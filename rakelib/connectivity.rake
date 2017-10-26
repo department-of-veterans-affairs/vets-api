@@ -11,7 +11,6 @@ Rails.logger = Logger.new(STDOUT)
 REDIS_CONFIG = Rails.application.config_for(:redis).freeze
 Redis.current = Redis.new(REDIS_CONFIG['redis'])
 
-require 'evss/claims_service'
 require 'facilities/async_client'
 require 'gi/client'
 require 'hca/configuration'
