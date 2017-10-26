@@ -3,15 +3,6 @@ require 'common/models/base'
 
 module Preneeds
   class ServiceRecord < Preneeds::Base
-    DISCHARGE_TYPES = {
-      'honorable' => '1',
-      'general' => '2',
-      'other' => '7',
-      'bad-conduct' => '5',
-      'dishonorable' => '6',
-      'undesirable' => '4'
-    }.freeze
-
     attribute :service_branch, String
     attribute :discharge_type, String
     attribute :highest_rank, String
