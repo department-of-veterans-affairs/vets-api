@@ -1,13 +1,8 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'evss/documents_service'
-require 'evss/auth_headers'
 
-describe EVSS::DocumentsService do
+describe EVSS::Documents::Service do
   let(:current_user) { FactoryGirl.create(:loa3_user) }
-  let(:auth_headers) do
-    EVSS::AuthHeaders.new(current_user).to_h
-  end
   let(:document_data) do
     EVSSClaimDocument.new(
       evss_claim_id: 189_625,
@@ -17,7 +12,7 @@ describe EVSS::DocumentsService do
     )
   end
 
-  subject { described_class.new(auth_headers) }
+  subject { described_class.new(current_user) }
 
   context 'with headers' do
     it 'should upload documents' do
