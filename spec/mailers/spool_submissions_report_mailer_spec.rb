@@ -33,7 +33,6 @@ RSpec.describe SpoolSubmissionsReportMailer, type: [:mailer, :aws_helpers] do
             dana.kuykendall@va.gov
             Jennifer.Waltz2@va.gov
             shay.norton@va.gov
-            Joshua.Quagliaroli@va.gov
             DONALD.NOBLE2@va.gov
           )
         )
