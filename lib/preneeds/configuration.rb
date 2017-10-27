@@ -8,7 +8,7 @@ require 'preneeds/middleware/response/preneeds_parser'
 
 module Preneeds
   class Configuration < Common::Client::Configuration::SOAP
-    def self.url
+    def base_path
       "#{Settings.preneeds.host}/eoas_SOA/PreNeedApplicationPort"
     end
 
@@ -21,8 +21,7 @@ module Preneeds
     end
 
     def connection
-      path = Preneeds::Configuration.url
-      @faraday ||= Faraday.new(path, headers: base_request_headers, request: request_options) do |conn|
+      @faraday ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
         conn.request :soap_headers
 
         conn.response :preneeds_parser

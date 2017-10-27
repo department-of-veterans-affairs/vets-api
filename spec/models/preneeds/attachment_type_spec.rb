@@ -15,10 +15,5 @@ RSpec.describe Preneeds::AttachmentType do
       expect(subject.attachment_type_id).to eq(params[:attachment_type_id])
       expect(subject.description).to eq(params[:description])
     end
-
-    it 'can be compared by description' do
-      expect(subject <=> other).to eq(-1)
-      expect(other <=> subject).to eq(1)
-    end
   end
 end

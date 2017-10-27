@@ -75,6 +75,35 @@ describe Preneeds::Service do
     end
   end
 
+  describe 'add_attachments' do
+    let(:file) do
+      Rack::Test::UploadedFile.new('spec/support/fixtures/test.pdf', 'application/pdf')
+    end
+
+    it 'adds a single attachment to existing application' do
+      attachment = VCR.use_cassette('preneeds/add_attachment/to_an_existing_application') do
+        subject.add_attachment(file, '12345')
+      end
+
+      expect(attachment[:tracking_number]).to eq('12345')
+    end
+
+    it 'times out trying to add attachment' do
+      allow_any_instance_of(Net::HTTP).to receive(:request).and_raise(Timeout::Error)
+      attachment = subject.add_attachment(file, '12345')
+
+      expect(attachment[:tracking_number]).to be_nil
+    end
+
+    it 'return some error from the backend service' do
+      non_success_response = Net::HTTPForbidden.new(1, 403, 'Forbidden')
+      allow_any_instance_of(Net::HTTP).to receive(:request).and_return(non_success_response)
+      attachment = subject.add_attachment(file, '12345')
+
+      expect(attachment[:tracking_number]).to be_nil
+    end
+  end
+
   describe 'receive_pre_need_application' do
     let(:params) { build(:burial_form).message }
 
