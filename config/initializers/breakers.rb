@@ -5,6 +5,9 @@ require 'bb/configuration'
 require 'emis/military_information_configuration'
 require 'emis/payment_configuration'
 require 'emis/veteran_status_configuration'
+require 'evss/claims_service'
+require 'evss/common_service'
+require 'evss/documents_service'
 require 'evss/letters/service'
 require 'evss/gi_bill_status/service'
 require 'facilities/bulk_configuration'
@@ -15,6 +18,11 @@ require 'mvi/configuration'
 require 'preneeds/configuration'
 require 'rx/configuration'
 require 'sm/configuration'
+
+require 'evss/claims_service'
+require 'evss/common_service'
+require 'evss/documents_service'
+require 'evss/letters/service'
 
 # Read the redis config, create a connection and a namespace for breakers
 redis_config = Rails.application.config_for(:redis).freeze
@@ -29,12 +37,12 @@ services = [
   EMIS::MilitaryInformationConfiguration.instance.breakers_service,
   EMIS::PaymentConfiguration.instance.breakers_service,
   EMIS::VeteranStatusConfiguration.instance.breakers_service,
-  EVSS::EVSSCommon::Configuration.instance.breakers_service,
-  EVSS::Claims::Configuration.instance.breakers_service,
-  EVSS::Documents::Configuration.instance.breakers_service,
+  EVSS::ClaimsService.breakers_service,
+  EVSS::CommonService.breakers_service,
+  EVSS::DocumentsService.breakers_service,
   EVSS::Letters::Configuration.instance.breakers_service,
   EVSS::PCIUAddress::Configuration.instance.breakers_service,
-  EVSS::GiBillStatus::Configuration.instance.breakers_service,
+  EVSS::GiBillStatus::Service.breakers_service,
   Facilities::AccessWaitTimeConfiguration.instance.breakers_service,
   Facilities::AccessSatisfactionConfiguration.instance.breakers_service,
   GI::Configuration.instance.breakers_service,
