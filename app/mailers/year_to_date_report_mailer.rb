@@ -19,7 +19,6 @@ class YearToDateReportMailer < ApplicationMailer
       ian@adhocteam.us
       dan.hoicowitz.va@gmail.com
       ryan.baker@adhocteam.us
-      joshua.quagliaroli@va.gov
     )
   }.freeze
 

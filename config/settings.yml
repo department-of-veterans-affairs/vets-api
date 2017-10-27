@@ -31,6 +31,10 @@ edu:
 pension_burial:
   sftp:
     relative_path: '../VETSGOV_PENSION'
+  upload:
+    enabled: true
+    host: 'icmhsgc.csrarad.com'
+    token: '<PENSIONS_TOKEN>'
 
 # Settings for EVSS
 evss:
