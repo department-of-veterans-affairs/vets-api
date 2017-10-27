@@ -1,15 +1,9 @@
 # frozen_string_literal: true
 require 'rails_helper'
-require 'evss/claims_service'
-require 'evss/auth_headers'
 
-describe EVSS::ClaimsService do
+describe EVSS::Claims::Service do
   let(:current_user) { FactoryGirl.create(:loa3_user) }
-  let(:auth_headers) do
-    EVSS::AuthHeaders.new(current_user).to_h
-  end
-
-  let(:claims_service) { described_class.new(auth_headers) }
+  let(:claims_service) { described_class.new(current_user) }
 
   subject { claims_service }
 

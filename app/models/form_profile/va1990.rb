@@ -8,7 +8,7 @@ class FormProfile::VA1990 < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/1990/applicant/information'
+      returnUrl: '/applicant/information'
     }
   end
 end
