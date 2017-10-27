@@ -18,21 +18,21 @@ module EVSS
       }.freeze
 
       def get_letters(user)
-        with_exception_handling do
+        with_error_metrics do
           raw_response = perform(:get, '', nil, headers_for_user(user))
           EVSS::Letters::LettersResponse.new(raw_response.status, raw_response)
         end
       end
 
       def get_letter_beneficiary(user)
-        with_exception_handling do
+        with_error_metrics do
           raw_response = perform(:get, 'letterBeneficiary', nil, headers_for_user(user))
           EVSS::Letters::BeneficiaryResponse.new(raw_response.status, raw_response)
         end
       end
 
       def download_by_type(user, type, options = nil)
-        with_exception_handling do
+        with_error_metrics do
           headers = headers_for_user(user)
           response = make_download_request(headers, options, type)
 
@@ -69,16 +69,6 @@ module EVSS
       end
 
       private
-
-      def with_exception_handling
-        caller = caller_locations(1, 1)[0].label
-        yield
-      rescue StandardError => error
-        StatsD.increment(STATSD_KEYS["#{caller}_fail".to_sym], tags: ["error:#{error.class}"])
-        handle_error(error)
-      ensure
-        StatsD.increment(STATSD_KEYS["#{caller}_total".to_sym])
-      end
 
       def handle_error(error)
         case error
