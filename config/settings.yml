@@ -189,5 +189,6 @@ github:
 
 betamocks:
   enabled: true
+  recording: false
   cache_dir: /cache
   services_config: config/betamocks/services_config.yml
