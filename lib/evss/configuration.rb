@@ -43,7 +43,7 @@ module EVSS
         faraday.use      :breakers
         faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
-        faraday.response :betamocks if Betamocks.configuration.enabled
+        faraday.response :betamocks if Betamocks.configuration.enabled?
         faraday.response :snakecase, symbolize: false
         faraday.response :json
         faraday.adapter  :httpclient

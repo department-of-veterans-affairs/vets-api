@@ -1,7 +1,7 @@
-# Betamocks 
+# Betamocks
 
 ## Setup
-1. `cd` to parent directory of `vets-api` and clone `vets-api-mockdata`, 
+1. `cd` to parent directory of `vets-api` and clone `vets-api-mockdata`,
 e.g. if you checked out `vets-api` to `~/Documents` then:
 ```bash
 cd ~/Documents
@@ -17,13 +17,13 @@ betamocks:
   services_config: config/betamocks/services_config.yml
 ```
 
-3. Copy over the example services config YAML file 
+3. Copy over the example services config YAML file
 ```bash
 cp config/betamocks/services_config.yml.example config/betamocks/services_config.yml
 ```
 
-You can now login with one of the [test users](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/MVI%20Integration/reference_documents/mvi_users_s1a.csv) 
-without being connect to the VA VPN. By default all users have been mocked for MVI but 
+You can now login with one of the [test users](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/MVI%20Integration/reference_documents/mvi_users_s1a.csv)
+without being connect to the VA VPN. By default all users have been mocked for MVI but
 only M. Webb (vets.gov.user+228@gmail.com) will work for the other services unless their mock data has been added.
 
 ## Mocking a Service
@@ -36,7 +36,7 @@ def connection
     faraday.use      :breakers
     faraday.use      EVSS::ErrorMiddleware
     faraday.use      Faraday::Response::RaiseError
-    faraday.response :betamocks if Betamocks.configuration.enabled
+    faraday.response :betamocks if Betamocks.configuration.enabled?
     faraday.response :snakecase, symbolize: false
     faraday.response :json
     faraday.adapter  :httpclient
@@ -44,7 +44,7 @@ def connection
 end
 ```
 
-2. Add endpoints to be mocked to the services config file. 
+2. Add endpoints to be mocked to the services config file.
 Each service description has a `base_uri` (pulled from Settings)
 `endpoints` is an array of hashes with:
 - `method:` a symbol of the http verb `:get`, `:post`, `:put`...
@@ -101,7 +101,7 @@ The below will record `/users?uuid=abc123` and `/users?uuid=efg456` to the same 
 ```
 
 #### For header identifiers
-The below will record all `/evss/address` responses with different identifiers in the 
+The below will record all `/evss/address` responses with different identifiers in the
 request headers to the same directory:
 ```yaml
 :endpoints:
@@ -126,7 +126,7 @@ The below will record `/users/42/forms` and `/users/101/forms` to the same direc
 ```
 
 #### For request body identifiers
-The below will record all `/mvi/find_profile` responses with different identifiers in the 
+The below will record all `/mvi/find_profile` responses with different identifiers in the
 XML request bodies to the same directory:
 ```yaml
 :endpoints:
