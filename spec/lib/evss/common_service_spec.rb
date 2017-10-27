@@ -1,19 +1,23 @@
 # frozen_string_literal: true
 require 'rails_helper'
+require 'evss/common_service'
+require 'evss/auth_headers'
 
-describe EVSS::EVSSCommon::Service do
+describe EVSS::CommonService do
   let(:current_user) { FactoryGirl.build(:loa3_user) }
 
-  subject { described_class.new(current_user) }
+  let(:auth_headers) do
+    EVSS::AuthHeaders.new(current_user).to_h
+  end
 
-  context 'with a user' do
+  subject { described_class.new(auth_headers) }
+
+  context 'with headers' do
     let(:participant_id) { 123_456_789 }
 
     it 'gets a disability rating record' do
-      allow(current_user).to receive(:participant_id).and_return(participant_id)
-
       VCR.use_cassette('evss/common/rating_record') do
-        response = subject.find_rating_info
+        response = subject.find_rating_info(participant_id)
         expect(response).to be_success
       end
     end
