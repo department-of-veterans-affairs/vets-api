@@ -17,7 +17,7 @@ class SFTPWriter::Remote
   end
 
   def close
-    return unless sftp && sftp.open?
+    return unless @sftp && sftp.open?
     @logger.info('Disconnected from SFTP')
     sftp.session.close
     true
