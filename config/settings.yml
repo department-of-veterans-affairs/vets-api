@@ -54,6 +54,7 @@ evss:
     region: evss_s3_region
   mock_letters: false
   mock_gi_bill_status: false
+  mock_pciu_address: false
 
 # Settings for GI Bill Data Service
 gids:
@@ -104,6 +105,7 @@ mvi:
 # The certs used here can be obtained from the DevOps team. A different set is required for
 # each environment when connecting to the service.
 emis:
+  mock: false
   host: https://vaausvrsapp81.aac.va.gov
   veteran_status_url: /VIERSService/eMIS/v1/VeteranStatusService
   payment_url: /VIERSService/eMIS/v1/PaymentService

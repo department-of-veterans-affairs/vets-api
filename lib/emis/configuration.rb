@@ -27,7 +27,7 @@ module EMIS
         conn.request :soap_headers
         conn.response :soap_parser
         conn.use :breakers
-        conn.response :betamocks if Betamocks.configuration.enabled?
+        conn.response :betamocks if Settings.emis.mock
         conn.adapter Faraday.default_adapter
       end
     end

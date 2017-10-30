@@ -43,11 +43,16 @@ module EVSS
         faraday.use      :breakers
         faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
-        faraday.response :betamocks if Betamocks.configuration.enabled?
+        faraday.response :betamocks if mock_enabled?
         faraday.response :snakecase, symbolize: false
         faraday.response :json
         faraday.adapter  :httpclient
       end
+    end
+
+    def mock_enabled?
+      # sublcass to override
+      false
     end
   end
 end
