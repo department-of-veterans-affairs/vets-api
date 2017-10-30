@@ -15,7 +15,7 @@ module PensionBurial
           mime_type
         )
       )
-      # TODO remove logging after confirming that pension burial uploads are working in staging
+      # TODO: remove logging after confirming that pension burial uploads are working in staging
       log_message_to_sentry(
         'pension burial api upload',
         :info,
