@@ -136,7 +136,14 @@ RSpec.describe FormProfile, type: :model do
           }
         }
       ],
-      'currentlyActiveDuty' => true
+      'currentlyActiveDuty' => true,
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'veteranSocialSecurityNumber' => user.ssn,
+      'veteranDateOfBirth' => user.birth_date
     }
   end
 
@@ -150,7 +157,14 @@ RSpec.describe FormProfile, type: :model do
           }
         }
       ],
-      'currentlyActiveDuty' => true
+      'currentlyActiveDuty' => true,
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'veteranSocialSecurityNumber' => user.ssn,
+      'veteranDateOfBirth' => user.birth_date
     }
   end
 
