@@ -21,7 +21,7 @@ module Swagger
       swagger_path '/v0/sessions/multifactor' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
-          
+
           key :description, 'Fetch url for invoking multifactor policy'
           key :tags, %w(authentication)
 
