@@ -7,7 +7,7 @@ module Preneeds
     attribute :to, String
 
     def self.permitted_params
-      attribute_set.map { |a| a.name.to_sym }
+      [:from, :to]
     end
   end
 end
