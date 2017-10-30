@@ -21,7 +21,7 @@ module Preneeds
     end
 
     def self.permitted_params
-      attribute_set.map { |a| a.name.to_sym }
+      [:first, :last, :maiden, :middle, :suffix]
     end
   end
 end
