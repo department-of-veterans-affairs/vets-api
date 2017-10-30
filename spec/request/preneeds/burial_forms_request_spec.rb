@@ -5,7 +5,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
   include SchemaMatchers
 
   let(:params) do
-    { pre_need_request: JSON.parse(build(:burial_form).to_json, symbolize_names: true) }
+    { applications: [attributes_for(:burial_form)] }
   end
 
   context 'with valid input' do
@@ -22,7 +22,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
 
   context 'with invalid input' do
     it 'returns an with error' do
-      params[:pre_need_request][:veteran].delete(:military_status)
+      params[:applications].first[:veteran].delete(:military_status)
       post '/v0/preneeds/burial_forms', params
 
       error = JSON.parse(response.body)['errors'].first
@@ -36,7 +36,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
   context 'with a failed burial form submittal from EOAS' do
     it 'returns with a VA900 error when status is 500' do
       VCR.use_cassette('preneeds/burial_forms/burial_form_with_invalid_applicant_address2') do
-        params[:pre_need_request][:applicant][:mailing_address][:address2] = '1' * 21
+        params[:applications].first[:applicant][:mailing_address][:address2] = '1' * 21
         post '/v0/preneeds/burial_forms', params
       end
 
