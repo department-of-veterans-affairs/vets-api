@@ -5,6 +5,7 @@ FactoryGirl.define do
     has_attachments false
     has_currently_buried '1'
     sending_code 'abc'
+    sending_application 'vets.gov'
 
     applicant { attributes_for :applicant }
     claimant { attributes_for :claimant }
