@@ -39,7 +39,7 @@ module EVSS
 
     def connection
       @conn ||= Faraday.new(base_path, ssl: ssl_options) do |faraday|
-        faraday.options.timeout = self.class::DEFAULT_TIMEOUT
+        faraday.options.timeout = DEFAULT_TIMEOUT
         faraday.use      :breakers
         faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
