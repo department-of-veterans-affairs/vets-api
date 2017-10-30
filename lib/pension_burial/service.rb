@@ -4,7 +4,7 @@ module PensionBurial
     configuration PensionBurial::Configuration
 
     def upload(metadata, file_io, mime_type)
-      request(
+      response = request(
         :post,
         '',
         token: Settings.pension_burial.upload.token,
@@ -14,6 +14,21 @@ module PensionBurial
           mime_type
         )
       )
+
+      log_message_to_sentry(
+        'pension burial api upload',
+        :info,
+        {
+          metadata: metadata,
+          response: {
+            status: response.status,
+            body: response.body
+          }
+        },
+        backend_service: :pension_burial
+      )
+
+      response
     end
   end
 end
