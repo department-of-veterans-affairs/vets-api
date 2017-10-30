@@ -3,6 +3,7 @@ module PensionBurial
   class Service < Common::Client::Base
     configuration PensionBurial::Configuration
 
+    # rubocop:disable Metrics/MethodLength
     def upload(metadata, file_io, mime_type)
       response = request(
         :post,
@@ -30,5 +31,6 @@ module PensionBurial
 
       response
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end
