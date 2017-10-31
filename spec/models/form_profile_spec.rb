@@ -136,7 +136,14 @@ RSpec.describe FormProfile, type: :model do
           }
         }
       ],
-      'currentlyActiveDuty' => true
+      'currentlyActiveDuty' => true,
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'veteranSocialSecurityNumber' => user.ssn,
+      'veteranDateOfBirth' => user.birth_date
     }
   end
 
@@ -150,7 +157,14 @@ RSpec.describe FormProfile, type: :model do
           }
         }
       ],
-      'currentlyActiveDuty' => true
+      'currentlyActiveDuty' => true,
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'veteranSocialSecurityNumber' => user.ssn,
+      'veteranDateOfBirth' => user.birth_date
     }
   end
 
@@ -175,11 +189,9 @@ RSpec.describe FormProfile, type: :model do
       'lastEntryDate' => '2007-04-01',
       'lastDischargeDate' => '2007-04-02',
       'dischargeType' => 'honorable',
-      'isVaServiceConnected' => true,
       'postNov111998Combat' => true,
       'gender' => user.gender,
       'homePhone' => us_phone,
-      'compensableVaServiceConnected' => true,
       'veteranSocialSecurityNumber' => user.ssn,
       'vaCompensationType' => 'highDisability'
     }
