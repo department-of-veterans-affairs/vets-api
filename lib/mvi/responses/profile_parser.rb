@@ -162,38 +162,6 @@ module MVI
         end
       end
 
-      # MVI correlation id source id relationships:
-      # {source id}^{id type}^{assigning facility}^{assigning authority}^{id status}
-      # NI = national identifier, PI = patient identifier
-      def map_correlation_ids(ids)
-        ids = ids.map(&:attributes)
-        {
-          icn: select_ids(select_extension(ids, /^\w+\^NI\^\w+\^\w+\^\w+$/, CORRELATION_ROOT_ID))&.first,
-          mhv_ids: select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/, CORRELATION_ROOT_ID)),
-          active_mhv_ids: select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^A$/, CORRELATION_ROOT_ID)),
-          edipi: select_ids(select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^\w+$/, EDIPI_ROOT_ID))&.first,
-          vba_corp_id: select_ids(select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^\w+$/, CORRELATION_ROOT_ID))&.first,
-          vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, CORRELATION_ROOT_ID)),
-          birls_id: select_ids(select_extension(ids, /^\w+\^PI\^200BRLS\^USVBA\^\w+$/, CORRELATION_ROOT_ID))&.first
-        }
-      end
-
-      def select_ids(extensions)
-        return nil if extensions.empty?
-        extensions.map { |e| e[:extension].split('^')&.first }
-      end
-
-      def select_facilities(extensions)
-        return nil if extensions.empty?
-        extensions.map { |e| e[:extension].split('^')&.third }
-      end
-
-      def select_extension(ids, pattern, root)
-        ids.select do |id|
-          id[:extension] =~ pattern && id[:root] == root
-        end
-      end
-
       def locate_element(el, path)
         return nil unless el
         el.locate(path)&.first
