@@ -6,7 +6,7 @@ module Workflow::Task::PensionBurial
         data.slice(:form_id, :code, :guid).merge(
           original_filename: @file.original_filename
         ),
-        @file.to_io,
+        StringIO.new(@file.read),
         @file.mime_type
       )
     end
