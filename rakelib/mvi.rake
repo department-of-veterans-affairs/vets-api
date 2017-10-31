@@ -134,11 +134,9 @@ def update_ids(xml, ids)
     icn: ids['icn'], edipi: ids['edipi'], participant_id: ids['participant_id'],
     mhv_ids: ids['mhv_ids'], vha_facility_ids: ids['vha_facility_ids']
   }
-  puts "current ids #{current_ids}"
-  puts "new ids #{new_ids}"
+
   new_ids.reject! { |_, v| v.nil? }
   current_ids.merge!(new_ids)
-  puts "current ids updated #{new_ids}"
 
   updated_ids_element(current_ids, el)
   Ox.dump(doc)
