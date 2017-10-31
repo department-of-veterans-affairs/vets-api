@@ -184,7 +184,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       expect(JSON.parse(response.body).keys).to eq %w(mhv dslogon idme)
     end
 
-    it 'returns does not allow fetching the identity proof url' do
+    it 'does not allow fetching the identity proof url' do
       get :identity_proof
       expect(response).to have_http_status(401)
     end
