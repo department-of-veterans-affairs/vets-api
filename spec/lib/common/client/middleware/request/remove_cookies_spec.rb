@@ -31,7 +31,7 @@ describe Common::Client::Middleware::Request::RemoveCookies do
 
         server.mount_proc '/' do |req, res|
           res.header['Set-Cookie'] = 'foo=bar'
-          res.body = req.header.try(:[], 'cookie').to_json
+          res.body = req.header['cookie'].to_json
         end
 
         server.start
