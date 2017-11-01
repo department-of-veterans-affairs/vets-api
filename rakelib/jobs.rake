@@ -20,12 +20,19 @@ namespace :jobs do
 
   desc 'Delete malformed saved claims on 2017-10-26'
   task delete_malformed_saved_claims: :environment do
-    edu_claims = EducationBenefitsClaim.includes(:saved_claim)
-                                       .where(saved_claims: { form_id: LIVE_FORM_TYPES, created_at: nil })
-                                       .where(processed_at: SPOOL_DATE.beginning_of_day..SPOOL_DATE.end_of_day).all
+    edu_claims = []
+    saved_claims = []
+    submissions = []
 
-    saved_claims = edu_claims.map(&:saved_claim)
-    submissions = edu_claims.map(&:education_benefits_submission)
+    claims = EducationBenefitsClaim.includes(:saved_claim)
+                                   .where(saved_claims: { form_id: LIVE_FORM_TYPES, created_at: nil })
+                                   .where(processed_at: SPOOL_DATE.beginning_of_day..SPOOL_DATE.end_of_day)
+
+    claims.find_each do |claim|
+      edu_claims << claim.id
+      saved_claims << claim.saved_claim.id
+      submissions << claim.education_benefits_submission.id
+    end
 
     EducationBenefitsSubmission.delete(submissions)
     EducationBenefitsClaim.delete(edu_claims)
