@@ -3,6 +3,7 @@ require 'rails_helper'
 describe Common::Client::Middleware::Request::RemoveCookies do
   class TestConfiguration < Common::Client::Configuration::REST
     def base_path
+      # TODO see if this is a good port
       "http://127.0.0.1:9123/"
     end
 
@@ -19,12 +20,8 @@ describe Common::Client::Middleware::Request::RemoveCookies do
   end
 
   describe '#request', run_at: '2017-01-04 03:00:00 EDT' do
-    it 'should strip cookies' do
-      VCR.config do |c|
-        c.allow_http_connections_when_no_cassette = true
-      end
-
-      server_thread = Thread.new do
+    let!(:server_thread) do
+      Thread.new do
         server = WEBrick::HTTPServer.new(
           Port: 9123
         )
@@ -35,6 +32,12 @@ describe Common::Client::Middleware::Request::RemoveCookies do
         end
 
         server.start
+      end
+    end
+
+    it 'should strip cookies' do
+      VCR.config do |c|
+        c.allow_http_connections_when_no_cassette = true
       end
 
       Timeout::timeout(5) do
@@ -49,6 +52,14 @@ describe Common::Client::Middleware::Request::RemoveCookies do
       end
 
       expect(TestService.new.send(:request, :get, '', nil).body).to eq('[]')
+    end
+
+    after do
+      VCR.config do |c|
+        c.allow_http_connections_when_no_cassette = false
+      end
+
+      server_thread.kill
     end
   end
 end
