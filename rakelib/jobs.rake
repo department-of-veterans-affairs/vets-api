@@ -27,9 +27,9 @@ namespace :jobs do
     saved_claims = edu_claims.map(&:saved_claim)
     submissions = edu_claims.map(&:education_benefits_submission)
 
-    submissions.delete_all
-    saved_claims.delete_all
-    edu_claims.delete_all
+    EducationBenefitsSubmission.delete(submissions)
+    SavedClaim.delete(saved_claims)
+    EducationBenefitsClaim.delete(edu_claims)
   end
 
   desc 'Rerun spool file for a specific day'
