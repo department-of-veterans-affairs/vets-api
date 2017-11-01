@@ -48,8 +48,18 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
   context 'has valid paths' do
     let(:auth_options) { { '_headers' => { 'Authorization' => "Token token=#{token}" } } }
 
-    it 'supports new sessions' do
-      expect(subject).to validate(:get, '/v0/sessions/new', 200, level: 1)
+    it 'supports fetching authentication urls' do
+      expect(subject).to validate(:get, '/v0/sessions/authn_urls', 200)
+    end
+
+    it 'supports invoking multifactor policy' do
+      expect(subject).to validate(:get, '/v0/sessions/multifactor', 200, auth_options)
+      expect(subject).to validate(:get, '/v0/sessions/multifactor', 401)
+    end
+
+    it 'supports fetching identity verification url' do
+      expect(subject).to validate(:get, '/v0/sessions/identity_proof', 200, auth_options)
+      expect(subject).to validate(:get, '/v0/sessions/identity_proof', 401)
     end
 
     it 'supports session deletion' do
