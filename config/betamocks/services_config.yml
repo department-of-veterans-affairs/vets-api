@@ -2,7 +2,8 @@
 :services:
 
 # EVSS
-- :base_uri: <%= URI(Settings.evss.url).host %>
+- :name: 'EVSS'
+  :base_uri: <%= URI(Settings.evss.url).host %>
   :endpoints:
   # PCIUAddress
   - :method: :get
@@ -53,7 +54,8 @@
 
 
 # MVI
-- :base_uri: <%= URI(Settings.mvi.url).host %>
+- :name: 'MVI'
+  :base_uri: <%= URI(Settings.mvi.url).host %>
   :endpoints:
   - :method: :post
     :path: "/psim_webservice/IdMWebService"
@@ -64,7 +66,8 @@
 
 
 # EMIS
-- :base_uri: <%= URI(Settings.emis.host).host %>
+- :name: 'EMIS'
+  :base_uri: <%= URI(Settings.emis.host).host %>
   :endpoints:
   - :method: :post
     :path: "/VIERSService/eMIS/v1/VeteranStatusService"
