@@ -18,7 +18,7 @@ namespace :jobs do
   LIVE_FORM_TYPES = %w(1990 1995 1990e 5490 1990n 5495).map { |t| "22-#{t.upcase}" }.freeze
   SPOOL_DATE = '2017-10-26'.to_date
 
-  desc 'Delete malformed saved claims'
+  desc 'Delete malformed saved claims on 2017-10-26'
   task delete_malformed_saved_claims: :environment do
     edu_claims = EducationBenefitsClaim.includes(:saved_claim)
                                        .where(saved_claims: { form_id: LIVE_FORM_TYPES, created_at: nil })
@@ -32,8 +32,8 @@ namespace :jobs do
     SavedClaim.delete(saved_claims)
   end
 
-  desc 'Rerun spool file for a specific day'
-  task create_spool_files_for_date: :environment do
+  desc 'Rerun spool file for 2017-10-26'
+  task recreate_spool_files: :environment do
     require 'tmpdir'
 
     regional_data = EducationBenefitsClaim.includes(:saved_claim)
