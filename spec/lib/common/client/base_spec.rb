@@ -3,12 +3,8 @@ require 'rails_helper'
 
 describe Common::Client::Base do
   class TestConfiguration2 < Common::Client::Configuration::REST
-    def base_path
-      'http://example.com'
-    end
-
     def connection
-      @conn ||= Faraday.new(base_path) do |faraday|
+      @conn ||= Faraday.new('http://example.com') do |faraday|
         faraday.adapter :httpclient
       end
     end
