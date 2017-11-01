@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe Common::Client::Base do
-  class TestConfiguration < Common::Client::Configuration::REST
+  class TestConfiguration2 < Common::Client::Configuration::REST
     def base_path
       "http://example.com"
     end
@@ -13,13 +13,13 @@ describe Common::Client::Base do
     end
   end
 
-  class TestService < Common::Client::Base
-    configuration TestConfiguration
+  class TestService2 < Common::Client::Base
+    configuration TestConfiguration2
   end
 
   describe '#request' do
     it 'should raise security error when http client is used without stripping cookies' do
-      expect { TestService.new.send(:request, :get, '', nil) }.to raise_error(Common::Client::SecurityError)
+      expect { TestService2.new.send(:request, :get, '', nil) }.to raise_error(Common::Client::SecurityError)
     end
   end
 end
