@@ -46,7 +46,7 @@ module EVSS
         faraday.response :snakecase, symbolize: false
         faraday.response :json
         faraday.use(Common::Client::Middleware::Request::RemoveCookies)
-        faraday.adapter  :httpclient
+        faraday.adapter :httpclient
       end
     end
   end

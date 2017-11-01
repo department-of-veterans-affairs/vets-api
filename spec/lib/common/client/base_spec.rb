@@ -1,9 +1,10 @@
+# frozen_string_literal: true
 require 'rails_helper'
 
 describe Common::Client::Base do
   class TestConfiguration2 < Common::Client::Configuration::REST
     def base_path
-      "http://example.com"
+      'http://example.com'
     end
 
     def connection

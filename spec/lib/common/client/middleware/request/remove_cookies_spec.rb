@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'rails_helper'
 
 describe Common::Client::Middleware::Request::RemoveCookies do
@@ -43,13 +44,12 @@ describe Common::Client::Middleware::Request::RemoveCookies do
         c.allow_http_connections_when_no_cassette = true
       end
 
-      Timeout::timeout(5) do
-        while true
+      Timeout.timeout(5) do
+        loop do
           begin
-            if TestService.new.send(:request, :get, '', nil).status == 200
-              break
-            end
+            break if TestService.new.send(:request, :get, '', nil).status == 200
           rescue Common::Client::Errors::ClientError
+            next
           end
         end
       end
