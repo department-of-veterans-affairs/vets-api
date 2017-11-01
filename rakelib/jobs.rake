@@ -21,7 +21,6 @@ namespace :jobs do
   desc 'Delete malformed saved claims'
   task delete_malformed_saved_claims: :environment do
     edu_claims = EducationBenefitsClaim.includes(:saved_claim)
-                                       .includes(:education_benefits_submission)
                                        .where(saved_claims: { form_id: LIVE_FORM_TYPES, created_at: nil })
                                        .where(processed_at: SPOOL_DATE.beginning_of_day..SPOOL_DATE.end_of_day).all
 
