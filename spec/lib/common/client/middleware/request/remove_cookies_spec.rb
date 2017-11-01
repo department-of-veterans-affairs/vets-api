@@ -37,7 +37,7 @@ describe Common::Client::Middleware::Request::RemoveCookies do
         server.start
       end
 
-      Timeout::timeout(30) do
+      Timeout::timeout(5) do
         while true
           begin
             if TestService.new.send(:request, :get, '', nil).status == 200
