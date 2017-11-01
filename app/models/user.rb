@@ -16,42 +16,44 @@ class User < Common::RedisStore
   redis_ttl REDIS_CONFIG['user_store']['each_ttl']
   redis_key :uuid
 
-  # id.me attributes
   attribute :uuid
-  attribute :email
-  attribute :first_name
-  attribute :middle_name
-  attribute :last_name
-  attribute :gender
-  attribute :birth_date
-  attribute :zip
-  attribute :ssn
-  attribute :loa
-  # These attributes are fetched by SAML::User in the saml_response payload
-  attribute :multifactor   # used by F/E to decision on whether or not to prompt user to add MFA
-  attribute :authn_context # used by F/E to handle various identity related complexities pending refactor
-  # FIXME: if MVI were decorated on usr vs delegated to @mvi, then this might not have been necessary.
-  attribute :mhv_icn # only needed by B/E not serialized in user_serializer
-  attribute :mhv_uuid # this is the cannonical version of MHV Correlation ID, provided by MHV sign-in users
-
-  # vaafi attributes
-  attribute :last_signed_in, Common::UTCTime
-
-  # mhv_last_signed_in used to determine whether we need to notify MHV audit logging
-  # This is set to Time.now when any MHV session is first created, and nulled, when logout
-  attribute :mhv_last_signed_in, Common::UTCTime
+  attribute :last_signed_in, Common::UTCTime # vaafi attributes
+  attribute :mhv_last_signed_in, Common::UTCTime # MHV audit logging
 
   validates :uuid, presence: true
-  validates :email, presence: true
-  validates :loa, presence: true
 
-  # conditionally validate if user is LOA3
-  with_options(on: :loa3_user) do |user|
-    user.validates :first_name, presence: true
-    user.validates :last_name, presence: true
-    user.validates :birth_date, presence: true
-    user.validates :ssn, presence: true, format: /\A\d{9}\z/
-    user.validates :gender, format: /\A(M|F)\z/, allow_blank: true
+  # mvi attributes
+  delegate :birls_id, to: :mvi
+  delegate :edipi, to: :mvi
+  delegate :icn, to: :mvi
+  delegate :participant_id, to: :mvi
+  delegate :veteran?, to: :veteran_status
+
+  # identity attributes
+  delegate :email, to: :identity
+  delegate :first_name, to: :identity
+  delegate :middle_name, to: :identity
+  delegate :last_name, to: :identity
+  delegate :gender, to: :identity
+  delegate :birth_date, to: :identity
+  delegate :zip, to: :identity
+  delegate :ssn, to: :identity
+  delegate :loa, to: :identity
+  delegate :multifactor, to: :identity
+  delegate :authn_context, to: :identity
+  delegate :mhv_icn, to: :identity
+  delegate :mhv_uuid, to: :identity
+
+  def mhv_correlation_id
+    mhv_uuid || mvi.mhv_correlation_id
+  end
+
+  def va_profile
+    mvi.profile
+  end
+
+  def va_profile_status
+    mvi.status
   end
 
   # LOA1 no longer just means ID.me LOA1.
@@ -129,24 +131,6 @@ class User < Common::RedisStore
     User.new(attrs)
   end
 
-  delegate :birls_id, to: :mvi
-  delegate :edipi, to: :mvi
-  delegate :icn, to: :mvi
-  delegate :participant_id, to: :mvi
-  delegate :veteran?, to: :veteran_status
-
-  def mhv_correlation_id
-    mhv_uuid || mvi.mhv_correlation_id
-  end
-
-  def va_profile
-    mvi.profile
-  end
-
-  def va_profile_status
-    mvi.status
-  end
-
   def mhv_account
     @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid)
   end
@@ -176,5 +160,9 @@ class User < Common::RedisStore
 
   def mvi
     @mvi ||= Mvi.for_user(self)
+  end
+
+  def identity
+    @identity ||= UserIdentity.find(uuid)
   end
 end
