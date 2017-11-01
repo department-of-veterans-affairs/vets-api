@@ -19,7 +19,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resource :sessions, only: [:new, :destroy] do
+    resource :sessions, only: :destroy do
       get :authn_urls, on: :collection
       get :multifactor, on: :member
       get :identity_proof, on: :member
