@@ -4,25 +4,22 @@
   "required": ["data"],
   "properties": {
     "data": {
-      "type": "array",
-      "minItems": 0,
-      "items": {
-        "required": ["id", "type", "attributes"],
-        "properties": {
-          "id": { "type": "string" },
-          "type": { "enum": ["preneeds_receive_applications"] },
-          "attributes": {
-            "type": "object",
-            "required": [
-              "receive_application_id", "tracking_number", "return_code", "application_uuid", "return_description"
-            ],
-            "properties": {
-              "receive_application_id": { "type": "string" },
-              "tracking_number": { "type": "string" },
-              "return_code": { "type": "integer" },
-              "application_uuid": { "type": "string" },
-              "return_description": { "type": "return_description" }
-            }
+      "type": "object",
+      "required": ["id", "type", "attributes"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "enum": ["preneeds_receive_applications"] },
+        "attributes": {
+          "type": "object",
+          "required": [
+            "receive_application_id", "tracking_number", "return_code", "application_uuid", "return_description"
+          ],
+          "properties": {
+            "receive_application_id": { "type": "string" },
+            "tracking_number": { "type": "string" },
+            "return_code": { "type": "integer" },
+            "application_uuid": { "type": "string" },
+            "return_description": { "type": "return_description" }
           }
         }
       }
