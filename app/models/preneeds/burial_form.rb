@@ -45,8 +45,8 @@ module Preneeds
       hash
     end
 
-    def self.validate(schema, forms, root = 'applications')
-      JSON::Validator.fully_validate(schema, { root => forms&.as_json }, validate_schema: true)
+    def self.validate(schema, form, root = 'application')
+      JSON::Validator.fully_validate(schema, { root => form&.as_json }, validate_schema: true)
     end
   end
 end
