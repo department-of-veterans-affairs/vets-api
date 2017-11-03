@@ -28,7 +28,7 @@ describe Common::Client::Middleware::Request::RemoveCookies do
 
         server.mount_proc '/' do |req, res|
           res.cookies << WEBrick::Cookie.new('foo', 'bar')
-          res.body = req.header['cookie'].to_json
+          res.body = req.cookies.to_json
         end
 
         server.start
