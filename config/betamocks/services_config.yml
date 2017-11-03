@@ -58,11 +58,11 @@
   :base_uri: <%= URI(Settings.mvi.url).host %>
   :endpoints:
   - :method: :post
-    :path: "/psim_webservice/IdMWebService"
+    :path: <%= URI(Settings.mvi.url).path %>
     :file_path: "mvi/profile"
     :cache_multiple_responses:
       :uid_location: body
-      :uid_locator: 'root="2.16.840.1.113883.4.1" extension="(\d{9})"'
+      :uid_locator: '(?:root="2.16.840.1.113883.4.1" )?extension="(\d{9})"(?: root="2.16.840.1.113883.4.1")?'
 
 
 # EMIS
