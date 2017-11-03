@@ -9,7 +9,7 @@ FactoryGirl.define do
 
     applicant { attributes_for :applicant }
     claimant { attributes_for :claimant }
-    currently_buried_persons { [attributes_for(:currently_buried_person)] }
+    currently_buried_persons { [attributes_for(:currently_buried_person), attributes_for(:currently_buried_person)] }
     veteran { attributes_for :veteran }
   end
 end
