@@ -30,13 +30,13 @@ namespace :jobs do
 
     claims.find_each do |claim|
       edu_claims << claim.id
-      saved_claims << claim.saved_claim.id
-      submissions << claim.education_benefits_submission.id
+      saved_claims << claim.saved_claim&.id
+      submissions << claim.education_benefits_submission&.id
     end
 
-    EducationBenefitsSubmission.delete(submissions)
-    EducationBenefitsClaim.delete(edu_claims)
-    SavedClaim.delete(saved_claims)
+    EducationBenefitsSubmission.delete(submissions.compact)
+    EducationBenefitsClaim.delete(edu_claims.compact)
+    SavedClaim.delete(saved_claims.compact)
   end
 
   desc 'Rerun spool file for 2017-10-26'
