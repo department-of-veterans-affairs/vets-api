@@ -1,21 +1,42 @@
 # frozen_string_literal: true
+require 'sentry_logging'
+
 module V0
   module Preneeds
     class BurialFormsController < PreneedsController
+      include SentryLogging
+
       FORM = '40-10007'
 
-      def new
-      end
+      def new; end
 
       def create
         form = ::Preneeds::BurialForm.new(burial_form_params)
         validate!(form)
 
         resource = client.receive_pre_need_application(form.as_eoas)
+        log_submission(resource)
+
         render json: resource, serializer: ReceiveApplicationSerializer
       end
 
       private
+
+      def log_submission(resource)
+        record = ::Preneeds::PreneedSubmission.create(
+          tracking_number: resource.tracking_number,
+          application_uuid: resource.application_uuid,
+          return_description: resource.return_description,
+          return_code: resource.return_code
+        )
+
+        unless record.persisted?
+          errors = "Preneeds Submission Logging: #{record.errors.full_messages.join(', ')}"
+          log_message_to_sentry(
+            errors, :error, { tracking_number: resource.tracking_number }, submission_logging: 'preneeds'
+          )
+        end
+      end
 
       def burial_form_params
         params.require(:application).permit(
