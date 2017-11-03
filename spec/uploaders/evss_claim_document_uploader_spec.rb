@@ -80,6 +80,14 @@ RSpec.describe EVSSClaimDocumentUploader do
     end
   end
 
+  describe '#final_filename' do
+    it 'should return the right filename' do
+      [uploader_with_tiff, uploader_with_jpg].each do |uploader|
+        expect(uploader.final_filename).to eq('converted_image.TIF.jpg')
+      end
+    end
+  end
+
   describe 'converted version' do
     it 'should convert tiff files to jpg' do
       expect(MimeMagic.by_magic(uploader_with_tiff.converted.file.read).type).to eq(
