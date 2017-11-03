@@ -9,7 +9,7 @@ describe Common::Client::Middleware::Request::RemoveCookies do
 
     def connection
       @conn ||= Faraday.new("http://127.0.0.1:#{port}") do |faraday|
-        faraday.use(Common::Client::Middleware::Request::RemoveCookies)
+        faraday.use :remove_cookies
         faraday.adapter :httpclient
       end
     end

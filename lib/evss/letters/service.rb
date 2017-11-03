@@ -102,7 +102,7 @@ module EVSS
           faraday.options.timeout = 15
           faraday.use :breakers
           faraday.use EVSS::ErrorMiddleware
-          faraday.use(Common::Client::Middleware::Request::RemoveCookies)
+          faraday.use :remove_cookies
           faraday.adapter :httpclient
         end
       end
