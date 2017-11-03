@@ -2,7 +2,22 @@
 require 'rails_helper'
 
 RSpec.describe EVSSClaimDocumentUploader do
-  subject { described_class.new('1234', '11') }
+  let(:document_uploader) { described_class.new('1234', '11') }
+  let(:uploader_with_tiff) do
+    File.open('spec/fixtures/evss_claim/image.TIF') do |f|
+      document_uploader.store!(f)
+    end
+
+    document_uploader
+  end
+  let(:uploader_with_jpg) do
+    File.open('spec/fixtures/evss_claim/converted_image.TIF.jpg') do |f|
+      document_uploader.store!(f)
+    end
+
+    document_uploader
+  end
+  subject { document_uploader }
 
   describe 'initialize' do
     context 'when uploads are disabled' do
@@ -67,21 +82,13 @@ RSpec.describe EVSSClaimDocumentUploader do
 
   describe 'converted version' do
     it 'should convert tiff files to jpg' do
-      File.open('spec/fixtures/evss_claim/image.TIF') do |f|
-        subject.store!(f)
-      end
-
-      expect(MimeMagic.by_magic(subject.converted.file.read).type).to eq(
+      expect(MimeMagic.by_magic(uploader_with_tiff.converted.file.read).type).to eq(
         'image/jpeg'
       )
     end
 
     it 'shouldnt convert if the file isnt tiff' do
-      File.open('spec/fixtures/evss_claim/converted_image.TIF.jpg') do |f|
-        subject.store!(f)
-      end
-
-      expect(subject.converted.present?).to eq(false)
+      expect(uploader_with_jpg.converted_exists?).to eq(false)
     end
   end
 
