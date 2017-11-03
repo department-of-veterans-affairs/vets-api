@@ -156,13 +156,13 @@ class User < Common::RedisStore
     end
   end
 
+  def identity
+    @identity ||= UserIdentity.find(uuid)
+  end
+
   private
 
   def mvi
     @mvi ||= Mvi.for_user(self)
-  end
-
-  def identity
-    @identity ||= UserIdentity.find(uuid)
   end
 end

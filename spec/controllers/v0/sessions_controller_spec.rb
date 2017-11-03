@@ -64,6 +64,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       allow_any_instance_of(described_class).to receive(:new_user_from_saml).and_return(loa3_user)
       Session.create(uuid: uuid, token: token)
       User.create(loa1_user.attributes)
+      UserIdentity.create(loa1_user.identity.attributes)
     end
 
     it 'returns a url for leveling up or verifying current level' do
