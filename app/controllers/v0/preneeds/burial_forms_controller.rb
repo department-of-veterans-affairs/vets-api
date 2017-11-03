@@ -8,8 +8,6 @@ module V0
 
       FORM = '40-10007'
 
-      def new; end
-
       def create
         form = ::Preneeds::BurialForm.new(burial_form_params)
         validate!(form)
@@ -31,9 +29,9 @@ module V0
         )
 
         unless record.persisted?
-          errors = "Preneeds Submission Logging: #{record.errors.full_messages.join(', ')}"
+          errors = 'Preneeds submission record not persisted, missing required tracking, uuid, or return code'
           log_message_to_sentry(
-            errors, :error, { tracking_number: resource.tracking_number }, submission_logging: 'preneeds'
+            errors, :warning, { tracking_number: resource.tracking_number }, submission_logging: 'preneeds'
           )
         end
       end
