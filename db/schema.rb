@@ -113,7 +113,7 @@ ActiveRecord::Schema.define(version: 20171103140150) do
     t.string   "tracking_number",     null: false
     t.string   "application_uuid"
     t.string   "return_description",            null: false
-    t.integer  "return_code",         null: false
+    t.integer  "return_code"
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
   end
