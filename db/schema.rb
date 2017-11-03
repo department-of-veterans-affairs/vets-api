@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171017181144) do
+ActiveRecord::Schema.define(version: 20171103140150) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -108,6 +108,18 @@ ActiveRecord::Schema.define(version: 20171017181144) do
     t.string   "encrypted_file_data",    null: false
     t.string   "encrypted_file_data_iv", null: false
   end
+
+  create_table "preneed_submissions", force: :cascade do |t|
+    t.string   "tracking_number",     null: false
+    t.string   "application_uuid"
+    t.string   "return_description",            null: false
+    t.integer  "return_code",         null: false
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+  end
+
+  add_index "preneed_submissions", ["application_uuid"], name: "index_preneed_submissions_on_application_uuid", unique: true, using: :btree
+  add_index "preneed_submissions", ["tracking_number"], name: "index_preneed_submissions_on_tracking_number", unique: true, using: :btree
 
   create_table "saved_claims", force: :cascade do |t|
     t.datetime "created_at"
