@@ -10,7 +10,7 @@ RSpec.describe SavedClaim::Burial do
 
   describe '#email' do
     it 'should return the users email' do
-      # binding.pry; fail
+      expect(instance.email).to eq('foo@foo.com')
     end
   end
 end

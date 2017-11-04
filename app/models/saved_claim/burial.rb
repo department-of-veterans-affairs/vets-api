@@ -13,6 +13,6 @@ class SavedClaim::Burial < SavedClaim
   end
 
   def email
-    parsed_form[]
+    parsed_form['claimantEmail']
   end
 end
