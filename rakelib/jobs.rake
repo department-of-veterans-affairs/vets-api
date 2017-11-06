@@ -68,17 +68,12 @@ namespace :jobs do
     format_records(regional_data).each do |region, records|
       region_id = EducationForm::EducationFacility.facility_for(region: region)
 
-      filename = tmp_dir + "/#{region_id}_#{SPOOL_DATE.strftime('%m%d%Y')}_vetsgov.spl"
+      filename = Dir.mktmpdir + "/#{region_id}_#{SPOOL_DATE.strftime('%m%d%Y')}_vetsgov.spl"
       contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
 
       File.open(filename, 'w') { |file| file.write(contents) }
       puts "Wrote to #{filename}"
     end
-  end
-
-  def tmp_dir
-    require 'tmpdir'
-    Dir.mktmpdir
   end
 
   def malformed_records
@@ -109,7 +104,7 @@ namespace :jobs do
   end
 
   def write_confirmation_numbers(confirmation_numbers)
-    filename = tmp_dir + '/confirmation_numbers.txt'
+    filename = Dir.mktmpdir + '/confirmation_numbers.txt'
     File.open(filename, 'w') { |f| f.puts(confirmation_numbers) }
     puts "Wrote to #{filename}"
   end
