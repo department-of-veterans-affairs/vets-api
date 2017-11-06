@@ -17,7 +17,10 @@ module Preneeds
         nationalGuardState: national_guard_state, releaseFromDutyDate: date_range.try(:[], :to)
       }
 
-      [:enteredOnDutyDate, :releaseFromDutyDate, :highestRank, :nationalGuardState].each do |key|
+      [
+        :enteredOnDutyDate, :releaseFromDutyDate, :highestRank,
+        :nationalGuardState, :dischargeType
+      ].each do |key|
         hash.delete(key) if hash[key].blank?
       end
 
