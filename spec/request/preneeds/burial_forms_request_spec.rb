@@ -76,16 +76,6 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
         expect(response_json['return_code']).to eq(submission_record.return_code)
         expect(response_json['return_description']).to eq(submission_record.return_description)
       end
-
-      it 'logs errors when persisting' do
-        record = Preneeds::PreneedSubmission.create(tracking_number: nil, return_code: nil, return_description: nil)
-        allow(Preneeds::PreneedSubmission).to receive(:create) { record }
-
-        VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
-          expect_any_instance_of(V0::Preneeds::BurialFormsController).to receive(:log_message_to_sentry)
-          post '/v0/preneeds/burial_forms', params
-        end
-      end
     end
   end
 end
