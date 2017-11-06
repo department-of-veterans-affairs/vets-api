@@ -9,6 +9,7 @@ FactoryGirl.define do
           first: 'Test',
           last: 'User'
         },
+        claimantEmail: 'foo@foo.com',
         deathDate: '1989-12-13',
         veteranSocialSecurityNumber: '111223333',
         claimantAddress: {
