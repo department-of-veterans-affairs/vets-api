@@ -12,6 +12,8 @@ class FormProfile::VA1010ez < FormProfile
     }
   end
 
+  private
+
   def derive_postal_code(user)
     postal_code = {}
 

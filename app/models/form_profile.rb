@@ -132,6 +132,8 @@ class FormProfile
     { form_data: form_data, metadata: metadata }
   end
 
+  protected
+
   private
 
   def initialize_military_information(user)
@@ -170,13 +172,6 @@ class FormProfile
     )
   end
 
-  # For 10-10ez forms, this function is overridden to provide a different
-  # key for postal_code is used depending on the country. The default behaviour
-  # here is used for other form types
-  def derive_postal_code(user)
-    { postal_code: user.va_profile.address.postal_code } if user.va_profile&.address
-  end
-
   def initialize_contact_information(user)
     return nil if user.va_profile.nil?
 
@@ -199,6 +194,13 @@ class FormProfile
       us_phone: get_us_phone(home_phone),
       home_phone: home_phone
     )
+  end
+
+  # For 10-10ez forms, this function is overridden to provide a different
+  # key for postal_code is used depending on the country. The default behaviour
+  # here is used for other form types
+  def derive_postal_code(user)
+    { postal_code: user.va_profile.address.postal_code } if user.va_profile&.address
   end
 
   def get_us_phone(home_phone)
