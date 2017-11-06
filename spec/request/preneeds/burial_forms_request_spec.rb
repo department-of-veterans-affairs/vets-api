@@ -60,4 +60,22 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
       expect(error['detail']).to match(/Tracking number '19' already exists/i)
     end
   end
+
+  describe 'tracking burial form submissions' do
+    let(:submission_record) { ::Preneeds::PreneedSubmission.first }
+    let(:response_json) { JSON.parse(response.body)['data']['attributes'] }
+
+    context 'with successful submission' do
+      it 'creates a PreneedSubmission record' do
+        VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
+          expect { post('/v0/preneeds/burial_forms', params) }.to change { ::Preneeds::PreneedSubmission.count }.by(1)
+        end
+
+        expect(response_json['tracking_number']).to eq(submission_record.tracking_number)
+        expect(response_json['application_uuid']).to eq(submission_record.application_uuid)
+        expect(response_json['return_code']).to eq(submission_record.return_code)
+        expect(response_json['return_description']).to eq(submission_record.return_description)
+      end
+    end
+  end
 end
