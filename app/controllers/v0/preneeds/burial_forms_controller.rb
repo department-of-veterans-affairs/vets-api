@@ -13,28 +13,17 @@ module V0
         validate!(form)
 
         resource = client.receive_pre_need_application(form.as_eoas)
-        log_submission(resource)
-
-        render json: resource, serializer: ReceiveApplicationSerializer
-      end
-
-      private
-
-      def log_submission(resource)
-        record = ::Preneeds::PreneedSubmission.create(
+        ::Preneeds::PreneedSubmission.create!(
           tracking_number: resource.tracking_number,
           application_uuid: resource.application_uuid,
           return_description: resource.return_description,
           return_code: resource.return_code
         )
 
-        unless record.persisted?
-          errors = 'Preneeds submission record not persisted, missing required tracking, uuid, or return code'
-          log_message_to_sentry(
-            errors, :warning, { tracking_number: resource.tracking_number }, submission_logging: 'preneeds'
-          )
-        end
+        render json: resource, serializer: ReceiveApplicationSerializer
       end
+
+      private
 
       def burial_form_params
         params.require(:application).permit(
