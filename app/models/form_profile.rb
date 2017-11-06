@@ -37,6 +37,7 @@ class FormAddress
   attribute :state
   attribute :country
   attribute :postal_code
+  attribute :zipcode
 end
 
 class FormIdentityInformation
@@ -176,9 +177,15 @@ class FormProfile
       street2: nil,
       city: user.va_profile.address.city,
       state: user.va_profile.address.state,
-      postal_code: user.va_profile.address.postal_code,
+      # postal_code: user.va_profile.address.postal_code,
       country: user.va_profile.address.country
     } if user.va_profile&.address
+
+    if address.present?
+      country = address[:country]
+      zipcode_key = %w(USA MEX CAN).include?(country) ? :zipcode : :postal_code
+      address[zipcode_key] = user.va_profile.address.postal_code
+    end
 
     home_phone = user&.va_profile&.home_phone&.gsub(/[^\d]/, '')
 
