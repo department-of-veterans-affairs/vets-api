@@ -132,8 +132,6 @@ class FormProfile
     { form_data: form_data, metadata: metadata }
   end
 
-  protected
-
   private
 
   def initialize_military_information(user)
