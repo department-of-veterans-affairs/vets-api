@@ -12,7 +12,9 @@ module Workflow::Task::PensionBurial
     end
 
     def run(_options = {})
-      if Settings.pension_burial&.upload&.enabled
+      persistent_attachment = PersistentAttachment.find(data[:id])
+
+      if Settings.pension_burial&.upload&.enabled && persistent_attachment.can_upload_to_api?
         upload_to_api
       else
         path = File.join(Date.current.to_s, data[:form_id], data[:code])
@@ -20,7 +22,7 @@ module Workflow::Task::PensionBurial
         writer.write(@file.read, File.join(path, [truncated_guid, @file.original_filename].join('-')))
       end
 
-      PersistentAttachment.find(data[:id]).update(completed_at: Time.current)
+      persistent_attachment.update(completed_at: Time.current)
     ensure
       writer.close
     end
