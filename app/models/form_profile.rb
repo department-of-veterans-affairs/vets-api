@@ -170,6 +170,9 @@ class FormProfile
     )
   end
 
+  # For 10-10ez forms, this function is overridden to provide a different
+  # key for postal_code is used depending on the country. The default behaviour
+  # here is used for other form types
   def derive_postal_code(user)
     { postal_code: user.va_profile.address.postal_code } if user.va_profile&.address
   end
