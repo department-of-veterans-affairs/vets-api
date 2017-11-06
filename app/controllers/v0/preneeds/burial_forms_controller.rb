@@ -1,38 +1,45 @@
 # frozen_string_literal: true
+require 'sentry_logging'
+
 module V0
   module Preneeds
     class BurialFormsController < PreneedsController
+      include SentryLogging
+
       FORM = '40-10007'
 
-      def new
-      end
-
       def create
-        forms = ::Preneeds::BurialForm.create_forms_array(burial_form_params)
-        validate!(forms)
+        form = ::Preneeds::BurialForm.new(burial_form_params)
+        validate!(form)
 
-        resources = forms.map { |form| client.receive_pre_need_application(form.as_eoas) }
-        render json: resources, each_serializer: ReceiveApplicationSerializer
+        resource = client.receive_pre_need_application(form.as_eoas)
+        ::Preneeds::PreneedSubmission.create!(
+          tracking_number: resource.tracking_number,
+          application_uuid: resource.application_uuid,
+          return_description: resource.return_description,
+          return_code: resource.return_code
+        )
+
+        render json: resource, serializer: ReceiveApplicationSerializer
       end
 
       private
 
       def burial_form_params
-        params.require(:applications).map do |p|
-          p.permit(
-            :application_status, :has_attachments, :has_currently_buried, :sending_code,
-            applicant: ::Preneeds::Applicant.permitted_params,
-            claimant: ::Preneeds::Claimant.permitted_params,
-            currently_buried_persons: [::Preneeds::CurrentlyBuriedPerson.permitted_params],
-            veteran: ::Preneeds::Veteran.permitted_params
-          )
-        end
+        params.require(:application).permit(
+          :application_status, :has_attachments, :has_currently_buried, :sending_code,
+          applicant: ::Preneeds::Applicant.permitted_params,
+          claimant: ::Preneeds::Claimant.permitted_params,
+          currently_buried_persons: [::Preneeds::CurrentlyBuriedPerson.permitted_params],
+          veteran: ::Preneeds::Veteran.permitted_params
+        )
       end
 
-      def validate!(forms)
+      def validate!(form)
+        # Leave in for manual testing of new schemas before made available on Vets JSON Schema
         # schema = JSON.parse(File.read(Settings.preneeds.burial_form_schema))
         schema = VetsJsonSchema::SCHEMAS[FORM]
-        validation_errors = ::Preneeds::BurialForm.validate(schema, forms)
+        validation_errors = ::Preneeds::BurialForm.validate(schema, form)
 
         if validation_errors.present?
           log_message_to_sentry(validation_errors.join(','), :error, {}, validation: 'preneeds')
