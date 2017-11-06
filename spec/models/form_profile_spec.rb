@@ -423,14 +423,14 @@ RSpec.describe FormProfile, type: :model do
     context 'when prefilling a non-healthcare application with a user in USA' do
       before { user.va_profile.address.country = 'USA' }
       it 'returns postal_code rather than zipcode' do
-        expect(FormProfile.for('1990').derive_postal_code(user)).to include(:postal_code)
+        expect(FormProfile.for('22-1990').derive_postal_code(user)).to include(:postal_code)
       end
     end
 
     context 'when prefilling a non-healthcare application with a user outside USA' do
       before { user.va_profile.address.country = 'RUS' }
       it 'returns postal_code rather than zipcode' do
-        expect(FormProfile.for('1990').derive_postal_code(user)).to include(:postal_code)
+        expect(FormProfile.for('22-1990').derive_postal_code(user)).to include(:postal_code)
       end
     end
   end
