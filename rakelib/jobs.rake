@@ -46,12 +46,16 @@ namespace :jobs do
     edu_submissions = malformed[:education_benefits_submissions]
     confirmation_numbers = malformed[:confirmation_numbers]
 
-    # Log confirmation_numbers to file
-    write_confirmation_numbers(confirmation_numbers)
+    total = edu_claims.length + edu_submissions.length + saved_claims.length
 
+    puts "Removing #{total} rows"
+
+    write_confirmation_numbers(confirmation_numbers)
     EducationBenefitsSubmission.delete(edu_submissions)
     EducationBenefitsClaim.delete(edu_claims)
     SavedClaim.delete(saved_claims)
+
+    puts 'Finished'
   end
 
   desc 'Rerun spool file for 2017-10-26'
