@@ -178,7 +178,6 @@ class FormProfile
       street2: nil,
       city: user.va_profile.address.city,
       state: user.va_profile.address.state,
-      # postal_code: user.va_profile.address.postal_code,
       country: user.va_profile.address.country
     } if user.va_profile&.address
 
