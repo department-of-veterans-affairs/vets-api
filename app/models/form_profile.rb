@@ -170,8 +170,13 @@ class FormProfile
     )
   end
 
+  def derive_postal_code(user)
+    { postal_code: user.va_profile.address.postal_code } if user.va_profile&.address
+  end
+
   def initialize_contact_information(user)
     return nil if user.va_profile.nil?
+
     address = {
       street: user.va_profile.address.street,
       street2: nil,
@@ -181,11 +186,7 @@ class FormProfile
       country: user.va_profile.address.country
     } if user.va_profile&.address
 
-    if address.present?
-      country = address[:country]
-      zipcode_key = %w(USA MEX CAN).include?(country) ? :zipcode : :postal_code
-      address[zipcode_key] = user.va_profile.address.postal_code
-    end
+    address.merge!(derive_postal_code(user)) if address.present?
 
     home_phone = user&.va_profile&.home_phone&.gsub(/[^\d]/, '')
 

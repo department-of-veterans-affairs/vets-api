@@ -368,6 +368,9 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
+    context 'with a healthcare application form' do
+    end
+
     context 'with a burial application form' do
       it 'returns the va profile mapped to the burial form' do
         expect_prefilled('21P-530')
@@ -383,6 +386,19 @@ RSpec.describe FormProfile, type: :model do
     context 'when the form mapping can not be found' do
       it 'raises an IOError' do
         expect { described_class.new('foo').prefill(user) }.to raise_error(IOError)
+      end
+    end
+  end
+
+  describe '#derive_postal_code' do
+    context 'when prefilling a healthcare application with a user in USA' do
+      before { user.va_profile.address.country = 'USA' }
+      let(:form_id) { '1010ez' }
+
+      it 'returns zipcode rather than postal_code' do
+        result = FormProfile.for('1010ez').derive_postal_code(user)
+
+        expect(result).to include([:zipcode])
       end
     end
   end
