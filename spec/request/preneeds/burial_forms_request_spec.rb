@@ -5,7 +5,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
   include SchemaMatchers
 
   let(:params) do
-    { application: attributes_for(:burial_form) }
+    { application: attributes_for(:burial_form) }.merge(format: :json)
   end
 
   context 'with valid input' do
