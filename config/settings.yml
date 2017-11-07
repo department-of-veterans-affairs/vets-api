@@ -96,10 +96,10 @@ mvi:
   url: http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService
   open_timeout: 2
   timeout: 10
-  mock: false
+  mock: true
   processing_code: T
-  client_cert_path: /fake/client/cert/path
-  client_key_path: /fake/client/key/path
+  client_cert_path: config/certs/vetsgov-localhost.crt
+  client_key_path: config/certs/vetsgov-localhost.key
 
 # Settings for eMIS
 # The certs used here can be obtained from the DevOps team. A different set is required for
