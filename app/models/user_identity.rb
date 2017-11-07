@@ -27,7 +27,6 @@ class UserIdentity < Common::RedisStore
   validates :email, presence: true
   validates :loa, presence: true
 
-
   def self.from_merged_attrs(existing_user, new_user)
     # we want to always use the more recent attrs so long as they exist
     attrs = new_user.attributes.map do |key, val|

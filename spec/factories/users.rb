@@ -6,34 +6,34 @@ FactoryGirl.define do
 
     transient do
       loa do
-         { current: LOA::TWO, highest: LOA::THREE }
+        { current: LOA::TWO, highest: LOA::THREE }
       end
     end
 
-    after(:build) do |user, t|
-      user.instance_variable_set(:@identity, build(:user_identity, uuid: user.uuid, loa: t.loa))
+    callback(:after_build, :after_stub, :after_create) do |user, t|
+      user.instance_variable_set(:@identity, create(:user_identity, uuid: user.uuid, loa: t.loa))
     end
 
     factory :loa1_user do
       transient do
         loa do
-           { current: LOA::ONE, highest: LOA::ONE }
+          { current: LOA::ONE, highest: LOA::ONE }
         end
       end
 
-      after(:build) do |user, t|
-        user.instance_variable_set(:@identity, build(:user_identity, uuid: user.uuid, loa: t.loa))
+      callback(:after_build, :after_stub, :after_create) do |user, t|
+        user.instance_variable_set(:@identity, create(:user_identity, uuid: user.uuid, loa: t.loa))
       end
     end
 
     factory :loa3_user do
       transient do
         loa do
-           { current: LOA::THREE, highest: LOA::THREE }
+          { current: LOA::THREE, highest: LOA::THREE }
         end
       end
 
-      after(:build) do |user, t|
+      callback(:after_build, :after_stub, :after_create) do |user, t|
         user.instance_variable_set(:@identity, build(:user_identity, uuid: user.uuid, loa: t.loa))
       end
     end
@@ -54,7 +54,7 @@ FactoryGirl.define do
       mhv_last_signed_in nil
     end
 
-    after(:build) do |mhv_user, t|
+    callback(:after_build, :after_stub, :after_create) do |mhv_user, t|
       mhv_user.instance_variable_set(:@identity, build(:mhv_user_identity, uuid: mhv_user.uuid, loa: t.loa))
     end
   end
