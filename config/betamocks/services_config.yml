@@ -1,0 +1,77 @@
+---
+:services:
+
+# EVSS
+- :name: 'EVSS'
+  :base_uri: <%= "#{URI(Settings.evss.url).host}:#{URI(Settings.evss.url).port}" %>
+  :endpoints:
+  # PCIUAddress
+  - :method: :get
+    :path: "/wss-pciu-services-web/rest/pciuServices/v1/states"
+    :file_path: "evss/pciu_address/states"
+  - :method: :get
+    :path: "/wss-pciu-services-web/rest/pciuServices/v1/countries"
+    :file_path: "evss/pciu_address/countries"
+  - :method: :get
+    :path: "/wss-pciu-services-web/rest/pciuServices/v1/mailingAddress"
+    :file_path: "evss/pciu_address/address"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+#    :error:
+#      :status: 502
+  - :method: :post
+    :path: "/wss-pciu-services-web/rest/pciuServices/v1/mailingAddress"
+    :file_path: "evss/pciu_address/address_update"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+
+  # Letters
+  - :method: :get
+    :path: "/wss-lettergenerator-services-web/rest/letters/v1"
+    :file_path: "evss/letters/list"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+  - :method: :get
+    :path: "/wss-lettergenerator-services-web/rest/letters/v1/letterBeneficiary"
+    :file_path: "evss/letters/beneficiary"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+  - :method: :post
+    :path: "/wss-lettergenerator-services-web/rest/letters/v1/*"
+    :file_path: "evss/letters/download"
+
+  # GIBS
+  - :method: :get
+    :path: "/wss-education-services-web/rest/education/chapter33/v1"
+    :file_path: "evss/gibs"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+
+
+# MVI
+- :name: 'MVI'
+  :base_uri: <%= "#{URI(Settings.mvi.url).host}:#{URI(Settings.mvi.url).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: <%= URI(Settings.mvi.url).path %>
+    :file_path: "mvi/profile"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '(?:root="2.16.840.1.113883.4.1" )?extension="(\d{9})"(?: root="2.16.840.1.113883.4.1")?'
+
+
+# EMIS
+- :name: 'EMIS'
+  :base_uri: <%= "#{URI(Settings.emis.host).host}:#{URI(Settings.emis.host).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/VeteranStatusService"
+    :file_path: "emis/veteran_status"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v13:edipiORicnValue>(\d+)<\/v13:edipiORicnValue>'
