@@ -56,7 +56,7 @@ RSpec.describe 'Fetching user data', type: :request do
   end
 
   context 'when an LOA 1 user is logged in', :skip_mvi do
-    let(:loa1_user) { build :loa1_user }
+    let(:loa1_user) { build(:user, :loa1) }
 
     before do
       Session.create(uuid: loa1_user.uuid, token: token)

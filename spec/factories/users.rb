@@ -18,7 +18,7 @@ FactoryGirl.define do
       }
     end
 
-    factory :loa1_user do
+    trait :loa1 do
       loa do
         {
           current: LOA::ONE,
@@ -27,7 +27,7 @@ FactoryGirl.define do
       end
     end
 
-    factory :loa3_user do
+    trait :loa3 do
       loa do
         {
           current: LOA::THREE,
