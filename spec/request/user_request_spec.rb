@@ -8,7 +8,7 @@ RSpec.describe 'Fetching user data', type: :request do
   let(:token) { 'abracadabra-open-sesame' }
 
   context 'when an LOA 3 user is logged in' do
-    let(:mhv_user) { build :mhv_user }
+    let(:mhv_user) { build(:user, :mhv) }
 
     before do
       Session.create(uuid: mhv_user.uuid, token: token)

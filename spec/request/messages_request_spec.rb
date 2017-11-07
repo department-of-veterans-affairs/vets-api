@@ -7,7 +7,7 @@ RSpec.describe 'Messages Integration', type: :request do
   include SM::ClientHelpers
   include SchemaMatchers
 
-  let(:current_user) { build(:mhv_user) }
+  let(:current_user) { build(:user, :mhv) }
   let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
   let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
