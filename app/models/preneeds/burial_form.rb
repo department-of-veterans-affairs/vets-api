@@ -4,7 +4,7 @@ require 'common/models/base'
 module Preneeds
   class BurialForm < Preneeds::Base
     attribute :application_status, String
-    attribute :has_attachments, Boolean
+    attribute :has_attachments, Boolean, default: false
     attribute :has_currently_buried, String
     attribute :sending_application, String, default: 'vets.gov'
     attribute :sending_code, String
@@ -33,7 +33,7 @@ module Preneeds
       hash = {
         applicant: applicant&.as_eoas, applicationStatus: application_status || '',
         claimant: claimant&.as_eoas, currentlyBuriedPersons: currently_buried_persons.map(&:as_eoas),
-        hasAttachments: has_attachments, hasCurrentlyBuried: has_currently_buried,
+        hasAttachments: false, hasCurrentlyBuried: has_currently_buried,
         sendingApplication: sending_application, sendingCode: sending_code || '', sentTime: sent_time.iso8601,
         trackingNumber: tracking_number, veteran: veteran&.as_eoas
       }
