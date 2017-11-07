@@ -41,15 +41,14 @@ RSpec.describe Preneeds::BurialForm do
   describe 'when converting to json' do
     it 'converts its attributes from snakecase to camelcase' do
       camelcased = params.deep_transform_keys { |key| key.to_s.camelize(:lower) }
-      expect(camelcased).to eq(subject.as_json.except('sentTime', 'trackingNumber'))
+      expect(camelcased).to eq(subject.as_json.except('sentTime', 'trackingNumber', 'hasAttachments'))
     end
   end
 
   describe 'when validating' do
-    it 'compares an array of forms against the schema' do
-      forms = described_class.create_forms_array(params)
+    it 'compares a form against the schema' do
       schema = VetsJsonSchema::SCHEMAS['40-10007']
-      expect(described_class.validate(schema, forms)).to be_empty
+      expect(described_class.validate(schema, described_class.new(params))).to be_empty
     end
   end
 end
