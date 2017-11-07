@@ -10,7 +10,7 @@ module V0
 
       def create
         form = ::Preneeds::BurialForm.new(burial_form_params)
-        validate!(form)
+        validate!(burial_form_params.deep_transform_keys { |k| k.camelize(:lower) })
 
         resource = client.receive_pre_need_application(form.as_eoas)
         ::Preneeds::PreneedSubmission.create!(

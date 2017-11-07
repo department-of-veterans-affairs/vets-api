@@ -2,7 +2,6 @@
 FactoryGirl.define do
   factory :burial_form, class: Preneeds::BurialForm do
     application_status 'somewhere'
-    has_attachments false
     has_currently_buried '1'
     sending_code 'abc'
     sending_application 'vets.gov'
