@@ -89,7 +89,9 @@ RSpec.configure do |config|
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
   config.include(ValidationHelpers, type: :model)
-  config.include(ModelHelpers, type: :controller)
+  %i(controller model).each do |type|
+    config.include(ModelHelpers, type: type)
+  end
   config.include(SAML, type: :controller)
   config.include(AwsHelpers, type: :aws_helpers)
 
