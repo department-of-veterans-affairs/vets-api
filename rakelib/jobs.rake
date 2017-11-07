@@ -27,9 +27,13 @@ namespace :jobs do
     edu_submissions = malformed[:education_benefits_submissions]
     confirmation_numbers = malformed[:confirmation_numbers]
 
+    puts EducationBenefitsClaim.where(id: edu_claims).to_sql
+    puts SavedClaim.where(id: saved_claims).to_sql
+    puts EducationBenefitsSubmission.where(id: edu_submissions).to_sql
+
     total = edu_claims.length + edu_submissions.length + saved_claims.length
 
-    puts "Task would remove #{total} total rows"
+    puts "\nTask would remove #{total} total rows"
     puts "\teducation_benefits_claims: #{edu_claims.length}"
     puts "\tsaved_claims: #{saved_claims.length}"
     puts "\teducation_benefits_submissions: #{edu_submissions.length}"
@@ -65,14 +69,16 @@ namespace :jobs do
                                           .where(processed_at: SPOOL_DATE.beginning_of_day..SPOOL_DATE.end_of_day)
                                           .group_by { |r| r.regional_processing_office.to_sym }
 
+    dir = Dir.mktmpdir
+
     format_records(regional_data).each do |region, records|
       region_id = EducationForm::EducationFacility.facility_for(region: region)
 
-      filename = Dir.mktmpdir + "/#{region_id}_#{SPOOL_DATE.strftime('%m%d%Y')}_vetsgov.spl"
+      filename = dir + "/#{region_id}_#{SPOOL_DATE.strftime('%m%d%Y')}_vetsgov.spl"
       contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
 
       File.open(filename, 'w') { |file| file.write(contents) }
-      puts "Wrote to #{filename}"
+      puts "Wrote #{records.length} applications to region #{region} in #{filename}"
     end
   end
 
