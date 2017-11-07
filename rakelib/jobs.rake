@@ -62,12 +62,29 @@ namespace :jobs do
     puts 'Finished'
   end
 
+  desc 'Generate and upload region 331 and 351 spool files'
+  task upload_spool_files: :environment do
+    REGIONS = [:western, :central].freeze
+    regional_data = valid_records.group_by { |r| r.regional_processing_office.to_sym }
+
+    writer = SFTPWriter::Factory.get_writer(Settings.edu.sftp).new(Settings.edu.sftp, logger: logger)
+
+    format_records(regional_data).each do |region, records|
+      next if REGIONS.exclude?(region)
+
+      region_id = EducationForm::EducationFacility.facility_for(region: region)
+
+      filename = "/#{region_id}_#{SPOOL_DATE.strftime('%m%d%Y')}_vetsgov.spl"
+      contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
+
+      writer.write(contents, filename)
+      puts "Wrote #{records.length} applications to region #{region} in #{filename}"
+    end
+  end
+
   desc 'Rerun spool file for 2017-10-26'
   task recreate_spool_files: :environment do
-    regional_data = EducationBenefitsClaim.includes(:saved_claim)
-                                          .where(saved_claims: { form_id: LIVE_FORM_TYPES })
-                                          .where(processed_at: SPOOL_DATE.beginning_of_day..SPOOL_DATE.end_of_day)
-                                          .group_by { |r| r.regional_processing_office.to_sym }
+    regional_data = valid_records.group_by { |r| r.regional_processing_office.to_sym }
 
     dir = Dir.mktmpdir
 
@@ -80,6 +97,12 @@ namespace :jobs do
       File.open(filename, 'w') { |file| file.write(contents) }
       puts "Wrote #{records.length} applications to region #{region} in #{filename}"
     end
+  end
+
+  def valid_records
+    EducationBenefitsClaim.includes(:saved_claim)
+                          .where(saved_claims: { form_id: LIVE_FORM_TYPES })
+                          .where(processed_at: SPOOL_DATE.beginning_of_day..SPOOL_DATE.end_of_day)
   end
 
   def malformed_records
