@@ -12,7 +12,7 @@ RSpec.describe V0::UsersController, type: :controller do
   context 'when logged in as an LOA1 user' do
     let(:token) { 'abracadabra-open-sesame' }
     let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
-    let(:loa1_user) { build :loa1_user }
+    let(:loa1_user) { build(:user, :loa1) }
 
     before(:each) do
       Session.create(uuid: loa1_user.uuid, token: token)

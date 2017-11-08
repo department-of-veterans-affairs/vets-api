@@ -18,7 +18,7 @@ RSpec.describe StatsdMiddleware, type: :request do
     )
   end
   let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
-  let(:user) { build(:mhv_user) }
+  let(:user) { build(:user, :mhv) }
   let(:now) { Time.current }
 
   before(:each) do
