@@ -369,9 +369,6 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
-    context 'with a healthcare application form' do
-    end
-
     context 'with a burial application form' do
       it 'returns the va profile mapped to the burial form' do
         expect_prefilled('21P-530')
