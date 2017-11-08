@@ -15,9 +15,6 @@ namespace :jobs do
     Facilities::AccessDataDownload.perform_async
   end
 
-  LIVE_FORM_TYPES = %w(1990 1995 1990e 5490 1990n 5495).map { |t| "22-#{t.upcase}" }.freeze
-  SPOOL_DATE = '2017-10-26'.to_date
-
   desc 'Dry run removing saved claims on 2017-10-26'
   task check_malformed_claims: :environment do
     malformed = EducationForm::GenerateSpoolFiles.new.malformed_claim_ids

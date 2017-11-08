@@ -8,66 +8,78 @@ module EducationForm
     def delete_malformed_claims
       malformed = malformed_claim_ids
 
-      edu_claims = malformed[:education_benefits_claims]
-      saved_claims = malformed[:saved_claims]
-      edu_submissions = malformed[:education_benefits_submissions]
-      confirmation_numbers = malformed[:confirmation_numbers]
-
-      filename = write_confirmation_numbers(confirmation_numbers)
+      filename = write_confirmation_numbers(malformed[:confirmation_numbers])
 
       count = 0
-      count += EducationBenefitsSubmission.delete(edu_submissions)
-      count += EducationBenefitsClaim.delete(edu_claims)
-      count += SavedClaim.delete(saved_claims)
+      count += EducationBenefitsSubmission.delete(malformed[:education_benefits_submissions])
+      count += EducationBenefitsClaim.delete(malformed[:education_benefits_claims])
+      count += SavedClaim.delete(malformed[:saved_claims])
 
       { count: count, filename: filename }
     end
 
     def generate_spool_files
-      regional_data = valid_records.group_by { |r| r.regional_processing_office.to_sym }
+      output = []
 
       dir = Dir.mktmpdir
 
-      output = []
-
-      format_records(regional_data).each do |region, records|
-        region_id = EducationFacility.facility_for(region: region)
-
-        filename = dir + "/#{region_id}_#{SPOOL_DATE.strftime('%m%d%Y')}_vetsgov.spl"
-        contents = records.map(&:text).join(WINDOWS_NOTEPAD_LINEBREAK)
-
-        File.open(filename, 'w') { |file| file.write(contents) }
-
-        output << { count: records.length, region: region, filename: filename }
+      formatted_regional_data.each do |region, records|
+        output << write_local_spool_file(region, records, dir)
       end
 
       output
     end
 
     def upload_spool_files
-      regional_data = valid_records.group_by { |r| r.regional_processing_office.to_sym }
+      output = []
 
       logger = Logger.new(STDOUT)
       logger.level = Logger::INFO
-
       writer = SFTPWriter::Factory.get_writer(Settings.edu.sftp).new(Settings.edu.sftp, logger: logger)
 
-      output = []
-
-      format_records(regional_data).each do |region, records|
+      formatted_regional_data.each do |region, records|
         next if [:western, :central].exclude?(region)
 
-        region_id = EducationFacility.facility_for(region: region)
-
-        filename = "/#{region_id}_#{SPOOL_DATE.strftime('%m%d%Y')}_vetsgov.spl"
-        contents = records.map(&:text).join(WINDOWS_NOTEPAD_LINEBREAK)
-
-        writer.write(contents, filename)
-
-        output << { count: records.length, region: region, filename: filename }
+        output << write_remote_spool_file(region, records, writer)
       end
 
       output
+    end
+
+    def write_local_spool_file(region, records, dir)
+      region_id = EducationFacility.facility_for(region: region)
+
+      filename = dir + "/#{region_id}_#{SPOOL_DATE.strftime('%m%d%Y')}_vetsgov.spl"
+      contents = records.map(&:text).join(WINDOWS_NOTEPAD_LINEBREAK)
+
+      File.open(filename, 'w') { |file| file.write(contents) }
+
+      { count: records.length, region: region, filename: filename }
+    end
+
+    def write_remote_spool_file(region, records, writer)
+      region_id = EducationFacility.facility_for(region: region)
+
+      filename = "/#{region_id}_#{SPOOL_DATE.strftime('%m%d%Y')}_vetsgov.spl"
+      contents = records.map(&:text).join(WINDOWS_NOTEPAD_LINEBREAK)
+
+      writer.write(contents, filename)
+
+      { count: records.length, region: region, filename: filename }
+    end
+
+    # :nocov:
+    def formatted_regional_data
+      regional_data = valid_records.group_by { |r| r.regional_processing_office.to_sym }
+
+      raw_groups = regional_data.each do |region, v|
+        grouped_data[region] = v.map do |record|
+          record.saved_claim.valid? && EducationForm::Forms::Base.build(record)
+        end.compact
+      end
+
+      # delete any regions that only had malformed claims before returning
+      raw_groups.delete_if { |_, v| v.empty? }
     end
 
     def valid_records
@@ -100,17 +112,7 @@ module EducationForm
         confirmation_numbers: confirmation_numbers.compact
       }
     end
-
-    def format_records(grouped_data)
-      raw_groups = grouped_data.each do |region, v|
-        grouped_data[region] = v.map do |record|
-          record.saved_claim.valid? && EducationForm::Forms::Base.build(record)
-        end.compact
-      end
-
-      # delete any regions that only had malformed claims before returning
-      raw_groups.delete_if { |_, v| v.empty? }
-    end
+    # :nocov:
 
     def write_confirmation_numbers(confirmation_numbers)
       filename = Dir.mktmpdir + '/confirmation_numbers.txt'
