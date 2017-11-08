@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe EVSSClaimService do
-  let(:user) { FactoryGirl.create(:loa3_user) }
+  let(:user) { FactoryGirl.create(:user, :loa3) }
   let(:client_stub) { instance_double('EVSS::ClaimsService') }
   let(:claim_service) { described_class.new(user) }
   subject { claim_service }
