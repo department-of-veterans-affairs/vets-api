@@ -40,6 +40,8 @@ module EducationForm
 
         output << { count: records.length, region: region, filename: filename }
       end
+
+      output
     end
 
     def upload_spool_files
@@ -64,6 +66,8 @@ module EducationForm
 
         output << { count: records.length, region: region, filename: filename }
       end
+
+      output
     end
 
     def valid_records
