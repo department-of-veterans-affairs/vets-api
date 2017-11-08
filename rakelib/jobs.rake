@@ -23,7 +23,6 @@ namespace :jobs do
     malformed = EducationForm::GenerateSpoolFiles.new.malformed_claim_ids
 
     puts malformed
-
     edu_claims = malformed[:education_benefits_claims]
     saved_claims = malformed[:saved_claims]
     edu_submissions = malformed[:education_benefits_submissions]
