@@ -55,10 +55,10 @@ module EducationForm
       format_records(regional_data).each do |region, records|
         next if [:western, :central].exclude?(region)
 
-        region_id = EducationForm::EducationFacility.facility_for(region: region)
+        region_id = EducationFacility.facility_for(region: region)
 
         filename = "/#{region_id}_#{SPOOL_DATE.strftime('%m%d%Y')}_vetsgov.spl"
-        contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
+        contents = records.map(&:text).join(WINDOWS_NOTEPAD_LINEBREAK)
 
         writer.write(contents, filename)
 
