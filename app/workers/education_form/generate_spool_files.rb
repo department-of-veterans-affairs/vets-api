@@ -67,8 +67,7 @@ module EducationForm
     end
 
     def valid_records
-      EducationBenefitsClaim.includes(:saved_claim)
-                            .where(processed_at: SPOOL_DATE.beginning_of_day..SPOOL_DATE.end_of_day)
+      EducationBenefitsClaim.where(processed_at: SPOOL_DATE.beginning_of_day..SPOOL_DATE.end_of_day)
     end
 
     def malformed_records
