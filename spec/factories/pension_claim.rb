@@ -10,6 +10,7 @@ FactoryGirl.define do
           last: 'User'
         },
         gender: 'F',
+        email: 'foo@foo.com',
         veteranDateOfBirth: '1989-12-13',
         veteranSocialSecurityNumber: '111223333',
         veteranAddress: {

@@ -6,6 +6,9 @@ require 'sentry_logging'
 
 module Common
   module Client
+    class SecurityError < StandardError
+    end
+
     class Base
       include SentryLogging
 
@@ -23,7 +26,17 @@ module Common
 
       # memoize the connection from config
       def connection
-        @connection ||= config.connection
+        @connection ||= lambda do
+          connection = config.connection
+          handlers = connection.builder.handlers
+
+          if handlers.include?(Faraday::Adapter::HTTPClient) &&
+             !handlers.include?(Common::Client::Middleware::Request::RemoveCookies)
+            raise SecurityError, 'http client needs cookies stripped'
+          end
+
+          connection
+        end.call
       end
 
       def perform(method, path, params, headers = nil)

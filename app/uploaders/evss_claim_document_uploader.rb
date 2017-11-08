@@ -22,8 +22,20 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     set_storage_options!
   end
 
+  def converted_exists?
+    converted.present? && converted.file.exists?
+  end
+
+  def final_filename
+    if converted_exists?
+      converted.file.filename
+    else
+      filename
+    end
+  end
+
   def read_for_upload
-    if converted.present? && converted.file.exists?
+    if converted_exists?
       converted.read
     else
       read

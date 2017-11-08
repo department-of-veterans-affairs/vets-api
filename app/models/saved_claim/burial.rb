@@ -11,4 +11,8 @@ class SavedClaim::Burial < SavedClaim
   def attachment_keys
     [:transportationReceipts, :deathCertificate].freeze
   end
+
+  def email
+    parsed_form['claimantEmail']
+  end
 end
