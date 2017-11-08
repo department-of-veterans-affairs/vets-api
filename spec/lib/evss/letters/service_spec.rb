@@ -3,7 +3,7 @@ require 'rails_helper'
 
 describe EVSS::Letters::Service do
   describe '.find_by_user' do
-    let(:user) { build(:loa3_user) }
+    let(:user) { build(:user, :loa3) }
 
     describe '#get_letters' do
       context 'with a valid evss response' do

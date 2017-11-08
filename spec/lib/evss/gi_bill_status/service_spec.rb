@@ -3,7 +3,7 @@ require 'rails_helper'
 
 describe EVSS::GiBillStatus::Service do
   describe '.find_by_user' do
-    let(:user) { build(:loa3_user) }
+    let(:user) { build(:user, :loa3) }
     let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
 
     subject { described_class.new(auth_headers) }
