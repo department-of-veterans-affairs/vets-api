@@ -9,6 +9,10 @@ module EVSS
       def service_name
         'EVSS/Letters'
       end
+
+      def mock_enabled?
+        Settings.evss.mock_letters || false
+      end
     end
   end
 end

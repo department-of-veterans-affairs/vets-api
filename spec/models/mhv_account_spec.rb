@@ -27,7 +27,7 @@ RSpec.describe MhvAccount, type: :model do
   end
 
   let(:user) do
-    create(:loa3_user,
+    create(:user, :loa3,
            ssn: mvi_profile.ssn,
            first_name: mvi_profile.given_names.first,
            last_name: mvi_profile.family_name,
@@ -164,7 +164,7 @@ RSpec.describe MhvAccount, type: :model do
 
     context 'user with un-dashed uuid' do
       let(:nodashuser) do
-        create(:loa3_user,
+        create(:user, :loa3,
                uuid: 'abcdef12345678',
                ssn: mvi_profile.ssn,
                first_name: mvi_profile.given_names.first,

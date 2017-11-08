@@ -4,7 +4,7 @@ require 'rails_helper'
 RSpec.describe V0::LettersController, type: :controller do
   include SchemaMatchers
 
-  let(:user) { FactoryGirl.create(:loa3_user) }
+  let(:user) { FactoryGirl.create(:user, :loa3) }
   let(:session) { Session.create(uuid: user.uuid) }
 
   context 'with a mocked letters response' do
