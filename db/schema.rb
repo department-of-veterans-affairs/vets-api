@@ -35,7 +35,7 @@ ActiveRecord::Schema.define(version: 20171107183613) do
     t.string   "encrypted_form_iv"
     t.string   "regional_processing_office",                  null: false
     t.string   "form_type",                  default: "1990"
-    t.integer  "saved_claim_id"
+    t.integer  "saved_claim_id",                              null: false
   end
 
   add_index "education_benefits_claims", ["created_at"], name: "index_education_benefits_claims_on_created_at", using: :btree
