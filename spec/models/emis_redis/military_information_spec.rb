@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 describe EMISRedis::MilitaryInformation, skip_emis: true do
-  let(:user) { build :loa3_user }
+  let(:user) { build(:user, :loa3) }
   subject { described_class.for_user(user) }
 
   describe '#last_entry_date' do

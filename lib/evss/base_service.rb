@@ -9,8 +9,9 @@ module EVSS
     SYSTEM_NAME = 'vets.gov'
     DEFAULT_TIMEOUT = 15 # in seconds
 
-    def initialize(headers)
+    def initialize(headers, use_mock = false)
       @headers = headers
+      @use_mock = use_mock
     end
 
     def self.create_breakers_service(name:, url:)
@@ -54,6 +55,7 @@ module EVSS
         faraday.use      :breakers
         faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
+        faraday.response :betamocks if @use_mock
         faraday.response :snakecase, symbolize: false
         faraday.response :json
         faraday.use :remove_cookies

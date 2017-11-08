@@ -6,8 +6,8 @@ RSpec.describe User, type: :model do
   let(:loa_three) { { current: LOA::THREE } }
 
   describe '.from_merged_attrs()' do
-    subject(:loa1_user) { build(:loa1_user) }
-    subject(:loa3_user) { build(:loa3_user) }
+    subject(:loa1_user) { build(:user, :loa1) }
+    subject(:loa3_user) { build(:user, :loa3) }
     it 'should not down-level' do
       user = described_class.from_merged_attrs(loa3_user, loa1_user)
       expect(user.loa[:current]).to eq(loa3_user.loa[:current])
@@ -21,7 +21,7 @@ RSpec.describe User, type: :model do
       expect(user).to be_valid
     end
     it 'should use newer attrs unless they are empty or nil' do
-      new_user = build(:loa1_user, first_name: 'George', last_name: 'Washington', gender: '', birth_date: nil)
+      new_user = build(:user, :loa1, first_name: 'George', last_name: 'Washington', gender: '', birth_date: nil)
       user = described_class.from_merged_attrs(loa3_user, new_user)
       expect(user.first_name).to eq('George')
       expect(user.last_name).to eq('Washington')
@@ -32,7 +32,7 @@ RSpec.describe User, type: :model do
   end
 
   describe '#can_prefill_emis?' do
-    let(:user) { build(:loa3_user) }
+    let(:user) { build(:user, :loa3) }
 
     before do
       expect(user).to receive('beta_enabled?').with(user.uuid, 'emis_prefill').and_return(true)
@@ -209,7 +209,7 @@ RSpec.describe User, type: :model do
         end
       end
       context 'when there are mhv ids' do
-        let(:loa3_user) { FactoryGirl.build(:loa3_user) }
+        let(:loa3_user) { FactoryGirl.build(:user, :loa3) }
         let(:mvi_profile) { FactoryGirl.build(:mvi_profile) }
         it 'has a mhv correlation id' do
           stub_mvi(mvi_profile)

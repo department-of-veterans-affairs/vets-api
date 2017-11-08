@@ -38,7 +38,7 @@ pension_burial:
 
 # Settings for EVSS
 evss:
-  url: https://test.vets.gov
+  url: https://csraciapp6.evss.srarad.com
   cert_path: ~
   key_path: ~
   root_cert_path: ~
@@ -52,8 +52,9 @@ evss:
     aws_secret_access_key: EVSS_S3_AWS_SECRET_ACCESS_KEY_XYZ
     bucket: evss_s3_bucket
     region: evss_s3_region
-  mock_letters: true
+  mock_letters: false
   mock_gi_bill_status: false
+  mock_pciu_address: false
 
 # Settings for GI Bill Data Service
 gids:
@@ -92,10 +93,10 @@ mhv:
 
 # Settings for Master Veteran Index
 mvi:
-  url: http://see.project.readme.for.instructions.org/
+  url: http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService
   open_timeout: 2
   timeout: 10
-  mock: true
+  mock: false
   processing_code: T
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
@@ -104,6 +105,7 @@ mvi:
 # The certs used here can be obtained from the DevOps team. A different set is required for
 # each environment when connecting to the service.
 emis:
+  mock: false
   host: https://vaausvrsapp81.aac.va.gov
   veteran_status_url: /VIERSService/eMIS/v1/VeteranStatusService
   payment_url: /VIERSService/eMIS/v1/PaymentService
@@ -190,3 +192,9 @@ shrine:
     path: claims
 github:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+
+betamocks:
+  enabled: true
+  recording: false
+  cache_dir: /cache
+  services_config: config/betamocks/services_config.yml
