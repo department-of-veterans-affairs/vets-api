@@ -5,9 +5,9 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:uuid) { '1234abcd' }
   let(:token) { 'abracadabra-open-sesame' }
   let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
-  let(:loa1_user) { build(:loa1_user, uuid: uuid) }
-  let(:loa3_user) { build(:loa3_user, uuid: uuid) }
-  let(:invalid_user) { build(:loa3_user, uuid: '') }
+  let(:loa1_user) { build(:user, :loa1, uuid: uuid) }
+  let(:loa3_user) { build(:user, :loa3, uuid: uuid) }
+  let(:invalid_user) { build(:user, :loa3, uuid: '') }
 
   let(:settings_no_context) { build(:settings_no_context) }
   let(:rubysaml_settings) { build(:rubysaml_settings) }

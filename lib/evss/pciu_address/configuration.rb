@@ -9,6 +9,10 @@ module EVSS
       def service_name
         'EVSS/PCIUAddress'
       end
+
+      def mock_enabled?
+        Settings.evss.mock_pciu_address || false
+      end
     end
   end
 end

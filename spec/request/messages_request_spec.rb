@@ -7,7 +7,7 @@ RSpec.describe 'Messages Integration', type: :request do
   include SM::ClientHelpers
   include SchemaMatchers
 
-  let(:current_user) { build(:mhv_user) }
+  let(:current_user) { build(:user, :mhv) }
   let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
   let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
@@ -153,7 +153,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
   context 'with an LOA1 user' do
     let(:mhv_account) { double('mhv_account', ineligible?: true, needs_terms_acceptance?: false, upgraded?: true) }
-    let(:current_user) { build(:loa1_user) }
+    let(:current_user) { build(:user, :loa1) }
 
     it 'gives me a 403' do
       get "/v0/messaging/health/messages/#{message_id}"
