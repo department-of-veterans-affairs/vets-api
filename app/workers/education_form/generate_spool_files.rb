@@ -45,7 +45,10 @@ module EducationForm
     def upload_spool_files
       regional_data = valid_records.group_by { |r| r.regional_processing_office.to_sym }
 
-      writer = SFTPWriter::Factory.get_writer(Settings.edu.sftp).new(Settings.edu.sftp)
+      logger = Logger.new(STDOUT)
+      logger.level = Logger::INFO
+
+      writer = SFTPWriter::Factory.get_writer(Settings.edu.sftp).new(Settings.edu.sftp, logger: logger)
 
       output = []
 
