@@ -5,7 +5,7 @@ require 'support/attr_encrypted_matcher'
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
 
-  let(:user) { build(:loa3_user) }
+  let(:user) { build(:user, :loa3) }
 
   before do
     user.va_profile.suffix = 'Jr.'

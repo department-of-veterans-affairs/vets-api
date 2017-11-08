@@ -18,9 +18,7 @@ module EVSS
     end
 
     def metadata
-      {
-        status: response_status
-      }
+      { status: response_status }
     end
 
     def response_status

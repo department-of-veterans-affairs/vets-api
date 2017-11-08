@@ -4,7 +4,7 @@ require 'rails_helper'
 RSpec.describe 'Beta Registration Endpoint', type: :request do
   let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
   let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
-  let(:user) { build(:loa3_user) }
+  let(:user) { build(:user, :loa3) }
 
   let(:dummy_class) { Class.new { extend BetaSwitch } }
 

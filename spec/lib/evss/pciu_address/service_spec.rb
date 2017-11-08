@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 describe EVSS::PCIUAddress::Service do
-  let(:user) { build(:loa3_user) }
+  let(:user) { build(:user, :loa3) }
 
   describe '#get_countries' do
     context 'with a 200 response' do
