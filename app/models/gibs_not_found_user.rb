@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class GibsNotFoundUser < ActiveRecord::Base
   attr_encrypted :ssn, key: Settings.db_encryption_key
 
