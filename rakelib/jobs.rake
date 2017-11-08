@@ -34,7 +34,7 @@ namespace :jobs do
 
   desc 'Delete malformed saved claims on 2017-10-26'
   task delete_malformed_claims: :environment do
-    result = EducationForm::GenereateSpoolFiles.new.delete_malformed_claims
+    result = EducationForm::GenerateSpoolFiles.new.delete_malformed_claims
 
     puts "Removed #{result[:count]} rows"
     puts "Wrote confirmation numbers to #{result[:filename]}"
