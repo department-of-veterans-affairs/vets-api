@@ -17,6 +17,8 @@ namespace :jobs do
 
   desc 'Dry run removing saved claims on 2017-10-26'
   task check_malformed_claims: :environment do
+    Rails.application.eager_load!
+
     malformed = EducationForm::GenerateSpoolFiles.new.malformed_claim_ids
 
     puts malformed
@@ -34,6 +36,8 @@ namespace :jobs do
 
   desc 'Delete malformed saved claims on 2017-10-26'
   task delete_malformed_claims: :environment do
+    Rails.application.eager_load!
+
     result = EducationForm::GenerateSpoolFiles.new.delete_malformed_claims
 
     puts "Removed #{result[:count]} rows"
@@ -42,6 +46,8 @@ namespace :jobs do
 
   desc 'Rerun spool file for 2017-10-26'
   task recreate_spool_files: :environment do
+    Rails.application.eager_load!
+
     results = EducationForm::GenerateSpoolFiles.new.generate_spool_files
 
     results.each do |r|
@@ -51,6 +57,8 @@ namespace :jobs do
 
   desc 'Generate and upload region 331 and 351 spool files'
   task upload_spool_files: :environment do
+    Rails.application.eager_load!
+
     results = EducationForm::GenerateSpoolFiles.new.upload_spool_files
 
     results.each do |r|
