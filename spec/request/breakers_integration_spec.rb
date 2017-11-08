@@ -17,7 +17,7 @@ RSpec.describe 'breakers', type: :request do
     )
   end
   let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
-  let(:user) { build(:mhv_user) }
+  let(:user) { build(:user, :mhv) }
 
   before(:each) do
     allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
