@@ -36,7 +36,6 @@ def connection
     faraday.response :betamocks if Settings.my_service.mock # e.g. Settings.mvi.mock
     faraday.response :snakecase, symbolize: false
     faraday.response :json
-    faraday.adapter  :httpclient
   end
 end
 ```
