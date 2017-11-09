@@ -28,6 +28,7 @@ class SavedClaim < ActiveRecord::Base
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.
   after_initialize do
+    # TODO make this a module
     self.guid ||= SecureRandom.uuid
     self.form_id = self.class::FORM.upcase
   end
