@@ -8,6 +8,7 @@ class PreneedAttachmentUploader < CarrierWave::Uploader::Base
   def initialize(guid)
     super
     @guid = guid
+    # TODO: setup s3 config
   end
 
   def extension_white_list
