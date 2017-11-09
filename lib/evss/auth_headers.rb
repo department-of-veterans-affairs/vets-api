@@ -7,23 +7,23 @@ module EVSS
     end
 
     def to_h
-      @headers ||= {
-        'va_eauth_csid' => 'DSLogon',
-        # TODO: Change va_eauth_authenticationmethod to vets.gov
-        # once the EVSS team is ready for us to use it
-        'va_eauth_authenticationmethod' => 'DSLogon',
-        'va_eauth_pnidtype' => 'SSN',
-        'va_eauth_assurancelevel' => @user.loa[:current].to_s,
-        'va_eauth_firstName' => @user.first_name,
-        'va_eauth_lastName' => @user.last_name,
-        'va_eauth_issueinstant' => @user.last_signed_in.iso8601,
-        'va_eauth_birlsfilenumber' => @user.birls_id,
-        'va_eauth_dodedipnid' => @user.edipi,
-        'va_eauth_pid' => @user.participant_id,
-        'va_eauth_pnid' => @user.ssn,
-        'va_eauth_birthdate' => iso8601_birth_date,
-        'va_eauth_authorization' => eauth_json
-      }
+      headers = Hash.new { |h, k| h[Net::HTTP::ImmutableHeaderKey.new(k)] }
+      headers['Content-Type'] = 'application/json'
+      headers['Accept'] = 'application/json'
+      headers['va_eauth_csid'] = 'DSLogon'
+      headers['va_eauth_authenticationmethod'] = 'DSLogon'
+      headers['va_eauth_pnidtype'] = 'SSN'
+      headers['va_eauth_assurancelevel'] = @user.loa[:current].to_s
+      headers['va_eauth_firstName'] = @user.first_name
+      headers['va_eauth_lastName'] = @user.last_name
+      headers['va_eauth_issueinstant'] = @user.last_signed_in.iso8601
+      headers['va_eauth_birlsfilenumber'] = @user.birls_id if @user.birls_id
+      headers['va_eauth_dodedipnid'] = @user.edipi
+      headers['va_eauth_pid'] = @user.participant_id
+      headers['va_eauth_pnid'] = @user.ssn
+      headers['va_eauth_birthdate'] = iso8601_birth_date
+      headers['va_eauth_authorization'] = eauth_json
+      headers
     end
 
     private
