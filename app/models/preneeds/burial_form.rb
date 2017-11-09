@@ -4,7 +4,7 @@ require 'common/models/base'
 module Preneeds
   class BurialForm < Preneeds::Base
     attribute :application_status, String
-    attribute :has_attachments, Boolean, default: false
+    attribute :preneed_attachment_guids, Array[String]
     attribute :has_currently_buried, String
     attribute :sending_application, String, default: 'vets.gov'
     attribute :sending_code, String
@@ -18,6 +18,10 @@ module Preneeds
 
     def self.create_forms_array(params_array)
       Array.wrap(params_array).map { |params| BurialForm.new(params) }
+    end
+
+    def has_attachments
+      preneed_attachment_guids.present?
     end
 
     def current_time
