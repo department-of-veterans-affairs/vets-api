@@ -12,7 +12,7 @@ RSpec.describe Preneeds::PreneedAttachment do
 
   describe '#set_file_data!' do
     it 'should store the file and set the file_data' do
-      preneed_attachment.set_file_data!(fixture_file_upload('pdf_fill/extras.pdf'))
+      set_file_data
       expect(preneed_attachment.parsed_file_data['filename']).to eq('extras.pdf')
     end
   end
