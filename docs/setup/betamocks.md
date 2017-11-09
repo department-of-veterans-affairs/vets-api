@@ -9,13 +9,15 @@ git clone git@github.com:department-of-veterans-affairs/vets-api-mockdata.git
 ```
 
 2. If you're using Docker there is no step 2 run `make up` to start vets-api. If you're 
-not on Docker and still using a settings.local.yml file, add the betamocks configuration 
-settings below to settings.local.yml and change `cache_dir` to the path of `vets-api-mockdata`.
+not on Docker set the cache dir to the relative path of the mock data repo in 
+config/development.yml file, you may need to run `bin/spring stop` for the change to take effect.
 ```yaml
 betamocks:
   enabled: true
   recording: false
-  cache_dir: /path/to/vets-api-mockdata/repo
+  # the cache dir depends on how you run the api, run `bin/spring stop` after switching this setting
+  cache_dir: ../vets-api-mockdata # via rails; e.g. bundle exec rails s or bundle exec rails c
+  #cache_dir: /cache # via docker; e.g. make up or make console
   services_config: config/betamocks/services_config.yml
 ```
 
@@ -36,7 +38,6 @@ def connection
     faraday.response :betamocks if Settings.my_service.mock # e.g. Settings.mvi.mock
     faraday.response :snakecase, symbolize: false
     faraday.response :json
-    faraday.adapter  :httpclient
   end
 end
 ```
@@ -138,5 +139,6 @@ XML request bodies to the same directory:
     :file_path: "mvi/profiles"
     :cache_multiple_responses:
       :uid_location: body
-      :uid_locator: 'root="2.16.840.1.113883.4.1" extension="(\d{9})"' # matches 9 digits '(\d{9})' after extension=
+      :uid_locator: '(?:root="2.16.840.1.113883.4.1" )?extension="(\d{9})"(?: root="2.16.840.1.113883.4.1")?' 
+      extension=
 ```
