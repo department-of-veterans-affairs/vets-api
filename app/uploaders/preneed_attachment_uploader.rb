@@ -10,6 +10,10 @@ class PreneedAttachmentUploader < CarrierWave::Uploader::Base
     @guid = guid
   end
 
+  def extension_white_list
+    %w(pdf)
+  end
+
   def store_dir
     raise 'missing guid' if @guid.blank?
     "preneed_attachments/#{@guid}"
