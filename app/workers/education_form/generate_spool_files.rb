@@ -73,7 +73,7 @@ module EducationForm
       regional_data = valid_records.group_by { |r| r.regional_processing_office.to_sym }
 
       raw_groups = regional_data.each do |region, v|
-        grouped_data[region] = v.map do |record|
+        regional_data[region] = v.map do |record|
           record.saved_claim.valid? && EducationForm::Forms::Base.build(record)
         end.compact
       end
