@@ -9,6 +9,7 @@ module V0
       FORM = '40-10007'
 
       def create
+        # TODO add attachment ids array
         form = ::Preneeds::BurialForm.new(burial_form_params)
         validate!(burial_form_params.deep_transform_keys { |k| k.camelize(:lower) })
 

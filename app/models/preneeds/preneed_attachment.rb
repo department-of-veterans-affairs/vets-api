@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 module Preneeds
   class PreneedAttachment < ActiveRecord::Base
-    attr_encrypted(:file_data, key: Settings.db_encryption_key)
+    include SetGuid
 
-    after_initialize do
-      # TODO make this a module
-      self.guid ||= SecureRandom.uuid
-    end
+    attr_encrypted(:file_data, key: Settings.db_encryption_key)
 
     def set_file_data!(file)
       preneed_attachment_uploader = get_preneed_attachment_uploader
