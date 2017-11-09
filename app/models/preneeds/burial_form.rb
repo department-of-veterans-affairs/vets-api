@@ -20,9 +20,12 @@ module Preneeds
       Array.wrap(params_array).map { |params| BurialForm.new(params) }
     end
 
+    # keep this name because it matches the previous attribute
+    # rubocop:disable Style/PredicateName
     def has_attachments
       preneed_attachment_guids.present?
     end
+    # rubocop:enable Style/PredicateName
 
     def current_time
       Time.now.utc
