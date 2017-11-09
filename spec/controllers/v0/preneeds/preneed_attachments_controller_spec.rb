@@ -6,10 +6,8 @@ RSpec.describe V0::Preneeds::PreneedAttachmentsController, type: :controller do
     it 'uploads a preneed attachment' do
       post(
         :create,
-        {
-          preneed_attachment: {
-            file_data: fixture_file_upload('pdf_fill/extras.pdf')
-          }
+        preneed_attachment: {
+          file_data: fixture_file_upload('pdf_fill/extras.pdf')
         }
       )
 
