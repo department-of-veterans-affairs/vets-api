@@ -14,10 +14,7 @@ describe EVSS::AuthHeaders do
 
     it 'has only lowercase first letters in evss header key names' do
       # EVSS requires us to pass the HTTP headers as lowercase
-      expect(subject.to_h.except(
-        'Content-Type',
-        'Accept'
-      ).find { |k, _| k.match(/^[[:upper:]]/) }).to be nil
+      expect(subject.to_h.find { |k, _| k.match(/^[[:upper:]]/) }).to be nil
     end
 
     it 'includes the users birls id' do

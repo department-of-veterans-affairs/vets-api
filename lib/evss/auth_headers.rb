@@ -8,8 +8,6 @@ module EVSS
 
     def to_h
       headers = Hash.new { |h, k| h[Net::HTTP::ImmutableHeaderKey.new(k)] }
-      headers['Content-Type'] = 'application/json'
-      headers['Accept'] = 'application/json'
       headers['va_eauth_csid'] = 'DSLogon'
       headers['va_eauth_authenticationmethod'] = 'DSLogon'
       headers['va_eauth_pnidtype'] = 'SSN'

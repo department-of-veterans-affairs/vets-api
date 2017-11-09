@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 class Net::HTTP::ImmutableHeaderKey
   attr_reader :key
 
@@ -22,14 +21,18 @@ class Net::HTTP::ImmutableHeaderKey
     [self]
   end
 
-  delegate :hash, to: :key
+  def hash
+    key.hash
+  end
 
   def eql?(other)
     key.eql? other.key.eql?
   end
 
   def to_s
-    self.to_s = -> { key }
-    to_s.call
+    def self.to_s
+      key
+    end
+    self
   end
 end
