@@ -9,7 +9,6 @@ module V0
       FORM = '40-10007'
 
       def create
-        # TODO add attachment ids array
         form = ::Preneeds::BurialForm.new(burial_form_params)
         validate!(burial_form_params.deep_transform_keys { |k| k.camelize(:lower) })
 
@@ -28,7 +27,8 @@ module V0
 
       def burial_form_params
         params.require(:application).permit(
-          :application_status, :has_attachments, :has_currently_buried, :sending_code,
+          :application_status, :has_currently_buried, :sending_code,
+          preneed_attachment_guids: [],
           applicant: ::Preneeds::Applicant.permitted_params,
           claimant: ::Preneeds::Claimant.permitted_params,
           currently_buried_persons: [::Preneeds::CurrentlyBuriedPerson.permitted_params],
