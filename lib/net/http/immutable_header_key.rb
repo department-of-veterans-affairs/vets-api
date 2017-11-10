@@ -22,18 +22,15 @@ class Net::HTTP::ImmutableHeaderKey
     [self]
   end
 
-  def hash
-    key.hash
-  end
+  delegate :hash, to: :key
+  delegate :eql?, to: :key
 
-  def eql?(other)
-    key.eql? other
-  end
-
+  # rubocop:disable NestedMethodDefinition
   def to_s
     def self.to_s
       key
     end
     self
   end
+  # rubocop:enable NestedMethodDefinition
 end
