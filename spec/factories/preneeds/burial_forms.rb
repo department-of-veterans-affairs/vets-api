@@ -6,7 +6,10 @@ FactoryGirl.define do
     sending_code 'abc'
     sending_application 'vets.gov'
 
-    preneed_attachment_guids([SecureRandom.uuid])
+    preneed_attachments([
+      confirmation_code: SecureRandom.uuid,
+      attachment_id: '1'
+    ])
 
     applicant { attributes_for :applicant }
     claimant { attributes_for :claimant }
