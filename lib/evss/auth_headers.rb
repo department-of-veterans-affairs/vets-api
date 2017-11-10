@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 module EVSS
   class AuthHeaders
     def initialize(user)
@@ -7,7 +6,8 @@ module EVSS
     end
 
     def to_h
-      headers = Hash.new { |h, k| h[Net::HTTP::ImmutableHeaderKey.new(k)] }
+      return nil unless @user
+      headers = Net::HTTP::ImmutableKeysHash.new
       headers['va_eauth_csid'] = 'DSLogon'
       headers['va_eauth_authenticationmethod'] = 'DSLogon'
       headers['va_eauth_pnidtype'] = 'SSN'

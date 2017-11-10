@@ -7,8 +7,8 @@ RSpec.describe EVSS::CreateUserAccountJob, type: :job do
 
   it 'calls create_user_account EVSS API' do
     client_stub = instance_double('EVSS::CommonService')
-    allow(EVSS::CommonService).to receive(:new).with(auth_headers) { client_stub }
+    allow(EVSS::CommonService).to receive(:new) { client_stub }
     expect(client_stub).to receive(:create_user_account).once
-    described_class.new.perform(auth_headers)
+    described_class.new.perform(user)
   end
 end

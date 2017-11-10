@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class Net::HTTP::ImmutableHeaderKey
   attr_reader :key
 
@@ -26,7 +27,7 @@ class Net::HTTP::ImmutableHeaderKey
   end
 
   def eql?(other)
-    key.eql? other.key.eql?
+    key.eql? other
   end
 
   def to_s
