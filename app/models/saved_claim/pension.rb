@@ -11,4 +11,8 @@ class SavedClaim::Pension < SavedClaim
   def attachment_keys
     [:files].freeze
   end
+
+  def email
+    parsed_form['email']
+  end
 end

@@ -6,7 +6,7 @@ FactoryGirl.define do
     applicant_relationship_to_claimant 'Self'
     completing_reason "I don't know"
 
-    name { attributes_for :name }
+    name { attributes_for :full_name }
     mailing_address { attributes_for :address }
   end
 end

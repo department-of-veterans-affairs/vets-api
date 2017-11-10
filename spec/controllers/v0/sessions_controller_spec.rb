@@ -5,9 +5,9 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:uuid) { '1234abcd' }
   let(:token) { 'abracadabra-open-sesame' }
   let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
-  let(:loa1_user) { build(:loa1_user, uuid: uuid) }
-  let(:loa3_user) { build(:loa3_user, uuid: uuid) }
-  let(:invalid_user) { build(:loa3_user, uuid: '') }
+  let(:loa1_user) { build(:user, :loa1, uuid: uuid) }
+  let(:loa3_user) { build(:user, :loa3, uuid: uuid) }
+  let(:invalid_user) { build(:user, :loa3, uuid: '') }
 
   let(:settings_no_context) { build(:settings_no_context) }
   let(:rubysaml_settings) { build(:rubysaml_settings) }
@@ -178,53 +178,29 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
 
   context 'when not logged in' do
-    describe ' GET new' do
-      it 'creates the saml authn request with LOA 1 if supplied level=1' do
-        get :new, level: 1
-        expect(SAML::AuthnRequestHelper.new(response).loa1?).to eq(true)
-      end
-
-      it 'returns the urls for for all three possible authN requests' do
-        get :authn_urls
-        expect(response).to have_http_status(200)
-        expect(JSON.parse(response.body).keys).to eq %w(mhv dslogon idme)
-      end
-
-      it 'returns does not allow fetching the identity proof url' do
-        get :identity_proof
-        expect(response).to have_http_status(401)
-      end
-
-      it 'does not allow fetching the multifactor url' do
-        get :multifactor
-        expect(response).to have_http_status(401)
-      end
-
-      it 'creates the saml authn request with LOA 3 if supplied level=3' do
-        get :new, level: 3
-        expect(SAML::AuthnRequestHelper.new(response).loa3?).to eq(true)
-      end
-      it 'creates the saml authn request with LOA 1 if supplied level=nil' do
-        get :new, level: 3
-        expect(SAML::AuthnRequestHelper.new(response).loa3?).to eq(true)
-      end
-      it 'creates the saml authn request with LOA 1 if supplied level is invalid' do
-        get :new, level: 'bad_level!!'
-        expect(SAML::AuthnRequestHelper.new(response).loa1?).to eq(true)
-      end
-      it 'shows the ID.me authentication url' do
-        get :new
-        json_response = JSON.parse(response.body)
-        expect(json_response).to have_key('authenticate_via_get')
-        expect(json_response['authenticate_via_get']).to start_with(rubysaml_settings.idp_sso_target_url)
-      end
+    it 'returns the urls for for all three possible authN requests' do
+      get :authn_urls
+      expect(response).to have_http_status(200)
+      expect(JSON.parse(response.body).keys).to eq %w(mhv dslogon idme)
     end
+
+    it 'does not allow fetching the identity proof url' do
+      get :identity_proof
+      expect(response).to have_http_status(401)
+    end
+
+    it 'does not allow fetching the multifactor url' do
+      get :multifactor
+      expect(response).to have_http_status(401)
+    end
+
     describe ' DELETE destroy' do
       it 'returns unauthorized' do
         delete :destroy
         expect(response).to have_http_status(:unauthorized)
       end
     end
+
     describe ' POST saml_callback' do
       it 'does not create a job to create an evss user when user has loa1' do
         allow_any_instance_of(described_class).to receive(:new_user_from_saml).and_return(loa1_user)
