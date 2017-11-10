@@ -269,7 +269,11 @@ RSpec.describe MhvAccount, type: :model do
       end
 
       it 'will upgrade a previously failed_upgrade account' do
-        subject = described_class.new(base_attributes.merge(registered_at: Time.current, upgraded_at: nil, account_state: :upgrade_failed))
+        subject = described_class.new(base_attributes.merge(
+          registered_at: Time.current,
+          upgraded_at: nil,
+          account_state: :upgrade_failed
+        ))
         expect(subject.terms_and_conditions_accepted?).to be_truthy
         expect(subject.preexisting_account?).to be_falsey
         expect(subject.persisted?).to be_falsey
