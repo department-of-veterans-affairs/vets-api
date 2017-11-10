@@ -14,7 +14,7 @@ describe MVI::Service do
     }
   end
 
-  let(:user) { build(:loa3_user, user_hash) }
+  let(:user) { build(:user, :loa3, user_hash) }
 
   let(:mvi_profile) do
     build(:mvi_profile_response, :missing_attrs, :address_austin, given_names: %w(Mitchell G), vha_facility_ids: [])

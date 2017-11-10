@@ -36,7 +36,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
                           needs_terms_acceptance?: false,
                           upgraded?: true)
   end
-  let(:mhv_user) { build :mhv_user }
+  let(:mhv_user) { build(:user, :mhv) }
 
   before do
     Session.create(uuid: mhv_user.uuid, token: token)
