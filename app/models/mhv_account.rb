@@ -11,7 +11,16 @@ class MhvAccount < ActiveRecord::Base
 
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
   # Everything except existing and ineligible accounts should be able to transition to :needs_terms_acceptance
-  ALL_STATES = %i(unknown needs_terms_acceptance existing ineligible registered upgraded register_failed upgrade_failed).freeze
+  ALL_STATES = %i(
+    unknown
+    needs_terms_acceptance
+    existing
+    ineligible
+    registered
+    upgraded
+    register_failed
+    upgrade_failed
+  ).freeze
 
   ADDRESS_ATTRS = %w(street city state postal_code country).freeze
   UNKNOWN_ADDRESS = {
@@ -36,7 +45,8 @@ class MhvAccount < ActiveRecord::Base
     end
 
     event :check_terms_acceptance do
-      transitions from: ALL_STATES - [:existing, :ineligible], to: :needs_terms_acceptance, unless: :terms_and_conditions_accepted?
+      transitions from: ALL_STATES - [:existing, :ineligible],
+                  to: :needs_terms_acceptance, unless: :terms_and_conditions_accepted?
     end
 
     event :register do
