@@ -98,7 +98,7 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.terms_and_conditions_accepted?).to be_truthy
         end
 
-        it 'a priori registered account stays upgraded' do
+        it 'a priori registered account stays registered' do
           subject = described_class.new(base_attributes.merge(registered_at: nil, account_state: :registered))
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('registered')
