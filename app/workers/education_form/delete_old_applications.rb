@@ -8,10 +8,10 @@ module EducationForm
       edu_submission_ids = []
       saved_claim_ids = []
 
-      old_education_benefits_claims.find_each do |r|
-        edu_claim_ids << r.id
-        edu_submission_ids << r&.education_benefits_submission.id
-        saved_claim_ids << r&.saved_claim.id
+      EducationBenefitsClaim.where("processed_at < '#{2.months.ago}'").find_each do |record|
+        edu_claim_ids << record.id
+        edu_submission_ids << record&.education_benefits_submission.id
+        saved_claim_ids << record&.saved_claim.id
       end
 
       edu_claim_ids.compact!
@@ -25,15 +25,9 @@ module EducationForm
       logger.info("Deleting #{edu_submission_ids.length} old education benefits submissions")
       logger.info("Deleting #{saved_claim_ids.length} old saved claims")
 
-      EducationBenefitsSubmission.delete(edu_submission_ids.compact)
-      EducationBenefitsClaim.delete(edu_claim_ids.compact)
+      EducationBenefitsSubmission.delete(edu_submission_ids)
+      EducationBenefitsClaim.delete(edu_claim_ids)
       SavedClaim.delete(saved_claim_ids)
-    end
-
-    def old_education_benefits_claims
-      EducationBenefitsClaim.includes(:saved_claim)
-                            .includes(:education_benefits_submission)
-                            .where("processed_at < '#{2.months.ago}'")
     end
   end
 end
