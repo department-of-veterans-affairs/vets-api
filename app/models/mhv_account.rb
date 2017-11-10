@@ -10,8 +10,8 @@ class MhvAccount < ActiveRecord::Base
   STATSD_ACCOUNT_UPGRADE_KEY = 'mhv.account.upgrade'
 
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
-  # Everything except ineligible accounts should be able to transition to :needs_terms_acceptance
-  ALL_STATES = %i(unknown needs_terms_acceptance ineligible registered upgraded register_failed upgrade_failed).freeze
+  # Everything except existing and ineligible accounts should be able to transition to :needs_terms_acceptance
+  ALL_STATES = %i(unknown needs_terms_acceptance existing ineligible registered upgraded register_failed upgrade_failed).freeze
 
   ADDRESS_ATTRS = %w(street city state postal_code country).freeze
   UNKNOWN_ADDRESS = {
@@ -25,9 +25,10 @@ class MhvAccount < ActiveRecord::Base
 
   aasm(:account_state) do
     state :unknown, initial: true
-    state :needs_terms_acceptance, :ineligible, :registered, :upgraded, :register_failed, :upgrade_failed
+    state :needs_terms_acceptance, :existing, :ineligible, :registered, :upgraded, :register_failed, :upgrade_failed
 
     event :check_eligibility do
+      transitions from: ALL_STATES, to: :existing, if: :preexisting_account?
       transitions from: ALL_STATES, to: :ineligible, unless: :eligible?
       transitions from: ALL_STATES, to: :upgraded, if: :previously_upgraded?
       transitions from: ALL_STATES, to: :registered, if: :previously_registered?
@@ -35,7 +36,7 @@ class MhvAccount < ActiveRecord::Base
     end
 
     event :check_terms_acceptance do
-      transitions from: ALL_STATES - [:ineligible], to: :needs_terms_acceptance, unless: :terms_and_conditions_accepted?
+      transitions from: ALL_STATES - [:existing, :ineligible], to: :needs_terms_acceptance, unless: :terms_and_conditions_accepted?
     end
 
     event :register do
@@ -56,8 +57,11 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def create_and_upgrade!
-    create_mhv_account! unless preexisting_account?
-    upgrade_mhv_account!
+    # Accept T&C if existing?
+    unless existing?
+      create_mhv_account! unless previously_registered?
+      upgrade_mhv_account!
+    end
   end
 
   def eligible?
@@ -69,7 +73,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def preexisting_account?
-    user&.mhv_correlation_id.present?
+    user&.mhv_correlation_id.present? && !previously_registered?
   end
 
   private
