@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 describe EVSS::Documents::Service do
-  let(:current_user) { FactoryGirl.create(:loa3_user) }
+  let(:current_user) { create(:user, :loa3) }
   let(:document_data) do
     EVSSClaimDocument.new(
       evss_claim_id: 189_625,

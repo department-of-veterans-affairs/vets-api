@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 describe EVSS::EVSSCommon::Service do
-  let(:current_user) { FactoryGirl.build(:loa3_user) }
+  let(:current_user) { FactoryGirl.build(:user, :loa3) }
 
   subject { described_class.new(current_user) }
 

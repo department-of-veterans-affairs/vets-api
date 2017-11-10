@@ -6,7 +6,7 @@ require 'evss/auth_headers'
 
 RSpec.describe EVSS::RequestDecision, type: :job do
   let(:client_stub) { instance_double('EVSS::Claims::Service') }
-  let(:user) { FactoryGirl.create(:loa3_user) }
+  let(:user) { create(:user, :loa3) }
   let(:evss_id) { 189_625 }
 
   it 'posts a waiver to EVSS' do

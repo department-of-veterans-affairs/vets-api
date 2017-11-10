@@ -3,7 +3,7 @@ require 'rails_helper'
 require 'evss/auth_headers'
 
 describe EVSS::ErrorMiddleware do
-  let(:current_user) { FactoryGirl.build(:loa3_user) }
+  let(:current_user) { FactoryGirl.build(:user, :loa3) }
   let(:claims_service) { EVSS::Claims::Service.new(current_user) }
 
   it 'should raise the proper error' do

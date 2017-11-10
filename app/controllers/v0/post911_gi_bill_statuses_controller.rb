@@ -48,8 +48,7 @@ module V0
 
     def service
       @service ||= EVSS::GiBillStatus::Service.new(
-        EVSS::AuthHeaders.new(@current_user).to_h,
-        Settings.evss.mock_gi_bill_status
+        @current_user
       )
     end
   end
