@@ -136,6 +136,19 @@ RSpec.describe MhvAccount, type: :model do
           end
         end
 
+        context 'preexisting account' do
+          let(:mhv_ids) { ['14221465'] }
+          let(:base_attributes) { { user_uuid: user.uuid } }
+
+          it 'does not transition to needs_terms_acceptance' do
+            subject = described_class.new(base_attributes)
+            subject.send(:setup) # This gets called when object is first loaded
+            expect(subject.account_state).to eq('existing')
+            expect(subject.eligible?).to be_truthy
+            expect(subject.terms_and_conditions_accepted?).to be_falsey
+          end
+        end
+
         it 'transitions to needs_terms_acceptance' do
           subject = described_class.new(user_uuid: user.uuid, account_state: 'upgraded', upgraded_at: Time.current)
           subject.send(:setup) # This gets called when object is first loaded
@@ -245,7 +258,7 @@ RSpec.describe MhvAccount, type: :model do
       end
     end
 
-    context 'existing account that has not been upgraded' do
+    context 'registered account that has not been upgraded' do
       let(:mhv_ids) { ['14221465'] }
       let(:base_attributes) { { user_uuid: user.uuid, account_state: 'registered' } }
 
