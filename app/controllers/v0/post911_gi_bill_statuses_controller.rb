@@ -33,8 +33,6 @@ module V0
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:vet_not_found]
         begin
           GibsNotFoundUser.log(@current_user)
-        rescue => e
-          log_exception_to_sentry(e)
         ensure
           raise Common::Exceptions::RecordNotFound, @current_user.email
         end
