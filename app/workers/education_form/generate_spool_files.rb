@@ -4,6 +4,14 @@ module EducationForm
   class GenerateSpoolFiles
     SPOOL_DATE = '2017-10-26'.to_date
     WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
+    SSN_PREFIX = {
+      '1990' => 'veteran',
+      '1995' => 'veteran',
+      '1990e' => 'relative',
+      '5490' => 'relative',
+      '5495' => 'relative',
+      '1990n' => 'veteran'
+    }
 
     def delete_malformed_claims
       malformed = malformed_claim_ids
@@ -16,6 +24,16 @@ module EducationForm
       count += SavedClaim.delete(malformed[:saved_claims])
 
       { count: count, filename: filename }
+    end
+
+    def get_ssns
+      ssns = []
+      valid_records.find_each do |education_benefits_claim|
+        next if education_benefits_claim.region == :eastern
+        ssns << education_benefits_claim.parsed_form["#{SSN_PREFIX[education_benefits_claim.form_type]}SocialSecurityNumber"]
+      end
+
+      ssns
     end
 
     def generate_spool_files
@@ -111,6 +129,13 @@ module EducationForm
       }
     end
     # :nocov:
+
+    def write_ssns(ssns)
+      filename = Dir.mktmpdir + '/ssns.txt'
+      File.open(filename, 'w') { |f| f.puts(ssns) }
+
+      filename
+    end
 
     def write_confirmation_numbers(confirmation_numbers)
       filename = Dir.mktmpdir + '/confirmation_numbers.txt'

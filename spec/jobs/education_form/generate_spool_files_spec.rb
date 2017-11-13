@@ -18,6 +18,19 @@ RSpec.describe EducationForm::GenerateSpoolFiles, type: :model, form: :education
     end
   end
 
+  describe '#get_ssns', run_at: '2017-10-26 03:00:00 EDT' do
+    before do
+      %w(va1990 va1990_western_region).each do |factory|
+        saved_claim = create(factory)
+        saved_claim.education_benefits_claim.update_column(:processed_at, Time.now)
+      end
+    end
+
+    it 'should get the ssns of unsubmitted records' do
+      expect(subject.get_ssns).to eq(["111223333"])
+    end
+  end
+
   context '#generate_spool_files' do
     it 'should return a list of generated files' do
       expect(subject.generate_spool_files).to be_a(Array)
