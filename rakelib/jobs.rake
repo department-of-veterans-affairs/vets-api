@@ -15,6 +15,13 @@ namespace :jobs do
     Facilities::AccessDataDownload.perform_async
   end
 
+  desc 'Get ssns of claims to be resubmitted'
+  task write_ssns: :environment do
+    Rails.application.eager_load!
+
+    EducationForm::GenerateSpoolFiles.new.write_ssns
+  end
+
   desc 'Dry run removing saved claims on 2017-10-26'
   task check_malformed_claims: :environment do
     Rails.application.eager_load!
