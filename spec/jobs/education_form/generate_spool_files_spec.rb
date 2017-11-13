@@ -18,6 +18,37 @@ RSpec.describe EducationForm::GenerateSpoolFiles, type: :model, form: :education
     end
   end
 
+  context 'with some test data', run_at: '2017-10-26 03:00:00 EDT' do
+    before do
+      %w(va1990 va1990_western_region).each do |factory|
+        saved_claim = create(factory)
+        saved_claim.education_benefits_claim.update_column(:processed_at, Time.zone.now)
+      end
+    end
+
+    describe '#get_names_and_ssns' do
+      it 'should get the ssns of unsubmitted records' do
+        expect(subject.get_names_and_ssns).to eq(
+          eastern: [['111223333', nil, 'Mark Olson', '']], western: [['111223333', nil, 'Mark Olson', '']]
+        )
+      end
+    end
+
+    describe '#write_names_and_ssns' do
+      it 'should make a csv file with the names and ssns' do
+        filenames = subject.write_names_and_ssns
+        expect(filenames.size).to eq(2)
+
+        filenames.each do |filename|
+          expect(filename.include?('eastern') || filename.include?('western')).to eq(true)
+          expect(File.read(filename)).to eq(
+            "Veteran SSN,Applicant SSN,Veteran name,Applicant name\n111223333,,Mark Olson,\"\"\n"
+          )
+        end
+      end
+    end
+  end
+
   context '#generate_spool_files' do
     it 'should return a list of generated files' do
       expect(subject.generate_spool_files).to be_a(Array)
