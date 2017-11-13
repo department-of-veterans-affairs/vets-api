@@ -2,6 +2,7 @@
 
 module EducationForm
   class GenerateSpoolFiles
+    require 'csv'
     SPOOL_DATE = '2017-10-26'.to_date
     WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
     SSN_PREFIX = {
@@ -143,7 +144,7 @@ module EducationForm
     end
     # :nocov:
 
-    def write_ssns
+    def write_names_and_ssns
       filename = Dir.mktmpdir + '/ssns.csv'
 
       CSV.open(filename, 'wb') do |csv|

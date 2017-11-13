@@ -18,7 +18,7 @@ RSpec.describe EducationForm::GenerateSpoolFiles, type: :model, form: :education
     end
   end
 
-  describe '#get_names_and_ssns', run_at: '2017-10-26 03:00:00 EDT' do
+  context 'with some test data', run_at: '2017-10-26 03:00:00 EDT' do
     before do
       %w(va1990 va1990_western_region).each do |factory|
         saved_claim = create(factory)
@@ -26,8 +26,18 @@ RSpec.describe EducationForm::GenerateSpoolFiles, type: :model, form: :education
       end
     end
 
-    it 'should get the ssns of unsubmitted records' do
-      expect(subject.get_names_and_ssns).to eq([["111223333", nil, "Mark Olson", ""]])
+    describe '#get_names_and_ssns' do
+      it 'should get the ssns of unsubmitted records' do
+        expect(subject.get_names_and_ssns).to eq([["111223333", nil, "Mark Olson", ""]])
+      end
+    end
+
+    describe '#write_names_and_ssns' do
+      it 'should make a csv file with the names and ssns' do
+        expect(File.read(subject.write_names_and_ssns)).to eq(
+          "Veteran SSN,Applicant SSN,Veteran name,Applicant name\n111223333,,Mark Olson,\"\"\n"
+        )
+      end
     end
   end
 
