@@ -130,9 +130,9 @@ module EducationForm
     end
     # :nocov:
 
-    def write_ssns(ssns)
+    def write_ssns
       filename = Dir.mktmpdir + '/ssns.txt'
-      File.open(filename, 'w') { |f| f.puts(ssns) }
+      File.open(filename, 'w') { |f| f.puts(get_ssns) }
 
       filename
     end
