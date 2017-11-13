@@ -38,8 +38,6 @@ module EducationForm
       writer = SFTPWriter::Factory.get_writer(Settings.edu.sftp).new(Settings.edu.sftp, logger: logger)
 
       formatted_regional_data.each do |region, records|
-        next if [:western, :central].exclude?(region)
-
         output << write_remote_spool_file(region, records, writer)
       end
 
