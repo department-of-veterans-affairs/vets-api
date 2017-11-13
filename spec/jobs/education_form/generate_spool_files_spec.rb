@@ -22,13 +22,13 @@ RSpec.describe EducationForm::GenerateSpoolFiles, type: :model, form: :education
     before do
       %w(va1990 va1990_western_region).each do |factory|
         saved_claim = create(factory)
-        saved_claim.education_benefits_claim.update_column(:processed_at, Time.now)
+        saved_claim.education_benefits_claim.update_column(:processed_at, Time.zone.now)
       end
     end
 
     describe '#get_names_and_ssns' do
       it 'should get the ssns of unsubmitted records' do
-        expect(subject.get_names_and_ssns).to eq([["111223333", nil, "Mark Olson", ""]])
+        expect(subject.get_names_and_ssns).to eq([['111223333', nil, 'Mark Olson', '']])
       end
     end
 
