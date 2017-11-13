@@ -29,7 +29,7 @@ RSpec.describe EducationForm::GenerateSpoolFiles, type: :model, form: :education
     describe '#get_names_and_ssns' do
       it 'should get the ssns of unsubmitted records' do
         expect(subject.get_names_and_ssns).to eq(
-          {:eastern=>[["111223333", nil, "Mark Olson", ""]], :western=>[["111223333", nil, "Mark Olson", ""]]}
+          eastern: [['111223333', nil, 'Mark Olson', '']], western: [['111223333', nil, 'Mark Olson', '']]
         )
       end
     end
@@ -41,7 +41,9 @@ RSpec.describe EducationForm::GenerateSpoolFiles, type: :model, form: :education
 
         filenames.each do |filename|
           expect(filename.include?('eastern') || filename.include?('western')).to eq(true)
-          expect(File.read(filename)).to eq("Veteran SSN,Applicant SSN,Veteran name,Applicant name\n111223333,,Mark Olson,\"\"\n")
+          expect(File.read(filename)).to eq(
+            "Veteran SSN,Applicant SSN,Veteran name,Applicant name\n111223333,,Mark Olson,\"\"\n"
+          )
         end
       end
     end
