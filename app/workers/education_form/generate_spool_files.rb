@@ -8,8 +8,8 @@ module EducationForm
       '1990' => 'veteran',
       '1995' => 'veteran',
       '1990e' => 'relative',
-      '5490' => 'relative',
-      '5495' => 'relative',
+      '5490' => 'veteran',
+      '5495' => 'veteran',
       '1990n' => 'veteran'
     }
 
@@ -26,14 +26,27 @@ module EducationForm
       { count: count, filename: filename }
     end
 
-    def get_ssns
-      ssns = []
+    def full_name(name)
+      return '' if name.nil?
+      [name['first'], name['middle'], name['last'], name['suffix']].compact.join(' ')
+    end
+
+    def get_names_and_ssns
+      names_and_ssns = []
+
       valid_records.find_each do |education_benefits_claim|
         next if education_benefits_claim.region == :eastern
-        ssns << education_benefits_claim.parsed_form["#{SSN_PREFIX[education_benefits_claim.form_type]}SocialSecurityNumber"]
+        parsed_form = education_benefits_claim.parsed_form
+
+        names_and_ssns << {
+          'veteranSocialSecurityNumber' => parsed_form['veteranSocialSecurityNumber'],
+          'relativeSocialSecurityNumber' => parsed_form['relativeSocialSecurityNumber'],
+          'veteranFullName' => full_name(parsed_form['veteranFullName']),
+          'relativeFullName' => full_name(parsed_form['relativeFullName'])
+        }
       end
 
-      ssns
+      names_and_ssns
     end
 
     def generate_spool_files
