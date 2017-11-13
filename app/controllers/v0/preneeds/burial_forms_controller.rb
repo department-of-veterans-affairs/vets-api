@@ -28,7 +28,7 @@ module V0
       def burial_form_params
         params.require(:application).permit(
           :application_status, :has_currently_buried, :sending_code,
-          preneed_attachment_guids: [],
+          preneed_attachments: ::Preneeds::PreneedAttachmentHash.permitted_params,
           applicant: ::Preneeds::Applicant.permitted_params,
           claimant: ::Preneeds::Claimant.permitted_params,
           currently_buried_persons: [::Preneeds::CurrentlyBuriedPerson.permitted_params],
