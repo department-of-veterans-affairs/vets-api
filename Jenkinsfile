@@ -40,19 +40,19 @@ pipeline {
 
       steps {
         build job: 'builds/vets-api', parameters: [
-          booleanParam('notify_slack', true),
-          stringParam(name: 'ref', env.GIT_COMMIT),
-          booleanParam('release', false),
+          booleanParam(name: 'notify_slack', value: true),
+          stringParam(name: 'ref', value: env.GIT_COMMIT),
+          booleanParam(name: 'release', value: false),
         ], wait: true
 
         build job: 'deploys/vets-api-server-dev-brd', parameters: [
-          booleanParam('notify_slack', true),
-          stringParam(name: 'ref', env.GIT_COMMIT),
+          booleanParam(name: 'notify_slack', value: true),
+          stringParam(name: 'ref', value: env.GIT_COMMIT),
         ], wait: false
 
         build job: 'deploys/vets-api-worker-dev-brd', parameters: [
-          booleanParam('notify_slack', true),
-          stringParam(name: 'ref', env.GIT_COMMIT),
+          booleanParam(name: 'notify_slack', value: true),
+          stringParam(name: 'ref', value: env.GIT_COMMIT),
         ], wait: false
       }
     }
