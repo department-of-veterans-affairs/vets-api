@@ -26,6 +26,8 @@ pipeline {
       }
 
       steps {
+        sh 'env'
+
         build job: 'deploys/vets-review-instance-deploy', parameters: [
           stringParam(name: 'devops_branch', value: 'master'),
           stringParam(name: 'api_branch', value: env.BRANCH_NAME),
