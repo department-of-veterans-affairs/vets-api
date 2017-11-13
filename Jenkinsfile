@@ -10,13 +10,13 @@ pipeline {
       }
     }
 
-    stage('Run tests') {
-      steps {
-        withEnv(['RAILS_ENV=test', 'CI=true']) {
-          sh 'make ci'
-        }
-      }
-    }
+    //stage('Run tests') {
+    //  steps {
+    //    withEnv(['RAILS_ENV=test', 'CI=true']) {
+    //      sh 'make ci'
+    //    }
+    //  }
+    //}
 
     stage('Review') {
       when {
@@ -39,6 +39,8 @@ pipeline {
       when { branch 'brd-deploy' }
 
       steps {
+        sh 'env'
+
         build job: 'builds/vets-api', parameters: [
           booleanParam(name: 'notify_slack', value: true),
           stringParam(name: 'ref', value: env.GIT_COMMIT),
