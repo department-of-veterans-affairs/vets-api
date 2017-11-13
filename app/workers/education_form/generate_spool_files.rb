@@ -38,12 +38,12 @@ module EducationForm
         next if education_benefits_claim.region == :eastern
         parsed_form = education_benefits_claim.parsed_form
 
-        names_and_ssns << {
-          'veteranSocialSecurityNumber' => parsed_form['veteranSocialSecurityNumber'],
-          'relativeSocialSecurityNumber' => parsed_form['relativeSocialSecurityNumber'],
-          'veteranFullName' => full_name(parsed_form['veteranFullName']),
-          'relativeFullName' => full_name(parsed_form['relativeFullName'])
-        }
+        names_and_ssns << [
+          parsed_form['veteranSocialSecurityNumber'],
+          parsed_form['relativeSocialSecurityNumber'],
+          full_name(parsed_form['veteranFullName']),
+          full_name(parsed_form['relativeFullName'])
+        ]
       end
 
       names_and_ssns
@@ -144,8 +144,14 @@ module EducationForm
     # :nocov:
 
     def write_ssns
-      filename = Dir.mktmpdir + '/ssns.txt'
-      File.open(filename, 'w') { |f| f.puts(get_ssns) }
+      filename = Dir.mktmpdir + '/ssns.csv'
+
+      CSV.open(filename, 'wb') do |csv|
+        csv << ['Veteran SSN', 'Applicant SSN', 'Veteran name', 'Applicant name']
+        get_names_and_ssns.each do |row|
+          csv << row
+        end
+      end
 
       filename
     end

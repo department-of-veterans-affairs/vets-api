@@ -27,7 +27,7 @@ RSpec.describe EducationForm::GenerateSpoolFiles, type: :model, form: :education
     end
 
     it 'should get the ssns of unsubmitted records' do
-      expect(subject.get_names_and_ssns).to eq([{"veteranSocialSecurityNumber"=>"111223333", "relativeSocialSecurityNumber"=>nil, "veteranFullName"=>"Mark Olson", "relativeFullName"=>""}])
+      expect(subject.get_names_and_ssns).to eq([["111223333", nil, "Mark Olson", ""]])
     end
   end
 
