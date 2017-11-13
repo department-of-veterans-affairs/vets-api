@@ -5,14 +5,6 @@ module EducationForm
     require 'csv'
     SPOOL_DATE = '2017-10-26'.to_date
     WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
-    SSN_PREFIX = {
-      '1990' => 'veteran',
-      '1995' => 'veteran',
-      '1990e' => 'relative',
-      '5490' => 'veteran',
-      '5495' => 'veteran',
-      '1990n' => 'veteran'
-    }
 
     def delete_malformed_claims
       malformed = malformed_claim_ids
