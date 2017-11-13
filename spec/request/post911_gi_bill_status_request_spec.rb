@@ -55,4 +55,35 @@ RSpec.describe 'Fetching Post 911 GI Bill Status', type: :request do
       end
     end
   end
+
+  context 'when evss returns not found' do
+    context 'when the user has not been logged' do
+      it 'should log the user and return a 404' do
+        VCR.use_cassette('evss/gi_bill_status/vet_not_found') do
+          expect { get v0_post911_gi_bill_status_url, nil, auth_header }.to change(GibsNotFoundUser, :count).by(1)
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+
+    context 'when the user has been logged' do
+      before { GibsNotFoundUser.log(user) }
+      it 'should not log the user again and return a 404' do
+        VCR.use_cassette('evss/gi_bill_status/vet_not_found') do
+          expect { get v0_post911_gi_bill_status_url, nil, auth_header }.to change(GibsNotFoundUser, :count).by(0)
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+
+    context 'when log record insertion fails' do
+      it 'should still return a 404' do
+        VCR.use_cassette('evss/gi_bill_status/vet_not_found') do
+          allow(GibsNotFoundUser).to receive(:log).and_raise(ActiveRecord::ActiveRecordError)
+          expect { get v0_post911_gi_bill_status_url, nil, auth_header }.to change(GibsNotFoundUser, :count).by(0)
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+  end
 end
