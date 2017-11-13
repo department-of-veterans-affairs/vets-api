@@ -25,13 +25,14 @@ module EducationForm
     end
 
     def get_names_and_ssns
-      names_and_ssns = []
+      names_and_ssns = {}
 
       valid_records.find_each do |education_benefits_claim|
-        next if education_benefits_claim.region == :eastern
+        names_and_ssns[education_benefits_claim.region] ||= []
+
         parsed_form = education_benefits_claim.parsed_form
 
-        names_and_ssns << [
+        names_and_ssns[education_benefits_claim.region] << [
           parsed_form['veteranSocialSecurityNumber'],
           parsed_form['relativeSocialSecurityNumber'],
           full_name(parsed_form['veteranFullName']),
@@ -137,16 +138,21 @@ module EducationForm
     # :nocov:
 
     def write_names_and_ssns
-      filename = Dir.mktmpdir + '/ssns.csv'
+      filenames = []
+      get_names_and_ssns.each do |region, records|
+        filename = Dir.mktmpdir + "/#{region}_ssns.csv"
 
-      CSV.open(filename, 'wb') do |csv|
-        csv << ['Veteran SSN', 'Applicant SSN', 'Veteran name', 'Applicant name']
-        get_names_and_ssns.each do |row|
-          csv << row
+        CSV.open(filename, 'wb') do |csv|
+          csv << ['Veteran SSN', 'Applicant SSN', 'Veteran name', 'Applicant name']
+          records.each do |row|
+            csv << row
+          end
         end
+
+        filenames << filename
       end
 
-      filename
+      filenames
     end
 
     def write_confirmation_numbers(confirmation_numbers)

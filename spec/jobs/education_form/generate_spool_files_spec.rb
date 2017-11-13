@@ -28,15 +28,21 @@ RSpec.describe EducationForm::GenerateSpoolFiles, type: :model, form: :education
 
     describe '#get_names_and_ssns' do
       it 'should get the ssns of unsubmitted records' do
-        expect(subject.get_names_and_ssns).to eq([['111223333', nil, 'Mark Olson', '']])
+        expect(subject.get_names_and_ssns).to eq(
+          {:eastern=>[["111223333", nil, "Mark Olson", ""]], :western=>[["111223333", nil, "Mark Olson", ""]]}
+        )
       end
     end
 
     describe '#write_names_and_ssns' do
       it 'should make a csv file with the names and ssns' do
-        expect(File.read(subject.write_names_and_ssns)).to eq(
-          "Veteran SSN,Applicant SSN,Veteran name,Applicant name\n111223333,,Mark Olson,\"\"\n"
-        )
+        filenames = subject.write_names_and_ssns
+        expect(filenames.size).to eq(2)
+
+        filenames.each do |filename|
+          expect(filename.include?('eastern') || filename.include?('western')).to eq(true)
+          expect(File.read(filename)).to eq("Veteran SSN,Applicant SSN,Veteran name,Applicant name\n111223333,,Mark Olson,\"\"\n")
+        end
       end
     end
   end
