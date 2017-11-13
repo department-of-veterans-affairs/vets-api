@@ -31,8 +31,11 @@ module V0
         # 503
         raise EVSS::GiBillStatus::ServiceException
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:vet_not_found]
-        # 404
-        raise Common::Exceptions::RecordNotFound, @current_user.email
+        begin
+          GibsNotFoundUser.log(@current_user)
+        ensure
+          raise Common::Exceptions::RecordNotFound, @current_user.email
+        end
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:timeout]
         # 504
         raise Common::Exceptions::GatewayTimeout
