@@ -86,6 +86,10 @@ class MhvAccount < ActiveRecord::Base
     user&.mhv_correlation_id.present? && !previously_registered?
   end
 
+  def accessible?
+    upgraded? || existing?
+  end
+
   private
 
   def terms_and_conditions_accepted
