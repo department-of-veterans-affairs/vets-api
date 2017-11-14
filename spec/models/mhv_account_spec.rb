@@ -303,6 +303,30 @@ RSpec.describe MhvAccount, type: :model do
       end
     end
 
+    context 'existing account that has already been upgraded' do
+      let(:mhv_ids) { ['14221465'] }
+      let(:base_attributes) { { user_uuid: user.uuid } }
+
+      it 'will only update the record to reflect that it has been upgraded' do
+        subject = described_class.new(base_attributes.merge(registered_at: Time.current))
+        expect(subject.terms_and_conditions_accepted?).to be_truthy
+        expect(subject.preexisting_account?).to be_falsey
+        expect(subject.persisted?).to be_falsey
+        VCR.use_cassette('mhv_account_creation/should_not_upgrade_an_account_if_one_already_exists') do
+          expect { subject.create_and_upgrade! }.to trigger_statsd_increment('mhv.account.existed')
+            .and not_trigger_statsd_increment('mhv.account.creation.success')
+            .and not_trigger_statsd_increment('mhv.account.upgrade.success')
+            .and not_trigger_statsd_increment('mhv.account.creation.failure')
+            .and not_trigger_statsd_increment('mhv.account.upgrade.failure')
+          expect(subject.persisted?).to be_truthy
+          expect(subject.account_state).to eq('upgraded')
+          expect(subject.upgraded_at).to be_nil
+          expect(subject.eligible?).to be_truthy
+          expect(subject.terms_and_conditions_accepted?).to be_truthy
+        end
+      end
+    end
+
     context 'mhv error responses' do
       let(:mhv_ids) { ['14221465'] }
 
