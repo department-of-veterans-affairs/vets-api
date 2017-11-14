@@ -39,14 +39,21 @@ module EVSS
 
     def connection
       @conn ||= Faraday.new(base_path, ssl: ssl_options) do |faraday|
-        faraday.options.timeout = self.class::DEFAULT_TIMEOUT
+        faraday.options.timeout = DEFAULT_TIMEOUT
         faraday.use      :breakers
         faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
+        faraday.response :betamocks if mock_enabled?
         faraday.response :snakecase, symbolize: false
         faraday.response :json
-        faraday.adapter  :httpclient
+        faraday.use :remove_cookies
+        faraday.adapter :httpclient
       end
+    end
+
+    def mock_enabled?
+      # sublcass to override
+      false
     end
   end
 end

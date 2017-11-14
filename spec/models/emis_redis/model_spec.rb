@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 describe EMISRedis::Model do
-  let(:user) { build :loa3_user }
+  let(:user) { build(:user, :loa3) }
   let(:model) { described_class.for_user(user) }
 
   describe '#emis_response' do

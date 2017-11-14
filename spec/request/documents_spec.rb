@@ -15,7 +15,7 @@ RSpec.describe 'Documents management', type: :request do
     FactoryGirl.create(:evss_claim, id: 1, evss_id: 189_625,
                                     user_uuid: user.uuid, data: {})
   end
-  let(:user) { FactoryGirl.create(:loa3_user) }
+  let(:user) { FactoryGirl.create(:user, :loa3) }
   let(:session) { Session.create(uuid: user.uuid) }
 
   it 'should upload a file' do
@@ -37,7 +37,7 @@ RSpec.describe 'Documents management', type: :request do
   it 'should normalize requests with a null tracked_item_id' do
     params = { file: file, tracked_item_id: 'null', document_type: document_type }
     post '/v0/evss_claims/189625/documents', params, 'Authorization' => "Token token=#{session.token}"
-    args = EVSS::DocumentUpload.jobs.first['args'][1]
+    args = EVSS::DocumentUpload.jobs.first['args'][2]
     expect(response.status).to eq(202)
     expect(JSON.parse(response.body)['job_id']).to eq(EVSS::DocumentUpload.jobs.first['jid'])
     expect(args.key?('tracked_item_id')).to eq(true)

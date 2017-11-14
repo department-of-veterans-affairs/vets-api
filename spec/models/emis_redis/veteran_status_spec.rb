@@ -3,7 +3,7 @@ require 'rails_helper'
 require 'common/exceptions'
 
 describe EMISRedis::VeteranStatus, skip_emis: true do
-  let(:user) { build :loa3_user }
+  let(:user) { build(:user, :loa3) }
   subject { described_class.for_user(user) }
 
   describe 'veteran?' do

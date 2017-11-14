@@ -15,6 +15,7 @@ services:
     image: "vets-api:${BUILD_TAG:-latest}"
     volumes:
       - ".:/src/vets-api"
+      - "../vets-api-mockdata:/cache"
     ports:
       - 3000:3000
     environment:

@@ -22,18 +22,6 @@ module V0
       'myhealthevet_multifactor' => 'myhealthevet_multifactor'
     }.freeze
 
-    # Collection Action: this method will eventually be replaced by auth_urls
-    # DEPRECATED: This action is only here for backward compatibility and will be removed.
-    def new
-      saml_auth_request = OneLogin::RubySaml::Authrequest.new
-
-      Benchmark::Timer.start(TIMER_LOGIN_KEY, saml_auth_request.uuid)
-
-      authn_context = LOA::MAPPING.invert[params[:level]&.to_i] || LOA::MAPPING.invert[1]
-      saml_settings = saml_settings(authn_context: authn_context)
-      render json: { authenticate_via_get: saml_auth_request.create(saml_settings, saml_options) }
-    end
-
     # Collection Action: method will eventually replace new
     # Returns the sign-in urls for mhv, dslogon, and ID.me (LOA1 only)
     # authn_context is the policy, connect represents the ID.me flow
@@ -155,7 +143,8 @@ module V0
 
     def async_create_evss_account(user)
       return unless user.can_access_evss?
-      EVSS::CreateUserAccountJob.perform_async(user.uuid)
+      auth_headers = EVSS::AuthHeaders.new(user).to_h
+      EVSS::CreateUserAccountJob.perform_async(auth_headers)
     end
 
     def handle_completed_slo

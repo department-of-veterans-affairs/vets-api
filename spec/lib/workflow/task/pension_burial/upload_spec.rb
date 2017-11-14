@@ -51,7 +51,12 @@ RSpec.describe Workflow::Task::PensionBurial::Upload, run_at: '2017-01-10' do
     end
 
     it 'uploads the file to the pension burial api' do
-      expect(PersistentAttachment).to receive(:find).with(id).and_return(double(update: true))
+      expect(PersistentAttachment).to receive(:find).with(id).and_return(
+        double(
+          update: true,
+          can_upload_to_api?: true
+        )
+      )
 
       VCR.use_cassette('pension_burial/upload', match_requests_on: [:body]) do
         instance.run

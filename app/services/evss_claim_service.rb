@@ -1,4 +1,8 @@
 # frozen_string_literal: true
+require 'evss/claims_service'
+require 'evss/documents_service'
+require 'evss/auth_headers'
+
 class EVSSClaimService
   include SentryLogging
   EVSS_CLAIM_KEYS = %w(open_claims historical_claims).freeze
@@ -34,7 +38,7 @@ class EVSSClaimService
   end
 
   def request_decision(claim)
-    EVSS::RequestDecision.perform_async(@user.uuid, claim.evss_id)
+    EVSS::RequestDecision.perform_async(auth_headers, claim.evss_id)
   end
 
   # upload file to s3 and enqueue job to upload to EVSS
@@ -42,20 +46,24 @@ class EVSSClaimService
     uploader = EVSSClaimDocumentUploader.new(@user.uuid, evss_claim_document.tracked_item_id)
     uploader.store!(evss_claim_document.file_obj)
     # the uploader sanitizes the filename before storing, so set our doc to match
-    evss_claim_document.file_name = uploader.filename
-    EVSS::DocumentUpload.perform_async(@user.uuid, evss_claim_document.to_serializable_hash)
+    evss_claim_document.file_name = uploader.final_filename
+    EVSS::DocumentUpload.perform_async(auth_headers, @user.uuid, evss_claim_document.to_serializable_hash)
   end
 
   def rating_info
-    client = EVSS::EVSSCommon::Service.new(@user)
-    body = client.find_rating_info.body.fetch('rating_record', {})
+    client = EVSS::CommonService.new(auth_headers)
+    body = client.find_rating_info(@user.participant_id).body.fetch('rating_record', {})
     DisabilityRating.new(body['disability_rating_record'])
   end
 
   private
 
   def client
-    @client ||= EVSS::Claims::Service.new(@user)
+    @client ||= EVSS::ClaimsService.new(auth_headers)
+  end
+
+  def auth_headers
+    @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h
   end
 
   def claims_scope

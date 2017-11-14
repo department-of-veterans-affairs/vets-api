@@ -4,8 +4,8 @@ require 'rails_helper'
 RSpec.describe 'in progress forms', type: :request do
   let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
   let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
-  let(:loa3_user) { build(:loa3_user) }
-  let(:loa1_user) { build(:loa1_user) }
+  let(:loa3_user) { build(:user, :loa3) }
+  let(:loa1_user) { build(:user, :loa1) }
 
   before do
     Session.create(uuid: user.uuid, token: token)
@@ -38,7 +38,7 @@ RSpec.describe 'in progress forms', type: :request do
     end
 
     context 'when the user is not a test account' do
-      let(:user) { build(:loa3_user, ssn: '000-01-0002') }
+      let(:user) { build(:user, :loa3, ssn: '000-01-0002') }
       it 'returns a 200' do
         subject
         expect(response).to have_http_status(:ok)
