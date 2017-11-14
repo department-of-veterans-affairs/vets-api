@@ -67,7 +67,6 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def create_and_upgrade!
-    # Accept T&C if existing?
     unless existing?
       create_mhv_account! unless previously_registered?
       upgrade_mhv_account!
