@@ -10,13 +10,13 @@ pipeline {
       }
     }
 
-    //stage('Run tests') {
-    //  steps {
-    //    withEnv(['RAILS_ENV=test', 'CI=true']) {
-    //      sh 'make ci'
-    //    }
-    //  }
-    //}
+    stage('Run tests') {
+      steps {
+        withEnv(['RAILS_ENV=test', 'CI=true']) {
+          sh 'make ci'
+        }
+      }
+    }
 
     stage('Review') {
       when {
@@ -26,8 +26,6 @@ pipeline {
       }
 
       steps {
-        sh 'env'
-
         build job: 'deploys/vets-review-instance-deploy', parameters: [
           stringParam(name: 'devops_branch', value: 'master'),
           stringParam(name: 'api_branch', value: env.BRANCH_NAME),
@@ -41,22 +39,25 @@ pipeline {
       when { branch 'brd-deploy' }
 
       steps {
-        sh 'env'
+        // hack to get the commit hash, some plugin is swallowing git variables and I can't figure out which one
+        script {
+          commit = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
+        }
 
         build job: 'builds/vets-api', parameters: [
           booleanParam(name: 'notify_slack', value: true),
-          stringParam(name: 'ref', value: env.GIT_COMMIT),
+          stringParam(name: 'ref', value: commit),
           booleanParam(name: 'release', value: false),
         ], wait: true
 
         build job: 'deploys/vets-api-server-dev-brd', parameters: [
           booleanParam(name: 'notify_slack', value: true),
-          stringParam(name: 'ref', value: env.GIT_COMMIT),
+          stringParam(name: 'ref', value: commit),
         ], wait: false
 
         build job: 'deploys/vets-api-worker-dev-brd', parameters: [
           booleanParam(name: 'notify_slack', value: true),
-          stringParam(name: 'ref', value: env.GIT_COMMIT),
+          stringParam(name: 'ref', value: commit),
         ], wait: false
       }
     }
