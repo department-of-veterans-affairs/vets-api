@@ -24,8 +24,10 @@ module SAML
         attributes['dslogon_status']
       end
 
+      # DS Logon will sometimes return a gender with literal 'unknown'
       def gender
-        attributes['dslogon_gender']&.chars&.first&.upcase
+        gender = attributes['dslogon_gender']&.chars&.first&.upcase
+        %w(M F).include?(gender) ? gender : nil
       end
 
       def dslogon_deceased
