@@ -36,7 +36,7 @@ pipeline {
     }
 
     stage('Deploy dev and staging') {
-      when { branch 'brd-deploy' }
+      when { branch 'master' }
 
       steps {
         // hack to get the commit hash, some plugin is swallowing git variables and I can't figure out which one
@@ -56,6 +56,16 @@ pipeline {
         ], wait: false
 
         build job: 'deploys/vets-api-worker-dev-brd', parameters: [
+          booleanParam(name: 'notify_slack', value: true),
+          stringParam(name: 'ref', value: commit),
+        ], wait: false
+
+        build job: 'deploys/vets-api-server-staging-brd', parameters: [
+          booleanParam(name: 'notify_slack', value: true),
+          stringParam(name: 'ref', value: commit),
+        ], wait: false
+
+        build job: 'deploys/vets-api-worker-staging-brd', parameters: [
           booleanParam(name: 'notify_slack', value: true),
           stringParam(name: 'ref', value: commit),
         ], wait: false
