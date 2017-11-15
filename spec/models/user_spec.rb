@@ -5,41 +5,6 @@ RSpec.describe User, type: :model do
   let(:loa_one) { { current: LOA::ONE } }
   let(:loa_three) { { current: LOA::THREE } }
 
-  describe '.from_merged_attrs()' do
-    subject(:loa1_user) { build(:user, :loa1) }
-    subject(:loa3_user) { build(:user, :loa3) }
-
-    # Possibly consider removing this spec, and changing from_merged_attrs:
-    # def self.from_merged_attrs(existing_user, new_user)
-    #   existing_user.destroy
-    #   new_user.save
-    #   new_user
-    # end
-    it 'should not down-level' do
-      user = described_class.from_merged_attrs(loa3_user, loa1_user)
-      expect(user.loa[:current]).to eq(loa3_user.loa[:current])
-      expect(user.loa[:highest]).to eq(loa3_user.loa[:highest])
-      expect(user).to be_valid
-    end
-
-    it 'should up-level' do
-      user = described_class.from_merged_attrs(loa1_user, loa3_user)
-      expect(user.loa[:current]).to eq(loa3_user.loa[:current])
-      expect(user.loa[:highest]).to eq(loa3_user.loa[:highest])
-      expect(user).to be_valid
-    end
-
-    it 'should use newer attrs even if they are empty or nil' do
-      new_user = build(:user, :loa1, first_name: 'George', last_name: 'Washington', gender: '', birth_date: nil)
-      user = described_class.from_merged_attrs(loa3_user, new_user)
-      expect(user.first_name).to eq('George')
-      expect(user.last_name).to eq('Washington')
-      expect(user.gender).to eq('')
-      expect(user.birth_date).to eq(nil)
-      expect(user.zip).to eq(new_user.zip)
-    end
-  end
-
   describe '#can_prefill_emis?' do
     let(:user) { build(:user, :loa3) }
 

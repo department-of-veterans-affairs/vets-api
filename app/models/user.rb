@@ -116,18 +116,6 @@ class User < Common::RedisStore
     false
   end
 
-  def self.from_merged_attrs(existing_user, new_user)
-    # for loa, we want the higher of the two
-    attrs = new_user.attributes
-    attrs[:loa][:current] = [existing_user[:loa][:current], new_user[:loa][:current]].max
-    attrs[:loa][:highest] = [existing_user[:loa][:highest], new_user[:loa][:highest]].max
-
-    existing_user.destroy
-    new_user = User.new(attrs)
-    new_user.save
-    new_user
-  end
-
   delegate :birls_id, to: :mvi
   delegate :edipi, to: :mvi
   delegate :icn, to: :mvi
