@@ -6,7 +6,7 @@ module EVSS
   class Service < Common::Client::Base
     STATSD_KEY_PREFIX = 'api.evss'
 
-    protected
+    private
 
     def headers_for_user(user)
       EVSS::AuthHeaders.new(user).to_h
@@ -16,19 +16,20 @@ module EVSS
       caller = caller_locations(1, 1)[0].label
       yield
     rescue StandardError => error
-      StatsD.increment("#{STATSD_KEY_PREFIX}.#{caller}.fail", tags: ["error:#{error.class}"])
+      increment_failure(caller, error)
       handle_error(error)
     ensure
+      increment_total(caller)
+    end
+
+    def increment_total(caller)
       StatsD.increment("#{STATSD_KEY_PREFIX}.#{caller}.total")
     end
 
-    def raise_backend_exception(key, source, error = nil)
-      raise Common::Exceptions::BackendServiceException.new(
-        key,
-        { source: "EVSS::#{source}" },
-        error&.status,
-        error&.body
-      )
+    def increment_failure(caller, error)
+      tags = ["error:#{error.class}"]
+      tags << "status:#{error.status}" if error.try(:status)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.#{caller}.fail", tags: tags)
     end
 
     def handle_error(error)
@@ -44,6 +45,15 @@ module EVSS
       else
         raise error
       end
+    end
+
+    def raise_backend_exception(key, source, error = nil)
+      raise Common::Exceptions::BackendServiceException.new(
+        key,
+        { source: "EVSS::#{source}" },
+        error&.status,
+        error&.body
+      )
     end
   end
 end
