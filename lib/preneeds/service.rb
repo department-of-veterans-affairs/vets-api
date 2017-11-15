@@ -49,6 +49,7 @@ module Preneeds
 
     def receive_pre_need_application(burial_form)
       tracking_number = burial_form.tracking_number
+      # TODO only send multipart if there are attachments
 
       soap = savon_client.build_request(:receive_pre_need_application, message: { pre_need_request: burial_form.as_eoas })
 
