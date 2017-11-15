@@ -4,7 +4,7 @@ require 'rails_helper'
 RSpec.describe 'Requesting ID Card Attributes', type: :request do
   let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
   let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
-  let(:current_user) { build(:loa3_user) }
+  let(:current_user) { build(:user, :loa3) }
   let(:service_episodes) { [build(:service_episode)] }
 
   before do
