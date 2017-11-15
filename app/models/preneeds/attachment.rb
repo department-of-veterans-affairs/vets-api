@@ -7,8 +7,6 @@ module Preneeds
     attribute :sending_source, String, default: 'vets.gov'
     attribute :file, (Rails.env.production? ? CarrierWave::Storage::AWSFile : CarrierWave::SanitizedFile)
 
-    attr_accessor :file, :tracking_number
-
     def as_eoas
       {
         attachmentType: {

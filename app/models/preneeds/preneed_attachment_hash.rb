@@ -7,5 +7,18 @@ module Preneeds
     def self.permitted_params
       [:confirmation_code, :attachment_id]
     end
+
+    def get_file
+      ::Preneeds::PreneedAttachment.where(guid: confirmation_code).take.get_file
+    end
+
+    def to_attachment
+      Attachment.new(
+        attachment_type: AttachmentType.new(
+          attachment_type_id: attachment_id
+        ),
+        file: get_file
+      )
+    end
   end
 end
