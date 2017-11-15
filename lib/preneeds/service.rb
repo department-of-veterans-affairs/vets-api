@@ -51,6 +51,9 @@ module Preneeds
       tracking_number = burial_form.tracking_number
 
       soap = savon_client.build_request(:receive_pre_need_application, message: { pre_need_request: burial_form.as_eoas })
+
+      multipart = build_multipart(soap, burial_form.attachments)
+
       json = perform(:post, '', soap.body).body
 
       json = json[:data].merge('tracking_number' => tracking_number)
@@ -60,8 +63,7 @@ module Preneeds
 
     private
 
-    def build_multipart(soap, attachment)
-      # TODO: fix
+    def build_multipart(soap, attachments)
       multipart = Mail.new do
         content_type 'multipart/related; type="application/xop+xml"'
         content_transfer_encoding 'chunked'
@@ -74,12 +76,16 @@ module Preneeds
 
       multipart.add_part(soap_part)
 
-      multipart.attachments[attachment.file.original_filename] = {
-        mime_type: 'application/pdf',
-        content: Base64.encode64(attachment.file.read),
-        content_id: attachment.id,
-        content_transfer_encoding: 'binary'
-      }
+      attachments.each do |attachment|
+        file = attachment.file
+
+        multipart.attachments[attachment.guid] = {
+          mime_type: file.content_type,
+          content: Base64.encode64(file.read),
+          content_id: attachment.guid,
+          content_transfer_encoding: 'binary'
+        }
+      end
 
       multipart
     end

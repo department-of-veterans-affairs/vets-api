@@ -4,6 +4,7 @@ require 'preneeds/service'
 
 describe Preneeds::Service do
   let(:subject) { described_class.new }
+  let(:burial_form) { build(:burial_form) }
 
   describe 'get_cemeteries' do
     it 'gets a collection of cemeteries' do
@@ -76,14 +77,19 @@ describe Preneeds::Service do
   end
 
   describe 'receive_pre_need_application' do
-    let(:params) { build(:burial_form) }
-
     it 'creates a preneeds application' do
       application = VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
-        subject.receive_pre_need_application params
+        subject.receive_pre_need_application burial_form
       end
 
       expect(application).to be_a(Preneeds::ReceiveApplication)
+    end
+  end
+
+  describe 'build_multipart' do
+    it 'should build a multipart request' do
+      binding.pry; fail
+      subject.send(:build_multipart, double(body: 'foo'), burial_form.attachments)
     end
   end
 end
