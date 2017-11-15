@@ -47,10 +47,10 @@ module Preneeds
       Common::Collection.new(State, json)
     end
 
-    def receive_pre_need_application(params)
-      tracking_number = params[:trackingNumber]
+    def receive_pre_need_application(burial_form)
+      tracking_number = burial_form.tracking_number
 
-      soap = savon_client.build_request(:receive_pre_need_application, message: { pre_need_request: params })
+      soap = savon_client.build_request(:receive_pre_need_application, message: { pre_need_request: burial_form.as_eoas })
       json = perform(:post, '', soap.body).body
 
       json = json[:data].merge('tracking_number' => tracking_number)
@@ -59,6 +59,30 @@ module Preneeds
     end
 
     private
+
+    def build_multipart(soap, attachment)
+      # TODO: fix
+      multipart = Mail.new do
+        content_type 'multipart/related; type="application/xop+xml"'
+        content_transfer_encoding 'chunked'
+      end
+
+      soap_part = Mail::Part.new do
+        content_type 'text/xml; charset="utf-8"'
+        body soap.body
+      end
+
+      multipart.add_part(soap_part)
+
+      multipart.attachments[attachment.file.original_filename] = {
+        mime_type: 'application/pdf',
+        content: Base64.encode64(attachment.file.read),
+        content_id: attachment.id,
+        content_transfer_encoding: 'binary'
+      }
+
+      multipart
+    end
 
     def savon_client
       @savon ||= Savon.client(wsdl: Settings.preneeds.wsdl)

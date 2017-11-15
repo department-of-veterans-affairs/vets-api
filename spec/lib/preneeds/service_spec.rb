@@ -76,7 +76,7 @@ describe Preneeds::Service do
   end
 
   describe 'receive_pre_need_application' do
-    let(:params) { build(:burial_form).as_eoas }
+    let(:params) { build(:burial_form) }
 
     it 'creates a preneeds application' do
       application = VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
