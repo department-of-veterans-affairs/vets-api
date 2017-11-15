@@ -2,27 +2,22 @@
 require 'rails_helper'
 
 RSpec.describe Preneeds::PreneedAttachmentHash do
-  include ActionDispatch::TestProcess
-
-  let(:preneed_attachment) do
-    create(:preneed_attachment)
+  let(:preneed_attachment_hash) do
+    build(:preneed_attachment_hash)
   end
 
   describe '#get_file' do
-    it 'should store the file and set the file_data' do
-      set_file_data
-      expect(preneed_attachment.parsed_file_data['filename']).to eq('extras.pdf')
+    it 'should get the file from the preneed attachment' do
+      expect(preneed_attachment_hash.get_file.exists?).to eq(true)
     end
   end
 
-  describe '#get_file' do
-    it 'should get the file from storage' do
-      set_file_data
-      preneed_attachment.save!
-      preneed_attachment2 = described_class.find(preneed_attachment.id)
-      file = preneed_attachment2.get_file
+  describe '#to_attachment' do
+    it 'should convert to Preneed::Attachment' do
+      attachment = preneed_attachment_hash.to_attachment
 
-      expect(file.exists?).to eq(true)
+      expect(attachment.attachment_type.attachment_type_id).to eq(1)
+      expect(attachment.file.filename).to eq(preneed_attachment_hash.get_file.filename)
     end
   end
 end

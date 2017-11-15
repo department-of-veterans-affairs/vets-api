@@ -13,7 +13,7 @@ module Preneeds
           attachmentTypeId: attachment_type.attachment_type_id
         }.compact,
         dataHandler: id,
-        description: file.filename
+        description: file.filename,
         sendingSource: sending_source
       }.compact
     end
