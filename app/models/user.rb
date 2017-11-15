@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/base'
 require 'common/models/redis_store'
 require 'mvi/messages/find_profile_message'
@@ -110,9 +111,12 @@ class User < Common::RedisStore
     beta_enabled?(uuid, FormProfile::EMIS_PREFILL_KEY)
   end
 
+  ID_CARD_ALLOWED_STATUSES = %w(V1 V3 V6).freeze
+
   def can_access_id_card?
-    beta_enabled?(uuid, 'veteran_id_card') && loa3? && edipi.present? && veteran?
-  rescue # Default to false for any veteran_status error
+    beta_enabled?(uuid, 'veteran_id_card') && loa3? && edipi.present? &&
+      ID_CARD_ALLOWED_STATUSES.include?(veteran.veteran_status.title38_code)
+  rescue StandardError # Default to false for any veteran_status error
     false
   end
 
