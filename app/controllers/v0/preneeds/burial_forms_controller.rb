@@ -30,7 +30,7 @@ module V0
           :application_status, :has_attachments, :has_currently_buried, :sending_code,
           applicant: ::Preneeds::Applicant.permitted_params,
           claimant: ::Preneeds::Claimant.permitted_params,
-          currently_buried_persons: [::Preneeds::CurrentlyBuriedPerson.permitted_params],
+          currently_buried_persons: ::Preneeds::CurrentlyBuriedPerson.permitted_params,
           veteran: ::Preneeds::Veteran.permitted_params
         )
       end
