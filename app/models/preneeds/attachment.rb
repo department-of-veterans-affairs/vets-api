@@ -7,11 +7,11 @@ module Preneeds
     attribute :sending_source, String, default: 'vets.gov'
     attribute :file, (Rails.env.production? ? CarrierWave::Storage::AWSFile : CarrierWave::SanitizedFile)
 
-    attr_reader :guid
+    attr_reader :data_handler
 
     def initialize(*args)
       super
-      @guid = SecureRandom.uuid
+      @data_handler = SecureRandom.base64(20)
     end
 
     def as_eoas
@@ -19,7 +19,7 @@ module Preneeds
         attachmentType: {
           attachmentTypeId: attachment_type.attachment_type_id
         }.compact,
-        dataHandler: @guid,
+        dataHandler: @data_handler,
         description: file.filename,
         sendingSource: sending_source
       }.compact

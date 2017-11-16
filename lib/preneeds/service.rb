@@ -100,10 +100,10 @@ module Preneeds
       attachments.each do |attachment|
         file = attachment.file
 
-        multipart.attachments[attachment.guid] = {
+        multipart.attachments[attachment.data_handler] = {
           mime_type: file.content_type,
           content: Base64.encode64(file.read),
-          content_id: attachment.guid,
+          content_id: attachment.data_handler,
           content_transfer_encoding: 'binary'
         }
       end
