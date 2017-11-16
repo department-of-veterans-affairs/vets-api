@@ -54,6 +54,17 @@ describe PdfFill::ExtrasGenerator do
   end
 
   describe '#generate' do
+    it 'should work with unicode chars' do
+      subject.add_text(
+        'Ǽ',
+        question_num: 1,
+        question_suffix: 'A',
+        question_text: 'foo',
+        i: 1
+      )
+      File.delete(subject.generate)
+    end
+
     it 'should generate the pdf' do
       subject.add_text(
         'bar',
