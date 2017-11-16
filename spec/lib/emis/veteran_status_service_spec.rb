@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'emis/veteran_status_service'
 require 'emis/responses/get_veteran_status_response'
@@ -12,6 +13,7 @@ describe EMIS::VeteranStatusService do
   let(:edipi_non_veteran) { '1140840595' }
   let(:bad_edipi) { '595' }
   let(:missing_edipi) { '1111111111' }
+  let(:no_status) { '1005079361' }
 
   describe 'get_veteran_status' do
     context 'with a valid request' do
@@ -57,6 +59,15 @@ describe EMIS::VeteranStatusService do
           response = subject.get_veteran_status(edipi: missing_edipi)
           expect(response).not_to be_ok
           expect(response).to be_empty
+        end
+      end
+    end
+
+    context 'with an empty response element' do
+      it 'returns nil' do
+        VCR.use_cassette('emis/get_veteran_status/empty_title38') do
+          response = subject.get_veteran_status(edipi: no_status)
+          expect(response.items.first).to be_nil
         end
       end
     end
