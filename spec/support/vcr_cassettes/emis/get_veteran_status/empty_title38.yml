@@ -1,0 +1,68 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/VeteranStatusService
+    body:
+      encoding: ASCII-8BIT
+      string: |2
+
+        <soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:v1="http://viers.va.gov/cdi/CDI/commonService/v1" xmlns:v12="http://viers.va.gov/cdi/eMIS/RequestResponse/v1" xmlns:v13="http://viers.va.gov/cdi/eMIS/commonService/v1" xmlns:v11="http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1">
+          <soap:Header>
+            <v1:inputHeaderInfo>
+              <v1:userId>vets.gov</v1:userId>
+              <v1:sourceSystemName>vets.gov</v1:sourceSystemName>
+              <v1:transactionId>43ca3df9-c348-466b-9a1c-7bc294ac0fde</v1:transactionId>
+            </v1:inputHeaderInfo>
+          </soap:Header>
+          <soap:Body>
+            <v11:eMISveteranStatusRequest>
+              <v12:edipiORicn>
+                <v13:edipiORicnValue>1005079361</v13:edipiORicnValue>
+                <v13:inputType>EDIPI</v13:inputType>
+              </v12:edipiORicn>
+            </v11:eMISveteranStatusRequest>
+          </soap:Body>
+        </soap:Envelope>
+    headers:
+      Accept:
+      - text/xml;charset=UTF-8
+      Content-Type:
+      - text/xml;charset=UTF-8
+      User-Agent:
+      - Vets.gov Agent
+      Soapaction:
+      - http://viers.va.gov/cdi/eMIS/getVeteranStatus/v1
+      Date:
+      - Thu, 16 Nov 2017 05:07:27 GMT
+      Content-Length:
+      - '944'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 16 Nov 2017 05:07:27 GMT
+      Server:
+      - Apache/2.4.6 (Red Hat Enterprise Linux)
+      Set-Cookie:
+      - BlueStripe.PVN=a0c6b89f0000031e; path=/
+      Content-Length:
+      - '559'
+      Cache-Control:
+      - max-age=0, no-store
+      Connection:
+      - close
+      Content-Type:
+      - application/soap+xml;charset=utf-8
+    body:
+      encoding: UTF-8
+      string: <?xml version="1.0" encoding="utf-8"?><NS1:Envelope xmlns:NS1="http://www.w3.org/2003/05/soap-envelope"><NS1:Header><NS2:inputHeaderInfo
+        xmlns:NS2="http://viers.va.gov/cdi/CDI/commonService/v1"><NS2:userId>vets.gov</NS2:userId><NS2:sourceSystemName>vets.gov</NS2:sourceSystemName><NS2:transactionId>43ca3df9-c348-466b-9a1c-7bc294ac0fde</NS2:transactionId></NS2:inputHeaderInfo></NS1:Header><NS1:Body><NS3:eMISveteranStatusResponse
+        xmlns:NS3="http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1"></NS3:eMISveteranStatusResponse></NS1:Body></NS1:Envelope>
+    http_version: 
+  recorded_at: Thu, 16 Nov 2017 05:07:28 GMT
+recorded_with: VCR 3.0.3

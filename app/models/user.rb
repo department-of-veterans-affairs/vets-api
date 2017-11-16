@@ -13,6 +13,9 @@ class User < Common::RedisStore
 
   UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
 
+  # Defined per issue #6042
+  ID_CARD_ALLOWED_STATUSES = %w(V1 V3 V6).freeze
+
   redis_store REDIS_CONFIG['user_store']['namespace']
   redis_ttl REDIS_CONFIG['user_store']['each_ttl']
   redis_key :uuid
@@ -110,8 +113,6 @@ class User < Common::RedisStore
   def can_prefill_emis?
     beta_enabled?(uuid, FormProfile::EMIS_PREFILL_KEY)
   end
-
-  ID_CARD_ALLOWED_STATUSES = %w(V1 V3 V6).freeze
 
   def can_access_id_card?
     beta_enabled?(uuid, 'veteran_id_card') && loa3? && edipi.present? &&
