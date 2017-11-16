@@ -21,6 +21,7 @@ module Preneeds
         }.compact,
         dataHandler: @data_handler,
         description: file.filename,
+        sendingName: file.filename,
         sendingSource: sending_source
       }.compact
     end
