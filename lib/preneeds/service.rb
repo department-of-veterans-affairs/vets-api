@@ -49,17 +49,11 @@ module Preneeds
 
     def receive_pre_need_application(burial_form)
       tracking_number = burial_form.tracking_number
-      # TODO only send multipart if there are attachments
-
       soap = savon_client.build_request(:receive_pre_need_application, message: { pre_need_request: burial_form.as_eoas })
 
-      multipart = build_multipart(soap, burial_form.attachments)
-      http_headers = {}
-      multipart.header.fields.each do |field|
-        http_headers[field.name] = field.to_s
-      end
+      body_and_headers = build_body_and_headers(soap, burial_form)
 
-      json = perform(:post, '', multipart.body.encoded, http_headers).body
+      json = perform(:post, '', body_and_headers[:body], body_and_headers[:headers]).body
 
       json = json[:data].merge('tracking_number' => tracking_number)
 
@@ -67,6 +61,28 @@ module Preneeds
     end
 
     private
+
+    def build_body_and_headers(soap, burial_form)
+      headers = {}
+
+      body =
+        if burial_form.has_attachments
+          multipart = build_multipart(soap, burial_form.attachments)
+
+          multipart.header.fields.each do |field|
+            headers[field.name] = field.to_s
+          end
+
+          multipart.body.encoded
+        else
+          soap.body
+        end
+
+      {
+        body: body,
+        headers: headers
+      }
+    end
 
     def build_multipart(soap, attachments)
       multipart = Mail.new do
