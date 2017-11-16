@@ -25,8 +25,8 @@ module EducationForm
       edu_claim_ids.compact!
       saved_claim_ids.compact!
 
-      logger.info("Deleting #{edu_claim_ids.length} old education benefits claims")
-      logger.info("Deleting #{saved_claim_ids.length} old saved claims")
+      logger.info("Deleting #{edu_claim_ids.length} education benefits claims")
+      logger.info("Deleting #{saved_claim_ids.length} saved claims")
 
       EducationBenefitsClaim.delete(edu_claim_ids)
       SavedClaim::EducationBenefits.delete(saved_claim_ids)
