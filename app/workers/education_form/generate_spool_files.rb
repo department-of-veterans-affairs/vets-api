@@ -2,6 +2,7 @@
 
 module EducationForm
   class GenerateSpoolFiles
+    require 'csv'
     SPOOL_DATE = '2017-10-26'.to_date
     WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
 
@@ -16,6 +17,30 @@ module EducationForm
       count += SavedClaim.delete(malformed[:saved_claims])
 
       { count: count, filename: filename }
+    end
+
+    def full_name(name)
+      return '' if name.nil?
+      [name['first'], name['middle'], name['last'], name['suffix']].compact.join(' ')
+    end
+
+    def get_names_and_ssns
+      names_and_ssns = {}
+
+      valid_records.find_each do |education_benefits_claim|
+        names_and_ssns[education_benefits_claim.region] ||= []
+
+        parsed_form = education_benefits_claim.parsed_form
+
+        names_and_ssns[education_benefits_claim.region] << [
+          parsed_form['veteranSocialSecurityNumber'],
+          parsed_form['relativeSocialSecurityNumber'],
+          full_name(parsed_form['veteranFullName']),
+          full_name(parsed_form['relativeFullName'])
+        ]
+      end
+
+      names_and_ssns
     end
 
     def generate_spool_files
@@ -38,8 +63,6 @@ module EducationForm
       writer = SFTPWriter::Factory.get_writer(Settings.edu.sftp).new(Settings.edu.sftp, logger: logger)
 
       formatted_regional_data.each do |region, records|
-        next if [:western, :central].exclude?(region)
-
         output << write_remote_spool_file(region, records, writer)
       end
 
@@ -113,6 +136,24 @@ module EducationForm
       }
     end
     # :nocov:
+
+    def write_names_and_ssns
+      filenames = []
+      get_names_and_ssns.each do |region, records|
+        filename = Dir.mktmpdir + "/#{region}_ssns.csv"
+
+        CSV.open(filename, 'wb') do |csv|
+          csv << ['Veteran SSN', 'Applicant SSN', 'Veteran name', 'Applicant name']
+          records.each do |row|
+            csv << row
+          end
+        end
+
+        filenames << filename
+      end
+
+      filenames
+    end
 
     def write_confirmation_numbers(confirmation_numbers)
       filename = Dir.mktmpdir + '/confirmation_numbers.txt'
