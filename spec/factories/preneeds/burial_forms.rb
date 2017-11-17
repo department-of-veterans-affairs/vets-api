@@ -6,6 +6,13 @@ FactoryGirl.define do
     sending_code 'abc'
     sending_application 'vets.gov'
 
+    preneed_attachments(
+      [
+        confirmation_code: SecureRandom.uuid,
+        attachment_id: '1'
+      ]
+    )
+
     applicant { attributes_for :applicant }
     claimant { attributes_for :claimant }
     currently_buried_persons { [attributes_for(:currently_buried_person), attributes_for(:currently_buried_person)] }
