@@ -138,6 +138,18 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(User.find(uuid).loa).to eq(highest: LOA::THREE, current: LOA::THREE)
       end
 
+      context 'changing multifactor' do
+        let(:saml_user_attributes) { { multifactor: 'true', uuid: loa3_user.uuid } }
+
+        it 'changes the multifactor to true' do
+          expect(User.find(uuid).multifactor).to be_falsey
+          allow(saml_user).to receive(:changing_multifactor?).and_return(true)
+          allow(SAML::User).to receive(:new).and_return(saml_user)
+          post :saml_callback
+          expect(User.find(uuid).multifactor).to eq(true)
+        end
+      end
+
       context ' when user clicked DENY' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
 
