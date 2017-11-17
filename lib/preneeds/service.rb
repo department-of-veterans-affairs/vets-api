@@ -5,6 +5,8 @@ module Preneeds
   class Service < Common::Client::Base
     configuration Preneeds::Configuration
 
+    STARTING_CID = '<soap-request-body@soap>'
+
     def get_attachment_types
       soap = savon_client.build_request(:get_attachment_types, message: {})
       json = perform(:post, '', soap.body).body
@@ -80,7 +82,7 @@ module Preneeds
 
       headers["Content-Type"] = "multipart/related; " \
         "boundary=\"#{multipart.boundary}\"; " \
-        "type=\"text/xml\"; start=\"<soap-request-body@soap>\""
+        "type=\"text/xml\"; start=\"#{STARTING_CID}\""
 
       {
         body: body,
@@ -94,7 +96,7 @@ module Preneeds
       soap_part = Mail::Part.new do
         content_type 'text/xml; charset="utf-8"'
         body soap.body
-        content_id '<soap-request-body@soap>'
+        content_id STARTING_CID
       end
 
       multipart.add_part(soap_part)
