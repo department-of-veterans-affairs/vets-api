@@ -104,7 +104,7 @@ module V0
       saml_attributes = SAML::User.new(@saml_response)
       existing_user = User.find(saml_attributes.decorated.uuid)
       @current_user = User.new(saml_attributes.to_hash)
-      
+
       StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) unless existing_user.present?
       existing_user.destroy if existing_user.present?
 
