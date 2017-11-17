@@ -77,7 +77,8 @@ module Preneeds
 
           headers["Content-Type"] = "multipart/related; " \
             "boundary=\"#{multipart.boundary}\"; " \
-            "type=\"text/xml\"; start=\"#{STARTING_CID}\""
+            "type=\"application/xop+xml\"; start=\"#{STARTING_CID}\"; " \
+            'start-info="text/xml"'
 
           multipart.body.encoded
         else
@@ -94,7 +95,7 @@ module Preneeds
       multipart = Mail.new
 
       soap_part = Mail::Part.new do
-        content_type 'text/xml; charset="utf-8"'
+        content_type 'application/xop+xml; charset=UTF-8; type="text/xml"'
         body soap.body
         content_id STARTING_CID
       end
