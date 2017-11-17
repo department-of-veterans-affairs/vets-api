@@ -25,7 +25,7 @@ namespace :edu do
     saved_claims = SavedClaim::EducationBenefits.eager_load(:education_benefits_claim)
                                                 .where(education_benefits_claims: { id: nil })
 
-    logger.info("Deleting #{saved_claims.count} saved claims")
+    puts "Deleting #{saved_claims.count} saved claims"
     saved_claims.delete_all
   end
 
