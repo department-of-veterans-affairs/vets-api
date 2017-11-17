@@ -28,10 +28,10 @@ RSpec.describe 'letters', type: :request do
     # TODO(AJD): this use case happens, 500 status but unauthorized message
     # check with evss that they shouldn't be returning 403 instead
     context 'with an 500 unauthorized response' do
-      it 'should return a not authorized response' do
+      it 'should return a bad gateway response' do
         VCR.use_cassette('evss/letters/unauthorized') do
           get '/v0/letters', nil, auth_header
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('letters_errors', strict: false)
         end
       end
