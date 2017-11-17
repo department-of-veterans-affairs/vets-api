@@ -78,6 +78,10 @@ module Preneeds
           soap.body
         end
 
+      headers["Content-Type"] = "multipart/related; " \
+        "boundary=\"#{multipart.boundary}\"; " \
+        "type=\"text/xml\"; start=\"<soap-request-body@soap>\""
+
       {
         body: body,
         headers: headers
@@ -85,10 +89,7 @@ module Preneeds
     end
 
     def build_multipart(soap, attachments)
-      multipart = Mail.new do
-        content_type 'multipart/related; type="application/xop+xml"'
-        content_transfer_encoding 'chunked'
-      end
+      multipart = Mail.new
 
       soap_part = Mail::Part.new do
         content_type 'text/xml; charset="utf-8"'
