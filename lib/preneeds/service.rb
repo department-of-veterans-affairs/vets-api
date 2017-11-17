@@ -75,11 +75,11 @@ module Preneeds
             headers[field.name] = field.to_s
           end
 
-          multipart.body.encoded
-
           headers["Content-Type"] = "multipart/related; " \
             "boundary=\"#{multipart.boundary}\"; " \
             "type=\"text/xml\"; start=\"#{STARTING_CID}\""
+
+          multipart.body.encoded
         else
           soap.body
         end
