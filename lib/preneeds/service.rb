@@ -76,13 +76,13 @@ module Preneeds
           end
 
           multipart.body.encoded
+
+          headers["Content-Type"] = "multipart/related; " \
+            "boundary=\"#{multipart.boundary}\"; " \
+            "type=\"text/xml\"; start=\"#{STARTING_CID}\""
         else
           soap.body
         end
-
-      headers["Content-Type"] = "multipart/related; " \
-        "boundary=\"#{multipart.boundary}\"; " \
-        "type=\"text/xml\"; start=\"#{STARTING_CID}\""
 
       {
         body: body,
