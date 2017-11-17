@@ -34,7 +34,7 @@ module EVSS
           address_json = {
             'cnpMailingAddress' => Hash[address.map { |k, v| [k.camelize(:lower), v] }]
           }.to_json
-          headers = {'Content-Type' => 'application/json'}
+          headers = { 'Content-Type' => 'application/json' }
           raw_response = perform(:post, 'mailingAddress', address_json, headers)
           EVSS::PCIUAddress::AddressResponse.new(raw_response.status, raw_response)
         end
