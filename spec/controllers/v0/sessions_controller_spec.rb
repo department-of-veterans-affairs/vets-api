@@ -10,11 +10,10 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:saml_user_attributes) { loa3_user.attributes }
   let(:saml_decorater) { double('saml_decorater', saml_user_attributes) }
   let(:saml_user) do
-     instance_double('SAML::User',
-      changing_multifactor?: false,
-      decorated: saml_decorater,
-      to_hash: saml_user_attributes
-     )
+    instance_double('SAML::User',
+                    changing_multifactor?: false,
+                    decorated: saml_decorater,
+                    to_hash: saml_user_attributes)
   end
 
   let(:settings_no_context) { build(:settings_no_context) }

@@ -221,7 +221,7 @@ RSpec.describe SAML::User do
 
       it 'properly constructs a user' do
         expect(user.valid?(:loa3_user)).to be_truthy
-        expect(user.multifactor).to be_falsey #when nil
+        expect(user.multifactor).to be_falsey # when nil
       end
     end
   end
