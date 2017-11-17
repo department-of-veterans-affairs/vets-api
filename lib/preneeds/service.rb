@@ -93,6 +93,7 @@ module Preneeds
       soap_part = Mail::Part.new do
         content_type 'text/xml; charset="utf-8"'
         body soap.body
+        content_id '<soap-request-body@soap>'
       end
 
       multipart.add_part(soap_part)
@@ -100,12 +101,13 @@ module Preneeds
       attachments.each do |attachment|
         file = attachment.file
 
-        multipart.attachments[attachment.data_handler] = {
-          mime_type: file.content_type,
-          content: Base64.encode64(file.read),
-          content_id: attachment.data_handler,
-          content_transfer_encoding: 'binary'
-        }
+        part = Mail::Part.new do
+          content_type(file.content_type)
+          body(file.read)
+          content_id("<#{attachment.data_handler}>")
+        end
+
+        multipart.add_part(part)
       end
 
       multipart
