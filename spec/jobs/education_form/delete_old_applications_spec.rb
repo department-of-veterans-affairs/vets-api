@@ -26,20 +26,15 @@ RSpec.describe EducationForm::DeleteOldApplications do
     @edu_claim_old = create(:education_benefits_claim,
                             processed_at: 3.months.ago,
                             saved_claim: @saved_claim_old)
-
-    @saved_claim_no_edu_claim = build(:education_benefits_1990, form: '{}')
-    @saved_claim_no_edu_claim.save(validate: false)
   end
 
   describe '#perform' do
     it 'deletes old records' do
       expect { subject.perform }.to change { EducationBenefitsClaim.count }.from(4).to(3)
-        .and change { SavedClaim::EducationBenefits.count }.from(5).to(3)
+        .and change { SavedClaim::EducationBenefits.count }.from(4).to(3)
 
       expect { @edu_claim_old.reload }.to raise_exception(ActiveRecord::RecordNotFound)
       expect { @saved_claim_old.reload }.to raise_exception(ActiveRecord::RecordNotFound)
-
-      expect { @saved_claim_no_edu_claim.reload }.to raise_exception(ActiveRecord::RecordNotFound)
 
       expect { @edu_claim_new.reload }.not_to raise_error
       expect { @saved_claim_new.reload }.not_to raise_error

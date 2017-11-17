@@ -15,13 +15,6 @@ module EducationForm
         saved_claim_ids << record&.saved_claim.id
       end
 
-      # Remove saved claims with no matching education benefits claim
-      SavedClaim::EducationBenefits.eager_load(:education_benefits_claim)
-                                   .where(education_benefits_claims: { id: nil })
-                                   .find_each do |record|
-        saved_claim_ids << record.id
-      end
-
       edu_claim_ids.compact!
       saved_claim_ids.compact!
 
