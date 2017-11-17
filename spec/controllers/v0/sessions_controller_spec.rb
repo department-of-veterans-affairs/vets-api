@@ -138,7 +138,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'changing multifactor' do
-        let(:saml_user_attributes) { { multifactor: 'true', uuid: loa3_user.uuid } }
+        let(:saml_user_attributes) { loa1_user.attributes.merge(multifactor: 'true') }
 
         it 'changes the multifactor to true' do
           expect(User.find(uuid).multifactor).to be_falsey

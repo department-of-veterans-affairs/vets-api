@@ -103,20 +103,10 @@ module V0
     def persist_session_and_user
       saml_attributes = SAML::User.new(@saml_response)
       existing_user = User.find(saml_attributes.decorated.uuid)
-
-      @current_user =
-        if saml_attributes.changing_multifactor?
-          # possibly verify that the existing_user and saml_attributes authn_context's match
-          existing_user.multifactor = saml_attributes.decorated.multifactor
-          existing_user
-        else
-          if existing_user.present?
-            existing_user.destroy
-          else
-            StatsD.increment(STATSD_LOGIN_NEW_USER_KEY)
-          end
-          User.new(saml_attributes.to_hash)
-        end
+      @current_user = User.new(saml_attributes.to_hash)
+      
+      StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) unless existing_user.present?
+      existing_user.destroy if existing_user.present?
 
       @session = Session.new(uuid: @current_user.uuid)
       @session.save && @current_user.save
