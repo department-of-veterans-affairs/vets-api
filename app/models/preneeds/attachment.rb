@@ -11,7 +11,7 @@ module Preneeds
 
     def initialize(*args)
       super
-      @data_handler = SecureRandom.base64(20)
+      @data_handler = SecureRandom.hex
     end
 
     def as_eoas
