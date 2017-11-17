@@ -7,7 +7,15 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
   let(:loa1_user) { build(:user, :loa1, uuid: uuid) }
   let(:loa3_user) { build(:user, :loa3, uuid: uuid) }
-  let(:invalid_user) { build(:user, :loa3, uuid: '') }
+  let(:saml_user_attributes) { loa3_user.attributes }
+  let(:saml_decorater) { double('saml_decorater', saml_user_attributes) }
+  let(:saml_user) do
+     instance_double('SAML::User',
+      changing_multifactor?: false,
+      decorated: saml_decorater,
+      to_hash: saml_user_attributes
+     )
+  end
 
   let(:settings_no_context) { build(:settings_no_context) }
   let(:rubysaml_settings) { build(:rubysaml_settings) }
@@ -61,7 +69,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   context 'when logged in' do
     before do
-      allow(SAML::User).to receive(:new).and_return(loa3_user)
+      allow(SAML::User).to receive(:new).and_return(saml_user)
       Session.create(uuid: uuid, token: token)
       User.create(loa1_user.attributes)
     end
@@ -120,9 +128,6 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
 
     describe ' POST saml_callback' do
-      let(:saml_attributes) { loa3_user.attributes }
-      let(:saml_user) { instance_double('SAML::User', changing_multifactor?: false, to_hash: saml_attributes) }
-
       before(:each) do
         allow(SAML::User).to receive(:new).and_return(saml_user)
       end
@@ -159,6 +164,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
+
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
           early_msg_tag = ['error:auth_too_early']
@@ -167,8 +173,11 @@ RSpec.describe V0::SessionsController, type: :controller do
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_TOTAL_KEY, **once)
         end
       end
+
       context ' when a required saml attribute is missing' do
-        before { allow(SAML::User).to receive(:new).and_return(invalid_user) }
+        let(:saml_user_attributes) { loa1_user.attributes.merge(uuid: nil) }
+
+        before { allow(SAML::User).to receive(:new).and_return(saml_user) }
         it 'logs a generic error' do
           expect(Rails.logger).to receive(:error).with(/user:    \'valid\?=false errors=\["Uuid can\'t be blank"\]/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
@@ -203,13 +212,22 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
 
     describe ' POST saml_callback' do
-      it 'does not create a job to create an evss user when user has loa1' do
-        allow(SAML::User).to receive(:new).and_return(loa1_user)
-        expect { post :saml_callback }.to_not change(EVSS::CreateUserAccountJob.jobs, :size)
+      context 'loa1_user' do
+        let(:saml_user_attributes) { loa1_user.attributes }
+
+        it 'does not create a job to create an evss user' do
+          allow(SAML::User).to receive(:new).and_return(saml_user)
+          expect { post :saml_callback }.to_not change(EVSS::CreateUserAccountJob.jobs, :size)
+        end
       end
-      it 'creates a job to create an evss user when user has loa3 and evss attrs' do
-        allow(SAML::User).to receive(:new).and_return(loa3_user)
-        expect { post :saml_callback }.to change(EVSS::CreateUserAccountJob.jobs, :size).by(1)
+
+      context 'loa3_user' do
+        let(:saml_user_attributes) { loa3_user.attributes }
+
+        it 'creates a job to create an evss user' do
+          allow(SAML::User).to receive(:new).and_return(saml_user)
+          expect { post :saml_callback }.to change(EVSS::CreateUserAccountJob.jobs, :size).by(1)
+        end
       end
     end
   end
