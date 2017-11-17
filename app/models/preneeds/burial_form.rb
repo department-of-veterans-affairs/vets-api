@@ -28,7 +28,7 @@ module Preneeds
     # rubocop:enable Style/PredicateName
 
     def attachments
-      preneed_attachments.map(&:to_attachment)
+      @attachments ||= preneed_attachments.map(&:to_attachment)
     end
 
     def current_time
