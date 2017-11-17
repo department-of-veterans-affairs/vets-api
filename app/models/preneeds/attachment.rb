@@ -19,7 +19,7 @@ module Preneeds
         attachmentType: {
           attachmentTypeId: attachment_type.attachment_type_id
         }.compact,
-        dataHandler: @data_handler,
+        dataHandler: "cid:#{@data_handler}",
         description: file.filename,
         sendingName: file.filename,
         sendingSource: sending_source
