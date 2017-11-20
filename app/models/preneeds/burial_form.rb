@@ -4,7 +4,7 @@ require 'common/models/base'
 module Preneeds
   class BurialForm < Preneeds::Base
     attribute :application_status, String
-    attribute :has_attachments, Boolean, default: false
+    attribute :preneed_attachments, Array[PreneedAttachmentHash]
     attribute :has_currently_buried, String
     attribute :sending_application, String, default: 'vets.gov'
     attribute :sending_code, String
@@ -19,6 +19,13 @@ module Preneeds
     def self.create_forms_array(params_array)
       Array.wrap(params_array).map { |params| BurialForm.new(params) }
     end
+
+    # keep this name because it matches the previous attribute
+    # rubocop:disable Style/PredicateName
+    def has_attachments
+      preneed_attachments.present?
+    end
+    # rubocop:enable Style/PredicateName
 
     def current_time
       Time.now.utc

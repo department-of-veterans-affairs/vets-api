@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class IdCardAttributes
   attr_accessor :user
 
@@ -20,6 +21,7 @@ class IdCardAttributes
       'zip' => @user.va_profile&.address&.postal_code || '',
       'email' => @user.email,
       'phone' => @user.va_profile&.home_phone || '',
+      'title38status' => title38_status_code,
       'branchofservice' => branches_of_service,
       'dischargetype' => discharge_types
     }
@@ -37,6 +39,12 @@ class IdCardAttributes
     'O' => 'NOAA', # NOAA
     'H' => 'PHS'   # USPHS
   }.freeze
+
+  def title38_status_code
+    @user.veteran_status.title38_status || 'UNKNOWN'
+  rescue StandardError
+    'UNKNOWN'
+  end
 
   def branches_of_service
     branches = @user.military_information.service_episodes_by_date.map do |ep|
