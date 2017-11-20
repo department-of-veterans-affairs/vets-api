@@ -196,7 +196,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         let(:saml_user_attributes) { loa1_user.attributes.merge(uuid: nil) }
 
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
-        
+
         it 'logs a generic error' do
           expect(Rails.logger).to receive(:error).with(/user:    \'valid\?=false errors=\["Uuid can\'t be blank"\]/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
