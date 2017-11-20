@@ -63,7 +63,7 @@ RSpec.describe Workflow::Task::Shared::DatestampPdfTask do
 
       context 'when an error occurs in #stamp' do
         it 'should log and reraise the error and clean up after itself' do
-          allow(CombinePDF).to receive(:load).and_raise(error_message)
+          allow(PdfFill::Filler::PDF_FORMS).to receive(:stamp).and_raise(error_message)
           expect(Rails.logger).to receive(:error).once.with("Failed to datestamp PDF file: #{error_message}")
           expect(File).to receive(:delete).once.and_call_original
           expect do
