@@ -11,7 +11,9 @@ RSpec.describe Workflow::Task::Shared::DatestampPdfTask do
 
     let(:attacher) do
       a = Shrine::Attacher.new(InternalAttachment.new, :file)
-      a.assign(File.open(@file_path))
+      file = File.open(@file_path)
+      a.assign(file)
+      file.close
       a
     end
 
