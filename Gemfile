@@ -18,7 +18,6 @@ gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamoc
 gem 'breakers'
 gem 'carrierwave-aws'
 gem 'clam_scan'
-gem 'combine_pdf'
 gem 'config'
 gem 'date_validator'
 gem 'faraday'
