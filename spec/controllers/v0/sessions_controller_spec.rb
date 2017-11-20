@@ -92,17 +92,21 @@ RSpec.describe V0::SessionsController, type: :controller do
       delete :destroy
       expect(response).to have_http_status(202)
     end
+
     it 'responds with error when logout request is not found' do
       expect(Rails.logger).to receive(:error).exactly(1).times
       expect(post(:saml_logout_callback, SAMLResponse: '-'))
         .to redirect_to(Settings.saml.logout_relay + '?success=false')
     end
+
     context ' logout has been requested' do
       before { SingleLogoutRequest.create(uuid: logout_uuid, token: token) }
+
       context ' logout_response is invalid' do
         before do
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(invalid_logout_response)
         end
+
         it 'redirects to error' do
           expect(Rails.logger).to receive(:error).with(/bad thing/).exactly(1).times
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
@@ -115,6 +119,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(succesful_logout_response)
         end
+
         it 'redirects to success and destroy the session' do
           expect(Session.find(token)).to_not be_nil
           expect(User.find(uuid)).to_not be_nil
@@ -161,6 +166,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       context ' when too much time passed to consume the SAML Assertion' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_late) }
+
         it 'redirects to an auth failure page' do
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::TOO_LATE_MSG}/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
@@ -170,6 +176,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       context ' when clock drift causes us to consume the Assertion before its creation' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_early) }
+
         it 'redirects to an auth failure page' do
           expect(Rails.logger).to receive(:error).with(/#{SAML::AuthFailHandler::TOO_EARLY_MSG}/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
@@ -189,6 +196,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         let(:saml_user_attributes) { loa1_user.attributes.merge(uuid: nil) }
 
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
+        
         it 'logs a generic error' do
           expect(Rails.logger).to receive(:error).with(/user:    \'valid\?=false errors=\["Uuid can\'t be blank"\]/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
