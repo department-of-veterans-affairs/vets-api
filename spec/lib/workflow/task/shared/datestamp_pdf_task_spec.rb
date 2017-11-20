@@ -22,18 +22,15 @@ RSpec.describe Workflow::Task::Shared::DatestampPdfTask do
     end
 
     context 'with a succesful pdf stamp' do
-      def assert_pdf_stamp(date = true)
-        expect(
-          instance.file.read
-        ).to eq(
-          File.read("spec/fixtures/pdf_fill/stamp#{date ? '_with_date' : ''}.pdf")
-        )
+      def assert_pdf_stamp(stamp)
+        pdf_reader = PDF::Reader.new(instance.file.download.path)
+        expect(pdf_reader.pages[0].text).to eq(stamp)
       end
 
       it 'should add text with a datestamp at the given location' do
         Timecop.travel(Time.zone.local(1999, 12, 31, 23, 59, 59)) do
           instance.run(text: 'Received via vets.gov at', x: 10, y: 10)
-          assert_pdf_stamp
+          assert_pdf_stamp('Received via vets.gov at 1999-12-31. Confirmation=VETS-XX-1234')
         end
       end
 
@@ -43,8 +40,9 @@ RSpec.describe Workflow::Task::Shared::DatestampPdfTask do
         end
 
         it 'does not include the datetime' do
-          instance.run(text: 'Vets.gov Submission', x: 449, y: 730, text_only: true)
-          assert_pdf_stamp(false)
+          text = 'Vets.gov Submission'
+          instance.run(text: text, x: 449, y: 730, text_only: true)
+          assert_pdf_stamp(text)
         end
       end
     end
