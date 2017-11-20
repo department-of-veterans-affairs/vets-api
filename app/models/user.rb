@@ -80,9 +80,8 @@ class User < Common::RedisStore
     loa1? || loa2? || loa3?
   end
 
-  # Must be LOA3 and a va patient
-  def mhv_account_eligible?
-    (MhvAccount::ALL_STATES - [:ineligible]).map(&:to_s).include?(mhv_account_state)
+  def can_access_mhv?
+    mhv_account.accessible?
   end
 
   def mhv_account_state
