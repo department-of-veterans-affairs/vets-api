@@ -5,16 +5,22 @@ RSpec.describe Preneeds::Attachment do
   let(:attachment) do
     build(:preneed_attachment_hash).to_attachment
   end
-  let(:uuid) do
-    "62803e79-8181-402a-95dc-a014653f52bb"
+  let(:hex) do
+    'de4761e83497fd19b7bceb3315dc5efb'
   end
 
   describe '#as_eoas' do
     it 'should return the eoas hash' do
-      allow(SecureRandom).to receive(:uuid).and_return(uuid)
+      allow(SecureRandom).to receive(:hex).and_return(hex)
 
       expect(attachment.as_eoas).to eq(
-        {:attachmentType=>{:attachmentTypeId=>1}, :dataHandler=>uuid, :description=>"extras.pdf", :sendingSource=>"vets.gov"}
+        {:attachmentType=>{:attachmentTypeId=>1},
+         :dataHandler=>
+          {:"inc:Include"=>"",
+           :'attributes!'=>{:"inc:Include"=>{:href=>"cid:#{hex}", :"xmlns:inc"=>"http://www.w3.org/2004/08/xop/include"}}},
+         :description=>"extras.pdf",
+         :sendingName=>"extras.pdf",
+         :sendingSource=>"vets.gov"}
       )
     end
   end
