@@ -19,7 +19,14 @@ module Preneeds
         attachmentType: {
           attachmentTypeId: attachment_type.attachment_type_id
         }.compact,
-        dataHandler: "cid:#{@data_handler}",
+        dataHandler: {
+          :attributes! => {
+            :'inc:Include' => {
+              href: "cid:#{@data_handler}",
+              :'xmlns:inc' => "http://www.w3.org/2004/08/xop/include"
+            }
+          }
+        },
         description: file.filename,
         sendingName: file.filename,
         sendingSource: sending_source
