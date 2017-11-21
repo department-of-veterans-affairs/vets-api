@@ -61,5 +61,15 @@ FactoryGirl.define do
     trait :mhv_not_logged_in do
       mhv_last_signed_in nil
     end
+
+    trait :j_wood do
+      first_name 'Jamie'
+      middle_name 'J'
+      last_name 'Wood'
+      birth_date '1945-05-24'
+      gender 'F'
+      ssn '796060339'
+      email 'vets.gov.user+299@gmail.com'
+    end
   end
 end

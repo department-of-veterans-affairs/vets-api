@@ -14,7 +14,7 @@ RSpec.describe EVSS::RequestDecision, type: :job do
   it 'posts a waiver to EVSS' do
     allow(EVSS::ClaimsService).to receive(:new) { client_stub }
     expect(client_stub).to receive(:request_decision).with(evss_id)
-    described_class.new.perform(auth_headers, evss_id)
+    described_class.new.perform(user, evss_id)
   end
 end
 

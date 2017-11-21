@@ -38,7 +38,7 @@ class EVSSClaimService
   end
 
   def request_decision(claim)
-    EVSS::RequestDecision.perform_async(auth_headers, claim.evss_id)
+    EVSS::RequestDecision.perform_async(@user, claim.evss_id)
   end
 
   # upload file to s3 and enqueue job to upload to EVSS
@@ -47,11 +47,11 @@ class EVSSClaimService
     uploader.store!(evss_claim_document.file_obj)
     # the uploader sanitizes the filename before storing, so set our doc to match
     evss_claim_document.file_name = uploader.final_filename
-    EVSS::DocumentUpload.perform_async(auth_headers, @user.uuid, evss_claim_document.to_serializable_hash)
+    EVSS::DocumentUpload.perform_async(@user, evss_claim_document.to_serializable_hash)
   end
 
   def rating_info
-    client = EVSS::CommonService.new(auth_headers)
+    client = EVSS::CommonService.new(EVSS::AuthHeaders.new(@user).to_h)
     body = client.find_rating_info(@user.participant_id).body.fetch('rating_record', {})
     DisabilityRating.new(body['disability_rating_record'])
   end
@@ -59,11 +59,7 @@ class EVSSClaimService
   private
 
   def client
-    @client ||= EVSS::ClaimsService.new(auth_headers)
-  end
-
-  def auth_headers
-    @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h
+    @client ||= EVSS::ClaimsService.new(EVSS::AuthHeaders.new(@user).to_h)
   end
 
   def claims_scope

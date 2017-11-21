@@ -2,7 +2,8 @@
 class EVSS::RequestDecision
   include Sidekiq::Worker
 
-  def perform(auth_headers, evss_id)
+  def perform(user, evss_id)
+    auth_headers = EVSS::AuthHeaders.new(user).to_h
     client = EVSS::ClaimsService.new(auth_headers)
     client.request_decision(evss_id)
   end

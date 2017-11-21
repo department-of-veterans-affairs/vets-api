@@ -4,12 +4,13 @@ require 'rails_helper'
 describe EVSS::Letters::Service do
   describe '.find_by_user' do
     let(:user) { build(:user, :loa3) }
+    subject { described_class.new(user) }
 
     describe '#get_letters' do
       context 'with a valid evss response' do
         it 'returns a letters response object' do
           VCR.use_cassette('evss/letters/letters') do
-            response = subject.get_letters(user)
+            response = subject.get_letters
             expect(response).to be_ok
             expect(response).to be_a(EVSS::Letters::LettersResponse)
             expect(response.letters.count).to eq(8)
@@ -19,7 +20,7 @@ describe EVSS::Letters::Service do
 
         it 'should increment letters total' do
           VCR.use_cassette('evss/letters/letters') do
-            expect { subject.get_letters(user) }.to trigger_statsd_increment('api.evss.get_letters.total')
+            expect { subject.get_letters }.to trigger_statsd_increment('api.evss.get_letters.total')
           end
         end
       end
@@ -35,7 +36,7 @@ describe EVSS::Letters::Service do
             'api.evss.get_letters.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
           )
           expect(StatsD).to receive(:increment).once.with('api.evss.get_letters.total')
-          expect { subject.get_letters(user) }.to raise_error(Common::Exceptions::GatewayTimeout)
+          expect { subject.get_letters }.to raise_error(Common::Exceptions::GatewayTimeout)
         end
       end
     end
@@ -43,7 +44,7 @@ describe EVSS::Letters::Service do
     describe '#get_letter_beneficiary' do
       it 'returns a letter beneficiary response object' do
         VCR.use_cassette('evss/letters/beneficiary') do
-          response = subject.get_letter_beneficiary(user)
+          response = subject.get_letter_beneficiary
           expect(response).to be_ok
           expect(response).to be_a(EVSS::Letters::BeneficiaryResponse)
           expect(response.military_service.count).to eq(2)
@@ -52,7 +53,7 @@ describe EVSS::Letters::Service do
 
       it 'should increment beneficiary total' do
         VCR.use_cassette('evss/letters/beneficiary') do
-          expect { subject.get_letter_beneficiary(user) }.to trigger_statsd_increment(
+          expect { subject.get_letter_beneficiary }.to trigger_statsd_increment(
             'api.evss.get_letter_beneficiary.total'
           )
         end
@@ -69,7 +70,7 @@ describe EVSS::Letters::Service do
             'api.evss.get_letter_beneficiary.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
           )
           expect(StatsD).to receive(:increment).once.with('api.evss.get_letter_beneficiary.total')
-          expect { subject.get_letter_beneficiary(user) }.to raise_error(Common::Exceptions::GatewayTimeout)
+          expect { subject.get_letter_beneficiary }.to raise_error(Common::Exceptions::GatewayTimeout)
         end
       end
     end
@@ -78,7 +79,7 @@ describe EVSS::Letters::Service do
       context 'without options' do
         it 'downloads a pdf' do
           VCR.use_cassette('evss/letters/download') do
-            response = subject.download_letter(user, EVSS::Letters::Letter::LETTER_TYPES.first)
+            response = subject.download_letter(EVSS::Letters::Letter::LETTER_TYPES.first)
             expect(response).to include('%PDF-1.4')
           end
         end
@@ -86,7 +87,7 @@ describe EVSS::Letters::Service do
         it 'should increment downloads total' do
           VCR.use_cassette('evss/letters/download') do
             expect do
-              subject.download_letter(user, EVSS::Letters::Letter::LETTER_TYPES.first)
+              subject.download_letter(EVSS::Letters::Letter::LETTER_TYPES.first)
             end.to trigger_statsd_increment('api.evss.download_letter.total')
           end
         end
@@ -102,7 +103,7 @@ describe EVSS::Letters::Service do
             )
             expect(StatsD).to receive(:increment).once.with('api.evss.download_letter.total')
             expect do
-              subject.download_letter(user, EVSS::Letters::Letter::LETTER_TYPES.first)
+              subject.download_letter(EVSS::Letters::Letter::LETTER_TYPES.first)
             end.to raise_error(Faraday::TimeoutError)
           end
         end
@@ -127,7 +128,6 @@ describe EVSS::Letters::Service do
         it 'downloads a pdf' do
           VCR.use_cassette('evss/letters/download_options') do
             response = subject.download_letter(
-              user,
               EVSS::Letters::Letter::LETTER_TYPES.first,
               options
             )
@@ -139,7 +139,6 @@ describe EVSS::Letters::Service do
           VCR.use_cassette('evss/letters/download_options') do
             expect do
               subject.download_letter(
-                user,
                 EVSS::Letters::Letter::LETTER_TYPES.first,
                 options
               )

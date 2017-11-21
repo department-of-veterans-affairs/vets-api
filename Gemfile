@@ -81,7 +81,6 @@ group :test do
   gem 'apivore'
   gem 'awrence'
   gem 'climate_control'
-  gem 'webrick'
   gem 'faker'
   gem 'faker-medical'
   gem 'fakeredis'
@@ -109,4 +108,5 @@ group :development, :test do
   gem 'rubocop', '~> 0.42.0', require: false
   gem 'timecop'
   gem 'webmock'
+  gem 'rspec-json_expectations'
 end
