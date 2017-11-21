@@ -108,11 +108,11 @@ describe Preneeds::Service do
     end
 
     context 'with no attachments' do
-      it 'creates a preneeds application' do
-        # TODO make this match body and headers
+      it 'creates a preneeds application', run_at: 'Tue, 21 Nov 2017 23:03:55 GMT' do
+        expect_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return('J1g4L0d13DrkhM0TpdVG')
         allow(burial_form).to receive(:preneed_attachments).and_return([])
 
-        application = VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
+        application = VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form', match_requests_on: [:method, :uri, :body, :headers]) do
           subject.receive_pre_need_application burial_form
         end
 
