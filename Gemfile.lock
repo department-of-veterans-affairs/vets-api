@@ -1,12 +1,4 @@
 GIT
-  remote: git://github.com/thoughtbot/factory_bot.git
-  revision: 50eeb67241ea78a6b138eea694a2a25413052f49
-  ref: 50eeb67241ea78a6b138eea694a2a25413052f49
-  specs:
-    factory_bot (4.8.2)
-      activesupport (>= 3.0.0)
-
-GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
   revision: 62e3fbb6ded0ab16feb397117bacdf28d7dad539
   branch: master
@@ -24,6 +16,14 @@ GIT
     vets_json_schema (3.9.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
+
+GIT
+  remote: https://github.com/thoughtbot/factory_bot
+  revision: 50eeb67241ea78a6b138eea694a2a25413052f49
+  ref: 50eeb67241ea78a6b138eea694a2a25413052f49
+  specs:
+    factory_bot (4.8.2)
+      activesupport (>= 3.0.0)
 
 GEM
   remote: https://rubygems.org/
