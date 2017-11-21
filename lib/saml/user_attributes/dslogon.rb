@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 require 'saml/user_attributes/base_decorator'
 
-# TODO: remove these nocov comments when this is able to be tested.
-
 module SAML
   module UserAttributes
     class DSLogon < BaseDecorator
@@ -24,8 +22,10 @@ module SAML
         attributes['dslogon_status']
       end
 
+      # DS Logon will sometimes return a gender with literal 'unknown'
       def gender
-        attributes['dslogon_gender']&.chars&.first&.upcase
+        gender = attributes['dslogon_gender']&.chars&.first&.upcase
+        %w(M F).include?(gender) ? gender : nil
       end
 
       def dslogon_deceased

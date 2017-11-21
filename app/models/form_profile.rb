@@ -37,6 +37,7 @@ class FormAddress
   attribute :state
   attribute :country
   attribute :postal_code
+  attribute :zipcode
 end
 
 class FormIdentityInformation
@@ -75,6 +76,7 @@ class FormProfile
     '1010EZ'    => ::FormProfile::VA1010ez,
     '22-1990'   => ::FormProfile::VA1990,
     '22-1990N'  => ::FormProfile::VA1990n,
+    '22-1990E'  => ::FormProfile::VA1990e,
     '22-1995'   => ::FormProfile::VA1995,
     '22-5490'   => ::FormProfile::VA5490,
     '22-5495'   => ::FormProfile::VA5495,
@@ -170,14 +172,16 @@ class FormProfile
 
   def initialize_contact_information(user)
     return nil if user.va_profile.nil?
+
     address = {
       street: user.va_profile.address.street,
       street2: nil,
       city: user.va_profile.address.city,
       state: user.va_profile.address.state,
-      postal_code: user.va_profile.address.postal_code,
       country: user.va_profile.address.country
     } if user.va_profile&.address
+
+    address.merge!(derive_postal_code(user)) if address.present?
 
     home_phone = user&.va_profile&.home_phone&.gsub(/[^\d]/, '')
 
@@ -187,6 +191,13 @@ class FormProfile
       us_phone: get_us_phone(home_phone),
       home_phone: home_phone
     )
+  end
+
+  # For 10-10ez forms, this function is overridden to provide a different
+  # key for postal_code is used depending on the country. The default behaviour
+  # here is used for other form types
+  def derive_postal_code(user)
+    { postal_code: user.va_profile.address.postal_code }
   end
 
   def get_us_phone(home_phone)
@@ -203,6 +214,7 @@ class FormProfile
       method_chain = v.map(&:to_sym)
       { k.camelize(:lower) => call_methods(method_chain) }
     end.reduce({}, :merge)
+
     clean!(result)
   end
 

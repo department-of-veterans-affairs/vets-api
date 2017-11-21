@@ -22,18 +22,6 @@ module V0
       'myhealthevet_multifactor' => 'myhealthevet_multifactor'
     }.freeze
 
-    # Collection Action: this method will eventually be replaced by auth_urls
-    # DEPRECATED: This action is only here for backward compatibility and will be removed.
-    def new
-      saml_auth_request = OneLogin::RubySaml::Authrequest.new
-
-      Benchmark::Timer.start(TIMER_LOGIN_KEY, saml_auth_request.uuid)
-
-      authn_context = LOA::MAPPING.invert[params[:level]&.to_i] || LOA::MAPPING.invert[1]
-      saml_settings = saml_settings(authn_context: authn_context)
-      render json: { authenticate_via_get: saml_auth_request.create(saml_settings, saml_options) }
-    end
-
     # Collection Action: method will eventually replace new
     # Returns the sign-in urls for mhv, dslogon, and ID.me (LOA1 only)
     # authn_context is the policy, connect represents the ID.me flow
@@ -112,33 +100,15 @@ module V0
 
     private
 
-    def saml_user
-      @saml_user ||= SAML::User.new(@saml_response)
-    end
-
-    # This is used in persist_session_and_user
-    def new_user_from_saml
-      @new_user_from_saml ||= User.new(saml_user.to_hash)
-    end
-
     def persist_session_and_user
-      @session = Session.new(uuid: new_user_from_saml.uuid)
-      existing_user = User.find(@session.uuid)
+      saml_attributes = SAML::User.new(@saml_response)
+      existing_user = User.find(saml_attributes.decorated.uuid)
+      @current_user = User.new(saml_attributes.to_hash)
 
-      @current_user =
-        # Completely new signin, both session and current user will be persisted
-        if existing_user.nil?
-          StatsD.increment(STATSD_LOGIN_NEW_USER_KEY)
-          new_user_from_saml
-        # Existing user. Updated attributes as a result of enabling multifactor
-        elsif saml_user.changing_multifactor?
-          existing_user.multifactor = saml_user.decorated.multifactor
-          existing_user
-        # Existing user. Updated attributes as a result of completing identity proof
-        else
-          User.from_merged_attrs(existing_user, new_user_from_saml)
-        end
+      StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) unless existing_user.present?
+      existing_user.destroy if existing_user.present?
 
+      @session = Session.new(uuid: @current_user.uuid)
       @session.save && @current_user.save
     end
 

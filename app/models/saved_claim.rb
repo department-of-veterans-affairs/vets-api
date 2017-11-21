@@ -18,6 +18,8 @@ require 'attr_encrypted'
 #    files to the submitted claim, and to begin processing them.
 
 class SavedClaim < ActiveRecord::Base
+  include SetGuid
+
   validates(:form, presence: true)
   validate(:form_matches_schema)
   validate(:form_must_be_string)
@@ -28,7 +30,6 @@ class SavedClaim < ActiveRecord::Base
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.
   after_initialize do
-    self.guid ||= SecureRandom.uuid
     self.form_id = self.class::FORM.upcase
   end
 

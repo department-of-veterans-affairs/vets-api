@@ -22,7 +22,9 @@ module Preneeds
 
     def connection
       path = Preneeds::Configuration.url
-      @faraday ||= Faraday.new(path, headers: base_request_headers, request: request_options) do |conn|
+      @faraday ||= Faraday.new(
+        path, headers: base_request_headers, request: request_options, ssl: { verify: false }
+      ) do |conn|
         conn.request :soap_headers
 
         conn.response :preneeds_parser

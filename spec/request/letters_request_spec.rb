@@ -6,7 +6,7 @@ RSpec.describe 'letters', type: :request do
 
   let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
   let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
-  let(:user) { build(:loa3_user) }
+  let(:user) { build(:user, :loa3) }
 
   before do
     Session.create(uuid: user.uuid, token: token)
@@ -28,10 +28,10 @@ RSpec.describe 'letters', type: :request do
     # TODO(AJD): this use case happens, 500 status but unauthorized message
     # check with evss that they shouldn't be returning 403 instead
     context 'with an 500 unauthorized response' do
-      it 'should return a not authorized response' do
+      it 'should return a bad gateway response' do
         VCR.use_cassette('evss/letters/unauthorized') do
           get '/v0/letters', nil, auth_header
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('letters_errors', strict: false)
         end
       end
@@ -94,7 +94,7 @@ RSpec.describe 'letters', type: :request do
 
     context 'with a 404 evss response' do
       let(:user) do
-        build(:loa3_user, first_name: 'John', last_name: 'SMith', birth_date: '1942-02-12', ssn: '7991112233')
+        build(:user, :loa3, first_name: 'John', last_name: 'SMith', birth_date: '1942-02-12', ssn: '7991112233')
       end
       before do
         user.va_profile.edipi = '1005079999'
@@ -119,7 +119,7 @@ RSpec.describe 'letters', type: :request do
 
     context 'when evss returns Unexpected Error' do
       let(:user) do
-        build(:loa3_user, first_name: 'Greg', last_name: 'Anderson', birth_date: '1809-02-12', ssn: '796111863')
+        build(:user, :loa3, first_name: 'Greg', last_name: 'Anderson', birth_date: '1809-02-12', ssn: '796111863')
       end
       let(:options) do
         {

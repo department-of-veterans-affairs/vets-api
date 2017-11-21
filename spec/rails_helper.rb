@@ -15,7 +15,6 @@ require 'support/serializer_spec_helper'
 require 'support/xml_matchers'
 require 'support/validation_helpers'
 require 'support/model_helpers'
-require 'support/saml/authn_request_helper'
 require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
 require 'support/request_helper'
@@ -90,7 +89,9 @@ RSpec.configure do |config|
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
   config.include(ValidationHelpers, type: :model)
-  config.include(ModelHelpers, type: :controller)
+  %i(controller model).each do |type|
+    config.include(ModelHelpers, type: type)
+  end
   config.include(SAML, type: :controller)
   config.include(AwsHelpers, type: :aws_helpers)
 

@@ -14,7 +14,7 @@ describe EVSS::Letters::MockService do
 
     describe 'get_letters' do
       context 'when the yaml is valid' do
-        let(:user) { build(:loa3_user) }
+        let(:user) { build(:user, :loa3) }
 
         it 'returns a hash of the hard coded response' do
           response = subject.get_letters(user)
@@ -22,7 +22,7 @@ describe EVSS::Letters::MockService do
         end
       end
       context 'when the yaml is invalid' do
-        let(:user) { build(:loa3_user, ssn: '123456789') }
+        let(:user) { build(:user, :loa3, ssn: '123456789') }
 
         it 'logs and re-raises an error' do
           expect(Rails.logger).to receive(:error).once.with(
@@ -32,7 +32,7 @@ describe EVSS::Letters::MockService do
         end
       end
       context 'when the user is missing' do
-        let(:user) { build(:loa3_user, ssn: '123456780') }
+        let(:user) { build(:user, :loa3, ssn: '123456780') }
 
         it 'loads the default' do
           response = subject.get_letters(user)
@@ -43,7 +43,7 @@ describe EVSS::Letters::MockService do
 
     describe 'get_letter_beneficiary' do
       context 'when the yaml is valid' do
-        let(:user) { build(:loa3_user) }
+        let(:user) { build(:user, :loa3) }
 
         it 'returns a hash of the hard coded response' do
           response = subject.get_letter_beneficiary(user)
@@ -51,7 +51,7 @@ describe EVSS::Letters::MockService do
         end
       end
       context 'when the yaml is invalid' do
-        let(:user) { build(:loa3_user, ssn: '123456789') }
+        let(:user) { build(:user, :loa3, ssn: '123456789') }
 
         it 'logs and re-raises an error' do
           expect(Rails.logger).to receive(:error).once.with(
@@ -69,7 +69,7 @@ describe EVSS::Letters::MockService do
           .and_return(root.join('config', 'evss', 'letter.pdf.example'))
       end
       context 'when the yaml is valid' do
-        let(:user) { build(:loa3_user) }
+        let(:user) { build(:user, :loa3) }
 
         it 'returns the pdf described in the yaml file' do
           response = subject.download_by_type(user, 'commissary')
@@ -77,7 +77,7 @@ describe EVSS::Letters::MockService do
         end
       end
       context 'when the yaml is invalid' do
-        let(:user) { build(:loa3_user, ssn: '123456789') }
+        let(:user) { build(:user, :loa3, ssn: '123456789') }
 
         it 'logs and re-raises an error' do
           expect(Rails.logger).to receive(:error).once.with(

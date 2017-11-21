@@ -19,7 +19,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resource :sessions, only: [:new, :destroy] do
+    resource :sessions, only: :destroy do
       get :authn_urls, on: :collection
       get :multifactor, on: :member
       get :identity_proof, on: :member
@@ -122,6 +122,7 @@ Rails.application.routes.draw do
       resources :military_ranks, only: :index, defaults: { format: :json }
       resources :branches_of_service, only: :index, defaults: { format: :json }
       resources :burial_forms, only: [:new, :create], defaults: { format: :json }
+      resources :preneed_attachments, only: :create
     end
 
     resource :address, only: [:show, :update] do
