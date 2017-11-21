@@ -339,6 +339,7 @@ GEM
     rspec-expectations (3.5.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.5.0)
+    rspec-json_expectations (2.1.0)
     rspec-mocks (3.5.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.5.0)
@@ -530,6 +531,7 @@ DEPENDENCIES
   redis
   redis-namespace
   require_all
+  rspec-json_expectations
   rspec-rails (~> 3.5)
   rspec_junit_formatter
   rubocop (~> 0.42.0)
@@ -562,4 +564,4 @@ DEPENDENCIES
   zero_downtime_migrations
 
 BUNDLED WITH
-   1.16.0.pre.3
+   1.16.0

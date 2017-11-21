@@ -134,18 +134,21 @@ RSpec.configure do |config|
 
   config.include StatsD::Instrument::Matchers
 
-  config.before(:each) do |example|
-    stub_mvi unless example.metadata[:skip_mvi]
-    stub_emis unless example.metadata[:skip_emis]
-    Sidekiq::Worker.clear_all
-  end
-
+  config.filter_run_excluding :integration => true unless ENV['INTEGRATION']
   config.around(:each) do |example|
     if example.metadata[:integration]
       WebMock.allow_net_connect!
       VCR.turned_off { example.run }
       WebMock.disable_net_connect!
+    else
+      example.run
     end
+  end
+
+  config.before(:each) do |example|
+    stub_mvi unless example.metadata[:skip_mvi]
+    stub_emis unless example.metadata[:skip_emis]
+    Sidekiq::Worker.clear_all
   end
 
   # clean up carrierwave uploads

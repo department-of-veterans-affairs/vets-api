@@ -109,4 +109,5 @@ group :development, :test do
   gem 'rubocop', '~> 0.42.0', require: false
   gem 'timecop'
   gem 'webmock'
+  gem 'rspec-json_expectations'
 end
