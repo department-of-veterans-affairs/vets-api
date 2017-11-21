@@ -11,7 +11,7 @@ module Preneeds
 
     def initialize(*args)
       super
-      @data_handler = SecureRandom.hex
+      @data_handler = "#{SecureRandom.hex}.pdf"
     end
 
     def as_eoas
