@@ -39,7 +39,7 @@ describe 'letters integration test', type: :request, integration: true do
             {
               name: 'Benefit Verification Letter',
               letter_type: 'benefit_verification'
-            },
+            }
           ],
           full_name: 'Jamie J Wood Iii'
         }
