@@ -99,7 +99,7 @@ describe Preneeds::Service do
         end
 
         expect(SecureRandom).to receive(:hex).twice.and_return('0d55a8657368c624dd9a778117890dab', '834ef2000d67020d011e466e051c84dc')
-        allow_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return('6AsIrFryRgiwEv4LaYVG')
+        expect_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return('6AsIrFryRgiwEv4LaYVG')
 
         VCR.use_cassette('preneeds/burial_forms/burial_form_with_attachments', match_requests_on: [multipart_matcher]) do
           subject.receive_pre_need_application(burial_form)
