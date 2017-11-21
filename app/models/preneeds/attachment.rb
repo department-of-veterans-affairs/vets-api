@@ -20,6 +20,7 @@ module Preneeds
           attachmentTypeId: attachment_type.attachment_type_id
         }.compact,
         dataHandler: {
+          :'inc:Include' => '',
           :attributes! => {
             :'inc:Include' => {
               href: "cid:#{@data_handler}",

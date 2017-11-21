@@ -97,7 +97,6 @@ module Preneeds
       soap_part = Mail::Part.new do
         content_type 'application/xop+xml; charset=UTF-8; type="text/xml"'
         body soap.body
-        content_transfer_encoding('8bit')
         content_id STARTING_CID
       end
 
@@ -110,7 +109,6 @@ module Preneeds
           content_type(file.content_type)
           body(file.read)
           content_id("<#{attachment.data_handler}>")
-          content_transfer_encoding('binary')
         end
 
         multipart.add_part(part)
