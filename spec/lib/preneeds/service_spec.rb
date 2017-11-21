@@ -89,7 +89,7 @@ describe Preneeds::Service do
   describe 'build_multipart' do
     it 'should build a multipart request' do
       multipart = subject.send(:build_multipart, double(body: 'foo'), burial_form.attachments)
-      expect(multipart.body.parts.map(&:content_type)).to eq(["text/xml; charset=utf-8", "application/pdf", "application/pdf"])
+      expect(multipart.body.parts.map(&:content_type)).to eq(["application/xop+xml; charset=UTF-8; type=\"text/xml\"", "application/pdf", "application/pdf"])
     end
   end
 end
