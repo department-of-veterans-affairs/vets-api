@@ -77,12 +77,16 @@ describe Preneeds::Service do
   end
 
   describe 'receive_pre_need_application' do
-    it 'creates a preneeds application' do
-      application = VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
-        subject.receive_pre_need_application burial_form
-      end
+    context 'with no attachments' do
+      it 'creates a preneeds application' do
+        # TODO make this match body and headers
+        allow(burial_form).to receive(:preneed_attachments).and_return([])
+        application = VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
+          subject.receive_pre_need_application burial_form
+        end
 
-      expect(application).to be_a(Preneeds::ReceiveApplication)
+        expect(application).to be_a(Preneeds::ReceiveApplication)
+      end
     end
   end
 
