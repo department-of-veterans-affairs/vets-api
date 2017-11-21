@@ -57,22 +57,6 @@ RSpec.describe SAML::User do
         )
         described_instance
       end
-
-      it 'logs warnings to sentry when loa_current > loa_highest' do
-        allow_any_instance_of(SAML::UserAttributes::DSLogon).to receive(:loa_current).and_return(5)
-        expect_any_instance_of(described_class).to receive(:log_message_to_sentry).with(
-          'Issues in SAML Response - dslogon',
-          :warn,
-          real_authn_context: 'dslogon',
-          authn_context: 'dslogon',
-          warnings: 'LOA Current > LOA Highest',
-          loa: {
-            current: 5,
-            highest: 3
-          }
-        )
-        described_instance
-      end
     end
 
     context 'non-premium user' do

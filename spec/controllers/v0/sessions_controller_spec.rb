@@ -8,11 +8,11 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:loa1_user) { build(:user, :loa1, uuid: uuid) }
   let(:loa3_user) { build(:user, :loa3, uuid: uuid) }
   let(:saml_user_attributes) { loa3_user.attributes }
-  let(:saml_decorater) { double('saml_decorater', saml_user_attributes) }
+  let(:user_attributes) { double('user_attributes', saml_user_attributes) }
   let(:saml_user) do
     instance_double('SAML::User',
                     changing_multifactor?: false,
-                    decorated: saml_decorater,
+                    user_attributes: user_attributes,
                     to_hash: saml_user_attributes)
   end
 
