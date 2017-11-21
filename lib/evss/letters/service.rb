@@ -75,7 +75,7 @@ module EVSS
       # TODO(AJD): move to own service
       def download_conn
         @download_conn ||= Faraday.new(config.base_path, ssl: config.ssl_options) do |faraday|
-          faraday.options.timeout = 15
+          faraday.options.timeout = EVSS::Letters::Configuration::DEFAULT_TIMEOUT
           faraday.use :breakers
           faraday.use EVSS::ErrorMiddleware
           faraday.use :remove_cookies

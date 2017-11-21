@@ -2,6 +2,8 @@
 module EVSS
   module PCIUAddress
     class Configuration < EVSS::Configuration
+      DEFAULT_TIMEOUT = Settings.evss.pciu_address.timeout
+
       def base_path
         "#{Settings.evss.url}/wss-pciu-services-web/rest/pciuServices/v1"
       end
