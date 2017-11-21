@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+FactoryBot.define do
   factory :burial_form, class: Preneeds::BurialForm do
     application_status 'somewhere'
     has_currently_buried '1'

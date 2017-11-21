@@ -77,6 +77,10 @@ describe Preneeds::Service do
   end
 
   describe 'receive_pre_need_application' do
+    before do
+      FactoryBot.rewind_sequences
+    end
+
     context 'with attachments' do
       def match_with_switched_mimeparts(str1, str2, old_mimepart, new_mimepart)
         expect(str1.gsub(new_mimepart, old_mimepart)).to eq(str2)
