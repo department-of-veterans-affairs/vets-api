@@ -102,10 +102,18 @@ describe Preneeds::Service do
           match_with_switched_mimeparts(request_1.body, request_2.body, old_mimepart, new_mimepart)
         end
 
-        expect(SecureRandom).to receive(:hex).twice.and_return('0d55a8657368c624dd9a778117890dab', '834ef2000d67020d011e466e051c84dc')
-        expect_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return('6AsIrFryRgiwEv4LaYVG')
+        expect(SecureRandom).to receive(:hex).twice.and_return(
+          '0d55a8657368c624dd9a778117890dab',
+          '834ef2000d67020d011e466e051c84dc'
+        )
+        expect_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return(
+          '6AsIrFryRgiwEv4LaYVG'
+        )
 
-        VCR.use_cassette('preneeds/burial_forms/burial_form_with_attachments', match_requests_on: [multipart_matcher, :uri, :method]) do
+        VCR.use_cassette(
+          'preneeds/burial_forms/burial_form_with_attachments',
+          match_requests_on: [multipart_matcher, :uri, :method]
+        ) do
           subject.receive_pre_need_application(burial_form)
         end
       end
@@ -113,10 +121,15 @@ describe Preneeds::Service do
 
     context 'with no attachments' do
       it 'creates a preneeds application', run_at: 'Tue, 21 Nov 2017 23:03:55 GMT' do
-        expect_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return('J1g4L0d13DrkhM0TpdVG')
+        expect_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return(
+          'J1g4L0d13DrkhM0TpdVG'
+        )
         allow(burial_form).to receive(:preneed_attachments).and_return([])
 
-        application = VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form', match_requests_on: [:method, :uri, :body, :headers]) do
+        application = VCR.use_cassette(
+          'preneeds/burial_forms/creates_a_pre_need_burial_form',
+          match_requests_on: [:method, :uri, :body, :headers]
+        ) do
           subject.receive_pre_need_application burial_form
         end
 
@@ -128,7 +141,13 @@ describe Preneeds::Service do
   describe 'build_multipart' do
     it 'should build a multipart request' do
       multipart = subject.send(:build_multipart, double(body: 'foo'), burial_form.attachments)
-      expect(multipart.body.parts.map(&:content_type)).to eq(['application/xop+xml; charset=UTF-8; type="text/xml"', 'application/pdf', 'application/pdf'])
+      expect(multipart.body.parts.map(&:content_type)).to eq(
+        [
+          'application/xop+xml; charset=UTF-8; type="text/xml"',
+          'application/pdf',
+          'application/pdf'
+        ]
+      )
     end
   end
 end
