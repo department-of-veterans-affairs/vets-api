@@ -10,10 +10,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 6e635ebea2ed67ea90c06d8c47acc6ce4dd502ef
+  revision: af843371b2b86c32389113db4333ec82895d4e0b
   branch: master
   specs:
-    vets_json_schema (3.10.1)
+    vets_json_schema (3.10.4)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -121,8 +121,6 @@ GEM
     coderay (1.1.1)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
-    combine_pdf (0.2.36)
-      ruby-rc4 (>= 0.1.5)
     concurrent-ruby (1.0.5)
     config (1.4.0)
       activesupport (>= 3.0)
@@ -484,7 +482,6 @@ DEPENDENCIES
   carrierwave-aws
   clam_scan
   climate_control
-  combine_pdf
   config
   date_validator
   factory_girl_rails
