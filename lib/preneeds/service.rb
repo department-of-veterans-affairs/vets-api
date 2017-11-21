@@ -51,7 +51,12 @@ module Preneeds
 
     def receive_pre_need_application(burial_form)
       tracking_number = burial_form.tracking_number
-      soap = savon_client.build_request(:receive_pre_need_application, message: { pre_need_request: burial_form.as_eoas })
+      soap = savon_client.build_request(
+        :receive_pre_need_application,
+        message: {
+          pre_need_request: burial_form.as_eoas
+        }
+      )
 
       body_and_headers = build_body_and_headers(soap, burial_form)
 
