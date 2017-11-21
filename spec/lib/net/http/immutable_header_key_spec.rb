@@ -22,4 +22,16 @@ describe Net::HTTP::ImmutableHeaderKey do
       expect(subject.capitalize!).to eq(subject)
     end
   end
+
+  describe '#to_s' do
+    it 'returns self for to_s' do
+      expect(subject.to_s).to eq(subject)
+    end
+  end
+
+  describe '#split' do
+    it 'returns self for split' do
+      expect(subject.split('_')).to eq([subject])
+    end
+  end
 end
