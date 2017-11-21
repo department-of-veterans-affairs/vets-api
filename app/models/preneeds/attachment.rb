@@ -20,11 +20,11 @@ module Preneeds
           attachmentTypeId: attachment_type.attachment_type_id
         }.compact,
         dataHandler: {
-          :'inc:Include' => '',
-          :attributes! => {
-            :'inc:Include' => {
+          'inc:Include': '',
+          attributes!: {
+            'inc:Include': {
               href: "cid:#{@data_handler}",
-              :'xmlns:inc' => "http://www.w3.org/2004/08/xop/include"
+              'xmlns:inc': 'http://www.w3.org/2004/08/xop/include'
             }
           }
         },

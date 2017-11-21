@@ -75,7 +75,7 @@ module Preneeds
             headers[field.name] = field.to_s
           end
 
-          headers["Content-Type"] = "multipart/related; " \
+          headers['Content-Type'] = 'multipart/related; ' \
             "boundary=\"#{multipart.boundary}\"; " \
             "type=\"application/xop+xml\"; start=\"#{STARTING_CID}\"; " \
             'start-info="text/xml"'

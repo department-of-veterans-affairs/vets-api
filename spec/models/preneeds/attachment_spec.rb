@@ -14,13 +14,12 @@ RSpec.describe Preneeds::Attachment do
       allow(SecureRandom).to receive(:hex).and_return(hex)
 
       expect(attachment.as_eoas).to eq(
-        {:attachmentType=>{:attachmentTypeId=>1},
-         :dataHandler=>
-          {:"inc:Include"=>"",
-           :'attributes!'=>{:"inc:Include"=>{:href=>"cid:#{hex}", :"xmlns:inc"=>"http://www.w3.org/2004/08/xop/include"}}},
-         :description=>"extras.pdf",
-         :sendingName=>"extras.pdf",
-         :sendingSource=>"vets.gov"}
+        attachmentType: { attachmentTypeId: 1 },
+        dataHandler:           { "inc:Include": '',
+                                 'attributes!': { "inc:Include": { href: "cid:#{hex}", "xmlns:inc": 'http://www.w3.org/2004/08/xop/include' } } },
+        description: 'extras.pdf',
+        sendingName: 'extras.pdf',
+        sendingSource: 'vets.gov'
       )
     end
   end

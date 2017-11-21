@@ -31,7 +31,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
   context 'for a single claim' do
     let!(:claim) do
       FactoryBot.create(:evss_claim, id: 1, evss_id: 189_625,
-                                      user_uuid: user.uuid)
+                                     user_uuid: user.uuid)
     end
 
     it 'sets 5103 waiver when requesting a decision' do
@@ -51,7 +51,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
     it 'user cannot access claim of another user' do
       FactoryBot.create(:evss_claim, id: 2, evss_id: 189_625,
-                                      user_uuid: 'xyz')
+                                     user_uuid: 'xyz')
       get '/v0/evss_claims/2', nil, 'Authorization' => "Token token=#{session.token}"
       expect(response).to have_http_status(:not_found)
     end

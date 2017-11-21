@@ -88,7 +88,7 @@ describe Preneeds::Service do
 
       it 'creates a preneeds application', run_at: 'Tue, 21 Nov 2017 22:10:32 GMT' do
         multipart_matcher = lambda do |request_1, request_2|
-          new_mimepart = request_1.headers['Content-Type'][0].split(';')[1].gsub(' boundary="', '').gsub('"', '')
+          new_mimepart = request_1.headers['Content-Type'][0].split(';')[1].gsub(' boundary="', '').delete('"')
           old_mimepart = '--==_mimepart_5a14a45886767_12eadeb1246812'
 
           expect(request_1.headers.keys).to eq(request_2.headers.keys)
@@ -128,7 +128,7 @@ describe Preneeds::Service do
   describe 'build_multipart' do
     it 'should build a multipart request' do
       multipart = subject.send(:build_multipart, double(body: 'foo'), burial_form.attachments)
-      expect(multipart.body.parts.map(&:content_type)).to eq(["application/xop+xml; charset=UTF-8; type=\"text/xml\"", "application/pdf", "application/pdf"])
+      expect(multipart.body.parts.map(&:content_type)).to eq(['application/xop+xml; charset=UTF-8; type="text/xml"', 'application/pdf', 'application/pdf'])
     end
   end
 end

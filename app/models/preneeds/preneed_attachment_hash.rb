@@ -9,7 +9,7 @@ module Preneeds
     end
 
     def get_file
-      ::Preneeds::PreneedAttachment.where(guid: confirmation_code).take.get_file
+      ::Preneeds::PreneedAttachment.find_by(guid: confirmation_code).get_file
     end
 
     def to_attachment

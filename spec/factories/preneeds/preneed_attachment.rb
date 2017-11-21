@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 FactoryBot.define do
   factory :preneed_attachment, class: Preneeds::PreneedAttachment do
     after(:build) do |preneed_attachment|
