@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module V0
   class InProgressFormsController < ApplicationController
-    include Common::Exceptions::IgnoreNotFound
+    include Common::IgnoreNotFound
 
     before_action :ensure_uuid
     before_action :check_access_denied
