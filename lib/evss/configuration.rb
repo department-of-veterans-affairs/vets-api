@@ -47,8 +47,8 @@ module EVSS
         faraday.response :betamocks if mock_enabled?
         faraday.response :snakecase, symbolize: false
         faraday.response :json
-        faraday.proxy 'http://localhost:8888'
-        faraday.adapter :net_http_patch
+        # faraday.proxy 'http://localhost:8888'
+        faraday.adapter Faraday.default_adapter
       end
     end
 

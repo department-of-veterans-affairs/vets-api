@@ -18,6 +18,7 @@ gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamoc
 gem 'breakers'
 gem 'carrierwave-aws'
 gem 'clam_scan'
+gem 'combine_pdf'
 gem 'config'
 gem 'date_validator'
 gem 'faraday'
@@ -81,7 +82,6 @@ group :test do
   gem 'apivore'
   gem 'awrence'
   gem 'climate_control'
-  gem 'webrick'
   gem 'faker'
   gem 'faker-medical'
   gem 'fakeredis'
@@ -111,4 +111,5 @@ group :development, :test do
   gem 'rubocop', '~> 0.42.0', require: false
   gem 'timecop'
   gem 'webmock'
+  gem 'rspec-json_expectations'
 end

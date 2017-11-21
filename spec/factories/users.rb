@@ -10,7 +10,6 @@ FactoryBot.define do
     birth_date '1809-02-12'
     zip '17325'
     ssn '796111863'
-    multifactor false
     mhv_icn nil
     loa do
       {
@@ -48,7 +47,6 @@ FactoryBot.define do
       zip { Faker::Address.postcode }
       birth_date { Faker::Time.between(40.years.ago, 10.years.ago, :all) }
       ssn '796111864'
-      multifactor true
 
       loa do
         {
@@ -60,6 +58,16 @@ FactoryBot.define do
 
     trait :mhv_not_logged_in do
       mhv_last_signed_in nil
+    end
+
+    trait :j_wood do
+      first_name 'Jamie'
+      middle_name 'J'
+      last_name 'Wood'
+      birth_date '1945-05-24'
+      gender 'F'
+      ssn '796060339'
+      email 'vets.gov.user+299@gmail.com'
     end
   end
 end
