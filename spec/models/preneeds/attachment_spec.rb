@@ -15,8 +15,14 @@ RSpec.describe Preneeds::Attachment do
 
       expect(attachment.as_eoas).to eq(
         attachmentType: { attachmentTypeId: 1 },
-        dataHandler:           { "inc:Include": '',
-                                 'attributes!': { "inc:Include": { href: "cid:#{hex}", "xmlns:inc": 'http://www.w3.org/2004/08/xop/include' } } },
+        dataHandler: {
+          "inc:Include": '',
+          'attributes!': {
+            "inc:Include": {
+              href: "cid:#{hex}", "xmlns:inc": 'http://www.w3.org/2004/08/xop/include'
+            }
+          }
+        },
         description: 'extras.pdf',
         sendingName: 'extras.pdf',
         sendingSource: 'vets.gov'
