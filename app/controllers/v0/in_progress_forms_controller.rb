@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 module V0
   class InProgressFormsController < ApplicationController
+    include Common::Exceptions::IgnoreNotFound
+
     before_action :ensure_uuid
     before_action :check_access_denied
 
@@ -34,10 +36,6 @@ module V0
     end
 
     private
-
-    def skip_sentry_exception_types
-      EXCEPTIONS_WITH_RECORD_NOT_FOUND
-    end
 
     def ensure_uuid
       # There have been several errors where `@current_user.uuid` is being coerced to `nil`

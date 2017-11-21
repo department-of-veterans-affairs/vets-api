@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 module V0
   class EVSSClaimsController < EVSSClaimsBaseController
+    include Common::Exceptions::IgnoreNotFound
+
     def index
       claims, synchronized = claim_service.all
       render json: claims,
@@ -23,12 +25,6 @@ module V0
       jid = claim_service.request_decision(claim)
       claim.update_attributes(requested_decision: true)
       render_job_id(jid)
-    end
-
-    private
-
-    def skip_sentry_exception_types
-      EXCEPTIONS_WITH_RECORD_NOT_FOUND
     end
   end
 end

@@ -16,8 +16,6 @@ class ApplicationController < ActionController::API
     Breakers::OutageException
   ].freeze
 
-  EXCEPTIONS_WITH_RECORD_NOT_FOUND = SKIP_SENTRY_EXCEPTION_TYPES + [Common::Exceptions::RecordNotFound]
-
   before_action :authenticate
   before_action :set_app_info_headers
   before_action :set_uuid_tags
