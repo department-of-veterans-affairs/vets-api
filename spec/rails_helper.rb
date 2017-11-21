@@ -140,6 +140,14 @@ RSpec.configure do |config|
     Sidekiq::Worker.clear_all
   end
 
+  config.around(:each) do |example|
+    if example.metadata[:integration]
+      WebMock.allow_net_connect!
+      VCR.turned_off { example.run }
+      WebMock.disable_net_connect!
+    end
+  end
+
   # clean up carrierwave uploads
   # https://github.com/carrierwaveuploader/carrierwave/wiki/How-to:-Cleanup-after-your-Rspec-tests
   config.after(:all) do
