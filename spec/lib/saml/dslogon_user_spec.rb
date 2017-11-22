@@ -12,6 +12,16 @@ RSpec.describe SAML::User do
     let(:decrypted_document_partial) { REXML::Document.new(dslogon_response) }
     let(:dslogon_response) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/dslogon_response.xml") }
 
+    let(:described_instance) { described_class.new(saml_response) }
+    let(:user) { User.new(described_instance) }
+    let(:frozen_time) { Time.new(2017, 11, 11, 3, 11, 11).utc }
+
+    around(:each) do |example|
+      Timecop.freeze(frozen_time) do
+        example.run
+      end
+    end
+
     context 'logging' do
       let(:saml_attributes) do
         OneLogin::RubySaml::Attributes.new(
@@ -32,9 +42,6 @@ RSpec.describe SAML::User do
           'dslogon_idvalue' => []
         )
       end
-      let(:described_instance) { described_class.new(saml_response) }
-      let(:user) { User.new(described_instance) }
-      let(:frozen_time) { Time.current }
 
       it 'does not log warnings to sentry when everything is ok' do
         expect(described_instance).not_to receive(:log_message_to_sentry)
@@ -78,15 +85,6 @@ RSpec.describe SAML::User do
           'dslogon_mname' => [],
           'dslogon_idvalue' => []
         )
-      end
-      let(:described_instance) { described_class.new(saml_response) }
-      let(:user) { User.new(described_instance) }
-      let(:frozen_time) { Time.current }
-
-      around(:each) do |example|
-        Timecop.freeze(frozen_time) do
-          example.run
-        end
       end
 
       it 'properly constructs a user' do
@@ -136,15 +134,6 @@ RSpec.describe SAML::User do
           'dslogon_idvalue' => ['796178410']
         )
       end
-      let(:described_instance) { described_class.new(saml_response) }
-      let(:user) { User.new(described_instance) }
-      let(:frozen_time) { Time.current }
-
-      around(:each) do |example|
-        Timecop.freeze(frozen_time) do
-          example.run
-        end
-      end
 
       it 'properly constructs a user' do
         expect(user.valid?(:loa3_user)).to be_truthy
@@ -192,15 +181,6 @@ RSpec.describe SAML::User do
           'dslogon_mname' => ['Mayo'],
           'dslogon_idvalue' => ['796178410']
         )
-      end
-      let(:described_instance) { described_class.new(saml_response) }
-      let(:user) { User.new(described_instance) }
-      let(:frozen_time) { Time.current }
-
-      around(:each) do |example|
-        Timecop.freeze(frozen_time) do
-          example.run
-        end
       end
 
       it 'properly constructs a user' do

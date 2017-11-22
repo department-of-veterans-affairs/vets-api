@@ -11,6 +11,15 @@ RSpec.describe SAML::User do
     end
     let(:decrypted_document_partial) { REXML::Document.new(mhv_response) }
     let(:mhv_response) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/mhv_response.xml") }
+    let(:described_instance) { described_class.new(saml_response) }
+    let(:user) { User.new(described_instance) }
+    let(:frozen_time) { Time.new(2017, 11, 11, 3, 11, 11).utc }
+
+    around(:each) do |example|
+      Timecop.freeze(frozen_time) do
+        example.run
+      end
+    end
 
     context 'non-premium user' do
       let(:saml_attributes) do
@@ -23,15 +32,6 @@ RSpec.describe SAML::User do
           'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
           'level_of_assurance' => []
         )
-      end
-      let(:described_instance) { described_class.new(saml_response) }
-      let(:user) { User.new(described_instance) }
-      let(:frozen_time) { Time.current }
-
-      around(:each) do |example|
-        Timecop.freeze(frozen_time) do
-          example.run
-        end
       end
 
       it 'properly constructs a user' do
@@ -74,15 +74,6 @@ RSpec.describe SAML::User do
           'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
           'level_of_assurance' => []
         )
-      end
-      let(:described_instance) { described_class.new(saml_response) }
-      let(:user) { User.new(described_instance) }
-      let(:frozen_time) { Time.current }
-
-      around(:each) do |example|
-        Timecop.freeze(frozen_time) do
-          example.run
-        end
       end
 
       it 'properly constructs a user' do

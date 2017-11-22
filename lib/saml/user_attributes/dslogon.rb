@@ -5,6 +5,8 @@ module SAML
   module UserAttributes
     class DSLogon < Base
       PREMIUM_LOAS = %w(2 3).freeze
+      DSLOGON_SERIALIZABLE_ATTRIBUTES = %i(first_name middle_name last_name gender ssn birth_date
+                                           dslogon_edipi dslogon_status dslogon_deceased).freeze
 
       def first_name
         attributes['dslogon_fname']
@@ -57,10 +59,7 @@ module SAML
       # These methods are required to be implemented on each child class
 
       def serializable_attributes
-        %i(
-          first_name middle_name last_name gender ssn birth_date
-          dslogon_edipi dslogon_status dslogon_deceased
-        ) + IDME_ATTRIBUTES
+        DSLOGON_SERIALIZABLE_ATTRIBUTES + REQUIRED_ATTRIBUTES
       end
 
       # if the dslogon_assurance PREMIUM, otherwise 1

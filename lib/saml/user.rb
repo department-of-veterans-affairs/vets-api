@@ -28,12 +28,6 @@ module SAML
 
     private
 
-    # This should eventually happen on user itself or be set by sessions controller manually, has nothing
-    # to do with saml
-    def last_signed_in
-      Time.current.utc
-    end
-
     # we serialize user.rb with this value, in the case of everything other than mhv/dslogon,
     # this will only ever be one of 'dslogon, mhv, or nil'
     def authn_context
@@ -45,7 +39,7 @@ module SAML
     # returns the attributes that are defined below, could be from one of 3 distinct policies, each having different
     # saml responses, hence this weird decorating mechanism, needs improved abstraction to be less weird.
     def serializable_attributes
-      %i(authn_context last_signed_in)
+      %i(authn_context)
     end
 
     def dslogon?

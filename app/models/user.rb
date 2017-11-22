@@ -39,7 +39,7 @@ class User < Common::RedisStore
   attribute :mhv_uuid # this is the cannonical version of MHV Correlation ID, provided by MHV sign-in users
 
   # vaafi attributes
-  attribute :last_signed_in, Common::UTCTime
+  attribute :last_signed_in, Common::UTCTime, default: Time.current.utc
 
   # mhv_last_signed_in used to determine whether we need to notify MHV audit logging
   # This is set to Time.now when any MHV session is first created, and nulled, when logout
@@ -48,6 +48,14 @@ class User < Common::RedisStore
   validates :uuid, presence: true
   validates :email, presence: true
   validates :loa, presence: true
+
+  def initialize(attributes = {}, persisted = false)
+    undefined = REQ_CLASS_INSTANCE_VARS.select { |class_var| send(class_var).nil? }
+    raise NoMethodError, "Required class methods #{undefined.join(', ')} are not defined" if undefined.any?
+    super(attributes)
+    @persisted = persisted
+    run_callbacks :initialize
+  end
 
   # conditionally validate if user is LOA3
   with_options(on: :loa3_user) do |user|
