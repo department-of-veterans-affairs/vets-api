@@ -4,7 +4,7 @@ require 'rails_helper'
 RSpec.describe 'Disability rating', type: :request do
   include SchemaMatchers
 
-  let(:user) { FactoryGirl.create(:user, :loa3) }
+  let(:user) { FactoryBot.create(:user, :loa3) }
   let(:session) { Session.create(uuid: user.uuid) }
 
   it 'shows the disability rating record' do
