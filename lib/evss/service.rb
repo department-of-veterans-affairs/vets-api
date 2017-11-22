@@ -18,7 +18,7 @@ module EVSS
     private
 
     def headers_for_user(user)
-      EVSS::AuthHeaders.new(user).to_h
+      EVSS::ImmutableAuthHeaders.new(user).to_h
     end
 
     def with_monitoring
