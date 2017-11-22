@@ -17,10 +17,6 @@ module EVSS
 
     private
 
-    def headers_for_user(user)
-      EVSS::ImmutableAuthHeaders.new(user).to_h
-    end
-
     def with_monitoring
       caller = caller_locations(1, 1)[0].label
       yield
