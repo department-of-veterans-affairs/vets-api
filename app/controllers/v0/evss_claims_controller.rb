@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module V0
   class EVSSClaimsController < EVSSClaimsBaseController
-    include Common::IgnoreNotFound
+    include IgnoreNotFound
 
     def index
       claims, synchronized = claim_service.all
