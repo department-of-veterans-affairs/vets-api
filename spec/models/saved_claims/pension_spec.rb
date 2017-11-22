@@ -4,7 +4,7 @@ require 'lib/saved_claims_spec_helper'
 
 RSpec.describe SavedClaim::Pension do
   subject { described_class.new }
-  let(:instance) { FactoryGirl.build(:pension_claim) }
+  let(:instance) { FactoryBot.build(:pension_claim) }
 
   it_should_behave_like 'saved_claim_with_confirmation_number'
 
