@@ -7,7 +7,7 @@ RSpec.describe 'Appeals Status', type: :request do
   let(:session) { Session.create(uuid: user.uuid) }
 
   context 'loa1 user' do
-    let(:user) { FactoryGirl.create(:user, :loa1, ssn: '111223333') }
+    let(:user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }
 
     it 'returns a forbidden error' do
       get '/v0/appeals', nil, 'Authorization' => "Token token=#{session.token}"
@@ -16,7 +16,7 @@ RSpec.describe 'Appeals Status', type: :request do
   end
 
   context 'loa3 user in the mocks' do
-    let(:user) { FactoryGirl.create(:user, :loa3, ssn: '111223333') }
+    let(:user) { FactoryBot.create(:user, :loa3, ssn: '111223333') }
 
     it 'returns a successful response' do
       get '/v0/appeals', nil, 'Authorization' => "Token token=#{session.token}"

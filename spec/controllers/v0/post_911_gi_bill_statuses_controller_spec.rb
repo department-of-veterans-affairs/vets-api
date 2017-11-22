@@ -4,7 +4,7 @@ require 'rails_helper'
 RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
   include SchemaMatchers
 
-  let(:user) { FactoryGirl.create(:user, :loa3) }
+  let(:user) { FactoryBot.create(:user, :loa3) }
   let(:session) { Session.create(uuid: user.uuid) }
 
   let(:once) { { times: 1, value: 1 } }
@@ -60,7 +60,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
     gi_bill_404 = { cassette_name: 'evss/gi_bill_status/vet_not_found' }
     describe 'when EVSS has no knowledge of user', vcr: gi_bill_404 do
       # special EVSS CI user ssn=796066619
-      let(:user) { FactoryGirl.create(:user, :loa3, ssn: '796066619', uuid: 'ertydfh456') }
+      let(:user) { FactoryBot.create(:user, :loa3, ssn: '796066619', uuid: 'ertydfh456') }
       let(:session) { Session.create(uuid: user.uuid) }
 
       it 'responds with 404' do
@@ -79,7 +79,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
     end
     describe 'when EVSS has no info of user' do
       # special EVSS CI user ssn=796066622
-      let(:user) { FactoryGirl.create(:user, :loa3, ssn: '796066622', uuid: 'fghj3456') }
+      let(:user) { FactoryBot.create(:user, :loa3, ssn: '796066622', uuid: 'fghj3456') }
       let(:session) { Session.create(uuid: user.uuid) }
       it 'renders nil data' do
         VCR.use_cassette('evss/gi_bill_status/vet_with_no_info') do
@@ -92,7 +92,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
 
     describe 'when EVSS partners return invalid data' do
       # special EVSS CI user ssn=301010304
-      let(:user) { FactoryGirl.create(:user, :loa3, ssn: '301010304', uuid: 'aaaa1a') }
+      let(:user) { FactoryBot.create(:user, :loa3, ssn: '301010304', uuid: 'aaaa1a') }
       let(:session) { Session.create(uuid: user.uuid) }
       it 'responds with a 422' do
         VCR.use_cassette('evss/gi_bill_status/invalid_partner_data') do
