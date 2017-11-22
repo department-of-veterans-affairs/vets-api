@@ -3,7 +3,7 @@ require 'rails_helper'
 
 describe EVSS::Letters::ServiceFactory do
   describe '.get_service' do
-    let(:user) { FactoryGirl.create(:user, :loa3) }
+    let(:user) { FactoryBot.create(:user, :loa3) }
 
     context 'when mock_letters is true' do
       it 'returns a mock service' do

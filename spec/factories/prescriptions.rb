@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+FactoryBot.define do
   factory :prescription do
     prescription_id       1_435_525
     refill_status         'active'
