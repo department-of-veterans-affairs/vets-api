@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+FactoryBot.define do
   factory :tracking do
     tracking_number       '01234567890'
     prescription_id       2_719_324

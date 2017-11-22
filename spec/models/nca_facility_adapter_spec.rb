@@ -6,7 +6,7 @@ RSpec.describe NCAFacilityAdapter, type: :adapter do
 
   context 'with v1-style NCA record' do
     before(:each) do
-      @model = described_class.from_gis(FactoryGirl.build(:nca_gis_record_v1))
+      @model = described_class.from_gis(FactoryBot.build(:nca_gis_record_v1))
     end
 
     it 'adapts base attributes' do
@@ -50,7 +50,7 @@ RSpec.describe NCAFacilityAdapter, type: :adapter do
 
   context 'with v2-style NCA record' do
     before(:each) do
-      @model = described_class.from_gis(FactoryGirl.build(:nca_gis_record_v2))
+      @model = described_class.from_gis(FactoryBot.build(:nca_gis_record_v2))
     end
 
     it 'adapts base attributes' do
