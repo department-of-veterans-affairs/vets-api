@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module EVSS
   module NetHttpPatch
     refine Net::HTTPGenericRequest do
