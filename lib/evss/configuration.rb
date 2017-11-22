@@ -3,7 +3,7 @@ require 'common/client/configuration/rest'
 
 module EVSS
   class Configuration < Common::Client::Configuration::REST
-    using NetHttpHeaderPatch
+    using NetHttpPatch
 
     DEFAULT_TIMEOUT = 15
 
