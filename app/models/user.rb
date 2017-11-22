@@ -39,7 +39,7 @@ class User < Common::RedisStore
   attribute :mhv_uuid # this is the cannonical version of MHV Correlation ID, provided by MHV sign-in users
 
   # vaafi attributes
-  attribute :last_signed_in, Common::UTCTime, default: Time.current.utc
+  attribute :last_signed_in, Common::UTCTime
 
   # mhv_last_signed_in used to determine whether we need to notify MHV audit logging
   # This is set to Time.now when any MHV session is first created, and nulled, when logout

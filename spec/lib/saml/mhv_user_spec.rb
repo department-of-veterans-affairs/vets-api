@@ -13,13 +13,6 @@ RSpec.describe SAML::User do
     let(:mhv_response) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/mhv_response.xml") }
     let(:described_instance) { described_class.new(saml_response) }
     let(:user) { User.new(described_instance) }
-    let(:frozen_time) { Time.new(2017, 11, 11, 3, 11, 11).utc }
-
-    around(:each) do |example|
-      Timecop.freeze(frozen_time) do
-        example.run
-      end
-    end
 
     context 'non-premium user' do
       let(:saml_attributes) do
@@ -55,7 +48,7 @@ RSpec.describe SAML::User do
           loa: { current: 1, highest: 1 },
           multifactor: true,
           authn_context: 'myhealthevet',
-          last_signed_in: frozen_time,
+          last_signed_in: nil,
           mhv_last_signed_in: nil
         )
       end
@@ -90,7 +83,7 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           multifactor: false,
           authn_context: 'myhealthevet',
-          last_signed_in: frozen_time,
+          last_signed_in: nil,
           mhv_last_signed_in: nil
         )
       end

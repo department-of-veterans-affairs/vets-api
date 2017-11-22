@@ -104,10 +104,12 @@ module V0
       saml_attributes = SAML::User.new(@saml_response)
       existing_user = User.find(saml_attributes.user_attributes.uuid)
       @current_user = User.new(saml_attributes.to_hash)
-      if saml_attributes.changing_multifactor? && existing_user.present?
-        @current_user.last_signed_in = existing_user.last_signed_in
-      end
-                                     
+      @current_user.last_signed_in = if saml_attributes.changing_multifactor? && existing_user.present?
+                                       existing_user.last_signed_in
+                                     else
+                                       Time.current.utc
+                                     end
+
       StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) unless existing_user.present?
       existing_user.destroy if existing_user.present?
 
