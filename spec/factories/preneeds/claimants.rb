@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+FactoryBot.define do
   factory :claimant, class: Preneeds::Claimant do
     date_of_birth '2001-01-31'
     desired_cemetery '400' # Alabama National VA Cemetery
