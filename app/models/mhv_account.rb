@@ -56,12 +56,20 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def create_and_upgrade!
-    create_mhv_account! unless preexisting_account?
-    upgrade_mhv_account!
+    if identity_proof_valid? && va_patient?
+      create_mhv_account! unless preexisting_account?
+      upgrade_mhv_account!
+    end
   end
 
+  # if you already have an MHV account you're eligible to use it on vets.gov
+  # but if you don't have one, we will only create / upgrade if you're a va patient.
   def eligible?
-    va_patient?
+    va_patient? || preexisting_account?
+  end
+
+  def identity_proof_valid?
+    user&.ssn.present? && user.loa3? && user.va_profile&.ssn == user.ssn
   end
 
   def terms_and_conditions_accepted?
@@ -70,6 +78,10 @@ class MhvAccount < ActiveRecord::Base
 
   def preexisting_account?
     user&.mhv_correlation_id.present?
+  end
+
+  def mhv_signin?
+    user&.mhv_uuid.present? && user&.authn_context == 'myhealthevet'
   end
 
   private
@@ -126,7 +138,7 @@ class MhvAccount < ActiveRecord::Base
   # Facilities in the defined range are treating facilities, indicating
   # that the user is a VA patient.
   def va_patient?
-    facilities = user&.va_profile&.vha_facility_ids
+    facilities = user&.va_profile&.vha_facility_ids || []
     facilities.to_a.any? do |f|
       Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) }
     end
