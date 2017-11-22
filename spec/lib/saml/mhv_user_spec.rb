@@ -53,7 +53,7 @@ RSpec.describe SAML::User do
           zip: nil,
           ssn: nil,
           loa: { current: 1, highest: 1 },
-          multifactor: 'true',
+          multifactor: true,
           authn_context: 'myhealthevet',
           last_signed_in: frozen_time,
           mhv_last_signed_in: nil
@@ -70,7 +70,7 @@ RSpec.describe SAML::User do
           # rubocop:enable LineLength
           'mhv_uuid' => ['12345748'],
           'email' => ['kam+tristanmhv@adhocteam.us'],
-          'multifactor' => ['true'],
+          'multifactor' => ['false'],
           'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
           'level_of_assurance' => []
         )
@@ -97,7 +97,7 @@ RSpec.describe SAML::User do
         expect(user).to have_attributes(
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           loa: { current: 3, highest: 3 },
-          multifactor: 'true',
+          multifactor: false,
           authn_context: 'myhealthevet',
           last_signed_in: frozen_time,
           mhv_last_signed_in: nil

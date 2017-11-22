@@ -7,7 +7,7 @@ module Preneeds
     attribute :name, Preneeds::FullName
 
     def as_eoas
-      { cemeteryNumber: cemetery_number, name: name.as_eoas }
+      { cemeteryNumber: cemetery_number, name: name.as_eoas }.compact
     end
 
     def self.permitted_params

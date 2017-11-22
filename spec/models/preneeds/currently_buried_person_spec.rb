@@ -15,6 +15,11 @@ RSpec.describe Preneeds::CurrentlyBuriedPerson do
     it 'produces an ordered hash' do
       expect(subject.as_eoas.keys).to eq([:cemeteryNumber, :name])
     end
+
+    it 'should remove nils' do
+      params.delete(:cemetery_number)
+      expect(subject.as_eoas.keys).to eq([:name])
+    end
   end
 
   describe 'when converting to json' do
