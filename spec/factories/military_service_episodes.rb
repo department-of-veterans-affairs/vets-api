@@ -1,6 +1,6 @@
 
 # frozen_string_literal: true
-FactoryGirl.define do
+FactoryBot.define do
   factory :service_episode, class: 'EMIS::Models::MilitaryServiceEpisode' do
     begin_date '2001-09-01'
     end_date '203-10-01'
