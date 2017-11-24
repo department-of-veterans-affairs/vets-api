@@ -1,0 +1,106 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<PRENEEDS_HOST>/eoas_SOA/PreNeedApplicationPort"
+    body:
+      encoding: US-ASCII
+      string: "\r\n----==_mimepart_5a14a45886767_12eadeb1246812\r\nContent-Type: application/xop+xml;\r\n
+        charset=UTF-8;\r\n type=\"text/xml\"\r\nContent-Transfer-Encoding: quoted-printable\r\nContent-ID:
+        <soap-request-body@soap>\r\n\r\n<?xml version=3D\"1.0\" encoding=3D\"UTF-8\"?><env:Envelope
+        xmlns:xsd=3D\"http=\r\n://www.w3.org/2001/XMLSchema\" xmlns:xsi=3D\"http://www.w3.org/2001/XMLSche=\r\nma-instance\"
+        xmlns:tns=3D\"http://service.soa.eoas.cem.va.gov/\" xmlns:env=3D=\r\n\"http://schemas.xmlsoap.org/soap/envelope/\"><env:Body><tns:receivePreNeed=\r\nApplication><preNeedRequest><applicant><applicantEmail>hg@hotmail.com</ap=\r\nplicantEmail><applicantPhoneNumber>555-555-5555
+        - 234</applicantPhoneNumb=\r\ner><applicantRelationshipToClaimant>Self</applicantRelationshipToClaimant=\r\n><completingReason>I
+        don&#39;t know</completingReason><mailingAddress><ad=\r\ndress1>street 1</address1><address2>street2
+        1</address2><city>NY</city><c=\r\nountryCode>USA</countryCode><postalZip>10000</postalZip><state>NY</state>=\r\n</mailingAddress><name><firstName>first
+        1</firstName><lastName>last 1</la=\r\nstName><maidenName>maiden 1</maidenName><middleName>middle
+        1</middleName>=\r\n<suffix>Jr.</suffix></name></applicant><applicationStatus>somewhere</appl=\r\nicationStatus><attachments><attachmentType><attachmentTypeId>1</attachmen=\r\ntTypeId></attachmentType><dataHandler><inc:Include
+        href=3D\"cid:0d55a86573=\r\n68c624dd9a778117890dab\" xmlns:inc=3D\"http://www.w3.org/2004/08/xop/includ=\r\ne\"></inc:Include></dataHandler><description>extras.pdf</description><send=\r\ningName>extras.pdf</sendingName><sendingSource>vets.gov</sendingSource></=\r\nattachments><attachments><attachmentType><attachmentTypeId>1</attachmentT=\r\nypeId></attachmentType><dataHandler><inc:Include
+        href=3D\"cid:834ef2000d67=\r\n020d011e466e051c84dc\" xmlns:inc=3D\"http://www.w3.org/2004/08/xop/include\"=\r\n></inc:Include></dataHandler><description>extras.pdf</description><sendin=\r\ngName>extras.pdf</sendingName><sendingSource>vets.gov</sendingSource></at=\r\ntachments><claimant><address><address1>street
+        2</address1><address2>stree=\r\nt2 2</address2><city>NY</city><countryCode>USA</countryCode><postalZip>10=\r\n000</postalZip><state>NY</state></address><dateOfBirth>2001-01-31</dateOf=\r\nBirth><desiredCemetery>400</desiredCemetery><email>a@b.com</email><name><=\r\nfirstName>first
+        2</firstName><lastName>last 2</lastName><maidenName>maide=\r\nn 2</maidenName><middleName>middle
+        2</middleName><suffix>Jr.</suffix></na=\r\nme><phoneNumber>1234567890</phoneNumber><relationshipToVet>1</relationshi=\r\npToVet><ssn>123-45-6789</ssn></claimant><currentlyBuriedPersons><cemetery=\r\nNumber>400</cemeteryNumber><name><firstName>first
+        3</firstName><lastName>=\r\nlast 3</lastName><maidenName>maiden 3</maidenName><middleName>middle
+        3</m=\r\niddleName><suffix>Jr.</suffix></name></currentlyBuriedPersons><currentlyB=\r\nuriedPersons><cemeteryNumber>400</cemeteryNumber><name><firstName>first
+        4=\r\n</firstName><lastName>last 4</lastName><maidenName>maiden 4</maidenName><=\r\nmiddleName>middle
+        4</middleName><suffix>Jr.</suffix></name></currentlyBur=\r\niedPersons><hasAttachments>true</hasAttachments><hasCurrentlyBuried>1</ha=\r\nsCurrentlyBuried><sendingApplication>vets.gov</sendingApplication><sendin=\r\ngCode>abc</sendingCode><sentTime>2017-11-21T22:10:32Z</sentTime><tracking=\r\nNumber>6AsIrFryRgiwEv4LaYVG</trackingNumber><veteran><address><address1>s=\r\ntreet
+        3</address1><address2>street2 3</address2><city>NY</city><countryCo=\r\nde>USA</countryCode><postalZip>10000</postalZip><state>NY</state></addres=\r\ns><currentName><firstName>first
+        5</firstName><lastName>last 5</lastName><=\r\nmaidenName>maiden 5</maidenName><middleName>middle
+        5</middleName><suffix>=\r\nJr.</suffix></currentName><dateOfBirth>2001-01-31</dateOfBirth><dateOfDea=\r\nth>2001-01-31</dateOfDeath><gender>Male</gender><isDeceased>unsure</isDec=\r\neased><maritalStatus>Married</maritalStatus><militaryServiceNumber>123456=\r\n789</militaryServiceNumber><placeOfBirth>Brooklyn,
+        NY</placeOfBirth><serv=\r\niceName><firstName>first 6</firstName><lastName>last
+        6</lastName><maidenN=\r\name>maiden 6</maidenName><middleName>middle 6</middleName><suffix>Jr.</su=\r\nffix></serviceName><serviceRecords><branchOfService>AF</branchOfService><=\r\ndischargeType>1</dischargeType><enteredOnDutyDate>1940-08-07</enteredOnDu=\r\ntyDate><highestRank>GEN</highestRank><nationalGuardState>N</nationalGuard=\r\nState><releaseFromDutyDate>1945-08-07</releaseFromDutyDate></serviceRecor=\r\nds><ssn>123-45-6789</ssn><vaClaimNumber>C23456789</vaClaimNumber><militar=\r\nyStatus>A</militaryStatus></veteran></preNeedRequest></tns:receivePreNeed=\r\nApplication></env:Body></env:Envelope>=\r\n\r\n----==_mimepart_5a14a45886767_12eadeb1246812\r\nContent-Type:
+        application/pdf\r\nContent-Transfer-Encoding: quoted-printable\r\nContent-ID:
+        <0d55a8657368c624dd9a778117890dab>\r\n\r\n%PDF-1.3\r\n%=FF=FF=FF=FF\r\n1 0
+        obj\r\n<< /Creator <feff0050007200610077006e>\r\n/Producer <feff0050007200610077006e>\r\n>>\r\nendobj\r\n2
+        0 obj\r\n<< /Type /Catalog\r\n/Pages 3 0 R\r\n>>\r\nendobj\r\n3 0 obj\r\n<<
+        /Type /Pages\r\n/Count 1\r\n/Kids [5 0 R]\r\n>>\r\nendobj\r\n4 0 obj\r\n<<
+        /Length 228\r\n>>\r\nstream\r\nq\r\n\r\nBT\r\n36.0 719.512 Td\r\n/F2.0 16
+        Tf\r\n[<4164> 10 <646974696f6e616c20496e66> 20 <6f726d6174696f6e>] TJ\r\nET\r\n\r\n\r\nBT\r\n36.0
+        693.344 Td\r\n/F2.0 12 Tf\r\n[<31412e20466f6f204c696e6520323a>] TJ\r\nET\r\n\r\n\r\nBT\r\n36.0
+        679.064 Td\r\n/F1.0 12 Tf\r\n[<626172>] TJ\r\nET\r\n\r\nQ\r\n\r\nendstream\r\nendobj\r\n5
+        0 obj\r\n<< /Type /Page\r\n/Parent 3 0 R\r\n/MediaBox [0 0 612.0 792.0]\r\n/CropBox
+        [0 0 612.0 792.0]\r\n/BleedBox [0 0 612.0 792.0]\r\n/TrimBox [0 0 612.0 792.0]\r\n/ArtBox
+        [0 0 612.0 792.0]\r\n/Contents 4 0 R\r\n/Resources << /ProcSet [/PDF /Text
+        /ImageB /ImageC /ImageI]\r\n/Font << /F2.0 6 0 R\r\n/F1.0 7 0 R\r\n>>\r\n>>\r\n>>\r\nendobj\r\n6
+        0 obj\r\n<< /Type /Font\r\n/Subtype /Type1\r\n/BaseFont /Helvetica-Bold\r\n/Encoding
+        /WinAnsiEncoding\r\n>>\r\nendobj\r\n7 0 obj\r\n<< /Type /Font\r\n/Subtype
+        /Type1\r\n/BaseFont /Helvetica\r\n/Encoding /WinAnsiEncoding\r\n>>\r\nendobj\r\nxref\r\n0
+        8\r\n0000000000 65535 f =\r\n\r\n0000000015 00000 n =\r\n\r\n0000000109 00000
+        n =\r\n\r\n0000000158 00000 n =\r\n\r\n0000000215 00000 n =\r\n\r\n0000000494
+        00000 n =\r\n\r\n0000000792 00000 n =\r\n\r\n0000000894 00000 n =\r\n\r\ntrailer\r\n<<
+        /Size 8\r\n/Root 2 0 R\r\n/Info 1 0 R\r\n>>\r\nstartxref\r\n991\r\n%%EOF\r\n\r\n----==_mimepart_5a14a45886767_12eadeb1246812\r\nContent-Type:
+        application/pdf\r\nContent-Transfer-Encoding: quoted-printable\r\nContent-ID:
+        <834ef2000d67020d011e466e051c84dc>\r\n\r\n%PDF-1.3\r\n%=FF=FF=FF=FF\r\n1 0
+        obj\r\n<< /Creator <feff0050007200610077006e>\r\n/Producer <feff0050007200610077006e>\r\n>>\r\nendobj\r\n2
+        0 obj\r\n<< /Type /Catalog\r\n/Pages 3 0 R\r\n>>\r\nendobj\r\n3 0 obj\r\n<<
+        /Type /Pages\r\n/Count 1\r\n/Kids [5 0 R]\r\n>>\r\nendobj\r\n4 0 obj\r\n<<
+        /Length 228\r\n>>\r\nstream\r\nq\r\n\r\nBT\r\n36.0 719.512 Td\r\n/F2.0 16
+        Tf\r\n[<4164> 10 <646974696f6e616c20496e66> 20 <6f726d6174696f6e>] TJ\r\nET\r\n\r\n\r\nBT\r\n36.0
+        693.344 Td\r\n/F2.0 12 Tf\r\n[<31412e20466f6f204c696e6520323a>] TJ\r\nET\r\n\r\n\r\nBT\r\n36.0
+        679.064 Td\r\n/F1.0 12 Tf\r\n[<626172>] TJ\r\nET\r\n\r\nQ\r\n\r\nendstream\r\nendobj\r\n5
+        0 obj\r\n<< /Type /Page\r\n/Parent 3 0 R\r\n/MediaBox [0 0 612.0 792.0]\r\n/CropBox
+        [0 0 612.0 792.0]\r\n/BleedBox [0 0 612.0 792.0]\r\n/TrimBox [0 0 612.0 792.0]\r\n/ArtBox
+        [0 0 612.0 792.0]\r\n/Contents 4 0 R\r\n/Resources << /ProcSet [/PDF /Text
+        /ImageB /ImageC /ImageI]\r\n/Font << /F2.0 6 0 R\r\n/F1.0 7 0 R\r\n>>\r\n>>\r\n>>\r\nendobj\r\n6
+        0 obj\r\n<< /Type /Font\r\n/Subtype /Type1\r\n/BaseFont /Helvetica-Bold\r\n/Encoding
+        /WinAnsiEncoding\r\n>>\r\nendobj\r\n7 0 obj\r\n<< /Type /Font\r\n/Subtype
+        /Type1\r\n/BaseFont /Helvetica\r\n/Encoding /WinAnsiEncoding\r\n>>\r\nendobj\r\nxref\r\n0
+        8\r\n0000000000 65535 f =\r\n\r\n0000000015 00000 n =\r\n\r\n0000000109 00000
+        n =\r\n\r\n0000000158 00000 n =\r\n\r\n0000000215 00000 n =\r\n\r\n0000000494
+        00000 n =\r\n\r\n0000000792 00000 n =\r\n\r\n0000000894 00000 n =\r\n\r\ntrailer\r\n<<
+        /Size 8\r\n/Root 2 0 R\r\n/Info 1 0 R\r\n>>\r\nstartxref\r\n991\r\n%%EOF\r\n\r\n----==_mimepart_5a14a45886767_12eadeb1246812--\r\n"
+    headers:
+      Accept:
+      - text/xml;charset=UTF-8
+      Content-Type:
+      - multipart/related; boundary="--==_mimepart_5a14a45886767_12eadeb1246812";
+        type="application/xop+xml"; start="<soap-request-body@soap>"; start-info="text/xml"
+      User-Agent:
+      - Vets.gov Agent
+      Date:
+      - Tue, 21 Nov 2017 22:10:32 GMT
+      Content-Length:
+      - '7685'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 21 Nov 2017 22:10:32 GMT
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - multipart/related;start="<rootpart*67ca2f97-761f-463a-a8ef-28c8bcb0c7cd@example.jaxws.sun.com>";type="application/xop+xml";boundary="uuid:67ca2f97-761f-463a-a8ef-28c8bcb0c7cd";start-info="text/xml"
+    body:
+      encoding: UTF-8
+      string: "--uuid:67ca2f97-761f-463a-a8ef-28c8bcb0c7cd\r\nContent-Id: <rootpart*67ca2f97-761f-463a-a8ef-28c8bcb0c7cd@example.jaxws.sun.com>\r\nContent-Type:
+        application/xop+xml;charset=UTF-8;type=\"text/xml\"\r\nContent-Transfer-Encoding:
+        binary\r\n\r\n<?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S=\"http://schemas.xmlsoap.org/soap/envelope/\"><S:Body><ns2:receivePreNeedApplicationResponse
+        xmlns:ns2=\"http://service.soa.eoas.cem.va.gov/\"><return><applicationUUID>e93bb06b-aeff-4ba2-b58f-2b19426f16a2</applicationUUID><returnCode>0</returnCode><returnDescription>PreNeed
+        Application Received Successfully.</returnDescription></return></ns2:receivePreNeedApplicationResponse></S:Body></S:Envelope>\r\n--uuid:67ca2f97-761f-463a-a8ef-28c8bcb0c7cd--"
+    http_version: 
+  recorded_at: Tue, 21 Nov 2017 22:10:32 GMT
+recorded_with: VCR 3.0.3
