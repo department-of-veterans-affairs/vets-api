@@ -6,12 +6,9 @@ FactoryBot.define do
     sending_code 'abc'
     sending_application 'vets.gov'
 
-    preneed_attachments(
-      [
-        confirmation_code: SecureRandom.uuid,
-        attachment_id: '1'
-      ]
-    )
+    preneed_attachments do
+      [attributes_for(:preneed_attachment_hash), attributes_for(:preneed_attachment_hash)]
+    end
 
     applicant { attributes_for :applicant }
     claimant { attributes_for :claimant }
