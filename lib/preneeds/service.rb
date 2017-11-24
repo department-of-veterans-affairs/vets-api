@@ -62,6 +62,16 @@ module Preneeds
 
       json = perform(:post, '', body_and_headers[:body], body_and_headers[:headers]).body
 
+      log_message_to_sentry(
+        'preneeds submission',
+        :info,
+        {
+          response: json,
+          files: burial_form.attachments.map { |a| a.file.filename }
+        },
+        backend_service: :preneeds
+      )
+
       json = json[:data].merge('tracking_number' => tracking_number)
 
       ReceiveApplication.new(json)
