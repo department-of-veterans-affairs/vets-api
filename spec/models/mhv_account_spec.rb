@@ -79,19 +79,25 @@ RSpec.describe MhvAccount, type: :model do
           let(:base_attributes) { { user_uuid: user.uuid } }
 
           it 'a priori registered account stays registered' do
-            subject = described_class.new(base_attributes.merge(registered_at: Time.current, account_state: :registered))
+            subject = described_class.new(
+              base_attributes.merge(registered_at: Time.current, account_state: :registered)
+            )
             subject.send(:setup) # This gets called when object is first loaded
             expect(subject.account_state).to eq('registered')
           end
 
           it 'a priori failed upgrade that has been registered changes to registered' do
-            subject = described_class.new(base_attributes.merge(registered_at: Time.current, upgraded_at: nil, account_state: :upgrade_failed))
+            subject = described_class.new(
+              base_attributes.merge(registered_at: Time.current, upgraded_at: nil, account_state: :upgrade_failed)
+            )
             subject.send(:setup) # This gets called when object is first loaded
             expect(subject.account_state).to eq('registered')
           end
 
           it 'a priori upgraded account stays upgraded' do
-            subject = described_class.new(base_attributes.merge(upgraded_at: Time.current, account_state: :upgraded))
+            subject = described_class.new(
+              base_attributes.merge(upgraded_at: Time.current, account_state: :upgraded)
+            )
             subject.send(:setup) # This gets called when object is first loaded
             expect(subject.account_state).to eq('upgraded')
           end
