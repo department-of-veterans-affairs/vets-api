@@ -74,6 +74,29 @@ RSpec.describe MhvAccount, type: :model do
           end
         end
 
+        context 'with mhv id' do
+          let(:mhv_ids) { ['14221465'] }
+          let(:base_attributes) { { user_uuid: user.uuid } }
+
+          it 'a priori registered account stays registered' do
+            subject = described_class.new(base_attributes.merge(registered_at: Time.current, account_state: :registered))
+            subject.send(:setup) # This gets called when object is first loaded
+            expect(subject.account_state).to eq('registered')
+          end
+
+          it 'a priori failed upgrade that has been registered changes to registered' do
+            subject = described_class.new(base_attributes.merge(registered_at: Time.current, upgraded_at: nil, account_state: :upgrade_failed))
+            subject.send(:setup) # This gets called when object is first loaded
+            expect(subject.account_state).to eq('registered')
+          end
+
+          it 'a priori upgraded account stays upgraded' do
+            subject = described_class.new(base_attributes.merge(upgraded_at: Time.current, account_state: :upgraded))
+            subject.send(:setup) # This gets called when object is first loaded
+            expect(subject.account_state).to eq('upgraded')
+          end
+        end
+
         it 'is able to transition back to upgraded' do
           subject = described_class.new(base_attributes.merge(upgraded_at: Time.current))
           subject.send(:setup) # This gets called when object is first loaded
@@ -90,7 +113,7 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.terms_and_conditions_accepted?).to be_truthy
         end
 
-        it 'it falls back to unknown' do
+        it 'falls back to unknown' do
           subject = described_class.new(base_attributes)
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('unknown')
