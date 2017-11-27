@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'faraday'
 require_relative 'http'
 
@@ -5,7 +6,7 @@ module Faraday
   class Adapter
     class NetHttpHeaderPatch < Faraday::Adapter::NetHttp
       def net_http_connection(env)
-        if proxy = env[:request][:proxy]
+        if proxy == env[:request][:proxy]
           Faraday::Adapter::HTTP::Proxy(proxy[:uri].host, proxy[:uri].port, proxy[:user], proxy[:password])
         else
           Faraday::Adapter::HTTP
