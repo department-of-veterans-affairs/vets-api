@@ -4,6 +4,7 @@ require 'sentry_logging'
 
 class MhvAccount < ActiveRecord::Base
   include AASM
+  include SentryLogging
 
   STATSD_ACCOUNT_EXISTED_KEY = 'mhv.account.existed'
   STATSD_ACCOUNT_CREATION_KEY = 'mhv.account.creation'
@@ -167,6 +168,7 @@ class MhvAccount < ActiveRecord::Base
       end
     end
   rescue => e
+    log_warning(type: :create, exception: e, extra: params_for_registration.slice(:icn))
     StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.failure")
     fail_register!
     raise e
@@ -186,10 +188,21 @@ class MhvAccount < ActiveRecord::Base
       StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
       upgrade! # without updating the timestamp since account was not created at vets.gov
     else
+      log_warning(type: :upgrade, exception: e, extra: params_for_upgrade)
       StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.failure")
       fail_upgrade!
       raise e
     end
+  end
+
+  def log_warning(type:, exception:, extra: {})
+    message = type == :upgrade ? 'MHV Upgrade Failed!' : 'MHV Create Failed!'
+    extra_content = if exception.is_a?(Common::Exceptions::BackendServiceException)
+                      extra.merge(exception_type: 'BackendServiceException', body: exception.original_body)
+                    else
+                      extra.merge(exception_type: exception.message)
+                    end
+    log_message_to_sentry(message, :warn, extra_content)
   end
 
   def mhv_ac_client

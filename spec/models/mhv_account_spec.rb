@@ -240,6 +240,24 @@ RSpec.describe MhvAccount, type: :model do
 
     subject { described_class.new(user_uuid: user.uuid) }
 
+    it 'will raise an error if creation fails and set warning for logs' do
+      expect(subject.terms_and_conditions_accepted?).to be_truthy
+      expect(subject.preexisting_account?).to be_falsey
+      expect(subject.persisted?).to be_falsey
+      expect(user.mhv_correlation_id).to be_nil
+      allow_any_instance_of(MHVAC::Client).to receive(:post_register).and_raise(StandardError, 'random')
+      expect { subject.create_and_upgrade! }.to raise_error(StandardError)
+        .and not_trigger_statsd_increment('mhv.account.creation.success')
+        .and not_trigger_statsd_increment('mhv.account.upgrade.success')
+        .and not_trigger_statsd_increment('mhv.account.existed')
+        .and trigger_statsd_increment('mhv.account.creation.failure')
+        .and not_trigger_statsd_increment('mhv.account.upgrade.failure')
+      expect(subject.persisted?).to be_truthy
+      expect(subject.account_state).to eq('register_failed')
+      expect(subject.registered_at).to be_nil
+      expect(subject.upgraded_at).to be_nil
+    end
+
     it 'will create and upgrade an account and set the time this was done' do
       expect(subject.terms_and_conditions_accepted?).to be_truthy
       expect(subject.preexisting_account?).to be_falsey
