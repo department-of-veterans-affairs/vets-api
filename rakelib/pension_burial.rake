@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 desc 'retry failed pension burial jobs'
 task pension_burial_retry_jobs: :environment do
+  Rails.application.eager_load!
   DATESTAMP_FIRST_ERROR = Time.zone.parse('2017-08-18T19:49:00+00:00')
   GENERATE_CLAIM_FIRST_ERROR = Time.zone.parse('2017-10-09T00:48:17+00:00')
   WRAPPED_CLASS = 'Workflow::Task::Shared::DatestampPdfTask'
