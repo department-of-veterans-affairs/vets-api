@@ -8,11 +8,11 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:loa1_user) { build(:user, :loa1, uuid: uuid) }
   let(:loa3_user) { build(:user, :loa3, uuid: uuid) }
   let(:saml_user_attributes) { loa3_user.attributes }
-  let(:saml_decorater) { double('saml_decorater', saml_user_attributes) }
+  let(:user_attributes) { double('user_attributes', saml_user_attributes) }
   let(:saml_user) do
     instance_double('SAML::User',
                     changing_multifactor?: false,
-                    decorated: saml_decorater,
+                    user_attributes: user_attributes,
                     to_hash: saml_user_attributes)
   end
 
@@ -136,21 +136,33 @@ RSpec.describe V0::SessionsController, type: :controller do
         allow(SAML::User).to receive(:new).and_return(saml_user)
       end
 
-      it 'uplevels an LOA 1 session to LOA 3' do
-        expect(User.find(uuid).loa).to eq(highest: LOA::ONE, current: LOA::ONE)
+      it 'uplevels an LOA 1 session to LOA 3, time is different' do
+        existing_user = User.find(uuid)
+        expect(existing_user.last_signed_in).to be_a(Time)
+        expect(existing_user.multifactor).to be_falsey
+        expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
         post :saml_callback
-        expect(User.find(uuid).loa).to eq(highest: LOA::THREE, current: LOA::THREE)
+        new_user = User.find(uuid)
+        expect(new_user.loa).to eq(highest: LOA::THREE, current: LOA::THREE)
+        expect(new_user.multifactor).to be_falsey
+        expect(new_user.last_signed_in).not_to eq(existing_user.last_signed_in)
       end
 
       context 'changing multifactor' do
         let(:saml_user_attributes) { loa1_user.attributes.merge(multifactor: 'true') }
 
-        it 'changes the multifactor to true' do
-          expect(User.find(uuid).multifactor).to be_falsey
+        it 'changes the multifactor to true, time is the same' do
+          existing_user = User.find(uuid)
+          expect(existing_user.last_signed_in).to be_a(Time)
+          expect(existing_user.multifactor).to be_falsey
+          expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
           allow(saml_user).to receive(:changing_multifactor?).and_return(true)
           allow(SAML::User).to receive(:new).and_return(saml_user)
           post :saml_callback
-          expect(User.find(uuid).multifactor).to eq(true)
+          new_user = User.find(uuid)
+          expect(new_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
+          expect(new_user.multifactor).to be_truthy
+          expect(new_user.last_signed_in).to eq(existing_user.last_signed_in)
         end
       end
 
