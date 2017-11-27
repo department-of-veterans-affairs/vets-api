@@ -29,7 +29,7 @@ module V0
     private
 
     def service
-      @service ||= EVSS::Letters::Service.new
+      @service = EVSS::Letters::Service.new
     end
   end
 end
