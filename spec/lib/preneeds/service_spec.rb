@@ -89,7 +89,7 @@ describe Preneeds::Service do
       it 'creates a preneeds application', run_at: 'Tue, 21 Nov 2017 22:10:32 GMT' do
         multipart_matcher = lambda do |request_1, request_2|
           new_mimepart = request_1.headers['Content-Type'][0].split(';')[1].gsub(' boundary="', '').delete('"')
-          old_mimepart = '--==_mimepart_5a14a45886767_12eadeb1246812'
+          old_mimepart = '--==_mimepart_5a14a4580_ef3ec711088639'
 
           expect(request_1.headers.keys).to eq(request_2.headers.keys)
 
@@ -103,11 +103,11 @@ describe Preneeds::Service do
         end
 
         expect(SecureRandom).to receive(:hex).twice.and_return(
-          '0d55a8657368c624dd9a778117890dab',
-          '834ef2000d67020d011e466e051c84dc'
+          '51470ddbd16aa72e52128a84b4cc08a7',
+          '1aaca735a4f6ea900ef0617b770ead26'
         )
         expect_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return(
-          '6AsIrFryRgiwEv4LaYVG'
+          'RqC19rMNJf9nJYm1g0VG'
         )
 
         VCR.use_cassette(

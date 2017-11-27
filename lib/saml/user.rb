@@ -8,30 +8,13 @@ module SAML
   class User
     include SentryLogging
 
-    attr_reader :saml_response, :attributes, :decorated
+    attr_reader :saml_response, :saml_attributes, :user_attributes
 
     def initialize(saml_response)
       @saml_response = saml_response
-      @attributes = saml_response.attributes
-      @decorated = decorator_constant.new(self)
+      @saml_attributes = saml_response.attributes
+      @user_attributes = user_attributes_class.new(saml_attributes, real_authn_context)
       log_warnings_to_sentry!
-    end
-
-    def last_signed_in
-      Time.current.utc
-    end
-
-    def to_hash
-      Hash[serializable_attributes.map { |k| [k, @decorated.send(k)] }]
-    end
-
-    # we serialize user.rb with this value, in the case of everything other than mhv/dslogon,
-    # this will only ever be one of 'dslogon, mhv, or nil'
-    # see also: real_authn_context, currently only used by sentry logging to limit scope of changes
-    def authn_context
-      return 'dslogon' if dslogon?
-      return 'myhealthevet' if mhv?
-      nil
     end
 
     def changing_multifactor?
@@ -39,20 +22,32 @@ module SAML
       real_authn_context.include?('multifactor')
     end
 
+    def to_hash
+      user_attributes.to_hash.merge(Hash[serializable_attributes.map { |k| [k, send(k)] }])
+    end
+
     private
+
+    # we serialize user.rb with this value, in the case of everything other than mhv/dslogon,
+    # this will only ever be one of 'dslogon, mhv, or nil'
+    def authn_context
+      return 'dslogon' if dslogon?
+      return 'myhealthevet' if mhv?
+      nil
+    end
 
     # returns the attributes that are defined below, could be from one of 3 distinct policies, each having different
     # saml responses, hence this weird decorating mechanism, needs improved abstraction to be less weird.
     def serializable_attributes
-      @decorated.serializable_attributes + %i(authn_context last_signed_in)
+      %i(authn_context)
     end
 
     def dslogon?
-      attributes.to_h.keys.include?('dslogon_uuid')
+      saml_attributes.to_h.keys.include?('dslogon_uuid')
     end
 
     def mhv?
-      attributes.to_h.keys.include?('mhv_uuid')
+      saml_attributes.to_h.keys.include?('mhv_uuid')
     end
 
     # see warnings
@@ -64,7 +59,7 @@ module SAML
             real_authn_context: real_authn_context,
             authn_context: authn_context,
             warnings: warnings.join(', '),
-            loa: @decorated.loa
+            loa: user_attributes.loa
           }
           log_message_to_sentry("Issues in SAML Response - #{real_authn_context}", :warn, warning_context)
         end
@@ -82,17 +77,14 @@ module SAML
     # why we use try/catch.
     def warnings_for_sentry
       warnings = []
-      warnings << 'LOA Current Nil' if @decorated.loa_current.blank?
-      warnings << 'LOA Highest Nil' if @decorated.loa_highest.blank?
-      if warnings.empty? # only check this one if the other ones were non nil
-        warnings << 'LOA Current > LOA Highest' if @decorated.loa_current > @decorated.loa_highest
-      end
+      warnings << 'LOA Current Nil' if user_attributes.loa_current.blank?
+      warnings << 'LOA Highest Nil' if user_attributes.loa_highest.blank?
       warnings
     end
 
     # should eventually have a special case for multifactor policy and refactor all of this
     # but session controller refactor is premature and can't handle it right now.
-    def decorator_constant
+    def user_attributes_class
       case authn_context
       when 'myhealthevet'; then SAML::UserAttributes::MHV
       when 'dslogon'; then SAML::UserAttributes::DSLogon
