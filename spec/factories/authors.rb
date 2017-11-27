@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+FactoryBot.define do
   factory :author, class: 'Author' do
     sequence(:id)         { |n| n }
     sequence(:first_name) { %w(Al Zoe).sample }

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+FactoryBot.define do
   factory :rubysaml_settings, class: 'OneLogin::RubySaml::Settings' do
     certificate                     Settings.saml.certificate
     private_key                     Settings.saml.key

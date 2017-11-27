@@ -18,7 +18,6 @@ gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamoc
 gem 'breakers'
 gem 'carrierwave-aws'
 gem 'clam_scan'
-gem 'combine_pdf'
 gem 'config'
 gem 'date_validator'
 gem 'faraday'
@@ -99,7 +98,9 @@ group :development, :test do
   gem 'brakeman'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'factory_girl_rails'
+  gem 'factory_bot_rails'
+  # TODO: switch to a version number once that version is released
+  gem 'factory_bot', git: 'https://github.com/thoughtbot/factory_bot', ref: '50eeb67241ea78a6b138eea694a2a25413052f49'
   gem 'faraday_curl'
   gem 'foreman'
   gem 'guard-rspec', '~> 4.7'

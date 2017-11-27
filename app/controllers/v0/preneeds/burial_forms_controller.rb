@@ -12,7 +12,7 @@ module V0
         form = ::Preneeds::BurialForm.new(burial_form_params)
         validate!(burial_form_params.deep_transform_keys { |k| k.camelize(:lower) })
 
-        resource = client.receive_pre_need_application(form.as_eoas)
+        resource = client.receive_pre_need_application(form)
         ::Preneeds::PreneedSubmission.create!(
           tracking_number: resource.tracking_number,
           application_uuid: resource.application_uuid,
@@ -27,10 +27,11 @@ module V0
 
       def burial_form_params
         params.require(:application).permit(
-          :application_status, :has_attachments, :has_currently_buried, :sending_code,
+          :application_status, :has_currently_buried, :sending_code,
+          preneed_attachments: ::Preneeds::PreneedAttachmentHash.permitted_params,
           applicant: ::Preneeds::Applicant.permitted_params,
           claimant: ::Preneeds::Claimant.permitted_params,
-          currently_buried_persons: [::Preneeds::CurrentlyBuriedPerson.permitted_params],
+          currently_buried_persons: ::Preneeds::CurrentlyBuriedPerson.permitted_params,
           veteran: ::Preneeds::Veteran.permitted_params
         )
       end

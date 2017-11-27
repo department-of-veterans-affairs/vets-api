@@ -124,7 +124,7 @@ RSpec.describe SAML::User do
           zip: nil,
           ssn: nil,
           loa: { current: 1, highest: 3 },
-          multifactor: 'true',
+          multifactor: true,
           authn_context: 'dslogon',
           last_signed_in: frozen_time,
           mhv_last_signed_in: nil
@@ -143,7 +143,7 @@ RSpec.describe SAML::User do
           'uuid' => ['cf0f3deb1b424d3cb4f792e8346a4d71'],
           'dslogon_uuid' => ['1016980877'],
           'email' => ['fake.user@vets.gov'],
-          'multifactor' => ['true'],
+          'multifactor' => ['false'],
           'level_of_assurance' => [],
           'dslogon_birth_date' => ['1973-09-03'],
           'dslogon_fname' => ['KENT'],
@@ -181,7 +181,7 @@ RSpec.describe SAML::User do
           zip: nil,
           ssn: '796178410',
           loa: { current: 3, highest: 3 },
-          multifactor: 'true',
+          multifactor: false,
           authn_context: 'dslogon',
           last_signed_in: frozen_time,
           mhv_last_signed_in: nil
@@ -200,7 +200,7 @@ RSpec.describe SAML::User do
           'uuid' => ['cf0f3deb1b424d3cb4f792e8346a4d71'],
           'dslogon_uuid' => ['1016980877'],
           'email' => ['fake.user@vets.gov'],
-          'multifactor' => ['true'],
+          'multifactor' => [],
           'level_of_assurance' => [],
           'dslogon_birth_date' => ['1973-09-03'],
           'dslogon_fname' => ['KENT'],
@@ -221,6 +221,7 @@ RSpec.describe SAML::User do
 
       it 'properly constructs a user' do
         expect(user.valid?(:loa3_user)).to be_truthy
+        expect(user.multifactor).to be_falsey # when nil
       end
     end
   end

@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 require 'saml/user_attributes/base_decorator'
 
-# TODO: remove these nocov comments when this is able to be tested.
-
 module SAML
   module UserAttributes
     class DSLogon < BaseDecorator
