@@ -53,7 +53,7 @@ evss:
     bucket: evss_s3_bucket
     region: evss_s3_region
   letters:
-    timeout: 60
+    timeout: 55
   pciu_address:
     timeout: 30
   mock_letters: false
