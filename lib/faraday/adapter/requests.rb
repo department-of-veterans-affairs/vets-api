@@ -8,7 +8,7 @@ module Faraday
     end
 
     class Get < Faraday::Adapter::HTTPRequest
-      METHOD = 'GET'
+      METHOD = 'GET'.freeze
       REQUEST_HAS_BODY  = false
       RESPONSE_HAS_BODY = true
     end

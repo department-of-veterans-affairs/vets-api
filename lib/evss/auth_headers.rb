@@ -7,7 +7,7 @@ module EVSS
     end
 
     def to_h
-      h = Hash.new
+      h = {}
       h['va_eauth_csid'] = 'DSLogon'
       h['va_eauth_authenticationmethod'] = 'DSLogon'
       h['va_eauth_pnidtype'] = 'SSN'
