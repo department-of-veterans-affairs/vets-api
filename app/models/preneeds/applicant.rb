@@ -18,7 +18,7 @@ module Preneeds
         applicantRelationshipToClaimant: applicant_relationship_to_claimant,
         completingReason: completing_reason, mailingAddress: mailing_address&.as_eoas,
         name: name&.as_eoas
-      }.compact
+      }
     end
 
     def self.permitted_params
