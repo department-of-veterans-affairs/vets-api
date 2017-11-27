@@ -1,9 +1,11 @@
 # frozen_string_literal: true
-require 'saml/user_attributes/base_decorator'
+require 'saml/user_attributes/base'
 
 module SAML
   module UserAttributes
-    class IdMe < BaseDecorator
+    class IdMe < Base
+      IDME_SERIALIZABLE_ATTRIBUTES = %i(first_name middle_name last_name zip gender ssn birth_date).freeze
+
       def first_name
         attributes['fname']
       end
@@ -20,10 +22,6 @@ module SAML
         attributes['zip']
       end
 
-      def email
-        attributes['email']
-      end
-
       def gender
         attributes['gender']&.chars&.first&.upcase
       end
@@ -36,30 +34,16 @@ module SAML
         attributes['birth_date']
       end
 
-      def uuid
-        attributes['uuid']
-      end
+      private
 
-      def loa
-        { current: loa_current, highest: loa_highest }
-      end
-
-      def multifactor
-        attributes['multifactor']
-      end
+      # These methods are required to be implemented on each child class
 
       def serializable_attributes
-        %i(first_name middle_name last_name zip email gender ssn birth_date uuid loa multifactor)
-      end
-
-      # This value comes from IDme, it will be 3 if FICAM LOA3, null otherwise.
-      def idme_loa
-        attributes['level_of_assurance']&.to_i
+        IDME_SERIALIZABLE_ATTRIBUTES + REQUIRED_ATTRIBUTES
       end
 
       def loa_current
-        @raw_loa ||= REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
-        LOA::MAPPING[@raw_loa]
+        LOA::MAPPING[real_authn_context]
       end
 
       def loa_highest
