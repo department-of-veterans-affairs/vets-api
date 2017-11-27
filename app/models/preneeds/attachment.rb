@@ -18,7 +18,7 @@ module Preneeds
       {
         attachmentType: {
           attachmentTypeId: attachment_type.attachment_type_id
-        }.compact,
+        },
         dataHandler: {
           'inc:Include': '',
           attributes!: {
@@ -31,7 +31,7 @@ module Preneeds
         description: file.filename,
         sendingName: file.filename,
         sendingSource: sending_source
-      }.compact
+      }
     end
   end
 end
