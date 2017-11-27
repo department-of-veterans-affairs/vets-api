@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+FactoryBot.define do
   factory :applicant, class: Preneeds::Applicant do
     applicant_email 'hg@hotmail.com'
     applicant_phone_number '555-555-5555 - 234'

@@ -73,7 +73,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     it 'supports getting an in-progress form' do
-      FactoryGirl.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      FactoryBot.create(:in_progress_form, user_uuid: mhv_user.uuid)
       expect(subject).to validate(
         :get,
         '/v0/in_progress_forms/{id}',
@@ -103,7 +103,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     it 'supports deleting an in-progress form' do
-      form = FactoryGirl.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      form = FactoryBot.create(:in_progress_form, user_uuid: mhv_user.uuid)
       expect(subject).to validate(
         :delete,
         '/v0/in_progress_forms/{id}',
