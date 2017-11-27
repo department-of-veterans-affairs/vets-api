@@ -6,7 +6,7 @@ require 'support/sm_client_helpers'
 RSpec.describe 'messaging_preferences', type: :request do
   include SM::ClientHelpers
 
-  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
+  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, accessible?: true) }
   let(:current_user) { build(:user, :mhv) }
 
   before(:each) do
