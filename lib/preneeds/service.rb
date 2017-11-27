@@ -120,13 +120,14 @@ module Preneeds
       attachments.each do |attachment|
         file = attachment.file
 
-        part = Mail::Part.new do
-          content_type(file.content_type)
-          body(file.read)
-          content_id("<#{attachment.data_handler}>")
-        end
+        multipart.add_file(
+          filename: file.filename,
+          content: file.read
+        )
 
-        multipart.add_part(part)
+        part = multipart.parts.last
+        part.content_id("<#{attachment.data_handler}>")
+        part.content_type(file.content_type)
       end
 
       multipart

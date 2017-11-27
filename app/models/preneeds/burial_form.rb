@@ -54,7 +54,7 @@ module Preneeds
         hash.delete(key) if hash[key].blank?
       end
 
-      hash
+      Common::HashHelpers.deep_compact(hash)
     end
 
     def self.validate(schema, form, root = 'application')
