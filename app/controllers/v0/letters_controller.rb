@@ -29,7 +29,7 @@ module V0
     private
 
     def service
-      @service ||= EVSS::Letters::ServiceFactory.get_service(mock_service: Settings.evss.mock_letters)
+      @service = EVSS::Letters::Service.new
     end
   end
 end
