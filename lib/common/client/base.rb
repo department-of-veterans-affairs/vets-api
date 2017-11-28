@@ -40,6 +40,7 @@ module Common
       end
 
       def perform(method, path, params, headers = nil)
+        puts "PERFORM #{headers.inspect}"
         raise NoMethodError, "#{method} not implemented" unless config.request_types.include?(method)
 
         send(method, path, params || {}, headers || {})

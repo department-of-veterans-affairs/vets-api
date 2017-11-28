@@ -27,10 +27,9 @@ class Net::HTTP::ImmutableHeaderKey
 
   # rubocop:disable NestedMethodDefinition
   def to_s
-    def self.to_s
-      key
-    end
-    self
+    puts caller.inspect
+    puts "to sssssssss #{caller.first.match(/capitalize/).inspect}"
+    caller.first.match(/capitalize/) ? self : @key
   end
   # rubocop:enable NestedMethodDefinition
 end
