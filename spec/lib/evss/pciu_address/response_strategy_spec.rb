@@ -3,7 +3,7 @@ require 'rails_helper'
 
 describe EVSS::PCIUAddress::ResponseStrategy do
   let(:user) { build(:user, :loa3) }
-  let(:service) { EVSS::PCIUAddress::Service.new }
+  let(:service) { EVSS::PCIUAddress::Service.new(user) }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:countries_response) { EVSS::PCIUAddress::CountriesResponse.new(200, faraday_response) }
 
@@ -17,7 +17,7 @@ describe EVSS::PCIUAddress::ResponseStrategy do
       it 'should cache and return the response' do
         allow(service).to receive(:get_countries).and_return(countries_response)
         expect(subject.redis_namespace).to receive(:set).once
-        response = subject.cache_or_service(:countries) { service.get_countries(user) }
+        response = subject.cache_or_service(:countries) { service.get_countries }
         expect(response).to be_ok
       end
     end
@@ -26,7 +26,7 @@ describe EVSS::PCIUAddress::ResponseStrategy do
       it 'does not hit service and returns the cached data' do
         subject.cache(:countries, countries_response)
         expect(service).to_not receive(:get_countries)
-        response = subject.cache_or_service(:countries) { service.get_countries(user) }
+        response = subject.cache_or_service(:countries) { service.get_countries }
         expect(response).to be_ok
       end
     end

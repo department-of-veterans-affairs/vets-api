@@ -3,12 +3,13 @@ require 'rails_helper'
 
 describe EVSS::PCIUAddress::Service do
   let(:user) { build(:user, :loa3) }
+  subject { described_class.new(user) }
 
   describe '#get_countries' do
     context 'with a 200 response' do
       it 'returns a list of countries' do
         VCR.use_cassette('evss/pciu_address/countries') do
-          response = subject.get_countries(user)
+          response = subject.get_countries
           expect(response).to be_ok
           expect(response.countries[0...10]).to eq(
             %w(Afghanistan Albania Algeria Angola Anguilla Antigua Antigua\ and\ Barbuda Argentina Armenia Australia)
@@ -22,7 +23,7 @@ describe EVSS::PCIUAddress::Service do
     context 'with a 200 response' do
       it 'returns a list of states' do
         VCR.use_cassette('evss/pciu_address/states') do
-          response = subject.get_states(user)
+          response = subject.get_states
           expect(response).to be_ok
           expect(response.states[0...10]).to eq(
             %w(AL AK AZ AR CA CO CT DE FL GA)
@@ -36,7 +37,7 @@ describe EVSS::PCIUAddress::Service do
     context 'with a 200 response' do
       it 'returns a users mailing address' do
         VCR.use_cassette('evss/pciu_address/address') do
-          response = subject.get_address(user)
+          response = subject.get_address
           expect(response).to be_ok
         end
       end
@@ -49,7 +50,7 @@ describe EVSS::PCIUAddress::Service do
 
       it 'updates and returns a users mailing address' do
         VCR.use_cassette('evss/pciu_address/address_update') do
-          response = subject.update_address(user, update_address)
+          response = subject.update_address(update_address)
           expect(response).to be_ok
         end
       end
@@ -60,7 +61,7 @@ describe EVSS::PCIUAddress::Service do
 
       it 'returns a users mailing address' do
         VCR.use_cassette('evss/pciu_address/update_invalid') do
-          expect { subject.update_address(user, update_address) }.to raise_error(
+          expect { subject.update_address(update_address) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end

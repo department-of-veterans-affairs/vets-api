@@ -6,7 +6,16 @@ module EVSS
   class Service < Common::Client::Base
     STATSD_KEY_PREFIX = 'api.evss'
 
+    def initialize(user)
+      @user = user
+    end
+
     private
+
+    def perform(method, path, body = nil, headers = {})
+      headers = headers_for_user(@user).merge(headers)
+      super(method, path, body, headers)
+    end
 
     def headers_for_user(user)
       EVSS::AuthHeaders.new(user).to_h
