@@ -67,7 +67,7 @@ Rails.application.configure do
     end,
     proc do |_request|
       AppInfo::GIT_REVISION
-    end,
+    end
   ]
 
   # Use a different logger for distributed setups.
