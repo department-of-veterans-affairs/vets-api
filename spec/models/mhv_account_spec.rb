@@ -74,6 +74,35 @@ RSpec.describe MhvAccount, type: :model do
           end
         end
 
+        context 'with mhv id' do
+          let(:mhv_ids) { ['14221465'] }
+          let(:base_attributes) { { user_uuid: user.uuid } }
+
+          it 'a priori registered account stays registered' do
+            subject = described_class.new(
+              base_attributes.merge(registered_at: Time.current, account_state: :registered)
+            )
+            subject.send(:setup) # This gets called when object is first loaded
+            expect(subject.account_state).to eq('registered')
+          end
+
+          it 'a priori failed upgrade that has been registered changes to registered' do
+            subject = described_class.new(
+              base_attributes.merge(registered_at: Time.current, upgraded_at: nil, account_state: :upgrade_failed)
+            )
+            subject.send(:setup) # This gets called when object is first loaded
+            expect(subject.account_state).to eq('registered')
+          end
+
+          it 'a priori upgraded account stays upgraded' do
+            subject = described_class.new(
+              base_attributes.merge(upgraded_at: Time.current, account_state: :upgraded)
+            )
+            subject.send(:setup) # This gets called when object is first loaded
+            expect(subject.account_state).to eq('upgraded')
+          end
+        end
+
         it 'is able to transition back to upgraded' do
           subject = described_class.new(base_attributes.merge(upgraded_at: Time.current))
           subject.send(:setup) # This gets called when object is first loaded
@@ -90,7 +119,7 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.terms_and_conditions_accepted?).to be_truthy
         end
 
-        it 'it falls back to unknown' do
+        it 'falls back to unknown' do
           subject = described_class.new(base_attributes)
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('unknown')
@@ -98,7 +127,7 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.terms_and_conditions_accepted?).to be_truthy
         end
 
-        it 'a priori registered account stays upgraded' do
+        it 'a priori registered account stays registered' do
           subject = described_class.new(base_attributes.merge(registered_at: nil, account_state: :registered))
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('registered')
@@ -132,6 +161,19 @@ RSpec.describe MhvAccount, type: :model do
             subject.send(:setup) # This gets called when object is first loaded
             expect(subject.account_state).to eq('ineligible')
             expect(subject.eligible?).to be_falsey
+            expect(subject.terms_and_conditions_accepted?).to be_falsey
+          end
+        end
+
+        context 'preexisting account' do
+          let(:mhv_ids) { ['14221465'] }
+          let(:base_attributes) { { user_uuid: user.uuid } }
+
+          it 'does not transition to needs_terms_acceptance' do
+            subject = described_class.new(base_attributes)
+            subject.send(:setup) # This gets called when object is first loaded
+            expect(subject.account_state).to eq('existing')
+            expect(subject.eligible?).to be_truthy
             expect(subject.terms_and_conditions_accepted?).to be_falsey
           end
         end
@@ -198,6 +240,24 @@ RSpec.describe MhvAccount, type: :model do
 
     subject { described_class.new(user_uuid: user.uuid) }
 
+    it 'will raise an error if creation fails and set warning for logs' do
+      expect(subject.terms_and_conditions_accepted?).to be_truthy
+      expect(subject.preexisting_account?).to be_falsey
+      expect(subject.persisted?).to be_falsey
+      expect(user.mhv_correlation_id).to be_nil
+      allow_any_instance_of(MHVAC::Client).to receive(:post_register).and_raise(StandardError, 'random')
+      expect { subject.create_and_upgrade! }.to raise_error(StandardError)
+        .and not_trigger_statsd_increment('mhv.account.creation.success')
+        .and not_trigger_statsd_increment('mhv.account.upgrade.success')
+        .and not_trigger_statsd_increment('mhv.account.existed')
+        .and trigger_statsd_increment('mhv.account.creation.failure')
+        .and not_trigger_statsd_increment('mhv.account.upgrade.failure')
+      expect(subject.persisted?).to be_truthy
+      expect(subject.account_state).to eq('register_failed')
+      expect(subject.registered_at).to be_nil
+      expect(subject.upgraded_at).to be_nil
+    end
+
     it 'will create and upgrade an account and set the time this was done' do
       expect(subject.terms_and_conditions_accepted?).to be_truthy
       expect(subject.preexisting_account?).to be_falsey
@@ -245,13 +305,14 @@ RSpec.describe MhvAccount, type: :model do
       end
     end
 
-    context 'existing account that has not been upgraded' do
+    context 'registered account that has not been upgraded' do
       let(:mhv_ids) { ['14221465'] }
-      let(:base_attributes) { { user_uuid: user.uuid, account_state: 'unknown' } }
+      let(:base_attributes) { { user_uuid: user.uuid, account_state: 'registered' } }
 
       it 'will only upgrade an account and set the time the account was upgraded' do
+        subject = described_class.new(base_attributes.merge(registered_at: Time.current))
         expect(subject.terms_and_conditions_accepted?).to be_truthy
-        expect(subject.preexisting_account?).to be_truthy
+        expect(subject.preexisting_account?).to be_falsey
         expect(subject.persisted?).to be_falsey
         VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
           expect { subject.create_and_upgrade! }.to trigger_statsd_increment('mhv.account.upgrade.success')
@@ -261,7 +322,6 @@ RSpec.describe MhvAccount, type: :model do
             .and not_trigger_statsd_increment('mhv.account.existed')
           expect(subject.persisted?).to be_truthy
           expect(subject.account_state).to eq('upgraded')
-          expect(subject.registered_at).to be_nil
           expect(subject.upgraded_at).to be_a(Time)
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
@@ -269,9 +329,11 @@ RSpec.describe MhvAccount, type: :model do
       end
 
       it 'will upgrade a previously failed_upgrade account' do
-        subject = described_class.new(base_attributes.merge(upgraded_at: nil, account_state: :upgrade_failed))
+        subject = described_class.new(
+          base_attributes.merge(registered_at: Time.current, upgraded_at: nil, account_state: :upgrade_failed)
+        )
         expect(subject.terms_and_conditions_accepted?).to be_truthy
-        expect(subject.preexisting_account?).to be_truthy
+        expect(subject.preexisting_account?).to be_falsey
         expect(subject.persisted?).to be_falsey
         VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
           expect { subject.create_and_upgrade! }.to trigger_statsd_increment('mhv.account.upgrade.success')
@@ -281,7 +343,6 @@ RSpec.describe MhvAccount, type: :model do
             .and not_trigger_statsd_increment('mhv.account.existed')
           expect(subject.persisted?).to be_truthy
           expect(subject.account_state).to eq('upgraded')
-          expect(subject.registered_at).to be_nil
           expect(subject.upgraded_at).to be_a(Time)
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
@@ -291,10 +352,12 @@ RSpec.describe MhvAccount, type: :model do
 
     context 'existing account that has already been upgraded' do
       let(:mhv_ids) { ['14221465'] }
+      let(:base_attributes) { { user_uuid: user.uuid } }
 
       it 'will only update the record to reflect that it has been upgraded' do
+        subject = described_class.new(base_attributes.merge(registered_at: Time.current))
         expect(subject.terms_and_conditions_accepted?).to be_truthy
-        expect(subject.preexisting_account?).to be_truthy
+        expect(subject.preexisting_account?).to be_falsey
         expect(subject.persisted?).to be_falsey
         VCR.use_cassette('mhv_account_creation/should_not_upgrade_an_account_if_one_already_exists') do
           expect { subject.create_and_upgrade! }.to trigger_statsd_increment('mhv.account.existed')
@@ -304,7 +367,6 @@ RSpec.describe MhvAccount, type: :model do
             .and not_trigger_statsd_increment('mhv.account.upgrade.failure')
           expect(subject.persisted?).to be_truthy
           expect(subject.account_state).to eq('upgraded')
-          expect(subject.registered_at).to be_nil
           expect(subject.upgraded_at).to be_nil
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
@@ -316,8 +378,9 @@ RSpec.describe MhvAccount, type: :model do
       let(:mhv_ids) { ['14221465'] }
 
       it 'will raise an error on failed upgrade attempt' do
+        subject = described_class.new(user_uuid: user.uuid, account_state: 'registered', registered_at: Time.current)
         expect(subject.terms_and_conditions_accepted?).to be_truthy
-        expect(subject.preexisting_account?).to be_truthy
+        expect(subject.preexisting_account?).to be_falsey
         expect(subject.persisted?).to be_falsey
         VCR.use_cassette('mhv_account_creation/should_not_create_an_account_if_one_already_exists') do
           VCR.use_cassette('mhv_account_creation/account_upgrade_unknown_error', record: :none) do
@@ -329,7 +392,6 @@ RSpec.describe MhvAccount, type: :model do
               .and trigger_statsd_increment('mhv.account.upgrade.failure')
             expect(subject.persisted?).to be_truthy
             expect(subject.account_state).to eq('upgrade_failed')
-            expect(subject.registered_at).to be_nil
             expect(subject.upgraded_at).to be_nil
             expect(subject.eligible?).to be_truthy
             expect(subject.terms_and_conditions_accepted?).to be_truthy

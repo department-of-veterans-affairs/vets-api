@@ -1,40 +1,12 @@
 # frozen_string_literal: true
-require 'saml/user_attributes/base_decorator'
+require 'saml/user_attributes/base'
 
 module SAML
   module UserAttributes
-    class DSLogon < BaseDecorator
+    class DSLogon < Base
       PREMIUM_LOAS = %w(2 3).freeze
-
-      def uuid
-        attributes['uuid']
-      end
-
-      def email
-        attributes['email']
-      end
-
-      def dslogon_edipi
-        attributes['dslogon_uuid']
-      end
-
-      def dslogon_status
-        attributes['dslogon_status']
-      end
-
-      # DS Logon will sometimes return a gender with literal 'unknown'
-      def gender
-        gender = attributes['dslogon_gender']&.chars&.first&.upcase
-        %w(M F).include?(gender) ? gender : nil
-      end
-
-      def dslogon_deceased
-        attributes['dslogon_deceased']
-      end
-
-      def birth_date
-        attributes['dslogon_birth_date']
-      end
+      DSLOGON_SERIALIZABLE_ATTRIBUTES = %i(first_name middle_name last_name gender ssn birth_date
+                                           dslogon_edipi dslogon_status dslogon_deceased).freeze
 
       def first_name
         attributes['dslogon_fname']
@@ -48,41 +20,46 @@ module SAML
         attributes['dslogon_lname']
       end
 
-      def dslogon_idtype
-        attributes['dslogon_idtype']
+      # DS Logon will sometimes return a gender with literal 'unknown'
+      def gender
+        gender = attributes['dslogon_gender']&.chars&.first&.upcase
+        %w(M F).include?(gender) ? gender : nil
       end
 
       def ssn
         attributes['dslogon_idvalue']
       end
 
+      def birth_date
+        attributes['dslogon_birth_date']
+      end
+
+      def dslogon_edipi
+        attributes['dslogon_uuid']
+      end
+
+      def dslogon_status
+        attributes['dslogon_status']
+      end
+
+      def dslogon_deceased
+        attributes['dslogon_deceased']
+      end
+
+      def dslogon_idtype
+        attributes['dslogon_idtype']
+      end
+
       def dslogon_assurance
         attributes['dslogon_assurance']
       end
 
-      def loa
-        { current: loa_current, highest: loa_highest }
-      end
+      private
 
-      def multifactor
-        attributes['multifactor']
-      end
+      # These methods are required to be implemented on each child class
 
-      # The first ones are values needed to query MVI
-      # The second ones are additional values that should override MVI (EDIPI or match)
-      # In short we might find that a user has inconsistencies in MVI with the EDIPI provided.
-      # The last part are ID.me specific attributes used by vets.gov
       def serializable_attributes
-        %i(
-          first_name middle_name last_name email gender ssn birth_date
-          dslogon_edipi dslogon_status dslogon_deceased
-          uuid multifactor loa
-        )
-      end
-
-      # This value comes from IDme, it will be 3 if FICAM LOA3, null otherwise.
-      def idme_loa
-        attributes['level_of_assurance']&.to_i
+        DSLOGON_SERIALIZABLE_ATTRIBUTES + REQUIRED_ATTRIBUTES
       end
 
       # if the dslogon_assurance PREMIUM, otherwise 1
