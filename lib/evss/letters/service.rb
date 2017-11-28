@@ -35,8 +35,8 @@ module EVSS
           else
             log_message_to_sentry(
               'EVSS letter generation failed', :error, extra_context: {
-              url: config.base_path, body: response.body
-            }
+                url: config.base_path, body: response.body
+              }
             )
             raise_backend_exception('EVSS502', 'Letters')
           end
