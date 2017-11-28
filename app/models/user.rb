@@ -123,7 +123,7 @@ class User < Common::RedisStore
   end
 
   def can_access_id_card?
-    loa3? && edipi.present? && beta_enabled?(uuid, 'veteran_id_card') &&
+    loa3? && edipi.present? &&
       ID_CARD_ALLOWED_STATUSES.include?(veteran_status.title38_status)
   rescue StandardError # Default to false for any veteran_status error
     false

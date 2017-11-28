@@ -10,7 +10,6 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
   before do
     Settings.vic.signing_key_path = "#{::Rails.root}/spec/support/certificates/vic-signing-key.pem"
     use_authenticated_current_user(current_user: current_user)
-    expect(current_user).to receive('beta_enabled?').with(current_user.uuid, 'veteran_id_card').and_return(true)
   end
 
   describe '#show /v0/id_card/attributes' do
