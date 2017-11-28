@@ -48,7 +48,8 @@ module EVSS
         faraday.response :betamocks if mock_enabled?
         faraday.response :snakecase, symbolize: false
         faraday.response :json
-        faraday.adapter :net_http_header_patch
+        faraday.use :remove_cookies
+        faraday.adapter :httpclient
       end
     end
 
