@@ -12,6 +12,9 @@ RSpec.describe SAML::User do
     let(:decrypted_document_partial) { REXML::Document.new(dslogon_response) }
     let(:dslogon_response) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/dslogon_response.xml") }
 
+    let(:described_instance) { described_class.new(saml_response) }
+    let(:user) { User.new(described_instance) }
+
     context 'logging' do
       let(:saml_attributes) do
         OneLogin::RubySaml::Attributes.new(
@@ -32,9 +35,6 @@ RSpec.describe SAML::User do
           'dslogon_idvalue' => []
         )
       end
-      let(:described_instance) { described_class.new(saml_response) }
-      let(:user) { User.new(described_instance) }
-      let(:frozen_time) { Time.current }
 
       it 'does not log warnings to sentry when everything is ok' do
         expect(described_instance).not_to receive(:log_message_to_sentry)
@@ -53,22 +53,6 @@ RSpec.describe SAML::User do
           loa: {
             current: nil,
             highest: nil
-          }
-        )
-        described_instance
-      end
-
-      it 'logs warnings to sentry when loa_current > loa_highest' do
-        allow_any_instance_of(SAML::UserAttributes::DSLogon).to receive(:loa_current).and_return(5)
-        expect_any_instance_of(described_class).to receive(:log_message_to_sentry).with(
-          'Issues in SAML Response - dslogon',
-          :warn,
-          real_authn_context: 'dslogon',
-          authn_context: 'dslogon',
-          warnings: 'LOA Current > LOA Highest',
-          loa: {
-            current: 5,
-            highest: 3
           }
         )
         described_instance
@@ -95,15 +79,6 @@ RSpec.describe SAML::User do
           'dslogon_idvalue' => []
         )
       end
-      let(:described_instance) { described_class.new(saml_response) }
-      let(:user) { User.new(described_instance) }
-      let(:frozen_time) { Time.current }
-
-      around(:each) do |example|
-        Timecop.freeze(frozen_time) do
-          example.run
-        end
-      end
 
       it 'properly constructs a user' do
         expect(user).to be_valid
@@ -126,7 +101,7 @@ RSpec.describe SAML::User do
           loa: { current: 1, highest: 3 },
           multifactor: true,
           authn_context: 'dslogon',
-          last_signed_in: frozen_time,
+          last_signed_in: nil,
           mhv_last_signed_in: nil
         )
       end
@@ -152,15 +127,6 @@ RSpec.describe SAML::User do
           'dslogon_idvalue' => ['796178410']
         )
       end
-      let(:described_instance) { described_class.new(saml_response) }
-      let(:user) { User.new(described_instance) }
-      let(:frozen_time) { Time.current }
-
-      around(:each) do |example|
-        Timecop.freeze(frozen_time) do
-          example.run
-        end
-      end
 
       it 'properly constructs a user' do
         expect(user.valid?(:loa3_user)).to be_truthy
@@ -183,7 +149,7 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           multifactor: false,
           authn_context: 'dslogon',
-          last_signed_in: frozen_time,
+          last_signed_in: nil,
           mhv_last_signed_in: nil
         )
       end
@@ -208,15 +174,6 @@ RSpec.describe SAML::User do
           'dslogon_mname' => ['Mayo'],
           'dslogon_idvalue' => ['796178410']
         )
-      end
-      let(:described_instance) { described_class.new(saml_response) }
-      let(:user) { User.new(described_instance) }
-      let(:frozen_time) { Time.current }
-
-      around(:each) do |example|
-        Timecop.freeze(frozen_time) do
-          example.run
-        end
       end
 
       it 'properly constructs a user' do

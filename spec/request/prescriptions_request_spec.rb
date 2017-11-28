@@ -7,7 +7,7 @@ RSpec.describe 'prescriptions', type: :request do
   include Rx::ClientHelpers
   include SchemaMatchers
 
-  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
+  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, accessible?: true) }
   let(:current_user) { build(:user, :mhv) }
 
   before(:each) do
@@ -17,7 +17,7 @@ RSpec.describe 'prescriptions', type: :request do
   end
 
   context 'forbidden user' do
-    let(:mhv_account) { double('mhv_account', ineligible?: true, needs_terms_acceptance?: false, upgraded?: true) }
+    let(:mhv_account) { double('mhv_account', ineligible?: true, needs_terms_acceptance?: false, accessible?: true) }
     let(:current_user) { build(:user) }
 
     it 'raises access denied' do
@@ -30,7 +30,7 @@ RSpec.describe 'prescriptions', type: :request do
   end
 
   context 'terms of service not accepted' do
-    let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: true, upgraded?: false) }
+    let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: true, accessible?: false) }
     let(:current_user) { build(:user, :loa3) }
 
     it 'raises access denied' do
@@ -43,7 +43,7 @@ RSpec.describe 'prescriptions', type: :request do
   end
 
   context 'mhv account not upgraded' do
-    let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: false) }
+    let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, accessible?: false) }
     let(:current_user) { build(:user, :loa3) }
 
     before(:each) do
