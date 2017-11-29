@@ -12,9 +12,10 @@
         "attributes": {
           "type": "object",
           "required": [
-            "receive_application_id", "tracking_number", "return_code", "application_uuid", "return_description"
+            "receive_application_id", "tracking_number", "return_code", "application_uuid", "return_description", "submitted_at"
           ],
           "properties": {
+            "submitted_at": { "type": "string" },
             "receive_application_id": { "type": "string" },
             "tracking_number": { "type": "string" },
             "return_code": { "type": "integer" },
