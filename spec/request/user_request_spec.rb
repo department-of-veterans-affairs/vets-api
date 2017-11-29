@@ -21,7 +21,7 @@ RSpec.describe 'Fetching user data', type: :request do
       get v0_user_url, nil, auth_header
     end
 
-    xit 'GET /v0/user - returns proper json' do
+    it 'GET /v0/user - returns proper json' do
       assert_response :success
       expect(response).to match_response_schema('user_loa3')
     end
@@ -66,7 +66,7 @@ RSpec.describe 'Fetching user data', type: :request do
       get v0_user_url, nil, auth_header
     end
 
-    xit 'GET /v0/user - returns proper json' do
+    it 'GET /v0/user - returns proper json' do
       assert_response :success
       expect(response).to match_response_schema('user_loa1')
     end

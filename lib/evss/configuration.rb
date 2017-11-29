@@ -38,7 +38,6 @@ module EVSS
     end
 
     def connection
-      # @conn ||= Faraday.new('http://localhost:4567', ssl: ssl_options) do |faraday|
       @conn ||= Faraday.new(base_path, ssl: ssl_options) do |faraday|
         faraday.options.timeout = DEFAULT_TIMEOUT
         faraday.use      :breakers
@@ -47,7 +46,6 @@ module EVSS
         faraday.response :betamocks if mock_enabled?
         faraday.response :snakecase, symbolize: false
         faraday.response :json
-        # faraday.proxy 'http://localhost:8888'
         faraday.use :immutable_headers
         faraday.adapter Faraday.default_adapter
       end

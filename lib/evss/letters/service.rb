@@ -49,10 +49,9 @@ module EVSS
             request.headers.update(headers)
           end
         else
-          headers['Content-Type'] = 'application/json'
           response = download_conn.post do |request|
             request.url "#{type}/generate"
-            request.headers.update(headers)
+            request.headers['Content-Type'] = 'application/json'
             request.body = options
           end
         end
