@@ -11,6 +11,7 @@ FactoryBot.define do
     zip '17325'
     ssn '796111863'
     mhv_icn nil
+    multifactor false
     loa do
       {
         current: LOA::TWO,
