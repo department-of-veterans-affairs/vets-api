@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171103140150) do
+ActiveRecord::Schema.define(version: 20171108221458) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -73,6 +73,19 @@ ActiveRecord::Schema.define(version: 20171103140150) do
 
   add_index "evss_claims", ["user_uuid"], name: "index_evss_claims_on_user_uuid", using: :btree
 
+  create_table "gibs_not_found_users", force: :cascade do |t|
+    t.string   "edipi",            null: false
+    t.string   "first_name",       null: false
+    t.string   "last_name",        null: false
+    t.string   "encrypted_ssn",    null: false
+    t.string   "encrypted_ssn_iv", null: false
+    t.datetime "dob",              null: false
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+  end
+
+  add_index "gibs_not_found_users", ["edipi"], name: "index_gibs_not_found_users_on_edipi", using: :btree
+
   create_table "in_progress_forms", force: :cascade do |t|
     t.string   "user_uuid",              null: false
     t.string   "form_id",                null: false
@@ -109,13 +122,23 @@ ActiveRecord::Schema.define(version: 20171103140150) do
     t.string   "encrypted_file_data_iv", null: false
   end
 
+  create_table "preneed_attachments", force: :cascade do |t|
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+    t.uuid     "guid",                   null: false
+    t.string   "encrypted_file_data",    null: false
+    t.string   "encrypted_file_data_iv", null: false
+  end
+
+  add_index "preneed_attachments", ["guid"], name: "index_preneed_attachments_on_guid", unique: true, using: :btree
+
   create_table "preneed_submissions", force: :cascade do |t|
-    t.string   "tracking_number",     null: false
+    t.string   "tracking_number",    null: false
     t.string   "application_uuid"
-    t.string   "return_description",            null: false
+    t.string   "return_description", null: false
     t.integer  "return_code"
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
   end
 
   add_index "preneed_submissions", ["application_uuid"], name: "index_preneed_submissions_on_application_uuid", unique: true, using: :btree

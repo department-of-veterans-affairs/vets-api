@@ -15,10 +15,9 @@ module MHVControllerConcerns
     raise_access_denied if !current_user&.loa3? || current_user.mhv_account.ineligible?
     raise_requires_terms_acceptance if current_user.mhv_account.needs_terms_acceptance?
     begin
-      current_user.mhv_account.create_and_upgrade! unless current_user.mhv_account.upgraded?
-    # TODO: rescue more specifically if mhv_account raises more specifically
+      current_user.mhv_account.create_and_upgrade! unless current_user.mhv_account.accessible?
     ensure
-      raise_something_went_wrong unless current_user.mhv_account.upgraded?
+      raise_something_went_wrong unless current_user.mhv_account.accessible?
     end
   end
 

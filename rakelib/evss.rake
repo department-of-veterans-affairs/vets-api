@@ -15,3 +15,16 @@ task evss_retry_jobs: :environment do
     end
   end
 end
+
+namespace :evss do
+  desc 'export GIBS not found users, usage: rake evss:export_gibs_not_found[/export/path.csv]'
+  task :export_gibs_not_found, [:csv_path] => [:environment] do |_, args|
+    raise 'No CSV path provided' unless args[:csv_path]
+    CSV.open(args[:csv_path], 'wb') do |csv|
+      csv << %w(edipi first_name last_name ssn dob)
+      GibsNotFoundUser.find_each do |user|
+        csv << [user.edipi, user.first_name, user.last_name, user.ssn, user.dob.strftime('%Y-%m-%d')]
+      end
+    end
+  end
+end

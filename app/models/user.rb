@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/base'
 require 'common/models/redis_store'
 require 'mvi/messages/find_profile_message'
@@ -12,24 +13,35 @@ class User < Common::RedisStore
 
   UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
 
+  # Defined per issue #6042
+  ID_CARD_ALLOWED_STATUSES = %w(V1 V3 V6).freeze
+
   redis_store REDIS_CONFIG['user_store']['namespace']
   redis_ttl REDIS_CONFIG['user_store']['each_ttl']
   redis_key :uuid
+
+  validates :uuid, presence: true
 
   attribute :uuid
   attribute :last_signed_in, Common::UTCTime # vaafi attributes
   attribute :mhv_last_signed_in, Common::UTCTime # MHV audit logging
 
-  validates :uuid, presence: true
+  # These should go away, but commenting them out for now
+  # attribute :email
+  # attribute :first_name
+  # attribute :middle_name
+  # attribute :last_name
+  # attribute :gender
+  # attribute :birth_date
+  # attribute :zip
+  # attribute :ssn
+  # attribute :loa
+  # attribute :multifactor, Boolean # used by F/E to decision on whether or not to prompt user to add MFA
+  # attribute :authn_context # used by F/E to handle various identity related complexities pending refactor
+  # attribute :mhv_icn # this is the ICN provided by MHV
+  # attribute :mhv_uuid # this is the cannonical version of MHV Correlation ID, provided by MHV sign-in users
 
-  # mvi attributes
-  delegate :birls_id, to: :mvi
-  delegate :edipi, to: :mvi
-  delegate :icn, to: :mvi
-  delegate :participant_id, to: :mvi
-  delegate :veteran?, to: :veteran_status
-
-  # identity attributes
+  # identity attributes, some of these will be overridden by MVI.
   delegate :email, to: :identity
   delegate :first_name, to: :identity
   delegate :middle_name, to: :identity
@@ -43,6 +55,13 @@ class User < Common::RedisStore
   delegate :authn_context, to: :identity
   delegate :mhv_icn, to: :identity
   delegate :mhv_uuid, to: :identity
+
+  # mvi attributes
+  delegate :birls_id, to: :mvi
+  delegate :edipi, to: :mvi
+  delegate :icn, to: :mvi
+  delegate :participant_id, to: :mvi
+  delegate :veteran?, to: :veteran_status
 
   def mhv_correlation_id
     mhv_uuid || mvi.mhv_correlation_id
@@ -113,22 +132,10 @@ class User < Common::RedisStore
   end
 
   def can_access_id_card?
-    beta_enabled?(uuid, 'veteran_id_card') && loa3? && edipi.present? && veteran?
-  rescue # Default to false for any veteran_status error
+    loa3? && edipi.present? && beta_enabled?(uuid, 'veteran_id_card') &&
+      ID_CARD_ALLOWED_STATUSES.include?(veteran_status.title38_status)
+  rescue StandardError # Default to false for any veteran_status error
     false
-  end
-
-  def self.from_merged_attrs(existing_user, new_user)
-    # we want to always use the more recent attrs so long as they exist
-    attrs = new_user.attributes.map do |key, val|
-      { key => val.presence || existing_user[key] }
-    end.reduce({}, :merge)
-
-    # for loa, we want the higher of the two
-    attrs[:loa][:current] = [existing_user[:loa][:current], new_user[:loa][:current]].max
-    attrs[:loa][:highest] = [existing_user[:loa][:highest], new_user[:loa][:highest]].max
-
-    User.new(attrs)
   end
 
   def mhv_account

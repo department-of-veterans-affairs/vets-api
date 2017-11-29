@@ -18,7 +18,23 @@ module SAML
       OPEN_TIMEOUT = 2
       TIMEOUT = 15
 
-      def saml_settings
+      def saml_settings(options = {})
+        if options.any?
+          # Make sure we're not changing the settings globally
+          settings = base_settings.dup
+
+          options.each do |option, value|
+            next if value.nil?
+            settings.send("#{option}=", value)
+          end
+
+          settings
+        else
+          base_settings
+        end
+      end
+
+      def base_settings
         if HealthStatus.healthy?
           merged_saml_settings
         else

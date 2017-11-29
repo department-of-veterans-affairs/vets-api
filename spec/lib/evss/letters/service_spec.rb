@@ -78,7 +78,7 @@ describe EVSS::Letters::Service do
       context 'without options' do
         it 'downloads a pdf' do
           VCR.use_cassette('evss/letters/download') do
-            response = subject.download_by_type(user, EVSS::Letters::Letter::LETTER_TYPES.first)
+            response = subject.download_letter(user, EVSS::Letters::Letter::LETTER_TYPES.first)
             expect(response).to include('%PDF-1.4')
           end
         end
@@ -86,7 +86,7 @@ describe EVSS::Letters::Service do
         it 'should increment downloads total' do
           VCR.use_cassette('evss/letters/download') do
             expect do
-              subject.download_by_type(user, EVSS::Letters::Letter::LETTER_TYPES.first)
+              subject.download_letter(user, EVSS::Letters::Letter::LETTER_TYPES.first)
             end.to trigger_statsd_increment('api.evss.download_letter.total')
           end
         end
@@ -102,7 +102,7 @@ describe EVSS::Letters::Service do
             )
             expect(StatsD).to receive(:increment).once.with('api.evss.download_letter.total')
             expect do
-              subject.download_by_type(user, EVSS::Letters::Letter::LETTER_TYPES.first)
+              subject.download_letter(user, EVSS::Letters::Letter::LETTER_TYPES.first)
             end.to raise_error(Faraday::TimeoutError)
           end
         end
@@ -126,7 +126,7 @@ describe EVSS::Letters::Service do
         end
         it 'downloads a pdf' do
           VCR.use_cassette('evss/letters/download_options') do
-            response = subject.download_by_type(
+            response = subject.download_letter(
               user,
               EVSS::Letters::Letter::LETTER_TYPES.first,
               options
@@ -138,7 +138,7 @@ describe EVSS::Letters::Service do
         it 'should increment downloads total' do
           VCR.use_cassette('evss/letters/download_options') do
             expect do
-              subject.download_by_type(
+              subject.download_letter(
                 user,
                 EVSS::Letters::Letter::LETTER_TYPES.first,
                 options

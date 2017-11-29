@@ -72,7 +72,7 @@ module EMISRedis
 
     def currently_active_duty_hash
       {
-        yes: latest_service_episode.end_date.future?
+        yes: latest_service_episode.present? && latest_service_episode.end_date.future?
       }
     end
 

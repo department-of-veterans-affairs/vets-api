@@ -2,10 +2,10 @@
 
 class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   include CarrierWave::MiniMagick
+  include ValidateFileSize
+  include SetAwsConfig
 
   MAX_FILE_SIZE = 25.megabytes
-
-  before :store, :validate_file_size
 
   version :converted, if: :tiff? do
     process(convert: :jpg)
@@ -62,21 +62,14 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     file.content_type == 'image/tiff'
   end
 
-  def validate_file_size(file)
-    raise CarrierWave::UploadError, 'File size larger than allowed' if file.size > MAX_FILE_SIZE
-  end
-
   def set_storage_options!
     if Settings.evss.s3.uploads_enabled
-      self.aws_credentials = {
-        access_key_id: Settings.evss.s3.aws_access_key_id,
-        secret_access_key: Settings.evss.s3.aws_secret_access_key,
-        region: Settings.evss.s3.region
-      }
-      self.aws_acl = 'private'
-      self.aws_bucket = Settings.evss.s3.bucket
-      self.aws_attributes = { server_side_encryption: 'AES256' }
-      self.class.storage = :aws
+      set_aws_config(
+        Settings.evss.s3.aws_access_key_id,
+        Settings.evss.s3.aws_secret_access_key,
+        Settings.evss.s3.region,
+        Settings.evss.s3.bucket
+      )
     else
       self.class.storage = :file
     end

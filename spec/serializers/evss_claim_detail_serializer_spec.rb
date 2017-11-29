@@ -17,15 +17,15 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
 
   context 'with HTML in the description' do
     let(:evss_claim) do
-      FactoryGirl.build(:evss_claim, data: {
-                          'claim_tracked_items': {
-                            'still_need_from_you_list': [
-                              {
-                                description: 'this has <h1>HTML</h1>'
-                              }
-                            ]
-                          }
-                        })
+      FactoryBot.build(:evss_claim, data: {
+                         'claim_tracked_items': {
+                           'still_need_from_you_list': [
+                             {
+                               description: 'this has <h1>HTML</h1>'
+                             }
+                           ]
+                         }
+                       })
     end
     it 'strips the HTML tags' do
       expect(attributes['events_timeline'][0]['description']).to eq('this has HTML')
@@ -34,11 +34,11 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
 
   context 'with different data and list_data' do
     let(:evss_claim) do
-      FactoryGirl.build(:evss_claim, data: {
-                          'waiver5103_submitted': true
-                        }, list_data: {
-                          'waiver5103_submitted': false
-                        })
+      FactoryBot.build(:evss_claim, data: {
+                         'waiver5103_submitted': true
+                       }, list_data: {
+                         'waiver5103_submitted': false
+                       })
     end
     it 'should not use list_data' do
       expect(attributes['waiver_submitted']).to eq true
@@ -54,7 +54,7 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
       end
     end
     let(:evss_claim) do
-      FactoryGirl.build(:evss_claim, data: raw_data)
+      FactoryBot.build(:evss_claim, data: raw_data)
     end
     let(:other_documents) do
       attributes['events_timeline'].select { |obj| obj['type'] == 'other_documents_list' }

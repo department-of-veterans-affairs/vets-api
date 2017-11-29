@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+FactoryBot.define do
   factory :va1990, class: SavedClaim::EducationBenefits::VA1990, parent: :education_benefits do
     form do
       {

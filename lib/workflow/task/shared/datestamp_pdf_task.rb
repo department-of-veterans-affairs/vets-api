@@ -52,10 +52,7 @@ module Workflow::Task::Shared
       out_dir = Rails.root.join('tmp', 'pdfs', SecureRandom.uuid)
       FileUtils.mkdir_p(out_dir)
       out_path = File.join(out_dir, @file.original_filename)
-      stamp = CombinePDF.load(stamp_path).pages[0]
-      original = CombinePDF.load(file_path)
-      original.pages.each { |page| page << stamp }
-      original.save out_path
+      PdfFill::Filler::PDF_FORMS.stamp(file_path, stamp_path, out_path)
       out_path
     rescue => e
       File.delete(out_path) if out_path && File.exist?(out_path)

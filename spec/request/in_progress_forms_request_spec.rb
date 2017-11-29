@@ -30,8 +30,8 @@ RSpec.describe 'in progress forms', type: :request do
 
   describe '#index' do
     let(:user) { loa3_user }
-    let!(:in_progress_form_edu) { FactoryGirl.create(:in_progress_form, form_id: '22-1990', user_uuid: user.uuid) }
-    let!(:in_progress_form_hca) { FactoryGirl.create(:in_progress_form, form_id: '1010ez', user_uuid: user.uuid) }
+    let!(:in_progress_form_edu) { FactoryBot.create(:in_progress_form, form_id: '22-1990', user_uuid: user.uuid) }
+    let!(:in_progress_form_hca) { FactoryBot.create(:in_progress_form, form_id: '1010ez', user_uuid: user.uuid) }
 
     subject do
       get v0_in_progress_forms_url, nil, auth_header
@@ -63,7 +63,7 @@ RSpec.describe 'in progress forms', type: :request do
 
   describe '#show' do
     let(:user) { loa3_user }
-    let!(:in_progress_form) { FactoryGirl.create(:in_progress_form, user_uuid: user.uuid) }
+    let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid) }
 
     context 'when the user is not loa3' do
       let(:user) { loa1_user }
@@ -149,7 +149,7 @@ RSpec.describe 'in progress forms', type: :request do
     let(:user) { loa3_user }
 
     context 'with a new form' do
-      let(:new_form) { FactoryGirl.build(:in_progress_form, user_uuid: user.uuid) }
+      let(:new_form) { FactoryBot.build(:in_progress_form, user_uuid: user.uuid) }
 
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
@@ -194,8 +194,8 @@ RSpec.describe 'in progress forms', type: :request do
 
     context 'with an existing form' do
       let!(:other_existing_form) { create(:in_progress_form, form_id: 'jksdfjk') }
-      let(:existing_form) { FactoryGirl.create(:in_progress_form, user_uuid: user.uuid) }
-      let(:update_form) { FactoryGirl.create(:in_progress_update_form, user_uuid: user.uuid) }
+      let(:existing_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid) }
+      let(:update_form) { FactoryBot.create(:in_progress_update_form, user_uuid: user.uuid) }
 
       it 'updates the right form' do
         put v0_in_progress_form_url(existing_form.form_id), { form_data: update_form.form_data }, auth_header
@@ -208,7 +208,7 @@ RSpec.describe 'in progress forms', type: :request do
 
   describe '#destroy' do
     let(:user) { loa3_user }
-    let!(:in_progress_form) { FactoryGirl.create(:in_progress_form, user_uuid: user.uuid) }
+    let!(:in_progress_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid) }
 
     context 'when the user is not loa3' do
       let(:user) { loa1_user }

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+FactoryBot.define do
   factory :user_identity, class: 'UserIdentity' do
     uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
     email 'abraham.lincoln@vets.gov'

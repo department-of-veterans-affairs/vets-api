@@ -17,7 +17,7 @@ RSpec.describe V0::UsersController, type: :controller do
     before(:each) do
       Session.create(uuid: loa1_user.uuid, token: token)
       User.create(loa1_user)
-      FactoryGirl.create(:in_progress_form, user_uuid: loa1_user.uuid, form_id: 'edu-1990')
+      FactoryBot.create(:in_progress_form, user_uuid: loa1_user.uuid, form_id: 'edu-1990')
     end
 
     it 'returns a JSON user profile' do

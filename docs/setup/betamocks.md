@@ -8,18 +8,17 @@ cd ~/Documents
 git clone git@github.com:department-of-veterans-affairs/vets-api-mockdata.git
 ```
 
-2. _If using Docker skip to step #3_. Add and enable the Betamocks settings in your settings.local.yml file,
-and change `cache_dir` to path of `vets-api-mockdata`.
+2. If you're using Docker there is no step 2 run `make up` to start vets-api. If you're 
+not on Docker set the cache dir to the relative path of the mock data repo in 
+config/development.yml file, you may need to run `bin/spring stop` for the change to take effect.
 ```yaml
 betamocks:
   enabled: true
-  cache_dir: /path/to/vets-api-mockdata/repo
+  recording: false
+  # the cache dir depends on how you run the api, run `bin/spring stop` after switching this setting
+  cache_dir: ../vets-api-mockdata # via rails; e.g. bundle exec rails s or bundle exec rails c
+  #cache_dir: /cache # via docker; e.g. make up or make console
   services_config: config/betamocks/services_config.yml
-```
-
-3. Copy over the example services config YAML file
-```bash
-cp config/betamocks/services_config.yml.example config/betamocks/services_config.yml
 ```
 
 You can now login with one of the [test users](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/MVI%20Integration/reference_documents/mvi_users_s1a.csv)
@@ -36,10 +35,9 @@ def connection
     faraday.use      :breakers
     faraday.use      EVSS::ErrorMiddleware
     faraday.use      Faraday::Response::RaiseError
-    faraday.response :betamocks if Betamocks.configuration.enabled?
+    faraday.response :betamocks if Settings.my_service.mock # e.g. Settings.mvi.mock
     faraday.response :snakecase, symbolize: false
     faraday.response :json
-    faraday.adapter  :httpclient
   end
 end
 ```
@@ -61,8 +59,14 @@ Each service description has a `base_uri` (pulled from Settings)
     :file_path: "evss/pciu_address"
 ```
 
-3. Make a request. If a pre-recorded cache file exists then Betamocks will return a response
-without hitting the real service. If a cache file does not exist one will be recorded (turn on your VA VPNs),
+3. In config/settings.yml set betamocks recording to true:
+```yaml
+betamocks:
+  enabled: true
+  recording: true
+```
+
+4. Make a request. If a cache file does not exist one will be recorded (turn on your VA VPNs),
 all subsequent requests will use the cache (feel free to turn off your VA VPNs).
 
 ## Mocking error responses
@@ -135,5 +139,6 @@ XML request bodies to the same directory:
     :file_path: "mvi/profiles"
     :cache_multiple_responses:
       :uid_location: body
-      :uid_locator: 'root="2.16.840.1.113883.4.1" extension="(\d{9})"' # matches 9 digits '(\d{9})' after extension=
+      :uid_locator: '(?:root="2.16.840.1.113883.4.1" )?extension="(\d{9})"(?: root="2.16.840.1.113883.4.1")?' 
+      extension=
 ```
