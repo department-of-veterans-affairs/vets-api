@@ -16,6 +16,10 @@ RSpec.describe ReceiveApplicationSerializer, type: :serializer do
     expect(attributes['tracking_number']).to eq(receive_application.tracking_number)
   end
 
+  it 'should include submitted_at as attribute' do
+    expect(attributes['submitted_at']).to eq(receive_application.submitted_at.iso8601(3))
+  end
+
   it 'should include return_code as attribute' do
     expect(attributes['return_code']).to eq(receive_application.return_code)
   end
