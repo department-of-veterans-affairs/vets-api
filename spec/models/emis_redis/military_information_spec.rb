@@ -195,6 +195,7 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     let(:episode1) { EMIS::Models::MilitaryServiceEpisode.new(end_date: Time.utc('2001')) }
     let(:episode2) { EMIS::Models::MilitaryServiceEpisode.new(end_date: Time.utc('2000')) }
     let(:episode3) { EMIS::Models::MilitaryServiceEpisode.new(end_date: Time.utc('1999')) }
+    let(:episode_nil_end) { EMIS::Models::MilitaryServiceEpisode.new(end_date: nil) }
 
     it 'should return sorted service episodes latest first' do
       episodes = OpenStruct.new(
@@ -209,6 +210,25 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
       expect(subject.service_episodes_by_date).to eq(
         [
           episode1,
+          episode2,
+          episode3
+        ]
+      )
+    end
+
+    it 'should treat a nil end date as the latest episode' do
+      episodes = OpenStruct.new(
+        items: [
+          episode3,
+          episode_nil_end,
+          episode2
+        ]
+      )
+      expect(subject).to receive(:emis_response).once.with('get_military_service_episodes').and_return(episodes)
+
+      expect(subject.service_episodes_by_date).to eq(
+        [
+          episode_nil_end,
           episode2,
           episode3
         ]
