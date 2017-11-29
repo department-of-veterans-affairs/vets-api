@@ -9,4 +9,5 @@ class ReceiveApplicationSerializer < ActiveModel::Serializer
   attribute :return_code
   attribute :application_uuid
   attribute :return_description
+  attribute :submitted_at
 end
