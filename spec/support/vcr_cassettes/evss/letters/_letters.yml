@@ -4,11 +4,17 @@ http_interactions:
     method: get
     uri: "<EVSS_BASE_URL>/wss-lettergenerator-services-web/rest/letters/v1"
     body:
-      encoding: US-ASCII
+      encoding: UTF-8
       string: ''
     headers:
       User-Agent:
       - Faraday v0.9.2
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip,deflate
+      Date:
+      - Wed, 07 Jun 2017 23:26:33 GMT
       Va-Eauth-Csid:
       - DSLogon
       Va-Eauth-Authenticationmethod:
@@ -22,37 +28,29 @@ http_interactions:
       Va-Eauth-Lastname:
       - lincoln
       Va-Eauth-Issueinstant:
-      - '2017-11-28T06:22:43Z'
-      Va-Eauth-Birlsfilenumber:
-      - '7752706759'
+      - '2017-06-07T23:26:32Z'
       Va-Eauth-Dodedipnid:
-      - '4545994972'
+      - '9294277224'
       Va-Eauth-Pid:
-      - '4610971898'
+      - '9624259154'
       Va-Eauth-Pnid:
-      - '796111863'
-      Va-Eauth-Birthdate:
-      - '1969-08-03T00:00:00+00:00'
+      - '272111863'
       Va-Eauth-Authorization:
-      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796111863","edi":"4545994972","firstName":"abraham","lastName":"lincoln","birthDate":"1969-08-03T00:00:00+00:00"}}'
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
+      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"272111863","edi":"9294277224","firstName":"abraham","lastName":"lincoln"}}'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Tue, 28 Nov 2017 06:22:06 GMT
+      - Wed, 07 Jun 2017 23:26:34 GMT
       Server:
-      - Apache/2.4.6 (CentOS) OpenSSL/1.0.2k-fips
+      - Apache/2.4.6 (CentOS) OpenSSL/1.0.1e-fips
       Content-Type:
       - application/json
       Set-Cookie:
-      - WLS_12.1_App1_Cluster_2_ROUTEID=.01; path=/
-      - WSS-LETTERGENERATION-SERVICES_JSESSIONID=HI4BSi2mGt1JhITfYPNTYWOp4_TNmRnR5TfJEkW3JaJxsPuki5k0!-248963025;
+      - WLS_12.1_App1_Cluster_ROUTEID=.01; path=/
+      - WSS-LETTERGENERATION-SERVICES_JSESSIONID=ElGE4ZCAHEgV9sh_vzBiao0YKz3kjCwBueiB-kkmRy-pByPjBon2!1080345149;
         path=/; HttpOnly
       Via:
       - 1.1 csraciapp6.evss.srarad.com
@@ -69,7 +67,7 @@ http_interactions:
             "city" : "RESTON",
             "country" : "US",
             "foreignCode" : "865",
-            "fullName" : "Mark A Webb",
+            "fullName" : "MARK WEBB",
             "state" : "VA",
             "zipCode" : "12345"
           },
@@ -100,5 +98,5 @@ http_interactions:
           } ]
         }
     http_version: 
-  recorded_at: Tue, 28 Nov 2017 06:22:45 GMT
+  recorded_at: Wed, 07 Jun 2017 23:26:33 GMT
 recorded_with: VCR 3.0.3
