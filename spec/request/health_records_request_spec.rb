@@ -14,7 +14,7 @@ RSpec.describe 'health records', type: :request do
                               token: TOKEN })
   end
 
-  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
+  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, accessible?: true) }
   let(:current_user) { build(:user, :mhv) }
 
   before(:each) do

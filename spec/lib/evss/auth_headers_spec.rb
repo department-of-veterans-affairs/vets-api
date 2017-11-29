@@ -6,7 +6,7 @@ describe EVSS::AuthHeaders do
   subject { described_class.new(current_user) }
 
   context 'with an LoA3 user' do
-    let(:current_user) { FactoryGirl.build(:user, :loa3) }
+    let(:current_user) { FactoryBot.build(:user, :loa3) }
 
     it 'has the right LoA' do
       expect(subject.to_h['va_eauth_assurancelevel']).to eq '3'
@@ -23,7 +23,7 @@ describe EVSS::AuthHeaders do
   end
 
   context 'with an LoA1 user' do
-    let(:current_user) { FactoryGirl.build(:user, :loa1) }
+    let(:current_user) { FactoryBot.build(:user, :loa1) }
 
     it 'has the right LoA' do
       expect(subject.to_h['va_eauth_assurancelevel']).to eq '1'

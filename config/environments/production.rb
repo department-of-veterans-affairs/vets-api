@@ -64,6 +64,9 @@ Rails.application.configure do
       else
         'unauthenticated'
       end
+    end,
+    proc do |_request|
+      AppInfo::GIT_REVISION
     end
   ]
 

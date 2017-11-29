@@ -12,7 +12,7 @@ RSpec.describe V0::ExampleController, type: :controller do
   context 'when logged in' do
     let(:token) { 'abracadabra-open-sesame' }
     let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
-    let(:test_user) { FactoryGirl.build(:user) }
+    let(:test_user) { FactoryBot.build(:user) }
 
     before(:each) do
       Session.create(uuid: test_user.uuid, token: token)

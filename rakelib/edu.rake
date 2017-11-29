@@ -20,6 +20,15 @@ namespace :edu do
     DataMigrations::PersistentAttachment.run
   end
 
+  desc 'delete saved claims that have no associated education benefits claim'
+  task delete_saved_claims: :environment do
+    saved_claims = SavedClaim::EducationBenefits.eager_load(:education_benefits_claim)
+                                                .where(education_benefits_claims: { id: nil })
+
+    puts "Deleting #{saved_claims.count} saved claims"
+    saved_claims.delete_all
+  end
+
   # one off script for spool submission report, delete later
   desc 'generate spool submissions report for last 60 days'
   task spool_report: :environment do

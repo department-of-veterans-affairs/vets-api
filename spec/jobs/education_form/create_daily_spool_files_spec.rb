@@ -106,8 +106,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(Rails.env).to receive('development?').once { true }
         application_1606.saved_claim.form = {}.to_json
         application_1606.saved_claim.save!(validate: false) # Make this claim super malformed
-        FactoryGirl.create(:va1990_western_region)
-        FactoryGirl.create(:va1995_full_form)
+        FactoryBot.create(:va1990_western_region)
+        FactoryBot.create(:va1995_full_form)
         # clear out old test files
         FileUtils.rm_rf(Dir.glob(spool_files))
         # ensure our test data is spread across 3 regions..
@@ -174,7 +174,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context 'write_files', run_at: '2016-09-16 03:00:00 EDT' do
     let(:filename) { '307_09162016_vetsgov.spl' }
-    let!(:second_record) { FactoryGirl.create(:va1995) }
+    let!(:second_record) { FactoryBot.create(:va1995) }
 
     context 'in the development env' do
       let(:file_path) { "tmp/spool_files/#{filename}" }

@@ -4,7 +4,7 @@ require 'common/models/base'
 module Preneeds
   class BurialForm < Preneeds::Base
     attribute :application_status, String
-    attribute :has_attachments, Boolean, default: false
+    attribute :preneed_attachments, Array[PreneedAttachmentHash]
     attribute :has_currently_buried, String
     attribute :sending_application, String, default: 'vets.gov'
     attribute :sending_code, String
@@ -20,6 +20,17 @@ module Preneeds
       Array.wrap(params_array).map { |params| BurialForm.new(params) }
     end
 
+    # keep this name because it matches the previous attribute
+    # rubocop:disable Style/PredicateName
+    def has_attachments
+      preneed_attachments.present?
+    end
+    # rubocop:enable Style/PredicateName
+
+    def attachments
+      @attachments ||= preneed_attachments.map(&:to_attachment)
+    end
+
     def current_time
       Time.now.utc
     end
@@ -32,8 +43,9 @@ module Preneeds
     def as_eoas
       hash = {
         applicant: applicant&.as_eoas, applicationStatus: application_status || '',
+        attachments: attachments.map(&:as_eoas),
         claimant: claimant&.as_eoas, currentlyBuriedPersons: currently_buried_persons.map(&:as_eoas),
-        hasAttachments: false, hasCurrentlyBuried: has_currently_buried,
+        hasAttachments: has_attachments, hasCurrentlyBuried: has_currently_buried,
         sendingApplication: sending_application, sendingCode: sending_code || '', sentTime: sent_time.iso8601,
         trackingNumber: tracking_number, veteran: veteran&.as_eoas
       }
@@ -42,7 +54,7 @@ module Preneeds
         hash.delete(key) if hash[key].blank?
       end
 
-      hash
+      Common::HashHelpers.deep_compact(hash)
     end
 
     def self.validate(schema, form, root = 'application')

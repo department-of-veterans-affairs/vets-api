@@ -4,7 +4,7 @@ require 'evss/common_service'
 require 'evss/auth_headers'
 
 describe EVSS::CommonService do
-  let(:current_user) { FactoryGirl.build(:user, :loa3) }
+  let(:current_user) { FactoryBot.build(:user, :loa3) }
 
   let(:auth_headers) do
     EVSS::AuthHeaders.new(current_user).to_h

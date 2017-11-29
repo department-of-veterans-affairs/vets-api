@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+FactoryBot.define do
   factory :branches_of_service, class: Preneeds::BranchesOfService do
     sequence(:code) { |n| ('A'.ord + n / 26).chr + ('A'.ord + (n - 1) % 26).chr }
     begin_date '1926-07-02T00:00:00-04:00'

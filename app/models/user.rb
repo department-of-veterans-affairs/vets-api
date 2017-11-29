@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/base'
 require 'common/models/redis_store'
 require 'mvi/messages/find_profile_message'
@@ -11,6 +12,9 @@ class User < Common::RedisStore
   include BetaSwitch
 
   UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
+
+  # Defined per issue #6042
+  ID_CARD_ALLOWED_STATUSES = %w(V1 V3 V6).freeze
 
   redis_store REDIS_CONFIG['user_store']['namespace']
   redis_ttl REDIS_CONFIG['user_store']['each_ttl']
@@ -28,7 +32,7 @@ class User < Common::RedisStore
   attribute :ssn
   attribute :loa
   # These attributes are fetched by SAML::User in the saml_response payload
-  attribute :multifactor   # used by F/E to decision on whether or not to prompt user to add MFA
+  attribute :multifactor, Boolean # used by F/E to decision on whether or not to prompt user to add MFA
   attribute :authn_context # used by F/E to handle various identity related complexities pending refactor
   # FIXME: if MVI were decorated on usr vs delegated to @mvi, then this might not have been necessary.
   attribute :mhv_icn # only needed by B/E not serialized in user_serializer
@@ -44,6 +48,14 @@ class User < Common::RedisStore
   validates :uuid, presence: true
   validates :email, presence: true
   validates :loa, presence: true
+
+  def initialize(attributes = {}, persisted = false)
+    undefined = REQ_CLASS_INSTANCE_VARS.select { |class_var| send(class_var).nil? }
+    raise NoMethodError, "Required class methods #{undefined.join(', ')} are not defined" if undefined.any?
+    super(attributes)
+    @persisted = persisted
+    run_callbacks :initialize
+  end
 
   # conditionally validate if user is LOA3
   with_options(on: :loa3_user) do |user|
@@ -111,22 +123,10 @@ class User < Common::RedisStore
   end
 
   def can_access_id_card?
-    beta_enabled?(uuid, 'veteran_id_card') && loa3? && edipi.present? && veteran?
-  rescue # Default to false for any veteran_status error
+    loa3? && edipi.present? && beta_enabled?(uuid, 'veteran_id_card') &&
+      ID_CARD_ALLOWED_STATUSES.include?(veteran_status.title38_status)
+  rescue StandardError # Default to false for any veteran_status error
     false
-  end
-
-  def self.from_merged_attrs(existing_user, new_user)
-    # we want to always use the more recent attrs so long as they exist
-    attrs = new_user.attributes.map do |key, val|
-      { key => val.presence || existing_user[key] }
-    end.reduce({}, :merge)
-
-    # for loa, we want the higher of the two
-    attrs[:loa][:current] = [existing_user[:loa][:current], new_user[:loa][:current]].max
-    attrs[:loa][:highest] = [existing_user[:loa][:highest], new_user[:loa][:highest]].max
-
-    User.new(attrs)
   end
 
   delegate :birls_id, to: :mvi

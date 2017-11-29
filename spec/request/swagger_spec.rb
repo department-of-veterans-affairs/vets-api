@@ -34,7 +34,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
                           ineligible?: false,
                           eligible?: true,
                           needs_terms_acceptance?: false,
-                          upgraded?: true)
+                          accessible?: true)
   end
   let(:mhv_user) { build(:user, :mhv) }
 
@@ -73,7 +73,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     it 'supports getting an in-progress form' do
-      FactoryGirl.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      FactoryBot.create(:in_progress_form, user_uuid: mhv_user.uuid)
       expect(subject).to validate(
         :get,
         '/v0/in_progress_forms/{id}',
@@ -103,7 +103,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     it 'supports deleting an in-progress form' do
-      form = FactoryGirl.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      form = FactoryBot.create(:in_progress_form, user_uuid: mhv_user.uuid)
       expect(subject).to validate(
         :delete,
         '/v0/in_progress_forms/{id}',
@@ -717,7 +717,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
           context 'unsuccessful calls' do
             let(:mhv_account) do
-              double('mhv_account', ineligible?: true, needs_terms_acceptance?: false, upgraded?: true)
+              double('mhv_account', ineligible?: true, needs_terms_acceptance?: false, accessible?: true)
             end
 
             it 'raises forbidden when user is not eligible' do
