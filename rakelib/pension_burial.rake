@@ -18,6 +18,7 @@ task pension_burial_retry_jobs: :environment do
       end
     elsif job['wrapped'] == WRAPPED_CLASS
       if created_at >= DATESTAMP_FIRST_ERROR
+        args[1].deep_symbolize_keys!
         Workflow::Runner.perform_async(*args)
         puts "#{WRAPPED_CLASS} rerun #{jid}"
       end
