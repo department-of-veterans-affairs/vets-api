@@ -22,6 +22,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'config/initializers/mvi_settings.rb'
     add_filter 'config/initializers/clamscan.rb'
     add_filter 'config/initializers/config.rb'
+    add_filter 'lib/data_migrations/uuid_unique_index.rb'
     add_filter 'lib/tasks/support/shell_command.rb'
     add_filter 'lib/config_helper.rb'
     add_filter 'lib/feature_flipper.rb'
