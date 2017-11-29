@@ -1,19 +1,5 @@
 # frozen_string_literal: true
 
-class CaseSensitiveString < String
-  def downcase
-    self
-  end
-
-  def capitalize
-    self
-  end
-
-  def to_s
-    self
-  end
-end
-
 module EVSS
   class AuthHeaders
     def initialize(user)
@@ -32,6 +18,7 @@ module EVSS
         'va_eauth_lastName' => @user.last_name,
         'va_eauth_issueinstant' => @user.last_signed_in.iso8601,
         'va_eauth_dodedipnid' => @user.edipi,
+        'va_eauth_birlsfilenumber' => (@user.birls_id || ''),
         'va_eauth_pid' => @user.participant_id,
         'va_eauth_pnid' => @user.ssn,
         'va_eauth_birthdate' => iso8601_birth_date,

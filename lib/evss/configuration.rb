@@ -3,8 +3,6 @@ require 'common/client/configuration/rest'
 
 module EVSS
   class Configuration < Common::Client::Configuration::REST
-    using NetHttpPatch
-
     DEFAULT_TIMEOUT = 15
 
     # :nocov:
@@ -40,8 +38,8 @@ module EVSS
     end
 
     def connection
-      # @conn ||= Faraday.new(base_path, ssl: ssl_options) do |faraday|
-      @conn ||= Faraday.new('http://localhost:4567', ssl: ssl_options) do |faraday|
+      # @conn ||= Faraday.new('http://localhost:4567', ssl: ssl_options) do |faraday|
+      @conn ||= Faraday.new(base_path, ssl: ssl_options) do |faraday|
         faraday.options.timeout = DEFAULT_TIMEOUT
         faraday.use      :breakers
         faraday.use      EVSS::ErrorMiddleware
@@ -50,6 +48,7 @@ module EVSS
         faraday.response :snakecase, symbolize: false
         faraday.response :json
         # faraday.proxy 'http://localhost:8888'
+        faraday.use :immutable_headers
         faraday.adapter Faraday.default_adapter
       end
     end
