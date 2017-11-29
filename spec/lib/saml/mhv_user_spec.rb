@@ -11,8 +11,10 @@ RSpec.describe SAML::User do
     end
     let(:decrypted_document_partial) { REXML::Document.new(mhv_response) }
     let(:mhv_response) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/mhv_response.xml") }
+
     let(:described_instance) { described_class.new(saml_response) }
-    let(:user) { User.new(described_instance) }
+    let(:user_identity) { UserIdentity.new(described_instance.to_hash) }
+
 
     context 'non-premium user' do
       let(:saml_attributes) do
@@ -28,16 +30,17 @@ RSpec.describe SAML::User do
       end
 
       it 'properly constructs a user' do
-        expect(user).to be_valid
+        expect(user_identity).to be_valid
       end
 
       it 'has email' do
-        expect(user.email).to be_present
+        expect(user_identity.email).to be_present
       end
 
       it 'has various important attributes' do
-        expect(user).to have_attributes(
+        expect(user_identity).to have_attributes(
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
+          email: 'kam+tristanmhv@adhocteam.us',
           first_name: nil,
           middle_name: nil,
           last_name: nil,
@@ -47,9 +50,7 @@ RSpec.describe SAML::User do
           ssn: nil,
           loa: { current: 1, highest: 1 },
           multifactor: true,
-          authn_context: 'myhealthevet',
-          last_signed_in: nil,
-          mhv_last_signed_in: nil
+          authn_context: 'myhealthevet'
         )
       end
     end
@@ -70,21 +71,20 @@ RSpec.describe SAML::User do
       end
 
       it 'properly constructs a user' do
-        expect(user).to be_valid
+        expect(user_identity).to be_valid
       end
 
       it 'has email' do
-        expect(user.email).to be_present
+        expect(user_identity.email).to be_present
       end
 
       it 'has various important attributes' do
-        expect(user).to have_attributes(
+        expect(user_identity).to have_attributes(
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
+          email: 'kam+tristanmhv@adhocteam.us',
           loa: { current: 3, highest: 3 },
           multifactor: false,
-          authn_context: 'myhealthevet',
-          last_signed_in: nil,
-          mhv_last_signed_in: nil
+          authn_context: 'myhealthevet'
         )
       end
     end

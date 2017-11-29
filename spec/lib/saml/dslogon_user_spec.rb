@@ -13,7 +13,7 @@ RSpec.describe SAML::User do
     let(:dslogon_response) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/dslogon_response.xml") }
 
     let(:described_instance) { described_class.new(saml_response) }
-    let(:user) { User.new(described_instance) }
+    let(:user_identity) { UserIdentity.new(described_instance.to_hash) }
 
     context 'logging' do
       let(:saml_attributes) do
@@ -81,16 +81,17 @@ RSpec.describe SAML::User do
       end
 
       it 'properly constructs a user' do
-        expect(user).to be_valid
+        expect(user_identity).to be_valid
       end
 
       it 'has email' do
-        expect(user.email).to be_present
+        expect(user_identity.email).to be_present
       end
 
       it 'has various important attributes' do
-        expect(user).to have_attributes(
+        expect(user_identity).to have_attributes(
           uuid: '5e7465d7c3ba47f3a388d00df1e1a982',
+          email: 'fake.user@vets.gov',
           first_name: nil,
           middle_name: nil,
           last_name: nil,
@@ -100,9 +101,7 @@ RSpec.describe SAML::User do
           ssn: nil,
           loa: { current: 1, highest: 3 },
           multifactor: true,
-          authn_context: 'dslogon',
-          last_signed_in: nil,
-          mhv_last_signed_in: nil
+          authn_context: 'dslogon'
         )
       end
     end
@@ -129,16 +128,17 @@ RSpec.describe SAML::User do
       end
 
       it 'properly constructs a user' do
-        expect(user.valid?(:loa3_user)).to be_truthy
+        expect(user_identity.valid?(:loa3_user)).to be_truthy
       end
 
       it 'has email' do
-        expect(user.email).to be_present
+        expect(user_identity.email).to be_present
       end
 
       it 'has various important attributes' do
-        expect(user).to have_attributes(
+        expect(user_identity).to have_attributes(
           uuid: 'cf0f3deb1b424d3cb4f792e8346a4d71',
+          email: 'fake.user@vets.gov',
           first_name: 'KENT',
           middle_name: 'Mayo',
           last_name: 'WELLS',
@@ -149,8 +149,6 @@ RSpec.describe SAML::User do
           loa: { current: 3, highest: 3 },
           multifactor: false,
           authn_context: 'dslogon',
-          last_signed_in: nil,
-          mhv_last_signed_in: nil
         )
       end
     end
@@ -177,8 +175,7 @@ RSpec.describe SAML::User do
       end
 
       it 'properly constructs a user' do
-        expect(user.valid?(:loa3_user)).to be_truthy
-        expect(user.multifactor).to be_falsey # when nil
+        expect(user_identity.multifactor).to be_falsey # when nil
       end
     end
   end

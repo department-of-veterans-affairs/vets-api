@@ -42,19 +42,19 @@ class User < Common::RedisStore
   # attribute :mhv_uuid # this is the cannonical version of MHV Correlation ID, provided by MHV sign-in users
 
   # identity attributes, some of these will be overridden by MVI.
-  delegate :email, to: :identity
-  delegate :first_name, to: :identity
-  delegate :middle_name, to: :identity
-  delegate :last_name, to: :identity
-  delegate :gender, to: :identity
-  delegate :birth_date, to: :identity
-  delegate :zip, to: :identity
-  delegate :ssn, to: :identity
-  delegate :loa, to: :identity
-  delegate :multifactor, to: :identity
-  delegate :authn_context, to: :identity
-  delegate :mhv_icn, to: :identity
-  delegate :mhv_uuid, to: :identity
+  delegate :email, to: :identity, allow_nil: true
+  delegate :first_name, to: :identity, allow_nil: true
+  delegate :middle_name, to: :identity, allow_nil: true
+  delegate :last_name, to: :identity, allow_nil: true
+  delegate :gender, to: :identity, allow_nil: true
+  delegate :birth_date, to: :identity, allow_nil: true
+  delegate :zip, to: :identity, allow_nil: true
+  delegate :ssn, to: :identity, allow_nil: true
+  delegate :loa, to: :identity, allow_nil: true
+  delegate :multifactor, to: :identity, allow_nil: true
+  delegate :authn_context, to: :identity, allow_nil: true
+  delegate :mhv_icn, to: :identity, allow_nil: true
+  delegate :mhv_uuid, to: :identity, allow_nil: true
 
   # mvi attributes
   delegate :birls_id, to: :mvi

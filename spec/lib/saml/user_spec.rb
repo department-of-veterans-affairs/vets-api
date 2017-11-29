@@ -35,9 +35,9 @@ RSpec.describe SAML::User do
   let(:settings) { double('settings', authn_context: 'idme') }
   let(:saml_response) { double('saml_response', settings: settings) }
   let(:described_instance) { described_class.new(saml_response) }
+  let(:user_identity) { UserIdentity.new(described_instance) }
 
   context 'LOA highest is lower than LOA current' do
-    let(:user) { User.new(described_instance) }
     before do
       loa3_saml_attrs['level_of_assurance'] = [1]
       allow(saml_response).to receive(:attributes).and_return(loa3_saml_attrs)
@@ -45,11 +45,11 @@ RSpec.describe SAML::User do
     end
 
     it 'properly constructs a user' do
-      expect(user).to be_valid
+      expect(user_identity).to be_valid
     end
 
     it 'defaults loa.highest to loa.current' do
-      expect(user.loa[:highest]).to eq(LOA::THREE)
+      expect(user_identity.loa[:highest]).to eq(LOA::THREE)
     end
   end
 
@@ -83,7 +83,7 @@ RSpec.describe SAML::User do
   end
 
   context 'when LOA highest is nil' do
-    let(:user) { User.new(described_instance) }
+
     before do
       loa1_saml_attrs['level_of_assurance'] = []
       allow(saml_response).to receive(:attributes).and_return(loa1_saml_attrs)
@@ -91,16 +91,16 @@ RSpec.describe SAML::User do
     end
 
     it 'properly constructs a user' do
-      expect(user).to be_valid
+      expect(user_identity).to be_valid
     end
 
     it 'defaults loa.highest to loa.current' do
-      expect(user.loa[:highest]).to eq(LOA::ONE)
+      expect(user_identity.loa[:highest]).to eq(LOA::ONE)
     end
 
     it 'does not log a warning when level_of_assurance is nil' do
       expect(Rails.logger).not_to receive(:warn)
-      user
+      user_identity
     end
   end
 
@@ -111,7 +111,7 @@ RSpec.describe SAML::User do
     end
 
     it 'properly constructs a user' do
-      expect(User.new(described_instance)).to be_valid
+      expect(UserIdentity.new(described_instance)).to be_valid
     end
   end
 
@@ -121,21 +121,21 @@ RSpec.describe SAML::User do
       allow(saml_response).to receive(:decrypted_document).and_return(REXML::Document.new(loa3_xml))
     end
 
-    it 'properly constructs a user' do
-      expect(User.new(described_instance)).to be_valid
+    it 'properly constructs a user identity' do
+      expect(UserIdentity.new(described_instance)).to be_valid
     end
   end
 
   context 'when gender is nil' do
-    let(:user) { User.new(described_instance) }
+
     before do
       allow(saml_response).to receive(:attributes).and_return(loa1_saml_attrs)
       allow(saml_response).to receive(:decrypted_document).and_return(REXML::Document.new(loa1_xml))
     end
 
     it 'properly constructs a user' do
-      expect(user).to be_valid
-      expect(user.gender).to be_nil
+      expect(user_identity).to be_valid
+      expect(user_identity.gender).to be_nil
     end
   end
 end
