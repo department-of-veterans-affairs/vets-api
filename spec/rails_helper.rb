@@ -134,20 +134,6 @@ RSpec.configure do |config|
 
   config.include StatsD::Instrument::Matchers
 
-  # only run integration tests if set e.g. `INTEGRATION=true r spec/integration/`
-  config.filter_run_excluding integration: true unless ENV['INTEGRATION']
-
-  # disable VCR for integration tests to hit the real service
-  config.around(:each) do |example|
-    if example.metadata[:integration]
-      WebMock.allow_net_connect!
-      VCR.turned_off { example.run }
-      WebMock.disable_net_connect!
-    else
-      example.run
-    end
-  end
-
   config.before(:each) do |example|
     stub_mvi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
