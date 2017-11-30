@@ -7,12 +7,14 @@ FactoryBot.define do
     transient do
       email 'abraham.lincoln@vets.gov'
       first_name 'abraham'
+      middle_name nil
       last_name 'lincoln'
       gender 'M'
       birth_date '1809-02-12'
       zip '17325'
       ssn '796111863'
       mhv_icn nil
+      multifactor false
 
       loa do
         { current: LOA::TWO, highest: LOA::THREE }
@@ -24,6 +26,7 @@ FactoryBot.define do
                              uuid: user.uuid,
                              email: t.email,
                              first_name: t.first_name,
+                             middle_name: t.middle_name,
                              last_name: t.last_name,
                              gender: t.gender,
                              birth_date: t.birth_date,
@@ -31,6 +34,7 @@ FactoryBot.define do
                              ssn: t.ssn,
                              mhv_icn: t.mhv_icn,
                              loa: t.loa,
+                             multifactor: t.multifactor
                              )
       user.instance_variable_set(:@identity, user_identity)
     end
