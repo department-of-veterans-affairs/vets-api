@@ -8,23 +8,23 @@ module EVSS
     class Service < EVSS::Service
       configuration EVSS::Letters::Configuration
 
-      def get_letters(user)
+      def get_letters
         with_monitoring do
-          raw_response = perform(:get, '', nil, headers_for_user(user))
+          raw_response = perform(:get, '')
           EVSS::Letters::LettersResponse.new(raw_response.status, raw_response)
         end
       end
 
-      def get_letter_beneficiary(user)
+      def get_letter_beneficiary
         with_monitoring do
-          raw_response = perform(:get, 'letterBeneficiary', nil, headers_for_user(user))
+          raw_response = perform(:get, 'letterBeneficiary')
           EVSS::Letters::BeneficiaryResponse.new(raw_response.status, raw_response)
         end
       end
 
-      def download_letter(user, type, options = nil)
+      def download_letter(type, options = nil)
         with_monitoring do
-          headers = headers_for_user(user)
+          headers = headers_for_user(@user)
           response = make_download_request(headers, options, type)
 
           case response.status.to_i
@@ -49,10 +49,9 @@ module EVSS
             request.headers.update(headers)
           end
         else
-          headers['Content-Type'] = 'application/json'
           response = download_conn.post do |request|
             request.url "#{type}/generate"
-            request.headers.update(headers)
+            request.headers['Content-Type'] = 'application/json'
             request.body = options
           end
         end
@@ -78,8 +77,7 @@ module EVSS
           faraday.options.timeout = EVSS::Letters::Configuration::DEFAULT_TIMEOUT
           faraday.use :breakers
           faraday.use EVSS::ErrorMiddleware
-          faraday.use :remove_cookies
-          faraday.adapter :httpclient
+          faraday.adapter Faraday.default_adapter
         end
       end
     end
