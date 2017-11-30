@@ -7,7 +7,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
   let(:loa1_user) { build(:user, :loa1, uuid: uuid) }
   let(:loa3_user) { build(:user, :loa3, uuid: uuid) }
-  let(:saml_user_attributes) { loa3_user.attributes }
+  let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
   let(:user_attributes) { double('user_attributes', saml_user_attributes) }
   let(:saml_user) do
     instance_double('SAML::User',
@@ -150,7 +150,9 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'changing multifactor' do
-        let(:saml_user_attributes) { loa1_user.attributes.merge(multifactor: 'true') }
+        let(:saml_user_attributes) do
+          loa1_user.attributes.merge(loa1_user.identity.attributes).merge(multifactor: 'true')
+        end
 
         it 'changes the multifactor to true, time is the same' do
           existing_user = User.find(uuid)
@@ -204,18 +206,6 @@ RSpec.describe V0::SessionsController, type: :controller do
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_TOTAL_KEY, **once)
         end
       end
-
-      context ' when a required saml attribute is missing' do
-        let(:saml_user_attributes) { loa1_user.attributes.merge(uuid: nil) }
-
-        before { allow(SAML::User).to receive(:new).and_return(saml_user) }
-
-        it 'logs a generic error' do
-          expect(Rails.logger).to receive(:error).with(/user:    \'valid\?=false errors=\["Uuid can\'t be blank"\]/)
-          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
-          expect(response).to have_http_status(:found)
-        end
-      end
     end
   end
 
@@ -245,7 +235,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
     describe ' POST saml_callback' do
       context 'loa1_user' do
-        let(:saml_user_attributes) { loa1_user.attributes }
+        let(:saml_user_attributes) { loa1_user.attributes.merge(loa1_user.identity.attributes) }
 
         it 'does not create a job to create an evss user' do
           allow(SAML::User).to receive(:new).and_return(saml_user)
@@ -254,7 +244,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'loa3_user' do
-        let(:saml_user_attributes) { loa3_user.attributes }
+        let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
 
         it 'creates a job to create an evss user' do
           allow(SAML::User).to receive(:new).and_return(saml_user)

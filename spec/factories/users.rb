@@ -34,11 +34,9 @@ FactoryBot.define do
                              ssn: t.ssn,
                              mhv_icn: t.mhv_icn,
                              loa: t.loa,
-                             multifactor: t.multifactor
-                             )
+                             multifactor: t.multifactor)
       user.instance_variable_set(:@identity, user_identity)
     end
-
 
     trait :loa1 do
       loa do

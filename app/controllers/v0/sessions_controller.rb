@@ -103,19 +103,31 @@ module V0
     def persist_session_and_user
       saml_attributes = SAML::User.new(@saml_response)
       existing_user = User.find(saml_attributes.user_attributes.uuid)
-      @current_user = User.new(saml_attributes.to_hash)
-      @current_user.last_signed_in = if saml_attributes.changing_multifactor? && existing_user.present?
-                                       existing_user.last_signed_in
-                                     else
-                                       Time.current.utc
-                                     end
+      user_identity = UserIdentity.new(saml_attributes.to_hash)
+      @current_user = init_new_identity(user_identity, existing_user, saml_attributes.changing_multifactor?)
 
-      StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) unless existing_user.present?
-      existing_user.destroy if existing_user.present?
+      if existing_user.present?
+        existing_user.identity.destroy
+        existing_user.destroy
+      else
+        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY)
+      end
 
       @session = Session.new(uuid: @current_user.uuid)
-      @session.save && @current_user.save
+      @session.save && @current_user.save && user_identity.save
     end
+
+    def init_new_user(user_identity, existing_user = nil, multifactor_change = false)
+      new_user = User.new(uuid: user_identity.uuid)
+      new_user.last_signed_in = if multifactor_change
+                                  existing_user.last_signed_in
+                                else
+                                  Time.current.utc
+                                end
+      new_user
+    end
+
+
 
     def handle_login_error
       fail_handler = SAML::AuthFailHandler.new(@saml_response, @current_user, @session)
