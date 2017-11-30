@@ -5,7 +5,7 @@ module Common
     module Middleware
       module Request
         class ImmutableHeaders < Faraday::Middleware
-          HTTP_PROTOCOL_HEADERS = %w(
+          HTTP_PROTOCOL_HEADERS = Set.new %w(
             Accept
             Accept-Charset
             Accept-Encoding
@@ -51,7 +51,7 @@ module Common
             User-Agent
             Vary
             Via
-          ).freeze
+          )
 
           def call(env)
             headers = {}
@@ -59,7 +59,7 @@ module Common
               if HTTP_PROTOCOL_HEADERS.include?(k)
                 headers[k] = v
               else
-                headers[ImmutableString.new(k)] = v
+                headers[CoreExtensions::ImmutableString.new(k)] = v
               end
             end
             env.request_headers = headers
