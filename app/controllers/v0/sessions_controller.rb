@@ -103,6 +103,7 @@ module V0
     def persist_session_and_user
       saml_attributes = SAML::User.new(@saml_response)
       existing_user = User.find(saml_attributes.user_attributes.uuid)
+      user_identity = UserIdentity.new(saml_attributes.to_hash)
       @current_user = User.new(saml_attributes.to_hash)
       @current_user.last_signed_in = if saml_attributes.changing_multifactor? && existing_user.present?
                                        existing_user.last_signed_in
@@ -114,7 +115,7 @@ module V0
       existing_user.destroy if existing_user.present?
 
       @session = Session.new(uuid: @current_user.uuid)
-      @session.save && @current_user.save
+      @session.save && @current_user.save && user_identity.save
     end
 
     def handle_login_error
