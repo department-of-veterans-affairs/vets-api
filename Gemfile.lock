@@ -10,10 +10,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: af843371b2b86c32389113db4333ec82895d4e0b
+  revision: d49c54324e53a59afe5998a9f52666b08aa49888
   branch: master
   specs:
-    vets_json_schema (3.10.4)
+    vets_json_schema (3.11.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -259,7 +259,7 @@ GEM
     overcommit (0.37.0)
       childprocess (~> 0.5.8)
       iniparse (~> 1.4)
-    ox (2.4.9)
+    ox (2.8.2)
     parser (2.3.1.2)
       ast (~> 2.2)
     pdf-core (0.7.0)
@@ -568,4 +568,4 @@ DEPENDENCIES
   zero_downtime_migrations
 
 BUNDLED WITH
-   1.16.0.pre.3
+   1.16.0

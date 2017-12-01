@@ -17,7 +17,9 @@ module Preneeds
 
     def get_file
       preneed_attachment_uploader = get_preneed_attachment_uploader
-      preneed_attachment_uploader.retrieve_from_store!(parsed_file_data['filename'])
+      preneed_attachment_uploader.retrieve_from_store!(
+        parsed_file_data['filename']
+      )
       preneed_attachment_uploader.file
     end
 

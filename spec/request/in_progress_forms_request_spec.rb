@@ -24,14 +24,6 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       )
     end
 
-    context 'with a "bad" uuid' do
-      let(:user) { build(:user, :loa3, uuid: 'cats-and-dogs') }
-      it 'logs and errow with sentry' do
-        expect(Rails.logger).to receive(:error).with(/cats-and-dogs/)
-        get v0_in_progress_forms_url, nil, auth_header
-      end
-    end
-
     describe '#index' do
       let(:user) { loa3_user }
       let!(:in_progress_form_edu) { FactoryBot.create(:in_progress_form, form_id: '22-1990', user_uuid: user.uuid) }
@@ -198,8 +190,8 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
       context 'with an existing form' do
         let!(:other_existing_form) { create(:in_progress_form, form_id: 'jksdfjk') }
-        let(:existing_form) { FactoryBot.create(:in_progress_form, user_uuid: user.uuid) }
-        let(:update_form) { FactoryBot.create(:in_progress_update_form, user_uuid: user.uuid) }
+        let(:existing_form) { create(:in_progress_form, user_uuid: user.uuid) }
+        let(:update_form) { build(:in_progress_update_form, user_uuid: user.uuid) }
 
         it 'updates the right form' do
           put v0_in_progress_form_url(existing_form.form_id), { form_data: update_form.form_data }, auth_header

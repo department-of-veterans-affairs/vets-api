@@ -96,8 +96,7 @@ ActiveRecord::Schema.define(version: 20171108221458) do
     t.json     "metadata"
   end
 
-  add_index "in_progress_forms", ["form_id"], name: "index_in_progress_forms_on_form_id", using: :btree
-  add_index "in_progress_forms", ["user_uuid"], name: "index_in_progress_forms_on_user_uuid", using: :btree
+  add_index "in_progress_forms", ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true, using: :btree
 
   create_table "mhv_accounts", force: :cascade do |t|
     t.string   "user_uuid",     null: false

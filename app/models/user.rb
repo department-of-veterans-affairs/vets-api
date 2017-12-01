@@ -49,6 +49,14 @@ class User < Common::RedisStore
   validates :email, presence: true
   validates :loa, presence: true
 
+  def initialize(attributes = {}, persisted = false)
+    undefined = REQ_CLASS_INSTANCE_VARS.select { |class_var| send(class_var).nil? }
+    raise NoMethodError, "Required class methods #{undefined.join(', ')} are not defined" if undefined.any?
+    super(attributes)
+    @persisted = persisted
+    run_callbacks :initialize
+  end
+
   # conditionally validate if user is LOA3
   with_options(on: :loa3_user) do |user|
     user.validates :first_name, presence: true
@@ -115,7 +123,7 @@ class User < Common::RedisStore
   end
 
   def can_access_id_card?
-    loa3? && edipi.present? && beta_enabled?(uuid, 'veteran_id_card') &&
+    loa3? && edipi.present? &&
       ID_CARD_ALLOWED_STATUSES.include?(veteran_status.title38_status)
   rescue StandardError # Default to false for any veteran_status error
     false

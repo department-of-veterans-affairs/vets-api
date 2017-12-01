@@ -52,6 +52,10 @@ evss:
     aws_secret_access_key: EVSS_S3_AWS_SECRET_ACCESS_KEY_XYZ
     bucket: evss_s3_bucket
     region: evss_s3_region
+  letters:
+    timeout: 55
+  pciu_address:
+    timeout: 30
   mock_letters: false
   mock_gi_bill_status: false
   mock_pciu_address: false
