@@ -10,16 +10,11 @@ module EVSS
 
       def download_letter(type, options = nil)
         with_monitoring do
-          if options.blank?
-            response = perform(:get, type)
-          else
-            response = perform(
-              :post,
-              "#{type}/generate",
-              options,
-              'Content-Type' => 'application/json'
-            )
-          end
+          response = if options.blank?
+                       perform(:get, type)
+                     else
+                       perform(:post, "#{type}/generate", options, 'Content-Type' => 'application/json')
+                     end
 
           case response.status.to_i
           when 200
