@@ -151,16 +151,14 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       context 'changing multifactor' do
         let(:saml_user_attributes) do
-          loa1_user.attributes.merge(loa1_user.identity.attributes).merge(multifactor: 'true')
+           loa1_user.attributes.merge(loa1_user.identity.attributes).merge(multifactor: true)
         end
-
         it 'changes the multifactor to true, time is the same' do
           existing_user = User.find(uuid)
           expect(existing_user.last_signed_in).to be_a(Time)
           expect(existing_user.multifactor).to be_falsey
           expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
           allow(saml_user).to receive(:changing_multifactor?).and_return(true)
-          allow(SAML::User).to receive(:new).and_return(saml_user)
           post :saml_callback
           new_user = User.find(uuid)
           expect(new_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)

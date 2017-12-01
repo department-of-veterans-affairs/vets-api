@@ -104,7 +104,7 @@ module V0
       saml_attributes = SAML::User.new(@saml_response)
       existing_user = User.find(saml_attributes.user_attributes.uuid)
       user_identity = UserIdentity.new(saml_attributes.to_hash)
-      @current_user = init_new_identity(user_identity, existing_user, saml_attributes.changing_multifactor?)
+      @current_user = init_new_user(user_identity, existing_user, saml_attributes.changing_multifactor?)
 
       if existing_user.present?
         existing_user.identity.destroy
