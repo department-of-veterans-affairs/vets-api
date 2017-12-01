@@ -9,10 +9,11 @@ RSpec.describe SAML::User do
       instance_double(OneLogin::RubySaml::Response, attributes: saml_attributes,
                                                     decrypted_document: decrypted_document_partial)
     end
-    let(:decrypted_document_partial) { REXML::Document.new(mhv_response) }
-    let(:mhv_response) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/mhv_response.xml") }
+    let(:decrypted_document_partial) { REXML::Document.new(response_partial) }
+    let(:response_partial) { File.read("#{::Rails.root}/spec/fixtures/files/saml_responses/#{response_file}") }
+    let(:response_file) { 'mhv.xml' }
+
     let(:described_instance) { described_class.new(saml_response) }
-    let(:user) { User.new(described_instance) }
 
     context 'non-premium user' do
       let(:saml_attributes) do
@@ -27,30 +28,28 @@ RSpec.describe SAML::User do
         )
       end
 
-      it 'properly constructs a user' do
-        expect(user).to be_valid
-      end
-
-      it 'has email' do
-        expect(user.email).to be_present
-      end
-
       it 'has various important attributes' do
-        expect(user).to have_attributes(
+        expect(described_instance.to_hash).to eq(
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
-          first_name: nil,
-          middle_name: nil,
-          last_name: nil,
-          gender: nil,
-          birth_date: nil,
-          zip: nil,
-          ssn: nil,
+          email: 'kam+tristanmhv@adhocteam.us',
           loa: { current: 1, highest: 1 },
-          multifactor: true,
-          authn_context: 'myhealthevet',
-          last_signed_in: nil,
-          mhv_last_signed_in: nil
+          mhv_correlation_id: '12345748',
+          mhv_icn: '1012853550V207686',
+          multifactor: 'true',
+          authn_context: 'myhealthevet'
         )
+      end
+
+      it 'is not changing multifactor' do
+        expect(described_instance.changing_multifactor?).to be_falsey
+      end
+
+      context 'multifactor' do
+        let(:response_file) { 'mhv_multifactor.xml' }
+
+        it 'is changing multifactor' do
+          expect(described_instance.changing_multifactor?).to be_truthy
+        end
       end
     end
 
@@ -69,23 +68,28 @@ RSpec.describe SAML::User do
         )
       end
 
-      it 'properly constructs a user' do
-        expect(user).to be_valid
-      end
-
-      it 'has email' do
-        expect(user.email).to be_present
-      end
-
       it 'has various important attributes' do
-        expect(user).to have_attributes(
+        expect(described_instance.to_hash).to eq(
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
+          email: 'kam+tristanmhv@adhocteam.us',
           loa: { current: 3, highest: 3 },
-          multifactor: false,
-          authn_context: 'myhealthevet',
-          last_signed_in: nil,
-          mhv_last_signed_in: nil
+          mhv_correlation_id: '12345748',
+          mhv_icn: '1012853550V207686',
+          multifactor: 'false',
+          authn_context: 'myhealthevet'
         )
+      end
+
+      it 'is not changing multifactor' do
+        expect(described_instance.changing_multifactor?).to be_falsey
+      end
+
+      context 'multifactor' do
+        let(:response_file) { 'mhv_multifactor.xml' }
+
+        it 'is changing multifactor' do
+          expect(described_instance.changing_multifactor?).to be_truthy
+        end
       end
     end
   end
