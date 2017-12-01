@@ -151,7 +151,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       context 'changing multifactor' do
         let(:saml_user_attributes) do
-           loa1_user.attributes.merge(loa1_user.identity.attributes).merge(multifactor: true)
+          loa1_user.attributes.merge(loa1_user.identity.attributes).merge(multifactor: true)
         end
         it 'changes the multifactor to true, time is the same' do
           existing_user = User.find(uuid)
