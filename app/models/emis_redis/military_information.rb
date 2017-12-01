@@ -185,7 +185,7 @@ module EMISRedis
 
     def service_episodes_by_date
       @service_episodes_by_date ||= lambda do
-        military_service_episodes.sort_by(&:end_date).reverse
+        military_service_episodes.sort_by { |ep| ep.end_date || Time.zone.today + 3650 }.reverse
       end.call
     end
   end

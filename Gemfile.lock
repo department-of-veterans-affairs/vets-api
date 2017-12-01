@@ -259,7 +259,7 @@ GEM
     overcommit (0.37.0)
       childprocess (~> 0.5.8)
       iniparse (~> 1.4)
-    ox (2.4.9)
+    ox (2.8.2)
     parser (2.3.1.2)
       ast (~> 2.2)
     pdf-core (0.7.0)
@@ -568,4 +568,4 @@ DEPENDENCIES
   zero_downtime_migrations
 
 BUNDLED WITH
-   1.16.0.pre.3
+   1.16.0
