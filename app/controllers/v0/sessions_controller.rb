@@ -107,7 +107,7 @@ module V0
       @current_user = init_new_user(user_identity, existing_user, saml_attributes.changing_multifactor?)
 
       if existing_user.present?
-        existing_user.identity.destroy
+        existing_user&.identity&.destroy
         existing_user.destroy
       else
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY)

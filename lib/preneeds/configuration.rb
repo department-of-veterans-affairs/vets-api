@@ -8,6 +8,8 @@ require 'preneeds/middleware/response/preneeds_parser'
 
 module Preneeds
   class Configuration < Common::Client::Configuration::SOAP
+    TIMEOUT = 15
+
     def self.url
       "#{Settings.preneeds.host}/eoas_SOA/PreNeedApplicationPort"
     end
@@ -25,6 +27,8 @@ module Preneeds
       @faraday ||= Faraday.new(
         path, headers: base_request_headers, request: request_options, ssl: { verify: false }
       ) do |conn|
+        conn.options.timeout = TIMEOUT
+
         conn.request :soap_headers
 
         conn.response :preneeds_parser
