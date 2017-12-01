@@ -3,7 +3,7 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 
 RSpec.describe V0::InProgressFormsController, type: :request do
-  it_should_behave_like 'skip_sentry_404'
+  it_should_behave_like 'a controller that does not log 404 to Sentry'
 
   context 'with a user' do
     let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }

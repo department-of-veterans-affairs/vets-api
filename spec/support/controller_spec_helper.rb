@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-shared_examples_for 'skip_sentry_404' do
+shared_examples_for 'a controller that does not log 404 to Sentry' do
   before do
     allow_any_instance_of(described_class).to receive(:authenticate) do
       raise Common::Exceptions::RecordNotFound, 'some_id'
