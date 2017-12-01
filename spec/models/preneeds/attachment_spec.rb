@@ -24,7 +24,7 @@ RSpec.describe Preneeds::Attachment do
           }
         },
         description: 'extras.pdf',
-        sendingName: 'extras.pdf',
+        sendingName: 'vets.gov',
         sendingSource: 'vets.gov'
       )
     end

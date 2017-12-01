@@ -43,9 +43,13 @@ class ApplicationController < ActionController::API
 
   private
 
+  def skip_sentry_exception_types
+    SKIP_SENTRY_EXCEPTION_TYPES
+  end
+
   rescue_from 'Exception' do |exception|
     # report the original 'cause' of the exception when present
-    if SKIP_SENTRY_EXCEPTION_TYPES.include?(exception.class) == false
+    if skip_sentry_exception_types.include?(exception.class) == false
       extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
       if exception.is_a?(Common::Exceptions::BackendServiceException)
         # Add additional user specific context to the logs
