@@ -89,7 +89,7 @@ describe Preneeds::Service do
       it 'creates a preneeds application', run_at: 'Tue, 21 Nov 2017 22:10:32 GMT' do
         multipart_matcher = lambda do |request_1, request_2|
           new_mimepart = request_1.headers['Content-Type'][0].split(';')[1].gsub(' boundary="', '').delete('"')
-          old_mimepart = '--==_mimepart_5a14a4580_ef3ec711088639'
+          old_mimepart = '--==_mimepart_5a14a4580_948e2ab145fb50ec722de'
 
           expect(request_1.headers.keys).to eq(request_2.headers.keys)
 

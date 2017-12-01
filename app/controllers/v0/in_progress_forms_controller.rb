@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 module V0
   class InProgressFormsController < ApplicationController
+    include IgnoreNotFound
+
     before_action :check_access_denied
 
     def index

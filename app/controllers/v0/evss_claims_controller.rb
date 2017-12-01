@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 module V0
   class EVSSClaimsController < EVSSClaimsBaseController
+    include IgnoreNotFound
+
     def index
       claims, synchronized = claim_service.all
       render json: claims,
