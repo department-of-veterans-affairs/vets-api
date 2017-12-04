@@ -2,12 +2,7 @@
 module EVSS
   module PCIUAddress
     class Configuration < EVSS::Configuration
-      def request_options
-        {
-          open_timeout: open_timeout,
-          timeout: Settings.evss.pciu_address.timeout
-        }
-      end
+      self.read_timeout = Settings.evss.pciu_address.timeout || 30
 
       def base_path
         "#{Settings.evss.url}/wss-pciu-services-web/rest/pciuServices/v1"

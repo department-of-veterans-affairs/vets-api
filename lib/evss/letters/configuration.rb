@@ -2,12 +2,7 @@
 module EVSS
   module Letters
     class Configuration < EVSS::Configuration
-      def request_options
-        {
-          open_timeout: open_timeout,
-          timeout: Settings.evss.letters.timeout
-        }
-      end
+      self.read_timeout = Settings.evss.letters.timeout || 55
 
       def base_path
         "#{Settings.evss.url}/wss-lettergenerator-services-web/rest/letters/v1"

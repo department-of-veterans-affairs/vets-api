@@ -2,12 +2,7 @@
 module EVSS
   module Letters
     class DownloadConfiguration < EVSS::Letters::Configuration
-      def request_options
-        {
-          open_timeout: open_timeout,
-          timeout: Settings.evss.letters.timeout
-        }
-      end
+      self.read_timeout = Settings.evss.letters.timeout || 55
 
       def connection
         @conn ||= Faraday.new(base_path, request: request_options, ssl: ssl_options) do |faraday|
