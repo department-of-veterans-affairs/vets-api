@@ -8,7 +8,7 @@ require 'preneeds/middleware/response/preneeds_parser'
 
 module Preneeds
   class Configuration < Common::Client::Configuration::SOAP
-    TIMEOUT = 15
+    TIMEOUT = 30
 
     def self.url
       "#{Settings.preneeds.host}/eoas_SOA/PreNeedApplicationPort"
