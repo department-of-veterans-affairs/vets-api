@@ -11,9 +11,9 @@ module EVSS
       def download_letter(type, options = nil)
         with_monitoring do
           response = if options.blank?
-                       perform(:get, type)
+                       download(type)
                      else
-                       perform(:post, "#{type}/generate", options, 'Content-Type' => 'application/json')
+                       download_with_benefit_options(type, options)
                      end
 
           case response.status.to_i
@@ -30,6 +30,16 @@ module EVSS
             raise_backend_exception('EVSS502', 'Letters')
           end
         end
+      end
+
+      private
+
+      def download(type)
+        perform(:get, type)
+      end
+
+      def download_with_benefit_options(type, options)
+        perform(:post, "#{type}/generate", options, 'Content-Type' => 'application/json')
       end
     end
   end
