@@ -112,6 +112,7 @@ Rails.application.routes.draw do
 
     scope :id_card do
       resource :attributes, only: [:show], controller: 'id_card_attributes'
+      resource :announcement_subscription, only: [:create], controller: 'id_card_announcement_subscription'
     end
 
     namespace :preneeds do
