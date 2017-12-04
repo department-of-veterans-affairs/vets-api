@@ -2,9 +2,10 @@
 module Preneeds
   class Attachment
     include Virtus.model
+    VETS_GOV = 'vets.gov'
 
     attribute :attachment_type, Preneeds::AttachmentType
-    attribute :sending_source, String, default: 'vets.gov'
+    attribute :sending_source, String, default: VETS_GOV
     attribute :file, (Rails.env.production? ? CarrierWave::Storage::AWSFile : CarrierWave::SanitizedFile)
 
     attr_reader :data_handler
@@ -29,7 +30,7 @@ module Preneeds
           }
         },
         description: file.filename,
-        sendingName: file.filename,
+        sendingName: VETS_GOV,
         sendingSource: sending_source
       }
     end

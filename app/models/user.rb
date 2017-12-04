@@ -172,6 +172,10 @@ class User < Common::RedisStore
     end
   end
 
+  def identity
+    @identity ||= UserIdentity.find(uuid)
+  end
+
   private
 
   def mvi
