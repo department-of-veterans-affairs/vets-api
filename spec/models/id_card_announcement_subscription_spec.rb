@@ -9,7 +9,8 @@ RSpec.describe IdCardAnnouncementSubscription, type: :model do
     end
 
     it 'requires less than 255 characters in an email address' do
-      subscription = described_class.new(email: "#{'x' * 255 }@example.com")
+      email = ('x' * 255) + '@example.com'
+      subscription = described_class.new(email: email)
       expect_attr_invalid(subscription, :email, 'is too long (maximum is 255 characters)')
     end
 
