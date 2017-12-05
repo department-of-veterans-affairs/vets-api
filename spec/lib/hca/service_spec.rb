@@ -23,7 +23,7 @@ describe HCA::Service do
     </S:Envelope>
      )))
   end
-  let(:current_user) { FactoryGirl.build(:user, :loa3) }
+  let(:current_user) { FactoryBot.build(:user, :loa3) }
 
   describe '#submit_form' do
     context 'conformance tests', run_at: '2016-12-12' do

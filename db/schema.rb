@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171107183613) do
+ActiveRecord::Schema.define(version: 20171203062701) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -86,6 +86,14 @@ ActiveRecord::Schema.define(version: 20171107183613) do
 
   add_index "gibs_not_found_users", ["edipi"], name: "index_gibs_not_found_users_on_edipi", using: :btree
 
+  create_table "id_card_announcement_subscriptions", force: :cascade do |t|
+    t.string   "email",      null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "id_card_announcement_subscriptions", ["email"], name: "index_id_card_announcement_subscriptions_on_email", unique: true, using: :btree
+
   create_table "in_progress_forms", force: :cascade do |t|
     t.string   "user_uuid",              null: false
     t.string   "form_id",                null: false
@@ -96,8 +104,7 @@ ActiveRecord::Schema.define(version: 20171107183613) do
     t.json     "metadata"
   end
 
-  add_index "in_progress_forms", ["form_id"], name: "index_in_progress_forms_on_form_id", using: :btree
-  add_index "in_progress_forms", ["user_uuid"], name: "index_in_progress_forms_on_user_uuid", using: :btree
+  add_index "in_progress_forms", ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true, using: :btree
 
   create_table "mhv_accounts", force: :cascade do |t|
     t.string   "user_uuid",     null: false
@@ -122,13 +129,23 @@ ActiveRecord::Schema.define(version: 20171107183613) do
     t.string   "encrypted_file_data_iv", null: false
   end
 
+  create_table "preneed_attachments", force: :cascade do |t|
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+    t.uuid     "guid",                   null: false
+    t.string   "encrypted_file_data",    null: false
+    t.string   "encrypted_file_data_iv", null: false
+  end
+
+  add_index "preneed_attachments", ["guid"], name: "index_preneed_attachments_on_guid", unique: true, using: :btree
+
   create_table "preneed_submissions", force: :cascade do |t|
-    t.string   "tracking_number",     null: false
+    t.string   "tracking_number",    null: false
     t.string   "application_uuid"
-    t.string   "return_description",            null: false
+    t.string   "return_description", null: false
     t.integer  "return_code"
-    t.datetime "created_at",          null: false
-    t.datetime "updated_at",          null: false
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
   end
 
   add_index "preneed_submissions", ["application_uuid"], name: "index_preneed_submissions_on_application_uuid", unique: true, using: :btree

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+FactoryBot.define do
   factory :in_progress_form do
-    user_uuid '5090027a-b9f2-44c4-acd7-45f2640d5e83'
+    user_uuid { SecureRandom.uuid }
     form_id 'edu_benefits'
     metadata(
       version: 1,

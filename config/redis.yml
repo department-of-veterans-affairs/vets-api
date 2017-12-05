@@ -14,6 +14,9 @@ development: &defaults
   user_store:
     namespace: users
     each_ttl: 3600
+  user_identity_store:
+    namespace: user_identities
+    each_ttl: 3600
   mvi_profile_response:
     namespace: mvi-profile-response
     each_ttl: 86400

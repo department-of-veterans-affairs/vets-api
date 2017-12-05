@@ -7,7 +7,14 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
   let(:loa1_user) { build(:user, :loa1, uuid: uuid) }
   let(:loa3_user) { build(:user, :loa3, uuid: uuid) }
-  let(:invalid_user) { build(:user, :loa3, uuid: '') }
+  let(:saml_user_attributes) { loa3_user.attributes }
+  let(:user_attributes) { double('user_attributes', saml_user_attributes) }
+  let(:saml_user) do
+    instance_double('SAML::User',
+                    changing_multifactor?: false,
+                    user_attributes: user_attributes,
+                    to_hash: saml_user_attributes)
+  end
 
   let(:settings_no_context) { build(:settings_no_context) }
   let(:rubysaml_settings) { build(:rubysaml_settings) }
@@ -61,7 +68,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   context 'when logged in' do
     before do
-      allow_any_instance_of(described_class).to receive(:new_user_from_saml).and_return(loa3_user)
+      allow(SAML::User).to receive(:new).and_return(saml_user)
       Session.create(uuid: uuid, token: token)
       User.create(loa1_user.attributes)
     end
@@ -85,17 +92,21 @@ RSpec.describe V0::SessionsController, type: :controller do
       delete :destroy
       expect(response).to have_http_status(202)
     end
+
     it 'responds with error when logout request is not found' do
       expect(Rails.logger).to receive(:error).exactly(1).times
       expect(post(:saml_logout_callback, SAMLResponse: '-'))
         .to redirect_to(Settings.saml.logout_relay + '?success=false')
     end
+
     context ' logout has been requested' do
       before { SingleLogoutRequest.create(uuid: logout_uuid, token: token) }
+
       context ' logout_response is invalid' do
         before do
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(invalid_logout_response)
         end
+
         it 'redirects to error' do
           expect(Rails.logger).to receive(:error).with(/bad thing/).exactly(1).times
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
@@ -108,6 +119,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(succesful_logout_response)
         end
+
         it 'redirects to success and destroy the session' do
           expect(Session.find(token)).to_not be_nil
           expect(User.find(uuid)).to_not be_nil
@@ -118,46 +130,71 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
     end
+
     describe ' POST saml_callback' do
-      let(:saml_user) { instance_double('SAML::User', changing_multifactor?: false) }
       before(:each) do
-        allow_any_instance_of(described_class).to receive(:saml_user).and_return(saml_user)
+        allow(SAML::User).to receive(:new).and_return(saml_user)
       end
 
-      it 'uplevels an LOA 1 session to LOA 3' do
-        expect(User.find(uuid).loa).to eq(highest: LOA::ONE, current: LOA::ONE)
+      it 'uplevels an LOA 1 session to LOA 3, time is different' do
+        existing_user = User.find(uuid)
+        expect(existing_user.last_signed_in).to be_a(Time)
+        expect(existing_user.multifactor).to be_falsey
+        expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
         post :saml_callback
-        expect(User.find(uuid).loa).to eq(highest: LOA::THREE, current: LOA::THREE)
+        new_user = User.find(uuid)
+        expect(new_user.loa).to eq(highest: LOA::THREE, current: LOA::THREE)
+        expect(new_user.multifactor).to be_falsey
+        expect(new_user.last_signed_in).not_to eq(existing_user.last_signed_in)
       end
-      it 'creates a valid session and user' do
-        post :saml_callback
-        expect(User.find(uuid)).to_not be_nil
-        expect(User.find(uuid).attributes).to eq(User.from_merged_attrs(loa1_user, loa3_user).attributes)
+
+      context 'changing multifactor' do
+        let(:saml_user_attributes) { loa1_user.attributes.merge(multifactor: 'true') }
+
+        it 'changes the multifactor to true, time is the same' do
+          existing_user = User.find(uuid)
+          expect(existing_user.last_signed_in).to be_a(Time)
+          expect(existing_user.multifactor).to be_falsey
+          expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
+          allow(saml_user).to receive(:changing_multifactor?).and_return(true)
+          allow(SAML::User).to receive(:new).and_return(saml_user)
+          post :saml_callback
+          new_user = User.find(uuid)
+          expect(new_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
+          expect(new_user.multifactor).to be_truthy
+          expect(new_user.last_signed_in).to eq(existing_user.last_signed_in)
+        end
       end
 
       context ' when user clicked DENY' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
+
         it 'redirects to an auth failure page' do
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::CLICKED_DENY_MSG}/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
       end
+
       context ' when too much time passed to consume the SAML Assertion' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_late) }
+
         it 'redirects to an auth failure page' do
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::TOO_LATE_MSG}/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
       end
+
       context ' when clock drift causes us to consume the Assertion before its creation' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_early) }
+
         it 'redirects to an auth failure page' do
           expect(Rails.logger).to receive(:error).with(/#{SAML::AuthFailHandler::TOO_EARLY_MSG}/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
+
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
           early_msg_tag = ['error:auth_too_early']
@@ -166,8 +203,12 @@ RSpec.describe V0::SessionsController, type: :controller do
             .and trigger_statsd_increment(described_class::STATSD_LOGIN_TOTAL_KEY, **once)
         end
       end
+
       context ' when a required saml attribute is missing' do
-        before { allow_any_instance_of(described_class).to receive(:new_user_from_saml).and_return(invalid_user) }
+        let(:saml_user_attributes) { loa1_user.attributes.merge(uuid: nil) }
+
+        before { allow(SAML::User).to receive(:new).and_return(saml_user) }
+
         it 'logs a generic error' do
           expect(Rails.logger).to receive(:error).with(/user:    \'valid\?=false errors=\["Uuid can\'t be blank"\]/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
@@ -202,13 +243,22 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
 
     describe ' POST saml_callback' do
-      it 'does not create a job to create an evss user when user has loa1' do
-        allow_any_instance_of(described_class).to receive(:new_user_from_saml).and_return(loa1_user)
-        expect { post :saml_callback }.to_not change(EVSS::CreateUserAccountJob.jobs, :size)
+      context 'loa1_user' do
+        let(:saml_user_attributes) { loa1_user.attributes }
+
+        it 'does not create a job to create an evss user' do
+          allow(SAML::User).to receive(:new).and_return(saml_user)
+          expect { post :saml_callback }.to_not change(EVSS::CreateUserAccountJob.jobs, :size)
+        end
       end
-      it 'creates a job to create an evss user when user has loa3 and evss attrs' do
-        allow_any_instance_of(described_class).to receive(:new_user_from_saml).and_return(loa3_user)
-        expect { post :saml_callback }.to change(EVSS::CreateUserAccountJob.jobs, :size).by(1)
+
+      context 'loa3_user' do
+        let(:saml_user_attributes) { loa3_user.attributes }
+
+        it 'creates a job to create an evss user' do
+          allow(SAML::User).to receive(:new).and_return(saml_user)
+          expect { post :saml_callback }.to change(EVSS::CreateUserAccountJob.jobs, :size).by(1)
+        end
       end
     end
   end

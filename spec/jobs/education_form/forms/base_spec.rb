@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefits do
-  let!(:application) { FactoryGirl.create(:va1990).education_benefits_claim }
+  let!(:application) { FactoryBot.create(:va1990).education_benefits_claim }
   let(:renderer) { described_class.new(application) }
 
   context 'build' do

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+FactoryBot.define do
   factory :address, class: Preneeds::Address do
-    sequence(:street) { |n| "street #{n}" }
-    sequence(:street2) { |n| "street2 #{n}" }
+    sequence(:street) { generate(:street) }
+    sequence(:street2) { generate(:street2) }
     city 'NY'
     state 'NY'
     country 'USA'

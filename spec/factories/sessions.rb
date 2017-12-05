@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require './lib/sm/client_session'
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :session, class: SM::ClientSession do
     user_id 1234
     token 'o7nsKRFVeijDG8u59/D6JOMrCmXMZO8p'

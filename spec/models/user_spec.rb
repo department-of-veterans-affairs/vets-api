@@ -5,32 +5,6 @@ RSpec.describe User, type: :model do
   let(:loa_one) { { current: LOA::ONE } }
   let(:loa_three) { { current: LOA::THREE } }
 
-  describe '.from_merged_attrs()' do
-    subject(:loa1_user) { build(:user, :loa1) }
-    subject(:loa3_user) { build(:user, :loa3) }
-    it 'should not down-level' do
-      user = described_class.from_merged_attrs(loa3_user, loa1_user)
-      expect(user.loa[:current]).to eq(loa3_user.loa[:current])
-      expect(user.loa[:highest]).to eq(loa3_user.loa[:highest])
-      expect(user).to be_valid
-    end
-    it 'should up-level' do
-      user = described_class.from_merged_attrs(loa1_user, loa3_user)
-      expect(user.loa[:current]).to eq(loa3_user.loa[:current])
-      expect(user.loa[:highest]).to eq(loa3_user.loa[:highest])
-      expect(user).to be_valid
-    end
-    it 'should use newer attrs unless they are empty or nil' do
-      new_user = build(:user, :loa1, first_name: 'George', last_name: 'Washington', gender: '', birth_date: nil)
-      user = described_class.from_merged_attrs(loa3_user, new_user)
-      expect(user.first_name).to eq('George')
-      expect(user.last_name).to eq('Washington')
-      expect(user.gender).to eq(loa3_user.gender)
-      expect(user.birth_date).to eq(loa3_user.birth_date)
-      expect(user.zip).to eq(loa3_user.zip)
-    end
-  end
-
   describe '#can_prefill_emis?' do
     let(:user) { build(:user, :loa3) }
 
@@ -45,24 +19,24 @@ RSpec.describe User, type: :model do
 
   describe '.create()' do
     context 'with LOA 1' do
-      subject(:loa1_user) { described_class.new(FactoryGirl.build(:user, loa: loa_one)) }
+      subject(:loa1_user) { described_class.new(FactoryBot.build(:user, loa: loa_one)) }
       it 'should allow a blank ssn' do
-        expect(FactoryGirl.build(:user, loa: loa_one, ssn: '')).to be_valid
+        expect(FactoryBot.build(:user, loa: loa_one, ssn: '')).to be_valid
       end
       it 'should allow a blank gender' do
-        expect(FactoryGirl.build(:user, loa: loa_one, gender: '')).to be_valid
+        expect(FactoryBot.build(:user, loa: loa_one, gender: '')).to be_valid
       end
       it 'should allow a blank middle_name' do
-        expect(FactoryGirl.build(:user, loa: loa_one, middle_name: '')).to be_valid
+        expect(FactoryBot.build(:user, loa: loa_one, middle_name: '')).to be_valid
       end
       it 'should allow a blank birth_date' do
-        expect(FactoryGirl.build(:user, loa: loa_one, birth_date: '')).to be_valid
+        expect(FactoryBot.build(:user, loa: loa_one, birth_date: '')).to be_valid
       end
       it 'should allow a blank zip' do
-        expect(FactoryGirl.build(:user, loa: loa_one, zip: '')).to be_valid
+        expect(FactoryBot.build(:user, loa: loa_one, zip: '')).to be_valid
       end
       it 'should allow a blank loa.highest' do
-        expect(FactoryGirl.build(:user, loa: { current: LOA::ONE, highest: '' })).to be_valid
+        expect(FactoryBot.build(:user, loa: { current: LOA::ONE, highest: '' })).to be_valid
       end
       it 'should not allow a blank uuid' do
         loa1_user.uuid = ''
@@ -76,7 +50,7 @@ RSpec.describe User, type: :model do
       end
     end
     context 'with LOA 3' do
-      subject(:loa3_user) { described_class.new(FactoryGirl.build(:user, loa: loa_three)) }
+      subject(:loa3_user) { described_class.new(FactoryBot.build(:user, loa: loa_three)) }
       it 'should not allow a blank ssn' do
         loa3_user.ssn = ''
         expect(loa3_user.valid?(:loa3_user)).to be_falsey
@@ -129,7 +103,7 @@ RSpec.describe User, type: :model do
     end
   end
 
-  subject { described_class.new(FactoryGirl.build(:user)) }
+  subject { described_class.new(FactoryBot.build(:user)) }
   context 'with an invalid ssn' do
     it 'should have an error on ssn' do
       subject.ssn = '111-22-3333'
@@ -139,7 +113,7 @@ RSpec.describe User, type: :model do
   end
 
   context 'user without attributes' do
-    let(:test_user) { FactoryGirl.build(:user) }
+    let(:test_user) { FactoryBot.build(:user) }
     it 'expect ttl to an Integer' do
       expect(subject.ttl).to be_an(Integer)
       expect(subject.ttl).to be_between(-Float::INFINITY, 0)
@@ -203,14 +177,14 @@ RSpec.describe User, type: :model do
 
     describe '#mhv_correlation_id' do
       context 'when mhv ids are nil' do
-        let(:user) { FactoryGirl.build(:user) }
+        let(:user) { FactoryBot.build(:user) }
         it 'has a mhv correlation id of nil' do
           expect(user.mhv_correlation_id).to be_nil
         end
       end
       context 'when there are mhv ids' do
-        let(:loa3_user) { FactoryGirl.build(:user, :loa3) }
-        let(:mvi_profile) { FactoryGirl.build(:mvi_profile) }
+        let(:loa3_user) { FactoryBot.build(:user, :loa3) }
+        let(:mvi_profile) { FactoryBot.build(:mvi_profile) }
         it 'has a mhv correlation id' do
           stub_mvi(mvi_profile)
           expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.mhv_ids.first)

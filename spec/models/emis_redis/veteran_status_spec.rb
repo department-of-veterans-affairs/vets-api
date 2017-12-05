@@ -42,4 +42,22 @@ describe EMISRedis::VeteranStatus, skip_emis: true do
       end
     end
   end
+
+  describe 'title38_status' do
+    context 'with a valid response for a veteran' do
+      it 'returns true' do
+        VCR.use_cassette('emis/get_veteran_status/valid') do
+          expect(subject.title38_status).to eq('V1')
+        end
+      end
+    end
+
+    context 'with a valid response for a non-veteran' do
+      it 'returns false' do
+        VCR.use_cassette('emis/get_veteran_status/valid_non_veteran') do
+          expect(subject.title38_status).to eq('V4')
+        end
+      end
+    end
+  end
 end

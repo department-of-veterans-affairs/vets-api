@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe EVSS::CreateUserAccountJob, type: :job do
-  let(:user) { FactoryGirl.create(:user, :loa3) }
+  let(:user) { FactoryBot.create(:user, :loa3) }
   let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
 
   it 'calls create_user_account EVSS API' do

@@ -100,34 +100,33 @@ module V0
 
     private
 
-    def saml_user
-      @saml_user ||= SAML::User.new(@saml_response)
-    end
-
-    # This is used in persist_session_and_user
-    def new_user_from_saml
-      @new_user_from_saml ||= User.new(saml_user.to_hash)
-    end
-
     def persist_session_and_user
-      @session = Session.new(uuid: new_user_from_saml.uuid)
-      existing_user = User.find(@session.uuid)
+      saml_attributes = SAML::User.new(@saml_response)
+      existing_user = User.find(saml_attributes.user_attributes.uuid)
+      user_identity = UserIdentity.new(saml_attributes.to_hash)
+      @current_user = init_new_user(user_identity, existing_user, saml_attributes.changing_multifactor?)
 
-      @current_user =
-        # Completely new signin, both session and current user will be persisted
-        if existing_user.nil?
-          StatsD.increment(STATSD_LOGIN_NEW_USER_KEY)
-          new_user_from_saml
-        # Existing user. Updated attributes as a result of enabling multifactor
-        elsif saml_user.changing_multifactor?
-          existing_user.multifactor = saml_user.decorated.multifactor
-          existing_user
-        # Existing user. Updated attributes as a result of completing identity proof
-        else
-          User.from_merged_attrs(existing_user, new_user_from_saml)
-        end
+      if existing_user.present?
+        existing_user&.identity&.destroy
+        existing_user.destroy
+      else
+        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY)
+      end
 
-      @session.save && @current_user.save
+      @session = Session.new(uuid: @current_user.uuid)
+      @session.save && @current_user.save && user_identity.save
+    end
+
+    def init_new_user(user_identity, existing_user = nil, multifactor_change = false)
+      # Eventually it will be this
+      # new_user = User.new(uuid: user_identity.uuid)
+      new_user = User.new(user_identity.attributes)
+      new_user.last_signed_in = if multifactor_change
+                                  existing_user.last_signed_in
+                                else
+                                  Time.current.utc
+                                end
+      new_user
     end
 
     def handle_login_error

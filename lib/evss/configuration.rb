@@ -3,8 +3,6 @@ require 'common/client/configuration/rest'
 
 module EVSS
   class Configuration < Common::Client::Configuration::REST
-    DEFAULT_TIMEOUT = 15
-
     # :nocov:
     def client_cert
       OpenSSL::X509::Certificate.new File.read(Settings.evss.cert_path)
@@ -38,16 +36,15 @@ module EVSS
     end
 
     def connection
-      @conn ||= Faraday.new(base_path, ssl: ssl_options) do |faraday|
-        faraday.options.timeout = DEFAULT_TIMEOUT
+      @conn ||= Faraday.new(base_path, request: request_options, ssl: ssl_options) do |faraday|
         faraday.use      :breakers
         faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
         faraday.response :betamocks if mock_enabled?
         faraday.response :snakecase, symbolize: false
         faraday.response :json
-        faraday.use :remove_cookies
-        faraday.adapter :httpclient
+        faraday.use :immutable_headers
+        faraday.adapter Faraday.default_adapter
       end
     end
 

@@ -52,6 +52,16 @@ module PdfFill
       end
     end
 
+    def set_font(pdf)
+      pdf.font_families.update(
+        'Roboto' => {
+          normal: Rails.root.join('lib/pdf_fill/fonts/Roboto-Regular.ttf'),
+          bold: Rails.root.join('lib/pdf_fill/fonts/Roboto-Bold.ttf')
+        }
+      )
+      pdf.font('Roboto')
+    end
+
     def generate
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
@@ -59,6 +69,8 @@ module PdfFill
       generate_blocks = sort_generate_blocks
 
       Prawn::Document.generate(file_path) do |pdf|
+        set_font(pdf)
+
         box_height = 25
         pdf.bounding_box(
           [pdf.bounds.left, pdf.bounds.top - box_height],

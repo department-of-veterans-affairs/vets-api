@@ -6,56 +6,37 @@ module EVSS
     class Service < EVSS::Service
       configuration EVSS::PCIUAddress::Configuration
 
-      def get_countries(user)
-        with_exception_handling do
-          raw_response = perform(:get, 'countries', nil, headers_for_user(user))
+      def get_countries
+        with_monitoring do
+          raw_response = perform(:get, 'countries')
           EVSS::PCIUAddress::CountriesResponse.new(raw_response.status, raw_response)
         end
       end
 
-      def get_states(user)
-        with_exception_handling do
-          raw_response = perform(:get, 'states', nil, headers_for_user(user))
+      def get_states
+        with_monitoring do
+          raw_response = perform(:get, 'states')
           EVSS::PCIUAddress::StatesResponse.new(raw_response.status, raw_response)
         end
       end
 
-      def get_address(user)
-        with_exception_handling do
-          raw_response = perform(:get, 'mailingAddress', nil, headers_for_user(user))
+      def get_address
+        with_monitoring do
+          raw_response = perform(:get, 'mailingAddress')
           EVSS::PCIUAddress::AddressResponse.new(raw_response.status, raw_response)
         end
       end
 
-      def update_address(user, address)
-        with_exception_handling do
+      def update_address(address)
+        with_monitoring do
           address.address_effective_date = DateTime.now.utc
           address = address.as_json.delete_if { |_k, v| v.blank? }
           address_json = {
             'cnpMailingAddress' => Hash[address.map { |k, v| [k.camelize(:lower), v] }]
           }.to_json
-          headers = headers_for_user(user).update('Content-Type' => 'application/json')
+          headers = { 'Content-Type' => 'application/json' }
           raw_response = perform(:post, 'mailingAddress', address_json, headers)
           EVSS::PCIUAddress::AddressResponse.new(raw_response.status, raw_response)
-        end
-      end
-
-      private
-
-      def with_exception_handling
-        yield
-      rescue Faraday::ParsingError => e
-        log_exception_to_sentry(e, extra_context: { url: config.base_path })
-        raise_backend_exception('EVSS502', 'PCIUAddress')
-      rescue Common::Client::Errors::ClientError => e
-        log_message_to_sentry(e.message, :error, extra_context: { url: config.base_path, body: e&.body })
-        case e.status
-        when 400
-          raise_backend_exception('EVSS400', 'PCIUAddress', e)
-        when 403
-          raise Common::Exceptions::Forbidden
-        else
-          raise_backend_exception('EVSS502', 'PCIUAddress', e)
         end
       end
     end

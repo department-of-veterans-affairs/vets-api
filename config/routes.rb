@@ -112,6 +112,7 @@ Rails.application.routes.draw do
 
     scope :id_card do
       resource :attributes, only: [:show], controller: 'id_card_attributes'
+      resource :announcement_subscription, only: [:create], controller: 'id_card_announcement_subscription'
     end
 
     namespace :preneeds do
@@ -122,6 +123,7 @@ Rails.application.routes.draw do
       resources :military_ranks, only: :index, defaults: { format: :json }
       resources :branches_of_service, only: :index, defaults: { format: :json }
       resources :burial_forms, only: [:new, :create], defaults: { format: :json }
+      resources :preneed_attachments, only: :create
     end
 
     resource :address, only: [:show, :update] do
