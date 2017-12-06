@@ -20,6 +20,10 @@ class User < Common::RedisStore
   redis_ttl REDIS_CONFIG['user_store']['each_ttl']
   redis_key :uuid
 
+  validates :uuid, presence: true
+  validates :email, presence: true
+  validates :loa, presence: true
+
   # id.me attributes
   attribute :uuid
   attribute :email
@@ -44,18 +48,6 @@ class User < Common::RedisStore
   # mhv_last_signed_in used to determine whether we need to notify MHV audit logging
   # This is set to Time.now when any MHV session is first created, and nulled, when logout
   attribute :mhv_last_signed_in, Common::UTCTime
-
-  validates :uuid, presence: true
-  validates :email, presence: true
-  validates :loa, presence: true
-
-  def initialize(attributes = {}, persisted = false)
-    undefined = REQ_CLASS_INSTANCE_VARS.select { |class_var| send(class_var).nil? }
-    raise NoMethodError, "Required class methods #{undefined.join(', ')} are not defined" if undefined.any?
-    super(attributes)
-    @persisted = persisted
-    run_callbacks :initialize
-  end
 
   # conditionally validate if user is LOA3
   with_options(on: :loa3_user) do |user|

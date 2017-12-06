@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 class AuthenticationPersistenceService
-  def initialize(saml_attributes)
-    @saml_attributes = saml_attributes
+  def initialize(saml_response)
+    @saml_response = saml_response
+    @saml_attributes = SAML::User.new(@saml_response)
   end
 
   attr_reader :new_session, :new_user, :new_user_identity, :saml_attributes
@@ -13,30 +14,26 @@ class AuthenticationPersistenceService
 
   def self.extend!(session, user)
     session.expire(Session.redis_namespace_ttl)
-    user&.expire(User.redis_namespace_ttl)
     user&.identity&.expire(UserIdentity.redis_namespace_ttl)
+    user&.expire(User.redis_namespace_ttl)
   end
 
   def persist_authentication!
-    if existing_user.present?
-      expire_existing!
-    else
-      @new_user_identity = UserIdentity.new(saml_attributes.to_hash)
-      @new_user = init_new_user(new_user_identity)
-      @new_session = Session.new(uuid: new_user.uuid)
-      @new_session.save && @new_user.save && @new_user_identity.save
-    end
+    return false unless @saml_response.is_valid?
+    @new_user_identity = UserIdentity.new(saml_attributes.to_hash)
+    @new_user = init_new_user(new_user_identity)
+    @new_session = Session.new(uuid: new_user.uuid)
+    @new_session.save && @new_user.save && @new_user_identity.save
   end
 
-  def changing_multifactor?
-    saml_attributes.changing_multifactor?
-  end
+  delegate :changing_multifactor?, to: :saml_attributes
 
   private
 
   def expire_existing!
     existing_user&.identity&.destroy
     existing_user.destroy
+    @existing_user = nil
   end
 
   def init_new_user(user_identity)

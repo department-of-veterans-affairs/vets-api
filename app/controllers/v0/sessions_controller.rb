@@ -77,27 +77,21 @@ module V0
     end
 
     def saml_callback
-      @saml_response = OneLogin::RubySaml::Response.new(
-        params[:SAMLResponse], settings: saml_settings
-      )
-      @saml_attributes = SAML::User.new(@saml_response)
-      persistence_service = AuthenticationPersistenceService.new(@saml_response)
-
-      if @saml_response.is_valid? && persistence_service.persist_authentication!
+      if persistence_service.persist_authentication!
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) unless persistence_service.existing_user.present?
         @current_user = persistence_service.new_user
-        @session = persistence_service.session
+        @session = persistence_service.new_session
         async_create_evss_account(@current_user)
         redirect_to Settings.saml.relay + '?token=' + @session.token
 
         obscure_token = Session.obscure_token(@session.token)
         Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
-        Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: benchmark_tags('status:success'))
+        Benchmark::Timer.stop(TIMER_LOGIN_KEY, saml_response.in_response_to, tags: benchmark_tags('status:success'))
         StatsD.increment(STATSD_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
-        handle_login_error
+        handle_login_error(persistence_service.new_user, persistence_service.new_session)
         redirect_to Settings.saml.relay + '?auth=fail'
-        Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: benchmark_tags('status:failure'))
+        Benchmark::Timer.stop(TIMER_LOGIN_KEY, saml_response.in_response_to, tags: benchmark_tags('status:failure'))
       end
     ensure
       StatsD.increment(STATSD_LOGIN_TOTAL_KEY)
@@ -105,8 +99,18 @@ module V0
 
     private
 
-    def handle_login_error
-      fail_handler = SAML::AuthFailHandler.new(@saml_response, @current_user, @session)
+    def saml_response
+      @saml_response ||= OneLogin::RubySaml::Response.new(
+        params[:SAMLResponse], settings: saml_settings
+      )
+    end
+
+    def persistence_service
+      @persistence_service ||= AuthenticationPersistenceService.new(@saml_response)
+    end
+
+    def handle_login_error(user = nil, session = nil)
+      fail_handler = SAML::AuthFailHandler.new(@saml_response, user, session)
       StatsD.increment(STATSD_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
       StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ["error:#{fail_handler.error}"])
       if fail_handler.known_error?
