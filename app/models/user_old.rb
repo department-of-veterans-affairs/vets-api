@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# We're just keeping this around for persistence.
+# FIXME-IDENTITY-PHASE2: this entire class will go away.
 class UserOld < Common::RedisStore
   redis_store REDIS_CONFIG['user_store']['namespace']
   redis_ttl REDIS_CONFIG['user_store']['each_ttl']
