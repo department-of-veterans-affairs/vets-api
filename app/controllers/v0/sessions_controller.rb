@@ -122,11 +122,12 @@ module V0
       # Eventually it will be this
       # new_user = User.new(uuid: user_identity.uuid)
       new_user = klass.new(user_identity.attributes)
-      new_user.last_signed_in = if multifactor_change
-                                  existing_user.last_signed_in
-                                else
-                                  Time.current.utc
-                                end
+      if multifactor_change
+        new_user.last_signed_in = existing_user.last_signed_in
+        new_user.mhv_last_signed_in = existing_user.mhv_last_signed_in
+      else
+        new_user.last_signed_in = Time.current.utc
+      end
       new_user
     end
 
