@@ -56,7 +56,7 @@ The following features require additional configuration, click for details.
 - [Education Benefits](/docs/setup/edu_benefits.md)
 - [Master Veteran Index (MVI)](/docs/setup/mvi.md)
 
-To mock one or more of the above services see /docs/betamocks.md
+To mock one or more of the above services see [Betamocks](/docs/setup/betamocks.md)
 
 Vets API will still run in a limited capacity without configuring any of these
 features, and will run the unit tests successfully.
