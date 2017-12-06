@@ -8,7 +8,7 @@ require 'evss/common_service'
 require 'evss/auth_headers'
 require 'saml/user'
 
-class User < Common::RedisStore
+class AuthenticatedUser < Common::RedisStore
   include BetaSwitch
 
   UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
@@ -16,20 +16,11 @@ class User < Common::RedisStore
   # Defined per issue #6042
   ID_CARD_ALLOWED_STATUSES = %w(V1 V3 V6).freeze
 
-  redis_store REDIS_CONFIG['user_b_store']['namespace']
-  redis_ttl REDIS_CONFIG['user_b_store']['each_ttl']
+  redis_store REDIS_CONFIG['authenticated_user_store']['namespace']
+  redis_ttl REDIS_CONFIG['authenticated_user_store']['each_ttl']
   redis_key :uuid
 
   validates :uuid, presence: true
-
-  # conditionally validate if user is LOA3
-  with_options(on: :loa3_user) do |user|
-    user.validates :first_name, presence: true
-    user.validates :last_name, presence: true
-    user.validates :birth_date, presence: true
-    user.validates :ssn, presence: true, format: /\A\d{9}\z/
-    user.validates :gender, format: /\A(M|F)\z/, allow_blank: true
-  end
 
   attribute :uuid
   attribute :last_signed_in, Common::UTCTime # vaafi attributes

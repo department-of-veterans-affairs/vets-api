@@ -104,6 +104,7 @@ module V0
       saml_attributes = SAML::User.new(@saml_response)
       existing_user = User.find(saml_attributes.user_attributes.uuid)
       user_identity = UserIdentity.new(saml_attributes.to_hash)
+      old_current_user = init_new_user(user_identity, existing_user, saml_attributes.changing_multifactor?, UserOld)
       @current_user = init_new_user(user_identity, existing_user, saml_attributes.changing_multifactor?)
 
       if existing_user.present?
@@ -114,13 +115,13 @@ module V0
       end
 
       @session = Session.new(uuid: @current_user.uuid)
-      @session.save && @current_user.save && user_identity.save
+      @session.save && @current_user.save && user_identity.save && old_current_user.save
     end
 
-    def init_new_user(user_identity, existing_user = nil, multifactor_change = false)
+    def init_new_user(user_identity, existing_user = nil, multifactor_change = false, klass = User)
       # Eventually it will be this
       # new_user = User.new(uuid: user_identity.uuid)
-      new_user = User.new(user_identity.attributes)
+      new_user = klass.new(user_identity.attributes)
       new_user.last_signed_in = if multifactor_change
                                   existing_user.last_signed_in
                                 else
@@ -205,8 +206,8 @@ module V0
 
     def benchmark_tags(*tags)
       tags << "context:#{context_key}"
-      tags << "loa:#{@current_user.loa[:current]}" if @current_user
-      tags << "multifactor:#{@current_user.multifactor}" if @current_user
+      tags << "loa:#{@current_user.loa[:current]}" if @current_user && @current_user.identity
+      tags << "multifactor:#{@current_user.multifactor}" if @current_user && @current_user.identity
       tags
     end
   end
