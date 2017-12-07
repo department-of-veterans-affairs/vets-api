@@ -16,46 +16,11 @@ class User < Common::RedisStore
   # Defined per issue #6042
   ID_CARD_ALLOWED_STATUSES = %w(V1 V3 V6).freeze
 
-  redis_store REDIS_CONFIG['user_store']['namespace']
-  redis_ttl REDIS_CONFIG['user_store']['each_ttl']
+  redis_store REDIS_CONFIG['user_b_store']['namespace']
+  redis_ttl REDIS_CONFIG['user_b_store']['each_ttl']
   redis_key :uuid
 
-  # id.me attributes
-  attribute :uuid
-  attribute :email
-  attribute :first_name
-  attribute :middle_name
-  attribute :last_name
-  attribute :gender
-  attribute :birth_date
-  attribute :zip
-  attribute :ssn
-  attribute :loa
-  # These attributes are fetched by SAML::User in the saml_response payload
-  attribute :multifactor, Boolean # used by F/E to decision on whether or not to prompt user to add MFA
-  attribute :authn_context # used by F/E to handle various identity related complexities pending refactor
-  # FIXME: if MVI were decorated on usr vs delegated to @mvi, then this might not have been necessary.
-  attribute :mhv_icn # only needed by B/E not serialized in user_serializer
-  attribute :mhv_uuid # this is the cannonical version of MHV Correlation ID, provided by MHV sign-in users
-
-  # vaafi attributes
-  attribute :last_signed_in, Common::UTCTime
-
-  # mhv_last_signed_in used to determine whether we need to notify MHV audit logging
-  # This is set to Time.now when any MHV session is first created, and nulled, when logout
-  attribute :mhv_last_signed_in, Common::UTCTime
-
   validates :uuid, presence: true
-  validates :email, presence: true
-  validates :loa, presence: true
-
-  def initialize(attributes = {}, persisted = false)
-    undefined = REQ_CLASS_INSTANCE_VARS.select { |class_var| send(class_var).nil? }
-    raise NoMethodError, "Required class methods #{undefined.join(', ')} are not defined" if undefined.any?
-    super(attributes)
-    @persisted = persisted
-    run_callbacks :initialize
-  end
 
   # conditionally validate if user is LOA3
   with_options(on: :loa3_user) do |user|
@@ -64,6 +29,44 @@ class User < Common::RedisStore
     user.validates :birth_date, presence: true
     user.validates :ssn, presence: true, format: /\A\d{9}\z/
     user.validates :gender, format: /\A(M|F)\z/, allow_blank: true
+  end
+
+  attribute :uuid
+  attribute :last_signed_in, Common::UTCTime # vaafi attributes
+  attribute :mhv_last_signed_in, Common::UTCTime # MHV audit logging
+
+  # identity attributes, some of these will be overridden by MVI.
+  delegate :email, to: :identity, allow_nil: true
+  delegate :first_name, to: :identity, allow_nil: true
+  delegate :middle_name, to: :identity, allow_nil: true
+  delegate :last_name, to: :identity, allow_nil: true
+  delegate :gender, to: :identity, allow_nil: true
+  delegate :birth_date, to: :identity, allow_nil: true
+  delegate :zip, to: :identity, allow_nil: true
+  delegate :ssn, to: :identity, allow_nil: true
+  delegate :loa, to: :identity, allow_nil: true
+  delegate :multifactor, to: :identity, allow_nil: true
+  delegate :authn_context, to: :identity, allow_nil: true
+  delegate :mhv_icn, to: :identity, allow_nil: true
+  delegate :mhv_uuid, to: :identity, allow_nil: true
+
+  # mvi attributes
+  delegate :birls_id, to: :mvi
+  delegate :edipi, to: :mvi
+  delegate :icn, to: :mvi
+  delegate :participant_id, to: :mvi
+  delegate :veteran?, to: :veteran_status
+
+  def mhv_correlation_id
+    mhv_uuid || mvi.mhv_correlation_id
+  end
+
+  def va_profile
+    mvi.profile
+  end
+
+  def va_profile_status
+    mvi.status
   end
 
   # LOA1 no longer just means ID.me LOA1.
@@ -127,24 +130,6 @@ class User < Common::RedisStore
       ID_CARD_ALLOWED_STATUSES.include?(veteran_status.title38_status)
   rescue StandardError # Default to false for any veteran_status error
     false
-  end
-
-  delegate :birls_id, to: :mvi
-  delegate :edipi, to: :mvi
-  delegate :icn, to: :mvi
-  delegate :participant_id, to: :mvi
-  delegate :veteran?, to: :veteran_status
-
-  def mhv_correlation_id
-    mhv_uuid || mvi.mhv_correlation_id
-  end
-
-  def va_profile
-    mvi.profile
-  end
-
-  def va_profile_status
-    mvi.status
   end
 
   def mhv_account
