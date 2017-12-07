@@ -75,3 +75,87 @@
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: '<v13:edipiORicnValue>(\d+)<\/v13:edipiORicnValue>'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
+    :file_path: "emis/military_service_episodes"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISserviceEpisodeRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
+    :file_path: "emis/deployment"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISdeploymentRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/PaymentService"
+    :file_path: "emis/combat_pay"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMIScombatPayRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
+    :file_path: "emis/disabilities"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISdisabilitiesRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
+    :file_path: "emis/guard_reserve_service_periods"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISguardReserveServicePeriodsRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
+    :file_path: "emis/military_occupation"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISmilitaryOccupationRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
+    :file_path: "emis/military_service_eligibility_info"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISmilitaryServiceEligibilityRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/PaymentService"
+    :file_path: "emis/reserve_drill_days"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISreserveDrillDaysRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
+    :file_path: "emis/retirement"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISretirementRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/PaymentService"
+    :file_path: "emis/retirement_pay"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISretirementPayRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/PaymentService"
+    :file_path: "emis/separation_pay"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISseparationPayRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
+    :file_path: "emis/unit_information"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISunitInformationRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
