@@ -118,9 +118,7 @@ module V0
     end
 
     def init_new_user(user_identity, existing_user = nil, multifactor_change = false)
-      # Eventually it will be this
-      # new_user = User.new(uuid: user_identity.uuid)
-      new_user = User.new(user_identity.attributes)
+      new_user = User.new(uuid: user_identity.uuid)
       new_user.last_signed_in = if multifactor_change
                                   existing_user.last_signed_in
                                 else
