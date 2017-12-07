@@ -14,7 +14,7 @@ namespace :id_card_announcement_subscriptions do
     email_count = IdCardAnnouncementSubscription.count
     va_email_count = IdCardAnnouncementSubscription.where("split_part(email, '@', 2) = 'va.gov'").count
 
-    printf "%-20s %d\n" % ['Email Count:', email_count]
-    printf "%-20s %d\n" % ['VA Email Count:', va_email_count]
+    printf "%-20s %d\n", 'Email Count:', email_count
+    printf "%-20s %d\n", 'VA Email Count:', va_email_count
   end
 end
