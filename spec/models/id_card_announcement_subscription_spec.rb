@@ -21,4 +21,17 @@ RSpec.describe IdCardAnnouncementSubscription, type: :model do
       expect_attr_invalid(subscription, :email, 'has already been taken')
     end
   end
+
+  describe 'va scope' do
+    let!(:va_subscription) { described_class.create(email: 'test@va.gov') }
+    let!(:subscription) { described_class.create(email: 'test@example.com') }
+
+    it 'includes records with a @va.gov domain' do
+      expect(described_class.va).to include(va_subscription)
+    end
+
+    it 'does not include records without a @va.gov domain' do
+      expect(described_class.va).to_not include(subscription)
+    end
+  end
 end
