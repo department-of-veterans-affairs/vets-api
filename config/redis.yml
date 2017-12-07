@@ -15,7 +15,7 @@ development: &defaults
     namespace: users
     each_ttl: 3600
   user_b_store:
-    namespace: users2
+    namespace: users_b
     each_ttl: 3600
   user_identity_store:
     namespace: user_identities
