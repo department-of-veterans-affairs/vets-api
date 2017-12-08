@@ -23,7 +23,14 @@ namespace :evss do
     CSV.open(args[:csv_path], 'wb') do |csv|
       csv << %w(edipi first_name last_name ssn dob created_at)
       GibsNotFoundUser.find_each do |user|
-        csv << [user.edipi, user.first_name, user.last_name, user.ssn, user.dob.strftime('%Y-%m-%d'), user.created_at.strftime('%d %b %Y %H:%M:%S %Z %z')]
+        csv << [
+          user.edipi,
+          user.first_name,
+          user.last_name,
+          user.ssn,
+          user.dob.strftime('%Y-%m-%d'),
+          user.created_at.strftime('%d %b %Y %H:%M:%S %Z %z')
+        ]
       end
     end
   end
