@@ -29,7 +29,7 @@ namespace :evss do
           user.last_name,
           user.ssn,
           user.dob.strftime('%Y-%m-%d'),
-          user.created_at.strftime('%d %b %Y %H:%M:%S %Z %z')
+          user.created_at.iso8601
         ]
       end
     end
