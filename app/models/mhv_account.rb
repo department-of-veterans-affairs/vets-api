@@ -1,14 +1,7 @@
 # frozen_string_literal: true
-require 'mhv_ac/client'
-require 'sentry_logging'
 
 class MhvAccount < ActiveRecord::Base
   include AASM
-  include SentryLogging
-
-  STATSD_ACCOUNT_EXISTED_KEY = 'mhv.account.existed'
-  STATSD_ACCOUNT_CREATION_KEY = 'mhv.account.creation'
-  STATSD_ACCOUNT_UPGRADE_KEY = 'mhv.account.upgrade'
 
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
   # Everything except existing and ineligible accounts should be able to transition to :needs_terms_acceptance
@@ -67,13 +60,6 @@ class MhvAccount < ActiveRecord::Base
     end
   end
 
-  def create_and_upgrade!
-    unless existing?
-      create_mhv_account! unless previously_registered?
-      upgrade_mhv_account!
-    end
-  end
-
   def eligible?
     va_patient?
   end
@@ -82,12 +68,42 @@ class MhvAccount < ActiveRecord::Base
     terms_and_conditions_accepted.present?
   end
 
+  def previously_registered?
+    eligible? && registered_at?
+  end
+
+  def previously_upgraded?
+    eligible? && upgraded_at?
+  end
+
   def preexisting_account?
     user&.mhv_correlation_id.present? && !previously_registered?
   end
 
   def accessible?
     upgraded? || existing?
+  end
+
+  def params_for_registration
+    {
+      icn: user.icn,
+      is_patient: va_patient?,
+      is_veteran: veteran?,
+      province: nil, # TODO: We need to determine if this is something that could actually happen (non USA)
+      email: user.email,
+      home_phone: user.va_profile&.home_phone,
+      sign_in_partners: 'VETS.GOV',
+      terms_version: terms_and_conditions_accepted.terms_and_conditions.version,
+      terms_accepted_date: terms_and_conditions_accepted.created_at
+    }.merge!(address_params)
+  end
+
+  def params_for_upgrade
+    {
+      user_id: user.mhv_correlation_id,
+      form_signed_date_time: terms_and_conditions_accepted.created_at,
+      terms_version: terms_and_conditions_accepted.terms_and_conditions.version
+    }
   end
 
   private
@@ -114,28 +130,6 @@ class MhvAccount < ActiveRecord::Base
     UNKNOWN_ADDRESS
   end
 
-  def params_for_registration
-    {
-      icn: user.icn,
-      is_patient: va_patient?,
-      is_veteran: veteran?,
-      province: nil, # TODO: We need to determine if this is something that could actually happen (non USA)
-      email: user.email,
-      home_phone: user.va_profile&.home_phone,
-      sign_in_partners: 'VETS.GOV',
-      terms_version: terms_and_conditions_accepted.terms_and_conditions.version,
-      terms_accepted_date: terms_and_conditions_accepted.created_at
-    }.merge!(address_params)
-  end
-
-  def params_for_upgrade
-    {
-      user_id: user.mhv_correlation_id,
-      form_signed_date_time: terms_and_conditions_accepted.created_at,
-      terms_version: terms_and_conditions_accepted.terms_and_conditions.version
-    }
-  end
-
   def user
     @user ||= User.find(user_uuid)
   end
@@ -154,67 +148,6 @@ class MhvAccount < ActiveRecord::Base
     user.veteran?
   rescue
     false
-  end
-
-  def create_mhv_account!
-    if may_register?
-      client_response = mhv_ac_client.post_register(params_for_registration)
-      if client_response[:api_completion_status] == 'Successful'
-        StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.success")
-        user.va_profile.mhv_ids = [client_response[:correlation_id].to_s]
-        user.recache
-        self.registered_at = Time.current
-        register!
-      end
-    end
-  rescue => e
-    log_warning(type: :create, exception: e, extra: params_for_registration.slice(:icn))
-    StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.failure")
-    fail_register!
-    raise e
-  end
-
-  def upgrade_mhv_account!
-    if may_upgrade?
-      client_response = mhv_ac_client.post_upgrade(params_for_upgrade)
-      if client_response[:status] == 'success'
-        StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.success")
-        self.upgraded_at = Time.current
-        upgrade!
-      end
-    end
-  rescue => e
-    if e.is_a?(Common::Exceptions::BackendServiceException) && e.original_body['code'] == 155
-      StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
-      upgrade! # without updating the timestamp since account was not created at vets.gov
-    else
-      log_warning(type: :upgrade, exception: e, extra: params_for_upgrade)
-      StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.failure")
-      fail_upgrade!
-      raise e
-    end
-  end
-
-  def log_warning(type:, exception:, extra: {})
-    message = type == :upgrade ? 'MHV Upgrade Failed!' : 'MHV Create Failed!'
-    extra_content = if exception.is_a?(Common::Exceptions::BackendServiceException)
-                      extra.merge(exception_type: 'BackendServiceException', body: exception.original_body)
-                    else
-                      extra.merge(exception_type: exception.message)
-                    end
-    log_message_to_sentry(message, :warn, extra_content)
-  end
-
-  def mhv_ac_client
-    @mhv_ac_client ||= MHVAC::Client.new
-  end
-
-  def previously_upgraded?
-    eligible? && upgraded_at?
-  end
-
-  def previously_registered?
-    eligible? && registered_at?
   end
 
   def setup
