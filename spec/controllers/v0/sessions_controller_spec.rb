@@ -131,7 +131,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
     end
 
-    describe ' POST saml_callback' do
+    describe 'POST saml_callback' do
       before(:each) do
         allow(SAML::User).to receive(:new).and_return(saml_user)
       end
