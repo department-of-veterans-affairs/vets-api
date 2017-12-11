@@ -22,6 +22,7 @@ RSpec.describe User, type: :model do
       subject(:loa1_user) { described_class.new(FactoryBot.build(:user, loa: loa_one)) }
 
       it 'should not allow a blank uuid' do
+        binding.pry
         loa1_user.uuid = ''
         expect(loa1_user.valid?).to be_falsey
         expect(loa1_user.errors[:uuid].size).to be_positive

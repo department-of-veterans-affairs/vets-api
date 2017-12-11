@@ -117,7 +117,7 @@ module V0
 
       @session = Session.new(uuid: @current_user.uuid)
       # FIXME-IDENTITY-PHASE2: the last part of this line will go away
-      @session.save && @current_user.save && user_identity.save && old_current_user.save
+      @session.save && user_identity.save && @current_user.save && old_current_user.save
     end
 
     # FIXME-IDENTITY-PHASE2: won't need to specify klass as there will only e 1

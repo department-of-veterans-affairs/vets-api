@@ -94,13 +94,14 @@ RSpec.describe 'letters', type: :request do
 
     context 'with a 404 evss response' do
       let(:user) do
-        build(:user, :loa3, first_name: 'John', last_name: 'SMith', birth_date: '1942-02-12', ssn: '7991112233')
+        build(:user, :loa3, first_name: 'John', last_name: 'SMith', birth_date: '1942-02-12', ssn: '799111223')
       end
       before do
         user.va_profile.edipi = '1005079999'
         user.va_profile.participant_id = '600039999'
       end
       it 'should return a 404' do
+        binding.pry
         VCR.use_cassette('evss/letters/download_404') do
           post '/v0/letters/commissary', nil, auth_header
           expect(response).to have_http_status(:not_found)
