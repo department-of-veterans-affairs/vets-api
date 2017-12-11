@@ -137,7 +137,7 @@ RSpec.describe User, type: :model do
         end
       end
 
-      context 'when icn is available from saml data and user LOA3' do
+      context 'when icn is available from saml data and user NOT LOA3' do
         let(:mvi_profile) { FactoryBot.build(:mvi_profile) }
         let(:user) { FactoryBot.build(:user, :loa1, mhv_icn: mvi_profile.icn) }
         before(:each) { stub_mvi(mvi_profile) }
