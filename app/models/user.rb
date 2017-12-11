@@ -40,31 +40,35 @@ class User < Common::RedisStore
   delegate :first_name, to: :identity, allow_nil: true
 
   def first_name
-    identity.first_name || mvi&.profile&.given_names&.first
+    mhv_icn.present? ? mvi&.profile&.given_names&.first : identity.first_name
   end
 
   def middle_name
-    identity.middle_name || mvi&.profile&.given_names&.last
+    mhv_icn.present? ? mvi&.profile&.given_names&.last : identity.middle_name
   end
 
   def last_name
-    identity.last_name || mvi&.profile&.family_name
+    mhv_icn.present? ? mvi&.profile&.family_name : identity.last_name
   end
 
   def gender
-    identity.gender || mvi&.profile&.gender
+    mhv_icn.present? ? mvi&.profile&.gender : identity.gender
   end
 
   def birth_date
-    identity.birth_date || mvi&.profile&.birth_date
+    mhv_icn.present? ? mvi&.profile&.birth_date : identity.birth_date
   end
 
   def zip
-    identity.zip || mvi&.profile&.address&.postal_code
+    mhv_icn.present? ? mvi&.profile&.address&.postal_code : identity.zip
   end
 
   def ssn
-    identity.ssn || mvi&.profile&.ssn
+    mhv_icn.present? ? mvi&.profile&.ssn : identity.ssn
+  end
+
+  def mhv_correlation_id
+    mhv_uuid || mvi.mhv_correlation_id
   end
 
   delegate :loa, to: :identity, allow_nil: true
@@ -79,10 +83,6 @@ class User < Common::RedisStore
   delegate :icn, to: :mvi
   delegate :participant_id, to: :mvi
   delegate :veteran?, to: :veteran_status
-
-  def mhv_correlation_id
-    mhv_uuid || mvi.mhv_correlation_id
-  end
 
   def va_profile
     mvi.profile
