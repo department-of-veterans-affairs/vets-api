@@ -117,7 +117,6 @@ RSpec.describe User, type: :model do
         end
 
         it 'fetches gender from mvi' do
-          expect(user.gender).not_to eq(user.identity.gender)
           expect(user.gender).to eq(mvi_profile.gender)
         end
 
