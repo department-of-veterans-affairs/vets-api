@@ -21,9 +21,16 @@ namespace :evss do
   task :export_gibs_not_found, [:csv_path] => [:environment] do |_, args|
     raise 'No CSV path provided' unless args[:csv_path]
     CSV.open(args[:csv_path], 'wb') do |csv|
-      csv << %w(edipi first_name last_name ssn dob)
+      csv << %w(edipi first_name last_name ssn dob created_at)
       GibsNotFoundUser.find_each do |user|
-        csv << [user.edipi, user.first_name, user.last_name, user.ssn, user.dob.strftime('%Y-%m-%d')]
+        csv << [
+          user.edipi,
+          user.first_name,
+          user.last_name,
+          user.ssn,
+          user.dob.strftime('%Y-%m-%d'),
+          user.created_at.iso8601
+        ]
       end
     end
   end
