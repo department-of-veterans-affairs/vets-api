@@ -46,13 +46,13 @@ RSpec.describe V0::MHVAccountsController, type: :controller do
 
   before(:each) do
     Session.create(uuid: user.uuid, token: token)
+    request.env['HTTP_AUTHORIZATION'] = auth_header
     stub_mvi(mvi_profile)
     create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid)
   end
 
   context 'without an account' do
     it 'creates and upgrades the account' do
-      request.env['HTTP_AUTHORIZATION'] = auth_header
       VCR.use_cassette('mhv_account_creation/creates_an_account') do
         VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
           post :create
@@ -63,6 +63,29 @@ RSpec.describe V0::MHVAccountsController, type: :controller do
           expect(user.mhv_correlation_id).to eq('14221465')
         end
       end
+    end
+  end
+
+  context 'with an existing account' do
+    let(:mhv_ids) { ['14221465'] }
+
+    it 'fails to create and upgrade the account' do
+      expect(user.mhv_account.account_state).to eq('existing')
+      expect(user.mhv_account.accessible?).to be_truthy
+      post :create
+      expect(response).to_not be_success
+    end
+  end
+
+  context 'with an upgraded account' do
+    before do
+      mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, accessible?: true, account_state: 'upgraded')
+      allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+    end
+
+    it 'fails to create and upgrade the account' do
+      post :create
+      expect(response).to_not be_success
     end
   end
 end
