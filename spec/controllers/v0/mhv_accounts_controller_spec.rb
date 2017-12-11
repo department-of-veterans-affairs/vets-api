@@ -50,7 +50,7 @@ RSpec.describe V0::MHVAccountsController, type: :controller do
     create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid)
   end
 
-  context 'when not accessible' do
+  context 'without an account' do
     it 'creates and upgrades the account' do
       request.env['HTTP_AUTHORIZATION'] = auth_header
       VCR.use_cassette('mhv_account_creation/creates_an_account') do
