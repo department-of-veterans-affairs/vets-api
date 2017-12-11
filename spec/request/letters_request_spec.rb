@@ -101,7 +101,6 @@ RSpec.describe 'letters', type: :request do
         user.va_profile.participant_id = '600039999'
       end
       it 'should return a 404' do
-        binding.pry
         VCR.use_cassette('evss/letters/download_404') do
           post '/v0/letters/commissary', nil, auth_header
           expect(response).to have_http_status(:not_found)
