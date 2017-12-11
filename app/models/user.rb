@@ -38,12 +38,35 @@ class User < Common::RedisStore
   # identity attributes, some of these will be overridden by MVI.
   delegate :email, to: :identity, allow_nil: true
   delegate :first_name, to: :identity, allow_nil: true
-  delegate :middle_name, to: :identity, allow_nil: true
-  delegate :last_name, to: :identity, allow_nil: true
-  delegate :gender, to: :identity, allow_nil: true
-  delegate :birth_date, to: :identity, allow_nil: true
-  delegate :zip, to: :identity, allow_nil: true
-  delegate :ssn, to: :identity, allow_nil: true
+
+  def first_name
+    identity.first_name || mvi&.profile&.given_names&.first
+  end
+
+  def middle_name
+    identity.middle_name || mvi&.profile&.given_names&.last
+  end
+
+  def last_name
+    identity.last_name || mvi&.profile&.family_name
+  end
+
+  def gender
+    identity.gender || mvi&.profile&.gender
+  end
+
+  def birth_date
+    identity.birth_date || mvi&.profile&.birth_date
+  end
+
+  def zip
+    identity.zip || mvi&.profile&.address&.postal_code
+  end
+
+  def ssn
+    identity.ssn || mvi&.profile&.ssn
+  end
+
   delegate :loa, to: :identity, allow_nil: true
   delegate :multifactor, to: :identity, allow_nil: true
   delegate :authn_context, to: :identity, allow_nil: true
