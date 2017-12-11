@@ -210,6 +210,23 @@ RSpec.describe User, type: :model do
           expect(user.ssn).not_to eq(mvi_profile.ssn)
         end
       end
+
+      describe '#mhv_correlation_id' do
+        context 'when mhv ids are nil' do
+          let(:user) { FactoryBot.build(:user) }
+          it 'has a mhv correlation id of nil' do
+            expect(user.mhv_correlation_id).to be_nil
+          end
+        end
+        context 'when there are mhv ids' do
+          let(:loa3_user) { FactoryBot.build(:user, :loa3) }
+          let(:mvi_profile) { FactoryBot.build(:mvi_profile) }
+          it 'has a mhv correlation id' do
+            stub_mvi(mvi_profile)
+            expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.mhv_ids.first)
+          end
+        end
+      end
     end
   end
 end
