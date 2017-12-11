@@ -95,19 +95,119 @@ RSpec.describe User, type: :model do
       end
     end
 
-    describe '#mhv_correlation_id' do
-      context 'when mhv ids are nil' do
-        let(:user) { FactoryBot.build(:user) }
-        it 'has a mhv correlation id of nil' do
-          expect(user.mhv_correlation_id).to be_nil
+    describe 'getter methods' do
+      context 'when icn is available from saml data and user LOA3' do
+        let(:mvi_profile) { FactoryBot.build(:mvi_profile) }
+        let(:user) { FactoryBot.build(:user, :loa3, mhv_icn: mvi_profile.icn) }
+        before(:each) { stub_mvi(mvi_profile) }
+
+        it 'fetches first_name from mvi' do
+          expect(user.first_name).not_to eq(user.identity.first_name)
+          expect(user.first_name).to eq(mvi_profile.given_names.first)
+        end
+
+        it 'fetches middle_name from mvi' do
+          expect(user.middle_name).not_to eq(user.identity.middle_name)
+          expect(user.middle_name).to eq(mvi_profile.given_names.last)
+        end
+
+        it 'fetches last_name from mvi' do
+          expect(user.last_name).not_to eq(user.identity.last_name)
+          expect(user.last_name).to eq(mvi_profile.family_name)
+        end
+
+        it 'fetches gender from mvi' do
+          expect(user.gender).not_to eq(user.identity.gender)
+          expect(user.gender).to eq(mvi_profile.gender)
+        end
+
+        it 'fetches birth_date from mvi' do
+          expect(user.birth_date).not_to eq(user.identity.birth_date)
+          expect(user.birth_date).to eq(mvi_profile.birth_date)
+        end
+
+        it 'fetches zip from mvi' do
+          expect(user.zip).not_to eq(user.identity.zip)
+          expect(user.zip).to eq(mvi_profile.address.postal_code)
+        end
+
+        it 'fetches ssn from mvi' do
+          expect(user.ssn).not_to eq(user.identity.ssn)
+          expect(user.ssn).to eq(mvi_profile.ssn)
         end
       end
-      context 'when there are mhv ids' do
-        let(:loa3_user) { FactoryBot.build(:user, :loa3) }
+
+      context 'when icn is available from saml data and user LOA3' do
         let(:mvi_profile) { FactoryBot.build(:mvi_profile) }
-        it 'has a mhv correlation id' do
-          stub_mvi(mvi_profile)
-          expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.mhv_ids.first)
+        let(:user) { FactoryBot.build(:user, :loa1, mhv_icn: mvi_profile.icn) }
+        before(:each) { stub_mvi(mvi_profile) }
+
+        it 'fetches first_name from mvi' do
+          expect(user.first_name).to be_nil
+        end
+
+        it 'fetches middle_name from mvi' do
+          expect(user.middle_name).to be_nil
+        end
+
+        it 'fetches last_name from mvi' do
+          expect(user.last_name).to be_nil
+        end
+
+        it 'fetches gender from mvi' do
+          expect(user.gender).to be_nil
+        end
+
+        it 'fetches birth_date from mvi' do
+          expect(user.birth_date).to be_nil
+        end
+
+        it 'fetches zip from mvi' do
+          expect(user.zip).to be_nil
+        end
+
+        it 'fetches ssn from mvi' do
+          expect(user.ssn).to be_nil
+        end
+      end
+
+      context 'when icn is not available from saml data' do
+        let(:mvi_profile) { FactoryBot.build(:mvi_profile) }
+        let(:user) { FactoryBot.build(:user, :loa3) }
+        before(:each) { stub_mvi(mvi_profile) }
+
+        it 'fetches first_name from UserIdentity' do
+          expect(user.first_name).to eq(user.identity.first_name)
+          expect(user.first_name).not_to eq(mvi_profile.given_names.first)
+        end
+
+        it 'fetches middle_name from UserIdentity' do
+          expect(user.middle_name).to eq(user.identity.middle_name)
+          expect(user.middle_name).not_to eq(mvi_profile.given_names.last)
+        end
+
+        it 'fetches last_name from UserIdentity' do
+          expect(user.last_name).to eq(user.identity.last_name)
+          expect(user.last_name).not_to eq(mvi_profile.family_name)
+        end
+
+        it 'fetches gender from UserIdentity' do
+          expect(user.gender).to eq(user.identity.gender)
+        end
+
+        it 'fetches birth_date from UserIdentity' do
+          expect(user.birth_date).to eq(user.identity.birth_date)
+          expect(user.birth_date).not_to eq(mvi_profile.birth_date)
+        end
+
+        it 'fetches zip from UserIdentity' do
+          expect(user.zip).to eq(user.identity.zip)
+          expect(user.zip).not_to eq(mvi_profile.address.postal_code)
+        end
+
+        it 'fetches ssn from UserIdentity' do
+          expect(user.ssn).to eq(user.identity.ssn)
+          expect(user.ssn).not_to eq(mvi_profile.ssn)
         end
       end
     end
