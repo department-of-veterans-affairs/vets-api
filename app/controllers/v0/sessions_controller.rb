@@ -141,7 +141,7 @@ module V0
         StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ["error:#{fail_handler.error}"])
         log_message_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
       else
-        StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ['error:validations_failed}'])
+        StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ['error:validations_failed'])
         context = {
           uuid: @current_user.uuid,
           user:   {

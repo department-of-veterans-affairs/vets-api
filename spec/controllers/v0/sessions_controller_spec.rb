@@ -60,6 +60,15 @@ RSpec.describe V0::SessionsController, type: :controller do
                             decrypted_document: response_xml_stub)
   end
 
+  let(:saml_response_multi_error) do
+    double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+                            errors: [
+                              'Subject did not consent to attribute release',
+                              'Other random error'
+                            ],
+                            decrypted_document: response_xml_stub)
+  end
+
   let(:logout_uuid) { '1234' }
   let(:invalid_logout_response) do
     double('logout_response', validate: false, in_response_to: logout_uuid, errors: ['bad thing'])
@@ -233,6 +242,42 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
+
+        it 'increments the failed and total statsd counters' do
+          once = { times: 1, value: 1 }
+          tags = ['error:unknown']
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_LOGIN_FAILED_KEY, tags: tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_LOGIN_TOTAL_KEY, **once)
+        end
+      end
+
+      context 'when saml response contains multiple errors (known or otherwise)' do
+        before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_multi_error) }
+
+        it 'logs a generic error' do
+          expect(controller).to receive(:log_message_to_sentry)
+            .with(
+              'Login Fail! Other SAML Response Error(s)',
+              :error,                 saml_response: {
+                status_message: '',
+                errors: [
+                  'Subject did not consent to attribute release',
+                  'Other random error'
+                ]
+              }
+            )
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
+          expect(response).to have_http_status(:found)
+        end
+
+        it 'increments the failed and total statsd counters' do
+          once = { times: 1, value: 1 }
+          tags = ['error:multiple']
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_LOGIN_FAILED_KEY, tags: tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_LOGIN_TOTAL_KEY, **once)
+        end
       end
 
       context 'when a required saml attribute is missing' do
@@ -259,6 +304,14 @@ RSpec.describe V0::SessionsController, type: :controller do
             )
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
           expect(response).to have_http_status(:found)
+        end
+
+        it 'increments the failed and total statsd counters' do
+          once = { times: 1, value: 1 }
+          tags = ['error:validations_failed']
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_LOGIN_FAILED_KEY, tags: tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_LOGIN_TOTAL_KEY, **once)
         end
       end
     end
