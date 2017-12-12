@@ -49,6 +49,7 @@ RSpec.describe 'prescriptions', type: :request do
     it 'raises forbidden' do
       get '/v0/prescriptions/13651310'
       expect(response).to have_http_status(:forbidden)
+    end
   end
 
   it 'responds to GET #show' do
