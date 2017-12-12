@@ -42,8 +42,8 @@ describe EVSS::ClaimsService do
       end
     end
 
-    it 'should post a 5103 waiver' do
-      VCR.use_cassette('evss/claims/set_5103_waiver') do
+    it 'should post a 5103 waiver', run_at: 'Tue, 12 Dec 2017 03:21:11 GMT' do
+      VCR.use_cassette('evss/claims/set_5103_waiver', VCR::MATCH_EVERYTHING) do
         response = subject.request_decision(evss_id)
         expect(response).to be_success
       end
