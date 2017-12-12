@@ -42,7 +42,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       end
 
       context 'when the user is not a test account' do
-        let(:user) { build(:user, :loa3, ssn: '000-01-0002') }
+        let(:user) { build(:user, :loa3, ssn: '000010002') }
         it 'returns a 200' do
           subject
           expect(response).to have_http_status(:ok)

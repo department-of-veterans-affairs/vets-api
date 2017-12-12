@@ -23,12 +23,12 @@ class User < Common::RedisStore
   validates :uuid, presence: true
 
   # conditionally validate if user is LOA3
-  with_options(on: :loa3_user) do |user|
-    user.validates :first_name, presence: true
-    user.validates :last_name, presence: true
-    user.validates :birth_date, presence: true
-    user.validates :ssn, presence: true, format: /\A\d{9}\z/
-    user.validates :gender, format: /\A(M|F)\z/, allow_blank: true
+  with_options if: :loa3? do |loa3_user|
+    loa3_user.validates :first_name, presence: true
+    loa3_user.validates :last_name, presence: true
+    loa3_user.validates :birth_date, presence: true
+    loa3_user.validates :ssn, presence: true, format: /\A\d{9}\z/
+    loa3_user.validates :gender, format: /\A(M|F)\z/, allow_blank: true
   end
 
   attribute :uuid
@@ -38,13 +38,43 @@ class User < Common::RedisStore
   # identity attributes, some of these will be overridden by MVI.
   delegate :email, to: :identity, allow_nil: true
   delegate :first_name, to: :identity, allow_nil: true
-  delegate :middle_name, to: :identity, allow_nil: true
-  delegate :last_name, to: :identity, allow_nil: true
-  delegate :gender, to: :identity, allow_nil: true
-  delegate :birth_date, to: :identity, allow_nil: true
-  delegate :zip, to: :identity, allow_nil: true
-  delegate :ssn, to: :identity, allow_nil: true
-  delegate :loa, to: :identity, allow_nil: true
+
+  def first_name
+    mhv_icn.present? ? mvi&.profile&.given_names&.first : identity.first_name
+  end
+
+  def middle_name
+    mhv_icn.present? ? mvi&.profile&.given_names&.last : identity.middle_name
+  end
+
+  def last_name
+    mhv_icn.present? ? mvi&.profile&.family_name : identity.last_name
+  end
+
+  def gender
+    mhv_icn.present? ? mvi&.profile&.gender : identity.gender
+  end
+
+  def birth_date
+    mhv_icn.present? ? mvi&.profile&.birth_date : identity.birth_date
+  end
+
+  def zip
+    mhv_icn.present? ? mvi&.profile&.address&.postal_code : identity.zip
+  end
+
+  def ssn
+    mhv_icn.present? ? mvi&.profile&.ssn : identity.ssn
+  end
+
+  def mhv_correlation_id
+    mhv_uuid || mvi.mhv_correlation_id
+  end
+
+  def loa
+    identity&.loa || {}
+  end
+
   delegate :multifactor, to: :identity, allow_nil: true
   delegate :authn_context, to: :identity, allow_nil: true
   delegate :mhv_icn, to: :identity, allow_nil: true
@@ -56,10 +86,6 @@ class User < Common::RedisStore
   delegate :icn, to: :mvi
   delegate :participant_id, to: :mvi
   delegate :veteran?, to: :veteran_status
-
-  def mhv_correlation_id
-    mhv_uuid || mvi.mhv_correlation_id
-  end
 
   def va_profile
     mvi.profile
