@@ -8,11 +8,7 @@ RSpec.describe User, type: :model do
   describe '#can_prefill_emis?' do
     let(:user) { build(:user, :loa3) }
 
-    before do
-      expect(user).to receive('beta_enabled?').with(user.uuid, 'emis_prefill').and_return(true)
-    end
-
-    it 'should return true if the user has the right epipi' do
+    it 'should return true' do
       expect(user.can_prefill_emis?).to eq(true)
     end
   end
