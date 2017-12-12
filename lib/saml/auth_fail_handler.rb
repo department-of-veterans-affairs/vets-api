@@ -11,7 +11,7 @@ module SAML
 
     def initialize(saml_response)
       @saml_response = saml_response
-
+      return if @saml_response.is_valid?
       known_error? || generic_error_message
     end
 
@@ -32,7 +32,6 @@ module SAML
     end
 
     def generic_error_message
-      return if @saml_response.is_valid?
       context = {
         saml_response: {
           status_message: @saml_response.status_message,
