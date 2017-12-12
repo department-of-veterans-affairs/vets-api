@@ -52,6 +52,13 @@ RSpec.describe V0::MHVAccountsController, type: :controller do
   end
 
   context 'without an account' do
+    it 'shows an unknown state' do
+      get :show
+      expect(response).to be_success
+      json = JSON.parse(response.body)
+      expect(json['account_state']).to eq('unknown')
+    end
+
     it 'creates and upgrades the account' do
       VCR.use_cassette('mhv_account_creation/creates_an_account') do
         VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
@@ -69,6 +76,13 @@ RSpec.describe V0::MHVAccountsController, type: :controller do
   context 'with an existing account' do
     let(:mhv_ids) { ['14221465'] }
 
+    it 'shows an existing state' do
+      get :show
+      expect(response).to be_success
+      json = JSON.parse(response.body)
+      expect(json['account_state']).to eq('existing')
+    end
+
     it 'fails to create and upgrade the account' do
       expect(user.mhv_account.account_state).to eq('existing')
       expect(user.mhv_account.accessible?).to be_truthy
@@ -81,6 +95,13 @@ RSpec.describe V0::MHVAccountsController, type: :controller do
     let(:mhv_ids) { ['14221465'] }
     before do
       MhvAccount.create(user_uuid: user.uuid, registered_at: Time.current)
+    end
+
+    it 'shows a registered state' do
+      get :show
+      expect(response).to be_success
+      json = JSON.parse(response.body)
+      expect(json['account_state']).to eq('registered')
     end
 
     it 'upgrades the account' do
@@ -96,6 +117,13 @@ RSpec.describe V0::MHVAccountsController, type: :controller do
     before do
       mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, account_state: 'upgraded')
       allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+    end
+
+    it 'shows an upgraded state' do
+      get :show
+      expect(response).to be_success
+      json = JSON.parse(response.body)
+      expect(json['account_state']).to eq('upgraded')
     end
 
     it 'fails to create and upgrade the account' do
