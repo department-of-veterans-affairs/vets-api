@@ -77,9 +77,24 @@ RSpec.describe V0::MHVAccountsController, type: :controller do
     end
   end
 
+  context 'with a registered account' do
+    let(:mhv_ids) { ['14221465'] }
+    before do
+      MhvAccount.create(user_uuid: user.uuid, registered_at: Time.current)
+    end
+
+    it 'upgrades the account' do
+      VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
+        post :create
+        expect(user.mhv_account.account_state).to eq('upgraded')
+        expect(response).to have_http_status(:created)
+      end
+    end
+  end
+
   context 'with an upgraded account' do
     before do
-      mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, accessible?: true, account_state: 'upgraded')
+      mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, account_state: 'upgraded')
       allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
     end
 
