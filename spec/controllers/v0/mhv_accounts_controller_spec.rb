@@ -132,4 +132,3 @@ RSpec.describe V0::MHVAccountsController, type: :controller do
     end
   end
 end
-
