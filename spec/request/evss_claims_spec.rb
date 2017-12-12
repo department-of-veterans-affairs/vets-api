@@ -44,7 +44,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
     it 'shows a single Claim' do
       VCR.use_cassette('evss/claims/claim') do
-        get '/v0/evss_claims/189625', nil, 'Authorization' => "Token token=#{session.token}"
+        get '/v0/evss_claims/600118851', nil, 'Authorization' => "Token token=#{session.token}"
         expect(response).to match_response_schema('evss_claim')
       end
     end
