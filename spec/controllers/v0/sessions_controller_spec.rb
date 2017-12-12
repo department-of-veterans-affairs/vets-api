@@ -23,6 +23,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:valid_saml_response) do
     double('saml_response', is_valid?: true, errors: [],
                             in_response_to: uuid,
+                            status_message: '',
                             decrypted_document: response_xml_stub)
   end
   let(:invalid_saml_response) do
@@ -48,6 +49,14 @@ RSpec.describe V0::SessionsController, type: :controller do
     double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
                             errors: ['Current time is earlier than NotBefore ' \
                               'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'],
+                            decrypted_document: response_xml_stub)
+  end
+
+  let(:saml_response_unknown_error) do
+    double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+                            errors: ['The status code of the Response was not Success, ' \
+                              'was Requester => NoAuthnContext -> AuthnRequest without ' \
+                              'an authentication context.'],
                             decrypted_document: response_xml_stub)
   end
 
@@ -206,16 +215,48 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
 
-      context ' when a required saml attribute is missing' do
+      context 'when saml response returns an unknown type of error' do
+        before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_unknown_error) }
+
+        it 'logs a generic error' do
+          expect(controller).to receive(:log_message_to_sentry)
+            .with(
+              'Login Fail! Other SAML Response Error(s)',
+              :error,                 saml_response: {
+                status_message: '',
+                errors: [
+                  'The status code of the Response was not Success, was Requester => NoAuthnContext ' \
+                  '-> AuthnRequest without an authentication context.'
+                ]
+              }
+            )
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
+          expect(response).to have_http_status(:found)
+        end
+      end
+
+      context 'when a required saml attribute is missing' do
         let(:saml_user_attributes) do
           loa1_user.attributes.merge(loa1_user.identity.attributes).merge(uuid: nil)
         end
 
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
-        it 'logs a generic error' do
+        it 'logs a generic user validation error' do
           expect(controller).to receive(:log_message_to_sentry)
-            .with(/user:    \'valid\?=false errors=\["Uuid can\'t be blank"\]/, :error)
+            .with(
+              'Login Fail! on User/Session Validation',
+              :error,
+              uuid: nil,
+              user: {
+                valid: false,
+                errors: ["Uuid can't be blank"]
+              },
+              session: {
+                valid: false,
+                errors: ["Uuid can't be blank"]
+              }
+            )
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
           expect(response).to have_http_status(:found)
         end

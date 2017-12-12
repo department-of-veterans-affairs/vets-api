@@ -135,13 +135,25 @@ module V0
     end
 
     def handle_login_error
-      fail_handler = SAML::AuthFailHandler.new(@saml_response, @current_user, @session)
+      fail_handler = SAML::AuthFailHandler.new(@saml_response)
       StatsD.increment(STATSD_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
-      StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ["error:#{fail_handler.error}"])
-      if fail_handler.known_error?
+      if fail_handler.errors?
+        StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ["error:#{fail_handler.error}"])
         log_message_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
       else
-        log_message_to_sentry(fail_handler.generic_error_message, :error)
+        StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ['error:validations_failed}'])
+        context = {
+          uuid: @current_user.uuid,
+          user:   {
+            valid: @current_user&.valid?,
+            errors: @current_user&.errors&.full_messages
+          },
+          session:   {
+            valid: @session&.valid?,
+            errors: @session&.errors&.full_messages
+          }
+        }
+        log_message_to_sentry('Login Fail! on User/Session Validation', :error, context)
       end
     end
 
