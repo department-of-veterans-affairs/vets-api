@@ -35,7 +35,7 @@ describe EVSS::ClaimsService do
     it 'should get claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
       VCR.use_cassette(
         'evss/claims/claims',
-        match_requests_on: [:method, :uri, :headers, :body]
+        VCR::MATCH_EVERYTHING
       ) do
         response = subject.all_claims
         expect(response).to be_success
