@@ -12,7 +12,7 @@ module SAML
     def initialize(saml_response)
       @saml_response = saml_response
       return if @saml_response.is_valid?
-      known_error? || generic_error_message
+      initialize_errors!
     end
 
     def error
@@ -23,12 +23,18 @@ module SAML
       only_one_error? ? 'unknown' : 'multiple'
     end
 
-    def known_error?
+    def errors?
+      !@message.nil? && !@level.nil?
+    end
+
+    private
+
+    def initialize_errors!
       KNOWN_ERRORS.each do |known_error|
         break if send("#{known_error}?")
       end
 
-      false
+      generic_error_message
     end
 
     def generic_error_message
@@ -40,12 +46,6 @@ module SAML
       }
       set_sentry_params('Other SAML Response Error(s)', :error, context)
     end
-
-    def errors?
-      !@message.nil? && !@level.nil?
-    end
-
-    private
 
     def clicked_deny?
       return false unless only_one_error? && @saml_response.status_message == CLICKED_DENY_MSG
