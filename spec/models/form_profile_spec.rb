@@ -307,15 +307,7 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
-    context 'with a user that cant prefill emis' do
-      it 'returns va profile without emis data' do
-        form_data = Oj.load(described_class.for('1010ez').prefill(user).to_json)['form_data']
-        expect(form_data['gender']).to eq('M')
-        expect(form_data['lastServiceBranch']).to eq(nil)
-      end
-    end
-
-    context 'with emis data' do
+    context 'with emis data', skip_emis: true do
       before do
         military_information = user.military_information
         expect(military_information).to receive(:last_service_branch).and_return('air force')

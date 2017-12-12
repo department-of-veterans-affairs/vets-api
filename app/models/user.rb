@@ -122,7 +122,7 @@ class User < Common::RedisStore
   end
 
   def can_prefill_emis?
-    beta_enabled?(uuid, FormProfile::EMIS_PREFILL_KEY)
+    true
   end
 
   def can_access_id_card?
