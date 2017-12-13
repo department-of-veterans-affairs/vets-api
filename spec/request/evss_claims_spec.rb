@@ -21,8 +21,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
   end
 
-  it 'lists all Claims' do
-    VCR.use_cassette('evss/claims/claims') do
+  it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
+    VCR.use_cassette('evss/claims/claims', VCR::MATCH_EVERYTHING) do
       get '/v0/evss_claims', nil, 'Authorization' => "Token token=#{session.token}"
       expect(response).to match_response_schema('evss_claims')
     end
