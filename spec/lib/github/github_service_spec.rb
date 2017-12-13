@@ -5,7 +5,7 @@ require 'github/github_service'
 describe Github::GithubService do
   let(:feedback) { build :feedback }
   let(:feedback_with_email) { build :feedback, :email_provided }
-  let(:feedback_email_in_body) { build :feedback, :email_in_body }
+  let(:feedback_email_in_body) { build :feedback, :sensitive_data_in_body }
 
   it 'makes a create_issue API call to Github' do
     expect_any_instance_of(Octokit::Client).to receive(:create_issue)
@@ -29,9 +29,9 @@ describe Github::GithubService do
     described_class.create_issue(feedback_with_email)
   end
 
-  it 'filters emails included in the feedback description' do
-    expected_title = 'Good page. My email is j**********'
-    expected_description = 'Good page. My email is j**********'
+  it 'filters sensitive data included in the feedback description' do
+    expected_title = 'My email is j**********.  Page was hard, '
+    expected_description = 'My email is j**********.  Page was hard, here is my ssn 1**********.'
 
     expect_any_instance_of(Octokit::Client).to receive(:create_issue)
       .with(

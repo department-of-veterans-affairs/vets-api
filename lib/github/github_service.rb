@@ -7,10 +7,15 @@ module Github
 
       # source: https://stackoverflow.com/a/27194235
       EMAIL_REGEX = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i
+      SSN_REGEX = /(\d{3})[^\d]?\d{2}[^\d]?\d{4}/
 
       GITHUB_REPO = 'department-of-veterans-affairs/vets.gov-team'
 
       def create_issue(feedback)
+        # in case user provides PII in feedback description
+        feedback.description = sanitize(feedback.description, EMAIL_REGEX)
+        feedback.description = sanitize(feedback.description, SSN_REGEX)
+
         client.create_issue(
           GITHUB_REPO,
           issue_title(feedback),
@@ -31,7 +36,6 @@ module Github
 
       def issue_title(feedback)
         title = feedback.description[0..40]
-        title = sanitize_for_email(title)
         title += ' - Response Requested' unless feedback.owner_email.blank?
         title
       end
@@ -39,7 +43,6 @@ module Github
       def issue_body(feedback)
         email = feedback.owner_email.blank? ? 'NOT PROVIDED' : obfuscated_email(feedback.owner_email)
         body = feedback.description
-        body = sanitize_for_email(body) # in case email was included in feedback body
         body += "\n\nTarget Page: #{feedback.target_page}"
         body += "\nEmail of Author: #{email}"
         body
@@ -50,10 +53,10 @@ module Github
         email[0] + '**********'
       end
 
-      def sanitize_for_email(str)
-        email = str.match(EMAIL_REGEX)
-        return str unless email
-        str.gsub(email.to_s, email.to_s[0] + '**********')
+      def sanitize(str, regex)
+        matched = str.match(regex)
+        return str unless matched
+        str.gsub(matched.to_s, matched.to_s[0] + '**********')
       end
     end
   end

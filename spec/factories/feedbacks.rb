@@ -12,8 +12,8 @@ FactoryBot.define do
       owner_email '@session.token'
     end
 
-    trait :email_in_body do
-      description 'Good page. My email is joe@vets.com'
+    trait :sensitive_data_in_body do
+      description 'My email is joe@vets.com.  Page was hard, here is my ssn 111-22-3333.'
     end
   end
 end
