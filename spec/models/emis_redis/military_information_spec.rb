@@ -21,6 +21,27 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
         )
       end
     end
+
+    it 'should return true if service episode end date is in the future' do
+      allow(subject).to receive(:latest_service_episode).and_return(double(end_date: Date.today + 5.days))
+      expect(subject.currently_active_duty_hash).to eq(
+        yes: true
+      )
+    end
+
+    it 'should return true if service episode end date is nil' do
+      allow(subject).to receive(:latest_service_episode).and_return(double(end_date: nil))
+      expect(subject.currently_active_duty_hash).to eq(
+        yes: true
+      )
+    end
+
+    it 'should return false if service episode is nil' do
+      allow(subject).to receive(:latest_service_episode).and_return(nil)
+      expect(subject.currently_active_duty_hash).to eq(
+        yes: false
+      )
+    end
   end
 
   describe '#tours_of_duty' do
