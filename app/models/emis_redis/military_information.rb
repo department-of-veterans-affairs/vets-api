@@ -71,8 +71,16 @@ module EMISRedis
     end
 
     def currently_active_duty_hash
+      value =
+        if latest_service_episode.present?
+          end_date = latest_service_episode.end_date
+          end_date.nil? || end_date.future?
+        else
+          false
+        end
+
       {
-        yes: latest_service_episode.present? && latest_service_episode.end_date.future?
+        yes: value
       }
     end
 
