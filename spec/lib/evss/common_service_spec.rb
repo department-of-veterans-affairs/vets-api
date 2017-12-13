@@ -4,7 +4,7 @@ require 'evss/common_service'
 require 'evss/auth_headers'
 
 describe EVSS::CommonService do
-  let(:current_user) { FactoryBot.build(:user, :loa3) }
+  let(:current_user) { FactoryBot.build(:evss_user) }
 
   let(:auth_headers) do
     EVSS::AuthHeaders.new(current_user).to_h
@@ -23,7 +23,7 @@ describe EVSS::CommonService do
     end
 
     it 'posts to create a user account' do
-      VCR.use_cassette('evss/common/create_user_account') do
+      VCR.use_cassette('evss/common/create_user_account_2', record: :once) do
         response = subject.create_user_account
         expect(response).to be_success
       end
