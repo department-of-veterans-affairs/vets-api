@@ -5,6 +5,7 @@ require 'github/github_service'
 describe Github::GithubService do
   let(:feedback) { build :feedback }
   let(:feedback_with_email) { build :feedback, :email_provided }
+  let(:feedback_email_in_body) { build :feedback, :email_in_body }
 
   it 'makes a create_issue API call to Github' do
     expect_any_instance_of(Octokit::Client).to receive(:create_issue)
@@ -26,6 +27,20 @@ describe Github::GithubService do
         assignee: 'va-bot', labels: 'User Feedback'
       )
     described_class.create_issue(feedback_with_email)
+  end
+
+  it 'filters emails included in the feedback description' do
+    expected_title = 'Good page. My email is j**********'
+    expected_description = 'Good page. My email is j**********'
+
+    expect_any_instance_of(Octokit::Client).to receive(:create_issue)
+      .with(
+        'department-of-veterans-affairs/vets.gov-team',
+        expected_title,
+        expected_description + "\n\nTarget Page: /example/page\nEmail of Author: NOT PROVIDED",
+        assignee: 'va-bot', labels: 'User Feedback'
+      )
+    described_class.create_issue(feedback_email_in_body)
   end
 
   # To regenerate VCR: purposely set a bad password/API key for Octokit::Client
