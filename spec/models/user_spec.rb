@@ -8,8 +8,16 @@ RSpec.describe User, type: :model do
   describe '#can_prefill_emis?' do
     let(:user) { build(:user, :loa3) }
 
-    it 'should return true' do
+    it 'should return true if user has edipi or icn' do
       expect(user.can_prefill_emis?).to eq(true)
+    end
+
+    it 'should return false if user doesnt have edipi or icn' do
+      %w(edipi icn).each do |attr|
+        expect(user).to receive(attr).and_return(nil)
+      end
+
+      expect(user.can_prefill_emis?).to eq(false)
     end
   end
 
