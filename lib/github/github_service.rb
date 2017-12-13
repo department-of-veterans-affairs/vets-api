@@ -7,6 +7,8 @@ module Github
 
       # source: https://stackoverflow.com/a/27194235
       EMAIL_REGEX = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i
+
+      # source https://stackoverflow.com/a/20386405
       SSN_REGEX = /(\d{3})[^\d]?\d{2}[^\d]?\d{4}/
 
       GITHUB_REPO = 'department-of-veterans-affairs/vets.gov-team'
