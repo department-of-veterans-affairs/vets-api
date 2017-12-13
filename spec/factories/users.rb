@@ -57,10 +57,15 @@ FactoryBot.define do
       ssn('796043735')
 
       after(:build) do |user|
-        allow(user).to receive(:edipi).and_return('1007697216')
-        allow(user).to receive(:birls_id).and_return('796043735')
-        allow(user).to receive(:participant_id).and_return('600061742')
-        allow(user.va_profile).to receive(:birth_date).and_return('1986-05-06T00:00:00+00:00'.to_date.to_s)
+        stub_mvi(
+          build(
+            :mvi_profile,
+            edipi: '1007697216',
+            birls_id: '796043735',
+            participant_id: '600061742',
+            birth_date: '1986-05-06T00:00:00+00:00'.to_date.to_s
+          )
+        )
       end
     end
 

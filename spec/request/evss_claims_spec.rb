@@ -6,7 +6,7 @@ require 'evss/request_decision'
 RSpec.describe 'EVSS Claims management', type: :request do
   include SchemaMatchers
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:evss_user) }
   let(:session) { Session.create(uuid: user.uuid) }
 
   context 'for a user without evss attrs' do
@@ -30,7 +30,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
   context 'for a single claim' do
     let!(:claim) do
-      FactoryBot.create(:evss_claim, id: 1, evss_id: 189_625,
+      FactoryBot.create(:evss_claim, id: 1, evss_id: 600118851,
                                      user_uuid: user.uuid)
     end
 
@@ -42,8 +42,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
       expect(JSON.parse(response.body)['job_id']).to eq(EVSS::RequestDecision.jobs.first['jid'])
     end
 
-    it 'shows a single Claim' do
-      VCR.use_cassette('evss/claims/claim') do
+    it 'shows a single Claim', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+      VCR.use_cassette('evss/claims/claim', VCR::MATCH_EVERYTHING) do
         get '/v0/evss_claims/600118851', nil, 'Authorization' => "Token token=#{session.token}"
         expect(response).to match_response_schema('evss_claim')
       end
