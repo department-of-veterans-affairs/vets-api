@@ -148,7 +148,7 @@ class User < Common::RedisStore
   end
 
   def can_prefill_emis?
-    true
+    edipi.present? || icn.present?
   end
 
   def can_access_id_card?
