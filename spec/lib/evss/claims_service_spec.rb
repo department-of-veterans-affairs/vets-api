@@ -5,20 +5,7 @@ require 'evss/auth_headers'
 
 describe EVSS::ClaimsService do
   let(:current_user) do
-    user = FactoryBot.create(
-      :user,
-      :loa3,
-      first_name: 'WESLEY',
-      last_name: 'FORD',
-      last_signed_in: Time.parse("2017-12-07T00:55:09Z"),
-      ssn: '796043735'
-    )
-
-    allow(user).to receive(:edipi).and_return('1007697216')
-    allow(user).to receive(:birls_id).and_return('796043735')
-    allow(user).to receive(:participant_id).and_return('600061742')
-    allow(user.va_profile).to receive(:birth_date).and_return('1986-05-06T00:00:00+00:00'.to_date.to_s)
-    user
+    create(:evss_user)
   end
 
   let(:auth_headers) do
