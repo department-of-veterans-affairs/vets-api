@@ -11,18 +11,35 @@ module MVI
       # NI = national identifier, PI = patient identifier
       def parse(ids)
         ids = ids.map(&:attributes)
+        icns = select_ids(select_extension(ids, /^\w+\^NI\^\w+\^\w+\^\w+$/, CORRELATION_ROOT_ID))
+
         {
-          icn: select_ids(select_extension(ids, /^\w+\^NI\^\w+\^\w+\^\w+$/, CORRELATION_ROOT_ID))&.first,
+          icn: icns&.first,
           mhv_ids: select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/, CORRELATION_ROOT_ID)),
           active_mhv_ids: select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^A$/, CORRELATION_ROOT_ID)),
           edipi: select_ids(select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^\w+$/, EDIPI_ROOT_ID))&.first,
           vba_corp_id: select_ids(select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^\w+$/, CORRELATION_ROOT_ID))&.first,
+          historical_icns: get_historical_icns(icns),
           vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, CORRELATION_ROOT_ID)),
           birls_id: select_ids(select_extension(ids, /^\w+\^PI\^200BRLS\^USVBA\^\w+$/, CORRELATION_ROOT_ID))&.first
         }
       end
 
       private
+
+      def get_historical_icns(icns)
+        historical_icns = []
+
+        if icns.present?
+          icns.each_with_index do |icn, i|
+            next if i == 0
+
+            historical_icns << icn
+          end
+        end
+
+        historical_icns
+      end
 
       def select_ids(extensions)
         return nil if extensions.empty?
