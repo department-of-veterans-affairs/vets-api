@@ -75,7 +75,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def eligible?
-    va_patient?
+    user.loa3? && va_patient?
   end
 
   def terms_and_conditions_accepted?
