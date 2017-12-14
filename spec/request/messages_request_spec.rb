@@ -152,7 +152,14 @@ RSpec.describe 'Messages Integration', type: :request do
   end
 
   context 'with an LOA1 user' do
-    let(:mhv_account) { double('mhv_account', ineligible?: true, needs_terms_acceptance?: false, upgraded?: true) }
+    let(:mhv_account) do
+      double('mhv_account',
+        accessible?: false,
+        ineligible?: true,
+        needs_terms_acceptance?: false,
+        upgraded?: true
+      )
+    end
     let(:current_user) { build(:user, :loa1) }
 
     it 'gives me a 403' do

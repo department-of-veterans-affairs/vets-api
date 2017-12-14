@@ -87,7 +87,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def accessible?
-    upgraded? || existing?
+    (loa3? || user.authn_context.include?('myhealthevet')) && (upgraded? || existing?)
   end
 
   private

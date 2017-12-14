@@ -12,7 +12,7 @@ module MHVControllerConcerns
   protected
 
   def authorize
-    raise_access_denied if !current_user&.loa3? || current_user.mhv_account.ineligible?
+    raise_access_denied unless accessible_or_eligible_for_creation?
     raise_requires_terms_acceptance if current_user.mhv_account.needs_terms_acceptance?
     begin
       current_user.mhv_account.create_and_upgrade! unless current_user.mhv_account.accessible?
@@ -27,6 +27,11 @@ module MHVControllerConcerns
 
   def raise_something_went_wrong
     raise MHVAC::AccountCreationError
+  end
+
+  def accessible_or_eligible_for_creation?
+    return false unless current_user.mhv_account.present?
+    current_user.mhv_account.accessible? || current_user.mhv_account.eligible?
   end
 
   def authenticate_client

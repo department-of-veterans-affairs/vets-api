@@ -68,7 +68,8 @@ class User < Common::RedisStore
   end
 
   def mhv_correlation_id
-    mhv_uuid || mvi.mhv_correlation_id
+    # FIXME-IDENTITY: doing .try for now since this could return no method error until persisted properly
+    identity.try(:mhv_correlation_id) || mvi.mhv_correlation_id
   end
 
   def loa
@@ -78,7 +79,6 @@ class User < Common::RedisStore
   delegate :multifactor, to: :identity, allow_nil: true
   delegate :authn_context, to: :identity, allow_nil: true
   delegate :mhv_icn, to: :identity, allow_nil: true
-  delegate :mhv_uuid, to: :identity, allow_nil: true
 
   # mvi attributes
   delegate :birls_id, to: :mvi
@@ -127,7 +127,6 @@ class User < Common::RedisStore
   end
 
   def mhv_account_state
-    return nil unless loa3?
     mhv_account.account_state
   end
 
