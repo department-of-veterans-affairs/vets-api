@@ -14,11 +14,4 @@ namespace :jobs do
   task download_facility_access_data: :environment do
     Facilities::AccessDataDownload.perform_async
   end
-
-  desc 'Get names and ssns of claims to be resubmitted'
-  task write_ssns: :environment do
-    Rails.application.eager_load!
-
-    puts EducationForm::GenerateSpoolFiles.new.write_names_and_ssns
-  end
 end
