@@ -154,11 +154,10 @@ RSpec.describe 'Messages Integration', type: :request do
   context 'with an LOA1 user' do
     let(:mhv_account) do
       double('mhv_account',
-        accessible?: false,
-        ineligible?: true,
-        needs_terms_acceptance?: false,
-        upgraded?: true
-      )
+             accessible?: false,
+             ineligible?: true,
+             needs_terms_acceptance?: false,
+             upgraded?: true)
     end
     let(:current_user) { build(:user, :loa1) }
 
