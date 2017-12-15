@@ -30,7 +30,6 @@ module MHVControllerConcerns
   end
 
   def accessible_or_eligible_for_creation?
-    return false unless current_user.mhv_account.present?
     current_user.mhv_account.accessible? || current_user.mhv_account.eligible?
   end
 
