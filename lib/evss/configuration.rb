@@ -42,7 +42,7 @@ module EVSS
         faraday.use      Faraday::Response::RaiseError
         faraday.response :betamocks if mock_enabled?
         faraday.response :snakecase, symbolize: false
-        faraday.response :json
+        faraday.response :json, content_type: /\bjson$/
         faraday.use :immutable_headers
         faraday.adapter Faraday.default_adapter
       end
