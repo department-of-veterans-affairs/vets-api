@@ -2,7 +2,7 @@
 require 'rails_helper'
 
 RSpec.describe UserSerializer, type: :serializer do
-  let(:user) { build(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
   let(:profile) { attributes['profile'] }
@@ -84,7 +84,7 @@ RSpec.describe UserSerializer, type: :serializer do
     end
 
     context 'when user.mvi is nil' do
-      let(:user) { build :user }
+      let(:user) { create :user }
       let(:data) { JSON.parse(subject)['data'] }
       let(:attributes) { data['attributes'] }
       let(:va_profile) { attributes['va_profile'] }
@@ -155,7 +155,7 @@ RSpec.describe UserSerializer, type: :serializer do
     end
 
     context 'with a LOA1 user' do
-      let(:user) { build(:user, :loa1) }
+      let(:user) { create(:user, :loa1) }
       let(:serialized_user) { serialize(user, serializer_class: described_class) }
       let(:expected) { JSON.parse(serialized_user) }
 
