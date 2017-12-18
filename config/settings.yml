@@ -197,6 +197,8 @@ shrine:
 github:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
 
+# Note: in addition to enabling / disabling betamocks here, you _must_ also
+# change the 'mock' bool for each service you want to mock in this settings file
 betamocks:
   enabled: true
   recording: false

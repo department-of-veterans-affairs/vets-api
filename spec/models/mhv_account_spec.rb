@@ -70,6 +70,7 @@ RSpec.describe MhvAccount, type: :model do
             subject.send(:setup) # This gets called when object is first loaded
             expect(subject.account_state).to eq('ineligible')
             expect(subject.eligible?).to be_falsey
+            expect(subject.accessible?).to be_falsey
             expect(subject.terms_and_conditions_accepted?).to be_truthy
           end
         end
@@ -84,6 +85,7 @@ RSpec.describe MhvAccount, type: :model do
             )
             subject.send(:setup) # This gets called when object is first loaded
             expect(subject.account_state).to eq('registered')
+            expect(subject.accessible?).to be_falsey
           end
 
           it 'a priori failed upgrade that has been registered changes to registered' do
@@ -92,6 +94,7 @@ RSpec.describe MhvAccount, type: :model do
             )
             subject.send(:setup) # This gets called when object is first loaded
             expect(subject.account_state).to eq('registered')
+            expect(subject.accessible?).to be_falsey
           end
 
           it 'a priori upgraded account stays upgraded' do
@@ -100,6 +103,7 @@ RSpec.describe MhvAccount, type: :model do
             )
             subject.send(:setup) # This gets called when object is first loaded
             expect(subject.account_state).to eq('upgraded')
+            expect(subject.accessible?).to be_truthy
           end
         end
 
@@ -109,6 +113,7 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.account_state).to eq('upgraded')
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
+          expect(subject.accessible?).to be_truthy
         end
 
         it 'is able to transition back to registered' do
@@ -117,6 +122,7 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.account_state).to eq('registered')
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
+          expect(subject.accessible?).to be_falsey
         end
 
         it 'falls back to unknown' do
@@ -125,30 +131,35 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.account_state).to eq('unknown')
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
+          expect(subject.accessible?).to be_falsey
         end
 
         it 'a priori registered account stays registered' do
           subject = described_class.new(base_attributes.merge(registered_at: nil, account_state: :registered))
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('registered')
+          expect(subject.accessible?).to be_falsey
         end
 
         it 'a priori upgraded account stays upgraded' do
           subject = described_class.new(base_attributes.merge(upgraded_at: nil, account_state: :upgraded))
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('upgraded')
+          expect(subject.accessible?).to be_truthy
         end
 
         it 'a priori register_failed account changes to unknown' do
           subject = described_class.new(base_attributes.merge(upgraded_at: nil, account_state: :register_failed))
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('unknown')
+          expect(subject.accessible?).to be_falsey
         end
 
         it 'a priori upgrade_failed account changes to unknown' do
           subject = described_class.new(base_attributes.merge(upgraded_at: nil, account_state: :upgrade_failed))
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('unknown')
+          expect(subject.accessible?).to be_falsey
         end
       end
 
@@ -162,6 +173,7 @@ RSpec.describe MhvAccount, type: :model do
             expect(subject.account_state).to eq('ineligible')
             expect(subject.eligible?).to be_falsey
             expect(subject.terms_and_conditions_accepted?).to be_falsey
+            expect(subject.accessible?).to be_falsey
           end
         end
 
@@ -175,6 +187,7 @@ RSpec.describe MhvAccount, type: :model do
             expect(subject.account_state).to eq('existing')
             expect(subject.eligible?).to be_truthy
             expect(subject.terms_and_conditions_accepted?).to be_falsey
+            expect(subject.accessible?).to be_truthy
           end
         end
 
@@ -184,6 +197,7 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.account_state).to eq('needs_terms_acceptance')
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_falsey
+          expect(subject.accessible?).to be_falsey
         end
 
         it 'is able to transition back to registered' do
@@ -192,6 +206,7 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.account_state).to eq('needs_terms_acceptance')
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_falsey
+          expect(subject.accessible?).to be_falsey
         end
 
         it 'it falls back to unknown' do
@@ -200,6 +215,7 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.account_state).to eq('needs_terms_acceptance')
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_falsey
+          expect(subject.accessible?).to be_falsey
         end
       end
     end
@@ -228,6 +244,7 @@ RSpec.describe MhvAccount, type: :model do
         subject = described_class.new(base_attributes)
         subject.send(:setup) # This gets called when object is first loaded
         expect(subject.eligible?).to be_truthy
+        expect(subject.accessible?).to be_falsey
       end
     end
   end
@@ -256,6 +273,7 @@ RSpec.describe MhvAccount, type: :model do
       expect(subject.account_state).to eq('register_failed')
       expect(subject.registered_at).to be_nil
       expect(subject.upgraded_at).to be_nil
+      expect(subject.accessible?).to be_falsey
     end
 
     it 'will create and upgrade an account and set the time this was done' do
@@ -277,6 +295,7 @@ RSpec.describe MhvAccount, type: :model do
           expect(User.find(user.uuid).mhv_correlation_id).to eq('14221465')
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
+          expect(subject.accessible?).to be_truthy
         end
       end
     end
@@ -301,6 +320,7 @@ RSpec.describe MhvAccount, type: :model do
           expect(User.find(user.uuid).mhv_correlation_id).to eq('14221465')
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
+          expect(subject.accessible?).to be_truthy
         end
       end
     end
@@ -325,6 +345,7 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.upgraded_at).to be_a(Time)
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
+          expect(subject.accessible?).to be_truthy
         end
       end
 
@@ -346,6 +367,7 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.upgraded_at).to be_a(Time)
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
+          expect(subject.accessible?).to be_truthy
         end
       end
     end
@@ -370,6 +392,7 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.upgraded_at).to be_nil
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
+          expect(subject.accessible?).to be_truthy
         end
       end
     end
@@ -395,6 +418,7 @@ RSpec.describe MhvAccount, type: :model do
             expect(subject.upgraded_at).to be_nil
             expect(subject.eligible?).to be_truthy
             expect(subject.terms_and_conditions_accepted?).to be_truthy
+            expect(subject.accessible?).to be_falsey
           end
         end
       end
@@ -409,6 +433,7 @@ RSpec.describe MhvAccount, type: :model do
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
         expect(subject.account_state).to eq('ineligible')
+        expect(subject.accessible?).to be_falsey
       end
     end
 
@@ -418,6 +443,7 @@ RSpec.describe MhvAccount, type: :model do
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
         expect(subject.account_state).to eq('ineligible')
+        expect(subject.accessible?).to be_falsey
       end
     end
 
@@ -426,29 +452,36 @@ RSpec.describe MhvAccount, type: :model do
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
         expect(subject.account_state).not_to eq('ineligible')
+        expect(subject.accessible?).to be_falsey
       end
+
       context 'with multiple facilities' do
         let(:vha_facility_ids) { %w(200MH 488) }
         it 'is eligible with at least one facility in range' do
           subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).not_to eq('ineligible')
+          expect(subject.accessible?).to be_falsey
         end
       end
+
       context 'with alphanumeric facility' do
         let(:vha_facility_ids) { ['566GE'] }
         it 'is eligible with facility in range' do
           subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).not_to eq('ineligible')
+          expect(subject.accessible?).to be_falsey
         end
       end
+
       context 'with excluded facility in middle of range' do
         let(:vha_facility_ids) { ['719'] }
         it 'is ineligible' do
           subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('ineligible')
+          expect(subject.accessible?).to be_falsey
         end
       end
     end
@@ -461,6 +494,7 @@ RSpec.describe MhvAccount, type: :model do
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
         expect(subject.account_state).not_to eq('ineligible')
+        expect(subject.accessible?).to be_falsey
       end
     end
 
@@ -468,10 +502,12 @@ RSpec.describe MhvAccount, type: :model do
       before do
         Settings.mhv.facility_range = [[600, 758]]
       end
+
       it 'is ineligible with facility out of range' do
         subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
         subject.send(:setup) # This gets called when object is first loaded
         expect(subject.account_state).to eq('ineligible')
+        expect(subject.accessible?).to be_falsey
       end
 
       context 'with multiple facilities' do
@@ -480,14 +516,17 @@ RSpec.describe MhvAccount, type: :model do
           subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('ineligible')
+          expect(subject.accessible?).to be_falsey
         end
       end
+
       context 'with alphanumeric facility' do
         let(:vha_facility_ids) { ['566GE'] }
         it 'is ineligible with facility out of range' do
           subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('ineligible')
+          expect(subject.accessible?).to be_falsey
         end
       end
     end
@@ -513,6 +552,7 @@ RSpec.describe MhvAccount, type: :model do
       )).and_return(api_completion_status: 'Successful', correlation_id: 123_456)
       expect(ac_client).to receive(:post_upgrade).and_return(status: 'success')
       subject.create_and_upgrade!
+      expect(subject.accessible?).to be_truthy
     end
 
     context 'with nil MVI address' do
@@ -530,6 +570,7 @@ RSpec.describe MhvAccount, type: :model do
         )).and_return(api_completion_status: 'Successful', correlation_id: 123_456)
         expect(ac_client).to receive(:post_upgrade).and_return(status: 'success')
         subject.create_and_upgrade!
+        expect(subject.accessible?).to be_truthy
       end
     end
 
@@ -556,6 +597,7 @@ RSpec.describe MhvAccount, type: :model do
         )).and_return(api_completion_status: 'Successful', correlation_id: 123_456)
         expect(ac_client).to receive(:post_upgrade).and_return(status: 'success')
         subject.create_and_upgrade!
+        expect(subject.accessible?).to be_truthy
       end
     end
   end
@@ -577,6 +619,7 @@ RSpec.describe MhvAccount, type: :model do
       )).and_return(api_completion_status: 'Successful', correlation_id: 123_456)
       expect(ac_client).to receive(:post_upgrade).and_return(status: 'success')
       subject.create_and_upgrade!
+      expect(subject.accessible?).to be_truthy
     end
 
     it 'sets is_veteran false if user is not veteran' do
@@ -589,6 +632,7 @@ RSpec.describe MhvAccount, type: :model do
       )).and_return(api_completion_status: 'Successful', correlation_id: 123_456)
       expect(ac_client).to receive(:post_upgrade).and_return(status: 'success')
       subject.create_and_upgrade!
+      expect(subject.accessible?).to be_truthy
     end
 
     it 'sets is_veteran false if veteran status is unknown' do
@@ -601,6 +645,7 @@ RSpec.describe MhvAccount, type: :model do
       )).and_return(api_completion_status: 'Successful', correlation_id: 123_456)
       expect(ac_client).to receive(:post_upgrade).and_return(status: 'success')
       subject.create_and_upgrade!
+      expect(subject.accessible?).to be_truthy
     end
   end
 end

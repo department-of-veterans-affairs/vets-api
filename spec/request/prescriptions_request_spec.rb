@@ -7,7 +7,7 @@ RSpec.describe 'prescriptions', type: :request do
   include Rx::ClientHelpers
   include SchemaMatchers
 
-  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, accessible?: true) }
+  let(:mhv_account) { double('mhv_account', eligible?: true, needs_terms_acceptance?: false, accessible?: true) }
   let(:current_user) { build(:user, :mhv) }
 
   before(:each) do
@@ -17,7 +17,7 @@ RSpec.describe 'prescriptions', type: :request do
   end
 
   context 'forbidden user' do
-    let(:mhv_account) { double('mhv_account', ineligible?: true, needs_terms_acceptance?: false, accessible?: true) }
+    let(:mhv_account) { double('mhv_account', eligible?: false, needs_terms_acceptance?: false, accessible?: false) }
     let(:current_user) { build(:user) }
 
     it 'raises access denied' do
@@ -30,12 +30,11 @@ RSpec.describe 'prescriptions', type: :request do
   end
 
   context 'terms of service not accepted' do
-    let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: true, accessible?: false) }
+    let(:mhv_account) { double('mhv_account', eligible?: true, needs_terms_acceptance?: true, accessible?: false) }
     let(:current_user) { build(:user, :loa3) }
 
     it 'raises access denied' do
       get '/v0/prescriptions/13651310'
-
       expect(response).to have_http_status(:forbidden)
       expect(JSON.parse(response.body)['errors'].first['detail'])
         .to eq('You have not accepted the terms of service')
@@ -43,7 +42,7 @@ RSpec.describe 'prescriptions', type: :request do
   end
 
   context 'mhv account not upgraded' do
-    let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, accessible?: false) }
+    let(:mhv_account) { double('mhv_account', eligible?: true, needs_terms_acceptance?: false, accessible?: false) }
     let(:current_user) { build(:user, :loa3) }
 
     before(:each) do
