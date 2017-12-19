@@ -88,6 +88,7 @@ module MVI
           address: parse_address(patient),
           home_phone: parse_phone(patient),
           icn: correlation_ids[:icn],
+          historical_icns: correlation_ids[:historical_icns],
           mhv_ids: correlation_ids[:mhv_ids],
           edipi: correlation_ids[:edipi],
           participant_id: correlation_ids[:vba_corp_id],
