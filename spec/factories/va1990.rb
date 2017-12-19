@@ -38,7 +38,7 @@ FactoryBot.define do
             street: '111 Uni Drive',
             city: 'Baltimore'
           },
-          educationType: 'college',
+          educationType: 'college'
         },
         postHighSchoolTrainings: [
           {
