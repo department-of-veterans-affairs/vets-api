@@ -154,7 +154,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       ].each do |address_data|
         submissions << SavedClaim::EducationBenefits::VA1990.create(
           form: base_form.merge(
-            school: {
+            educationProgram: {
               address: base_address.merge(address_data)
             }
           ).to_json
