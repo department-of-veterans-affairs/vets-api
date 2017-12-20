@@ -28,17 +28,7 @@ module MVI
       private
 
       def get_historical_icns(icns)
-        historical_icns = []
-
-        if icns.present?
-          icns.each_with_index do |icn, i|
-            next if i == 0
-
-            historical_icns << icn
-          end
-        end
-
-        historical_icns
+        icns.select.with_index { |_, i| i.positive? }
       end
 
       def select_ids(extensions)
