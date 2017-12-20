@@ -221,6 +221,7 @@ GEM
       jsonapi-renderer (= 0.1.1.beta1)
     jsonapi-parser (0.1.1.beta3)
     jsonapi-renderer (0.1.1.beta1)
+    jwt (2.1.0)
     liquid (4.0.0)
     listen (3.0.6)
       rb-fsevent (>= 0.9.3)
@@ -510,6 +511,7 @@ DEPENDENCIES
   ice_nine
   iconv
   json-schema
+  jwt
   liquid
   memoist
   mini_magick
