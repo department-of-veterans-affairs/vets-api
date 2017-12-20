@@ -123,7 +123,7 @@ describe MVI::Responses::ProfileParser do
 
   context 'with historical ICNs' do
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_historical_icns.xml')) }
-    let(:mvi_profile) { build(:mvi_profile_response, :historical_icns) }
+    let(:mvi_profile) { build(:mvi_profile_response, :historical_icns, birls_id: nil) }
 
     before(:each) do
       allow(faraday_response).to receive(:body) { body }

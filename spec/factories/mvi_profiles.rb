@@ -72,6 +72,7 @@ FactoryBot.define do
       end
 
       trait :historical_icns do
+        address { build(:mvi_profile_address_austin) }
         historical_icns %w(1000123457V123457 1000123458V123458)
       end
 
