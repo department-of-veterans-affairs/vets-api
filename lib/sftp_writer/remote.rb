@@ -28,7 +28,7 @@ class SFTPWriter::Remote
   end
 
   def write(contents, filename)
-    path = File.join([write_path, filename].compact)
+    path = File.join([write_path, filename.delete(':')].compact)
     @logger.info("Writing #{path}")
     mkdir_safe(path)
     sftp.upload!(StringIO.new(contents), path)
