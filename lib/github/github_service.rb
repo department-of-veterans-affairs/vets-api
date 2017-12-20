@@ -12,7 +12,7 @@ module Github
           GITHUB_REPO,
           issue_title(feedback),
           issue_body(feedback),
-          assignee: 'va-bot', labels: 'User Feedback'
+          assignee: 'va-bot', labels: 'uservoice'
         )
       rescue => e
         log_exception_to_sentry(e)
