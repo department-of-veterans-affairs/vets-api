@@ -4,6 +4,15 @@ class FeedbackSubmissionMailer < ApplicationMailer
     feedback@va.gov
   ).freeze
 
+  STAGING_RECIPIENTS = %w(
+    bill.ryan@adhocteam.us
+    leanna@adhocteam.us
+    dawn@adhocteam.us
+    joshua.quagliaroli@va.gov
+    rachael.roueche@adhocteam.us
+    nick.sullivan@adhocteam.us
+  ).freeze
+
   def build(feedback, github_link)
     @feedback = feedback
     @github_link = github_link.presence || 'Warning: No Github link present!'
@@ -19,7 +28,7 @@ class FeedbackSubmissionMailer < ApplicationMailer
   private
 
   def recipients
-    FeatureFlipper.staging_email? ? 'bill.ryan@adhocteam.us' : RECIPIENTS.clone
+    FeatureFlipper.staging_email? ? STAGING_RECIPIENTS.clone : RECIPIENTS.clone
   end
 
   def subject_line
