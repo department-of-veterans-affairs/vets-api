@@ -5,7 +5,6 @@ require 'github/github_service'
 describe Github::GithubService do
   let(:feedback) { build :feedback }
   let(:feedback_with_email) { build :feedback, :email_provided }
-  let(:feedback_email_in_body) { build :feedback, :sensitive_data_in_body }
 
   it 'makes a create_issue API call to Github' do
     expect_any_instance_of(Octokit::Client).to receive(:create_issue)

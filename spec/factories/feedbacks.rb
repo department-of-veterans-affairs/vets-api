@@ -11,9 +11,5 @@ FactoryBot.define do
     trait :malicious_email do
       owner_email '@session.token'
     end
-
-    trait :sensitive_data_in_body do
-      description 'My email is joe@vets.com.  Page was hard, here is my ssn 111-22-3333.'
-    end
   end
 end
