@@ -40,16 +40,18 @@ module V0
         raise Common::Exceptions::UnexpectedForbidden, detail: 'Missing correlation id'
       else
         # 500
-        log_message_to_sentry('Unexpected EVSS GiBillStatus Response', :error, response.to_h)
+        extra_context = if response.respond_to?('to_h')
+                          response.to_h
+                        else
+                          response
+                        end
+        log_message_to_sentry('Unexpected EVSS GiBillStatus Response', :error, extra_context)
         raise Common::Exceptions::InternalServerError
       end
     end
 
     def service
-      @service ||= EVSS::GiBillStatus::Service.new(
-        EVSS::AuthHeaders.new(@current_user).to_h,
-        Settings.evss.mock_gi_bill_status
-      )
+      EVSS::GiBillStatus::Service.new(@current_user)
     end
   end
 end
