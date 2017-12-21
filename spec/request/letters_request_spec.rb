@@ -94,7 +94,7 @@ RSpec.describe 'letters', type: :request do
 
     context 'with a 404 evss response' do
       let(:user) do
-        build(:user, :loa3, first_name: 'John', last_name: 'SMith', birth_date: '1942-02-12', ssn: '7991112233')
+        build(:user, :loa3, first_name: 'John', last_name: 'SMith', birth_date: '1942-02-12', ssn: '799111223')
       end
       before do
         user.va_profile.edipi = '1005079999'

@@ -61,7 +61,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def eligible?
-    va_patient?
+    user.loa3? && va_patient?
   end
 
   def terms_and_conditions_accepted?
@@ -81,7 +81,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def accessible?
-    upgraded? || existing?
+    (user.loa3? || user.authn_context.include?('myhealthevet')) && (upgraded? || existing?)
   end
 
   def params_for_registration

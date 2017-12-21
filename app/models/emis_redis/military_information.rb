@@ -71,8 +71,16 @@ module EMISRedis
     end
 
     def currently_active_duty_hash
+      value =
+        if latest_service_episode.present?
+          end_date = latest_service_episode.end_date
+          end_date.nil? || end_date.future?
+        else
+          false
+        end
+
       {
-        yes: latest_service_episode.present? && latest_service_episode.end_date.future?
+        yes: value
       }
     end
 
@@ -143,8 +151,8 @@ module EMISRedis
 
     def compensable_va_service_connected
       disabilities.each do |disability|
-        return true if disability.pay_amount.positive? &&
-                       LOWER_DISABILITY_RATINGS.include?(disability.disability_percent)
+        return true if disability.get_pay_amount.positive? &&
+                       LOWER_DISABILITY_RATINGS.include?(disability.get_disability_percent)
       end
 
       false
@@ -154,7 +162,10 @@ module EMISRedis
     # rubocop:disable Style/PredicateName
     def is_va_service_connected
       disabilities.each do |disability|
-        return true if disability.pay_amount.positive? && disability.disability_percent >= HIGHER_DISABILITY_RATING
+        pay_amount = disability.get_pay_amount
+        disability_percent = disability.get_disability_percent
+
+        return true if pay_amount.positive? && disability_percent >= HIGHER_DISABILITY_RATING
       end
 
       false
