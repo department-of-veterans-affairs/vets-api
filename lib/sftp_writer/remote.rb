@@ -60,6 +60,6 @@ class SFTPWriter::Remote
   end
 
   def sanitize(filename)
-    filename.gsub(/[: ]/, '_')
+    filename.tr(':', '_')
   end
 end
