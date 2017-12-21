@@ -21,7 +21,7 @@ class Feedback
   validates :target_page, presence: true
   validates :description, presence: true
 
-  def initialize(attributes ={})
+  def initialize(attributes = {})
     run_callbacks :initialize do
       super(attributes)
     end
