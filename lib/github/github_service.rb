@@ -5,19 +5,9 @@ module Github
       include SentryLogging
       extend Memoist
 
-      # source: https://stackoverflow.com/a/27194235
-      EMAIL_REGEX = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i
-
-      # source https://stackoverflow.com/a/20386405
-      SSN_REGEX = /(\d{3})[^\d]?\d{2}[^\d]?\d{4}/
-
       GITHUB_REPO = 'department-of-veterans-affairs/vets.gov-team'
 
       def create_issue(feedback)
-        # in case user provides PII in feedback description
-        feedback.description = sanitize(feedback.description, EMAIL_REGEX)
-        feedback.description = sanitize(feedback.description, SSN_REGEX)
-
         client.create_issue(
           GITHUB_REPO,
           issue_title(feedback),
@@ -53,12 +43,6 @@ module Github
       def obfuscated_email(email)
         return '' if email.nil?
         email[0] + '**********'
-      end
-
-      def sanitize(str, regex)
-        matched = str.match(regex)
-        return str unless matched
-        str.gsub(matched.to_s, matched.to_s[0] + '**********')
       end
     end
   end
