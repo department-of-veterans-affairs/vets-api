@@ -197,6 +197,13 @@ shrine:
 github:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
 
+# Settings for maintenance window API
+# Services should be a map from logical service name to PagerDuty service id
+maintenance:
+  pagerduty_api_url: ~
+  pagerduty_api_token: ~
+  services: ~
+
 # Note: in addition to enabling / disabling betamocks here, you _must_ also
 # change the 'mock' bool for each service you want to mock in this settings file
 betamocks:
