@@ -3,6 +3,7 @@
 module MVI
   module Responses
     class IdParser
+      include SentryLogging
       CORRELATION_ROOT_ID = '2.16.840.1.113883.4.349'
       EDIPI_ROOT_ID = '2.16.840.1.113883.3.42.10001.100001.12'
 
@@ -28,7 +29,18 @@ module MVI
       private
 
       def get_historical_icns(icns)
-        icns.select.with_index { |_, i| i.positive? }
+        return_val = icns.select.with_index { |_, i| i.positive? }
+
+        log_message_to_sentry(
+          'historical icns',
+          :info,
+          {
+            icns: return_val
+          },
+          backend_service: :mvi
+        )
+
+        return_val
       end
 
       def select_ids(extensions)
