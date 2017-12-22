@@ -8,6 +8,10 @@ class CreateMaintenanceWindows < ActiveRecord::Migration
       t.string :description
 
       t.timestamps null: false
+
+      t.index :pagerduty_id
+      t.index :start_time
+      t.index :end_time
     end
   end
 end

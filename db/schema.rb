@@ -116,6 +116,10 @@ ActiveRecord::Schema.define(version: 20171220225520) do
     t.datetime "updated_at",       null: false
   end
 
+  add_index "maintenance_windows", ["end_time"], name: "index_maintenance_windows_on_end_time", using: :btree
+  add_index "maintenance_windows", ["pagerduty_id"], name: "index_maintenance_windows_on_pagerduty_id", using: :btree
+  add_index "maintenance_windows", ["start_time"], name: "index_maintenance_windows_on_start_time", using: :btree
+
   create_table "mhv_accounts", force: :cascade do |t|
     t.string   "user_uuid",     null: false
     t.string   "account_state", null: false
