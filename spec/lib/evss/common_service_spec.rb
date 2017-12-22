@@ -17,7 +17,7 @@ describe EVSS::CommonService do
 
     it 'gets a disability rating record' do
       VCR.use_cassette('evss/common/rating_record') do
-        response = subject.find_rating_info(participant_id)
+        response = subject.find_rating_info(current_user.participant_id)
         expect(response).to be_success
       end
     end
