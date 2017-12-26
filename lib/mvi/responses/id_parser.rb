@@ -31,14 +31,16 @@ module MVI
       def get_historical_icns(icns)
         return_val = icns.select.with_index { |_, i| i.positive? }
 
-        log_message_to_sentry(
-          'historical icns',
-          :info,
-          {
-            icns: return_val
-          },
-          backend_service: :mvi
-        )
+        if return_val.present?
+          log_message_to_sentry(
+            'historical icns',
+            :info,
+            {
+              icns: return_val
+            },
+            backend_service: :mvi
+          )
+        end
 
         return_val
       end
