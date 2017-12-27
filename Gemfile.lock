@@ -288,6 +288,8 @@ GEM
       pry (>= 0.9.10, < 0.11.0)
     puma (2.16.0)
     rack (1.6.5)
+    rack-attack (5.0.1)
+      rack
     rack-cors (0.4.1)
     rack-protection (1.5.3)
       rack
@@ -529,6 +531,7 @@ DEPENDENCIES
   prawn
   pry-nav
   puma (~> 2.16.0)
+  rack-attack
   rack-cors
   rack-vcr
   rails (= 4.2.7.1)
@@ -570,4 +573,4 @@ DEPENDENCIES
   zero_downtime_migrations
 
 BUNDLED WITH
-   1.16.0
+   1.16.1
