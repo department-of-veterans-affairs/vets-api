@@ -533,6 +533,7 @@ DEPENDENCIES
   puma (~> 2.16.0)
   rack-attack
   rack-cors
+  rack-test
   rack-vcr
   rails (= 4.2.7.1)
   rails-api

@@ -109,6 +109,7 @@ group :development, :test do
   gem 'guard-rspec', '~> 4.7'
   gem 'overcommit'
   gem 'pry-nav'
+  gem 'rack-test', require: 'rack/test'
   gem 'rack-vcr'
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', '~> 0.42.0', require: false
