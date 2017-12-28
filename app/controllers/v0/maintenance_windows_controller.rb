@@ -4,7 +4,7 @@ module V0
     skip_before_action :authenticate
 
     def index
-      @maintenance_windows = MaintenanceWindow.all
+      @maintenance_windows = MaintenanceWindow.end_after(Time.zone.now)
 
       render json: @maintenance_windows,
              each_serializer: MaintenanceWindowSerializer
