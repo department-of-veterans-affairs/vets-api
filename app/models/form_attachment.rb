@@ -6,9 +6,7 @@ class FormAttachment < ActiveRecord::Base
 
   validates(:form_id, :file_data, :guid, presence: true)
 
-  before_validation(:set_form_id)
-
-  def self.set_form_id_const(form_id)
+  def self.set_form_id(form_id)
     self.const_set('FORM_ID', form_id)
 
     default_scope do
@@ -36,10 +34,6 @@ class FormAttachment < ActiveRecord::Base
   end
 
   private
-
-  def set_form_id
-    self.form_id ||= self.class::FORM_ID
-  end
 
   def get_attachment_uploader
     self.class::ATTACHMENT_UPLOADER_CLASS.new(guid)
