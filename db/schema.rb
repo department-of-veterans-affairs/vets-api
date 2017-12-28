@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171227231018) do
+ActiveRecord::Schema.define(version: 20171228003251) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -81,6 +81,8 @@ ActiveRecord::Schema.define(version: 20171227231018) do
     t.string   "encrypted_file_data_iv", null: false
     t.string   "form_id"
   end
+
+  add_index "form_attachments", ["guid", "form_id"], name: "index_form_attachments_on_guid_and_form_id", unique: true, using: :btree
 
   create_table "gibs_not_found_users", force: :cascade do |t|
     t.string   "edipi",            null: false
