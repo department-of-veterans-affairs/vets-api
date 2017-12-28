@@ -17,7 +17,7 @@ module PagerDuty
       client = PagerDuty::MaintenanceClient.new
       pd_windows = client.get_all
 
-      # Add or update-in-place any open PagerDuty maintenance windows 
+      # Add or update-in-place any open PagerDuty maintenance windows
       pd_windows.each do |pd_win|
         pd_win[:description] = parse_user_message(pd_win[:description])
         window = MaintenanceWindow.find_or_initialize_by(pagerduty_id: pd_win[:pagerduty_id],
