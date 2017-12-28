@@ -6,7 +6,8 @@ module V0
     def index
       @maintenance_windows = MaintenanceWindow.all
 
-      render json: @maintenance_windows
+      render json: @maintenance_windows,
+             each_serializer: MaintenanceWindowSerializer
     end
   end
 end
