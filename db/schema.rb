@@ -82,8 +82,6 @@ ActiveRecord::Schema.define(version: 20171227231018) do
     t.string   "form_id"
   end
 
-  add_index "form_attachments", ["guid"], name: "index_form_attachments_on_guid", unique: true, using: :btree
-
   create_table "gibs_not_found_users", force: :cascade do |t|
     t.string   "edipi",            null: false
     t.string   "first_name",       null: false
