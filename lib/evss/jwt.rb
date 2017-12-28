@@ -6,7 +6,7 @@ module EVSS
   class Jwt
     ISSUER            = 'Vets.gov'
     SIGNING_ALGORITHM = 'HS256' # HMAC SHA256
-    SIGNING_KEY       = 'my$ecretK3y' # TODO: integrate into Settings + devops
+    SIGNING_KEY       = 'vetsgov' # TODO: integrate into Settings + devops
     EXP_WINDOW        = 5.minutes.to_i
 
     def initialize(user)
@@ -37,7 +37,7 @@ module EVSS
         gender:         @user.gender,
         prefix:         '', # TODO: i thought we had these in mvi...
         suffix:         '',
-        correlationIds: @user.mhv_correlation_id
+        correlationIds: @user.mhv_correlation_id || []
       }
     end
   end

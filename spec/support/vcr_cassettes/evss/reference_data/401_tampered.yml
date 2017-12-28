@@ -1,0 +1,62 @@
+# Bill Ryan Created this cassette by hand because it was less effort than
+# configuring VCR to proxy through the SSH tunnel needed to reach the RDS
+# endpoint. The request was simulated in my Postman API client that is properly
+# configured to use the proxy tunnel and the request/response values were copy &
+# pasted into this cassette file.
+---
+http_interactions:
+- request:
+    method: get
+    uri: "https://internal-staging-services-1341723990.us-gov-west-1.elb.amazonaws.com/api/refdata/v1"
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v0.9.2
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip,deflate
+      Date:
+      - Thu, 21 Sep 2017 16:39:42 GMT
+      Content-Type:
+      - application/json
+      Authorization:
+      - Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE1MTQ0NzgwOTYsImV4cCI6MTUxNDQ3ODM5NiwiaXNzIjoiVmV0cy5nb3YiLCJqdGkiOiI3ZDAzM2EwNy1kZDk4LTQxZmItOTdiOS1kODI0MWQ1ZjA2MWEiLCJhc3N1cmFuY2VMZXZlbCI6MywiZW1haWwiOiJ2ZXRzLmdvdi51c2VyKzIyOEBnbWFpbC5jb20iLCJmaXJzdE5hbWUiOiJNQVJLIiwibWlkZGxlTmFtZSI6bnVsbCwibGFzdE5hbWUiOiJXRUJCIiwiYmlydGhEYXRlIjoiMTk1MC0xMC0wNCIsImdlbmRlciI6Ik0iLCJwcmVmaXgiOiIiLCJzdWZmaXgiOiIiLCJjb3JyZWxhdGlvbklkcyI6bnVsbH0.j4HT5-d_mLq7IATLdghzJMY8MqOqmzm9hrqTih-Whbs
+  response:
+    status:
+      code: 401
+      message: OK
+    headers:
+      Date:
+      - Thu, 28 Dec 2017 22:05:29 GMT
+      Connection:
+      - keep-alive
+      Pragma:
+      - no-cache
+      Content-Type:
+      - application/json;charset=UTF-8
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-XSS-Protection:
+      - 1; mode=block
+      Transfer-Encoding:
+      - chunked
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "timestamp" : 1514498729112,
+          "status" : 401,
+          "error" : "Unauthorized",
+          "message" : "Authentication Failed: Tampered Token",
+          "path" : "/api/refdata/v1/countries"
+        }
+    http_version:
+  recorded_at: Thu, 21 Sep 2017 16:39:49 GMT
+recorded_with: VCR 3.0.3
