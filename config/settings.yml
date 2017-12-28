@@ -200,8 +200,8 @@ github:
 # Settings for maintenance window API
 # Services should be a map from logical service name to PagerDuty service id
 maintenance:
-  pagerduty_api_url: ~
-  pagerduty_api_token: ~
+  pagerduty_api_url: https://api.pagerduty.com
+  pagerduty_api_token: FAKE
   services: ~
 
 # Note: in addition to enabling / disabling betamocks here, you _must_ also
