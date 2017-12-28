@@ -8,7 +8,6 @@ class FormAttachment < ActiveRecord::Base
 
   def self.set_form_id(form_id)
     default_scope do
-      # TODO add form id index
       where(form_id: form_id)
     end
   end
