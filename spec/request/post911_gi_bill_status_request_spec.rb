@@ -55,4 +55,10 @@ RSpec.describe 'Fetching Post 911 GI Bill Status', type: :request do
       end
     end
   end
+
+  context 'with deprecated GibsNotFoundUser class' do
+    it 'loads the class for coverage' do
+      GibsNotFoundUser
+    end
+  end
 end
