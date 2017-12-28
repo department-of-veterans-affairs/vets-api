@@ -7,11 +7,9 @@ class FormAttachment < ActiveRecord::Base
   validates(:form_id, :file_data, :guid, presence: true)
 
   def self.set_form_id(form_id)
-    self.const_set('FORM_ID', form_id)
-
     default_scope do
       # TODO add form id index
-      where(form_id: self::FORM_ID)
+      where(form_id: form_id)
     end
   end
 
