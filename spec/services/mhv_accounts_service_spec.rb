@@ -38,9 +38,9 @@ RSpec.describe MhvAccountsService do
 
   let(:mhv_ids) { [] }
   let(:vha_facility_ids) { ['450'] }
+  before(:each) { stub_mvi(mvi_profile) }
 
-  before(:each) do
-    stub_mvi(mvi_profile)
+  describe 'account creation and upgrade' do
   end
 
   describe 'address population' do
@@ -53,10 +53,10 @@ RSpec.describe MhvAccountsService do
     before(:each) do
       allow(SM::Client).to receive(:new).and_return(ac_client)
       allow(subject).to receive(:mhv_ac_client) { ac_client }
-      allow(mhv_account).to receive(:registered_at=) { true }
-      allow(mhv_account).to receive(:register!) { true }
-      allow(mhv_account).to receive(:upgraded_at=) { true }
-      allow(mhv_account).to receive(:upgrade!) { true }
+      allow(mhv_account).to receive(:registered_at=)
+      allow(mhv_account).to receive(:register!)
+      allow(mhv_account).to receive(:upgraded_at=)
+      allow(mhv_account).to receive(:upgrade!)
     end
 
     it 'uses MVI address if present' do
@@ -123,10 +123,10 @@ RSpec.describe MhvAccountsService do
     before(:each) do
       allow(SM::Client).to receive(:new).and_return(ac_client)
       allow(subject).to receive(:mhv_ac_client) { ac_client }
-      allow(mhv_account).to receive(:registered_at=) { true }
-      allow(mhv_account).to receive(:register!) { true }
-      allow(mhv_account).to receive(:upgraded_at=) { true }
-      allow(mhv_account).to receive(:upgrade!) { true }
+      allow(mhv_account).to receive(:registered_at=)
+      allow(mhv_account).to receive(:register!)
+      allow(mhv_account).to receive(:upgraded_at=)
+      allow(mhv_account).to receive(:upgrade!)
     end
 
     it 'sets is_veteran true if user is veteran' do
