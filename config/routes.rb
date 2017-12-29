@@ -56,6 +56,8 @@ Rails.application.routes.draw do
     get 'limited', to: 'example#limited', as: :limited
     get 'status', to: 'admin#status'
 
+    resources :maintenance_windows, only: [:index]
+
     resources :prescriptions, only: [:index, :show], defaults: { format: :json } do
       get :active, to: 'prescriptions#index', on: :collection, defaults: { refill_status: 'active' }
       patch :refill, to: 'prescriptions#refill', on: :member
