@@ -6,7 +6,6 @@ module Swagger
 
       swagger_path '/v0/maintenance_windows' do
         operation :get do
-
           key :description, 'Get a list of scheduled maintenance windows by service'
           key :operationId, 'getMaintenanceWindows'
           key :tags, [
@@ -15,7 +14,7 @@ module Swagger
 
           response 200 do
             key :description, 'get list of scheduled maintenance windows'
-            
+
             schema do
               key :'$ref', :MaintenanceWindows
             end
