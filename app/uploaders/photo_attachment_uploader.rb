@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class GovtIdAttachmentUploader < CarrierWave::Uploader::Base
+class PhotoAttachmentUploader < CarrierWave::Uploader::Base
   include ValidateFileSize
   include SetAwsConfig
 
@@ -26,6 +26,6 @@ class GovtIdAttachmentUploader < CarrierWave::Uploader::Base
 
   def store_dir
     raise 'missing guid' if @guid.blank?
-    "govt_id_attachments/#{@guid}"
+    "photo_attachments/#{@guid}"
   end
 end
