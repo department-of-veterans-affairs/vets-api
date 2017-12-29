@@ -79,10 +79,10 @@ ActiveRecord::Schema.define(version: 20171228003251) do
     t.uuid     "guid",                   null: false
     t.string   "encrypted_file_data",    null: false
     t.string   "encrypted_file_data_iv", null: false
-    t.string   "form_id"
+    t.string   "type"
   end
 
-  add_index "form_attachments", ["guid", "form_id"], name: "index_form_attachments_on_guid_and_form_id", unique: true, using: :btree
+  add_index "form_attachments", ["guid", "type"], name: "index_form_attachments_on_guid_and_type", unique: true, using: :btree
 
   create_table "gibs_not_found_users", force: :cascade do |t|
     t.string   "edipi",            null: false

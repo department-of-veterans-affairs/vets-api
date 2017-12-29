@@ -2,6 +2,6 @@ class AddFormAttachmentsIndex < ActiveRecord::Migration
   disable_ddl_transaction!
 
   def change
-    add_index(:form_attachments, [:guid, :form_id], unique: true, algorithm: :concurrently)
+    add_index(:form_attachments, [:guid, :type], unique: true, algorithm: :concurrently)
   end
 end

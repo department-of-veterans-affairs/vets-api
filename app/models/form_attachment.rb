@@ -4,13 +4,7 @@ class FormAttachment < ActiveRecord::Base
 
   attr_encrypted(:file_data, key: Settings.db_encryption_key)
 
-  validates(:form_id, :file_data, :guid, presence: true)
-
-  def self.set_form_id(form_id)
-    default_scope do
-      where(form_id: form_id)
-    end
-  end
+  validates(:file_data, :guid, presence: true)
 
   def set_file_data!(file)
     attachment_uploader = get_attachment_uploader
