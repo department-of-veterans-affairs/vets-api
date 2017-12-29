@@ -53,6 +53,7 @@ Rails.application.routes.draw do
     end
 
     get 'welcome', to: 'example#welcome', as: :welcome
+    get 'limited', to: 'example#limited', as: :limited
     get 'status', to: 'admin#status'
 
     resources :maintenance_windows, only: [:index]
