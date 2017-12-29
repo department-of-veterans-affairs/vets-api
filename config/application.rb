@@ -58,5 +58,6 @@ module VetsAPI
     config.middleware.insert_before(0, HttpMethodNotAllowed)
     config.middleware.use 'OliveBranch::Middleware'
     config.middleware.use 'StatsdMiddleware'
+    config.middleware.use 'Rack::Attack'
   end
 end
