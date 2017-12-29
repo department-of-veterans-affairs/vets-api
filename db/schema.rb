@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171228003251) do
+ActiveRecord::Schema.define(version: 20171229003530) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -79,7 +79,7 @@ ActiveRecord::Schema.define(version: 20171228003251) do
     t.uuid     "guid",                   null: false
     t.string   "encrypted_file_data",    null: false
     t.string   "encrypted_file_data_iv", null: false
-    t.string   "type"
+    t.string   "type",                   null: false
   end
 
   add_index "form_attachments", ["guid", "type"], name: "index_form_attachments_on_guid_and_type", unique: true, using: :btree
