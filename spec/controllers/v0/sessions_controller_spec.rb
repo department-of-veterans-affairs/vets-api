@@ -167,6 +167,12 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(new_user.last_signed_in).not_to eq(existing_user.last_signed_in)
       end
 
+      it 'saves status:success to the login timer' do
+        login_tags = ['status:success', 'context:dslogon', "loa:#{LOA::THREE}", 'multifactor:false']
+        expect { post(:saml_callback) }
+          .to trigger_statsd_measure(described_class::TIMER_LOGIN_KEY, tags: login_tags)
+      end
+
       context 'changing multifactor' do
         let(:saml_user_attributes) do
           loa1_user.attributes.merge(loa1_user.identity.attributes).merge(multifactor: 'true')
@@ -203,6 +209,12 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::TOO_LATE_MSG}/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
           expect(response).to have_http_status(:found)
+        end
+
+        it 'saves status:failure to the login timer' do
+          login_tags = ['status:failure', 'context:dslogon', 'loa:none', 'multifactor:none']
+          expect { post(:saml_callback) }
+            .to trigger_statsd_measure(described_class::TIMER_LOGIN_KEY, tags: login_tags)
         end
       end
 
