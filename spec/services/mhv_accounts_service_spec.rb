@@ -65,6 +65,7 @@ RSpec.describe MhvAccountsService do
 
       it 'handles failure to create' do
         allow_any_instance_of(MHVAC::Client).to receive(:post_register).and_raise(StandardError, 'random')
+        expect(subject).to receive(:log_warning)
         expect(mhv_account).to receive(:fail_register!)
         expect { subject.create }.to raise_error(StandardError, 'random')
           .and not_trigger_statsd_increment('mhv.account.creation.success')
@@ -92,6 +93,7 @@ RSpec.describe MhvAccountsService do
 
       it 'handles unknown failure to upgrade' do
         VCR.use_cassette('mhv_account_creation/account_upgrade_unknown_error', record: :none) do
+          expect(subject).to receive(:log_warning)
           expect(mhv_account).to receive(:fail_upgrade!)
           expect { subject.upgrade }.to raise_error(Common::Exceptions::BackendServiceException)
             .and not_trigger_statsd_increment('mhv.account.existed')
