@@ -38,16 +38,23 @@ RSpec.describe MhvAccountsService do
 
   let(:mhv_ids) { [] }
   let(:vha_facility_ids) { ['450'] }
+
+  let(:terms) { create(:terms_and_conditions, latest: true, name: 'mhvac') }
+  let(:tc_accepted) { double('terms_and_conditions_accepted', terms_and_conditions: terms, created_at: Time.current) }
+  let(:mhv_account) do
+    double(
+      'mhv_account',
+      may_register?: true,
+      may_upgrade?: true,
+      terms_and_conditions_accepted: tc_accepted
+    )
+  end
+
+  subject { described_class.new(user, mhv_account) }
   before(:each) { stub_mvi(mvi_profile) }
 
   describe 'account creation and upgrade' do
-    let(:terms) { create(:terms_and_conditions, latest: true, name: 'mhvac') }
-    let(:tc_accepted) { double('terms_and_conditions_accepted', terms_and_conditions: terms, created_at: Time.current) }
-
     context 'account may register' do
-      let(:mhv_account) { double('mhv_account', may_register?: true, terms_and_conditions_accepted: tc_accepted) }
-      subject { described_class.new(user, mhv_account) }
-
       before(:each) do
         allow(mhv_account).to receive(:registered_at=)
         allow(mhv_account).to receive(:register!)
@@ -74,8 +81,6 @@ RSpec.describe MhvAccountsService do
 
     context 'account may upgrade' do
       let(:mhv_ids) { ['14221465'] }
-      let(:mhv_account) { double('mhv_account', may_upgrade?: true, terms_and_conditions_accepted: tc_accepted) }
-      subject { described_class.new(user, mhv_account) }
 
       before(:each) do
         allow(mhv_account).to receive(:upgraded_at=)
@@ -113,11 +118,7 @@ RSpec.describe MhvAccountsService do
   end
 
   describe 'address population' do
-    let(:terms) { create(:terms_and_conditions, latest: true, name: 'mhvac') }
-    let(:tc_accepted) { double('terms_and_conditions_accepted', terms_and_conditions: terms, created_at: Time.current) }
-    let(:mhv_account) { double('mhv_account', may_register?: true, may_upgrade?: true, terms_and_conditions_accepted: tc_accepted) }
     let(:ac_client) { instance_double('MHVAC::Client') }
-    subject { described_class.new(user, mhv_account) }
 
     before(:each) do
       allow(SM::Client).to receive(:new).and_return(ac_client)
@@ -183,11 +184,7 @@ RSpec.describe MhvAccountsService do
   end
 
   describe 'user veteran status' do
-    let(:terms) { create(:terms_and_conditions, latest: true, name: 'mhvac') }
-    let(:tc_accepted) { double('terms_and_conditions_accepted', terms_and_conditions: terms, created_at: Time.current) }
-    let(:mhv_account) { double('mhv_account', may_register?: true, may_upgrade?: true, terms_and_conditions_accepted: tc_accepted) }
     let(:ac_client) { instance_double('MHVAC::Client') }
-    subject { described_class.new(user, mhv_account) }
 
     before(:each) do
       allow(SM::Client).to receive(:new).and_return(ac_client)
