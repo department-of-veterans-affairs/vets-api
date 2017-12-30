@@ -84,6 +84,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         before(:each) do
           mhv_account = MhvAccount.find_or_initialize_by(user_uuid: user.uuid)
           mhv_account.account_state = 'registered'
+          mhv_account.registered_at = Time.current
           mhv_account.save
         end
 
@@ -101,6 +102,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         before(:each) do
           mhv_account = MhvAccount.find_or_initialize_by(user_uuid: user.uuid)
           mhv_account.account_state = 'upgraded'
+          mhv_account.upgraded_at = Time.current
           mhv_account.save
         end
 
@@ -110,8 +112,6 @@ RSpec.describe 'Account creation and upgrade', type: :request do
           expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('upgraded')
         end
       end
-
     end
-
   end
 end
