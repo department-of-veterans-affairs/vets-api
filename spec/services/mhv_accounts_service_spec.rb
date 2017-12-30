@@ -41,6 +41,75 @@ RSpec.describe MhvAccountsService do
   before(:each) { stub_mvi(mvi_profile) }
 
   describe 'account creation and upgrade' do
+    let(:terms) { create(:terms_and_conditions, latest: true, name: 'mhvac') }
+    let(:tc_accepted) { double('terms_and_conditions_accepted', terms_and_conditions: terms, created_at: Time.current) }
+
+    context 'account may register' do
+      let(:mhv_account) { double('mhv_account', may_register?: true, terms_and_conditions_accepted: tc_accepted) }
+      subject { described_class.new(user, mhv_account) }
+
+      before(:each) do
+        allow(mhv_account).to receive(:registered_at=)
+        allow(mhv_account).to receive(:register!)
+      end
+
+      it 'handles failure to create' do
+        allow_any_instance_of(MHVAC::Client).to receive(:post_register).and_raise(StandardError, 'random')
+        expect(mhv_account).to receive(:fail_register!)
+        expect { subject.create }.to raise_error(StandardError, 'random')
+          .and not_trigger_statsd_increment('mhv.account.creation.success')
+          .and trigger_statsd_increment('mhv.account.creation.failure')
+      end
+
+      it 'successfully creates' do
+        VCR.use_cassette('mhv_account_creation/creates_an_account') do
+          expect(mhv_account).to receive(:registered_at=).with(kind_of(Time))
+          expect(mhv_account).to receive(:register!)
+          expect { subject.create }.to trigger_statsd_increment('mhv.account.creation.success')
+            .and not_trigger_statsd_increment('mhv.account.creation.failure')
+          expect(User.find(user.uuid).mhv_correlation_id).to eq('14221465')
+        end
+      end
+    end
+
+    context 'account may upgrade' do
+      let(:mhv_ids) { ['14221465'] }
+      let(:mhv_account) { double('mhv_account', may_upgrade?: true, terms_and_conditions_accepted: tc_accepted) }
+      subject { described_class.new(user, mhv_account) }
+
+      before(:each) do
+        allow(mhv_account).to receive(:upgraded_at=)
+        allow(mhv_account).to receive(:upgrade!)
+      end
+
+      it 'handles unknown failure to upgrade' do
+        VCR.use_cassette('mhv_account_creation/account_upgrade_unknown_error', record: :none) do
+          expect(mhv_account).to receive(:fail_upgrade!)
+          expect { subject.upgrade }.to raise_error(Common::Exceptions::BackendServiceException)
+            .and not_trigger_statsd_increment('mhv.account.existed')
+            .and not_trigger_statsd_increment('mhv.account.upgrade.success')
+            .and trigger_statsd_increment('mhv.account.upgrade.failure')
+        end
+      end
+
+      it 'handles an already upgraded account' do
+        VCR.use_cassette('mhv_account_creation/should_not_upgrade_an_account_if_one_already_exists') do
+          expect(mhv_account).to receive(:upgrade!)
+          expect { subject.upgrade }.to trigger_statsd_increment('mhv.account.existed')
+            .and not_trigger_statsd_increment('mhv.account.upgrade.success')
+            .and not_trigger_statsd_increment('mhv.account.upgrade.failure')
+        end
+      end
+
+      it 'successfully upgrades' do
+        VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
+          expect(mhv_account).to receive(:upgraded_at=).with(kind_of(Time))
+          expect(mhv_account).to receive(:upgrade!)
+          expect { subject.upgrade }.to trigger_statsd_increment('mhv.account.upgrade.success')
+            .and not_trigger_statsd_increment('mhv.account.creation.failure')
+        end
+      end
+    end
   end
 
   describe 'address population' do
