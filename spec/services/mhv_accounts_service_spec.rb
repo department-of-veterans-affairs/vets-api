@@ -39,7 +39,7 @@ RSpec.describe MhvAccountsService do
   let(:mhv_ids) { [] }
   let(:vha_facility_ids) { ['450'] }
 
-  let(:terms) { create(:terms_and_conditions, latest: true, name: 'mhvac') }
+  let(:terms) { create(:terms_and_conditions, latest: true, name: MhvAccount::TERMS_AND_CONDITIONS_NAME) }
   let(:tc_accepted) { double('terms_and_conditions_accepted', terms_and_conditions: terms, created_at: Time.current) }
   let(:mhv_account) do
     double(
@@ -54,7 +54,7 @@ RSpec.describe MhvAccountsService do
   before(:each) { stub_mvi(mvi_profile) }
 
   describe 'account creation and upgrade' do
-    context 'account may register' do
+    context 'account creation' do
       before(:each) do
         allow(mhv_account).to receive(:registered_at=)
         allow(mhv_account).to receive(:register!)
@@ -79,7 +79,7 @@ RSpec.describe MhvAccountsService do
       end
     end
 
-    context 'account may upgrade' do
+    context 'account upgrade' do
       let(:mhv_ids) { ['14221465'] }
 
       before(:each) do
