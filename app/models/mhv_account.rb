@@ -109,7 +109,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def mhv_accounts_service
-    @mhv_accounts_service ||= MHVAccountsService.new(user, self)
+    @mhv_accounts_service ||= MHVAccountsService.new(user)
   end
 
   def setup

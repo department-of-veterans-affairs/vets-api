@@ -50,8 +50,11 @@ RSpec.describe MhvAccountsService do
     )
   end
 
-  subject { described_class.new(user, mhv_account) }
-  before(:each) { stub_mvi(mvi_profile) }
+  subject { described_class.new(user) }
+  before(:each) do
+    stub_mvi(mvi_profile)
+    allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+  end
 
   describe 'account creation and upgrade' do
     context 'account creation' do

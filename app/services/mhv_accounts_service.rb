@@ -17,51 +17,54 @@ class MhvAccountsService
     country: 'USA'
   }.freeze
 
-  def initialize(user, mhv_account)
+  def initialize(user)
     @user = user
-    @mhv_account = mhv_account
   end
 
   def create
-    if @mhv_account.may_register?
+    if mhv_account.may_register?
       client_response = mhv_ac_client.post_register(params_for_registration)
       if client_response[:api_completion_status] == 'Successful'
         StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.success")
         @user.va_profile.mhv_ids = [client_response[:correlation_id].to_s]
         @user.recache
-        @mhv_account.registered_at = Time.current
-        @mhv_account.register!
+        mhv_account.registered_at = Time.current
+        mhv_account.register!
       end
     end
   rescue => e
     log_warning(type: :create, exception: e, extra: params_for_registration.slice(:icn))
     StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.failure")
-    @mhv_account.fail_register!
+    mhv_account.fail_register!
     raise e
   end
 
   def upgrade
-    if @mhv_account.may_upgrade?
+    if mhv_account.may_upgrade?
       client_response = mhv_ac_client.post_upgrade(params_for_upgrade)
       if client_response[:status] == 'success'
         StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.success")
-        @mhv_account.upgraded_at = Time.current
-        @mhv_account.upgrade!
+        mhv_account.upgraded_at = Time.current
+        mhv_account.upgrade!
       end
     end
   rescue => e
     if e.is_a?(Common::Exceptions::BackendServiceException) && e.original_body['code'] == 155
       StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
-      @mhv_account.upgrade! # without updating the timestamp since account was not created at vets.gov
+      mhv_account.upgrade! # without updating the timestamp since account was not created at vets.gov
     else
       log_warning(type: :upgrade, exception: e, extra: params_for_upgrade)
       StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.failure")
-      @mhv_account.fail_upgrade!
+      mhv_account.fail_upgrade!
       raise e
     end
   end
 
   private
+
+  def mhv_account
+    @user.mhv_account
+  end
 
   def veteran?
     @user.veteran?
@@ -92,16 +95,16 @@ class MhvAccountsService
       email: @user.email,
       home_phone: @user.va_profile&.home_phone,
       sign_in_partners: 'VETS.GOV',
-      terms_version: @mhv_account.terms_and_conditions_accepted.terms_and_conditions.version,
-      terms_accepted_date: @mhv_account.terms_and_conditions_accepted.created_at
+      terms_version: mhv_account.terms_and_conditions_accepted.terms_and_conditions.version,
+      terms_accepted_date: mhv_account.terms_and_conditions_accepted.created_at
     }.merge!(address_params)
   end
 
   def params_for_upgrade
     {
       user_id: @user.mhv_correlation_id,
-      form_signed_date_time: @mhv_account.terms_and_conditions_accepted.created_at,
-      terms_version: @mhv_account.terms_and_conditions_accepted.terms_and_conditions.version
+      form_signed_date_time: mhv_account.terms_and_conditions_accepted.created_at,
+      terms_version: mhv_account.terms_and_conditions_accepted.terms_and_conditions.version
     }
   end
 
