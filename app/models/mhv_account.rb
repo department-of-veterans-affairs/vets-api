@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 require 'mhv_ac/client'
-require 'sentry_logging'
 
 class MhvAccount < ActiveRecord::Base
   include AASM
-  include SentryLogging
 
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
   # Everything except existing and ineligible accounts should be able to transition to :needs_terms_acceptance
