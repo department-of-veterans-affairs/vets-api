@@ -8,13 +8,13 @@ module V0
 
     def show
       id_attributes = IdCardAttributes.for_user(current_user)
-      signed_attributes = VIC::URLHelper.generate(id_attributes)
+      signed_attributes = ::VIC::URLHelper.generate(id_attributes)
       render json: signed_attributes
     rescue => e
       # Catch all potential errors looking up military service history
       # Monitor sentry to make sure this is not catching more general errors
       log_exception_to_sentry(e)
-      raise VIC::IDCardAttributeError, status: 502, code: 'VIC011',
+      raise ::VIC::IDCardAttributeError, status: 502, code: 'VIC011',
                                        detail: 'Could not verify military service attributes'
     end
 
@@ -25,17 +25,17 @@ module V0
       # VeteranStatus method
       raise Common::Exceptions::Forbidden, detail: 'You do not have access to ID card attributes' unless
         current_user.loa3?
-      raise VIC::IDCardAttributeError, status: 403, code: 'VIC002', detail: 'Unable to verify EDIPI' unless
+      raise ::VIC::IDCardAttributeError, status: 403, code: 'VIC002', detail: 'Unable to verify EDIPI' unless
         current_user.edipi.present?
       begin
         unless current_user.can_access_id_card?
-          raise VIC::IDCardAttributeError, status: 403, code: 'VIC003',
+          raise ::VIC::IDCardAttributeError, status: 403, code: 'VIC003',
                                            detail: 'Not eligible for a Veteran ID Card'
         end
       rescue => e
         # current_user.veteran? above may raise an error if user was not found or backend service was unavailable
         log_exception_to_sentry(e)
-        raise VIC::IDCardAttributeError, status: 403, code: 'VIC010',
+        raise ::VIC::IDCardAttributeError, status: 403, code: 'VIC010',
                                          detail: 'Could not verify Veteran status'
       end
     end
