@@ -45,15 +45,9 @@ RSpec.describe 'prescriptions', type: :request do
     let(:mhv_account) { double('mhv_account', eligible?: true, needs_terms_acceptance?: false, accessible?: false) }
     let(:current_user) { build(:user, :loa3) }
 
-    before(:each) do
-      allow_any_instance_of(MhvAccount).to receive(:create_and_upgrade!)
-    end
-
     it 'raises forbidden' do
       get '/v0/prescriptions/13651310'
       expect(response).to have_http_status(:forbidden)
-      expect(JSON.parse(response.body)['errors'].first['detail'])
-        .to eq('Failed to create or upgrade health tools account access')
     end
   end
 
