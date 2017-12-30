@@ -6,9 +6,8 @@ module V0
     include ActionController::Serialization
 
     def show
-      # render json: mhv_account,
-      #        serializer: MhvAccountSerializer
-      render json: { account_state: mhv_account.account_state }
+      render json: mhv_account,
+             serializer: MhvAccountSerializer
     end
 
     def create
