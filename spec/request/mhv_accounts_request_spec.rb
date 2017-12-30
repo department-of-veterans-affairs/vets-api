@@ -75,6 +75,11 @@ RSpec.describe 'Account creation and upgrade', type: :request do
           expect(response).to be_success
           expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('existing')
         end
+
+        it 'raises error for POST #create' do
+          post v0_mhv_account_path
+          expect(response).to have_http_status(:forbidden)
+        end
       end
 
       context 'that is registered' do
@@ -110,6 +115,11 @@ RSpec.describe 'Account creation and upgrade', type: :request do
           get v0_mhv_account_path
           expect(response).to be_success
           expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('upgraded')
+        end
+
+        it 'raises error for POST #create' do
+          post v0_mhv_account_path
+          expect(response).to have_http_status(:forbidden)
         end
       end
     end
