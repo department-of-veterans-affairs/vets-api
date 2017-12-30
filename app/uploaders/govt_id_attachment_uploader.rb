@@ -10,7 +10,7 @@ class GovtIdAttachmentUploader < CarrierWave::Uploader::Base
     super
     @guid = guid
 
-    # TODO bucket
+    # TODO: bucket
     # set_aws_config(
     #   Settings.preneeds.s3.aws_access_key_id,
     #   Settings.preneeds.s3.aws_secret_access_key,
@@ -20,7 +20,7 @@ class GovtIdAttachmentUploader < CarrierWave::Uploader::Base
   end
 
   def extension_white_list
-    # TODO verify which images VIC api accepts
+    # TODO: verify which images VIC api accepts
     %w(jpg jpeg gif png)
   end
 
