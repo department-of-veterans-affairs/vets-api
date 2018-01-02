@@ -32,7 +32,7 @@ EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS.each do |_error_key, erro
   StatsD.increment(V0::Post911GIBillStatusesController::STATSD_GI_BILL_FAIL_KEY, 0, tags: ["error:#{error_val}"])
 end
 
-# init letters/pciu address stats to 0
+# init letters/pciu address through the public method names which match the statsd keys
 method_keys = EVSS::Letters::Service.instance_methods(false) + EVSS::PCIUAddress::Service.instance_methods(false)
 method_keys.each do |k|
   StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.#{k}.total", 0)
