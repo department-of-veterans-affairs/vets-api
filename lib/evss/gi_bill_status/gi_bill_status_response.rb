@@ -83,8 +83,6 @@ module EVSS
         !vet_not_found? &&
           @response.body.key?('chapter33_education_info') == true &&
           @response.body['chapter33_education_info'] != {}
-      rescue
-        false
       end
 
       def contains_error_messages?
@@ -92,8 +90,6 @@ module EVSS
         @response&.body&.key?('messages') &&
           @response&.body['messages'].is_a?(Array) &&
           @response&.body['messages'].length.positive?
-      rescue
-        false
       end
 
       def evss_error_key
@@ -102,7 +98,7 @@ module EVSS
       end
 
       def text_response?
-        @content_type.include?('text/html')
+        @content_type.include?('text/html') || !@response.body.respond_to?(:key?)
       end
     end
   end
