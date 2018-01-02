@@ -32,9 +32,6 @@ module V0
         raise EVSS::GiBillStatus::ServiceException
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:vet_not_found]
         raise Common::Exceptions::RecordNotFound, @current_user.email
-      when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:timeout]
-        # 504
-        raise Common::Exceptions::GatewayTimeout
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:invalid_auth]
         # 403
         raise Common::Exceptions::UnexpectedForbidden, detail: 'Missing correlation id'
