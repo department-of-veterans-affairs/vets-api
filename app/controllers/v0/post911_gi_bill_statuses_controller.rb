@@ -37,8 +37,7 @@ module V0
         raise Common::Exceptions::UnexpectedForbidden, detail: 'Missing correlation id'
       else
         # 500
-        extra_context = response.to_h
-        log_message_to_sentry('Unexpected EVSS GiBillStatus Response', :error, extra_context)
+        log_message_to_sentry('Unexpected EVSS GiBillStatus Response', :error, response.to_h)
         raise Common::Exceptions::InternalServerError
       end
     end
