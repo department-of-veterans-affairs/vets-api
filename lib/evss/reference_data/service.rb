@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module EVSS
   module ReferenceData
     class Service < EVSS::Service
@@ -10,7 +11,7 @@ module EVSS
             return response&.body.dig('countries')
           else
             # bad! TODO: implement
-            puts "Bill wuz here"
+            puts 'Bill wuz here'
           end
         end
       end
@@ -28,7 +29,7 @@ module EVSS
       end
 
       def get_treatment_centers
-        # TODO:recommend this be a GET not POST
+        # TODO: recommend this be a GET not POST
         raw_response = perform(:post, 'treatmentcenters')
       end
     end

@@ -4,7 +4,7 @@ module V0
   class ReferenceDataController < ApplicationController
     def countries
       # TODO: implement
-      render json: {test: 'test'}
+      render json: service.get_countries
     end
 
     def intake_sites
