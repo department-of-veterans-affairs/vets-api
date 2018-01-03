@@ -23,7 +23,7 @@ module PagerDuty
     end
 
     def service_name
-      'PD'
+      'PagerDuty'
     end
   end
 end
