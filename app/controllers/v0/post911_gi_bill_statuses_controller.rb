@@ -32,9 +32,6 @@ module V0
         raise EVSS::GiBillStatus::ServiceException
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:vet_not_found]
         raise Common::Exceptions::RecordNotFound, @current_user.email
-      when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:timeout]
-        # 504
-        raise Common::Exceptions::GatewayTimeout
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:invalid_auth]
         # 403
         raise Common::Exceptions::UnexpectedForbidden, detail: 'Missing correlation id'
@@ -46,10 +43,7 @@ module V0
     end
 
     def service
-      @service ||= EVSS::GiBillStatus::Service.new(
-        EVSS::AuthHeaders.new(@current_user).to_h,
-        Settings.evss.mock_gi_bill_status
-      )
+      EVSS::GiBillStatus::Service.new(@current_user)
     end
   end
 end
