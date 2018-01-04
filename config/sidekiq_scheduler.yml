@@ -47,3 +47,8 @@ FacilityAccessBulkUpdate:
   cron: "30 4 * * * America/New_York"
   class: Facilities::AccessDataDownload
   description: "Download and cache facility access-to-care metric data"
+
+MaintenanceWindowRefresh:
+  cron: "*/15 * * * * America/New_York"
+  class: PagerDuty::PollMaintenanceWindows
+  description: "Poll PagerDuty API for maintenance window information"
