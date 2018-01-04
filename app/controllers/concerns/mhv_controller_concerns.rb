@@ -12,9 +12,9 @@ module MHVControllerConcerns
   protected
 
   def authorize
-    raise_access_denied unless accessible_or_eligible_for_creation?
-    raise_requires_terms_acceptance if current_user.mhv_account.needs_terms_acceptance?
-    raise_something_went_wrong unless current_user.mhv_account.accessible?
+    raise_access_denied unless eligible_for_account_creation?
+    raise_requires_terms_acceptance unless terms_and_conditions_accepted?
+    raise_something_went_wrong unless authorized?
   end
 
   def raise_requires_terms_acceptance
@@ -25,8 +25,16 @@ module MHVControllerConcerns
     raise MHVAC::AccountCreationError
   end
 
-  def accessible_or_eligible_for_creation?
-    current_user.mhv_account.accessible? || current_user.mhv_account.eligible?
+  def authorized?
+    current_user.mhv_account.accessible?
+  end
+
+  def eligible_for_account_creation?
+    current_user.mhv_account.eligible?
+  end
+
+  def terms_and_conditions_accepted?
+    current_user.mhv_account.terms_and_conditions_accepted?
   end
 
   def authenticate_client

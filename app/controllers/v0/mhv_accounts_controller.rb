@@ -4,6 +4,10 @@ require 'mhv_ac/account_creation_error'
 module V0
   class MhvAccountsController < ApplicationController
     include ActionController::Serialization
+    include MHVControllerConcerns
+
+    skip_before_action :authorize, only: [:show]
+    skip_before_action :authenticate_client
 
     def show
       render json: mhv_account,
@@ -15,6 +19,16 @@ module V0
       register_mhv_account unless mhv_account.previously_registered?
       upgrade_mhv_account
       head :accepted
+    end
+
+    protected
+
+    def authorized?
+      mhv_account.eligible?
+    end
+
+    def raise_access_denied
+      raise Common::Exceptions::Forbidden, detail: 'You do not have access to MHV services'
     end
 
     private
