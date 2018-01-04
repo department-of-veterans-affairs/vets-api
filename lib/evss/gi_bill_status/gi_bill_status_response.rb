@@ -98,7 +98,7 @@ module EVSS
       end
 
       def text_response?
-        @content_type.include?('text/html')
+        @content_type.include?('text/html') || !@response.body.respond_to?(:key?)
       end
     end
   end
