@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171203062701) do
+ActiveRecord::Schema.define(version: 20171220225520) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -105,6 +105,20 @@ ActiveRecord::Schema.define(version: 20171203062701) do
   end
 
   add_index "in_progress_forms", ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true, using: :btree
+
+  create_table "maintenance_windows", force: :cascade do |t|
+    t.string   "pagerduty_id"
+    t.string   "external_service"
+    t.datetime "start_time"
+    t.datetime "end_time"
+    t.string   "description"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+  end
+
+  add_index "maintenance_windows", ["end_time"], name: "index_maintenance_windows_on_end_time", using: :btree
+  add_index "maintenance_windows", ["pagerduty_id"], name: "index_maintenance_windows_on_pagerduty_id", using: :btree
+  add_index "maintenance_windows", ["start_time"], name: "index_maintenance_windows_on_start_time", using: :btree
 
   create_table "mhv_accounts", force: :cascade do |t|
     t.string   "user_uuid",     null: false
