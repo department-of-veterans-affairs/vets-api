@@ -4,7 +4,7 @@ require 'github/github_service'
 module Github
   class CreateIssueJob
     include Sidekiq::Worker
-    THROTTLE = Sidekiq::Limiter.window("prevent_feedback_spam", 4, :minute).freeze
+    THROTTLE = Sidekiq::Limiter.window('prevent_feedback_spam', 4, :minute).freeze
 
     # :nocov:
     def perform(feedback)
