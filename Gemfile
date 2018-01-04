@@ -10,6 +10,11 @@ gem 'carrierwave', '~> 0.11' # TODO: explanation
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0', group: :doc # TODO: explanation
 gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
+# sidekiq enterprise edition
+source "https://enterprise.contribsys.com/" do
+  gem 'sidekiq-pro'
+  gem 'sidekiq-ent'
+end
 
 gem 'aasm'
 gem 'attr_encrypted'
@@ -55,9 +60,7 @@ gem 'ruby-saml'
 gem 'savon'
 gem 'sentry-raven'
 gem 'shrine'
-gem 'sidekiq'
 gem 'sidekiq-instrument'
-gem 'sidekiq-rate-limiter'
 gem 'sidekiq-unique-jobs'
 gem 'statsd-instrument'
 gem 'swagger-blocks'
