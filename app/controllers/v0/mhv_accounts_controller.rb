@@ -32,7 +32,7 @@ module V0
     end
 
     def mhv_accounts_service
-      @mhv_accounts_service ||= MHVAccountsService.new(current_user)
+      @mhv_accounts_service ||= MhvAccountsService.new(current_user)
     end
   end
 end
