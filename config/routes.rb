@@ -45,8 +45,6 @@ Rails.application.routes.draw do
     resource :pension_claims, only: [:create]
     resource :burial_claims, only: [:create]
 
-    resource :disability_rating, only: [:show]
-
     resources :evss_claims, only: [:index, :show] do
       post :request_decision, on: :member
       resources :documents, only: [:create]
