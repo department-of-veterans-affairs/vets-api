@@ -53,6 +53,11 @@ RSpec.describe 'Account creation and upgrade', type: :request do
       expect(response).to be_success
       expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_terms_acceptance')
     end
+
+    it 'raises error for POST #create' do
+      post v0_mhv_account_path
+      expect(response).to have_http_status(:forbidden)
+    end
   end
 
   context 'with accepted terms and conditions' do
@@ -63,6 +68,15 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         get v0_mhv_account_path
         expect(response).to be_success
         expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('unknown')
+      end
+
+      it 'responds to POST #create' do
+        VCR.use_cassette('mhv_account_creation/creates_an_account') do
+          VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
+            post v0_mhv_account_path
+          end
+        end
+        expect(response).to have_http_status(:accepted)
       end
     end
 
@@ -97,6 +111,13 @@ RSpec.describe 'Account creation and upgrade', type: :request do
           get v0_mhv_account_path
           expect(response).to be_success
           expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('registered')
+        end
+
+        it 'responds to POST #create' do
+          VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
+            post v0_mhv_account_path
+          end
+          expect(response).to have_http_status(:accepted)
         end
       end
 
