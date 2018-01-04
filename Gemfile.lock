@@ -10,10 +10,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: d49c54324e53a59afe5998a9f52666b08aa49888
+  revision: 89dffe1340e67a9fb7d8044225db7395ac074994
   branch: master
   specs:
-    vets_json_schema (3.11.0)
+    vets_json_schema (3.13.2)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -221,6 +221,7 @@ GEM
       jsonapi-renderer (= 0.1.1.beta1)
     jsonapi-parser (0.1.1.beta3)
     jsonapi-renderer (0.1.1.beta1)
+    jwt (2.1.0)
     liquid (4.0.0)
     listen (3.0.6)
       rb-fsevent (>= 0.9.3)
@@ -287,6 +288,8 @@ GEM
       pry (>= 0.9.10, < 0.11.0)
     puma (2.16.0)
     rack (1.6.5)
+    rack-attack (5.0.1)
+      rack
     rack-cors (0.4.1)
     rack-protection (1.5.3)
       rack
@@ -416,11 +419,11 @@ GEM
     sidekiq-unique-jobs (4.0.18)
       sidekiq (>= 2.6)
       thor
-    simplecov (0.13.0)
+    simplecov (0.15.1)
       docile (~> 1.1.0)
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
-    simplecov-html (0.10.0)
+    simplecov-html (0.10.2)
     slop (3.6.0)
     socksify (1.7.0)
     spring (2.0.2)
@@ -510,6 +513,7 @@ DEPENDENCIES
   ice_nine
   iconv
   json-schema
+  jwt
   liquid
   memoist
   mini_magick
@@ -527,7 +531,9 @@ DEPENDENCIES
   prawn
   pry-nav
   puma (~> 2.16.0)
+  rack-attack
   rack-cors
+  rack-test
   rack-vcr
   rails (= 4.2.7.1)
   rails-api
@@ -568,4 +574,4 @@ DEPENDENCIES
   zero_downtime_migrations
 
 BUNDLED WITH
-   1.16.0
+   1.16.1

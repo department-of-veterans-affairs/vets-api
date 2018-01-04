@@ -50,7 +50,7 @@ RSpec.describe FeedbackSubmissionMailer, type: [:mailer] do
         allow(FeatureFlipper).to receive(:staging_email?).and_return(true)
       end
       it 'should have the proper recipients' do
-        expect(subject.to).to eq(['bill.ryan@adhocteam.us'])
+        expect(subject.to).to eq(described_class::STAGING_RECIPIENTS)
       end
     end
 
