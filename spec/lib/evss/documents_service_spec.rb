@@ -4,13 +4,13 @@ require 'evss/documents_service'
 require 'evss/auth_headers'
 
 describe EVSS::DocumentsService do
-  let(:current_user) { FactoryBot.create(:user, :loa3) }
+  let(:current_user) { FactoryBot.create(:evss_user) }
   let(:auth_headers) do
     EVSS::AuthHeaders.new(current_user).to_h
   end
   let(:document_data) do
     EVSSClaimDocument.new(
-      evss_claim_id: 189_625,
+      evss_claim_id: 600118851,
       file_name: 'doctors-note.pdf',
       tracked_item_id: 33,
       document_type: 'L023'
