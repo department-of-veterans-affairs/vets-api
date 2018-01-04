@@ -12,8 +12,15 @@ module MHVControllerConcerns
   protected
 
   def authorize
-    raise_access_denied unless eligible_for_account_creation?
-    raise_requires_terms_acceptance unless terms_and_conditions_accepted?
+    # The user must (1) have an account that is either existing or
+    # created and upgraded by us or (2) be eligible to have an
+    # account created and upgraded by us.
+    raise_access_denied unless accessible_or_eligible_for_creation?
+
+    # Stop if the user needs to accept terms and conditions.
+    raise_requires_terms_acceptance if current_user.mhv_account.needs_terms_acceptance?
+
+    # Stop if further actions are necessary to access MHV services.
     raise_something_went_wrong unless authorized?
   end
 
@@ -29,12 +36,8 @@ module MHVControllerConcerns
     current_user.mhv_account.accessible?
   end
 
-  def eligible_for_account_creation?
-    current_user.mhv_account.eligible?
-  end
-
-  def terms_and_conditions_accepted?
-    current_user.mhv_account.terms_and_conditions_accepted?
+  def accessible_or_eligible_for_creation?
+    current_user.mhv_account.accessible? || current_user.mhv_account.eligible?
   end
 
   def authenticate_client
