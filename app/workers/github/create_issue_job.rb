@@ -14,7 +14,11 @@ module Github
         # :nocov:
       else
         class NoThrottle
-          def within_limit; yield; end
+          def within_limit
+            # :nocov:
+            yield
+            # :nocov:
+          end
         end
         NoThrottle.new
       end
