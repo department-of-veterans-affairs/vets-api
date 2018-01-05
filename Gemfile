@@ -10,11 +10,6 @@ gem 'carrierwave', '~> 0.11' # TODO: explanation
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0', group: :doc # TODO: explanation
 gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
-# sidekiq enterprise edition
-source "https://enterprise.contribsys.com/" do
-  gem 'sidekiq-pro'
-  gem 'sidekiq-ent'
-end
 
 gem 'aasm'
 gem 'attr_encrypted'
@@ -116,6 +111,15 @@ group :development, :test do
   gem 'rack-vcr'
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', '~> 0.42.0', require: false
+  gem 'sidekiq'
   gem 'timecop'
   gem 'webmock'
+end
+
+group :production do
+  # sidekiq enterprise edition
+  source "https://enterprise.contribsys.com/" do
+    gem 'sidekiq-pro'
+    gem 'sidekiq-ent'
+  end
 end

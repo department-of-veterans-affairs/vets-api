@@ -551,6 +551,7 @@ DEPENDENCIES
   sentry-raven
   shrine
   shrine-memory
+  sidekiq
   sidekiq-ent!
   sidekiq-instrument
   sidekiq-pro!
