@@ -9,12 +9,12 @@ module Github
     # in production) & requires a license key. For development, regular sidekiq is used
     THROTTLE =
       if Rails.env.production?
+        # :nocov:
         Sidekiq::Limiter.window('prevent_feedback_spam', 4, :minute).freeze
+        # :nocov:
       else
         class NoThrottle
-          def within_limit
-            yield
-          end
+          def within_limit; yield; end
         end
         NoThrottle.new
       end

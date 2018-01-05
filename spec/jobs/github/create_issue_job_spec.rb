@@ -28,5 +28,8 @@ RSpec.describe Github::CreateIssueJob, type: :job do
     it 'should not use rate limiting' do
       expect(Github::CreateIssueJob::THROTTLE.class.to_s).to eq('Github::CreateIssueJob::NoThrottle')
     end
+    it 'defines a "within_limit" method and yields' do
+      expect(Github::CreateIssueJob::THROTTLE.within_limit { 'something' }).to eq('something')
+    end
   end
 end
