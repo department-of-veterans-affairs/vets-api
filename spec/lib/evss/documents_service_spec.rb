@@ -12,7 +12,7 @@ describe EVSS::DocumentsService do
     EVSSClaimDocument.new(
       evss_claim_id: 600118851,
       file_name: 'doctors-note.pdf',
-      tracked_item_id: 33,
+      tracked_item_id: nil,
       document_type: 'L023'
     )
   end
@@ -20,8 +20,8 @@ describe EVSS::DocumentsService do
   subject { described_class.new(auth_headers) }
 
   context 'with headers' do
-    it 'should upload documents' do
-      VCR.use_cassette('evss/documents/upload') do
+    it 'should upload documents', run_at: 'Fri, 05 Jan 2018 00:12:00 GMT' do
+      VCR.use_cassette('evss/documents/upload', VCR::MATCH_EVERYTHING) do
         demo_file_name = "#{::Rails.root}/spec/fixtures/files/doctors-note.pdf"
         File.open(demo_file_name, 'rb') do |f|
           response = subject.upload(f, document_data)
