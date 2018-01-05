@@ -10,7 +10,7 @@ describe EVSS::DocumentsService do
   end
   let(:document_data) do
     EVSSClaimDocument.new(
-      evss_claim_id: 600118851,
+      evss_claim_id: 600_118_851,
       file_name: 'doctors-note.pdf',
       tracked_item_id: nil,
       document_type: 'L023'

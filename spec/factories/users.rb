@@ -53,10 +53,10 @@ FactoryBot.define do
     factory :evss_user, traits: [:loa3] do
       first_name('WESLEY')
       last_name('FORD')
-      last_signed_in(Time.parse("2017-12-07T00:55:09Z"))
+      last_signed_in(Time.zone.parse('2017-12-07T00:55:09Z'))
       ssn('796043735')
 
-      after(:build) do |user|
+      after(:build) do
         stub_mvi(
           build(
             :mvi_profile,

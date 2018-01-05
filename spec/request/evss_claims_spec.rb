@@ -32,7 +32,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
   context 'for a single claim' do
     let!(:claim) do
-      FactoryBot.create(:evss_claim, id: 1, evss_id: 600118851,
+      FactoryBot.create(:evss_claim, id: 1, evss_id: 600_118_851,
                                      user_uuid: user.uuid)
     end
 
