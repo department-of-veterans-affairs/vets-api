@@ -7,6 +7,7 @@ module Github
 
     # Rate limiter is only available in sidekiq-enterprise (which is used
     # in production) & requires a license key. For development, regular sidekiq is used
+    # :nocov:
     THROTTLE =
       if Rails.env.production?
         Sidekiq::Limiter.window('prevent_feedback_spam', 4, :minute).freeze
@@ -19,7 +20,6 @@ module Github
         NoThrottle.new
       end
 
-    # :nocov:
     def perform(feedback)
       feedback = Feedback.new(feedback)
       THROTTLE.within_limit do
