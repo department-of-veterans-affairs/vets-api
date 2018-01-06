@@ -51,10 +51,8 @@ module MVI
       when MVI::Errors::RecordNotFound
         log_message_to_sentry("MVI Record Not Found", :warn, { uuid: user.uuid })
       when MVI::Errors::InvalidRequestError
-        Rails.logger.warn "MVI returned response with code: #{e.code}"
         log_message_to_sentry("MVI Invalid Request", :warn, { uuid: user.uuid })
       when MVI::Errors::FailedRequestError
-        Rails.logger.warn "MVI returned response with code: #{e.code}"
         log_message_to_sentry("MVI Failed Request", :warn, { uuid: user.uuid })
       end
 
