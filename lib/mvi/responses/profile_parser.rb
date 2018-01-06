@@ -46,9 +46,21 @@ module MVI
       #
       # @return [Boolean] has failed or invalid code?
       def failed_or_invalid?
-        result = [EXTERNAL_RESPONSE_CODES[:failure], EXTERNAL_RESPONSE_CODES[:invalid_request]].include? @code
-        Rails.logger.warn "MVI returned response with code: #{@code}" if result
-        result
+        invalid_request? || failed_request?
+      end
+
+      # MVI returns failed if MVI throws an internal error.
+      #
+      # @return [Boolean] has failed
+      def failed_request?
+        EXTERNAL_RESPONSE_CODES[:failure] == @code
+      end
+
+      # MVI returns invalid request if request is malformed.
+      #
+      # @return [Boolean] has invalid request
+      def invalid_request?
+        EXTERNAL_RESPONSE_CODES[:invalid_request] == @code
       end
 
       # MVI returns multiple match warnings if a query returns more than one match.
