@@ -47,16 +47,16 @@ module MVI
     def mvi_error_handler(user, e)
       case e
       when MVI::Errors::DuplicateRecords
-        log_message_to_sentry("MVI Duplicate Record", :warn, { uuid: user.uuid })
+        log_message_to_sentry('MVI Duplicate Record', :warn, uuid: user.uuid)
       when MVI::Errors::RecordNotFound
-        log_message_to_sentry("MVI Record Not Found", :warn, { uuid: user.uuid })
+        log_message_to_sentry('MVI Record Not Found', :warn, uuid: user.uuid)
       when MVI::Errors::InvalidRequestError
-        log_message_to_sentry("MVI Invalid Request", :warn, { uuid: user.uuid })
+        log_message_to_sentry('MVI Invalid Request', :warn, uuid: user.uuid)
       when MVI::Errors::FailedRequestError
-        log_message_to_sentry("MVI Failed Request", :warn, { uuid: user.uuid })
+        log_message_to_sentry('MVI Failed Request', :warn, uuid: user.uuid)
       end
 
-      if e.kind_of?(MVI::Errors::RecordNotFound)
+      if e.is_a?(MVI::Errors::RecordNotFound)
         MVI::Responses::FindProfileResponse.with_not_found
       else
         MVI::Responses::FindProfileResponse.with_server_error
