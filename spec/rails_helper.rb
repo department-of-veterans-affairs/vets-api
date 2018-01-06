@@ -48,6 +48,8 @@ def with_settings(settings, temp_values)
   end
 end
 
+VCR::MATCH_EVERYTHING = { match_requests_on: [:method, :uri, :headers, :body] }.freeze
+
 VCR.configure do |c|
   c.cassette_library_dir = 'spec/support/vcr_cassettes'
   c.hook_into :webmock
@@ -84,6 +86,10 @@ Shrine.storages = {
 }
 
 CarrierWave.root = "#{Rails.root}/spec/support/uploads/"
+
+FactoryBot::SyntaxRunner.class_eval do
+  include RSpec::Mocks::ExampleMethods
+end
 
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
