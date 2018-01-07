@@ -37,7 +37,7 @@ module MVI
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
       log_message_to_sentry("MVI find_profile error: #{e.message}", :error)
       MVI::Responses::FindProfileResponse.with_server_error
-    rescue MVI::Error => e
+    rescue MVI::Errors::Base => e
       mvi_error_handler(user, e)
     end
 
