@@ -47,13 +47,13 @@ module MVI
     def mvi_error_handler(user, e)
       case e
       when MVI::Errors::DuplicateRecords
-        log_message_to_sentry('MVI Duplicate Record', :warn, uuid: user.uuid)
+        log_message_to_sentry('MVI Duplicate Record', :warn, error_context(user))
       when MVI::Errors::RecordNotFound
-        log_message_to_sentry('MVI Record Not Found', :warn, uuid: user.uuid)
+        log_message_to_sentry('MVI Record Not Found', :warn, error_context(user))
       when MVI::Errors::InvalidRequestError
-        log_message_to_sentry('MVI Invalid Request', :warn, uuid: user.uuid)
+        log_message_to_sentry('MVI Invalid Request', :warn, error_context(user))
       when MVI::Errors::FailedRequestError
-        log_message_to_sentry('MVI Failed Request', :warn, uuid: user.uuid)
+        log_message_to_sentry('MVI Failed Request', :warn, error_context(user))
       end
 
       if e.is_a?(MVI::Errors::RecordNotFound)
@@ -61,6 +61,15 @@ module MVI
       else
         MVI::Responses::FindProfileResponse.with_server_error
       end
+    end
+
+    def error_context(user)
+      {
+        uuid: user.uuid,
+        authn_context: user.authn_context,
+        loa: user.loa,
+        mhv_icn: user.mhv_icn
+      }
     end
 
     def create_profile_message(user)
