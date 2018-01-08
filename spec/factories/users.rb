@@ -50,6 +50,25 @@ FactoryBot.define do
       end
     end
 
+    factory :evss_user, traits: [:loa3] do
+      first_name('WESLEY')
+      last_name('FORD')
+      last_signed_in(Time.zone.parse('2017-12-07T00:55:09Z'))
+      ssn('796043735')
+
+      after(:build) do
+        stub_mvi(
+          build(
+            :mvi_profile,
+            edipi: '1007697216',
+            birls_id: '796043735',
+            participant_id: '600061742',
+            birth_date: '1986-05-06T00:00:00+00:00'.to_date.to_s
+          )
+        )
+      end
+    end
+
     trait :mhv do
       uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
       last_signed_in { Faker::Time.between(2.years.ago, 1.week.ago, :all) }
