@@ -63,12 +63,10 @@ describe MVI::Service do
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI Invalid Request',
           :warn,
-          {
-            uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-            authn_context: nil,
-            loa: { current: 3, highest: 3 },
-            mhv_icn: 'invalid-icn-is-here^NI'
-          }
+          uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+          authn_context: nil,
+          loa: { current: 3, highest: 3 },
+          mhv_icn: 'invalid-icn-is-here^NI'
         )
 
         VCR.use_cassette('mvi/find_candidate/invalid_icn') do
@@ -82,12 +80,10 @@ describe MVI::Service do
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI Invalid Request',
           :warn,
-          {
-            uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-            authn_context: nil,
-            loa: { current: 3, highest: 3 },
-            mhv_icn: '1008714781V416999'
-          }
+          uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+          authn_context: nil,
+          loa: { current: 3, highest: 3 },
+          mhv_icn: '1008714781V416999'
         )
 
         VCR.use_cassette('mvi/find_candidate/icn_not_found') do
@@ -140,12 +136,10 @@ describe MVI::Service do
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI Invalid Request',
           :warn,
-          {
-            uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-            authn_context: nil,
-            loa: { current: 3, highest: 3 },
-            mhv_icn: nil
-          }
+          uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+          authn_context: nil,
+          loa: { current: 3, highest: 3 },
+          mhv_icn: nil
         )
         VCR.use_cassette('mvi/find_candidate/invalid') do
           expect(subject.find_profile(user))
@@ -161,12 +155,10 @@ describe MVI::Service do
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI Failed Request',
           :warn,
-          {
-            uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-            authn_context: nil,
-            loa: { current: 3, highest: 3 },
-            mhv_icn: nil
-          }
+          uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+          authn_context: nil,
+          loa: { current: 3, highest: 3 },
+          mhv_icn: nil
         )
         VCR.use_cassette('mvi/find_candidate/failure') do
           expect(subject.find_profile(user))
@@ -222,12 +214,10 @@ describe MVI::Service do
           expect(subject).to receive(:log_message_to_sentry).with(
             'MVI Record Not Found',
             :warn,
-            {
-              uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-              authn_context: nil,
-              loa: { current: 3, highest: 3 },
-              mhv_icn: nil
-            }
+            uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+            authn_context: nil,
+            loa: { current: 3, highest: 3 },
+            mhv_icn: nil
           )
           expect(subject.find_profile(user)).to have_deep_attributes(MVI::Responses::FindProfileResponse.with_not_found)
         end
@@ -267,12 +257,10 @@ describe MVI::Service do
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI Duplicate Record',
           :warn,
-          {
-            uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-            authn_context: nil,
-            loa: { current: 3, highest: 3 },
-            mhv_icn: nil
-          }
+          uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+          authn_context: nil,
+          loa: { current: 3, highest: 3 },
+          mhv_icn: nil
         )
 
         VCR.use_cassette('mvi/find_candidate/failure_multiple_matches') do
