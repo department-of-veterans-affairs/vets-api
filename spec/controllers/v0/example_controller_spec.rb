@@ -7,6 +7,11 @@ RSpec.describe V0::ExampleController, type: :controller do
       get :welcome
       expect(response).to have_http_status(:unauthorized)
     end
+
+    it 'returns rate limited message' do
+      get :limited
+      expect(response).to have_http_status(:ok)
+    end
   end
 
   context 'when logged in' do
