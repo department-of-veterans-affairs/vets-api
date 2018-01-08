@@ -28,7 +28,7 @@ module Github
       feedback = Feedback.new(feedback)
       THROTTLE.within_limit do
         create_response = Github::GithubService.create_issue(feedback)
-        FeedbackSubmissionMailer.build(feedback, create_response&.html_url).deliver_now
+        FeedbackSubmissionMailer.build(feedback, create_response&.html_url, create_response&.number).deliver_now
       end
     end
     # :nocov:
