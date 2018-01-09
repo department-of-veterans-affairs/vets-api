@@ -42,8 +42,11 @@ Rails.application.routes.draw do
         get(:healthcheck)
       end
     end
-    resource :pension_claims, only: [:create]
-    resource :burial_claims, only: [:create]
+
+    if Settings.pension_burial.upload.enabled
+      resource :pension_claims, only: [:create]
+      resource :burial_claims, only: [:create]
+    end
 
     resources :evss_claims, only: [:index, :show] do
       post :request_decision, on: :member
