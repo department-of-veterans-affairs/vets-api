@@ -110,7 +110,7 @@ group :development, :test do
   gem 'rack-test', require: 'rack/test'
   gem 'rack-vcr'
   gem 'rspec-rails', '~> 3.5'
-  gem 'rubocop', '~> 0.42.0', require: false
+  gem 'rubocop', '~> 0.49.0', require: false
   gem 'sidekiq'
   gem 'timecop'
   gem 'webmock'
