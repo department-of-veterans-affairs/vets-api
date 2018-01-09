@@ -159,7 +159,7 @@ module EMISRedis
     end
 
     # don't want to change this method name, it matches the attribute in the json schema
-    # rubocop:disable Style/PredicateName
+    # rubocop:disable Naming/PredicateName
     def is_va_service_connected
       disabilities.each do |disability|
         pay_amount = disability.get_pay_amount
@@ -170,7 +170,7 @@ module EMISRedis
 
       false
     end
-    # rubocop:enable Style/PredicateName
+    # rubocop:enable Naming/PredicateName
 
     def va_compensation_type
       # while supporting fallback support for the old fields,
