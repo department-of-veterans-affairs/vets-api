@@ -7,7 +7,7 @@ module Swagger
         include Swagger::Blocks
 
         swagger_schema :Folders do
-          key :required, [:data, :meta]
+          key :required, %i[data meta]
 
           property :data, type: :array, minItems: 1, uniqueItems: true do
             items do
@@ -26,7 +26,7 @@ module Swagger
         end
 
         swagger_schema :FolderBase do
-          key :required, [:id, :type, :attributes, :links]
+          key :required, %i[id type attributes links]
 
           property :id, type: :string
           property :type, type: :string, enum: [:folders]
@@ -39,7 +39,7 @@ module Swagger
         end
 
         swagger_schema :FolderAttributes do
-          key :required, [:folder_id, :name, :count, :unread_count, :system_folder]
+          key :required, %i[folder_id name count unread_count system_folder]
 
           property :folder_id, type: :integer
           property :name, type: :string

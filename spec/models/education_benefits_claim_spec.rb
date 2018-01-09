@@ -7,7 +7,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     create(:va1990).education_benefits_claim
   end
 
-  %w(1990 1995 1990e 5490 5495 1990n).each do |form_type|
+  %w[1990 1995 1990e 5490 5495 1990n].each do |form_type|
     method = "is_#{form_type}?"
 
     describe "##{method}" do
@@ -218,7 +218,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end
 
       it 'shouldnt copy fields from previous benefits' do
-        %w(veteranFullName vaFileNumber veteranSocialSecurityNumber).each do |attr|
+        %w[veteranFullName vaFileNumber veteranSocialSecurityNumber].each do |attr|
           expect(subject.public_send(attr)).to eq(nil)
         end
       end

@@ -8,14 +8,14 @@ describe StringHelpers do
     described_class,
     'capitalize_only',
     [
-      %w(
+      %w[
         fooBar
         FooBar
-      ),
-      %w(
+      ],
+      %w[
         FooBar
         FooBar
-      )
+      ]
     ]
   )
 end

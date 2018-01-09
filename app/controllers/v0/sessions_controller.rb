@@ -4,7 +4,7 @@ require 'saml/auth_fail_handler'
 
 module V0
   class SessionsController < ApplicationController
-    skip_before_action :authenticate, only: [:new, :authn_urls, :saml_callback, :saml_logout_callback]
+    skip_before_action :authenticate, only: %i[new authn_urls saml_callback saml_logout_callback]
 
     STATSD_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'

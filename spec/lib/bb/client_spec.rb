@@ -5,14 +5,14 @@ require 'bb/client'
 
 describe 'bb client' do
   let(:eligible_data_classes) do
-    %w( seiactivityjournal seiallergies seidemographics familyhealthhistory
+    %w[ seiactivityjournal seiallergies seidemographics familyhealthhistory
         seifoodjournal healthcareproviders healthinsurance seiimmunizations
         labsandtests medicalevents medications militaryhealthhistory
         seimygoalscurrent seimygoalscompleted treatmentfacilities
         vitalsandreadings prescriptions medications vaallergies
         vaadmissionsanddischarges futureappointments pastappointments
         vademographics vaekg vaimmunizations vachemlabs vaprogressnotes
-        vapathology vaproblemlist varadiology vahth wellness dodmilitaryservice )
+        vapathology vaproblemlist varadiology vahth wellness dodmilitaryservice ]
   end
 
   before(:all) do
@@ -42,7 +42,7 @@ describe 'bb client' do
     it 'logs failed extract statuses', :vcr do
       VCR.use_cassette('bb_client/gets_a_list_of_extract_statuses') do
         msg = 'Final health record refresh contained one or more error statuses'
-        expect(Raven).to receive(:extra_context).with(refresh_failures: %w(Appointments ImagingStudy))
+        expect(Raven).to receive(:extra_context).with(refresh_failures: %w[Appointments ImagingStudy])
         expect(Raven).to receive(:capture_message).with(msg, level: :warn)
 
         client.get_extract_status

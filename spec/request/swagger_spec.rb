@@ -583,7 +583,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             end
           end
 
-          [:put, :patch].each do |op|
+          %i[put patch].each do |op|
             it "supports updating a message draft with #{op}" do
               VCR.use_cassette('sm_client/message_drafts/updates_a_draft') do
                 expect(subject).to validate(

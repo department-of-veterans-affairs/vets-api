@@ -21,7 +21,7 @@ module Preneeds
         relationshipToVet: relationship_to_vet, ssn: ssn
       }
 
-      [:email, :phoneNumber, :desiredCemetery].each { |key| hash.delete(key) if hash[key].blank? }
+      %i[email phoneNumber desiredCemetery].each { |key| hash.delete(key) if hash[key].blank? }
       hash
     end
 

@@ -5,7 +5,7 @@ require 'common/models/base'
 module EVSS
   module Letters
     class Letter < Common::Base
-      LETTER_TYPES = %w(
+      LETTER_TYPES = %w[
         commissary
         proof_of_service
         medicare_partd
@@ -15,7 +15,7 @@ module EVSS
         benefit_summary
         benefit_verification
         certificate_of_eligibility
-      ).freeze
+      ].freeze
 
       attribute :name, String
       attribute :letter_type, String

@@ -69,7 +69,7 @@ module EducationForm
       num_form_types = EducationBenefitsClaim::FORM_TYPES.size
 
       @ranges = {}
-      %i(day year).each do |range_type|
+      %i[day year].each do |range_type|
         @ranges[range_type] = @date.public_send("beginning_of_#{range_type}")..@date.end_of_day
       end
 

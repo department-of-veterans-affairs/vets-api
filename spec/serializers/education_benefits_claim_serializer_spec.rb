@@ -12,13 +12,13 @@ RSpec.describe EducationBenefitsClaimSerializer, type: :serializer do
     expect(data['id']).to eq(education_benefits_claim.id.to_s)
   end
 
-  %w(form regional_office confirmation_number).each do |attr|
+  %w[form regional_office confirmation_number].each do |attr|
     it "should include #{attr}" do
       expect(attributes[attr]).to eq(education_benefits_claim.public_send(attr))
     end
   end
 
   it "shouldn't include any extra attributes" do
-    expect(attributes.keys).to eq(%w(form regional_office confirmation_number))
+    expect(attributes.keys).to eq(%w[form regional_office confirmation_number])
   end
 end

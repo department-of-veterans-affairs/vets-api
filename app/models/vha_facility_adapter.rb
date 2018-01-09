@@ -66,35 +66,35 @@ class VHAFacilityAdapter
     'pharmacy' => 'PharmacyPhone'
   }.freeze
 
-  HOURS_KEYMAP = %w(
+  HOURS_KEYMAP = %w[
     Monday Tuesday Wednesday Thursday Friday Saturday Sunday
-  ).each_with_object({}) { |d, h| h[d] = d }
+  ].each_with_object({}) { |d, h| h[d] = d }
 
   SERVICE_HIERARCHY = {
     'Audiology' => [],
     'ComplementaryAlternativeMed' => [],
     'DentalServices' => [],
-    'DiagnosticServices' => %w(
+    'DiagnosticServices' => %w[
       ImagingAndRadiology LabServices
-    ),
+    ],
     'EmergencyDept' => [],
     'EyeCare' => [],
-    'MentalHealthCare' => %w(
+    'MentalHealthCare' => %w[
       OutpatientMHCare OutpatientSpecMHCare VocationalAssistance
-    ),
-    'OutpatientMedicalSpecialty' => %w(
+    ],
+    'OutpatientMedicalSpecialty' => %w[
       AllergyAndImmunology CardiologyCareServices DermatologyCareServices
       Diabetes Dialysis Endocrinology Gastroenterology
       Hematology InfectiousDisease InternalMedicine
       Nephrology Neurology Oncology
       PulmonaryRespiratoryDisease Rheumatology SleepMedicine
-    ),
-    'OutpatientSurgicalSpecialty' => %w(
+    ],
+    'OutpatientSurgicalSpecialty' => %w[
       CardiacSurgery ColoRectalSurgery ENT GeneralSurgery
       Gynecology Neurosurgery Orthopedics PainManagement
       PlasticSurgery Podiatry ThoracicSurgery Urology
       VascularSurgery
-    ),
+    ],
     'PrimaryCare' => [],
     'Rehabilitation' => [],
     'UrgentCare' => [],
@@ -102,11 +102,11 @@ class VHAFacilityAdapter
   }.freeze
 
   # Filter services based on what has been organizationally approved for publication
-  APPROVED_SERVICES = %w(
+  APPROVED_SERVICES = %w[
     MentalHealthCare
     PrimaryCare
     DentalServices
-  ).freeze
+  ].freeze
 
   def self.mh_clinic_phone(attrs)
     val = attrs['MHClinicPhone']

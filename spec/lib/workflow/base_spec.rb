@@ -12,7 +12,7 @@ describe Workflow::Base do
 
   context '#chain' do
     it 'stores tasks in order' do
-      expect(defined_flow.chain.map { |c| c[:mod] }).to eq([:task_a, :task_b])
+      expect(defined_flow.chain.map { |c| c[:mod] }).to eq(%i[task_a task_b])
     end
 
     it 'stores provided arguments' do

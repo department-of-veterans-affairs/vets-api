@@ -6,12 +6,11 @@ namespace :claims do
     '21P-530',    # Burial form
   ].freeze
 
-  COLUMNS = [
-    :form_id,
-    :created_at,
-    :updated_at,
-    :guid
-  ].freeze
+  COLUMNS = %i[
+form_id 
+created_at 
+updated_at 
+guid].freeze
 
   desc 'Find failed burial and pension claim uploads'
   task failed: :environment do

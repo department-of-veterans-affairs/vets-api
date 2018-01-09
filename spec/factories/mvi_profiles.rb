@@ -41,7 +41,7 @@ FactoryBot.define do
     birls_id { Faker::Number.number(10) }
 
     factory :mvi_profile_response do
-      given_names %w(John William)
+      given_names %w[John William]
       family_name 'Smith'
       suffix 'Sr'
       gender 'M'
@@ -50,13 +50,13 @@ FactoryBot.define do
       home_phone '1112223333'
       icn '1000123456V123456'
       mhv_ids ['123456']
-      vha_facility_ids %w(516 553 200HD 200IP 200MHV)
+      vha_facility_ids %w[516 553 200HD 200IP 200MHV]
       edipi '1234'
       participant_id '12345678'
       birls_id '796122306'
 
       trait :missing_attrs do
-        given_names %w(Mitchell)
+        given_names %w[Mitchell]
         family_name 'Jenkins'
         suffix nil
         birth_date '19490304'
@@ -70,15 +70,15 @@ FactoryBot.define do
       end
 
       trait :multiple_mhvids do
-        given_names %w(Steve A)
+        given_names %w[Steve A]
         family_name 'Ranger'
         suffix nil
         ssn '111223333'
         address { build(:mvi_profile_address_springfield) }
         home_phone '1112223333 p1'
         icn '12345678901234567'
-        mhv_ids %w(12345678901 12345678902)
-        vha_facility_ids %w(200MH 200MH)
+        mhv_ids %w[12345678901 12345678902]
+        vha_facility_ids %w[200MH 200MH]
         edipi '1122334455'
         participant_id '12345678'
         birls_id '123412345'

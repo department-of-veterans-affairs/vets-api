@@ -129,7 +129,7 @@ describe Preneeds::Service do
 
         application = VCR.use_cassette(
           'preneeds/burial_forms/creates_a_pre_need_burial_form',
-          match_requests_on: [:method, :uri, :body, :headers]
+          match_requests_on: %i[method uri body headers]
         ) do
           subject.receive_pre_need_application burial_form
         end

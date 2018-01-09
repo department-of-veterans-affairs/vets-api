@@ -97,14 +97,14 @@ RSpec.describe V0::SessionsController, type: :controller do
       request.env['HTTP_AUTHORIZATION'] = auth_header
       get :identity_proof
       expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body).keys).to eq %w(identity_proof_url)
+      expect(JSON.parse(response.body).keys).to eq %w[identity_proof_url]
     end
 
     it 'returns a url for adding multifactor authentication to your account' do
       request.env['HTTP_AUTHORIZATION'] = auth_header
       get :multifactor
       expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body).keys).to eq %w(multifactor_url)
+      expect(JSON.parse(response.body).keys).to eq %w[multifactor_url]
     end
 
     it 'returns a logout url' do
@@ -334,7 +334,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     it 'returns the urls for for all three possible authN requests' do
       get :authn_urls
       expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body).keys).to eq %w(mhv dslogon idme)
+      expect(JSON.parse(response.body).keys).to eq %w[mhv dslogon idme]
     end
 
     it 'does not allow fetching the identity proof url' do

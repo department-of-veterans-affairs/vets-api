@@ -5,9 +5,9 @@ require 'saml/user_attributes/base'
 module SAML
   module UserAttributes
     class DSLogon < Base
-      PREMIUM_LOAS = %w(2 3).freeze
-      DSLOGON_SERIALIZABLE_ATTRIBUTES = %i(first_name middle_name last_name gender ssn birth_date
-                                           dslogon_edipi dslogon_status dslogon_deceased).freeze
+      PREMIUM_LOAS = %w[2 3].freeze
+      DSLOGON_SERIALIZABLE_ATTRIBUTES = %i[first_name middle_name last_name gender ssn birth_date
+                                           dslogon_edipi dslogon_status dslogon_deceased].freeze
 
       def first_name
         attributes['dslogon_fname']
@@ -24,7 +24,7 @@ module SAML
       # DS Logon will sometimes return a gender with literal 'unknown'
       def gender
         gender = attributes['dslogon_gender']&.chars&.first&.upcase
-        %w(M F).include?(gender) ? gender : nil
+        %w[M F].include?(gender) ? gender : nil
       end
 
       def ssn

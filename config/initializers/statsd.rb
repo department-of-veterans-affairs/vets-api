@@ -19,7 +19,7 @@ SAML::AuthFailHandler::KNOWN_ERRORS.each do |known_error|
   StatsD.increment(V0::SessionsController::STATSD_LOGIN_FAILED_KEY, 0, tags: ["error:#{known_error}"])
 end
 
-%w(success failure).each do |s|
+%w[success failure].each do |s|
   StatsD.increment(V0::SessionsController::STATSD_CALLBACK_KEY, 0, tags: ["status:#{s}", 'context:unknown'])
   V0::SessionsController::STATSD_CONTEXT_MAP.values.each do |ctx|
     StatsD.increment(V0::SessionsController::STATSD_CALLBACK_KEY, 0, tags: ["status:#{s}", "context:#{ctx}"])

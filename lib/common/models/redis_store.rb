@@ -11,7 +11,7 @@ module Common
 
     define_model_callbacks :initialize, only: :after
 
-    REQ_CLASS_INSTANCE_VARS = %i(redis_namespace redis_namespace_key).freeze
+    REQ_CLASS_INSTANCE_VARS = %i[redis_namespace redis_namespace_key].freeze
 
     class << self
       attr_accessor :redis_namespace, :redis_namespace_ttl, :redis_namespace_key

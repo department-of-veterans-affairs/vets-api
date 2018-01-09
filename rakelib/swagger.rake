@@ -71,7 +71,7 @@ end
 
 def render_type(type, enum)
   type = [*type].map(&:to_sym)
-  type = [:object] if type == [:object, :null] # [object, null] is valid json-schema but swagger throws error
+  type = [:object] if type == %i[object null] # [object, null] is valid json-schema but swagger throws error
   return type if type.count > 1
   if enum
     ":string, enum: %w(#{enum.map { |x| x }.join(' ')})"

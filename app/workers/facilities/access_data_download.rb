@@ -20,7 +20,7 @@ module Facilities
       'Specialty Care (Urgent)' => 'specialty_care_urgent'
     }.freeze
 
-    SAT_REQUIRED_KEYS = %w(facilityID ApptTypeName SHEPScore sliceEndDate).freeze
+    SAT_REQUIRED_KEYS = %w[facilityID ApptTypeName SHEPScore sliceEndDate].freeze
 
     WT_KEY_MAP = {
       'PRIMARY CARE' => 'primary_care',
@@ -34,7 +34,7 @@ module Facilities
       'UROLOGY CLINIC' => 'urology_clinic'
     }.freeze
 
-    WT_REQUIRED_KEYS = %w(facilityID ApptTypeName newWaitTime estWaitTime sliceEndDate).freeze
+    WT_REQUIRED_KEYS = %w[facilityID ApptTypeName newWaitTime estWaitTime sliceEndDate].freeze
 
     def update_cache(model, facilities)
       facilities.each do |k, v|

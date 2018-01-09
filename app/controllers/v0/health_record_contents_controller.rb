@@ -4,7 +4,7 @@ module V0
   class HealthRecordContentsController < BBController
     include ActionController::Live
 
-    REPORT_HEADERS = %w(Content-Type Content-Disposition).freeze
+    REPORT_HEADERS = %w[Content-Type Content-Disposition].freeze
 
     def show
       # doc_type will default to 'pdf' if any value, including nil is provided.

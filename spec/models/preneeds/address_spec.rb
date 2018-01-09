@@ -15,7 +15,7 @@ RSpec.describe Preneeds::Address do
 
   describe 'when converting to eoas' do
     it 'produces an ordered hash' do
-      expect(subject.as_eoas.keys).to eq([:address1, :address2, :city, :countryCode, :postalZip, :state])
+      expect(subject.as_eoas.keys).to eq(%i[address1 address2 city countryCode postalZip state])
     end
 
     it 'removes address2 if blank' do

@@ -174,7 +174,7 @@ describe HCA::EnrollmentSystem do
 
   let(:test_address) { TEST_ADDRESS.dup }
 
-  %w(veteran result).each do |file|
+  %w[veteran result].each do |file|
     let("test_#{file}") do
       JSON.parse(
         File.read(
@@ -258,12 +258,12 @@ describe HCA::EnrollmentSystem do
     described_class,
     'marital_status_to_sds_code',
     [
-      %w(Married M),
+      %w[Married M],
       ['Never Married', 'S'],
-      %w(Separated A),
-      %w(Widowed W),
-      %w(Divorced D),
-      %w(foo U)
+      %w[Separated A],
+      %w[Widowed W],
+      %w[Divorced D],
+      %w[foo U]
     ]
   )
 
@@ -590,14 +590,14 @@ describe HCA::EnrollmentSystem do
     described_class,
     'convert_birth_state',
     [
-      %w(
+      %w[
         MN
         MN
-      ),
-      %w(
+      ],
+      %w[
         Other
         FG
-      )
+      ]
     ]
   )
 
@@ -919,7 +919,7 @@ describe HCA::EnrollmentSystem do
     end
 
     it 'should return the right hash' do
-      %w(
+      %w[
         association_collection
         demographics_info
         enrollment_determination_info
@@ -927,7 +927,7 @@ describe HCA::EnrollmentSystem do
         insurance_collection
         military_service_info
         person_info
-      ).each do |type|
+      ].each do |type|
         expect(described_class).to receive("veteran_to_#{type}")
           .once.with(veteran).and_return(type)
       end

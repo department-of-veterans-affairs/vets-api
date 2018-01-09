@@ -17,7 +17,7 @@ RSpec.describe 'Claim Document Attachment', type: :request do
     end.to change(PersistentAttachment, :count).by(1)
     expect(response.status).to eq(200)
     resp = JSON.parse(response.body)
-    expect(resp['data']['attributes'].keys.sort).to eq(%w(confirmation_code name size))
+    expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
     expect(PersistentAttachment.last).to be_a(PersistentAttachments::PensionBurial)
   end
 end

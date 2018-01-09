@@ -27,7 +27,7 @@ describe PagerDuty::MaintenanceClient do
 
     it 'gets open maintenance windows' do
       stub_request(:get, 'https://api.pagerduty.com/maintenance_windows')
-        .with(query: hash_including('service_ids' => %w(ABCDEF BCDEFG)))
+        .with(query: hash_including('service_ids' => %w[ABCDEF BCDEFG]))
         .to_return(
           status: 200,
           headers: { 'Content-Type' => 'application/json; charset=utf-8' },
@@ -46,14 +46,14 @@ describe PagerDuty::MaintenanceClient do
 
     it 'gets open maintenance windows' do
       stub_request(:get, 'https://api.pagerduty.com/maintenance_windows')
-        .with(query: hash_including('service_ids' => %w(ABCDEF BCDEFG), 'offset' => '0'))
+        .with(query: hash_including('service_ids' => %w[ABCDEF BCDEFG], 'offset' => '0'))
         .to_return(
           status: 200,
           headers: { 'Content-Type' => 'application/json; charset=utf-8' },
           body: body1
         )
       stub_request(:get, 'https://api.pagerduty.com/maintenance_windows')
-        .with(query: hash_including('service_ids' => %w(ABCDEF BCDEFG), 'offset' => '25'))
+        .with(query: hash_including('service_ids' => %w[ABCDEF BCDEFG], 'offset' => '25'))
         .to_return(
           status: 200,
           headers: { 'Content-Type' => 'application/json; charset=utf-8' },

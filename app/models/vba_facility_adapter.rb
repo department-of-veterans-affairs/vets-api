@@ -57,9 +57,9 @@ class VBAFacilityAdapter
     'main' => 'Phone', 'fax' => 'Fax'
   }.freeze
 
-  HOURS_KEYMAP = %w(
+  HOURS_KEYMAP = %w[
     Monday Tuesday Wednesday Thursday Friday Saturday Sunday
-  ).each_with_object({}) { |d, h| h[d] = d }
+  ].each_with_object({}) { |d, h| h[d] = d }
 
   SERVICES_MAP = {
     'ApplyingForBenefits' => 'Applying_for_Benefits',

@@ -51,7 +51,7 @@ RSpec.describe EducationForm::EducationFacility do
         expect(described_class.routing_address(form, form_type: '1995').state).to eq(western_address.state)
       end
     end
-    %w(1990E 5490 5495).each do |form_type|
+    %w[1990E 5490 5495].each do |form_type|
       context "22-#{form_type}" do
         let(:form) { OpenStruct.new(relativeAddress: western_address) }
         it 'uses educationProgram over relativeAddress' do

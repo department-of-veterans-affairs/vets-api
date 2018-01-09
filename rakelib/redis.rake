@@ -5,7 +5,7 @@ require 'emis/responses/get_veteran_status_response'
 
 namespace :redis do
   desc 'Flush Vets.gov User/Sessions'
-  task flush_session: [:flush_session_store, :flush_users_store]
+  task flush_session: %i[flush_session_store flush_users_store]
 
   desc 'Flush RedisStore: Session'
   task flush_session_store: :environment do
@@ -26,14 +26,14 @@ namespace :redis do
   end
 
   desc 'Create test sessions'
-  task :create_sessions, [:count, :mhv_id] => [:environment] do |_, args|
+  task :create_sessions, %i[count mhv_id] => [:environment] do |_, args|
     args.with_defaults(count: 50, mhv_id: nil)
     redis = Redis.current
 
     args[:count].to_i.times do
       uuid = SecureRandom.uuid.delete '-'
       token = SecureRandom.uuid.delete '-'
-      mhv_ids = [args[:mhv_id] || %w(12210827 10894456 13408508 13492196).sample]
+      mhv_ids = [args[:mhv_id] || %w[12210827 10894456 13408508 13492196].sample]
 
       session = Session.new(token: token, uuid: uuid)
       session.save
@@ -65,7 +65,7 @@ namespace :redis do
           "edipi": '1005079124',
           "family_name": 'USER',
           "gender": 'F',
-          "given_names": %w(TEST T),
+          "given_names": %w[TEST T],
           "icn": '1008710255V058302',
           "mhv_ids": mhv_ids,
           "ssn": '123456789',

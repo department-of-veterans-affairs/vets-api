@@ -10,7 +10,7 @@ module Swagger
           operation :get do
             key :description, 'Retrieves patient status'
             key :operationId, 'bbHealthRecordsRefresh'
-            key :tags, %w(bb health-records refresh)
+            key :tags, %w[bb health-records refresh]
 
             response 200 do
               key :description, 'health records refresh response'
@@ -34,7 +34,7 @@ module Swagger
           operation :get do
             key :description, 'Retrieves a list of health care record categories'
             key :operationId, 'bbHealthRecordsEligibleDataClasses'
-            key :tags, %w(bb health-records eligible classes)
+            key :tags, %w[bb health-records eligible classes]
 
             response 200 do
               key :description, 'heath records eligible data classes list'
@@ -50,10 +50,10 @@ module Swagger
           operation :get do
             key :description, 'Retrieves a BB Report'
             key :operationId, 'bbHealthRecordsShow'
-            key :tags, %w(bb health-records show)
+            key :tags, %w[bb health-records show]
 
             parameter name: :doc_type, in: :query, required: false,
-                      type: :string, enum: [:txt, :pdf], description: 'the document type'
+                      type: :string, enum: %i[txt pdf], description: 'the document type'
 
             response 200 do
               key :description, 'health records show response'
@@ -75,11 +75,11 @@ module Swagger
           operation :post do
             key :description, 'Generates a new BB Report'
             key :operationId, 'bbHealthRecordsCreate'
-            key :tags, %w(bb health-records create)
+            key :tags, %w[bb health-records create]
 
             parameter name: :nil, in: :body do
               schema do
-                key :required, [:from_date, :to_date, :data_classes]
+                key :required, %i[from_date to_date data_classes]
 
                 property :from_date, type: :string, description: 'date on which records start'
                 property :to_date, type: :string, description: 'date on which records end'

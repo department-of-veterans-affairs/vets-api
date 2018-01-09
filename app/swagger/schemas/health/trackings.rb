@@ -7,7 +7,7 @@ module Swagger
         include Swagger::Blocks
 
         swagger_schema :Trackings do
-          key :required, [:data, :meta, :links]
+          key :required, %i[data meta links]
 
           property :data, type: :array, minItems: 1, uniqueItems: true do
             items do
@@ -25,7 +25,7 @@ module Swagger
         end
 
         swagger_schema :Tracking do
-          key :required, [:id, :type, :attributes, :links]
+          key :required, %i[id type attributes links]
 
           property :id, type: :string
           property :type, type: :string, enum: [:trackings]
@@ -40,10 +40,9 @@ module Swagger
         end
 
         swagger_schema :TrackingBase do
-          key :required, [
-            :tracking_number, :prescription_id, :prescription_number, :prescription_name,
-            :facility_name, :rx_info_phone_number, :ndc_number, :shipped_date, :delivery_service
-          ]
+          key :required, %i[
+tracking_number prescription_id prescription_number prescription_name 
+facility_name rx_info_phone_number ndc_number shipped_date delivery_service]
 
           property :tracking_number, type: :string
           property :prescription_id, type: :integer
@@ -62,7 +61,7 @@ module Swagger
         end
 
         swagger_schema :OtherPrescription do
-          key :required, [:prescription_name, :prescription_number, :ndc_number, :station_number]
+          key :required, %i[prescription_name prescription_number ndc_number station_number]
 
           property :prescription_name, type: :string
           property :prescription_number, type: :string

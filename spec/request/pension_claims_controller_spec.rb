@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'hca/service'
 
-RSpec.describe 'Pension Claim Integration', type: [:request, :serializer] do
+RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
   let(:full_claim) do
     build(:pension_claim).parsed_form
   end
@@ -63,7 +63,7 @@ RSpec.describe 'Pension Claim Integration', type: [:request, :serializer] do
       it 'should render success' do
         subject
         expect(JSON.parse(response.body)['data']['attributes'].keys.sort)
-          .to eq(%w(confirmationNumber form regionalOffice submittedAt))
+          .to eq(%w[confirmationNumber form regionalOffice submittedAt])
       end
     end
   end

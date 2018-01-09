@@ -53,10 +53,10 @@ class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
     }
   end
 
-  TRACKED_ITEM_FIELDS = %w(
+  TRACKED_ITEM_FIELDS = %w[
     never_received_from_others_list never_received_from_you_list received_from_others_list
     received_from_you_list still_need_from_you_list still_need_from_others_list
-  ).freeze
+  ].freeze
 
   def create_events_for_tracked_items
     TRACKED_ITEM_FIELDS.map do |field|
@@ -76,14 +76,14 @@ class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
   end
 
   # Order of EVENT_DATE_FIELDS determines which date trumps in timeline sorting
-  EVENT_DATE_FIELDS = %i(
+  EVENT_DATE_FIELDS = %i[
     closed_date
     received_date
     upload_date
     opened_date
     requested_date
     suspense_date
-  ).freeze
+  ].freeze
 
   def create_tracked_item_event(type, obj)
     documents = create_documents(obj['vba_documents'] || [])

@@ -10,7 +10,7 @@ describe EVSS::PCIUAddress::ResponseStrategy do
 
   before do
     allow(faraday_response).to receive(:status) { 200 }
-    allow(faraday_response).to receive(:body) { { cnp_countries: %w(Afghanistan Albania Algeria) } }
+    allow(faraday_response).to receive(:body) { { cnp_countries: %w[Afghanistan Albania Algeria] } }
   end
 
   describe '#cache_or_service' do

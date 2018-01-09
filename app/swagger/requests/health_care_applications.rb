@@ -12,10 +12,10 @@ module Swagger
 
           key :description, 'Submit a health care application'
           key :operationId, 'addHealthCareApplication'
-          key :tags, %w(
+          key :tags, %w[
             hca
             forms
-          )
+          ]
 
           parameter :optional_authorization
 
@@ -56,7 +56,7 @@ module Swagger
       end
 
       swagger_schema :HealthCareApplicationSubmissionResponse do
-        key :required, [:formSubmissionId, :timestamp, :success]
+        key :required, %i[formSubmissionId timestamp success]
 
         property :formSubmissionId, type: :integer
         property :timestamp, type: :string
@@ -64,7 +64,7 @@ module Swagger
       end
 
       swagger_schema :HealthCareApplicationHealthcheckResponse do
-        key :required, [:formSubmissionId, :timestamp]
+        key :required, %i[formSubmissionId timestamp]
 
         property :formSubmissionId, type: :integer
         property :timestamp, type: :string

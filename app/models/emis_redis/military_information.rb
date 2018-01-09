@@ -23,7 +23,7 @@ module EMISRedis
       'K' => 'dishonorable'
     }.freeze
 
-    PREFILL_METHODS = %i(
+    PREFILL_METHODS = %i[
       last_service_branch
       currently_active_duty
       currently_active_duty_hash
@@ -36,7 +36,7 @@ module EMISRedis
       compensable_va_service_connected
       discharge_type
       va_compensation_type
-    ).freeze
+    ].freeze
 
     LOWER_DISABILITY_RATINGS = [10, 20, 30, 40].freeze
     HIGHER_DISABILITY_RATING = 50
@@ -44,7 +44,7 @@ module EMISRedis
     NOV_1998 = Date.new(1998, 11, 11)
     GULF_WAR_RANGE = Date.new(1990, 8, 2)..NOV_1998
 
-    SOUTHWEST_ASIA = %w(
+    SOUTHWEST_ASIA = %w[
       ARM
       AZE
       BHR
@@ -62,7 +62,7 @@ module EMISRedis
       TUR
       ARE
       YEM
-    ).freeze
+    ].freeze
 
     VIETNAM = 'VNM'
     VIETNAM_WAR_RANGE = Date.new(1962, 1, 9)..Date.new(1975, 5, 7)

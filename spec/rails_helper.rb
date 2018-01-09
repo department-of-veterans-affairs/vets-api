@@ -49,7 +49,7 @@ def with_settings(settings, temp_values)
   end
 end
 
-VCR::MATCH_EVERYTHING = { match_requests_on: [:method, :uri, :headers, :body] }.freeze
+VCR::MATCH_EVERYTHING = { match_requests_on: %i[method uri headers body] }.freeze
 
 VCR.configure do |c|
   c.cassette_library_dir = 'spec/support/vcr_cassettes'
@@ -66,7 +66,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<PRENEEDS_HOST>') { Settings.preneeds.host }
   c.filter_sensitive_data('<PD_TOKEN>') { Settings.maintenance.pagerduty_api_token }
   c.before_record do |i|
-    %i(response request).each do |env|
+    %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')
       i.send(env).headers.update('Token' => '<SESSION_TOKEN>')
     end
@@ -97,7 +97,7 @@ RSpec.configure do |config|
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
   config.include(ValidationHelpers, type: :model)
-  %i(controller model).each do |type|
+  %i[controller model].each do |type|
     config.include(ModelHelpers, type: type)
   end
   config.include(SAML, type: :controller)

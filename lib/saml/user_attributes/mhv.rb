@@ -5,8 +5,8 @@ require 'saml/user_attributes/base'
 module SAML
   module UserAttributes
     class MHV < Base
-      PREMIUM_LOAS = %w(Premium).freeze
-      MHV_SERIALIZABLE_ATTRIBUTES = %i(mhv_icn mhv_correlation_id).freeze
+      PREMIUM_LOAS = %w[Premium].freeze
+      MHV_SERIALIZABLE_ATTRIBUTES = %i[mhv_icn mhv_correlation_id].freeze
 
       def mhv_icn
         attributes['mhv_icn']

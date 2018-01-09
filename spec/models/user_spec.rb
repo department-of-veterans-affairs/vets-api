@@ -14,7 +14,7 @@ RSpec.describe User, type: :model do
     end
 
     it 'should return false if user doesnt have edipi or icn' do
-      %w(edipi icn).each do |attr|
+      %w[edipi icn].each do |attr|
         expect(user).to receive(attr).and_return(nil)
       end
 

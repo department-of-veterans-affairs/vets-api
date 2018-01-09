@@ -20,7 +20,7 @@ class ApplicationController < ActionController::API
   before_action :authenticate
   before_action :set_app_info_headers
   before_action :set_uuid_tags
-  skip_before_action :authenticate, only: [:cors_preflight, :routing_error]
+  skip_before_action :authenticate, only: %i[cors_preflight routing_error]
 
   def cors_preflight
     head(:ok)

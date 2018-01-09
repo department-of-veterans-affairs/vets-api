@@ -151,7 +151,7 @@ module HCA
       return if veteran['homePhone'].blank? && veteran['mobilePhone'].blank?
 
       phone = []
-      %w(homePhone mobilePhone).each do |type|
+      %w[homePhone mobilePhone].each do |type|
         number = veteran[type]
 
         phone << {
@@ -232,10 +232,10 @@ module HCA
       expense_collection = []
 
       [
-        %w(educationExpense 3),
-        %w(dependentEducationExpenses 16),
-        %w(funeralExpense 19),
-        %w(medicalExpense 18)
+        %w[educationExpense 3],
+        %w[dependentEducationExpenses 16],
+        %w[funeralExpense 19],
+        %w[medicalExpense 18]
       ].each do |expense_type|
         expense = resource[expense_type[0]]
 
@@ -292,7 +292,7 @@ module HCA
     end
 
     def spouse?(veteran)
-      %w(Married Separated).include?(veteran['maritalStatus'])
+      %w[Married Separated].include?(veteran['maritalStatus'])
     end
 
     def veteran_to_spouse_financials(veteran)

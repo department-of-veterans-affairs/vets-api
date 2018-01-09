@@ -40,7 +40,7 @@ module SAML
     # returns the attributes that are defined below, could be from one of 3 distinct policies, each having different
     # saml responses, hence this weird decorating mechanism, needs improved abstraction to be less weird.
     def serializable_attributes
-      %i(authn_context)
+      %i[authn_context]
     end
 
     def dslogon?

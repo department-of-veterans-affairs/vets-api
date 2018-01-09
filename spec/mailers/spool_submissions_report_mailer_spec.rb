@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SpoolSubmissionsReportMailer, type: [:mailer, :aws_helpers] do
+RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
   describe '#build' do
     let(:filename) { 'foo' }
     let(:mail) { described_class.build(filename).deliver_now }
@@ -29,13 +29,13 @@ RSpec.describe SpoolSubmissionsReportMailer, type: [:mailer, :aws_helpers] do
         subject
 
         expect(mail.to).to eq(
-          %w(
+          %w[
             lihan@adhocteam.us
             dana.kuykendall@va.gov
             Jennifer.Waltz2@va.gov
             shay.norton@va.gov
             DONALD.NOBLE2@va.gov
-          )
+          ]
         )
       end
     end

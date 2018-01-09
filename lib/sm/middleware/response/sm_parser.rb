@@ -33,7 +33,7 @@ module SM
         private
 
         def preferences
-          [:notify_me, :'0'].any? { |k| @parsed_json.key?(k) } ? @parsed_json : nil
+          %i[notify_me 0].any? { |k| @parsed_json.key?(k) } ? @parsed_json : nil
         end
 
         def parsed_folders

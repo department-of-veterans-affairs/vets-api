@@ -8,7 +8,7 @@ module Preneeds
     attribute :to, String
 
     def self.permitted_params
-      [:from, :to]
+      %i[from to]
     end
   end
 end

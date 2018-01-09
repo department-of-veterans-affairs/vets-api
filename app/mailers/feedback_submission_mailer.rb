@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 class FeedbackSubmissionMailer < ApplicationMailer
-  RECIPIENTS = %w(
+  RECIPIENTS = %w[
     feedback@va.gov
-  ).freeze
+  ].freeze
 
-  STAGING_RECIPIENTS = %w(
+  STAGING_RECIPIENTS = %w[
     bill.ryan@adhocteam.us
     leanna@adhocteam.us
     dawn@adhocteam.us
     joshua.quagliaroli@va.gov
     rachael.roueche@adhocteam.us
     nick.sullivan@adhocteam.us
-  ).freeze
+  ].freeze
 
   def build(feedback, github_link, github_issue_number)
     @feedback = feedback

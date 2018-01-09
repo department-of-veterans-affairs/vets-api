@@ -435,7 +435,7 @@ module PdfFill
           }
         }
 
-        %w(netWorths monthlyIncomes expectedIncomes).each_with_index do |acct_type, i|
+        %w[netWorths monthlyIncomes expectedIncomes].each_with_index do |acct_type, i|
           question_num = 25 + i
           key[acct_type] = {
             first_key: 'recipient',
@@ -470,7 +470,7 @@ module PdfFill
             end
         end
 
-        %w(m spouseM).each do |prefix|
+        %w[m spouseM].each do |prefix|
           sub_key = "#{prefix}arriages"
           question_num = prefix == 'm' ? 19 : 21
 
@@ -564,13 +564,13 @@ module PdfFill
       def combine_address(address)
         return if address.blank?
 
-        combine_hash(address, %w(street street2), ', ')
+        combine_hash(address, %w[street street2], ', ')
       end
 
       def combine_city_state(address)
         return if address.blank?
 
-        city_state_fields = %w(city state postalCode country)
+        city_state_fields = %w[city state postalCode country]
 
         combine_hash(address, city_state_fields, ', ')
       end
@@ -746,7 +746,7 @@ module PdfFill
           financial_accts[acct_type] = []
         end
 
-        %w(myself spouse).each do |person|
+        %w[myself spouse].each do |person|
           expected_income = @form_data[
             person == 'myself' ? definition : "spouse#{StringHelpers.capitalize_only(definition)}"
           ]
@@ -771,13 +771,13 @@ module PdfFill
         monthly_incomes[0] = financial_accts['socialSecurity'][0]
         monthly_incomes[1] = financial_accts['socialSecurity'][1]
 
-        %w(
+        %w[
           civilService
           railroad
           blackLung
           serviceRetirement
           ssi
-        ).each_with_index do |acct_type, i|
+        ].each_with_index do |acct_type, i|
           i += 2
           monthly_incomes[i] = financial_accts[acct_type][0]
         end
@@ -809,13 +809,13 @@ module PdfFill
           net_worths << {}
         end
 
-        %w(
+        %w[
           bank
           interestBank
           ira
           stocks
           realProperty
-        ).each_with_index do |acct_type, i|
+        ].each_with_index do |acct_type, i|
           net_worths[i] = financial_accts[acct_type][0]
         end
         net_worths[7] = financial_accts['additionalSources'][0]
@@ -887,7 +887,7 @@ module PdfFill
       end
 
       def replace_phone_fields
-        %w(nightPhone dayPhone mobilePhone).each do |attr|
+        %w[nightPhone dayPhone mobilePhone].each do |attr|
           replace_phone(@form_data, attr)
         end
         replace_phone(@form_data['nationalGuard'], 'phone')
@@ -911,22 +911,22 @@ module PdfFill
         expand_signature(@form_data['veteranFullName'])
         @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
 
-        %w(
+        %w[
           gender
           vaFileNumber
           previousNames
           severancePay
           powDateRange
-        ).each do |attr|
+        ].each do |attr|
           @form_data.merge!(public_send("expand_#{attr.underscore}", @form_data[attr]))
         end
 
-        %w(
+        %w[
           nationalGuardActivation
           combatSince911
           spouseIsVeteran
           liveWithSpouse
-        ).each do |attr|
+        ].each do |attr|
           @form_data.merge!(public_send('expand_chk_and_del_key', @form_data, attr))
         end
 
@@ -947,7 +947,7 @@ module PdfFill
         expand_service_periods
         expand_dependents
 
-        %w(marriages spouseMarriages).each do |marriage_type|
+        %w[marriages spouseMarriages].each do |marriage_type|
           expand_marriages(@form_data, marriage_type)
         end
 

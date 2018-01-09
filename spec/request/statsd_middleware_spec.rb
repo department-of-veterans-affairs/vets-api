@@ -32,7 +32,7 @@ RSpec.describe StatsdMiddleware, type: :request do
 
   it 'sends status data to statsd' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
-    tags = %w(controller:v0/prescriptions action:index status:200)
+    tags = %w[controller:v0/prescriptions action:index status:200]
     expect do
       get '/v0/prescriptions'
     end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1, value: 1)
@@ -40,21 +40,21 @@ RSpec.describe StatsdMiddleware, type: :request do
 
   it 'sends duration data to statsd' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
-    tags = %w(controller:v0/prescriptions action:index)
+    tags = %w[controller:v0/prescriptions action:index]
     expect do
       get '/v0/prescriptions'
     end.to trigger_statsd_measure(StatsdMiddleware::DURATION_KEY, tags: tags, times: 1, value: 0.0)
   end
 
   it 'handles a missing route correctly' do
-    tags = %w(controller:application action:routing_error status:404)
+    tags = %w[controller:application action:routing_error status:404]
     expect do
       get '/v0/blahblah'
     end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1, value: 1)
   end
 
   it 'provides duration for missing routes' do
-    tags = %w(controller:application action:routing_error)
+    tags = %w[controller:application action:routing_error]
     expect do
       get '/v0/blahblah'
     end.to trigger_statsd_measure(StatsdMiddleware::DURATION_KEY, tags: tags, times: 1, value: 0.0)

@@ -37,7 +37,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       create(:education_benefits_submission, created_at: date - 26.hours, status: 'processed')
 
       create(:education_benefits_submission, created_at: date, status: 'submitted')
-      %w(1995 1990e 5490 1990n 5495).each do |form_type|
+      %w[1995 1990e 5490 1990n 5495].each do |form_type|
         create(:education_benefits_submission, form_type: form_type, created_at: date)
       end
     end
@@ -77,8 +77,8 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
           end
         end
 
-        %i(day year).each do |range_type|
-          %i(processed submitted).each do |status|
+        %i[day year].each do |range_type|
+          %i[processed submitted].each do |status|
             context "for the current #{range_type}" do
               let(:range_type) { range_type }
 

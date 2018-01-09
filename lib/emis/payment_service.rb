@@ -8,12 +8,12 @@ module EMIS
     configuration EMIS::PaymentConfiguration
 
     create_endpoints(
-      %i(
+      %i[
         get_combat_pay
         get_reserve_drill_days
         get_retirement_pay
         get_separation_pay
-      )
+      ]
     )
 
     protected

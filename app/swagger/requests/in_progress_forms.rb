@@ -11,10 +11,10 @@ module Swagger
 
           key :description, 'Get Saved Form Summaries'
           key :operationId, 'listInProgressForms'
-          key :tags, %w(
+          key :tags, %w[
             in_progress_forms
             forms
-          )
+          ]
 
           parameter :authorization
 

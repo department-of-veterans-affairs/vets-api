@@ -10,7 +10,7 @@ class SavedClaim::Burial < SavedClaim
   end
 
   def attachment_keys
-    [:transportationReceipts, :deathCertificate].freeze
+    %i[transportationReceipts deathCertificate].freeze
   end
 
   def email

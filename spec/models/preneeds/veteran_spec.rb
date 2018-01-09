@@ -22,11 +22,10 @@ RSpec.describe Preneeds::Veteran do
   describe 'when converting to eoas' do
     it 'produces a message hash whose keys are ordered' do
       expect(subject.as_eoas.keys).to eq(
-        [
-          :address, :currentName, :dateOfBirth, :dateOfDeath, :gender,
-          :isDeceased, :maritalStatus, :militaryServiceNumber, :placeOfBirth,
-          :serviceName, :serviceRecords, :ssn, :vaClaimNumber, :militaryStatus
-        ]
+        %i[
+address currentName dateOfBirth dateOfDeath gender 
+isDeceased maritalStatus militaryServiceNumber placeOfBirth 
+serviceName serviceRecords ssn vaClaimNumber militaryStatus]
       )
     end
 

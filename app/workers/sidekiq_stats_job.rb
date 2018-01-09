@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 class SidekiqStatsJob < Sidekiq::Instrument::Worker
-  METRIC_NAMES = %w(
+  METRIC_NAMES = %w[
     processed
     failed
     scheduled_size
-  ).freeze
+  ].freeze
 
   sidekiq_options queue: 'critical'
 end

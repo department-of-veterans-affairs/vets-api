@@ -6,7 +6,7 @@ require 'evss/auth_headers'
 
 class EVSSClaimService
   include SentryLogging
-  EVSS_CLAIM_KEYS = %w(open_claims historical_claims).freeze
+  EVSS_CLAIM_KEYS = %w[open_claims historical_claims].freeze
 
   def initialize(user)
     @user = user

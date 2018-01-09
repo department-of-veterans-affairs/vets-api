@@ -10,7 +10,7 @@ module Swagger
           operation :get do
             key :description, 'Get a list of active and inactive prescriptions'
             key :operationId, 'indexPrescriptions'
-            key :tags, %w(prescriptions)
+            key :tags, %w[prescriptions]
 
             parameter :optional_page_number
             parameter :optional_page_length
@@ -31,7 +31,7 @@ module Swagger
           operation :get do
             key :description, 'Get a list of active prescriptions'
             key :operationId, 'indexActivePrescriptions'
-            key :tags, %w(prescriptions)
+            key :tags, %w[prescriptions]
 
             parameter :optional_page_number
             parameter :optional_page_length
@@ -51,7 +51,7 @@ module Swagger
           operation :get do
             key :description, 'Get details about a prescription'
             key :operationId, 'showPrescriptions'
-            key :tags, %w(prescriptions)
+            key :tags, %w[prescriptions]
 
             parameter name: :id, in: :path, required: true, type: :integer, description: 'id of the presecription'
 
@@ -77,7 +77,7 @@ module Swagger
           operation :patch do
             key :description, 'refills a prescription'
             key :operationId, 'refillPrescriptions'
-            key :tags, %w(prescriptions)
+            key :tags, %w[prescriptions]
 
             parameter name: :id, in: :path, required: true, type: :integer, description: 'id of the presecription'
 
