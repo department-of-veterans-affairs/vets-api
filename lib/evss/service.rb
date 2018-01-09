@@ -18,6 +18,10 @@ module EVSS
 
     private
 
+    def perform_json(method: :post, path:, body: nil, headers: {})
+      perform(method, path, body.to_json, { 'Content-Type' => 'application/json' }.merge(headers))
+    end
+
     def headers_for_user(user)
       EVSS::AuthHeaders.new(user).to_h
     end

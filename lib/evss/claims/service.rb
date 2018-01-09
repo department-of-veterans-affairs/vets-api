@@ -19,13 +19,12 @@ module EVSS
       end
 
       def request_decision(claim_id)
-        perform(
-          :post,
-          'vbaClaimStatusService/set5103Waiver',
-          {
+        perform_json(
+          path: 'vbaClaimStatusService/set5103Waiver',
+          body: {
             claimId: claim_id,
             systemName: SYSTEM_NAME
-          }.to_json
+          }
         )
       end
     end
