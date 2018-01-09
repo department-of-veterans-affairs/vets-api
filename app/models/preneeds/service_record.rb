@@ -19,7 +19,7 @@ module Preneeds
       }
 
       %i[
-enteredOnDutyDate releaseFromDutyDate highestRank 
+enteredOnDutyDate releaseFromDutyDate highestRank
 nationalGuardState dischargeType].each do |key|
         hash.delete(key) if hash[key].blank?
       end

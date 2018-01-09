@@ -81,7 +81,7 @@ module Swagger
 
         swagger_schema :MessageAttributes do
           key :type, :object
-          key :required, %i[message_id category subject body attachment sent_date sender_id 
+          key :required, %i[message_id category subject body attachment sent_date sender_id
 sender_name recipient_id recipient_name read_receipt]
 
           property :message_id, type: :integer

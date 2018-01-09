@@ -19,7 +19,7 @@ RSpec.describe Preneeds::ServiceRecord do
     it 'produces an ordered hash' do
       expect(subject.as_eoas.keys).to eq(
         %i[
-branchOfService dischargeType enteredOnDutyDate 
+branchOfService dischargeType enteredOnDutyDate
 highestRank nationalGuardState releaseFromDutyDate]
       )
     end

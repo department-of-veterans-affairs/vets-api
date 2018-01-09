@@ -7,9 +7,9 @@ namespace :claims do
   ].freeze
 
   COLUMNS = %i[
-form_id 
-created_at 
-updated_at 
+form_id
+created_at
+updated_at
 guid].freeze
 
   desc 'Find failed burial and pension claim uploads'

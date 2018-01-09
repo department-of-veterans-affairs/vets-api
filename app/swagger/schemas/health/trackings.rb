@@ -41,7 +41,7 @@ module Swagger
 
         swagger_schema :TrackingBase do
           key :required, %i[
-tracking_number prescription_id prescription_number prescription_name 
+tracking_number prescription_id prescription_number prescription_name
 facility_name rx_info_phone_number ndc_number shipped_date delivery_service]
 
           property :tracking_number, type: :string
