@@ -5,6 +5,7 @@ require 'evss/auth_headers'
 module EVSS
   class Service < Common::Client::Base
     STATSD_KEY_PREFIX = 'api.evss'
+    SYSTEM_NAME = 'vets.gov'
 
     def initialize(user)
       @user = user
