@@ -61,8 +61,8 @@ describe MVI::Service do
       it 'responds with a SERVER_ERROR if ICN is invalid' do
         allow(user).to receive(:mhv_icn).and_return('invalid-icn-is-here^NI')
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request',
-          :warn,
+          'MVI Invalid Request (Possible RecordNotFound)',
+          :error,
           uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
           authn_context: nil,
           loa: { current: 3, highest: 3 },
@@ -78,8 +78,8 @@ describe MVI::Service do
       it 'responds with a SERVER_ERROR if ICN has no matches' do
         allow(user).to receive(:mhv_icn).and_return('1008714781V416999')
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request',
-          :warn,
+          'MVI Invalid Request (Possible RecordNotFound)',
+          :error,
           uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
           authn_context: nil,
           loa: { current: 3, highest: 3 },
@@ -135,7 +135,7 @@ describe MVI::Service do
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI Invalid Request',
-          :warn,
+          :error,
           uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
           authn_context: nil,
           loa: { current: 3, highest: 3 },
@@ -154,7 +154,7 @@ describe MVI::Service do
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI Failed Request',
-          :warn,
+          :error,
           uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
           authn_context: nil,
           loa: { current: 3, highest: 3 },
@@ -209,16 +209,9 @@ describe MVI::Service do
         }
       end
 
-      it 'raises an MVI::Errors::RecordNotFound error' do
+      it 'returns not found, does not log sentry' do
         VCR.use_cassette('mvi/find_candidate/no_subject') do
-          expect(subject).to receive(:log_message_to_sentry).with(
-            'MVI Record Not Found',
-            :warn,
-            uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-            authn_context: nil,
-            loa: { current: 3, highest: 3 },
-            mhv_icn: nil
-          )
+          expect(subject).not_to receive(:log_message_to_sentry)
           expect(subject.find_profile(user)).to have_deep_attributes(MVI::Responses::FindProfileResponse.with_not_found)
         end
       end
