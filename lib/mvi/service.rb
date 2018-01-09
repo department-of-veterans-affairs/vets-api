@@ -39,6 +39,11 @@ module MVI
       MVI::Responses::FindProfileResponse.with_server_error
     rescue MVI::Errors::Base => e
       mvi_error_handler(user, e)
+      if e.is_a?(MVI::Errors::RecordNotFound)
+        MVI::Responses::FindProfileResponse.with_not_found
+      else
+        MVI::Responses::FindProfileResponse.with_server_error
+      end
     end
 
     private
@@ -60,12 +65,6 @@ module MVI
         end
       when MVI::Errors::FailedRequestError
         log_message_to_sentry('MVI Failed Request', :error, error_context(user))
-      end
-
-      if e.is_a?(MVI::Errors::RecordNotFound)
-        MVI::Responses::FindProfileResponse.with_not_found
-      else
-        MVI::Responses::FindProfileResponse.with_server_error
       end
     end
 
