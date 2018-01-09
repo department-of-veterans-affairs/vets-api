@@ -42,8 +42,12 @@ Rails.application.routes.draw do
         get(:healthcheck)
       end
     end
-    resource :pension_claims, only: [:create]
-    resource :burial_claims, only: [:create]
+
+    # Disabled in production until Central Mail API is in place
+    unless Rails.env.production?
+      resource :pension_claims, only: [:create]
+      resource :burial_claims, only: [:create]
+    end
 
     resources :evss_claims, only: [:index, :show] do
       post :request_decision, on: :member
