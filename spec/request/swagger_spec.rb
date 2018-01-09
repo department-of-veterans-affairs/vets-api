@@ -38,16 +38,11 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
   end
   let(:mhv_user) { build(:user, :mhv) }
 
-  before(:all) do
-    Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.current)
-  end
-
   before do
     Session.create(uuid: mhv_user.uuid, token: token)
     User.create(mhv_user)
     allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
-    Rack::Attack.cache.store.flushdb
   end
 
   context 'has valid paths' do
@@ -876,6 +871,12 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     context '#feedback' do
+      before(:all) do
+        Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.current)
+      end
+      before(:each) do
+        Rack::Attack.cache.store.flushdb
+      end
       let(:feedback_params) do
         {
           'description' => 'I liked this page',
