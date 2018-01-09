@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 RSpec.shared_examples 'emis_soap_response' do |example_response_file, response_class|
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:body) { Ox.parse(File.read(example_response_file)) }

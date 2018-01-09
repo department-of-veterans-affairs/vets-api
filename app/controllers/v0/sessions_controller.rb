@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'saml/auth_fail_handler'
 
 module V0

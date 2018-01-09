@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class VBAFacilityAdapter
   VBA_URL = +Settings.locators.vba
   VBA_ID_FIELD = 'Facility_Number'

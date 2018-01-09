@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class FailedClaimsReportMailer < ApplicationMailer
   RECIPIENTS = %w(
     lihan@adhocteam.us

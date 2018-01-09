@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Preneeds
   module Middleware
     module Response

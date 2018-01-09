@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Common
   class RedisStore
     extend ActiveModel::Naming

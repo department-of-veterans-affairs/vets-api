@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module EducationForm
   class EducationFacility
     # sourced from http://www.vba.va.gov/pubs/forms/VBA-22-1990-ARE.pdf

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/base'
 # Prescription model
 # Reference: https://github.com/department-of-veterans-affairs/prescriptions-team/blob/master/API/sample_mvh_api_calls

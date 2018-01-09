@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module SAML
   class AuthFailHandler
     attr_accessor :message, :level, :context

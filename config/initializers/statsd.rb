@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 host = Settings.statsd.host
 port = Settings.statsd.port
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/base'
 require 'mvi/configuration'
 require 'mvi/responses/find_profile_response'

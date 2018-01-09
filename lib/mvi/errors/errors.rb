@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module MVI
   module Errors
     class ServiceError < StandardError

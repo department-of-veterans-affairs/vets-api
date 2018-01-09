@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class SavedClaim::Burial < SavedClaim
   FORM = '21P-530'
   CONFIRMATION = 'BUR'

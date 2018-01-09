@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'evss/claims_service'
 require 'evss/documents_service'
 require 'evss/auth_headers'

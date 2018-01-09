@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class VCFacilityAdapter
   VC_URL = +Settings.locators.vc
   VC_ID_FIELD = 'stationno'

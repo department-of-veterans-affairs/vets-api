@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 namespace :swagger do
   desc 'Given a json schema file generates a swagger block: `bundle exec rake swagger:generate_block[letters.json]`'
   task :generate_block, [:json_schema_file] => [:environment] do |_, args|

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
   include Virtus.model

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'feature_flipper'
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]

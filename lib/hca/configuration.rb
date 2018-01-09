@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/configuration/soap'
 require 'common/client/middleware/request/soap_headers'
 require 'common/client/middleware/response/soap_parser'

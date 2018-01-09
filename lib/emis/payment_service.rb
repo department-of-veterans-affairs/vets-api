@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'emis/service'
 require 'emis/payment_configuration'
 

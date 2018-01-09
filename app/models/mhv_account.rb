@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'mhv_ac/client'
 require 'sentry_logging'
 

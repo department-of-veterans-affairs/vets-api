@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe EducationForm::Forms::VA1990, type: :model, form: :education_benefits do

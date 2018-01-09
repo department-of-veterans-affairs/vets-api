@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe SpoolSubmissionsReportMailer, type: [:mailer, :aws_helpers] do

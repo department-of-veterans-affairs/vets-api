@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :education_benefits_claim do
     after(:build) do |education_benefits_claim|

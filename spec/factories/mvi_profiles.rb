@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :mvi_profile_address, class: 'MVI::Models::MviProfileAddress' do
     street { Faker::Address.street_address }

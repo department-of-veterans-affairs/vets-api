@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'shrine/plugins/validate_unlocked_pdf'
 
 # Shrine logic for Pension/Burial uploads, optimistically named so

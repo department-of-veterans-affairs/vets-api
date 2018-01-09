@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'emis/models/veteran_status'
 require 'emis/responses/response'
 

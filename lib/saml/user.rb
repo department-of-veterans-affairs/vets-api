@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'saml/user_attributes/id_me'
 require 'saml/user_attributes/mhv'
 require 'saml/user_attributes/dslogon'

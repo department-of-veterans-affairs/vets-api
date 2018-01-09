@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class PrescriptionSerializer < ActiveModel::Serializer
   def id
     object.prescription_id

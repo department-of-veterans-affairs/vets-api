@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Common
   module Exceptions
     # Unauthorized - We may eventually want different variations on this with distinct MinorCodes

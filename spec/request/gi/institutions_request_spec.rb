@@ -1,4 +1,5 @@
 # frozen_string_literal: false
+
 require 'rails_helper'
 
 RSpec.describe 'institutions', type: :request do

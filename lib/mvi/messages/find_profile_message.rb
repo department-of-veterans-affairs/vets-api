@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative 'find_profile_message_helpers'
 
 module MVI

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module BB
   module Middleware
     module Response

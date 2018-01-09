@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/collection'
 
 class V0::Facilities::VaController < FacilitiesController

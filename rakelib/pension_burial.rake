@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 desc 'retry failed pension burial jobs'
 task pension_burial_retry_jobs: :environment do
   # JIDS up to date as of Dec 4, 2017 2:40:39 PM UTC

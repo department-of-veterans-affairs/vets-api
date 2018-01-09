@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'emis/responses/response'
 require 'emis/responses/get_veteran_status_response'
 

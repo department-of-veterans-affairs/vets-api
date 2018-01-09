@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class NCAFacilityAdapter
   NCA_URL = +Settings.locators.nca
   NCA_ID_FIELD = 'SITE_ID'

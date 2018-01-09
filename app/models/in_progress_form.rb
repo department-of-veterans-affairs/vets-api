@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class InProgressForm < ActiveRecord::Base
   class CleanUUID < ActiveRecord::Type::String
     def type_cast_for_database(value)

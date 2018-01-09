@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'attr_encrypted'
 class EducationBenefitsClaim < ActiveRecord::Base
   FORM_TYPES = %w(1990 1995 1990e 5490 5495 1990n).freeze

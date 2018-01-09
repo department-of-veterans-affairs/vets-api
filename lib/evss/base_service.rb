@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'evss/error_middleware'
 require 'sentry_logging'
 

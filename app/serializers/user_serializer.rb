@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'backend_services'
 require 'common/client/concerns/service_status'
 

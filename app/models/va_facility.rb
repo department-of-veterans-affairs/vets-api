@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'facilities/async_client'
 require 'facilities/multi_client'
 

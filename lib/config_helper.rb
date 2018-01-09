@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'feature_flipper'
 
 module ConfigHelper

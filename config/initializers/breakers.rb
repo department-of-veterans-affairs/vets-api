@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'breakers/statsd_plugin'
 require 'appeals_status/configuration'
 require 'bb/configuration'

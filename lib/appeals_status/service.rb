@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'appeals_status/models/appeal'
 require 'appeals_status/responses/get_appeals_response'
 

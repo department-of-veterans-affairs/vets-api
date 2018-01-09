@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'vic/url_helper'
 require 'vic/id_card_attribute_error'
 

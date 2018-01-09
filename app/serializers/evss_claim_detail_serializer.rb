@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
   attributes :contention_list, :va_representative, :events_timeline
 

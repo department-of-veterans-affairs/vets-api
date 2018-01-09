@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class FeedbackSubmissionMailer < ApplicationMailer
   RECIPIENTS = %w(
     feedback@va.gov

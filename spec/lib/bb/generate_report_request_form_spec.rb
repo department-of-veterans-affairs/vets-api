@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'bb/generate_report_request_form'
 require 'bb/client'

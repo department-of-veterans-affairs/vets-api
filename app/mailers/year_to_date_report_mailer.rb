@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class YearToDateReportMailer < ApplicationMailer
   REPORT_TEXT = 'Year to date report'
 
