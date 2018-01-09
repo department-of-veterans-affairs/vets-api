@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
 
 # Anchored versions, do not change
-gem "puma", "~> 2.16.0"
+gem 'puma', '~> 2.16.0'
 gem 'rails', '4.2.7.1'
 
 # Gems with special version/repo needs
@@ -45,8 +47,8 @@ gem 'pdf-forms'
 gem 'pdf-reader'
 gem 'pg'
 gem 'prawn'
-gem 'rack-cors', :require => 'rack/cors'
 gem 'rack-attack'
+gem 'rack-cors', require: 'rack/cors'
 gem 'rails-api'
 gem 'redis'
 gem 'redis-namespace'
@@ -72,7 +74,7 @@ group :development do
 
   # Include the IANA Time Zone Database on Windows, where Windows doens't ship with a timezone database.
   # POSIX systems should have this already, so we're not going to bring it in on other platforms
-  gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+  gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
   # Access an IRB console on exception pages or by using <%= console %> in views
   gem 'web-console', '~> 2.0', platforms: :ruby
 end
@@ -81,7 +83,6 @@ group :test do
   gem 'apivore'
   gem 'awrence'
   gem 'climate_control'
-  gem 'webrick'
   gem 'faker'
   gem 'faker-medical'
   gem 'fakeredis'
@@ -91,14 +92,15 @@ group :test do
   gem 'shrine-memory'
   gem 'simplecov', require: false
   gem 'vcr'
+  gem 'webrick'
 end
 
 group :development, :test do
-  gem "rainbow" # Used to colorize output for rake tasks
   gem 'brakeman'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'factory_bot_rails'
+  gem 'rainbow' # Used to colorize output for rake tasks
   # TODO: switch to a version number once that version is released
   gem 'factory_bot', git: 'https://github.com/thoughtbot/factory_bot', ref: '50eeb67241ea78a6b138eea694a2a25413052f49'
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to assist with debugging production issues (https://github.com/department-of-veterans-affairs/vets.gov-team/pull/6262)
@@ -110,7 +112,7 @@ group :development, :test do
   gem 'rack-test', require: 'rack/test'
   gem 'rack-vcr'
   gem 'rspec-rails', '~> 3.5'
-  gem 'rubocop', '~> 0.49.0', require: false
+  gem 'rubocop', '~> 0.52.1', require: false
   gem 'sidekiq'
   gem 'timecop'
   gem 'webmock'
@@ -118,8 +120,8 @@ end
 
 group :production do
   # sidekiq enterprise edition
-  source "https://enterprise.contribsys.com/" do
-    gem 'sidekiq-pro'
+  source 'https://enterprise.contribsys.com/' do
     gem 'sidekiq-ent'
+    gem 'sidekiq-pro'
   end
 end

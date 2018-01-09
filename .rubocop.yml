@@ -1,13 +1,19 @@
 AllCops:
+  TargetRailsVersion: 4.0
   TargetRubyVersion: 2.3
   Include:
+    - '**/Gemfile'
     - '**/config.ru'
     - '**/Rakefile'
     - '**/*.rake'
   Exclude:
-    - 'db/**/*'
+    - db/schema.rb
+    - db/seeds.rb
+    - db/migrate/*.rb
     - 'script/**/*'
     - 'vendor/**/*'
+Rails:
+  Enabled: true
 
 # This allows you to use have writers like self.method_name(name) vs self.method_name=(name)
 Style/TrivialAccessors:
@@ -74,5 +80,9 @@ Metrics/AbcSize:
   Max: 40
 
 # removing rule because get_session implies HTTP GET, and informs method
-Style/AccessorMethodName:
+Naming/AccessorMethodName:
   Enabled: false
+
+# removing block length rule for rspec DSL
+Metrics/BlockLength:
+  ExcludedMethods: ['describe', 'context', 'it', 'let']
