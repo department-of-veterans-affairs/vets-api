@@ -11,7 +11,7 @@ module EVSS
       end
 
       def find_claim_by_id(claim_id)
-        perform_with_user_headers(
+        perform(
           :post,
           'vbaClaimStatusService/getClaimDetailById',
           { id: claim_id }.to_json
@@ -19,7 +19,7 @@ module EVSS
       end
 
       def request_decision(claim_id)
-        perform_with_user_headers(
+        perform(
           :post,
           'vbaClaimStatusService/set5103Waiver',
           {
