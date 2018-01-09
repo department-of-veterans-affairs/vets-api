@@ -886,8 +886,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       let(:missing_feedback_params) { feedback_params.except('target_page') }
 
       it 'returns 202 for valid feedback' do
-        expect(subject)
-          .to validate(:post, '/v0/feedback', 202,
+        expect(subject).to validate(:post, '/v0/feedback', 202,
                                     '_data' => { 'feedback' => feedback_params })
       end
       it 'returns 400 if a param is missing or invalid' do
