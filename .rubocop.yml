@@ -1,4 +1,5 @@
 AllCops:
+  # Priot to upgrading to Rails 5.0 we can change this, but right now it will break too many things
   TargetRailsVersion: 4.0
   TargetRubyVersion: 2.3
   Include:
@@ -12,8 +13,6 @@ AllCops:
     - db/migrate/*.rb
     - 'script/**/*'
     - 'vendor/**/*'
-Rails:
-  Enabled: true
 
 # This allows you to use have writers like self.method_name(name) vs self.method_name=(name)
 Style/TrivialAccessors:
