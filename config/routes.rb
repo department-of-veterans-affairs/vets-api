@@ -55,15 +55,16 @@ Rails.application.routes.draw do
     resource :pension_claims, only: [:create]
     resource :burial_claims, only: [:create]
 
-    resource :disability_rating, only: [:show]
-
     resources :evss_claims, only: [:index, :show] do
       post :request_decision, on: :member
       resources :documents, only: [:create]
     end
 
     get 'welcome', to: 'example#welcome', as: :welcome
+    get 'limited', to: 'example#limited', as: :limited
     get 'status', to: 'admin#status'
+
+    resources :maintenance_windows, only: [:index]
 
     resources :prescriptions, only: [:index, :show], defaults: { format: :json } do
       get :active, to: 'prescriptions#index', on: :collection, defaults: { refill_status: 'active' }

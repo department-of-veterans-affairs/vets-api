@@ -72,6 +72,10 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       expect(subject).to validate(:get, '/v0/in_progress_forms', 401)
     end
 
+    it 'supports fetching maintenance windows' do
+      expect(subject).to validate(:get, '/v0/maintenance_windows', 200)
+    end
+
     it 'supports getting an in-progress form' do
       FactoryBot.create(:in_progress_form, user_uuid: mhv_user.uuid)
       expect(subject).to validate(

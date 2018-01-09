@@ -46,6 +46,7 @@ gem 'pdf-reader'
 gem 'pg'
 gem 'prawn'
 gem 'rack-cors', :require => 'rack/cors'
+gem 'rack-attack'
 gem 'rails-api'
 gem 'redis'
 gem 'redis-namespace'
@@ -54,9 +55,7 @@ gem 'ruby-saml'
 gem 'savon'
 gem 'sentry-raven'
 gem 'shrine'
-gem 'sidekiq'
 gem 'sidekiq-instrument'
-gem 'sidekiq-rate-limiter'
 gem 'sidekiq-unique-jobs'
 gem 'statsd-instrument'
 gem 'swagger-blocks'
@@ -108,9 +107,19 @@ group :development, :test do
   gem 'guard-rspec', '~> 4.7'
   gem 'overcommit'
   gem 'pry-nav'
+  gem 'rack-test', require: 'rack/test'
   gem 'rack-vcr'
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', '~> 0.42.0', require: false
+  gem 'sidekiq'
   gem 'timecop'
   gem 'webmock'
+end
+
+group :production do
+  # sidekiq enterprise edition
+  source "https://enterprise.contribsys.com/" do
+    gem 'sidekiq-pro'
+    gem 'sidekiq-ent'
+  end
 end

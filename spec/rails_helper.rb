@@ -48,6 +48,8 @@ def with_settings(settings, temp_values)
   end
 end
 
+VCR::MATCH_EVERYTHING = { match_requests_on: [:method, :uri, :headers, :body] }.freeze
+
 VCR.configure do |c|
   c.cassette_library_dir = 'spec/support/vcr_cassettes'
   c.hook_into :webmock
@@ -61,6 +63,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<MHV_SM_HOST>') { Settings.mhv.sm.host }
   c.filter_sensitive_data('<MVI_URL>') { Settings.mvi.url }
   c.filter_sensitive_data('<PRENEEDS_HOST>') { Settings.preneeds.host }
+  c.filter_sensitive_data('<PD_TOKEN>') { Settings.maintenance.pagerduty_api_token }
   c.before_record do |i|
     %i(response request).each do |env|
       next unless i.send(env).headers.keys.include?('Token')
@@ -83,6 +86,10 @@ Shrine.storages = {
 }
 
 CarrierWave.root = "#{Rails.root}/spec/support/uploads/"
+
+FactoryBot::SyntaxRunner.class_eval do
+  include RSpec::Mocks::ExampleMethods
+end
 
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
