@@ -70,7 +70,6 @@ describe MVI::Responses::ProfileParser do
     describe '#failed_or_invalid?' do
       it 'should return true' do
         allow(faraday_response).to receive(:body) { body }
-        expect(Rails.logger).to receive(:warn).once.with('MVI returned response with code: AR')
         expect(parser.failed_or_invalid?).to be_truthy
       end
     end
@@ -82,7 +81,6 @@ describe MVI::Responses::ProfileParser do
     describe '#failed_or_invalid?' do
       it 'should return true' do
         allow(faraday_response).to receive(:body) { body }
-        expect(Rails.logger).to receive(:warn).once.with('MVI returned response with code: AE')
         expect(parser.failed_or_invalid?).to be_truthy
       end
     end
