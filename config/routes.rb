@@ -44,7 +44,7 @@ Rails.application.routes.draw do
     end
 
     # Disabled in production until Central Mail API is in place
-    unless Rails.env.production?
+    if Settings.pension_burial.upload.enabled?
       resource :pension_claims, only: [:create]
       resource :burial_claims, only: [:create]
     end
