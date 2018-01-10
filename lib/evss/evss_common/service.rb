@@ -5,7 +5,7 @@ module EVSS
       configuration EVSS::EVSSCommon::Configuration
 
       def create_user_account
-        perform_with_user_headers(
+        perform(
           :post,
           'persistentPropertiesService/11.0/createUserAccount',
           nil
