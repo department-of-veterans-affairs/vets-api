@@ -55,9 +55,7 @@ gem 'ruby-saml'
 gem 'savon'
 gem 'sentry-raven'
 gem 'shrine'
-gem 'sidekiq'
 gem 'sidekiq-instrument'
-gem 'sidekiq-rate-limiter'
 gem 'sidekiq-unique-jobs'
 gem 'statsd-instrument'
 gem 'swagger-blocks'
@@ -113,6 +111,15 @@ group :development, :test do
   gem 'rack-vcr'
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', '~> 0.42.0', require: false
+  gem 'sidekiq'
   gem 'timecop'
   gem 'webmock'
+end
+
+group :production do
+  # sidekiq enterprise edition
+  source "https://enterprise.contribsys.com/" do
+    gem 'sidekiq-pro'
+    gem 'sidekiq-ent'
+  end
 end
