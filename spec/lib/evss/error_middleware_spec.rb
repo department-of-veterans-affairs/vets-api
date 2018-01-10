@@ -17,7 +17,7 @@ describe EVSS::ErrorMiddleware do
   context 'with a backend service error' do
     it 'should raise an evss service error', run_at: 'Wed, 13 Dec 2017 23:45:40 GMT' do
       VCR.use_cassette('evss/claims/error_504') do
-        expect { claims_service.find_claim_by_id(1) }.to raise_exception(described_class::EVSSServiceError)
+        expect { claims_service.find_claim_by_id(1) }.to raise_exception(described_class::EVSSBackendServiceError)
       end
     end
   end
