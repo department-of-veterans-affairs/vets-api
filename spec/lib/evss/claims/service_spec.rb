@@ -18,8 +18,10 @@ describe EVSS::Claims::Service do
     end
 
     it 'should get a claim by id' do
-      VCR.use_cassette('evss/claims/claim_client', record: :once) do
-        subject.find_claim_by_id('600118851')
+      VCR.use_cassette('evss/claims/claim_client', VCR::MATCH_EVERYTHING) do
+        id = '600118851'
+        response = subject.find_claim_by_id(id)
+        expect(response.body['claim']['id']).to eq(id)
       end
     end
 
