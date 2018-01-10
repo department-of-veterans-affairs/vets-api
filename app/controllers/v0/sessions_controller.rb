@@ -159,7 +159,13 @@ module V0
 
     def async_create_evss_account(user)
       return unless user.can_access_evss?
-      EVSS::NewCreateUserAccountJob.perform_async(user.uuid)
+
+      if user.can_access_evss_common_client?
+        EVSS::NewCreateUserAccountJob.perform_async(user.uuid)
+      else
+        auth_headers = EVSS::AuthHeaders.new(user).to_h
+        EVSS::CreateUserAccountJob.perform_async(auth_headers)
+      end
     end
 
     def handle_completed_slo
