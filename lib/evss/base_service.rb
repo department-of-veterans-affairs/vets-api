@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'common/client/middleware/response/json_parser'
 require 'evss/error_middleware'
 require 'sentry_logging'
 
@@ -57,7 +58,7 @@ module EVSS
         faraday.use      Faraday::Response::RaiseError
         faraday.response :betamocks if @use_mock
         faraday.response :snakecase, symbolize: false
-        faraday.response :json
+        faraday.response :json_parser
         faraday.use :remove_cookies
         faraday.adapter :httpclient
       end
