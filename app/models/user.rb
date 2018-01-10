@@ -130,6 +130,10 @@ class User < Common::RedisStore
     mhv_account.account_state
   end
 
+  def can_access_evss_common_client?
+    beta_enabled?(uuid, EVSSClaimService::EVSS_COMMON_CLIENT_KEY)
+  end
+
   def can_access_evss?
     edipi.present? && ssn.present? && participant_id.present?
   end

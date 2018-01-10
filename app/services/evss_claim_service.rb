@@ -6,6 +6,7 @@ require 'evss/auth_headers'
 class EVSSClaimService
   include SentryLogging
   EVSS_CLAIM_KEYS = %w(open_claims historical_claims).freeze
+  EVSS_COMMON_CLIENT_KEY = 'evss_common_client'.freeze
 
   def initialize(user)
     @user = user
@@ -53,7 +54,13 @@ class EVSSClaimService
   private
 
   def client
-    @client ||= EVSS::ClaimsService.new(auth_headers)
+    @client ||= lambda do
+      if @user.can_access_evss_common_client?
+        EVSS::Claims::Service.new(@user)
+      else
+        EVSS::ClaimsService.new(auth_headers)
+      end
+    end.call
   end
 
   def auth_headers
