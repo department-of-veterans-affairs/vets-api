@@ -31,6 +31,21 @@ RSpec.describe EVSSClaimService do
     end
   end
 
+  describe '#client' do
+    context 'when a user is beta registered for common client' do
+      it 'should return the common client service' do
+        BetaRegistration.create!(user_uuid: user.uuid, feature: described_class::EVSS_COMMON_CLIENT_KEY)
+        expect(claim_service.send(:client).is_a?(EVSS::Claims::Service)).to eq(true)
+      end
+    end
+
+    context 'when user isnt beta registered' do
+      it 'should return the legacy service' do
+        expect(claim_service.send(:client).is_a?(EVSS::ClaimsService)).to eq(true)
+      end
+    end
+  end
+
   describe '#upload_document' do
     let(:tempfile) do
       f = Tempfile.new(['file with spaces', '.txt'])
