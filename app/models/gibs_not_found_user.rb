@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 class GibsNotFoundUser < ActiveRecord::Base
-  # :nocov:
   attr_encrypted :ssn, key: Settings.db_encryption_key
 
   validates :edipi, presence: true, uniqueness: true
@@ -14,5 +13,4 @@ class GibsNotFoundUser < ActiveRecord::Base
       dob: user.birth_date
     ).find_or_create_by(edipi: user.edipi)
   end
-  # :nocov:
 end
