@@ -8,7 +8,7 @@ describe EVSS::EVSSCommon::Service do
 
   context 'with a user' do
     it 'posts to create a user account' do
-      VCR.use_cassette('evss/common/create_user_account_client', record: :once) do
+      VCR.use_cassette('evss/common/create_user_account_client', VCR::MATCH_EVERYTHING) do
         response = subject.create_user_account
         expect(response).to be_success
       end
