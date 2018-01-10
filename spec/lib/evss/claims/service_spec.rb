@@ -17,6 +17,12 @@ describe EVSS::Claims::Service do
       end
     end
 
+    it 'should get a claim by id' do
+      VCR.use_cassette('evss/claims/claim_client', record: :once) do
+        subject.find_claim_by_id('600118851')
+      end
+    end
+
     it 'should post a 5103 waiver' do
       VCR.use_cassette('evss/claims/set_5103_waiver_client', VCR::MATCH_EVERYTHING) do
         response = subject.request_decision(evss_id)
