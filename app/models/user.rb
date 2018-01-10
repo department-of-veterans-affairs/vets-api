@@ -131,7 +131,7 @@ class User < Common::RedisStore
   end
 
   def can_access_evss_common_client?
-    beta_enabled?(uuid, EVSSClaimService::EVSS_COMMON_CLIENT_KEY)
+    @can_access_evss_common_client ||= beta_enabled?(uuid, EVSSClaimService::EVSS_COMMON_CLIENT_KEY)
   end
 
   def can_access_evss?
