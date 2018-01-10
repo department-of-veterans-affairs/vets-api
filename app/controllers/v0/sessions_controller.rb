@@ -161,10 +161,8 @@ module V0
       Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
       # We want to log when SSNs do not match between MVI and SAML Identity. And might take future
       # action if this appears to be happening frquently.
-      if @current_user.loa3? && @current_user&.identity&.ssn && @current_user&.va_profile&.ssn
-        if @current_user.identity.ssn != @current_user.va_profile.ssn
-          log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, user_context(@current_user))
-        end
+      if @current_user.ssn_mismatch?
+        log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, user_context(@current_user))
       end
     end
 
