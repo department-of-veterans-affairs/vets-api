@@ -3,14 +3,6 @@ require 'rails_helper'
 require 'evss/claims_service'
 
 describe EVSS::BaseService do
-  context 'with a backend service error' do
-    it 'should raise a faraday client error on a 500 class error', run_at: 'Wed, 13 Dec 2017 23:45:40 GMT' do
-      VCR.use_cassette('evss/claims/error_504') do
-        expect { claims_service.find_claim_by_id(1) }.to raise_exception(Faraday::ClientError)
-      end
-    end
-  end
-
   context 'with an outage' do
     let(:service) { EVSS::ClaimsService.new({}) }
 

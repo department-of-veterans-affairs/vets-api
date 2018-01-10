@@ -54,8 +54,8 @@ module EVSS
       @conn ||= Faraday.new(base_url, headers: @headers, ssl: ssl_options) do |faraday|
         faraday.options.timeout = timeout
         faraday.use      :breakers
-        faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
+        faraday.use      EVSS::ErrorMiddleware
         faraday.response :betamocks if @use_mock
         faraday.response :snakecase, symbolize: false
         faraday.response :json_parser
