@@ -8,7 +8,7 @@ module EVSS
         perform(
           :post,
           'persistentPropertiesService/11.0/createUserAccount',
-          nil
+          ''
         )
       end
     end
