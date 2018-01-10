@@ -121,6 +121,16 @@ class User < Common::RedisStore
     loa1? || loa2? || loa3?
   end
 
+  # User's profile contains a list of VHA facility-specific identifiers.
+  # Facilities in the defined range are treating facilities, indicating
+  # that the user is a VA patient.
+  def va_patient?
+    facilities = va_profile&.vha_facility_ids
+    facilities.to_a.any? do |f|
+      Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) }
+    end
+  end
+
   # Must be LOA3 and a va patient
   def mhv_account_eligible?
     (MhvAccount::ALL_STATES - [:ineligible]).map(&:to_s).include?(mhv_account_state)
