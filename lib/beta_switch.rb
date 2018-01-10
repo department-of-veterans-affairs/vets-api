@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module BetaSwitch
   def beta_enabled?(uuid, feature_name)
-    BetaRegistration.find_by(user_uuid: uuid, feature: feature_name).present?
+    BetaRegistration.where(user_uuid: uuid, feature: feature_name).count > 0
   end
 end
