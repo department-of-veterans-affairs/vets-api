@@ -85,8 +85,7 @@ module V0
         async_create_evss_account(@current_user)
         redirect_to Settings.saml.relay + '?token=' + @session.token
 
-        obscure_token = Session.obscure_token(@session.token)
-        Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
+        log_persisted_session_and_warnings
         Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: benchmark_tags('status:success'))
         StatsD.increment(STATSD_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
@@ -154,6 +153,16 @@ module V0
           }
         }
         log_message_to_sentry('Login Fail! on User/Session Validation', :error, context)
+      end
+    end
+
+    def log_persisted_session_and_warnings
+      obscure_token = Session.obscure_token(@session.token)
+      Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
+      # We want to log when SSNs do not match between MVI and SAML Identity. And might take future
+      # action if this appears to be happening frquently.
+      if @current_user.ssn_mismatch?
+        log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, user_context(@current_user))
       end
     end
 
