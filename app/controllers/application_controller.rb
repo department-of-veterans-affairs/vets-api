@@ -119,8 +119,6 @@ class ApplicationController < ActionController::API
 
   def extend_session
     @session.expire(Session.redis_namespace_ttl)
-    # FIXME-IDENTITY-PHASE2: UserOld will go away and will not need ot be persisted
-    UserOld.find(@session.uuid)&.expire(UserOld.redis_namespace_ttl)
     @current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
     @current_user&.expire(User.redis_namespace_ttl)
   end
