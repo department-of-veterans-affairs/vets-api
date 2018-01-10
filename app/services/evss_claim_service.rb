@@ -39,7 +39,11 @@ class EVSSClaimService
   end
 
   def request_decision(claim)
-    EVSS::RequestDecision.perform_async(auth_headers, claim.evss_id)
+    if @user.can_access_evss_common_client?
+      EVSS::NewRequestDecision.perform_async(@user.uuid, claim.evss_id)
+    else
+      EVSS::RequestDecision.perform_async(auth_headers, claim.evss_id)
+    end
   end
 
   # upload file to s3 and enqueue job to upload to EVSS

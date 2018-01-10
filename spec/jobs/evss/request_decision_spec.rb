@@ -17,12 +17,3 @@ RSpec.describe EVSS::RequestDecision, type: :job do
     described_class.new.perform(auth_headers, evss_id)
   end
 end
-
-RSpec.describe EVSSClaim::RequestDecision, type: :job do
-  it 're-queues the job into the new namespace' do
-    expect { described_class.new.perform(nil, nil) }
-      .to change { EVSS::RequestDecision.jobs.size }
-      .from(0)
-      .to(1)
-  end
-end
