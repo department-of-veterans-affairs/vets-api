@@ -2,12 +2,12 @@
 require 'rails_helper'
 
 describe EVSS::Documents::Service do
-  let(:current_user) { create(:user, :loa3) }
+  let(:current_user) { create(:evss_user) }
   let(:document_data) do
     EVSSClaimDocument.new(
-      evss_claim_id: 189_625,
+      evss_claim_id: 600_118_851,
       file_name: 'doctors-note.pdf',
-      tracked_item_id: 33,
+      tracked_item_id: nil,
       document_type: 'L023'
     )
   end
