@@ -16,7 +16,7 @@ describe EVSS::Documents::Service do
 
   context 'with headers' do
     it 'should upload documents' do
-      VCR.use_cassette('evss/documents/upload') do
+      VCR.use_cassette('evss/documents/upload_client', VCR::MATCH_EVERYTHING) do
         demo_file_name = "#{::Rails.root}/spec/fixtures/files/doctors-note.pdf"
         File.open(demo_file_name, 'rb') do |f|
           response = subject.upload(f, document_data)
