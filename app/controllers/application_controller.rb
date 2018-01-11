@@ -48,6 +48,7 @@ class ApplicationController < ActionController::API
     SKIP_SENTRY_EXCEPTION_TYPES
   end
 
+  # rubocop:disable Metrics/BlockLength
   rescue_from 'Exception' do |exception|
     # report the original 'cause' of the exception when present
     if skip_sentry_exception_types.include?(exception.class) == false
@@ -89,6 +90,7 @@ class ApplicationController < ActionController::API
     end
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
+  # rubocop:enable Metrics/BlockLength
 
   def set_uuid_tags
     Thread.current['request_id'] = request.uuid

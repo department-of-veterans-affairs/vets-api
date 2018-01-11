@@ -23,6 +23,7 @@ module PdfFill
         'salary' => 'GROSS WAGES AND SALARY',
         'interest' => 'TOTAL DIVIDENDS AND INTEREST'
       }.freeze
+      # rubocop:disable Metrics/BlockLength
       # rubocop:disable Metrics/LineLength
       KEY = lambda do
         key = {
@@ -534,6 +535,7 @@ module PdfFill
         key
       end.call.freeze
       # rubocop:enable Metrics/LineLength
+      # rubocop:enable Metrics/BlockLength
 
       def expand_pow_date_range(pow_date_range)
         expand_checkbox(pow_date_range.present?, 'PowDateRange')

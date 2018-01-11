@@ -1,92 +1,97 @@
-AllCops:
-  # Priot to upgrading to Rails 5.0 we can change this, but right now it will break too many things
-  TargetRailsVersion: 4.0
-  TargetRubyVersion: 2.3
-  Include:
-    - '**/Gemfile'
-    - '**/config.ru'
-    - '**/Rakefile'
-    - '**/*.rake'
-  Exclude:
-    - db/schema.rb
-    - db/seeds.rb
-    - db/migrate/*.rb
-    - 'script/**/*'
-    - 'vendor/**/*'
+  AllCops:
+    # Priot to upgrading to Rails 5.0 we can change this, but right now it will break too many things
+    TargetRailsVersion: 4.0
+    TargetRubyVersion: 2.3
+    Include:
+      - '**/Gemfile'
+      - '**/config.ru'
+      - '**/Rakefile'
+      - '**/*.rake'
+    Exclude:
+      - db/schema.rb
+      - db/seeds.rb
+      - db/migrate/*.rb
+      - 'script/**/*'
+      - 'vendor/**/*'
 
-# This allows you to use have writers like self.method_name(name) vs self.method_name=(name)
-Style/TrivialAccessors:
-  AllowDSLWriters: true
+  # This allows you to use have writers like self.method_name(name) vs self.method_name=(name)
+  Style/TrivialAccessors:
+    AllowDSLWriters: true
 
-# This is the rubocop default but putting it here explicitly
-# strong benefit for code readability and speed in reviewing PRs for code review
-# only use double quote when doing interpolation or complex escape sequences
-Style/StringLiterals:
-  EnforcedStyle: single_quotes
+  # This is the rubocop default but putting it here explicitly
+  # strong benefit for code readability and speed in reviewing PRs for code review
+  # only use double quote when doing interpolation or complex escape sequences
+  Style/StringLiterals:
+    EnforcedStyle: single_quotes
 
-Style/Documentation:
-  Enabled: false
+  Style/Documentation:
+    Enabled: false
 
-Style/ClassAndModuleChildren:
-  Enabled: false
+  Style/ClassAndModuleChildren:
+    Enabled: false
 
-# This cop forces you to put a return at the beginning of a block of code rather than having an if statement
-# whose body carries to the end of the function. For example:
-#
-# def foo
-#   ...
-#   if test
-#     ...
-#   end
-# end
-#
-# would be considered bad, and the cop would force you to put a `return if !test` before that block and
-# then remove the if. The problem is that this hides intent, since the if test does have a purpose in
-# readability, and it could also be easier for future changes to miss the return statement and add code
-# after it expecting it to be executed.
-Style/GuardClause:
-  Enabled: false
+  # This cop forces you to put a return at the beginning of a block of code rather than having an if statement
+  # whose body carries to the end of the function. For example:
+  #
+  # def foo
+  #   ...
+  #   if test
+  #     ...
+  #   end
+  # end
+  #
+  # would be considered bad, and the cop would force you to put a `return if !test` before that block and
+  # then remove the if. The problem is that this hides intent, since the if test does have a purpose in
+  # readability, and it could also be easier for future changes to miss the return statement and add code
+  # after it expecting it to be executed.
+  Style/GuardClause:
+    Enabled: false
 
-# This is pretty much the same thing as the one above. Inside a loop, it forces you to use next to skip
-# iteration rather than using an if block that runs to the end of the loop, and it suffers from the same
-# problems as above.
-Style/Next:
-  Enabled: false
+  # This is pretty much the same thing as the one above. Inside a loop, it forces you to use next to skip
+  # iteration rather than using an if block that runs to the end of the loop, and it suffers from the same
+  # problems as above.
+  Style/Next:
+    Enabled: false
 
-# This forces you to replace things like: `[1, 2, 3].length == 0` with `[1,2,3].empty?`. The problem is that
-# not all things that implement length also implement empty? so you will get errors that cannot be resolved,
-# and the cop will encourage you to do things that are incorrect.
-Style/ZeroLengthPredicate:
-  Enabled: false
+  # This forces you to replace things like: `[1, 2, 3].length == 0` with `[1,2,3].empty?`. The problem is that
+  # not all things that implement length also implement empty? so you will get errors that cannot be resolved,
+  # and the cop will encourage you to do things that are incorrect.
+  Style/ZeroLengthPredicate:
+    Enabled: false
 
-Metrics/LineLength:
-  Max: 120
+  Metrics/LineLength:
+    Max: 120
 
-Rails:
-  Enabled: true
+  Rails:
+    Enabled: true
 
-Rails/Output:
-  Exclude:
-    - 'lib/tasks/**/*'
+  Rails/Output:
+    Exclude:
+      - 'lib/tasks/**/*'
 
-Metrics/MethodLength:
-  Max: 20
+  Metrics/MethodLength:
+    Max: 20
 
-Metrics/ClassLength:
-  Max: 400
+  Metrics/ClassLength:
+    Max: 400
 
-Metrics/AbcSize:
-  Max: 40
+  Metrics/AbcSize:
+    Max: 40
 
-# removing rule because get_session implies HTTP GET, and informs method
-Naming/AccessorMethodName:
-  Enabled: false
+  # removing rule because get_session implies HTTP GET, and informs method
+  Naming/AccessorMethodName:
+    Enabled: false
 
-# removing block length rule for rspec DSL
-Metrics/BlockLength:
-  ExcludedMethods: ['describe', 'context', 'it', 'let']
+  # removing block length rule for rspec DSL
+  Metrics/BlockLength:
+    Exclude:
+      - 'spec/**/*.rb'
+      - 'rakelib/**/*.rake'
+      - 'config/**/*.rb'
+      - 'app/swagger/**/*.rb'
+      - 'app/controllers/v0/apidocs_controller.rb'
 
-# Don't worry about ambiguous blocks in RSpec
-Lint/AmbiguousBlockAssociation:
-  Exclude:
-    - "spec/**/*"
+  # Don't worry about ambiguous blocks in RSpec
+  Lint/AmbiguousBlockAssociation:
+    Exclude:
+      - "spec/**/*"
