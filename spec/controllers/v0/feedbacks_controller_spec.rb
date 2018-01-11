@@ -10,7 +10,7 @@ RSpec.describe V0::FeedbacksController, type: :controller do
       owner_email: 'example@email.com'
     }
   end
-  let(:missing_params) { params.select { |k, _v| k != :target_page } }
+  let(:missing_params) { params.reject { |k, _v| k == :target_page } }
   let(:empty_params) { params.merge(description: '') }
 
   before do
