@@ -85,3 +85,8 @@ Naming/AccessorMethodName:
 # removing block length rule for rspec DSL
 Metrics/BlockLength:
   ExcludedMethods: ['describe', 'context', 'it', 'let']
+
+# Don't worry about ambiguous blocks in RSpec
+Lint/AmbiguousBlockAssociation:
+  Exclude:
+    - "spec/**/*"
