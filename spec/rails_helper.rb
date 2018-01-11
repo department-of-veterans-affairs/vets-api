@@ -86,7 +86,7 @@ Shrine.storages = {
   store: Shrine::Storage::Memory.new
 }
 
-CarrierWave.root = "#{Rails.root}/spec/support/uploads/"
+CarrierWave.root = Rails.root.join('spec', 'support', 'uploads')
 
 FactoryBot::SyntaxRunner.class_eval do
   include RSpec::Mocks::ExampleMethods
@@ -94,7 +94,7 @@ end
 
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
-  config.fixture_path = "#{::Rails.root}/spec/fixtures"
+  config.fixture_path = Rails.root.join('spec', 'fixtures')
 
   config.include(ValidationHelpers, type: :model)
   %i[controller model].each do |type|
@@ -152,7 +152,7 @@ RSpec.configure do |config|
   # https://github.com/carrierwaveuploader/carrierwave/wiki/How-to:-Cleanup-after-your-Rspec-tests
   config.after(:all) do
     if Rails.env.test?
-      FileUtils.rm_rf(Dir["#{Rails.root}/spec/support/uploads"])
+      FileUtils.rm_rf(Dir[Rails.root.join('spec', 'support', 'uploads')])
     end
   end
 end
