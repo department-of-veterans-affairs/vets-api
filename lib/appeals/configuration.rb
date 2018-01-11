@@ -6,15 +6,14 @@ require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/raise_error'
 require 'common/client/middleware/response/snakecase'
 
-module AppealsStatus
-  # Configuration class used to setup the environment used by client
+module Appeals
   class Configuration < Common::Client::Configuration::REST
     def app_token
       Settings.appeals_status.app_token
     end
 
     def base_path
-      "#{Settings.appeals_status.host}/api/v2/appeals"
+      "#{Settings.appeals.host}/api/v2/appeals"
     end
 
     def service_name
@@ -25,12 +24,13 @@ module AppealsStatus
       Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: { verify: false }) do |conn|
         conn.use :breakers
         conn.request :json
-        conn.response :snakecase
         conn.response :raise_error, error_prefix: service_name
-        conn.response :caseflow_errors
-        conn.response :json_parser
         conn.adapter Faraday.default_adapter
       end
+    end
+
+    def mock_enabled?
+      Settings.appeals_status.mock
     end
   end
 end
