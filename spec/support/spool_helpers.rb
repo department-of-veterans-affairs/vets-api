@@ -33,5 +33,6 @@ module SpoolHelpers
         end
       end
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end
