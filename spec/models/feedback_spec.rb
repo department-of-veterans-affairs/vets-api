@@ -10,7 +10,7 @@ RSpec.describe Feedback, type: :model do
   end
 
   it 'requires target_page' do
-    feedback = Feedback.new(description: 'i like this page'.dup)
+    feedback = Feedback.new(description: +'i like this page')
     expect(feedback).to be_invalid
     expect(feedback.errors).to include(:target_page)
   end
@@ -19,7 +19,7 @@ RSpec.describe Feedback, type: :model do
     context 'with sensitive data in the description' do
       subject(:feedback) do
         described_class.new(
-          description: 'I am joe@vet.com, with ssn 999-33-4445, thanks.'.dup,
+          description: +'I am joe@vet.com, with ssn 999-33-4445, thanks.',
           email: 'joe@vet.com',
           target_page: '/users'
         )
