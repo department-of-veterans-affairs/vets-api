@@ -66,19 +66,19 @@ module Common
       end
 
       def get(path, params, headers = base_headers, &block)
-        request(:get, path, params, headers)
+        request(:get, path, params, headers, &block)
       end
 
       def post(path, params, headers = base_headers, &block)
-        request(:post, path, params, headers)
+        request(:post, path, params, headers, &block)
       end
 
       def put(path, params, headers = base_headers, &block)
-        request(:put, path, params, headers)
+        request(:put, path, params, headers, &block)
       end
 
       def delete(path, params, headers = base_headers, &block)
-        request(:delete, path, params, headers)
+        request(:delete, path, params, headers, &block)
       end
 
       def raise_not_authenticated
