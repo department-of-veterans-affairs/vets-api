@@ -67,6 +67,7 @@ gem 'zero_downtime_migrations'
 
 group :development do
   gem 'guard-rubocop'
+  gem 'socksify'
   gem 'spring', platforms: :ruby # Spring speeds up development by keeping your application running in the background
   gem 'spring-commands-rspec'
 
@@ -116,10 +117,10 @@ group :development, :test do
   gem 'webmock'
 end
 
-group :production do
-  # sidekiq enterprise edition
-  source "https://enterprise.contribsys.com/" do
-    gem 'sidekiq-pro'
-    gem 'sidekiq-ent'
-  end
-end
+# group :production do
+#   # sidekiq enterprise edition
+#   source "https://enterprise.contribsys.com/" do
+#     gem 'sidekiq-pro'
+#     gem 'sidekiq-ent'
+#   end
+# end

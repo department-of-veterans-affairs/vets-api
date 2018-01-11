@@ -1,19 +1,17 @@
 # frozen_string_literal: true
+require 'evss/jwt'
+
 module EVSS
   module ReferenceData
     class Service < EVSS::Service
       configuration EVSS::ReferenceData::Configuration
 
       def get_countries
+        raw_response = nil
         with_monitoring do
           raw_response = perform(:get, 'countries')
-          if raw_response.status == 200
-            return response&.body.dig('countries')
-          else
-            # bad! TODO: implement
-            puts 'Bill wuz here'
-          end
         end
+        raw_response&.body&.dig('countries') || []
       end
 
       def get_disabilities
@@ -31,6 +29,15 @@ module EVSS
       def get_treatment_centers
         # TODO: recommend this be a GET not POST
         raw_response = perform(:post, 'treatmentcenters')
+      end
+
+      private
+
+      # overrides EVSS::Service#headers_for_user
+      def headers_for_user(user)
+        {
+          Authorization: "Bearer #{EVSS::Jwt.new(user).encode}"
+        }.to_h
       end
     end
   end

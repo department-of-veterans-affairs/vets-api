@@ -4,7 +4,8 @@ module V0
   class ReferenceDataController < ApplicationController
     def countries
       # TODO: implement
-      render json: service.get_countries
+      countries = service.get_countries
+      render json: countries
     end
 
     def intake_sites
@@ -26,7 +27,7 @@ module V0
     private
 
     def service
-      @service ||= EVSS::ReferenceData::Service.new(EVSS::Jwt.new(@current_user).encode)
+      @service ||= EVSS::ReferenceData::Service.new(@current_user)
     end
   end
 end
