@@ -7,7 +7,7 @@ module SM
       class SMParser < Faraday::Response::Middleware
         def on_complete(env)
           return unless env.response_headers['content-type'] =~ /\bjson/
-          env[:body] = parse(env.body) unless env.body.blank?
+          env[:body] = parse(env.body) if env.body.present?
         end
 
         def parse(body = nil)
@@ -70,7 +70,7 @@ module SM
         end
 
         def fix_attachments(message_json)
-          return message_json.except(:attachments) unless message_json[:attachments].present?
+          return message_json.except(:attachments) if message_json[:attachments].blank?
           message_id = message_json[:id]
           attachments = Array.wrap(message_json[:attachments])
           # remove the outermost object name for attachment and inject message_id

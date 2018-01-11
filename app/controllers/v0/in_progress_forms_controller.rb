@@ -30,7 +30,7 @@ module V0
 
     def destroy
       form = InProgressForm.form_for_user(params[:id], @current_user)
-      raise Common::Exceptions::RecordNotFound, params[:id] unless form.present?
+      raise Common::Exceptions::RecordNotFound, params[:id] if form.blank?
       form.destroy
       render json: form
     end

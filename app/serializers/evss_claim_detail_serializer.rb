@@ -132,7 +132,7 @@ class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
 
   def date_or_nil_from(obj, key, format: '%m/%d/%Y')
     date = obj[key]
-    return nil unless date.present?
+    return nil if date.blank?
     Date.strptime(date.to_s, format)
   end
 

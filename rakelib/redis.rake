@@ -103,7 +103,7 @@ namespace :redis do
         begin
           resp = Oj.load(redis.get(key))[:response]
           count += 1
-          mhvu = !resp.profile.mhv_ids.blank?
+          mhvu = resp.profile.mhv_ids.present?
           patient = patient?(resp.profile.vha_facility_ids)
           mhv_users += 1 if mhvu
           vha_patients += 1 if patient

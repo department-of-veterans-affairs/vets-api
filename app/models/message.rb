@@ -59,7 +59,7 @@ class Message < Common::Base
   private
 
   def total_upload_size
-    return 0 unless uploads.present?
+    return 0 if uploads.blank?
     uploads.sum(&:size)
   end
 

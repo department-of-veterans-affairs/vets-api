@@ -10,7 +10,7 @@ module Rx
           return unless env.body.is_a? Hash
 
           station_list = env.body.try(:[], :metadata).try(:[], :failed_station_list)
-          return unless station_list.present?
+          return if station_list.blank?
 
           message = "Warning: prescription failed station list is not empty, '#{station_list}'"
           log_message_to_sentry(message, :warn)

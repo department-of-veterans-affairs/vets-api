@@ -59,7 +59,7 @@ module Facilities
 
     def require_keys(record, required_keys)
       diff = required_keys - record.keys
-      raise AccessDataError, "Missing expected keys: #{diff}" unless diff.blank?
+      raise AccessDataError, "Missing expected keys: #{diff}" if diff.present?
     end
 
     def parse_satisfaction_data(records)
