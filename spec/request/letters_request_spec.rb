@@ -222,7 +222,7 @@ RSpec.describe 'letters', type: :request do
           get '/v0/letters', nil, auth_header
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('letters_errors')
-          expect(JSON.load(response.body)).to have_deep_attributes(
+          expect(JSON.parse(response.body)).to have_deep_attributes(
             'errors' => [
               {
                 'title' => 'Proxy error',
@@ -252,7 +252,7 @@ RSpec.describe 'letters', type: :request do
           get '/v0/letters', nil, auth_header
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('letters_errors')
-          expect(JSON.load(response.body)).to have_deep_attributes(
+          expect(JSON.parse(response.body)).to have_deep_attributes(
             'errors' => [
               {
                 'title' => 'Proxy error',
@@ -285,7 +285,7 @@ RSpec.describe 'letters', type: :request do
     it 'should return a not found response' do
       get '/v0/letters', nil, auth_header
       expect(response).to have_http_status(:gateway_timeout)
-      expect(JSON.load(response.body)).to have_deep_attributes(
+      expect(JSON.parse(response.body)).to have_deep_attributes(
         'errors' => [
           {
             'title' => 'Gateway timeout',

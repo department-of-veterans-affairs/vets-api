@@ -33,7 +33,7 @@ describe HCA::Service do
         it "properly formats #{form} for transmission" do
           allow_any_instance_of(Mvi).to receive(:icn).and_return('1000123456V123456')
           service = form =~ /authenticated/ ? described_class.new(current_user) : described_class.new
-          json = JSON.load(root.join("#{form}.json"))
+          json = JSON.parse(open(root.join("#{form}.json")).read)
           expect(json).to match_vets_schema('10-10EZ')
           xml = File.read(root.join("#{form}.xml"))
           expect(service).to receive(:post_submission) do |arg|
