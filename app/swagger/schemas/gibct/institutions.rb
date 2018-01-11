@@ -7,10 +7,11 @@ module Swagger
         include Swagger::Blocks
 
         STATES = %i[
-ak al ar as az ca co ct dc de fl fm ga gu hi ia
-id il in ks ky la ma md me mh mi mn mo mp ms mt
-nc nd ne nh nj nm nv ny oh ok or pa pr pw ri sc
-sd tn tx ut va vi vt wa wi wv wy].freeze
+          ak al ar as az ca co ct dc de fl fm ga gu hi ia
+          id il in ks ky la ma md me mh mi mn mo mp ms mt
+          nc nd ne nh nj nm nv ny oh ok or pa pr pw ri sc
+          sd tn tx ut va vi vt wa wi wv wy
+        ].freeze
 
         swagger_schema :GibctInstitutionsAutocomplete do
           key :required, %i[data meta links]
@@ -163,9 +164,10 @@ sd tn tx ut va vi vt wa wi wv wy].freeze
           property :count, type: :integer
           property :facets, type: :object do
             key :required, %i[
-category type state country student_vet_group
-yellow_ribbon_scholarship principles_of_excellence
-eight_keys_to_veteran_success]
+              category type state country student_vet_group
+              yellow_ribbon_scholarship principles_of_excellence
+              eight_keys_to_veteran_success
+            ]
 
             property :category, type: :object do
               key :required, %i[school employer]
@@ -229,9 +231,10 @@ eight_keys_to_veteran_success]
 
         swagger_schema :GibctInstitutionBase do
           key :required, %i[
-name facility_code type city state zip country highest_degree locale_type
-student_count caution_flag caution_flag_reason created_at updated_at bah
-tuition_in_state tuition_out_of_state books student_veteran yr poe eight_keys]
+            name facility_code type city state zip country highest_degree locale_type
+            student_count caution_flag caution_flag_reason created_at updated_at bah
+            tuition_in_state tuition_out_of_state books student_veteran yr poe eight_keys
+          ]
           property :name, type: :string
           property :facility_code, type: :string
           property :city, type: %i[null string]

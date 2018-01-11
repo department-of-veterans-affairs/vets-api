@@ -21,8 +21,9 @@ RSpec.describe Preneeds::Applicant do
     it 'produces an ordered hash' do
       expect(subject.as_eoas.keys).to eq(
         %i[
-applicantEmail applicantPhoneNumber applicantRelationshipToClaimant
-completingReason mailingAddress name]
+          applicantEmail applicantPhoneNumber applicantRelationshipToClaimant
+          completingReason mailingAddress name
+        ]
       )
     end
   end

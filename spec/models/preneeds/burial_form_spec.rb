@@ -26,9 +26,10 @@ RSpec.describe Preneeds::BurialForm do
     it 'produces an ordered hash' do
       expect(subject.as_eoas.keys).to eq(
         %i[
-applicant applicationStatus attachments claimant currentlyBuriedPersons
-hasAttachments hasCurrentlyBuried sendingApplication sendingCode
-sentTime trackingNumber veteran]
+          applicant applicationStatus attachments claimant currentlyBuriedPersons
+          hasAttachments hasCurrentlyBuried sendingApplication sendingCode
+          sentTime trackingNumber veteran
+        ]
       )
     end
 

@@ -8,7 +8,8 @@ RSpec.describe EducationForm::Forms::VA1995 do
   subject { described_class.new(education_benefits_claim) }
 
   SAMPLE_APPLICATIONS = %i[
-minimal kitchen_sink].freeze
+    minimal kitchen_sink
+  ].freeze
 
   # For each sample application we have, format it and compare it against a 'known good'
   # copy of that submission. This technically covers all the helper logic found in the
