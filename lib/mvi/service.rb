@@ -29,6 +29,7 @@ module MVI
     # @param user [User] the user to query MVI for
     # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
     def find_profile(user)
+      find_profile_with_body(create_profile_message(user))
       raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
       MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
     rescue Faraday::ConnectionFailed => e
@@ -46,7 +47,39 @@ module MVI
       end
     end
 
+
+
+    def find_profile_from_attributes(mvi_profile)
+      given_names = [user.first_name]
+      given_names.push user.middle_name unless user.middle_name.nil?
+      MVI::Messages::FindProfileMessage.new(
+        given_names,
+        user.last_name,
+        user.birth_date,
+        user.ssn,
+        user.gender
+      ).to_xml
+    end
+
     private
+
+    def find_profile_with_body(body, user = nil)
+      raw_response = perform(:post, '', body, soapaction: OPERATIONS[:find_profile])
+      MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
+    rescue Faraday::ConnectionFailed => e
+      log_message_to_sentry("MVI find_profile connection failed: #{e.message}", :error)
+      MVI::Responses::FindProfileResponse.with_server_error
+    rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
+      log_message_to_sentry("MVI find_profile error: #{e.message}", :error)
+      MVI::Responses::FindProfileResponse.with_server_error
+    rescue MVI::Errors::Base => e
+      mvi_error_handler(user, e)
+      if e.is_a?(MVI::Errors::RecordNotFound)
+        MVI::Responses::FindProfileResponse.with_not_found
+      else
+        MVI::Responses::FindProfileResponse.with_server_error
+      end
+    end
 
     # TODO: Possibly consider adding Grafana Instrumentation here too
     def mvi_error_handler(user, e)
@@ -58,7 +91,7 @@ module MVI
         # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
         # log_message_to_sentry('MVI Record Not Found', :warn, user_context(user))
       when MVI::Errors::InvalidRequestError
-        if user.mhv_icn.present?
+        if user&.mhv_icn.present?
           log_message_to_sentry('MVI Invalid Request (Possible RecordNotFound)', :error, user_context(user))
         else
           log_message_to_sentry('MVI Invalid Request', :error, user_context(user))

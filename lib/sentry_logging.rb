@@ -26,6 +26,8 @@ module SentryLogging
 
   # Use this method for extra_context when needed
   def user_context(user)
+    return {} if user.blank?
+
     {
       uuid: user.uuid,
       authn_context: user.authn_context,
