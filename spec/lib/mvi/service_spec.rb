@@ -21,7 +21,7 @@ describe MVI::Service do
   end
 
   describe '#find_profile_from_mvi_profile' do
-    it 'should find a profile from a mvi profile' do
+    it 'should find a profile from a mvi profile', run_at: 'Fri, 12 Jan 2018 23:04:42 GMT' do
       mvi_profile = build(
         :mvi_profile,
         given_names: ['Wesley', 'Watson'],
@@ -30,9 +30,11 @@ describe MVI::Service do
         ssn: '796043735',
         gender: 'M'
       )
+      allow(SecureRandom).to receive(:uuid).and_return('8c7e1f69-f9f1-4afb-bc67-a68e0c259a33')
 
-      VCR.use_cassette('mvi/find_candidate/with_historical_icns', record: :once) do
+      VCR.use_cassette('mvi/find_candidate/find_profile_from_mvi_profile', VCR::MATCH_EVERYTHING) do
         response = described_class.new.find_profile_from_mvi_profile(mvi_profile)
+        expect(response.profile.edipi).to eq('1007697216')
       end
     end
   end
