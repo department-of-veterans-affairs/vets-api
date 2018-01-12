@@ -29,25 +29,8 @@ module MVI
     # @param user [User] the user to query MVI for
     # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
     def find_profile(user)
-      find_profile_with_body(create_profile_message(user))
-      raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
-      MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
-    rescue Faraday::ConnectionFailed => e
-      log_message_to_sentry("MVI find_profile connection failed: #{e.message}", :error)
-      MVI::Responses::FindProfileResponse.with_server_error
-    rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
-      log_message_to_sentry("MVI find_profile error: #{e.message}", :error)
-      MVI::Responses::FindProfileResponse.with_server_error
-    rescue MVI::Errors::Base => e
-      mvi_error_handler(user, e)
-      if e.is_a?(MVI::Errors::RecordNotFound)
-        MVI::Responses::FindProfileResponse.with_not_found
-      else
-        MVI::Responses::FindProfileResponse.with_server_error
-      end
+      find_profile_with_body(create_profile_message(user), user)
     end
-
-
 
     def find_profile_from_attributes(mvi_profile)
       given_names = [user.first_name]
