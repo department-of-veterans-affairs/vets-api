@@ -20,6 +20,21 @@ describe MVI::Service do
     build(:mvi_profile_response, :missing_attrs, :address_austin, given_names: %w(Mitchell G), vha_facility_ids: [])
   end
 
+  describe '#find_profile_from_mvi_profile' do
+    it 'should find a profile from a mvi profile' do
+      mvi_profile = build(
+        :mvi_profile,
+        given_names: ['Wesley', 'Watson'],
+        family_name: 'Ford',
+        birth_date: Date.parse('1986-05-06'),
+        ssn: '796043735',
+        gender: 'M'
+      )
+
+      response = described_class.new.find_profile_from_mvi_profile(mvi_profile)
+    end
+  end
+
   describe '.find_profile with icn' do
     before(:each) do
       expect(MVI::Messages::FindProfileMessageIcn).to receive(:new).once.and_call_original

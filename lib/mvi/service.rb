@@ -32,7 +32,7 @@ module MVI
       find_profile_with_body(create_profile_message(user), user)
     end
 
-    def find_profile_from_attributes(mvi_profile)
+    def find_profile_from_mvi_profile(mvi_profile)
       find_profile_with_body(message_mvi_profile_attributes(mvi_profile))
     end
 
