@@ -11,24 +11,40 @@ module EVSS
         with_monitoring do
           raw_response = perform(:get, 'countries')
         end
-        raw_response&.body&.dig('countries') || []
+        EVSS::PCIUAddress::CountriesResponse.new(raw_response.status, raw_response)
       end
 
       def get_disabilities
-        raw_response = perform(:get, 'disabilities')
+        raw_response = nil
+        with_monitoring do
+          raw_response = perform(:get, 'disabilities')
+          byebug
+        end
+        EVSS::ReferenceData::DisabilitiesResponse.new(raw_response.status, raw_response)
       end
 
       def get_intake_sites
-        raw_response = perform(:get, 'intakesites')
+        raw_response = nil
+        with_monitoring do
+          raw_response = perform(:get, 'intakesites')
+        end
+        EVSS::ReferenceData::IntakeSitesResponse.new(raw_response.status, raw_response)
       end
 
       def get_states
-        raw_response = perform(:get, 'states')
+        raw_response = nil
+        #with_monitoring do
+          raw_response = perform(:get, 'states')
+        #end
+        EVSS::PCIUAddress::StatesResponse.new(raw_response.status, raw_response)
       end
 
-      def get_treatment_centers
-        # TODO: recommend this be a GET not POST
-        raw_response = perform(:post, 'treatmentcenters')
+      def get_treatment_centers(state)
+        raw_response = nil
+        with_monitoring do
+          raw_response = perform(:get, "treatmentcenters/#{state}")
+        end
+        EVSS::ReferenceData::TreatmentCentersResponse.new(raw_response.status, raw_response)
       end
 
       private

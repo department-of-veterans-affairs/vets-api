@@ -21,11 +21,11 @@ Rails.application.routes.draw do
 
     resources :reference_data, only: [] do
       collection do
-        get 'countries',         to: 'reference_data#countries'
-        get 'intake_sites',      to: 'reference_data#intake_sites'
-        get 'states',            to: 'reference_data#states'
-        get 'disabilities',      to: 'reference_data#disabilities'
-        get 'treatment_centers', to: 'reference_data#treatment_centers'
+        get 'countries',                to: 'reference_data#countries'
+        get 'intake_sites',             to: 'reference_data#intake_sites'
+        get 'states',                   to: 'reference_data#states'
+        get 'disabilities',             to: 'reference_data#disabilities'
+        get 'treatment_centers/:state', to: 'reference_data#treatment_centers'
       end
     end
 

@@ -4,24 +4,34 @@ module V0
   class ReferenceDataController < ApplicationController
     def countries
       # TODO: implement
-      countries = service.get_countries
-      render json: countries
+      countries_response = service.get_countries
+      render json: countries_response,
+             serializer: CountriesSerializer
     end
 
     def intake_sites
-      # TODO: implement
+      intake_sites_response = service.get_intake_sites
+      render json: intake_sites_response,
+             serializer: IntakeSitesSerializer
     end
 
     def states
-      # TODO: implement
+      states_response = service.get_states
+      render json: states_response,
+             serializer: StatesSerializer
     end
 
     def disabilities
-      # TODO: implement
+      disabilities_response = service.get_disabilities
+      render json: disabilities_response,
+             serializer: DisabilitiesSerializer
     end
 
     def treatment_centers
-      # TODO: implement
+      state = params[:state].upcase
+      treatment_centers_response = service.get_treatment_centers(state)
+      render json: treatment_centers_response,
+             serializer: TreatmentCentersSerializer
     end
 
     private
