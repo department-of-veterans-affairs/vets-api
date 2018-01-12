@@ -23,4 +23,14 @@ module SentryLogging
   def non_nil_hash?(h)
     h.is_a?(Hash) && !h.empty?
   end
+
+  # Use this method for extra_context when needed
+  def user_context(user)
+    {
+      uuid: user.uuid,
+      authn_context: user.authn_context,
+      loa: user.loa,
+      mhv_icn: user.mhv_icn
+    }
+  end
 end
