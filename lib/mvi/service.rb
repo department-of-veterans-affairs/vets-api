@@ -33,15 +33,7 @@ module MVI
     end
 
     def find_profile_from_attributes(mvi_profile)
-      given_names = [user.first_name]
-      given_names.push user.middle_name unless user.middle_name.nil?
-      MVI::Messages::FindProfileMessage.new(
-        given_names,
-        user.last_name,
-        user.birth_date,
-        user.ssn,
-        user.gender
-      ).to_xml
+      find_profile_with_body(message_mvi_profile_attributes(mvi_profile))
     end
 
     private
