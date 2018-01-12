@@ -31,7 +31,9 @@ describe MVI::Service do
         gender: 'M'
       )
 
-      response = described_class.new.find_profile_from_mvi_profile(mvi_profile)
+      VCR.use_cassette('mvi/find_candidate/with_historical_icns', record: :once) do
+        response = described_class.new.find_profile_from_mvi_profile(mvi_profile)
+      end
     end
   end
 
