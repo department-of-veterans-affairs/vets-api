@@ -76,3 +76,7 @@ Metrics/AbcSize:
 # removing rule because get_session implies HTTP GET, and informs method
 Style/AccessorMethodName:
   Enabled: false
+
+Lint/RescueException:
+  Exclude:
+    - 'app/workers/github/create_issue_job.rb'
