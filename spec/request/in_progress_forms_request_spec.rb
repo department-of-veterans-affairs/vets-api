@@ -14,6 +14,9 @@ RSpec.describe V0::InProgressFormsController, type: :request do
     before do
       Session.create(uuid: user.uuid, token: token)
       User.create(user)
+
+      enabled_forms = FormProfile.prefill_enabled_forms << 'FAKEFORM'
+      allow(FormProfile).to receive(:prefill_enabled_forms).and_return(enabled_forms)
       allow(FormProfile).to receive(:load_form_mapping).with('FAKEFORM').and_return(
         'veteran_full_name' => %w(identity_information full_name),
         'gender' => %w(identity_information gender),
