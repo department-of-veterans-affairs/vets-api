@@ -93,7 +93,7 @@ module MVI
         mvi_profile.birth_date,
         mvi_profile.ssn,
         mvi_profile.gender
-      ).to_xml
+      ).to_xml(historical_icns: true)
     end
 
     def message_user_attributes(user)
