@@ -26,7 +26,7 @@ describe MVI::Service do
         :mvi_profile,
         given_names: ['Wesley', 'Watson'],
         family_name: 'Ford',
-        birth_date: Date.parse('1986-05-06'),
+        birth_date: '1986-05-06',
         ssn: '796043735',
         gender: 'M'
       )
