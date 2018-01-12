@@ -94,6 +94,16 @@ module MVI
       MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml
     end
 
+    def message_mvi_profile_attributes(mvi_profile)
+      MVI::Messages::FindProfileMessage.new(
+        mvi_profile.given_names,
+        mvi_profile.family_name,
+        mvi_profile.birth_date,
+        mvi_profile.ssn,
+        mvi_profile.gender
+      ).to_xml
+    end
+
     def message_user_attributes(user)
       given_names = [user.first_name]
       given_names.push user.middle_name unless user.middle_name.nil?
