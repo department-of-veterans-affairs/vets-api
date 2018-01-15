@@ -23,7 +23,6 @@ describe Common::Client::Middleware::Request::RemoveCookies do
     let!(:server_thread) do
       Thread.new do
         server = WEBrick::HTTPServer.new(
-          Logger: WEBrick::Log.new(File.open(File::NULL, 'w')),
           Port: TestConfiguration.instance.port
         )
 
