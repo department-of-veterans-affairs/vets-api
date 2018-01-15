@@ -3,7 +3,6 @@
 module V0
   class ReferenceDataController < ApplicationController
     def countries
-      # TODO: implement
       countries_response = service.get_countries
       render json: countries_response,
              serializer: CountriesSerializer

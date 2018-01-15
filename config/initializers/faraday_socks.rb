@@ -2,7 +2,7 @@
 # Monkey-patch Faraday to support SOCKS proxy so we can use
 # aws jumpbox / EVSS AWS service
 # source - https://stackoverflow.com/a/36534327
-if Rails.env.development?
+if Rails.env.development? || Rails.env.test?
   class Faraday::Adapter::NetHttp
     def net_http_connection(env)
       proxy = env[:request][:proxy]

@@ -18,7 +18,6 @@ module EVSS
         raw_response = nil
         with_monitoring do
           raw_response = perform(:get, 'disabilities')
-          byebug
         end
         EVSS::ReferenceData::DisabilitiesResponse.new(raw_response.status, raw_response)
       end
@@ -53,7 +52,7 @@ module EVSS
       def headers_for_user(user)
         {
           Authorization: "Bearer #{EVSS::Jwt.new(user).encode}"
-        }.to_h
+        }
       end
     end
   end

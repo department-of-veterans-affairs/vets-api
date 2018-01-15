@@ -39,7 +39,7 @@ module EVSS
       end
 
       def connection
-        req_options = Rails.env.development? ? request_options.merge(PROXY_OPTS) : request_options
+        req_options = (Rails.env.test? || Rails.env.development?) ? request_options.merge(PROXY_OPTS) : request_options
         @conn ||= Faraday.new(base_path, request: req_options, ssl: ssl_options) do |faraday|
           faraday.use      :breakers
           faraday.use      EVSS::ErrorMiddleware
