@@ -457,7 +457,7 @@ module PdfFill
               key: "#{acct_type}.recipient[#{ITERATOR}]"
             }
           }
-          key[acct_type].each do |_, v|
+          key[acct_type].each_value do |v|
             v[:question_num] = question_num if v.is_a?(Hash)
           end
 
@@ -527,7 +527,7 @@ module PdfFill
             }
           }
 
-          key[sub_key].each do |_, v|
+          key[sub_key].each_value do |v|
             v[:question_num] = question_num if v.is_a?(Hash)
           end
         end
@@ -744,7 +744,7 @@ module PdfFill
 
       def expand_financial_accts(definition)
         financial_accts = {}
-        VetsJsonSchema::SCHEMAS['21P-527EZ']['definitions'][definition]['properties'].keys.each do |acct_type|
+        VetsJsonSchema::SCHEMAS['21P-527EZ']['definitions'][definition]['properties'].each_key do |acct_type|
           financial_accts[acct_type] = []
         end
 
@@ -794,7 +794,7 @@ module PdfFill
       end
 
       def overflow_financial_accts(financial_accts, all_financial_accts)
-        all_financial_accts.each do |_, arr|
+        all_financial_accts.each_value do |arr|
           arr.each do |financial_acct|
             unless financial_accts.include?(financial_acct)
               financial_accts << financial_acct

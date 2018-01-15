@@ -51,7 +51,7 @@ module EVSS
       end
 
       def error_type
-        KNOWN_ERRORS.each do |_error_key, error_val|
+        KNOWN_ERRORS.each_value do |error_val|
           return error_val if send("#{error_val}?")
         end
 

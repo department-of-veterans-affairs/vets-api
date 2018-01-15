@@ -115,7 +115,7 @@ module EducationForm
       EducationBenefitsClaim::FORM_TYPES.each do |form_type|
         next row += ['', '', ''] if !show_individual_benefits(form_type) && !on_last_index
 
-        TOTALS_HASH.keys.each do |range_type|
+        TOTALS_HASH.each_key do |range_type|
           application_type_key = show_individual_benefits(form_type) ? application_type : :all
           num_submissions = submissions[range_type][form_type][region][application_type_key]
           row << num_submissions
@@ -156,7 +156,7 @@ module EducationForm
       row = text_rows.clone
 
       EducationBenefitsClaim::FORM_TYPES.each do |form_type|
-        TOTALS_HASH.keys.each do |range_type|
+        TOTALS_HASH.each_key do |range_type|
           row << totals[form_type][range_type]
         end
       end
