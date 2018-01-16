@@ -119,3 +119,10 @@
       - "rakelib/mvi.rake"
       - "rakelib/redis.rake"
       - "spec/request/authentication/standard_authentication.rb"
+
+  # Variable naming style apparently doesn't like: something_2, something_3
+  Naming/VariableNumber:
+    Exclude:
+      - "lib/hca/enrollment_system.rb"
+      - "spec/controllers/v0/post_911_gi_bill_statuses_controller_spec.rb"
+      - "spec/lib/preneeds/service_spec.rb"
