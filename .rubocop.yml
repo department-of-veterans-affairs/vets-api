@@ -131,3 +131,10 @@
   Style/FormatStringToken:
     Exclude:
       - "rakelib/mvi.rake"
+
+  # This cop has an improvement for false positives in Mixins in future release, Exclude for now.
+  # https://github.com/bbatsov/rubocop/issues/5448
+  Rails/LexicallyScopedActionFilter:
+    Exclude:
+      - "app/controllers/concerns/filterable.rb"
+      - "app/controllers/v0/sessions_controller.rb"
