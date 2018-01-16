@@ -138,3 +138,11 @@
     Exclude:
       - "app/controllers/concerns/filterable.rb"
       - "app/controllers/v0/sessions_controller.rb"
+
+  # Disabling this rule for now. We should consider changing.
+  Lint/BooleanSymbol:
+    Exclude:
+      - "app/swagger/schemas/gibct/institutions.rb"
+      - "spec/request/breakers_integration_spec.rb"
+      - "spec/request/statsd_middleware_spec.rb"
+      - "spec/support/authenticated_session_helper.rb"
