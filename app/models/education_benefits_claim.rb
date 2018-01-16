@@ -110,6 +110,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
     when '1990'
       benefits = parsed_form.slice(*APPLICATION_TYPES)
     when '1990n'
+      return benefits
     else
       benefit = parsed_form['benefit']&.underscore
       benefits[benefit] = true if benefit.present?
