@@ -174,3 +174,17 @@
       - "lib/evss/pciu_address/states_response.rb"
       - "lib/saml/health_status.rb"
       - "lib/saml/health_status.rb"
+
+  # Skipping for now, should revisit:
+  Rails/HasManyOrHasOneDependent:
+    Exclude:
+      - "app/models/education_benefits_claim.rb"
+      - "app/models/saved_claim/education_benefits.rb"
+      - "app/models/saved_claim.rb"
+      - "app/models/terms_and_conditions.rb"
+
+  # Skipping for now, should revisit:
+  Rails/SkipsModelValidations:
+    Exclude:
+      - "app/workers/education_form/create_daily_spool_files.rb"
+      - "app/models/saved_claim.rb"
