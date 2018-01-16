@@ -71,11 +71,11 @@ module V0
       message_params[:id] = message_params.delete(:draft_id) if message_params[:draft_id].present?
       create_message_params = { message: message_params }.merge(upload_params)
 
-      if message.uploads.present?
-        client_response = client.post_create_message_reply_with_attachment(params[:id], create_message_params)
+      client_response = if message.uploads.present?
+        client.post_create_message_reply_with_attachment(params[:id], create_message_params)
       else
-        client_response = client.post_create_message_reply(params[:id], message_params)
-      end
+        client.post_create_message_reply(params[:id], message_params)
+                        end
 
       render json: client_response,
              serializer: MessageSerializer,
