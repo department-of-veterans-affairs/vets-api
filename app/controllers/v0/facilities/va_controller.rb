@@ -11,9 +11,7 @@ class V0::Facilities::VaController < FacilitiesController
   # @param services - Optional specialty services filter
   def index
     results = []
-    if params[:bbox]
-      results = VAFacility.query(bbox: params[:bbox], type: params[:type], services: params[:services])
-    end
+    results = VAFacility.query(bbox: params[:bbox], type: params[:type], services: params[:services]) if params[:bbox]
     resource = Common::Collection.new(::VAFacility, data: results)
     resource = resource.paginate(pagination_params)
     render json: resource.data,

@@ -27,9 +27,7 @@ class ApplicationController < ActionController::API
   end
 
   def clear_saved_form(form_id)
-    if @current_user
-      InProgressForm.form_for_user(form_id, @current_user)&.destroy
-    end
+    InProgressForm.form_for_user(form_id, @current_user)&.destroy if @current_user
   end
 
   def routing_error
@@ -85,9 +83,7 @@ class ApplicationController < ActionController::API
         Common::Exceptions::InternalServerError.new(exception)
       end
 
-    if va_exception.is_a?(Common::Exceptions::Unauthorized)
-      headers['WWW-Authenticate'] = 'Token realm="Application"'
-    end
+    headers['WWW-Authenticate'] = 'Token realm="Application"' if va_exception.is_a?(Common::Exceptions::Unauthorized)
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
   # rubocop:enable Metrics/BlockLength

@@ -42,9 +42,7 @@ module HCA
       ssl = {
         verify: true
       }
-      if HCA::Configuration::CERT_STORE
-        ssl[:cert_store] = HCA::Configuration::CERT_STORE
-      end
+      ssl[:cert_store] = HCA::Configuration::CERT_STORE if HCA::Configuration::CERT_STORE
       if ssl_cert && ssl_key
         ssl[:client_cert] = ssl_cert
         ssl[:client_key] = ssl_key

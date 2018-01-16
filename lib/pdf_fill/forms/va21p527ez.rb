@@ -796,9 +796,7 @@ module PdfFill
       def overflow_financial_accts(financial_accts, all_financial_accts)
         all_financial_accts.each_value do |arr|
           arr.each do |financial_acct|
-            unless financial_accts.include?(financial_acct)
-              financial_accts << financial_acct
-            end
+            financial_accts << financial_acct unless financial_accts.include?(financial_acct)
           end
         end
       end
@@ -855,9 +853,7 @@ module PdfFill
         @form_data['hasSavings'] = account_type == 'savings'
 
         account_number = bank_account['accountNumber']
-        if account_type.present?
-          @form_data["#{account_type}AccountNumber"] = account_number
-        end
+        @form_data["#{account_type}AccountNumber"] = account_number if account_type.present?
 
         @form_data
       end
