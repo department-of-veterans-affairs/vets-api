@@ -152,8 +152,7 @@
     Exclude:
       - "lib/common/models/attribute_types/date_time_string.rb"
       - "lib/evss/auth_headers.rb"
-      - "lib/evss/pciu_address/service.rb:"
-      - "lib/workflow/task/shared/datestamp_pdf_task.rb:"
+      - "lib/evss/pciu_address/service.rb"
+      - "lib/workflow/task/shared/datestamp_pdf_task.rb"
       - "rakelib/evss.rake"
       - "rakelib/mvi.rake"
-      
