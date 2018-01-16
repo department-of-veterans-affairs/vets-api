@@ -9,8 +9,6 @@ module EMISRedis
 
     attr_accessor :user
 
-    attr_accessor :emis_response
-
     def self.for_user(user)
       redis_config_key(:emis_response)
 
