@@ -19,7 +19,7 @@ class VBAFacilityAdapter
   end
 
   def self.where_clause(services)
-    services&.map { |s| "#{SERVICES_MAP[s]}='YES'" }.join(' AND ')
+    services&.map { |s| "#{SERVICES_MAP[s]}='YES'" }&.join(' AND ')
   end
 
   def self.from_gis(record)
