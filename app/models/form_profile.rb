@@ -136,7 +136,8 @@ class FormProfile
     @military_information = initialize_military_information(user)
     mappings = self.class.mappings_for_form(form_id)
 
-    if FormProfile.prefill_enabled_forms.include?(form_id)
+    form = form_id == '1010EZ' ? '1010ez' : form_id
+    if FormProfile.prefill_enabled_forms.include?(form)
       form_data = generate_prefill(mappings)
     end
 
