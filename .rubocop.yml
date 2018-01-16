@@ -95,3 +95,27 @@
   Lint/AmbiguousBlockAssociation:
     Exclude:
       - "spec/**/*"
+
+  # TODO: REVIEW THESE AND MAKE CHANGES
+
+  # We should try to use StandardError, but some errors like timeout inherit from Exception (beware)
+  Style/RescueStandardError:
+    Exclude:
+      - "app/controllers/v0/id_card_attributes_controller.rb"
+      - "app/controllers/v0/sessions_controller.rb"
+      - "app/models/form_profile.rb"
+      - "app/models/mhv_account.rb"
+      - "app/uploaders/claim_documentation/uploader.rb"
+      - "app/workers/education_form/create_daily_spool_files.rb"
+      - "lib/common/client/configuration/soap.rb"
+      - "lib/common/exceptions/base_error.rb"
+      - "lib/github/github_service.rb"
+      - "lib/mvi/messages/find_profile_message_helpers.rb"
+      - "lib/mvi/responses/profile_parser.rb"
+      - "lib/saml/settings_service.rb"
+      - "lib/workflow/runner.rb"
+      - "lib/workflow/task/shared/datestamp_pdf_task.rb"
+      - "rakelib/connectivity.rake"
+      - "rakelib/mvi.rake"
+      - "rakelib/redis.rake"
+      - "spec/request/authentication/standard_authentication.rb"
