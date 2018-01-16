@@ -103,7 +103,8 @@ group :development, :test do
   gem 'rainbow' # Used to colorize output for rake tasks
   # TODO: switch to a version number once that version is released
   gem 'factory_bot', git: 'https://github.com/thoughtbot/factory_bot', ref: '50eeb67241ea78a6b138eea694a2a25413052f49'
-  # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to assist with debugging production issues (https://github.com/department-of-veterans-affairs/vets.gov-team/pull/6262)
+  # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
+  # assist with debugging production issues (https://github.com/department-of-veterans-affairs/vets.gov-team/pull/6262)
   gem 'faraday_curl'
   gem 'foreman'
   gem 'guard-rspec', '~> 4.7'

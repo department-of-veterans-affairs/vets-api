@@ -96,6 +96,11 @@
     Exclude:
       - "spec/**/*"
 
+  # This file does not need to be snake case
+  Naming/FileName:
+    Exclude:
+      - "Guardfile"
+
   # TODO: REVIEW THESE AND MAKE CHANGES
 
   # We should try to use StandardError, but some errors like timeout inherit from Exception (beware)
