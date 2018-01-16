@@ -28,7 +28,7 @@ module EducationForm
     end
 
     def show_individual_benefits(form_type)
-      !(form_type == '1990n')
+      form_type != '1990n'
     end
 
     def calculate_submissions(range_type: :year, status: :processed)
