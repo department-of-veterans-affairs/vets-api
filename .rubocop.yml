@@ -126,3 +126,8 @@
       - "lib/hca/enrollment_system.rb"
       - "spec/controllers/v0/post_911_gi_bill_statuses_controller_spec.rb"
       - "spec/lib/preneeds/service_spec.rb"
+
+  # All kinds of issues with this cop right now, so disabling it.
+  Style/FormatStringToken:
+    Exclude:
+      - "rakelib/mvi.rake"
