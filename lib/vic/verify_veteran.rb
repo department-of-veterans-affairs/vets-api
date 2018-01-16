@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module VIC
   module VerifyVeteran
     module_function
@@ -19,11 +20,37 @@ module VIC
     end
 
     def verify_veteran(attributes)
-      given_names = []
-      MVI::Models::MviProfile.new(
-        given_names: attributes['veteran_full_name']
-      )
-      described_class.new.find_profile_from_mvi_profile(mvi_profile)
+      mvi_profile = create_mvi_profile(attributes)
+      mvi_response_profile = MVI::Service.new.find_profile_from_mvi_profile(mvi_profile)&.profile
+      return false if mvi_response_profile.blank?
+
+      emis_opt = {}
+      mvi_response_profile.edipi ? emis_opt[:edipi] = mvi_response_profile.edipi : emis_opt[:icn] = mvi_response_profile.icn
+      return false if emis_opt.values.compact.blank?
+
+      emis_response = EMIS::VeteranStatusService.new.get_veteran_status(emis_opt)
+      raise emis_response.error if emis_response.error?
+      veteran_status = emis_response.items.first
+      return false if veteran_status.blank?
+
+      if User::ID_CARD_ALLOWED_STATUSES.include?(veteran_status.title38_status_code)
+        service_branches = EMIS::MilitaryInformationService.new.get_military_service_episodes(emis_opt).items.map(&:branch_of_service)
+        address = mvi_response_profile.address
+
+        return {
+          veteran_address: {
+            country: address.country,
+            street: address.street,
+            city: address.city,
+            state: address.state,
+            postal_code: address.postal_code
+          },
+          phone: mvi_response_profile.home_phone,
+          service_branches: service_branches
+        }
+      end
+
+      false
     end
   end
 end
