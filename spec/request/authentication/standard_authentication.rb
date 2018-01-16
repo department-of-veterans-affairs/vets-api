@@ -9,7 +9,7 @@ RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
 
   EPISODES = begin
     inbound_cassette_path = 'spec/support/vcr_cassettes/complex_interaction/internal_interactions.yml'
-    YAML.load(File.read(inbound_cassette_path))['http_interactions'].map do |interaction|
+    YAML.safe_load(File.read(inbound_cassette_path))['http_interactions'].map do |interaction|
       req = interaction['request']
       req['uri'] = URI.parse(req['uri'])
       req['recorded_at'] = Time.zone.parse(interaction['recorded_at'].to_s).to_datetime
