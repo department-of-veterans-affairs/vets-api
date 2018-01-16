@@ -146,3 +146,14 @@
       - "spec/request/breakers_integration_spec.rb"
       - "spec/request/statsd_middleware_spec.rb"
       - "spec/support/authenticated_session_helper.rb"
+
+  # Should consider enforcing this rule. Disabling for now.
+  Style/DateTime:
+    Exclude:
+      - "lib/common/models/attribute_types/date_time_string.rb"
+      - "lib/evss/auth_headers.rb"
+      - "lib/evss/pciu_address/service.rb:"
+      - "lib/workflow/task/shared/datestamp_pdf_task.rb:"
+      - "rakelib/evss.rake"
+      - "rakelib/mvi.rake"
+      
