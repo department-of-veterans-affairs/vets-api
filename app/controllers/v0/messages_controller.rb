@@ -72,9 +72,9 @@ module V0
       create_message_params = { message: message_params }.merge(upload_params)
 
       client_response = if message.uploads.present?
-        client.post_create_message_reply_with_attachment(params[:id], create_message_params)
-      else
-        client.post_create_message_reply(params[:id], message_params)
+                          client.post_create_message_reply_with_attachment(params[:id], create_message_params)
+                        else
+                          client.post_create_message_reply(params[:id], message_params)
                         end
 
       render json: client_response,
