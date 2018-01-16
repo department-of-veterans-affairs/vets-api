@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 require 'github/github_service'
+require 'sidekiq/instrument/mixin'
 
 module Github
   class CreateIssueJob
+    include Sidekiq::Instrument::MetricNames
     include Sidekiq::Worker
 
     # Rate limiter is only available in sidekiq-enterprise (which is used
@@ -30,6 +32,9 @@ module Github
         create_response = Github::GithubService.create_issue(feedback)
         FeedbackSubmissionMailer.build(feedback, create_response&.html_url, create_response&.number).deliver_now
       end
+    rescue Exception => e
+      StatsD.increment(metric_name(self, 'rate_limited')) if e.class.name == 'Sidekiq::Limiter::OverLimit'
+      raise e
     end
     # :nocov:
   end
