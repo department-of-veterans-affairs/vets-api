@@ -117,6 +117,11 @@ class User < Common::RedisStore
     loa[:current] == LOA::THREE
   end
 
+  def ssn_mismatch?
+    return false unless loa3? && identity&.ssn && va_profile&.ssn
+    identity.ssn != va_profile.ssn
+  end
+
   def can_access_user_profile?
     loa1? || loa2? || loa3?
   end

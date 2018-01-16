@@ -188,3 +188,8 @@ Rails/SkipsModelValidations:
   Exclude:
     - "app/workers/education_form/create_daily_spool_files.rb"
     - "app/models/saved_claim.rb"
+
+# Need to revisit why this is necessary:
+Lint/RescueException:
+  Exclude:
+    - 'app/workers/github/create_issue_job.rb'

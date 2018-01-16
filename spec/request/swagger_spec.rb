@@ -872,6 +872,12 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     context '#feedback' do
+      before(:all) do
+        Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.current)
+      end
+      before(:each) do
+        Rack::Attack.cache.store.flushdb
+      end
       let(:feedback_params) do
         {
           'description' => 'I liked this page',

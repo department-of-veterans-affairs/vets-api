@@ -6,6 +6,60 @@ RSpec.describe User, type: :model do
   let(:loa_one) { { current: LOA::ONE } }
   let(:loa_three) { { current: LOA::THREE } }
 
+  describe '#ssn_mismatch?', :skip_mvi do
+    let(:user) { build(:user, :loa3) }
+    let(:mvi_profile) { build(:mvi_profile, ssn: 'unmatched-ssn') }
+
+    before(:each) do
+      stub_mvi(mvi_profile)
+    end
+
+    it 'should return true if user loa3?, and ssns dont match' do
+      expect(user.ssn_mismatch?).to be_truthy
+    end
+
+    it 'should return false if user is not loa3?' do
+      allow(user).to receive(:loa3?).and_return(false)
+      expect(user.loa3?).to be_falsey
+      expect(user.identity&.ssn).to eq(user.ssn)
+      expect(user.va_profile&.ssn).to be_falsey
+      expect(user.ssn_mismatch?).to be_falsey
+    end
+
+    context 'identity ssn is nil' do
+      let(:user) { build(:user, :loa3, ssn: nil) }
+
+      it 'should return false' do
+        expect(user.loa3?).to be_truthy
+        expect(user.identity&.ssn).to be_falsey
+        expect(user.va_profile&.ssn).to be_truthy
+        expect(user.ssn_mismatch?).to be_falsey
+      end
+    end
+
+    context 'mvi ssn is nil' do
+      let(:mvi_profile) { build(:mvi_profile, ssn: nil) }
+
+      it 'should return false' do
+        expect(user.loa3?).to be_truthy
+        expect(user.identity&.ssn).to be_truthy
+        expect(user.va_profile&.ssn).to be_falsey
+        expect(user.ssn_mismatch?).to be_falsey
+      end
+    end
+
+    context 'matched ssn' do
+      let(:mvi_profile) { build(:mvi_profile, ssn: user.ssn) }
+
+      it 'should return false if user identity ssn is nil' do
+        expect(user.loa3?).to be_truthy
+        expect(user.identity&.ssn).to be_truthy
+        expect(user.va_profile&.ssn).to be_truthy
+        expect(user.ssn_mismatch?).to be_falsey
+      end
+    end
+  end
+
   describe '#can_prefill_emis?' do
     let(:user) { build(:user, :loa3) }
 

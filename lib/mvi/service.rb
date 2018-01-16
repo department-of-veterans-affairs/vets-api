@@ -6,6 +6,7 @@ require 'mvi/responses/find_profile_response'
 require 'common/client/middleware/request/soap_headers'
 require 'common/client/middleware/response/soap_parser'
 require 'mvi/errors/errors'
+require 'sentry_logging'
 
 module MVI
   # Wrapper for the MVI (Master Veteran Index) Service. vets.gov has access
@@ -32,14 +33,41 @@ module MVI
       raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
       MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
     rescue Faraday::ConnectionFailed => e
-      Rails.logger.error "MVI find_profile connection failed: #{e.message}"
+      log_message_to_sentry("MVI find_profile connection failed: #{e.message}", :error)
       MVI::Responses::FindProfileResponse.with_server_error
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
-      Rails.logger.error "MVI find_profile error: #{e.message}"
+      log_message_to_sentry("MVI find_profile error: #{e.message}", :error)
       MVI::Responses::FindProfileResponse.with_server_error
+    rescue MVI::Errors::Base => e
+      mvi_error_handler(user, e)
+      if e.is_a?(MVI::Errors::RecordNotFound)
+        MVI::Responses::FindProfileResponse.with_not_found
+      else
+        MVI::Responses::FindProfileResponse.with_server_error
+      end
     end
 
     private
+
+    # TODO: Possibly consider adding Grafana Instrumentation here too
+    def mvi_error_handler(user, e)
+      case e
+      when MVI::Errors::DuplicateRecords
+        log_message_to_sentry('MVI Duplicate Record', :warn, user_context(user))
+      when MVI::Errors::RecordNotFound
+        # Not going to log RecordNotFound
+        # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
+        # log_message_to_sentry('MVI Record Not Found', :warn, user_context(user))
+      when MVI::Errors::InvalidRequestError
+        if user.mhv_icn.present?
+          log_message_to_sentry('MVI Invalid Request (Possible RecordNotFound)', :error, user_context(user))
+        else
+          log_message_to_sentry('MVI Invalid Request', :error, user_context(user))
+        end
+      when MVI::Errors::FailedRequestError
+        log_message_to_sentry('MVI Failed Request', :error, user_context(user))
+      end
+    end
 
     def create_profile_message(user)
       return message_icn(user) if user.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
