@@ -16,7 +16,7 @@ describe Common::Collection do
 
   it 'returns a JSON string whose keys' do
     json = JSON.parse(subject.to_json)
-    expect(json.first.keys).to contain_exactly(*%w[id first_name last_name birthdate zipcode])
+    expect(json.first.keys).to contain_exactly('id', 'first_name', 'last_name', 'birthdate', 'zipcode')
   end
 
   it 'can return members' do
