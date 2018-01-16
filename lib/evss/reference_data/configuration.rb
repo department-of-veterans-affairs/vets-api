@@ -4,8 +4,8 @@ module EVSS
     class Configuration < EVSS::Configuration
       PROXY_OPTS = {
         proxy: {
-          uri:  URI.parse('socks5://localhost:2002'),
-          socks: true
+          uri:  URI.parse(Settings.faraday_socks_proxy.uri),
+          socks: Settings.faraday_socks_proxy.enabled
         }
       }.freeze
 
@@ -39,7 +39,7 @@ module EVSS
       end
 
       def connection
-        req_options = (Rails.env.test? || Rails.env.development?) ? request_options.merge(PROXY_OPTS) : request_options
+        req_options = Settings.faraday_socks_proxy.enabled ? request_options.merge(PROXY_OPTS) : request_options
         @conn ||= Faraday.new(base_path, request: req_options, ssl: ssl_options) do |faraday|
           faraday.use      :breakers
           faraday.use      EVSS::ErrorMiddleware
