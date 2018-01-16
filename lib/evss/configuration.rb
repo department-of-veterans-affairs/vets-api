@@ -16,7 +16,6 @@ module EVSS
     def root_ca
       Settings.evss.root_cert_path
     end
-    # :nocov:
 
     def ssl_options
       return { verify: false } if !cert? && (Rails.env.development? || Rails.env.test?)
@@ -30,6 +29,7 @@ module EVSS
         }
       end
     end
+    # :nocov:
 
     def cert?
       # TODO(knkski): Is this logic correct?
