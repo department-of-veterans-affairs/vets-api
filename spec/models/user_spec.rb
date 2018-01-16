@@ -286,4 +286,33 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  describe '#va_patient?' do
+    let(:user) { build(:user, :loa3) }
+
+    before(:each) do
+      stub_mvi(mvi_profile)
+    end
+
+    context 'when there are no facilities' do
+      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: []) }
+      it 'is false' do
+        expect(user.va_patient?).to be_falsey
+      end
+    end
+
+    context 'when there are no facilities in the defined range' do
+      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [719]) }
+      it 'is false' do
+        expect(user.va_patient?).to be_falsey
+      end
+    end
+
+    context 'when there are facilities in the defined range' do
+      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [400]) }
+      it 'is true' do
+        expect(user.va_patient?).to be_truthy
+      end
+    end
+  end
 end
