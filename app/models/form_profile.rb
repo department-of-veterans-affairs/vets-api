@@ -174,13 +174,15 @@ class FormProfile
   def initialize_contact_information(user)
     return nil if user.va_profile.nil?
 
-    address = {
-      street: user.va_profile.address.street,
-      street2: nil,
-      city: user.va_profile.address.city,
-      state: user.va_profile.address.state,
-      country: user.va_profile.address.country
-    } if user.va_profile&.address
+    if user.va_profile&.address
+      address = {
+        street: user.va_profile.address.street,
+        street2: nil,
+        city: user.va_profile.address.city,
+        state: user.va_profile.address.state,
+        country: user.va_profile.address.country
+      }
+    end
 
     address.merge!(derive_postal_code(user)) if address.present?
 

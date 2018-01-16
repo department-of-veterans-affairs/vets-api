@@ -154,10 +154,12 @@ module HCA
       %w[homePhone mobilePhone].each do |type|
         number = veteran[type]
 
-        phone << {
-          'phoneNumber' => number,
-          'type' => (type == 'homePhone' ? '1' : '4')
-        } if number.present?
+        if number.present?
+          phone << {
+            'phoneNumber' => number,
+            'type' => (type == 'homePhone' ? '1' : '4')
+          }
+        end
       end
 
       { 'phone' => phone }
