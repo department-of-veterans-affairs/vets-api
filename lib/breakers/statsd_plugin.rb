@@ -5,7 +5,7 @@ module Breakers
     def get_tags(request)
       tags = []
       if request
-        if request.url && request.url.path
+        if request.url&.path
           # replace identifiers with 'xxx'
           # this nasty-looking regex attempts to cover:
           # * (possibly negative) digit identifiers

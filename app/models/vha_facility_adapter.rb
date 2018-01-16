@@ -22,7 +22,7 @@ class VHAFacilityAdapter
   end
 
   def self.where_clause(services)
-    services.map { |s| "#{s}='YES'" }.join(' AND ') unless services.nil?
+    services&.map { |s| "#{s}='YES'" }.join(' AND ')
   end
 
   def self.from_gis(record)

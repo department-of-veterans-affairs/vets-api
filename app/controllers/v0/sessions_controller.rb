@@ -223,8 +223,8 @@ module V0
 
     def benchmark_tags(*tags)
       tags << "context:#{context_key}"
-      tags << "loa:#{@current_user && @current_user.identity ? @current_user.loa[:current] : 'none'}"
-      tags << "multifactor:#{@current_user && @current_user.identity ? @current_user.multifactor : 'none'}"
+      tags << "loa:#{@current_user&.identity ? @current_user.loa[:current] : 'none'}"
+      tags << "multifactor:#{@current_user&.identity ? @current_user.multifactor : 'none'}"
       tags
     end
   end
