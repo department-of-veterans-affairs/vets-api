@@ -22,7 +22,7 @@ module VIC
     def create_response(mvi_response_profile)
       service_branches = EMIS::MilitaryInformationService.new.get_military_service_episodes(
         mvi_response_profile.emis_request_options
-      ).items.map(&:branch_of_service)
+      ).items.map(&:branch_of_service).uniq
       address = mvi_response_profile.address
 
       {

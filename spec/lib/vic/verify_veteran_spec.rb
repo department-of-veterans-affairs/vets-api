@@ -55,8 +55,8 @@ describe VIC::VerifyVeteran do
 
     context 'with a valid request' do
       it 'should return veteran details' do
-        VCR.use_cassette('vic/verify_veteran', record: :once) do
-          described_class.send_request(
+        VCR.use_cassette('vic/verify_veteran', VCR::MATCH_EVERYTHING) do
+          response = described_class.send_request(
             'veteran_full_name' => {
               'first' => 'Wesley',
               'last' => 'Watson'
@@ -64,6 +64,12 @@ describe VIC::VerifyVeteran do
             'veteran_date_of_birth' => '1986-05-06',
             'veteran_social_security_number' => '796043735',
             'gender' => 'M'
+          )
+
+          expect(response).to eq(
+            {:veteran_address=>{:country=>"USA", :street=>"1723 MAIN RD", :city=>"VIENNA", :state=>"VA", :postal_code=>"22182"},
+ :phone=>"(571)294-9259",
+ :service_branches=>["Air Force"]}
           )
         end
       end
