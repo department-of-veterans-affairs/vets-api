@@ -91,7 +91,6 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
             expect(JSON.parse(response.body)).to eq(body)
           end
         end
-
       end
 
       context 'while authenticated', skip_mvi: true do
