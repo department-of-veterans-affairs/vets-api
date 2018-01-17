@@ -138,9 +138,7 @@ class FormProfile
     mappings = self.class.mappings_for_form(form_id)
 
     form = form_id == '1010EZ' ? '1010ez' : form_id
-    if FormProfile.prefill_enabled_forms.include?(form)
-      form_data = generate_prefill(mappings)
-    end
+    form_data = generate_prefill(mappings) if FormProfile.prefill_enabled_forms.include?(form)
 
     { form_data: form_data, metadata: metadata }
   end
