@@ -22,9 +22,6 @@ module V0
         raise Common::Exceptions::BackendServiceException.new(
           nil, detail: e.message
         )
-      rescue Common::Exceptions::InvalidFieldValue => e
-        log_exception_to_sentry(e)
-        raise
       end
 
       clear_saved_form(FORM_ID)
