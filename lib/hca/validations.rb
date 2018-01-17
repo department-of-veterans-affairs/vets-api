@@ -10,6 +10,11 @@ module HCA
       /^\d{3}-?0{2}-?\d{4}$/
     ].freeze
 
+    def discharge_date(date)
+      return nil if !date.is_a?(String) || date.blank?
+      Date.parse(date)
+    end
+
     def date_of_birth(input_dob)
       return '' if !input_dob.is_a?(String) || input_dob.blank?
 

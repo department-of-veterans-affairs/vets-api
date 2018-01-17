@@ -1054,6 +1054,54 @@ describe HCA::EnrollmentSystem do
     end
   end
 
+  describe '#veteran_to_military_service_info' do
+    let(:veteran) do
+      {
+        'disabledInLineOfDuty' => true,
+        'dischargeType' => 'general',
+        'lastEntryDate' => '1980-03-07',
+        'lastDischargeDate' => discharge_date.strftime('%Y-%m-%d'),
+        'lastServiceBranch' => 'merchant seaman',
+        'vaMedicalFacility' => '608'
+      }
+    end
+
+    let(:expected) do
+      {
+        "dischargeDueToDisability": true,
+        "militaryServiceSiteRecords": {
+          "militaryServiceSiteRecord": {
+            "militaryServiceEpisodes": {
+              "militaryServiceEpisode": {
+                "dischargeType": '',
+                "startDate": '03/07/1980',
+                "endDate": discharge_date.strftime('%m/%d/%Y'),
+                "serviceBranch": 7
+              }
+            },
+            "site": '608'
+          }
+        }
+      }.deep_stringify_keys
+    end
+
+    context 'with a valid future discharge date' do
+      let(:discharge_date) { Time.zone.today + 60.days }
+
+      it 'should properly set discharge type and discharge date' do
+        expect(described_class.veteran_to_military_service_info(veteran)).to eq(expected)
+      end
+    end
+
+    context 'with an invalid future discharge_date' do
+      let(:discharge_date) { Time.zone.today + 181.days }
+
+      it 'should properly set discharge type and discharge date' do
+        expect(described_class.veteran_to_military_service_info(veteran)).to eq(expected)
+      end
+    end
+  end
+
   describe '#build_form_for_user' do
     def self.should_return_template
       it 'should return the form template' do
