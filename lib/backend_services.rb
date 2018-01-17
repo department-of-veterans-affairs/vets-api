@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class BackendServices
   FACILITIES = 'facilities'
   HCA = 'hca'

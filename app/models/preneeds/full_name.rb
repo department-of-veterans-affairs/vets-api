@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/base'
 
 module Preneeds
@@ -16,12 +17,12 @@ module Preneeds
         middleName: middle, suffix: suffix
       }
 
-      [:maidenName, :middleName, :suffix].each { |key| hash.delete(key) if hash[key].blank? }
+      %i[maidenName middleName suffix].each { |key| hash.delete(key) if hash[key].blank? }
       hash
     end
 
     def self.permitted_params
-      [:first, :last, :maiden, :middle, :suffix]
+      %i[first last maiden middle suffix]
     end
   end
 end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # rubocop:disable Metrics/ClassLength
 
 require 'pdf_fill/hash_converter'
@@ -22,6 +23,7 @@ module PdfFill
         'salary' => 'GROSS WAGES AND SALARY',
         'interest' => 'TOTAL DIVIDENDS AND INTEREST'
       }.freeze
+      # rubocop:disable Metrics/BlockLength
       # rubocop:disable Metrics/LineLength
       KEY = lambda do
         key = {
@@ -434,7 +436,7 @@ module PdfFill
           }
         }
 
-        %w(netWorths monthlyIncomes expectedIncomes).each_with_index do |acct_type, i|
+        %w[netWorths monthlyIncomes expectedIncomes].each_with_index do |acct_type, i|
           question_num = 25 + i
           key[acct_type] = {
             first_key: 'recipient',
@@ -455,7 +457,7 @@ module PdfFill
               key: "#{acct_type}.recipient[#{ITERATOR}]"
             }
           }
-          key[acct_type].each do |_, v|
+          key[acct_type].each_value do |v|
             v[:question_num] = question_num if v.is_a?(Hash)
           end
 
@@ -469,7 +471,7 @@ module PdfFill
             end
         end
 
-        %w(m spouseM).each do |prefix|
+        %w[m spouseM].each do |prefix|
           sub_key = "#{prefix}arriages"
           question_num = prefix == 'm' ? 19 : 21
 
@@ -525,7 +527,7 @@ module PdfFill
             }
           }
 
-          key[sub_key].each do |_, v|
+          key[sub_key].each_value do |v|
             v[:question_num] = question_num if v.is_a?(Hash)
           end
         end
@@ -533,6 +535,7 @@ module PdfFill
         key
       end.call.freeze
       # rubocop:enable Metrics/LineLength
+      # rubocop:enable Metrics/BlockLength
 
       def expand_pow_date_range(pow_date_range)
         expand_checkbox(pow_date_range.present?, 'PowDateRange')
@@ -563,13 +566,13 @@ module PdfFill
       def combine_address(address)
         return if address.blank?
 
-        combine_hash(address, %w(street street2), ', ')
+        combine_hash(address, %w[street street2], ', ')
       end
 
       def combine_city_state(address)
         return if address.blank?
 
-        city_state_fields = %w(city state postalCode country)
+        city_state_fields = %w[city state postalCode country]
 
         combine_hash(address, city_state_fields, ', ')
       end
@@ -741,11 +744,11 @@ module PdfFill
 
       def expand_financial_accts(definition)
         financial_accts = {}
-        VetsJsonSchema::SCHEMAS['21P-527EZ']['definitions'][definition]['properties'].keys.each do |acct_type|
+        VetsJsonSchema::SCHEMAS['21P-527EZ']['definitions'][definition]['properties'].each_key do |acct_type|
           financial_accts[acct_type] = []
         end
 
-        %w(myself spouse).each do |person|
+        %w[myself spouse].each do |person|
           expected_income = @form_data[
             person == 'myself' ? definition : "spouse#{StringHelpers.capitalize_only(definition)}"
           ]
@@ -770,13 +773,13 @@ module PdfFill
         monthly_incomes[0] = financial_accts['socialSecurity'][0]
         monthly_incomes[1] = financial_accts['socialSecurity'][1]
 
-        %w(
+        %w[
           civilService
           railroad
           blackLung
           serviceRetirement
           ssi
-        ).each_with_index do |acct_type, i|
+        ].each_with_index do |acct_type, i|
           i += 2
           monthly_incomes[i] = financial_accts[acct_type][0]
         end
@@ -791,11 +794,9 @@ module PdfFill
       end
 
       def overflow_financial_accts(financial_accts, all_financial_accts)
-        all_financial_accts.each do |_, arr|
+        all_financial_accts.each_value do |arr|
           arr.each do |financial_acct|
-            unless financial_accts.include?(financial_acct)
-              financial_accts << financial_acct
-            end
+            financial_accts << financial_acct unless financial_accts.include?(financial_acct)
           end
         end
       end
@@ -808,13 +809,13 @@ module PdfFill
           net_worths << {}
         end
 
-        %w(
+        %w[
           bank
           interestBank
           ira
           stocks
           realProperty
-        ).each_with_index do |acct_type, i|
+        ].each_with_index do |acct_type, i|
           net_worths[i] = financial_accts[acct_type][0]
         end
         net_worths[7] = financial_accts['additionalSources'][0]
@@ -852,9 +853,7 @@ module PdfFill
         @form_data['hasSavings'] = account_type == 'savings'
 
         account_number = bank_account['accountNumber']
-        if account_type.present?
-          @form_data["#{account_type}AccountNumber"] = account_number
-        end
+        @form_data["#{account_type}AccountNumber"] = account_number if account_type.present?
 
         @form_data
       end
@@ -886,7 +885,7 @@ module PdfFill
       end
 
       def replace_phone_fields
-        %w(nightPhone dayPhone mobilePhone).each do |attr|
+        %w[nightPhone dayPhone mobilePhone].each do |attr|
           replace_phone(@form_data, attr)
         end
         replace_phone(@form_data['nationalGuard'], 'phone')
@@ -905,27 +904,27 @@ module PdfFill
         combine_both_addr(@form_data, 'spouseAddress')
       end
 
-      # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
       def merge_fields
         expand_signature(@form_data['veteranFullName'])
         @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
 
-        %w(
+        %w[
           gender
           vaFileNumber
           previousNames
           severancePay
           powDateRange
-        ).each do |attr|
+        ].each do |attr|
           @form_data.merge!(public_send("expand_#{attr.underscore}", @form_data[attr]))
         end
 
-        %w(
+        %w[
           nationalGuardActivation
           combatSince911
           spouseIsVeteran
           liveWithSpouse
-        ).each do |attr|
+        ].each do |attr|
           @form_data.merge!(public_send('expand_chk_and_del_key', @form_data, attr))
         end
 
@@ -946,7 +945,7 @@ module PdfFill
         expand_service_periods
         expand_dependents
 
-        %w(marriages spouseMarriages).each do |marriage_type|
+        %w[marriages spouseMarriages].each do |marriage_type|
           expand_marriages(@form_data, marriage_type)
         end
 
@@ -966,8 +965,7 @@ module PdfFill
 
         @form_data
       end
-      # rubocop:enable Metrics/MethodLength
-      # rubocop:enable Metrics/AbcSize
+      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
     end
   end
 end

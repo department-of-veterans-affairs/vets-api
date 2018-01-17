@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
   include Virtus.model
@@ -118,7 +119,7 @@ class FormProfile
 
   def self.load_form_mapping(form_id)
     form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
-    file = File.join(Rails.root, 'config', 'form_profile_mappings', "#{form_id}.yml")
+    file = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
     raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
     YAML.load_file(file)
   end
@@ -185,13 +186,15 @@ class FormProfile
   def initialize_contact_information(user)
     return nil if user.va_profile.nil?
 
-    address = {
-      street: user.va_profile.address.street,
-      street2: nil,
-      city: user.va_profile.address.city,
-      state: user.va_profile.address.state,
-      country: user.va_profile.address.country
-    } if user.va_profile&.address
+    if user.va_profile&.address
+      address = {
+        street: user.va_profile.address.street,
+        street2: nil,
+        city: user.va_profile.address.city,
+        state: user.va_profile.address.state,
+        country: user.va_profile.address.country
+      }
+    end
 
     address.merge!(derive_postal_code(user)) if address.present?
 

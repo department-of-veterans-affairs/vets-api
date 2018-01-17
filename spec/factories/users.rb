@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :user, class: 'User' do
     uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/form'
 require 'common/models/attribute_types/httpdate'
 

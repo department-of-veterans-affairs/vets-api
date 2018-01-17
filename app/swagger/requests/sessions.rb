@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Requests
     class Sessions
@@ -7,7 +8,7 @@ module Swagger
       swagger_path '/v0/sessions/authn_urls' do
         operation :get do
           key :description, 'Fetch various urls for initiating authentication'
-          key :tags, %w(authentication)
+          key :tags, %w[authentication]
 
           response 200 do
             key :description, 'returns a list of urls for invoking SAML authentication flow'
@@ -23,7 +24,7 @@ module Swagger
           extend Swagger::Responses::AuthenticationError
 
           key :description, 'Fetch url for invoking multifactor policy'
-          key :tags, %w(authentication)
+          key :tags, %w[authentication]
 
           parameter do
             key :name, 'Authorization'
@@ -47,7 +48,7 @@ module Swagger
           extend Swagger::Responses::AuthenticationError
 
           key :description, 'Fetch url for verifying identity (or triggering ID.me FICAM flow)'
-          key :tags, %w(authentication)
+          key :tags, %w[authentication]
 
           parameter do
             key :name, 'Authorization'
@@ -72,7 +73,7 @@ module Swagger
 
           key :description, 'Fetch url for terminating a session'
           key :operationId, 'endSession'
-          key :tags, %w(authentication)
+          key :tags, %w[authentication]
 
           parameter do
             key :name, 'Authorization'
@@ -91,7 +92,7 @@ module Swagger
         end
       end
 
-      swagger_schema :AuthenticationURLs, required: [:mhv, :dslogon, :idme] do
+      swagger_schema :AuthenticationURLs, required: %i[mhv dslogon idme] do
         property :mhv, type: :string
         property :dslogon, type: :string
         property :idme, type: :string

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module EducationForm
   class DeleteOldApplications
     include Sidekiq::Worker

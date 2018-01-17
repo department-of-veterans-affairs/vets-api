@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :rubysaml_settings, class: 'OneLogin::RubySaml::Settings' do
     certificate                     Settings.saml.certificate

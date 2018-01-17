@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module V0
   class HealthRecordsController < BBController
     def refresh

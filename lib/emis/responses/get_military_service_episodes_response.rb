@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'emis/models/military_service_episode'
 require 'emis/responses/response'
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'bb/generate_report_request_form'
 require 'bb/client'
@@ -61,7 +62,7 @@ describe BB::GenerateReportRequestForm do
   end
 
   context 'with invalid data_classes' do
-    let(:invalid_data_classes) { %w(blah blahblah) }
+    let(:invalid_data_classes) { %w[blah blahblah] }
     let(:attributes) do
       { from_date: time_before.iso8601, to_date: time_after.iso8601, data_classes: invalid_data_classes }
     end

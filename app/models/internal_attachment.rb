@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Used by the FileUpload class to give Shrine something to
 # latch onto for file and metadata storage.
 class InternalAttachment

@@ -1,9 +1,11 @@
 # frozen_string_literal: true
+
 module Workflow
   module Task
     module ShrineFile
       class Base < Workflow::Task::Base
-        attr_accessor :file, :attacher
+        attr_accessor :file
+
         def initialize(args = {}, internal: {})
           super
           internal[:history] ||= []
