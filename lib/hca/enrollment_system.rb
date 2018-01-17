@@ -81,8 +81,6 @@ module HCA
       'Other' => 99
     }.freeze
 
-    FUTURE_DISCHARGE_CUTOFF = 180.days
-
     def financial_flag?(veteran)
       veteran['understandsFinancialDisclosure'] || veteran['discloseFinancialInformation']
     end
@@ -398,17 +396,17 @@ module HCA
       DISCHARGE_CODES[discharge_type] || 4
     end
 
-    def check_discharge_date(veteran)
-      discharge_date = Validations.discharge_date(veteran['lastDischargeDate'])
-      cutoff = Time.zone.today + FUTURE_DISCHARGE_CUTOFF
-      return nil if discharge_date&.future? && discharge_date > cutoff
+    def discharge_type(veteran)
+      discharge_date = Validations.parse_date(veteran['lastDischargeDate'])
+      return '' if discharge_date&.future?
 
-      discharge_date
+      discharge_type_to_sds_code(veteran['dischargeType'])
     end
 
     def veteran_to_military_service_info(veteran)
-      discharge_date = check_discharge_date(veteran)
-      discharge_type = discharge_type_to_sds_code(veteran['dischargeType']) unless discharge_date&.future?
+      unless Validations.valid_discharge_date?(veteran['lastDischargeDate'])
+        raise Common::Exceptions::InvalidFieldValue.new('lastDischargeDate', veteran['lastDischargeDate'])
+      end
 
       {
         'dischargeDueToDisability' => veteran['disabledInLineOfDuty'].present?,
@@ -416,9 +414,9 @@ module HCA
           'militaryServiceSiteRecord' => {
             'militaryServiceEpisodes' => {
               'militaryServiceEpisode' => {
-                'dischargeType' => discharge_type || '',
+                'dischargeType' => discharge_type(veteran),
                 'startDate' => Validations.date_of_birth(veteran['lastEntryDate']),
-                'endDate' => discharge_date&.strftime('%m/%d/%Y') || '',
+                'endDate' => Validations.discharge_date(veteran['lastDischargeDate']),
                 'serviceBranch' => service_branch_to_sds_code(veteran['lastServiceBranch'])
               }
             },

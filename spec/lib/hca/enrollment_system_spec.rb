@@ -1087,17 +1087,19 @@ describe HCA::EnrollmentSystem do
 
     context 'with a valid future discharge date' do
       let(:discharge_date) { Time.zone.today + 60.days }
+      subject { described_class.veteran_to_military_service_info(veteran) }
 
       it 'should properly set discharge type and discharge date' do
         expect(described_class.veteran_to_military_service_info(veteran)).to eq(expected)
       end
     end
 
-    context 'with an invalid future discharge_date' do
+    context 'with an invalid future discharge date' do
       let(:discharge_date) { Time.zone.today + 181.days }
+      subject { described_class.veteran_to_military_service_info(veteran) }
 
-      it 'should properly set discharge type and discharge date' do
-        expect(described_class.veteran_to_military_service_info(veteran)).to eq(expected)
+      it 'should raise a validation exception' do
+        expect(subject).to raise_error(HCA::Errors::ValidationError)
       end
     end
   end
