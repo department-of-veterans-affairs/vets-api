@@ -24,11 +24,30 @@ describe VIC::VerifyVeteran do
     end
   end
 
-  describe '#verify_veteran' do
+  describe '#verify_veteran', run_at: 'Wed, 17 Jan 2018 03:49:00 GMT' do
+    before do
+      allow(SecureRandom).to receive(:uuid).and_return('cf2f7c67-6c12-464a-a6b7-3ee2ffe21298')
+    end
+
     context 'with attributes that cant be found in mvi' do
-      it 'should return false', run_at: 'Wed, 17 Jan 2018 03:49:00 GMT' do
-        allow(SecureRandom).to receive(:uuid).and_return('cf2f7c67-6c12-464a-a6b7-3ee2ffe21298')
+      it 'should return false' do
         VCR.use_cassette('mvi/find_candidate/find_profile_from_mvi_profile_invalid', VCR::MATCH_EVERYTHING) do
+          expect(described_class.send_request(fake_attributes)).to eq(false)
+        end
+      end
+    end
+
+    context 'when user cant be found in emis' do
+      it 'should return false' do
+        expect_any_instance_of(MVI::Service).to receive(:find_profile_from_mvi_profile).and_return(OpenStruct.new(
+          profile: OpenStruct.new(
+            emis_request_options: {
+              edipi: '1111111111'
+            }
+          )
+        ))
+
+        VCR.use_cassette('emis/get_veteran_status/missing_edipi') do
           expect(described_class.send_request(fake_attributes)).to eq(false)
         end
       end
