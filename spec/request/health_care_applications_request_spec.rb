@@ -132,7 +132,7 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
             'errors' => [
               {
                 'title' => 'Invalid field value',
-                'detail' => '"2018-07-17" is not a valid value for "lastDischargeDate"',
+                'detail' => "\"#{discharge_date.strftime('%Y-%m-%d')}\" is not a valid value for \"lastDischargeDate\"",
                 'code' => '103',
                 'status' => '400'
               }
