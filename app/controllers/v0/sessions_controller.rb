@@ -104,8 +104,6 @@ module V0
       saml_attributes = SAML::User.new(@saml_response)
       existing_user = User.find(saml_attributes.user_attributes.uuid)
       user_identity = UserIdentity.new(saml_attributes.to_hash)
-      # FIXME-IDENTITY-PHASE2: this line will go away
-      old_current_user = init_new_user(user_identity, existing_user, saml_attributes.changing_multifactor?, UserOld)
       @current_user = init_new_user(user_identity, existing_user, saml_attributes.changing_multifactor?)
 
       if existing_user.present?
@@ -116,15 +114,11 @@ module V0
       end
 
       @session = Session.new(uuid: @current_user.uuid)
-      # FIXME-IDENTITY-PHASE2: the last part of this line will go away
-      @session.save && user_identity.save && @current_user.save && old_current_user.save
+      @session.save && user_identity.save && @current_user.save
     end
 
-    # FIXME-IDENTITY-PHASE2: won't need to specify klass as there will only e 1
-    def init_new_user(user_identity, existing_user = nil, multifactor_change = false, klass = User)
-      # Eventually it will be this
-      # new_user = User.new(uuid: user_identity.uuid)
-      new_user = klass.new(user_identity.attributes)
+    def init_new_user(user_identity, existing_user = nil, multifactor_change = false)
+      new_user = User.new(user_identity.attributes)
       if multifactor_change
         new_user.last_signed_in = existing_user.last_signed_in
         new_user.mhv_last_signed_in = existing_user.mhv_last_signed_in
