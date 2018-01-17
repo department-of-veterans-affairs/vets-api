@@ -1098,8 +1098,8 @@ describe HCA::EnrollmentSystem do
       let(:discharge_date) { Time.zone.today + 181.days }
       subject { described_class.veteran_to_military_service_info(veteran) }
 
-      it 'should raise a validation exception' do
-        expect(subject).to raise_error(HCA::Errors::ValidationError)
+      it 'should raise an invalid field exception' do
+        expect(subject).to raise_error(Common::Exceptions::InvalidFieldValue)
       end
     end
   end
