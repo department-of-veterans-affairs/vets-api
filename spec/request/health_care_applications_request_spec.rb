@@ -91,6 +91,7 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
             expect(JSON.parse(response.body)).to eq(body)
           end
         end
+
       end
 
       context 'while authenticated', skip_mvi: true do
@@ -111,6 +112,37 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
         it 'should render success and delete the saved form', run_at: '2017-01-31' do
           VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
             expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('10-10EZ').once
+            subject
+            expect(JSON.parse(response.body)).to eq(body)
+          end
+        end
+      end
+
+      context 'with an invalid discharge date' do
+        let(:discharge_date) { Time.zone.today + 181.days }
+        let(:params) do
+          test_veteran['lastDischargeDate'] = discharge_date.strftime('%Y-%m-%d')
+
+          {
+            form: test_veteran.to_json
+          }
+        end
+
+        let(:body) do
+          {
+            'errors' => [
+              {
+                'title' => 'Invalid field value',
+                'detail' => '"2018-07-17" is not a valid value for "lastDischargeDate"',
+                'code' => '103',
+                'status' => '400'
+              }
+            ]
+          }
+        end
+
+        it 'should raise an invalid field value error' do
+          VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
             subject
             expect(JSON.parse(response.body)).to eq(body)
           end

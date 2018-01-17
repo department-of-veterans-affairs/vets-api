@@ -1099,7 +1099,7 @@ describe HCA::EnrollmentSystem do
       subject { described_class.veteran_to_military_service_info(veteran) }
 
       it 'should raise an invalid field exception' do
-        expect(subject).to raise_error(Common::Exceptions::InvalidFieldValue)
+        expect { subject }.to raise_error(Common::Exceptions::InvalidFieldValue)
       end
     end
   end
