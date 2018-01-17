@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'rails_helper'
 
 describe VIC::VerifyVeteran do
@@ -39,13 +40,15 @@ describe VIC::VerifyVeteran do
 
     context 'when user cant be found in emis' do
       it 'should return false' do
-        expect_any_instance_of(MVI::Service).to receive(:find_profile_from_mvi_profile).and_return(OpenStruct.new(
-          profile: OpenStruct.new(
-            emis_request_options: {
-              edipi: '1111111111'
-            }
+        expect_any_instance_of(MVI::Service).to receive(:find_profile_from_mvi_profile).and_return(
+          OpenStruct.new(
+            profile: OpenStruct.new(
+              emis_request_options: {
+                edipi: '1111111111'
+              }
+            )
           )
-        ))
+        )
 
         VCR.use_cassette('emis/get_veteran_status/missing_edipi') do
           expect(described_class.send_request(fake_attributes)).to eq(false)
@@ -67,9 +70,11 @@ describe VIC::VerifyVeteran do
           )
 
           expect(response).to eq(
-            {:veteran_address=>{:country=>"USA", :street=>"1723 MAIN RD", :city=>"VIENNA", :state=>"VA", :postal_code=>"22182"},
- :phone=>"(571)294-9259",
- :service_branches=>["Air Force"]}
+            veteran_address: {
+              country: 'USA', street: '1723 MAIN RD', city: 'VIENNA', state: 'VA', postal_code: '22182'
+            },
+            phone: '(571)294-9259',
+            service_branches: ['Air Force']
           )
         end
       end
