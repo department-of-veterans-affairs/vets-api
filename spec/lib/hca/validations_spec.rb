@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'spec_helper'
 require 'hca/validations'
 
@@ -70,7 +71,7 @@ describe HCA::Validations do
       [['1'], ''],
       [111_111_111, ''],
       ['000111111', ''],
-      %w(210438765 210438765),
+      %w[210438765 210438765],
       ['210-43-8765', '210438765'],
       ['1112233334444', '']
     ]

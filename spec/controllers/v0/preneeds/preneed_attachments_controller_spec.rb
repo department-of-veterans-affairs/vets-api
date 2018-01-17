@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe V0::Preneeds::PreneedAttachmentsController, type: :controller do

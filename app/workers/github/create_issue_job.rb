@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'github/github_service'
 require 'sidekiq/instrument/mixin'
 

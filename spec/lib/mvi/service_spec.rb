@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'mvi/service'
 require 'mvi/responses/find_profile_response'
@@ -17,7 +18,7 @@ describe MVI::Service do
   let(:user) { build(:user, :loa3, user_hash) }
 
   let(:mvi_profile) do
-    build(:mvi_profile_response, :missing_attrs, :address_austin, given_names: %w(Mitchell G), vha_facility_ids: [])
+    build(:mvi_profile_response, :missing_attrs, :address_austin, given_names: %w[Mitchell G], vha_facility_ids: [])
   end
 
   describe '.find_profile with icn' do

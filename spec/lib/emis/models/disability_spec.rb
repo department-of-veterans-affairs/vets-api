@@ -1,8 +1,9 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 describe EMIS::Models::Disability do
-  %w(disability_percent pay_amount).each do |attr|
+  %w[disability_percent pay_amount].each do |attr|
     method_name = "get_#{attr}"
 
     describe "##{method_name}" do

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
@@ -15,12 +16,12 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       Session.create(uuid: user.uuid, token: token)
       User.create(user)
       allow(FormProfile).to receive(:load_form_mapping).with('FAKEFORM').and_return(
-        'veteran_full_name' => %w(identity_information full_name),
-        'gender' => %w(identity_information gender),
-        'veteran_date_of_birth' => %w(identity_information date_of_birth),
-        'veteran_social_security_number' => %w(identity_information ssn),
-        'veteran_address' => %w(contact_information address),
-        'home_phone' => %w(contact_information home_phone)
+        'veteran_full_name' => %w[identity_information full_name],
+        'gender' => %w[identity_information gender],
+        'veteran_date_of_birth' => %w[identity_information date_of_birth],
+        'veteran_social_security_number' => %w[identity_information ssn],
+        'veteran_address' => %w[contact_information address],
+        'home_phone' => %w[contact_information home_phone]
       )
     end
 

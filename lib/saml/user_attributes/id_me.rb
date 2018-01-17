@@ -1,10 +1,11 @@
 # frozen_string_literal: true
+
 require 'saml/user_attributes/base'
 
 module SAML
   module UserAttributes
     class IdMe < Base
-      IDME_SERIALIZABLE_ATTRIBUTES = %i(first_name middle_name last_name zip gender ssn birth_date).freeze
+      IDME_SERIALIZABLE_ATTRIBUTES = %i[first_name middle_name last_name zip gender ssn birth_date].freeze
 
       def first_name
         attributes['fname']

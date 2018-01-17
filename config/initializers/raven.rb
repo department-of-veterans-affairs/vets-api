@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'sentry/processor/email_sanitizer'
 Raven.configure do |config|
   config.dsn = Settings.sentry.dsn if Settings.sentry.dsn

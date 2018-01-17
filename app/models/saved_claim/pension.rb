@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class SavedClaim::Pension < SavedClaim
   FORM = '21P-527EZ'
   CONFIRMATION = 'PEN'

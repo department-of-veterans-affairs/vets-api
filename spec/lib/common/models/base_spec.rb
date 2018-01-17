@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'support/author'
 
@@ -42,10 +43,10 @@ describe Common::Base do
     it 'responds to filterable_attributes' do
       expect(subject.filterable_attributes)
         .to eq(
-          'id' => %w(eq not_eq),
-          'first_name' => %w(eq not_eq match),
-          'last_name' => %w(eq not_eq match),
-          'birthdate' => %w(eq lteq gteq not_eq)
+          'id' => %w[eq not_eq],
+          'first_name' => %w[eq not_eq match],
+          'last_name' => %w[eq not_eq match],
+          'birthdate' => %w[eq lteq gteq not_eq]
         )
     end
   end
@@ -74,7 +75,7 @@ describe Common::Base do
       subject.first_name = 'Jack'
       expect(subject.changed?).to eq(true)
       expect(subject.changed).to eq([:first_name])
-      expect(subject.changes).to eq(first_name: %w(Jill Jack))
+      expect(subject.changes).to eq(first_name: %w[Jill Jack])
     end
   end
 end

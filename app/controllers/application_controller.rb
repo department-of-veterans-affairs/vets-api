@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'feature_flipper'
 require 'common/exceptions'
 require 'common/client/errors'
@@ -19,16 +20,14 @@ class ApplicationController < ActionController::API
   before_action :authenticate
   before_action :set_app_info_headers
   before_action :set_uuid_tags
-  skip_before_action :authenticate, only: [:cors_preflight, :routing_error]
+  skip_before_action :authenticate, only: %i[cors_preflight routing_error]
 
   def cors_preflight
     head(:ok)
   end
 
   def clear_saved_form(form_id)
-    if @current_user
-      InProgressForm.form_for_user(form_id, @current_user)&.destroy
-    end
+    InProgressForm.form_for_user(form_id, @current_user)&.destroy if @current_user
   end
 
   def routing_error
@@ -47,6 +46,7 @@ class ApplicationController < ActionController::API
     SKIP_SENTRY_EXCEPTION_TYPES
   end
 
+  # rubocop:disable Metrics/BlockLength
   rescue_from 'Exception' do |exception|
     # report the original 'cause' of the exception when present
     if skip_sentry_exception_types.include?(exception.class) == false
@@ -83,11 +83,10 @@ class ApplicationController < ActionController::API
         Common::Exceptions::InternalServerError.new(exception)
       end
 
-    if va_exception.is_a?(Common::Exceptions::Unauthorized)
-      headers['WWW-Authenticate'] = 'Token realm="Application"'
-    end
+    headers['WWW-Authenticate'] = 'Token realm="Application"' if va_exception.is_a?(Common::Exceptions::Unauthorized)
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
+  # rubocop:enable Metrics/BlockLength
 
   def set_uuid_tags
     Thread.current['request_id'] = request.uuid

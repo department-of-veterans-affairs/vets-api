@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'fileutils'
 require 'workflow/task/pension_burial/upload'

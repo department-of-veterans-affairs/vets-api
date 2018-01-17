@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Common
   module Exceptions
     # Validation Error - an ActiveModel having validation errors, can be sent to this exception
