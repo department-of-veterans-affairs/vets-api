@@ -26,9 +26,10 @@ describe VIC::VerifyVeteran do
 
   describe '#verify_veteran' do
     context 'with attributes that cant be found in mvi' do
-      it 'should return false' do
-        VCR.use_cassette('mvi/find_candidate/find_profile_from_mvi_profile_invalid', record: :once) do
-          described_class.send_request(fake_attributes)
+      it 'should return false', run_at: 'Wed, 17 Jan 2018 03:49:00 GMT' do
+        allow(SecureRandom).to receive(:uuid).and_return('cf2f7c67-6c12-464a-a6b7-3ee2ffe21298')
+        VCR.use_cassette('mvi/find_candidate/find_profile_from_mvi_profile_invalid', VCR::MATCH_EVERYTHING) do
+          expect(described_class.send_request(fake_attributes)).to eq(false)
         end
       end
     end
