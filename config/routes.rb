@@ -19,6 +19,16 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :reference_data, only: [] do
+      collection do
+        get 'countries',                to: 'reference_data#countries'
+        get 'intake_sites',             to: 'reference_data#intake_sites'
+        get 'states',                   to: 'reference_data#states'
+        get 'disabilities',             to: 'reference_data#disabilities'
+        get 'treatment_centers/:state', to: 'reference_data#treatment_centers'
+      end
+    end
+
     resource :sessions, only: :destroy do
       get :authn_urls, on: :collection
       get :multifactor, on: :member

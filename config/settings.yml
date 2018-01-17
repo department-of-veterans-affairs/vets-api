@@ -211,3 +211,7 @@ betamocks:
   recording: false
   cache_dir: /cache
   services_config: config/betamocks/services_config.yml
+
+faraday_socks_proxy:
+  enabled: true
+  uri: socks5://localhost:2002
