@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class FormProfile::VA1010ez < FormProfile
   def prefill(user)
     super
@@ -19,7 +20,7 @@ class FormProfile::VA1010ez < FormProfile
 
     if user.va_profile&.address
       country = user.va_profile.address.country
-      postal_code_key = %w(USA MEX CAN).include?(country) ? :zipcode : :postal_code
+      postal_code_key = %w[USA MEX CAN].include?(country) ? :zipcode : :postal_code
       postal_code[postal_code_key] = user.va_profile.address.postal_code
     end
 

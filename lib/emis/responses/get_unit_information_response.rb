@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'emis/models/unit_information'
 require 'emis/responses/response'
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Benchmark
   class Timer
     TTL = 3600

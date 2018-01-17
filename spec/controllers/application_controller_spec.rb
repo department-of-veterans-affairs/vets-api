@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'rx/client'
 require 'lib/sentry_logging_spec_helper'
@@ -72,7 +73,7 @@ RSpec.describe ApplicationController, type: :controller do
   context 'RecordNotFound' do
     subject { JSON.parse(response.body)['errors'].first }
     before(:each) { routes.draw { get 'record_not_found' => 'anonymous#record_not_found' } }
-    let(:keys_for_all_env) { %w(title detail code status) }
+    let(:keys_for_all_env) { %w[title detail code status] }
 
     context 'with Rails.env.test or Rails.env.development' do
       it 'renders json object with developer attributes' do
@@ -97,7 +98,7 @@ RSpec.describe ApplicationController, type: :controller do
   context 'BackendServiceErrorError' do
     subject { JSON.parse(response.body)['errors'].first }
     before(:each) { routes.draw { get 'other_error' => 'anonymous#other_error' } }
-    let(:keys_for_production) { %w(title detail code status) }
+    let(:keys_for_production) { %w[title detail code status] }
     let(:keys_for_development) { keys_for_production + ['meta'] }
 
     context 'with Rails.env.test or Rails.env.development' do

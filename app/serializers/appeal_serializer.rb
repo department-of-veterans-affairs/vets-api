@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class AppealSerializer < ActiveModel::Serializer
   attribute :id
   attribute :active

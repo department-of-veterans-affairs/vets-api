@@ -14,7 +14,7 @@ class User < Common::RedisStore
   UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
 
   # Defined per issue #6042
-  ID_CARD_ALLOWED_STATUSES = %w(V1 V3 V6).freeze
+  ID_CARD_ALLOWED_STATUSES = %w[V1 V3 V6].freeze
 
   redis_store REDIS_CONFIG['user_b_store']['namespace']
   redis_ttl REDIS_CONFIG['user_b_store']['each_ttl']
@@ -176,7 +176,7 @@ class User < Common::RedisStore
     mvi.cache(uuid, mvi.mvi_response)
   end
 
-  %w(veteran_status military_information payment).each do |emis_method|
+  %w[veteran_status military_information payment].each do |emis_method|
     define_method(emis_method) do
       emis_model = instance_variable_get(:"@#{emis_method}")
       return emis_model if emis_model.present?

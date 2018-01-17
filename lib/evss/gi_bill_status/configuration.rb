@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module EVSS
   module GiBillStatus
     class Configuration < EVSS::Configuration

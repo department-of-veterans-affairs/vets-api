@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'backend_services'
 require 'common/client/concerns/service_status'
 
@@ -87,4 +88,5 @@ class UserSerializer < ActiveModel::Serializer
     service_list << BackendServices::ID_CARD if object.can_access_id_card?
     service_list
   end
+  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :veteran, class: Preneeds::Veteran do
     date_of_birth '2001-01-31'

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 describe EVSS::PCIUAddress::Service do
@@ -12,7 +13,7 @@ describe EVSS::PCIUAddress::Service do
           response = subject.get_countries
           expect(response).to be_ok
           expect(response.countries[0...10]).to eq(
-            %w(Afghanistan Albania Algeria Angola Anguilla Antigua Antigua\ and\ Barbuda Argentina Armenia Australia)
+            %w[Afghanistan Albania Algeria Angola Anguilla Antigua Antigua\ and\ Barbuda Argentina Armenia Australia]
           )
         end
       end
@@ -26,7 +27,7 @@ describe EVSS::PCIUAddress::Service do
           response = subject.get_states
           expect(response).to be_ok
           expect(response.states[0...10]).to eq(
-            %w(AL AK AZ AR CA CO CT DE FL GA)
+            %w[AL AK AZ AR CA CO CT DE FL GA]
           )
         end
       end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/base'
 
 # Message model
@@ -24,14 +25,14 @@ class Message < Common::Base
 
   attribute :id, Integer
   attribute :category, String
-  attribute :subject, String, filterable: %w(eq not_eq match), sortable: { order: 'ASC' }
+  attribute :subject, String, filterable: %w[eq not_eq match], sortable: { order: 'ASC' }
   attribute :body, String
   attribute :attachment, Boolean
-  attribute :sent_date, Common::UTCTime, filterable: %w(eq lteq gteq), sortable: { order: 'DESC', default: true }
+  attribute :sent_date, Common::UTCTime, filterable: %w[eq lteq gteq], sortable: { order: 'DESC', default: true }
   attribute :sender_id, Integer
-  attribute :sender_name, String, filterable: %w(eq not_eq match), sortable: { order: 'ASC' }
+  attribute :sender_name, String, filterable: %w[eq not_eq match], sortable: { order: 'ASC' }
   attribute :recipient_id, Integer
-  attribute :recipient_name, String, filterable: %w(eq not_eq match), sortable: { order: 'ASC' }
+  attribute :recipient_name, String, filterable: %w[eq not_eq match], sortable: { order: 'ASC' }
   attribute :read_receipt, String
   attribute :attachments, Array[Attachment]
 
@@ -58,7 +59,7 @@ class Message < Common::Base
   private
 
   def total_upload_size
-    return 0 unless uploads.present?
+    return 0 if uploads.blank?
     uploads.sum(&:size)
   end
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'mhv_ac/account_creation_error'
 
 module MHVControllerConcerns

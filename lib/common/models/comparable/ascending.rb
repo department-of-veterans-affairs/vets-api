@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # This is just a wrapper around an object to compare in descending order
 # This is invoked by collection.rb
 module Common

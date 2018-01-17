@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe EducationForm::DeleteOldApplications do
@@ -30,8 +31,9 @@ RSpec.describe EducationForm::DeleteOldApplications do
 
   describe '#perform' do
     it 'deletes old records' do
-      expect { subject.perform }.to change { EducationBenefitsClaim.count }.from(4).to(3)
-        .and change { SavedClaim::EducationBenefits.count }.from(4).to(3)
+      expect { subject.perform }
+        .to change { EducationBenefitsClaim.count }.from(4).to(3)
+                                                   .and change { SavedClaim::EducationBenefits.count }.from(4).to(3)
 
       expect { @edu_claim_old.reload }.to raise_exception(ActiveRecord::RecordNotFound)
       expect { @saved_claim_old.reload }.to raise_exception(ActiveRecord::RecordNotFound)

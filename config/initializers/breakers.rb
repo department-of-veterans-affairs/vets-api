@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'breakers/statsd_plugin'
 require 'appeals_status/configuration'
 require 'bb/configuration'
@@ -53,9 +54,7 @@ services = [
   SM::Configuration.instance.breakers_service
 ]
 
-if Settings.pension_burial&.upload&.enabled
-  services << PensionBurial::Configuration.instance.breakers_service
-end
+services << PensionBurial::Configuration.instance.breakers_service if Settings.pension_burial&.upload&.enabled
 
 plugin = Breakers::StatsdPlugin.new
 
