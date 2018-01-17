@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/base'
 require_relative 'pciu_address_line_validator'
 

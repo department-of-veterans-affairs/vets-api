@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Requests
     class Address
@@ -10,9 +11,9 @@ module Swagger
 
           key :description, 'Get a list of the PCIU supported countries'
           key :operationId, 'getCountries'
-          key :tags, %w(
+          key :tags, %w[
             evss
-          )
+          ]
 
           parameter :authorization
 
@@ -31,9 +32,9 @@ module Swagger
 
           key :description, 'Get a list of the PCIU supported states'
           key :operationId, 'getStates'
-          key :tags, %w(
+          key :tags, %w[
             evss
-          )
+          ]
 
           parameter :authorization
 
@@ -52,9 +53,9 @@ module Swagger
 
           key :description, 'Get a users corp address'
           key :operationId, 'getAddress'
-          key :tags, %w(
+          key :tags, %w[
             evss
-          )
+          ]
 
           parameter :authorization
 
@@ -73,9 +74,9 @@ module Swagger
 
           key :description, 'Updates a users corp address'
           key :operationId, 'getAddress'
-          key :tags, %w(
+          key :tags, %w[
             evss
-          )
+          ]
 
           parameter :authorization
           parameter do
@@ -86,11 +87,11 @@ module Swagger
 
             schema do
               property :type, type: :string, enum:
-                %w(
+                %w[
                   DOMESTIC
                   INTERNATIONAL
                   MILITARY
-                ), example: 'DOMESTIC'
+                ], example: 'DOMESTIC'
               property :address_one, type: :string, example: '140 Rock Creek Church Rd NW'
               property :address_two, type: :string, example: ''
               property :address_three, type: :string, example: ''

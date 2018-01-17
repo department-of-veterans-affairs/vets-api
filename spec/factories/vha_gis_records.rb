@@ -1,4 +1,5 @@
 # frozen_string_literal: false
+
 FactoryBot.define do
   factory :vha_gis_record, class: Hash do
     gis_attrs do

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class SFTPWriter::Local
   def initialize(config, logger:)
     @config = config

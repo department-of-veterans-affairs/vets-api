@@ -1,19 +1,20 @@
 # frozen_string_literal: true
+
 module Swagger
   module Schemas
     module Gibct
       class Institutions
         include Swagger::Blocks
 
-        STATES = [
-          :ak, :al, :ar, :as, :az, :ca, :co, :ct, :dc, :de, :fl, :fm, :ga, :gu, :hi, :ia,
-          :id, :il, :in, :ks, :ky, :la, :ma, :md, :me, :mh, :mi, :mn, :mo, :mp, :ms, :mt,
-          :nc, :nd, :ne, :nh, :nj, :nm, :nv, :ny, :oh, :ok, :or, :pa, :pr, :pw, :ri, :sc,
-          :sd, :tn, :tx, :ut, :va, :vi, :vt, :wa, :wi, :wv, :wy
+        STATES = %i[
+          ak al ar as az ca co ct dc de fl fm ga gu hi ia
+          id il in ks ky la ma md me mh mi mn mo mp ms mt
+          nc nd ne nh nj nm nv ny oh ok or pa pr pw ri sc
+          sd tn tx ut va vi vt wa wi wv wy
         ].freeze
 
         swagger_schema :GibctInstitutionsAutocomplete do
-          key :required, [:data, :meta, :links]
+          key :required, %i[data meta links]
 
           property :data, type: :array, minItems: 0, uniqueItems: true do
             items do
@@ -28,12 +29,12 @@ module Swagger
         end
 
         swagger_schema :GibctInstitutionsSearch do
-          key :required, [:data, :meta, :links]
+          key :required, %i[data meta links]
 
           property :data, type: :array, maxItems: 10, uniqueItems: true do
             items do
               key :type, :object
-              key :required, [:id, :type, :attributes, :links]
+              key :required, %i[id type attributes links]
 
               property :id, type: :string
               property :type, type: :string, enum: ['institutions']
@@ -53,10 +54,10 @@ module Swagger
 
         swagger_schema :GibctInstitution do
           key :type, :object
-          key :required, [:data, :meta]
+          key :required, %i[data meta]
 
           property :data, type: :object do
-            key :required, [:id, :type, :attributes, :links]
+            key :required, %i[id type attributes links]
 
             property :id, type: :string
             property :type, type: :string, enum: ['institutions']
@@ -69,42 +70,42 @@ module Swagger
                               enum: ['ojt', 'private', 'foreign', 'correspondence', 'flight', 'for profit', 'public']
               property :flight, type: :boolean
               property :correspondence, type: :boolean
-              property :cross, type: [:null, :string]
-              property :ope, type: [:null, :string]
-              property :ope6, type: [:null, :string]
-              property :undergrad_enrollment, type: [:null, :integer]
+              property :cross, type: %i[null string]
+              property :ope, type: %i[null string]
+              property :ope6, type: %i[null string]
+              property :undergrad_enrollment, type: %i[null integer]
               property :student_veteran, type: :boolean
-              property :student_veteran_link, type: [:null, :string]
+              property :student_veteran_link, type: %i[null string]
               property :dodmou, type: :boolean
-              property :sec_702, type: [:null, :boolean]
-              property :vet_success_name, type: [:null, :string]
-              property :vet_success_email, type: [:null, :string]
-              property :credit_for_mil_training, type: [:null, :boolean]
-              property :vet_poc, type: [:null, :boolean]
-              property :student_vet_grp_ipeds, type: [:null, :boolean]
-              property :soc_member, type: [:null, :boolean]
-              property :retention_rate_veteran_ba, type: [:null, :number]
-              property :retention_all_students_ba, type: [:null, :number]
-              property :retention_rate_veteran_otb, type: [:null, :number]
-              property :retention_all_students_otb, type: [:null, :number]
-              property :persistance_rate_veteran_ba, type: [:null, :number]
-              property :persistance_rate_veteran_otb, type: [:null, :number]
-              property :graduation_rate_veteran, type: [:null, :number]
-              property :graduation_rate_all_students, type: [:null, :number]
-              property :transfer_out_rate_veteran, type: [:null, :number]
-              property :transfer_out_rate_all_students, type: [:null, :number]
-              property :salary_all_students, type: [:null, :number]
-              property :repayment_rate_all_students, type: [:null, :number]
-              property :avg_stu_loan_debt, type: [:null, :number]
-              property :calendar, type: [:null, :string]
-              property :online_all, type: [:null, :string]
+              property :sec_702, type: %i[null boolean]
+              property :vet_success_name, type: %i[null string]
+              property :vet_success_email, type: %i[null string]
+              property :credit_for_mil_training, type: %i[null boolean]
+              property :vet_poc, type: %i[null boolean]
+              property :student_vet_grp_ipeds, type: %i[null boolean]
+              property :soc_member, type: %i[null boolean]
+              property :retention_rate_veteran_ba, type: %i[null number]
+              property :retention_all_students_ba, type: %i[null number]
+              property :retention_rate_veteran_otb, type: %i[null number]
+              property :retention_all_students_otb, type: %i[null number]
+              property :persistance_rate_veteran_ba, type: %i[null number]
+              property :persistance_rate_veteran_otb, type: %i[null number]
+              property :graduation_rate_veteran, type: %i[null number]
+              property :graduation_rate_all_students, type: %i[null number]
+              property :transfer_out_rate_veteran, type: %i[null number]
+              property :transfer_out_rate_all_students, type: %i[null number]
+              property :salary_all_students, type: %i[null number]
+              property :repayment_rate_all_students, type: %i[null number]
+              property :avg_stu_loan_debt, type: %i[null number]
+              property :calendar, type: %i[null string]
+              property :online_all, type: %i[null string]
               property :p911_tuition_fees, type: :number
               property :p911_recipients, type: :integer
               property :p911_yellow_ribbon, type: :number
               property :p911_yr_recipients, type: :integer
               property :accredited, type: :boolean
-              property :accreditation_type, type: [:null, :string]
-              property :accreditation_status, type: [:null, :string]
+              property :accreditation_type, type: %i[null string]
+              property :accreditation_status, type: %i[null string]
               property :complaints, type: :object do
                 property :facility_code, type: :integer
                 property :financial_by_fac_code, type: :integer
@@ -142,7 +143,7 @@ module Swagger
 
         swagger_schema :GibctInstitutionsAutocompleteMeta do
           key :type, :object
-          key :required, [:version, :term]
+          key :required, %i[version term]
 
           property :version, type: :integer
           property :term, type: :string
@@ -150,10 +151,10 @@ module Swagger
 
         swagger_schema :GibctInstitutionsSearchMeta do
           key :type, :object
-          key :required, [:version, :count, :facets]
+          key :required, %i[version count facets]
 
           property :version, type: :object do
-            key :required, [:number, :created_at, :preview]
+            key :required, %i[number created_at preview]
 
             property :number, type: :integer
             property :created_at, type: :string
@@ -162,14 +163,14 @@ module Swagger
 
           property :count, type: :integer
           property :facets, type: :object do
-            key :required, [
-              :category, :type, :state, :country, :student_vet_group,
-              :yellow_ribbon_scholarship, :principles_of_excellence,
-              :eight_keys_to_veteran_success
+            key :required, %i[
+              category type state country student_vet_group
+              yellow_ribbon_scholarship principles_of_excellence
+              eight_keys_to_veteran_success
             ]
 
             property :category, type: :object do
-              key :required, [:school, :employer]
+              key :required, %i[school employer]
 
               property :school, type: :integer
               property :employer, type: :integer
@@ -196,7 +197,7 @@ module Swagger
             property :country, type: :array do
               items do
                 key :type, :object
-                key :required, [:name, :count]
+                key :required, %i[name count]
 
                 property :name, type: :string
                 property :count, type: :integer
@@ -219,42 +220,42 @@ module Swagger
 
         swagger_schema :GibctInstitutionsSearchLinks do
           key :type, :object
-          key :required, [:self, :first, :prev, :next, :last]
+          key :required, %i[self first prev next last]
 
           property :self, type: :string
           property :first, type: :string
-          property :prev, type: [:null, :string]
-          property :next, type: [:null, :string]
+          property :prev, type: %i[null string]
+          property :next, type: %i[null string]
           property :last, type: :string
         end
 
         swagger_schema :GibctInstitutionBase do
-          key :required, [
-            :name, :facility_code, :type, :city, :state, :zip, :country, :highest_degree, :locale_type,
-            :student_count, :caution_flag, :caution_flag_reason, :created_at, :updated_at, :bah,
-            :tuition_in_state, :tuition_out_of_state, :books, :student_veteran, :yr, :poe, :eight_keys
+          key :required, %i[
+            name facility_code type city state zip country highest_degree locale_type
+            student_count caution_flag caution_flag_reason created_at updated_at bah
+            tuition_in_state tuition_out_of_state books student_veteran yr poe eight_keys
           ]
           property :name, type: :string
           property :facility_code, type: :string
-          property :city, type: [:null, :string]
-          property :state, type: [:null, :string]
-          property :zip, type: [:null, :string]
-          property :country, type: [:null, :string]
-          property :highest_degree, type: [:null, :integer]
-          property :locale_type, type: [:null, :string]
-          property :student_count, type: [:null, :integer]
-          property :caution_flag, type: [:null, :boolean]
-          property :caution_flag_reason, type: [:null, :string]
+          property :city, type: %i[null string]
+          property :state, type: %i[null string]
+          property :zip, type: %i[null string]
+          property :country, type: %i[null string]
+          property :highest_degree, type: %i[null integer]
+          property :locale_type, type: %i[null string]
+          property :student_count, type: %i[null integer]
+          property :caution_flag, type: %i[null boolean]
+          property :caution_flag_reason, type: %i[null string]
           property :created_at, type: :string
           property :updated_at, type: :string
-          property :bah, type: [:null, :number]
-          property :tuition_in_state, type: [:null, :number]
-          property :tuition_out_of_state, type: [:null, :number]
-          property :books, type: [:null, :number]
-          property :student_veteran, type: [:null, :boolean]
-          property :yr, type: [:null, :boolean]
-          property :poe, type: [:null, :boolean]
-          property :eight_keys, type: [:null, :boolean]
+          property :bah, type: %i[null number]
+          property :tuition_in_state, type: %i[null number]
+          property :tuition_out_of_state, type: %i[null number]
+          property :books, type: %i[null number]
+          property :student_veteran, type: %i[null boolean]
+          property :yr, type: %i[null boolean]
+          property :poe, type: %i[null boolean]
+          property :eight_keys, type: %i[null boolean]
         end
 
         swagger_schema :GibctInstitutionsSelfLinks do
@@ -266,10 +267,10 @@ module Swagger
 
         swagger_schema :null_boolean_counts do
           key :type, :object
-          key :required, [:true, :false]
+          key :required, %i[true false]
 
-          property :true, type: [:null, :integer]
-          property :false, type: [:null, :integer]
+          property :true, type: %i[null integer]
+          property :false, type: %i[null integer]
         end
       end
     end

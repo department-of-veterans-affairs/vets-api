@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Requests
     class VAFacilities
@@ -8,7 +9,7 @@ module Swagger
         operation :get do
           key :description, 'Get facilities within a geographic bounding box'
           key :operationId, 'indexFacilities'
-          key :tags, %w(facilities)
+          key :tags, %w[facilities]
 
           parameter do
             key :name, 'bbox[]'
@@ -26,7 +27,7 @@ module Swagger
             key :name, :type
             key :in, :query
             key :type, :string
-            key :enum, %w(health cemetery benefits vet_center)
+            key :enum, %w[health cemetery benefits vet_center]
           end
           parameter do
             key :name, 'services[]'
@@ -56,7 +57,7 @@ module Swagger
         operation :get do
           key :description, 'Get an individual facility detail object'
           key :operationId, 'showFacility'
-          key :tags, %w(facilities)
+          key :tags, %w[facilities]
 
           parameter do
             key :name, :id

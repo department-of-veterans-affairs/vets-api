@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 require 'workflow/task/shared/move_to_lts'

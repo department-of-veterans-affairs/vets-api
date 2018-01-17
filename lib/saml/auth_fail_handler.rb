@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module SAML
   class AuthFailHandler
     attr_accessor :message, :level, :context
@@ -7,7 +8,7 @@ module SAML
     TOO_LATE_MSG     = 'Current time is on or after NotOnOrAfter condition'
     TOO_EARLY_MSG    = 'Current time is earlier than NotBefore condition'
 
-    KNOWN_ERRORS = %i(clicked_deny auth_too_late auth_too_early).freeze
+    KNOWN_ERRORS = %i[clicked_deny auth_too_late auth_too_early].freeze
 
     def initialize(saml_response)
       @saml_response = saml_response

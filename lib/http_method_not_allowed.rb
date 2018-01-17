@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Render 405 response for ActionController::UnknownHttpMethod exceptions like:
 # (ActionController::UnknownHttpMethod) "CONNECT, accepted HTTP methods are get, head, put, post, delete, and options"
 # (ActionController::UnknownHttpMethod) "PROPFIND, accepted HTTP methods are get, head, put, post, delete, and options"

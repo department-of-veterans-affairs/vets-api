@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/configuration/rest'
 require 'common/client/middleware/request/camelcase'
 require 'common/client/middleware/request/multipart_request'

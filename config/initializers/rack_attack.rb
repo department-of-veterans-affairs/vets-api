@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class Rack::Attack
   REDIS_CONFIG = Rails.application.config_for(:redis).freeze
   Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.new(REDIS_CONFIG['redis']))

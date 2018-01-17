@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'mhv_logging/client'
 class MHVLoggingService
   def self.login(current_user)

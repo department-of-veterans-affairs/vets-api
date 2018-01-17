@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'facilities/bulk_json_client'
 require 'common/exceptions'
 require 'facility_access'
@@ -19,7 +20,7 @@ module Facilities
       'Specialty Care (Urgent)' => 'specialty_care_urgent'
     }.freeze
 
-    SAT_REQUIRED_KEYS = %w(facilityID ApptTypeName SHEPScore sliceEndDate).freeze
+    SAT_REQUIRED_KEYS = %w[facilityID ApptTypeName SHEPScore sliceEndDate].freeze
 
     WT_KEY_MAP = {
       'PRIMARY CARE' => 'primary_care',
@@ -33,7 +34,7 @@ module Facilities
       'UROLOGY CLINIC' => 'urology_clinic'
     }.freeze
 
-    WT_REQUIRED_KEYS = %w(facilityID ApptTypeName newWaitTime estWaitTime sliceEndDate).freeze
+    WT_REQUIRED_KEYS = %w[facilityID ApptTypeName newWaitTime estWaitTime sliceEndDate].freeze
 
     def update_cache(model, facilities)
       facilities.each do |k, v|
@@ -58,7 +59,7 @@ module Facilities
 
     def require_keys(record, required_keys)
       diff = required_keys - record.keys
-      raise AccessDataError, "Missing expected keys: #{diff}" unless diff.blank?
+      raise AccessDataError, "Missing expected keys: #{diff}" if diff.present?
     end
 
     def parse_satisfaction_data(records)

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'emis/responses/get_guard_reserve_service_periods_response'
 

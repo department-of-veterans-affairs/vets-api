@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Preneeds::ServiceRecord do
@@ -17,10 +18,7 @@ RSpec.describe Preneeds::ServiceRecord do
   describe 'when converting to eoas' do
     it 'produces an ordered hash' do
       expect(subject.as_eoas.keys).to eq(
-        [
-          :branchOfService, :dischargeType, :enteredOnDutyDate,
-          :highestRank, :nationalGuardState, :releaseFromDutyDate
-        ]
+        %i[branchOfService dischargeType enteredOnDutyDate highestRank nationalGuardState releaseFromDutyDate]
       )
     end
 
