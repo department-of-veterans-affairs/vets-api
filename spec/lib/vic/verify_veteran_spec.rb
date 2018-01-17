@@ -52,5 +52,21 @@ describe VIC::VerifyVeteran do
         end
       end
     end
+
+    context 'with a valid request' do
+      it 'should return veteran details' do
+        VCR.use_cassette('vic/verify_veteran', record: :once) do
+          described_class.send_request(
+            'veteran_full_name' => {
+              'first' => 'Wesley',
+              'last' => 'Watson'
+            },
+            'veteran_date_of_birth' => '1986-05-06',
+            'veteran_social_security_number' => '796043735',
+            'gender' => 'M'
+          )
+        end
+      end
+    end
   end
 end
