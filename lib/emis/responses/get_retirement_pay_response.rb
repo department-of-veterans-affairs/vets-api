@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'emis/models/retirement_pay'
 require 'emis/responses/response'
 

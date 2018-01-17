@@ -3,8 +3,8 @@
 module EVSS
   module PCIUAddress
     class MilitaryAddress < Address
-      MILITARY_POST_OFFICE_TYPES = %w(APO FPO DPO).freeze
-      MILITARY_STATE_CODES = %w(AA AE AP).freeze
+      MILITARY_POST_OFFICE_TYPES = %w[APO FPO DPO].freeze
+      MILITARY_STATE_CODES = %w[AA AE AP].freeze
 
       attribute :military_post_office_type_code, String
       attribute :military_state_code, String

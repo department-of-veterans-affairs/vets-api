@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require './lib/sm/configuration'
 
 FactoryBot.define do

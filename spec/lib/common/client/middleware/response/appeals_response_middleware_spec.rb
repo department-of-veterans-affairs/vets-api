@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/caseflow_errors'

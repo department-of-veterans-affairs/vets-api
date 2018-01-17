@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Schemas
     class Address
@@ -12,11 +13,11 @@ module Swagger
           property :attributes, type: :object do
             property :address do
               property :type, type: :string, enum:
-                %w(
+                %w[
                   DOMESTIC
                   INTERNATIONAL
                   MILITARY
-                ), example: 'DOMESTIC'
+                ], example: 'DOMESTIC'
               property :address_effective_date, type: :string, example: '1973-01-01T05:00:00.000+00:00'
               property :address_one, type: :string, example: '140 Rock Creek Church Rd NW'
               property :address_two, type: :string, example: ''

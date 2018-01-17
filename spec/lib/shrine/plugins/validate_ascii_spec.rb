@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'shrine/plugins/validate_unlocked_pdf'
 

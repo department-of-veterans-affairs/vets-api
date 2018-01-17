@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe EducationForm::Forms::VA1990, type: :model, form: :education_benefits do
@@ -6,8 +7,8 @@ RSpec.describe EducationForm::Forms::VA1990, type: :model, form: :education_bene
 
   subject { described_class.new(application) }
 
-  SAMPLE_APPLICATIONS = [
-    :simple_ch33, :kitchen_sink, :kitchen_sink_edu_prog, :kitchen_sink_active_duty
+  SAMPLE_APPLICATIONS = %i[
+    simple_ch33 kitchen_sink kitchen_sink_edu_prog kitchen_sink_active_duty
   ].freeze
 
   # For each sample application we have, format it and compare it against a 'known good'

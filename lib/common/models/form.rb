@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'active_model'
 require 'common/models/attribute_types/utc_time'
 

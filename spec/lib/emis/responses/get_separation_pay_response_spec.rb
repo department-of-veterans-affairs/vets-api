@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'emis/responses/get_separation_pay_response'
 require 'lib/emis/support/emis_soap_response_examples'

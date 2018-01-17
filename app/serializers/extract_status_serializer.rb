@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class ExtractStatusSerializer < ActiveModel::Serializer
   attribute :id
   attribute :extract_type
