@@ -47,7 +47,6 @@ module VIC
       return false if emis_request_options.blank?
 
       emis_response = EMIS::VeteranStatusService.new.get_veteran_status(emis_request_options)
-      raise emis_response.error if emis_response.error?
       veteran_status = emis_response.items.first
       return false if veteran_status.blank?
 
