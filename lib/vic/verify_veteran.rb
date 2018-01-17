@@ -19,8 +19,8 @@ module VIC
       mvi_profile
     end
 
-    def send_request(attributes)
-      mvi_profile = create_mvi_profile(attributes)
+    def send_request(veteran_attributes)
+      mvi_profile = create_mvi_profile(veteran_attributes)
       mvi_response_profile = MVI::Service.new.find_profile_from_mvi_profile(mvi_profile)&.profile
       return false if mvi_response_profile.blank?
 
