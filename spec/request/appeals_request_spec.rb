@@ -22,7 +22,7 @@ RSpec.describe 'Appeals Status', type: :request do
       get '/v0/appeals', nil, 'Authorization' => "Token token=#{session.token}"
       expect(response).to have_http_status(:ok)
       expect(response.body).to be_a(String)
-      expect(response).to match_response_schema('appeals')
+      expect(response).to match_response_schema('appeals_status')
     end
   end
 

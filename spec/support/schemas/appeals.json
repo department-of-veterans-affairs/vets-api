@@ -24,7 +24,7 @@
                 "type": "boolean"
               },
               "incompleteHistory": {
-                "type": "boolean"
+                "type": ["boolean", "null"]
               },
               "aoj": {
                 "type": {
@@ -238,7 +238,6 @@
             },
             "required": [
               "active",
-              "incompleteHistory",
               "aoj",
               "programArea",
               "type",
