@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 def new_saml_cert_exists?
   !Settings.saml.cert_new_path.nil? && File.file?(File.expand_path(Settings.saml.cert_new_path))
 end

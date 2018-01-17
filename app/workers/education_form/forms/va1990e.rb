@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module EducationForm::Forms
   class VA1990e < Base
     def header_form_type

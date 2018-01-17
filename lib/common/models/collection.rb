@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'forwardable'
 require 'common/models/comparable/ascending'
 require 'common/models/comparable/descending'

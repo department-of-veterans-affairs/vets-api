@@ -77,7 +77,7 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
     c.filter_sensitive_data('<MVI_URL>') { Settings.mvi.url }
     c.filter_sensitive_data('<PRENEEDS_HOST>') { Settings.preneeds.host }
     c.before_record do |i|
-      %i(response request).each do |env|
+      %i[response request].each do |env|
         next unless i.send(env).headers.keys.include?('Token')
         i.send(env).headers.update('Token' => '<SESSION_TOKEN>')
       end

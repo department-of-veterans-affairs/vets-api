@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module FixtureHelpers
   extend ActiveSupport::Concern
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Common
   module Exceptions
     # Service Outage - Breakers is reporting an outage on a backend system

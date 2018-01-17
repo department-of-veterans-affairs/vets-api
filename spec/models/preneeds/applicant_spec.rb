@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Preneeds::Applicant do
@@ -19,9 +20,9 @@ RSpec.describe Preneeds::Applicant do
   describe 'when converting to eoas' do
     it 'produces an ordered hash' do
       expect(subject.as_eoas.keys).to eq(
-        [
-          :applicantEmail, :applicantPhoneNumber, :applicantRelationshipToClaimant,
-          :completingReason, :mailingAddress, :name
+        %i[
+          applicantEmail applicantPhoneNumber applicantRelationshipToClaimant
+          completingReason mailingAddress name
         ]
       )
     end

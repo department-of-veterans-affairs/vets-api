@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'pdf_fill/forms/va21p527ez'
 
@@ -383,7 +384,7 @@ describe PdfFill::Forms::VA21P527EZ do
     [
       [
         '0123456789',
-        %w(012 3456789)
+        %w[012 3456789]
       ],
       [
         [nil],
@@ -441,21 +442,21 @@ describe PdfFill::Forms::VA21P527EZ do
       [
         [
           { 'a' => '1', 'b' => '2' },
-          %w(a b)
+          %w[a b]
         ],
         '1 2'
       ],
       [
         [
           { 'a' => '1', 'c' => '2' },
-          %w(a b c)
+          %w[a b c]
         ],
         '1 2'
       ],
       [
         [
           { 'a' => '1', 'b' => '2' },
-          %w(a b),
+          %w[a b],
           ','
         ],
         '1,2'

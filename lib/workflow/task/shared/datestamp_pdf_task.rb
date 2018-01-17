@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'fileutils'
 
 # With a `@file` that must be a PDF (run the ConvertToPDF task before this if necessary)

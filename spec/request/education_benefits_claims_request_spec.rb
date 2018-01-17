@@ -1,7 +1,8 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serializer] do
+RSpec.describe 'Education Benefits Claims Integration', type: %i[request serializer] do
   describe 'POST create' do
     let(:path) { v0_education_benefits_claims_path }
 

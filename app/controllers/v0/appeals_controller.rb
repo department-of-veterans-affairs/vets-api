@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'appeals_status/service'
 
 module V0

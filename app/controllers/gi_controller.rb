@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'gi/client'
 
 class GIController < ApplicationController

@@ -1,9 +1,10 @@
 # frozen_string_literal: true
+
 require 'saml/auth_fail_handler'
 
 module V0
   class SessionsController < ApplicationController
-    skip_before_action :authenticate, only: [:new, :authn_urls, :saml_callback, :saml_logout_callback]
+    skip_before_action :authenticate, only: %i[new authn_urls saml_callback saml_logout_callback]
 
     STATSD_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'
@@ -155,9 +156,7 @@ module V0
       Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
       # We want to log when SSNs do not match between MVI and SAML Identity. And might take future
       # action if this appears to be happening frquently.
-      if @current_user.ssn_mismatch?
-        log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, user_context(@current_user))
-      end
+      log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, user_context(@current_user)) if @current_user.ssn_mismatch?
     end
 
     def async_create_evss_account(user)
@@ -225,8 +224,8 @@ module V0
 
     def benchmark_tags(*tags)
       tags << "context:#{context_key}"
-      tags << "loa:#{@current_user && @current_user.identity ? @current_user.loa[:current] : 'none'}"
-      tags << "multifactor:#{@current_user && @current_user.identity ? @current_user.multifactor : 'none'}"
+      tags << "loa:#{@current_user&.identity ? @current_user.loa[:current] : 'none'}"
+      tags << "multifactor:#{@current_user&.identity ? @current_user.multifactor : 'none'}"
       tags
     end
   end

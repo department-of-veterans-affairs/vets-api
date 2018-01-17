@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/middleware/response/json_parser'
 require 'evss/error_middleware'
 require 'sentry_logging'
@@ -66,13 +67,15 @@ module EVSS
 
     def ssl_options
       return { verify: false } if !cert? && (Rails.env.development? || Rails.env.test?)
-      {
-        version: :TLSv1_2,
-        verify: true,
-        client_cert: client_cert,
-        client_key: client_key,
-        ca_file: root_ca
-      } if cert?
+      if cert?
+        {
+          version: :TLSv1_2,
+          verify: true,
+          client_cert: client_cert,
+          client_key: client_key,
+          ca_file: root_ca
+        }
+      end
     end
 
     def cert?

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :mhv_account do
     user_uuid { SecureRandom.uuid }

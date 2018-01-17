@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'sentry/processor/email_sanitizer'
 
@@ -61,14 +62,14 @@ RSpec.describe Sentry::Processor::EmailSanitizer do
 
   it 'works on hashes that contain arrays' do
     data = {
-      this: %w(that this and_uh),
+      this: %w[that this and_uh],
       that: {
         this: ['that_and_uh', 'Dre, creep to the mic, like a phantom@aol.com']
       }
     }
 
     filtered_data = {
-      this: %w(that this and_uh),
+      this: %w[that this and_uh],
       that: {
         this: ['that_and_uh', 'Dre, creep to the mic, like a [FILTERED EMAIL]']
       }

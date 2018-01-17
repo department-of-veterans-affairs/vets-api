@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class EVSSClaimBaseSerializer < ActiveModel::Serializer
   def self.date_attr(*names, override_name: nil, format: '%m/%d/%Y')
     name = override_name || names.last
