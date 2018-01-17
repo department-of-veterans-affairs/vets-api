@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'net/sftp'
 require 'iconv'
 require 'sentry_logging'
@@ -10,7 +11,7 @@ module EducationForm
   end
 
   class CreateDailySpoolFiles
-    LIVE_FORM_TYPES = %w(1990 1995 1990e 5490 1990n 5495).map { |t| "22-#{t.upcase}" }.freeze
+    LIVE_FORM_TYPES = %w[1990 1995 1990e 5490 1990n 5495].map { |t| "22-#{t.upcase}" }.freeze
     include Sidekiq::Worker
     include SentryLogging
     sidekiq_options queue: 'default',

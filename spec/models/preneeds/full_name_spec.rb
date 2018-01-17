@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Preneeds::FullName do
@@ -12,7 +13,7 @@ RSpec.describe Preneeds::FullName do
 
   describe 'when converting to eoas' do
     it 'produces an ordered hash' do
-      expect(subject.as_eoas.keys).to eq([:firstName, :lastName, :maidenName, :middleName, :suffix])
+      expect(subject.as_eoas.keys).to eq(%i[firstName lastName maidenName middleName suffix])
     end
 
     it 'removes maidenName, middleName, and suffix if blank' do

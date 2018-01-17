@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module PdfFill
   class ExtrasGenerator
     def initialize
@@ -55,8 +56,8 @@ module PdfFill
     def set_font(pdf)
       pdf.font_families.update(
         'Roboto' => {
-          normal: Rails.root.join('lib/pdf_fill/fonts/Roboto-Regular.ttf'),
-          bold: Rails.root.join('lib/pdf_fill/fonts/Roboto-Bold.ttf')
+          normal: Rails.root.join('lib', 'pdf_fill', 'fonts', 'Roboto-Regular.ttf'),
+          bold: Rails.root.join('lib', 'pdf_fill', 'fonts', 'Roboto-Bold.ttf')
         }
       )
       pdf.font('Roboto')

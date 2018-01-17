@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'emis/models/reserve_drill_days'
 require 'emis/responses/response'
 

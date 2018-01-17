@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module HCA
   module Validations
     module_function

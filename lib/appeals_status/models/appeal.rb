@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'appeals_status/models/event'
 require 'appeals_status/models/hearing'
 require 'common/models/base'

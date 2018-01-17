@@ -21,7 +21,7 @@ module Swagger
       end
 
       swagger_schema :TermsAndConditionsBody do
-        key :required, [:id, :type, :attributes]
+        key :required, %i[id type attributes]
 
         property :id, type: :string
         property :type, type: :string

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'typhoeus'
 require 'json'
 require 'common/client/errors'

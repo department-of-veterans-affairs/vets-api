@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module AuthenticatedSessionHelper
   def use_authenticated_current_user(options = {})
     current_user = options[:current_user] || build(:user)

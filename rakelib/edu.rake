@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 namespace :edu do
   desc 'Given a confirmation number, print a spool file entry'
   task :print, [:id] => [:environment] do |_t, args|
