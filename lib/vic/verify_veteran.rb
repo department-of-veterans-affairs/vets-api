@@ -19,25 +19,6 @@ module VIC
       mvi_profile
     end
 
-    def create_response(mvi_response_profile)
-      service_branches = EMIS::MilitaryInformationService.new.get_military_service_episodes(
-        mvi_response_profile.emis_request_options
-      ).items.map(&:branch_of_service).uniq
-      address = mvi_response_profile.address
-
-      {
-        veteran_address: {
-          country: address.country,
-          street: address.street,
-          city: address.city,
-          state: address.state,
-          postal_code: address.postal_code
-        },
-        phone: mvi_response_profile.home_phone,
-        service_branches: service_branches
-      }
-    end
-
     def send_request(attributes)
       mvi_profile = create_mvi_profile(attributes)
       mvi_response_profile = MVI::Service.new.find_profile_from_mvi_profile(mvi_profile)&.profile
@@ -50,11 +31,7 @@ module VIC
       veteran_status = emis_response.items.first
       return false if veteran_status.blank?
 
-      if User::ID_CARD_ALLOWED_STATUSES.include?(veteran_status.title38_status_code)
-        return create_response(mvi_response_profile)
-      end
-
-      false
+      User::ID_CARD_ALLOWED_STATUSES.include?(veteran_status.title38_status_code)
     end
   end
 end
