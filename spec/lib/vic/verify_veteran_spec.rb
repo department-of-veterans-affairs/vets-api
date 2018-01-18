@@ -58,7 +58,7 @@ describe VIC::VerifyVeteran do
 
     context 'with a valid request' do
       it 'should return true' do
-        VCR.use_cassette('vic/verify_veteran_2', record: :once) do
+        VCR.use_cassette('vic/verify_veteran', VCR::MATCH_EVERYTHING) do
           verified = described_class.send_request(
             'veteran_full_name' => {
               'first' => 'Wesley',
