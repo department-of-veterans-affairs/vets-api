@@ -82,6 +82,7 @@ class FormProfile
     '22-5490'   => ::FormProfile::VA5490,
     '22-5495'   => ::FormProfile::VA5495,
     '21P-530'   => ::FormProfile::VA21p530,
+    'VIC'       => ::FormProfile::VIC,
     '21P-527EZ' => ::FormProfile::VA21p527ez
   }.freeze
 
