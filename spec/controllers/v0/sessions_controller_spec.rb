@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe V0::SessionsController, type: :controller do
@@ -96,14 +97,14 @@ RSpec.describe V0::SessionsController, type: :controller do
       request.env['HTTP_AUTHORIZATION'] = auth_header
       get :identity_proof
       expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body).keys).to eq %w(identity_proof_url)
+      expect(JSON.parse(response.body).keys).to eq %w[identity_proof_url]
     end
 
     it 'returns a url for adding multifactor authentication to your account' do
       request.env['HTTP_AUTHORIZATION'] = auth_header
       get :multifactor
       expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body).keys).to eq %w(multifactor_url)
+      expect(JSON.parse(response.body).keys).to eq %w[multifactor_url]
     end
 
     it 'returns a logout url' do
@@ -150,7 +151,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
     end
 
-    describe ' POST saml_callback' do
+    describe 'POST saml_callback' do
       before(:each) do
         allow(SAML::User).to receive(:new).and_return(saml_user)
       end
@@ -160,11 +161,33 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(existing_user.last_signed_in).to be_a(Time)
         expect(existing_user.multifactor).to be_falsey
         expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
+        expect(existing_user.ssn).to eq('796111863')
+        expect(controller).to receive(:log_message_to_sentry).with(
+          'SSNS DO NOT MATCH!!',
+          :warn,
+          uuid: '1234abcd',
+          authn_context: nil,
+          loa: { current: 3, highest: 3 },
+          mhv_icn: nil
+        )
         post :saml_callback
         new_user = User.find(uuid)
+        expect(new_user.ssn).to eq('796111863')
+        expect(new_user.va_profile.ssn).not_to eq('155256322')
         expect(new_user.loa).to eq(highest: LOA::THREE, current: LOA::THREE)
         expect(new_user.multifactor).to be_falsey
         expect(new_user.last_signed_in).not_to eq(existing_user.last_signed_in)
+      end
+
+      it 'does not log to sentry when SSN matches' do
+        existing_user = User.find(uuid)
+        allow_any_instance_of(User).to receive_message_chain('va_profile.ssn').and_return('796111863')
+        expect(existing_user.ssn).to eq('796111863')
+        expect(controller).not_to receive(:log_message_to_sentry)
+        post :saml_callback
+        new_user = User.find(uuid)
+        expect(new_user.ssn).to eq('796111863')
+        expect(new_user.va_profile.ssn).to eq('796111863')
       end
 
       it 'saves status:success to the login timer' do
@@ -333,7 +356,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     it 'returns the urls for for all three possible authN requests' do
       get :authn_urls
       expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body).keys).to eq %w(mhv dslogon idme)
+      expect(JSON.parse(response.body).keys).to eq %w[mhv dslogon idme]
     end
 
     it 'does not allow fetching the identity proof url' do
@@ -353,7 +376,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
     end
 
-    describe ' POST saml_callback' do
+    describe 'POST saml_callback' do
       context 'loa1_user' do
         let(:saml_user_attributes) { loa1_user.attributes.merge(loa1_user.identity.attributes) }
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'shrine'
 require 'shrine/storage/file_system'
 

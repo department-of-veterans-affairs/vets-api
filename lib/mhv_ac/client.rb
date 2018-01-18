@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/base'
 require 'mhv_ac/configuration'
 require 'mhv_ac/registration_form'

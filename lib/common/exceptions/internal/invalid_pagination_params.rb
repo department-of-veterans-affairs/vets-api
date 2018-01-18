@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Common
   module Exceptions
     # Invalid Pagination Params - if page or per_page params are invalid

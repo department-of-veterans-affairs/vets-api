@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'emis/models/military_service_eligibility_info'
 require 'emis/responses/response'
 

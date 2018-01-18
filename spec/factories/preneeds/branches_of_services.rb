@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :branches_of_service, class: Preneeds::BranchesOfService do
     sequence(:code) { |n| ('A'.ord + n / 26).chr + ('A'.ord + (n - 1) % 26).chr }

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :receive_application, class: Preneeds::ReceiveApplication do
     tracking_number 'abcd1234'

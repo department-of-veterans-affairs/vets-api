@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/base'
 
 module Preneeds
@@ -21,11 +22,11 @@ module Preneeds
     end
 
     # keep this name because it matches the previous attribute
-    # rubocop:disable Style/PredicateName
+    # rubocop:disable Naming/PredicateName
     def has_attachments
       preneed_attachments.present?
     end
-    # rubocop:enable Style/PredicateName
+    # rubocop:enable Naming/PredicateName
 
     def attachments
       @attachments ||= preneed_attachments.map(&:to_attachment)

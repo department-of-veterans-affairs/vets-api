@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class FolderNameConventionValidator < ActiveModel::EachValidator
   def validate_each(record, field, value)
     unless value.nil?

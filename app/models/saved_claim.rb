@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'attr_encrypted'
 
 # Base class to hold common functionality for Claim submissions.

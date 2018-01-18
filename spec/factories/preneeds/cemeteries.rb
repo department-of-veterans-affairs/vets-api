@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :cemetery, class: Preneeds::Cemetery do
     cemetery_type 'N'

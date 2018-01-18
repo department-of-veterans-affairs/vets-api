@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'support/attr_encrypted_matcher'
 
@@ -437,11 +438,11 @@ RSpec.describe FormProfile, type: :model do
 
       it 'loads the yaml file only once' do
         expect(YAML).to receive(:load_file).once.and_return(
-          'veteran_full_name' => %w(identity_information full_name),
-          'gender' => %w(identity_information gender),
-          'veteran_date_of_birth' => %w(identity_information date_of_birth),
-          'veteran_address' => %w(contact_information address),
-          'home_phone' => %w(contact_information home_phone)
+          'veteran_full_name' => %w[identity_information full_name],
+          'gender' => %w[identity_information gender],
+          'veteran_date_of_birth' => %w[identity_information date_of_birth],
+          'veteran_address' => %w[contact_information address],
+          'home_phone' => %w[contact_information home_phone]
         )
         instance1.prefill(user)
         instance2.prefill(user)

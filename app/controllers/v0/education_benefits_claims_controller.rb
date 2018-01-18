@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module V0
   class EducationBenefitsClaimsController < ApplicationController
     skip_before_action(:authenticate)
