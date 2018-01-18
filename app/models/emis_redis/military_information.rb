@@ -97,6 +97,10 @@ module EMISRedis
       end
     end
 
+    def service_branches
+      military_service_episodes.map(&:branch_of_service).uniq
+    end
+
     def last_service_branch
       return if latest_service_episode.blank?
       latest_service_episode.hca_branch_of_service

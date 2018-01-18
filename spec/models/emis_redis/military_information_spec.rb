@@ -14,6 +14,14 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     end
   end
 
+  describe '#service_branches' do
+    it 'should return all the service branches someone has served under' do
+      VCR.use_cassette('emis/get_military_service_episodes/valid') do
+        expect(subject.service_branches).to eq(['Air Force'])
+      end
+    end
+  end
+
   describe '#currently_active_duty_hash' do
     it 'should return false if service episode end date is in the past' do
       VCR.use_cassette('emis/get_military_service_episodes/valid') do
