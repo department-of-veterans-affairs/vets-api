@@ -27,7 +27,6 @@ GIT
 
 GEM
   remote: https://rubygems.org/
-  remote: https://enterprise.contribsys.com/
   specs:
     Ascii85 (1.0.2)
     aasm (4.12.0)
@@ -404,23 +403,18 @@ GEM
       connection_pool (~> 2.2, >= 2.2.0)
       rack-protection (>= 1.5.0)
       redis (~> 3.2, >= 3.2.1)
-    sidekiq-ent (1.6.1)
-      sidekiq (>= 4.2.9)
-      sidekiq-pro (>= 3.5.0)
-    sidekiq-instrument (0.2.1)
-      sidekiq (~> 4.0)
+    sidekiq-instrument (0.3.0)
+      sidekiq (>= 4.2, < 6)
       statsd-instrument (~> 2.0, >= 2.0.4)
-    sidekiq-pro (3.6.1)
-      sidekiq (>= 4.1.5)
     sidekiq-scheduler (2.0.19)
       hashie (~> 3.4)
       redis (~> 3)
       rufus-scheduler (~> 3.1.8)
       sidekiq (>= 3)
       tilt (>= 1.4.0)
-    sidekiq-unique-jobs (4.0.18)
-      sidekiq (>= 2.6)
-      thor
+    sidekiq-unique-jobs (5.0.10)
+      sidekiq (>= 4.0, <= 6.0)
+      thor (~> 0)
     simplecov (0.15.1)
       docile (~> 1.1.0)
       json (>= 1.8, < 3)
@@ -554,9 +548,7 @@ DEPENDENCIES
   shrine
   shrine-memory
   sidekiq
-  sidekiq-ent!
   sidekiq-instrument
-  sidekiq-pro!
   sidekiq-scheduler (~> 2.0)
   sidekiq-unique-jobs
   simplecov

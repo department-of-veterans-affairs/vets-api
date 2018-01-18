@@ -124,5 +124,5 @@ group :production do
   source 'https://enterprise.contribsys.com/' do
     gem 'sidekiq-ent'
     gem 'sidekiq-pro'
-  end
+  end if ENV['BUNDLE_ENTERPRISE__CONTRIBSYS__COM']
 end
