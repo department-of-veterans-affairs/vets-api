@@ -398,16 +398,27 @@ module HCA
       DISCHARGE_CODES[discharge_type] || 4
     end
 
+    def discharge_type(veteran)
+      discharge_date = Validations.parse_date(veteran['lastDischargeDate'])
+      return '' if discharge_date&.future?
+
+      discharge_type_to_sds_code(veteran['dischargeType'])
+    end
+
     def veteran_to_military_service_info(veteran)
+      unless Validations.valid_discharge_date?(veteran['lastDischargeDate'])
+        raise Common::Exceptions::InvalidFieldValue.new('lastDischargeDate', veteran['lastDischargeDate'])
+      end
+
       {
         'dischargeDueToDisability' => veteran['disabledInLineOfDuty'].present?,
         'militaryServiceSiteRecords' => {
           'militaryServiceSiteRecord' => {
             'militaryServiceEpisodes' => {
               'militaryServiceEpisode' => {
-                'dischargeType' => discharge_type_to_sds_code(veteran['dischargeType']),
+                'dischargeType' => discharge_type(veteran),
                 'startDate' => Validations.date_of_birth(veteran['lastEntryDate']),
-                'endDate' => Validations.date_of_birth(veteran['lastDischargeDate']),
+                'endDate' => Validations.discharge_date(veteran['lastDischargeDate']),
                 'serviceBranch' => service_branch_to_sds_code(veteran['lastServiceBranch'])
               }
             },
