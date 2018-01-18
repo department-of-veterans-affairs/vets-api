@@ -8,14 +8,14 @@ RSpec.describe V0::VIC::VerifyVeteransController, type: :controller do
 
       VCR.use_cassette('vic/verify_veteran', VCR::MATCH_EVERYTHING) do
         post(:create, veteran: {
-          'veteran_full_name' => {
-            'first' => 'Wesley',
-            'last' => 'Watson'
-          },
-          'veteran_date_of_birth' => '1986-05-06',
-          'veteran_social_security_number' => '796043735',
-          'gender' => 'M'
-        })
+               'veteran_full_name' => {
+                 'first' => 'Wesley',
+                 'last' => 'Watson'
+               },
+               'veteran_date_of_birth' => '1986-05-06',
+               'veteran_social_security_number' => '796043735',
+               'gender' => 'M'
+             })
 
         expect(JSON.parse(response.body)).to eq('verified' => true)
       end
