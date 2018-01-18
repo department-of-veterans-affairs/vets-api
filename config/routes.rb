@@ -131,6 +131,10 @@ Rails.application.routes.draw do
       resources :preneed_attachments, only: :create
     end
 
+    namespace :vic do
+      resources :verify_veterans, only: :create
+    end
+
     resource :address, only: %i[show update] do
       collection do
         get 'countries', to: 'addresses#countries'

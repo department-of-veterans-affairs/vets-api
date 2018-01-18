@@ -10,8 +10,8 @@ module MVI
       include MVI::Messages::MessageBuilder
       EXTENSION = 'PRPA_IN201305UV02'
 
-      def to_xml
-        super(EXTENSION, build_body)
+      def to_xml(opt = {})
+        super(EXTENSION, build_body(opt))
       rescue => e
         Rails.logger.error "failed to build find candidate message: #{e.message}"
         raise
@@ -19,21 +19,23 @@ module MVI
 
       private
 
-      def build_body
+      def build_body(opt)
         body = build_control_act_process
-        body << query_by_parameter
+        body << query_by_parameter(opt)
         body
       end
 
-      def query_by_parameter
-        build_query_by_parameter << build_parameter_list
+      def query_by_parameter(opt)
+        build_query_by_parameter(opt) << build_parameter_list
       end
 
-      def build_query_by_parameter
+      def build_query_by_parameter(opt)
+        modify_code = "MVI.COMP#{opt[:historical_icns] ? '2' : '1'}"
+
         el = element('queryByParameter')
         el << element('queryId', root: '1.2.840.114350.1.13.28.1.18.5.999', extension: '18204')
         el << element('statusCode', code: 'new')
-        el << element('modifyCode', code: 'MVI.COMP1')
+        el << element('modifyCode', code: modify_code)
         el << element('initialQuantity', value: 1)
       end
     end

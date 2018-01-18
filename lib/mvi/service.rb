@@ -30,7 +30,17 @@ module MVI
     # @param user [User] the user to query MVI for
     # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
     def find_profile(user)
-      raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
+      find_profile_with_body(create_profile_message(user), user)
+    end
+
+    def find_profile_from_mvi_profile(mvi_profile)
+      find_profile_with_body(message_mvi_profile_attributes(mvi_profile))
+    end
+
+    private
+
+    def find_profile_with_body(body, user = nil)
+      raw_response = perform(:post, '', body, soapaction: OPERATIONS[:find_profile])
       MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
     rescue Faraday::ConnectionFailed => e
       log_message_to_sentry("MVI find_profile connection failed: #{e.message}", :error)
@@ -47,8 +57,6 @@ module MVI
       end
     end
 
-    private
-
     # TODO: Possibly consider adding Grafana Instrumentation here too
     def mvi_error_handler(user, e)
       case e
@@ -60,7 +68,7 @@ module MVI
         # log_message_to_sentry('MVI Record Not Found', :warn, user_context(user))
         nil
       when MVI::Errors::InvalidRequestError
-        if user.mhv_icn.present?
+        if user&.mhv_icn.present?
           log_message_to_sentry('MVI Invalid Request (Possible RecordNotFound)', :error, user_context(user))
         else
           log_message_to_sentry('MVI Invalid Request', :error, user_context(user))
@@ -78,6 +86,16 @@ module MVI
 
     def message_icn(user)
       MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml
+    end
+
+    def message_mvi_profile_attributes(mvi_profile)
+      MVI::Messages::FindProfileMessage.new(
+        mvi_profile.given_names,
+        mvi_profile.family_name,
+        mvi_profile.birth_date,
+        mvi_profile.ssn,
+        mvi_profile.gender
+      ).to_xml
     end
 
     def message_user_attributes(user)

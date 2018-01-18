@@ -1,0 +1,181 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "<MVI_URL>"
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        CjxlbnY6RW52ZWxvcGUgeG1sbnM6c29hcGVuYz0iaHR0cDovL3NjaGVtYXMu
+        eG1sc29hcC5vcmcvc29hcC9lbmNvZGluZy8iIHhtbG5zOnhzZD0iaHR0cDov
+        L3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEiIHhtbG5zOmVudj0iaHR0cDov
+        L3NjaGVtYXMueG1sc29hcC5vcmcvc29hcC9lbnZlbG9wZS8iIHhtbG5zOnhz
+        aT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEtaW5zdGFuY2Ui
+        PgogIDxlbnY6SGVhZGVyLz4KICA8ZW52OkJvZHk+CiAgICA8aWRtOlBSUEFf
+        SU4yMDEzMDVVVjAyIHhtbG5zOmlkbT0iaHR0cDovL3Zhd3cub2VkLm9pdC52
+        YS5nb3YiIHhtbG5zOnhzaT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS9YTUxT
+        Y2hlbWHigJBpbnN0YW5jZSIgeHNpOnNjaGVtYUxvY2F0aW9uPSJ1cm46aGw3
+        4oCQb3JnOnYzIC4uLy4uL3NjaGVtYS9ITDdWMy9ORTIwMDgvbXVsdGljYWNo
+        ZXNjaGVtYXMvUFJQQV9JTjIwMTMwNVVWMDIueHNkIiB4bWxucz0idXJuOmhs
+        N+KAkG9yZzp2MyIgSVRTVmVyc2lvbj0iWE1MXzEuMCI+CiAgICAgIDxpZCBy
+        b290PSIxLjIuODQwLjExNDM1MC4xLjEzLjAuMS43LjEuMSIgZXh0ZW5zaW9u
+        PSIyMDBWR09WLWNmMmY3YzY3LTZjMTItNDY0YS1hNmI3LTNlZTJmZmUyMTI5
+        OCIvPgogICAgICA8Y3JlYXRpb25UaW1lIHZhbHVlPSIyMDE4MDExNzAzNDkw
+        MCIvPgogICAgICA8dmVyc2lvbkNvZGUgY29kZT0iMy4wIi8+CiAgICAgIDxp
+        bnRlcmFjdGlvbklkIHJvb3Q9IjIuMTYuODQwLjEuMTEzODgzLjEuNiIgZXh0
+        ZW5zaW9uPSJQUlBBX0lOMjAxMzA1VVYwMiIvPgogICAgICA8cHJvY2Vzc2lu
+        Z0NvZGUgY29kZT0iVCIvPgogICAgICA8cHJvY2Vzc2luZ01vZGVDb2RlIGNv
+        ZGU9IlQiLz4KICAgICAgPGFjY2VwdEFja0NvZGUgY29kZT0iQUwiLz4KICAg
+        ICAgPHJlY2VpdmVyIHR5cGVDb2RlPSJSQ1YiPgogICAgICAgIDxkZXZpY2Ug
+        Y2xhc3NDb2RlPSJERVYiIGRldGVybWluZXJDb2RlPSJJTlNUQU5DRSI+CiAg
+        ICAgICAgICA8aWQgcm9vdD0iMS4yLjg0MC4xMTQzNTAuMS4xMy45OTkuMjM0
+        IiBleHRlbnNpb249IjIwME0iLz4KICAgICAgICA8L2RldmljZT4KICAgICAg
+        PC9yZWNlaXZlcj4KICAgICAgPHNlbmRlciB0eXBlQ29kZT0iU05EIj4KICAg
+        ICAgICA8ZGV2aWNlIGNsYXNzQ29kZT0iREVWIiBkZXRlcm1pbmVyQ29kZT0i
+        SU5TVEFOQ0UiPgogICAgICAgICAgPGlkIHJvb3Q9IjIuMTYuODQwLjEuMTEz
+        ODgzLjQuMzQ5IiBleHRlbnNpb249IjIwMFZHT1YiLz4KICAgICAgICA8L2Rl
+        dmljZT4KICAgICAgPC9zZW5kZXI+CiAgICAgIDxjb250cm9sQWN0UHJvY2Vz
+        cyBjbGFzc0NvZGU9IkNBQ1QiIG1vb2RDb2RlPSJFVk4iPgogICAgICAgIDxj
+        b2RlIGNvZGU9IlBSUEFfVEUyMDEzMDVVVjAyIiBjb2RlU3lzdGVtPSIyLjE2
+        Ljg0MC4xLjExMzg4My4xLjYiLz4KICAgICAgICA8ZGF0YUVudGVyZXIgdHlw
+        ZUNvZGU9IkVOVCIgY29udGV4dENvbnRyb2xDb2RlPSJBUCI+CiAgICAgICAg
+        ICA8YXNzaWduZWRQZXJzb24gY2xhc3NDb2RlPSJBU1NJR05FRCI+CiAgICAg
+        ICAgICAgIDxpZCBleHRlbnNpb249Ijc5NjA0MzczNSIgcm9vdD0iMi4xNi44
+        NDAuMS4xMTM4ODMuNzc3Ljk5OSIvPgogICAgICAgICAgICA8YXNzaWduZWRQ
+        ZXJzb24gY2xhc3NDb2RlPSJQU04iIGRldGVybWluZXJDb2RlPSJJTlNUQU5D
+        RSI+CiAgICAgICAgICAgICAgPG5hbWU+CiAgICAgICAgICAgICAgICA8Z2l2
+        ZW4+V2VzbGV5PC9naXZlbj4KICAgICAgICAgICAgICAgIDxmYW1pbHk+V2F0
+        c29uPC9mYW1pbHk+CiAgICAgICAgICAgICAgPC9uYW1lPgogICAgICAgICAg
+        ICA8L2Fzc2lnbmVkUGVyc29uPgogICAgICAgICAgPC9hc3NpZ25lZFBlcnNv
+        bj4KICAgICAgICA8L2RhdGFFbnRlcmVyPgogICAgICAgIDxxdWVyeUJ5UGFy
+        YW1ldGVyPgogICAgICAgICAgPHF1ZXJ5SWQgcm9vdD0iMS4yLjg0MC4xMTQz
+        NTAuMS4xMy4yOC4xLjE4LjUuOTk5IiBleHRlbnNpb249IjE4MjA0Ii8+CiAg
+        ICAgICAgICA8c3RhdHVzQ29kZSBjb2RlPSJuZXciLz4KICAgICAgICAgIDxt
+        b2RpZnlDb2RlIGNvZGU9Ik1WSS5DT01QMSIvPgogICAgICAgICAgPGluaXRp
+        YWxRdWFudGl0eSB2YWx1ZT0iMSIvPgogICAgICAgICAgPHBhcmFtZXRlckxp
+        c3Q+CiAgICAgICAgICAgIDxsaXZpbmdTdWJqZWN0QWRtaW5pc3RyYXRpdmVH
+        ZW5kZXI+CiAgICAgICAgICAgICAgPHZhbHVlIGNvZGU9Ik0iLz4KICAgICAg
+        ICAgICAgICA8c2VtYW50aWNzVGV4dD5HZW5kZXI8L3NlbWFudGljc1RleHQ+
+        CiAgICAgICAgICAgIDwvbGl2aW5nU3ViamVjdEFkbWluaXN0cmF0aXZlR2Vu
+        ZGVyPgogICAgICAgICAgICA8bGl2aW5nU3ViamVjdEJpcnRoVGltZT4KICAg
+        ICAgICAgICAgICA8dmFsdWUgdmFsdWU9IjE5ODYwNTA2Ii8+CiAgICAgICAg
+        ICAgICAgPHNlbWFudGljc1RleHQ+RGF0ZSBvZiBCaXJ0aDwvc2VtYW50aWNz
+        VGV4dD4KICAgICAgICAgICAgPC9saXZpbmdTdWJqZWN0QmlydGhUaW1lPgog
+        ICAgICAgICAgICA8bGl2aW5nU3ViamVjdElkPgogICAgICAgICAgICAgIDx2
+        YWx1ZSByb290PSIyLjE2Ljg0MC4xLjExMzg4My40LjEiIGV4dGVuc2lvbj0i
+        Nzk2MDQzNzM1Ii8+CiAgICAgICAgICAgICAgPHNlbWFudGljc1RleHQ+U1NO
+        PC9zZW1hbnRpY3NUZXh0PgogICAgICAgICAgICA8L2xpdmluZ1N1YmplY3RJ
+        ZD4KICAgICAgICAgICAgPGxpdmluZ1N1YmplY3ROYW1lPgogICAgICAgICAg
+        ICAgIDx2YWx1ZSB1c2U9IkwiPgogICAgICAgICAgICAgICAgPGdpdmVuPldl
+        c2xleTwvZ2l2ZW4+CiAgICAgICAgICAgICAgICA8ZmFtaWx5PldhdHNvbjwv
+        ZmFtaWx5PgogICAgICAgICAgICAgIDwvdmFsdWU+CiAgICAgICAgICAgICAg
+        PHNlbWFudGljc1RleHQ+TGVnYWwgTmFtZTwvc2VtYW50aWNzVGV4dD4KICAg
+        ICAgICAgICAgPC9saXZpbmdTdWJqZWN0TmFtZT4KICAgICAgICAgIDwvcGFy
+        YW1ldGVyTGlzdD4KICAgICAgICA8L3F1ZXJ5QnlQYXJhbWV0ZXI+CiAgICAg
+        IDwvY29udHJvbEFjdFByb2Nlc3M+CiAgICA8L2lkbTpQUlBBX0lOMjAxMzA1
+        VVYwMj4KICA8L2VudjpCb2R5Pgo8L2VudjpFbnZlbG9wZT4K
+    headers:
+      Accept:
+      - text/xml;charset=UTF-8
+      Content-Type:
+      - text/xml;charset=UTF-8
+      User-Agent:
+      - Vets.gov Agent
+      Soapaction:
+      - PRPA_IN201305UV02
+      Date:
+      - Wed, 17 Jan 2018 03:49:00 GMT
+      Content-Length:
+      - '3051'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Backside-Transport:
+      - OK OK,OK OK
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Thu, 18 Jan 2018 00:57:02 GMT
+      Content-Type:
+      - text/xml
+      X-Global-Transaction-Id:
+      - 021b74d85a5ff0df0dcbb851
+    body:
+      encoding: UTF-8
+      string: |-
+        <?xml version="1.0" encoding="UTF-8"?>
+        <env:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"><env:Header/><env:Body><idm:PRPA_IN201306UV02 ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd" xmlns:idm="http://vaww.oed.oit.va.gov" xmlns="urn:hl7-org:v3"><id extension="WSDOC1801171857023710987245325" root="2.16.840.1.113883.4.349"/><creationTime value="20180117185702"/><versionCode code="3.0"/><interactionId extension="PRPA_IN201306UV02" root="2.16.840.1.113883.1.6"/><processingCode code="T"/><processingModeCode code="T"/><acceptAckCode code="NE"/><receiver typeCode="RCV"><device determinerCode="INSTANCE" classCode="DEV"><id extension="200VGOV" root="2.16.840.1.113883.4.349"/></device></receiver><sender typeCode="SND"><device determinerCode="INSTANCE" classCode="DEV"><id extension="200M" root="2.16.840.1.113883.4.349"/></device></sender><acknowledgement><typeCode code="AA"/><targetMessage><id extension="200VGOV-cf2f7c67-6c12-464a-a6b7-3ee2ffe21298" root="1.2.840.114350.1.13.0.1.7.1.1"/></targetMessage><acknowledgementDetail><code codeSystemName="MVI" code="130" displayName="IMT"/><text>Identity Match Threshold</text></acknowledgementDetail><acknowledgementDetail><code codeSystemName="MVI" code="103" displayName="PDT"/><text>Potential Duplicate Threshold</text></acknowledgementDetail></acknowledgement><controlActProcess classCode="CACT" moodCode="EVN"><code codeSystem="2.16.840.1.113883.1.6" code="PRPA_TE201306UV02"/><subject typeCode="SUBJ"><registrationEvent classCode="REG" moodCode="EVN"><id nullFlavor="NA"/><statusCode code="active"/><subject1 typeCode="SBJ"><patient classCode="PAT"><id extension="1012832025V743496^NI^200M^USVHA^P" root="2.16.840.1.113883.4.349"/><id extension="1007697216^NI^200DOD^USDOD^A" root="2.16.840.1.113883.3.42.10001.100001.12"/><id extension="796043735^PI^200BRLS^USVBA^A" root="2.16.840.1.113883.4.349"/><id extension="600061742^PI^200CORP^USVBA^A" root="2.16.840.1.113883.4.349"/><id extension="0000027892^PN^200PROV^USDVA^A" root="2.16.840.1.113883.4.349"/><statusCode code="active"/><patientPerson><name use="L"><given>WESLEY</given><given>WATSON</given><family>FORD</family></name><telecom value="(571)294-9259" use="HP"/><administrativeGenderCode code="M"/><birthTime value="19860506"/><multipleBirthInd value="false"/><addr use="PHYS"><streetAddressLine>1723 MAIN RD</streetAddressLine><city>VIENNA</city><state>VA</state><postalCode>22182</postalCode><country>USA</country></addr><asOtherIDs classCode="SSN"><id extension="796043735" root="2.16.840.1.113883.4.1"/><scopingOrganization determinerCode="INSTANCE" classCode="ORG"><id root="1.2.840.114350.1.13.99997.2.3412"/></scopingOrganization></asOtherIDs></patientPerson><subjectOf1><queryMatchObservation classCode="COND" moodCode="EVN"><code code="IHE_PDQ"/><value value="165" xsi:type="INT"/></queryMatchObservation></subjectOf1></patient></subject1><custodian typeCode="CST"><assignedEntity classCode="ASSIGNED"><id root="2.16.840.1.113883.4.349"/></assignedEntity></custodian></registrationEvent></subject><queryAck><queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><queryResponseCode code="OK"/><resultCurrentQuantity value="1"/></queryAck><queryByParameter><queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><statusCode code="new"/><modifyCode code="MVI.COMP1"/><initialQuantity value="1"/><parameterList><livingSubjectAdministrativeGender><value code="M"/><semanticsText>Gender</semanticsText></livingSubjectAdministrativeGender><livingSubjectBirthTime><value value="19860506"/><semanticsText>Date of Birth</semanticsText></livingSubjectBirthTime><livingSubjectId><value extension="796043735" root="2.16.840.1.113883.4.1"/><semanticsText>SSN</semanticsText></livingSubjectId><livingSubjectName><value use="L"><given>Wesley</given><family>Watson</family></value><semanticsText>Legal Name</semanticsText></livingSubjectName></parameterList></queryByParameter></controlActProcess></idm:PRPA_IN201306UV02></env:Body></env:Envelope>
+    http_version: 
+  recorded_at: Wed, 17 Jan 2018 03:49:00 GMT
+- request:
+    method: post
+    uri: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v1/VeteranStatusService
+    body:
+      encoding: ASCII-8BIT
+      string: |2
+
+        <soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:v1="http://viers.va.gov/cdi/CDI/commonService/v1" xmlns:v12="http://viers.va.gov/cdi/eMIS/RequestResponse/v1" xmlns:v13="http://viers.va.gov/cdi/eMIS/commonService/v1" xmlns:v11="http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1">
+          <soap:Header>
+            <v1:inputHeaderInfo>
+              <v1:userId>vets.gov</v1:userId>
+              <v1:sourceSystemName>vets.gov</v1:sourceSystemName>
+              <v1:transactionId>cf2f7c67-6c12-464a-a6b7-3ee2ffe21298</v1:transactionId>
+            </v1:inputHeaderInfo>
+          </soap:Header>
+          <soap:Body>
+            <v11:eMISveteranStatusRequest>
+              <v12:edipiORicn>
+                <v13:edipiORicnValue>1007697216</v13:edipiORicnValue>
+                <v13:inputType>EDIPI</v13:inputType>
+              </v12:edipiORicn>
+            </v11:eMISveteranStatusRequest>
+          </soap:Body>
+        </soap:Envelope>
+    headers:
+      Accept:
+      - text/xml;charset=UTF-8
+      Content-Type:
+      - text/xml;charset=UTF-8
+      User-Agent:
+      - Vets.gov Agent
+      Soapaction:
+      - http://viers.va.gov/cdi/eMIS/getVeteranStatus/v1
+      Date:
+      - Wed, 17 Jan 2018 03:49:00 GMT
+      Content-Length:
+      - '944'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 18 Jan 2018 00:57:04 GMT
+      Server:
+      - Apache/2.4.6 (Red Hat Enterprise Linux)
+      Content-Length:
+      - '1312'
+      Cache-Control:
+      - max-age=0, no-store
+      Content-Type:
+      - application/soap+xml;charset=utf-8
+    body:
+      encoding: UTF-8
+      string: <?xml version="1.0" encoding="utf-8"?><NS1:Envelope xmlns:NS1="http://www.w3.org/2003/05/soap-envelope"><NS1:Header><NS2:essResponseCode
+        xmlns:NS2="http://va.gov/ess/message/v1">Success</NS2:essResponseCode><NS3:inputHeaderInfo
+        xmlns:NS3="http://viers.va.gov/cdi/CDI/commonService/v1"><NS3:userId>vets.gov</NS3:userId><NS3:sourceSystemName>vets.gov</NS3:sourceSystemName><NS3:transactionId>cf2f7c67-6c12-464a-a6b7-3ee2ffe21298</NS3:transactionId></NS3:inputHeaderInfo></NS1:Header><NS1:Body><NS4:eMISveteranStatusResponse
+        xmlns:NS4="http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1"><NS5:veteranStatus
+        xmlns:NS5="http://viers.va.gov/cdi/eMIS/RequestResponse/v1"><NS6:edipi xmlns:NS6="http://viers.va.gov/cdi/eMIS/commonService/v1">1007697216</NS6:edipi><NS7:title38StatusCode
+        xmlns:NS7="http://viers.va.gov/cdi/eMIS/commonService/v1">V1</NS7:title38StatusCode><NS8:post911DeploymentIndicator
+        xmlns:NS8="http://viers.va.gov/cdi/eMIS/commonService/v1">Y</NS8:post911DeploymentIndicator><NS9:post911CombatIndicator
+        xmlns:NS9="http://viers.va.gov/cdi/eMIS/commonService/v1">Y</NS9:post911CombatIndicator><NS10:pre911DeploymentIndicator
+        xmlns:NS10="http://viers.va.gov/cdi/eMIS/commonService/v1">N</NS10:pre911DeploymentIndicator></NS5:veteranStatus></NS4:eMISveteranStatusResponse></NS1:Body></NS1:Envelope>
+    http_version: 
+  recorded_at: Wed, 17 Jan 2018 03:49:00 GMT
+recorded_with: VCR 3.0.3
