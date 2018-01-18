@@ -32,7 +32,7 @@ describe VIC::VerifyVeteran do
 
     context 'with attributes that cant be found in mvi' do
       it 'should return false' do
-        VCR.use_cassette('mvi/find_candidate/find_profile_from_mvi_profile_invalid', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('mvi/find_candidate/find_profile_from_mvi_profile_invalid_2', record: :once) do
           expect(described_class.send_request(fake_attributes)).to eq(false)
         end
       end
