@@ -25,7 +25,7 @@ describe MVI::Service do
     it 'should find a profile from a mvi profile', run_at: 'Fri, 12 Jan 2018 23:04:42 GMT' do
       mvi_profile = build(
         :mvi_profile,
-        given_names: %w(Wesley Watson),
+        given_names: %w[Wesley Watson],
         family_name: 'Ford',
         birth_date: '1986-05-06',
         ssn: '796043735',

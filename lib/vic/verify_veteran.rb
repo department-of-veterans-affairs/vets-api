@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module VIC
   module VerifyVeteran
     module_function
@@ -7,7 +8,7 @@ module VIC
       mvi_profile = MVI::Models::MviProfile.new
       veteran_full_name = attributes['veteran_full_name']
       mvi_profile.given_names = []
-      %w(first middle).each do |name|
+      %w[first middle].each do |name|
         mvi_profile.given_names << veteran_full_name[name]
       end
       mvi_profile.given_names.compact!
