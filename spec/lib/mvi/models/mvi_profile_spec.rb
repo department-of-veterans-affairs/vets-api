@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 describe MVI::Models::MviProfile do
@@ -45,12 +46,12 @@ describe MVI::Models::MviProfile do
   describe '#normalized_suffix' do
     context 'with a non-nil suffix' do
       cases = {
-        'Jr.' => %w(jr jr. JR JR. Jr Jr. jR jR.),
-        'Sr.' => %w(sr sr. SR SR. Sr Sr. sR sR.),
-        'II' => %w(i I).repeated_permutation(2).map(&:join),
-        'III' => %w(i I).repeated_permutation(3).map(&:join),
-        'IV' => %w(iv IV Iv iV),
-        nil => %w(i mr ms mrs md v)
+        'Jr.' => %w[jr jr. JR JR. Jr Jr. jR jR.],
+        'Sr.' => %w[sr sr. SR SR. Sr Sr. sR sR.],
+        'II' => %w[i I].repeated_permutation(2).map(&:join),
+        'III' => %w[i I].repeated_permutation(3).map(&:join),
+        'IV' => %w[iv IV Iv iV],
+        nil => %w[i mr ms mrs md v]
       }
 
       cases.each do |expected_result, inputs|

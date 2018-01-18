@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module BB
   module Middleware
     module Response
@@ -9,7 +10,7 @@ module BB
           # If POST is successful message body is irrelevant
           # if it was not successul an exception would have already been raised
           return if env.method == :post
-          env[:body] = parse(env.body) unless env.body.blank?
+          env[:body] = parse(env.body) if env.body.present?
         end
 
         def parse(body = nil)

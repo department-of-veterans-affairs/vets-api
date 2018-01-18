@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module MHV
   class AuditLoginJob
     include Sidekiq::Worker

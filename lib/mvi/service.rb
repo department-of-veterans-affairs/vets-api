@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/base'
 require 'mvi/configuration'
 require 'mvi/responses/find_profile_response'
@@ -65,6 +66,7 @@ module MVI
         # Not going to log RecordNotFound
         # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
         # log_message_to_sentry('MVI Record Not Found', :warn, user_context(user))
+        nil
       when MVI::Errors::InvalidRequestError
         if user&.mhv_icn.present?
           log_message_to_sentry('MVI Invalid Request (Possible RecordNotFound)', :error, user_context(user))

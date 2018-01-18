@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class StatsdMiddleware
   STATUS_KEY   = 'api.rack.request'
   DURATION_KEY = 'api.rack.request.duration'

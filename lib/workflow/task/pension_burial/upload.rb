@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Workflow::Task::PensionBurial
   class Upload < Workflow::Task::ShrineFile::Base
     def upload_to_api

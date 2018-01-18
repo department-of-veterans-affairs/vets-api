@@ -1,9 +1,10 @@
 # frozen_string_literal: true
+
 class FailedClaimsReportMailer < ApplicationMailer
-  RECIPIENTS = %w(
+  RECIPIENTS = %w[
     lihan@adhocteam.us
     ryan.baker@adhocteam.us
-  ).freeze
+  ].freeze
 
   def build(failed_uploads)
     opt = {}

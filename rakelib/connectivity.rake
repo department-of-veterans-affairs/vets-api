@@ -34,7 +34,7 @@ end
 
 namespace :connectivity do
   desc 'Check connectivity to all backend services'
-  task all: [:db, :edu, :evss, :gi, :hca, :logs, :mvi, :redis, :rx, :sm, :statsd, :vha]
+  task all: %i[db edu evss gi hca logs mvi redis rx sm statsd vha]
 
   desc 'Check DB'
   task db: :environment do

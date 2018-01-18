@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'shrine/storage/s3'
 require 'shrine/storage/file_system'
 
