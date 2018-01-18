@@ -17,6 +17,30 @@ describe HCA::Validations do
 
   test_method(
     described_class,
+    'discharge_date',
+    [
+      ['', ''],
+      [1234, ''],
+      ['3000-01-01', '01/01/3000'],
+      ['1974-12-01', '12/01/1974']
+    ]
+  )
+
+  test_method(
+    described_class,
+    'valid_discharge_date?',
+    [
+      ['', false],
+      [1234, false],
+      ['3000-01-01', false],
+      ['1974-12-01', true],
+      [(Time.zone.today + 60.days).strftime('%Y-%m-%d'), true],
+      [(Time.zone.today + 181.days).strftime('%Y-%m-%d'), false]
+    ]
+  )
+
+  test_method(
+    described_class,
     'validate_string',
     [
       [{ nullable: true, data: '' }, nil],
