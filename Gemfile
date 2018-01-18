@@ -121,8 +121,10 @@ end
 
 group :production do
   # sidekiq enterprise edition
-  source 'https://enterprise.contribsys.com/' do
-    gem 'sidekiq-ent'
-    gem 'sidekiq-pro'
-  end if ENV['BUNDLE_ENTERPRISE__CONTRIBSYS__COM']
+  if ENV['BUNDLE_ENTERPRISE__CONTRIBSYS__COM']
+    source 'https://enterprise.contribsys.com/' do
+      gem 'sidekiq-ent'
+      gem 'sidekiq-pro'
+    end
+  end
 end
