@@ -42,7 +42,7 @@ RSpec.describe FormProfile, type: :model do
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
         'postal_code' => user.va_profile[:address][:postal_code]
-      },
+      }
     }
   end
 
@@ -315,9 +315,7 @@ RSpec.describe FormProfile, type: :model do
         schema = VetsJsonSchema::SCHEMAS[schema_form_id].except('required', 'anyOf')
         schema_data = prefilled_data.deep_dup
 
-        if schema_form_id == 'VIC'
-          schema_data.except!('verified', 'serviceBranches')
-        end
+        schema_data.except!('verified', 'serviceBranches') if schema_form_id == 'VIC'
 
         errors = JSON::Validator.fully_validate(
           schema,
