@@ -120,8 +120,9 @@ group :development, :test do
 end
 
 group :production do
-  # sidekiq enterprise edition
-  if ENV['BUNDLE_ENTERPRISE__CONTRIBSYS__COM']
+  # sidekiq enterprise requires a license key to download but is only required in production
+  # for local dev environments, regular sidekiq works fine
+  unless ENV['EXCLUDE_SIDEKIQ_ENTERPRISE']
     source 'https://enterprise.contribsys.com/' do
       gem 'sidekiq-ent'
       gem 'sidekiq-pro'
