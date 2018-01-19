@@ -167,7 +167,7 @@ RSpec.describe ApplicationController, type: :controller do
           controller_name: 'anonymous',
           sign_in_method: 'idme'
         )
-        # since user is not signed in this shouldnt get called.
+        # since user IS signed in, this SHOULD get called
         expect(Raven).to receive(:user_context).with(
           uuid: user.uuid,
           authn_context: user.authn_context,
