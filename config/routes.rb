@@ -131,9 +131,7 @@ Rails.application.routes.draw do
       resources :preneed_attachments, only: :create
     end
 
-    namespace :vic do
-      resources :verify_veterans, only: :create
-    end
+    resources :vic_applications, only: %i[create show]
 
     resource :address, only: %i[show update] do
       collection do
