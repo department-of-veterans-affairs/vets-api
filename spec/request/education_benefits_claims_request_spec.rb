@@ -102,7 +102,13 @@ RSpec.describe 'Education Benefits Claims Integration', type: %i[request seriali
         allow(Rails.logger).to receive(:error)
         expect(Rails.logger).to receive(:error).with(validation_error).once
 
-        expect(Raven).to receive(:tags_context).once.with(validation: 'education_benefits_claim')
+        expect(Raven).to receive(:tags_context).once.with(
+          controller_name: 'education_benefits_claims',
+          sign_in_method: 'not-signed-in'
+        )
+        expect(Raven).to receive(:tags_context).once.with(
+          validation: 'education_benefits_claim'
+        )
         expect(Raven).to receive(:capture_message).once.with(validation_error, level: :error)
 
         subject
