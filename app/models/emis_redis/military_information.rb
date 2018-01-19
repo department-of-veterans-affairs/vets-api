@@ -35,6 +35,7 @@ module EMISRedis
       sw_asia_combat
       compensable_va_service_connected
       discharge_type
+      service_branches
       va_compensation_type
     ].freeze
 

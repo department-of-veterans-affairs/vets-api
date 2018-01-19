@@ -27,6 +27,8 @@ class FormMilitaryInformation
   attribute :currently_active_duty, Boolean
   attribute :currently_active_duty_hash, Hash
   attribute :va_compensation_type, String
+  attribute :vic_verified, Boolean
+  attribute :service_branches, Array[String]
 end
 
 class FormAddress
@@ -141,6 +143,8 @@ class FormProfile
 
     military_information = user.military_information
     military_information_data = {}
+
+    military_information_data[:vic_verified] = user.can_access_id_card?
 
     begin
       EMISRedis::MilitaryInformation::PREFILL_METHODS.each do |attr|
