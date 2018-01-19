@@ -227,6 +227,7 @@ RSpec.describe FormProfile, type: :model do
       'serviceBranches' => ['Air Force'],
       'verified' => true,
       'veteranDateOfBirth' => user.birth_date,
+      'phone' => us_phone,
       'veteranSocialSecurityNumber' => user.ssn
     }.merge(veteran_full_name).merge(veteran_address)
   end
