@@ -65,6 +65,10 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
       end
 
       it 'should log the validation errors' do
+        expect(Raven).to receive(:tags_context).once.with(
+          controller_name: 'health_care_applications',
+          sign_in_method: 'not-signed-in'
+        )
         expect(Raven).to receive(:tags_context).once.with(validation: 'health_care_application')
         expect(Raven).to receive(:capture_message).with(/privacyAgreementAccepted/, level: :error)
 

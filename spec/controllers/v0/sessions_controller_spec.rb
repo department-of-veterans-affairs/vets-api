@@ -164,11 +164,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(existing_user.ssn).to eq('796111863')
         expect(controller).to receive(:log_message_to_sentry).with(
           'SSNS DO NOT MATCH!!',
-          :warn,
-          uuid: '1234abcd',
-          authn_context: nil,
-          loa: { current: 3, highest: 3 },
-          mhv_icn: nil
+          :warn
         )
         post :saml_callback
         new_user = User.find(uuid)
