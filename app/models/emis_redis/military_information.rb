@@ -99,7 +99,7 @@ module EMISRedis
     end
 
     def service_branches
-      military_service_episodes.map(&:branch_of_service).uniq
+      military_service_episodes.map(&:branch_of_service_code).uniq
     end
 
     def last_service_branch

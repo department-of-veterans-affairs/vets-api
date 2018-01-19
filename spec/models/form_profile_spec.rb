@@ -224,7 +224,7 @@ RSpec.describe FormProfile, type: :model do
   let(:vvic_expected) do
     {
       'email' => user.email,
-      'serviceBranches' => ['Air Force'],
+      'serviceBranches' => ['F'],
       'verified' => true,
       'veteranDateOfBirth' => user.birth_date,
       'phone' => us_phone,
@@ -358,7 +358,7 @@ RSpec.describe FormProfile, type: :model do
         expect(military_information).to receive(:tours_of_duty).and_return(
           [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
         )
-        expect(military_information).to receive(:service_branches).and_return(['Air Force'])
+        expect(military_information).to receive(:service_branches).and_return(['F'])
         allow(military_information).to receive(:currently_active_duty_hash).and_return(
           yes: true
         )

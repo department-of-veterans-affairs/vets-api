@@ -17,7 +17,7 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
   describe '#service_branches' do
     it 'should return all the service branches someone has served under' do
       VCR.use_cassette('emis/get_military_service_episodes/valid') do
-        expect(subject.service_branches).to eq(['Air Force'])
+        expect(subject.service_branches).to eq(['F'])
       end
     end
   end
