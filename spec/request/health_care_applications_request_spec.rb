@@ -65,6 +65,10 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
       end
 
       it 'should log the validation errors' do
+        expect(Raven).to receive(:tags_context).once.with(
+          controller_name: 'health_care_applications',
+          sign_in_method: 'not-signed-in'
+        )
         expect(Raven).to receive(:tags_context).once.with(validation: 'health_care_application')
         expect(Raven).to receive(:capture_message).with(/privacyAgreementAccepted/, level: :error)
 
@@ -112,6 +116,37 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         it 'should render success and delete the saved form', run_at: '2017-01-31' do
           VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
             expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('10-10EZ').once
+            subject
+            expect(JSON.parse(response.body)).to eq(body)
+          end
+        end
+      end
+
+      context 'with an invalid discharge date' do
+        let(:discharge_date) { Time.zone.today + 181.days }
+        let(:params) do
+          test_veteran['lastDischargeDate'] = discharge_date.strftime('%Y-%m-%d')
+
+          {
+            form: test_veteran.to_json
+          }
+        end
+
+        let(:body) do
+          {
+            'errors' => [
+              {
+                'title' => 'Invalid field value',
+                'detail' => "\"#{discharge_date.strftime('%Y-%m-%d')}\" is not a valid value for \"lastDischargeDate\"",
+                'code' => '103',
+                'status' => '400'
+              }
+            ]
+          }
+        end
+
+        it 'should raise an invalid field value error' do
+          VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
             subject
             expect(JSON.parse(response.body)).to eq(body)
           end

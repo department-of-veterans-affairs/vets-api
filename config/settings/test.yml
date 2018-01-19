@@ -17,13 +17,19 @@ saml:
 
 
 edu:
+  prefill: true
   sftp:
     relative_path: 'spool_files'
 
 
 pension_burial:
+  prefill: true
   sftp:
     relative_path: 'VETSGOV_PENSION'
+
+
+hca:
+  prefill: true
 
 shrine:
   claims:
