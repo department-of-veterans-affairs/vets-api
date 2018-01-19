@@ -71,6 +71,7 @@ class FormProfile
   EDU_FORMS = ['22-1990', '22-1990N', '22-1990E', '22-1995', '22-5490', '22-5495'].freeze
   HCA_FORMS = ['1010ez'].freeze
   PENSION_BURIAL_FORMS = ['21P-530', '21P-527EZ'].freeze
+  VIC_FORMS = ['VIC'].freeze
 
   FORM_ID_TO_CLASS = {
     '1010EZ'    => ::FormProfiles::VA1010ez,
@@ -98,6 +99,7 @@ class FormProfile
     forms += HCA_FORMS if Settings.hca.prefill
     forms += PENSION_BURIAL_FORMS if Settings.pension_burial.prefill
     forms += EDU_FORMS if Settings.edu.prefill
+    forms += VIC_FORMS if Settings.vic.prefill
 
     forms
   end
