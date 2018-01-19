@@ -76,16 +76,16 @@ class FormProfile
   ].freeze
 
   FORM_ID_TO_CLASS = {
-    '1010EZ'    => ::FormProfile::VA1010ez,
-    '22-1990'   => ::FormProfile::VA1990,
-    '22-1990N'  => ::FormProfile::VA1990n,
-    '22-1990E'  => ::FormProfile::VA1990e,
-    '22-1995'   => ::FormProfile::VA1995,
-    '22-5490'   => ::FormProfile::VA5490,
-    '22-5495'   => ::FormProfile::VA5495,
-    '21P-530'   => ::FormProfile::VA21p530,
-    'VIC'       => ::FormProfile::VIC,
-    '21P-527EZ' => ::FormProfile::VA21p527ez
+    '1010EZ'    => ::FormProfiles::VA1010ez,
+    '22-1990'   => ::FormProfiles::VA1990,
+    '22-1990N'  => ::FormProfiles::VA1990n,
+    '22-1990E'  => ::FormProfiles::VA1990e,
+    '22-1995'   => ::FormProfiles::VA1995,
+    '22-5490'   => ::FormProfiles::VA5490,
+    '22-5495'   => ::FormProfiles::VA5495,
+    '21P-530'   => ::FormProfiles::VA21p530,
+    'VIC'       => ::FormProfiles::VIC,
+    '21P-527EZ' => ::FormProfiles::VA21p527ez
   }.freeze
 
   attr_accessor :form_id

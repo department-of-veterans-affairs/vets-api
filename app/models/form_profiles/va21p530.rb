@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FormProfile::VIC < FormProfile
+class FormProfiles::VA21p530 < FormProfile
   def prefill(user)
     super
   end
@@ -9,7 +9,7 @@ class FormProfile::VIC < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/applicant/information'
+      returnUrl: '/claimant-information'
     }
   end
 end
