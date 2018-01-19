@@ -122,6 +122,37 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         end
       end
 
+      context 'with an invalid discharge date' do
+        let(:discharge_date) { Time.zone.today + 181.days }
+        let(:params) do
+          test_veteran['lastDischargeDate'] = discharge_date.strftime('%Y-%m-%d')
+
+          {
+            form: test_veteran.to_json
+          }
+        end
+
+        let(:body) do
+          {
+            'errors' => [
+              {
+                'title' => 'Invalid field value',
+                'detail' => "\"#{discharge_date.strftime('%Y-%m-%d')}\" is not a valid value for \"lastDischargeDate\"",
+                'code' => '103',
+                'status' => '400'
+              }
+            ]
+          }
+        end
+
+        it 'should raise an invalid field value error' do
+          VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
+            subject
+            expect(JSON.parse(response.body)).to eq(body)
+          end
+        end
+      end
+
       context 'with a SOAP error' do
         let(:error) { Common::Client::Errors::HTTPError.new('error message') }
 
