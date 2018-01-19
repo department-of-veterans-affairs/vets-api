@@ -9,7 +9,7 @@ class FormProfiles::VIC < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/applicant/information'
+      returnUrl: '/veteran-information'
     }
   end
 end
