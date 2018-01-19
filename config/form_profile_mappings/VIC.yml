@@ -1,2 +1,7 @@
+serviceBranches: [military_information, service_branches]
+email: [contact_information, email]
+veteranDateOfBirth: [identity_information, date_of_birth]
 veteranFullName: [identity_information, full_name]
+veteranAddress: [contact_information, address]
 veteranSocialSecurityNumber: [identity_information, ssn]
+phone: [contact_information, us_phone]
