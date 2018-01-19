@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'csv'
 require 'mvi/responses/id_parser'
 
@@ -83,7 +84,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
     end
 
     path = File.join(Settings.betamocks.cache_dir, 'mvi', 'profile', "#{ssn}.yml")
-    yaml = YAML.load(File.read(path))
+    yaml = YAML.safe_load(File.read(path))
     xml = yaml.dig(:body).dup.prepend('<?xml version="1.0" encoding="UTF-8"?>') unless xml =~ /^<\?xml/
 
     yaml[:body] = update_ids(xml, ids)
@@ -94,7 +95,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
 
   desc 'Create missing cache files from mock_mvi_responses.yml'
   task :migrate_mock_data, [:environment] do
-    yaml = YAML.load(
+    yaml = YAML.safe_load(
       File.read(File.join('config', 'mvi_schema', 'mock_mvi_responses.yml'))
     )
     template = Liquid::Template.parse(

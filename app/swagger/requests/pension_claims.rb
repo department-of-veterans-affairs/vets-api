@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Requests
     class PensionClaims
@@ -11,10 +12,10 @@ module Swagger
 
           key :description, 'Submit a pension benefit claim'
           key :operationId, 'addPensionClaim'
-          key :tags, %w(
+          key :tags, %w[
             pension
             forms
-          )
+          ]
 
           parameter :optional_authorization
 

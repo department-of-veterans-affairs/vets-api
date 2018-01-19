@@ -22,13 +22,16 @@ sidekiq_admin_panel: false
 
 # Settings for Education Benefits
 edu:
+  prefill: true
   sftp:
     host: ~
     pass: ~
     user: ~
     port: ~
 
+
 pension_burial:
+  prefill: true
   sftp:
     relative_path: '../VETSGOV_PENSION'
   upload:
@@ -67,6 +70,7 @@ gids:
 # Settings for Healthcare Application
 # This CA chain is nonsense but allows local development to work with pre-prod environment.
 hca:
+  prefill: true
   endpoint: https://test-foo.vets.gov
   cert_path: /fake/client/cert/path
   key_path: /fake/client/key/path

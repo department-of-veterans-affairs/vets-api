@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'mhv_ac/client'
 require 'sentry_logging'
 
@@ -12,7 +13,7 @@ class MhvAccount < ActiveRecord::Base
 
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
   # Everything except existing and ineligible accounts should be able to transition to :needs_terms_acceptance
-  ALL_STATES = %i(
+  ALL_STATES = %i[
     unknown
     needs_terms_acceptance
     existing
@@ -21,9 +22,9 @@ class MhvAccount < ActiveRecord::Base
     upgraded
     register_failed
     upgrade_failed
-  ).freeze
+  ].freeze
 
-  ADDRESS_ATTRS = %w(street city state postal_code country).freeze
+  ADDRESS_ATTRS = %w[street city state postal_code country].freeze
   UNKNOWN_ADDRESS = {
     address1: 'Unknown Address',
     city: 'Washington',
@@ -46,16 +47,16 @@ class MhvAccount < ActiveRecord::Base
     end
 
     event :check_terms_acceptance do
-      transitions from: ALL_STATES - [:existing, :ineligible],
+      transitions from: ALL_STATES - %i[existing ineligible],
                   to: :needs_terms_acceptance, unless: :terms_and_conditions_accepted?
     end
 
     event :register do
-      transitions from: [:unknown, :register_failed], to: :registered
+      transitions from: %i[unknown register_failed], to: :registered
     end
 
     event :upgrade do
-      transitions from: [:unknown, :registered, :upgrade_failed], to: :upgraded
+      transitions from: %i[unknown registered upgrade_failed], to: :upgraded
     end
 
     event :fail_register do
@@ -63,7 +64,7 @@ class MhvAccount < ActiveRecord::Base
     end
 
     event :fail_upgrade do
-      transitions from: [:unknown, :registered], to: :upgrade_failed
+      transitions from: %i[unknown registered], to: :upgrade_failed
     end
   end
 

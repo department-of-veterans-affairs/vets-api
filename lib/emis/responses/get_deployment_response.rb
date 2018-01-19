@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'emis/models/deployment'
 require 'emis/responses/response'
 

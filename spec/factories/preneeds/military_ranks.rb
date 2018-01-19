@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :military_rank, class: Preneeds::MilitaryRank do
     sequence(:branch_of_service_cd) { |n| ('A'.ord + n / 26).chr + ('A'.ord + (n - 1) % 26).chr }

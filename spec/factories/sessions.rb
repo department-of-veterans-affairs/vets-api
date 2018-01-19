@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require './lib/sm/client_session'
 
 FactoryBot.define do

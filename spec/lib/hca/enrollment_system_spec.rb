@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'spec_helper'
 require 'hca/enrollment_system'
@@ -173,7 +174,7 @@ describe HCA::EnrollmentSystem do
 
   let(:test_address) { TEST_ADDRESS.dup }
 
-  %w(veteran result).each do |file|
+  %w[veteran result].each do |file|
     let("test_#{file}") do
       JSON.parse(
         File.read(
@@ -257,12 +258,12 @@ describe HCA::EnrollmentSystem do
     described_class,
     'marital_status_to_sds_code',
     [
-      %w(Married M),
+      %w[Married M],
       ['Never Married', 'S'],
-      %w(Separated A),
-      %w(Widowed W),
-      %w(Divorced D),
-      %w(foo U)
+      %w[Separated A],
+      %w[Widowed W],
+      %w[Divorced D],
+      %w[foo U]
     ]
   )
 
@@ -589,14 +590,14 @@ describe HCA::EnrollmentSystem do
     described_class,
     'convert_birth_state',
     [
-      %w(
+      %w[
         MN
         MN
-      ),
-      %w(
+      ],
+      %w[
         Other
         FG
-      )
+      ]
     ]
   )
 
@@ -918,7 +919,7 @@ describe HCA::EnrollmentSystem do
     end
 
     it 'should return the right hash' do
-      %w(
+      %w[
         association_collection
         demographics_info
         enrollment_determination_info
@@ -926,7 +927,7 @@ describe HCA::EnrollmentSystem do
         insurance_collection
         military_service_info
         person_info
-      ).each do |type|
+      ].each do |type|
         expect(described_class).to receive("veteran_to_#{type}")
           .once.with(veteran).and_return(type)
       end
@@ -1051,6 +1052,56 @@ describe HCA::EnrollmentSystem do
   describe 'hca json schema' do
     it 'test application should pass json schema' do
       expect(test_veteran.to_json).to match_vets_schema('10-10EZ')
+    end
+  end
+
+  describe '#veteran_to_military_service_info' do
+    let(:veteran) do
+      {
+        'disabledInLineOfDuty' => true,
+        'dischargeType' => 'general',
+        'lastEntryDate' => '1980-03-07',
+        'lastDischargeDate' => discharge_date.strftime('%Y-%m-%d'),
+        'lastServiceBranch' => 'merchant seaman',
+        'vaMedicalFacility' => '608'
+      }
+    end
+
+    let(:expected) do
+      {
+        "dischargeDueToDisability": true,
+        "militaryServiceSiteRecords": {
+          "militaryServiceSiteRecord": {
+            "militaryServiceEpisodes": {
+              "militaryServiceEpisode": {
+                "dischargeType": '',
+                "startDate": '03/07/1980',
+                "endDate": discharge_date.strftime('%m/%d/%Y'),
+                "serviceBranch": 7
+              }
+            },
+            "site": '608'
+          }
+        }
+      }.deep_stringify_keys
+    end
+
+    context 'with a valid future discharge date' do
+      let(:discharge_date) { Time.zone.today + 60.days }
+      subject { described_class.veteran_to_military_service_info(veteran) }
+
+      it 'should properly set discharge type and discharge date' do
+        expect(described_class.veteran_to_military_service_info(veteran)).to eq(expected)
+      end
+    end
+
+    context 'with an invalid future discharge date' do
+      let(:discharge_date) { Time.zone.today + 181.days }
+      subject { described_class.veteran_to_military_service_info(veteran) }
+
+      it 'should raise an invalid field exception' do
+        expect { subject }.to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
     end
   end
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'evss/common_service'
 
 module EVSS

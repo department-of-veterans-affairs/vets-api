@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module V0
   class TrackingsController < RxController
     # This index action supports various parameters described below, all are optional

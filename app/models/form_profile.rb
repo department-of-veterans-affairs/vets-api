@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
   include Virtus.model
@@ -65,12 +66,9 @@ class FormProfile
 
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
-  # Forms that will be listed as available for prefill in the user serializer
-  PREFILL_ENABLED_FORMS = [
-    '1010ez',
-    '21P-530',
-    '21P-527EZ'
-  ].freeze
+  EDU_FORMS = ['22-1990', '22-1990N', '22-1990E', '22-1995', '22-5490', '22-5495'].freeze
+  HCA_FORMS = ['1010ez'].freeze
+  PENSION_BURIAL_FORMS = ['21P-530', '21P-527EZ'].freeze
 
   FORM_ID_TO_CLASS = {
     '1010EZ'    => ::FormProfile::VA1010ez,
@@ -90,6 +88,16 @@ class FormProfile
   attribute :identity_information, FormIdentityInformation
   attribute :contact_information, FormContactInformation
   attribute :military_information, FormMilitaryInformation
+
+  def self.prefill_enabled_forms
+    forms = []
+
+    forms += HCA_FORMS if Settings.hca.prefill
+    forms += PENSION_BURIAL_FORMS if Settings.pension_burial.prefill
+    forms += EDU_FORMS if Settings.edu.prefill
+
+    forms
+  end
 
   def self.for(form)
     form = form.upcase
@@ -111,7 +119,7 @@ class FormProfile
 
   def self.load_form_mapping(form_id)
     form_id = form_id.downcase if form_id == '1010EZ' # our first form. lessons learned.
-    file = File.join(Rails.root, 'config', 'form_profile_mappings', "#{form_id}.yml")
+    file = Rails.root.join('config', 'form_profile_mappings', "#{form_id}.yml")
     raise IOError, "Form profile mapping file is missing for form id #{form_id}" unless File.exist?(file)
     YAML.load_file(file)
   end
@@ -128,7 +136,10 @@ class FormProfile
     @contact_information = initialize_contact_information(user)
     @military_information = initialize_military_information(user)
     mappings = self.class.mappings_for_form(form_id)
-    form_data = generate_prefill(mappings)
+
+    form = form_id == '1010EZ' ? '1010ez' : form_id
+    form_data = generate_prefill(mappings) if FormProfile.prefill_enabled_forms.include?(form)
+
     { form_data: form_data, metadata: metadata }
   end
 
@@ -173,13 +184,15 @@ class FormProfile
   def initialize_contact_information(user)
     return nil if user.va_profile.nil?
 
-    address = {
-      street: user.va_profile.address.street,
-      street2: nil,
-      city: user.va_profile.address.city,
-      state: user.va_profile.address.state,
-      country: user.va_profile.address.country
-    } if user.va_profile&.address
+    if user.va_profile&.address
+      address = {
+        street: user.va_profile.address.street,
+        street2: nil,
+        city: user.va_profile.address.city,
+        state: user.va_profile.address.state,
+        country: user.va_profile.address.country
+      }
+    end
 
     address.merge!(derive_postal_code(user)) if address.present?
 

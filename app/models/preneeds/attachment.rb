@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Preneeds
   class Attachment
     include Virtus.model

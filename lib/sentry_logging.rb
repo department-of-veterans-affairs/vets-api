@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module SentryLogging
   def log_message_to_sentry(message, level, extra_context = {}, tags_context = {})
     formatted_message = extra_context.empty? ? message : message + ' : ' + extra_context.to_s
