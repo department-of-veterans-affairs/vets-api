@@ -11,11 +11,31 @@ module HCA
       /^\d{3}-?0{2}-?\d{4}$/
     ].freeze
 
-    def date_of_birth(input_dob)
-      return '' if !input_dob.is_a?(String) || input_dob.blank?
+    FUTURE_DISCHARGE_CUTOFF = 180.days
 
-      parsed_dob = Date.parse(input_dob)
-      return '' if parsed_dob.future?
+    def parse_date(date_string)
+      return nil if !date_string.is_a?(String) || date_string.blank?
+      Date.parse(date_string)
+    end
+
+    def valid_discharge_date?(date_string)
+      date = parse_date(date_string)
+      return false if date.nil?
+
+      cutoff = Time.zone.today + FUTURE_DISCHARGE_CUTOFF
+      date < cutoff
+    end
+
+    def discharge_date(date_string)
+      parsed_date = parse_date(date_string)
+      return '' if parsed_date.blank?
+
+      parsed_date.strftime('%m/%d/%Y')
+    end
+
+    def date_of_birth(input_dob)
+      parsed_dob = parse_date(input_dob)
+      return '' if parsed_dob.blank? || parsed_dob.future?
 
       parsed_dob.strftime('%m/%d/%Y')
     end
