@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 require 'rails_helper'
 
 RSpec.describe 'Appeals Status', type: :request do
@@ -44,8 +43,8 @@ RSpec.describe 'Appeals Status', type: :request do
         it 'returns a successful response' do
           VCR.use_cassette('appeals/appeals') do
             get '/v0/appeals_v2', nil, 'Authorization' => "Token token=#{session.token}"
+            puts response.body
             expect(response).to have_http_status(:ok)
-            puts response
             expect(response.body).to be_a(String)
             expect(response).to match_response_schema('appeals')
           end
@@ -55,7 +54,8 @@ RSpec.describe 'Appeals Status', type: :request do
       context 'with a not found response' do
         it 'returns a successful response' do
           VCR.use_cassette('appeals/not_found') do
-            get '/v0/appeals', nil, 'Authorization' => "Token token=#{session.token}"
+            get '/v0/appeals_v2', nil, 'Authorization' => "Token token=#{session.token}"
+            puts response
             expect(response).to have_http_status(:not_found)
             expect(response.body).to be_a(String)
             expect(response).to match_response_schema('appeals')
@@ -65,11 +65,11 @@ RSpec.describe 'Appeals Status', type: :request do
 
       context 'with an unprocessible entity response' do
         it 'returns a successful response' do
-          VCR.use_cassette('appeals/invalid_ssn') do
-            get '/v0/appeals', nil, 'Authorization' => "Token token=#{session.token}"
+          VCR.use_cassette('appeals_status/invalid_ssn') do
+            get '/v0/appeals_v2', nil, 'Authorization' => "Token token=#{session.token}"
+            puts response
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
-            expect(response).to match_response_schema('appeals')
           end
         end
       end

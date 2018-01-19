@@ -6,10 +6,7 @@
     "data": {
       "type": "array",
       "items": {
-        "required": [
-          "id",
-          "type"
-        ],
+        "type": "object",
         "properties": {
           "id": {
             "type": "string"
@@ -20,15 +17,23 @@
           "attributes": {
             "type": "object",
             "properties": {
+              "updated": {
+                "type": "string"
+              },
               "active": {
                 "type": "boolean"
               },
               "incompleteHistory": {
-                "type": ["boolean", "null"]
+                "type": "boolean"
               },
               "aoj": {
                 "type": {
-                  "enum": ["vba", "vha", "nca", "other"]
+                  "enum": [
+                    "vba",
+                    "vha",
+                    "nca",
+                    "other"
+                  ]
                 }
               },
               "programArea": {
@@ -48,208 +53,70 @@
                   ]
                 }
               },
-              "description": {},
-              "type": {
+              "description": {
                 "type": "string"
+              },
+              "type": {
+                "type": {
+                  "enum": [
+                    "original",
+                    "post_remand",
+                    "post_cavc_remand",
+                    "reconsideration",
+                    "cue"
+                  ]
+                }
               },
               "aod": {
                 "type": "boolean"
               },
               "location": {
-                "type": "string"
+                "type": {
+                  "enum": [
+                    "aoj",
+                    "bva"
+                  ]
+                }
               },
               "status": {
                 "type": "object",
                 "properties": {
+                  "details": {
+                    "type": "object"
+                  },
                   "type": {
                     "type": "string"
-                  },
-                  "details": {
-                    "type": "object",
-                    "properties": {
-                      "ro": {
-                        "type": "string"
-                      },
-                      "ssocMonths": {
-                        "type": "number"
-                      },
-                      "certMonths": {
-                        "type": "number"
-                      }
-                    },
-                    "required": [
-                      "ro",
-                      "ssocMonths",
-                      "certMonths"
-                    ]
                   }
-                },
-                "required": [
-                  "type",
-                  "details"
-                ]
+                }
               },
               "docket": {
-                "type": ["object", "null"],
-                "properties": {
-                  "front": {
-                    "type": "boolean"
-                  },
-                  "total": {
-                    "type": "number"
-                  },
-                  "ahead": {
-                    "type": "number"
-                  },
-                  "ready": {
-                    "type": "number"
-                  },
-                  "eta": {}
-                },
-                "required": [
-                  "front",
-                  "total",
-                  "ahead",
-                  "ready"
-                ]
+                "type": ["object", "null"]
               },
               "issues": {
                 "type": "array",
                 "items": {
-                  "required": [
-                    "active"
-                  ],
-                  "properties": {
-                    "active": {
-                      "type": "boolean"
-                    },
-                    "description": {
-                      "type": {
-                        "enum": [
-                          "field_grant",
-                          "withdrawn",
-                          "allowed",
-                          "denied",
-                          "remand",
-                          "cavc_remand"
-                        ]
-                      }
-                    },
-                    "lastAction": "string",
-                    "date": "string"
-                  }
+                  "$ref": "appeals_issue.json"
                 }
               },
               "alerts": {
                 "type": "array",
                 "items": {
-                  "required": [
-                    "type"
-                  ],
-                  "properties": {
-                    "type": {
-                      "enum": [
-                        "form9_needed",
-                        "scheduled_hearing",
-                        "hearing_no_show",
-                        "held_for_evidence",
-                        "cavc_option",
-                        "ramp_eligible",
-                        "ramp_ineligible",
-                        "decision_soon",
-                        "blocked_by_vso",
-                        "scheduled_dro_hearing",
-                        "dro_hearing_no_show"
-                      ]
-                    },
-                    "details": {
-                      "type": "object",
-                      "properties": {
-                        "dueDate": {
-                          "type": "string"
-                        }
-                      },
-                      "required": [
-                        "dueDate"
-                      ]
-                    }
-                  }
+                  "$ref": "appeals_alert.json"
                 }
               },
               "events": {
                 "type": "array",
                 "items": {
-                  "required": [
-                    "type",
-                    "date"
-                  ],
-                  "properties": {
-                    "type": {
-                      "type": {
-                        "enum": [
-                          "claim_decision",
-                          "nod",
-                          "soc",
-                          "form9",
-                          "ssoc",
-                          "certified",
-                          "hearing_held",
-                          "hearing_cancelled",
-                          "hearing_no_show",
-                          "bva_decision",
-                          "field_grant",
-                          "withdrawn",
-                          "ftr",
-                          "ramp",
-                          "death",
-                          "merged",
-                          "record_designation",
-                          "reconsideration",
-                          "vacated",
-                          "other_close",
-                          "cavc_decision",
-                          "ramp_notice",
-                          "transcript",
-                          "remand_return",
-                          "dro_hearing_held",
-                          "dro_hearing_cancelled",
-                          "dro_hearing_no_show"
-                        ]
-                      }
-                    },
-                    "date": {
-                      "type": "string"
-                    },
-                    "details": {
-                      "type": "object",
-                      "properties": {},
-                      "required": []
-                    }
-                  }
+                  "$ref": "appeals_event.json"
                 }
               },
               "evidence": {
                 "type": "array",
                 "items": {
-                  "required": [],
-                  "properties": {}
+                  "$ref": "appeals_evidence.json"
                 }
               }
-            },
-            "required": [
-              "active",
-              "aoj",
-              "programArea",
-              "type",
-              "aod",
-              "location",
-              "status",
-              "docket",
-              "issues",
-              "alerts",
-              "events",
-              "evidence"
-            ]
+            }
           }
         }
       }

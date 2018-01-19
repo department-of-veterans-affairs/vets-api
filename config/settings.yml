@@ -217,7 +217,7 @@ maintenance:
 # Note: in addition to enabling / disabling betamocks here, you _must_ also
 # change the 'mock' bool for each service you want to mock in this settings file
 betamocks:
-  enabled: true
+  enabled: false
   recording: false
   cache_dir: /cache
   services_config: config/betamocks/services_config.yml
