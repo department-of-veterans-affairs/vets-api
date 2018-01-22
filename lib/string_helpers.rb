@@ -18,7 +18,7 @@ module StringHelpers
       length: [str_a.length, str_b.length],
       only_digits: [str_a.scan(/^\d+$/).any?, str_b.scan(/^\d+$/).any?],
       encoding: [str_a.encoding.to_s, str_b.encoding.to_s],
-      levenshtein_d: levenshtein_distance(str_a, str_b)
+      levenshtein_distance: levenshtein_distance(str_a, str_b)
     }
   end
 end
