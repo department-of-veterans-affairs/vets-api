@@ -162,9 +162,16 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(existing_user.multifactor).to be_falsey
         expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
         expect(existing_user.ssn).to eq('796111863')
+        allow(StringHelpers).to receive(:levenshtein_distance).and_return(8)
         expect(controller).to receive(:log_message_to_sentry).with(
           'SSNS DO NOT MATCH!!',
-          :warn
+          :warn,
+          identity_compared_with_mvi: {
+            length: [9, 9],
+            only_digits: [true, true],
+            encoding: ['UTF-8', 'UTF-8'],
+            levenshtein_distance: 8
+          }
         )
         post :saml_callback
         new_user = User.find(uuid)
