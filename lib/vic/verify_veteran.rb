@@ -32,7 +32,9 @@ module VIC
       veteran_status = emis_response.items.first
       return false if veteran_status.blank?
 
-      User::ID_CARD_ALLOWED_STATUSES.include?(veteran_status.title38_status_code)
+      if User::ID_CARD_ALLOWED_STATUSES.include?(veteran_status.title38_status_code)
+        binding.pry; fail
+      end
     end
   end
 end
