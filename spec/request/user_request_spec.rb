@@ -51,6 +51,7 @@ RSpec.describe 'Fetching user data', type: :request do
       num_enabled += FormProfile::EDU_FORMS.length if Settings.edu.prefill
       num_enabled += FormProfile::HCA_FORMS.length if Settings.hca.prefill
       num_enabled += FormProfile::PENSION_BURIAL_FORMS.length if Settings.pension_burial.prefill
+      num_enabled += FormProfile::VIC_FORMS.length if Settings.vic.prefill
 
       expect(JSON.parse(response.body)['data']['attributes']['prefills_available'].length).to be(num_enabled)
     end

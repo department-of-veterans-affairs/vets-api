@@ -34,6 +34,7 @@ gem 'ice_nine'
 gem 'iconv'
 gem 'json-schema'
 gem 'jwt'
+gem 'levenshtein-ffi'
 gem 'liquid'
 gem 'memoist'
 gem 'mini_magick'
@@ -120,9 +121,12 @@ group :development, :test do
 end
 
 group :production do
-  # sidekiq enterprise edition
-  source 'https://enterprise.contribsys.com/' do
-    gem 'sidekiq-ent'
-    gem 'sidekiq-pro'
+  # sidekiq enterprise requires a license key to download but is only required in production.
+  # for local dev environments, regular sidekiq works fine
+  unless ENV['EXCLUDE_SIDEKIQ_ENTERPRISE']
+    source 'https://enterprise.contribsys.com/' do
+      gem 'sidekiq-ent'
+      gem 'sidekiq-pro'
+    end
   end
 end
