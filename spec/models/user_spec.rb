@@ -200,8 +200,28 @@ RSpec.describe User, type: :model do
           expect(user.first_name).to be(user.va_profile.given_names.first)
         end
 
-        it 'fetches middle_name from MVI' do
-          expect(user.middle_name).to eq(user.va_profile.given_names.to_a[1..-1].join(' '))
+        context 'when given_names has no middle_name' do
+          let(:mvi_profile) { FactoryBot.build(:mvi_profile, given_names: ['Joe']) }
+
+          it 'fetches middle name from MVI' do
+            expect(user.middle_name).to be_nil
+          end
+        end
+
+        context 'when given_names has middle_name' do
+          let(:mvi_profile) { FactoryBot.build(:mvi_profile, given_names: %w[Joe Bob]) }
+
+          it 'fetches middle name from MVI' do
+            expect(user.middle_name).to eq('Bob')
+          end
+        end
+
+        context 'when given_names has multiple middle names' do
+          let(:mvi_profile) { FactoryBot.build(:mvi_profile, given_names: %w[Michael Joe Bob Sinclair]) }
+
+          it 'fetches middle name from MVI' do
+            expect(user.middle_name).to eq('Joe Bob Sinclair')
+          end
         end
 
         it 'fetches last_name from MVI' do
