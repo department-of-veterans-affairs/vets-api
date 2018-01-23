@@ -39,18 +39,6 @@ module MVI
         @mhv_ids&.first
       end
 
-      def emis_request_options
-        emis_opt = {}
-
-        if edipi.present?
-          emis_opt[:edipi] = edipi
-        elsif icn.present?
-          emis_opt[:icn] = icn
-        end
-
-        emis_opt
-      end
-
       def normalized_suffix
         case @suffix
         when /jr\.?/i
