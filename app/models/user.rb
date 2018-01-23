@@ -40,31 +40,31 @@ class User < Common::RedisStore
   delegate :first_name, to: :identity, allow_nil: true
 
   def first_name
-    identity.first_name || mhv_icn.present? ? mvi&.profile&.given_names&.first : nil
+    identity.first_name || (mhv_icn.present? ? mvi&.profile&.given_names&.first : nil)
   end
 
   def middle_name
-    identity.middle_name || mhv_icn.present? ? mvi&.profile&.given_names&.last : nil
+    identity.middle_name || (mhv_icn.present? ? mvi&.profile&.given_names&.last : nil)
   end
 
   def last_name
-    identity.last_name || mhv_icn.present? ? mvi&.profile&.family_name : nil
+    identity.last_name || (mhv_icn.present? ? mvi&.profile&.family_name : nil)
   end
 
   def gender
-    identity.gender || mhv_icn.present? ? mvi&.profile&.gender : nil
+    identity.gender || (mhv_icn.present? ? mvi&.profile&.gender : nil)
   end
 
   def birth_date
-    identity.birth_date || mhv_icn.present? ? mvi&.profile&.birth_date : nil
+    identity.birth_date || (mhv_icn.present? ? mvi&.profile&.birth_date : nil)
   end
 
   def zip
-    identity.zip || mhv_icn.present? ? mvi&.profile&.address&.postal_code : nil
+    identity.zip || (mhv_icn.present? ? mvi&.profile&.address&.postal_code : nil)
   end
 
   def ssn
-    identity.ssn || mhv_icn.present? ? mvi&.profile&.ssn : nil
+    identity.ssn || (mhv_icn.present? ? mvi&.profile&.ssn : nil)
   end
 
   def mhv_correlation_id
