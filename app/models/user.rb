@@ -44,7 +44,7 @@ class User < Common::RedisStore
   end
 
   def middle_name
-    identity.middle_name || (mhv_icn.present? ? mvi&.profile&.given_names&.last : nil)
+    identity.middle_name || (mhv_icn.present? ? mvi&.profile&.given_names.to_a[1..-1]&.join(' ') : nil)
   end
 
   def last_name

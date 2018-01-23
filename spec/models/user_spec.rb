@@ -194,14 +194,14 @@ RSpec.describe User, type: :model do
       context 'when saml user attributes NOT available, icn is available, and user LOA3' do
         let(:mvi_profile) { FactoryBot.build(:mvi_profile) }
         let(:user) { FactoryBot.build(:user, :loa3, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
-        before(:each) { stub_mvi(mvi_profile)
+        before(:each) { stub_mvi(mvi_profile) }
 
         it 'fetches first_name from MVI' do
           expect(user.first_name).to be(user.va_profile.given_names.first)
         end
 
         it 'fetches middle_name from MVI' do
-          expect(user.middle_name).to be(user.va_profile.given_names.last)
+          expect(user.middle_name).to eq(user.va_profile.given_names.to_a[1..-1].join(' '))
         end
 
         it 'fetches last_name from MVI' do
@@ -264,38 +264,32 @@ RSpec.describe User, type: :model do
         let(:user) { FactoryBot.build(:user, :loa3) }
         before(:each) { stub_mvi(mvi_profile) }
 
-        it 'fetches first_name from UserIdentity' do
-          expect(user.first_name).to eq(user.identity.first_name)
-          expect(user.first_name).not_to eq(mvi_profile.given_names.first)
+        it 'fetches first_name from IDENTITY' do
+          expect(user.first_name).to be(user.identity.first_name)
         end
 
-        it 'fetches middle_name from UserIdentity' do
-          expect(user.middle_name).to eq(user.identity.middle_name)
-          expect(user.middle_name).not_to eq(mvi_profile.given_names.last)
+        it 'fetches middle_name from IDENTITY' do
+          expect(user.middle_name).to be(user.identity.middle_name)
         end
 
-        it 'fetches last_name from UserIdentity' do
-          expect(user.last_name).to eq(user.identity.last_name)
-          expect(user.last_name).not_to eq(mvi_profile.family_name)
+        it 'fetches last_name from IDENTITY' do
+          expect(user.last_name).to be(user.identity.last_name)
         end
 
-        it 'fetches gender from UserIdentity' do
-          expect(user.gender).to eq(user.identity.gender)
+        it 'fetches gender from IDENTITY' do
+          expect(user.gender).to be(user.identity.gender)
         end
 
-        it 'fetches birth_date from UserIdentity' do
-          expect(user.birth_date).to eq(user.identity.birth_date)
-          expect(user.birth_date).not_to eq(mvi_profile.birth_date)
+        it 'fetches birth_date from IDENTITY' do
+          expect(user.birth_date).to be(user.identity.birth_date)
         end
 
-        it 'fetches zip from UserIdentity' do
-          expect(user.zip).to eq(user.identity.zip)
-          expect(user.zip).not_to eq(mvi_profile.address.postal_code)
+        it 'fetches zip from IDENTITY' do
+          expect(user.zip).to be(user.identity.zip)
         end
 
-        it 'fetches ssn from UserIdentity' do
-          expect(user.ssn).to eq(user.identity.ssn)
-          expect(user.ssn).not_to eq(mvi_profile.ssn)
+        it 'fetches ssn from IDENTITY' do
+          expect(user.ssn).to be(user.identity.ssn)
         end
       end
 
@@ -306,6 +300,7 @@ RSpec.describe User, type: :model do
             expect(user.mhv_correlation_id).to be_nil
           end
         end
+
         context 'when there are mhv ids' do
           let(:loa3_user) { FactoryBot.build(:user, :loa3) }
           let(:mvi_profile) { FactoryBot.build(:mvi_profile) }
