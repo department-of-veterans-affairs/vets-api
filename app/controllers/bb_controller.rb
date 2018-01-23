@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'bb/client'
 
 class BBController < ApplicationController

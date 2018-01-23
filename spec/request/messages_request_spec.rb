@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'sm/client'
 require 'support/sm_client_helpers'

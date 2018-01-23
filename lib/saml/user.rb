@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'saml/user_attributes/id_me'
 require 'saml/user_attributes/mhv'
 require 'saml/user_attributes/dslogon'
@@ -39,7 +40,7 @@ module SAML
     # returns the attributes that are defined below, could be from one of 3 distinct policies, each having different
     # saml responses, hence this weird decorating mechanism, needs improved abstraction to be less weird.
     def serializable_attributes
-      %i(authn_context)
+      %i[authn_context]
     end
 
     def dslogon?
