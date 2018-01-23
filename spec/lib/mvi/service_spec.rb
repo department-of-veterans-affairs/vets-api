@@ -40,6 +40,10 @@ describe MVI::Service do
     end
   end
 
+  describe '#find_profile with historical icns' do
+    # TODO after finding out how to do this call
+  end
+
   describe '.find_profile with icn' do
     before(:each) do
       expect(MVI::Messages::FindProfileMessageIcn).to receive(:new).once.and_call_original
