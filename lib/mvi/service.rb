@@ -29,8 +29,8 @@ module MVI
     #
     # @param user [User] the user to query MVI for
     # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
-    def find_profile(user)
-      find_profile_with_body(create_profile_message(user), user)
+    def find_profile(user, opt = {})
+      find_profile_with_body(create_profile_message(user, opt), user)
     end
 
     def find_profile_from_mvi_profile(mvi_profile)
@@ -78,14 +78,14 @@ module MVI
       end
     end
 
-    def create_profile_message(user)
-      return message_icn(user) if user.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
+    def create_profile_message(user, opt = {})
+      return message_icn(user, opt) if user.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
       raise Common::Exceptions::ValidationErrors, user unless user.valid?(:loa3_user)
-      message_user_attributes(user)
+      message_user_attributes(user, opt)
     end
 
-    def message_icn(user)
-      MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml
+    def message_icn(user, opt = {})
+      MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml(opt)
     end
 
     def message_mvi_profile_attributes(mvi_profile)
@@ -98,7 +98,7 @@ module MVI
       ).to_xml(historical_icns: true)
     end
 
-    def message_user_attributes(user)
+    def message_user_attributes(user, opt = {})
       given_names = [user.first_name]
       given_names.push user.middle_name unless user.middle_name.nil?
       MVI::Messages::FindProfileMessage.new(
@@ -107,7 +107,7 @@ module MVI
         user.birth_date,
         user.ssn,
         user.gender
-      ).to_xml
+      ).to_xml(opt)
     end
   end
 end
