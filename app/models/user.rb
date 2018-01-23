@@ -162,6 +162,10 @@ class User < Common::RedisStore
     false
   end
 
+  def identity_proofed?
+    loa3?
+  end
+
   def mhv_account
     @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid)
   end
