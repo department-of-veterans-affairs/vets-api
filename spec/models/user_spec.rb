@@ -155,7 +155,7 @@ RSpec.describe User, type: :model do
     end
 
     describe 'getter methods' do
-      context 'when saml user attributes availabled, icn is available, and user LOA3' do
+      context 'when saml user attributes available, icn is available, and user LOA3' do
         let(:mvi_profile) { FactoryBot.build(:mvi_profile) }
         let(:user) { FactoryBot.build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }
         before(:each) do
