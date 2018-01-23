@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VIC
-  module VerifyVeteran
+  module IcnHelper
     module_function
 
     def create_mvi_profile(attributes)
@@ -20,21 +20,15 @@ module VIC
       mvi_profile
     end
 
-    def send_request(veteran_attributes)
+    def get_icns(veteran_attributes)
       mvi_profile = create_mvi_profile(veteran_attributes)
       mvi_response_profile = MVI::Service.new.find_profile_from_mvi_profile(mvi_profile)&.profile
       return false if mvi_response_profile.blank?
 
-      emis_request_options = mvi_response_profile.emis_request_options
-      return false if emis_request_options.blank?
-
-      emis_response = EMIS::VeteranStatusService.new.get_veteran_status(emis_request_options)
-      veteran_status = emis_response.items.first
-      return false if veteran_status.blank?
-
-      if User::ID_CARD_ALLOWED_STATUSES.include?(veteran_status.title38_status_code)
-        binding.pry; fail
-      end
+      {
+        historical_icns: mvi_response_profile.historical_icns,
+        icn: mvi_response_profile.icn
+      }
     end
   end
 end
