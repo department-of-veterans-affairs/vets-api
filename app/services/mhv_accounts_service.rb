@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'mhv_ac/client'
 require 'sentry_logging'
 
@@ -9,7 +10,7 @@ class MhvAccountsService
   STATSD_ACCOUNT_CREATION_KEY = 'mhv.account.creation'
   STATSD_ACCOUNT_UPGRADE_KEY = 'mhv.account.upgrade'
 
-  ADDRESS_ATTRS = %w(street city state postal_code country).freeze
+  ADDRESS_ATTRS = %w[street city state postal_code country].freeze
   UNKNOWN_ADDRESS = {
     address1: 'Unknown Address',
     city: 'Washington',
