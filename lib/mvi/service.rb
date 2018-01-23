@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/base'
 require 'mvi/configuration'
 require 'mvi/responses/find_profile_response'
@@ -52,19 +53,20 @@ module MVI
     def mvi_error_handler(user, e)
       case e
       when MVI::Errors::DuplicateRecords
-        log_message_to_sentry('MVI Duplicate Record', :warn, user_context(user))
+        log_message_to_sentry('MVI Duplicate Record', :warn)
       when MVI::Errors::RecordNotFound
         # Not going to log RecordNotFound
         # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
-        # log_message_to_sentry('MVI Record Not Found', :warn, user_context(user))
+        # log_message_to_sentry('MVI Record Not Found', :warn)
+        nil
       when MVI::Errors::InvalidRequestError
         if user.mhv_icn.present?
-          log_message_to_sentry('MVI Invalid Request (Possible RecordNotFound)', :error, user_context(user))
+          log_message_to_sentry('MVI Invalid Request (Possible RecordNotFound)', :error)
         else
-          log_message_to_sentry('MVI Invalid Request', :error, user_context(user))
+          log_message_to_sentry('MVI Invalid Request', :error)
         end
       when MVI::Errors::FailedRequestError
-        log_message_to_sentry('MVI Failed Request', :error, user_context(user))
+        log_message_to_sentry('MVI Failed Request', :error)
       end
     end
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/redis_store'
 require 'common/models/attribute_types/utc_time'
 module Common

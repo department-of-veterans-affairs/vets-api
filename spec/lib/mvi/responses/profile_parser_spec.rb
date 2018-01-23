@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'mvi/responses/profile_parser'
 
@@ -132,7 +133,7 @@ describe MVI::Responses::ProfileParser do
     it 'logs warning about inactive IDs' do
       msg1 = 'Inactive MHV correlation IDs present'
       msg2 = 'Returning inactive MHV correlation ID as first identifier'
-      expect(Raven).to receive(:extra_context).with(ids: %w(12345678901 12345678902)).twice
+      expect(Raven).to receive(:extra_context).with(ids: %w[12345678901 12345678902]).twice
       expect(Raven).to receive(:capture_message).with(msg1, level: :info)
       expect(Raven).to receive(:capture_message).with(msg2, level: :warn)
       parser.parse

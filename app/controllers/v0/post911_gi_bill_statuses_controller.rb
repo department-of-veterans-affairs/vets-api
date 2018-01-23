@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'evss/gi_bill_status/gi_bill_status_response'
 
 module V0

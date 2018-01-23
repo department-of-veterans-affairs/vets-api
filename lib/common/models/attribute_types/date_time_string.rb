@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Common
   # Ensures that a string can be parsed to a valid DateTime
   class DateTimeString < Virtus::Attribute

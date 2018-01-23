@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/base'
 
 module Preneeds
@@ -29,9 +30,8 @@ module Preneeds
         militaryStatus: military_status
       }
 
-      [
-        :dateOfBirth, :dateOfDeath, :vaClaimNumber,
-        :placeOfBirth, :militaryServiceNumber
+      %i[
+        dateOfBirth dateOfDeath vaClaimNumber placeOfBirth militaryServiceNumber
       ].each { |key| hash.delete(key) if hash[key].blank? }
 
       hash

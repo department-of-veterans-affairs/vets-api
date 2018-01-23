@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module V0
   class PrescriptionsController < RxController
     include Filterable
@@ -23,7 +24,7 @@ module V0
     def show
       id = params[:id].try(:to_i)
       resource = client.get_rx(id)
-      raise Common::Exceptions::RecordNotFound, id unless resource.present?
+      raise Common::Exceptions::RecordNotFound, id if resource.blank?
       render json: resource,
              serializer: PrescriptionSerializer,
              meta: resource.metadata

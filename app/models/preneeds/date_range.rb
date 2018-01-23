@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/form'
 
 module Preneeds
@@ -7,7 +8,7 @@ module Preneeds
     attribute :to, String
 
     def self.permitted_params
-      [:from, :to]
+      %i[from to]
     end
   end
 end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'memoist'
 require 'sentry_logging'
 require 'saml/health_status'
