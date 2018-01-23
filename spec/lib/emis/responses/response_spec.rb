@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'emis/responses/response'
-require 'emis/errors/errors'
 
 describe EMIS::Responses::Response do
   let(:faraday_response) { instance_double('Faraday::Response') }

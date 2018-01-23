@@ -23,7 +23,7 @@ module HCA
       return false if date.nil?
 
       cutoff = Time.zone.today + FUTURE_DISCHARGE_CUTOFF
-      date < cutoff
+      date <= cutoff
     end
 
     def discharge_date(date_string)
