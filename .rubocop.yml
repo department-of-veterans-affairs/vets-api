@@ -110,6 +110,7 @@ Style/RescueStandardError:
     - "app/controllers/v0/sessions_controller.rb"
     - "app/models/form_profile.rb"
     - "app/models/mhv_account.rb"
+    - "app/services/mhv_accounts_service.rb"
     - "app/uploaders/claim_documentation/uploader.rb"
     - "app/workers/education_form/create_daily_spool_files.rb"
     - "lib/common/client/configuration/soap.rb"
