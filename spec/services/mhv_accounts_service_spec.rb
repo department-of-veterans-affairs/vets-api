@@ -6,7 +6,7 @@ RSpec.describe MhvAccountsService do
   let(:mvi_profile) do
     build(:mvi_profile,
           icn: '1012667122V019349',
-          given_names: %w[Hector],
+          given_names: %w(Hector),
           family_name: 'Allen',
           suffix: nil,
           gender: 'M',
