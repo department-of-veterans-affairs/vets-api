@@ -84,7 +84,6 @@ class ApplicationController < ActionController::API
       end
 
     headers['WWW-Authenticate'] = 'Token realm="Application"' if va_exception.is_a?(Common::Exceptions::Unauthorized)
-
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
   # rubocop:enable Metrics/BlockLength
