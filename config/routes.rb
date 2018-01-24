@@ -145,6 +145,8 @@ Rails.application.routes.draw do
     get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
 
+    resource :mhv_account, only: [:show, :create]
+
     [
       'veteran_id_card',
       FormProfile::EMIS_PREFILL_KEY
