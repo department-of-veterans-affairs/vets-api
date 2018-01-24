@@ -30,8 +30,12 @@ module Github
     def perform(feedback)
       feedback = Feedback.new(feedback)
       THROTTLE.within_limit do
-        create_response = Github::GithubService.create_issue(feedback)
-        FeedbackSubmissionMailer.build(feedback, create_response&.html_url, create_response&.number).deliver_now
+        # create_response = Github::GithubService.create_issue(feedback)
+        FeedbackSubmissionMailer.build(
+          feedback,
+          'Automatic Github issue creation skipped.',
+          Time.now.to_f
+        ).deliver_now
       end
     rescue Exception => e
       StatsD.increment(metric_name(self, 'rate_limited')) if e.class.name == 'Sidekiq::Limiter::OverLimit'
