@@ -155,6 +155,7 @@ appeals:
 vic:
   url: https://some.fakesite.com
   signing_key_path: /fake/signing/key/path
+  prefill: true
 
 # Settings for (preneeds) burials.
 # TODO: enpoint needs to be set up for https and production api when available

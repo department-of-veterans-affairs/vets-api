@@ -19,7 +19,7 @@ class ApplicationController < ActionController::API
 
   before_action :authenticate
   before_action :set_app_info_headers
-  before_action :set_uuid_tags
+  before_action :set_tags_and_extra_context
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
 
   def cors_preflight
@@ -89,9 +89,27 @@ class ApplicationController < ActionController::API
   end
   # rubocop:enable Metrics/BlockLength
 
-  def set_uuid_tags
+  def set_tags_and_extra_context
     Thread.current['request_id'] = request.uuid
     Raven.extra_context(request_uuid: request.uuid)
+    Raven.user_context(user_context) if @current_user
+    Raven.tags_context(tags_context)
+  end
+
+  def user_context
+    {
+      uuid: @current_user&.uuid,
+      authn_context: @current_user&.authn_context,
+      loa: @current_user&.loa,
+      mhv_icn: @current_user&.mhv_icn
+    }
+  end
+
+  def tags_context
+    {
+      controller_name: controller_name,
+      sign_in_method: @current_user.present? ? @current_user.authn_context || 'idme' : 'not-signed-in'
+    }
   end
 
   def set_app_info_headers
