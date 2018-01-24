@@ -1,10 +1,19 @@
 # frozen_string_literal: true
 
 class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
+  include CarrierWave::MiniMagick
   include ValidateFileSize
   include SetAwsConfig
 
   MAX_FILE_SIZE = 25.megabytes
+
+  version :pdf_version, if: :image? do
+    process(convert: :pdf)
+
+    def full_filename(file)
+      "converted_#{file}.pdf"
+    end
+  end
 
   def initialize(guid)
     super
@@ -26,5 +35,11 @@ class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
   def store_dir
     raise 'missing guid' if @guid.blank?
     "supporting_documentation_attachments/#{@guid}"
+  end
+
+  private
+
+  def image?(new_file)
+    new_file.content_type.start_with?('image/')
   end
 end
