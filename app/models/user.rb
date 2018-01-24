@@ -14,7 +14,7 @@ class User < Common::RedisStore
   UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
 
   # Defined per issue #6042
-  ID_CARD_ALLOWED_STATUSES = %w(V1 V3 V6).freeze
+  ID_CARD_ALLOWED_STATUSES = %w[V1 V3 V6].freeze
 
   redis_store REDIS_CONFIG['user_b_store']['namespace']
   redis_ttl REDIS_CONFIG['user_b_store']['each_ttl']
@@ -40,31 +40,31 @@ class User < Common::RedisStore
   delegate :first_name, to: :identity, allow_nil: true
 
   def first_name
-    mhv_icn.present? ? mvi&.profile&.given_names&.first : identity.first_name
+    identity.first_name || (mhv_icn.present? ? mvi&.profile&.given_names&.first : nil)
   end
 
   def middle_name
-    mhv_icn.present? ? mvi&.profile&.given_names&.last : identity.middle_name
+    identity.middle_name || (mhv_icn.present? ? mvi&.profile&.given_names.to_a[1..-1]&.join(' ').presence : nil)
   end
 
   def last_name
-    mhv_icn.present? ? mvi&.profile&.family_name : identity.last_name
+    identity.last_name || (mhv_icn.present? ? mvi&.profile&.family_name : nil)
   end
 
   def gender
-    mhv_icn.present? ? mvi&.profile&.gender : identity.gender
+    identity.gender || (mhv_icn.present? ? mvi&.profile&.gender : nil)
   end
 
   def birth_date
-    mhv_icn.present? ? mvi&.profile&.birth_date : identity.birth_date
+    identity.birth_date || (mhv_icn.present? ? mvi&.profile&.birth_date : nil)
   end
 
   def zip
-    mhv_icn.present? ? mvi&.profile&.address&.postal_code : identity.zip
+    identity.zip || (mhv_icn.present? ? mvi&.profile&.address&.postal_code : nil)
   end
 
   def ssn
-    mhv_icn.present? ? mvi&.profile&.ssn : identity.ssn
+    identity.ssn || (mhv_icn.present? ? mvi&.profile&.ssn : nil)
   end
 
   def mhv_correlation_id
@@ -117,8 +117,23 @@ class User < Common::RedisStore
     loa[:current] == LOA::THREE
   end
 
+  def ssn_mismatch?
+    return false unless loa3? && identity&.ssn && va_profile&.ssn
+    identity.ssn != va_profile.ssn
+  end
+
   def can_access_user_profile?
     loa1? || loa2? || loa3?
+  end
+
+  # User's profile contains a list of VHA facility-specific identifiers.
+  # Facilities in the defined range are treating facilities, indicating
+  # that the user is a VA patient.
+  def va_patient?
+    facilities = va_profile&.vha_facility_ids
+    facilities.to_a.any? do |f|
+      Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) }
+    end
   end
 
   # Must be LOA3 and a va patient
@@ -157,6 +172,10 @@ class User < Common::RedisStore
     false
   end
 
+  def identity_proofed?
+    loa3?
+  end
+
   def mhv_account
     @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid)
   end
@@ -171,7 +190,7 @@ class User < Common::RedisStore
     mvi.cache(uuid, mvi.mvi_response)
   end
 
-  %w(veteran_status military_information payment).each do |emis_method|
+  %w[veteran_status military_information payment].each do |emis_method|
     define_method(emis_method) do
       emis_model = instance_variable_get(:"@#{emis_method}")
       return emis_model if emis_model.present?

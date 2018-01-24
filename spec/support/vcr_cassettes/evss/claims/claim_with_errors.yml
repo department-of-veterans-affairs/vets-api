@@ -14,7 +14,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Tue, 20 Dec 2016 19:15:07 GMT
+      - Wed, 13 Dec 2017 23:45:40 GMT
       Va-Eauth-Csid:
       - DSLogon
       Va-Eauth-Authenticationmethod:
@@ -24,19 +24,23 @@ http_interactions:
       Va-Eauth-Assurancelevel:
       - '3'
       Va-Eauth-Firstname:
-      - JOHNNIE
+      - WESLEY
       Va-Eauth-Lastname:
-      - WEAVER
+      - FORD
       Va-Eauth-Issueinstant:
-      - '2016-12-20T19:15:06Z'
+      - '2017-12-07T00:55:09Z'
       Va-Eauth-Dodedipnid:
-      - 1005169255
+      - '1007697216'
+      Va-Eauth-Birlsfilenumber:
+      - '796043735'
       Va-Eauth-Pid:
-      - 600043180
+      - '600061742'
       Va-Eauth-Pnid:
-      - '796123607'
+      - '796043735'
+      Va-Eauth-Birthdate:
+      - '1986-05-06T00:00:00+00:00'
       Va-Eauth-Authorization:
-      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796123607","edi":1005169255,"firstName":"JOHNNIE","lastName":"WEAVER"}}'
+      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796043735","edi":"1007697216","firstName":"WESLEY","lastName":"FORD","birthDate":"1986-05-06T00:00:00+00:00"}}'
       Content-Type:
       - application/json
   response:
@@ -45,18 +49,25 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 20 Dec 2016 19:15:07 GMT
-      Transfer-Encoding:
-      - chunked
+      - Wed, 13 Dec 2017 23:45:40 GMT
+      Server:
+      - Apache
       Content-Type:
       - application/json
       X-Wily-Servlet:
       - Encrypt1 hR/KG2GOR16aRfvv3/q1AW0eXDaeERIVopFkOCXDj8aBMFJ3Yx6n3JU460kEeiDI+f7tx96uM7rd6Q66kG1F301pdCrOJfMsJBfCUXtpBBUC10v84zvjZZhZrTuMJwibXwrFyA6VYWhxQ0aj5bSLXKVvNWBYquJXTZ8L8ia/vdk=
-      Set-Cookie:
-      - WSS-CLAIMS-SERVICES_JSESSIONID=5l0dqJ_O0aHwf8reh_NHEMP-WiCFS9bGoH6MIW9RuPVmfrghW-00!590015968;
-        path=/; HttpOnly
       X-Wily-Info:
-      - Clear guid=1DA89FCF0AE153E02F47B505DCDDA909
+      - Clear guid=5244FC5D0AE153E03B6B6CF4D733A9E1
+      Via:
+      - 1.1 pint.ebenefits.va.gov:444
+      Vary:
+      - Accept-Encoding,User-Agent
+      Content-Encoding:
+      - gzip
+      X-Ua-Compatible:
+      - IE=Edge
+      Content-Length:
+      - '130'
     body:
       encoding: UTF-8
       string: |-
@@ -68,5 +79,5 @@ http_interactions:
           } ]
         }
     http_version: 
-  recorded_at: Tue, 20 Dec 2016 19:15:19 GMT
+  recorded_at: Wed, 13 Dec 2017 23:46:11 GMT
 recorded_with: VCR 3.0.3

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/concerns/service_status'
 require 'evss/response'
 
@@ -50,7 +51,7 @@ module EVSS
       end
 
       def error_type
-        KNOWN_ERRORS.each do |_error_key, error_val|
+        KNOWN_ERRORS.each_value do |error_val|
           return error_val if send("#{error_val}?")
         end
 
@@ -98,7 +99,7 @@ module EVSS
       end
 
       def text_response?
-        @content_type.include?('text/html')
+        @content_type.include?('text/html') || !@response.body.respond_to?(:key?)
       end
     end
   end

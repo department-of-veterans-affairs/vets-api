@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Requests
     module Gibct
@@ -9,7 +10,7 @@ module Swagger
           operation :get do
             key :description, 'Retrieves institution names begining with a set of letters'
             key :operationId, 'gibctInstitutionsAutocomplete'
-            key :tags, %w(institutions autocomplete)
+            key :tags, %w[institutions autocomplete]
 
             parameter name: :term, in: :query,
                       required: true, type: :string, description: 'start of an institution name'
@@ -28,7 +29,7 @@ module Swagger
           operation :get do
             key :description, 'Retrieves institutions with a partial match for names, or match of city or facility code'
             key :operationId, 'gibctInstitutionsSearch'
-            key :tags, %w(institutions search)
+            key :tags, %w[institutions search]
 
             parameter name: :term, in: :query,
                       required: false, type: :string, description: '(partial) institution name, city, or facility code'
@@ -47,7 +48,7 @@ module Swagger
           operation :get do
             key :description, 'Get details about an institution'
             key :operationId, 'showInstitution'
-            key :tags, %w(institutions show)
+            key :tags, %w[institutions show]
 
             parameter name: :id, in: :path, required: true, type: :integer,
                       description: 'facility code of the institution'

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 # rubocop:disable  Style/GlobalVars
 class TestTaskA < Workflow::Task::Base

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'vic/url_helper'
 require 'vic/id_card_attribute_error'
 
@@ -25,8 +26,8 @@ module V0
       # VeteranStatus method
       raise Common::Exceptions::Forbidden, detail: 'You do not have access to ID card attributes' unless
         current_user.loa3?
-      raise ::VIC::IDCardAttributeError, status: 403, code: 'VIC002', detail: 'Unable to verify EDIPI' unless
-        current_user.edipi.present?
+      raise ::VIC::IDCardAttributeError, status: 403, code: 'VIC002', detail: 'Unable to verify EDIPI' if
+        current_user.edipi.blank?
       begin
         unless current_user.can_access_id_card?
           raise ::VIC::IDCardAttributeError, status: 403, code: 'VIC003',

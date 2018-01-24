@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module LOA
   # LOA stands for Level of Assurance
   ONE   = 1

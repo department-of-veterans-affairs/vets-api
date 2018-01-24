@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class TrackingSerializer < ActiveModel::Serializer
   def id
     object.tracking_number

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class Workflow::File < Workflow::Base
   def initialize(file, **options)
     raise 'First argument must be a Shrine::Attacher' unless file.is_a?(Shrine::Attacher)

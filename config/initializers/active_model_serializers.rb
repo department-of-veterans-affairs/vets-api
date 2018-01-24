@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # This module monkey patches the pagination links defined by the json-api adapter_options
 # to more closely match the specifications
 module CustomPaginationLinks

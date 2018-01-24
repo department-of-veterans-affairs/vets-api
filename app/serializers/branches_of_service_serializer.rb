@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class BranchesOfServiceSerializer < ActiveModel::Serializer
   attribute :id
 

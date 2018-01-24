@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :service_record, class: Preneeds::ServiceRecord do
     service_branch 'AF' # Air Force

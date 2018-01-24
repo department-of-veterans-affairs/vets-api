@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class NCAFacilityAdapter
   NCA_URL = +Settings.locators.nca
   NCA_ID_FIELD = 'SITE_ID'
@@ -64,9 +65,9 @@ class NCAFacilityAdapter
     'main' => 'PHONE', 'fax' => 'FAX'
   }.freeze
 
-  V1_HOURS_KEYMAP = %w(
+  V1_HOURS_KEYMAP = %w[
     Monday Tuesday Wednesday Thursday Friday Saturday Sunday
-  ).each_with_object({}) { |d, h| h[d] = d }
+  ].each_with_object({}) { |d, h| h[d] = d }
 
   V2_TOP_KEYMAP = {
     unique_id: 'SITE_ID', name: 'FULL_NAME', classification: 'SITE_TYPE',

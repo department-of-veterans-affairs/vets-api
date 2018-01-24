@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'facilities/async_client'
 require 'facilities/multi_client'
 
@@ -55,7 +56,7 @@ class VAFacility < ActiveModelSerializers::Model
     return nil unless adapter
     request = adapter.find_by(id: station)
     responses = multi_client.run([request])
-    adapter.class&.from_gis(responses.first.first) unless responses.first.blank?
+    adapter.class&.from_gis(responses.first.first) if responses.first.present?
   end
 
   def self.service_whitelist(prefix)

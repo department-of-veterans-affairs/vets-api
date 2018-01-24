@@ -22,13 +22,16 @@ sidekiq_admin_panel: false
 
 # Settings for Education Benefits
 edu:
+  prefill: true
   sftp:
     host: ~
     pass: ~
     user: ~
     port: ~
 
+
 pension_burial:
+  prefill: true
   sftp:
     relative_path: '../VETSGOV_PENSION'
   upload:
@@ -45,7 +48,7 @@ evss:
   versions:
     claims: 3.0
     common: 11.0
-    documents: 3.0
+    documents: 3.6
   s3:
     uploads_enabled: false
     aws_access_key_id: EVSS_S3_AWS_ACCESS_KEY_ID_XYZ
@@ -67,6 +70,7 @@ gids:
 # Settings for Healthcare Application
 # This CA chain is nonsense but allows local development to work with pre-prod environment.
 hca:
+  prefill: true
   endpoint: https://test-foo.vets.gov
   cert_path: /fake/client/cert/path
   key_path: /fake/client/key/path
@@ -145,6 +149,7 @@ appeals_status:
 vic:
   url: https://some.fakesite.com
   signing_key_path: /fake/signing/key/path
+  prefill: true
 
 # Settings for (preneeds) burials.
 # TODO: enpoint needs to be set up for https and production api when available
@@ -196,6 +201,13 @@ shrine:
     path: claims
 github:
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
+
+# Settings for maintenance window API
+# Services should be a map from logical service name to PagerDuty service id
+maintenance:
+  pagerduty_api_url: https://api.pagerduty.com
+  pagerduty_api_token: FAKE
+  services: ~
 
 # Note: in addition to enabling / disabling betamocks here, you _must_ also
 # change the 'mock' bool for each service you want to mock in this settings file
