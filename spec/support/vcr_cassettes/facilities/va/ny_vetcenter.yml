@@ -1,0 +1,96 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_VetCenters/FeatureServer/0/query?f=json&geometry=-73.401,40.685,-77.36,43.03&geometryType=esriGeometryEnvelope&inSR=4326&orderByFields=stationno&outFields=*&outSR=4326&returnCountOnly=false&returnDistinctValues=false&returnGeometry=true&where=
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Typhoeus - https://github.com/typhoeus/typhoeus
+      Expect:
+      - ''
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain; charset=utf-8
+      Content-Length:
+      - '8284'
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - public, max-age=0, s-maxage=0
+      Last-Modified:
+      - Mon, 12 Jun 2017 15:51:55 GMT
+      Etag:
+      - sd1159_-74916630
+      Server:
+      - Microsoft-IIS/8.5
+      Request-Context:
+      - appId=cid-v1:9a304302-60d2-4855-8e24-1d5879cbf961
+      X-Arcgis-Instance:
+      - MTSDS_Web_IN_17
+      X-Arcgis-Request-Id:
+      - "|0bHfM2oRCzI=.35ca0587_"
+      X-Powered-By:
+      - ASP.NET
+      Access-Control-Allow-Origin:
+      - "*"
+      Date:
+      - Wed, 24 Jan 2018 22:07:38 GMT
+      X-Cache:
+      - RefreshHit from cloudfront
+      Via:
+      - 1.1 f12119dc59597a3cbedac2ac64405829.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - GokD4BG_L2OO2Jd7-63xD7wm_1r05vpLc35Ql3rjIl49vG7Hxkv5Gw==
+    body:
+      encoding: UTF-8
+      string: '{"objectIdFieldName":"OBJECTID","globalIdFieldName":"","geometryType":"esriGeometryPoint","spatialReference":{"wkid":4326,"latestWkid":4326},"fields":[{"name":"extractdate","type":"esriFieldTypeString","alias":"extractdate","sqlType":"sqlTypeOther","length":20,"domain":null,"defaultValue":null},{"name":"geoqid","type":"esriFieldTypeString","alias":"geoqid","sqlType":"sqlTypeOther","length":20,"domain":null,"defaultValue":null},{"name":"stationno","type":"esriFieldTypeString","alias":"stationno","sqlType":"sqlTypeOther","length":20,"domain":null,"defaultValue":null},{"name":"stationname","type":"esriFieldTypeString","alias":"stationname","sqlType":"sqlTypeOther","length":200,"domain":null,"defaultValue":null},{"name":"address1","type":"esriFieldTypeString","alias":"address1","sqlType":"sqlTypeOther","length":150,"domain":null,"defaultValue":null},{"name":"address2","type":"esriFieldTypeString","alias":"address2","sqlType":"sqlTypeOther","length":150,"domain":null,"defaultValue":null},{"name":"address3","type":"esriFieldTypeString","alias":"address3","sqlType":"sqlTypeOther","length":150,"domain":null,"defaultValue":null},{"name":"city","type":"esriFieldTypeString","alias":"city","sqlType":"sqlTypeOther","length":150,"domain":null,"defaultValue":null},{"name":"lat","type":"esriFieldTypeDouble","alias":"lat","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"lon","type":"esriFieldTypeDouble","alias":"lon","sqlType":"sqlTypeOther","domain":null,"defaultValue":null},{"name":"s_abbr","type":"esriFieldTypeString","alias":"s_abbr","sqlType":"sqlTypeOther","length":2147483647,"domain":null,"defaultValue":null},{"name":"st","type":"esriFieldTypeString","alias":"st","sqlType":"sqlTypeOther","length":5,"domain":null,"defaultValue":null},{"name":"sta_phone","type":"esriFieldTypeString","alias":"sta_phone","sqlType":"sqlTypeOther","length":20,"domain":null,"defaultValue":null},{"name":"zip","type":"esriFieldTypeString","alias":"zip","sqlType":"sqlTypeOther","length":10,"domain":null,"defaultValue":null},{"name":"OBJECTID","type":"esriFieldTypeOID","alias":"OBJECTID","sqlType":"sqlTypeOther","domain":null,"defaultValue":null}],"features":[{"attributes":{"extractdate":"6-12-2017","geoqid":"Q1FY2017","stationno":"0102V","stationname":"Secaucus
+        Vet Center","address1":"Secaucus Vet Center","address2":"110A Meadowlands
+        Parkway","address3":"Suite 102","city":"Secaucus","lat":40.78921396,"lon":-74.07386669,"s_abbr":"VTCR","st":"NJ","sta_phone":"201-223-7787
+        x","zip":"07094","OBJECTID":12},"geometry":{"x":-74.073899999999981,"y":40.789200000000051}},{"attributes":{"extractdate":"6-12-2017","geoqid":"Q1FY2017","stationno":"0105V","stationname":"Brooklyn
+        Vet Center","address1":"Brooklyn Vet Center","address2":"25 Chapel Street","address3":"Suite
+        604","city":"Brooklyn","lat":40.6972586,"lon":-73.98586968,"s_abbr":"VTCR","st":"NY","sta_phone":"718-630-2830
+        x","zip":"11201","OBJECTID":38},"geometry":{"x":-73.985899999999958,"y":40.697300000000041}},{"attributes":{"extractdate":"6-12-2017","geoqid":"Q1FY2017","stationno":"0106V","stationname":"Manhattan
+        Vet Center","address1":"Manhattan Vet Center","address2":"32 Broadway","address3":"2nd
+        Floor, Suite 200","city":"New York","lat":40.70596048,"lon":-74.01313618,"s_abbr":"VTCR","st":"NY","sta_phone":"212-951-6866
+        x","zip":"10004","OBJECTID":199},"geometry":{"x":-74.013099999999952,"y":40.706000000000074}},{"attributes":{"extractdate":"6-12-2017","geoqid":"Q1FY2017","stationno":"0109V","stationname":"Queens
+        Vet Center","address1":"Queens Vet Center","address2":"75-10B 91 Avenue","address3":null,"city":"Woodhaven","lat":40.68590868,"lon":-73.86505061,"s_abbr":"VTCR","st":"NY","sta_phone":"718-296-2871
+        x","zip":"11421","OBJECTID":110},"geometry":{"x":-73.865099999999984,"y":40.685900000000061}},{"attributes":{"extractdate":"6-12-2017","geoqid":"Q1FY2017","stationno":"0110V","stationname":"Bronx
+        Vet Center","address1":"Bronx Vet Center","address2":"2471 Morris Avenue","address3":"Suite
+        1A","city":"Bronx","lat":40.86266066,"lon":-73.89974606,"s_abbr":"VTCR","st":"NY","sta_phone":"718-367-3500
+        x","zip":"10468","OBJECTID":264},"geometry":{"x":-73.899699999999939,"y":40.862700000000075}},{"attributes":{"extractdate":"6-12-2017","geoqid":"Q1FY2017","stationno":"0111V","stationname":"Albany
+        Vet Center","address1":"Albany Vet Center","address2":"17 Computer Drive West","address3":null,"city":"Albany","lat":42.72156223,"lon":-73.80721201,"s_abbr":"VTCR","st":"NY","sta_phone":"518-626-5130
+        x","zip":"12205","OBJECTID":128},"geometry":{"x":-73.807199999999966,"y":42.72160000000008}},{"attributes":{"extractdate":"6-12-2017","geoqid":"Q1FY2017","stationno":"0112V","stationname":"Bloomfield
+        Vet Center","address1":"Bloomfield Vet Center","address2":"2 Broad Street","address3":"Suite
+        703","city":"Bloomfield","lat":40.79384405,"lon":-74.19762152,"s_abbr":"VTCR","st":"NJ","sta_phone":"973-748-0980
+        x","zip":"07003","OBJECTID":68},"geometry":{"x":-74.197599999999966,"y":40.793800000000033}},{"attributes":{"extractdate":"6-12-2017","geoqid":"Q1FY2017","stationno":"0123V","stationname":"White
+        Plains Vet Center","address1":"White Plains Vet Center","address2":"300 Hamilton
+        Avenue","address3":"1st Floor, Suite C","city":"White Plains","lat":41.0341771,"lon":-73.76740087,"s_abbr":"VTCR","st":"NY","sta_phone":"914-682-6250
+        x","zip":"10601","OBJECTID":96},"geometry":{"x":-73.767399999999952,"y":41.034200000000055}},{"attributes":{"extractdate":"6-12-2017","geoqid":"Q1FY2017","stationno":"0133V","stationname":"Harlem
+        Vet Center","address1":"Harlem Vet Center","address2":"2279 3rd Avenue","address3":"2nd
+        Floor","city":"New York","lat":40.80292123,"lon":-73.93634499,"s_abbr":"VTCR","st":"NY","sta_phone":"646-813-8139
+        x","zip":"10035","OBJECTID":39},"geometry":{"x":-73.93629999999996,"y":40.802900000000079}},{"attributes":{"extractdate":"6-12-2017","geoqid":"Q1FY2017","stationno":"0137V","stationname":"Binghamton
+        Vet Center","address1":"Binghamton Vet Center","address2":"53 Chenango Street","address3":null,"city":"Binghamton","lat":42.10031411,"lon":-75.91033253,"s_abbr":"VTCR","st":"NY","sta_phone":"607-722-2393
+        x","zip":"13901","OBJECTID":150},"geometry":{"x":-75.91029999999995,"y":42.100300000000061}},{"attributes":{"extractdate":"6-12-2017","geoqid":"Q1FY2017","stationno":"0138V","stationname":"Nassau
+        Vet Center","address1":"Nassau Vet Center","address2":"970 South Broadway","address3":null,"city":"Hicksville","lat":40.74498954,"lon":-73.49937357,"s_abbr":"VTCR","st":"NY","sta_phone":"516-348-0088
+        x","zip":"11801","OBJECTID":178},"geometry":{"x":-73.49939999999998,"y":40.745000000000061}},{"attributes":{"extractdate":"6-12-2017","geoqid":"Q1FY2017","stationno":"0139V","stationname":"Middletown
+        Vet Center","address1":"Middletown Vet Center","address2":"726 East Main Street","address3":"Suite
+        203","city":"Middletown","lat":41.43995301,"lon":-74.36701786,"s_abbr":"VTCR","st":"NY","sta_phone":"845-342-9917
+        x","zip":"10940","OBJECTID":138},"geometry":{"x":-74.366999999999962,"y":41.440000000000055}},{"attributes":{"extractdate":"6-12-2017","geoqid":"Q1FY2017","stationno":"0140V","stationname":"Danbury
+        Vet Center","address1":"Danbury Vet Center, The Atrium Building","address2":"457
+        North Main Street","address3":"1st Floor","city":"Danbury","lat":41.40515684,"lon":-73.46230384,"s_abbr":"VTCR","st":"CT","sta_phone":"203-790-4000
+        x","zip":"06831","OBJECTID":198},"geometry":{"x":-73.462299999999971,"y":41.405200000000036}},{"attributes":{"extractdate":"6-12-2017","geoqid":"Q1FY2017","stationno":"0212V","stationname":"Williamsport
+        Vet Center","address1":"Williamsport Vet Center","address2":"49 East Fourth
+        Street","address3":"Suite 104","city":"Williamsport","lat":41.24279598,"lon":-77.00106346,"s_abbr":"VTCR","st":"PA","sta_phone":"570-327-5281
+        x","zip":"17701","OBJECTID":91},"geometry":{"x":-77.001099999999951,"y":41.242800000000045}},{"attributes":{"extractdate":"6-12-2017","geoqid":"Q1FY2017","stationno":"0229V","stationname":"Scranton
+        Vet Center","address1":"Scranton Vet Center","address2":"1002 Pittston Avenue","address3":null,"city":"Scranton","lat":41.39579384,"lon":-75.66894544,"s_abbr":"VTCR","st":"PA","sta_phone":"570-344-2676
+        x","zip":"18505","OBJECTID":137},"geometry":{"x":-75.668899999999951,"y":41.395800000000065}}]}'
+    http_version: 
+  recorded_at: Wed, 24 Jan 2018 23:14:21 GMT
+recorded_with: VCR 3.0.3
