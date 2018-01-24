@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/configuration/rest'
 require 'common/client/middleware/request/camelcase'
 require 'common/client/middleware/response/caseflow_errors'
@@ -21,7 +22,9 @@ module Appeals
     end
 
     def connection
-      Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: { verify: false }) do |faraday|
+      Faraday.new(
+        base_path, headers: base_request_headers, request: request_options, ssl: { verify: false }
+      ) do |faraday|
         faraday.use :breakers
         faraday.use Faraday::Response::RaiseError
         faraday.request :json

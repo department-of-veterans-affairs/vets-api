@@ -14,28 +14,26 @@ module Common::Client
     def handle_error(error)
       case error.status
       when 401
-        raise Common::Exceptions::Unauthorized.new(error_details('The upstream server responded 401 Unauthorized'))
+        raise Common::Exceptions::Unauthorized, error_details('The upstream server responded 401 Unauthorized')
       when 403
-        raise Common::Exceptions::Forbidden.new(error_details('The upstream server responded 403 Forbidden'))
+        raise Common::Exceptions::Forbidden, error_details('The upstream server responded 403 Forbidden')
       when 404
-        raise Common::Exceptions::ResourceNotFound.new(
-          error_details('The upstream server responded 404 Resource not found')
+        raise Common::Exceptions::ResourceNotFound, error_details(
+          'The upstream server responded 404 Resource not found'
         )
       when 422
-        raise Common::Exceptions::UnprocessableEntity.new(
-          error_details('The upstream server responded 422 Unprocessable entity (validation error)')
+        raise Common::Exceptions::UnprocessableEntity, error_details(
+          'The upstream server responded 422 Unprocessable entity (validation error)'
         )
       else
-        raise Common::Exceptions::BadGateway.new(
-          error_details(
-            "The app received an invalid response from the upstream server, check this error's source for event id"
-          )
+        raise Common::Exceptions::BadGateway, error_details(
+          "The app received an invalid response from the upstream server, check this error's source for event id"
         )
       end
     end
 
     def log_original_error(error)
-      level, message = if error.status === (400...500)
+      level, message = if (400...500).cover? error.status
                          [:info, "#{self.class} handled an expected #{error.message}"]
                        else
                          [:error, "#{self.class} handled an unexpected #{error.message}"]

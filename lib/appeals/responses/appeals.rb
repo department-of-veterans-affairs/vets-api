@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Appeals
   module Responses
     class Appeals < Common::Base
