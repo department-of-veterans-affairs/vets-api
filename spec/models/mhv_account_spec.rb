@@ -6,7 +6,7 @@ RSpec.describe MhvAccount, type: :model do
   let(:mvi_profile) do
     build(:mvi_profile,
           icn: '1012667122V019349',
-          given_names: %w(Hector),
+          given_names: %w[Hector],
           family_name: 'Allen',
           suffix: nil,
           gender: 'M',
@@ -239,7 +239,7 @@ RSpec.describe MhvAccount, type: :model do
                user_uuid: nodashuser.uuid)
       end
       let(:base_attributes) { { user_uuid: nodashuser.uuid, account_state: 'needs_terms_acceptance' } }
-      let(:vha_facility_ids) { %w(200MH 488) }
+      let(:vha_facility_ids) { %w[200MH 488] }
 
       it 'is eligible with at least one facility in range' do
         subject = described_class.new(base_attributes)
@@ -296,7 +296,7 @@ RSpec.describe MhvAccount, type: :model do
       end
 
       context 'with multiple facilities' do
-        let(:vha_facility_ids) { %w(200MH 488) }
+        let(:vha_facility_ids) { %w[200MH 488] }
         it 'is eligible with at least one facility in range' do
           subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
           subject.send(:setup) # This gets called when object is first loaded
@@ -351,7 +351,7 @@ RSpec.describe MhvAccount, type: :model do
       end
 
       context 'with multiple facilities' do
-        let(:vha_facility_ids) { %w(200MH 488) }
+        let(:vha_facility_ids) { %w[200MH 488] }
         it 'is ineligible with all facilities out of range' do
           subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
           subject.send(:setup) # This gets called when object is first loaded
