@@ -1,14 +1,24 @@
 # frozen_string_literal: true
-require 'appeals_status/models/appeal'
+require 'common/client/concerns/monitoring'
+require 'common/client/concerns/service_errors'
 require 'appeals_status/responses/get_appeals_response'
 
 module Appeals
   class Service < Common::Client::Base
+    include Common::Client::Monitoring
+    include Common::Client::ServiceErrors
+
     configuration Appeals::Configuration
 
+    STATSD_KEY_PREFIX = 'api.appeals'
+
     def get_appeals(user)
-      response = perform(:get, '', {})
-      Appeals::Responses::Appeals.new(response.body, response.status)
+      with_monitoring do
+        response = perform(:get, '', {}, request_headers(user))
+        Appeals::Responses::Appeals.new(response.body, response.status)
+      end
+    rescue Common::Client::Errors::ClientError => error
+      handle_service_error(error)
     end
 
     private

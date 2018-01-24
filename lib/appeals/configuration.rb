@@ -21,11 +21,11 @@ module Appeals
     end
 
     def connection
-      Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: { verify: false }) do |conn|
-        conn.use :breakers
-        conn.request :json
-        conn.response :raise_error, error_prefix: service_name
-        conn.adapter Faraday.default_adapter
+      Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: { verify: false }) do |faraday|
+        faraday.use :breakers
+        faraday.use Faraday::Response::RaiseError
+        faraday.request :json
+        faraday.adapter Faraday.default_adapter
       end
     end
 
