@@ -25,12 +25,13 @@ module Appeals
         faraday.use :breakers
         faraday.use Faraday::Response::RaiseError
         faraday.request :json
+        faraday.response :betamocks if mock_enabled?
         faraday.adapter Faraday.default_adapter
       end
     end
 
     def mock_enabled?
-      Settings.appeals_status.mock
+      Settings.appeals.mock
     end
   end
 end
