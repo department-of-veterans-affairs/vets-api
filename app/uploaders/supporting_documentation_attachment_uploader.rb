@@ -7,14 +7,6 @@ class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
 
   MAX_FILE_SIZE = 25.megabytes
 
-  version :pdf_version, if: :image? do
-    process(convert: :pdf)
-
-    def full_filename(file)
-      "converted_#{file}.pdf"
-    end
-  end
-
   def initialize(guid)
     super
     @guid = guid
@@ -29,17 +21,11 @@ class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
   end
 
   def extension_white_list
-    %w(jpg jpeg gif png pdf)
+    %w(pdf)
   end
 
   def store_dir
     raise 'missing guid' if @guid.blank?
     "supporting_documentation_attachments/#{@guid}"
-  end
-
-  private
-
-  def image?(new_file)
-    new_file.content_type.start_with?('image/')
   end
 end
