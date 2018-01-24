@@ -19,12 +19,11 @@ RSpec.describe VAFacility, type: :model do
             :access, :address, :classification, :facility_type, :feedback, :hours, :lat,
             :long, :name, :phone, :services, :unique_id
           )
-          expect(va_facilities.map(&:hours)).to all(be_a(Hash).and include(
-            *%w(Monday Tuesday Wednesday Thursday Friday Saturday Sunday)
-          ))
+          expect(va_facilities.map(&:hours))
+            .to all(be_a(Hash).and(include(*Date::DAYNAMES)))
 
           # NOTE: this spec is going to fail because ARCGis Production doesnt have the values yet
-          #expect(va_facilities.map(&:hours).map(&:values).flatten).to all(be)
+          # expect(va_facilities.map(&:hours).map(&:values).flatten).to all(be)
         end
       end
 
@@ -38,9 +37,8 @@ RSpec.describe VAFacility, type: :model do
             :access, :address, :classification, :facility_type, :feedback, :hours, :lat,
             :long, :name, :phone, :services, :unique_id, :website
           )
-          expect(va_facilities.map(&:hours)).to all(be_a(Hash).and include(
-            *%w(Monday Tuesday Wednesday Thursday Friday Saturday Sunday)
-          ))
+          expect(va_facilities.map(&:hours))
+            .to all(be_a(Hash).and(include(*Date::DAYNAMES)))
           expect(va_facilities.map(&:hours).map(&:values).flatten).to all(be)
         end
       end
@@ -55,9 +53,8 @@ RSpec.describe VAFacility, type: :model do
             :access, :address, :classification, :facility_type, :feedback, :hours, :lat,
             :long, :name, :phone, :services, :unique_id, :website
           )
-          expect(va_facilities.map(&:hours)).to all(be_a(Hash).and include(
-            *%w(Monday Tuesday Wednesday Thursday Friday Saturday Sunday)
-          ))
+          expect(va_facilities.map(&:hours))
+            .to all(be_a(Hash).and(include(*Date::DAYNAMES)))
           expect(va_facilities.map(&:hours).map(&:values).flatten).to all(be)
         end
       end
@@ -72,9 +69,8 @@ RSpec.describe VAFacility, type: :model do
             :access, :address, :classification, :facility_type, :feedback, :hours, :lat,
             :long, :name, :phone, :services, :unique_id, :website
           )
-          expect(va_facilities.map(&:hours)).to all(be_a(Hash).and include(
-            *%w(Monday Tuesday Wednesday Thursday Friday Saturday Sunday)
-          ))
+          expect(va_facilities.map(&:hours))
+            .to all(be_a(Hash).and(include(*Date::DAYNAMES)))
           expect(va_facilities.map(&:hours).map(&:values).flatten).to all(be)
         end
       end
