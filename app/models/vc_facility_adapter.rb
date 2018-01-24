@@ -25,7 +25,7 @@ class VCFacilityAdapter
     m[:address][:physical] = from_gis_attrs(ADDR_KEYMAP, attrs)
     m[:address][:mailing] = {}
     m[:phone] = from_gis_attrs(PHONE_KEYMAP, attrs)
-    m[:hours] = {}
+    m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
     m[:services] = {}
     m[:feedback] = {}
     m[:access] = {}
