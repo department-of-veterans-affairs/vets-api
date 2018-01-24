@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class PhotoAttachmentUploader < CarrierWave::Uploader::Base
+class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
   include ValidateFileSize
   include SetAwsConfig
 
@@ -20,12 +20,11 @@ class PhotoAttachmentUploader < CarrierWave::Uploader::Base
   end
 
   def extension_white_list
-    # TODO: verify which images VIC api accepts
-    %w(jpg jpeg gif png)
+    %w(jpg jpeg gif png pdf)
   end
 
   def store_dir
     raise 'missing guid' if @guid.blank?
-    "photo_attachments/#{@guid}"
+    "supporting_documentation_attachments/#{@guid}"
   end
 end

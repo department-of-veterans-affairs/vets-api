@@ -132,8 +132,7 @@ Rails.application.routes.draw do
     end
 
     namespace :vic do
-      resources :govt_id_attachments, only: :create
-      resources :photo_attachments, only: :create
+      resources :supporting_documentation_attachments, only: :create
     end
 
     resource :address, only: %i[show update] do
