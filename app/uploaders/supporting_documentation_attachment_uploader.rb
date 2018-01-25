@@ -11,13 +11,12 @@ class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
     super
     @guid = guid
 
-    # TODO: bucket
-    # set_aws_config(
-    #   Settings.preneeds.s3.aws_access_key_id,
-    #   Settings.preneeds.s3.aws_secret_access_key,
-    #   Settings.preneeds.s3.region,
-    #   Settings.preneeds.s3.bucket
-    # ) if Rails.env.production?
+    set_aws_config(
+      Settings.vic.s3.aws_access_key_id,
+      Settings.vic.s3.aws_secret_access_key,
+      Settings.vic.s3.region,
+      Settings.vic.s3.bucket
+    ) if Rails.env.production?
   end
 
   def extension_white_list
