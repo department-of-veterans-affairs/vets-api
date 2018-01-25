@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module V0
-  class AddressesController < ApplicationController
+  class AddressesController < EVSSController
+    before_action :authorize_user, except: [:countries, :states]
+
     def show
       response = service.get_address
       render json: response,

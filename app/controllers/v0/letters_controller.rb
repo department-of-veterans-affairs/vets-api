@@ -2,7 +2,7 @@ require 'common/exceptions/internal/record_not_found'
 
 # frozen_string_literal: true
 module V0
-  class LettersController < ApplicationController
+  class LettersController < EVSSController
     def index
       response = service.get_letters
       render json: response,

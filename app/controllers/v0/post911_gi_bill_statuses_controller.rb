@@ -3,7 +3,7 @@
 require 'evss/gi_bill_status/gi_bill_status_response'
 
 module V0
-  class Post911GIBillStatusesController < ApplicationController
+  class Post911GIBillStatusesController < EVSSController
     include SentryLogging
 
     STATSD_GI_BILL_TOTAL_KEY = 'api.evss.gi_bill_status.total'
