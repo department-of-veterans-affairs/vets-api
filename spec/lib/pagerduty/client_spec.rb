@@ -38,6 +38,18 @@ describe PagerDuty::MaintenanceClient do
       expect(windows.first).to be_a(Hash)
       expect(windows.first.keys).to include(:pagerduty_id, :external_service, :start_time, :end_time, :description)
     end
+
+    it 'normalizes description to empty string' do
+      stub_request(:get, 'https://api.pagerduty.com/maintenance_windows')
+        .with(query: hash_including('service_ids' => %w[ABCDEF BCDEFG]))
+        .to_return(
+          status: 200,
+          headers: { 'Content-Type' => 'application/json; charset=utf-8' },
+          body: body
+        )
+      windows = subject.get_all
+      expect(windows.first[:description]).to eq('')
+    end
   end
 
   context 'with multiple pages of results' do
