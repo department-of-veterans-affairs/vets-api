@@ -1,11 +1,12 @@
 # frozen_string_literal: true
+
 require 'evss/claims_service'
 require 'evss/documents_service'
 require 'evss/auth_headers'
 
 class EVSSClaimService
   include SentryLogging
-  EVSS_CLAIM_KEYS = %w(open_claims historical_claims).freeze
+  EVSS_CLAIM_KEYS = %w[open_claims historical_claims].freeze
 
   def initialize(user)
     @user = user
@@ -48,12 +49,6 @@ class EVSSClaimService
     # the uploader sanitizes the filename before storing, so set our doc to match
     evss_claim_document.file_name = uploader.final_filename
     EVSS::DocumentUpload.perform_async(auth_headers, @user.uuid, evss_claim_document.to_serializable_hash)
-  end
-
-  def rating_info
-    client = EVSS::CommonService.new(auth_headers)
-    body = client.find_rating_info(@user.participant_id).body.fetch('rating_record', {})
-    DisabilityRating.new(body['disability_rating_record'])
   end
 
   private

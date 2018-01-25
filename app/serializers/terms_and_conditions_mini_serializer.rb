@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class TermsAndConditionsMiniSerializer < ActiveModel::Serializer
   attribute :id
   attribute :name

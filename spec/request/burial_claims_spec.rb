@@ -1,8 +1,9 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'hca/service'
 
-RSpec.describe 'Burial Claim Integration', type: [:request, :serializer] do
+RSpec.describe 'Burial Claim Integration', type: %i[request serializer] do
   let(:full_claim) do
     build(:burial_claim).parsed_form
   end
@@ -43,6 +44,10 @@ RSpec.describe 'Burial Claim Integration', type: [:request, :serializer] do
       end
 
       it 'should log the validation errors' do
+        expect(Raven).to receive(:tags_context).once.with(
+          controller_name: 'burial_claims',
+          sign_in_method: 'not-signed-in'
+        )
         expect(Raven).to receive(:tags_context).once.with(validation: 'burial_claim')
         expect(Raven).to receive(:capture_message).with(/claimantAddress/, level: :error)
         subject
@@ -60,7 +65,7 @@ RSpec.describe 'Burial Claim Integration', type: [:request, :serializer] do
       it 'should render success' do
         subject
         expect(JSON.parse(response.body)['data']['attributes'].keys.sort)
-          .to eq(%w(confirmationNumber form regionalOffice submittedAt))
+          .to eq(%w[confirmationNumber form regionalOffice submittedAt])
       end
     end
   end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FormProfile::VA1990n < FormProfile
+class FormProfiles::VA1990n < FormProfile
   def prefill(user)
     super
   end

@@ -1,5 +1,8 @@
 FROM centos:6
 
+ARG sidekiq_license
+ENV BUNDLE_ENTERPRISE__CONTRIBSYS__COM=$sidekiq_license
+
 # Match the jenkins uid/gid on the host (504)
 RUN groupadd -r vets-api && \
       useradd -r -g vets-api vets-api

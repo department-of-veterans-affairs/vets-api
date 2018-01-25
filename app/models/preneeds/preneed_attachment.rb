@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Preneeds
   class PreneedAttachment < ActiveRecord::Base
     include SetGuid

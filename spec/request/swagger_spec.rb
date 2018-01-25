@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 require 'saml/settings_service'
@@ -582,7 +583,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             end
           end
 
-          [:put, :patch].each do |op|
+          %i[put patch].each do |op|
             it "supports updating a message draft with #{op}" do
               VCR.use_cassette('sm_client/message_drafts/updates_a_draft') do
                 expect(subject).to validate(
@@ -871,6 +872,12 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     context '#feedback' do
+      before(:all) do
+        Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.current)
+      end
+      before(:each) do
+        Rack::Attack.cache.store.flushdb
+      end
       let(:feedback_params) do
         {
           'description' => 'I liked this page',

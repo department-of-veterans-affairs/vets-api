@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # rubocop:disable Metrics/ClassLength
 module PdfFill
   module Forms
@@ -396,7 +397,7 @@ module PdfFill
 
         tours_of_duty.each do |tour_of_duty|
           expand_date_range(tour_of_duty, 'dateRange')
-          tour_of_duty['rank'] = combine_hash(tour_of_duty, %w(serviceBranch rank), ', ')
+          tour_of_duty['rank'] = combine_hash(tour_of_duty, %w[serviceBranch rank], ', ')
         end
       end
 
@@ -451,7 +452,7 @@ module PdfFill
       def merge_fields
         expand_signature(@form_data['claimantFullName'])
 
-        %w(veteranFullName claimantFullName).each do |attr|
+        %w[veteranFullName claimantFullName].each do |attr|
           extract_middle_i(@form_data, attr)
         end
 
@@ -477,7 +478,7 @@ module PdfFill
 
         expand_claimant_addr
 
-        %w(
+        %w[
           previouslyReceivedAllowance
           burialAllowance
           plotAllowance
@@ -485,7 +486,7 @@ module PdfFill
           federalCemetery
           stateCemetery
           govtContributions
-        ).each do |attr|
+        ].each do |attr|
           expand_checkbox_in_place(@form_data, attr)
         end
 

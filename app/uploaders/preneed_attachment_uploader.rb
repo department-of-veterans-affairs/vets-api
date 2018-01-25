@@ -10,16 +10,18 @@ class PreneedAttachmentUploader < CarrierWave::Uploader::Base
     super
     @guid = guid
 
-    set_aws_config(
-      Settings.preneeds.s3.aws_access_key_id,
-      Settings.preneeds.s3.aws_secret_access_key,
-      Settings.preneeds.s3.region,
-      Settings.preneeds.s3.bucket
-    ) if Rails.env.production?
+    if Rails.env.production?
+      set_aws_config(
+        Settings.preneeds.s3.aws_access_key_id,
+        Settings.preneeds.s3.aws_secret_access_key,
+        Settings.preneeds.s3.region,
+        Settings.preneeds.s3.bucket
+      )
+    end
   end
 
   def extension_white_list
-    %w(pdf)
+    %w[pdf]
   end
 
   def store_dir

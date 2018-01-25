@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class AttachmentSerializer < ActiveModel::Serializer
   attribute :id
   attribute :name

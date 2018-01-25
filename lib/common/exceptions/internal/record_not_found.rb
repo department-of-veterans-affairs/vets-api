@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Common
   module Exceptions
     # Record Not Found - if no record exists having id, or resource having id does not belong to requester

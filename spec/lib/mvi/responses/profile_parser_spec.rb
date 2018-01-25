@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'mvi/responses/profile_parser'
 
@@ -70,7 +71,6 @@ describe MVI::Responses::ProfileParser do
     describe '#failed_or_invalid?' do
       it 'should return true' do
         allow(faraday_response).to receive(:body) { body }
-        expect(Rails.logger).to receive(:warn).once.with('MVI returned response with code: AR')
         expect(parser.failed_or_invalid?).to be_truthy
       end
     end
@@ -82,7 +82,6 @@ describe MVI::Responses::ProfileParser do
     describe '#failed_or_invalid?' do
       it 'should return true' do
         allow(faraday_response).to receive(:body) { body }
-        expect(Rails.logger).to receive(:warn).once.with('MVI returned response with code: AE')
         expect(parser.failed_or_invalid?).to be_truthy
       end
     end
@@ -134,7 +133,7 @@ describe MVI::Responses::ProfileParser do
     it 'logs warning about inactive IDs' do
       msg1 = 'Inactive MHV correlation IDs present'
       msg2 = 'Returning inactive MHV correlation ID as first identifier'
-      expect(Raven).to receive(:extra_context).with(ids: %w(12345678901 12345678902)).twice
+      expect(Raven).to receive(:extra_context).with(ids: %w[12345678901 12345678902]).twice
       expect(Raven).to receive(:capture_message).with(msg1, level: :info)
       expect(Raven).to receive(:capture_message).with(msg2, level: :warn)
       parser.parse

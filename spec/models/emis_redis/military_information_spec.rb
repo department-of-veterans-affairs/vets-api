@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 describe EMISRedis::MilitaryInformation, skip_emis: true do
@@ -9,6 +10,14 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     it 'should return the begin date from the latest service episode' do
       VCR.use_cassette('emis/get_military_service_episodes/valid') do
         expect(subject.last_entry_date).to eq('2007-04-01')
+      end
+    end
+  end
+
+  describe '#service_branches' do
+    it 'should return all the service branches someone has served under' do
+      VCR.use_cassette('emis/get_military_service_episodes/valid') do
+        expect(subject.service_branches).to eq(['F'])
       end
     end
   end

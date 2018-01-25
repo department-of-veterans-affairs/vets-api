@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class BackendServices
   FACILITIES = 'facilities'
   HCA = 'hca'
@@ -7,6 +8,7 @@ class BackendServices
   APPEALS_STATUS = 'appeals-status'
   USER_PROFILE = 'user-profile'
   ID_CARD = 'id-card'
+  IDENTITY_PROOFED = 'identity-proofed'
 
   # MHV services
   RX = 'rx'

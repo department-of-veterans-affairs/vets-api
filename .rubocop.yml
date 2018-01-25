@@ -1,11 +1,16 @@
 AllCops:
+  # Prior to upgrading to Rails 5.0 we can change this, but right now it will break too many things
+  TargetRailsVersion: 4.0
   TargetRubyVersion: 2.3
   Include:
+    - '**/Gemfile'
     - '**/config.ru'
     - '**/Rakefile'
     - '**/*.rake'
   Exclude:
-    - 'db/**/*'
+    - db/schema.rb
+    - db/seeds.rb
+    - db/migrate/*.rb
     - 'script/**/*'
     - 'vendor/**/*'
 
@@ -74,5 +79,118 @@ Metrics/AbcSize:
   Max: 40
 
 # removing rule because get_session implies HTTP GET, and informs method
-Style/AccessorMethodName:
+Naming/AccessorMethodName:
   Enabled: false
+
+# removing block length rule for rspec DSL
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*.rb'
+    - 'rakelib/**/*.rake'
+    - 'config/**/*.rb'
+    - 'app/swagger/**/*.rb'
+    - 'app/controllers/v0/apidocs_controller.rb'
+
+# Don't worry about ambiguous blocks in RSpec
+Lint/AmbiguousBlockAssociation:
+  Exclude:
+    - "spec/**/*"
+
+# This file does not need to be snake case
+Naming/FileName:
+  Exclude:
+    - "Guardfile"
+
+# TODO: REVIEW THESE AND MAKE CHANGES
+
+# We should try to use StandardError, but some errors like timeout inherit from Exception (beware)
+Style/RescueStandardError:
+  Exclude:
+    - "app/controllers/v0/id_card_attributes_controller.rb"
+    - "app/controllers/v0/sessions_controller.rb"
+    - "app/models/form_profile.rb"
+    - "app/models/mhv_account.rb"
+    - "app/services/mhv_accounts_service.rb"
+    - "app/uploaders/claim_documentation/uploader.rb"
+    - "app/workers/education_form/create_daily_spool_files.rb"
+    - "lib/common/client/configuration/soap.rb"
+    - "lib/common/exceptions/base_error.rb"
+    - "lib/github/github_service.rb"
+    - "lib/mvi/messages/find_profile_message_helpers.rb"
+    - "lib/mvi/responses/profile_parser.rb"
+    - "lib/saml/settings_service.rb"
+    - "lib/workflow/runner.rb"
+    - "lib/workflow/task/shared/datestamp_pdf_task.rb"
+    - "rakelib/connectivity.rake"
+    - "rakelib/mvi.rake"
+    - "rakelib/redis.rake"
+    - "spec/request/authentication/standard_authentication.rb"
+
+# Variable naming style apparently doesn't like: something_2, something_3
+Naming/VariableNumber:
+  Exclude:
+    - "lib/hca/enrollment_system.rb"
+    - "spec/controllers/v0/post_911_gi_bill_statuses_controller_spec.rb"
+    - "spec/lib/preneeds/service_spec.rb"
+
+# All kinds of issues with this cop right now, so disabling it.
+Style/FormatStringToken:
+  Exclude:
+    - "rakelib/mvi.rake"
+
+# This cop has an improvement for false positives in Mixins in future release, Exclude for now.
+# https://github.com/bbatsov/rubocop/issues/5448
+Rails/LexicallyScopedActionFilter:
+  Exclude:
+    - "app/controllers/concerns/filterable.rb"
+    - "app/controllers/v0/sessions_controller.rb"
+
+# Disabling this rule for now. We should consider changing.
+Lint/BooleanSymbol:
+  Exclude:
+    - "app/swagger/schemas/gibct/institutions.rb"
+    - "spec/request/breakers_integration_spec.rb"
+    - "spec/request/statsd_middleware_spec.rb"
+    - "spec/support/authenticated_session_helper.rb"
+
+# Should consider enforcing this rule. Disabling for now.
+Style/DateTime:
+  Exclude:
+    - "lib/common/models/attribute_types/date_time_string.rb"
+    - "lib/evss/auth_headers.rb"
+    - "lib/evss/pciu_address/service.rb"
+    - "lib/workflow/task/shared/datestamp_pdf_task.rb"
+    - "rakelib/evss.rake"
+    - "rakelib/mvi.rake"
+
+# IMPORTANT: this needs to be changed or handled differently. NoMethodError is not acceptable.
+# Skipping it for now as I dont have time to address.
+Lint/SafeNavigationChain:
+  Exclude:
+    - "app/workers/education_form/delete_old_applications.rb"
+    - "lib/evss/gi_bill_status/gi_bill_status_response.rb"
+    - "lib/evss/gi_bill_status/gi_bill_status_response.rb"
+    - "lib/evss/gi_bill_status/gi_bill_status_response.rb"
+    - "lib/evss/pciu_address/countries_response.rb"
+    - "lib/evss/pciu_address/states_response.rb"
+    - "lib/saml/health_status.rb"
+    - "lib/saml/health_status.rb"
+
+# Skipping for now, should revisit:
+Rails/HasManyOrHasOneDependent:
+  Exclude:
+    - "app/models/education_benefits_claim.rb"
+    - "app/models/saved_claim/education_benefits.rb"
+    - "app/models/saved_claim.rb"
+    - "app/models/terms_and_conditions.rb"
+
+# Skipping for now, should revisit:
+Rails/SkipsModelValidations:
+  Exclude:
+    - "app/workers/education_form/create_daily_spool_files.rb"
+    - "app/models/saved_claim.rb"
+
+# Need to revisit why this is necessary:
+Lint/RescueException:
+  Exclude:
+    - 'app/workers/github/create_issue_job.rb'
