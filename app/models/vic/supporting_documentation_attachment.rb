@@ -24,7 +24,10 @@ module VIC
       file_paths << final_path
 
       PdfFill::Filler::PDF_FORMS.cat(*file_paths)
-      # TODO clean up files
+
+      file_paths.each do |file_path|
+        File.delete(file_path) unless file_path == final_path
+      end
 
       final_path
     end
@@ -38,7 +41,8 @@ module VIC
         end
 
       super(converted_file)
-      # TODO clean up file
+
+      File.delete(converted_file) unless converted_file == file
     end
 
     private

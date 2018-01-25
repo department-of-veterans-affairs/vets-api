@@ -14,6 +14,8 @@ RSpec.describe VIC::SupportingDocumentationAttachment, type: :model do
       file_path = described_class.combine_documents([attachment1.guid, attachment2.guid])
 
       expect(PDF::Reader.new(file_path).page_count).to eq(2)
+
+      File.delete(file_path)
     end
   end
 
