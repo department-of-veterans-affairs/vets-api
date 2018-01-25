@@ -12,7 +12,9 @@ RSpec.describe V0::VIC::SupportingDocumentationAttachmentsController, type: :con
         }
       )
 
-      expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq VIC::SupportingDocumentationAttachment.last.guid
+      expect(
+        JSON.parse(response.body)['data']['attributes']['guid']
+      ).to eq VIC::SupportingDocumentationAttachment.last.guid
     end
   end
 end

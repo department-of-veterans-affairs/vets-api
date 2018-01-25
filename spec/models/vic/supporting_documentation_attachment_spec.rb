@@ -35,9 +35,11 @@ RSpec.describe VIC::SupportingDocumentationAttachment, type: :model do
           raise
         end
 
-        attachment = create(:supporting_documentation_attachment,
-                            file_path: 'spec/fixtures/files/doctors-note.pdf',
-                            file_type: 'application/pdf')
+        create(
+          :supporting_documentation_attachment,
+          file_path: 'spec/fixtures/files/doctors-note.pdf',
+          file_type: 'application/pdf'
+        )
       end
     end
   end
