@@ -42,7 +42,7 @@ module PagerDuty
             external_service: service_map[svc['id']].to_s,
             start_time: Time.iso8601(mw['start_time']),
             end_time: Time.iso8601(mw['end_time']),
-            description: mw['description']
+            description: mw['description'] ||= ''
           }
           result << window
         end
