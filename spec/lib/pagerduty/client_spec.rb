@@ -49,6 +49,7 @@ describe PagerDuty::MaintenanceClient do
         )
       windows = subject.get_all
       expect(windows.first[:description]).to eq('')
+      expect(windows.last[:description]).to eq('Multi-service Window')
     end
   end
 
