@@ -6,8 +6,6 @@ class EVSSController < ApplicationController
   protected
 
   def authorize_user
-    unless current_user.can_access_evss?
-      raise Common::Exceptions::Forbidden, detail: 'User not authorized to access EVSS based services'
-    end
+    authorize :evss, :access?
   end
 end
