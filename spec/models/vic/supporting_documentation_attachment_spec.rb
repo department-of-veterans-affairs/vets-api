@@ -4,12 +4,16 @@ require 'rails_helper'
 
 RSpec.describe VIC::SupportingDocumentationAttachment, type: :model do
   describe '.combine_documents' do
-    it 'should convert images to pdf and combine them' do
+    it 'should combine the documents to one pdf file' do
       attachment1 = create(:supporting_documentation_attachment)
       attachment2 = create(:supporting_documentation_attachment,
-        file: 'spec/fixtures/files/sm_file1.jpg',
-        file_type: 'image/jpeg'
+        file_path: 'spec/fixtures/files/va.gif',
+        file_type: 'image/gif'
       )
+
+      file_path = described_class.combine_documents([attachment1.guid, attachment2.guid])
+
+      expect(PDF::Reader.new(file_path).page_count).to eq(2)
     end
   end
 
