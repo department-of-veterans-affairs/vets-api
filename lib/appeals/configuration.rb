@@ -10,7 +10,7 @@ require 'common/client/middleware/response/snakecase'
 module Appeals
   class Configuration < Common::Client::Configuration::REST
     def app_token
-      Settings.appeals_status.app_token
+      Settings.appeals.app_token
     end
 
     def base_path
