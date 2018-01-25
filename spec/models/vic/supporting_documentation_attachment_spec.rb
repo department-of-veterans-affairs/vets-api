@@ -7,9 +7,8 @@ RSpec.describe VIC::SupportingDocumentationAttachment, type: :model do
     it 'should combine the documents to one pdf file' do
       attachment1 = create(:supporting_documentation_attachment)
       attachment2 = create(:supporting_documentation_attachment,
-        file_path: 'spec/fixtures/files/va.gif',
-        file_type: 'image/gif'
-      )
+                           file_path: 'spec/fixtures/files/va.gif',
+                           file_type: 'image/gif')
 
       file_path = described_class.combine_documents([attachment1.guid, attachment2.guid])
 
@@ -23,9 +22,8 @@ RSpec.describe VIC::SupportingDocumentationAttachment, type: :model do
     context 'with a non pdf file' do
       it 'should convert the file to pdf' do
         attachment = create(:supporting_documentation_attachment,
-          file_path: 'spec/fixtures/files/va.gif',
-          file_type: 'image/gif'
-        )
+                            file_path: 'spec/fixtures/files/va.gif',
+                            file_type: 'image/gif')
 
         expect(MimeMagic.by_magic(attachment.get_file.read).type).to eq('application/pdf')
       end
@@ -38,9 +36,8 @@ RSpec.describe VIC::SupportingDocumentationAttachment, type: :model do
         end
 
         attachment = create(:supporting_documentation_attachment,
-          file_path: 'spec/fixtures/files/doctors-note.pdf',
-          file_type: 'application/pdf'
-        )
+                            file_path: 'spec/fixtures/files/doctors-note.pdf',
+                            file_type: 'application/pdf')
       end
     end
   end

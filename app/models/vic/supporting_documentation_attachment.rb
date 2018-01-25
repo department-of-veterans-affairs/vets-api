@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module VIC
   class SupportingDocumentationAttachment < FormAttachment
     ATTACHMENT_UPLOADER_CLASS = SupportingDocumentationAttachmentUploader
@@ -12,7 +13,7 @@ module VIC
       final_path = get_random_file_path
 
       file_paths = guids.map do |guid|
-        attachment = where(guid: guid).take
+        attachment = find_by(guid: guid)
         file_path = get_random_file_path
 
         File.open(file_path, 'wb') do |file|

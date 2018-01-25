@@ -2,7 +2,6 @@
 
 FactoryBot.define do
   factory :supporting_documentation_attachment, class: VIC::SupportingDocumentationAttachment do
-
     transient do
       file_path(nil)
       file_type(nil)
@@ -13,7 +12,7 @@ FactoryBot.define do
       file_type = evaluator.file_type || 'application/pdf'
 
       attachment.set_file_data!(
-        Rack::Test::UploadedFile.new(file_path, file_type),
+        Rack::Test::UploadedFile.new(file_path, file_type)
       )
     end
   end
