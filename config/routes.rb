@@ -76,6 +76,7 @@ Rails.application.routes.draw do
     end
 
     resources :appeals, only: [:index]
+    get 'appeals_v2', to: 'appeals#index_v2', as: :appeals_v2
 
     scope :messaging do
       scope :health do
