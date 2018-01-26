@@ -2,8 +2,9 @@
 
 module Common
   module Exceptions
-    # Unauthorized - We may eventually want different variations on this with distinct MinorCodes
-    class Unauthorized < BaseError
+    class ServiceError < BaseError
+      attr_writer :source
+
       def initialize(options = {})
         @detail = options[:detail]
         @source = options[:source]
