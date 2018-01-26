@@ -4,7 +4,7 @@ module VIC
 
     def send_application
       {
-        
+        confirmation_number: SecureRandom.uuid
       }
     end
   end
