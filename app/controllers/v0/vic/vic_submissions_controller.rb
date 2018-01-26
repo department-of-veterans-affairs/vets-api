@@ -6,7 +6,7 @@ module V0
       skip_before_action(:authenticate)
 
       def create
-        # TODO
+        vic_submission = ::VIC::VICSubmission.create!
       end
     end
   end
