@@ -1,5 +1,5 @@
 class AddFormAttachmentsTypeDefault < ActiveRecord::Migration
   def change
-    change_column_default(:form_attachments, :type, 'Preneeds::PreneedAttachment')
+    FormAttachment.update_all(type: 'Preneeds::PreneedAttachment')
   end
 end
