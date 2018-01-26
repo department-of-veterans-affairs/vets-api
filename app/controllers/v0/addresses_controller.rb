@@ -2,7 +2,7 @@
 
 module V0
   class AddressesController < EVSSController
-    before_action :authorize_user, except: [:countries, :states]
+    before_action :authorize_user
 
     def show
       response = service.get_address

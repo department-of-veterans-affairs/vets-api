@@ -163,9 +163,8 @@ module V0
     end
 
     def async_create_evss_account(user)
-      binding.pry
-      has_evss_access = Pundit.policy!(:evss, :access?)
-      return unless Pundit.policy!(:evss, :access?)
+      # Pundit.policy! retrieves the policy so the access check can run without throwing an error on denied
+      return unless Pundit.policy!(user, :evss).access?
       auth_headers = EVSS::AuthHeaders.new(user).to_h
       EVSS::CreateUserAccountJob.perform_async(auth_headers)
     end
