@@ -205,6 +205,7 @@ ActiveRecord::Schema.define(version: 20180126201308) do
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
     t.string   "state",      default: "pending", null: false
+    t.uuid     "guid",                           null: false
     t.json     "response"
   end
 
