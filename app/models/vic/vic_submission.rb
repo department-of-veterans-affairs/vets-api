@@ -2,13 +2,27 @@ module VIC
   class VICSubmission
     include SetGuid
 
+    validates(:state, presence: true, inclusion: %w(success failed pending))
+
     attr_accessor(:form)
 
     after_create(:create_submission_job)
 
+    before_save(:update_state_to_completed)
+
     # TODO validate form
 
     private
+
+    def update_state_to_completed
+      response_changes = changes['response']
+
+      if response_changes[0].blank? && response_changes[1].present?
+        self.state = 'success'
+      end
+
+      true
+    end
 
     def create_submission_job
       SubmissionJob.perform_async(id, form)
