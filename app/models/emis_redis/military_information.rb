@@ -35,6 +35,7 @@ module EMISRedis
       sw_asia_combat
       compensable_va_service_connected
       discharge_type
+      service_branches
       va_compensation_type
     ].freeze
 
@@ -95,6 +96,10 @@ module EMISRedis
           }
         }
       end
+    end
+
+    def service_branches
+      military_service_episodes.map(&:branch_of_service_code).uniq
     end
 
     def last_service_branch

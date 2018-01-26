@@ -14,7 +14,7 @@ task :security do
 
   puts 'running bundle-audit to check for insecure dependencies...'
   exit!(1) unless ShellCommand.run('bundle-audit update')
-  audit_result = ShellCommand.run('bundle-audit check --ignore CVE-2017-8418')
+  audit_result = ShellCommand.run('bundle-audit check')
 
   puts "\n"
   if brakeman_result && audit_result

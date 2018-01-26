@@ -132,12 +132,55 @@ RSpec.describe ApplicationController, type: :controller do
     it 'makes a call to sentry when there is cause' do
       allow_any_instance_of(Rx::Client)
         .to receive(:connection).and_raise(Faraday::ConnectionFailed, 'some message')
+      expect(Raven).to receive(:extra_context).once.with(
+        request_uuid: nil
+      )
+      # if current user is nil it means user is not signed in.
+      expect(Raven).to receive(:tags_context).once.with(
+        controller_name: 'anonymous',
+        sign_in_method: 'not-signed-in'
+      )
+      # since user is not signed in this shouldnt get called.
+      expect(Raven).not_to receive(:user_context)
       expect(Raven).to receive(:capture_exception).once
       with_settings(Settings.sentry, dsn: 'T') do
         get :client_connection_failed
       end
       expect(JSON.parse(response.body)['errors'].first['title'])
         .to eq('Service unavailable')
+    end
+
+    context 'signed in user' do
+      let(:user) { create(:user) }
+      before do
+        controller.instance_variable_set(:@current_user, user)
+      end
+
+      it 'makes a call to sentry when there is cause' do
+        allow_any_instance_of(Rx::Client)
+          .to receive(:connection).and_raise(Faraday::ConnectionFailed, 'some message')
+        expect(Raven).to receive(:extra_context).once.with(
+          request_uuid: nil
+        )
+        # if authn_context is nil on current_user it means idme
+        expect(Raven).to receive(:tags_context).once.with(
+          controller_name: 'anonymous',
+          sign_in_method: 'idme'
+        )
+        # since user IS signed in, this SHOULD get called
+        expect(Raven).to receive(:user_context).with(
+          uuid: user.uuid,
+          authn_context: user.authn_context,
+          loa: user.loa,
+          mhv_icn: user.mhv_icn
+        )
+        expect(Raven).to receive(:capture_exception).once
+        with_settings(Settings.sentry, dsn: 'T') do
+          get :client_connection_failed
+        end
+        expect(JSON.parse(response.body)['errors'].first['title'])
+          .to eq('Service unavailable')
+      end
     end
   end
 end

@@ -85,12 +85,7 @@ describe MVI::Service do
       it 'responds with a SERVER_ERROR if ICN is invalid' do
         allow(user).to receive(:mhv_icn).and_return('invalid-icn-is-here^NI')
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request (Possible RecordNotFound)',
-          :error,
-          uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-          authn_context: nil,
-          loa: { current: 3, highest: 3 },
-          mhv_icn: 'invalid-icn-is-here^NI'
+          'MVI Invalid Request (Possible RecordNotFound)', :error
         )
 
         VCR.use_cassette('mvi/find_candidate/invalid_icn') do
@@ -102,12 +97,7 @@ describe MVI::Service do
       it 'responds with a SERVER_ERROR if ICN has no matches' do
         allow(user).to receive(:mhv_icn).and_return('1008714781V416999')
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request (Possible RecordNotFound)',
-          :error,
-          uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-          authn_context: nil,
-          loa: { current: 3, highest: 3 },
-          mhv_icn: '1008714781V416999'
+          'MVI Invalid Request (Possible RecordNotFound)', :error
         )
 
         VCR.use_cassette('mvi/find_candidate/icn_not_found') do
@@ -158,12 +148,7 @@ describe MVI::Service do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request',
-          :error,
-          uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-          authn_context: nil,
-          loa: { current: 3, highest: 3 },
-          mhv_icn: nil
+          'MVI Invalid Request', :error
         )
         VCR.use_cassette('mvi/find_candidate/invalid') do
           expect(subject.find_profile(user))
@@ -177,12 +162,7 @@ describe MVI::Service do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Failed Request',
-          :error,
-          uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-          authn_context: nil,
-          loa: { current: 3, highest: 3 },
-          mhv_icn: nil
+          'MVI Failed Request', :error
         )
         VCR.use_cassette('mvi/find_candidate/failure') do
           expect(subject.find_profile(user))
@@ -272,12 +252,7 @@ describe MVI::Service do
 
       it 'raises MVI::Errors::RecordNotFound' do
         expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Duplicate Record',
-          :warn,
-          uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
-          authn_context: nil,
-          loa: { current: 3, highest: 3 },
-          mhv_icn: nil
+          'MVI Duplicate Record', :warn
         )
 
         VCR.use_cassette('mvi/find_candidate/failure_multiple_matches') do
