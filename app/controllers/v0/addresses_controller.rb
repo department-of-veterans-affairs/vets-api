@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module V0
-  class AddressesController < EVSSController
+  class AddressesController < EVSSBaseController
     before_action :authorize_user
 
     def show

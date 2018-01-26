@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class EVSSClaimsBaseController < EVSSController
+class EVSSClaimsBaseController < EVSSBaseController
   protected
 
   def claim_service

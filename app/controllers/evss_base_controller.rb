@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class EVSSController < ApplicationController
+class EVSSBaseController < ApplicationController
   before_action :authorize_user
 
   protected

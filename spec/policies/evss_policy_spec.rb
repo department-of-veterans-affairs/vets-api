@@ -16,7 +16,7 @@ RSpec.describe EVSSPolicy do
     let(:user) { build(:user, :loa1) }
     let(:policy) { Pundit.policy(user, :evss) }
 
-    it '#access? should return true' do
+    it '#access? should return false' do
       expect(policy.access?).to be_falsey
     end
   end
