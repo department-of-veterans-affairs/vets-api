@@ -3,6 +3,7 @@ module VIC
     include SetGuid
 
     validates(:state, presence: true, inclusion: %w(success failed pending))
+    # TODO validate response if state is success
 
     attr_accessor(:form)
 
