@@ -9,7 +9,7 @@
       "sequence_number": 117,
       "start_time": "2017-12-25T18:59:00-05:00",
       "end_time": "2017-12-26T19:59:00-05:00",
-      "description": "Single-service Window",
+      "description": null,
       "services": [
         {
           "id": "BCDEFG",
