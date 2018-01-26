@@ -20,10 +20,8 @@ RSpec.describe VAFacility, type: :model do
             :long, :name, :phone, :services, :unique_id
           )
           expect(va_facilities.map(&:hours))
-            .to all(be_a(Hash).and(include(*Date::DAYNAMES)))
-
-          # NOTE: this spec is going to fail because ARCGis Production doesnt have the values yet
-          # expect(va_facilities.map(&:hours).map(&:values).flatten).to all(be)
+            .to all(be_a(Hash).and(include(*Date::DAYNAMES.map(&:downcase))))
+          expect(va_facilities.map(&:hours).map(&:values).flatten).to all(be)
         end
       end
 

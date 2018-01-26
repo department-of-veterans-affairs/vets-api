@@ -52,7 +52,7 @@ class VCFacilityAdapter
 
   HOURS_KEYMAP = %w[
     monday tuesday wednesday thursday friday saturday sunday
-  ].each_with_object({}) { |d, h| h[d.capitalize] = d }
+  ].each_with_object({}) { |d, h| h[d] = d }
 
   # Build a sub-section of the VAFacility model from a flat GIS attribute list,
   # according to the provided key mapping dict. Strip whitespace from string values.
