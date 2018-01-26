@@ -22,9 +22,7 @@ module Appeals
     end
 
     def connection
-      Faraday.new(
-        base_path, headers: base_request_headers, request: request_options, ssl: { verify: false }
-      ) do |faraday|
+      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
         faraday.use :breakers
         faraday.use Faraday::Response::RaiseError
         faraday.request :json
