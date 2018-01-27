@@ -2,22 +2,24 @@
 
 require 'rails_helper'
 
-RSpec.describe EVSSPolicy do
-  context 'with a user who has the required evss attributes' do
-    let(:user) { build(:user, :loa3) }
-    let(:policy) { Pundit.policy(user, :evss) }
+describe EVSSPolicy do
+  subject { described_class }
 
-    it '#access? should return true' do
-      expect(policy.access?).to be_truthy
+  permissions :access? do
+    context 'with a user who has the required evss attributes' do
+      let(:user) { build(:user, :loa3) }
+
+      it "grants access" do
+        expect(subject).to permit(user, :evss)
+      end
     end
-  end
 
-  context 'with a user who does not have the required evss attributes' do
-    let(:user) { build(:user, :loa1) }
-    let(:policy) { Pundit.policy(user, :evss) }
+    context 'with a user who does not have the required evss attributes' do
+      let(:user) { build(:user, :loa1) }
 
-    it '#access? should return false' do
-      expect(policy.access?).to be_falsey
+      it "grants access" do
+        expect(subject).to_not permit(user, :evss)
+      end
     end
   end
 end
