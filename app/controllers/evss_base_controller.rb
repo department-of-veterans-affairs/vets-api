@@ -3,7 +3,7 @@
 class EVSSBaseController < ApplicationController
   before_action :authorize_user
 
-  protected
+  private
 
   def authorize_user
     authorize :evss, :access?
