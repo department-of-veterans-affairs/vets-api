@@ -1,5 +1,5 @@
 module VIC
-  class VICSubmission
+  class VICSubmission < ActiveRecord::Base
     include SetGuid
 
     validates(:state, presence: true, inclusion: %w(success failed pending))
@@ -9,7 +9,7 @@ module VIC
 
     after_create(:create_submission_job)
 
-    before_save(:update_state_to_completed)
+    before_validation(:update_state_to_completed)
 
     # TODO validate form
 
