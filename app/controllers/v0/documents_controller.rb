@@ -21,7 +21,7 @@ module V0
     private
 
     def service
-      @claim_service ||= EVSSClaimService.new(current_user)
+      EVSSClaimService.new(current_user)
     end
   end
 end
