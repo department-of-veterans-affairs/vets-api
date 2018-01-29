@@ -12,8 +12,6 @@ module VIC
 
     before_validation(:update_state_to_completed)
 
-    # TODO validate form
-
     def success?
       state == 'success'
     end
