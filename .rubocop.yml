@@ -113,6 +113,7 @@ Style/RescueStandardError:
     - "app/services/mhv_accounts_service.rb"
     - "app/uploaders/claim_documentation/uploader.rb"
     - "app/workers/education_form/create_daily_spool_files.rb"
+    - "lib/common/client/concerns/monitoring.rb"
     - "lib/common/client/configuration/soap.rb"
     - "lib/common/exceptions/base_error.rb"
     - "lib/github/github_service.rb"

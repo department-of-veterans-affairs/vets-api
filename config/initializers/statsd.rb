@@ -46,3 +46,7 @@ StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.get_address.total", 0)
 StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.get_address.fail", 0)
 StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.update_address.total", 0)
 StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.update_address.fail", 0)
+
+# init appeals
+StatsD.increment("#{Appeals::Service::STATSD_KEY_PREFIX}.get_appeals.total", 0)
+StatsD.increment("#{Appeals::Service::STATSD_KEY_PREFIX}.get_appeals.fail", 0)

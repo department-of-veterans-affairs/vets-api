@@ -76,6 +76,7 @@ Rails.application.routes.draw do
     end
 
     resources :appeals, only: [:index]
+    get 'appeals_v2', to: 'appeals#index_v2', as: :appeals_v2
 
     scope :messaging do
       scope :health do
@@ -129,6 +130,10 @@ Rails.application.routes.draw do
       resources :branches_of_service, only: :index, defaults: { format: :json }
       resources :burial_forms, only: %i[new create], defaults: { format: :json }
       resources :preneed_attachments, only: :create
+    end
+
+    namespace :vic do
+      resources :supporting_documentation_attachments, only: :create
     end
 
     resource :address, only: %i[show update] do

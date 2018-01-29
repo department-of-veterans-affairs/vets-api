@@ -16,6 +16,13 @@ module V0
       )
     end
 
+    def index_v2
+      appeals_response = Appeals::Service.new.get_appeals(current_user)
+      render(
+        json: appeals_response.body
+      )
+    end
+
     # This should be only LOA3 users, but SSN is available to LOA1, so additional check here
     def raise_access_denied_if_user_not_loa3
       return if current_user.loa3?
