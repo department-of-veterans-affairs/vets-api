@@ -4,6 +4,7 @@ module VIC
 
     validates(:state, presence: true, inclusion: %w(success failed pending))
     validates(:response, presence: true, if: :success?)
+    validate(:form_matches_schema, on: :create)
 
     attr_accessor(:form)
 
@@ -19,14 +20,22 @@ module VIC
 
     private
 
+    def parsed_form
+      @parsed_form ||= JSON.parse(form)
+    end
+
     def update_state_to_completed
       response_changes = changes['response']
 
-      if response_changes[0].blank? && response_changes[1].present?
+      if response_changed? && response_changes[0].blank? && response_changes[1].present?
         self.state = 'success'
       end
 
       true
+    end
+
+    def form_matches_schema
+      errors[:form].concat(JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS['VIC'], parsed_form))
     end
 
     def create_submission_job

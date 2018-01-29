@@ -11,4 +11,13 @@ RSpec.describe VIC::VICSubmission, type: :model do
       expect(submission.state).to eq('success')
     end
   end
+
+  describe '#create_submission_job' do
+    it 'should create a submission job after create' do
+      vic_submission = build(:vic_submission)
+      allow_any_instance_of(described_class).to receive(:id).and_return(1)
+      expect(VIC::SubmissionJob).to receive(:perform_async).with(1, vic_submission.form)
+      vic_submission.save!
+    end
+  end
 end
