@@ -3,7 +3,7 @@ module VIC
     include SetGuid
 
     validates(:state, presence: true, inclusion: %w(success failed pending))
-    # TODO validate response if state is success
+    validates(:response, presence: true, if: :success?)
 
     attr_accessor(:form)
 
@@ -12,6 +12,10 @@ module VIC
     before_save(:update_state_to_completed)
 
     # TODO validate form
+
+    def success?
+      state == 'success'
+    end
 
     private
 
