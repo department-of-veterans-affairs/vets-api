@@ -2,14 +2,13 @@ module VIC
   class VICSubmission < ActiveRecord::Base
     include SetGuid
 
+    attr_accessor(:form)
+
     validates(:state, presence: true, inclusion: %w(success failed pending))
     validates(:response, presence: true, if: :success?)
     validate(:form_matches_schema, on: :create)
 
-    attr_accessor(:form)
-
     after_create(:create_submission_job)
-
     before_validation(:update_state_to_completed)
 
     def success?
