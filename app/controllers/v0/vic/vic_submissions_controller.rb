@@ -22,7 +22,7 @@ module V0
       end
 
       def show
-        # TODO spec for this ctrl
+        render(json: ::VIC::VICSubmission.find_by(guid: params[:id]))
       end
     end
   end
