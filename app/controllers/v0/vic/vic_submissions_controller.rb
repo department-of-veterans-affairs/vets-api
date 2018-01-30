@@ -6,7 +6,7 @@ module V0
       skip_before_action(:authenticate)
 
       def create
-        vic_submission = ::VIC::VICSubmission.create!(
+        vic_submission = ::VIC::VICSubmission.new(
           params.require(:vic_submission).permit(:form)
         )
 
