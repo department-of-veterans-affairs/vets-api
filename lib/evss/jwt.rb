@@ -37,7 +37,7 @@ module EVSS
         gender:         @user.gender,
         prefix:         '', # TODO: i thought we had these in mvi...
         suffix:         '',
-        correlationIds: @user.mhv_correlation_id || []
+        correlationIds: Array(@user.mhv_correlation_id)
       }
     end
   end
