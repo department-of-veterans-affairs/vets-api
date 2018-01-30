@@ -17,5 +17,16 @@ RSpec.describe VIC::SubmissionJob do
         'confirmation_number' => uuid
       )
     end
+
+    it 'should set the submission to failed if it doesnt work' do
+      vic_submission = create(:vic_submission)
+      expect_any_instance_of(VIC::Service).to receive(:submit).and_raise('foo')
+      expect do
+        described_class.drain
+      end.to raise_error('foo')
+      vic_submission.reload
+
+      expect(vic_submission.state).to eq('failed')
+    end
   end
 end
