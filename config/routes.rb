@@ -131,10 +131,9 @@ Rails.application.routes.draw do
       resources :preneed_attachments, only: :create
     end
 
-    resources :vic_applications, only: %i[create show]
-
     namespace :vic do
       resources :supporting_documentation_attachments, only: :create
+      resources :vic_submissions, only: %i[create show]
     end
 
     resource :address, only: %i[show update] do

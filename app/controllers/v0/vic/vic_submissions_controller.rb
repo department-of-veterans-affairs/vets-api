@@ -6,7 +6,19 @@ module V0
       skip_before_action(:authenticate)
 
       def create
-        vic_submission = ::VIC::VICSubmission.create!
+        vic_submission = ::VIC::VICSubmission.create!(
+          params.require(:vic_submission).permit(:form)
+        )
+
+        unless vic_submission.save
+          validation_error = vic_submission.errors.full_messages.join(', ')
+
+          log_message_to_sentry(validation_error, :error, {}, validation: 'vic')
+
+          raise Common::Exceptions::ValidationErrors, vic_submission
+        end
+
+        render(json: vic_submission)
       end
 
       def show
