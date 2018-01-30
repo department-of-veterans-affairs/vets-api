@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module VIC
   class SubmissionJob
     include Sidekiq::Worker
@@ -12,7 +14,7 @@ module VIC
       submission.update_attributes!(
         response: response
       )
-    rescue
+    rescue StandardError
       submission.update_attributes!(state: 'failed')
       raise
     end

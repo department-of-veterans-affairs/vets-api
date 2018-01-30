@@ -13,15 +13,15 @@ FactoryBot.define do
         ],
         'veteranDateOfBirth' => '1985-03-07',
         'veteranFullName' => {
-          "first" => "Mark",
-          "last" => "Olson"
+          'first' => 'Mark',
+          'last' => 'Olson'
         },
-        "veteranAddress" => {
-          "city" => "Milwaukee",
-          "country" => "USA",
-          "postalCode" => "53130",
-          "state" => "WI",
-          "street" => "123 Main St"
+        'veteranAddress' => {
+          'city' => 'Milwaukee',
+          'country' => 'USA',
+          'postalCode' => '53130',
+          'state' => 'WI',
+          'street' => '123 Main St'
         },
         'veteranSocialSecurityNumber' => '111223333',
         'phone' => '5551110000',

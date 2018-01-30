@@ -7,7 +7,7 @@ RSpec.describe VIC::VICSubmission, type: :model do
     it 'should set the state when then response is set' do
       submission = described_class.new
       submission.save(validate: false)
-      submission.response = { foo: true}
+      submission.response = { foo: true }
       expect(submission.valid?).to eq(true)
       expect(submission.state).to eq('success')
     end

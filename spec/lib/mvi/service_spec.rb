@@ -41,7 +41,7 @@ describe MVI::Service do
   end
 
   describe '#find_profile with historical icns' do
-    # TODO after finding out how to do this call
+    # TODO: after finding out how to do this call
   end
 
   describe '.find_profile with icn' do
