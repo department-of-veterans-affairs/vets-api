@@ -27,7 +27,11 @@ RSpec.describe VIC::VICSubmission, type: :model do
       it 'should have a schema error' do
         submission = described_class.new(form: { foo: 1 }.to_json)
         expect(submission.valid?).to eq(false)
-        expect(submission.errors[:form][0].include?("The property '#/' contains additional properties [\"foo\"]")).to eq(true)
+        expect(
+          submission.errors[:form][0].include?(
+            "The property '#/' contains additional properties [\"foo\"]"
+          )
+        ).to eq(true)
       end
     end
   end
