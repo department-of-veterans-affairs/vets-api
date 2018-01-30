@@ -8,6 +8,10 @@ module V0
       def create
         vic_submission = ::VIC::VICSubmission.create!
       end
+
+      def show
+        # TODO spec for this ctrl
+      end
     end
   end
 end
