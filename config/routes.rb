@@ -133,6 +133,7 @@ Rails.application.routes.draw do
     end
 
     namespace :vic do
+      resources :profile_photo_attachments, only: :create
       resources :supporting_documentation_attachments, only: :create
     end
 

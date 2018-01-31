@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
+class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
   include ValidateFileSize
   include SetAwsConfig
 
-  MAX_FILE_SIZE = 25.megabytes
+  MAX_FILE_SIZE = 10.megabytes
 
   def initialize(guid)
     super
@@ -18,14 +18,19 @@ class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
         Settings.vic.s3.bucket
       )
     end
+
+    self.aws_acl = 'public-read'
   end
 
   def extension_white_list
-    %w[pdf]
+    %w[jpg jpeg gif png]
+  end
+
+  def filename
+    @guid
   end
 
   def store_dir
-    raise 'missing guid' if @guid.blank?
-    "supporting_documentation_attachments/#{@guid}"
+    'profile_photo_attachments'
   end
 end
