@@ -15,8 +15,8 @@ RSpec.describe 'reference_data', type: :request do
 
   # to regnerate cassettes see:
   # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/EVSS%20Integration/evss_rds_socks_proxy.md
-  describe 'GET /v0/reference_data/countries' do    
-    context 'with a 200 evss response', vcr: { cassette_name: 'evss/reference_data/countries' } do
+  describe 'GET /v0/reference_data/countries' do
+    context 'with a 200 evss response', vcr: { cassette_name: 'evss/aws/reference_data/countries' } do
       it 'return a list of countries' do
         get '/v0/reference_data/countries', nil, auth_header
         expect(response).to have_http_status(:ok)
@@ -24,14 +24,14 @@ RSpec.describe 'reference_data', type: :request do
       end
     end
 
-    context 'with a 401 tampered evss response', vcr: { cassette_name: 'evss/reference_data/401_tampered' } do
+    context 'with a 401 tampered evss response', vcr: { cassette_name: 'evss/aws/reference_data/401_tampered' } do
       it 'should return 500' do
         get '/v0/reference_data/countries', nil, auth_header
         expect(response).to have_http_status(:internal_server_error)
       end
     end
 
-    context 'with a 401 no token evss reponse', vcr: { cassette_name: 'evss/reference_data/401_no_jwt_in_header' } do
+    context 'with a 401 no token evss reponse', vcr: { cassette_name: 'evss/aws/reference_data/401_no_jwt_in_header' } do
       it 'should return 500' do
         get '/v0/reference_data/countries', nil, auth_header
         expect(response).to have_http_status(:internal_server_error)

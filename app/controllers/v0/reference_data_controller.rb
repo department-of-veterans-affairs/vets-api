@@ -36,7 +36,7 @@ module V0
     private
 
     def service
-      @service ||= EVSS::ReferenceData::Service.new(@current_user)
+      @service ||= EVSS::AWS::ReferenceData::Service.new(@current_user)
     end
   end
 end
