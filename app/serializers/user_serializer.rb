@@ -69,7 +69,8 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def prefills_available
-    object.can_access_prefill_data? ? FormProfile.prefill_enabled_forms : []
+    return [] unless object.identity.present? && object.can_access_prefill_data?
+    FormProfile.prefill_enabled_forms
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
