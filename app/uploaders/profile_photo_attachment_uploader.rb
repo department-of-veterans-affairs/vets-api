@@ -17,9 +17,9 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
         Settings.vic.s3.region,
         Settings.vic.s3.bucket
       )
-    end
 
-    self.aws_acl = 'public-read'
+      self.aws_acl = 'public-read'
+    end
   end
 
   def extension_white_list
