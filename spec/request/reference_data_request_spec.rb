@@ -13,13 +13,14 @@ RSpec.describe 'reference_data', type: :request do
     User.create(user)
   end
 
-  describe 'GET /v0/reference_data/countries' do
+  # to regnerate cassettes see:
+  # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/EVSS%20Integration/evss_rds_socks_proxy.md
+  describe 'GET /v0/reference_data/countries' do    
     context 'with a 200 evss response', vcr: { cassette_name: 'evss/reference_data/countries' } do
       it 'return a list of countries' do
         get '/v0/reference_data/countries', nil, auth_header
         expect(response).to have_http_status(:ok)
-        # TODO : create or modify existing shema
-        #expect(response).to match_response_schema('countries')
+        expect(response).to match_response_schema('countries')
       end
     end
 
