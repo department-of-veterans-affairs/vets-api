@@ -32,7 +32,7 @@ RSpec.describe 'Appeals Status', type: :request do
       let(:user) { FactoryBot.create(:user, :loa1, ssn: '111223333') }
 
       it 'returns a forbidden error' do
-        get '/v0/appeals', nil, 'Authorization' => "Token token=#{session.token}"
+        get '/v0/appeals_v2', nil, 'Authorization' => "Token token=#{session.token}"
         expect(response).to have_http_status(:forbidden)
       end
     end
