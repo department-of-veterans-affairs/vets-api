@@ -98,14 +98,9 @@ RSpec.describe 'Account creation and upgrade', type: :request do
       end
 
       context 'that is registered' do
-        # HACK: Can't serialize object doubles or
-        # initialize MhvAccount via factory without
-        # raising error in setup. Must modify directly with ORM.
         before(:each) do
           mhv_account = MhvAccount.find_or_initialize_by(user_uuid: user.uuid)
-          mhv_account.account_state = 'registered'
-          mhv_account.registered_at = Time.current
-          mhv_account.save
+          mhv_account.update(account_state: 'registered', registered_at: Time.current)
         end
 
         it 'responds to GET #show' do
@@ -123,14 +118,9 @@ RSpec.describe 'Account creation and upgrade', type: :request do
       end
 
       context 'that is upgraded' do
-        # HACK: Can't serialize object doubles or
-        # initialize MhvAccount via factory without
-        # raising error in setup. Must modify directly with ORM.
         before(:each) do
           mhv_account = MhvAccount.find_or_initialize_by(user_uuid: user.uuid)
-          mhv_account.account_state = 'upgraded'
-          mhv_account.upgraded_at = Time.current
-          mhv_account.save
+          mhv_account.update(account_state: 'upgraded', upgraded_at: Time.current)
         end
 
         it 'responds to GET #show' do
