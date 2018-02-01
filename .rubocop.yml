@@ -169,11 +169,6 @@ Style/DateTime:
 Lint/SafeNavigationChain:
   Exclude:
     - "app/workers/education_form/delete_old_applications.rb"
-    - "lib/evss/gi_bill_status/gi_bill_status_response.rb"
-    - "lib/evss/gi_bill_status/gi_bill_status_response.rb"
-    - "lib/evss/gi_bill_status/gi_bill_status_response.rb"
-    - "lib/evss/pciu_address/countries_response.rb"
-    - "lib/evss/pciu_address/states_response.rb"
     - "lib/saml/health_status.rb"
     - "lib/saml/health_status.rb"
 
