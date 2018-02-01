@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 module V0
-  class EVSSClaimsController < EVSSBaseController
+  class EVSSClaimsController < ApplicationController
     include IgnoreNotFound
+
+    before_action { authorize :evss, :access? }
 
     def index
       claims, synchronized = service.all

@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 module V0
-  class DocumentsController < EVSSBaseController
+  class DocumentsController < ApplicationController
+    before_action { authorize :evss, :access? }
+
     def create
       params.require :file
       claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:evss_claim_id])

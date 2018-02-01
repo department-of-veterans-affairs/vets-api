@@ -9,7 +9,7 @@ describe EVSSPolicy do
     context 'with a user who has the required evss attributes' do
       let(:user) { build(:user, :loa3) }
 
-      it "grants access" do
+      it 'grants access' do
         expect(subject).to permit(user, :evss)
       end
     end
@@ -17,7 +17,7 @@ describe EVSSPolicy do
     context 'with a user who does not have the required evss attributes' do
       let(:user) { build(:user, :loa1) }
 
-      it "denies access" do
+      it 'denies access' do
         expect(subject).to_not permit(user, :evss)
       end
     end
