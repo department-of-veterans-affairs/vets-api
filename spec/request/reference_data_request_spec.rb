@@ -41,10 +41,4 @@ RSpec.describe 'reference_data', type: :request do
 
   describe 'GET /v0/reference_data/states' do
   end
-  describe 'GET /v0/reference_data/intake_sites' do
-  end
-  describe 'GET /v0/reference_data/disabilities' do
-  end
-  describe 'GET /v0/reference_data/treatment_centers' do
-  end
 end
