@@ -87,15 +87,15 @@ module EVSS
       end
 
       def contains_error_messages?
-        return false if @response.nil? || text_response?
-        @response&.body&.key?('messages') &&
-          @response&.body['messages'].is_a?(Array) &&
-          @response&.body['messages'].length.positive?
+        return false if @response&.body.nil? || text_response?
+        @response.body.key?('messages') &&
+          @response.body['messages'].is_a?(Array) &&
+          @response.body['messages'].length.positive?
       end
 
       def evss_error_key
-        return nil if @response.nil?
-        @response&.body['messages'][0]['key']
+        return nil if @response&.body.nil?
+        @response.body.dig('messages', 0, 'key')
       end
 
       def text_response?

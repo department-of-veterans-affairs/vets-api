@@ -7,6 +7,8 @@ require 'common/exceptions/external/gateway_timeout'
 module EVSS
   module Letters
     class DownloadService < EVSS::Service
+      include Common::Client::Monitoring
+
       configuration EVSS::Letters::DownloadConfiguration
 
       def download_letter(type, options = nil)

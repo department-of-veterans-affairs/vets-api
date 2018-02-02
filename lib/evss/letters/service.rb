@@ -3,10 +3,13 @@
 require 'common/client/base'
 require 'common/exceptions/internal/record_not_found'
 require 'common/exceptions/external/gateway_timeout'
+require 'common/client/concerns/monitoring'
 
 module EVSS
   module Letters
     class Service < EVSS::Service
+      include Common::Client::Monitoring
+
       configuration EVSS::Letters::Configuration
 
       def get_letters
@@ -14,6 +17,8 @@ module EVSS
           raw_response = perform(:get, '')
           EVSS::Letters::LettersResponse.new(raw_response.status, raw_response)
         end
+      rescue StandardError => e
+        handle_error(e)
       end
 
       def get_letter_beneficiary
@@ -21,6 +26,8 @@ module EVSS
           raw_response = perform(:get, 'letterBeneficiary')
           EVSS::Letters::BeneficiaryResponse.new(raw_response.status, raw_response)
         end
+      rescue StandardError => e
+        handle_error(e)
       end
 
       private

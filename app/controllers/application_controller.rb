@@ -9,6 +9,7 @@ require 'sentry_logging'
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
   include SentryLogging
+  include Pundit
 
   SKIP_SENTRY_EXCEPTION_TYPES = [
     Common::Exceptions::Unauthorized,
@@ -70,6 +71,8 @@ class ApplicationController < ActionController::API
 
     va_exception =
       case exception
+      when Pundit::NotAuthorizedError
+        Common::Exceptions::Forbidden.new(detail: 'User does not have access to the requested resource')
       when ActionController::ParameterMissing
         Common::Exceptions::ParameterMissing.new(exception.param)
       when Common::Exceptions::BaseError

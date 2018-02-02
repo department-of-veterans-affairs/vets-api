@@ -159,3 +159,14 @@
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: '<v11:eMISunitInformationRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+# Appeals
+- :name: 'Appeals'
+  :base_uri: <%= "#{URI(Settings.appeals_status.host).host}:#{URI(Settings.appeals_status.host).port}" %>
+  :endpoints:
+  - :method: :get
+    :path: "/api/v2/appeals"
+    :file_path: "appeals/get_appeals"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: ssn

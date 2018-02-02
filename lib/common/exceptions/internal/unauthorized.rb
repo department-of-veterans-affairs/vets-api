@@ -6,10 +6,11 @@ module Common
     class Unauthorized < BaseError
       def initialize(options = {})
         @detail = options[:detail]
+        @source = options[:source]
       end
 
       def errors
-        Array(SerializableError.new(i18n_data.merge(detail: @detail)))
+        Array(SerializableError.new(i18n_data.merge(detail: @detail, source: @source)))
       end
     end
   end

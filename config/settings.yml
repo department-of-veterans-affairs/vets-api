@@ -146,6 +146,12 @@ appeals_status:
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
 
+# Settings for appeals status v2. Needs to live side by side with v1 until UAT is complete.
+appeals:
+  mock: true
+  app_token: PUBLICDEMO123
+  host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
+
 vic:
   url: https://some.fakesite.com
   signing_key_path: /fake/signing/key/path
