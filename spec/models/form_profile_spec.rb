@@ -225,6 +225,7 @@ RSpec.describe FormProfile, type: :model do
     {
       'email' => user.email,
       'serviceBranches' => ['F'],
+      'gender' => user.gender,
       'verified' => true,
       'veteranDateOfBirth' => user.birth_date,
       'phone' => us_phone,
