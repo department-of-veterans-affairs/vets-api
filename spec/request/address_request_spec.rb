@@ -116,7 +116,7 @@ RSpec.describe 'address', type: :request do
   describe 'GET /v0/address/states' do
     context 'with a 200 response' do
       it 'should match the states schema' do
-        VCR.use_cassette('evss/pciu_address/states') do
+        VCR.use_cassette('evss/aws/reference_data/states') do
           get '/v0/address/states', nil, auth_header
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('states')
@@ -128,7 +128,7 @@ RSpec.describe 'address', type: :request do
   describe 'GET /v0/address/countries' do
     context 'with a 200 response' do
       it 'should match the countries schema' do
-        VCR.use_cassette('evss/pciu_address/countries') do
+        VCR.use_cassette('evss/aws/reference_data/countries') do
           get '/v0/address/countries', nil, auth_header
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('countries')
