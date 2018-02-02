@@ -1,6 +1,9 @@
 # frozen_string_literal: true
+
 module V0
   class AddressesController < ApplicationController
+    before_action { authorize :evss, :access? }
+
     def show
       response = service.get_address
       render json: response,

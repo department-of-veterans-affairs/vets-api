@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171220225520) do
+ActiveRecord::Schema.define(version: 20171229003530) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -72,6 +72,17 @@ ActiveRecord::Schema.define(version: 20171220225520) do
   end
 
   add_index "evss_claims", ["user_uuid"], name: "index_evss_claims_on_user_uuid", using: :btree
+
+  create_table "form_attachments", force: :cascade do |t|
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+    t.uuid     "guid",                   null: false
+    t.string   "encrypted_file_data",    null: false
+    t.string   "encrypted_file_data_iv", null: false
+    t.string   "type",                   null: false
+  end
+
+  add_index "form_attachments", ["guid", "type"], name: "index_form_attachments_on_guid_and_type", unique: true, using: :btree
 
   create_table "gibs_not_found_users", force: :cascade do |t|
     t.string   "edipi",            null: false
@@ -142,16 +153,6 @@ ActiveRecord::Schema.define(version: 20171220225520) do
     t.string   "encrypted_file_data",    null: false
     t.string   "encrypted_file_data_iv", null: false
   end
-
-  create_table "preneed_attachments", force: :cascade do |t|
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
-    t.uuid     "guid",                   null: false
-    t.string   "encrypted_file_data",    null: false
-    t.string   "encrypted_file_data_iv", null: false
-  end
-
-  add_index "preneed_attachments", ["guid"], name: "index_preneed_attachments_on_guid", unique: true, using: :btree
 
   create_table "preneed_submissions", force: :cascade do |t|
     t.string   "tracking_number",    null: false

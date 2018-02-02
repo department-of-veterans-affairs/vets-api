@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe V0::SessionsController, type: :controller do
@@ -96,14 +97,14 @@ RSpec.describe V0::SessionsController, type: :controller do
       request.env['HTTP_AUTHORIZATION'] = auth_header
       get :identity_proof
       expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body).keys).to eq %w(identity_proof_url)
+      expect(JSON.parse(response.body).keys).to eq %w[identity_proof_url]
     end
 
     it 'returns a url for adding multifactor authentication to your account' do
       request.env['HTTP_AUTHORIZATION'] = auth_header
       get :multifactor
       expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body).keys).to eq %w(multifactor_url)
+      expect(JSON.parse(response.body).keys).to eq %w[multifactor_url]
     end
 
     it 'returns a logout url' do
@@ -161,13 +162,16 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(existing_user.multifactor).to be_falsey
         expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
         expect(existing_user.ssn).to eq('796111863')
+        allow(StringHelpers).to receive(:levenshtein_distance).and_return(8)
         expect(controller).to receive(:log_message_to_sentry).with(
           'SSNS DO NOT MATCH!!',
           :warn,
-          uuid: '1234abcd',
-          authn_context: nil,
-          loa: { current: 3, highest: 3 },
-          mhv_icn: nil
+          identity_compared_with_mvi: {
+            length: [9, 9],
+            only_digits: [true, true],
+            encoding: ['UTF-8', 'UTF-8'],
+            levenshtein_distance: 8
+          }
         )
         post :saml_callback
         new_user = User.find(uuid)
@@ -355,7 +359,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     it 'returns the urls for for all three possible authN requests' do
       get :authn_urls
       expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body).keys).to eq %w(mhv dslogon idme)
+      expect(JSON.parse(response.body).keys).to eq %w[mhv dslogon idme]
     end
 
     it 'does not allow fetching the identity proof url' do

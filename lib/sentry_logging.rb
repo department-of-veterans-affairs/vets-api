@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module SentryLogging
   def log_message_to_sentry(message, level, extra_context = {}, tags_context = {})
     formatted_message = extra_context.empty? ? message : message + ' : ' + extra_context.to_s
@@ -22,15 +23,5 @@ module SentryLogging
 
   def non_nil_hash?(h)
     h.is_a?(Hash) && !h.empty?
-  end
-
-  # Use this method for extra_context when needed
-  def user_context(user)
-    {
-      uuid: user.uuid,
-      authn_context: user.authn_context,
-      loa: user.loa,
-      mhv_icn: user.mhv_icn
-    }
   end
 end

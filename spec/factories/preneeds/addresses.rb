@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :address, class: Preneeds::Address do
     sequence(:street) { generate(:street) }

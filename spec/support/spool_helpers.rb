@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module SpoolHelpers
   extend ActiveSupport::Concern
 
@@ -32,5 +33,6 @@ module SpoolHelpers
         end
       end
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'spec_helper'
 require 'hca/validations'
 
@@ -11,6 +12,30 @@ describe HCA::Validations do
       [1234, ''],
       ['3000-01-01', ''],
       ['1974-12-01', '12/01/1974']
+    ]
+  )
+
+  test_method(
+    described_class,
+    'discharge_date',
+    [
+      ['', ''],
+      [1234, ''],
+      ['3000-01-01', '01/01/3000'],
+      ['1974-12-01', '12/01/1974']
+    ]
+  )
+
+  test_method(
+    described_class,
+    'valid_discharge_date?',
+    [
+      ['', false],
+      [1234, false],
+      ['3000-01-01', false],
+      ['1974-12-01', true],
+      [(Time.zone.today + 60.days).strftime('%Y-%m-%d'), true],
+      [(Time.zone.today + 181.days).strftime('%Y-%m-%d'), false]
     ]
   )
 
@@ -46,7 +71,7 @@ describe HCA::Validations do
       [['1'], ''],
       [111_111_111, ''],
       ['000111111', ''],
-      %w(210438765 210438765),
+      %w[210438765 210438765],
       ['210-43-8765', '210438765'],
       ['1112233334444', '']
     ]

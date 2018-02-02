@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'rx/client'
 require 'lib/sentry_logging_spec_helper'
@@ -11,6 +12,10 @@ RSpec.describe ApplicationController, type: :controller do
     JSON_ERROR = {
       'errorCode' => 139, 'developerMessage' => '', 'message' => 'Prescription is not Refillable'
     }.freeze
+
+    def not_authorized
+      raise Pundit::NotAuthorizedError
+    end
 
     def record_not_found
       raise Common::Exceptions::RecordNotFound, 'some_id'
@@ -72,7 +77,7 @@ RSpec.describe ApplicationController, type: :controller do
   context 'RecordNotFound' do
     subject { JSON.parse(response.body)['errors'].first }
     before(:each) { routes.draw { get 'record_not_found' => 'anonymous#record_not_found' } }
-    let(:keys_for_all_env) { %w(title detail code status) }
+    let(:keys_for_all_env) { %w[title detail code status] }
 
     context 'with Rails.env.test or Rails.env.development' do
       it 'renders json object with developer attributes' do
@@ -97,7 +102,7 @@ RSpec.describe ApplicationController, type: :controller do
   context 'BackendServiceErrorError' do
     subject { JSON.parse(response.body)['errors'].first }
     before(:each) { routes.draw { get 'other_error' => 'anonymous#other_error' } }
-    let(:keys_for_production) { %w(title detail code status) }
+    let(:keys_for_production) { %w[title detail code status] }
     let(:keys_for_development) { keys_for_production + ['meta'] }
 
     context 'with Rails.env.test or Rails.env.development' do
@@ -131,12 +136,82 @@ RSpec.describe ApplicationController, type: :controller do
     it 'makes a call to sentry when there is cause' do
       allow_any_instance_of(Rx::Client)
         .to receive(:connection).and_raise(Faraday::ConnectionFailed, 'some message')
+      expect(Raven).to receive(:extra_context).once.with(
+        request_uuid: nil
+      )
+      # if current user is nil it means user is not signed in.
+      expect(Raven).to receive(:tags_context).once.with(
+        controller_name: 'anonymous',
+        sign_in_method: 'not-signed-in'
+      )
+      # since user is not signed in this shouldnt get called.
+      expect(Raven).not_to receive(:user_context)
       expect(Raven).to receive(:capture_exception).once
       with_settings(Settings.sentry, dsn: 'T') do
         get :client_connection_failed
       end
       expect(JSON.parse(response.body)['errors'].first['title'])
         .to eq('Service unavailable')
+    end
+
+    context 'signed in user' do
+      let(:user) { create(:user) }
+      before do
+        controller.instance_variable_set(:@current_user, user)
+      end
+
+      it 'makes a call to sentry when there is cause' do
+        allow_any_instance_of(Rx::Client)
+          .to receive(:connection).and_raise(Faraday::ConnectionFailed, 'some message')
+        expect(Raven).to receive(:extra_context).once.with(
+          request_uuid: nil
+        )
+        # if authn_context is nil on current_user it means idme
+        expect(Raven).to receive(:tags_context).once.with(
+          controller_name: 'anonymous',
+          sign_in_method: 'idme'
+        )
+        # since user IS signed in, this SHOULD get called
+        expect(Raven).to receive(:user_context).with(
+          uuid: user.uuid,
+          authn_context: user.authn_context,
+          loa: user.loa,
+          mhv_icn: user.mhv_icn
+        )
+        expect(Raven).to receive(:capture_exception).once
+        with_settings(Settings.sentry, dsn: 'T') do
+          get :client_connection_failed
+        end
+        expect(JSON.parse(response.body)['errors'].first['title'])
+          .to eq('Service unavailable')
+      end
+    end
+
+    context 'Pundit::NotAuthorizedError' do
+      subject { JSON.parse(response.body)['errors'].first }
+      before(:each) { routes.draw { get 'not_authorized' => 'anonymous#not_authorized' } }
+      let(:keys_for_all_env) { %w[title detail code status] }
+
+      context 'with Rails.env.test or Rails.env.development' do
+        it 'renders json object with developer attributes' do
+          get :not_authorized
+          expect(response.status).to eq(403)
+          expect(subject.keys).to eq(keys_for_all_env)
+        end
+      end
+
+      context 'with Rails.env.production' do
+        it 'renders json error with production attributes' do
+          allow(Rails)
+            .to(receive(:env))
+            .and_return(ActiveSupport::StringInquirer.new('production'))
+
+          get :not_authorized
+          expect(response.status).to eq(403)
+          expect(subject.keys)
+            .to eq(keys_for_all_env)
+        end
+      end
     end
   end
 end

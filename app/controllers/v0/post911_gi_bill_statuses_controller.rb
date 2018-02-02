@@ -1,9 +1,12 @@
 # frozen_string_literal: true
+
 require 'evss/gi_bill_status/gi_bill_status_response'
 
 module V0
   class Post911GIBillStatusesController < ApplicationController
     include SentryLogging
+
+    before_action { authorize :evss, :access? }
 
     STATSD_GI_BILL_TOTAL_KEY = 'api.evss.gi_bill_status.total'
     STATSD_GI_BILL_FAIL_KEY = 'api.evss.gi_bill_status.fail'

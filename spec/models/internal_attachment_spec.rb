@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 RSpec.describe InternalAttachment do
   let(:attachment) do
     InternalAttachment.new(a: 1, b: [1, 2, 3])

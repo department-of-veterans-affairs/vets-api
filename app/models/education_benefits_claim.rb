@@ -1,9 +1,10 @@
 # frozen_string_literal: true
+
 require 'attr_encrypted'
 class EducationBenefitsClaim < ActiveRecord::Base
-  FORM_TYPES = %w(1990 1995 1990e 5490 5495 1990n).freeze
+  FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n].freeze
 
-  APPLICATION_TYPES = %w(
+  APPLICATION_TYPES = %w[
     chapter33
     chapter1607
     chapter1606
@@ -11,7 +12,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
     chapter35
     transfer_of_entitlement
     chapter30
-  ).freeze
+  ].freeze
 
   belongs_to(:saved_claim, class_name: 'SavedClaim::EducationBenefits', inverse_of: :education_benefits_claim)
 
@@ -72,7 +73,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
     if @application.currentSameAsPrevious
       previous_benefits = @application.previousBenefits
 
-      %w(veteranFullName vaFileNumber veteranSocialSecurityNumber).each do |attr|
+      %w[veteranFullName vaFileNumber veteranSocialSecurityNumber].each do |attr|
         @application.public_send("#{attr}=", previous_benefits.public_send(attr))
       end
     end
@@ -109,6 +110,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
     when '1990'
       benefits = parsed_form.slice(*APPLICATION_TYPES)
     when '1990n'
+      return benefits
     else
       benefit = parsed_form['benefit']&.underscore
       benefits[benefit] = true if benefit.present?

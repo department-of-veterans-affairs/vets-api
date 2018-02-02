@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative 'find_profile_message_helpers'
 
 module MVI
@@ -51,7 +52,7 @@ module MVI
 
       def build_parameter_list
         el = element('parameterList')
-        el << build_gender unless @gender.blank?
+        el << build_gender if @gender.present?
         el << build_living_subject_birth_time
         el << build_living_subject_id
         el << build_living_subject_name

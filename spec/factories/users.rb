@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :user, class: 'User' do
     uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
@@ -67,6 +68,19 @@ FactoryBot.define do
           )
         )
       end
+    end
+
+    trait :mhv_sign_in do
+      email 'abraham.lincoln@vets.gov'
+      first_name nil
+      middle_name nil
+      last_name nil
+      gender nil
+      birth_date nil
+      zip nil
+      ssn nil
+      mhv_icn '12345'
+      multifactor false
     end
 
     trait :mhv do

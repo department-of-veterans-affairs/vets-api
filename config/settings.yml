@@ -22,13 +22,16 @@ sidekiq_admin_panel: false
 
 # Settings for Education Benefits
 edu:
+  prefill: true
   sftp:
     host: ~
     pass: ~
     user: ~
     port: ~
 
+
 pension_burial:
+  prefill: true
   sftp:
     relative_path: '../VETSGOV_PENSION'
   upload:
@@ -67,6 +70,7 @@ gids:
 # Settings for Healthcare Application
 # This CA chain is nonsense but allows local development to work with pre-prod environment.
 hca:
+  prefill: true
   endpoint: https://test-foo.vets.gov
   cert_path: /fake/client/cert/path
   key_path: /fake/client/key/path
@@ -142,9 +146,16 @@ appeals_status:
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
 
+# Settings for appeals status v2. Needs to live side by side with v1 until UAT is complete.
+appeals:
+  mock: true
+  app_token: PUBLICDEMO123
+  host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
+
 vic:
   url: https://some.fakesite.com
   signing_key_path: /fake/signing/key/path
+  prefill: true
 
 # Settings for (preneeds) burials.
 # TODO: enpoint needs to be set up for https and production api when available
