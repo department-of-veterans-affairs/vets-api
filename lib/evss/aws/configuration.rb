@@ -11,13 +11,11 @@ module EVSS
       end
 
       def client_cert
-        # TODO : implement
-        nil
+        OpenSSL::X509::Certificate.new File.read(Settings.evss.cert_path)
       end
 
       def client_key
-        # TODO : implement
-        nil
+        OpenSSL::PKey::RSA.new File.read(Settings.evss.key_path)
       end
 
       def root_ca
