@@ -10,6 +10,7 @@ module EVSS
         false
       end
 
+      # :nocov:
       def client_cert
         OpenSSL::X509::Certificate.new File.read(Settings.evss.cert_path)
       end
@@ -22,10 +23,25 @@ module EVSS
         # TODO : implement
         nil
       end
+      # :nocov:
 
       def ssl_options
-        { verify: false }
-        # TODO: is SSL enabled for EVSS in AWS?
+        return { verify: false } if !cert? && (Rails.env.development? || Rails.env.test?)
+        if cert?
+          {
+            version: :TLSv1_2,
+            verify: true,
+            client_cert: client_cert,
+            client_key: client_key,
+            ca_file: root_ca
+          }
+        end
+      end
+
+      def cert?
+        Settings.evss.cert_path.present? ||
+          Settings.evss.key_path.present? ||
+          Settings.evss.root_cert_path.present?
       end
 
       def connection
