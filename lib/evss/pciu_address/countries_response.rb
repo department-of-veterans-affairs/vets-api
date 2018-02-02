@@ -8,7 +8,7 @@ module EVSS
       attribute :countries, Array[String]
 
       def initialize(status, response = nil)
-        super(status, countries: response&.body.dig('cnp_countries'))
+        super(status, countries: response&.body&.dig('cnp_countries'))
       end
     end
   end
