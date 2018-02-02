@@ -5,10 +5,6 @@ module EVSS
     class Configuration < Common::Client::Configuration::REST
       extend Memoist
 
-      def service_name
-        raise NotImplementedError, "Subclass #{self.class.name} of Configuration must implement service_name"
-      end
-
       def mock_enabled?
         # subclass to override
         false
