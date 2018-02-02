@@ -24,16 +24,15 @@ RSpec.describe 'reference_data', type: :request do
       end
     end
 
-    context 'with a 401 tampered evss response', vcr: { cassette_name: 'evss/aws/reference_data/401_tampered' } do
-      it 'should return 500' do
-        get '/v0/reference_data/countries', nil, auth_header
-        expect(response).to have_http_status(:internal_server_error)
+    context 'with a 401 malformed token response', vcr: { cassette_name: 'evss/aws/reference_data/401_malformed' } do
+      before do
+        allow_any_instance_of(EVSS::AWS::ReferenceData::Service)
+          .to receive(:headers_for_user)
+          .and_return({Authorization: 'Bearer abcd12345asd'})
       end
-    end
-
-    context 'with a 401 no token evss reponse', vcr: { cassette_name: 'evss/aws/reference_data/401_no_jwt_in_header' } do
       it 'should return 500' do
         get '/v0/reference_data/countries', nil, auth_header
+        # TODO: common evss client thinks this should be 502
         expect(response).to have_http_status(:internal_server_error)
       end
     end
