@@ -17,9 +17,9 @@ module EVSS
 
         def get_states
           raw_response = nil
-          #with_monitoring do
+          with_monitoring do
             raw_response = perform(:get, 'states')
-          #end
+          end
           EVSS::PCIUAddress::StatesResponse.new(raw_response.status, raw_response)
         end
 

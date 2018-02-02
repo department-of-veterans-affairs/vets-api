@@ -28,7 +28,7 @@ RSpec.describe 'reference_data', type: :request do
       before do
         allow_any_instance_of(EVSS::AWS::ReferenceData::Service)
           .to receive(:headers_for_user)
-          .and_return({Authorization: 'Bearer abcd12345asd'})
+          .and_return(Authorization: 'Bearer abcd12345asd')
       end
       it 'should return 500' do
         get '/v0/reference_data/countries', nil, auth_header

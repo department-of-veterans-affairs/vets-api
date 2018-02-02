@@ -29,7 +29,7 @@ module EVSS
       end
 
       def ssl_options
-        return { verify: false }
+        { verify: false }
         # TODO: is SSL enabled for EVSS in AWS?
       end
 
@@ -60,7 +60,6 @@ module EVSS
         }
       end
       memoize :proxy_options
-
     end
   end
 end
