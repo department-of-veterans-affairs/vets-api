@@ -117,10 +117,10 @@ group :development, :test do
   gem 'webmock'
 end
 
-# group :production do
-#   # sidekiq enterprise edition
-#   source "https://enterprise.contribsys.com/" do
-#     gem 'sidekiq-pro'
-#     gem 'sidekiq-ent'
-#   end
-# end
+group :production do
+  # sidekiq enterprise edition
+  source "https://enterprise.contribsys.com/" do
+    gem 'sidekiq-pro'
+    gem 'sidekiq-ent'
+  end
+end
