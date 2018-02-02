@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 module EVSS
   module AWS
-    class Configuration
+    class Configuration < Common::Client::Configuration::REST
       extend Memoist
 
       def service_name
-        'EVSS/ReferenceData'
+        raise NotImplementedError, "Subclass #{self.class.name} of Configuration must implement service_name"
       end
 
       def mock_enabled?
