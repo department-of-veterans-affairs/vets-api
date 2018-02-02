@@ -291,6 +291,8 @@ GEM
     pry-nav (0.2.4)
       pry (>= 0.9.10, < 0.11.0)
     puma (2.16.0)
+    pundit (1.1.0)
+      activesupport (>= 3.0.0)
     rack (1.6.5)
     rack-attack (5.0.1)
       rack
@@ -536,6 +538,7 @@ DEPENDENCIES
   prawn
   pry-nav
   puma (~> 2.16.0)
+  pundit
   rack-attack
   rack-cors
   rack-test
