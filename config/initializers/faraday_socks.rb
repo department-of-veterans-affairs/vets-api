@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # Monkey-patch Faraday to support SOCKS proxy so we can use
 # aws jumpbox / EVSS AWS service
 # source - https://stackoverflow.com/a/36534327
