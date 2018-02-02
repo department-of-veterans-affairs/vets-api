@@ -135,5 +135,17 @@ RSpec.describe 'address', type: :request do
         end
       end
     end
+
+    context 'with a 401 malformed token response', vcr: { cassette_name: 'evss/aws/reference_data/401_malformed' } do
+      before do
+        allow_any_instance_of(EVSS::AWS::ReferenceData::Service)
+          .to receive(:headers_for_user)
+          .and_return(Authorization: 'Bearer abcd12345asd')
+      end
+      it 'should return 502' do
+        get '/v0/address/countries', nil, auth_header
+        expect(response).to have_http_status(:bad_gateway)
+      end
+    end
   end
 end
