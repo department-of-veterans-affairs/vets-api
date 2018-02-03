@@ -32,7 +32,7 @@ module VIC
     end
 
     def get_oauth_token
-      request(:post, '', oauth_params)
+      request(:post, '', oauth_params).body['access_token']
     end
 
     def submit(_form)
