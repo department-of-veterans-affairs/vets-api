@@ -2,8 +2,10 @@
 
 module VIC
   class Configuration < Common::Client::Configuration::REST
+    SALESFORCE_INSTANCE_URL = 'https://va--VICDEV.cs33.my.salesforce.com'
+
     def base_path
-      'https://va--VICDEV.cs33.my.salesforce.com/services/oauth2/token'
+      "#{SALESFORCE_INSTANCE_URL}/services/oauth2/token"
     end
 
     def connection
