@@ -27,7 +27,8 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
   end
 
   def filename
-    @guid
+    SecureRandom.hex(32)
+    # @guid
   end
 
   def store_dir
