@@ -18,18 +18,6 @@ GIT
       script_utils (= 0.0.4)
 
 GIT
-  remote: https://github.com/tagCincy/restforce
-  revision: cf6a545c2f3643fa0664f5f9bbeed3bca2e125ea
-  ref: cf6a545c2f3643fa0664f5f9bbeed3bca2e125ea
-  specs:
-    restforce (2.5.3)
-      faraday (>= 0.9.0, <= 1.0)
-      faraday_middleware (>= 0.8.8, <= 1.0)
-      hashie (>= 1.2.0, < 4.0)
-      json (>= 1.7.5)
-      jwt (>= 1.5.6)
-
-GIT
   remote: https://github.com/thoughtbot/factory_bot
   revision: 50eeb67241ea78a6b138eea694a2a25413052f49
   ref: 50eeb67241ea78a6b138eea694a2a25413052f49
@@ -353,6 +341,11 @@ GEM
     redis-namespace (1.5.3)
       redis (~> 3.0, >= 3.0.4)
     require_all (1.4.0)
+    restforce (2.5.3)
+      faraday (>= 0.9.0, <= 1.0)
+      faraday_middleware (>= 0.8.8, <= 1.0)
+      hashie (>= 1.2.0, < 4.0)
+      json (>= 1.7.5)
     rspec (3.5.0)
       rspec-core (~> 3.5.0)
       rspec-expectations (~> 3.5.0)
@@ -561,7 +554,7 @@ DEPENDENCIES
   redis
   redis-namespace
   require_all
-  restforce!
+  restforce
   rspec-rails (~> 3.5)
   rspec_junit_formatter
   rubocop (~> 0.52.1)
