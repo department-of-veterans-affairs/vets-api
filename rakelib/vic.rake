@@ -35,7 +35,7 @@ namespace :vic do
     uploads = []
     filenames = []
 
-    VICLoadTest.measure_elapsed do
+    LoadTest.measure_elapsed do
       N.times do
         data = NamedStringIO.new('load_test.jpg', Random.new.bytes(10 * MEGABYTE))
 
