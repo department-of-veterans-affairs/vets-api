@@ -69,7 +69,8 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def prefills_available
-    object.can_access_prefill_data? ? FormProfile.prefill_enabled_forms : []
+    return [] unless object.identity.present? && object.can_access_prefill_data?
+    FormProfile.prefill_enabled_forms
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
@@ -80,7 +81,7 @@ class UserSerializer < ActiveModel::Serializer
       BackendServices::EDUCATION_BENEFITS
     ]
     service_list += BackendServices::MHV_BASED_SERVICES if object.mhv_account_eligible?
-    service_list << BackendServices::EVSS_CLAIMS if object.can_access_evss?
+    service_list << BackendServices::EVSS_CLAIMS if Auth.authorized? object, :evss, :access?
     service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
     service_list << BackendServices::APPEALS_STATUS if object.can_access_appeals?
     service_list << BackendServices::SAVE_IN_PROGRESS if object.can_save_partial_forms?
