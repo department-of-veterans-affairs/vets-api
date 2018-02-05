@@ -62,6 +62,11 @@ evss:
   mock_letters: false
   mock_gi_bill_status: false
   mock_pciu_address: false
+  aws:
+    url: TBD
+    cert_path: ~
+    key_path: ~
+    root_ca: ~
 
 # Settings for GI Bill Data Service
 gids:

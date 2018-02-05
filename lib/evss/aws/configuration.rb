@@ -12,16 +12,15 @@ module EVSS
 
       # :nocov:
       def client_cert
-        OpenSSL::X509::Certificate.new File.read(Settings.evss.cert_path)
+        OpenSSL::X509::Certificate.new File.read(Settings.evss.aws.cert_path)
       end
 
       def client_key
-        OpenSSL::PKey::RSA.new File.read(Settings.evss.key_path)
+        OpenSSL::PKey::RSA.new File.read(Settings.evss.aws.key_path)
       end
 
       def root_ca
-        # TODO : implement
-        nil
+        Settings.evss.aws.root_ca
       end
       # :nocov:
 
