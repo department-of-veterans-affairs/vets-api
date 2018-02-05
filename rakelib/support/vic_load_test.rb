@@ -15,8 +15,8 @@ module LoadTest
     puts "Elapsed:    #{elapsed.round(2)} seconds"
   end
 
-  def conn(route)
-    Faraday.new("http://localhost:3000/v0/vic/#{route}") do |c|
+  def conn(host, route)
+    Faraday.new("#{host}/v0/vic/#{route}") do |c|
       c.request :multipart
       c.request :url_encoded
       c.adapter Faraday.default_adapter
