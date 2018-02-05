@@ -4,7 +4,7 @@ module EVSS
   module ReferenceData
     class Configuration < EVSS::AWSConfiguration
       def base_path
-        Settings.evss.aws.url
+        "#{Settings.evss.aws.url}"
       end
 
       def service_name

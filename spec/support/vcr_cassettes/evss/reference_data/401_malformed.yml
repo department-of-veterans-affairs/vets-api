@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-staging-services-1341723990.us-gov-west-1.elb.amazonaws.com/api/refdata/v1/countries
+    uri: http://evss.reference-data-service.dev/v1/countries
     body:
       encoding: US-ASCII
       string: ''
@@ -50,6 +50,6 @@ http_interactions:
           "message" : "Authentication Failed: Malformed Token",
           "path" : "/api/refdata/v1/countries"
         }
-    http_version: 
+    http_version:
   recorded_at: Fri, 02 Feb 2018 05:31:41 GMT
 recorded_with: VCR 3.0.3
