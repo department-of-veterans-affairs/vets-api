@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe EVSS::PCIUAddress::ResponseStrategy do
   let(:user) { build(:user, :loa3) }
-  let(:service) { EVSS::AWS::ReferenceData::Service.new(user) }
+  let(:service) { EVSS::ReferenceData::Service.new(user) }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:countries_response) { EVSS::PCIUAddress::CountriesResponse.new(200, faraday_response) }
 

@@ -37,7 +37,7 @@ module V0
     end
 
     def aws_service
-      EVSS::AWS::ReferenceData::Service.new(@current_user)
+      EVSS::ReferenceData::Service.new(@current_user)
     end
 
     def strategy

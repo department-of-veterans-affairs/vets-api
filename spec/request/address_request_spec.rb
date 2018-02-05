@@ -116,7 +116,7 @@ RSpec.describe 'address', type: :request do
   describe 'GET /v0/address/states' do
     context 'with a 200 response' do
       it 'should match the states schema' do
-        VCR.use_cassette('evss/aws/reference_data/states') do
+        VCR.use_cassette('evss/reference_data/states') do
           get '/v0/address/states', nil, auth_header
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('states')
@@ -128,7 +128,7 @@ RSpec.describe 'address', type: :request do
   describe 'GET /v0/address/countries' do
     context 'with a 200 response' do
       it 'should match the countries schema' do
-        VCR.use_cassette('evss/aws/reference_data/countries') do
+        VCR.use_cassette('evss/reference_data/countries') do
           get '/v0/address/countries', nil, auth_header
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('countries')
@@ -136,9 +136,9 @@ RSpec.describe 'address', type: :request do
       end
     end
 
-    context 'with a 401 malformed token response', vcr: { cassette_name: 'evss/aws/reference_data/401_malformed' } do
+    context 'with a 401 malformed token response', vcr: { cassette_name: 'evss/reference_data/401_malformed' } do
       before do
-        allow_any_instance_of(EVSS::AWS::ReferenceData::Service)
+        allow_any_instance_of(EVSS::ReferenceData::Service)
           .to receive(:headers_for_user)
           .and_return(Authorization: 'Bearer abcd12345asd')
       end
