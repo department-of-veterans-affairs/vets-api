@@ -8,7 +8,7 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
 
   def initialize(guid)
     super
-    @guid = guid
+    @guid = SecureRandom.hex(32)
 
     if Rails.env.production?
       set_aws_config(
@@ -27,8 +27,7 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
   end
 
   def filename
-    SecureRandom.hex(32)
-    # @guid
+    @guid
   end
 
   def store_dir
