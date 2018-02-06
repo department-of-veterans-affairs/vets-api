@@ -77,6 +77,7 @@ FactoryBot.define do
         address { build(:mvi_profile_address_springfield) }
         home_phone '1112223333 p1'
         icn '12345678901234567'
+        sec_id '0001234567'
         mhv_ids %w[12345678901 12345678902]
         vha_facility_ids %w[200MH 200MH]
         edipi '1122334455'
