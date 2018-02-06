@@ -6,7 +6,7 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
 
   MAX_FILE_SIZE = 10.megabytes
 
-  def initialize(guid)
+  def initialize(_guid)
     super
     @guid = SecureRandom.hex(32)
 
