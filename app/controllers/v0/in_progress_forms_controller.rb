@@ -15,7 +15,7 @@ module V0
       form = InProgressForm.form_for_user(form_id, @current_user)
       if form
         render json: form.data_and_metadata
-      elsif Auth.authorized?(@current_user, :profile, :prefill_data?)
+      elsif auth.authorized?(:profile, :prefill_data?)
         render json: FormProfile.for(form_id).prefill(@current_user)
       else
         head 404
@@ -38,8 +38,13 @@ module V0
     private
 
     def check_access_denied
-      return if Auth.authorized?(@current_user, :profile, :partial_forms?)
+      return if auth.authorized?(:profile, :partial_forms?)
       raise Common::Exceptions::Unauthorized, detail: 'You do not have access to save in progress forms'
     end
+
+    def auth
+      @auth ||= Authorization.new(@current_user)
+    end
+
   end
 end

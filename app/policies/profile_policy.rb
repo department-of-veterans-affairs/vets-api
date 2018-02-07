@@ -5,6 +5,10 @@ ProfilePolicy = Struct.new(:user, :profile) do
     user.loa1? || user.loa2? || user.loa3?
   end
 
+  def identity_proofed?
+    user.loa3?
+  end
+
   def partial_forms?
     true
   end
