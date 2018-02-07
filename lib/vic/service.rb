@@ -76,6 +76,37 @@ module VIC
       converted_form
     end
 
+    def generate_temp_file(file_body, file_name)
+      file_path = "tmp/#{file_name}"
+
+      File.open(file_path, 'wb') do |file|
+        file.write(file_body)
+      end
+
+      file_path
+    end
+
+    def send_files(client, case_id, form)
+      form['dd214'].each do |file|
+        file_body = VIC::SupportingDocumentationAttachment.find_by(guid: file['confirmationCode']).get_file.read
+        mime_type = MimeMagic.by_magic(file_body).type
+        file_name = "#{SecureRandom.hex}.#{mime_type.split('/')[1]}"
+        file_path = generate_temp_file(file_body, file_name)
+
+        client.create(
+          'Attachment',
+          ParentId: case_id,
+          Name: file_name,
+          Body: Restforce::UploadIO.new(
+            file_path,
+            mime_type
+          )
+        )
+
+        File.delete(file_path)
+      end if form['dd214'].present?
+    end
+
     def add_user_data!(converted_form, user)
       profile_data = converted_form['profile_data']
       va_profile = user.va_profile
@@ -99,9 +130,14 @@ module VIC
         api_version: '41.0'
       )
       response = client.post('/services/apexrest/VICRequest', converted_form)
-      binding.pry; fail
 
-      response
+      case_id = response.body['case_id']
+
+      send_files(client, case_id, form)
+
+      # TODO figure out what to do when an upload fails
+
+      { case_id: case_id }
     end
   end
 end
