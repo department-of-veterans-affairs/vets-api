@@ -10,10 +10,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: ea5b05b889e011fce8a0f696e4782781b1456e86
+  revision: 218a49397b12ebf43d2a6786a1a4ab55bc20399f
   branch: master
   specs:
-    vets_json_schema (3.15.2)
+    vets_json_schema (3.17.3)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -249,7 +249,7 @@ GEM
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
-    nokogiri (1.8.1)
+    nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
     nori (2.6.0)
     notiffany (0.0.8)
@@ -291,6 +291,8 @@ GEM
     pry-nav (0.2.4)
       pry (>= 0.9.10, < 0.11.0)
     puma (2.16.0)
+    pundit (1.1.0)
+      activesupport (>= 3.0.0)
     rack (1.6.5)
     rack-attack (5.0.1)
       rack
@@ -536,6 +538,7 @@ DEPENDENCIES
   prawn
   pry-nav
   puma (~> 2.16.0)
+  pundit
   rack-attack
   rack-cors
   rack-test
