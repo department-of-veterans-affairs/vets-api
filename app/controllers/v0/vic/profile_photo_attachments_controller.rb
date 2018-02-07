@@ -5,7 +5,31 @@ module V0
     class ProfilePhotoAttachmentsController < ApplicationController
       include FormAttachmentCreate
 
-      FORM_ATTACHMENT_MODEL = ::VIC::ProfilePhotoAttachment
+      def create
+        form_attachment = ::VIC::ProfilePhotoAttachment.new
+
+        form_attachment.set_file_data!(
+          params[:profile_photo_attachment][:file_data],
+          get_in_progress_form
+        )
+        form_attachment.save!
+        render(json: form_attachment)
+      end
+
+      private
+
+      def get_in_progress_form
+        return nil if @current_user.blank?
+
+        form = InProgressForm.where(form_id: 'VIC', user_uuid: @current_user.uuid)
+                             .first_or_initialize(form_id: 'VIC',
+                                                  user_uuid: @current_user.uuid,
+                                                  form_data: '{}',
+                                                  metadata: {})
+
+        form.save!
+        form
+      end
     end
   end
 end
