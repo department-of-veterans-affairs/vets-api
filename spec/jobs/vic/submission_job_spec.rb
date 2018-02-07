@@ -8,7 +8,8 @@ RSpec.describe VIC::SubmissionJob do
   describe '#perform' do
     it 'should update the vic submission response' do
       allow(SecureRandom).to receive(:uuid).and_return(uuid)
-      vic_submission = create(:vic_submission)
+      vic_submission = build(:vic_submission)
+      vic_submission.user_uuid = create(:user).uuid
       described_class.drain
       vic_submission.reload
 
