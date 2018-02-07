@@ -89,20 +89,18 @@ module VIC
     end
 
     def submit(form, user)
-      # converted_form = convert_form(form)
-      # add_user_data!(converted_form, user) if user.present?
+      converted_form = convert_form(form)
+      add_user_data!(converted_form, user) if user.present?
 
-      # binding.pry; fail
-      # client = Restforce.new(
-      #   oauth_token: get_oauth_token,
-      #   instance_url: Configuration::SALESFORCE_INSTANCE_URL,
-      #   api_version: '41.0'
-      # )
-      # binding.pry; fail
+      client = Restforce.new(
+        oauth_token: get_oauth_token,
+        instance_url: Configuration::SALESFORCE_INSTANCE_URL,
+        api_version: '41.0'
+      )
+      response = client.post('/services/apexrest/VICRequest', converted_form)
+      binding.pry; fail
 
-      {
-        confirmation_number: SecureRandom.uuid
-      }
+      response
     end
   end
 end

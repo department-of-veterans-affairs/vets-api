@@ -5,7 +5,7 @@ require 'rails_helper'
 describe VIC::Service do
   let(:parsed_form) { JSON.parse(create(:vic_submission).form) }
   let(:service) { described_class.new }
-  let(:user) { build(:user, :loa3) }
+  let(:user) { build(:evss_user) }
 
   describe '#get_oauth_token' do
     it 'should get the access token from the request', run_at: '2018-02-06 21:51:48 -0500' do
@@ -41,9 +41,13 @@ describe VIC::Service do
     end
   end
 
-  # describe '#submit' do
-  #   it 'should submit the form and attached documents' do
-  #     described_class.new.submit(JSON.parse(create(:vic_submission).form))
-  #   end
-  # end
+  describe '#submit' do
+    it 'should submit the form and attached documents' do
+      VCR.config do |c|
+        c.allow_http_connections_when_no_cassette = true
+      end
+
+      described_class.new.submit(parsed_form, user)
+    end
+  end
 end
