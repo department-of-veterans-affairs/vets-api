@@ -5,7 +5,7 @@ module VIC
     ATTACHMENT_UPLOADER_CLASS = ProfilePhotoAttachmentUploader
 
     def set_file_data!(file, in_progress_form)
-      attachment_uploader = ProfilePhotoAttachmentUploader.new(SecureRandom.hex, in_progress_form)
+      attachment_uploader = get_attachment_uploader
       attachment_uploader.store!(file)
 
       file_data = {
@@ -15,6 +15,21 @@ module VIC
       }.compact
 
       self.file_data = file_data.to_json
+    end
+
+    def get_file
+      attachment_uploader = get_attachment_uploader
+
+      attachment_uploader.retrieve_from_store!(
+        parsed_file_data['filename']
+      )
+      attachment_uploader.file
+    end
+
+    private
+
+    def get_attachment_uploader
+      ProfilePhotoAttachmentUploader.new(SecureRandom.hex, in_progress_form)
     end
   end
 end
