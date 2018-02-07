@@ -29,7 +29,7 @@ module VIC
     private
 
     def get_attachment_uploader
-      ProfilePhotoAttachmentUploader.new(SecureRandom.hex, in_progress_form)
+      ProfilePhotoAttachmentUploader.new(SecureRandom.hex(32), in_progress_form)
     end
   end
 end
