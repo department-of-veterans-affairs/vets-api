@@ -12,7 +12,6 @@ RSpec.describe VIC::ProfilePhotoAttachment, type: :model do
                             file_type: 'image/gif',
                             form: form)
 
-        puts attachment.parsed_file_data
         expect(attachment.parsed_file_data['form_id']).to eq(123)
         expect(attachment.parsed_file_data).to have_key('user_uuid')
       end
@@ -24,7 +23,6 @@ RSpec.describe VIC::ProfilePhotoAttachment, type: :model do
                             file_path: 'spec/fixtures/files/va.gif',
                             file_type: 'image/gif')
 
-        puts attachment.parsed_file_data
         expect(attachment.parsed_file_data).not_to have_key('form_id')
         expect(attachment.parsed_file_data).not_to have_key('user_uuid')
       end
