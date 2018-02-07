@@ -35,7 +35,7 @@ module VIC
       request(:post, '', oauth_params).body['access_token']
     end
 
-    def submit(_form)
+    def submit(form)
       {
         confirmation_number: SecureRandom.uuid
       }
