@@ -86,7 +86,7 @@ module VIC
       file_path
     end
 
-    def send_file(client, case_id, file_body)
+    def send_file(client, case_id, file_body, description)
       mime_type = MimeMagic.by_magic(file_body).type
       file_name = "#{SecureRandom.hex}.#{mime_type.split('/')[1]}"
       file_path = generate_temp_file(file_body, file_name)
@@ -94,6 +94,7 @@ module VIC
       client.create(
         'Attachment',
         ParentId: case_id,
+        Description: description,
         Name: file_name,
         Body: Restforce::UploadIO.new(
           file_path,
@@ -107,13 +108,13 @@ module VIC
     def send_files(client, case_id, form)
       form['dd214'].each do |file|
         file_body = VIC::SupportingDocumentationAttachment.find_by(guid: file['confirmationCode']).get_file.read
-        send_file(client, case_id, file_body)
+        send_file(client, case_id, file_body, 'Supporting Documentation')
       end if form['dd214'].present?
 
       # TODO profile photo upload
       # form['photo'].tap do |file|
       #   file_body = VIC::ProfilePhotoAttachment.find_by(guid: file['confirmationCode']).get_file.read
-      #   send_file(client, case_id, file_body)
+      #   send_file(client, case_id, file_body, 'Profile Photo')
       # end
     end
 
