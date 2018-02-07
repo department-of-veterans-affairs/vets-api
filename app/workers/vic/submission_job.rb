@@ -6,11 +6,12 @@ module VIC
 
     sidekiq_options retry: false
 
-    def perform(vic_submission_id, form)
+    def perform(vic_submission_id, form, user_uuid)
       @vic_submission_id = vic_submission_id
       parsed_form = JSON.parse(form)
+      user = user_uuid.present? ? User.find(user_uuid) : nil
 
-      response = Service.new.submit(parsed_form)
+      response = Service.new.submit(parsed_form, user)
 
       submission.update_attributes!(
         response: response

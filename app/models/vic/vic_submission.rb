@@ -37,7 +37,7 @@ module VIC
     end
 
     def create_submission_job
-      SubmissionJob.perform_async(id, form)
+      SubmissionJob.perform_async(id, form, user_uuid)
     end
   end
 end
