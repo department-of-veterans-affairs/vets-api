@@ -112,7 +112,7 @@ module Facilities
     def update_wait_time_data(client)
       records = client.download
       uniq_specialties = records.map { |facility| facility['ApptTypeName'] }.uniq
-      unless (uniq_specialties == WT_KEY_MAP.keys)
+      unless uniq_specialties == WT_KEY_MAP.keys
         log_message_to_sentry(
           'Facility Locator Specialty Wait Time Inconsistency',
           :error,

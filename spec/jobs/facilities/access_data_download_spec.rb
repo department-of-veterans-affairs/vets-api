@@ -13,7 +13,7 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
   let(:wait_time_data) do
     fixture_file_name = "#{::Rails.root}/spec/fixtures/facility_access/wait_time_data.json"
     File.open(fixture_file_name, 'rb') do |f|
-      json = JSON.parse(f.read)
+      JSON.parse(f.read)
     end
   end
 
