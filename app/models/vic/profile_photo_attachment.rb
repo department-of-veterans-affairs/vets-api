@@ -5,7 +5,7 @@ module VIC
     ATTACHMENT_UPLOADER_CLASS = ProfilePhotoAttachmentUploader
 
     def set_file_data!(file, in_progress_form)
-      attachment_uploader = ProfilePhotoAttachmentUploader.new(SecureRandom.hex(32), in_progress_form)
+      attachment_uploader = get_attachment_uploader(in_progress_form)
       attachment_uploader.store!(file)
 
       file_data = {
@@ -18,12 +18,18 @@ module VIC
     end
 
     def get_file(in_progress_form)
-      attachment_uploader = ProfilePhotoAttachmentUploader.new(SecureRandom.hex(32), in_progress_form)
+      attachment_uploader = get_attachment_uploader(in_progress_form)
 
       attachment_uploader.retrieve_from_store!(
         parsed_file_data['filename']
       )
       attachment_uploader.file
+    end
+
+    private
+
+    def get_attachment_uploader(in_progress_form)
+      ProfilePhotoAttachmentUploader.new(SecureRandom.hex(32), in_progress_form)
     end
   end
 end
