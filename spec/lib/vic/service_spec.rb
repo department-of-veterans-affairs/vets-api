@@ -5,6 +5,7 @@ require 'rails_helper'
 describe VIC::Service do
   let(:parsed_form) { JSON.parse(create(:vic_submission).form) }
   let(:service) { described_class.new }
+  let(:user) { build(:user, :loa3) }
 
   describe '#get_oauth_token' do
     it 'should get the access token from the request', run_at: '2018-02-06 21:51:48 -0500' do
@@ -13,6 +14,16 @@ describe VIC::Service do
       expect(service).to receive(:request).with(:post, '', oauth_params).and_return(return_val)
 
       expect(service.get_oauth_token).to eq('token')
+    end
+  end
+
+  describe '#add_user_data!' do
+    it 'should add user data to the request form' do
+      converted_form = { "profile_data" => {} }
+      service.add_user_data!(converted_form, user)
+      expect(converted_form).to eq(
+        {"profile_data"=>{"sec_ID"=>"0001234567", "active_ICN"=>user.icn}}
+      )
     end
   end
 

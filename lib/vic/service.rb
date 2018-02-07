@@ -66,8 +66,18 @@ module VIC
       converted_form
     end
 
-    def submit(form)
-      convert_form(form)
+    def add_user_data!(converted_form, user)
+      profile_data = converted_form['profile_data']
+      va_profile = user.va_profile
+      profile_data['sec_ID'] = va_profile.sec_id
+      profile_data['active_ICN'] = user.icn
+      # TODO historical icn
+    end
+
+    def submit(form, user)
+      converted_form = convert_form(form)
+      add_user_data!(converted_form, user) if user.present?
+
       binding.pry; fail
       client = Restforce.new(
         oauth_token: get_oauth_token,
