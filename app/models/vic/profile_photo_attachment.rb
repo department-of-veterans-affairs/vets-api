@@ -5,7 +5,7 @@ module VIC
     ATTACHMENT_UPLOADER_CLASS = ProfilePhotoAttachmentUploader
 
     def set_file_data!(file, in_progress_form)
-      attachment_uploader = ProfilePhotoAttachmentUploader.new(SecureRandom.hex, in_progress_form)
+      attachment_uploader = ProfilePhotoAttachmentUploader.new(SecureRandom.hex(32), in_progress_form)
       attachment_uploader.store!(file)
 
       file_data = {
