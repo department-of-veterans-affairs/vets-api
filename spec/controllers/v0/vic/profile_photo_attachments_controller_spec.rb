@@ -13,7 +13,6 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
           }
         )
 
-        puts response.body
         data = JSON.parse(response.body)['data']['attributes']
 
         expect(data).to have_key('filename')
@@ -26,7 +25,6 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
 
       before do
         controller.instance_variable_set(:@current_user, user)
-        puts user.uuid
       end
 
       it 'uploads a profile photo attachment' do
@@ -39,7 +37,6 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
           }
         )
 
-        puts response.body
         data = JSON.parse(response.body)['data']['attributes']
 
         expect(data).to have_key('filename')
