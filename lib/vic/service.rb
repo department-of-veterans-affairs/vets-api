@@ -13,6 +13,15 @@ module VIC
       'M' => 'Marine Corps',
       'N' => 'Navy',
     }.freeze
+    TITLE_38_PICKLIST = {
+      'V1' => 'V1 - Title 38 Veteran',
+      'V2' => 'V2 - VA Beneficiary',
+      'V3' => 'V3 - Military Person, Not Title 38 Veteran, Not DoD Affiliate',
+      'V4' => 'V4 - Military or Beneficiary Status Unknown',
+      'V5' => 'V5 - EDI PI Not Known in VADIR (used in service calls only; not a stored value)',
+      'V6' => 'V6 - Military Person, Not Title 38 Veteran, DoD Affiliate (indicates current military)',
+      'V7' => 'V7 - Military Person, Not Title 38 Veteran, Not DoD Affiliate, “Bad Paper” Discharge(s)'
+    }
 
     def oauth_params
       {
@@ -71,20 +80,25 @@ module VIC
       va_profile = user.va_profile
       profile_data['sec_ID'] = va_profile.sec_id
       profile_data['active_ICN'] = user.icn
+
+      if user.edipi.present?
+        title38_status = user.veteran_status.title38_status
+        converted_form['title38_status'] = TITLE_38_PICKLIST[title38_status]
+      end
       # TODO historical icn
     end
 
     def submit(form, user)
-      converted_form = convert_form(form)
-      add_user_data!(converted_form, user) if user.present?
+      # converted_form = convert_form(form)
+      # add_user_data!(converted_form, user) if user.present?
 
-      binding.pry; fail
-      client = Restforce.new(
-        oauth_token: get_oauth_token,
-        instance_url: Configuration::SALESFORCE_INSTANCE_URL,
-        api_version: '41.0'
-      )
-      binding.pry; fail
+      # binding.pry; fail
+      # client = Restforce.new(
+      #   oauth_token: get_oauth_token,
+      #   instance_url: Configuration::SALESFORCE_INSTANCE_URL,
+      #   api_version: '41.0'
+      # )
+      # binding.pry; fail
 
       {
         confirmation_number: SecureRandom.uuid
