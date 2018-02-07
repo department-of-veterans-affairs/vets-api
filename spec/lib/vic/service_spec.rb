@@ -58,7 +58,7 @@ describe VIC::Service do
           c.allow_http_connections_when_no_cassette = true
         end
 
-        described_class.new.submit(parsed_form)
+        described_class.new.submit(parsed_form, nil)
       end
     end
   end
