@@ -36,30 +36,30 @@ describe VIC::Service do
          "veteran_full_name"=>{"first"=>"Mark", "last"=>"Olson"},
          "veteran_address"=>{"city"=>"Milwaukee", "country"=>"US", "postal_code"=>"53130", "state"=>"WI", "street"=>"123 Main St", "street2"=>""},
          "phone"=>"5551110000",
-         "profile_data"=>{"SSN"=>"111223333"}}
+         "profile_data"=>{"SSN"=>"111223333", "historical_ICN"=>[]}}
       )
     end
   end
 
-  describe '#submit' do
-    context 'with a user' do
-      it 'should submit the form and attached documents' do
-        VCR.config do |c|
-          c.allow_http_connections_when_no_cassette = true
-        end
+  # describe '#submit' do
+  #   context 'with a user' do
+  #     it 'should submit the form and attached documents' do
+  #       VCR.config do |c|
+  #         c.allow_http_connections_when_no_cassette = true
+  #       end
 
-        described_class.new.submit(parsed_form, user)
-      end
-    end
+  #       described_class.new.submit(parsed_form, user)
+  #     end
+  #   end
 
-    context 'with no user' do
-      it 'should submit the form' do
-        VCR.config do |c|
-          c.allow_http_connections_when_no_cassette = true
-        end
+  #   context 'with no user' do
+  #     it 'should submit the form' do
+  #       VCR.config do |c|
+  #         c.allow_http_connections_when_no_cassette = true
+  #       end
 
-        described_class.new.submit(parsed_form, nil)
-      end
-    end
-  end
+  #       described_class.new.submit(parsed_form, nil)
+  #     end
+  #   end
+  # end
 end
