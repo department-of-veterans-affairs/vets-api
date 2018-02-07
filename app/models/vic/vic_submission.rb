@@ -5,6 +5,7 @@ module VIC
     include SetGuid
 
     attr_accessor(:form)
+    attr_accessor(:user_uuid)
 
     validates(:state, presence: true, inclusion: %w[success failed pending])
     validates(:response, presence: true, if: :success?)

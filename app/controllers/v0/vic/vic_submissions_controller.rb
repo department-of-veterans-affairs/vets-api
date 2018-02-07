@@ -9,6 +9,7 @@ module V0
         vic_submission = ::VIC::VICSubmission.new(
           params.require(:vic_submission).permit(:form)
         )
+        vic_submission.user_uuid = current_user.uuid if current_user.present?
 
         unless vic_submission.save
           validation_error = vic_submission.errors.full_messages.join(', ')
