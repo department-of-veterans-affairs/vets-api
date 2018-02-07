@@ -42,12 +42,24 @@ describe VIC::Service do
   end
 
   describe '#submit' do
-    it 'should submit the form and attached documents' do
-      VCR.config do |c|
-        c.allow_http_connections_when_no_cassette = true
-      end
+    context 'with a user' do
+      it 'should submit the form and attached documents' do
+        VCR.config do |c|
+          c.allow_http_connections_when_no_cassette = true
+        end
 
-      described_class.new.submit(parsed_form, user)
+        described_class.new.submit(parsed_form, user)
+      end
+    end
+
+    context 'with no user' do
+      it 'should submit the form' do
+        VCR.config do |c|
+          c.allow_http_connections_when_no_cassette = true
+        end
+
+        described_class.new.submit(parsed_form, user)
+      end
     end
   end
 end
