@@ -6,9 +6,9 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
 
   MAX_FILE_SIZE = 10.megabytes
 
-  def initialize(guid, in_progress_form)
+  def initialize(guid, form_id)
     @guid = guid
-    @in_progress_form = in_progress_form
+    @form_id = form_id
 
     super(@guid)
 
@@ -33,7 +33,7 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
   end
 
   def store_dir
-    dir = @in_progress_form&.id || 'anonymous'
+    dir = @form_id || 'anonymous'
     "profile_photo_attachments/#{dir}"
   end
 end

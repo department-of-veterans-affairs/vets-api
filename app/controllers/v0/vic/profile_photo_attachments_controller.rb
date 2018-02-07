@@ -22,7 +22,7 @@ module V0
         return nil if @current_user.blank?
 
         form = InProgressForm.where(form_id: 'VIC', user_uuid: @current_user.uuid)
-                             .first_or_initialize(form_data: '{}', metadata: {})
+                             .first_or_initialize
         form.save!
         form
       end
