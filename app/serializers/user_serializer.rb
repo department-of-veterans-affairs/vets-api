@@ -69,7 +69,7 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def prefills_available
-    return [] unless object.identity.present? && object.can_access_prefill_data?
+    return [] unless object.identity.present? && Auth.authorized?(object, :profile, :prefill_data?)
     FormProfile.prefill_enabled_forms
   end
 
@@ -85,7 +85,7 @@ class UserSerializer < ActiveModel::Serializer
     service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
     service_list << BackendServices::APPEALS_STATUS if object.can_access_appeals?
     service_list << BackendServices::SAVE_IN_PROGRESS if object.can_save_partial_forms?
-    service_list << BackendServices::FORM_PREFILL if object.can_access_prefill_data?
+    service_list << BackendServices::FORM_PREFILL if Auth.authorized? object, :profile, :prefill_data?
     service_list << BackendServices::ID_CARD if object.can_access_id_card?
     service_list << BackendServices::IDENTITY_PROOFED if object.identity_proofed?
     service_list
