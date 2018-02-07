@@ -68,7 +68,8 @@ module VIC
 
       ssn = converted_form.delete('veteran_social_security_number')
       converted_form['profile_data'] = {
-        'SSN' => ssn
+        'SSN' => ssn,
+        'historical_ICN' => []
       }
 
       converted_form.delete('gender')
