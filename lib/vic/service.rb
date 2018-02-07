@@ -86,25 +86,35 @@ module VIC
       file_path
     end
 
+    def send_file(client, case_id, file_body)
+      mime_type = MimeMagic.by_magic(file_body).type
+      file_name = "#{SecureRandom.hex}.#{mime_type.split('/')[1]}"
+      file_path = generate_temp_file(file_body, file_name)
+
+      client.create(
+        'Attachment',
+        ParentId: case_id,
+        Name: file_name,
+        Body: Restforce::UploadIO.new(
+          file_path,
+          mime_type
+        )
+      )
+
+      File.delete(file_path)
+    end
+
     def send_files(client, case_id, form)
       form['dd214'].each do |file|
         file_body = VIC::SupportingDocumentationAttachment.find_by(guid: file['confirmationCode']).get_file.read
-        mime_type = MimeMagic.by_magic(file_body).type
-        file_name = "#{SecureRandom.hex}.#{mime_type.split('/')[1]}"
-        file_path = generate_temp_file(file_body, file_name)
-
-        client.create(
-          'Attachment',
-          ParentId: case_id,
-          Name: file_name,
-          Body: Restforce::UploadIO.new(
-            file_path,
-            mime_type
-          )
-        )
-
-        File.delete(file_path)
+        send_file(client, case_id, file_body)
       end if form['dd214'].present?
+
+      # TODO profile photo upload
+      # form['photo'].tap do |file|
+      #   file_body = VIC::ProfilePhotoAttachment.find_by(guid: file['confirmationCode']).get_file.read
+      #   send_file(client, case_id, file_body)
+      # end
     end
 
     def add_user_data!(converted_form, user)
