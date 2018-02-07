@@ -28,9 +28,12 @@ module Facilities
       'WOMEN\'S HEALTH' => 'womens_health',
       'AUDIOLOGY' => 'audiology',
       'CARDIOLOGY' => 'cardiology',
+      'DERMATOLOGY' => 'dermatology',
       'GASTROENTEROLOGY' => 'gastroenterology',
+      'GYNECOLOGY' => 'gynecology',
       'OPHTHALMOLOGY' => 'opthalmology',
       'OPTOMETRY' => 'optometry',
+      'ORTHOPEDICS' => 'orthopedics',
       'UROLOGY CLINIC' => 'urology_clinic'
     }.freeze
 
