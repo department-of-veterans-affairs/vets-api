@@ -28,9 +28,12 @@ module Facilities
       'WOMEN\'S HEALTH' => 'womens_health',
       'AUDIOLOGY' => 'audiology',
       'CARDIOLOGY' => 'cardiology',
+      'DERMATOLOGY' => 'dermatology',
       'GASTROENTEROLOGY' => 'gastroenterology',
+      'GYNECOLOGY' => 'gynecology',
       'OPHTHALMOLOGY' => 'opthalmology',
       'OPTOMETRY' => 'optometry',
+      'ORTHOPEDICS' => 'orthopedics',
       'UROLOGY CLINIC' => 'urology_clinic'
     }.freeze
 
@@ -108,6 +111,15 @@ module Facilities
 
     def update_wait_time_data(client)
       records = client.download
+      uniq_specialties = records.map { |facility| facility['ApptTypeName'] }.uniq
+      unless uniq_specialties == WT_KEY_MAP.keys
+        log_message_to_sentry(
+          'Facility Locator Specialty Wait Time Inconsistency',
+          :error,
+          missing_specialties: uniq_specialties - WT_KEY_MAP.keys,
+          unused_specialties: WT_KEY_MAP.keys - uniq_specialties
+        )
+      end
       facilities = parse_wait_time_data(records)
       update_cache(FacilityWaitTime, facilities)
       logger.info "Updated facility wait time cache for #{facilities.size} facilities"
