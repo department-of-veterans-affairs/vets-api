@@ -13,12 +13,14 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
   let(:wait_time_data) do
     fixture_file_name = "#{::Rails.root}/spec/fixtures/facility_access/wait_time_data.json"
     File.open(fixture_file_name, 'rb') do |f|
-      JSON.parse(f.read)
+      json = JSON.parse(f.read)
     end
   end
 
   it 'retrieves bulk access data' do
     VCR.use_cassette('facilities/access/all') do
+      expect_any_instance_of(described_class).not_to receive(:log_message_to_sentry)
+      expect_any_instance_of(described_class).not_to receive(:log_exception_to_sentry)
       described_class.new.perform
     end
   end
