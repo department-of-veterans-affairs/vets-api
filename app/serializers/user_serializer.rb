@@ -80,7 +80,7 @@ class UserSerializer < ActiveModel::Serializer
       BackendServices::HCA,
       BackendServices::EDUCATION_BENEFITS
     ]
-    service_list += BackendServices::MHV_BASED_SERVICES if object.mhv_account_eligible?
+    service_list += BackendServices::MHV_BASED_SERVICES if Auth.authorized? object, :mhv, :account_eligible?
     service_list << BackendServices::EVSS_CLAIMS if Auth.authorized? object, :evss, :access?
     service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
     service_list << BackendServices::APPEALS_STATUS if object.can_access_appeals?

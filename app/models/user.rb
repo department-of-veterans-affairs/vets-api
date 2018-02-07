@@ -136,11 +136,6 @@ class User < Common::RedisStore
     end
   end
 
-  # Must be LOA3 and a va patient
-  def mhv_account_eligible?
-    (MhvAccount::ALL_STATES - [:ineligible]).map(&:to_s).include?(mhv_account_state)
-  end
-
   def mhv_account_state
     mhv_account.account_state
   end
