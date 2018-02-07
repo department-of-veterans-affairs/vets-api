@@ -36,6 +36,12 @@ module VIC
     end
 
     def submit(form)
+      client = Restforce.new(
+        oauth_token: get_oauth_token,
+        instance_url: Configuration::SALESFORCE_INSTANCE_URL,
+        api_version: '41.0'
+      )
+      
       {
         confirmation_number: SecureRandom.uuid
       }
