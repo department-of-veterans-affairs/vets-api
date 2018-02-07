@@ -6,6 +6,13 @@ module VIC
 
     SALESFORCE_USERNAME = 'vetsgov-devops@listserv.gsa.gov.vicdev'
     SALESFORCE_HOST = 'https://test.salesforce.com'
+    SERVICE_BRANCHES = {
+      'F' => 'Air Force',
+      'A' => 'Army',
+      'C' => 'Coast Guard',
+      'M' => 'Marine Corps',
+      'N' => 'Navy',
+    }.freeze
 
     def oauth_params
       {
@@ -35,13 +42,40 @@ module VIC
       request(:post, '', oauth_params).body['access_token']
     end
 
+    def convert_form(form)
+      converted_form = form.deep_transform_keys { |key| key.to_s.underscore }
+      converted_form['service_branch'] = SERVICE_BRANCHES[converted_form['service_branch']]
+      converted_form.delete('dd214')
+      converted_form.delete('veteran_date_of_birth')
+
+      veteran_address = converted_form['veteran_address']
+      if veteran_address.present?
+        veteran_address['street2'] = '' if veteran_address['street2'].blank?
+        veteran_address['country'].tap do |country|
+          next if country.blank?
+          veteran_address['country'] = IsoCountryCodes.find(country).alpha2
+        end
+      end
+
+      ssn = converted_form.delete('veteran_social_security_number')
+      converted_form['profile_data'] = {
+        'SSN' => ssn
+      }
+
+      converted_form.delete('gender')
+      converted_form
+    end
+
     def submit(form)
+      convert_form(form)
+      binding.pry; fail
       client = Restforce.new(
         oauth_token: get_oauth_token,
         instance_url: Configuration::SALESFORCE_INSTANCE_URL,
         api_version: '41.0'
       )
-      
+      binding.pry; fail
+
       {
         confirmation_number: SecureRandom.uuid
       }
