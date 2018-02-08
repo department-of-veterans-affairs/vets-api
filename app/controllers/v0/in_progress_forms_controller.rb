@@ -4,8 +4,6 @@ module V0
   class InProgressFormsController < ApplicationController
     include IgnoreNotFound
 
-    before_action :check_access_denied
-
     def index
       render json: InProgressForm.where(user_uuid: @current_user.uuid)
     end
@@ -15,10 +13,8 @@ module V0
       form = InProgressForm.form_for_user(form_id, @current_user)
       if form
         render json: form.data_and_metadata
-      elsif auth.authorized?(:profile, :prefill_data?)
-        render json: FormProfile.for(form_id).prefill(@current_user)
       else
-        head 404
+        render json: FormProfile.for(form_id).prefill(@current_user)
       end
     end
 
@@ -34,17 +30,5 @@ module V0
       form.destroy
       render json: form
     end
-
-    private
-
-    def check_access_denied
-      return if auth.authorized?(:profile, :partial_forms?)
-      raise Common::Exceptions::Unauthorized, detail: 'You do not have access to save in progress forms'
-    end
-
-    def auth
-      @auth ||= Authorization.new(@current_user)
-    end
-
   end
 end
