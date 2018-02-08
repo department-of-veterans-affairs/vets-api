@@ -37,6 +37,10 @@ module Common
           }
         end
 
+        def ssl_options
+          (Rails.env.development? || Rails.env.test?) ? { verify: false } : {}
+        end
+
         def breakers_service
           return @service if defined?(@service)
 
