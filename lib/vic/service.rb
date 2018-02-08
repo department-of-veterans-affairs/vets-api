@@ -11,7 +11,7 @@ module VIC
       'A' => 'Army',
       'C' => 'Coast Guard',
       'M' => 'Marine Corps',
-      'N' => 'Navy',
+      'N' => 'Navy'
     }.freeze
     TITLE_38_PICKLIST = {
       'V1' => 'V1 - Title 38 Veteran',
@@ -21,7 +21,7 @@ module VIC
       'V5' => 'V5 - EDI PI Not Known in VADIR (used in service calls only; not a stored value)',
       'V6' => 'V6 - Military Person, Not Title 38 Veteran, DoD Affiliate (indicates current military)',
       'V7' => 'V7 - Military Person, Not Title 38 Veteran, Not DoD Affiliate, “Bad Paper” Discharge(s)'
-    }
+    }.freeze
 
     def oauth_params
       {
@@ -106,12 +106,14 @@ module VIC
     end
 
     def send_files(client, case_id, form)
-      form['dd214'].each do |file|
-        file_body = VIC::SupportingDocumentationAttachment.find_by(guid: file['confirmationCode']).get_file.read
-        send_file(client, case_id, file_body, 'Supporting Documentation')
-      end if form['dd214'].present?
+      if form['dd214'].present?
+        form['dd214'].each do |file|
+          file_body = VIC::SupportingDocumentationAttachment.find_by(guid: file['confirmationCode']).get_file.read
+          send_file(client, case_id, file_body, 'Supporting Documentation')
+        end
+      end
 
-      # TODO profile photo upload
+      # TODO: profile photo upload
       # form['photo'].tap do |file|
       #   file_body = VIC::ProfilePhotoAttachment.find_by(guid: file['confirmationCode']).get_file.read
       #   send_file(client, case_id, file_body, 'Profile Photo')
@@ -128,7 +130,7 @@ module VIC
         title38_status = user.veteran_status.title38_status
         converted_form['title38_status'] = TITLE_38_PICKLIST[title38_status]
       end
-      # TODO historical icn
+      # TODO: historical icn
     end
 
     def submit(form, user)
@@ -146,7 +148,7 @@ module VIC
 
       send_files(client, case_id, form)
 
-      # TODO figure out what to do when an upload fails
+      # TODO: figure out what to do when an upload fails
 
       { case_id: case_id }
     end
