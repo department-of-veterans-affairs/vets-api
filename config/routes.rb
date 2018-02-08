@@ -135,6 +135,7 @@ Rails.application.routes.draw do
     namespace :vic do
       resources :profile_photo_attachments, only: :create
       resources :supporting_documentation_attachments, only: :create
+      resources :vic_submissions, only: %i[create show]
     end
 
     resource :address, only: %i[show update] do

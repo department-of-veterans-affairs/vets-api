@@ -21,7 +21,7 @@ class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
   end
 
   def extension_white_list
-    %w[pdf]
+    %w[pdf jpg jpeg gif png]
   end
 
   def store_dir
