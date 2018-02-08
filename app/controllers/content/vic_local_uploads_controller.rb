@@ -14,7 +14,7 @@ module Content
         send_file(filepath, disposition: 'inline')
       end
     end
-    
+
 
     private
 
