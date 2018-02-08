@@ -4,7 +4,7 @@ module VIC
   class Service < Common::Client::Base
     configuration VIC::Configuration
 
-    SALESFORCE_USERNAME = 'vetsgov-devops@listserv.gsa.gov.vicdev'
+    SALESFORCE_USERNAME = "vetsgov-devops@listserv.gsa.gov.vic#{Settings.salesforce.env}"
     # TODO: set correct prod value when we release to prod for salesforce_host
     SALESFORCE_HOST = 'https://test.salesforce.com'
     SERVICE_BRANCHES = {
