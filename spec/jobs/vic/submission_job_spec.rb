@@ -12,7 +12,9 @@ RSpec.describe VIC::SubmissionJob do
       vic_submission = build(:vic_submission)
       vic_submission.user_uuid = user.uuid
       expect(User).to receive(:find).with(user.uuid).and_return(user)
-      expect_any_instance_of(VIC::Service).to receive(:submit).with(JSON.parse(vic_submission.form), user).and_return(case_id: uuid)
+      expect_any_instance_of(VIC::Service).to receive(:submit).with(
+        JSON.parse(vic_submission.form), user
+      ).and_return(case_id: uuid)
       vic_submission.save!
       described_class.drain
       vic_submission.reload
