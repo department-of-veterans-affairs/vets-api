@@ -11,6 +11,10 @@ FactoryBot.define do
             'confirmationCode' => create(:supporting_documentation_attachment).guid
           }
         ],
+        'photo' => {
+          'confirmationCode' => create(:profile_photo_attachment).guid
+        },
+        'privacyAgreementAccepted' => true,
         'veteranDateOfBirth' => '1985-03-07',
         'veteranFullName' => {
           'first' => 'Mark',

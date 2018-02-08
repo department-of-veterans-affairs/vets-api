@@ -6,6 +6,8 @@ describe VIC::Service do
   let(:parsed_form) { JSON.parse(create(:vic_submission).form) }
   let(:service) { described_class.new }
   let(:user) { build(:evss_user) }
+  let(:client) { double }
+  let(:case_id) { 'case_id' }
 
   describe '#get_oauth_token' do
     it 'should get the access token from the request', run_at: '2018-02-06 21:51:48 -0500' do
@@ -48,14 +50,40 @@ describe VIC::Service do
     end
   end
 
-  # TODO: spec for send_files
+  describe '#send_files' do
+    it 'should send the files in the form' do
+      parsed_form
+      expect(service).to receive(:send_file).with(client, case_id, VIC::SupportingDocumentationAttachment.last.get_file.read, 'Supporting Documentation')
+      expect(service).to receive(:send_file).with(client, case_id, VIC::ProfilePhotoAttachment.last.get_file.read, 'Profile Photo')
+      service.send_files(client, case_id, parsed_form)
+    end
+  end
+
+  describe '#send_file' do
+    it 'should read the mime type and send the file' do
+      upload_io = double
+      expect(SecureRandom).to receive(:hex).and_return('hex')
+      expect(Restforce::UploadIO).to receive(:new).with(
+        'tmp/hex.pdf', 'application/pdf'
+      ).and_return(upload_io)
+
+      expect(client).to receive(:create).with(
+        'Attachment',
+        ParentId: case_id,
+        Description: 'description',
+        Name: 'hex.pdf',
+        Body: upload_io
+      )
+
+      service.send_file(client, case_id, File.read('spec/fixtures/pdf_fill/extras.pdf'), 'description')
+    end
+  end
 
   describe '#submit' do
     before do
       expect(service).to receive(:convert_form).with(parsed_form).and_return({})
       expect(service).to receive(:get_oauth_token).and_return('token')
 
-      client = double
       expect(Restforce).to receive(:new).with(
         oauth_token: 'token',
         instance_url: VIC::Configuration::SALESFORCE_INSTANCE_URL,

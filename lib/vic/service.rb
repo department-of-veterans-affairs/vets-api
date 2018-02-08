@@ -56,6 +56,8 @@ module VIC
       converted_form = form.deep_transform_keys { |key| key.to_s.underscore }
       converted_form['service_branch'] = SERVICE_BRANCHES[converted_form['service_branch']]
       converted_form.delete('dd214')
+      converted_form.delete('photo')
+      converted_form.delete('privacy_agreement_accepted')
       converted_form.delete('veteran_date_of_birth')
 
       veteran_address = converted_form['veteran_address']
@@ -114,11 +116,10 @@ module VIC
         end
       end
 
-      # TODO: profile photo upload
-      # form['photo'].tap do |file|
-      #   file_body = VIC::ProfilePhotoAttachment.find_by(guid: file['confirmationCode']).get_file.read
-      #   send_file(client, case_id, file_body, 'Profile Photo')
-      # end
+      form['photo'].tap do |file|
+        file_body = VIC::ProfilePhotoAttachment.find_by(guid: file['confirmationCode']).get_file.read
+        send_file(client, case_id, file_body, 'Profile Photo')
+      end
     end
 
     def add_user_data!(converted_form, user)
