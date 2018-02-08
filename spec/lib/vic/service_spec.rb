@@ -75,7 +75,7 @@ describe VIC::Service do
     end
 
     def test_case_id(user)
-      expect(service.submit(parsed_form, user)).to eq(:case_id=>"case_id")
+      expect(service.submit(parsed_form, user)).to eq(case_id: 'case_id')
     end
 
     context 'with a user' do
