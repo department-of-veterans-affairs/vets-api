@@ -53,8 +53,16 @@ describe VIC::Service do
   describe '#send_files' do
     it 'should send the files in the form' do
       parsed_form
-      expect(service).to receive(:send_file).with(client, case_id, VIC::SupportingDocumentationAttachment.last.get_file.read, 'Supporting Documentation')
-      expect(service).to receive(:send_file).with(client, case_id, VIC::ProfilePhotoAttachment.last.get_file.read, 'Profile Photo')
+      expect(service).to receive(:send_file).with(
+        client, case_id,
+        VIC::SupportingDocumentationAttachment.last.get_file.read,
+        'Supporting Documentation'
+      )
+      expect(service).to receive(:send_file).with(
+        client, case_id,
+        VIC::ProfilePhotoAttachment.last.get_file.read,
+        'Profile Photo'
+      )
       service.send_files(client, case_id, parsed_form)
     end
   end
