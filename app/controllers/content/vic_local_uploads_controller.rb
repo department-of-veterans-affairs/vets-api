@@ -14,7 +14,7 @@ module Content
         send_file(filepath, disposition: 'inline')
       end
     end
-    # :nocov:
+    
 
     private
 
@@ -29,5 +29,6 @@ module Content
         name.gsub!(/[^0-9A-Za-z.\-]/, '_')
       end
     end
+    # :nocov:
   end
 end
