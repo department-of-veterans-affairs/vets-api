@@ -15,7 +15,6 @@ module Content
       end
     end
 
-
     private
 
     # https://stackoverflow.com/questions/1939333/how-to-make-a-ruby-string-safe-for-a-filesystem
