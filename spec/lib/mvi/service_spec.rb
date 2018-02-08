@@ -18,30 +18,7 @@ describe MVI::Service do
   let(:user) { build(:user, :loa3, user_hash) }
 
   let(:mvi_profile) do
-    build(:mvi_profile_response, :missing_attrs, :address_austin, given_names: %w[Mitchell G], vha_facility_ids: [], sec_id: nil)
-  end
-
-  describe '#find_profile_from_mvi_profile' do
-    it 'should find a profile from a mvi profile', run_at: 'Fri, 12 Jan 2018 23:04:42 GMT' do
-      mvi_profile = build(
-        :mvi_profile,
-        given_names: %w[Wesley Watson],
-        family_name: 'Ford',
-        birth_date: '1986-05-06',
-        ssn: '796043735',
-        gender: 'M'
-      )
-      allow(SecureRandom).to receive(:uuid).and_return('8c7e1f69-f9f1-4afb-bc67-a68e0c259a33')
-
-      VCR.use_cassette('mvi/find_candidate/find_profile_from_mvi_profile', VCR::MATCH_EVERYTHING) do
-        response = described_class.new.find_profile_from_mvi_profile(mvi_profile)
-        expect(response.profile.edipi).to eq('1007697216')
-      end
-    end
-  end
-
-  describe '#find_profile with historical icns' do
-    # TODO: after finding out how to do this call
+    build(:mvi_profile_response, :missing_attrs, :address_austin, given_names: %w[Mitchell G], vha_facility_ids: [])
   end
 
   describe '.find_profile with icn' do
