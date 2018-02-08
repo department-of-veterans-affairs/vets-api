@@ -133,7 +133,9 @@ Rails.application.routes.draw do
     end
 
     namespace :vic do
+      resources :profile_photo_attachments, only: :create
       resources :supporting_documentation_attachments, only: :create
+      resources :vic_submissions, only: %i[create show]
     end
 
     resource :address, only: %i[show update] do
@@ -173,6 +175,9 @@ Rails.application.routes.draw do
     require 'sidekiq-scheduler/web'
     mount Sidekiq::Web, at: '/sidekiq'
   end
+
+  # Supports retrieval of VIC photo uploads during local development
+  get '/content/vic/*path', to: 'content/vic_local_uploads#find_file' if Rails.env.development?
 
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i[get post put patch delete]
