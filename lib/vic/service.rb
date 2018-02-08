@@ -5,6 +5,7 @@ module VIC
     configuration VIC::Configuration
 
     SALESFORCE_USERNAME = 'vetsgov-devops@listserv.gsa.gov.vicdev'
+    # TODO: set correct prod value when we release to prod for salesforce_host
     SALESFORCE_HOST = 'https://test.salesforce.com'
     SERVICE_BRANCHES = {
       'F' => 'Air Force',
