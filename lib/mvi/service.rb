@@ -29,18 +29,8 @@ module MVI
     #
     # @param user [User] the user to query MVI for
     # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
-    def find_profile(user, opt = {})
-      find_profile_with_body(create_profile_message(user, opt), user)
-    end
-
-    def find_profile_from_mvi_profile(mvi_profile)
-      find_profile_with_body(message_mvi_profile_attributes(mvi_profile))
-    end
-
-    private
-
-    def find_profile_with_body(body, user = nil)
-      raw_response = perform(:post, '', body, soapaction: OPERATIONS[:find_profile])
+    def find_profile(user)
+      raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
       MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
     rescue Faraday::ConnectionFailed => e
       log_message_to_sentry("MVI find_profile connection failed: #{e.message}", :error)
@@ -57,6 +47,8 @@ module MVI
       end
     end
 
+    private
+
     # TODO: Possibly consider adding Grafana Instrumentation here too
     def mvi_error_handler(user, e)
       case e
@@ -68,7 +60,7 @@ module MVI
         # log_message_to_sentry('MVI Record Not Found', :warn)
         nil
       when MVI::Errors::InvalidRequestError
-        if user&.mhv_icn.present?
+        if user.mhv_icn.present?
           log_message_to_sentry('MVI Invalid Request (Possible RecordNotFound)', :error)
         else
           log_message_to_sentry('MVI Invalid Request', :error)
@@ -78,27 +70,17 @@ module MVI
       end
     end
 
-    def create_profile_message(user, opt = {})
-      return message_icn(user, opt) if user.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
+    def create_profile_message(user)
+      return message_icn(user) if user.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
       raise Common::Exceptions::ValidationErrors, user unless user.valid?(:loa3_user)
-      message_user_attributes(user, opt)
+      message_user_attributes(user)
     end
 
-    def message_icn(user, opt = {})
-      MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml(opt)
+    def message_icn(user)
+      MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml
     end
 
-    def message_mvi_profile_attributes(mvi_profile)
-      MVI::Messages::FindProfileMessage.new(
-        mvi_profile.given_names,
-        mvi_profile.family_name,
-        mvi_profile.birth_date,
-        mvi_profile.ssn,
-        mvi_profile.gender
-      ).to_xml(historical_icns: true)
-    end
-
-    def message_user_attributes(user, opt = {})
+    def message_user_attributes(user)
       given_names = [user.first_name]
       given_names.push user.middle_name unless user.middle_name.nil?
       MVI::Messages::FindProfileMessage.new(
@@ -107,7 +89,7 @@ module MVI
         user.birth_date,
         user.ssn,
         user.gender
-      ).to_xml(opt)
+      ).to_xml
     end
   end
 end
