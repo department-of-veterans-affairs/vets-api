@@ -39,6 +39,7 @@ FactoryBot.define do
     edipi { Faker::Number.number(10) }
     participant_id { Faker::Number.number(10) }
     birls_id { Faker::Number.number(10) }
+    sec_id '0001234567'
 
     factory :mvi_profile_response do
       given_names %w[John William]
