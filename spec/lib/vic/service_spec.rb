@@ -48,25 +48,45 @@ describe VIC::Service do
     end
   end
 
-  # describe '#submit' do
-  #   context 'with a user' do
-  #     it 'should submit the form and attached documents' do
-  #       VCR.config do |c|
-  #         c.allow_http_connections_when_no_cassette = true
-  #       end
+  # TODO: spec for send_files
 
-  #       described_class.new.submit(parsed_form, user)
-  #     end
-  #   end
+  describe '#submit' do
+    context 'with a user' do
+      it 'should submit the form and attached documents' do
+        expect(service).to receive(:convert_form).with(parsed_form).and_return({})
+        expect(service).to receive(:add_user_data!).with({}, user)
+        expect(service).to receive(:get_oauth_token).and_return('token')
 
-  #   context 'with no user' do
-  #     it 'should submit the form' do
-  #       VCR.config do |c|
-  #         c.allow_http_connections_when_no_cassette = true
-  #       end
+        client = double
+        expect(Restforce).to receive(:new).with(
+          oauth_token: 'token',
+          instance_url: VIC::Configuration::SALESFORCE_INSTANCE_URL,
+          api_version: '41.0'
+        ).and_return(client)
+        expect(client).to receive(:post).with(
+          '/services/apexrest/VICRequest', {}
+        ).and_return(
+          OpenStruct.new(
+            body: {
+              'case_id' => 'case_id'
+            }
+          )
+        )
 
-  #       described_class.new.submit(parsed_form, nil)
-  #     end
-  #   end
-  # end
+        expect(service).to receive(:send_files).with(client, 'case_id', parsed_form)
+
+        expect(service.submit(parsed_form, user)).to eq(:case_id=>"case_id")
+      end
+    end
+
+    context 'with no user' do
+      it 'should submit the form' do
+        VCR.config do |c|
+          c.allow_http_connections_when_no_cassette = true
+        end
+
+        described_class.new.submit(parsed_form, nil)
+      end
+    end
+  end
 end
