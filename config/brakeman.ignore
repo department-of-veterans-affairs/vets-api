@@ -3,12 +3,12 @@
     {
       "warning_type": "File Access",
       "warning_code": 16,
-      "fingerprint": "c05dcdcb8c38c7f255a266cba90ba3301d45f97f76dedb30a70e27a101ab24d3",
+      "fingerprint": "3ef9b86159537a2d9f2231f094acd66acf6543ebded519ff688b56e91cc02965",
       "message": "Parameter value used in file name",
       "file": "app/controllers/content/vic_local_uploads_controller.rb",
-      "line": 9,
+      "line": 14,
       "link": "http://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "send_file(Rails.root.join(\"public\", params[:path]), :disposition => \"inline\")",
+      "code": "send_file(Rails.root.join(\"public\", sanitize(params[:path])), :disposition => \"inline\")",
       "render_path": null,
       "location": {
         "type": "method",
@@ -17,9 +17,9 @@
       },
       "user_input": "params[:path]",
       "confidence": "Weak",
-      "note": "This endpoint is only used in development to support the frontend retrieving uploaded files"
+      "note": ""
     }
   ],
-  "updated": "2018-02-07 15:05:10 -0800",
+  "updated": "2018-02-08 09:52:28 -0800",
   "brakeman_version": "3.4.1"
 }
