@@ -8,6 +8,10 @@ module VIC
       "#{SALESFORCE_INSTANCE_URL}/services/oauth2/token"
     end
 
+    def service_name
+      'VIC2'
+    end
+
     def connection
       @conn ||= Faraday.new(base_path) do |faraday|
         faraday.use :breakers
