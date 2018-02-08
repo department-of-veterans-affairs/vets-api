@@ -23,7 +23,10 @@ describe VIC::Service do
       expect(user.veteran_status).to receive(:title38_status).and_return('V1')
       service.add_user_data!(converted_form, user)
       expect(converted_form).to eq(
-        'profile_data' => { 'sec_ID' => '0001234567', 'active_ICN' => user.icn }, 'title38_status' => 'V1 - Title 38 Veteran'
+        'profile_data' => {
+          'sec_ID' => '0001234567', 'active_ICN' => user.icn
+        },
+        'title38_status' => 'V1 - Title 38 Veteran'
       )
     end
   end
@@ -34,7 +37,11 @@ describe VIC::Service do
         'service_branch' => 'Air Force',
         'email' => 'foo@foo.com',
         'veteran_full_name' => { 'first' => 'Mark', 'last' => 'Olson' },
-        'veteran_address' => { 'city' => 'Milwaukee', 'country' => 'US', 'postal_code' => '53130', 'state' => 'WI', 'street' => '123 Main St', 'street2' => '' },
+        'veteran_address' => {
+          'city' => 'Milwaukee',
+          'country' => 'US', 'postal_code' => '53130',
+          'state' => 'WI', 'street' => '123 Main St', 'street2' => ''
+        },
         'phone' => '5551110000',
         'profile_data' => { 'SSN' => '111223333', 'historical_ICN' => [] }
       )
