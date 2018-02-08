@@ -63,7 +63,7 @@ evss:
   mock_gi_bill_status: false
   mock_pciu_address: false
   aws:
-    url: http://evss.reference-data-service.dev/v1
+    url: http://fake.evss-reference-data-service.dev/v1
     cert_path: ~
     key_path: ~
     root_ca: ~

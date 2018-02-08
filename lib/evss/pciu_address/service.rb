@@ -9,6 +9,24 @@ module EVSS
 
       configuration EVSS::PCIUAddress::Configuration
 
+      def get_countries
+        with_monitoring do
+          raw_response = perform(:get, 'countries')
+          EVSS::PCIUAddress::CountriesResponse.new(raw_response.status, raw_response)
+        end
+      rescue StandardError => e
+        handle_error(e)
+      end
+
+      def get_states
+        with_monitoring do
+          raw_response = perform(:get, 'states')
+          EVSS::PCIUAddress::StatesResponse.new(raw_response.status, raw_response)
+        end
+      rescue StandardError => e
+        handle_error(e)
+      end
+
       def get_address
         with_monitoring do
           raw_response = perform(:get, 'mailingAddress')

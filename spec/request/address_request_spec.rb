@@ -113,10 +113,34 @@ RSpec.describe 'address', type: :request do
     end
   end
 
-  describe 'GET /v0/address/states' do
+  describe 'GET /v0/address/rds/states' do
     context 'with a 200 response' do
       it 'should match the states schema' do
         VCR.use_cassette('evss/reference_data/states') do
+          get '/v0/address/rds/states', nil, auth_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('states')
+        end
+      end
+    end
+  end
+
+  describe 'GET /v0/address/rds/countries' do
+    context 'with a 200 response' do
+      it 'should match the states schema' do
+        VCR.use_cassette('evss/reference_data/countries') do
+          get '/v0/address/rds/countries', nil, auth_header
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('countries')
+        end
+      end
+    end
+  end
+
+  describe 'GET /v0/address/states' do
+    context 'with a 200 response' do
+      it 'should match the states schema' do
+        VCR.use_cassette('evss/pciu_address/states') do
           get '/v0/address/states', nil, auth_header
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('states')
@@ -128,7 +152,7 @@ RSpec.describe 'address', type: :request do
   describe 'GET /v0/address/countries' do
     context 'with a 200 response' do
       it 'should match the countries schema' do
-        VCR.use_cassette('evss/reference_data/countries') do
+        VCR.use_cassette('evss/pciu_address/countries') do
           get '/v0/address/countries', nil, auth_header
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('countries')
@@ -143,7 +167,7 @@ RSpec.describe 'address', type: :request do
           .and_return(Authorization: 'Bearer abcd12345asd')
       end
       it 'should return 502' do
-        get '/v0/address/countries', nil, auth_header
+        get '/v0/address/rds/countries', nil, auth_header
         expect(response).to have_http_status(:bad_gateway)
       end
     end

@@ -19,13 +19,25 @@ module V0
     end
 
     def countries
-      response = strategy.cache_or_service(:countries) { aws_service.get_countries }
+      response = strategy.cache_or_service(:countries) { service.get_countries }
       render json: response,
              serializer: CountriesSerializer
     end
 
     def states
-      response = strategy.cache_or_service(:states) { aws_service.get_states }
+      response = strategy.cache_or_service(:states) { service.get_states }
+      render json: response,
+             serializer: StatesSerializer
+    end
+
+    def rds_countries
+      response = strategy.cache_or_service(:countries) { rds_service.get_countries }
+      render json: response,
+             serializer: CountriesSerializer
+    end
+
+    def rds_states
+      response = strategy.cache_or_service(:states) { rds_service.get_states }
       render json: response,
              serializer: StatesSerializer
     end
@@ -36,7 +48,7 @@ module V0
       EVSS::PCIUAddress::Service.new(@current_user)
     end
 
-    def aws_service
+    def rds_service
       EVSS::ReferenceData::Service.new(@current_user)
     end
 

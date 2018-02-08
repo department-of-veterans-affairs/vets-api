@@ -140,6 +140,9 @@ Rails.application.routes.draw do
       collection do
         get 'countries', to: 'addresses#countries'
         get 'states', to: 'addresses#states'
+        # temporary
+        get 'rds/countries', to: 'addresses#rds_countries'
+        get 'rds/states', to: 'addresses#rds_states'
       end
     end
 

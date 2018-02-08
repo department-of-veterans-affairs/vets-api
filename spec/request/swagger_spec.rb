@@ -821,14 +821,14 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
       it 'supports getting EVSS PCIUAddress states' do
         expect(subject).to validate(:get, '/v0/address/states', 401)
-        VCR.use_cassette('evss/reference_data/states') do
+        VCR.use_cassette('evss/pciu_address/states') do
           expect(subject).to validate(:get, '/v0/address/states', 200, auth_options)
         end
       end
 
       it 'supports getting EVSS PCIUAddress countries' do
         expect(subject).to validate(:get, '/v0/address/countries', 401)
-        VCR.use_cassette('evss/reference_data/countries') do
+        VCR.use_cassette('evss/pciu_address/countries') do
           expect(subject).to validate(:get, '/v0/address/countries', 200, auth_options)
         end
       end
