@@ -19,8 +19,6 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
         Settings.vic.s3.region,
         Settings.vic.s3.bucket
       )
-
-      self.aws_acl = 'public-read'
     end
   end
 
