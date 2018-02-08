@@ -51,41 +51,43 @@ describe VIC::Service do
   # TODO: spec for send_files
 
   describe '#submit' do
+    before do
+      expect(service).to receive(:convert_form).with(parsed_form).and_return({})
+      expect(service).to receive(:get_oauth_token).and_return('token')
+
+      client = double
+      expect(Restforce).to receive(:new).with(
+        oauth_token: 'token',
+        instance_url: VIC::Configuration::SALESFORCE_INSTANCE_URL,
+        api_version: '41.0'
+      ).and_return(client)
+      expect(client).to receive(:post).with(
+        '/services/apexrest/VICRequest', {}
+      ).and_return(
+        OpenStruct.new(
+          body: {
+            'case_id' => 'case_id'
+          }
+        )
+      )
+
+      expect(service).to receive(:send_files).with(client, 'case_id', parsed_form)
+    end
+
+    def test_case_id(user)
+      expect(service.submit(parsed_form, user)).to eq(:case_id=>"case_id")
+    end
+
     context 'with a user' do
       it 'should submit the form and attached documents' do
-        expect(service).to receive(:convert_form).with(parsed_form).and_return({})
         expect(service).to receive(:add_user_data!).with({}, user)
-        expect(service).to receive(:get_oauth_token).and_return('token')
-
-        client = double
-        expect(Restforce).to receive(:new).with(
-          oauth_token: 'token',
-          instance_url: VIC::Configuration::SALESFORCE_INSTANCE_URL,
-          api_version: '41.0'
-        ).and_return(client)
-        expect(client).to receive(:post).with(
-          '/services/apexrest/VICRequest', {}
-        ).and_return(
-          OpenStruct.new(
-            body: {
-              'case_id' => 'case_id'
-            }
-          )
-        )
-
-        expect(service).to receive(:send_files).with(client, 'case_id', parsed_form)
-
-        expect(service.submit(parsed_form, user)).to eq(:case_id=>"case_id")
+        test_case_id(user)
       end
     end
 
     context 'with no user' do
       it 'should submit the form' do
-        VCR.config do |c|
-          c.allow_http_connections_when_no_cassette = true
-        end
-
-        described_class.new.submit(parsed_form, nil)
+        test_case_id(nil)
       end
     end
   end
