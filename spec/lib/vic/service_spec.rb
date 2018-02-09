@@ -28,7 +28,7 @@ describe VIC::Service do
         'profile_data' => {
           'sec_ID' => '0001234567', 'active_ICN' => user.icn
         },
-        'title38_status' => 'V1 - Title 38 Veteran'
+        'title38_status' => 'V1'
       )
     end
   end
