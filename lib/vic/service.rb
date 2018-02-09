@@ -92,7 +92,7 @@ module VIC
       file_name = "#{SecureRandom.hex}.#{mime_type.split('/')[1]}"
       file_path = generate_temp_file(file_body, file_name)
 
-      client.create(
+      success = client.create(
         'Attachment',
         ParentId: case_id,
         Description: description,
@@ -102,6 +102,10 @@ module VIC
           mime_type
         )
       )
+
+      unless success
+        log_message_to_sentry('vic file upload failed', :error)
+      end
 
       File.delete(file_path)
     end
@@ -143,6 +147,7 @@ module VIC
         api_version: '41.0'
       )
       response = client.post('/services/apexrest/VICRequest', converted_form)
+      Raven.extra_context(response_body: response.body)
 
       case_id = response.body['case_id']
 
