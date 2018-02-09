@@ -35,6 +35,8 @@ RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
 
     context 'with an invalid form' do
       it 'has an error in the response' do
+        allow(Raven).to receive(:tags_context)
+        expect(Raven).to receive(:tags_context).with(validation: 'vic').at_least(:once)
         post(:create, vic_submission: { form: { foo: 1 }.to_json })
 
         expect(response.status).to eq(422)
