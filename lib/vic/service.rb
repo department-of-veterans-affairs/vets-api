@@ -14,15 +14,6 @@ module VIC
       'M' => 'Marine Corps',
       'N' => 'Navy'
     }.freeze
-    TITLE_38_PICKLIST = {
-      'V1' => 'V1 - Title 38 Veteran',
-      'V2' => 'V2 - VA Beneficiary',
-      'V3' => 'V3 - Military Person, Not Title 38 Veteran, Not DoD Affiliate',
-      'V4' => 'V4 - Military or Beneficiary Status Unknown',
-      'V5' => 'V5 - EDI PI Not Known in VADIR (used in service calls only; not a stored value)',
-      'V6' => 'V6 - Military Person, Not Title 38 Veteran, DoD Affiliate (indicates current military)',
-      'V7' => 'V7 - Military Person, Not Title 38 Veteran, Not DoD Affiliate, “Bad Paper” Discharge(s)'
-    }.freeze
 
     def oauth_params
       {
@@ -128,7 +119,7 @@ module VIC
 
       if user.edipi.present?
         title38_status = user.veteran_status.title38_status
-        converted_form['title38_status'] = TITLE_38_PICKLIST[title38_status]
+        converted_form['title38_status'] = title38_status
       end
       # TODO: historical icn
     end
