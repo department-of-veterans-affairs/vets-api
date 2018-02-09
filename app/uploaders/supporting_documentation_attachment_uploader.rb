@@ -8,8 +8,6 @@ class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
 
   MAX_FILE_SIZE = 25.megabytes
 
-  process :reencode
-
   def initialize(guid)
     super
     @guid = guid

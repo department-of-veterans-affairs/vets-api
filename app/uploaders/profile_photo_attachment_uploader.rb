@@ -8,8 +8,6 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
 
   MAX_FILE_SIZE = 10.megabytes
 
-  process :reencode
-
   def initialize(guid, form_id)
     @guid = guid
     @form_id = form_id
