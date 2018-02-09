@@ -2,6 +2,7 @@
 
 class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
   include ValidateFileSize
+  include ReencodeImages
   include SetAwsConfig
   include UploaderVirusScan
 
