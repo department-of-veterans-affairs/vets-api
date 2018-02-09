@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module UploaderVirusScan
   extend ActiveSupport::Concern
 
@@ -12,8 +14,6 @@ module UploaderVirusScan
     return unless Rails.env.production?
     result = Common::VirusScan.scan(file.tempfile.path)
 
-    unless result.safe?
-      raise VirusFoundError, result.body
-    end
+    raise VirusFoundError, result.body unless result.safe?
   end
 end
