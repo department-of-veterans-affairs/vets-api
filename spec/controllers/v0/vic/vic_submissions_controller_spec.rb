@@ -7,11 +7,29 @@ RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
     JSON.parse(response.body)
   end
 
+  let(:user) { create(:user) }
+
   describe '#create' do
+    def send_create
+      post(:create, vic_submission: { form: build(:vic_submission).form })
+    end
+
     context 'with a valid form' do
-      it 'creates a vic submission' do
-        post(:create, vic_submission: { form: build(:vic_submission).form })
-        expect(parsed_body['data']['attributes']['guid']).to eq(VIC::VICSubmission.last.guid)
+      context 'without a user' do
+        it 'creates a vic submission' do
+          send_create
+          expect(parsed_body['data']['attributes']['guid']).to eq(VIC::VICSubmission.last.guid)
+        end
+      end
+
+      context 'with a user' do
+        it 'creates a vic submission with a user' do
+          expect(controller).to receive(:authenticate_token)
+          allow(controller).to receive(:current_user).and_return(user)
+          expect_any_instance_of(VIC::VICSubmission).to receive(:user_uuid=).with(user.uuid)
+          send_create
+          expect(response.ok?).to eq(true)
+        end
       end
     end
 
