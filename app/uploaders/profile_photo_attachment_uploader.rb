@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
-  include ValidateFileSize
-  include SetAwsConfig
   include CarrierWave::MiniMagick
+  include ValidateFileSize
+  include ReencodeImages
+  include SetAwsConfig
 
   MAX_FILE_SIZE = 10.megabytes
 
@@ -38,14 +39,5 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
   def store_dir
     dir = @form_id || 'anonymous'
     "profile_photo_attachments/#{dir}"
-  end
-
-  private
-
-  def reencode
-    manipulate! do |img|
-      img.format(img.type)
-      img
-    end
   end
 end

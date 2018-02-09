@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
-  include ValidateFileSize
-  include SetAwsConfig
   include CarrierWave::MiniMagick
+  include ValidateFileSize
+  include ReencodeImages
+  include SetAwsConfig
 
   MAX_FILE_SIZE = 25.megabytes
 
@@ -30,16 +31,5 @@ class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
   def store_dir
     raise 'missing guid' if @guid.blank?
     "supporting_documentation_attachments/#{@guid}"
-  end
-
-  private
-
-  def reencode
-    unless file.content_type == 'application/pdf'
-      manipulate! do |img|
-        img.format(img.type)
-        img
-      end
-    end
   end
 end
