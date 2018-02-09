@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://evss.reference-data-service.dev/v1/countries
+    uri: "<EVSS_AWS_BASE_URL>/countries"
     body:
       encoding: US-ASCII
       string: ''
@@ -25,7 +25,7 @@ http_interactions:
       Content-Type:
       - application/json;charset=UTF-8
       Date:
-      - Fri, 02 Feb 2018 05:30:45 GMT
+      - Fri, 09 Feb 2018 16:27:29 GMT
       Expires:
       - '0'
       Pragma:
@@ -36,20 +36,20 @@ http_interactions:
       - DENY
       X-Xss-Protection:
       - 1; mode=block
-      Content-Length:
-      - '175'
+      Transfer-Encoding:
+      - chunked
       Connection:
       - keep-alive
     body:
       encoding: UTF-8
       string: |-
         {
-          "timestamp" : 1517549445809,
+          "timestamp" : 1518193650023,
           "status" : 401,
           "error" : "Unauthorized",
           "message" : "Authentication Failed: Malformed Token",
           "path" : "/api/refdata/v1/countries"
         }
-    http_version:
-  recorded_at: Fri, 02 Feb 2018 05:31:41 GMT
+    http_version: 
+  recorded_at: Fri, 09 Feb 2018 16:27:29 GMT
 recorded_with: VCR 3.0.3
