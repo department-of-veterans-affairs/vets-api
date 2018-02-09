@@ -3,8 +3,11 @@
 class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
   include ValidateFileSize
   include SetAwsConfig
+  include CarrierWave::MiniMagick
 
   MAX_FILE_SIZE = 25.megabytes
+
+  process :reencode
 
   def initialize(guid)
     super
@@ -27,5 +30,16 @@ class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
   def store_dir
     raise 'missing guid' if @guid.blank?
     "supporting_documentation_attachments/#{@guid}"
+  end
+
+  private
+
+  def reencode
+    unless file.content_type == 'application/pdf'
+      manipulate! do |img|
+        img.format(img.type)
+        img
+      end
+    end
   end
 end
