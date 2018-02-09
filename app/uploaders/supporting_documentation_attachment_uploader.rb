@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
-  include CarrierWave::MiniMagick
   include ValidateFileSize
   include ReencodeImages
   include SetAwsConfig

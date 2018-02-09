@@ -3,6 +3,8 @@
 module ReencodeImages
   extend ActiveSupport::Concern
 
+  include CarrierWave::MiniMagick
+
   included do
     process :reencode
   end
