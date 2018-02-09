@@ -240,5 +240,5 @@ betamocks:
   services_config: config/betamocks/services_config.yml
 
 faraday_socks_proxy:
-  enabled: true
+  enabled: false
   uri: socks5://localhost:2002
