@@ -4,12 +4,12 @@ module EVSS
   class AWSConfiguration < Common::Client::Configuration::REST
     extend Memoist
 
-    # :nocov:
     def mock_enabled?
       # subclass to override
       false
     end
 
+    # :nocov:
     def client_cert
       OpenSSL::X509::Certificate.new File.read(Settings.evss.aws.cert_path)
     end
@@ -21,6 +21,7 @@ module EVSS
     def root_ca
       Settings.evss.aws.root_ca
     end
+    # :nocov:
 
     def ssl_options
       return { verify: false } if !cert? && (Rails.env.development? || Rails.env.test?)
@@ -34,7 +35,6 @@ module EVSS
         }
       end
     end
-    # :nocov:
 
     def cert?
       Settings.evss.cert_path.present? ||
