@@ -106,9 +106,7 @@ module VIC
         )
       )
 
-      unless success
-        log_message_to_sentry('vic file upload failed', :error)
-      end
+      log_message_to_sentry('vic file upload failed', :error) unless success
 
       File.delete(file_path)
     end
