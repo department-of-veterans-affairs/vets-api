@@ -2,7 +2,9 @@
 
 class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
   include ValidateFileSize
+  include ReencodeImages
   include SetAwsConfig
+  include UploaderVirusScan
 
   MAX_FILE_SIZE = 25.megabytes
 

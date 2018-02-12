@@ -14,15 +14,6 @@ module VIC
       'M' => 'Marine Corps',
       'N' => 'Navy'
     }.freeze
-    TITLE_38_PICKLIST = {
-      'V1' => 'V1 - Title 38 Veteran',
-      'V2' => 'V2 - VA Beneficiary',
-      'V3' => 'V3 - Military Person, Not Title 38 Veteran, Not DoD Affiliate',
-      'V4' => 'V4 - Military or Beneficiary Status Unknown',
-      'V5' => 'V5 - EDI PI Not Known in VADIR (used in service calls only; not a stored value)',
-      'V6' => 'V6 - Military Person, Not Title 38 Veteran, DoD Affiliate (indicates current military)',
-      'V7' => 'V7 - Military Person, Not Title 38 Veteran, Not DoD Affiliate, “Bad Paper” Discharge(s)'
-    }.freeze
 
     def oauth_params
       {
@@ -49,7 +40,10 @@ module VIC
     end
 
     def get_oauth_token
-      request(:post, '', oauth_params).body['access_token']
+      body = request(:post, '', oauth_params).body
+      Raven.extra_context(oauth_response_body: body)
+
+      body['access_token']
     end
 
     def convert_form(form)
@@ -92,7 +86,7 @@ module VIC
       file_name = "#{SecureRandom.hex}.#{mime_type.split('/')[1]}"
       file_path = generate_temp_file(file_body, file_name)
 
-      client.create(
+      success = client.create(
         'Attachment',
         ParentId: case_id,
         Description: description,
@@ -102,6 +96,8 @@ module VIC
           mime_type
         )
       )
+
+      log_message_to_sentry('vic file upload failed', :error) unless success
 
       File.delete(file_path)
     end
@@ -128,7 +124,7 @@ module VIC
 
       if user.edipi.present?
         title38_status = user.veteran_status.title38_status
-        converted_form['title38_status'] = TITLE_38_PICKLIST[title38_status]
+        converted_form['title38_status'] = title38_status
       end
       # TODO: historical icn
     end
@@ -143,6 +139,7 @@ module VIC
         api_version: '41.0'
       )
       response = client.post('/services/apexrest/VICRequest', converted_form)
+      Raven.extra_context(submit_response_body: response.body)
 
       case_id = response.body['case_id']
 
