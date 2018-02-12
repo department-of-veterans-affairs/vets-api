@@ -87,6 +87,15 @@ describe Preneeds::Service do
         expect(str1.gsub(new_mimepart, old_mimepart)).to eq(str2)
       end
 
+      it 'api test' do
+        VCR.config do |c|
+          c.allow_http_connections_when_no_cassette = true
+        end
+
+        res = subject.receive_pre_need_application(burial_form)
+        expect(res.application_uuid.present?).to eq(true)
+      end
+
       it 'creates a preneeds application', run_at: 'Tue, 21 Nov 2017 22:10:32 GMT' do
         multipart_matcher = lambda do |request_1, request_2|
           new_mimepart = request_1.headers['Content-Type'][0].split(';')[1].gsub(' boundary="', '').delete('"')
