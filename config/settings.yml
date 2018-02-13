@@ -72,6 +72,9 @@ evss:
     cert_path: ~
     key_path: ~
     root_ca: ~
+  jwt:
+    issuer: fake_issuer
+    key: fake_key
 
 # Settings for GI Bill Data Service
 gids:

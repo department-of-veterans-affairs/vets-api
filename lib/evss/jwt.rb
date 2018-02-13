@@ -5,9 +5,9 @@ require 'securerandom'
 
 module EVSS
   class Jwt
-    ISSUER            = 'Vets.gov'
-    SIGNING_ALGORITHM = 'HS256' # HMAC SHA256
-    SIGNING_KEY       = 'vetsgov' # TODO: integrate into Settings + devops
+    ISSUER            = Settings.evss.jwt.issuer
+    SIGNING_KEY       = Settings.evss.jwt.key
+    SIGNING_ALGORITHM = 'HS256'
     EXP_WINDOW        = 5.minutes.to_i
 
     def initialize(user)
