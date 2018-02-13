@@ -3,7 +3,10 @@
 require 'spec_helper'
 require 'hca/validations'
 
-describe HCA::Validations do
+frozen_time = '2017-01-04 03:00:00 EDT'
+frozen_date = Time.zone.parse(frozen_time).to_date
+
+describe HCA::Validations, run_at: frozen_time do
   test_method(
     described_class,
     'date_of_birth',
@@ -34,8 +37,8 @@ describe HCA::Validations do
       [1234, false],
       ['3000-01-01', false],
       ['1974-12-01', true],
-      [(Time.zone.today + 60.days).strftime('%Y-%m-%d'), true],
-      [(Time.zone.today + 181.days).strftime('%Y-%m-%d'), false]
+      [(frozen_date + 60.days).strftime('%Y-%m-%d'), true],
+      [(frozen_date + 181.days).strftime('%Y-%m-%d'), false]
     ]
   )
 
