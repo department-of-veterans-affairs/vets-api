@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'hca/validations'
 
 frozen_time = '2017-01-04 03:00:00 EDT'
-frozen_date = Time.parse(frozen_time).to_date
+frozen_date = Time.zone.parse(frozen_time).to_date
 
 describe HCA::Validations, run_at: frozen_time do
   test_method(
