@@ -11,11 +11,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180130213405) do
+ActiveRecord::Schema.define(version: 20180209160254) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
+
+  create_table "base_facilities", force: :cascade do |t|
+    t.string   "unique_id",      null: false
+    t.string   "name",           null: false
+    t.string   "facility_type",  null: false
+    t.string   "classification"
+    t.string   "website"
+    t.float    "lat",            null: false
+    t.float    "long",           null: false
+    t.jsonb    "address"
+    t.jsonb    "phone"
+    t.jsonb    "hours"
+    t.jsonb    "services"
+    t.jsonb    "feedback"
+    t.jsonb    "access"
+    t.string   "fingerprint"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
 
   create_table "beta_registrations", force: :cascade do |t|
     t.string   "user_uuid",  null: false
