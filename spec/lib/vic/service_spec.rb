@@ -28,7 +28,7 @@ describe VIC::Service do
         'profile_data' => {
           'sec_ID' => '0001234567', 'active_ICN' => user.icn
         },
-        'title38_status' => 'V1 - Title 38 Veteran'
+        'title38_status' => 'V1'
       )
     end
   end
@@ -102,7 +102,8 @@ describe VIC::Service do
       ).and_return(
         OpenStruct.new(
           body: {
-            'case_id' => 'case_id'
+            'case_id' => 'case_id',
+            'case_number' => 'case_number'
           }
         )
       )
@@ -111,7 +112,7 @@ describe VIC::Service do
     end
 
     def test_case_id(user)
-      expect(service.submit(parsed_form, user)).to eq(case_id: 'case_id')
+      expect(service.submit(parsed_form, user)).to eq(case_id: 'case_id', case_number: 'case_number')
     end
 
     context 'with a user' do

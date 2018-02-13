@@ -7,6 +7,8 @@ module VIC
     sidekiq_options retry: false
 
     def perform(vic_submission_id, form, user_uuid)
+      Raven.tags_context(backend_service: :vic)
+
       @vic_submission_id = vic_submission_id
       parsed_form = JSON.parse(form)
       user = user_uuid.present? ? User.find(user_uuid) : nil
