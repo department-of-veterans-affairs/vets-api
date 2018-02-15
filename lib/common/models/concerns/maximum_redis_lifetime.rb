@@ -13,12 +13,19 @@ module Common
 
       self.extend(ClassMethods)
 
+      attribute :created_at
+
       validate :within_maximum_ttl
+      validates :created_at, presence: true
+
+      after_initialize :set_created_at
     end
 
     def expire(ttl)
       (ttl < maximum_time_remaining) ? super(ttl) : super(maximum_time_remaining)
     end
+
+    private
 
     def maximum_time_remaining
       (@created_at + self.class.maximum_redis_ttl - Time.now.utc).round
@@ -28,6 +35,10 @@ module Common
       if maximum_time_remaining.negative?
         errors.add(:created_at, "is more than the max of [#{self.class.maximum_redis_ttl}] ago. Session is too old")
       end
+    end
+
+    def set_created_at
+      @created_at ||= Time.now.utc
     end
   end
 

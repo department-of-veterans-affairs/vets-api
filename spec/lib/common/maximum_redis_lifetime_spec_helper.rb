@@ -6,6 +6,11 @@ shared_examples 'a redis store with a maximum lifetime' do
 
   before(:each) { subject.save }
 
+  it 'has a created_at attribute' do
+    expect(subject.created_at).to_not be_nil
+    expect(subject.created_at).to be_a(Time)
+  end
+
   it 'will extend the session only up to the maximum ttl' do
     Timecop.freeze(Time.current)
     subject.created_at = subject.created_at - (described_class.maximum_redis_ttl - 10.seconds)
