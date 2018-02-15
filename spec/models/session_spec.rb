@@ -51,12 +51,12 @@ RSpec.describe Session, type: :model do
       end
 
       it 'will save a session within the maximum ttl' do
-        subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME - 1.minute)
+        subject.created_at = subject.created_at - (described_class.maximum_redis_ttl - 1.minute)
         expect(subject.save).to eq(true)
       end
 
       it 'will not save a session beyond the maximum ttl' do
-        subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME + 1.minute)
+        subject.created_at = subject.created_at - (described_class.maximum_redis_ttl + 1.minute)
         expect(subject.save).to eq(false)
         expect(subject.errors.messages).to include(:created_at)
       end

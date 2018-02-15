@@ -9,6 +9,7 @@ class Session < Common::RedisStore
   redis_store REDIS_CONFIG['session_store']['namespace']
   redis_ttl REDIS_CONFIG['session_store']['each_ttl']
   redis_key :token
+  redis_maximum_ttl 12.hours
 
   DEFAULT_TOKEN_LENGTH = 40
 
@@ -19,8 +20,6 @@ class Session < Common::RedisStore
   validates :token, presence: true
   validates :uuid, presence: true
   validates :created_at, presence: true
-
-  # validate :within_maximum_ttl
 
   after_initialize :setup_defaults
 
