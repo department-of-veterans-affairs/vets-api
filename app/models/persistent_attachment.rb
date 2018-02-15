@@ -14,7 +14,7 @@ class PersistentAttachment < ActiveRecord::Base
   include SetGuid
 
   attr_encrypted(:file_data, key: Settings.db_encryption_key)
-  belongs_to :saved_claim
+  belongs_to :saved_claim, inverse_of: :persistent_attachments
   delegate :original_filename, :size, to: :file
 
   # def process
