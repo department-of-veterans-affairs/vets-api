@@ -78,7 +78,7 @@ module V0
 
     def saml_callback
       if persistence_service.persist_authentication!
-        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) unless persistence_service.existing_user.present?
+        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if persistence_service.existing_user.blank?
         @current_user = persistence_service.new_user
         @session = persistence_service.new_session
         async_create_evss_account(@current_user)
