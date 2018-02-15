@@ -3,19 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe ProfilePhotoAttachmentSerializer, type: :serializer do
-  let(:anon_attributes) do
-    { filename: 'test.jpg', path: 'test_dir' }
-  end
-
-  let(:auth_attributes) do
-    anon_attributes.merge(user_uuid: '1234', form_id: '5678')
-  end
-
+  let(:model) { ::VIC::ProfilePhotoAttachment.new(file_data: file_data.to_json, guid: 'abcd') }
   let(:data) { JSON.parse(subject) }
 
   context 'with an anonymous upload' do
-    let(:model) { ::VIC::ProfilePhotoAttachment.new(file_data: anon_attributes.to_json, guid: 'abcd') }
-
+    let(:file_data) { { filename: 'test.jpg', path: 'test_dir' } }
     subject { serialize(model, serializer_class: described_class) }
 
     it 'should not include the filename and path' do
@@ -25,7 +17,7 @@ RSpec.describe ProfilePhotoAttachmentSerializer, type: :serializer do
   end
 
   context 'with an authenticated upload' do
-    let(:model) { ::VIC::ProfilePhotoAttachment.new(file_data: auth_attributes.to_json, guid: 'abcd') }
+    let(:file_data) { { filename: 'test.jpg', path: 'test_dir', user_uuid: '1234', form_id: '5678' } }
 
     subject { serialize(model, serializer_class: described_class) }
 
