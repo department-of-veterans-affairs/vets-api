@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :education_benefits do
@@ -24,7 +25,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
 
       before do
-        yaml = YAML.load_file(File.join(Rails.root, 'config', 'sidekiq_scheduler.yml'))
+        yaml = YAML.load_file(Rails.root.join('config', 'sidekiq_scheduler.yml'))
         cron = yaml['CreateDailySpoolFiles']['cron']
         scheduler.schedule_cron(cron) {} # schedule_cron requires a block
       end
@@ -101,7 +102,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context '#perform' do
     context 'with a mix of valid and invalid record', run_at: '2016-09-16 03:00:00 EDT' do
-      let(:spool_files) { Rails.root.join('tmp/spool_files/*') }
+      let(:spool_files) { Rails.root.join('tmp', 'spool_files', '*') }
       before do
         expect(Rails.env).to receive('development?').once { true }
         application_1606.saved_claim.form = {}.to_json
@@ -154,7 +155,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       ].each do |address_data|
         submissions << SavedClaim::EducationBenefits::VA1990.create(
           form: base_form.merge(
-            school: {
+            educationProgram: {
               address: base_address.merge(address_data)
             }
           ).to_json
@@ -173,7 +174,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
 
   context 'write_files', run_at: '2016-09-16 03:00:00 EDT' do
-    let(:filename) { '307_09162016_vetsgov.spl' }
+    let(:filename) { '307_09162016_070000_vetsgov.spl' }
     let!(:second_record) { FactoryBot.create(:va1995) }
 
     context 'in the development env' do

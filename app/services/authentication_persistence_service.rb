@@ -2,6 +2,7 @@
 
 class AuthenticationPersistenceService
   def initialize(saml_response)
+    raise 'SAML Response is required' if saml_response.nil?
     @saml_response = saml_response
     @saml_attributes = SAML::User.new(@saml_response)
   end
@@ -21,12 +22,16 @@ class AuthenticationPersistenceService
   def persist_authentication!
     return false unless @saml_response.is_valid?
     @new_user_identity = UserIdentity.new(saml_attributes.to_hash)
-    @new_user = init_new_user(new_user_identity)
+    @new_user = init_new_user(new_user_identity, existing_user, saml_attributes.changing_multifactor?)
     @new_session = Session.new(uuid: new_user.uuid)
+
+    if existing_user.present?
+      existing_user&.identity&.destroy
+      existing_user.destroy
+    end
+
     @new_session.save && @new_user.save && @new_user_identity.save
   end
-
-  delegate :changing_multifactor?, to: :saml_attributes
 
   private
 
@@ -36,11 +41,9 @@ class AuthenticationPersistenceService
     @existing_user = nil
   end
 
-  def init_new_user(user_identity)
-    # Eventually it will be this
-    # new_user = User.new(uuid: user_identity.uuid)
+  def init_new_user(user_identity, existing_user = nil, multifactor_change = false)
     new_user = User.new(user_identity.attributes)
-    if changing_multifactor?
+    if multifactor_change
       new_user.mhv_last_signed_in = existing_user.last_signed_in
       new_user.last_signed_in = existing_user.last_signed_in
     else

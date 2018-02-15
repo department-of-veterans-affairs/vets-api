@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'github/github_service'
 
@@ -12,7 +13,7 @@ describe Github::GithubService do
         'department-of-veterans-affairs/vets.gov-team',
         feedback.description[0..40],
         feedback.description + "\n\nTarget Page: /example/page\nEmail of Author: NOT PROVIDED",
-        assignee: 'va-bot', labels: 'User Feedback'
+        assignee: 'va-bot', labels: 'uservoice'
       )
     described_class.create_issue(feedback)
   end
@@ -23,7 +24,7 @@ describe Github::GithubService do
         'department-of-veterans-affairs/vets.gov-team',
         feedback.description[0..40] + ' - Response Requested',
         feedback.description + "\n\nTarget Page: /example/page\nEmail of Author: j**********",
-        assignee: 'va-bot', labels: 'User Feedback'
+        assignee: 'va-bot', labels: 'uservoice'
       )
     described_class.create_issue(feedback_with_email)
   end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 describe EMISRedis::MilitaryInformation, skip_emis: true do
@@ -13,6 +14,14 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     end
   end
 
+  describe '#service_branches' do
+    it 'should return all the service branches someone has served under' do
+      VCR.use_cassette('emis/get_military_service_episodes/valid') do
+        expect(subject.service_branches).to eq(['F'])
+      end
+    end
+  end
+
   describe '#currently_active_duty_hash' do
     it 'should return false if service episode end date is in the past' do
       VCR.use_cassette('emis/get_military_service_episodes/valid') do
@@ -20,6 +29,27 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
           yes: false
         )
       end
+    end
+
+    it 'should return true if service episode end date is in the future' do
+      allow(subject).to receive(:latest_service_episode).and_return(double(end_date: Date.current + 1.day))
+      expect(subject.currently_active_duty_hash).to eq(
+        yes: true
+      )
+    end
+
+    it 'should return true if service episode end date is nil' do
+      allow(subject).to receive(:latest_service_episode).and_return(double(end_date: nil))
+      expect(subject.currently_active_duty_hash).to eq(
+        yes: true
+      )
+    end
+
+    it 'should return false if service episode is nil' do
+      allow(subject).to receive(:latest_service_episode).and_return(nil)
+      expect(subject.currently_active_duty_hash).to eq(
+        yes: false
+      )
     end
   end
 
@@ -84,19 +114,38 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
   end
 
   describe '#is_va_service_connected' do
-    before do
-      expect(subject).to receive(:disabilities).and_return(
-        [
-          EMIS::Models::Disability.new(
-            disability_percent: 50,
-            pay_amount: 1
-          )
-        ]
-      )
+    context 'with a disability with the right percent and amount' do
+      before do
+        expect(subject).to receive(:disabilities).and_return(
+          [
+            EMIS::Models::Disability.new(
+              disability_percent: 50,
+              pay_amount: 1
+            )
+          ]
+        )
+      end
+
+      it 'should return true' do
+        expect(subject.is_va_service_connected).to eq(true)
+      end
     end
 
-    it 'should return true if there is a disability with the right percent and amount' do
-      expect(subject.is_va_service_connected).to eq(true)
+    context 'with a disability with one of the fields nil' do
+      before do
+        expect(subject).to receive(:disabilities).and_return(
+          [
+            EMIS::Models::Disability.new(
+              disability_percent: nil,
+              pay_amount: 1
+            )
+          ]
+        )
+      end
+
+      it 'should return false' do
+        expect(subject.is_va_service_connected).to eq(false)
+      end
     end
   end
 

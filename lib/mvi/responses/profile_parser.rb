@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'sentry_logging'
 
 module MVI
@@ -46,9 +47,21 @@ module MVI
       #
       # @return [Boolean] has failed or invalid code?
       def failed_or_invalid?
-        result = [EXTERNAL_RESPONSE_CODES[:failure], EXTERNAL_RESPONSE_CODES[:invalid_request]].include? @code
-        Rails.logger.warn "MVI returned response with code: #{@code}" if result
-        result
+        invalid_request? || failed_request?
+      end
+
+      # MVI returns failed if MVI throws an internal error.
+      #
+      # @return [Boolean] has failed
+      def failed_request?
+        EXTERNAL_RESPONSE_CODES[:failure] == @code
+      end
+
+      # MVI returns invalid request if request is malformed.
+      #
+      # @return [Boolean] has invalid request
+      def invalid_request?
+        EXTERNAL_RESPONSE_CODES[:invalid_request] == @code
       end
 
       # MVI returns multiple match warnings if a query returns more than one match.
@@ -76,8 +89,7 @@ module MVI
       def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
         correlation_ids = MVI::Responses::IdParser.new.parse(patient.locate('id'))
-        log_inactive_mhv_ids(correlation_ids[:mhv_ids].to_a,
-                             correlation_ids[:active_mhv_ids].to_a)
+        log_inactive_mhv_ids(correlation_ids[:mhv_ids].to_a, correlation_ids[:active_mhv_ids].to_a)
         MVI::Models::MviProfile.new(
           given_names: name[:given],
           family_name: name[:family],
@@ -92,6 +104,7 @@ module MVI
           edipi: correlation_ids[:edipi],
           participant_id: correlation_ids[:vba_corp_id],
           vha_facility_ids: correlation_ids[:vha_facility_ids],
+          sec_id: correlation_ids[:sec_id],
           birls_id: correlation_ids[:birls_id]
         )
       end

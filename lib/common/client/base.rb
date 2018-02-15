@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'faraday'
 require 'common/client/errors'
 require 'common/models/collection'
@@ -53,9 +54,6 @@ module Common
           "Timeout while connecting to #{config.service_name} service", :error, extra_context: { url: config.base_path }
         )
         raise Common::Exceptions::GatewayTimeout
-      rescue Faraday::ParsingError => e
-        # Faraday::ParsingError is a Faraday::ClientError but should be handled by implementing service
-        raise e
       rescue Faraday::ClientError => e
         client_error = Common::Client::Errors::ClientError.new(
           e.message,

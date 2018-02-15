@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe V0::SessionsController, type: :controller do
@@ -7,7 +8,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
   let(:loa1_user) { build(:user, :loa1, uuid: uuid) }
   let(:loa3_user) { build(:user, :loa3, uuid: uuid) }
-  let(:saml_user_attributes) { loa3_user.attributes }
+  let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
   let(:user_attributes) { double('user_attributes', saml_user_attributes) }
   let(:saml_user) do
     instance_double('SAML::User',
@@ -23,6 +24,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:valid_saml_response) do
     double('saml_response', is_valid?: true, errors: [],
                             in_response_to: uuid,
+                            status_message: '',
                             decrypted_document: response_xml_stub)
   end
   let(:invalid_saml_response) do
@@ -51,6 +53,23 @@ RSpec.describe V0::SessionsController, type: :controller do
                             decrypted_document: response_xml_stub)
   end
 
+  let(:saml_response_unknown_error) do
+    double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+                            errors: ['The status code of the Response was not Success, ' \
+                              'was Requester => NoAuthnContext -> AuthnRequest without ' \
+                              'an authentication context.'],
+                            decrypted_document: response_xml_stub)
+  end
+
+  let(:saml_response_multi_error) do
+    double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+                            errors: [
+                              'Subject did not consent to attribute release',
+                              'Other random error'
+                            ],
+                            decrypted_document: response_xml_stub)
+  end
+
   let(:logout_uuid) { '1234' }
   let(:invalid_logout_response) do
     double('logout_response', validate: false, in_response_to: logout_uuid, errors: ['bad thing'])
@@ -71,20 +90,21 @@ RSpec.describe V0::SessionsController, type: :controller do
       allow(SAML::User).to receive(:new).and_return(saml_user)
       Session.create(uuid: uuid, token: token)
       User.create(loa1_user.attributes)
+      UserIdentity.create(loa1_user.identity.attributes)
     end
 
     it 'returns a url for leveling up or verifying current level' do
       request.env['HTTP_AUTHORIZATION'] = auth_header
       get :identity_proof
       expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body).keys).to eq %w(identity_proof_url)
+      expect(JSON.parse(response.body).keys).to eq %w[identity_proof_url]
     end
 
     it 'returns a url for adding multifactor authentication to your account' do
       request.env['HTTP_AUTHORIZATION'] = auth_header
       get :multifactor
       expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body).keys).to eq %w(multifactor_url)
+      expect(JSON.parse(response.body).keys).to eq %w[multifactor_url]
     end
 
     it 'returns a logout url' do
@@ -131,7 +151,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
     end
 
-    describe ' POST saml_callback' do
+    describe 'POST saml_callback' do
       before(:each) do
         allow(SAML::User).to receive(:new).and_return(saml_user)
       end
@@ -141,15 +161,48 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(existing_user.last_signed_in).to be_a(Time)
         expect(existing_user.multifactor).to be_falsey
         expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
+        expect(existing_user.ssn).to eq('796111863')
+        allow(StringHelpers).to receive(:levenshtein_distance).and_return(8)
+        expect(controller).to receive(:log_message_to_sentry).with(
+          'SSNS DO NOT MATCH!!',
+          :warn,
+          identity_compared_with_mvi: {
+            length: [9, 9],
+            only_digits: [true, true],
+            encoding: ['UTF-8', 'UTF-8'],
+            levenshtein_distance: 8
+          }
+        )
         post :saml_callback
         new_user = User.find(uuid)
+        expect(new_user.ssn).to eq('796111863')
+        expect(new_user.va_profile.ssn).not_to eq('155256322')
         expect(new_user.loa).to eq(highest: LOA::THREE, current: LOA::THREE)
         expect(new_user.multifactor).to be_falsey
         expect(new_user.last_signed_in).not_to eq(existing_user.last_signed_in)
       end
 
+      it 'does not log to sentry when SSN matches' do
+        existing_user = User.find(uuid)
+        allow_any_instance_of(User).to receive_message_chain('va_profile.ssn').and_return('796111863')
+        expect(existing_user.ssn).to eq('796111863')
+        expect(controller).not_to receive(:log_message_to_sentry)
+        post :saml_callback
+        new_user = User.find(uuid)
+        expect(new_user.ssn).to eq('796111863')
+        expect(new_user.va_profile.ssn).to eq('796111863')
+      end
+
+      it 'saves status:success to the login timer' do
+        login_tags = ['status:success', 'context:dslogon', "loa:#{LOA::THREE}", 'multifactor:false']
+        expect { post(:saml_callback) }
+          .to trigger_statsd_measure(described_class::TIMER_LOGIN_KEY, tags: login_tags)
+      end
+
       context 'changing multifactor' do
-        let(:saml_user_attributes) { loa1_user.attributes.merge(multifactor: 'true') }
+        let(:saml_user_attributes) do
+          loa1_user.attributes.merge(loa1_user.identity.attributes).merge(multifactor: 'true')
+        end
 
         it 'changes the multifactor to true, time is the same' do
           existing_user = User.find(uuid)
@@ -157,7 +210,6 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(existing_user.multifactor).to be_falsey
           expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
           allow(saml_user).to receive(:changing_multifactor?).and_return(true)
-          allow(SAML::User).to receive(:new).and_return(saml_user)
           post :saml_callback
           new_user = User.find(uuid)
           expect(new_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
@@ -184,6 +236,12 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
+
+        it 'saves status:failure to the login timer' do
+          login_tags = ['status:failure', 'context:dslogon', 'loa:none', 'multifactor:none']
+          expect { post(:saml_callback) }
+            .to trigger_statsd_measure(described_class::TIMER_LOGIN_KEY, tags: login_tags)
+        end
       end
 
       context ' when clock drift causes us to consume the Assertion before its creation' do
@@ -204,15 +262,94 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
 
-      context ' when a required saml attribute is missing' do
-        let(:saml_user_attributes) { loa1_user.attributes.merge(uuid: nil) }
+      context 'when saml response returns an unknown type of error' do
+        before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_unknown_error) }
+
+        it 'logs a generic error' do
+          expect(controller).to receive(:log_message_to_sentry)
+            .with(
+              'Login Fail! Other SAML Response Error(s)',
+              :error,                 saml_response: {
+                status_message: '',
+                errors: [
+                  'The status code of the Response was not Success, was Requester => NoAuthnContext ' \
+                  '-> AuthnRequest without an authentication context.'
+                ]
+              }
+            )
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
+          expect(response).to have_http_status(:found)
+        end
+
+        it 'increments the failed and total statsd counters' do
+          once = { times: 1, value: 1 }
+          tags = ['error:unknown']
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_LOGIN_FAILED_KEY, tags: tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_LOGIN_TOTAL_KEY, **once)
+        end
+      end
+
+      context 'when saml response contains multiple errors (known or otherwise)' do
+        before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_multi_error) }
+
+        it 'logs a generic error' do
+          expect(controller).to receive(:log_message_to_sentry)
+            .with(
+              'Login Fail! Other SAML Response Error(s)',
+              :error,                 saml_response: {
+                status_message: '',
+                errors: [
+                  'Subject did not consent to attribute release',
+                  'Other random error'
+                ]
+              }
+            )
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
+          expect(response).to have_http_status(:found)
+        end
+
+        it 'increments the failed and total statsd counters' do
+          once = { times: 1, value: 1 }
+          tags = ['error:multiple']
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_LOGIN_FAILED_KEY, tags: tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_LOGIN_TOTAL_KEY, **once)
+        end
+      end
+
+      context 'when a required saml attribute is missing' do
+        let(:saml_user_attributes) do
+          loa1_user.attributes.merge(loa1_user.identity.attributes).merge(uuid: nil)
+        end
 
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
-        it 'logs a generic error' do
-          expect(Rails.logger).to receive(:error).with(/user:    \'valid\?=false errors=\["Uuid can\'t be blank"\]/)
+        it 'logs a generic user validation error' do
+          expect(controller).to receive(:log_message_to_sentry)
+            .with(
+              'Login Fail! on User/Session Validation',
+              :error,
+              uuid: nil,
+              user: {
+                valid: false,
+                errors: ["Uuid can't be blank"]
+              },
+              session: {
+                valid: false,
+                errors: ["Uuid can't be blank"]
+              }
+            )
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
           expect(response).to have_http_status(:found)
+        end
+
+        it 'increments the failed and total statsd counters' do
+          once = { times: 1, value: 1 }
+          tags = ['error:validations_failed']
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_LOGIN_FAILED_KEY, tags: tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_LOGIN_TOTAL_KEY, **once)
         end
       end
     end
@@ -222,7 +359,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     it 'returns the urls for for all three possible authN requests' do
       get :authn_urls
       expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body).keys).to eq %w(mhv dslogon idme)
+      expect(JSON.parse(response.body).keys).to eq %w[mhv dslogon idme]
     end
 
     it 'does not allow fetching the identity proof url' do
@@ -242,9 +379,9 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
     end
 
-    describe ' POST saml_callback' do
+    describe 'POST saml_callback' do
       context 'loa1_user' do
-        let(:saml_user_attributes) { loa1_user.attributes }
+        let(:saml_user_attributes) { loa1_user.attributes.merge(loa1_user.identity.attributes) }
 
         it 'does not create a job to create an evss user' do
           allow(SAML::User).to receive(:new).and_return(saml_user)
@@ -253,7 +390,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'loa3_user' do
-        let(:saml_user_attributes) { loa3_user.attributes }
+        let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
 
         it 'creates a job to create an evss user' do
           allow(SAML::User).to receive(:new).and_return(saml_user)

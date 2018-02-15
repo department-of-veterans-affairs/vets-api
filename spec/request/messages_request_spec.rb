@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'sm/client'
 require 'support/sm_client_helpers'
@@ -8,14 +9,13 @@ RSpec.describe 'Messages Integration', type: :request do
   include SchemaMatchers
 
   let(:current_user) { build(:user, :mhv) }
-  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, accessible?: true) }
+  let(:mhv_account) { double('mhv_account', eligible?: true, needs_terms_acceptance?: false, accessible?: true) }
   let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
   let(:message_id) { 573_059 }
 
   before(:each) do
     allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
-    allow(mhv_account).to receive(:eligible?).and_return(true)
     allow(SM::Client).to receive(:new).and_return(authenticated_client)
     use_authenticated_current_user(current_user: current_user)
   end
@@ -151,8 +151,14 @@ RSpec.describe 'Messages Integration', type: :request do
     end
   end
 
-  context 'with an LOA1 user' do
-    let(:mhv_account) { double('mhv_account', ineligible?: true, needs_terms_acceptance?: false, upgraded?: true) }
+  context 'with a user that does not have access' do
+    let(:mhv_account) do
+      double('mhv_account',
+             accessible?: false,
+             eligible?: false,
+             needs_terms_acceptance?: false,
+             upgraded?: false)
+    end
     let(:current_user) { build(:user, :loa1) }
 
     it 'gives me a 403' do
@@ -160,6 +166,26 @@ RSpec.describe 'Messages Integration', type: :request do
 
       expect(response).not_to be_success
       expect(response.status).to eq(403)
+      expect(JSON.parse(response.body)['errors'].first['detail']).to eq('You do not have access to messaging')
+    end
+  end
+
+  context 'with a user that has not accepted T&C' do
+    let(:mhv_account) do
+      double('mhv_account',
+             accessible?: false,
+             eligible?: true,
+             needs_terms_acceptance?: true,
+             upgraded?: false)
+    end
+    let(:current_user) { build(:user, :loa1) }
+
+    it 'gives me a 403' do
+      get "/v0/messaging/health/messages/#{message_id}"
+
+      expect(response).not_to be_success
+      expect(response.status).to eq(403)
+      expect(JSON.parse(response.body)['errors'].first['detail']).to eq('You have not accepted the terms of service')
     end
   end
 end

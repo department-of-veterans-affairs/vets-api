@@ -1,7 +1,8 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serializer] do
+RSpec.describe 'Education Benefits Claims Integration', type: %i[request serializer] do
   describe 'POST create' do
     let(:path) { v0_education_benefits_claims_path }
 
@@ -101,7 +102,13 @@ RSpec.describe 'Education Benefits Claims Integration', type: [:request, :serial
         allow(Rails.logger).to receive(:error)
         expect(Rails.logger).to receive(:error).with(validation_error).once
 
-        expect(Raven).to receive(:tags_context).once.with(validation: 'education_benefits_claim')
+        expect(Raven).to receive(:tags_context).once.with(
+          controller_name: 'education_benefits_claims',
+          sign_in_method: 'not-signed-in'
+        )
+        expect(Raven).to receive(:tags_context).once.with(
+          validation: 'education_benefits_claim'
+        )
         expect(Raven).to receive(:capture_message).once.with(validation_error, level: :error)
 
         subject

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class Post911GIBillStatusSerializer < ActiveModel::Serializer
   attribute :first_name
   attribute :last_name

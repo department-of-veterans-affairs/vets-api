@@ -1,9 +1,10 @@
 # frozen_string_literal: true
+
 require 'saml/auth_fail_handler'
 
 module V0
   class SessionsController < ApplicationController
-    skip_before_action :authenticate, only: [:new, :authn_urls, :saml_callback, :saml_logout_callback]
+    skip_before_action :authenticate, only: %i[new authn_urls saml_callback saml_logout_callback]
 
     STATSD_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'
@@ -22,10 +23,9 @@ module V0
       'myhealthevet_multifactor' => 'myhealthevet_multifactor'
     }.freeze
 
-    # Collection Action: method will eventually replace new
+    # Collection Action: no auth required
     # Returns the sign-in urls for mhv, dslogon, and ID.me (LOA1 only)
     # authn_context is the policy, connect represents the ID.me flow
-    # no auth required
     def authn_urls
       render json: {
         mhv: build_url(authn_context: 'myhealthevet', connect: 'myhealthevet'),
@@ -34,21 +34,21 @@ module V0
       }
     end
 
-    # Member Action: method is to opt in to MFA for those users who opted out
+    # Member Action: auth token required
+    # method is to opt in to MFA for those users who opted out
     # authn_context is the policy, connect represents the ID.me flow
-    # auth token required
     def multifactor
       policy = @current_user&.authn_context
       authn_context = policy.present? ? "#{policy}_multifactor" : 'multifactor'
       render json: { multifactor_url: build_url(authn_context: authn_context, connect: policy) }
     end
 
-    # Member Action: method is to verify LOA3 if existing ID.me LOA3, or
-    #  go through the FICAM identity proofing flow if not an ID.me LOA3 or NON PREMIUM DSLogon or MHV.
+    # Member Action: auth token required
+    # method is to verify LOA3 if existing ID.me LOA3, or go through the FICAM identity proofing flow
+    # if not an ID.me LOA3 or NON PREMIUM DSLogon or MHV.
     # NOTE: This is FICAM LOA3 we're talking about here. It is not necessary to verify DSLogon or MHV
     #  sign-in users who return LOA3 from the auth_url flow (only for leveling up NON PREMIUM).
-    # authn_context is the policy, connect represents the ID.me flow
-    # auth token required
+    #  authn_context is the policy, connect represents the ID.me flow
     def identity_proof
       connect = @current_user&.authn_context
       render json: {
@@ -84,12 +84,11 @@ module V0
         async_create_evss_account(@current_user)
         redirect_to Settings.saml.relay + '?token=' + @session.token
 
-        obscure_token = Session.obscure_token(@session.token)
-        Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
-        Benchmark::Timer.stop(TIMER_LOGIN_KEY, saml_response.in_response_to, tags: benchmark_tags('status:success'))
+        log_persisted_session_and_warnings
+        Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: benchmark_tags('status:success'))
         StatsD.increment(STATSD_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
-        handle_login_error(persistence_service.new_user, persistence_service.new_session)
+        handle_login_error
         redirect_to Settings.saml.relay + '?auth=fail'
         Benchmark::Timer.stop(TIMER_LOGIN_KEY, saml_response.in_response_to, tags: benchmark_tags('status:failure'))
       end
@@ -106,22 +105,45 @@ module V0
     end
 
     def persistence_service
-      @persistence_service ||= AuthenticationPersistenceService.new(@saml_response)
+      @persistence_service ||= AuthenticationPersistenceService.new(saml_response)
     end
 
-    def handle_login_error(user = nil, session = nil)
-      fail_handler = SAML::AuthFailHandler.new(@saml_response, user, session)
+    def handle_login_error
+      fail_handler = SAML::AuthFailHandler.new(saml_response)
       StatsD.increment(STATSD_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
-      StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ["error:#{fail_handler.error}"])
-      if fail_handler.known_error?
+      if fail_handler.errors?
+        StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ["error:#{fail_handler.error}"])
         log_message_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
       else
-        log_message_to_sentry(fail_handler.generic_error_message, :error)
+        StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ['error:validations_failed'])
+        context = {
+          uuid: persistence_service.new_user.uuid,
+          user:   {
+            valid: persistence_service.new_user&.valid?,
+            errors: persistence_service.new_user&.errors&.full_messages
+          },
+          session:   {
+            valid: persistence_service.new_session&.valid?,
+            errors: persistence_service.new_session&.errors&.full_messages
+          }
+        }
+        log_message_to_sentry('Login Fail! on User/Session Validation', :error, context)
+      end
+    end
+
+    def log_persisted_session_and_warnings
+      obscure_token = Session.obscure_token(@session.token)
+      Rails.logger.info("Logged in user with id #{@session.uuid}, token #{obscure_token}")
+      # We want to log when SSNs do not match between MVI and SAML Identity. And might take future
+      # action if this appears to be happening frquently.
+      if @current_user.ssn_mismatch?
+        additional_context = StringHelpers.heuristics(@current_user.identity.ssn, @current_user.va_profile.ssn)
+        log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mvi: additional_context)
       end
     end
 
     def async_create_evss_account(user)
-      return unless user.can_access_evss?
+      return unless Auth.authorized? user, :evss, :access?
       auth_headers = EVSS::AuthHeaders.new(user).to_h
       EVSS::CreateUserAccountJob.perform_async(auth_headers)
     end
@@ -185,8 +207,8 @@ module V0
 
     def benchmark_tags(*tags)
       tags << "context:#{context_key}"
-      tags << "loa:#{@current_user.loa[:current]}" if @current_user
-      tags << "multifactor:#{@current_user.multifactor}" if @current_user
+      tags << "loa:#{@current_user&.identity ? @current_user.loa[:current] : 'none'}"
+      tags << "multifactor:#{@current_user&.identity ? @current_user.multifactor : 'none'}"
       tags
     end
   end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'net/sftp'
 require 'iconv'
 require 'sentry_logging'
@@ -10,7 +11,7 @@ module EducationForm
   end
 
   class CreateDailySpoolFiles
-    LIVE_FORM_TYPES = %w(1990 1995 1990e 5490 1990n 5495).map { |t| "22-#{t.upcase}" }.freeze
+    LIVE_FORM_TYPES = %w[1990 1995 1990e 5490 1990n 5495].map { |t| "22-#{t.upcase}" }.freeze
     include Sidekiq::Worker
     include SentryLogging
     sidekiq_options queue: 'default',
@@ -70,7 +71,7 @@ module EducationForm
     def write_files(writer, structured_data:)
       structured_data.each do |region, records|
         region_id = EducationFacility.facility_for(region: region)
-        filename = "#{region_id}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
+        filename = "#{region_id}_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}_vetsgov.spl"
         log_submissions(records, filename)
         # create the single textual spool file
         contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)

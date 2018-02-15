@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module SAML
   class AuthFailHandler
     attr_accessor :message, :level, :context
@@ -7,16 +8,12 @@ module SAML
     TOO_LATE_MSG     = 'Current time is on or after NotOnOrAfter condition'
     TOO_EARLY_MSG    = 'Current time is earlier than NotBefore condition'
 
-    KNOWN_ERRORS = %i(clicked_deny auth_too_late auth_too_early).freeze
+    KNOWN_ERRORS = %i[clicked_deny auth_too_late auth_too_early].freeze
 
-    def initialize(saml_response, user, session)
+    def initialize(saml_response)
       @saml_response = saml_response
-      @current_user = user
-      @session = session
-
-      @message = nil
-      @level   = nil
-      @context = nil
+      return if @saml_response.is_valid?
+      initialize_errors!
     end
 
     def error
@@ -24,28 +21,32 @@ module SAML
         return known_error if send("#{known_error}?")
       end
 
-      'unknown'
+      only_one_error? ? 'unknown' : 'multiple'
     end
 
-    def known_error?
+    def errors?
+      !@message.nil? && !@level.nil?
+    end
+
+    private
+
+    def initialize_errors!
       KNOWN_ERRORS.each do |known_error|
         break if send("#{known_error}?")
       end
 
-      !@message.nil? && !@level.nil?
+      generic_error_message
     end
 
     def generic_error_message
-      message = <<-MESSAGE.strip_heredoc
-        SAML Login attempt failed! Reasons...
-          saml:    'valid?=#{@saml_response.is_valid?} errors=#{@saml_response.errors}'
-          user:    'valid?=#{@current_user&.valid?} errors=#{@current_user&.errors&.full_messages}'
-          session: 'valid?=#{@session&.valid?} errors=#{@session&.errors&.full_messages}'
-      MESSAGE
-      message
+      context = {
+        saml_response: {
+          status_message: @saml_response.status_message,
+          errors: @saml_response.errors
+        }
+      }
+      set_sentry_params('Other SAML Response Error(s)', :error, context)
     end
-
-    private
 
     def clicked_deny?
       return false unless only_one_error? && @saml_response.status_message == CLICKED_DENY_MSG

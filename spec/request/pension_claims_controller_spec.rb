@@ -1,8 +1,9 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'hca/service'
 
-RSpec.describe 'Pension Claim Integration', type: [:request, :serializer] do
+RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
   let(:full_claim) do
     build(:pension_claim).parsed_form
   end
@@ -44,6 +45,10 @@ RSpec.describe 'Pension Claim Integration', type: [:request, :serializer] do
       end
 
       it 'should log the validation errors' do
+        expect(Raven).to receive(:tags_context).once.with(
+          controller_name: 'pension_claims',
+          sign_in_method: 'not-signed-in'
+        )
         expect(Raven).to receive(:tags_context).once.with(validation: 'pension_claim')
         expect(Raven).to receive(:capture_message).with(/bankAccount/, level: :error)
 
@@ -62,7 +67,7 @@ RSpec.describe 'Pension Claim Integration', type: [:request, :serializer] do
       it 'should render success' do
         subject
         expect(JSON.parse(response.body)['data']['attributes'].keys.sort)
-          .to eq(%w(confirmationNumber form regionalOffice submittedAt))
+          .to eq(%w[confirmationNumber form regionalOffice submittedAt])
       end
     end
   end

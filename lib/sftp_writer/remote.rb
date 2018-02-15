@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class SFTPWriter::Remote
   def initialize(config, logger:)
     @config = config
@@ -28,7 +29,7 @@ class SFTPWriter::Remote
   end
 
   def write(contents, filename)
-    path = File.join([write_path, filename].compact)
+    path = File.join([write_path, sanitize(filename)].compact)
     @logger.info("Writing #{path}")
     mkdir_safe(path)
     sftp.upload!(StringIO.new(contents), path)
@@ -57,5 +58,9 @@ class SFTPWriter::Remote
         raise if $ERROR_INFO.code != Net::SFTP::Constants::StatusCodes::FX_FILE_ALREADY_EXISTS
       end
     end
+  end
+
+  def sanitize(filename)
+    filename.tr(':', '_')
   end
 end

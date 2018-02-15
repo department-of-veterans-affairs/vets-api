@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :va1990, class: SavedClaim::EducationBenefits::VA1990, parent: :education_benefits do
     form do
@@ -29,7 +30,7 @@ FactoryBot.define do
           routingNumber: '123456789',
           accountNumber: '88888888888'
         },
-        school: {
+        educationProgram: {
           name: 'FakeData University',
           address: {
             country: 'USA',
@@ -38,10 +39,8 @@ FactoryBot.define do
             street: '111 Uni Drive',
             city: 'Baltimore'
           },
-          startDate: '2016-08-29',
-          educationalObjective: '...'
+          educationType: 'college'
         },
-        educationType: 'college',
         postHighSchoolTrainings: [
           {
             name: 'OtherCollege Name',
@@ -107,7 +106,7 @@ FactoryBot.define do
 
       factory :va1990_western_region do
         custom_form(
-          'school' => {
+          'educationProgram' => {
             'address' => {
               'country' => 'USA',
               'state' => 'CA',

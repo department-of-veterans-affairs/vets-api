@@ -1,40 +1,86 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :user, class: 'User' do
     uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
     last_signed_in Time.now.utc
-    email 'abraham.lincoln@vets.gov'
-    first_name 'abraham'
-    last_name 'lincoln'
-    gender 'M'
-    birth_date '1809-02-12'
-    zip '17325'
-    ssn '796111863'
-    multifactor false
-    mhv_icn nil
-    loa do
-      {
-        current: LOA::TWO,
-        highest: LOA::THREE
-      }
+
+    transient do
+      email 'abraham.lincoln@vets.gov'
+      first_name 'abraham'
+      middle_name nil
+      last_name 'lincoln'
+      gender 'M'
+      birth_date '1809-02-12'
+      zip '17325'
+      ssn '796111863'
+      mhv_icn nil
+      multifactor false
+
+      loa do
+        { current: LOA::TWO, highest: LOA::THREE }
+      end
+    end
+
+    callback(:after_build, :after_stub, :after_create) do |user, t|
+      user_identity = create(:user_identity,
+                             uuid: user.uuid,
+                             email: t.email,
+                             first_name: t.first_name,
+                             middle_name: t.middle_name,
+                             last_name: t.last_name,
+                             gender: t.gender,
+                             birth_date: t.birth_date,
+                             zip: t.zip,
+                             ssn: t.ssn,
+                             mhv_icn: t.mhv_icn,
+                             loa: t.loa,
+                             multifactor: t.multifactor)
+      user.instance_variable_set(:@identity, user_identity)
     end
 
     trait :loa1 do
       loa do
-        {
-          current: LOA::ONE,
-          highest: LOA::ONE
-        }
+        { current: LOA::ONE, highest: LOA::ONE }
       end
     end
 
     trait :loa3 do
       loa do
-        {
-          current: LOA::THREE,
-          highest: LOA::THREE
-        }
+        { current: LOA::THREE, highest: LOA::THREE }
       end
+    end
+
+    factory :evss_user, traits: [:loa3] do
+      first_name('WESLEY')
+      last_name('FORD')
+      last_signed_in(Time.zone.parse('2017-12-07T00:55:09Z'))
+      ssn('796043735')
+
+      after(:build) do
+        stub_mvi(
+          build(
+            :mvi_profile,
+            edipi: '1007697216',
+            birls_id: '796043735',
+            participant_id: '600061742',
+            birth_date: '1986-05-06T00:00:00+00:00'.to_date.to_s
+          )
+        )
+      end
+    end
+
+    trait :mhv_sign_in do
+      email 'abraham.lincoln@vets.gov'
+      first_name nil
+      middle_name nil
+      last_name nil
+      gender nil
+      birth_date nil
+      zip nil
+      ssn nil
+      mhv_icn '12345'
+      multifactor false
     end
 
     trait :mhv do

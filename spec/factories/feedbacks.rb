@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :feedback, class: 'Feedback' do
     target_page '/example/page'

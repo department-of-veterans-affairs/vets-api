@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # example controller to show use of logging in with sessions controller
 
 module V0
@@ -7,6 +8,10 @@ module V0
 
     def index
       render json: { "message": 'Welcome to the vets.gov API' }
+    end
+
+    def limited
+      render json: { "message": 'Rate limited action' }
     end
 
     def welcome

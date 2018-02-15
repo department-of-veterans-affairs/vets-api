@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module PensionBurial
   class Configuration < Common::Client::Configuration::REST
     def base_path

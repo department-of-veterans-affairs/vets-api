@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
@@ -61,7 +62,7 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
     end
     it 'should only add documents without a tracked_item_id into other_documents_list' do
       expect(other_documents.count).to eq 1
-      expect(other_documents.select { |obj| !obj['tracked_item_id'].nil? }.count).to eq 0
+      expect(other_documents.reject { |obj| obj['tracked_item_id'].nil? }.count).to eq 0
     end
     it 'should use the upload date for the tracked item' do
       tracked_item = attributes['events_timeline'].detect { |event| event['tracked_item_id'] == 211_684 }

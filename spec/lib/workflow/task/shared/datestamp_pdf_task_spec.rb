@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'workflow/task/shared/datestamp_pdf_task'
 

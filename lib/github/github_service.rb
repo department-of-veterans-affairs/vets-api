@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Github
   class GithubService
     class << self
@@ -12,7 +13,7 @@ module Github
           GITHUB_REPO,
           issue_title(feedback),
           issue_body(feedback),
-          assignee: 'va-bot', labels: 'User Feedback'
+          assignee: 'va-bot', labels: 'uservoice'
         )
       rescue => e
         log_exception_to_sentry(e)
@@ -28,7 +29,7 @@ module Github
 
       def issue_title(feedback)
         title = feedback.description[0..40]
-        title += ' - Response Requested' unless feedback.owner_email.blank?
+        title += ' - Response Requested' if feedback.owner_email.present?
         title
       end
 

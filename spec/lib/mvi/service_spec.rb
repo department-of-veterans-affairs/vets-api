@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'mvi/service'
 require 'mvi/responses/find_profile_response'
@@ -17,7 +18,14 @@ describe MVI::Service do
   let(:user) { build(:user, :loa3, user_hash) }
 
   let(:mvi_profile) do
-    build(:mvi_profile_response, :missing_attrs, :address_austin, given_names: %w(Mitchell G), vha_facility_ids: [])
+    build(
+      :mvi_profile_response,
+      :missing_attrs,
+      :address_austin,
+      given_names: %w[Mitchell G],
+      vha_facility_ids: [],
+      sec_id: nil
+    )
   end
 
   describe '.find_profile with icn' do
@@ -60,6 +68,9 @@ describe MVI::Service do
     context 'invalid requests' do
       it 'responds with a SERVER_ERROR if ICN is invalid' do
         allow(user).to receive(:mhv_icn).and_return('invalid-icn-is-here^NI')
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI Invalid Request (Possible RecordNotFound)', :error
+        )
 
         VCR.use_cassette('mvi/find_candidate/invalid_icn') do
           expect(subject.find_profile(user))
@@ -69,6 +80,9 @@ describe MVI::Service do
 
       it 'responds with a SERVER_ERROR if ICN has no matches' do
         allow(user).to receive(:mhv_icn).and_return('1008714781V416999')
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI Invalid Request (Possible RecordNotFound)', :error
+        )
 
         VCR.use_cassette('mvi/find_candidate/icn_not_found') do
           expect(subject.find_profile(user))
@@ -117,6 +131,9 @@ describe MVI::Service do
       it 'should raise a invalid request error' do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI Invalid Request', :error
+        )
         VCR.use_cassette('mvi/find_candidate/invalid') do
           expect(subject.find_profile(user))
             .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
@@ -128,6 +145,9 @@ describe MVI::Service do
       it 'should raise a request failure error' do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI Failed Request', :error
+        )
         VCR.use_cassette('mvi/find_candidate/failure') do
           expect(subject.find_profile(user))
             .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
@@ -151,6 +171,10 @@ describe MVI::Service do
     context 'when a status of 500 is returned' do
       it 'should raise a request failure error' do
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return('<nobeuno></nobeuno>')
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI find_profile error: SOAP HTTP call failed',
+          :error
+        )
         VCR.use_cassette('mvi/find_candidate/five_hundred') do
           expect(subject.find_profile(user))
             .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
@@ -173,8 +197,9 @@ describe MVI::Service do
         }
       end
 
-      it 'raises an MVI::Errors::RecordNotFound error' do
+      it 'returns not found, does not log sentry' do
         VCR.use_cassette('mvi/find_candidate/no_subject') do
+          expect(subject).not_to receive(:log_message_to_sentry)
           expect(subject.find_profile(user)).to have_deep_attributes(MVI::Responses::FindProfileResponse.with_not_found)
         end
       end
@@ -193,6 +218,10 @@ describe MVI::Service do
       end
 
       it 'raises an Common::Client::Errors::HTTPError' do
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI find_profile error: SOAP service returned internal server error',
+          :error
+        )
         VCR.use_cassette('mvi/find_candidate/internal_server_error') do
           expect(subject.find_profile(user))
             .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
@@ -206,6 +235,10 @@ describe MVI::Service do
       end
 
       it 'raises MVI::Errors::RecordNotFound' do
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI Duplicate Record', :warn
+        )
+
         VCR.use_cassette('mvi/find_candidate/failure_multiple_matches') do
           expect(subject.find_profile(user)).to have_deep_attributes(MVI::Responses::FindProfileResponse.with_not_found)
         end

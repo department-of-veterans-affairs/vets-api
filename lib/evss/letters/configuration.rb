@@ -1,8 +1,9 @@
 # frozen_string_literal: true
+
 module EVSS
   module Letters
     class Configuration < EVSS::Configuration
-      DEFAULT_TIMEOUT = Settings.evss.letters.timeout
+      self.read_timeout = Settings.evss.letters.timeout || 55
 
       def base_path
         "#{Settings.evss.url}/wss-lettergenerator-services-web/rest/letters/v1"

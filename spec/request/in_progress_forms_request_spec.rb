@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
@@ -14,13 +15,16 @@ RSpec.describe V0::InProgressFormsController, type: :request do
     before do
       Session.create(uuid: user.uuid, token: token)
       User.create(user)
+
+      enabled_forms = FormProfile.prefill_enabled_forms << 'FAKEFORM'
+      allow(FormProfile).to receive(:prefill_enabled_forms).and_return(enabled_forms)
       allow(FormProfile).to receive(:load_form_mapping).with('FAKEFORM').and_return(
-        'veteran_full_name' => %w(identity_information full_name),
-        'gender' => %w(identity_information gender),
-        'veteran_date_of_birth' => %w(identity_information date_of_birth),
-        'veteran_social_security_number' => %w(identity_information ssn),
-        'veteran_address' => %w(contact_information address),
-        'home_phone' => %w(contact_information home_phone)
+        'veteran_full_name' => %w[identity_information full_name],
+        'gender' => %w[identity_information gender],
+        'veteran_date_of_birth' => %w[identity_information date_of_birth],
+        'veteran_social_security_number' => %w[identity_information ssn],
+        'veteran_address' => %w[contact_information address],
+        'home_phone' => %w[contact_information home_phone]
       )
     end
 
@@ -42,7 +46,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       end
 
       context 'when the user is not a test account' do
-        let(:user) { build(:user, :loa3, ssn: '000-01-0002') }
+        let(:user) { build(:user, :loa3, ssn: '000010002') }
         it 'returns a 200' do
           subject
           expect(response).to have_http_status(:ok)

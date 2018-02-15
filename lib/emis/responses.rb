@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'emis/responses/error_response'
 require 'emis/responses/get_combat_pay_response'
 require 'emis/responses/get_deployment_response'

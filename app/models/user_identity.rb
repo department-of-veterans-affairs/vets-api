@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/base'
 require 'common/models/redis_store'
 require 'saml/user'
@@ -22,7 +23,7 @@ class UserIdentity < Common::RedisStore
   attribute :multifactor, Boolean # used by F/E to decision on whether or not to prompt user to add MFA
   attribute :authn_context # used by F/E to handle various identity related complexities pending refactor
   attribute :mhv_icn # only needed by B/E not serialized in user_serializer
-  attribute :mhv_uuid # this is the cannonical version of MHV Correlation ID, provided by MHV sign-in users
+  attribute :mhv_correlation_id # this is the cannonical version of MHV Correlation ID, provided by MHV sign-in users
   validates :uuid, presence: true
   validates :email, presence: true
   validates :loa, presence: true

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 host = Settings.statsd.host
 port = Settings.statsd.port
 
@@ -18,9 +19,9 @@ SAML::AuthFailHandler::KNOWN_ERRORS.each do |known_error|
   StatsD.increment(V0::SessionsController::STATSD_LOGIN_FAILED_KEY, 0, tags: ["error:#{known_error}"])
 end
 
-%w(success failure).each do |s|
+%w[success failure].each do |s|
   StatsD.increment(V0::SessionsController::STATSD_CALLBACK_KEY, 0, tags: ["status:#{s}", 'context:unknown'])
-  V0::SessionsController::STATSD_CONTEXT_MAP.values.each do |ctx|
+  V0::SessionsController::STATSD_CONTEXT_MAP.each_value do |ctx|
     StatsD.increment(V0::SessionsController::STATSD_CALLBACK_KEY, 0, tags: ["status:#{s}", "context:#{ctx}"])
   end
 end
@@ -28,6 +29,24 @@ end
 # init GiBillStatus stats to 0
 StatsD.increment(V0::Post911GIBillStatusesController::STATSD_GI_BILL_TOTAL_KEY, 0)
 StatsD.increment(V0::Post911GIBillStatusesController::STATSD_GI_BILL_FAIL_KEY, 0, tags: ['error:unknown'])
-EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS.each do |_error_key, error_val|
+EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS.each_value do |error_val|
   StatsD.increment(V0::Post911GIBillStatusesController::STATSD_GI_BILL_FAIL_KEY, 0, tags: ["error:#{error_val}"])
 end
+
+# init letters/pciu address
+StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.get_letters.total", 0)
+StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.get_letters.fail", 0)
+StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.get_letter_beneficiary.total", 0)
+StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.get_letter_beneficiary.fail", 0)
+StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.get_countries.total", 0)
+StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.get_countries.fail", 0)
+StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.get_states.total", 0)
+StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.get_states.fail", 0)
+StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.get_address.total", 0)
+StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.get_address.fail", 0)
+StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.update_address.total", 0)
+StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.update_address.fail", 0)
+
+# init appeals
+StatsD.increment("#{Appeals::Service::STATSD_KEY_PREFIX}.get_appeals.total", 0)
+StatsD.increment("#{Appeals::Service::STATSD_KEY_PREFIX}.get_appeals.fail", 0)

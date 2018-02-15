@@ -77,10 +77,6 @@
   "highSchoolOrGedCompletionDate": "2010-06-XX",
   "homePhone": "5551110000",
   "reserveKicker": true,
-  "school": {
-    "educationalObjective": "...",
-    "startDate": "2016-08-29"
-  },
   "secondaryContact": {
     "fullName": "Sibling Olson",
     "sameAddress": false,

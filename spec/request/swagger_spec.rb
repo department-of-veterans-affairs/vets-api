@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 require 'saml/settings_service'
@@ -70,6 +71,10 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     it 'supports listing in-progress forms' do
       expect(subject).to validate(:get, '/v0/in_progress_forms', 200, auth_options)
       expect(subject).to validate(:get, '/v0/in_progress_forms', 401)
+    end
+
+    it 'supports fetching maintenance windows' do
+      expect(subject).to validate(:get, '/v0/maintenance_windows', 200)
     end
 
     it 'supports getting an in-progress form' do
@@ -578,7 +583,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             end
           end
 
-          [:put, :patch].each do |op|
+          %i[put patch].each do |op|
             it "supports updating a message draft with #{op}" do
               VCR.use_cassette('sm_client/message_drafts/updates_a_draft') do
                 expect(subject).to validate(
@@ -717,7 +722,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
           context 'unsuccessful calls' do
             let(:mhv_account) do
-              double('mhv_account', ineligible?: true, needs_terms_acceptance?: false, accessible?: true)
+              double('mhv_account', eligible?: true, needs_terms_acceptance?: false, accessible?: false)
             end
 
             it 'raises forbidden when user is not eligible' do
@@ -867,6 +872,12 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     context '#feedback' do
+      before(:all) do
+        Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.current)
+      end
+      before(:each) do
+        Rack::Attack.cache.store.flushdb
+      end
       let(:feedback_params) do
         {
           'description' => 'I liked this page',

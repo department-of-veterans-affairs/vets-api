@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/configuration/soap'
 require 'common/client/middleware/request/soap_headers'
 require 'common/client/middleware/response/soap_parser'
@@ -8,7 +9,7 @@ require 'preneeds/middleware/response/preneeds_parser'
 
 module Preneeds
   class Configuration < Common::Client::Configuration::SOAP
-    TIMEOUT = 15
+    TIMEOUT = 30
 
     def self.url
       "#{Settings.preneeds.host}/eoas_SOA/PreNeedApplicationPort"

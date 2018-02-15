@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class DischargeTypeSerializer < ActiveModel::Serializer
   attribute :id
 

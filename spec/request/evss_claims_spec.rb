@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 require 'evss/request_decision'
@@ -6,8 +7,10 @@ require 'evss/request_decision'
 RSpec.describe 'EVSS Claims management', type: :request do
   include SchemaMatchers
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:session) { Session.create(uuid: user.uuid) }
+  let(:evss_user) { create(:evss_user) }
+  let(:evss_session) { Session.create(uuid: evss_user.uuid) }
 
   context 'for a user without evss attrs' do
     before do
@@ -21,30 +24,30 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
   end
 
-  it 'lists all Claims' do
-    VCR.use_cassette('evss/claims/claims') do
-      get '/v0/evss_claims', nil, 'Authorization' => "Token token=#{session.token}"
+  it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
+    VCR.use_cassette('evss/claims/claims', VCR::MATCH_EVERYTHING) do
+      get '/v0/evss_claims', nil, 'Authorization' => "Token token=#{evss_session.token}"
       expect(response).to match_response_schema('evss_claims')
     end
   end
 
   context 'for a single claim' do
     let!(:claim) do
-      FactoryBot.create(:evss_claim, id: 1, evss_id: 189_625,
+      FactoryBot.create(:evss_claim, id: 1, evss_id: 600_118_851,
                                      user_uuid: user.uuid)
     end
 
     it 'sets 5103 waiver when requesting a decision' do
       expect do
-        post '/v0/evss_claims/189625/request_decision', nil, 'Authorization' => "Token token=#{session.token}"
+        post '/v0/evss_claims/600118851/request_decision', nil, 'Authorization' => "Token token=#{session.token}"
       end.to change(EVSS::RequestDecision.jobs, :size).by(1)
       expect(response.status).to eq(202)
       expect(JSON.parse(response.body)['job_id']).to eq(EVSS::RequestDecision.jobs.first['jid'])
     end
 
-    it 'shows a single Claim' do
-      VCR.use_cassette('evss/claims/claim') do
-        get '/v0/evss_claims/189625', nil, 'Authorization' => "Token token=#{session.token}"
+    it 'shows a single Claim', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+      VCR.use_cassette('evss/claims/claim', VCR::MATCH_EVERYTHING) do
+        get '/v0/evss_claims/600118851', nil, 'Authorization' => "Token token=#{evss_session.token}"
         expect(response).to match_response_schema('evss_claim')
       end
     end
@@ -63,7 +66,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
       end
       it 'has waiver_submitted set after requesting a decision' do
         expect(claim.requested_decision).to eq(false)
-        post '/v0/evss_claims/189625/request_decision', nil, 'Authorization' => "Token token=#{session.token}"
+        post '/v0/evss_claims/600118851/request_decision', nil, 'Authorization' => "Token token=#{session.token}"
         expect(claim.reload.requested_decision).to eq(true)
       end
     end

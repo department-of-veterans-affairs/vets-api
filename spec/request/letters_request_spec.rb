@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'letters', type: :request do
@@ -94,7 +95,7 @@ RSpec.describe 'letters', type: :request do
 
     context 'with a 404 evss response' do
       let(:user) do
-        build(:user, :loa3, first_name: 'John', last_name: 'SMith', birth_date: '1942-02-12', ssn: '7991112233')
+        build(:user, :loa3, first_name: 'John', last_name: 'SMith', birth_date: '1942-02-12', ssn: '799111223')
       end
       before do
         user.va_profile.edipi = '1005079999'
@@ -221,7 +222,7 @@ RSpec.describe 'letters', type: :request do
           get '/v0/letters', nil, auth_header
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('letters_errors')
-          expect(JSON.load(response.body)).to have_deep_attributes(
+          expect(JSON.parse(response.body)).to have_deep_attributes(
             'errors' => [
               {
                 'title' => 'Proxy error',
@@ -251,7 +252,7 @@ RSpec.describe 'letters', type: :request do
           get '/v0/letters', nil, auth_header
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('letters_errors')
-          expect(JSON.load(response.body)).to have_deep_attributes(
+          expect(JSON.parse(response.body)).to have_deep_attributes(
             'errors' => [
               {
                 'title' => 'Proxy error',
@@ -284,7 +285,7 @@ RSpec.describe 'letters', type: :request do
     it 'should return a not found response' do
       get '/v0/letters', nil, auth_header
       expect(response).to have_http_status(:gateway_timeout)
-      expect(JSON.load(response.body)).to have_deep_attributes(
+      expect(JSON.parse(response.body)).to have_deep_attributes(
         'errors' => [
           {
             'title' => 'Gateway timeout',

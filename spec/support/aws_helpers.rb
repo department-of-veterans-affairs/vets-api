@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module AwsHelpers
   def stub_reports_s3(filename)
     url = 'http://foo'

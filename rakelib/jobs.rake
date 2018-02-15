@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 namespace :jobs do
   desc 'Create daily spool files'
   task create_daily_spool_files: :environment do
@@ -13,12 +14,5 @@ namespace :jobs do
   desc 'Populate facility access-to-care cache'
   task download_facility_access_data: :environment do
     Facilities::AccessDataDownload.perform_async
-  end
-
-  desc 'Get names and ssns of claims to be resubmitted'
-  task write_ssns: :environment do
-    Rails.application.eager_load!
-
-    puts EducationForm::GenerateSpoolFiles.new.write_names_and_ssns
   end
 end

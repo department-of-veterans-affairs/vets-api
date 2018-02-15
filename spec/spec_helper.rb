@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'fakeredis/rspec'
 require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
@@ -7,9 +8,11 @@ require 'support/spool_helpers'
 require 'support/fixture_helpers'
 require 'support/spec_temp_files'
 require 'support/have_deep_attributes_matcher'
+require 'support/be_a_uuid'
 require 'support/impl_matchers'
 require 'support/negated_matchers'
 require 'support/stub_emis'
+require 'pundit/rspec'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
@@ -26,6 +29,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/tasks/support/shell_command.rb'
     add_filter 'lib/config_helper.rb'
     add_filter 'lib/feature_flipper.rb'
+    add_filter 'lib/vic/configuration.rb'
     add_filter 'spec'
     add_filter 'vendor'
     SimpleCov.minimum_coverage_by_file 90

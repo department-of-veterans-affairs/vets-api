@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'breakers/statsd_plugin'
 require 'appeals_status/configuration'
 require 'bb/configuration'
@@ -42,9 +43,10 @@ services = [
   EVSS::DocumentsService.breakers_service,
   EVSS::Letters::Configuration.instance.breakers_service,
   EVSS::PCIUAddress::Configuration.instance.breakers_service,
-  EVSS::GiBillStatus::Service.breakers_service,
+  EVSS::GiBillStatus::Configuration.instance.breakers_service,
   Facilities::AccessWaitTimeConfiguration.instance.breakers_service,
   Facilities::AccessSatisfactionConfiguration.instance.breakers_service,
+  VIC::Configuration.instance.breakers_service,
   GI::Configuration.instance.breakers_service,
   HCA::Configuration.instance.breakers_service,
   MHVAC::Configuration.instance.breakers_service,
@@ -53,9 +55,7 @@ services = [
   SM::Configuration.instance.breakers_service
 ]
 
-if Settings.pension_burial&.upload&.enabled
-  services << PensionBurial::Configuration.instance.breakers_service
-end
+services << PensionBurial::Configuration.instance.breakers_service if Settings.pension_burial&.upload&.enabled
 
 plugin = Breakers::StatsdPlugin.new
 

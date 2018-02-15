@@ -6,9 +6,7 @@ def unsubscribe(log_subscriber, event_component)
     case subscriber
     when log_subscriber
       ActiveSupport::Notifications.notifier.listeners_for(event_component).each do |listener|
-        if listener.instance_variable_get('@delegate') == subscriber
-          ActiveSupport::Notifications.unsubscribe listener
-        end
+        ActiveSupport::Notifications.unsubscribe listener if listener.instance_variable_get('@delegate') == subscriber
       end
     end
   end

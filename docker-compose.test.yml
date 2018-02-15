@@ -8,7 +8,10 @@ services:
   redis:
     image: "redis:3.2"
   vets-api:
-    build: .
+    build:
+      context: .
+      args:
+        sidekiq_license: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
     image: "vets-api:${BUILD_TAG:-latest}"
     volumes:
       - ".:/src/vets-api"

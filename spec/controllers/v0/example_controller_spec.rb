@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe V0::ExampleController, type: :controller do
@@ -6,6 +7,11 @@ RSpec.describe V0::ExampleController, type: :controller do
     it 'returns unauthorized' do
       get :welcome
       expect(response).to have_http_status(:unauthorized)
+    end
+
+    it 'returns rate limited message' do
+      get :limited
+      expect(response).to have_http_status(:ok)
     end
   end
 

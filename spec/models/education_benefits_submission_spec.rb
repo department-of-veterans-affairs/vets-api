@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe EducationBenefitsSubmission, type: :model do
@@ -19,7 +20,7 @@ RSpec.describe EducationBenefitsSubmission, type: :model do
     end
 
     it 'should validate form_type' do
-      %w(1995 1990 1990e).each do |form_type|
+      %w[1995 1990 1990e].each do |form_type|
         subject.form_type = form_type
         expect_attr_valid(subject, form_type)
       end
