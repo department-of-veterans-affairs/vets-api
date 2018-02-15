@@ -74,10 +74,10 @@ module V0
     end
 
     def saml_callback
-      if persistence_service.persist_authentication!
-        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if persistence_service.existing_user.blank?
-        @current_user = persistence_service.new_user
-        @session = persistence_service.new_session
+      if sso_service.persist_authentication!
+        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if sso_service.existing_user.blank?
+        @current_user = sso_service.new_user
+        @session = sso_service.new_session
         async_create_evss_account(@current_user)
         redirect_to Settings.saml.relay + '?token=' + @session.token
 
@@ -101,8 +101,8 @@ module V0
       )
     end
 
-    def persistence_service
-      @persistence_service ||= SSOService.new(saml_response)
+    def sso_service
+      @sso_service ||= SSOService.new(saml_response)
     end
 
     def handle_login_error
@@ -114,14 +114,14 @@ module V0
       else
         StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ['error:validations_failed'])
         context = {
-          uuid: persistence_service.new_user.uuid,
+          uuid: sso_service.new_user.uuid,
           user:   {
-            valid: persistence_service.new_user&.valid?,
-            errors: persistence_service.new_user&.errors&.full_messages
+            valid: sso_service.new_user&.valid?,
+            errors: sso_service.new_user&.errors&.full_messages
           },
           session:   {
-            valid: persistence_service.new_session&.valid?,
-            errors: persistence_service.new_session&.errors&.full_messages
+            valid: sso_service.new_session&.valid?,
+            errors: sso_service.new_session&.errors&.full_messages
           }
         }
         log_message_to_sentry('Login Fail! on User/Session Validation', :error, context)
