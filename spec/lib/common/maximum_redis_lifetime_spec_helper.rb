@@ -41,6 +41,19 @@ shared_examples 'a redis store with a maximum lifetime' do
     Timecop.return
   end
 
+  describe '#save' do
+    it 'will save a session within the maximum ttl' do
+      subject.created_at = subject.created_at - (described_class.maximum_redis_ttl - 1.minute)
+      expect(subject.save).to eq(true)
+    end
+
+    it 'will not save a session beyond the maximum ttl' do
+      subject.created_at = subject.created_at - (described_class.maximum_redis_ttl + 1.minute)
+      expect(subject.save).to eq(false)
+      expect(subject.errors.messages).to include(:created_at)
+    end
+  end
+
   context 'when superclass is not RedisStore' do
     let(:some_clazz) do
       class SomeClass
