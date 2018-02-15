@@ -44,15 +44,12 @@ module V0
     end
 
     # Member Action: auth token required
-    # method is to verify LOA3 if existing ID.me LOA3, or go through the FICAM identity proofing flow
-    # if not an ID.me LOA3 or NON PREMIUM DSLogon or MHV.
-    # NOTE: This is FICAM LOA3 we're talking about here. It is not necessary to verify DSLogon or MHV
-    #  sign-in users who return LOA3 from the auth_url flow (only for leveling up NON PREMIUM).
-    #  authn_context is the policy, connect represents the ID.me flow
+    # method is to verify LOA3. It is not necessary to verify for DSLogon or MHV who are PREMIUM users.
+    # These sign-in users return LOA3 from the auth_url flow.
     def identity_proof
-      connect = @current_user&.authn_context
+      #  authn_context is the policy, connect represents the ID.me specific flow.
       render json: {
-        identity_proof_url: build_url(authn_context: LOA::MAPPING.invert[3], connect: connect)
+        identity_proof_url: build_url(authn_context: LOA::MAPPING.invert[3], connect: @current_user&.authn_context)
       }
     end
 
@@ -105,7 +102,7 @@ module V0
     end
 
     def persistence_service
-      @persistence_service ||= AuthenticationPersistenceService.new(saml_response)
+      @persistence_service ||= SSOService.new(saml_response)
     end
 
     def handle_login_error

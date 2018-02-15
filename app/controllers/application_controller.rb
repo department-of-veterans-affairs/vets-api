@@ -133,7 +133,7 @@ class ApplicationController < ActionController::API
         ::Digest::SHA256.hexdigest(@session.token)
       )
       @current_user = User.find(@session.uuid)
-      AuthenticationPersistenceService.extend!(@session, @current_user)
+      SSOService.extend!(@session, @current_user)
     end
   end
 
