@@ -32,7 +32,7 @@ module Appeals
     end
 
     def mock_enabled?
-      Settings.appeals.mock
+      [true, 'true'].include?(Settings.appeals.mock)
     end
   end
 end
