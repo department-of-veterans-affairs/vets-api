@@ -102,7 +102,8 @@ describe VIC::Service do
       ).and_return(
         OpenStruct.new(
           body: {
-            'case_id' => 'case_id'
+            'case_id' => 'case_id',
+            'case_number' => 'case_number'
           }
         )
       )
@@ -111,7 +112,7 @@ describe VIC::Service do
     end
 
     def test_case_id(user)
-      expect(service.submit(parsed_form, user)).to eq(case_id: 'case_id')
+      expect(service.submit(parsed_form, user)).to eq(case_id: 'case_id', case_number: 'case_number')
     end
 
     context 'with a user' do

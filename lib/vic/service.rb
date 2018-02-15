@@ -138,16 +138,17 @@ module VIC
         instance_url: Configuration::SALESFORCE_INSTANCE_URL,
         api_version: '41.0'
       )
-      response = client.post('/services/apexrest/VICRequest', converted_form)
-      Raven.extra_context(submit_response_body: response.body)
+      response_body = client.post('/services/apexrest/VICRequest', converted_form).body
+      Raven.extra_context(submit_response_body: response_body)
 
-      case_id = response.body['case_id']
+      case_id = response_body['case_id']
 
       send_files(client, case_id, form)
 
-      # TODO: figure out what to do when an upload fails
-
-      { case_id: case_id }
+      {
+        case_id: case_id,
+        case_number: response_body['case_number']
+      }
     end
   end
 end
