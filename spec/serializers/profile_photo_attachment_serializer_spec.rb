@@ -18,7 +18,6 @@ RSpec.describe ProfilePhotoAttachmentSerializer, type: :serializer do
 
   context 'with an authenticated upload' do
     let(:file_data) { { filename: 'test.jpg', path: 'test_dir', user_uuid: '1234', form_id: '5678' } }
-
     subject { serialize(model, serializer_class: described_class) }
 
     it 'should include the filename and path' do
