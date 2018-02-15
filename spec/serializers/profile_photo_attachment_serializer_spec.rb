@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe ProfilePhotoAttachmentSerializer, type: :serializer do
   let(:model) { ::VIC::ProfilePhotoAttachment.new(file_data: file_data.to_json, guid: 'abcd') }
-  let(:attributes) { JSON.parse(subject)['attributes'] }
+  let(:attributes) { JSON.parse(subject)['data']['attributes'] }
 
   context 'with an anonymous upload' do
     let(:file_data) { { filename: 'test.jpg', path: 'test_dir' } }
