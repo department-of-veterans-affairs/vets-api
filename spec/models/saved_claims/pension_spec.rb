@@ -9,6 +9,13 @@ RSpec.describe SavedClaim::Pension do
 
   it_should_behave_like 'saved_claim_with_confirmation_number'
 
+  describe '#process_attachments!' do
+    it 'should set the attachments saved_claim_id' do
+      
+      
+    end
+  end
+
   describe '#email' do
     it 'should return the users email' do
       expect(instance.email).to eq('foo@foo.com')

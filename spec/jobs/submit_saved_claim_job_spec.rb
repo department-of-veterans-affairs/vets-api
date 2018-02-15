@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe GenerateClaimPDFJob do
+RSpec.describe SubmitSavedClaimJob do
   describe '#perform' do
     let(:claim) { FactoryBot.create(:burial_claim) }
     let(:spec_file) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
