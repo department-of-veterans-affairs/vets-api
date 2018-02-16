@@ -1,6 +1,6 @@
 class CreateBaseFacilities < ActiveRecord::Migration
   def change
-    create_table :base_facilities do |t|
+    create_table :base_facilities, id: false do |t|
       t.string :unique_id, null: false
       t.string :name, null: false
       t.string :facility_type, null: false

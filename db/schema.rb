@@ -11,13 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180209160254) do
+ActiveRecord::Schema.define(version: 20180216144705) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
 
-  create_table "base_facilities", force: :cascade do |t|
+  create_table "base_facilities", id: false, force: :cascade do |t|
     t.string   "unique_id",      null: false
     t.string   "name",           null: false
     t.string   "facility_type",  null: false
@@ -35,6 +35,8 @@ ActiveRecord::Schema.define(version: 20180209160254) do
     t.datetime "created_at",     null: false
     t.datetime "updated_at",     null: false
   end
+
+  add_index "base_facilities", ["unique_id"], name: "index_base_facilities_on_unique_id", unique: true, using: :btree
 
   create_table "beta_registrations", force: :cascade do |t|
     t.string   "user_uuid",  null: false
