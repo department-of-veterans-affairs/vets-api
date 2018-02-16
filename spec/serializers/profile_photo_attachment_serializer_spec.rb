@@ -10,7 +10,7 @@ RSpec.describe ProfilePhotoAttachmentSerializer, type: :serializer do
 
   subject { serialize(model, serializer_class: described_class) }
 
-  it 'should serialize only filename and path out of file_data' do
+  it 'should serialize the filename and path out of file_data' do
     expect(attributes['filename']).to eq('test.jpg')
     expect(attributes['path']).to eq('test_dir')
   end
