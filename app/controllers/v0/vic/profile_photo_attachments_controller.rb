@@ -3,7 +3,7 @@
 module V0
   module VIC
     class ProfilePhotoAttachmentsController < ApplicationController
-      include FormAttachmentCreate
+      skip_before_action :authenticate, except: :show
 
       def create
         form_attachment = ::VIC::ProfilePhotoAttachment.new
@@ -13,6 +13,12 @@ module V0
           get_in_progress_form
         )
         form_attachment.save!
+
+        render(json: form_attachment, is_anonymous_upload: @current_user.blank?)
+      end
+
+      def show
+        form_attachment = ::VIC::ProfilePhotoAttachment.where(guid: params[:id]).first
         render(json: form_attachment)
       end
 
