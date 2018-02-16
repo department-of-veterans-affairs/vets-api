@@ -6,18 +6,14 @@ class ProfilePhotoAttachmentSerializer < ActiveModel::Serializer
   attribute :path
 
   def filename
-    parsed['filename'] if user_uuid.present?
+    parsed['filename'] unless options[:is_anonymous_upload]
   end
 
   def path
-    parsed['path'] if user_uuid.present?
+    parsed['path'] unless options[:is_anonymous_upload]
   end
 
   private
-
-  def user_uuid
-    parsed['user_uuid']
-  end
 
   def parsed
     @parsed ||= JSON.parse(object.file_data)

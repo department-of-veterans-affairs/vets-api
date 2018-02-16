@@ -15,12 +15,13 @@ module V0
           get_in_progress_form
         )
         form_attachment.save!
-        render(json: form_attachment)
+
+        render(json: form_attachment, is_anonymous_upload: @current_user.blank?)
       end
 
       def show
-        attachment = ::VIC::ProfilePhotoAttachment.where(guid: params[:id]).first
-        render(json: attachment)
+        form_attachment = ::VIC::ProfilePhotoAttachment.where(guid: params[:id]).first
+        render(json: form_attachment)
       end
 
       private

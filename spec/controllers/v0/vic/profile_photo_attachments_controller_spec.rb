@@ -5,7 +5,6 @@ require 'support/authenticated_session_helper'
 
 RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
   describe '#show' do
-    let(:data) { JSON.parse(response.body) }
     let(:guid) { ::VIC::ProfilePhotoAttachment.last.guid }
 
     before do
@@ -26,14 +25,17 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
 
     context 'with a logged in user' do
       let(:user) { create(:user, :loa3) }
+      let(:attributes) { JSON.parse(response.body)['data']['attributes'] }
 
       before do
         expect_any_instance_of(described_class).to receive(:authenticate_token).at_least(:once).and_return(true)
+        expect_any_instance_of(described_class).to receive(:current_user).at_least(:once).and_return(user)
       end
 
       it 'allows retrieval of filename and path' do
         get(:show, id: guid)
-        puts data
+        expect(attributes['filename']).not_to be_nil
+        expect(attributes['path']).not_to be_nil
       end
     end
   end
@@ -49,7 +51,7 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
             file_data: fixture_file_upload('files/sm_file1.jpg')
           }
         )
-
+        puts response.body
         expect(data['filename']).to be_nil
         expect(data['path']).to be_nil
       end
@@ -72,6 +74,7 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
           }
         )
 
+        puts response.body
         expect(data).to have_key('filename')
         expect(data['path']).to eq "profile_photo_attachments/#{InProgressForm.last.id}"
         expect(InProgressForm.count).not_to eq(before_count)
