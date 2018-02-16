@@ -3,7 +3,9 @@
 module V0
   module VIC
     class ProfilePhotoAttachmentsController < ApplicationController
-      include FormAttachmentCreate
+      # include FormAttachmentCreate
+
+      skip_before_action :authenticate, except: :show
 
       def create
         form_attachment = ::VIC::ProfilePhotoAttachment.new
@@ -14,6 +16,11 @@ module V0
         )
         form_attachment.save!
         render(json: form_attachment)
+      end
+
+      def show
+        attachment = ::VIC::ProfilePhotoAttachment.where(guid: params[:id]).first
+        render(json: JSON.parse(attachment.file_data))
       end
 
       private
