@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 shared_examples 'a redis store with a maximum lifetime' do
-
   before(:each) { subject.save }
 
   it 'has a created_at attribute' do

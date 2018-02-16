@@ -11,7 +11,7 @@ module Common
         raise ArgumentError, 'Class composing Common::MaximumRedisLifetime must be a Common::RedisStore'
       end
 
-      self.extend(ClassMethods)
+      extend(ClassMethods)
 
       attribute :created_at
 
@@ -22,7 +22,7 @@ module Common
     end
 
     def expire(ttl)
-      (ttl < maximum_time_remaining) ? super(ttl) : super(maximum_time_remaining)
+      ttl < maximum_time_remaining ? super(ttl) : super(maximum_time_remaining)
     end
 
     private
