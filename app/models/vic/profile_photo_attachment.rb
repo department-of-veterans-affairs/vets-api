@@ -4,6 +4,8 @@ module VIC
   class ProfilePhotoAttachment < FormAttachment
     ATTACHMENT_UPLOADER_CLASS = ProfilePhotoAttachmentUploader
 
+    after_create(:process_file)
+
     def set_file_data!(file, in_progress_form)
       attachment_uploader = get_attachment_uploader(in_progress_form&.id)
       attachment_uploader.store!(file)
@@ -19,16 +21,17 @@ module VIC
     end
 
     def get_file
-      form_id = parsed_file_data['form_id']
-      attachment_uploader = get_attachment_uploader(form_id)
-
-      attachment_uploader.retrieve_from_store!(
-        parsed_file_data['filename']
-      )
-      attachment_uploader.file
+      process_file_uploader = ProcessFileUploader.new(parsed_file_data['path'])
+      filename = ProcessFileUploader.get_new_filename(parsed_file_data['filename'])
+      process_file_uploader.retrieve_from_store!(filename)
+      process_file_uploader.file
     end
 
     private
+
+    def process_file
+      ProcessFileJob.perform_async(parsed_file_data['path'], parsed_file_data['filename'])
+    end
 
     def get_attachment_uploader(form_id)
       ProfilePhotoAttachmentUploader.new(SecureRandom.hex(32), form_id)
