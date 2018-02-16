@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/authenticated_session_helper'
 
 RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
   describe '#show' do
