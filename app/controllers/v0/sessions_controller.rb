@@ -1,27 +1,13 @@
 # frozen_string_literal: true
 
-require 'saml/auth_fail_handler'
-
 module V0
   class SessionsController < ApplicationController
     skip_before_action :authenticate, only: %i[new authn_urls saml_callback saml_logout_callback]
 
-    STATSD_CALLBACK_KEY = 'api.auth.saml_callback'
-    STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
     TIMER_LOGIN_KEY = 'api.auth.login'
     TIMER_LOGOUT_KEY = 'api.auth.logout'
-
-    STATSD_CONTEXT_MAP = {
-      LOA::MAPPING.invert[1] => 'idme',
-      'dslogon' => 'dslogon',
-      'myhealthevet' => 'myhealthevet',
-      LOA::MAPPING.invert[3] => 'idproof',
-      'multifactor' => 'multifactor',
-      'dslogon_multifactor' => 'dslogon_multifactor',
-      'myhealthevet_multifactor' => 'myhealthevet_multifactor'
-    }.freeze
 
     # Collection Action: no auth required
     # Returns the sign-in urls for mhv, dslogon, and ID.me (LOA1 only)
@@ -79,14 +65,18 @@ module V0
         @current_user = sso_service.new_user
         @session = sso_service.new_session
         async_create_evss_account(@current_user)
+
         redirect_to Settings.saml.relay + '?token=' + @session.token
 
         log_persisted_session_and_warnings
-        Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: benchmark_tags('status:success'))
-        StatsD.increment(STATSD_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
+        Benchmark::Timer.stop(TIMER_LOGIN_KEY, saml_response.in_response_to, tags: benchmark_tags('status:success'))
+        StatsD.increment(
+          SSOService::STATSD_CALLBACK_KEY,
+          tags: ['status:success', "context:#{sso_service.context_key}"]
+        )
       else
-        handle_login_error
         redirect_to Settings.saml.relay + '?auth=fail'
+
         Benchmark::Timer.stop(TIMER_LOGIN_KEY, saml_response.in_response_to, tags: benchmark_tags('status:failure'))
       end
     ensure
@@ -103,29 +93,6 @@ module V0
 
     def sso_service
       @sso_service ||= SSOService.new(saml_response)
-    end
-
-    def handle_login_error
-      fail_handler = SAML::AuthFailHandler.new(saml_response)
-      StatsD.increment(STATSD_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
-      if fail_handler.errors?
-        StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ["error:#{fail_handler.error}"])
-        log_message_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
-      else
-        StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ['error:validations_failed'])
-        context = {
-          uuid: sso_service.new_user.uuid,
-          user:   {
-            valid: sso_service.new_user&.valid?,
-            errors: sso_service.new_user&.errors&.full_messages
-          },
-          session:   {
-            valid: sso_service.new_session&.valid?,
-            errors: sso_service.new_session&.errors&.full_messages
-          }
-        }
-        log_message_to_sentry('Login Fail! on User/Session Validation', :error, context)
-      end
     end
 
     def log_persisted_session_and_warnings
@@ -195,15 +162,8 @@ module V0
       connect.present? ? link + connect_param : link
     end
 
-    def context_key
-      context = REXML::XPath.first(@saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
-      STATSD_CONTEXT_MAP[context] || 'unknown'
-    rescue
-      'unknown'
-    end
-
     def benchmark_tags(*tags)
-      tags << "context:#{context_key}"
+      tags << "context:#{sso_service.context_key}"
       tags << "loa:#{@current_user&.identity ? @current_user.loa[:current] : 'none'}"
       tags << "multifactor:#{@current_user&.identity ? @current_user.multifactor : 'none'}"
       tags
