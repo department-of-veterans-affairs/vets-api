@@ -5,8 +5,10 @@ module VIC
     SALESFORCE_INSTANCE_URL = lambda do
       env = Settings.salesforce.env
       suffix = env == 'uat' ? '32' : '33'
+      prefix = env.upcase
+      prefix = "VIC#{prefix}" unless env == 'uat'
 
-      "https://va--VIC#{env.upcase}.cs#{suffix}.my.salesforce.com"
+      "https://va--#{prefix}.cs#{suffix}.my.salesforce.com"
     end.call
 
     def base_path
