@@ -42,20 +42,20 @@ bundle exec rails s
 }
 ```
 Copy and paste the `idme` URL into your browser.
-3. Enter ID.me credentials
-  - Sign in with one of our 
+
+3. Enter ID.me credentials using one of our 
     [test accounts](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/MVI%20Integration/reference_documents/mvi_users_s1a.csv). If you do not have access to the vets.gov-team repository, you may optionally create your own account with ID.me.
   - **Note**: Accounts created on the https://api.id.me/ ID.me site are
     separate from accounts created in the https://api.idmelabs.com sandbox.
-4. The browser should get redirected to the SAML relay URL
-  - Defaults to http://localhost:3000/auth/login/callback?token=abcd1234-efgh5678
+4. The browser should get redirected to the SAML relay URL of http://localhost:3001/auth/login/callback?token=abcd1234-efgh5678
+  The browser will display `Page Not Found`, but that's normal. (_note_ If `vets-website` were also running locally on `3001`, it would render properly)
 5. Copy the token value and attempt the following curl commands:
 
 ```
-curl --header "Authorization: Token token=foo" localhost:3000/v0/welcome
+curl --header "Authorization: Token token=<TOKEN_VAL>" localhost:3000/v0/welcome
 
 # Expected response:
-# {"message":"You are logged in as vets.gov.user+27@gmail.com"}
+# {"message":"You are logged in as vets.gov...@gmail.com"}
 ```
 
-A valid JSON response to either of these authenticated calls means you succeeded!
+A valid JSON response means you succeeded!
