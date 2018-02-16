@@ -48,7 +48,8 @@ Copy and paste the `idme` URL into your browser.
   - **Note**: Accounts created on the https://api.id.me/ ID.me site are
     separate from accounts created in the https://api.idmelabs.com sandbox.
 4. The browser should get redirected to the SAML relay URL of http://localhost:3001/auth/login/callback?token=abcd1234-efgh5678
-  The browser will display `Page Not Found`, but that's normal. (_note_ If `vets-website` were also running locally on `3001`, it would render properly)
+  The browser will display `Page Not Found`, but that's normal.
+  - **Note**: If `vets-website` were also running locally on `3001`, it would render properly
 5. Copy the token value and attempt the following curl commands:
 
 ```
