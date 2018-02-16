@@ -7,7 +7,7 @@ module VIC
     SALESFORCE_USERNAME = lambda do
       env = Settings.salesforce.env
       suffix = env
-      suffix = "vic#{suffix}"# unless env == 'uat'
+      suffix = "vic#{suffix}" unless env == 'uat'
 
       "vetsgov-devops@listserv.gsa.gov.#{suffix}"
     end.call
