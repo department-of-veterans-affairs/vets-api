@@ -46,6 +46,7 @@ module VIC
     end
 
     def get_oauth_token
+      binding.pry; fail
       body = request(:post, '', oauth_params).body
       Raven.extra_context(oauth_response_body: body)
 
