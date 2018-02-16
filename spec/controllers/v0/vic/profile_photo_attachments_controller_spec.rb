@@ -50,8 +50,8 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
           }
         )
 
-        expect(data).to have_key('filename')
-        expect(data['path']).to eq 'profile_photo_attachments/anonymous'
+        expect(data['filename']).to be_nil
+        expect(data['path']).to be_nil
       end
     end
 

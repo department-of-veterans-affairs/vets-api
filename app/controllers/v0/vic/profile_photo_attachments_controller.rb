@@ -20,7 +20,7 @@ module V0
 
       def show
         attachment = ::VIC::ProfilePhotoAttachment.where(guid: params[:id]).first
-        render(json: JSON.parse(attachment.file_data))
+        render(json: attachment)
       end
 
       private
