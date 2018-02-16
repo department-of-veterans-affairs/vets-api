@@ -3,8 +3,6 @@
 module V0
   module VIC
     class ProfilePhotoAttachmentsController < ApplicationController
-      # include FormAttachmentCreate
-
       skip_before_action :authenticate, except: :show
 
       def create
