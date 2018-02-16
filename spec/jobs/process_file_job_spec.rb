@@ -10,6 +10,7 @@ RSpec.describe ProcessFileJob do
         profile_photo_attachment.parsed_file_data['path'],
         profile_photo_attachment.parsed_file_data['filename']
       )
+      binding.pry; fail
       # TOOD finish
     end
   end
