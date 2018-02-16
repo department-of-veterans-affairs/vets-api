@@ -6,11 +6,11 @@ class ProfilePhotoAttachmentSerializer < ActiveModel::Serializer
   attribute :path
 
   def filename
-    parsed['filename'] unless options[:is_anonymous_upload]
+    parsed['filename'] unless @instance_options[:is_anonymous_upload]
   end
 
   def path
-    parsed['path'] unless options[:is_anonymous_upload]
+    parsed['path'] unless @instance_options[:is_anonymous_upload]
   end
 
   private

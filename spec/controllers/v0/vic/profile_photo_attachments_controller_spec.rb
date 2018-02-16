@@ -51,7 +51,6 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
             file_data: fixture_file_upload('files/sm_file1.jpg')
           }
         )
-        puts response.body
         expect(data['filename']).to be_nil
         expect(data['path']).to be_nil
       end
@@ -74,7 +73,6 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
           }
         )
 
-        puts response.body
         expect(data).to have_key('filename')
         expect(data['path']).to eq "profile_photo_attachments/#{InProgressForm.last.id}"
         expect(InProgressForm.count).not_to eq(before_count)
