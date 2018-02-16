@@ -20,7 +20,7 @@ shared_examples 'a redis store with a maximum lifetime' do
       Timecop.return
     end
 
-    it 'allows for continuous session extension up to the maximum' do
+    it 'continuously extends the session up to the maximum ttl' do
       start_time = Time.current
       Timecop.freeze(start_time)
 
@@ -53,17 +53,6 @@ shared_examples 'a redis store with a maximum lifetime' do
       subject.created_at = subject.created_at - (described_class.maximum_redis_ttl + 1.minute)
       expect(subject.save).to eq(false)
       expect(subject.errors.messages).to include(:created_at)
-    end
-  end
-
-  context 'when superclass is not RedisStore' do
-    let(:some_clazz) do
-      class SomeClass
-        include Common::MaximumRedisLifetime
-      end
-    end
-    it 'raises exception' do
-      expect{ some_clazz }.to raise_exception(ArgumentError)
     end
   end
 end

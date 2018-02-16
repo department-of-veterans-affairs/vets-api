@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'lib/common/maximum_redis_lifetime_spec_helper'
 
 RSpec.describe Session, type: :model do
   let(:attributes) { { uuid: 'abcd-1234' } }
