@@ -5,6 +5,7 @@ require 'common/client/configuration/rest'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/raise_error'
 require 'common/client/middleware/response/snakecase'
+require 'common/client/middleware/response/facility_parser'
 require 'typhoeus'
 require 'typhoeus/adapters/faraday'
 
@@ -30,7 +31,7 @@ module Facilities
 
         conn.response :snakecase
         conn.response :raise_error, error_prefix: service_name
-        conn.response :json_parser
+        conn.response :facility_parser
 
         conn.adapter Faraday.default_adapter
       end
@@ -47,7 +48,7 @@ module Facilities
 
         conn.response :snakecase
         conn.response :raise_error, error_prefix: service_name
-        conn.response :json_parser
+        conn.response :facility_parser
 
         conn.adapter :typhoeus
       end

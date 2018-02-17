@@ -8,54 +8,56 @@ module Facilities
     class << self
       def pull_source_data
         sources = Facilities::Client.new.get_all_nca
-        sources['features'].map { |entry| new attribute_mappings(entry) }
+        sources[:features].map { |entry| new attribute_mappings(entry) }
       end
 
       def attribute_mappings(entry)
-        attrs = entry['attributes']
+        attrs = entry[:attributes]
         {
-          unique_id: attrs['SITE_ID'],
-          name: attrs['FULL_NAME'],
-          classification: attrs['SITE_TYPE'],
-          website: attrs['Website_URL'],
-          lat: entry['geometry']['x'],
-          long: entry['geometry']['y'],
+          unique_id: attrs[:site_id],
+          name: attrs[:full_name],
+          classification: attrs[:site_type],
+          website: attrs[:website_url],
+          lat: entry[:geometry][:x],
+          long: entry[:geometry][:y],
           address: address(attrs),
-          phone: {
-            'main' => attrs['PHONE'],
-            'fax' => attrs['FAX']
-          },
+          phone: phone(attrs),
           hours: hours(attrs)
         }
       end
 
+      def phone(attrs)
+        { 'main' => attrs[:phone],
+          'fax' => attrs[:fax] }
+      end
+
       def address(attrs)
         { 'physical' => {
-          'address_1' => attrs['SITE_ADDRESS1'],
-          'address_2' => attrs['SITE_ADDRESS2'],
+          'address_1' => attrs[:site_address1],
+          'address_2' => attrs[:site_address2],
           'address_3' => '',
-          'city' => attrs['SITE_CITY'],
-          'state' => attrs['SITE_STATE'],
-          'zip' => attrs['SITE_ZIP']
+          'city' => attrs[:site_city],
+          'state' => attrs[:site_state],
+          'zip' => attrs[:site_zip]
         },
           'mailing' => {
-            'address_1' => attrs['MAIL_ADDRESS1'],
-            'address_2' => attrs['MAIL_ADDRESS2'],
+            'address_1' => attrs[:mail_address1],
+            'address_2' => attrs[:mail_address2],
             'address_3' => '',
-            'city' => attrs['MAIL_CITY'],
-            'state' => attrs['MAIL_STATE'],
-            'zip' => attrs['MAIL_ZIP']
+            'city' => attrs[:mail_city],
+            'state' => attrs[:mail_state],
+            'zip' => attrs[:mail_zip]
           } }
       end
 
       def hours(attrs)
-        { 'Monday' => attrs['VISITATION_HOURS_WEEKDAY'],
-          'Tuesday' => attrs['VISITATION_HOURS_WEEKDAY'],
-          'Wednesday' => attrs['VISITATION_HOURS_WEEKDAY'],
-          'Thursday' => attrs['VISITATION_HOURS_WEEKDAY'],
-          'Friday' => attrs['VISITATION_HOURS_WEEKDAY'],
-          'Saturday' => attrs['VISITATION_HOURS_WEEKEND'],
-          'Sunday' => attrs['VISITATION_HOURS_WEEKEND'] }
+        { 'Monday' => attrs[:visitation_hours_weekday],
+          'Tuesday' => attrs[:visitation_hours_weekday],
+          'Wednesday' => attrs[:visitation_hours_weekday],
+          'Thursday' => attrs[:visitation_hours_weekday],
+          'Friday' => attrs[:visitation_hours_weekday],
+          'Saturday' => attrs[:visitation_hours_weekend],
+          'Sunday' => attrs[:visitation_hours_weekend] }
       end
     end
   end

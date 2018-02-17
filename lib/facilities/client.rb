@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
-require 'common/client/concerns/mhv_session_based_client'
-require 'rx/configuration'
-require 'rx/client_session'
-require 'active_support/core_ext/hash/slice'
 
 module Facilities
   # Core class responsible for api interface operations
@@ -30,11 +26,9 @@ module Facilities
     private
 
     def get_all_facilities(facility_type, order_field)
-      query = ['where=1=1', 'nSR=4326', 'outSR=4326', 'returnGeometry=true', 'returnCountOnly=false',
-               'outFields=%2A', 'returnDistinctValues=false', 'f=json', "orderByFields=#{order_field}"]
-      path = '/FeatureServer/0/query?'
-      json = perform(:get, facility_type + path + query.join('&'), nil).body
-      JSON.parse json
+      params = { where: '1=1', inSR: 4326, outSR: 4326, returnGeometry: true, returnCountOnly: false,
+                 outFields: '*', returnDistinctValues: false, orderByFields: order_field, f: 'json' }
+      perform(:get, "#{facility_type}/FeatureServer/0/query?", params).body
     end
   end
 end
