@@ -18,7 +18,7 @@ RSpec.describe VIC::ProfilePhotoAttachment, type: :model do
     end
 
     context 'with an anonymous user' do
-      it 'should not store user uuid and form id' do
+      it 'should not store user uuid and form id or return path and filename' do
         attachment = create(:profile_photo_attachment,
                             file_path: 'spec/fixtures/files/va.gif',
                             file_type: 'image/gif')
