@@ -3,24 +3,48 @@
 require 'rails_helper'
 
 RSpec.describe ProcessFileJob do
+  class TestUploader < CarrierWave::Uploader::Base
+    def store_dir
+      'store'
+    end
+
+    def filename
+      'filename'
+    end
+  end
+
+  class TestUploader2 < CarrierWave::Uploader::Base
+    after(:store, :callback)
+
+    def store_dir
+      'store'
+    end
+
+    def filename
+      'filename'
+    end
+
+    def callback(file)
+    end
+  end
+
+  let(:test_uploader) { TestUploader.new }
+
+  def store_image
+    test_uploader.store!(
+      Rack::Test::UploadedFile.new('spec/fixtures/files/va.gif', 'image/gif')
+    )
+  end
+
   describe '#perform' do
     it 'should save the new processed file and delete the old file' do
-      profile_photo_attachment = build(:profile_photo_attachment)
-      parsed_file_data = profile_photo_attachment.parsed_file_data
-      ProcessFileJob.new.perform(
-        parsed_file_data['path'],
-        parsed_file_data['filename']
-      )
-      expect(profile_photo_attachment.get_file.exists?).to eq(true)
+      store_image
+      test_class_string = double
+      expect(test_class_string).to receive(:constantize).and_return(TestUploader2)
 
-      # check old file deleted
-      form_id = parsed_file_data['form_id']
-      attachment_uploader = profile_photo_attachment.send(:get_attachment_uploader, form_id)
+      expect_any_instance_of(TestUploader2).to receive(:callback)
 
-      attachment_uploader.retrieve_from_store!(
-        parsed_file_data['filename']
-      )
-      expect(attachment_uploader.file.exists?).to eq(false)
+      ProcessFileJob.new.perform(test_class_string, test_uploader.store_dir, test_uploader.filename)
     end
   end
 end
