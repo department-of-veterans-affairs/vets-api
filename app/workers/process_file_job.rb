@@ -4,7 +4,6 @@ class ProcessFileJob
   include Sidekiq::Worker
 
   def perform(processing_class, store_dir, filename)
-    # TODO delete file if virus found
     uploader = processing_class.constantize.new(store_dir, filename)
     uploader.retrieve_from_store!(filename)
     uploader.store!(uploader.file)
