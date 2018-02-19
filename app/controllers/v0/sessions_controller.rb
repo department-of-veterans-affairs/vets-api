@@ -60,10 +60,13 @@ module V0
     end
 
     def saml_callback
-      if sso_service.persist_authentication!
-        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if sso_service.existing_user.blank?
-        @current_user = sso_service.new_user
-        @session = sso_service.new_session
+      saml_response = OneLogin::RubySaml::Response.new(params[:SAMLResponse], settings: saml_settings)
+      @sso_service = SSOService.new(saml_response)
+
+      if @sso_service.persist_authentication!
+        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.existing_user.blank?
+        @current_user = @sso_service.new_user
+        @session = @sso_service.new_session
         async_create_evss_account(@current_user)
 
         redirect_to Settings.saml.relay + '?token=' + @session.token
@@ -72,7 +75,7 @@ module V0
         Benchmark::Timer.stop(TIMER_LOGIN_KEY, saml_response.in_response_to, tags: benchmark_tags('status:success'))
         StatsD.increment(
           SSOService::STATSD_CALLBACK_KEY,
-          tags: ['status:success', "context:#{sso_service.context_key}"]
+          tags: ['status:success', "context:#{@sso_service.context_key}"]
         )
       else
         redirect_to Settings.saml.relay + '?auth=fail'
@@ -84,16 +87,6 @@ module V0
     end
 
     private
-
-    def saml_response
-      @saml_response ||= OneLogin::RubySaml::Response.new(
-        params[:SAMLResponse], settings: saml_settings
-      )
-    end
-
-    def sso_service
-      @sso_service ||= SSOService.new(saml_response)
-    end
 
     def log_persisted_session_and_warnings
       obscure_token = Session.obscure_token(@session.token)
@@ -163,7 +156,7 @@ module V0
     end
 
     def benchmark_tags(*tags)
-      tags << "context:#{sso_service.context_key}"
+      tags << "context:#{@sso_service.context_key}"
       tags << "loa:#{@current_user&.identity ? @current_user.loa[:current] : 'none'}"
       tags << "multifactor:#{@current_user&.identity ? @current_user.multifactor : 'none'}"
       tags
