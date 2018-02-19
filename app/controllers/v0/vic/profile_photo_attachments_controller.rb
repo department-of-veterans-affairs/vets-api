@@ -25,19 +25,17 @@ module V0
       def show
         guid = params[:id]
 
-        if GUID_PATTERN.match(guid)
-          form_attachment = ::VIC::ProfilePhotoAttachment.where(guid: guid).first
+        raise ActiveRecord::RecordNotFound unless GUID_PATTERN.match(guid)
 
-          begin
-            file = form_attachment.get_file
-            headers['Content-Type'] = file.content_type
-            headers['Content-Disposition'] = "inline; filename=\"#{file.filename}\""
-            file.read { |c| response.stream.write(c) }
-          ensure
-            response.stream.close
-          end
-        else
-          raise ActiveRecord::RecordNotFound
+        form_attachment = ::VIC::ProfilePhotoAttachment.where(guid: guid).first
+        file = form_attachment.get_file
+
+        begin
+          headers['Content-Type'] = file.content_type
+          headers['Content-Disposition'] = "inline; filename=\"#{file.filename}\""
+          file.read { |c| response.stream.write(c) }
+        ensure
+          response.stream.close
         end
       end
 
