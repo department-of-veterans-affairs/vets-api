@@ -21,10 +21,13 @@ module VIC
     end
 
     def get_file
-      process_file_uploader = ProcessFileUploader.new(parsed_file_data['path'])
-      filename = ProcessFileUploader.get_new_filename(parsed_file_data['filename'])
-      process_file_uploader.retrieve_from_store!(filename)
-      process_file_uploader.file
+      form_id = parsed_file_data['form_id']
+      attachment_uploader = get_attachment_uploader(form_id)
+
+      attachment_uploader.retrieve_from_store!(
+        parsed_file_data['filename']
+      )
+      attachment_uploader.file
     end
 
     private
