@@ -5,6 +5,7 @@ require 'sentry_logging'
 
 class SSOService
   include SentryLogging
+  include ActiveModel::Validations
 
   STATSD_CALLBACK_KEY = 'api.auth.saml_callback'
   STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'
@@ -23,12 +24,15 @@ class SSOService
     raise 'SAML Response is required' if saml_response.nil?
     @saml_response = saml_response
     @saml_attributes = SAML::User.new(saml_response)
+    @existing_user = User.find(saml_attributes.user_attributes.uuid)
     @new_user_identity = UserIdentity.new(saml_attributes.to_hash)
     @new_user = init_new_user(new_user_identity, existing_user, saml_attributes.changing_multifactor?)
     @new_session = Session.new(uuid: new_user.uuid)
   end
 
-  attr_reader :new_session, :new_user, :new_user_identity, :saml_attributes, :saml_response
+  attr_reader :new_session, :new_user, :new_user_identity, :saml_attributes, :saml_response, :existing_user
+  # TODO: eventually will rip AuthFailHandler out and make it a custom validator
+  validate :composite_validations
 
   def self.extend_session!(session, user)
     session.expire(Session.redis_namespace_ttl)
@@ -36,14 +40,13 @@ class SSOService
     user&.expire(User.redis_namespace_ttl)
   end
 
-  def existing_user
-    @existing_user ||= User.find(saml_attributes.user_attributes.uuid)
-  end
-
   def persist_authentication!
-    expire_existing! if existing_user.present?
-    return false unless can_persist?
-    new_session.save && new_user.save && new_user_identity.save
+    existing_user.destroy if existing_user.present?
+    if valid?
+      new_session.save && new_user.save && new_user_identity.save
+    else
+      handle_error_reporting_and_instrumentation
+    end
   end
 
   def context_key
@@ -53,11 +56,6 @@ class SSOService
   end
 
   private
-
-  def expire_existing!
-    existing_user&.identity&.destroy
-    existing_user&.destroy
-  end
 
   def init_new_user(user_identity, existing_user = nil, multifactor_change = false)
     new_user = User.new(user_identity.attributes)
@@ -70,26 +68,33 @@ class SSOService
     new_user
   end
 
-  def can_persist?
-    if saml_response.is_valid?
-      if new_session.valid? && new_user.valid? && new_user_identity.valid?
-        true
-      else
-        handle_user_persistence_error
-        false
-      end
+  def composite_validations
+    if !saml_response.is_valid?(true)
+      errors.add(:saml_response, :invalid)
     else
-      handle_saml_response_error
-      false
+      errors.add(:new_session, :invalid) unless new_session.valid?
+      errors.add(:new_user, :invalid) unless new_user.valid?
+      errors.add(:new_user_identity, :invalid) unless new_user_identity.valid?
     end
   end
 
-  def handle_user_persistence_error
+  def handle_error_reporting_and_instrumentation
+    if errors.keys.include?(:saml_response)
+      invalid_saml_response_handler
+    else
+      invalid_persistence_handler
+    end
+  end
+
+  def invalid_persistence_handler
+    return if new_session.valid? && new_user.valid? && new_user_identity.valid?
     StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ['error:validations_failed'])
     log_message_to_sentry('Login Fail! on User/Session Validation', :error, error_context)
   end
 
-  def handle_saml_response_error
+  # TODO: Eventually some of this needs to just be instrumentation and not a custom sentry error
+  def invalid_saml_response_handler
+    return if saml_response.is_valid?
     fail_handler = SAML::AuthFailHandler.new(saml_response)
     StatsD.increment(STATSD_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
     if fail_handler.errors?

@@ -185,6 +185,12 @@ class User < Common::RedisStore
     mvi.cache(uuid, mvi.mvi_response)
   end
 
+  # destroy both UserIdentity and self
+  def destroy
+    self.identity&.destroy
+    super
+  end
+
   %w[veteran_status military_information payment].each do |emis_method|
     define_method(emis_method) do
       emis_model = instance_variable_get(:"@#{emis_method}")
