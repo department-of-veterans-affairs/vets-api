@@ -14,6 +14,9 @@ module UploaderVirusScan
     return unless Rails.env.production?
     result = Common::VirusScan.scan(file.tempfile.path)
 
-    raise VirusFoundError, result.body unless result.safe?
+    unless result.safe?
+      file.delete
+      raise VirusFoundError, result.body
+    end
   end
 end
