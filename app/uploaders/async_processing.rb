@@ -5,7 +5,7 @@ module AsyncProcessing
     after(:store, :process_file)
   end
 
-  def process_file
-    ProcessFileJob.perform_async(PROCESSING_CLASS, store_dir, filename)
+  def process_file(_file)
+    ProcessFileJob.perform_async(self.class::PROCESSING_CLASS.to_s, store_dir, filename)
   end
 end
