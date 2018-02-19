@@ -1,22 +1,18 @@
 # frozen_string_literal: true
 
-class ProcessFileUploader < CarrierWave::Uploader::Base
+class PhotoProcessingUploader < CarrierWave::Uploader::Base
   include SetAwsConfig
   include ReencodeImages
   include UploaderVirusScan
 
   attr_reader(:store_dir)
+  attr_reader(:filename)
 
-  def self.get_new_filename(old_filename)
-    filename_split = old_filename.split('.')
-    "#{filename_split[0]}_processed.#{filename_split[1]}"
-  end
-
-  def initialize(store_dir, old_filename = nil)
+  def initialize(store_dir, filename)
     super
 
-    @old_filename = old_filename
     @store_dir = store_dir
+    @filename = filename
 
     if Rails.env.production?
       set_aws_config(
@@ -28,9 +24,5 @@ class ProcessFileUploader < CarrierWave::Uploader::Base
 
       self.aws_acl = 'public-read'
     end
-  end
-
-  def filename
-    self.class.get_new_filename(@old_filename)
   end
 end
