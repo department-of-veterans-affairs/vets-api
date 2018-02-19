@@ -187,7 +187,7 @@ class User < Common::RedisStore
 
   # destroy both UserIdentity and self
   def destroy
-    self.identity&.destroy
+    identity&.destroy
     super
   end
 
