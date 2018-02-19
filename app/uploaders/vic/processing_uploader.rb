@@ -7,13 +7,17 @@ module VIC
     include UploaderVirusScan
 
     attr_reader(:store_dir)
-    attr_reader(:filename)
 
-    def initialize(store_dir, filename)
+    def self.get_new_filename(old_filename)
+      filename_split = old_filename.split('.')
+      "#{filename_split[0]}_processed.#{filename_split[1]}"
+    end
+
+    def initialize(store_dir, old_filename)
       super
 
       @store_dir = store_dir
-      @filename = filename
+      @old_filename = old_filename
 
       if Rails.env.production?
         set_aws_config(
@@ -23,6 +27,10 @@ module VIC
           Settings.vic.s3.bucket
         )
       end
+    end
+
+    def filename
+      self.class.get_new_filename(@old_filename)
     end
   end
 end
