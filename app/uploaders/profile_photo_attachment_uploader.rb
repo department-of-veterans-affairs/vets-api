@@ -3,6 +3,7 @@
 class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
   PROCESSING_CLASS = PhotoProcessingUploader
   include ValidateFileSize
+  include SetAwsConfig
   include AsyncProcessing
 
   MAX_FILE_SIZE = 10.megabytes
