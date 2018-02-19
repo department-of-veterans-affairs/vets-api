@@ -231,5 +231,5 @@ maintenance:
 betamocks:
   enabled: true
   recording: false
-  cache_dir: /cache
+  cache_dir: ../vets-api-mockdata
   services_config: config/betamocks/services_config.yml
