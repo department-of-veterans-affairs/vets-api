@@ -16,7 +16,7 @@ module V0
         )
         form_attachment.save!
 
-        render(streaming: false, json: form_attachment, is_anonymous_upload: @current_user.blank?)
+        render(json: form_attachment, is_anonymous_upload: @current_user.blank?)
       end
 
       def show
