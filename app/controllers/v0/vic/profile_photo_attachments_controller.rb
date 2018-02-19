@@ -3,8 +3,6 @@
 module V0
   module VIC
     class ProfilePhotoAttachmentsController < ApplicationController
-      include ActionController::Live
-
       GUID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i
 
       skip_before_action :authenticate, except: :show
@@ -18,7 +16,7 @@ module V0
         )
         form_attachment.save!
 
-        render(json: form_attachment, is_anonymous_upload: @current_user.blank?)
+        render(streaming: false, json: form_attachment, is_anonymous_upload: @current_user.blank?)
       end
 
       def show
