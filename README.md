@@ -15,10 +15,13 @@ To start, fetch this code:
    - Create a folder in your vets-api directory:  `mkdir config/certs`
    - Copy the [certificate][certificate] to `config/certs/vetsgov-localhost.crt`
    - Copy the [key][key] to `config/certs/vetsgov-localhost.key`
-   - *NOTE*: If you don't have access to these keys, running the following
+   - *NOTE:* If you don't have access to these keys, running the following
      commands will provide basic functionality:
    - `touch config/certs/vetsgov-localhost.crt`
    - `touch config/certs/vetsgov-localhost.key`
+1. Set Sidekiq environment variables
+   - `export BUNDLE_ENTERPRISE__CONTRIBSYS__COM=***`, where `***` is the Sidekiq Enterprise [license key](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Vets-API/Sidekiq%20Enterprise%20Setup.md).
+   - *NOTE:* If you don't have access to Sidekiq Enterprise (not necessary for 99% of things), you can instead set: `export EXCLUDE_SIDEKIQ_ENTERPRISE=true`.
 1. Run the vets-api dependencies and application
     - `make up`
 
