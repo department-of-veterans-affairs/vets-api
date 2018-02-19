@@ -3,6 +3,8 @@
 module V0
   module VIC
     class ProfilePhotoAttachmentsController < ApplicationController
+      GUID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i
+
       skip_before_action :authenticate, except: :show
 
       def create
@@ -18,8 +20,21 @@ module V0
       end
 
       def show
-        form_attachment = ::VIC::ProfilePhotoAttachment.where(guid: params[:id]).first
-        render(json: form_attachment)
+        guid = params[:id]
+
+        if GUID_PATTERN.match(guid)
+          form_attachment = ::VIC::ProfilePhotoAttachment.where(guid: guid).first
+          filename = form_attachment.parsed_file_data['filename']
+          file = form_attachment.get_file
+
+          file.read do |_|
+            File.open('/Users/rlbaker/log', 'a+'){ |f| f << 'Chunk written' }
+          end
+
+          send_data(file.read, filename: filename, type: file.content_type, disposition: :inline)
+        else
+          raise ActiveRecord::RecordNotFound
+        end
       end
 
       private

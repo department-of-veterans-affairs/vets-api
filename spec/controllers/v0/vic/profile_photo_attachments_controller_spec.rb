@@ -7,12 +7,12 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
     let(:guid) { ::VIC::ProfilePhotoAttachment.last.guid }
 
     before do
-      ::VIC::ProfilePhotoAttachment.new(
-        file_data: {
-          filename: 'test.jpg',
-          path: 'anonymous'
-        }.to_json
-      ).save!
+      post(
+        :create,
+        profile_photo_attachment: {
+          file_data: fixture_file_upload('files/sm_file1.jpg')
+        }
+      )
     end
 
     context 'with an anonymous user' do
@@ -24,17 +24,17 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
 
     context 'with a logged in user' do
       let(:user) { create(:user, :loa3) }
-      let(:attributes) { JSON.parse(response.body)['data']['attributes'] }
 
       before do
         expect_any_instance_of(described_class).to receive(:authenticate_token).at_least(:once).and_return(true)
-        expect_any_instance_of(described_class).to receive(:current_user).at_least(:once).and_return(user)
       end
 
       it 'allows retrieval of filename and path' do
         get(:show, id: guid)
-        expect(attributes['filename']).not_to be_nil
-        expect(attributes['path']).not_to be_nil
+
+        puts response.headers
+        puts response.body.length
+        puts response.body
       end
     end
   end

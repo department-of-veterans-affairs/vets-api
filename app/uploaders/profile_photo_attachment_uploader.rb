@@ -23,7 +23,7 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
       )
     end
 
-    self.aws_acl = 'public-read'
+    # self.aws_acl = 'public-read'
   end
 
   def extension_white_list
