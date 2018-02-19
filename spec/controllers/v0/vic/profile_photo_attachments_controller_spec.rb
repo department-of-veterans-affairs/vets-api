@@ -33,7 +33,6 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
 
       it 'allows retrieval of filename and path' do
         get(:show, id: guid)
-        puts response.headers
         expect(response).to be_success
       end
     end
