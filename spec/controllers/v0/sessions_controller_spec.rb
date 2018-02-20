@@ -193,12 +193,6 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(new_user.va_profile.ssn).to eq('796111863')
       end
 
-      it 'saves status:success to the login timer' do
-        login_tags = ['status:success', 'context:dslogon', "loa:#{LOA::THREE}", 'multifactor:false']
-        expect { post(:saml_callback) }
-          .to trigger_statsd_measure(described_class::TIMER_LOGIN_KEY, tags: login_tags)
-      end
-
       context 'changing multifactor' do
         let(:saml_user_attributes) do
           loa1_user.attributes.merge(loa1_user.identity.attributes).merge(multifactor: 'true')
@@ -236,12 +230,6 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
-
-        it 'saves status:failure to the login timer' do
-          login_tags = ['status:failure', 'context:dslogon', 'loa:none', 'multifactor:none']
-          expect { post(:saml_callback) }
-            .to trigger_statsd_measure(described_class::TIMER_LOGIN_KEY, tags: login_tags)
-        end
       end
 
       context ' when clock drift causes us to consume the Assertion before its creation' do
@@ -257,8 +245,8 @@ RSpec.describe V0::SessionsController, type: :controller do
           once = { times: 1, value: 1 }
           early_msg_tag = ['error:auth_too_early']
           expect { post(:saml_callback) }
-            .to trigger_statsd_increment(SSOService::STATSD_LOGIN_FAILED_KEY, tags: early_msg_tag, **once)
-            .and trigger_statsd_increment(described_class::STATSD_LOGIN_TOTAL_KEY, **once)
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: early_msg_tag, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
       end
 
@@ -285,8 +273,8 @@ RSpec.describe V0::SessionsController, type: :controller do
           once = { times: 1, value: 1 }
           tags = ['error:unknown']
           expect { post(:saml_callback) }
-            .to trigger_statsd_increment(SSOService::STATSD_LOGIN_FAILED_KEY, tags: tags, **once)
-            .and trigger_statsd_increment(described_class::STATSD_LOGIN_TOTAL_KEY, **once)
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
       end
 
@@ -313,8 +301,8 @@ RSpec.describe V0::SessionsController, type: :controller do
           once = { times: 1, value: 1 }
           tags = ['error:multiple']
           expect { post(:saml_callback) }
-            .to trigger_statsd_increment(SSOService::STATSD_LOGIN_FAILED_KEY, tags: tags, **once)
-            .and trigger_statsd_increment(described_class::STATSD_LOGIN_TOTAL_KEY, **once)
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
       end
 
@@ -348,8 +336,8 @@ RSpec.describe V0::SessionsController, type: :controller do
           once = { times: 1, value: 1 }
           tags = ['error:validations_failed']
           expect { post(:saml_callback) }
-            .to trigger_statsd_increment(SSOService::STATSD_LOGIN_FAILED_KEY, tags: tags, **once)
-            .and trigger_statsd_increment(described_class::STATSD_LOGIN_TOTAL_KEY, **once)
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
       end
     end

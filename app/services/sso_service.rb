@@ -7,19 +7,6 @@ class SSOService
   include SentryLogging
   include ActiveModel::Validations
 
-  STATSD_CALLBACK_KEY = 'api.auth.saml_callback'
-  STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'
-
-  STATSD_CONTEXT_MAP = {
-    LOA::MAPPING.invert[1] => 'idme',
-    'dslogon' => 'dslogon',
-    'myhealthevet' => 'myhealthevet',
-    LOA::MAPPING.invert[3] => 'idproof',
-    'multifactor' => 'multifactor',
-    'dslogon_multifactor' => 'dslogon_multifactor',
-    'myhealthevet_multifactor' => 'myhealthevet_multifactor'
-  }.freeze
-
   def initialize(saml_response)
     raise 'SAML Response is required' if saml_response.nil?
     @saml_response = saml_response
@@ -30,7 +17,8 @@ class SSOService
     @new_session = Session.new(uuid: new_user.uuid)
   end
 
-  attr_reader :new_session, :new_user, :new_user_identity, :saml_attributes, :saml_response, :existing_user
+  attr_reader :new_session, :new_user, :new_user_identity, :saml_attributes, :saml_response, :existing_user,
+              :failure_instrumentation_tag
   # TODO: eventually will rip AuthFailHandler out and make it a custom validator
   validate :composite_validations
 
@@ -47,12 +35,6 @@ class SSOService
     else
       handle_error_reporting_and_instrumentation
     end
-  end
-
-  def context_key
-    STATSD_CONTEXT_MAP[real_authn_context] || 'unknown'
-  rescue StandardError
-    'unknown'
   end
 
   private
@@ -88,7 +70,7 @@ class SSOService
 
   def invalid_persistence_handler
     return if new_session.valid? && new_user.valid? && new_user_identity.valid?
-    StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ['error:validations_failed'])
+    @failure_instrumentation_tag = 'error:validations_failed'
     log_message_to_sentry('Login Fail! on User/Session Validation', :error, error_context)
   end
 
@@ -96,12 +78,11 @@ class SSOService
   def invalid_saml_response_handler
     return if saml_response.is_valid?
     fail_handler = SAML::AuthFailHandler.new(saml_response)
-    StatsD.increment(STATSD_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
     if fail_handler.errors?
-      StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ["error:#{fail_handler.error}"])
+      @failure_instrumentation_tag = "error:#{fail_handler.error}"
       log_message_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
     else
-      StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ['error:validations_failed'])
+      @failure_instrumentation_tag = 'error:unknown'
       log_message_to_sentry('Unknown SAML Login Error', :error, error_context)
     end
   end

@@ -4,10 +4,19 @@ module V0
   class SessionsController < ApplicationController
     skip_before_action :authenticate, only: %i[new authn_urls saml_callback saml_logout_callback]
 
-    STATSD_LOGIN_TOTAL_KEY = 'api.auth.login_callback.total'
+    STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
+    STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
+    STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
-    TIMER_LOGIN_KEY = 'api.auth.login'
-    TIMER_LOGOUT_KEY = 'api.auth.logout'
+    STATSD_CONTEXT_MAP = {
+      LOA::MAPPING.invert[1] => 'idme',
+      'dslogon' => 'dslogon',
+      'myhealthevet' => 'myhealthevet',
+      LOA::MAPPING.invert[3] => 'idproof',
+      'multifactor' => 'multifactor',
+      'dslogon_multifactor' => 'dslogon_multifactor',
+      'myhealthevet_multifactor' => 'myhealthevet_multifactor'
+    }.freeze
 
     # Collection Action: no auth required
     # Returns the sign-in urls for mhv, dslogon, and ID.me (LOA1 only)
@@ -43,8 +52,6 @@ module V0
       logout_request = OneLogin::RubySaml::Logoutrequest.new
       logger.info "New SP SLO for userid '#{@session.uuid}'"
 
-      Benchmark::Timer.start(TIMER_LOGOUT_KEY, logout_request.uuid)
-
       saml_settings = saml_settings(name_identifier_value: @session&.uuid)
       # cache the request for @session.token lookup when we receive the response
       SingleLogoutRequest.create(uuid: logout_request.uuid, token: @session.token)
@@ -72,18 +79,14 @@ module V0
         redirect_to Settings.saml.relay + '?token=' + @session.token
 
         log_persisted_session_and_warnings
-        Benchmark::Timer.stop(TIMER_LOGIN_KEY, saml_response.in_response_to, tags: benchmark_tags('status:success'))
-        StatsD.increment(
-          SSOService::STATSD_CALLBACK_KEY,
-          tags: ['status:success', "context:#{@sso_service.context_key}"]
-        )
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
         redirect_to Settings.saml.relay + '?auth=fail'
-
-        Benchmark::Timer.stop(TIMER_LOGIN_KEY, saml_response.in_response_to, tags: benchmark_tags('status:failure'))
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
+        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
     ensure
-      StatsD.increment(STATSD_LOGIN_TOTAL_KEY)
+      StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
     end
 
     private
@@ -118,7 +121,6 @@ module V0
         extra_context = { in_response_to: logout_response&.in_response_to }
         log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
         redirect_to Settings.saml.logout_relay + '?success=false'
-        Benchmark::Timer.stop(TIMER_LOGOUT_KEY, logout_response&.in_response_to, tags: ['status:fail'])
       else
         logout_request.destroy
         session.destroy
@@ -126,7 +128,6 @@ module V0
         redirect_to Settings.saml.logout_relay + '?success=true'
         # even if mhv logout raises exception, still consider logout successful from browser POV
         MHVLoggingService.logout(user)
-        Benchmark::Timer.stop(TIMER_LOGOUT_KEY, logout_response.in_response_to, tags: ['status:success'])
       end
     end
 
@@ -149,17 +150,22 @@ module V0
     def build_url(authn_context: LOA::MAPPING.invert[1], connect: nil)
       saml_settings = saml_settings(authn_context: authn_context, name_identifier_value: @session&.uuid)
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      Benchmark::Timer.start(TIMER_LOGIN_KEY, saml_auth_request.uuid)
       connect_param = "&connect=#{connect}"
       link = saml_auth_request.create(saml_settings, saml_options)
       connect.present? ? link + connect_param : link
     end
 
     def benchmark_tags(*tags)
-      tags << "context:#{@sso_service.context_key}"
+      tags << "context:#{context_key}"
       tags << "loa:#{@current_user&.identity ? @current_user.loa[:current] : 'none'}"
       tags << "multifactor:#{@current_user&.identity ? @current_user.multifactor : 'none'}"
       tags
+    end
+
+    def context_key
+      STATSD_CONTEXT_MAP[real_authn_context] || 'unknown'
+    rescue StandardError
+      'unknown'
     end
   end
 end
