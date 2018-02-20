@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171229003530) do
+ActiveRecord::Schema.define(version: 20180130213405) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -200,5 +200,15 @@ ActiveRecord::Schema.define(version: 20171229003530) do
   end
 
   add_index "terms_and_conditions_acceptances", ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid", using: :btree
+
+  create_table "vic_submissions", force: :cascade do |t|
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+    t.string   "state",      default: "pending", null: false
+    t.uuid     "guid",                           null: false
+    t.json     "response"
+  end
+
+  add_index "vic_submissions", ["guid"], name: "index_vic_submissions_on_guid", unique: true, using: :btree
 
 end

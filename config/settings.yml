@@ -20,6 +20,11 @@ review_instance_slug: ~
 
 sidekiq_admin_panel: false
 
+salesforce:
+  env: dev
+  signing_key_path: 'spec/fixtures/vic/private.key'
+  consumer_key: d669f7d339fd25af442bf75bb643c4c45f0f05fb3cb39cc77521e2011c6bb84086bb624d7ef14d715736
+
 # Settings for Education Benefits
 edu:
   prefill: true
@@ -156,6 +161,12 @@ vic:
   url: https://some.fakesite.com
   signing_key_path: /fake/signing/key/path
   prefill: true
+
+  s3:
+    aws_access_key_id: 'aws_access_key_id'
+    aws_secret_access_key: 'aws_secret_access_key'
+    region: 'region'
+    bucket: 'bucket'
 
 # Settings for (preneeds) burials.
 # TODO: enpoint needs to be set up for https and production api when available
