@@ -20,6 +20,8 @@ module V0
         form_attachment.save!
 
         render(json: form_attachment, is_anonymous_upload: @current_user.blank?)
+      ensure
+        response.stream.close
       end
 
       def show
@@ -30,13 +32,11 @@ module V0
         form_attachment = ::VIC::ProfilePhotoAttachment.where(guid: guid).first
         file = form_attachment.get_file
 
-        begin
-          headers['Content-Type'] = file.content_type
-          headers['Content-Disposition'] = "inline; filename=\"#{file.filename}\""
-          file.read { |c| response.stream.write(c) }
-        ensure
-          response.stream.close
-        end
+        headers['Content-Type'] = file.content_type
+        headers['Content-Disposition'] = "inline; filename=\"#{file.filename}\""
+        file.read { |c| response.stream.write(c) }
+      ensure
+        response.stream.close
       end
 
       private
