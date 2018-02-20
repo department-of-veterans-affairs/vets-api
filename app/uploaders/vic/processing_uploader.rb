@@ -9,8 +9,7 @@ module VIC
     attr_reader(:store_dir)
 
     def self.get_new_filename(old_filename)
-      filename_split = old_filename.split('.')
-      "#{filename_split[0]}_processed.#{filename_split[1]}"
+      "#{old_filename}.processed"
     end
 
     def initialize(store_dir, old_filename)
