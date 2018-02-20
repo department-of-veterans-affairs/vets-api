@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
-  PROCESSING_CLASS = VIC::PhotoProcessingUploader
+  PROCESSING_CLASS = VIC::ProcessingUploader
   include ValidateFileSize
   include SetAwsConfig
   include AsyncProcessing
