@@ -14,17 +14,12 @@ RSpec.describe ProcessFileJob do
   end
 
   class TestUploader2 < CarrierWave::Uploader::Base
-    after(:store, :callback)
-
     def store_dir
       'store'
     end
 
     def filename
-      'filename'
-    end
-
-    def callback(file)
+      'filename2'
     end
   end
 
@@ -42,12 +37,13 @@ RSpec.describe ProcessFileJob do
       test_class_string = double
       expect(test_class_string).to receive(:constantize).and_return(TestUploader2)
 
-      expect_any_instance_of(TestUploader2).to receive(:callback)
-
       ProcessFileJob.new.perform(test_class_string, test_uploader.store_dir, test_uploader.filename)
 
-      test_uploader.retrieve_from_store!('filename')
+      test_uploader.retrieve_from_store!('filename2')
       expect(test_uploader.file.exists?).to eq(true)
+      # test old file deleted
+      test_uploader.retrieve_from_store!('filename')
+      expect(test_uploader.file.exists?).to eq(false)
     end
   end
 end
