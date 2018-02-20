@@ -73,6 +73,7 @@ gem 'zero_downtime_migrations'
 
 group :development do
   gem 'guard-rubocop'
+  gem 'socksify'
   gem 'spring', platforms: :ruby # Spring speeds up development by keeping your application running in the background
   gem 'spring-commands-rspec'
 
