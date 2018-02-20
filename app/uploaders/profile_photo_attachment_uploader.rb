@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
+  PROCESSING_CLASS = VIC::ProcessingUploader
   include ValidateFileSize
-  include ReencodeImages
   include SetAwsConfig
-  include UploaderVirusScan
+  include AsyncProcessing
 
   MAX_FILE_SIZE = 10.megabytes
 
