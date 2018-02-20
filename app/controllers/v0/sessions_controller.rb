@@ -71,14 +71,13 @@ module V0
       @sso_service = SSOService.new(saml_response)
 
       if @sso_service.persist_authentication!
-        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.existing_user.blank?
         @current_user = @sso_service.new_user
         @session = @sso_service.new_session
         async_create_evss_account(@current_user)
-
         redirect_to Settings.saml.relay + '?token=' + @session.token
 
         log_persisted_session_and_warnings
+        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
         redirect_to Settings.saml.relay + '?auth=fail'

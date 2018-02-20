@@ -12,6 +12,7 @@ class SSOService
     @saml_response = saml_response
     @saml_attributes = SAML::User.new(saml_response)
     @existing_user = User.find(saml_attributes.user_attributes.uuid)
+    @new_login = @existing_user.present?
     @new_user_identity = UserIdentity.new(saml_attributes.to_hash)
     @new_user = init_new_user(new_user_identity, existing_user, saml_attributes.changing_multifactor?)
     @new_session = Session.new(uuid: new_user.uuid)
@@ -35,6 +36,10 @@ class SSOService
     else
       handle_error_reporting_and_instrumentation
     end
+  end
+
+  def new_login?
+    @new_login
   end
 
   private
