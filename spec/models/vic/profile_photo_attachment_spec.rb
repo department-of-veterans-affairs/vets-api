@@ -30,15 +30,15 @@ RSpec.describe VIC::ProfilePhotoAttachment, type: :model do
   end
 
   describe '#get_file' do
-    let(:attachment) do
+    let!(:attachment) do
       create(:profile_photo_attachment,
              file_path: 'spec/fixtures/files/va.gif',
              file_type: 'image/gif')
     end
 
-    it 'should attempt to use the parsed file data to retrieve the file' do
-      expect(attachment.parsed_file_data).to receive(:[]).twice
-      attachment.get_file
+    it 'should use the new filename to get the file' do
+      ProcessFileJob.drain
+      expect(attachment.get_file.exists?).to eq(true)
     end
   end
 end
