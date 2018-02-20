@@ -92,18 +92,35 @@ module VIC
       File.delete(file_path)
     end
 
-    def send_files(client, case_id, form)
+    def get_attachment_records(form)
+      return @attachment_records if @attachment_records.present?
+
+      @attachment_records = {
+        supporting: []
+      }
+
       if form['dd214'].present?
         form['dd214'].each do |file|
-          file_body = VIC::SupportingDocumentationAttachment.find_by(guid: file['confirmationCode']).get_file.read
-          send_file(client, case_id, file_body, 'Supporting Documentation')
+          @attachment_records[:supporting] << VIC::SupportingDocumentationAttachment.find_by(guid: file['confirmationCode'])
         end
       end
 
       form['photo'].tap do |file|
-        file_body = VIC::ProfilePhotoAttachment.find_by(guid: file['confirmationCode']).get_file.read
-        send_file(client, case_id, file_body, 'Profile Photo')
+        @attachment_records[:profile_photo] = VIC::ProfilePhotoAttachment.find_by(guid: file['confirmationCode'])
       end
+
+      @attachment_records
+    end
+
+    def send_files(client, case_id, form)
+      attachment_records = get_attachment_records(form)
+      attachment_records[:supporting].each do |form_attachment|
+        file_body = form_attachment.get_file.read
+        send_file(client, case_id, file_body, 'Supporting Documentation')
+      end
+
+      file_body = attachment_records[:profile_photo].get_file.read
+      send_file(client, case_id, file_body, 'Profile Photo')
     end
 
     def add_user_data!(converted_form, user)
