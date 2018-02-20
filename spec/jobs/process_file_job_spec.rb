@@ -32,7 +32,7 @@ RSpec.describe ProcessFileJob do
   end
 
   describe '#perform' do
-    it 'should save the new processed file under the same name' do
+    it 'should save the new processed file and delete the old file' do
       store_image
       test_class_string = double
       expect(test_class_string).to receive(:constantize).and_return(TestUploader2)
