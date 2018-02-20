@@ -156,7 +156,7 @@ class FormProfile
     military_information = user.military_information
     military_information_data = {}
 
-    military_information_data[:vic_verified] = user.can_access_id_card?
+    military_information_data[:vic_verified] = user.authorize :id_card, :access?
 
     begin
       EMISRedis::MilitaryInformation::PREFILL_METHODS.each do |attr|

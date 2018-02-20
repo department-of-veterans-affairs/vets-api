@@ -29,7 +29,7 @@ module V0
       raise ::VIC::IDCardAttributeError, status: 403, code: 'VIC002', detail: 'Unable to verify EDIPI' if
         current_user.edipi.blank?
       begin
-        unless current_user.can_access_id_card?
+        unless current_user.authorize :id_card, :access?
           raise ::VIC::IDCardAttributeError, status: 403, code: 'VIC003',
                                              detail: 'Not eligible for a Veteran ID Card'
         end

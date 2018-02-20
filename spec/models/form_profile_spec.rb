@@ -363,7 +363,7 @@ RSpec.describe FormProfile, type: :model do
         allow(military_information).to receive(:currently_active_duty_hash).and_return(
           yes: true
         )
-        expect(user).to receive(:can_access_id_card?).and_return(true)
+        expect(user).to receive(:authorize).with(:id_card, :access?).and_return(true)
       end
 
       context 'with a user that can prefill emis' do
