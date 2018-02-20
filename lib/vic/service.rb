@@ -14,6 +14,7 @@ module VIC
       'M' => 'Marine Corps',
       'N' => 'Navy'
     }.freeze
+    PROCESSING_WAIT = 10
 
     def oauth_params
       {
@@ -101,7 +102,8 @@ module VIC
 
       if form['dd214'].present?
         form['dd214'].each do |file|
-          @attachment_records[:supporting] << VIC::SupportingDocumentationAttachment.find_by(guid: file['confirmationCode'])
+          attachment = VIC::SupportingDocumentationAttachment.find_by(guid: file['confirmationCode'])
+          @attachment_records[:supporting] << attachment
         end
       end
 
@@ -148,7 +150,20 @@ module VIC
       # TODO: historical icn
     end
 
+    def wait_for_processed(form)
+      start = Time.zone.now
+
+      loop do
+        return if all_files_processed?(form)
+
+        raise Timeout::Error if (Time.zone.now - start) > PROCESSING_WAIT
+        sleep(1)
+      end
+    end
+
     def submit(form, user)
+      wait_for_processed(form)
+
       converted_form = convert_form(form)
       add_user_data!(converted_form, user) if user.present?
 

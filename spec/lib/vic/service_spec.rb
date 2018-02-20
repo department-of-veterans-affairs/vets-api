@@ -121,6 +121,8 @@ describe VIC::Service do
     end
 
     def test_case_id(user)
+      parsed_form
+      ProcessFileJob.drain
       expect(service.submit(parsed_form, user)).to eq(case_id: 'case_id', case_number: 'case_number')
     end
 
