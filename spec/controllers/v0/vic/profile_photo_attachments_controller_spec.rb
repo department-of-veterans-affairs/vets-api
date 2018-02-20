@@ -50,6 +50,7 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
           file_data: fixture_file_upload('files/sm_file1.jpg')
         }
       )
+      ProcessFileJob.drain
     end
 
     context 'with an anonymous user' do
