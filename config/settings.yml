@@ -93,6 +93,7 @@ locators:
   vc: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_VetCenters/FeatureServer/0
   vha_access_satisfaction: https://www.accesstoshep.va.gov/
   vha_access_waittime: https://www.accesstopwt.va.gov/
+  base_path: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/
 
 # Settings for MyHealthEVet
 mhv:
