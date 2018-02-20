@@ -133,9 +133,10 @@ Rails.application.routes.draw do
     end
 
     namespace :vic do
-      resources :profile_photo_attachments, only: %i[create show]
       resources :supporting_documentation_attachments, only: :create
       resources :vic_submissions, only: %i[create show]
+      get 'profile_photo_attachments/:id', to: 'profile_photo_attachments_download#show'
+      post 'profile_photo_attachments', to: 'profile_photo_attachments#create'
     end
 
     resource :address, only: %i[show update] do
