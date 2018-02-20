@@ -112,6 +112,18 @@ module VIC
       @attachment_records
     end
 
+    def all_files_processed?(form)
+      attachment_records = get_attachment_records(form)
+
+      attachment_records[:supporting].each do |form_attachment|
+        return false unless form_attachment.get_file.exists?
+      end
+
+      return false unless attachment_records[:profile_photo].get_file.exists?
+
+      true
+    end
+
     def send_files(client, case_id, form)
       attachment_records = get_attachment_records(form)
       attachment_records[:supporting].each do |form_attachment|
