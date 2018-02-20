@@ -53,6 +53,7 @@ describe VIC::Service do
   describe '#send_files' do
     it 'should send the files in the form' do
       parsed_form
+      ProcessFileJob.drain
       expect(service).to receive(:send_file).with(
         client, case_id,
         VIC::SupportingDocumentationAttachment.last.get_file.read,
