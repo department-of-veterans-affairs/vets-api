@@ -67,6 +67,14 @@ evss:
   mock_letters: false
   mock_gi_bill_status: false
   mock_pciu_address: false
+  aws:
+    url: http://fake.evss-reference-data-service.dev/v1
+    cert_path: ~
+    key_path: ~
+    root_ca: ~
+  jwt:
+    issuer: fake_issuer
+    key: fake_key
 
 # Settings for GI Bill Data Service
 gids:
@@ -233,3 +241,7 @@ betamocks:
   recording: false
   cache_dir: /cache
   services_config: config/betamocks/services_config.yml
+
+faraday_socks_proxy:
+  enabled: false
+  uri: socks5://localhost:2002

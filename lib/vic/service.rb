@@ -77,20 +77,10 @@ module VIC
       converted_form
     end
 
-    def generate_temp_file(file_body, file_name)
-      file_path = "tmp/#{file_name}"
-
-      File.open(file_path, 'wb') do |file|
-        file.write(file_body)
-      end
-
-      file_path
-    end
-
     def send_file(client, case_id, file_body, description)
       mime_type = MimeMagic.by_magic(file_body).type
       file_name = "#{SecureRandom.hex}.#{mime_type.split('/')[1]}"
-      file_path = generate_temp_file(file_body, file_name)
+      file_path = Common::FileHelpers.generate_temp_file(file_body, file_name)
 
       success = client.create(
         'Attachment',

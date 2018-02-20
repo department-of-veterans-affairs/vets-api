@@ -6,12 +6,14 @@ class ProfilePhotoAttachmentSerializer < ActiveModel::Serializer
   attribute :path
 
   def filename
-    parsed['filename']
+    parsed['filename'] unless @instance_options[:is_anonymous_upload]
   end
 
   def path
-    parsed['path']
+    parsed['path'] unless @instance_options[:is_anonymous_upload]
   end
+
+  private
 
   def parsed
     @parsed ||= JSON.parse(object.file_data)
