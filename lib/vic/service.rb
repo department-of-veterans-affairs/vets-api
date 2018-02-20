@@ -144,9 +144,7 @@ module VIC
         instance_url: Configuration::SALESFORCE_INSTANCE_URL,
         api_version: '41.0'
       )
-      binding.pry; fail
       response_body = client.post('/services/apexrest/VICRequest', converted_form).body
-      puts response_body
       Raven.extra_context(submit_response_body: response_body)
 
       case_id = response_body['case_id']
