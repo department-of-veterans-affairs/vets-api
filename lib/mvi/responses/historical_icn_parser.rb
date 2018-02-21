@@ -21,7 +21,7 @@ module MVI
           @body.locate(HISTORICAL_ICN_XPATH),
           IdParser::ICN_REGEX,
           IdParser::CORRELATION_ROOT_ID
-        )
+        ) || []
       end
     end
   end

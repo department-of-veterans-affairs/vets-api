@@ -39,14 +39,26 @@ describe MVI::Service do
       let(:user) { build(:evss_user) }
 
       it 'should return empty array', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
-        VCR.use_cassette('mvi/find_candidate/historical_icns_empty', record: :new_episodes) do
+        VCR.use_cassette('mvi/find_candidate/historical_icns_empty', VCR::MATCH_EVERYTHING) do
           expect(subject.find_historical_icns(user)).to eq([])
         end
       end
     end
 
-    context 'with an icn' do
-      it 'should find the historical icns', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+    context 'with a user not found' do
+      let(:user_hash) do
+        {
+          first_name: 'sdf',
+          last_name: 'sdgsdf',
+          birth_date: '19800812',
+          gender: 'M',
+          ssn: '111222333'
+        }
+      end
+    end
+
+    context 'finding user with icn' do
+      it 'should find historical icns', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
         allow(user).to receive(:mhv_icn).and_return('1008787551V609092^NI^200M^USVHA^P')
 
         VCR.use_cassette('mvi/find_candidate/historical_icns_with_icn', VCR::MATCH_EVERYTHING) do
@@ -57,7 +69,7 @@ describe MVI::Service do
       end
     end
 
-    context 'with user attributes' do
+    context 'finding user with traits' do
       let(:user_hash) do
         {
           first_name: 'RFIRST',
@@ -68,7 +80,7 @@ describe MVI::Service do
         }
       end
 
-      it 'should find historical icns for a user', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+      it 'should find historical icns', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
         VCR.use_cassette('mvi/find_candidate/historical_icns_with_traits', VCR::MATCH_EVERYTHING) do
           expect(subject.find_historical_icns(user)).to eq(
             historical_icns
