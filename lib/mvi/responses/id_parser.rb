@@ -6,6 +6,7 @@ module MVI
       include SentryLogging
       CORRELATION_ROOT_ID = '2.16.840.1.113883.4.349'
       EDIPI_ROOT_ID = '2.16.840.1.113883.3.42.10001.100001.12'
+      ICN_REGEX = /^\w+\^NI\^\w+\^\w+\^\w+$/
 
       # MVI correlation id source id relationships:
       # {source id}^{id type}^{assigning facility}^{assigning authority}^{id status}
@@ -26,6 +27,10 @@ module MVI
           vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, CORRELATION_ROOT_ID)),
           birls_id: select_ids(select_extension(ids, /^\w+\^PI\^200BRLS\^USVBA\^\w+$/, CORRELATION_ROOT_ID))&.first
         }
+      end
+
+      def select_ids_with_extension(ids, pattern, root)
+        select_ids(select_extension(ids, pattern, root))
       end
 
       private
