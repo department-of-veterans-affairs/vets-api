@@ -51,6 +51,15 @@ class Mvi < Common::RedisStore
     profile&.icn
   end
 
+  # A list of historical ICN's (see above)
+  # or nil for users < LOA 3
+  #
+  # @return [Array[String]] the historical icns
+  def historical_icns
+    return nil unless @user.loa3?
+    profile&.historical_icns
+  end
+
   # A MHV (My HealtheVet) MVI correlation id
   # or nil for users < LOA 3
   #
