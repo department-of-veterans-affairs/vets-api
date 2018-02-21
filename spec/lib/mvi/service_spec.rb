@@ -35,6 +35,16 @@ describe MVI::Service do
       allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
     end
 
+    context 'with a user without historical icns' do
+      let(:user) { build(:evss_user) }
+
+      it 'should return empty array', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+        VCR.use_cassette('mvi/find_candidate/historical_icns_empty', record: :new_episodes) do
+          expect(subject.find_historical_icns(user)).to eq([])
+        end
+      end
+    end
+
     context 'with an icn' do
       it 'should find the historical icns', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
         allow(user).to receive(:mhv_icn).and_return('1008787551V609092^NI^200M^USVHA^P')
