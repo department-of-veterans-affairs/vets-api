@@ -65,12 +65,12 @@ describe VIC::Service do
       expect(service).to receive(:send_file).with(
         client, case_id,
         VIC::SupportingDocumentationAttachment.last.get_file.read,
-        'Supporting Documentation'
+        'Discharge Documentation 0'
       )
       expect(service).to receive(:send_file).with(
         client, case_id,
         VIC::ProfilePhotoAttachment.last.get_file.read,
-        'Profile Photo'
+        'Photo'
       )
       service.send_files(client, case_id, parsed_form)
     end

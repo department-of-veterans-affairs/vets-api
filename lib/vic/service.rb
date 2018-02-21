@@ -133,13 +133,13 @@ module VIC
 
     def send_files(client, case_id, form)
       attachment_records = get_attachment_records(form)
-      attachment_records[:supporting].each do |form_attachment|
+      attachment_records[:supporting].each_with_index do |form_attachment, i|
         file_body = form_attachment.get_file.read
-        send_file(client, case_id, file_body, 'Supporting Documentation')
+        send_file(client, case_id, file_body, "Discharge Documentation #{i}")
       end
 
       file_body = attachment_records[:profile_photo].get_file.read
-      send_file(client, case_id, file_body, 'Profile Photo')
+      send_file(client, case_id, file_body, 'Photo')
     end
 
     def add_user_data!(converted_form, user)
