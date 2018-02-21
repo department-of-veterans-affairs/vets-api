@@ -49,6 +49,7 @@ module MVI
 
     def find_historical_icns(user)
       return [] unless user.loa3?
+
       raw_response = perform(
         :post,
         '',
