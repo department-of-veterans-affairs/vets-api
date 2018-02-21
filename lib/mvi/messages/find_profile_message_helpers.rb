@@ -11,7 +11,7 @@ module MVI
       EXTENSION = 'PRPA_IN201305UV02'
 
       def to_xml(opt = {})
-        super(EXTENSION, build_body)
+        super(EXTENSION, build_body(opt))
       rescue => e
         Rails.logger.error "failed to build find candidate message: #{e.message}"
         raise
@@ -21,12 +21,12 @@ module MVI
 
       def build_body(opt)
         body = build_control_act_process
-        body << query_by_parameter
+        body << query_by_parameter(opt)
         body
       end
 
       def query_by_parameter(opt)
-        build_query_by_parameter << build_parameter_list
+        build_query_by_parameter(opt) << build_parameter_list
       end
 
       def build_query_by_parameter(opt)

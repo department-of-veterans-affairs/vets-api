@@ -7,11 +7,11 @@ require 'mvi/responses/find_profile_response'
 describe MVI::Service do
   let(:user_hash) do
     {
-      first_name: 'RFIRST',
-      last_name: 'RLAST',
-      birth_date: '19790812',
-      gender: 'M',
-      ssn: '768598574'
+      first_name: 'Mitchell',
+      last_name: 'Jenkins',
+      middle_name: 'G',
+      birth_date: '1949-03-04',
+      ssn: '796122306'
     }
   end
 
@@ -28,13 +28,24 @@ describe MVI::Service do
     )
   end
 
-  describe 'test' do
-    it 'test' do
-      # VCR.config do |c|
-      #   c.allow_http_connections_when_no_cassette = true
-      # end
-      VCR.use_cassette('icn_test', record: :new_episodes) do
-        subject.find_profile(user)
+  describe '#find_historical_icns' do
+    context 'with user attributes' do
+      let(:user_hash) do
+        {
+          first_name: 'RFIRST',
+          last_name: 'RLAST',
+          birth_date: '19790812',
+          gender: 'M',
+          ssn: '768598574'
+        }
+      end
+
+      it 'should find historical icns for a user', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+        VCR.use_cassette('mvi/find_candidate/historical_icns_with_traits') do
+          expect(subject.find_historical_icns(user)).to eq(
+            ["1008692852V724999", "1008787485V229771"]
+          )
+        end
       end
     end
   end
