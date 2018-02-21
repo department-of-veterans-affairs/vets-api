@@ -46,22 +46,26 @@ module SAML
       end
 
       def loa_current
-        LOA::MAPPING[real_authn_context]
+        LOA::MAPPING.fetch(real_authn_context)
+      rescue KeyError => exception
+        log_exception_once(exception)
+        1 # default to something safe until we can research this
       end
 
       def loa_highest
         loa_highest = idme_loa || loa_current
         [loa_current, loa_highest].max
-      rescue ArgumentError => exception
+      end
+
+      def log_exception_once(exception)
+        return if @exception_logged
         extra_context = {
           uuid: attributes['uuid'],
           idme_level_of_assurance: attributes['level_of_assurance'],
-          loa_current: loa_current,
-          loa_highest: loa_highest,
           real_authn_context: real_authn_context
         }
         log_exception_to_sentry(exception, extra_context)
-        loa_current || 1 # default to something safe until we can research this
+        @exception_logged = true
       end
     end
   end

@@ -73,8 +73,10 @@ RSpec.describe SAML::User do
       end
 
       it 'returns loa highest 1 if ArguementError' do
-        allow_any_instance_of(Array).to receive(:max).and_raise(ArgumentError)
-        expect_any_instance_of(SAML::UserAttributes::IdMe).to receive(:log_exception_to_sentry)
+        stub_const("LOA::MAPPING", {})
+        expect_any_instance_of(SAML::UserAttributes::IdMe)
+          .to receive(:loa_current).exactly(3).times.and_call_original
+        expect_any_instance_of(SAML::UserAttributes::IdMe).to receive(:log_exception_to_sentry).once
         described_instance.to_hash
       end
 
