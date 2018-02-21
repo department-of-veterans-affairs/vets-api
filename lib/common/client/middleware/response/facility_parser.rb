@@ -35,13 +35,15 @@ module Common
             mapping.slice('unique_id', 'name', 'classification', 'website').each do |key, value|
               mapped_attrs[key] = attrs[value]
             end
-            mapped_attrs['phone'] = nested(mapping['phone'], attrs)
+            %w[hours access feedback phone].each do |name|
+              mapped_attrs[name] = nested(mapping[name], attrs)
+            end
             mapped_attrs['address']['physical'] = nested(mapping['physical'], attrs)
             mapped_attrs['address']['mailing'] = nested(mapping['mailing'], attrs)
-            mapped_attrs['hours'] = nested(mapping['hours'], attrs)
-            mapped_attrs['access'] = nested(mapping['access'], attrs)
-            mapped_attrs['feedback'] = nested(mapping['feedback'], attrs)
             mapped_attrs['services']['benefits'] = nested(mapping['benefits'], attrs)
+            mapped_attrs['services']['last_updated'] = services_date(attrs)
+            mapped_attrs['services']['health'] = services_from_gis(mapping['services'], attrs)
+
             mapped_attrs.merge!(
               'lat' => entry['geometry']['x'],
               'long' => entry['geometry']['y']
@@ -55,38 +57,61 @@ module Common
             end
           end
 
-          def self.mh_clinic_phone(attrs)
-            val = attrs['MHClinicPhone']
-            val = attrs['MHPhone'] if val.blank?
-            return '' if val.blank?
-            result = val.to_s
-            result << ' x ' + attrs['Extension'].to_s unless
-              (attrs['Extension']).blank? || (attrs['Extension']).zero?
-            result
+          def services_date(attrs)
+            Date.strptime(attrs['FacilityDataDate'], '%m-%d-%Y').iso8601 if attrs['FacilityDataDate']
           end
 
-          def self.to_date(dtstring)
-            Date.iso8601(dtstring).iso8601
-          end
+          APPROVED_SERVICES = %w[
+            MentalHealthCare
+            PrimaryCare
+            DentalServices
+          ].freeze
 
-          def self.satisfaction_data(attrs)
-            result = {}
-            datum = FacilitySatisfaction.find(attrs['StationNumber'].upcase)
-            if datum.present?
-              datum.metrics.each { |k, v| result[k.to_s] = v.present? ? v.round(2) : nil }
-              result['effective_date'] = to_date(datum.source_updated)
+          def services_from_gis(service_map, attrs)
+            service_map.each_with_object([]) do |(k, v), l|
+              next unless attrs[k] == 'YES' && APPROVED_SERVICES.include?(k)
+              sl2 = []
+              v.each do |sk|
+                sl2 << sk if attrs[sk] == 'YES' && APPROVED_SERVICES.include?(sk)
+              end
+              l << { 'sl1' => [k], 'sl2' => sl2 }
             end
-            result
           end
 
-          def self.wait_time_data(attrs)
-            result = {}
-            datum = FacilityWaitTime.find(attrs['StationNumber'].upcase)
-            if datum.present?
-              datum.metrics.each { |k, v| result[k.to_s] = v }
-              result['effective_date'] = to_date(datum.source_updated)
+          class << self
+            def mh_clinic_phone(attrs)
+              val = attrs['MHClinicPhone']
+              val = attrs['MHPhone'] if val.blank?
+              return '' if val.blank?
+              result = val.to_s
+              result << ' x ' + attrs['Extension'].to_s unless
+                (attrs['Extension']).blank? || (attrs['Extension']).zero?
+              result
             end
-            result
+
+            def to_date(dtstring)
+              Date.iso8601(dtstring).iso8601
+            end
+
+            def satisfaction_data(attrs)
+              result = {}
+              datum = FacilitySatisfaction.find(attrs['StationNumber'].upcase)
+              if datum.present?
+                datum.metrics.each { |k, v| result[k.to_s] = v.present? ? v.round(2) : nil }
+                result['effective_date'] = to_date(datum.source_updated)
+              end
+              result
+            end
+
+            def wait_time_data(attrs)
+              result = {}
+              datum = FacilityWaitTime.find(attrs['StationNumber'].upcase)
+              if datum.present?
+                datum.metrics.each { |k, v| result[k.to_s] = v }
+                result['effective_date'] = to_date(datum.source_updated)
+              end
+              result
+            end
           end
 
           NCA_MAP = {
@@ -152,7 +177,6 @@ module Common
                          'Sunday' => '' }
           }.freeze
 
-          # TODO: service heirarchy
           VHA_MAP = {
             'unique_id' => 'StationNumber',
             'name' => 'StationName',
