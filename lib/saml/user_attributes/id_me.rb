@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require 'saml/user_attributes/base'
+require 'sentry_logging'
 
 module SAML
   module UserAttributes
     class IdMe < Base
+      include SentryLogging
       IDME_SERIALIZABLE_ATTRIBUTES = %i[first_name middle_name last_name zip gender ssn birth_date].freeze
 
       def first_name
@@ -50,6 +52,10 @@ module SAML
       def loa_highest
         loa_highest = idme_loa || loa_current
         [loa_current, loa_highest].max
+      rescue ArgumentError
+        extra_context = { uuid: attributes['uuid'], loa_current: loa_current, loa_highest: loa_highest }
+        log_exception_to_sentry('ArgumentError', :error, extra_context)
+        1 # return 1 for now until we can debug and better assess what causes this
       end
     end
   end
