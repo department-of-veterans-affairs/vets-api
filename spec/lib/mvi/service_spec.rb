@@ -30,10 +30,12 @@ describe MVI::Service do
 
   describe 'test' do
     it 'test' do
-      VCR.config do |c|
-        c.allow_http_connections_when_no_cassette = true
+      # VCR.config do |c|
+      #   c.allow_http_connections_when_no_cassette = true
+      # end
+      VCR.use_cassette('icn_test', record: :new_episodes) do
+        subject.find_profile(user)
       end
-      subject.find_profile(user)
     end
   end
 
