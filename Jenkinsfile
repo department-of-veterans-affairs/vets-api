@@ -1,4 +1,8 @@
 pipeline {
+  options {
+    buildDiscarder(logRotator(daysToKeepStr: '60'))
+  }
+
   agent {
     label 'vetsgov-general-purpose'
   }
