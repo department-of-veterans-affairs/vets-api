@@ -1,11 +1,12 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe EVSSClaimService do
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:client_stub) { instance_double('EVSS::ClaimsService') }
-  let(:claim_service) { described_class.new(user) }
-  subject { claim_service }
+  let(:service) { described_class.new(user) }
+  subject { service }
 
   context 'when EVSS client times out' do
     describe '#all' do
@@ -78,7 +79,7 @@ RSpec.describe EVSSClaimService do
 
     describe '#all' do
       subject do
-        claim_service.all
+        service.all
       end
 
       it 'returns all claims for the user' do
@@ -94,7 +95,7 @@ RSpec.describe EVSSClaimService do
     describe '#update_from_remote' do
       let(:claim) { FactoryBot.build(:evss_claim, user_uuid: user.uuid) }
       subject do
-        claim_service.update_from_remote(claim)
+        service.update_from_remote(claim)
       end
 
       it 'returns claim' do

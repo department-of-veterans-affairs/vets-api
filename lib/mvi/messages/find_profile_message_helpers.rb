@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'ox'
 require_relative 'message_builder'
 require_relative 'find_candidate_message_error'

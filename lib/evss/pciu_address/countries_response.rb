@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'evss/response'
 
 module EVSS
@@ -7,7 +8,8 @@ module EVSS
       attribute :countries, Array[String]
 
       def initialize(status, response = nil)
-        super(status, countries: response&.body.dig('cnp_countries'))
+        countries = response&.body&.dig('cnp_countries') || response&.body&.dig('countries')
+        super(status, countries: countries)
       end
     end
   end

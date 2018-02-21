@@ -1,18 +1,19 @@
 # frozen_string_literal: true
+
 require 'common/models/form'
 
 module BB
   class GenerateReportRequestForm < Common::Form
     include SentryLogging
 
-    ELIGIBLE_DATA_CLASSES = %w( seiactivityjournal seiallergies seidemographics
+    ELIGIBLE_DATA_CLASSES = %w[ seiactivityjournal seiallergies seidemographics
                                 familyhealthhistory seifoodjournal healthcareproviders healthinsurance
                                 seiimmunizations labsandtests medicalevents militaryhealthhistory
                                 seimygoalscurrent seimygoalscompleted treatmentfacilities
                                 vitalsandreadings prescriptions medications vaallergies
                                 vaadmissionsanddischarges futureappointments pastappointments
                                 vademographics vaekg vaimmunizations vachemlabs vaprogressnotes
-                                vapathology vaproblemlist varadiology vahth wellness dodmilitaryservice ).freeze
+                                vapathology vaproblemlist varadiology vahth wellness dodmilitaryservice ].freeze
 
     attribute :from_date, Common::UTCTime
     attribute :to_date, Common::UTCTime

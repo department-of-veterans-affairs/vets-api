@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/base'
 require 'emis/configuration'
 require 'emis/messages/edipi_or_icn_message'

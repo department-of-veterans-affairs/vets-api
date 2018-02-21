@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe FailedClaimsReportMailer, type: [:mailer] do
@@ -47,10 +48,10 @@ RSpec.describe FailedClaimsReportMailer, type: [:mailer] do
 
       it 'should email the the right recipients' do
         expect(subject.to).to eq(
-          %w(
+          %w[
             lihan@adhocteam.us
             ryan.baker@adhocteam.us
-          )
+          ]
         )
       end
     end

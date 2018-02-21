@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 FactoryBot.define do
   factory :full_name, class: Preneeds::FullName do
     last { generate(:last_name) }

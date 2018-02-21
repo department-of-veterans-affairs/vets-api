@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'shrine/plugins/storage_from_config'
 require 'shrine/plugins/validate_virus_free'
 class VetsShrine < Shrine

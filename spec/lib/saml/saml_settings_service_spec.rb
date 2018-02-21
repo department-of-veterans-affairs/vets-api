@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'saml/settings_service'
 require 'lib/sentry_logging_spec_helper'

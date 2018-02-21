@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Preneeds::CurrentlyBuriedPerson do
@@ -13,7 +14,7 @@ RSpec.describe Preneeds::CurrentlyBuriedPerson do
 
   describe 'when converting to eoas' do
     it 'produces an ordered hash' do
-      expect(subject.as_eoas.keys).to eq([:cemeteryNumber, :name])
+      expect(subject.as_eoas.keys).to eq(%i[cemeteryNumber name])
     end
   end
 

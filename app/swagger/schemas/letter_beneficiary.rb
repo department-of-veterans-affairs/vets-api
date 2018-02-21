@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Schemas
     class LetterBeneficiary
@@ -9,7 +10,7 @@ module Swagger
         property :data, type: :object do
           key :required, [:attributes]
           property :attributes, type: :object do
-            key :required, [:benefit_information, :military_service]
+            key :required, %i[benefit_information military_service]
             property :benefit_information, type: :object do
               property :has_non_service_connected_pension, type: :boolean, example: true
               property :has_service_connected_disabilities, type: :boolean, example: true
@@ -18,17 +19,17 @@ module Swagger
               property :monthly_award_amount, type: :number, example: 123.5
               property :service_connected_percentage, type: :integer, example: 2
               property :award_effective_date, type: :string, example: true
-              property :has_adapted_housing, type: [:boolean, :null], example: true
-              property :has_chapter35_eligibility, type: [:boolean, :null], example: true
-              property :has_death_result_of_disability, type: [:boolean, :null], example: true
-              property :has_individual_unemployability_granted, type: [:boolean, :null], example: true
-              property :has_special_monthly_compensation, type: [:boolean, :null], example: true
+              property :has_adapted_housing, type: %i[boolean null], example: true
+              property :has_chapter35_eligibility, type: %i[boolean null], example: true
+              property :has_death_result_of_disability, type: %i[boolean null], example: true
+              property :has_individual_unemployability_granted, type: %i[boolean null], example: true
+              property :has_special_monthly_compensation, type: %i[boolean null], example: true
             end
             property :military_service do
               items do
                 property :branch, type: :string, example: 'ARMY'
                 property :character_of_service, type: :string, enum:
-                  %w(
+                  %w[
                     HONORABLE
                     OTHER_THAN_HONORABLE
                     UNDER_HONORABLE_CONDITIONS
@@ -36,7 +37,7 @@ module Swagger
                     UNCHARACTERIZED
                     UNCHARACTERIZED_ENTRY_LEVEL
                     DISHONORABLE
-                  ), example: 'HONORABLE'
+                  ], example: 'HONORABLE'
                 property :entered_date, type: :string, example: '1973-01-01T05:00:00.000+00:00'
                 property :released_date, type: :string, example: '1977-10-01T04:00:00.000+00:00'
               end

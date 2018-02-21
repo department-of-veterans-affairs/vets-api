@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 require 'saml/settings_service'
@@ -70,6 +71,10 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     it 'supports listing in-progress forms' do
       expect(subject).to validate(:get, '/v0/in_progress_forms', 200, auth_options)
       expect(subject).to validate(:get, '/v0/in_progress_forms', 401)
+    end
+
+    it 'supports fetching maintenance windows' do
+      expect(subject).to validate(:get, '/v0/maintenance_windows', 200)
     end
 
     it 'supports getting an in-progress form' do
@@ -578,7 +583,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             end
           end
 
-          [:put, :patch].each do |op|
+          %i[put patch].each do |op|
             it "supports updating a message draft with #{op}" do
               VCR.use_cassette('sm_client/message_drafts/updates_a_draft') do
                 expect(subject).to validate(
@@ -867,6 +872,12 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     context '#feedback' do
+      before(:all) do
+        Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.current)
+      end
+      before(:each) do
+        Rack::Attack.cache.store.flushdb
+      end
       let(:feedback_params) do
         {
           'description' => 'I liked this page',
@@ -1010,6 +1021,42 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         it '400s on invalid bounding box query' do
           expect(subject).to validate(:get, '/v0/facilities/va', 400,
                                       '_query_string' => 'bbox[]=-122&bbox[]=45&bbox[]=-123')
+        end
+      end
+    end
+
+    describe 'appeals' do
+      it 'documents appeals 401' do
+        expect(subject).to validate(:get, '/v0/appeals_v2', 401)
+      end
+
+      it 'documents appeals 200' do
+        VCR.use_cassette('/appeals/appeals') do
+          expect(subject).to validate(:get, '/v0/appeals_v2', 200, auth_options)
+        end
+      end
+
+      it 'documents appeals 403' do
+        VCR.use_cassette('/appeals/forbidden') do
+          expect(subject).to validate(:get, '/v0/appeals_v2', 403, auth_options)
+        end
+      end
+
+      it 'documents appeals 404' do
+        VCR.use_cassette('/appeals/not_found') do
+          expect(subject).to validate(:get, '/v0/appeals_v2', 404, auth_options)
+        end
+      end
+
+      it 'documents appeals 422' do
+        VCR.use_cassette('/appeals/invalid_ssn') do
+          expect(subject).to validate(:get, '/v0/appeals_v2', 422, auth_options)
+        end
+      end
+
+      it 'documents appeals 502' do
+        VCR.use_cassette('/appeals/server_error') do
+          expect(subject).to validate(:get, '/v0/appeals_v2', 502, auth_options)
         end
       end
     end

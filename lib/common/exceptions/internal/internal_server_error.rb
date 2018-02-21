@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Common
   module Exceptions
     # Internal Server Error - all exceptions not readily accounted fall into this tier

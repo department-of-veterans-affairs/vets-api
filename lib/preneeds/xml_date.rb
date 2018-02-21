@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Preneeds
   # This is a custom type class for ensuring Time is always coerced as UTC first then RFC1123
   class XmlDate < Virtus::Attribute

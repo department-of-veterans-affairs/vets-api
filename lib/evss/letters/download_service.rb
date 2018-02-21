@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/base'
 require 'common/exceptions/internal/record_not_found'
 require 'common/exceptions/external/gateway_timeout'
@@ -6,6 +7,8 @@ require 'common/exceptions/external/gateway_timeout'
 module EVSS
   module Letters
     class DownloadService < EVSS::Service
+      include Common::Client::Monitoring
+
       configuration EVSS::Letters::DownloadConfiguration
 
       def download_letter(type, options = nil)

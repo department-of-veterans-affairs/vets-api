@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'support/attr_encrypted_matcher'
 
@@ -21,6 +22,28 @@ RSpec.describe FormProfile, type: :model do
       :get_us_phone,
       user.va_profile[:home_phone].gsub(/[^\d]/, '')
     )
+  end
+
+  let(:veteran_full_name) do
+    {
+      'veteranFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      }
+    }
+  end
+
+  let(:veteran_address) do
+    {
+      'veteranAddress' => {
+        'street' => user.va_profile[:address][:street],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code]
+      }
+    }
   end
 
   let(:v22_1990_expected) do
@@ -198,6 +221,18 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:vvic_expected) do
+    {
+      'email' => user.email,
+      'serviceBranches' => ['F'],
+      'gender' => user.gender,
+      'verified' => true,
+      'veteranDateOfBirth' => user.birth_date,
+      'phone' => us_phone,
+      'veteranSocialSecurityNumber' => user.ssn
+    }.merge(veteran_full_name).merge(veteran_address)
+  end
+
   let(:v21_p_527_ez_expected) do
     {
       'veteranFullName' => {
@@ -280,10 +315,13 @@ RSpec.describe FormProfile, type: :model do
         form_id
       end.tap do |schema_form_id|
         schema = VetsJsonSchema::SCHEMAS[schema_form_id].except('required', 'anyOf')
+        schema_data = prefilled_data.deep_dup
+
+        schema_data.except!('verified', 'serviceBranches') if schema_form_id == 'VIC'
 
         errors = JSON::Validator.fully_validate(
           schema,
-          prefilled_data.deep_transform_keys { |key| key.camelize(:lower) },
+          schema_data.deep_transform_keys { |key| key.camelize(:lower) },
           validate_schema: true
         )
         expect(errors.empty?).to eq(true), "schema errors: #{errors}"
@@ -321,14 +359,20 @@ RSpec.describe FormProfile, type: :model do
         expect(military_information).to receive(:tours_of_duty).and_return(
           [{ service_branch: 'Air Force', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
         )
+        expect(military_information).to receive(:service_branches).and_return(['F'])
         allow(military_information).to receive(:currently_active_duty_hash).and_return(
           yes: true
         )
+        expect(user).to receive(:can_access_id_card?).and_return(true)
       end
 
       context 'with a user that can prefill emis' do
         before do
           can_prefill_emis(true)
+        end
+
+        it 'returns prefilled VIC' do
+          expect_prefilled('VIC')
         end
 
         it 'returns prefilled 22-1990' do
@@ -437,11 +481,11 @@ RSpec.describe FormProfile, type: :model do
 
       it 'loads the yaml file only once' do
         expect(YAML).to receive(:load_file).once.and_return(
-          'veteran_full_name' => %w(identity_information full_name),
-          'gender' => %w(identity_information gender),
-          'veteran_date_of_birth' => %w(identity_information date_of_birth),
-          'veteran_address' => %w(contact_information address),
-          'home_phone' => %w(contact_information home_phone)
+          'veteran_full_name' => %w[identity_information full_name],
+          'gender' => %w[identity_information gender],
+          'veteran_date_of_birth' => %w[identity_information date_of_birth],
+          'veteran_address' => %w[contact_information address],
+          'home_phone' => %w[contact_information home_phone]
         )
         instance1.prefill(user)
         instance2.prefill(user)

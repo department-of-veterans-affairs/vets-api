@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'Fetching Post 911 GI Bill Status', type: :request do
@@ -53,6 +54,12 @@ RSpec.describe 'Fetching Post 911 GI Bill Status', type: :request do
         get v0_post911_gi_bill_status_url, nil, auth_header
         expect(response).to have_http_status(:internal_server_error)
       end
+    end
+  end
+
+  context 'with deprecated GibsNotFoundUser class' do
+    it 'loads the class for coverage' do
+      GibsNotFoundUser
     end
   end
 end

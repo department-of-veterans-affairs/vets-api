@@ -16,6 +16,7 @@ module MVI
 
         {
           icn: icns&.first,
+          sec_id: select_ids(select_extension(ids, /^\w+\^PN\^200PROV\^USDVA\^\w+$/, CORRELATION_ROOT_ID))&.first,
           mhv_ids: select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/, CORRELATION_ROOT_ID)),
           active_mhv_ids: select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^A$/, CORRELATION_ROOT_ID)),
           edipi: select_ids(select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^\w+$/, EDIPI_ROOT_ID))&.first,

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class CategorySerializer < ActiveModel::Serializer
   def id
     object.category_id

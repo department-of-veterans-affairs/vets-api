@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'evss/jwt'
 
@@ -21,7 +22,7 @@ describe EVSS::Jwt do
     it 'has the right payload' do
       payload = decrypted_token[0]
 
-      expect(payload['correlationIds']).to_not be_nil
+      expect(payload['correlationIds']).to be_an(Array)
       expect(payload['jti']).to be_a_uuid
       expect(payload).to include('iat' => some_random_time.to_i,
                                  'exp' => some_random_time.to_i + described_class::EXP_WINDOW,

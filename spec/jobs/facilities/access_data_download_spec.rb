@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Facilities::AccessDataDownload, type: :job do
@@ -18,6 +19,8 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
 
   it 'retrieves bulk access data' do
     VCR.use_cassette('facilities/access/all') do
+      expect_any_instance_of(described_class).not_to receive(:log_message_to_sentry)
+      expect_any_instance_of(described_class).not_to receive(:log_exception_to_sentry)
       described_class.new.perform
     end
   end
@@ -41,7 +44,7 @@ RSpec.describe Facilities::AccessDataDownload, type: :job do
     end
 
     it 'invalidates removed fields' do
-      satisfaction_update = satisfaction_data.select { |x| x['facilityID'] != '438GD' }
+      satisfaction_update = satisfaction_data.reject { |x| x['facilityID'] == '438GD' }
       expect(sat_client_stub).to receive(:download).and_return(satisfaction_data)
       expect(sat_client_stub).to receive(:download).and_return(satisfaction_update)
       allow(wait_client_stub).to receive(:download).and_return(wait_time_data)

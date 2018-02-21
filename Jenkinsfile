@@ -12,8 +12,10 @@ pipeline {
 
     stage('Run tests') {
       steps {
-        withEnv(['RAILS_ENV=test', 'CI=true']) {
-          sh 'make ci'
+        withCredentials([string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM')]) {
+          withEnv(['RAILS_ENV=test', 'CI=true']) {
+            sh 'make ci'
+          }
         }
       }
     }
@@ -50,22 +52,22 @@ pipeline {
           booleanParam(name: 'release', value: false),
         ], wait: true
 
-        build job: 'deploys/vets-api-server-dev-brd', parameters: [
+        build job: 'deploys/vets-api-server-dev', parameters: [
           booleanParam(name: 'notify_slack', value: true),
           stringParam(name: 'ref', value: commit),
         ], wait: false
 
-        build job: 'deploys/vets-api-worker-dev-brd', parameters: [
+        build job: 'deploys/vets-api-worker-dev', parameters: [
           booleanParam(name: 'notify_slack', value: true),
           stringParam(name: 'ref', value: commit),
         ], wait: false
 
-        build job: 'deploys/vets-api-server-staging-brd', parameters: [
+        build job: 'deploys/vets-api-server-staging', parameters: [
           booleanParam(name: 'notify_slack', value: true),
           stringParam(name: 'ref', value: commit),
         ], wait: false
 
-        build job: 'deploys/vets-api-worker-staging-brd', parameters: [
+        build job: 'deploys/vets-api-worker-staging', parameters: [
           booleanParam(name: 'notify_slack', value: true),
           stringParam(name: 'ref', value: commit),
         ], wait: false

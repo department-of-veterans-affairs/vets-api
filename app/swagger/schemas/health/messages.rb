@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Schemas
     module Health
@@ -6,7 +7,7 @@ module Swagger
         include Swagger::Blocks
 
         swagger_schema :Messages do
-          key :required, [:data, :meta]
+          key :required, %i[data meta]
 
           property :data, type: :array, minItems: 1, uniqueItems: true do
             items do
@@ -42,12 +43,12 @@ module Swagger
 
           property :included, type: :array, minItems: 0, uniqueItems: true do
             items do
-              key :required, [:id, :type, :attributes, :links]
+              key :required, %i[id type attributes links]
 
               property :id, type: :string
               property :type, type: :string, enum: [:attachments]
               property :attributes, type: :object do
-                key :required, [:message_id, :name]
+                key :required, %i[message_id name]
 
                 property :message_id, type: :integer
                 property :name, type: :string
@@ -59,20 +60,20 @@ module Swagger
 
         swagger_schema :DataAttributes do
           key :type, :object
-          key :required, [:id, :type, :attributes, :links]
+          key :required, %i[id type attributes links]
 
           property :id, type: :string
-          property :type, type: :string, enum: [:messages, :message_drafts]
+          property :type, type: :string, enum: %i[messages message_drafts]
           property :attributes, '$ref': :MessageAttributes
           property :links, '$ref': :LinksSelf
         end
 
         swagger_schema :DataAttributesWithRelationships do
           key :type, :object
-          key :required, [:id, :type, :attributes, :relationships, :links]
+          key :required, %i[id type attributes relationships links]
 
           property :id, type: :string
-          property :type, type: :string, enum: [:messages, :message_drafts]
+          property :type, type: :string, enum: %i[messages message_drafts]
           property :attributes, '$ref': :MessageAttributes
           property :relationships, '$ref': :Relationships
           property :links, '$ref': :LinksSelf
@@ -80,20 +81,20 @@ module Swagger
 
         swagger_schema :MessageAttributes do
           key :type, :object
-          key :required, [:message_id, :category, :subject, :body, :attachment, :sent_date, :sender_id,
-                          :sender_name, :recipient_id, :recipient_name, :read_receipt]
+          key :required, %i[message_id category subject body attachment sent_date sender_id
+                            sender_name recipient_id recipient_name read_receipt]
 
           property :message_id, type: :integer
           property :category, type: :string
           property :subject, type: :string
-          property :body, type: [:null, :string]
+          property :body, type: %i[null string]
           property :attachment, type: :boolean
-          property :sent_date, type: [:null, :string]
+          property :sent_date, type: %i[null string]
           property :sender_id, type: :integer
           property :sender_name, type: :string
           property :recipient_id, type: :integer
           property :recipient_name, type: :string
-          property :read_receipt, type: [:null, :string]
+          property :read_receipt, type: %i[null string]
         end
 
         swagger_schema :Relationships do
@@ -105,7 +106,7 @@ module Swagger
 
             property :data, type: :array, minItems: 0, uniqueItems: true do
               items do
-                key :required, [:id, :type]
+                key :required, %i[id type]
 
                 property :id, type: :string
                 property :type, type: :string, enum: [:attachments]
@@ -118,7 +119,7 @@ module Swagger
           key :required, [:data]
 
           property :data, type: :object do
-            key :required, [:id, :type, :attributes]
+            key :required, %i[id type attributes]
 
             property :id, type: :string
             property :type, type: :string, enum: [:categories]
@@ -136,7 +137,7 @@ module Swagger
 
         swagger_schema :MessageInput do
           key :type, :object
-          key :required, [:subject, :category, :recipient_id, :body]
+          key :required, %i[subject category recipient_id body]
 
           property :draft_id, type: :integer
           property :subject, type: :string

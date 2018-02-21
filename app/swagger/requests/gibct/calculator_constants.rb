@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Requests
     module Gibct
@@ -9,7 +10,7 @@ module Swagger
           operation :get do
             key :description, 'Gets all calculator constants'
             key :operationId, 'gibctCalculatorConstantsIndex'
-            key :tags, %w(calculator constants index)
+            key :tags, %w[calculator constants index]
 
             response 200 do
               key :description, 'autocomplete response'

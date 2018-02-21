@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'mvi/responses/find_profile_response'
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
@@ -13,9 +14,6 @@ class Mvi < Common::RedisStore
 
   # @return [User] the user to query MVI for.
   attr_accessor :user
-
-  # @return [MVI::Responses::FindProfileResponse] the response returned from MVI
-  attr_accessor :mvi_response
 
   # Creates a new Mvi instance for a user.
   #
@@ -95,6 +93,7 @@ class Mvi < Common::RedisStore
     mvi_response&.profile
   end
 
+  # @return [MVI::Responses::FindProfileResponse] the response returned from MVI
   def mvi_response
     @mvi_response ||= response_from_redis_or_service
   end
