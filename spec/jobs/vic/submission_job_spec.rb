@@ -7,22 +7,37 @@ RSpec.describe VIC::SubmissionJob do
   let(:user) { create(:user, :loa3) }
 
   describe '#perform' do
-    it 'should update the vic submission response' do
-      allow(SecureRandom).to receive(:uuid).and_return(uuid)
-      vic_submission = build(:vic_submission)
-      vic_submission.user_uuid = user.uuid
-      expect(User).to receive(:find).with(user.uuid).and_return(user)
-      expect_any_instance_of(VIC::Service).to receive(:submit).with(
-        JSON.parse(vic_submission.form), user
-      ).and_return(case_id: uuid)
-      vic_submission.save!
-      described_class.drain
-      vic_submission.reload
+    context 'with a valid vic submission' do
+      let(:vic_submission) { build(:vic_submission) }
 
-      expect(vic_submission.state).to eq('success')
-      expect(vic_submission.response).to eq(
-        'case_id' => uuid
-      )
+      before do
+        allow(SecureRandom).to receive(:uuid).and_return(uuid)
+        vic_submission.user_uuid = user.uuid
+        expect(User).to receive(:find).with(user.uuid).and_return(user)
+        expect_any_instance_of(VIC::Service).to receive(:submit).with(
+          JSON.parse(vic_submission.form), user
+        ).and_return(case_id: uuid)
+        vic_submission.save!
+      end
+
+      it 'should update the vic submission response' do
+        described_class.drain
+        vic_submission.reload
+
+        expect(vic_submission.state).to eq('success')
+        expect(vic_submission.response).to eq(
+          'case_id' => uuid
+        )
+      end
+
+      it 'should delete uploads after submission' do
+        expect do
+          described_class.drain
+        end.to change(::VIC::SupportingDocumentationAttachment, :count)
+          .by(-1)
+          .and change(::VIC::ProfilePhotoAttachment, :count)
+          .by(-1)
+      end
     end
 
     it 'should set the submission to failed if it doesnt work' do
