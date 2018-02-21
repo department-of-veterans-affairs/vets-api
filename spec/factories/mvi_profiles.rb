@@ -35,7 +35,6 @@ FactoryBot.define do
     address { build(:mvi_profile_address) }
     home_phone { Faker::PhoneNumber.phone_number }
     icn { Faker::Number.number(17) }
-    historical_icns { Array.new(2) { Faker::Number.number(17) } }
     mhv_ids { Array.new(2) { Faker::Number.number(11) } }
     edipi { Faker::Number.number(10) }
     participant_id { Faker::Number.number(10) }
@@ -51,7 +50,6 @@ FactoryBot.define do
       ssn '555443333'
       home_phone '1112223333'
       icn '1000123456V123456'
-      historical_icns []
       mhv_ids ['123456']
       vha_facility_ids %w[516 553 200HD 200IP 200MHV]
       edipi '1234'
@@ -66,16 +64,10 @@ FactoryBot.define do
         ssn '796122306'
         home_phone nil
         icn '1008714701V416111'
-        historical_icns []
         mhv_ids nil
         vha_facility_ids ['200MHS']
         participant_id '9100792239'
         edipi nil
-      end
-
-      trait :historical_icns do
-        address { build(:mvi_profile_address_austin) }
-        historical_icns %w(1000123457V123457 1000123458V123458)
       end
 
       trait :multiple_mhvids do

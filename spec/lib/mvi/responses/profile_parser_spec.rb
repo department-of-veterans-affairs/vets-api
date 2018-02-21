@@ -130,19 +130,6 @@ describe MVI::Responses::ProfileParser do
     end
   end
 
-  context 'with historical ICNs' do
-    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_historical_icns.xml')) }
-    let(:mvi_profile) { build(:mvi_profile_response, :historical_icns, birls_id: nil) }
-
-    before(:each) do
-      allow(faraday_response).to receive(:body) { body }
-    end
-
-    it 'returns an array of historical icns' do
-      expect(parser.parse).to have_deep_attributes(mvi_profile)
-    end
-  end
-
   context 'with inactive MHV ID edge cases' do
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_inactive_mhv_ids.xml')) }
 
