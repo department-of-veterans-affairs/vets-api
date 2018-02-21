@@ -28,6 +28,14 @@ describe MVI::Service do
     )
   end
 
+  describe 'test' do
+    it 'test' do
+      VCR.config do |c|
+        c.allow_http_connections_when_no_cassette = true
+      end
+    end
+  end
+
   describe '.find_profile with icn' do
     before(:each) do
       expect(MVI::Messages::FindProfileMessageIcn).to receive(:new).once.and_call_original
