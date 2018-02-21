@@ -31,6 +31,7 @@ module MVI
     # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
     def find_profile(user)
       raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
+      binding.pry; fail
       MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
     rescue Faraday::ConnectionFailed => e
       log_message_to_sentry("MVI find_profile connection failed: #{e.message}", :error)
