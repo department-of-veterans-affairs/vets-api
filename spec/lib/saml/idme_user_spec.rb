@@ -76,7 +76,7 @@ RSpec.describe SAML::User do
         stub_const("LOA::MAPPING", {})
         expect_any_instance_of(SAML::UserAttributes::IdMe)
           .to receive(:loa_current).exactly(3).times.and_call_original
-        expect_any_instance_of(SAML::UserAttributes::IdMe).to receive(:log_exception_to_sentry).once
+        expect_any_instance_of(SAML::UserAttributes::IdMe).to receive(:log_message_to_sentry).once
         described_instance.to_hash
       end
 

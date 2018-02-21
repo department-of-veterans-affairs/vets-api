@@ -47,8 +47,8 @@ module SAML
 
       def loa_current
         LOA::MAPPING.fetch(real_authn_context)
-      rescue KeyError => exception
-        log_exception_once(exception)
+      rescue KeyError
+        log_loa_current_message_once
         1 # default to something safe until we can research this
       end
 
@@ -57,15 +57,15 @@ module SAML
         [loa_current, loa_highest].max
       end
 
-      def log_exception_once(exception)
-        return if @exception_logged
+      def log_loa_current_message_once
+        return if @logged_loa_current_message
         extra_context = {
           uuid: attributes['uuid'],
           idme_level_of_assurance: attributes['level_of_assurance'],
           real_authn_context: real_authn_context
         }
-        log_exception_to_sentry(exception, extra_context)
-        @exception_logged = true
+        log_message_to_sentry('loa_current is mapping to nil', :info, extra_context)
+        @logged_loa_current_message = true
       end
     end
   end
