@@ -33,7 +33,6 @@ describe MVI::Service do
       VCR.config do |c|
         c.allow_http_connections_when_no_cassette = true
       end
-      binding.pry; fail
       subject.find_profile(user)
     end
   end
