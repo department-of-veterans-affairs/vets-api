@@ -52,10 +52,10 @@ module SAML
       def loa_highest
         loa_highest = idme_loa || loa_current
         [loa_current, loa_highest].max
-      rescue ArgumentError
+      rescue ArgumentError => exception
         extra_context = { uuid: attributes['uuid'], loa_current: loa_current, loa_highest: loa_highest }
-        log_exception_to_sentry('ArgumentError', :error, extra_context)
-        1 # return 1 for now until we can debug and better assess what causes this
+        log_exception_to_sentry(exception, extra_context)
+        loa_current || 1 # default to something safe until we can research this
       end
     end
   end

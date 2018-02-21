@@ -72,6 +72,12 @@ RSpec.describe SAML::User do
         )
       end
 
+      it 'returns loa highest 1 if ArguementError' do
+        allow_any_instance_of(Array).to receive(:max).and_raise(ArgumentError)
+        expect_any_instance_of(SAML::UserAttributes::IdMe).to receive(:log_exception_to_sentry)
+        described_instance.to_hash
+      end
+
       it 'has various important attributes' do
         expect(described_instance.to_hash).to eq(
           uuid: '1234abcd',
