@@ -31,7 +31,6 @@ module MVI
     # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
     def find_profile(user)
       raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
-      binding.pry; fail
       MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
     rescue Faraday::ConnectionFailed => e
       log_message_to_sentry("MVI find_profile connection failed: #{e.message}", :error)
@@ -46,6 +45,17 @@ module MVI
       else
         MVI::Responses::FindProfileResponse.with_server_error
       end
+    end
+
+    def find_historical_icns(user)
+      raw_response = perform(
+        :post,
+        '',
+        create_profile_message(user, historical_icns: true),
+        soapaction: OPERATIONS[:find_profile]
+      )
+
+      MVI::Responses::HistoricalIcnParser.new(raw_response.body).get_icns
     end
 
     private
@@ -71,17 +81,17 @@ module MVI
       end
     end
 
-    def create_profile_message(user)
-      return message_icn(user) if user.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
+    def create_profile_message(user, opt)
+      return message_icn(user, opt) if user.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
       raise Common::Exceptions::ValidationErrors, user unless user.valid?(:loa3_user)
-      message_user_attributes(user)
+      message_user_attributes(user, opt)
     end
 
-    def message_icn(user)
-      MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml
+    def message_icn(user, opt)
+      MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml(opt)
     end
 
-    def message_user_attributes(user)
+    def message_user_attributes(user, opt)
       given_names = [user.first_name]
       given_names.push user.middle_name unless user.middle_name.nil?
       MVI::Messages::FindProfileMessage.new(
@@ -90,7 +100,7 @@ module MVI
         user.birth_date,
         user.ssn,
         user.gender
-      ).to_xml
+      ).to_xml(opt)
     end
   end
 end
