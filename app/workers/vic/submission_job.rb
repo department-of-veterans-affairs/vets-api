@@ -34,13 +34,11 @@ module VIC
     def delete_uploads(parsed_form)
       parsed_form['dd214'].each do |file|
         doc = VIC::SupportingDocumentationAttachment.find_by(guid: file['confirmationCode'])
-        doc.get_file.delete
         doc.destroy
       end
 
       parsed_form['photo'].tap do |file|
         profile_photo = VIC::ProfilePhotoAttachment.find_by(guid: file['confirmationCode'])
-        profile_photo.get_file.delete
         profile_photo.destroy
       end
     end
