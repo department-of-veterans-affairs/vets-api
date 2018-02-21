@@ -7,11 +7,11 @@ require 'mvi/responses/find_profile_response'
 describe MVI::Service do
   let(:user_hash) do
     {
-      first_name: 'Mitchell',
-      last_name: 'Jenkins',
-      middle_name: 'G',
-      birth_date: '1949-03-04',
-      ssn: '796122306'
+      first_name: 'RFIRST',
+      last_name: 'RLAST',
+      birth_date: '19790812',
+      gender: 'M',
+      ssn: '768598574'
     }
   end
 
@@ -33,6 +33,8 @@ describe MVI::Service do
       VCR.config do |c|
         c.allow_http_connections_when_no_cassette = true
       end
+      binding.pry; fail
+      subject.find_profile(user)
     end
   end
 
