@@ -59,8 +59,6 @@ describe MVI::Service do
       end
 
       it 'should find historical icns for a user', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
-        allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
-
         VCR.use_cassette('mvi/find_candidate/historical_icns_with_traits', VCR::MATCH_EVERYTHING) do
           expect(subject.find_historical_icns(user)).to eq(
             historical_icns
