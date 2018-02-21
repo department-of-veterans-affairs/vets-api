@@ -84,7 +84,13 @@ module V0
 
       if @saml_response.is_valid? && persist_session_and_user
         async_create_evss_account(@current_user)
-        redirect_to Settings.saml.relay + '?token=' + @session.token
+
+        if current_user.loa[:current] < current_user.loa[:highest]
+          connect = @current_user&.authn_context
+          redirect_to build_url(authn_context: LOA::MAPPING.invert[3], connect: connect)
+        else
+          redirect_to Settings.saml.relay + '?token=' + @session.token
+        end
 
         log_persisted_session_and_warnings
         Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: benchmark_tags('status:success'))
