@@ -178,6 +178,7 @@ module VIC
         api_version: '41.0'
       )
       response_body = client.post('/services/apexrest/VICRequest', converted_form).body
+      puts response_body
       Raven.extra_context(submit_response_body: response_body)
 
       case_id = response_body['case_id']
