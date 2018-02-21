@@ -29,6 +29,8 @@ describe MVI::Service do
   end
 
   describe '#find_historical_icns' do
+    let(:historical_icns) { ["1008692852V724999", "1008787485V229771"] }
+
     before do
       allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
     end
@@ -37,9 +39,9 @@ describe MVI::Service do
       it 'should find the historical icns', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
         allow(user).to receive(:mhv_icn).and_return('1008787551V609092^NI^200M^USVHA^P')
 
-        VCR.use_cassette('mvi/find_candidate/historical_icns_with_icn', record: :new_episodes) do
+        VCR.use_cassette('mvi/find_candidate/historical_icns_with_icn', VCR::MATCH_EVERYTHING) do
           expect(subject.find_historical_icns(user)).to eq(
-            ["1008692852V724999", "1008787485V229771"]
+            historical_icns
           )
         end
       end
@@ -61,7 +63,7 @@ describe MVI::Service do
 
         VCR.use_cassette('mvi/find_candidate/historical_icns_with_traits', VCR::MATCH_EVERYTHING) do
           expect(subject.find_historical_icns(user)).to eq(
-            ["1008692852V724999", "1008787485V229771"]
+            historical_icns
           )
         end
       end
