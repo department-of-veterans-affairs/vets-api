@@ -53,7 +53,13 @@ module SAML
         loa_highest = idme_loa || loa_current
         [loa_current, loa_highest].max
       rescue ArgumentError => exception
-        extra_context = { uuid: attributes['uuid'], loa_current: loa_current, loa_highest: loa_highest }
+        extra_context = {
+          uuid: attributes['uuid'],
+          idme_level_of_assurance: attributes['level_of_assurance'],
+          loa_current: loa_current,
+          loa_highest: loa_highest,
+          real_authn_context: real_authn_context
+        }
         log_exception_to_sentry(exception, extra_context)
         loa_current || 1 # default to something safe until we can research this
       end
