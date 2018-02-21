@@ -10,7 +10,7 @@ module MVI
       include MVI::Messages::MessageBuilder
       EXTENSION = 'PRPA_IN201305UV02'
 
-      def to_xml(opt)
+      def to_xml(opt = {})
         super(EXTENSION, build_body(opt))
       rescue => e
         Rails.logger.error "failed to build find candidate message: #{e.message}"
