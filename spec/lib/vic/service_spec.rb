@@ -50,6 +50,14 @@ describe VIC::Service do
     end
   end
 
+  describe '#all_files_processed?' do
+    it 'should see if the files are processed yet' do
+      expect(service.all_files_processed?(parsed_form)).to eq(false)
+      ProcessFileJob.drain
+      expect(service.all_files_processed?(parsed_form)).to eq(true)
+    end
+  end
+
   describe '#send_files' do
     it 'should send the files in the form' do
       parsed_form
@@ -113,6 +121,8 @@ describe VIC::Service do
     end
 
     def test_case_id(user)
+      parsed_form
+      ProcessFileJob.drain
       expect(service.submit(parsed_form, user)).to eq(case_id: 'case_id', case_number: 'case_number')
     end
 
