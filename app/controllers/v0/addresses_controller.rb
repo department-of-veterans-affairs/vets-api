@@ -30,10 +30,26 @@ module V0
              serializer: StatesSerializer
     end
 
+    def rds_countries
+      response = strategy.cache_or_service(:countries) { rds_service.get_countries }
+      render json: response,
+             serializer: CountriesSerializer
+    end
+
+    def rds_states
+      response = strategy.cache_or_service(:states) { rds_service.get_states }
+      render json: response,
+             serializer: StatesSerializer
+    end
+
     private
 
     def service
       EVSS::PCIUAddress::Service.new(@current_user)
+    end
+
+    def rds_service
+      EVSS::ReferenceData::Service.new(@current_user)
     end
 
     def strategy
