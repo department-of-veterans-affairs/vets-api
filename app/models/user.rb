@@ -10,6 +10,7 @@ require 'saml/user'
 
 class User < Common::RedisStore
   include BetaSwitch
+  include Authorization
 
   UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
 
@@ -143,10 +144,6 @@ class User < Common::RedisStore
 
   def mhv_account_state
     mhv_account.account_state
-  end
-
-  def can_access_appeals?
-    loa3? && ssn.present?
   end
 
   def can_save_partial_forms?
