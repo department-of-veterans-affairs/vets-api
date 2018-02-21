@@ -80,13 +80,12 @@ module VIC
 
     def send_file(client, case_id, file_body, description)
       mime_type = MimeMagic.by_magic(file_body).type
-      file_name = "#{SecureRandom.hex}.#{mime_type.split('/')[1]}"
+      file_name = "#{description}.#{mime_type.split('/')[1]}"
       file_path = Common::FileHelpers.generate_temp_file(file_body, file_name)
 
       success = client.create(
         'Attachment',
         ParentId: case_id,
-        Description: description,
         Name: file_name,
         Body: Restforce::UploadIO.new(
           file_path,
