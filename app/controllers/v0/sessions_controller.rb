@@ -86,8 +86,7 @@ module V0
         async_create_evss_account(@current_user)
 
         if current_user.loa[:current] < current_user.loa[:highest]
-          connect = @current_user&.authn_context
-          redirect_to build_url(authn_context: LOA::MAPPING.invert[3], connect: connect)
+          redirect_to build_url(authn_context: LOA::MAPPING.invert[3], connect: @current_user&.authn_context)
         else
           redirect_to Settings.saml.relay + '?token=' + @session.token
         end
