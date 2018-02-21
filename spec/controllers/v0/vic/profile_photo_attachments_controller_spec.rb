@@ -62,7 +62,6 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
 
     context 'with a logged in user' do
       let(:user) { create(:user, :loa3) }
-      let(:file_data) { Random.new.bytes(1024) }
 
       before do
         expect_any_instance_of(described_class).to receive(:authenticate_token).at_least(:once).and_return(true)
@@ -73,6 +72,14 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
         expect(response).to be_success
         expect(response.headers['Content-Type']).to eq('image/jpeg')
         expect(response.headers).to have_key('Content-Disposition')
+      end
+
+      context 'with an invalid guid' do
+        it 'fails' do
+          get(:show, id: '../../../../../../../../../../../etc/passwd')
+          expect(response).not_to be_success
+          expect(response.status).to eq(404)
+        end
       end
     end
   end

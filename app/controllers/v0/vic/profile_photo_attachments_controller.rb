@@ -23,7 +23,7 @@ module V0
       def show
         guid = params[:id]
 
-        raise ActiveRecord::RecordNotFound unless GUID_PATTERN.match(guid)
+        raise Common::Exceptions::RecordNotFound, guid unless GUID_PATTERN.match(guid)
 
         form_attachment = ::VIC::ProfilePhotoAttachment.where(guid: guid).first
         file = form_attachment.get_file
