@@ -39,6 +39,7 @@ FactoryBot.define do
     edipi { Faker::Number.number(10) }
     participant_id { Faker::Number.number(10) }
     birls_id { Faker::Number.number(10) }
+    sec_id '0001234567'
 
     factory :mvi_profile_response do
       given_names %w[John William]
@@ -77,6 +78,7 @@ FactoryBot.define do
         address { build(:mvi_profile_address_springfield) }
         home_phone '1112223333 p1'
         icn '12345678901234567'
+        sec_id '0001234567'
         mhv_ids %w[12345678901 12345678902]
         vha_facility_ids %w[200MH 200MH]
         edipi '1122334455'

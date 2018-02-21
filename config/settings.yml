@@ -20,6 +20,11 @@ review_instance_slug: ~
 
 sidekiq_admin_panel: false
 
+salesforce:
+  env: dev
+  signing_key_path: 'spec/fixtures/vic/private.key'
+  consumer_key: d669f7d339fd25af442bf75bb643c4c45f0f05fb3cb39cc77521e2011c6bb84086bb624d7ef14d715736
+
 # Settings for Education Benefits
 edu:
   prefill: true
@@ -62,6 +67,14 @@ evss:
   mock_letters: false
   mock_gi_bill_status: false
   mock_pciu_address: false
+  aws:
+    url: http://fake.evss-reference-data-service.dev/v1
+    cert_path: ~
+    key_path: ~
+    root_ca: ~
+  jwt:
+    issuer: fake_issuer
+    key: fake_key
 
 # Settings for GI Bill Data Service
 gids:
@@ -157,6 +170,12 @@ vic:
   signing_key_path: /fake/signing/key/path
   prefill: true
 
+  s3:
+    aws_access_key_id: 'aws_access_key_id'
+    aws_secret_access_key: 'aws_secret_access_key'
+    region: 'region'
+    bucket: 'bucket'
+
 # Settings for (preneeds) burials.
 # TODO: enpoint needs to be set up for https and production api when available
 preneeds:
@@ -222,3 +241,7 @@ betamocks:
   recording: false
   cache_dir: /cache
   services_config: config/betamocks/services_config.yml
+
+faraday_socks_proxy:
+  enabled: false
+  uri: socks5://localhost:2002

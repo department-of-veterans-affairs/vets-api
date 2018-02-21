@@ -18,7 +18,14 @@ describe MVI::Service do
   let(:user) { build(:user, :loa3, user_hash) }
 
   let(:mvi_profile) do
-    build(:mvi_profile_response, :missing_attrs, :address_austin, given_names: %w[Mitchell G], vha_facility_ids: [])
+    build(
+      :mvi_profile_response,
+      :missing_attrs,
+      :address_austin,
+      given_names: %w[Mitchell G],
+      vha_facility_ids: [],
+      sec_id: nil
+    )
   end
 
   describe '.find_profile with icn' do

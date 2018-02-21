@@ -1024,6 +1024,42 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
       end
     end
+
+    describe 'appeals' do
+      it 'documents appeals 401' do
+        expect(subject).to validate(:get, '/v0/appeals_v2', 401)
+      end
+
+      it 'documents appeals 200' do
+        VCR.use_cassette('/appeals/appeals') do
+          expect(subject).to validate(:get, '/v0/appeals_v2', 200, auth_options)
+        end
+      end
+
+      it 'documents appeals 403' do
+        VCR.use_cassette('/appeals/forbidden') do
+          expect(subject).to validate(:get, '/v0/appeals_v2', 403, auth_options)
+        end
+      end
+
+      it 'documents appeals 404' do
+        VCR.use_cassette('/appeals/not_found') do
+          expect(subject).to validate(:get, '/v0/appeals_v2', 404, auth_options)
+        end
+      end
+
+      it 'documents appeals 422' do
+        VCR.use_cassette('/appeals/invalid_ssn') do
+          expect(subject).to validate(:get, '/v0/appeals_v2', 422, auth_options)
+        end
+      end
+
+      it 'documents appeals 502' do
+        VCR.use_cassette('/appeals/server_error') do
+          expect(subject).to validate(:get, '/v0/appeals_v2', 502, auth_options)
+        end
+      end
+    end
   end
 
   context 'and' do
