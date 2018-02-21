@@ -12,6 +12,7 @@ module MVI
       # NI = national identifier, PI = patient identifier
       def parse(ids)
         ids = ids.map(&:attributes)
+        binding.pry; fail
         icns = select_ids(select_extension(ids, /^\w+\^NI\^\w+\^\w+\^\w+$/, CORRELATION_ROOT_ID))
 
         {
