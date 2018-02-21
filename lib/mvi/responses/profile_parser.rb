@@ -89,6 +89,7 @@ module MVI
       # rubocop:disable MethodLength
       def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
+        binding.pry; fail
         correlation_ids = MVI::Responses::IdParser.new.parse(patient.locate('id'))
         log_inactive_mhv_ids(correlation_ids[:mhv_ids].to_a, correlation_ids[:active_mhv_ids].to_a)
         MVI::Models::MviProfile.new(
