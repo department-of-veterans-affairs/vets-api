@@ -322,9 +322,9 @@ describe Common::Collection do
 
       context 'cache busting' do
         it 'returns an array corresponding to an array of cache_keys that were provided to bust' do
-          result = Common::Collection.bust(%w(authors_key unknown_key))
+          result = Common::Collection.bust(%w[authors_key unknown_key])
           expect(result).to eq([1, 0])
-          result = Common::Collection.bust(%w(authors_key unknown_key))
+          result = Common::Collection.bust(%w[authors_key unknown_key])
           expect(result).to eq([0, 0])
         end
       end
