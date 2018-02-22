@@ -19,7 +19,7 @@ module Common
     alias to_h attributes
     alias to_hash attributes
 
-    CACHE_NAMESPACE = 'common_collection'.freeze
+    CACHE_NAMESPACE = 'common_collection'
     CACHE_DEFAULT_TTL = 3600 # default to 1 hour
 
     OPERATIONS_MAP = {
