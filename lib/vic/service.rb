@@ -4,7 +4,13 @@ module VIC
   class Service < Common::Client::Base
     configuration VIC::Configuration
 
-    SALESFORCE_USERNAME = "vetsgov-devops@listserv.gsa.gov.vic#{Settings.salesforce.env}"
+    SALESFORCE_USERNAME = lambda do
+      env = Settings.salesforce.env
+      suffix = env
+      suffix = "vic#{suffix}" unless env == 'uat'
+
+      "vetsgov-devops@listserv.gsa.gov.#{suffix}"
+    end.call
     # TODO: set correct prod value when we release to prod for salesforce_host
     SALESFORCE_HOST = 'https://test.salesforce.com'
     SERVICE_BRANCHES = {
@@ -14,6 +20,7 @@ module VIC
       'M' => 'Marine Corps',
       'N' => 'Navy'
     }.freeze
+    PROCESSING_WAIT = 10
 
     def oauth_params
       {
@@ -71,20 +78,10 @@ module VIC
       converted_form
     end
 
-    def generate_temp_file(file_body, file_name)
-      file_path = "tmp/#{file_name}"
-
-      File.open(file_path, 'wb') do |file|
-        file.write(file_body)
-      end
-
-      file_path
-    end
-
     def send_file(client, case_id, file_body, description)
       mime_type = MimeMagic.by_magic(file_body).type
       file_name = "#{SecureRandom.hex}.#{mime_type.split('/')[1]}"
-      file_path = generate_temp_file(file_body, file_name)
+      file_path = Common::FileHelpers.generate_temp_file(file_body, file_name)
 
       success = client.create(
         'Attachment',
@@ -102,18 +99,48 @@ module VIC
       File.delete(file_path)
     end
 
-    def send_files(client, case_id, form)
+    def get_attachment_records(form)
+      return @attachment_records if @attachment_records.present?
+
+      @attachment_records = {
+        supporting: []
+      }
+
       if form['dd214'].present?
         form['dd214'].each do |file|
-          file_body = VIC::SupportingDocumentationAttachment.find_by(guid: file['confirmationCode']).get_file.read
-          send_file(client, case_id, file_body, 'Supporting Documentation')
+          attachment = VIC::SupportingDocumentationAttachment.find_by(guid: file['confirmationCode'])
+          @attachment_records[:supporting] << attachment
         end
       end
 
       form['photo'].tap do |file|
-        file_body = VIC::ProfilePhotoAttachment.find_by(guid: file['confirmationCode']).get_file.read
-        send_file(client, case_id, file_body, 'Profile Photo')
+        @attachment_records[:profile_photo] = VIC::ProfilePhotoAttachment.find_by(guid: file['confirmationCode'])
       end
+
+      @attachment_records
+    end
+
+    def all_files_processed?(form)
+      attachment_records = get_attachment_records(form)
+
+      attachment_records[:supporting].each do |form_attachment|
+        return false unless form_attachment.get_file.exists?
+      end
+
+      return false unless attachment_records[:profile_photo].get_file.exists?
+
+      true
+    end
+
+    def send_files(client, case_id, form)
+      attachment_records = get_attachment_records(form)
+      attachment_records[:supporting].each do |form_attachment|
+        file_body = form_attachment.get_file.read
+        send_file(client, case_id, file_body, 'Supporting Documentation')
+      end
+
+      file_body = attachment_records[:profile_photo].get_file.read
+      send_file(client, case_id, file_body, 'Profile Photo')
     end
 
     def add_user_data!(converted_form, user)
@@ -129,7 +156,20 @@ module VIC
       # TODO: historical icn
     end
 
+    def wait_for_processed(form)
+      start = Time.zone.now
+
+      loop do
+        return if all_files_processed?(form)
+
+        raise Timeout::Error if (Time.zone.now - start) > PROCESSING_WAIT
+        sleep(1)
+      end
+    end
+
     def submit(form, user)
+      wait_for_processed(form)
+
       converted_form = convert_form(form)
       add_user_data!(converted_form, user) if user.present?
 

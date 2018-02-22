@@ -19,13 +19,9 @@ module VIC
     end
 
     def get_file
-      form_id = parsed_file_data['form_id']
-      attachment_uploader = get_attachment_uploader(form_id)
-
-      attachment_uploader.retrieve_from_store!(
-        parsed_file_data['filename']
-      )
-      attachment_uploader.file
+      uploader = VIC::ProcessingUploader.new(parsed_file_data['path'], parsed_file_data['filename'])
+      uploader.retrieve_from_store!(uploader.filename)
+      uploader.file
     end
 
     private
