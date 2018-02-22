@@ -11,16 +11,16 @@ module VIC
       @vic_submission_id = vic_submission_id
       start_time ||= Time.zone.now.to_s
 
-      vic_service = Service.new
+      @vic_service = Service.new
       parsed_form = JSON.parse(form)
       Raven.extra_context(parsed_form: parsed_form)
 
-      unless vic_service.wait_for_processed(parsed_form, start_time)
+      unless @vic_service.wait_for_processed(parsed_form, start_time)
         return self.class.perform_async(vic_submission_id, form, user_uuid, start_time)
       end
 
       user = user_uuid.present? ? User.find(user_uuid) : nil
-      response = vic_service.submit(parsed_form, user)
+      response = @vic_service.submit(parsed_form, user)
 
       submission.update_attributes!(
         response: response
@@ -39,15 +39,11 @@ module VIC
     private
 
     def delete_uploads(parsed_form)
-      parsed_form['dd214'].each do |file|
-        doc = VIC::SupportingDocumentationAttachment.find_by(guid: file['confirmationCode'])
-        doc.destroy
-      end
+      attachment_records = @vic_service.get_attachment_records(parsed_form)
 
-      parsed_form['photo'].tap do |file|
-        profile_photo = VIC::ProfilePhotoAttachment.find_by(guid: file['confirmationCode'])
-        profile_photo.destroy
-      end
+      attachment_records[:supporting].each(&:destroy)
+
+      attachment_records[:profile_photo].destroy
     end
   end
 end
