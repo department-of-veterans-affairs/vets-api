@@ -148,12 +148,12 @@ module VIC
       va_profile = user.va_profile
       profile_data['sec_ID'] = va_profile.sec_id
       profile_data['active_ICN'] = user.icn
+      profile_data['historical_ICN'] = MVI::Service.new.find_historical_icns(user)
 
       if user.edipi.present?
         title38_status = user.veteran_status.title38_status
         converted_form['title38_status'] = title38_status
       end
-      # TODO: historical icn
     end
 
     def wait_for_processed(form)

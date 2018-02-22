@@ -23,10 +23,13 @@ describe VIC::Service do
     it 'should add user data to the request form' do
       converted_form = { 'profile_data' => {} }
       expect(user.veteran_status).to receive(:title38_status).and_return('V1')
+      expect_any_instance_of(MVI::Service).to receive(:find_historical_icns).with(user).and_return([])
       service.add_user_data!(converted_form, user)
       expect(converted_form).to eq(
         'profile_data' => {
-          'sec_ID' => '0001234567', 'active_ICN' => user.icn
+          'sec_ID' => '0001234567',
+          'active_ICN' => user.icn,
+          'historical_ICN' => []
         },
         'title38_status' => 'V1'
       )
