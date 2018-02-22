@@ -156,15 +156,14 @@ module VIC
       # TODO: historical icn
     end
 
-    def wait_for_processed(form)
-      start = Time.zone.now
+    def wait_for_processed(form, start_time)
+      return true if all_files_processed?(form)
 
-      loop do
-        return if all_files_processed?(form)
+      start_time_parsed = Time.parse(start_time)
+      raise Timeout::Error if (Time.zone.now - start_time_parsed) > PROCESSING_WAIT
+      sleep(1)
 
-        raise Timeout::Error if (Time.zone.now - start) > PROCESSING_WAIT
-        sleep(1)
-      end
+      false
     end
 
     def submit(form, user)
