@@ -39,7 +39,7 @@ describe MVI::Service do
       it 'should return empty array' do
         allow(user).to receive(:mhv_icn).and_return('1008710003V120120^NI^200M^USVHA^P')
 
-        VCR.use_cassette('mvi/find_candidate/historical_icns_empty', record: :new_episodes) do
+        VCR.use_cassette('mvi/find_candidate/historical_icns_empty', VCR::MATCH_EVERYTHING) do
           expect(subject.find_historical_icns(user)).to eq([])
         end
       end
