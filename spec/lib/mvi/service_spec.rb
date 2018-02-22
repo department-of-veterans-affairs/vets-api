@@ -29,7 +29,7 @@ describe MVI::Service do
   end
 
   describe '#find_historical_icns', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
-    let(:historical_icns) { ["1008692852V724999", "1008787485V229771"] }
+    let(:historical_icns) { %w[1008692852V724999 1008787485V229771] }
 
     before do
       allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
