@@ -159,7 +159,7 @@ module VIC
     def wait_for_processed(form, start_time)
       return true if all_files_processed?(form)
 
-      start_time_parsed = Time.parse(start_time)
+      start_time_parsed = Time.zone.parse(start_time)
       raise Timeout::Error if (Time.zone.now - start_time_parsed) > PROCESSING_WAIT
       sleep(1)
 
