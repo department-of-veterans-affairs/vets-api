@@ -65,12 +65,12 @@ describe VIC::Service do
       expect(service).to receive(:send_file).with(
         client, case_id,
         VIC::SupportingDocumentationAttachment.last.get_file.read,
-        'Supporting Documentation'
+        'Discharge Documentation 0'
       )
       expect(service).to receive(:send_file).with(
         client, case_id,
         VIC::ProfilePhotoAttachment.last.get_file.read,
-        'Profile Photo'
+        'Photo'
       )
       service.send_files(client, case_id, parsed_form)
     end
@@ -79,16 +79,14 @@ describe VIC::Service do
   describe '#send_file' do
     it 'should read the mime type and send the file' do
       upload_io = double
-      expect(SecureRandom).to receive(:hex).and_return('hex')
       expect(Restforce::UploadIO).to receive(:new).with(
-        'tmp/hex.pdf', 'application/pdf'
+        'tmp/description.pdf', 'application/pdf'
       ).and_return(upload_io)
 
       expect(client).to receive(:create).with(
         'Attachment',
         ParentId: case_id,
-        Description: 'description',
-        Name: 'hex.pdf',
+        Name: 'description.pdf',
         Body: upload_io
       )
 

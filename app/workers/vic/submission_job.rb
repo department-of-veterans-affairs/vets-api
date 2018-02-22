@@ -13,6 +13,7 @@ module VIC
 
       vic_service = Service.new
       parsed_form = JSON.parse(form)
+      Raven.extra_context(parsed_form: parsed_form)
 
       unless vic_service.wait_for_processed(parsed_form, start_time)
         return self.class.perform_async(vic_submission_id, form, user_uuid, start_time)
