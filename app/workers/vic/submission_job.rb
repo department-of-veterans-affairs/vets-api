@@ -11,6 +11,7 @@ module VIC
 
       @vic_submission_id = vic_submission_id
       parsed_form = JSON.parse(form)
+      Raven.extra_context(parsed_form: parsed_form)
       user = user_uuid.present? ? User.find(user_uuid) : nil
 
       response = Service.new.submit(parsed_form, user)
