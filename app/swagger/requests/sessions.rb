@@ -1,28 +1,67 @@
 # frozen_string_literal: true
+
 module Swagger
   module Requests
     class Sessions
       include Swagger::Blocks
 
-      swagger_path '/v0/sessions/new' do
+      swagger_path '/v0/sessions/authn_urls' do
         operation :get do
-          key :description, 'Get started creating a new session'
-          key :operationId, 'newSession'
-          key :tags, [
-            'authentication'
-          ]
-          parameter do
-            key :name, :level
-            key :in, :query
-            key :description, 'LOA level of the new session, 1 or 3'
-            key :required, true
-            key :type, :integer
-            key :format, :int32
-          end
+          key :description, 'Fetch various urls for initiating authentication'
+          key :tags, %w[authentication]
+
           response 200 do
-            key :description, 'new session response'
+            key :description, 'returns a list of urls for invoking SAML authentication flow'
             schema do
-              key :'$ref', :NewSession
+              key :'$ref', :AuthenticationURLs
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/sessions/multifactor' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Fetch url for invoking multifactor policy'
+          key :tags, %w[authentication]
+
+          parameter do
+            key :name, 'Authorization'
+            key :in, :header
+            key :description, 'The authorization method and token value'
+            key :required, true
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, 'returns a url for triggering the multifactor policy when previously declined'
+            schema do
+              key :'$ref', :MultifactorURL
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/sessions/identity_proof' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Fetch url for verifying identity (or triggering ID.me FICAM flow)'
+          key :tags, %w[authentication]
+
+          parameter do
+            key :name, 'Authorization'
+            key :in, :header
+            key :description, 'The authorization method and token value'
+            key :required, true
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, 'returns a url for triggering identity proof verification / FICAM flow.'
+            schema do
+              key :'$ref', :IdentityProofURL
             end
           end
         end
@@ -32,11 +71,9 @@ module Swagger
         operation :delete do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, 'Terminate the current session'
+          key :description, 'Fetch url for terminating a session'
           key :operationId, 'endSession'
-          key :tags, [
-            'authentication'
-          ]
+          key :tags, %w[authentication]
 
           parameter do
             key :name, 'Authorization'
@@ -47,19 +84,29 @@ module Swagger
           end
 
           response 202 do
-            key :description, 'end session response'
+            key :description, 'returns a url to invoke SAML logout process'
             schema do
-              key :'$ref', :EndSession
+              key :'$ref', :LogoutURL
             end
           end
         end
       end
 
-      swagger_schema :NewSession, required: [:authenticate_via_get] do
-        property :authenticate_via_get, type: :string
+      swagger_schema :AuthenticationURLs, required: %i[mhv dslogon idme] do
+        property :mhv, type: :string
+        property :dslogon, type: :string
+        property :idme, type: :string
       end
 
-      swagger_schema :EndSession, required: [:logout_via_get] do
+      swagger_schema :MultifactorURL, required: [:multifactor_url] do
+        property :multifactor_url, type: :string
+      end
+
+      swagger_schema :IdentityProofURL, required: [:identity_proof_url] do
+        property :identity_proof_url, type: :string
+      end
+
+      swagger_schema :LogoutURL, required: [:logout_via_get] do
         property :logout_via_get, type: :string
       end
     end

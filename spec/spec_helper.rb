@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'fakeredis/rspec'
 require 'support/mvi/stub_mvi'
 require 'support/spec_builders'
@@ -7,9 +8,11 @@ require 'support/spool_helpers'
 require 'support/fixture_helpers'
 require 'support/spec_temp_files'
 require 'support/have_deep_attributes_matcher'
+require 'support/be_a_uuid'
 require 'support/impl_matchers'
 require 'support/negated_matchers'
-require 'support/veteran_status/stub_veteran_status'
+require 'support/stub_emis'
+require 'pundit/rspec'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
@@ -22,9 +25,11 @@ unless ENV['NOCOVERAGE']
     add_filter 'config/initializers/mvi_settings.rb'
     add_filter 'config/initializers/clamscan.rb'
     add_filter 'config/initializers/config.rb'
+    add_filter 'lib/data_migrations/uuid_unique_index.rb'
     add_filter 'lib/tasks/support/shell_command.rb'
     add_filter 'lib/config_helper.rb'
     add_filter 'lib/feature_flipper.rb'
+    add_filter 'lib/vic/configuration.rb'
     add_filter 'spec'
     add_filter 'vendor'
     SimpleCov.minimum_coverage_by_file 90
@@ -99,13 +104,9 @@ RSpec.configure do |config|
   config.include SpoolHelpers
   config.include FixtureHelpers
 
-  config.around(:each) do |example|
-    if example.metadata[:run_at]
-      Timecop.freeze(Time.zone.parse(example.metadata[:run_at])) do
-        example.run
-      end
-    else
-      example.run
-    end
+  config.around(:example, :run_at) do |example|
+    Timecop.freeze(Time.zone.parse(example.metadata[:run_at]))
+    example.run
+    Timecop.return
   end
 end

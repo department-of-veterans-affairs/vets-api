@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module V0
   class ClaimDocumentsController < ApplicationController
     skip_before_action(:authenticate)
@@ -17,7 +18,7 @@ module V0
     def klass
       case form_id
       when '21P-527EZ', '21P-530'
-        PersistentAttachment::PensionBurial
+        PersistentAttachments::PensionBurial
       end
     end
 

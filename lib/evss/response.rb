@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/concerns/service_status'
 require 'common/models/base'
 
@@ -18,9 +19,7 @@ module EVSS
     end
 
     def metadata
-      {
-        status: response_status
-      }
+      { status: response_status }
     end
 
     def response_status

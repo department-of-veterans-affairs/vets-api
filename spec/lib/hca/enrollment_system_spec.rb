@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'spec_helper'
 require 'hca/enrollment_system'
@@ -34,6 +35,27 @@ describe HCA::EnrollmentSystem do
     "childEducationExpenses": 45.2,
     "childCohabitedLastYear": true,
     "childReceivedSupportLastYear": false,
+    "grossIncome": 991.9,
+    "netIncome": 981.2,
+    "otherIncome": 91.9
+  }.deep_stringify_keys
+
+  TEST_CHILD_DEPENDENT = {
+    "fullName": {
+      "first": 'FirstChildA',
+      "middle": 'MiddleChildA',
+      "last": 'LastChildA',
+      "suffix": 'Jr.'
+    },
+    "dependentRelation": 'Stepson',
+    "socialSecurityNumber": '111-22-9876',
+    "becameDependent": '1992-04-07',
+    "dateOfBirth": '1982-05-05',
+    "disabledBefore18": true,
+    "attendedSchoolLastYear": true,
+    "dependentEducationExpenses": 45.2,
+    "cohabitedLastYear": true,
+    "receivedSupportLastYear": false,
     "grossIncome": 991.9,
     "netIncome": 981.2,
     "otherIncome": 91.9
@@ -152,7 +174,7 @@ describe HCA::EnrollmentSystem do
 
   let(:test_address) { TEST_ADDRESS.dup }
 
-  %w(veteran result).each do |file|
+  %w[veteran result].each do |file|
     let("test_#{file}") do
       JSON.parse(
         File.read(
@@ -236,12 +258,12 @@ describe HCA::EnrollmentSystem do
     described_class,
     'marital_status_to_sds_code',
     [
-      %w(Married M),
+      %w[Married M],
       ['Never Married', 'S'],
-      %w(Separated A),
-      %w(Widowed W),
-      %w(Divorced D),
-      %w(foo U)
+      %w[Separated A],
+      %w[Widowed W],
+      %w[Divorced D],
+      %w[foo U]
     ]
   )
 
@@ -424,7 +446,7 @@ describe HCA::EnrollmentSystem do
     'resource_to_expense_collection',
     [
       [
-        { 'childEducationExpenses' => 1198.11 },
+        { 'dependentEducationExpenses' => 1198.11 },
         {
           'expense' => [{
             'amount' => 1198.11,
@@ -437,22 +459,26 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
-    'child_relationship_to_sds_code',
+    'dependent_relationship_to_sds_code',
     [
-      ['Daughter', 4],
+      ['Spouse', 2],
       ['Son', 3],
+      ['Daughter', 4],
       ['Stepson', 5],
       ['Stepdaughter', 6],
+      ['Father', 17],
+      ['Mother', 18],
+      ['Other', 99],
       ['', nil]
     ]
   )
 
   test_method(
     described_class,
-    'child_to_dependent_info',
+    'dependent_info',
     [
       [
-        TEST_CHILD,
+        TEST_CHILD_DEPENDENT,
         {
           'dob' => '05/05/1982',
           'givenName' => 'FIRSTCHILDA',
@@ -469,10 +495,10 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
-    'child_to_dependent_financials_info',
+    'dependent_financials_info',
     [
       [
-        TEST_CHILD,
+        TEST_CHILD_DEPENDENT,
         CHILD_DEPENDENT_FINANCIALS
       ]
     ]
@@ -483,12 +509,10 @@ describe HCA::EnrollmentSystem do
     'veteran_to_dependent_financials_collection',
     [
       [
-        { 'children' => [TEST_CHILD] },
-        {
-          'dependentFinancials' => [CHILD_DEPENDENT_FINANCIALS]
-        }
+        { 'dependents' => [TEST_CHILD_DEPENDENT] },
+        { 'dependentFinancials' => [CHILD_DEPENDENT_FINANCIALS] }
       ],
-      [{ 'children' => [] }, nil]
+      [{ 'dependents' => [] }, nil]
     ]
   )
 
@@ -566,14 +590,14 @@ describe HCA::EnrollmentSystem do
     described_class,
     'convert_birth_state',
     [
-      %w(
+      %w[
         MN
         MN
-      ),
-      %w(
+      ],
+      %w[
         Other
         FG
-      )
+      ]
     ]
   )
 
@@ -726,7 +750,7 @@ describe HCA::EnrollmentSystem do
           "veteranGrossIncome": 123.33,
           "veteranNetIncome": 90.11,
           "veteranOtherIncome": 10.1,
-          'children' => [TEST_CHILD]
+          'dependents' => [TEST_CHILD_DEPENDENT]
         }.merge(SPOUSE_FINANCIALS).deep_stringify_keys,
         {
           'incomeTest' => { 'discloseFinancialInformation' => true },
@@ -778,10 +802,10 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
-    'child_to_association',
+    'dependent_to_association',
     [
       [
-        TEST_CHILD,
+        TEST_CHILD_DEPENDENT,
         CONVERTED_CHILD_ASSOCIATION
       ]
     ]
@@ -810,7 +834,7 @@ describe HCA::EnrollmentSystem do
     'veteran_to_association_collection',
     [
       [
-        { 'children' => [TEST_CHILD] },
+        { 'dependents' => [TEST_CHILD_DEPENDENT] },
         {
           'association' => [
             CONVERTED_CHILD_ASSOCIATION
@@ -819,7 +843,7 @@ describe HCA::EnrollmentSystem do
       ],
       [
         {
-          'children' => [TEST_CHILD]
+          'dependents' => [TEST_CHILD_DEPENDENT]
         }.merge(TEST_SPOUSE_WITH_DISCLOSURE),
         {
           'association' => [
@@ -829,7 +853,7 @@ describe HCA::EnrollmentSystem do
         }
       ],
       [
-        { 'children' => [] },
+        { 'dependents' => [] },
         nil
       ]
     ]
@@ -895,7 +919,7 @@ describe HCA::EnrollmentSystem do
     end
 
     it 'should return the right hash' do
-      %w(
+      %w[
         association_collection
         demographics_info
         enrollment_determination_info
@@ -903,7 +927,7 @@ describe HCA::EnrollmentSystem do
         insurance_collection
         military_service_info
         person_info
-      ).each do |type|
+      ].each do |type|
         expect(described_class).to receive("veteran_to_#{type}")
           .once.with(veteran).and_return(type)
       end
@@ -923,6 +947,46 @@ describe HCA::EnrollmentSystem do
       )
     end
   end
+
+  test_method(
+    described_class,
+    'copy_spouse_address!',
+    [
+      [
+        {
+          'veteranAddress' => {
+            'street' => '123 NW 5th St'
+          }
+        },
+        {
+          'veteranAddress' => {
+            'street' => '123 NW 5th St'
+          },
+          'spouseAddress' => {
+            'street' => '123 NW 5th St'
+          }
+        }
+      ],
+      [
+        {
+          'veteranAddress' => {
+            'street' => '123 NW 5th St'
+          },
+          'spouseAddress' => {
+            'street' => 'sdfsdf'
+          }
+        },
+        {
+          'veteranAddress' => {
+            'street' => '123 NW 5th St'
+          },
+          'spouseAddress' => {
+            'street' => 'sdfsdf'
+          }
+        }
+      ]
+    ]
+  )
 
   test_method(
     described_class,
@@ -988,6 +1052,65 @@ describe HCA::EnrollmentSystem do
   describe 'hca json schema' do
     it 'test application should pass json schema' do
       expect(test_veteran.to_json).to match_vets_schema('10-10EZ')
+    end
+  end
+
+  describe '#veteran_to_military_service_info' do
+    let(:veteran) do
+      {
+        'disabledInLineOfDuty' => true,
+        'dischargeType' => 'general',
+        'lastEntryDate' => '1980-03-07',
+        'lastDischargeDate' => discharge_date.strftime('%Y-%m-%d'),
+        'lastServiceBranch' => 'merchant seaman',
+        'vaMedicalFacility' => '608'
+      }
+    end
+
+    let(:expected) do
+      {
+        "dischargeDueToDisability": true,
+        "militaryServiceSiteRecords": {
+          "militaryServiceSiteRecord": {
+            "militaryServiceEpisodes": {
+              "militaryServiceEpisode": {
+                "dischargeType": '',
+                "startDate": '03/07/1980',
+                "endDate": discharge_date.strftime('%m/%d/%Y'),
+                "serviceBranch": 7
+              }
+            },
+            "site": '608'
+          }
+        }
+      }.deep_stringify_keys
+    end
+
+    context 'with a valid future discharge date' do
+      let(:discharge_date) { Time.zone.today + 60.days }
+      subject { described_class.veteran_to_military_service_info(veteran) }
+
+      it 'should properly set discharge type and discharge date' do
+        expect(described_class.veteran_to_military_service_info(veteran)).to eq(expected)
+      end
+    end
+
+    context 'with an edge case future discharge date' do
+      let(:discharge_date) { Time.zone.today + 180.days }
+      subject { described_class.veteran_to_military_service_info(veteran) }
+
+      it 'should properly set discharge type and discharge date' do
+        expect(described_class.veteran_to_military_service_info(veteran)).to eq(expected)
+      end
+    end
+
+    context 'with an invalid future discharge date' do
+      let(:discharge_date) { Time.zone.today + 181.days }
+      subject { described_class.veteran_to_military_service_info(veteran) }
+
+      it 'should raise an invalid field exception' do
+        expect { subject }.to raise_error(Common::Exceptions::InvalidFieldValue)
+      end
     end
   end
 

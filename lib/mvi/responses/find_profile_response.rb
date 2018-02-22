@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative 'profile_parser'
 require 'common/models/redis_store'
 require 'common/client/concerns/service_status'
@@ -43,18 +44,15 @@ module MVI
       # @return [MVI::Responses::FindProfileResponse] response with a parsed MviProfile
       def self.with_parsed_response(response)
         profile_parser = ProfileParser.new(response)
-        raise MVI::Errors::RecordNotFound if profile_parser.multiple_match?
-        raise MVI::Errors::ServiceError if profile_parser.failed_or_invalid?
         profile = profile_parser.parse
+        raise MVI::Errors::DuplicateRecords if profile_parser.multiple_match?
+        raise MVI::Errors::InvalidRequestError if profile_parser.invalid_request?
+        raise MVI::Errors::FailedRequestError if profile_parser.failed_request?
         raise MVI::Errors::RecordNotFound unless profile
         FindProfileResponse.new(
           status: RESPONSE_STATUS[:ok],
           profile: profile
         )
-      rescue MVI::Errors::ServiceError
-        MVI::Responses::FindProfileResponse.with_server_error
-      rescue MVI::Errors::RecordNotFound
-        MVI::Responses::FindProfileResponse.with_not_found
       end
 
       def ok?

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'bb/generate_report_request_form'
 require 'bb/client'
@@ -14,8 +15,8 @@ RSpec.describe 'health records', type: :request do
                               token: TOKEN })
   end
 
-  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
-  let(:current_user) { build(:mhv_user) }
+  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, accessible?: true) }
+  let(:current_user) { build(:user, :mhv) }
 
   before(:each) do
     allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
@@ -24,7 +25,7 @@ RSpec.describe 'health records', type: :request do
   end
 
   context 'forbidden user' do
-    let(:mhv_account) { double('mhv_account', ineligible?: true, needs_terms_acceptance?: false, upgraded?: true) }
+    let(:mhv_account) { double('mhv_account', accessible?: false, eligible?: false) }
     let(:current_user) { build(:user) }
 
     it 'raises access denied' do

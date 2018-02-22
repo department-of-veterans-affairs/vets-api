@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'rx/client'
 require 'support/rx_client_helpers'
@@ -7,8 +8,8 @@ require 'support/rx_client_helpers'
 RSpec.describe 'breakers', type: :request do
   include Rx::ClientHelpers
 
-  let(:active_rxs) { File.read('spec/support/fixtures/get_active_rxs.json') }
-  let(:history_rxs) { File.read('spec/support/fixtures/get_history_rxs.json') }
+  let(:active_rxs) { File.read('spec/fixtures/json/get_active_rxs.json') }
+  let(:history_rxs) { File.read('spec/fixtures/json/get_history_rxs.json') }
   let(:session) do
     Rx::ClientSession.new(
       user_id: '123',
@@ -16,8 +17,8 @@ RSpec.describe 'breakers', type: :request do
       token: Rx::ClientHelpers::TOKEN
     )
   end
-  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
-  let(:user) { build(:mhv_user) }
+  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, accessible?: true) }
+  let(:user) { build(:user, :mhv) }
 
   before(:each) do
     allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
@@ -56,6 +57,10 @@ RSpec.describe 'breakers', type: :request do
         expect(response).to eq(400)
       end
 
+      expect do
+        get '/v0/prescriptions'
+      end.to trigger_statsd_increment('api.external_http_request.Rx.skipped', times: 1, value: 1)
+
       response = get '/v0/prescriptions'
       expect(response).to eq(503)
 
@@ -83,26 +88,9 @@ RSpec.describe 'breakers', type: :request do
     end
 
     it 'measures request times' do
-      stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
+      path = 'mhv-api/patient/v1/prescription/gethistoryrx'
+      stub_varx_request(:get, path, history_rxs, status_code: 200, tags: ['endpoint:/' + path])
       expect { get '/v0/prescriptions' }.to trigger_statsd_measure('api.external_http_request.Rx.time', times: 1)
-    end
-
-    it 'indicates the beginning of an outage' do
-      stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 500)
-      expect { get '/v0/prescriptions' }.to trigger_statsd_gauge('api.external_service.Rx.up', times: 1, value: 0)
-    end
-
-    it 'indicates the end of an outage' do
-      now = Time.current
-      start_time = now - 120
-
-      Timecop.freeze(start_time)
-      stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 500)
-      get '/v0/prescriptions'
-
-      Timecop.freeze(now)
-      stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
-      expect { get '/v0/prescriptions' }.to trigger_statsd_gauge('api.external_service.Rx.up', times: 1, value: 1)
     end
   end
 end

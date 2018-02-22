@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'config_helper'
 
 Rails.application.configure do
@@ -64,6 +65,9 @@ Rails.application.configure do
       else
         'unauthenticated'
       end
+    end,
+    proc do |_request|
+      AppInfo::GIT_REVISION
     end
   ]
 

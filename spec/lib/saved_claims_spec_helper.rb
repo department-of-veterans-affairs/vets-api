@@ -1,8 +1,16 @@
 # frozen_string_literal: true
+
+shared_examples_for 'saved_claim_with_confirmation_number' do
+  it_should_behave_like 'saved_claim'
+
+  it 'responds to #confirmation_number' do
+    expect(subject.confirmation_number).to start_with("V-#{described_class::CONFIRMATION}-")
+  end
+end
+
 shared_examples_for 'saved_claim' do
   it 'has necessary constants' do
     expect(described_class).to have_constant(:FORM)
-    expect(described_class).to have_constant(:CONFIRMATION)
     expect(described_class).to have_constant(:PERSISTENT_CLASS)
   end
 
@@ -15,10 +23,6 @@ shared_examples_for 'saved_claim' do
       expect(subject.form_id).to eq(described_class::FORM)
       expect(subject.guid).not_to be_nil
       expect(subject.type).to eq(described_class.to_s)
-    end
-
-    it 'responds to #confirmation_number' do
-      expect(subject.confirmation_number).to start_with("V-#{described_class::CONFIRMATION}-")
     end
 
     context 'validates against the form schema' do

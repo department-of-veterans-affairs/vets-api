@@ -37,7 +37,7 @@
 	"sameAddress": true,
 	"cohabitedLastYear": true,
 	"provideSupportLastYear": false,
-	"children": [],
+	"dependents": [],
 	"veteranGrossIncome": 10000,
 	"veteranNetIncome": 0,
 	"veteranOtherIncome": 0,

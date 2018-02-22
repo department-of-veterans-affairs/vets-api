@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'sm/client'
 
@@ -69,10 +70,10 @@ describe 'sm client' do
       let(:attachment_type)       { 'image/jpg' }
       let(:uploads) do
         [
-          Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file1.jpg', attachment_type),
-          Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file2.jpg', attachment_type),
-          Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file3.jpg', attachment_type),
-          Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file4.jpg', attachment_type)
+          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', attachment_type),
+          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file2.jpg', attachment_type),
+          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file3.jpg', attachment_type),
+          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file4.jpg', attachment_type)
         ]
       end
       let(:params) { @params }

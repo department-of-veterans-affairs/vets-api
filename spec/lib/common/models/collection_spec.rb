@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'common/models/base'
 require 'common/models/collection'
@@ -15,7 +16,7 @@ describe Common::Collection do
 
   it 'returns a JSON string whose keys' do
     json = JSON.parse(subject.to_json)
-    expect(json.first.keys).to contain_exactly(*%w(id first_name last_name birthdate zipcode))
+    expect(json.first.keys).to contain_exactly('id', 'first_name', 'last_name', 'birthdate', 'zipcode')
   end
 
   it 'can return members' do
@@ -40,7 +41,7 @@ describe Common::Collection do
     end
 
     it 'can sort a collection by multiple fields' do
-      collection = subject.sort(%w(-first_name last_name))
+      collection = subject.sort(%w[-first_name last_name])
       expect(collection.members.first.first_name).to eq('Zoe')
       expect(collection.members.last.first_name).to eq('Al')
       expectation = collection.members.each_cons(2).map do |a, b|
@@ -177,7 +178,7 @@ describe Common::Collection do
       end
 
       it 'can sort a collection by multiple fields' do
-        collection = subject.sort(%w(-first_name last_name))
+        collection = subject.sort(%w[-first_name last_name])
         expect(collection.members).to eq([])
         expect(collection.metadata[:sort]).to eq('first_name' => 'DESC', 'last_name' => 'ASC')
       end

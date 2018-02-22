@@ -1,5 +1,6 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+
+FactoryBot.define do
   factory :receive_application, class: Preneeds::ReceiveApplication do
     tracking_number 'abcd1234'
     return_code 200

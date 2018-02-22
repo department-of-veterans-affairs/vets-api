@@ -1,77 +1,45 @@
 # frozen_string_literal: true
-require 'evss/base_service'
+
+require 'common/client/base'
 require 'common/exceptions/internal/record_not_found'
 require 'common/exceptions/external/gateway_timeout'
+require 'common/client/concerns/monitoring'
 
 module EVSS
   module Letters
-    class Service < EVSS::BaseService
-      BASE_URL = "#{Settings.evss.url}/wss-lettergenerator-services-web/rest/letters/v1"
+    class Service < EVSS::Service
+      include Common::Client::Monitoring
 
-      def initialize(headers)
-        super(headers)
-      end
+      configuration EVSS::Letters::Configuration
 
       def get_letters
-        with_exception_handling do
-          raw_response = get ''
+        with_monitoring do
+          raw_response = perform(:get, '')
           EVSS::Letters::LettersResponse.new(raw_response.status, raw_response)
         end
+      rescue StandardError => e
+        handle_error(e)
       end
 
       def get_letter_beneficiary
-        with_exception_handling do
-          raw_response = get 'letterBeneficiary'
+        with_monitoring do
+          raw_response = perform(:get, 'letterBeneficiary')
           EVSS::Letters::BeneficiaryResponse.new(raw_response.status, raw_response)
         end
-      end
-
-      def download_by_type(type, options = nil)
-        with_exception_handling do
-          if options.blank?
-            response = download_conn.get type
-          else
-            response = download_conn.post do |req|
-              req.url "#{type}/generate"
-              req.headers['Content-Type'] = 'application/json'
-              req.body = options
-            end
-          end
-
-          raise Common::Exceptions::RecordNotFound, type if response.status.to_i == 404
-          response.body
-        end
-      end
-
-      def self.breakers_service
-        BaseService.create_breakers_service(name: 'EVSS/Letters', url: BASE_URL)
+      rescue StandardError => e
+        handle_error(e)
       end
 
       private
 
-      def with_exception_handling
-        yield
-      rescue Faraday::ParsingError => e
-        log_message_to_sentry(e.message, :error, extra_context: { url: BASE_URL })
-        raise Common::Exceptions::Forbidden, detail: 'Missing correlation id'
-      rescue Faraday::TimeoutError
-        log_message_to_sentry(
-          'Timeout while connecting to Letters service', :error, extra_context: { url: BASE_URL }
-        )
-        raise Common::Exceptions::GatewayTimeout
-      rescue Faraday::ClientError => e
-        raise Common::Exceptions::Forbidden if e&.response[:status] == 403
-        log_message_to_sentry(
-          e&.message, :error, extra_context: { url: BASE_URL, body: e&.response[:body] }
-        )
-        raise EVSS::Letters::ServiceException, e&.response[:body]
-      end
-
-      def download_conn
-        @download_conn ||= Faraday.new(base_url, headers: @headers, ssl: ssl_options) do |faraday|
-          faraday.options.timeout = timeout
-          faraday.use :breakers
-          faraday.adapter :httpclient
+      def handle_error(error)
+        if error.is_a?(Common::Client::Errors::ClientError) && error.status != 403 && error.body.is_a?(Hash)
+          log_message_to_sentry(
+            error.message, :error, extra_context: { url: config.base_path, body: error.body }
+          )
+          raise EVSS::Letters::ServiceException, error.body
+        else
+          super(error)
         end
       end
     end

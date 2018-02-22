@@ -77,24 +77,6 @@
       },
       "fullName": "outside1 Olson",
       "personWhoLivesWithChild": "person1 Olson",
-      "monthlyIncome": {
-        "socialSecurity": 0,
-        "civilService": 0,
-        "railroad": 0,
-        "blackLung": 0,
-        "serviceRetirement": 0,
-        "ssi": 0,
-        "additionalSources": [
-          {
-            "name": "name2",
-            "amount": 9
-          },
-          {
-            "name": "name3",
-            "amount": 10
-          }
-        ]
-      },
       "otherExpenses": [
         {
           "amount": 4,
@@ -104,19 +86,6 @@
           "relationship": "outside1 Olson"
         }
       ],
-      "netWorth": {
-        "bank": 0,
-        "interestBank": 0,
-        "ira": 0,
-        "stocks": 0,
-        "realProperty": 0,
-        "additionalSources": [
-          {
-            "name": "name1",
-            "amount": 8
-          }
-        ]
-      },
       "monthlyPayment": 1,
       "stepchild": true
     },
@@ -162,16 +131,6 @@
           "relationship": "outside3 Olson"
         }
       ],
-      "expectedIncome": {
-        "salary": 0,
-        "interest": 0,
-        "additionalSources": [
-          {
-            "name": "name3",
-            "amount": 6
-          }
-        ]
-      },
       "monthlyPayment": 3,
       "adopted": true
     }
@@ -220,14 +179,6 @@
       "reasonForSeparation": "divorce2"
     }
   ],
-  "monthlyIncome": {
-    "socialSecurity": 1,
-    "civilService": 3,
-    "railroad": 0,
-    "serviceRetirement": 0,
-    "blackLung": 5,
-    "ssi": 7
-  },
   "spouseMonthlyIncome": {
     "socialSecurity": 2,
     "civilService": 0,
@@ -244,37 +195,20 @@
   },
   "netWorth": {
     "bank": 1,
-    "interestBank": 2,
+    "interestBank": 2.2,
     "stocks": 0,
     "realProperty": 0,
     "ira": 3
   },
-  "spouseNetWorth": {
-    "bank": 0,
-    "interestBank": 0,
-    "ira": 0,
-    "stocks": 4,
-    "realProperty": 5
-  },
   "expectedIncome": {
-    "salary": 1,
-    "interest": 3,
+    "salary": 0,
     "additionalSources": [
       {
         "name": "name1",
         "amount": 4
       }
-    ]
-  },
-  "spouseExpectedIncome": {
-    "salary": 2,
-    "interest": 0,
-    "additionalSources": [
-      {
-        "name": "name2",
-        "amount": 5
-      }
-    ]
+    ],
+    "interest": 3
   },
   "veteranDateOfBirth": "1985-03-07",
   "veteranSocialSecurityNumber": "111223333",
@@ -409,24 +343,6 @@
       },
       "fullName": "outside1 Olson",
       "personWhoLivesWithChild": "person1 Olson",
-      "monthlyIncome": {
-        "socialSecurity": 0,
-        "civilService": 0,
-        "railroad": 0,
-        "blackLung": 0,
-        "serviceRetirement": 0,
-        "ssi": 0,
-        "additionalSources": [
-          {
-            "name": "name2",
-            "amount": 9
-          },
-          {
-            "name": "name3",
-            "amount": 10
-          }
-        ]
-      },
       "otherExpenses": [
         {
           "amount": 4,
@@ -436,19 +352,6 @@
           "relationship": "outside1 Olson"
         }
       ],
-      "netWorth": {
-        "bank": 0,
-        "interestBank": 0,
-        "ira": 0,
-        "stocks": 0,
-        "realProperty": 0,
-        "additionalSources": [
-          {
-            "name": "name1",
-            "amount": 8
-          }
-        ]
-      },
       "monthlyPayment": 1,
       "stepchild": true
     },
@@ -494,16 +397,6 @@
           "relationship": "outside3 Olson"
         }
       ],
-      "expectedIncome": {
-        "salary": 0,
-        "interest": 0,
-        "additionalSources": [
-          {
-            "name": "name3",
-            "amount": 6
-          }
-        ]
-      },
       "monthlyPayment": 3,
       "adopted": true
     }
@@ -524,24 +417,6 @@
       },
       "fullName": "outside1 Olson",
       "personWhoLivesWithChild": "person1 Olson",
-      "monthlyIncome": {
-        "socialSecurity": 0,
-        "civilService": 0,
-        "railroad": 0,
-        "blackLung": 0,
-        "serviceRetirement": 0,
-        "ssi": 0,
-        "additionalSources": [
-          {
-            "name": "name2",
-            "amount": 9
-          },
-          {
-            "name": "name3",
-            "amount": 10
-          }
-        ]
-      },
       "otherExpenses": [
         {
           "amount": 4,
@@ -551,19 +426,6 @@
           "relationship": "outside1 Olson"
         }
       ],
-      "netWorth": {
-        "bank": 0,
-        "interestBank": 0,
-        "ira": 0,
-        "stocks": 0,
-        "realProperty": 0,
-        "additionalSources": [
-          {
-            "name": "name1",
-            "amount": 8
-          }
-        ]
-      },
       "monthlyPayment": 1,
       "stepchild": true
     },
@@ -609,16 +471,6 @@
           "relationship": "outside3 Olson"
         }
       ],
-      "expectedIncome": {
-        "salary": 0,
-        "interest": 0,
-        "additionalSources": [
-          {
-            "name": "name3",
-            "amount": 6
-          }
-        ]
-      },
       "monthlyPayment": 3,
       "adopted": true
     }
@@ -629,14 +481,10 @@
   "expectedIncomes": [
     {
       "recipient": "Myself",
-      "sourceAndAmount": "Gross wages and salary: $1",
-      "amount": 1
+      "sourceAndAmount": "Gross wages and salary: $0",
+      "amount": 0
     },
-    {
-      "recipient": "Spouse",
-      "sourceAndAmount": "Gross wages and salary: $2",
-      "amount": 2
-    },
+    null,
     {
       "recipient": "Myself",
       "sourceAndAmount": "Total dividends and interest: $3",
@@ -648,18 +496,8 @@
       "sourceAndAmount": "Name1: $4",
       "additionalSourceName": "name1"
     },
-    {
-      "recipient": "Spouse",
-      "amount": 5,
-      "sourceAndAmount": "Name2: $5",
-      "additionalSourceName": "name2"
-    },
-    {
-      "recipient": "outside3 Olson",
-      "amount": 6,
-      "sourceAndAmount": "Name3: $6",
-      "additionalSourceName": "name3"
-    }
+    null,
+    null
   ],
   "netWorths": [
     {
@@ -669,8 +507,8 @@
     },
     {
       "recipient": "Myself",
-      "sourceAndAmount": "Interest-bearing bank accounts: $2",
-      "amount": 2
+      "sourceAndAmount": "Interest-bearing bank accounts: $2.2",
+      "amount": 2.2
     },
     {
       "recipient": "Myself",
@@ -678,41 +516,32 @@
       "amount": 3
     },
     {
-      "recipient": "Spouse",
-      "sourceAndAmount": "Stocks, bonds, mutual funds, etc.: $4",
-      "amount": 4
+      "recipient": "Myself",
+      "sourceAndAmount": "Stocks, bonds, mutual funds, etc.: $0",
+      "amount": 0
     },
-    {
-      "recipient": "Spouse",
-      "sourceAndAmount": "Real property: $5",
-      "amount": 5
-    },
-    {
-    },
-    {
-    },
-    {
-      "recipient": "outside1 Olson",
-      "amount": 8,
-      "sourceAndAmount": "Name1: $8",
-      "additionalSourceName": "name1"
-    }
-  ],
-  "monthlyIncomes": [
     {
       "recipient": "Myself",
-      "sourceAndAmount": "Social security: $1",
-      "amount": 1
+      "sourceAndAmount": "Real property: $0",
+      "amount": 0
     },
+    {
+    },
+    {
+    },
+    null
+  ],
+  "monthlyIncomes": [
     {
       "recipient": "Spouse",
       "sourceAndAmount": "Social security: $2",
       "amount": 2
     },
+    null,
     {
-      "recipient": "Myself",
-      "sourceAndAmount": "U.s. civil service: $3",
-      "amount": 3
+      "recipient": "Spouse",
+      "sourceAndAmount": "U.s. civil service: $0",
+      "amount": 0
     },
     {
       "recipient": "Spouse",
@@ -720,9 +549,9 @@
       "amount": 4
     },
     {
-      "recipient": "Myself",
-      "sourceAndAmount": "Black lung benefits: $5",
-      "amount": 5
+      "recipient": "Spouse",
+      "sourceAndAmount": "Black lung benefits: $0",
+      "amount": 0
     },
     {
       "recipient": "Spouse",
@@ -730,9 +559,9 @@
       "amount": 6
     },
     {
-      "recipient": "Myself",
-      "sourceAndAmount": "Supplemental security income (ssi)/public assistance: $7",
-      "amount": 7
+      "recipient": "Spouse",
+      "sourceAndAmount": "Supplemental security income (ssi)/public assistance: $0",
+      "amount": 0
     },
     {
       "recipient": "Spouse",
@@ -740,18 +569,8 @@
       "sourceAndAmount": "Name1: $8",
       "additionalSourceName": "name1"
     },
-    {
-      "recipient": "outside1 Olson",
-      "amount": 9,
-      "sourceAndAmount": "Name2: $9",
-      "additionalSourceName": "name2"
-    },
-    {
-      "recipient": "outside1 Olson",
-      "amount": 10,
-      "sourceAndAmount": "Name3: $10",
-      "additionalSourceName": "name3"
-    }
+    null,
+    null
   ],
   "hasChecking": true,
   "hasSavings": false,

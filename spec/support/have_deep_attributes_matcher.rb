@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 RSpec::Matchers.define :have_deep_attributes do
   match do |actual|
     expected_hash = expected.as_json

@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'workflow/task/shrine_file/base'
 
 # With a Shrine `@file`, use ImageMagick's `convert` utility to create a PDF
 # with the image embedded. If the @file is already a PDF, immediately return

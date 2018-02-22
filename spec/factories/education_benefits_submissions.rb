@@ -1,5 +1,6 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+
+FactoryBot.define do
   factory :education_benefits_submission do
     region('eastern')
     chapter33(true)
@@ -7,6 +8,7 @@ FactoryGirl.define do
     after(:build) do |education_benefits_submission|
       # have to do it this way otherwise 2 submissions get created because of education benefits claim callback
       education_benefits_submission.education_benefits_claim = build(:education_benefits_claim)
+      education_benefits_submission.education_benefits_claim.saved_claim = build(:va1990)
     end
   end
 end

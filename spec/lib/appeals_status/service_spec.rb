@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'appeals_status/service'
 require 'appeals_status/responses/get_appeals_response'
@@ -16,7 +17,7 @@ describe AppealsStatus::Service do
           birth_date: Faker::Date.between(50.years.ago, 20.years.ago).to_s,
           ssn: '111224444'
         }
-        build(:loa3_user, user_hash)
+        build(:user, :loa3, user_hash)
       end
 
       it 'returns the response' do
@@ -45,7 +46,7 @@ describe AppealsStatus::Service do
           birth_date: Faker::Date.between(50.years.ago, 20.years.ago).to_s,
           ssn: '111223333'
         }
-        build(:loa3_user, user_hash)
+        build(:user, :loa3, user_hash)
       end
 
       it 'returns the response' do
@@ -74,7 +75,7 @@ describe AppealsStatus::Service do
           birth_date: Faker::Date.between(50.years.ago, 20.years.ago).to_s,
           ssn: '111223333'
         }
-        build(:loa3_user, user_hash)
+        build(:user, :loa3, user_hash)
       end
 
       before do

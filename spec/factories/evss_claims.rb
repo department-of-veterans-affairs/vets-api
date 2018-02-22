@@ -1,5 +1,6 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+
+FactoryBot.define do
   factory :evss_claim do
     user_uuid '1234'
     evss_id   1

@@ -1,9 +1,10 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe GenerateClaimPDFJob do
   describe '#perform' do
-    let(:claim) { FactoryGirl.create(:burial_claim) }
+    let(:claim) { FactoryBot.create(:burial_claim) }
     let(:spec_file) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
     let(:tmpfile) { Tempfile.new }
     before do

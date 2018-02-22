@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 require 'evss/request_decision'
@@ -7,7 +8,7 @@ require 'evss/auth_headers'
 
 RSpec.describe EVSS::RequestDecision, type: :job do
   let(:client_stub) { instance_double('EVSS::ClaimsService') }
-  let(:user) { FactoryGirl.build(:loa3_user) }
+  let(:user) { FactoryBot.build(:user, :loa3) }
   let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
   let(:evss_id) { 189_625 }
 

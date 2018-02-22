@@ -16,7 +16,7 @@ class ClaimsBaseController < ApplicationController
   # Creates and validates an instance of the class, removing any copies of
   # the form that had been previously saved by the user.
   def create
-    claim = claim_class.new(form: filtered_params[:form], user_submitted_at: params[:local_time])
+    claim = claim_class.new(form: filtered_params[:form])
     unless claim.save
       validation_error = claim.errors.full_messages.join(', ')
       log_message_to_sentry(validation_error, :error, {}, validation: short_name)

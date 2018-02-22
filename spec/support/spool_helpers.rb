@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module SpoolHelpers
   extend ActiveSupport::Concern
 
@@ -7,12 +8,11 @@ module SpoolHelpers
     def test_spool_file(form_type, test_name)
       describe "#{form_type} #{test_name} spool test" do
         let(:file_prefix) { "spec/fixtures/education_benefits_claims/#{form_type}/#{test_name}." }
-
+        let(:form_class) { "SavedClaim::EducationBenefits::VA#{form_type}".constantize }
         let(:education_benefits_claim) do
-          EducationBenefitsClaim.create!(
-            form_type: form_type,
+          form_class.create!(
             form: File.read("#{file_prefix}json")
-          )
+          ).education_benefits_claim
         end
 
         subject do
@@ -21,6 +21,7 @@ module SpoolHelpers
 
         before do
           allow(education_benefits_claim).to receive(:id).and_return(1)
+          education_benefits_claim.instance_variable_set(:@application, nil)
         end
 
         it 'should generate the spool file correctly', run_at: '2017-01-17 03:00:00 -0500' do
@@ -32,5 +33,6 @@ module SpoolHelpers
         end
       end
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end

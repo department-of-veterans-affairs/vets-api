@@ -1,5 +1,6 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+
+FactoryBot.define do
   factory :access_satisfaction, class: 'FacilitySatisfaction' do
     station_number '648'
     metrics do

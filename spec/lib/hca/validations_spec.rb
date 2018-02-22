@@ -1,8 +1,12 @@
 # frozen_string_literal: true
+
 require 'spec_helper'
 require 'hca/validations'
 
-describe HCA::Validations do
+frozen_time = '2017-01-04 03:00:00 EDT'
+frozen_date = Time.zone.parse(frozen_time).to_date
+
+describe HCA::Validations, run_at: frozen_time do
   test_method(
     described_class,
     'date_of_birth',
@@ -11,6 +15,30 @@ describe HCA::Validations do
       [1234, ''],
       ['3000-01-01', ''],
       ['1974-12-01', '12/01/1974']
+    ]
+  )
+
+  test_method(
+    described_class,
+    'discharge_date',
+    [
+      ['', ''],
+      [1234, ''],
+      ['3000-01-01', '01/01/3000'],
+      ['1974-12-01', '12/01/1974']
+    ]
+  )
+
+  test_method(
+    described_class,
+    'valid_discharge_date?',
+    [
+      ['', false],
+      [1234, false],
+      ['3000-01-01', false],
+      ['1974-12-01', true],
+      [(frozen_date + 60.days).strftime('%Y-%m-%d'), true],
+      [(frozen_date + 181.days).strftime('%Y-%m-%d'), false]
     ]
   )
 
@@ -46,7 +74,7 @@ describe HCA::Validations do
       [['1'], ''],
       [111_111_111, ''],
       ['000111111', ''],
-      %w(210438765 210438765),
+      %w[210438765 210438765],
       ['210-43-8765', '210438765'],
       ['1112233334444', '']
     ]

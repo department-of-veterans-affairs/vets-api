@@ -61,13 +61,13 @@
       "postMilitaryJob": true
     }
   ],
-  "educationType": "flightTraining",
   "faaFlightCertificatesInformation": "cert1, cert2",
   "gender": "M",
   "highSchoolOrGedCompletionDate": "2010-06-XX",
   "homePhone": "5551110000",
   "reserveKicker": true,
-  "school": {
+  "educationProgram": {
+    "educationType": "flightTraining",
     "address": {
       "city": "Baltimore",
       "country": "USA",
@@ -75,9 +75,7 @@
       "state": "MD",
       "street": "111 Uni Drive"
     },
-    "educationalObjective": "...",
-    "name": "\nFakeData University\n",
-    "startDate": "2016-08-29"
+    "name": "\nFakeData University\n"
   },
   "secondaryContact": {
     "fullName": "Sibling Olson",

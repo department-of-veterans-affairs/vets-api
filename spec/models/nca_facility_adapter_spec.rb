@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe NCAFacilityAdapter, type: :adapter do
@@ -6,7 +7,7 @@ RSpec.describe NCAFacilityAdapter, type: :adapter do
 
   context 'with v1-style NCA record' do
     before(:each) do
-      @model = described_class.from_gis(FactoryGirl.build(:nca_gis_record_v1))
+      @model = described_class.from_gis(FactoryBot.build(:nca_gis_record_v1))
     end
 
     it 'adapts base attributes' do
@@ -39,10 +40,10 @@ RSpec.describe NCAFacilityAdapter, type: :adapter do
     end
 
     it 'adapts hours attributes' do
-      %w(Monday Tuesday Wednesday Thursday Friday).each do |d|
+      %w[Monday Tuesday Wednesday Thursday Friday].each do |d|
         expect(@model.hours[d]).to eq('7:30am - 5:00pm')
       end
-      %w(Saturday Sunday).each do |d|
+      %w[Saturday Sunday].each do |d|
         expect(@model.hours[d]).to eq('8:00am - 5:00pm')
       end
     end
@@ -50,7 +51,7 @@ RSpec.describe NCAFacilityAdapter, type: :adapter do
 
   context 'with v2-style NCA record' do
     before(:each) do
-      @model = described_class.from_gis(FactoryGirl.build(:nca_gis_record_v2))
+      @model = described_class.from_gis(FactoryBot.build(:nca_gis_record_v2))
     end
 
     it 'adapts base attributes' do
@@ -83,10 +84,10 @@ RSpec.describe NCAFacilityAdapter, type: :adapter do
     end
 
     it 'adapts hours attributes' do
-      %w(Monday Tuesday Wednesday Thursday Friday).each do |d|
+      %w[Monday Tuesday Wednesday Thursday Friday].each do |d|
         expect(@model.hours[d]).to eq('7:30am - 5:00pm')
       end
-      %w(Saturday Sunday).each do |d|
+      %w[Saturday Sunday].each do |d|
         expect(@model.hours[d]).to eq('8:00am - 5:00pm')
       end
     end

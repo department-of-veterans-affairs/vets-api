@@ -3,6 +3,8 @@ require 'common/exceptions/internal/record_not_found'
 # frozen_string_literal: true
 module V0
   class LettersController < ApplicationController
+    before_action { authorize :evss, :access? }
+
     def index
       response = service.get_letters
       render json: response,
@@ -13,7 +15,7 @@ module V0
       unless EVSS::Letters::Letter::LETTER_TYPES.include? params[:id]
         raise Common::Exceptions::ParameterMissing, 'letter_type', "#{params[:id]} is not a valid letter type"
       end
-      response = service.download_by_type(params[:id], request.body.string)
+      response = download_service.download_letter(params[:id], request.body.string)
       send_data response,
                 filename: "#{params[:id]}.pdf",
                 type: 'application/pdf',
@@ -29,7 +31,11 @@ module V0
     private
 
     def service
-      EVSS::Letters::ServiceFactory.get_service(user: @current_user, mock_service: Settings.evss.mock_letters)
+      EVSS::Letters::Service.new(@current_user)
+    end
+
+    def download_service
+      EVSS::Letters::DownloadService.new(@current_user)
     end
   end
 end

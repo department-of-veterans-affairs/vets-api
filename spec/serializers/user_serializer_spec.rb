@@ -1,8 +1,9 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe UserSerializer, type: :serializer do
-  let(:user) { build :loa3_user }
+  let(:user) { create(:user, :loa3) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
   let(:profile) { attributes['profile'] }
@@ -84,7 +85,7 @@ RSpec.describe UserSerializer, type: :serializer do
     end
 
     context 'when user.mvi is nil' do
-      let(:user) { build :user }
+      let(:user) { create :user }
       let(:data) { JSON.parse(subject)['data'] }
       let(:attributes) { data['attributes'] }
       let(:va_profile) { attributes['va_profile'] }
@@ -124,7 +125,9 @@ RSpec.describe UserSerializer, type: :serializer do
 
     context 'when a veteran status is not found' do
       before(:each) do
-        allow_any_instance_of(VeteranStatus).to receive(:veteran?).and_raise(VeteranStatus::RecordNotFound)
+        allow_any_instance_of(
+          EMISRedis::VeteranStatus
+        ).to receive(:veteran?).and_raise(EMISRedis::VeteranStatus::RecordNotFound)
       end
 
       it 'should include is_veteran' do
@@ -138,7 +141,9 @@ RSpec.describe UserSerializer, type: :serializer do
 
     context 'when a veteran status call returns an error' do
       before(:each) do
-        allow_any_instance_of(VeteranStatus).to receive(:veteran?).and_raise(Common::Client::Errors::ClientError)
+        allow_any_instance_of(
+          EMISRedis::VeteranStatus
+        ).to receive(:veteran?).and_raise(Common::Client::Errors::ClientError)
       end
 
       it 'should include is_veteran' do
@@ -151,12 +156,14 @@ RSpec.describe UserSerializer, type: :serializer do
     end
 
     context 'with a LOA1 user' do
-      let(:user) { build :loa1_user }
+      let(:user) { create(:user, :loa1) }
       let(:serialized_user) { serialize(user, serializer_class: described_class) }
       let(:expected) { JSON.parse(serialized_user) }
 
       it 'returns va_profile as null' do
-        allow_any_instance_of(VeteranStatus).to receive(:veteran?).and_raise(VeteranStatus::NotAuthorized)
+        allow_any_instance_of(
+          EMISRedis::VeteranStatus
+        ).to receive(:veteran?).and_raise(EMISRedis::VeteranStatus::NotAuthorized)
         expect(expected['data']['attributes']['veteran_status']).to eq(
           'status' => 'NOT_AUTHORIZED'
         )

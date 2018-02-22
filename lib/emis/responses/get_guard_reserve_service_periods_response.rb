@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'emis/models/guard_reserve_service_period'
 require 'emis/responses/response'
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 require 'saml/settings_service'
@@ -8,6 +9,9 @@ require 'support/sm_client_helpers'
 
 require 'rx/client'
 require 'support/rx_client_helpers'
+
+require 'bb/client'
+require 'support/bb_client_helpers'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -31,9 +35,9 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
                           ineligible?: false,
                           eligible?: true,
                           needs_terms_acceptance?: false,
-                          upgraded?: true)
+                          accessible?: true)
   end
-  let(:mhv_user) { build :mhv_user }
+  let(:mhv_user) { build(:user, :mhv) }
 
   before do
     Session.create(uuid: mhv_user.uuid, token: token)
@@ -45,8 +49,18 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
   context 'has valid paths' do
     let(:auth_options) { { '_headers' => { 'Authorization' => "Token token=#{token}" } } }
 
-    it 'supports new sessions' do
-      expect(subject).to validate(:get, '/v0/sessions/new', 200, level: 1)
+    it 'supports fetching authentication urls' do
+      expect(subject).to validate(:get, '/v0/sessions/authn_urls', 200)
+    end
+
+    it 'supports invoking multifactor policy' do
+      expect(subject).to validate(:get, '/v0/sessions/multifactor', 200, auth_options)
+      expect(subject).to validate(:get, '/v0/sessions/multifactor', 401)
+    end
+
+    it 'supports fetching identity verification url' do
+      expect(subject).to validate(:get, '/v0/sessions/identity_proof', 200, auth_options)
+      expect(subject).to validate(:get, '/v0/sessions/identity_proof', 401)
     end
 
     it 'supports session deletion' do
@@ -59,8 +73,12 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       expect(subject).to validate(:get, '/v0/in_progress_forms', 401)
     end
 
+    it 'supports fetching maintenance windows' do
+      expect(subject).to validate(:get, '/v0/maintenance_windows', 200)
+    end
+
     it 'supports getting an in-progress form' do
-      FactoryGirl.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      FactoryBot.create(:in_progress_form, user_uuid: mhv_user.uuid)
       expect(subject).to validate(
         :get,
         '/v0/in_progress_forms/{id}',
@@ -90,7 +108,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     it 'supports deleting an in-progress form' do
-      form = FactoryGirl.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      form = FactoryBot.create(:in_progress_form, user_uuid: mhv_user.uuid)
       expect(subject).to validate(
         :delete,
         '/v0/in_progress_forms/{id}',
@@ -108,7 +126,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         'form_type' => '1990',
         '_data' => {
           'education_benefits_claim' => {
-            'form' => build(:education_benefits_claim).form
+            'form' => build(:va1990).form
           }
         }
       )
@@ -303,10 +321,10 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
       let(:uploads) do
         [
-          Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file1.jpg', 'image/jpg'),
-          Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file2.jpg', 'image/jpg'),
-          Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file3.jpg', 'image/jpg'),
-          Rack::Test::UploadedFile.new('spec/support/fixtures/sm_file4.jpg', 'image/jpg')
+          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg'),
+          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file2.jpg', 'image/jpg'),
+          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file3.jpg', 'image/jpg'),
+          Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file4.jpg', 'image/jpg')
         ]
       end
 
@@ -565,7 +583,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             end
           end
 
-          [:put, :patch].each do |op|
+          %i[put patch].each do |op|
             it "supports updating a message draft with #{op}" do
               VCR.use_cassette('sm_client/message_drafts/updates_a_draft') do
                 expect(subject).to validate(
@@ -610,6 +628,111 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    describe 'bb' do
+      include BB::ClientHelpers
+
+      describe 'health_records' do
+        before(:each) do
+          allow_any_instance_of(ApplicationController).to receive(:authenticate_token).and_return(true)
+          allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(mhv_user)
+
+          allow(BB::Client).to receive(:new).and_return(authenticated_client)
+        end
+
+        describe 'show a report' do
+          context 'successful calls' do
+            it 'supports showing a report' do
+              # Using mucked-up yml because apivore has a problem processing non-json responses
+              VCR.use_cassette('bb_client/gets_a_text_report_for_apivore') do
+                expect(subject).to validate(:get, '/v0/health_records', 200, '_query_string' => 'doc_type=txt')
+              end
+            end
+          end
+
+          context 'unsuccessful calls' do
+            it 'handles a backend error' do
+              VCR.use_cassette('bb_client/report_error_response') do
+                expect(subject).to validate(:get, '/v0/health_records', 503, '_query_string' => 'doc_type=txt')
+              end
+            end
+          end
+        end
+
+        describe 'create a report' do
+          context 'successful calls' do
+            it 'supports creating a report' do
+              VCR.use_cassette('bb_client/generates_a_report') do
+                expect(subject).to validate(
+                  :post, '/v0/health_records', 202,
+                  '_data' => {
+                    'from_date' => 10.years.ago.iso8601.to_json,
+                    'to_date' => Time.now.iso8601.to_json,
+                    'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
+                  }
+                )
+              end
+            end
+          end
+
+          context 'unsuccessful calls' do
+            it 'requires from_date, to_date, and data_classes' do
+              expect(subject).to validate(
+                :post, '/v0/health_records', 422,
+                '_data' => {
+                  'to_date' => Time.now.iso8601.to_json,
+                  'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
+                }
+              )
+
+              expect(subject).to validate(
+                :post, '/v0/health_records', 422,
+                '_data' => {
+                  'from_date' => 10.years.ago.iso8601.to_json,
+                  'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
+                }
+              )
+
+              expect(subject).to validate(
+                :post, '/v0/health_records', 422,
+                '_data' => {
+                  'from_date' => 10.years.ago.iso8601.to_json,
+                  'to_date' => Time.now.iso8601.to_json
+                }
+              )
+            end
+          end
+        end
+
+        describe 'eligible data classes' do
+          it 'supports retrieving eligible data classes' do
+            VCR.use_cassette('bb_client/gets_a_list_of_eligible_data_classes') do
+              expect(subject).to validate(:get, '/v0/health_records/eligible_data_classes', 200)
+            end
+          end
+        end
+
+        describe 'refresh' do
+          context 'successful calls' do
+            it 'supports health records refresh' do
+              VCR.use_cassette('bb_client/gets_a_list_of_extract_statuses') do
+                expect(subject).to validate(:get, '/v0/health_records/refresh', 200)
+              end
+            end
+          end
+
+          context 'unsuccessful calls' do
+            let(:mhv_account) do
+              double('mhv_account', eligible?: true, needs_terms_acceptance?: false, accessible?: false)
+            end
+
+            it 'raises forbidden when user is not eligible' do
+              expect(subject).to validate(:get, '/v0/health_records/refresh', 403)
+            end
+          end
+        end
+      end
+    end
+
     describe 'gibct' do
       describe 'institutions' do
         describe 'autocomplete' do
@@ -644,7 +767,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           context 'unsuccessful calls' do
             it 'returns error on refilling a prescription with bad id' do
               VCR.use_cassette('gi_client/gets_institution_details_error') do
-                expect(subject).to validate(:get, '/v0/gi/institutions/{id}', 400, 'id' => 'splunge')
+                expect(subject).to validate(:get, '/v0/gi/institutions/{id}', 404, 'id' => 'splunge')
               end
             end
           end
@@ -695,11 +818,83 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       it 'supports posting EVSS Letters' do
         expect(subject).to validate(:post, '/v0/letters/{id}', 401, 'id' => 'commissary')
       end
+
+      it 'supports getting EVSS PCIUAddress states' do
+        expect(subject).to validate(:get, '/v0/address/states', 401)
+        VCR.use_cassette('evss/pciu_address/states') do
+          expect(subject).to validate(:get, '/v0/address/states', 200, auth_options)
+        end
+      end
+
+      it 'supports getting EVSS PCIUAddress countries' do
+        expect(subject).to validate(:get, '/v0/address/countries', 401)
+        VCR.use_cassette('evss/pciu_address/countries') do
+          expect(subject).to validate(:get, '/v0/address/countries', 200, auth_options)
+        end
+      end
+
+      it 'supports getting EVSS PCIUAddress' do
+        expect(subject).to validate(:get, '/v0/address', 401)
+        VCR.use_cassette('evss/pciu_address/address_domestic') do
+          expect(subject).to validate(:get, '/v0/address', 200, auth_options)
+        end
+      end
+
+      it 'supports putting EVSS PCIUAddress' do
+        expect(subject).to validate(:put, '/v0/address', 401)
+        VCR.use_cassette('evss/pciu_address/address_update') do
+          expect(subject).to validate(
+            :put,
+            '/v0/address',
+            200,
+            auth_options.update(
+              '_data' => {
+                'type' => 'DOMESTIC',
+                'address_effective_date' => '2017-08-07T19:43:59.383Z',
+                'address_one' => '225 5th St',
+                'address_two' => '',
+                'address_three' => '',
+                'city' => 'Springfield',
+                'state_code' => 'OR',
+                'country_name' => 'USA',
+                'zip_code' => '97477',
+                'zip_suffix' => ''
+              }
+            )
+          )
+        end
+      end
     end
 
     it 'supports getting the user data' do
       expect(subject).to validate(:get, '/v0/user', 200, auth_options)
       expect(subject).to validate(:get, '/v0/user', 401)
+    end
+
+    context '#feedback' do
+      before(:all) do
+        Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.current)
+      end
+      before(:each) do
+        Rack::Attack.cache.store.flushdb
+      end
+      let(:feedback_params) do
+        {
+          'description' => 'I liked this page',
+          'target_page' => '/some/example/page.html',
+          'owner_email' => 'example@email.com'
+        }
+      end
+      let(:missing_feedback_params) { feedback_params.except('target_page') }
+
+      it 'returns 202 for valid feedback' do
+        expect(subject).to validate(:post, '/v0/feedback', 202,
+                                    '_data' => { 'feedback' => feedback_params })
+      end
+      it 'returns 400 if a param is missing or invalid' do
+        expect(subject).to validate(:post, '/v0/feedback', 400,
+                                    '_data' => { 'feedback' => missing_feedback_params })
+      end
     end
 
     context 'terms and conditions routes' do
@@ -798,6 +993,70 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             404,
             auth_options.merge('name' => 'blat')
           )
+        end
+      end
+    end
+
+    describe 'facility locator tests' do
+      context 'successful calls' do
+        it 'supports getting a list of facilities' do
+          VCR.use_cassette('facilities/va/pdx_bbox') do
+            expect(subject).to validate(:get, '/v0/facilities/va', 200,
+                                        'bbox' => ['-122.440689', '45.451913', '-122.78675', '45.64'])
+          end
+        end
+
+        it 'supports getting a list of facilities' do
+          VCR.use_cassette('facilities/va/vha_648A4') do
+            expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
+          end
+        end
+
+        it '404s on non-existent facility' do
+          VCR.use_cassette('facilities/va/nonexistent_cemetery') do
+            expect(subject).to validate(:get, '/v0/facilities/va/{id}', 404, 'id' => 'nca_9999999')
+          end
+        end
+
+        it '400s on invalid bounding box query' do
+          expect(subject).to validate(:get, '/v0/facilities/va', 400,
+                                      '_query_string' => 'bbox[]=-122&bbox[]=45&bbox[]=-123')
+        end
+      end
+    end
+
+    describe 'appeals' do
+      it 'documents appeals 401' do
+        expect(subject).to validate(:get, '/v0/appeals_v2', 401)
+      end
+
+      it 'documents appeals 200' do
+        VCR.use_cassette('/appeals/appeals') do
+          expect(subject).to validate(:get, '/v0/appeals_v2', 200, auth_options)
+        end
+      end
+
+      it 'documents appeals 403' do
+        VCR.use_cassette('/appeals/forbidden') do
+          expect(subject).to validate(:get, '/v0/appeals_v2', 403, auth_options)
+        end
+      end
+
+      it 'documents appeals 404' do
+        VCR.use_cassette('/appeals/not_found') do
+          expect(subject).to validate(:get, '/v0/appeals_v2', 404, auth_options)
+        end
+      end
+
+      it 'documents appeals 422' do
+        VCR.use_cassette('/appeals/invalid_ssn') do
+          expect(subject).to validate(:get, '/v0/appeals_v2', 422, auth_options)
+        end
+      end
+
+      it 'documents appeals 502' do
+        VCR.use_cassette('/appeals/server_error') do
+          expect(subject).to validate(:get, '/v0/appeals_v2', 502, auth_options)
         end
       end
     end

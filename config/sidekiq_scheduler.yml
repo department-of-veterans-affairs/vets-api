@@ -2,14 +2,22 @@
 # over all workers. The `every` option will run the job once per worker instance
 # at the specified interval.
 
+ExportBreakerStatus:
+  every: '1m'
+  description: "Send breaker status to statsd"
+
 CreateDailySpoolFiles:
   cron: "0 3 * * MON-FRI America/New_York"
   class: EducationForm::CreateDailySpoolFiles
   description: "Generate a daily set of spool files and transmit them over SFTP to a backend system"
 
-EducationForm::CreateDailyYearToDateReport:
+EducationForm::CreateDailyFiscalYearToDateReport:
   cron: "0 4 * * * America/New_York"
   description: "Send the daily report to VA stakeholders about Education Benefits submissions"
+
+EducationForm::CreateSpoolSubmissionsReport:
+  cron: "15 4 * * MON-FRI America/New_York"
+  description: "Send the daily report to the call center about spool file submissions"
 
 DeleteOldApplications:
   cron: "0 0 * * * America/New_York"
@@ -39,3 +47,8 @@ FacilityAccessBulkUpdate:
   cron: "30 4 * * * America/New_York"
   class: Facilities::AccessDataDownload
   description: "Download and cache facility access-to-care metric data"
+
+MaintenanceWindowRefresh:
+  cron: "*/5 * * * * America/New_York"
+  class: PagerDuty::PollMaintenanceWindows
+  description: "Poll PagerDuty API for maintenance window information"

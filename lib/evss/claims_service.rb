@@ -1,10 +1,16 @@
 # frozen_string_literal: true
+
 require 'evss/base_service'
 
 module EVSS
   class ClaimsService < BaseService
     API_VERSION = Settings.evss.versions.claims
     BASE_URL = "#{Settings.evss.url}/wss-claims-services-web-#{API_VERSION}/rest"
+    DEFAULT_TIMEOUT = 120 # in seconds
+
+    def initialize(*args)
+      super
+    end
 
     def all_claims
       get 'vbaClaimStatusService/getClaims'

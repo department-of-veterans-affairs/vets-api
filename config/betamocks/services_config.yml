@@ -1,0 +1,172 @@
+---
+:services:
+
+# EVSS
+- :name: 'EVSS'
+  :base_uri: <%= "#{URI(Settings.evss.url).host}:#{URI(Settings.evss.url).port}" %>
+  :endpoints:
+  # PCIUAddress
+  - :method: :get
+    :path: "/wss-pciu-services-web/rest/pciuServices/v1/states"
+    :file_path: "evss/pciu_address/states"
+  - :method: :get
+    :path: "/wss-pciu-services-web/rest/pciuServices/v1/countries"
+    :file_path: "evss/pciu_address/countries"
+  - :method: :get
+    :path: "/wss-pciu-services-web/rest/pciuServices/v1/mailingAddress"
+    :file_path: "evss/pciu_address/address"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+#    :error:
+#      :status: 502
+  - :method: :post
+    :path: "/wss-pciu-services-web/rest/pciuServices/v1/mailingAddress"
+    :file_path: "evss/pciu_address/address_update"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+
+  # Letters
+  - :method: :get
+    :path: "/wss-lettergenerator-services-web/rest/letters/v1"
+    :file_path: "evss/letters/list"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+  - :method: :get
+    :path: "/wss-lettergenerator-services-web/rest/letters/v1/letterBeneficiary"
+    :file_path: "evss/letters/beneficiary"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+  - :method: :post
+    :path: "/wss-lettergenerator-services-web/rest/letters/v1/*"
+    :file_path: "evss/letters/download"
+
+  # GIBS
+  - :method: :get
+    :path: "/wss-education-services-web/rest/education/chapter33/v1"
+    :file_path: "evss/gibs"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+
+
+# MVI
+- :name: 'MVI'
+  :base_uri: <%= "#{URI(Settings.mvi.url).host}:#{URI(Settings.mvi.url).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: <%= URI(Settings.mvi.url).path %>
+    :file_path: "mvi/profile"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '(?:root="2.16.840.1.113883.4.1" )?extension="(\d{9})"(?: root="2.16.840.1.113883.4.1")?'
+
+
+# EMIS
+- :name: 'EMIS'
+  :base_uri: <%= "#{URI(Settings.emis.host).host}:#{URI(Settings.emis.host).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/VeteranStatusService"
+    :file_path: "emis/veteran_status"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v13:edipiORicnValue>(\d+)<\/v13:edipiORicnValue>'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
+    :file_path: "emis/military_service_episodes"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISserviceEpisodeRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
+    :file_path: "emis/deployment"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISdeploymentRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/PaymentService"
+    :file_path: "emis/combat_pay"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMIScombatPayRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
+    :file_path: "emis/disabilities"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISdisabilitiesRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
+    :file_path: "emis/guard_reserve_service_periods"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISguardReserveServicePeriodsRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
+    :file_path: "emis/military_occupation"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISmilitaryOccupationRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
+    :file_path: "emis/military_service_eligibility_info"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISmilitaryServiceEligibilityRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/PaymentService"
+    :file_path: "emis/reserve_drill_days"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISreserveDrillDaysRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
+    :file_path: "emis/retirement"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISretirementRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/PaymentService"
+    :file_path: "emis/retirement_pay"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISretirementPayRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/PaymentService"
+    :file_path: "emis/separation_pay"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISseparationPayRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v1/MilitaryInformationService"
+    :file_path: "emis/unit_information"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISunitInformationRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+# Appeals
+- :name: 'Appeals'
+  :base_uri: <%= "#{URI(Settings.appeals_status.host).host}:#{URI(Settings.appeals_status.host).port}" %>
+  :endpoints:
+  - :method: :get
+    :path: "/api/v2/appeals"
+    :file_path: "appeals/get_appeals"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: ssn

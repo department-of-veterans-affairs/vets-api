@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'preneeds/models/attribute_types/xml_date'
+
 require 'common/models/base'
 
 module Preneeds

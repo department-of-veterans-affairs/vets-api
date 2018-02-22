@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'attr_encrypted'
 
 # Persistent backing of a Shrine file upload, primarily used by SavedClaim
@@ -10,16 +11,11 @@ require 'attr_encrypted'
 # Current subclasses are PensionBurial
 
 class PersistentAttachment < ActiveRecord::Base
+  include SetGuid
+
   attr_encrypted(:file_data, key: Settings.db_encryption_key)
   belongs_to :saved_claim
   delegate :original_filename, :size, to: :file
-
-  after_initialize :generate_guid, unless: :guid
-
-  # Used as part of the filepath by Shrine
-  def generate_guid
-    self.guid = SecureRandom.uuid
-  end
 
   def process
     args = as_json.reject { |k, _v| k.to_s == 'file_data' }.deep_symbolize_keys
@@ -32,6 +28,6 @@ class PersistentAttachment < ActiveRecord::Base
   private
 
   def stamp_text
-    I18n.l(saved_claim.submitted_at, stamp_text: :pdf_stamp)
+    I18n.l(saved_claim.created_at, format: :pdf_stamp)
   end
 end

@@ -1,14 +1,15 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 # rubocop:disable  Style/GlobalVars
-class TestTaskA < Workflow::Task
+class TestTaskA < Workflow::Task::Base
   def run
     $TaskCount += 1
     @data[:inc_mult] = 10
   end
 end
 
-class TestTaskB < Workflow::Task
+class TestTaskB < Workflow::Task::Base
   def run(a)
     $TaskCount += a[:inc] * @data[:inc_mult]
   end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'feature_flipper'
 require 'common/exceptions'
 require 'common/client/errors'
@@ -8,6 +9,7 @@ require 'sentry_logging'
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
   include SentryLogging
+  include Pundit
 
   SKIP_SENTRY_EXCEPTION_TYPES = [
     Common::Exceptions::Unauthorized,
@@ -18,17 +20,15 @@ class ApplicationController < ActionController::API
 
   before_action :authenticate
   before_action :set_app_info_headers
-  before_action :set_uuid_tags
-  skip_before_action :authenticate, only: [:cors_preflight, :routing_error]
+  before_action :set_tags_and_extra_context
+  skip_before_action :authenticate, only: %i[cors_preflight routing_error]
 
   def cors_preflight
     head(:ok)
   end
 
   def clear_saved_form(form_id)
-    if @current_user
-      InProgressForm.form_for_user(form_id, @current_user)&.destroy
-    end
+    InProgressForm.form_for_user(form_id, @current_user)&.destroy if @current_user
   end
 
   def routing_error
@@ -43,9 +43,14 @@ class ApplicationController < ActionController::API
 
   private
 
+  def skip_sentry_exception_types
+    SKIP_SENTRY_EXCEPTION_TYPES
+  end
+
+  # rubocop:disable Metrics/BlockLength
   rescue_from 'Exception' do |exception|
     # report the original 'cause' of the exception when present
-    if SKIP_SENTRY_EXCEPTION_TYPES.include?(exception.class) == false
+    if skip_sentry_exception_types.include?(exception.class) == false
       extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
       if exception.is_a?(Common::Exceptions::BackendServiceException)
         # Add additional user specific context to the logs
@@ -66,6 +71,8 @@ class ApplicationController < ActionController::API
 
     va_exception =
       case exception
+      when Pundit::NotAuthorizedError
+        Common::Exceptions::Forbidden.new(detail: 'User does not have access to the requested resource')
       when ActionController::ParameterMissing
         Common::Exceptions::ParameterMissing.new(exception.param)
       when Common::Exceptions::BaseError
@@ -79,15 +86,32 @@ class ApplicationController < ActionController::API
         Common::Exceptions::InternalServerError.new(exception)
       end
 
-    if va_exception.is_a?(Common::Exceptions::Unauthorized)
-      headers['WWW-Authenticate'] = 'Token realm="Application"'
-    end
+    headers['WWW-Authenticate'] = 'Token realm="Application"' if va_exception.is_a?(Common::Exceptions::Unauthorized)
     render json: { errors: va_exception.errors }, status: va_exception.status_code
   end
+  # rubocop:enable Metrics/BlockLength
 
-  def set_uuid_tags
+  def set_tags_and_extra_context
     Thread.current['request_id'] = request.uuid
     Raven.extra_context(request_uuid: request.uuid)
+    Raven.user_context(user_context) if @current_user
+    Raven.tags_context(tags_context)
+  end
+
+  def user_context
+    {
+      uuid: @current_user&.uuid,
+      authn_context: @current_user&.authn_context,
+      loa: @current_user&.loa,
+      mhv_icn: @current_user&.mhv_icn
+    }
+  end
+
+  def tags_context
+    {
+      controller_name: controller_name,
+      sign_in_method: @current_user.present? ? @current_user.authn_context || 'idme' : 'not-signed-in'
+    }
   end
 
   def set_app_info_headers
@@ -115,6 +139,7 @@ class ApplicationController < ActionController::API
 
   def extend_session
     @session.expire(Session.redis_namespace_ttl)
+    @current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
     @current_user&.expire(User.redis_namespace_ttl)
   end
 
@@ -124,17 +149,8 @@ class ApplicationController < ActionController::API
     raise Common::Exceptions::Unauthorized
   end
 
-  def saml_settings
-    if defined?(@saml_settings)
-      @saml_settings.name_identifier_value = @session&.uuid
-      return @saml_settings
-    end
-    @saml_settings = SAML::SettingsService.saml_settings
-    # TODO: 'level' should be its own class with proper validation
-    level = LOA::MAPPING.invert[params[:level]&.to_i]
-    @saml_settings.authn_context = level || LOA::MAPPING.invert[1]
-    @saml_settings.name_identifier_value = @session&.uuid
-    @saml_settings
+  def saml_settings(options = {})
+    SAML::SettingsService.saml_settings(options)
   end
 
   def pagination_params

@@ -88,17 +88,34 @@ en:
         detail: "The record identified by %{id} could not be found"
         code: 404
         status: 404
+      resource_not_found:
+        <<: *defaults
+        title: Resource not found
+        detail: The requested resource could not be found
+        code: 404
+        status: 404
       routing_error:
         <<: *defaults
         title: Not found
         detail: "There are no routes matching your request: %{path}"
         code: 411
         status: 404
+      unprocessable_entity:
+        <<: *defaults
+        title: Unprocessable Entity
+        detail: The request was well-formed but was unable to be followed due to semantic or validation errors
+        code: 422
+        status: 422
       internal_server_error:
         <<: *defaults
         title: Internal server error
         code: 500
         status: 500
+      bad_gateway:
+        <<: *defaults
+        title: Bad Gateway
+        code: 502
+        status: 502
       service_outage:
         <<: *defaults
         title: Service unavailable
@@ -117,6 +134,12 @@ en:
         detail: "Failed to create or upgrade health tools account access"
         code: "MHVAC1"
         status: 403
+      id_card_attribute_error:
+        <<: *defaults
+        title: Request failed
+        detail: "Could not complete ID card attribute request"
+        code: "VIC001"
+        status: 500
 
 # EXTERNAL EXCEPTIONS
     # This is a Generic Error corresponding to backend services
@@ -225,20 +248,38 @@ en:
         code: 'APPEALSSTATUS404'
         detail: 'Appeals data for a veteran with that SSN was not found'
         status: 404
+      GI404:
+        <<: *external_defaults
+        title: 'Institution not found'
+        code: 'GI404'
+        detail: 'Institution with the specified code was not found'
+        status: 404
+      EVSS400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'EVSS502'
+        detail: 'Received a bad request response from the upstream server'
+        status: 400
+      EVSS502:
+        <<: *external_defaults
+        title: Bad Gateway
+        code: 'EVSS502'
+        detail: 'Received an an invalid response from the upstream server'
+        status: 502
   evss:
     letters:
       unable_to_determine_eligibilty:
         <<: *defaults
-        title: Forbidden
-        detail: 'Can not determine eligibility for potential letters'
+        title: Proxy error
+        detail: 'Can not determine eligibility for potential letters due to upstream server error'
         code: 110
-        status: 403
+        status: 502
       not_eligible:
         <<: *defaults
-        title: Forbidden
-        detail: 'Not eligible to receive letter'
+        title: Proxy error
+        detail: 'Upstream server returned not eligible response'
         code: 111
-        status: 403
+        status: 502
       unprocessable_entity:
         <<: *defaults
         title: Unprocessable Entity

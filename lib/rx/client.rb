@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/base'
 require 'common/client/concerns/mhv_session_based_client'
 require 'rx/configuration'

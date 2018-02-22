@@ -1,0 +1,25 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "3ef9b86159537a2d9f2231f094acd66acf6543ebded519ff688b56e91cc02965",
+      "message": "Parameter value used in file name",
+      "file": "app/controllers/content/vic_local_uploads_controller.rb",
+      "line": 14,
+      "link": "http://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "send_file(Rails.root.join(\"public\", sanitize(params[:path])), :disposition => \"inline\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Content::VICLocalUploadsController",
+        "method": "find_file"
+      },
+      "user_input": "params[:path]",
+      "confidence": "Weak",
+      "note": ""
+    }
+  ],
+  "updated": "2018-02-08 09:52:28 -0800",
+  "brakeman_version": "3.4.1"
+}

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Common
   module Exceptions
     # Forbidden is excluded from Sentry logging. This exception is a duplicate

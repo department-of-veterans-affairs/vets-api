@@ -38,7 +38,7 @@
   "homePhone": "1231241234",
   "mobilePhone": "1235551234",
   "discloseFinancialInformation": true,
-  "children": [],
+  "dependents": [],
   "veteranGrossIncome": 123.33,
   "veteranNetIncome": 90.11,
   "veteranOtherIncome": 10.1,

@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'workflow/base'
 
 class Workflow::File < Workflow::Base
   def initialize(file, **options)

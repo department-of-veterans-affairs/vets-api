@@ -1,5 +1,6 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+
+FactoryBot.define do
   factory :cemetery, class: Preneeds::Cemetery do
     cemetery_type 'N'
     sequence(:name) { |n| "Cemetery #{n}" }

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'preneeds/service'
 
 class PreneedsController < ApplicationController

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'letters', type: :request do
@@ -6,7 +7,7 @@ RSpec.describe 'letters', type: :request do
 
   let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
   let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
-  let(:user) { build(:loa3_user) }
+  let(:user) { build(:user, :loa3) }
 
   before do
     Session.create(uuid: user.uuid, token: token)
@@ -28,10 +29,10 @@ RSpec.describe 'letters', type: :request do
     # TODO(AJD): this use case happens, 500 status but unauthorized message
     # check with evss that they shouldn't be returning 403 instead
     context 'with an 500 unauthorized response' do
-      it 'should return a not authorized response' do
+      it 'should return a bad gateway response' do
         VCR.use_cassette('evss/letters/unauthorized') do
           get '/v0/letters', nil, auth_header
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('letters_errors', strict: false)
         end
       end
@@ -93,10 +94,57 @@ RSpec.describe 'letters', type: :request do
     end
 
     context 'with a 404 evss response' do
-      it 'should download a PDF' do
+      let(:user) do
+        build(:user, :loa3, first_name: 'John', last_name: 'SMith', birth_date: '1942-02-12', ssn: '799111223')
+      end
+      before do
+        user.va_profile.edipi = '1005079999'
+        user.va_profile.participant_id = '600039999'
+      end
+      it 'should return a 404' do
         VCR.use_cassette('evss/letters/download_404') do
-          post '/v0/letters/comissary', nil, auth_header
-          expect(response).to have_http_status(:bad_request)
+          post '/v0/letters/commissary', nil, auth_header
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+
+    context 'when evss returns lettergenerator.notEligible' do
+      it 'should raise a 502' do
+        VCR.use_cassette('evss/letters/download_not_eligible') do
+          post '/v0/letters/civil_service', nil, auth_header
+          expect(response).to have_http_status(:bad_gateway)
+        end
+      end
+    end
+
+    context 'when evss returns Unexpected Error' do
+      let(:user) do
+        build(:user, :loa3, first_name: 'Greg', last_name: 'Anderson', birth_date: '1809-02-12', ssn: '796111863')
+      end
+      let(:options) do
+        {
+          'militaryService' => true,
+          'serviceConnectedDisabilities' => false,
+          'serviceConnectedEvaluation' => true,
+          'nonServiceConnectedPension' => false,
+          'monthlyAward' => true,
+          'unemployable' => false,
+          'specialMonthlyCompensation' => false,
+          'adaptedHousing' => false,
+          'chapter35Eligibility' => false,
+          'deathResultOfDisability' => false,
+          'survivorsAward' => false
+        }
+      end
+      before do
+        user.va_profile.edipi = '1005079124'
+        user.va_profile.participant_id = '600036159'
+      end
+      it 'should return a 502' do
+        VCR.use_cassette('evss/letters/download_unexpected') do
+          post '/v0/letters/benefit_summary', options, auth_header
+          expect(response).to have_http_status(:bad_gateway)
         end
       end
     end
@@ -172,8 +220,28 @@ RSpec.describe 'letters', type: :request do
       it 'should return a not found response' do
         VCR.use_cassette('evss/letters/letters_not_eligible_error') do
           get '/v0/letters', nil, auth_header
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('letters_errors')
+          expect(JSON.parse(response.body)).to have_deep_attributes(
+            'errors' => [
+              {
+                'title' => 'Proxy error',
+                'detail' => 'Upstream server returned not eligible response',
+                'code' => '111',
+                'source' => 'EVSS::Letters::Service',
+                'status' => '502',
+                'meta' => {
+                  'messages' => [
+                    {
+                      'key' => 'lettergenerator.notEligible',
+                      'severity' => 'FATAL',
+                      'text' => 'Veteran is not eligible to receive the letter'
+                    }
+                  ]
+                }
+              }
+            ]
+          )
         end
       end
     end
@@ -182,8 +250,28 @@ RSpec.describe 'letters', type: :request do
       it 'should return a not found response' do
         VCR.use_cassette('evss/letters/letters_determine_eligibility_error') do
           get '/v0/letters', nil, auth_header
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('letters_errors')
+          expect(JSON.parse(response.body)).to have_deep_attributes(
+            'errors' => [
+              {
+                'title' => 'Proxy error',
+                'detail' => 'Can not determine eligibility for potential letters due to upstream server error',
+                'code' => '110',
+                'source' => 'EVSS::Letters::Service',
+                'status' => '502',
+                'meta' => {
+                  'messages' => [
+                    {
+                      'key' => 'letterGeneration.letterEligibilityError',
+                      'severity' => 'FATAL',
+                      'text' => 'Unable to determine eligibility on potential letters'
+                    }
+                  ]
+                }
+              }
+            ]
+          )
         end
       end
     end
@@ -197,7 +285,7 @@ RSpec.describe 'letters', type: :request do
     it 'should return a not found response' do
       get '/v0/letters', nil, auth_header
       expect(response).to have_http_status(:gateway_timeout)
-      expect(JSON.load(response.body)).to have_deep_attributes(
+      expect(JSON.parse(response.body)).to have_deep_attributes(
         'errors' => [
           {
             'title' => 'Gateway timeout',

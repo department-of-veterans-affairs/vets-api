@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module EducationForm::Forms
   class VA1990 < Base
     ### ERB HELPERS
@@ -19,6 +20,14 @@ module EducationForm::Forms
 
     def non_va_assistance
       @applicant.currentlyActiveDuty&.nonVaAssistance
+    end
+
+    def school
+      @applicant.educationProgram
+    end
+
+    def education_type
+      @applicant.educationProgram&.educationType
     end
 
     # Some descriptive text that's included near the top of the 22-1990 form. Because they can make

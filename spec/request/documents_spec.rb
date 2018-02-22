@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'evss/document_upload'
 
@@ -12,10 +13,10 @@ RSpec.describe 'Documents management', type: :request do
   let(:tracked_item_id) { 33 }
   let(:document_type) { 'L023' }
   let!(:claim) do
-    FactoryGirl.create(:evss_claim, id: 1, evss_id: 189_625,
-                                    user_uuid: user.uuid, data: {})
+    FactoryBot.create(:evss_claim, id: 1, evss_id: 189_625,
+                                   user_uuid: user.uuid, data: {})
   end
-  let(:user) { FactoryGirl.create(:loa3_user) }
+  let(:user) { FactoryBot.create(:user, :loa3) }
   let(:session) { Session.create(uuid: user.uuid) }
 
   it 'should upload a file' do

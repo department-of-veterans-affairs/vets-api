@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'emis/veteran_status_service'
 require 'emis/responses/get_veteran_status_response'
@@ -8,26 +9,37 @@ require 'emis/service'
 require 'emis/veteran_status_configuration'
 
 describe EMIS::VeteranStatusService do
-  let(:edipi) { '1607472595' }
+  let(:edipi_veteran) { '1068619536' }
+  let(:edipi_non_veteran) { '1140840595' }
   let(:bad_edipi) { '595' }
   let(:missing_edipi) { '1111111111' }
+  let(:no_status) { '1005079361' }
 
   describe 'get_veteran_status' do
     context 'with a valid request' do
       it 'calls the get_veteran_status endpoint with a proper emis message' do
         VCR.use_cassette('emis/get_veteran_status/valid') do
-          response = subject.get_veteran_status(edipi: edipi)
+          response = subject.get_veteran_status(edipi: edipi_veteran)
           expect(response).to be_ok
         end
       end
 
       it 'gives me the right values back' do
         VCR.use_cassette('emis/get_veteran_status/valid') do
-          response = subject.get_veteran_status(edipi: edipi)
-          expect(response.items.first.title38_status_code).to eq('V4')
+          response = subject.get_veteran_status(edipi: edipi_veteran)
+          expect(response.items.first.title38_status_code).to eq('V1')
           expect(response.items.first.post911_deployment_indicator).to eq('Y')
           expect(response.items.first.post911_combat_indicator).to eq('N')
-          expect(response.items.first.pre911_deployment_indicator).to eq('Y')
+          expect(response.items.first.pre911_deployment_indicator).to eq('N')
+        end
+      end
+    end
+
+    context 'with a valid request for a non-veteran' do
+      it 'gives me the right values back' do
+        VCR.use_cassette('emis/get_veteran_status/valid_non_veteran') do
+          response = subject.get_veteran_status(edipi: edipi_non_veteran)
+          expect(response.items.first.title38_status_code).to eq('V4')
         end
       end
     end
@@ -47,6 +59,15 @@ describe EMIS::VeteranStatusService do
           response = subject.get_veteran_status(edipi: missing_edipi)
           expect(response).not_to be_ok
           expect(response).to be_empty
+        end
+      end
+    end
+
+    context 'with an empty response element' do
+      it 'returns nil' do
+        VCR.use_cassette('emis/get_veteran_status/empty_title38') do
+          response = subject.get_veteran_status(edipi: no_status)
+          expect(response.items.first).to be_nil
         end
       end
     end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'Fetching Post 911 GI Bill Status', type: :request do
@@ -6,7 +7,7 @@ RSpec.describe 'Fetching Post 911 GI Bill Status', type: :request do
 
   let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
   let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
-  let(:user) { build(:loa3_user) }
+  let(:user) { build(:user, :loa3) }
 
   before do
     Session.create(uuid: user.uuid, token: token)
@@ -53,6 +54,12 @@ RSpec.describe 'Fetching Post 911 GI Bill Status', type: :request do
         get v0_post911_gi_bill_status_url, nil, auth_header
         expect(response).to have_http_status(:internal_server_error)
       end
+    end
+  end
+
+  context 'with deprecated GibsNotFoundUser class' do
+    it 'loads the class for coverage' do
+      GibsNotFoundUser
     end
   end
 end

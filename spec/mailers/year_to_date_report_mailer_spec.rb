@@ -1,7 +1,8 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe YearToDateReportMailer, type: [:mailer, :aws_helpers] do
+RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
   describe '#year_to_date_report_email' do
     let(:filename) { 'foo' }
     let(:mail) { described_class.build(filename).deliver_now }
@@ -26,7 +27,7 @@ RSpec.describe YearToDateReportMailer, type: [:mailer, :aws_helpers] do
       it 'should email the va stakeholders' do
         subject
         expect(mail.to).to eq(
-          %w(
+          %w[
             Christopher.Marino2@va.gov
             224B.VBAVACO@va.gov
             rodney.alexander@va.gov
@@ -41,9 +42,8 @@ RSpec.describe YearToDateReportMailer, type: [:mailer, :aws_helpers] do
             Anne.kainic@va.gov
             ian@adhocteam.us
             dan.hoicowitz.va@gmail.com
-            mark@adhocteam.us
-            joshua.quagliaroli@va.gov
-          )
+            ryan.baker@adhocteam.us
+          ]
         )
       end
     end

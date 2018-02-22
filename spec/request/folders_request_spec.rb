@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'sm/client'
 require 'support/sm_client_helpers'
@@ -7,8 +8,8 @@ RSpec.describe 'Folders Integration', type: :request do
   include SM::ClientHelpers
   include SchemaMatchers
 
-  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true) }
-  let(:current_user) { build(:mhv_user) }
+  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, accessible?: true) }
+  let(:current_user) { build(:user, :mhv) }
   let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
 

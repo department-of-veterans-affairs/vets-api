@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe V0::UsersController, type: :controller do
@@ -12,12 +13,12 @@ RSpec.describe V0::UsersController, type: :controller do
   context 'when logged in as an LOA1 user' do
     let(:token) { 'abracadabra-open-sesame' }
     let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
-    let(:loa1_user) { build :loa1_user }
+    let(:loa1_user) { build(:user, :loa1) }
 
     before(:each) do
       Session.create(uuid: loa1_user.uuid, token: token)
       User.create(loa1_user)
-      FactoryGirl.create(:in_progress_form, user_uuid: loa1_user.uuid, form_id: 'edu-1990')
+      FactoryBot.create(:in_progress_form, user_uuid: loa1_user.uuid, form_id: 'edu-1990')
     end
 
     it 'returns a JSON user profile' do

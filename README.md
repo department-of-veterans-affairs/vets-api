@@ -55,6 +55,9 @@ The following features require additional configuration, click for details.
 - [My HealtheVet (MHV)](/docs/setup/mhv.md)
 - [Education Benefits](/docs/setup/edu_benefits.md)
 - [Master Veteran Index (MVI)](/docs/setup/mvi.md)
+- [Sidekiq Enterprise](/docs/setup/sidekiq_enterprise.md)
+
+To mock one or more of the above services see [Betamocks](/docs/setup/betamocks.md)
 
 Vets API will still run in a limited capacity without configuring any of these
 features, and will run the unit tests successfully.
@@ -79,6 +82,24 @@ they would be when running rails directly.
 - `make guard` - Run the guard test server that reruns your tests after files are saved. Useful for TDD!
 - `make security` - Run the suite of security scanners on the codebase.
 - `make ci` - Run all build steps performed in CI.
+
+### Troubleshooting
+
+#### `make up` fails with a message about missing gems
+
+```
+Could not find %SOME_GEM_v0.0.1% in any of the sources
+Run `bundle install` to install missing gems.
+```
+
+There is no need to run `bundle install` on your system to resolve this.
+A rebuild of the `vets_api` image will update the gems. The `vets_api` docker image
+installs gems when the image is built, rather than mounting them into a container when
+it is run. This means that any time gems are updated in the Gemfile or Gemfile.lock,
+it may be necessary to rebuild the `vets_api` image using the
+following command:
+
+- `make rebuild` - Rebuild the `vets_api` image.
 
 ## Deployment Instructions
 

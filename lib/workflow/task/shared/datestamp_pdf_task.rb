@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-require 'workflow/task/shrine_file/base'
 
 require 'fileutils'
 
@@ -21,7 +20,7 @@ module Workflow::Task::Shared
   class DatestampPdfTask < Workflow::Task::ShrineFile::Base
     def run(settings)
       FileUtils.mkdir_p(Rails.root.join('tmp', 'pdfs'))
-      in_path = @file.download.path
+      in_path = get_file
       stamp_path = Rails.root.join('tmp', 'pdfs', "#{SecureRandom.uuid}.pdf")
       generate_stamp(stamp_path, settings[:text], settings[:x], settings[:y], settings[:text_only])
       out_path = stamp(in_path, stamp_path)
@@ -35,6 +34,10 @@ module Workflow::Task::Shared
     end
 
     private
+
+    def get_file
+      Common::FileHelpers.generate_temp_file(@file.read)
+    end
 
     def generate_stamp(stamp_path, text, x, y, text_only)
       unless text_only
@@ -54,10 +57,8 @@ module Workflow::Task::Shared
       out_dir = Rails.root.join('tmp', 'pdfs', SecureRandom.uuid)
       FileUtils.mkdir_p(out_dir)
       out_path = File.join(out_dir, @file.original_filename)
-      stamp = CombinePDF.load(stamp_path).pages[0]
-      original = CombinePDF.load(file_path)
-      original.pages.each { |page| page << stamp }
-      original.save out_path
+      PdfFill::Filler::PDF_FORMS.stamp(file_path, stamp_path, out_path)
+      File.delete(file_path)
       out_path
     rescue => e
       File.delete(out_path) if out_path && File.exist?(out_path)

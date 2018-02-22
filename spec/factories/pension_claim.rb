@@ -1,7 +1,7 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+
+FactoryBot.define do
   factory :pension_claim, class: SavedClaim::Pension do
-    user_submitted_at { DateTime.current }
     form_id '21P-527EZ'
     form do
       {
@@ -11,6 +11,7 @@ FactoryGirl.define do
           last: 'User'
         },
         gender: 'F',
+        email: 'foo@foo.com',
         veteranDateOfBirth: '1989-12-13',
         veteranSocialSecurityNumber: '111223333',
         veteranAddress: {

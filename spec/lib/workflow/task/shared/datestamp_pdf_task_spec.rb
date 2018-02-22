@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'workflow/task/shared/datestamp_pdf_task'
 
@@ -11,7 +12,8 @@ RSpec.describe Workflow::Task::Shared::DatestampPdfTask do
 
     let(:attacher) do
       a = Shrine::Attacher.new(InternalAttachment.new, :file)
-      a.assign(File.open(@file_path))
+      file = File.open(@file_path)
+      a.assign(file)
       a
     end
 
@@ -21,14 +23,14 @@ RSpec.describe Workflow::Task::Shared::DatestampPdfTask do
 
     context 'with a succesful pdf stamp' do
       def assert_pdf_stamp(stamp)
-        text_analysis = PDF::Inspector::Text.analyze(instance.file.read)
-        expect(text_analysis.strings.first).to eq(stamp)
+        pdf_reader = PDF::Reader.new(instance.file.download.path)
+        expect(pdf_reader.pages[0].text).to eq(stamp)
       end
 
       it 'should add text with a datestamp at the given location' do
         Timecop.travel(Time.zone.local(1999, 12, 31, 23, 59, 59)) do
           instance.run(text: 'Received via vets.gov at', x: 10, y: 10)
-          assert_pdf_stamp('Received via vets.gov at 1999-12-31 23:59:59+00:00. Confirmation=VETS-XX-1234')
+          assert_pdf_stamp('Received via vets.gov at 1999-12-31. Confirmation=VETS-XX-1234')
         end
       end
 
@@ -61,7 +63,7 @@ RSpec.describe Workflow::Task::Shared::DatestampPdfTask do
 
       context 'when an error occurs in #stamp' do
         it 'should log and reraise the error and clean up after itself' do
-          allow(CombinePDF).to receive(:load).and_raise(error_message)
+          allow(PdfFill::Filler::PDF_FORMS).to receive(:stamp).and_raise(error_message)
           expect(Rails.logger).to receive(:error).once.with("Failed to datestamp PDF file: #{error_message}")
           expect(File).to receive(:delete).once.and_call_original
           expect do

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require 'mvi/service_factory'
+
 require 'mvi/responses/find_profile_response'
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
@@ -14,9 +14,6 @@ class Mvi < Common::RedisStore
 
   # @return [User] the user to query MVI for.
   attr_accessor :user
-
-  # @return [MVI::Responses::FindProfileResponse] the response returned from MVI
-  attr_accessor :mvi_response
 
   # Creates a new Mvi instance for a user.
   #
@@ -71,6 +68,14 @@ class Mvi < Common::RedisStore
     profile&.participant_id
   end
 
+  # A BIRLS (Beneficiary Identification and Records Locator System) MVI correlation id.
+  #
+  # @return [String] the birls id
+  def birls_id
+    return nil unless @user.loa3?
+    profile&.birls_id
+  end
+
   # The profile returned from the MVI service. Either returned from cached response in Redis or the MVI service.
   #
   # @return [MVI::Models::MviProfile] patient 'golden record' data from MVI
@@ -79,6 +84,7 @@ class Mvi < Common::RedisStore
     mvi_response&.profile
   end
 
+  # @return [MVI::Responses::FindProfileResponse] the response returned from MVI
   def mvi_response
     @mvi_response ||= response_from_redis_or_service
   end
@@ -92,6 +98,6 @@ class Mvi < Common::RedisStore
   end
 
   def mvi_service
-    @service ||= MVI::ServiceFactory.get_service(mock_service: Settings.mvi.mock)
+    @service ||= MVI::Service.new
   end
 end

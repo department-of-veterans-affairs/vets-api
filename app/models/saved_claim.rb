@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'attr_encrypted'
 
 # Base class to hold common functionality for Claim submissions.
@@ -18,6 +19,8 @@ require 'attr_encrypted'
 #    files to the submitted claim, and to begin processing them.
 
 class SavedClaim < ActiveRecord::Base
+  include SetGuid
+
   validates(:form, presence: true)
   validate(:form_matches_schema)
   validate(:form_must_be_string)
@@ -28,8 +31,12 @@ class SavedClaim < ActiveRecord::Base
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.
   after_initialize do
-    self.guid ||= SecureRandom.uuid
     self.form_id = self.class::FORM.upcase
+  end
+
+  def self.add_form_and_validation(form_id)
+    const_set('FORM', form_id)
+    validates(:form_id, inclusion: [form_id])
   end
 
   # Run after a claim is saved, this processes any files and workflows that are present

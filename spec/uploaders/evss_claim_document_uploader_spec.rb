@@ -1,8 +1,24 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe EVSSClaimDocumentUploader do
-  subject { described_class.new('1234', '11') }
+  let(:document_uploader) { described_class.new('1234', '11') }
+  let(:uploader_with_tiff) do
+    File.open('spec/fixtures/evss_claim/image.TIF') do |f|
+      document_uploader.store!(f)
+    end
+
+    document_uploader
+  end
+  let(:uploader_with_jpg) do
+    File.open('spec/fixtures/evss_claim/converted_image.TIF.jpg') do |f|
+      document_uploader.store!(f)
+    end
+
+    document_uploader
+  end
+  subject { document_uploader }
 
   describe 'initialize' do
     context 'when uploads are disabled' do
@@ -30,6 +46,58 @@ RSpec.describe EVSSClaimDocumentUploader do
           expect(subject.aws_bucket).to eq('evss_s3_bucket')
         end
       end
+    end
+  end
+
+  describe '#read_for_upload' do
+    let(:converted) { double }
+
+    before do
+      allow(subject).to receive(:converted).and_return(converted)
+    end
+
+    context 'with a converted image' do
+      before do
+        expect(converted).to receive(:present?).and_return(true)
+        expect(converted).to receive(:file).and_return(OpenStruct.new(exists?: true))
+      end
+
+      it 'should read from converted' do
+        expect(converted).to receive(:read)
+        subject.read_for_upload
+      end
+    end
+
+    context 'with no converted image' do
+      before do
+        expect(converted).to receive(:present?).and_return(true)
+        expect(converted).to receive(:file).and_return(OpenStruct.new(exists?: false))
+      end
+
+      it 'should read from the base file' do
+        expect(subject).to receive(:read)
+        subject.read_for_upload
+      end
+    end
+  end
+
+  describe '#final_filename' do
+    it 'should return the right filename' do
+      [uploader_with_tiff, uploader_with_jpg].each do |uploader|
+        expect(uploader.final_filename).to eq('converted_image.TIF.jpg')
+      end
+    end
+  end
+
+  describe 'converted version' do
+    it 'should convert tiff files to jpg' do
+      expect(MimeMagic.by_magic(uploader_with_tiff.converted.file.read).type).to eq(
+        'image/jpeg'
+      )
+    end
+
+    it 'shouldnt convert if the file isnt tiff' do
+      expect(uploader_with_jpg.converted_exists?).to eq(false)
     end
   end
 

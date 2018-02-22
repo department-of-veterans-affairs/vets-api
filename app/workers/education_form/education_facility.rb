@@ -1,28 +1,29 @@
 # frozen_string_literal: true
+
 module EducationForm
   class EducationFacility
     # sourced from http://www.vba.va.gov/pubs/forms/VBA-22-1990-ARE.pdf
 
     DEFAULT = :eastern
 
-    EASTERN = %w(
+    EASTERN = %w[
       CT DE DC ME MD MA NC NH NJ NY PA RI VT VA
       VI AA
-    ).freeze
+    ].freeze
 
     # We need to keep SOUTHERN because existing records will have
     # this as a region, and we need to conitnue to show the counts
     # in the YTD reports.
-    SOUTHERN = %w().freeze
+    SOUTHERN = %w[].freeze
 
-    CENTRAL = %w(
+    CENTRAL = %w[
       CO IA IL IN KS KY MI MN MO MT NE ND OH SD TN WV WI WY
-    ).freeze
+    ].freeze
 
-    WESTERN = %w(
+    WESTERN = %w[
       AK AL AR AZ CA FL GA HI ID LA MS NM NV OK OR SC TX UT WA
       GU PR AP
-    ).freeze
+    ].freeze
 
     ADDRESSES = {
       eastern: [
@@ -83,6 +84,10 @@ module EducationForm
       end
     end
 
+    def self.education_program(record)
+      record.educationProgram || record.school
+    end
+
     # Claims are sent to different RPOs based first on the location of the school
     # that the claim is relating to (either `school` or `newSchool` in our submissions)
     # or to the applicant's address (either as a relative or the veteran themselves)
@@ -90,7 +95,7 @@ module EducationForm
     def self.routing_address(record, form_type:)
       case form_type.upcase
       when '1990'
-        record.school&.address || record.veteranAddress
+        education_program(record)&.address || record.veteranAddress
       when '1990N'
         record.educationProgram&.address || record.veteranAddress
       when '1990E', '5490', '5495'

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class InProgressForm < ActiveRecord::Base
   class CleanUUID < ActiveRecord::Type::String
     def type_cast_for_database(value)
@@ -38,12 +39,12 @@ class InProgressForm < ActiveRecord::Base
 
   private
 
-  # Some IDs we get from ID.me are 22char hex strings
+  # Some IDs we get from ID.me are 20, 21, 22 or 23 char hex strings
   # > we started off with just 22 random hex chars (from openssl random bytes) years
   # > ago, and switched to UUID v4 (minus dashes) later on
   # https://dsva.slack.com/archives/C1A7KLZ9B/p1501856503336861
   def id_me_user_uuid
-    if user_uuid && !user_uuid.length.in?([22, 32])
+    if user_uuid && !user_uuid.length.in?([20, 21, 22, 23, 32])
       errors[:user_uuid] << "(#{user_uuid}) is not a proper length"
     end
   end

@@ -1,17 +1,11 @@
 # frozen_string_literal: true
 
-require 'workflow/task/shared/convert_to_pdf'
-require 'workflow/task/shared/datestamp_pdf_task'
-require 'workflow/task/shared/move_to_lts'
-require 'workflow/task/pension_burial/upload'
-
 # Convert uploaded files for Pension/Burial to a format, stamping them twice
 # before transferring them over to the SFTP server.
 
 class ClaimDocumentation::PensionBurial::Workflow < Workflow::File
   run Workflow::Task::Shared::ConvertToPdf
-  # The timestamp in this task is UTC, but the business requirement is for CST.
-  # Datetime will be added to the append text.
+  # Date will be added to the append text.
   run Workflow::Task::Shared::DatestampPdfTask, text: 'VETS.GOV', x: 5, y: 5
   run(
     Workflow::Task::Shared::DatestampPdfTask,

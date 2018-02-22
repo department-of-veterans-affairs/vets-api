@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Preneeds
   module Middleware
     module Response
@@ -30,7 +31,7 @@ module Preneeds
         end
 
         def status_200_error?(env)
-          env.status == 200 && code.present? && code != 200
+          env.status == 200 && code&.nonzero?
         end
 
         def fault_string(env)

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/configuration/soap'
 
 module EMIS
@@ -27,6 +28,7 @@ module EMIS
         conn.request :soap_headers
         conn.response :soap_parser
         conn.use :breakers
+        conn.response :betamocks if Settings.emis.mock
         conn.adapter Faraday.default_adapter
       end
     end

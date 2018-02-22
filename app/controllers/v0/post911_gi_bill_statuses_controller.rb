@@ -1,9 +1,12 @@
 # frozen_string_literal: true
+
 require 'evss/gi_bill_status/gi_bill_status_response'
 
 module V0
   class Post911GIBillStatusesController < ApplicationController
     include SentryLogging
+
+    before_action { authorize :evss, :access? }
 
     STATSD_GI_BILL_TOTAL_KEY = 'api.evss.gi_bill_status.total'
     STATSD_GI_BILL_FAIL_KEY = 'api.evss.gi_bill_status.fail'
@@ -31,11 +34,7 @@ module V0
         # 503
         raise EVSS::GiBillStatus::ServiceException
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:vet_not_found]
-        # 404
         raise Common::Exceptions::RecordNotFound, @current_user.email
-      when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:timeout]
-        # 504
-        raise Common::Exceptions::GatewayTimeout
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:invalid_auth]
         # 403
         raise Common::Exceptions::UnexpectedForbidden, detail: 'Missing correlation id'
@@ -47,9 +46,7 @@ module V0
     end
 
     def service
-      EVSS::GiBillStatus::ServiceFactory.get_service(
-        user: @current_user, mock_service: Settings.evss.mock_gi_bill_status
-      )
+      EVSS::GiBillStatus::Service.new(@current_user)
     end
   end
 end

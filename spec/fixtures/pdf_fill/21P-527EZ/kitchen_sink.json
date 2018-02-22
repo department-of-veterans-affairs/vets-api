@@ -74,24 +74,6 @@
         "first": "person1",
         "last": "Olson"
       },
-      "monthlyIncome": {
-        "socialSecurity": 0,
-        "civilService": 0,
-        "railroad": 0,
-        "blackLung": 0,
-        "serviceRetirement": 0,
-        "ssi": 0,
-        "additionalSources": [
-          {
-            "name": "name2",
-            "amount": 9
-          },
-          {
-            "name": "name3",
-            "amount": 10
-          }
-        ]
-      },
       "otherExpenses": [
         {
           "amount": 4,
@@ -100,19 +82,6 @@
           "date": "2012-04-04"
         }
       ],
-      "netWorth": {
-        "bank": 0,
-        "interestBank": 0,
-        "ira": 0,
-        "stocks": 0,
-        "realProperty": 0,
-        "additionalSources": [
-          {
-            "name": "name1",
-            "amount": 8
-          }
-        ]
-      },
       "monthlyPayment": 1
     },
     {
@@ -173,16 +142,6 @@
           "date": "2012-04-03"
         }
       ],
-      "expectedIncome": {
-        "salary": 0,
-        "interest": 0,
-        "additionalSources": [
-          {
-            "name": "name3",
-            "amount": 6
-          }
-        ]
-      },
       "monthlyPayment": 3
     }
   ],
@@ -240,14 +199,6 @@
       "reasonForSeparation": "divorce2"
     }
   ],
-  "monthlyIncome": {
-    "socialSecurity": 1,
-    "civilService": 3,
-    "railroad": 0,
-    "serviceRetirement": 0,
-    "blackLung": 5,
-    "ssi": 7
-  },
   "spouseMonthlyIncome": {
     "socialSecurity": 2,
     "civilService": 0,
@@ -262,21 +213,13 @@
   },
   "netWorth": {
     "bank": 1,
-    "interestBank": 2,
+    "interestBank": 2.2,
     "stocks": 0,
     "realProperty": 0,
     "ira": 3
   },
-  "spouseNetWorth": {
-    "bank": 0,
-    "interestBank": 0,
-    "ira": 0,
-    "stocks": 4,
-    "realProperty": 5
-  },
   "expectedIncome": {
-    "salary": 1,
-    "interest": 0,
+    "salary": 0,
     "additionalSources": [
       {
         "name": "name1",
@@ -284,16 +227,6 @@
       }
     ],
     "interest": 3
-  },
-  "spouseExpectedIncome": {
-    "salary": 2,
-    "interest": 0,
-    "additionalSources": [
-      {
-        "name": "name2",
-        "amount": 5
-      }
-    ]
   },
   "veteranDateOfBirth": "1985-03-07",
   "veteranSocialSecurityNumber": "111223333",

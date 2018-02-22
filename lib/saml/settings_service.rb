@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'memoist'
 require 'sentry_logging'
 require 'saml/health_status'
@@ -18,7 +19,23 @@ module SAML
       OPEN_TIMEOUT = 2
       TIMEOUT = 15
 
-      def saml_settings
+      def saml_settings(options = {})
+        if options.any?
+          # Make sure we're not changing the settings globally
+          settings = base_settings.dup
+
+          options.each do |option, value|
+            next if value.nil?
+            settings.send("#{option}=", value)
+          end
+
+          settings
+        else
+          base_settings
+        end
+      end
+
+      def base_settings
         if HealthStatus.healthy?
           merged_saml_settings
         else
@@ -28,10 +45,14 @@ module SAML
       end
 
       def merged_saml_settings
-        OneLogin::RubySaml::IdpMetadataParser.new.parse(metadata, settings: settings)
-      rescue => e
-        log_message_to_sentry("SAML::SettingService failed to parse SAML metadata: #{e.message}", :error)
-        raise e
+        metadata = get_metadata
+        return nil if metadata.nil?
+        begin
+          OneLogin::RubySaml::IdpMetadataParser.new.parse(metadata, settings: settings)
+        rescue => e
+          log_message_to_sentry("SAML::SettingService failed to parse SAML metadata: #{e.message}", :error)
+          raise e
+        end
       end
       memoize :merged_saml_settings
 
@@ -51,7 +72,7 @@ module SAML
       end
       memoize :connection
 
-      def metadata
+      def get_metadata
         @fetch_attempted = true
         attempt ||= 0
         response = connection.get
@@ -76,6 +97,7 @@ module SAML
         settings.private_key = Settings.saml.key
         settings.issuer = Settings.saml.issuer
         settings.assertion_consumer_service_url = Settings.saml.callback_url
+        settings.certificate_new = Settings.saml.certificate_new
 
         settings.security[:authn_requests_signed] = true
         settings.security[:logout_requests_signed] = true

@@ -1,12 +1,11 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 describe EVSS::GiBillStatus::Service do
   describe '.find_by_user' do
-    let(:user) { build(:loa3_user) }
-    let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
-
-    subject { described_class.new(auth_headers) }
+    let(:user) { build(:user, :loa3) }
+    subject { described_class.new(user) }
 
     describe '#get_gi_bill_status' do
       context 'with a valid evss response' do
@@ -63,18 +62,26 @@ describe EVSS::GiBillStatus::Service do
         end
       end
 
+      # The EVSS GI Bill service is not capable of returning a status code of 403...
+      # but none of the other responses that inherit from EVSS::Response cover
+      # this scenario.
+      context 'when service returns a 403' do
+        it 'contains 403 in meta' do
+          VCR.use_cassette('evss/gi_bill_status/gi_bill_status_403') do
+            response = subject.get_gi_bill_status
+            expect(response).to_not be_ok
+            expect(response.response_status).to eq(EVSS::Response::RESPONSE_STATUS[:not_authorized])
+          end
+        end
+      end
+
       context 'with an http timeout' do
         before do
           allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
         end
 
-        it 'should log an error' do
-          expect(Rails.logger).to receive(:error).with(/Timeout/)
-          subject.get_gi_bill_status
-        end
-
-        it 'should not raise an exception' do
-          expect { subject.get_gi_bill_status }.to_not raise_error
+        it 'should raise an exception' do
+          expect { subject.get_gi_bill_status }.to raise_error(Common::Exceptions::GatewayTimeout)
         end
       end
     end

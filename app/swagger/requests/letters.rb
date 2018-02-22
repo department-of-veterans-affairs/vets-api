@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Requests
     class Letters
@@ -10,9 +11,9 @@ module Swagger
 
           key :description, 'Get a list of available letters for a veteran'
           key :operationId, 'getLetters'
-          key :tags, %w(
+          key :tags, %w[
             evss
-          )
+          ]
 
           parameter :authorization
 
@@ -31,9 +32,9 @@ module Swagger
 
           key :description, 'Returns service history, and a list of benefit options for use with POST /v0/letters'
           key :operationId, 'getLettersBeneficiary'
-          key :tags, %w(
+          key :tags, %w[
             evss
-          )
+          ]
 
           parameter :authorization
 
@@ -52,9 +53,9 @@ module Swagger
 
           key :description, 'Returns a letter as a PDF blob'
           key :operationId, 'postLetter'
-          key :tags, %w(
+          key :tags, %w[
             evss
-          )
+          ]
 
           parameter :authorization
           parameter do
@@ -71,11 +72,11 @@ module Swagger
               property :monthlyAwardAmount, type: :number, example: true
               property :serviceConnectedPercentage, type: :integer, example: true
               property :awardEffectiveDate, type: :string, example: true
-              property :hasAdaptedHousing, type: [:boolean, :null], example: true
-              property :hasChapter35Eligibility, type: [:boolean, :null], example: true
-              property :hasDeathResultOfDisability, type: [:boolean, :null], example: true
-              property :hasIndividualUnemployabilityGranted, type: [:boolean, :null], example: true
-              property :hasSpecialMonthlyCompensation, type: [:boolean, :null], example: true
+              property :hasAdaptedHousing, type: %i[boolean null], example: true
+              property :hasChapter35Eligibility, type: %i[boolean null], example: true
+              property :hasDeathResultOfDisability, type: %i[boolean null], example: true
+              property :hasIndividualUnemployabilityGranted, type: %i[boolean null], example: true
+              property :hasSpecialMonthlyCompensation, type: %i[boolean null], example: true
             end
           end
 

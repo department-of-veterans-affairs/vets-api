@@ -1,5 +1,7 @@
 # frozen_string_literal: true
+
 require 'common/client/configuration/rest'
+require 'common/client/middleware/response/gids_errors'
 require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/raise_error'
 require 'common/client/middleware/response/snakecase'
@@ -25,6 +27,7 @@ module GI
         # conn.response :logger, ::Logger.new(STDOUT), bodies: true
         conn.response :snakecase
         conn.response :raise_error, error_prefix: service_name
+        conn.response :gids_errors
         conn.response :json_parser
 
         conn.adapter Faraday.default_adapter
