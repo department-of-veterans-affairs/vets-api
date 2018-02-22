@@ -41,9 +41,7 @@ module VIC
     def delete_uploads(parsed_form)
       attachment_records = @vic_service.get_attachment_records(parsed_form)
 
-      attachment_records[:supporting].each do |form_attachment|
-        form_attachment.destroy
-      end
+      attachment_records[:supporting].each(&:destroy)
 
       attachment_records[:profile_photo].destroy
     end
