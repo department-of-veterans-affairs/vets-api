@@ -35,9 +35,6 @@ development: &defaults
   pciu_address_dependencies:
     namespace: pciu-address-dependencies
     each_ttl: 604800
-  common_collection:
-    namespace: common-collection
-    each_ttl: 3600 # This is only default, can be overridden
 
 test:
   <<: *defaults
