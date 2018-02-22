@@ -167,8 +167,6 @@ module VIC
     end
 
     def submit(form, user)
-      wait_for_processed(form)
-
       converted_form = convert_form(form)
       add_user_data!(converted_form, user) if user.present?
 
