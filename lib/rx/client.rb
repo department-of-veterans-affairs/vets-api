@@ -14,7 +14,7 @@ module Rx
     configuration Rx::Configuration
     client_session Rx::ClientSession
 
-    CACHE_TTL = 3600 * 10 # 10 hour cache
+    CACHE_TTL = 3600 * 1 # 1 hour cache
 
     def get_active_rxs
       Common::Collection.fetch(::Prescription, cache_key: cache_key('getactiverx'), ttl: CACHE_TTL) do
