@@ -19,8 +19,8 @@ module Common
     alias to_h attributes
     alias to_hash attributes
 
-    CACHE_NAMESPACE = REDIS_CONFIG['common_collection']['namespace']
-    CACHE_DEFAULT_TTL = REDIS_CONFIG['common_collection']['each_ttl']
+    CACHE_NAMESPACE = ::REDIS_CONFIG['common_collection']['namespace']
+    CACHE_DEFAULT_TTL = ::REDIS_CONFIG['common_collection']['each_ttl']
 
     OPERATIONS_MAP = {
       'eq' => '==',
