@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 module Facilities
-  RSpec.fdescribe VHAFacility do
+  RSpec.describe VHAFacility do
     it 'should be a VHAFacility object' do
       expect(described_class.new).to be_a(VHAFacility)
     end

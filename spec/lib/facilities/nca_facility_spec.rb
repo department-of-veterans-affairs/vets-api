@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 module Facilities
-  RSpec.fdescribe NCAFacility do
+  RSpec.describe NCAFacility do
     it 'should be an NCAFacility object' do
       expect(described_class.new).to be_an(NCAFacility)
     end
