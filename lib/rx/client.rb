@@ -76,6 +76,7 @@ module Rx
 
     def cache_key(action)
       return nil unless config.caching_enabled?
+      return nil unless session.user_id.present?
       "#{session.user_id}:#{action}"
     end
 
