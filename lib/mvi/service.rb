@@ -90,19 +90,25 @@ module MVI
     end
 
     def message_icn(user, opt)
-      MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml(opt)
+      message_with_options(MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn), opt).to_xml
     end
 
     def message_user_attributes(user, opt)
       given_names = [user.first_name]
       given_names.push user.middle_name unless user.middle_name.nil?
-      MVI::Messages::FindProfileMessage.new(
-        given_names,
-        user.last_name,
-        user.birth_date,
-        user.ssn,
-        user.gender
-      ).to_xml(opt)
+      message_with_options(
+        MVI::Messages::FindProfileMessage.new(
+          given_names,
+          user.last_name,
+          user.birth_date,
+          user.ssn,
+          user.gender
+        ), opt).to_xml
+    end
+
+    def message_with_options(message, opt)
+      message.modify_code = "MVI.COMP#{opt[:historical_icns] ? '2' : '1'}"
+      message
     end
   end
 end
