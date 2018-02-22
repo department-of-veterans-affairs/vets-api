@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe VIC::SubmissionJob do
+  let(:uuid) { 'fab2eea7-982e-4171-a2cb-8e9455ab00ed' }
   let(:user) { create(:user, :loa3) }
-  let(:uuid) { 'e88d4877-a2f0-41e7-b31a-a930b040f6a9' }
 
   describe '#perform' do
     context 'when the service is up' do
