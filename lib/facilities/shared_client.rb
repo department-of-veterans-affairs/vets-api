@@ -4,7 +4,7 @@ require 'common/client/base'
 
 module Facilities
   # Core class responsible for api interface operations
-  class Client < Common::Client::Base
+  class SharedClient < Common::Client::Base
     configuration Facilities::Configuration
 
     def get_all_vha

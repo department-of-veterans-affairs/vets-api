@@ -66,22 +66,4 @@ RSpec.describe BaseFacility, type: :model do
       end
     end
   end
-
-  describe '#generate_fingerprint' do
-    it 'should generate identical fingerprint for identical string of attributes' do
-      VCR.use_cassette('facilities/va/ny_vetcenter') do
-        string_of_attributes = va_facility.attributes.to_json
-        expect(BaseFacility.generate_fingerprint(string_of_attributes))
-          .to eq(BaseFacility.generate_fingerprint(string_of_attributes))
-      end
-    end
-    it 'should generate unique fingerprint for unique string of attributes' do
-      VCR.use_cassette('facilities/va/ny_vetcenter') do
-        string_of_attributes = va_facility.attributes.to_json
-        changed_string_of_attributes = va_facility.attributes.merge(name: 'new name').to_json
-        expect(BaseFacility.generate_fingerprint(string_of_attributes))
-          .not_to eq(BaseFacility.generate_fingerprint(changed_string_of_attributes))
-      end
-    end
-  end
 end

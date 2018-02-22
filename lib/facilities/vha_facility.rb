@@ -7,7 +7,7 @@ module Facilities
 
     class << self
       def pull_source_data
-        Facilities::Client.new.get_all_vha.map(&method(:new))
+        Facilities::SharedClient.new.get_all_vha.map(&method(:new))
       end
     end
   end

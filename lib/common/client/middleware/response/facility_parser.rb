@@ -68,6 +68,7 @@ module Common
           ].freeze
 
           def services_from_gis(service_map, attrs)
+            return unless service_map
             service_map.each_with_object([]) do |(k, v), l|
               next unless attrs[k] == 'YES' && APPROVED_SERVICES.include?(k)
               sl2 = []

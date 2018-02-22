@@ -7,7 +7,7 @@ module Facilities
 
     class << self
       def pull_source_data
-        Facilities::Client.new.get_all_vba.map(&method(:new))
+        Facilities::SharedClient.new.get_all_vba.map(&method(:new))
       end
     end
   end
