@@ -23,6 +23,7 @@ RSpec.describe VIC::SubmissionJob do
             user.uuid,
             '2017-01-04 07:00:00 UTC'
           )
+          expect_any_instance_of(VIC::Service).to receive(:sleep).with(1)
           described_class.drain
 
           expect(vic_submission.reload.state).to eq('pending')
