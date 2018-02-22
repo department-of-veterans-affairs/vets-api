@@ -57,7 +57,7 @@ describe MVI::Service do
       end
 
       it 'should return empty array' do
-        VCR.use_cassette('mvi/find_candidate/historical_icns_user_not_found', record: :new_episodes) do
+        VCR.use_cassette('mvi/find_candidate/historical_icns_user_not_found', VCR::MATCH_EVERYTHING) do
           expect(subject.find_historical_icns(user)).to eq([])
         end
       end
