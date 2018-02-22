@@ -103,7 +103,8 @@ module MVI
           user.birth_date,
           user.ssn,
           user.gender
-        ), opt).to_xml
+        ), opt
+      ).to_xml
     end
 
     def message_with_options(message, opt)
