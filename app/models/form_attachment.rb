@@ -7,6 +7,8 @@ class FormAttachment < ActiveRecord::Base
 
   validates(:file_data, :guid, presence: true)
 
+  before_destroy { |record| record.get_file.delete }
+
   def set_file_data!(file)
     attachment_uploader = get_attachment_uploader
     attachment_uploader.store!(file)
