@@ -72,12 +72,13 @@ RSpec.describe SAML::User do
         )
       end
 
-      it 'returns loa highest 1 if ArguementError' do
+      it 'returns loa current 1 if KeyError in LOA::MAPPING lookup for loa_current' do
         stub_const('LOA::MAPPING', {})
         expect_any_instance_of(SAML::UserAttributes::IdMe)
           .to receive(:loa_current).exactly(3).times.and_call_original
         expect_any_instance_of(SAML::UserAttributes::IdMe).to receive(:log_message_to_sentry).once
-        described_instance.to_hash
+        expect(described_instance.to_hash.slice(:loa))
+          .to eq({loa: {current: 1, highest: 3}})
       end
 
       it 'has various important attributes' do
