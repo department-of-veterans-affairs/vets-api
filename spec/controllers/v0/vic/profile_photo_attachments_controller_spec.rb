@@ -81,6 +81,14 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
           expect(response.status).to eq(404)
         end
       end
+
+      context 'with a guid that doesnt exist' do
+        it 'fails' do
+          get(:show, id: 'C56A4180-65AA-42EC-A945-5FD21DEC0538')
+          expect(response).not_to be_success
+          expect(response.status).to eq(404)
+        end
+      end
     end
   end
 end
