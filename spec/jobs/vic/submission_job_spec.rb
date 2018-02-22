@@ -27,6 +27,16 @@ RSpec.describe VIC::SubmissionJob do
 
           expect(vic_submission.reload.state).to eq('pending')
         end
+
+        context 'when its been over the time limit' do
+          it 'should raise timeout error' do
+            expect do
+              described_class.new.perform(vic_submission.id, vic_submission.form, user.uuid, '2016-01-04 07:00:00 UTC')
+            end.to raise_error(Timeout::Error)
+
+            expect(vic_submission.reload.state).to eq('failed')
+          end
+        end
       end
 
       context 'with a valid vic submission' do
