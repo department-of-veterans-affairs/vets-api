@@ -78,7 +78,7 @@ RSpec.describe SAML::User do
           .to receive(:loa_current).exactly(3).times.and_call_original
         expect_any_instance_of(SAML::UserAttributes::IdMe).to receive(:log_message_to_sentry).once
         expect(described_instance.to_hash.slice(:loa))
-          .to eq({loa: {current: 1, highest: 3}})
+          .to eq(loa: { current: 1, highest: 3 })
       end
 
       it 'has various important attributes' do
