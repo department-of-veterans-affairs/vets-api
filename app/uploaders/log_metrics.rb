@@ -14,7 +14,8 @@ module LogMetrics
     class_prefix = "#{KEY_PREFIX}#{class_name}"
 
     %w[size content_type].each do |attr|
-      StatsD.measure("#{class_prefix}.#{attr}", file.public_send(attr))
+      value = file.public_send(attr)
+      StatsD.measure("#{class_prefix}.#{attr}", value) if value.present?
     end
   end
 end
