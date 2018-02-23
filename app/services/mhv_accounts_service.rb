@@ -125,8 +125,6 @@ class MhvAccountsService
   end
 
   def current_account_type
-    return @current_account_type if @current_account_type
-    service = MhvAccountTypeService.new(user)
-    @current_account_type = service.probable_account_type
+    @current_account_type ||= MhvAccountTypeService.new(user).probable_account_type
   end
 end
