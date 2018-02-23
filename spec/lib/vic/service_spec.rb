@@ -20,10 +20,16 @@ describe VIC::Service do
   end
 
   describe '#add_user_data!' do
-    it 'should add user data to the request form' do
-      converted_form = { 'profile_data' => {} }
-      expect(user.veteran_status).to receive(:title38_status).and_return('V1')
+    let(:converted_form) do
+      { 'profile_data' => {} }
+    end
+
+    before do
       expect_any_instance_of(MVI::Service).to receive(:find_historical_icns).with(user).and_return([])
+    end
+
+    it 'should add user data to the request form' do
+      expect(user.veteran_status).to receive(:title38_status).and_return('V1')
       service.add_user_data!(converted_form, user)
       expect(converted_form).to eq(
         'profile_data' => {
@@ -33,6 +39,21 @@ describe VIC::Service do
         },
         'title38_status' => 'V1'
       )
+    end
+
+    context 'when the veteran is not found' do
+      it 'should omit the title 38 status' do
+        expect(user.veteran_status).to receive(:title38_status).and_raise(EMISRedis::VeteranStatus::RecordNotFound)
+
+        service.add_user_data!(converted_form, user)
+        expect(converted_form).to eq(
+          'profile_data' => {
+            'sec_ID' => '0001234567',
+            'active_ICN' => user.icn,
+            'historical_ICN' => []
+          }
+        )
+      end
     end
   end
 
