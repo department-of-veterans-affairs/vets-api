@@ -36,7 +36,7 @@ ActiveRecord::Schema.define(version: 20180216144705) do
     t.datetime "updated_at",     null: false
   end
 
-  add_index "base_facilities", ["unique_id"], name: "index_base_facilities_on_unique_id", unique: true, using: :btree
+  add_index "base_facilities", ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true, using: :btree
 
   create_table "beta_registrations", force: :cascade do |t|
     t.string   "user_uuid",  null: false
