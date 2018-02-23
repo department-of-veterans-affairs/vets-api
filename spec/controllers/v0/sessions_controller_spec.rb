@@ -221,7 +221,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       context 'when user has LOA current 1 and highest 3' do
         it 'redirects to identity proof URL' do
-          allow_any_instance_of(User).to receive(:loa).and_return({ current: LOA::ONE, highest: LOA::THREE })
+          allow_any_instance_of(User).to receive(:loa).and_return(current: LOA::ONE, highest: LOA::THREE)
           allow_any_instance_of(UserIdentity).to receive(:authn_context).and_return('idme')
           expect(controller).to receive(:build_url).with(authn_context: LOA::MAPPING.invert[3], connect: 'idme')
           post :saml_callback
