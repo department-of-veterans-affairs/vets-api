@@ -51,7 +51,7 @@ RSpec.describe 'health records', type: :request do
     VCR.use_cassette('bb_client/gets_a_list_of_eligible_data_classes') do
       get '/v0/health_records/eligible_data_classes'
     end
-
+e
     expect(response).to be_success
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('eligible_data_classes')
