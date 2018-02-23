@@ -36,11 +36,7 @@ module Workflow::Task::Shared
     private
 
     def get_file
-      path = "tmp/#{SecureRandom.uuid}"
-      File.open(path, 'wb') do |file|
-        file.write(@file.read)
-      end
-      path
+      Common::FileHelpers.generate_temp_file(@file.read)
     end
 
     def generate_stamp(stamp_path, text, x, y, text_only)
