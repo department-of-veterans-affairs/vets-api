@@ -100,14 +100,6 @@ module V0
 
     private
 
-    def saml_callback_success_url
-      if current_user.loa[:current] < current_user.loa[:highest]
-        build_url(authn_context: LOA::MAPPING.invert[3], connect: @current_user&.authn_context)
-      else
-        Settings.saml.relay + '?token=' + @session.token
-      end
-    end
-
     def persist_session_and_user
       saml_attributes = SAML::User.new(@saml_response)
       existing_user = User.find(saml_attributes.user_attributes.uuid)
@@ -224,6 +216,14 @@ module V0
       connect_param = "&connect=#{connect}"
       link = saml_auth_request.create(saml_settings, saml_options)
       connect.present? ? link + connect_param : link
+    end
+
+    def saml_callback_success_url
+      if current_user.loa[:current] < current_user.loa[:highest]
+        build_url(authn_context: LOA::MAPPING.invert[3], connect: @current_user&.authn_context)
+      else
+        Settings.saml.relay + '?token=' + @session.token
+      end
     end
 
     def context_key
