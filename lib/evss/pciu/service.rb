@@ -9,9 +9,9 @@ module EVSS
 
       configuration EVSS::PCIU::Configuration
 
-      def email_address
+      def get_email_address
         with_monitoring do
-          raw_response = perform(:get, 'pciuServices/v1/emailAddress')
+          raw_response = perform(:get, 'emailAddress')
 
           EVSS::PCIU::EmailAddressResponse.new(raw_response.status, raw_response)
         end

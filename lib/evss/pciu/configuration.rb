@@ -6,7 +6,7 @@ module EVSS
       self.read_timeout = Settings.evss.pciu.timeout || 30
 
       def base_path
-        "#{Settings.evss.url}/wss-pciu-services-web/rest"
+        "#{Settings.evss.url}/wss-pciu-services-web/rest/pciuServices/v1"
       end
 
       def service_name
