@@ -155,20 +155,17 @@ module VIC
       end
     end
 
-    def wait_for_processed(form)
-      start = Time.zone.now
+    def wait_for_processed(form, start_time)
+      return true if all_files_processed?(form)
 
-      loop do
-        return if all_files_processed?(form)
+      start_time_parsed = Time.zone.parse(start_time)
+      raise Timeout::Error if (Time.zone.now - start_time_parsed) > PROCESSING_WAIT
+      sleep(1)
 
-        raise Timeout::Error if (Time.zone.now - start) > PROCESSING_WAIT
-        sleep(1)
-      end
+      false
     end
 
     def submit(form, user)
-      wait_for_processed(form)
-
       converted_form = convert_form(form)
       add_user_data!(converted_form, user) if user.present?
 
