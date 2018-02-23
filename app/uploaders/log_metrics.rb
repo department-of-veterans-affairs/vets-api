@@ -13,9 +13,19 @@ module LogMetrics
     class_name = self.class.to_s.underscore
     class_prefix = "#{KEY_PREFIX}#{class_name}"
 
-    %w[size content_type].each do |attr|
-      value = file.public_send(attr)
-      StatsD.measure("#{class_prefix}.#{attr}", value) if value.present?
+    args = [
+      "#{class_prefix}.size",
+      file.size
+    ]
+
+    file.content_type.tap do |content_type|
+      next if content_type.blank?
+
+      args << {
+        tags: ["content_type:#{content_type.split('/')[1]}"]
+      }
     end
+
+    StatsD.measure(*args)
   end
 end
