@@ -23,10 +23,13 @@ describe VIC::Service do
     it 'should add user data to the request form' do
       converted_form = { 'profile_data' => {} }
       expect(user.veteran_status).to receive(:title38_status).and_return('V1')
+      expect_any_instance_of(MVI::Service).to receive(:find_historical_icns).with(user).and_return([])
       service.add_user_data!(converted_form, user)
       expect(converted_form).to eq(
         'profile_data' => {
-          'sec_ID' => '0001234567', 'active_ICN' => user.icn
+          'sec_ID' => '0001234567',
+          'active_ICN' => user.icn,
+          'historical_ICN' => []
         },
         'title38_status' => 'V1'
       )
@@ -65,12 +68,12 @@ describe VIC::Service do
       expect(service).to receive(:send_file).with(
         client, case_id,
         VIC::SupportingDocumentationAttachment.last.get_file.read,
-        'Supporting Documentation'
+        'Discharge Documentation 0'
       )
       expect(service).to receive(:send_file).with(
         client, case_id,
         VIC::ProfilePhotoAttachment.last.get_file.read,
-        'Profile Photo'
+        'Photo'
       )
       service.send_files(client, case_id, parsed_form)
     end
@@ -79,16 +82,14 @@ describe VIC::Service do
   describe '#send_file' do
     it 'should read the mime type and send the file' do
       upload_io = double
-      expect(SecureRandom).to receive(:hex).and_return('hex')
       expect(Restforce::UploadIO).to receive(:new).with(
-        'tmp/hex.pdf', 'application/pdf'
+        'tmp/description.pdf', 'application/pdf'
       ).and_return(upload_io)
 
       expect(client).to receive(:create).with(
         'Attachment',
         ParentId: case_id,
-        Description: 'description',
-        Name: 'hex.pdf',
+        Name: 'description.pdf',
         Body: upload_io
       )
 

@@ -80,13 +80,12 @@ module VIC
 
     def send_file(client, case_id, file_body, description)
       mime_type = MimeMagic.by_magic(file_body).type
-      file_name = "#{SecureRandom.hex}.#{mime_type.split('/')[1]}"
+      file_name = "#{description}.#{mime_type.split('/')[1]}"
       file_path = Common::FileHelpers.generate_temp_file(file_body, file_name)
 
       success = client.create(
         'Attachment',
         ParentId: case_id,
-        Description: description,
         Name: file_name,
         Body: Restforce::UploadIO.new(
           file_path,
@@ -134,13 +133,13 @@ module VIC
 
     def send_files(client, case_id, form)
       attachment_records = get_attachment_records(form)
-      attachment_records[:supporting].each do |form_attachment|
+      attachment_records[:supporting].each_with_index do |form_attachment, i|
         file_body = form_attachment.get_file.read
-        send_file(client, case_id, file_body, 'Supporting Documentation')
+        send_file(client, case_id, file_body, "Discharge Documentation #{i}")
       end
 
       file_body = attachment_records[:profile_photo].get_file.read
-      send_file(client, case_id, file_body, 'Profile Photo')
+      send_file(client, case_id, file_body, 'Photo')
     end
 
     def add_user_data!(converted_form, user)
@@ -148,12 +147,12 @@ module VIC
       va_profile = user.va_profile
       profile_data['sec_ID'] = va_profile.sec_id
       profile_data['active_ICN'] = user.icn
+      profile_data['historical_ICN'] = MVI::Service.new.find_historical_icns(user)
 
       if user.edipi.present?
         title38_status = user.veteran_status.title38_status
         converted_form['title38_status'] = title38_status
       end
-      # TODO: historical icn
     end
 
     def wait_for_processed(form)
