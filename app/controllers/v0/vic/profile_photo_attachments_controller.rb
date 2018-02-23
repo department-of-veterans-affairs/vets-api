@@ -25,7 +25,9 @@ module V0
 
         raise Common::Exceptions::RecordNotFound, guid unless GUID_PATTERN.match(guid)
 
-        form_attachment = ::VIC::ProfilePhotoAttachment.where(guid: guid).first
+        form_attachment = ::VIC::ProfilePhotoAttachment.find_by(guid: guid)
+        raise Common::Exceptions::RecordNotFound, guid unless form_attachment
+
         file = form_attachment.get_file
         send_data(file.read, filename: file.filename, type: file.content_type, disposition: :inline)
       end
