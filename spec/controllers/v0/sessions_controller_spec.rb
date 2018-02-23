@@ -174,6 +174,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           }
         )
         post :saml_callback
+        expect(response.location).to start_with(Settings.saml.relay + '?token=')
         new_user = User.find(uuid)
         expect(new_user.ssn).to eq('796111863')
         expect(new_user.va_profile.ssn).not_to eq('155256322')
@@ -218,7 +219,16 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
 
-      context ' when user clicked DENY' do
+      context 'when user has LOA current 1 and highest 3' do
+        it 'redirects to identity proof URL' do
+          allow_any_instance_of(User).to receive(:loa).and_return({ current: LOA::ONE, highest: LOA::THREE })
+          allow_any_instance_of(UserIdentity).to receive(:authn_context).and_return('idme')
+          expect(controller).to receive(:build_url).with(authn_context: LOA::MAPPING.invert[3], connect: 'idme')
+          post :saml_callback
+        end
+      end
+
+      context 'when user clicked DENY' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
 
         it 'redirects to an auth failure page' do
@@ -228,7 +238,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
 
-      context ' when too much time passed to consume the SAML Assertion' do
+      context 'when too much time passed to consume the SAML Assertion' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_late) }
 
         it 'redirects to an auth failure page' do
@@ -244,7 +254,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
 
-      context ' when clock drift causes us to consume the Assertion before its creation' do
+      context 'when clock drift causes us to consume the Assertion before its creation' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_early) }
 
         it 'redirects to an auth failure page' do
