@@ -26,7 +26,7 @@ module V0
         render json: response, serializer: EmailSerializer
       end
 
-    private
+      private
 
       def service
         EVSS::PCIU::Service.new @current_user
