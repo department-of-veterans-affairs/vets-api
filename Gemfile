@@ -101,6 +101,7 @@ group :test do
 end
 
 group :development, :test do
+  gem 'awesome_print', '~> 1.8'
   gem 'brakeman'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
