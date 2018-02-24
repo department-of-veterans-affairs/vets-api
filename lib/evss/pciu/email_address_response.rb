@@ -9,6 +9,7 @@ module EVSS
 
       def initialize(status, response = nil)
         email_address = response&.body&.dig('cnp_email_address')
+
         super(status, email_address: email_address)
       end
     end
