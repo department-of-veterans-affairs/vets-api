@@ -8,6 +8,6 @@ class EmailSerializer < ActiveModel::Serializer
   end
 
   def email
-    object.email_address['value']
+    object&.email_address.dig 'value'
   end
 end
