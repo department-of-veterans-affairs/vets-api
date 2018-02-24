@@ -145,30 +145,38 @@ module VIC
     def add_user_data!(converted_form, user)
       profile_data = converted_form['profile_data']
       va_profile = user.va_profile
-      profile_data['sec_ID'] = va_profile.sec_id
-      profile_data['active_ICN'] = user.icn
-      profile_data['historical_ICN'] = MVI::Service.new.find_historical_icns(user)
+
+      if va_profile.present?
+        profile_data['sec_ID'] = va_profile.sec_id
+        profile_data['active_ICN'] = user.icn
+        profile_data['historical_ICN'] = MVI::Service.new.find_historical_icns(user)
+      end
 
       if user.edipi.present?
-        title38_status = user.veteran_status.title38_status
+        title38_status =
+          begin
+            user.veteran_status.title38_status
+          rescue EMISRedis::VeteranStatus::RecordNotFound
+            nil
+          end
+
         converted_form['title38_status'] = title38_status
       end
+
+      Common::HashHelpers.deep_compact(converted_form)
     end
 
-    def wait_for_processed(form)
-      start = Time.zone.now
+    def wait_for_processed(form, start_time)
+      return true if all_files_processed?(form)
 
-      loop do
-        return if all_files_processed?(form)
+      start_time_parsed = Time.zone.parse(start_time)
+      raise Timeout::Error if (Time.zone.now - start_time_parsed) > PROCESSING_WAIT
+      sleep(1)
 
-        raise Timeout::Error if (Time.zone.now - start) > PROCESSING_WAIT
-        sleep(1)
-      end
+      false
     end
 
     def submit(form, user)
-      wait_for_processed(form)
-
       converted_form = convert_form(form)
       add_user_data!(converted_form, user) if user.present?
 

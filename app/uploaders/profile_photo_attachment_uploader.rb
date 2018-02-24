@@ -5,6 +5,7 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
   include ValidateFileSize
   include SetAwsConfig
   include AsyncProcessing
+  include LogMetrics
 
   MAX_FILE_SIZE = 10.megabytes
 
@@ -25,7 +26,7 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
   end
 
   def extension_white_list
-    %w[jpg jpeg gif png]
+    %w[jpg jpeg gif png tif tiff]
   end
 
   def filename
