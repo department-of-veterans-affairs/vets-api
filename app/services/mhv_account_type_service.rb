@@ -9,7 +9,7 @@ class MhvAccountTypeService
   ADVANCED_COUNT = 18
   ERROR_MESSAGE = 'MhvAccountTypeService: Could not fetch eligible data classes'
   KNOWN_MESSAGE = 'MhvAccountTypeService: Known'
-  UNKNOWN_MESSAGE = KNOWN_MESSAGE = 'MhvAccountTypeService: Unknown'
+  UNKNOWN_MESSAGE = 'MhvAccountTypeService: Unknown'
 
   def initialize(user)
     @user = user
