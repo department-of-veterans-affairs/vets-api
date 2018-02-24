@@ -13,28 +13,26 @@ class MhvAccountTypeService
 
   def initialize(user)
     @user = user
-    @eligible_data_classes = fetch_eligible_data_classes if has_account?
+    @eligible_data_classes = fetch_eligible_data_classes if mhv_account?
   end
 
   attr_reader :user, :eligible_data_classes
 
   def probable_account_type
-    return nil unless has_account?
+    return nil unless mhv_account?
     log_account_type_heuristic_once
     if account_type_known?
       @user.identity.mhv_account_type
+    elsif eligible_data_classes.count == PREMIUM_COUNT
+      'Premium'
+    elsif eligible_data_classes.count == ADVANCED_COUNT
+      'Advanced'
     else
-      if eligible_data_classes.count == PREMIUM_COUNT
-        'Premium'
-      elsif eligible_data_classes.count == ADVANCED_COUNT
-        'Advanced'
-      else
-        'Basic'
-      end
+      'Basic'
     end
   end
 
-  def has_account?
+  def mhv_account?
     @user.mhv_correlation_id.present?
   end
 
@@ -48,7 +46,7 @@ class MhvAccountTypeService
     bb_client = BB::Client.new(session: { user_id: @user.mhv_correlation_id })
     bb_client.authenticate
     bb_client.get_eligible_data_classes.members.map(&:name)
-  rescue StandardError => e
+  rescue StandardError
     @error = ERROR_MESSAGE
     []
   end
