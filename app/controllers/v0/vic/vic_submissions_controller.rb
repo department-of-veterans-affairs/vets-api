@@ -19,6 +19,8 @@ module V0
           raise Common::Exceptions::ValidationErrors, vic_submission
         end
 
+        clear_saved_form('VIC')
+
         render(json: vic_submission)
       end
 

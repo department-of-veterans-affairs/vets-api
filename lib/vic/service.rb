@@ -4,7 +4,13 @@ module VIC
   class Service < Common::Client::Base
     configuration VIC::Configuration
 
-    SALESFORCE_USERNAME = "vetsgov-devops@listserv.gsa.gov.vic#{Settings.salesforce.env}"
+    SALESFORCE_USERNAME = lambda do
+      env = Settings.salesforce.env
+      suffix = env
+      suffix = "vic#{suffix}" unless env == 'uat'
+
+      "vetsgov-devops@listserv.gsa.gov.#{suffix}"
+    end.call
     # TODO: set correct prod value when we release to prod for salesforce_host
     SALESFORCE_HOST = 'https://test.salesforce.com'
     SERVICE_BRANCHES = {
@@ -14,6 +20,7 @@ module VIC
       'M' => 'Marine Corps',
       'N' => 'Navy'
     }.freeze
+    PROCESSING_WAIT = 10
 
     def oauth_params
       {
@@ -71,25 +78,14 @@ module VIC
       converted_form
     end
 
-    def generate_temp_file(file_body, file_name)
-      file_path = "tmp/#{file_name}"
-
-      File.open(file_path, 'wb') do |file|
-        file.write(file_body)
-      end
-
-      file_path
-    end
-
     def send_file(client, case_id, file_body, description)
       mime_type = MimeMagic.by_magic(file_body).type
-      file_name = "#{SecureRandom.hex}.#{mime_type.split('/')[1]}"
-      file_path = generate_temp_file(file_body, file_name)
+      file_name = "#{description}.#{mime_type.split('/')[1]}"
+      file_path = Common::FileHelpers.generate_temp_file(file_body, file_name)
 
       success = client.create(
         'Attachment',
         ParentId: case_id,
-        Description: description,
         Name: file_name,
         Body: Restforce::UploadIO.new(
           file_path,
@@ -102,31 +98,82 @@ module VIC
       File.delete(file_path)
     end
 
-    def send_files(client, case_id, form)
+    def get_attachment_records(form)
+      return @attachment_records if @attachment_records.present?
+
+      @attachment_records = {
+        supporting: []
+      }
+
       if form['dd214'].present?
         form['dd214'].each do |file|
-          file_body = VIC::SupportingDocumentationAttachment.find_by(guid: file['confirmationCode']).get_file.read
-          send_file(client, case_id, file_body, 'Supporting Documentation')
+          attachment = VIC::SupportingDocumentationAttachment.find_by(guid: file['confirmationCode'])
+          @attachment_records[:supporting] << attachment
         end
       end
 
       form['photo'].tap do |file|
-        file_body = VIC::ProfilePhotoAttachment.find_by(guid: file['confirmationCode']).get_file.read
-        send_file(client, case_id, file_body, 'Profile Photo')
+        @attachment_records[:profile_photo] = VIC::ProfilePhotoAttachment.find_by(guid: file['confirmationCode'])
       end
+
+      @attachment_records
+    end
+
+    def all_files_processed?(form)
+      attachment_records = get_attachment_records(form)
+
+      attachment_records[:supporting].each do |form_attachment|
+        return false unless form_attachment.get_file.exists?
+      end
+
+      return false unless attachment_records[:profile_photo].get_file.exists?
+
+      true
+    end
+
+    def send_files(client, case_id, form)
+      attachment_records = get_attachment_records(form)
+      attachment_records[:supporting].each_with_index do |form_attachment, i|
+        file_body = form_attachment.get_file.read
+        send_file(client, case_id, file_body, "Discharge Documentation #{i}")
+      end
+
+      file_body = attachment_records[:profile_photo].get_file.read
+      send_file(client, case_id, file_body, 'Photo')
     end
 
     def add_user_data!(converted_form, user)
       profile_data = converted_form['profile_data']
       va_profile = user.va_profile
-      profile_data['sec_ID'] = va_profile.sec_id
-      profile_data['active_ICN'] = user.icn
+
+      if va_profile.present?
+        profile_data['sec_ID'] = va_profile.sec_id
+        profile_data['active_ICN'] = user.icn
+        profile_data['historical_ICN'] = MVI::Service.new.find_historical_icns(user)
+      end
 
       if user.edipi.present?
-        title38_status = user.veteran_status.title38_status
+        title38_status =
+          begin
+            user.veteran_status.title38_status
+          rescue EMISRedis::VeteranStatus::RecordNotFound
+            nil
+          end
+
         converted_form['title38_status'] = title38_status
       end
-      # TODO: historical icn
+
+      Common::HashHelpers.deep_compact(converted_form)
+    end
+
+    def wait_for_processed(form, start_time)
+      return true if all_files_processed?(form)
+
+      start_time_parsed = Time.zone.parse(start_time)
+      raise Timeout::Error if (Time.zone.now - start_time_parsed) > PROCESSING_WAIT
+      sleep(1)
+
+      false
     end
 
     def submit(form, user)

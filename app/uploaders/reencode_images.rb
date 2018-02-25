@@ -12,6 +12,7 @@ module ReencodeImages
   def reencode
     unless file.content_type == 'application/pdf'
       manipulate! do |img|
+        img.strip
         img.format(img.type)
         img
       end

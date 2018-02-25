@@ -85,6 +85,7 @@ module V0
       Swagger::Requests::Messages::MessageDrafts,
       Swagger::Requests::VAFacilities,
       Swagger::Requests::Address,
+      Swagger::Requests::Appeals,
       Swagger::Requests::MaintenanceWindows,
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::SavedForm,
@@ -107,6 +108,7 @@ module V0
       Swagger::Schemas::Countries,
       Swagger::Schemas::States,
       Swagger::Schemas::Address,
+      Swagger::Schemas::Appeals,
       Swagger::Schemas::MaintenanceWindows,
       self
     ].freeze

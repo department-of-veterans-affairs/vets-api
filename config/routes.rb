@@ -133,7 +133,7 @@ Rails.application.routes.draw do
     end
 
     namespace :vic do
-      resources :profile_photo_attachments, only: :create
+      resources :profile_photo_attachments, only: %i[create show]
       resources :supporting_documentation_attachments, only: :create
       resources :vic_submissions, only: %i[create show]
     end
@@ -142,6 +142,9 @@ Rails.application.routes.draw do
       collection do
         get 'countries', to: 'addresses#countries'
         get 'states', to: 'addresses#states'
+        # temporary
+        get 'rds/countries', to: 'addresses#rds_countries'
+        get 'rds/states', to: 'addresses#rds_states'
       end
     end
 
