@@ -5,5 +5,7 @@ class SubmitSavedClaimJob
 
   def perform(saved_claim_id)
     claim = SavedClaim.find(saved_claim_id)
+    binding.pry; fail
+    claim.to_pdf
   end
 end

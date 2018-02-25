@@ -2,22 +2,18 @@
 
 require 'rails_helper'
 
-RSpec.describe SubmitSavedClaimJob do
+RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
   describe '#perform' do
+    stub_virus_scan
+
     let(:claim) { FactoryBot.create(:burial_claim) }
-    let(:spec_file) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
-    let(:tmpfile) { Tempfile.new }
     before do
-      FileUtils.cp spec_file, tmpfile
+      create(:pension_burial, saved_claim: claim)
     end
-    it 'creates an attachment for the claim' do
-      allow(ClamScan::Client).to receive(:scan)
-        .and_return(instance_double('ClamScan::Response', safe?: true))
-      allow(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
-      expect(claim).to receive(:to_pdf).and_return(tmpfile.open)
-      expect { subject.perform(claim.id) }.to change {
-        claim.reload && claim.persistent_attachments.count
-      }.from(0).to(1)
+
+    it 'submits the saved claim' do
+      binding.pry; fail
+      SubmitSavedClaimJob.new.perform(claim.id)
     end
   end
 end
