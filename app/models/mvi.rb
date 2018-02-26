@@ -76,6 +76,9 @@ class Mvi < Common::RedisStore
     profile&.birls_id
   end
 
+  # A list of ICN's that the user has been identitfied by historically
+  #
+  # @return [Array[String]] the list of historical icns
   def historical_icns
     return nil unless @user.loa3?
     profile&.historical_icns
