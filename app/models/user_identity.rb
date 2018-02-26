@@ -3,11 +3,15 @@
 require 'common/models/base'
 require 'common/models/redis_store'
 require 'saml/user'
+require 'common/models/concerns/maximum_redis_lifetime'
 
 class UserIdentity < Common::RedisStore
+  include Common::MaximumRedisLifetime
+
   redis_store REDIS_CONFIG['user_identity_store']['namespace']
   redis_ttl REDIS_CONFIG['user_identity_store']['each_ttl']
   redis_key :uuid
+  redis_maximum_ttl 12.hours
 
   # identity attributes
   attribute :uuid
@@ -24,6 +28,8 @@ class UserIdentity < Common::RedisStore
   attribute :authn_context # used by F/E to handle various identity related complexities pending refactor
   attribute :mhv_icn # only needed by B/E not serialized in user_serializer
   attribute :mhv_correlation_id # this is the cannonical version of MHV Correlation ID, provided by MHV sign-in users
+  attribute :created_at
+
   validates :uuid, presence: true
   validates :email, presence: true
   validates :loa, presence: true
