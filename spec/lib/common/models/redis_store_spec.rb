@@ -99,7 +99,7 @@ describe Common::RedisStore do
       expect(subject.dup.attributes).to eq(subject.attributes)
     end
 
-    it 'clonging a destroyed object returns destroyed == true, frozen == true' do
+    it 'cloning a destroyed object returns destroyed == true, frozen == true' do
       subject.destroy
       expect(subject.clone.destroyed?).to eq(true)
       expect(subject.clone.frozen?).to eq(true)
