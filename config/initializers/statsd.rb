@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'services/sso_service'
+
 host = Settings.statsd.host
 port = Settings.statsd.port
 
@@ -11,18 +13,20 @@ StatsD.backend = if host.present? && port.present?
 
 # Initialize session controller metric counters at 0
 
-StatsD.increment(V0::SessionsController::STATSD_LOGIN_TOTAL_KEY, 0)
-StatsD.increment(V0::SessionsController::STATSD_LOGIN_FAILED_KEY, 0, tags: ['error:unknown'])
+StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_TOTAL_KEY, 0)
 StatsD.increment(V0::SessionsController::STATSD_LOGIN_NEW_USER_KEY, 0)
 
 SAML::AuthFailHandler::KNOWN_ERRORS.each do |known_error|
-  StatsD.increment(V0::SessionsController::STATSD_LOGIN_FAILED_KEY, 0, tags: ["error:#{known_error}"])
+  StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0, tags: ["error:#{known_error}"])
 end
+StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0, tags: ['error:multiple'])
+StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0, tags: ['error:unknown'])
+StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0, tags: ['error:validations_failed'])
 
 %w[success failure].each do |s|
-  StatsD.increment(V0::SessionsController::STATSD_CALLBACK_KEY, 0, tags: ["status:#{s}", 'context:unknown'])
+  StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_KEY, 0, tags: ["status:#{s}", 'context:unknown'])
   V0::SessionsController::STATSD_CONTEXT_MAP.each_value do |ctx|
-    StatsD.increment(V0::SessionsController::STATSD_CALLBACK_KEY, 0, tags: ["status:#{s}", "context:#{ctx}"])
+    StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_KEY, 0, tags: ["status:#{s}", "context:#{ctx}"])
   end
 end
 
