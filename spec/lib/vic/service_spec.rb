@@ -86,17 +86,18 @@ describe VIC::Service, type: :model do
     it 'should send the files in the form' do
       parsed_form
       ProcessFileJob.drain
+      expect(service).to receive(:get_client).and_return(client)
       expect(service).to receive(:send_file).with(
         client, case_id,
-        VIC::SupportingDocumentationAttachment.last.get_file.read,
+        VIC::SupportingDocumentationAttachment.last,
         'Discharge Documentation 0'
       )
       expect(service).to receive(:send_file).with(
         client, case_id,
-        VIC::ProfilePhotoAttachment.last.get_file.read,
+        VIC::ProfilePhotoAttachment.last,
         'Photo'
       )
-      service.send_files(client, case_id, parsed_form)
+      service.send_files(case_id, parsed_form)
     end
   end
 
