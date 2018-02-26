@@ -101,25 +101,46 @@ describe VIC::Service, type: :model do
   end
 
   describe '#send_file' do
+    let(:attachment) do
+      attachment = create(:supporting_documentation_attachment)
+      ProcessFileJob.drain
+      attachment
+    end
+    let(:result) { true }
+
+    before do
+      upload_io = double
+      expect(Restforce::UploadIO).to receive(:new).with(
+        'tmp/description.pdf', 'application/pdf'
+      ).and_return(upload_io)
+
+      expect(client).to receive(:create).with(
+        'Attachment',
+        ParentId: case_id,
+        Name: 'description.pdf',
+        Body: upload_io
+      ).and_return(result)
+    end
+
+    def call_send_file
+      service.send_file(client, case_id, attachment, 'description')
+    end
+
     context 'with a successful upload' do
       it 'should read the mime type and send the file' do
-        attachment = create(:supporting_documentation_attachment)
-        ProcessFileJob.drain
-        upload_io = double
-        expect(Restforce::UploadIO).to receive(:new).with(
-          'tmp/description.pdf', 'application/pdf'
-        ).and_return(upload_io)
-
-        expect(client).to receive(:create).with(
-          'Attachment',
-          ParentId: case_id,
-          Name: 'description.pdf',
-          Body: upload_io
-        ).and_return(true)
-
-        service.send_file(client, case_id, attachment, 'description')
+        call_send_file
 
         expect(model_exists?(attachment)).to eq(false)
+      end
+    end
+
+    context 'with a failed upload' do
+      let(:result) { false }
+
+      it 'should raise error' do
+        expect do
+          call_send_file
+        end.to raise_error(VIC::Service::AttachmentUploadFailed)
       end
     end
   end
