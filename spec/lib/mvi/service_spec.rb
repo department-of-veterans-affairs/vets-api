@@ -64,6 +64,11 @@ describe MVI::Service do
           expect(response.profile).to have_deep_attributes(mvi_profile)
         end
       end
+
+      it 'fetches historical icns when available' do
+
+
+      end
     end
 
     context 'invalid requests' do
