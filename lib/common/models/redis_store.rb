@@ -92,8 +92,17 @@ module Common
       save
     end
 
+    # The instance should be frozen once destroyed, since object can no longer be persisted.
+    # See also: ActiveRecord::Persistence#destroy
     def destroy
       redis_namespace.del(attributes[redis_namespace_key])
+      @destroyed = true
+      freeze
+    end
+
+    def initialize_dup(other)
+      initialize_copy(other)
+      @destroyed = false
     end
 
     def ttl
@@ -106,6 +115,10 @@ module Common
 
     def persisted?
       @persisted
+    end
+
+    def destroyed?
+      @destroyed == true
     end
   end
 end
