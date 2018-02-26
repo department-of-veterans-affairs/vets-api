@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe VIC::Service do
+describe VIC::Service, type: :model do
   let(:parsed_form) { JSON.parse(create(:vic_submission).form) }
   let(:service) { described_class.new }
   let(:user) { build(:evss_user) }
@@ -101,20 +101,26 @@ describe VIC::Service do
   end
 
   describe '#send_file' do
-    it 'should read the mime type and send the file' do
-      upload_io = double
-      expect(Restforce::UploadIO).to receive(:new).with(
-        'tmp/description.pdf', 'application/pdf'
-      ).and_return(upload_io)
+    context 'with a successful upload' do
+      it 'should read the mime type and send the file' do
+        attachment = create(:supporting_documentation_attachment)
+        ProcessFileJob.drain
+        upload_io = double
+        expect(Restforce::UploadIO).to receive(:new).with(
+          'tmp/description.pdf', 'application/pdf'
+        ).and_return(upload_io)
 
-      expect(client).to receive(:create).with(
-        'Attachment',
-        ParentId: case_id,
-        Name: 'description.pdf',
-        Body: upload_io
-      )
+        expect(client).to receive(:create).with(
+          'Attachment',
+          ParentId: case_id,
+          Name: 'description.pdf',
+          Body: upload_io
+        ).and_return(true)
 
-      service.send_file(client, case_id, File.read('spec/fixtures/pdf_fill/extras.pdf'), 'description')
+        service.send_file(client, case_id, attachment, 'description')
+
+        expect(model_exists?(attachment)).to eq(false)
+      end
     end
   end
 
@@ -138,8 +144,6 @@ describe VIC::Service do
           }
         )
       )
-
-      expect(service).to receive(:send_files).with(client, 'case_id', parsed_form)
     end
 
     def test_case_id(user)
