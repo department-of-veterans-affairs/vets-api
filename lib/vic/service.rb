@@ -80,13 +80,12 @@ module VIC
 
     def send_file(client, case_id, file_body, description)
       mime_type = MimeMagic.by_magic(file_body).type
-      file_name = "#{SecureRandom.hex}.#{mime_type.split('/')[1]}"
-      file_path = Common::FileHelpers.generate_temp_file(file_body, file_name)
+      file_name = "#{description}.#{mime_type.split('/')[1]}"
+      file_path = Common::FileHelpers.generate_temp_file(file_body)
 
       success = client.create(
         'Attachment',
         ParentId: case_id,
-        Description: description,
         Name: file_name,
         Body: Restforce::UploadIO.new(
           file_path,
@@ -134,42 +133,50 @@ module VIC
 
     def send_files(client, case_id, form)
       attachment_records = get_attachment_records(form)
-      attachment_records[:supporting].each do |form_attachment|
+      attachment_records[:supporting].each_with_index do |form_attachment, i|
         file_body = form_attachment.get_file.read
-        send_file(client, case_id, file_body, 'Supporting Documentation')
+        send_file(client, case_id, file_body, "Discharge Documentation #{i}")
       end
 
       file_body = attachment_records[:profile_photo].get_file.read
-      send_file(client, case_id, file_body, 'Profile Photo')
+      send_file(client, case_id, file_body, 'Photo')
     end
 
     def add_user_data!(converted_form, user)
       profile_data = converted_form['profile_data']
       va_profile = user.va_profile
-      profile_data['sec_ID'] = va_profile.sec_id
-      profile_data['active_ICN'] = user.icn
+
+      if va_profile.present?
+        profile_data['sec_ID'] = va_profile.sec_id
+        profile_data['active_ICN'] = user.icn
+        profile_data['historical_ICN'] = MVI::Service.new.find_historical_icns(user)
+      end
 
       if user.edipi.present?
-        title38_status = user.veteran_status.title38_status
+        title38_status =
+          begin
+            user.veteran_status.title38_status
+          rescue EMISRedis::VeteranStatus::RecordNotFound
+            nil
+          end
+
         converted_form['title38_status'] = title38_status
       end
-      # TODO: historical icn
+
+      Common::HashHelpers.deep_compact(converted_form)
     end
 
-    def wait_for_processed(form)
-      start = Time.zone.now
+    def wait_for_processed(form, start_time)
+      return true if all_files_processed?(form)
 
-      loop do
-        return if all_files_processed?(form)
+      start_time_parsed = Time.zone.parse(start_time)
+      raise Timeout::Error if (Time.zone.now - start_time_parsed) > PROCESSING_WAIT
+      sleep(1)
 
-        raise Timeout::Error if (Time.zone.now - start) > PROCESSING_WAIT
-        sleep(1)
-      end
+      false
     end
 
     def submit(form, user)
-      wait_for_processed(form)
-
       converted_form = convert_form(form)
       add_user_data!(converted_form, user) if user.present?
 
