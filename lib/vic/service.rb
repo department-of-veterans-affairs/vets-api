@@ -81,7 +81,7 @@ module VIC
     def send_file(client, case_id, file_body, description)
       mime_type = MimeMagic.by_magic(file_body).type
       file_name = "#{description}.#{mime_type.split('/')[1]}"
-      file_path = Common::FileHelpers.generate_temp_file(file_body, file_name)
+      file_path = Common::FileHelpers.generate_temp_file(file_body)
 
       success = client.create(
         'Attachment',
