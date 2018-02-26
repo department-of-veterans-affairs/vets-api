@@ -77,7 +77,7 @@ describe MVI::Responses::ProfileParser do
             :address_austin,
             sec_id: nil,
             historical_icns: nil,
-            mhv_ids: ['1100792239'],
+            mhv_ids: ['1100792239']
           )
         end
         it 'should filter with only first name and retrieve correct MHV id' do
