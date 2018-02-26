@@ -65,9 +65,24 @@ describe MVI::Service do
         end
       end
 
-      it 'fetches historical icns when available' do
+      it 'fetches historical icns if they exist' do
+        allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI^200M^USVHA^P')
 
+        VCR.use_cassette('mvi/find_candidate/historical_icns_with_icn') do
+          response = subject.find_profile(user)
+          expect(response.status).to eq('OK')
+          expect(response.profile['historical_icns']).to eq(%w[1008692852V724999 1008787485V229771])
+        end
+      end
 
+      it 'fetches no historical icns if none exist' do
+        allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI^200M^USVHA^P')
+
+        VCR.use_cassette('mvi/find_candidate/historical_icns_empty') do
+          response = subject.find_profile(user)
+          expect(response.status).to eq('OK')
+          expect(response.profile['historical_icns']).to eq([])
+        end
       end
     end
 
@@ -128,6 +143,14 @@ describe MVI::Service do
           VCR.use_cassette('mvi/find_candidate/valid_no_gender') do
             response = subject.find_profile(user)
             expect(response.profile).to have_deep_attributes(mvi_profile)
+          end
+        end
+
+        it 'fetches historical icns when available' do
+          VCR.use_cassette('mvi/find_candidate/historical_icns_with_traits') do
+            response = subject.find_profile(user)
+            expect(response.status).to eq('OK')
+            expect(response.profile['historical_icns']).to eq(%w[1008692852V724999 1008787485V229771])
           end
         end
       end
@@ -205,6 +228,13 @@ describe MVI::Service do
 
       it 'returns not found, does not log sentry' do
         VCR.use_cassette('mvi/find_candidate/no_subject') do
+          expect(subject).not_to receive(:log_message_to_sentry)
+          expect(subject.find_profile(user)).to have_deep_attributes(MVI::Responses::FindProfileResponse.with_not_found)
+        end
+      end
+
+      it 'returns not found for COMP2 requests, does not log sentry' do
+        VCR.use_cassette('mvi/find_candidate/historical_icns_user_not_found') do
           expect(subject).not_to receive(:log_message_to_sentry)
           expect(subject.find_profile(user)).to have_deep_attributes(MVI::Responses::FindProfileResponse.with_not_found)
         end
