@@ -20,7 +20,15 @@ describe MVI::Responses::ProfileParser do
     end
 
     describe '#parse' do
-      let(:mvi_profile) { build(:mvi_profile_response, :address_austin, birls_id: nil, sec_id: nil) }
+      let(:mvi_profile) do
+        build(
+          :mvi_profile_response,
+          :address_austin,
+          birls_id: nil,
+          sec_id: nil,
+          historical_icns: nil
+        )
+      end
       it 'returns a MviProfile with the parsed attributes' do
         expect(parser.parse).to have_deep_attributes(mvi_profile)
       end
@@ -34,7 +42,8 @@ describe MVI::Responses::ProfileParser do
             given_names: nil,
             suffix: nil,
             birls_id: nil,
-            sec_id: nil
+            sec_id: nil,
+            historical_icns: nil
           )
         end
         it 'should set the names to false' do
@@ -45,7 +54,15 @@ describe MVI::Responses::ProfileParser do
 
       context 'with a missing address' do
         let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response_nil_address.xml')) }
-        let(:mvi_profile) { build(:mvi_profile_response, address: nil, birls_id: nil, sec_id: nil) }
+        let(:mvi_profile) do
+          build(
+            :mvi_profile_response,
+            address: nil,
+            birls_id: nil,
+            sec_id: nil,
+            historical_icns: nil
+          )
+        end
         it 'should set the address to nil' do
           expect(parser.parse).to have_deep_attributes(mvi_profile)
         end
@@ -54,7 +71,14 @@ describe MVI::Responses::ProfileParser do
       context 'with no middle name, missing and alternate correlation ids, multiple other_ids' do
         let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_missing_attrs.xml')) }
         let(:mvi_profile) do
-          build(:mvi_profile_response, :missing_attrs, :address_austin, sec_id: nil, mhv_ids: ['1100792239'])
+          build(
+            :mvi_profile_response,
+            :missing_attrs,
+            :address_austin,
+            sec_id: nil,
+            historical_icns: nil,
+            mhv_ids: ['1100792239'],
+          )
         end
         it 'should filter with only first name and retrieve correct MHV id' do
           expect(parser.parse).to have_deep_attributes(mvi_profile)
@@ -119,7 +143,7 @@ describe MVI::Responses::ProfileParser do
 
   context 'with multiple MHV IDs' do
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_multiple_mhv_response.xml')) }
-    let(:mvi_profile) { build(:mvi_profile_response, :multiple_mhvids) }
+    let(:mvi_profile) { build(:mvi_profile_response, :multiple_mhvids, historical_icns: nil) }
 
     before(:each) do
       allow(faraday_response).to receive(:body) { body }

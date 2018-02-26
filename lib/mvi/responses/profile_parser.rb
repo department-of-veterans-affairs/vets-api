@@ -105,7 +105,8 @@ module MVI
           participant_id: correlation_ids[:vba_corp_id],
           vha_facility_ids: correlation_ids[:vha_facility_ids],
           sec_id: correlation_ids[:sec_id],
-          birls_id: correlation_ids[:birls_id]
+          birls_id: correlation_ids[:birls_id],
+          historical_icns: MVI::Responses::HistoricalIcnParser.new(@original_body).get_icns
         )
       end
 

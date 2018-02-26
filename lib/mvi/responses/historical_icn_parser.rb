@@ -4,7 +4,7 @@ module MVI
   module Responses
     class HistoricalIcnParser
       HISTORICAL_ICN_XPATH = [
-        ProfileParser::BODY_XPATH,
+        # ProfileParser::BODY_XPATH,
         ProfileParser::SUBJECT_XPATH,
         'registrationEvent',
         'replacementOf',
