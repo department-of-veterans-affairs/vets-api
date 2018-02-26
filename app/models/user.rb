@@ -2,6 +2,7 @@
 
 require 'common/models/base'
 require 'common/models/redis_store'
+require 'common/models/concerns/maximum_redis_lifetime'
 require 'mvi/messages/find_profile_message'
 require 'mvi/service'
 require 'evss/common_service'
@@ -10,6 +11,7 @@ require 'saml/user'
 
 class User < Common::RedisStore
   include BetaSwitch
+  include Common::MaximumRedisLifetime
 
   UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
 
@@ -19,6 +21,7 @@ class User < Common::RedisStore
   redis_store REDIS_CONFIG['user_b_store']['namespace']
   redis_ttl REDIS_CONFIG['user_b_store']['each_ttl']
   redis_key :uuid
+  redis_maximum_ttl 12.hours
 
   validates :uuid, presence: true
 
@@ -34,6 +37,7 @@ class User < Common::RedisStore
   attribute :uuid
   attribute :last_signed_in, Common::UTCTime # vaafi attributes
   attribute :mhv_last_signed_in, Common::UTCTime # MHV audit logging
+  attribute :created_at
 
   # identity attributes, some of these will be overridden by MVI.
   delegate :email, to: :identity, allow_nil: true

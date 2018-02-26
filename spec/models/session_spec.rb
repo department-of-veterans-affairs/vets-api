@@ -6,6 +6,10 @@ RSpec.describe Session, type: :model do
   let(:attributes) { { uuid: 'abcd-1234' } }
   subject { described_class.new(attributes) }
 
+  it_behaves_like 'a redis store with a maximum lifetime' do
+    subject { described_class.new(attributes) }
+  end
+
   context 'session without attributes' do
     it 'expect ttl to an Integer' do
       expect(subject.ttl).to be_an(Integer)
@@ -33,36 +37,6 @@ RSpec.describe Session, type: :model do
         expect(subject.expire(7200)).to eq(true)
         expect(subject.ttl).to eq(7200)
       end
-      it 'will extend the session when within maximum ttl' do
-        subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME - 1.minute)
-        expect(subject.expire(3600)).to eq(true)
-      end
-      it 'will not extend the session when beyond the maximum ttl' do
-        subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME + 1.minute)
-        expect(subject.expire(3600)).to eq(false)
-        expect(subject.errors.messages).to include(:created_at)
-      end
-      it 'allows for continuous session extension up to the maximum' do
-        start_time = Time.current
-        Timecop.freeze(start_time)
-
-        # keep extending session so Redis doesn't kill it while remaining
-        # within Sesion::MAX_SESSION_LIFETIME
-        increment = subject.redis_namespace_ttl - 1.minute
-        max_hours = described_class::MAX_SESSION_LIFETIME / 1.hour
-        (1..max_hours).each do |hour|
-          Timecop.freeze(start_time + increment * hour)
-          expect(subject.expire(described_class.redis_namespace_ttl)).to eq(true)
-          expect(subject.ttl).to eq(described_class.redis_namespace_ttl)
-        end
-
-        # now outside Session::MAX_SESSION_LIFETIME
-        Timecop.freeze(start_time + increment * max_hours + increment)
-        expect(subject.expire(described_class.redis_namespace_ttl)).to eq(false)
-        expect(subject.errors.messages).to include(:created_at)
-
-        Timecop.return
-      end
     end
 
     context 'save' do
@@ -73,17 +47,6 @@ RSpec.describe Session, type: :model do
       it 'sets the ttl countdown' do
         expect(subject.ttl).to be_an(Integer)
         expect(subject.ttl).to be_between(0, 3600)
-      end
-
-      it 'will save a session within the maximum ttl' do
-        subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME - 1.minute)
-        expect(subject.save).to eq(true)
-      end
-
-      it 'will not save a session beyond the maximum ttl' do
-        subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME + 1.minute)
-        expect(subject.save).to eq(false)
-        expect(subject.errors.messages).to include(:created_at)
       end
     end
 

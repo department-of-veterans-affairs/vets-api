@@ -6,6 +6,10 @@ RSpec.describe User, type: :model do
   let(:loa_one) { { current: LOA::ONE } }
   let(:loa_three) { { current: LOA::THREE } }
 
+  it_behaves_like 'a redis store with a maximum lifetime' do
+    subject { build(:user, :loa3) }
+  end
+
   describe '#ssn_mismatch?', :skip_mvi do
     let(:user) { build(:user, :loa3) }
     let(:mvi_profile) { build(:mvi_profile, ssn: 'unmatched-ssn') }

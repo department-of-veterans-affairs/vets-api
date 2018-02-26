@@ -20,6 +20,7 @@ require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
 require 'support/request_helper'
 require 'common/exceptions'
+require 'lib/common/maximum_redis_lifetime_spec_helper'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
