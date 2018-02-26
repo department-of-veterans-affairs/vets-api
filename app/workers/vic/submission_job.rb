@@ -25,6 +25,8 @@ module VIC
       submission.update_attributes!(
         response: response
       )
+
+      AttachmentUploadJob.perform_async(response[:case_id], form)
     rescue StandardError
       submission.update_attributes!(state: 'failed')
       raise
