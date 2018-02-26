@@ -262,4 +262,72 @@ describe Common::Collection do
       end
     end
   end
+
+  describe 'caching' do
+    let(:api_call) { { data: klass_array, metadata: { nobel_winner: 'Bob Dylan' }, errors: {} } }
+    let(:loaded_data) { described_class.new(Author, api_call) }
+
+    it 'can cache based on passed block' do
+      expect(Common::Collection).to receive(:cache).once.and_call_original
+      expect(Oj).not_to receive(:load)
+      result = Common::Collection.fetch(Author, cache_key: 'authors_key', ttl: 1000) do
+        api_call
+      end
+
+      expect(result).to be_a(Common::Collection)
+      expect(result.type).to eq(Author)
+      expect(result.metadata).to eq(nobel_winner: 'Bob Dylan')
+      expect(result.cached?).to eq(true)
+      expect(result.ttl).to be_between(0, 1000)
+      expect(Common::Collection).to receive(:bust).with('authors_key')
+      result.bust
+    end
+
+    it 'does not cache if cache_key is nil' do
+      expect(Common::Collection).not_to receive(:cache)
+      expect(Oj).not_to receive(:load)
+      result = Common::Collection.fetch(Author, cache_key: nil, ttl: 1000) do
+        api_call
+      end
+
+      expect(result).to be_a(Common::Collection)
+      expect(result.type).to eq(Author)
+      expect(result.metadata).to eq(nobel_winner: 'Bob Dylan')
+      expect(result.cached?).to eq(false)
+      expect(result.ttl).to be_nil
+      expect(Common::Collection).not_to receive(:bust).with('authors_key')
+      expect(result.bust).to be_nil
+    end
+
+    context 'already cached values' do
+      before(:each) do
+        described_class.cache(loaded_data.serialize, 'authors_key', 1000)
+      end
+
+      it 'can fetch an already cached api call' do
+        expect(Common::Collection).not_to receive(:cache)
+        expect(Oj).to receive(:load).and_call_original
+        result = Common::Collection.fetch(Author, cache_key: 'authors_key', ttl: 1000) do
+          api_call
+        end
+
+        expect(result).to be_a(Common::Collection)
+        expect(result.type).to eq(Author)
+        expect(result.metadata).to eq('nobel_winner' => 'Bob Dylan')
+        expect(result.cached?).to eq(true)
+        expect(result.ttl).to be_between(0, 1000)
+        expect(Common::Collection).to receive(:bust).with('authors_key')
+        result.bust
+      end
+
+      context 'cache busting' do
+        it 'returns an array corresponding to an array of cache_keys that were provided to bust' do
+          result = Common::Collection.bust(%w[authors_key unknown_key])
+          expect(result).to eq([1, 0])
+          result = Common::Collection.bust(%w[authors_key unknown_key])
+          expect(result).to eq([0, 0])
+        end
+      end
+    end
+  end
 end

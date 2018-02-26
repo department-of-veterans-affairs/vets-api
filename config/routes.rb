@@ -142,6 +142,9 @@ Rails.application.routes.draw do
       collection do
         get 'countries', to: 'addresses#countries'
         get 'states', to: 'addresses#states'
+        # temporary
+        get 'rds/countries', to: 'addresses#rds_countries'
+        get 'rds/states', to: 'addresses#rds_states'
       end
     end
 
@@ -172,9 +175,6 @@ Rails.application.routes.draw do
     require 'sidekiq-scheduler/web'
     mount Sidekiq::Web, at: '/sidekiq'
   end
-
-  # Supports retrieval of VIC photo uploads during local development
-  get '/content/vic/*path', to: 'content/vic_local_uploads#find_file' if Rails.env.development?
 
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i[get post put patch delete]
