@@ -13,8 +13,6 @@ module Common
 
       extend(ClassMethods)
 
-      attribute :created_at
-
       validate :within_maximum_ttl
       validates :created_at, presence: true
 
@@ -37,7 +35,15 @@ module Common
       end
     end
 
+    def created_at_exists?
+      self.attributes.any? { |name, val| name == :created_at }
+    end
+
     def set_created_at
+      unless created_at_exists?
+        raise ArgumentError, 'Class composing Common::MaximumRedisLifetime must contain a "created_at" attribute'
+      end
+
       @created_at ||= Time.now.utc
     end
   end

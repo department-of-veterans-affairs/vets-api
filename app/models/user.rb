@@ -37,6 +37,7 @@ class User < Common::RedisStore
   attribute :uuid
   attribute :last_signed_in, Common::UTCTime # vaafi attributes
   attribute :mhv_last_signed_in, Common::UTCTime # MHV audit logging
+  attribute :created_at
 
   # identity attributes, some of these will be overridden by MVI.
   delegate :email, to: :identity, allow_nil: true
