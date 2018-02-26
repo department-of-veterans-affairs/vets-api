@@ -5,8 +5,12 @@ require 'sentry_logging'
 
 class MhvAccountTypeService
   include SentryLogging
-  PREMIUM_COUNT = 32
-  ADVANCED_COUNT = 18
+  ELIGIBLE_DATA_CLASS_COUNT_TO_ACCOUNT_LEVEL = {
+    32 => 'Premium',
+    18 => 'Advanced',
+    16 => 'Basic'
+  }.freeze
+  DEFAULT_ACCOUNT_LEVEL = 'Basic'
   ERROR_MESSAGE = 'MhvAccountTypeService: Could not fetch eligible data classes'
   KNOWN_MESSAGE = 'MhvAccountTypeService: Known'
   UNKNOWN_MESSAGE = 'MhvAccountTypeService: Unknown'
@@ -20,16 +24,15 @@ class MhvAccountTypeService
 
   def probable_account_type
     return nil unless mhv_account?
-    log_account_type_heuristic_once
+
     if account_type_known?
       @user.identity.mhv_account_type
-    elsif eligible_data_classes.count == PREMIUM_COUNT
-      'Premium'
-    elsif eligible_data_classes.count == ADVANCED_COUNT
-      'Advanced'
     else
-      'Basic'
+      ELIGIBLE_DATA_CLASS_COUNT_TO_ACCOUNT_LEVEL.fetch(eligible_data_classes.size)
     end
+  rescue KeyError
+    log_account_type_heuristic_once
+    DEFAULT_ACCOUNT_LEVEL
   end
 
   def mhv_account?
