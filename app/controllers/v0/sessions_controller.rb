@@ -42,7 +42,6 @@ module V0
     # method is to verify LOA3. It is not necessary to verify for DSLogon or MHV who are PREMIUM users.
     # These sign-in users return LOA3 from the auth_url flow.
     def identity_proof
-      #  authn_context is the policy, connect represents the ID.me specific flow.
       render json: {
         identity_proof_url: build_url(authn_context: LOA::MAPPING.invert[3], connect: @current_user&.authn_context)
       }
@@ -146,6 +145,7 @@ module V0
 
     # Builds the urls to trigger varios sign-in, mfa, or verify flows in idme.
     # nil authn_context and nil connect will always default to idme level 1
+    # authn_context is the policy, connect represents the ID.me specific flow.
     def build_url(authn_context: LOA::MAPPING.invert[1], connect: nil)
       saml_settings = saml_settings(authn_context: authn_context, name_identifier_value: @session&.uuid)
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
