@@ -37,7 +37,7 @@ module Facilities
     end
 
     def fetch_existing_data
-      @fetch_existing_data ||= klass.pluck(:fingerprint,:unique_id)
+      @fetch_existing_data ||= klass.pluck(:fingerprint, :unique_id)
     end
 
     def fresh_by_fingerprint
@@ -57,8 +57,7 @@ module Facilities
     end
 
     def updatable_attrs(record)
-      record.attributes.except('created_at','updated_at','unique_id')
+      record.attributes.except('created_at', 'updated_at', 'unique_id')
     end
-
   end
 end
