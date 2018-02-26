@@ -133,14 +133,8 @@ class ApplicationController < ActionController::API
         ::Digest::SHA256.hexdigest(@session.token)
       )
       @current_user = User.find(@session.uuid)
-      extend_session
+      SSOService.extend_session!(@session, @current_user)
     end
-  end
-
-  def extend_session
-    @session.expire(Session.redis_namespace_ttl)
-    @current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
-    @current_user&.expire(User.redis_namespace_ttl)
   end
 
   attr_reader :current_user

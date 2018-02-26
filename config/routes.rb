@@ -178,9 +178,6 @@ Rails.application.routes.draw do
     mount Sidekiq::Web, at: '/sidekiq'
   end
 
-  # Supports retrieval of VIC photo uploads during local development
-  get '/content/vic/*path', to: 'content/vic_local_uploads#find_file' if Rails.env.development?
-
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i[get post put patch delete]
 end
