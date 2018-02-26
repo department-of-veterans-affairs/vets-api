@@ -574,6 +574,7 @@ DEPENDENCIES
   sidekiq-scheduler (~> 2.0)
   sidekiq-unique-jobs
   simplecov
+  socksify
   spring
   spring-commands-rspec
   statsd-instrument
