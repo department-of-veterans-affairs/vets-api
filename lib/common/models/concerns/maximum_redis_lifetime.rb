@@ -36,7 +36,7 @@ module Common
     end
 
     def created_at_exists?
-      self.attributes.any? { |name, val| name == :created_at }
+      attributes.any? { |name, _val| name == :created_at }
     end
 
     def set_created_at
