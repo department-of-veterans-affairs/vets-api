@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
-  include CarrierWave::MiniMagick
+  PROCESSING_CLASS = VIC::ProcessingUploader
   include ValidateFileSize
   include SetAwsConfig
+  include AsyncProcessing
+  include LogMetrics
 
   MAX_FILE_SIZE = 25.megabytes
 
@@ -22,7 +24,7 @@ class SupportingDocumentationAttachmentUploader < CarrierWave::Uploader::Base
   end
 
   def extension_white_list
-    %w[pdf]
+    %w[pdf jpg jpeg gif png tif tiff]
   end
 
   def store_dir

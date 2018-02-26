@@ -18,7 +18,82 @@ describe MVI::Service do
   let(:user) { build(:user, :loa3, user_hash) }
 
   let(:mvi_profile) do
-    build(:mvi_profile_response, :missing_attrs, :address_austin, given_names: %w[Mitchell G], vha_facility_ids: [])
+    build(
+      :mvi_profile_response,
+      :missing_attrs,
+      :address_austin,
+      given_names: %w[Mitchell G],
+      vha_facility_ids: [],
+      sec_id: nil
+    )
+  end
+
+  describe '#find_historical_icns', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+    let(:historical_icns) { %w[1008692852V724999 1008787485V229771] }
+
+    before do
+      allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
+    end
+
+    context 'with a user without historical icns' do
+      it 'should return empty array' do
+        allow(user).to receive(:mhv_icn).and_return('1008710003V120120^NI^200M^USVHA^P')
+
+        VCR.use_cassette('mvi/find_candidate/historical_icns_empty', VCR::MATCH_EVERYTHING) do
+          expect(subject.find_historical_icns(user)).to eq([])
+        end
+      end
+    end
+
+    context 'with a user not found' do
+      let(:user_hash) do
+        {
+          first_name: 'sdf',
+          last_name: 'sdgsdf',
+          birth_date: '19800812',
+          gender: 'M',
+          ssn: '111222333'
+        }
+      end
+
+      it 'should return empty array' do
+        VCR.use_cassette('mvi/find_candidate/historical_icns_user_not_found', VCR::MATCH_EVERYTHING) do
+          expect(subject.find_historical_icns(user)).to eq([])
+        end
+      end
+    end
+
+    context 'finding user with icn' do
+      it 'should find historical icns' do
+        allow(user).to receive(:mhv_icn).and_return('1008787551V609092^NI^200M^USVHA^P')
+
+        VCR.use_cassette('mvi/find_candidate/historical_icns_with_icn', VCR::MATCH_EVERYTHING) do
+          expect(subject.find_historical_icns(user)).to eq(
+            historical_icns
+          )
+        end
+      end
+    end
+
+    context 'finding user with traits' do
+      let(:user_hash) do
+        {
+          first_name: 'RFIRST',
+          last_name: 'RLAST',
+          birth_date: '19790812',
+          gender: 'M',
+          ssn: '768598574'
+        }
+      end
+
+      it 'should find historical icns' do
+        VCR.use_cassette('mvi/find_candidate/historical_icns_with_traits', VCR::MATCH_EVERYTHING) do
+          expect(subject.find_historical_icns(user)).to eq(
+            historical_icns
+          )
+        end
+      end
+    end
   end
 
   describe '.find_profile with icn' do
