@@ -47,7 +47,7 @@ module BB
     private
 
     def eligible_data_classes
-      @eligible_data_classes ||= client.get_eligible_data_classes.data_classes
+      @eligible_data_classes ||= client.get_eligible_data_classes.members.map(&:name)
     end
 
     # TODO: uncomment to re-enable this validation
