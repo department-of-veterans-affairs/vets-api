@@ -74,7 +74,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def accessible?
-    return false unless mhv_correlation_id.present?
+    return false if mhv_correlation_id.blank?
     (user.loa3? || user.authn_context.include?('myhealthevet')) && (upgraded? || existing?)
   end
 
