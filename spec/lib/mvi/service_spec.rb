@@ -29,7 +29,7 @@ describe MVI::Service do
     )
   end
 
-  describe '.find_profile with icn' do
+  describe '.find_profile with icn', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
     before(:each) do
       expect(MVI::Messages::FindProfileMessageIcn).to receive(:new).once.and_call_original
     end
@@ -65,20 +65,23 @@ describe MVI::Service do
         end
       end
 
-      it 'fetches historical icns if they exist' do
-        allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI^200M^USVHA^P')
+      it 'fetches historical icns if they exist', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+        allow(user).to receive(:mhv_icn).and_return('1008787551V609092^NI^200M^USVHA^P')
+        allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
 
-        VCR.use_cassette('mvi/find_candidate/historical_icns_with_icn') do
+        match = { match_requests_on: %i[method uri headers body] }
+        VCR.use_cassette('mvi/find_candidate/historical_icns_with_icn', match) do
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
           expect(response.profile['historical_icns']).to eq(%w[1008692852V724999 1008787485V229771])
         end
       end
 
-      it 'fetches no historical icns if none exist' do
-        allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI^200M^USVHA^P')
+      it 'fetches no historical icns if none exist', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+        allow(user).to receive(:mhv_icn).and_return('1008710003V120120^NI^200M^USVHA^P')
+        allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
 
-        VCR.use_cassette('mvi/find_candidate/historical_icns_empty') do
+        VCR.use_cassette('mvi/find_candidate/historical_icns_empty', VCR::MATCH_EVERYTHING) do
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
           expect(response.profile['historical_icns']).to eq([])
@@ -127,6 +130,28 @@ describe MVI::Service do
         end
       end
 
+      context 'with historical icns' do
+        let(:user_hash) do
+          {
+            first_name: 'RFIRST',
+            last_name: 'RLAST',
+            birth_date: '19790812',
+            gender: 'M',
+            ssn: '768598574'
+          }
+        end
+
+        it 'fetches historical icns when available', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+          allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
+
+          VCR.use_cassette('mvi/find_candidate/historical_icns_with_traits', VCR::MATCH_EVERYTHING) do
+            response = subject.find_profile(user)
+            expect(response.status).to eq('OK')
+            expect(response.profile['historical_icns']).to eq(%w[1008692852V724999 1008787485V229771])
+          end
+        end
+      end
+
       context 'without gender' do
         let(:user_hash) do
           {
@@ -143,14 +168,6 @@ describe MVI::Service do
           VCR.use_cassette('mvi/find_candidate/valid_no_gender') do
             response = subject.find_profile(user)
             expect(response.profile).to have_deep_attributes(mvi_profile)
-          end
-        end
-
-        it 'fetches historical icns when available' do
-          VCR.use_cassette('mvi/find_candidate/historical_icns_with_traits') do
-            response = subject.find_profile(user)
-            expect(response.status).to eq('OK')
-            expect(response.profile['historical_icns']).to eq(%w[1008692852V724999 1008787485V229771])
           end
         end
       end
@@ -233,10 +250,26 @@ describe MVI::Service do
         end
       end
 
-      it 'returns not found for COMP2 requests, does not log sentry' do
-        VCR.use_cassette('mvi/find_candidate/historical_icns_user_not_found') do
-          expect(subject).not_to receive(:log_message_to_sentry)
-          expect(subject.find_profile(user)).to have_deep_attributes(MVI::Responses::FindProfileResponse.with_not_found)
+      context 'with an invalid historical icn user' do
+        let(:user_hash) do
+          {
+            first_name: 'sdf',
+            last_name: 'sdgsdf',
+            birth_date: '19800812',
+            gender: 'M',
+            ssn: '111222333'
+          }
+        end
+
+        it 'returns not found for COMP2 requests, does not log sentry', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+          allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
+
+          VCR.use_cassette('mvi/find_candidate/historical_icns_user_not_found', VCR::MATCH_EVERYTHING) do
+            expect(subject).not_to receive(:log_message_to_sentry)
+            expect(subject.find_profile(user)).to have_deep_attributes(
+              MVI::Responses::FindProfileResponse.with_not_found
+            )
+          end
         end
       end
 
