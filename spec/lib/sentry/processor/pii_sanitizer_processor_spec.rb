@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'sentry/processor/email_sanitizer'
 
 RSpec.describe Sentry::Processor::PIISanitizer do
   let(:client) { double('client') }
