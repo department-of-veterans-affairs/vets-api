@@ -74,6 +74,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def accessible?
+    return false if mhv_correlation_id.nil? || mhv_correlation_id.empty?
     (user.loa3? || user.authn_context.include?('myhealthevet')) && (upgraded? || existing?)
   end
 
@@ -111,9 +112,13 @@ class MhvAccount < ActiveRecord::Base
     @mhv_accounts_service || MhvAccountsService.new(user)
   end
 
+  def mhv_correlation_id
+    user.mhv_correlation_id
+  end
+
   def setup
     raise StandardError, 'You must use find_or_initialize_by(user_uuid: #)' if user_uuid.nil?
-    check_eligibility unless registered? || upgraded?
+    check_eligibility unless accessible?
     check_terms_acceptance if may_check_terms_acceptance?
   end
 end
