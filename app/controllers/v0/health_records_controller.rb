@@ -14,7 +14,7 @@ module V0
     def eligible_data_classes
       resource = client.get_eligible_data_classes
 
-      render json: resource,
+      render json: resource.data,
              serializer: EligibleDataClassesSerializer,
              meta: resource.metadata
     end
