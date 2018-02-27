@@ -1060,6 +1060,15 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
       end
     end
+
+    describe 'profiles' do
+      it 'supports getting email address data' do
+        expect(subject).to validate(:get, '/v0/profile/email', 401)
+        VCR.use_cassette('evss/pciu/service') do
+          expect(subject).to validate(:get, '/v0/profile/email', 200, auth_options)
+        end
+      end
+    end
   end
 
   context 'and' do

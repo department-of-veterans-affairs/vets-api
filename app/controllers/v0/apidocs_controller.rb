@@ -87,6 +87,7 @@ module V0
       Swagger::Requests::Address,
       Swagger::Requests::Appeals,
       Swagger::Requests::MaintenanceWindows,
+      Swagger::Requests::Profile,
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::SavedForm,
       Swagger::Schemas::BB::HealthRecords,
