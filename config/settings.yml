@@ -112,6 +112,8 @@ mhv:
   sm:
     host: https://mhv-api.example.com
     app_token: fake-app-token
+  bb:
+    collection_caching_enabled: true
 
 # Settings for Master Veteran Index
 mvi:
