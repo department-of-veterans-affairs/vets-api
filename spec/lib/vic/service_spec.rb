@@ -112,7 +112,7 @@ describe VIC::Service, type: :model do
     before do
       upload_io = double
       hex = '3e37ec951a66e3c6b6a58ae5c791bb9d'
-      expect(SecureRandom).to receive(:hex).and_return(hex)
+      allow(SecureRandom).to receive(:hex).and_return(hex)
       expect(Restforce::UploadIO).to receive(:new).with(
         "tmp/#{hex}", 'application/pdf'
       ).and_return(upload_io)
