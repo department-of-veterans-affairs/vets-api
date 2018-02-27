@@ -17,7 +17,7 @@ RSpec.describe Sentry::Processor::PIISanitizer do
           street: '1234 Street St.',
           state: 'NV'
         },
-        json: '{"phone": "5035551234"}',
+        json: '{"phone": "5035551234", "postalCode": 97850}',
         gender: 'M',
         phone: '5035551234'
       }
