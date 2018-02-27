@@ -54,13 +54,6 @@ class MhvAccount < ActiveRecord::Base
     end
   end
 
-  def create_and_upgrade!
-    unless existing?
-      create_mhv_account! unless previously_registered?
-      upgrade_mhv_account!
-    end
-  end
-
   def eligible?
     user.loa3? && user.va_patient?
   end
@@ -97,18 +90,6 @@ class MhvAccount < ActiveRecord::Base
 
   def user
     @user ||= User.find(user_uuid)
-  end
-
-  def create_mhv_account!
-    mhv_accounts_service.create
-  end
-
-  def upgrade_mhv_account!
-    mhv_accounts_service.upgrade
-  end
-
-  def mhv_accounts_service
-    @mhv_accounts_service || MhvAccountsService.new(user)
   end
 
   def setup
