@@ -70,11 +70,11 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def preexisting_account?
-    user&.mhv_correlation_id.present? && !previously_registered?
+    mhv_correlation_id.present? && !previously_registered?
   end
 
   def accessible?
-    return false if mhv_correlation_id.nil? || mhv_correlation_id.empty?
+    return false unless mhv_correlation_id.present?
     (user.loa3? || user.authn_context.include?('myhealthevet')) && (upgraded? || existing?)
   end
 
@@ -100,6 +100,10 @@ class MhvAccount < ActiveRecord::Base
     @user ||= User.find(user_uuid)
   end
 
+  def mhv_correlation_id
+    user&.mhv_correlation_id
+  end
+
   def create_mhv_account!
     mhv_accounts_service.create
   end
@@ -110,10 +114,6 @@ class MhvAccount < ActiveRecord::Base
 
   def mhv_accounts_service
     @mhv_accounts_service || MhvAccountsService.new(user)
-  end
-
-  def mhv_correlation_id
-    user.mhv_correlation_id
   end
 
   def setup
