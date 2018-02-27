@@ -60,13 +60,9 @@ RSpec.describe VIC::SubmissionJob do
           )
         end
 
-        it 'should delete uploads after submission' do
-          expect do
-            described_class.drain
-          end.to change(::VIC::SupportingDocumentationAttachment, :count)
-            .by(-1)
-            .and change(::VIC::ProfilePhotoAttachment, :count)
-            .by(-1)
+        it 'should run the upload files job after submission' do
+          expect(VIC::AttachmentUploadJob).to receive(:perform_async).with(uuid, vic_submission.form)
+          described_class.drain
         end
       end
     end

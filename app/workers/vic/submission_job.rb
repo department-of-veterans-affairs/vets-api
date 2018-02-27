@@ -26,7 +26,7 @@ module VIC
         response: response
       )
 
-      delete_uploads(parsed_form)
+      AttachmentUploadJob.perform_async(response[:case_id], form)
     rescue StandardError
       submission.update_attributes!(state: 'failed')
       raise
@@ -34,16 +34,6 @@ module VIC
 
     def submission
       @submission ||= VICSubmission.find(@vic_submission_id)
-    end
-
-    private
-
-    def delete_uploads(parsed_form)
-      attachment_records = @vic_service.get_attachment_records(parsed_form)
-
-      attachment_records[:supporting].each(&:destroy)
-
-      attachment_records[:profile_photo].destroy
     end
   end
 end
