@@ -41,6 +41,6 @@ http_interactions:
         York","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","PR":"Puerto
         Rico","PW":"Palau","RI":"Rhode Island","SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VA":"Virginia","VI":"Virgin
         Islands","VT":"Vermont","WA":"Washington","WI":"Wisconsin","WV":"West Virginia","WY":"Wyoming"}'
-    http_version: 
+    http_version:
   recorded_at: Wed, 10 May 2017 00:58:37 GMT
 recorded_with: VCR 3.0.3

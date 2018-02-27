@@ -37,6 +37,6 @@ http_interactions:
       encoding: UTF-8
       string: '{"errorCode":155,"developerMessage":"","message":"Account is already
         Upgraded"}'
-    http_version: 
+    http_version:
   recorded_at: Fri, 19 May 2017 14:17:50 GMT
 recorded_with: VCR 3.0.3
