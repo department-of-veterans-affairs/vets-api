@@ -69,7 +69,7 @@ RSpec.describe Sentry::Processor::PIISanitizer do
     end
 
     it 'should filter json blobs' do
-      expect(result["json"]).to include('FILTERED')
+      expect(result['json']).to include('FILTERED')
     end
   end
 end
