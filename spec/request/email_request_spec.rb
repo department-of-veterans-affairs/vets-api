@@ -20,10 +20,7 @@ RSpec.describe 'email', type: :request do
         get '/v0/profile/email', nil, auth_header
 
         expect(response).to have_http_status(:ok)
-
-        # TODO: - update these to a `match_response_schema`
-        expect(JSON.parse(response.body).dig('data', 'attributes', 'email_address')).to eq 'test2@test1.net'
-        expect(JSON.parse(response.body).dig('data', 'attributes', 'effective_at')).to eq '2012-04-03T04:00:00.000+0000'
+        expect(response).to match_response_schema('email_address_response')
       end
     end
   end
