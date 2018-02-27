@@ -3,15 +3,9 @@
 module Sentry
   module Processor
     class PIISanitizer < Raven::Processor
-      SANITIZED_FIELDS = %w[
-        city
-        country
-        gender
-        phone
-        postalCode
-        state
-        street
-      ].freeze
+      SANITIZED_FIELDS = Set.new(
+        %w[city country gender phone postalCode state street]
+      )
 
       JSON_STARTS_WITH = ['[', '{'].freeze
 
