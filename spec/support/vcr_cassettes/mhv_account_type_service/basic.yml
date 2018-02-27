@@ -107,7 +107,7 @@ http_interactions:
       - Fri, 23 Feb 2018 00:01:49 GMT
     body:
       encoding: UTF-8
-      string: '{"dataClasses":["seiactivityjournal","seiallergies","seidemographics","seifoodjournal","seiimmunizations","seimygoalscurrent","seimygoalscompleted","vaallergies"]}'
+      string: '{"dataClasses":["seiactivityjournal","seiallergies","seidemographics","familyhealthhistory","seifoodjournal","healthcareproviders","healthinsurance","seiimmunizations","labsandtests","medicalevents","medications","militaryhealthhistory","seimygoalscurrent","seimygoalscompleted","treatmentfacilities","vitalsandreadings"]}'
     http_version:
   recorded_at: Fri, 23 Feb 2018 21:48:16 GMT
 recorded_with: VCR 3.0.3

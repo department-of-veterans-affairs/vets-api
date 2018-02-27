@@ -10,10 +10,9 @@ class MhvAccountTypeService
     18 => 'Advanced',
     16 => 'Basic'
   }.freeze
-  DEFAULT_ACCOUNT_LEVEL = 'Basic'
-  ERROR_MESSAGE = 'MhvAccountTypeService: Could not fetch eligible data classes'
-  KNOWN_MESSAGE = 'MhvAccountTypeService: Known'
-  UNKNOWN_MESSAGE = 'MhvAccountTypeService: Unknown'
+  DEFAULT_ACCOUNT_LEVEL = 'Unknown'
+  MHV_DOWN_MESSAGE = 'MhvAccountTypeService: could not fetch eligible data classes'
+  UNEXPECTED_DATA_CLASS_COUNT_MESSAGE = 'MhvAccountTypeService: eligible data class mapping inconsistency'
 
   def initialize(user)
     @user = user
@@ -22,7 +21,7 @@ class MhvAccountTypeService
 
   attr_reader :user, :eligible_data_classes
 
-  def probable_account_type
+  def mhv_account_type
     return nil unless mhv_account?
 
     if account_type_known?
@@ -31,7 +30,7 @@ class MhvAccountTypeService
       ELIGIBLE_DATA_CLASS_COUNT_TO_ACCOUNT_LEVEL.fetch(eligible_data_classes.size)
     end
   rescue KeyError
-    log_account_type_heuristic_once
+    log_account_type_heuristic_once(UNEXPECTED_DATA_CLASS_COUNT_MESSAGE)
     DEFAULT_ACCOUNT_LEVEL
   end
 
@@ -50,25 +49,22 @@ class MhvAccountTypeService
     bb_client.authenticate
     bb_client.get_eligible_data_classes.members.map(&:name)
   rescue StandardError
-    @error = ERROR_MESSAGE
+    log_account_type_heuristic_once(MHV_DOWN_MESSAGE)
     []
   end
 
-  def log_account_type_heuristic_once
-    return nil if @logged
+  def log_account_type_heuristic_once(message)
+    return if @logged
     extra_context = {
       uuid: user.uuid,
       mhv_correlation_id: user.mhv_correlation_id,
       eligible_data_classes: eligible_data_classes,
       authn_context: user.authn_context,
+      va_patient: user.va_patient?,
       known_account_type: user.identity.mhv_account_type
     }
     tags = { sign_in_method: user.authn_context || 'idme' }
-    log_message_to_sentry(logging_message, :info, extra_context, tags)
+    log_message_to_sentry(message, :info, extra_context, tags)
     @logged = true
-  end
-
-  def logging_message
-    @error_message || account_type_known? ? KNOWN_MESSAGE : UNKNOWN_MESSAGE
   end
 end
