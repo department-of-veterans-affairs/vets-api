@@ -22,8 +22,8 @@ RSpec.describe 'email', type: :request do
         expect(response).to have_http_status(:ok)
 
         # TODO: - update these to a `match_response_schema`
-        expect(JSON.parse(response.body).dig('data', 'attributes', 'email')).to eq 'test2@test1.net'
-        expect(JSON.parse(response.body).dig('data', 'attributes', 'effective_datetime')).to eq '2012-04-03T04:00:00.000+0000'
+        expect(JSON.parse(response.body).dig('data', 'attributes', 'email_address')).to eq 'test2@test1.net'
+        expect(JSON.parse(response.body).dig('data', 'attributes', 'effective_at')).to eq '2012-04-03T04:00:00.000+0000'
       end
     end
   end

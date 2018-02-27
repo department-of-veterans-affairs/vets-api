@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 class EmailSerializer < ActiveModel::Serializer
-  attribute :email
-  attribute :effective_datetime
+  attribute :email_address
+  attribute :effective_at
 
   def id
     nil
   end
 
-  # Returns the email address nested in the given object
+  # Returns the email address nested in the given object.
   #
   # @return [String] Email address.  Sample `object.email_address`:
   #   {
@@ -16,7 +16,7 @@ class EmailSerializer < ActiveModel::Serializer
   #     "value" => "test2@test1.net"
   #   }
   #
-  def email
+  def email_address
     object&.email_address&.dig 'value'
   end
 
@@ -29,7 +29,7 @@ class EmailSerializer < ActiveModel::Serializer
   #       "value" => "test2@test1.net"
   #     }
   #
-  def effective_datetime
+  def effective_at
     object&.email_address&.dig 'effective_date'
   end
 end

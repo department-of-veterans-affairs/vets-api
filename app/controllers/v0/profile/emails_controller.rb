@@ -15,8 +15,8 @@ module V0
       #         "type" => "evss_pciu_email_address_responses",
       #         "attributes" =>
       #           {
-      #             "email" => "test2@test1.net",
-      #             "effective_datetime" => "2018-02-27T14:41:32.283Z"
+      #             "email_address" => "test2@test1.net",
+      #             "effective_at" => "2018-02-27T14:41:32.283Z"
       #           }
       #       }
       #   }
