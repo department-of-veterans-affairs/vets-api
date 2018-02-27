@@ -4,15 +4,14 @@ module VIC
   class Service < Common::Client::Base
     configuration VIC::Configuration
 
-    SALESFORCE_USERNAME = lambda do
-      env = Settings.salesforce.env
-      suffix = env
-      suffix = "vic#{suffix}" unless env == 'uat'
+    SALESFORCE_USERNAMES = {
+      'prod' => 'vetsgov-devops@listserv.gsa.gov',
+      'uat' => 'vetsgov-devops@listserv.gsa.gov.uat',
+      'dev' => 'vetsgov-devops@listserv.gsa.gov.vicdev'
+    }.freeze
 
-      "vetsgov-devops@listserv.gsa.gov.#{suffix}"
-    end.call
-    # TODO: set correct prod value when we release to prod for salesforce_host
-    SALESFORCE_HOST = 'https://test.salesforce.com'
+    SALESFORCE_USERNAME = SALESFORCE_USERNAMES[Settings.salesforce.env]
+    SALESFORCE_HOST = "https://#{Settings.salesforce.env == 'prod' ? 'login' : 'test'}.salesforce.com"
     SERVICE_BRANCHES = {
       'F' => 'Air Force',
       'A' => 'Army',
