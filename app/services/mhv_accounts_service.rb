@@ -123,4 +123,8 @@ class MhvAccountsService
   def mhv_ac_client
     @mhv_ac_client ||= MHVAC::Client.new
   end
+
+  def current_account_type
+    @current_account_type ||= MhvAccountTypeService.new(user).probable_account_type
+  end
 end
