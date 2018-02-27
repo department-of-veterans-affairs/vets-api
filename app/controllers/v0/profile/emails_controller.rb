@@ -5,7 +5,7 @@ module V0
     class EmailsController < ApplicationController
       before_action { authorize :evss, :access? }
 
-      # Fetches the email address for the current user
+      # Fetches the email address, and its effective datetime, for the current user
       #
       # @return [Response] Sample response.body:
       #   {
@@ -15,7 +15,8 @@ module V0
       #         "type" => "evss_pciu_email_address_responses",
       #         "attributes" =>
       #           {
-      #             "email" => "test2@test1.net"
+      #             "email" => "test2@test1.net",
+      #             "effective_datetime" => "2018-02-27T14:41:32.283Z"
       #           }
       #       }
       #   }

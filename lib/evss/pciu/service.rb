@@ -19,7 +19,7 @@ module EVSS
       #
       # @return [EVSS::PCIU::EmailAddressResponse] Sample response.email_address:
       #   {
-      #     "effective_date" => "2012-04-03T04:00:00.000+0000",
+      #     "effective_date" => "2018-02-27T14:41:32.283Z",
       #     "value" => "test2@test1.net"
       #   }
       #
