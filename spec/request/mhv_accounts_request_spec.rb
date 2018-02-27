@@ -78,6 +78,23 @@ RSpec.describe 'Account creation and upgrade', type: :request do
           end
         end
         expect(response).to have_http_status(:accepted)
+        expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('upgraded')
+      end
+
+      it 'handles creation error in POST #create' do
+        VCR.use_cassette('mhv_account_creation/account_creation_unknown_error') do
+          post v0_mhv_account_path
+        end
+        expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'handles upgrade error in POST #create' do
+        VCR.use_cassette('mhv_account_creation/creates_an_account') do
+          VCR.use_cassette('mhv_account_creation/account_upgrade_unknown_error') do
+            post v0_mhv_account_path
+          end
+        end
+        expect(response).to have_http_status(:bad_request)
       end
     end
 
@@ -114,6 +131,14 @@ RSpec.describe 'Account creation and upgrade', type: :request do
             post v0_mhv_account_path
           end
           expect(response).to have_http_status(:accepted)
+          expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('upgraded')
+        end
+
+        it 'handles upgrade error in POST #create' do
+          VCR.use_cassette('mhv_account_creation/account_upgrade_unknown_error') do
+            post v0_mhv_account_path
+          end
+          expect(response).to have_http_status(:bad_request)
         end
       end
 
