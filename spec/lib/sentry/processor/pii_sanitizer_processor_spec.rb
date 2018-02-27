@@ -1,0 +1,66 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+require 'sentry/processor/email_sanitizer'
+
+RSpec.describe Sentry::Processor::PIISanitizer do
+  let(:client) { double('client') }
+  let(:processor) { Sentry::Processor::PIISanitizer.new(client) }
+  let(:result) { processor.process(data) }
+
+  context 'with symbol keys' do
+    let(:data) do
+      {
+        veteran_address: {
+          city: 'Las Vegas',
+          country: 'USA',
+          postal_code: '91823',
+          street: '1234 Street St.',
+          state: 'NV'
+        },
+        gender: 'M',
+        phone: '5035551234'
+      }
+    end
+
+    it 'should filter address data' do
+      result[:veteran_address].each_value { |v| expect(v).to eq('FILTERED') }
+    end
+
+    it 'should filter gender data' do
+      expect(result[:gender]).to eq('FILTERED')
+    end
+
+    it 'should filter phone data' do
+      expect(result[:phone]).to eq('FILTERED')
+    end
+  end
+
+  context 'with string keys' do
+    let(:data) do
+      {
+        'veteranAddress' => {
+          'city' => 'Portland',
+          'country' => 'USA',
+          'postalCode' => '19391',
+          'street' => '4321 Street St.',
+          'state' => 'OR'
+        },
+        'gender' => 'F',
+        'phone' => '5415551234'
+      }
+    end
+
+    it 'should filter address data' do
+      result['veteranAddress'].each_value { |v| expect(v).to eq('FILTERED') }
+    end
+
+    it 'should filter gender data' do
+      expect(result['gender']).to eq('FILTERED')
+    end
+
+    it 'should filter phone data' do
+      expect(result['phone']).to eq('FILTERED')
+    end
+  end
+end
