@@ -53,10 +53,10 @@ describe 'bb client' do
   # These are the list of eligible data classes that can be used to generate a report
   it 'gets a list of eligible data classes', :vcr do
     client_response = client.get_eligible_data_classes
-    expect(client_response).to be_a(EligibleDataClasses)
-    expect(client_response.data_classes).to be_an(Array)
-    expect(client_response.data_classes).to all(be_a(String))
-    expect(client_response.id).to eq('d101ca2db427ecfb9cb1854d0638b326dad3e74bf2b121d3066dba0e8fec6856')
+    expect(client_response).to be_a(Common::Collection)
+    expect(client_response.type).to eq(EligibleDataClass)
+    expect(client_response.cached?).to eq(true)
+    expect(client_response.members).to all(respond_to(:name))
   end
 
   # This requests to generate a report. It just returns success, no file is returned.

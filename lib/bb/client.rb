@@ -17,6 +17,8 @@ module BB
     configuration BB::Configuration
     client_session Rx::ClientSession
 
+    CACHE_TTL = 3600 * 3 # cache for 3 hours
+
     # PHR refresh, this should be called once per user, will take up to 15 minutes
     # to process, but its the only way to refresh a user's data
     def get_extract_status
@@ -28,8 +30,9 @@ module BB
     # These are to be used to build the checkboxes for the form used to make a
     # generate report request
     def get_eligible_data_classes
-      json = perform(:get, 'bluebutton/geteligibledataclass', nil, token_headers).body
-      EligibleDataClasses.new(json)
+      Common::Collection.fetch(::EligibleDataClass, cache_key: cache_key('geteligibledataclass'), ttl: CACHE_TTL) do
+        perform(:get, 'bluebutton/geteligibledataclass', nil, token_headers).body
+      end
     end
 
     # These PDFs take time to generate, hence why this separate call just to generate.
@@ -56,6 +59,12 @@ module BB
     end
 
     private
+
+    def cache_key(action)
+      return nil unless config.caching_enabled?
+      return nil if session.user_id.blank?
+      "#{session.user_id}:#{action}"
+    end
 
     def refresh_final?(attrs)
       attrs.all? { |e| e[:status].present? }
