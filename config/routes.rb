@@ -7,6 +7,9 @@ Rails.application.routes.draw do
   get '/saml/metadata', to: 'saml#metadata'
   get '/auth/saml/logout', to: 'v0/sessions#saml_logout_callback', as: 'saml_logout'
   post '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
+  get '/sessions/:type/new',
+      to: 'v0/sessions#new',
+      constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
 
   namespace :v0, defaults: { format: 'json' } do
     resources :in_progress_forms, only: %i[index show update destroy]
