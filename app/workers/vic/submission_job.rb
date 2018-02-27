@@ -7,7 +7,7 @@ module VIC
     sidekiq_options retry: false
 
     def perform(vic_submission_id, form, user_uuid, start_time = nil)
-      Raven.tags_context(backend_service: :vic)
+      VIC::TagSentry.tag_sentry
       @vic_submission_id = vic_submission_id
       start_time ||= Time.zone.now.to_s
 

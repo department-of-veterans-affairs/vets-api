@@ -2,7 +2,7 @@
 
 module V0
   module VIC
-    class VICSubmissionsController < ApplicationController
+    class VICSubmissionsController < BaseController
       skip_before_action(:authenticate)
 
       def create
