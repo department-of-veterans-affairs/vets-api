@@ -36,7 +36,7 @@ namespace :evss do
     end
   end
 
-  desc 'export EDIPIs for letters users who receive invalid addresss, usage: rake evss:export_invalid_address_edipis[/export/path.csv]'
+  desc 'export EDIPIs users with invalid addresss, usage: rake evss:export_invalid_address_edipis[/export/path.csv]'
   task :export_invalid_address_edipis, [:csv_path] => [:environment] do |_, args|
     raise 'No CSV path provided' unless args[:csv_path]
     CSV.open(args[:csv_path], 'wb') do |csv|

@@ -54,8 +54,8 @@ module EVSS
       end
 
       def invalid_address_error?(error)
-        return false unless error.is_a?(Common::Client::Errors::ClientError) && error.body.is_a?(Hash)
-        error.body.dig('messages')&.any? { |m| m['key'].include? INVALID_ADDRESS_ERROR }
+        return false unless error.is_a?(Common::Client::Errors::ClientError)
+        error&.body&.dig('messages')&.any? { |m| m['key'].include? INVALID_ADDRESS_ERROR }
       end
     end
   end
