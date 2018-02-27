@@ -19,7 +19,9 @@ module V0
       raise MHVAC::AccountCreationError if mhv_account.accessible?
       register_mhv_account unless mhv_account.previously_registered?
       upgrade_mhv_account
-      head :accepted
+      render json: mhv_account,
+             serializer: MhvAccountSerializer,
+             status: :accepted
     end
 
     protected
