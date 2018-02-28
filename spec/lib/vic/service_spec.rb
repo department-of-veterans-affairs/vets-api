@@ -38,7 +38,7 @@ describe VIC::Service, type: :model do
           'SSN' => user.ssn,
           'historical_ICN' => []
         },
-        'veteran_full_name' => { 'first' => 'WESLEY', 'last' => 'FORD' },
+        'veteran_full_name' => { 'first' => 'Wesley', 'last' => 'Ford' },
         'title38_status' => 'V1'
       )
     end
@@ -55,7 +55,7 @@ describe VIC::Service, type: :model do
             'SSN' => user.ssn,
             'historical_ICN' => []
           },
-          'veteran_full_name' => { 'first' => 'WESLEY', 'last' => 'FORD' }
+          'veteran_full_name' => { 'first' => 'Wesley', 'last' => 'Ford' }
         )
       end
     end

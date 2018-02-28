@@ -149,13 +149,10 @@ module VIC
     end
 
     def add_loa3_overrides!(converted_form, user)
-      converted_form['veteran_full_name'] = {
-        'first' => user.first_name,
-        'last' => user.last_name,
-        'middle' => user.middle_name
-      }
+      full_name_normalized = user.full_name_normalized
+      converted_form['veteran_full_name'] = full_name_normalized.stringify_keys.slice('first', 'middle', 'last')
 
-      converted_form['profile_data']['SSN'] = user.ssn
+      converted_form['profile_data']['SSN'] = user.ssn_normalized
     end
 
     def add_user_data!(converted_form, user)
