@@ -5,11 +5,12 @@ module VIC
     include SetGuid
 
     attr_accessor(:form)
-    attr_accessor(:user_uuid)
+    attr_accessor(:user)
 
     validates(:state, presence: true, inclusion: %w[success failed pending])
     validates(:response, presence: true, if: :success?)
     validate(:form_matches_schema, on: :create)
+    validate(:no_forbidden_fields, on: :create)
 
     after_create(:create_submission_job)
     before_validation(:update_state_to_completed)
@@ -19,6 +20,9 @@ module VIC
     end
 
     private
+
+    def no_forbidden_fields
+    end
 
     def parsed_form
       @parsed_form ||= JSON.parse(form)
@@ -37,7 +41,7 @@ module VIC
     end
 
     def create_submission_job
-      SubmissionJob.perform_async(id, form, user_uuid)
+      SubmissionJob.perform_async(id, form, user&.uuid)
     end
   end
 end

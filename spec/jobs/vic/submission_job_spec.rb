@@ -11,7 +11,7 @@ RSpec.describe VIC::SubmissionJob do
       let(:vic_submission) { build(:vic_submission) }
 
       before do
-        vic_submission.user_uuid = user.uuid
+        vic_submission.user = user
         vic_submission.save!
       end
 

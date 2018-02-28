@@ -11,7 +11,7 @@ module V0
         vic_submission = ::VIC::VICSubmission.new(
           params.require(:vic_submission).permit(:form)
         )
-        vic_submission.user_uuid = current_user.uuid if current_user.present?
+        vic_submission.user = current_user
 
         unless vic_submission.save
           Raven.tags_context(validation: 'vic')
