@@ -40,6 +40,7 @@ FactoryBot.define do
     participant_id { Faker::Number.number(10) }
     birls_id { Faker::Number.number(10) }
     sec_id '0001234567'
+    historical_icns %w[1000123457V123456 1000123458V123456]
 
     factory :mvi_profile_response do
       given_names %w[John William]

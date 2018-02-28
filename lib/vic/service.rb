@@ -155,7 +155,7 @@ module VIC
       if va_profile.present?
         profile_data['sec_ID'] = va_profile.sec_id
         profile_data['active_ICN'] = user.icn
-        profile_data['historical_ICN'] = MVI::Service.new.find_historical_icns(user)
+        profile_data['historical_ICN'] = va_profile.historical_icns
       end
 
       if user.edipi.present?
