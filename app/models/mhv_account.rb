@@ -70,10 +70,11 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def preexisting_account?
-    user&.mhv_correlation_id.present? && !previously_registered?
+    mhv_correlation_id.present? && !previously_registered?
   end
 
   def accessible?
+    return false if mhv_correlation_id.blank?
     (user.loa3? || user.authn_context.include?('myhealthevet')) && (upgraded? || existing?)
   end
 
@@ -99,6 +100,10 @@ class MhvAccount < ActiveRecord::Base
     @user ||= User.find(user_uuid)
   end
 
+  def mhv_correlation_id
+    user.mhv_correlation_id
+  end
+
   def create_mhv_account!
     mhv_accounts_service.create
   end
@@ -113,7 +118,7 @@ class MhvAccount < ActiveRecord::Base
 
   def setup
     raise StandardError, 'You must use find_or_initialize_by(user_uuid: #)' if user_uuid.nil?
-    check_eligibility unless registered? || upgraded?
+    check_eligibility unless accessible?
     check_terms_acceptance if may_check_terms_acceptance?
   end
 end
