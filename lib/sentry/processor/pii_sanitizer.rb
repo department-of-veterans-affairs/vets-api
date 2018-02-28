@@ -9,10 +9,13 @@ module Sentry
 
       JSON_STARTS_WITH = ['[', '{'].freeze
 
+      # rubocop:disable Metrics/CyclomaticComplexity
       def process(value, key = nil)
         case value
         when Hash
           !value.frozen? ? value.merge!(value) { |k, v| process v, k } : value.merge(value) { |k, v| process v, k }
+        when Array
+          !value.frozen? ? value.map! { |v| process v } : value.map { |v| process v }
         when String
           # if this string is actually a json obj, convert and sanitize
           # taken from: https://github.com/getsentry/raven-ruby/blob/master/lib/raven/processor/sanitizedata.rb#L29
@@ -25,6 +28,7 @@ module Sentry
           filter_values(key, value)
         end
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
 
       private
 
