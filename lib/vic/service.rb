@@ -11,7 +11,7 @@ module VIC
     }.freeze
 
     SALESFORCE_USERNAME = SALESFORCE_USERNAMES[Settings.salesforce.env]
-    SALESFORCE_HOST = "https://#{Settings.salesforce.env == 'prod' ? 'va.my' : 'test'}.salesforce.com"
+    SALESFORCE_HOST = "https://#{Settings.salesforce.env == 'prod' ? 'login' : 'test'}.salesforce.com"
     SERVICE_BRANCHES = {
       'F' => 'Air Force',
       'A' => 'Army',
