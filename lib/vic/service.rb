@@ -4,15 +4,14 @@ module VIC
   class Service < Common::Client::Base
     configuration VIC::Configuration
 
-    SALESFORCE_USERNAME = lambda do
-      env = Settings.salesforce.env
-      suffix = env
-      suffix = "vic#{suffix}" unless env == 'uat'
+    SALESFORCE_USERNAMES = {
+      'prod' => 'vetsgov-devops@listserv.gsa.gov',
+      'uat' => 'vetsgov-devops@listserv.gsa.gov.uat',
+      'dev' => 'vetsgov-devops@listserv.gsa.gov.vicdev'
+    }.freeze
 
-      "vetsgov-devops@listserv.gsa.gov.#{suffix}"
-    end.call
-    # TODO: set correct prod value when we release to prod for salesforce_host
-    SALESFORCE_HOST = 'https://test.salesforce.com'
+    SALESFORCE_USERNAME = SALESFORCE_USERNAMES[Settings.salesforce.env]
+    SALESFORCE_HOST = "https://#{Settings.salesforce.env == 'prod' ? 'login' : 'test'}.salesforce.com"
     SERVICE_BRANCHES = {
       'F' => 'Air Force',
       'A' => 'Army',
@@ -21,6 +20,9 @@ module VIC
       'N' => 'Navy'
     }.freeze
     PROCESSING_WAIT = 10
+
+    class AttachmentUploadFailed < StandardError
+    end
 
     def oauth_params
       {
@@ -78,7 +80,10 @@ module VIC
       converted_form
     end
 
-    def send_file(client, case_id, file_body, description)
+    def send_file(client, case_id, form_attachment, description)
+      return if form_attachment.blank?
+
+      file_body = form_attachment.get_file.read
       mime_type = MimeMagic.by_magic(file_body).type
       file_name = "#{description}.#{mime_type.split('/')[1]}"
       file_path = Common::FileHelpers.generate_temp_file(file_body)
@@ -92,10 +97,13 @@ module VIC
           mime_type
         )
       )
-
-      log_message_to_sentry('vic file upload failed', :error) unless success
-
       File.delete(file_path)
+
+      if success
+        form_attachment.destroy
+      else
+        raise AttachmentUploadFailed
+      end
     end
 
     def get_attachment_records(form)
@@ -112,9 +120,7 @@ module VIC
         end
       end
 
-      form['photo'].tap do |file|
-        @attachment_records[:profile_photo] = VIC::ProfilePhotoAttachment.find_by(guid: file['confirmationCode'])
-      end
+      @attachment_records[:profile_photo] = VIC::ProfilePhotoAttachment.find_by(guid: form['photo']['confirmationCode'])
 
       @attachment_records
     end
@@ -131,15 +137,15 @@ module VIC
       true
     end
 
-    def send_files(client, case_id, form)
+    def send_files(case_id, form)
+      client = get_client
       attachment_records = get_attachment_records(form)
       attachment_records[:supporting].each_with_index do |form_attachment, i|
-        file_body = form_attachment.get_file.read
-        send_file(client, case_id, file_body, "Discharge Documentation #{i}")
+        send_file(client, case_id, form_attachment, "Discharge Documentation #{i}")
       end
 
-      file_body = attachment_records[:profile_photo].get_file.read
-      send_file(client, case_id, file_body, 'Photo')
+      form_attachment = attachment_records[:profile_photo]
+      send_file(client, case_id, form_attachment, 'Photo')
     end
 
     def add_user_data!(converted_form, user)
@@ -176,21 +182,23 @@ module VIC
       false
     end
 
-    def submit(form, user)
-      converted_form = convert_form(form)
-      add_user_data!(converted_form, user) if user.present?
-
-      client = Restforce.new(
+    def get_client
+      Restforce.new(
         oauth_token: get_oauth_token,
         instance_url: Configuration::SALESFORCE_INSTANCE_URL,
         api_version: '41.0'
       )
+    end
+
+    def submit(form, user)
+      converted_form = convert_form(form)
+      add_user_data!(converted_form, user) if user.present?
+
+      client = get_client
       response_body = client.post('/services/apexrest/VICRequest', converted_form).body
       Raven.extra_context(submit_response_body: response_body)
 
       case_id = response_body['case_id']
-
-      send_files(client, case_id, form)
 
       {
         case_id: case_id,
