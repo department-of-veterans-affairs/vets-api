@@ -25,7 +25,7 @@ RSpec.describe VIC::VICSubmission, type: :model do
     context 'with forbidden fields' do
       it 'should be invalid' do
         vic_submission.user = build(:user, :loa3)
-        error = 'veteranDateOfBirth, veteranFullName, and veteranSocialSecurityNumber fields not allowed for loa3 user'
+        error = 'veteranFullName and veteranSocialSecurityNumber fields not allowed for loa3 user'
         expect_attr_invalid(vic_submission, :form, error)
       end
     end
