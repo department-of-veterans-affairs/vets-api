@@ -7,7 +7,7 @@ module VIC
     LOA3_LOCKED_FIELDS = %w[
       veteranFullName
       veteranSocialSecurityNumber
-    ]
+    ].freeze
 
     attr_accessor(:form)
     attr_accessor(:user)
@@ -30,9 +30,7 @@ module VIC
       if user.present? && user.loa3?
         bad_fields = (parsed_form.keys & LOA3_LOCKED_FIELDS)
 
-        if bad_fields.present?
-          errors[:form] << "#{bad_fields.to_sentence} fields not allowed for loa3 user"
-        end
+        errors[:form] << "#{bad_fields.to_sentence} fields not allowed for loa3 user" if bad_fields.present?
       end
     end
 
