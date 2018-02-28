@@ -7,7 +7,6 @@ module VIC
     LOA3_LOCKED_FIELDS = %w[
       veteranFullName
       veteranSocialSecurityNumber
-      veteranDateOfBirth
     ]
 
     attr_accessor(:form)

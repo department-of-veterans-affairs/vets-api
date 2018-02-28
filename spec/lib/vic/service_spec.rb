@@ -35,8 +35,10 @@ describe VIC::Service, type: :model do
         'profile_data' => {
           'sec_ID' => '0001234567',
           'active_ICN' => user.icn,
+          'SSN' => user.ssn,
           'historical_ICN' => []
         },
+        "veteran_full_name" => {"first"=>"WESLEY", "last"=>"FORD"},
         'title38_status' => 'V1'
       )
     end
@@ -50,8 +52,10 @@ describe VIC::Service, type: :model do
           'profile_data' => {
             'sec_ID' => '0001234567',
             'active_ICN' => user.icn,
+            'SSN' => user.ssn,
             'historical_ICN' => []
-          }
+          },
+          "veteran_full_name" => {"first"=>"WESLEY", "last"=>"FORD"}
         )
       end
     end
