@@ -2,11 +2,11 @@
 http_interactions:
 - request:
     method: post
-    uri: "<MHV_HOST>/mhv-api/patient/v1/account/upgrade"
+    uri: "<MHV_HOST>/mhv-api/patient/v1/account/register"
     body:
       encoding: UTF-8
-      string: '{"userId":14221465,"formSignedDateTime":"Tue, 09 May 2017 00:00:00
-        GMT","termsVersion":"v3.4"}'
+      string: '{"icn":"1012667122V019349","isPatient":true,"isPatientAdvocate":false,"isVeteran":true,"isChampVaBeneficiary":false,"isServiceMember":false,"isEmployee":false,"isHealthCareProvider":false,"isOther":false,"city":"Houston","country":"USA","zip":"77040","state":"Tx","address1":"20140624","email":"vets.gov.user+0@gmail.com","signInPartners":"VETS.GOV","termsVersion":"v3.2","termsAcceptedDate":"Tue,
+        09 May 2017 00:00:00 GMT"}'
     headers:
       Accept:
       - application/json

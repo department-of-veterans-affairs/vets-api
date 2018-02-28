@@ -269,21 +269,6 @@ RSpec.describe MhvAccount, type: :model do
     end
   end
 
-  describe 'account creation and upgrade' do
-    subject { described_class.new(user_uuid: user.uuid) }
-    let(:mhv_accounts_service) { double('mhv_accounts_service', create: true, upgrade: true) }
-
-    before do
-      allow(subject).to receive(:mhv_accounts_service).and_return(mhv_accounts_service)
-    end
-
-    it 'creates and upgrades an account' do
-      expect(mhv_accounts_service).to receive(:create)
-      expect(mhv_accounts_service).to receive(:upgrade)
-      subject.create_and_upgrade!
-    end
-  end
-
   describe 'va_patient eligibility' do
     subject { described_class.new(user_uuid: user.uuid) }
     context 'empty facility list' do
