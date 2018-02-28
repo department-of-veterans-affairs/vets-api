@@ -2,7 +2,7 @@
 
 module V0
   module VIC
-    class ProfilePhotoAttachmentsController < ApplicationController
+    class ProfilePhotoAttachmentsController < BaseController
       skip_before_action :authenticate, only: :create
 
       # Taken from: https://stackoverflow.com/questions/7905929/how-to-test-valid-uuid-guid/13653180#13653180
