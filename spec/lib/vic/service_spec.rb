@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe VIC::Service do
+describe VIC::Service, type: :model do
   let(:parsed_form) { JSON.parse(create(:vic_submission).form) }
   let(:service) { described_class.new }
   let(:user) { build(:evss_user) }
@@ -20,16 +20,40 @@ describe VIC::Service do
   end
 
   describe '#add_user_data!' do
+    let(:converted_form) do
+      { 'profile_data' => {} }
+    end
+
+    before do
+      expect_any_instance_of(MVI::Service).to receive(:find_historical_icns).with(user).and_return([])
+    end
+
     it 'should add user data to the request form' do
-      converted_form = { 'profile_data' => {} }
       expect(user.veteran_status).to receive(:title38_status).and_return('V1')
       service.add_user_data!(converted_form, user)
       expect(converted_form).to eq(
         'profile_data' => {
-          'sec_ID' => '0001234567', 'active_ICN' => user.icn
+          'sec_ID' => '0001234567',
+          'active_ICN' => user.icn,
+          'historical_ICN' => []
         },
         'title38_status' => 'V1'
       )
+    end
+
+    context 'when the veteran is not found' do
+      it 'should omit the title 38 status' do
+        expect(user.veteran_status).to receive(:title38_status).and_raise(EMISRedis::VeteranStatus::RecordNotFound)
+
+        service.add_user_data!(converted_form, user)
+        expect(converted_form).to eq(
+          'profile_data' => {
+            'sec_ID' => '0001234567',
+            'active_ICN' => user.icn,
+            'historical_ICN' => []
+          }
+        )
+      end
     end
   end
 
@@ -62,37 +86,65 @@ describe VIC::Service do
     it 'should send the files in the form' do
       parsed_form
       ProcessFileJob.drain
+      expect(service).to receive(:get_client).and_return(client)
       expect(service).to receive(:send_file).with(
         client, case_id,
-        VIC::SupportingDocumentationAttachment.last.get_file.read,
-        'Supporting Documentation'
+        VIC::SupportingDocumentationAttachment.last,
+        'Discharge Documentation 0'
       )
       expect(service).to receive(:send_file).with(
         client, case_id,
-        VIC::ProfilePhotoAttachment.last.get_file.read,
-        'Profile Photo'
+        VIC::ProfilePhotoAttachment.last,
+        'Photo'
       )
-      service.send_files(client, case_id, parsed_form)
+      service.send_files(case_id, parsed_form)
     end
   end
 
   describe '#send_file' do
-    it 'should read the mime type and send the file' do
+    let(:attachment) do
+      attachment = create(:supporting_documentation_attachment)
+      ProcessFileJob.drain
+      attachment
+    end
+    let(:result) { true }
+
+    before do
       upload_io = double
-      expect(SecureRandom).to receive(:hex).and_return('hex')
+      hex = '3e37ec951a66e3c6b6a58ae5c791bb9d'
+      allow(SecureRandom).to receive(:hex).and_return(hex)
       expect(Restforce::UploadIO).to receive(:new).with(
-        'tmp/hex.pdf', 'application/pdf'
+        "tmp/#{hex}", 'application/pdf'
       ).and_return(upload_io)
 
       expect(client).to receive(:create).with(
         'Attachment',
         ParentId: case_id,
-        Description: 'description',
-        Name: 'hex.pdf',
+        Name: 'description.pdf',
         Body: upload_io
-      )
+      ).and_return(result)
+    end
 
-      service.send_file(client, case_id, File.read('spec/fixtures/pdf_fill/extras.pdf'), 'description')
+    def call_send_file
+      service.send_file(client, case_id, attachment, 'description')
+    end
+
+    context 'with a successful upload' do
+      it 'should read the mime type and send the file' do
+        call_send_file
+
+        expect(model_exists?(attachment)).to eq(false)
+      end
+    end
+
+    context 'with a failed upload' do
+      let(:result) { false }
+
+      it 'should raise error' do
+        expect do
+          call_send_file
+        end.to raise_error(VIC::Service::AttachmentUploadFailed)
+      end
     end
   end
 
@@ -116,8 +168,6 @@ describe VIC::Service do
           }
         )
       )
-
-      expect(service).to receive(:send_files).with(client, 'case_id', parsed_form)
     end
 
     def test_case_id(user)

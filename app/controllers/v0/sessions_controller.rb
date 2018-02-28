@@ -1,18 +1,13 @@
 # frozen_string_literal: true
 
-require 'saml/auth_fail_handler'
-
 module V0
   class SessionsController < ApplicationController
     skip_before_action :authenticate, only: %i[new authn_urls saml_callback saml_logout_callback]
 
-    STATSD_CALLBACK_KEY = 'api.auth.saml_callback'
-    STATSD_LOGIN_FAILED_KEY = 'api.auth.login_callback.failed'
-    STATSD_LOGIN_TOTAL_KEY = 'api.auth.login_callback.total'
+    STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
+    STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
+    STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
-    TIMER_LOGIN_KEY = 'api.auth.login'
-    TIMER_LOGOUT_KEY = 'api.auth.logout'
-
     STATSD_CONTEXT_MAP = {
       LOA::MAPPING.invert[1] => 'idme',
       'dslogon' => 'dslogon',
@@ -23,10 +18,9 @@ module V0
       'myhealthevet_multifactor' => 'myhealthevet_multifactor'
     }.freeze
 
-    # Collection Action: method will eventually replace new
+    # Collection Action: no auth required
     # Returns the sign-in urls for mhv, dslogon, and ID.me (LOA1 only)
     # authn_context is the policy, connect represents the ID.me flow
-    # no auth required
     def authn_urls
       render json: {
         mhv: build_url(authn_context: 'myhealthevet', connect: 'myhealthevet'),
@@ -35,33 +29,27 @@ module V0
       }
     end
 
-    # Member Action: method is to opt in to MFA for those users who opted out
+    # Member Action: auth token required
+    # method is to opt in to MFA for those users who opted out
     # authn_context is the policy, connect represents the ID.me flow
-    # auth token required
     def multifactor
       policy = @current_user&.authn_context
       authn_context = policy.present? ? "#{policy}_multifactor" : 'multifactor'
       render json: { multifactor_url: build_url(authn_context: authn_context, connect: policy) }
     end
 
-    # Member Action: method is to verify LOA3 if existing ID.me LOA3, or
-    #  go through the FICAM identity proofing flow if not an ID.me LOA3 or NON PREMIUM DSLogon or MHV.
-    # NOTE: This is FICAM LOA3 we're talking about here. It is not necessary to verify DSLogon or MHV
-    #  sign-in users who return LOA3 from the auth_url flow (only for leveling up NON PREMIUM).
-    # authn_context is the policy, connect represents the ID.me flow
-    # auth token required
+    # Member Action: auth token required
+    # method is to verify LOA3. It is not necessary to verify for DSLogon or MHV who are PREMIUM users.
+    # These sign-in users return LOA3 from the auth_url flow.
     def identity_proof
-      connect = @current_user&.authn_context
       render json: {
-        identity_proof_url: build_url(authn_context: LOA::MAPPING.invert[3], connect: connect)
+        identity_proof_url: build_url(authn_context: LOA::MAPPING.invert[3], connect: @current_user&.authn_context)
       }
     end
 
     def destroy
       logout_request = OneLogin::RubySaml::Logoutrequest.new
       logger.info "New SP SLO for userid '#{@session.uuid}'"
-
-      Benchmark::Timer.start(TIMER_LOGOUT_KEY, logout_request.uuid)
 
       saml_settings = saml_settings(name_identifier_value: @session&.uuid)
       # cache the request for @session.token lookup when we receive the response
@@ -78,78 +66,28 @@ module V0
     end
 
     def saml_callback
-      @saml_response = OneLogin::RubySaml::Response.new(
-        params[:SAMLResponse], settings: saml_settings
-      )
+      saml_response = OneLogin::RubySaml::Response.new(params[:SAMLResponse], settings: saml_settings)
+      @sso_service = SSOService.new(saml_response)
 
-      if @saml_response.is_valid? && persist_session_and_user
+      if @sso_service.persist_authentication!
+        @current_user = @sso_service.new_user
+        @session = @sso_service.new_session
         async_create_evss_account(@current_user)
         redirect_to Settings.saml.relay + '?token=' + @session.token
 
         log_persisted_session_and_warnings
-        Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: benchmark_tags('status:success'))
-        StatsD.increment(STATSD_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
+        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
-        handle_login_error
         redirect_to Settings.saml.relay + '?auth=fail'
-        Benchmark::Timer.stop(TIMER_LOGIN_KEY, @saml_response.in_response_to, tags: benchmark_tags('status:failure'))
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
+        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
     ensure
-      StatsD.increment(STATSD_LOGIN_TOTAL_KEY)
+      StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
     end
 
     private
-
-    def persist_session_and_user
-      saml_attributes = SAML::User.new(@saml_response)
-      existing_user = User.find(saml_attributes.user_attributes.uuid)
-      user_identity = UserIdentity.new(saml_attributes.to_hash)
-      @current_user = init_new_user(user_identity, existing_user, saml_attributes.changing_multifactor?)
-
-      if existing_user.present?
-        existing_user&.identity&.destroy
-        existing_user.destroy
-      else
-        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY)
-      end
-
-      @session = Session.new(uuid: @current_user.uuid)
-      @session.save && user_identity.save && @current_user.save
-    end
-
-    def init_new_user(user_identity, existing_user = nil, multifactor_change = false)
-      new_user = User.new(user_identity.attributes)
-      if multifactor_change
-        new_user.last_signed_in = existing_user.last_signed_in
-        new_user.mhv_last_signed_in = existing_user.mhv_last_signed_in
-      else
-        new_user.last_signed_in = Time.current.utc
-      end
-      new_user
-    end
-
-    def handle_login_error
-      fail_handler = SAML::AuthFailHandler.new(@saml_response)
-      StatsD.increment(STATSD_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
-      if fail_handler.errors?
-        StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ["error:#{fail_handler.error}"])
-        log_message_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
-      else
-        StatsD.increment(STATSD_LOGIN_FAILED_KEY, tags: ['error:validations_failed'])
-        context = {
-          uuid: @current_user.uuid,
-          user:   {
-            valid: @current_user&.valid?,
-            errors: @current_user&.errors&.full_messages
-          },
-          session:   {
-            valid: @session&.valid?,
-            errors: @session&.errors&.full_messages
-          }
-        }
-        log_message_to_sentry('Login Fail! on User/Session Validation', :error, context)
-      end
-    end
 
     def log_persisted_session_and_warnings
       obscure_token = Session.obscure_token(@session.token)
@@ -181,7 +119,6 @@ module V0
         extra_context = { in_response_to: logout_response&.in_response_to }
         log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
         redirect_to Settings.saml.logout_relay + '?success=false'
-        Benchmark::Timer.stop(TIMER_LOGOUT_KEY, logout_response&.in_response_to, tags: ['status:fail'])
       else
         logout_request.destroy
         session.destroy
@@ -189,7 +126,6 @@ module V0
         redirect_to Settings.saml.logout_relay + '?success=true'
         # even if mhv logout raises exception, still consider logout successful from browser POV
         MHVLoggingService.logout(user)
-        Benchmark::Timer.stop(TIMER_LOGOUT_KEY, logout_response.in_response_to, tags: ['status:success'])
       end
     end
 
@@ -209,20 +145,13 @@ module V0
 
     # Builds the urls to trigger varios sign-in, mfa, or verify flows in idme.
     # nil authn_context and nil connect will always default to idme level 1
+    # authn_context is the policy, connect represents the ID.me specific flow.
     def build_url(authn_context: LOA::MAPPING.invert[1], connect: nil)
       saml_settings = saml_settings(authn_context: authn_context, name_identifier_value: @session&.uuid)
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      Benchmark::Timer.start(TIMER_LOGIN_KEY, saml_auth_request.uuid)
       connect_param = "&connect=#{connect}"
       link = saml_auth_request.create(saml_settings, saml_options)
       connect.present? ? link + connect_param : link
-    end
-
-    def context_key
-      context = REXML::XPath.first(@saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
-      STATSD_CONTEXT_MAP[context] || 'unknown'
-    rescue
-      'unknown'
     end
 
     def benchmark_tags(*tags)
@@ -230,6 +159,12 @@ module V0
       tags << "loa:#{@current_user&.identity ? @current_user.loa[:current] : 'none'}"
       tags << "multifactor:#{@current_user&.identity ? @current_user.multifactor : 'none'}"
       tags
+    end
+
+    def context_key
+      STATSD_CONTEXT_MAP[real_authn_context] || 'unknown'
+    rescue StandardError
+      'unknown'
     end
   end
 end
