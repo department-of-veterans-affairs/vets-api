@@ -26,7 +26,7 @@ RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
         it 'creates a vic submission with a user' do
           expect(controller).to receive(:authenticate_token)
           allow(controller).to receive(:current_user).and_return(user)
-          expect_any_instance_of(VIC::VICSubmission).to receive(:user_uuid=).with(user.uuid)
+          expect_any_instance_of(VIC::VICSubmission).to receive(:user=).with(user)
           expect(controller).to receive(:clear_saved_form).with('VIC')
           send_create
           expect(response.ok?).to eq(true)
