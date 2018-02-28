@@ -20,7 +20,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              property :email_address, type: :string, example: 'john@example.com'
+              property :email, type: :string, example: 'john@example.com'
               property :effective_at, type: :string, example: '2018-02-27T14:41:32.283Z'
             end
           end

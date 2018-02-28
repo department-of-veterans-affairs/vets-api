@@ -6,7 +6,7 @@
       "properties": {
         "attributes": {
           "properties": {
-            "email_address": {
+            "email": {
               "type": "string"
             },
             "effective_at": {

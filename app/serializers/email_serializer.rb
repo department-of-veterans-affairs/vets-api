@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class EmailSerializer < ActiveModel::Serializer
-  attribute :email_address
+  attribute :email
   attribute :effective_at
 
   def id
@@ -16,7 +16,7 @@ class EmailSerializer < ActiveModel::Serializer
   #     "value" => "test2@test1.net"
   #   }
   #
-  def email_address
+  def email
     object&.email_address&.dig 'value'
   end
 
