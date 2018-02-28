@@ -26,6 +26,8 @@ class VBAFacilityAdapter
     attrs = record['attributes']
     m = from_gis_attrs(TOP_KEYMAP, attrs)
     m[:facility_type] = FACILITY_TYPE
+    m[:lat] = record['geometry']['y']
+    m[:long] = record['geometry']['x']
     m[:address] = {}
     m[:address][:physical] = from_gis_attrs(ADDR_KEYMAP, attrs)
     m[:address][:mailing] = {}
@@ -45,7 +47,7 @@ class VBAFacilityAdapter
   TOP_KEYMAP = {
     unique_id: 'Facility_Number',
     name: 'Facility_Name', classification: 'Facility_Type',
-    website: 'Website_URL', lat: 'Lat', long: 'Long'
+    website: 'Website_URL'
   }.freeze
 
   ADDR_KEYMAP = {
