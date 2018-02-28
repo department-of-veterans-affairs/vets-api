@@ -4,6 +4,12 @@ module VIC
   class VICSubmission < ActiveRecord::Base
     include SetGuid
 
+    LOA3_LOCKED_FIELDS = %w[
+      veteranFullName
+      veteranSocialSecurityNumber
+      veteranDateOfBirth
+    ]
+
     attr_accessor(:form)
     attr_accessor(:user)
 
@@ -22,6 +28,13 @@ module VIC
     private
 
     def no_forbidden_fields
+      if user.present? && user.loa3?
+        bad_fields = (parsed_form.keys & LOA3_LOCKED_FIELDS)
+
+        if bad_fields.present?
+          errors[:form] << "#{bad_fields.to_sentence} fields not allowed for loa3 user"
+        end
+      end
     end
 
     def parsed_form
