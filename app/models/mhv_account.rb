@@ -101,7 +101,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def mhv_correlation_id
-    user&.mhv_correlation_id
+    user.mhv_correlation_id
   end
 
   def create_mhv_account!
