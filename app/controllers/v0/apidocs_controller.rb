@@ -94,6 +94,7 @@ module V0
       Swagger::Schemas::Appeals,
       Swagger::Schemas::BB::HealthRecords,
       Swagger::Schemas::Countries,
+      Swagger::Schemas::Email,
       Swagger::Schemas::Errors,
       Swagger::Schemas::Gibct::CalculatorConstants,
       Swagger::Schemas::Gibct::Institutions,
