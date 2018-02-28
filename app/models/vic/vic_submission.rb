@@ -28,7 +28,7 @@ module VIC
 
     def no_forbidden_fields
       if user.present? && user.loa3?
-        bad_fields = (parsed_form.keys & LOA3_LOCKED_FIELDS)
+        bad_fields = parsed_form.keys & LOA3_LOCKED_FIELDS
 
         errors[:form] << "#{bad_fields.to_sentence} fields not allowed for loa3 user" if bad_fields.present?
       end
