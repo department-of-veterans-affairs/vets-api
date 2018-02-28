@@ -78,6 +78,6 @@ http_interactions:
             "notDeceasedIndicator" : true
           }
         }
-    http_version: 
+    http_version:
   recorded_at: Thu, 22 Feb 2018 23:58:38 GMT
 recorded_with: VCR 3.0.3

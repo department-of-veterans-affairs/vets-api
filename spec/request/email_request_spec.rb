@@ -16,7 +16,7 @@ RSpec.describe 'email', type: :request do
 
   describe 'GET /v0/profile/email' do
     it 'returns a status of 200' do
-      VCR.use_cassette('evss/pciu/service') do
+      VCR.use_cassette('evss/pciu/email') do
         get '/v0/profile/email', nil, auth_header
 
         expect(response).to have_http_status(:ok)
