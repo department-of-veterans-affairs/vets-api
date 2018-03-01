@@ -7,17 +7,10 @@ module PensionBurial
     end
 
     def run(settings)
-      FileUtils.mkdir_p(Rails.root.join('tmp', 'pdfs'))
       in_path = get_file
-      stamp_path = Rails.root.join('tmp', 'pdfs', "#{SecureRandom.uuid}.pdf")
+      stamp_path = Common::FileHelpers.random_file_path
       generate_stamp(stamp_path, settings[:text], settings[:x], settings[:y], settings[:text_only])
       out_path = stamp(in_path, stamp_path)
-    ensure
-      File.delete(stamp_path) if stamp_path && File.exist?(stamp_path)
-      if out_path && File.exist?(out_path)
-        File.delete(out_path)
-        FileUtils.rmdir(File.dirname(out_path))
-      end
     end
 
     def get_file
@@ -39,9 +32,10 @@ module PensionBurial
     end
 
     def stamp(file_path, stamp_path)
-      out_path = File.join('tmp', SecureRandom.hex)
+      out_path = Common::FileHelpers.random_file_path
       PdfFill::Filler::PDF_FORMS.stamp(file_path, stamp_path, out_path)
       File.delete(file_path)
+      File.delete(stamp_path)
       out_path
     rescue
       File.delete(out_path)

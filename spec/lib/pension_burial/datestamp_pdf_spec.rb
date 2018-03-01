@@ -21,16 +21,16 @@ RSpec.describe PensionBurial::DatestampPdf do
     end
 
     context 'with a succesful pdf stamp' do
-      def assert_pdf_stamp(stamp)
-        pdf_reader = PDF::Reader.new(instance.file.download.path)
+      def assert_pdf_stamp(file, stamp)
+        pdf_reader = PDF::Reader.new(file)
         expect(pdf_reader.pages[0].text).to eq(stamp)
+        File.delete(file)
       end
 
       it 'should add text with a datestamp at the given location' do
         Timecop.travel(Time.zone.local(1999, 12, 31, 23, 59, 59)) do
           out_path = instance.run(text: 'Received via vets.gov at', x: 10, y: 10)
-          binding.pry; fail
-          assert_pdf_stamp('Received via vets.gov at 1999-12-31. Confirmation=VETS-XX-1234')
+          assert_pdf_stamp(out_path, 'Received via vets.gov at 1999-12-31. Confirmation=VETS-XX-1234')
         end
       end
 
