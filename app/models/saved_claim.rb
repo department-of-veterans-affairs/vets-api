@@ -81,7 +81,7 @@ class SavedClaim < ActiveRecord::Base
   end
 
   def to_pdf
-    File.open(PdfFill::Filler.fill_form(self))
+    PdfFill::Filler.fill_form(self)
   end
 
   private
