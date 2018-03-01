@@ -9,18 +9,15 @@ RSpec.describe PensionBurial::DatestampPdf do
       Prawn::Document.new.render_file @file_path
     end
 
-    let(:attacher) do
-      a = Shrine::Attacher.new(InternalAttachment.new, :file)
-      file = File.open(@file_path)
-      a.assign(file)
-      a
-    end
-
     let(:instance) do
-      described_class.new(File.open(@file_path), append_to_stamp: 'Confirmation=VETS-XX-1234')
+      described_class.new(File.open(@file_path), opt)
     end
 
     context 'with a succesful pdf stamp' do
+      let(:opt) do
+        { append_to_stamp: 'Confirmation=VETS-XX-1234' }
+      end
+
       def assert_pdf_stamp(file, stamp)
         pdf_reader = PDF::Reader.new(file)
         expect(pdf_reader.pages[0].text).to eq(stamp)
@@ -35,14 +32,14 @@ RSpec.describe PensionBurial::DatestampPdf do
       end
 
       context 'with no additional text' do
-        let(:instance) do
-          described_class.new({}, internal: { file: attacher.read })
+        let(:opt) do
+          {}
         end
 
         it 'does not include the datetime' do
           text = 'Vets.gov Submission'
-          instance.run(text: text, x: 449, y: 730, text_only: true)
-          assert_pdf_stamp(text)
+          out_path = instance.run(text: text, x: 449, y: 730, text_only: true)
+          assert_pdf_stamp(out_path, text)
         end
       end
     end
