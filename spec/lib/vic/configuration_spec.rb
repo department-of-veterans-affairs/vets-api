@@ -19,5 +19,13 @@ describe VIC::Configuration do
         )
       end
     end
+
+    context 'with an env of prod' do
+      it 'should return the right url' do
+        expect(described_class.get_sf_instance_url('prod')).to eq(
+          'https://va.my.salesforce.com'
+        )
+      end
+    end
   end
 end

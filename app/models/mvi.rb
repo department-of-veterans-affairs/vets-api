@@ -76,6 +76,14 @@ class Mvi < Common::RedisStore
     profile&.birls_id
   end
 
+  # A list of ICN's that the user has been identitfied by historically
+  #
+  # @return [Array[String]] the list of historical icns
+  def historical_icns
+    return nil unless @user.loa3?
+    profile&.historical_icns
+  end
+
   # The profile returned from the MVI service. Either returned from cached response in Redis or the MVI service.
   #
   # @return [MVI::Models::MviProfile] patient 'golden record' data from MVI

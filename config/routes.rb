@@ -7,6 +7,9 @@ Rails.application.routes.draw do
   get '/saml/metadata', to: 'saml#metadata'
   get '/auth/saml/logout', to: 'v0/sessions#saml_logout_callback', as: 'saml_logout'
   post '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
+  get '/sessions/:type/new',
+      to: 'v0/sessions#new',
+      constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
 
   namespace :v0, defaults: { format: 'json' } do
     resources :in_progress_forms, only: %i[index show update destroy]
@@ -148,12 +151,18 @@ Rails.application.routes.draw do
       end
     end
 
+    namespace :profile do
+      resource :email, only: :show
+    end
+
     resources :apidocs, only: [:index]
 
     get 'terms_and_conditions', to: 'terms_and_conditions#index'
     get 'terms_and_conditions/:name/versions/latest', to: 'terms_and_conditions#latest'
     get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
+
+    resource :mhv_account, only: %i[show create]
 
     [
       'veteran_id_card',
@@ -175,9 +184,6 @@ Rails.application.routes.draw do
     require 'sidekiq-scheduler/web'
     mount Sidekiq::Web, at: '/sidekiq'
   end
-
-  # Supports retrieval of VIC photo uploads during local development
-  get '/content/vic/*path', to: 'content/vic_local_uploads#find_file' if Rails.env.development?
 
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i[get post put patch delete]
