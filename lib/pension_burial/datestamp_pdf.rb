@@ -1,20 +1,17 @@
 module PensionBurial
   class DatestampPdf
-    def initialize(file, skip_date_on_stamp: false, append_to_stamp: nil)
-      @file = file
+    def initialize(file_path, skip_date_on_stamp: false, append_to_stamp: nil)
+      @file_path = file_path
       @skip_date_on_stamp = skip_date_on_stamp
       @append_to_stamp = append_to_stamp
     end
 
     def run(settings)
-      in_path = get_file
       stamp_path = Common::FileHelpers.random_file_path
       generate_stamp(stamp_path, settings[:text], settings[:x], settings[:y], settings[:text_only])
-      out_path = stamp(in_path, stamp_path)
-    end
-
-    def get_file
-      Common::FileHelpers.generate_temp_file(@file.read)
+      out_path = stamp(@file_path, stamp_path)
+    ensure
+      Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
     end
 
     def generate_stamp(stamp_path, text, x, y, text_only)
@@ -34,11 +31,9 @@ module PensionBurial
     def stamp(file_path, stamp_path)
       out_path = Common::FileHelpers.random_file_path
       PdfFill::Filler::PDF_FORMS.stamp(file_path, stamp_path, out_path)
-      File.delete(file_path)
-      File.delete(stamp_path)
       out_path
     rescue
-      File.delete(out_path)
+      Common::FileHelpers.delete_file_if_exists(out_path)
       raise
     end
   end

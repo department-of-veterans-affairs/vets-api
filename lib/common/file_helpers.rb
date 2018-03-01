@@ -4,6 +4,10 @@ module Common
   module FileHelpers
     module_function
 
+    def delete_file_if_exists(path)
+      File.delete(path) if File.exists?(path)
+    end
+
     def random_file_path
       "tmp/#{SecureRandom.hex}"
     end

@@ -9,15 +9,16 @@ RSpec.describe PensionBurial::DatestampPdf do
       Prawn::Document.new.render_file @file_path
     end
 
-    let(:instance) do
-      described_class.new(File.open(@file_path), opt)
+    let(:opt) do
+      { append_to_stamp: 'Confirmation=VETS-XX-1234' }
     end
 
-    context 'with a succesful pdf stamp' do
-      let(:opt) do
-        { append_to_stamp: 'Confirmation=VETS-XX-1234' }
-      end
+    let(:instance) do
+      described_class.new(@file_path, opt)
+    end
 
+
+    context 'with a succesful pdf stamp' do
       def assert_pdf_stamp(file, stamp)
         pdf_reader = PDF::Reader.new(file)
         expect(pdf_reader.pages[0].text).to eq(stamp)
@@ -61,8 +62,7 @@ RSpec.describe PensionBurial::DatestampPdf do
       context 'when an error occurs in #stamp' do
         it 'should log and reraise the error and clean up after itself' do
           allow(PdfFill::Filler::PDF_FORMS).to receive(:stamp).and_raise(error_message)
-          expect(Rails.logger).to receive(:error).once.with("Failed to datestamp PDF file: #{error_message}")
-          expect(File).to receive(:delete).once.and_call_original
+          expect(File).to receive(:delete).and_call_original
           expect do
             instance.run(text: 'Received via vets.gov at', x: 10, y: 10)
           end.to raise_error(StandardError, error_message)
