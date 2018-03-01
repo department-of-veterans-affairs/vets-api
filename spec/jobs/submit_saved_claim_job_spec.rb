@@ -12,7 +12,6 @@ RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
     end
 
     it 'submits the saved claim' do
-      binding.pry; fail
       SubmitSavedClaimJob.new.perform(claim.id)
     end
   end
