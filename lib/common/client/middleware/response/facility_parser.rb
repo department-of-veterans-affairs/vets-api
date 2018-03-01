@@ -45,8 +45,8 @@ module Common
             mapped_attrs['services']['health'] = services_from_gis(mapping['services'], attrs)
 
             mapped_attrs.merge!(
-              'lat' => entry['geometry']['x'],
-              'long' => entry['geometry']['y']
+              'lat' => entry['geometry']['y'],
+              'long' => entry['geometry']['x']
             )
           end
 

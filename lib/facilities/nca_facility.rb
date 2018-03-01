@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'facilities/shared_client'
+
 module Facilities
   class NCAFacility < BaseFacility
     FACILITY_TYPE = 'va_cemetery'
@@ -7,7 +9,7 @@ module Facilities
 
     class << self
       def pull_source_data
-        Facilities::SharedClient.new.get_all_nca.map(&method(:new))
+        SharedClient.new.get_all_nca.map(&method(:new))
       end
     end
   end
