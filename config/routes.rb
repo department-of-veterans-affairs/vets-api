@@ -151,6 +151,10 @@ Rails.application.routes.draw do
       end
     end
 
+    namespace :profile do
+      resource :email, only: :show
+    end
+
     resources :apidocs, only: [:index]
 
     get 'terms_and_conditions', to: 'terms_and_conditions#index'
