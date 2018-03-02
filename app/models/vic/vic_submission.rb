@@ -24,6 +24,10 @@ module VIC
       state == 'success'
     end
 
+    def process_as_anonymous?
+      parsed_form['processAsAnonymous']
+    end
+
     private
 
     def no_forbidden_fields

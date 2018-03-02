@@ -11,7 +11,7 @@ module V0
         vic_submission = ::VIC::VICSubmission.new(
           params.require(:vic_submission).permit(:form)
         )
-        vic_submission.user = current_user
+        vic_submission.user = current_user unless vic_submission.process_as_anonymous?
 
         unless vic_submission.save
           Raven.tags_context(validation: 'vic')
