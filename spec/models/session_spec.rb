@@ -92,7 +92,7 @@ RSpec.describe Session, type: :model do
           expect { subject.save }
             .to trigger_statsd_increment(
               'api.session.max_duration',
-              tags: ["uuid:#{Digest::SHA1.hexdigest(subject.uuid)}"]
+              tags: ["uuid:#{described_class.obscure_token(subject.uuid)}"]
             )
         end
       end
