@@ -50,6 +50,7 @@ class Session < Common::RedisStore
   def within_maximum_ttl
     time_remaining = (@created_at + MAX_SESSION_LIFETIME - Time.now.utc).round
     if time_remaining.negative?
+      StatsD.increment('api.session.max_duration', tags: ["uuid:#{Digest::SHA1.hexdigest(@uuid)}"])
       errors.add(:created_at, "is more than the max of [#{MAX_SESSION_LIFETIME}] ago. Session is too old")
     end
   end

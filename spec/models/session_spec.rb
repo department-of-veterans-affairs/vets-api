@@ -80,10 +80,21 @@ RSpec.describe Session, type: :model do
         expect(subject.save).to eq(true)
       end
 
-      it 'will not save a session beyond the maximum ttl' do
-        subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME + 1.minute)
-        expect(subject.save).to eq(false)
-        expect(subject.errors.messages).to include(:created_at)
+      context 'when beyond the maximum ttl' do
+        before { subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME + 1.minute) }
+
+        it 'will not save' do
+          expect(subject.save).to eq(false)
+          expect(subject.errors.messages).to include(:created_at)
+        end
+
+        it 'increments StatsD' do
+          expect { subject.save }
+            .to trigger_statsd_increment(
+              'api.session.max_duration',
+              tags: ["uuid:#{Digest::SHA1.hexdigest(subject.uuid)}"]
+            )
+        end
       end
     end
 
