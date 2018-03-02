@@ -85,12 +85,47 @@ RSpec.describe V0::SessionsController, type: :controller do
     Redis.current.set("benchmark_api.auth.logout_#{uuid}", Time.now.to_f)
   end
 
+  context 'when not logged in' do
+    describe 'new' do
+      context 'routes not requiring auth' do
+        %w[mhv dslogon idme].each do |type|
+          it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
+            get(:new, type: type)
+            expect(response).to be_redirect
+          end
+        end
+      end
+
+      context 'routes requiring auth' do
+        %w[mfa verify slo].each do |type|
+          it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
+            get(:new, type: type)
+            expect(response).not_to be_redirect
+            expect(response).to have_http_status(:unauthorized)
+          end
+        end
+      end
+    end
+  end
+
   context 'when logged in' do
     before do
       allow(SAML::User).to receive(:new).and_return(saml_user)
       Session.create(uuid: uuid, token: token)
       User.create(loa1_user.attributes)
       UserIdentity.create(loa1_user.identity.attributes)
+    end
+
+    describe 'new' do
+      context 'routes not requiring auth' do
+        %w[mhv dslogon idme mfa verify slo].each do |type|
+          it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
+            request.env['HTTP_AUTHORIZATION'] = auth_header
+            get(:new, type: type)
+            expect(response).to be_redirect
+          end
+        end
+      end
     end
 
     it 'returns a url for leveling up or verifying current level' do

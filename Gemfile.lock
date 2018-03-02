@@ -89,6 +89,7 @@ GEM
     ast (2.3.0)
     attr_encrypted (3.0.3)
       encryptor (~> 3.0.0)
+    awesome_print (1.8.0)
     awrence (0.1.0)
     aws-sdk (2.6.12)
       aws-sdk-resources (= 2.6.12)
@@ -492,6 +493,7 @@ DEPENDENCIES
   active_model_serializers (= 0.10.4)
   apivore
   attr_encrypted
+  awesome_print (~> 1.8)
   awrence
   aws-sdk
   betamocks!
