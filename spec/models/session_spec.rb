@@ -88,12 +88,14 @@ RSpec.describe Session, type: :model do
           expect(subject.errors.messages).to include(:created_at)
         end
 
-        it 'increments StatsD' do
-          expect { subject.save }
-            .to trigger_statsd_increment(
-              'api.session.max_duration',
-              tags: ["uuid:#{described_class.obscure_token(subject.uuid)}"]
-            )
+        it 'logs info to sentry' do
+          expect(subject).to receive(:log_message_to_sentry).with(
+            'Maximum Session Duration Reached',
+            :info,
+            {},
+            session_token: described_class.obscure_token(subject.token)
+          )
+          subject.save
         end
       end
     end
