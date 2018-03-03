@@ -5,6 +5,10 @@
 - :name: 'EVSS'
   :base_uri: <%= "#{URI(Settings.evss.url).host}:#{URI(Settings.evss.url).port}" %>
   :endpoints:
+  # PCIU email
+  - :method: :get
+    :path: "/wss-pciu-services-web/rest/pciuServices/v1/emailAddress"
+    :file_path: "evss/pciu/email"
   # PCIUAddress
   - :method: :get
     :path: "/wss-pciu-services-web/rest/pciuServices/v1/states"
