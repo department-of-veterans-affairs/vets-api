@@ -13,6 +13,19 @@ module EVSS
         'EVSS/PCIU'
       end
 
+      def connection
+        @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: ssl_options) do |faraday|
+          faraday.use      :breakers
+          faraday.use      EVSS::ErrorMiddleware
+          faraday.use      Faraday::Response::RaiseError
+          faraday.request  :json
+          faraday.response :betamocks if mock_enabled?
+          faraday.response :snakecase, symbolize: false
+          faraday.response :json
+          faraday.adapter  Faraday.default_adapter
+        end
+      end
+
       def mock_enabled?
         Settings.evss.mock_pciu || false
       end
