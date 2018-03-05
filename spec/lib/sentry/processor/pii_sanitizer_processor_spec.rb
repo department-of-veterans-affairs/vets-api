@@ -18,6 +18,7 @@ RSpec.describe Sentry::Processor::PIISanitizer do
           state: 'NV'
         },
         json: '{"phone": "5035551234", "postalCode": 97850}',
+        array_of_json: ['{"phone": "5035551234", "postalCode": 97850}'],
         gender: 'M',
         phone: '5035551234'
       }
@@ -38,6 +39,10 @@ RSpec.describe Sentry::Processor::PIISanitizer do
     it 'should filter json blobs' do
       expect(result[:json]).to include('FILTERED')
     end
+
+    it 'should filter arrays' do
+      expect(result[:array_of_json].first).to include('FILTERED')
+    end
   end
 
   context 'with string keys' do
@@ -51,6 +56,7 @@ RSpec.describe Sentry::Processor::PIISanitizer do
           'state' => 'OR'
         },
         'json' => '{"gender": "F"}',
+        'arrayOfJson' => ['{"phone": "5035551234", "postalCode": 97850}'],
         'gender' => 'F',
         'phone' => '5415551234'
       }
@@ -70,6 +76,10 @@ RSpec.describe Sentry::Processor::PIISanitizer do
 
     it 'should filter json blobs' do
       expect(result['json']).to include('FILTERED')
+    end
+
+    it 'should filter arrays' do
+      expect(result['arrayOfJson'].first).to include('FILTERED')
     end
   end
 end
