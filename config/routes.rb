@@ -156,6 +156,8 @@ Rails.application.routes.draw do
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
 
     [
+      'profile',
+      'dashboard',
       'veteran_id_card',
       FormProfile::EMIS_PREFILL_KEY
     ].each do |feature|
