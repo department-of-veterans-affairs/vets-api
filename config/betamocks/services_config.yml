@@ -9,6 +9,9 @@
   - :method: :get
     :path: "/wss-pciu-services-web/rest/pciuServices/v1/emailAddress"
     :file_path: "evss/pciu/email"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
   # PCIUAddress
   - :method: :get
     :path: "/wss-pciu-services-web/rest/pciuServices/v1/states"
