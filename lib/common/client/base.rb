@@ -57,8 +57,8 @@ module Common
       rescue Faraday::ClientError => e
         client_error = Common::Client::Errors::ClientError.new(
           e.message,
-          e.response&.dig(:status),
-          e.response&.dig(:body)
+          e&.response&.dig(:status),
+          e&.response&.dig(:body)
         )
         raise client_error
       end
