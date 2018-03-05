@@ -20,6 +20,7 @@ class Rack::Attack
     req.ip if req.path == '/v0/vic/supporting_documentation_attachments'
   end
 
+  # Source: https://github.com/kickstarter/rack-attack#x-ratelimit-headers-for-well-behaved-clients
   Rack::Attack.throttled_response = lambda do |env|
     rate_limit = env['rack.attack.match_data']
 

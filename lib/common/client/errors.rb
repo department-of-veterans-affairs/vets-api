@@ -27,15 +27,6 @@ module Common
           @code = code
         end
       end
-
-      class TooManyRequests < HTTPError
-        attr_accessor :headers
-
-        def initialize(headers = nil)
-          super('throttled', 429)
-          @headers = headers
-        end
-      end
     end
   end
 end
