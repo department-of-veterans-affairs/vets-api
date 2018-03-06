@@ -18,22 +18,22 @@ namespace :jobs do
 
   desc 'Populate/refresh NCA facility location to db cache'
   task pull_nca_data: :environment do
-    Facilities::FacilityLocationDownload.perform_async('nca')
+    Facilities::FacilityLocationDownloadJob.perform_async('nca')
   end
 
   desc 'Populate/refresh VBA facility location to db cache'
   task pull_vba_data: :environment do
-    Facilities::FacilityLocationDownload.perform_async('vba')
+    Facilities::FacilityLocationDownloadJob.perform_async('vba')
   end
 
   desc 'Populate/refresh VC facility location to db cache'
   task pull_vc_data: :environment do
-    Facilities::FacilityLocationDownload.perform_async('vc')
+    Facilities::FacilityLocationDownloadJob.perform_async('vc')
   end
 
   desc 'Populate/refresh VHA facility location to db cache'
   task pull_vha_data: :environment do
-    Facilities::FacilityLocationDownload.perform_async('vha')
+    Facilities::FacilityLocationDownloadJob.perform_async('vha')
   end
 
   desc 'Populate/refresh All facility location types to db cache'

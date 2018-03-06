@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
 module Facilities
-  class FacilityLocationDownload
+  class FacilityLocationDownloadJob
     include Sidekiq::Worker
 
     def perform(type)
       @type = type
-      process_changes
-      process_deletes
+      ActiveRecord::Base.transaction do
+        process_changes
+        process_deletes
+      end
     end
 
     private
