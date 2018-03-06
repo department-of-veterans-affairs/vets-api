@@ -4,17 +4,6 @@ class Rack::Attack
   REDIS_CONFIG = Rails.application.config_for(:redis).freeze
   Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.new(REDIS_CONFIG['redis']))
 
-  def self.anonymous_user?(req)
-    auth = req.env['HTTP_AUTHORIZATION']
-
-    if auth.present? && auth.starts_with?('Token token=')
-      token = auth.remove('Token token=')
-      return !::Session.exists?(token)
-    end
-
-    true
-  end
-
   throttle('example/ip', limit: 1, period: 5.minutes) do |req|
     req.ip if req.path == '/v0/limited'
   end
@@ -23,20 +12,20 @@ class Rack::Attack
     req.ip if req.path == '/v0/feedback' && req.post?
   end
 
-  throttle('vic_profile_photos_download/ip', limit: 4, period: 5.minutes) do |req|
-    req.ip if req.path == '/v0/vic/profile_photo_attachments' && req.get? && anonymous_user?(req)
+  throttle('vic_profile_photos_download/ip', limit: 8, period: 5.minutes) do |req|
+    req.ip if req.path == '/v0/vic/profile_photo_attachments' && req.get?
   end
 
-  throttle('vic_profile_photos_upload/ip', limit: 4, period: 5.minutes) do |req|
-    req.ip if req.path == '/v0/vic/profile_photo_attachments' && req.post? && anonymous_user?(req)
+  throttle('vic_profile_photos_upload/ip', limit: 8, period: 5.minutes) do |req|
+    req.ip if req.path == '/v0/vic/profile_photo_attachments' && req.post?
   end
 
-  throttle('vic_supporting_docs_upload/ip', limit: 6, period: 5.minutes) do |req|
-    req.ip if req.path == '/v0/vic/supporting_documentation_attachments' && req.post? && anonymous_user?(req)
+  throttle('vic_supporting_docs_upload/ip', limit: 8, period: 5.minutes) do |req|
+    req.ip if req.path == '/v0/vic/supporting_documentation_attachments' && req.post?
   end
 
-  throttle('vic_submissions/ip', limit: 5, period: 1.minute) do |req|
-    req.ip if req.path == '/v0/vic/submissions' && req.post? && anonymous_user?(req)
+  throttle('vic_submissions/ip', limit: 10, period: 1.minute) do |req|
+    req.ip if req.path == '/v0/vic/submissions' && req.post?
   end
 
   # Source: https://github.com/kickstarter/rack-attack#x-ratelimit-headers-for-well-behaved-clients

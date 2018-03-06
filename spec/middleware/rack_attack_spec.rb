@@ -37,18 +37,9 @@ RSpec.describe Rack::Attack do
   end
 
   describe 'vic rate-limits', run_at: 'Thu, 26 Dec 2015 15:54:20 GMT' do
-    let(:session) { FactoryBot.build(:session) }
-    let(:anon_headers) { { 'REMOTE_ADDR' => '1.2.3.4' } }
-    let(:auth_headers) { anon_headers.merge('HTTP_AUTHORIZATION' => "Token token=#{session.token}") }
+    let(:headers) { { 'REMOTE_ADDR' => '1.2.3.4' } }
 
     before do
-      if headers.include?('HTTP_AUTHORIZATION')
-        expect(::Session).to receive(:exists?)
-          .with(session.token)
-          .at_least(:once)
-          .and_return(true)
-      end
-
       limit.times do
         post endpoint, {}, headers
         expect(last_response.status).to_not eq(429)
@@ -58,62 +49,29 @@ RSpec.describe Rack::Attack do
     end
 
     context 'profile photo upload' do
-      let(:limit) { 4 }
+      let(:limit) { 8 }
       let(:endpoint) { '/v0/vic/profile_photo_attachments' }
 
-      context 'with an anonymous user' do
-        let(:headers) { anon_headers }
-        it 'limits requests' do
-          expect(last_response.status).to eq(429)
-        end
-      end
-
-      context 'with a logged in user' do
-        let(:headers) { auth_headers }
-
-        it 'does not limit requests' do
-          expect(last_response.status).not_to eq(429)
-        end
+      it 'limits requests' do
+        expect(last_response.status).to eq(429)
       end
     end
 
     context 'supporting doc upload' do
-      let(:limit) { 6 }
+      let(:limit) { 8 }
       let(:endpoint) { '/v0/vic/supporting_documentation_attachments' }
 
-      context 'with an anonymous user' do
-        let(:headers) { anon_headers }
-        it 'limits requests' do
-          expect(last_response.status).to eq(429)
-        end
-      end
-
-      context 'with a logged in user' do
-        let(:headers) { auth_headers }
-
-        it 'does not limit requests' do
-          expect(last_response.status).not_to eq(429)
-        end
+      it 'limits requests' do
+        expect(last_response.status).to eq(429)
       end
     end
 
     context 'form submission' do
-      let(:limit) { 5 }
+      let(:limit) { 10 }
       let(:endpoint) { '/v0/vic/submissions' }
 
-      context 'with an anonymous user' do
-        let(:headers) { anon_headers }
-        it 'limits requests' do
-          expect(last_response.status).to eq(429)
-        end
-      end
-
-      context 'with a logged in user' do
-        let(:headers) { auth_headers }
-
-        it 'does not limit requests' do
-          expect(last_response.status).not_to eq(429)
-        end
+      it 'limits requests' do
+        expect(last_response.status).to eq(429)
       end
     end
   end
