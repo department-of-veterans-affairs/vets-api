@@ -36,7 +36,7 @@ RSpec.describe Rack::Attack do
     end
   end
 
-  describe 'vic rate-limits' do
+  describe 'vic rate-limits', run_at: 'Thu, 26 Dec 2015 15:54:20 GMT' do
     let(:anon_headers) { { 'REMOTE_ADDR' => '1.2.3.4' } }
     let(:auth_headers) { anon_headers.merge('HTTP_AUTHORIZATION' => "Token token=#{session.token}") }
 
