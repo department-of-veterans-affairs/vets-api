@@ -42,7 +42,12 @@ RSpec.describe Rack::Attack do
     let(:auth_headers) { anon_headers.merge('HTTP_AUTHORIZATION' => "Token token=#{session.token}") }
 
     before do
-      expect(::Session).to receive(:exists?).at_least(:once).and_return(true) if headers.include?('HTTP_AUTHORIZATION')
+      if headers.include?('HTTP_AUTHORIZATION')
+        expect(::Session).to receive(:exists?)
+          .with(session.token)
+          .at_least(:once)
+          .and_return(true)
+      end
 
       limit.times do
         post endpoint, {}, headers
