@@ -9,7 +9,7 @@ class Rack::Attack
 
     if auth.present? && auth.starts_with?('Token token=')
       token = auth.remove('Token token=')
-      return ::Session.exists?(token)
+      return !::Session.exists?(token)
     end
 
     true
