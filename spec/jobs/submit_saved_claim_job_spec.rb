@@ -6,10 +6,8 @@ RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
   describe '#perform' do
     stub_virus_scan
 
-    let(:claim) { FactoryBot.create(:burial_claim) }
-    before do
-      create(:pension_burial, saved_claim: claim)
-    end
+    let(:pension_burial) { create(:pension_burial) }
+    let(:claim) { pension_burial.saved_claim }
 
     it 'submits the saved claim' do
       SubmitSavedClaimJob.new.perform(claim.id)

@@ -5,6 +5,7 @@ class SubmitSavedClaimJob
 
   def perform(saved_claim_id)
     claim = SavedClaim.find(saved_claim_id)
+    binding.pry; fail
     pdf_path = claim.to_pdf
     stamped_path1 = PensionBurial::DatestampPdf.new(pdf_path).run(text: 'VETS.GOV', x: 5, y: 5)
     stamped_path2 = PensionBurial::DatestampPdf.new(stamped_path1).run(
