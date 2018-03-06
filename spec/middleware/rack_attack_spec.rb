@@ -36,51 +36,78 @@ RSpec.describe Rack::Attack do
     end
   end
 
-  describe 'vic submission rate-limiting' do
-    context 'for submissions and uploads' do
-      before do
-        limit.times do
-          post endpoint, {}, 'REMOTE_ADDR' => '1.2.3.4'
-          expect(last_response.status).to_not eq(429)
-        end
+  describe 'vic rate-limits' do
+    let(:anon_headers) { { 'REMOTE_ADDR' => '1.2.3.4' } }
+    let(:auth_headers) { anon_headers.merge('HTTP_AUTHORIZATION' => "Token token=#{session.token}") }
 
-        post endpoint, {}, 'REMOTE_ADDR' => '1.2.3.4'
+    let(:session) { FactoryBot.create(:session) }
+
+    before do
+      limit.times do
+        post endpoint, {}, headers
+        expect(last_response.status).to_not eq(429)
       end
 
-      context 'profile photo' do
-        let(:limit) { 4 }
-        let(:endpoint) { '/v0/vic/profile_photo_attachments' }
-        it 'limits profile photo uploads' do
+      post endpoint, {}, headers
+    end
+
+    context 'profile photo upload' do
+      let(:limit) { 4 }
+      let(:endpoint) { '/v0/vic/profile_photo_attachments' }
+
+      context 'with an anonymous user' do
+        let(:headers) { anon_headers }
+        it 'limits requests' do
           expect(last_response.status).to eq(429)
         end
       end
 
-      context 'supporting docs' do
-        let(:limit) { 6 }
-        let(:endpoint) { '/v0/vic/supporting_documentation_attachments' }
-        it 'limits supporting documentation uploads' do
-          expect(last_response.status).to eq(429)
-        end
-      end
+      context 'with a logged in user' do
+        let(:headers) { auth_headers }
 
-      context 'submissions' do
-        let(:limit) { 5 }
-        let(:endpoint) { '/v0/vic/submissions' }
-        it 'limits submissions' do
-          expect(last_response.status).to eq(429)
+        it 'does not limit requests' do
+          expect(last_response.status).not_to eq(429)
         end
       end
     end
 
-    context 'vic downloads' do
-      it 'limits profile photo downloads' do
-        4.times do
-          get '/v0/vic/profile_photo_attachments', {}, 'REMOTE_ADDR' => '1.2.3.4'
-          expect(last_response.status).to_not eq(429)
-        end
+    context 'supporting doc upload' do
+      let(:limit) { 6 }
+      let(:endpoint) { '/v0/vic/supporting_documentation_attachments' }
 
-        get '/v0/vic/profile_photo_attachments', {}, 'REMOTE_ADDR' => '1.2.3.4'
-        expect(last_response.status).to eq(429)
+      context 'with an anonymous user' do
+        let(:headers) { anon_headers }
+        it 'limits requests' do
+          expect(last_response.status).to eq(429)
+        end
+      end
+
+      context 'with a logged in user' do
+        let(:headers) { auth_headers }
+
+        it 'does not limit requests' do
+          expect(last_response.status).not_to eq(429)
+        end
+      end
+    end
+
+    context 'form submission' do
+      let(:limit) { 5 }
+      let(:endpoint) { '/v0/vic/submissions' }
+
+      context 'with an anonymous user' do
+        let(:headers) { anon_headers }
+        it 'limits requests' do
+          expect(last_response.status).to eq(429)
+        end
+      end
+
+      context 'with a logged in user' do
+        let(:headers) { auth_headers }
+
+        it 'does not limit requests' do
+          expect(last_response.status).not_to eq(429)
+        end
       end
     end
   end
