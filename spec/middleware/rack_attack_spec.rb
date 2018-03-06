@@ -70,7 +70,6 @@ RSpec.describe Rack::Attack do
 
       context 'with a logged in user' do
         let(:headers) { auth_headers }
-
         it 'does not limit requests' do
           expect(last_response.status).not_to eq(429)
         end
@@ -90,7 +89,6 @@ RSpec.describe Rack::Attack do
 
       context 'with a logged in user' do
         let(:headers) { auth_headers }
-
         it 'does not limit requests' do
           expect(last_response.status).not_to eq(429)
         end
@@ -110,7 +108,6 @@ RSpec.describe Rack::Attack do
 
       context 'with a logged in user' do
         let(:headers) { auth_headers }
-
         it 'does not limit requests' do
           expect(last_response.status).not_to eq(429)
         end
