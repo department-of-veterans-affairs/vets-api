@@ -5,8 +5,6 @@ class Rack::Attack
   Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.new(REDIS_CONFIG['redis']))
 
   def self.anonymous_user?(req)
-    File.open('/Users/rlbaker/log', 'a') { |f| f.write(req.env) }
-
     auth = req.env['HTTP_AUTHORIZATION']
 
     if auth.present? && auth.starts_with?('Token token=')
