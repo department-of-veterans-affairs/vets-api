@@ -28,11 +28,10 @@ namespace :redis do
   desc 'Load test sessions from file'
   task :create_sessions_json, [:sessions_json] => [:environment] do |_, args|
     raise 'No sessions JSON file provided' unless args[:sessions_json]
-    namespace = User.new.redis_namespace.namespace
     redis = Redis.current
     File.open(args[:sessions_json]) do |file|
       session_ids = []
-      session_data = JSON.load(file)
+      session_data = JSON.parse(file.read)
       session_data.each do |sdata|
         token = SecureRandom.uuid.delete '-'
         uuid = sdata['uuid']
@@ -44,9 +43,8 @@ namespace :redis do
         redis.set "users_b:#{uuid}", sdata['users_b'].to_json
         redis.set "mvi-profile-response:#{uuid}", sdata['mvi-profile-response'].to_json
         redis.set "user_identities:#{uuid}", sdata['user_identities'].to_json
-
       end
-      session_ids.each { |s| puts "#{s.token}\t#{s.uuid}"}
+      session_ids.each { |s| puts "#{s.token}\t#{s.uuid}" }
     end
   end
 
