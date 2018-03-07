@@ -136,6 +136,8 @@ module V0
       session         = Session.find(logout_request&.token)
       user            = User.find(session&.uuid)
 
+      # see comments for this method.
+      destroy_user_session!(user, session, logout_request)
       errors = build_logout_errors(logout_response, logout_request, session, user)
 
       if errors.size.positive?
@@ -143,13 +145,21 @@ module V0
         log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
         redirect_to Settings.saml.logout_relay + '?success=false'
       else
-        logout_request.destroy
-        session.destroy
-        user.destroy
         redirect_to Settings.saml.logout_relay + '?success=true'
-        # even if mhv logout raises exception, still consider logout successful from browser POV
-        MHVLoggingService.logout(user)
       end
+    end
+
+    # FIXME: IMPORTANT - in the future, these should be destroyed even before the callback returns.
+    # if a user clicks on the link, we should destroy the session right away, who cares if callback returns?
+    # currently in production destroy fetches a link, but in the future it will be a redirect that triggers
+    # the flow right away. We need to ensure these are are always attempted regardless of the callback state!
+    def destroy_user_session!(user, session, logout_request)
+      # This shouldn't ever return an error, but in case it does we'll put everything else in an ensure block.
+      MHVLoggingService.logout(user) if user
+    ensure
+      logout_request&.destroy
+      session&.destroy
+      user&.destroy
     end
 
     def build_logout_errors(logout_response, logout_request, session, user)
