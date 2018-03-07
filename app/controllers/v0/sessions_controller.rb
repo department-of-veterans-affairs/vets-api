@@ -96,7 +96,7 @@ module V0
         @current_user = @sso_service.new_user
         @session = @sso_service.new_session
         async_create_evss_account(current_user)
-        redirect_to Settings.saml.relay + '?token=' + session.token
+        redirect_to saml_callback_success_url
 
         log_persisted_session_and_warnings
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
@@ -162,6 +162,14 @@ module V0
       errors
     end
 
+    def saml_callback_success_url
+      if current_user.loa[:current] < current_user.loa[:highest]
+        SAML::SettingsService.idme_loa3_url(current_user)
+      else
+        Settings.saml.relay + '?token=' + @session.token
+      end
+    end
+
     def benchmark_tags(*tags)
       tags << "context:#{context_key}"
       tags << "loa:#{current_user&.identity ? current_user.loa[:current] : 'none'}"
@@ -170,7 +178,7 @@ module V0
     end
 
     def context_key
-      STATSD_CONTEXT_MAP[real_authn_context] || 'unknown'
+      STATSD_CONTEXT_MAP[@sso_service.real_authn_context] || 'unknown'
     rescue StandardError
       'unknown'
     end

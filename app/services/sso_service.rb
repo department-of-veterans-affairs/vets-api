@@ -41,6 +41,10 @@ class SSOService
     existing_user.present?
   end
 
+  def real_authn_context
+    REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
+  end
+
   private
 
   def init_new_user(user_identity, existing_user = nil, multifactor_change = false)
@@ -103,9 +107,5 @@ class SSOService
         errors: new_session&.errors&.full_messages
       }
     }
-  end
-
-  def real_authn_context
-    REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
   end
 end
