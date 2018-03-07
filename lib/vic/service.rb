@@ -20,6 +20,13 @@ module VIC
       'N' => 'Navy'
     }.freeze
     PROCESSING_WAIT = 10
+    WHITELISTED_FORM_FIELDS = %w[
+      service_branch
+      email
+      veteran_full_name
+      veteran_address
+      phone
+    ].freeze
 
     class AttachmentUploadFailed < StandardError
     end
@@ -59,13 +66,7 @@ module VIC
       converted_form = form.deep_transform_keys { |key| key.to_s.underscore }
       converted_form['service_branch'] = SERVICE_BRANCHES[converted_form['service_branch']]
       ssn = converted_form.delete('veteran_social_security_number')
-      converted_form.slice!(
-        'service_branch',
-        'email',
-        'veteran_full_name',
-        'veteran_address',
-        'phone'
-      )
+      converted_form.slice!(*WHITELISTED_FORM_FIELDS)
 
       veteran_address = converted_form['veteran_address']
       if veteran_address.present?
