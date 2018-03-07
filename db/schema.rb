@@ -11,11 +11,32 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180130213405) do
+ActiveRecord::Schema.define(version: 20180226234916) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
+
+  create_table "base_facilities", id: false, force: :cascade do |t|
+    t.string   "unique_id",      null: false
+    t.string   "name",           null: false
+    t.string   "facility_type",  null: false
+    t.string   "classification"
+    t.string   "website"
+    t.float    "lat",            null: false
+    t.float    "long",           null: false
+    t.jsonb    "address"
+    t.jsonb    "phone"
+    t.jsonb    "hours"
+    t.jsonb    "services"
+    t.jsonb    "feedback"
+    t.jsonb    "access"
+    t.string   "fingerprint"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
+
+  add_index "base_facilities", ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true, using: :btree
 
   create_table "beta_registrations", force: :cascade do |t|
     t.string   "user_uuid",  null: false
@@ -116,6 +137,14 @@ ActiveRecord::Schema.define(version: 20180130213405) do
   end
 
   add_index "in_progress_forms", ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true, using: :btree
+
+  create_table "invalid_letter_address_edipis", force: :cascade do |t|
+    t.string   "edipi",      null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "invalid_letter_address_edipis", ["edipi"], name: "index_invalid_letter_address_edipis_on_edipi", using: :btree
 
   create_table "maintenance_windows", force: :cascade do |t|
     t.string   "pagerduty_id"

@@ -44,7 +44,7 @@ module BB
 
         def parsed_health_record_types
           return nil unless @parsed_json.keys.include?(:data_classes)
-          @parsed_json
+          @parsed_json[:data_classes].uniq.sort.map { |dc| { name: dc } }
         end
       end
     end
