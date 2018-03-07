@@ -25,4 +25,24 @@ describe EVSS::PCIU::Service do
       end
     end
   end
+
+  describe '#get_primary_phone' do
+    context 'when successful' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('evss/pciu/primary_phone') do
+          response = subject.get_primary_phone
+
+          expect(response).to be_ok
+        end
+      end
+
+      it 'returns a users primary phone number, extension and country code' do
+        VCR.use_cassette('evss/pciu/primary_phone') do
+          response = subject.get_primary_phone
+
+          expect(response.attributes.keys).to include :country_code, :number, :extension
+        end
+      end
+    end
+  end
 end

@@ -153,6 +153,7 @@ Rails.application.routes.draw do
 
     namespace :profile do
       resource :email, only: :show
+      resource :primary_phone, only: :show
     end
 
     resources :apidocs, only: [:index]
