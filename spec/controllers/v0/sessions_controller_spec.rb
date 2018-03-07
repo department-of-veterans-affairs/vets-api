@@ -256,9 +256,11 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'when user has LOA current 1 and highest 3' do
+        let(:saml_user_attributes) do
+          loa1_user.attributes.merge(loa1_user.identity.attributes).merge(loa: { current: LOA::ONE, highest: LOA::THREE })
+        end
+
         it 'redirects to identity proof URL' do
-          allow_any_instance_of(User).to receive(:loa).and_return(current: LOA::ONE, highest: LOA::THREE)
-          allow_any_instance_of(UserIdentity).to receive(:authn_context).and_return('idme')
           expect(SAML::SettingsService).to receive(:idme_loa3_url)
           post :saml_callback
         end
