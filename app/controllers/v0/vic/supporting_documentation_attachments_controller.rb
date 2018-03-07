@@ -2,7 +2,7 @@
 
 module V0
   module VIC
-    class SupportingDocumentationAttachmentsController < ApplicationController
+    class SupportingDocumentationAttachmentsController < BaseController
       include FormAttachmentCreate
 
       FORM_ATTACHMENT_MODEL = ::VIC::SupportingDocumentationAttachment

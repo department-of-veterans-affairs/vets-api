@@ -91,7 +91,7 @@ RSpec.describe MhvAccount, type: :model do
 
           it 'a priori failed upgrade that has been registered changes to registered' do
             subject = described_class.new(
-              base_attributes.merge(registered_at: Time.current, upgraded_at: nil, account_state: :upgrade_failed)
+              base_attributes.merge(registered_at: Time.current, account_state: :upgrade_failed)
             )
             subject.send(:setup) # This gets called when object is first loaded
             expect(subject.account_state).to eq('registered')
@@ -106,15 +106,48 @@ RSpec.describe MhvAccount, type: :model do
             expect(subject.account_state).to eq('upgraded')
             expect(subject.accessible?).to be_truthy
           end
+
+          it 'is able to transition back to upgraded' do
+            subject = described_class.new(
+              base_attributes.merge(registered_at: Time.current, upgraded_at: Time.current)
+            )
+            subject.send(:setup) # This gets called when object is first loaded
+            expect(subject.account_state).to eq('upgraded')
+            expect(subject.eligible?).to be_truthy
+            expect(subject.terms_and_conditions_accepted?).to be_truthy
+            expect(subject.accessible?).to be_truthy
+          end
         end
 
-        it 'is able to transition back to upgraded' do
-          subject = described_class.new(base_attributes.merge(upgraded_at: Time.current))
-          subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).to eq('upgraded')
-          expect(subject.eligible?).to be_truthy
-          expect(subject.terms_and_conditions_accepted?).to be_truthy
-          expect(subject.accessible?).to be_truthy
+        context 'without mhv id' do
+          it 'a priori registered account changes to registered' do
+            subject = described_class.new(
+              base_attributes.merge(registered_at: Time.current, account_state: :registered)
+            )
+            subject.send(:setup) # This gets called when object is first loaded
+            expect(subject.account_state).to eq('registered')
+            expect(subject.accessible?).to be_falsey
+          end
+
+          it 'a priori upgraded account changes to upgraded' do
+            subject = described_class.new(
+              base_attributes.merge(upgraded_at: Time.current, account_state: :upgraded)
+            )
+            subject.send(:setup) # This gets called when object is first loaded
+            expect(subject.account_state).to eq('upgraded')
+            expect(subject.accessible?).to be_falsey
+          end
+
+          it 'is able to transition back to upgraded' do
+            subject = described_class.new(
+              base_attributes.merge(registered_at: Time.current, upgraded_at: Time.current)
+            )
+            subject.send(:setup) # This gets called when object is first loaded
+            expect(subject.account_state).to eq('upgraded')
+            expect(subject.eligible?).to be_truthy
+            expect(subject.terms_and_conditions_accepted?).to be_truthy
+            expect(subject.accessible?).to be_falsey
+          end
         end
 
         it 'is able to transition back to registered' do
@@ -133,20 +166,6 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.eligible?).to be_truthy
           expect(subject.terms_and_conditions_accepted?).to be_truthy
           expect(subject.accessible?).to be_falsey
-        end
-
-        it 'a priori registered account stays registered' do
-          subject = described_class.new(base_attributes.merge(registered_at: nil, account_state: :registered))
-          subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).to eq('registered')
-          expect(subject.accessible?).to be_falsey
-        end
-
-        it 'a priori upgraded account stays upgraded' do
-          subject = described_class.new(base_attributes.merge(upgraded_at: nil, account_state: :upgraded))
-          subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).to eq('upgraded')
-          expect(subject.accessible?).to be_truthy
         end
 
         it 'a priori register_failed account changes to unknown' do
@@ -247,21 +266,6 @@ RSpec.describe MhvAccount, type: :model do
         expect(subject.eligible?).to be_truthy
         expect(subject.accessible?).to be_falsey
       end
-    end
-  end
-
-  describe 'account creation and upgrade' do
-    subject { described_class.new(user_uuid: user.uuid) }
-    let(:mhv_accounts_service) { double('mhv_accounts_service', create: true, upgrade: true) }
-
-    before do
-      allow(subject).to receive(:mhv_accounts_service).and_return(mhv_accounts_service)
-    end
-
-    it 'creates and upgrades an account' do
-      expect(mhv_accounts_service).to receive(:create)
-      expect(mhv_accounts_service).to receive(:upgrade)
-      subject.create_and_upgrade!
     end
   end
 
