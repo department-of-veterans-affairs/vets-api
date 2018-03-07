@@ -82,23 +82,22 @@ module V0
     end
 
     def saml_logout_callback
-      if params[:SAMLResponse]
-        saml_settings = saml_settings(name_identifier_value: session&.uuid)
-        logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings, get_params: params)
-        logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
-        session         = Session.find(logout_request&.token)
-        user            = User.find(session&.uuid)
+      saml_settings = saml_settings(name_identifier_value: session&.uuid)
+      logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings, get_params: params)
+      logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
+      session         = Session.find(logout_request&.token)
+      user            = User.find(session&.uuid)
 
-        destroy_user_session!(user, session, logout_request)
-        errors = build_logout_errors(logout_response, logout_request, session, user)
+      errors = build_logout_errors(logout_response, logout_request, session, user)
 
-        if errors.size.positive?
-          extra_context = { in_response_to: logout_response&.in_response_to }
-          log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
-        end
-        # in the future the FE shouldnt count on ?success=true
-        redirect_to Settings.saml.logout_relay + '?success=true'
+      if errors.size.positive?
+        extra_context = { in_response_to: logout_response&.in_response_to }
+        log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
       end
+      # in the future the FE shouldnt count on ?success=true
+    ensure
+      destroy_user_session!(user, session, logout_request)
+      redirect_to Settings.saml.logout_relay + '?success=true'
     end
 
     def saml_callback
