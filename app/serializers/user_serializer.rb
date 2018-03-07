@@ -25,6 +25,7 @@ class UserSerializer < ActiveModel::Serializer
       last_signed_in: object.last_signed_in,
       loa: object.loa,
       multifactor: object.multifactor,
+      verified: object.loa3?,
       authn_context: object.authn_context
     }
   end
