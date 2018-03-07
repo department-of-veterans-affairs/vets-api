@@ -1,0 +1,32 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+describe PensionBurial::ConvertToPdf, uploader_helpers: true do
+  stub_virus_scan
+
+  let(:file) { create(:pension_burial).file }
+
+  let(:instance) do
+    described_class.new(file)
+  end
+
+  describe '#run' do
+    context 'with an image' do
+      it 'converts an image to pdf format' do
+        file_path = instance.run
+        expect(MimeMagic.by_magic(File.read(file_path)).type).to eq(
+          'application/pdf'
+        )
+        File.delete(file_path)
+      end
+    end
+
+    context 'when an image is not what it seems' do
+      it 'raise an IOError' do
+        allow(file).to receive(:content_type).and_return('text/plain')
+        expect { instance.run }.to raise_error IOError, 'PDF conversion failed, unsupported file type: text/plain'
+      end
+    end
+  end
+end

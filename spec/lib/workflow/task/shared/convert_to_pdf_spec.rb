@@ -22,8 +22,6 @@ describe Workflow::Task::Shared::ConvertToPdf do
     end
 
     context 'when an image is not what it seems' do
-      let(:file) { File.open(Rails.root.join('spec', 'fixtures', 'files', 'imagetragick.jpg')) }
-
       it 'raise an IOError' do
         expect { instance.run }.to raise_error IOError, 'PDF conversion failed, unsupported file type: text/plain'
       end
