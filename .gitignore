@@ -56,3 +56,5 @@ rspec.xml
 
 # Ignore certificates directory
 config/certs
+
+dump.rdb
