@@ -257,7 +257,9 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       context 'when user has LOA current 1 and highest 3' do
         let(:saml_user_attributes) do
-          loa1_user.attributes.merge(loa1_user.identity.attributes).merge(loa: { current: LOA::ONE, highest: LOA::THREE })
+          loa1_user.attributes.merge(loa1_user.identity.attributes).merge(
+            loa: { current: LOA::ONE, highest: LOA::THREE }
+          )
         end
 
         it 'redirects to identity proof URL' do
