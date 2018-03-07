@@ -10,6 +10,7 @@ require 'saml/user'
 
 class User < Common::RedisStore
   include BetaSwitch
+  include Authorization
 
   UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
 
@@ -68,8 +69,7 @@ class User < Common::RedisStore
   end
 
   def mhv_correlation_id
-    # FIXME-IDENTITY: doing .try for now since this could return no method error until persisted properly
-    identity.try(:mhv_correlation_id) || mvi.mhv_correlation_id
+    identity.mhv_correlation_id || mvi.mhv_correlation_id
   end
 
   def loa
@@ -145,10 +145,6 @@ class User < Common::RedisStore
     mhv_account.account_state
   end
 
-  def can_access_appeals?
-    loa3? && ssn.present?
-  end
-
   def can_save_partial_forms?
     true
   end
@@ -184,6 +180,12 @@ class User < Common::RedisStore
   # have been made.
   def recache
     mvi.cache(uuid, mvi.mvi_response)
+  end
+
+  # destroy both UserIdentity and self
+  def destroy
+    identity&.destroy
+    super
   end
 
   %w[veteran_status military_information payment].each do |emis_method|

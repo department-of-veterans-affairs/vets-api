@@ -62,11 +62,22 @@ evss:
     region: evss_s3_region
   letters:
     timeout: 55
+  pciu:
+    timeout: 30
   pciu_address:
     timeout: 30
   mock_letters: false
   mock_gi_bill_status: false
+  mock_pciu: false
   mock_pciu_address: false
+  aws:
+    url: http://fake.evss-reference-data-service.dev/v1
+    cert_path: ~
+    key_path: ~
+    root_ca: ~
+  jwt:
+    issuer: fake_issuer
+    key: fake_key
 
 # Settings for GI Bill Data Service
 gids:
@@ -93,6 +104,7 @@ locators:
   vc: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_VetCenters/FeatureServer/0
   vha_access_satisfaction: https://www.accesstoshep.va.gov/
   vha_access_waittime: https://www.accesstopwt.va.gov/
+  base_path: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/
 
 # Settings for MyHealthEVet
 mhv:
@@ -100,9 +112,12 @@ mhv:
   rx:
     host: https://mhv-api.example.com
     app_token: fake-app-token
+    collection_caching_enabled: false
   sm:
     host: https://mhv-api.example.com
     app_token: fake-app-token
+  bb:
+    collection_caching_enabled: true
 
 # Settings for Master Veteran Index
 mvi:
@@ -233,3 +248,7 @@ betamocks:
   recording: false
   cache_dir: ../vets-api-mockdata
   services_config: config/betamocks/services_config.yml
+
+faraday_socks_proxy:
+  enabled: false
+  uri: socks5://localhost:2002

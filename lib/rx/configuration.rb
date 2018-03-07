@@ -23,6 +23,10 @@ module Rx
       "#{Settings.mhv.rx.host}/mhv-api/patient/v1/"
     end
 
+    def caching_enabled?
+      Settings.mhv.rx.collection_caching_enabled || false
+    end
+
     def service_name
       'Rx'
     end
