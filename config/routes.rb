@@ -165,6 +165,8 @@ Rails.application.routes.draw do
     resource :mhv_account, only: %i[show create]
 
     [
+      'profile',
+      'dashboard',
       'veteran_id_card',
       FormProfile::EMIS_PREFILL_KEY
     ].each do |feature|
