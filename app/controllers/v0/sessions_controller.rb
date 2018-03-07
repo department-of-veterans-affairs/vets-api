@@ -170,7 +170,7 @@ module V0
     end
 
     def context_key
-      STATSD_CONTEXT_MAP[real_authn_context] || 'unknown'
+      STATSD_CONTEXT_MAP[@sso_service.real_authn_context] || 'unknown'
     rescue StandardError
       'unknown'
     end

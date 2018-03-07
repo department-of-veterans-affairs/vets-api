@@ -208,7 +208,13 @@ RSpec.describe V0::SessionsController, type: :controller do
             levenshtein_distance: 8
           }
         )
-        post :saml_callback
+
+        once = { times: 1, value: 1 }
+        callback_tags = ['status:success', 'context:dslogon']
+        expect { post(:saml_callback) }
+          .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
+          .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+
         new_user = User.find(uuid)
         expect(new_user.ssn).to eq('796111863')
         expect(new_user.va_profile.ssn).not_to eq('155256322')
@@ -278,9 +284,12 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
-          early_msg_tag = ['error:auth_too_early']
+          callback_tags = ['status:failure', 'context:dslogon']
+          failed_tags = ['error:auth_too_early']
+
           expect { post(:saml_callback) }
-            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: early_msg_tag, **once)
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
       end
@@ -306,9 +315,12 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
-          tags = ['error:unknown']
+          callback_tags = ['status:failure', 'context:dslogon']
+          failed_tags = ['error:unknown']
+
           expect { post(:saml_callback) }
-            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: tags, **once)
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
       end
@@ -334,9 +346,12 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
-          tags = ['error:multiple']
+          callback_tags = ['status:failure', 'context:dslogon']
+          failed_tags = ['error:multiple']
+
           expect { post(:saml_callback) }
-            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: tags, **once)
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
       end
@@ -369,9 +384,12 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
-          tags = ['error:validations_failed']
+          callback_tags = ['status:failure', 'context:dslogon']
+          failed_tags = ['error:validations_failed']
+
           expect { post(:saml_callback) }
-            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: tags, **once)
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
       end
