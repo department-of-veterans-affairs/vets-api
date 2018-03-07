@@ -4,12 +4,18 @@ module VIC
   class VICSubmission < ActiveRecord::Base
     include SetGuid
 
+    LOA3_LOCKED_FIELDS = %w[
+      veteranFullName
+      veteranSocialSecurityNumber
+    ].freeze
+
     attr_accessor(:form)
-    attr_accessor(:user_uuid)
+    attr_accessor(:user)
 
     validates(:state, presence: true, inclusion: %w[success failed pending])
     validates(:response, presence: true, if: :success?)
     validate(:form_matches_schema, on: :create)
+    validate(:no_forbidden_fields, on: :create)
 
     after_create(:create_submission_job)
     before_validation(:update_state_to_completed)
@@ -18,7 +24,19 @@ module VIC
       state == 'success'
     end
 
+    def process_as_anonymous?
+      parsed_form['processAsAnonymous']
+    end
+
     private
+
+    def no_forbidden_fields
+      if user.present? && user.loa3?
+        bad_fields = parsed_form.keys & LOA3_LOCKED_FIELDS
+
+        errors[:form] << "#{bad_fields.to_sentence} fields not allowed for loa3 user" if bad_fields.present?
+      end
+    end
 
     def parsed_form
       @parsed_form ||= JSON.parse(form)
@@ -37,7 +55,7 @@ module VIC
     end
 
     def create_submission_job
-      SubmissionJob.perform_async(id, form, user_uuid)
+      SubmissionJob.perform_async(id, form, user&.uuid)
     end
   end
 end
