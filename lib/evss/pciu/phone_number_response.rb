@@ -5,12 +5,18 @@ require 'evss/response'
 module EVSS
   module PCIU
     class PhoneNumberResponse < EVSS::Response
-      attribute :phone, Hash
+      attribute :country_code, String
+      attribute :number, String
+      attribute :extension, String
 
       def initialize(status, response = nil)
-        phone = response&.body&.dig('cnp_phone')
+        attributes = {
+          country_code: response&.body&.dig('cnp_phone', 'country_code'),
+          number: response&.body&.dig('cnp_phone', 'number'),
+          extension: response&.body&.dig('cnp_phone', 'extension')
+        }
 
-        super(status, phone: phone)
+        super(status, attributes)
       end
     end
   end

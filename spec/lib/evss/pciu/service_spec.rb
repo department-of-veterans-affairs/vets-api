@@ -40,7 +40,7 @@ describe EVSS::PCIU::Service do
         VCR.use_cassette('evss/pciu/primary_phone') do
           response = subject.get_primary_phone
 
-          expect(response.phone.keys).to contain_exactly 'country_code', 'number', 'extension'
+          expect(response.attributes.keys).to include :country_code, :number, :extension
         end
       end
     end
