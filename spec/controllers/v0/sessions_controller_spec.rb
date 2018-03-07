@@ -148,10 +148,10 @@ RSpec.describe V0::SessionsController, type: :controller do
       expect(response).to have_http_status(202)
     end
 
-    it 'responds with error when logout request is not found' do
+    it 'redirects as success even when logout fails, but it logs the failure' do
       expect(Rails.logger).to receive(:error).exactly(1).times
       expect(post(:saml_logout_callback, SAMLResponse: '-'))
-        .to redirect_to(Settings.saml.logout_relay + '?success=false')
+        .to redirect_to(Settings.saml.logout_relay + '?success=true')
     end
 
     context ' logout has been requested' do
@@ -162,10 +162,10 @@ RSpec.describe V0::SessionsController, type: :controller do
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(invalid_logout_response)
         end
 
-        it 'redirects to error' do
+        it 'redirects as success even when logout fails, but it logs the failure' do
           expect(Rails.logger).to receive(:error).with(/bad thing/).exactly(1).times
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
-            .to redirect_to(Settings.saml.logout_relay + '?success=false')
+            .to redirect_to(Settings.saml.logout_relay + '?success=success')
         end
       end
       context ' logout_response is success' do
