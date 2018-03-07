@@ -137,7 +137,7 @@ class ApplicationController < ActionController::API
     end
   end
 
-  attr_reader :current_user
+  attr_reader :current_user, :session
 
   def render_unauthorized
     raise Common::Exceptions::Unauthorized
