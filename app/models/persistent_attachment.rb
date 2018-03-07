@@ -25,6 +25,10 @@ class PersistentAttachment < ActiveRecord::Base
   #   self.class::UPLOADER_CLASS.new(args).start!(file)
   # end
 
+  def to_pdf
+    PensionBurial::ConvertToPdf.new(file).run
+  end
+
   private
 
   def stamp_text
