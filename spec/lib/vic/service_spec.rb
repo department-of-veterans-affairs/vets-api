@@ -59,6 +59,7 @@ describe VIC::Service, type: :model do
 
   describe '#convert_form' do
     it 'should format the form' do
+      parsed_form['foo'] = 'bar'
       expect(service.convert_form(parsed_form)).to eq(
         'service_branch' => 'Air Force',
         'email' => 'foo@foo.com',
