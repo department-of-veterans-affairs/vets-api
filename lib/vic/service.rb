@@ -148,9 +148,18 @@ module VIC
       send_file(client, case_id, form_attachment, 'Photo')
     end
 
+    def add_loa3_overrides!(converted_form, user)
+      full_name_normalized = user.full_name_normalized
+      converted_form['veteran_full_name'] = full_name_normalized.stringify_keys.slice('first', 'middle', 'last')
+
+      converted_form['profile_data']['SSN'] = user.ssn_normalized
+    end
+
     def add_user_data!(converted_form, user)
       profile_data = converted_form['profile_data']
       va_profile = user.va_profile
+
+      add_loa3_overrides!(converted_form, user) if user.loa3?
 
       if va_profile.present?
         profile_data['sec_ID'] = va_profile.sec_id

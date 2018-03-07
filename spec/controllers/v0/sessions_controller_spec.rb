@@ -215,6 +215,8 @@ RSpec.describe V0::SessionsController, type: :controller do
           .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
           .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
 
+        expect(response.location).to start_with(Settings.saml.relay + '?token=')
+
         new_user = User.find(uuid)
         expect(new_user.ssn).to eq('796111863')
         expect(new_user.va_profile.ssn).not_to eq('155256322')
@@ -253,7 +255,20 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
 
-      context ' when user clicked DENY' do
+      context 'when user has LOA current 1 and highest 3' do
+        let(:saml_user_attributes) do
+          loa1_user.attributes.merge(loa1_user.identity.attributes).merge(
+            loa: { current: LOA::ONE, highest: LOA::THREE }
+          )
+        end
+
+        it 'redirects to identity proof URL' do
+          expect(SAML::SettingsService).to receive(:idme_loa3_url)
+          post :saml_callback
+        end
+      end
+
+      context 'when user clicked DENY' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
 
         it 'redirects to an auth failure page' do
@@ -263,7 +278,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
 
-      context ' when too much time passed to consume the SAML Assertion' do
+      context 'when too much time passed to consume the SAML Assertion' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_late) }
 
         it 'redirects to an auth failure page' do
@@ -273,7 +288,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
 
-      context ' when clock drift causes us to consume the Assertion before its creation' do
+      context 'when clock drift causes us to consume the Assertion before its creation' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_early) }
 
         it 'redirects to an auth failure page' do
