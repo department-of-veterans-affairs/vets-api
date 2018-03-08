@@ -25,6 +25,27 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/profile/primary_phone' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Get a users primary phone number information'
+          key :operationId, 'getPrimaryPhone'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :PhoneNumber
+            end
+          end
+        end
+      end
     end
   end
 end
