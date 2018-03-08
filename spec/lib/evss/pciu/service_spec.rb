@@ -45,4 +45,24 @@ describe EVSS::PCIU::Service do
       end
     end
   end
+
+  describe '#get_alternate_phone' do
+    context 'when successful' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('evss/pciu/alternate_phone') do
+          response = subject.get_alternate_phone
+
+          expect(response).to be_ok
+        end
+      end
+
+      it 'returns a users alternate phone number, extension and country code' do
+        VCR.use_cassette('evss/pciu/alternate_phone') do
+          response = subject.get_alternate_phone
+
+          expect(response.attributes.keys).to include :country_code, :number, :extension
+        end
+      end
+    end
+  end
 end
