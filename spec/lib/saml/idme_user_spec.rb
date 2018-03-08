@@ -34,7 +34,7 @@ RSpec.describe SAML::User do
           expect(Raven).to receive(:tags_context).with(
             controller_name: 'sessions', sign_in_method: 'not-signed-in:error'
           )
-          expect{described_instance}.to raise_error(NoMethodError)
+          expect { described_instance }.to raise_error(NoMethodError)
         end
       end
 
