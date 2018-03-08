@@ -71,6 +71,12 @@ module SAML
     # this is the real authn-context returned in the response without the use of heuristics
     def real_authn_context
       REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
+    # this is to add additional context when we cannot parse for authn_context
+    rescue NoMethodError
+      Raven.extra_context(saml_response: saml_response.response)
+      Raven.user_context(saml_response.attributes.to_h)
+      Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
+      raise
     end
 
     # We want to do some logging of when and how the following issues could arise, since loa is
