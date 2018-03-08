@@ -7,36 +7,43 @@ module VIC
     def perform
       s3 = Aws::S3::Resource.new
 
-      if Rails.env.production?
-        bucket = s3.bucket(Settings.vic.s3.bucket)
+      doc_guids = []
+      photo_guids = []
+      photo_ids = []
 
-        bucket.objects.with_prefix('anonymous/').delete_if do |obj|
-          obj.last_modified < 2.months.ago
-        end
+      ::InProgressForm.where(form_id: 'VIC').find_each do |ipf|
+        form = ipf.data_and_metadata[:form_data]
+
+        doc_guids << form['dd214']['confirmationCode']
+        photo_guids << form['photo']['confirmationCode']
       end
 
-      # Delete anonymous uploads older than 60 days
-      bucket.objects.with_prefix
+      ::ProfilePhotoAttachments.where(guid: photo_guids).find_each do |photo|
+        file_data = photo.parsed_file_data
+        photo_ids << File.join(file_data['path'], file_data['filename'])
+      end
 
-      # edu_claim_ids = []
-      # saved_claim_ids = []
+      if Rails.env.production?
+        bucket = s3.bucket(Settings.vic.s3.bucket)
+        delete_docs(bucket, docs_guids)
+        delete_photos(bucket, photo_ids)
+      end
+    end
 
-      # # Remove old education benefits claims and saved claims older than 2 months
-      # EducationBenefitsClaim.eager_load(:saved_claim)
-      #                       .where("processed_at < '#{2.months.ago}'")
-      #                       .find_each do |record|
-      #   edu_claim_ids << record.id
-      #   saved_claim_ids << record&.saved_claim.id
-      # end
+    private
 
-      # edu_claim_ids.compact!
-      # saved_claim_ids.compact!
+    def delete_photos(bucket, keep)
+      bucket.objects.with_prefix('profile_photo_attachments').delete_if do |obj|
+        id = File.join(File.dirname(obj.key), File.basename(obj.key))
+        obj.last_modified < 2.months.ago && keep.excludes?(id)
+      end
+    end
 
-      # logger.info("Deleting #{edu_claim_ids.length} education benefits claims")
-      # logger.info("Deleting #{saved_claim_ids.length} saved claims")
-
-      # EducationBenefitsClaim.delete(edu_claim_ids)
-      # SavedClaim::EducationBenefits.delete(saved_claim_ids)
+    def delete_docs(bucket, keep)
+      bucket.objects.with_prefix('supporting_documentation_attachments').delete_if do |obj|
+        guid = File.basename(obj.key)
+        obj.last_modified < 2.months.ago && keep.exclude?(guid)
+      end
     end
   end
 end
