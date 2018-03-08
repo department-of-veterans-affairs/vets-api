@@ -5,16 +5,28 @@ class SubmitSavedClaimJob
 
   def perform(saved_claim_id)
     @claim = SavedClaim.find(saved_claim_id)
-    @submission = {
-      'document' => process_record(@claim)
-    }
+    @pdf_path = process_record(@claim)
 
-    @claim.persistent_attachments.each_with_index do |record, i|
-      key = "attachment#{i + 1}"
-      @submission[key] = process_record(record)
+    @attachment_paths = @claim.persistent_attachments.map do |record|
+      process_record(record)
     end
 
-    @submission['metadata'] = generate_metadata.to_json
+    submission = {
+      'metadata' => generate_metadata.to_json
+    }
+
+    submission['document'] = to_faraday_upload(@pdf_path)
+    @attachment_paths.each_with_index do |file_path, i|
+      j = i + 1
+      submission["attachment#{j}"] = to_faraday_upload(file_path)
+    end
+  end
+
+  def to_faraday_upload(file_path)
+    Faraday::UploadIO.new(
+      file_path,
+      Mime[:pdf].to_s
+    )
   end
 
   def process_record(record)
@@ -37,8 +49,8 @@ class SubmitSavedClaimJob
 
   def generate_metadata
     form = @claim.parsed_form
-    form_pdf_metadata = get_hash_and_pages(@submission['document'])
-    number_attachments = @claim.persistent_attachments.count
+    form_pdf_metadata = get_hash_and_pages(@pdf_path)
+    number_attachments = @attachment_paths.size
     veteran_full_name = form['veteranFullName']
 
     metadata = {
@@ -57,10 +69,9 @@ class SubmitSavedClaimJob
       'numberPages' => form_pdf_metadata[:pages]
     }
 
-    number_attachments.times do |i|
+    @attachment_paths.each_with_index do |file_path, i|
       j = i + 1
-      submission_key = "attachment#{i + 1}"
-      attachment_pdf_metadata = get_hash_and_pages(@submission[submission_key])
+      attachment_pdf_metadata = get_hash_and_pages(file_path)
       metadata["ahash#{j}"] = attachment_pdf_metadata[:hash]
       metadata["numberPages#{j}"] = attachment_pdf_metadata[:pages]
     end
