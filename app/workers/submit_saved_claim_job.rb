@@ -14,8 +14,7 @@ class SubmitSavedClaimJob
       @submission[key] = process_record(record)
     end
 
-    metadata = generate_metadata
-    binding.pry; fail
+    @submission['metadata'] = generate_metadata.to_json
   end
 
   def process_record(record)
@@ -39,28 +38,31 @@ class SubmitSavedClaimJob
   def generate_metadata
     form = @claim.parsed_form
     form_pdf_metadata = get_hash_and_pages(@submission['document'])
-    binding.pry; fail
+    number_attachments = @claim.persistent_attachments.count
+    veteran_full_name = form['veteranFullName']
 
     metadata = {
-      'veteranFirstName' => form['veteranFirstName'],
-      'veteranLastName' => form['veteranLastName'],
-      'fileNumber' => form['vaFileNumber'],
+      # TODO check if these are required
+      'veteranFirstName' => veteran_full_name['first'],
+      'veteranLastName' => veteran_full_name['last'],
+      'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
       'receiveDt' => @claim.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+      # TODO check if this is required
       'zipCode' => form['claimantAddress'].try(:[], 'postalCode'),
       'uuid' => @claim.guid,
-      'source' => 'vets.gov',
+      'source' => 'CSRA-V',
       'hashV' => form_pdf_metadata[:hash],
-      'numberAttachments' => @claim.persistent_attachments.count,
-      'docType' => nil,
+      'numberAttachments' => number_attachments,
+      'docType' => @claim.form_id,
       'numberPages' => form_pdf_metadata[:pages]
     }
 
-    attachments = claim.persistent_attachments
-    attachments.each_with_index do |_attachment, index|
-      n = index + 1
-
-      metadata["ahash#{n}"] = nil # TODO: SHA-256 hash of attachment
-      metadata["numberPages#{n}"] = nil # TODO: number of pages for each attachment
+    number_attachments.times do |i|
+      j = i + 1
+      submission_key = "attachment#{i + 1}"
+      attachment_pdf_metadata = get_hash_and_pages(@submission[submission_key])
+      metadata["ahash#{j}"] = attachment_pdf_metadata[:hash]
+      metadata["numberPages#{j}"] = attachment_pdf_metadata[:pages]
     end
 
     metadata
