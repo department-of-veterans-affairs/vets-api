@@ -82,10 +82,22 @@ module V0
     end
 
     def saml_logout_callback
-      if params[:SAMLResponse]
-        # We initiated an SLO and are receiving the bounce-back after the IDP performed it
-        handle_completed_slo
+      saml_settings = saml_settings(name_identifier_value: session&.uuid)
+      logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings, get_params: params)
+      logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
+      session         = Session.find(logout_request&.token)
+      user            = User.find(session&.uuid)
+
+      errors = build_logout_errors(logout_response, logout_request, session, user)
+
+      if errors.size.positive?
+        extra_context = { in_response_to: logout_response&.in_response_to }
+        log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
       end
+      # in the future the FE shouldnt count on ?success=true
+    ensure
+      destroy_user_session!(user, session, logout_request)
+      redirect_to Settings.saml.logout_relay + '?success=true'
     end
 
     def saml_callback
@@ -129,27 +141,16 @@ module V0
       EVSS::CreateUserAccountJob.perform_async(auth_headers)
     end
 
-    def handle_completed_slo
-      saml_settings = saml_settings(name_identifier_value: session&.uuid)
-      logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings, get_params: params)
-      logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
-      session         = Session.find(logout_request&.token)
-      user            = User.find(session&.uuid)
-
-      errors = build_logout_errors(logout_response, logout_request, session, user)
-
-      if errors.size.positive?
-        extra_context = { in_response_to: logout_response&.in_response_to }
-        log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
-        redirect_to Settings.saml.logout_relay + '?success=false'
-      else
-        logout_request.destroy
-        session.destroy
-        user.destroy
-        redirect_to Settings.saml.logout_relay + '?success=true'
-        # even if mhv logout raises exception, still consider logout successful from browser POV
-        MHVLoggingService.logout(user)
-      end
+    # FIXME: This is Phase 1 of 2 more details here:
+    # https://github.com/department-of-veterans-affairs/vets-api/pull/1750
+    # Eventually this call will happen when #destroy or 'sessions/slow/new' are first invoked.
+    def destroy_user_session!(user, session, logout_request)
+      # shouldn't return an error, but we'll put everything else in an ensure block just in case.
+      MHVLoggingService.logout(user) if user
+    ensure
+      logout_request&.destroy
+      session&.destroy
+      user&.destroy
     end
 
     def build_logout_errors(logout_response, logout_request, session, user)
