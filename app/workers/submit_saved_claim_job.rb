@@ -29,8 +29,16 @@ class SubmitSavedClaimJob
     )
   end
 
+  def get_hash_and_pages(file_path)
+    {
+      hash: Digest::SHA256.file(file_path).hexdigest,
+      pages: PDF::Reader.new(file_path).pages.size
+    }
+  end
+
   def generate_metadata
     form = @claim.parsed_form
+    form_pdf_metadata = get_hash_and_pages(@submission['document'])
     binding.pry; fail
 
     metadata = {
@@ -41,10 +49,10 @@ class SubmitSavedClaimJob
       'zipCode' => form['claimantAddress'].try(:[], 'postalCode'),
       'uuid' => @claim.guid,
       'source' => 'vets.gov',
-      'hashV' => Digest::SHA256.file(@submission['document']).hexdigest,
+      'hashV' => form_pdf_metadata[:hash],
       'numberAttachments' => @claim.persistent_attachments.count,
       'docType' => nil,
-      'numberPages' => PDF::Reader.new(@submission['document']).pages.size
+      'numberPages' => form_pdf_metadata[:pages]
     }
 
     attachments = claim.persistent_attachments
