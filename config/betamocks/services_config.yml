@@ -12,6 +12,13 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
+  # PCIU primary phone
+  - :method: :get
+    :path: "/wss-pciu-services-web/rest/pciuServices/v1/primaryPhoneNumber"
+    :file_path: "evss/pciu/primary_phone"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
   # PCIUAddress
   - :method: :get
     :path: "/wss-pciu-services-web/rest/pciuServices/v1/states"
