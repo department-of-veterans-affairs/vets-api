@@ -46,6 +46,27 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/profile/alternate_phone' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Get a users alternate phone number information'
+          key :operationId, 'getAlternatePhone'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :PhoneNumber
+            end
+          end
+        end
+      end
     end
   end
 end
