@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe VIC::DeleteOldApplications do
+RSpec.describe VIC::DeleteOldUploads do
   before do
   end
 
@@ -20,7 +20,13 @@ RSpec.describe VIC::DeleteOldApplications do
         }.to_json
       )
     end
+
     it 'checks for uploads to keep from in progress forms' do
+      job = VIC::DeleteOldUploads.new
+      job.perform
+
+      expect(job.instance_variable_get(:photo_files)).to eq([])
+      expect(job.instance_variable_get(:doc_files)).to eq([])
     end
   end
 end

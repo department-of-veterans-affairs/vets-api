@@ -7,42 +7,43 @@ module VIC
     def perform
       s3 = Aws::S3::Resource.new
 
-      doc_guids = []
       photo_guids = []
-      photo_ids = []
+      keep_photo_files = []
+      keep_doc_files = []
 
       ::InProgressForm.where(form_id: 'VIC').find_each do |ipf|
         form = ipf.data_and_metadata[:form_data]
 
-        doc_guids << form['dd214']['confirmationCode']
         photo_guids << form['photo']['confirmationCode']
+        doc_files << "#{form['dd214']['confirmationCode']}.processed"
       end
 
-      ::ProfilePhotoAttachments.where(guid: photo_guids).find_each do |photo|
+      ::VIC::ProfilePhotoAttachment.where(guid: photo_guids).find_each do |photo|
         file_data = photo.parsed_file_data
-        photo_ids << File.join(file_data['path'], file_data['filename'])
+        id = File.join(file_data['path'], file_data['filename'])
+        photo_files << "#{id}.processed"
       end
 
       if Rails.env.production?
         bucket = s3.bucket(Settings.vic.s3.bucket)
-        delete_docs(bucket, docs_guids)
-        delete_photos(bucket, photo_ids)
+        delete_docs(bucket, keep_doc_files)
+        delete_photos(bucket, keep_photo_files)
       end
     end
 
     private
 
-    def delete_photos(bucket, keep)
+    def delete_photos(bucket, keep_photo_files)
       bucket.objects.with_prefix('profile_photo_attachments').delete_if do |obj|
-        id = File.join(File.dirname(obj.key), File.basename(obj.key))
-        obj.last_modified < 2.months.ago && keep.excludes?(id)
+        filename = File.join(File.dirname(obj.key), File.basename(obj.key))
+        obj.last_modified < 2.months.ago && keep_photo_files.exclude?(filename)
       end
     end
 
-    def delete_docs(bucket, keep)
+    def delete_docs(bucket, keep_doc_files)
       bucket.objects.with_prefix('supporting_documentation_attachments').delete_if do |obj|
-        guid = File.basename(obj.key)
-        obj.last_modified < 2.months.ago && keep.exclude?(guid)
+        filename = File.basename(obj.key)
+        obj.last_modified < 2.months.ago && keep_doc_files.exclude?(filename)
       end
     end
   end
