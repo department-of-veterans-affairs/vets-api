@@ -68,7 +68,7 @@ RSpec.describe Rack::Attack do
 
     context 'form submission' do
       let(:limit) { 10 }
-      let(:endpoint) { '/v0/vic/submissions' }
+      let(:endpoint) { '/v0/vic/vic_submissions' }
 
       it 'limits requests' do
         expect(last_response.status).to eq(429)
