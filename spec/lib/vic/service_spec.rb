@@ -24,10 +24,6 @@ describe VIC::Service, type: :model do
       { 'profile_data' => {} }
     end
 
-    before do
-      expect_any_instance_of(MVI::Service).to receive(:find_historical_icns).with(user).and_return([])
-    end
-
     it 'should add user data to the request form' do
       expect(user.veteran_status).to receive(:title38_status).and_return('V1')
       service.add_user_data!(converted_form, user)
@@ -35,8 +31,10 @@ describe VIC::Service, type: :model do
         'profile_data' => {
           'sec_ID' => '0001234567',
           'active_ICN' => user.icn,
-          'historical_ICN' => []
+          'SSN' => user.ssn,
+          'historical_ICN' => %w[1000123457V123456 1000123458V123456]
         },
+        'veteran_full_name' => { 'first' => 'Wesley', 'last' => 'Ford' },
         'title38_status' => 'V1'
       )
     end
@@ -50,8 +48,10 @@ describe VIC::Service, type: :model do
           'profile_data' => {
             'sec_ID' => '0001234567',
             'active_ICN' => user.icn,
-            'historical_ICN' => []
-          }
+            'SSN' => user.ssn,
+            'historical_ICN' => %w[1000123457V123456 1000123458V123456]
+          },
+          'veteran_full_name' => { 'first' => 'Wesley', 'last' => 'Ford' }
         )
       end
     end
@@ -59,6 +59,7 @@ describe VIC::Service, type: :model do
 
   describe '#convert_form' do
     it 'should format the form' do
+      parsed_form['foo'] = 'bar'
       expect(service.convert_form(parsed_form)).to eq(
         'service_branch' => 'Air Force',
         'email' => 'foo@foo.com',

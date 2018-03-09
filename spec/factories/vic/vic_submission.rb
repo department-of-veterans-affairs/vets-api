@@ -32,5 +32,33 @@ FactoryBot.define do
         'gender' => 'M'
       }.to_json
     end
+
+    factory :vic_submission_loa3_user, class: VIC::VICSubmission do
+      form do
+        {
+          'serviceBranch' => 'F',
+          'email' => 'foo@foo.com',
+          'dd214' => [
+            {
+              'confirmationCode' => create(:supporting_documentation_attachment).guid
+            }
+          ],
+          'photo' => {
+            'confirmationCode' => create(:profile_photo_attachment).guid
+          },
+          'privacyAgreementAccepted' => true,
+          'veteranAddress' => {
+            'city' => 'Milwaukee',
+            'country' => 'USA',
+            'postalCode' => '53130',
+            'state' => 'WI',
+            'street' => '123 Main St'
+          },
+          'phone' => '5551110000',
+          'gender' => 'M'
+        }.to_json
+      end
+      user { build(:user, :loa3) }
+    end
   end
 end
