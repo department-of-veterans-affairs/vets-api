@@ -13,4 +13,15 @@ RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
       SubmitSavedClaimJob.new.perform(claim.id)
     end
   end
+
+  describe '#to_faraday_upload' do
+    it 'should convert a file to faraday upload object' do
+      file_path = 'tmp/foo'
+      expect(Faraday::UploadIO).to receive(:new).with(
+        file_path,
+        'application/pdf'
+      )
+      described_class.new.to_faraday_upload(file_path)
+    end
+  end
 end

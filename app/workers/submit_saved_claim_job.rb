@@ -20,8 +20,10 @@ class SubmitSavedClaimJob
       j = i + 1
       submission["attachment#{j}"] = to_faraday_upload(file_path)
     end
+    binding.pry; fail
 
     PensionBurial::Service.new.upload(submission)
+    # TODO delete files
   end
 
   def to_faraday_upload(file_path)
