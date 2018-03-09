@@ -7,6 +7,9 @@ Rails.application.routes.draw do
   get '/saml/metadata', to: 'saml#metadata'
   get '/auth/saml/logout', to: 'v0/sessions#saml_logout_callback', as: 'saml_logout'
   post '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
+  get '/sessions/:type/new',
+      to: 'v0/sessions#new',
+      constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
 
   namespace :v0, defaults: { format: 'json' } do
     resources :in_progress_forms, only: %i[index show update destroy]
@@ -148,6 +151,12 @@ Rails.application.routes.draw do
       end
     end
 
+    namespace :profile do
+      resource :email, only: :show
+      resource :primary_phone, only: :show
+      resource :alternate_phone, only: :show
+    end
+
     resources :apidocs, only: [:index]
 
     get 'terms_and_conditions', to: 'terms_and_conditions#index'
@@ -155,7 +164,11 @@ Rails.application.routes.draw do
     get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
 
+    resource :mhv_account, only: %i[show create]
+
     [
+      'profile',
+      'dashboard',
       'veteran_id_card',
       FormProfile::EMIS_PREFILL_KEY
     ].each do |feature|

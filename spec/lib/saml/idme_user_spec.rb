@@ -8,6 +8,7 @@ RSpec.describe SAML::User do
   describe 'ID.me' do
     let(:saml_response) do
       instance_double(OneLogin::RubySaml::Response, attributes: saml_attributes,
+                                                    response: 'base64decoded-stuff',
                                                     decrypted_document: decrypted_document_partial)
     end
     let(:decrypted_document_partial) { REXML::Document.new(response_partial) }
@@ -23,6 +24,20 @@ RSpec.describe SAML::User do
           'multifactor'        => ['true'],
           'level_of_assurance' => [3]
         )
+      end
+
+      context 'add additional context when no decrypted document' do
+        it 'adds additional context for NoMethodError' do
+          allow(REXML::XPath).to receive(:first).and_raise(NoMethodError)
+          expect(Raven).to receive(:extra_context).with(
+            base64encodedpayload: Base64.encode64('base64decoded-stuff'),
+            attributes: saml_attributes.to_h
+          )
+          expect(Raven).to receive(:tags_context).with(
+            controller_name: 'sessions', sign_in_method: 'not-signed-in:error'
+          )
+          expect { described_instance }.to raise_error(NoMethodError)
+        end
       end
 
       it 'has various important attributes' do

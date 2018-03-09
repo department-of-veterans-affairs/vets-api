@@ -10,10 +10,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: b9ba6bf1837a9389788b5d4f94ac977d505c9e0b
+  revision: ca1f0178d103f5d8c35fa9b1d90dc44d829edebf
   branch: master
   specs:
-    vets_json_schema (3.20.0)
+    vets_json_schema (3.30.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -89,6 +89,7 @@ GEM
     ast (2.3.0)
     attr_encrypted (3.0.3)
       encryptor (~> 3.0.0)
+    awesome_print (1.8.0)
     awrence (0.1.0)
     aws-sdk (2.6.12)
       aws-sdk-resources (= 2.6.12)
@@ -298,7 +299,7 @@ GEM
     rack-attack (5.0.1)
       rack
     rack-cors (0.4.1)
-    rack-protection (1.5.3)
+    rack-protection (1.5.4)
       rack
     rack-test (0.6.3)
       rack (>= 1.0)
@@ -492,6 +493,7 @@ DEPENDENCIES
   active_model_serializers (= 0.10.4)
   apivore
   attr_encrypted
+  awesome_print (~> 1.8)
   awrence
   aws-sdk
   betamocks!
