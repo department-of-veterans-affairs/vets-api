@@ -4,6 +4,7 @@ require 'saml/user_attributes/id_me'
 require 'saml/user_attributes/mhv'
 require 'saml/user_attributes/dslogon'
 require 'sentry_logging'
+require 'base64'
 
 module SAML
   class User
@@ -73,8 +74,10 @@ module SAML
       REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
     # this is to add additional context when we cannot parse for authn_context
     rescue NoMethodError
-      Raven.extra_context(saml_response: saml_response.response)
-      Raven.user_context(saml_response.attributes.to_h)
+      Raven.extra_context(
+        base64encodedpayload: Base64.encode64(saml_response.response),
+        attributes: saml_response.attributes.to_h
+      )
       Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
       raise
     end

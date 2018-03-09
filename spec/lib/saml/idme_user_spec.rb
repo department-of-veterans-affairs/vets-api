@@ -29,8 +29,10 @@ RSpec.describe SAML::User do
       context 'add additional context when no decrypted document' do
         it 'adds additional context for NoMethodError' do
           allow(REXML::XPath).to receive(:first).and_raise(NoMethodError)
-          expect(Raven).to receive(:extra_context).with(saml_response: 'base64decoded-stuff')
-          expect(Raven).to receive(:user_context).with(saml_attributes.to_h)
+          expect(Raven).to receive(:extra_context).with(
+            base64encodedpayload: Base64.encode64('base64decoded-stuff'),
+            attributes: saml_attributes.to_h
+          )
           expect(Raven).to receive(:tags_context).with(
             controller_name: 'sessions', sign_in_method: 'not-signed-in:error'
           )
