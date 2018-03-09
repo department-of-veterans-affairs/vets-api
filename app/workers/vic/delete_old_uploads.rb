@@ -11,6 +11,7 @@ module VIC
       keep_photo_files = []
       keep_doc_files = []
 
+      # find photos and docs that should be kept
       ::InProgressForm.where(form_id: 'VIC').find_each do |ipf|
         form = ipf.data_and_metadata[:form_data]
 
@@ -18,6 +19,7 @@ module VIC
         doc_files << "#{form['dd214']['confirmationCode']}.processed"
       end
 
+      # find full path to photos
       ::VIC::ProfilePhotoAttachment.where(guid: photo_guids).find_each do |photo|
         file_data = photo.parsed_file_data
         id = File.join(file_data['path'], file_data['filename'])
@@ -30,8 +32,6 @@ module VIC
         delete_photos(bucket, keep_photo_files)
       end
     end
-
-    private
 
     def delete_photos(bucket, keep_photo_files)
       bucket.objects.with_prefix('profile_photo_attachments').delete_if do |obj|
