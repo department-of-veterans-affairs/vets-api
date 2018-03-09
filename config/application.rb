@@ -52,7 +52,12 @@ module VetsAPI
         origins { |source, _env| Settings.web_origin.split(',').include?(source) }
         resource '*', headers: :any,
                       methods: :any,
-                      credentials: true
+                      credentials: true,
+                      expose: [
+                        'X-RateLimit-Limit',
+                        'X-RateLimit-Remaining',
+                        'X-RateLimit-Reset'
+                      ]
       end
     end
 
