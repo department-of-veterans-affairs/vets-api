@@ -25,7 +25,7 @@ class Rack::Attack
   end
 
   throttle('vic_submissions/ip', limit: 10, period: 1.minute) do |req|
-    req.ip if req.path == '/v0/vic/submissions' && req.post?
+    req.ip if req.path == '/v0/vic/vic_submissions' && req.post?
   end
 
   # Source: https://github.com/kickstarter/rack-attack#x-ratelimit-headers-for-well-behaved-clients
