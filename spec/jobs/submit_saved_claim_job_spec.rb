@@ -3,12 +3,11 @@
 require 'rails_helper'
 
 RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
+  stub_virus_scan
+  let(:pension_burial) { create(:pension_burial) }
+  let(:claim) { pension_burial.saved_claim }
+
   describe '#perform' do
-    stub_virus_scan
-
-    let(:pension_burial) { create(:pension_burial) }
-    let(:claim) { pension_burial.saved_claim }
-
     it 'submits the saved claim' do
       SubmitSavedClaimJob.new.perform(claim.id)
     end
@@ -57,6 +56,40 @@ RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
         expect(described_class.new.get_hash_and_pages('path')).to eq(
           hash: 'hexdigest',
           pages: 2
+        )
+      end
+    end
+
+    describe '#generate_metadata' do
+      it 'should generate the metadata', run_at: '2017-01-04 03:00:00 EDT' do
+        job = described_class.new
+        job.instance_variable_set('@claim', claim)
+        job.instance_variable_set('@pdf_path', 'pdf_path')
+        job.instance_variable_set('@attachment_paths', ['attachment_path'])
+
+        expect(job).to receive(:get_hash_and_pages).with('pdf_path').and_return(
+          hash: 'hash1',
+          pages: 1
+        )
+        expect(job).to receive(:get_hash_and_pages).with('attachment_path').and_return(
+          hash: 'hash2',
+          pages: 2
+        )
+
+        expect(job.generate_metadata).to eq(
+          {"veteranFirstName"=>"Test",
+           "veteranLastName"=>"User",
+           "fileNumber"=>"111223333",
+           "receiveDt"=>"2017-01-04 07:00:00",
+           "zipCode"=>"90210",
+           "uuid"=>claim.guid,
+           "source"=>"CSRA-V",
+           "hashV"=>"hash1",
+           "numberAttachments"=>1,
+           "docType"=>"21P-530",
+           "numberPages"=>1,
+           "ahash1"=>"hash2",
+           "numberPages1"=>2}
         )
       end
     end
