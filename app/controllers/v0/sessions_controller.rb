@@ -169,6 +169,11 @@ module V0
       else
         Settings.saml.relay + '?token=' + @session.token
       end
+    rescue NoMethodError
+      Raven.user_context(user_context)
+      Raven.tags_context(tags_context)
+      log_message_to_sentry('SSO Callback Success URL', :warn)
+      Settings.saml.relay + '?token=' + @session.token
     end
 
     def benchmark_tags(*tags)
