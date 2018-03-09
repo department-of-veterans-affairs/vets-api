@@ -44,5 +44,21 @@ RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
 
       expect(described_class.new.process_record(record)).to eq('path3')
     end
+
+    describe '#get_hash_and_pages' do
+      it 'should get sha and number of pages' do
+        expect(Digest::SHA256).to receive(:file).with('path').and_return(
+          OpenStruct.new(hexdigest: 'hexdigest')
+        )
+        expect(PDF::Reader).to receive(:new).with('path').and_return(
+          OpenStruct.new(pages: [1, 2])
+        )
+
+        expect(described_class.new.get_hash_and_pages('path')).to eq(
+          hash: 'hexdigest',
+          pages: 2
+        )
+      end
+    end
   end
 end
