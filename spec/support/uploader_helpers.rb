@@ -12,7 +12,7 @@ module UploaderHelpers
       end
 
       before do
-        expect(Common::VirusScan).to receive(:scan).and_return(OpenStruct.new(result))
+        allow(Common::VirusScan).to receive(:scan).and_return(OpenStruct.new(result))
       end
     end
   end

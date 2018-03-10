@@ -10,6 +10,7 @@ RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
   describe '#perform' do
     it 'submits the saved claim' do
       job = described_class.new
+
       expect(job).to receive(:process_record).with(claim).and_return('pdf_path')
       expect(job).to receive(:process_record).with(pension_burial).and_return('attachment_path')
       expect(job).to receive(:to_faraday_upload).with('pdf_path').and_return('faraday1')
