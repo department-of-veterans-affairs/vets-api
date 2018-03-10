@@ -158,7 +158,7 @@ RSpec.describe 'address', type: :request do
 
     describe 'GET /v0/address/countries' do
       context 'with a 200 response' do
-        it 'should match the states schema' do
+        it 'should match the countries schema' do
           VCR.use_cassette('evss/reference_data/countries') do
             get '/v0/address/countries', nil, auth_header
             expect(response).to have_http_status(:ok)
