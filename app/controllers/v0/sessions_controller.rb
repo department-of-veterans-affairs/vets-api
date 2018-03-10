@@ -102,7 +102,6 @@ module V0
       redirect_to Settings.saml.logout_relay + '?success=true'
     end
 
-    # rubocop:disable Metrics/MethodLength
     def saml_callback
       saml_response = OneLogin::RubySaml::Response.new(params[:SAMLResponse], settings: saml_settings)
       @sso_service = SSOService.new(saml_response)
@@ -127,7 +126,6 @@ module V0
     ensure
       StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
 
