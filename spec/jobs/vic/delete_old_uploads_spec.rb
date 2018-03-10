@@ -22,11 +22,10 @@ RSpec.describe VIC::DeleteOldUploads do
     end
 
     it 'checks for uploads to keep from in progress forms' do
-      job = VIC::DeleteOldUploads.new
-      job.perform
+      expect_any_instance_of(VIC::DeleteOldUploads).to receive(:delete_photos).with(:foo)
+      allow_any_instance_of(VIC::DeleteOldUploads).to receive(:delete_docs).with(:bar)
 
-      expect(job.instance_variable_get(:photo_files)).to eq([])
-      expect(job.instance_variable_get(:doc_files)).to eq([])
+      VIC::DeleteOldUploads.new.perform
     end
   end
 end

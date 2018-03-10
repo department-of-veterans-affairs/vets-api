@@ -33,8 +33,11 @@ module VIC
       end
     end
 
+    private
+
     def delete_photos(bucket, keep_photo_files)
       bucket.objects.with_prefix('profile_photo_attachments').delete_if do |obj|
+        # examples: "anonymous/82de4279-4c2b-47cc-a045-0b0081e40f52.processed", "123040/1234.processed"
         filename = File.join(File.dirname(obj.key), File.basename(obj.key))
         obj.last_modified < 2.months.ago && keep_photo_files.exclude?(filename)
       end
@@ -42,6 +45,7 @@ module VIC
 
     def delete_docs(bucket, keep_doc_files)
       bucket.objects.with_prefix('supporting_documentation_attachments').delete_if do |obj|
+        # examples: "9f8254ff-cfe4-410d-aaea-f48289a166bb.processed"
         filename = File.basename(obj.key)
         obj.last_modified < 2.months.ago && keep_doc_files.exclude?(filename)
       end
