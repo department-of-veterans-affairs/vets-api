@@ -9,7 +9,22 @@ RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
 
   describe '#perform' do
     it 'submits the saved claim' do
-      SubmitSavedClaimJob.new.perform(claim.id)
+      job = described_class.new
+      expect(job).to receive(:process_record).with(claim).and_return('pdf_path')
+      expect(job).to receive(:process_record).with(pension_burial).and_return('attachment_path')
+      expect(job).to receive(:to_faraday_upload).with('pdf_path').and_return('faraday1')
+      expect(job).to receive(:to_faraday_upload).with('attachment_path').and_return('faraday1')
+      expect(job).to receive(:generate_metadata).and_return(
+        metadata: {}
+      )
+      expect_any_instance_of(PensionBurial::Service).to receive(:upload).with(
+        {"metadata"=>"{\"metadata\":{}}", "document"=>"faraday1", "attachment1"=>"faraday1"}
+      )
+
+      expect(File).to receive(:delete).with('pdf_path')
+      expect(File).to receive(:delete).with('attachment_path')
+
+      job.perform(claim.id)
     end
   end
 
