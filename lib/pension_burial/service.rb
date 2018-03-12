@@ -25,6 +25,5 @@ module PensionBurial
 
       response
     end
-    # rubocop:enable Metrics/MethodLength
   end
 end
