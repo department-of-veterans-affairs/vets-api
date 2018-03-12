@@ -29,6 +29,5 @@ module PensionBurial
 
       out_file
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
   end
 end
