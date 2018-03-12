@@ -51,6 +51,7 @@ class SubmitSavedClaimJob
     }
   end
 
+  # rubocop:disable Metrics/MethodLength
   def generate_metadata
     form = @claim.parsed_form
     form_pdf_metadata = get_hash_and_pages(@pdf_path)
@@ -82,4 +83,5 @@ class SubmitSavedClaimJob
 
     metadata
   end
+  # rubocop:enable Metrics/MethodLength
 end
