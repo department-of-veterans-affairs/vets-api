@@ -58,6 +58,14 @@ class MhvAccount < ActiveRecord::Base
     user.loa3? && user.va_patient?
   end
 
+  def creatable?
+    eligible? && user.mhv_correlation_id.empty?
+  end
+
+  def upgradable?
+    eligible? && user.mhv_correlation_id.present? && !previously_registered
+  end
+
   def terms_and_conditions_accepted?
     terms_and_conditions_accepted.present?
   end
