@@ -268,6 +268,34 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
 
+      context 'when user has LOA current 1 and highest nil' do
+        let(:saml_user_attributes) do
+          loa1_user.attributes.merge(loa1_user.identity.attributes).merge(
+            loa: { current: nil, highest: nil }
+          )
+        end
+
+        it 'handles NoMethodError - and redirects to saml.relay with success token' do
+          expect(Raven).to receive(:extra_context).once
+          expect(Raven).to receive(:user_context).once
+          expect(Raven).to receive(:tags_context).twice
+          expect(controller).to receive(:log_message_to_sentry).with('SSO Callback Success URL', :warn)
+          post :saml_callback
+          expect(response.location).to start_with(Settings.saml.relay + '?token=')
+        end
+      end
+
+      context 'when NoMethodError is encountered elsewhere' do
+        it 'redirects to adds context and re-raises the exception' do
+          allow_any_instance_of(SSOService).to receive(:persist_authentication!).and_raise(NoMethodError)
+          expect(Raven).to receive(:extra_context).twice
+          expect(Raven).not_to receive(:user_context)
+          expect(Raven).not_to receive(:tags_context).once
+          expect(controller).not_to receive(:log_message_to_sentry)
+          post :saml_callback
+        end
+      end
+
       context 'when user clicked DENY' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
 
