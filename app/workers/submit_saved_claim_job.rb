@@ -57,15 +57,14 @@ class SubmitSavedClaimJob
     form_pdf_metadata = get_hash_and_pages(@pdf_path)
     number_attachments = @attachment_paths.size
     veteran_full_name = form['veteranFullName']
+    address = form['claimantAddress'] || form['veteranAddress']
 
     metadata = {
-      # TODO: check if these are required
-      'veteranFirstName' => veteran_full_name['first'],
-      'veteranLastName' => veteran_full_name['last'],
+      'veteranFirstName' => veteran_full_name.try(:[], 'first'),
+      'veteranLastName' => veteran_full_name.try(:[], 'last'),
       'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
       'receiveDt' => @claim.created_at.utc.strftime('%Y-%m-%d %H:%M:%S'),
-      # TODO: check if this is required
-      'zipCode' => form['claimantAddress'].try(:[], 'postalCode'),
+      'zipCode' => address.try(:[], 'postalCode'),
       'uuid' => @claim.guid,
       'source' => 'CSRA-V',
       'hashV' => form_pdf_metadata[:hash],
