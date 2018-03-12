@@ -20,30 +20,4 @@ class ClaimDocumentation::Uploader < VetsShrine
     validate_max_height 10_000 if get.height
     validate_unlocked_pdf
   end
-
-  # Override the Shrine name creation function to follow a naming convention
-  # that allows for some remediation. `form_id` and `guid` are set per-file
-  # during the Workflow instantiation and follow the file through using Shrine
-  # arguments. For a Burial claim, this results in a filename similar to
-  # `21P-530/{guid}/ConvertToPDF-scanned_doc.png.pdf`.
-  # def generate_location(io, context)
-  #   # Because there are multiple entry paths for io objects
-  #   # to get into Shrine, we need to handle each of them in
-  #   # order to extract a base filename
-  #   fname =
-  #     case io
-  #     when File
-  #       File.basename(io.path)
-  #     when ActionDispatch::Http::UploadedFile
-  #       io.original_filename
-  #     when Shrine::UploadedFile
-  #       context[:metadata]['filename']
-  #     end
-  #   step = begin
-  #            context[:record].current_task
-  #          rescue
-  #            'initialupload'
-  #          end
-  #   File.join(context[:record].form_id, context[:record].guid, [step, fname].join('-'))
-  # end
 end

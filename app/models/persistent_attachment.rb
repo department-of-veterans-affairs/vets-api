@@ -3,12 +3,7 @@
 require 'attr_encrypted'
 
 # Persistent backing of a Shrine file upload, primarily used by SavedClaim
-# at the moment. Subclasses need to define a constant, `UPLOADER_CLASS`,
-# which references a subclass of `FileUpload` and defines the `uploader`
-# and `workflow` that determine how a file is stored and what actions it
-# goes through when it's ready to be sent to a backend system.
-
-# Current subclasses are PensionBurial
+# at the moment. Current subclasses are PensionBurial
 
 class PersistentAttachment < ActiveRecord::Base
   include SetGuid
