@@ -5,6 +5,7 @@ module PensionBurial
     def initialize(file)
       @file = file
     end
+
     def run
       in_file = Common::FileHelpers.generate_temp_file(@file.read)
       return in_file if @file.content_type == Mime[:pdf].to_s
