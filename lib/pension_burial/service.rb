@@ -4,6 +4,15 @@ module PensionBurial
   class Service < Common::Client::Base
     configuration PensionBurial::Configuration
 
+    def status(guid)
+      response = request(
+        :post,
+        '',
+        token: Settings.pension_burial.upload.token,
+        uuids: [guid]
+      )
+    end
+
     # rubocop:disable Metrics/MethodLength
     def upload(metadata, file_io, mime_type)
       response = request(
