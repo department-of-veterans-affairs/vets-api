@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module PensionBurial
   class DatestampPdf
     def initialize(file_path, skip_date_on_stamp: false, append_to_stamp: nil)
@@ -33,7 +35,7 @@ module PensionBurial
       PdfFill::Filler::PDF_FORMS.stamp(file_path, stamp_path, out_path)
       File.delete(file_path)
       out_path
-    rescue
+    rescue StandardError
       Common::FileHelpers.delete_file_if_exists(out_path)
       raise
     end

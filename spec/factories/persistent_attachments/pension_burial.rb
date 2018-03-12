@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :pension_burial, class: 'PersistentAttachments::PensionBurial' do
     saved_claim { build(:burial_claim) }

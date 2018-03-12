@@ -11,8 +11,6 @@ RSpec.describe SavedClaim::Pension do
 
   describe '#process_attachments!' do
     it 'should set the attachments saved_claim_id' do
-      
-      
     end
   end
 

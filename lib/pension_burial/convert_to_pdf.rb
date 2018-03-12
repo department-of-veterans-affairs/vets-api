@@ -1,13 +1,10 @@
 # frozen_string_literal: true
 
-
 module PensionBurial
   class ConvertToPdf
     def initialize(file)
       @file = file
     end
-
-    # rubocop:disable Metrics/CyclomaticComplexity
     def run
       in_file = Common::FileHelpers.generate_temp_file(@file.read)
       return in_file if @file.content_type == Mime[:pdf].to_s

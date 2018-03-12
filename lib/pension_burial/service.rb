@@ -3,8 +3,6 @@
 module PensionBurial
   class Service < Common::Client::Base
     configuration PensionBurial::Configuration
-
-    # rubocop:disable Metrics/MethodLength
     def upload(body)
       body['token'] = Settings.pension_burial.upload.token
 
@@ -18,11 +16,9 @@ module PensionBurial
         log_message_to_sentry(
           'pension burial api upload',
           :info,
-          {
-            response: {
-              status: response.status,
-              body: response.body
-            }
+          response: {
+            status: response.status,
+            body: response.body
           }
         )
       end

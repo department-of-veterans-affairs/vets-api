@@ -19,7 +19,7 @@ RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
         metadata: {}
       )
       expect_any_instance_of(PensionBurial::Service).to receive(:upload).with(
-        {"metadata"=>"{\"metadata\":{}}", "document"=>"faraday1", "attachment1"=>"faraday1"}
+        'metadata' => '{"metadata":{}}', 'document' => 'faraday1', 'attachment1' => 'faraday1'
       )
 
       expect(File).to receive(:delete).with('pdf_path')
@@ -93,19 +93,19 @@ RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
         )
 
         expect(job.generate_metadata).to eq(
-          {"veteranFirstName"=>"Test",
-           "veteranLastName"=>"User",
-           "fileNumber"=>"111223333",
-           "receiveDt"=>"2017-01-04 07:00:00",
-           "zipCode"=>"90210",
-           "uuid"=>claim.guid,
-           "source"=>"CSRA-V",
-           "hashV"=>"hash1",
-           "numberAttachments"=>1,
-           "docType"=>"21P-530",
-           "numberPages"=>1,
-           "ahash1"=>"hash2",
-           "numberPages1"=>2}
+          'veteranFirstName' => 'Test',
+          'veteranLastName' => 'User',
+          'fileNumber' => '111223333',
+          'receiveDt' => '2017-01-04 07:00:00',
+          'zipCode' => '90210',
+          'uuid' => claim.guid,
+          'source' => 'CSRA-V',
+          'hashV' => 'hash1',
+          'numberAttachments' => 1,
+          'docType' => '21P-530',
+          'numberPages' => 1,
+          'ahash1' => 'hash2',
+          'numberPages1' => 2
         )
       end
     end

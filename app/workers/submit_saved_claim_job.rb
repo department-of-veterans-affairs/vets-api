@@ -58,12 +58,12 @@ class SubmitSavedClaimJob
     veteran_full_name = form['veteranFullName']
 
     metadata = {
-      # TODO check if these are required
+      # TODO: check if these are required
       'veteranFirstName' => veteran_full_name['first'],
       'veteranLastName' => veteran_full_name['last'],
       'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
       'receiveDt' => @claim.created_at.utc.strftime('%Y-%m-%d %H:%M:%S'),
-      # TODO check if this is required
+      # TODO: check if this is required
       'zipCode' => form['claimantAddress'].try(:[], 'postalCode'),
       'uuid' => @claim.guid,
       'source' => 'CSRA-V',
