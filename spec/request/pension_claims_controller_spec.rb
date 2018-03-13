@@ -43,17 +43,6 @@ RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
           )
         ).to eq(true)
       end
-
-      it 'should log the validation errors' do
-        expect(Raven).to receive(:tags_context).once.with(
-          controller_name: 'pension_claims',
-          sign_in_method: 'not-signed-in'
-        )
-        expect(Raven).to receive(:tags_context).once.with(validation: 'pension_claim')
-        expect(Raven).to receive(:capture_message).with(/bankAccount/, level: :error)
-
-        subject
-      end
     end
 
     context 'with valid params' do
