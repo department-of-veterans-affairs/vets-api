@@ -5,43 +5,13 @@ module VIC
     include Sidekiq::Worker
 
     def perform
-      keep_photos = photos_to_keep
-      keep_docs = docs_to_keep
-
-      if Rails.env.production?
-        client = Aws::S3::Client.new(
-          access_key_id: Settings.vic.s3.aws_access_key_id,
-          secret_access_key: Settings.vic.s3.aws_secret_access_key,
-          region: Settings.vic.s3.region
-        )
-
-        s3 = Aws::S3::Resource.new(client: client)
-        bucket = s3.bucket(Settings.vic.s3.bucket)
-
-        delete_docs(bucket, keep_photos)
-        delete_photos(bucket, keep_docs)
-      end
-    end
-
-    def delete_photos(bucket, keep)
-      bucket.objects.with_prefix('profile_photo_attachments').delete_if do |obj|
-        obj.last_modified < 2.months.ago && keep.exclude?(obj.key)
-      end
-    end
-
-    def delete_docs(bucket, keep)
-      bucket.objects.with_prefix('supporting_documentation_attachments').delete_if do |obj|
-        obj.last_modified < 2.months.ago && keep.exclude?(obj.key)
-      end
-    end
-
-    def vic_forms
-      ::InProgressForm.where(form_id: 'VIC')
+      delete_docs
+      delete_photos
     end
 
     def photos_to_keep
       guids = []
-      vic_forms.find_each do |ipf|
+      ::InProgressForm.where(form_id: 'VIC').find_each do |ipf|
         form = ipf.data_and_metadata[:form_data]
         guids << form['photo']['confirmationCode']
       end
@@ -56,7 +26,7 @@ module VIC
 
     def docs_to_keep
       guids = []
-      vic_forms.find_each do |ipf|
+      ::InProgressForm.where(form_id: 'VIC').find_each do |ipf|
         form = ipf.data_and_metadata[:form_data]
         guids << form['dd214']['confirmationCode']
       end
@@ -68,5 +38,42 @@ module VIC
 
       keep
     end
+
+    private
+
+    # :nocov:
+    def delete_photos
+      keep = photos_to_keep
+
+      if Rails.env.production?
+        bucket.objects.with_prefix('profile_photo_attachments').delete_if do |obj|
+          obj.last_modified < 2.months.ago && keep.exclude?(obj.key)
+        end
+      end
+    end
+
+    def delete_docs
+      keep = docs_to_keep
+
+      if Rails.env.production?
+        bucket.objects.with_prefix('supporting_documentation_attachments').delete_if do |obj|
+          obj.last_modified < 2.months.ago && keep.exclude?(obj.key)
+        end
+      end
+    end
+
+    def bucket
+      return @bucket if @bucket.present?
+
+      client = Aws::S3::Client.new(
+        access_key_id: Settings.vic.s3.aws_access_key_id,
+        secret_access_key: Settings.vic.s3.aws_secret_access_key,
+        region: Settings.vic.s3.region
+      )
+      s3 = Aws::S3::Resource.new(client: client)
+      @bucket = s3.bucket(Settings.vic.s3.bucket)
+      @bucket
+    end
+    # :nocov
   end
 end
