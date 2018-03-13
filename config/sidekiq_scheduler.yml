@@ -33,6 +33,11 @@ DeleteOldClaims:
   class: EVSS::DeleteOldClaims
   description: "Clear out EVSS disability claims that have not been updated in 24 hours"
 
+DeleteOldUploads:
+  cron: "0 2 * * * America/New_York"
+  class: VIC::DeleteOldUploads
+  description: "Delete any old uploads not associated with in progress forms"
+
 InProgressFormCleaner:
   cron: "0 2 * * * America/New_York"
   class: InProgressFormCleaner
