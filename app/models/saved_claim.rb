@@ -26,7 +26,7 @@ class SavedClaim < ActiveRecord::Base
   validate(:form_must_be_string)
   attr_encrypted(:form, key: Settings.db_encryption_key)
 
-  has_many :persistent_attachments
+  has_many :persistent_attachments, inverse_of: :saved_claim
 
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.
@@ -42,12 +42,11 @@ class SavedClaim < ActiveRecord::Base
   # Run after a claim is saved, this processes any files and workflows that are present
   # and sends them to our internal partners for processing.
   def process_attachments!
-    GenerateClaimPDFJob.perform_async(id) if respond_to?(:to_pdf)
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.update_all(saved_claim_id: id)
-    persistent_attachments.map(&:process)
-    true
+
+    SubmitSavedClaimJob.perform_async(id)
   end
 
   # Return a unique confirmation number that somewhat masks the sequentialness.
@@ -82,7 +81,7 @@ class SavedClaim < ActiveRecord::Base
   end
 
   def to_pdf
-    File.open(PdfFill::Filler.fill_form(self))
+    PdfFill::Filler.fill_form(self)
   end
 
   private
