@@ -4,6 +4,7 @@ class SubmitSavedClaimJob
   include Sidekiq::Worker
 
   def perform(saved_claim_id)
+    PensionBurial::TagSentry.tag_sentry
     @claim = SavedClaim.find(saved_claim_id)
     @pdf_path = process_record(@claim)
 
