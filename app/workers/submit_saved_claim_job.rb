@@ -67,7 +67,7 @@ class SubmitSavedClaimJob
       'receiveDt' => @claim.created_at.utc.strftime('%Y-%m-%d %H:%M:%S'),
       'zipCode' => address.try(:[], 'postalCode'),
       'uuid' => @claim.guid,
-      'source' => 'CSRA-V',
+      'source' => 'vets.gov',
       'hashV' => form_pdf_metadata[:hash],
       'numberAttachments' => number_attachments,
       'docType' => @claim.form_id,
