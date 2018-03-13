@@ -5,6 +5,7 @@ module VIC
     include Sidekiq::Worker
 
     def perform
+      VIC::TagSentry.tag_sentry
       delete_docs
       delete_photos
     end
@@ -12,8 +13,8 @@ module VIC
     def photos_to_keep
       guids = []
       ::InProgressForm.where(form_id: 'VIC').find_each do |ipf|
-        form = ipf.data_and_metadata[:form_data]
-        guids << form['photo']['confirmationCode']
+        photo = ipf.data_and_metadata[:form_data]['photo']
+        guids << photo['confirmationCode'] if photo.present?
       end
 
       keep = []
@@ -27,8 +28,8 @@ module VIC
     def docs_to_keep
       guids = []
       ::InProgressForm.where(form_id: 'VIC').find_each do |ipf|
-        form = ipf.data_and_metadata[:form_data]
-        guids << form['dd214']['confirmationCode']
+        docs = ipf.data_and_metadata[:form_data]['dd214']
+        docs.each { |doc| guids << doc['confirmationCode'] } if docs.present?
       end
 
       keep = []

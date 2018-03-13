@@ -27,13 +27,19 @@ RSpec.describe VIC::DeleteOldUploads do
     end
 
     describe '#docs_to_keep' do
-      let(:doc) { FactoryBot.create(:supporting_documentation_attachment) }
+      let(:doc1) { FactoryBot.create(:supporting_documentation_attachment) }
+      let(:doc2) { FactoryBot.create(:supporting_documentation_attachment) }
       let(:form_data) do
-        { 'dd214' => { 'confirmationCode' => doc.guid } }
+        {
+          'dd214' => [
+            { 'confirmationCode' => doc1.guid },
+            { 'confirmationCode' => doc2.guid }
+          ]
+        }
       end
 
       it 'finds docs that should be kept' do
-        expect(described_class.new.docs_to_keep.length).to eq(1)
+        expect(described_class.new.docs_to_keep.length).to eq(2)
       end
     end
   end
