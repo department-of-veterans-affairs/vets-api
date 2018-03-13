@@ -57,6 +57,21 @@ RSpec.describe 'Fetching Post 911 GI Bill Status', type: :request do
     end
   end
 
+  context 'when outside the scheduled times that EVSS GIBS is available' do
+    let(:a_time_outside_hours) { DateTime.parse('3rd Feb 2018 01:15:06').utc }
+    before { Timecop.freeze(a_time_outside_hours) }
+    after { Timecop.return }
+
+    it 'responds 503' do
+      get v0_post911_gi_bill_status_url, nil, auth_header
+      expect(response).to have_http_status(:service_unavailable)
+    end
+    it 'containts a Retry-After header' do
+      get v0_post911_gi_bill_status_url, nil, auth_header
+      expect(response.headers).to include('Retry-After')
+    end
+  end
+
   context 'with deprecated GibsNotFoundUser class' do
     it 'loads the class for coverage' do
       GibsNotFoundUser

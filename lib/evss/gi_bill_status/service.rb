@@ -7,6 +7,11 @@ module EVSS
     class Service < EVSS::Service
       configuration EVSS::GiBillStatus::Configuration
 
+      def self.within_scheduled_uptime?
+        # TODO - write this logic
+        false
+      end
+
       def get_gi_bill_status
         raw_response = perform(:get, '')
         EVSS::GiBillStatus::GiBillStatusResponse.new(raw_response.status, raw_response)
