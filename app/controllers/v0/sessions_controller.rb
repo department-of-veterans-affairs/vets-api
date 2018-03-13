@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'base64'
+
 module V0
   class SessionsController < ApplicationController
     skip_before_action :authenticate, only: %i[new authn_urls saml_callback saml_logout_callback]
@@ -118,6 +120,9 @@ module V0
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
+    rescue NoMethodError
+      Raven.extra_context(base64_params_saml_response: Base64.encode64(params[:SAMLResponse].to_s))
+      raise
     ensure
       StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
     end
