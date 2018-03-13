@@ -210,6 +210,7 @@ module VIC
 
       client = get_client
       response_body = client.post('/services/apexrest/VICRequest', converted_form).body
+      binding.pry; fail
       Raven.extra_context(submit_response_body: response_body)
 
       case_id = response_body['case_id']
