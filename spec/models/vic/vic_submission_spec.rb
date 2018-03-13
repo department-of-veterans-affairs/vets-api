@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe VIC::VICSubmission, type: :model do
+  let(:vic_submission) { build(:vic_submission) }
+
   describe '#update_state_to_completed' do
     it 'should set the state when then response is set' do
       submission = described_class.new
@@ -13,9 +15,24 @@ RSpec.describe VIC::VICSubmission, type: :model do
     end
   end
 
+  describe '#no_forbidden_fields' do
+    context 'with no forbidden fields' do
+      it 'should be valid' do
+        expect(build(:vic_submission_loa3_user).valid?).to eq(true)
+      end
+    end
+
+    context 'with forbidden fields' do
+      it 'should be invalid' do
+        vic_submission.user = build(:user, :loa3)
+        error = 'veteranFullName and veteranSocialSecurityNumber fields not allowed for loa3 user'
+        expect_attr_invalid(vic_submission, :form, error)
+      end
+    end
+  end
+
   describe '#create_submission_job' do
     it 'should create a submission job after create' do
-      vic_submission = build(:vic_submission)
       allow_any_instance_of(described_class).to receive(:id).and_return(1)
       expect(VIC::SubmissionJob).to receive(:perform_async).with(1, vic_submission.form, nil)
       vic_submission.save!
