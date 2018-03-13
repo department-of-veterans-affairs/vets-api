@@ -5,50 +5,68 @@ module VIC
     include Sidekiq::Worker
 
     def perform
-      s3 = Aws::S3::Resource.new
-
-      photo_guids = []
-      keep_photo_files = []
-      keep_doc_files = []
-
-      # find photos and docs that should be kept
-      ::InProgressForm.where(form_id: 'VIC').find_each do |ipf|
-        form = ipf.data_and_metadata[:form_data]
-
-        photo_guids << form['photo']['confirmationCode']
-        doc_files << "#{form['dd214']['confirmationCode']}.processed"
-      end
-
-      # find full path to photos
-      ::VIC::ProfilePhotoAttachment.where(guid: photo_guids).find_each do |photo|
-        file_data = photo.parsed_file_data
-        id = File.join(file_data['path'], file_data['filename'])
-        photo_files << "#{id}.processed"
-      end
+      keep_photos = photos_to_keep
+      keep_docs = docs_to_keep
 
       if Rails.env.production?
+        client = Aws::S3::Client.new(
+          access_key_id: Settings.vic.s3.aws_access_key_id,
+          secret_access_key: Settings.vic.s3.aws_secret_access_key,
+          region: Settings.vic.s3.region
+        )
+
+        s3 = Aws::S3::Resource.new(client: client)
         bucket = s3.bucket(Settings.vic.s3.bucket)
-        delete_docs(bucket, keep_doc_files)
-        delete_photos(bucket, keep_photo_files)
+
+        delete_docs(bucket, keep_photos)
+        delete_photos(bucket, keep_docs)
       end
     end
 
-    private
-
-    def delete_photos(bucket, keep_photo_files)
+    def delete_photos(bucket, keep)
       bucket.objects.with_prefix('profile_photo_attachments').delete_if do |obj|
-        # examples: "anonymous/82de4279-4c2b-47cc-a045-0b0081e40f52.processed", "123040/1234.processed"
-        filename = File.join(File.dirname(obj.key), File.basename(obj.key))
-        obj.last_modified < 2.months.ago && keep_photo_files.exclude?(filename)
+        obj.last_modified < 2.months.ago && keep.exclude?(obj.key)
       end
     end
 
-    def delete_docs(bucket, keep_doc_files)
+    def delete_docs(bucket, keep)
       bucket.objects.with_prefix('supporting_documentation_attachments').delete_if do |obj|
-        # examples: "9f8254ff-cfe4-410d-aaea-f48289a166bb.processed"
-        filename = File.basename(obj.key)
-        obj.last_modified < 2.months.ago && keep_doc_files.exclude?(filename)
+        obj.last_modified < 2.months.ago && keep.exclude?(obj.key)
       end
+    end
+
+    def vic_forms
+      ::InProgressForm.where(form_id: 'VIC')
+    end
+
+    def photos_to_keep
+      guids = []
+      vic_forms.find_each do |ipf|
+        form = ipf.data_and_metadata[:form_data]
+        guids << form['photo']['confirmationCode']
+      end
+
+      keep = []
+      ::VIC::ProfilePhotoAttachment.where(guid: guids).find_each do |photo|
+        keep << photo.get_file.path
+      end
+
+      keep
+    end
+
+    def docs_to_keep
+      guids = []
+      vic_forms.find_each do |ipf|
+        form = ipf.data_and_metadata[:form_data]
+        guids << form['dd214']['confirmationCode']
+      end
+
+      keep = []
+      ::VIC::SupportingDocumentationAttachment.where(guid: guids).find_each do |doc|
+        keep << doc.get_file.path
+      end
+
+      keep
     end
   end
 end
