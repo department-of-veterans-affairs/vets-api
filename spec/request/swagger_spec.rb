@@ -1068,6 +1068,20 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(:get, '/v0/profile/email', 200, auth_options)
         end
       end
+
+      it 'supports getting primary phone number data' do
+        expect(subject).to validate(:get, '/v0/profile/primary_phone', 401)
+        VCR.use_cassette('evss/pciu/primary_phone') do
+          expect(subject).to validate(:get, '/v0/profile/primary_phone', 200, auth_options)
+        end
+      end
+
+      it 'supports getting alternate phone number data' do
+        expect(subject).to validate(:get, '/v0/profile/alternate_phone', 401)
+        VCR.use_cassette('evss/pciu/alternate_phone') do
+          expect(subject).to validate(:get, '/v0/profile/alternate_phone', 200, auth_options)
+        end
+      end
     end
   end
 
