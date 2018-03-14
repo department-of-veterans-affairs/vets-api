@@ -19,6 +19,7 @@ module V0
 
     def index_v2
       appeals_response = Appeals::Service.new.get_appeals(current_user)
+      binding.pry
       render(
         json: appeals_response.body
       )

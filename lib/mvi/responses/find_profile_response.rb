@@ -43,6 +43,7 @@ module MVI
       # @param response [Ox::Element] ox element returned from the soap service middleware
       # @return [MVI::Responses::FindProfileResponse] response with a parsed MviProfile
       def self.with_parsed_response(response)
+
         profile_parser = ProfileParser.new(response)
         profile = profile_parser.parse
         raise MVI::Errors::DuplicateRecords if profile_parser.multiple_match?
