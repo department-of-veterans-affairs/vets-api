@@ -176,15 +176,10 @@ class FormProfile
 
   def initialize_identity_information(user)
     FormIdentityInformation.new(
-      full_name: {
-        first: user.first_name&.capitalize,
-        middle: user.middle_name&.capitalize,
-        last: user.last_name&.capitalize,
-        suffix: user.va_profile&.normalized_suffix
-      },
+      full_name: user.full_name_normalized,
       date_of_birth: user.birth_date,
       gender: user.gender,
-      ssn: user.ssn&.gsub(/[^\d]/, '')
+      ssn: user.ssn_normalized
     )
   end
 

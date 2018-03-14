@@ -18,15 +18,6 @@ RSpec.describe PersistentAttachments::PensionBurial do
     expect(instance.file.shrine_class).to be(ClaimDocumentation::Uploader)
   end
 
-  context '#process' do
-    it 'starts a background process' do
-      instance.saved_claim = FactoryBot.create(:burial_claim)
-      klass = ClaimDocumentation::PensionBurial::File
-      expect(klass).to receive(:new).with(hash_including(guid: instance.guid)).and_return(double(klass, start!: true))
-      instance.process
-    end
-  end
-
   describe '#can_upload_to_api?' do
     it 'returns true if email is right' do
       instance.saved_claim = SavedClaim::Burial.new(form: { claimantEmail: 'lihan@adhocteam.us' }.to_json)

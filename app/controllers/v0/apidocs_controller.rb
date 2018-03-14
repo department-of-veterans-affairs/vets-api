@@ -108,6 +108,7 @@ module V0
       Swagger::Schemas::LetterBeneficiary,
       Swagger::Schemas::Letters,
       Swagger::Schemas::MaintenanceWindows,
+      Swagger::Schemas::PhoneNumber,
       Swagger::Schemas::SavedForm,
       Swagger::Schemas::States,
       Swagger::Schemas::TermsAndConditions,

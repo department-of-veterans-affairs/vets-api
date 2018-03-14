@@ -8,12 +8,7 @@ RSpec.describe VIC::SubmissionJob do
 
   describe '#perform' do
     context 'when the service is up' do
-      let(:vic_submission) { build(:vic_submission) }
-
-      before do
-        vic_submission.user_uuid = user.uuid
-        vic_submission.save!
-      end
+      let(:vic_submission) { create(:vic_submission_loa3_user) }
 
       context 'when files arent processed yet', run_at: '2017-01-04 07:00:00 UTC' do
         it 'should reenqueue the job' do

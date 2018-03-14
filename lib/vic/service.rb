@@ -20,6 +20,13 @@ module VIC
       'N' => 'Navy'
     }.freeze
     PROCESSING_WAIT = 10
+    WHITELISTED_FORM_FIELDS = %w[
+      service_branch
+      email
+      veteran_full_name
+      veteran_address
+      phone
+    ].freeze
 
     class AttachmentUploadFailed < StandardError
     end
@@ -58,9 +65,8 @@ module VIC
     def convert_form(form)
       converted_form = form.deep_transform_keys { |key| key.to_s.underscore }
       converted_form['service_branch'] = SERVICE_BRANCHES[converted_form['service_branch']]
-      %w[dd214 photo privacy_agreement_accepted veteran_date_of_birth gender].each do |attr|
-        converted_form.delete(attr)
-      end
+      ssn = converted_form.delete('veteran_social_security_number')
+      converted_form.slice!(*WHITELISTED_FORM_FIELDS)
 
       veteran_address = converted_form['veteran_address']
       if veteran_address.present?
@@ -71,7 +77,6 @@ module VIC
         end
       end
 
-      ssn = converted_form.delete('veteran_social_security_number')
       converted_form['profile_data'] = {
         'SSN' => ssn,
         'historical_ICN' => []
@@ -148,9 +153,18 @@ module VIC
       send_file(client, case_id, form_attachment, 'Photo')
     end
 
+    def add_loa3_overrides!(converted_form, user)
+      full_name_normalized = user.full_name_normalized
+      converted_form['veteran_full_name'] = full_name_normalized.stringify_keys.slice('first', 'middle', 'last')
+
+      converted_form['profile_data']['SSN'] = user.ssn_normalized
+    end
+
     def add_user_data!(converted_form, user)
       profile_data = converted_form['profile_data']
       va_profile = user.va_profile
+
+      add_loa3_overrides!(converted_form, user) if user.loa3?
 
       if va_profile.present?
         profile_data['sec_ID'] = va_profile.sec_id
