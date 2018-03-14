@@ -33,7 +33,7 @@ module Common
             attrs = entry['attributes']
             mapped_attrs = { 'address' => {}, 'services' => {} }
             mapping.slice('unique_id', 'name', 'classification', 'website').each do |key, value|
-              mapped_attrs[key] = clean(attrs[value])
+              mapped_attrs[key] = strip(attrs[value])
             end
             %w[hours access feedback phone].each do |name|
               mapped_attrs[name] = nested(mapping[name], attrs)
@@ -45,7 +45,6 @@ module Common
                 'standard' => clean_benefits(nested(mapping['benefits'], attrs)),
                 'other' => attrs['Other_Services']
               }
-
             end
             mapped_attrs['services']['last_updated'] = services_date(attrs) if mapping['services']
             mapped_attrs['services']['health'] = services_from_gis(mapping['services'], attrs) if mapping['services']
@@ -56,29 +55,21 @@ module Common
           def nested(item, attrs)
             return {} unless item
             item.each_with_object({}) do |(key, value), hash|
-              hash[key] = value.respond_to?(:call) ? value.call(attrs) : clean(attrs[value])
+              hash[key] = value.respond_to?(:call) ? value.call(attrs) : strip(attrs[value])
             end
           end
 
           def clean_benefits(benefits_hash)
-            benefits_hash.each_with_object([]) do |(key, value), list|
-              list << key if value == 'YES'
-            end
+            benefits_hash.select { |(_key, value)| value == YES }.map(&:first)
           end
 
-          def clean(value)
+          def strip(value)
             value.respond_to?(:strip) ? value.strip : value
           end
 
           def services_date(attrs)
             Date.strptime(attrs['FacilityDataDate'], '%m-%d-%Y').iso8601 if attrs['FacilityDataDate']
           end
-
-          APPROVED_SERVICES = %w[
-            MentalHealthCare
-            PrimaryCare
-            DentalServices
-          ].freeze
 
           def services_from_gis(service_map, attrs)
             return unless service_map
@@ -133,7 +124,17 @@ module Common
               zip
             end
           end
+
+          YES = 'YES'
+
+          APPROVED_SERVICES = %w[
+            MentalHealthCare
+            PrimaryCare
+            DentalServices
+          ].freeze
+
           HOURS_STANDARD_MAP = DateTime::DAYNAMES.each_with_object({}) { |d, h| h[d] = d }
+
           NCA_MAP = {
             'unique_id' => 'SITE_ID',
             'name' => 'FULL_NAME',
