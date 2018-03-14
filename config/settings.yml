@@ -68,7 +68,7 @@ evss:
     timeout: 30
   mock_letters: false
   mock_gi_bill_status: false
-  mock_pciu: false
+  mock_pciu: true
   mock_pciu_address: false
   aws:
     url: http://fake.evss-reference-data-service.dev/v1

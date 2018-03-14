@@ -31,8 +31,10 @@ describe VIC::Service, type: :model do
         'profile_data' => {
           'sec_ID' => '0001234567',
           'active_ICN' => user.icn,
+          'SSN' => user.ssn,
           'historical_ICN' => %w[1000123457V123456 1000123458V123456]
         },
+        'veteran_full_name' => { 'first' => 'Wesley', 'last' => 'Ford' },
         'title38_status' => 'V1'
       )
     end
@@ -46,8 +48,10 @@ describe VIC::Service, type: :model do
           'profile_data' => {
             'sec_ID' => '0001234567',
             'active_ICN' => user.icn,
+            'SSN' => user.ssn,
             'historical_ICN' => %w[1000123457V123456 1000123458V123456]
-          }
+          },
+          'veteran_full_name' => { 'first' => 'Wesley', 'last' => 'Ford' }
         )
       end
     end
@@ -55,6 +59,7 @@ describe VIC::Service, type: :model do
 
   describe '#convert_form' do
     it 'should format the form' do
+      parsed_form['foo'] = 'bar'
       expect(service.convert_form(parsed_form)).to eq(
         'service_branch' => 'Air Force',
         'email' => 'foo@foo.com',

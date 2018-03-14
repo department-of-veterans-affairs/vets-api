@@ -44,6 +44,19 @@ class User < Common::RedisStore
     identity.first_name || (mhv_icn.present? ? mvi&.profile&.given_names&.first : nil)
   end
 
+  def full_name_normalized
+    {
+      first: first_name&.capitalize,
+      middle: middle_name&.capitalize,
+      last: last_name&.capitalize,
+      suffix: va_profile&.normalized_suffix
+    }
+  end
+
+  def ssn_normalized
+    ssn&.gsub(/[^\d]/, '')
+  end
+
   def middle_name
     identity.middle_name || (mhv_icn.present? ? mvi&.profile&.given_names.to_a[1..-1]&.join(' ').presence : nil)
   end
