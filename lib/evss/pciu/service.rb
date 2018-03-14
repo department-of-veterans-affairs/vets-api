@@ -32,6 +32,46 @@ module EVSS
       rescue StandardError => e
         handle_error(e)
       end
+
+      # Returns a response object containing the user's primary phone number,
+      # extension, and country code
+      #
+      # @return [EVSS::PCIU::PhoneNumberResponse] Sample response.phone:
+      #   {
+      #     "country_code" => "1",
+      #     "extension" => "",
+      #     "number" => "4445551212"
+      #   }
+      #
+      def get_primary_phone
+        with_monitoring do
+          raw_response = perform(:get, 'primaryPhoneNumber')
+
+          EVSS::PCIU::PhoneNumberResponse.new(raw_response.status, raw_response)
+        end
+      rescue StandardError => e
+        handle_error(e)
+      end
+
+      # Returns a response object containing the user's alternate phone number,
+      # extension, and country code
+      #
+      # @return [EVSS::PCIU::PhoneNumberResponse] Sample response.phone:
+      #   {
+      #     "country_code" => "1",
+      #     "extension" => "",
+      #     "number" => "4445551212"
+      #   }
+      #
+      def get_alternate_phone
+        with_monitoring do
+          raw_response = perform(:get, 'secondaryPhoneNumber')
+
+          EVSS::PCIU::PhoneNumberResponse.new(raw_response.status, raw_response)
+        end
+      rescue StandardError => e
+        handle_error(e)
+      end
     end
   end
 end

@@ -120,8 +120,6 @@ Style/RescueStandardError:
     - "lib/mvi/messages/find_profile_message_helpers.rb"
     - "lib/mvi/responses/profile_parser.rb"
     - "lib/saml/settings_service.rb"
-    - "lib/workflow/runner.rb"
-    - "lib/workflow/task/shared/datestamp_pdf_task.rb"
     - "rakelib/connectivity.rake"
     - "rakelib/mvi.rake"
     - "rakelib/redis.rake"
@@ -160,7 +158,6 @@ Style/DateTime:
     - "lib/common/models/attribute_types/date_time_string.rb"
     - "lib/evss/auth_headers.rb"
     - "lib/evss/pciu_address/service.rb"
-    - "lib/workflow/task/shared/datestamp_pdf_task.rb"
     - "rakelib/evss.rake"
     - "rakelib/mvi.rake"
 

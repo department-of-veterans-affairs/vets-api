@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe UploaderVirusScan do
+describe UploaderVirusScan, uploader_helpers: true do
   class UploaderVirusScanTest < CarrierWave::Uploader::Base
     include UploaderVirusScan
   end
@@ -13,17 +13,9 @@ describe UploaderVirusScan do
   end
 
   context 'in production' do
-    before do
-      expect(Common::VirusScan).to receive(:scan).and_return(OpenStruct.new(result))
-    end
+    stub_virus_scan
 
     context 'with no virus' do
-      let(:result) do
-        {
-          safe?: true
-        }
-      end
-
       it 'should run the virus scan' do
         expect(Rails.env).to receive(:production?).and_return(true)
 
