@@ -148,24 +148,24 @@ RSpec.describe V0::SessionsController, type: :controller do
       expect(response).to have_http_status(202)
     end
 
-    it 'responds with error when logout request is not found' do
+    it 'redirects as success even when logout fails, but it logs the failure' do
       expect(Rails.logger).to receive(:error).exactly(1).times
       expect(post(:saml_logout_callback, SAMLResponse: '-'))
-        .to redirect_to(Settings.saml.logout_relay + '?success=false')
+        .to redirect_to(Settings.saml.logout_relay + '?success=true')
     end
 
-    context ' logout has been requested' do
+    context 'logout has been requested' do
       before { SingleLogoutRequest.create(uuid: logout_uuid, token: token) }
 
-      context ' logout_response is invalid' do
+      context 'logout_response is invalid' do
         before do
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(invalid_logout_response)
         end
 
-        it 'redirects to error' do
+        it 'redirects as success and logs the failure' do
           expect(Rails.logger).to receive(:error).with(/bad thing/).exactly(1).times
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
-            .to redirect_to(Settings.saml.logout_relay + '?success=false')
+            .to redirect_to(Settings.saml.logout_relay + '?success=true')
         end
       end
       context ' logout_response is success' do
@@ -264,6 +264,34 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'redirects to identity proof URL' do
           expect(SAML::SettingsService).to receive(:idme_loa3_url)
+          post :saml_callback
+        end
+      end
+
+      context 'when user has LOA current 1 and highest nil' do
+        let(:saml_user_attributes) do
+          loa1_user.attributes.merge(loa1_user.identity.attributes).merge(
+            loa: { current: nil, highest: nil }
+          )
+        end
+
+        it 'handles NoMethodError - and redirects to saml.relay with success token' do
+          expect(Raven).to receive(:extra_context).once
+          expect(Raven).to receive(:user_context).once
+          expect(Raven).to receive(:tags_context).twice
+          expect(controller).to receive(:log_message_to_sentry).with('SSO Callback Success URL', :warn)
+          post :saml_callback
+          expect(response.location).to start_with(Settings.saml.relay + '?token=')
+        end
+      end
+
+      context 'when NoMethodError is encountered elsewhere' do
+        it 'redirects to adds context and re-raises the exception' do
+          allow_any_instance_of(SSOService).to receive(:persist_authentication!).and_raise(NoMethodError)
+          expect(Raven).to receive(:extra_context).twice
+          expect(Raven).not_to receive(:user_context)
+          expect(Raven).not_to receive(:tags_context).once
+          expect(controller).not_to receive(:log_message_to_sentry)
           post :saml_callback
         end
       end
