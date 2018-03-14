@@ -29,6 +29,7 @@ module Common
             end
           end
 
+          # FIXME: Clean up this flow in a future pass
           def attribute_mappings(entry, mapping)
             attrs = entry['attributes']
             mapped_attrs = { 'address' => {}, 'services' => {} }
@@ -36,13 +37,13 @@ module Common
               mapped_attrs[key] = strip(attrs[value])
             end
             %w[hours access feedback phone].each do |name|
-              mapped_attrs[name] = nested(mapping[name], attrs)
+              mapped_attrs[name] = build_nested_content(mapping[name], attrs)
             end
-            mapped_attrs['address']['physical'] = nested(mapping['physical'], attrs)
-            mapped_attrs['address']['mailing'] = nested(mapping['mailing'], attrs)
+            mapped_attrs['address']['physical'] = build_nested_content(mapping['physical'], attrs)
+            mapped_attrs['address']['mailing'] = build_nested_content(mapping['mailing'], attrs)
             if mapping['benefits']
               mapped_attrs['services']['benefits'] = {
-                'standard' => clean_benefits(nested(mapping['benefits'], attrs)),
+                'standard' => clean_benefits(build_nested_content(mapping['benefits'], attrs)),
                 'other' => attrs['Other_Services']
               }
             end
@@ -52,7 +53,7 @@ module Common
             mapped_attrs.merge!('lat' => entry['geometry']['y'], 'long' => entry['geometry']['x'])
           end
 
-          def nested(item, attrs)
+          def build_nested_content(item, attrs)
             return {} unless item
             item.each_with_object({}) do |(key, value), hash|
               hash[key] = value.respond_to?(:call) ? value.call(attrs) : strip(attrs[value])
@@ -60,6 +61,7 @@ module Common
           end
 
           def clean_benefits(benefits_hash)
+            benefits_hash.keys.select{|key| benefits_hash[key] == YES}
             benefits_hash.select { |(_key, value)| value == YES }.map(&:first)
           end
 
@@ -74,10 +76,10 @@ module Common
           def services_from_gis(service_map, attrs)
             return unless service_map
             service_map.each_with_object([]) do |(k, v), l|
-              next unless attrs[k] == 'YES' && APPROVED_SERVICES.include?(k)
+              next unless attrs[k] == YES && APPROVED_SERVICES.include?(k)
               sl2 = []
               v.each do |sk|
-                sl2 << sk if attrs[sk] == 'YES' && APPROVED_SERVICES.include?(sk)
+                sl2 << sk if attrs[sk] == YES && APPROVED_SERVICES.include?(sk)
               end
               l << { 'sl1' => [k], 'sl2' => sl2 }
             end
