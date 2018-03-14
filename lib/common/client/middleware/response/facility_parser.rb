@@ -33,7 +33,7 @@ module Common
             attrs = entry['attributes']
             mapped_attrs = { 'address' => {}, 'services' => {} }
             mapping.slice('unique_id', 'name', 'classification', 'website').each do |key, value|
-              mapped_attrs[key] = attrs[value]
+              mapped_attrs[key] = clean(attrs[value])
             end
             %w[hours access feedback phone].each do |name|
               mapped_attrs[name] = nested(mapping[name], attrs)
