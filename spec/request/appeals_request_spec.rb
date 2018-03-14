@@ -53,6 +53,7 @@ RSpec.describe 'Appeals Status', type: :request do
         it 'returns a successful response' do
           VCR.use_cassette('appeals/appeals') do
             get '/v0/appeals_v2', nil, 'Authorization' => "Token token=#{session.token}"
+            puts response.body
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(response).to match_response_schema('appeals')

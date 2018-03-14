@@ -2,7 +2,7 @@
 
 module Appeals
   module Models
-    class Appeal
+    class AppealSeries
       include Virtus.model(nullify_blank: true)
 
       attribute :appeal_ids, Array

@@ -16,7 +16,6 @@ module Appeals
     def get_appeals(user)
       with_monitoring do
         raw_response = perform(:get, '', {}, request_headers(user))
-        binding.pry
         Appeals::Response.new(raw_response.status, { appeals_series: raw_response&.body&.dig('data') })
       end
     rescue Common::Client::Errors::ClientError => error

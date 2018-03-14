@@ -2,6 +2,6 @@
 
 module Appeals
   class Response < Common::Client::Response
-    attribute :appeals_series, Array[Models::Appeal]
+    attribute :appeals_series, Array[Models::AppealSeries]
   end
 end
