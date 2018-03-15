@@ -15,7 +15,6 @@ module EVSS
       }.freeze
 
       def self.within_scheduled_uptime?
-        byebug
         current_time = Time.now.in_time_zone(OPERATING_ZONE)
         if current_time.saturday?
           return current_time.hour > OPERATING_HOURS[:start] && current_time.hour < OPERATING_HOURS[:saturday_end]
@@ -28,7 +27,7 @@ module EVSS
         current_time = Time.now.in_time_zone(OPERATING_ZONE)
         six_am = Time.parse('0' + OPERATING_HOURS[:start].to_s + ':00:00').in_time_zone(OPERATING_ZONE)
         return six_am.httpdate if current_time.hour < OPERATING_HOURS[:start]
-        return six_am.tomorrow.httpdate
+        six_am.tomorrow.httpdate
       end
 
       def get_gi_bill_status

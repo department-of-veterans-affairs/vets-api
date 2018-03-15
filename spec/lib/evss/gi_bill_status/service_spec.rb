@@ -17,7 +17,7 @@ describe EVSS::GiBillStatus::Service do
 
       describe '#retry_after_time' do
         it 'calculates at 6am today' do
-          calculated_time = Time.parse(described_class::retry_after_time).in_time_zone(described_class::OPERATING_ZONE)
+          calculated_time = Time.parse(described_class.retry_after_time).in_time_zone(described_class::OPERATING_ZONE)
           expect(calculated_time.day).to eq(1)
           expect(calculated_time.hour).to eq(6)
         end
@@ -30,7 +30,7 @@ describe EVSS::GiBillStatus::Service do
 
       describe '#retry_after_time' do
         it 'calculates tomorrow at 6am' do
-          calculated_time = Time.parse(described_class::retry_after_time).in_time_zone(described_class::OPERATING_ZONE)
+          calculated_time = Time.parse(described_class.retry_after_time).in_time_zone(described_class::OPERATING_ZONE)
           expect(calculated_time.day).to eq(2)
           expect(calculated_time.hour).to eq(6)
         end
@@ -43,7 +43,7 @@ describe EVSS::GiBillStatus::Service do
 
       describe '#within_scheduled_uptime?' do
         it 'properly indicates availability' do
-          expect(described_class::within_scheduled_uptime?).to eq(false)
+          expect(described_class.within_scheduled_uptime?).to eq(false)
         end
       end
     end
