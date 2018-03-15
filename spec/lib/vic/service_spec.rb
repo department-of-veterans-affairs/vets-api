@@ -108,22 +108,32 @@ describe VIC::Service, type: :model do
       ProcessFileJob.drain
       attachment
     end
-    let(:result) { true }
 
     before do
       upload_io = double
       hex = '3e37ec951a66e3c6b6a58ae5c791bb9d'
       allow(SecureRandom).to receive(:hex).and_return(hex)
-      expect(Restforce::UploadIO).to receive(:new).with(
+      allow(Restforce::UploadIO).to receive(:new).with(
         "tmp/#{hex}", 'application/pdf'
       ).and_return(upload_io)
 
-      expect(client).to receive(:create).with(
-        'Attachment',
-        ParentId: case_id,
-        Name: 'description.pdf',
-        Body: upload_io
-      ).and_return(result)
+      expect(client).to receive(:create!).with(
+        'ContentVersion',
+        Title: 'description', PathOnClient: 'description.pdf',
+        VersionData: upload_io
+      ).and_return('content_version_id')
+
+      expect(client).to receive(:find).with(
+        'ContentVersion',
+        'content_version_id'
+      ).and_return('ContentDocumentId' => 'document_id')
+
+      expect(client).to receive(:create!).with(
+        'ContentDocumentLink',
+        ContentDocumentId: 'document_id',
+        ShareType: 'V',
+        LinkedEntityId: case_id
+      )
     end
 
     def call_send_file
