@@ -45,7 +45,7 @@ module BB
         conn.response :mhv_xml_html_errors
         conn.response :json_parser
 
-        conn.adapter Faraday.default_adapter
+        conn.adapter :net_http_streaming
       end
     end
   end

@@ -40,15 +40,31 @@ module Common
         end.call
       end
 
-      def perform(method, path, params, headers = nil)
+      def perform(method, path, params, headers = nil, yielder = nil)
         raise NoMethodError, "#{method} not implemented" unless config.request_types.include?(method)
 
-        send(method, path, params || {}, headers || {})
+        if yielder.present?
+          send(method, path, params || {}, headers || {}, yielder)
+        else
+          send(method, path, params || {}, headers || {})
+        end
       end
 
-      def request(method, path, params = {}, headers = {})
+      def request(method, path, params = {}, headers = {}, yielder = nil)
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
-        connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
+        if yielder.nil?
+          connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
+        else
+          binding.pry
+          streamed = []
+          connection.send(method.to_sym, path, params) do |request|
+            request.headers.update(headers)
+            request.options.on_data = Proc.new do |chunk, overall_received_bytes|
+              puts "Received #{overall_received_bytes} characters"
+              yielder << chunk
+            end
+          end
+        end
       rescue Timeout::Error, Faraday::TimeoutError
         log_message_to_sentry(
           "Timeout while connecting to #{config.service_name} service", :error, extra_context: { url: config.base_path }
@@ -63,8 +79,8 @@ module Common
         raise client_error
       end
 
-      def get(path, params, headers = base_headers)
-        request(:get, path, params, headers)
+      def get(path, params, headers = base_headers, yielder = nil)
+        request(:get, path, params, headers, yielder)
       end
 
       def post(path, params, headers = base_headers)

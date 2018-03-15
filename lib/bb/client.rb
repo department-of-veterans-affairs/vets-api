@@ -55,7 +55,8 @@ module BB
       # uri = URI("#{Settings.mhv.rx.host}/vetsgov/1mb.file")
       # uri = URI("#{Settings.mhv.rx.host}/vetsgov/90mb.file")
       uri = URI.join(config.base_path, "bluebutton/bbreport/#{doctype}")
-      streaming_get(uri, token_headers, header_callback, yielder)
+      #streaming_get(uri, token_headers, header_callback, yielder)
+      perform(:get, "bluebutton/bbreport/#{doctype}", nil, token_headers)
     end
 
     private

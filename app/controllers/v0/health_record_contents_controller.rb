@@ -16,7 +16,9 @@ module V0
         chunk_stream = Enumerator.new do |stream|
           client.get_download_report(doc_type, header_callback, stream)
         end
-        chunk_stream.each { |c| response.stream.write c }
+        chunk_stream.each do |c|
+          response.stream.write c
+        end
       ensure
         response.stream.close if response.committed?
       end
