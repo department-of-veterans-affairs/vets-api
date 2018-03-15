@@ -137,26 +137,10 @@ describe VIC::Service, type: :model do
         expect(model_exists?(attachment)).to eq(false)
       end
     end
-
-    context 'with a failed upload' do
-      let(:result) { false }
-
-      it 'should raise error' do
-        expect do
-          call_send_file
-        end.to raise_error(VIC::Service::AttachmentUploadFailed)
-      end
-    end
   end
 
   describe '#submit' do
     before do
-      VCR.config do |c|
-        c.allow_http_connections_when_no_cassette = true
-      end
-      service.submit(parsed_form, user)
-      binding.pry; fail
-
       expect(service).to receive(:convert_form).with(parsed_form).and_return({})
       expect(service).to receive(:get_oauth_token).and_return('token')
 

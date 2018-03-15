@@ -28,9 +28,6 @@ module VIC
       phone
     ].freeze
 
-    class AttachmentUploadFailed < StandardError
-    end
-
     def oauth_params
       {
         grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
@@ -93,22 +90,25 @@ module VIC
       file_name = "#{description}.#{mime_type.split('/')[1]}"
       file_path = Common::FileHelpers.generate_temp_file(file_body)
 
-      success = client.create(
-        'Attachment',
-        ParentId: case_id,
-        Name: file_name,
-        Body: Restforce::UploadIO.new(
+      content_version_id = client.create!(
+        'ContentVersion',
+        Title: description,
+        PathOnClient: file_name,
+        VersionData: Restforce::UploadIO.new(
           file_path,
           mime_type
         )
       )
-      File.delete(file_path)
 
-      if success
-        form_attachment.destroy
-      else
-        raise AttachmentUploadFailed
-      end
+      client.create!(
+        'ContentDocumentLink',
+        ContentDocumentId: client.find('ContentVersion', content_version_id)['ContentDocumentId'],
+        ShareType: 'V',
+        LinkedEntityId: case_id
+      )
+
+      File.delete(file_path)
+      form_attachment.destroy
     end
 
     def get_attachment_records(form)
@@ -210,7 +210,6 @@ module VIC
 
       client = get_client
       response_body = client.post('/services/apexrest/VICRequest', converted_form).body
-      binding.pry; fail
       Raven.extra_context(submit_response_body: response_body)
 
       case_id = response_body['case_id']
