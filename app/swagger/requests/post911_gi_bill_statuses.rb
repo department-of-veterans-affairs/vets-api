@@ -29,6 +29,17 @@ module Swagger
               key :'$ref', :Errors
             end
           end
+
+          response 503 do
+            key :description, 'The backend GI Bill Status service is unavailable'
+            header 'Retry-After' do
+              key :type, :string
+              key :format, 'date'
+            end
+            schema do
+              key :'$ref', :Errors
+            end
+          end
         end
       end
 
