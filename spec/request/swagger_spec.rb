@@ -801,6 +801,11 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
       end
 
+      it 'supports getting Gi Bill Status availability' do
+        expect(subject).to validate(:get, '/v0/post911_gi_bill_status/availability', 401)
+        expect(subject).to validate(:get, '/v0/post911_gi_bill_status/availability', 200, auth_options)
+      end
+
       it 'supports getting EVSS Letters' do
         expect(subject).to validate(:get, '/v0/letters', 401)
         VCR.use_cassette('evss/letters/letters') do

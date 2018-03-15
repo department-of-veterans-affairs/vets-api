@@ -69,6 +69,7 @@ RSpec.describe 'Post 911 GI Bill Status', type: :request do
       end
       it 'containts a Retry-After header' do
         get v0_post911_gi_bill_status_url, nil, auth_header
+        byebug
         expect(response.headers).to include('Retry-After')
       end
     end
