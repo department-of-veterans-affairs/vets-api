@@ -3,44 +3,27 @@
 module PensionBurial
   class Service < Common::Client::Base
     configuration PensionBurial::Configuration
+    def upload(body)
+      body['token'] = Settings.pension_burial.upload.token
 
-    def status(guid)
       response = request(
         :post,
         '',
-        token: Settings.pension_burial.upload.token,
-        uuids: [guid]
-      )
-    end
-
-    # rubocop:disable Metrics/MethodLength
-    def upload(metadata, file_io, mime_type)
-      response = request(
-        :post,
-        '',
-        token: Settings.pension_burial.upload.token,
-        metadata: metadata.to_json,
-        document: Faraday::UploadIO.new(
-          file_io,
-          mime_type
-        )
+        body
       )
       # TODO: remove logging after confirming that pension burial uploads are working in staging
-      log_message_to_sentry(
-        'pension burial api upload',
-        :info,
-        {
-          metadata: metadata,
+      if Rails.env.production?
+        log_message_to_sentry(
+          'pension burial api upload',
+          :info,
           response: {
             status: response.status,
             body: response.body
           }
-        },
-        backend_service: :pension_burial
-      )
+        )
+      end
 
       response
     end
-    # rubocop:enable Metrics/MethodLength
   end
 end

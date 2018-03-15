@@ -8,7 +8,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
       VCR.use_cassette('facilities/va/nca_facilities') do
         expect(Facilities::NCAFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('nca')
-        expect(Facilities::NCAFacility.count).to eq(170)
+        expect(Facilities::NCAFacility.count).to eq(173)
       end
     end
 
@@ -87,7 +87,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
       VCR.use_cassette('facilities/va/vha_facilities') do
         expect(Facilities::VHAFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('vha')
-        expect(Facilities::VHAFacility.count).to eq(999)
+        expect(Facilities::VHAFacility.count).to eq(1185)
       end
     end
   end
