@@ -159,6 +159,8 @@ Rails.application.routes.draw do
       resource :alternate_phone, only: :show
     end
 
+    get 'profile/mailing_address', to: 'addresses#show'
+
     resources :apidocs, only: [:index]
 
     get 'terms_and_conditions', to: 'terms_and_conditions#index'

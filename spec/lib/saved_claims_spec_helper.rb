@@ -18,6 +18,14 @@ shared_examples_for 'saved_claim' do
     expect(described_class.ancestors).to include(SavedClaim)
   end
 
+  describe '#process_attachments!' do
+    it 'should start a job to submit the saved claim' do
+      expect(SubmitSavedClaimJob).to receive(:perform_async).with(instance.id)
+
+      instance.process_attachments!
+    end
+  end
+
   context 'a record' do
     it 'inherits init callsbacks from saved_claim' do
       expect(subject.form_id).to eq(described_class::FORM)

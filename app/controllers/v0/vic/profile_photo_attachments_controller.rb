@@ -11,10 +11,7 @@ module V0
       def create
         form_attachment = ::VIC::ProfilePhotoAttachment.new
 
-        form_attachment.set_file_data!(
-          params[:profile_photo_attachment][:file_data],
-          get_in_progress_form
-        )
+        form_attachment.set_file_data!(params[:profile_photo_attachment][:file_data])
         form_attachment.save!
 
         render(json: form_attachment, is_anonymous_upload: @current_user.blank?)
@@ -30,17 +27,6 @@ module V0
 
         file = form_attachment.get_file
         send_data(file.read, filename: file.filename, type: file.content_type, disposition: :inline)
-      end
-
-      private
-
-      def get_in_progress_form
-        return nil if @current_user.blank?
-
-        form = InProgressForm.where(form_id: 'VIC', user_uuid: @current_user.uuid)
-                             .first_or_initialize(form_data: '{}', metadata: {})
-        form.save!
-        form
       end
     end
   end

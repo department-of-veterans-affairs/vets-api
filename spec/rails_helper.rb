@@ -19,6 +19,7 @@ require 'support/model_helpers'
 require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
 require 'support/request_helper'
+require 'support/uploader_helpers'
 require 'common/exceptions'
 
 WebMock.disable_net_connect!(allow_localhost: true)
@@ -103,6 +104,7 @@ RSpec.configure do |config|
   end
   config.include(SAML, type: :controller)
   config.include(AwsHelpers, type: :aws_helpers)
+  config.include(UploaderHelpers, uploader_helpers: true)
 
   # Adding support for url_helper
   config.include Rails.application.routes.url_helpers
