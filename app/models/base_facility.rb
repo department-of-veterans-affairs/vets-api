@@ -31,7 +31,9 @@ class BaseFacility < ActiveRecord::Base
     end
 
     def pull_source_data
-      Facilities::SharedClient.new.get_all_facilities(*FACILITY_SORT_FIELDS[name]).map(&method(:new))
+      metadata = Facilities::MetadataClient.new.get_metadata(FACILITY_SORT_FIELDS[name].first)
+      max_record_count = metadata['maxRecordCount']
+      Facilities::SharedClient.new.get_all_facilities(*FACILITY_SORT_FIELDS[name], max_record_count).map(&method(:new))
     end
   end
 
