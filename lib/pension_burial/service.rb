@@ -25,5 +25,16 @@ module PensionBurial
 
       response
     end
+
+    def status(guid)
+      body = {
+        'token': Settings.pension_burial.upload.token,
+        'uuid': [
+          guid
+        ]
+      }
+
+      binding.pry
+    end
   end
 end
