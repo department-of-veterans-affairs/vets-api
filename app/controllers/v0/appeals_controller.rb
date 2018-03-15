@@ -4,7 +4,6 @@ require 'appeals_status/service'
 
 module V0
   class AppealsController < ApplicationController
-    include ActionController::Serialization
 
     before_action { authorize :appeals, :access? }
 
@@ -20,10 +19,13 @@ module V0
     def index_v2
       appeals_response = Appeals::Service.new.get_appeals(current_user)
       render(
-        json: appeals_response.appeals_series,
+        json: appeals_response.appeal_series,
         serializer: CollectionSerializer,
-        each_serializer: AppealsSerializer
+        each_serializer: AppealSeriesSerializer
       )
+      # render(
+      #   json: appeals_response.appeal_series.serialize
+      # )
     end
   end
 end

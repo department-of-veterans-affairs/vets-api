@@ -22,6 +22,7 @@ module AppealsStatus
     def fetch_appeals(user)
       raw_response = perform(:get, '', {}, request_headers(user))
       formatted_response = format_response_reasonably(raw_response.body)
+      binding.pry
       AppealsStatus::Responses::GetAppealsResponse.new(
         status: raw_response.status,
         appeals: Common::Collection.new(AppealsStatus::Models::Appeal, data: formatted_response)

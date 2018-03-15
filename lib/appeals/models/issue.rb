@@ -2,14 +2,12 @@
 
 module Appeals
   module Models
-    class Issue
-      include Virtus.model(nullify_blank: true)
-
+    class Issue < Common::Base
       attribute :active, Boolean
+      attribute :date, Date
       attribute :description,	String
       attribute :diagnostic_code,	String
       attribute :last_action, String
-      attribute :date, Date
     end
   end
 end

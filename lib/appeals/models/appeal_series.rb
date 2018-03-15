@@ -2,29 +2,23 @@
 
 module Appeals
   module Models
-    class AppealSeries
-      include Virtus.model(nullify_blank: true)
-
+    class AppealSeries < Common::Base
       attribute :appeal_ids, Array
-      attribute :updated, Date
       attribute :active, Boolean
-      attribute :incomplete_history, Boolean
-      attribute :aoj,	String
-      attribute :program_area, String
-      attribute :description,	String
-      attribute :type, String
-      attribute :aod,	Boolean
-      attribute :location, String
-      attribute :status, Hash
       attribute :alerts, Array[Alert]
+      attribute :aod,	Boolean
+      attribute :aoj,	String
+      attribute :description,	String
       attribute :docket, Docket
       attribute :events, Array[Event]
       attribute :evidence, Array[Evidence]
+      attribute :incomplete_history, Boolean
       attribute :issues, Array[Issue]
-
-      def initialize(appeal)
-        super(appeal.dig('attributes'))
-      end
+      attribute :location, String
+      attribute :program_area, String
+      attribute :type, String
+      attribute :status, Hash
+      attribute :updated, Date
     end
   end
 end

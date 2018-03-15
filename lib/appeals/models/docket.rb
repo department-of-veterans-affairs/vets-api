@@ -2,9 +2,7 @@
 
 module Appeals
   module Models
-    class Docket
-      include Virtus.model(nullify_blank: true)
-
+    class Docket < Common::Base
       attribute :month,	Date
       attribute :docket_month, Date
       attribute :front, Boolean

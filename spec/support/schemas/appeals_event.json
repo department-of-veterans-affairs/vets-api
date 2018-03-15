@@ -36,6 +36,9 @@
     },
     "date": {
       "type": "string"
+    },
+    "details": {
+      "type": "object"
     }
   },
   "type": "object"

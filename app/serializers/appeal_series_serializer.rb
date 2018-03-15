@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AppealsSerializer < ActiveModel::Serializer
+class AppealSeriesSerializer < ActiveModel::Serializer
   attribute :appeal_ids
   attribute :updated
   attribute :active

@@ -7,10 +7,10 @@
     "description": {
       "type": "string"
     },
-    "diagnosticCode": {
+    "diagnostic_code": {
       "type": ["string", "null"]
     },
-    "lastAction": {
+    "last_action": {
       "type": {
         "enum": [
           "field_grant",

@@ -2,7 +2,6 @@
 
 require 'common/client/concerns/monitoring'
 require 'common/client/concerns/service_errors'
-require 'appeals_status/responses/get_appeals_response'
 
 module Appeals
   class Service < Common::Client::Base
@@ -16,7 +15,17 @@ module Appeals
     def get_appeals(user)
       with_monitoring do
         raw_response = perform(:get, '', {}, request_headers(user))
-        Appeals::Response.new(raw_response.status, { appeals_series: raw_response&.body&.dig('data') })
+
+        appeal_series = raw_response&.body&.dig(:data)
+        appeal_series.map! { |a| Appeals::Models::AppealSeries.new(a[:attributes]) }
+
+        Appeals::Responses::GetAppealsResponse.new(
+          status: raw_response.status,
+          appeal_series: Common::Collection.new(
+            Appeals::Models::AppealSeries,
+            data: appeal_series
+          )
+        )
       end
     rescue Common::Client::Errors::ClientError => error
       handle_service_error(error)

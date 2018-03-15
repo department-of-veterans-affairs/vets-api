@@ -44,7 +44,7 @@
               },
               "hearings": {
                 "type": "array",
-                "uniqueItems": true,
+                "unique_items": true,
                 "items": {
                   "type": "object",
                   "required": [
