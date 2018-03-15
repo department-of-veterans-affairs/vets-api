@@ -56,7 +56,7 @@ module V0
     def service_available?
       unless EVSS::GiBillStatus::Service.within_scheduled_uptime?
         StatsD.increment(STATSD_GI_BILL_FAIL_KEY, tags: ['error:scheduled_downtime'])
-        headers['Retry-After'] = Time.now.httpdate.in_time_zone('EST')
+        headers['Retry-After'] = Time.now.httpdate.in_time_zone('Eastern Time (US & Canada)')
         # 503 response
         raise EVSS::GiBillStatus::OutsideWorkingHours
       end
