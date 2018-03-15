@@ -7,13 +7,28 @@ module EVSS
     class Service < EVSS::Service
       configuration EVSS::GiBillStatus::Configuration
 
+      OPERATING_ZONE = 'Eastern Time (US & Canada)'
+      OPERATING_HOURS = {
+        start: 6,
+        end: 22,
+        saturday_end: 19
+      }.freeze
+
       def self.within_scheduled_uptime?
-        current_time = Time.now.in_time_zone('Eastern Time (US & Canada)')
+        byebug
+        current_time = Time.now.in_time_zone(OPERATING_ZONE)
         if current_time.saturday?
-          return current_time.hour > 6 && current_time.hour < 19
+          return current_time.hour > OPERATING_HOURS[:start] && current_time.hour < OPERATING_HOURS[:saturday_end]
         else
-          return current_time.hour > 6 && current_time.hour < 22
+          return current_time.hour > OPERATING_HOURS[:start] && current_time.hour < OPERATING_HOURS[:end]
         end
+      end
+
+      def self.retry_after_time
+        current_time = Time.now.in_time_zone(OPERATING_ZONE)
+        six_am = Time.parse('0' + OPERATING_HOURS[:start].to_s + ':00:00').in_time_zone(OPERATING_ZONE)
+        return six_am.httpdate if current_time.hour < OPERATING_HOURS[:start]
+        return six_am.tomorrow.httpdate
       end
 
       def get_gi_bill_status
