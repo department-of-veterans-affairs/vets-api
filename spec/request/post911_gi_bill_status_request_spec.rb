@@ -58,7 +58,7 @@ RSpec.describe 'Post 911 GI Bill Status', type: :request do
   end
 
   context 'during offline hours' do
-    let(:a_time_outside_hours) { DateTime.parse('3rd Feb 2018 00:15:06-04:00') }
+    let(:a_time_outside_hours) { Time.zone.parse('1st Feb 2018 00:15:06-04:00') }
     before { Timecop.freeze(a_time_outside_hours) }
     after { Timecop.return }
 
@@ -73,11 +73,33 @@ RSpec.describe 'Post 911 GI Bill Status', type: :request do
       end
     end
 
-    describe '#is_available' do
+    describe '#availability' do
       it 'returns false' do
-        get is_available_v0_post911_gi_bill_status_url, nil, auth_header
+        get availability_v0_post911_gi_bill_status_url, nil, auth_header
         json = JSON.parse(response.body)
         expect(json['data']['attributes']['is_available']).to eq(false)
+      end
+    end
+
+    context 'on saturday' do
+      let(:saturday_offline_time) { Time.zone.parse('3rd Feb 2018 19:15:06-04:00') }
+      it 'returns false' do
+        get availability_v0_post911_gi_bill_status_url, nil, auth_header
+        json = JSON.parse(response.body)
+        expect(json['data']['attributes']['is_available']).to eq(false)
+      end
+    end
+  end
+
+  context 'during online hours' do
+    let(:a_time_inside_hours) { Time.zone.parse('1st Feb 2018 12:15:06-04:00') }
+    before { Timecop.freeze(a_time_inside_hours) }
+    after { Timecop.return }
+    describe '#availability' do
+      it 'returns true' do
+        get availability_v0_post911_gi_bill_status_url, nil, auth_header
+        json = JSON.parse(response.body)
+        expect(json['data']['attributes']['is_available']).to eq(true)
       end
     end
   end

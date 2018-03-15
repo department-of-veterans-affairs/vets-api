@@ -27,9 +27,9 @@ module V0
       StatsD.increment(STATSD_GI_BILL_TOTAL_KEY)
     end
 
-    def is_available
+    def availability
       is_available = EVSS::GiBillStatus::Service.within_scheduled_uptime?
-      availability = EVSS::GiBillStatus::Availability.new(200, {is_available: is_available})
+      availability = EVSS::GiBillStatus::Availability.new(200, is_available: is_available)
       render json: availability,
              serializer: Post911GIBillAvailabilitySerializer
     end
@@ -55,7 +55,7 @@ module V0
 
     def service_available?
       unless EVSS::GiBillStatus::Service.within_scheduled_uptime?
-        StatsD.increment(STATSD_GI_BILL_FAIL_KEY, tags: ["error:scheduled_downtime"])
+        StatsD.increment(STATSD_GI_BILL_FAIL_KEY, tags: ['error:scheduled_downtime'])
         headers['Retry-After'] = Time.now.httpdate.in_time_zone('EST')
         # 503 response
         raise EVSS::GiBillStatus::OutsideWorkingHours

@@ -33,7 +33,7 @@ Rails.application.routes.draw do
 
     resource :user, only: [:show]
     resource :post911_gi_bill_status, only: [:show] do
-      get :is_available
+      get :availability
     end
     resource :feedback, only: [:create]
 

@@ -6,7 +6,6 @@ require 'evss/response'
 module EVSS
   module GiBillStatus
     class Availability < EVSS::Response
-
       attribute :is_available, Boolean
     end
   end

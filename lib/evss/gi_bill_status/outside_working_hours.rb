@@ -14,8 +14,8 @@ module EVSS
       end
 
       def retry_after
-        # TODO - this is correct format, but must write logic to properly calculate
-        "#{Time.now.httpdate.in_time_zone('Eastern Time (US & Canada)')}"
+        # TODO: - this is correct format, but must write logic to properly calculate
+        Time.now.httpdate.in_time_zone('Eastern Time (US & Canada)').to_s
       end
 
       def i18n_key
