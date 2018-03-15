@@ -55,9 +55,11 @@ http_interactions:
       string: |-
         {
           "errors": [
-            "status": "422",
-            "title": "Invalid SSN",
-            "detail": "Please enter a valid 9 digit SSN in the 'ssn' header"
+            {
+              "status": "422",
+              "title": "Invalid SSN",
+              "detail": "Please enter a valid 9 digit SSN in the ssn header"
+            }
           ]
         }
     http_version:

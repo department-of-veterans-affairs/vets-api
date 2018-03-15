@@ -55,9 +55,11 @@ http_interactions:
       string: |-
         {
           "errors": [
-            "status": "401",
-            "title": "API key not authorized",
-            "detail": "API key not authorized"
+            {
+              "status": "401",
+              "title": "API key not authorized",
+              "detail": "API key not authorized"
+            }
           ]
         }
     http_version:

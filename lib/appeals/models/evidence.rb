@@ -2,7 +2,9 @@
 
 module Appeals
   module Models
-    class Evidence < Common::Base
+    class Evidence
+      include Virtus.model(nullify_blank: true)
+
       attribute :description, String
       attribute :date, Date
     end

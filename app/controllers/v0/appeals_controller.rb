@@ -19,13 +19,8 @@ module V0
     def index_v2
       appeals_response = Appeals::Service.new.get_appeals(current_user)
       render(
-        json: appeals_response.appeal_series,
-        serializer: CollectionSerializer,
-        each_serializer: AppealSeriesSerializer
+        json: JSONAPI::Serializer.serialize(appeals_response.appeal_series, is_collection: true)
       )
-      # render(
-      #   json: appeals_response.appeal_series.serialize
-      # )
     end
   end
 end

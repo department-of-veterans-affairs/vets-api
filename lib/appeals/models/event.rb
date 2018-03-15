@@ -2,7 +2,9 @@
 
 module Appeals
   module Models
-    class Event < Common::Base
+    class Event
+      include Virtus.model(nullify_blank: true)
+
       attribute :type, String
       attribute :date, Date
       attribute :details, Hash

@@ -2,7 +2,10 @@
 
 module Appeals
   module Models
-    class AppealSeries < Common::Base
+    class AppealSeries
+      include Virtus.model(nullify_blank: true)
+
+      attribute :id, String
       attribute :appeal_ids, Array
       attribute :active, Boolean
       attribute :alerts, Array[Alert]

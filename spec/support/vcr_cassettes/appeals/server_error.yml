@@ -55,9 +55,11 @@ http_interactions:
       string: |-
         {
           "errors": [
-            "status": "500",
-            "title": "Internal Server Error",
-            "detail": "No method error"
+            {
+              "status": "500",
+              "title": "Internal Server Error",
+              "detail": "No method error"
+            }
           ]
         }
     http_version:

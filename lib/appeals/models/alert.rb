@@ -2,7 +2,9 @@
 
 module Appeals
   module Models
-    class Alert < Common::Base
+    class Alert
+      include Virtus.model(nullify_blank: true)
+
       attribute :type, String
       attribute :details,	Hash
     end

@@ -70,6 +70,7 @@ gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/
 gem 'virtus'
 gem 'will_paginate'
 gem 'zero_downtime_migrations'
+gem 'jsonapi-serializers'
 
 group :development do
   gem 'guard-rubocop'

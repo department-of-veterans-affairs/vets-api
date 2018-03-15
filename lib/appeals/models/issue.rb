@@ -2,7 +2,9 @@
 
 module Appeals
   module Models
-    class Issue < Common::Base
+    class Issue
+      include Virtus.model(nullify_blank: true)
+
       attribute :active, Boolean
       attribute :date, Date
       attribute :description,	String
