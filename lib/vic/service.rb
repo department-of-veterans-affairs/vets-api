@@ -92,8 +92,7 @@ module VIC
 
       content_version_id = client.create!(
         'ContentVersion',
-        Title: description,
-        PathOnClient: file_name,
+        Title: description, PathOnClient: file_name,
         VersionData: Restforce::UploadIO.new(
           file_path,
           mime_type
@@ -103,8 +102,7 @@ module VIC
       client.create!(
         'ContentDocumentLink',
         ContentDocumentId: client.find('ContentVersion', content_version_id)['ContentDocumentId'],
-        ShareType: 'V',
-        LinkedEntityId: case_id
+        ShareType: 'V', LinkedEntityId: case_id
       )
 
       File.delete(file_path)
