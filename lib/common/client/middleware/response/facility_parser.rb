@@ -29,51 +29,57 @@ module Common
             end
           end
 
+          # FIXME: Clean up this flow in a future pass
           def attribute_mappings(entry, mapping)
             attrs = entry['attributes']
             mapped_attrs = { 'address' => {}, 'services' => {} }
             mapping.slice('unique_id', 'name', 'classification', 'website').each do |key, value|
-              mapped_attrs[key] = attrs[value]
+              mapped_attrs[key] = strip(attrs[value])
             end
             %w[hours access feedback phone].each do |name|
-              mapped_attrs[name] = nested(mapping[name], attrs)
+              mapped_attrs[name] = build_nested_content(mapping[name], attrs)
             end
-            mapped_attrs['address']['physical'] = nested(mapping['physical'], attrs)
-            mapped_attrs['address']['mailing'] = nested(mapping['mailing'], attrs)
-            mapped_attrs['services']['benefits'] = nested(mapping['benefits'], attrs)
-            mapped_attrs['services']['last_updated'] = services_date(attrs)
-            mapped_attrs['services']['health'] = services_from_gis(mapping['services'], attrs)
+            mapped_attrs['address']['physical'] = build_nested_content(mapping['physical'], attrs)
+            mapped_attrs['address']['mailing'] = build_nested_content(mapping['mailing'], attrs)
+            if mapping['benefits']
+              mapped_attrs['services']['benefits'] = {
+                'standard' => clean_benefits(build_nested_content(mapping['benefits'], attrs)),
+                'other' => attrs['Other_Services']
+              }
+            end
+            mapped_attrs['services']['last_updated'] = services_date(attrs) if mapping['services']
+            mapped_attrs['services']['health'] = services_from_gis(mapping['services'], attrs) if mapping['services']
 
-            mapped_attrs.merge!(
-              'lat' => entry['geometry']['y'],
-              'long' => entry['geometry']['x']
-            )
+            mapped_attrs.merge!('lat' => entry['geometry']['y'], 'long' => entry['geometry']['x'])
           end
 
-          def nested(item, attrs)
-            return unless item
+          def build_nested_content(item, attrs)
+            return {} unless item
             item.each_with_object({}) do |(key, value), hash|
-              hash[key] = value.respond_to?(:call) ? value.call(attrs) : attrs[value]
+              hash[key] = value.respond_to?(:call) ? value.call(attrs) : strip(attrs[value])
             end
+          end
+
+          def clean_benefits(benefits_hash)
+            benefits_hash.keys.select { |key| benefits_hash[key] == YES }
+            benefits_hash.select { |(_key, value)| value == YES }.map(&:first)
+          end
+
+          def strip(value)
+            value.respond_to?(:strip) ? value.strip : value
           end
 
           def services_date(attrs)
             Date.strptime(attrs['FacilityDataDate'], '%m-%d-%Y').iso8601 if attrs['FacilityDataDate']
           end
 
-          APPROVED_SERVICES = %w[
-            MentalHealthCare
-            PrimaryCare
-            DentalServices
-          ].freeze
-
           def services_from_gis(service_map, attrs)
             return unless service_map
             service_map.each_with_object([]) do |(k, v), l|
-              next unless attrs[k] == 'YES' && APPROVED_SERVICES.include?(k)
+              next unless attrs[k] == YES && APPROVED_SERVICES.include?(k)
               sl2 = []
               v.each do |sk|
-                sl2 << sk if attrs[sk] == 'YES' && APPROVED_SERVICES.include?(sk)
+                sl2 << sk if attrs[sk] == YES && APPROVED_SERVICES.include?(sk)
               end
               l << { 'sl1' => [k], 'sl2' => sl2 }
             end
@@ -113,7 +119,23 @@ module Common
               end
               result
             end
+
+            def zip_plus_four(attrs)
+              zip = attrs['Zip']
+              zip << "-#{attrs['Zip4']}" unless attrs['Zip4'].to_s.strip.empty?
+              zip
+            end
           end
+
+          YES = 'YES'
+
+          APPROVED_SERVICES = %w[
+            MentalHealthCare
+            PrimaryCare
+            DentalServices
+          ].freeze
+
+          HOURS_STANDARD_MAP = DateTime::DAYNAMES.each_with_object({}) { |d, h| h[d] = d }
 
           NCA_MAP = {
             'unique_id' => 'SITE_ID',
@@ -141,10 +163,7 @@ module Common
             'physical' => { 'address_1' => 'Address_1', 'address_2' => 'Address_2',
                             'address_3' => '', 'city' => 'City', 'state' => 'State',
                             'zip' => 'Zip' },
-            'hours' => { 'Monday' => '', 'Tuesday' => '',
-                         'Wednesday' => '', 'Thursday' => '',
-                         'Friday' => '', 'Saturday' => '',
-                         'Sunday' => '' },
+            'hours' => HOURS_STANDARD_MAP,
             'benefits' => {
               'ApplyingForBenefits' => 'Applying_for_Benefits',
               'BurialClaimAssistance' => 'Burial_Claim_assistance',
@@ -172,10 +191,7 @@ module Common
             'physical' => { 'address_1' => 'address2', 'address_2' => 'address3',
                             'address_3' => '', 'city' => 'city', 'state' => 'st',
                             'zip' => 'zip' },
-            'hours' => { 'Monday' => '', 'Tuesday' => '',
-                         'Wednesday' => '', 'Thursday' => '',
-                         'Friday' => '', 'Saturday' => '',
-                         'Sunday' => '' }
+            'hours' => HOURS_STANDARD_MAP.each_with_object({}) { |(k, v), h| h[k.downcase] = v.downcase }
           }.freeze
 
           VHA_MAP = {
@@ -190,11 +206,8 @@ module Common
                          'pharmacy' => 'PharmacyPhone', 'mental_health_clinic' => method(:mh_clinic_phone) },
             'physical' => { 'address_1' => 'Street', 'address_2' => 'Building',
                             'address_3' => 'Suite', 'city' => 'City', 'state' => 'State',
-                            'zip' => 'Zip' },
-            'hours' => { 'Monday' => '', 'Tuesday' => '',
-                         'Wednesday' => '', 'Thursday' => '',
-                         'Friday' => '', 'Saturday' => '',
-                         'Sunday' => '' },
+                            'zip' => method(:zip_plus_four) },
+            'hours' => HOURS_STANDARD_MAP,
             'access' => { 'health' => method(:wait_time_data) },
             'feedback' => { 'health' => method(:satisfaction_data) },
             'services' => {
