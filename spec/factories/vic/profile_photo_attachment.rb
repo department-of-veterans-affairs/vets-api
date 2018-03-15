@@ -5,7 +5,6 @@ FactoryBot.define do
     transient do
       file_path(nil)
       file_type(nil)
-      form(nil)
     end
 
     after(:build) do |attachment, evaluator|
@@ -13,8 +12,7 @@ FactoryBot.define do
       file_type = evaluator.file_type || 'image/gif'
 
       attachment.set_file_data!(
-        Rack::Test::UploadedFile.new(file_path, file_type),
-        evaluator.form
+        Rack::Test::UploadedFile.new(file_path, file_type)
       )
     end
   end

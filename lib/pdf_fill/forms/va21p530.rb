@@ -3,7 +3,7 @@
 # rubocop:disable Metrics/ClassLength
 module PdfFill
   module Forms
-    class VA21P530 < FormBase
+    class Va21p530 < FormBase
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
       PLACE_OF_DEATH_KEY = {

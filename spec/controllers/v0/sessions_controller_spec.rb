@@ -23,17 +23,20 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:response_xml_stub) { REXML::Document.new(File.read('spec/support/saml/saml_response_dslogon.xml')) }
   let(:valid_saml_response) do
     double('saml_response', is_valid?: true, errors: [],
+                            is_a?: true,
                             in_response_to: uuid,
                             status_message: '',
                             decrypted_document: response_xml_stub)
   end
   let(:invalid_saml_response) do
     double('saml_response', is_valid?: false,
+                            is_a?: true,
                             in_response_to: uuid,
                             decrypted_document: response_xml_stub)
   end
   let(:saml_response_click_deny) do
     double('saml_response', is_valid?: false,
+                            is_a?: true,
                             in_response_to: uuid,
                             errors: ['ruh roh'],
                             status_message: 'Subject did not consent to attribute release',
@@ -41,6 +44,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
   let(:saml_response_too_late) do
     double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+                            is_a?: true,
                             errors: ['Current time is on or after NotOnOrAfter ' \
                               'condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)'],
                             decrypted_document: response_xml_stub)
@@ -48,6 +52,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   # "Current time is earlier than NotBefore condition #{(now + allowed_clock_drift)} < #{not_before})"
   let(:saml_response_too_early) do
     double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+                            is_a?: true,
                             errors: ['Current time is earlier than NotBefore ' \
                               'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'],
                             decrypted_document: response_xml_stub)
@@ -55,6 +60,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   let(:saml_response_unknown_error) do
     double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+                            is_a?: true,
                             errors: ['The status code of the Response was not Success, ' \
                               'was Requester => NoAuthnContext -> AuthnRequest without ' \
                               'an authentication context.'],
@@ -63,6 +69,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   let(:saml_response_multi_error) do
     double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+                            is_a?: true,
                             errors: [
                               'Subject did not consent to attribute release',
                               'Other random error'
