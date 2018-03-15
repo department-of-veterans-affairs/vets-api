@@ -27,6 +27,13 @@ module V0
       StatsD.increment(STATSD_GI_BILL_TOTAL_KEY)
     end
 
+    def is_available
+      is_available = EVSS::GiBillStatus::Service.within_scheduled_uptime?
+      availability = EVSS::GiBillStatus::Availability.new(200, {is_available: is_available})
+      render json: availability,
+             serializer: Post911GIBillAvailabilitySerializer
+    end
+
     private
 
     def render_error_json(error_type)

@@ -8,8 +8,12 @@ module EVSS
       configuration EVSS::GiBillStatus::Configuration
 
       def self.within_scheduled_uptime?
-        # TODO - write this logic
-        false
+        current_time = Time.now.in_time_zone('Eastern Time (US & Canada)')
+        if current_time.saturday?
+          return current_time.hour > 6 && current_time.hour < 19
+        else
+          return current_time.hour > 6 && current_time.hour < 22
+        end
       end
 
       def get_gi_bill_status

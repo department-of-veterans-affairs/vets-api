@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Fetching Post 911 GI Bill Status', type: :request do
+RSpec.describe 'Post 911 GI Bill Status', type: :request do
   include SchemaMatchers
 
   let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
@@ -19,6 +19,7 @@ RSpec.describe 'Fetching Post 911 GI Bill Status', type: :request do
     it 'GET /v0/post911_gi_bill_status returns proper json' do
       VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
         get v0_post911_gi_bill_status_url, nil, auth_header
+        byebug
         expect(response).to match_response_schema('post911_gi_bill_status')
         assert_response :success
       end
@@ -57,18 +58,28 @@ RSpec.describe 'Fetching Post 911 GI Bill Status', type: :request do
     end
   end
 
-  context 'when outside the scheduled times that EVSS GIBS is available' do
-    let(:a_time_outside_hours) { DateTime.parse('3rd Feb 2018 01:15:06').utc }
+  context 'during offline hours' do
+    let(:a_time_outside_hours) { DateTime.parse('3rd Feb 2018 00:15:06-04:00') }
     before { Timecop.freeze(a_time_outside_hours) }
     after { Timecop.return }
 
-    it 'responds 503' do
-      get v0_post911_gi_bill_status_url, nil, auth_header
-      expect(response).to have_http_status(:service_unavailable)
+    describe '#show' do
+      it 'responds 503' do
+        get v0_post911_gi_bill_status_url, nil, auth_header
+        expect(response).to have_http_status(:service_unavailable)
+      end
+      it 'containts a Retry-After header' do
+        get v0_post911_gi_bill_status_url, nil, auth_header
+        expect(response.headers).to include('Retry-After')
+      end
     end
-    it 'containts a Retry-After header' do
-      get v0_post911_gi_bill_status_url, nil, auth_header
-      expect(response.headers).to include('Retry-After')
+
+    describe '#is_available' do
+      it 'returns false' do
+        get is_available_v0_post911_gi_bill_status_url, nil, auth_header
+        json = JSON.parse(response.body)
+        expect(json['data']['attributes']['is_available']).to eq(false)
+      end
     end
   end
 
