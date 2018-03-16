@@ -17,9 +17,9 @@ module EVSS
       def self.within_scheduled_uptime?
         current_time = Time.now.in_time_zone(OPERATING_ZONE)
         if current_time.saturday?
-          return current_time.hour > OPERATING_HOURS[:start] && current_time.hour < OPERATING_HOURS[:saturday_end]
+          (OPERATING_HOURS[:start]..OPERATING_HOURS[:saturday_end]).cover?(current_time.hour)
         else
-          return current_time.hour > OPERATING_HOURS[:start] && current_time.hour < OPERATING_HOURS[:end]
+          (OPERATING_HOURS[:start]..OPERATING_HOURS[:end]).cover?(current_time.hour)
         end
       end
 
