@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-MHVACPolicy = Struct.new(:user, :account_creation) do
+MHVACPolicy = Struct.new(:user, :mhv_account_creation) do
   def access?
     user.loa3? && user.va_patient?
   end

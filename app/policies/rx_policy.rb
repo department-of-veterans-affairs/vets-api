@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RxPolicy = Struct.new(:user, :rx) do
+RxPolicy = Struct.new(:user, :mhv_prescriptions) do
   ACCOUNT_TYPES = %w[Premium Advanced]
 
   def access?

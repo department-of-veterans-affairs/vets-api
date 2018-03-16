@@ -55,7 +55,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def eligible?
-    user.authorize :account_creation, :access?
+    user.authorize :mhv_account_creation, :access?
   end
 
   def accessible?
