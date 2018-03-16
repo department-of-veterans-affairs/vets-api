@@ -55,15 +55,12 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def eligible?
-    user.loa3? && user.va_patient?
+    user.authorize :account_creation, :access?
   end
 
-  def creatable?
-    eligible? && user.mhv_correlation_id.empty?
-  end
-
-  def upgradable?
-    eligible? && user.mhv_correlation_id.present? && !previously_registered
+  def accessible?
+    return false if mhv_correlation_id.blank?
+    (user.loa3? || user.authn_context.include?('myhealthevet')) && (upgraded? || existing?)
   end
 
   def terms_and_conditions_accepted?
@@ -72,11 +69,6 @@ class MhvAccount < ActiveRecord::Base
 
   def preexisting_account?
     mhv_correlation_id.present? && !previously_registered?
-  end
-
-  def accessible?
-    return false if mhv_correlation_id.blank?
-    (user.loa3? || user.authn_context.include?('myhealthevet')) && (upgraded? || existing?)
   end
 
   def terms_and_conditions_accepted
