@@ -7,19 +7,22 @@ class SSOService
   include SentryLogging
   include ActiveModel::Validations
 
-  def initialize(saml_response)
-    raise 'SAML Response is required' if saml_response.nil?
-    @saml_response = saml_response
-    @saml_attributes = SAML::User.new(saml_response)
-    @existing_user = User.find(saml_attributes.user_attributes.uuid)
-    @new_user_identity = UserIdentity.new(saml_attributes.to_hash)
-    @new_user = init_new_user(new_user_identity, existing_user, saml_attributes.changing_multifactor?)
-    @new_session = Session.new(uuid: new_user.uuid)
+  def initialize(response)
+    raise 'SAML Response is not a OneLogin::RubySaml::Response' unless response.is_a?(OneLogin::RubySaml::Response)
+    @saml_response = response
+
+    if saml_response.is_valid?(true)
+      @saml_attributes = SAML::User.new(@saml_response)
+      @existing_user = User.find(saml_attributes.user_attributes.uuid)
+      @new_user_identity = UserIdentity.new(saml_attributes.to_hash)
+      @new_user = init_new_user(new_user_identity, existing_user, saml_attributes.changing_multifactor?)
+      @new_session = Session.new(uuid: new_user.uuid)
+    end
   end
 
   attr_reader :new_session, :new_user, :new_user_identity, :saml_attributes, :saml_response, :existing_user,
               :failure_instrumentation_tag
-  # TODO: eventually will rip AuthFailHandler out and make it a custom validator
+
   validate :composite_validations
 
   def self.extend_session!(session, user)
@@ -59,17 +62,19 @@ class SSOService
   end
 
   def composite_validations
-    if !saml_response.is_valid?(true)
-      errors.add(:saml_response, :invalid)
-    else
+    if saml_response.is_valid?
       errors.add(:new_session, :invalid) unless new_session.valid?
       errors.add(:new_user, :invalid) unless new_user.valid?
       errors.add(:new_user_identity, :invalid) unless new_user_identity.valid?
+    else
+      saml_response.errors.each do |error|
+        errors.add(:base, error)
+      end
     end
   end
 
   def handle_error_reporting_and_instrumentation
-    if errors.keys.include?(:saml_response)
+    if errors.keys.include?(:base)
       invalid_saml_response_handler
     else
       invalid_persistence_handler
