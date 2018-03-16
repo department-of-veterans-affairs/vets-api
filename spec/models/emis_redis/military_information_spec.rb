@@ -316,7 +316,7 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
         VCR.use_cassette('emis/get_military_service_episodes/valid_no_end_date') do
           service_history = [
             service_history_object('Army', begin_date: '1990-11-02', end_date: nil),
-            service_history_object('Army', begin_date: '1983-02-23', end_date: '1988-10-04'),
+            service_history_object('Army', begin_date: '1983-02-23', end_date: '1988-10-04')
           ]
 
           expect(subject.service_history.as_json).to eq service_history
@@ -326,7 +326,7 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
   end
 end
 
-def service_history_object(branch_of_service='Air Force', begin_date:, end_date:)
+def service_history_object(branch_of_service = 'Air Force', begin_date:, end_date:)
   {
     'branch_of_service' => branch_of_service,
     'begin_date' => begin_date,
