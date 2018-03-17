@@ -55,6 +55,7 @@ module Common
         )
         raise Common::Exceptions::GatewayTimeout
       rescue Faraday::ClientError => e
+        binding.pry; fail
         client_error = Common::Client::Errors::ClientError.new(
           e.message,
           e.response&.dig(:status),

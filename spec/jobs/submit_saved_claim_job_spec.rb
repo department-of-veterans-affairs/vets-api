@@ -10,6 +10,11 @@ RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
   describe '#perform' do
     it 'submits the saved claim' do
       job = described_class.new
+      VCR.config do |c|
+        c.allow_http_connections_when_no_cassette = true
+      end
+      job.perform(claim.id)
+      binding.pry; fail
 
       expect(job).to receive(:process_record).with(claim).and_return('pdf_path')
       expect(job).to receive(:process_record).with(pension_burial).and_return('attachment_path')
