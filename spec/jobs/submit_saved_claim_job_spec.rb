@@ -101,7 +101,7 @@ RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
           'veteranFirstName' => 'Test',
           'veteranLastName' => 'User',
           'fileNumber' => '111223333',
-          'receiveDt' => '2017-01-04 07:00:00',
+          'receiveDt' => '2017-01-04 01:00:00',
           'zipCode' => '90210',
           'uuid' => claim.guid,
           'source' => 'vets.gov',
