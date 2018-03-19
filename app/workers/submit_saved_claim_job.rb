@@ -59,15 +59,16 @@ class SubmitSavedClaimJob
     number_attachments = @attachment_paths.size
     veteran_full_name = form['veteranFullName']
     address = form['claimantAddress'] || form['veteranAddress']
+    receive_date = @claim.created_at.in_time_zone('Central Time (US & Canada)')
 
     metadata = {
       'veteranFirstName' => veteran_full_name.try(:[], 'first'),
       'veteranLastName' => veteran_full_name.try(:[], 'last'),
       'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-      'receiveDt' => @claim.created_at.utc.strftime('%Y-%m-%d %H:%M:%S'),
+      'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
       'zipCode' => address.try(:[], 'postalCode'),
       'uuid' => @claim.guid,
-      'source' => 'vets.gov',
+      'source' => 'Vets.gov',
       'hashV' => form_pdf_metadata[:hash],
       'numberAttachments' => number_attachments,
       'docType' => @claim.form_id,
