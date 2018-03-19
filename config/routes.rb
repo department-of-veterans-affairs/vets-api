@@ -158,6 +158,8 @@ Rails.application.routes.draw do
 
     get 'profile/mailing_address', to: 'addresses#show'
 
+    resources :backend_statuses, param: :service, only: [:show]
+
     resources :apidocs, only: [:index]
 
     get 'terms_and_conditions', to: 'terms_and_conditions#index'
