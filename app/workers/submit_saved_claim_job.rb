@@ -68,7 +68,7 @@ class SubmitSavedClaimJob
       'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
       'zipCode' => address.try(:[], 'postalCode'),
       'uuid' => @claim.guid,
-      'source' => 'vets.gov',
+      'source' => 'Vets.gov',
       'hashV' => form_pdf_metadata[:hash],
       'numberAttachments' => number_attachments,
       'docType' => @claim.form_id,
