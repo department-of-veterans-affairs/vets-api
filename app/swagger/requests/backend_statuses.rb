@@ -8,7 +8,6 @@ module Swagger
 
       swagger_path '/v0/backend_statuses/{service}' do
         operation :get do
-          extend Swagger::Responses::AuthenticationError
 
           key :description, 'Gets the status of backend service'
           key :operationId, 'getBackendStatus'
