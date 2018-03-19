@@ -13,11 +13,8 @@ RSpec.describe 'Fetching user data', type: :request do
 
     before do
       Session.create(uuid: mhv_user.uuid, token: token)
-      mhv_account = double('MhvAccount', account_state: 'upgraded')
-      allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
-      allow(mhv_account).to receive(:needs_terms_acceptance?).and_return(false)
+      allow_any_instance_of(MhvAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
       User.create(mhv_user)
-
       auth_header = { 'Authorization' => "Token token=#{token}" }
       get v0_user_url, nil, auth_header
     end
@@ -38,6 +35,7 @@ RSpec.describe 'Fetching user data', type: :request do
           BackendServices::RX,
           BackendServices::MESSAGING,
           BackendServices::HEALTH_RECORDS,
+          BackendServices::MHV_AC,
           BackendServices::FORM_PREFILL,
           BackendServices::SAVE_IN_PROGRESS,
           BackendServices::APPEALS_STATUS,

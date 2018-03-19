@@ -102,6 +102,18 @@ FactoryBot.define do
           highest: LOA::THREE
         }
       end
+
+      # add an MHV correlation_id and vha_facility_ids corresponding to va_patient
+      after(:build) do
+        stub_mvi(
+          build(
+            :mvi_profile,
+            icn: '1000123456V123456',
+            mhv_ids: %w[12345678901],
+            vha_facility_ids: %w[358]
+          )
+        )
+      end
     end
 
     trait :mhv_not_logged_in do

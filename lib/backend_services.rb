@@ -14,6 +14,7 @@ class BackendServices
   RX = 'rx'
   MESSAGING = 'messaging'
   HEALTH_RECORDS = 'health-records'
+  MHV_AC = 'mhv-accounts'
 
   # Core Form Features
   SAVE_IN_PROGRESS = 'form-save-in-progress'

@@ -102,8 +102,6 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         let(:current_user) { build(:user, :mhv) }
 
         before do
-          profile = build(:mvi_profile, icn: '1000123456V123456')
-          stub_mvi(profile)
           use_authenticated_current_user(current_user: current_user)
         end
 

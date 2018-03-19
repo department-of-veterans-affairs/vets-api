@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-BBPolicy = Struct.new(:user, :mhv_health_records) do
+MhvHealthRecordsPolicy = Struct.new(:user, :mhv_health_records) do
   ACCOUNT_TYPES = %w[Premium Advanced Basic].freeze
 
   def access?

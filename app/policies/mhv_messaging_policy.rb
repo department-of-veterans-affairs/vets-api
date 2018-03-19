@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-RxPolicy = Struct.new(:user, :mhv_prescriptions) do
-  ACCOUNT_TYPES = %w[Premium Advanced].freeze
+MhvMessagingPolicy = Struct.new(:user, :mhv_messaging) do
+  ACCOUNT_TYPES = %w[Premium].freeze
 
   def access?
     ACCOUNT_TYPES.include?(user.mhv_account_type) && user.va_patient?
