@@ -3,6 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe PensionBurial::Service do
+  describe '#status' do
+    fit 'should retrieve the status of a submission' do
+      response = described_class.new.status(SecureRandom.uuid)
+      expect(response).to eq(nil)
+    end
+  end
+
   describe '#upload' do
     it 'should upload a file' do
       header_matcher = lambda do |r1, r2|

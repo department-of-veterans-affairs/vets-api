@@ -8,7 +8,7 @@ module PensionBurial
 
       response = request(
         :post,
-        '',
+        'upload',
         body
       )
       # TODO: remove logging after confirming that pension burial uploads are working in staging
@@ -35,6 +35,14 @@ module PensionBurial
       }
 
       binding.pry
+
+      response = request(
+        :post,
+        'getStatus',
+        body
+      )
+
+      response
     end
   end
 end
