@@ -99,7 +99,7 @@ RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
           'receiveDt' => '2017-01-04 01:00:00',
           'zipCode' => '90210',
           'uuid' => claim.guid,
-          'source' => 'vets.gov',
+          'source' => 'Vets.gov',
           'hashV' => 'hash1',
           'numberAttachments' => 1,
           'docType' => '21P-530',
