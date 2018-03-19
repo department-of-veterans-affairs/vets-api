@@ -1,5 +1,5 @@
 users:
-  "111224444":
+  "666512797":
     data:
     - id: 123C
       type: appeals
@@ -20,7 +20,7 @@ users:
         - type: ssoc
           date: "2017-06-04"
         - type: soc
-          date: "2017-06-06"
+          date: "2018-03-15"
       relationships:
         scheduled_hearings:
           data: []
