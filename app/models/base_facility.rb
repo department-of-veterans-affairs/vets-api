@@ -76,19 +76,20 @@ class BaseFacility < ActiveRecord::Base
 
     def query(params)
       bbox_num = params[:bbox].map { |x| Float(x) }
-
-      data = build_result_set(bbox_num, params[:type])
+      data = build_result_set(bbox_num, params[:type], params[:services])
       Common::Collection.new(::VAFacility, data: data.sort_by(&(dist_from_center bbox_num)))
     end
 
-    def build_result_set(bbox_num, type)
+    def build_result_set(bbox_num, type, services)
       conditions = { lat: (bbox_num[1]..bbox_num[3]), long: (bbox_num[0]..bbox_num[2]) }
-      TYPES.map { |facility_type| get_facility_data(conditions, type, facility_type) }.flatten
+      TYPES.map { |facility_type| get_facility_data(conditions, type, facility_type, services) }.flatten
     end
 
-    def get_facility_data(conditions, type, facility_type)
+    def get_facility_data(conditions, type, facility_type, services)
       return [] unless type.blank? || type == facility_type
-      TYPE_MAP[facility_type].constantize.where(conditions)
+      facilities = TYPE_MAP[facility_type].constantize.where(conditions)
+      facilities = facilities.where("services->'benefits'->'standard' @> '#{services}'") if services&.any?
+      facilities
     end
 
     def dist_from_center(bbox)
