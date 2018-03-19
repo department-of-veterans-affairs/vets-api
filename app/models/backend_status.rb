@@ -2,7 +2,6 @@
 
 require 'backend_services'
 
-
 class BackendStatus
   include ActiveModel::Serialization
   include ActiveModel::Validations
@@ -13,5 +12,4 @@ class BackendStatus
 
   validates :name, presence: true
   validates :is_available, presence: true
-
 end

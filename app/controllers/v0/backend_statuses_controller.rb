@@ -2,7 +2,6 @@
 
 module V0
   class BackendStatusesController < ApplicationController
-
     skip_before_action :authenticate, only: [:show]
 
     # GET /v0/backend_status/:service
@@ -13,13 +12,13 @@ module V0
       # get status
       be_status = BackendStatus.new(name: @backend_service)
 
-      case @backend_service
-      when BackendServices::GI_BILL_STATUS
-        be_status.is_available = EVSS::GiBillStatus::Service.within_scheduled_uptime?
-      else
-        # default service is up!
-        be_status.is_available = true
-      end
+      be_status.is_available = case @backend_service
+                               when BackendServices::GI_BILL_STATUS
+                                 EVSS::GiBillStatus::Service.within_scheduled_uptime?
+                               else
+                                 # default service is up!
+                                 true
+                               end
 
       render json: be_status,
              serializer: BackendStatusSerializer

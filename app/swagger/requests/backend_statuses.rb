@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'backend_services'
 
 module Swagger
@@ -8,7 +9,6 @@ module Swagger
 
       swagger_path '/v0/backend_statuses/{service}' do
         operation :get do
-
           key :description, 'Gets the status of backend service'
           key :operationId, 'getBackendStatus'
 

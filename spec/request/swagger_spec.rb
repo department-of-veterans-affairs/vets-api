@@ -808,7 +808,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       it 'supports Gi Bill Status 503 condition' do
-        #Timecop.freeze(Time.zone.parse('1st Feb 2018 00:15:06'))
+        # Timecop.freeze(Time.zone.parse('1st Feb 2018 00:15:06'))
         Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 00:15:06'))
         expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 503, auth_options)
         Timecop.return

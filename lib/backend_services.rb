@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class BackendServices
-
   def self.all
     constants.map do |const|
       val = const_get const
