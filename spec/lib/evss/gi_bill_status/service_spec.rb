@@ -7,9 +7,22 @@ describe EVSS::GiBillStatus::Service do
     let(:user) { build(:user, :loa3) }
     subject { described_class.new(user) }
 
-    let(:late_time) { Time.parse('1st Feb 2018 23:00:00').in_time_zone(described_class::OPERATING_ZONE) }
-    let(:early_time) { Time.parse('1st Feb 2018 1:00:00').in_time_zone(described_class::OPERATING_ZONE) }
-    let(:saturday_time) { Time.parse('3rd Feb 2018 20:00:00').in_time_zone(described_class::OPERATING_ZONE) }
+    let(:tz) { ActiveSupport::TimeZone.new(described_class::OPERATING_ZONE) }
+    let(:late_time) { tz.parse('1st Feb 2018 23:00:00') }
+    let(:early_time) { tz.parse('1st Feb 2018 1:00:00') }
+    let(:saturday_time) { tz.parse('3rd Feb 2018 20:00:00') }
+    let(:non_dst) { tz.parse('18th Mar 2018 18:00:00') }
+
+    context 'not during daylight savings' do
+      before { Timecop.freeze(non_dst) }
+      after { Timecop.return }
+
+      it 'calculates at 6am tomorrow' do
+        calculated_time = tz.parse(described_class.retry_after_time)
+        expect(calculated_time.day).to eq(19)
+        expect(calculated_time.hour).to eq(6)
+      end
+    end
 
     context 'before operating hours' do
       before { Timecop.freeze(early_time) }
@@ -17,7 +30,7 @@ describe EVSS::GiBillStatus::Service do
 
       describe '#retry_after_time' do
         it 'calculates at 6am today' do
-          calculated_time = Time.parse(described_class.retry_after_time).in_time_zone(described_class::OPERATING_ZONE)
+          calculated_time = tz.parse(described_class.retry_after_time)
           expect(calculated_time.day).to eq(1)
           expect(calculated_time.hour).to eq(6)
         end
@@ -30,7 +43,7 @@ describe EVSS::GiBillStatus::Service do
 
       describe '#retry_after_time' do
         it 'calculates tomorrow at 6am' do
-          calculated_time = Time.parse(described_class.retry_after_time).in_time_zone(described_class::OPERATING_ZONE)
+          calculated_time = tz.parse(described_class.retry_after_time)
           expect(calculated_time.day).to eq(2)
           expect(calculated_time.hour).to eq(6)
         end

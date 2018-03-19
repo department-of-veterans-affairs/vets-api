@@ -1,6 +1,15 @@
 # frozen_string_literal: true
 
 class BackendServices
+
+  def self.all
+    constants.map do |const|
+      const_get const
+    end
+  end
+
+  GI_BILL_STATUS = 'gibs'
+
   FACILITIES = 'facilities'
   HCA = 'hca'
   EDUCATION_BENEFITS = 'edu-benefits'

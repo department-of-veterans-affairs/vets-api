@@ -25,9 +25,11 @@ module EVSS
 
       def self.retry_after_time
         current_time = Time.now.in_time_zone(OPERATING_ZONE)
-        six_am = Time.parse('0' + OPERATING_HOURS[:start].to_s + ':00:00').in_time_zone(OPERATING_ZONE)
-        return six_am.httpdate if current_time.hour < OPERATING_HOURS[:start]
-        six_am.tomorrow.httpdate
+        tz = ActiveSupport::TimeZone.new(OPERATING_ZONE)
+        service_start_time = tz.parse(tz.today.to_s + ' 0' + OPERATING_HOURS[:start].to_s + ':00:00')
+
+        return service_start_time.httpdate if current_time.hour < OPERATING_HOURS[:start]
+        service_start_time.tomorrow.httpdate
       end
 
       def get_gi_bill_status
