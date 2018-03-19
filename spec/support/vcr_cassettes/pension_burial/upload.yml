@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://icmhsgc.csrarad.com/VADocument/upload
+    uri: https://icmhsgc-test.csrarad.com/VADocument/upload
     body:
       encoding: ASCII-8BIT
       string: !binary |-
@@ -45093,21 +45093,19 @@ http_interactions:
   response:
     status:
       code: 200
-      message: OK
+      message: ''
     headers:
       Date:
-      - Sat, 10 Mar 2018 02:34:24 GMT
-      Server:
-      - Apache-Coyote/1.1
+      - Mon, 19 Mar 2018 19:34:46 GMT
       Content-Type:
-      - application/json;charset=UTF-8
+      - text/html;charset=utf-8
       Connection:
       - close
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
-      string: '{"fileSize":1759933,"metaSize":419,"md5":"1I2+7z80I4jgvKenhclh5w==","md5hex":"d48dbeef3f342388e0bca7a785c961e7"}'
+      string: 'Request was received successfully  [uuid: 07029d0e-60b5-4bc4-8606-ef3504f2835f] '
     http_version: 
-  recorded_at: Sat, 10 Mar 2018 02:34:24 GMT
+  recorded_at: Mon, 19 Mar 2018 19:34:46 GMT
 recorded_with: VCR 3.0.3

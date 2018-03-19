@@ -26,13 +26,8 @@ RSpec.describe PensionBurial::Service do
           )
         )
         body = response.body
+        expect(body).to eq('Request was received successfully  [uuid: 07029d0e-60b5-4bc4-8606-ef3504f2835f] ')
 
-        expect(body).to eq(
-          'fileSize' => 1_759_933,
-          'metaSize' => 419,
-          'md5' => '1I2+7z80I4jgvKenhclh5w==',
-          'md5hex' => 'd48dbeef3f342388e0bca7a785c961e7'
-        )
         expect(response.status).to eq(200)
       end
     end
